@@ -1,15 +1,9 @@
-"""DataLake Supabase shared helper.
+"""DataLake PostgreSQL shared helper — Extra Consultoria.
 
 Centraliza acesso ao DataLake (`pncp_raw_bids`, `pncp_supplier_contracts`,
-`enriched_entities`, `ingestion_runs`) para os commands B2G (`/intel-busca`,
-`/pricing-b2g`, `/intel-b2g`, `/retention-b2g`, `/radar-b2g`, `/war-room-b2g`,
-`/report-b2g`).
+`enriched_entities`, `ingestion_runs`) para commands B2G.
 
-Pattern espelha `scripts/intel-collect.py:575-720` (referência original):
-- Flag `DATALAKE_QUERY_ENABLED=true` ativa o cliente
-- Override `--no-datalake` no caller força fallback live
-- Fallback gracioso: nunca bloqueia execução; retorna `(None, error_meta)` ou
-  `[]` em caso de falha (env vars ausentes, supabase-py não instalado, RPC erro)
+Usa psycopg2 direto (backend local PostgreSQL). Single-user, sem Supabase.
 
 Uso típico:
 
@@ -17,7 +11,7 @@ Uso típico:
 
     dl = DatalakeClient()
     if dl.is_enabled:
-        rows, meta = dl.search_bids(ufs=["SP"], dias=30, modalidades=[5, 6])
+        rows, meta = dl.search_bids(ufs=["SC"], dias=30, modalidades=[5, 6])
         if rows is None:
             # falha — usar fluxo live
             ...
@@ -25,12 +19,10 @@ Uso típico:
             for row in rows:
                 ...
 
-NÃO MIGRADO — fluxos que permanecem live em todos os commands:
-- PNCP `/pncp/v1/orgaos/.../arquivos` (lista + download de PDFs do edital):
-  DataLake não armazena binários nem indexa metadata de arquivos.
-- SICAF (captcha-gated): script dedicado `scripts/collect-sicaf.py`.
-- Portal Transparência (PT_KEY): cache pode ser feito em
-  `enriched_entities.data.sancoes` com sub-TTL 7d via caller.
+NÃO ARMAZENADO — fluxos que permanecem live:
+- PNCP `/pncp/v1/orgaos/.../arquivos` (download de PDFs do edital):
+  DataLake não armazena binários.
+- SICAF (captcha-gated): script dedicado.
 - WebSearch (regulatório, jurisprudência, notícias).
 """
 
@@ -188,14 +180,8 @@ class _LocalPg:
         return _LocalPgQuery(self, f'"public"."{name}"')
 
 
-def _should_use_local() -> bool:
-    """Detecta se deve usar backend local (sem Supabase)."""
-    if not os.getenv("SUPABASE_URL") and os.getenv("LOCAL_DATALAKE_DSN"):
-        return True
-    # Flag explícita
-    if os.getenv("DATALAKE_BACKEND", "").lower() == "local":
-        return True
-    return False
+# Extra Consultoria: always use local PostgreSQL backend.
+# Supabase backend removed — single-user, direct psycopg2 access.
 
 
 # ------------------------------------------------------------------
@@ -212,7 +198,6 @@ class DatalakeClient:
     """
 
     def __init__(self) -> None:
-        self._sb: Any = None
         self._local: _LocalPg | None = None
         self._init_error: str | None = None
         self._enabled: bool | None = None
@@ -231,64 +216,31 @@ class DatalakeClient:
             self._enabled = False
             return False
 
-        # Check local backend first
-        if _should_use_local():
-            self._use_local = True
-            try:
-                import psycopg2  # noqa: F401
-            except ImportError:
-                self._init_error = "psycopg2 not installed for local backend"
-                self._enabled = False
-                return False
-            self._enabled = True
-            return True
-
-        # Check Supabase backend
-        if not os.getenv("SUPABASE_URL") or not (
-            os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
-        ):
-            self._init_error = "SUPABASE_URL or key not configured (set LOCAL_DATALAKE_DSN for local mode)"
-            self._enabled = False
-            return False
+        # Extra Consultoria: always use local PostgreSQL backend
+        self._use_local = True
         try:
-            import supabase  # noqa: F401
+            import psycopg2  # noqa: F401
         except ImportError:
-            self._init_error = "supabase-py not installed"
+            self._init_error = "psycopg2 not installed for local backend"
             self._enabled = False
             return False
         self._enabled = True
         return True
 
     def _client(self) -> Any:
-        """Lazy init Supabase or local client."""
-        if self._sb is not None:
-            return self._sb
+        """Lazy init local PostgreSQL client."""
         if self._local is not None:
             return self._local
         if not self.is_enabled:
             return None
 
-        if self._use_local:
-            dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
-            try:
-                self._local = _LocalPg(dsn)
-            except Exception as e:
-                self._init_error = f"Local PG init failed: {e}"
-                self._local = None
-            return self._local
-
+        dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
         try:
-            from supabase import create_client
-
-            url = os.getenv("SUPABASE_URL", "")
-            key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "") or os.getenv(
-                "SUPABASE_ANON_KEY", ""
-            )
-            self._sb = create_client(url, key)
+            self._local = _LocalPg(dsn)
         except Exception as e:
-            self._init_error = f"Supabase client init failed: {e}"
-            self._sb = None
-        return self._sb
+            self._init_error = f"Local PG init failed: {e}"
+            self._local = None
+        return self._local
 
     @property
     def init_error(self) -> str | None:
@@ -296,11 +248,9 @@ class DatalakeClient:
 
     @property
     def backend(self) -> str:
-        """'local', 'supabase', ou 'none'."""
+        """'local' ou 'none'."""
         if self._use_local:
             return "local"
-        if self._sb:
-            return "supabase"
         return "none"
 
     # ------------------------------------------------------------------
