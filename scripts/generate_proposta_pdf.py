@@ -683,7 +683,7 @@ def build_pdf(data, output_path, pacote_recomendado="semanal"):
     story.append(Spacer(1, 2 * mm))
     story.append(Paragraph("Tecnologia Proprietária", S['H2']))
     story.append(Paragraph(
-        "Além da experiência como servidor, desenvolvi o SmartLic — plataforma de inteligência "
+        "Além da experiência como servidor, desenvolvi o Extra Consultoria — plataforma de inteligência "
         "artificial que monitora continuamente as publicações oficiais de contratações públicas, "
         "classifica editais por setor com IA e gera análises de viabilidade personalizadas. "
         "Cada relatório combina varredura automatizada com análise humana de quem "

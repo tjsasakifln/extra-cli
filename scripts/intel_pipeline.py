@@ -50,7 +50,8 @@ if sys.platform == "win32":
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPTS_DIR.parent
-INTEL_DIR = PROJECT_ROOT / "docs" / "intel"
+INTEL_DIR = PROJECT_ROOT / "data" / "intel"
+INTEL_DIR.mkdir(parents=True, exist_ok=True)
 
 # Step timeouts (seconds)
 TIMEOUT_COLLECT = 600      # 10 min — exhaustive PNCP search
@@ -346,7 +347,7 @@ def gate2_cadastral(data: dict, top_n: int) -> GateResult:
                 f"Baixo enriquecimento: apenas {enriched_count}/{len(top_candidates)} candidatos enriquecidos"
             )
             _gate_item(
-                "< 50% enriquecidos — considere re-executar intel-enrich.py com --max-editais maior",
+                "< 50% enriquecidos — considere re-executar intel_enrich.py com --max-editais maior",
                 "warn",
             )
     else:
@@ -390,7 +391,7 @@ def gate3_ruido(data: dict) -> GateResult:
             f"Ratio compatível muito baixo ({ratio*100:.1f}%) — possível problema de keywords/exclusões"
         )
         _gate_item(
-            f"Ratio < 5% ({ratio*100:.1f}%) — verifique keywords no intel-collect.py",
+            f"Ratio < 5% ({ratio*100:.1f}%) — verifique keywords no intel_collect.py",
             "warn",
         )
     elif ratio > 0.80:
@@ -783,18 +784,18 @@ def main() -> int:
     # ── Dry-run mode ──
     if args.dry_run:
         steps = [
-            "Step 1: Collect (intel-collect.py)",
+            "Step 1: Collect (intel_collect.py)",
             "Gate 1: Cobertura",
-            "Step 2: Enrich (intel-enrich.py)",
+            "Step 2: Enrich (intel_enrich.py)",
             "Gate 2: Cadastral",
-            "Step 3: LLM Gate (intel-llm-gate.py)",
+            "Step 3: LLM Gate (intel_llm_gate.py)",
             "Gate 3: Ruido",
-            "Step 4: Extract Docs (intel-extract-docs.py)",
+            "Step 4: Extract Docs (intel_extract_docs.py)",
             "Gate 4: Conteudo",
             "Step 5: Analyze (manual — intel-analyze.py --prepare)",
             "Gate 5: Recomendacao",
-            "Step 6: Excel (intel-excel.py)",
-            "Step 7: PDF Report (intel-report.py)",
+            "Step 6: Excel (intel_excel.py)",
+            "Step 7: PDF Report (intel_report.py)",
         ]
         print(f"DRY RUN — Pipeline Intel-Busca v{INTEL_VERSION}")
         print(f"  CNPJ: {cnpj14} | UFs: {','.join(ufs)} | Dias: {args.dias} | Top: {args.top}")
@@ -840,9 +841,9 @@ def main() -> int:
             "--ufs", ",".join(ufs),
             "--dias", str(args.dias),
         ]
-        # intel-collect.py uses --output; we let it auto-name so we can find it after
+        # intel_collect.py uses --output; we let it auto-name so we can find it after
         try:
-            _run_script("intel-collect.py", collect_args, TIMEOUT_COLLECT, step_label)
+            _run_script("intel_collect.py", collect_args, TIMEOUT_COLLECT, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             return 1
 
@@ -875,7 +876,7 @@ def main() -> int:
             enrich_args.append("--skip-sicaf")
 
         try:
-            _run_script("intel-enrich.py", enrich_args, TIMEOUT_ENRICH, step_label)
+            _run_script("intel_enrich.py", enrich_args, TIMEOUT_ENRICH, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 2 falhou — continuando com dados parciais"))
 
@@ -998,7 +999,7 @@ def main() -> int:
 
         llm_args = ["--input", str(json_path)]
         try:
-            _run_script("intel-llm-gate.py", llm_args, TIMEOUT_LLM_GATE, step_label)
+            _run_script("intel_llm_gate.py", llm_args, TIMEOUT_LLM_GATE, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 3 falhou — continuando sem reclassificação LLM"))
 
@@ -1024,7 +1025,7 @@ def main() -> int:
             "--top", str(args.top),
         ]
         try:
-            _run_script("intel-extract-docs.py", extract_args, TIMEOUT_EXTRACT_DOCS, step_label)
+            _run_script("intel_extract_docs.py", extract_args, TIMEOUT_EXTRACT_DOCS, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 4 falhou parcialmente — continuando com documentos disponíveis"))
 
@@ -1097,7 +1098,7 @@ def main() -> int:
             "--output", str(xlsx_path),
         ]
         try:
-            _run_script("intel-excel.py", excel_args, TIMEOUT_EXCEL, step_label)
+            _run_script("intel_excel.py", excel_args, TIMEOUT_EXCEL, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 6 falhou — Excel não gerado"))
 
@@ -1115,7 +1116,7 @@ def main() -> int:
             "--output", str(pdf_path),
         ]
         try:
-            _run_script("intel-report.py", report_args, TIMEOUT_PDF, step_label)
+            _run_script("intel_report.py", report_args, TIMEOUT_PDF, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 7 falhou — PDF não gerado"))
 

@@ -133,8 +133,9 @@ def _load_sectors_yaml() -> dict:
         return {}
 
     candidates = [
-        Path(__file__).resolve().parent.parent / "backend" / "sectors_data.yaml",
-        Path("backend") / "sectors_data.yaml",
+        Path(__file__).resolve().parent.parent / "config" / "sectors_data.yaml",
+        Path("config") / "sectors_data.yaml",
+        Path(__file__).resolve().parent.parent / "backend" / "sectors_data.yaml",  # legacy
     ]
     for p in candidates:
         if p.exists():

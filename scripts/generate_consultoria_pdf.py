@@ -646,7 +646,7 @@ CREDENTIALS_BODY = [
 
     "É fundador e engenheiro de produto da GoVision.AI, desenvolvendo sistemas de IA "
     "aplicada, automação, RAG, fluxos documentais e produtos GovTech, entre eles o "
-    "SmartLic, plataforma de inteligência sobre dados públicos de licitações e contratos.",
+    "Plataforma de inteligência sobre dados públicos de licitações e contratos.",
 ]
 
 CREDENTIALS_WHY = (
@@ -1029,7 +1029,7 @@ def _build_credenciais_compact():
         "obras públicas, documentação técnica e processos de contratação pública. "
         "No setor privado, atuou em engenharia civil e manutenção industrial (Gerdau, "
         "Engecorps). É fundador da GoVision.AI, onde desenvolve sistemas de inteligência "
-        "artificial aplicada a licitações e dados públicos, incluindo a plataforma SmartLic.",
+        "artificial aplicada a licitações e dados públicos, incluindo a plataforma Extra Consultoria.",
         S["body"]
     ))
     elements.append(_spacer(2))

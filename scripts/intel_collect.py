@@ -2750,7 +2750,7 @@ def _detect_delta(editais: list[dict], previous_json_path: str | None) -> dict:
 
 
 def _find_previous_run(cnpj14: str) -> str | None:
-    """Find the most recent intel JSON for the given CNPJ in docs/intel/."""
+    """Find the most recent intel JSON for the given CNPJ in data/intel/."""
     intel_dir = str(_PROJECT_ROOT / "docs" / "intel")
     if not os.path.isdir(intel_dir):
         return None
@@ -3142,7 +3142,7 @@ def main():
         today_str = _date_iso(_today())
         slug = re.sub(r"[^\w\-]", "-", (razao or "empresa").lower())[:40].strip("-")
         slug = re.sub(r"-+", "-", slug)  # collapse multiple dashes
-        out_dir = str(_PROJECT_ROOT / "docs" / "intel")
+        out_dir = str(_PROJECT_ROOT / "data" / "intel")
         os.makedirs(out_dir, exist_ok=True)
         out_path = os.path.join(out_dir, f"intel-{cnpj14}-{slug}-{today_str}.json")
 

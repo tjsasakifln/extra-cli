@@ -364,7 +364,7 @@ def _load_crawler(source: str):
     """Dynamically load crawler module for a source."""
     # All crawler modules live in scripts/crawl/
     module_map = {
-        "pncp": "pncp_crawler",
+        "pncp": "pncp_crawler_adapter",   # simplified sync adapter
         "dom_sc": "dom_sc_crawler",
         "pcp": "pcp_crawler",
         "compras_gov": "compras_gov_crawler",

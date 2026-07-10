@@ -274,7 +274,7 @@ class ApiClient:
         self.client = httpx.Client(
             timeout=REQUEST_TIMEOUT,
             follow_redirects=True,
-            headers={"User-Agent": "SmartLic-ReportCollector/1.0"},
+            headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0"},
         )
         self.verbose = verbose
         self.stats = {"calls": 0, "success": 0, "failed": 0, "retries": 0}
@@ -4491,7 +4491,7 @@ def _geocode(api: ApiClient, cidade: str, uf: str) -> tuple[float, float] | None
             "limit": 1,
             "countrycodes": "br",
         },
-        headers={"User-Agent": "SmartLic-ReportCollector/1.0 (report@smartlic.tech)"},
+        headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0 (report@extra-consultoria.local)"},
         label=f"Geocode: {cidade}/{uf}",
     )
     if status == "API" and data and isinstance(data, list) and len(data) > 0:
@@ -4511,7 +4511,7 @@ def _geocode(api: ApiClient, cidade: str, uf: str) -> tuple[float, float] | None
                 "limit": 1,
                 "countrycodes": "br",
             },
-            headers={"User-Agent": "SmartLic-ReportCollector/1.0 (report@smartlic.tech)"},
+            headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0 (report@extra-consultoria.local)"},
             label=f"Geocode retry: {cidade}/{uf}",
         )
         if status == "API" and data and isinstance(data, list) and len(data) > 0:
