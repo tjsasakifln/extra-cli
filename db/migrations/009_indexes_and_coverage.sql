@@ -27,29 +27,69 @@ BEGIN
             NEW.source,
             NEW.data_publicacao,
             1,
-            NEW.data_publicacao >= CURRENT_DATE - 90,
-            (SELECT raio_200km FROM sc_public_entities WHERE id = NEW.matched_entity_id)
+            COALESCE(NEW.data_publicacao >= CURRENT_DATE - 90, FALSE),
+            COALESCE((SELECT raio_200km FROM sc_public_entities WHERE id = NEW.matched_entity_id), FALSE)
         )
         ON CONFLICT (entity_id, source) DO UPDATE
         SET
             last_seen_at = GREATEST(
-                entity_coverage.last_seen_at,
-                NEW.data_publicacao
+                COALESCE(entity_coverage.last_seen_at, '1970-01-01'::date),
+                COALESCE(NEW.data_publicacao, '1970-01-01'::date)
             ),
             total_bids = entity_coverage.total_bids + 1,
             is_covered = (
-                GREATEST(entity_coverage.last_seen_at, NEW.data_publicacao)
-                >= CURRENT_DATE - 90
+                GREATEST(
+                    COALESCE(entity_coverage.last_seen_at, '1970-01-01'::date),
+                    COALESCE(NEW.data_publicacao, '1970-01-01'::date)
+                ) >= CURRENT_DATE - 90
             );
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+-- INSERT trigger
 CREATE TRIGGER trg_bids_coverage
     AFTER INSERT ON pncp_raw_bids
     FOR EACH ROW
     EXECUTE FUNCTION update_entity_coverage();
+
+-- UPDATE trigger (when matched_entity_id is set after initial insert)
+CREATE OR REPLACE FUNCTION update_entity_coverage_on_update()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.matched_entity_id IS NOT NULL AND (OLD.matched_entity_id IS NULL OR OLD.matched_entity_id <> NEW.matched_entity_id) THEN
+        INSERT INTO entity_coverage (entity_id, source, last_seen_at, total_bids, is_covered, within_200km)
+        VALUES (
+            NEW.matched_entity_id,
+            NEW.source,
+            NEW.data_publicacao,
+            1,
+            COALESCE(NEW.data_publicacao >= CURRENT_DATE - 90, FALSE),
+            COALESCE((SELECT raio_200km FROM sc_public_entities WHERE id = NEW.matched_entity_id), FALSE)
+        )
+        ON CONFLICT (entity_id, source) DO UPDATE
+        SET
+            last_seen_at = GREATEST(
+                COALESCE(entity_coverage.last_seen_at, '1970-01-01'::date),
+                COALESCE(NEW.data_publicacao, '1970-01-01'::date)
+            ),
+            total_bids = entity_coverage.total_bids + 1,
+            is_covered = (
+                GREATEST(
+                    COALESCE(entity_coverage.last_seen_at, '1970-01-01'::date),
+                    COALESCE(NEW.data_publicacao, '1970-01-01'::date)
+                ) >= CURRENT_DATE - 90
+            );
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_bids_coverage_update
+    AFTER UPDATE ON pncp_raw_bids
+    FOR EACH ROW
+    EXECUTE FUNCTION update_entity_coverage_on_update();
 
 -- Initialize coverage for all entities (will be populated by triggers)
 INSERT INTO entity_coverage (entity_id, source, is_covered, within_200km)
