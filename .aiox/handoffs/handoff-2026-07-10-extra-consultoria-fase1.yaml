@@ -1,0 +1,58 @@
+handoff:
+  from_agent: "pm (Morgan)"
+  to_agent: "dev (Dex)"
+  session_date: "2026-07-10"
+  pipeline_id: "extra-consultoria-fase1"
+  pipeline_goal: "Migrar smartlic.tech → plataforma CLI de consultoria para Extra Construtora. Cobertura 100% dos 2.085 órgãos SC."
+
+  story_context:
+    active_story: "N/A (fase de fundação concluída, próximo: criar stories de crawler)"
+    branch: "main"
+    repo: "https://github.com/tjsasakifln/extra-consultoria"
+    current_status: "Fase 1 concluída. Pipeline PNCP funcional. 8 crawlers precisam ser adaptados + 2 novos crawlers precisam ser criados."
+
+  decisions:
+    - "PostgreSQL raw (psycopg2) — sem Supabase REST, single-user"
+    - "Multi-source: PNCP + DOM-SC + PCP v2 + ComprasGov + TCE-SC (novo) + Portal Transparência (novo)"
+    - "systemd timers no Hetzner, sem ARQ/Redis"
+    - "Monitoramento 100% entidades SC — tolerância zero para uncovered no raio 200km"
+    - "PDFs mantêm design tokens Big Four aesthetic do source (#1B2A3D charcoal, #8B7355 bronze)"
+    - "CLAUDE.md atualizado: P0-P6, subagents obrigatórios, Exa MCP para web search"
+    - "Git push: usar AIOX_ACTIVE_AGENT=devops (hook bloqueia sem @devops)"
+
+  files_created:
+    - "config/settings.py — configuração centralizada por env vars"
+    - "config/sectors_config.yaml — 13 setores (copiado do smartlic)"
+    - "config/sectors_data.yaml — keywords e heurísticas (copiado)"
+    - "db/migrations/001-009 — schema DataLake completo"
+    - "db/seed/001_sc_entities.py — import spreadsheet → 2.085 órgãos"
+    - "db/setup_db.sh — aplica migrations + seed"
+    - "scripts/crawl/monitor.py — orquestrador multi-source com entity matching"
+    - "scripts/crawl/pncp_crawler_adapter.py — crawler PNCP funcional (sync, urllib)"
+    - "scripts/reports/panorama.py — relatório panorama terminal + Excel"
+    - "deploy/install.sh — instalação completa no Hetzner VPS"
+    - "deploy/systemd/ — 6 arquivos timer/service"
+    - "docs/prd/PRD-consultoria-extra.md — PRD completo"
+    - "docs/architecture/architecture.md — C4 L1+L2, fluxos, decisões"
+    - "README.md — documentação completa"
+    - ".claude/CLAUDE.md — atualizado com princípios P0-P6"
+
+  files_adapted:
+    - "scripts/datalake_helper.py — remove Supabase, só local PG (psycopg2)"
+    - "scripts/intel_pipeline.py — corrige nomes scripts (hyphen→underscore), INTEL_DIR→data/intel/"
+    - "scripts/intel_llm_gate.py — path sectors_data.yaml→config/"
+    - "scripts/intel_collect.py — output path docs/intel→data/intel/"
+    - "scripts/intel_report.py, generate_*_pdf.py — branding SmartLic→Extra Consultoria"
+    - "scripts/crawl/__init__.py — limpa imports quebrados do linter"
+    - "db/migrations/006_upsert_rpcs.sql — ON CONFLICT ON CONSTRAINT"
+    - "db/migrations/009_indexes_and_coverage.sql — COALESCE + trigger UPDATE"
+    - ".env.example — variáveis Extra Consultoria adicionadas"
+
+  blockers: []
+
+  next_actions:
+    - "PRIORIDADE 1: Validar cobertura real do PNCP contra entes-alvo da planilha"
+    - "PRIORIDADE 2: Criar crawlers para fontes não cobertas pelo PNCP"
+    - "PRIORIDADE 3: Adaptar crawlers existentes (DOM-SC, PCP, ComprasGov)"
+    - "PRIORIDADE 4: Provisionar Hetzner VPS + configurar systemd timers"
+    - "PRIORIDADE 5: Rodar pipeline intel completo para CNPJ da Extra Construtora"
