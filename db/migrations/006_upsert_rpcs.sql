@@ -47,12 +47,12 @@ BEGIN
             COALESCE(rec->>'source', 'pncp'),
             rec->>'source_id'
         )
-        ON CONFLICT (content_hash) DO NOTHING;
+        ON CONFLICT ON CONSTRAINT pncp_raw_bids_content_hash_key DO NOTHING;
 
         IF FOUND THEN
-            RETURN QUERY SELECT 'inserted'::TEXT, rec->>'pncp_id', rec->>'content_hash';
+            RETURN QUERY SELECT 'inserted'::TEXT, rec->>'pncp_id', rec->>'content_hash'::TEXT;
         ELSE
-            RETURN QUERY SELECT 'skipped'::TEXT, rec->>'pncp_id', rec->>'content_hash';
+            RETURN QUERY SELECT 'skipped'::TEXT, rec->>'pncp_id', rec->>'content_hash'::TEXT;
         END IF;
     END LOOP;
 END;

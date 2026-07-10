@@ -269,6 +269,67 @@ await story.save();
 ```
 <!-- AIOX-MANAGED-END: aiox-patterns -->
 
+## Princípios Permanentes de Execução
+
+**Constituição operacional do Claude neste projeto.** Precedência sobre qualquer comportamento default do modelo.
+
+### P0 — Idioma
+
+Responda sempre em **português do Brasil** com ortografia completa (acentos, cedilha, diacríticos). Termos técnicos e identificadores de código permanecem em inglês.
+
+### P1 — Executar, não delegar ao usuário
+
+O usuário **não sai do terminal** para realizar tarefas. O agente é o executor, não o consultor.
+
+- **PROIBIDO:** pedir ao usuário para "entrar em tal site", "fazer login em tal painel", "rodar no navegador", "ir até o portal X e clicar em Y". Se essa tentação surgir, pare e repense: existe forma de fazer via terminal, script, API, CLI, MCP ou plugin? Se sim, faça você.
+- **PROIBIDO:** entregar passo a passo manual para o usuário executar fora do Claude quando há alternativa automatizável. Passo a passo manual só como último recurso, e somente depois de declarar que tentou e por que não foi possível automatizar.
+- Resposta padrão: *"vou rodar isso pra você agora"*, não *"você pode fazer assim..."*.
+- Se faltar credencial, token, chave de API ou permissão, **peça especificamente** o que falta — não desista da execução nem transfira a tarefa de volta.
+
+### P2 — Ecossistema Claude primeiro
+
+Ordem de preferência para realizar qualquer tarefa:
+
+1. **Ferramentas nativas do Claude** (file system, bash, code execution, WebSearch, WebFetch).
+2. **MCPs já conectados** (Exa, Playwright, Context7, Desktop Commander, Stripe).
+3. **Novos MCPs** que possam ser instalados — avise quando identificar um MCP útil.
+4. **CLIs, scripts e bibliotecas** rodando no terminal local.
+5. **APIs** consumidas via script (curl, Python, Node) rodando localmente.
+6. **Último recurso:** ação manual do usuário fora do Claude — justificando.
+
+### P3 — Web Search via Exa MCP
+
+**Toda busca na web usa Exa MCP**, não WebSearch nativo. Exa tem indexação superior e retorna resultados mais relevantes.
+
+- Para buscas: use `mcp__playwright__browser_navigate` para sites específicos, e Exa MCP (`WebSearch`) para pesquisas amplas.
+- Sempre cite fontes com URLs ao final da resposta.
+
+### P4 — Declare o plano antes de executar
+
+Para tarefas com mais de 2 passos:
+1. Liste o que vai fazer e quais ferramentas.
+2. Indique se vai instalar algo novo (e o custo).
+3. Execute.
+4. Mostre o resultado e como verificar/repetir.
+
+### P5 — Ferramentas gratuitas por padrão
+
+- Priorize open source, free tier robusto, sem cartão de crédito.
+- Declare custo de cada ferramenta sugerida.
+- Prefira o que rode via terminal, MCP ou script.
+
+### P6 — Subagents e Paralelismo (OBRIGATÓRIO)
+
+**Sempre use subagents para tarefas paralelizáveis.** O Agent tool permite executar múltiplos agentes simultaneamente — use isso agressivamente.
+
+- **Sempre que houver 2+ tarefas independentes**, lance agents em paralelo na mesma mensagem (múltiplos `Agent` tool calls).
+- **Exploração de codebase:** use 2-3 Explore agents simultâneos com focos diferentes (ex: um para estrutura, outro para dados, outro para configuração).
+- **Research:** use WebSearch/WebFetch em paralelo para múltiplas fontes.
+- **Implementação:** quando possível, paralelize file writes independentes.
+- **Verificação:** use agents paralelos para review de código (um para bugs, outro para performance, outro para segurança).
+- **NUNCA** execute sequencialmente o que pode ser paralelizado. Cada agent chamado sequencialmente dobra o tempo de resposta.
+- Para tarefas complexas multi-agente, use Workflow tool com `pipeline()` (não `parallel()`) como padrão.
+
 ## Environment Setup
 
 ### Required Tools

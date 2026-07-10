@@ -31,12 +31,13 @@ _logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v1")
-PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "100"))
+PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))   # PNCP API max 50 (reduced Feb 2026)
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "50"))
-PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "15"))
-PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "1"))
+PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "30"))
+PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "2"))
+PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.15"))  # 150ms between requests
 
-INGESTION_UFS = os.getenv("INGESTION_UFS", "SC").split(",")
+INGESTION_UFS = [u.strip().upper() for u in os.getenv("INGESTION_UFS", "SC").split(",") if u.strip()]
 INGESTION_MODALIDADES = [
     int(m) for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7").split(",")
 ]
@@ -48,19 +49,26 @@ INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "3"))
 # ---------------------------------------------------------------------------
 
 def _fetch_page(uf: str, modalidade: int, pagina: int,
-                data_inicial: date, data_final: date) -> list[dict]:
-    """Fetch one page of PNCP results synchronously."""
+                data_inicial: date, data_final: date) -> tuple[list[dict], bool]:
+    """Fetch one page of PNCP results synchronously.
+
+    Returns (records, has_next_page).
+    Uses correct PNCP API parameters (camelCase, YYYYMMDD dates).
+    """
     import urllib.request
     import urllib.error
 
+    # PNCP API: dates in YYYYMMDD format, codigoModalidadeContratacao NOT modalidade
     params = {
-        "uf": uf,
-        "modalidade": str(modalidade),
+        "dataInicial": data_inicial.strftime("%Y%m%d"),
+        "dataFinal": data_final.strftime("%Y%m%d"),
+        "codigoModalidadeContratacao": str(modalidade),
         "pagina": str(pagina),
         "tamanhoPagina": str(PNCP_PAGE_SIZE),
-        "dataPublicacaoInicial": data_inicial.isoformat(),
-        "dataPublicacaoFinal": data_final.isoformat(),
     }
+    if uf:
+        params["uf"] = uf
+
     query = "&".join(f"{k}={v}" for k, v in params.items())
     url = f"{PNCP_BASE}/contratacoes/publicacao?{query}"
 
@@ -71,42 +79,44 @@ def _fetch_page(uf: str, modalidade: int, pagina: int,
             req.add_header("Accept", "application/json")
 
             with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
+                body = resp.read().decode("utf-8")
+                data = json.loads(body)
 
-            # PNCP wraps results differently depending on endpoint version
-            if isinstance(data, list):
-                return data
+            # PNCP API response: {"data": [...], "temProximaPagina": bool, "totalRegistros": int, ...}
             if isinstance(data, dict):
-                # Check common PNCP response shapes
-                for key in ("data", "resultados", "content", "items", "registros"):
-                    if key in data:
-                        items = data[key]
-                        if isinstance(items, list):
-                            return items
-                        if isinstance(items, dict) and "content" in items:
-                            return items["content"]
-                # Some endpoints return flat records
-                return [data]
-            return []
+                records = data.get("data", [])
+                has_next = data.get("temProximaPagina", False)
+                if isinstance(records, list):
+                    return records, has_next
+                return [], False
+
+            if isinstance(data, list):
+                return data, False
+
+            return [], False
 
         except urllib.error.HTTPError as e:
-            if e.code == 404:
-                return []
+            body = ""
+            try:
+                body = e.read().decode("utf-8")[:200]
+            except Exception:
+                pass
+            if e.code == 404 or e.code == 400:
+                _logger.debug(f"PNCP HTTP {e.code} for {url}: {body}")
+                return [], False
             if attempt < PNCP_MAX_RETRIES:
-                import time
                 time.sleep(2 ** attempt)
                 continue
-            _logger.warning(f"PNCP HTTP {e.code} for {url}")
-            return []
+            _logger.warning(f"PNCP HTTP {e.code} after {PNCP_MAX_RETRIES} retries: {url}")
+            return [], False
         except Exception as e:
             if attempt < PNCP_MAX_RETRIES:
-                import time
-                time.sleep(2 ** attempt)
+                time.sleep(1 + attempt)
                 continue
             _logger.warning(f"PNCP fetch error: {e}")
-            return []
+            return [], False
 
-    return []
+    return [], False
 
 
 def _generate_content_hash(record: dict) -> str:
@@ -203,15 +213,21 @@ def crawl(mode: str = "full") -> list[dict]:
     all_records = []
 
     for uf in INGESTION_UFS:
-        uf = uf.strip().upper()
         for mod in INGESTION_MODALIDADES:
-            for pagina in range(1, PNCP_MAX_PAGES + 1):
-                records = _fetch_page(uf, mod, pagina, data_inicial, data_final)
-                if not records:
-                    break  # No more pages for this (UF, modalidade)
+            pagina = 1
+            uf_records = 0
+            while pagina <= PNCP_MAX_PAGES:
+                records, has_next = _fetch_page(uf, mod, pagina, data_inicial, data_final)
+                if not records and pagina == 1:
+                    break  # No results at all for this (UF, modalidade)
                 all_records.extend(records)
-                if len(records) < PNCP_PAGE_SIZE:
-                    break  # Last page
+                uf_records += len(records)
+                if not has_next:
+                    break
+                pagina += 1
+                time.sleep(PNCP_REQUEST_DELAY)  # Rate limiting
+            if uf_records > 0:
+                _logger.info(f"  {uf}/mod{mod}: {uf_records} records ({pagina} pages)")
 
     return all_records
 
