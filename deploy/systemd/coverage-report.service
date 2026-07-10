@@ -1,0 +1,16 @@
+# /etc/systemd/system/coverage-report.service
+# Daily coverage gap report at 09:00 UTC
+
+[Unit]
+Description=Coverage Gap Report — Extra Consultoria
+After=pncp-crawl-full.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/monitor.py --report-coverage
+User=extra-consultoria
+StandardOutput=journal
+StandardError=journal

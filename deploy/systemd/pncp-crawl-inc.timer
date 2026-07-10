@@ -1,0 +1,16 @@
+# /etc/systemd/system/pncp-crawl-inc.timer
+# Incremental PNCP crawl — 3x daily at 11, 17, 23 UTC
+
+[Unit]
+Description=Incremental PNCP Crawl Timer — Extra Consultoria
+Requires=pncp-crawl-inc.service
+
+[Timer]
+OnCalendar=*-*-* 11:00:00
+OnCalendar=*-*-* 17:00:00
+OnCalendar=*-*-* 23:00:00
+RandomizedDelaySec=120
+Persistent=true
+
+[Install]
+WantedBy=timers.target
