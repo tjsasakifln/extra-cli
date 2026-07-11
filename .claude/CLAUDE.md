@@ -297,11 +297,13 @@ Ordem de preferência para realizar qualquer tarefa:
 5. **APIs** consumidas via script (curl, Python, Node) rodando localmente.
 6. **Último recurso:** ação manual do usuário fora do Claude — justificando.
 
-### P3 — Web Search via Exa MCP
+### P3 — Web Search via Exa MCP (OBRIGATÓRIO)
 
-**Toda busca na web usa Exa MCP**, não WebSearch nativo. Exa tem indexação superior e retorna resultados mais relevantes.
+**Toda busca na web usa Exa MCP.** NUNCA use WebSearch nativo.
 
-- Para buscas: use `mcp__playwright__browser_navigate` para sites específicos, e Exa MCP (`WebSearch`) para pesquisas amplas.
+- Exa MCP (`WebSearch`) para pesquisas amplas — indexação superior, resultados mais relevantes
+- `mcp__playwright__browser_navigate` para sites específicos
+- **PROIBIDO:** `WebSearch` nativo (não-Exa). Se Exa MCP indisponível, avise o usuário e use `WebFetch` como fallback.
 - Sempre cite fontes com URLs ao final da resposta.
 
 ### P4 — Declare o plano antes de executar

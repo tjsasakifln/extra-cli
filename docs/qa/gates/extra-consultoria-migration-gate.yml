@@ -1,0 +1,29 @@
+schema: 1
+story: 'extra-consultoria-migration'
+gate: CONCERNS
+status_reason: 'All 5 crawlers import and expose correct interfaces, DB schema is sound with 2085 active entities, but coverage is at 0.6% (13/2085) with 2072 uncovered entities. Unused import and DSN config mismatch need attention.'
+reviewer: 'Quinn (Guardian)'
+updated: '2026-07-10T00:00:00Z'
+top_issues:
+  - id: 'MNT-001'
+    severity: low
+    finding: 'Unused import asyncio in scripts/crawl/pncp_crawler_adapter.py line 12 — no async/await or asyncio.* usage in the module'
+    suggested_action: 'Remove unused import to keep codebase clean'
+  - id: 'CONF-001'
+    severity: medium
+    finding: 'monitor.py default DSN points to postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres but actual database is at postgresql://postgres@127.0.0.1:5433/pncp_datalake — running without --dsn flag connects to wrong database'
+    suggested_action: 'Update DEFAULT_DSN in monitor.py to match production database, or remove default to force --dsn parameter'
+  - id: 'COV-001'
+    severity: high
+    finding: 'Coverage at 0.6% (13/2085 entities). Only pcp (4 entities) has data within 200km raio. 2072 entities have zero coverage from any source.'
+    suggested_action: 'Run full crawls for all sources (dom_sc, pcp, compras_gov, pncp) in full mode to populate bids and trigger entity matching'
+  - id: 'DATA-001'
+    severity: medium
+    finding: 'PCP record pcp_491674 shows orgao_razao_social="Florianópolis" but municipio="Fraiburgo" — indicates PCP API may have incorrect orgão name data for some records'
+    suggested_action: 'Investigate PCP API data quality for records where orgao name does not match municipio; consider name-based entity matching fallback for these cases'
+  - id: 'COV-002'
+    severity: medium
+    finding: 'No bids ingested from dom_sc, compras_gov, or sc_compras sources — only pcp (72) and pncp (1) have data'
+    suggested_action: 'Execute crawlers for dom_sc, compras_gov, and (if available) sc_compras to populate multi-source coverage'
+waiver:
+  active: false

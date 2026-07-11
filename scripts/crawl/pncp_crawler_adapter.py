@@ -9,12 +9,12 @@ and the new synchronous single-user monitor.
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import json
 import logging
 import os
 import sys
+import time
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -35,12 +35,31 @@ PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))   # PNCP API max 50 (red
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "50"))
 PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "30"))
 PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "2"))
-PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.15"))  # 150ms between requests
+PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.5"))  # 500ms between requests (avoid 429)
 
 INGESTION_UFS = [u.strip().upper() for u in os.getenv("INGESTION_UFS", "SC").split(",") if u.strip()]
-INGESTION_MODALIDADES = [
-    int(m) for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7").split(",")
+
+# Engineering keywords from sectors_config.yaml — filter irrelevant procurement
+_ENGINEERING_KEYWORDS = [
+    kw.strip().lower()
+    for kw in os.getenv(
+        "INGESTION_KEYWORDS",
+        "construç,construc,edifici,obra,engenharia,paviment,infraestrutura,urbaniz,"
+        "reforma,edificação,edificacao,rodovia,ponte,viaduto,saneamento,drenagem,"
+        "fundação,fundacao,estrutura,terraplenagem,asfalto",
+    ).split(",")
+    if kw.strip()
 ]
+INGESTION_MODALIDADES = [
+    int(m) for m in os.getenv("INGESTION_MODALIDADES", "2,3,4,7").split(",")
+]
+# Modalidades de engenharia (default):
+#   2 = Tomada de Preços (obras médio porte)
+#   3 = Convite (obras pequeno porte)
+#   4 = Concorrência (obras grande porte) — PRINCIPAL
+#   7 = Dispensa (obras pequeno valor)
+#   6 = Concurso (projetos arquitetônicos) — opcional
+# NÃO engenharia: 5=Pregão Eletrônico (bens comuns), 1=Pregão Presencial
 INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "3"))
 INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "3"))
 
@@ -80,6 +99,9 @@ def _fetch_page(uf: str, modalidade: int, pagina: int,
 
             with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as resp:
                 body = resp.read().decode("utf-8")
+                # HTTP 204 No Content — no data for this day
+                if not body or not body.strip():
+                    return [], False
                 data = json.loads(body)
 
             # PNCP API response: {"data": [...], "temProximaPagina": bool, "totalRegistros": int, ...}
@@ -101,6 +123,12 @@ def _fetch_page(uf: str, modalidade: int, pagina: int,
                 body = e.read().decode("utf-8")[:200]
             except Exception:
                 pass
+            # 429 Too Many Requests — backoff longer
+            if e.code == 429:
+                wait = 5 * (attempt + 1)
+                _logger.debug(f"PNCP 429, waiting {wait}s before retry")
+                time.sleep(wait)
+                continue
             if e.code == 404 or e.code == 400:
                 _logger.debug(f"PNCP HTTP {e.code} for {url}: {body}")
                 return [], False
@@ -200,6 +228,9 @@ def _transform_record(rec: dict) -> dict | None:
 def crawl(mode: str = "full") -> list[dict]:
     """Crawl PNCP for configured UFs and modalidades.
 
+    Uses day-by-day chunking to avoid backend timeouts on multi-day queries.
+    Each (UF, modalidade, day) is a separate API call (~0.2s each).
+
     Args:
         mode: 'full' or 'incremental'
 
@@ -208,35 +239,67 @@ def crawl(mode: str = "full") -> list[dict]:
     """
     days = INGESTION_DATE_RANGE_DAYS if mode == "full" else INGESTION_INCREMENTAL_DAYS
     data_final = date.today()
-    data_inicial = data_final - timedelta(days=days)
 
-    all_records = []
+    all_records: list[dict] = []
+    total_calls = 0
+    total_success = 0
 
     for uf in INGESTION_UFS:
         for mod in INGESTION_MODALIDADES:
-            pagina = 1
-            uf_records = 0
-            while pagina <= PNCP_MAX_PAGES:
-                records, has_next = _fetch_page(uf, mod, pagina, data_inicial, data_final)
-                if not records and pagina == 1:
-                    break  # No results at all for this (UF, modalidade)
-                all_records.extend(records)
-                uf_records += len(records)
-                if not has_next:
-                    break
-                pagina += 1
-                time.sleep(PNCP_REQUEST_DELAY)  # Rate limiting
-            if uf_records > 0:
-                _logger.info(f"  {uf}/mod{mod}: {uf_records} records ({pagina} pages)")
+            uf_mod_records = 0
+            # Day-by-day chunking: PNCP backend times out on multi-day queries
+            for day_offset in range(days):
+                dia = data_final - timedelta(days=day_offset)
+                pagina = 1
+                while pagina <= PNCP_MAX_PAGES:
+                    total_calls += 1
+                    records, has_next = _fetch_page(uf, mod, pagina, dia, dia)
+                    if records:
+                        total_success += 1
+                        all_records.extend(records)
+                        uf_mod_records += len(records)
+                    if not records and pagina == 1:
+                        break  # No results for this day
+                    if not has_next:
+                        break
+                    pagina += 1
+                    time.sleep(PNCP_REQUEST_DELAY)
+                # Delay between days to avoid 429 rate limiting
+                if day_offset < days - 1:
+                    time.sleep(PNCP_REQUEST_DELAY)
+            if uf_mod_records > 0:
+                _logger.info(
+                    "  %s/mod%d: %d records across %d days",
+                    uf, mod, uf_mod_records, days,
+                )
 
+    _logger.info(
+        "PNCP crawl done: %d records, %d/%d API calls returned data",
+        len(all_records), total_success, total_calls,
+    )
     return all_records
 
 
 def transform(raw_records: list[dict]) -> list[dict]:
-    """Transform raw PNCP records to unified pncp_raw_bids schema."""
+    """Transform raw PNCP records to unified pncp_raw_bids schema.
+
+    Filters by engineering keywords (INGESTION_KEYWORDS env var).
+    Only records matching at least one keyword pass through.
+    """
     transformed = []
+    skipped = 0
     for rec in raw_records:
         t = _transform_record(rec)
-        if t and t.get("orgao_cnpj"):  # Require at least CNPJ
-            transformed.append(t)
+        if not t or not t.get("orgao_cnpj"):
+            continue
+        # Engineering keyword filter
+        objeto = (t.get("objeto_compra", "") or "").lower()
+        modalidade = (t.get("modalidade_nome", "") or "").lower()
+        text = f"{objeto} {modalidade}"
+        if not any(kw in text for kw in _ENGINEERING_KEYWORDS):
+            skipped += 1
+            continue
+        transformed.append(t)
+    if skipped:
+        _logger.debug("Keyword filter: %d non-engineering records skipped", skipped)
     return transformed

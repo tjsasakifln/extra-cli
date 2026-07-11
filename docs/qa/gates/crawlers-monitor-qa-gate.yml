@@ -1,0 +1,17 @@
+schema: 1
+story: 'crawlers-monitor'
+gate: CONCERNS
+status_reason: '7 crawlers prontos e validados com imports, qualidade e registro no monitor. Coverage report funcional. BUG no argparse do monitor.py: choices incompleto (faltam contracts e transparencia). Coverage de dados baixa (0.6%) — esperado, será resolvido em produção.'
+reviewer: 'Quinn'
+updated: '2026-07-10T20:30:00Z'
+top_issues:
+  - id: 'MNT-001'
+    severity: medium
+    finding: 'argparse choices no monitor.py linha 489 não inclui "contracts" e "transparencia" — apenas 5 sources + "all" são aceitos via CLI, mas o module_map e SOURCES list suportam 7 sources. Comando --source contracts ou --source transparencia falha com erro de argumento inválido.'
+    suggested_action: 'Adicionar "contracts" e "transparencia" à lista choices do argparse na linha 489 de monitor.py.'
+  - id: 'COV-001'
+    severity: low
+    finding: 'Coverage atual de 0.6% (13 de 2085 entidades). Apenas PCP e PNCP possuem dados. Outros 5 crawlers (dom_sc, compras_gov, sc_compras, contracts, transparencia) têm 0 registros no banco.'
+    suggested_action: 'Após correção do argparse, executar crawlers restantes em produção para aumentar cobertura. Coverage esperado cresce organicamente com cada execução.'
+waiver:
+  active: false

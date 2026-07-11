@@ -41,11 +41,11 @@ if str(_PROJECT_ROOT) not in sys.path:
 # Constants
 # ---------------------------------------------------------------------------
 
-SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras"]
+SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia"]
 
 DEFAULT_DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
-    "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
+    "postgresql://postgres@127.0.0.1:5433/pncp_datalake",
 )
 
 COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
@@ -158,6 +158,91 @@ def _run_entity_matching(conn, source: str, entities: list[dict]) -> int:
                     _update_matched_entity(conn, pncp_id, eid)
                     matched += 1
                     break
+
+    return matched
+
+
+def _run_name_entity_matching(conn, source: str, entities: list[dict]) -> int:
+    """Match unmatched bids by orgao_razao_social + municipio fuzzy matching.
+
+    Used for sources that don't return CNPJ (e.g., PCP v2 listing).
+    Returns count matched.
+    """
+    cur = conn.cursor()
+    cur.execute(
+        """SELECT pncp_id, orgao_razao_social, municipio FROM pncp_raw_bids
+           WHERE source = %s AND matched_entity_id IS NULL
+             AND orgao_razao_social IS NOT NULL AND orgao_razao_social != ''""",
+        (source,),
+    )
+    unmatched = [(row[0], row[1] or "", row[2] or "") for row in cur.fetchall()]
+    cur.close()
+
+    if not unmatched:
+        return 0
+
+    # Build lookup: normalized name → entity_id
+    import unicodedata
+
+    def _normalize(s: str) -> str:
+        """Remove accents, lowercase, strip non-alphanumeric."""
+        s = unicodedata.normalize('NFKD', s.lower())
+        s = ''.join(c for c in s if c.isalnum() or c.isspace())
+        return ' '.join(s.split())
+
+    # Index entities by normalized name
+    name_index: dict[str, int] = {}
+    for e in entities:
+        key = _normalize(e.get("razao_social", ""))
+        if key:
+            name_index[key] = e["id"]
+
+    # Also index by first word (e.g. "PREFEITURA MUNICIPAL DE X" → match "PREFEITURA")
+    first_word_index: dict[str, list[int]] = {}
+    for e in entities:
+        key = _normalize(e.get("razao_social", ""))
+        if key:
+            first = key.split()[0] if key.split() else ""
+            if first:
+                first_word_index.setdefault(first, []).append(e["id"])
+
+    matched = 0
+    for pncp_id, razao, municipio in unmatched:
+        norm = _normalize(razao)
+        entity_id = None
+
+        # 1) Exact normalized match
+        if norm in name_index:
+            entity_id = name_index[norm]
+
+        # 2) Prefix match: "PREFEITURA MUNICIPAL DE X" ↔ "MUNICIPIO DE X"
+        if not entity_id:
+            for ent_name, eid in name_index.items():
+                if ent_name in norm or norm in ent_name:
+                    # Both in same city? (loose check)
+                    muni_norm = _normalize(municipio)
+                    ent_muni = _normalize(
+                        next((e.get("municipio", "") for e in entities if e["id"] == eid), "")
+                    )
+                    if muni_norm and ent_muni and muni_norm == ent_muni:
+                        entity_id = eid
+                        break
+
+        # 3) First word match + same city
+        if not entity_id:
+            first = norm.split()[0] if norm.split() else ""
+            if first in first_word_index:
+                candidates = first_word_index[first]
+                muni_norm = _normalize(municipio)
+                for eid in candidates:
+                    ent = next((e for e in entities if e["id"] == eid), None)
+                    if ent and _normalize(ent.get("municipio", "")) == muni_norm:
+                        entity_id = eid
+                        break
+
+        if entity_id:
+            _update_matched_entity(conn, pncp_id, entity_id)
+            matched += 1
 
     return matched
 
@@ -332,9 +417,15 @@ def crawl_source(source: str, entities: list[dict], mode: str = "full") -> dict:
 
         print(f"     Upserted: {upserted} new, {fetched - upserted} duplicates")
 
-        # Phase 4: Entity matching
+        # Phase 4: Entity matching (CNPJ-based)
         matched = _run_entity_matching(conn, source, entities)
-        print(f"     Matched entities: {matched}")
+        # Phase 4b: Name-based matching (for sources without CNPJ like PCP v2)
+        name_matched = _run_name_entity_matching(conn, source, entities)
+        matched += name_matched
+        if name_matched:
+            print(f"     Matched entities (CNPJ): {matched - name_matched}, (name): {name_matched}")
+        else:
+            print(f"     Matched entities: {matched}")
 
         _finish_ingestion_run(conn, run_id, fetched, upserted, matched, "completed")
         conn.close()
@@ -369,6 +460,8 @@ def _load_crawler(source: str):
         "pcp": "pcp_crawler",
         "compras_gov": "compras_gov_crawler",
         "sc_compras": "sc_compras_crawler",
+        "contracts": "contracts_crawler",
+        "transparencia": "transparencia_crawler",
     }
     mod_name = module_map.get(source)
     if not mod_name:
@@ -393,7 +486,7 @@ def parse_args():
     p.add_argument(
         "--source",
         default="pncp",
-        choices=["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "all"],
+        choices=["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "all"],
         help="Data source to crawl (default: pncp)",
     )
     p.add_argument(
