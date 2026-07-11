@@ -1,0 +1,15 @@
+# /etc/systemd/system/transparencia-crawl.timer
+# Transparencia crawler — weekly (Sun 06:00 UTC)
+# Portais de transparencia atualizam devagar — semanal e suficiente
+
+[Unit]
+Description=Transparencia Crawler Timer — Extra Consultoria
+Requires=transparencia-crawl.service
+
+[Timer]
+OnCalendar=Sun *-*-* 06:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

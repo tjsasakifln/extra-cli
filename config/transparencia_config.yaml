@@ -1,0 +1,60 @@
+# Transparencia Config — Extra Consultoria
+# Configuracao template-driven para crawling de portais de transparencia municipais.
+#
+# Cada municipio mapeado tem:
+#   - ibge: codigo IBGE de 7 digitos
+#   - portal_url: URL do portal de transparencia
+#   - template: qual template de seletor usar (portal_transparencia_net, e_gov_net, custom)
+#   - selectors: (apenas para template: custom) seletores CSS especificos
+#
+# Templates definem os seletores CSS para extrair dados das paginas HTML.
+
+templates:
+  portal_transparencia_net:
+    name: "Portal Transparencia .NET"
+    description: "Template mais comum em municipios de SC — tabela .licitacao"
+    selectors:
+      lista_licitacoes: "table.licitacao"
+      modalidade: "td:nth-child(2)"
+      data: "td:nth-child(1)"
+      objeto: "td:nth-child(3)"
+      orgao: "td:nth-child(4)"
+      valor: "td:nth-child(5)"
+      link: "a"
+
+  e_gov_net:
+    name: "e-Gov .NET"
+    description: "Segundo mais comum — plataforma e-gov da Betha"
+    selectors:
+      lista_licitacoes: "div.lista-licitacoes table"
+      modalidade: "td:nth-child(1)"
+      data: "td:nth-child(2)"
+      objeto: "td:nth-child(3)"
+      valor: "td:nth-child(4)"
+      link: "a"
+
+  custom:
+    name: "Custom (HTML scraping especifico)"
+    description: "Template customizado — requer selectors definidos por municipio"
+    selectors: {}  # Preenchido por entrada em municipios[].selectors
+
+# Municipios com portal de transparencia mapeado.
+# Preencher com base na baseline de cobertura (Story 001.5).
+# Formato:
+#   <slug_municipio>:
+#     ibge: "<codigo_ibge_7digitos>"
+#     portal_url: "<url_completa_do_portal>"
+#     template: "<nome_do_template>"
+#     selectors: {}  # Opcional — apenas para template: custom
+#     ativo: true    # Opcional — false para desabilitar temporariamente
+
+municipios: {}
+# Municipios com portal de transparencia mapeado.
+# Preencher com base na baseline de cobertura (Story 001.5).
+# Formato:
+#   <slug_municipio>:
+#     ibge: "<codigo_ibge_7digitos>"
+#     portal_url: "<url_completa_do_portal>"
+#     template: "<nome_do_template>"
+#     selectors: {}  # Opcional — apenas para template: custom
+#     ativo: true    # Opcional — false para desabilitar temporariamente

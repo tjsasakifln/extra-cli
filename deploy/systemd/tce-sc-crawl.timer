@@ -1,0 +1,14 @@
+# /etc/systemd/system/tce-sc-crawl.timer
+# TCE-SC crawler — daily 05:30 UTC (before other crawlers)
+
+[Unit]
+Description=TCE-SC Crawler Timer — Extra Consultoria
+Requires=tce-sc-crawl.service
+
+[Timer]
+OnCalendar=*-*-* 05:30:00
+RandomizedDelaySec=120
+Persistent=true
+
+[Install]
+WantedBy=timers.target

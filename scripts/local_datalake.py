@@ -21,12 +21,22 @@ import os
 import re
 import sys
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import psycopg2
 import psycopg2.extras
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.columns import Columns
+from rich import box
 
 DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
+
+_console = Console()
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 def get_conn():
@@ -40,6 +50,14 @@ def query(sql: str, params: list[Any] | None = None) -> list[dict]:
             cur.execute(sql, params)
             cols = [d[0] for d in cur.description] if cur.description else []
             return [dict(zip(cols, row)) for row in cur.fetchall()]
+
+
+def query_conn(conn, sql: str, params: list[Any] | None = None) -> list[dict]:
+    """Run a query on an existing connection and return results as list of dicts."""
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        cols = [d[0] for d in cur.description] if cur.description else []
+        return [dict(zip(cols, row)) for row in cur.fetchall()]
 
 
 def cmd_stats() -> int:
@@ -331,6 +349,260 @@ def cmd_detail(args: argparse.Namespace) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------
+# Coverage Dashboard
+# ---------------------------------------------------------------------------
+
+def _fetch_dashboard_data(conn) -> dict:
+    """Fetch all coverage dashboard data in a single pass."""
+    data: dict[str, Any] = {}
+
+    # Overall coverage stats
+    data["overall"] = query_conn(
+        conn,
+        """SELECT
+            COUNT(DISTINCT e.id) AS total_entities,
+            COUNT(DISTINCT CASE WHEN ec.is_covered THEN e.id END) AS covered,
+            ROUND(100.0 * COUNT(DISTINCT CASE WHEN ec.is_covered THEN e.id END)
+                  / NULLIF(COUNT(DISTINCT e.id), 0), 1) AS pct
+         FROM sc_public_entities e
+         LEFT JOIN entity_coverage ec ON e.id = ec.entity_id AND ec.is_covered = TRUE
+         WHERE e.is_active = TRUE""",
+    )[0]
+
+    # Per-source coverage
+    data["by_source"] = query_conn(
+        conn,
+        """SELECT
+            ec.source,
+            COUNT(*) AS total,
+            COUNT(*) FILTER (WHERE ec.is_covered) AS covered,
+            ROUND(100.0 * COUNT(*) FILTER (WHERE ec.is_covered) / NULLIF(COUNT(*), 0), 1) AS pct
+         FROM entity_coverage ec
+         WHERE EXISTS (SELECT 1 FROM sc_public_entities e WHERE e.id = ec.entity_id AND e.is_active = TRUE)
+         GROUP BY ec.source
+         ORDER BY ec.source""",
+    )
+
+    # By natureza juridica
+    data["by_natureza"] = query_conn(
+        conn,
+        """SELECT
+            e.natureza_juridica,
+            COUNT(DISTINCT e.id) AS total,
+            COUNT(DISTINCT CASE WHEN ec.is_covered THEN e.id END) AS covered,
+            ROUND(100.0 * COUNT(DISTINCT CASE WHEN ec.is_covered THEN e.id END)
+                  / NULLIF(COUNT(DISTINCT e.id), 0), 1) AS pct
+         FROM sc_public_entities e
+         LEFT JOIN entity_coverage ec ON e.id = ec.entity_id AND ec.is_covered = TRUE
+         WHERE e.is_active = TRUE AND e.natureza_juridica IS NOT NULL
+         GROUP BY e.natureza_juridica
+         ORDER BY total DESC""",
+    )
+
+    # Top 10 municipios com gaps (using v_coverage_gaps_by_municipio)
+    data["top_gaps_municipio"] = query_conn(
+        conn,
+        """SELECT municipio, entes_descobertos
+           FROM v_coverage_gaps_by_municipio
+           ORDER BY entes_descobertos DESC
+           LIMIT 10""",
+    )
+
+    # Snapshot count
+    data["snapshot_count"] = query_conn(
+        conn,
+        """SELECT COUNT(*) AS cnt FROM coverage_snapshots""",
+    )[0]["cnt"]
+
+    # Recent trend (last 4 weeks)
+    data["trend"] = query_conn(
+        conn,
+        """SELECT snapshot_date AS week_start, pct_covered,
+                  variacao_pct AS pct_change
+           FROM v_coverage_trend
+           WHERE source = 'total'
+           ORDER BY snapshot_date DESC
+           LIMIT 4""",
+    )
+
+    return data
+
+
+def cmd_coverage(args: argparse.Namespace) -> int:
+    """Coverage dashboard and management.
+
+    Usage:
+        coverage                          Full dashboard (default)
+        coverage --baseline               Detailed baseline (from monitor)
+        coverage --gaps                   List specific uncovered entities
+        coverage --snapshot               Generate daily snapshot
+        coverage --export                  Export gaps to Excel
+    """
+    from scripts.crawl.monitor import report_coverage, print_coverage_report
+
+    conn = get_conn()
+    try:
+        # --snapshot: generate daily snapshot
+        if args.snapshot:
+            try:
+                result = query_conn(conn, "SELECT generate_coverage_snapshot() AS inserted")
+                inserted = result[0]["inserted"] if result else 0
+                _console.print(f"\n[green]Snapshot gerado: {date.today()} ({inserted} fontes)[/green]")
+
+                # Show the snapshot data
+                snap_data = query_conn(conn,
+                    """SELECT source, total_entities, covered_entities, pct_covered
+                       FROM coverage_snapshots
+                       WHERE snapshot_date = CURRENT_DATE
+                       ORDER BY source""",
+                )
+                if snap_data:
+                    snap_table = Table(title="Snapshots do Dia", box=box.SIMPLE)
+                    snap_table.add_column("Fonte", style="cyan")
+                    snap_table.add_column("Total", justify="right")
+                    snap_table.add_column("Cobertos", justify="right")
+                    snap_table.add_column("%", justify="right")
+                    for r in snap_data:
+                        snap_table.add_row(
+                            r["source"],
+                            str(r["total_entities"]),
+                            str(r["covered_entities"]),
+                            f"{r['pct_covered']:.1f}%",
+                        )
+                    _console.print(snap_table)
+            except Exception as e:
+                _console.print(f"[red]Erro ao gerar snapshot: {e}[/red]")
+                return 1
+
+        # --baseline: detailed coverage report from monitor
+        if args.baseline:
+            _console.print("\n[bold cyan]=== BASELINE ===[/bold cyan]")
+            result = report_coverage(conn)
+            print_coverage_report(result)
+
+        # --gaps: list specific uncovered entities
+        if args.gaps:
+            gaps = query_conn(conn,
+                """SELECT municipio, entes_descobertos
+                   FROM v_coverage_gaps_by_municipio
+                   ORDER BY entes_descobertos DESC
+                   LIMIT 20""",
+            )
+            if gaps:
+                gap_table = Table(title="Top 20 Municipios com Gaps", box=box.SIMPLE)
+                gap_table.add_column("Municipio", style="yellow")
+                gap_table.add_column("Entes sem Cobertura", justify="right")
+                for g in gaps:
+                    gap_table.add_row(g["municipio"] or "N/A", str(g["entes_descobertos"]))
+                _console.print(gap_table)
+            else:
+                _console.print("[green]Nenhum gap encontrado![/green]")
+
+        # --export: export gaps to Excel
+        if args.export:
+            _export_gaps_to_excel(conn)
+
+        # No flags: show full dashboard
+        if not any([args.baseline, args.gaps, args.snapshot, args.export]):
+            data = _fetch_dashboard_data(conn)
+
+            # Overall coverage
+            o = data["overall"]
+            _console.print(
+                Panel(
+                    f"[bold white]Cobertura Total: [green]{o['pct']}%[/green] "
+                    f"({o['covered']}/{o['total_entities']} entes)[/bold white]",
+                    box=box.ROUNDED,
+                    style="blue",
+                )
+            )
+
+            # Per-source
+            src_table = Table(title="Cobertura por Fonte", box=box.SIMPLE)
+            src_table.add_column("Fonte", style="cyan")
+            src_table.add_column("Total", justify="right")
+            src_table.add_column("Cobertos", justify="right")
+            src_table.add_column("%", justify="right")
+            for s in data["by_source"]:
+                src_table.add_row(
+                    s["source"], str(s["total"]), str(s["covered"]), f"{s['pct']}%"
+                )
+            _console.print(src_table)
+
+            # By natureza juridica
+            nat_table = Table(title="Cobertura por Natureza Juridica", box=box.SIMPLE)
+            nat_table.add_column("Natureza", style="cyan")
+            nat_table.add_column("Total", justify="right")
+            nat_table.add_column("Cobertos", justify="right")
+            nat_table.add_column("%", justify="right")
+            for n in data["by_natureza"]:
+                nat_table.add_row(
+                    n["natureza_juridica"][:40],
+                    str(n["total"]),
+                    str(n["covered"]),
+                    f"{n['pct']}%",
+                )
+            _console.print(nat_table)
+
+            # Top 10 municipios com gaps
+            if data["top_gaps_municipio"]:
+                gap_table = Table(title="Top 10 Municipios com Gaps", box=box.SIMPLE)
+                gap_table.add_column("Municipio", style="yellow")
+                gap_table.add_column("Entes sem Cobertura", justify="right")
+                for g in data["top_gaps_municipio"]:
+                    gap_table.add_row(g["municipio"] or "N/A", str(g["entes_descobertos"]))
+                _console.print(gap_table)
+
+            # Trend (if data exists)
+            if data["trend"]:
+                trend_table = Table(title="Tendencia (ultimas 4 semanas)", box=box.SIMPLE)
+                trend_table.add_column("Data", style="cyan")
+                trend_table.add_column("% Coberto", justify="right")
+                trend_table.add_column("Variacao", justify="right")
+                for t in data["trend"]:
+                    pct_change = t.get("pct_change")
+                    change_str = f"{pct_change:+.1f}" if pct_change is not None else "N/A"
+                    trend_table.add_row(
+                        str(t["week_start"]),
+                        f"{t['pct_covered']:.1f}%",
+                        change_str,
+                    )
+                _console.print(trend_table)
+
+            # Snapshot info
+            snap_cnt = data["snapshot_count"]
+            _console.print(
+                f"\n[dim]Snapshots historicos: {snap_cnt} entradas\n"
+                "Use --snapshot para gerar novo snapshot\n"
+                "Use --export para exportar gaps para Excel[/dim]"
+            )
+
+    finally:
+        conn.close()
+
+    return 0
+
+
+def _export_gaps_to_excel(conn) -> None:
+    """Export coverage gaps to Excel using the coverage_gaps module."""
+    from scripts.reports.coverage_gaps import fetch_all_gaps, fetch_gaps_by_municipio, export_excel
+
+    gaps = fetch_all_gaps(conn)
+    gaps_by_muni = fetch_gaps_by_municipio(conn)
+
+    if not gaps:
+        _console.print("[green]Nenhum gap de cobertura encontrado.[/green]")
+        return
+
+    output_dir = _PROJECT_ROOT / "output" / "reports" / "coverage"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    filepath = output_dir / f"gaps-{date.today().isoformat()}.xlsx"
+
+    export_excel(gaps, gaps_by_muni, str(filepath))
+    _console.print(f"[green]Gaps exportados: {filepath}[/green]")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="DataLake Local CLI")
     sub = parser.add_subparsers(dest="command")
@@ -377,6 +649,13 @@ def main() -> int:
     p_detail.add_argument("--pncp-id", help="PNCP ID (numeroControlePNCP)")
     p_detail.add_argument("--json", action="store_true", help="JSON output")
 
+    # coverage
+    p_cov = sub.add_parser("coverage", help="Coverage dashboard and management")
+    p_cov.add_argument("--baseline", action="store_true", help="Show detailed baseline (from monitor)")
+    p_cov.add_argument("--gaps", action="store_true", help="List top gaps by municipio")
+    p_cov.add_argument("--snapshot", action="store_true", help="Generate daily coverage snapshot")
+    p_cov.add_argument("--export", action="store_true", help="Export gaps to Excel")
+
     args = parser.parse_args()
 
     if args.command == "stats":
@@ -391,6 +670,8 @@ def main() -> int:
         return cmd_competitors(args)
     elif args.command == "detail":
         return cmd_detail(args)
+    elif args.command == "coverage":
+        return cmd_coverage(args)
     else:
         parser.print_help()
         return 1

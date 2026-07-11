@@ -41,7 +41,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 # Constants
 # ---------------------------------------------------------------------------
 
-SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia"]
+SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc"]
 
 DEFAULT_DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
@@ -555,6 +555,7 @@ def _load_crawler(source: str):
         "sc_compras": "sc_compras_crawler",
         "contracts": "contracts_crawler",
         "transparencia": "transparencia_crawler",
+        "tce_sc": "tce_sc_crawler",
     }
     mod_name = module_map.get(source)
     if not mod_name:
@@ -579,7 +580,7 @@ def parse_args():
     p.add_argument(
         "--source",
         default="pncp",
-        choices=["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "all"],
+        choices=["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc", "all"],
         help="Data source to crawl (default: pncp)",
     )
     p.add_argument(
@@ -637,9 +638,9 @@ def main():
 
     results = []
     for src in sources:
-        print(f"\n─" * 60)
+        print("\n─" * 60)
         print(f"📍 Source: {src.upper()} | Mode: {args.mode}")
-        print(f"─" * 60)
+        print("─" * 60)
 
         if args.mode == "dry-run":
             print(f"  [DRY RUN] Would crawl {src}")

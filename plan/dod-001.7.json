@@ -1,0 +1,59 @@
+{
+  "storyId": "001.7",
+  "checkedAt": "2026-07-10T21:35:00Z",
+  "items": {
+    "requirementsMet": {
+      "allFunctionalRequirements": true,
+      "allAcceptanceCriteria": true,
+      "notes": "Todos os 7 ACs implementados. AC1-7 cobertos: script principal, PDF com KPIs/fontes/gaps/tendencia/recomendacoes, Excel 4 abas, views coverage_snapshots + v_coverage_gaps, systemd timer, output padronizado, logging completo."
+    },
+    "codingStandards": {
+      "adheresToGuidelines": true,
+      "projectStructure": true,
+      "techStack": true,
+      "apiDataModels": true,
+      "securityBestPractices": true,
+      "noLintErrors": true,
+      "wellCommented": true,
+      "notes": "Ruff check passou limpo. Estrutura segue padrao dos scripts existentes (scripts/reports/, scripts/lib/). Nenhum segredo hardcoded. Docstrings em todas as funcoes publicas."
+    },
+    "testing": {
+      "unitTests": false,
+      "integrationTests": false,
+      "allTestsPass": true,
+      "testCoverage": false,
+      "notes": "N/A: projeto nao possui suite de testes configurada. Script nao quebra nada existente. O report gera fallback em caso de erro de DB."
+    },
+    "functionality": {
+      "manuallyVerified": true,
+      "edgeCasesHandled": true,
+      "notes": "Fallbacks implementados: DB vazio, coverage_snapshots sem dados, zero gaps, erro de conexao, falha de PDF. Logging de erros e progresso."
+    },
+    "storyAdministration": {
+      "allTasksComplete": true,
+      "decisionsDocumented": true,
+      "wrapUpComplete": true,
+      "notes": "Checkboxes atualizados, File List expandido, Change Log registrado, Status atualizado para InReview."
+    },
+    "dependenciesBuild": {
+      "buildsSuccessfully": true,
+      "lintingPasses": true,
+      "newDependenciesApproved": true,
+      "dependenciesRecorded": true,
+      "noSecurityVulnerabilities": true,
+      "envConfigDocumented": true,
+      "notes": "Dependencias: reportlab e openpyxl ja estao em requirements.txt. Nenhuma nova dependencia adicionada. DSN via env var LOCAL_DATALAKE_DSN."
+    },
+    "documentation": {
+      "inlineDocs": true,
+      "userFacingDocs": false,
+      "techDocs": false,
+      "notes": "Docstrings nas funcoes. Story file atualizado com changelog. README e docs de usuario nao foram modificados (escopo da story nao inclui)."
+    }
+  },
+  "finalConfirmation": {
+    "confirmed": true,
+    "summary": "Implementacao completa da Story 001.7: Weekly Coverage Report Automation.\n\nArquivos criados:\n- scripts/reports/coverage_weekly.py — Script principal que gera PDF executivo (ReportLab, Big Four aesthetic) e Excel detalhado (openpyxl, 4 abas)\n- db/migrations/012_coverage_snapshots.sql — Migration com coverage_snapshots table, views v_coverage_gaps, v_coverage_gaps_by_municipio, v_coverage_trend, e funcao generate_coverage_snapshot()\n- deploy/systemd/coverage-report-weekly.service — Service apontando para python3 -m scripts.reports.coverage_weekly\n- deploy/systemd/coverage-report-weekly.timer — Timer (Monday 08:00 UTC)\n- plan/self-critique-001.7.json — Self-critique report\n\nArquivos modificados:\n- scripts/reports/__init__.py — Adicionado export coverage_weekly\n- docs/stories/epics/epic-001-100-cobertura/story-001.7-coverage-report.md — Status: InReview, ACs marcados, Change Log atualizado\n\nFuncionalidades do PDF:\n- Capa institucional (Relatorio de Cobertura Semanal, Extra Construtora)\n- KPIs em formato cards (Cobertura %, Entes cobertos/descobertos, Variacao vs semana anterior)\n- Tabela de cobertura por fonte (PNCP, DOM-SC, PCP, ComprasGov, SC Compras, TCE-SC, Transparencia)\n- Top 10 municipios com mais gaps\n- Tendencia 4 semanas (se dados historicos disponiveis)\n- Recomendacoes automaticas baseadas nos dados\n- Fallback: se DB falhar, gera PDF minimalista com mensagem de erro\n\nFuncionalidades do Excel (4 abas):\n- Resumo: KPIs + coverage by source\n- Entes Descobertos: razao_social, municipio, natureza_juridica, CNPJ-8, UF\n- Cobertura por Municipio: municipio, total_entes, entes_descobertos, % gap\n- Cobertura por Natureza Juridica: natureza_juridica, total_entes, entes_descobertos, % gap\n\nOutput: output/reports/coverage/YYYY-MM-DD/coverage-report-YYYY-MM-DD.pdf + coverage-detail-YYYY-MM-DD.xlsx\n\nNota: Migration 012 foi criada porque as views v_coverage_gaps e tabela coverage_snapshots (previstas na Story 001.5) nao existiam. A Story 001.7 depende destes objetos de banco.",
+    "readyForReview": true
+  }
+}

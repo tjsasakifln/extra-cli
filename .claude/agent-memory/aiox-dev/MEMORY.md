@@ -1,0 +1,1 @@
+- [Entity Name-Matching Cascade](project_cascade_matching.md) — 3-level cascade (CNPJ > nome+municipio > fuzzy) em monitor.py

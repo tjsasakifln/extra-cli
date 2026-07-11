@@ -1,0 +1,33 @@
+{
+  "subtaskId": "001.7",
+  "critiquedAt": "2026-07-10T21:30:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "Bug #1: DB query for total_covered may return NULL if entity_coverage is empty — the query uses COUNT(DISTINCT entity_id) which returns 0 for empty, not NULL, so this is safe, but the division by zero guard pct = round(covered / total * 100, 1) if total > 0 else 0 handles it.",
+      "Bug #2: In _build_kpi_section, the trend variation reads snapshot_date as string from psycopg2 (which returns date objects). The set() dedup and sorted() will work with date objects, but trend data with mixed types could fail. The code uses a defensive isinstance check for string parsing, but psycopg2 returns datetime.date objects which are directly sortable.",
+      "Bug #3: In _build_trend_section, the ISO calendar week number could be incorrect for dates near year boundaries (early January belongs to previous year's last week). Python's date.isocalendar() handles this correctly, so this is safe.",
+      "Bug #4: The query in fetch_coverage_data() for trend uses INTERVAL '35 days' which may miss a snapshot if the timer ran late. Using 35 days covers ~5 weeks of data, which is more than the 4 weeks needed."
+    ],
+    "edgeCases": [
+      "Edge case #1: Empty database (no entities, no coverage data) — fetch_coverage_data returns zeros and empty lists; PDF falls back to 'sem dados' messages; Excel generates empty sheets.",
+      "Edge case #2: coverage_snapshots has only 1 entry (first week) — trend section handles this by checking len(last4) >= 2 and showing 'dados insuficientes' message.",
+      "Edge case #3: Zero gaps (all entities covered) — PDF shows success message 'Todos os entes cobertos!' with green styling. Excel sheets will have no data rows for gap sheets.",
+      "Edge case #4: DB connection failure — the main() function catches Exception and builds a fallback PDF with error message, then continues to generate Excel with empty data.",
+      "Edge case #5: PDF generation failure (e.g., font missing) — the try/except in main() catches the error, logs it, and generates a minimal fallback PDF via _build_fallback_pdf()."
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

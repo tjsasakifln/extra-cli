@@ -1,0 +1,2 @@
+- [Municipio Name Normalization](municipio_normalization.md) — NFKD-based IBGE name matching with fuzzy fallback strategies
+- [State-Level Entity Handling](state_level_entities.md) — Non-7-digit IBGE codes stored as NULL for state-level entities
