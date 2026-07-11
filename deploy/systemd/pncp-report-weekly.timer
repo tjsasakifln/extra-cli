@@ -1,0 +1,14 @@
+# /etc/systemd/system/pncp-report-weekly.timer
+# Weekly panorama report — every Monday at 07:00 UTC
+
+[Unit]
+Description=PNCP Weekly Report Timer — Extra Consultoria
+Requires=pncp-report-weekly.service
+
+[Timer]
+OnCalendar=Mon *-*-* 07:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,18 @@
+# /etc/systemd/system/pcp-crawl.service
+# PCP crawler — 2x daily (06:30, 14:30 UTC)
+
+[Unit]
+Description=PCP Crawler — Extra Consultoria
+After=network-online.target
+Wants=network-online.target
+OnFailure=onfailure@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/monitor.py --source pcp --mode full
+User=extra-consultoria
+StandardOutput=journal
+StandardError=journal

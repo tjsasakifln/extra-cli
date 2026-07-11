@@ -1,0 +1,14 @@
+# /etc/systemd/system/compras-gov-crawl.timer
+# ComprasGov crawler — daily at 07:00 UTC
+
+[Unit]
+Description=ComprasGov Crawler Timer — Extra Consultoria
+Requires=compras-gov-crawl.service
+
+[Timer]
+OnCalendar=*-*-* 07:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

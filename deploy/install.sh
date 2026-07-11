@@ -56,12 +56,13 @@ cp "$APP_DIR/deploy/systemd/"*.service /etc/systemd/system/
 cp "$APP_DIR/deploy/systemd/"*.timer /etc/systemd/system/
 systemctl daemon-reload
 
-systemctl enable pncp-crawl-full.timer
-systemctl enable pncp-crawl-inc.timer
-systemctl enable coverage-report.timer
-systemctl start pncp-crawl-full.timer
-systemctl start pncp-crawl-inc.timer
-systemctl start coverage-report.timer
+# Enable and start all timers
+for timer in pncp-crawl-full pncp-crawl-inc coverage-report \
+             dom-sc-crawl pcp-crawl compras-gov-crawl \
+             pncp-contracts pncp-enrich pncp-purge pncp-report-weekly; do
+    systemctl enable "${timer}.timer"
+    systemctl start "${timer}.timer"
+done
 
 # ---- Done ----
 echo ""

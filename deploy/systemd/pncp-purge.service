@@ -1,0 +1,19 @@
+# /etc/systemd/system/pncp-purge.service
+# Data purge (>400 days) — daily at 07:00 UTC
+# Calls purge_old_records(400) via SQL RPC
+
+[Unit]
+Description=PNCP Data Purge — Extra Consultoria
+After=network-online.target
+Wants=network-online.target
+OnFailure=onfailure@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/python3 -c "import psycopg2,os;c=psycopg2.connect(os.getenv('LOCAL_DATALAKE_DSN'));c.cursor().execute('SELECT purge_old_records(400)');c.commit();c.close()"
+User=extra-consultoria
+StandardOutput=journal
+StandardError=journal

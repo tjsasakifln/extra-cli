@@ -1,0 +1,14 @@
+# /etc/systemd/system/pncp-purge.timer
+# Data purge — daily at 07:00 UTC
+
+[Unit]
+Description=PNCP Data Purge Timer — Extra Consultoria
+Requires=pncp-purge.service
+
+[Timer]
+OnCalendar=*-*-* 07:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

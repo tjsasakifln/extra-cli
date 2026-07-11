@@ -1,0 +1,18 @@
+# /etc/systemd/system/pncp-contracts.service
+# PNCP contracts crawler — Mon, Wed, Fri at 06:00 UTC
+
+[Unit]
+Description=PNCP Contracts Crawler — Extra Consultoria
+After=network-online.target
+Wants=network-online.target
+OnFailure=onfailure@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/monitor.py --source contracts --mode full
+User=extra-consultoria
+StandardOutput=journal
+StandardError=journal

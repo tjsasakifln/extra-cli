@@ -1,0 +1,16 @@
+# /etc/systemd/system/dom-sc-crawl.timer
+# DOM-SC crawler — 3x daily at 06, 14, 22 UTC
+
+[Unit]
+Description=DOM-SC Crawler Timer — Extra Consultoria
+Requires=dom-sc-crawl.service
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+OnCalendar=*-*-* 14:00:00
+OnCalendar=*-*-* 22:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target
