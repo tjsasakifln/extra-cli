@@ -1,1 +1,3 @@
 - [Entity Name-Matching Cascade](project_cascade_matching.md) — 3-level cascade (CNPJ > nome+municipio > fuzzy) em monitor.py
+- [Monitoring & Alerts TD-5.5](story-td-5.5-monitoring-alerts.md) — collect-metrics, check-alerts, notify, health-dashboard
+- [FEAT-3.1 Pipeline Intel CNPJ Extra](project_feat_3_1_pipeline_intel.md) — Pipeline executado para 01721078000168 (LCM CONTRUCOES LTDA) SC 90d. 0 oportunidades. report_dedup.py e intel_sectors_config.yaml criados.

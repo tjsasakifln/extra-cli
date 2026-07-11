@@ -43,10 +43,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 
 SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc"]
 
-DEFAULT_DSN = os.getenv(
-    "LOCAL_DATALAKE_DSN",
-    "postgresql://postgres@127.0.0.1:5433/pncp_datalake",
-)
+from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)
 
 COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
 

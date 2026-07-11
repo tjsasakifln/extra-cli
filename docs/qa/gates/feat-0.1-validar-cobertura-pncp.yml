@@ -1,0 +1,8 @@
+schema: 1
+story: FEAT-0.1
+gate: PASS
+status_reason: 'All 7 quality checks passed. 191/191 tests passing, 5/5 ACs met. Research report documents 91.8% coverage gap (1.003 uncovered entities within 200km), entity matching results, and priority recommendations for all crawlers.'
+reviewer: 'Quinn'
+updated: '2026-07-11T12:00:00Z'
+top_issues: []
+waiver: { active: false }

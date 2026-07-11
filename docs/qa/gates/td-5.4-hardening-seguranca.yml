@@ -1,0 +1,23 @@
+schema: 1
+story: 'TD-5.4'
+gate: PASS
+status_reason: >-
+  Ambos os escopos implementados e verificados: (1) Server hardening —
+  deploy/hardening/ufw-rules.sh, fail2ban-jail.conf, pg_hba.conf com
+  scram-sha-256 e SSL obrigatorio, documentados em security-hardening.md;
+  (2) Code hardening — security.py importado por 7 crawlers com
+  sanitize_url_param() + USER_AGENT, md5 usedforsecurity=False em 10/10
+  ocorrencias. 9/10 ACs fully met, 1 low-severity issue remanescente.
+reviewer: 'Quinn'
+updated: '2026-07-11T23:30:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: low
+    finding: >-
+      No unit tests for security.py module (sanitize_url_param, make_url).
+      Previously noted in FAIL gate and remains unresolved.
+    suggested_action: >-
+      Add unit tests for URL encoding edge cases (unicode, special chars,
+      None values, empty strings) in a future iteration.
+waiver:
+  active: false

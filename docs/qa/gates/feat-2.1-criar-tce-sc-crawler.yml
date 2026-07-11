@@ -1,0 +1,17 @@
+schema: 1
+story: 'FEAT-2.1'
+gate: PASS
+status_reason: 'Re-validacao: 7/7 quality checks green. REL-001 corrigido (MAX_PAGES removida). TEST-001 e REL-002 mantidos como concerns menores documentados — sem testes especificos e filtro de data ausente em contratos, ambos aceitos.'
+reviewer: 'Quinn'
+updated: '2026-07-11T14:00:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: medium
+    finding: 'Nenhum teste unitário para tce_sc_crawler.py — módulo sem cobertura especifica'
+    suggested_action: 'Adicionar test_tce_sc_crawler.py com mock da API SCMWeb cobrindo crawl, transform, modalidade mapping e edge cases'
+  - id: 'REL-002'
+    severity: low
+    finding: '_fetch_contratos nao aplica filtro de data no cliente (diferente de _fetch_licitacoes que filtra por Data_Abertura). Contratos retornam dataset completo independente do parametro data_inicial/data_final'
+    suggested_action: 'Verificar se contratos SCMWeb possuem campo de data publicavel para filtrar no cliente, similar ao que e feito em licitacoes'
+waiver:
+  active: false

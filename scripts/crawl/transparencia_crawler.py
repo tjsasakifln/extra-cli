@@ -624,7 +624,7 @@ def _extract_row(
 
     # Generate content hash
     content_key = f"{row['modalidade']}|{row['objeto']}|{row['data_publicacao']}|{row['valor']}"
-    row["content_hash"] = hashlib.md5(content_key.encode()).hexdigest()
+    row["content_hash"] = hashlib.md5(content_key.encode(), usedforsecurity=False).hexdigest()
 
     return row
 

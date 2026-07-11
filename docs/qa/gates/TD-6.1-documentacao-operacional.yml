@@ -1,0 +1,20 @@
+schema: 1
+story: 'TD-6.1'
+gate: PASS
+status_reason: 'All 6 acceptance criteria met. CONCERNS issues TEST-001 and DOC-001 resolved on 2026-07-11. 22/22 tests pass.'
+reviewer: 'Quinn / Dex'
+updated: '2026-07-11T23:00:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: low
+    finding: 'test_level3_fuzzy_match_high_confidence in tests/test_entity_matcher.py asserts result["fuzzy"] == 1 but test data uses exact name match — correctly resolves at Level 2 (name_normalized), not Level 3 (fuzzy). Test needs different input to properly exercise fuzzy matching.'
+    suggested_action: 'Update test data to use a name similar but not identical to entity, e.g. "PREFEITURA MUNICIPAL FLORIANOPOLIS" (without "DE").'
+    resolved: true
+    resolution: 'Test data changed to "PREFEITURA MUNICIPAL FLORIANOPOLIS" (sem "DE") forces fuzzy=1. Assertion strengthened to result["fuzzy"] == 1. 22/22 tests pass.'
+  - id: 'DOC-001'
+    severity: low
+    finding: 'Story File List labels scripts/matching/entity_matcher.py as "modificado" but the file was not in HEAD (is a new file, not a modification).'
+    suggested_action: 'Update story File List to label entity_matcher.py as "novo" instead of "modificado".'
+    resolved: true
+    resolution: 'File List label changed from "modificado" to "novo".'
+waiver: { active: false }

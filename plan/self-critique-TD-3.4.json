@@ -1,0 +1,30 @@
+{
+  "subtaskId": "TD-3.4-error-handling",
+  "critiquedAt": "2026-07-11T12:00:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "ImportError: urllib.error.HTTPError usado em detect_platform() do transparencia_crawler sem import. Corrigido trocando por OSError que cobre a hierarquia toda.",
+      "NameError: json como alias _json dentro de _make_request no compras_gov_crawler conflita com import global. Corrigido removendo alias redundante.",
+      "JSONDecodeError nao capturado separadamente no pcp_crawler — adicionado para evitar traceback silencioso de JSON malformado."
+    ],
+    "edgeCases": [
+      "Servidor retorna 204 No Content sem body — JSONDecodeError capturado evita crash (contracts_crawler ja trata).",
+      "429 sem header Retry-After — fallback para 60s default em todos os crawlers.",
+      "URL com caracteres especiais (acentos, espacos) — urllib.request.Request faz encoding automatico."
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

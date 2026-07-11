@@ -1,0 +1,12 @@
+schema: 1
+story: 'TD-5.2'
+gate: PASS
+status_reason: 'All 7 quality checks pass. BUG-001, BUG-002 resolved (sync is_crawl_completed_today and save_checkpoint added to checkpoint.py). DOC-001 resolved (documentation reflects dual API). TEST-001 resolved (15/15 checkpoint tests, 100% pass). Verdict: PASS.'
+reviewer: 'Quinn'
+updated: '2026-07-11T23:30:00Z'
+top_issues:
+  - id: 'MNT-001'
+    severity: low
+    finding: 'top-level import of supabase_client in checkpoint.py line 25 couples sync and async APIs; if supabase_client is unavailable the entire module (including sync functions used by orchestrator) fails to load. loader.py uses the same pattern but enricher.py and others use lazy imports.'
+    suggested_action: 'Consider deferring the supabase_client import inside async-only functions (get_last_checkpoint, mark_checkpoint_failed, create_ingestion_run, complete_ingestion_run) to isolate the sync API from the async dependency.'
+waiver: { active: false }

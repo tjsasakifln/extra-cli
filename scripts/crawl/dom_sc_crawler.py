@@ -24,6 +24,13 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.crawl.common import (
+    digits_only as _digits_only,
+    parse_date as _parse_date,
+    safe_float as _safe_float,
+)
+from scripts.crawl.security import USER_AGENT, sanitize_url_param
+
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
@@ -72,59 +79,7 @@ ESFERA_ID_MUNICIPAL = 3
 # ---------------------------------------------------------------------------
 
 
-def _digits_only(s: str | None) -> str:
-    """Strip non-digit characters from a string."""
-    if not s:
-        return ""
-    return re.sub(r"\D", "", s)
-
-
-def _parse_date(value: Any) -> str | None:
-    """Parse a date from various formats to YYYY-MM-DD string.
-
-    Handles ISO 8601 (2026-07-09), Brazilian (09/07/2026), and
-    datetime strings like '2026-07-09T00:00:00'.
-    """
-    if not value:
-        return None
-    if isinstance(value, date) and not isinstance(value, datetime):
-        return value.isoformat()
-    if isinstance(value, datetime):
-        return value.date().isoformat()
-    if isinstance(value, str):
-        s = value.strip()
-        if len(s) >= 10 and s[4] == "-":
-            return s[:10]
-        if len(s) >= 10 and s[2] == "/":
-            try:
-                return datetime.strptime(s[:10], "%d/%m/%Y").date().isoformat()
-            except ValueError:
-                pass
-        # Try partial ISO (YYYY-MM-DD anywhere)
-        for i in range(len(s) - 9):
-            if s[i + 4] == "-" and s[i + 7] == "-":
-                return s[i:i + 10]
-    return None
-
-
-def _safe_float(value: Any) -> float | None:
-    """Safely parse a numeric value to float."""
-    if value is None:
-        return None
-    try:
-        if isinstance(value, (int, float)):
-            return round(float(value), 2)
-        val_str = str(value).strip()
-        if not val_str:
-            return None
-        # Brazilian format: "150.000,00" or "150000.00"
-        if "," in val_str and "." in val_str:
-            val_str = val_str.replace(".", "").replace(",", ".")
-        elif "," in val_str:
-            val_str = val_str.replace(",", ".")
-        return round(float(val_str), 2)
-    except (ValueError, TypeError):
-        return None
+# Helpers _digits_only, _parse_date, _safe_float imported from common.py (TD-3.2)
 
 
 # ---------------------------------------------------------------------------
@@ -143,7 +98,7 @@ def _api_request(url: str, params: dict[str, Any]) -> dict | None:
     import urllib.error
     import urllib.request
 
-    query = "&".join(f"{k}={v}" for k, v in params.items())
+    query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
     full_url = f"{url}?{query}"
 
     # Build Basic Auth header manually (urllib BasicAuth can be tricky)
@@ -154,7 +109,7 @@ def _api_request(url: str, params: dict[str, Any]) -> dict | None:
     req = urllib.request.Request(full_url)
     req.add_header("Authorization", f"Basic {encoded_creds}")
     req.add_header("X-API-Key", DOM_SC_API_KEY)
-    req.add_header("User-Agent", "Extra-Consultoria/1.0 (consultoria-licitacoes)")
+    req.add_header("User-Agent", USER_AGENT)
     req.add_header("Accept", "application/json")
 
     try:
@@ -297,7 +252,7 @@ def _generate_content_hash(record: dict) -> str:
 
     key_fields = [orgao_cnpj, numero, data_pub]
     key_str = "|".join(key_fields)
-    return hashlib.md5(key_str.encode("utf-8")).hexdigest()
+    return hashlib.md5(key_str.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 def _transform_record(raw: dict) -> dict | None:
@@ -321,7 +276,7 @@ def _transform_record(raw: dict) -> dict | None:
 
         # Build synthetic pncp_id
         pncp_id_input = f"{orgao_cnpj}|{numero}|{_parse_date(data_pub_raw) or ''}"
-        pncp_id = hashlib.md5(pncp_id_input.encode("utf-8")).hexdigest()
+        pncp_id = hashlib.md5(pncp_id_input.encode("utf-8"), usedforsecurity=False).hexdigest()
 
         # Build objeto_compra from available data
         categoria_raw = raw.get("categoria")

@@ -1,0 +1,33 @@
+{
+  "subtaskId": "TD-1.2",
+  "critiquedAt": "2026-07-11T18:30:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "DSN vazio crasha psycopg2.connect() em seed scripts sem mensagem amigavel — db/seed/001_sc_entities.py e seed_sc_entities.py chamam connect() direto sem try/except quando --dsn default vazio",
+      "intel_pipeline.py CalledProcessError.stderr pode ser None se subprocess falhar sem stderr, causando AttributeError no .decode('utf-8')",
+      "DatalakeClient._should_use_local() verifica os.getenv('LOCAL_DATALAKE_DSN') como truthy — com default vazio, a funcao retorna False mesmo que a var exista com valor vazio, forçando fallback Supabase inesperado"
+    ],
+    "edgeCases": [
+      "LOCAL_DATALAKE_DSN definida como string vazia no .env vs nao definida — os.getenv retorna '' vs None, comportamento diferente em _should_use_local()",
+      "psycopg2.connect('') lanca OperationalError sem hint de configuracao — usuarios podem nao entender que precisam configurar .env",
+      "intel_pipeline.py stdout com <15 linhas — stdout_lines[-15:] funciona, mas se stdout_lines for vazio (0 linhas), o loop nao executa, que e correto"
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true,
+    "observations": {
+      "testsAdded": "N/A — story de seguranca/refactoring sem mudanca de comportamento funcional. Projeto nao possui suite de testes para esses modulos. Auditoria manual validou remocao de segredos."
+    }
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

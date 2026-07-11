@@ -1,0 +1,9 @@
+schema: 1
+story: 'TD-2.2'
+gate: PASS
+status_reason: 'Re-execucao apos fixes. Todas as 8 ACs verificadas. 3 CONCERNS issues resolvidos (MNT-001: dependencia 005-v2→003-v2 documentada; MNT-002: public. qualifier adicionado em 8 referencias; DOC-001: checksums sha256 reais). CodeRabbit identificou 2 achados menores pre-existentes (rollback_sql generico, escopo de constraint) — documentados como divida tecnica, nao introduzidos por esta story.'
+reviewer: 'Quinn'
+updated: '2026-07-11T22:00:00Z'
+top_issues: []
+waiver:
+  active: false

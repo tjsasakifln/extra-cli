@@ -1,0 +1,31 @@
+schema: 1
+story: 'FEAT-2.2'
+gate: CONCERNS
+status_reason: >
+  9/9 ACs implementados, código bem estruturado com 4 templates de plataforma
+  (Betha, Ipam, E-gov, Genérico) + detecção DuckDuckGo + delegacão template-driven.
+  Sem testes unitários para 1380 linhas de código de produção (7 arquivos Python).
+reviewer: 'Quinn (Guardian)'
+updated: '2026-07-11T23:30:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: medium
+    finding: >
+      Nenhum teste unitário para transparencia_crawler.py (1380 linhas) nem para
+      os 6 módulos de template (betha.py, ipam.py, egov.py, generico.py, base.py,
+      __init__.py). Os outros crawlers do projeto (compras_gov, contracts, pcp)
+      possuem testes em tests/. Ausência quebra o padrão do projeto.
+    suggested_action: >
+      Criar test_transparencia_crawler.py em tests/ com cobertura para:
+      detect_platform(), _parse_valor(), _parse_date(), _slugify(),
+      transform(), load_config(), e templates individuais com HTML mockado.
+checks:
+  code_review: PASS
+  unit_tests: FAIL
+  acceptance_criteria: PASS
+  no_regressions: PASS
+  performance: PASS
+  security: PASS
+  documentation: PASS
+waiver:
+  active: false

@@ -16,7 +16,6 @@ API: Portal de Compras Publicas v2 Public API
 
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 import os
@@ -29,6 +28,12 @@ import urllib.request
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
+
+from scripts.crawl.common import (
+    generate_content_hash as _common_content_hash,
+    parse_date as _parse_date,
+)
+from scripts.crawl.security import USER_AGENT, sanitize_url_param
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -180,16 +185,14 @@ def _fetch_page(pagina: int, data_inicial: str, data_final: str) -> tuple[list[d
         "tipoData": "1",
         "pagina": str(pagina),
     }
-    query = "&".join(f"{k}={v}" for k, v in params.items())
+    query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
     url = f"{PCP_BASE}/v2/licitacao/processos?{query}"
 
     for attempt in range(PCP_MAX_RETRIES + 1):
         try:
             req = urllib.request.Request(url)
             req.add_header("Accept", "application/json")
-            req.add_header(
-                "User-Agent", "Extra-Consultoria/1.0 (consultoria-licitacoes)"
-            )
+            req.add_header("User-Agent", USER_AGENT)
 
             with urllib.request.urlopen(req, timeout=PCP_READ_TIMEOUT) as resp:
                 body = resp.read().decode("utf-8")
@@ -250,57 +253,9 @@ def _fetch_page(pagina: int, data_inicial: str, data_final: str) -> tuple[list[d
 # ---------------------------------------------------------------------------
 
 
-def _parse_date(value: Any) -> str | None:
-    """Parse datetime from PCP v2 format to YYYY-MM-DD string."""
-    if not value:
-        return None
-
-    if isinstance(value, datetime):
-        return value.strftime("%Y-%m-%d")
-
-    if isinstance(value, (int, float)):
-        try:
-            return datetime.fromtimestamp(value / 1000).strftime("%Y-%m-%d")
-        except (ValueError, OSError):
-            return None
-
-    if isinstance(value, str):
-        formats = [
-            "%Y-%m-%dT%H:%M:%S.%fZ",
-            "%Y-%m-%dT%H:%M:%SZ",
-            "%Y-%m-%dT%H:%M:%S.%f",
-            "%Y-%m-%dT%H:%M:%S",
-            "%Y-%m-%d %H:%M:%S",
-            "%Y-%m-%d",
-            "%d/%m/%Y %H:%M:%S",
-            "%d/%m/%Y",
-        ]
-        cleaned = value.replace("+00:00", "Z").replace("+0000", "Z")
-        for fmt in formats:
-            try:
-                dt = datetime.strptime(cleaned.rstrip("Z"), fmt.rstrip("Z"))
-                return dt.strftime("%Y-%m-%d")
-            except ValueError:
-                continue
-
-    return None
-
-
-# ---------------------------------------------------------------------------
-# Content hash (MD5 for dedup)
-# ---------------------------------------------------------------------------
-
-
 def _generate_content_hash(record: dict) -> str:
-    """Deterministic MD5 hash over key fields."""
-    key_fields = [
-        str(record.get("orgao_cnpj", "")),
-        str(record.get("objeto_compra", "")),
-        str(record.get("data_publicacao", "")),
-        str(record.get("valor_total_estimado", "")),
-    ]
-    key_str = "|".join(key_fields)
-    return hashlib.md5(key_str.encode("utf-8")).hexdigest()
+    """Deterministic MD5 hash over key fields (delegates to common)."""
+    return _common_content_hash(record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"])
 
 
 # ---------------------------------------------------------------------------

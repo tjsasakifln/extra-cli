@@ -1,0 +1,30 @@
+{
+  "subtaskId": "FEAT-3.1",
+  "critiquedAt": "2026-07-11T15:50:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "report_dedup.normalize_for_dedup() pode gerar set vazio para textos muito curtos (< 3 chars cada token), fazendo jaccard_similarity retornar 0.0 mesmo para textos que deveriam ser duplicatas",
+      "semantic_dedup() usa hash() como fallback de dedup key quando nao ha CNPJ/ano/sequencial — hash() nao e deterministica entre execucoes Python, podendo gerar falsos positivos/negativos em diferentes runs",
+      "intel_sectors_config.yaml sem setor 'geral' — CNAEs de atividades imobiliarias (6810) e limpeza (8129) mapeiam para 'geral' com apenas 1 keyword ('licitacao'), resultando em keyword_density = 0 para a maioria dos editais"
+    ],
+    "edgeCases": [
+      "DataLake vazio e PNCP API retornando 429 (rate limit) — pipeline deve fallback graciosamente, mas timeout de 600s pode ser insuficiente em janelas >90 dias",
+      "0 editais CNAE-compativeis — Gate 4 (Conteudo) aborta pipeline. Gate 5 (Recomendacao) passa mesmo com 0 editais. Discrepancia de comportamento entre gates",
+      "OPENAI_API_KEY vazio — LLM Gate opera em modo keyword-only. Se nenhum keyword positivo/negativo match, todos os editais sao marcados como incompatible_conservative"
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

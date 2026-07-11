@@ -1,0 +1,14 @@
+# /etc/systemd/system/extra-health-check.timer
+# Health check — every 30 minutes
+# Extra Consultoria — Story FEAT-4.1
+
+[Unit]
+Description=Extra Consultoria — Health Check Timer
+
+[Timer]
+OnCalendar=*:0/30:00
+RandomizedDelaySec=60
+Persistent=false
+
+[Install]
+WantedBy=timers.target

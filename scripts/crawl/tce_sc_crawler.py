@@ -29,6 +29,8 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.crawl.security import USER_AGENT, sanitize_url_param
+
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
@@ -226,7 +228,7 @@ def _api_request(params: dict[str, Any], timeout: int = HTTP_TIMEOUT) -> dict | 
     param_parts = []
     for k, v in params.items():
         if v is not None:
-            param_parts.append(f"{k}={v}")
+            param_parts.append(f"{k}={sanitize_url_param(v)}")
     query = "&".join(param_parts)
 
     # Ensure base params for SCMWeb transparency
@@ -242,14 +244,14 @@ def _api_request(params: dict[str, Any], timeout: int = HTTP_TIMEOUT) -> dict | 
     param_parts.append(ORGAO_PARAM)
     for k, v in params.items():
         if k != "pg" and v is not None:
-            param_parts.append(f"{k}={v}")
+            param_parts.append(f"{k}={sanitize_url_param(v)}")
     query = "&".join(param_parts)
     full_url = f"{BASE_URL}?{query}"
 
     for attempt in range(MAX_RETRIES + 1):
         try:
             req = urllib.request.Request(full_url)
-            req.add_header("User-Agent", "Extra-Consultoria/1.0 (consultoria-licitacoes)")
+            req.add_header("User-Agent", USER_AGENT)
             req.add_header("Accept", "application/json")
             req.add_header("Accept-Language", "pt-BR,pt;q=0.9")
 
@@ -526,7 +528,7 @@ def _generate_content_hash(record: dict) -> str:
         str(record.get("valor_total_estimado", "")),
     ]
     key_str = "|".join(key_fields)
-    return hashlib.md5(key_str.encode("utf-8")).hexdigest()
+    return hashlib.md5(key_str.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 def _transform_licitacao(raw: dict) -> dict | None:

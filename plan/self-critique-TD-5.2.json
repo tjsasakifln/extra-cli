@@ -1,0 +1,30 @@
+{
+  "subtaskId": "TD-5.2",
+  "critiquedAt": "2026-07-11T00:00:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "Conn passado para is_crawl_completed_today() pode estar fechado se chamado depois de conn.close() — ocorre em crawl_source() que fecha conexao apos checkpoint check",
+      "ON CONFLICT upsert pode falhar se houver trigger/constraint na tabela ingestion_checkpoints que o codigo atual nao conhece",
+      "save_checkpoint() e chamado depois de conn.commit() no orchestrator, mas dentro de um bloco try — se conn estiver em estado de erro (rollback pendente), o save_checkpoint() pode falhar silenciosamente"
+    ],
+    "edgeCases": [
+      "Source que nunca rodou antes: get_checkpoint() retorna None, is_crawl_completed_today() retorna False — comportamento correto",
+      "Checkpoint com last_date = ontem para source rodada ontem: is_crawl_completed_today() retorna False com ref_date default (hoje) — correto, precisa rodar de novo",
+      "Falha no save_checkpoint() apos crawl bem-sucedido: o checkpoint nao e salvo, mas os dados ja estao no banco (upsert feito antes) — o crawler vai rodar de novo no proximo ciclo incremental, comportamento aceitavel"
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

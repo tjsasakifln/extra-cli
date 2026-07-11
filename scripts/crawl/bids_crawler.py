@@ -1,4 +1,32 @@
-"""PNCP Data Lake crawler — BidsCrawler.
+"""
+DEPRECATED — PNCP Data Lake crawler (BidsCrawler).
+
+**Status:** DEPRECATED since 2026-07-11 (TD-3.2 — Eliminar Codigo Duplicado)
+**Reason for deprecation:** Two competing PNCP crawler implementations existed:
+the sync adapter (``pncp_crawler_adapter.py``) and this async BidsCrawler.
+The sync adapter was chosen as the single implementation because it is simpler,
+more testable, and avoids the ``asyncio`` / ``AsyncPNCPClient`` dependency chain
+(which required the ``ingestion`` package that overlaps with the new ``scripts.crawl``
+architecture).
+
+**Replacement:** ``scripts/crawl/pncp_crawler_adapter.py`` (sync interface consumed
+by ``monitor.py`` and ``orchestrator.py``).
+
+**Rollback plan:**
+  1. Restore the ``bids_crawler.py`` file and its dependencies:
+     - ``pncp_client.py`` (AsyncPNCPClient)
+     - ``ingestion._base.crawler`` (BaseCrawler, CrawlerResult, etc.)
+     - ``ingestion.loader`` (bulk_upsert)
+     - ``ingestion.transformer`` (transform_batch)
+     - ``ingestion.checkpoint`` (checkpoint helpers)
+     - ``ingestion.metrics`` (Prometheus metrics)
+  2. Revert ``pncp_crawler_adapter.py`` to a thin wrapper delegating to BidsCrawler.
+  3. Run ``pytest tests/`` to verify no regressions.
+  4. Update ``monitor.py`` and ``orchestrator.py`` source mapping if needed.
+
+================================================================================
+
+PNCP Data Lake crawler — BidsCrawler.
 
 Crawls PNCP licitacoes (bids) from ``/consulta/v1/contratacoes/publicacao``
 and upserts into ``pncp_raw_bids`` via the ``bulk_upsert`` RPC.

@@ -1,0 +1,30 @@
+{
+  "subtaskId": "TD-2.2",
+  "critiquedAt": "2026-07-11T15:22:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "Migration 002-v2 referencia sequence coverage_snapshots_id_seq que nao e owned pela tabela entity_coverage — nao causa erro, mas e um artifact de copia. Corrigido antes da aplicacao.",
+      "Migration 003-v2 v_unmatched_bids referencia match_method/match_score/match_confidence que serao criados APENAS na migration 005-v2 — a ordem de aplicacao deve ser respeitada (005 antes de 003). Documentado na secao de ordem de aplicacao.",
+      "Migration 005-v2 usa ADD COLUMN IF NOT EXISTS que e reexecutavel, mas se o tipo DECIMAL(4,3) divergir do tipo real no banco, o IF NOT EXISTS apenas ignora sem validar. Documentado como descoberta."
+    ],
+    "edgeCases": [
+      "Banco sem a extensao pg_trgm — migrations 002-005 nao dependem dela, mas indexes GIN em objeto_contrato sim. Nao afetado por este escopo.",
+      "Banco sem a tabela _migrations — todas as migrations fazem INSERT ON CONFLICT DO NOTHING, entao nao ha erro. Mas o INSERT nunca sera executado se a tabela nao existir. As migrations assumem que _migrations existe (criada em _migrations.sql ou 001-v2).",
+      "Seeder de dados de cobertura (INSERT INTO entity_coverage...) foi removido das migrations adaptadas — a aplicacao gerencia estes dados via triggers. Ambientes que dependiam do seed precisam de insercao manual ou execucao do crawler."
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

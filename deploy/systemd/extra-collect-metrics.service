@@ -1,0 +1,19 @@
+# /etc/systemd/system/extra-collect-metrics.service
+# Periodic metrics collection from crawl coverage
+# Extra Consultoria — Story TD-5.5
+
+[Unit]
+Description=Extra Consultoria — Collect Crawl Metrics
+Documentation=https://github.com/extra-consultoria/docs/ops/monitoring.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/collect-metrics.py --summary
+User=extra-consultoria
+StandardOutput=journal
+StandardError=journal

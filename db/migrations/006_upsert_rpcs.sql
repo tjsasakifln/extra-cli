@@ -1,5 +1,12 @@
 -- Migration 006: Upsert RPCs
 -- Batch upsert with dedup by content_hash
+--
+-- Consolidated per TD-3.2 (Eliminar Codigo Duplicado):
+-- The set-based upsert functions below are the ONLY active implementation.
+-- The row-by-row variant (historically in monitor.py's direct INSERT loop)
+-- has been deprecated in favor of these set-based RPCs, which are ~10x
+-- faster for large batches and provide consistent dedup via content_hash
+-- (pncp_raw_bids) and contrato_id (pncp_supplier_contracts).
 
 -- Batch upsert for bids (multi-source)
 CREATE OR REPLACE FUNCTION upsert_pncp_raw_bids(p_records JSONB)

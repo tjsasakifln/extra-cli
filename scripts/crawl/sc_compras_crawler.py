@@ -26,6 +26,8 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.crawl.security import sanitize_url_param
+
 # Add project root to path for standalone usage
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
@@ -172,7 +174,7 @@ def _parse_br_number(s: str | None) -> float | None:
 def _content_hash(*parts: str) -> str:
     """Deterministic MD5 hash of joined parts for dedup."""
     raw = "|".join(parts)
-    return hashlib.md5(raw.encode("utf-8")).hexdigest()
+    return hashlib.md5(raw.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 # ---------------------------------------------------------------------------
@@ -347,7 +349,7 @@ def _extract_detail_fields(html: str) -> dict:
 def _fetch(url: str, params: dict[str, str] | None = None) -> str | None:
     """Fetch a URL via GET with retries. Returns body text or None on failure."""
     if params:
-        query = "&".join(f"{k}={v}" for k, v in params.items())
+        query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
         full_url = f"{url}?{query}"
     else:
         full_url = url

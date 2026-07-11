@@ -1,0 +1,40 @@
+schema: 1
+story: TD-3.3
+title: "Adicionar Type Hints"
+gate: PASS
+status_reason: "All 7 quality checks passed. mypy --strict: 0 errors in 6 core modules. pytest: 175/175 passing. All 6 acceptance criteria met. 2,484 lines annotated across 6 modules with Python 3.10+ syntax."
+reviewer: "Quinn"
+updated: "2026-07-11T12:15:00Z"
+top_issues: []
+waiver:
+  active: false
+
+checks:
+  - id: "CHECK-1"
+    name: "Code Review"
+    result: PASS
+    details: "Type hints use modern Python 3.10+ syntax (list[X] | None instead of Optional[List[X]]). Any used for psycopg2 connections (correct, no stubs). Callable typed for lambdas. No # type: ignore comments remaining. Consistent style."
+  - id: "CHECK-2"
+    name: "Unit Tests"
+    result: PASS
+    details: "175 tests passing (0 failures, 1 warning). Coverage report generated."
+  - id: "CHECK-3"
+    name: "Acceptance Criteria"
+    result: PASS
+    details: "AC1: match_entities_cascade fully annotated (conn, source, entities, return). AC2: All public functions in monitor.py annotated. AC3: All extracted modules annotated. AC4: pyproject.toml configured. AC5: mypy --strict passes (0 errors). AC6: 175/175 tests, no regression."
+  - id: "CHECK-4"
+    name: "No Regressions"
+    result: PASS
+    details: "All 175 existing tests pass without regression. Type-only changes — no business logic modified."
+  - id: "CHECK-5"
+    name: "Performance"
+    result: PASS
+    details: "Type hints are compile-time only. No runtime performance impact."
+  - id: "CHECK-6"
+    name: "Security"
+    result: PASS
+    details: "No security implications from type annotations. No credentials or vulnerabilities introduced."
+  - id: "CHECK-7"
+    name: "Documentation"
+    result: PASS
+    details: "docs/td-001/type-hints.md created with full progress report, module list, and configuration notes."

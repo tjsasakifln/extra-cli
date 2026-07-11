@@ -1,0 +1,479 @@
+{
+  "generated_at": "2026-07-11T13:00:00Z",
+  "modules": [
+    {
+      "name": "crawl",
+      "path": "scripts/crawl",
+      "purpose": "Coleta multi-source de licitações e contratos de 8 fontes (PNCP, DOM-SC, PCP, ComprasGov, SC Compras, TCE-SC, Transparência, Contratos), normalização para schema unificado, upsert no DataLake e entity matching com órgãos SC via cascade CNPJ → nome → fuzzy.",
+      "primary_files": [
+        "scripts/crawl/monitor.py",
+        "scripts/crawl/pncp_crawler_adapter.py",
+        "scripts/crawl/dom_sc_crawler.py",
+        "scripts/crawl/pcp_crawler.py",
+        "scripts/crawl/compras_gov_crawler.py",
+        "scripts/crawl/tce_sc_crawler.py",
+        "scripts/crawl/transformer.py",
+        "scripts/crawl/enricher.py"
+      ],
+      "functions": [
+        {
+          "name": "crawl_source",
+          "file": "scripts/crawl/monitor.py",
+          "params": ["source: str", "entities: list[dict]", "mode: str"],
+          "returns": "dict",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "_match_entities_cascade",
+          "file": "scripts/crawl/monitor.py",
+          "params": ["conn", "source: str", "entities: list[dict]"],
+          "returns": "dict (stats: cnpj, name_normalized, fuzzy, unmatched, total)",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "report_coverage",
+          "file": "scripts/crawl/monitor.py",
+          "params": ["conn"],
+          "returns": "dict (groups, total_entities, total_covered, total_uncovered, by_source, uncovered_entities_200km)",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "compute_content_hash",
+          "file": "scripts/crawl/transformer.py",
+          "params": ["item: dict"],
+          "returns": "str (SHA-256 hex)",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "transform_pncp_item",
+          "file": "scripts/crawl/transformer.py",
+          "params": ["raw_item: dict", "source: str", "crawl_batch_id: str | None"],
+          "returns": "dict (pncp_raw_bids row)",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "pncp_raw_bids",
+          "fields": [
+            { "name": "pncp_id", "type": "TEXT", "required": true },
+            { "name": "objeto_compra", "type": "TEXT", "required": false },
+            { "name": "valor_total_estimado", "type": "NUMERIC(18,2)", "required": false },
+            { "name": "modalidade_id", "type": "INT", "required": false },
+            { "name": "uf", "type": "TEXT", "required": false },
+            { "name": "municipio", "type": "TEXT", "required": false },
+            { "name": "orgao_razao_social", "type": "TEXT", "required": false },
+            { "name": "orgao_cnpj", "type": "TEXT", "required": false },
+            { "name": "data_publicacao", "type": "DATE", "required": false },
+            { "name": "source", "type": "TEXT", "required": true },
+            { "name": "matched_entity_id", "type": "INT", "required": false },
+            { "name": "content_hash", "type": "TEXT", "required": false },
+            { "name": "tsv", "type": "TSVECTOR", "required": false }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Entity matching: Level 1 CNPJ (score 1.0, confidence high), Level 2 name+municipio (score 1.0, confidence high), Level 3 fuzzy (threshold 0.85, confidence high/medium/low)",
+          "location": "scripts/crawl/monitor.py:142-341",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Content dedup: SHA-256 of objeto+valor+situacao canonicalized to lowercase",
+          "location": "scripts/crawl/transformer.py:30-44",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Source crawl orchestration: Crawl → Transform → Upsert → Entity Match → Coverage Update",
+          "location": "scripts/crawl/monitor.py:454-532",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["lib", "config", "db"],
+      "algorithms": [
+        {
+          "name": "Entity Matching 3-Level Cascade",
+          "description": "Progressive fallback matching: CNPJ 8-digit exact → normalized name + IBGE constraint → fuzzy ratio with rapidfuzz/difflib. Each bid gets match_method, match_score, match_confidence logged.",
+          "complexity": "medium"
+        },
+        {
+          "name": "Content Hash Dedup",
+          "description": "SHA-256 hash of canonicalized business fields prevents redundant DB writes across crawl runs.",
+          "complexity": "low"
+        }
+      ],
+      "complexity": "high"
+    },
+    {
+      "name": "intel",
+      "path": "scripts/intel_*.py",
+      "purpose": "Pipeline completo de inteligência para um CNPJ alvo: coleta → enriquecimento → LLM gate → extração de documentos → análise → validação → relatório (PDF + Excel). 7 stages com 5 quality gates.",
+      "primary_files": [
+        "scripts/intel_pipeline.py",
+        "scripts/intel_collect.py",
+        "scripts/intel_enrich.py",
+        "scripts/intel_llm_gate.py",
+        "scripts/intel_analyze.py",
+        "scripts/intel_report.py",
+        "scripts/intel_excel.py"
+      ],
+      "functions": [
+        {
+          "name": "run_pipeline",
+          "file": "scripts/intel_pipeline.py",
+          "params": ["cnpj: str", "ufs: list[str]", "dias: int", "top: int"],
+          "returns": "int (exit code)",
+          "confidence": "inferred"
+        },
+        {
+          "name": "classify_edital",
+          "file": "scripts/intel_llm_gate.py",
+          "params": ["edital: dict", "sector: str"],
+          "returns": "str (SIM/NAO)",
+          "confidence": "inferred"
+        },
+        {
+          "name": "analyze_edital",
+          "file": "scripts/intel_analyze.py",
+          "params": ["edital: dict", "cnpj_data: dict"],
+          "returns": "dict (scores: hab, fin, geo, prazo, comp)",
+          "confidence": "inferred"
+        }
+      ],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "5 quality gates: GATE 1 coverage (>=80%), GATE 2 cadastral (CNPJ válido), GATE 3 ruído (LLM classificação), GATE 4 conteúdo (keywords engenharia), GATE 5 recomendação (score >= threshold)",
+          "location": "scripts/intel_pipeline.py",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Zero noise philosophy: LLM fallback = REJECT on failure. Only explicitly relevant editais pass.",
+          "location": "scripts/intel_llm_gate.py",
+          "confidence": "inferred"
+        },
+        {
+          "description": "5-dimension scoring: HAB (habilitação), FIN (financeiro), GEO (geográfico), PRAZO (timeline), COMP (competitivo)",
+          "location": "config/sectors_config.yaml",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["config", "lib", "crawl"],
+      "algorithms": [
+        {
+          "name": "7-Stage Pipeline with 5 Gates",
+          "description": "Sequential pipeline where each stage produces data consumed by the next gate. Gates can REJECT (stop pipeline), WARN (continue with flag), or PASS. Failed gates produce partial output.",
+          "complexity": "high"
+        },
+        {
+          "name": "Sector Classification via LLM + Heuristics",
+          "description": "Two-tier classification: rule-based heuristics (strong_compat/strong_incompat patterns from YAML) first, LLM fallback for low-confidence cases. Each sector has independent CNAE prefixes, patterns, and exclusions.",
+          "complexity": "high"
+        }
+      ],
+      "complexity": "high"
+    },
+    {
+      "name": "reports",
+      "path": "scripts/reports",
+      "purpose": "Geração de relatórios analíticos: panorama de mercado setorial, detecção de gaps de cobertura e relatório semanal. Output em terminal (Rich), Excel (openpyxl) e PDF (ReportLab).",
+      "primary_files": [
+        "scripts/reports/panorama.py",
+        "scripts/reports/coverage_gaps.py",
+        "scripts/reports/coverage_weekly.py"
+      ],
+      "functions": [
+        {
+          "name": "section_volume",
+          "file": "scripts/reports/panorama.py",
+          "params": ["conn", "uf: str", "dias: int"],
+          "returns": "list[dict]",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "section_municipios",
+          "file": "scripts/reports/panorama.py",
+          "params": ["conn", "uf: str", "dias: int", "limit: int"],
+          "returns": "list[dict]",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "Panorama sections: volume, municípios, sazonalidade, concorrência, setores. Output multiplatform: terminal + Excel + PDF.",
+          "location": "scripts/reports/panorama.py",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["db", "lib"],
+      "algorithms": [],
+      "complexity": "medium"
+    },
+    {
+      "name": "lib",
+      "path": "scripts/lib",
+      "purpose": "Bibliotecas compartilhadas de domínio: normalização de nomes PT-BR, simulação de lance ótimo, estimativa de custos, perfil de vitória, tracking win/loss e templates de documentos.",
+      "primary_files": [
+        "scripts/lib/name_normalizer.py",
+        "scripts/lib/bid_simulator.py",
+        "scripts/lib/victory_profile.py",
+        "scripts/lib/cost_estimator.py",
+        "scripts/lib/win_loss_tracker.py"
+      ],
+      "functions": [
+        {
+          "name": "normalize_name",
+          "file": "scripts/lib/name_normalizer.py",
+          "params": ["name: str", "expand_abbreviations: bool", "remove_irrelevant: bool"],
+          "returns": "str",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "simulate_bid",
+          "file": "scripts/lib/bid_simulator.py",
+          "params": ["edital: dict", "competitive_intel: dict", "benchmark: dict", "sector: str"],
+          "returns": "BidSimulation",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "build_victory_profile",
+          "file": "scripts/lib/victory_profile.py",
+          "params": ["contracts: list[dict]", "company_capital: float"],
+          "returns": "VictoryProfile",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "score_edital_fit",
+          "file": "scripts/lib/victory_profile.py",
+          "params": ["edital: dict", "profile: VictoryProfile"],
+          "returns": "float (0.0-1.0)",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "BidSimulation",
+          "fields": [
+            { "name": "lance_sugerido", "type": "float", "required": true },
+            { "name": "desconto_sugerido_pct", "type": "float", "required": true },
+            { "name": "p_vitoria_pct", "type": "float", "required": true },
+            { "name": "margem_liquida_pct", "type": "float", "required": true },
+            { "name": "valor_esperado", "type": "float", "required": true },
+            { "name": "confianca", "type": "str", "required": true }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "VictoryProfile",
+          "fields": [
+            { "name": "valor_mean", "type": "float", "required": true },
+            { "name": "valor_std", "type": "float", "required": true },
+            { "name": "modalidade_weights", "type": "dict[int, float]", "required": true },
+            { "name": "pop_bracket_weights", "type": "dict[str, float]", "required": true },
+            { "name": "keyword_freq", "type": "dict[str, float]", "required": true },
+            { "name": "total_contracts", "type": "int", "required": true }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Name normalization: 7-step pipeline (NFKD → uppercase → remove punctuation → remove CNPJ → collapse whitespace → expand abbreviations → remove irrelevant)",
+          "location": "scripts/lib/name_normalizer.py:100-152",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Bid simulation: maximize P(win) × margin. Uses HHI for competitor count estimation, sector margin profiles, and historical discount distributions.",
+          "location": "scripts/lib/bid_simulator.py",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Victory profile: learns success patterns from won contracts — value range, preferred modalities, municipality sizes, keyword clusters, geographic proximity.",
+          "location": "scripts/lib/victory_profile.py",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": ["config"],
+      "algorithms": [
+        {
+          "name": "Optimal Bid Calculation",
+          "description": "Iterates discount range (0-30%), calculates P(win) from historical distribution and expected competitors (via HHI), computes EV = P(win) × margin × estimated_value, selects discount maximizing EV.",
+          "complexity": "medium"
+        },
+        {
+          "name": "Victory Profile Learning",
+          "description": "Statistical profiling from historical contracts: value quartiles, modality frequency normalization, population bracket mapping, keyword frequency extraction, distance statistics.",
+          "complexity": "medium"
+        }
+      ],
+      "complexity": "medium"
+    },
+    {
+      "name": "config",
+      "path": "config",
+      "purpose": "Configuração centralizada: settings from env vars (12-factor), 13 setores com CNAEs e heurísticas em YAML, abreviações PT-BR e configuração de portais de transparência.",
+      "primary_files": [
+        "config/settings.py",
+        "config/sectors_config.yaml",
+        "config/sectors_data.yaml",
+        "config/abbreviations.yaml",
+        "config/transparencia_config.yaml"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "13 setores configurados com CNAE prefixes, sector_hints, heuristic_patterns (strong_compat, strong_incompat, weak_compat), cross_sector_exclusions, competition_keywords, weight_profile, base_win_rate, habilitacao, timeline_rules, priority_modalidades, cnae_gate_threshold.",
+          "location": "config/sectors_config.yaml",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "All configuration from env vars with sensible defaults. No hardcoded credentials.",
+          "location": "config/settings.py",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [],
+      "algorithms": [],
+      "complexity": "low"
+    },
+    {
+      "name": "db",
+      "path": "db",
+      "purpose": "Schema, 12 migrations SQL, seed de 2.085 órgãos SC e script de setup do PostgreSQL. Implementa FTS PT-BR, upsert RPC, cascade matching e tracking de cobertura.",
+      "primary_files": [
+        "db/migrations/001_pncp_raw_bids.sql",
+        "db/migrations/006_upsert_rpcs.sql",
+        "db/migrations/007_sc_public_entities.sql",
+        "db/migrations/009_indexes_and_coverage.sql",
+        "db/seed/001_sc_entities.py",
+        "db/setup_db.sh"
+      ],
+      "functions": [],
+      "entities": [
+        {
+          "name": "pncp_raw_bids",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "pncp_supplier_contracts",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "enriched_entities",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "sc_public_entities",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "entity_coverage",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "ingestion_runs",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "ingestion_checkpoints",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "coverage_snapshots",
+          "fields": [],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "PostgreSQL 17 with pg_trgm (trigram similarity) and uuid-ossp extensions.",
+          "location": "db/migrations/001_pncp_raw_bids.sql:4-5",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Full-text search in Portuguese via TSVECTOR with GIN index. Pre-computed tsv column.",
+          "location": "db/migrations/001_pncp_raw_bids.sql:24,34",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Soft delete via is_active flag. Most queries filter is_active=TRUE.",
+          "location": "db/migrations/001_pncp_raw_bids.sql:30,50-51",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Auto-update updated_at via trigger set_updated_at().",
+          "location": "db/migrations/001_pncp_raw_bids.sql:54-60",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [],
+      "algorithms": [],
+      "complexity": "medium"
+    },
+    {
+      "name": "deploy",
+      "path": "deploy",
+      "purpose": "Deployment no Hetzner VPS (Ubuntu 24.04) via systemd: 13 timers + 13 services + 1 template onFailure. Script de instalação automatizado.",
+      "primary_files": [
+        "deploy/install.sh",
+        "deploy/systemd/pncp-crawl-full.service",
+        "deploy/systemd/pncp-crawl-full.timer",
+        "deploy/systemd/onfailure@.service"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "13 systemd timers with staggered schedules to avoid API rate limiting. pncp-crawl-full daily 05:00, pncp-crawl-inc 3x/day (11:00, 17:00, 23:00), dom-sc-crawl 3x/day (06:00, 14:00, 22:00), etc.",
+          "location": "deploy/systemd/*.timer",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "onfailure@.service template: automatic failure notification for any service. Can be wired to Telegram/Sentry.",
+          "location": "deploy/systemd/onfailure@.service",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [],
+      "algorithms": [],
+      "complexity": "low"
+    },
+    {
+      "name": "docs",
+      "path": "docs",
+      "purpose": "Documentação técnica, de produto e de processo: arquitetura C4, PRD, stories EPIC-001, QA gates, pesquisas, guias e handoffs de sessão.",
+      "primary_files": [
+        "docs/architecture/architecture.md",
+        "docs/prd/PRD-consultoria-extra.md",
+        "docs/stories/epics/epic-001-100-cobertura/EPIC-001-100-cobertura.md"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "Arquitetura documentada em C4 (Contexto + Containers) com fluxo de dados e decisões de arquitetura registradas.",
+          "location": "docs/architecture/architecture.md",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "EPIC-001: 7 stories implementadas para 100% cobertura SC (systemd timers, TCE-SC crawler, entity matching, seed entities, coverage monitoring, transparencia gap fill, coverage report).",
+          "location": "docs/stories/epics/epic-001-100-cobertura/",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [],
+      "algorithms": [],
+      "complexity": "low"
+    }
+  ]
+}

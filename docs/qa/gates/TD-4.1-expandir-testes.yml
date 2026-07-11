@@ -1,0 +1,8 @@
+schema: 1
+story: 'TD-4.1'
+gate: PASS
+status_reason: 'Re-run: all 4 previous CONCERNS issues (REQ-001 to REQ-004) resolved. 177 tests passing in TD-4.1 files (including 42 new intel pipeline tests), 94% weighted core coverage, Technical Notes updated documenting multi-EPIC 30% goal and name_normalized alignment. API key renewal documented as separate EPIC per scope decision.'
+reviewer: 'Quinn'
+updated: '2026-07-11T23:15:00Z'
+top_issues: []
+waiver: { active: false }

@@ -1,0 +1,63 @@
+[tool.ruff]
+# Ruff configuration — Story TD-4.2 (CI/CD Pipeline)
+target-version = "py312"
+line-length = 120
+
+# Enable pycodestyle (E), pyflakes (F), isort (I), and a curated set of non-controversial rules
+lint.select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes (logic errors)
+    "I",   # isort (import ordering)
+    "N",   # pep8-naming (naming conventions)
+    "W",   # pycodestyle warnings
+    "UP",  # pyupgrade (modern Python idioms)
+]
+lint.ignore = [
+    "E501",  # Line too long — handled by formatter
+    "N802",  # Allow lowercase function names for internal helpers
+]
+
+# Allow unused imports in __init__.py
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+warn_unused_ignores = true
+
+# Explicit strict flags (not using strict=true to avoid blanket checks on dependencies)
+check_untyped_defs = true
+warn_return_any = true
+warn_unreachable = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+strict_equality = true
+
+# Disable type-arg warnings — dynamic dict shapes are idiomatic in data pipelines
+disable_error_code = "type-arg"
+
+# Module-level overrides for 3rd-party packages
+[[tool.mypy.overrides]]
+module = [
+    "psycopg2.*",
+    "httpx.*",
+    "requests.*",
+    "supabase.*",
+    "rich.*",
+    "argparse",
+    "urllib3.*",
+    "rapidfuzz.*",
+    "difflib",
+]
+ignore_missing_imports = true
+
+# Config for modules we don't control (lenient)
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+    "scripts.reports.*",
+    "scripts.lib.*",
+]
+ignore_errors = true

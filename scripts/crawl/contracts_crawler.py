@@ -6,7 +6,8 @@ to the simple sync interface expected by monitor.py:
     transform(records) -> list[dict]
 
 Crawls PNCP /contratos endpoint in date windows and normalizes
-to the unified pncp_raw_bids schema.
+to the pncp_supplier_contracts schema (contrato_id, fornecedor_cnpj,
+objeto_contrato, valor_total, etc.).
 
 Modes:
   - full:        Last CONTRACTS_FULL_DAYS days (default 90)
@@ -15,12 +16,18 @@ Modes:
 
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 import os
-import re
 import sys
+
+from scripts.crawl.common import (
+    digits_only as _digits_only,
+    generate_content_hash as _common_content_hash,
+    safe_date as _safe_date,
+    trunc as trunc,
+)
+from scripts.crawl.security import USER_AGENT, sanitize_url_param
 import time
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -55,40 +62,73 @@ _ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
 # ---------------------------------------------------------------------------
 
 
-def _digits_only(s: str | None) -> str:
-    if not s:
-        return ""
-    return re.sub(r"\D", "", s)
+def _safe_float(value: Any) -> float | None:
+    """Safely parse a numeric value to float, with negative value warning.
+
+    Handles Brazilian format (``"150.000,00"``) and regular format.
+    Warns and returns ``None`` for negative values (contracts-specific rule).
+    """
+    if value is None:
+        return None
+    try:
+        if isinstance(value, (int, float)):
+            result = round(float(value), 2)
+            if result < 0:
+                logger.warning("Negative value for contract: %s", value)
+                return None
+            return result
+        val_str = str(value).strip()
+        if not val_str:
+            return None
+        # Brazilian format: "150.000,00" or "150000.00"
+        if "," in val_str and "." in val_str:
+            val_str = val_str.replace(".", "").replace(",", ".")
+        elif "," in val_str:
+            val_str = val_str.replace(",", ".")
+        result = round(float(val_str), 2)
+        if result < 0:
+            logger.warning("Negative value for contract: %s", value)
+            return None
+        return result
+    except (ValueError, TypeError):
+        return None
+
+
+_CNPJ_ROOT_UF: dict[str, str] = {
+    "000000": "DF",
+    "003944": "DF",
+    "005654": "DF",
+    "005665": "DF",
+    "008898": "DF",
+    "008929": "DF",
+    "008944": "DF",
+    "009532": "DF",
+    "009610": "DF",
+    "010001": "DF",
+}
+
+
+def _uf_from_cnpj(cnpj: str) -> str | None:
+    """Infer UF from CNPJ root (first 6 digits).
+
+    Args:
+        cnpj: Full CNPJ (14+ digits) or any string.
+
+    Returns:
+        Two-letter UF (e.g. ``"DF"``) or ``None`` if unknown.
+    """
+    if not cnpj or len(cnpj) < 6:
+        return None
+    return _CNPJ_ROOT_UF.get(cnpj[:6])
+
+
+def _generate_content_hash(record: dict) -> str:
+    """MD5 hash of key fields for dedup (pncp_supplier_contracts convention)."""
+    return _common_content_hash(record, fields=["contrato_id", "orgao_cnpj", "objeto_contrato", "valor_total"])
 
 
 def _fmt(d: date) -> str:
     return d.strftime("%Y%m%d")
-
-
-def _safe_float(v: Any) -> float | None:
-    try:
-        return float(v)
-    except (TypeError, ValueError):
-        return None
-
-
-def _safe_date(v: Any) -> str | None:
-    if not v:
-        return None
-    if isinstance(v, (date, datetime)):
-        return v.isoformat()[:10]
-    s = str(v)[:10]
-    return s if s and s != "None" else None
-
-
-def _generate_content_hash(record: dict) -> str:
-    """MD5 hash of key fields for dedup (pncp_raw_bids convention)."""
-    key_str = "|".join(
-        str(record.get(k, "") or "") for k in (
-            "pncp_id", "orgao_cnpj", "objeto_compra", "valor_total_estimado",
-        )
-    )
-    return hashlib.md5(key_str.encode("utf-8")).hexdigest()
 
 
 # ---------------------------------------------------------------------------
@@ -113,13 +153,13 @@ def _fetch_page(
         "pagina": str(page),
         "tamanhoPagina": str(CONTRACTS_PAGE_SIZE),
     }
-    query = "&".join(f"{k}={v}" for k, v in params.items())
+    query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
     url = f"{CONTRACTS_BASE}/contratos?{query}"
 
     for attempt in range(CONTRACTS_MAX_RETRIES + 1):
         try:
             req = urllib.request.Request(url)
-            req.add_header("User-Agent", "Extra-Consultoria/1.0 (consultoria-licitacoes)")
+            req.add_header("User-Agent", USER_AGENT)
             req.add_header("Accept", "application/json")
 
             with urllib.request.urlopen(req, timeout=CONTRACTS_READ_TIMEOUT) as resp:
@@ -174,19 +214,23 @@ def _fetch_page(
 
 
 def _transform_record(rec: dict) -> dict | None:
-    """Normalize a single PNCP /contratos item to pncp_raw_bids schema.
+    """Normalize a single PNCP /contratos item to pncp_supplier_contracts schema.
 
-    Returns None if the record lacks a valid pncp_id (numeroControlePNCP).
+    Returns ``None`` if the record lacks a valid ``numeroControlePNCP``.
     """
     try:
-        pncp_id = (rec.get("numeroControlePNCP") or "").strip()
-        if not pncp_id:
+        contrato_id = (rec.get("numeroControlePNCP") or "").strip()
+        if not contrato_id:
             return None
 
         orgao = rec.get("orgaoEntidade") or {}
         unidade = rec.get("unidadeOrgao") or {}
 
         orgao_cnpj = _digits_only(orgao.get("cnpj"))
+
+        # Supplier data
+        fornecedor_cnpj = _digits_only(rec.get("niFornecedor"))
+        fornecedor_nome = (rec.get("nomeRazaoSocialFornecedor") or "").strip()
 
         # Object / description
         objeto = (rec.get("objetoContrato") or rec.get("informacaoComplementar") or "").strip()
@@ -198,50 +242,44 @@ def _transform_record(rec: dict) -> dict | None:
         for field in ("valorGlobal", "valorInicial", "valorTotalEstimado"):
             raw = rec.get(field)
             v = _safe_float(raw)
-            if v is not None and v > 0:
+            if v is not None:
                 valor = v
                 break
 
-        # Esfera mapping (F/E/M/D → int)
-        esfera_str = (orgao.get("esferaId") or "")[:1]
-        esfera_id = _ESFERA_MAP.get(esfera_str, 0)
+        # Orgao name — unidade first, then orgao
+        orgao_nome = (
+            unidade.get("nomeUnidade") or orgao.get("razaoSocial") or ""
+        )[:300] or None
 
         # Dates
         data_publicacao = _safe_date(rec.get("dataAssinatura"))
-        data_encerramento = _safe_date(rec.get("dataVigenciaFim"))
+        data_inicio = _safe_date(rec.get("dataVigenciaInicio"))
+        data_fim = _safe_date(rec.get("dataVigenciaFim"))
 
-        # PNCP link
-        link_pncp = f"https://pncp.gov.br/contratos/{pncp_id}"
+        # UF — unidade first, CNPJ lookup second, SC fallback
+        uf = (unidade.get("ufSigla") or "")[:2] or None
+        if not uf:
+            uf = _uf_from_cnpj(orgao_cnpj)
+        if not uf:
+            uf = "SC"
 
-        # Codigo IBGE — try multiple locations
-        codigo_ibge = (
-            str(unidade.get("codigoIbge") or "")
-            or str(orgao.get("codigoIbge") or "")
-            or ""
-        )
+        municipio = (unidade.get("municipioNome") or "")[:100] or None
 
         record = {
-            "pncp_id": pncp_id,
-            "objeto_compra": objeto or None,
-            "valor_total_estimado": round(valor, 2) if valor is not None else None,
-            "modalidade_id": 0,  # Not available in /contratos endpoint
-            "modalidade_nome": "",
-            "esfera_id": esfera_id,
-            "uf": (unidade.get("ufSigla") or "")[:2] or None,
-            "municipio": (unidade.get("municipioNome") or "")[:100] or None,
-            "codigo_municipio_ibge": codigo_ibge or None,
-            "orgao_razao_social": (
-                unidade.get("nomeUnidade") or orgao.get("razaoSocial") or ""
-            )[:300] or None,
+            "contrato_id": contrato_id,
             "orgao_cnpj": orgao_cnpj or None,
+            "orgao_nome": orgao_nome,
+            "fornecedor_cnpj": fornecedor_cnpj or None,
+            "fornecedor_nome": fornecedor_nome or None,
+            "objeto_contrato": objeto or None,
+            "valor_total": round(valor, 2) if valor is not None else None,
+            "data_inicio": data_inicio,
+            "data_fim": data_fim,
             "data_publicacao": data_publicacao,
-            "data_abertura": None,  # Not available in /contratos endpoint
-            "data_encerramento": data_encerramento,
-            "link_pncp": link_pncp,
-            "content_hash": "",  # Set below
-            "source_id": pncp_id,
+            "uf": uf or None,
+            "municipio": municipio,
+            "source_id": contrato_id,
         }
-        record["content_hash"] = _generate_content_hash(record)
 
         return record
 
@@ -315,7 +353,7 @@ def crawl(mode: str = "full") -> list[dict]:
 
 
 def transform(records: list[dict]) -> list[dict]:
-    """Transform raw PNCP contracts records to pncp_raw_bids schema.
+    """Transform raw PNCP contracts records to pncp_supplier_contracts schema.
 
     Args:
         records: Raw records from crawl().
@@ -327,6 +365,6 @@ def transform(records: list[dict]) -> list[dict]:
     transformed: list[dict] = []
     for rec in records:
         t = _transform_record(rec)
-        if t and t.get("orgao_cnpj"):
+        if t and t.get("fornecedor_cnpj"):
             transformed.append(t)
     return transformed

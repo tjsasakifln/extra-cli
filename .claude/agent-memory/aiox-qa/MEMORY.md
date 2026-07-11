@@ -1,3 +1,9 @@
+- [Story FEAT-3.1 QA Gate](story-FEAT-3.1-qa-gate.md) — CONCERNS verdict, 8/8 ACs, 1 medium + 2 low issues, 42 tests
 - [Story 001.2 QA Gate](story-0012-qa-gate.md) — CONCERNS verdict, 9/10 ACs, 3 medium issues documented
 - [Story 001.7 QA Gate](story-0017-qa-gate.md) — CONCERNS verdict, 2 REQs partially unmet (AC4 views, AC2 bar chart), 3 medium issues
 - [Story 001.5 QA Gate](story-0015-qa-gate.md) — CONCERNS verdict, 9/10 ACs, 1 medium + 2 low issues documented
+- [Story TD-6.2 QA Gate](story-td-6.2-qa-gate.md) — PASS verdict, 7/7 checks, 1 low issue (MNT-001), 51/51 tests
+- [Story TD-5.4 QA Gate](story-td-5.4-qa-gate.md) — FAIL verdict, 0/6 ACs, 2 high + 2 medium + 1 low issues. Scope mismatch + security.py dead code.
+- [Story TD-5.5 QA Gate](story-td-5.5-qa-gate.md) — PASS (re-validation after CONCERNS), 4 MNT issues resolved, 39/39 tests, ruff 0 errors
+- [Story TD-3.2 QA Gate (Re-run)](story-td-3.2-qa-gate.md) — CONCERNS verdict, 4 old FAIL issues resolved, 2 new medium issues (20 test regressions + sc_compras_crawler)
+- [Story TD-2.2 QA Gate (Re-run)](story-td-2.2-qa-gate.md) — PASS verdict, 3 CONCERNS issues resolved (MNT-001, MNT-002, DOC-001), 7/7 checks

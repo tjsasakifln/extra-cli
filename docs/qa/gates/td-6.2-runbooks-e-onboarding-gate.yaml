@@ -1,0 +1,12 @@
+schema: 1
+story: 'TD-6.2'
+gate: PASS
+status_reviewer: 'All 7 quality checks passed. ACs fully implemented: cache IBGE refatorado para classe _IBGEMunicipioCache com asyncio.Lock, 20/20 testes passando, guia de onboarding criado, troubleshooting atualizado, comandos no CLAUDE.md adicionados.'
+reviewer: 'Quinn'
+updated: '2026-07-11T17:00:00Z'
+top_issues:
+  - id: 'MNT-001'
+    severity: low
+    finding: 'File List da story descreve CLAUDE.md como "modificado", mas o arquivo e novo (untracked). Discrepancia cosmica no metadado.'
+    suggested_action: 'Atualizar File List para "CLAUDE.md (novo -- comandos frequentes adicionados)"'
+waiver: { active: false }

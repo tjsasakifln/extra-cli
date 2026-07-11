@@ -1,0 +1,186 @@
+# Intel Sectors Configuration
+# Maps CNAE codes to sector keys used by intel-collect.py and intel-analyze.py
+# Sector keys MUST match those in backend/sectors_data.yaml
+# =============================================================================
+
+sectors:
+  engenharia:
+    cnae_prefixes:
+      - "4120"  # Construção de edifícios
+      - "4211"  # Obras de rodovias, ferrovias
+      - "4212"  # Obras de obras-de-arte especiais
+      - "4213"  # Obras de montagem
+      - "4221"  # Obras para sistemas de abastecimento de água e esgoto
+      - "4222"  # Obras para sistemas de drenagem urbana
+      - "4223"  # Obras para sistemas de geração/distribuição de energia
+      - "4291"  # Obras portuárias, marítimas e fluviais
+      - "4292"  # Obras de montagem industrial
+      - "4299"  # Outras obras de infraestrutura
+      - "4311"  # Demolição e preparação do terreno
+      - "4312"  # Perfurações e sondagens
+      - "4313"  # Movimentação de terra (terraplanagem)
+      - "4321"  # Instalações de sistemas de ar condicionado
+      - "4322"  # Pintura e impermeabilização
+      - "4323"  # Instalações hidráulicas, elétricas e sanitárias
+      - "4329"  # Outras instalações prediais
+      - "4330"  # Obras de acabamento
+      - "4391"  # Obras de fundações
+      - "4399"  # Outros serviços especializados para construção
+    cnae_refinements:
+      4120:
+        exclude_patterns: []
+        extra_include:
+          - "edificação"
+          - "edificacao"
+          - "construção"
+          - "construcao"
+          - "obra"
+          - "reforma"
+          - "ampliação"
+          - "ampliacao"
+      4213:
+        exclude_patterns: []
+        extra_include:
+          - "montagem industrial"
+          - "obra industrial"
+          - "instalação industrial"
+          - "instalacao industrial"
+      4311:
+        exclude_patterns: []
+        extra_include:
+          - "demolição"
+          - "demolicao"
+          - "preparo terreno"
+          - "terraplanagem"
+      4322:
+        exclude_patterns: []
+        extra_include:
+          - "pintura"
+          - "impermeabilização"
+          - "impermeabilizacao"
+      4323:
+        exclude_patterns: []
+        extra_include:
+          - "instalação hidráulica"
+          - "instalacao hidraulica"
+          - "instalação elétrica"
+          - "instalacao eletrica"
+          - "instalação sanitária"
+          - "instalacao sanitaria"
+    incompatible_objects: {}
+    heuristic_patterns:
+      strong_compat: []
+      strong_incompat: []
+      weak_compat: []
+    cross_sector_exclusions:
+      - "medicamento"
+      - "uniforme"
+      - "alimentação"
+      - "alimentacao"
+      - "fardamento"
+      - "material de escritório"
+      - "material de escritorio"
+      - "papelaria"
+      - "informática"
+      - "informatica"
+      - "mobiliário"
+      - "mobiliario"
+      - "veículo"
+      - "veiculo"
+      - "combustível"
+      - "combustivel"
+      - "limpeza predial"
+      - "vigilância"
+      - "vigilancia"
+      - "seguro"
+      - "software"
+      - "tecnologia da informação"
+      - "tecnologia da informacao"
+    competition_keywords:
+      - "construção"
+      - "construcao"
+      - "obra"
+      - "engenharia"
+      - "reforma"
+      - "pavimentação"
+      - "pavimentacao"
+      - "edificação"
+      - "edificacao"
+      - "infraestrutura"
+    weight_profile:
+      hab: 0.20
+      fin: 0.25
+      geo: 0.10
+      prazo: 0.25
+      comp: 0.20
+    base_win_rate: 0.12
+    habilitacao:
+      capital_minimo_pct: 0.10
+      atestados:
+        - "Atestado de execução de obra similar"
+        - "Atestado de capacidade técnica"
+      certifications:
+        - "CREA"
+      fiscal:
+        - "CND Federal/Previdenciária"
+        - "CND Municipal"
+        - "CRF FGTS"
+        - "CNDT Trabalhista"
+    timeline_rules:
+      - max_value: 500000
+        min_days: 15
+      - max_value: 2000000
+        min_days: 30
+      - max_value: null
+        min_days: 45
+    priority_modalidades:
+      - 4
+      - 5
+      - 6
+      - 7
+    cnae_gate_threshold: 0.40
+
+# ── Defaults for all sectors (used as fallback when sector doesn't override) ──
+sector_defaults:
+  weight_profile:
+    hab: 0.25
+    fin: 0.25
+    geo: 0.15
+    prazo: 0.20
+    comp: 0.15
+  base_win_rate: 0.10
+  habilitacao:
+    capital_minimo_pct: 0.10
+    atestados:
+      - "Atestado de fornecimento ou serviço similar"
+    certifications: []
+    fiscal:
+      - "CND Federal/Previdenciária"
+      - "CND Municipal"
+      - "CRF FGTS"
+      - "CNDT Trabalhista"
+  timeline_rules:
+    - max_value: 500000
+      min_days: 15
+    - max_value: 2000000
+      min_days: 30
+    - max_value: null
+      min_days: 45
+  priority_modalidades:
+    - 5
+    - 4
+    - 6
+    - 8
+  cnae_gate_threshold: 0.45
+  cross_sector_exclusions: []
+  competition_keywords: []
+
+# ── LLM fallback (not used since OPENAI_API_KEY not available) ──
+llm_fallback:
+  enabled: false
+  model: "gpt-4.1-nano"
+  max_concurrent: 5
+  timeout_s: 10
+  on_failure: "reject"
+  confidence_threshold: 0.40
+  prompt_template: ""

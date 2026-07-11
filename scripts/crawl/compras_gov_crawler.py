@@ -16,7 +16,6 @@ Sem async, sem httpx, sem clients.base. Apenas urllib da stdlib.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 import os
@@ -27,6 +26,11 @@ import urllib.request
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
+
+from scripts.crawl.common import (
+    generate_content_hash as _common_content_hash,
+)
+from scripts.crawl.security import USER_AGENT, sanitize_url_param
 
 # Add project root to path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -95,7 +99,7 @@ def _make_request(url: str) -> dict | None:
     for attempt in range(MAX_RETRIES + 1):
         try:
             req = urllib.request.Request(url)
-            req.add_header("User-Agent", "Extra-Consultoria/1.0 (consultoria-licitacoes)")
+            req.add_header("User-Agent", USER_AGENT)
             req.add_header("Accept", "application/json")
 
             with urllib.request.urlopen(req, timeout=READ_TIMEOUT) as resp:
@@ -158,7 +162,7 @@ def _fetch_page(endpoint: str, params: dict) -> tuple[list[dict], bool]:
     Returns:
         (records_list, has_more_pages)
     """
-    query = "&".join(f"{k}={v}" for k, v in params.items())
+    query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
     url = f"{BASE_URL}{endpoint}?{query}"
 
     data = _make_request(url)
@@ -290,18 +294,8 @@ def _extract_date(value: Any) -> str | None:
 
 
 def _generate_content_hash(record: dict) -> str:
-    """Hash MD5 deterministico para dedup.
-
-    Usa campos-chave que identificam unicamente uma licitacao.
-    """
-    key_fields = [
-        str(record.get("orgao_cnpj", "")),
-        str(record.get("objeto_compra", "")),
-        str(record.get("data_publicacao", "")),
-        str(record.get("valor_total_estimado", "")),
-    ]
-    key_str = "|".join(key_fields)
-    return hashlib.md5(key_str.encode("utf-8")).hexdigest()
+    """Hash MD5 deterministico para dedup (delegates to common)."""
+    return _common_content_hash(record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"])
 
 
 # ---------------------------------------------------------------------------

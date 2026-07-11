@@ -1,0 +1,15 @@
+# /etc/systemd/system/extra-crawl-doe-sc.timer
+# DOE-SC crawler — daily at 03:00 UTC (00:00 BRT)
+# Staggered: 15min after extra-crawl-pncp
+
+[Unit]
+Description=Extra Consultoria — DOE-SC Crawler Timer
+Requires=extra-crawl-doe-sc.service
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

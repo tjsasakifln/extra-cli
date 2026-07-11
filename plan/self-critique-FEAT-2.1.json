@@ -1,0 +1,30 @@
+{
+  "subtaskId": "FEAT-2.1",
+  "critiquedAt": "2026-07-11T14:50:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "API SCMWeb pode retornar dados com formato diferente (ex: Data_Abertura em ISO ao invés de DD/MM/YYYY) — _parse_date trata múltiplos formatos, mas edge cases podem escapar",
+      "Contratos não têm filtro de data no cliente — se API retornar contratos fora da janela configurada, o crawl incremental pode incluir duplicatas de runs anteriores",
+      "Campo CNPJ vazio em contratos — _transform_contrato usa CNPJ do contratado como orgao_cnpj, o que pode não corresponder ao esperado pelo schema upsert_pncp_raw_bids"
+    ],
+    "edgeCases": [
+      "API retorna lista vazia (204 No Content) — tratado com retorno de lista vazia",
+      "API retorna 429 rate limit — tratado com retry com backoff exponencial 5s, 10s, 15s",
+      "Modalidade desconhecida — tratado com retorno (0, raw) e log de debug; não bloqueia o crawl"
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

@@ -1,0 +1,1 @@
+- [EPIC-FEAT-001 Validation](epic-feat-001-validation.md) -- 10 stories validadas, correcoes aplicadas, 10/10

@@ -1,0 +1,30 @@
+{
+  "subtaskId": "TD-2.1",
+  "critiquedAt": "2026-07-11T12:00:00-03:00",
+  "step5_5": {
+    "predictedBugs": [
+      "001-v2_initial_schema.sql recria a tabela _migrations mesmo quando _migrations.sql ja foi aplicado — CREATE TABLE IF NOT EXISTS resolve, mas INSERT ON CONFLICT DO NOTHING pode mascarar diferencas na estrutura da tabela tracking",
+      "verify-schema-divergence.sh compara schema extraido via pg_dump com baseline, mas o dump inclui _migrations que nao existia no baseline original — diff sempre mostrara a tabela _migrations como divergencia",
+      "apply-migrations.sh usa nome do arquivo como version (split por '.'), mas versoes como '001-v2' contem hifen — parse pode falhar se houver arquivos com pontos extras no nome"
+    ],
+    "edgeCases": [
+      "Database vazio (setup novo): CREATE TABLE IF NOT EXISTS + sequences + constraints executam em ordem correta. Funciona.",
+      "Database com schema parcial (algumas tabelas existem): PKs e UNIQUEs ja existentes sao ignoradas pelos DO blocks. Funciona.",
+      "Database com schema conflitante (colunas com tipos diferentes): IF NOT EXISTS no CREATE TABLE impede erro, mas deixa o schema inconsistente — o verify script detectaria a divergencia."
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

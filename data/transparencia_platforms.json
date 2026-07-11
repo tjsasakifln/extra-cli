@@ -1,152 +1,25 @@
 {
   "detected": [
     {
-      "municipio": "Florianopolis",
-      "slug": "florianopolis",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Joinville",
-      "slug": "joinville",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
       "municipio": "Blumenau",
       "slug": "blumenau",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
+      "platform": "betha",
+      "status": "detected",
+      "detected_at": "2025-01-01"
     },
     {
-      "municipio": "Sao Jose",
-      "slug": "sao-jose",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Chapeco",
       "slug": "chapeco",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Criciuma",
-      "slug": "criciuma",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Lages",
-      "slug": "lages",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Itajai",
-      "slug": "itajai",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Balneario Camboriu",
-      "slug": "balneario-camboriu",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Tubarao",
-      "slug": "tubarao",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Palhoca",
-      "slug": "palhoca",
       "platform": "betha",
-      "url": "https://palhoca.atende.net/transparencia",
-      "status": "detected",
-      "error": null,
-      "detected_at": "2026-07-10",
-      "body_hint": "betha_generic"
-    },
-    {
-      "municipio": "Brusque",
-      "slug": "brusque",
-      "platform": "betha",
-      "url": "https://brusque.atende.net/transparencia",
-      "status": "detected",
-      "error": null,
-      "detected_at": "2026-07-10",
-      "body_hint": "betha_generic"
-    },
-    {
-      "municipio": "Rio do Sul",
-      "slug": "rio-do-sul",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-10"
-    },
-    {
-      "municipio": "Indaial",
-      "slug": "indaial",
-      "platform": "betha",
-      "url": "https://indaial.atende.net/transparencia",
-      "status": "detected",
-      "error": null,
-      "detected_at": "2026-07-10",
-      "body_hint": "betha_generic"
-    },
-    {
-      "municipio": "Biguacu",
-      "slug": "biguacu",
-      "platform": "betha",
-      "url": "https://biguacu.atende.net/transparencia",
-      "status": "detected",
-      "error": null,
-      "detected_at": "2026-07-10",
-      "body_hint": "betha_generic"
+      "status": "detected"
     }
   ],
   "metadata": {
     "version": 1,
-    "total_entities": 15,
-    "total_detected": 4,
-    "total_not_found": 11,
+    "total_entities": 2,
+    "total_detected": 2,
+    "total_not_found": 0,
     "total_errors": 0,
-    "mode": "full",
-    "updated_at": "2026-07-10"
+    "mode": "incremental",
+    "updated_at": "2026-07-11"
   }
 }

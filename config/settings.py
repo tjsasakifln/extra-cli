@@ -34,6 +34,8 @@ LOCAL_DATALAKE_DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
     "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
 )
+# DEFAULT_DSN alias for backward compatibility with monitor.py and orchestrator.py
+DEFAULT_DSN = LOCAL_DATALAKE_DSN
 DATALAKE_BACKEND = os.getenv("DATALAKE_BACKEND", "local")
 DATALAKE_QUERY_ENABLED = os.getenv("DATALAKE_QUERY_ENABLED", "true").lower() == "true"
 
@@ -119,3 +121,38 @@ ENTITY_ENRICHMENT_TTL_DAYS = int(os.getenv("ENTITY_ENRICHMENT_TTL_DAYS", "30"))
 # Logging
 # ---------------------------------------------------------------------------
 INTEL_LOG_LEVEL = os.getenv("INTEL_LOG_LEVEL", "INFO")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_FORMAT = os.getenv("LOG_FORMAT", "json")  # "json" or "text"
+LOG_MAX_BYTES = int(os.getenv("LOG_MAX_BYTES", str(10 * 1024 * 1024)))  # 10 MB
+LOG_BACKUP_COUNT = int(os.getenv("LOG_BACKUP_COUNT", "5"))
+
+# ---------------------------------------------------------------------------
+# Monitoring & Alerts (TD-5.5)
+# ---------------------------------------------------------------------------
+
+# Alert thresholds
+ALERT_CONSECUTIVE_FAILURES = int(os.getenv("ALERT_CONSECUTIVE_FAILURES", "3"))
+ALERT_DISK_WARN_PCT = int(os.getenv("ALERT_DISK_WARN_PCT", "80"))
+ALERT_DISK_CRIT_PCT = int(os.getenv("ALERT_DISK_CRIT_PCT", "90"))
+ALERT_BACKUP_MAX_HOURS = int(os.getenv("ALERT_BACKUP_MAX_HOURS", "28"))
+
+# Metrics collection interval
+COLLECT_METRICS_INTERVAL_MINUTES = int(
+    os.getenv("COLLECT_METRICS_INTERVAL_MINUTES", "60")
+)
+
+# ---------------------------------------------------------------------------
+# Notifications (TD-5.5)
+# ---------------------------------------------------------------------------
+
+# SMTP email notification
+NOTIFY_SMTP_HOST = os.getenv("NOTIFY_SMTP_HOST", "")
+NOTIFY_SMTP_PORT = int(os.getenv("NOTIFY_SMTP_PORT", "587"))
+NOTIFY_SMTP_USER = os.getenv("NOTIFY_SMTP_USER", "")
+NOTIFY_SMTP_PASSWORD = os.getenv("NOTIFY_SMTP_PASSWORD", "")
+NOTIFY_SMTP_FROM = os.getenv("NOTIFY_SMTP_FROM", "")
+NOTIFY_SMTP_TO = os.getenv("NOTIFY_SMTP_TO", "")
+NOTIFY_SMTP_USE_TLS = os.getenv("NOTIFY_SMTP_USE_TLS", "true").lower() == "true"
+
+# Webhook notification (Slack / Discord)
+NOTIFY_WEBHOOK_URL = os.getenv("NOTIFY_WEBHOOK_URL", "")

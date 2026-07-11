@@ -1,0 +1,146 @@
+{
+  "generated_at": "2026-07-11T12:00:00Z",
+  "project_root": "/mnt/d/extra consultoria",
+  "languages": [
+    { "name": "Python", "extensions": [".py"], "file_count": 58, "loc": 50651 },
+    { "name": "SQL", "extensions": [".sql"], "file_count": 12, "loc": 771 },
+    { "name": "Shell", "extensions": [".sh"], "file_count": 2 },
+    { "name": "YAML", "extensions": [".yaml", ".yml"], "file_count": 12 }
+  ],
+  "primary_language": "Python",
+  "frameworks": [
+    { "name": "httpx", "version": "0.28.1", "source": "requirements.txt" },
+    { "name": "openai", "version": "1.55.0", "source": "requirements.txt" },
+    { "name": "psycopg2", "version": "2.9.9", "source": "requirements.txt" },
+    { "name": "reportlab", "version": "4.5.1", "source": "requirements.txt" },
+    { "name": "openpyxl", "version": "3.1.5", "source": "requirements.txt" },
+    { "name": "rich", "version": "13.0.0", "source": "requirements.txt" },
+    { "name": "rapidfuzz", "version": "3.0.0", "source": "requirements.txt" }
+  ],
+  "package_manager": "pip",
+  "entry_points": [
+    { "path": "scripts/crawl/monitor.py", "type": "cli_main", "description": "Orquestrador multi-source de crawlers" },
+    { "path": "scripts/intel_pipeline.py", "type": "cli_pipeline", "description": "Pipeline de inteligência (7 stages)" },
+    { "path": "scripts/local_datalake.py", "type": "cli_datalake", "description": "CLI do DataLake (search, stats, supplier)" },
+    { "path": "scripts/reports/panorama.py", "type": "cli_report", "description": "Panorama de mercado setorial" },
+    { "path": "scripts/generate_proposta_pdf.py", "type": "cli_pdf", "description": "PDF de proposta comercial" },
+    { "path": "scripts/generate_report_b2g.py", "type": "cli_report", "description": "Relatório B2G" },
+    { "path": "db/setup_db.sh", "type": "setup", "description": "Provisionamento do banco" },
+    { "path": "deploy/install.sh", "type": "deploy", "description": "Instalação no Hetzner" }
+  ],
+  "config_files": [
+    ".env.example",
+    "config/settings.py",
+    "config/sectors_config.yaml",
+    "config/sectors_data.yaml",
+    "config/abbreviations.yaml",
+    "config/transparencia_config.yaml",
+    ".python-version",
+    "requirements.txt"
+  ],
+  "ci_cd": [
+    ".github/agents/"
+  ],
+  "docker": {},
+  "database_hints": [
+    { "path": "db/migrations/", "type": "migrations_dir", "count": 12 },
+    { "path": "db/seed/", "type": "seed_dir", "description": "Seed de 2.085 órgãos SC" },
+    { "path": "db/setup_db.sh", "type": "setup_script" }
+  ],
+  "test_framework": "pytest",
+  "test_file_count": 10,
+  "test_coverage_estimate": "low (<30%)",
+  "modules": [
+    "crawl",
+    "intel",
+    "reports",
+    "lib",
+    "config",
+    "db",
+    "deploy",
+    "docs"
+  ],
+  "total_files": 136,
+  "total_loc": 50651,
+  "organization_suggestion": {
+    "granularity": "module",
+    "rationale": "Estrutura de pastas top-level organizada por domínio funcional: scripts/crawl/ (coleta), scripts/intel_* (pipeline de inteligência), scripts/reports/ (relatórios), scripts/lib/ (bibliotecas), config/ (configuração), db/ (database), deploy/ (infra). Organização natural por módulo.",
+    "signals": [
+      {
+        "type": "top_level_domain_folders",
+        "evidence": [
+          "scripts/crawl/",
+          "scripts/reports/",
+          "scripts/lib/",
+          "config/",
+          "db/",
+          "deploy/",
+          "docs/"
+        ]
+      }
+    ],
+    "features": []
+  },
+  "external_integrations": [
+    {
+      "name": "PNCP API",
+      "type": "REST API",
+      "url": "https://pncp.gov.br/api/consulta/v1",
+      "auth": "public"
+    },
+    {
+      "name": "DOM-SC",
+      "type": "Web Portal",
+      "url": "https://www.diariomunicipal.sc.gov.br",
+      "auth": "api_key"
+    },
+    {
+      "name": "PCP v2",
+      "type": "REST API",
+      "url": "https://compras.api.portaldecompraspublicas.com.br/v2",
+      "auth": "public"
+    },
+    {
+      "name": "ComprasGov v3",
+      "type": "REST API",
+      "url": "https://dadosabertos.compras.gov.br",
+      "auth": "public"
+    },
+    {
+      "name": "TCE-SC ESFINGE",
+      "type": "Web Portal",
+      "auth": "public"
+    },
+    {
+      "name": "OpenAI API",
+      "type": "LLM",
+      "model": "gpt-4.1-nano",
+      "auth": "api_key"
+    },
+    {
+      "name": "BrasilAPI",
+      "type": "REST API",
+      "url": "https://brasilapi.com.br",
+      "auth": "public"
+    },
+    {
+      "name": "IBGE API",
+      "type": "REST API",
+      "url": "https://servicodados.ibge.gov.br",
+      "auth": "public"
+    }
+  ],
+  "deployment": {
+    "platform": "Hetzner VPS",
+    "os": "Ubuntu 24.04",
+    "scheduler": "systemd timers (13 timers)",
+    "database": "PostgreSQL 17 (self-hosted)",
+    "access": "SSH terminal"
+  },
+  "git_history": {
+    "total_commits": 16,
+    "first_commit": "feat: inicializa plataforma de inteligência em licitações — Extra Construtora",
+    "latest_commit": "docs: handoff EPIC-001 — sessão 2026-07-10",
+    "epics_completed": ["EPIC-001 (7 stories, 100% cobertura SC)"]
+  }
+}

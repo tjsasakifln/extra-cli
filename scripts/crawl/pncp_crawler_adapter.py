@@ -19,6 +19,13 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.crawl.common import (
+    generate_content_hash as _common_content_hash,
+    safe_date as _safe_date,
+    safe_float as _safe_float,
+)
+from scripts.crawl.security import USER_AGENT, sanitize_url_param
+
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
@@ -88,13 +95,13 @@ def _fetch_page(uf: str, modalidade: int, pagina: int,
     if uf:
         params["uf"] = uf
 
-    query = "&".join(f"{k}={v}" for k, v in params.items())
+    query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
     url = f"{PNCP_BASE}/contratacoes/publicacao?{query}"
 
     for attempt in range(PNCP_MAX_RETRIES + 1):
         try:
             req = urllib.request.Request(url)
-            req.add_header("User-Agent", "Extra-Consultoria/1.0 (consultoria-licitacoes)")
+            req.add_header("User-Agent", USER_AGENT)
             req.add_header("Accept", "application/json")
 
             with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as resp:
@@ -148,15 +155,8 @@ def _fetch_page(uf: str, modalidade: int, pagina: int,
 
 
 def _generate_content_hash(record: dict) -> str:
-    """Deterministic hash for dedup — matches original transformer logic."""
-    key_fields = [
-        record.get("orgao_cnpj", ""),
-        record.get("objeto_compra", ""),
-        record.get("data_publicacao", ""),
-        str(record.get("valor_total_estimado", "")),
-    ]
-    key_str = "|".join(key_fields)
-    return hashlib.md5(key_str.encode("utf-8")).hexdigest()
+    """Deterministic hash for dedup — delegates to common."""
+    return _common_content_hash(record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"])
 
 
 def _transform_record(rec: dict) -> dict | None:
@@ -170,27 +170,15 @@ def _transform_record(rec: dict) -> dict | None:
             orgao_cnpj = rec.get("orgao_cnpj", rec.get("cnpjOrgao", ""))
             orgao_nome = rec.get("orgao_razao_social", rec.get("nomeOrgao", ""))
 
-        # Safe numeric parse
-        def _safe_float(v):
-            try:
-                return float(v)
-            except (TypeError, ValueError):
-                return None
-
-        def _safe_date(v):
-            if not v:
-                return None
-            if isinstance(v, (date, datetime)):
-                return v.isoformat()[:10] if hasattr(v, 'isoformat') else str(v)[:10]
-            s = str(v)[:10]
-            return s if s and s != "None" else None
+        # _safe_float and _safe_date imported from common.py (TD-3.2)
 
         obj = rec.get("objeto", rec.get("objetoCompra", rec.get("objeto_compra", "")))
         pncp_id = rec.get("id", rec.get("pncpId", rec.get("pncp_id", "")))
         if not pncp_id:
             # Generate synthetic ID
             pncp_id = hashlib.md5(
-                f"{orgao_cnpj}|{obj}|{_safe_date(rec.get('dataPublicacao', ''))}".encode()
+                f"{orgao_cnpj}|{obj}|{_safe_date(rec.get('dataPublicacao', ''))}".encode(),
+                usedforsecurity=False,
             ).hexdigest()
 
         content_hash = _generate_content_hash(rec)

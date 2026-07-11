@@ -1,0 +1,16 @@
+# /etc/systemd/system/extra-onfailure@.service
+# Template unit for failure notifications via webhook
+# Extra Consultoria — Story FEAT-4.1
+#
+# Usage: referenced by OnFailure=extra-onfailure@%n.service in other units
+# Required: add WEBHOOK_URL to /opt/extra-consultoria/.env
+#
+# Example WEBHOOK_URL: https://hooks.slack.com/services/...
+
+[Unit]
+Description=Extra Consultoria — OnFailure alert for %i
+
+[Service]
+Type=oneshot
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/curl -sf --max-time 10 -X POST -H "Content-Type: application/json" -d '{"service":"%i","host":"%H","project":"extra-consultoria","status":"failed"}' "${WEBHOOK_URL}"

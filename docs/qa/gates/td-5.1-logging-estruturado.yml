@@ -1,0 +1,12 @@
+schema: 1
+story: 'TD-5.1'
+gate: PASS
+status_reason: 'Logging estruturado JSON implementado nos 6 modulos core com correlation IDs, RotatingFileHandler, fallback configurada. 8/8 ACs implementados. 191/191 testes passando (0 regressoes). Zero novas dependencias. Documentacao completa em docs/td-001/logging.md.'
+reviewer: 'Quinn'
+updated: '2026-07-11T20:00:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: low
+    finding: 'Nenhum teste unitario dedicado para config/logging_config.py (JsonFormatter, get_logger, set_correlation_id). As funcoes sao exercidas indiretamente pelos 191 testes existentes, mas sem cobertura direta de formatacao JSON, propagacao de correlation_id ou fallback de rotacao.'
+    suggested_action: 'Adicionar test_logging_config.py com testes para: (1) JsonFormatter output JSON valido com campos obrigatorios, (2) set_correlation_id propagacao entre threads/async, (3) get_logger sem duplicacao de handlers, (4) fallback para stderr quando diretorio de log inacessivel.'
+waiver: { active: false }

@@ -1,0 +1,8 @@
+schema: 1
+story: 'TD-5.3'
+gate: PASS
+status_reason: 'All 7/7 ACs implemented and verified. Schema divergences corrected in datalake_helper.py and local_datalake.py. CHECK constraint esfera_id IN (1,2,3,4) active. purge_old_bids confirmed as soft-delete with purge_old_bids_hard() for controlled hard-delete. Code clean, tested, documented.'
+reviewer: 'Quinn'
+updated: '2026-07-11T23:00:00Z'
+top_issues: []
+waiver: { active: false }

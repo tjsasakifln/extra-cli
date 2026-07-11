@@ -1,0 +1,17 @@
+schema: 1
+story: 'FEAT-2.3'
+gate: PASS
+status_reason: 'REQ-001 resolved — DOE_SC_INCREMENTAL_DAYS default now 1 (matches AC5). 2 remaining documented concerns (TEST-001: no test file, MNT-001: monitor.py routing) are non-blocking. All 7 quality checks pass or acceptable.'
+reviewer: 'Quinn'
+updated: '2026-07-11T20:00:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: medium
+    finding: 'No automated test file for doe_sc_crawler.py. The transform() logic (8 testable functions) has zero test coverage. Verified manually — all helpers pass — but no regression safety net exists.'
+    suggested_action: 'Create tests/test_crawl/test_doe_sc_crawler.py covering _parse_date, _safe_float, _digits_only, _extract_cnpj, _extract_entity_info, _generate_content_hash, _transform_record, and transform().'
+  - id: 'MNT-001'
+    severity: low
+    finding: 'monitor.py includes pcp_v2 and contracts routing changes beyond FEAT-2.3 scope. These are collateral from working tree.'
+    suggested_action: 'Confirm these changes were intentional and update story File List accordingly, or extract to separate stories.'
+waiver:
+  active: false

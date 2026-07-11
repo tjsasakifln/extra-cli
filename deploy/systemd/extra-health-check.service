@@ -1,0 +1,20 @@
+# /etc/systemd/system/extra-health-check.service
+# Periodic health check: DB connectivity, Storage Box mount, disk space
+# Extra Consultoria — Story FEAT-4.1
+
+[Unit]
+Description=Extra Consultoria — Health Check
+Documentation=https://github.com/extra-consultoria/docs/ops/vps-provisioning.md
+After=network-online.target
+Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/health_check.py
+User=extra-consultoria
+StandardOutput=journal
+StandardError=journal

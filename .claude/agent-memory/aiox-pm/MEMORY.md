@@ -1,0 +1,1 @@
+- [EPIC-TD-001 Criado](td-001-epic-created.md) -- Brownfield Fase 10: 22 stories para 38 debitos tecnicos, 140.5h estimadas

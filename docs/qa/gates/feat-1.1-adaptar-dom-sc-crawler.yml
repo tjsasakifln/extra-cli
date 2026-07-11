@@ -1,0 +1,13 @@
+schema: 1
+story: 'FEAT-1.1'
+gate: PASS
+status_reason: 'All 10/10 ACs verified. flake8 OK, mypy OK (0 issues), CodeRabbit 0 findings. Clean stdlib-only implementation with proper error handling, rate limiting, and auth. Only observation: no project-wide test infrastructure exists.'
+reviewer: 'Quinn'
+updated: '2026-07-11T00:00:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: low
+    finding: 'No unit tests for the dom_sc_crawler module. The project has no test infrastructure (no tests/ directory, no pytest config). This is a project-wide gap that applies to all crawlers, not specific to this story.'
+    suggested_action: 'Establish project-wide test infrastructure (pytest) and add unit tests for crawler interfaces (crawl() mode handling, transform() normalization, error handling, edge cases).'
+waiver:
+  active: false

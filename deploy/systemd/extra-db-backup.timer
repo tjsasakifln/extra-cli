@@ -1,0 +1,16 @@
+# /etc/systemd/system/extra-db-backup.timer
+# Daily PostgreSQL backup at 06:00 UTC (03:00 BRT)
+# Extra Consultoria — Story FEAT-4.1 / TD-0.1
+
+[Unit]
+Description=Extra Consultoria — Backup PostgreSQL Diario
+Documentation=https://github.com/extra-consultoria/docs/ops/backup.md
+
+[Timer]
+# 06:00 UTC = 03:00 BRT (Brasil sem horario de verao desde 2019)
+OnCalendar=*-*-* 06:00:00
+Persistent=false
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

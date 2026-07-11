@@ -1,0 +1,14 @@
+# /etc/systemd/system/extra-check-alerts.timer
+# Check system alerts every 15 minutes
+# Extra Consultoria — Story TD-5.5
+
+[Unit]
+Description=Extra Consultoria — Check System Alerts Timer
+
+[Timer]
+OnCalendar=*:0/15:00
+RandomizedDelaySec=60
+Persistent=false
+
+[Install]
+WantedBy=timers.target

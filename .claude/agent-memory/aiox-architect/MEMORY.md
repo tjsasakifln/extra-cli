@@ -1,0 +1,2 @@
+- [Technical Debt DRAFT v1](technical-debt-draft-v1.md) -- Consolidacao Brownfield Fase 4 com 30 debitos (3 CRITICAL)
+- [Brownfield Assessment Final](project-brownfield-assessment.md) -- Fase 8 consolidada, 38 debitos (4 CRITICAL), 140-170h

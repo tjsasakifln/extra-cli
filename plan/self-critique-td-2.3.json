@@ -1,0 +1,30 @@
+{
+  "subtaskId": "2.3",
+  "critiquedAt": "2026-07-11T18:00:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "CONCURRENTLY dentro de transacao: CREATE INDEX CONCURRENTLY nao pode ser executado dentro de um bloco de transacao explıcito. Se o Supabase/migration runner rodar dentro de BEGIN/COMMIT, o CONCURRENTLY falhara silenciosamente. Solucao: garantir que cada migration com CONCURRENTLY seja um comando unico.",
+      "NOT VALID constraints sem validacao futura: As CHECK constraints com NOT VALID protegem apenas novos inserts, mas registros existentes podem violar as constraints sem alerta. Se um registro historico tiver cnpj = '', ele nao sera detectado ate que ALTER TABLE ... VALIDATE CONSTRAINT seja executado explicitamente.",
+      "TTL cleanup sem lock na tabela vizinha: A funcao ttl_cleanup_enriched_entities() remove registros concorrentemente. Se uma query de enrichment estiver lendo enriched_entities no momento do DELETE, pode haver race condition onde um registro e removido enquanto esta sendo lido — resultando em erro de foreign key se alguma tabela referenciar enriched_entities."
+    ],
+    "edgeCases": [
+      "p_ttl_days = 0 ou negativo: A funcao valida com IF p_ttl_days < 1 e levanta excecao. Mas se chamado com NULL, a validacao falha (NULL < 1 = NULL, nao TRUE). Deveria ter COALESCE(p_ttl_days, 90) para tratar NULL.",
+      "Fuso horario em enriched_at: A CHECK constraint chk_ee_enriched_at_not_future usa NOW() + INTERVAL '1 hour' como tolerancia. Se o servidor estiver em UTC e a aplicacao enviar timestamps em BRST (UTC-3), registros legitimos podem ser rejeitados se o timestamp 'futuro' for < 1h a frente.",
+      "GIN index e CONCURRENTLY em tabela vazia: Se a migration rodar antes de qualquer dado existir (banco novo), CREATE INDEX CONCURRENTLY e desnecessario e pode falhar em ambientes que nao suportam CONCURRENTLY em tabelas vazias (ex: alguns schemas de test)."
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

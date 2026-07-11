@@ -1,0 +1,14 @@
+# /etc/systemd/system/extra-collect-metrics.timer
+# Collect crawl metrics every hour
+# Extra Consultoria — Story TD-5.5
+
+[Unit]
+Description=Extra Consultoria — Collect Crawl Metrics Timer
+
+[Timer]
+OnCalendar=*:0/60:00
+RandomizedDelaySec=120
+Persistent=false
+
+[Install]
+WantedBy=timers.target

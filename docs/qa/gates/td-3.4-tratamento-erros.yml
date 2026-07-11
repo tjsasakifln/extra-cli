@@ -1,0 +1,8 @@
+schema: 1
+story: 'TD-3.4'
+gate: PASS
+status_reason: 'Re-verification: REQ-001 (type(exc).__name__ em 8 except Exception blocks no tce_sc_crawler.py) e MNT-001 (scope creep documentado no Change Log) ambos resolvidos. Todos os 8 blocos except Exception no tce_sc_crawler.py agora incluem type(exc).__name__ nos logs. Scope creep contratado documentado em 1.2.2. SINTAXE Python valida em todos os 7 crawlers. 175+ testes passando (0 regressoes desta story). Documentacao error-handling.md completa e precisa.'
+reviewer: 'Quinn'
+updated: '2026-07-11T20:00:00Z'
+top_issues: []
+waiver: { active: false }

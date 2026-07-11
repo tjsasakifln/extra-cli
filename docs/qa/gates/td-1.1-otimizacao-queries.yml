@@ -1,0 +1,13 @@
+schema: 1
+story: "TD-1.1"
+gate: PASS
+status_reason: "7/7 checks. DOC-001 e DOC-002 corrigidos (migration 014 header com CHANGE LOG). REQ-001 mantido como dependência operacional documentada (EXPLAIN ANALYZE requer PostgreSQL)."
+reviewer: "Quinn"
+updated: "2026-07-11T22:00:00-03:00"
+top_issues:
+  - id: "REQ-001"
+    severity: medium
+    finding: "AC3 (EXPLAIN ANALYZE) não executado — requer acesso ao banco de dados PostgreSQL para confirmar Index Scan vs Seq Scan"
+    suggested_action: "Executar EXPLAIN ANALYZE nas queries de verificação documentadas nas migrations e em query-optimization.md ao aplicar as migrations no banco"
+waiver:
+  active: false

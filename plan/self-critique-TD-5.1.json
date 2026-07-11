@@ -1,0 +1,33 @@
+{
+  "subtaskId": "TD-5.1",
+  "critiquedAt": "2026-07-11T12:35:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "ContextVar correlation_id pode vazar entre operacoes se reset_correlation_id() nao for chamado — mitigado via documentacao em logging.md",
+      "JsonFormatter serializacao de objetos complexos em extra_data — FIXED: adicionado default=str e try/except em json.dumps",
+      "RotatingFileHandler em prod pode falhar se diretorio sem permissao — FIXED: fallback para stderr com warning",
+      "Enricher.py: prefixos '[Enricher]', '[EnricherMunicipio]', '[EnricherIBGE]' mantidos nas mensagens para consistencia com logs existentes"
+    ],
+    "edgeCases": [
+      "LOG_FORMAT invalido — tratado via getattr() com fallback padrao",
+      "set_correlation_id() em contexto async — ContextVar e async-safe",
+      "LOG_MAX_BYTES negativo — RotatingFileHandler aceita, documentado como edge case",
+      "APP_ENV maiusculo 'PROD' — fix: documentado que deve ser minusculo",
+      "supabase_client import movido para topo — verificado sintaticamente"
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

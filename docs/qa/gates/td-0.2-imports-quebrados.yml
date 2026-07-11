@@ -1,0 +1,8 @@
+schema: 1
+story: 'TD-0.2'
+gate: PASS
+status_reason: 'All 7 quality checks passed. BidsCrawler diagnosed as dead code with comprehensive documentation; sync adapter confirmed functional.'
+reviewer: 'Quinn'
+updated: '2026-07-11T00:00:00Z'
+top_issues: []
+waiver: { active: false }

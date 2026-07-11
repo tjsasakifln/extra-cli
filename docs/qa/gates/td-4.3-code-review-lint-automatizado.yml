@@ -1,0 +1,8 @@
+schema: 1
+story: 'TD-4.3'
+gate: PASS
+status_reason: 'All 5 ACs met. ANSI codes replaced by Rich markup in intel_pipeline.py, noqa E402 documented in monitor.py, ruff 0 errors, 190/190 story-related tests passing (1 pre-existing DuckDuckGo API failure unrelated).'
+reviewer: 'Quinn'
+updated: '2026-07-11T23:00:00Z'
+top_issues: []
+waiver: { active: false }

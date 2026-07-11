@@ -1,0 +1,13 @@
+schema: 1
+story: 'FEAT-4.1'
+gate: PASS
+status_reason: 'All 10/10 ACs verified. SEC-001 resolved: UFW node exporter port 9100 now conditional on MONITORING_IPS env var — only opens to specific IPs or stays closed. Code remains robust (10-step provision-vps.sh, set -euo pipefail, modular functions). Documentation comprehensive.'
+reviewer: 'Quinn'
+updated: '2026-07-11T12:00:00Z'
+top_issues:
+  - id: 'MNT-001'
+    severity: low
+    finding: 'Two OnFailure templates coexist: onfailure@.service (legacy, no project field in JSON) and extra-onfailure@.service (new, includes project field). Legacy service units (compras-gov-crawl, dom-sc-crawl, pcp-crawl, etc.) reference old template without project field.'
+    suggested_action: 'Consider consolidating to a single template after legacy units are migrated to the extra-* naming convention.'
+waiver:
+  active: false

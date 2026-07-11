@@ -1,0 +1,30 @@
+{
+  "subtaskId": "TD-3.1",
+  "critiquedAt": "2026-07-11T12:00:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "DEFAULT_DSN global mutation race: orchestrator.crawl_source() e monitor.main() ambos alteram DEFAULT_DSN via global — se crawl_source for chamado em paralelo, o DSN de um pode sobrescrever o do outro",
+      "Re-export cycle: monitor.py importa de orchestrator.py que importa de entity_matcher.py — se entity_matcher tentar importar de monitor (circular), quebra em runtime. Nao acontece hoje porque entity_matcher nao importa monitor, mas e um risk smell",
+      "Crawler module identity: load_crawler() retorna o modulo inteiro (e.g., scripts.crawl.pcp_crawler), e as chamadas subsequentes assumem que o modulo tem `crawl()` e `transform()`. Se um crawler for refatorado e renomear essas funcoes, a quebra e silenciosa ate runtime"
+    ],
+    "edgeCases": [
+      "Empty unmatched_bids list: match_entities_cascade retorna stats zerados sem conectar no DB — testado no test_no_unmatched_bids",
+      "None/empty orgao_cnpj em match_entity(): retorna None em vez de tentar fazer match — testado no test_empty_cnpj_returns_none",
+      "CNPJ com caracteres especiais (12.345.678/0001-99): o clean strip deve lidar com formatacao — testado no test_cnpj_with_special_chars"
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": true,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

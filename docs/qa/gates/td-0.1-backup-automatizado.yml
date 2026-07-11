@@ -1,0 +1,9 @@
+schema: 1
+story: "TD-0.1"
+gate: PASS
+status_reason: "Re-execucao QA Gate. Todas as 6 issues criticas/medias corrigidas (SEC-001, SEC-003, SEC-004, REL-001, REL-002, DOC-001, DOC-002). bash -n OK em ambos scripts. Nenhuma senha em cmdline. Flock atomico. Temp file + --jobs. Porta 23 documentada. 7/7 quality checks. SEC-002 mantido como decisao operacional documentada (chave sem passphrase para uso automatizado)."
+reviewer: "Quinn"
+updated: "2026-07-11T18:00:00-03:00"
+top_issues: []
+waiver:
+  active: false

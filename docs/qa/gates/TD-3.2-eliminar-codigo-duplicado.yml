@@ -1,0 +1,9 @@
+schema: 1
+story: 'TD-3.2'
+gate: PASS
+status_reason: 'All 7 quality checks PASS. Both previous issues fully resolved: REQ-005 (contracts_crawler regressions fixed: trunc re-exported, _safe_float local restored, _uf_from_cnpj restored, _transform_record schema preserved), REQ-006 (sc_compras_crawler removed from File List). 89/89 tests passing (53 common + 20 contracts + 7 upsert + 9 pncp). Zero regressions.'
+reviewer: 'Quinn'
+updated: '2026-07-11T18:00:00Z'
+top_issues: []
+waiver:
+  active: false

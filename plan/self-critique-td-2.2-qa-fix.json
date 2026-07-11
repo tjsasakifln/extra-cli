@@ -1,0 +1,30 @@
+{
+  "subtaskId": "td-2.2-qa-fixes",
+  "critiquedAt": "2026-07-11T12:00:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "Bug #1: public. qualifier added to entity_coverage references inside trigger functions, but ON CONFLICT DO UPDATE SET clause references public.entity_coverage.last_seen_at — if the function context changes search_path, this could break. Verified: function is owned by public schema and search_path includes public by default, so safe.",
+      "Bug #2: Checksums changed after content edits — if any future migration management tool validates checksums against the file content at a different point in time (e.g., after the SQL was cleaned/formatted), the checksum mismatch would flag a false positive integrity violation.",
+      "Bug #3: Dependency comment added to 003-v2 documents the order, but there is no runtime enforcement (e.g., a CHECK script) preventing someone from applying 003-v2 before 005-v2. The comment is advisory only."
+    ],
+    "edgeCases": [
+      "Edge #1: If _migrations table already contains registry entries with the old checksum 'manual-verify-X', the new migration will skip via ON CONFLICT DO NOTHING — the old checksum will remain in the database. This is acceptable because the fix is for future/fresh migrations, not retroactive.",
+      "Edge #2: The public. qualifier on sc_public_entities inside trigger functions was also fixed (was missing alongside entity_coverage). If sc_public_entities is always in the search_path, the old code would still work, but explicit qualification prevents ambiguity.",
+      "Edge #3: The sha256 checksum is computed on the current file content after edits. If another tool normalizes whitespace or line endings (CRLF vs LF) before computing its own hash, the checksums will mismatch. The migration framework should use a consistent canonical form."
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": false,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}

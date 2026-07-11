@@ -1,0 +1,30 @@
+{
+  "subtaskId": "5.5",
+  "critiquedAt": "2026-07-11T12:00:00Z",
+  "step5_5": {
+    "predictedBugs": [
+      "notify.py send_email: se o servidor SMTP nao suportar STARTTLS, a conexao falha silenciosamente com excecao generica — a configuracao NOTIFY_SMTP_USE_TLS=false deveria ser respeitada como fallback",
+      "check-alerts.py check_consecutive_crawl_failures: usa INTERVAL '48 hours' para busca de falhas consecutivas, mas crawlers com schedule >24h (ex: full crawl a cada 24h) podem ter 3 falhas espalhadas por 72h+ e nao ser detectados",
+      "health-dashboard.py collect_alert_summary: executa check-alerts.py como subprocesso com timeout de 30s — se o subprocesso travar, todo o dashboard falha sem fallback para dados em cache"
+    ],
+    "edgeCases": [
+      "Tabelas do banco ausentes (fresh install) — collect-metrics.py e check-alerts.py devem tratar erro de tabela inexistente",
+      "Arquivo de log de backup vazio — read_text retorna string vazia, reversed(lines) itera zero vezes, OK, mas edge case nao testado explicitamente",
+      "Caracteres especiais em payload de webhook (Slack/Discord) — json.dumps com ensure_ascii=False pode produzir Unicode que webhooks rejeitam"
+    ],
+    "errorHandling": true,
+    "securityCheck": true,
+    "passed": true
+  },
+  "step6_5": {
+    "followsPatterns": true,
+    "noHardcoded": true,
+    "testsAdded": true,
+    "docsUpdated": true,
+    "noConsoleLogs": true,
+    "passed": true
+  },
+  "overallVerdict": "PASSED",
+  "skipped": false,
+  "skipWarning": null
+}
