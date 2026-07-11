@@ -18,5 +18,8 @@ rich>=13.0.0
 lxml>=5.0.0
 beautifulsoup4>=4.12.0
 
+# Fuzzy string matching (optional, fallback to difflib)
+rapidfuzz>=3.0.0
+
 # Optional: SICAF checking
 # playwright>=1.40.0  # descomentar se precisar de SICAF
