@@ -44,4 +44,4 @@
 - Medicao de coverage antes/depois
 
 ### Decisao
-**APPROVED** — implementacao tecnica completa. ACs 3-8 implementados e testados. Bloqueio externo (AC1/AC2) documentado.
+**NEEDS_WORK** — implementacao tecnica completa (ACs 3-8). Bloqueio externo (AC1/AC2) documentado. Pendente populacao de municipios reais apos baseline da Story 001.5 e execucao pratica em producao. Aprovacao final condicionada a conclusao da baseline.

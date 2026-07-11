@@ -1,0 +1,3 @@
+- [Story 001.2 QA Gate](story-0012-qa-gate.md) — CONCERNS verdict, 9/10 ACs, 3 medium issues documented
+- [Story 001.7 QA Gate](story-0017-qa-gate.md) — CONCERNS verdict, 2 REQs partially unmet (AC4 views, AC2 bar chart), 3 medium issues
+- [Story 001.5 QA Gate](story-0015-qa-gate.md) — CONCERNS verdict, 9/10 ACs, 1 medium + 2 low issues documented

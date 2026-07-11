@@ -1,0 +1,33 @@
+schema: 1
+story: '001.3'
+gate: CONCERNS
+status_review: 'Core implementation (AC1-AC6) is solid and well-coded, but 2/8 acceptance criteria remain open (AC7 regression test, AC8 manual validation) and there is dead code and missing test coverage.'
+reviewer: 'Quinn (Guardian)'
+updated: '2026-07-10T22:00:00-03:00'
+top_issues:
+  - id: 'REQ-001'
+    severity: medium
+    finding: 'AC7 not completed: regression test comparing matched % before/after on existing bids was not run'
+    suggested_action: 'Run matching on all existing bids, measure before/after matched %, document results'
+  - id: 'REQ-002'
+    severity: medium
+    finding: 'AC8 not completed: manual validation of 50 samples for cross-municipio false positives was not performed'
+    suggested_action: 'Sample 50 bids with fuzzy matches cross-municipio, validate manually, document results'
+  - id: 'MNT-001'
+    severity: medium
+    finding: 'Dead code in monitor.py: _match_entity() at line 77 is defined but never called -- replaced by _match_entities_cascade()'
+    suggested_action: 'Remove _match_entity() function to eliminate dead code'
+  - id: 'TEST-001'
+    severity: medium
+    finding: 'No unit tests exist for name_normalizer.py or the cascade matching logic'
+    suggested_action: 'Add pytest tests for: normalize_name(), _expand_abbreviations(), load_abbreviations_from_yaml(), and the 3-level cascade strategy'
+  - id: 'PERF-001'
+    severity: low
+    finding: 'LRU in-memory cache (mentioned in story risks section) was not implemented -- no caching of recent entity matches'
+    suggested_action: 'Consider adding @lru_cache or dict-based cache for recently matched entity lookups to improve throughput on repeated bids'
+  - id: 'PERF-002'
+    severity: low
+    finding: 'normalize_name() is called twice per unmatched bid (Level 2 and Level 3), recomputing the same value'
+    suggested_action: 'Cache the normalized name per bid iteration to avoid redundant computation'
+waiver:
+  active: false

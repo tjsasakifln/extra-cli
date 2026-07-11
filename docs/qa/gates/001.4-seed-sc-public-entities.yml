@@ -1,0 +1,28 @@
+schema: 1
+story: '001.4'
+gate: CONCERNS
+status_reason: 'All 8 ACs implemented and verified. Code is well-structured, idempotent, and documented. Two non-blocking issues found: no connect timeout on DB connection and hardcoded default DSN password.'
+reviewer: 'Quinn'
+updated: '2026-07-10T22:30:00Z'
+top_issues:
+  - id: SEC-002
+    severity: medium
+    finding: 'No connect timeout on psycopg2.connect(args.dsn) at line 701 — if DB is unreachable, connection will hang indefinitely'
+    suggested_action: 'Add connect_timeout=10 to psycopg2.connect() call, e.g.: psycopg2.connect(args.dsn, connect_timeout=10)'
+  - id: MNT-002
+    severity: medium
+    finding: 'IBGE fuzzy match Strategy 4 (first-word prefix, lines 296-302) iterates all mapping keys O(n) per unmatched entity and can match unrelated municipalities sharing a common prefix (e.g., "sao", "santa", "rio")'
+    suggested_action: 'Replace with difflib.get_close_matches(key, ibge_mapping.keys(), n=1, cutoff=0.9) for safer similarity matching'
+  - id: MNT-003
+    severity: low
+    finding: 'CNPJ normalization at lines 404-405 strips digits after the empty check — a non-digit string like "N/A" passes the initial check, becomes empty after digit extraction, then is upserted as empty CNPJ'
+    suggested_action: 'Add a second guard after digit normalization: if not cnpj_8: log.warning(...); continue'
+  - id: SEC-001
+    severity: low
+    finding: 'Hardcoded default password in fallback DSN (line 100) — postgres:smartlic_local@127.0.0.1:54399/postgres'
+    suggested_action: 'Document that production deployments MUST set LOCAL_DATALAKE_DSN env var; remove or mask the default password'
+  - id: DOC-001
+    severity: low
+    finding: 'Typo in README.md line 16: "Clasificacao" should be "Classificacao"'
+    suggested_action: 'Fix the typo'
+waiver: { active: false }

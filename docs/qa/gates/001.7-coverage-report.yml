@@ -1,0 +1,33 @@
+schema: 1
+story: '001.7'
+gate: CONCERNS
+status_reason: 'Implementacao funcional e robusta com fallbacks, mas 2 REQs nao totalmente atendidos: AC4 (views nao utilizadas) e AC2 (bar chart ausente). 3 issues medium documentadas.'
+reviewer: 'Quinn'
+updated: '2026-07-10T22:00:00Z'
+top_issues:
+  - id: 'REQ-001'
+    severity: high
+    finding: 'AC4 violado: script nao usa v_coverage_gaps, v_coverage_gaps_by_municipio ou v_coverage_trend. Migration 012 cria as views, mas coverage_weekly.py reimplementa as queries em SQL bruto sobre tabelas base. coverage_gaps.py usa as views corretamente, criando inconsistencia de design no mesmo epico.'
+    suggested_action: 'Refatorar fetch_coverage_data() para consultar v_coverage_gaps (entes descobertos), v_coverage_gaps_by_municipio (agregacao por cidade) e v_coverage_trend (tendencia com window functions). Eliminar SQL duplicado.'
+  - id: 'REQ-002'
+    severity: medium
+    finding: 'AC2 especifica "Grafico: Cobertura por fonte (bar chart horizontal, ASCII no terminal, visual no PDF)" mas a implementacao usa apenas tabela numerica. Nao ha barra horizontal ASCII (terminal) nem visual bar chart (PDF). O layout de referencia no story mostra barras Unicode que nao foram implementadas.'
+    suggested_action: 'Adicionar _build_source_chart() com barras horizontais no PDF usando ReportLab shapes/drawing, e _print_terminal_chart() para saida no terminal com caracteres Unicode (como mostrado no layout de referencia).'
+  - id: 'PERF-001'
+    severity: medium
+    finding: 'Cada query() abre e fecha conexao PostgreSQL individualmente (7+ conexoes por execucao). query() em coverage_gaps.py e panorama.py aceita parametro conn (reusa conexao), mas coverage_weekly.py cria get_conn() a cada chamada. Sem connection pooling.'
+    suggested_action: 'Criar uma unica conexao no inicio de fetch_coverage_data() e passa-la como parametro para as query() internas. Ou usar pool de conexoes (psycopg2.pool.ThreadedConnectionPool).'
+  - id: 'MNT-001'
+    severity: medium
+    finding: 'PDF styling totalmente duplicado entre panorama.py e coverage_weekly.py. Nao ha biblioteca compartilhada de estilos PDF (doc_templates.py eh para extracao de texto, nao para PDF). Risco de deriva visual entre relatorios.'
+    suggested_action: 'Extrair _build_pdf_styles(), _three_rule_table(), _metric_cell() e _section_heading() para scripts/lib/pdf_templates.py e reutilizar em ambos os relatorios.'
+  - id: 'MNT-002'
+    severity: low
+    finding: 'Global DSN modificada via global DSN = args.dsn (linha 1032-1033). Anti-pattern compartilhado com outros reports. Import inside function bodies (collections.defaultdict, datetime) impactam legibilidade.'
+    suggested_action: 'Passar DSN como parametro em vez de global. Mover imports para topo do modulo.'
+  - id: 'DOC-001'
+    severity: low
+    finding: 'Sheet 3 do Excel rotulada como "Entes Descobertos" e "% Gap" — o AC3 especifica "cobertos, %". Dados sao os mesmos (complementares) mas rotulos divergem do especificado.'
+    suggested_action: 'Renomear colunas ou adicionar coluna de entes cobertos para alinhar com AC3.'
+waiver:
+  active: false

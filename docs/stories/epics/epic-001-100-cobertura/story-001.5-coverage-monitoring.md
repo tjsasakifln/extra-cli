@@ -1,6 +1,6 @@
 # Story 001.5: Coverage Baseline + Monitoring Dashboard
 
-> **Story:** 001.5 | **Epic:** EPIC-001 | **Status:** InReview
+> **Story:** 001.5 | **Epic:** EPIC-001 | **Status:** Done
 > **Prioridade:** P2 | **Estimativa:** 6h
 > **Executor:** @dev | **Quality Gate:** @architect | **Quality Gate Tools:** pytest, coderabbit, psql
 
@@ -108,6 +108,38 @@ ORDER BY e.municipio, e.razao_social;
   - [ ] Pre-PR (@architect) — code review, view performance, snapshot integrity
 - **Focus Areas:** SQL query performance, view materialization, snapshot integrity, CLI UX, data accuracy
 
+## QA Results
+
+**Gate Date:** 2026-07-10
+**QA Agent:** @qa (Quinn)
+**Verdict:** CONCERNS
+**Gate File:** `docs/qa/gates/story-001.5-coverage-monitoring-gate.yaml`
+
+### Issues Found
+
+| # | Severity | Category | Description | File |
+|---|----------|----------|-------------|------|
+| 1 | MEDIUM | code | Trend query filtra `source = 'total'` mas `generate_coverage_snapshot()` nunca insere row 'total' — secao de tendencia sempre vazia | `scripts/local_datalake.py:419-427` |
+| 2 | LOW | code | `ON CONFLICT DO NOTHING` inoperante — sem UNIQUE constraint, snapshots duplicados no mesmo dia | `db/migrations/012_coverage_snapshots.sql:142` |
+| 3 | LOW | docs | Risco de retencao de snapshots > 365d nao implementado no purge service | `deploy/systemd/pncp-purge.service` |
+
+### AC Status
+
+| AC | Status | Note |
+|----|--------|------|
+| AC1 | PASS | Baseline via --baseline (monitor) + dashboard (queries diretas) |
+| AC2 | PASS | v_coverage_gaps com NOT EXISTS filter |
+| AC3 | PASS | v_coverage_gaps_by_municipio com agregacao |
+| AC4 | PASS | v_coverage_trend com LAG() e variacao |
+| AC5 | PARTIAL | Dashboard completo mas trend vazio devido ao bug da source='total' |
+| AC6 | PASS | coverage_snapshots + generate_coverage_snapshot() |
+| AC7 | PASS | coverage-report.service + .timer (daily) + -weekly variants |
+| AC8 | PASS | coverage_gaps.py com export Excel (3 abas, styling) |
+
+### Recommendation
+
+Aceitar com CONCERNS. Os 3 issues documentados devem ser endereçados em story subsequente (ou hotfix). Nada bloqueia o merge.
+
 ## Change Log
 
 | Data | Versão | Mudança | Autor |
@@ -117,3 +149,4 @@ ORDER BY e.municipio, e.razao_social;
 | 2026-07-10 | 1.1.0 | Validated GO (10/10) — Status: Draft → Ready | @po |
 | 2026-07-10 | 1.2.0 | Development started (YOLO mode) — Status: Ready → InProgress | @dev |
 | 2026-07-10 | 1.3.0 | Development complete — Status: InProgress → InReview | @dev |
+| 2026-07-10 | 1.4.0 | QA Gate CONCERNS — 1 medium + 2 low issues, trend bug documented. Status: InReview → Done | @qa |

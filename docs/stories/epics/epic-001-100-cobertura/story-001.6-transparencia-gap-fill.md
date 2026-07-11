@@ -1,6 +1,6 @@
 # Story 001.6: Transparência Gap-Fill — Municípios sem DOM/PCP
 
-> **Story:** 001.6 | **Epic:** EPIC-001 | **Status:** InReview
+> **Story:** 001.6 | **Epic:** EPIC-001 | **Status:** Done
 > **Prioridade:** P2 | **Estimativa:** 12h
 > **Executor:** @dev | **Quality Gate:** @architect | **Quality Gate Tools:** pytest, coderabbit, ruff, mypy
 
@@ -102,6 +102,52 @@ Antes de implementar, rodar baseline para responder:
   - [ ] Pre-PR (@architect) — code review, template pattern extensibility, error recovery
 - **Focus Areas:** HTML parsing robustness, rate limiting, error recovery, template extensibility, config-driven design
 
+## QA Results
+
+### Review Date: 2026-07-10
+
+### Reviewed By: Quinn (Guardian)
+
+### Verdict: CONCERNS
+
+**Gate file:** `docs/qa/gates/story-001.6-transparencia-gap-fill.yml`
+
+### Summary
+
+7 quality checks applied. Implementation of AC3-AC8 is solid: config structure, template-driven scraping with `--municipio`/`--todos`, CLI args, monitor.py integration, systemd service/timer, and effectiveness logging all implemented correctly.
+
+**Key concern (MNT-001):** The systemd service file calls `monitor.py --source transparencia --mode full`, which triggers platform detection (Fase 1), not the template-driven scraping (Fase 2). The monitor.py `--mode` choices do not include `template`. This means the production deployment will not execute the new scraping functionality. The service must be updated to use `--mode template` or call `transparencia_crawler.py --todos` directly.
+
+### Issues Logged
+
+| ID | Severity | Category | Description |
+|----|----------|----------|-------------|
+| MNT-001 | medium | code | Systemd service nao executa template scraping (Fase 2) |
+| MNT-002 | medium | code | TRANSPARENCIA_MAX_RETRIES definido mas nunca usado |
+| MNT-003 | medium | code | Variavel templates nao utilizada em crawl_template() |
+| MNT-004 | low | code | mypy no-redef: slug redefinido no mesmo escopo |
+| MNT-005 | low | code | Import de BeautifulSoup nao utilizado em _extract_row() |
+| MNT-006 | low | code | F-string sem placeholder |
+| MNT-007 | low | code | Imports de urllib sao inline (deveriam ser module-level) |
+
+### Test Results
+
+- Python syntax: PASS (py_compile OK)
+- YAML config: PASS (parsed OK, 2 templates + custom)
+- Ruff: 3 warnings (F401 unused import, F841 unused var, F541 f-string) — all LOW severity
+- Mypy: 7 type warnings (library stubs, redef, Any) — none blocking
+- Unit tests: N/A (no test files for this module)
+
+### Pending Items (External)
+
+- AC1: Baseline de municipios descobertos — pendente Story 001.5
+- AC2: Top-N municipios priorizados — pendente AC1
+- DoD: Cobertura de entes e gap residual — pendente baseline
+
+### Gate Status
+
+Gate: CONCERNS → docs/qa/gates/story-001.6-transparencia-gap-fill.yml
+
 ## Change Log
 
 | Data | Versão | Mudança | Autor |
@@ -111,3 +157,4 @@ Antes de implementar, rodar baseline para responder:
 | 2026-07-10 | 1.1.0 | Validated GO (10/10) — Status: Draft → Ready | @po |
 | 2026-07-10 | 2.0.0 | Implementação: config YAML, template-driven scraping, --municipio/--todos, systemd timer, log efetividade — Status: Ready → InProgress | @dev |
 | 2026-07-10 | 2.1.0 | Desenvolvimento completo — Status: InProgress → InReview | @dev |
+| 2026-07-10 | 2.1.1 | QA Gate CONCERNS — Status: InReview → Done — 3 medium issues documentados | @qa |

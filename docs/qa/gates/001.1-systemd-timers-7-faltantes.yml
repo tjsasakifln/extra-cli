@@ -1,0 +1,28 @@
+schema: 1
+story: '001.1'
+gate: CONCERNS
+status_reason: 'All 10 ACs implemented and verified. Non-blocking issues: story template documents User=pi/HomeDir but actual uses extra-consultoria user and /opt path; timer units use Requires= instead of Unit= (pre-existing pattern); OnCalendar lacks UTC suffix (pre-existing).'
+reviewer: 'Quinn'
+updated: '2026-07-10T21:35:00Z'
+top_issues:
+  - id: 'DOC-001'
+    severity: medium
+    finding: 'Story template (secao "Padrao de Service") documenta User=pi e WorkingDirectory=/home/pi/extra-consultoria, mas implementacao real usa User=extra-consultoria e /opt/extra-consultoria. Arquivos .service e install.sh estao consistentes entre si.'
+    suggested_action: 'Atualizar secao "Padrao de Service" no story para refletir User=extra-consultoria e /opt/extra-consultoria.'
+  - id: 'MNT-003'
+    severity: medium
+    finding: 'Timers usam Requires={service}.service em [Unit] em vez de Unit={service}.service em [Timer]. Isso faz com que systemctl start no timer tambem inicie o service imediatamente. Padrao pre-existente nos 3 timers originais.'
+    suggested_action: 'Review holistica para migrar todos os 10 timers de Requires= para Unit= no [Timer], consistente com boas praticas systemd.'
+  - id: 'MNT-004'
+    severity: low
+    finding: 'OnCalendar entries nao tem sufixo UTC explicito. Padrao pre-existente em todos os 10 timers. Pode causar comportamento inconsistente se o timezone do host mudar.'
+    suggested_action: 'Adicionar UTC explicito a todos os OnCalendar entries: ex: "*-*-* 06:00:00 UTC".'
+  - id: 'MNT-001'
+    severity: low
+    finding: 'Permissoes de arquivo 0777 no repo. Convencao systemd para arquivos .service/.timer e 0644.'
+    suggested_action: 'Alterar permissoes para 0644: find deploy/systemd/ -name "*.service" -o -name "*.timer" | xargs chmod 644.'
+  - id: 'SEC-001'
+    severity: low
+    finding: 'onfailure@.service nao tem User= directive — roda como root. Baixo risco (apenas curl webhook), mas pratica de seguranca recomendar User=nobody.'
+    suggested_action: 'Adicionar User=nobody ao onfailure@.service, mantendo EnvironmentFile para acesso ao .env.'
+waiver: { active: false }

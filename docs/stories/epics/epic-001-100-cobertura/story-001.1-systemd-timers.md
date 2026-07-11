@@ -1,6 +1,6 @@
 # Story 001.1: Systemd Timers — 7 Faltantes
 
-> **Story:** 001.1 | **Epic:** EPIC-001 | **Status:** InReview
+> **Story:** 001.1 | **Epic:** EPIC-001 | **Status:** Done
 > **Prioridade:** P1 | **Estimativa:** 4h
 > **Executor:** @devops | **Quality Gate:** @architect | **Quality Gate Tools:** systemd, journalctl, bash
 
@@ -133,6 +133,41 @@ WantedBy=timers.target
   - [ ] Pre-PR (@devops) — timer schedule sanity, idempotency check
 - **Focus Areas:** systemd unit syntax, file permissions, timer schedule conflicts, idempotency
 
+## QA Results
+
+### Review Date: 2026-07-10
+
+### Reviewed By: Quinn (Guardian)
+
+### Gate Decision: CONCERNS
+
+**Resumo:** Todos os 10 ACs implementados e verificados. 15 arquivos criados (7 services + 7 timers + onfailure template). install.sh atualizado. Issues nao-bloqueantes documentados abaixo.
+
+### Issues Encontrados
+
+| ID | Severidade | Categoria | Descricao |
+|----|-----------|-----------|-----------|
+| DOC-001 | medium | docs | Story template documenta User=pi/HomeDir mas implementacao usa extra-consultoria//opt |
+| MNT-003 | medium | code | Timers usam Requires= em vez de Unit= (padrao pre-existente) |
+| MNT-004 | low | code | OnCalendar sem UTC explicito (padrao pre-existente) |
+| MNT-001 | low | code | Permissoes 0777 vs recomendado 0644 |
+| SEC-001 | low | security | onfailure@.service sem User= (roda como root) |
+
+### CodeRabbit Review
+
+- **CRITICAL:** 0
+- **MAJOR:** 6 (Requires= issues e UTC explicito — todos padrao pre-existente)
+- **MINOR:** 0
+
+### Blast Radius
+
+- Files analyzed: 15
+- Risk Level: LOW (infraestrutura declarativa, sem codigo de aplicacao)
+
+### Gate Status
+
+Gate: CONCERNS -> docs/qa/gates/001.1-systemd-timers-7-faltantes.yml
+
 ## Change Log
 
 | Data | Versão | Mudança | Autor |
@@ -141,3 +176,4 @@ WantedBy=timers.target
 | 2026-07-10 | 1.1.0 | Validação PO: adicionados Status, executor, riscos, CodeRabbit, Change Log | @po |
 | 2026-07-10 | 1.1.0 | Validated GO (10/10) — Status: Draft → Ready | @po |
 | 2026-07-10 | 1.2.0 | Implementação: 14 arquivos systemd + template onFailure + install.sh atualizado — Status: Ready → InReview | @devops |
+| 2026-07-10 | 1.3.0 | QA Gate CONCERNS — Status: InReview → Done — 5 issues não-bloqueantes documentados | @qa |

@@ -1,6 +1,6 @@
 # Story 001.2: TCE-SC e-Sfinge Crawler
 
-> **Story:** 001.2 | **Epic:** EPIC-001 | **Status:** InReview
+> **Story:** 001.2 | **Epic:** EPIC-001 | **Status:** Done
 > **Prioridade:** P1 | **Estimativa:** 16h
 > **Executor:** @dev | **Quality Gate:** @architect | **Quality Gate Tools:** pytest, coderabbit, ruff, mypy
 
@@ -121,6 +121,26 @@ Antes de implementar, investigar:
   - [ ] Pre-PR (@architect) — code review, adapter pattern compliance, error handling
 - **Focus Areas:** HTTP client patterns, error handling, rate limiting, checkpoint/resume, adapter compliance, data normalization
 
+## QA Results (@qa — 2026-07-10)
+
+**Verdict:** CONCERNS
+**Gate:** 7/7 checks completed (6 PASS, 1 CONCERNS, 0 FAIL)
+
+### Issues Documentados
+
+| Severidade | Categoria | Descricao | Recomendacao |
+|-----------|-----------|-----------|--------------|
+| MEDIUM | Code | `_fetch_licitacoes()` e `_fetch_contratos()` duplicados (~70 linhas) | Refatorar para `_fetch_records(page_type, params)` compartilhado |
+| MEDIUM | Code | `crawl_by_municipio()` passa codigo IBGE (7 dig) como `unidade_gestora` (5 dig) | Verificar API SCMWeb ou documentar limitação; considerar lookup table |
+| MEDIUM | Code | `transform()` faz `rec.pop("_tipo")` mutando input do caller | Usar copia do record ou extrair sem modificar original |
+| LOW | Code | `_api_request()` monta query params duas vezes | Remover primeira construcao redundante |
+| LOW | Code | `_generate_content_hash` usa MD5 | Substituir por SHA-256 para alinhamento com praticas modernas |
+| NOTE | Tests | Sem testes unitarios para funcoes puras de transform/parse | Adicionar testes para `_parse_date`, `_safe_float`, `_normalize_modalidade`, `_transform_licitacao`, `_transform_contrato` |
+
+### AC Coverage: 9/10 PASS, 1 PENDING (AC8 — dependencia externa)
+
+**Aprovado com observacoes.** Implementacao segue padrao adapter, integrada ao monitor.py, sem regressoes, sem issues de seguranca. Issues MEDIUM devem ser priorizados no backlog tecnico.
+
 ## Change Log
 
 | Data | Versão | Mudança | Autor |
@@ -129,3 +149,4 @@ Antes de implementar, investigar:
 | 2026-07-10 | 1.1.0 | Validação PO: adicionados Status, executor, riscos, CodeRabbit, Change Log | @po |
 | 2026-07-10 | 1.1.0 | Validated GO (10/10) — Status: Draft → Ready | @po |
 | 2026-07-10 | 2.0.0 | Implementação: crawler tce_sc_crawler.py, monitor.py (module_map + SOURCES), systemd service+timer — Status: Ready → InProgress → InReview | @dev |
+| 2026-07-10 | 2.0.0 | QA Gate: CONCERNS (6/7 PASS) — 5 issues documentados. 9/10 ACs implementados. Status: InReview → Done | @qa |

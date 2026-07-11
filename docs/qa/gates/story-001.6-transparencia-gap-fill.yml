@@ -1,0 +1,37 @@
+schema: 1
+story: '1.6'
+gate: CONCERNS
+status_reason: 'Implementacao solida com 3 templates e scraping funcional, mas systemd service nao executa template scraping (Fase 2) — apenas platform detection (Fase 1).'
+reviewer: 'Quinn'
+updated: '2026-07-10T12:00:00Z'
+top_issues:
+  - id: 'MNT-001'
+    severity: medium
+    finding: 'Systemd service transparencia-crawl.service chama monitor.py --source transparencia --mode full, que executa apenas platform detection (Fase 1). O monitor.py nao suporta --mode template nas choices. Template scraping (Fase 2) nao roda em producao.'
+    suggested_action: 'Adicionar "template" as choices de --mode no monitor.py, ou criar service separado que chame transparencia_crawler.py --todos diretamente.'
+  - id: 'MNT-002'
+    severity: medium
+    finding: 'TRANSPARENCIA_MAX_RETRIES definido como env var (linha 60) mas nunca utilizado em nenhuma logica de retry.'
+    suggested_action: 'Implementar retry logic em _fetch_url() e _head_url(), ou remover a constante se retry for desnecessario.'
+  - id: 'MNT-003'
+    severity: medium
+    finding: 'Variavel templates em crawl_template() (linha 784) e atribuida de config.get("templates") mas nunca referenciada — ruff F841.'
+    suggested_action: 'Remover atribuicao nao utilizada ou usar a variavel se necessario para validacao.'
+  - id: 'MNT-004'
+    severity: low
+    finding: 'mypy no-redef: variavel slug redefinida (linha 923 e 934) no mesmo escopo de funcao.'
+    suggested_action: 'Renomear uma das variaveis (ex: detected_slug na linha 923) para evitar conflito de tipo.'
+  - id: 'MNT-005'
+    severity: low
+    finding: 'bs4.BeautifulSoup importado mas nao usado em _extract_row() (linha 571) — ruff F401.'
+    suggested_action: 'Remover import nao utilizado.'
+  - id: 'MNT-006'
+    severity: low
+    finding: 'F-string sem placeholders nas linhas 1188-1189 (print(f"  EFETIVIDADE ...")) — ruff F541.'
+    suggested_action: 'Usar string literal em vez de f-string.'
+  - id: 'MNT-007'
+    severity: low
+    finding: 'Imports de stdlib urllib.request/error sao inline em _fetch_url() e _head_url(), deveriam estar no modulo para consistencia.'
+    suggested_action: 'Mover imports de urllib para o topo do arquivo.'
+waiver:
+  active: false
