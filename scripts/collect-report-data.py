@@ -19,23 +19,24 @@ Usage:
 Requires:
     pip install httpx pyyaml
 """
+
 from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import hashlib
 import io
 import json
-import hashlib
 import os
 import random
 import re
+import statistics as _statistics
 import sys
 import threading
 import time
-import statistics as _statistics
 import uuid
 from collections import Counter, defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -51,7 +52,9 @@ except ImportError:
     sys.exit(1)
 
 # HARD-000: Extracted dedup module
-from report_dedup import normalize_for_dedup as _normalize_for_dedup, jaccard_similarity as _jaccard_similarity, semantic_dedup as _semantic_dedup
+from report_dedup import jaccard_similarity as _jaccard_similarity
+from report_dedup import normalize_for_dedup as _normalize_for_dedup
+from report_dedup import semantic_dedup as _semantic_dedup
 
 # DataLake-first opt-in: stable since 2026-04-29 commit pricing-b2g pilot.
 # Quando DATALAKE_QUERY_ENABLED=true e --no-datalake ausente, o coletor pode
@@ -61,6 +64,7 @@ from report_dedup import normalize_for_dedup as _normalize_for_dedup, jaccard_si
 # nesta versao apenas a infra esta plumbed; substituicao por funcao em PRs futuros.
 try:
     from datalake_helper import DatalakeClient as _DatalakeClient
+
     _DATALAKE_AVAILABLE = True
 except ImportError:
     _DatalakeClient = None  # type: ignore[assignment, misc]
@@ -116,10 +120,12 @@ def _load_municipios_coords() -> None:
     if _MUNICIPIOS_COORDS:
         return
     try:
-        with open(_MUNICIPIOS_COORDS_FILE, "r", encoding="utf-8") as f:
+        with open(_MUNICIPIOS_COORDS_FILE, encoding="utf-8") as f:
             _MUNICIPIOS_COORDS = json.load(f)
     except FileNotFoundError:
         print("  [geocode] data/municipios_coords.json not found — falling back to Nominatim")
+
+
 IBGE_CACHE_TTL_DAYS = 90  # Population/GDP data changes annually
 BRASILAPI_BASE = "https://brasilapi.com.br/api/cnpj/v1"
 IBGE_LOCALIDADES = "https://servicodados.ibge.gov.br/api/v1/localidades"
@@ -153,9 +159,9 @@ MODALIDADES_COMPETITIVAS_EXTENDED = {2, 3, 4, 5, 6, 7, 12, 15, 16, 17, 18, 19}
 MODALIDADES_EXCLUIDAS = {8, 9, 14}  # Dispensa + Inexigibilidade + Inaplicabilidade
 
 # By procurement nature (ONLY competitive modalidades)
-MODALIDADES_OBRAS = {4, 5, 6, 7}               # Concorrências + Pregões (removed 8!)
-MODALIDADES_AQUISICAO = {6, 7}                 # Pregões only (Dispensa excluded — non-competitive)
-MODALIDADES_SERVICOS = {4, 5, 6, 7}            # Concorrências + Pregões (removed 8!)
+MODALIDADES_OBRAS = {4, 5, 6, 7}  # Concorrências + Pregões (removed 8!)
+MODALIDADES_AQUISICAO = {6, 7}  # Pregões only (Dispensa excluded — non-competitive)
+MODALIDADES_SERVICOS = {4, 5, 6, 7}  # Concorrências + Pregões (removed 8!)
 
 PNCP_MAX_PAGE_SIZE = 50
 PNCP_MAX_PAGES = 10
@@ -172,8 +178,11 @@ REQUEST_TIMEOUT = 30.0
 try:
     from intel_sector_loader import (
         get_all_cnae_refinements as _get_all_cnae_refinements,
+    )
+    from intel_sector_loader import (
         get_all_incompatible_objects as _get_all_incompatible_objects,
     )
+
     CNAE_KEYWORD_REFINEMENTS = _get_all_cnae_refinements()
     CNAE_INCOMPATIBLE_OBJECTS: dict[str, list[str]] = _get_all_incompatible_objects()
 except (ImportError, FileNotFoundError):
@@ -183,6 +192,7 @@ except (ImportError, FileNotFoundError):
 # ============================================================
 # HELPERS
 # ============================================================
+
 
 def _clean_cnpj(cnpj: str) -> str:
     """Remove formatting from CNPJ, return 14 digits."""
@@ -196,7 +206,7 @@ def _format_cnpj(cnpj14: str) -> str:
 
 
 def _today() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _date_br(dt: datetime) -> str:
@@ -237,7 +247,7 @@ def _parse_date_flexible(raw: str | None) -> str | None:
         return None
     for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f", "%d/%m/%Y", "%Y%m%d"):
         try:
-            return datetime.strptime(raw[:max(10, len(raw))].strip(), fmt).strftime("%Y-%m-%d")
+            return datetime.strptime(raw[: max(10, len(raw))].strip(), fmt).strftime("%Y-%m-%d")
         except (ValueError, TypeError):
             continue
     return None
@@ -266,6 +276,7 @@ def _fmt_brl(v: float, decimals: int = 0) -> str:
 # ============================================================
 # HTTP CLIENT WITH RETRY
 # ============================================================
+
 
 class ApiClient:
     """Simple HTTP client with retry and logging. Thread-safe."""
@@ -363,7 +374,7 @@ class ApiClient:
         self._inc_stat("failed")
         if self.verbose:
             with self._print_lock:
-                print(f" ✗ (max retries)")
+                print(" ✗ (max retries)")
         return None, "API_FAILED"
 
     def head(self, url: str, label: str = "") -> int | None:
@@ -376,8 +387,9 @@ class ApiClient:
 
     def print_stats(self):
         s = self.stats
-        print(f"\n📊 API Stats: {s['calls']} calls, {s['success']} success, "
-              f"{s['failed']} failed, {s['retries']} retries")
+        print(
+            f"\n📊 API Stats: {s['calls']} calls, {s['success']} success, {s['failed']} failed, {s['retries']} retries"
+        )
 
     def close(self):
         self.client.close()
@@ -386,6 +398,7 @@ class ApiClient:
 # ============================================================
 # PHASE 1: COMPANY PROFILE
 # ============================================================
+
 
 def collect_opencnpj(api: ApiClient, cnpj14: str) -> dict:
     """Fetch company data from OpenCNPJ, with BrasilAPI fallback.
@@ -405,21 +418,23 @@ def collect_opencnpj(api: ApiClient, cnpj14: str) -> dict:
     )
     if not data or status != "API":
         # FALLBACK: Try BrasilAPI before giving up
-        print(f"  ⚠ OpenCNPJ falhou — tentando BrasilAPI como fallback...")
+        print("  ⚠ OpenCNPJ falhou — tentando BrasilAPI como fallback...")
         data, status = api.get(
             f"{BRASILAPI_BASE}/{cnpj14}",
             label=f"BrasilAPI fallback {cnpj14}",
         )
         if not data or status != "API":
-            print(f"  ✗ Ambas fontes falharam. Verifique conectividade e CNPJ.")
+            print("  ✗ Ambas fontes falharam. Verifique conectividade e CNPJ.")
             return {
-                "_source": _source_tag("API_FAILED",
+                "_source": _source_tag(
+                    "API_FAILED",
                     "OpenCNPJ e BrasilAPI falharam. Verificar: "
                     f"(1) https://api.opencnpj.org/{cnpj14} "
-                    f"(2) https://brasilapi.com.br/api/cnpj/v1/{cnpj14}"),
+                    f"(2) https://brasilapi.com.br/api/cnpj/v1/{cnpj14}",
+                ),
                 "cnpj": _format_cnpj(cnpj14),
             }
-        print(f"  ✓ BrasilAPI respondeu — usando como fonte primária")
+        print("  ✓ BrasilAPI respondeu — usando como fonte primária")
 
     # Parse capital_social (string with comma: "1232000,00")
     capital = _safe_float(data.get("capital_social")) or 0.0
@@ -429,10 +444,12 @@ def collect_opencnpj(api: ApiClient, cnpj14: str) -> dict:
     qsa = []
     for s in qsa_raw:
         if isinstance(s, dict):
-            qsa.append({
-                "nome": s.get("nome_socio") or s.get("nome", ""),
-                "qualificacao": s.get("qualificacao_socio") or s.get("qualificacao", ""),
-            })
+            qsa.append(
+                {
+                    "nome": s.get("nome_socio") or s.get("nome", ""),
+                    "qualificacao": s.get("qualificacao_socio") or s.get("qualificacao", ""),
+                }
+            )
 
     # Parse telefones
     tel_raw = data.get("telefones") or []
@@ -501,7 +518,7 @@ def collect_portal_transparencia(api: ApiClient, cnpj14: str, pt_key: str) -> di
             "status": "UNAVAILABLE",
             "configuracao": "PORTAL_TRANSPARENCIA_API_KEY não definida",
             "instrucao": "Obtenha a chave em https://portaldatransparencia.gov.br/api-de-dados "
-                         "e configure como varivel de ambiente PORTAL_TRANSPARENCIA_API_KEY",
+            "e configure como varivel de ambiente PORTAL_TRANSPARENCIA_API_KEY",
         }
         return result
 
@@ -532,8 +549,14 @@ def collect_portal_transparencia(api: ApiClient, cnpj14: str, pt_key: str) -> di
                             continue
                         # Check multiple possible CNPJ field names in the sanction record
                         sanc_cnpj = ""
-                        for field in ["cnpjFormatado", "codigoCnpjCpf", "cpfCnpjSancionado",
-                                      "cnpj", "cpfCnpj", "numeroCnpjCpf"]:
+                        for field in [
+                            "cnpjFormatado",
+                            "codigoCnpjCpf",
+                            "cpfCnpjSancionado",
+                            "cnpj",
+                            "cpfCnpj",
+                            "numeroCnpjCpf",
+                        ]:
                             candidate = str(sanction.get(field, ""))
                             if candidate:
                                 sanc_cnpj = candidate.replace(".", "").replace("/", "").replace("-", "")
@@ -543,8 +566,14 @@ def collect_portal_transparencia(api: ApiClient, cnpj14: str, pt_key: str) -> di
                             for nested_key in ["sancionado", "pessoa", "pessoaJuridica"]:
                                 nested = sanction.get(nested_key, {})
                                 if isinstance(nested, dict):
-                                    for field in ["cnpjFormatado", "codigoCnpjCpf", "cnpj",
-                                                  "cpfCnpj", "numeroCnpjCpf", "cpfCnpjSancionado"]:
+                                    for field in [
+                                        "cnpjFormatado",
+                                        "codigoCnpjCpf",
+                                        "cnpj",
+                                        "cpfCnpj",
+                                        "numeroCnpjCpf",
+                                        "cpfCnpjSancionado",
+                                    ]:
                                         candidate = str(nested.get(field, ""))
                                         if candidate:
                                             sanc_cnpj = candidate.replace(".", "").replace("/", "").replace("-", "")
@@ -570,7 +599,7 @@ def collect_portal_transparencia(api: ApiClient, cnpj14: str, pt_key: str) -> di
     elif status == "API_CORRUPT":
         result["sancoes_source"] = _source_tag("API_CORRUPT", "Resposta inválida do servidor")
         result["sancoes"]["inconclusive"] = True
-        print(f"  [PT] Resposta de sanções com formato inválido")
+        print("  [PT] Resposta de sanções com formato inválido")
     elif status == "API_FAILED":
         result["sancoes_source"] = _source_tag("API_FAILED", "Consulta de sanções falhou")
         result["sancoes"]["inconclusive"] = True
@@ -586,12 +615,14 @@ def collect_portal_transparencia(api: ApiClient, cnpj14: str, pt_key: str) -> di
         items = data if isinstance(data, list) else data.get("data", data.get("contratos", []))
         if isinstance(items, list):
             for c in items[:20]:
-                result["historico_contratos"].append({
-                    "orgao": c.get("orgaoVinculado", {}).get("nome", "") or c.get("orgao", ""),
-                    "valor": _safe_float(c.get("valorFinal") or c.get("valor") or c.get("valorInicial")) or 0.0,
-                    "data": c.get("dataInicioVigencia") or c.get("dataAssinatura") or "",
-                    "objeto": c.get("objeto", "")[:200],
-                })
+                result["historico_contratos"].append(
+                    {
+                        "orgao": c.get("orgaoVinculado", {}).get("nome", "") or c.get("orgao", ""),
+                        "valor": _safe_float(c.get("valorFinal") or c.get("valor") or c.get("valorInicial")) or 0.0,
+                        "data": c.get("dataInicioVigencia") or c.get("dataAssinatura") or "",
+                        "objeto": c.get("objeto", "")[:200],
+                    }
+                )
         n = len(result["historico_contratos"])
         detail = f"{n} contrato(s) federal(is) identificado(s)" if n > 0 else "Nenhum contrato federal identificado"
         result["historico_source"] = _source_tag("API", detail)
@@ -631,6 +662,7 @@ _ibge_cache_lock = threading.Lock()  # F27: Thread safety for IBGE caches
 
 def _normalize_municipio(nome: str) -> str:
     import unicodedata
+
     nome = unicodedata.normalize("NFD", nome.lower())
     return "".join(c for c in nome if unicodedata.category(c) != "Mn").strip()
 
@@ -650,7 +682,11 @@ def collect_ibge_municipio(api: ApiClient, municipio: str, uf: str) -> dict:
     """Fetch population + GDP for a municipality from IBGE SIDRA."""
     cod = _get_cod_ibge(api, municipio, uf)
     if not cod:
-        return {"_source": _source_tag("API_FAILED", f"Codigo IBGE nao encontrado: {municipio}/{uf}"), "populacao": None, "pib_mil_reais": None}
+        return {
+            "_source": _source_tag("API_FAILED", f"Codigo IBGE nao encontrado: {municipio}/{uf}"),
+            "populacao": None,
+            "pib_mil_reais": None,
+        }
 
     result: dict = {"cod_ibge": cod}
 
@@ -683,9 +719,11 @@ def collect_ibge_municipio(api: ApiClient, municipio: str, uf: str) -> dict:
         result["pib_per_capita"] = None
 
     has_any = result.get("populacao") or result.get("pib_mil_reais")
-    result["_source"] = _source_tag("API" if has_any else "API_FAILED", f"pop={'OK' if result.get('populacao') else 'N/A'}, pib={'OK' if result.get('pib_mil_reais') else 'N/A'}")
+    result["_source"] = _source_tag(
+        "API" if has_any else "API_FAILED",
+        f"pop={'OK' if result.get('populacao') else 'N/A'}, pib={'OK' if result.get('pib_mil_reais') else 'N/A'}",
+    )
     return result
-
 
 
 def _load_ibge_cache() -> None:
@@ -693,12 +731,14 @@ def _load_ibge_cache() -> None:
     global _ibge_data_cache
     with _ibge_cache_lock:
         try:
-            with open(IBGE_CACHE_FILE, "r", encoding="utf-8") as f:
+            with open(IBGE_CACHE_FILE, encoding="utf-8") as f:
                 raw = json.load(f)
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             _ibge_data_cache = {
-                k: v for k, v in raw.items()
-                if (now - datetime.fromisoformat(v.get("_cached_at", "2000-01-01T00:00:00+00:00"))).days < IBGE_CACHE_TTL_DAYS
+                k: v
+                for k, v in raw.items()
+                if (now - datetime.fromisoformat(v.get("_cached_at", "2000-01-01T00:00:00+00:00"))).days
+                < IBGE_CACHE_TTL_DAYS
             }
         except (FileNotFoundError, json.JSONDecodeError):
             _ibge_data_cache = {}
@@ -797,7 +837,7 @@ def collect_ibge_batch(api: ApiClient, municipios: list[tuple[str, str]]) -> dic
     # F28: Cap individual fallback at 20 to prevent API abuse
     MAX_IBGE_INDIVIDUAL_FALLBACK = 20
     _individual_fallback_count = 0
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.now(UTC).isoformat()
     for mun, uf, cod in missing:
         key = f"{mun}|{uf}"
         cod_str_k = str(cod)
@@ -830,7 +870,9 @@ def collect_ibge_batch(api: ApiClient, municipios: list[tuple[str, str]]) -> dic
             "populacao": pop,
             "pib_mil_reais": pib,
             "pib_per_capita": pib_per_capita,
-            "_source": _source_tag("API" if has_any else "API_FAILED", f"pop={'OK' if pop else 'N/A'}, pib={'OK' if pib else 'N/A'}"),
+            "_source": _source_tag(
+                "API" if has_any else "API_FAILED", f"pop={'OK' if pop else 'N/A'}, pib={'OK' if pib else 'N/A'}"
+            ),
             "_cached_at": now_iso,
         }
         result[key] = entry
@@ -875,7 +917,7 @@ def _parse_pncp_contract_item(c: dict, cnpj14: str, source_label: str = "PNCP") 
 
 
 def _collect_pncp_contratos_by_date_window(
-    api: "ApiClient",
+    api: ApiClient,
     cnpj14: str,
     data_ini: str,
     data_fim: str,
@@ -945,7 +987,7 @@ def _collect_pncp_contratos_by_date_window(
 
 
 def _collect_pncp_contratos_by_razao_social(
-    api: "ApiClient",
+    api: ApiClient,
     cnpj14: str,
     razao_social: str,
 ) -> tuple[list[dict], int]:
@@ -984,10 +1026,7 @@ def _collect_pncp_contratos_by_razao_social(
         )
         if status != "API" or not data:
             # AC5: Detailed failure logging
-            print(
-                f"  ⚠ Strategy 2 (modalidade={modalidade}): status={status!r} "
-                f"params={params}"
-            )
+            print(f"  ⚠ Strategy 2 (modalidade={modalidade}): status={status!r} params={params}")
             continue
 
         items = data if isinstance(data, list) else data.get("data", data.get("resultado", []))
@@ -1001,37 +1040,37 @@ def _collect_pncp_contratos_by_razao_social(
             unidade = item.get("unidadeOrgao", {})
 
             # Try to find supplier CNPJ in various fields
-            fornecedor_cnpj = (
-                re.sub(r"[^0-9]", "", str(item.get("cnpjFornecedor") or item.get("niFornecedor") or ""))
-            )
+            fornecedor_cnpj = re.sub(r"[^0-9]", "", str(item.get("cnpjFornecedor") or item.get("niFornecedor") or ""))
             if fornecedor_cnpj and fornecedor_cnpj != cnpj14:
                 continue  # Different supplier
 
             valor = _safe_float(item.get("valorTotalEstimado") or item.get("valorGlobal")) or 0.0
             data_assinatura = (item.get("dataAssinatura") or item.get("dataPublicacaoPncp") or "")[:10]
 
-            matched.append({
-                "orgao": (orgao.get("razaoSocial") or unidade.get("nomeUnidade") or ""),
-                "esfera": esfera_labels_rs.get(orgao.get("esferaId", ""), ""),
-                "uf": unidade.get("ufSigla", ""),
-                "municipio": unidade.get("municipioNome", ""),
-                "valor": valor,
-                "data": data_assinatura,
-                "objeto": (item.get("objetoCompra") or item.get("objeto") or "")[:300],
-                "numero_contrato": item.get("numeroContratoEmpenho") or item.get("sequencialCompra") or "",
-                "vigencia_fim": item.get("dataEncerramentoProposta") or "",
-                "fonte": "PNCP_NOME",
-                "valor_aditivos": 0.0,
-                "tipo_contrato": item.get("modalidadeNome") or "",
-                "situacao_contrato": "",
-                "tem_subcontratacao": False,
-            })
+            matched.append(
+                {
+                    "orgao": (orgao.get("razaoSocial") or unidade.get("nomeUnidade") or ""),
+                    "esfera": esfera_labels_rs.get(orgao.get("esferaId", ""), ""),
+                    "uf": unidade.get("ufSigla", ""),
+                    "municipio": unidade.get("municipioNome", ""),
+                    "valor": valor,
+                    "data": data_assinatura,
+                    "objeto": (item.get("objetoCompra") or item.get("objeto") or "")[:300],
+                    "numero_contrato": item.get("numeroContratoEmpenho") or item.get("sequencialCompra") or "",
+                    "vigencia_fim": item.get("dataEncerramentoProposta") or "",
+                    "fonte": "PNCP_NOME",
+                    "valor_aditivos": 0.0,
+                    "tipo_contrato": item.get("modalidadeNome") or "",
+                    "situacao_contrato": "",
+                    "tem_subcontratacao": False,
+                }
+            )
 
     return matched, raw_total
 
 
 def _collect_pncp_contratos_fornecedor_wide(
-    api: "ApiClient",
+    api: ApiClient,
     cnpj14: str,
     razao_social: str = "",
 ) -> tuple[list[dict], int]:
@@ -1058,10 +1097,7 @@ def _collect_pncp_contratos_fornecedor_wide(
             label=f"PNCP contratos/wide p={page}",
         )
         if status != "API" or not data:
-            print(
-                f"  ⚠ Strategy 4a (wide, page={page}): status={status!r} "
-                f"cnpjFornecedor={cnpj14}"
-            )
+            print(f"  ⚠ Strategy 4a (wide, page={page}): status={status!r} cnpjFornecedor={cnpj14}")
             break
 
         items = data.get("data", data) if isinstance(data, dict) else data
@@ -1078,14 +1114,12 @@ def _collect_pncp_contratos_fornecedor_wide(
         total_pages = data.get("totalPaginas", 1) if isinstance(data, dict) else 1
         # If API is not filtering by CNPJ (huge result set, 0 matches), stop early
         if total_records > 10_000 and not matched:
-            print(
-                f"  ⚠ Strategy 4a: {total_records:,} contratos mas 0 para CNPJ {cnpj14} "
-                f"após {page} página(s)"
-            )
+            print(f"  ⚠ Strategy 4a: {total_records:,} contratos mas 0 para CNPJ {cnpj14} após {page} página(s)")
             break
         if page >= total_pages:
             break
         import time as _time
+
         _time.sleep(0.3)
 
     if matched:
@@ -1105,10 +1139,7 @@ def _collect_pncp_contratos_fornecedor_wide(
             label="PNCP contratos/wide-nome",
         )
         if status != "API" or not data:
-            print(
-                f"  ⚠ Strategy 4b (wide-nome): status={status!r} "
-                f"q={query_short!r}"
-            )
+            print(f"  ⚠ Strategy 4b (wide-nome): status={status!r} q={query_short!r}")
         else:
             items = data.get("data", data) if isinstance(data, dict) else data
             if isinstance(items, list):
@@ -1120,16 +1151,13 @@ def _collect_pncp_contratos_fornecedor_wide(
                 if matched:
                     print(f"  ✓ Strategy 4b (wide-nome): {len(matched)} contratos ({raw_total} raw)")
                 else:
-                    print(
-                        f"  Strategy 4b (wide-nome): {raw_total} raw, "
-                        f"0 contratos para CNPJ {cnpj14}"
-                    )
+                    print(f"  Strategy 4b (wide-nome): {raw_total} raw, 0 contratos para CNPJ {cnpj14}")
 
     return matched, raw_total
 
 
 def collect_pncp_contratos_fornecedor(
-    api: "ApiClient",
+    api: ApiClient,
     cnpj14: str,
     razao_social: str = "",
 ) -> tuple[list[dict], dict]:
@@ -1177,10 +1205,12 @@ def collect_pncp_contratos_fornecedor(
     # ── INTEGRITY CHECK ──────────────────────────────────────────────────────
     if total_raw > 0 and strat1_matched == 0:
         print(f"  ⚠ PNCP /contratos: {total_raw:,} itens recebidos, 0 pertencem ao CNPJ {cnpj14}")
-        print(f"    (API ignora cnpjFornecedor — filtragem client-side descartou tudo)")
+        print("    (API ignora cnpjFornecedor — filtragem client-side descartou tudo)")
     elif total_raw > 0:
         pct = strat1_matched / total_raw * 100
-        print(f"  ✓ PNCP /contratos strat1: {total_raw:,} recebidos → {strat1_matched} do CNPJ {cnpj14} ({pct:.1f}% match)")
+        print(
+            f"  ✓ PNCP /contratos strat1: {total_raw:,} recebidos → {strat1_matched} do CNPJ {cnpj14} ({pct:.1f}% match)"
+        )
 
     # FIX 4 — Strategy 2: Search by razao_social as fallback when strat1 returns 0
     strat2_matched = 0
@@ -1198,10 +1228,8 @@ def collect_pncp_contratos_fornecedor(
     # FIX-001 AC3 — Strategy 4: PNCP /contratos without date window (wider recall)
     strat4_matched = 0
     if strat1_matched == 0 and strat2_matched == 0:
-        print(f"  Strategy 4: buscando sem janela de data (recall amplo)...")
-        strat4_contracts, strat4_raw = _collect_pncp_contratos_fornecedor_wide(
-            api, cnpj14, razao_social
-        )
+        print("  Strategy 4: buscando sem janela de data (recall amplo)...")
+        strat4_contracts, strat4_raw = _collect_pncp_contratos_fornecedor_wide(api, cnpj14, razao_social)
         all_contracts.extend(strat4_contracts)
         strat4_matched = len(strat4_contracts)
         if strat4_matched:
@@ -1224,14 +1252,16 @@ def collect_pncp_contratos_fornecedor(
                 items = data.get("data", data.get("content", data)) if isinstance(data, dict) else data
                 if isinstance(items, list):
                     for item in items:
-                        contratos.append({
-                            "orgao": (item.get("orgaoEntidade") or {}).get("razaoSocial", ""),
-                            "uf": (item.get("unidadeOrgao") or {}).get("ufSigla", ""),
-                            "objeto": (item.get("objetoContrato") or "")[:200],
-                            "valor": _safe_float(item.get("valorInicial")),
-                            "data": item.get("dataAssinatura", ""),
-                            "fonte": "COMPRASGOV_CONTRATOS",
-                        })
+                        contratos.append(
+                            {
+                                "orgao": (item.get("orgaoEntidade") or {}).get("razaoSocial", ""),
+                                "uf": (item.get("unidadeOrgao") or {}).get("ufSigla", ""),
+                                "objeto": (item.get("objetoContrato") or "")[:200],
+                                "valor": _safe_float(item.get("valorInicial")),
+                                "data": item.get("dataAssinatura", ""),
+                                "fonte": "COMPRASGOV_CONTRATOS",
+                            }
+                        )
             print(f"  ComprasGov contratos: {len(contratos)} encontrados")
         except Exception as e:
             print(f"  ⚠ ComprasGov contratos falhou: {e}")
@@ -1246,14 +1276,16 @@ def collect_pncp_contratos_fornecedor(
                 items = data.get("data", data.get("content", data)) if isinstance(data, dict) else data
                 if isinstance(items, list):
                     for item in items:
-                        contratos.append({
-                            "orgao": (item.get("orgaoEntidade") or {}).get("razaoSocial", ""),
-                            "uf": (item.get("unidadeOrgao") or {}).get("ufSigla", ""),
-                            "objeto": (item.get("descricao") or "")[:200],
-                            "valor": _safe_float(item.get("valorTotalHomologado")),
-                            "data": item.get("dataResultado", ""),
-                            "fonte": "COMPRASGOV_RESULTADOS",
-                        })
+                        contratos.append(
+                            {
+                                "orgao": (item.get("orgaoEntidade") or {}).get("razaoSocial", ""),
+                                "uf": (item.get("unidadeOrgao") or {}).get("ufSigla", ""),
+                                "objeto": (item.get("descricao") or "")[:200],
+                                "valor": _safe_float(item.get("valorTotalHomologado")),
+                                "data": item.get("dataResultado", ""),
+                                "fonte": "COMPRASGOV_RESULTADOS",
+                            }
+                        )
             print(f"  ComprasGov resultados: {len(contratos) - n_before} encontrados")
         except Exception as e:
             print(f"  ⚠ ComprasGov resultados falhou: {e}")
@@ -1267,7 +1299,7 @@ def collect_pncp_contratos_fornecedor(
 
     # AC2: Strategy failure summary — make 0-contract results loud, not silent
     if not all_contracts:
-        print(f"  ⚠ HISTORICO VAZIO: 3 estratégias testadas, 0 contratos encontrados")
+        print("  ⚠ HISTORICO VAZIO: 3 estratégias testadas, 0 contratos encontrados")
         print(f"    Strategy 1 (date window): {total_raw} raw, {strat1_matched} matched")
         print(f"    Strategy 2 (razao social): {strat2_raw} raw, {strat2_matched} matched")
         print(f"    Strategy 3 (ComprasGov): {len(cgov_contracts)}")
@@ -1277,7 +1309,7 @@ def collect_pncp_contratos_fornecedor(
 
     # F03: Dedup by SHA-256 hash of structural fields (not truncated strings)
     def _contract_key(c: dict) -> str:
-        raw = f"{c.get('orgao','')}\x00{c.get('numero_contrato','')}\x00{c.get('data','')}\x00{c.get('valor_contrato', c.get('valor',''))}"
+        raw = f"{c.get('orgao', '')}\x00{c.get('numero_contrato', '')}\x00{c.get('data', '')}\x00{c.get('valor_contrato', c.get('valor', ''))}"
         return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
     seen: set[str] = set()
@@ -1314,7 +1346,6 @@ def collect_pncp_contratos_fornecedor(
     # (Returned directly as part of source metadata — caller merges into _metadata)
     _ac4_inconclusive = False
     if n == 0:
-        import datetime as _dt
         _capital = 0.0  # Capital not available here; AC4 gate is applied downstream
         # Mark source as INCONCLUSIVE so downstream assemble() can detect it
         # The capital/age check happens in assemble() where empresa data is available
@@ -1326,6 +1357,7 @@ def collect_pncp_contratos_fornecedor(
 # ============================================================
 # HARD-003: Acervo 3-Tier Classification (standalone, pre-enrichment)
 # ============================================================
+
 
 def classify_acervo_similarity(contratos: list[dict], editais: list[dict]) -> None:
     """Classify portfolio contracts by similarity to each edital (in-place mutation).
@@ -1367,7 +1399,7 @@ def classify_acervo_similarity(contratos: list[dict], editais: list[dict]) -> No
         all_matches: list[dict] = []
 
         for c in contratos:
-            c_obj = (c.get("objeto") or "")
+            c_obj = c.get("objeto") or ""
             if not c_obj:
                 continue
 
@@ -1392,13 +1424,15 @@ def classify_acervo_similarity(contratos: list[dict], editais: list[dict]) -> No
                 effective_sim = sim
 
             if tier in ("ALTA", "MÉDIA"):
-                all_matches.append({
-                    "contrato_objeto": c_obj[:120],
-                    "similarity": round(effective_sim, 2),
-                    "tier": tier,
-                    "contrato_valor": _safe_float(c.get("valor")) or 0.0,
-                    "contrato_data": c.get("data_inicio") or c.get("data_assinatura") or c.get("data", ""),
-                })
+                all_matches.append(
+                    {
+                        "contrato_objeto": c_obj[:120],
+                        "similarity": round(effective_sim, 2),
+                        "tier": tier,
+                        "contrato_valor": _safe_float(c.get("valor")) or 0.0,
+                        "contrato_data": c.get("data_inicio") or c.get("data_assinatura") or c.get("data", ""),
+                    }
+                )
 
         # Sort by similarity descending, take top 5
         all_matches.sort(key=lambda x: -x["similarity"])
@@ -1425,127 +1459,321 @@ def classify_acervo_similarity(contratos: list[dict], editais: list[dict]) -> No
 _ACTIVITY_CATEGORIES: dict[str, dict] = {
     "engenharia": {
         "label": "Engenharia e Obras",
-        "prefixes": ["construç", "construc", "edifici", "obra", "paviment", "infraestrutura",
-                      "urbaniz", "drenag", "terrapl", "reforma", "saneamento", "fundaç"],
-        "search_keywords": ["obra", "construção", "pavimentação", "reforma", "engenharia",
-                           "edificação", "drenagem", "terraplanagem", "saneamento"],
+        "prefixes": [
+            "construç",
+            "construc",
+            "edifici",
+            "obra",
+            "paviment",
+            "infraestrutura",
+            "urbaniz",
+            "drenag",
+            "terrapl",
+            "reforma",
+            "saneamento",
+            "fundaç",
+        ],
+        "search_keywords": [
+            "obra",
+            "construção",
+            "pavimentação",
+            "reforma",
+            "engenharia",
+            "edificação",
+            "drenagem",
+            "terraplanagem",
+            "saneamento",
+        ],
     },
     "saude": {
         "label": "Saúde e Materiais Hospitalares",
-        "prefixes": ["medicament", "hospitalar", "odontol", "ambulatori", "farmac",
-                      "laborat", "cirúrg", "cirurg", "curativ", "fórmula", "formula",
-                      "insumos hospitalar", "saúde", "saude"],
-        "search_keywords": ["hospitalar", "medicamento", "odontológico", "ambulatorial",
-                           "farmacêutico", "laboratorial", "cirúrgico", "saúde"],
+        "prefixes": [
+            "medicament",
+            "hospitalar",
+            "odontol",
+            "ambulatori",
+            "farmac",
+            "laborat",
+            "cirúrg",
+            "cirurg",
+            "curativ",
+            "fórmula",
+            "formula",
+            "insumos hospitalar",
+            "saúde",
+            "saude",
+        ],
+        "search_keywords": [
+            "hospitalar",
+            "medicamento",
+            "odontológico",
+            "ambulatorial",
+            "farmacêutico",
+            "laboratorial",
+            "cirúrgico",
+            "saúde",
+        ],
     },
     "alimentacao": {
         "label": "Alimentação e Gêneros Alimentícios",
-        "prefixes": ["aliment", "merenda", "refeic", "refeição", "nutriç", "nutric",
-                      "gêneros", "generos", "hortifrut", "cesta", "panific", "café",
-                      "pnae", "buffet"],
-        "search_keywords": ["gêneros alimentícios", "merenda escolar", "alimentação",
-                           "refeição", "nutrição", "hortifruti", "cesta básica"],
+        "prefixes": [
+            "aliment",
+            "merenda",
+            "refeic",
+            "refeição",
+            "nutriç",
+            "nutric",
+            "gêneros",
+            "generos",
+            "hortifrut",
+            "cesta",
+            "panific",
+            "café",
+            "pnae",
+            "buffet",
+        ],
+        "search_keywords": [
+            "gêneros alimentícios",
+            "merenda escolar",
+            "alimentação",
+            "refeição",
+            "nutrição",
+            "hortifruti",
+            "cesta básica",
+        ],
     },
     "limpeza_saneantes": {
         "label": "Saneantes e Produtos de Limpeza",
-        "prefixes": ["saneant", "limpeza", "higien", "desinfet", "detergent",
-                      "descartáv", "descartav", "álcool", "alcool"],
-        "search_keywords": ["saneantes", "limpeza", "higienização", "descartáveis",
-                           "desinfetante", "álcool"],
+        "prefixes": [
+            "saneant",
+            "limpeza",
+            "higien",
+            "desinfet",
+            "detergent",
+            "descartáv",
+            "descartav",
+            "álcool",
+            "alcool",
+        ],
+        "search_keywords": ["saneantes", "limpeza", "higienização", "descartáveis", "desinfetante", "álcool"],
     },
     "expediente_escolar": {
         "label": "Material de Expediente e Escolar",
-        "prefixes": ["expedient", "escolar", "caderno", "papéi", "papei", "papel",
-                      "didátic", "didatic", "artesanat"],
-        "search_keywords": ["material expediente", "material escolar", "papelaria",
-                           "material didático"],
+        "prefixes": ["expedient", "escolar", "caderno", "papéi", "papei", "papel", "didátic", "didatic", "artesanat"],
+        "search_keywords": ["material expediente", "material escolar", "papelaria", "material didático"],
     },
     "informatica": {
         "label": "Informática e Tecnologia",
-        "prefixes": ["informátic", "informatic", "computador", "hardware", "software",
-                      "impressão", "impressao", "suprimento", "toner", "cartucho"],
+        "prefixes": [
+            "informátic",
+            "informatic",
+            "computador",
+            "hardware",
+            "software",
+            "impressão",
+            "impressao",
+            "suprimento",
+            "toner",
+            "cartucho",
+        ],
         "search_keywords": ["informática", "computador", "equipamento TI", "software"],
     },
     "moveis_eletro": {
         "label": "Móveis e Eletrodomésticos",
-        "prefixes": ["móve", "move", "mobili", "eletrodoméstic", "eletrodomestic",
-                      "condicionado", "refrigerad", "fogão", "fogao"],
+        "prefixes": [
+            "móve",
+            "move",
+            "mobili",
+            "eletrodoméstic",
+            "eletrodomestic",
+            "condicionado",
+            "refrigerad",
+            "fogão",
+            "fogao",
+        ],
         "search_keywords": ["móveis", "eletrodomésticos", "ar condicionado", "mobiliário"],
     },
     "veiculos": {
         "label": "Veículos e Transporte",
-        "prefixes": ["veícul", "veicul", "automotiv", "pneu", "combustív", "combustiv",
-                      "ambulânci", "ambulanci", "transporte", "frete", "locação veícul",
-                      "lubrificant", "posto de combustív", "posto de combustiv",
-                      "logístic", "logistic"],
-        "search_keywords": ["veículo", "pneu", "combustível", "ambulância", "transporte",
-                           "lubrificante", "logística"],
+        "prefixes": [
+            "veícul",
+            "veicul",
+            "automotiv",
+            "pneu",
+            "combustív",
+            "combustiv",
+            "ambulânci",
+            "ambulanci",
+            "transporte",
+            "frete",
+            "locação veícul",
+            "lubrificant",
+            "posto de combustív",
+            "posto de combustiv",
+            "logístic",
+            "logistic",
+        ],
+        "search_keywords": ["veículo", "pneu", "combustível", "ambulância", "transporte", "lubrificante", "logística"],
     },
     "vestuario": {
         "label": "Vestuário e Uniformes",
-        "prefixes": ["vestuári", "vestuari", "uniforme", "fardament", "jaleco",
-                      "confecç", "confeccao", "calçado", "calcado"],
+        "prefixes": [
+            "vestuári",
+            "vestuari",
+            "uniforme",
+            "fardament",
+            "jaleco",
+            "confecç",
+            "confeccao",
+            "calçado",
+            "calcado",
+        ],
         "search_keywords": ["uniforme", "vestuário", "fardamento", "confecção", "calçado"],
     },
     "vigilancia": {
         "label": "Vigilância e Segurança",
-        "prefixes": ["vigilânci", "vigilanci", "segurança", "seguranca", "monitoramento",
-                      "alarme", "câmera", "camera", "cftv"],
+        "prefixes": [
+            "vigilânci",
+            "vigilanci",
+            "segurança",
+            "seguranca",
+            "monitoramento",
+            "alarme",
+            "câmera",
+            "camera",
+            "cftv",
+        ],
         "search_keywords": ["vigilância", "segurança", "monitoramento", "CFTV"],
     },
     "manutencao": {
         "label": "Manutenção Predial e Elétrica",
-        "prefixes": ["manutenção predial", "manutencao predial", "elétr", "eletr",
-                      "hidráulic", "hidraulic", "encanamento", "instalações", "instalacoes"],
+        "prefixes": [
+            "manutenção predial",
+            "manutencao predial",
+            "elétr",
+            "eletr",
+            "hidráulic",
+            "hidraulic",
+            "encanamento",
+            "instalações",
+            "instalacoes",
+        ],
         "search_keywords": ["manutenção predial", "instalação elétrica", "hidráulica"],
     },
     "projetos_tecn": {
         "label": "Projetos Técnicos e Arquitetura",
-        "prefixes": ["elaboração de projeto", "elaboracao de projeto",
-                      "projeto executivo", "projeto básico", "projeto basico",
-                      "projeto técnico", "projeto tecnico", "projeto arquitetônico",
-                      "projeto arquitetonico", "plano diretor", "ppci", "clcb",
-                      "levantamento topográf", "levantamento topograf",
-                      "estudo de viabilidade técn", "estudo de viabilidade tecn",
-                      "arquitetura e urbanism", "design de interior"],
-        "search_keywords": ["elaboração de projetos", "projeto executivo",
-                           "projeto arquitetônico", "plano diretor", "PPCI",
-                           "levantamento topográfico", "arquitetura"],
+        "prefixes": [
+            "elaboração de projeto",
+            "elaboracao de projeto",
+            "projeto executivo",
+            "projeto básico",
+            "projeto basico",
+            "projeto técnico",
+            "projeto tecnico",
+            "projeto arquitetônico",
+            "projeto arquitetonico",
+            "plano diretor",
+            "ppci",
+            "clcb",
+            "levantamento topográf",
+            "levantamento topograf",
+            "estudo de viabilidade técn",
+            "estudo de viabilidade tecn",
+            "arquitetura e urbanism",
+            "design de interior",
+        ],
+        "search_keywords": [
+            "elaboração de projetos",
+            "projeto executivo",
+            "projeto arquitetônico",
+            "plano diretor",
+            "PPCI",
+            "levantamento topográfico",
+            "arquitetura",
+        ],
     },
     "consultoria": {
         "label": "Consultoria e Assessoria",
-        "prefixes": ["consultori", "assessori", "perícia", "pericia", "laudo",
-                      "auditoria", "contábil", "contabil", "jurídic", "juridic"],
+        "prefixes": [
+            "consultori",
+            "assessori",
+            "perícia",
+            "pericia",
+            "laudo",
+            "auditoria",
+            "contábil",
+            "contabil",
+            "jurídic",
+            "juridic",
+        ],
         "search_keywords": ["consultoria", "assessoria", "auditoria", "perícia"],
     },
     "comunicacao": {
         "label": "Comunicação e Publicidade",
-        "prefixes": ["publicidad", "comunicaçã", "comunicaca", "gráfic", "grafic",
-                      "impressão gráfic", "banner", "sinaliz",
-                      "propagand", "marketing", "agência de publicidad", "agencia de publicidad"],
-        "search_keywords": ["publicidade", "comunicação", "sinalização", "material gráfico",
-                           "propaganda", "marketing"],
+        "prefixes": [
+            "publicidad",
+            "comunicaçã",
+            "comunicaca",
+            "gráfic",
+            "grafic",
+            "impressão gráfic",
+            "banner",
+            "sinaliz",
+            "propagand",
+            "marketing",
+            "agência de publicidad",
+            "agencia de publicidad",
+        ],
+        "search_keywords": ["publicidade", "comunicação", "sinalização", "material gráfico", "propaganda", "marketing"],
     },
     "residuos": {
         "label": "Resíduos e Meio Ambiente",
-        "prefixes": ["resíduo", "residuo", "coleta seletiv", "reciclage", "ambiental",
-                      "licenciamento ambiental", "descontaminaç"],
+        "prefixes": [
+            "resíduo",
+            "residuo",
+            "coleta seletiv",
+            "reciclage",
+            "ambiental",
+            "licenciamento ambiental",
+            "descontaminaç",
+        ],
         "search_keywords": ["resíduos", "coleta seletiva", "meio ambiente", "reciclagem"],
     },
     "eventos": {
         "label": "Eventos e Locação",
-        "prefixes": ["evento", "locação", "locacao", "tendas", "palco", "sonorizaç",
-                      "sonorizac", "buffet", "coffee",
-                      "show artístic", "show artistic", "show musical",
-                      "apresentação artístic", "apresentacao artistic",
-                      "espetáculo", "espetaculo", "artístico", "artistico"],
-        "search_keywords": ["evento", "locação", "tendas", "sonorização",
-                           "show artístico", "apresentação artística"],
+        "prefixes": [
+            "evento",
+            "locação",
+            "locacao",
+            "tendas",
+            "palco",
+            "sonorizaç",
+            "sonorizac",
+            "buffet",
+            "coffee",
+            "show artístic",
+            "show artistic",
+            "show musical",
+            "apresentação artístic",
+            "apresentacao artistic",
+            "espetáculo",
+            "espetaculo",
+            "artístico",
+            "artistico",
+        ],
+        "search_keywords": ["evento", "locação", "tendas", "sonorização", "show artístico", "apresentação artística"],
     },
     "alienacao": {
         "label": "Alienação e Leilão",
-        "prefixes": ["alienação", "alienacao", "mercadorias apreendida", "leilão", "leilao",
-                      "arrematação", "arremataçao"],
+        "prefixes": [
+            "alienação",
+            "alienacao",
+            "mercadorias apreendida",
+            "leilão",
+            "leilao",
+            "arrematação",
+            "arremataçao",
+        ],
         "search_keywords": ["alienação", "mercadorias apreendidas", "leilão"],
     },
 }
@@ -1577,61 +1805,134 @@ _CLUSTER_DEFAULT_NATURE: dict[str, str] = {
 
 # Explicit nature signals — checked on the FIRST 150 chars of objeto (lowered)
 _NATURE_SIGNALS: list[tuple[str, list[str]]] = [
-    ("OBRA", [
-        "construção", "construcao", "execução de obra", "execucao de obra",
-        "reforma d", "reforma e ", "reforma da ", "reforma do ",
-        "pavimentação", "pavimentacao", "implantação d", "implantacao d",
-        "edificação", "edificacao", "terraplanagem", "urbanização", "urbanizacao",
-        "drenagem", "recapeamento", "contenção", "contencao",
-        # Additional construction signals (catches "fornecimento de materiais e mão de obra")
-        "mão de obra", "mao de obra", "mão-de-obra", "mao-de-obra",
-        "empreitada", "empresa de engenharia", "ramo de engenharia",
-        "ramo de construção", "ramo de construcao",
-        "ampliação d", "ampliacao d",  # building expansion
-        "bloquetamento", "sinalização vi", "sinalizacao vi",
-    ]),
-    ("SERVICO", [
-        "prestação de serviço", "prestacao de servico",
-        "contratação de empresa especializada para a prestação",
-        "contratacao de empresa especializada para a prestacao",
-        "contratação de organização social", "contratacao de organizacao social",
-        "credenciamento para", "chamamento público", "chamamento publico",
-        "manutenção", "manutencao", "gerenciamento d", "assessoria",
-        "consultoria", "desenvolvimento de sistema", "desenvolvimento de software",
-        # Additional service signals (without "prestação" prefix)
-        "serviço de", "servico de", "serviços de", "servicos de",
-        "locação de veículo", "locacao de veiculo",
-        "locação de mão", "locacao de mao",
-        # Credenciamento signals (typically service, not acquisition)
-        "credenciamento de pessoa",
-        "credenciamento de profission",
-        "credenciamento de prestador",
-        "credenciamento médic",
-        "credenciamento medic",
-        "credenciamento de serviço",
-        "credenciamento de servico",
-        "pessoa física para prest",
-        "pessoa fisica para prest",
-        "profissionais de saúde",
-        "profissionais de saude",
-        "prestação de serviço médic",
-        "prestacao de servico medic",
-    ]),
-    ("LOCACAO", [
-        "locação de imóvel", "locacao de imovel", "locação de imóv",
-        "aluguel de", "arrendamento",
-    ]),
-    ("ALIENACAO", [
-        "alienação", "alienacao", "mercadorias apreendida", "leilão", "leilao",
-    ]),
-    ("AQUISICAO", [
-        "aquisição de", "aquisicao de", "fornecimento de",
-        "compra de", "registro de preço", "registro de preco",
-        "chamada pública", "chamada publica",  # PPAIS = purchase from producers
-        "material de", "materiais para", "materiais de",
-        "medicamento", "equipamento", "mobiliário", "mobiliario",
-        "uniforme", "gênero alimentício", "genero alimenticio",
-    ]),
+    (
+        "OBRA",
+        [
+            "construção",
+            "construcao",
+            "execução de obra",
+            "execucao de obra",
+            "reforma d",
+            "reforma e ",
+            "reforma da ",
+            "reforma do ",
+            "pavimentação",
+            "pavimentacao",
+            "implantação d",
+            "implantacao d",
+            "edificação",
+            "edificacao",
+            "terraplanagem",
+            "urbanização",
+            "urbanizacao",
+            "drenagem",
+            "recapeamento",
+            "contenção",
+            "contencao",
+            # Additional construction signals (catches "fornecimento de materiais e mão de obra")
+            "mão de obra",
+            "mao de obra",
+            "mão-de-obra",
+            "mao-de-obra",
+            "empreitada",
+            "empresa de engenharia",
+            "ramo de engenharia",
+            "ramo de construção",
+            "ramo de construcao",
+            "ampliação d",
+            "ampliacao d",  # building expansion
+            "bloquetamento",
+            "sinalização vi",
+            "sinalizacao vi",
+        ],
+    ),
+    (
+        "SERVICO",
+        [
+            "prestação de serviço",
+            "prestacao de servico",
+            "contratação de empresa especializada para a prestação",
+            "contratacao de empresa especializada para a prestacao",
+            "contratação de organização social",
+            "contratacao de organizacao social",
+            "credenciamento para",
+            "chamamento público",
+            "chamamento publico",
+            "manutenção",
+            "manutencao",
+            "gerenciamento d",
+            "assessoria",
+            "consultoria",
+            "desenvolvimento de sistema",
+            "desenvolvimento de software",
+            # Additional service signals (without "prestação" prefix)
+            "serviço de",
+            "servico de",
+            "serviços de",
+            "servicos de",
+            "locação de veículo",
+            "locacao de veiculo",
+            "locação de mão",
+            "locacao de mao",
+            # Credenciamento signals (typically service, not acquisition)
+            "credenciamento de pessoa",
+            "credenciamento de profission",
+            "credenciamento de prestador",
+            "credenciamento médic",
+            "credenciamento medic",
+            "credenciamento de serviço",
+            "credenciamento de servico",
+            "pessoa física para prest",
+            "pessoa fisica para prest",
+            "profissionais de saúde",
+            "profissionais de saude",
+            "prestação de serviço médic",
+            "prestacao de servico medic",
+        ],
+    ),
+    (
+        "LOCACAO",
+        [
+            "locação de imóvel",
+            "locacao de imovel",
+            "locação de imóv",
+            "aluguel de",
+            "arrendamento",
+        ],
+    ),
+    (
+        "ALIENACAO",
+        [
+            "alienação",
+            "alienacao",
+            "mercadorias apreendida",
+            "leilão",
+            "leilao",
+        ],
+    ),
+    (
+        "AQUISICAO",
+        [
+            "aquisição de",
+            "aquisicao de",
+            "fornecimento de",
+            "compra de",
+            "registro de preço",
+            "registro de preco",
+            "chamada pública",
+            "chamada publica",  # PPAIS = purchase from producers
+            "material de",
+            "materiais para",
+            "materiais de",
+            "medicamento",
+            "equipamento",
+            "mobiliário",
+            "mobiliario",
+            "uniforme",
+            "gênero alimentício",
+            "genero alimenticio",
+        ],
+    ),
 ]
 
 # Nature threshold: minimum share (%) in history to accept editais of that nature
@@ -1640,7 +1941,7 @@ NATURE_ACCEPTANCE_THRESHOLD_PCT = 5.0
 
 def _matches_nature(signal: str, text: str) -> bool:
     """F25: Word-boundary matching for nature signals."""
-    return bool(re.search(r'\b' + re.escape(signal.lower()) + r'\b', text.lower()))
+    return bool(re.search(r"\b" + re.escape(signal.lower()) + r"\b", text.lower()))
 
 
 def classify_object_nature(objeto: str, cluster_key: str = "") -> str:
@@ -1770,7 +2071,9 @@ def cluster_contract_activities(
             k: round(100.0 * v / len(contracts), 1)
             for k, v in sorted(cluster_nature_counts.items(), key=lambda x: -x[1])
         }
-        dominant_nature = max(cluster_nature_counts, key=cluster_nature_counts.get) if cluster_nature_counts else "INDEFINIDO"
+        dominant_nature = (
+            max(cluster_nature_counts, key=cluster_nature_counts.get) if cluster_nature_counts else "INDEFINIDO"
+        )
 
         # Build user-facing label — sanitize internal "_outros" key
         if cat_key == "_outros":
@@ -1784,16 +2087,18 @@ def cluster_contract_activities(
         else:
             _cluster_label = cat_def.get("label", cat_key)
 
-        clusters.append({
-            "label": _cluster_label,
-            "category_key": cat_key,
-            "count": len(contracts),
-            "share_pct": round(share, 1),
-            "keywords": cat_def.get("search_keywords", unmatched_keywords if cat_key == "_outros" else []),
-            "sample_objects": samples,
-            "nature_profile": cluster_nature_pct,
-            "dominant_nature": dominant_nature,
-        })
+        clusters.append(
+            {
+                "label": _cluster_label,
+                "category_key": cat_key,
+                "count": len(contracts),
+                "share_pct": round(share, 1),
+                "keywords": cat_def.get("search_keywords", unmatched_keywords if cat_key == "_outros" else []),
+                "sample_objects": samples,
+                "nature_profile": cluster_nature_pct,
+                "dominant_nature": dominant_nature,
+            }
+        )
 
     # Sort by count descending, cap at max_clusters
     clusters.sort(key=lambda x: -x["count"])
@@ -1803,6 +2108,7 @@ def cluster_contract_activities(
 # ============================================================
 # SECTOR MAPPING
 # ============================================================
+
 
 def _extract_keywords_flat(contratos: list[dict], max_keywords: int = 30) -> list[str]:
     """Extract high-frequency keywords from contract descriptions (internal helper).
@@ -1829,45 +2135,173 @@ def _extract_keywords_flat(contratos: list[dict], max_keywords: int = 30) -> lis
     # "limpeza", "uniforme", "veículo", "saúde", "escolar" etc. are KEPT.
     _STOP_WORDS = {
         # Grammatical particles
-        "para", "com", "dos", "das", "nos", "nas", "por", "uma", "num", "numa",
-        "que", "como", "mais", "este", "esta", "estes", "estas", "esse", "essa",
-        "aquele", "aquela", "entre", "cada", "todo", "toda", "todos", "todas",
-        "sobre", "sob", "sem", "seu", "sua", "seus", "suas",
-        "muito", "menos", "ainda",
+        "para",
+        "com",
+        "dos",
+        "das",
+        "nos",
+        "nas",
+        "por",
+        "uma",
+        "num",
+        "numa",
+        "que",
+        "como",
+        "mais",
+        "este",
+        "esta",
+        "estes",
+        "estas",
+        "esse",
+        "essa",
+        "aquele",
+        "aquela",
+        "entre",
+        "cada",
+        "todo",
+        "toda",
+        "todos",
+        "todas",
+        "sobre",
+        "sob",
+        "sem",
+        "seu",
+        "sua",
+        "seus",
+        "suas",
+        "muito",
+        "menos",
+        "ainda",
         # Procurement procedural (never differentiate what is being bought)
-        "contrato", "contratacao", "objeto", "referente", "relativo",
-        "conforme", "mediante", "decorrente", "processo",
+        "contrato",
+        "contratacao",
+        "objeto",
+        "referente",
+        "relativo",
+        "conforme",
+        "mediante",
+        "decorrente",
+        "processo",
         # Modality names (not product descriptors)
-        "pregao", "licitacao", "dispensa", "inexigibilidade", "concorrencia",
+        "pregao",
+        "licitacao",
+        "dispensa",
+        "inexigibilidade",
+        "concorrencia",
         # Legal entities
-        "empresa", "ltda", "eireli", "cnpj",
+        "empresa",
+        "ltda",
+        "eireli",
+        "cnpj",
         # Admin/payment
-        "valor", "prazo", "vigencia", "pagamento", "parcela",
+        "valor",
+        "prazo",
+        "vigencia",
+        "pagamento",
+        "parcela",
         # Government hierarchy
-        "prefeitura", "governo", "secretaria", "ministerio", "departamento",
+        "prefeitura",
+        "governo",
+        "secretaria",
+        "ministerio",
+        "departamento",
         # True filler (never useful as search keywords)
-        "tipo", "diversos", "demais", "necessidades", "atender", "outros",
+        "tipo",
+        "diversos",
+        "demais",
+        "necessidades",
+        "atender",
+        "outros",
         # Administrative/procurement procedural (appear in ALL contract types)
         # Include BOTH accented and unaccented forms for robust matching
-        "prestacao", "prestação", "servicos", "serviços", "servico", "serviço",
-        "contratacao", "contratação", "aquisicao", "aquisição",
-        "fornecimento", "registro", "precos", "preços", "preco", "preço",
-        "item", "itens",
-        "solicitado", "requisicao", "requisição", "empenho", "empenha", "despesas",
-        "avulso", "nota", "fiscal", "importancia", "importância", "periodo", "período",
-        "show", "artistico", "artístico", "artisticos", "artísticos",
-        "artistica", "artística", "artisticas", "artísticas",
-        "apresentacao", "apresentação", "musical",
-        "credenciamento", "concessao", "concessão", "permissao", "permissão", "onerosa",
-        "praca", "praça", "festa", "evento", "eventos",
-        "publica", "pública", "publico", "público",
-        "fundacao", "fundação", "consorcio", "consórcio",
+        "prestacao",
+        "prestação",
+        "servicos",
+        "serviços",
+        "servico",
+        "serviço",
+        "contratacao",
+        "contratação",
+        "aquisicao",
+        "aquisição",
+        "fornecimento",
+        "registro",
+        "precos",
+        "preços",
+        "preco",
+        "preço",
+        "item",
+        "itens",
+        "solicitado",
+        "requisicao",
+        "requisição",
+        "empenho",
+        "empenha",
+        "despesas",
+        "avulso",
+        "nota",
+        "fiscal",
+        "importancia",
+        "importância",
+        "periodo",
+        "período",
+        "show",
+        "artistico",
+        "artístico",
+        "artisticos",
+        "artísticos",
+        "artistica",
+        "artística",
+        "artisticas",
+        "artísticas",
+        "apresentacao",
+        "apresentação",
+        "musical",
+        "credenciamento",
+        "concessao",
+        "concessão",
+        "permissao",
+        "permissão",
+        "onerosa",
+        "praca",
+        "praça",
+        "festa",
+        "evento",
+        "eventos",
+        "publica",
+        "pública",
+        "publico",
+        "público",
+        "fundacao",
+        "fundação",
+        "consorcio",
+        "consórcio",
         # Institutional (not product-specific)
-        "ufes", "propaes", "campus", "reitoria", "instituto", "autarquia",
+        "ufes",
+        "propaes",
+        "campus",
+        "reitoria",
+        "instituto",
+        "autarquia",
         # Dates
-        "janeiro", "fevereiro", "marco", "abril", "maio", "junho",
-        "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
-        "2024", "2025", "2026", "2023", "2022", "2021",
+        "janeiro",
+        "fevereiro",
+        "marco",
+        "abril",
+        "maio",
+        "junho",
+        "julho",
+        "agosto",
+        "setembro",
+        "outubro",
+        "novembro",
+        "dezembro",
+        "2024",
+        "2025",
+        "2026",
+        "2023",
+        "2022",
+        "2021",
     }
 
     # Normalize accents for stop word matching (e.g., "prestação" → "prestacao")
@@ -1891,7 +2325,7 @@ def _extract_keywords_flat(contratos: list[dict], max_keywords: int = 30) -> lis
 
         # Bigrams (consecutive meaningful words)
         for i in range(len(words) - 1):
-            bg = f"{words[i]} {words[i+1]}"
+            bg = f"{words[i]} {words[i + 1]}"
             if bg not in seen_words:
                 bigram_freq[bg] = bigram_freq.get(bg, 0) + 1
                 seen_words.add(bg)
@@ -1912,26 +2346,85 @@ def _extract_keywords_flat(contratos: list[dict], max_keywords: int = 30) -> lis
     # Solution: collect freq=1 words that are NOT procedural/generic — they represent
     # the product specificity of the company.
     _GENERIC_WORDS = {
-        "material", "materiais", "produtos", "itens", "compra",
-        "aquisicao", "aquisição", "fornecimento",
-        "prestacao", "prestação", "servicos", "serviços", "servico", "serviço",
-        "registro", "precos", "preços",
-        "municipal", "estadual", "federal", "publica", "publico", "pública", "público",
-        "contratacao", "contratação", "empresa", "especializada", "especializado",
-        "atendimento", "demandas", "demanda", "secretaria",
-        "solicitado", "requisicao", "requisição", "empenho", "empenha",
-        "despesas", "importancia", "importância", "periodo", "período", "avulso",
-        "show", "artistico", "artístico", "artisticos", "artísticos",
-        "artistica", "artística", "artisticas", "artísticas",
-        "musical", "apresentacao", "apresentação",
-        "credenciamento", "concessao", "concessão", "permissao", "permissão",
-        "publica", "pública", "publico", "público",
-        "fundacao", "fundação", "consorcio", "consórcio", "praça", "praca",
+        "material",
+        "materiais",
+        "produtos",
+        "itens",
+        "compra",
+        "aquisicao",
+        "aquisição",
+        "fornecimento",
+        "prestacao",
+        "prestação",
+        "servicos",
+        "serviços",
+        "servico",
+        "serviço",
+        "registro",
+        "precos",
+        "preços",
+        "municipal",
+        "estadual",
+        "federal",
+        "publica",
+        "publico",
+        "pública",
+        "público",
+        "contratacao",
+        "contratação",
+        "empresa",
+        "especializada",
+        "especializado",
+        "atendimento",
+        "demandas",
+        "demanda",
+        "secretaria",
+        "solicitado",
+        "requisicao",
+        "requisição",
+        "empenho",
+        "empenha",
+        "despesas",
+        "importancia",
+        "importância",
+        "periodo",
+        "período",
+        "avulso",
+        "show",
+        "artistico",
+        "artístico",
+        "artisticos",
+        "artísticos",
+        "artistica",
+        "artística",
+        "artisticas",
+        "artísticas",
+        "musical",
+        "apresentacao",
+        "apresentação",
+        "credenciamento",
+        "concessao",
+        "concessão",
+        "permissao",
+        "permissão",
+        "publica",
+        "pública",
+        "publico",
+        "público",
+        "fundacao",
+        "fundação",
+        "consorcio",
+        "consórcio",
+        "praça",
+        "praca",
     }
     _GENERIC_NORMALIZED = {_strip_accents(w) for w in _GENERIC_WORDS}
     rare_but_specific = sorted(
-        [(word, freq) for word, freq in word_freq.items()
-         if freq == 1 and _strip_accents(word) not in _GENERIC_NORMALIZED and len(word) >= 5],
+        [
+            (word, freq)
+            for word, freq in word_freq.items()
+            if freq == 1 and _strip_accents(word) not in _GENERIC_NORMALIZED and len(word) >= 5
+        ],
         key=lambda x: x[0],  # alphabetical for stability
     )
 
@@ -1942,8 +2435,7 @@ def _extract_keywords_flat(contratos: list[dict], max_keywords: int = 30) -> lis
     # Filter bigrams: reject if BOTH words are generic/stopwords (e.g., "prestação serviços")
     _ALL_GENERIC = _STOP_NORMALIZED | _GENERIC_NORMALIZED
     filtered_bigrams = [
-        (bg, freq) for bg, freq in frequent_bigrams
-        if not all(_strip_accents(w) in _ALL_GENERIC for w in bg.split())
+        (bg, freq) for bg, freq in frequent_bigrams if not all(_strip_accents(w) in _ALL_GENERIC for w in bg.split())
     ]
 
     # Layer 1: Frequent bigrams (highest signal — e.g. "merenda escolar", "material limpeza")
@@ -2013,10 +2505,12 @@ def extract_keywords_from_contracts(contratos: list[dict], max_keywords: int = 3
     return result
 
 
-def _modalidades_for_cluster(cluster_label: str,
-                             nature_profile: dict[str, float] | None = None,
-                             cluster_nature: dict[str, float] | None = None,
-                             cluster_dominant: str = "") -> set[int]:
+def _modalidades_for_cluster(
+    cluster_label: str,
+    nature_profile: dict[str, float] | None = None,
+    cluster_nature: dict[str, float] | None = None,
+    cluster_dominant: str = "",
+) -> set[int]:
     """Select appropriate modalidades based on cluster activity type.
 
     For named clusters (e.g., "Saúde e Materiais Hospitalares"), uses indicator matching.
@@ -2033,15 +2527,36 @@ def _modalidades_for_cluster(cluster_label: str,
     label_lower = cluster_label.lower()
     # Materials/supplies clusters -> include Dispensa
     supply_indicators = [
-        "material", "medicamento", "hospitalar", "odontol", "saneante",
-        "limpeza", "higiene", "aliment", "gênero", "expediente",
-        "equipamento", "mobiliário", "vestuário", "uniforme",
-        "informática", "tecnologia", "combustível", "lubrificante",
+        "material",
+        "medicamento",
+        "hospitalar",
+        "odontol",
+        "saneante",
+        "limpeza",
+        "higiene",
+        "aliment",
+        "gênero",
+        "expediente",
+        "equipamento",
+        "mobiliário",
+        "vestuário",
+        "uniforme",
+        "informática",
+        "tecnologia",
+        "combustível",
+        "lubrificante",
     ]
     # Construction/obras clusters -> traditional modalidades
     obras_indicators = [
-        "construção", "obra", "paviment", "edificação", "reforma",
-        "engenharia", "infraestrutura", "saneamento", "drenagem",
+        "construção",
+        "obra",
+        "paviment",
+        "edificação",
+        "reforma",
+        "engenharia",
+        "infraestrutura",
+        "saneamento",
+        "drenagem",
     ]
 
     if any(ind in label_lower for ind in supply_indicators):
@@ -2113,15 +2628,17 @@ def extract_keywords_per_cluster(
             cluster_nature=cluster.get("nature_profile"),
             cluster_dominant=cluster.get("dominant_nature", ""),
         )
-        result.append({
-            "label": label,
-            "category_key": cluster.get("category_key", ""),
-            "share_pct": cluster.get("share_pct", 0),
-            "keywords": kws,
-            "modalidades": mods,
-            "nature_profile": cluster.get("nature_profile"),
-            "dominant_nature": cluster.get("dominant_nature", ""),
-        })
+        result.append(
+            {
+                "label": label,
+                "category_key": cluster.get("category_key", ""),
+                "share_pct": cluster.get("share_pct", 0),
+                "keywords": kws,
+                "modalidades": mods,
+                "nature_profile": cluster.get("nature_profile"),
+                "dominant_nature": cluster.get("dominant_nature", ""),
+            }
+        )
 
     return result
 
@@ -2146,7 +2663,11 @@ def extract_ufs_from_contracts(
         - metadata_dict: {uf: count} for all UFs found, plus uf_sede entry.
     """
     if not contratos:
-        return ([uf_sede] if uf_sede else []), {"uf_sede": uf_sede, "counts": {uf_sede: 0} if uf_sede else {}, "source": "fallback_sede"}
+        return ([uf_sede] if uf_sede else []), {
+            "uf_sede": uf_sede,
+            "counts": {uf_sede: 0} if uf_sede else {},
+            "source": "fallback_sede",
+        }
 
     # Count contracts per UF
     uf_counts: dict[str, int] = {}
@@ -2156,7 +2677,11 @@ def extract_ufs_from_contracts(
             uf_counts[uf] = uf_counts.get(uf, 0) + 1
 
     if not uf_counts:
-        return ([uf_sede] if uf_sede else []), {"uf_sede": uf_sede, "counts": {uf_sede: 0} if uf_sede else {}, "source": "fallback_sede"}
+        return ([uf_sede] if uf_sede else []), {
+            "uf_sede": uf_sede,
+            "counts": {uf_sede: 0} if uf_sede else {},
+            "source": "fallback_sede",
+        }
 
     # Include ALL UFs where the company ever operated (at least 1 contract).
     # Only apply frequency threshold when there are many UFs to prevent scatter.
@@ -2215,7 +2740,7 @@ def map_sector(cnae_principal: str, sectors_path: str | None = None) -> tuple[st
         print("  !! sectors_data.yaml não encontrado — usando keywords genéricas")
         return "Geral", ["licitação"], "geral"
 
-    with open(sectors_path, "r", encoding="utf-8") as f:
+    with open(sectors_path, encoding="utf-8") as f:
         data = yaml.safe_load(f)
 
     # YAML: top-level "sectors" dict, each value is a sector dict
@@ -2283,6 +2808,7 @@ def map_sector(cnae_principal: str, sectors_path: str | None = None) -> tuple[st
 # Falls back to empty dicts if config not found (backward compatible)
 try:
     from intel_sector_loader import build_cnae_to_sector_map, build_sector_hints_map
+
     _CNAE_TO_SECTOR_KEY: dict[str, str] = build_cnae_to_sector_map()
     _SECTOR_HINTS: dict[str, list[str]] = build_sector_hints_map()
 except (ImportError, FileNotFoundError):
@@ -2308,11 +2834,17 @@ def classify_edital_object_type(edital: dict) -> str:
 
     # --- Credenciamento / Inexigibilidade for professional services ---
     if "inexigibilidade" in modalidade:
-        if any(kw in objeto for kw in [
-            "credenciamento de pessoa", "prestacao de servicos medic",
-            "contratacao de medic", "atendimento fisiotera",
-            "servico de saude", "profissionais de saude",
-        ]):
+        if any(
+            kw in objeto
+            for kw in [
+                "credenciamento de pessoa",
+                "prestacao de servicos medic",
+                "contratacao de medic",
+                "atendimento fisiotera",
+                "servico de saude",
+                "profissionais de saude",
+            ]
+        ):
             return "servicos_profissionais"
 
     # --- Fornecimento de materiais (non-construction supply) ---
@@ -2320,75 +2852,119 @@ def classify_edital_object_type(edital: dict) -> str:
     # Ordered: specific terms FIRST, generic terms ("fornecimento de", "aquisicao de",
     # "registro de precos") LAST with guard clause to avoid misclassifying services/obras.
     _SUPPLY_SPECIFIC = [
-        "material medico", "material hospitalar", "materiais medico",
-        "materiais hospitalar", "insumo hospitalar", "insumos hospitalar",
-        "medicamento", "farmaco", "farmaceutic",
-        "material de consumo", "materiais de consumo",
-        "material de expediente", "material escolar", "material didatico",
-        "genero alimentic", "alimento", "merenda",
-        "material de limpeza", "saneante", "produto de limpeza",
-        "equipamento ambulat", "equipamento hospitalar",
-        "mobiliario", " movel", "estofamento",
+        "material medico",
+        "material hospitalar",
+        "materiais medico",
+        "materiais hospitalar",
+        "insumo hospitalar",
+        "insumos hospitalar",
+        "medicamento",
+        "farmaco",
+        "farmaceutic",
+        "material de consumo",
+        "materiais de consumo",
+        "material de expediente",
+        "material escolar",
+        "material didatico",
+        "genero alimentic",
+        "alimento",
+        "merenda",
+        "material de limpeza",
+        "saneante",
+        "produto de limpeza",
+        "equipamento ambulat",
+        "equipamento hospitalar",
+        "mobiliario",
+        " movel",
+        "estofamento",
         "eletrodomestic",
-        "uniforme", "vestuario", "fardamento",
-        "combustivel", "abastecimento",
+        "uniforme",
+        "vestuario",
+        "fardamento",
+        "combustivel",
+        "abastecimento",
         "material eletric",
         "material hidraulic",
-        "papel", "toner", "cartucho",
+        "papel",
+        "toner",
+        "cartucho",
     ]
     # Generic supply terms — only match if the object does NOT also contain service/obra words
-    _SERVICE_GUARD = ["servico", "obra", "construcao", "reforma", "manutencao",
-                      "consultoria", "assessoria", "treinamento", "capacitacao"]
+    _SERVICE_GUARD = [
+        "servico",
+        "obra",
+        "construcao",
+        "reforma",
+        "manutencao",
+        "consultoria",
+        "assessoria",
+        "treinamento",
+        "capacitacao",
+    ]
     _SUPPLY_GENERIC = ["fornecimento de", "aquisicao de", "registro de precos"]
     _is_specific = any(kw in objeto for kw in _SUPPLY_SPECIFIC)
-    _is_generic = (
-        any(kw in objeto for kw in _SUPPLY_GENERIC)
-        and not any(kw in objeto for kw in _SERVICE_GUARD)
-    )
+    _is_generic = any(kw in objeto for kw in _SUPPLY_GENERIC) and not any(kw in objeto for kw in _SERVICE_GUARD)
     if _is_specific or _is_generic:
         # Further classify supply type.
         # ORDER MATTERS: more specific categories first, catch-all last.
         # "merenda escolar" should match alimentos (not papelaria via "escolar").
-        if any(kw in objeto for kw in ["hospitalar", "medico", "ambulat",
-                                        "enfermagem", "medicamento", "farmac"]):
+        if any(kw in objeto for kw in ["hospitalar", "medico", "ambulat", "enfermagem", "medicamento", "farmac"]):
             return "fornecimento_saude"
         if any(kw in objeto for kw in ["limpeza", "saneante", "higieniza"]):
             return "fornecimento_limpeza"
         # Alimentos BEFORE papelaria — "merenda escolar" is food, not stationery
-        if any(kw in objeto for kw in ["aliment", "merenda", "refeicao",
-                                        "hortifruti", "cesta", "carne"]):
+        if any(kw in objeto for kw in ["aliment", "merenda", "refeicao", "hortifruti", "cesta", "carne"]):
             return "fornecimento_alimentos"
-        if any(kw in objeto for kw in ["expediente", "escolar", "didatic",
-                                        "papel", "toner", "cartucho"]):
+        if any(kw in objeto for kw in ["expediente", "escolar", "didatic", "papel", "toner", "cartucho"]):
             return "fornecimento_papelaria"
         # Use " movel" (with space prefix) to avoid matching "imovel"
-        if any(kw in objeto for kw in [" movel", "mobiliario", "estofamento",
-                                        "eletrodomestic"]):
+        if any(kw in objeto for kw in [" movel", "mobiliario", "estofamento", "eletrodomestic"]):
             return "fornecimento_mobiliario"
         return "fornecimento_geral"
 
     # --- Construction / engineering works ---
-    if any(kw in objeto for kw in [
-        "obra", "construcao", "edificac",
-        "reforma", "ampliacao", "pavimentac",
-        "drenagem", "terraplanagem", "terraplenagem", "fundacao",
-        "instalacao eletric",
-    ]):
+    if any(
+        kw in objeto
+        for kw in [
+            "obra",
+            "construcao",
+            "edificac",
+            "reforma",
+            "ampliacao",
+            "pavimentac",
+            "drenagem",
+            "terraplanagem",
+            "terraplenagem",
+            "fundacao",
+            "instalacao eletric",
+        ]
+    ):
         return "engenharia"
 
     # --- Services ---
-    if any(kw in objeto for kw in [
-        "prestacao de servico",
-        "contratacao de empresa para",
-        "manutencao", "limpeza e conserv",
-        "consultoria", "assessoria",
-    ]):
+    if any(
+        kw in objeto
+        for kw in [
+            "prestacao de servico",
+            "contratacao de empresa para",
+            "manutencao",
+            "limpeza e conserv",
+            "consultoria",
+            "assessoria",
+        ]
+    ):
         return "servicos_gerais"
 
     # --- Software / IT ---
-    if any(kw in objeto for kw in [
-        "sistema", "software", "desenvolvimento", "tecnologia da informac",
-    ]):
+    if any(
+        kw in objeto
+        for kw in [
+            "sistema",
+            "software",
+            "desenvolvimento",
+            "tecnologia da informac",
+        ]
+    ):
         return "software"
 
     # --- Concessão ---
@@ -2402,7 +2978,13 @@ def classify_edital_object_type(edital: dict) -> str:
 # Subcategories per sector for spectral object compatibility (P2)
 _SECTOR_SUBCATEGORIES: dict[str, dict[str, list[str]]] = {
     "engenharia": {
-        "edificacoes": ["construção de edifício", "edificação", "reforma predial", "ampliação de prédio", "construção civil"],
+        "edificacoes": [
+            "construção de edifício",
+            "edificação",
+            "reforma predial",
+            "ampliação de prédio",
+            "construção civil",
+        ],
         "pavimentacao": ["pavimentação", "recapeamento", "cbuq", "asfalto", "bloquete", "intertravado", "calçamento"],
         "drenagem_saneamento": ["drenagem", "esgoto", "saneamento", "rede de água", "adutora", "estação de tratamento"],
         "projeto_executivo": ["projeto executivo", "projeto básico", "contratação integrada", "bim"],
@@ -2415,7 +2997,13 @@ _SECTOR_SUBCATEGORIES: dict[str, dict[str, list[str]]] = {
         "urbanizacao": ["urbanização", "praça", "calçada", "acessibilidade", "paisagismo"],
     },
     "software": {
-        "desenvolvimento": ["desenvolvimento de sistema", "fábrica de software", "software sob demanda", "aplicativo", "portal"],
+        "desenvolvimento": [
+            "desenvolvimento de sistema",
+            "fábrica de software",
+            "software sob demanda",
+            "aplicativo",
+            "portal",
+        ],
         "licenciamento": ["licença de software", "subscription", "saas", "erp", "sistema pronto"],
         "consultoria_ti": ["consultoria em ti", "análise de requisitos", "arquitetura de sistemas", "lgpd"],
         "suporte_manutencao": ["suporte técnico", "manutenção de sistema", "sustentação", "help desk de sistema"],
@@ -2486,9 +3074,23 @@ _SECTOR_SUBCATEGORIES: dict[str, dict[str, list[str]]] = {
     },
     # --- Fornecimento (supply) sectors ---
     "fornecimento_saude": {
-        "materiais_hospitalares": ["material hospitalar", "descartável", "epi hospitalar", "luva", "seringa", "gaze", "soro fisiológico"],
+        "materiais_hospitalares": [
+            "material hospitalar",
+            "descartável",
+            "epi hospitalar",
+            "luva",
+            "seringa",
+            "gaze",
+            "soro fisiológico",
+        ],
         "medicamentos": ["medicamento", "fármaco", "insumo farmacêutico", "vacina"],
-        "equipamentos_medicos": ["equipamento hospitalar", "equipamento médico", "ambulatorial", "maca", "cama hospitalar"],
+        "equipamentos_medicos": [
+            "equipamento hospitalar",
+            "equipamento médico",
+            "ambulatorial",
+            "maca",
+            "cama hospitalar",
+        ],
     },
     "fornecimento_limpeza": {
         "saneantes": ["saneante", "desinfetante", "detergente", "alvejante", "produto de limpeza"],
@@ -2528,14 +3130,17 @@ _SECTOR_SUBCATEGORIES: dict[str, dict[str, list[str]]] = {
     },
 }
 
+
 # Habilitação requirements loaded from YAML (intel_sectors_config.yaml)
 def _load_habilitacao_requirements() -> dict[str, dict]:
     """Load habilitação requirements from YAML config."""
     try:
         from intel_sector_loader import get_all_habilitacao_requirements
+
         return get_all_habilitacao_requirements()
     except Exception:
         return {"_default": {"capital_minimo_pct": 0.10, "atestados": [], "certifications": [], "fiscal": []}}
+
 
 _HABILITACAO_REQUIREMENTS: dict[str, dict] = _load_habilitacao_requirements()
 
@@ -2545,17 +3150,31 @@ _HABILITACAO_REQUIREMENTS: dict[str, dict] = _load_habilitacao_requirements()
 _SECTOR_RISK_FLAGS: dict[str, list[str]] = {
     "facilities": ["Subprecificação crônica em contratos de limpeza — margem real pode ser menor que estimada"],
     "engenharia": ["Aditivos contratuais frequentes (25-50%) em obras públicas — considerar margem de segurança"],
-    "engenharia_rodoviaria": ["Obras rodoviárias frequentemente sofrem paralisações por questões ambientais ou orçamentárias"],
+    "engenharia_rodoviaria": [
+        "Obras rodoviárias frequentemente sofrem paralisações por questões ambientais ou orçamentárias"
+    ],
     "vigilancia": ["Convenção coletiva pode impactar custos — verificar dissídio da categoria na região"],
     "saude": ["Regulamentação ANVISA pode atrasar execução — verificar licenças necessárias"],
     "software": ["Editais de TI frequentemente exigem quadro técnico com certificações proprietárias específicas"],
-    "alimentos": ["Contratos de alimentação têm reajuste atrelado a índices de preço — verificar cláusula de reequilíbrio"],
-    "fornecimento_saude": ["Produtos hospitalares podem exigir registro ANVISA individual — verificar exigências do edital"],
-    "fornecimento_limpeza": ["Saneantes domissanitários exigem AFE/ANVISA — verificar se edital lista produtos com registro obrigatório"],
+    "alimentos": [
+        "Contratos de alimentação têm reajuste atrelado a índices de preço — verificar cláusula de reequilíbrio"
+    ],
+    "fornecimento_saude": [
+        "Produtos hospitalares podem exigir registro ANVISA individual — verificar exigências do edital"
+    ],
+    "fornecimento_limpeza": [
+        "Saneantes domissanitários exigem AFE/ANVISA — verificar se edital lista produtos com registro obrigatório"
+    ],
     "fornecimento_papelaria": ["Mercado altamente commoditizado — margem comprimida por volume de concorrentes"],
-    "fornecimento_alimentos": ["Contratos de alimentação têm reajuste atrelado a índices de preço — verificar cláusula de reequilíbrio"],
-    "fornecimento_mobiliario": ["Mobiliário hospitalar pode exigir certificação INMETRO — verificar normas técnicas no edital"],
-    "servicos_profissionais": ["Credenciamento exige registro profissional ativo (CRM, CRF, COREN) — verificar se empresa tem profissionais habilitados no quadro"],
+    "fornecimento_alimentos": [
+        "Contratos de alimentação têm reajuste atrelado a índices de preço — verificar cláusula de reequilíbrio"
+    ],
+    "fornecimento_mobiliario": [
+        "Mobiliário hospitalar pode exigir certificação INMETRO — verificar normas técnicas no edital"
+    ],
+    "servicos_profissionais": [
+        "Credenciamento exige registro profissional ativo (CRM, CRF, COREN) — verificar se empresa tem profissionais habilitados no quadro"
+    ],
     "concessao": ["Contratos de concessão têm cláusulas de desempenho e penalidades — analisar indicadores exigidos"],
 }
 
@@ -2643,8 +3262,7 @@ def compute_object_compatibility(
         score = 1.0
         compatibility = "ALTA"
         rationale = (
-            f"Objeto do edital corresponde à subcategoria '{edital_subcat}' "
-            f"onde a empresa tem experiência comprovada"
+            f"Objeto do edital corresponde à subcategoria '{edital_subcat}' onde a empresa tem experiência comprovada"
         )
     elif edital_subcat and company_subcats:
         score = 0.6
@@ -2656,10 +3274,7 @@ def compute_object_compatibility(
     elif edital_subcat and not company_subcats:
         score = 0.3
         compatibility = "BAIXA"
-        rationale = (
-            f"Edital na subcategoria '{edital_subcat}', "
-            f"sem evidência de atuação da empresa nesta especialidade"
-        )
+        rationale = f"Edital na subcategoria '{edital_subcat}', sem evidência de atuação da empresa nesta especialidade"
     else:
         score = 0.5
         compatibility = "MEDIA"
@@ -2697,94 +3312,114 @@ def compute_habilitacao_analysis(
     if valor > 0 and capital > 0:
         threshold = valor * min_pct
         if capital >= threshold:
-            dimensions.append({
-                "dimension": "Capital Mínimo",
-                "status": "OK",
-                "detail": f"Capital {_fmt_brl(capital)} >= {min_pct * 100:.0f}% do valor {_fmt_brl(valor)}",
-            })
+            dimensions.append(
+                {
+                    "dimension": "Capital Mínimo",
+                    "status": "OK",
+                    "detail": f"Capital {_fmt_brl(capital)} >= {min_pct * 100:.0f}% do valor {_fmt_brl(valor)}",
+                }
+            )
             dim_scores.append(100)
         elif capital >= threshold * 0.5:
-            dimensions.append({
-                "dimension": "Capital Mínimo",
-                "status": "ATENÇÃO",
-                "detail": f"Capital {_fmt_brl(capital)} abaixo do mínimo típico {_fmt_brl(threshold)} mas acima de 50%",
-            })
+            dimensions.append(
+                {
+                    "dimension": "Capital Mínimo",
+                    "status": "ATENÇÃO",
+                    "detail": f"Capital {_fmt_brl(capital)} abaixo do mínimo típico {_fmt_brl(threshold)} mas acima de 50%",
+                }
+            )
             gaps.append(f"Capital social pode ser insuficiente ({_fmt_brl(capital)} vs mínimo {_fmt_brl(threshold)})")
             dim_scores.append(50)
         else:
-            dimensions.append({
-                "dimension": "Capital Mínimo",
-                "status": "CRÍTICO",
-                "detail": f"Capital {_fmt_brl(capital)} muito abaixo do mínimo típico {_fmt_brl(threshold)}",
-            })
+            dimensions.append(
+                {
+                    "dimension": "Capital Mínimo",
+                    "status": "CRÍTICO",
+                    "detail": f"Capital {_fmt_brl(capital)} muito abaixo do mínimo típico {_fmt_brl(threshold)}",
+                }
+            )
             gaps.append(f"Capital social insuficiente ({_fmt_brl(capital)} vs mínimo {_fmt_brl(threshold)})")
             dim_scores.append(10)
     else:
-        dimensions.append({
-            "dimension": "Capital Mínimo",
-            "status": "VERIFICAR",
-            "detail": "Valor estimado ou capital social indisponível para análise",
-        })
+        dimensions.append(
+            {
+                "dimension": "Capital Mínimo",
+                "status": "VERIFICAR",
+                "detail": "Valor estimado ou capital social indisponível para análise",
+            }
+        )
         dim_scores.append(50)
 
     # 2. Sanções
     sancoes = empresa.get("sancoes", {})
     active_sanctions = [k for k in ["ceis", "cnep", "cepim", "ceaf"] if sancoes.get(k)]
     if active_sanctions:
-        dimensions.append({
-            "dimension": "Sanções",
-            "status": "CRÍTICO",
-            "detail": f"Sanção ativa: {', '.join(s.upper() for s in active_sanctions)} — INABILITAÇÃO AUTOMÁTICA",
-        })
+        dimensions.append(
+            {
+                "dimension": "Sanções",
+                "status": "CRÍTICO",
+                "detail": f"Sanção ativa: {', '.join(s.upper() for s in active_sanctions)} — INABILITAÇÃO AUTOMÁTICA",
+            }
+        )
         gaps.append(f"Sanção ativa ({', '.join(s.upper() for s in active_sanctions)}) impede participação")
         dim_scores.append(0)
     else:
-        dimensions.append({
-            "dimension": "Sanções",
-            "status": "OK",
-            "detail": "Sem sanções (CEIS, CNEP, CEPIM, CEAF)",
-        })
+        dimensions.append(
+            {
+                "dimension": "Sanções",
+                "status": "OK",
+                "detail": "Sem sanções (CEIS, CNEP, CEPIM, CEAF)",
+            }
+        )
         dim_scores.append(100)
 
     # 3. Regularidade fiscal (SICAF)
     sicaf_status = sicaf.get("status", "NÃO CONSULTADO") if isinstance(sicaf, dict) else "NÃO CONSULTADO"
     restricao = sicaf.get("restricao", {}) if isinstance(sicaf, dict) else {}
     if restricao.get("possui_restricao"):
-        dimensions.append({
-            "dimension": "Regularidade Fiscal",
-            "status": "CRÍTICO",
-            "detail": "SICAF indica restrição cadastral — verificar pendências",
-        })
+        dimensions.append(
+            {
+                "dimension": "Regularidade Fiscal",
+                "status": "CRÍTICO",
+                "detail": "SICAF indica restrição cadastral — verificar pendências",
+            }
+        )
         gaps.append("Restrição cadastral no SICAF — regularizar antes de licitar")
         dim_scores.append(10)
     elif sicaf_status == "FALHA_COLETA":
         # E2: SICAF failure is distinct from "not checked" — analysis is incomplete
         attempted_at = sicaf.get("attempted_at", "")
         error_detail = sicaf.get("error_detail", "erro desconhecido")
-        dimensions.append({
-            "dimension": "Regularidade Fiscal",
-            "status": "INCOMPLETO",
-            "detail": (
-                f"Coleta SICAF falhou em {attempted_at}: {error_detail}. "
-                "Análise de habilitação incompleta por falha de coleta, não por ausência de relevância."
-            ),
-        })
+        dimensions.append(
+            {
+                "dimension": "Regularidade Fiscal",
+                "status": "INCOMPLETO",
+                "detail": (
+                    f"Coleta SICAF falhou em {attempted_at}: {error_detail}. "
+                    "Análise de habilitação incompleta por falha de coleta, não por ausência de relevância."
+                ),
+            }
+        )
         gaps.append(f"Regularidade fiscal não verificada — coleta SICAF falhou em {attempted_at}")
         dim_scores.append(40)
     elif sicaf_status == "NÃO CONSULTADO":
         fiscal_reqs = ", ".join(reqs.get("fiscal", [])[:3])
-        dimensions.append({
-            "dimension": "Regularidade Fiscal",
-            "status": "VERIFICAR",
-            "detail": f"SICAF não consultado — verificar: {fiscal_reqs}",
-        })
+        dimensions.append(
+            {
+                "dimension": "Regularidade Fiscal",
+                "status": "VERIFICAR",
+                "detail": f"SICAF não consultado — verificar: {fiscal_reqs}",
+            }
+        )
         dim_scores.append(50)
     else:
-        dimensions.append({
-            "dimension": "Regularidade Fiscal",
-            "status": "OK",
-            "detail": "SICAF sem restrições identificadas",
-        })
+        dimensions.append(
+            {
+                "dimension": "Regularidade Fiscal",
+                "status": "OK",
+                "detail": "SICAF sem restrições identificadas",
+            }
+        )
         dim_scores.append(100)
 
     # 4. Qualificação técnica (certifications)
@@ -2798,36 +3433,44 @@ def compute_habilitacao_analysis(
             if _CNAE_TO_SECTOR_KEY[cnae_prefix] == sector_key
         )
         if has_compatible_cnae:
-            dimensions.append({
-                "dimension": "Qualificação Técnica",
-                "status": "ATENÇÃO",
-                "detail": f"CNAE compatível com setor. Verificar: {', '.join(certs)}",
-            })
+            dimensions.append(
+                {
+                    "dimension": "Qualificação Técnica",
+                    "status": "ATENÇÃO",
+                    "detail": f"CNAE compatível com setor. Verificar: {', '.join(certs)}",
+                }
+            )
             dim_scores.append(70)
         else:
-            dimensions.append({
-                "dimension": "Qualificação Técnica",
-                "status": "ATENÇÃO",
-                "detail": f"CNAE principal pode não cobrir exigências. Verificar: {', '.join(certs)}",
-            })
+            dimensions.append(
+                {
+                    "dimension": "Qualificação Técnica",
+                    "status": "ATENÇÃO",
+                    "detail": f"CNAE principal pode não cobrir exigências. Verificar: {', '.join(certs)}",
+                }
+            )
             gaps.append(f"Verificar registros/certificações: {', '.join(certs)}")
             dim_scores.append(40)
     else:
-        dimensions.append({
-            "dimension": "Qualificação Técnica",
-            "status": "OK",
-            "detail": "Setor sem certificações específicas obrigatórias",
-        })
+        dimensions.append(
+            {
+                "dimension": "Qualificação Técnica",
+                "status": "OK",
+                "detail": "Setor sem certificações específicas obrigatórias",
+            }
+        )
         dim_scores.append(100)
 
     # 5. Atestados técnicos
     atestados = reqs.get("atestados", [])
     if atestados:
-        dimensions.append({
-            "dimension": "Atestados Técnicos",
-            "status": "VERIFICAR",
-            "detail": f"Necessário: {'; '.join(atestados)}",
-        })
+        dimensions.append(
+            {
+                "dimension": "Atestados Técnicos",
+                "status": "VERIFICAR",
+                "detail": f"Necessário: {'; '.join(atestados)}",
+            }
+        )
         gaps.append(f"Verificar acervo: {atestados[0]}")
         dim_scores.append(50)
 
@@ -2866,7 +3509,9 @@ def compute_habilitacao_analysis(
 
     # Acervo (from edital-level data if available)
     edital_acervo = edital.get("acervo_status", "NAO_VERIFICADO")
-    acervo_op_status = "OK" if edital_acervo == "CONFIRMADO" else ("PENDENTE" if edital_acervo == "PARCIAL" else "NAO_VERIFICADO")
+    acervo_op_status = (
+        "OK" if edital_acervo == "CONFIRMADO" else ("PENDENTE" if edital_acervo == "PARCIAL" else "NAO_VERIFICADO")
+    )
 
     # CAT check from habilitacao requirements
     has_certs = bool(reqs.get("certifications"))
@@ -2885,66 +3530,152 @@ def compute_habilitacao_analysis(
 
     checklist_25 = {
         "juridica": [
-            {"item": "CNPJ ativo com objeto social compatível", "status": "OK" if cnpj_ativo else "PENDENTE",
-             "detalhe": f"Situação: {empresa.get('situacao_cadastral', 'não informada')}"},
-            {"item": "Contrato/estatuto social atualizado", "status": "NAO_VERIFICADO",
-             "detalhe": "Verificar no SICAF ou junta comercial"},
-            {"item": "Procuração do representante legal", "status": "NAO_VERIFICADO",
-             "detalhe": "Necessária para assinatura de proposta"},
-            {"item": "Alvará de funcionamento", "status": "NAO_VERIFICADO",
-             "detalhe": "Emitido pela prefeitura do município sede"},
+            {
+                "item": "CNPJ ativo com objeto social compatível",
+                "status": "OK" if cnpj_ativo else "PENDENTE",
+                "detalhe": f"Situação: {empresa.get('situacao_cadastral', 'não informada')}",
+            },
+            {
+                "item": "Contrato/estatuto social atualizado",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Verificar no SICAF ou junta comercial",
+            },
+            {
+                "item": "Procuração do representante legal",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Necessária para assinatura de proposta",
+            },
+            {
+                "item": "Alvará de funcionamento",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Emitido pela prefeitura do município sede",
+            },
         ],
         "fiscal": [
-            {"item": "CND Conjunta RFB/PGFN (Federal)", "status": sicaf_fiscal_status,
-             "detalhe": "Via SICAF" if sicaf_ok else ("Coleta SICAF falhou" if sicaf_falhou else "Emitir no site da RFB")},
-            {"item": "CND Estadual (ICMS)", "status": "NAO_VERIFICADO",
-             "detalhe": "Emitir na Secretaria da Fazenda do estado sede"},
-            {"item": "CND Municipal (ISS)", "status": "NAO_VERIFICADO",
-             "detalhe": "Emitir na prefeitura do município sede"},
-            {"item": "CRF/FGTS", "status": sicaf_fiscal_status,
-             "detalhe": "Via SICAF" if sicaf_ok else ("Coleta SICAF falhou" if sicaf_falhou else "Emitir no site da CEF")},
-            {"item": "CNDT (Certidão Negativa Débitos Trabalhistas)", "status": sicaf_fiscal_status,
-             "detalhe": "Via SICAF" if sicaf_ok else ("Coleta SICAF falhou" if sicaf_falhou else "Emitir no portal do TST")},
-            {"item": "Inscrição no cadastro de contribuintes", "status": "NAO_VERIFICADO",
-             "detalhe": "Estadual e/ou municipal conforme atividade"},
-            {"item": "SICAF ativo e regular", "status": "OK" if sicaf_ok else ("PENDENTE" if sicaf_falhou else "NAO_VERIFICADO"),
-             "detalhe": f"Status: {sicaf_status_val}" if sicaf_status_val else "Não consultado"},
+            {
+                "item": "CND Conjunta RFB/PGFN (Federal)",
+                "status": sicaf_fiscal_status,
+                "detalhe": "Via SICAF"
+                if sicaf_ok
+                else ("Coleta SICAF falhou" if sicaf_falhou else "Emitir no site da RFB"),
+            },
+            {
+                "item": "CND Estadual (ICMS)",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Emitir na Secretaria da Fazenda do estado sede",
+            },
+            {
+                "item": "CND Municipal (ISS)",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Emitir na prefeitura do município sede",
+            },
+            {
+                "item": "CRF/FGTS",
+                "status": sicaf_fiscal_status,
+                "detalhe": "Via SICAF"
+                if sicaf_ok
+                else ("Coleta SICAF falhou" if sicaf_falhou else "Emitir no site da CEF"),
+            },
+            {
+                "item": "CNDT (Certidão Negativa Débitos Trabalhistas)",
+                "status": sicaf_fiscal_status,
+                "detalhe": "Via SICAF"
+                if sicaf_ok
+                else ("Coleta SICAF falhou" if sicaf_falhou else "Emitir no portal do TST"),
+            },
+            {
+                "item": "Inscrição no cadastro de contribuintes",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Estadual e/ou municipal conforme atividade",
+            },
+            {
+                "item": "SICAF ativo e regular",
+                "status": "OK" if sicaf_ok else ("PENDENTE" if sicaf_falhou else "NAO_VERIFICADO"),
+                "detalhe": f"Status: {sicaf_status_val}" if sicaf_status_val else "Não consultado",
+            },
         ],
         "tecnica": [
-            {"item": "Atestado de capacidade técnica operacional", "status": acervo_op_status,
-             "detalhe": f"Acervo: {edital_acervo}" if edital_acervo != "NAO_VERIFICADO" else "Verificar atestados de obras/serviços similares"},
-            {"item": "Atestado de capacidade técnica profissional", "status": "NAO_VERIFICADO",
-             "detalhe": "RT com experiência comprovada no objeto"},
-            {"item": "CAT/CREA ou RRT/CAU registrados", "status": cat_status,
-             "detalhe": f"CNAE compatível com setor" if cat_status == "OK" else "Verificar registro profissional"},
-            {"item": "Registro no conselho profissional", "status": "NAO_VERIFICADO",
-             "detalhe": "CREA, CAU, CRM, CRO conforme atividade"},
-            {"item": "Declaração de equipe técnica disponível", "status": "NAO_VERIFICADO",
-             "detalhe": "Vínculo dos profissionais com a empresa"},
+            {
+                "item": "Atestado de capacidade técnica operacional",
+                "status": acervo_op_status,
+                "detalhe": f"Acervo: {edital_acervo}"
+                if edital_acervo != "NAO_VERIFICADO"
+                else "Verificar atestados de obras/serviços similares",
+            },
+            {
+                "item": "Atestado de capacidade técnica profissional",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "RT com experiência comprovada no objeto",
+            },
+            {
+                "item": "CAT/CREA ou RRT/CAU registrados",
+                "status": cat_status,
+                "detalhe": "CNAE compatível com setor" if cat_status == "OK" else "Verificar registro profissional",
+            },
+            {
+                "item": "Registro no conselho profissional",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "CREA, CAU, CRM, CRO conforme atividade",
+            },
+            {
+                "item": "Declaração de equipe técnica disponível",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Vínculo dos profissionais com a empresa",
+            },
         ],
         "economico_financeira": [
-            {"item": "Balanço patrimonial último exercício", "status": "NAO_VERIFICADO",
-             "detalhe": "Registrado na junta comercial"},
-            {"item": "Demonstrações contábeis", "status": "NAO_VERIFICADO",
-             "detalhe": "DRE e balanço do último exercício social"},
-            {"item": "Certidão negativa falência/recuperação judicial", "status": "NAO_VERIFICADO",
-             "detalhe": "Emitir no fórum da comarca sede"},
-            {"item": "Capital social mínimo compatível", "status": cap_status,
-             "detalhe": f"Capital {_fmt_brl(capital)} vs mínimo {_fmt_brl(valor * min_pct)}" if (capital > 0 and valor > 0) else "Dados insuficientes"},
-            {"item": "Patrimônio líquido compatível", "status": cap_status,
-             "detalhe": f"Estimado a partir do capital social ({_fmt_brl(capital)})" if capital > 0 else "Capital social não disponível"},
+            {
+                "item": "Balanço patrimonial último exercício",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Registrado na junta comercial",
+            },
+            {
+                "item": "Demonstrações contábeis",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "DRE e balanço do último exercício social",
+            },
+            {
+                "item": "Certidão negativa falência/recuperação judicial",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Emitir no fórum da comarca sede",
+            },
+            {
+                "item": "Capital social mínimo compatível",
+                "status": cap_status,
+                "detalhe": f"Capital {_fmt_brl(capital)} vs mínimo {_fmt_brl(valor * min_pct)}"
+                if (capital > 0 and valor > 0)
+                else "Dados insuficientes",
+            },
+            {
+                "item": "Patrimônio líquido compatível",
+                "status": cap_status,
+                "detalhe": f"Estimado a partir do capital social ({_fmt_brl(capital)})"
+                if capital > 0
+                else "Capital social não disponível",
+            },
         ],
         "declaracoes": [
-            {"item": "Consulta CEIS (CGU)", "status": "PENDENTE" if has_ceis else "OK",
-             "detalhe": "Sanção ativa no CEIS" if has_ceis else "Sem registros no CEIS"},
-            {"item": "Consulta CNEP (CGU)", "status": "PENDENTE" if has_cnep else "OK",
-             "detalhe": "Penalidade registrada no CNEP" if has_cnep else "Sem registros no CNEP"},
-            {"item": "Lista de inidôneas TCU", "status": "NAO_VERIFICADO",
-             "detalhe": "Consultar portal do TCU"},
-            {"item": "Consulta TCE estadual", "status": "NAO_VERIFICADO",
-             "detalhe": "Consultar tribunal de contas do estado"},
-            {"item": "Declaração art. 7° CF (trabalho infantil)", "status": "NAO_VERIFICADO",
-             "detalhe": "Declaratório — elaborar conforme modelo do edital"},
+            {
+                "item": "Consulta CEIS (CGU)",
+                "status": "PENDENTE" if has_ceis else "OK",
+                "detalhe": "Sanção ativa no CEIS" if has_ceis else "Sem registros no CEIS",
+            },
+            {
+                "item": "Consulta CNEP (CGU)",
+                "status": "PENDENTE" if has_cnep else "OK",
+                "detalhe": "Penalidade registrada no CNEP" if has_cnep else "Sem registros no CNEP",
+            },
+            {"item": "Lista de inidôneas TCU", "status": "NAO_VERIFICADO", "detalhe": "Consultar portal do TCU"},
+            {
+                "item": "Consulta TCE estadual",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Consultar tribunal de contas do estado",
+            },
+            {
+                "item": "Declaração art. 7° CF (trabalho infantil)",
+                "status": "NAO_VERIFICADO",
+                "detalhe": "Declaratório — elaborar conforme modelo do edital",
+            },
         ],
     }
 
@@ -2990,45 +3721,55 @@ def compute_risk_analysis(
     # 1. Valor sigiloso
     valor = _safe_float(edital.get("valor_estimado")) or 0.0
     if valor <= 0:
-        flags.append({
-            "flag": "Valor estimado sigiloso ou não informado — impossível avaliar adequação financeira",
-            "severity": "ALTA",
-            "category": "valor",
-        })
+        flags.append(
+            {
+                "flag": "Valor estimado sigiloso ou não informado — impossível avaliar adequação financeira",
+                "severity": "ALTA",
+                "category": "valor",
+            }
+        )
 
     # 2. Timeline
     dias = edital.get("dias_restantes")
     if dias is not None:
         if dias < 7:
-            flags.append({
-                "flag": f"Prazo muito apertado ({dias} dias) — risco de proposta apressada",
-                "severity": "ALTA",
-                "category": "prazo",
-            })
+            flags.append(
+                {
+                    "flag": f"Prazo muito apertado ({dias} dias) — risco de proposta apressada",
+                    "severity": "ALTA",
+                    "category": "prazo",
+                }
+            )
         elif dias < 15:
-            flags.append({
-                "flag": f"Prazo curto ({dias} dias) — preparação acelerada necessária",
-                "severity": "MEDIA",
-                "category": "prazo",
-            })
+            flags.append(
+                {
+                    "flag": f"Prazo curto ({dias} dias) — preparação acelerada necessária",
+                    "severity": "MEDIA",
+                    "category": "prazo",
+                }
+            )
 
     # 3. Organ concentration (if competitive data available)
     hhi = competitive_analysis.get("hhi", 0)
     if hhi > 0.5:
-        flags.append({
-            "flag": "Órgão com alta concentração de fornecedores (HHI > 0.5) — fornecedor recorrente forte",
-            "severity": "MEDIA",
-            "category": "competitivo",
-        })
+        flags.append(
+            {
+                "flag": "Órgão com alta concentração de fornecedores (HHI > 0.5) — fornecedor recorrente forte",
+                "severity": "MEDIA",
+                "category": "competitivo",
+            }
+        )
 
     # 4. Sector-specific chronic risks
     sector_risks = _SECTOR_RISK_FLAGS.get(sector_key, [])
     for risk_text in sector_risks:
-        flags.append({
-            "flag": risk_text,
-            "severity": "BAIXA",
-            "category": "setor",
-        })
+        flags.append(
+            {
+                "flag": risk_text,
+                "severity": "BAIXA",
+                "category": "setor",
+            }
+        )
 
     # 5. Concorrência presencial (travel cost + regional preference)
     modalidade = (edital.get("modalidade") or "").lower()
@@ -3037,44 +3778,56 @@ def compute_risk_analysis(
         km = dist.get("km") if isinstance(dist, dict) else None
         if km and km > 200:
             travel_cost = km * 6  # R$6/km round trip estimate
-            flags.append({
-                "flag": (
-                    f"Licitação presencial a {km:.0f}km — custo estimado de deslocamento "
-                    + _fmt_brl(travel_cost) + " por sessão"
-                ),
-                "severity": "MEDIA",
-                "category": "logistica",
-                "margin_impact_pct": round(travel_cost / valor * 100, 1) if valor > 0 else 0,
-            })
+            flags.append(
+                {
+                    "flag": (
+                        f"Licitação presencial a {km:.0f}km — custo estimado de deslocamento "
+                        + _fmt_brl(travel_cost)
+                        + " por sessão"
+                    ),
+                    "severity": "MEDIA",
+                    "category": "logistica",
+                    "margin_impact_pct": round(travel_cost / valor * 100, 1) if valor > 0 else 0,
+                }
+            )
         # Regional preference penalty for distant companies
         if km and km > 300:
-            flags.append({
-                "flag": "Licitação presencial com possível preferência regional — empresas locais têm vantagem logística e de relacionamento",
-                "severity": "MEDIA",
-                "category": "competitivo",
-            })
+            flags.append(
+                {
+                    "flag": "Licitação presencial com possível preferência regional — empresas locais têm vantagem logística e de relacionamento",
+                    "severity": "MEDIA",
+                    "category": "competitivo",
+                }
+            )
 
     # 6. Long contract without price adjustment (margin erosion)
     objeto = (edital.get("objeto") or "").lower()
     # Check for multi-year indicators
     for duration_marker, months in [
-        ("12 meses", 12), ("18 meses", 18), ("24 meses", 24), ("36 meses", 36),
-        ("1 ano", 12), ("2 anos", 24), ("3 anos", 36),
+        ("12 meses", 12),
+        ("18 meses", 18),
+        ("24 meses", 24),
+        ("36 meses", 36),
+        ("1 ano", 12),
+        ("2 anos", 24),
+        ("3 anos", 36),
     ]:
         if duration_marker in objeto:
             if months >= 12:
                 # Estimate inflation erosion: ~5% annual
                 erosion_pct = round(months / 12 * 5, 1)
-                flags.append({
-                    "flag": (
-                        f"Contrato de {months} meses sem garantia de reajuste — "
-                        f"erosão estimada de {erosion_pct}% na margem "
-                        f"(inflação acumulada projetada)"
-                    ),
-                    "severity": "MEDIA" if months <= 18 else "ALTA",
-                    "category": "financeiro",
-                    "margin_impact_pct": erosion_pct,
-                })
+                flags.append(
+                    {
+                        "flag": (
+                            f"Contrato de {months} meses sem garantia de reajuste — "
+                            f"erosão estimada de {erosion_pct}% na margem "
+                            f"(inflação acumulada projetada)"
+                        ),
+                        "severity": "MEDIA" if months <= 18 else "ALTA",
+                        "category": "financeiro",
+                        "margin_impact_pct": erosion_pct,
+                    }
+                )
             break
 
     # Aggregate risk level
@@ -3132,15 +3885,18 @@ def compute_competitive_analysis(contracts: list[dict]) -> dict:
 
     if n_contracts == 0:
         return {
-            "unique_suppliers": 0, "hhi": 0.0, "top_3_share": 0.0,
-            "top_supplier": None, "competition_level": "DESCONHECIDA",
+            "unique_suppliers": 0,
+            "hhi": 0.0,
+            "top_3_share": 0.0,
+            "top_supplier": None,
+            "competition_level": "DESCONHECIDA",
             "risk_signals": [],
             "_source": _source_tag("CALCULATED", "Sem dados históricos"),
         }
 
     # HHI
     shares = sorted([count / n_contracts for count in supplier_counts.values()], reverse=True)
-    hhi = sum(s ** 2 for s in shares)
+    hhi = sum(s**2 for s in shares)
     top_3_share = sum(shares[:3])
 
     # Top supplier
@@ -3267,6 +4023,7 @@ def compute_portfolio_analysis(
 # PORTFOLIO OPTIMIZATION (capacity, correlation, optimal set)
 # ============================================================
 
+
 def _fmt_brl_portfolio(v: float) -> str:
     """Format value as R$ with Brazilian number separators."""
     return f"R$ {v:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -3313,7 +4070,7 @@ def estimate_operational_capacity(empresa: dict, maturity_profile: dict) -> dict
     else:
         confidence = "baixa"
 
-    rationale_parts = [f"Capacidade base: 3 licitações simultâneas"]
+    rationale_parts = ["Capacidade base: 3 licitações simultâneas"]
     if total_contracts > 100:
         rationale_parts.append(f"+3 por histórico robusto ({total_contracts} contratos)")
     elif total_contracts > 50:
@@ -3349,7 +4106,7 @@ def calculate_portfolio_correlation(editais: list[dict]) -> dict:
     groups: dict[tuple[str, str], list[int]] = defaultdict(list)
     for i, ed in enumerate(editais):
         orgao_cnpj = ed.get("cnpj_orgao", ed.get("orgao", "N/I"))
-        municipio = (ed.get("municipio") or ed.get("localidade") or "N/I")
+        municipio = ed.get("municipio") or ed.get("localidade") or "N/I"
         key = (orgao_cnpj, municipio)
         groups[key].append(i)
 
@@ -3357,16 +4114,18 @@ def calculate_portfolio_correlation(editais: list[dict]) -> dict:
     max_group_size = 0
     for (orgao, mun), indices in groups.items():
         if len(indices) > 1:
-            correlated_groups.append({
-                "orgao": orgao,
-                "municipio": mun,
-                "edital_indices": indices,
-                "n_editais": len(indices),
-                "risk_note": (
-                    f"{len(indices)} editais do mesmo órgão em {mun} — "
-                    f"risco concentrado em caso de atraso de pagamento ou cancelamento"
-                ),
-            })
+            correlated_groups.append(
+                {
+                    "orgao": orgao,
+                    "municipio": mun,
+                    "edital_indices": indices,
+                    "n_editais": len(indices),
+                    "risk_note": (
+                        f"{len(indices)} editais do mesmo órgão em {mun} — "
+                        f"risco concentrado em caso de atraso de pagamento ou cancelamento"
+                    ),
+                }
+            )
         if len(indices) > max_group_size:
             max_group_size = len(indices)
 
@@ -3426,16 +4185,18 @@ def optimize_portfolio(
         efficiency = roi_ref / custo if custo > 0 else 0.0
 
         objeto = (ed.get("objeto") or ed.get("objetoCompra") or "")[:80]
-        candidates.append({
-            "edital_idx": i,
-            "objeto_resumo": objeto,
-            "valor": valor,
-            "custo": custo,
-            "roi_max": roi_max,
-            "roi_min": roi_min,
-            "efficiency": efficiency,
-            "strategic_category": cat,
-        })
+        candidates.append(
+            {
+                "edital_idx": i,
+                "objeto_resumo": objeto,
+                "valor": valor,
+                "custo": custo,
+                "roi_max": roi_max,
+                "roi_min": roi_min,
+                "efficiency": efficiency,
+                "strategic_category": cat,
+            }
+        )
 
     if not candidates:
         return {
@@ -3484,8 +4245,7 @@ def optimize_portfolio(
             if overlap:
                 eff *= 0.7
                 correlation_note = (
-                    f"Penalidade de correlação aplicada (×0.7) — "
-                    f"mesmo órgão/município que edital(is) {sorted(overlap)}"
+                    f"Penalidade de correlação aplicada (×0.7) — mesmo órgão/município que edital(is) {sorted(overlap)}"
                 )
 
         # Re-check ordering is still favorable (efficiency may have dropped)
@@ -3495,16 +4255,18 @@ def optimize_portfolio(
         cumulative_roi += roi_expected
         cumulative_value = new_value
 
-        selected.append({
-            "edital_idx": edital_idx,
-            "priority": priority,
-            "objeto_resumo": cand["objeto_resumo"],
-            "valor": cand["valor"],
-            "custo": cand["custo"],
-            "roi_expected": round(roi_expected),
-            "roi_cumulative": round(cumulative_roi),
-            "correlation_note": correlation_note,
-        })
+        selected.append(
+            {
+                "edital_idx": edital_idx,
+                "priority": priority,
+                "objeto_resumo": cand["objeto_resumo"],
+                "valor": cand["valor"],
+                "custo": cand["custo"],
+                "roi_expected": round(roi_expected),
+                "roi_cumulative": round(cumulative_roi),
+                "correlation_note": correlation_note,
+            }
+        )
         selected_indices.add(edital_idx)
 
     utilization = round(100.0 * len(selected) / max_bids, 1) if max_bids > 0 else 0.0
@@ -3514,7 +4276,9 @@ def optimize_portfolio(
         "total_expected_roi": round(cumulative_roi),
         "capacity_utilization_pct": utilization,
         "capacity_overflow_warning": overflow_warning,
-        "_source": _source_tag("CALCULATED", f"{len(selected)}/{len(candidates)} selecionados, utilização {utilization}%"),
+        "_source": _source_tag(
+            "CALCULATED", f"{len(selected)}/{len(candidates)} selecionados, utilização {utilization}%"
+        ),
     }
 
 
@@ -3522,16 +4286,19 @@ def optimize_portfolio(
 # FIX 2: 3-GATE SECTOR RELEVANCE FILTER
 # ============================================================
 
+
 # Cross-sector exclusions loaded from YAML (intel_sectors_config.yaml)
 # Each sector defines what is NOT relevant to it.
 def _load_hard_exclusions_by_sector() -> dict[str, frozenset[str]]:
     """Load cross-sector exclusions from YAML config."""
     try:
         from intel_sector_loader import get_all_cross_sector_exclusions
+
         all_excl = get_all_cross_sector_exclusions()
         return {k: frozenset(v) for k, v in all_excl.items()}
     except Exception:
         return {}
+
 
 _HARD_EXCLUSIONS_BY_SECTOR: dict[str, frozenset[str]] = _load_hard_exclusions_by_sector()
 
@@ -3684,10 +4451,16 @@ def _search_pncp_single(
                 source_meta["total_raw"] += len(items)
 
                 for item in items:
-                    edital = _parse_pncp_item(item, keywords, ufs, keyword_patterns=keyword_patterns,
-                                             nature_profile=nature_profile, cluster_nature=cluster_nature,
-                                             cluster_nature_profile=cluster_nature_profile,
-                                             sector_key=sector_key)
+                    edital = _parse_pncp_item(
+                        item,
+                        keywords,
+                        ufs,
+                        keyword_patterns=keyword_patterns,
+                        nature_profile=nature_profile,
+                        cluster_nature=cluster_nature,
+                        cluster_nature_profile=cluster_nature_profile,
+                        sector_key=sector_key,
+                    )
                     if edital:
                         eid = edital.get("_id", "")
                         if eid and eid not in seen_ids:
@@ -3703,9 +4476,11 @@ def _search_pncp_single(
             # After the page loop for this uf_filter, check if we hit the page cap
             if page == max_pages and isinstance(items, list) and len(items) == PNCP_MAX_PAGE_SIZE:
                 uf_label_warn = f" UF={uf_filter}" if uf_filter else ""
-                print(f"    ⚠ PAGINAÇÃO EXAUSTIVA: Modalidade {mod_code}{uf_label_warn} atingiu "
-                      f"{max_pages} páginas ({max_pages * PNCP_MAX_PAGE_SIZE} items) — "
-                      f"podem existir editais não capturados. Considerar --dias menor ou UF mais específica.")
+                print(
+                    f"    ⚠ PAGINAÇÃO EXAUSTIVA: Modalidade {mod_code}{uf_label_warn} atingiu "
+                    f"{max_pages} páginas ({max_pages * PNCP_MAX_PAGE_SIZE} items) — "
+                    f"podem existir editais não capturados. Considerar --dias menor ou UF mais específica."
+                )
                 source_meta.setdefault("pagination_warnings", []).append(
                     f"mod={mod_code}{uf_label_warn}: {max_pages} pages exhausted"
                 )
@@ -3728,14 +4503,20 @@ def collect_pncp(
     # Skip non-competitive modalidades (Dispensa, Inexigibilidade, Inaplicabilidade)
     modalidades_scan = {k: v for k, v in MODALIDADES.items() if k not in MODALIDADES_EXCLUIDAS}
     all_editais, source_meta = _search_pncp_single(
-        api, keywords, modalidades_scan, ufs, dias,
+        api,
+        keywords,
+        modalidades_scan,
+        ufs,
+        dias,
         nature_profile=nature_profile,
         sector_key=sector_key,
     )
 
-    _source = _source_tag("API" if source_meta["errors"] == 0 else "API_PARTIAL",
-                          f"{source_meta['total_raw']} obtidos, {source_meta['total_filtered']} relevantes, "
-                          f"{source_meta['pages_fetched']} p\u00e1ginas consultadas")
+    _source = _source_tag(
+        "API" if source_meta["errors"] == 0 else "API_PARTIAL",
+        f"{source_meta['total_raw']} obtidos, {source_meta['total_filtered']} relevantes, "
+        f"{source_meta['pages_fetched']} p\u00e1ginas consultadas",
+    )
 
     print(f"\n  PNCP: {source_meta['total_raw']} raw \u2192 {source_meta['total_filtered']} filtrados")
     return all_editais, _source
@@ -3777,7 +4558,7 @@ def _fetch_pncp_pages_cached(
             if isinstance(cached, dict) and cached.get("_status") == "error":
                 cached_ts = cached.get("_ts", "")
                 try:
-                    age_s = (datetime.now(timezone.utc) - datetime.fromisoformat(cached_ts)).total_seconds()
+                    age_s = (datetime.now(UTC) - datetime.fromisoformat(cached_ts)).total_seconds()
                 except (ValueError, TypeError):
                     age_s = 99999
                 if age_s < 3600:
@@ -3810,7 +4591,7 @@ def _fetch_pncp_pages_cached(
         if status != "API" or not data:
             errors += 1
             # F13: Mark as error (not empty) — will be retried after 1 hour
-            raw_cache[cache_key] = {"_status": "error", "_ts": datetime.now(timezone.utc).isoformat()}
+            raw_cache[cache_key] = {"_status": "error", "_ts": datetime.now(UTC).isoformat()}
             break
 
         items = data if isinstance(data, list) else data.get("data", data.get("resultado", []))
@@ -3827,8 +4608,7 @@ def _fetch_pncp_pages_cached(
 
         time.sleep(0.5)  # Rate limiting
 
-    pagination_exhausted = (page == max_pages and len(all_items) > 0 and
-                            len(all_items) % PNCP_MAX_PAGE_SIZE == 0)
+    pagination_exhausted = page == max_pages and len(all_items) > 0 and len(all_items) % PNCP_MAX_PAGE_SIZE == 0
     return all_items, pages_fetched, errors, pagination_exhausted
 
 
@@ -3850,7 +4630,9 @@ def collect_pncp_multi_cluster(
     Results are tagged with _cluster_origin and _cluster_share_pct.
     Dedup: if same edital appears in multiple clusters, keep the one from higher-share cluster.
     """
-    print(f"\n\U0001f50d Phase 2a-1: PNCP \u2014 Varredura multi-cluster ({dias} dias, {len(cluster_searches)} clusters)")
+    print(
+        f"\n\U0001f50d Phase 2a-1: PNCP \u2014 Varredura multi-cluster ({dias} dias, {len(cluster_searches)} clusters)"
+    )
 
     data_inicial = _date_compact(_today() - timedelta(days=dias))
     data_final = _date_compact(_today())
@@ -3875,7 +4657,9 @@ def collect_pncp_multi_cluster(
     total_errors = 0
 
     uf_desc = f", per-UF ({', '.join(ufs)})" if use_per_uf else ""
-    print(f"\n  [CACHE] Fetching {len(all_mods)} unique modalidades (shared across {len(cluster_searches)} clusters{uf_desc})")
+    print(
+        f"\n  [CACHE] Fetching {len(all_mods)} unique modalidades (shared across {len(cluster_searches)} clusters{uf_desc})"
+    )
 
     for mod_code in sorted(all_mods):
         mod_name = MODALIDADES.get(mod_code, f"Mod {mod_code}")
@@ -3885,7 +4669,11 @@ def collect_pncp_multi_cluster(
             if uf_filter:
                 print(f"      UF {uf_filter}:")
             items, pf, errs, exhausted = _fetch_pncp_pages_cached(
-                api, mod_code, data_inicial, data_final, raw_cache,
+                api,
+                mod_code,
+                data_inicial,
+                data_final,
+                raw_cache,
                 uf_filter=uf_filter,
             )
             mod_items.extend(items)
@@ -3898,13 +4686,20 @@ def collect_pncp_multi_cluster(
 
     total_raw = sum(len(items) for items in raw_by_mod.values())
     cache_hits = sum(1 for k, v in raw_cache.items() if v is not None) - total_pages_fetched
-    print(f"\n  [CACHE] Raw fetch complete: {total_raw} items across {len(all_mods)} modalidades, "
-          f"{total_pages_fetched} API calls, {max(0, cache_hits)} cache hits saved")
+    print(
+        f"\n  [CACHE] Raw fetch complete: {total_raw} items across {len(all_mods)} modalidades, "
+        f"{total_pages_fetched} API calls, {max(0, cache_hits)} cache hits saved"
+    )
 
     # --- Phase 3: For each cluster, filter raw items with cluster-specific keywords + nature ---
     all_results: list[dict] = []
-    combined_meta = {"total_raw": total_raw, "total_filtered": 0, "pages_fetched": total_pages_fetched,
-                     "errors": total_errors, "clusters": []}
+    combined_meta = {
+        "total_raw": total_raw,
+        "total_filtered": 0,
+        "pages_fetched": total_pages_fetched,
+        "errors": total_errors,
+        "clusters": [],
+    }
 
     for cluster in cluster_searches:
         label = cluster["label"]
@@ -3912,8 +4707,10 @@ def collect_pncp_multi_cluster(
         kws = cluster["keywords"]
         mods = cluster["modalidades"]
 
-        print(f"\n  [PNCP] Cluster '{label}' ({share:.0f}%) \u2014 {len(kws)} keywords, "
-              f"modalidades {{{', '.join(str(m) for m in sorted(mods if isinstance(mods, set) else mods.keys()))}}}")
+        print(
+            f"\n  [PNCP] Cluster '{label}' ({share:.0f}%) \u2014 {len(kws)} keywords, "
+            f"modalidades {{{', '.join(str(m) for m in sorted(mods if isinstance(mods, set) else mods.keys()))}}}"
+        )
 
         cluster_key = cluster.get("category_key", "")
         cluster_nat = _CLUSTER_DEFAULT_NATURE.get(cluster_key)
@@ -3935,7 +4732,9 @@ def collect_pncp_multi_cluster(
                 for raw_item in raw_by_mod.get(mod_code, []):
                     cluster_raw_seen += 1
                     edital = _parse_pncp_item(
-                        raw_item, kws, ufs,
+                        raw_item,
+                        kws,
+                        ufs,
                         keyword_patterns=keyword_patterns,
                         nature_profile=nature_profile,
                         cluster_nature=cluster_nat,
@@ -3953,18 +4752,27 @@ def collect_pncp_multi_cluster(
         except Exception as exc:
             print(f"  [PNCP] ERRO no cluster '{label}': {exc} \u2014 continuando")
             combined_meta["errors"] += 1
-            combined_meta["clusters"].append({
-                "label": label, "share_pct": share,
-                "raw": cluster_raw_seen, "filtered": cluster_filtered, "status": "FAILED",
-            })
+            combined_meta["clusters"].append(
+                {
+                    "label": label,
+                    "share_pct": share,
+                    "raw": cluster_raw_seen,
+                    "filtered": cluster_filtered,
+                    "status": "FAILED",
+                }
+            )
             continue
 
         combined_meta["total_filtered"] += cluster_filtered
-        combined_meta["clusters"].append({
-            "label": label, "share_pct": share,
-            "raw": cluster_raw_seen, "filtered": cluster_filtered,
-            "status": "OK",
-        })
+        combined_meta["clusters"].append(
+            {
+                "label": label,
+                "share_pct": share,
+                "raw": cluster_raw_seen,
+                "filtered": cluster_filtered,
+                "status": "OK",
+            }
+        )
 
         print(f"  [PNCP] Cluster '{label}': {cluster_raw_seen} raw -> {cluster_filtered} filtrados")
 
@@ -3995,18 +4803,25 @@ def collect_pncp_multi_cluster(
         f"{combined_meta['pages_fetched']} paginas, {len(cluster_searches)} clusters (cached)",
     )
 
-    print(f"\n  [PNCP] Multi-cluster: {combined_meta['total_raw']} raw -> "
-          f"{combined_meta['total_filtered']} filtrados -> {len(deduped_list)} apos dedup "
-          f"({n_dupes} duplicatas entre clusters)")
+    print(
+        f"\n  [PNCP] Multi-cluster: {combined_meta['total_raw']} raw -> "
+        f"{combined_meta['total_filtered']} filtrados -> {len(deduped_list)} apos dedup "
+        f"({n_dupes} duplicatas entre clusters)"
+    )
 
     return deduped_list, _source
 
-def _parse_pncp_item(item: dict, keywords: list[str], ufs: list[str],
-                     keyword_patterns: list[re.Pattern] | None = None,
-                     nature_profile: dict[str, float] | None = None,
-                     cluster_nature: str | None = None,
-                     cluster_nature_profile: dict[str, float] | None = None,
-                     sector_key: str = "") -> dict | None:
+
+def _parse_pncp_item(
+    item: dict,
+    keywords: list[str],
+    ufs: list[str],
+    keyword_patterns: list[re.Pattern] | None = None,
+    nature_profile: dict[str, float] | None = None,
+    cluster_nature: str | None = None,
+    cluster_nature_profile: dict[str, float] | None = None,
+    sector_key: str = "",
+) -> dict | None:
     """Parse a single PNCP result. Returns None if filtered out.
 
     PNCP response structure:
@@ -4113,9 +4928,7 @@ def _parse_pncp_item(item: dict, keywords: list[str], ufs: list[str],
     valor = _safe_float(item.get("valorTotalEstimado") or item.get("valorEstimado"))
 
     modalidade = item.get("modalidadeNome") or ""
-    orgao = (orgao_entity.get("razaoSocial") or
-             unidade.get("nomeUnidade") or
-             item.get("nomeOrgao") or "")
+    orgao = orgao_entity.get("razaoSocial") or unidade.get("nomeUnidade") or item.get("nomeOrgao") or ""
     municipio = unidade.get("municipioNome") or ""
 
     # F05: Unique ID from structural fields (never free text)
@@ -4140,8 +4953,10 @@ def _parse_pncp_item(item: dict, keywords: list[str], ufs: list[str],
         "ano_compra": str(ano),
         "sequencial_compra": str(seq),
         "status_edital": (
-            "ENCERRADO" if (dias_restantes is not None and dias_restantes < 0)
-            else "ABERTO" if (dias_restantes is not None and dias_restantes >= 0)
+            "ENCERRADO"
+            if (dias_restantes is not None and dias_restantes < 0)
+            else "ABERTO"
+            if (dias_restantes is not None and dias_restantes >= 0)
             else "PRAZO_INDEFINIDO"
         ),
         "_nature": edital_nature,
@@ -4155,6 +4970,7 @@ def _parse_pncp_item(item: dict, keywords: list[str], ufs: list[str],
 # PHASE 2a-2: PCP v2
 # ============================================================
 
+
 def collect_pcp(
     api: ApiClient,
     keywords: list[str],
@@ -4162,7 +4978,7 @@ def collect_pcp(
     dias: int = 30,
 ) -> tuple[list[dict], dict]:
     """Search PCP v2 for complementary editais."""
-    print(f"\n🔍 Phase 2a-2: PCP v2 — Editais complementares")
+    print("\n🔍 Phase 2a-2: PCP v2 — Editais complementares")
 
     data_inicial = _date_br(_today() - timedelta(days=dias))
     data_final = _date_br(_today())
@@ -4216,8 +5032,9 @@ def collect_pcp(
     return all_editais, _source
 
 
-def _parse_pcp_item(item: dict, keywords: list[str], ufs: list[str],
-                    keyword_patterns: list[re.Pattern] | None = None) -> dict | None:
+def _parse_pcp_item(
+    item: dict, keywords: list[str], ufs: list[str], keyword_patterns: list[re.Pattern] | None = None
+) -> dict | None:
     """Parse a PCP v2 result."""
     resumo = item.get("resumo") or ""
     uc = item.get("unidadeCompradora") or {}
@@ -4266,8 +5083,10 @@ def _parse_pcp_item(item: dict, keywords: list[str], ufs: list[str],
         "fonte": "PCP",
         "link": link,
         "status_edital": (
-            "ENCERRADO" if (dias_restantes is not None and dias_restantes < 0)
-            else "ABERTO" if (dias_restantes is not None and dias_restantes >= 0)
+            "ENCERRADO"
+            if (dias_restantes is not None and dias_restantes < 0)
+            else "ABERTO"
+            if (dias_restantes is not None and dias_restantes >= 0)
             else "PRAZO_INDEFINIDO"
         ),
     }
@@ -4277,6 +5096,7 @@ def _parse_pcp_item(item: dict, keywords: list[str], ufs: list[str],
 # PHASE 2a-3: QUERIDO DIÁRIO
 # ============================================================
 
+
 def collect_querido_diario(
     api: ApiClient,
     keywords: list[str],
@@ -4285,7 +5105,7 @@ def collect_querido_diario(
     ufs: list[str] | None = None,
 ) -> tuple[list[dict], dict]:
     """Search municipal gazettes via Querido Diário. Filters by UFs if provided."""
-    print(f"\n🔍 Phase 2a-3: Querido Diário — Diários oficiais")
+    print("\n🔍 Phase 2a-3: Querido Diário — Diários oficiais")
 
     since = _date_iso(_today() - timedelta(days=dias))
     until = _date_iso(_today())
@@ -4333,20 +5153,18 @@ def collect_querido_diario(
                 gazettes = []
 
         for g in gazettes[:10]:
-            mencoes.append({
-                "_source": _source_tag("API"),
-                "data": g.get("date", ""),
-                "territorio": f"{g.get('territory_name', '')} - {g.get('state_code', '')}",
-                "excerpts": [
-                    {"text": e} if isinstance(e, str) else e
-                    for e in (g.get("excerpts") or [])[:3]
-                ],
-            })
+            mencoes.append(
+                {
+                    "_source": _source_tag("API"),
+                    "data": g.get("date", ""),
+                    "territorio": f"{g.get('territory_name', '')} - {g.get('state_code', '')}",
+                    "excerpts": [{"text": e} if isinstance(e, str) else e for e in (g.get("excerpts") or [])[:3]],
+                }
+            )
 
         time.sleep(1.0)  # Rate limit
 
-    _source = _source_tag("API" if mencoes else "API_PARTIAL",
-                          f"{len(mencoes)} menções encontradas")
+    _source = _source_tag("API" if mencoes else "API_PARTIAL", f"{len(mencoes)} menções encontradas")
     return mencoes, _source
 
 
@@ -4356,10 +5174,11 @@ def collect_querido_diario(
 
 # --- Persistent JSON cache helpers ---
 
+
 def _load_json_cache(path: str) -> dict:
     """Load a JSON cache file. Returns empty dict if missing/corrupt."""
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError, OSError):
         return {}
@@ -4402,13 +5221,14 @@ def _geocode_disk_save() -> None:
 
 # --- Competitive intel cache helpers ---
 
+
 def _load_competitive_cache() -> None:
     """Load competitive intel cache from disk, discarding entries older than TTL."""
     global _competitive_cache
     with _competitive_cache_lock:
         try:
             raw = _load_json_cache(COMPETITIVE_CACHE_FILE)
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             fresh: dict = {}
             for k, v in raw.items():
                 cached_at = v.get("_cached_at", "2000-01-01")
@@ -4432,6 +5252,7 @@ def _save_competitive_cache() -> None:
 
 
 # --- Docs cache helpers ---
+
 
 def _load_docs_cache() -> None:
     """Load docs cache from disk (permanent — no TTL)."""
@@ -4533,6 +5354,7 @@ def _geocode(api: ApiClient, cidade: str, uf: str) -> tuple[float, float] | None
     disk[disk_key] = None
     return None
 
+
 def _calculate_distances_table(
     api: ApiClient,
     origin: tuple[float, float],
@@ -4547,7 +5369,7 @@ def _calculate_distances_table(
     dest_items = list(destinations.items())
 
     for batch_start in range(0, len(dest_items), OSRM_TABLE_BATCH_SIZE):
-        batch = dest_items[batch_start:batch_start + OSRM_TABLE_BATCH_SIZE]
+        batch = dest_items[batch_start : batch_start + OSRM_TABLE_BATCH_SIZE]
 
         # Build coords: origin (index 0) + destinations — OSRM expects lon,lat
         parts = [f"{origin[1]},{origin[0]}"]
@@ -4610,6 +5432,7 @@ def _calculate_distances_table(
 
 # --- Legacy serial function (kept for backward compat) ---
 
+
 def calculate_distance(
     api: ApiClient,
     cidade_sede: str,
@@ -4648,7 +5471,7 @@ def calculate_distance(
         return {
             "km": km,
             "duracao_horas": hours,
-            "_source": _source_tag("CALCULATED", f"OSRM driving distance"),
+            "_source": _source_tag("CALCULATED", "OSRM driving distance"),
         }
 
     return {
@@ -4661,6 +5484,7 @@ def calculate_distance(
 # ============================================================
 # PNCP LINK VALIDATION
 # ============================================================
+
 
 def validate_pncp_links(api: ApiClient, editais: list[dict]) -> None:
     """Validate PNCP links with HEAD requests. Mutates editais in place — parallel (F29)."""
@@ -4701,6 +5525,7 @@ def validate_pncp_links(api: ApiClient, editais: list[dict]) -> None:
 # PNCP DOCUMENT LISTING
 # ============================================================
 
+
 def collect_pncp_documents(api: ApiClient, editais: list[dict]) -> None:
     """List available documents for each PNCP edital. Mutates editais in place — parallel.
 
@@ -4719,7 +5544,9 @@ def collect_pncp_documents(api: ApiClient, editais: list[dict]) -> None:
             ed["documentos_source"] = _source_tag("UNAVAILABLE", "Edital fora do Top 50 por valor estimado")
 
     n_excluded = len(pncp_editais) - min(len(pncp_editais), DOCS_TOP_N)
-    print(f"\n📄 Phase 2b: Listando documentos PNCP ({len(editais)} editais, top {DOCS_TOP_N} por valor, {n_excluded} excluídos)")
+    print(
+        f"\n📄 Phase 2b: Listando documentos PNCP ({len(editais)} editais, top {DOCS_TOP_N} por valor, {n_excluded} excluídos)"
+    )
     _counter_lock = threading.Lock()
     counters = {"cached": 0, "fetched": 0}
 
@@ -4762,17 +5589,21 @@ def collect_pncp_documents(api: ApiClient, editais: list[dict]) -> None:
         if status == "API" and isinstance(data, list):
             docs = []
             for d in data:
-                docs.append({
-                    "tipo": d.get("tipoDocumentoNome") or d.get("tipoDocumentoDescricao") or "",
-                    "tipo_id": d.get("tipoDocumentoId"),
-                    "titulo": d.get("titulo", ""),
-                    "sequencial": d.get("sequencialDocumento"),
-                    "download_url": (
-                        f"https://pncp.gov.br/pncp-api/v1/orgaos/{cnpj_orgao}/compras/{ano}/{seq}"
-                        f"/arquivos/{d.get('sequencialDocumento')}"
-                    ) if d.get("sequencialDocumento") else None,
-                    "ativo": d.get("statusAtivo", True),
-                })
+                docs.append(
+                    {
+                        "tipo": d.get("tipoDocumentoNome") or d.get("tipoDocumentoDescricao") or "",
+                        "tipo_id": d.get("tipoDocumentoId"),
+                        "titulo": d.get("titulo", ""),
+                        "sequencial": d.get("sequencialDocumento"),
+                        "download_url": (
+                            f"https://pncp.gov.br/pncp-api/v1/orgaos/{cnpj_orgao}/compras/{ano}/{seq}"
+                            f"/arquivos/{d.get('sequencialDocumento')}"
+                        )
+                        if d.get("sequencialDocumento")
+                        else None,
+                        "ativo": d.get("statusAtivo", True),
+                    }
+                )
             ed["documentos"] = docs
             ed["documentos_source"] = _source_tag("API", f"{len(docs)} documentos encontrados")
             # Cache permanently (immutable)
@@ -4797,6 +5628,7 @@ def collect_pncp_documents(api: ApiClient, editais: list[dict]) -> None:
 # ============================================================
 # COMPETITIVE INTELLIGENCE COLLECTION
 # ============================================================
+
 
 def collect_competitive_intel(
     api: ApiClient,
@@ -4846,7 +5678,9 @@ def collect_competitive_intel(
     # Replace orgao_map with capped version
     orgao_map = top_organs
 
-    print(f"\n🏢 Inteligência competitiva — {len(orgao_map)} órgãos (top {TOP_ORGANS_LIMIT} de {len(sorted_organs)} únicos)")
+    print(
+        f"\n🏢 Inteligência competitiva — {len(orgao_map)} órgãos (top {TOP_ORGANS_LIMIT} de {len(sorted_organs)} únicos)"
+    )
 
     # Use /contratos endpoint with cnpjOrgao (more reliable than /contratacoes/publicacao)
     # Max period: 365 days — split into yearly chunks for 24-month coverage
@@ -4913,13 +5747,15 @@ def collect_competitive_intel(
                     vl = _safe_float(c.get("valorGlobal") or c.get("valorInicial")) or 0.0
                     obj = (c.get("objetoContrato") or "")[:150]
                     if fn or obj:
-                        contracts.append({
-                            "fornecedor": fn,
-                            "cnpj_fornecedor": c.get("niFornecedor", ""),
-                            "objeto": obj,
-                            "valor": vl,
-                            "data": c.get("dataAssinatura") or c.get("dataPublicacaoPncp", ""),
-                        })
+                        contracts.append(
+                            {
+                                "fornecedor": fn,
+                                "cnpj_fornecedor": c.get("niFornecedor", ""),
+                                "objeto": obj,
+                                "valor": vl,
+                                "data": c.get("dataAssinatura") or c.get("dataPublicacaoPncp", ""),
+                            }
+                        )
 
                 if len(items) < PNCP_MAX_PAGE_SIZE:
                     break
@@ -4934,7 +5770,7 @@ def collect_competitive_intel(
         with _competitive_cache_lock:
             _competitive_cache[cnpj_orgao] = {
                 "contracts": contracts,
-                "_cached_at": datetime.now(timezone.utc).isoformat(),
+                "_cached_at": datetime.now(UTC).isoformat(),
             }
 
         with _counter_lock:
@@ -4950,8 +5786,7 @@ def collect_competitive_intel(
             sector_kws = _SECTOR_COMPETITION_KEYWORDS.get(sector_key, []) if sector_key else []
             if sector_kws:
                 ed["competitive_intel_filtered"] = [
-                    c for c in contracts[:20]
-                    if any(kw in (c.get("objeto", "") or "").lower() for kw in sector_kws)
+                    c for c in contracts[:20] if any(kw in (c.get("objeto", "") or "").lower() for kw in sector_kws)
                 ]
             else:
                 ed["competitive_intel_filtered"] = contracts[:20]
@@ -4959,7 +5794,9 @@ def collect_competitive_intel(
             ed["competitive_intel_stats"] = {
                 "raw_count": len(contracts[:20]),
                 "filtered_count": len(ed["competitive_intel_filtered"]),
-                "filter_method": "SECTOR_KEYWORDS" if sector_kws and len(ed["competitive_intel_filtered"]) < len(contracts[:20]) else "UNFILTERED",
+                "filter_method": "SECTOR_KEYWORDS"
+                if sector_kws and len(ed["competitive_intel_filtered"]) < len(contracts[:20])
+                else "UNFILTERED",
                 "sector_key": sector_key,
             }
 
@@ -4974,6 +5811,7 @@ def collect_competitive_intel(
         if "competitive_intel" not in ed:
             ed["competitive_intel"] = []
             ed["competitive_intel_source"] = _source_tag("UNAVAILABLE", "Orgão sem CNPJ")
+
 
 # ============================================================
 # DETERMINISTIC CALCULATIONS (risk score, ROI, chronogram)
@@ -4997,61 +5835,70 @@ _SECTOR_MARGINS: dict[str, tuple[float, float]] = {
     "materiais_eletricos": (0.10, 0.20),
     "materiais_hidraulicos": (0.10, 0.20),
     # Fornecimento (supply) sectors — margins are higher than construction
-    "fornecimento_saude": (0.15, 0.30),       # Hospital materials — commodity but regulated
-    "fornecimento_limpeza": (0.15, 0.30),     # Cleaning products
-    "fornecimento_papelaria": (0.15, 0.25),   # Office/school supplies
+    "fornecimento_saude": (0.15, 0.30),  # Hospital materials — commodity but regulated
+    "fornecimento_limpeza": (0.15, 0.30),  # Cleaning products
+    "fornecimento_papelaria": (0.15, 0.25),  # Office/school supplies
     "fornecimento_mobiliario": (0.15, 0.30),  # Furniture supply
-    "fornecimento_alimentos": (0.05, 0.15),   # Food — low margin, high volume
-    "fornecimento_geral": (0.12, 0.25),       # Generic materials
-    "servicos_profissionais": (0.20, 0.40),   # Professional services (credenciamento)
-    "servicos_gerais": (0.10, 0.25),          # General services
-    "concessao": (0.10, 0.25),                # Concession
+    "fornecimento_alimentos": (0.05, 0.15),  # Food — low margin, high volume
+    "fornecimento_geral": (0.12, 0.25),  # Generic materials
+    "servicos_profissionais": (0.20, 0.40),  # Professional services (credenciamento)
+    "servicos_gerais": (0.10, 0.25),  # General services
+    "concessao": (0.10, 0.25),  # Concession
 }
+
 
 # Sector weight profiles loaded from YAML (intel_sectors_config.yaml)
 def _load_weight_profiles() -> dict[str, dict[str, float]]:
     """Load viability weight profiles from YAML config."""
     try:
         from intel_sector_loader import get_all_weight_profiles
+
         return get_all_weight_profiles()
     except Exception:
         return {"_default": {"hab": 0.25, "fin": 0.25, "geo": 0.15, "prazo": 0.20, "comp": 0.15}}
 
+
 _SECTOR_WEIGHT_PROFILES: dict[str, dict[str, float]] = _load_weight_profiles()
+
 
 # Sector base win rates loaded from YAML (intel_sectors_config.yaml)
 def _load_base_win_rates() -> dict[str, float]:
     """Load base win rates from YAML config."""
     try:
         from intel_sector_loader import get_all_base_win_rates
+
         return get_all_base_win_rates()
     except Exception:
         return {"_default": 0.10}
+
 
 _SECTOR_BASE_WIN_RATES: dict[str, float] = _load_base_win_rates()
 
 # Modality multipliers for win probability — adjusts base rate by competition intensity
 _MODALITY_MULTIPLIERS: dict[str, float] = {
-    "pregão eletrônico": 0.80,       # Most bidders (electronic = easy access)
-    "pregão presencial": 0.90,       # Slightly fewer (travel barrier)
-    "concorrência eletrônica": 1.00, # Moderate
+    "pregão eletrônico": 0.80,  # Most bidders (electronic = easy access)
+    "pregão presencial": 0.90,  # Slightly fewer (travel barrier)
+    "concorrência eletrônica": 1.00,  # Moderate
     "concorrência": 1.00,
-    "concorrência presencial": 1.10, # Fewer (complex + travel)
-    "inexigibilidade": 1.50,         # Much fewer (pre-qualified)
-    "credenciamento": 1.30,          # Limited pool
-    "dispensa": 1.20,                # Small value, fewer bidders
+    "concorrência presencial": 1.10,  # Fewer (complex + travel)
+    "inexigibilidade": 1.50,  # Much fewer (pre-qualified)
+    "credenciamento": 1.30,  # Limited pool
+    "dispensa": 1.20,  # Small value, fewer bidders
     "dispensa eletrônica": 1.10,
     "dispensa de licitação": 1.20,
 }
+
 
 # Sector competition keywords loaded from YAML (intel_sectors_config.yaml)
 def _load_competition_keywords() -> dict[str, list[str]]:
     """Load competition keywords from YAML config."""
     try:
         from intel_sector_loader import get_all_competition_keywords
+
         return get_all_competition_keywords()
     except Exception:
         return {}
+
 
 _SECTOR_COMPETITION_KEYWORDS: dict[str, list[str]] = _load_competition_keywords()
 
@@ -5088,15 +5935,13 @@ def _compute_fiscal_risk(edital: dict, competitive_intel: list[dict]) -> dict:
     if 0 < pop < 10_000 and valor > 5_000_000:
         risk_level = "ALTO"
         alertas.append(
-            f"Município de {pop:,.0f} habitantes licitando {_fmt_brl(valor)} "
-            f"— capacidade operacional e fiscal limitada"
+            f"Município de {pop:,.0f} habitantes licitando {_fmt_brl(valor)} — capacidade operacional e fiscal limitada"
         )
     elif 0 < pop < 20_000 and valor > 10_000_000:
         if risk_level != "ALTO":
             risk_level = "MEDIO"
         alertas.append(
-            f"Município de {pop:,.0f} habitantes com edital de {_fmt_brl(valor)} "
-            f"— atenção à capacidade fiscal"
+            f"Município de {pop:,.0f} habitantes com edital de {_fmt_brl(valor)} — atenção à capacidade fiscal"
         )
 
     # Check 3: Contract terminations in organ history
@@ -5104,9 +5949,7 @@ def _compute_fiscal_risk(edital: dict, competitive_intel: list[dict]) -> dict:
     if rescisoes >= 2:
         if risk_level == "BAIXO":
             risk_level = "MEDIO"
-        alertas.append(
-            f"{rescisoes} rescisão(ões) de contrato identificada(s) no histórico do órgão"
-        )
+        alertas.append(f"{rescisoes} rescisão(ões) de contrato identificada(s) no histórico do órgão")
     elif rescisoes == 1:
         alertas.append("1 rescisão contratual no histórico do órgão — monitorar")
 
@@ -5159,7 +6002,7 @@ def compute_risk_score(edital: dict, empresa: dict, sicaf: dict, sector_key: str
     capital_min_pct = sector_hab.get("capital_minimo_pct", 0.10)
     if capital > 0 and valor > 0 and (capital / valor) < capital_min_pct:
         veto_gates.append(
-            f"Capital social insuficiente: {_fmt_brl(capital)} = {capital/valor:.0%} do valor do edital "
+            f"Capital social insuficiente: {_fmt_brl(capital)} = {capital / valor:.0%} do valor do edital "
             f"(estimativa usual do setor: {capital_min_pct:.0%}, verificar edital para % real)"
         )
 
@@ -5294,10 +6137,13 @@ def compute_risk_score(edital: dict, empresa: dict, sicaf: dict, sector_key: str
     # COMPETITIVO — derived from competitive_intel if available
     # ================================================================
     ci = edital.get("competitive_intel", [])
-    n_sup = len(set(
-        (c.get("cnpj_fornecedor") or c.get("fornecedor", ""))[:20]
-        for c in ci if c.get("cnpj_fornecedor") or c.get("fornecedor")
-    ))
+    n_sup = len(
+        set(
+            (c.get("cnpj_fornecedor") or c.get("fornecedor", ""))[:20]
+            for c in ci
+            if c.get("cnpj_fornecedor") or c.get("fornecedor")
+        )
+    )
     if n_sup == 0:
         comp_score = 50  # No data — neutral
     elif n_sup == 1:
@@ -5369,7 +6215,7 @@ def compute_risk_score(edital: dict, empresa: dict, sicaf: dict, sector_key: str
             sector_prefixes = _cat_def.get("prefixes", [])
 
         for hc in historico_for_acervo:
-            hc_obj = (hc.get("objeto") or "")
+            hc_obj = hc.get("objeto") or ""
             if not hc_obj:
                 continue
             hc_obj_lower = hc_obj.lower()
@@ -5384,12 +6230,14 @@ def compute_risk_score(edital: dict, empresa: dict, sicaf: dict, sector_key: str
             if prefix_match or sim >= 0.50:
                 acervo_similares_alta += 1
                 if len(acervo_detalhes) < 5:
-                    acervo_detalhes.append({
-                        "objeto": hc_obj[:120],
-                        "similaridade": round(max(sim, 0.50 if prefix_match else sim), 2),
-                        "match_type": "PREFIX" if prefix_match else "JACCARD",
-                        "data": hc.get("data_inicio") or hc.get("data_assinatura") or "",
-                    })
+                    acervo_detalhes.append(
+                        {
+                            "objeto": hc_obj[:120],
+                            "similaridade": round(max(sim, 0.50 if prefix_match else sim), 2),
+                            "match_type": "PREFIX" if prefix_match else "JACCARD",
+                            "data": hc.get("data_inicio") or hc.get("data_assinatura") or "",
+                        }
+                    )
             elif sim >= 0.30:
                 acervo_similares_media += 1
 
@@ -5458,8 +6306,7 @@ def compute_win_probability(
     sector_filtered = False
     if sector_kw_list and competitive_intel:
         relevant = [
-            c for c in competitive_intel
-            if any(kw in (c.get("objeto", "") or "").lower() for kw in sector_kw_list)
+            c for c in competitive_intel if any(kw in (c.get("objeto", "") or "").lower() for kw in sector_kw_list)
         ]
         # Always use sector-filtered contracts to avoid cross-sector noise
         filtered_intel = relevant if relevant else competitive_intel[:5]
@@ -5485,7 +6332,7 @@ def compute_win_probability(
     top_share = 0.0
     if n_contracts > 0 and supplier_counts:
         shares = [count / n_contracts for count in supplier_counts.values()]
-        hhi = sum(s ** 2 for s in shares)
+        hhi = sum(s**2 for s in shares)
         top_share = max(shares)
 
     # Competition-adjusted probability — varies by supplier count AND concentration
@@ -5563,13 +6410,13 @@ def compute_win_probability(
     dias = edital.get("dias_restantes")
     if dias is not None:
         if dias < 7:
-            contextual_mult *= 0.3   # <7 days: severe urgency
+            contextual_mult *= 0.3  # <7 days: severe urgency
             multipliers_applied.append(f"prazo_critico(×0.3, {dias}d)")
         elif dias < 15:
             contextual_mult *= 0.6
             multipliers_applied.append(f"prazo_curto(×0.6, {dias}d)")
         elif dias > 30:
-            contextual_mult *= 1.3   # Comfortable timeline
+            contextual_mult *= 1.3  # Comfortable timeline
             multipliers_applied.append(f"prazo_confortavel(×1.3, {dias}d)")
 
     # Financial capacity impact (amplified range)
@@ -5578,13 +6425,13 @@ def compute_win_probability(
     if capital > 0 and valor > 0:
         cap_ratio = valor / (capital * 5)
         if cap_ratio > 5:
-            contextual_mult *= 0.3   # Extreme stretch
+            contextual_mult *= 0.3  # Extreme stretch
             multipliers_applied.append(f"capacidade_extrema(×0.3, ratio={cap_ratio:.1f})")
         elif cap_ratio > 2:
-            contextual_mult *= 0.6   # Significant stretch
+            contextual_mult *= 0.6  # Significant stretch
             multipliers_applied.append(f"capacidade_alta(×0.6, ratio={cap_ratio:.1f})")
         elif cap_ratio < 0.3:
-            contextual_mult *= 1.3   # Very comfortable
+            contextual_mult *= 1.3  # Very comfortable
             multipliers_applied.append(f"capacidade_folgada(×1.3, ratio={cap_ratio:.1f})")
         elif cap_ratio < 0.5:
             contextual_mult *= 1.15  # Comfortable
@@ -5593,10 +6440,10 @@ def compute_win_probability(
         # HARD-005: Value adequacy sweet spot
         raw_ratio = valor / capital if capital > 0 else 999
         if 0.5 <= raw_ratio <= 3.0:
-            contextual_mult *= 1.2   # Sweet spot
+            contextual_mult *= 1.2  # Sweet spot
             multipliers_applied.append(f"valor_ideal(×1.2, v/c={raw_ratio:.1f})")
         elif raw_ratio > 10:
-            contextual_mult *= 0.4   # Way over capacity
+            contextual_mult *= 0.4  # Way over capacity
             multipliers_applied.append(f"valor_excessivo(×0.4, v/c={raw_ratio:.1f})")
 
     # Distance impact (applies to ALL modalities, amplified for presencial)
@@ -5604,16 +6451,16 @@ def compute_win_probability(
     km = dist.get("km") if isinstance(dist, dict) else None
     if km is not None:
         if km < 50:
-            contextual_mult *= 1.4    # Local advantage
+            contextual_mult *= 1.4  # Local advantage
             multipliers_applied.append(f"local(×1.4, {km:.0f}km)")
         elif km < 200:
-            contextual_mult *= 1.1    # Regional proximity
+            contextual_mult *= 1.1  # Regional proximity
             multipliers_applied.append(f"regional(×1.1, {km:.0f}km)")
         elif km > 500:
-            contextual_mult *= 0.5    # Long distance penalty
+            contextual_mult *= 0.5  # Long distance penalty
             multipliers_applied.append(f"distante(×0.5, {km:.0f}km)")
         elif km > 300:
-            contextual_mult *= 0.7    # Moderate distance penalty
+            contextual_mult *= 0.7  # Moderate distance penalty
             multipliers_applied.append(f"moderado(×0.7, {km:.0f}km)")
         # Extra penalty for presencial + distant
         if "presencial" in modalidade and km > 200:
@@ -5622,22 +6469,24 @@ def compute_win_probability(
 
     # HARD-005: Acervo bonus (uses edital-level acervo_status from HARD-003)
     # Check both edital-level field (from classify_acervo_similarity) and risk_score field
-    acervo_status = edital.get("acervo_status") or (edital.get("risk_score") or {}).get("acervo_status", "NAO_VERIFICADO")
+    acervo_status = edital.get("acervo_status") or (edital.get("risk_score") or {}).get(
+        "acervo_status", "NAO_VERIFICADO"
+    )
     if acervo_status == "CONFIRMADO":
-        contextual_mult *= 1.3   # Proven technical portfolio
+        contextual_mult *= 1.3  # Proven technical portfolio
         multipliers_applied.append("acervo_confirmado(×1.3)")
     elif acervo_status == "PARCIAL":
-        contextual_mult *= 1.1   # Partial match
+        contextual_mult *= 1.1  # Partial match
         multipliers_applied.append("acervo_parcial(×1.1)")
     elif acervo_status == "NAO_VERIFICADO":
-        contextual_mult *= 0.8   # Risk of disqualification
+        contextual_mult *= 0.8  # Risk of disqualification
         multipliers_applied.append("acervo_nao_verificado(×0.8)")
 
     # Incumbency amplification (replace additive bonus with multiplicative)
     if incumbency_bonus > 0:
-        contextual_mult *= 1.4   # Strong relationship signal
+        contextual_mult *= 1.4  # Strong relationship signal
         multipliers_applied.append("fornecedor_recorrente(×1.4)")
-        incumbency_bonus = 0.0   # Absorbed into contextual_mult (avoid double-counting)
+        incumbency_bonus = 0.0  # Absorbed into contextual_mult (avoid double-counting)
 
     # Final probability with confidence band
     raw_prob = competition_prob * mod_mult + incumbency_bonus
@@ -5670,7 +6519,10 @@ def compute_win_probability(
         "viability_factor": round(viability_factor, 2),
         "contextual_multiplier": round(contextual_mult, 2),
         "multipliers_applied": multipliers_applied,
-        "_source": _source_tag("CALCULATED", f"{n_contracts} contratos{'(filtrados)' if sector_filtered else ''}, {n_suppliers} fornecedores"),
+        "_source": _source_tag(
+            "CALCULATED",
+            f"{n_contracts} contratos{'(filtrados)' if sector_filtered else ''}, {n_suppliers} fornecedores",
+        ),
     }
     # F09: Include confidence_reason when unfiltered fallback was used
     if confidence_reason:
@@ -5684,30 +6536,150 @@ def compute_win_probability(
 # with mandatory site visit + BDI composition + detailed cost breakdown costs R$30K+.
 _PARTICIPATION_COST_PROFILES: dict[tuple[str, str], dict] = {
     # Construction — concorrência (site visit, BDI, detailed budget, technical team)
-    ("engenharia", "concorrência"): {"base": 8000, "km_rate": 8, "value_pct": 0.015, "cap": 50000, "label": "engenharia/concorrência"},
-    ("engenharia", "concorrência presencial"): {"base": 10000, "km_rate": 10, "value_pct": 0.015, "cap": 50000, "label": "engenharia/concorrência_presencial"},
-    ("engenharia", "pregão eletrônico"): {"base": 3000, "km_rate": 0, "value_pct": 0.005, "cap": 15000, "label": "engenharia/pregão_eletrônico"},
-    ("engenharia_rodoviaria", "concorrência"): {"base": 12000, "km_rate": 10, "value_pct": 0.015, "cap": 60000, "label": "eng_rodoviária/concorrência"},
-    ("engenharia_rodoviaria", "concorrência presencial"): {"base": 15000, "km_rate": 12, "value_pct": 0.02, "cap": 80000, "label": "eng_rodoviária/concorrência_presencial"},
-    ("engenharia_rodoviaria", "pregão eletrônico"): {"base": 4000, "km_rate": 0, "value_pct": 0.008, "cap": 20000, "label": "eng_rodoviária/pregão_eletrônico"},
+    ("engenharia", "concorrência"): {
+        "base": 8000,
+        "km_rate": 8,
+        "value_pct": 0.015,
+        "cap": 50000,
+        "label": "engenharia/concorrência",
+    },
+    ("engenharia", "concorrência presencial"): {
+        "base": 10000,
+        "km_rate": 10,
+        "value_pct": 0.015,
+        "cap": 50000,
+        "label": "engenharia/concorrência_presencial",
+    },
+    ("engenharia", "pregão eletrônico"): {
+        "base": 3000,
+        "km_rate": 0,
+        "value_pct": 0.005,
+        "cap": 15000,
+        "label": "engenharia/pregão_eletrônico",
+    },
+    ("engenharia_rodoviaria", "concorrência"): {
+        "base": 12000,
+        "km_rate": 10,
+        "value_pct": 0.015,
+        "cap": 60000,
+        "label": "eng_rodoviária/concorrência",
+    },
+    ("engenharia_rodoviaria", "concorrência presencial"): {
+        "base": 15000,
+        "km_rate": 12,
+        "value_pct": 0.02,
+        "cap": 80000,
+        "label": "eng_rodoviária/concorrência_presencial",
+    },
+    ("engenharia_rodoviaria", "pregão eletrônico"): {
+        "base": 4000,
+        "km_rate": 0,
+        "value_pct": 0.008,
+        "cap": 20000,
+        "label": "eng_rodoviária/pregão_eletrônico",
+    },
     # Software — predominantly electronic, low travel
-    ("software", "pregão eletrônico"): {"base": 1500, "km_rate": 0, "value_pct": 0.003, "cap": 8000, "label": "software/pregão_eletrônico"},
-    ("software", "concorrência"): {"base": 3000, "km_rate": 2, "value_pct": 0.005, "cap": 15000, "label": "software/concorrência"},
-    ("informatica", "pregão eletrônico"): {"base": 1500, "km_rate": 0, "value_pct": 0.003, "cap": 8000, "label": "informatica/pregão_eletrônico"},
+    ("software", "pregão eletrônico"): {
+        "base": 1500,
+        "km_rate": 0,
+        "value_pct": 0.003,
+        "cap": 8000,
+        "label": "software/pregão_eletrônico",
+    },
+    ("software", "concorrência"): {
+        "base": 3000,
+        "km_rate": 2,
+        "value_pct": 0.005,
+        "cap": 15000,
+        "label": "software/concorrência",
+    },
+    ("informatica", "pregão eletrônico"): {
+        "base": 1500,
+        "km_rate": 0,
+        "value_pct": 0.003,
+        "cap": 8000,
+        "label": "informatica/pregão_eletrônico",
+    },
     # Facilities/Security — moderate, local presence
-    ("facilities", "pregão eletrônico"): {"base": 2000, "km_rate": 2, "value_pct": 0.005, "cap": 10000, "label": "facilities/pregão_eletrônico"},
-    ("vigilancia", "pregão eletrônico"): {"base": 2500, "km_rate": 3, "value_pct": 0.005, "cap": 12000, "label": "vigilância/pregão_eletrônico"},
+    ("facilities", "pregão eletrônico"): {
+        "base": 2000,
+        "km_rate": 2,
+        "value_pct": 0.005,
+        "cap": 10000,
+        "label": "facilities/pregão_eletrônico",
+    },
+    ("vigilancia", "pregão eletrônico"): {
+        "base": 2500,
+        "km_rate": 3,
+        "value_pct": 0.005,
+        "cap": 12000,
+        "label": "vigilância/pregão_eletrônico",
+    },
     # Health — regulatory overhead
-    ("saude", "pregão eletrônico"): {"base": 2500, "km_rate": 2, "value_pct": 0.005, "cap": 12000, "label": "saúde/pregão_eletrônico"},
+    ("saude", "pregão eletrônico"): {
+        "base": 2500,
+        "km_rate": 2,
+        "value_pct": 0.005,
+        "cap": 12000,
+        "label": "saúde/pregão_eletrônico",
+    },
     # Fornecimento (supply) — low cost, mostly electronic, no site visits
-    ("fornecimento_saude", "pregão eletrônico"): {"base": 800, "km_rate": 0, "value_pct": 0.002, "cap": 5000, "label": "fornec_saúde/pregão_eletrônico"},
-    ("fornecimento_saude", "concorrência"): {"base": 1500, "km_rate": 0, "value_pct": 0.003, "cap": 8000, "label": "fornec_saúde/concorrência"},
-    ("fornecimento_limpeza", "pregão eletrônico"): {"base": 500, "km_rate": 0, "value_pct": 0.002, "cap": 3000, "label": "fornec_limpeza/pregão_eletrônico"},
-    ("fornecimento_papelaria", "pregão eletrônico"): {"base": 500, "km_rate": 0, "value_pct": 0.002, "cap": 3000, "label": "fornec_papelaria/pregão_eletrônico"},
-    ("fornecimento_mobiliario", "pregão eletrônico"): {"base": 800, "km_rate": 0, "value_pct": 0.003, "cap": 5000, "label": "fornec_mobiliário/pregão_eletrônico"},
-    ("fornecimento_alimentos", "pregão eletrônico"): {"base": 500, "km_rate": 0, "value_pct": 0.002, "cap": 3000, "label": "fornec_alimentos/pregão_eletrônico"},
-    ("fornecimento_geral", "pregão eletrônico"): {"base": 600, "km_rate": 0, "value_pct": 0.002, "cap": 4000, "label": "fornec_geral/pregão_eletrônico"},
-    ("fornecimento_geral", "concorrência"): {"base": 1000, "km_rate": 0, "value_pct": 0.003, "cap": 6000, "label": "fornec_geral/concorrência"},
+    ("fornecimento_saude", "pregão eletrônico"): {
+        "base": 800,
+        "km_rate": 0,
+        "value_pct": 0.002,
+        "cap": 5000,
+        "label": "fornec_saúde/pregão_eletrônico",
+    },
+    ("fornecimento_saude", "concorrência"): {
+        "base": 1500,
+        "km_rate": 0,
+        "value_pct": 0.003,
+        "cap": 8000,
+        "label": "fornec_saúde/concorrência",
+    },
+    ("fornecimento_limpeza", "pregão eletrônico"): {
+        "base": 500,
+        "km_rate": 0,
+        "value_pct": 0.002,
+        "cap": 3000,
+        "label": "fornec_limpeza/pregão_eletrônico",
+    },
+    ("fornecimento_papelaria", "pregão eletrônico"): {
+        "base": 500,
+        "km_rate": 0,
+        "value_pct": 0.002,
+        "cap": 3000,
+        "label": "fornec_papelaria/pregão_eletrônico",
+    },
+    ("fornecimento_mobiliario", "pregão eletrônico"): {
+        "base": 800,
+        "km_rate": 0,
+        "value_pct": 0.003,
+        "cap": 5000,
+        "label": "fornec_mobiliário/pregão_eletrônico",
+    },
+    ("fornecimento_alimentos", "pregão eletrônico"): {
+        "base": 500,
+        "km_rate": 0,
+        "value_pct": 0.002,
+        "cap": 3000,
+        "label": "fornec_alimentos/pregão_eletrônico",
+    },
+    ("fornecimento_geral", "pregão eletrônico"): {
+        "base": 600,
+        "km_rate": 0,
+        "value_pct": 0.002,
+        "cap": 4000,
+        "label": "fornec_geral/pregão_eletrônico",
+    },
+    ("fornecimento_geral", "concorrência"): {
+        "base": 1000,
+        "km_rate": 0,
+        "value_pct": 0.003,
+        "cap": 6000,
+        "label": "fornec_geral/concorrência",
+    },
 }
 
 _DEFAULT_COST_PROFILE = {"base": 2000, "km_rate": 3, "value_pct": 0.005, "cap": 15000, "label": "default"}
@@ -5743,7 +6715,9 @@ def compute_roi_potential(edital: dict, sector_key: str, win_prob: dict) -> dict
     valor = _safe_float(edital.get("valor_estimado")) or 0.0
     if valor <= 0:
         return {
-            "roi_min": 0, "roi_max": 0, "probability": 0.0,
+            "roi_min": 0,
+            "roi_max": 0,
+            "probability": 0.0,
             "margin_range": "N/A",
             "confidence": win_prob.get("confidence", "baixa"),
             "strategic_reclassification": None,
@@ -5780,7 +6754,9 @@ def compute_roi_potential(edital: dict, sector_key: str, win_prob: dict) -> dict
     # CRÍTICA 8: Fiscal risk discount from risk_score output
     fiscal_risk = edital.get("risk_score", {}).get("fiscal_risk", {})
     # F42: Clamp fiscal risk discount to [0.0, 1.0]
-    fiscal_discount = max(0.0, min(1.0, float(fiscal_risk.get("roi_discount", 1.0)))) if isinstance(fiscal_risk, dict) else 1.0
+    fiscal_discount = (
+        max(0.0, min(1.0, float(fiscal_risk.get("roi_discount", 1.0)))) if isinstance(fiscal_risk, dict) else 1.0
+    )
 
     # Dual ROI: roi_if_win (lucro se vencer) and roi_expected (esperança matemática)
     roi_if_win_min = round(valor * margin_min * fiscal_discount - participation_cost)
@@ -5939,12 +6915,14 @@ def build_reverse_chronogram(edital: dict) -> list[dict]:
         else:
             status = "NO PRAZO"
 
-        cronograma.append({
-            "data": target.strftime("%Y-%m-%d"),
-            "marco": marco,
-            "dias_ate_marco": max(dias_ate, 0),
-            "status": status,
-        })
+        cronograma.append(
+            {
+                "data": target.strftime("%Y-%m-%d"),
+                "marco": marco,
+                "dias_ate_marco": max(dias_ate, 0),
+                "status": status,
+            }
+        )
 
     return cronograma
 
@@ -5973,7 +6951,7 @@ def detect_maturity_profile(empresa: dict) -> dict:
     max_contract_value = 0.0
     total_contract_value = 0.0
     acervo_objetos: list[str] = []  # Contract objects = implicit technical portfolio
-    for c in (historico if isinstance(historico, list) else []):
+    for c in historico if isinstance(historico, list) else []:
         uf = c.get("uf", "")
         if uf:
             ufs_set.add(uf)
@@ -5996,21 +6974,17 @@ def detect_maturity_profile(empresa: dict) -> dict:
         profile = "ESTABELECIDO"
         esfera_detail = ", ".join(f"{v} {k.lower()}" for k, v in sorted(esferas.items(), key=lambda x: -x[1]))
         rationale = (
-            f"Portfólio diversificado: {total_count} contratos governamentais"
-            f" em {geo_spread} UF(s) ({esfera_detail})"
+            f"Portfólio diversificado: {total_count} contratos governamentais em {geo_spread} UF(s) ({esfera_detail})"
         )
     elif total_count >= 3:
         profile = "REGIONAL"
         esfera_detail = ", ".join(f"{v} {k.lower()}" for k, v in sorted(esferas.items(), key=lambda x: -x[1]))
         rationale = (
-            f"Experiência regional: {total_count} contratos governamentais"
-            f" em {geo_spread} UF(s) ({esfera_detail})"
+            f"Experiência regional: {total_count} contratos governamentais em {geo_spread} UF(s) ({esfera_detail})"
         )
     else:
         profile = "ENTRANTE"
-        rationale = (
-            f"Novo no mercado governamental: {total_count} contrato(s) identificado(s)"
-        )
+        rationale = f"Novo no mercado governamental: {total_count} contrato(s) identificado(s)"
 
     return {
         "profile": profile,
@@ -6032,11 +7006,32 @@ def detect_maturity_profile(empresa: dict) -> dict:
 # ============================================================
 
 # Target-sector keyword set used for Gate 3 CNAE check (market axis)
-_ENGENHARIA_CNAE_CODES: frozenset[str] = frozenset({
-    "4120", "4211", "4212", "4213", "4221", "4222", "4223", "4291", "4292", "4299",
-    "4311", "4312", "4313", "4319", "4321", "4322", "4329", "4330", "4391", "4399",
-    "7112", "7119",
-})
+_ENGENHARIA_CNAE_CODES: frozenset[str] = frozenset(
+    {
+        "4120",
+        "4211",
+        "4212",
+        "4213",
+        "4221",
+        "4222",
+        "4223",
+        "4291",
+        "4292",
+        "4299",
+        "4311",
+        "4312",
+        "4313",
+        "4319",
+        "4321",
+        "4322",
+        "4329",
+        "4330",
+        "4391",
+        "4399",
+        "7112",
+        "7119",
+    }
+)
 
 
 def compute_maturity_score(empresa: dict, sector_key: str = "") -> dict:
@@ -6169,7 +7164,9 @@ def compute_maturity_score(empresa: dict, sector_key: str = "") -> dict:
     # CNAE specialization: does primary CNAE match target sector?
     cnae_principal = str(empresa.get("cnae_principal") or "")
     cnae_code_4 = re.sub(r"[^0-9]", "", cnae_principal)[:4]
-    target_cnaes = _ENGENHARIA_CNAE_CODES if ("engenharia" in sector_key or "arquitetura" in sector_key) else frozenset()
+    target_cnaes = (
+        _ENGENHARIA_CNAE_CODES if ("engenharia" in sector_key or "arquitetura" in sector_key) else frozenset()
+    )
     if target_cnaes and cnae_code_4 in target_cnaes:
         mkt_raw += 50
 
@@ -6263,7 +7260,10 @@ def compute_maturity_score(empresa: dict, sector_key: str = "") -> dict:
         "rationale": nota,
         "federal_contract_count": esferas.get("Federal", 0),
         "profile_capped": profile_capped,
-        "_source": _source_tag("CALCULATED", f"4-axis score: fin={round(fin_raw)} hist={round(hist_raw)} op={round(op_raw)} mkt={round(mkt_raw)}"),
+        "_source": _source_tag(
+            "CALCULATED",
+            f"4-axis score: fin={round(fin_raw)} hist={round(hist_raw)} op={round(op_raw)} mkt={round(mkt_raw)}",
+        ),
     }
 
 
@@ -6271,8 +7271,9 @@ def compute_maturity_score(empresa: dict, sector_key: str = "") -> dict:
 # E3: COVERAGE DIAGNOSTIC
 # ============================================================
 
+
 def compute_coverage_diagnostic(
-    api: "ApiClient",
+    api: ApiClient,
     captured_editais: list[dict],
     keywords: list[str],
     ufs: list[str],
@@ -6321,12 +7322,14 @@ def compute_coverage_diagnostic(
 
         total_estimated += uf_estimated
         rate = uf_captured / uf_estimated if uf_estimated > 0 else None
-        per_uf.append({
-            "uf": uf,
-            "captured": uf_captured,
-            "estimated_total": uf_estimated,
-            "rate": round(rate, 2) if rate is not None else None,
-        })
+        per_uf.append(
+            {
+                "uf": uf,
+                "captured": uf_captured,
+                "estimated_total": uf_estimated,
+                "rate": round(rate, 2) if rate is not None else None,
+            }
+        )
 
     successful_calls = total_api_calls - failed_calls
     verified = successful_calls > 0
@@ -6337,7 +7340,9 @@ def compute_coverage_diagnostic(
         print(f"    [COVERAGE] {successful_calls}/{total_api_calls} chamadas bem-sucedidas — cobertura NAO verificavel")
     else:
         overall_rate = captured_count / total_estimated if total_estimated > 0 else None
-        print(f"    [COVERAGE] {successful_calls}/{total_api_calls} chamadas bem-sucedidas — cobertura {'verificada' if verified else 'NAO verificavel'}")
+        print(
+            f"    [COVERAGE] {successful_calls}/{total_api_calls} chamadas bem-sucedidas — cobertura {'verificada' if verified else 'NAO verificavel'}"
+        )
 
     warning = None
     if overall_rate is not None:
@@ -6349,9 +7354,7 @@ def compute_coverage_diagnostic(
                 "Possivel subrepresentacao de oportunidades."
             )
         elif low_ufs:
-            warning = (
-                "Cobertura abaixo de 70% em: " + ", ".join(p["uf"] + f" ({p['rate']:.0%})" for p in low_ufs) + "."
-            )
+            warning = "Cobertura abaixo de 70% em: " + ", ".join(p["uf"] + f" ({p['rate']:.0%})" for p in low_ufs) + "."
     else:
         warning = "Cobertura nao verificavel — todas as chamadas PNCP falharam."
 
@@ -6486,8 +7489,7 @@ def compute_qualification_gap_analysis(
         return {
             "filter_result": "INCOMPATÍVEL_CNAE",
             "incompatibility_rationale": (
-                f"Objeto \"{obj_text}\" é incompatível com o CNAE principal "
-                f"({cnae_principal}) e secundários da empresa"
+                f'Objeto "{obj_text}" é incompatível com o CNAE principal ({cnae_principal}) e secundários da empresa'
             ),
             "operational_gaps": [],
             "readiness_score": 0,
@@ -6506,15 +7508,19 @@ def compute_qualification_gap_analysis(
     min_capital = valor * capital_pct
     if capital > 0 and valor > 0 and capital < min_capital:
         deficit = min_capital - capital
+
         def _fmt(v: float) -> str:
             return f"R$ {v:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        gaps.append({
-            "gap_type": "CAPITAL",
-            "description": f"Capital social ({_fmt(capital)}) abaixo do mínimo estimado ({_fmt(min_capital)}) para edital de {_fmt(valor)}",
-            "addressable": True,
-            "estimated_timeline": "3-6 meses (alteração contratual)",
-            "action_required": f"Integralizar capital adicional de {_fmt(deficit)}",
-        })
+
+        gaps.append(
+            {
+                "gap_type": "CAPITAL",
+                "description": f"Capital social ({_fmt(capital)}) abaixo do mínimo estimado ({_fmt(min_capital)}) para edital de {_fmt(valor)}",
+                "addressable": True,
+                "estimated_timeline": "3-6 meses (alteração contratual)",
+                "action_required": f"Integralizar capital adicional de {_fmt(deficit)}",
+            }
+        )
 
     # Certification gaps — skip mandatory professional registrations if company
     # already has government contracts or matching CNAE (registration is implicit:
@@ -6525,16 +7531,19 @@ def compute_qualification_gap_analysis(
     # Registrations that are prerequisites for operating in the sector —
     # if the company exists and has CNAE in the sector, it necessarily holds these
     _IMPLICIT_IF_OPERATING = {
-        "crea", "cau",        # Engineering / Architecture
-        "crm", "crf",         # Medicine / Pharmacy
-        "crc",                # Accounting
-        "oab",                # Law
-        "coren", "cofen",     # Nursing
-        "crn",                # Nutrition
-        "crmv",               # Veterinary
-        "confea",             # Engineering (federal)
-        "crt",                # Technicians
-        "registro ativo",     # Generic "active registration"
+        "crea",
+        "cau",  # Engineering / Architecture
+        "crm",
+        "crf",  # Medicine / Pharmacy
+        "crc",  # Accounting
+        "oab",  # Law
+        "coren",
+        "cofen",  # Nursing
+        "crn",  # Nutrition
+        "crmv",  # Veterinary
+        "confea",  # Engineering (federal)
+        "crt",  # Technicians
+        "registro ativo",  # Generic "active registration"
         "registro profissional",
     }
 
@@ -6545,13 +7554,15 @@ def compute_qualification_gap_analysis(
         if has_gov_contracts:
             if any(reg in cert_lower for reg in _IMPLICIT_IF_OPERATING):
                 continue  # Skip — implied by operational history
-        gaps.append({
-            "gap_type": "CERTIFICAÇÃO",
-            "description": f"Verificar se possui: {cert}",
-            "addressable": True,
-            "estimated_timeline": "3-12 meses" if "ISO" in cert else "1-3 meses",
-            "action_required": f"Obter ou renovar {cert}",
-        })
+        gaps.append(
+            {
+                "gap_type": "CERTIFICAÇÃO",
+                "description": f"Verificar se possui: {cert}",
+                "addressable": True,
+                "estimated_timeline": "3-12 meses" if "ISO" in cert else "1-3 meses",
+                "action_required": f"Obter ou renovar {cert}",
+            }
+        )
 
     # Atestado gaps — semantic cross-reference edital vs historical contracts
     historico = empresa.get("historico_contratos", [])
@@ -6559,18 +7570,48 @@ def compute_qualification_gap_analysis(
 
     # Stop words: generic terms that don't indicate technical similarity
     _ACERVO_STOP = {
-        "contratação", "contratacao", "empresa", "serviço", "servico", "serviços",
-        "servicos", "execução", "execucao", "objeto", "municipal", "município",
-        "municipio", "prefeitura", "estado", "federal", "governo", "público",
-        "publica", "publico", "valor", "prazo", "conforme", "mediante", "através",
-        "forma", "acordo", "termo", "referência", "referencia", "edital",
-        "fornecimento", "material", "diversos", "demais", "necessário", "necessario",
+        "contratação",
+        "contratacao",
+        "empresa",
+        "serviço",
+        "servico",
+        "serviços",
+        "servicos",
+        "execução",
+        "execucao",
+        "objeto",
+        "municipal",
+        "município",
+        "municipio",
+        "prefeitura",
+        "estado",
+        "federal",
+        "governo",
+        "público",
+        "publica",
+        "publico",
+        "valor",
+        "prazo",
+        "conforme",
+        "mediante",
+        "através",
+        "forma",
+        "acordo",
+        "termo",
+        "referência",
+        "referencia",
+        "edital",
+        "fornecimento",
+        "material",
+        "diversos",
+        "demais",
+        "necessário",
+        "necessario",
     }
 
     obj_edital = (edital.get("objeto", "") or "").lower()
     obj_edital_words = {
-        w.rstrip(".,;:()") for w in obj_edital.split()
-        if len(w) >= 6 and w.rstrip(".,;:()") not in _ACERVO_STOP
+        w.rstrip(".,;:()") for w in obj_edital.split() if len(w) >= 6 and w.rstrip(".,;:()") not in _ACERVO_STOP
     }
 
     best_match_info = None
@@ -6578,8 +7619,7 @@ def compute_qualification_gap_analysis(
     for c in historico_list:
         obj_hist = (c.get("objeto", "") or "").lower()
         hist_words = {
-            w.rstrip(".,;:()") for w in obj_hist.split()
-            if len(w) >= 6 and w.rstrip(".,;:()") not in _ACERVO_STOP
+            w.rstrip(".,;:()") for w in obj_hist.split() if len(w) >= 6 and w.rstrip(".,;:()") not in _ACERVO_STOP
         }
         if not hist_words or not obj_edital_words:
             continue
@@ -6603,18 +7643,20 @@ def compute_qualification_gap_analysis(
 
     if best_match_info:
         # Semantic match found — cite the specific contract
-        val_fmt = _fmt_brl(_safe_float(best_match_info['valor']) or 0.0)
-        gaps.append({
-            "gap_type": "ACERVO_EXISTENTE",
-            "description": (
-                f"Acervo técnico inferido: \"{best_match_info['objeto']}\" em "
-                f"{best_match_info['orgao']} ({best_match_info['esfera']}, {val_fmt}). "
-                f"Termos em comum: {', '.join(best_match_info['overlap'])}"
-            ),
-            "addressable": False,
-            "estimated_timeline": "Já disponível",
-            "action_required": "Confirmar que atestados e CATs estão disponíveis para juntada célere na habilitação",
-        })
+        val_fmt = _fmt_brl(_safe_float(best_match_info["valor"]) or 0.0)
+        gaps.append(
+            {
+                "gap_type": "ACERVO_EXISTENTE",
+                "description": (
+                    f'Acervo técnico inferido: "{best_match_info["objeto"]}" em '
+                    f"{best_match_info['orgao']} ({best_match_info['esfera']}, {val_fmt}). "
+                    f"Termos em comum: {', '.join(best_match_info['overlap'])}"
+                ),
+                "addressable": False,
+                "estimated_timeline": "Já disponível",
+                "action_required": "Confirmar que atestados e CATs estão disponíveis para juntada célere na habilitação",
+            }
+        )
     elif n_historico >= 10 and n_sector_relevant < 3:
         # CRITICAL: Company has many contracts but very few/none in the target sector.
         # This is NOT "acervo presumido" — it's a sector mismatch.
@@ -6622,50 +7664,56 @@ def compute_qualification_gap_analysis(
             detail = "NENHUM no setor de atuação dos editais analisados"
         else:
             detail = f"apenas {n_sector_relevant} no setor (de {n_historico} total)"
-        gaps.append({
-            "gap_type": "ACERVO_SETOR_DIVERGENTE",
-            "description": (
-                f"ALERTA: CNAE inconsistente com histórico — verificar acervo. "
-                f"Empresa possui {n_historico} contrato(s) governamental(is), "
-                f"porém {detail}. "
-                f"O histórico registrado no PNCP indica atuação em segmento distinto. "
-                f"Acervo técnico no setor NÃO pode ser presumido."
-            ),
-            "addressable": True,
-            "estimated_timeline": "6-12 meses (execução de contrato no setor + obtenção de CAT)",
-            "action_required": (
-                "Verificar se a empresa possui contratos no setor não registrados no PNCP. "
-                "Se confirmada ausência, iniciar construção de acervo via obras de menor porte "
-                "ou consórcio com empresa que possua atestados no setor."
-            ),
-        })
+        gaps.append(
+            {
+                "gap_type": "ACERVO_SETOR_DIVERGENTE",
+                "description": (
+                    f"ALERTA: CNAE inconsistente com histórico — verificar acervo. "
+                    f"Empresa possui {n_historico} contrato(s) governamental(is), "
+                    f"porém {detail}. "
+                    f"O histórico registrado no PNCP indica atuação em segmento distinto. "
+                    f"Acervo técnico no setor NÃO pode ser presumido."
+                ),
+                "addressable": True,
+                "estimated_timeline": "6-12 meses (execução de contrato no setor + obtenção de CAT)",
+                "action_required": (
+                    "Verificar se a empresa possui contratos no setor não registrados no PNCP. "
+                    "Se confirmada ausência, iniciar construção de acervo via obras de menor porte "
+                    "ou consórcio com empresa que possua atestados no setor."
+                ),
+            }
+        )
     elif n_historico >= 10 and n_sector_relevant >= 3:
         # Extensive contract history WITH sector-relevant contracts.
         # Safely presume acervo.
-        gaps.append({
-            "gap_type": "ACERVO_PRESUMIDO",
-            "description": (
-                f"Empresa com {n_historico} contrato(s) governamental(is) no histórico, "
-                f"dos quais {n_sector_relevant} no setor de atuação — "
-                f"acervo técnico e atestados presumidos pela experiência setorial acumulada"
-            ),
-            "addressable": False,
-            "estimated_timeline": "Já disponível",
-            "action_required": (
-                "Confirmar disponibilidade dos atestados de capacidade técnica e CATs "
-                "dos responsáveis técnicos para juntada célere na fase de habilitação"
-            ),
-        })
+        gaps.append(
+            {
+                "gap_type": "ACERVO_PRESUMIDO",
+                "description": (
+                    f"Empresa com {n_historico} contrato(s) governamental(is) no histórico, "
+                    f"dos quais {n_sector_relevant} no setor de atuação — "
+                    f"acervo técnico e atestados presumidos pela experiência setorial acumulada"
+                ),
+                "addressable": False,
+                "estimated_timeline": "Já disponível",
+                "action_required": (
+                    "Confirmar disponibilidade dos atestados de capacidade técnica e CATs "
+                    "dos responsáveis técnicos para juntada célere na fase de habilitação"
+                ),
+            }
+        )
     else:
         # Few or no contracts — flag specific missing attestations
         for atestado in reqs.get("atestados", []):
-            gaps.append({
-                "gap_type": "ATESTADO",
-                "description": f"Sem acervo comprovado: {atestado}",
-                "addressable": True,
-                "estimated_timeline": "6-12 meses (execução de contrato similar)",
-                "action_required": f"Executar obra/serviço similar e obter {atestado}",
-            })
+            gaps.append(
+                {
+                    "gap_type": "ATESTADO",
+                    "description": f"Sem acervo comprovado: {atestado}",
+                    "addressable": True,
+                    "estimated_timeline": "6-12 meses (execução de contrato similar)",
+                    "action_required": f"Executar obra/serviço similar e obter {atestado}",
+                }
+            )
 
     # Readiness score: 100 if no gaps, decreases with each gap
     readiness = max(0, 100 - len(gaps) * 20)
@@ -6673,12 +7721,14 @@ def compute_qualification_gap_analysis(
     # Development plan: prioritized list of actions
     development_plan = []
     for i, g in enumerate(sorted(gaps, key=lambda x: x["gap_type"]), 1):
-        development_plan.append({
-            "priority": i,
-            "action": g["action_required"],
-            "timeline": g["estimated_timeline"],
-            "gap_type": g["gap_type"],
-        })
+        development_plan.append(
+            {
+                "priority": i,
+                "action": g["action_required"],
+                "timeline": g["estimated_timeline"],
+                "gap_type": g["gap_type"],
+            }
+        )
 
     return {
         "filter_result": "COMPATÍVEL",
@@ -6715,12 +7765,18 @@ def compute_historical_dispute_stats(all_contracts: list[dict]) -> dict:
     Groups by modality × value bracket to produce:
     - avg participants, avg discount, adjudication rate, desert/failed rate
     """
-    from collections import Counter, defaultdict
+    from collections import defaultdict
 
-    stats: dict[str, dict] = defaultdict(lambda: {
-        "n_procurements": 0, "suppliers": [], "discounts": [],
-        "adjudicated": 0, "desert": 0, "failed": 0,
-    })
+    stats: dict[str, dict] = defaultdict(
+        lambda: {
+            "n_procurements": 0,
+            "suppliers": [],
+            "discounts": [],
+            "adjudicated": 0,
+            "desert": 0,
+            "failed": 0,
+        }
+    )
 
     # Build supplier frequency for recurring detection
     supplier_counts: dict[str, dict] = defaultdict(lambda: {"n": 0, "ufs": set()})
@@ -6763,9 +7819,9 @@ def compute_historical_dispute_stats(all_contracts: list[dict]) -> dict:
         unique_suppliers = len(set(bucket["suppliers"]))
         stats_by_typology[key] = {
             "avg_participants": round(unique_suppliers / max(n, 1), 1),
-            "avg_discount_pct": round(
-                sum(bucket["discounts"]) / len(bucket["discounts"]) * 100, 1
-            ) if bucket["discounts"] else None,
+            "avg_discount_pct": round(sum(bucket["discounts"]) / len(bucket["discounts"]) * 100, 1)
+            if bucket["discounts"]
+            else None,
             "adjudication_rate": round(bucket["adjudicated"] / n, 2),
             "sample_size": n,
         }
@@ -6794,6 +7850,7 @@ def compute_historical_dispute_stats(all_contracts: list[dict]) -> dict:
 # ============================================================
 # E6: ORGAN RISK PROFILE
 # ============================================================
+
 
 def compute_organ_risk_profile(
     edital: dict,
@@ -6844,6 +7901,7 @@ def compute_organ_risk_profile(
         # Timeline rules from YAML config (sector-agnostic)
         try:
             from intel_sector_loader import get_timeline_rules
+
             _tl_rules = get_timeline_rules(sector_key)
         except Exception:
             _tl_rules = [{"max_value": 500000, "min_days": 15}, {"max_value": None, "min_days": 30}]
@@ -6901,6 +7959,7 @@ def compute_organ_risk_profile(
 # E7: REGIONAL CLUSTER ANALYSIS
 # ============================================================
 
+
 def compute_regional_clusters(editais: list[dict]) -> dict:
     """Cluster editais by geographic proximity for shared mobilization detection.
 
@@ -6930,7 +7989,10 @@ def compute_regional_clusters(editais: list[dict]) -> dict:
         R = 6371.0
         dlat = math.radians(lat2 - lat1)
         dlon = math.radians(lon2 - lon1)
-        a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+        )
         return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     CLUSTER_RADIUS_KM = 150.0
@@ -6963,10 +8025,7 @@ def compute_regional_clusters(editais: list[dict]) -> dict:
             total_valor = sum((_safe_float(m["ed"].get("valor_estimado", 0)) or 0.0) for m in cluster_members)
 
             # Max radius from center
-            max_radius = max(
-                _haversine_km(ge["lat"], ge["lon"], m["lat"], m["lon"])
-                for m in cluster_members
-            )
+            max_radius = max(_haversine_km(ge["lat"], ge["lon"], m["lat"], m["lon"]) for m in cluster_members)
 
             # Timeline overlap check
             deadlines = []
@@ -6986,21 +8045,23 @@ def compute_regional_clusters(editais: list[dict]) -> dict:
                 span_days = (deadlines[-1] - deadlines[0]).days
                 timeline_overlap = span_days <= 180  # Within 6 months
 
-            clusters.append({
-                "id": len(clusters) + 1,
-                "center_municipio": center_mun,
-                "center_uf": center_uf,
-                "radius_km": round(max_radius),
-                "editais_indices": [m["index"] for m in cluster_members],
-                "n_editais": len(cluster_members),
-                "total_valor": round(total_valor),
-                "timeline_overlap": timeline_overlap,
-                "recommendation": (
-                    f"Mobilização única para {len(cluster_members)} editais "
-                    f"na região de {center_mun}/{center_uf} "
-                    f"(raio de {max_radius:.0f}km)"
-                ),
-            })
+            clusters.append(
+                {
+                    "id": len(clusters) + 1,
+                    "center_municipio": center_mun,
+                    "center_uf": center_uf,
+                    "radius_km": round(max_radius),
+                    "editais_indices": [m["index"] for m in cluster_members],
+                    "n_editais": len(cluster_members),
+                    "total_valor": round(total_valor),
+                    "timeline_overlap": timeline_overlap,
+                    "recommendation": (
+                        f"Mobilização única para {len(cluster_members)} editais "
+                        f"na região de {center_mun}/{center_uf} "
+                        f"(raio de {max_radius:.0f}km)"
+                    ),
+                }
+            )
 
     # Isolated editais (not in any cluster)
     all_clustered = set()
@@ -7019,6 +8080,7 @@ def compute_regional_clusters(editais: list[dict]) -> dict:
 # ============================================================
 # TRACK C: SCENARIOS, SENSITIVITY ANALYSIS, AND TRIGGERS
 # ============================================================
+
 
 def _parse_margin_range(margin_str: str) -> tuple[float, float]:
     """Parse margin_range string like '8%-15%' into (0.08, 0.15)."""
@@ -7254,52 +8316,62 @@ def identify_triggers(edital: dict) -> list[dict]:
 
     # Trigger 1: Esclarecimento ou errata (applicable when there's time)
     if dias is not None and dias > 10:
-        triggers.append({
-            "condition": "Se publicado esclarecimento ou errata",
-            "action": "Reavaliar prazos e requisitos",
-            "impact": "Prazo pode ser estendido",
-        })
+        triggers.append(
+            {
+                "condition": "Se publicado esclarecimento ou errata",
+                "action": "Reavaliar prazos e requisitos",
+                "impact": "Prazo pode ser estendido",
+            }
+        )
 
     # Trigger 2: Low competition day-of
     if n_suppliers > 5:
-        triggers.append({
-            "condition": "Se menos de 3 propostas registradas no dia",
-            "action": "Reavaliar — probabilidade sobe significativamente",
-            "impact": "Chance pode triplicar",
-        })
+        triggers.append(
+            {
+                "condition": "Se menos de 3 propostas registradas no dia",
+                "action": "Reavaliar — probabilidade sobe significativamente",
+                "impact": "Chance pode triplicar",
+            }
+        )
 
     # Trigger 3: Qualification gap can be addressed
     gaps = qual_gap.get("operational_gaps", []) if isinstance(qual_gap, dict) else []
     has_addressable_gap = any(g.get("addressable") for g in gaps if isinstance(g, dict))
     if category in ("AVALIAR COM CAUTELA", "INVESTIMENTO", "OPORTUNIDADE") and has_addressable_gap:
-        triggers.append({
-            "condition": "Se a empresa obtiver atestado técnico complementar",
-            "action": "Reclassificar para PARTICIPAR",
-            "impact": "Score de habilitação sobe ~20 pontos",
-        })
+        triggers.append(
+            {
+                "condition": "Se a empresa obtiver atestado técnico complementar",
+                "action": "Reclassificar para PARTICIPAR",
+                "impact": "Score de habilitação sobe ~20 pontos",
+            }
+        )
 
     # Trigger 4: Low financial score
     fin_score = rs.get("financeiro", 50) if isinstance(rs, dict) else 50
     if fin_score < 40:
-        triggers.append({
-            "condition": "Se o órgão publicar valor estimado revisado para baixo",
-            "action": "Reavaliar viabilidade financeira",
-            "impact": "Pode tornar-se viável",
-        })
+        triggers.append(
+            {
+                "condition": "Se o órgão publicar valor estimado revisado para baixo",
+                "action": "Reavaliar viabilidade financeira",
+                "impact": "Pode tornar-se viável",
+            }
+        )
 
     # Trigger 5: Incumbency disruption
     has_rescisoes = False
-    for c in (ci if isinstance(ci, list) else []):
+    for c in ci if isinstance(ci, list) else []:
         sit = (c.get("situacao") or c.get("status") or "").lower()
         if any(kw in sit for kw in ["rescisão", "rescisao", "cancelad", "anulad"]):
             has_rescisoes = True
             break
     if has_rescisoes:
-        triggers.append({
-            "condition": "Se fornecedor recorrente perder contrato vigente (rescisão)",
-            "action": "Oportunidade de substituição",
-            "impact": "Campo limpo para novos fornecedores",
-        })
+        triggers.append(
+            {
+                "condition": "Se fornecedor recorrente perder contrato vigente (rescisão)",
+                "action": "Oportunidade de substituição",
+                "impact": "Campo limpo para novos fornecedores",
+            }
+        )
 
     # Sort by actionability (most actionable first) and limit to 3
     priority_order = {
@@ -7351,6 +8423,7 @@ def enrich_scenarios_and_triggers(
 # A1: CNAE × OBJECT COMPATIBILITY CHECK
 # ============================================================
 
+
 def _check_cnae_object_compatibility(editais: list, empresa: dict) -> None:
     """Check if company's CNAE is compatible with each edital's object.
 
@@ -7400,6 +8473,7 @@ def _check_cnae_object_compatibility(editais: list, empresa: dict) -> None:
 # A2: HABILITAÇÃO DETERMINÍSTICA CHECKLIST
 # ============================================================
 
+
 def _compute_habilitacao_checklist(editais: list, empresa: dict, sicaf: dict, sector_key: str = "") -> None:
     """Compute structured habilitação checklist for each edital.
 
@@ -7411,10 +8485,7 @@ def _compute_habilitacao_checklist(editais: list, empresa: dict, sicaf: dict, se
     is_mei = bool(empresa.get("mei"))
     has_acervo = bool(empresa.get("maturity_profile", {}).get("acervo_objetos"))
     _sancoes_raw = empresa.get("sancoes") if isinstance(empresa.get("sancoes"), dict) else {}
-    has_sancoes = any(
-        v for k, v in _sancoes_raw.items()
-        if k != "sancionada" and isinstance(v, (bool, int)) and v
-    )
+    has_sancoes = any(v for k, v in _sancoes_raw.items() if k != "sancionada" and isinstance(v, (bool, int)) and v)
     sicaf_status = sicaf.get("status_crc") if sicaf else None
 
     # Sector-specific capital minimum percentage (Lei 14.133, art. 69 §4: max 10%)
@@ -7459,6 +8530,7 @@ def _compute_habilitacao_checklist(editais: list, empresa: dict, sicaf: dict, se
 # ============================================================
 # A5: RICH JUSTIFICATIVAS
 # ============================================================
+
 
 def _build_rich_justificativa(ed: dict, empresa: dict) -> str:
     """Build a rich, edital-specific justificativa that answers 'por quê?'.
@@ -7588,6 +8660,7 @@ def _build_rich_justificativa(ed: dict, empresa: dict) -> str:
 # ============================================================
 # RECOMMENDATION ASSIGNMENT
 # ============================================================
+
 
 def assign_recommendations(editais: list, empresa: dict) -> None:
     """Assign recomendacao + justificativa to each edital based on risk_score.
@@ -7730,12 +8803,7 @@ def generate_proximos_passos(editais: list[dict], empresa: dict) -> dict:
             prazo_br = prazo_raw[:10] if prazo_raw else ""
 
         valor = _safe_float(ed.get("valor_estimado")) or 0.0
-        edital_ref = (
-            ed.get("numero_controle")
-            or ed.get("_id")
-            or ed.get("sequencial_compra")
-            or "—"
-        )
+        edital_ref = ed.get("numero_controle") or ed.get("_id") or ed.get("sequencial_compra") or "—"
         orgao = (ed.get("orgao") or "").strip()[:80]
         objeto_resumo = (ed.get("objeto") or "")[:120]
         uf = ed.get("uf") or ""
@@ -7858,22 +8926,21 @@ def generate_proximos_passos(editais: list[dict], empresa: dict) -> dict:
     desenvolvimento_plan: list[dict] = []
     for cat_key, cat_data in action_categories.items():
         priority_score = cat_data["count"] * cat_data["max_urgency"]
-        desenvolvimento_plan.append({
-            "acao": _CATEGORY_LABELS.get(cat_key, cat_key),
-            "editais_afetados": cat_data["editais_afetados"],
-            "prioridade": priority_score,
-            "prazo_sugerido": f"{cat_data['min_dias']} dias (edital mais próximo)",
-            "categoria": cat_key,
-        })
+        desenvolvimento_plan.append(
+            {
+                "acao": _CATEGORY_LABELS.get(cat_key, cat_key),
+                "editais_afetados": cat_data["editais_afetados"],
+                "prioridade": priority_score,
+                "prazo_sugerido": f"{cat_data['min_dias']} dias (edital mais próximo)",
+                "categoria": cat_key,
+            }
+        )
     desenvolvimento_plan.sort(key=lambda x: -x["prioridade"])
 
     # ─── Checklist de habilitação (company-level, not per-edital) ────────────
     sicaf = empresa.get("sicaf") or {}
     _pp_sancoes_raw = empresa.get("sancoes") if isinstance(empresa.get("sancoes"), dict) else {}
-    has_sancoes = any(
-        v for k, v in _pp_sancoes_raw.items()
-        if k != "sancionada" and isinstance(v, (bool, int)) and v
-    )
+    has_sancoes = any(v for k, v in _pp_sancoes_raw.items() if k != "sancionada" and isinstance(v, (bool, int)) and v)
     is_simples = bool(empresa.get("simples_nacional"))
     is_mei = "MEI" in (empresa.get("porte") or "").upper()
 
@@ -7881,7 +8948,9 @@ def generate_proximos_passos(editais: list[dict], empresa: dict) -> dict:
 
     sicaf_status = sicaf.get("status", "") if isinstance(sicaf, dict) else ""
     if sicaf_status not in ("CADASTRADO", "ATIVO"):
-        checklist_habilitacao.append("Cadastro SICAF: verificar ou realizar cadastro no Portal de Compras do Governo Federal")
+        checklist_habilitacao.append(
+            "Cadastro SICAF: verificar ou realizar cadastro no Portal de Compras do Governo Federal"
+        )
 
     checklist_habilitacao.append("CND Federal: emitir no site da Receita Federal / PGFN (validade 180 dias)")
     checklist_habilitacao.append("CRF FGTS: emitir no site da Caixa Econômica Federal (validade 30 dias)")
@@ -7905,10 +8974,14 @@ def generate_proximos_passos(editais: list[dict], empresa: dict) -> dict:
         if (ed.get("recomendacao") or "").upper() in target_recs
     )
     if any_cat:
-        checklist_habilitacao.append("Atestado de Capacidade Técnica (CAT): reunir atestados de obras/serviços similares registrados em CREA/CAU")
+        checklist_habilitacao.append(
+            "Atestado de Capacidade Técnica (CAT): reunir atestados de obras/serviços similares registrados em CREA/CAU"
+        )
 
     if has_sancoes:
-        checklist_habilitacao.append("ATENÇÃO: sanções registradas — verificar situação junto ao CEIS/CNEP antes de participar")
+        checklist_habilitacao.append(
+            "ATENÇÃO: sanções registradas — verificar situação junto ao CEIS/CNEP antes de participar"
+        )
 
     total_actionable = len(acao_imediata) + len(medio_prazo) + len(desenvolvimento_estrategico)
     return {
@@ -7921,7 +8994,7 @@ def generate_proximos_passos(editais: list[dict], empresa: dict) -> dict:
         "_source": _source_tag(
             "CALCULATED",
             f"{total_actionable} editais acionáveis: {len(acao_imediata)} urgentes, "
-            f"{len(medio_prazo)} médio prazo, {len(desenvolvimento_estrategico)} estratégicos"
+            f"{len(medio_prazo)} médio prazo, {len(desenvolvimento_estrategico)} estratégicos",
         ),
     }
 
@@ -7945,10 +9018,7 @@ def build_alertas_criticos(editais: list[dict], empresa: dict) -> None:
     capital = _safe_float(empresa.get("capital_social")) or 0.0
     is_simples = bool(empresa.get("simples_nacional"))
     _sancoes_raw = empresa.get("sancoes") if isinstance(empresa.get("sancoes"), dict) else {}
-    has_sancoes = any(
-        v for k, v in _sancoes_raw.items()
-        if k != "sancionada" and isinstance(v, (bool, int)) and v
-    )
+    has_sancoes = any(v for k, v in _sancoes_raw.items() if k != "sancionada" and isinstance(v, (bool, int)) and v)
 
     for ed in editais:
         alertas: list[dict] = []
@@ -7961,99 +9031,121 @@ def build_alertas_criticos(editais: list[dict], empresa: dict) -> None:
         # Alert 1: Acervo/CAT verification needed
         acervo_status = ed.get("acervo_status") or risk.get("acervo_status", "NAO_VERIFICADO")
         if acervo_status != "CONFIRMADO" and rec in ("PARTICIPAR", "AVALIAR COM CAUTELA"):
-            alertas.append({
-                "tipo": "CAT_REQUIRED",
-                "severidade": "CRITICO" if acervo_status == "NAO_VERIFICADO" else "ALERTA",
-                "descricao": "Verificação de atestados técnicos necessária",
-                "acao_requerida": f"Verificar acervo técnico compatível com: {(ed.get('objeto') or '')[:80]}",
-                "prazo_sugerido": "Antes da data de encerramento do edital",
-            })
+            alertas.append(
+                {
+                    "tipo": "CAT_REQUIRED",
+                    "severidade": "CRITICO" if acervo_status == "NAO_VERIFICADO" else "ALERTA",
+                    "descricao": "Verificação de atestados técnicos necessária",
+                    "acao_requerida": f"Verificar acervo técnico compatível com: {(ed.get('objeto') or '')[:80]}",
+                    "prazo_sugerido": "Antes da data de encerramento do edital",
+                }
+            )
 
         # Alert 2: Capital insuficiente (limítrofe) — 3x threshold
         if capital > 0 and valor > 0 and valor > 3 * capital:
-            alertas.append({
-                "tipo": "CAPITAL_LIMITROFE",
-                "severidade": "CRITICO" if valor > 5 * capital else "ALERTA",
-                "descricao": f"Valor estimado ({_fmt_brl(valor)}) supera {valor/capital:.0f}× o capital social ({_fmt_brl(capital)})",
-                "acao_requerida": "Avaliar consórcio, carta de fiança bancária ou aumento de capital",
-                "prazo_sugerido": "Antes da habilitação",
-            })
+            alertas.append(
+                {
+                    "tipo": "CAPITAL_LIMITROFE",
+                    "severidade": "CRITICO" if valor > 5 * capital else "ALERTA",
+                    "descricao": f"Valor estimado ({_fmt_brl(valor)}) supera {valor / capital:.0f}× o capital social ({_fmt_brl(capital)})",
+                    "acao_requerida": "Avaliar consórcio, carta de fiança bancária ou aumento de capital",
+                    "prazo_sugerido": "Antes da habilitação",
+                }
+            )
 
         # Alert 3: Prazo crítico
         if dias is not None and dias <= 7 and rec in ("PARTICIPAR", "AVALIAR COM CAUTELA"):
-            alertas.append({
-                "tipo": "PRAZO_CRITICO",
-                "severidade": "CRITICO",
-                "descricao": f"Apenas {dias} dia(s) restante(s) para submissão",
-                "acao_requerida": "Mobilizar equipe imediatamente — risco de perda por prazo",
-                "prazo_sugerido": f"{dias} dia(s)",
-            })
+            alertas.append(
+                {
+                    "tipo": "PRAZO_CRITICO",
+                    "severidade": "CRITICO",
+                    "descricao": f"Apenas {dias} dia(s) restante(s) para submissão",
+                    "acao_requerida": "Mobilizar equipe imediatamente — risco de perda por prazo",
+                    "prazo_sugerido": f"{dias} dia(s)",
+                }
+            )
 
         # Alert 4: Sanção ativa
         if has_sancoes:
-            alertas.append({
-                "tipo": "SANCAO_ATIVA",
-                "severidade": "CRITICO",
-                "descricao": "Empresa possui sanção ativa (CEIS/CNEP) — impedimento legal à participação",
-                "acao_requerida": "Verificar situação junto aos órgãos competentes antes de qualquer participação",
-                "prazo_sugerido": "Imediato",
-            })
+            alertas.append(
+                {
+                    "tipo": "SANCAO_ATIVA",
+                    "severidade": "CRITICO",
+                    "descricao": "Empresa possui sanção ativa (CEIS/CNEP) — impedimento legal à participação",
+                    "acao_requerida": "Verificar situação junto aos órgãos competentes antes de qualquer participação",
+                    "prazo_sugerido": "Imediato",
+                }
+            )
 
         # Alert 5: Simples Nacional revenue limit
         if is_simples and valor > 4_800_000:
-            alertas.append({
-                "tipo": "SIMPLES_LIMITE",
-                "severidade": "ALERTA",
-                "descricao": f"Contrato de {_fmt_brl(valor)} pode ultrapassar o teto do Simples Nacional (R$ 4,8M/ano)",
-                "acao_requerida": "Avaliar impacto tributário e possível desenquadramento antes de participar",
-                "prazo_sugerido": "Antes da proposta",
-            })
+            alertas.append(
+                {
+                    "tipo": "SIMPLES_LIMITE",
+                    "severidade": "ALERTA",
+                    "descricao": f"Contrato de {_fmt_brl(valor)} pode ultrapassar o teto do Simples Nacional (R$ 4,8M/ano)",
+                    "acao_requerida": "Avaliar impacto tributário e possível desenquadramento antes de participar",
+                    "prazo_sugerido": "Antes da proposta",
+                }
+            )
 
         # Alert 6: Setor divergente (from qualification gap)
         for gap in qual_gap.get("operational_gaps", []):
             if gap.get("gap_type") == "ACERVO_SETOR_DIVERGENTE":
-                alertas.append({
-                    "tipo": "SETOR_DIVERGENTE",
-                    "severidade": "ALERTA",
-                    "descricao": (gap.get("description") or "Setor do edital diverge do histórico da empresa")[:120],
-                    "acao_requerida": (gap.get("action_required") or "Verificar compatibilidade do objeto social")[:120],
-                    "prazo_sugerido": "Antes da habilitação",
-                })
+                alertas.append(
+                    {
+                        "tipo": "SETOR_DIVERGENTE",
+                        "severidade": "ALERTA",
+                        "descricao": (gap.get("description") or "Setor do edital diverge do histórico da empresa")[
+                            :120
+                        ],
+                        "acao_requerida": (gap.get("action_required") or "Verificar compatibilidade do objeto social")[
+                            :120
+                        ],
+                        "prazo_sugerido": "Antes da habilitação",
+                    }
+                )
                 break  # One alert per type
 
         # Alert 7: Fiscal risk
         fiscal_risk = risk.get("fiscal_risk", {})
         if isinstance(fiscal_risk, dict) and fiscal_risk.get("nivel") == "ALTO":
-            alertas.append({
-                "tipo": "FISCAL_RISK",
-                "severidade": "ALERTA",
-                "descricao": "Risco fiscal elevado do município — possível atraso em pagamentos",
-                "acao_requerida": "Verificar histórico de pagamentos do órgão e considerar cláusulas de reajuste",
-                "prazo_sugerido": "Antes da proposta",
-            })
+            alertas.append(
+                {
+                    "tipo": "FISCAL_RISK",
+                    "severidade": "ALERTA",
+                    "descricao": "Risco fiscal elevado do município — possível atraso em pagamentos",
+                    "acao_requerida": "Verificar histórico de pagamentos do órgão e considerar cláusulas de reajuste",
+                    "prazo_sugerido": "Antes da proposta",
+                }
+            )
 
         # Alert 8: Distância elevada
         dist = ed.get("distancia", {})
         dist_km = dist.get("km") if isinstance(dist, dict) else None
         if dist_km is not None and dist_km > 500:
-            alertas.append({
-                "tipo": "DISTANCIA_ELEVADA",
-                "severidade": "ALERTA" if dist_km <= 800 else "CRITICO",
-                "descricao": f"Distância de {dist_km:.0f}km da sede — logística desafiadora",
-                "acao_requerida": "Avaliar custos de mobilização, hospedagem e deslocamento na composição de preços",
-                "prazo_sugerido": "Antes da proposta comercial",
-            })
+            alertas.append(
+                {
+                    "tipo": "DISTANCIA_ELEVADA",
+                    "severidade": "ALERTA" if dist_km <= 800 else "CRITICO",
+                    "descricao": f"Distância de {dist_km:.0f}km da sede — logística desafiadora",
+                    "acao_requerida": "Avaliar custos de mobilização, hospedagem e deslocamento na composição de preços",
+                    "prazo_sugerido": "Antes da proposta comercial",
+                }
+            )
 
         # Alert 9: Remaining qualification gaps (addressable)
         for gap in qual_gap.get("operational_gaps", []):
             if gap.get("addressable") and gap.get("gap_type") not in ("ACERVO_EXISTENTE", "ACERVO_SETOR_DIVERGENTE"):
-                alertas.append({
-                    "tipo": gap.get("gap_type", "GAP"),
-                    "severidade": "ALERTA",
-                    "descricao": (gap.get("description") or "")[:120],
-                    "acao_requerida": (gap.get("action_required") or "Verificar requisito")[:120],
-                    "prazo_sugerido": "Antes da habilitação",
-                })
+                alertas.append(
+                    {
+                        "tipo": gap.get("gap_type", "GAP"),
+                        "severidade": "ALERTA",
+                        "descricao": (gap.get("description") or "")[:120],
+                        "acao_requerida": (gap.get("action_required") or "Verificar requisito")[:120],
+                        "prazo_sugerido": "Antes da habilitação",
+                    }
+                )
 
         ed["alertas_criticos"] = alertas
 
@@ -8067,6 +9159,7 @@ def _compute_alertas_criticos(editais: list[dict]) -> None:
 # ============================================================
 # MAIN DETERMINISTIC CALCULATION CHAIN
 # ============================================================
+
 
 def compute_all_deterministic(
     editais: list[dict],
@@ -8099,15 +9192,16 @@ def compute_all_deterministic(
     # Use word boundary matching (not substring) to avoid false positives
     _sector_kw = [k.lower() for k in (sector_keywords or []) if len(k) >= 5]
     import re as _re
-    _sector_pattern = _re.compile(
-        r"\b(" + "|".join(_re.escape(k) for k in _sector_kw) + r")", _re.IGNORECASE
-    ) if _sector_kw else None
+
+    _sector_pattern = (
+        _re.compile(r"\b(" + "|".join(_re.escape(k) for k in _sector_kw) + r")", _re.IGNORECASE) if _sector_kw else None
+    )
     historico = empresa.get("historico_contratos", [])
     historico_list = historico if isinstance(historico, list) else []
     sector_relevant_count = 0
     if _sector_pattern and historico_list:
         for c in historico_list:
-            obj = (c.get("objeto", "") or "")
+            obj = c.get("objeto", "") or ""
             if _sector_pattern.search(obj):
                 sector_relevant_count += 1
     empresa["_sector_relevant_contracts"] = sector_relevant_count
@@ -8127,7 +9221,9 @@ def compute_all_deterministic(
                     f"em segmento distinto. Verificar acervo técnico antes de qualquer participação."
                 ),
             }
-            print(f"  ⚠ ALERTA CRÍTICO: {len(historico_list)} contratos mas {'ZERO' if sector_relevant_count == 0 else f'apenas {sector_relevant_count}'} no setor — CNAE diverge do histórico")
+            print(
+                f"  ⚠ ALERTA CRÍTICO: {len(historico_list)} contratos mas {'ZERO' if sector_relevant_count == 0 else f'apenas {sector_relevant_count}'} no setor — CNAE diverge do histórico"
+            )
 
     empresa_cnaes = empresa.get("cnaes_secundarios", "")
     if isinstance(empresa_cnaes, list):
@@ -8146,7 +9242,9 @@ def compute_all_deterministic(
     n_simples_warn = sum(1 for ed in editais if ed.get("habilitacao_checklist", {}).get("simples_revenue_warning"))
     n_mei_warn = sum(1 for ed in editais if ed.get("habilitacao_checklist", {}).get("mei_revenue_warning"))
     if n_cap_fail or n_simples_warn or n_mei_warn:
-        print(f"  [A2] Habilitação: {n_cap_fail} capital insuficiente, {n_simples_warn} alerta Simples, {n_mei_warn} alerta MEI")
+        print(
+            f"  [A2] Habilitação: {n_cap_fail} capital insuficiente, {n_simples_warn} alerta Simples, {n_mei_warn} alerta MEI"
+        )
 
     # E5: Collect all competitive intel contracts for dispute stats
     all_competitive_contracts: list[dict] = []
@@ -8167,17 +9265,29 @@ def compute_all_deterministic(
             rs["maturity_adjustment"] = {"profile": maturity["profile"], "hab_delta": 0, "geo_delta": 0}
             ed["risk_score"] = rs
             ed["win_probability"] = {
-                "probability": 0.0, "confidence": "alta", "base_rate": 0,
-                "n_unique_suppliers": 0, "n_contracts_analyzed": 0, "n_contracts_raw": 0,
-                "sector_filtered": False, "hhi": 0, "top_supplier_share": 0,
-                "incumbency_bonus": 0, "modality_multiplier": 0, "viability_factor": 0,
+                "probability": 0.0,
+                "confidence": "alta",
+                "base_rate": 0,
+                "n_unique_suppliers": 0,
+                "n_contracts_analyzed": 0,
+                "n_contracts_raw": 0,
+                "sector_filtered": False,
+                "hhi": 0,
+                "top_supplier_share": 0,
+                "incumbency_bonus": 0,
+                "modality_multiplier": 0,
+                "viability_factor": 0,
                 "contextual_multiplier": 0,
                 "_source": _source_tag("CALCULATED", "VETADO — probabilidade zero"),
             }
             ed["roi_potential"] = {
-                "roi_min": 0, "roi_max": 0, "probability": 0.0,
-                "margin_range": "N/A", "confidence": "alta",
-                "strategic_reclassification": None, "reclassification_rationale": None,
+                "roi_min": 0,
+                "roi_max": 0,
+                "probability": 0.0,
+                "margin_range": "N/A",
+                "confidence": "alta",
+                "strategic_reclassification": None,
+                "reclassification_rationale": None,
                 "calculation_memory": {"formula": "VETADO — ROI não calculado"},
                 "_source": _source_tag("CALCULATED", "VETADO"),
             }
@@ -8226,7 +9336,11 @@ def compute_all_deterministic(
             ed["risk_score"] = rs
 
             win_prob = compute_win_probability(
-                ed, empresa, ed.get("competitive_intel", []), effective_sk, rs["total"],
+                ed,
+                empresa,
+                ed.get("competitive_intel", []),
+                effective_sk,
+                rs["total"],
             )
             ed["win_probability"] = win_prob
 
@@ -8236,17 +9350,26 @@ def compute_all_deterministic(
         # --- Object compatibility (spectral) ---
         objeto = ed.get("objeto", ed.get("objetoCompra", ""))
         ed["object_compatibility"] = compute_object_compatibility(
-            objeto, empresa_cnaes, sector_key, historico,
+            objeto,
+            empresa_cnaes,
+            sector_key,
+            historico,
         )
 
         # --- Habilitação gap analysis (uses EDITAL's effective sector, not company's) ---
         ed["habilitacao_analysis"] = compute_habilitacao_analysis(
-            ed, empresa, sicaf, effective_sk,
+            ed,
+            empresa,
+            sicaf,
+            effective_sk,
         )
 
         # --- E4: Qualification gap analysis (sector compat vs operational) ---
         ed["qualification_gap"] = compute_qualification_gap_analysis(
-            ed, empresa, ed["object_compatibility"], effective_sk,
+            ed,
+            empresa,
+            ed["object_compatibility"],
+            effective_sk,
         )
 
         # --- Competitive analysis (per-edital) ---
@@ -8259,7 +9382,9 @@ def compute_all_deterministic(
 
         # --- Systemic risk flags (uses EDITAL's effective sector) ---
         ed["risk_analysis"] = compute_risk_analysis(
-            ed, ed["competitive_analysis"], effective_sk,
+            ed,
+            ed["competitive_analysis"],
+            effective_sk,
         )
 
     # --- Portfolio analysis (cross-edital, sets ed["strategic_category"]) ---
@@ -8269,20 +9394,26 @@ def compute_all_deterministic(
     if not skip_portfolio_optimization:
         print("  [PORTFOLIO] Otimizando portfólio de participações...")
         capacity = estimate_operational_capacity(empresa, maturity)
-        print(f"    Capacidade: {capacity['max_simultaneous_bids']} simultâneas, "
-              f"valor máx: {_fmt_brl_portfolio(capacity['max_portfolio_value'])}")
+        print(
+            f"    Capacidade: {capacity['max_simultaneous_bids']} simultâneas, "
+            f"valor máx: {_fmt_brl_portfolio(capacity['max_portfolio_value'])}"
+        )
 
         correlation = calculate_portfolio_correlation(editais)
-        print(f"    Diversificação: {correlation['diversification_score']:.2f} "
-              f"({len(correlation['correlated_groups'])} grupos correlacionados, "
-              f"{correlation['n_independent']} independentes)")
+        print(
+            f"    Diversificação: {correlation['diversification_score']:.2f} "
+            f"({len(correlation['correlated_groups'])} grupos correlacionados, "
+            f"{correlation['n_independent']} independentes)"
+        )
 
         part_cost = portfolio.get("participation_cost_per_edital", 3000.0)
         optimal = optimize_portfolio(editais, capacity, correlation, part_cost)
         n_optimal = len(optimal.get("optimal_set", []))
-        print(f"    Set ótimo: {n_optimal} editais, "
-              f"ROI esperado: {_fmt_brl_portfolio(optimal['total_expected_roi'])}, "
-              f"utilização: {optimal['capacity_utilization_pct']:.0f}%")
+        print(
+            f"    Set ótimo: {n_optimal} editais, "
+            f"ROI esperado: {_fmt_brl_portfolio(optimal['total_expected_roi'])}, "
+            f"utilização: {optimal['capacity_utilization_pct']:.0f}%"
+        )
         if optimal.get("capacity_overflow_warning"):
             print(f"    ⚠ {optimal['capacity_overflow_warning']}")
 
@@ -8298,7 +9429,9 @@ def compute_all_deterministic(
     if regional_clusters["clusters"]:
         print(f"  Clusters regionais: {len(regional_clusters['clusters'])} identificados")
         for cl in regional_clusters["clusters"]:
-            print(f"    → {cl['center_municipio']}/{cl['center_uf']}: {cl['n_editais']} editais, raio {cl['radius_km']}km")
+            print(
+                f"    → {cl['center_municipio']}/{cl['center_uf']}: {cl['n_editais']} editais, raio {cl['radius_km']}km"
+            )
 
     # --- Track C: Scenarios, sensitivity analysis, and triggers ---
     enrich_scenarios_and_triggers(editais, sector_key, skip_scenarios=skip_scenarios)
@@ -8332,6 +9465,7 @@ def compute_all_deterministic(
 # STRATEGIC MARKET THESIS (Track A — Big Four Intelligence)
 # ============================================================
 
+
 def collect_market_trend(
     api: ApiClient,
     keywords: list[str],
@@ -8348,13 +9482,13 @@ def collect_market_trend(
     print("\n[THESIS] Coletando tendência de mercado (PNCP volume 6m/12m/24m)")
 
     # Select representative keywords: top 3-5 (most specific first)
-    rep_keywords = keywords[:5] if len(keywords) >= 5 else keywords[:max(1, len(keywords))]
+    rep_keywords = keywords[:5] if len(keywords) >= 5 else keywords[: max(1, len(keywords))]
     # Select top 3 UFs
     rep_ufs = ufs[:3] if len(ufs) >= 3 else ufs
 
     today = _today()
     windows = {
-        "6m":  (_date_compact(today - timedelta(days=180)), _date_compact(today)),
+        "6m": (_date_compact(today - timedelta(days=180)), _date_compact(today)),
         "12m": (_date_compact(today - timedelta(days=365)), _date_compact(today)),
         "24m": (_date_compact(today - timedelta(days=730)), _date_compact(today)),
     }
@@ -8478,7 +9612,9 @@ def collect_price_benchmarks(editais: list[dict]) -> dict:
             continue
 
         # Calculate average award price from competitive intel contracts
-        valores_award = [(_safe_float(c.get("valor")) or 0.0) for c in contracts if (_safe_float(c.get("valor")) or 0.0) > 0]
+        valores_award = [
+            (_safe_float(c.get("valor")) or 0.0) for c in contracts if (_safe_float(c.get("valor")) or 0.0) > 0
+        ]
         if not valores_award:
             continue
 
@@ -8507,15 +9643,17 @@ def collect_price_benchmarks(editais: list[dict]) -> dict:
         else:
             interpretation = "Margens comprimidas"
 
-        insights.append({
-            "edital_idx": idx,
-            "objeto": (ed.get("objeto") or "")[:80],
-            "valor_estimado": valor_est,
-            "avg_award_price": round(avg_award, 2),
-            "discount_pct": round(discount_pct, 1) if discount_pct is not None else None,
-            "n_contracts_base": len(valores_award),
-            "interpretation": interpretation,
-        })
+        insights.append(
+            {
+                "edital_idx": idx,
+                "objeto": (ed.get("objeto") or "")[:80],
+                "valor_estimado": valor_est,
+                "avg_award_price": round(avg_award, 2),
+                "discount_pct": round(discount_pct, 1) if discount_pct is not None else None,
+                "n_contracts_base": len(valores_award),
+                "interpretation": interpretation,
+            }
+        )
         if discount_pct is not None:
             all_discounts.append(discount_pct)
 
@@ -8572,10 +9710,7 @@ def compute_price_benchmark(editais: list[dict]) -> None:
             continue
 
         # Extract valid values
-        valores = [
-            v for c in contracts
-            if (v := _safe_float(c.get("valor"))) is not None and v > 0
-        ]
+        valores = [v for c in contracts if (v := _safe_float(c.get("valor"))) is not None and v > 0]
 
         if len(valores) < 2:
             ed["price_benchmark"] = {
@@ -8656,7 +9791,7 @@ def calculate_market_hhi(dispute_stats: dict) -> dict:
 
     # Calculate HHI from market shares
     shares = [s.get("market_share", 0) for s in recurring]
-    hhi = sum(s ** 2 for s in shares)
+    hhi = sum(s**2 for s in shares)
 
     # The shares from recurring_suppliers may not sum to 1.0 (only suppliers with 3+ contracts).
     # Remaining market share is distributed across small players, which adds minimal HHI.
@@ -8799,6 +9934,7 @@ def assemble_strategic_thesis(
 # SICAF COLLECTION (via collect-sicaf.py subprocess)
 # ============================================================
 
+
 def collect_sicaf(cnpj14: str, verbose: bool = True) -> dict:
     """Collect SICAF data by invoking collect-sicaf.py as a subprocess.
 
@@ -8834,8 +9970,10 @@ def collect_sicaf(cnpj14: str, verbose: bool = True) -> dict:
         cmd = [
             sys.executable,
             str(sicaf_script),
-            "--cnpj", cnpj14,
-            "--output", tmp_path,
+            "--cnpj",
+            cnpj14,
+            "--output",
+            tmp_path,
             "--skip-linhas",
         ]
 
@@ -8873,7 +10011,7 @@ def collect_sicaf(cnpj14: str, verbose: bool = True) -> dict:
                 "_source": _source_tag("API_FAILED", "Output file empty"),
             }
 
-        with open(tmp_path, "r", encoding="utf-8") as f:
+        with open(tmp_path, encoding="utf-8") as f:
             sicaf_data = json.load(f)
 
         if verbose:
@@ -8920,6 +10058,7 @@ def collect_sicaf(cnpj14: str, verbose: bool = True) -> dict:
 # ASSEMBLE FINAL JSON
 # ============================================================
 
+
 def assemble_report_data(
     empresa: dict,
     transparencia: dict,
@@ -8959,18 +10098,21 @@ def assemble_report_data(
     pcp_added_count = sum(1 for ed in all_editais if ed.get("_source_name") == "PCP")
 
     if dedup_stats["semantic_removed"] > 0:
-        print(f"  HARD-001 Semantic dedup: {dedup_stats['semantic_removed']} duplicados semânticos removidos "
-              f"({dedup_stats['candidates_evaluated']} pares avaliados)")
+        print(
+            f"  HARD-001 Semantic dedup: {dedup_stats['semantic_removed']} duplicados semânticos removidos "
+            f"({dedup_stats['candidates_evaluated']} pares avaliados)"
+        )
     if dedup_stats["semantic_warnings"]:
         for w in dedup_stats["semantic_warnings"][:3]:
             print(f"    ⚠ Match zona cinzenta ({w['score']}): '{w['objeto_a'][:50]}...' vs '{w['objeto_b'][:50]}...'")
-
 
     # Update source details with dedup info (HARD-001: includes semantic dedup stats)
     if isinstance(pncp_source, dict):
         old = pncp_source.get("detail", "")
         n_pncp_final = sum(1 for ed in all_editais if ed.get("_source_name") == "PNCP")
-        pncp_source["detail"] = f"{old}, {n_pncp_final} incluídos no relatório" if old else f"{n_pncp_final} editais incluídos"
+        pncp_source["detail"] = (
+            f"{old}, {n_pncp_final} incluídos no relatório" if old else f"{n_pncp_final} editais incluídos"
+        )
     if isinstance(pcp_source, dict):
         old = pcp_source.get("detail", "")
         if editais_pcp:
@@ -8984,9 +10126,7 @@ def assemble_report_data(
             pcp_source["detail"] = "Nenhum edital complementar encontrado"
 
     # Sort by dias_restantes ascending (most urgent first)
-    all_editais.sort(key=lambda e: (
-        e.get("dias_restantes") if e.get("dias_restantes") is not None else 999,
-    ))
+    all_editais.sort(key=lambda e: (e.get("dias_restantes") if e.get("dias_restantes") is not None else 999,))
 
     # Attach distances
     for ed in all_editais:
@@ -9017,7 +10157,9 @@ def assemble_report_data(
                 "querido_diario": qd_source,
                 "sicaf": sicaf.get("_source", {}),
                 "brasilapi": _brasilapi.get("_source", _source_tag("UNAVAILABLE")),
-                "ibge": _source_tag("API", f"{len([d for d in _ibge_data.values() if d.get('populacao')])} municipios") if _ibge_data else _source_tag("UNAVAILABLE", "Skipped"),
+                "ibge": _source_tag("API", f"{len([d for d in _ibge_data.values() if d.get('populacao')])} municipios")
+                if _ibge_data
+                else _source_tag("UNAVAILABLE", "Skipped"),
             },
             "coverage": {
                 "ufs_searched": ufs_meta.get("ufs", list(ufs_meta.get("counts", {}).keys())) if ufs_meta else [],
@@ -9053,7 +10195,9 @@ Examples:
   python scripts/collect-report-data.py --cnpj 12345678000190 --output custom.json --quiet
         """,
     )
-    parser.add_argument("--cnpj", required=False, help="CNPJ da empresa (com ou sem formatação). Obrigatório exceto com --re-enrich.")
+    parser.add_argument(
+        "--cnpj", required=False, help="CNPJ da empresa (com ou sem formatação). Obrigatório exceto com --re-enrich."
+    )
     parser.add_argument("--dias", type=int, default=30, help="Período de busca em dias (default: 30)")
     parser.add_argument("--ufs", default="", help="UFs para filtrar, separadas por vírgula (default: UF da sede)")
     parser.add_argument("--output", help="Caminho do JSON de saída (default: auto)")
@@ -9067,8 +10211,14 @@ Examples:
     parser.add_argument("--skip-thesis", action="store_true", help="Pular análise de tese estratégica de mercado")
     parser.add_argument("--skip-ibge", action="store_true", help="Skip IBGE enrichment")
     parser.add_argument("--skip-brasilapi", action="store_true", help="Skip BrasilAPI query")
-    parser.add_argument("--skip-portfolio-optimization", action="store_true", help="Pular otimização de portfólio (capacity, correlation, optimal set)")
-    parser.add_argument("--skip-scenarios", action="store_true", help="Pular cálculo de cenários, sensibilidade e triggers")
+    parser.add_argument(
+        "--skip-portfolio-optimization",
+        action="store_true",
+        help="Pular otimização de portfólio (capacity, correlation, optimal set)",
+    )
+    parser.add_argument(
+        "--skip-scenarios", action="store_true", help="Pular cálculo de cenários, sensibilidade e triggers"
+    )
     parser.add_argument(
         "--no-datalake",
         action="store_true",
@@ -9079,14 +10229,21 @@ Examples:
             "collect_* esta marcada como TODO(datalake-step5) — extensao em PR futuro."
         ),
     )
-    parser.add_argument("--coverage", action="store_true", help="Habilitar diagnóstico de cobertura PNCP (112 chamadas extras — desativado por padrão)")
-    parser.add_argument("--re-enrich", help=(
-        "Re-enriquecer um JSON existente sem re-coletar APIs. "
-        "Recalcula: risk_score, win_probability, roi_potential, cronograma, "
-        "portfolio, maturity, dispute_stats, regional_clusters, organ_risk, "
-        "qualification_gap, habilitacao_analysis, object_compatibility, risk_analysis. "
-        "Uso: --re-enrich docs/reports/data-XXX.json"
-    ))
+    parser.add_argument(
+        "--coverage",
+        action="store_true",
+        help="Habilitar diagnóstico de cobertura PNCP (112 chamadas extras — desativado por padrão)",
+    )
+    parser.add_argument(
+        "--re-enrich",
+        help=(
+            "Re-enriquecer um JSON existente sem re-coletar APIs. "
+            "Recalcula: risk_score, win_probability, roi_potential, cronograma, "
+            "portfolio, maturity, dispute_stats, regional_clusters, organ_risk, "
+            "qualification_gap, habilitacao_analysis, object_compatibility, risk_analysis. "
+            "Uso: --re-enrich docs/reports/data-XXX.json"
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -9112,12 +10269,12 @@ Examples:
             print(f"ERROR: Arquivo não encontrado: {input_path}")
             sys.exit(1)
 
-        print(f"{'='*60}")
-        print(f"🔄 Re-enriquecimento de JSON existente")
+        print(f"{'=' * 60}")
+        print("🔄 Re-enriquecimento de JSON existente")
         print(f"   Input: {input_path}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             data = json.load(f)
 
         empresa = data.get("empresa", {})
@@ -9150,7 +10307,10 @@ Examples:
         # Run all deterministic computations
         skip_scen = getattr(args, "skip_scenarios", False)
         analysis_results = compute_all_deterministic(
-            editais, empresa, sicaf, sector_key,
+            editais,
+            empresa,
+            sicaf,
+            sector_key,
             sector_keywords=re_keywords,
             skip_scenarios=skip_scen,
         )
@@ -9186,10 +10346,10 @@ Examples:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
         print(f"\n✅ JSON re-enriquecido salvo em: {output_path}")
-        print(f"   Campos atualizados: risk_score, win_probability, roi_potential, portfolio,")
-        print(f"   maturity_profile, dispute_stats, regional_clusters, organ_risk,")
-        print(f"   qualification_gap, habilitacao_analysis, object_compatibility, risk_analysis,")
-        print(f"   scenarios, sensitivity, triggers")
+        print("   Campos atualizados: risk_score, win_probability, roi_potential, portfolio,")
+        print("   maturity_profile, dispute_stats, regional_clusters, organ_risk,")
+        print("   qualification_gap, habilitacao_analysis, object_compatibility, risk_analysis,")
+        print("   scenarios, sensitivity, triggers")
         sys.exit(0)
 
     if not args.cnpj:
@@ -9204,10 +10364,10 @@ Examples:
     verbose = not args.quiet
     api = ApiClient(verbose=verbose)
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"📊 Coleta de Dados B2G — CNPJ {_format_cnpj(cnpj14)}")
     print(f"   Período: {args.dias} dias | Data: {_date_iso(_today())}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # F40: Global timeout for collection pipeline (300s = 5 minutes)
     GLOBAL_TIMEOUT_S = 300
@@ -9233,7 +10393,7 @@ Examples:
         if not env_path.exists():
             env_path = Path(__file__).parent.parent / "backend" / ".env"
         if env_path.exists():
-            with open(env_path, "r") as f:
+            with open(env_path) as f:
                 for line in f:
                     if line.startswith("PORTAL_TRANSPARENCIA_API_KEY"):
                         pt_key = line.split("=", 1)[1].strip().strip("'\"")
@@ -9243,7 +10403,7 @@ Examples:
     # SICAF requires user interaction (captcha), while OpenCNPJ and BrasilAPI are pure API calls.
     # Running them concurrently saves ~2-5s that would otherwise be wasted waiting for captcha.
     print("  [parallel] Collecting SICAF + company profile concurrently...")
-    _skip_brasilapi = hasattr(args, 'skip_brasilapi') and args.skip_brasilapi
+    _skip_brasilapi = hasattr(args, "skip_brasilapi") and args.skip_brasilapi
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as g1_pool:
         future_sicaf = g1_pool.submit(collect_sicaf, cnpj14, verbose)
         future_opencnpj = g1_pool.submit(collect_opencnpj, api, cnpj14)
@@ -9278,12 +10438,11 @@ Examples:
     # Both need CNPJ (available), contratos also needs razao_social from empresa (available now).
     # These two are independent of each other.
     print("  [parallel] Collecting transparency + contract history concurrently...")
-    _razao_social_for_contracts = (empresa.get("razao_social") or empresa.get("nome_fantasia") or "")
+    _razao_social_for_contracts = empresa.get("razao_social") or empresa.get("nome_fantasia") or ""
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as g2_pool:
         future_transparencia = g2_pool.submit(collect_portal_transparencia, api, cnpj14, pt_key)
         future_contratos = g2_pool.submit(
-            collect_pncp_contratos_fornecedor, api, cnpj14,
-            razao_social=_razao_social_for_contracts
+            collect_pncp_contratos_fornecedor, api, cnpj14, razao_social=_razao_social_for_contracts
         )
 
         transparencia = future_transparencia.result()
@@ -9318,6 +10477,7 @@ Examples:
     _merged_total = len(merged_contratos)
     if _merged_total == 0:
         import datetime as _dt2
+
         _cap = _safe_float(empresa.get("capital_social")) or 0.0
         _inicio = empresa.get("data_inicio_atividade", "") or ""
         _anos = 0
@@ -9329,26 +10489,27 @@ Examples:
                 _anos = 0
         if _cap > 100_000 and _anos >= 5:
             print(
-                f"  ⚠ Empresa com capital > R$100K e fundação > 5 anos mas "
-                f"0 contratos encontrados — histórico pode estar incompleto"
+                "  ⚠ Empresa com capital > R$100K e fundação > 5 anos mas "
+                "0 contratos encontrados — histórico pode estar incompleto"
             )
             # Mark metadata so downstream report can flag this
             transparencia["_contract_search_exhaustive"] = False
             transparencia["historico_source"] = _source_tag(
                 "INCONCLUSIVE",
-                "0 contratos encontrados após 4 estratégias "
-                f"(capital R${_cap:,.0f}, {_anos} anos de operação)",
+                f"0 contratos encontrados após 4 estratégias (capital R${_cap:,.0f}, {_anos} anos de operação)",
             )
     n_merged = len(merged_contratos)
     transparencia["historico_source"] = _source_tag(
         "API",
-        f"{n_merged} contrato(s): {n_pncp} via PNCP (todas as esferas) + {n_pt} via Portal da Transparência (federal)"
+        f"{n_merged} contrato(s): {n_pncp} via PNCP (todas as esferas) + {n_pt} via Portal da Transparência (federal)",
     )
     print(f"  Histórico consolidado: {n_merged} contratos ({n_pncp} PNCP + {n_pt} PT)")
 
     # F39: Filter cancelled contracts before clustering (keep all for risk flags)
     EXCLUDED_CONTRACT_STATUSES = {"CANCELADO", "RESCINDIDO", "ANULADO"}
-    active_contracts = [c for c in merged_contratos if c.get("situacao_contrato", "").upper() not in EXCLUDED_CONTRACT_STATUSES]
+    active_contracts = [
+        c for c in merged_contratos if c.get("situacao_contrato", "").upper() not in EXCLUDED_CONTRACT_STATUSES
+    ]
     n_excluded_contracts = len(merged_contratos) - len(active_contracts)
     if n_excluded_contracts > 0:
         print(f"  F39: {n_excluded_contracts} contratos cancelados/rescindidos filtrados para clustering")
@@ -9360,12 +10521,15 @@ Examples:
         print(f"  Clusters de atividade ({len(contract_clusters)}): {', '.join(labels)}")
         # Flatten keywords for backward-compatible search
         contract_keywords = extract_keywords_from_contracts(active_contracts)
-        print(f"  Keywords extraídas dos clusters ({len(contract_keywords)}): {', '.join(contract_keywords[:10])}{'...' if len(contract_keywords) > 10 else ''}")
+        print(
+            f"  Keywords extraídas dos clusters ({len(contract_keywords)}): {', '.join(contract_keywords[:10])}{'...' if len(contract_keywords) > 10 else ''}"
+        )
         # Build company nature profile from classified contracts (F39: uses active only)
         company_nature_profile = build_company_nature_profile(contract_clusters, active_contracts)
         if company_nature_profile:
-            accepted = [f"{k}({v:.0f}%)" for k, v in company_nature_profile.items()
-                        if v >= NATURE_ACCEPTANCE_THRESHOLD_PCT]
+            accepted = [
+                f"{k}({v:.0f}%)" for k, v in company_nature_profile.items() if v >= NATURE_ACCEPTANCE_THRESHOLD_PCT
+            ]
             print(f"  Perfil de natureza: {', '.join(f'{k}({v:.0f}%)' for k, v in company_nature_profile.items())}")
             print(f"  Naturezas aceitas (≥{NATURE_ACCEPTANCE_THRESHOLD_PCT:.0f}%): {', '.join(accepted) or 'TODAS'}")
     else:
@@ -9391,7 +10555,9 @@ Examples:
                 contract_keywords.append(kw)
                 existing_lower.add(kw.lower())
         keywords = contract_keywords
-        print(f"  Keywords finais ({len(keywords)} = {len(contract_keywords) - len(cnae_keywords) + len([k for k in cnae_keywords if k.lower() in existing_lower])} histórico + CNAE complementar): {', '.join(keywords[:10])}...")
+        print(
+            f"  Keywords finais ({len(keywords)} = {len(contract_keywords) - len(cnae_keywords) + len([k for k in cnae_keywords if k.lower() in existing_lower])} histórico + CNAE complementar): {', '.join(keywords[:10])}..."
+        )
     else:
         keywords = cnae_keywords
         print(f"  Keywords finais: CNAE apenas ({len(keywords)} termos)")
@@ -9415,8 +10581,10 @@ Examples:
                     existing_lower.add(extra.lower())
                     added.append(extra)
             _cnae_refinement_applied = cnae_prefix
-            print(f"  CNAE refinement ({cnae_prefix}): {original_count} → {len(keywords)} keywords "
-                  f"(-{excluded_count} excluídas, +{len(added)} adicionadas)")
+            print(
+                f"  CNAE refinement ({cnae_prefix}): {original_count} → {len(keywords)} keywords "
+                f"(-{excluded_count} excluídas, +{len(added)} adicionadas)"
+            )
             if exclude_set:
                 print(f"  Excluídas: {', '.join(sorted(exclude_set)[:5])}{'...' if len(exclude_set) > 5 else ''}")
             if added:
@@ -9445,7 +10613,7 @@ Examples:
     else:
         print(f"  \U0001f4cd Cobertura geográfica: {len(ufs)} UF(s) — {', '.join(ufs)}")
         if len(ufs) > 5:
-            print(f"     (>5 UFs: busca nacional com filtro client-side — considerar --ufs para focar)")
+            print("     (>5 UFs: busca nacional com filtro client-side — considerar --ufs para focar)")
 
     # F40: Check global timeout before expensive phases
     if _TIMEOUT_REACHED:
@@ -9460,7 +10628,11 @@ Examples:
     # ---- GAP-G Group 3: Edital Search — PNCP + PCP + Querido Diário in parallel ----
     # All three sources need keywords + UFs (available now) and are independent of each other.
     # If company has multiple activity clusters, use per-cluster search for PNCP.
-    cluster_searches = extract_keywords_per_cluster(active_contracts, nature_profile=company_nature_profile) if active_contracts else []
+    cluster_searches = (
+        extract_keywords_per_cluster(active_contracts, nature_profile=company_nature_profile)
+        if active_contracts
+        else []
+    )
 
     if not _TIMEOUT_REACHED:
         print("  [parallel] Collecting edital sources concurrently...")
@@ -9472,14 +10644,16 @@ Examples:
             if len(cluster_searches) >= 2:
                 print(f"\n[SEARCH] Empresa diversificada — {len(cluster_searches)} clusters de atividade")
                 for cs in cluster_searches:
-                    print(f"  \u2022 {cs['label']} ({cs['share_pct']:.0f}%) — {len(cs['keywords'])} keywords, modalidades {cs['modalidades']}")
-                return collect_pncp_multi_cluster(api, cluster_searches, ufs, args.dias,
-                                                  nature_profile=company_nature_profile,
-                                                  sector_key=sector_key)
+                    print(
+                        f"  \u2022 {cs['label']} ({cs['share_pct']:.0f}%) — {len(cs['keywords'])} keywords, modalidades {cs['modalidades']}"
+                    )
+                return collect_pncp_multi_cluster(
+                    api, cluster_searches, ufs, args.dias, nature_profile=company_nature_profile, sector_key=sector_key
+                )
             else:
-                return collect_pncp(api, keywords, ufs, args.dias,
-                                    nature_profile=company_nature_profile,
-                                    sector_key=sector_key)
+                return collect_pncp(
+                    api, keywords, ufs, args.dias, nature_profile=company_nature_profile, sector_key=sector_key
+                )
 
         def _g3_collect_pcp():
             if args.skip_pcp:
@@ -9505,8 +10679,6 @@ Examples:
             editais_pcp, pcp_source = future_pcp.result()
             qd_mencoes, qd_source = future_qd.result()
 
-
-
     # ---- Filter: remove expired editais BEFORE expensive API calls ----
     all_editais = editais_pncp + editais_pcp
     before_filter = len(all_editais)
@@ -9518,12 +10690,26 @@ Examples:
     # Also remove PRAZO_INDEFINIDO unless it's a credenciamento/chamada publica (continuous opportunities)
     _PRAZO_INDEF_ALLOWED = {"Credenciamento", "Chamada Pública", "Chamada Publica"}
     before_indef = len(all_editais)
-    all_editais = [e for e in all_editais if e.get("status_edital") != "PRAZO_INDEFINIDO" or e.get("modalidade", "") in _PRAZO_INDEF_ALLOWED]
-    editais_pncp = [e for e in editais_pncp if e.get("status_edital") != "PRAZO_INDEFINIDO" or e.get("modalidade", "") in _PRAZO_INDEF_ALLOWED]
-    editais_pcp = [e for e in editais_pcp if e.get("status_edital") != "PRAZO_INDEFINIDO" or e.get("modalidade", "") in _PRAZO_INDEF_ALLOWED]
+    all_editais = [
+        e
+        for e in all_editais
+        if e.get("status_edital") != "PRAZO_INDEFINIDO" or e.get("modalidade", "") in _PRAZO_INDEF_ALLOWED
+    ]
+    editais_pncp = [
+        e
+        for e in editais_pncp
+        if e.get("status_edital") != "PRAZO_INDEFINIDO" or e.get("modalidade", "") in _PRAZO_INDEF_ALLOWED
+    ]
+    editais_pcp = [
+        e
+        for e in editais_pcp
+        if e.get("status_edital") != "PRAZO_INDEFINIDO" or e.get("modalidade", "") in _PRAZO_INDEF_ALLOWED
+    ]
     dropped_indef = before_indef - len(all_editais)
 
-    print(f"\n  ⚡ Removidos {dropped} encerrados + {dropped_indef} sem prazo definido (restam {len(all_editais)} abertos)")
+    print(
+        f"\n  ⚡ Removidos {dropped} encerrados + {dropped_indef} sem prazo definido (restam {len(all_editais)} abertos)"
+    )
 
     # Defense in depth: remove non-competitive modalidades regardless of how they entered
     # Derived from MODALIDADES_EXCLUIDAS so changes to excluded set are automatically reflected
@@ -9617,7 +10803,9 @@ Examples:
 
                 # Step 3: Batch OSRM Table API
                 if dest_coords:
-                    print(f"  → OSRM Table API: {len(dest_coords)} rotas em {(len(dest_coords) - 1) // OSRM_TABLE_BATCH_SIZE + 1} batch(es)")
+                    print(
+                        f"  → OSRM Table API: {len(dest_coords)} rotas em {(len(dest_coords) - 1) // OSRM_TABLE_BATCH_SIZE + 1} batch(es)"
+                    )
                     batch_results = _calculate_distances_table(api, origin_coords, dest_coords)
 
                     # Merge results + update persistent cache
@@ -9637,7 +10825,7 @@ Examples:
                 _save_json_cache(DISTANCE_CACHE_FILE, dist_cache)
                 print(f"  ✓ Caches persistidos ({len(_geocode_disk_load())} geocodes, {len(dist_cache)} distâncias)")
             else:
-                print(f"  ⚠ Geocode da sede falhou — pulando distâncias")
+                print("  ⚠ Geocode da sede falhou — pulando distâncias")
         else:
             print(f"  ✓ Todas as {cached_count} distâncias servidas do cache")
 
@@ -9648,7 +10836,7 @@ Examples:
         if getattr(args, "skip_ibge", False):
             return
         nonlocal ibge_data
-        print(f"\n  IBGE — Enriquecendo municipios")
+        print("\n  IBGE — Enriquecendo municipios")
         municipios_unicos: set = set()
         for ed in all_editais:
             mun = ed.get("municipio", "")
@@ -9713,7 +10901,7 @@ Examples:
     # and merged into transparencia["historico_contratos"]. No need to repeat here.
 
     # ---- Assemble ----
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("📦 Montando JSON final")
 
     data = assemble_report_data(
@@ -9737,9 +10925,7 @@ Examples:
     # AC4: contract_search_exhaustive — distinguishes "no contracts found" from "search failed"
     _pncp_contratos_status = (pncp_contratos_source or {}).get("status", "MISSING")
     _all_strategies_succeeded = _pncp_contratos_status != "API_FAILED"
-    data["_metadata"]["contract_search_exhaustive"] = (
-        len(merged_contratos) > 0 or _all_strategies_succeeded
-    )
+    data["_metadata"]["contract_search_exhaustive"] = len(merged_contratos) > 0 or _all_strategies_succeeded
 
     # ---- HARD-003: Acervo 3-Tier Classification (before deterministic scoring) ----
     classify_acervo_similarity(merged_contratos, data["editais"])
@@ -9750,7 +10936,10 @@ Examples:
     skip_opt = getattr(args, "skip_portfolio_optimization", False)
     skip_scen = getattr(args, "skip_scenarios", False)
     analysis_results = compute_all_deterministic(
-        data["editais"], data["empresa"], sicaf, sector_key,
+        data["editais"],
+        data["empresa"],
+        sicaf,
+        sector_key,
         sector_keywords=keywords,
         skip_portfolio_optimization=skip_opt,
         skip_scenarios=skip_scen,
@@ -9781,7 +10970,7 @@ Examples:
 
     # ---- Strategic Market Thesis ----
     if not args.skip_thesis:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("[THESIS] Analisando posicionamento estratégico...")
 
         # 1. Market trend (PNCP volume analysis)
@@ -9813,7 +11002,11 @@ Examples:
     if getattr(args, "coverage", False):
         print("\n📊 Diagnóstico de cobertura")
         data["coverage_diagnostic"] = compute_coverage_diagnostic(
-            api, data["editais"], keywords, ufs, sector_key,
+            api,
+            data["editais"],
+            keywords,
+            ufs,
+            sector_key,
         )
         cov = data["coverage_diagnostic"]
         if cov.get("coverage_rate") is not None:

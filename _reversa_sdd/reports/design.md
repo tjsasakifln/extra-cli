@@ -1,29 +1,11 @@
-# Design — Módulo `reports`
+# Reports — Design
 
-> 🟢 CONFIRMADO — `panorama.py`, `coverage_gaps.py`
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo
 
-## Panorama de Mercado
+**Arquitetura:** PostgreSQL views → fetch → ReportLab PDF / openpyxl Excel → data/output/
 
-```
-panorama.py
-  ├── section_volume(conn, uf, dias) → volume + valor por modalidade
-  ├── section_municipios(conn, uf, dias, limit=20) → top municípios
-  ├── section_sazonalidade(conn, uf, dias) → heatmap mensal
-  ├── section_concorrencia(conn, uf, dias) → top fornecedores
-  ├── section_setores(conn, uf, dias) → breakdown por setor
-  └── Output:
-      ├── Terminal: Rich table (ASCII)
-      ├── Excel: openpyxl (estilizado, múltiplas abas)
-      └── PDF: ReportLab (opcional, --output-pdf)
-```
+**Section Builder Pattern (B2G):** cada seção = função independente → `_build_cover()`, `_build_executive_summary()`, ... → `story.extend()` → `doc.build()`
 
-## Coverage Reports
+**Semantic Dedup:** Pass1: composite key exact → Pass2: Jaccard pairwise (UF-scoped). ≥0.85=remove, 0.75-0.85=warn, <0.75=keep.
 
-```
-coverage_gaps.py → Query uncovered entities → Agrupar por município/natureza → CSV
-coverage_weekly.py → Query 7-day window → Comparar semana anterior → PDF
-```
-
-## Padrão de Query
-
-Todas as queries usam parâmetros `%s` do psycopg2 (sem string interpolation). Conexão obtida via `psycopg2.connect(DSN)` com DSN do ambiente.
+🟢 CONFIRMADO — Todos os 6 relatórios verificados.

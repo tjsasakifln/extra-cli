@@ -15,6 +15,7 @@ Usage:
     profile = build_victory_profile(contracts, company_capital)
     fit = score_edital_fit(edital, profile)  # 0.0 - 1.0
 """
+
 from __future__ import annotations
 
 import math
@@ -22,7 +23,6 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
-
 
 # ============================================================
 # DATA STRUCTURES
@@ -72,10 +72,10 @@ class VictoryProfile:
 # ============================================================
 
 POP_BRACKETS = [
-    (5_000, "micro"),        # < 5k hab
-    (20_000, "pequeno"),     # 5k-20k
-    (100_000, "medio"),      # 20k-100k
-    (500_000, "grande"),     # 100k-500k
+    (5_000, "micro"),  # < 5k hab
+    (20_000, "pequeno"),  # 5k-20k
+    (100_000, "medio"),  # 20k-100k
+    (500_000, "grande"),  # 100k-500k
     (float("inf"), "metropole"),  # > 500k
 ]
 
@@ -94,11 +94,49 @@ def _pop_bracket(pop: float | None) -> str:
 # ============================================================
 
 _STOP_WORDS = {
-    "de", "da", "do", "das", "dos", "para", "com", "por", "em", "no",
-    "na", "nos", "nas", "ao", "aos", "um", "uma", "uns", "umas", "se",
-    "ou", "que", "e", "a", "o", "as", "os", "ser", "ter", "esta",
-    "este", "essa", "esse", "seu", "sua", "contratacao", "empresa",
-    "servico", "servicos", "objeto", "licitacao", "pregao", "edital",
+    "de",
+    "da",
+    "do",
+    "das",
+    "dos",
+    "para",
+    "com",
+    "por",
+    "em",
+    "no",
+    "na",
+    "nos",
+    "nas",
+    "ao",
+    "aos",
+    "um",
+    "uma",
+    "uns",
+    "umas",
+    "se",
+    "ou",
+    "que",
+    "e",
+    "a",
+    "o",
+    "as",
+    "os",
+    "ser",
+    "ter",
+    "esta",
+    "este",
+    "essa",
+    "esse",
+    "seu",
+    "sua",
+    "contratacao",
+    "empresa",
+    "servico",
+    "servicos",
+    "objeto",
+    "licitacao",
+    "pregao",
+    "edital",
 }
 
 
@@ -138,19 +176,14 @@ def build_victory_profile(
         return profile
 
     # --- Value statistics ---
-    valores = [
-        float(c.get("valor_contrato") or c.get("valor_estimado") or 0)
-        for c in contracts
-    ]
+    valores = [float(c.get("valor_contrato") or c.get("valor_estimado") or 0) for c in contracts]
     valores = [v for v in valores if v > 0]
 
     if valores:
         valores.sort()
         n = len(valores)
         profile.valor_mean = sum(valores) / n
-        profile.valor_std = (
-            sum((v - profile.valor_mean) ** 2 for v in valores) / n
-        ) ** 0.5
+        profile.valor_std = (sum((v - profile.valor_mean) ** 2 for v in valores) / n) ** 0.5
         profile.valor_min = valores[0]
         profile.valor_max = valores[-1]
         profile.valor_q25 = valores[max(0, n // 4)]
@@ -163,9 +196,7 @@ def build_victory_profile(
         if mod is not None:
             mod_counts[int(mod)] += 1
     total_mod = sum(mod_counts.values()) or 1
-    profile.modalidade_weights = {
-        m: count / total_mod for m, count in mod_counts.items()
-    }
+    profile.modalidade_weights = {m: count / total_mod for m, count in mod_counts.items()}
 
     # --- Population bracket preferences ---
     pop_counts: Counter[str] = Counter()
@@ -175,9 +206,7 @@ def build_victory_profile(
         if bracket != "desconhecido":
             pop_counts[bracket] += 1
     total_pop = sum(pop_counts.values()) or 1
-    profile.pop_bracket_weights = {
-        b: count / total_pop for b, count in pop_counts.items()
-    }
+    profile.pop_bracket_weights = {b: count / total_pop for b, count in pop_counts.items()}
 
     # --- Keyword clusters ---
     kw_counts: Counter[str] = Counter()
@@ -194,10 +223,7 @@ def build_victory_profile(
     }
 
     # --- Distance preferences ---
-    dists = [
-        float(c.get("distancia_km") or c.get("distancia", {}).get("km") or 0)
-        for c in contracts
-    ]
+    dists = [float(c.get("distancia_km") or c.get("distancia", {}).get("km") or 0) for c in contracts]
     dists = [d for d in dists if d > 0]
     if dists:
         profile.dist_mean_km = sum(dists) / len(dists)
@@ -210,9 +236,7 @@ def build_victory_profile(
         if uf:
             uf_counts[uf] += 1
     total_uf = sum(uf_counts.values()) or 1
-    profile.uf_weights = {
-        uf: count / total_uf for uf, count in uf_counts.items()
-    }
+    profile.uf_weights = {uf: count / total_uf for uf, count in uf_counts.items()}
 
     profile.total_contracts = len(contracts)
     return profile
@@ -223,10 +247,10 @@ def build_victory_profile(
 # ============================================================
 
 # Component weights (sum = 1.0)
-W_VALUE = 0.30       # Value range fit
-W_KEYWORD = 0.25     # Keyword similarity
+W_VALUE = 0.30  # Value range fit
+W_KEYWORD = 0.25  # Keyword similarity
 W_MODALIDADE = 0.15  # Modalidade preference
-W_GEOGRAPHY = 0.15   # UF + distance
+W_GEOGRAPHY = 0.15  # UF + distance
 W_POPULATION = 0.15  # Municipality size
 
 
@@ -351,11 +375,7 @@ def score_edital_fit(edital: dict[str, Any], profile: VictoryProfile) -> float:
     s_pop = _score_population_fit(populacao, profile)
 
     weighted = (
-        W_VALUE * s_value
-        + W_KEYWORD * s_keyword
-        + W_MODALIDADE * s_mod
-        + W_GEOGRAPHY * s_geo
-        + W_POPULATION * s_pop
+        W_VALUE * s_value + W_KEYWORD * s_keyword + W_MODALIDADE * s_mod + W_GEOGRAPHY * s_geo + W_POPULATION * s_pop
     )
 
     return round(min(1.0, max(0.0, weighted)), 4)

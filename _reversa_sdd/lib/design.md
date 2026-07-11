@@ -1,47 +1,56 @@
-# Design — Módulo `lib`
+# Lib — Design
 
-> 🟢 CONFIRMADO
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo
 
-## Name Normalizer (7-step)
-
+## Name Normalizer Pipeline
 ```
-normalize_name(name, expand_abbreviations=True, remove_irrelevant=False)
-  1. NFKD normalize → ASCII
-  2. UPPERCASE
-  3. re.sub(r'[^\w\s]', ' ', name)  # remove pontuação
-  4. re.sub(r'\b\d{8,14}\b', '', name)  # remove CNPJ
-  5. ' '.join(name.split())  # collapse whitespace
-  6. (opcional) expand abbreviations (SEC→SECRETARIA, MUN→MUNICIPIO...)
-  7. (opcional) remove irrelevant terms (CNPJ, CPF, END, TELEFONE...)
+normalize_name(name) → NFKD → upper → strip_punct → strip_cnpj → collapse_ws → expand_abbrev → return
 ```
+18 abbreviations (word-boundary regex, sorted by length descending). Abbrev dictionary merge: built-in + YAML file.
 
 ## Bid Simulator
+```python
+@dataclass
+class BidSimulation:
+    lance_sugerido: float; desconto_sugerido_pct: float
+    p_vitoria_pct: float; margem_liquida_pct: float; valor_esperado: float
+    lance_agressivo: float; lance_conservador: float
+    competidores_esperados: int; historico_contratos: int
+    confianca: str  # ALTA|MEDIA|BAIXA|INSUFICIENTE
+    racional: str
+```
+6 sector profiles (engenharia 25% BDI, TI 30%, consultoria 35%, etc.)
 
+## Cost Estimator
+```python
+@dataclass
+class CostParams:
+    custo_km=0.80; diaria_hospedagem_capital=280; diaria_hospedagem_interior=180
+    per_diem_alimentacao=80; custo_hora_tecnico=150; horas_sessao=4.0
+    limiar_hospedagem_km=200; limiar_duas_diarias_km=500
+    pedagio_por_faixa: dict[int,float]  # 5 tiers
 ```
-simulate_bid(edital, competitive_intel, benchmark, sector) → BidSimulation
-  1. Load sector margins (margem_minima, margem_alvo, bdi_referencia)
-  2. Calculate HHI from competitive_intel → expected_competitors
-  3. Load historical discount distribution from benchmark
-  4. For discount in 0..30%:
-     a. P(win) = f(discount, expected_competitors, historical_distribution)
-     b. margin = (1 - discount) - sector_cost
-     c. EV = P(win) × margin × valor_estimado
-  5. Select discount with max EV → lance_sugerido
-  6. Calculate aggressive (P(win) >= 50%) and conservative (margin >= target)
-```
+Electronic: min R$600. Site visit: +R$2/km if >200km.
 
 ## Victory Profile
-
+```python
+@dataclass
+class VictoryProfile:
+    valor_mean, valor_std, valor_q25, valor_q75, valor_min, valor_max
+    modalidade_weights: dict[int, float]; pop_bracket_weights: dict[str, float]
+    keyword_freq: dict[str, float]; dist_mean_km, dist_max_km
+    uf_weights: dict[str, float]; total_contracts, period_months, company_capital
 ```
-build_victory_profile(contracts, company_capital) → VictoryProfile
-  - Valores → mean, std, q25, q75, min, max
-  - Modalidades → Counter → normalize to 0-1
-  - Municípios → map to POP_BRACKETS → normalize
-  - Objetos → extract keywords → frequency
-  - Distâncias → mean_km, max_km
-  - UFs → Counter → normalize
+Fit score: weighted 5-dimension (30/25/15/15/15). Requires ≥3 historical contracts.
 
-score_edital_fit(edital, profile) → float (0.0-1.0)
-  - value_fit × modalidade_fit × geo_fit × keyword_fit
-  - Ponderado pelos pesos do setor
+## Doc Templates
+```python
+class DocType(Enum): EDITAL, TERMO_REFERENCIA, PLANILHA, UNKNOWN
+@dataclass
+class StructuredExtraction:
+    doc_type: DocType; fields: dict[str, ExtractedField]
+    total_fields: int; found_fields: int; completeness_pct: float
 ```
+13 fields (edital), 6 (termo), 4 (planilha). Confidence decay: 1.0→0.85→0.7→... floor 0.3.
+
+🟢 CONFIRMADO — Todos os 11 módulos verificados.

@@ -17,15 +17,15 @@ Design: Big Four / Management Consulting aesthetic (idêntico ao intel-report.py
 Usage:
     python scripts/generate-consultoria-pdf.py --input data.json --output proposta.pdf
 """
+
 from __future__ import annotations
 
 import argparse
 import json
 import re
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
 
 # Ensure scripts/ is on sys.path for lib imports
 _scripts_dir = str(Path(__file__).resolve().parent)
@@ -267,6 +267,7 @@ def restore_accents(text: str) -> str:
 # FORMAT HELPERS
 # ============================================================
 
+
 def _fmt_brl(value: float | None) -> str:
     if value is None:
         return "Não informado"
@@ -276,7 +277,7 @@ def _fmt_brl(value: float | None) -> str:
         return "Não informado"
     if v == 0:
         return "R$ 0,00"
-    return "R$ {:,.2f}".format(v).replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 def _fmt_brl_short(value: float | None) -> str:
@@ -287,9 +288,9 @@ def _fmt_brl_short(value: float | None) -> str:
     except (ValueError, TypeError):
         return "Não informado"
     if v >= 1_000_000:
-        return "R$ {:,.1f}M".format(v / 1_000_000).replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"R$ {v / 1_000_000:,.1f}M".replace(",", "X").replace(".", ",").replace("X", ".")
     if v >= 1_000:
-        return "R$ {:,.0f}K".format(v / 1_000).replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"R$ {v / 1_000:,.0f}K".replace(",", "X").replace(".", ",").replace("X", ".")
     return _fmt_brl(v)
 
 
@@ -315,17 +316,63 @@ def _detect_gender(name: str) -> str:
         return "Sr."
     first = name.strip().split()[0].lower()
     female_names = {
-        "angela", "ana", "maria", "mariana", "juliana", "fernanda", "amanda",
-        "patricia", "luciana", "adriana", "cristiane", "rosane", "eliane",
-        "simone", "viviane", "aline", "caroline", "michele", "vanessa",
-        "larissa", "beatriz", "roberta", "denise", "raquel", "claudia",
-        "silvia", "sandra", "carla", "paula", "lucia", "renata", "camila",
-        "leticia", "gabriela", "daniela", "rafaela", "isabela", "priscila",
-        "tatiana", "fabiana", "luana", "bruna", "natalia",
+        "angela",
+        "ana",
+        "maria",
+        "mariana",
+        "juliana",
+        "fernanda",
+        "amanda",
+        "patricia",
+        "luciana",
+        "adriana",
+        "cristiane",
+        "rosane",
+        "eliane",
+        "simone",
+        "viviane",
+        "aline",
+        "caroline",
+        "michele",
+        "vanessa",
+        "larissa",
+        "beatriz",
+        "roberta",
+        "denise",
+        "raquel",
+        "claudia",
+        "silvia",
+        "sandra",
+        "carla",
+        "paula",
+        "lucia",
+        "renata",
+        "camila",
+        "leticia",
+        "gabriela",
+        "daniela",
+        "rafaela",
+        "isabela",
+        "priscila",
+        "tatiana",
+        "fabiana",
+        "luana",
+        "bruna",
+        "natalia",
     }
     male_names = {
-        "andre", "alexandre", "felipe", "henrique", "jose", "dante",
-        "jorge", "duarte", "vicente", "jaime", "juliano", "rogerio",
+        "andre",
+        "alexandre",
+        "felipe",
+        "henrique",
+        "jose",
+        "dante",
+        "jorge",
+        "duarte",
+        "vicente",
+        "jaime",
+        "juliano",
+        "rogerio",
     }
     if first in male_names:
         return "Sr."
@@ -334,6 +381,7 @@ def _detect_gender(name: str) -> str:
     if first.endswith("a") or first.endswith("e"):
         return "Sra."
     return "Sr."
+
 
 # ============================================================
 # EMBEDDED CONTENT, Proposta de Consultoria (from dossiê)
@@ -352,7 +400,10 @@ SERVICES = [
         ),
         "scope_items": [
             ("Região de análise", "Definida pelo cliente (municípios, região metropolitana ou estado)"),
-            ("Órgãos-alvo", "Prefeituras, autarquias estaduais, fundações e empresas públicas com perfil de compra relevante"),
+            (
+                "Órgãos-alvo",
+                "Prefeituras, autarquias estaduais, fundações e empresas públicas com perfil de compra relevante",
+            ),
             ("Tipos de contratação", "Obras, serviços de engenharia ou fornecimentos do setor de atuação"),
             ("Faixa de valor", "Definida conforme o porte da empresa e seu histórico de contratações"),
             ("Período analisado", "3 anos de dados históricos"),
@@ -640,10 +691,8 @@ CREDENTIALS_BODY = [
     "Atua no setor público desde 2019, com experiência direta em fiscalização de "
     "contratos, convênios, obras públicas, documentação técnica, análise administrativa "
     "e processos relacionados à contratação pública.",
-
     "No setor privado, possui experiência anterior em engenharia civil e manutenção "
     "industrial, incluindo atuação na Gerdau e na Engecorps.",
-
     "É fundador e engenheiro de produto da GoVision.AI, desenvolvendo sistemas de IA "
     "aplicada, automação, RAG, fluxos documentais e produtos GovTech, entre eles o "
     "Plataforma de inteligência sobre dados públicos de licitações e contratos.",
@@ -662,50 +711,32 @@ CREDENTIALS_WHY = (
 GOVERNANCE_ITEMS = [
     "A consultoria não oferece influência institucional, intermediação indevida, "
     "favorecimento ou acesso privilegiado a agentes públicos ou processos decisórios.",
-
     "A análise se baseia exclusivamente em dados públicos, informações fornecidas "
     "pelo cliente e metodologia própria de inteligência comercial.",
-
     "Não há promessa de vitória em licitações ou de interferência em decisões públicas.",
-
     "O trabalho respeita integralmente a legislação, a impessoalidade, a moralidade "
     "administrativa e as regras de integridade aplicáveis.",
-
     "Quando houver potencial conflito de interesse, real ou aparente, o caso será "
     "recusado ou limitado exclusivamente a análise genérica de dados públicos.",
-
     "A atuação pública do responsável é credencial técnica, não canal de influência.",
 ]
 
 ENTREGA_CONSULTORIA = [
-    "Informação estruturada para decisão, dados consolidados, análises cruzadas e "
-    "recomendações fundamentadas.",
-
+    "Informação estruturada para decisão, dados consolidados, análises cruzadas e recomendações fundamentadas.",
     "Redução de assimetria informacional, a empresa passa a enxergar o mercado público "
     "com clareza comparável ou superior à de concorrentes maiores.",
-
     "Priorização objetiva de oportunidades, critérios baseados em dados substituem feeling.",
-
     "Identificação de padrões e riscos, comportamentos de órgãos e concorrentes que são "
     "invisíveis sem dados históricos.",
-
-    "Economia de tempo, a equipe para de garimpar portais e passa a analisar oportunidades "
-    "pré-qualificadas.",
+    "Economia de tempo, a equipe para de garimpar portais e passa a analisar oportunidades pré-qualificadas.",
 ]
 
 NAO_PROMETE = [
-    "Vitória garantida em licitações, nenhuma análise elimina a natureza competitiva do "
-    "processo licitatório.",
-
-    "Eliminação total de risco, a inteligência reduz, não elimina, a probabilidade de "
-    "decisões ruins.",
-
+    "Vitória garantida em licitações, nenhuma análise elimina a natureza competitiva do processo licitatório.",
+    "Eliminação total de risco, a inteligência reduz, não elimina, a probabilidade de decisões ruins.",
     "Substituição de análise jurídica, contábil ou técnica, a consultoria complementa, "
     "não substitui, advogados, contadores e engenheiros orçamentistas.",
-
-    "Acesso a informações não públicas, todos os dados vêm de fontes oficiais de "
-    "transparência.",
-
+    "Acesso a informações não públicas, todos os dados vêm de fontes oficiais de transparência.",
     "Previsões infalíveis, projeções baseadas em dados históricos podem ser afetadas "
     "por mudanças regulatórias, crises fiscais e decisões políticas.",
 ]
@@ -714,101 +745,174 @@ NAO_PROMETE = [
 # STYLES
 # ============================================================
 
+
 def _build_styles():
     """Build ParagraphStyle map, Big Four aesthetic (serif, left-aligned)."""
     base = getSampleStyleSheet()
     styles = {}
 
     styles["cover_title"] = ParagraphStyle(
-        "cover_title", parent=base["Title"],
-        fontName="Times-Bold", fontSize=26, leading=32,
-        textColor=INK, alignment=TA_LEFT, spaceAfter=5 * mm,
+        "cover_title",
+        parent=base["Title"],
+        fontName="Times-Bold",
+        fontSize=26,
+        leading=32,
+        textColor=INK,
+        alignment=TA_LEFT,
+        spaceAfter=5 * mm,
     )
     styles["cover_subtitle"] = ParagraphStyle(
-        "cover_subtitle", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=14, leading=18,
-        textColor=TEXT_SECONDARY, alignment=TA_LEFT, spaceAfter=4 * mm,
+        "cover_subtitle",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=14,
+        leading=18,
+        textColor=TEXT_SECONDARY,
+        alignment=TA_LEFT,
+        spaceAfter=4 * mm,
     )
     styles["h1"] = ParagraphStyle(
-        "h1", parent=base["Heading1"],
-        fontName="Times-Bold", fontSize=14, leading=18,
-        textColor=INK, spaceBefore=8 * mm, spaceAfter=4 * mm,
+        "h1",
+        parent=base["Heading1"],
+        fontName="Times-Bold",
+        fontSize=14,
+        leading=18,
+        textColor=INK,
+        spaceBefore=8 * mm,
+        spaceAfter=4 * mm,
         keepWithNext=1,
     )
     styles["h2"] = ParagraphStyle(
-        "h2", parent=base["Heading2"],
-        fontName="Times-Bold", fontSize=11, leading=14,
-        textColor=INK, spaceBefore=5 * mm, spaceAfter=3 * mm,
+        "h2",
+        parent=base["Heading2"],
+        fontName="Times-Bold",
+        fontSize=11,
+        leading=14,
+        textColor=INK,
+        spaceBefore=5 * mm,
+        spaceAfter=3 * mm,
         keepWithNext=1,
     )
     styles["h3"] = ParagraphStyle(
-        "h3", parent=base["Heading3"],
-        fontName="Times-Bold", fontSize=10, leading=13,
-        textColor=TEXT_COLOR, spaceBefore=3 * mm, spaceAfter=2 * mm,
+        "h3",
+        parent=base["Heading3"],
+        fontName="Times-Bold",
+        fontSize=10,
+        leading=13,
+        textColor=TEXT_COLOR,
+        spaceBefore=3 * mm,
+        spaceAfter=2 * mm,
         keepWithNext=1,
     )
     styles["body"] = ParagraphStyle(
-        "body", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, leading=14,
-        textColor=TEXT_COLOR, alignment=TA_JUSTIFY, spaceAfter=2 * mm,
+        "body",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        leading=14,
+        textColor=TEXT_COLOR,
+        alignment=TA_JUSTIFY,
+        spaceAfter=2 * mm,
     )
     styles["body_bold"] = ParagraphStyle(
-        "body_bold", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=10, leading=14,
-        textColor=TEXT_COLOR, spaceAfter=2 * mm,
+        "body_bold",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=10,
+        leading=14,
+        textColor=TEXT_COLOR,
+        spaceAfter=2 * mm,
     )
     styles["body_small"] = ParagraphStyle(
-        "body_small", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=9, leading=12,
-        textColor=TEXT_SECONDARY, spaceAfter=1.5 * mm,
+        "body_small",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=9,
+        leading=12,
+        textColor=TEXT_SECONDARY,
+        spaceAfter=1.5 * mm,
     )
     styles["quote"] = ParagraphStyle(
-        "quote", parent=base["Normal"],
-        fontName="Times-Italic", fontSize=10, leading=14,
-        textColor=TEXT_SECONDARY, leftIndent=8 * mm, rightIndent=8 * mm,
-        spaceAfter=3 * mm, spaceBefore=2 * mm,
+        "quote",
+        parent=base["Normal"],
+        fontName="Times-Italic",
+        fontSize=10,
+        leading=14,
+        textColor=TEXT_SECONDARY,
+        leftIndent=8 * mm,
+        rightIndent=8 * mm,
+        spaceAfter=3 * mm,
+        spaceBefore=2 * mm,
     )
     styles["caption"] = ParagraphStyle(
-        "caption", parent=base["Normal"],
-        fontName="Helvetica", fontSize=7, leading=9,
+        "caption",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=7,
+        leading=9,
         textColor=TEXT_MUTED,
     )
     styles["cell_header"] = ParagraphStyle(
-        "cell_header", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=8, leading=10,
+        "cell_header",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        leading=10,
         textColor=INK,
     )
     styles["cell_white"] = ParagraphStyle(
-        "cell_white", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=9, leading=12,
+        "cell_white",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=9,
+        leading=12,
         textColor=colors.white,
     )
     styles["cell_white_sub"] = ParagraphStyle(
-        "cell_white_sub", parent=base["Normal"],
-        fontName="Helvetica", fontSize=8.5, leading=11,
-        textColor=colors.white, alignment=TA_CENTER,
+        "cell_white_sub",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8.5,
+        leading=11,
+        textColor=colors.white,
+        alignment=TA_CENTER,
     )
     styles["cell"] = ParagraphStyle(
-        "cell", parent=base["Normal"],
-        fontName="Helvetica", fontSize=8, leading=10,
+        "cell",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        leading=10,
         textColor=TEXT_COLOR,
     )
     styles["cell_bold"] = ParagraphStyle(
-        "cell_bold", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=8, leading=10,
+        "cell_bold",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        leading=10,
         textColor=TEXT_COLOR,
     )
     styles["cell_right"] = ParagraphStyle(
-        "cell_right", parent=base["Normal"],
-        fontName="Helvetica", fontSize=8, leading=10,
-        textColor=TEXT_COLOR, alignment=TA_RIGHT,
+        "cell_right",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        leading=10,
+        textColor=TEXT_COLOR,
+        alignment=TA_RIGHT,
     )
     styles["cell_center"] = ParagraphStyle(
-        "cell_center", parent=base["Normal"],
-        fontName="Helvetica", fontSize=8, leading=10,
-        textColor=TEXT_COLOR, alignment=TA_CENTER,
+        "cell_center",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        leading=10,
+        textColor=TEXT_COLOR,
+        alignment=TA_CENTER,
     )
     return styles
+
 
 S = None  # global styles, set in generate_consultoria_pdf()
 
@@ -822,8 +926,10 @@ def P(text, style="body"):
 # LAYOUT HELPERS
 # ============================================================
 
+
 class _NumberedCanvas(pdfgen_canvas.Canvas):
     """Canvas that numbers pages correctly with SimpleDocTemplate."""
+
     def __init__(self, *args, **kwargs):
         pdfgen_canvas.Canvas.__init__(self, *args, **kwargs)
         self._saved_page_states = []
@@ -906,6 +1012,7 @@ def _key_value_table(rows, key_width=52 * mm):
 def _section_heading(text):
     """Section heading with accent rule above title."""
     from reportlab.platypus import HRFlowable
+
     return [
         HRFlowable(width=PAGE_WIDTH - 2 * MARGIN, thickness=0.5, color=ACCENT, spaceAfter=2 * mm, spaceBefore=4 * mm),
         Paragraph(restore_accents(text), S["h1"]),
@@ -920,10 +1027,10 @@ def _spacer(mm_val=3):
     return Spacer(1, mm_val * mm)
 
 
-
 # ============================================================
 # SECTION BUILDERS (v2 — executive + catalog structure)
 # ============================================================
+
 
 def _build_cover(empresa, today, validity_date):
     nome = restore_accents((empresa.get("nome_fantasia") or "").strip() or empresa.get("razao_social", "Empresa"))
@@ -959,12 +1066,16 @@ def _build_cover(empresa, today, validity_date):
         [[P(a, "cell_bold"), P(b, "cell_center")] for a, b in cov_data],
         colWidths=[35 * mm, 55 * mm],
     )
-    ct.setStyle(TableStyle([
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING", (0, 0), (-1, -1), 3),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-    ]))
+    ct.setStyle(
+        TableStyle(
+            [
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 3),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+            ]
+        )
+    )
     elements.append(ct)
     elements.append(PageBreak())
     return elements
@@ -977,7 +1088,7 @@ def _build_carta_decisor(empresa, setor, honorific, decisor_full):
     setor = restore_accents(setor)
     greeting = f"{honorific} {decisor_full}"
 
-    carta_title = f"Carta à Decisora" if honorific == "Sra." else "Carta ao Decisor"
+    carta_title = "Carta à Decisora" if honorific == "Sra." else "Carta ao Decisor"
     elements = []
     elements.extend(_section_heading(carta_title))
     elements.append(Paragraph(restore_accents(greeting), S["body_bold"]))
@@ -1006,14 +1117,16 @@ def _build_carta_decisor(empresa, setor, honorific, decisor_full):
     elements.append(Paragraph(thesis, S["body"]))
     elements.append(_spacer(3))
 
-    elements.append(Paragraph(
-        f"Esta proposta apresenta o caminho mais direto para começar: um diagnóstico "
-        f"pontual de mercado, com escopo definido, valor fixo, prazo claro e uma "
-        f"reunião de apresentação dos resultados. As demais possibilidades de "
-        f"consultoria estão no catálogo de serviços ao final do documento, como "
-        f"referência para expansão futura.",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "Esta proposta apresenta o caminho mais direto para começar: um diagnóstico "
+            "pontual de mercado, com escopo definido, valor fixo, prazo claro e uma "
+            "reunião de apresentação dos resultados. As demais possibilidades de "
+            "consultoria estão no catálogo de serviços ao final do documento, como "
+            "referência para expansão futura.",
+            S["body"],
+        )
+    )
     elements.append(PageBreak())
     return elements
 
@@ -1023,39 +1136,45 @@ def _build_credenciais_compact():
     elements = []
     elements.extend(_section_heading("Quem Conduz a Análise"))
 
-    elements.append(Paragraph(
-        "Tiago Sasaki, engenheiro civil formado pela EESC/USP. Atua no setor público "
-        "desde 2019, com experiência direta em fiscalização de contratos, convênios, "
-        "obras públicas, documentação técnica e processos de contratação pública. "
-        "No setor privado, atuou em engenharia civil e manutenção industrial (Gerdau, "
-        "Engecorps). É fundador da GoVision.AI, onde desenvolve sistemas de inteligência "
-        "artificial aplicada a licitações e dados públicos, incluindo a plataforma Extra Consultoria.",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "Tiago Sasaki, engenheiro civil formado pela EESC/USP. Atua no setor público "
+            "desde 2019, com experiência direta em fiscalização de contratos, convênios, "
+            "obras públicas, documentação técnica e processos de contratação pública. "
+            "No setor privado, atuou em engenharia civil e manutenção industrial (Gerdau, "
+            "Engecorps). É fundador da GoVision.AI, onde desenvolve sistemas de inteligência "
+            "artificial aplicada a licitações e dados públicos, incluindo a plataforma Extra Consultoria.",
+            S["body"],
+        )
+    )
     elements.append(_spacer(2))
 
     elements.append(Paragraph("O que isso significa para o cliente:", S["body_bold"]))
-    elements.append(Paragraph(
-        "Esta consultoria não é apenas um serviço de captação de editais. Ela combina "
-        "três competências que raramente estão juntas: (1) engenharia e obras, "
-        "entendendo contratos, orçamentos, aditivos, BDI e fiscalização; (2) setor "
-        "público por dentro, conhecendo como órgãos publicam, organizam e processam "
-        "informações; e (3) inteligência de dados, transformando registros dispersos "
-        "em decisão comercial. É essa interseção que sustenta a qualidade da entrega.",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "Esta consultoria não é apenas um serviço de captação de editais. Ela combina "
+            "três competências que raramente estão juntas: (1) engenharia e obras, "
+            "entendendo contratos, orçamentos, aditivos, BDI e fiscalização; (2) setor "
+            "público por dentro, conhecendo como órgãos publicam, organizam e processam "
+            "informações; e (3) inteligência de dados, transformando registros dispersos "
+            "em decisão comercial. É essa interseção que sustenta a qualidade da entrega.",
+            S["body"],
+        )
+    )
     elements.append(_spacer(3))
 
     # Compact governance
     elements.append(Paragraph("Governança e Ética", S["h2"]))
-    elements.append(Paragraph(
-        "Atuação baseada exclusivamente em dados públicos, metodologia própria e "
-        "informações fornecidas pelo cliente. Sem intermediação, influência, promessa "
-        "de vitória ou acesso privilegiado a processos decisórios. A atuação pública "
-        "do responsável é credencial técnica, não canal de influência. Condições "
-        "adicionais de governança podem ser formalizadas em contrato, se necessário.",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "Atuação baseada exclusivamente em dados públicos, metodologia própria e "
+            "informações fornecidas pelo cliente. Sem intermediação, influência, promessa "
+            "de vitória ou acesso privilegiado a processos decisórios. A atuação pública "
+            "do responsável é credencial técnica, não canal de influência. Condições "
+            "adicionais de governança podem ser formalizadas em contrato, se necessário.",
+            S["body"],
+        )
+    )
     elements.append(PageBreak())
     return elements
 
@@ -1064,11 +1183,13 @@ def _build_diagnostico_entrada():
     """The ONE recommended service: Diagnóstico de Expansão. Concrete, specific, actionable."""
     elements = []
     elements.extend(_section_heading("Diagnóstico de Expansão B2G"))
-    elements.append(Paragraph(
-        "Recomendação de entrada: um diagnóstico pontual que mapeia o mercado "
-        "relevante e entrega um roteiro comercial acionável em até 15 dias úteis.",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "Recomendação de entrada: um diagnóstico pontual que mapeia o mercado "
+            "relevante e entrega um roteiro comercial acionável em até 15 dias úteis.",
+            S["body"],
+        )
+    )
     elements.append(_spacer(2))
 
     # Concrete examples of what the client receives
@@ -1079,25 +1200,21 @@ def _build_diagnostico_entrada():
         "de cada um. Exemplo ilustrativo do tipo de análise entregue: 'Prefeitura X "
         "contratou 12 obras de reforma predial nos últimos 3 anos, ticket médio de "
         "R$ 480 mil, 80% via Tomada de Preços.'",
-
         "Mapeamento dos 15 concorrentes que mais venceram editais do mesmo tipo na "
         "região, com ticket médio, deságio habitual, órgãos onde atuam e contratos "
         "ativos. Exemplo ilustrativo do tipo de análise entregue: 'Concorrente A "
         "venceu 8 editais em 2025, ticket médio de R$ 620 mil, atua principalmente "
         "em Florianópolis e São José, atualmente com 4 contratos ativos somando "
         "R$ 2,8 milhões (provavelmente sem capacidade para novas disputas de maior porte).'",
-
         "Lista de contratos de reforma, manutenção predial e construção de edifícios "
         "públicos com vencimento em 90 a 180 dias nos órgãos da região, com "
         "probabilidade de relicitação. Exemplo ilustrativo do tipo de análise "
         "entregue: 'Contrato de manutenção predial do Órgão Y vence em 45 dias; "
         "histórico indica que o órgão relicita em 85% dos casos; ticket médio "
         "histórico de R$ 350 mil.'",
-
         "Painel de preços reais praticados para cada tipo de obra na região: mediana, "
         "P25, P75 e evolução temporal. Referência concreta para precificar propostas, "
         "não planilha de custos teórica.",
-
         "Editais abertos na semana de conclusão do diagnóstico, triados e ranqueados "
         "por aderência ao perfil da empresa, com recomendação individual de PARTICIPAR "
         "ou NÃO PARTICIPAR fundamentada.",
@@ -1108,45 +1225,60 @@ def _build_diagnostico_entrada():
 
     # Scope
     elements.append(Paragraph("Escopo e Condições", S["h2"]))
-    elements.append(_key_value_table([
-        ("Serviço", "Diagnóstico B2G de Expansão, Concorrência e Oportunidades"),
-        ("Região", "Grande Florianópolis e municípios do entorno (ajustável na reunião de alinhamento)"),
-        ("Tipos de contratação", "Obras de reforma predial, manutenção, construção de edifícios públicos (ajustável conforme perfil)"),
-        ("Período analisado", "3 anos de dados históricos de contratações públicas"),
-        ("Prazo de entrega", "10 a 15 dias úteis após alinhamento de escopo"),
-        ("Formato", "PDF executivo (30 a 50 páginas) + planilhas de dados (Excel)"),
-        ("Reuniões incluídas", "1 reunião de alinhamento inicial (45 min, online) + 1 reunião de apresentação dos resultados (1h30, online)"),
-    ]))
+    elements.append(
+        _key_value_table(
+            [
+                ("Serviço", "Diagnóstico B2G de Expansão, Concorrência e Oportunidades"),
+                ("Região", "Grande Florianópolis e municípios do entorno (ajustável na reunião de alinhamento)"),
+                (
+                    "Tipos de contratação",
+                    "Obras de reforma predial, manutenção, construção de edifícios públicos (ajustável conforme perfil)",
+                ),
+                ("Período analisado", "3 anos de dados históricos de contratações públicas"),
+                ("Prazo de entrega", "10 a 15 dias úteis após alinhamento de escopo"),
+                ("Formato", "PDF executivo (30 a 50 páginas) + planilhas de dados (Excel)"),
+                (
+                    "Reuniões incluídas",
+                    "1 reunião de alinhamento inicial (45 min, online) + 1 reunião de apresentação dos resultados (1h30, online)",
+                ),
+            ]
+        )
+    )
     elements.append(_spacer(2))
 
     # Single clear price
     elements.append(Paragraph("Investimento", S["h2"]))
-    elements.append(Paragraph(
-        "<b>Investimento: R$ 8.000.</b> O valor é confirmado na reunião de "
-        "alinhamento de escopo, sem surpresas.",
-        S["body"]
-    ))
-    elements.append(Paragraph(
-        "Parte do valor pode ser abatida na contratação de monitoramento mensal "
-        "em até 60 dias após a entrega do diagnóstico (até 25% de abatimento).",
-        S["body_small"]
-    ))
+    elements.append(
+        Paragraph(
+            "<b>Investimento: R$ 8.000.</b> O valor é confirmado na reunião de alinhamento de escopo, sem surpresas.",
+            S["body"],
+        )
+    )
+    elements.append(
+        Paragraph(
+            "Parte do valor pode ser abatida na contratação de monitoramento mensal "
+            "em até 60 dias após a entrega do diagnóstico (até 25% de abatimento).",
+            S["body_small"],
+        )
+    )
 
     elements.append(_spacer(3))
 
     # ROI — sober, not pitch math
     elements.append(Paragraph("Raciocínio Econômico", S["h2"]))
-    elements.append(Paragraph(
-        "Em contratações públicas de obras e serviços de engenharia, o valor de um "
-        "único contrato de R$ 400 mil supera em mais de 50 vezes o custo do "
-        "diagnóstico. Na direção oposta, evitar uma licitação de órgão com histórico "
-        "de inadimplência ou rescisões também gera economia real de tempo, equipe "
-        "técnica e capital de giro. O diagnóstico não garante contrato, mas "
-        "substitui a decisão por feeling por uma decisão baseada em evidências. "
-        "Para uma construtora que já venceu licitações, isso significa escolher "
-        "melhor onde competir, não competir mais.",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "Em contratações públicas de obras e serviços de engenharia, o valor de um "
+            "único contrato de R$ 400 mil supera em mais de 50 vezes o custo do "
+            "diagnóstico. Na direção oposta, evitar uma licitação de órgão com histórico "
+            "de inadimplência ou rescisões também gera economia real de tempo, equipe "
+            "técnica e capital de giro. O diagnóstico não garante contrato, mas "
+            "substitui a decisão por feeling por uma decisão baseada em evidências. "
+            "Para uma construtora que já venceu licitações, isso significa escolher "
+            "melhor onde competir, não competir mais.",
+            S["body"],
+        )
+    )
     elements.append(PageBreak())
     return elements
 
@@ -1161,43 +1293,63 @@ def _build_condicoes_comerciais(today, validity_date):
 
     # Price summary
     elements.append(Paragraph("Resumo da Oferta de Entrada", S["h2"]))
-    elements.append(_key_value_table([
-        ("Serviço recomendado", "Diagnóstico B2G de Expansão"),
-        ("Valor", "R$ 8.000"),
-        ("Prazo de entrega", "10 a 15 dias úteis"),
-        ("Forma de pagamento", "Boleto, PIX ou Cartão de Crédito"),
-        ("Validade desta proposta", validity_fmt),
-        ("Data-base", today_fmt),
-    ]))
+    elements.append(
+        _key_value_table(
+            [
+                ("Serviço recomendado", "Diagnóstico B2G de Expansão"),
+                ("Valor", "R$ 8.000"),
+                ("Prazo de entrega", "10 a 15 dias úteis"),
+                ("Forma de pagamento", "Boleto, PIX ou Cartão de Crédito"),
+                ("Validade desta proposta", validity_fmt),
+                ("Data-base", today_fmt),
+            ]
+        )
+    )
 
     elements.append(_spacer(3))
 
     # Combo discounts for future expansion
     elements.append(Paragraph("Expansão Futura: Descontos para Contratação Combinada", S["h2"]))
-    elements.append(Paragraph(
-        "Se após o diagnóstico a empresa decidir expandir para outros serviços, "
-        "os descontos abaixo se aplicam sobre o valor total do pacote contratado "
-        "simultaneamente:",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "Se após o diagnóstico a empresa decidir expandir para outros serviços, "
+            "os descontos abaixo se aplicam sobre o valor total do pacote contratado "
+            "simultaneamente:",
+            S["body"],
+        )
+    )
     elements.append(_spacer(1))
     combo_headers = ["Serviços", "Desconto", "Exemplo de Combinação", "Valor com Desconto"]
     combo_rows = [
-        ["Diagnóstico + 1 serviço", "10%", "Diagnóstico + Monitoramento Mensal Estratégico",
-         "R$ 8.000 + R$ 6.250/mês = R$ 14.250 → R$ 12.825"],
-        ["Diagnóstico + 2 serviços", "15%", "Diagnóstico + Monitoramento + Acompanhamento",
-         "R$ 8.000 + R$ 6.250 + R$ 4.750 = R$ 19.000 → R$ 16.150"],
-        ["Pacote completo (5 eixos)", "25%", "Todos os 5 eixos da consultoria",
-         "R$ 29.750 → R$ 22.313 (economia de R$ 7.438)"],
+        [
+            "Diagnóstico + 1 serviço",
+            "10%",
+            "Diagnóstico + Monitoramento Mensal Estratégico",
+            "R$ 8.000 + R$ 6.250/mês = R$ 14.250 → R$ 12.825",
+        ],
+        [
+            "Diagnóstico + 2 serviços",
+            "15%",
+            "Diagnóstico + Monitoramento + Acompanhamento",
+            "R$ 8.000 + R$ 6.250 + R$ 4.750 = R$ 19.000 → R$ 16.150",
+        ],
+        [
+            "Pacote completo (5 eixos)",
+            "25%",
+            "Todos os 5 eixos da consultoria",
+            "R$ 29.750 → R$ 22.313 (economia de R$ 7.438)",
+        ],
     ]
     cw_combo = [34 * mm, 20 * mm, 56 * mm, 54 * mm]
     elements.append(_three_rule_table(combo_headers, combo_rows, cw_combo))
     elements.append(_spacer(1))
-    elements.append(Paragraph(
-        "O abatimento de 25% do diagnóstico em monitoramento futuro (em até 60 dias) "
-        "é cumulativo com os descontos de pacote acima.",
-        S["body_small"]
-    ))
+    elements.append(
+        Paragraph(
+            "O abatimento de 25% do diagnóstico em monitoramento futuro (em até 60 dias) "
+            "é cumulativo com os descontos de pacote acima.",
+            S["body_small"],
+        )
+    )
 
     elements.append(_spacer(3))
 
@@ -1214,8 +1366,7 @@ def _build_condicoes_comerciais(today, validity_date):
             "atividades permanecem com a empresa.",
         ],
         [
-            "Identificação de editais, mapeamento de concorrentes, painel de preços "
-            "e alertas de contratos vincendos.",
+            "Identificação de editais, mapeamento de concorrentes, painel de preços e alertas de contratos vincendos.",
             "Representação presencial em sessões de licitação, serviços jurídicos "
             "(impugnações, recursos), execução do objeto contratado, garantias financeiras.",
         ],
@@ -1227,16 +1378,19 @@ def _build_condicoes_comerciais(today, validity_date):
 
     # Next steps — concrete action, not anxiety
     elements.append(Paragraph("Próximos Passos", S["h2"]))
-    elements.append(Paragraph(
-        "A reunião de alinhamento define o recorte inicial: região, tipos de obra, "
-        "faixa de valor, concorrentes relevantes e órgãos prioritários. Com isso "
-        "fechado, o diagnóstico pode ser entregue em 10 a 15 dias úteis.",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "A reunião de alinhamento define o recorte inicial: região, tipos de obra, "
+            "faixa de valor, concorrentes relevantes e órgãos prioritários. Com isso "
+            "fechado, o diagnóstico pode ser entregue em 10 a 15 dias úteis.",
+            S["body"],
+        )
+    )
     elements.append(_spacer(2))
 
     # CTA — KeepTogether prevents navy box from splitting across pages
     from reportlab.platypus import HRFlowable
+
     cta_box = Table(
         [
             [Paragraph("Para agendar a reunião de alinhamento:", S["cell_white"])],
@@ -1244,22 +1398,28 @@ def _build_condicoes_comerciais(today, validity_date):
         ],
         colWidths=[PAGE_WIDTH - 2 * MARGIN],
     )
-    cta_box.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, -1), INK),
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING", (0, 0), (-1, -1), 12),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
-        ("LEFTPADDING", (0, 0), (-1, -1), 10),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
-    ]))
+    cta_box.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, -1), INK),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+                ("LEFTPADDING", (0, 0), (-1, -1), 10),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+            ]
+        )
+    )
     cta_elements = [cta_box, _spacer(3)]
     elements.append(KeepTogether(cta_elements))
     elements.append(_spacer(2))
 
     # Contact
     contact_elements = [
-        HRFlowable(width=(PAGE_WIDTH - 2 * MARGIN) * 0.4, thickness=1, color=INK, spaceAfter=4 * mm, spaceBefore=2 * mm),
+        HRFlowable(
+            width=(PAGE_WIDTH - 2 * MARGIN) * 0.4, thickness=1, color=INK, spaceAfter=4 * mm, spaceBefore=2 * mm
+        ),
         Paragraph("<b>Tiago Sasaki</b>", S["body"]),
         Paragraph("Engenheiro Civil, EESC/USP | Consultor de Inteligência em Licitações", S["body"]),
         Paragraph("WhatsApp: (48) 9 8834-4559 | tiago.sasaki@confenge.com.br", S["body"]),
@@ -1268,12 +1428,14 @@ def _build_condicoes_comerciais(today, validity_date):
     elements.append(_spacer(5))
 
     # Disclaimer
-    elements.append(Paragraph(
-        f"Proposta preparada em {today_fmt}. Projeções baseadas em dados históricos "
-        "de contratações públicas. Este documento não substitui assessoria jurídica, "
-        "contábil ou técnica especializada. Anexo: Catálogo de Serviços.",
-        S["caption"]
-    ))
+    elements.append(
+        Paragraph(
+            f"Proposta preparada em {today_fmt}. Projeções baseadas em dados históricos "
+            "de contratações públicas. Este documento não substitui assessoria jurídica, "
+            "contábil ou técnica especializada. Anexo: Catálogo de Serviços.",
+            S["caption"],
+        )
+    )
     elements.append(PageBreak())
     return elements
 
@@ -1282,14 +1444,16 @@ def _build_catalogo_servicos():
     """Annex: full services catalog. For future reference, not for first-conversation decision."""
     elements = []
     elements.extend(_section_heading("Anexo: Catálogo de Serviços"))
-    elements.append(Paragraph(
-        "Este anexo apresenta o portfólio completo de serviços de consultoria em "
-        "inteligência para licitações públicas. Ele serve como referência para "
-        "expansão futura, após a conclusão do diagnóstico inicial. Os valores são "
-        "de referência e podem ser ajustados conforme escopo, abrangência geográfica "
-        "e complexidade.",
-        S["body_small"]
-    ))
+    elements.append(
+        Paragraph(
+            "Este anexo apresenta o portfólio completo de serviços de consultoria em "
+            "inteligência para licitações públicas. Ele serve como referência para "
+            "expansão futura, após a conclusão do diagnóstico inicial. Os valores são "
+            "de referência e podem ser ajustados conforme escopo, abrangência geográfica "
+            "e complexidade.",
+            S["body_small"],
+        )
+    )
     elements.append(_spacer(2))
 
     # Service catalog table
@@ -1320,8 +1484,7 @@ def _build_catalogo_servicos():
         [
             "Monitoramento Mensal Básico",
             "Substituir busca manual de editais por fluxo contínuo de inteligência",
-            "Relatórios semanais de oportunidades, alertas de editais prioritários, "
-            "1 relatório mensal consolidado",
+            "Relatórios semanais de oportunidades, alertas de editais prioritários, 1 relatório mensal consolidado",
             "Mensal (mín. 3 meses)",
             "R$ 3.250/mês",
         ],
@@ -1378,34 +1541,40 @@ def _build_catalogo_servicos():
 
     # Discounts
     elements.append(Paragraph("Descontos para Contratação Combinada", S["h2"]))
-    elements.append(_three_rule_table(
-        ["Serviços Contratados", "Desconto"],
-        [
-            ["Diagnóstico + 1 serviço adicional", "10% sobre o total"],
-            ["Diagnóstico + 2 serviços adicionais", "15% sobre o total"],
-            ["Pacote completo (5 eixos)", "25% sobre o total"],
-        ],
-        [60 * mm, 60 * mm],
-    ))
+    elements.append(
+        _three_rule_table(
+            ["Serviços Contratados", "Desconto"],
+            [
+                ["Diagnóstico + 1 serviço adicional", "10% sobre o total"],
+                ["Diagnóstico + 2 serviços adicionais", "15% sobre o total"],
+                ["Pacote completo (5 eixos)", "25% sobre o total"],
+            ],
+            [60 * mm, 60 * mm],
+        )
+    )
     elements.append(_spacer(1))
-    elements.append(Paragraph(
-        "Acumulativo com abatimento de 25% do diagnóstico em monitoramento futuro "
-        "contratado em até 60 dias após a entrega. Pagamento anual (monitoramento): "
-        "pague 10 meses, leve 12.",
-        S["body_small"]
-    ))
+    elements.append(
+        Paragraph(
+            "Acumulativo com abatimento de 25% do diagnóstico em monitoramento futuro "
+            "contratado em até 60 dias após a entrega. Pagamento anual (monitoramento): "
+            "pague 10 meses, leve 12.",
+            S["body_small"],
+        )
+    )
 
     elements.append(_spacer(3))
     elements.append(Paragraph("Expansão Progressiva", S["h2"]))
-    elements.append(Paragraph(
-        "A consultoria é desenhada como esteira de inteligência comercial B2G. "
-        "O diagnóstico pontual é a porta de entrada. O monitoramento mensal "
-        "transforma inteligência em rotina. A análise de editais reduz risco nas "
-        "decisões de participar ou não. O apoio a propostas melhora a competitividade. "
-        "O acompanhamento de contratos protege e maximiza o retorno do que já foi "
-        "conquistado. Cada etapa financia a seguinte.",
-        S["body"]
-    ))
+    elements.append(
+        Paragraph(
+            "A consultoria é desenhada como esteira de inteligência comercial B2G. "
+            "O diagnóstico pontual é a porta de entrada. O monitoramento mensal "
+            "transforma inteligência em rotina. A análise de editais reduz risco nas "
+            "decisões de participar ou não. O apoio a propostas melhora a competitividade. "
+            "O acompanhamento de contratos protege e maximiza o retorno do que já foi "
+            "conquistado. Cada etapa financia a seguinte.",
+            S["body"],
+        )
+    )
 
     return elements
 
@@ -1413,6 +1582,7 @@ def _build_catalogo_servicos():
 # ============================================================
 # MAIN GENERATOR (v2 — executive + catalog flow)
 # ============================================================
+
 
 def generate_consultoria_pdf(data, output_path):
     global S
@@ -1424,7 +1594,7 @@ def generate_consultoria_pdf(data, output_path):
     decisor_full = restore_accents(decisor_full)
     honorific = _detect_gender(decisor_full)
 
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(UTC).date()
     validity_date = today + timedelta(days=15)
 
     elements = []
@@ -1455,7 +1625,7 @@ def generate_consultoria_pdf(data, output_path):
         rightMargin=MARGIN,
         topMargin=18 * mm,
         bottomMargin=18 * mm,
-        title=f"Proposta de Consultoria Estratégica B2G",
+        title="Proposta de Consultoria Estratégica B2G",
         author="Tiago Sasaki",
     )
     doc.build(elements, onLaterPages=_draw_footer)
@@ -1466,17 +1636,20 @@ def generate_consultoria_pdf(data, output_path):
 # CLI
 # ============================================================
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Gera PDF de Proposta de Consultoria Estratégica B2G (estética Big Four)"
     )
-    parser.add_argument("--input", "-i", required=True,
-                        help="Caminho para JSON de dados (output do build-proposta-data.py)")
-    parser.add_argument("--output", "-o",
-                        help="Caminho para PDF de saída (default: docs/consultoria-b2g/proposta-{cnpj}.pdf)")
+    parser.add_argument(
+        "--input", "-i", required=True, help="Caminho para JSON de dados (output do build-proposta-data.py)"
+    )
+    parser.add_argument(
+        "--output", "-o", help="Caminho para PDF de saída (default: docs/consultoria-b2g/proposta-{cnpj}.pdf)"
+    )
     args = parser.parse_args()
 
-    with open(args.input, "r", encoding="utf-8") as f:
+    with open(args.input, encoding="utf-8") as f:
         data = json.load(f)
 
     empresa = data.get("empresa", {})

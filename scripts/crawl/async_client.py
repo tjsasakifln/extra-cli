@@ -11,40 +11,27 @@ import asyncio
 import json
 import logging
 import random
-import time
-from datetime import date, datetime
-from typing import Any, Callable, Dict, List, Optional
+from datetime import date
+from typing import Any
 
 import httpx
-
-from config import (
-    RetryConfig,
-    DEFAULT_MODALIDADES,
-    MODALIDADES_EXCLUIDAS,
-    PNCP_TIMEOUT_PER_MODALITY,
-    PNCP_MODALITY_RETRY_BACKOFF,
-    PNCP_TIMEOUT_PER_UF,
-    PNCP_TIMEOUT_PER_UF_DEGRADED,
-    PNCP_BATCH_SIZE,
-    PNCP_BATCH_DELAY_S,
+from clients.pncp._parallel_mixin import _PNCPParallelMixin
+from clients.pncp.circuit_breaker import _circuit_breaker  # noqa: F401
+from clients.pncp.retry import (
+    DateFormat,
+    ModalityFetchState,
+    _get_format_rotation,
+    _handle_422_response,
+    _set_cached_date_format,
+    _validate_date_params,
+    format_date,
 )
 from exceptions import PNCPAPIError, PNCPRateLimitError
 from middleware import request_id_var
 
-from clients.pncp.circuit_breaker import _circuit_breaker  # noqa: F401
-from clients.pncp.retry import (
-    ParallelFetchResult,
-    ModalityFetchState,
-    DateFormat,
-    UFS_BY_POPULATION,
-    _get_format_rotation,
-    _validate_date_params,
-    _handle_422_response,
-    _set_cached_date_format,
-    calculate_delay,
-    format_date,
+from config import (
+    RetryConfig,
 )
-from clients.pncp._parallel_mixin import _PNCPParallelMixin
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +40,10 @@ logger = logging.getLogger(__name__)
 # PNCP Degraded Error (moved from sync_client — DEBT-v3-S3 Phase 1.2)
 # ============================================================================
 
+
 class PNCPDegradedError(PNCPAPIError):
     """Raised when PNCP circuit breaker is in degraded state."""
+
     pass
 
 
@@ -76,7 +65,8 @@ STATUS_PNCP_MAP = {
 # Normalize helper (moved from sync_client — DEBT-v3-S3 Phase 1.2)
 # ============================================================================
 
-def _normalize_item(item: Dict[str, Any], uf_hint: str | None = None) -> Dict[str, Any]:
+
+def _normalize_item(item: dict[str, Any], uf_hint: str | None = None) -> dict[str, Any]:
     """
     Flatten nested PNCP API response into the flat format expected by
     filter.py, excel.py and llm.py.
@@ -134,11 +124,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
 
     BASE_URL = "https://pncp.gov.br/api/consulta/v1"
 
-    def __init__(
-        self,
-        config: RetryConfig | None = None,
-        max_concurrent: int = 10
-    ):
+    def __init__(self, config: RetryConfig | None = None, max_concurrent: int = 10):
         """
         Initialize async PNCP client.
 
@@ -232,13 +218,10 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                 )
                 return True  # Proceed with normal search
 
+            logger.warning(f"PNCP health canary: server error {response.status_code}")
+        except (TimeoutError, httpx.TimeoutException):
             logger.warning(
-                f"PNCP health canary: server error {response.status_code}"
-            )
-        except (asyncio.TimeoutError, httpx.TimeoutException):
-            logger.warning(
-                "WARNING: PNCP health check failed (timeout) "
-                "— skipping PNCP for this search, using alternative sources"
+                "WARNING: PNCP health check failed (timeout) — skipping PNCP for this search, using alternative sources"
             )
         except (httpx.HTTPError, Exception) as exc:
             logger.warning(
@@ -248,9 +231,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
 
         # Canary failed — trip circuit breaker
         await _circuit_breaker.record_failure()
-        logger.warning(
-            "PNCP circuit breaker failure recorded due to health canary failure"
-        )
+        logger.warning("PNCP circuit breaker failure recorded due to health canary failure")
         return False
 
     async def fetch_bid_items(
@@ -258,7 +239,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
         cnpj: str,
         ano: str,
         sequencial: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch individual items for a bid from PNCP API (GTM-RESILIENCE-D01 AC1).
 
         Endpoint: GET /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens
@@ -296,44 +277,34 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                         {
                             "descricao": item.get("descricao", ""),
                             "codigoNcm": item.get("materialOuServico", {}).get("codigoNcm", "")
-                                if isinstance(item.get("materialOuServico"), dict)
-                                else item.get("codigoNcm", ""),
+                            if isinstance(item.get("materialOuServico"), dict)
+                            else item.get("codigoNcm", ""),
                             "unidadeMedida": item.get("unidadeMedida", ""),
                             "quantidade": item.get("quantidade", 0),
-                            "valorUnitario": item.get("valorUnitarioEstimado", 0)
-                                or item.get("valorUnitario", 0),
+                            "valorUnitario": item.get("valorUnitarioEstimado", 0) or item.get("valorUnitario", 0),
                         }
                         for item in items
                     ]
 
                 if response.status_code == 404:
-                    logger.debug(
-                        f"PNCP items 404 for {cnpj_clean}/{ano}/{sequencial} — no items available"
-                    )
+                    logger.debug(f"PNCP items 404 for {cnpj_clean}/{ano}/{sequencial} — no items available")
                     return []
 
                 # Retryable: 429/5xx
                 if attempt == 0 and response.status_code in (429, 500, 502, 503, 504):
                     retry_after = float(response.headers.get("Retry-After", "1"))
-                    logger.debug(
-                        f"PNCP items {response.status_code} — retrying in {retry_after}s"
-                    )
+                    logger.debug(f"PNCP items {response.status_code} — retrying in {retry_after}s")
                     await asyncio.sleep(min(retry_after, 3.0))
                     continue
 
-                logger.debug(
-                    f"PNCP items unexpected {response.status_code} for "
-                    f"{cnpj_clean}/{ano}/{sequencial}"
-                )
+                logger.debug(f"PNCP items unexpected {response.status_code} for {cnpj_clean}/{ano}/{sequencial}")
                 return []
 
-            except (asyncio.TimeoutError, httpx.TimeoutException):
+            except (TimeoutError, httpx.TimeoutException):
                 if attempt == 0:
                     logger.debug("PNCP items timeout — retrying once")
                     continue
-                logger.debug(
-                    f"PNCP items timeout (2nd attempt) for {cnpj_clean}/{ano}/{sequencial}"
-                )
+                logger.debug(f"PNCP items timeout (2nd attempt) for {cnpj_clean}/{ano}/{sequencial}")
                 return []
             except (httpx.HTTPError, Exception) as exc:
                 logger.debug(f"PNCP items fetch error: {type(exc).__name__}: {exc}")
@@ -349,6 +320,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
         """
         # Shared rate limiter (Redis-backed, cross-worker) — AC7
         from rate_limiter import pncp_rate_limiter
+
         await pncp_rate_limiter.acquire(timeout=5.0)
 
         # Local rate limiter (per-worker baseline, always active)
@@ -371,7 +343,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
         pagina: int = 1,
         tamanho: int = 50,  # PNCP API max (reduced from 500 to 50 by PNCP ~Feb 2026)
         status: str | None = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Fetch a single page of procurement data asynchronously.
 
@@ -435,10 +407,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
         last_retry_after = 60
         for attempt in range(self.config.max_retries + 1):
             try:
-                logger.debug(
-                    f"Async request {url} params={params} attempt={attempt + 1}/"
-                    f"{self.config.max_retries + 1}"
-                )
+                logger.debug(f"Async request {url} params={params} attempt={attempt + 1}/{self.config.max_retries + 1}")
 
                 # STORY-226 AC23: Forward X-Request-ID for distributed tracing
                 req_id = request_id_var.get("-")
@@ -446,9 +415,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                 if req_id and req_id != "-":
                     extra_headers["X-Request-ID"] = req_id
 
-                response = await self._client.get(
-                    url, params=params, headers=extra_headers
-                )
+                response = await self._client.get(url, params=params, headers=extra_headers)
 
                 # Handle rate limiting
                 if response.status_code == 429:
@@ -472,8 +439,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                         )
                         if attempt < self.config.max_retries:
                             delay = min(
-                                self.config.base_delay * (self.config.exponential_base ** attempt),
-                                self.config.max_delay
+                                self.config.base_delay * (self.config.exponential_base**attempt), self.config.max_delay
                             )
                             if self.config.jitter:
                                 delay *= random.uniform(0.5, 1.5)
@@ -496,8 +462,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                         )
                         if attempt < self.config.max_retries:
                             delay = min(
-                                self.config.base_delay * (self.config.exponential_base ** attempt),
-                                self.config.max_delay
+                                self.config.base_delay * (self.config.exponential_base**attempt), self.config.max_delay
                             )
                             if self.config.jitter:
                                 delay *= random.uniform(0.5, 1.5)
@@ -509,7 +474,9 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                             ) from e
 
                     # UX-336 AC3+AC5: Cache successful format + telemetry
-                    current_fmt = format_rotation[format_idx] if format_idx < len(format_rotation) else DateFormat.YYYYMMDD
+                    current_fmt = (
+                        format_rotation[format_idx] if format_idx < len(format_rotation) else DateFormat.YYYYMMDD
+                    )
                     if current_fmt != DateFormat.YYYYMMDD or format_idx > 0:
                         _set_cached_date_format(current_fmt)
                         logger.debug(f"pncp_date_format_accepted format={current_fmt}")
@@ -532,16 +499,14 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                     has_more_formats = (format_idx + 1) < len(format_rotation)
                     effective_attempt = 0 if has_more_formats else 1
                     result = _handle_422_response(
-                        response.text, params, data_inicial, data_final,
-                        attempt=effective_attempt, max_retries=1
+                        response.text, params, data_inicial, data_final, attempt=effective_attempt, max_retries=1
                     )
                     if result == "retry_format" and has_more_formats:
                         # UX-336: Try next date format
                         format_idx += 1
                         next_fmt = format_rotation[format_idx]
                         logger.debug(
-                            f"UX-336: Retrying with format {next_fmt} "
-                            f"(attempt {format_idx + 1}/{len(format_rotation)})"
+                            f"UX-336: Retrying with format {next_fmt} (attempt {format_idx + 1}/{len(format_rotation)})"
                         )
                         params["dataInicial"] = format_date(data_inicial, next_fmt)
                         params["dataFinal"] = format_date(data_final, next_fmt)
@@ -567,10 +532,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
 
                 # CRIT-043 AC2: 400 on page>1 = past last page, return empty
                 if response.status_code == 400 and pagina > 1:
-                    logger.debug(
-                        f"CRIT-043: HTTP 400 at page {pagina} — past last page, "
-                        f"returning empty result"
-                    )
+                    logger.debug(f"CRIT-043: HTTP 400 at page {pagina} — past last page, returning empty result")
                     return {
                         "data": [],
                         "totalRegistros": 0,
@@ -582,33 +544,21 @@ class AsyncPNCPClient(_PNCPParallelMixin):
 
                 # Non-retryable error
                 if response.status_code not in self.config.retryable_status_codes:
-                    raise PNCPAPIError(
-                        f"API returned non-retryable status {response.status_code}"
-                    )
+                    raise PNCPAPIError(f"API returned non-retryable status {response.status_code}")
 
                 # Retryable error - wait and retry
                 if attempt < self.config.max_retries:
-                    delay = min(
-                        self.config.base_delay * (self.config.exponential_base ** attempt),
-                        self.config.max_delay
-                    )
+                    delay = min(self.config.base_delay * (self.config.exponential_base**attempt), self.config.max_delay)
                     if self.config.jitter:
                         delay *= random.uniform(0.5, 1.5)
-                    logger.debug(
-                        f"Error {response.status_code}. Retrying in {delay:.1f}s"
-                    )
+                    logger.debug(f"Error {response.status_code}. Retrying in {delay:.1f}s")
                     await asyncio.sleep(delay)
                 else:
-                    raise PNCPAPIError(
-                        f"Failed after {self.config.max_retries + 1} attempts"
-                    )
+                    raise PNCPAPIError(f"Failed after {self.config.max_retries + 1} attempts")
 
             except httpx.TimeoutException as e:
                 if attempt < self.config.max_retries:
-                    delay = min(
-                        self.config.base_delay * (self.config.exponential_base ** attempt),
-                        self.config.max_delay
-                    )
+                    delay = min(self.config.base_delay * (self.config.exponential_base**attempt), self.config.max_delay)
                     logger.debug(f"Timeout. Retrying in {delay:.1f}s")
                     await asyncio.sleep(delay)
                 else:
@@ -616,10 +566,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
 
             except httpx.HTTPError as e:
                 if attempt < self.config.max_retries:
-                    delay = min(
-                        self.config.base_delay * (self.config.exponential_base ** attempt),
-                        self.config.max_delay
-                    )
+                    delay = min(self.config.base_delay * (self.config.exponential_base**attempt), self.config.max_delay)
                     logger.debug(f"HTTP error: {e}. Retrying in {delay:.1f}s")
                     await asyncio.sleep(delay)
                 else:
@@ -641,7 +588,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
         status: str | None = None,
         max_pages: int | None = None,
         state: ModalityFetchState | None = None,
-    ) -> tuple[List[Dict[str, Any]], bool]:
+    ) -> tuple[list[dict[str, Any]], bool]:
         """Fetch all pages for a single UF + single modality.
 
         This is the inner loop extracted from ``_fetch_uf_all_pages`` so that
@@ -666,6 +613,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
             or when the fetch was interrupted by timeout with partial data.
         """
         from config import PNCP_MAX_PAGES
+
         if max_pages is None:
             max_pages = PNCP_MAX_PAGES
 
@@ -731,10 +679,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                 else:
                     # AC4: Real error (page 1 or non-400). Record CB failure, WARNING.
                     await _circuit_breaker.record_failure()
-                    logger.warning(
-                        f"Error fetching UF={uf}, modalidade={modalidade}, "
-                        f"page={pagina}: {e}"
-                    )
+                    logger.warning(f"Error fetching UF={uf}, modalidade={modalidade}, page={pagina}: {e}")
                 break
 
         return state.items, state.was_truncated

@@ -1,7 +1,8 @@
 # Core
 httpx>=0.28.1
 openai>=1.55.0
-psycopg2-binary>=2.9.9
+psycopg2>=2.9.9
+# psycopg2-binary>=2.9.9  # Dev/test apenas — nao usar em producao
 python-dotenv>=1.0.0
 pyyaml>=6.0
 
@@ -23,3 +24,7 @@ rapidfuzz>=3.0.0
 
 # Optional: SICAF checking
 # playwright>=1.40.0  # descomentar se precisar de SICAF
+
+# Optional: Web automation for JS portals (FEAT-2.4)
+# selenium>=4.15.0  # descomentar se precisar de crawlers com Selenium
+# webdriver-manager>=4.0.0  # gerenciamento automatico de ChromeDriver

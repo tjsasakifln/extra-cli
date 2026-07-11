@@ -1,21 +1,12 @@
-# Tasks — Módulo `reports`
+# Reports — Tasks
 
-> 🟢 CONFIRMADO
+| # | Tarefa | Fonte | Confiança |
+|---|--------|-------|-----------|
+| T-R01 | Panorama: 6 queries SQL, terminal+Excel | `panorama.py` | 🟢 |
+| T-R02 | Coverage Weekly: PDF+Excel 4 sheets, tendência, 4 recomendações | `coverage_weekly.py` | 🟢 |
+| T-R03 | B2G Report: 9 seções, section builder pattern, validação schema | `generate-report-b2g.py` | 🟢 |
+| T-R04 | Proposta PDF: capa, sumário, metodologia, investimento | `generate-proposta-pdf.py` | 🟢 |
+| T-R05 | Semantic Dedup: 2-pass Jaccard, 55 stopwords | `report_dedup.py` | 🟢 |
+| T-R06 | Coverage Gaps: Excel 3 sheets | `coverage_gaps.py` | 🟢 |
 
-### T1: Panorama de Mercado
-- **Arquivo legado:** `scripts/reports/panorama.py`
-- **Confiança:** 🟢
-- **Descrição:** 5 seções analíticas com queries SQL parametrizadas. Output triplo: terminal (Rich), Excel (openpyxl), PDF (ReportLab opcional).
-- **Critério de pronto:** 5 seções funcionais. 3 formatos de output.
-
-### T2: Coverage Gaps
-- **Arquivo legado:** `scripts/reports/coverage_gaps.py`
-- **Confiança:** 🟢
-- **Descrição:** Query uncovered entities agrupadas por município e natureza jurídica. Output CSV + terminal.
-- **Critério de pronto:** Gaps identificados. CSV gerado.
-
-### T3: Coverage Weekly
-- **Arquivo legado:** `scripts/reports/coverage_weekly.py`
-- **Confiança:** 🟢
-- **Descrição:** Query 7 dias, comparar com semana anterior. Calcular delta. Output PDF.
-- **Critério de pronto:** Relatório semanal com delta funcional.
+**Estimativa:** 5-8 dias

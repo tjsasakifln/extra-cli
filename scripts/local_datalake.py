@@ -20,17 +20,16 @@ import json
 import os
 import re
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
 import psycopg2
 import psycopg2.extras
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
-from rich.columns import Columns
 from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
 
 DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
 
@@ -85,13 +84,13 @@ def cmd_stats() -> int:
     print("-" * total_width)
 
     for table in CORE:
-        if not re.match(r'^[a-z_][a-z0-9_]*$', table):
+        if not re.match(r"^[a-z_][a-z0-9_]*$", table):
             print(f"{table:<35} {'SKIP (invalid)':>12}")
             continue
         try:
             conn = get_conn()
             with conn.cursor() as cur:
-                cur.execute(f"SELECT count(*) FROM \"{table}\"")
+                cur.execute(f'SELECT count(*) FROM "{table}"')
                 cnt = cur.fetchone()[0]
                 cur.execute(f"SELECT pg_size_pretty(pg_total_relation_size('\"{table}\"'::regclass))")
                 total_sz = cur.fetchone()[0]
@@ -158,8 +157,8 @@ def cmd_search(args: argparse.Namespace) -> int:
         print(json.dumps(rows, indent=2, default=str, ensure_ascii=False))
     else:
         print(f"Found: {len(rows)} editais\n")
-        for i, r in enumerate(rows[:args.head]):
-            print(f"--- [{i+1}] {r.get('pncp_id')} ---")
+        for i, r in enumerate(rows[: args.head]):
+            print(f"--- [{i + 1}] {r.get('pncp_id')} ---")
             print(f"  Objeto:    {(r.get('objeto_compra') or '')[:120]}")
             print(f"  Órgão:     {r.get('orgao_razao_social')}")
             print(f"  UF/Mun:    {r.get('uf')}/{r.get('municipio')}")
@@ -202,7 +201,7 @@ def cmd_supplier(args: argparse.Namespace) -> int:
         print(f"Found: {len(rows)} contracts for CNPJ {cnpj}")
         print(f"Total value: R$ {total_valor:,.2f}")
         print()
-        for r in rows[:args.head]:
+        for r in rows[: args.head]:
             print(f"--- {r.get('numero_controle_pncp')} ---")
             print(f"  Fornecedor: {r.get('nome_fornecedor')}")
             print(f"  Órgão:      {r.get('orgao_nome')} ({r.get('uf')}/{r.get('municipio')})")
@@ -237,7 +236,7 @@ def cmd_pricing(args: argparse.Namespace) -> int:
         params.append(f"%{kw}%")
 
     sql = f"""SELECT valor_global FROM pncp_supplier_contracts
-              WHERE {' AND '.join(wheres)}
+              WHERE {" AND ".join(wheres)}
               ORDER BY data_assinatura DESC LIMIT 1000"""
     rows = query(sql, params)
 
@@ -249,7 +248,7 @@ def cmd_pricing(args: argparse.Namespace) -> int:
     n = len(valores)
     media = sum(valores) / n
     var = sum((v - media) ** 2 for v in valores) / n
-    dp = var ** 0.5
+    dp = var**0.5
     cv = (dp / media * 100) if media > 0 else 0.0
 
     def pct(p: float) -> float:
@@ -296,7 +295,7 @@ def cmd_competitors(args: argparse.Namespace) -> int:
                      sum(valor_global) as valor_total,
                      max(data_assinatura) as ultimo_contrato
               FROM pncp_supplier_contracts
-              WHERE {' AND '.join(wheres)}
+              WHERE {" AND ".join(wheres)}
               GROUP BY ni_fornecedor, nome_fornecedor
               ORDER BY n_contratos DESC, valor_total DESC
               LIMIT %s"""
@@ -312,9 +311,11 @@ def cmd_competitors(args: argparse.Namespace) -> int:
     print(f"{'#':<4} {'Fornecedor':<40} {'Contratos':>10} {'Valor Total':>18} {'Último':>12}")
     print("-" * 86)
     for i, r in enumerate(rows):
-        print(f"{i+1:<4} {(r['nome_fornecedor'] or 'N/A')[:39]:<40} "
-              f"{r['n_contratos']:>10,} R$ {r['valor_total']:>15,.2f} "
-              f"{str(r['ultimo_contrato'])[:10]:>12}")
+        print(
+            f"{i + 1:<4} {(r['nome_fornecedor'] or 'N/A')[:39]:<40} "
+            f"{r['n_contratos']:>10,} R$ {r['valor_total']:>15,.2f} "
+            f"{str(r['ultimo_contrato'])[:10]:>12}"
+        )
 
     return 0
 
@@ -352,6 +353,7 @@ def cmd_detail(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 # Coverage Dashboard
 # ---------------------------------------------------------------------------
+
 
 def _fetch_dashboard_data(conn) -> dict:
     """Fetch all coverage dashboard data in a single pass."""
@@ -439,7 +441,7 @@ def cmd_coverage(args: argparse.Namespace) -> int:
         coverage --snapshot               Generate daily snapshot
         coverage --export                  Export gaps to Excel
     """
-    from scripts.crawl.monitor import report_coverage, print_coverage_report
+    from scripts.crawl.monitor import print_coverage_report, report_coverage
 
     conn = get_conn()
     try:
@@ -451,7 +453,8 @@ def cmd_coverage(args: argparse.Namespace) -> int:
                 _console.print(f"\n[green]Snapshot gerado: {date.today()} ({inserted} fontes)[/green]")
 
                 # Show the snapshot data
-                snap_data = query_conn(conn,
+                snap_data = query_conn(
+                    conn,
                     """SELECT source, total_entities, covered_entities, pct_covered
                        FROM coverage_snapshots
                        WHERE snapshot_date = CURRENT_DATE
@@ -483,7 +486,8 @@ def cmd_coverage(args: argparse.Namespace) -> int:
 
         # --gaps: list specific uncovered entities
         if args.gaps:
-            gaps = query_conn(conn,
+            gaps = query_conn(
+                conn,
                 """SELECT municipio, entes_descobertos
                    FROM v_coverage_gaps_by_municipio
                    ORDER BY entes_descobertos DESC
@@ -525,9 +529,7 @@ def cmd_coverage(args: argparse.Namespace) -> int:
             src_table.add_column("Cobertos", justify="right")
             src_table.add_column("%", justify="right")
             for s in data["by_source"]:
-                src_table.add_row(
-                    s["source"], str(s["total"]), str(s["covered"]), f"{s['pct']}%"
-                )
+                src_table.add_row(s["source"], str(s["total"]), str(s["covered"]), f"{s['pct']}%")
             _console.print(src_table)
 
             # By natureza juridica
@@ -586,7 +588,7 @@ def cmd_coverage(args: argparse.Namespace) -> int:
 
 def _export_gaps_to_excel(conn) -> None:
     """Export coverage gaps to Excel using the coverage_gaps module."""
-    from scripts.reports.coverage_gaps import fetch_all_gaps, fetch_gaps_by_municipio, export_excel
+    from scripts.reports.coverage_gaps import export_excel, fetch_all_gaps, fetch_gaps_by_municipio
 
     gaps = fetch_all_gaps(conn)
     gaps_by_muni = fetch_gaps_by_municipio(conn)

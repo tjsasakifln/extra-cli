@@ -13,7 +13,7 @@ Taxa Portal da Transparencia: 90 req/min (6h-23h59). Reservado para fases futura
 import asyncio
 import logging
 import time
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx
@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 _BRASILAPI_BASE = "https://brasilapi.com.br/api"
 _ENRICH_STALENESS_DAYS = 30
-_BATCH_SIZE = 500         # CNPJs por lote de busca no Supabase
-_MAX_CNPJS_PER_RUN = 5000 # teto de seguranca por execucao
-_HTTP_TIMEOUT = 10.0      # segundos por requisicao externa
-_CONCURRENCY = 10         # requisicoes paralelas maximas
+_BATCH_SIZE = 500  # CNPJs por lote de busca no Supabase
+_MAX_CNPJS_PER_RUN = 5000  # teto de seguranca por execucao
+_HTTP_TIMEOUT = 10.0  # segundos por requisicao externa
+_CONCURRENCY = 10  # requisicoes paralelas maximas
 
 
 async def enrich_entities_job() -> dict[str, Any]:
@@ -44,8 +44,14 @@ async def enrich_entities_job() -> dict[str, Any]:
 
     if not stale:
         logger.info("[Enricher] Nenhum CNPJ desatualizado encontrado — job encerrado.")
-        return {"status": "completed", "enriched": 0, "skipped": 0, "failed": 0,
-                "total_fetched": 0, "duration_s": round(time.monotonic() - start, 1)}
+        return {
+            "status": "completed",
+            "enriched": 0,
+            "skipped": 0,
+            "failed": 0,
+            "total_fetched": 0,
+            "duration_s": round(time.monotonic() - start, 1),
+        }
 
     logger.info("[Enricher] %d CNPJs para enriquecer", len(stale))
 
@@ -78,7 +84,10 @@ async def enrich_entities_job() -> dict[str, Any]:
     duration_s = round(time.monotonic() - start, 1)
     logger.info(
         "[Enricher] Concluido em %.1fs — enriquecidos=%d, ignorados=%d, falhas=%d",
-        duration_s, enriched, skipped, failed,
+        duration_s,
+        enriched,
+        skipped,
+        failed,
     )
     return {
         "status": "completed",
@@ -96,10 +105,11 @@ async def _fetch_stale_fornecedores() -> list[str]:
     Criterio de staleness: sem registro em enriched_entities OU enriched_at
     mais antigo que _ENRICH_STALENESS_DAYS dias.
     """
-    cutoff = datetime.now(timezone.utc) - timedelta(days=_ENRICH_STALENESS_DAYS)
+    cutoff = datetime.now(UTC) - timedelta(days=_ENRICH_STALENESS_DAYS)
     cutoff_iso = cutoff.isoformat()
 
     from supabase_client import get_supabase, sb_execute
+
     sb = get_supabase()
 
     # Passo 1: CNPJs distintos no datalake de contratos (is_active=true)
@@ -132,7 +142,7 @@ async def _fetch_stale_fornecedores() -> list[str]:
     fresh_cnpjs: set[str] = set()
     cnpj_list = list(cnpj_set)
     for i in range(0, len(cnpj_list), _BATCH_SIZE):
-        chunk = cnpj_list[i:i + _BATCH_SIZE]
+        chunk = cnpj_list[i : i + _BATCH_SIZE]
         resp = await sb_execute(
             sb.table("enriched_entities")
             .select("entity_id, enriched_at")
@@ -140,7 +150,7 @@ async def _fetch_stale_fornecedores() -> list[str]:
             .in_("entity_id", chunk)
             .gte("enriched_at", cutoff_iso)
         )
-        for row in (resp.data or []):
+        for row in resp.data or []:
             fresh_cnpjs.add(row["entity_id"])
 
     stale = [cnpj for cnpj in cnpj_list if cnpj not in fresh_cnpjs]
@@ -190,14 +200,14 @@ async def _enrich_one_fornecedor(cnpj: str, sem: asyncio.Semaphore) -> dict | No
         "capital_social": _safe_capital(raw.get("capital_social")),
         "qsa_count": len(raw.get("qsa") or []),
         "source": "brasilapi",
-        "source_updated_at": datetime.now(timezone.utc).isoformat(),
+        "source_updated_at": datetime.now(UTC).isoformat(),
     }
 
     return {
         "entity_type": "fornecedor",
         "entity_id": cnpj,
         "data": data,
-        "enriched_at": datetime.now(timezone.utc).isoformat(),
+        "enriched_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -207,12 +217,13 @@ async def _upsert_batch(records: list[dict]) -> None:
     Usa upsert com on_conflict=(entity_type, entity_id) para idempotencia.
     """
     from supabase_client import get_supabase, sb_execute
+
     sb = get_supabase()
 
     # Chunk para evitar payloads muito grandes (Supabase limite ~1MB por request)
     chunk_size = 200
     for i in range(0, len(records), chunk_size):
-        chunk = records[i:i + chunk_size]
+        chunk = records[i : i + chunk_size]
         await sb_execute(
             sb.table("enriched_entities").upsert(
                 chunk,
@@ -315,11 +326,12 @@ async def enrich_municipios_job() -> dict[str, Any]:
     start = time.monotonic()
     logger.info("[EnricherMunicipio] Iniciando enriquecimento de %d municipios", len(_IBGE_SEED))
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=_MUNICIPIO_STALENESS_DAYS)
+    cutoff = datetime.now(UTC) - timedelta(days=_MUNICIPIO_STALENESS_DAYS)
     cutoff_iso = cutoff.isoformat()
 
     # Quais ja foram enriquecidos recentemente?
     from supabase_client import get_supabase, sb_execute
+
     sb = get_supabase()
 
     ibge_codes = [s[0] for s in _IBGE_SEED]
@@ -332,7 +344,7 @@ async def enrich_municipios_job() -> dict[str, Any]:
             .in_("entity_id", ibge_codes)
             .gte("enriched_at", cutoff_iso)
         )
-        for row in (resp.data or []):
+        for row in resp.data or []:
             fresh.add(row["entity_id"])
     except Exception as e:
         logger.warning("[EnricherMunicipio] Falha ao checar freshness: %s", e)
@@ -341,8 +353,11 @@ async def enrich_municipios_job() -> dict[str, Any]:
     if not stale:
         logger.info("[EnricherMunicipio] Nenhum municipio desatualizado — job encerrado.")
         return {
-            "status": "completed", "enriched": 0, "skipped": len(_IBGE_SEED),
-            "failed": 0, "duration_s": round(time.monotonic() - start, 1),
+            "status": "completed",
+            "enriched": 0,
+            "skipped": len(_IBGE_SEED),
+            "failed": 0,
+            "duration_s": round(time.monotonic() - start, 1),
         }
 
     logger.info("[EnricherMunicipio] %d municipios para enriquecer", len(stale))
@@ -374,7 +389,9 @@ async def enrich_municipios_job() -> dict[str, Any]:
     duration_s = round(time.monotonic() - start, 1)
     logger.info(
         "[EnricherMunicipio] Concluido em %.1fs — enriquecidos=%d, falhas=%d",
-        duration_s, enriched, failed,
+        duration_s,
+        enriched,
+        failed,
     )
     return {
         "status": "completed",
@@ -397,28 +414,24 @@ async def _enrich_one_municipio(ibge_code: str, slug: str, sem: asyncio.Semaphor
             if r_local.status_code != 200:
                 logger.debug(
                     "[EnricherMunicipio] IBGE municipio %s retornou %d",
-                    ibge_code, r_local.status_code,
+                    ibge_code,
+                    r_local.status_code,
                 )
                 return None
 
             local_data = r_local.json()
             nome = local_data.get("nome") or ""
-            uf = (local_data.get("microrregiao", {})
-                  .get("mesorregiao", {})
-                  .get("UF", {})
-                  .get("sigla") or "")
-            regiao = (local_data.get("microrregiao", {})
-                      .get("mesorregiao", {})
-                      .get("UF", {})
-                      .get("regiao", {})
-                      .get("nome") or "")
+            uf = local_data.get("microrregiao", {}).get("mesorregiao", {}).get("UF", {}).get("sigla") or ""
+            regiao = (
+                local_data.get("microrregiao", {}).get("mesorregiao", {}).get("UF", {}).get("regiao", {}).get("nome")
+                or ""
+            )
 
             # Populacao estimada (SIDRA agregado 1705, variavel 93)
             populacao: Optional[int] = None
             try:
                 r_pop = await client.get(
-                    f"{_IBGE_API_BASE}/v3/agregados/1705/periodos/2023/variaveis/93"
-                    f"?localidades=N6[{ibge_code}]",
+                    f"{_IBGE_API_BASE}/v3/agregados/1705/periodos/2023/variaveis/93?localidades=N6[{ibge_code}]",
                 )
                 if r_pop.status_code == 200:
                     pop_data = r_pop.json()
@@ -449,14 +462,14 @@ async def _enrich_one_municipio(ibge_code: str, slug: str, sem: asyncio.Semaphor
         "populacao": populacao,
         "pib_per_capita": None,  # reservado para expansao futura (SIDRA 5938)
         "source": "ibge",
-        "source_updated_at": datetime.now(timezone.utc).isoformat(),
+        "source_updated_at": datetime.now(UTC).isoformat(),
     }
 
     return {
         "entity_type": "municipio",
         "entity_id": ibge_code,
         "data": data,
-        "enriched_at": datetime.now(timezone.utc).isoformat(),
+        "enriched_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -501,16 +514,20 @@ async def _fetch_ibge_municipio_lookup() -> dict[tuple[str, str], str]:
                 if resp.status_code != 200:
                     last_error = f"HTTP {resp.status_code}"
                     if attempt < max_retries:
-                        delay = 2 ** attempt
+                        delay = 2**attempt
                         logger.warning(
                             "[EnricherIBGE] IBGE API returned %d (attempt %d/%d) — retrying in %ds",
-                            resp.status_code, attempt + 1, max_retries + 1, delay,
+                            resp.status_code,
+                            attempt + 1,
+                            max_retries + 1,
+                            delay,
                         )
                         await asyncio.sleep(delay)
                         continue
                     logger.error(
                         "[EnricherIBGE] IBGE municipios API returned %d after %d attempts — using cached lookup",
-                        resp.status_code, max_retries + 1,
+                        resp.status_code,
+                        max_retries + 1,
                     )
                     return _IBGE_MUNICIPIOS_CACHE  # fallback to stale cache
 
@@ -519,27 +536,26 @@ async def _fetch_ibge_municipio_lookup() -> dict[tuple[str, str], str]:
         except (httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError) as e:
             last_error = str(e)
             if attempt < max_retries:
-                delay = 2 ** attempt
+                delay = 2**attempt
                 logger.warning(
                     "[EnricherIBGE] IBGE API request failed: %s (attempt %d/%d) — retrying in %ds",
-                    e, attempt + 1, max_retries + 1, delay,
+                    e,
+                    attempt + 1,
+                    max_retries + 1,
+                    delay,
                 )
                 await asyncio.sleep(delay)
                 continue
             logger.error(
                 "[EnricherIBGE] IBGE API request failed after %d attempts: %s — using cached lookup",
-                max_retries + 1, e,
+                max_retries + 1,
+                e,
             )
             return _IBGE_MUNICIPIOS_CACHE  # fallback to stale cache
 
     for m in municipios:
         nome = (m.get("nome") or "").strip().lower()
-        uf = (
-            (m.get("microrregiao") or {})
-            .get("mesorregiao", {})
-            .get("UF", {})
-            .get("sigla") or ""
-        ).strip().upper()
+        uf = ((m.get("microrregiao") or {}).get("mesorregiao", {}).get("UF", {}).get("sigla") or "").strip().upper()
         codigo = str(m.get("id") or "")
         if nome and uf and codigo:
             lookup[(nome, uf)] = codigo
@@ -548,7 +564,8 @@ async def _fetch_ibge_municipio_lookup() -> dict[tuple[str, str], str]:
     _IBGE_MUNICIPIOS_CACHE_TS = now
     logger.info(
         "[EnricherIBGE] Municipios lookup built: %d entries (%.1f KB)",
-        len(lookup), len(str(lookup)) / 1024,
+        len(lookup),
+        len(str(lookup)) / 1024,
     )
     return lookup
 
@@ -577,6 +594,7 @@ async def enrich_pncp_ibge_codes_job() -> dict[str, Any]:
 
     # Fetch distinct (municipio, uf) pairs with empty IBGE code
     from supabase_client import get_supabase, sb_execute
+
     sb = get_supabase()
 
     pairs: set[tuple[str, str]] = set()
@@ -605,8 +623,11 @@ async def enrich_pncp_ibge_codes_job() -> dict[str, Any]:
     if not pairs:
         logger.info("[EnricherIBGE] No rows with empty IBGE code — job done")
         return {
-            "status": "completed", "resolved": 0, "skipped": 0,
-            "unmatched": 0, "duration_s": round(time.monotonic() - start, 1),
+            "status": "completed",
+            "resolved": 0,
+            "skipped": 0,
+            "unmatched": 0,
+            "duration_s": round(time.monotonic() - start, 1),
         }
 
     # Resolve codes
@@ -630,10 +651,7 @@ async def enrich_pncp_ibge_codes_job() -> dict[str, Any]:
     if updates:
         # Build a mapping table via JSONB and update in one pass
         try:
-            mapping = [
-                {"nome": u["municipio"], "uf": u["uf"], "codigo": u["codigo"]}
-                for u in updates
-            ]
+            mapping = [{"nome": u["municipio"], "uf": u["uf"], "codigo": u["codigo"]} for u in updates]
             result = await sb_execute(
                 sb.rpc(
                     "backfill_ibge_codes",
@@ -646,7 +664,8 @@ async def enrich_pncp_ibge_codes_job() -> dict[str, Any]:
                 actual_updated = actual_updated[0].get("rows_updated", resolved) if actual_updated else resolved
             logger.info(
                 "[EnricherIBGE] Backfill RPC returned: %s (expected ~%d rows)",
-                actual_updated, resolved,
+                actual_updated,
+                resolved,
             )
             resolved = actual_updated if isinstance(actual_updated, int) else resolved
         except Exception as e:
@@ -657,7 +676,11 @@ async def enrich_pncp_ibge_codes_job() -> dict[str, Any]:
     duration_s = round(time.monotonic() - start, 1)
     logger.info(
         "[EnricherIBGE] Job done in %.1fs — resolved=%d, skipped=%d, unmatched=%d/%d",
-        duration_s, resolved, skipped, unmatched, len(pairs),
+        duration_s,
+        resolved,
+        skipped,
+        unmatched,
+        len(pairs),
     )
     return {
         "status": "completed",

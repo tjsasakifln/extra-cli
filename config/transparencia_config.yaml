@@ -48,13 +48,101 @@ templates:
 #     selectors: {}  # Opcional — apenas para template: custom
 #     ativo: true    # Opcional — false para desabilitar temporariamente
 
-municipios: {}
-# Municipios com portal de transparencia mapeado.
-# Preencher com base na baseline de cobertura (Story 001.5).
-# Formato:
-#   <slug_municipio>:
-#     ibge: "<codigo_ibge_7digitos>"
-#     portal_url: "<url_completa_do_portal>"
-#     template: "<nome_do_template>"
-#     selectors: {}  # Opcional — apenas para template: custom
-#     ativo: true    # Opcional — false para desabilitar temporariamente
+municipios:
+  # Betha / portal_transparencia_net (padrao atende.net)
+  chapeco:
+    ibge: "4204202"
+    portal_url: "https://chapeco.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: true    # Portal com JS que requer Selenium
+    wait_for: "table.licitacao"
+    ativo: true
+
+  sao-jose:
+    ibge: "4216602"
+    portal_url: "https://sao-jose.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: true
+    wait_for: "table.licitacao"
+    ativo: true
+
+  blumenau:
+    ibge: "4202404"
+    portal_url: "https://blumenau.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false   # HTML estatico, usa HTTP
+    ativo: true
+
+  # Ipam / ipm.org.br
+  itajai:
+    ibge: "4208203"
+    portal_url: "https://itajai.ipm.org.br/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  criciuma:
+    ibge: "4204608"
+    portal_url: "https://criciuma.ipm.org.br/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  lages:
+    ibge: "4209300"
+    portal_url: "https://lages.ipm.org.br/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  # E-gov / e_gov_net (Betha e-gov)
+  florianopolis:
+    ibge: "4205407"
+    portal_url: "https://florianopolis.e-gov.betha.com.br"
+    template: "e_gov_net"
+    requires_js: true
+    wait_for: "div.lista-licitacoes"
+    ativo: true
+
+  joinville:
+    ibge: "4209102"
+    portal_url: "https://joinville.e-gov.betha.com.br"
+    template: "e_gov_net"
+    requires_js: true
+    wait_for: "div.lista-licitacoes"
+    ativo: true
+
+  balneario-camboriu:
+    ibge: "4202008"
+    portal_url: "https://balneario-camboriu.e-gov.betha.com.br"
+    template: "e_gov_net"
+    requires_js: false
+    ativo: true
+
+  # Custom (dominio proprio .gov.br, scraping especifico)
+  tubarao:
+    ibge: "4218700"
+    portal_url: "https://tubarao.sc.gov.br"
+    template: "custom"
+    requires_js: false   # HTML estatico
+    selectors:
+      lista_licitacoes: "table.table-licitacoes"
+    ativo: true
+
+  brusque:
+    ibge: "4202909"
+    portal_url: "https://brusque.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    selectors:
+      lista_licitacoes: "table.table-licitacoes"
+    ativo: true
+
+  rio-do-sul:
+    ibge: "4214805"
+    portal_url: "https://riodosul.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    selectors:
+      lista_licitacoes: "table.table-licitacoes"
+    ativo: true

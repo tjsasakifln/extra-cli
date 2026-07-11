@@ -17,6 +17,7 @@ Requires:
     pip install openai
     OPENAI_API_KEY env var set
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,7 +27,7 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -48,19 +49,21 @@ if sys.platform == "win32":
 
 VERSION = "2.0.0"
 
-MAX_TEXT_CHARS = 50_000       # Truncate document text beyond this
+MAX_TEXT_CHARS = 50_000  # Truncate document text beyond this
 MAX_TOKENS_RESPONSE = 2_500  # Increased for 21 fields (was 2000 for 16)
-LLM_TEMPERATURE = 0          # Deterministic output
-MAX_WORKERS = 5              # Parallel LLM calls
-RETRY_ATTEMPTS = 2           # Retry on transient failures
-RETRY_DELAY_S = 2.0          # Seconds between retries
+LLM_TEMPERATURE = 0  # Deterministic output
+MAX_WORKERS = 5  # Parallel LLM calls
+RETRY_ATTEMPTS = 2  # Retry on transient failures
+RETRY_DELAY_S = 2.0  # Seconds between retries
 
 REVIEW_MAX_TEXT_CHARS = 10_000  # Max text chars for adversarial review context
-REVIEW_MAX_TOKENS = 1_000       # Max tokens for review response
+REVIEW_MAX_TOKENS = 1_000  # Max tokens for review response
 
 # Thread-safe print lock
 import threading
+
 _print_lock = threading.Lock()
+
 
 def _tprint(*args: Any, **kwargs: Any) -> None:
     """Thread-safe print."""
@@ -249,6 +252,7 @@ REVIEW_MODEL_MAP = {
 # HELPERS
 # ============================================================
 
+
 def _safe_float(val: Any) -> float:
     """Convert value to float safely."""
     if val is None:
@@ -275,6 +279,7 @@ def _fmt_brl(val: float) -> str:
 # ============================================================
 # BID/NO-BID SCORING (Ajuste 1)
 # ============================================================
+
 
 def _compute_bid_score(edital: dict[str, Any], empresa: dict[str, Any]) -> dict[str, Any]:
     """Compute multi-criteria bid/no-bid score BEFORE LLM analysis."""
@@ -382,6 +387,7 @@ def _compute_bid_score(edital: dict[str, Any], empresa: dict[str, Any]) -> dict[
 # COMPLIANCE MATRIX (Ajuste 2)
 # ============================================================
 
+
 def _build_compliance_matrix(
     analise: dict[str, Any],
     empresa: dict[str, Any],
@@ -453,6 +459,7 @@ def _build_compliance_matrix(
 # URGENCY COMPUTATION (Ajuste 9)
 # ============================================================
 
+
 def _compute_urgency(edital: dict[str, Any], analise: dict[str, Any]) -> dict[str, Any]:
     """Compute urgency level from session date extracted by LLM."""
     data_sessao = analise.get("data_sessao", "")
@@ -471,6 +478,7 @@ def _compute_urgency(edital: dict[str, Any], analise: dict[str, Any]) -> dict[st
     if dt is None:
         # Try just the date part
         import re as _re
+
         date_match = _re.search(r"(\d{2}/\d{2}/\d{4})", data_sessao)
         if date_match:
             try:
@@ -584,10 +592,7 @@ def _build_enrichment_context(edital: dict[str, Any], empresa: dict[str, Any]) -
         lance = bid.get("lance_sugerido", 0)
         desc = bid.get("desconto_sugerido_pct", 0)
         pwin = bid.get("p_vitoria_pct", 0)
-        parts.append(
-            f"SIMULACAO LANCE: R$ {lance:,.2f} (desconto {desc:.1f}%, "
-            f"P(vitoria) {pwin:.0f}%)"
-        )
+        parts.append(f"SIMULACAO LANCE: R$ {lance:,.2f} (desconto {desc:.1f}%, P(vitoria) {pwin:.0f}%)")
 
     # Bid/No-Bid Score (v2)
     bid_score = edital.get("_bid_score") or {}
@@ -603,7 +608,7 @@ def _build_enrichment_context(edital: dict[str, Any], empresa: dict[str, Any]) -
     ci = edital.get("competitive_intel") or {}
     top_comp = ci.get("top_suppliers") or []
     if top_comp:
-        parts.append(f"\nCONCORRENTES HISTORICOS DO ORGAO:")
+        parts.append("\nCONCORRENTES HISTORICOS DO ORGAO:")
         for comp in top_comp[:3]:
             nome = (comp.get("nome") or "")[:40]
             ctr = comp.get("contratos", 0)
@@ -612,10 +617,7 @@ def _build_enrichment_context(edital: dict[str, Any], empresa: dict[str, Any]) -
     pb = ci.get("price_benchmark") or {}
     if pb:
         dm = pb.get("desconto_mediano", 0)
-        parts.append(
-            f"BENCHMARK DE PRECO: desconto mediano {dm:.1%} "
-            f"({pb.get('contratos_analisados', 0)} contratos)"
-        )
+        parts.append(f"BENCHMARK DE PRECO: desconto mediano {dm:.1%} ({pb.get('contratos_analisados', 0)} contratos)")
 
     # Structured extraction hints (v4)
     struct = edital.get("_structured_extraction") or {}
@@ -792,6 +794,7 @@ def _build_user_prompt(
 # LLM CALL
 # ============================================================
 
+
 def _call_llm(
     client: Any,
     model: str,
@@ -818,6 +821,7 @@ def _call_llm(
     except json.JSONDecodeError:
         # Try to extract JSON from markdown code block
         import re
+
         match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", content, re.DOTALL)
         if match:
             result = json.loads(match.group(1))
@@ -832,7 +836,12 @@ def _validate_analysis(analysis: dict[str, Any], edital: dict[str, Any] | None =
     # Ensure all required fields exist
     for field in ANALYSIS_FIELDS:
         if field not in analysis:
-            if field in ("requisitos_tecnicos", "requisitos_habilitacao", "indices_contabeis_exigidos", "atestados_especificos"):
+            if field in (
+                "requisitos_tecnicos",
+                "requisitos_habilitacao",
+                "indices_contabeis_exigidos",
+                "atestados_especificos",
+            ):
                 analysis[field] = ["Nao consta no edital disponivel"]
             else:
                 analysis[field] = "Nao consta no edital disponivel"
@@ -860,13 +869,23 @@ def _validate_analysis(analysis: dict[str, Any], edital: dict[str, Any] | None =
         # Legacy string format — convert to dict
         geral = dif.upper() if dif.upper() in DIFICULDADE_ENUM else "MEDIO"
         analysis["nivel_dificuldade"] = {
-            "tecnico": 3, "prazo": 3, "regulatorio": 3, "logistico": 3, "financeiro": 3,
-            "geral": geral, "justificativa": "",
+            "tecnico": 3,
+            "prazo": 3,
+            "regulatorio": 3,
+            "logistico": 3,
+            "financeiro": 3,
+            "geral": geral,
+            "justificativa": "",
         }
     else:
         analysis["nivel_dificuldade"] = {
-            "tecnico": 3, "prazo": 3, "regulatorio": 3, "logistico": 3, "financeiro": 3,
-            "geral": "MEDIO", "justificativa": "",
+            "tecnico": 3,
+            "prazo": 3,
+            "regulatorio": 3,
+            "logistico": 3,
+            "financeiro": 3,
+            "geral": "MEDIO",
+            "justificativa": "",
         }
 
     rec = (analysis.get("recomendacao_acao") or "").upper()
@@ -913,8 +932,7 @@ def _validate_analysis(analysis: dict[str, Any], edital: dict[str, Any] | None =
             if cnae_val < 20 and fit_val < 0.15:
                 _force_nao = True
                 _force_reason = (
-                    f"Compatibilidade {cnae_val:.0f}% + Aderência {fit_val:.0%} — "
-                    "duplo sinal de incompatibilidade"
+                    f"Compatibilidade {cnae_val:.0f}% + Aderência {fit_val:.0%} — duplo sinal de incompatibilidade"
                 )
         except (TypeError, ValueError):
             pass
@@ -923,12 +941,15 @@ def _validate_analysis(analysis: dict[str, Any], edital: dict[str, Any] | None =
         analysis["recomendacao_acao"] = "NAO PARTICIPAR"
         obs = analysis.get("observacoes_criticas", "")
         override_note = f"[OVERRIDE PROGRAMÁTICO] {_force_reason}."
-        analysis["observacoes_criticas"] = (
-            f"{override_note} {obs}" if obs else override_note
-        )
+        analysis["observacoes_criticas"] = f"{override_note} {obs}" if obs else override_note
 
     # Ensure lists are actually lists
-    for list_field in ("requisitos_tecnicos", "requisitos_habilitacao", "indices_contabeis_exigidos", "atestados_especificos"):
+    for list_field in (
+        "requisitos_tecnicos",
+        "requisitos_habilitacao",
+        "indices_contabeis_exigidos",
+        "atestados_especificos",
+    ):
         val = analysis.get(list_field)
         if isinstance(val, str):
             analysis[list_field] = [val] if val else ["Nao consta no edital disponivel"]
@@ -941,6 +962,7 @@ def _validate_analysis(analysis: dict[str, Any], edital: dict[str, Any] | None =
 # ============================================================
 # ADVERSARIAL REVIEW
 # ============================================================
+
 
 def _adversarial_review(
     client: Any,
@@ -1007,6 +1029,7 @@ def _adversarial_review(
 # ============================================================
 # PER-EDITAL ANALYSIS
 # ============================================================
+
 
 def analyze_edital(
     client: Any,
@@ -1082,10 +1105,7 @@ def _fallback_analysis(
         obs = f"Edital encerrado. Erro na analise LLM: {error_msg}"
     else:
         rec = "NAO PARTICIPAR"
-        obs = (
-            f"Analise automatica indisponivel (erro LLM: {error_msg}). "
-            "Recomenda-se analise manual do edital."
-        )
+        obs = f"Analise automatica indisponivel (erro LLM: {error_msg}). Recomenda-se analise manual do edital."
 
     return {
         "resumo_objeto": f"{objeto[:300]}",
@@ -1102,7 +1122,15 @@ def _fallback_analysis(
         "regime_execucao": "Nao consta no edital disponivel",
         "consorcio": "Nao mencionado no edital",
         "observacoes_criticas": obs,
-        "nivel_dificuldade": {"tecnico": 3, "prazo": 3, "regulatorio": 3, "logistico": 3, "financeiro": 3, "geral": "MEDIO", "justificativa": "Analise automatica indisponivel"},
+        "nivel_dificuldade": {
+            "tecnico": 3,
+            "prazo": 3,
+            "regulatorio": 3,
+            "logistico": 3,
+            "financeiro": 3,
+            "geral": "MEDIO",
+            "justificativa": "Analise automatica indisponivel",
+        },
         "recomendacao_acao": rec,
         "custo_logistico_nota": f"{municipio}/{uf} — distancia nao calculada",
         "_source": "fallback",
@@ -1115,6 +1143,7 @@ def _fallback_analysis(
 # ============================================================
 # EXECUTIVE SUMMARY GENERATION
 # ============================================================
+
 
 def generate_executive_summary(
     client: Any,
@@ -1176,7 +1205,9 @@ def generate_executive_summary(
     ]
     avg_p_vitoria = sum(p_vitorias) / max(1, len(p_vitorias)) if p_vitorias else 0
     valor_esperado = sum(
-        _safe_float(ed.get("valor_estimado")) * _safe_float((ed.get("_bid_simulation") or {}).get("p_vitoria_pct")) / 100
+        _safe_float(ed.get("valor_estimado"))
+        * _safe_float((ed.get("_bid_simulation") or {}).get("p_vitoria_pct"))
+        / 100
         for ed in top20
         if "PARTICIPAR" in (ed.get("analise", {}).get("recomendacao_acao", ""))
         and "NAO" not in (ed.get("analise", {}).get("recomendacao_acao", ""))
@@ -1197,14 +1228,14 @@ def generate_executive_summary(
         f"Empresa: {razao}\n"
         f"Busca: {total_editais} editais encontrados, {compat} compativeis por CNAE, "
         f"UFs: {', '.join(ufs) if ufs else 'N/A'}, ultimos {dias} dias\n"
-        f"Top {len(top20)} analisados:\n" +
-        "\n".join(summary_parts) +
-        f"\n\nRecomendados PARTICIPAR ({len(participar)}):\n" +
-        "\n".join(participar) +
-        f"\n\nRecomendados NAO PARTICIPAR ({len(nao_participar)}):\n" +
-        "\n".join(nao_participar[:10]) +
-        ("\n..." if len(nao_participar) > 10 else "") +
-        portfolio_metrics
+        f"Top {len(top20)} analisados:\n"
+        + "\n".join(summary_parts)
+        + f"\n\nRecomendados PARTICIPAR ({len(participar)}):\n"
+        + "\n".join(participar)
+        + f"\n\nRecomendados NAO PARTICIPAR ({len(nao_participar)}):\n"
+        + "\n".join(nao_participar[:10])
+        + ("\n..." if len(nao_participar) > 10 else "")
+        + portfolio_metrics
     )
 
     system = (
@@ -1261,6 +1292,7 @@ def generate_executive_summary(
 # PREPARE MODE (no API calls — Claude analyzes inline)
 # ============================================================
 
+
 def prepare_mode(input_path: Path, output_path: str | None, top_n: int) -> None:
     """Prepare analysis context for each edital without making LLM calls.
 
@@ -1272,7 +1304,7 @@ def prepare_mode(input_path: Path, output_path: str | None, top_n: int) -> None:
         sys.exit(1)
 
     try:
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         print(f"ERROR: JSON invalido em {input_path}: {e}", file=sys.stderr)
@@ -1323,12 +1355,13 @@ def prepare_mode(input_path: Path, output_path: str | None, top_n: int) -> None:
 
     print(f"\n  Contexto preparado para {len(to_prepare)} editais.")
     print(f"  Salvo em: {out_path}")
-    print(f"  Proximo passo: Claude analisa cada edital e preenche top20[].analise")
+    print("  Proximo passo: Claude analisa cada edital e preenche top20[].analise")
 
 
 # ============================================================
 # SAVE-ANALYSIS MODE (validate Claude's output)
 # ============================================================
+
 
 def save_analysis_mode(input_path: Path, output_path: str | None) -> None:
     """Validate and finalize analyses pre-filled by Claude inline.
@@ -1341,7 +1374,7 @@ def save_analysis_mode(input_path: Path, output_path: str | None) -> None:
         sys.exit(1)
 
     try:
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         print(f"ERROR: JSON invalido em {input_path}: {e}", file=sys.stderr)
@@ -1381,28 +1414,22 @@ def save_analysis_mode(input_path: Path, output_path: str | None) -> None:
         data["_metadata"] = {}
     data["_metadata"]["analysis"] = {
         "version": VERSION,
-        "analyzed_at": datetime.now(timezone.utc).isoformat(),
+        "analyzed_at": datetime.now(UTC).isoformat(),
         "model": "claude-inline",
         "editais_analyzed": analyzed,
         "editais_total": len(top20),
         "editais_with_text": sum(1 for e in top20 if (e.get("texto_documentos") or "").strip()),
         "editais_limited": sum(
-            1 for e in top20
-            if e.get("analise", {}).get("_source") in ("claude_limited", "llm_limited")
+            1 for e in top20 if e.get("analise", {}).get("_source") in ("claude_limited", "llm_limited")
         ),
-        "editais_fallback": sum(
-            1 for e in top20
-            if e.get("analise", {}).get("_source") == "fallback"
-        ),
+        "editais_fallback": sum(1 for e in top20 if e.get("analise", {}).get("_source") == "fallback"),
         "participar": sum(
-            1 for e in top20
+            1
+            for e in top20
             if "PARTICIPAR" in (e.get("analise", {}).get("recomendacao_acao", ""))
             and "NAO" not in (e.get("analise", {}).get("recomendacao_acao", ""))
         ),
-        "nao_participar": sum(
-            1 for e in top20
-            if "NAO" in (e.get("analise", {}).get("recomendacao_acao", ""))
-        ),
+        "nao_participar": sum(1 for e in top20 if "NAO" in (e.get("analise", {}).get("recomendacao_acao", ""))),
         "review_enabled": False,
         "review_corrections_total": 0,
         "review_corrections_per_edital": {},
@@ -1428,10 +1455,11 @@ def save_analysis_mode(input_path: Path, output_path: str | None) -> None:
 # MAIN
 # ============================================================
 
+
 def main() -> None:
     """Entry point for intel-analyze CLI."""
+    from lib.cli_validation import validate_input_json, validate_model, validate_top
     from lib.constants import INTEL_VERSION
-    from lib.cli_validation import validate_input_json, validate_top, validate_model
 
     parser = argparse.ArgumentParser(
         description="Intel Analyze — Analise LLM automatizada dos top editais para /intel-busca.",
@@ -1439,13 +1467,15 @@ def main() -> None:
         epilog=__doc__,
     )
     parser.add_argument(
-        "--input", "-i",
+        "--input",
+        "-i",
         required=True,
         metavar="JSON",
         help="JSON de entrada (output do intel-extract-docs.py com top20[]). Deve existir e ser JSON valido.",
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         default=None,
         metavar="JSON",
         help="JSON de saida (default: sobrescreve input)",
@@ -1461,14 +1491,14 @@ def main() -> None:
         "--prepare",
         action="store_true",
         help="Preparar contexto de analise para cada edital (sem chamadas API). "
-             "Adiciona _analysis_context e _analysis_rules ao top20.",
+        "Adiciona _analysis_context e _analysis_rules ao top20.",
     )
     parser.add_argument(
         "--save-analysis",
         action="store_true",
         dest="save_analysis",
         help="Validar e salvar analises pre-preenchidas por Claude inline. "
-             "Espera top20[].analise ja populado. Roda _validate_analysis() em cada.",
+        "Espera top20[].analise ja populado. Roda _validate_analysis() em cada.",
     )
     parser.add_argument(
         "--model",
@@ -1507,8 +1537,7 @@ def main() -> None:
         action="store_true",
         help="Reduzir output (somente erros e resumo final)",
     )
-    parser.add_argument("--version", action="version",
-                        version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
 
     # ── Validate arguments ──
@@ -1550,7 +1579,7 @@ def main() -> None:
     print(f"{'=' * 60}")
 
     try:
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         print(f"ERROR: JSON invalido em {input_path}: {e}", file=sys.stderr)
@@ -1580,7 +1609,7 @@ def main() -> None:
     print(f"  Top20:   {len(top20)} editais")
 
     # ── Determine which editais to analyze ──
-    to_analyze = top20[:args.top]
+    to_analyze = top20[: args.top]
     if not args.force:
         to_analyze = [ed for ed in to_analyze if not ed.get("analise")]
         skipped = min(len(top20), args.top) - len(to_analyze)
@@ -1594,6 +1623,7 @@ def main() -> None:
             print("\n[2/2] Gerando resumo executivo...")
             try:
                 from openai import OpenAI
+
                 client = OpenAI(api_key=api_key)
                 resumo, passos = generate_executive_summary(client, args.model, data)
                 data["resumo_executivo"] = resumo
@@ -1640,10 +1670,7 @@ def main() -> None:
     indexed_items = list(enumerate(to_analyze, 1))
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
-        futures = {
-            executor.submit(_analyze_one, item): item
-            for item in indexed_items
-        }
+        futures = {executor.submit(_analyze_one, item): item for item in indexed_items}
         for future in concurrent.futures.as_completed(futures):
             try:
                 eid, analysis = future.result()
@@ -1676,7 +1703,9 @@ def main() -> None:
     review_corrections_per_edital: dict[str, int] = {}
 
     if args.review:
-        reviewed_editais = [ed for ed in top20 if ed.get("analise") and ed.get("analise", {}).get("_source") != "fallback"]
+        reviewed_editais = [
+            ed for ed in top20 if ed.get("analise") and ed.get("analise", {}).get("_source") != "fallback"
+        ]
         if reviewed_editais:
             print(f"\n[1.5/2] Revisao adversarial de {len(reviewed_editais)} editais...")
             for ed in reviewed_editais:
@@ -1720,7 +1749,7 @@ def main() -> None:
 
     # ── Generate executive summary ──
     if not args.skip_summary:
-        print(f"\n[2/2] Gerando resumo executivo...")
+        print("\n[2/2] Gerando resumo executivo...")
         try:
             resumo, passos = generate_executive_summary(client, args.model, data)
             data["resumo_executivo"] = resumo
@@ -1734,28 +1763,20 @@ def main() -> None:
         data["_metadata"] = {}
     data["_metadata"]["analysis"] = {
         "version": VERSION,
-        "analyzed_at": datetime.now(timezone.utc).isoformat(),
+        "analyzed_at": datetime.now(UTC).isoformat(),
         "model": args.model,
         "editais_analyzed": applied,
         "editais_total": len(top20),
         "editais_with_text": sum(1 for e in top20 if (e.get("texto_documentos") or "").strip()),
-        "editais_limited": sum(
-            1 for e in top20
-            if e.get("analise", {}).get("_source") == "llm_limited"
-        ),
-        "editais_fallback": sum(
-            1 for e in top20
-            if e.get("analise", {}).get("_source") == "fallback"
-        ),
+        "editais_limited": sum(1 for e in top20 if e.get("analise", {}).get("_source") == "llm_limited"),
+        "editais_fallback": sum(1 for e in top20 if e.get("analise", {}).get("_source") == "fallback"),
         "participar": sum(
-            1 for e in top20
+            1
+            for e in top20
             if "PARTICIPAR" in (e.get("analise", {}).get("recomendacao_acao", ""))
             and "NAO" not in (e.get("analise", {}).get("recomendacao_acao", ""))
         ),
-        "nao_participar": sum(
-            1 for e in top20
-            if "NAO" in (e.get("analise", {}).get("recomendacao_acao", ""))
-        ),
+        "nao_participar": sum(1 for e in top20 if "NAO" in (e.get("analise", {}).get("recomendacao_acao", ""))),
         "review_enabled": args.review,
         "review_corrections_total": review_corrections_total,
         "review_corrections_per_edital": review_corrections_per_edital,
@@ -1772,29 +1793,18 @@ def main() -> None:
     # ── Summary ──
     analyzed_count = sum(1 for e in top20 if e.get("analise"))
     participar = sum(
-        1 for e in top20
+        1
+        for e in top20
         if "PARTICIPAR" in (e.get("analise", {}).get("recomendacao_acao", ""))
         and "NAO" not in (e.get("analise", {}).get("recomendacao_acao", ""))
     )
-    nao = sum(
-        1 for e in top20
-        if "NAO" in (e.get("analise", {}).get("recomendacao_acao", ""))
-    )
-    llm_ok = sum(
-        1 for e in top20
-        if e.get("analise", {}).get("_source") == "llm"
-    )
-    llm_limited = sum(
-        1 for e in top20
-        if e.get("analise", {}).get("_source") == "llm_limited"
-    )
-    fallback = sum(
-        1 for e in top20
-        if e.get("analise", {}).get("_source") == "fallback"
-    )
+    nao = sum(1 for e in top20 if "NAO" in (e.get("analise", {}).get("recomendacao_acao", "")))
+    llm_ok = sum(1 for e in top20 if e.get("analise", {}).get("_source") == "llm")
+    llm_limited = sum(1 for e in top20 if e.get("analise", {}).get("_source") == "llm_limited")
+    fallback = sum(1 for e in top20 if e.get("analise", {}).get("_source") == "fallback")
 
     print(f"\n{'=' * 60}")
-    print(f"  RESULTADO ANALISE")
+    print("  RESULTADO ANALISE")
     print(f"{'=' * 60}")
     print(f"  Editais analisados:    {analyzed_count}/{len(top20)}")
     print(f"  LLM completo:          {llm_ok}")
@@ -1803,7 +1813,7 @@ def main() -> None:
     print(f"  PARTICIPAR:            {participar}")
     print(f"  NAO PARTICIPAR:        {nao}")
     if args.review:
-        print(f"  Revisao adversarial:   ON")
+        print("  Revisao adversarial:   ON")
         print(f"  Correcoes totais:      {review_corrections_total}")
         reviewed_count = sum(1 for v in review_corrections_per_edital.values())
         corrected_count = sum(1 for v in review_corrections_per_edital.values() if v > 0)

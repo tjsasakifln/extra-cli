@@ -1,0 +1,21 @@
+schema: 1
+story: FEAT-2.4
+gate: CONCERNS
+status_reason: '9/10 ACs implemented and passing. AC10 (real JS portal integration test) documented as out-of-scope this sprint. Two minor issues: commented-out deps in requirements.txt and README installation docs pending.'
+reviewer: 'Quinn'
+updated: '2026-07-11T18:00:00Z'
+top_issues:
+  - id: 'REQ-001'
+    severity: medium
+    finding: 'AC10 not implemented — integration test with 2 real JS portals (Betha SPA, e-Gov SPA). Requires ChromeDriver and real portal access.'
+    suggested_action: 'Schedule AC10 as follow-up story when ChromeDriver is available on target environment. Document as known gap.'
+  - id: 'MNT-001'
+    severity: low
+    finding: 'Selenium and webdriver-manager dependencies are commented out in requirements.txt (lines 29-30). Environment has them installed, but production dependency tracking is broken.'
+    suggested_action: 'Uncomment selenium>=4.15.0 and webdriver-manager>=4.0.0 in requirements.txt.'
+  - id: 'DOC-001'
+    severity: low
+    finding: 'Task 5.1 (ChromeDriver installation documentation in README) is incomplete. Task 5.3 (smoke test) is also incomplete per AC10 scope decision.'
+    suggested_action: 'Add ChromeDriver installation guide to project README referencing the Dev Notes in the story.'
+waiver:
+  active: false

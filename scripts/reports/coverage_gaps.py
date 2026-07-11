@@ -32,6 +32,7 @@ DSN = os.getenv(
 
 def get_conn():
     import psycopg2
+
     return psycopg2.connect(DSN)
 
 
@@ -90,7 +91,7 @@ def export_excel(
     """Export gaps to styled Excel workbook."""
     try:
         import openpyxl
-        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     except ImportError:
         print("ERRO: openpyxl nao instalado. Instale com: pip install openpyxl")
         sys.exit(1)
@@ -131,8 +132,7 @@ def export_excel(
         ws1,
         gaps,
         ["ID", "Órgão", "CNPJ-8", "Município", "Natureza Jurídica", "Raio 200km", "Fontes Ativas", "Gap Total"],
-        ["id", "razao_social", "cnpj_8", "municipio", "natureza_juridica",
-         "raio_200km", "fontes_ativas", "gap_total"],
+        ["id", "razao_social", "cnpj_8", "municipio", "natureza_juridica", "raio_200km", "fontes_ativas", "gap_total"],
     )
 
     # -- Sheet 2: By municipio (aggregated) --

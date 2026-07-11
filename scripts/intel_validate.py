@@ -15,6 +15,7 @@ Usage:
 Requires:
     No external dependencies (stdlib only).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -149,7 +150,7 @@ def _extract_cnae_prefixes(empresa: dict) -> set[str]:
 def _edital_id(edital: dict, idx: int) -> str:
     """Build a short identifier for an edital (for issue messages)."""
     obj = (edital.get("objeto") or "")[:60]
-    return f"#{idx+1} ({obj})"
+    return f"#{idx + 1} ({obj})"
 
 
 def gate2_semantic(
@@ -363,12 +364,14 @@ def gate4_completeness(
             for text in texts_to_check:
                 for word_label, pattern in FORBIDDEN_WORDS_PATTERNS:
                     if pattern.search(text):
-                        result["forbidden_words_found"].append({
-                            "edital_idx": idx,
-                            "edital_id": eid,
-                            "field": field_name,
-                            "word": word_label,
-                        })
+                        result["forbidden_words_found"].append(
+                            {
+                                "edital_idx": idx,
+                                "edital_id": eid,
+                                "field": field_name,
+                                "word": word_label,
+                            }
+                        )
                         issue = f"{eid}: campo '{field_name}' contem palavra proibida '{word_label}'"
                         result["issues"].append(issue)
                         result["passed"] = False
@@ -381,10 +384,7 @@ def gate4_completeness(
                                 analise[field_name] = cleaned
                             # For lists, rebuild
                             elif isinstance(field_val, list):
-                                analise[field_name] = [
-                                    cleaned if str(v) == text else v
-                                    for v in field_val
-                                ]
+                                analise[field_name] = [cleaned if str(v) == text else v for v in field_val]
                             _fix(f"Substituido '{word_label}' em {eid}.{field_name}")
 
         # 1b. "Não consta no edital" embedded in sentences (all fields)
@@ -545,8 +545,7 @@ def gate4_completeness(
                 cnae_pct, fit_val = -1, -1
             if cnae_pct < 20 and fit_val < 0.15 and "nao participar" not in rec_norm:
                 issue = (
-                    f"{eid}: Compatibilidade {cnae_pct:.0f}% + Aderência {fit_val:.0%} "
-                    f"mas recomendacao e PARTICIPAR"
+                    f"{eid}: Compatibilidade {cnae_pct:.0f}% + Aderência {fit_val:.0%} mas recomendacao e PARTICIPAR"
                 )
                 result["issues"].append(issue)
                 result["passed"] = False
@@ -555,8 +554,7 @@ def gate4_completeness(
                     analise["recomendacao_acao"] = "NAO PARTICIPAR"
                     obs = analise.get("observacoes_criticas", "")
                     note = (
-                        f"Duplo sinal de incompatibilidade: Compatibilidade {cnae_pct:.0f}% "
-                        f"e Aderência {fit_val:.0%}."
+                        f"Duplo sinal de incompatibilidade: Compatibilidade {cnae_pct:.0f}% e Aderência {fit_val:.0%}."
                     )
                     analise["observacoes_criticas"] = f"{note} {obs}" if obs else note
                     _fix(f"Corrigido: CNAE {cnae_pct:.0f}%+fit {fit_val:.0%} -> NAO PARTICIPAR em {eid}")
@@ -602,6 +600,7 @@ def gate4_completeness(
 # ============================================================
 # GATE 5: REPORT COHERENCE
 # ============================================================
+
 
 def gate5_coherence(
     top20: list[dict],
@@ -677,7 +676,7 @@ def gate5_coherence(
             for municipio_norm in nao_participar_municipios:
                 if municipio_norm and municipio_norm in passo_norm:
                     issue = (
-                        f"proximo_passo #{passo_idx+1} menciona municipio de edital NAO PARTICIPAR"
+                        f"proximo_passo #{passo_idx + 1} menciona municipio de edital NAO PARTICIPAR"
                         f" ('{municipio_norm}'): '{str(passo)[:80]}'"
                     )
                     result["issues"].append(issue)
@@ -685,8 +684,8 @@ def gate5_coherence(
                     _fail(issue)
                     if do_fix and passo_idx not in indices_passo_to_remove:
                         indices_passo_to_remove.append(passo_idx)
-                        result["auto_fixed"].append(f"Removido proximo_passo #{passo_idx+1}")
-                        _fix(f"Removido proximo_passo #{passo_idx+1} (municipio NAO PARTICIPAR)")
+                        result["auto_fixed"].append(f"Removido proximo_passo #{passo_idx + 1}")
+                        _fix(f"Removido proximo_passo #{passo_idx + 1} (municipio NAO PARTICIPAR)")
                     break
         if do_fix and indices_passo_to_remove and isinstance(data_root, dict):
             data_root["proximos_passos"] = [
@@ -747,6 +746,7 @@ def gate5_coherence(
 # ============================================================
 # V4 VALIDATION (new capabilities)
 # ============================================================
+
 
 def validate_v4_fields(top20: list[dict], empresa: dict) -> dict[str, Any]:
     """Validate v4 fields: cnae_confidence, victory_fit, bid_simulation, delta."""
@@ -820,6 +820,7 @@ def validate_v4_fields(top20: list[dict], empresa: dict) -> dict[str, Any]:
 # MAIN
 # ============================================================
 
+
 def main() -> None:
     """Entry point for intel-validate CLI."""
     from lib.cli_validation import validate_input_file
@@ -834,24 +835,29 @@ def main() -> None:
   python scripts/intel-validate.py --input data.json --fix --strict""",
     )
     parser.add_argument(
-        "--input", "-i", required=True,
+        "--input",
+        "-i",
+        required=True,
         help="JSON de entrada com top20[].analise (output do intel-analyze.py). Deve existir.",
     )
     parser.add_argument(
-        "--output", "-o", default=None,
+        "--output",
+        "-o",
+        default=None,
         help="Caminho para salvar o relatorio de validacao JSON (default: <input>-validation.json)",
     )
     parser.add_argument(
-        "--fix", action="store_true",
+        "--fix",
+        action="store_true",
         help="Auto-corrigir problemas encontrados e salvar JSON corrigido in-place. "
-             "Corrige: datas expiradas, campos vazios, recomendacoes incoerentes.",
+        "Corrige: datas expiradas, campos vazios, recomendacoes incoerentes.",
     )
     parser.add_argument(
-        "--strict", action="store_true",
+        "--strict",
+        action="store_true",
         help="Exit code 1 se qualquer gate falhar (para uso em CI/CD pipelines)",
     )
-    parser.add_argument("--version", action="version",
-                        version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
 
     # ── Validate arguments ──
@@ -886,8 +892,10 @@ def main() -> None:
         # only through Gate 1/Gate 2 without LLM gate populating top20)
         editais_fallback = data.get("editais", [])
         if editais_fallback:
-            logger.warning("top20 vazio ou ausente — usando lista completa de editais como fallback (%d editais)",
-                          len(editais_fallback))
+            logger.warning(
+                "top20 vazio ou ausente — usando lista completa de editais como fallback (%d editais)",
+                len(editais_fallback),
+            )
             logger.warning("Validacao parcial: top20 nao disponivel (pipeline executado ate Gate 1/2 apenas)")
             top20 = editais_fallback[:20]  # Limit to top 20 by input order
         else:
@@ -927,17 +935,21 @@ def main() -> None:
     # Combine all removed editais
     all_removed = []
     for e in gate2_removed:
-        all_removed.append({
-            "gate": "gate2",
-            "objeto": (e.get("objeto") or "")[:80],
-            "valor_estimado": e.get("valor_estimado"),
-        })
+        all_removed.append(
+            {
+                "gate": "gate2",
+                "objeto": (e.get("objeto") or "")[:80],
+                "valor_estimado": e.get("valor_estimado"),
+            }
+        )
     for e in gate5_removed:
-        all_removed.append({
-            "gate": "gate5",
-            "objeto": (e.get("objeto") or "")[:80],
-            "valor_estimado": e.get("valor_estimado"),
-        })
+        all_removed.append(
+            {
+                "gate": "gate5",
+                "objeto": (e.get("objeto") or "")[:80],
+                "valor_estimado": e.get("valor_estimado"),
+            }
+        )
 
     # Build validation report
     overall_passed = gate2_result["passed"] and gate4_result["passed"] and gate5_result["passed"]
@@ -975,9 +987,7 @@ def main() -> None:
     # Collect warnings (non-blocking issues)
     remaining_count = len(top20)
     if remaining_count < 5:
-        report["top20_warnings"].append(
-            f"Apenas {remaining_count} editais restantes no top20 apos validacao"
-        )
+        report["top20_warnings"].append(f"Apenas {remaining_count} editais restantes no top20 apos validacao")
     if gate5_result["campos_completos_pct"] < 80:
         report["top20_warnings"].append(
             f"campos_completos_pct = {gate5_result['campos_completos_pct']}% — abaixo do ideal (80%)"
@@ -985,11 +995,7 @@ def main() -> None:
 
     # ── Summary ──
     _header("RESUMO")
-    total_issues = (
-        len(gate2_result["issues"])
-        + len(gate4_result["issues"])
-        + len(gate5_result["issues"])
-    )
+    total_issues = len(gate2_result["issues"]) + len(gate4_result["issues"]) + len(gate5_result["issues"])
     logger.info("Gate 2 (Semantica):    %s", "PASS" if gate2_result["passed"] else "FAIL")
     logger.info("Gate 4 (Completude):   %s", "PASS" if gate4_result["passed"] else "FAIL")
     logger.info("Gate 5 (Coerencia):    %s", "PASS" if gate5_result["passed"] else "FAIL")

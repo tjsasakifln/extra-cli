@@ -17,7 +17,6 @@ Funcionalidades:
 
 from __future__ import annotations
 
-import os
 import re
 import unicodedata
 from typing import Final
@@ -49,9 +48,7 @@ ABBREVIATIONS: Final[dict[str, str]] = {
 }
 
 # Sorted by length (longest first) so multi-word abbreviations match first
-_ABBREV_SORTED: Final[list[tuple[str, str]]] = sorted(
-    ABBREVIATIONS.items(), key=lambda x: -len(x[0])
-)
+_ABBREV_SORTED: Final[list[tuple[str, str]]] = sorted(ABBREVIATIONS.items(), key=lambda x: -len(x[0]))
 
 # ---------------------------------------------------------------------------
 # Irrelevant terms that can be stripped from names
@@ -174,7 +171,7 @@ def load_abbreviations_from_yaml(path: str | None = None) -> dict[str, str]:
     try:
         import yaml
 
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         if isinstance(data, dict):

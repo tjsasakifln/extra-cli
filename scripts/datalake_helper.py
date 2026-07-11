@@ -34,7 +34,6 @@ from contextlib import contextmanager
 from datetime import date, datetime, timedelta
 from typing import Any
 
-
 _DEFAULT_LIMIT = 2000
 _MAX_LIMIT = 5000  # search_datalake RPC cap
 
@@ -425,11 +424,15 @@ class DatalakeClient:
         ds, de = self._resolve_dates(meses_to_dias(meses), date_start, date_end)
 
         try:
-            q = sb.table("pncp_supplier_contracts").select(
-                "numero_controle_pncp,ni_fornecedor,nome_fornecedor,orgao_cnpj,"
-                "orgao_nome,uf,municipio,esfera,valor_global,data_assinatura,"
-                "objeto_contrato,ingested_at"
-            ).eq("is_active", True)
+            q = (
+                sb.table("pncp_supplier_contracts")
+                .select(
+                    "numero_controle_pncp,ni_fornecedor,nome_fornecedor,orgao_cnpj,"
+                    "orgao_nome,uf,municipio,esfera,valor_global,data_assinatura,"
+                    "objeto_contrato,ingested_at"
+                )
+                .eq("is_active", True)
+            )
             if ni_fornecedor:
                 q = q.eq("ni_fornecedor", "".join(ch for ch in ni_fornecedor if ch.isdigit()))
             if orgao_cnpj:
@@ -489,10 +492,7 @@ class DatalakeClient:
         if rows is None:
             return None, meta
 
-        valid = [
-            r for r in rows
-            if r.get("valor_global") is not None and float(r["valor_global"]) >= valor_min
-        ]
+        valid = [r for r in rows if r.get("valor_global") is not None and float(r["valor_global"]) >= valor_min]
         if not valid:
             return None, {**meta, "datalake_error": "0 contracts with valid valor_global"}
 
@@ -500,7 +500,7 @@ class DatalakeClient:
         n = len(valores)
         media = sum(valores) / n
         var = sum((v - media) ** 2 for v in valores) / n
-        dp = var ** 0.5
+        dp = var**0.5
         cv = (dp / media * 100) if media > 0 else 0.0
 
         def percentile(p: float) -> float:
@@ -844,6 +844,7 @@ class DatalakeClient:
         date_end: date | str | None,
     ) -> tuple[str | None, str | None]:
         """Normaliza inputs de data para ISO YYYY-MM-DD."""
+
         def to_iso(d: date | str | None) -> str | None:
             if d is None:
                 return None

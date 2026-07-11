@@ -53,7 +53,7 @@ OPENAI_MAX_CONCURRENT = int(os.getenv("OPENAI_MAX_CONCURRENT", "5"))
 PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v1")
 PNCP_FILES_BASE = os.getenv("PNCP_FILES_BASE", "https://pncp.gov.br/api/pncp/v1")
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "50"))
-PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "100"))
+PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))
 PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "15"))
 PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "1"))
 
@@ -83,10 +83,8 @@ COMPRAS_GOV_BASE = os.getenv(
 # Ingestion Settings
 # ---------------------------------------------------------------------------
 INGESTION_UFS = os.getenv("INGESTION_UFS", "SC").split(",")
-INGESTION_MODALIDADES = [
-    int(m) for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7").split(",")
-]
-INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "3"))
+INGESTION_MODALIDADES = [int(m) for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7,8,12").split(",")]
+INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "30"))
 INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "3"))
 INGESTION_PURGE_GRACE_DAYS = int(os.getenv("INGESTION_PURGE_GRACE_DAYS", "400"))
 INGESTION_BATCH_DELAY_S = float(os.getenv("INGESTION_BATCH_DELAY_S", "1.0"))
@@ -96,9 +94,7 @@ INGESTION_MAX_PAGES = int(os.getenv("INGESTION_MAX_PAGES", "50"))
 
 # Full crawl schedule
 INGESTION_FULL_CRAWL_HOUR_UTC = int(os.getenv("INGESTION_FULL_CRAWL_HOUR_UTC", "5"))
-INGESTION_INCREMENTAL_HOURS = [
-    int(h) for h in os.getenv("INGESTION_INCREMENTAL_HOURS", "11,17,23").split(",")
-]
+INGESTION_INCREMENTAL_HOURS = [int(h) for h in os.getenv("INGESTION_INCREMENTAL_HOURS", "11,17,23").split(",")]
 
 # ---------------------------------------------------------------------------
 # Sector Config
@@ -137,9 +133,7 @@ ALERT_DISK_CRIT_PCT = int(os.getenv("ALERT_DISK_CRIT_PCT", "90"))
 ALERT_BACKUP_MAX_HOURS = int(os.getenv("ALERT_BACKUP_MAX_HOURS", "28"))
 
 # Metrics collection interval
-COLLECT_METRICS_INTERVAL_MINUTES = int(
-    os.getenv("COLLECT_METRICS_INTERVAL_MINUTES", "60")
-)
+COLLECT_METRICS_INTERVAL_MINUTES = int(os.getenv("COLLECT_METRICS_INTERVAL_MINUTES", "60"))
 
 # ---------------------------------------------------------------------------
 # Notifications (TD-5.5)

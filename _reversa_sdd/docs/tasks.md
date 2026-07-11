@@ -1,15 +1,11 @@
-# Tasks — Módulo `docs`
+# Docs — Tasks
 
-> 🟢 CONFIRMADO — documentação existente
+| # | Tarefa | Confiança |
+|---|--------|-----------|
+| T-DC01 | Manter diagnósticos TD atualizados com cada sprint | 🟡 |
+| T-DC02 | Manter arquitetura C4 sincronizada com código | 🟡 |
+| T-DC03 | Atualizar runbooks após mudanças de infra | 🟡 |
+| T-DC04 | Documentar novas integrações externas | 🟡 |
+| T-DC05 | Manter quality gates YAML alinhados com código de validação | 🟡 |
 
-### T1: Manter PRD atualizado
-- **Arquivo legado:** `docs/prd/PRD-consultoria-extra.md`
-- **Confiança:** 🟢
-- **Descrição:** Living document. Atualizar features MoSCoW, baselines, fontes de dados.
-- **Critério de pronto:** PRD reflete estado atual do sistema.
-
-### T2: Manter Arquitetura atualizada
-- **Arquivo legado:** `docs/architecture/architecture.md`
-- **Confiança:** 🟢
-- **Descrição:** Diagramas C4, schema, fluxo de dados, decisões. Atualizar a cada mudança estrutural.
-- **Critério de pronto:** Diagramas refletem arquitetura real.
+**Nota:** Docs são mantidos manualmente. Sem geração automatizada.

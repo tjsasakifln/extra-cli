@@ -8,20 +8,22 @@ import asyncio
 import logging
 import sys
 import time as sync_time
-from typing import Any, Callable, Dict, List
+from collections.abc import Callable
+from typing import Any
+
+from clients.pncp.circuit_breaker import _circuit_breaker
+from clients.pncp.retry import (
+    UFS_BY_POPULATION,
+    ModalityFetchState,
+    ParallelFetchResult,
+)
 
 import config as _config
 from config import (
-    PNCP_BATCH_SIZE,
-    PNCP_BATCH_DELAY_S,
     DEFAULT_MODALIDADES,
     MODALIDADES_EXCLUIDAS,
-)
-from clients.pncp.circuit_breaker import _circuit_breaker
-from clients.pncp.retry import (
-    ModalityFetchState,
-    ParallelFetchResult,
-    UFS_BY_POPULATION,
+    PNCP_BATCH_DELAY_S,
+    PNCP_BATCH_SIZE,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,7 +65,7 @@ class _PNCPParallelMixin:
         modalidade: int,
         status: str | None = None,
         max_pages: int | None = None,
-    ) -> tuple[List[Dict[str, Any]], bool]:
+    ) -> tuple[list[dict[str, Any]], bool]:
         """Fetch a single modality with per-modality timeout and partial accumulation.
 
         Uses a shared ``ModalityFetchState`` so that items accumulated before a
@@ -99,7 +101,7 @@ class _PNCPParallelMixin:
                     timeout=per_modality_timeout,
                 )
                 return result
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 state.timed_out = True
                 partial_count = len(state.items)
                 await _circuit_breaker.record_failure()
@@ -127,8 +129,7 @@ class _PNCPParallelMixin:
                     state = ModalityFetchState()
                 else:
                     logger.warning(
-                        f"UF={uf} modalidade={modalidade} timed out after retry "
-                        f"with 0 items — skipping this modality"
+                        f"UF={uf} modalidade={modalidade} timed out after retry with 0 items — skipping this modality"
                     )
         return [], False
 
@@ -137,10 +138,10 @@ class _PNCPParallelMixin:
         uf: str,
         data_inicial: str,
         data_final: str,
-        modalidades: List[int],
+        modalidades: list[int],
         status: str | None = None,
         max_pages: int | None = None,  # STORY-282 AC2: Defaults to PNCP_MAX_PAGES (5)
-    ) -> tuple[List[Dict[str, Any]], bool]:
+    ) -> tuple[list[dict[str, Any]], bool]:
         """Fetch all pages for a single UF across all modalities in parallel.
 
         STORY-252 AC6: Each modality runs with its own timeout so that one
@@ -172,29 +173,23 @@ class _PNCPParallelMixin:
                 for mod in modalidades
             ]
 
-            modality_results = await asyncio.gather(
-                *modality_tasks, return_exceptions=True
-            )
+            modality_results = await asyncio.gather(*modality_tasks, return_exceptions=True)
 
             # Merge and deduplicate across modalities
-            all_items: List[Dict[str, Any]] = []
+            all_items: list[dict[str, Any]] = []
             seen_ids: set[str] = set()
             uf_was_truncated = False
 
             for mod, result in zip(modalidades, modality_results):
                 if isinstance(result, Exception):
-                    logger.warning(
-                        f"UF={uf} modalidade={mod} failed: {result}"
-                    )
+                    logger.warning(f"UF={uf} modalidade={mod} failed: {result}")
                     continue
                 # GTM-FIX-004: result is now (items, was_truncated)
                 items, was_truncated = result
                 if was_truncated:
                     uf_was_truncated = True
                 for item in items:
-                    item_id = item.get("codigoCompra", "") or item.get(
-                        "numeroControlePNCP", ""
-                    )
+                    item_id = item.get("codigoCompra", "") or item.get("numeroControlePNCP", "")
                     if item_id and item_id not in seen_ids:
                         seen_ids.add(item_id)
                         all_items.append(item)
@@ -204,15 +199,15 @@ class _PNCPParallelMixin:
 
     async def buscar_todas_ufs_paralelo(
         self,
-        ufs: List[str],
+        ufs: list[str],
         data_inicial: str,
         data_final: str,
-        modalidades: List[int] | None = None,
+        modalidades: list[int] | None = None,
         status: str | None = None,
         max_pages_per_uf: int | None = None,  # STORY-282 AC2: Defaults to PNCP_MAX_PAGES (5)
         on_uf_complete: Callable[[str, int], Any] | None = None,
         on_uf_status: Callable[..., Any] | None = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Busca licitações em múltiplas UFs em paralelo com limite de concorrência.
 
@@ -241,8 +236,9 @@ class _PNCPParallelMixin:
             >>> len(results)
             1523
         """
-        from config import PNCP_MAX_PAGES
         from clients.pncp.async_client import STATUS_PNCP_MAP
+
+        from config import PNCP_MAX_PAGES
 
         start_time = sync_time.time()
 
@@ -258,8 +254,7 @@ class _PNCPParallelMixin:
         pncp_status = STATUS_PNCP_MAP.get(status) if status else None
 
         logger.info(
-            f"Starting parallel fetch for {len(ufs)} UFs "
-            f"(max_concurrent={self.max_concurrent}, status={status})"
+            f"Starting parallel fetch for {len(ufs)} UFs (max_concurrent={self.max_concurrent}, status={status})"
         )
 
         # Try to recover before checking degraded state (STORY-257A AC4)
@@ -281,9 +276,7 @@ class _PNCPParallelMixin:
             # STORY-252 AC10: Health canary — lightweight probe before full search
             canary_ok = await self.health_canary()  # type: ignore[attr-defined]
             if not canary_ok:
-                logger.warning(
-                    "PNCP health canary failed — returning empty results"
-                )
+                logger.warning("PNCP health canary failed — returning empty results")
                 return ParallelFetchResult(items=[], succeeded_ufs=[], failed_ufs=list(ufs))
 
             # Normal mode
@@ -306,7 +299,7 @@ class _PNCPParallelMixin:
 
         # Create tasks for each UF with optional progress callback
         # GTM-FIX-004: returns (items, was_truncated) tuple
-        async def _fetch_with_callback(uf: str) -> tuple[List[Dict[str, Any]], bool]:
+        async def _fetch_with_callback(uf: str) -> tuple[list[dict[str, Any]], bool]:
             # STORY-257A AC6: Emit "fetching" status when UF starts
             await _safe_callback(on_uf_status, uf, "fetching")
             try:
@@ -321,7 +314,7 @@ class _PNCPParallelMixin:
                     ),
                     timeout=PER_UF_TIMEOUT,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 await _circuit_breaker.record_failure()
                 logger.warning(f"UF={uf} timed out after {PER_UF_TIMEOUT}s — skipping")
                 # AC6: Emit "failed" status
@@ -338,7 +331,7 @@ class _PNCPParallelMixin:
         # with PNCP_BATCH_DELAY_S between batches to reduce API pressure
         batch_size = PNCP_BATCH_SIZE
         batch_delay = PNCP_BATCH_DELAY_S
-        all_items: List[Dict[str, Any]] = []
+        all_items: list[dict[str, Any]] = []
         errors = 0
         succeeded_ufs = []
         failed_ufs = []
@@ -346,17 +339,18 @@ class _PNCPParallelMixin:
         total_batches = (len(ufs_ordered) + batch_size - 1) // batch_size
 
         for batch_idx in range(0, len(ufs_ordered), batch_size):
-            batch = ufs_ordered[batch_idx:batch_idx + batch_size]
+            batch = ufs_ordered[batch_idx : batch_idx + batch_size]
             batch_num = batch_idx // batch_size + 1
 
-            logger.debug(
-                f"Batch {batch_num}/{total_batches}: fetching {len(batch)} UFs: {batch}"
-            )
+            logger.debug(f"Batch {batch_num}/{total_batches}: fetching {len(batch)} UFs: {batch}")
 
             # Emit batch progress via SSE
             await _safe_callback(
-                on_uf_status, batch[0], "batch_info",
-                batch_num=batch_num, total_batches=total_batches,
+                on_uf_status,
+                batch[0],
+                "batch_info",
+                batch_num=batch_num,
+                total_batches=total_batches,
                 ufs_in_batch=batch,
             )
 
@@ -398,7 +392,7 @@ class _PNCPParallelMixin:
 
             RETRY_TIMEOUT = _pncp_timeout_per_uf_degraded()
 
-            async def _retry_uf(uf: str) -> tuple[List[Dict[str, Any]], bool]:
+            async def _retry_uf(uf: str) -> tuple[list[dict[str, Any]], bool]:
                 await _safe_callback(on_uf_status, uf, "retrying", attempt=2, max=2)
                 try:
                     items, was_truncated = await asyncio.wait_for(
@@ -413,7 +407,7 @@ class _PNCPParallelMixin:
                         timeout=RETRY_TIMEOUT,
                     )
                     return items, was_truncated
-                except (asyncio.TimeoutError, Exception) as e:
+                except (TimeoutError, Exception) as e:
                     logger.warning(f"AC7: Retry for UF={uf} failed: {e}")
                     return [], False
 
@@ -447,10 +441,7 @@ class _PNCPParallelMixin:
 
         elapsed = sync_time.time() - start_time
         if truncated_ufs:
-            logger.warning(
-                f"GTM-FIX-004: Truncated UFs: {truncated_ufs}. "
-                f"Results may be incomplete for these states."
-            )
+            logger.warning(f"GTM-FIX-004: Truncated UFs: {truncated_ufs}. Results may be incomplete for these states.")
         logger.info(
             f"Parallel fetch complete: {len(all_items)} items from {len(ufs)} UFs "
             f"in {elapsed:.2f}s ({errors} errors, {len(truncated_ufs)} truncated)"

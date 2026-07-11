@@ -9,6 +9,7 @@ Usage:
     python scripts/intel-extract-docs.py --input data.json --top 10
     python scripts/intel-extract-docs.py --input data.json --top 5 --output enriched.json
 """
+
 from __future__ import annotations
 
 import argparse
@@ -43,11 +44,11 @@ if sys.platform == "win32":
 VERSION = "1.0.0"
 
 MAX_DOWNLOAD_BYTES = 50 * 1024 * 1024  # 50 MB per file
-MAX_TEXT_PER_EDITAL = 60_000           # chars
-MAX_DOCS_PER_EDITAL = 3               # top-priority documents
-DOWNLOAD_TIMEOUT_S = 60               # seconds
-DOWNLOAD_RATE_LIMIT_S = 0.2           # seconds between downloads
-OCR_CHARS_PER_PAGE_THRESHOLD = 100    # trigger OCR if avg chars/page below this
+MAX_TEXT_PER_EDITAL = 60_000  # chars
+MAX_DOCS_PER_EDITAL = 3  # top-priority documents
+DOWNLOAD_TIMEOUT_S = 60  # seconds
+DOWNLOAD_RATE_LIMIT_S = 0.2  # seconds between downloads
+OCR_CHARS_PER_PAGE_THRESHOLD = 100  # trigger OCR if avg chars/page below this
 
 # ============================================================
 # OPTIONAL DEPENDENCY IMPORTS (soft — warn and skip if missing)
@@ -55,6 +56,7 @@ OCR_CHARS_PER_PAGE_THRESHOLD = 100    # trigger OCR if avg chars/page below this
 
 try:
     import httpx
+
     _HTTPX_OK = True
 except ImportError:
     _HTTPX_OK = False
@@ -63,6 +65,7 @@ except ImportError:
 
 try:
     import fitz  # PyMuPDF
+
     _FITZ_OK = True
 except ImportError:
     _FITZ_OK = False
@@ -70,12 +73,14 @@ except ImportError:
 
 try:
     import zipfile as _zipfile_mod
+
     _ZIP_OK = True
 except ImportError:
     _ZIP_OK = False  # stdlib — should always be present
 
 try:
     import rarfile as _rarfile_mod
+
     _RAR_OK = True
 except ImportError:
     _RAR_OK = False
@@ -83,6 +88,7 @@ except ImportError:
 
 try:
     from openpyxl import load_workbook as _openpyxl_load
+
     _OPENPYXL_OK = True
 except ImportError:
     _OPENPYXL_OK = False
@@ -90,6 +96,7 @@ except ImportError:
 
 try:
     import xlrd as _xlrd_mod
+
     _XLRD_OK = True
 except ImportError:
     _XLRD_OK = False
@@ -97,14 +104,16 @@ except ImportError:
 
 # ── Structured extraction templates (optional) ──
 try:
-    from lib.doc_templates import extract_structured, detect_doc_type, merge_extractions, DocType
+    from lib.doc_templates import DocType, detect_doc_type, extract_structured, merge_extractions
+
     _DOC_TEMPLATES_OK = True
 except ImportError:
     _DOC_TEMPLATES_OK = False
 
 # ── Victory profile (optional) ──
 try:
-    from lib.victory_profile import build_victory_profile, score_edital_fit, format_fit_label
+    from lib.victory_profile import build_victory_profile, format_fit_label, score_edital_fit
+
     _VICTORY_PROFILE_OK = True
 except ImportError:
     _VICTORY_PROFILE_OK = False
@@ -113,6 +122,7 @@ except ImportError:
 # ============================================================
 # TEXT EXTRACTION — PDF
 # ============================================================
+
 
 def extract_pdf(path: str) -> str:
     """Extract text from a PDF.
@@ -123,6 +133,7 @@ def extract_pdf(path: str) -> str:
     # --- Primary: pymupdf4llm (markdown output preserves tables) ---
     try:
         import pymupdf4llm  # type: ignore[import]
+
         text = pymupdf4llm.to_markdown(path)
         return text[:MAX_TEXT_PER_EDITAL]
     except ImportError:
@@ -183,6 +194,7 @@ def extract_pdf(path: str) -> str:
 # TEXT EXTRACTION — SPREADSHEETS
 # ============================================================
 
+
 def extract_spreadsheet(path: str) -> str:
     """Extract cell text from XLS or XLSX spreadsheets."""
     ext = Path(path).suffix.lower()
@@ -196,9 +208,7 @@ def extract_spreadsheet(path: str) -> str:
             wb = _openpyxl_load(path, read_only=True, data_only=True)
             for ws in wb.worksheets:
                 for row in ws.iter_rows(values_only=True):
-                    row_text = " | ".join(
-                        str(c) for c in row if c is not None and str(c).strip()
-                    )
+                    row_text = " | ".join(str(c) for c in row if c is not None and str(c).strip())
                     if row_text.strip():
                         texts.append(row_text)
             wb.close()
@@ -229,6 +239,7 @@ def extract_spreadsheet(path: str) -> str:
 # ============================================================
 # TEXT EXTRACTION — ARCHIVES (ZIP / RAR)
 # ============================================================
+
 
 def extract_archive(path: str, archive_type: str) -> str:
     """Extract text from all recognisable files inside a ZIP or RAR archive."""
@@ -285,6 +296,7 @@ def extract_archive(path: str, archive_type: str) -> str:
 # DOCUMENT PRIORITIZATION
 # ============================================================
 
+
 def _doc_priority(doc: dict[str, Any]) -> int:
     """
     Lower number = higher priority.
@@ -332,14 +344,14 @@ def _download_with_retry(
         try:
             resp = httpx.get(url, timeout=timeout, follow_redirects=True)
             if resp.status_code in (429, 500, 502, 503, 504) and attempt < max_retries:
-                delay = min(2.0 * (2 ** attempt), 60.0)
+                delay = min(2.0 * (2**attempt), 60.0)
                 print(f"  [retry] HTTP {resp.status_code} downloading doc, retrying in {delay:.0f}s...")
                 time.sleep(delay)
                 continue
             return resp
         except (httpx.TimeoutException, httpx.ConnectError, httpx.ReadError) as e:
             if attempt < max_retries:
-                delay = min(2.0 * (2 ** attempt), 60.0)
+                delay = min(2.0 * (2**attempt), 60.0)
                 print(f"  [retry] {type(e).__name__} downloading doc, retrying in {delay:.0f}s...")
                 time.sleep(delay)
             else:
@@ -350,6 +362,7 @@ def _download_with_retry(
 # ============================================================
 # DOWNLOAD + DETECT FORMAT
 # ============================================================
+
 
 def _detect_format(content_type: str, url: str, local_path: str) -> str:
     """
@@ -417,12 +430,12 @@ def download_and_extract(doc: dict[str, Any], tmpdir: str) -> str:
 
         content_length = resp.headers.get("content-length")
         if content_length and int(content_length) > MAX_DOWNLOAD_BYTES:
-            print(f"    ⚠ Arquivo muito grande ({int(content_length) // (1024*1024)}MB > 50MB) — ignorado")
+            print(f"    ⚠ Arquivo muito grande ({int(content_length) // (1024 * 1024)}MB > 50MB) — ignorado")
             return ""
 
         raw = resp.content
         if len(raw) > MAX_DOWNLOAD_BYTES:
-            print(f"    ⚠ Arquivo excedeu 50MB durante download — abortado")
+            print("    ⚠ Arquivo excedeu 50MB durante download — abortado")
             return ""
 
         content_type = resp.headers.get("content-type", "")
@@ -465,6 +478,7 @@ def download_and_extract(doc: dict[str, Any], tmpdir: str) -> str:
 # ============================================================
 # PER-EDITAL PROCESSING
 # ============================================================
+
 
 def process_edital(edital: dict[str, Any], idx: int, total: int) -> None:
     """Download and extract text for one edital. Mutates `edital` in-place."""
@@ -524,9 +538,9 @@ def process_edital(edital: dict[str, Any], idx: int, total: int) -> None:
                 total_fields = sum(ext.total_fields for ext in extractions)
                 found_count = sum(1 for f in merged.values() if f.found)
                 completeness = round(found_count / max(len(merged), 1) * 100, 1) if merged else 0.0
-                doc_types_processed = list({
-                    ext.doc_type.value for ext in extractions if ext.doc_type != DocType.UNKNOWN
-                })
+                doc_types_processed = list(
+                    {ext.doc_type.value for ext in extractions if ext.doc_type != DocType.UNKNOWN}
+                )
 
                 edital["_structured_extraction"] = {
                     "fields": {
@@ -540,7 +554,9 @@ def process_edital(edital: dict[str, Any], idx: int, total: int) -> None:
                     "completeness_pct": completeness,
                     "doc_types_processed": doc_types_processed,
                 }
-                print(f"  Extração estruturada: {found_count} campos encontrados, {completeness}% completude, tipos: {doc_types_processed}")
+                print(
+                    f"  Extração estruturada: {found_count} campos encontrados, {completeness}% completude, tipos: {doc_types_processed}"
+                )
 
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
@@ -549,6 +565,7 @@ def process_edital(edital: dict[str, Any], idx: int, total: int) -> None:
 # ============================================================
 # FILTERING & SORTING
 # ============================================================
+
 
 def _dedup_key(e: dict[str, Any]) -> str:
     """Generate a dedup key from orgao CNPJ + year + sequential number."""
@@ -562,7 +579,7 @@ def _dedup_key(e: dict[str, Any]) -> str:
     # Remove Portal de Compras prefix
     for prefix in ["[portal de compras públicas] - ", "[portal de compras publicas] - "]:
         if obj.startswith(prefix):
-            obj = obj[len(prefix):]
+            obj = obj[len(prefix) :]
     valor = e.get("valor_estimado") or 0
     uf = e.get("uf") or ""
     return f"{uf}|{valor}|{obj[:100]}"
@@ -581,9 +598,9 @@ def calculate_opportunity_score(
         victory_profile: Optional VictoryProfile from lib.victory_profile.
             When provided and has_data, blends historical fit into the score.
     """
-    valor = edital.get('valor_estimado') or 0
-    dist_km = (edital.get('distancia') or {}).get('km')
-    status = edital.get('status_temporal', 'PLANEJAVEL')
+    valor = edital.get("valor_estimado") or 0
+    dist_km = (edital.get("distancia") or {}).get("km")
+    status = edital.get("status_temporal", "PLANEJAVEL")
 
     # Base score = valor normalized to capacity
     if capacidade_10x > 0:
@@ -606,16 +623,21 @@ def calculate_opportunity_score(
         dist_penalty = 0.60  # >700km = heavy penalty
 
     # Temporal bonus
-    temporal_bonus = {'URGENTE': 0.10, 'IMINENTE': 0.05, 'PLANEJAVEL': 0.0, 'SEM_DATA': -0.05}.get(status, 0)
+    temporal_bonus = {"URGENTE": 0.10, "IMINENTE": 0.05, "PLANEJAVEL": 0.0, "SEM_DATA": -0.05}.get(status, 0)
 
     # Existing score (unchanged when no victory_profile)
     existing_score = base_score * (1 - dist_penalty) + temporal_bonus
 
     # Victory profile blending
-    if _VICTORY_PROFILE_OK and victory_profile is not None and hasattr(victory_profile, 'has_data') and victory_profile.has_data:
+    if (
+        _VICTORY_PROFILE_OK
+        and victory_profile is not None
+        and hasattr(victory_profile, "has_data")
+        and victory_profile.has_data
+    ):
         fit_score = score_edital_fit(edital, victory_profile)
-        edital['_victory_fit'] = round(fit_score, 4)
-        edital['_victory_fit_label'] = format_fit_label(fit_score)
+        edital["_victory_fit"] = round(fit_score, 4)
+        edital["_victory_fit_label"] = format_fit_label(fit_score)
         score = 0.6 * existing_score + 0.4 * fit_score
     else:
         score = existing_score
@@ -627,7 +649,7 @@ def calculate_opportunity_score(
         score = 0.7 * bid_composite + 0.3 * score
 
     # SESSAO_REALIZADA = opportunity lost — exclude entirely
-    if status == 'SESSAO_REALIZADA':
+    if status == "SESSAO_REALIZADA":
         return 0.0
 
     return round(score, 4)
@@ -664,7 +686,7 @@ def select_top_editais(
         if e.get("status_temporal") in ("EXPIRADO", "SESSAO_REALIZADA"):
             continue
         # Hard cutoff: >700km AND valor < capacidade_3x — exclude from top20
-        dist_km = (e.get('distancia') or {}).get('km')
+        dist_km = (e.get("distancia") or {}).get("km")
         if dist_km is not None and dist_km > 700:
             v = valor or 0
             if capacidade_3x > 0 and v < capacidade_3x:
@@ -678,8 +700,8 @@ def select_top_editais(
 
     # Score and sort by opportunity score desc
     for e in candidates:
-        e['_opportunity_score'] = calculate_opportunity_score(e, capacidade_10x, victory_profile)
-    candidates.sort(key=lambda e: e.get('_opportunity_score') or 0, reverse=True)
+        e["_opportunity_score"] = calculate_opportunity_score(e, capacidade_10x, victory_profile)
+    candidates.sort(key=lambda e: e.get("_opportunity_score") or 0, reverse=True)
     return candidates[:top_n]
 
 
@@ -687,10 +709,11 @@ def select_top_editais(
 # MAIN
 # ============================================================
 
+
 def main() -> None:
     """Entry point for intel-extract-docs CLI."""
-    from lib.constants import INTEL_VERSION
     from lib.cli_validation import validate_input_file, validate_top
+    from lib.constants import INTEL_VERSION
 
     parser = argparse.ArgumentParser(
         description="Download e extracao de texto de documentos de editais (PDF, ZIP, RAR, XLS, XLSX).",
@@ -721,8 +744,7 @@ def main() -> None:
         action="store_true",
         help="Preservar top20 existente no JSON (nao sobrescrever selecao anterior)",
     )
-    parser.add_argument("--version", action="version",
-                        version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
 
     # ── Validate arguments ──
@@ -774,11 +796,15 @@ def main() -> None:
         if all_contracts:
             victory_profile = build_victory_profile(all_contracts, capital_social)
             if victory_profile.has_data:
-                print(f"Perfil de vitória: {victory_profile.total_contracts} contratos, "
-                      f"valor médio R$ {victory_profile.valor_mean:,.0f}, "
-                      f"UFs: {list(victory_profile.uf_weights.keys())[:5]}")
+                print(
+                    f"Perfil de vitória: {victory_profile.total_contracts} contratos, "
+                    f"valor médio R$ {victory_profile.valor_mean:,.0f}, "
+                    f"UFs: {list(victory_profile.uf_weights.keys())[:5]}"
+                )
             else:
-                print(f"Perfil de vitória: apenas {victory_profile.total_contracts} contrato(s) — mínimo 3 necessários, ignorando")
+                print(
+                    f"Perfil de vitória: apenas {victory_profile.total_contracts} contrato(s) — mínimo 3 necessários, ignorando"
+                )
                 victory_profile = None
 
     # ── Filter + select top N ──
@@ -794,10 +820,7 @@ def main() -> None:
         else:
             print("  Todos j\u00e1 t\u00eam texto extra\u00eddo")
         compat_total = sum(1 for e in editais if e.get("cnae_compatible"))
-        print(
-            f"\nFiltrados: {compat_total} CNAE-compat\u00edveis, "
-            f"{len(top)} no top20 preservado"
-        )
+        print(f"\nFiltrados: {compat_total} CNAE-compat\u00edveis, {len(top)} no top20 preservado")
     else:
         top = select_top_editais(editais, capital_social, args.top, victory_profile)
 
@@ -820,15 +843,21 @@ def main() -> None:
         # ── Print top scoring summary ──
         print(f"\n  Top {len(top)} por score (valor x proximidade x urgencia):")
         for rank, ed in enumerate(top, 1):
-            score = ed.get('_opportunity_score', 0)
-            valor_ed = ed.get('valor_estimado') or 0
-            municipio = ed.get('municipio') or ed.get('municipio_orgao') or '?'
-            uf_ed = ed.get('uf') or ''
+            score = ed.get("_opportunity_score", 0)
+            valor_ed = ed.get("valor_estimado") or 0
+            municipio = ed.get("municipio") or ed.get("municipio_orgao") or "?"
+            uf_ed = ed.get("uf") or ""
             loc = f"{municipio}/{uf_ed}" if uf_ed else municipio
-            dist_km = (ed.get('distancia') or {}).get('km')
+            dist_km = (ed.get("distancia") or {}).get("km")
             dist_str = f"{dist_km:.0f}km" if dist_km is not None else "dist?"
-            status_ed = ed.get('status_temporal') or 'SEM_DATA'
-            valor_str = f"R${valor_ed/1e6:.0f}M" if valor_ed >= 1e6 else f"R${valor_ed/1e3:.0f}k" if valor_ed >= 1e3 else f"R${valor_ed:.0f}"
+            status_ed = ed.get("status_temporal") or "SEM_DATA"
+            valor_str = (
+                f"R${valor_ed / 1e6:.0f}M"
+                if valor_ed >= 1e6
+                else f"R${valor_ed / 1e3:.0f}k"
+                if valor_ed >= 1e3
+                else f"R${valor_ed:.0f}"
+            )
             print(f"    #{rank} score={score:.2f} {valor_str} {loc} ({dist_str}, {status_ed})")
 
         # ── Process each edital ──
@@ -844,10 +873,33 @@ def main() -> None:
         # Check for key edital sections in extracted text
         key_sections = {
             "habilitacao": any(kw in texto_lower for kw in ["habilita\u00e7\u00e3o", "habilitacao", "habilita\u00e7"]),
-            "qualificacao": any(kw in texto_lower for kw in ["qualifica\u00e7\u00e3o econ\u00f4mic", "qualificacao economic", "patrim\u00f4nio l\u00edquido", "patrimonio liquido", "capital social"]),
-            "garantia": any(kw in texto_lower for kw in ["garantia", "cau\u00e7\u00e3o", "cau\u00e7ao", "seguro-garantia"]),
-            "prazo": any(kw in texto_lower for kw in ["prazo de execu\u00e7\u00e3o", "prazo de execucao", "meses", "dias corridos"]),
-            "sessao": any(kw in texto_lower for kw in ["sess\u00e3o p\u00fablica", "sessao publica", "data da sess\u00e3o", "data da sessao", "abertura da sess\u00e3o"]),
+            "qualificacao": any(
+                kw in texto_lower
+                for kw in [
+                    "qualifica\u00e7\u00e3o econ\u00f4mic",
+                    "qualificacao economic",
+                    "patrim\u00f4nio l\u00edquido",
+                    "patrimonio liquido",
+                    "capital social",
+                ]
+            ),
+            "garantia": any(
+                kw in texto_lower for kw in ["garantia", "cau\u00e7\u00e3o", "cau\u00e7ao", "seguro-garantia"]
+            ),
+            "prazo": any(
+                kw in texto_lower
+                for kw in ["prazo de execu\u00e7\u00e3o", "prazo de execucao", "meses", "dias corridos"]
+            ),
+            "sessao": any(
+                kw in texto_lower
+                for kw in [
+                    "sess\u00e3o p\u00fablica",
+                    "sessao publica",
+                    "data da sess\u00e3o",
+                    "data da sessao",
+                    "abertura da sess\u00e3o",
+                ]
+            ),
             "visita": any(kw in texto_lower for kw in ["visita t\u00e9cnica", "visita tecnica", "vistoria"]),
             "consorcio": any(kw in texto_lower for kw in ["cons\u00f3rcio", "consorcio"]),
         }
@@ -890,7 +942,9 @@ def main() -> None:
 
     print(f"\n{'─' * 60}")
     print(f"JSON atualizado: {output_path}")
-    print(f"top20: {len(data['top20'])} editais | _backlog: {len(data['_backlog'])} | {docs_extracted} com texto extra\u00eddo | {total_chars:,} chars total")
+    print(
+        f"top20: {len(data['top20'])} editais | _backlog: {len(data['_backlog'])} | {docs_extracted} com texto extra\u00eddo | {total_chars:,} chars total"
+    )
 
 
 if __name__ == "__main__":

@@ -48,13 +48,12 @@ import json
 import os
 import sys
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 from datalake_helper import DatalakeClient  # noqa: E402
-
 
 _DEFAULT_MODALIDADES = [4, 5, 6, 8]
 _DEFAULT_VALOR_MIN = 0
@@ -65,6 +64,7 @@ _HYBRID_GAP_MIN = 30  # minutos: se ETL atrasou mais que isso, complementar com 
 # ---------------------------------------------------------------------------
 # Sectors data
 # ---------------------------------------------------------------------------
+
 
 def load_sectors() -> dict:
     """Lê backend/sectors_data.yaml (estrutura {sectors: {setor_id: {...}}})."""
@@ -99,9 +99,7 @@ def resolve_keywords(setor: str, keywords_extras: list[str] | None, sectors: dic
     return out
 
 
-def resolve_value_range(
-    cliente: dict, setor: str, sectors: dict
-) -> tuple[float, float]:
+def resolve_value_range(cliente: dict, setor: str, sectors: dict) -> tuple[float, float]:
     if cliente.get("valor_min") is not None and cliente.get("valor_max") is not None:
         return float(cliente["valor_min"]), float(cliente["valor_max"])
     if setor in sectors:
@@ -114,6 +112,7 @@ def resolve_value_range(
 # ---------------------------------------------------------------------------
 # Carteira loading
 # ---------------------------------------------------------------------------
+
 
 def load_carteira(args: argparse.Namespace, sectors: dict) -> list[dict]:
     """Constrói carteira normalizada a partir dos args.
@@ -156,26 +155,29 @@ def load_carteira(args: argparse.Namespace, sectors: dict) -> list[dict]:
         setor = c.get("setor") or ""
         keywords = resolve_keywords(setor, c.get("keywords_extras") or [], sectors)
         vmin, vmax = resolve_value_range(c, setor, sectors)
-        out.append({
-            "cnpj": "".join(ch for ch in (c.get("cnpj") or "") if ch.isdigit()),
-            "nome_fantasia": c.get("nome_fantasia") or c.get("razao_social") or "",
-            "setor": setor,
-            "keywords": keywords,
-            "ufs_interesse": [u.upper() for u in (c.get("ufs_interesse") or [])],
-            "valor_min": vmin,
-            "valor_max": vmax,
-            "modalidades": c.get("modalidades") or list(_DEFAULT_MODALIDADES),
-            "porte": c.get("porte") or "",
-            "capital_social": c.get("capital_social") or 0,
-            "pacote": c.get("pacote") or "",
-            "decisor": c.get("decisor") or "",
-        })
+        out.append(
+            {
+                "cnpj": "".join(ch for ch in (c.get("cnpj") or "") if ch.isdigit()),
+                "nome_fantasia": c.get("nome_fantasia") or c.get("razao_social") or "",
+                "setor": setor,
+                "keywords": keywords,
+                "ufs_interesse": [u.upper() for u in (c.get("ufs_interesse") or [])],
+                "valor_min": vmin,
+                "valor_max": vmax,
+                "modalidades": c.get("modalidades") or list(_DEFAULT_MODALIDADES),
+                "porte": c.get("porte") or "",
+                "capital_social": c.get("capital_social") or 0,
+                "pacote": c.get("pacote") or "",
+                "decisor": c.get("decisor") or "",
+            }
+        )
     return out
 
 
 # ---------------------------------------------------------------------------
 # DataLake collector
 # ---------------------------------------------------------------------------
+
 
 def collect_from_datalake(
     carteira: list[dict],
@@ -217,12 +219,12 @@ def collect_from_datalake(
     etl_gap_min: float | None = None
     bids_live_complement: list[dict] = []
     if last_etl is not None:
-        gap = datetime.now(timezone.utc) - last_etl
+        gap = datetime.now(UTC) - last_etl
         etl_gap_min = round(gap.total_seconds() / 60, 1)
         if etl_gap_min > _HYBRID_GAP_MIN and modo != "abertas":
             bids_live_complement = _live_pncp_window(
                 start=last_etl,
-                end=datetime.now(timezone.utc),
+                end=datetime.now(UTC),
                 modalidades=all_mods,
             )
 
@@ -260,26 +262,28 @@ def _normalize_editais(bids: list[dict]) -> list[dict]:
     """Normaliza shape das rows do DataLake para output JSON estável."""
     out = []
     for b in bids:
-        out.append({
-            "pncp_id": b.get("pncp_id"),
-            "objeto_compra": b.get("objeto_compra"),
-            "valor_total_estimado": b.get("valor_total_estimado") or 0,
-            "uf": b.get("uf"),
-            "municipio": b.get("municipio"),
-            "codigo_municipio_ibge": b.get("codigo_municipio_ibge"),
-            "esfera_id": b.get("esfera_id"),
-            "orgao_cnpj": b.get("orgao_cnpj"),
-            "orgao_razao_social": b.get("orgao_razao_social"),
-            "unidade_nome": b.get("unidade_nome"),
-            "modalidade_id": b.get("modalidade_id"),
-            "modalidade_nome": b.get("modalidade_nome"),
-            "data_publicacao": b.get("data_publicacao"),
-            "data_abertura": b.get("data_abertura"),
-            "data_encerramento": b.get("data_encerramento"),
-            "situacao_compra": b.get("situacao_compra"),
-            "link_pncp": b.get("link_pncp"),
-            "link_sistema_origem": b.get("link_sistema_origem"),
-        })
+        out.append(
+            {
+                "pncp_id": b.get("pncp_id"),
+                "objeto_compra": b.get("objeto_compra"),
+                "valor_total_estimado": b.get("valor_total_estimado") or 0,
+                "uf": b.get("uf"),
+                "municipio": b.get("municipio"),
+                "codigo_municipio_ibge": b.get("codigo_municipio_ibge"),
+                "esfera_id": b.get("esfera_id"),
+                "orgao_cnpj": b.get("orgao_cnpj"),
+                "orgao_razao_social": b.get("orgao_razao_social"),
+                "unidade_nome": b.get("unidade_nome"),
+                "modalidade_id": b.get("modalidade_id"),
+                "modalidade_nome": b.get("modalidade_nome"),
+                "data_publicacao": b.get("data_publicacao"),
+                "data_abertura": b.get("data_abertura"),
+                "data_encerramento": b.get("data_encerramento"),
+                "situacao_compra": b.get("situacao_compra"),
+                "link_pncp": b.get("link_pncp"),
+                "link_sistema_origem": b.get("link_sistema_origem"),
+            }
+        )
     return out
 
 
@@ -310,11 +314,16 @@ def _live_pncp_window(
         for mod_id in modalidades:
             for page in range(1, max_pages_per_mod + 1):
                 try:
-                    r = client.get(_PNCP_URL, params={
-                        "dataInicial": di, "dataFinal": df,
-                        "codigoModalidadeContratacao": mod_id,
-                        "pagina": page, "tamanhoPagina": 50,
-                    })
+                    r = client.get(
+                        _PNCP_URL,
+                        params={
+                            "dataInicial": di,
+                            "dataFinal": df,
+                            "codigoModalidadeContratacao": mod_id,
+                            "pagina": page,
+                            "tamanhoPagina": 50,
+                        },
+                    )
                     if r.status_code == 204 or r.status_code >= 400:
                         break
                     items = (r.json() or {}).get("data") or []
@@ -359,6 +368,7 @@ def _pncp_to_normalized(item: dict) -> dict:
 # Live full fallback (preserva fluxo legado quando DataLake desabilitado)
 # ---------------------------------------------------------------------------
 
+
 def collect_from_live(
     carteira: list[dict],
     dias: int,
@@ -376,8 +386,8 @@ def collect_from_live(
     all_mods = sorted({m for c in carteira for m in c["modalidades"]}) or list(_DEFAULT_MODALIDADES)
 
     bids = _live_pncp_window(
-        start=datetime(start.year, start.month, start.day, tzinfo=timezone.utc),
-        end=datetime(end.year, end.month, end.day, tzinfo=timezone.utc),
+        start=datetime(start.year, start.month, start.day, tzinfo=UTC),
+        end=datetime(end.year, end.month, end.day, tzinfo=UTC),
         modalidades=all_mods,
         max_pages_per_mod=20,
     )
@@ -393,6 +403,7 @@ def collect_from_live(
 # ---------------------------------------------------------------------------
 # Matching cliente × edital
 # ---------------------------------------------------------------------------
+
 
 def score_matching(cliente: dict, edital: dict, hoje: date) -> dict:
     """Calcula score 0-100 + breakdown por dimensão.
@@ -494,14 +505,16 @@ def build_matching(carteira: list[dict], editais: list[dict]) -> list[dict]:
             sc = score_matching(cliente, edital, hoje)
             if sc["tag"] == "DESCARTADO":
                 continue
-            out.append({
-                "cnpj_cliente": cliente["cnpj"],
-                "nome_cliente": cliente["nome_fantasia"],
-                "edital_pncp_id": edital["pncp_id"],
-                "score": sc["score"],
-                "tag": sc["tag"],
-                "dimensions": sc["dimensions"],
-            })
+            out.append(
+                {
+                    "cnpj_cliente": cliente["cnpj"],
+                    "nome_cliente": cliente["nome_fantasia"],
+                    "edital_pncp_id": edital["pncp_id"],
+                    "score": sc["score"],
+                    "tag": sc["tag"],
+                    "dimensions": sc["dimensions"],
+                }
+            )
     out.sort(key=lambda m: m["score"], reverse=True)
     return out
 
@@ -509,6 +522,7 @@ def build_matching(carteira: list[dict], editais: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Radar B2G — varredura DataLake-first")
@@ -531,8 +545,10 @@ def main() -> int:
     carteira = load_carteira(args, sectors)
     print(f"[radar-b2g] carteira={len(carteira)} clientes dias={args.dias} urgente={args.urgente}")
     for c in carteira:
-        print(f"  - {c['cnpj'] or '(sem cnpj)'} | {c['nome_fantasia'][:40]} | setor={c['setor']} | "
-              f"ufs={c['ufs_interesse']} | n_kw={len(c['keywords'])}")
+        print(
+            f"  - {c['cnpj'] or '(sem cnpj)'} | {c['nome_fantasia'][:40]} | setor={c['setor']} | "
+            f"ufs={c['ufs_interesse']} | n_kw={len(c['keywords'])}"
+        )
 
     result: dict | None = None
     use_dl = (not args.no_datalake) and os.getenv("DATALAKE_QUERY_ENABLED", "").lower() in ("true", "1")
@@ -546,8 +562,10 @@ def main() -> int:
             print(f"  DataLake falhou ({dl_result['error']}). Caindo em fallback live...")
         else:
             result = dl_result
-            print(f"  DataLake OK em {dt:.1f}s — {len(result['editais'])} editais "
-                  f"(gap_etl={result.get('etl_gap_min')}min, hybrid_added={result.get('live_complement_added')})")
+            print(
+                f"  DataLake OK em {dt:.1f}s — {len(result['editais'])} editais "
+                f"(gap_etl={result.get('etl_gap_min')}min, hybrid_added={result.get('live_complement_added')})"
+            )
 
     if result is None:
         print("  Buscando live PNCP...")
@@ -560,9 +578,11 @@ def main() -> int:
         print(f"  Live OK em {dt:.1f}s — {len(result['editais'])} editais")
 
     matching = build_matching(carteira, result["editais"])
-    print(f"  Matching: {len(matching)} pares cliente×edital "
-          f"(QUENTE={sum(1 for m in matching if m['tag']=='QUENTE')}, "
-          f"MORNO={sum(1 for m in matching if m['tag']=='MORNO')})")
+    print(
+        f"  Matching: {len(matching)} pares cliente×edital "
+        f"(QUENTE={sum(1 for m in matching if m['tag'] == 'QUENTE')}, "
+        f"MORNO={sum(1 for m in matching if m['tag'] == 'MORNO')})"
+    )
 
     payload = {
         "fonte": result["fonte"],

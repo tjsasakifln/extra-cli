@@ -39,14 +39,15 @@ Exit codes:
     0 = All deterministic checks passed
     1 = Failures found (details in stdout JSON)
 """
+
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import sys
-import io
 from pathlib import Path
-from typing import Any
+
 
 def _fix_win_encoding():
     """Fix Windows console encoding — only call from __main__."""
@@ -66,18 +67,16 @@ MEI_ANNUAL_LIMIT = 81_000.0  # R$ 81.000 MEI faturamento anual limit
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _edital_id(edital: dict, idx: int) -> str:
     """Return a human-readable identifier for an edital."""
-    return (
-        edital.get("_id")
-        or edital.get("numero_controle_pncp")
-        or f"idx:{idx}"
-    )
+    return edital.get("_id") or edital.get("numero_controle_pncp") or f"idx:{idx}"
 
 
 # ---------------------------------------------------------------------------
 # Individual check functions
 # ---------------------------------------------------------------------------
+
 
 def _check_c6_mei_limit(edital: dict, empresa: dict, idx: int) -> dict | None:
     """C6: MEI value limit.
@@ -127,10 +126,7 @@ def _check_c8_link_valid(edital: dict, idx: int) -> dict | None:
         "edital_id": _edital_id(edital, idx),
         "check": "C8",
         "status": "FAIL",
-        "motivo": (
-            f"Link do edital marcado como invalido (link_valid=False). "
-            f"URL: {edital.get('link', 'N/A')}"
-        ),
+        "motivo": (f"Link do edital marcado como invalido (link_valid=False). URL: {edital.get('link', 'N/A')}"),
     }
 
 
@@ -184,9 +180,9 @@ def _check_c12_acervo_unverified(edital: dict, idx: int) -> dict | None:
         "check": "C12",
         "status": "FAIL",
         "motivo": (
-            f"Recomendacao PARTICIPAR mas acervo tecnico NAO_VERIFICADO. "
-            f"Sem comprovacao de capacidade tecnica, recomendacao deve "
-            f"ser rebaixada para AVALIAR COM CAUTELA."
+            "Recomendacao PARTICIPAR mas acervo tecnico NAO_VERIFICADO. "
+            "Sem comprovacao de capacidade tecnica, recomendacao deve "
+            "ser rebaixada para AVALIAR COM CAUTELA."
         ),
     }
 
@@ -212,7 +208,16 @@ def _check_c13_price_above(edital: dict, idx: int) -> dict | None:
     justificativa = (edital.get("justificativa") or "").lower()
 
     # Check if any price-related term is mentioned
-    price_terms = ("acima", "superfaturad", "sobreprec", "sobrepreco", "sobrepreço", "acima do estimado", "preco elevado", "preço elevado")
+    price_terms = (
+        "acima",
+        "superfaturad",
+        "sobreprec",
+        "sobrepreco",
+        "sobrepreço",
+        "acima do estimado",
+        "preco elevado",
+        "preço elevado",
+    )
     if any(term in justificativa for term in price_terms):
         return None  # Addressed, pass
 
@@ -222,9 +227,9 @@ def _check_c13_price_above(edital: dict, idx: int) -> dict | None:
         "check": "C13",
         "status": "FAIL",
         "motivo": (
-            f"Price benchmark indica valor ACIMA do estimado mas "
-            f"justificativa nao menciona sobrepreco/superfaturamento. "
-            f"Risco de preco deve ser explicitamente enderecado."
+            "Price benchmark indica valor ACIMA do estimado mas "
+            "justificativa nao menciona sobrepreco/superfaturamento. "
+            "Risco de preco deve ser explicitamente enderecado."
         ),
     }
 
@@ -280,6 +285,7 @@ def _check_c14_low_habilitacao(edital: dict, idx: int) -> dict | None:
 # ---------------------------------------------------------------------------
 # Main orchestrator
 # ---------------------------------------------------------------------------
+
 
 def run_deterministic_checks(data: dict) -> dict:
     """Run all deterministic Auditor checks on the report data.
@@ -339,6 +345,7 @@ def run_deterministic_checks(data: dict) -> dict:
 # ---------------------------------------------------------------------------
 # Auto-fix logic
 # ---------------------------------------------------------------------------
+
 
 def apply_auto_fixes(data: dict, failures: list[dict]) -> list[str]:
     """Apply automatic fixes (rebaixar recomendacao) for deterministic failures.
@@ -409,15 +416,11 @@ def apply_auto_fixes(data: dict, failures: list[dict]) -> list[str]:
 
         # Append fix note to justificativa
         fix_note = (
-            f" [AUTO-FIX: Rebaixado de '{old_rec}' para '{new_rec}' "
-            f"por checks deterministicos {', '.join(checks_hit)}]"
+            f" [AUTO-FIX: Rebaixado de '{old_rec}' para '{new_rec}' por checks deterministicos {', '.join(checks_hit)}]"
         )
         edital["justificativa"] = (edital.get("justificativa") or "") + fix_note
 
-        fix_desc = (
-            f"Edital {edital_id}: {old_rec} -> {new_rec} "
-            f"(checks: {', '.join(checks_hit)})"
-        )
+        fix_desc = f"Edital {edital_id}: {old_rec} -> {new_rec} (checks: {', '.join(checks_hit)})"
         fixes.append(fix_desc)
 
     return fixes
@@ -427,10 +430,9 @@ def apply_auto_fixes(data: dict, failures: list[dict]) -> list[str]:
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Deterministic Auditor checks for B2G Report data"
-    )
+    parser = argparse.ArgumentParser(description="Deterministic Auditor checks for B2G Report data")
     parser.add_argument(
         "json_path",
         help="Path to the report JSON file",
@@ -447,7 +449,7 @@ def main() -> None:
         print(f"ERROR: File not found: {path}", file=sys.stderr)
         sys.exit(1)
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
     result = run_deterministic_checks(data)

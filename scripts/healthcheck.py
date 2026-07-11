@@ -28,9 +28,7 @@ import os
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
-from pathlib import Path
-
+from datetime import UTC, datetime
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -60,12 +58,15 @@ CRAWLER_TIMERS = [
 # Checks
 # ---------------------------------------------------------------------------
 
+
 def check_db() -> tuple[bool, str]:
     """Check PostgreSQL connectivity."""
     try:
         result = subprocess.run(
             ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         if result.returncode == 0 and "1" in result.stdout.strip():
             return True, "PostgreSQL OK"
@@ -99,7 +100,9 @@ def check_crawlers() -> tuple[bool, str]:
     try:
         result = subprocess.run(
             ["systemctl", "list-timers", "--all", "--no-legend"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         if result.returncode != 0:
             return False, f"systemctl error: {result.stderr.strip()}"
@@ -149,6 +152,7 @@ def check_disk() -> tuple[int, str]:
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main() -> int:
     import argparse
 
@@ -157,7 +161,7 @@ def main() -> int:
     parser.add_argument("--quiet", action="store_true", help="Suppress non-JSON output (use with --json)")
     args = parser.parse_args()
 
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     exit_code = 0
     results: dict[str, dict] = {}
 

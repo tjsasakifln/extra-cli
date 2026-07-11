@@ -30,89 +30,278 @@ logger = setup_intel_logging("intel-llm-gate")
 # ============================================================
 
 NEG_KW_DEFAULT = [
-    "aliment", "refeic", "merenda", "genero", "pereciv", "cesta basica", "carne",
-    "medicament", "farmac", "hospitalar", "ambulatori", "medico", "saude", "enfermag",
-    "odontolog", "laboratori", "protese", "curativo", "ortoped", "colostomia", "nutric",
-    "formula", "contraste", "hemoderivado", "oxigenio",
-    "veiculo zero", "automovel", "van/", "minibus",
-    "aquisicao de caminho", "aquisicao de veiculo", "aquisicao de onibus",
-    "combustivel", "gasolina", "diesel", "etanol", "lubrificant", "pneu",
-    "informatica", "computador", "notebook", "software", "tecnologia da informac",
-    "impressora", "servidor de", "antivirus", "telecom", "telefon", "internet",
-    "switch", " tic", "transceptor",
-    "mobiliario", "movel", "cadeira", "mesa de escritorio", "estante", "armario",
-    "uniforme", "vestuario", "calcado", "epi ",
-    "seguro ", "seguradora", "apolice",
-    "vigilancia", "vigia", "monitorament", "cftv", "alarme", "videomonitor",
-    "transporte escolar", "transporte coletivo", "frete", "servico de transporte",
-    "publicidade", "propaganda", "comunicacao visual", "sonorizac",
-    "locacao de som", "trelica",
-    "contabil", "auditoria", "consultoria em", "assessoria jur",
-    "educacao", "capacitacao", "treinamento", "curso", "didatico", "educacional",
-    "fornecimento de agua", "energia eletrica", "gas canalizado",
-    "cartao", "vale transporte", "vale alimentac", "vale refeic",
-    "locacao de veiculo", "locacao de automovel", "locacao de onibus",
-    "papelaria", "material de escritorio", "expediente",
-    "veterinar", "racao", "animal",
-    "lavanderia", "roupa",
+    "aliment",
+    "refeic",
+    "merenda",
+    "genero",
+    "pereciv",
+    "cesta basica",
+    "carne",
+    "medicament",
+    "farmac",
+    "hospitalar",
+    "ambulatori",
+    "medico",
+    "saude",
+    "enfermag",
+    "odontolog",
+    "laboratori",
+    "protese",
+    "curativo",
+    "ortoped",
+    "colostomia",
+    "nutric",
+    "formula",
+    "contraste",
+    "hemoderivado",
+    "oxigenio",
+    "veiculo zero",
+    "automovel",
+    "van/",
+    "minibus",
+    "aquisicao de caminho",
+    "aquisicao de veiculo",
+    "aquisicao de onibus",
+    "combustivel",
+    "gasolina",
+    "diesel",
+    "etanol",
+    "lubrificant",
+    "pneu",
+    "informatica",
+    "computador",
+    "notebook",
+    "software",
+    "tecnologia da informac",
+    "impressora",
+    "servidor de",
+    "antivirus",
+    "telecom",
+    "telefon",
+    "internet",
+    "switch",
+    " tic",
+    "transceptor",
+    "mobiliario",
+    "movel",
+    "cadeira",
+    "mesa de escritorio",
+    "estante",
+    "armario",
+    "uniforme",
+    "vestuario",
+    "calcado",
+    "epi ",
+    "seguro ",
+    "seguradora",
+    "apolice",
+    "vigilancia",
+    "vigia",
+    "monitorament",
+    "cftv",
+    "alarme",
+    "videomonitor",
+    "transporte escolar",
+    "transporte coletivo",
+    "frete",
+    "servico de transporte",
+    "publicidade",
+    "propaganda",
+    "comunicacao visual",
+    "sonorizac",
+    "locacao de som",
+    "trelica",
+    "contabil",
+    "auditoria",
+    "consultoria em",
+    "assessoria jur",
+    "educacao",
+    "capacitacao",
+    "treinamento",
+    "curso",
+    "didatico",
+    "educacional",
+    "fornecimento de agua",
+    "energia eletrica",
+    "gas canalizado",
+    "cartao",
+    "vale transporte",
+    "vale alimentac",
+    "vale refeic",
+    "locacao de veiculo",
+    "locacao de automovel",
+    "locacao de onibus",
+    "papelaria",
+    "material de escritorio",
+    "expediente",
+    "veterinar",
+    "racao",
+    "animal",
+    "lavanderia",
+    "roupa",
     "brinquedo",
-    "grafica", "material grafico",
-    "condicionad", "refrigerac",
-    "ginastica", "academia",
-    "foto", "filmagem",
-    "pecas e acessorios", "pecas para",
-    "material esportivo", "esportivo",
+    "grafica",
+    "material grafico",
+    "condicionad",
+    "refrigerac",
+    "ginastica",
+    "academia",
+    "foto",
+    "filmagem",
+    "pecas e acessorios",
+    "pecas para",
+    "material esportivo",
+    "esportivo",
     "terceirizad",
-    "residuo solido", "coleta de residuo", "coleta de lixo",
-    "mecanica", "borracharia",
-    "marcenaria", "divisoria", "cortina",
-    "sinalizacao", "placa de sinalizacao",
-    "servicos medicos", "atendimento medico", "plantao",
-    "teleatendimento", "telemedicina",
+    "residuo solido",
+    "coleta de residuo",
+    "coleta de lixo",
+    "mecanica",
+    "borracharia",
+    "marcenaria",
+    "divisoria",
+    "cortina",
+    "sinalizacao",
+    "placa de sinalizacao",
+    "servicos medicos",
+    "atendimento medico",
+    "plantao",
+    "teleatendimento",
+    "telemedicina",
 ]
 
 # Built-in POS_KW fallback (used when sectors_data.yaml is unavailable)
 POS_KW_FALLBACK = [
-    "obra", "construc", "edificac", "edificio", "predio",
-    "reform", "ampliac", "revitaliz", "requalific", "restaurac",
-    "paviment", "asfalto", "recapeamento", "terraplanag", "drenag",
-    "saneamento", "esgoto", "rede de agua", "abastecimento de agua",
-    "ponte", "pontilh", "viaduto", "passarela",
-    "calcad", "meio-fio", "meio fio", "sarjeta",
-    "muro de", "cerca de", "cercamento", "alambrado",
-    "telhado", "cobertura", "fachada", "pintura predial", "impermeabiliz",
-    "demolicao", "demolir",
-    "instalac hidraul", "instalac eletric", "instalac sanitar",
-    "rede eletrica", "iluminacao publica",
-    "manutencao predial", "conservacao predial",
-    "manutencao de via", "manutenc de via", "manutencao em via",
-    "tapa-buraco", "tapa buraco",
-    "deck", "trapiche", "pier",
-    "quadra esportiva", "ginasio esportivo",
-    "habitac", "casa popular", "moradia",
-    "concreto", "argamassa", "cimento", "tijolo", "bloco de concreto",
-    "tubo de", "tubulac", "pead", "pvc ",
-    "paisag", "jardinag", "arborizac", "podas",
-    "limpeza urbana", "limpeza publica", "capina", "rocada",
-    "contencao", "muro de arrimo", "gabiao", "geotextil",
-    "estrada", "rodovia", "acostamento",
-    "infraestrutura", "urbaniz",
-    "galeria", "bueiro", "bocas de lobo",
-    "aterro", "escavac", "movimentacao de terra",
-    "piso", "revestimento", "porcelanato", "ceramica",
-    "estrutura metalica", "estrutura de aco",
-    "engenharia", "projeto basico", "projeto executivo",
-    "topografia", "levantamento topog", "sondagem",
-    "limpeza de terreno", "desmatamento", "supressao vegetal",
-    "locacao de maquina", "hora maquina", "hora/maquina", "horas maquina",
-    "escavadeira", "retroescavadeira", "rolo compactador", "motoniveladora",
-    "caminhao basculante", "caminhao pipa",
-    "melhoramento fluvial", "dragag", "desassoreamento",
-    "poco artesiano", "pocos artesianos", "perfuracao de poco",
-    "gramado sintetico", "campo sintetico",
-    "tinta", "materiais eletric",
-    "lona", "telha", "cumeeira",
-    "vias e logradouro", "logradouros publicos",
+    "obra",
+    "construc",
+    "edificac",
+    "edificio",
+    "predio",
+    "reform",
+    "ampliac",
+    "revitaliz",
+    "requalific",
+    "restaurac",
+    "paviment",
+    "asfalto",
+    "recapeamento",
+    "terraplanag",
+    "drenag",
+    "saneamento",
+    "esgoto",
+    "rede de agua",
+    "abastecimento de agua",
+    "ponte",
+    "pontilh",
+    "viaduto",
+    "passarela",
+    "calcad",
+    "meio-fio",
+    "meio fio",
+    "sarjeta",
+    "muro de",
+    "cerca de",
+    "cercamento",
+    "alambrado",
+    "telhado",
+    "cobertura",
+    "fachada",
+    "pintura predial",
+    "impermeabiliz",
+    "demolicao",
+    "demolir",
+    "instalac hidraul",
+    "instalac eletric",
+    "instalac sanitar",
+    "rede eletrica",
+    "iluminacao publica",
+    "manutencao predial",
+    "conservacao predial",
+    "manutencao de via",
+    "manutenc de via",
+    "manutencao em via",
+    "tapa-buraco",
+    "tapa buraco",
+    "deck",
+    "trapiche",
+    "pier",
+    "quadra esportiva",
+    "ginasio esportivo",
+    "habitac",
+    "casa popular",
+    "moradia",
+    "concreto",
+    "argamassa",
+    "cimento",
+    "tijolo",
+    "bloco de concreto",
+    "tubo de",
+    "tubulac",
+    "pead",
+    "pvc ",
+    "paisag",
+    "jardinag",
+    "arborizac",
+    "podas",
+    "limpeza urbana",
+    "limpeza publica",
+    "capina",
+    "rocada",
+    "contencao",
+    "muro de arrimo",
+    "gabiao",
+    "geotextil",
+    "estrada",
+    "rodovia",
+    "acostamento",
+    "infraestrutura",
+    "urbaniz",
+    "galeria",
+    "bueiro",
+    "bocas de lobo",
+    "aterro",
+    "escavac",
+    "movimentacao de terra",
+    "piso",
+    "revestimento",
+    "porcelanato",
+    "ceramica",
+    "estrutura metalica",
+    "estrutura de aco",
+    "engenharia",
+    "projeto basico",
+    "projeto executivo",
+    "topografia",
+    "levantamento topog",
+    "sondagem",
+    "limpeza de terreno",
+    "desmatamento",
+    "supressao vegetal",
+    "locacao de maquina",
+    "hora maquina",
+    "hora/maquina",
+    "horas maquina",
+    "escavadeira",
+    "retroescavadeira",
+    "rolo compactador",
+    "motoniveladora",
+    "caminhao basculante",
+    "caminhao pipa",
+    "melhoramento fluvial",
+    "dragag",
+    "desassoreamento",
+    "poco artesiano",
+    "pocos artesianos",
+    "perfuracao de poco",
+    "gramado sintetico",
+    "campo sintetico",
+    "tinta",
+    "materiais eletric",
+    "lona",
+    "telha",
+    "cumeeira",
+    "vias e logradouro",
+    "logradouros publicos",
     "maquinas pesadas",
     "servicos de manutencao",
 ]
@@ -121,6 +310,7 @@ POS_KW_FALLBACK = [
 # ============================================================
 # SECTOR KEYWORD LOADER
 # ============================================================
+
 
 def _load_sectors_yaml() -> dict:
     """Load sectors_data.yaml from the backend directory.
@@ -140,7 +330,7 @@ def _load_sectors_yaml() -> dict:
     for p in candidates:
         if p.exists():
             try:
-                with open(p, "r", encoding="utf-8") as f:
+                with open(p, encoding="utf-8") as f:
                     return yaml.safe_load(f) or {}
             except Exception:
                 pass
@@ -178,10 +368,11 @@ def _build_pos_kw_from_sectors(sector_keys: list[str], sectors_yaml: dict) -> li
 # MAIN
 # ============================================================
 
+
 def main():
     """Entry point for intel-llm-gate CLI."""
-    from lib.constants import INTEL_VERSION
     from lib.cli_validation import validate_input_file
+    from lib.constants import INTEL_VERSION
 
     parser = argparse.ArgumentParser(
         description="Gate de ruido: reclassifica editais 'needs_llm_review' por keyword matching.",
@@ -191,15 +382,17 @@ def main():
   python scripts/intel-llm-gate.py --input data.json --neg-keywords-file my_neg.yaml""",
     )
     parser.add_argument(
-        "--input", "-i", required=True,
+        "--input",
+        "-i",
+        required=True,
         help="JSON de entrada (output do intel-collect.py). Deve existir.",
     )
     parser.add_argument(
-        "--neg-keywords-file", default=None,
+        "--neg-keywords-file",
+        default=None,
         help="YAML com lista 'neg_keywords' customizada (substitui a lista universal padrao)",
     )
-    parser.add_argument("--version", action="version",
-                        version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
 
     # ── Validate arguments ──
@@ -208,7 +401,7 @@ def main():
     input_path = Path(args.input)
 
     try:
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         logger.error("JSON invalido em %s: %s", input_path, e)
@@ -226,7 +419,8 @@ def main():
     if args.neg_keywords_file:
         try:
             import yaml
-            with open(args.neg_keywords_file, "r", encoding="utf-8") as nf:
+
+            with open(args.neg_keywords_file, encoding="utf-8") as nf:
                 neg_data = yaml.safe_load(nf) or {}
             NEG_KW = [str(k).lower() for k in neg_data.get("neg_keywords", []) if k]
             logger.info("Negative keywords: %d loaded from %s", len(NEG_KW), args.neg_keywords_file)
@@ -245,11 +439,15 @@ def main():
     if sector_keys and sectors_yaml:
         POS_KW, matched_keys = _build_pos_kw_from_sectors(sector_keys, sectors_yaml)
         if POS_KW:
-            logger.info("Positive keywords: %d loaded from sectors_data.yaml (sectors: %s)",
-                        len(POS_KW), ", ".join(matched_keys))
+            logger.info(
+                "Positive keywords: %d loaded from sectors_data.yaml (sectors: %s)",
+                len(POS_KW),
+                ", ".join(matched_keys),
+            )
         else:
-            logger.warning("Sector keys %s não encontrados em sectors_data.yaml "
-                           "— usando lista fallback embutida", sector_keys)
+            logger.warning(
+                "Sector keys %s não encontrados em sectors_data.yaml — usando lista fallback embutida", sector_keys
+            )
             POS_KW = POS_KW_FALLBACK
     else:
         if not sectors_yaml:
@@ -306,11 +504,11 @@ def main():
         key=lambda x: float(x.get("valor_estimado") or 0),
         reverse=True,
     )
-    print(f"\n--- Top 30 compativeis por valor ---")
+    print("\n--- Top 30 compativeis por valor ---")
     for i, e in enumerate(compat[:30]):
         val = float(e.get("valor_estimado", 0) or 0)
         obj = (e.get("objeto", "") or "")[:130]
-        print(f"{i+1:3d}. [{e['uf']}] R${val:>14,.2f} | {obj}")
+        print(f"{i + 1:3d}. [{e['uf']}] R${val:>14,.2f} | {obj}")
 
 
 if __name__ == "__main__":

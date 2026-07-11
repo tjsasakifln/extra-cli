@@ -1,63 +1,52 @@
 # Perguntas para Validação — Extra Consultoria
 
-> Gerado pelo Reviewer em 2026-07-11T17:00:00Z
-> Respondido por Tiago em 2026-07-11
+> Gerado pelo Reviewer em 2026-07-11T23:00:00Z | Respondido: 2026-07-11
+> doc_level: completo
 
 ---
 
-## Q1: Cobertura de Testes ✅
-**Arquivo:** `domain.md` (L2)
-**Confiança anterior:** 🔴 → **Nova:** 🟡
-**Pergunta:** A cobertura de testes atual é estimada em <30%. Existe um plano para aumentar a cobertura? Quais módulos são prioridade?
+## Q1: Orquestrador Canônico ✅
+**Resposta:** Migrar para `orchestrator.py`. Atualizar systemd timers para usar orchestrator como entry point. Deprecar `monitor.py` gradualmente (strangler fig pattern).
 
-**Resposta:** Cobertura total agora — Claude gera suíte de testes automatizada para todos os módulos críticos (crawl, intel, reports, lib).
-
----
-
-## Q2: Crawler SICAF ✅
-**Arquivo:** `domain.md` (L3), `crawl/requirements.md`
-**Confiança anterior:** 🔴 → **Nova:** 🟡
-**Pergunta:** O crawler SICAF (sanctions.py) requer Playwright, que está comentado no requirements.txt. Pretende ativá-lo? Se sim, qual a prioridade?
-
-**Resposta:** Sim, ativar — instalar Playwright e ativar sanctions.py.
+**Ação:** Atualizar `_reversa_sdd/crawl/design.md` — declarar `orchestrator.py` como canônico, `monitor.py` como legacy.
+**Impacto nos GAPs:** GAP-02 resolve com migração planejada.
 
 ---
 
-## Q3: Features Não Implementadas (PRD Could Have) ✅
-**Arquivo:** `domain.md` (L7)
-**Confiança anterior:** 🔴 → **Nova:** 🟡
-**Pergunta:** Das features Could Have do PRD (Alertas Telegram, Dashboard TUI, Integração DOE-SC), alguma deve ser priorizada no próximo ciclo?
+## Q2: Estratégia de Migração do Schema ✅
+**Resposta:** Aplicar baseline v2 limpa (`001-v2_initial_schema.sql`) + migrações v2 (002-005). Abandonar migrations v1 como histórico.
 
-**Resposta:** Integração DOE-SC e Dashboard TUI — priorizar ambos. Alertas Telegram: não priorizar agora.
-
----
-
-## Q4: Monitoramento de Health dos Crawlers ✅
-**Arquivo:** `domain.md` (L7)
-**Confiança anterior:** 🔴 → **Nova:** 🟡
-**Pergunta:** Além do template `onfailure@.service`, há planos para um dashboard de health dos 13 crawlers? (ex: métricas de uptime, taxas de erro, latência)
-
-**Resposta:** Dashboard completo — web ou TUI com status em tempo real de todos os crawlers.
+**Ação:** Atualizar `_reversa_sdd/db/design.md` — declarar v2 como canônica. Adicionar tarefa no `db/tasks.md`: T-D16 (migração v1→v2).
+**Impacto nos GAPs:** GAP-01 resolve com baseline v2 aplicada.
 
 ---
 
-## Q5: Relatório de Sazonalidade ✅
-**Arquivo:** `domain.md` (L6)
-**Confiança anterior:** 🔴 → **Nova:** 🟡
-**Pergunta:** O PRD lista o relatório de sazonalidade (S2) como parcialmente implementado. O que falta para considerá-lo completo? (heatmap mensal já existe em panorama.py)
+## Q3: Mapeamento de Portais de Transparência ✅
+**Resposta:** Mapear via `detect_platform` em lote para todos os 295 municípios SC. Popular `transparencia_config.yaml` automaticamente.
 
-**Resposta:** Completar heatmap/previsão — heatmap por setor, picos mensais e previsão de volume.
+**Ação:** Adicionar tarefa no `crawl/tasks.md`: T-C21 (batch platform detection para 295 municípios).
+**Impacto nos GAPs:** GAP-04 resolve com script de detecção em lote.
 
 ---
 
-## Resumo das Reclassificações
+## Q4: SICAF — Confiabilidade ✅
+**Resposta:** Pipeline prossegue em degraded mode sem SICAF. Plano: migrar de Playwright para Selenium para maior confiabilidade.
 
-| ID | 🔴→🟡 | Impacto |
-|----|--------|---------|
-| Q1 (L2) | ✅ | Plano de testes definido: cobertura total, todos os módulos críticos |
-| Q2 (L3) | ✅ | SICAF ativado: Playwright descomentado, sanctions.py ativo |
-| Q3 (L7) | ✅ | DOE-SC + Dashboard TUI priorizados; Alertas Telegram postergado |
-| Q4 (L7) | ✅ | Dashboard completo de health dos crawlers planejado |
-| Q5 (L6) | ✅ | Sazonalidade: heatmap por setor + previsão de volume definidos |
+**Ação:** Atualizar `intel/tasks.md`: T-I09 revisado para incluir migração Playwright→Selenium.
+**Impacto nos GAPs:** GAP-05 reduz severidade (degraded mode existe). Selenium mitiga fragilidade.
 
-**Novo percentual de confiança: 🟢 91.7% | 🟡 8.3% | 🔴 0%**
+---
+
+## Q5: Estratégia de Testes ✅
+**Resposta:** TDD no ciclo forward. Cada nova feature com teste obrigatório. Cobertura do legado aumenta organicamente.
+
+**Ação:** Registrar como requisito não funcional no `architecture.md`.
+**Impacto nos GAPs:** GAP-06 endereçado por política (não por esforço retroativo).
+
+---
+
+## Q6: ARP/PCA Crawlers ✅
+**Resposta:** Manter async. Executar separadamente na VPS (fora do pipeline sync principal) quando dados estiverem validados.
+
+**Ação:** Adicionar tarefa no `deploy/tasks.md`: T-DP09 (systemd timer para ARP/PCA async).
+**Impacto nos GAPs:** GAP-07 resolvido — async é intencional, não débito.

@@ -15,13 +15,16 @@ import logging
 import os
 import sys
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
-from typing import Any
 
 from scripts.crawl.common import (
     generate_content_hash as _common_content_hash,
+)
+from scripts.crawl.common import (
     safe_date as _safe_date,
+)
+from scripts.crawl.common import (
     safe_float as _safe_float,
 )
 from scripts.crawl.security import USER_AGENT, sanitize_url_param
@@ -38,51 +41,46 @@ _logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v1")
-PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))   # PNCP API max 50 (reduced Feb 2026)
-PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "50"))
+PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))  # PNCP API v3: max 50, min 10
+PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "200"))
 PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "30"))
 PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "2"))
 PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.5"))  # 500ms between requests (avoid 429)
 
 INGESTION_UFS = [u.strip().upper() for u in os.getenv("INGESTION_UFS", "SC").split(",") if u.strip()]
 
-# Engineering keywords from sectors_config.yaml — filter irrelevant procurement
+# PNCP API v3 esferaId mapping (letter → integer for DB schema)
+_ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
+
+# Optional keyword filter — empty default means ALL records pass through
 _ENGINEERING_KEYWORDS = [
     kw.strip().lower()
-    for kw in os.getenv(
-        "INGESTION_KEYWORDS",
-        "construç,construc,edifici,obra,engenharia,paviment,infraestrutura,urbaniz,"
-        "reforma,edificação,edificacao,rodovia,ponte,viaduto,saneamento,drenagem,"
-        "fundação,fundacao,estrutura,terraplenagem,asfalto",
-    ).split(",")
+    for kw in os.getenv("INGESTION_KEYWORDS", "").split(",")
     if kw.strip()
 ]
-INGESTION_MODALIDADES = [
-    int(m) for m in os.getenv("INGESTION_MODALIDADES", "2,3,4,7").split(",")
-]
-# Modalidades de engenharia (default):
-#   2 = Tomada de Preços (obras médio porte)
-#   3 = Convite (obras pequeno porte)
-#   4 = Concorrência (obras grande porte) — PRINCIPAL
-#   7 = Dispensa (obras pequeno valor)
-#   6 = Concurso (projetos arquitetônicos) — opcional
-# NÃO engenharia: 5=Pregão Eletrônico (bens comuns), 1=Pregão Presencial
-INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "3"))
-INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "3"))
+INGESTION_MODALIDADES = [int(m) for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7,8,12").split(",")]
+# Modalidades PNCP v3:
+#   1 = Pregão Presencial, 2 = Tomada de Preços, 3 = Convite
+#   4 = Concorrência, 5 = Pregão Eletrônico, 6 = Concurso
+#   7 = Dispensa, 8 = Inexigibilidade, 9 = Leilão
+#   12 = Diálogo Competitivo
+# Default: 4,5,6,7,8,12 — covers all relevant competitive modalities
+INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "30"))
+INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "1"))
 
 # ---------------------------------------------------------------------------
 # PNCP API Client (simplified sync version)
 # ---------------------------------------------------------------------------
 
-def _fetch_page(uf: str, modalidade: int, pagina: int,
-                data_inicial: date, data_final: date) -> tuple[list[dict], bool]:
+
+def _fetch_page(uf: str, modalidade: int, pagina: int, data_inicial: date, data_final: date) -> tuple[list[dict], bool]:
     """Fetch one page of PNCP results synchronously.
 
     Returns (records, has_next_page).
     Uses correct PNCP API parameters (camelCase, YYYYMMDD dates).
     """
-    import urllib.request
     import urllib.error
+    import urllib.request
 
     # PNCP API: dates in YYYYMMDD format, codigoModalidadeContratacao NOT modalidade
     params = {
@@ -111,10 +109,11 @@ def _fetch_page(uf: str, modalidade: int, pagina: int,
                     return [], False
                 data = json.loads(body)
 
-            # PNCP API response: {"data": [...], "temProximaPagina": bool, "totalRegistros": int, ...}
+            # PNCP API v3 response: {"data": [...], "paginasRestantes": int, "totalRegistros": int, ...}
             if isinstance(data, dict):
                 records = data.get("data", [])
-                has_next = data.get("temProximaPagina", False)
+                paginas_restantes = data.get("paginasRestantes", 0)
+                has_next = bool(paginas_restantes > 0)
                 if isinstance(records, list):
                     return records, has_next
                 return [], False
@@ -140,7 +139,7 @@ def _fetch_page(uf: str, modalidade: int, pagina: int,
                 _logger.debug(f"PNCP HTTP {e.code} for {url}: {body}")
                 return [], False
             if attempt < PNCP_MAX_RETRIES:
-                time.sleep(2 ** attempt)
+                time.sleep(2**attempt)
                 continue
             _logger.warning(f"PNCP HTTP {e.code} after {PNCP_MAX_RETRIES} retries: {url}")
             return [], False
@@ -155,55 +154,91 @@ def _fetch_page(uf: str, modalidade: int, pagina: int,
 
 
 def _generate_content_hash(record: dict) -> str:
-    """Deterministic hash for dedup — delegates to common."""
-    return _common_content_hash(record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"])
+    """Deterministic hash for dedup — delegates to common.
+
+    Uses v3 API field names. Falls back to transformed field names
+    for backward compatibility during testing.
+    """
+    return _common_content_hash(
+        record,
+        fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"],
+    )
 
 
 def _transform_record(rec: dict) -> dict | None:
-    """Transform a raw PNCP API record into the pncp_raw_bids schema."""
+    """Transform a raw PNCP API v3 record into the pncp_raw_bids schema.
+
+    PNCP API v3 nests organization data inside ``orgaoEntidade`` and
+    ``unidadeOrgao`` objects.  This function flattens those into the
+    top-level column names expected by ``upsert_pncp_raw_bids``.
+    """
     try:
-        orgao = rec.get("orgao", rec.get("unidade", rec.get("orgaoEntidade", {})))
-        if isinstance(orgao, dict):
-            orgao_cnpj = orgao.get("cnpj", "")
-            orgao_nome = orgao.get("razaoSocial", orgao.get("nome", ""))
-        else:
-            orgao_cnpj = rec.get("orgao_cnpj", rec.get("cnpjOrgao", ""))
-            orgao_nome = rec.get("orgao_razao_social", rec.get("nomeOrgao", ""))
+        orgao: dict = rec.get("orgaoEntidade") or {}
+        unidade: dict = rec.get("unidadeOrgao") or {}
 
-        # _safe_float and _safe_date imported from common.py (TD-3.2)
-
-        obj = rec.get("objeto", rec.get("objetoCompra", rec.get("objeto_compra", "")))
-        pncp_id = rec.get("id", rec.get("pncpId", rec.get("pncp_id", "")))
+        # Core identifiers
+        pncp_id: str = str(rec.get("numeroControlePNCP", ""))
         if not pncp_id:
-            # Generate synthetic ID
+            # Generate synthetic ID as last resort
             pncp_id = hashlib.md5(
-                f"{orgao_cnpj}|{obj}|{_safe_date(rec.get('dataPublicacao', ''))}".encode(),
+                f"{orgao.get('cnpj', '')}|{rec.get('objetoCompra', '')}|{rec.get('dataPublicacaoPncp', '')}".encode(),
                 usedforsecurity=False,
             ).hexdigest()
 
-        content_hash = _generate_content_hash(rec)
+        objeto_compra: str = rec.get("objetoCompra", "")
 
-        return {
-            "pncp_id": str(pncp_id),
-            "objeto_compra": obj,
-            "valor_total_estimado": _safe_float(
-                rec.get("valorTotalEstimado", rec.get("valor_total_estimado", 0))
-            ),
-            "modalidade_id": int(rec.get("modalidadeId", rec.get("modalidade_id", 0))),
-            "modalidade_nome": rec.get("modalidadeNome", rec.get("modalidade_nome", "")),
-            "esfera_id": int(rec.get("esferaId", rec.get("esfera_id", 0))),
-            "uf": rec.get("uf", rec.get("ufOrgao", "SC")),
-            "municipio": rec.get("municipio", rec.get("nomeMunicipio", "")),
-            "codigo_municipio_ibge": rec.get("codigoIbge", rec.get("codigoMunicipioIbge", "")),
-            "orgao_razao_social": orgao_nome,
+        valor_total_estimado = _safe_float(rec.get("valorTotalEstimado"))
+
+        modalidade_id = rec.get("modalidadeId") or rec.get("codigoModalidadeContratacao", 0)
+        modalidade_nome: str = rec.get("modalidadeNome", "")
+
+        esfera_raw = orgao.get("esferaId") or rec.get("esferaId", "")
+        esfera_id = _ESFERA_MAP.get(str(esfera_raw).strip().upper())
+        # DB CHECK constraint: 1,2,3,4 or NULL. 0/NULL for unknown.
+
+        # Geography from unidadeOrgao
+        uf: str = unidade.get("ufSigla") or rec.get("uf", "SC")
+        municipio: str = unidade.get("municipioNome") or rec.get("municipio", "")
+        codigo_municipio_ibge: str = unidade.get("codigoIbge") or unidade.get("codigoMunicipioIbge", "")
+
+        # Orgao info
+        orgao_razao_social: str = orgao.get("razaoSocial") or unidade.get("nomeUnidade", "")
+        orgao_cnpj: str = orgao.get("cnpj", "")
+
+        # Dates — API returns ISO strings in dataPublicacaoPncp, dataAberturaProposta, etc.
+        data_publicacao = _safe_date(rec.get("dataPublicacaoPncp"))
+        data_abertura = _safe_date(rec.get("dataAberturaProposta")) or data_publicacao
+        data_encerramento = _safe_date(rec.get("dataEncerramentoProposta"))
+
+        # Links
+        link_pncp: str = rec.get("linkSistemaOrigem", "")
+        if not link_pncp and pncp_id and orgao_cnpj:
+            # Build fallback PNCP link: https://pncp.gov.br/app/editais/{pncp_id}
+            link_pncp = f"https://pncp.gov.br/app/editais/{pncp_id}"
+
+        result = {
+            "pncp_id": pncp_id,
+            "objeto_compra": objeto_compra,
+            "valor_total_estimado": valor_total_estimado,
+            "modalidade_id": int(modalidade_id) if modalidade_id else 0,
+            "modalidade_nome": modalidade_nome,
+            "esfera_id": esfera_id,  # None → NULL (DB CHECK: 1,2,3,4 or NULL)
+            "uf": uf,
+            "municipio": municipio,
+            "codigo_municipio_ibge": str(codigo_municipio_ibge) if codigo_municipio_ibge else "",
+            "orgao_razao_social": orgao_razao_social,
             "orgao_cnpj": orgao_cnpj,
-            "data_publicacao": _safe_date(rec.get("dataPublicacao", rec.get("data_publicacao"))),
-            "data_abertura": _safe_date(rec.get("dataAbertura", rec.get("data_abertura"))),
-            "data_encerramento": _safe_date(rec.get("dataEncerramento", rec.get("data_encerramento"))),
-            "link_pncp": rec.get("link", rec.get("link_pncp", rec.get("url", ""))),
-            "content_hash": content_hash,
-            "source_id": str(pncp_id),
+            "data_publicacao": data_publicacao,
+            "data_abertura": data_abertura,
+            "data_encerramento": data_encerramento,
+            "link_pncp": link_pncp,
+            "content_hash": "",  # computed below
+            "source": "pncp",
+            "source_id": pncp_id,
         }
+        # Compute content hash from transformed fields — deterministic dedup
+        result["content_hash"] = _generate_content_hash(result)
+        return result
     except Exception as e:
         _logger.warning(f"Transform error: {e}")
         return None
@@ -212,6 +247,7 @@ def _transform_record(rec: dict) -> dict | None:
 # ---------------------------------------------------------------------------
 # Crawler interface (called by monitor.py)
 # ---------------------------------------------------------------------------
+
 
 def crawl(mode: str = "full") -> list[dict]:
     """Crawl PNCP for configured UFs and modalidades.
@@ -258,12 +294,17 @@ def crawl(mode: str = "full") -> list[dict]:
             if uf_mod_records > 0:
                 _logger.info(
                     "  %s/mod%d: %d records across %d days",
-                    uf, mod, uf_mod_records, days,
+                    uf,
+                    mod,
+                    uf_mod_records,
+                    days,
                 )
 
     _logger.info(
         "PNCP crawl done: %d records, %d/%d API calls returned data",
-        len(all_records), total_success, total_calls,
+        len(all_records),
+        total_success,
+        total_calls,
     )
     return all_records
 
@@ -271,8 +312,8 @@ def crawl(mode: str = "full") -> list[dict]:
 def transform(raw_records: list[dict]) -> list[dict]:
     """Transform raw PNCP records to unified pncp_raw_bids schema.
 
-    Filters by engineering keywords (INGESTION_KEYWORDS env var).
-    Only records matching at least one keyword pass through.
+    Optionally filters by engineering keywords (INGESTION_KEYWORDS env var).
+    When INGESTION_KEYWORDS is empty (default), ALL records pass through.
     """
     transformed = []
     skipped = 0
@@ -280,13 +321,14 @@ def transform(raw_records: list[dict]) -> list[dict]:
         t = _transform_record(rec)
         if not t or not t.get("orgao_cnpj"):
             continue
-        # Engineering keyword filter
-        objeto = (t.get("objeto_compra", "") or "").lower()
-        modalidade = (t.get("modalidade_nome", "") or "").lower()
-        text = f"{objeto} {modalidade}"
-        if not any(kw in text for kw in _ENGINEERING_KEYWORDS):
-            skipped += 1
-            continue
+        # Optional keyword filter — skip when _ENGINEERING_KEYWORDS is empty
+        if _ENGINEERING_KEYWORDS:
+            objeto = (t.get("objeto_compra", "") or "").lower()
+            modalidade = (t.get("modalidade_nome", "") or "").lower()
+            text = f"{objeto} {modalidade}"
+            if not any(kw in text for kw in _ENGINEERING_KEYWORDS):
+                skipped += 1
+                continue
         transformed.append(t)
     if skipped:
         _logger.debug("Keyword filter: %d non-engineering records skipped", skipped)

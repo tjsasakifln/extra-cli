@@ -8,6 +8,7 @@ Usage:
     def fetch_data(url):
         return httpx.get(url)
 """
+
 from __future__ import annotations
 
 import functools
@@ -36,6 +37,7 @@ def retry_on_failure(
     Returns:
         Decorated function with retry logic.
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -46,7 +48,7 @@ def retry_on_failure(
                     # Check for retryable HTTP status codes if result has status_code
                     if hasattr(result, "status_code") and result.status_code in retryable_status_codes:
                         if attempt < max_retries:
-                            delay = min(base_delay * (2 ** attempt), max_delay)
+                            delay = min(base_delay * (2**attempt), max_delay)
                             logger.warning(
                                 "[retry] %s returned %d, retrying in %.1fs (attempt %d/%d)",
                                 func.__name__,
@@ -61,7 +63,7 @@ def retry_on_failure(
                 except retryable_exceptions as e:
                     last_exception = e
                     if attempt < max_retries:
-                        delay = min(base_delay * (2 ** attempt), max_delay)
+                        delay = min(base_delay * (2**attempt), max_delay)
                         logger.warning(
                             "[retry] %s failed: %s, retrying in %.1fs (attempt %d/%d)",
                             func.__name__,
@@ -77,5 +79,7 @@ def retry_on_failure(
             if last_exception is not None:
                 raise last_exception
             return None  # pragma: no cover
+
         return wrapper
+
     return decorator

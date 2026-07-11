@@ -23,13 +23,13 @@ Databases:
 import asyncio
 import logging
 import os
+import random
 import re
 import time
-import random
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import httpx
 
@@ -48,11 +48,11 @@ class SanctionRecord:
     cnpj: str
     company_name: str
     sanction_type: str  # "Impedimento", "Inidoneidade", "Suspensao", etc.
-    start_date: Optional[date]
-    end_date: Optional[date]
+    start_date: date | None
+    end_date: date | None
     sanctioning_body: str  # "Ministerio da Defesa", etc.
     legal_basis: str  # "Lei 8.666/1993, Art. 87, IV"
-    fine_amount: Optional[Decimal]  # CNEP only
+    fine_amount: Decimal | None  # CNEP only
     is_active: bool  # end_date is None or end_date > today
 
 
@@ -62,7 +62,7 @@ class SanctionsResult:
 
     cnpj: str
     is_sanctioned: bool
-    sanctions: List[SanctionRecord]
+    sanctions: list[SanctionRecord]
     checked_at: datetime
     ceis_count: int
     cnep_count: int
@@ -87,7 +87,7 @@ class SanctionsAPIError(Exception):
 class SanctionsRateLimitError(SanctionsAPIError):
     """Rate limit (429) from Portal da Transparencia."""
 
-    def __init__(self, source: str, retry_after: Optional[int] = None):
+    def __init__(self, source: str, retry_after: int | None = None):
         super().__init__(source, 429, "Rate limit exceeded")
         self.retry_after = retry_after
 
@@ -122,17 +122,17 @@ class SanctionsChecker:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        timeout: Optional[int] = None,
+        api_key: str | None = None,
+        timeout: int | None = None,
     ) -> None:
         self._api_key = api_key or os.environ.get("PORTAL_TRANSPARENCIA_API_KEY", "")
         self._timeout = timeout or self.DEFAULT_TIMEOUT
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         self._last_request_time: float = 0.0
         self._request_count: int = 0
 
         # In-memory cache: cnpj_digits -> (SanctionsResult, timestamp)
-        self._cache: Dict[str, Tuple[SanctionsResult, float]] = {}
+        self._cache: dict[str, tuple[SanctionsResult, float]] = {}
 
     # ------------------------------------------------------------------
     # HTTP helpers
@@ -163,15 +163,15 @@ class SanctionsChecker:
 
     def _calculate_backoff(self, attempt: int) -> float:
         """Exponential backoff with jitter."""
-        delay = min(2.0 * (2 ** attempt), 60.0)
+        delay = min(2.0 * (2**attempt), 60.0)
         delay *= random.uniform(0.5, 1.5)
         return delay
 
     async def _request_with_retry(
         self,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
-    ) -> List[Dict[str, Any]]:
+        params: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
         """
         GET *path* with automatic retry on 429 / 5xx / network errors.
 
@@ -189,7 +189,10 @@ class SanctionsChecker:
             try:
                 logger.debug(
                     "[SANCTIONS] GET %s params=%s attempt=%d/%d",
-                    path, params, attempt + 1, self.MAX_RETRIES + 1,
+                    path,
+                    params,
+                    attempt + 1,
+                    self.MAX_RETRIES + 1,
                 )
 
                 response = await client.get(path, params=params)
@@ -199,7 +202,8 @@ class SanctionsChecker:
                     retry_after = int(response.headers.get("Retry-After", 60))
                     if attempt < self.MAX_RETRIES:
                         logger.warning(
-                            "[SANCTIONS] Rate limited. Waiting %ds", retry_after,
+                            "[SANCTIONS] Rate limited. Waiting %ds",
+                            retry_after,
                         )
                         await asyncio.sleep(retry_after)
                         continue
@@ -226,21 +230,25 @@ class SanctionsChecker:
                         delay = self._calculate_backoff(attempt)
                         logger.warning(
                             "[SANCTIONS] Server error %d. Retrying in %.1fs",
-                            response.status_code, delay,
+                            response.status_code,
+                            delay,
                         )
                         await asyncio.sleep(delay)
                         continue
 
                 # Non-retryable error
                 raise SanctionsAPIError(
-                    "SANCTIONS", response.status_code, response.text[:500],
+                    "SANCTIONS",
+                    response.status_code,
+                    response.text[:500],
                 )
 
             except httpx.TimeoutException:
                 if attempt < self.MAX_RETRIES:
                     delay = self._calculate_backoff(attempt)
                     logger.warning(
-                        "[SANCTIONS] Timeout. Retrying in %.1fs", delay,
+                        "[SANCTIONS] Timeout. Retrying in %.1fs",
+                        delay,
                     )
                     await asyncio.sleep(delay)
                     continue
@@ -252,13 +260,15 @@ class SanctionsChecker:
                     delay = self._calculate_backoff(attempt)
                     logger.warning(
                         "[SANCTIONS] Request error: %s. Retrying in %.1fs",
-                        exc, delay,
+                        exc,
+                        delay,
                     )
                     await asyncio.sleep(delay)
                     continue
                 logger.error(
                     "[SANCTIONS] Request error after %d retries: %s",
-                    self.MAX_RETRIES, exc,
+                    self.MAX_RETRIES,
+                    exc,
                 )
                 raise SanctionsAPIError("SANCTIONS", 0, str(exc))
 
@@ -279,7 +289,7 @@ class SanctionsChecker:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _parse_date(value: Optional[str]) -> Optional[date]:
+    def _parse_date(value: str | None) -> date | None:
         """
         Parse a date string in DD/MM/YYYY format (Portal da Transparencia).
 
@@ -302,7 +312,7 @@ class SanctionsChecker:
     # Record parsers
     # ------------------------------------------------------------------
 
-    def _parse_ceis_record(self, raw: Dict[str, Any]) -> SanctionRecord:
+    def _parse_ceis_record(self, raw: dict[str, Any]) -> SanctionRecord:
         """
         Parse a single CEIS API record into a SanctionRecord.
 
@@ -339,7 +349,7 @@ class SanctionsChecker:
             is_active=is_active,
         )
 
-    def _parse_cnep_record(self, raw: Dict[str, Any]) -> SanctionRecord:
+    def _parse_cnep_record(self, raw: dict[str, Any]) -> SanctionRecord:
         """
         Parse a single CNEP API record into a SanctionRecord.
 
@@ -365,14 +375,15 @@ class SanctionsChecker:
         is_active = end_date is None or end_date > today
 
         # Parse fine amount
-        fine_amount: Optional[Decimal] = None
+        fine_amount: Decimal | None = None
         raw_fine = raw.get("valorMulta")
         if raw_fine is not None:
             try:
                 fine_amount = Decimal(str(raw_fine))
             except (InvalidOperation, ValueError, TypeError):
                 logger.warning(
-                    "[SANCTIONS] Could not parse fine amount: %s", raw_fine,
+                    "[SANCTIONS] Could not parse fine amount: %s",
+                    raw_fine,
                 )
 
         return SanctionRecord(
@@ -396,18 +407,18 @@ class SanctionsChecker:
         self,
         path: str,
         cnpj_digits: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Fetch all pages for a given endpoint / CNPJ.
 
         Portal da Transparencia uses ``pagina`` param (1-based).
         An empty page signals the end of data.
         """
-        all_records: List[Dict[str, Any]] = []
+        all_records: list[dict[str, Any]] = []
         pagina = 1
 
         while True:
-            params: Dict[str, Any] = {
+            params: dict[str, Any] = {
                 "codigoSancionado": cnpj_digits,
                 "pagina": pagina,
             }
@@ -424,7 +435,8 @@ class SanctionsChecker:
             if pagina > 50:
                 logger.warning(
                     "[SANCTIONS] Reached page limit (50) for %s on %s",
-                    cnpj_digits, path,
+                    cnpj_digits,
+                    path,
                 )
                 break
 
@@ -434,7 +446,7 @@ class SanctionsChecker:
     # Public API (AC8, AC9, AC10)
     # ------------------------------------------------------------------
 
-    async def check_ceis(self, cnpj: str) -> List[SanctionRecord]:
+    async def check_ceis(self, cnpj: str) -> list[SanctionRecord]:
         """
         Query CEIS (Cadastro de Empresas Inidoneas e Suspensas) for a CNPJ.
 
@@ -462,21 +474,25 @@ class SanctionsChecker:
                     records.append(record)
                 except Exception as exc:
                     logger.warning(
-                        "[SANCTIONS] Failed to parse CEIS record: %s", exc,
+                        "[SANCTIONS] Failed to parse CEIS record: %s",
+                        exc,
                     )
             logger.info(
                 "[SANCTIONS] CEIS check for %s: %d record(s) found",
-                cnpj_digits, len(records),
+                cnpj_digits,
+                len(records),
             )
             return records
 
         except Exception as exc:
             logger.warning(
-                "[SANCTIONS] CEIS query failed for %s: %s", cnpj_digits, exc,
+                "[SANCTIONS] CEIS query failed for %s: %s",
+                cnpj_digits,
+                exc,
             )
             return []
 
-    async def check_cnep(self, cnpj: str) -> List[SanctionRecord]:
+    async def check_cnep(self, cnpj: str) -> list[SanctionRecord]:
         """
         Query CNEP (Cadastro Nacional de Empresas Punidas) for a CNPJ.
 
@@ -504,17 +520,21 @@ class SanctionsChecker:
                     records.append(record)
                 except Exception as exc:
                     logger.warning(
-                        "[SANCTIONS] Failed to parse CNEP record: %s", exc,
+                        "[SANCTIONS] Failed to parse CNEP record: %s",
+                        exc,
                     )
             logger.info(
                 "[SANCTIONS] CNEP check for %s: %d record(s) found",
-                cnpj_digits, len(records),
+                cnpj_digits,
+                len(records),
             )
             return records
 
         except Exception as exc:
             logger.warning(
-                "[SANCTIONS] CNEP query failed for %s: %s", cnpj_digits, exc,
+                "[SANCTIONS] CNEP query failed for %s: %s",
+                cnpj_digits,
+                exc,
             )
             return []
 
@@ -572,7 +592,7 @@ class SanctionsChecker:
             cnpj=cnpj_digits,
             is_sanctioned=has_active,
             sanctions=all_sanctions,
-            checked_at=datetime.now(timezone.utc),
+            checked_at=datetime.now(UTC),
             ceis_count=len(ceis_records),
             cnep_count=len(cnep_records),
             cache_hit=False,
@@ -582,8 +602,7 @@ class SanctionsChecker:
         self._cache[cnpj_digits] = (result, time.monotonic())
 
         logger.info(
-            "[SANCTIONS] Sanctions check for %s: sanctioned=%s "
-            "(CEIS=%d, CNEP=%d)",
+            "[SANCTIONS] Sanctions check for %s: sanctioned=%s (CEIS=%d, CNEP=%d)",
             cnpj_digits,
             result.is_sanctioned,
             result.ceis_count,
@@ -596,7 +615,7 @@ class SanctionsChecker:
     # Cache management
     # ------------------------------------------------------------------
 
-    def invalidate_cache(self, cnpj: Optional[str] = None) -> None:
+    def invalidate_cache(self, cnpj: str | None = None) -> None:
         """
         Invalidate cached sanctions results.
 

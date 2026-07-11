@@ -46,10 +46,12 @@ DSN = os.getenv(
 # ---------------------------------------------------------------------------
 logger = logging.getLogger("coverage-weekly")
 _handler = logging.StreamHandler()
-_handler.setFormatter(logging.Formatter(
-    "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-))
+_handler.setFormatter(
+    logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+)
 logger.addHandler(_handler)
 logger.setLevel(logging.INFO)
 
@@ -59,6 +61,7 @@ logger.setLevel(logging.INFO)
 # ---------------------------------------------------------------------------
 def get_conn():
     import psycopg2
+
     return psycopg2.connect(DSN)
 
 
@@ -92,9 +95,7 @@ def fetch_coverage_data(report_date: date) -> dict[str, Any]:
     data: dict[str, Any] = {}
 
     # --- Total entities ---
-    rows = query(
-        "SELECT COUNT(*) AS total FROM sc_public_entities WHERE is_active = TRUE"
-    )
+    rows = query("SELECT COUNT(*) AS total FROM sc_public_entities WHERE is_active = TRUE")
     data["total_entities"] = rows[0]["total"] if rows else 0
 
     # --- Total covered (at least one source) ---
@@ -173,12 +174,15 @@ def fetch_coverage_data(report_date: date) -> dict[str, Any]:
     """)
 
     # --- Trend (last 4 weeks) ---
-    data["trend"] = query("""
+    data["trend"] = query(
+        """
         SELECT snapshot_date, source, total_entities, covered_entities, pct_covered
         FROM coverage_snapshots
         WHERE snapshot_date >= %s::DATE - INTERVAL '35 days'
         ORDER BY snapshot_date ASC, source
-    """, [report_date.isoformat()])
+    """,
+        [report_date.isoformat()],
+    )
 
     return data
 
@@ -225,113 +229,206 @@ def _build_pdf_styles():
     s = {}
 
     s["cover_title"] = ParagraphStyle(
-        "cov_title", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=26, textColor=INK,
-        alignment=TA_LEFT, leading=32, spaceAfter=4 * mm,
+        "cov_title",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=26,
+        textColor=INK,
+        alignment=TA_LEFT,
+        leading=32,
+        spaceAfter=4 * mm,
     )
     s["cover_subtitle"] = ParagraphStyle(
-        "cov_sub", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=14, textColor=TEXT_SECONDARY,
-        alignment=TA_LEFT, spaceAfter=3 * mm, leading=18,
+        "cov_sub",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=14,
+        textColor=TEXT_SECONDARY,
+        alignment=TA_LEFT,
+        spaceAfter=3 * mm,
+        leading=18,
     )
     s["cover_info"] = ParagraphStyle(
-        "cov_info", parent=base["Normal"],
-        fontName="Helvetica", fontSize=9, textColor=TEXT_SECONDARY,
-        alignment=TA_LEFT, leading=13, spaceAfter=1.5 * mm,
+        "cov_info",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=9,
+        textColor=TEXT_SECONDARY,
+        alignment=TA_LEFT,
+        leading=13,
+        spaceAfter=1.5 * mm,
     )
     s["h1"] = ParagraphStyle(
-        "h1_r", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=14, textColor=INK,
-        spaceBefore=6 * mm, spaceAfter=3 * mm, leading=18,
+        "h1_r",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=14,
+        textColor=INK,
+        spaceBefore=6 * mm,
+        spaceAfter=3 * mm,
+        leading=18,
     )
     s["h2"] = ParagraphStyle(
-        "h2_r", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=11, textColor=INK,
-        spaceBefore=4 * mm, spaceAfter=2 * mm, leading=14,
+        "h2_r",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=11,
+        textColor=INK,
+        spaceBefore=4 * mm,
+        spaceAfter=2 * mm,
+        leading=14,
     )
     s["h3"] = ParagraphStyle(
-        "h3_r", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=10, textColor=TEXT_COLOR,
-        spaceBefore=3 * mm, spaceAfter=2 * mm, leading=13,
+        "h3_r",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=10,
+        textColor=TEXT_COLOR,
+        spaceBefore=3 * mm,
+        spaceAfter=2 * mm,
+        leading=13,
     )
     s["body"] = ParagraphStyle(
-        "body_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, textColor=TEXT_COLOR,
-        alignment=TA_JUSTIFY, leading=14, spaceAfter=2 * mm,
+        "body_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        textColor=TEXT_COLOR,
+        alignment=TA_JUSTIFY,
+        leading=14,
+        spaceAfter=2 * mm,
     )
     s["body_small"] = ParagraphStyle(
-        "body_s", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=9, textColor=TEXT_SECONDARY,
-        leading=12, spaceAfter=1.5 * mm,
+        "body_s",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=9,
+        textColor=TEXT_SECONDARY,
+        leading=12,
+        spaceAfter=1.5 * mm,
     )
     s["bullet"] = ParagraphStyle(
-        "bullet_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, textColor=TEXT_COLOR,
-        leading=14, leftIndent=10, spaceAfter=1.5 * mm,
+        "bullet_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        textColor=TEXT_COLOR,
+        leading=14,
+        leftIndent=10,
+        spaceAfter=1.5 * mm,
     )
     s["metric_value"] = ParagraphStyle(
-        "mv_r", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=18, textColor=INK,
-        alignment=TA_CENTER, leading=22,
+        "mv_r",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=18,
+        textColor=INK,
+        alignment=TA_CENTER,
+        leading=22,
     )
     s["metric_label"] = ParagraphStyle(
-        "ml_r", parent=base["Normal"],
-        fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED,
-        alignment=TA_CENTER, leading=9,
+        "ml_r",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=7,
+        textColor=TEXT_MUTED,
+        alignment=TA_CENTER,
+        leading=9,
     )
     s["cell"] = ParagraphStyle(
-        "cell_r", parent=base["Normal"],
-        fontName="Helvetica", fontSize=8, textColor=TEXT_COLOR,
-        leading=10, alignment=TA_LEFT,
+        "cell_r",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        textColor=TEXT_COLOR,
+        leading=10,
+        alignment=TA_LEFT,
     )
     s["cell_center"] = ParagraphStyle(
-        "cell_c", parent=base["Normal"],
-        fontName="Helvetica", fontSize=8, textColor=TEXT_COLOR,
-        leading=10, alignment=TA_CENTER,
+        "cell_c",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        textColor=TEXT_COLOR,
+        leading=10,
+        alignment=TA_CENTER,
     )
     s["cell_right"] = ParagraphStyle(
-        "cell_rr", parent=base["Normal"],
-        fontName="Helvetica", fontSize=8, textColor=TEXT_COLOR,
-        leading=10, alignment=TA_RIGHT,
+        "cell_rr",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        textColor=TEXT_COLOR,
+        leading=10,
+        alignment=TA_RIGHT,
     )
     s["cell_header"] = ParagraphStyle(
-        "ch_r", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=8, textColor=INK,
-        leading=10, alignment=TA_LEFT,
+        "ch_r",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        textColor=INK,
+        leading=10,
+        alignment=TA_LEFT,
     )
     s["cell_header_center"] = ParagraphStyle(
-        "chc_r", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=8, textColor=INK,
-        leading=10, alignment=TA_CENTER,
+        "chc_r",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        textColor=INK,
+        leading=10,
+        alignment=TA_CENTER,
     )
     s["cell_header_right"] = ParagraphStyle(
-        "chr_r", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=8, textColor=INK,
-        leading=10, alignment=TA_RIGHT,
+        "chr_r",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        textColor=INK,
+        leading=10,
+        alignment=TA_RIGHT,
     )
     s["caption"] = ParagraphStyle(
-        "cap_r", parent=base["Normal"],
-        fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED,
+        "cap_r",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=7,
+        textColor=TEXT_MUTED,
         leading=9,
     )
     s["recommendation"] = ParagraphStyle(
-        "rec_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, textColor=TEXT_COLOR,
-        leading=14, spaceAfter=2 * mm, leftIndent=5,
+        "rec_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        textColor=TEXT_COLOR,
+        leading=14,
+        spaceAfter=2 * mm,
+        leftIndent=5,
     )
     s["positive"] = ParagraphStyle(
-        "pos_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, textColor=SIGNAL_GREEN,
+        "pos_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        textColor=SIGNAL_GREEN,
         leading=14,
     )
     s["negative"] = ParagraphStyle(
-        "neg_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, textColor=SIGNAL_RED,
+        "neg_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        textColor=SIGNAL_RED,
         leading=14,
     )
     s["amber"] = ParagraphStyle(
-        "amb_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, textColor=SIGNAL_AMBER,
+        "amb_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        textColor=SIGNAL_AMBER,
         leading=14,
     )
 
@@ -355,16 +452,19 @@ def _metric_cell(value: str, label: str, styles: dict) -> object:
     from reportlab.platypus import Paragraph, Table, TableStyle
 
     inner = Table(
-        [[Paragraph(value, styles["metric_value"])],
-         [Paragraph(label, styles["metric_label"])]],
+        [[Paragraph(value, styles["metric_value"])], [Paragraph(label, styles["metric_label"])]],
         colWidths=["*"],
     )
-    inner.setStyle(TableStyle([
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING", (0, 0), (-1, -1), 1),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
-    ]))
+    inner.setStyle(
+        TableStyle(
+            [
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 1),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
+            ]
+        )
+    )
     return inner
 
 
@@ -376,16 +476,19 @@ def _section_heading(title: str, styles: dict) -> list:
     C = styles["_colors"]
     avail = 210 * mm - 2 * 2.2 * cm  # A4 width minus margins
     rule_t = Table([[""]], colWidths=[avail], rowHeights=[1])
-    rule_t.setStyle(TableStyle([
-        ("LINEBELOW", (0, 0), (0, 0), 0.6, C["ACCENT"]),
-        ("TOPPADDING", (0, 0), (0, 0), 0),
-        ("BOTTOMPADDING", (0, 0), (0, 0), 0),
-    ]))
+    rule_t.setStyle(
+        TableStyle(
+            [
+                ("LINEBELOW", (0, 0), (0, 0), 0.6, C["ACCENT"]),
+                ("TOPPADDING", (0, 0), (0, 0), 0),
+                ("BOTTOMPADDING", (0, 0), (0, 0), 0),
+            ]
+        )
+    )
     return [rule_t, Spacer(1, 2 * mm), Paragraph(title, styles["h1"])]
 
 
-def _three_rule_table(rows: list, col_widths: list, styles: dict,
-                      repeat_rows: int = 1) -> object:
+def _three_rule_table(rows: list, col_widths: list, styles: dict, repeat_rows: int = 1) -> object:
     """Table with Big Four 'three-rule' styling."""
     from reportlab.platypus import Table, TableStyle
 
@@ -426,39 +529,48 @@ def _build_cover_page(styles: dict, report_date: date, week_number: int) -> list
     el.append(Spacer(1, 6 * mm))
 
     # Title
-    el.append(Paragraph(
-        "Relatório de<br/>Cobertura Semanal",
-        styles["cover_title"],
-    ))
+    el.append(
+        Paragraph(
+            "Relatório de<br/>Cobertura Semanal",
+            styles["cover_title"],
+        )
+    )
     el.append(Paragraph("Extra Construtora — SC", styles["cover_subtitle"]))
     el.append(Spacer(1, 12 * mm))
 
     # Metadata
     from datetime import datetime
+
     week_start = report_date - timedelta(days=report_date.weekday())
     week_end = week_start + timedelta(days=6)
-    el.append(Paragraph(
-        f"Semana {week_number}, {report_date.year}",
-        styles["cover_info"],
-    ))
-    el.append(Paragraph(
-        f"{week_start.strftime('%d/%b')} — {week_end.strftime('%d/%b/%Y')}",
-        styles["cover_info"],
-    ))
+    el.append(
+        Paragraph(
+            f"Semana {week_number}, {report_date.year}",
+            styles["cover_info"],
+        )
+    )
+    el.append(
+        Paragraph(
+            f"{week_start.strftime('%d/%b')} — {week_end.strftime('%d/%b/%Y')}",
+            styles["cover_info"],
+        )
+    )
     el.append(Spacer(1, 4 * mm))
-    el.append(Paragraph(
-        f"Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')}",
-        styles["cover_info"],
-    ))
+    el.append(
+        Paragraph(
+            f"Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')}",
+            styles["cover_info"],
+        )
+    )
     el.append(Spacer(1, 30 * mm))
 
     # Attribution
-    el.append(Paragraph(
-        "<b>Tiago Sasaki</b><br/>"
-        "Consultor de Inteligência em Licitações<br/>"
-        "(48) 9 8834-4559",
-        styles["cover_info"],
-    ))
+    el.append(
+        Paragraph(
+            "<b>Tiago Sasaki</b><br/>Consultor de Inteligência em Licitações<br/>(48) 9 8834-4559",
+            styles["cover_info"],
+        )
+    )
 
     el.append(PageBreak())
     return el
@@ -493,6 +605,7 @@ def _build_kpi_section(data: dict, styles: dict) -> list:
                     total_ent = sum(e["total_entities"] for e in entries)
                     return round(total_cov / total_ent * 100, 1) if total_ent > 0 else 0
                 return None
+
             latest_pct = _total_pct_for_date(dates[0])
             prev_pct = _total_pct_for_date(dates[1])
             if latest_pct is not None and prev_pct is not None:
@@ -511,30 +624,41 @@ def _build_kpi_section(data: dict, styles: dict) -> list:
     col_w = avail / 3
 
     metrics = Table(
-        [[
-            _metric_cell(f"{pct}%", "Cobertura Total", styles),
-            _metric_cell(f"{covered}/{total}", "Entes Cobertos", styles),
-            _metric_cell(variacao_text, "Variação vs Semana Ant.", styles),
-        ]],
-        colWidths=[col_w] * 3, rowHeights=[20 * mm],
+        [
+            [
+                _metric_cell(f"{pct}%", "Cobertura Total", styles),
+                _metric_cell(f"{covered}/{total}", "Entes Cobertos", styles),
+                _metric_cell(variacao_text, "Variação vs Semana Ant.", styles),
+            ]
+        ],
+        colWidths=[col_w] * 3,
+        rowHeights=[20 * mm],
     )
     # Override variation color
     if variacao_color != C["TEXT_MUTED"]:
-        metrics.setStyle(TableStyle([
-            ("LINEABOVE", (0, 0), (-1, 0), 0.6, C["INK"]),
-            ("LINEBELOW", (0, 0), (-1, 0), 0.4, C["TEXT_MUTED"]),
-            ("LINEBEFORE", (1, 0), (1, 0), 0.3, C["TEXT_MUTED"]),
-            ("LINEBEFORE", (2, 0), (2, 0), 0.3, C["TEXT_MUTED"]),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ]))
+        metrics.setStyle(
+            TableStyle(
+                [
+                    ("LINEABOVE", (0, 0), (-1, 0), 0.6, C["INK"]),
+                    ("LINEBELOW", (0, 0), (-1, 0), 0.4, C["TEXT_MUTED"]),
+                    ("LINEBEFORE", (1, 0), (1, 0), 0.3, C["TEXT_MUTED"]),
+                    ("LINEBEFORE", (2, 0), (2, 0), 0.3, C["TEXT_MUTED"]),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ]
+            )
+        )
     else:
-        metrics.setStyle(TableStyle([
-            ("LINEABOVE", (0, 0), (-1, 0), 0.6, C["INK"]),
-            ("LINEBELOW", (0, 0), (-1, 0), 0.4, C["TEXT_MUTED"]),
-            ("LINEBEFORE", (1, 0), (1, 0), 0.3, C["TEXT_MUTED"]),
-            ("LINEBEFORE", (2, 0), (2, 0), 0.3, C["TEXT_MUTED"]),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ]))
+        metrics.setStyle(
+            TableStyle(
+                [
+                    ("LINEABOVE", (0, 0), (-1, 0), 0.6, C["INK"]),
+                    ("LINEBELOW", (0, 0), (-1, 0), 0.4, C["TEXT_MUTED"]),
+                    ("LINEBEFORE", (1, 0), (1, 0), 0.3, C["TEXT_MUTED"]),
+                    ("LINEBEFORE", (2, 0), (2, 0), 0.3, C["TEXT_MUTED"]),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ]
+            )
+        )
 
     el.append(metrics)
     el.append(Spacer(1, 4 * mm))
@@ -574,12 +698,14 @@ def _build_source_table(data: dict, styles: dict) -> list:
     rows = [header]
     for s in summary:
         src_name = SOURCE_NAMES.get(s["source"], s["source"])
-        rows.append([
-            Paragraph(src_name, styles["cell"]),
-            Paragraph(str(s["covered"]), styles["cell_center"]),
-            Paragraph(str(s["total_tracked"]), styles["cell_center"]),
-            Paragraph(f'{s["pct"]}%', styles["cell_center"]),
-        ])
+        rows.append(
+            [
+                Paragraph(src_name, styles["cell"]),
+                Paragraph(str(s["covered"]), styles["cell_center"]),
+                Paragraph(str(s["total_tracked"]), styles["cell_center"]),
+                Paragraph(f"{s['pct']}%", styles["cell_center"]),
+            ]
+        )
 
     avail = 210 * mm - 2 * 2.2 * cm
     col_w = [avail * 0.35, avail * 0.20, avail * 0.20, avail * 0.25]
@@ -601,9 +727,12 @@ def _build_top_gaps(data: dict, styles: dict) -> list:
     # Filter to only those with gaps
     gaps_with_issues = [g for g in gaps_by_muni if g.get("entes_descobertos", 0) > 0]
     if not gaps_with_issues:
-        el.append(Paragraph(
-            "Todos os entes cobertos!", styles["positive"],
-        ))
+        el.append(
+            Paragraph(
+                "Todos os entes cobertos!",
+                styles["positive"],
+            )
+        )
         return el
 
     top10 = gaps_with_issues[:10]
@@ -617,13 +746,15 @@ def _build_top_gaps(data: dict, styles: dict) -> list:
     ]
     rows = [header]
     for i, g in enumerate(top10, 1):
-        rows.append([
-            Paragraph(str(i), styles["cell_center"]),
-            Paragraph(g.get("municipio", "N/D")[:30], styles["cell"]),
-            Paragraph(str(g["entes_descobertos"]), styles["cell_center"]),
-            Paragraph(str(g["total_entes"]), styles["cell_center"]),
-            Paragraph(f'{g["pct_gap"]}%', styles["cell_center"]),
-        ])
+        rows.append(
+            [
+                Paragraph(str(i), styles["cell_center"]),
+                Paragraph(g.get("municipio", "N/D")[:30], styles["cell"]),
+                Paragraph(str(g["entes_descobertos"]), styles["cell_center"]),
+                Paragraph(str(g["total_entes"]), styles["cell_center"]),
+                Paragraph(f"{g['pct_gap']}%", styles["cell_center"]),
+            ]
+        )
 
     avail = 210 * mm - 2 * 2.2 * cm
     col_w = [avail * 0.08, avail * 0.37, avail * 0.20, avail * 0.15, avail * 0.20]
@@ -643,14 +774,17 @@ def _build_trend_section(data: dict, styles: dict) -> list:
 
     trend = data.get("trend", [])
     if not trend:
-        el.append(Paragraph(
-            "Dados históricos insuficientes. O snapshot semanal será gerado automaticamente "
-            "pelo timer do sistema.", styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "Dados históricos insuficientes. O snapshot semanal será gerado automaticamente pelo timer do sistema.",
+                styles["body_small"],
+            )
+        )
         return el
 
     # Group by date (calculate overall coverage per date)
     from collections import defaultdict
+
     by_date: dict[str, dict] = defaultdict(lambda: {"total_entities": 0, "covered_entities": 0})
     for t in trend:
         d = str(t["snapshot_date"])
@@ -662,10 +796,12 @@ def _build_trend_section(data: dict, styles: dict) -> list:
     last4 = sorted_dates[-4:] if len(sorted_dates) >= 4 else sorted_dates
 
     if len(last4) < 2:
-        el.append(Paragraph(
-            "Menos de 2 snapshots disponíveis. A tendência será exibida quando houver "
-            "mais dados históricos.", styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "Menos de 2 snapshots disponíveis. A tendência será exibida quando houver mais dados históricos.",
+                styles["body_small"],
+            )
+        )
         return el
 
     header = [
@@ -699,12 +835,14 @@ def _build_trend_section(data: dict, styles: dict) -> list:
             var_text = "—"
             var_style = styles["body_small"]
 
-        rows.append([
-            Paragraph(week_label, styles["cell_center"]),
-            Paragraph(f"{pct}%", styles["cell_center"]),
-            Paragraph(f"{entry['covered_entities']}/{entry['total_entities']}", styles["cell_center"]),
-            Paragraph(var_text, var_style),
-        ])
+        rows.append(
+            [
+                Paragraph(week_label, styles["cell_center"]),
+                Paragraph(f"{pct}%", styles["cell_center"]),
+                Paragraph(f"{entry['covered_entities']}/{entry['total_entities']}", styles["cell_center"]),
+                Paragraph(var_text, var_style),
+            ]
+        )
         prev_pct = pct
 
     avail = 210 * mm - 2 * 2.2 * cm
@@ -735,19 +873,28 @@ def _build_recommendations(data: dict, styles: dict) -> list:
     # 1. Overall coverage assessment
     if pct >= 90:
         recommendations.append(
-            ("✅ Cobertura elevada", f"A cobertura total de {pct}% está em nível satisfatório. "
-             f"Mantenha o monitoramento contínuo para os {total_uncovered} entes restantes.")
+            (
+                "✅ Cobertura elevada",
+                f"A cobertura total de {pct}% está em nível satisfatório. "
+                f"Mantenha o monitoramento contínuo para os {total_uncovered} entes restantes.",
+            )
         )
     elif pct >= 70:
         recommendations.append(
-            ("⚠️ Cobertura moderada", f"A cobertura de {pct}% indica que {total_uncovered} entes "
-             f"ainda estão descobertos. Foco em expandir fontes de dados para municípios com maior "
-             f"concentração de gaps.")
+            (
+                "⚠️ Cobertura moderada",
+                f"A cobertura de {pct}% indica que {total_uncovered} entes "
+                f"ainda estão descobertos. Foco em expandir fontes de dados para municípios com maior "
+                f"concentração de gaps.",
+            )
         )
     else:
         recommendations.append(
-            ("🔴 Cobertura crítica", f"Com apenas {pct}% de cobertura, é prioritário expandir "
-             f"as fontes de dados. {total_uncovered} entes estão completamente descobertos.")
+            (
+                "🔴 Cobertura crítica",
+                f"Com apenas {pct}% de cobertura, é prioritário expandir "
+                f"as fontes de dados. {total_uncovered} entes estão completamente descobertos.",
+            )
         )
 
     # 2. Worst source
@@ -756,9 +903,10 @@ def _build_recommendations(data: dict, styles: dict) -> list:
         worst = sorted_src[0]
         if worst["pct"] < 50:
             recommendations.append(
-                (f"🔧 Fonte crítica: {worst['source']}",
-                 f"Apenas {worst['pct']}% de cobertura nesta fonte. Verificar crawler "
-                 f"e conectividade com a API.")
+                (
+                    f"🔧 Fonte crítica: {worst['source']}",
+                    f"Apenas {worst['pct']}% de cobertura nesta fonte. Verificar crawler e conectividade com a API.",
+                )
             )
 
     # 3. Municipal concentration
@@ -768,19 +916,24 @@ def _build_recommendations(data: dict, styles: dict) -> list:
             top_muni = gaps_with_issues[0]
             total_gap_entes = sum(g["entes_descobertos"] for g in gaps_with_issues)
             recommendations.append(
-                ("📍 Foco municipal", f"{top_muni['municipio']} lidera com "
-                 f"{top_muni['entes_descobertos']} entes descobertos. {total_gap_entes} entes "
-                 f"descobertos no total, distribuídos em {len(gaps_with_issues)} municípios.")
+                (
+                    "📍 Foco municipal",
+                    f"{top_muni['municipio']} lidera com "
+                    f"{top_muni['entes_descobertos']} entes descobertos. {total_gap_entes} entes "
+                    f"descobertos no total, distribuídos em {len(gaps_with_issues)} municípios.",
+                )
             )
 
     # 4. Specific actions
     if pct < 100:
         recommendations.append(
-            ("📋 Ações recomendadas",
-             "• Verificar conectividade dos crawlers com todas as fontes\n"
-             "• Revisar matching de entidades com gap total\n"
-             "• Priorizar ativação de novas fontes para municípios com gaps\n"
-             "• Validar cobertura de TCE-SC e Transparência como fontes complementares")
+            (
+                "📋 Ações recomendadas",
+                "• Verificar conectividade dos crawlers com todas as fontes\n"
+                "• Revisar matching de entidades com gap total\n"
+                "• Priorizar ativação de novas fontes para municípios com gaps\n"
+                "• Validar cobertura de TCE-SC e Transparência como fontes complementares",
+            )
         )
 
     for title, desc in recommendations:
@@ -849,9 +1002,11 @@ def generate_pdf(data: dict, output_path: str, report_date: date) -> str:
 # Excel generation
 # ---------------------------------------------------------------------------
 
+
 def _excel_header_style(wb):
     """Return common header style for Excel."""
-    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.styles import Alignment, Font, PatternFill
+
     return {
         "font": Font(bold=True, color="FFFFFF", size=10),
         "fill": PatternFill(start_color="1B2A3D", end_color="1B2A3D", fill_type="solid"),
@@ -895,7 +1050,7 @@ def _excel_write_sheet(ws, headers, keys, data_rows):
 def generate_excel(data: dict, output_path: str) -> str:
     """Generate detailed Excel report with 4 sheets."""
     from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
     wb = Workbook()
 
@@ -929,7 +1084,7 @@ def generate_excel(data: dict, output_path: str) -> str:
         ("Fonte", "Cobertos", "%"),
     ]
     for s in data.get("summary", []):
-        summary_data.append((s["source"], s["covered"], f'{s["pct"]}%'))
+        summary_data.append((s["source"], s["covered"], f"{s['pct']}%"))
 
     for row_idx, row_data in enumerate(summary_data, 1):
         for col_idx, val in enumerate(row_data, 1):
@@ -956,10 +1111,7 @@ def generate_excel(data: dict, output_path: str) -> str:
         ws3,
         headers=["Município", "Total Entes", "Entes Descobertos", "% Gap"],
         keys=["municipio", "total_entes", "entes_descobertos", "pct_gap"],
-        data_rows=[
-            g for g in data.get("gaps_by_municipio", [])
-            if g.get("entes_descobertos", 0) > 0
-        ],
+        data_rows=[g for g in data.get("gaps_by_municipio", []) if g.get("entes_descobertos", 0) > 0],
     )
 
     # --- Sheet 4: Cobertura por Natureza Jurídica ---
@@ -968,10 +1120,7 @@ def generate_excel(data: dict, output_path: str) -> str:
         ws4,
         headers=["Natureza Jurídica", "Total Entes", "Entes Descobertos", "% Gap"],
         keys=["natureza_juridica", "total_entes", "entes_descobertos", "pct_gap"],
-        data_rows=[
-            g for g in data.get("gaps_by_natureza", [])
-            if g.get("entes_descobertos", 0) > 0
-        ],
+        data_rows=[g for g in data.get("gaps_by_natureza", []) if g.get("entes_descobertos", 0) > 0],
     )
 
     # Freeze panes on data sheets
@@ -987,18 +1136,21 @@ def generate_excel(data: dict, output_path: str) -> str:
 # Main
 # ---------------------------------------------------------------------------
 
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Gera relatório semanal de cobertura (PDF + Excel).",
     )
     parser.add_argument(
-        "--date", "-d",
+        "--date",
+        "-d",
         type=str,
         default=None,
         help="Data-base do relatório (YYYY-MM-DD). Default: hoje.",
     )
     parser.add_argument(
-        "--output-dir", "-o",
+        "--output-dir",
+        "-o",
         type=str,
         default=None,
         help="Diretório de saída. Default: output/reports/coverage/YYYY-MM-DD/",
@@ -1019,7 +1171,8 @@ def parse_args():
         help="PostgreSQL DSN (default: LOCAL_DATALAKE_DSN env ou conexão local).",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Log detalhado.",
     )
@@ -1084,11 +1237,12 @@ def main():
     pct = round(covered / total * 100, 1) if total > 0 else 0
     logger.info("Cobertura: %d/%d entes (%.1f%%)", covered, total, pct)
     logger.info("Gaps totais: %d entes descobertos", uncovered)
-    logger.info("Fontes: %d | Municípios com gaps: %d | Snapshots: %d",
-                len(data.get("summary", [])),
-                len([g for g in data.get("gaps_by_municipio", []) if g.get("entes_descobertos", 0) > 0]),
-                len(data.get("trend", [])),
-                )
+    logger.info(
+        "Fontes: %d | Municípios com gaps: %d | Snapshots: %d",
+        len(data.get("summary", [])),
+        len([g for g in data.get("gaps_by_municipio", []) if g.get("entes_descobertos", 0) > 0]),
+        len(data.get("trend", [])),
+    )
 
     # --- Output path ---
     date_str = report_date.isoformat()
@@ -1148,9 +1302,12 @@ def _build_fallback_pdf(output_path: str, error_msg: str, report_date: date):
 
     styles = _build_pdf_styles()
     doc = SimpleDocTemplate(
-        output_path, pagesize=A4,
-        leftMargin=2.2 * cm, rightMargin=2.2 * cm,
-        topMargin=2.2 * cm, bottomMargin=2.2 * cm,
+        output_path,
+        pagesize=A4,
+        leftMargin=2.2 * cm,
+        rightMargin=2.2 * cm,
+        topMargin=2.2 * cm,
+        bottomMargin=2.2 * cm,
     )
     story = [
         Paragraph("Relatório de Cobertura Semanal", styles["cover_title"]),

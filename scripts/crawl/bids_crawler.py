@@ -57,14 +57,19 @@ import logging
 from datetime import date, datetime, timedelta
 from typing import Any
 
-from pncp_client import AsyncPNCPClient
-
 from ingestion._base.crawler import (
     BaseCrawler,
     CrawlerResult,
     accumulate_stats,
     chunk_list,
     empty_run_stats,
+)
+from ingestion.checkpoint import (
+    complete_ingestion_run,
+    create_ingestion_run,
+    get_last_checkpoint,
+    mark_checkpoint_failed,
+    save_checkpoint,
 )
 from ingestion.config import (
     INGESTION_BACKFILL_CHUNK_DAYS,
@@ -79,23 +84,17 @@ from ingestion.config import (
     INGESTION_PURGE_GRACE_DAYS,
     INGESTION_UFS,
 )
-from ingestion.transformer import transform_batch
 from ingestion.loader import bulk_upsert, purge_old_bids
-from ingestion.checkpoint import (
-    get_last_checkpoint,
-    save_checkpoint,
-    mark_checkpoint_failed,
-    create_ingestion_run,
-    complete_ingestion_run,
-)
 from ingestion.metrics import (
+    INGESTION_PAGES_FETCHED,
     INGESTION_RECORDS_FETCHED,
     INGESTION_RECORDS_UPSERTED,
-    INGESTION_UFS_PROCESSED,
-    INGESTION_UFS_FAILED,
-    INGESTION_PAGES_FETCHED,
     INGESTION_RUN_DURATION,
+    INGESTION_UFS_FAILED,
+    INGESTION_UFS_PROCESSED,
 )
+from ingestion.transformer import transform_batch
+from pncp_client import AsyncPNCPClient
 
 _logger = logging.getLogger(__name__)
 
@@ -143,9 +142,7 @@ class BidsCrawler(BaseCrawler):
         )
         raw_data: list[dict] = response.get("data") or []
         if raw_data:
-            INGESTION_PAGES_FETCHED.labels(
-                uf=self.uf, modalidade=str(self.modalidade)
-            ).inc()
+            INGESTION_PAGES_FETCHED.labels(uf=self.uf, modalidade=str(self.modalidade)).inc()
         # Store the response for has_more checking
         self._last_response = response
         return raw_data
@@ -153,10 +150,7 @@ class BidsCrawler(BaseCrawler):
     def _has_more(self) -> bool:
         """Check if more pages are available based on last response."""
         resp = getattr(self, "_last_response", {})
-        return bool(
-            resp.get("temProximaPagina")
-            or int(resp.get("paginasRestantes", 0)) > 0
-        )
+        return bool(resp.get("temProximaPagina") or int(resp.get("paginasRestantes", 0)) > 0)
 
     async def transform(self, raw: dict) -> dict | None:
         rows = transform_batch(
@@ -226,9 +220,7 @@ class BidsCrawler(BaseCrawler):
 
                 stats["pages"] += 1
 
-                INGESTION_RECORDS_FETCHED.labels(
-                    uf=self.uf, modalidade=str(self.modalidade)
-                ).inc(len(raw_data))
+                INGESTION_RECORDS_FETCHED.labels(uf=self.uf, modalidade=str(self.modalidade)).inc(len(raw_data))
 
                 # Transform the page, skip malformed items
                 rows = transform_batch(
@@ -275,8 +267,7 @@ class BidsCrawler(BaseCrawler):
             INGESTION_UFS_PROCESSED.labels(modalidade=str(self.modalidade)).inc()
 
             self.logger.info(
-                "uf=%s mod=%d pages=%d fetched=%d "
-                "inserted=%d updated=%d unchanged=%d",
+                "uf=%s mod=%d pages=%d fetched=%d inserted=%d updated=%d unchanged=%d",
                 self.uf,
                 self.modalidade,
                 stats["pages"],

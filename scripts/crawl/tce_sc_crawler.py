@@ -136,7 +136,7 @@ def _parse_date(value: Any) -> str | None:
         # Try partial ISO (YYYY-MM-DD anywhere)
         for i in range(len(s) - 9):
             if s[i + 4] == "-" and s[i + 7] == "-":
-                return s[i:i + 10]
+                return s[i : i + 10]
     return None
 
 
@@ -163,6 +163,7 @@ def _safe_float(value: Any) -> float | None:
 def _normalize_modalidade(raw: str) -> str:
     """Strip accents, lowercase, remove numbering prefixes."""
     import unicodedata
+
     s = raw.strip().lower()
     s = re.sub(r"\s+", " ", s)
     s = s.replace("–", "-").replace("—", "-")
@@ -275,12 +276,15 @@ def _api_request(params: dict[str, Any], timeout: int = HTTP_TIMEOUT) -> dict | 
                 _logger.debug("[TCE-SC] HTTP %d for %s", exc.code, full_url)
                 return None
             if attempt < MAX_RETRIES:
-                delay = 2 ** attempt
+                delay = 2**attempt
                 _logger.debug("[TCE-SC] HTTP %d, retrying in %ds", exc.code, delay)
                 time.sleep(delay)
                 continue
             _logger.error(
-                "[TCE-SC] HTTP %d after %d retries: %s", exc.code, MAX_RETRIES, full_url,
+                "[TCE-SC] HTTP %d after %d retries: %s",
+                exc.code,
+                MAX_RETRIES,
+                full_url,
             )
             return None
 
@@ -292,7 +296,9 @@ def _api_request(params: dict[str, Any], timeout: int = HTTP_TIMEOUT) -> dict | 
                 continue
             _logger.error(
                 "[TCE-SC] Request failed after %d retries: %s: %s",
-                MAX_RETRIES, type(exc).__name__, exc,
+                MAX_RETRIES,
+                type(exc).__name__,
+                exc,
             )
             return None
 
@@ -477,7 +483,10 @@ def crawl(mode: str = "full") -> list[dict]:
 
     _logger.info(
         "[TCE-SC] Crawling %s mode: %s to %s (%d days)",
-        mode, data_inicial, data_final, days,
+        mode,
+        data_inicial,
+        data_final,
+        days,
     )
 
     all_records: list[dict] = []
@@ -570,8 +579,7 @@ def _transform_licitacao(raw: dict) -> dict | None:
             "data_abertura": data_abertura or "",
             "data_encerramento": None,
             "link_sistema_origem": (
-                "https://www.scmweb.com.br/processos/index.php"
-                "?pg=transparencia&p285&page=licitacoes"
+                "https://www.scmweb.com.br/processos/index.php?pg=transparencia&p285&page=licitacoes"
             ),
             "link_pncp": "",
             "content_hash": "",
@@ -622,8 +630,7 @@ def _transform_contrato(raw: dict) -> dict | None:
             "data_abertura": None,
             "data_encerramento": None,
             "link_sistema_origem": (
-                "https://www.scmweb.com.br/processos/index.php"
-                "?pg=transparencia&p285&page=contratos"
+                "https://www.scmweb.com.br/processos/index.php?pg=transparencia&p285&page=contratos"
             ),
             "link_pncp": "",
             "content_hash": "",
@@ -666,8 +673,7 @@ def transform(records: list[dict]) -> list[dict]:
             skipped += 1
 
     if skipped:
-        _logger.info("[TCE-SC] Transform complete: %d records, %d skipped",
-                      len(transformed), skipped)
+        _logger.info("[TCE-SC] Transform complete: %d records, %d skipped", len(transformed), skipped)
     else:
         _logger.info("[TCE-SC] Transform complete: %d records", len(transformed))
 

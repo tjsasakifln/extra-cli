@@ -1,0 +1,54 @@
+schema: 1
+story: TD-3.2
+gate: PASS
+status_reason: 'Re-run: AC-C2 implementado e verificado. 11/11 ACs completos. 439/439 testes passam. Story InReview -> Done.'
+reviewer: 'Quinn'
+updated: '2026-07-11T18:00:00Z'
+re_run: true
+original_gate: CONCERNS
+original_file: TD-3.2-pncp-resilience-e-completude-2026-07-11.yml
+top_issues:
+  - id: 'REQ-001'
+    severity: medium
+    status: RESOLVED
+    finding: 'AC-C2 nao implementado: secao "Status das Fontes" com semaforo verde/amarelo/vermelho no relatorio final (PDF/Excel).'
+    resolution: 'Implementado via _build_status_das_fontes() em intel_report.py:1012-1156 e _build_excel_fonte_status()/_build_excel_pncp_status() em intel_excel.py:783-817, 900-909. Cobre PNCP, SICAF, Portal Transparencia e TCU com indicacao de impacto na analise.'
+  - id: 'MNT-001'
+    severity: low
+    status: OPEN (tech debt)
+    finding: 'collect-sicaf.py usa hifen no nome do modulo (collect-sicaf.py), o que gera aviso N999 do ruff (Invalid module name).'
+    suggested_action: 'Renomear para collect_sicaf.py em refactoring futuro.'
+  - id: 'MNT-002'
+    severity: low
+    status: OPEN (deferred)
+    finding: 'Tasks 3.1 (checkpoint format review), 8.4 (historical testing), e 9 (pipeline test completo) permanecem incompletas e documentadas como diferidas.'
+    suggested_action: 'Criar stories de follow-up ou completar em iteracao futura.'
+waiver:
+  active: false
+per_phase:
+  phase_a:
+    verdict: PASS
+    acs: [A1, A2, A3, A4]
+    details: 'AdaptiveRateLimiter.record_429() com backoff progressivo (2s -> 30s). Combo suspension apos 10x 429. Chunked execution com --chunked/--batch-size. Resume via pipeline_steps_completed. 4/4 ACs implementados.'
+  phase_b:
+    verdict: PASS
+    acs: [B1, B2, B3]
+    details: 'collect-sicaf.py stub retorna SICAF_NAO_DISPONIVEL. Portal Transparencia warning aprimorado com URL de configuracao. TCU error handling com _tcu_status=TCU_INDISPONIVEL + timestamp. 3/3 ACs implementados.'
+  phase_c:
+    verdict: PASS
+    acs: [C1, C2]
+    details: 'AC-C1: top20 fallback para editais[:20] com warning. AC-C2: _build_status_das_fontes em intel_report.py + _build_excel_fonte_status/_build_excel_pncp_status em intel_excel.py. Secao "Status das Fontes" no PDF e Excel com semaforo verde/amarelo/vermelho. 2/2 ACs implementados.'
+  phase_d:
+    verdict: PASS
+    acs: [D1, D2, D3]
+    details: 'Competition keywords expandido de 10 para 30+ termos. heuristic_patterns preenchido: strong_compat 10 patterns, weak_compat 7 patterns. cross_sector_exclusions revisado com excecoes ambiental-only. 3/3 ACs implementados.'
+code_quality:
+  tests:
+    total: 439
+    passed: 439
+    failed: 0
+  lint_issues:
+    new: 0
+    pre_existing: 3
+  coderabbit: unavailable
+  regression_check: PASS

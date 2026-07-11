@@ -21,13 +21,12 @@ import math
 import os
 import sys
 import time
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 from typing import Any
 
+import httpx
 import psycopg2
 import psycopg2.extras
-import httpx
 
 # ── Config ──
 _LOCAL_DSN = os.environ.get("LOCAL_DATALAKE_DSN", "")
@@ -41,7 +40,7 @@ IBGE_API = "https://servicodados.ibge.gov.br/api/v1"
 
 
 def _today() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -49,9 +48,7 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     R = 6371.0  # Earth radius in km
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = (math.sin(dlat / 2) ** 2 +
-         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
-         math.sin(dlon / 2) ** 2)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
 
@@ -63,6 +60,7 @@ def get_conn():
 # ============================================================
 # Step 1: Fetch SC municipalities with coordinates
 # ============================================================
+
 
 def fetch_sc_municipalities() -> dict[str, dict]:
     """Fetch all SC municipalities from IBGE API with lat/lon."""
@@ -136,8 +134,10 @@ def enrich_coordinates(municipalities: dict[str, dict], delay: float = 0.1):
 # Step 2: Filter to 200km radius
 # ============================================================
 
-def filter_radius(municipalities: dict[str, dict], center_lat: float, center_lon: float,
-                  radius_km: float = 200) -> dict[str, dict]:
+
+def filter_radius(
+    municipalities: dict[str, dict], center_lat: float, center_lon: float, radius_km: float = 200
+) -> dict[str, dict]:
     """Filter municipalities within radius_km of center point."""
     within: dict[str, dict] = {}
     outside: dict[str, dict] = {}
@@ -163,6 +163,7 @@ def filter_radius(municipalities: dict[str, dict], center_lat: float, center_lon
 # Step 3: Fetch SC municipalities from IBGE with coordinates via aggregate endpoint
 # ============================================================
 
+
 def fetch_sc_with_coords_via_malha() -> dict[str, dict]:
     """
     Alternative: use IBGE malha territorial or localidades with direct coordinate fetch.
@@ -186,6 +187,7 @@ def fetch_sc_with_coords_via_malha() -> dict[str, dict]:
 # ============================================================
 # Step 4: Cross with datalake
 # ============================================================
+
 
 def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
     """Cross-reference radius municipalities with datalake data."""
@@ -213,14 +215,17 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
     mun_sql_list = [m["nome"].upper() for m in mun_list]
 
     # ── Bids ──
-    placeholders = ','.join(['%s'] * len(mun_sql_list))
-    cur.execute(f"""
+    placeholders = ",".join(["%s"] * len(mun_sql_list))
+    cur.execute(
+        f"""
         SELECT COUNT(*) as total_bids,
                COUNT(DISTINCT municipio) as muns_com_bids,
                SUM(valor_estimado) as valor_total_estimado
         FROM pncp_raw_bids
         WHERE uf = 'SC' AND UPPER(municipio) IN ({placeholders})
-    """, mun_sql_list)
+    """,
+        mun_sql_list,
+    )
     row = cur.fetchone()
     report["bids"] = {
         "total": row[0] or 0,
@@ -229,28 +234,33 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
     }
 
     # Bids by municipality
-    cur.execute(f"""
+    cur.execute(
+        f"""
         SELECT UPPER(municipio), COUNT(*), SUM(valor_estimado)
         FROM pncp_raw_bids
         WHERE uf = 'SC' AND UPPER(municipio) IN ({placeholders})
         GROUP BY UPPER(municipio)
         ORDER BY COUNT(*) DESC
         LIMIT 20
-    """, mun_sql_list)
+    """,
+        mun_sql_list,
+    )
     report["bids"]["por_municipio"] = [
-        {"municipio": r[0], "total": r[1], "valor_total": float(r[2] or 0)}
-        for r in cur.fetchall()
+        {"municipio": r[0], "total": r[1], "valor_total": float(r[2] or 0)} for r in cur.fetchall()
     ]
 
     # ── Contracts ──
-    cur.execute(f"""
+    cur.execute(
+        f"""
         SELECT COUNT(*) as total_contracts,
                COUNT(DISTINCT municipio) as muns_com_contracts,
                COUNT(DISTINCT ni_fornecedor) as fornecedores_unicos,
                SUM(valor_global) as valor_total
         FROM pncp_supplier_contracts
         WHERE uf = 'SC' AND UPPER(municipio) IN ({placeholders})
-    """, mun_sql_list)
+    """,
+        mun_sql_list,
+    )
     row = cur.fetchone()
     report["contratos"] = {
         "total": row[0] or 0,
@@ -260,13 +270,34 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
     }
 
     # ── Engineering/Construction Suppliers in radius ──
-    eng_keywords = ['engenh', 'constru', 'obra', 'edific', 'paviment', 'saneamento',
-                    'infraestrutura', 'incorporadora', 'empreiteira', 'construtora',
-                    'terraplenagem', 'fundacao', 'estrutura', 'predial', 'rodovi',
-                    'drenagem', 'asfalto', 'concreto', 'reforma', 'arquitet']
-    eng_conditions = ' OR '.join([f"(LOWER(nome_fornecedor) LIKE '%{k}%' OR LOWER(objeto_contrato) LIKE '%{k}%')" for k in eng_keywords])
+    eng_keywords = [
+        "engenh",
+        "constru",
+        "obra",
+        "edific",
+        "paviment",
+        "saneamento",
+        "infraestrutura",
+        "incorporadora",
+        "empreiteira",
+        "construtora",
+        "terraplenagem",
+        "fundacao",
+        "estrutura",
+        "predial",
+        "rodovi",
+        "drenagem",
+        "asfalto",
+        "concreto",
+        "reforma",
+        "arquitet",
+    ]
+    eng_conditions = " OR ".join(
+        [f"(LOWER(nome_fornecedor) LIKE '%{k}%' OR LOWER(objeto_contrato) LIKE '%{k}%')" for k in eng_keywords]
+    )
 
-    cur.execute(f"""
+    cur.execute(
+        f"""
         SELECT ni_fornecedor, nome_fornecedor,
                COUNT(*) as contratos,
                SUM(valor_global) as valor_total,
@@ -279,13 +310,14 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
           AND LENGTH(ni_fornecedor) = 14
         GROUP BY ni_fornecedor, nome_fornecedor
         ORDER BY contratos DESC
-    """, mun_sql_list)
+    """,
+        mun_sql_list,
+    )
 
     report["fornecedores_engenharia"] = {
-        "total": cur.rowcount if hasattr(cur, 'rowcount') else 0,
+        "total": cur.rowcount if hasattr(cur, "rowcount") else 0,
         "top": [
-            {"cnpj": r[0], "nome": r[1], "contratos": r[2],
-             "valor_total": float(r[3] or 0), "municipios": r[4]}
+            {"cnpj": r[0], "nome": r[1], "contratos": r[2], "valor_total": float(r[3] or 0), "municipios": r[4]}
             for r in cur.fetchall()
         ],
     }
@@ -299,6 +331,7 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
 # ============================================================
 # Step 5: Enrich engineering suppliers into enriched_entities
 # ============================================================
+
 
 def enrich_suppliers_radius(report: dict, within: dict[str, dict], conn):
     """Store engineering suppliers within radius into enriched_entities."""
@@ -330,12 +363,14 @@ def enrich_suppliers_radius(report: dict, within: dict[str, dict], conn):
             "enriched_at": _today(),
         }
 
-        batch_data.append((
-            "fornecedor",
-            cnpj,
-            psycopg2.extras.Json(data),
-            _today(),
-        ))
+        batch_data.append(
+            (
+                "fornecedor",
+                cnpj,
+                psycopg2.extras.Json(data),
+                _today(),
+            )
+        )
 
     if batch_data:
         psycopg2.extras.execute_values(
@@ -357,20 +392,21 @@ def enrich_suppliers_radius(report: dict, within: dict[str, dict], conn):
 # Main
 # ============================================================
 
+
 def main():
     parser = argparse.ArgumentParser(description="SC 200km radius analysis")
     parser.add_argument("--radius", type=float, default=200, help="Radius in km (default: 200)")
     parser.add_argument("--output", "-o", default=None, help="Save report JSON (default: stdout)")
-    parser.add_argument("--enrich", action="store_true", default=True,
-                        help="Store results in enriched_entities (default: True)")
-    parser.add_argument("--no-enrich", action="store_false", dest="enrich",
-                        help="Skip storing in enriched_entities")
+    parser.add_argument(
+        "--enrich", action="store_true", default=True, help="Store results in enriched_entities (default: True)"
+    )
+    parser.add_argument("--no-enrich", action="store_false", dest="enrich", help="Skip storing in enriched_entities")
     args = parser.parse_args()
 
     t0 = time.time()
 
     print("=" * 60)
-    print(f"SC 200km RADIUS ANALYSIS — Florianópolis")
+    print("SC 200km RADIUS ANALYSIS — Florianópolis")
     print(f"Raio: {args.radius}km")
     print("=" * 60)
 
@@ -387,10 +423,14 @@ def main():
     bands = {"0-50km": 0, "50-100km": 0, "100-150km": 0, "150-200km": 0}
     for info in within.values():
         d = info.get("distancia_km", 999)
-        if d <= 50: bands["0-50km"] += 1
-        elif d <= 100: bands["50-100km"] += 1
-        elif d <= 150: bands["100-150km"] += 1
-        else: bands["150-200km"] += 1
+        if d <= 50:
+            bands["0-50km"] += 1
+        elif d <= 100:
+            bands["50-100km"] += 1
+        elif d <= 150:
+            bands["100-150km"] += 1
+        else:
+            bands["150-200km"] += 1
     for band, count in bands.items():
         print(f"  {band}: {count} municípios")
 
@@ -417,19 +457,19 @@ def main():
     print("RESULTADO — SC Raio 200km de Florianópolis")
     print("=" * 60)
     print(f"Municípios dentro do raio: {report['municipios_dentro']}")
-    print(f"\nBIDS:")
+    print("\nBIDS:")
     print(f"  Total: {report['bids']['total']:,}")
     print(f"  Valor estimado total: R$ {report['bids']['valor_total_estimado']:,.0f}")
     print(f"  Municípios com bids: {report['bids']['municipios_com_bids']}")
-    print(f"\nCONTRATOS:")
+    print("\nCONTRATOS:")
     print(f"  Total: {report['contratos']['total']:,}")
     print(f"  Valor total: R$ {report['contratos']['valor_total']:,.0f}")
     print(f"  Fornecedores únicos: {report['contratos']['fornecedores_unicos']:,}")
-    print(f"\nFORNECEDORES ENGENHARIA/CONSTRUÇÃO:")
+    print("\nFORNECEDORES ENGENHARIA/CONSTRUÇÃO:")
     print(f"  Total: {report['fornecedores_engenharia']['total']:,}")
-    top_suppliers = report['fornecedores_engenharia']['top'][:15]
+    top_suppliers = report["fornecedores_engenharia"]["top"][:15]
     print(f"\n  {'CNPJ':<18} {'Nome':<45} {'Contratos':>10} {'Valor Total':>20}")
-    print(f"  {'-'*18} {'-'*45} {'-'*10} {'-'*20}")
+    print(f"  {'-' * 18} {'-' * 45} {'-' * 10} {'-' * 20}")
     for s in top_suppliers:
         print(f"  {s['cnpj']:<18} {s['nome'][:43]:<45} {s['contratos']:>10,} R$ {s['valor_total']:>18,.0f}")
 

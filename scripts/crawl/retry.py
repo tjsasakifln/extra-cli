@@ -14,12 +14,16 @@ import logging
 import random
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from config import (
-    RetryConfig,
     PNCP_MODALITY_RETRY_BACKOFF,  # noqa: F401 — re-exported via pncp_client.py
+    RetryConfig,
+)
+from config import (
     PNCP_TIMEOUT_PER_MODALITY as _CFG_TIMEOUT_PER_MODALITY,
+)
+from config import (
     PNCP_TIMEOUT_PER_UF as _CFG_TIMEOUT_PER_UF,
 )
 
@@ -51,8 +55,10 @@ def validate_timeout_chain() -> None:
             "TIMEOUT MISCONFIGURATION: PerModality(%.0fs) >= PerUF(%.0fs). "
             "Modality timeout must be strictly less than UF timeout. "
             "Falling back to safe defaults: PerModality=%.0fs, PerUF=%.0fs.",
-            PNCP_TIMEOUT_PER_MODALITY, PNCP_TIMEOUT_PER_UF,
-            _SAFE_PER_MODALITY, _SAFE_PER_UF,
+            PNCP_TIMEOUT_PER_MODALITY,
+            PNCP_TIMEOUT_PER_UF,
+            _SAFE_PER_MODALITY,
+            _SAFE_PER_UF,
         )
         PNCP_TIMEOUT_PER_MODALITY = _SAFE_PER_MODALITY
         PNCP_TIMEOUT_PER_UF = _SAFE_PER_UF
@@ -64,23 +70,52 @@ def validate_timeout_chain() -> None:
         logger.warning(
             "TIMEOUT NEAR-INVERSION: PerModality(%.0fs) > 80%% of PerUF(%.0fs). "
             "Recommend PerModality <= %.0fs for safe margin.",
-            PNCP_TIMEOUT_PER_MODALITY, PNCP_TIMEOUT_PER_UF, recommended,
+            PNCP_TIMEOUT_PER_MODALITY,
+            PNCP_TIMEOUT_PER_UF,
+            recommended,
         )
 
 
 # UFs ordered by population for degraded priority (STORY-257A AC1)
-UFS_BY_POPULATION = ["SP", "RJ", "MG", "BA", "PR", "RS", "PE", "CE", "SC", "GO",
-                      "PA", "MA", "AM", "ES", "PB", "RN", "MT", "AL", "PI", "DF",
-                      "MS", "SE", "RO", "TO", "AC", "AP", "RR"]
+UFS_BY_POPULATION = [
+    "SP",
+    "RJ",
+    "MG",
+    "BA",
+    "PR",
+    "RS",
+    "PE",
+    "CE",
+    "SC",
+    "GO",
+    "PA",
+    "MA",
+    "AM",
+    "ES",
+    "PB",
+    "RN",
+    "MT",
+    "AL",
+    "PI",
+    "DF",
+    "MS",
+    "SE",
+    "RO",
+    "TO",
+    "AC",
+    "AP",
+    "RR",
+]
 
 
 @dataclass
 class ParallelFetchResult:
     """Structured return from buscar_todas_ufs_paralelo with per-UF metadata."""
-    items: List[Dict[str, Any]]
-    succeeded_ufs: List[str]
-    failed_ufs: List[str]
-    truncated_ufs: List[str] = field(default_factory=list)  # GTM-FIX-004: UFs that hit max_pages limit
+
+    items: list[dict[str, Any]]
+    succeeded_ufs: list[str]
+    failed_ufs: list[str]
+    truncated_ufs: list[str] = field(default_factory=list)  # GTM-FIX-004: UFs that hit max_pages limit
 
 
 @dataclass
@@ -91,7 +126,8 @@ class ModalityFetchState:
     timeout cancellation are preserved. Thread-safe in asyncio (single-threaded
     event loop — no locks needed).
     """
-    items: List[Dict[str, Any]] = field(default_factory=list)
+
+    items: list[dict[str, Any]] = field(default_factory=list)
     seen_ids: set = field(default_factory=set)
     pages_fetched: int = 0
     was_truncated: bool = False
@@ -102,12 +138,14 @@ class ModalityFetchState:
 # UX-336: Multi-format date handling for PNCP 422 recovery
 # ============================================================================
 
+
 class DateFormat:
     """Supported PNCP date formats for 422 retry rotation."""
-    YYYYMMDD = "YYYYMMDD"       # 20260218 (only format accepted by PNCP)
-    ISO_DASH = "YYYY-MM-DD"     # 2026-02-18 (NOT accepted by PNCP)
-    BR_SLASH = "DD/MM/YYYY"     # 18/02/2026 (NOT accepted by PNCP)
-    BR_DASH = "DD-MM-YYYY"      # 18-02-2026 (NOT accepted by PNCP)
+
+    YYYYMMDD = "YYYYMMDD"  # 20260218 (only format accepted by PNCP)
+    ISO_DASH = "YYYY-MM-DD"  # 2026-02-18 (NOT accepted by PNCP)
+    BR_SLASH = "DD/MM/YYYY"  # 18/02/2026 (NOT accepted by PNCP)
+    BR_DASH = "DD-MM-YYYY"  # 18-02-2026 (NOT accepted by PNCP)
 
     # PNCP API only accepts yyyyMMdd. Format rotation to other formats
     # wastes retries and guarantees failure. Confirmed in production
@@ -117,12 +155,12 @@ class DateFormat:
 
 
 # UX-336 AC3: In-memory cache of accepted date format (TTL 24h)
-_accepted_date_format: Optional[str] = None
+_accepted_date_format: str | None = None
 _accepted_date_format_ts: float = 0.0
 _DATE_FORMAT_CACHE_TTL = 86400.0  # 24 hours
 
 
-def _get_cached_date_format() -> Optional[str]:
+def _get_cached_date_format() -> str | None:
     """Return cached accepted format if still valid, else None."""
     global _accepted_date_format, _accepted_date_format_ts
     if _accepted_date_format and (time.time() - _accepted_date_format_ts) < _DATE_FORMAT_CACHE_TTL:
@@ -165,7 +203,7 @@ def format_date(iso_date: str, fmt: str) -> str:
         raise ValueError(f"Unknown date format: '{fmt}'")
 
 
-def _get_format_rotation() -> List[str]:
+def _get_format_rotation() -> list[str]:
     """Return date formats to try, with cached format first if available."""
     cached = _get_cached_date_format()
     if cached:
@@ -175,8 +213,10 @@ def _get_format_rotation() -> List[str]:
 
 
 def _validate_date_params(
-    data_inicial: str, data_inicial_fmt: str,
-    data_final: str, data_final_fmt: str,
+    data_inicial: str,
+    data_inicial_fmt: str,
+    data_final: str,
+    data_final_fmt: str,
 ) -> None:
     """GTM-FIX-032 AC2: Pre-flight date validation before sending to PNCP."""
     if len(data_inicial_fmt) != 8 or not data_inicial_fmt.isdigit():
@@ -233,15 +273,11 @@ def _handle_422_response(
         _422_type = "date_range"
 
     # AC4.4 + UX-336 AC5: Sentry-style metric tag with format info
-    logger.debug(
-        f"pncp_422_count uf={uf_param} modality={mod_param} type={_422_type}"
-    )
+    logger.debug(f"pncp_422_count uf={uf_param} modality={mod_param} type={_422_type}")
 
     if _422_type != "unknown":
         # AC4.3: Return empty instead of crashing
-        logger.debug(
-            f"pncp_422_date_skip uf={uf_param} modality={mod_param} type={_422_type}"
-        )
+        logger.debug(f"pncp_422_date_skip uf={uf_param} modality={mod_param} type={_422_type}")
         return {
             "data": [],
             "totalRegistros": 0,
@@ -273,9 +309,7 @@ def calculate_delay(attempt: int, config: RetryConfig) -> float:
         - Attempt 4: 32s
         - Attempt 5: 60s (capped)
     """
-    delay = min(
-        config.base_delay * (config.exponential_base**attempt), config.max_delay
-    )
+    delay = min(config.base_delay * (config.exponential_base**attempt), config.max_delay)
 
     if config.jitter:
         # Add ±50% jitter to prevent thundering herd

@@ -1,0 +1,31 @@
+25c25
+< from datetime import datetime, timezone
+---
+> from datetime import UTC, datetime
+825d824
+<     from lib.constants import INTEL_VERSION
+826a826
+>     from lib.constants import INTEL_VERSION
+864c864
+<         with open(input_path, "r", encoding="utf-8") as f:
+---
+>         with open(input_path, encoding="utf-8") as f:
+885,886c885,895
+<         logger.error("top20 vazio ou ausente no JSON")
+<         sys.exit(2)
+---
+>         # Fallback: use full editais list when top20 not available (pipeline executed
+>         # only through Gate 1/Gate 2 without LLM gate populating top20)
+>         editais_fallback = data.get("editais", [])
+>         if editais_fallback:
+>             logger.warning("top20 vazio ou ausente — usando lista completa de editais como fallback (%d editais)",
+>                           len(editais_fallback))
+>             logger.warning("Validacao parcial: top20 nao disponivel (pipeline executado ate Gate 1/2 apenas)")
+>             top20 = editais_fallback[:20]  # Limit to top 20 by input order
+>         else:
+>             logger.error("top20 e editais vazios — nada para validar")
+>             sys.exit(2)
+937c946
+<         "validation_timestamp": datetime.now(timezone.utc).isoformat(),
+---
+>         "validation_timestamp": datetime.now(UTC).isoformat(),

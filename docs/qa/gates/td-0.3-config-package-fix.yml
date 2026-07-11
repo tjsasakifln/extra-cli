@@ -1,0 +1,13 @@
+schema: 1
+story: TD-0.3
+gate: PASS
+status_reason: 'Config package fix completo: RetryConfig + 23 constantes criados e exportados, 439/439 testes passando, ruff 0 erros. AC9 bloqueado por dependencias externas (exceptions, middleware, metrics) — documentado e aceito.'
+reviewer: 'Quinn'
+updated: '2026-07-11T19:00:00Z'
+top_issues:
+  - id: 'MNT-001'
+    severity: low
+    finding: 'RetryConfig inclui 4 campos extras alem da especificacao da story (max_retries, timeout, retryable_status_codes, retryable_exceptions) — necessarios para sync_client.py e async_client.py'
+    suggested_action: 'Nenhum — decisao documentada pelo @dev com justificativa tecnica.'
+waiver:
+  active: false

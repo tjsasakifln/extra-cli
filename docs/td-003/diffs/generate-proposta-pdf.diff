@@ -1,0 +1,12 @@
+815c815
+<             [Paragraph("ou envie um email para tiago.sasaki@extraconsultoria.com.br", S['CTAWhiteSub'])],
+---
+>             [Paragraph("ou envie um email para tiago.sasaki@confenge.com.br", S['CTAWhiteSub'])],
+844c844
+<     story.append(Paragraph("Consultor de Licitações | Extra Consultoria", S['Body']))
+---
+>     story.append(Paragraph("Consultor de Licitações | CONFENGE", S['Body']))
+847c847
+<     story.append(Paragraph("<b>Email:</b> tiago.sasaki@extraconsultoria.com.br", S['Body']))
+---
+>     story.append(Paragraph("<b>Email:</b> tiago.sasaki@confenge.com.br", S['Body']))

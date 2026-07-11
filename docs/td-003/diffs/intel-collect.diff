@@ -1,0 +1,447 @@
+32c32
+< from datetime import datetime, timedelta, timezone
+---
+> from datetime import UTC, datetime, timedelta
+35a36,37
+> import httpx as _httpx
+> 
+97c99
+< _RATE_LIMIT_MAX_S = 2.0     # Max interval on slowdowns
+---
+> _RATE_LIMIT_MAX_S = 30.0    # Max interval on slowdowns (v1.5: was 2.0s — increased for 429 backoff)
+103a106,110
+> # 429 rate-limit specific (v1.5)
+> _RATE_LIMIT_429_GROWTH = 2.0    # Doubling factor for 429 backoff (start 2s → 4s → 8s → ...)
+> _RATE_LIMIT_429_MAX_S = 30.0    # Max interval for 429 backoff
+> _RATE_LIMIT_429_INITIAL_S = 2.0 # Initial wait on first 429 (seconds)
+> _PNCP_429_MAX_PER_COMBO = 10    # Max 429s per combo before suspension
+220a228,229
+>     - 429 rate-limit (v1.5): independent aggressive backoff, starts at 2s,
+>       doubles each retry, max 30s. Tracked separately from other failures.
+231a241,243
+>         rl_429_initial: float = _RATE_LIMIT_429_INITIAL_S,
+>         rl_429_growth: float = _RATE_LIMIT_429_GROWTH,
+>         rl_429_max: float = _RATE_LIMIT_429_MAX_S,
+241a254,258
+>         # 429-specific state (v1.5)
+>         self._429_initial = rl_429_initial
+>         self._429_growth = rl_429_growth
+>         self._429_max = rl_429_max
+>         self._total_429_count = 0
+275a293,321
+>     def record_429(self) -> float:
+>         """Record a 429 Too Many Requests response.
+> 
+>         Applies aggressive progressive backoff:
+>           First 429: wait 2s
+>           Each subsequent 429: double the wait, cap at max 30s
+> 
+>         Returns the new wait interval in seconds.
+>         """
+>         wait_time = 0.0
+>         with self._lock:
+>             self._total_429_count += 1
+>             # Progressive backoff: start at initial, double each time, cap at max
+>             # Use total_429_count to determine backoff level
+>             self._interval = min(
+>                 self._429_max,
+>                 self._429_initial * (self._429_growth ** (self._total_429_count - 1))
+>             )
+>             wait_time = self._interval
+>             # Reset circuit breaker counter (429 is not a connection failure)
+>             self._consecutive_failures = 0
+>         print(f"    ⚡ 429 rate-limit: backoff {wait_time:.1f}s (total 429s: {self._total_429_count})")
+>         return wait_time
+> 
+>     @property
+>     def total_429_count(self) -> int:
+>         with self._lock:
+>             return self._total_429_count
+> 
+320c366
+<     api: "ApiClient",
+---
+>     api: ApiClient,
+357a404,465
+> def _pncp_direct_get(
+>     url: str,
+>     params: dict | None = None,
+>     label: str = "",
+>     max_retries: int = 2,
+> ) -> tuple:
+>     """Direct HTTP GET for PNCP with status code visibility (v1.5).
+> 
+>     Bypasses ApiClient to expose HTTP status codes directly, allowing
+>     the caller to distinguish 429 Too Many Requests from other failures.
+> 
+>     Returns (data, status, http_status_code).
+>       status is "API" for success,
+>               "TOO_MANY_REQUESTS" for HTTP 429,
+>               "API_FAILED" for other failures/errors.
+>     """
+>     for attempt in range(max_retries + 1):
+>         try:
+>             resp = _httpx.get(
+>                 url,
+>                 params=params,
+>                 timeout=30.0,
+>                 follow_redirects=True,
+>                 headers={"User-Agent": "Extra Consultoria-IntelCollector/1.0"},
+>             )
+> 
+>             if resp.status_code == 200:
+>                 try:
+>                     return resp.json(), "API", 200
+>                 except _httpx.JSONDecodeError:
+>                     if attempt < max_retries:
+>                         time.sleep(1.0)
+>                         continue
+>                     return None, "API_FAILED", 200
+> 
+>             if resp.status_code == 429:
+>                 # Rate-limited: return immediately with special status
+>                 return None, "TOO_MANY_REQUESTS", 429
+> 
+>             if resp.status_code in (500, 502, 503, 504, 422):
+>                 # Transient server error, retry
+>                 if attempt < max_retries:
+>                     delay = min(1.0 * (2 ** attempt), 30.0)
+>                     print(f"    [retry] {label}: HTTP {resp.status_code}, retry in {delay:.1f}s")
+>                     time.sleep(delay)
+>                     continue
+>                 return None, "API_FAILED", resp.status_code
+> 
+>             # Non-retryable error (4xx except 429)
+>             return None, "API_FAILED", resp.status_code
+> 
+>         except (_httpx.TimeoutException, _httpx.ConnectError, _httpx.ReadError) as e:
+>             if attempt < max_retries:
+>                 delay = min(1.0 * (2 ** attempt), 30.0)
+>                 print(f"    [retry] {label}: {type(e).__name__}, retry in {delay:.1f}s")
+>                 time.sleep(delay)
+>                 continue
+>             return None, "API_FAILED", None
+> 
+>     return None, "API_FAILED", None
+> 
+> 
+363c471
+<     return datetime.now(timezone.utc)
+---
+>     return datetime.now(UTC)
+486c594
+<         print(f"  Dedup semantico: sem duplicatas semanticas detectadas")
+---
+>         print("  Dedup semantico: sem duplicatas semanticas detectadas")
+551c659
+<                         ts = ts.replace(tzinfo=timezone.utc)
+---
+>                         ts = ts.replace(tzinfo=UTC)
+837a946,947
+>     chunked: bool = False,
+>     batch_size: int = 1,
+846a957,961
+>     v1.5: Chunked execution mode (--chunked).
+>     When chunked=True, combos are processed in sequential batches (batch_size combos
+>     per batch) instead of all at once. Each batch has a 5s cool-down between batches
+>     to reduce PNCP API load and avoid 429 rate-limiting.
+> 
+863a979,980
+>         "errors_429": 0,          # v1.5: specific 429 count
+>         "combo_429_suspended": 0,  # v1.5: combos suspended due to excessive 429s
+866a984,986
+>     # Per-combo 429 counter (shared across workers, v1.5)
+>     combo_429_lock = threading.Lock()
+>     combo_429_counts: dict[str, int] = {}
+896c1016
+<                 ts = ts.replace(tzinfo=timezone.utc)
+---
+>                 ts = ts.replace(tzinfo=UTC)
+923a1044,1048
+>         v1.5: Uses direct HTTP for 429 detection. Tracks 429s per combo
+>         and suspends combo after _PNCP_429_MAX_PER_COMBO (10) consecutive
+>         429s. Combo suspension is non-fatal — the combo is skipped and
+>         can be retried in a later chunked batch.
+> 
+947a1073,1074
+>         combo_429_local = 0  # Track 429s for this combo
+>         combo_key = _subkey(mod_code, uf_label)
+963a1091
+>             # v1.5: Use direct HTTP to detect 429 vs other failures
+965,966c1093
+<             data, status = _api_get_with_retry(
+<                 api,
+---
+>             data, status, http_code = _pncp_direct_get(
+973a1101,1125
+>             if status == "TOO_MANY_REQUESTS":
+>                 # 429 specific handling: aggressive backoff, per-combo tracking
+>                 combo_429_local += 1
+>                 # Update shared 429 counter
+>                 with combo_429_lock:
+>                     combo_429_counts[combo_key] = combo_429_counts.get(combo_key, 0) + 1
+> 
+>                 with meta_lock:
+>                     source_meta["errors_429"] = source_meta.get("errors_429", 0) + 1
+> 
+>                 wait_time = rate_limiter.record_429()
+> 
+>                 # Suspend combo if too many 429s
+>                 if combo_429_local >= _PNCP_429_MAX_PER_COMBO:
+>                     print(f"    ⚡ Combo suspenso: {_PNCP_429_MAX_PER_COMBO}x 429 "
+>                           f"mod={mod_code} uf={uf_label} chunk={chunk_start} — "
+>                           f"reagendado para proximo batch")
+>                     source_meta["combo_429_suspended"] = source_meta.get("combo_429_suspended", 0) + 1
+>                     return (uf_label, page_count, len(combo_items), True)
+> 
+>                 # Wait the backoff interval before retrying same page
+>                 time.sleep(wait_time)
+>                 # Retry the same page (don't increment page counter)
+>                 continue
+> 
+1039c1191
+<     # ── Dispatch ALL combos in parallel ──
+---
+>     # ── Dispatch combos: parallel (default) or chunked (v1.5) ──
+1044,1048c1196,1199
+<     with concurrent.futures.ThreadPoolExecutor(max_workers=n_workers) as pool:
+<         future_to_task = {
+<             pool.submit(_fetch_combo, *task): task
+<             for task in tasks
+<         }
+---
+>     if chunked:
+>         # Chunked execution: process N combos per batch sequentially
+>         # Reduces PNCP API load by staggering batches with 5s cooldown
+>         print(f"  Chunked mode: {batch_size} combo(s) por batch, delay 5s entre batches")
+1050,1071c1201,1263
+<         for fut in concurrent.futures.as_completed(future_to_task):
+<             task = future_to_task[fut]
+<             mod_code, mod_name, uf_filter, chunk_start, chunk_end = task
+<             completed += 1
+<             try:
+<                 uf_label, pages, items, had_error = fut.result()
+<                 with mod_stats_lock:
+<                     if mod_code not in mod_stats:
+<                         mod_stats[mod_code] = {"name": mod_name, "pages": 0, "items": 0, "errors": 0}
+<                     mod_stats[mod_code]["pages"] += pages
+<                     mod_stats[mod_code]["items"] += items
+<                     if had_error:
+<                         mod_stats[mod_code]["errors"] += 1
+<             except Exception as exc:
+<                 print(f"    ERRO: mod={mod_code} uf={uf_filter} chunk={chunk_start}: {exc}")
+<                 with meta_lock:
+<                     source_meta["errors"] += 1
+< 
+<             # Progress indicator every 10 tasks
+<             if completed % 10 == 0 or completed == n_tasks:
+<                 print(f"  → {completed}/{n_tasks} combos concluídos "
+<                       f"(rate: {rate_limiter.current_interval*1000:.0f}ms)")
+---
+>         for batch_start in range(0, n_tasks, batch_size):
+>             batch = tasks[batch_start:batch_start + batch_size]
+>             with concurrent.futures.ThreadPoolExecutor(max_workers=batch_size) as pool:
+>                 batch_futures = {
+>                     pool.submit(_fetch_combo, *task): task
+>                     for task in batch
+>                 }
+>                 for fut in concurrent.futures.as_completed(batch_futures):
+>                     task = batch_futures[fut]
+>                     mod_code, mod_name, uf_filter, chunk_start, chunk_end = task
+>                     completed += 1
+>                     try:
+>                         uf_label, pages, items, had_error = fut.result()
+>                         with mod_stats_lock:
+>                             if mod_code not in mod_stats:
+>                                 mod_stats[mod_code] = {"name": mod_name, "pages": 0, "items": 0, "errors": 0}
+>                             mod_stats[mod_code]["pages"] += pages
+>                             mod_stats[mod_code]["items"] += items
+>                             if had_error:
+>                                 mod_stats[mod_code]["errors"] += 1
+>                     except Exception as exc:
+>                         print(f"    ERRO: mod={mod_code} uf={uf_filter} chunk={chunk_start}: {exc}")
+>                         with meta_lock:
+>                             source_meta["errors"] += 1
+> 
+>             # Progress indicator after each batch
+>             print(f"  → Batch concluido: {completed}/{n_tasks} combos "
+>                   f"(rate: {rate_limiter.current_interval*1000:.0f}ms)")
+> 
+>             # Cooldown between batches (unless last batch)
+>             if batch_start + batch_size < n_tasks:
+>                 print("    Cool-down: 5s antes do proximo batch...")
+>                 time.sleep(5.0)
+>     else:
+>         # Default: dispatch ALL combos in parallel
+>         with concurrent.futures.ThreadPoolExecutor(max_workers=n_workers) as pool:
+>             future_to_task = {
+>                 pool.submit(_fetch_combo, *task): task
+>                 for task in tasks
+>             }
+>             completed = 0
+>             for fut in concurrent.futures.as_completed(future_to_task):
+>                 task = future_to_task[fut]
+>                 mod_code, mod_name, uf_filter, chunk_start, chunk_end = task
+>                 completed += 1
+>                 try:
+>                     uf_label, pages, items, had_error = fut.result()
+>                     with mod_stats_lock:
+>                         if mod_code not in mod_stats:
+>                             mod_stats[mod_code] = {"name": mod_name, "pages": 0, "items": 0, "errors": 0}
+>                         mod_stats[mod_code]["pages"] += pages
+>                         mod_stats[mod_code]["items"] += items
+>                         if had_error:
+>                             mod_stats[mod_code]["errors"] += 1
+>                 except Exception as exc:
+>                     print(f"    ERRO: mod={mod_code} uf={uf_filter} chunk={chunk_start}: {exc}")
+>                     with meta_lock:
+>                         source_meta["errors"] += 1
+> 
+>                 # Progress indicator every 10 tasks
+>                 if completed % 10 == 0 or completed == n_tasks:
+>                     print(f"  → {completed}/{n_tasks} combos concluídos "
+>                           f"(rate: {rate_limiter.current_interval*1000:.0f}ms)")
+1076a1269,1271
+>         source_429_note = ""
+>         if ms.get("errors_429"):
+>             source_429_note = f" ({ms['errors_429']}x 429)"
+1078c1273
+<               f"{ms['items']} editais{err_note}")
+---
+>               f"{ms['items']} editais{err_note}{source_429_note}")
+1458c1653
+<         print(f"  Remaining needs_llm_review: 0")
+---
+>         print("  Remaining needs_llm_review: 0")
+1617c1812
+< def _collect_tcu_due_diligence(api: "ApiClient", cnpj14: str) -> dict:
+---
+> def _collect_tcu_due_diligence(api: ApiClient, cnpj14: str) -> dict:
+1621c1816,1820
+<     Returns dict with 'inidoneo', 'certidoes', 'certidoes_irregulares' keys.
+---
+>     Returns dict with 'inidoneo', 'certidoes', 'certidoes_irregulares' keys
+>     and '_tcu_status' reflecting API health.
+> 
+>     v1.5: Sets TCU_INDISPONIVEL on failure so downstream knows data is missing
+>     due to API unavailability (not absence of records).
+1622a1822
+>     now_iso = _today().isoformat()
+1628a1829
+>         "_tcu_status": "OK",
+1652a1854,1857
+>         else:
+>             result["_tcu_status"] = "TCU_INDISPONIVEL"
+>             result["_tcu_status_detail"] = "API de inidoneos retornou status nao-OK"
+>             result["_tcu_timestamp"] = now_iso
+1654a1860,1862
+>         result["_tcu_status"] = "TCU_INDISPONIVEL"
+>         result["_tcu_status_detail"] = f"Excecao: {exc}"[:200]
+>         result["_tcu_timestamp"] = now_iso
+1674a1883,1886
+>         else:
+>             result["_tcu_status"] = "TCU_INDISPONIVEL"
+>             result["_tcu_status_detail"] = "API de certidoes retornou status nao-OK"
+>             result["_tcu_timestamp"] = now_iso
+1676a1889,1891
+>         result["_tcu_status"] = "TCU_INDISPONIVEL"
+>         result["_tcu_status_detail"] = f"Excecao: {exc}"[:200]
+>         result["_tcu_timestamp"] = now_iso
+1756c1971
+<                 ts = ts.replace(tzinfo=timezone.utc)
+---
+>                 ts = ts.replace(tzinfo=UTC)
+2252a2468,2469
+>             "pncp_errors_429": source_meta.get("errors_429", 0),
+>             "pncp_combo_429_suspended": source_meta.get("combo_429_suspended", 0),
+2322c2539
+<     api: "ApiClient",
+---
+>     api: ApiClient,
+2394c2611
+<                 ts = ts.replace(tzinfo=timezone.utc)
+---
+>                 ts = ts.replace(tzinfo=UTC)
+2753c2970
+<     """Find the most recent intel JSON for the given CNPJ in docs/intel/."""
+---
+>     """Find the most recent intel JSON for the given CNPJ in data/intel/."""
+2773a2991
+>     from lib.cli_validation import validate_cnpj, validate_dias, validate_ufs
+2775d2992
+<     from lib.cli_validation import validate_cnpj, validate_ufs, validate_dias
+2800a3018,3023
+>     parser.add_argument("--chunked", action="store_true",
+>                         help="Modo chunked: processa 1 combo por vez em vez de todos em paralelo. "
+>                              "Reduz carga na API PNCP e evita 429 rate-limit.")
+>     parser.add_argument("--batch-size", type=int, default=1, metavar="N",
+>                         help="No modo chunked, processa N combos por batch (default: 1). "
+>                              "Delay entre batches: 5s.")
+2847,2848c3070,3071
+<         print(f"\n[1b/7] Verificação cadastral SICAF + Sanções...")
+<         print(f"   Navegador vai abrir. Resolva o captcha quando solicitado.\n")
+---
+>         print("\n[1b/7] Verificação cadastral SICAF + Sanções...")
+>         print("   Navegador vai abrir. Resolva o captcha quando solicitado.\n")
+2862c3085
+<             print(f"  *** Empresa IMPEDIDA de licitar ***")
+---
+>             print("  *** Empresa IMPEDIDA de licitar ***")
+2879c3102
+<             print(f"  *** ALERTA: SICAF com RESTRIÇÃO ativa — risco de inabilitação ***")
+---
+>             print("  *** ALERTA: SICAF com RESTRIÇÃO ativa — risco de inabilitação ***")
+2882c3105
+<         print(f"  TCU: Verificando inidoneos e certidoes APF...")
+---
+>         print("  TCU: Verificando inidoneos e certidoes APF...")
+2886c3109
+<             print(f"  *** ALERTA: Empresa declarada INIDÔNEA pelo TCU ***")
+---
+>             print("  *** ALERTA: Empresa declarada INIDÔNEA pelo TCU ***")
+2888c3111
+<             print(f"  *** ALERTA: Certidões APF com irregularidades ***")
+---
+>             print("  *** ALERTA: Certidões APF com irregularidades ***")
+2890c3113
+<             print(f"  TCU: Nada consta (inidoneos + certidoes APF)")
+---
+>             print("  TCU: Nada consta (inidoneos + certidoes APF)")
+2892c3115
+<         print(f"\n[1b/7] SICAF pulado (--skip-sicaf)")
+---
+>         print("\n[1b/7] SICAF pulado (--skip-sicaf)")
+2988a3212,3213
+>         if args.chunked:
+>             print(f"  Modo chunked ativado (batch_size={args.batch_size}) — combos processados em lotes sequenciais")
+2992a3218,3219
+>             chunked=args.chunked,
+>             batch_size=args.batch_size,
+3077c3304
+<     print(f"\n[5/7] Coletando inteligencia competitiva + documentos + price benchmark (paralelo)...")
+---
+>     print("\n[5/7] Coletando inteligencia competitiva + documentos + price benchmark (paralelo)...")
+3106c3333
+<     print(f"\n[6c/7] Detectando delta com run anterior...")
+---
+>     print("\n[6c/7] Detectando delta com run anterior...")
+3111c3338
+<         print(f"  Nenhum run anterior encontrado — todos serao marcados como NOVO")
+---
+>         print("  Nenhum run anterior encontrado — todos serao marcados como NOVO")
+3118c3345
+<     print(f"\n[7/7] Montando JSON de saida...")
+---
+>     print("\n[7/7] Montando JSON de saida...")
+3145c3372
+<         out_dir = str(_PROJECT_ROOT / "docs" / "intel")
+---
+>         out_dir = str(_PROJECT_ROOT / "data" / "intel")
+3159c3386
+<     print(f"  OPORTUNIDADES IDENTIFICADAS")
+---
+>     print("  OPORTUNIDADES IDENTIFICADAS")
+3168c3395
+<     print(f"  Detalhes da coleta:")
+---
+>     print("  Detalhes da coleta:")

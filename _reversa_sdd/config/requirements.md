@@ -1,19 +1,19 @@
-# Requirements — Módulo `config`
+# Config — Requirements
 
-> 🟢 CONFIRMADO — `config/settings.py`, `sectors_config.yaml`, `abbreviations.yaml`, `transparencia_config.yaml`
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo | Base: e9729e1
 
-## Funcionais
+Configuração centralizada: settings via env vars, 13 setores B2G com keywords context-gated, abbreviations, transparencia CSS selectors, logging JSON estruturado.
 
-| ID | Requisito | Fonte | Confiança |
-|----|-----------|-------|-----------|
-| FR-CF1 | Configuração centralizada via env vars com defaults (12-factor) | `settings.py` | 🟢 |
-| FR-CF2 | 13 setores configurados com CNAEs, heurísticas, perfis de peso, habilitações, timeline rules | `sectors_config.yaml` | 🟢 |
-| FR-CF3 | Classificação setorial: strong_compat, strong_incompat, weak_compat, cross_sector_exclusions | `sectors_config.yaml` | 🟢 |
-| FR-CF4 | Dicionário de abreviações PT-BR extensível via YAML | `abbreviations.yaml` | 🟢 |
-| FR-CF5 | Config de portais de transparência (Betha, Ipam, E-gov) template-driven | `transparencia_config.yaml` | 🟢 |
-| FR-CF6 | Fallback LLM configurável: modelo, timeout, threshold, on_failure | `sectors_config.yaml:2097-2115` | 🟢 |
+## Requisitos Funcionais
 
-## MoSCoW
+| ID | Descrição | Prioridade | Fonte |
+|----|----------|-----------|-------|
+| RF-CF01 | Settings centralizado via env vars: DB, APIs, ingestion, coverage, alerts | Must | `settings.py:1-159` |
+| RF-CF02 | 13 setores B2G: CNAEs, keywords, heurísticas, exclusion rules, thresholds | Must | `sectors_config.yaml:1-2116` |
+| RF-CF03 | Keywords context-gated: trigger requer co-occurrence signals | Must | `sectors_data.yaml:1-6338` |
+| RF-CF04 | 4 hard-incompatible patterns CNAE+regex | Must | `intel-validate.py:98-120` |
+| RF-CF05 | Abbreviations: 18 siglas administração pública, YAML extensível | Should | `abbreviations.yaml:1-23` |
+| RF-CF06 | Transparencia CSS selectors: 4 templates configuráveis | Should | `transparencia_config.yaml:1-61` |
+| RF-CF07 | Logging JSON: correlation_id contextvar, rotação 10MB×5 | Must | `logging_config.py:1-199` |
 
-- **Must:** FR-CF1, FR-CF2
-- **Should:** FR-CF3, FR-CF4, FR-CF5, FR-CF6
+🟢 CONFIRMADO — 7/7 arquivos de config lidos.

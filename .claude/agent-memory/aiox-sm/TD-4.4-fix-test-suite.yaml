@@ -1,0 +1,48 @@
+---
+name: td-4-4-fix-test-suite
+description: "Story TD-4.4: corrigir 14 test failures + 1 collection error na suite Extra Consultoria — criada 2026-07-11"
+metadata:
+  type: project
+---
+
+## Story TD-4.4 — Fix Test Suite
+
+**Criada:** 2026-07-11 por @sm (River)
+**Localizacao:** `docs/stories/epics/epic-td-001-resolution/story-TD-4.4-fix-test-suite.md`
+**Epic:** EPIC-TD-001 (Technical Debt Resolution), Phase 4 (Qualidade de Codigo)
+**Prioridade:** HIGH — necessario para CI/CD (TD-4.2) e expansao de cobertura (TD-4.1)
+
+---
+
+## Escopo
+
+15 problemas agrupados em 3 grupos independentes:
+
+**Grupo A** (2 falhas): `test_compras_gov_crawler.py` — `KeyError: 'source_id'`
+**Grupo B** (12 falhas): `test_transparencia_crawler.py` — 4 problemas distintos
+**Grupo C** (1 collection error): `test_cache_ibge.py` — ImportError por refatoracao
+
+## Root Cause — Resumo
+
+- **Grupo A**: `_normalize_legacy()` e `_normalize_lei_14133()` usam `source_id` como variavel local para montar `pncp_id` mas nao incluem no dict de retorno.
+- **Grupo B1**: `_detect_platform_from_url()` foi removida durante refatoracao do `detect_platform()`. Nao existe mais no modulo.
+- **Grupo B2**: `transform()` do transparencia_crawler produz dict sem `source` e `source_subtype`.
+- **Grupo B3**: `config/transparencia_config.yaml` tem `municipios: {}` — nunca populado.
+- **Grupo C**: Classe `_IBGEMunicipioCache` foi substituida por dict module-level `_IBGE_MUNICIPIOS_CACHE` + funcao `_fetch_ibge_municipio_lookup()`. Teste inteiro precisa reescrita.
+
+## Arquivos fonte envolvidos
+
+- `scripts/crawl/compras_gov_crawler.py` (Grupo A)
+- `scripts/crawl/transparencia_crawler.py` (Grupo B)
+- `scripts/crawl/enricher.py` (Grupo C)
+- `config/transparencia_config.yaml` (Grupo B3)
+- `tests/test_compras_gov_crawler.py` (Grupo A)
+- `tests/test_transparencia_crawler.py` (Grupo B)
+- `tests/test_cache_ibge.py` (Grupo C)
+
+## Decisoes arquiteturais
+
+1. Para Grupo A: adicionar `source_id` ao dict de retorno (opcao 1 recomendada) — mantem compatibilidade
+2. Para Grupo B2: adicionar `source` e `source_subtype` ao output de `transform()`
+3. Para Grupo C: reescrever `test_cache_ibge.py` para novo design — alias `_ibge_cache` nao resolve porque mudou de objeto com metodos para dict simples
+4. Nao alterar comportamento funcional dos crawlers — apenas adicionar campos faltantes nos schemas de output

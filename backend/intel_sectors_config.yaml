@@ -69,9 +69,26 @@ sectors:
           - "instalacao sanitaria"
     incompatible_objects: {}
     heuristic_patterns:
-      strong_compat: []
+      strong_compat:
+        - "execu[cç][aã]o de obra"
+        - "constru[cç][aã]o de"
+        - "implanta[cç][aã]o de infra"
+        - "recupera[cç][aã]o de"
+        - "conten[cç][aã]o de talude"
+        - "terraplanagem"
+        - "dragagem"
+        - "desassoreamento"
+        - "pavimenta[cç][aã]o"
+        - "obras de infraestrutura"
       strong_incompat: []
-      weak_compat: []
+      weak_compat:
+        - "servi[cç]o de engenharia"
+        - "projeto executivo"
+        - "obra civil"
+        - "obra p[uú]blica"
+        - "contrato de obra"
+        - "servi[cç]o de constru[cç][aã]o"
+        - "manuten[cç][aã]o predial"
     cross_sector_exclusions:
       - "medicamento"
       - "uniforme"
@@ -96,6 +113,12 @@ sectors:
       - "software"
       - "tecnologia da informação"
       - "tecnologia da informacao"
+      # Environmental terms ONLY exclude when NOT combined with engineering keywords.
+      # Pure environmental studies without obras are excluded; engineering+ambiental is kept.
+      - "educação ambiental"
+      - "educacao ambiental"
+      - "coleta seletiva"
+      - "reciclagem"
     competition_keywords:
       - "construção"
       - "construcao"
@@ -107,6 +130,49 @@ sectors:
       - "edificação"
       - "edificacao"
       - "infraestrutura"
+      # Environmental engineering intersection
+      - "desassoreamento"
+      - "dragagem"
+      - "canal"
+      - "rio"
+      - "drenagem"
+      - "saneamento"
+      - "meio ambiente"
+      - "ambiental"
+      - "licenciamento"
+      - "estudo ambiental"
+      # Geotechnical & foundations
+      - "canalização"
+      - "canalizacao"
+      - "contenção"
+      - "contencao"
+      - "talude"
+      - "geotécnico"
+      - "geotecnico"
+      - "sondagem"
+      - "fundação"
+      - "fundacao"
+      - "estacas"
+      - "corte e aterro"
+      # Site work & earthmoving
+      - "terraplanagem"
+      - "macrodrenagem"
+      - "microdrenagem"
+      - "barragem"
+      - "enrocamento"
+      - "estabilização"
+      - "estabilizacao"
+      - "reforço de solo"
+      - "reforco de solo"
+      # Roads & paving
+      - "pavimento"
+      - "recapeamento"
+      # Water & environment
+      - "tratamento de água"
+      - "tratamento de agua"
+      - "esgoto"
+      - "rede de água"
+      - "rede de agua"
     weight_profile:
       hab: 0.20
       fin: 0.25

@@ -20,7 +20,7 @@ Coverage: ~280 words observed in frontend/lib/questions.ts and glossary content
 from __future__ import annotations
 
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
 # ---------------------------------------------------------------------------
 # Core replacements (lowercase form -> accented lowercase form).
@@ -248,7 +248,6 @@ REPLACEMENTS: dict[str, str] = {
     "desclassificacoes": "desclassificações",
     "inabilitacoes": "inabilitações",
     "protecoes": "proteções",
-
     # -------- Proper nouns / other -ão --------
     "glossario": "glossário",
     "dialogo": "diálogo",
@@ -257,7 +256,6 @@ REPLACEMENTS: dict[str, str] = {
     "leiloes": "leilões",
     "orgao": "órgão",
     "orgaos": "órgãos",
-
     # -------- -ônico / -ônica --------
     "eletronicos": "eletrônicos",
     "eletronicas": "eletrônicas",
@@ -269,27 +267,23 @@ REPLACEMENTS: dict[str, str] = {
     "cronico": "crônico",
     "cronica": "crônica",
     "sincronico": "síncrono",  # rare; skip if not present
-
     # -------- Orçamento --------
     "orcamentaria": "orçamentária",
     "orcamentario": "orçamentário",
     "orcamento": "orçamento",
     "orcamentos": "orçamentos",
-
     # -------- Público --------
     "publicos": "públicos",
     "publicas": "públicas",
     "publico": "público",
     "publica": "pública",
     "publicamente": "publicamente",  # correct without accent; keep
-
     # -------- Técnico --------
     "tecnicos": "técnicos",
     "tecnicas": "técnicas",
     "tecnico": "técnico",
     "tecnica": "técnica",
     "tecnicamente": "tecnicamente",  # correct without accent; keep
-
     # -------- Específico --------
     "especificos": "específicos",
     "especificas": "específicas",
@@ -297,59 +291,49 @@ REPLACEMENTS: dict[str, str] = {
     "especifica": "específica",
     "especificidade": "especificidade",  # correct; keep
     "especificar": "especificar",  # correct; keep
-
     # -------- Único --------
     "unicos": "únicos",
     "unicas": "únicas",
     "unico": "único",
     "unica": "única",
     "unicamente": "unicamente",  # correct; keep
-
     # -------- Jurídico --------
     "juridicos": "jurídicos",
     "juridicas": "jurídicas",
     "juridico": "jurídico",
     "juridica": "jurídica",
-
     # -------- Obrigatório --------
     "obrigatorios": "obrigatórios",
     "obrigatorias": "obrigatórias",
     "obrigatorio": "obrigatório",
     "obrigatoria": "obrigatória",
-
     # -------- Licitatório --------
     "licitatorios": "licitatórios",
     "licitatorias": "licitatórias",
     "licitatorio": "licitatório",
     "licitatoria": "licitatória",
-
     # -------- Prática --------
     "praticas": "práticas",
     "praticos": "práticos",
     "pratico": "prático",
     "pratica": "prática",
     "praticamente": "praticamente",  # correct; keep
-
     # -------- Própria --------
     "proprias": "próprias",
     "proprios": "próprios",
     "propria": "própria",
     "proprio": "próprio",
-
     # -------- Econômico --------
     "economicos": "econômicos",
     "economicas": "econômicas",
     "economico": "econômico",
     "economica": "econômica",
-
     # -------- Critério --------
     "criterios": "critérios",
     "criterio": "critério",
-
     # -------- Número --------
     "numeros": "números",
     "numero": "número",
-
     # -------- Período --------
     "periodos": "períodos",
     "periodo": "período",
@@ -357,7 +341,6 @@ REPLACEMENTS: dict[str, str] = {
     "periodico": "periódico",
     "periodica": "periódica",
     "periodicamente": "periodicamente",  # correct; keep
-
     # -------- Máximo/mínimo --------
     "maximo": "máximo",
     "maxima": "máxima",
@@ -367,33 +350,28 @@ REPLACEMENTS: dict[str, str] = {
     "minimas": "mínimas",
     "minimo": "mínimo",
     "minima": "mínima",
-
     # -------- Último --------
     "ultimas": "últimas",
     "ultimos": "últimos",
     "ultima": "última",
     "ultimo": "último",
     "ultimamente": "ultimamente",  # correct; keep
-
     # -------- Próximo --------
     "proximos": "próximos",
     "proximas": "próximas",
     "proximo": "próximo",
     "proxima": "próxima",
-
     # -------- Básico --------
     "basicos": "básicos",
     "basicas": "básicas",
     "basico": "básico",
     "basica": "básica",
     "basicamente": "basicamente",  # correct; keep
-
     # -------- Referência --------
     "referencias": "referências",
     "referencia": "referência",
     "referencial": "referencial",  # correct; keep
     "referenciais": "referenciais",  # correct; keep
-
     # -------- -ência / -ância --------
     "concorrencias": "concorrências",
     "concorrencia": "concorrência",
@@ -465,7 +443,6 @@ REPLACEMENTS: dict[str, str] = {
     "distancia": "distância",
     "circunstancia": "circunstância",
     "circunstancias": "circunstâncias",
-
     # -------- -ível --------
     "nivel": "nível",
     "niveis": "níveis",
@@ -487,7 +464,6 @@ REPLACEMENTS: dict[str, str] = {
     "acessiveis": "acessíveis",
     "verificaveis": "verificáveis",
     "verificavel": "verificável",
-
     # -------- -ável --------
     "responsavel": "responsável",
     "responsaveis": "responsáveis",
@@ -512,7 +488,6 @@ REPLACEMENTS: dict[str, str] = {
     "biodegradaveis": "biodegradáveis",
     "pereciveis": "perecíveis",
     "perecivel": "perecível",
-
     # -------- -óvel / -óveis --------
     "imoveis": "imóveis",
     "imovel": "imóvel",
@@ -520,7 +495,6 @@ REPLACEMENTS: dict[str, str] = {
     "movel": "móvel",
     "automoveis": "automóveis",
     "automovel": "automóvel",
-
     # -------- Bulk additions from 2026-04-10 questions.ts audit --------
     # -ção / -ções (systematic)
     "acao": "ação",  # (not a verb form here — "ação" noun)
@@ -1199,6 +1173,7 @@ WORD_BOUNDARY_REPLACEMENTS = {k: v for k, v in WORD_BOUNDARY_REPLACEMENTS.items(
 # Compiled rules
 # ---------------------------------------------------------------------------
 
+
 def _capitalize(word: str) -> str:
     return word[:1].upper() + word[1:]
 
@@ -1216,15 +1191,19 @@ def build_rules() -> list[tuple[re.Pattern[str], str]]:
     for src in sorted(combined.keys(), key=len, reverse=True):
         dst = combined[src]
         # Lowercase variant
-        rules.append((
-            re.compile(r"\b" + re.escape(src) + r"\b"),
-            dst,
-        ))
+        rules.append(
+            (
+                re.compile(r"\b" + re.escape(src) + r"\b"),
+                dst,
+            )
+        )
         # Capitalized variant (first letter upper)
-        rules.append((
-            re.compile(r"\b" + re.escape(_capitalize(src)) + r"\b"),
-            _capitalize(dst),
-        ))
+        rules.append(
+            (
+                re.compile(r"\b" + re.escape(_capitalize(src)) + r"\b"),
+                _capitalize(dst),
+            )
+        )
     return rules
 
 
@@ -1264,6 +1243,7 @@ def is_slug_like(s: str) -> bool:
 # "X e Y" where Y is a noun (conjunction case) is NEVER matched because Y
 # here is restricted to a closed set of adjectives/participles.
 # ---------------------------------------------------------------------------
+
 
 def _vpat(word_pat: str, replacement_tail: str) -> tuple[re.Pattern[str], str]:
     """Build a phrase rule that converts 'e <word>' → 'é <word>'.

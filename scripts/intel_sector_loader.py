@@ -24,9 +24,9 @@ Provides:
 
 Used by: collect-report-data.py, intel-collect.py
 """
+
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
@@ -73,7 +73,7 @@ def load_intel_sectors_config(config_path: str | None = None) -> dict[str, Any]:
     if yaml is None:
         raise ImportError("pyyaml not installed")
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         data = yaml.safe_load(f) or {}
 
     _CONFIG_CACHE = data
@@ -91,6 +91,7 @@ def invalidate_cache() -> None:
 # ---------------------------------------------------------------------------
 # Tier 2: Lookup maps (built once, cached)
 # ---------------------------------------------------------------------------
+
 
 def build_cnae_to_sector_map(config: dict[str, Any] | None = None) -> dict[str, str]:
     """Build {cnae_4digit_prefix: sector_key} lookup from config."""
@@ -126,6 +127,7 @@ def build_sector_hints_map(config: dict[str, Any] | None = None) -> dict[str, li
 # ---------------------------------------------------------------------------
 # Tier 3: Per-CNAE detail accessors
 # ---------------------------------------------------------------------------
+
 
 def get_cnae_refinements(
     cnae_prefix: str,
@@ -169,6 +171,7 @@ def get_incompatible_objects(
 # ---------------------------------------------------------------------------
 # Tier 3: Per-sector detail accessors
 # ---------------------------------------------------------------------------
+
 
 def _get_sector_data(sector_key: str, config: dict[str, Any] | None = None) -> dict[str, Any]:
     """Internal helper: get sector data dict, empty dict if not found."""
@@ -256,9 +259,16 @@ def get_weight_profile(
     result = sector_data.get("weight_profile")
     if result is not None and isinstance(result, dict):
         return result
-    return _get_defaults(config).get("weight_profile", {
-        "hab": 0.25, "fin": 0.25, "geo": 0.15, "prazo": 0.20, "comp": 0.15,
-    })
+    return _get_defaults(config).get(
+        "weight_profile",
+        {
+            "hab": 0.25,
+            "fin": 0.25,
+            "geo": 0.15,
+            "prazo": 0.20,
+            "comp": 0.15,
+        },
+    )
 
 
 def get_base_win_rate(
@@ -289,12 +299,15 @@ def get_habilitacao_requirements(
     result = sector_data.get("habilitacao")
     if result is not None and isinstance(result, dict):
         return result
-    return _get_defaults(config).get("habilitacao", {
-        "capital_minimo_pct": 0.10,
-        "atestados": ["Atestado de fornecimento ou serviço similar"],
-        "certifications": [],
-        "fiscal": ["CND Federal/Previdenciária", "CND Municipal", "CRF FGTS", "CNDT Trabalhista"],
-    })
+    return _get_defaults(config).get(
+        "habilitacao",
+        {
+            "capital_minimo_pct": 0.10,
+            "atestados": ["Atestado de fornecimento ou serviço similar"],
+            "certifications": [],
+            "fiscal": ["CND Federal/Previdenciária", "CND Municipal", "CRF FGTS", "CNDT Trabalhista"],
+        },
+    )
 
 
 def get_timeline_rules(
@@ -312,11 +325,14 @@ def get_timeline_rules(
     result = sector_data.get("timeline_rules")
     if result is not None and isinstance(result, list):
         return result
-    return _get_defaults(config).get("timeline_rules", [
-        {"max_value": 500000, "min_days": 15},
-        {"max_value": 2000000, "min_days": 30},
-        {"max_value": None, "min_days": 45},
-    ])
+    return _get_defaults(config).get(
+        "timeline_rules",
+        [
+            {"max_value": 500000, "min_days": 15},
+            {"max_value": 2000000, "min_days": 30},
+            {"max_value": None, "min_days": 45},
+        ],
+    )
 
 
 def get_priority_modalidades(
@@ -358,20 +374,24 @@ def get_llm_fallback_config(config: dict[str, Any] | None = None) -> dict[str, A
     if config is None:
         config = load_intel_sectors_config()
 
-    return config.get("llm_fallback", {
-        "enabled": False,
-        "model": "gpt-4.1-nano",
-        "max_concurrent": 5,
-        "timeout_s": 10,
-        "on_failure": "reject",
-        "confidence_threshold": 0.40,
-        "prompt_template": "",
-    })
+    return config.get(
+        "llm_fallback",
+        {
+            "enabled": False,
+            "model": "gpt-4.1-nano",
+            "max_concurrent": 5,
+            "timeout_s": 10,
+            "on_failure": "reject",
+            "confidence_threshold": 0.40,
+            "prompt_template": "",
+        },
+    )
 
 
 # ---------------------------------------------------------------------------
 # Tier 4: Bulk accessors (all sectors at once)
 # ---------------------------------------------------------------------------
+
 
 def get_all_cnae_refinements(config: dict[str, Any] | None = None) -> dict[str, dict[str, list[str]]]:
     """Get ALL CNAE refinements across all sectors.
@@ -462,9 +482,16 @@ def get_all_weight_profiles(config: dict[str, Any] | None = None) -> dict[str, d
         config = load_intel_sectors_config()
 
     defaults = _get_defaults(config)
-    default_profile = defaults.get("weight_profile", {
-        "hab": 0.25, "fin": 0.25, "geo": 0.15, "prazo": 0.20, "comp": 0.15,
-    })
+    default_profile = defaults.get(
+        "weight_profile",
+        {
+            "hab": 0.25,
+            "fin": 0.25,
+            "geo": 0.15,
+            "prazo": 0.20,
+            "comp": 0.15,
+        },
+    )
 
     sectors = config.get("sectors", {})
     result: dict[str, dict[str, float]] = {}
@@ -514,12 +541,15 @@ def get_all_habilitacao_requirements(config: dict[str, Any] | None = None) -> di
         config = load_intel_sectors_config()
 
     defaults = _get_defaults(config)
-    default_hab = defaults.get("habilitacao", {
-        "capital_minimo_pct": 0.10,
-        "atestados": ["Atestado de fornecimento ou serviço similar"],
-        "certifications": [],
-        "fiscal": ["CND Federal/Previdenciária", "CND Municipal", "CRF FGTS", "CNDT Trabalhista"],
-    })
+    default_hab = defaults.get(
+        "habilitacao",
+        {
+            "capital_minimo_pct": 0.10,
+            "atestados": ["Atestado de fornecimento ou serviço similar"],
+            "certifications": [],
+            "fiscal": ["CND Federal/Previdenciária", "CND Municipal", "CRF FGTS", "CNDT Trabalhista"],
+        },
+    )
 
     sectors = config.get("sectors", {})
     result: dict[str, dict[str, Any]] = {}

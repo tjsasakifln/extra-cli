@@ -1,28 +1,61 @@
-# Requirements — Módulo `lib`
+# Lib — Shared Utilities
 
-> 🟢 CONFIRMADO — `name_normalizer.py`, `bid_simulator.py`, `victory_profile.py`, `cost_estimator.py`, `win_loss_tracker.py`
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo | Base: e9729e1
 
-## Funcionais
+## Visão Geral
 
-| ID | Requisito | Fonte | Confiança |
-|----|-----------|-------|-----------|
-| FR-L1 | Normalizar nomes de entes públicos (7-step pipeline: NFKD → uppercase → remove pontuação → remove CNPJ → collapse → expand abreviações → remove irrelevantes) | `name_normalizer.py:100-152` | 🟢 |
-| FR-L2 | Dicionário de 18 abreviações da administração pública BR (extensível via YAML) | `name_normalizer.py:29-49` | 🟢 |
-| FR-L3 | Simular lance ótimo: maximizar P(vitória) × margem usando HHI e distribuição de descontos | `bid_simulator.py` | 🟢 |
-| FR-L4 | 5 perfis de margem setorial: engenharia_obras, ti_software, consultoria, avaliacao, default | `bid_simulator.py:63-80` | 🟢 |
-| FR-L5 | Construir perfil de vitória a partir de contratos ganhos (valor, modalidade, município, keywords, distância) | `victory_profile.py:build_victory_profile` | 🟢 |
-| FR-L6 | Scoring de fit edital-empresa (0.0-1.0) baseado no perfil de vitória | `victory_profile.py:score_edital_fit` | 🟢 |
-| FR-L7 | 5 faixas populacionais: micro (<5k), pequeno (5-20k), medio (20-100k), grande (100-500k), metropole (>500k) | `victory_profile.py:74-80` | 🟢 |
-| FR-L8 | Estimativa de custos e tracking de win/loss | `cost_estimator.py`, `win_loss_tracker.py` | 🟢 |
+11 módulos de utilidades compartilhadas usados pelos pipelines de crawl e intel: normalização de nomes, simulação financeira de licitações, estimativa de custos, victory profile, extração de documentos, tracking de win/loss e validação CLI.
 
-## Não Funcionais
+## Módulos
 
-| ID | Requisito | Evidência | Confiança |
-|----|-----------|-----------|-----------|
-| NFR-L1 | Fallback difflib se rapidfuzz não instalado | `name_normalizer.py:218-221`, `requirements.txt:22` | 🟢 |
-| NFR-L2 | Tipagem estática com `from __future__ import annotations` | Todos os arquivos | 🟢 |
+| Módulo | Linhas | Função principal |
+|--------|--------|-----------------|
+| `name_normalizer.py` | 188 | `normalize_name(name)→str`: NFKD + 18 abbreviations |
+| `bid_simulator.py` | 345 | `simulate_bid(edital, intel, benchmark, cnae)→BidSimulation` |
+| `cost_estimator.py` | 290 | `estimate_proposal_cost(dist, dur, capital, eletronico)→dict` |
+| `victory_profile.py` | 373 | `build_victory_profile(contracts, capital, ufs)→VictoryProfile` |
+| `win_loss_tracker.py` | 145 | `record_outcome(cnpj, edital_id, outcome)→dict` |
+| `doc_templates.py` | 405 | `extract_structured(text, doc_type)→StructuredExtraction` |
+| `constants.py` | 24 | VALID_UFS, VALID_MODELS, MAX_DIAS=365 |
+| `intel_logging.py` | 36 | `setup_intel_logging(script_name, level)→Logger` |
+| `cli_validation.py` | 186 | 8 validators (CNPJ, UF, dias, model, etc) |
+| `retry.py` | 82 | `retry_on_failure` decorator com exponential backoff |
 
-## MoSCoW
+## Requisitos Funcionais Chave
 
-- **Must:** FR-L1, FR-L3, FR-L5, FR-L6
-- **Should:** FR-L2, FR-L4, FR-L7, FR-L8
+| ID | Requisito | Módulo | Prioridade |
+|----|-----------|--------|-----------|
+| RF-L01 | Normalizar nomes: NFKD→upper→strip→18 abbreviations | name_normalizer | Must |
+| RF-L02 | Simular lance ótimo: median+0.3σ, P(vitória) via logistic CDF^(N-1) | bid_simulator | Must |
+| RF-L03 | Estimar custo proposta: paramétrico por distância, capital/interior, eletrônico/presencial | cost_estimator | Must |
+| RF-L04 | Construir victory profile: 5 dimensões (valor 30%, keyword 25%, modalidade 15%, geo 15%, pop 15%) | victory_profile | Should |
+| RF-L05 | Extrair campos de documentos: regex patterns com confidence decay (-0.15/pattern) | doc_templates | Should |
+| RF-L06 | Rastrear win/loss para calibrar modelos: JSON local | win_loss_tracker | Could |
+| RF-L07 | Validar inputs CLI com exit code 1 em falha | cli_validation | Must |
+| RF-L08 | Retry com exponential backoff configurável | retry | Must |
+
+## Requisitos Não Funcionais
+
+| Tipo | Requisito | Evidência | Confiança |
+|------|----------|----------|-----------|
+| Precisão | Fuzzy matching com fallback difflib se rapidfuzz indisponível | `name_normalizer.py` | 🟢 |
+| Performance | Logistic CDF analítico (O(1)) vs simulação numérica | `bid_simulator.py` | 🟢 |
+| Manutenibilidade | Parâmetros de custo extraíveis para config | `cost_estimator.py:CostParams` | 🟡 |
+
+## Critérios de Aceitação
+
+```gherkin
+Cenário: Normalização de nome de órgão público
+Dado "Prefeitura Municipal de Florianópolis"
+Quando normalize_name é chamado
+Então retorna "PREFEITURA MUNICIPAL FLORIANOPOLIS"
+E "MUN" foi expandido para "MUNICIPAL"
+E acentos foram removidos
+
+Cenário: Simulação de lance com dados históricos
+Dado 10 contratos históricos do mesmo órgão com desconto mediano 15% e σ=5%
+E modalidade = Pregão Eletrônico (5)
+Quando simulate_bid é executado
+Então desconto_sugerido ≈ 16.5% (median + 0.3σ)
+E p_vitoria > 0 e < 1
+```

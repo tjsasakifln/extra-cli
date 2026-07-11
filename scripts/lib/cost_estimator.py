@@ -9,6 +9,7 @@ Usage (como modulo):
     from lib.cost_estimator import estimate_proposal_cost
     cost = estimate_proposal_cost(distancia_km=350, duracao_horas=4.5)
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -18,23 +19,26 @@ from typing import Any
 @dataclass
 class CostParams:
     """Parametros configuraveis do modelo de custo."""
-    custo_km: float = 0.80                  # R$/km (ANTT referencia)
+
+    custo_km: float = 0.80  # R$/km (ANTT referencia)
     diaria_hospedagem_interior: float = 180.0  # R$ interior
-    diaria_hospedagem_capital: float = 280.0   # R$ capital
-    per_diem_alimentacao: float = 80.0       # R$/dia
-    custo_hora_tecnico: float = 150.0        # R$/hora
-    horas_sessao: float = 4.0               # horas estimadas em sessao presencial
-    limiar_hospedagem_km: float = 200.0      # acima disso: precisa hospedagem
-    limiar_duas_diarias_km: float = 500.0    # acima disso: 2 diarias
-    pedagio_por_faixa: dict = field(default_factory=lambda: {
-        100: 0.0,       # ate 100km: sem pedagio
-        300: 30.0,      # 100-300km: ~R$30
-        600: 80.0,      # 300-600km: ~R$80
-        1000: 150.0,    # 600-1000km: ~R$150
-        99999: 250.0,   # >1000km: ~R$250
-    })
-    custo_fixo_proposta: float = 0.0      # Fixed cost: certifications, ART, docs
-    custo_fixo_mobilizacao: float = 0.0    # Fixed cost: team, equipment
+    diaria_hospedagem_capital: float = 280.0  # R$ capital
+    per_diem_alimentacao: float = 80.0  # R$/dia
+    custo_hora_tecnico: float = 150.0  # R$/hora
+    horas_sessao: float = 4.0  # horas estimadas em sessao presencial
+    limiar_hospedagem_km: float = 200.0  # acima disso: precisa hospedagem
+    limiar_duas_diarias_km: float = 500.0  # acima disso: 2 diarias
+    pedagio_por_faixa: dict = field(
+        default_factory=lambda: {
+            100: 0.0,  # ate 100km: sem pedagio
+            300: 30.0,  # 100-300km: ~R$30
+            600: 80.0,  # 300-600km: ~R$80
+            1000: 150.0,  # 600-1000km: ~R$150
+            99999: 250.0,  # >1000km: ~R$250
+        }
+    )
+    custo_fixo_proposta: float = 0.0  # Fixed cost: certifications, ART, docs
+    custo_fixo_mobilizacao: float = 0.0  # Fixed cost: team, equipment
 
 
 # ============================================================
@@ -80,16 +84,16 @@ SECTOR_COST_PROFILES: dict[str, CostParams] = {
 # ============================================================
 
 CNAE_TO_COST_SECTOR: dict[str, str] = {
-    "41": "engenharia_obras",    # Construcao de edificios
-    "42": "engenharia_obras",    # Obras de infraestrutura
-    "43": "engenharia_obras",    # Servicos especializados para construcao
-    "71": "engenharia_obras",    # Servicos de arquitetura e engenharia
-    "62": "ti_software",         # Desenvolvimento de software
-    "63": "ti_software",         # Servicos de TI
-    "70": "consultoria",         # Consultoria em gestao
-    "69": "consultoria",         # Juridica e contabilidade
-    "68": "avaliacao_imoveis",   # Atividades imobiliarias
-    "86": "saude",               # Atividades de atencao a saude
+    "41": "engenharia_obras",  # Construcao de edificios
+    "42": "engenharia_obras",  # Obras de infraestrutura
+    "43": "engenharia_obras",  # Servicos especializados para construcao
+    "71": "engenharia_obras",  # Servicos de arquitetura e engenharia
+    "62": "ti_software",  # Desenvolvimento de software
+    "63": "ti_software",  # Servicos de TI
+    "70": "consultoria",  # Consultoria em gestao
+    "69": "consultoria",  # Juridica e contabilidade
+    "68": "avaliacao_imoveis",  # Atividades imobiliarias
+    "86": "saude",  # Atividades de atencao a saude
 }
 
 

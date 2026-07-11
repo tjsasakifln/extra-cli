@@ -1,171 +1,135 @@
 # Dependências — Extra Consultoria
 
-> Gerado pelo Scout em 2026-07-11T12:00:00Z
+> Atualizado pelo Scout em 2026-07-11T19:00:00Z (re-scout pós commit e9729e1)
 
 ---
 
-## Dependências Python (requirements.txt)
+## Python (pip + requirements.txt)
 
-### Core
+| Pacote | Versão | Categoria | Uso |
+|--------|--------|-----------|-----|
+| httpx | >=0.28.1 | HTTP Client | Chamadas síncronas/assíncronas para APIs externas (PNCP, PCP, ComprasGov) |
+| openai | >=1.55.0 | LLM | Classificação de licitações via GPT-4.1-nano (intel-analyze) |
+| psycopg2-binary | >=2.9.9 | Database | Conexão PostgreSQL (todos os crawlers, datalake, pipeline) |
+| python-dotenv | >=1.0.0 | Config | Carregamento de .env |
+| pyyaml | >=6.0 | Config | Parsing de YAMLs de setores e configuração |
+| reportlab | >=4.5.1 | PDF | Geração de propostas comerciais (generate_proposta_pdf) |
+| openpyxl | >=3.1.5 | Excel | Geração de planilhas (intel-excel, relatórios) |
+| rich | >=13.0.0 | CLI | Tabelas, progress bars, formatação de terminal |
+| lxml | >=5.0.0 | HTML/XML | Parsing de páginas web (crawlers web scraping) |
+| beautifulsoup4 | >=4.12.0 | HTML | Parsing de HTML (complementar ao lxml) |
+| rapidfuzz | >=3.0.0 | Fuzzy Matching | Casamento de nomes de entidades (entity_matcher, enricher) |
 
-| Pacote | Versão | Tipo | Descrição |
-|--------|--------|------|-----------|
-| `httpx` | >=0.28.1 | HTTP | Cliente HTTP moderno com suporte async |
-| `openai` | >=1.55.0 | LLM | SDK OpenAI para GPT-4.1-nano |
-| `psycopg2-binary` | >=2.9.9 | Database | Driver PostgreSQL nativo |
-| `python-dotenv` | >=1.0.0 | Config | Carrega .env |
-| `pyyaml` | >=6.0 | Config | Parse de YAML (setores, configs) |
+### Opcional (comentado)
 
-### PDF Generation
-
-| Pacote | Versão | Tipo | Descrição |
-|--------|--------|------|-----------|
-| `reportlab` | >=4.5.1 | PDF | Geração de PDFs (Big Four aesthetic) |
-
-### Excel
-
-| Pacote | Versão | Tipo | Descrição |
-|--------|--------|------|-----------|
-| `openpyxl` | >=3.1.5 | Excel | Leitura/escrita de .xlsx |
-
-### CLI
-
-| Pacote | Versão | Tipo | Descrição |
-|--------|--------|------|-----------|
-| `rich` | >=13.0.0 | Terminal | Terminal UI (tabelas, progress bars, cores) |
-
-### Data Processing
-
-| Pacote | Versão | Tipo | Descrição |
-|--------|--------|------|-----------|
-| `lxml` | >=5.0.0 | XML/HTML | Parsing de HTML (portais) |
-| `beautifulsoup4` | >=4.12.0 | HTML | Web scraping |
-| `rapidfuzz` | >=3.0.0 | Fuzzy | String matching (fallback: difflib) |
-
-### Opcional
-
-| Pacote | Versão | Tipo | Descrição |
-|--------|--------|------|-----------|
-| `playwright` | >=1.40.0 | Browser | SICAF checking (comentado, não instalado) |
+| Pacote | Versão | Motivo |
+|--------|--------|--------|
+| playwright | >=1.40.0 | SICAF checking (sanctions.py) — requer browser |
 
 ---
 
-## Dependências Externas (APIs e Serviços)
+## Dev Tools (pyproject.toml)
 
-### Fontes de Dados de Licitações
-
-| Serviço | URL Base | Tipo | Cobertura | Autenticação |
-|---------|----------|------|-----------|--------------|
-| PNCP API | `https://pncp.gov.br/api/consulta/v1` | REST | Nacional | Pública |
-| PNCP Files | `https://pncp.gov.br/api/pncp/v1` | REST | Documentos | Pública |
-| DOM-SC | `https://www.diariomunicipal.sc.gov.br` | Portal | ~280 municípios SC | API Key |
-| PCP v2 | `https://compras.api.portaldecompraspublicas.com.br/v2` | REST | 100+ municípios SC | Pública |
-| ComprasGov v3 | `https://dadosabertos.compras.gov.br` | REST | Órgãos federais SC | Pública |
-
-### Enriquecimento
-
-| Serviço | URL Base | Tipo | Dados |
-|---------|----------|------|------|
-| BrasilAPI | `https://brasilapi.com.br/api/cnpj/v1/` | REST | CNPJ, razão social, CNAE |
-| IBGE API | `https://servicodados.ibge.gov.br/api/v1/` | REST | Municípios, códigos IBGE |
-| SICAF | Portal ComprasNet | Web | Sanções (opcional, requer Playwright) |
-
-### LLM
-
-| Serviço | Modelo | Uso | Timeout |
-|---------|--------|-----|---------|
-| OpenAI API | `gpt-4.1-nano` | Classificação de editais, análise | 10s |
-| DeepSeek API | (configurável) | Fallback LLM | — |
-| OpenRouter | (configurável) | Multi-model routing | — |
+| Ferramenta | Versão/Alvo | Configuração | Propósito |
+|------------|-------------|--------------|-----------|
+| ruff | py312 | lint.select: E,F,I,N,W,UP | Lint + formatação |
+| mypy | py312 | strict (check_untyped_defs, disallow_untyped_defs, strict_equality) | Type checking |
+| pytest | — | testpaths: tests, addopts: --cov=scripts | Testes + coverage |
+| pytest-cov | — | html: docs/td-001/coverage-reports/ | Relatórios HTML de cobertura |
 
 ---
 
-## Infraestrutura
+## Runtime
 
-### Ambiente de Produção
-
-| Componente | Tecnologia | Local |
-|-----------|-----------|-------|
-| Servidor | Ubuntu 24.04 (Hetzner VPS) | Alemanha (Nuremberg) |
-| Banco de Dados | PostgreSQL 17 | Hetzner VPS (porta 5432) |
-| Scheduler | systemd timers (13 timers) | Hetzner VPS |
-| Runtime | Python 3.12 | Hetzner VPS |
-| Acesso | SSH (WSL → Hetzner) | — |
-
-### Serviços Cloud (configurados, não essenciais)
-
-| Serviço | Uso | Status |
-|---------|-----|--------|
-| Supabase | Database/Storage opcional | Configurado, não usado |
-| Sentry | Error tracking | Configurado |
-| Railway | Deploy alternativo | Configurado |
-| Vercel | Deploy alternativo | Configurado |
-| ClickUp | Project management | Configurado |
-| N8N | Workflow automation | Configurado |
-| GitHub | Version control | Ativo |
-| Exa | Web search (agentes) | Configurado |
-| Stripe | Pagamentos (não usado) | Configurado |
+| Componente | Versão | Local |
+|------------|--------|-------|
+| Python | 3.12 | .python-version |
+| PostgreSQL | 17 | Hetzner VPS (self-hosted) |
+| Ubuntu | 24.04 | Hetzner VPS |
 
 ---
 
-## Sistema Operacional e Ferramentas
-
-| Ferramenta | Uso |
-|-----------|-----|
-| systemd | Gerenciamento de timers e serviços |
-| PostgreSQL 17 | DataLake (psycopg2 acesso direto) |
-| Python 3.12 | Runtime principal |
-| pip | Gerenciador de pacotes |
-| Git + GitHub | Version control |
-| WSL2 | Ambiente de desenvolvimento (Windows) |
-
----
-
-## Grafo de Dependências Internas
+## Mapa de Dependências entre Módulos
 
 ```
-monitor.py
-  ├── pncp_crawler_adapter.py → PNCP API
-  ├── dom_sc_crawler.py → DOM-SC
-  ├── pcp_crawler.py → PCP API
-  ├── compras_gov_crawler.py → ComprasGov API
-  ├── sc_compras_crawler.py → SC Compras
-  ├── contracts_crawler.py → PNCP Contracts API
-  ├── transparencia_crawler.py → Portais Transparência
-  ├── tce_sc_crawler.py → TCE-SC ESFINGE
-  ├── enricher.py → BrasilAPI + IBGE
-  ├── sanctions.py → SICAF (opcional)
-  ├── transformer.py (normalização)
-  ├── loader.py (upsert PostgreSQL)
-  ├── name_normalizer.py (lib)
-  └── checkpoint.py (resume)
+crawl/
+├── httpx (sync + async HTTP)
+├── psycopg2-binary (loader.py → PostgreSQL)
+├── lxml + beautifulsoup4 (web scraping crawlers)
+├── rapidfuzz (enricher.py → entity matching)
+├── lib/ (name_normalizer)
+└── config/ (settings, sectors_config, transparencia_config)
 
-intel_pipeline.py
-  ├── intel_collect.py → DataLake
-  ├── intel_enrich.py → BrasilAPI
-  ├── intel_llm_gate.py → OpenAI
-  ├── intel_extract_docs.py → PNCP Files API
-  ├── intel_analyze.py → OpenAI
-  ├── intel_validate.py
-  ├── intel_report.py → PDF
-  ├── intel_excel.py → Excel
-  └── intel_sector_loader.py → sectors_config.yaml
+intel/
+├── subprocess.run → crawl/monitor.py (⚠️ acoplamento via CLI, não import)
+├── httpx (chamadas IBGE, BrasilAPI)
+├── openai (GPT-4.1-nano classificação)
+├── psycopg2-binary (leitura/escrita DataLake)
+├── openpyxl (intel-excel)
+├── reportlab (intel-report → PDF)
+├── rapidfuzz (entity matching)
+├── lib/ (constants, doc_templates, intel_logging)
+├── matching/ (entity_matcher)
+└── config/ (settings, sectors)
 
-panorama.py
-  ├── datalake_helper.py → PostgreSQL
-  └── intel_excel.py → Excel
+reports/
+├── psycopg2-binary (consulta PostgreSQL)
+├── openpyxl (export Excel)
+├── rich (output CLI)
+└── lib/ (victory_profile, bid_simulator)
 
-local_datalake.py
-  └── datalake_helper.py → PostgreSQL
+lib/
+├── rapidfuzz (name_normalizer)
+└── config/ (settings)
+
+matching/
+├── rapidfuzz (fuzzy string matching)
+└── psycopg2-binary (consulta entidades)
+
+B2G scripts/
+├── psycopg2-binary (consulta DataLake)
+├── httpx (APIs externas)
+├── openpyxl (Excel)
+├── reportlab (PDF)
+└── lib/ (cost_estimator, victory_profile, bid_simulator)
 ```
 
 ---
 
-## Versões dos Runtimes
+## Integrações Externas (runtime)
 
-| Runtime | Versão | Fixa? |
-|---------|--------|-------|
-| Python | 3.12 | Sim (.python-version) |
-| PostgreSQL | 17 | Sim (Hetzner) |
-| Ubuntu | 24.04 | Sim (Hetzner) |
-| AIOX | 5.2.9 | Sim (.env) |
+| API | URL Base | Auth | Módulos Consumidores |
+|-----|----------|------|---------------------|
+| PNCP API v1 | https://pncp.gov.br/api/consulta/v1 | Pública | crawl (pncp_crawler, contracts_crawler, bids_crawler) |
+| PCP v2 | https://compras.api.portaldecompraspublicas.com.br/v2 | Pública | crawl (pcp_crawler) |
+| ComprasGov v3 | https://dadosabertos.compras.gov.br | Pública | crawl (compras_gov_crawler) |
+| DOM-SC | https://www.diariomunicipal.sc.gov.br | API Key | crawl (dom_sc_crawler) |
+| DOE-SC | https://www.doe.sc.gov.br | Pública | crawl (doe_sc_crawler) |
+| TCE-SC | Portal ESFINGE | Pública | crawl (tce_sc_crawler) |
+| Transparência | Portal SC | Pública | crawl (transparencia_crawler) |
+| OpenAI | https://api.openai.com/v1 | API Key | intel (intel-analyze) |
+| BrasilAPI | https://brasilapi.com.br | Pública | crawl (enricher), intel (intel-enrich) |
+| IBGE | https://servicodados.ibge.gov.br | Pública | crawl (enricher), intel (intel-enrich) |
+
+---
+
+## Dependências de Infraestrutura
+
+| Recurso | Provedor | Tipo |
+|---------|----------|------|
+| VPS | Hetzner | Ubuntu 24.04 |
+| PostgreSQL | Self-hosted | Banco principal |
+| systemd | OS | Orquestração de crawlers (18 timers) |
+| fail2ban | OS | Proteção de acesso |
+| ufw | OS | Firewall |
+| Supabase | Self-hosted? | Camada adicional de migrations |
+
+---
+
+## Alertas do Scout
+
+1. **httpx sem version pin exato** — `>=0.28.1` permite breaking changes em minor updates.
+2. **psycopg2-binary em produção** — psycopg2-binary é recomendado apenas para dev; produção deve usar psycopg2 compilado.
+3. **playwright comentado** — sanctions.py (SICAF) depende de Playwright mas está comentado no requirements.txt.
+4. **Duplicação kebab/snake_case** — 10 scripts duplicados. `intel_pipeline.py` importa snake_case, mas existem versões kebab-case idênticas.
+5. **subprocess.run** — `intel_pipeline.py` chama scripts via `subprocess.run()` em vez de importar funções. Acoplamento frágil via CLI args.

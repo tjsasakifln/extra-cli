@@ -1,46 +1,42 @@
-# Design — Módulo `db`
+# Database — Design
 
-> 🟢 CONFIRMADO — 12 migrations
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo | Base: e9729e1
 
-## Schema (8 tabelas, 3 RPCs, 1 view)
+## Schema (8 tabelas, PostgreSQL 18.4)
 
 ```
-pncp_raw_bids (central)
-  ├── PK: pncp_id (TEXT)
-  ├── UNIQUE: content_hash (SHA-256)
-  ├── FK: matched_entity_id → sc_public_entities.id
-  ├── FTS: tsv TSVECTOR (GIN index, PT-BR)
-  └── 12 índices B-tree
-
-pncp_supplier_contracts → histórico de contratos
-enriched_entities → cache BrasilAPI/IBGE (TTL 30 dias)
-sc_public_entities → 2.085 órgãos SC
-entity_coverage → tracking (entity_id, source) UNIQUE
-ingestion_runs → auditoria de crawls
-ingestion_checkpoints → crawl resumable (JSONB cursor)
-coverage_snapshots → snapshots históricos
-
-RPCs:
-  upsert_pncp_raw_bids(jsonb) → batch upsert
-  search_datalake(query, uf, dias, limite) → FTS
-  purge_old_records() → limpeza >400 dias
-
-Views:
-  v_unmatched_bids → bids sem match para debugging
+sc_public_entities (2.085) ──< pncp_raw_bids (~199K) ──< entity_coverage
+enriched_entities (~13.8K)     pncp_supplier_contracts (~3.69M)
+coverage_snapshots             ingestion_checkpoints
+ingestion_runs (5)
 ```
 
-## Migrations (12, sequenciais)
+**Extensões:** pg_trgm, uuid-ossp, unaccent, vector
 
-001 → core bids + FTS → 002 supplier contracts → 003 enriched entities → 004 ingestion tracking → 005 search RPC → 006 upsert RPCs → 007 SC entities → 008 purge RPC → 009 coverage + indexes → 010 match logging → 011 unmatched view → 012 coverage snapshots
+## Funções PL/pgSQL (10)
 
-## Trigger: set_updated_at()
+| Função | Args | Retorno | Propósito |
+|--------|------|---------|-----------|
+| `search_datalake` | 10 params | TABLE(13 cols) | FTS multi-filtro + ILIKE |
+| `upsert_pncp_raw_bids` | p_records JSONB | TABLE | Batch upsert: ON CONFLICT content_hash DO NOTHING |
+| `upsert_pncp_supplier_contracts` | p_records JSONB | TABLE | Batch upsert: ON CONFLICT contrato_id DO NOTHING |
+| `purge_old_bids` | p_retention_days INT | TABLE | Soft-delete (is_active=FALSE) |
+| `purge_old_bids_hard` | p_soft_retention_days INT | — | Hard-delete pós soft-retention |
+| `ttl_cleanup_enriched_entities` | p_ttl_days INT | — | DELETE expired cache |
+| `set_updated_at` | — | TRIGGER | BEFORE UPDATE auto timestamp |
+| `update_entity_coverage` | — | TRIGGER | AFTER INSERT: upsert entity_coverage |
+| `update_entity_coverage_on_update` | — | TRIGGER | AFTER UPDATE: update entity_coverage |
+| `generate_coverage_snapshot` | snap_date DATE | — | INSERT coverage_snapshots por source |
 
-```sql
-CREATE OR REPLACE FUNCTION set_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-```
+## Views (5)
+`v_coverage_summary`, `v_coverage_gaps`, `v_coverage_gaps_by_municipio`, `v_coverage_trend`, `v_unmatched_bids`
+
+## Índices (33)
+Destaques: GIN `tsv` (FTS), GIN `objeto_compra gin_trgm_ops`, HNSW `embedding` (pgvector), UNIQUE `content_hash`, UNIQUE `cnpj_8`
+
+## Divergências Schema Real vs Migrations v1
+🔴 `esfera_id` TEXT vs INT, `data_*` TIMESTAMPTZ vs DATE, `enriched_entities` JSONB vs plano, 0 views no real, `vector` ausente nas v1
+
+**Resolução:** Baseline v2 (`001-v2_initial_schema.sql`, 840 linhas, pg_dump --schema-only)
+
+🟢 CONFIRMADO — Schema dump real + DB-AUDIT.md + migration-rebuild.md

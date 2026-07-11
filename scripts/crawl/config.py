@@ -25,17 +25,16 @@ DATALAKE_QUERY_ENABLED = os.getenv("DATALAKE_QUERY_ENABLED", "true").lower() in 
 INGESTION_FULL_CRAWL_HOUR_UTC = int(os.getenv("INGESTION_FULL_CRAWL_HOUR_UTC", "5"))
 
 # Incremental crawls at 11, 17, 23 UTC = 8am, 2pm, 8pm BRT
-INGESTION_INCREMENTAL_HOURS = [
-    int(h)
-    for h in os.getenv("INGESTION_INCREMENTAL_HOURS", "11,17,23").split(",")
-]
+INGESTION_INCREMENTAL_HOURS = [int(h) for h in os.getenv("INGESTION_INCREMENTAL_HOURS", "11,17,23").split(",")]
 
 # ---------------------------------------------------------------------------
 # Date range
 # ---------------------------------------------------------------------------
 
 # How many days back to crawl on a full crawl
-INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "7"))  # DISK-IO-002: 10→7 days; incremental crawl covers last 3 days 3x/day
+INGESTION_DATE_RANGE_DAYS = int(
+    os.getenv("INGESTION_DATE_RANGE_DAYS", "7")
+)  # DISK-IO-002: 10→7 days; incremental crawl covers last 3 days 3x/day
 
 # How many days back to crawl on incremental (+ 1 day overlap applied at runtime)
 INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "3"))
@@ -69,10 +68,7 @@ INGESTION_UPSERT_BATCH_SIZE = int(os.getenv("INGESTION_UPSERT_BATCH_SIZE", "500"
 
 # Modalidades to crawl: 4=Concorrência, 5=Pregão Eletr., 6=Pregão Pres.,
 # 7=Contratação Direta, 8=Inexigibilidade, 12=Credenciamento
-INGESTION_MODALIDADES = [
-    int(m)
-    for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7,8,12").split(",")
-]
+INGESTION_MODALIDADES = [int(m) for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7,8,12").split(",")]
 
 # UFs to crawl — all Brazilian states + DF
 INGESTION_UFS = os.getenv(
@@ -90,10 +86,12 @@ INGESTION_RETENTION_DAYS = int(os.getenv("INGESTION_RETENTION_DAYS", "400"))
 
 # Days after data_encerramento before a closed bid is purged (default 30).
 # Bids still open (data_encerramento in the future) are NEVER purged.
-INGESTION_PURGE_GRACE_DAYS = int(os.getenv(
-    "INGESTION_PURGE_GRACE_DAYS",
-    str(INGESTION_RETENTION_DAYS),
-))
+INGESTION_PURGE_GRACE_DAYS = int(
+    os.getenv(
+        "INGESTION_PURGE_GRACE_DAYS",
+        str(INGESTION_RETENTION_DAYS),
+    )
+)
 
 # ---------------------------------------------------------------------------
 # Backfill (one-time historical crawl)
@@ -117,10 +115,7 @@ CELESC_TIMEOUT = int(os.getenv("CELESC_TIMEOUT", "30"))
 CASAN_TIMEOUT = int(os.getenv("CASAN_TIMEOUT", "30"))
 EPAGRI_TIMEOUT = int(os.getenv("EPAGRI_TIMEOUT", "30"))
 
-ESTATAIS_SC_CRAWL_HOURS = [
-    int(h)
-    for h in os.getenv("ESTATAIS_SC_CRAWL_HOURS", "11,23").split(",")
-]
+ESTATAIS_SC_CRAWL_HOURS = [int(h) for h in os.getenv("ESTATAIS_SC_CRAWL_HOURS", "11,23").split(",")]
 ESTATAIS_SC_CRAWL_TIMEOUT = int(os.getenv("ESTATAIS_SC_CRAWL_TIMEOUT", "600"))  # 10 min safety
 
 # ---------------------------------------------------------------------------
@@ -130,10 +125,7 @@ ESTATAIS_SC_CRAWL_TIMEOUT = int(os.getenv("ESTATAIS_SC_CRAWL_TIMEOUT", "600"))  
 INGESTION_ARP_ENABLED = os.getenv("INGESTION_ARP_ENABLED", "true").lower() in ("true", "1")
 
 # Incremental ARP crawl: 2x/day (11:00, 23:00 UTC = 8am, 8pm BRT)
-INGESTION_ARP_HOURS = [
-    int(h)
-    for h in os.getenv("INGESTION_ARP_HOURS", "11,23").split(",")
-]
+INGESTION_ARP_HOURS = [int(h) for h in os.getenv("INGESTION_ARP_HOURS", "11,23").split(",")]
 
 # Max pages per UF — ARP has lower volume than bids
 INGESTION_ARP_MAX_PAGES = int(os.getenv("INGESTION_ARP_MAX_PAGES", "20"))
@@ -178,9 +170,7 @@ INGESTION_IFSC_ENABLED = os.getenv("INGESTION_IFSC_ENABLED", "true").lower() in 
 
 # EXT-012 schedules (UTC)
 # SEBRAE SC API leve — 2x/day
-SEBRAE_SC_CRAWL_HOURS = [
-    int(h) for h in os.getenv("SEBRAE_SC_CRAWL_HOURS", "8,20").split(",")
-]
+SEBRAE_SC_CRAWL_HOURS = [int(h) for h in os.getenv("SEBRAE_SC_CRAWL_HOURS", "8,20").split(",")]
 SEBRAE_SC_CRAWL_TIMEOUT = int(os.getenv("SEBRAE_SC_CRAWL_TIMEOUT", "300"))
 
 # SESI/SENAI SC — 1x/day
@@ -200,9 +190,7 @@ IFSC_CRAWL_TIMEOUT = int(os.getenv("IFSC_CRAWL_TIMEOUT", "600"))
 # ---------------------------------------------------------------------------
 
 INGESTION_SC_COMPRAS_ENABLED = os.getenv("INGESTION_SC_COMPRAS_ENABLED", "true").lower() in ("true", "1")
-INGESTION_SC_COMPRAS_CONCURRENT_REQUESTS = int(
-    os.getenv("INGESTION_SC_COMPRAS_CONCURRENT_REQUESTS", "3")
-)
+INGESTION_SC_COMPRAS_CONCURRENT_REQUESTS = int(os.getenv("INGESTION_SC_COMPRAS_CONCURRENT_REQUESTS", "3"))
 
 # Max pages per crawl run
 INGESTION_SC_COMPRAS_MAX_PAGES = int(os.getenv("INGESTION_SC_COMPRAS_MAX_PAGES", "100"))
@@ -220,8 +208,7 @@ INGESTION_SC_COMPRAS_INCREMENTAL_TIMEOUT = int(os.getenv("INGESTION_SC_COMPRAS_I
 # Schedule (UTC) — incremental at 11:00, 17:00, 23:00 UTC = 8am, 2pm, 8pm BRT
 INGESTION_SC_COMPRAS_FULL_HOUR_UTC = int(os.getenv("INGESTION_SC_COMPRAS_FULL_HOUR_UTC", "5"))
 INGESTION_SC_COMPRAS_INCREMENTAL_HOURS = [
-    int(h)
-    for h in os.getenv("INGESTION_SC_COMPRAS_INCREMENTAL_HOURS", "11,17,23").split(",")
+    int(h) for h in os.getenv("INGESTION_SC_COMPRAS_INCREMENTAL_HOURS", "11,17,23").split(",")
 ]
 
 # ---------------------------------------------------------------------------

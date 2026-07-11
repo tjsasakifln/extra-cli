@@ -35,10 +35,22 @@ SELECTORS: dict[str, str] = {}
 
 # Keywords that suggest a table contains licitacao data
 _LICITACAO_KEYWORDS = [
-    "licitação", "licitacao", "edital", "pregão", "pregao",
-    "modalidade", "objeto", "data de publicação", "data limite",
-    "concorrência", "concorrencia", "tomada de preço", "tomada de precos",
-    "convite", "dispensa", "inexigibilidade",
+    "licitação",
+    "licitacao",
+    "edital",
+    "pregão",
+    "pregao",
+    "modalidade",
+    "objeto",
+    "data de publicação",
+    "data limite",
+    "concorrência",
+    "concorrencia",
+    "tomada de preço",
+    "tomada de precos",
+    "convite",
+    "dispensa",
+    "inexigibilidade",
 ]
 
 
@@ -90,7 +102,7 @@ def _score_and_parse_tables(soup: Any, url: str, slug: str, ibge: str) -> list[d
 
     for table in all_tables:
         html_lower = str(table).lower()
-        score = sum(2 for kw in _LICITACAO_KEYWORDS if re.search(rf'\b{re.escape(kw)}\b', html_lower))
+        score = sum(2 for kw in _LICITACAO_KEYWORDS if re.search(rf"\b{re.escape(kw)}\b", html_lower))
         trs = table.find_all("tr")
         row_count = len(trs)
         # Bonus for having header-like structure
@@ -202,10 +214,14 @@ def _div_based_extraction(soup: Any, url: str, slug: str, ibge: str) -> list[dic
     seen_hashes: set[str] = set()
 
     patterns = [
-        "div[id*='licitacao']", "div[class*='licitacao']",
-        "div[id*='edital']", "div[class*='edital']",
-        "div[id*='resultado']", "div[class*='resultado']",
-        "div[class*='lista']", "section[class*='licitacao']",
+        "div[id*='licitacao']",
+        "div[class*='licitacao']",
+        "div[id*='edital']",
+        "div[class*='edital']",
+        "div[id*='resultado']",
+        "div[class*='resultado']",
+        "div[class*='lista']",
+        "section[class*='licitacao']",
     ]
 
     for pattern in patterns:

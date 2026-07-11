@@ -6,4 +6,8 @@
 - [Story TD-5.4 QA Gate](story-td-5.4-qa-gate.md) — FAIL verdict, 0/6 ACs, 2 high + 2 medium + 1 low issues. Scope mismatch + security.py dead code.
 - [Story TD-5.5 QA Gate](story-td-5.5-qa-gate.md) — PASS (re-validation after CONCERNS), 4 MNT issues resolved, 39/39 tests, ruff 0 errors
 - [Story TD-3.2 QA Gate (Re-run)](story-td-3.2-qa-gate.md) — CONCERNS verdict, 4 old FAIL issues resolved, 2 new medium issues (20 test regressions + sc_compras_crawler)
+- [Story TD-3.2 PNCP Resilience QA Gate](story-td-3-2-pncp-resilience-qa-gate.md) — CONCERNS (original) -> PASS (re-run). AC-C2 resolved, 11/11 ACs, 439/439 tests, InReview -> Done
 - [Story TD-2.2 QA Gate (Re-run)](story-td-2.2-qa-gate.md) — PASS verdict, 3 CONCERNS issues resolved (MNT-001, MNT-002, DOC-001), 7/7 checks
+- [Story TD-0.3 QA Gate](story-td-0.3-qa-gate.md) — PASS verdict, 7/7 checks, 439 tests, 0 ruff errors, AC9 blocked by external deps (documented)
+- [Story TD-2.4 QA Gate](story-td-2.4-qa-gate.md) — PASS verdict, 9/9 ACs, 27/27 tests, clean CodeRabbit
+- [Story TD-8.1 QA Gate](story-td-8.1-qa-gate.md) — PASS verdict, 8/8 in-scope ACs, 439 tests, 4 files deleted, 6 diffs

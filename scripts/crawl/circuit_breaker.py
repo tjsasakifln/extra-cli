@@ -7,21 +7,23 @@ Gunicorn workers), module-level singletons, and get_circuit_breaker factory.
 import asyncio
 import logging
 import time
-from typing import Optional
+
+from metrics import CB_OPEN_DURATION, CB_STATE_GAUGE, CIRCUIT_BREAKER_STATE
 
 from config import (
-    RetryConfig, DEFAULT_MODALIDADES, MODALIDADES_EXCLUIDAS,
-    PNCP_CIRCUIT_BREAKER_THRESHOLD, PNCP_CIRCUIT_BREAKER_COOLDOWN,
-    PCP_CIRCUIT_BREAKER_THRESHOLD, PCP_CIRCUIT_BREAKER_COOLDOWN,
-    COMPRASGOV_CIRCUIT_BREAKER_THRESHOLD, COMPRASGOV_CIRCUIT_BREAKER_COOLDOWN,
-    BRASILAPI_CIRCUIT_BREAKER_THRESHOLD, BRASILAPI_CIRCUIT_BREAKER_COOLDOWN,
-    IBGE_CIRCUIT_BREAKER_THRESHOLD, IBGE_CIRCUIT_BREAKER_COOLDOWN,
-    PNCP_TIMEOUT_PER_MODALITY, PNCP_MODALITY_RETRY_BACKOFF,
-    PNCP_TIMEOUT_PER_UF, PNCP_TIMEOUT_PER_UF_DEGRADED,
-    PNCP_BATCH_SIZE, PNCP_BATCH_DELAY_S,
-    USE_REDIS_CIRCUIT_BREAKER, CB_REDIS_TTL,
+    BRASILAPI_CIRCUIT_BREAKER_COOLDOWN,
+    BRASILAPI_CIRCUIT_BREAKER_THRESHOLD,
+    CB_REDIS_TTL,
+    COMPRASGOV_CIRCUIT_BREAKER_COOLDOWN,
+    COMPRASGOV_CIRCUIT_BREAKER_THRESHOLD,
+    IBGE_CIRCUIT_BREAKER_COOLDOWN,
+    IBGE_CIRCUIT_BREAKER_THRESHOLD,
+    PCP_CIRCUIT_BREAKER_COOLDOWN,
+    PCP_CIRCUIT_BREAKER_THRESHOLD,
+    PNCP_CIRCUIT_BREAKER_COOLDOWN,
+    PNCP_CIRCUIT_BREAKER_THRESHOLD,
+    USE_REDIS_CIRCUIT_BREAKER,
 )
-from metrics import CIRCUIT_BREAKER_STATE, CB_STATE_GAUGE, CB_OPEN_DURATION
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +58,8 @@ class PNCPCircuitBreaker:
         self.threshold = threshold
         self.cooldown_seconds = cooldown_seconds
         self.consecutive_failures: int = 0
-        self.degraded_until: Optional[float] = None
-        self.opened_at: Optional[float] = None
+        self.degraded_until: float | None = None
+        self.opened_at: float | None = None
         self._lock = asyncio.Lock()
 
     @property
@@ -92,11 +94,16 @@ class PNCPCircuitBreaker:
                 # STORY-305 AC13: Sentry breadcrumb on state transition
                 try:
                     import sentry_sdk
+
                     sentry_sdk.add_breadcrumb(
                         category="circuit_breaker",
                         message=f"CB [{self.name}] OPEN after {self.consecutive_failures} failures",
                         level="warning",
-                        data={"source": self.name, "failures": self.consecutive_failures, "cooldown_s": self.cooldown_seconds},
+                        data={
+                            "source": self.name,
+                            "failures": self.consecutive_failures,
+                            "cooldown_s": self.cooldown_seconds,
+                        },
                     )
                 except Exception:
                     pass
@@ -128,12 +135,11 @@ class PNCPCircuitBreaker:
                     CIRCUIT_BREAKER_STATE.labels(source=self.name).set(0)
                     CB_STATE_GAUGE.labels(source=self.name).set(0)
                     CB_OPEN_DURATION.labels(source=self.name).set(0.0)
-                    logger.info(
-                        f"Circuit breaker [{self.name}] cooldown expired — resetting to healthy"
-                    )
+                    logger.info(f"Circuit breaker [{self.name}] cooldown expired — resetting to healthy")
                     # STORY-305 AC13: Sentry breadcrumb on state transition
                     try:
                         import sentry_sdk
+
                         sentry_sdk.add_breadcrumb(
                             category="circuit_breaker",
                             message=f"CB [{self.name}] CLOSED (recovered)",
@@ -145,11 +151,8 @@ class PNCPCircuitBreaker:
                     return True
             finally:
                 self._lock.release()
-        except asyncio.TimeoutError:
-            logger.warning(
-                f"Circuit breaker [{self.name}] lock timeout in try_recover — "
-                f"proceeding with current state"
-            )
+        except TimeoutError:
+            logger.warning(f"Circuit breaker [{self.name}] lock timeout in try_recover — proceeding with current state")
 
         return not self.is_degraded
 
@@ -240,6 +243,7 @@ return {failures, 0}
     async def _get_redis(self):
         """Get Redis pool (delegates to redis_pool module caching)."""
         from redis_pool import get_redis_pool
+
         return await get_redis_pool()
 
     async def record_failure(self) -> None:
@@ -326,10 +330,7 @@ return {failures, 0}
                     CIRCUIT_BREAKER_STATE.labels(source=self.name).set(0)
                     CB_STATE_GAUGE.labels(source=self.name).set(0)
                     CB_OPEN_DURATION.labels(source=self.name).set(0.0)
-                    logger.info(
-                        f"Circuit breaker [{self.name}] cooldown expired "
-                        f"— resetting to healthy"
-                    )
+                    logger.info(f"Circuit breaker [{self.name}] cooldown expired — resetting to healthy")
                     return True
                 self.degraded_until = degraded_until
                 return False
@@ -365,9 +366,7 @@ return {failures, 0}
                 results = await pipe.execute()
                 failures = int(results[0]) if results[0] else 0
                 degraded_until = float(results[1]) if results[1] else None
-                is_degraded = (
-                    degraded_until is not None and time.time() < degraded_until
-                )
+                is_degraded = degraded_until is not None and time.time() < degraded_until
                 return {
                     "status": "degraded" if is_degraded else "healthy",
                     "failures": failures,
@@ -406,8 +405,7 @@ return {failures, 0}
                 if results[0]:
                     self.consecutive_failures = int(results[0])
                     logger.debug(
-                        f"Circuit breaker [{self.name}] restored {self.consecutive_failures} "
-                        f"failures from Redis"
+                        f"Circuit breaker [{self.name}] restored {self.consecutive_failures} failures from Redis"
                     )
 
                 # Restore degraded state if still active
@@ -452,6 +450,7 @@ def _track_cb_degradation(source_name: str) -> None:
     """
     try:
         from degradation import track_degradation
+
         track_degradation(source=f"cb:{source_name}", mode="circuit_open")
     except Exception:
         pass
@@ -500,6 +499,7 @@ ALL_CIRCUIT_BREAKERS: dict[str, PNCPCircuitBreaker] = {
     "ibge": _ibge_circuit_breaker,
 }
 
+
 async def get_all_circuit_breaker_states() -> dict[str, dict]:
     """Return the state of all registered circuit breakers.
 
@@ -510,6 +510,7 @@ async def get_all_circuit_breaker_states() -> dict[str, dict]:
     for name, cb in ALL_CIRCUIT_BREAKERS.items():
         results[name] = await cb.get_state()
     return results
+
 
 def get_circuit_breaker(source: str = "pncp") -> PNCPCircuitBreaker:
     """Return the circuit breaker singleton for a given data source.

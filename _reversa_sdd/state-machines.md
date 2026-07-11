@@ -1,166 +1,170 @@
 # Máquinas de Estado — Extra Consultoria
 
-> Gerado pelo Detective em 2026-07-11T14:00:00Z
+> Gerado pelo Detective em 2026-07-11T21:30:00Z
 > doc_level: completo
+> Base: commit e9729e1
 
 ---
 
-## 1. Ingestion Run (entity: `ingestion_runs`)
+## MS1: Status Temporal do Edital
 
-🟢 **CONFIRMADO** — `monitor.py:94-117`
+**Entidade:** Edital (pipeline Intel) | **Campo:** `status_temporal`
 
 ```mermaid
 stateDiagram-v2
-    [*] --> running: _start_ingestion_run()
-    running --> completed: _finish_ingestion_run(status="completed")
-    running --> failed: _finish_ingestion_run(status="failed")
+    [*] --> PLANEJAVEL: data_sessao > 30 dias
+    [*] --> CONFORTAVEL: data_sessao > 15 dias
+    [*] --> NORMAL: data_sessao > 7 dias
+    [*] --> ATENCAO: data_sessao ≤ 15 dias
+    [*] --> URGENTE: data_sessao ≤ 7 dias
+    [*] --> CRITICO: data_sessao ≤ 3 dias
+    [*] --> IMINENTE: data_sessao = hoje
+    [*] --> EXPIRADO: data_sessao < hoje
+    [*] --> SEM_DATA: data_sessao = NULL
+
+    PLANEJAVEL --> ATENCAO: tempo passa
+    CONFORTAVEL --> ATENCAO: tempo passa
+    NORMAL --> ATENCAO: tempo passa
+    ATENCAO --> URGENTE: tempo passa
+    URGENTE --> CRITICO: tempo passa
+    CRITICO --> IMINENTE: tempo passa
+    IMINENTE --> EXPIRADO: data passou
+    EXPIRADO --> [*]: hard override NAO PARTICIPAR
+
+    note right of EXPIRADO: Força NAO PARTICIPAR<br/>independente de outros scores
+    note right of SEM_DATA: Penalizado no bid score<br/>janela_temporal = 0.4
+```
+
+🟢 CONFIRMADO — `intel-analyze.py:_compute_urgency()`, `intel_pipeline.py:gate5_recomendacao()`.
+
+**Transições e gatilhos:**
+
+| De | Para | Gatilho | Efeito no Score |
+|----|------|---------|-----------------|
+| Qualquer | EXPIRADO | `data_sessao < hoje` | Força NAO PARTICIPAR |
+| Qualquer | IMINENTE | `data_sessao = hoje` | janela_temporal = 0.6 |
+| Qualquer | CRITICO | `dias_restantes ≤ 3` | janela_temporal = 0.3 |
+| Qualquer | URGENTE | `dias_restantes ≤ 7` | janela_temporal = 0.3 |
+| Qualquer | ATENCAO | `dias_restantes ≤ 15` | janela_temporal = 0.5 |
+| Qualquer | NORMAL | `dias_restantes ≤ 30` | janela_temporal = 0.8 |
+| Qualquer | CONFORTAVEL | `dias_restantes > 30` | janela_temporal = 1.0 |
+| Qualquer | PLANEJAVEL | `dias_restantes > 30` | janela_temporal = 1.0 |
+| — | SEM_DATA | `data_sessao IS NULL` | janela_temporal = 0.4 |
+
+---
+
+## MS2: Status de Execução de Crawl (Ingestion Run)
+
+**Entidade:** `ingestion_runs` | **Campo:** `status`
+
+```mermaid
+stateDiagram-v2
+    [*] --> running: start_ingestion_run()
+    running --> completed: crawl + transform + upsert OK
+    running --> failed: exceção/timeout/API erro
+    failed --> running: retry (nova execução)
     completed --> [*]
     failed --> [*]
 
-    note right of running
-        records_fetched = 0
-        records_upserted = 0
-        entities_covered = 0
-    end note
-
-    note right of completed
-        finished_at = NOW()
-        records_fetched = N
-        records_upserted = M
-        entities_covered = K
-        error_message = NULL
-    end note
-
-    note right of failed
-        finished_at = NOW()
-        error_message = details
-    end note
+    note right of running: records_fetched > 0<br/>mas ainda em progresso
+    note right of failed: error_message preenchido<br/>webhook disparado (OnFailure)
 ```
 
-**Valores de status:** `running`, `completed`, `failed`
-
-**Gatilhos de transição:**
-- `running` → `completed`: Crawl termina sem exceção
-- `running` → `failed`: Exceção capturada ou crawler não encontrado
+🟢 CONFIRMADO — `orchestrator.py:_start_ingestion_run()`, `_finish_ingestion_run()`.
 
 ---
 
-## 2. Licitação (entity: `pncp_raw_bids`)
+## MS3: Estado de Match de Entidade
 
-🟢 **CONFIRMADO** — `db/migrations/001:30`
+**Entidade:** `pncp_raw_bids` | **Campo:** `match_method`
 
 ```mermaid
 stateDiagram-v2
-    [*] --> active: INSERT
-    active --> inactive: Soft delete (is_active=FALSE)
-    inactive --> active: Re-ingestion (upsert RPC)
+    [*] --> unmatched: novo registro inserido
+    unmatched --> cnpj: CNPJ exact match (8-digit base → 14 prefix)
+    unmatched --> name_normalized: nome + municipio exact match
+    unmatched --> fuzzy: rapidfuzz/difflib ≥ 0.85
+    cnpj --> re_match: re-run cascade (novas entities)
+    name_normalized --> re_match: re-run cascade
+    fuzzy --> re_match: re-run cascade
 
-    note right of active
-        is_active = TRUE
-        Visible em queries padrão
-    end note
-
-    note right of inactive
-        is_active = FALSE
-        Excluído de queries com WHERE is_active=TRUE
-    end note
+    note right of cnpj: confidence = 'high'<br/>score = 1.0
+    note right of name_normalized: confidence = 'high'<br/>score = 1.0
+    note right of fuzzy: score ≥ 0.95 → high<br/>score ≥ 0.85 → medium
 ```
 
-**Valores de `is_active`:** `TRUE`, `FALSE`
+🟢 CONFIRMADO — `entity_matcher.py:match_entities_cascade()`.
 
-**Gatilhos de transição:**
-- INSERT → `active` automaticamente (DEFAULT TRUE)
-- `active` → `inactive`: Via soft delete (não implementado em código Python, apenas schema)
-- `inactive` → `active`: Re-ingestion via upsert RPC
+**Estados possíveis de `match_confidence`:** `high`, `medium`, `low` (declarado mas nunca atribuído — fuzzy com score ≥ 0.85 e < 0.95 vai para `medium`, < 0.85 não faz match).
 
 ---
 
-## 3. Entity Coverage (entity: `entity_coverage`)
+## MS4: Estado de Ingestão (Checkpoint)
 
-🟡 **INFERIDO** — `db/migrations/009`
+**Entidade:** Crawler execution | **Lógica:** checkpoint TD-5.2
 
 ```mermaid
 stateDiagram-v2
-    [*] --> uncovered: Entidade cadastrada
-    uncovered --> covered: Primeiro bid matched
-    covered --> uncovered: Sem bids em 90 dias (COVERAGE_WINDOW_DAYS)
+    [*] --> check_checkpoint: crawl_source(source, 'incremental')
+    check_checkpoint --> skip: is_crawl_completed_today() = TRUE
+    check_checkpoint --> execute: is_crawl_completed_today() = FALSE
+    execute --> save_checkpoint: crawl concluído
+    save_checkpoint --> [*]
+    skip --> [*]
 
-    note right of uncovered
-        is_covered = FALSE
-        last_seen_at = NULL
-    end note
-
-    note right of covered
-        is_covered = TRUE
-        last_seen_at = data do último bid
-    end note
+    note right of skip: skipped_by_checkpoint = True<br/>economiza chamadas desnecessárias
+    note right of execute: modo 'full' sempre executa<br/>(ignora checkpoint)
 ```
 
-**Valores de `is_covered`:** `TRUE`, `FALSE`
-
-**Gatilhos de transição:**
-- Cadastro → `uncovered`: Entidade inserida em `sc_public_entities`
-- `uncovered` → `covered`: Primeiro bid matched com sucesso (trigger após upsert)
-- `covered` → `uncovered`: Nenhum bid matched nos últimos 90 dias (query de coverage report)
+🟢 CONFIRMADO — `orchestrator.py:crawl_source()`.
 
 ---
 
-## 4. Órgão Público (entity: `sc_public_entities`)
+## MS5: Circuit Breaker (Rate Limiting)
 
-🟢 **CONFIRMADO** — `db/migrations/007`
+**Entidade:** API externa | **Classe:** `PNCPCircuitBreaker`
 
 ```mermaid
 stateDiagram-v2
-    [*] --> active: INSERT (seed)
-    active --> inactive: is_active = FALSE
-    inactive --> active: is_active = TRUE
+    [*] --> closed: estado inicial
+    closed --> degraded: threshold falhas consecutivas atingido
+    degraded --> half_open: cooldown_seconds expirado
+    half_open --> closed: try_recover() sucesso
+    half_open --> degraded: try_recover() falha
 
-    note right of active
-        is_active = TRUE
-        Monitorado ativamente
-    end note
-
-    note right of inactive
-        is_active = FALSE
-        Excluído do monitoramento
-    end note
+    note right of closed: operação normal<br/>rate limit padrão
+    note right of degraded: concorrência reduzida<br/>3 UFs, ordenação por população
+    note right of half_open: 1 request de teste<br/>decide se recupera
 ```
 
-**Valores de `is_active`:** `TRUE`, `FALSE`
-
-**Gatilhos de transição:**
-- INSERT → `active` (seed script popula com `is_active=TRUE`)
-- `active` ↔ `inactive`: Atualização manual (não há automação)
+🟢 CONFIRMADO — `circuit_breaker.py:PNCPCircuitBreaker`.
 
 ---
 
-## 5. Pipeline Intel (entity lógica: execução do pipeline)
+## MS6: Pipeline de Análise (Intel)
 
-🟡 **INFERIDO** — `intel_pipeline.py`
+**Entidade:** Execução do pipeline | **Campo:** gate status
 
 ```mermaid
 stateDiagram-v2
-    [*] --> collect: --cnpj X --ufs SC
-    collect --> enrich: GATE 1 PASS
-    enrich --> llm_gate: GATE 2 PASS
-    llm_gate --> extract_docs: GATE 3 PASS
-    extract_docs --> analyze: GATE 4 PASS
-    analyze --> validate: (manual ou automático)
-    validate --> report: GATE 5 PASS
-
-    collect --> rejected: GATE 1 FAIL (cobertura < 80%)
-    enrich --> rejected: GATE 2 FAIL (CNPJ inválido)
-    llm_gate --> rejected: GATE 3 FAIL (irrelevante)
-    extract_docs --> rejected: GATE 4 FAIL (sem keywords)
-    validate --> low_priority: GATE 5 FAIL (score < threshold)
-
+    [*] --> collect: Stage 1
+    collect --> gate1: G1: Cobertura
+    gate1 --> enrich: PASS
+    gate1 --> [*]: FAIL (aborta)
+    enrich --> gate2: G2: Cadastral
+    gate2 --> validate: PASS
+    gate2 --> [*]: FAIL (aborta)
+    validate --> gate3: G3: Ruído
+    gate3 --> analyze: PASS
+    gate3 --> validate: FAIL (auto-fix tenta)
+    analyze --> extract: Stage 4→5
+    extract --> gate4: G4: Conteúdo
+    gate4 --> excel: PASS
+    gate4 --> extract: FAIL (auto-fix: dedup)
+    excel --> gate5: G5: Recomendação
+    gate5 --> report: PASS
+    gate5 --> excel: FAIL (auto-fix: override)
     report --> [*]: PDF + Excel gerados
-    rejected --> [*]: Relatório parcial
-    low_priority --> [*]: Relatório com flag
 ```
 
-**Valores de status (por stage):** `PASS`, `FAIL`, `WARN`
-
-**Gatilhos de transição:**
-- Stage N → Stage N+1: Gate N retorna PASS
-- Stage N → rejected/low_priority: Gate N retorna FAIL ou score abaixo do threshold
+🟢 CONFIRMADO — `intel_pipeline.py:main()`.

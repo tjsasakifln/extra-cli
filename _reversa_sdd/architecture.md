@@ -1,87 +1,98 @@
 # Arquitetura — Extra Consultoria
 
-> Gerado pelo Architect em 2026-07-11T15:00:00Z
-> Síntese de todos os artefatos anteriores (C4, ERD, integrações)
-
----
+> Gerado pelo Architect em 2026-07-11T22:00:00Z
+> doc_level: completo
+> Base: commit e9729e1 (32 stories, EPIC-FEAT-001 + EPIC-TD-001)
 
 ## Visão Geral
 
-Plataforma CLI single-user de inteligência em licitações públicas. Monitora 2.085 órgãos de SC via 8 fontes de dados, mantém DataLake PostgreSQL no Hetzner VPS, gera relatórios PDF/Excel sob demanda.
+Plataforma de inteligência B2G single-tenant em VPS Hetzner CX22 (2 vCPU, 4GB, Ubuntu 24.04). Três camadas: **(1) ingestão multi-source** (10 crawlers sync, 8 fontes, 4 templates transparência), **(2) pipeline analítico** (7 estágios, 5 quality gates, GPT-4.1-nano), **(3) relatórios** executivos PDF/Excel Big Four.
 
-**Stack:** Python 3.12 → PostgreSQL 17 (psycopg2 direto) | systemd timers | GPT-4.1-nano | ReportLab
+**Stack:** Python 3.12 (98K LOC) + PostgreSQL 18.4 (5.3K LOC SQL) + Shell (3.5K LOC) + YAML (8.8K LOC)
+**Scheduler:** 20 systemd timer/service pairs
+**Métricas:** 196 arquivos, 9 módulos, 11 integrações externas
 
----
+## 11 Decisões Arquiteturais (ADRs)
 
-## Decisões de Arquitetura (ADRs)
+| # | Decisão | Epic |
+|---|---------|------|
+| 001 | PostgreSQL direto (psycopg2), sem API | EPIC-001 |
+| 002 | Systemd timers, sem Redis/Celery | EPIC-001 |
+| 003 | Crawlers sync HTTP (urllib) | EPIC-001 |
+| 004 | Entity matching cascade 3 níveis | EPIC-001 |
+| 005 | GPT-4.1-nano para classificação + análise | EPIC-001 |
+| 006 | PDF ReportLab, estética Big Four | EPIC-001 |
+| 007 | Migrations v2 baseline (pg_dump schema real) | EPIC-TD-001 |
+| 008 | Refactor monitor.py → orchestrator + matching | EPIC-TD-001 |
+| 009 | Backup pg_dump + Hetzner Storage Box | EPIC-TD-001 |
+| 010 | Logging JSON com correlation_id | EPIC-TD-001 |
+| 011 | Template-driven crawler transparência | EPIC-FEAT-001 |
 
-| ADR | Decisão | Justificativa |
-|-----|---------|---------------|
-| [001](adrs/001-postgresql-direto-sem-api.md) | PostgreSQL direto sem API | Single-user, sem REST overhead |
-| [002](adrs/002-systemd-timers-em-vez-de-redis.md) | systemd em vez de Redis/ARQ | Nativo Linux, zero dependências |
-| [003](adrs/003-crawlers-sync-http.md) | HTTP síncrono (urllib) | Simples, sem asyncio para cron |
-| [004](adrs/004-entity-matching-cascade-3-niveis.md) | Cascade 3 níveis (CNPJ→nome→fuzzy) | Maximiza recall mantendo precisão |
-| [005](adrs/005-gpt-4.1-nano-classificacao.md) | GPT-4.1-nano classificador | Custo baixo, zero-noise |
-| [006](adrs/006-pdf-reportlab-big-four.md) | ReportLab PDF Big Four | Código validado 10K+ linhas |
+## Subsistemas
 
----
+### 1. Crawl (35 arquivos, ~14K LOC)
+10 crawlers sync + orquestrador + retry/circuit breaker/checkpoint/enrichment/sanctions.
+4 templates transparência (Betha, Ipam, E-gov, Genérico).
 
-## Containers
+### 2. Intel Pipeline (8 arquivos, ~12K LOC)
+Coleta exaustiva → Enriquecimento → Validação → Análise LLM → Extração Docs → Excel → PDF.
+5 quality gates com auto-fix. 12 algoritmos de negócio.
 
-| Container | Tecnologia | Host | Porta |
-|-----------|-----------|------|------|
-| Python CLI Scripts | Python 3.12 | Hetzner VPS | — |
-| PostgreSQL 17 | PostgreSQL | Hetzner VPS | 5432 |
-| systemd timers | systemd (Linux) | Hetzner VPS | — |
+### 3. Reports (6 arquivos, ~9.5K LOC)
+Panorama, cobertura diário/semanal, proposta comercial, relatório B2G (6.4K LOC).
+Design system: INK #1B2A3D, ACCENT #8B7355, Times+Helvetica, A4 2.2cm.
 
----
+### 4. Lib + Matching (13 arquivos, ~2.8K LOC)
+Normalização, simulação lance, estimativa custos, victory profile, doc templates, entity matching.
 
-## Integrações Externas
+### 5. Database (25 arquivos, ~6K LOC)
+19 migrations v1 + 5 v2 baseline. 8 tabelas, 10 funções PL/pgSQL, 5 views. Seed 2.085 entes SC.
 
-| Sistema | Propósito | Protocolo | Frequência |
-|---------|-----------|-----------|------------|
-| PNCP API | Licitações | HTTPS REST | Diário (full) + 3x/dia (inc) |
-| DOM-SC | Contratos municipais | HTTPS REST (API Key) | 3x/dia |
-| PCP v2 | Licitações municipais | HTTPS REST | 2x/dia |
-| ComprasGov v3 | Compras federais | HTTPS REST | 1x/dia |
-| TCE-SC ESFINGE | Licitações TCE-SC | HTTPS JSON API (SCMWeb) | 1x/dia |
-| Portais Transparência | Gap-fill municipal | HTTPS Web Scraping | 1x/dia |
-| OpenAI API | Classificação editais | HTTPS REST (API Key) | On-demand |
-| BrasilAPI | Enriquecimento CNPJ | HTTPS REST | Diário |
-| IBGE API | Enriquecimento municípios | HTTPS REST | Diário |
+### 6. Deploy (42 arquivos, ~3.5K LOC)
+Provisionamento VPS, 20 systemd timers, hardening, backup automatizado.
 
----
+## Padrões de Código
+
+| Padrão | Uso |
+|--------|-----|
+| Interface Crawler (`crawl`+`transform`) | 10 crawlers sync |
+| Exponential backoff (2^N) | 7 crawlers + HTTP |
+| Circuit breaker | 5 APIs (singletons) |
+| Cascade fallback 3 níveis | Entity matching, PDF extraction, platform detection |
+| Content hash SHA-256 | Dedup cross-source |
+| Quality gate pipeline | Intel (5 gates, auto-fix) |
+| Section builder | B2G report (80+ funções) |
+| Contextvar correlation_id | Logging thread-safe |
+| Soft-delete + hard-delete | Purge (400d + 90d) |
+| Template method | Transparência (4 + fallback) |
+
+## Integrações Externas (11)
+
+| Sistema | Protocolo | Auth | Dados |
+|---------|----------|------|-------|
+| PNCP API | REST/JSON | Public | Licitações, contratos, ARP, PCA |
+| DOM-SC | REST/JSON | Basic + API Key | Publicações municipais SC |
+| DOE-SC | REST/JSON | Bearer (login) | Diário Oficial SC |
+| PCP v2 | REST/JSON | Public | Licitações portais compras |
+| ComprasGov | REST/JSON | Public | Licitações federais (2 endpoints) |
+| TCE-SC (SCMWeb) | Web/HTML | Public | Licitações + contratos |
+| BrasilAPI | REST/JSON | Public | CNPJ + IBGE |
+| IBGE API | REST/JSON | Public | Dados municipais |
+| OpenAI | REST/JSON | API Key | GPT-4.1-nano + embeddings |
+| Portal Transparência | REST/JSON | API Key | CEIS + CNEP |
+| SICAF | Web/HTML | Captcha (Playwright) | Verificação cadastral |
 
 ## Dívidas Técnicas
 
-| ID | Descrição | Severidade | Módulo |
-|----|-----------|------------|--------|
-| DT1 | Cobertura de testes <30% — sem suíte automatizada | 🔴 ALTA | Todos |
-| DT2 | Código duplicado de conexão PostgreSQL em múltiplos scripts | 🟡 MÉDIA | crawl, intel, reports |
-| DT3 | `intel_pipeline.py` usa `subprocess.run()` em vez de import direto | 🟡 MÉDIA | intel |
-| DT4 | Enricher desenhado para ARQ/Supabase mas adaptado para psycopg2 | 🟡 MÉDIA | crawl |
-| DT5 | `pncp_crawler_adapter.py` tem constantes duplicadas com `config/settings.py` | 🟡 MÉDIA | crawl |
-| DT6 | Sem tratamento de rate limiting nas APIs além de delays fixos | 🟡 MÉDIA | crawl |
-| DT7 | Sem health check endpoint para monitoramento dos crawlers | 🟡 MÉDIA | deploy |
-| DT8 | `sectors_config.yaml` com 2.116 linhas — difícil manutenção manual | 🟢 BAIXA | config |
-| DT9 | OpenAI timeout de 10s pode ser insuficiente para editais longos | 🟢 BAIXA | intel |
-| DT10 | Sem logging estruturado (JSON) — apenas print() e logging básico | 🟢 BAIXA | Todos |
-
----
-
-## Padrões e Anti-Padrões
-
-### Padrões Adotados
-- ✅ 12-factor config (env vars + YAML)
-- ✅ Soft delete (is_active flag)
-- ✅ Content hash dedup
-- ✅ Idempotent upserts via RPC
-- ✅ Staggered scheduling com jitter
-- ✅ Cascade matching com fallback progressivo
-- ✅ Zero-noise classification (REJECT on uncertainty)
-
-### Anti-Padrões Identificados
-- ❌ `subprocess.run()` para scripts Python internos (intel_pipeline)
-- ❌ Duplicação de DSN default em múltiplos arquivos
-- ❌ Módulo `enricher.py` com design async/ARQ adaptado para sync
-- ❌ Ausência de interface comum para crawlers (adapter.py existe mas não é usado consistentemente)
+| ID | Severidade | Descrição |
+|----|-----------|-----------|
+| DT-01 | 🔴 CRITICAL | Migrations divergentes do schema real |
+| DT-02 | 🟠 HIGH | 0 views no banco real (migrations 009-012 nunca aplicadas) |
+| DT-03 | 🟠 HIGH | Dois orquestradores: monitor.py + orchestrator.py |
+| DT-04 | 🟠 HIGH | Dois sistemas de checkpoint (sync + async) |
+| DT-05 | 🟠 HIGH | BidsCrawler = dead code (imports quebrados) |
+| DT-06 | 🟡 MEDIUM | Cobertura testes <30% (98K LOC) |
+| DT-07 | 🟡 MEDIUM | Helpers duplicados em crawlers |
+| DT-08 | 🟡 MEDIUM | transparencia_config.yaml: municipios vazio |
+| DT-09 | 🟡 MEDIUM | ARP/PCA crawlers async, incompatíveis com monitor |
+| DT-10 | 🟢 LOW | Sem smoke tests para APIs externas |

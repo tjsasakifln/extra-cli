@@ -1,0 +1,8 @@
+schema: 1
+story: 'TD-2.4'
+gate: PASS
+status_reason: 'All 9 ACs met. Migration 020 applied successfully: entity_coverage (8340 rows), both views, source column, stuck runs reset, checkpoints fixed. 27/27 tests passing. No high-severity issues found.'
+reviewer: 'Quinn'
+updated: '2026-07-11T19:30:00Z'
+top_issues: []
+waiver: { active: false }

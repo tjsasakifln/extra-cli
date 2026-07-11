@@ -5,11 +5,12 @@ Win/Loss Tracker — Registra resultados de licitações para calibrar modelos.
 Persiste outcomes em JSON local (data/win_loss_tracker.json) para que
 o bid_score threshold e victory_profile sejam recalibrados ao longo do tempo.
 """
+
 from __future__ import annotations
 
 import json
 import statistics
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +22,7 @@ def _load() -> dict:
     if not TRACKER_FILE.exists():
         return {"outcomes": [], "_version": "1.0.0"}
     try:
-        with open(TRACKER_FILE, "r", encoding="utf-8") as f:
+        with open(TRACKER_FILE, encoding="utf-8") as f:
             return json.load(f)
     except (json.JSONDecodeError, OSError):
         return {"outcomes": [], "_version": "1.0.0"}
@@ -73,7 +74,7 @@ def record_outcome(
         "bid_score_at_time": bid_score,
         "victory_fit_at_time": victory_fit,
         "notes": notes,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
     data["outcomes"].append(entry)
     _save(data)

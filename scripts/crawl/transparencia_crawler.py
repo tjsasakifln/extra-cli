@@ -32,10 +32,10 @@ import os
 import re
 import sys
 import time
+import unicodedata
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
-import unicodedata
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -78,10 +78,25 @@ TRANSPARENCIA_CONFIG = os.getenv(
 )
 """Caminho para o arquivo YAML de configuracao de templates."""
 
+TRANSPARENCIA_SELENIUM_ENABLED = os.getenv(
+    "TRANSPARENCIA_SELENIUM_ENABLED", "false"
+).lower() in ("true", "1", "yes")
+"""Habilita modo selenium para portais JS (FEAT-2.4)."""
+
+SELENIUM_HEADLESS = os.getenv("SELENIUM_HEADLESS", "true").lower() in ("true", "1", "yes")
+"""Modo headless do Selenium (default: true)."""
+
+SELENIUM_TIMEOUT = int(os.getenv("SELENIUM_TIMEOUT", "30"))
+"""Timeout em segundos para renderizacao JS (default: 30)."""
+
+SELENIUM_REQUEST_DELAY = float(os.getenv("SELENIUM_REQUEST_DELAY", "5.0"))
+"""Delay entre requisicoes Selenium (default: 5s)."""
+
 
 # ---------------------------------------------------------------------------
 # Slug utilities
 # ---------------------------------------------------------------------------
+
 
 def _slugify(name: str) -> str:
     """Convert municipality name to URL slug.
@@ -108,6 +123,7 @@ def _slugify(name: str) -> str:
 # ---------------------------------------------------------------------------
 # HTTP helper
 # ---------------------------------------------------------------------------
+
 
 def _fetch_url(url: str, timeout: int | None = None) -> tuple[int, str]:
     """Fetch a URL synchronously with timeout.
@@ -327,8 +343,7 @@ def detect_platform(slug: str, municipio: str = "") -> dict:
                 if found:
                     result["keywords_found"] = found
                 _logger.info(
-                    f"Detected 'proprio' for '{municipio}': {gov_url}"
-                    + (f" (keywords: {found})" if found else "")
+                    f"Detected 'proprio' for '{municipio}': {gov_url}" + (f" (keywords: {found})" if found else "")
                 )
                 return result
 
@@ -345,6 +360,7 @@ def detect_platform(slug: str, municipio: str = "") -> dict:
 # ---------------------------------------------------------------------------
 # Config loading (Fase 2 — template-driven scraping)
 # ---------------------------------------------------------------------------
+
 
 def load_config(config_path: str | None = None) -> dict:
     """Load template config from YAML file.
@@ -365,7 +381,8 @@ def load_config(config_path: str | None = None) -> dict:
 
     try:
         import yaml
-        with open(path, "r", encoding="utf-8") as f:
+
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
         if not isinstance(data, dict):
             _logger.warning(f"Config file {path} is not a valid YAML mapping")
@@ -428,6 +445,7 @@ def _resolve_selectors(municipio_config: dict, config: dict) -> dict | None:
 # ---------------------------------------------------------------------------
 # Template-based scraping (Fase 2)
 # ---------------------------------------------------------------------------
+
 
 def health_check(portal_url: str) -> int:
     """Check if a portal is reachable via HEAD request.
@@ -518,6 +536,7 @@ def scrape_municipio(
     # Parse HTML
     try:
         from bs4 import BeautifulSoup
+
         soup = BeautifulSoup(body, "html.parser")
     except ImportError:
         result["status"] = "parse_error"
@@ -572,10 +591,7 @@ def scrape_municipio(
     result["records"] = rows
     result["count"] = len(rows)
 
-    _logger.info(
-        f"Scraped {len(rows)} licitacoes from {municipio_nome or slug} "
-        f"({portal_url})"
-    )
+    _logger.info(f"Scraped {len(rows)} licitacoes from {municipio_nome or slug} ({portal_url})")
 
     return result
 
@@ -599,7 +615,6 @@ def _extract_row(
     Returns:
         Dict with extracted fields, or None if row is empty/invalid.
     """
-    from bs4 import BeautifulSoup
 
     row: dict[str, Any] = {
         "slug": slug,
@@ -642,6 +657,7 @@ def _extract_row(
                 # Handle relative URLs
                 if href.startswith("/"):
                     from urllib.parse import urlparse
+
                     parsed = urlparse(portal_url)
                     row["link"] = f"{parsed.scheme}://{parsed.netloc}{href}"
                 else:
@@ -664,6 +680,7 @@ def _extract_row(
 # Entity loading
 # ---------------------------------------------------------------------------
 
+
 def _load_entities(filepath: str | None = None) -> list[dict]:
     """Load municipality/entity list from JSON file.
 
@@ -684,7 +701,7 @@ def _load_entities(filepath: str | None = None) -> list[dict]:
 
     if path.exists():
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
             if isinstance(data, list):
                 return data
@@ -719,6 +736,7 @@ def _load_entities(filepath: str | None = None) -> list[dict]:
 # Results persistence
 # ---------------------------------------------------------------------------
 
+
 def _results_path(output_dir: str | None = None) -> Path:
     """Get path to the platforms detection results file."""
     base = Path(output_dir or TRANSPARENCIA_OUTPUT_DIR)
@@ -745,7 +763,7 @@ def _load_existing_results(output_dir: str | None = None) -> dict:
     path = _results_path(output_dir)
     if path.exists():
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
             if isinstance(data, dict) and "detected" in data:
                 return data
@@ -793,6 +811,7 @@ def _save_scrape_results(data: dict) -> str:
 # ---------------------------------------------------------------------------
 # Template-driven crawl (Fase 2)
 # ---------------------------------------------------------------------------
+
 
 def crawl_template(
     municipio_slug: str | None = None,
@@ -844,9 +863,7 @@ def crawl_template(
         # Resolve selectors
         selectors = _resolve_selectors(cfg, config)
         if not selectors:
-            _logger.warning(
-                f"No selectors resolved for {slug} (template={cfg.get('template')}), skipping"
-            )
+            _logger.warning(f"No selectors resolved for {slug} (template={cfg.get('template')}), skipping")
             continue
 
         # Scrape
@@ -863,29 +880,28 @@ def crawl_template(
             if result["status"] == "ok":
                 success_count += 1
                 total_licitacoes += result["count"]
-                _logger.info(
-                    f"  [{success_count}] {nome}: {result['count']} licitacoes extraidas"
-                )
+                _logger.info(f"  [{success_count}] {nome}: {result['count']} licitacoes extraidas")
             else:
                 error_count += 1
                 _logger.warning(
-                    f"  [{success_count + error_count}] {nome}: {result['status']} "
-                    f"({result.get('error', '')})"
+                    f"  [{success_count + error_count}] {nome}: {result['status']} ({result.get('error', '')})"
                 )
 
         except Exception as e:
             _logger.error(f"Scraping failed for {slug}: {e}")
-            results.append({
-                "municipio": nome,
-                "slug": slug,
-                "ibge": ibge,
-                "portal_url": portal_url,
-                "status": "error",
-                "records": [],
-                "count": 0,
-                "error": str(e),
-                "scraped_at": datetime.now().isoformat(),
-            })
+            results.append(
+                {
+                    "municipio": nome,
+                    "slug": slug,
+                    "ibge": ibge,
+                    "portal_url": portal_url,
+                    "status": "error",
+                    "records": [],
+                    "count": 0,
+                    "error": str(e),
+                    "scraped_at": datetime.now().isoformat(),
+                }
+            )
             error_count += 1
 
         # Delay between portals
@@ -899,7 +915,9 @@ def crawl_template(
         status_icon = "OK" if r["status"] == "ok" else "XX"
         _logger.info(f"  [{status_icon}] {r['municipio']:30s} | {r['count']:4d} licitacoes | {r.get('status', '?')}")
     _logger.info("-" * 60)
-    _logger.info(f"  Total: {len(results)} municipios | {success_count} ok | {error_count} erros | {total_licitacoes} licitacoes")
+    _logger.info(
+        f"  Total: {len(results)} municipios | {success_count} ok | {error_count} erros | {total_licitacoes} licitacoes"
+    )
     _logger.info("=" * 60)
 
     # Save results
@@ -917,10 +935,231 @@ def crawl_template(
 
 
 # ---------------------------------------------------------------------------
+# Selenium crawl (FEAT-2.4)
+# ---------------------------------------------------------------------------
+
+
+def crawl_selenium(
+    municipio_slug: str | None = None,
+    config_path: str | None = None,
+) -> list[dict]:
+    """Run Selenium-based crawling for JS-rendered transparency portals.
+
+    Processes only municipios with ``requires_js: true`` in the config.
+    For municipios with ``requires_js: false`` (or unset), falls back to
+    HTTP-based scraping via ``crawl_template()``.
+
+    Args:
+        municipio_slug: If set, process apenas este municipio.
+        config_path: Caminho alternativo para config YAML.
+
+    Returns:
+        List of scraping result dicts (see ``scrape_municipio`` for schema,
+        plus ``method`` field indicating selenium or http_fallback).
+    """
+    config = load_config(config_path)
+    municipios = config.get("municipios", {})
+    if not municipios:
+        _logger.warning("No municipios configured in transparencia_config.yaml")
+        return []
+
+    # Validate selenium availability
+    selenium_available = True
+    try:
+        from scripts.crawl.selenium_crawler import SeleniumCrawler
+    except ImportError:
+        selenium_available = False
+        _logger.warning("Selenium not available — falling back to HTTP for all municipios")
+
+    if not TRANSPARENCIA_SELENIUM_ENABLED:
+        _logger.info("TRANSPARENCIA_SELENIUM_ENABLED=false — using HTTP for all municipios")
+        selenium_available = False
+
+    results: list[dict] = []
+    success_count = 0
+    error_count = 0
+    total_licitacoes = 0
+    selenium_count = 0
+    http_count = 0
+
+    for slug, cfg in municipios.items():
+        if municipio_slug and slug != municipio_slug:
+            continue
+        if not cfg.get("ativo", True):
+            _logger.info(f"Skipping {slug} (inactive)")
+            continue
+
+        portal_url = cfg.get("portal_url", "")
+        ibge = cfg.get("ibge", "")
+        nome = cfg.get("nome", slug)
+        requires_js = cfg.get("requires_js", False)
+
+        if not portal_url:
+            _logger.warning(f"No portal_url for {slug}, skipping")
+            continue
+
+        # Resolve selectors
+        selectors = _resolve_selectors(cfg, config)
+        if not selectors:
+            _logger.warning(f"No selectors resolved for {slug}, skipping")
+            continue
+
+        # Determine template module
+        template_name = cfg.get("template", "")
+        template_module = None
+        if template_name and template_name != "custom":
+            try:
+                from importlib import import_module
+
+                module_map = {
+                    "portal_transparencia_net": "scripts.crawl.transparencia_templates.betha",
+                    "e_gov_net": "scripts.crawl.transparencia_templates.egov",
+                }
+                mod_path = module_map.get(template_name)
+                if mod_path:
+                    template_module = import_module(mod_path)
+            except Exception as e:
+                _logger.debug(f"Could not load template {template_name}: {e}")
+
+        wait_for = cfg.get("wait_for", "")
+
+        if requires_js and selenium_available:
+            # Selenium path
+            selenium_count += 1
+            try:
+                from scripts.crawl.selenium_crawler import SeleniumCrawler
+
+                with SeleniumCrawler() as crawler:
+                    result = crawler.scrape(
+                        slug=slug,
+                        portal_url=portal_url,
+                        selectors=selectors if not template_module else None,
+                        template_module=template_module,
+                        municipio_nome=nome,
+                        ibge=ibge,
+                        wait_for=wait_for or None,
+                        fallback_to_http=True,
+                    )
+                results.append(result)
+            except Exception as e:
+                _logger.error(f"Selenium scraping failed for {slug}: {e}")
+                # HTTP fallback on unexpected error
+                try:
+                    http_result = scrape_municipio(
+                        slug=slug,
+                        portal_url=portal_url,
+                        selectors=selectors,
+                        municipio_nome=nome,
+                        ibge=ibge,
+                    )
+                    http_result["method"] = "http_fallback"
+                    results.append(http_result)
+                except Exception as e2:
+                    results.append({
+                        "municipio": nome,
+                        "slug": slug,
+                        "ibge": ibge,
+                        "portal_url": portal_url,
+                        "status": "error",
+                        "records": [],
+                        "count": 0,
+                        "error": f"Selenium: {e}; HTTP fallback: {e2}",
+                        "scraped_at": datetime.now().isoformat(),
+                        "method": "fallback_error",
+                    })
+        else:
+            # HTTP path (requires_js false or selenium unavailable)
+            http_count += 1
+            try:
+                result = scrape_municipio(
+                    slug=slug,
+                    portal_url=portal_url,
+                    selectors=selectors,
+                    municipio_nome=nome,
+                    ibge=ibge,
+                )
+                result["method"] = "http" if not requires_js else "http_forced"
+                results.append(result)
+            except Exception as e:
+                _logger.error(f"HTTP scraping failed for {slug}: {e}")
+                results.append({
+                    "municipio": nome,
+                    "slug": slug,
+                    "ibge": ibge,
+                    "portal_url": portal_url,
+                    "status": "error",
+                    "records": [],
+                    "count": 0,
+                    "error": str(e),
+                    "scraped_at": datetime.now().isoformat(),
+                    "method": "http_error",
+                })
+
+        # Count results
+        if results and results[-1]["status"] == "ok":
+            success_count += 1
+            total_licitacoes += results[-1]["count"]
+        else:
+            error_count += 1
+
+        # Delay between portals
+        time.sleep(TRANSPARENCIA_DELAY)
+
+    # Efetividade log
+    _logger.info("=" * 60)
+    _logger.info("EFETIVIDADE — Selenium Crawl")
+    _logger.info("=" * 60)
+    for r in results:
+        method_tag = r.get("method", "?")
+        status_icon = "OK" if r["status"] == "ok" else "XX"
+        _logger.info("  [%s][%s] %-30s | %4d licitacoes | %s",
+                     status_icon, method_tag, r['municipio'], r['count'], r.get('status', '?'))
+    _logger.info("-" * 60)
+    _logger.info("  Total: %d | Selenium: %d | HTTP: %d | OK: %d | Erros: %d | Licitacoes: %d",
+                 len(results), selenium_count, http_count,
+                 success_count, error_count, total_licitacoes)
+    _logger.info("=" * 60)
+
+    return results
+
+
+# ---------------------------------------------------------------------------
 # Crawler interface (called by monitor.py)
 # ---------------------------------------------------------------------------
 
+
 def crawl(mode: str = "full") -> list[dict]:
+    """Detect transparency platforms for SC municipalities.
+
+    Iterates over entities (from TRANSPARENCIA_ENTITIES_FILE or stub list),
+    detects which transparency portal platform each one uses, and saves
+    results to ``data/transparencia_platforms.json``.
+
+    Args:
+        mode:
+            ``"full"`` (default) — detect all entities, overwriting previous
+            results for re-detected slugs.
+            ``"incremental"`` — only detect entities not yet present in the
+            saved results file.
+            ``"template"`` — run template-driven scraping from config
+            (see ``crawl_template()``).
+            ``"selenium"`` — run Selenium-based scraping for JS-rendered portals
+            (see ``crawl_selenium()``).
+
+    Returns:
+        List of detection result dicts (see ``detect_platform`` for schema).
+        Each dict has at least: municipio, slug, platform, url, status.
+        In ``"template"`` or ``"selenium"`` mode, returns scraping result dicts.
+    """
+    # Template mode delegates to crawl_template()
+    if mode == "template":
+        return crawl_template()
+
+    # Selenium mode
+    if mode == "selenium":
+        return crawl_selenium()
+
+    entities = _load_entities()
     """Detect transparency platforms for SC municipalities.
 
     Iterates over entities (from TRANSPARENCIA_ENTITIES_FILE or stub list),
@@ -987,15 +1226,17 @@ def crawl(mode: str = "full") -> list[dict]:
 
         except Exception as e:
             _logger.error(f"Detection failed for {nome} ({slug}): {e}")
-            results.append({
-                "municipio": nome,
-                "slug": slug,
-                "platform": None,
-                "url": None,
-                "status": "error",
-                "error": str(e),
-                "detected_at": date.today().isoformat(),
-            })
+            results.append(
+                {
+                    "municipio": nome,
+                    "slug": slug,
+                    "platform": None,
+                    "url": None,
+                    "status": "error",
+                    "error": str(e),
+                    "detected_at": date.today().isoformat(),
+                }
+            )
             error_count += 1
 
     # Merge with existing results (preserving previously detected slugs
@@ -1033,8 +1274,7 @@ def crawl(mode: str = "full") -> list[dict]:
     _save_results(output)
 
     _logger.info(
-        f"Crawl complete: {new_count} new, {skipped_count} skipped, "
-        f"{error_count} errors ({len(results)} total in file)"
+        f"Crawl complete: {new_count} new, {skipped_count} skipped, {error_count} errors ({len(results)} total in file)"
     )
 
     return results
@@ -1062,38 +1302,40 @@ def transform(records: list[dict]) -> list[dict]:
     for record in records:
         # Detect record type: template-scraped or platform detection
         if "portal_url" in record and "records" in record:
-            # Template-scraped record (from crawl_template / scrape_municipio)
+            # Template-scraped record (from crawl_template / scrape_municipio / crawl_selenium)
             sub_records = record.get("records", [])
+            method = record.get("method", "http")
             for r in sub_records:
-                normalized.append({
-                    "pncp_id": r.get("content_hash", ""),
-                    "objeto_compra": r.get("objeto", ""),
-                    "valor_total_estimado": _parse_valor(r.get("valor", "")),
-                    "modalidade_nome": r.get("modalidade", ""),
-                    "uf": "SC",
-                    "municipio": record.get("municipio", ""),
-                    "codigo_municipio_ibge": r.get("codigo_municipio_ibge", ""),
-                    "orgao_razao_social": r.get("orgao", ""),
-                    "data_publicacao": _parse_date(r.get("data_publicacao", "")),
-                    "link_pncp": r.get("link", ""),
-                    "content_hash": r.get("content_hash", ""),
-                    "source": "transparencia",
-                    "source_subtype": (
-                        r.get("_source_subtype")
-                        or record.get("template_module")
-                        or "generico"
-                    ),
-                    "source_id": f"transparencia_{record.get('slug', '')}",
-                })
+                normalized.append(
+                    {
+                        "pncp_id": r.get("content_hash", ""),
+                        "objeto_compra": r.get("objeto", ""),
+                        "valor_total_estimado": _parse_valor(r.get("valor", "")),
+                        "modalidade_nome": r.get("modalidade", ""),
+                        "uf": "SC",
+                        "municipio": record.get("municipio", ""),
+                        "codigo_municipio_ibge": r.get("codigo_municipio_ibge", ""),
+                        "orgao_razao_social": r.get("orgao", ""),
+                        "data_publicacao": _parse_date(r.get("data_publicacao", "")),
+                        "link_pncp": r.get("link", ""),
+                        "content_hash": r.get("content_hash", ""),
+                        "source": "transparencia",
+                        "source_subtype": (
+                            r.get("_source_subtype")
+                            or record.get("source_subtype")
+                            or record.get("template_module")
+                            or "generico"
+                        ),
+                        "source_id": f"transparencia_{record.get('slug', '')}",
+                        "method": method,
+                    }
+                )
         elif "platform" in record:
             # Platform detection record (Fase 1) — skip, no bid data
             pass
 
     if not normalized:
-        _logger.info(
-            f"transform() called with {len(records)} raw records, "
-            f"returning {len(normalized)} normalized"
-        )
+        _logger.info(f"transform() called with {len(records)} raw records, returning {len(normalized)} normalized")
 
     return normalized
 
@@ -1125,9 +1367,9 @@ def _parse_date(date_str: str) -> str | None:
 
     # Common Brazilian formats
     patterns = [
-        r"(\d{2})/(\d{2})/(\d{4})",   # DD/MM/YYYY
-        r"(\d{2})-(\d{2})-(\d{4})",    # DD-MM-YYYY
-        r"(\d{4})-(\d{2})-(\d{2})",    # YYYY-MM-DD
+        r"(\d{2})/(\d{2})/(\d{4})",  # DD/MM/YYYY
+        r"(\d{2})-(\d{2})-(\d{4})",  # DD-MM-YYYY
+        r"(\d{4})-(\d{2})-(\d{2})",  # YYYY-MM-DD
     ]
 
     for pattern in patterns:
@@ -1159,9 +1401,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--mode",
-        choices=["full", "incremental", "template"],
+        choices=["full", "incremental", "template", "selenium"],
         default="full",
-        help="Modo de execucao: full/incremental (deteccao) ou template (scraping via config) (default: full)",
+        help="Modo de execucao: full/incremental (deteccao), template (scraping via config) ou selenium (JS portals) (default: full)",
     )
     parser.add_argument(
         "--entities",
@@ -1195,7 +1437,8 @@ if __name__ == "__main__":
         help="Caminho para config YAML (default: TRANSPARENCIA_CONFIG)",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Log em nivel DEBUG",
     )
@@ -1223,19 +1466,51 @@ if __name__ == "__main__":
 
             # Log de efetividade (terminal)
             print(f"\n{'=' * 72}")
-            print(f"  EFETIVIDADE — Template Scraping")
+            print("  EFETIVIDADE — Template Scraping")
             print(f"{'=' * 72}")
             print(f"  {'Municipio':30s} | {'Licitacoes':>10s} | {'Status':>12s}")
-            print(f"  {'-'*30} | {'-'*10} | {'-'*12}")
+            print(f"  {'-' * 30} | {'-' * 10} | {'-' * 12}")
             for r in results:
                 status_icon = "OK" if r["status"] == "ok" else r.get("status", "?")
                 print(f"  {r['municipio']:30s} | {r['count']:10d} | {status_icon:>12s}")
-            print(f"  {'-'*30} | {'-'*10} | {'-'*12}")
+            print(f"  {'-' * 30} | {'-' * 10} | {'-' * 12}")
             print(f"  {'TOTAL':30s} | {total_licitacoes:10d} | {ok_count}/{len(results)}")
             print(f"{'=' * 72}")
         else:
             print("No results from template scraping")
             print("  Check config/transparencia_config.yaml for configured municipios")
+        sys.exit(0)
+
+    # Selenium mode (FEAT-2.4)
+    if args.mode == "selenium":
+        config_path = args.config
+        results = crawl_selenium(config_path=config_path)
+
+        if results:
+            total_licitacoes = sum(r.get("count", 0) for r in results)
+            ok_count = sum(1 for r in results if r.get("status") == "ok")
+            fail_count = sum(1 for r in results if r.get("status") != "ok")
+
+            print(f"\nSelenium crawl complete: {len(results)} municipios")
+            print(f"  OK:   {ok_count}")
+            print(f"  Fail: {fail_count}")
+            print(f"  Total licitacoes: {total_licitacoes}")
+
+            print(f"\n{'=' * 72}")
+            print("  EFETIVIDADE — Selenium Crawl")
+            print(f"{'=' * 72}")
+            print(f"  {'Municipio':30s} | {'Metodo':>10s} | {'Licitacoes':>10s} | {'Status':>12s}")
+            print(f"  {'-' * 30} | {'-' * 10} | {'-' * 10} | {'-' * 12}")
+            for r in results:
+                method = r.get("method", "?")
+                status_icon = "OK" if r["status"] == "ok" else r.get("status", "?")
+                print(f"  {r['municipio']:30s} | {method:>10s} | {r['count']:10d} | {status_icon:>12s}")
+            print(f"  {'-' * 30} | {'-' * 10} | {'-' * 10} | {'-' * 12}")
+            print(f"  {'TOTAL':30s} | {'':>10s} | {total_licitacoes:10d} | {ok_count}/{len(results)}")
+            print(f"{'=' * 72}")
+        else:
+            print("No results from selenium crawl")
+            print("  Check config/transparencia_config.yaml for municipios with requires_js: true")
         sys.exit(0)
 
     # Legacy: single slug detection

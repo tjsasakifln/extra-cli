@@ -1,89 +1,77 @@
-# Design — Módulo `crawl`
+# Crawl — Design
 
-> 🟢 CONFIRMADO — extraído de `monitor.py`, `transformer.py`, `enricher.py`, `db/migrations/`
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo
 
-## Arquitetura Interna
+## Arquitetura do Pipeline
 
 ```
-monitor.py (orquestrador)
-  ├── parse_args() → source, mode, report-coverage, within-200km-only, dsn
-  ├── _get_conn() → psycopg2.connect(DSN)
-  ├── _load_entities(conn, within_200km_only) → list[dict]
-  ├── crawl_source(source, entities, mode) → dict (status, fetched, upserted, matched)
-  │     ├── _load_crawler(source) → module | None (importlib.import_module)
-  │     ├── crawler.crawl(mode) → list[dict] (raw records)
-  │     ├── crawler.transform(records) → list[dict] (normalized)
-  │     ├── upsert_pncp_raw_bids(records) → RPC PostgreSQL
-  │     ├── _match_entities_cascade(conn, source, entities) → stats dict
-  │     └── _finish_ingestion_run(conn, run_id, ...) → void
-  ├── report_coverage(conn) → dict (groups, by_source, uncovered)
-  └── print_coverage_report(result) → terminal output
+crawl_source(source, entities, mode) →
+  load_crawler(source) → crawler.crawl(mode) → crawler.transform(records) →
+  upsert(records) → match_entities_cascade(conn, source, entities) →
+  save_checkpoint() → finish_ingestion_run()
 ```
 
-## Interface de Crawler
+Cada crawler é um módulo Python que expõe `crawl(mode)→list[dict]` e `transform(records)→list[dict]`.
 
-Todo crawler deve expor:
+## Interfaces dos Crawlers
 
 ```python
-def crawl(mode: str) -> list[dict]:
-    """Coleta dados brutos da fonte.
-    mode: 'full' | 'incremental' | 'dry-run'
-    Retorna lista de dicts com dados brutos da API."""
+# Interface comum (10 crawlers sync)
+def crawl(mode: str = "full") -> list[dict]:
+    """Retorna registros crus da API/portal."""
 
 def transform(records: list[dict]) -> list[dict]:
-    """Normaliza registros para schema pncp_raw_bids.
-    Retorna lista de dicts prontos para upsert."""
+    """Converte registros crus → schema pncp_raw_bids (31 colunas)."""
 ```
 
-## Fluxo de Entity Matching
+## Schema de Saída (pncp_raw_bids — 31 colunas)
 
-```
-_match_entities_cascade(conn, source, entities)
-  │
-  ├── 1. Busca unmatched bids (WHERE matched_entity_id IS NULL)
-  │
-  ├── 2. Constrói índices de busca:
-  │     cnpj_index: dict[cnpj_8, entity]
-  │     name_exact_index: dict[norm_name, entity]
-  │     name_muni_index: dict[(norm_name, ibge), entity]
-  │     all_entities_norm: list[entity] (com _normalized_name)
-  │
-  ├── 3. Para cada bid:
-  │     ├── Level 1: CNPJ (score=1.0, confidence=high)
-  │     │   Match exato de 8 dígitos ou prefixo de 14 dígitos
-  │     │
-  │     ├── Level 2a: Nome normalizado + IBGE (score=1.0, confidence=high)
-  │     │   Match exato de (nome_norm, codigo_ibge)
-  │     │
-  │     ├── Level 2b: Nome normalizado sem IBGE (score=1.0, confidence=high)
-  │     │   Match exato de nome_norm apenas
-  │     │
-  │     ├── Level 3: Fuzzy (score=ratio, confidence=high/medium/low)
-  │     │   rapidfuzz.ratio() ou SequenceMatcher.ratio()
-  │     │   Filtra candidatos por IBGE se disponível
-  │     │   Threshold: 0.85 (ENTITY_MATCH_FUZZY_THRESHOLD)
-  │     │   Confidence: >=0.95=high, >=threshold=medium, <threshold=low
-  │     │
-  │     └── Unmatched: match_method='unmatched', score=0.0
-  │
-  └── 4. COMMIT em batch (todas as atualizações de uma vez)
-```
+Campos chave: `pncp_id` PK, `objeto_compra`, `valor_total_estimado` NUMERIC(18,2), `modalidade_id` INT, `esfera_id` TEXT(F|E|M|D), `uf` TEXT, `municipio` TEXT, `orgao_razao_social` TEXT, `orgao_cnpj` TEXT, `data_publicacao` TIMESTAMPTZ, `content_hash` TEXT UNIQUE (SHA-256), `source` TEXT, `matched_entity_id` INT FK, `is_active` BOOLEAN.
 
-## Schema de Dados
+## Orquestradores (2)
 
-Registros normalizados seguem o schema de `pncp_raw_bids`:
-- `pncp_id` (PK), `objeto_compra`, `valor_total_estimado`, `modalidade_id/nome`
-- `esfera_id`, `uf`, `municipio`, `codigo_municipio_ibge`
-- `orgao_razao_social`, `orgao_cnpj`, `data_publicacao/abertura/encerramento`
-- `link_pncp`, `content_hash` (SHA-256), `source`, `source_id`
-- Campos de match: `matched_entity_id`, `match_method`, `match_score`, `match_confidence`
+| Arquivo | Linhas | Status |
+|---------|--------|--------|
+| `monitor.py` | 684 | Legado — entity matching inline, 8 sources |
+| `orchestrator.py` | 306 | Refatorado — checkpoint TD-5.2, matching externo, 10 sources (inclui doe_sc) |
 
-## Decisões de Design
+## Matriz de Crawlers
 
-| Decisão | Escolha | Razão |
-|---------|---------|-------|
-| Interface de crawler | `crawl(mode)` + `transform(records)` | Simples, compatível com import dinâmico |
-| Carregamento dinâmico | `importlib.import_module()` | Adicionar fonte = adicionar módulo, sem alterar monitor.py |
-| Entity matching | Cascade 3 níveis em Python (não SQL) | Lógica complexa de normalização + fuzzy, mais legível em Python |
-| Upsert | RPC PostgreSQL (`upsert_pncp_raw_bids`) | Performance de batch, ON CONFLICT handling no DB |
-| Commit do matching | Batch único após todos os bids | Evita N round-trips ao DB |
+| Crawler | Arquivo | Auth | Paginação | Retry | Esfera |
+|---------|---------|------|-----------|-------|--------|
+| PNCP | `pncp_crawler_adapter.py` | Public | offset+has_next | 2× 2^N | F/E/M |
+| DOM-SC | `dom_sc_crawler.py` | Basic+APIKey | 3 categorias | 0 | M |
+| DOE-SC | `doe_sc_crawler.py` | Bearer(login) | offset+totalPages | 2× 2^N | E |
+| PCP v2 | `pcp_crawler.py` | Public | offset+pageCount | 2× 2^N | F/E/M |
+| ComprasGov | `compras_gov_crawler.py` | Public | offset+paginasRestantes | 2× 2^N×2 | F |
+| Contracts | `contracts_crawler.py` | Public | offset+totalPaginas | 3× 2^N | F/E/M |
+| TCE-SC | `tce_sc_crawler.py` | Public | heurística(<20) | 3× 2^N | E |
+| SC Compras | `sc_compras_crawler.py` | Public | HTML regex | 3× 2×N | E |
+| Transparência | `transparencia_crawler.py` | Public | N/A | 1× | M |
+
+## Infraestrutura Compartilhada
+
+| Módulo | Função |
+|--------|--------|
+| `common.py` | Helpers: digits_only, safe_float, parse_date, generate_content_hash |
+| `checkpoint.py` | Sync (psycopg2) + Async (Supabase). Tabela ingestion_checkpoints |
+| `security.py` | USER_AGENT padronizado, sanitize_url_param, make_url |
+| `circuit_breaker.py` | 5 singletons (pncp, pcp, comprasgov, brasilapi, ibge) |
+| `retry.py` | validate_timeout_chain, calculate_delay |
+| `transformer.py` | compute_content_hash SHA-256, transform_pncp_item |
+| `loader.py` | bulk_upsert, embedding opcional text-embedding-3-small |
+| `sanctions.py` | SanctionsChecker async CEIS+CNEP, cache 24h |
+| `enricher.py` | 3 jobs ARQ: entities, municipios, ibge_codes |
+
+## Transparência Templates
+
+| Template | Plataforma | Mun. SC | URL Pattern |
+|----------|-----------|---------|-------------|
+| `betha.py` | Betha Sistemas | ~80 | `{slug}.atende.net/transparencia` |
+| `ipam.py` | Ipam | ~50 | `{slug}.ipm.org.br/transparencia` |
+| `egov.py` | E-gov Betha | ~40 | `{slug}.e-gov.betha.com.br` |
+| `generico.py` | Fallback | ∞ | Score tables → divs → any table |
+
+## Confiança
+
+🟢 CONFIRMADO — Todos os 35 arquivos lidos. 10 crawlers sync verificados com interface comum. 3 GAPs: orquestrador dual, checkpoint dual, imports quebrados em _parallel_mixin.py.

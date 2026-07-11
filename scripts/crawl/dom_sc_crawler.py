@@ -17,16 +17,19 @@ import hashlib
 import json
 import logging
 import os
-import re
 import sys
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
 from scripts.crawl.common import (
     digits_only as _digits_only,
+)
+from scripts.crawl.common import (
     parse_date as _parse_date,
+)
+from scripts.crawl.common import (
     safe_float as _safe_float,
 )
 from scripts.crawl.security import USER_AGENT, sanitize_url_param
@@ -56,7 +59,7 @@ CATEGORIA_NOMES: dict[int, str] = {
     28: "Empenho",
 }
 
-HTTP_TIMEOUT = 60           # Timeout per API call (seconds)
+HTTP_TIMEOUT = 60  # Timeout per API call (seconds)
 DELAY_BETWEEN_CATEGORIAS = 0.5  # Seconds between categoria calls (rate limit)
 
 # Configuracoes de janela temporal
@@ -103,6 +106,7 @@ def _api_request(url: str, params: dict[str, Any]) -> dict | None:
 
     # Build Basic Auth header manually (urllib BasicAuth can be tricky)
     import base64
+
     credentials = f"{DOM_SC_CPF}:{DOM_SC_CNPJ}"
     encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
 
@@ -118,20 +122,22 @@ def _api_request(url: str, params: dict[str, Any]) -> dict | None:
             return json.loads(body)
     except urllib.error.HTTPError as exc:
         if exc.code == 401:
-            _logger.error(
-                "[DOM-SC] Auth failure (401) — check DOM_SC_CPF, DOM_SC_CNPJ, "
-                "DOM_SC_API_KEY env vars"
-            )
+            _logger.error("[DOM-SC] Auth failure (401) — check DOM_SC_CPF, DOM_SC_CNPJ, DOM_SC_API_KEY env vars")
         elif exc.code == 429:
             _logger.warning("[DOM-SC] Rate limited (429) — waiting before retry")
         else:
             _logger.error(
-                "[DOM-SC] HTTP %d on %s: %s", exc.code, full_url, exc,
+                "[DOM-SC] HTTP %d on %s: %s",
+                exc.code,
+                full_url,
+                exc,
             )
         return None
     except Exception as exc:
         _logger.error(
-            "[DOM-SC] Request failed: %s: %s", type(exc).__name__, exc,
+            "[DOM-SC] Request failed: %s: %s",
+            type(exc).__name__,
+            exc,
         )
         return None
 
@@ -166,7 +172,8 @@ def _fetch_publications(date_from: date, date_to: date) -> list[dict]:
         data = _api_request(url, params)
         if data is None:
             _logger.warning(
-                "[DOM-SC] Skipping categoria %d after request failure", categoria,
+                "[DOM-SC] Skipping categoria %d after request failure",
+                categoria,
             )
             continue
 
@@ -178,8 +185,11 @@ def _fetch_publications(date_from: date, date_to: date) -> list[dict]:
         total_fetched += len(items)
         _logger.info(
             "[DOM-SC] Categoria %d (%s): %d publications for %s - %s",
-            categoria, CATEGORIA_NOMES.get(categoria, "?"),
-            len(items), date_from, date_to,
+            categoria,
+            CATEGORIA_NOMES.get(categoria, "?"),
+            len(items),
+            date_from,
+            date_to,
         )
 
         # Rate limiting between categoria calls
@@ -188,7 +198,8 @@ def _fetch_publications(date_from: date, date_to: date) -> list[dict]:
 
     _logger.info(
         "[DOM-SC] Total: %d publications across %d categories",
-        total_fetched, len(CATEGORIAS),
+        total_fetched,
+        len(CATEGORIAS),
     )
     return all_items
 
@@ -214,10 +225,7 @@ def crawl(mode: str = "full") -> list[dict]:
 
     # Credential check
     if not DOM_SC_CPF or not DOM_SC_CNPJ or not DOM_SC_API_KEY:
-        _logger.warning(
-            "[DOM-SC] Missing credentials — set DOM_SC_CPF, DOM_SC_CNPJ, "
-            "DOM_SC_API_KEY env vars"
-        )
+        _logger.warning("[DOM-SC] Missing credentials — set DOM_SC_CPF, DOM_SC_CNPJ, DOM_SC_API_KEY env vars")
         return []
 
     days = DOM_SC_FULL_DAYS if mode == "full" else DOM_SC_INCREMENTAL_DAYS
@@ -226,7 +234,10 @@ def crawl(mode: str = "full") -> list[dict]:
 
     _logger.info(
         "[DOM-SC] Crawling %s mode: %s to %s (%d days)",
-        mode, data_inicial, data_final, days,
+        mode,
+        data_inicial,
+        data_final,
+        days,
     )
 
     raw_records = _fetch_publications(data_inicial, data_final)
@@ -294,9 +305,7 @@ def _transform_record(raw: dict) -> dict | None:
 
         # Build link
         url_processo = (metadados.get("url_processo") or "").strip()
-        link_pncp = url_processo if url_processo else (
-            f"{BASE_URL}/?r=remote/search&categoria={categoria}"
-        )
+        link_pncp = url_processo if url_processo else (f"{BASE_URL}/?r=remote/search&categoria={categoria}")
 
         data_publicacao = _parse_date(data_pub_raw) or ""
 
@@ -351,8 +360,7 @@ def transform(raw_records: list[dict]) -> list[dict]:
             skipped += 1
 
     if skipped:
-        _logger.info("[DOM-SC] Transform complete: %d records, %d skipped",
-                      len(transformed), skipped)
+        _logger.info("[DOM-SC] Transform complete: %d records, %d skipped", len(transformed), skipped)
     else:
         _logger.info("[DOM-SC] Transform complete: %d records", len(transformed))
 

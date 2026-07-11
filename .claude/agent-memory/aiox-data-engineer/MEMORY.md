@@ -1,2 +1,3 @@
 - [Municipio Name Normalization](municipio_normalization.md) — NFKD-based IBGE name matching with fuzzy fallback strategies
 - [State-Level Entity Handling](state_level_entities.md) — Non-7-digit IBGE codes stored as NULL for state-level entities
+- [Database Validation 2026-07-11](database_validation_jul2026.md) — Schema and data quality baseline: 6 tables, 4.1GB, 3 stuck ingestion runs

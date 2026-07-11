@@ -1,21 +1,18 @@
-# Requirements — Módulo `docs`
+# Docs — Requirements
 
-> 🟢 CONFIRMADO — `docs/architecture/`, `docs/prd/`, `docs/stories/`, `docs/qa/`
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo | Base: e9729e1
 
-## Artefatos de Documentação
+Documentação técnica: diagnósticos TD, arquitetura C4, PRD, quality gates, runbooks, stories.
 
-| Documento | Local | Status |
-|-----------|-------|--------|
-| PRD (Product Requirements Document) | `docs/prd/PRD-consultoria-extra.md` | ✅ Aprovado |
-| Arquitetura C4 (L1+L2) | `docs/architecture/architecture.md` | ✅ Completo |
-| EPIC-001 (7 stories) | `docs/stories/epics/epic-001-100-cobertura/` | ✅ Done |
-| QA Gates (7) | `docs/qa/gates/` | ✅ CONCERNS→Done |
-| Pesquisa TCE-SC ESFINGE | `docs/research/2026-07-10-tce-sc-esfinge/` | ✅ Completo |
-| Guia Hetzner + Supabase | `docs/guides/hetzner-supabase-plan.md` | ✅ Completo |
-| Handoffs de Sessão | `docs/sessions/2026-07/` | ✅ 1 handoff |
+## Requisitos
 
-## MoSCoW
+| ID | Descrição | Prioridade | Fonte |
+|----|----------|-----------|-------|
+| RF-DC01 | Diagnósticos TD: 16 docs (security, query-opt, migration-rebuild, CI/CD, etc.) | Must | `docs/td-001/*.md` |
+| RF-DC02 | Arquitetura C4 L1+L2, brownfield discovery completo | Must | `docs/architecture/*.md` |
+| RF-DC03 | PRD principal + DRAFT technical debt assessment | Must | `docs/prd/*.md` |
+| RF-DC04 | Quality Gates: 26+ YAML definitions | Should | `docs/qa/gates/*.yaml` |
+| RF-DC05 | Runbooks operacionais: backup, monitoring, troubleshooting, onboarding | Must | `docs/ops/*.md` |
+| RF-DC06 | Stories: desenvolvimento estruturado com checkboxes | Should | `docs/stories/` |
 
-- **Must:** PRD, Arquitetura
-- **Should:** Stories, QA Gates, Research
-- **Could:** Guides, Handoffs
+🟡 INFERIDO — Nem todos os docs foram lidos integralmente. Baseado em estrutura de diretórios + amostragem.

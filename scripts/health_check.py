@@ -40,12 +40,15 @@ DISK_CRIT_PCT = 90
 # Checks
 # ---------------------------------------------------------------------------
 
+
 def check_db() -> tuple[bool, str]:
     """Check PostgreSQL connectivity via psql."""
     try:
         result = subprocess.run(
             ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         if result.returncode == 0 and "1" in result.stdout.strip():
             return True, "PostgreSQL OK"
@@ -99,7 +102,10 @@ def check_system() -> tuple[bool, str]:
         mem_total = int(mem.get("MemTotal", "0").split()[0]) // 1024
         mem_avail = int(mem.get("MemAvailable", "0").split()[0]) // 1024
         mem_pct = (1 - mem_avail / mem_total) * 100 if mem_total > 0 else 0
-        return True, f"Load: {load[0]:.1f} {load[1]:.1f} {load[2]:.1f} | Mem: {mem_pct:.0f}% used ({mem_avail}M avail / {mem_total}M total)"
+        return (
+            True,
+            f"Load: {load[0]:.1f} {load[1]:.1f} {load[2]:.1f} | Mem: {mem_pct:.0f}% used ({mem_avail}M avail / {mem_total}M total)",
+        )
     except Exception as e:
         return False, str(e)
 
@@ -107,6 +113,7 @@ def check_system() -> tuple[bool, str]:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     timestamp = datetime.now(UTC).isoformat()

@@ -1,0 +1,152 @@
+1011a1012,1158
+> def _build_status_das_fontes(data: dict, styles: dict) -> list:
+>     """Section: Status das Fontes — data source health with traffic-light indicators (AC-C2)."""
+>     el: list = []
+>     avail = PAGE_WIDTH - 2 * MARGIN
+> 
+>     el.extend(_section_heading("Status das Fontes", styles))
+>     el.append(Spacer(1, 2 * mm))
+> 
+>     bullet = "●"
+> 
+>     # ----- PNCP -----
+>     pncp = data.get("_metadata", {}).get("sources", {}).get("pncp", {})
+>     if pncp:
+>         pncp_errors = pncp.get("errors", 0)
+>         pncp_pages = pncp.get("pages_fetched", 0)
+>         if pncp_errors == 0:
+>             pncp_cor = SIGNAL_GREEN
+>             pncp_status = "OK"
+>             pncp_detalhe = f"{pncp_pages} páginas coletadas sem erros"
+>         elif pncp_errors > max(pncp_pages, 1) * 0.5:
+>             pncp_cor = SIGNAL_RED
+>             pncp_status = "CRÍTICO"
+>             pncp_detalhe = f"{pncp_errors} erros em {pncp_pages} páginas — dados podem estar incompletos"
+>         else:
+>             pncp_cor = SIGNAL_AMBER
+>             pncp_status = "ALERTA"
+>             pncp_detalhe = f"{pncp_errors} erros em {pncp_pages} páginas"
+>     else:
+>         pncp_cor = TEXT_MUTED
+>         pncp_status = "N/I"
+>         pncp_detalhe = "Fonte não consultada"
+> 
+>     # ----- SICAF -----
+>     sicaf_val = data.get("empresa", {}).get("sicaf", {})
+>     if isinstance(sicaf_val, dict) and sicaf_val.get("status") in ("OK", "REGULAR", "DISPONIVEL"):
+>         sicaf_cor = SIGNAL_GREEN
+>         sicaf_status = "OK"
+>         sicaf_detalhe = "Situação cadastral verificada"
+>     elif isinstance(sicaf_val, dict) and sicaf_val.get("status"):
+>         sicaf_cor = SIGNAL_RED
+>         sicaf_status = "INDISPONÍVEL"
+>         sicaf_detalhe = sicaf_val.get("error_detail") or sicaf_val.get("status", "Falha na coleta")
+>     elif isinstance(sicaf_val, dict) and not sicaf_val:
+>         sicaf_cor = TEXT_MUTED
+>         sicaf_status = "N/I"
+>         sicaf_detalhe = "SICAF não foi coletado"
+>     else:
+>         sicaf_cor = SIGNAL_RED
+>         sicaf_status = "INDISPONÍVEL"
+>         sicaf_detalhe = "Dado não disponível"
+> 
+>     # ----- Portal Transparência -----
+>     sancoes_src = data.get("empresa", {}).get("sancoes_source", {})
+>     if isinstance(sancoes_src, dict):
+>         sa_st = (sancoes_src.get("status") or "").upper()
+>         if sa_st in ("OK", "DISPONIVEL"):
+>             pt_cor = SIGNAL_GREEN
+>             pt_status = "OK"
+>             pt_detalhe = "Sanções e contratos verificados"
+>         elif sa_st in ("UNAVAILABLE", "NAO_CONFIGURADO"):
+>             pt_cor = SIGNAL_RED
+>             pt_status = "NÃO CONFIGURADO"
+>             pt_detalhe = sancoes_src.get("detail", "Sem chave API configurada")
+>         elif sa_st in ("FALHA_COLETA", "API_FAILED"):
+>             pt_cor = SIGNAL_RED
+>             pt_status = "FALHA"
+>             pt_detalhe = sancoes_src.get("detail", "Erro na coleta")
+>         else:
+>             pt_cor = SIGNAL_GREEN
+>             pt_status = "OK"
+>             pt_detalhe = "Disponível"
+>     else:
+>         pt_cor = TEXT_MUTED
+>         pt_status = "N/I"
+>         pt_detalhe = "Não verificado"
+> 
+>     # ----- TCU -----
+>     tcu_val = data.get("empresa", {}).get("tcu", {})
+>     if isinstance(tcu_val, dict):
+>         if tcu_val.get("_tcu_status") == "TCU_INDISPONIVEL":
+>             tcu_cor = SIGNAL_RED
+>             tcu_status = "INDISPONÍVEL"
+>             tcu_detalhe = "API TCU indisponível no momento da consulta"
+>         elif tcu_val.get("certidoes") is not None:
+>             tcu_cor = SIGNAL_GREEN
+>             tcu_status = "OK"
+>             n_cert = len(tcu_val.get("certidoes", []))
+>             tcu_detalhe = f"{n_cert} certidão(ões) verificada(s)"
+>         else:
+>             tcu_cor = TEXT_MUTED
+>             tcu_status = "N/I"
+>             tcu_detalhe = "TCU não consultado"
+>     else:
+>         tcu_cor = TEXT_MUTED
+>         tcu_status = "N/I"
+>         tcu_detalhe = "Não consultado"
+> 
+>     # ----- Build Table -----
+>     rows = [
+>         [
+>             Paragraph("Fonte", styles["cell_header"]),
+>             Paragraph("Status", styles["cell_header_center"]),
+>             Paragraph("Detalhes", styles["cell_header"]),
+>         ],
+>     ]
+> 
+>     for fonte, cor, status, detalhe in [
+>         ("PNCP", pncp_cor, pncp_status, pncp_detalhe),
+>         ("SICAF", sicaf_cor, sicaf_status, sicaf_detalhe),
+>         ("Portal Transparência", pt_cor, pt_status, pt_detalhe),
+>         ("TCU", tcu_cor, tcu_status, tcu_detalhe),
+>     ]:
+>         rows.append([
+>             Paragraph(fonte, styles["cell"]),
+>             Paragraph(
+>                 f'<font color="{cor.hexval()}">{bullet}</font>  {status}',
+>                 ParagraphStyle("sc_status", parent=styles["cell_center"], fontSize=7),
+>             ),
+>             Paragraph(
+>                 f'<font color="{TEXT_SECONDARY.hexval()}">{detalhe}</font>',
+>                 ParagraphStyle("sc_detalhe", parent=styles["cell"], fontSize=7, textColor=TEXT_SECONDARY),
+>             ),
+>         ])
+> 
+>     col_widths = [avail * 0.18, avail * 0.24, avail * 0.58]
+>     el.append(_three_rule_table(rows, col_widths))
+> 
+>     # Impact note
+>     has_issues = any(s.upper() in ("CRITICO", "CRÍTICO", "ALERTA", "INDISPONÍVEL", "NÃO CONFIGURADO", "FALHA") for _, _, s, _ in [
+>         ("PNCP", pncp_cor, pncp_status, pncp_detalhe),
+>         ("SICAF", sicaf_cor, sicaf_status, sicaf_detalhe),
+>         ("Portal Transparência", pt_cor, pt_status, pt_detalhe),
+>         ("TCU", tcu_cor, tcu_status, tcu_detalhe),
+>     ])
+>     if has_issues:
+>         el.append(Spacer(1, 3 * mm))
+>         el.append(Paragraph(
+>             "<b>Impacto na análise:</b> Fontes com status amarelo ou vermelho indicam "
+>             "que parte dos dados pode estar incompleta ou desatualizada. "
+>             "Recomenda-se verificar as fontes diretamente nos portais oficiais "
+>             "antes de tomar decisões de participação.",
+>             ParagraphStyle("sc_impacto", parent=styles["caption"], fontSize=6.5),
+>         ))
+> 
+>     return el
+> 
+> 
+2078a2226,2228
+> 
+>     # Status das Fontes (AC-C2) — data source health with traffic-light indicators
+>     elements.extend(_build_status_das_fontes(data, styles))

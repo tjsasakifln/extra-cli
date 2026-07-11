@@ -12,6 +12,7 @@ Para implementacao completa:
 
 Status retornado: SICAF_NAO_DISPONIVEL
 """
+
 from __future__ import annotations
 
 import json

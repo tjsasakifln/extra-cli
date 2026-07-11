@@ -37,13 +37,12 @@ import json
 import os
 import sys
 import time
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 from datalake_helper import DatalakeClient  # noqa: E402
-
 
 _DEFAULT_OPPORTUNITY_LIMIT = 30
 _OPENCNPJ_URL = "https://api.opencnpj.org/{cnpj}"
@@ -52,6 +51,7 @@ _OPENCNPJ_URL = "https://api.opencnpj.org/{cnpj}"
 # ---------------------------------------------------------------------------
 # Sectors helper (reuso minimo do radar pattern)
 # ---------------------------------------------------------------------------
+
 
 def load_sectors() -> dict:
     repo_root = Path(__file__).parent.parent
@@ -89,6 +89,7 @@ def _tsquery_or(keywords: list[str]) -> str | None:
 # ---------------------------------------------------------------------------
 # OpenCNPJ live fetch (cache miss)
 # ---------------------------------------------------------------------------
+
 
 def _opencnpj_live(cnpj14: str) -> dict | None:
     try:
@@ -129,6 +130,7 @@ def _normalize_perfil(opencnpj_data: dict | None) -> dict:
 # ---------------------------------------------------------------------------
 # Performance metrics
 # ---------------------------------------------------------------------------
+
 
 def compute_performance(
     contratos_3m: list[dict],
@@ -191,6 +193,7 @@ def compute_performance(
 # ---------------------------------------------------------------------------
 # Per-CNPJ collection
 # ---------------------------------------------------------------------------
+
 
 def collect_for_cnpj(
     cnpj14: str,
@@ -269,18 +272,21 @@ def collect_for_cnpj(
                     return (-valor, dias_ate)
 
                 ranked = sorted(ops, key=ranking)[:_DEFAULT_OPPORTUNITY_LIMIT]
-                oportunidades = [{
-                    "pncp_id": b.get("pncp_id"),
-                    "objeto_compra": b.get("objeto_compra"),
-                    "valor_total_estimado": float(b.get("valor_total_estimado") or 0),
-                    "uf": b.get("uf"),
-                    "municipio": b.get("municipio"),
-                    "orgao_cnpj": b.get("orgao_cnpj"),
-                    "orgao_razao_social": b.get("orgao_razao_social"),
-                    "modalidade_nome": b.get("modalidade_nome"),
-                    "data_encerramento": b.get("data_encerramento"),
-                    "link_pncp": b.get("link_pncp"),
-                } for b in ranked]
+                oportunidades = [
+                    {
+                        "pncp_id": b.get("pncp_id"),
+                        "objeto_compra": b.get("objeto_compra"),
+                        "valor_total_estimado": float(b.get("valor_total_estimado") or 0),
+                        "uf": b.get("uf"),
+                        "municipio": b.get("municipio"),
+                        "orgao_cnpj": b.get("orgao_cnpj"),
+                        "orgao_razao_social": b.get("orgao_razao_social"),
+                        "modalidade_nome": b.get("modalidade_nome"),
+                        "data_encerramento": b.get("data_encerramento"),
+                        "link_pncp": b.get("link_pncp"),
+                    }
+                    for b in ranked
+                ]
 
     # Concorrência: top competitors do orgão TOP do cliente (sinal churn)
     competitors_top_orgao: list[dict] = []
@@ -318,13 +324,14 @@ def collect_for_cnpj(
         "warnings": warnings,
         "contratos_meta": contratos_meta,
         "fonte": fonte,
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
 
 
 # ---------------------------------------------------------------------------
 # Carteira loading
 # ---------------------------------------------------------------------------
+
 
 def load_carteira(path: Path) -> list[dict]:
     if not path.exists():
@@ -337,6 +344,7 @@ def load_carteira(path: Path) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Retention B2G — DataLake-first")
@@ -354,9 +362,13 @@ def main() -> int:
 
     sectors = load_sectors()
     dl = DatalakeClient()
-    use_dl = (not args.no_datalake) and os.getenv("DATALAKE_QUERY_ENABLED", "").lower() in ("true", "1") and dl.is_enabled
+    use_dl = (
+        (not args.no_datalake) and os.getenv("DATALAKE_QUERY_ENABLED", "").lower() in ("true", "1") and dl.is_enabled
+    )
     if not use_dl:
-        print("AVISO: DataLake desabilitado — collect parcial (perfil live + sem contratos historicos).", file=sys.stderr)
+        print(
+            "AVISO: DataLake desabilitado — collect parcial (perfil live + sem contratos historicos).", file=sys.stderr
+        )
 
     ufs_filtro = [u.strip().upper() for u in (args.uf or "").split(",") if u.strip()]
 
@@ -373,13 +385,17 @@ def main() -> int:
             setor = c.get("setor") or args.setor
             kws = list(set(keywords_from_setor(setor, sectors) + (c.get("keywords_extras") or [])))
             ufs_c = ufs_filtro or [u.upper() for u in (c.get("ufs_interesse") or [])]
-            print(f"[retention] {cnpj14} | {c.get('nome_fantasia','?')[:30]} | setor={setor} | kws={len(kws)} | ufs={ufs_c}")
+            print(
+                f"[retention] {cnpj14} | {c.get('nome_fantasia', '?')[:30]} | setor={setor} | kws={len(kws)} | ufs={ufs_c}"
+            )
             t = time.time()
             res = collect_for_cnpj(cnpj14, args.meses, setor, kws, ufs_c, dl, use_dl)
             res["nome_fantasia_carteira"] = c.get("nome_fantasia")
             res["pacote"] = c.get("pacote")
-            print(f"  {time.time()-t:.1f}s | contratos_3m={res['performance']['contratos_3m']} "
-                  f"oportunidades={len(res['oportunidades'])} warnings={len(res['warnings'])}")
+            print(
+                f"  {time.time() - t:.1f}s | contratos_3m={res['performance']['contratos_3m']} "
+                f"oportunidades={len(res['oportunidades'])} warnings={len(res['warnings'])}"
+            )
             out_clientes.append(res)
 
         payload = {
@@ -387,7 +403,7 @@ def main() -> int:
             "n_clientes": len(out_clientes),
             "clientes": out_clientes,
             "fonte": "datalake" if use_dl else "live_only",
-            "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
             "flags": {"health": args.health, "upsell": args.upsell, "churn_risk": args.churn_risk},
         }
     else:
@@ -401,8 +417,10 @@ def main() -> int:
         t = time.time()
         payload = collect_for_cnpj(cnpj14, args.meses, setor, kws, ufs_filtro, dl, use_dl)
         payload["flags"] = {"health": args.health, "upsell": args.upsell, "churn_risk": args.churn_risk}
-        print(f"  {time.time()-t:.1f}s | contratos_3m={payload['performance']['contratos_3m']} "
-              f"oportunidades={len(payload['oportunidades'])} warnings={len(payload['warnings'])}")
+        print(
+            f"  {time.time() - t:.1f}s | contratos_3m={payload['performance']['contratos_3m']} "
+            f"oportunidades={len(payload['oportunidades'])} warnings={len(payload['warnings'])}"
+        )
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)

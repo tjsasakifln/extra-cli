@@ -11,7 +11,7 @@ Responsibilities:
 
 import hashlib
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -20,12 +20,13 @@ logger = logging.getLogger(__name__)
 # STORY-2.12 AC4: conservative fallback — one day before "now" so the row is
 # visible in the default 10-day search window but not masquerading as fresh.
 def _date_fallback_iso() -> str:
-    return (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    return (datetime.now(UTC) - timedelta(days=1)).isoformat()
 
 
 # ---------------------------------------------------------------------------
 # Hash helpers
 # ---------------------------------------------------------------------------
+
 
 def compute_content_hash(item: dict) -> str:
     """Return SHA-256 hex digest of the key business fields.
@@ -36,9 +37,7 @@ def compute_content_hash(item: dict) -> str:
     """
     objeto = (item.get("objetoCompra") or "").lower().strip()
     valor = str(item.get("valorTotalEstimado") or "")
-    situacao = (
-        item.get("situacaoCompraNome") or item.get("situacaoCompra") or ""
-    ).lower().strip()
+    situacao = (item.get("situacaoCompraNome") or item.get("situacaoCompra") or "").lower().strip()
 
     canonical = f"{objeto}|{valor}|{situacao}"
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
@@ -47,6 +46,7 @@ def compute_content_hash(item: dict) -> str:
 # ---------------------------------------------------------------------------
 # Single-item transformer
 # ---------------------------------------------------------------------------
+
 
 def transform_pncp_item(
     raw_item: dict,
@@ -69,9 +69,7 @@ def transform_pncp_item(
     """
     pncp_id: str = raw_item.get("numeroControlePNCP", "").strip()
     if not pncp_id:
-        raise ValueError(
-            "Raw item is missing 'numeroControlePNCP' — cannot build row without a unique key."
-        )
+        raise ValueError("Raw item is missing 'numeroControlePNCP' — cannot build row without a unique key.")
 
     # ------------------------------------------------------------------
     # Orgao / unidade helpers — PNCP nests these differently per endpoint
@@ -96,11 +94,7 @@ def transform_pncp_item(
     # ------------------------------------------------------------------
     uf: str = unidade.get("ufSigla") or raw_item.get("uf") or ""
     municipio: str = unidade.get("municipioNome") or raw_item.get("municipioNome") or ""
-    codigo_municipio_ibge: str = (
-        unidade.get("codigoMunicipioIbge")
-        or raw_item.get("codigoMunicipioIbge")
-        or ""
-    )
+    codigo_municipio_ibge: str = unidade.get("codigoMunicipioIbge") or raw_item.get("codigoMunicipioIbge") or ""
 
     # ------------------------------------------------------------------
     # Orgao / esfera
@@ -109,10 +103,7 @@ def transform_pncp_item(
     esfera_id = orgao.get("esferaId") or raw_item.get("esferaId")
 
     orgao_razao_social: str = (
-        orgao.get("razaoSocial")
-        or unidade.get("nomeUnidade")
-        or raw_item.get("razaoSocial")
-        or ""
+        orgao.get("razaoSocial") or unidade.get("nomeUnidade") or raw_item.get("razaoSocial") or ""
     )
     orgao_cnpj: str = orgao.get("cnpj") or raw_item.get("cnpj") or ""
     unidade_nome: str = unidade.get("nomeUnidade") or raw_item.get("nomeUnidade") or ""
@@ -140,9 +131,7 @@ def transform_pncp_item(
     # Links
     # ------------------------------------------------------------------
     link_sistema_origem: str = raw_item.get("linkSistemaOrigem") or ""
-    link_pncp: str = (
-        f"https://pncp.gov.br/app/editais/{pncp_id}" if pncp_id else ""
-    )
+    link_pncp: str = f"https://pncp.gov.br/app/editais/{pncp_id}" if pncp_id else ""
 
     # ------------------------------------------------------------------
     # Content hash for change detection
@@ -179,6 +168,7 @@ def transform_pncp_item(
 # ---------------------------------------------------------------------------
 # Batch helper
 # ---------------------------------------------------------------------------
+
 
 def transform_batch(
     items: list[dict],

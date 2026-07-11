@@ -15,6 +15,7 @@ Usage:
 
 Input JSON schema: see SCHEMA section below.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -22,19 +23,19 @@ import copy
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 try:
+    from reportlab.graphics.shapes import Drawing, Polygon, Rect, String
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import cm, mm
     from reportlab.pdfgen import canvas as pdfgen_canvas
-    from reportlab.graphics.shapes import Drawing, Rect, String, Polygon
     from reportlab.platypus import (
         KeepTogether,
         PageBreak,
@@ -54,19 +55,19 @@ except ImportError:
 # Principles: restraint, gravitas, whitespace, monocromia, open tables
 
 # Palette — 3 colors + gray scale
-INK = colors.HexColor("#1B2A3D")           # Charcoal navy — headings, emphasis
-ACCENT = colors.HexColor("#8B7355")        # Warm bronze — subtle accents
-SIGNAL_RED = colors.HexColor("#B5342A")    # Muted red — critical alerts only
+INK = colors.HexColor("#1B2A3D")  # Charcoal navy — headings, emphasis
+ACCENT = colors.HexColor("#8B7355")  # Warm bronze — subtle accents
+SIGNAL_RED = colors.HexColor("#B5342A")  # Muted red — critical alerts only
 SIGNAL_GREEN = colors.HexColor("#1B7A3D")  # Muted green — positive recommendations
 SIGNAL_AMBER = colors.HexColor("#B8860B")  # Dark goldenrod — cautionary recommendations
 
-TEXT_COLOR = colors.HexColor("#2D3748")    # Body text
+TEXT_COLOR = colors.HexColor("#2D3748")  # Body text
 TEXT_SECONDARY = colors.HexColor("#5A6577")  # Subtitles, labels
-LINK_BLUE = colors.HexColor("#1a56db")      # Visible link color — clickable elements
-TEXT_MUTED = colors.HexColor("#8896A6")    # Footnotes, metadata
-RULE_COLOR = colors.HexColor("#C8CDD3")   # Table inner rules (hairline)
-RULE_HEAVY = colors.HexColor("#4A5568")    # Table top rule (heavy)
-BG_SUBTLE = colors.HexColor("#F5F6F8")    # Rare subtle background
+LINK_BLUE = colors.HexColor("#1a56db")  # Visible link color — clickable elements
+TEXT_MUTED = colors.HexColor("#8896A6")  # Footnotes, metadata
+RULE_COLOR = colors.HexColor("#C8CDD3")  # Table inner rules (hairline)
+RULE_HEAVY = colors.HexColor("#4A5568")  # Table top rule (heavy)
+BG_SUBTLE = colors.HexColor("#F5F6F8")  # Rare subtle background
 
 FOOTER_LINE1 = "Tiago Sasaki — Consultor de Inteligência em Licitações"
 FOOTER_LINE2 = "Relatório confidencial preparado exclusivamente para o destinatário"
@@ -102,138 +103,251 @@ SOURCE_LABELS = {
 # ACCENT RESTORATION (API data often lacks PT-BR diacritics)
 # ============================================================
 _ACCENT_MAP = {
-    "construcao": "construção", "construcoes": "construções",
-    "licitacao": "licitação", "licitacoes": "licitações",
-    "contratacao": "contratação", "contratacoes": "contratações",
-    "pavimentacao": "pavimentação", "habitacao": "habitação",
-    "edificacao": "edificação", "edificacoes": "edificações",
-    "ampliacao": "ampliação", "revitalizacao": "revitalização",
-    "execucao": "execução", "manutencao": "manutenção",
-    "atencao": "atenção", "educacao": "educação",
-    "implantacao": "implantação", "instalacao": "instalação",
-    "instalacoes": "instalações", "fundacao": "fundação",
-    "recreacao": "recreação", "recuperacao": "recuperação",
-    "reabilitacao": "reabilitação", "fiscalizacao": "fiscalização",
-    "sinalizacao": "sinalização", "urbanizacao": "urbanização",
+    "construcao": "construção",
+    "construcoes": "construções",
+    "licitacao": "licitação",
+    "licitacoes": "licitações",
+    "contratacao": "contratação",
+    "contratacoes": "contratações",
+    "pavimentacao": "pavimentação",
+    "habitacao": "habitação",
+    "edificacao": "edificação",
+    "edificacoes": "edificações",
+    "ampliacao": "ampliação",
+    "revitalizacao": "revitalização",
+    "execucao": "execução",
+    "manutencao": "manutenção",
+    "atencao": "atenção",
+    "educacao": "educação",
+    "implantacao": "implantação",
+    "instalacao": "instalação",
+    "instalacoes": "instalações",
+    "fundacao": "fundação",
+    "recreacao": "recreação",
+    "recuperacao": "recuperação",
+    "reabilitacao": "reabilitação",
+    "fiscalizacao": "fiscalização",
+    "sinalizacao": "sinalização",
+    "urbanizacao": "urbanização",
     "impermeabilizacao": "impermeabilização",
-    "adequacao": "adequação", "adequacoes": "adequações",
-    "operacao": "operação", "operacoes": "operações",
-    "medicao": "medição", "medicoes": "medições",
-    "informacao": "informação", "informacoes": "informações",
-    "situacao": "situação", "avaliacao": "avaliação",
-    "qualificacao": "qualificação", "habilitacao": "habilitação",
-    "documentacao": "documentação", "certificacao": "certificação",
-    "certificacoes": "certificações", "restricao": "restrição",
-    "restricoes": "restrições", "sancao": "sanção", "sancoes": "sanções",
-    "pregao": "pregão", "concorrencia": "concorrência",
-    "eletronica": "eletrônica", "eletronicas": "eletrônicas",
-    "eletrica": "elétrica", "eletricas": "elétricas",
-    "tecnico": "técnico", "tecnica": "técnica",
-    "tecnicas": "técnicas", "tecnicos": "técnicos",
-    "economico": "econômico", "economica": "econômica",
-    "municipio": "município", "municipios": "municípios",
-    "orgao": "órgão", "orgaos": "órgãos",
-    "publico": "público", "publica": "pública",
-    "publicos": "públicos", "publicas": "públicas",
-    "indice": "índice", "indices": "índices",
-    "area": "área", "areas": "áreas",
-    "agua": "água", "aguas": "águas",
-    "analise": "análise", "analises": "análises",
-    "registro": "registro", "minimo": "mínimo", "minima": "mínima",
-    "maximo": "máximo", "maxima": "máxima",
-    "necessario": "necessário", "necessaria": "necessária",
-    "necessarios": "necessários", "necessarias": "necessárias",
-    "especifico": "específico", "especifica": "específica",
-    "especificos": "específicos", "historico": "histórico",
-    "historica": "histórica", "obrigatorio": "obrigatório",
-    "obrigatoria": "obrigatória", "provisorio": "provisório",
-    "viavel": "viável", "responsavel": "responsável",
-    "compativel": "compatível", "acessivel": "acessível",
-    "gerenciavel": "gerenciável", "possivel": "possível",
-    "impossivel": "impossível", "provavel": "provável",
+    "adequacao": "adequação",
+    "adequacoes": "adequações",
+    "operacao": "operação",
+    "operacoes": "operações",
+    "medicao": "medição",
+    "medicoes": "medições",
+    "informacao": "informação",
+    "informacoes": "informações",
+    "situacao": "situação",
+    "avaliacao": "avaliação",
+    "qualificacao": "qualificação",
+    "habilitacao": "habilitação",
+    "documentacao": "documentação",
+    "certificacao": "certificação",
+    "certificacoes": "certificações",
+    "restricao": "restrição",
+    "restricoes": "restrições",
+    "sancao": "sanção",
+    "sancoes": "sanções",
+    "pregao": "pregão",
+    "concorrencia": "concorrência",
+    "eletronica": "eletrônica",
+    "eletronicas": "eletrônicas",
+    "eletrica": "elétrica",
+    "eletricas": "elétricas",
+    "tecnico": "técnico",
+    "tecnica": "técnica",
+    "tecnicas": "técnicas",
+    "tecnicos": "técnicos",
+    "economico": "econômico",
+    "economica": "econômica",
+    "municipio": "município",
+    "municipios": "municípios",
+    "orgao": "órgão",
+    "orgaos": "órgãos",
+    "publico": "público",
+    "publica": "pública",
+    "publicos": "públicos",
+    "publicas": "públicas",
+    "indice": "índice",
+    "indices": "índices",
+    "area": "área",
+    "areas": "áreas",
+    "agua": "água",
+    "aguas": "águas",
+    "analise": "análise",
+    "analises": "análises",
+    "registro": "registro",
+    "minimo": "mínimo",
+    "minima": "mínima",
+    "maximo": "máximo",
+    "maxima": "máxima",
+    "necessario": "necessário",
+    "necessaria": "necessária",
+    "necessarios": "necessários",
+    "necessarias": "necessárias",
+    "especifico": "específico",
+    "especifica": "específica",
+    "especificos": "específicos",
+    "historico": "histórico",
+    "historica": "histórica",
+    "obrigatorio": "obrigatório",
+    "obrigatoria": "obrigatória",
+    "provisorio": "provisório",
+    "viavel": "viável",
+    "responsavel": "responsável",
+    "compativel": "compatível",
+    "acessivel": "acessível",
+    "gerenciavel": "gerenciável",
+    "possivel": "possível",
+    "impossivel": "impossível",
+    "provavel": "provável",
     "disponivel": "disponível",
-    "nao": "não", "ja": "já", "tambem": "também",
-    "ate": "até", "apos": "após", "so": "só",
-    "sera": "será", "serao": "serão",
+    "nao": "não",
+    "ja": "já",
+    "tambem": "também",
+    "ate": "até",
+    "apos": "após",
+    "so": "só",
+    "sera": "será",
+    "serao": "serão",
     "voce": "você",
     "recomendacao": "recomendação",
-    "preco": "preço", "precos": "preços",
-    "orcamento": "orçamento", "orcamentos": "orçamentos",
-    "orcado": "orçado", "servico": "serviço", "servicos": "serviços",
-    "acervo": "acervo", "sessao": "sessão",
-    "competicao": "competição", "competicoes": "competições",
-    "reputacao": "reputação", "precificacao": "precificação",
+    "preco": "preço",
+    "precos": "preços",
+    "orcamento": "orçamento",
+    "orcamentos": "orçamentos",
+    "orcado": "orçado",
+    "servico": "serviço",
+    "servicos": "serviços",
+    "acervo": "acervo",
+    "sessao": "sessão",
+    "competicao": "competição",
+    "competicoes": "competições",
+    "reputacao": "reputação",
+    "precificacao": "precificação",
     "associacao": "associação",
-    "vigencia": "vigência", "exigencia": "exigência",
-    "exigencias": "exigências", "frequencia": "frequência",
+    "vigencia": "vigência",
+    "exigencia": "exigência",
+    "exigencias": "exigências",
+    "frequencia": "frequência",
     "discrepancia": "discrepância",
-    "pratica": "prática", "praticas": "práticas",
-    "ceramico": "cerâmico", "ceramica": "cerâmica",
-    "metalica": "metálica", "metalico": "metálico",
+    "pratica": "prática",
+    "praticas": "práticas",
+    "ceramico": "cerâmico",
+    "ceramica": "cerâmica",
+    "metalica": "metálica",
+    "metalico": "metálico",
     "termoacustico": "termoacústico",
-    "logistica": "logística", "basica": "básica",
+    "logistica": "logística",
+    "basica": "básica",
     "estrategia": "estratégia",
     # E9 — termos faltantes (construção, licitação, jurídico)
-    "demolicao": "demolição", "demolicoes": "demolições",
-    "aprovacao": "aprovação", "aprovacoes": "aprovações",
-    "orcamentario": "orçamentário", "orcamentaria": "orçamentária",
-    "contribuicao": "contribuição", "contribuicoes": "contribuições",
-    "resolucao": "resolução", "resolucoes": "resoluções",
-    "suspensao": "suspensão", "suspensoes": "suspensões",
-    "impugnacao": "impugnação", "impugnacoes": "impugnações",
-    "rescisao": "rescisão", "rescisoes": "rescisões",
-    "homologacao": "homologação", "homologacoes": "homologações",
-    "adjudicacao": "adjudicação", "adjudicacoes": "adjudicações",
-    "revogacao": "revogação", "revogacoes": "revogações",
-    "anulacao": "anulação", "anulacoes": "anulações",
-    "inspecao": "inspeção", "inspecoes": "inspeções",
-    "isencao": "isenção", "isencoes": "isenções",
-    "aquisicao": "aquisição", "aquisicoes": "aquisições",
-    "consultorio": "consultório", "consultorios": "consultórios",
-    "obrigacao": "obrigação", "obrigacoes": "obrigações",
-    "proporcao": "proporção", "proporcoes": "proporções",
-    "alteracao": "alteração", "alteracoes": "alterações",
-    "cotacao": "cotação", "cotacoes": "cotações",
-    "publicacao": "publicação", "publicacoes": "publicações",
+    "demolicao": "demolição",
+    "demolicoes": "demolições",
+    "aprovacao": "aprovação",
+    "aprovacoes": "aprovações",
+    "orcamentario": "orçamentário",
+    "orcamentaria": "orçamentária",
+    "contribuicao": "contribuição",
+    "contribuicoes": "contribuições",
+    "resolucao": "resolução",
+    "resolucoes": "resoluções",
+    "suspensao": "suspensão",
+    "suspensoes": "suspensões",
+    "impugnacao": "impugnação",
+    "impugnacoes": "impugnações",
+    "rescisao": "rescisão",
+    "rescisoes": "rescisões",
+    "homologacao": "homologação",
+    "homologacoes": "homologações",
+    "adjudicacao": "adjudicação",
+    "adjudicacoes": "adjudicações",
+    "revogacao": "revogação",
+    "revogacoes": "revogações",
+    "anulacao": "anulação",
+    "anulacoes": "anulações",
+    "inspecao": "inspeção",
+    "inspecoes": "inspeções",
+    "isencao": "isenção",
+    "isencoes": "isenções",
+    "aquisicao": "aquisição",
+    "aquisicoes": "aquisições",
+    "consultorio": "consultório",
+    "consultorios": "consultórios",
+    "obrigacao": "obrigação",
+    "obrigacoes": "obrigações",
+    "proporcao": "proporção",
+    "proporcoes": "proporções",
+    "alteracao": "alteração",
+    "alteracoes": "alterações",
+    "cotacao": "cotação",
+    "cotacoes": "cotações",
+    "publicacao": "publicação",
+    "publicacoes": "publicações",
     "participacao": "participação",
-    "classificacao": "classificação", "classificacoes": "classificações",
+    "classificacao": "classificação",
+    "classificacoes": "classificações",
     "dispensacao": "dispensação",
     "desclassificacao": "desclassificação",
     "improcedencia": "improcedência",
-    "juridico": "jurídico", "juridica": "jurídica",
-    "juridicos": "jurídicos", "juridicas": "jurídicas",
-    "relatorio": "relatório", "relatorios": "relatórios",
-    "valido": "válido", "valida": "válida",
-    "solido": "sólido", "solida": "sólida",
-    "unico": "único", "unica": "única",
-    "unicos": "únicos", "unicas": "únicas",
+    "juridico": "jurídico",
+    "juridica": "jurídica",
+    "juridicos": "jurídicos",
+    "juridicas": "jurídicas",
+    "relatorio": "relatório",
+    "relatorios": "relatórios",
+    "valido": "válido",
+    "valida": "válida",
+    "solido": "sólido",
+    "solida": "sólida",
+    "unico": "único",
+    "unica": "única",
+    "unicos": "únicos",
+    "unicas": "únicas",
     "inteligencia": "inteligência",
-    "referencia": "referência", "referencias": "referências",
-    "potencia": "potência", "potencial": "potencial",
-    "suficiencia": "suficiência", "insuficiencia": "insuficiência",
-    "eficiencia": "eficiência", "deficiencia": "deficiência",
-    "presidencia": "presidência", "gerencia": "gerência",
+    "referencia": "referência",
+    "referencias": "referências",
+    "potencia": "potência",
+    "potencial": "potencial",
+    "suficiencia": "suficiência",
+    "insuficiencia": "insuficiência",
+    "eficiencia": "eficiência",
+    "deficiencia": "deficiência",
+    "presidencia": "presidência",
+    "gerencia": "gerência",
     "transparencia": "transparência",
-    "denuncia": "denúncia", "denuncias": "denúncias",
+    "denuncia": "denúncia",
+    "denuncias": "denúncias",
     "comercio": "comércio",
     "patrimonio": "patrimônio",
-    "territorio": "território", "territorios": "territórios",
-    "beneficio": "benefício", "beneficios": "benefícios",
-    "edificio": "edifício", "edificios": "edifícios",
-    "exercicio": "exercício", "exercicios": "exercícios",
-    "previo": "prévio", "previa": "prévia",
+    "territorio": "território",
+    "territorios": "territórios",
+    "beneficio": "benefício",
+    "beneficios": "benefícios",
+    "edificio": "edifício",
+    "edificios": "edifícios",
+    "exercicio": "exercício",
+    "exercicios": "exercícios",
+    "previo": "prévio",
+    "previa": "prévia",
     "obice": "óbice",
-    "veiculos": "veículos", "veiculo": "veículo",
+    "veiculos": "veículos",
+    "veiculo": "veículo",
     "residuos": "resíduos",
     "conteudo": "conteúdo",
-    "periodo": "período", "periodos": "períodos",
-    "criterio": "critério", "criterios": "critérios",
+    "periodo": "período",
+    "periodos": "períodos",
+    "criterio": "critério",
+    "criterios": "critérios",
     "equilibrio": "equilíbrio",
     "portfolio": "portfólio",
-    "diagnostico": "diagnóstico", "diagnosticos": "diagnósticos",
+    "diagnostico": "diagnóstico",
+    "diagnosticos": "diagnósticos",
     "cobertura": "cobertura",
     "mobilizacao": "mobilização",
-    "regiao": "região", "regioes": "regiões",
+    "regiao": "região",
+    "regioes": "regiões",
 }
 
 _ACCENT_PATTERN = re.compile(
@@ -259,12 +373,8 @@ def _restore_accents(text: str) -> str:
     return _ACCENT_PATTERN.sub(_replace, text)
 
 
-_PNCP_HYPHEN_LINK_RE = re.compile(
-    r"https://pncp\.gov\.br/app/editais/(\d{14})-(\d{4})-(\d+)$"
-)
-_PNCP_SEARCH_LINK_RE = re.compile(
-    r"https://pncp\.gov\.br/app/editais\?q="
-)
+_PNCP_HYPHEN_LINK_RE = re.compile(r"https://pncp\.gov\.br/app/editais/(\d{14})-(\d{4})-(\d+)$")
+_PNCP_SEARCH_LINK_RE = re.compile(r"https://pncp\.gov\.br/app/editais\?q=")
 
 
 # ============================================================
@@ -285,6 +395,7 @@ CURRENCY_CORRUPT_NOTE = "* Valor original não numérico no dado-fonte"
 # ============================================================
 # HELPERS
 # ============================================================
+
 
 def _normalize_recommendation(rec: str) -> str:
     rec = rec.strip().upper()
@@ -339,7 +450,7 @@ def _validate_json(data: dict) -> tuple[list[str], list[str]]:
         if rec and rec != "DESCARTADO" and status != "ENCERRADO" and not ed.get("justificativa"):
             errors.append(
                 f"edital[{i}].justificativa ausente — recomendação '{rec}' "
-                f"para \"{(ed.get('objeto') or 'sem título')[:60]}\" não tem fundamentação"
+                f'para "{(ed.get("objeto") or "sem título")[:60]}" não tem fundamentação'
             )
     if warnings:
         print(f"  Validação JSON: {len(warnings)} avisos")
@@ -445,7 +556,7 @@ def _date(value: str | None) -> str:
 
 
 def _today() -> str:
-    return datetime.now(timezone.utc).strftime("%d/%m/%Y")
+    return datetime.now(UTC).strftime("%d/%m/%Y")
 
 
 def _trunc(text: str, n: int = 100) -> str:
@@ -521,6 +632,7 @@ def _collapse_cnaes(cnaes: Any, max_show: int = 5) -> str:
 # THREE-RULE TABLE HELPER
 # ============================================================
 
+
 def _three_rule_table(rows: list, col_widths: list, repeat_rows: int = 1) -> Table:
     """Create a table with Big Four 'three-rule' styling.
 
@@ -553,15 +665,20 @@ def _three_rule_table(rows: list, col_widths: list, repeat_rows: int = 1) -> Tab
 # SECTION HEADING HELPER
 # ============================================================
 
+
 def _section_heading(title: str, styles: dict) -> list:
     """Create a minimal section heading: thin bronze rule + serif title."""
     avail = PAGE_WIDTH - 2 * MARGIN
-    rule_t = Table([[""]],  colWidths=[avail], rowHeights=[1])
-    rule_t.setStyle(TableStyle([
-        ("LINEBELOW", (0, 0), (0, 0), 0.6, ACCENT),
-        ("TOPPADDING", (0, 0), (0, 0), 0),
-        ("BOTTOMPADDING", (0, 0), (0, 0), 0),
-    ]))
+    rule_t = Table([[""]], colWidths=[avail], rowHeights=[1])
+    rule_t.setStyle(
+        TableStyle(
+            [
+                ("LINEBELOW", (0, 0), (0, 0), 0.6, ACCENT),
+                ("TOPPADDING", (0, 0), (0, 0), 0),
+                ("BOTTOMPADDING", (0, 0), (0, 0), 0),
+            ]
+        )
+    )
     rule_t.keepWithNext = True
     h = Paragraph(title, styles["h1"])
     h.keepWithNext = True
@@ -572,99 +689,171 @@ def _section_heading(title: str, styles: dict) -> list:
 # STYLES
 # ============================================================
 
+
 def _build_styles() -> dict[str, ParagraphStyle]:
     base = getSampleStyleSheet()
     s: dict[str, ParagraphStyle] = {}
 
     # Cover
     s["cover_title"] = ParagraphStyle(
-        "cover_title", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=26, textColor=INK,
-        alignment=TA_LEFT, leading=32, spaceAfter=4 * mm,
+        "cover_title",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=26,
+        textColor=INK,
+        alignment=TA_LEFT,
+        leading=32,
+        spaceAfter=4 * mm,
     )
     s["cover_subtitle"] = ParagraphStyle(
-        "cover_subtitle", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=14, textColor=TEXT_SECONDARY,
-        alignment=TA_LEFT, spaceAfter=3 * mm, leading=18,
+        "cover_subtitle",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=14,
+        textColor=TEXT_SECONDARY,
+        alignment=TA_LEFT,
+        spaceAfter=3 * mm,
+        leading=18,
     )
     s["cover_info"] = ParagraphStyle(
-        "cover_info", parent=base["Normal"],
-        fontName="Helvetica", fontSize=9, textColor=TEXT_SECONDARY,
-        alignment=TA_LEFT, leading=13, spaceAfter=1.5 * mm,
+        "cover_info",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=9,
+        textColor=TEXT_SECONDARY,
+        alignment=TA_LEFT,
+        leading=13,
+        spaceAfter=1.5 * mm,
     )
 
     # Headings — serif for gravitas
     s["h1"] = ParagraphStyle(
-        "h1_r", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=14, textColor=INK,
-        spaceBefore=8 * mm, spaceAfter=4 * mm, leading=18,
+        "h1_r",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=14,
+        textColor=INK,
+        spaceBefore=8 * mm,
+        spaceAfter=4 * mm,
+        leading=18,
     )
     s["h2"] = ParagraphStyle(
-        "h2_r", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=11, textColor=INK,
-        spaceBefore=5 * mm, spaceAfter=3 * mm, leading=14,
+        "h2_r",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=11,
+        textColor=INK,
+        spaceBefore=5 * mm,
+        spaceAfter=3 * mm,
+        leading=14,
     )
     s["h3"] = ParagraphStyle(
-        "h3_r", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=10, textColor=TEXT_COLOR,
-        spaceBefore=3 * mm, spaceAfter=2 * mm, leading=13,
+        "h3_r",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=10,
+        textColor=TEXT_COLOR,
+        spaceBefore=3 * mm,
+        spaceAfter=2 * mm,
+        leading=13,
     )
 
     # Body — serif, justified
     s["body"] = ParagraphStyle(
-        "body_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, textColor=TEXT_COLOR,
-        alignment=TA_JUSTIFY, leading=14, spaceAfter=2 * mm,
+        "body_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        textColor=TEXT_COLOR,
+        alignment=TA_JUSTIFY,
+        leading=14,
+        spaceAfter=2 * mm,
     )
     s["body_small"] = ParagraphStyle(
-        "body_small_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=9, textColor=TEXT_SECONDARY,
-        leading=12, spaceAfter=1.5 * mm,
+        "body_small_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=9,
+        textColor=TEXT_SECONDARY,
+        leading=12,
+        spaceAfter=1.5 * mm,
     )
     s["bullet"] = ParagraphStyle(
-        "bullet_r", parent=base["Normal"],
-        fontName="Times-Roman", fontSize=10, textColor=TEXT_COLOR,
-        leading=14, leftIndent=10, spaceAfter=1.5 * mm,
+        "bullet_r",
+        parent=base["Normal"],
+        fontName="Times-Roman",
+        fontSize=10,
+        textColor=TEXT_COLOR,
+        leading=14,
+        leftIndent=10,
+        spaceAfter=1.5 * mm,
     )
     s["caption"] = ParagraphStyle(
-        "caption_r", parent=base["Normal"],
-        fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED,
+        "caption_r",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=7,
+        textColor=TEXT_MUTED,
         leading=9,
     )
 
     # Metrics
     s["metric_value"] = ParagraphStyle(
-        "mv_r", parent=base["Normal"],
-        fontName="Times-Bold", fontSize=18, textColor=INK,
-        alignment=TA_CENTER, leading=22,
+        "mv_r",
+        parent=base["Normal"],
+        fontName="Times-Bold",
+        fontSize=18,
+        textColor=INK,
+        alignment=TA_CENTER,
+        leading=22,
     )
     s["metric_label"] = ParagraphStyle(
-        "ml_r", parent=base["Normal"],
-        fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED,
-        alignment=TA_CENTER, leading=9,
+        "ml_r",
+        parent=base["Normal"],
+        fontName="Helvetica",
+        fontSize=7,
+        textColor=TEXT_MUTED,
+        alignment=TA_CENTER,
+        leading=9,
     )
 
     # Table cells — sans-serif for data clarity
     for name, align in [("cell", TA_LEFT), ("cell_center", TA_CENTER), ("cell_right", TA_RIGHT)]:
         s[name] = ParagraphStyle(
-            f"{name}_r", parent=base["Normal"],
-            fontName="Helvetica", fontSize=8, textColor=TEXT_COLOR,
-            leading=10, alignment=align,
+            f"{name}_r",
+            parent=base["Normal"],
+            fontName="Helvetica",
+            fontSize=8,
+            textColor=TEXT_COLOR,
+            leading=10,
+            alignment=align,
         )
     s["cell_header"] = ParagraphStyle(
-        "ch_r", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=8, textColor=INK,
-        leading=10, alignment=TA_LEFT,
+        "ch_r",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        textColor=INK,
+        leading=10,
+        alignment=TA_LEFT,
     )
     s["cell_header_center"] = ParagraphStyle(
-        "chc_r", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=8, textColor=INK,
-        leading=10, alignment=TA_CENTER,
+        "chc_r",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        textColor=INK,
+        leading=10,
+        alignment=TA_CENTER,
     )
     s["cell_header_right"] = ParagraphStyle(
-        "chr_r", parent=base["Normal"],
-        fontName="Helvetica-Bold", fontSize=8, textColor=INK,
-        leading=10, alignment=TA_RIGHT,
+        "chr_r",
+        parent=base["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        textColor=INK,
+        leading=10,
+        alignment=TA_RIGHT,
     )
 
     return s
@@ -673,6 +862,7 @@ def _build_styles() -> dict[str, ParagraphStyle]:
 # ============================================================
 # FOOTER with "Página X de Y"
 # ============================================================
+
 
 class _NumberedCanvas(pdfgen_canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -725,18 +915,22 @@ def _draw_footer(canvas, doc):
 # PAGE BUILDERS
 # ============================================================
 
+
 def _metric_cell(value: str, label: str, styles: dict) -> Table:
     inner = Table(
-        [[Paragraph(value, styles["metric_value"])],
-         [Paragraph(label, styles["metric_label"])]],
+        [[Paragraph(value, styles["metric_value"])], [Paragraph(label, styles["metric_label"])]],
         colWidths=["*"],
     )
-    inner.setStyle(TableStyle([
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING", (0, 0), (-1, -1), 1),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
-    ]))
+    inner.setStyle(
+        TableStyle(
+            [
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 1),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
+            ]
+        )
+    )
     return inner
 
 
@@ -755,10 +949,12 @@ def _build_cover(data: dict, styles: dict, gen_date: str) -> list:
     el.append(Spacer(1, 6 * mm))
 
     # Title — left-aligned serif
-    el.append(Paragraph(
-        "Relatório Executivo de<br/>Oportunidades em Licitações",
-        styles["cover_title"],
-    ))
+    el.append(
+        Paragraph(
+            "Relatório Executivo de<br/>Oportunidades em Licitações",
+            styles["cover_title"],
+        )
+    )
 
     nome = _s(empresa.get("nome_fantasia") or empresa.get("razao_social", ""))
     if nome:
@@ -789,15 +985,19 @@ def _build_cover(data: dict, styles: dict, gen_date: str) -> list:
     el.append(Spacer(1, 30 * mm))
 
     # Consultant attribution — bottom
-    el.append(Paragraph(
-        "<b>Tiago Sasaki</b><br/>"
-        "Consultor de Inteligência em Licitações<br/>"
-        "(48) 9 8834-4559",
-        ParagraphStyle(
-            "cover_attr", fontName="Helvetica", fontSize=9,
-            textColor=TEXT_SECONDARY, alignment=TA_LEFT, leading=13,
-        ),
-    ))
+    el.append(
+        Paragraph(
+            "<b>Tiago Sasaki</b><br/>Consultor de Inteligência em Licitações<br/>(48) 9 8834-4559",
+            ParagraphStyle(
+                "cover_attr",
+                fontName="Helvetica",
+                fontSize=9,
+                textColor=TEXT_SECONDARY,
+                alignment=TA_LEFT,
+                leading=13,
+            ),
+        )
+    )
 
     el.append(PageBreak())
     return el
@@ -839,16 +1039,18 @@ def _build_resumo_decisorio(data: dict, styles: dict) -> list:
     valor_participar = sum(_safe_float_gen(e.get("valor_estimado")) for e in participar)
 
     # Paragraph 1: Overview
-    el.append(Paragraph(
-        f"Foram identificadas <b>{len(editais)} oportunidades</b> em licitações abertas, "
-        f"totalizando <b>{_currency_short(total_valor)}</b> em valor estimado. "
-        f"Destas, <b>{len(participar)}</b> são recomendadas para participação imediata"
-        f"{f' ({_currency_short(valor_participar)} em valor)' if valor_participar > 0 else ''}, "
-        f"<b>{len(avaliar)}</b> merecem avaliação com cautela"
-        f"{f' e <b>{len(vetados)}</b> foram eliminadas por impedimento legal' if vetados else ''}"
-        f"{f', e <b>{len(nao_rec)}</b> não são recomendadas' if nao_rec else ''}.",
-        styles["body"],
-    ))
+    el.append(
+        Paragraph(
+            f"Foram identificadas <b>{len(editais)} oportunidades</b> em licitações abertas, "
+            f"totalizando <b>{_currency_short(total_valor)}</b> em valor estimado. "
+            f"Destas, <b>{len(participar)}</b> são recomendadas para participação imediata"
+            f"{f' ({_currency_short(valor_participar)} em valor)' if valor_participar > 0 else ''}, "
+            f"<b>{len(avaliar)}</b> merecem avaliação com cautela"
+            f"{f' e <b>{len(vetados)}</b> foram eliminadas por impedimento legal' if vetados else ''}"
+            f"{f', e <b>{len(nao_rec)}</b> não são recomendadas' if nao_rec else ''}.",
+            styles["body"],
+        )
+    )
     el.append(Spacer(1, 2 * mm))
 
     # Paragraph 2: Top 3 recommended — selected by viability score + capital adequacy
@@ -896,16 +1098,22 @@ def _build_resumo_decisorio(data: dict, styles: dict) -> list:
                     f"#{idx} — Valor acima de 3x o capital social "
                     f"(razão {e.get('_capital_ratio', '?')}x). Verificar exigência de patrimônio líquido."
                 )
-        el.append(Paragraph(
-            "<b>Destaques para ação imediata:</b><br/>" + "<br/>".join(lines),
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                "<b>Destaques para ação imediata:</b><br/>" + "<br/>".join(lines),
+                styles["body"],
+            )
+        )
         if capital_notes:
             for note in capital_notes:
                 note_style = ParagraphStyle(
-                    "cap_note_rd", parent=styles["body"],
-                    fontName="Helvetica-Oblique", fontSize=8,
-                    textColor=SIGNAL_AMBER, leading=11, spaceAfter=1 * mm,
+                    "cap_note_rd",
+                    parent=styles["body"],
+                    fontName="Helvetica-Oblique",
+                    fontSize=8,
+                    textColor=SIGNAL_AMBER,
+                    leading=11,
+                    spaceAfter=1 * mm,
                 )
                 el.append(Paragraph(f"Atenção: {note}", note_style))
         el.append(Spacer(1, 2 * mm))
@@ -921,18 +1129,14 @@ def _build_resumo_decisorio(data: dict, styles: dict) -> list:
     for e in participar + avaliar:
         dias = e.get("dias_restantes")
         if dias is not None and dias <= 7:
-            alerts.append(
-                f"URGENTE: {_trunc(_s(e.get('objeto', '')), 120)} encerra em {dias} dia(s)"
-            )
+            alerts.append(f"URGENTE: {_trunc(_s(e.get('objeto', '')), 120)} encerra em {dias} dia(s)")
     # Fiscal risk alerts
     for e in participar + avaliar:
         fiscal = (e.get("risk_score") or {}).get("fiscal_risk", {})
         if isinstance(fiscal, dict) and fiscal.get("nivel") == "ALTO":
             fiscal_alerts = fiscal.get("alertas", [])
             if fiscal_alerts:
-                alerts.append(
-                    f"RISCO FISCAL: {_trunc(_s(e.get('objeto', '')), 120)} — {fiscal_alerts[0]}"
-                )
+                alerts.append(f"RISCO FISCAL: {_trunc(_s(e.get('objeto', '')), 120)} — {fiscal_alerts[0]}")
     # Sanctions inconclusive alert
     emp_sancoes = data.get("empresa", {}).get("sancoes", {})
     if emp_sancoes.get("inconclusive"):
@@ -942,28 +1146,32 @@ def _build_resumo_decisorio(data: dict, styles: dict) -> list:
 
     if alerts:
         alert_text = "<br/>".join(f"• {a}" for a in alerts[:5])
-        el.append(Paragraph(
-            f"<b>Alertas críticos:</b><br/>{alert_text}",
-            ParagraphStyle(
-                "alert_body", parent=styles["body"],
-                textColor=SIGNAL_RED, fontSize=9, leading=13,
-            ),
-        ))
+        el.append(
+            Paragraph(
+                f"<b>Alertas críticos:</b><br/>{alert_text}",
+                ParagraphStyle(
+                    "alert_body",
+                    parent=styles["body"],
+                    textColor=SIGNAL_RED,
+                    fontSize=9,
+                    leading=13,
+                ),
+            )
+        )
         el.append(Spacer(1, 2 * mm))
 
     # Paragraph 4: Verdict
-    total_roi_max = sum(
-        max((e.get("roi_potential") or {}).get("roi_max", 0), 0)
-        for e in participar
-    )
+    total_roi_max = sum(max((e.get("roi_potential") or {}).get("roi_max", 0), 0) for e in participar)
     # HARD-004: Alerts linked to specific editais (not just aggregate count)
     acervo_note = ""
-    acervo_eds = [e for e in editais if (e.get("risk_score") or {}).get("acervo_status", "NAO_VERIFICADO") != "CONFIRMADO"
-                  and (e.get("recomendacao") or "").upper() in ("PARTICIPAR", "AVALIAR COM CAUTELA")]
+    acervo_eds = [
+        e
+        for e in editais
+        if (e.get("risk_score") or {}).get("acervo_status", "NAO_VERIFICADO") != "CONFIRMADO"
+        and (e.get("recomendacao") or "").upper() in ("PARTICIPAR", "AVALIAR COM CAUTELA")
+    ]
     if acervo_eds:
-        ed_refs = ", ".join(
-            f"#{e.get('_display_idx', '?')}" for e in acervo_eds[:8]
-        )
+        ed_refs = ", ".join(f"#{e.get('_display_idx', '?')}" for e in acervo_eds[:8])
         suffix = f" e mais {len(acervo_eds) - 8}" if len(acervo_eds) > 8 else ""
         acervo_note = (
             f" <b>Atenção:</b> {len(acervo_eds)} edital(is) dependem de verificação prévia "
@@ -971,20 +1179,24 @@ def _build_resumo_decisorio(data: dict, styles: dict) -> list:
         )
 
     if participar:
-        el.append(Paragraph(
-            f"<b>Veredicto:</b> Recomendamos priorizar <b>{len(participar)} edital(is)</b> "
-            f"com retorno potencial agregado de até <b>{_currency_short(max(total_roi_max, 0))}</b>. "
-            f"O restante do relatório detalha a análise de cada oportunidade, "
-            f"inteligência competitiva e plano de ação.{acervo_note}",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>Veredicto:</b> Recomendamos priorizar <b>{len(participar)} edital(is)</b> "
+                f"com retorno potencial agregado de até <b>{_currency_short(max(total_roi_max, 0))}</b>. "
+                f"O restante do relatório detalha a análise de cada oportunidade, "
+                f"inteligência competitiva e plano de ação.{acervo_note}",
+                styles["body"],
+            )
+        )
     else:
-        el.append(Paragraph(
-            "<b>Veredicto:</b> Nenhuma oportunidade atende aos critérios mínimos para "
-            "participação imediata. As oportunidades listadas como AVALIAR COM CAUTELA "
-            "podem ser viáveis mediante verificação adicional de requisitos específicos.",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                "<b>Veredicto:</b> Nenhuma oportunidade atende aos critérios mínimos para "
+                "participação imediata. As oportunidades listadas como AVALIAR COM CAUTELA "
+                "podem ser viáveis mediante verificação adicional de requisitos específicos.",
+                styles["body"],
+            )
+        )
 
     el.append(Spacer(1, 4 * mm))
     # Light separator
@@ -1016,13 +1228,9 @@ def select_destaques(editais_participar: list, capital_social: float, max_destaq
     """
     for e in editais_participar:
         valor = e.get("valor_estimado") or 0
-        ratio = valor / capital_social if capital_social > 0 else float('inf')
+        ratio = valor / capital_social if capital_social > 0 else float("inf")
         e["_capital_ratio"] = round(ratio, 1)
-        e["_adequacao_porte"] = (
-            "ADEQUADO" if ratio <= 3.0
-            else "ATENCAO" if ratio <= 5.0
-            else "REQUER_CONSORCIO"
-        )
+        e["_adequacao_porte"] = "ADEQUADO" if ratio <= 3.0 else "ATENCAO" if ratio <= 5.0 else "REQUER_CONSORCIO"
 
     # Sort by: adequação ASC (prefer adequate), then viability_score DESC
     sorted_editais = sorted(
@@ -1030,7 +1238,7 @@ def select_destaques(editais_participar: list, capital_social: float, max_destaq
         key=lambda e: (
             {"ADEQUADO": 0, "ATENCAO": 1, "REQUER_CONSORCIO": 2}.get(e.get("_adequacao_porte", ""), 3),
             -(e.get("risk_score", {}).get("total", 0) if isinstance(e.get("risk_score"), dict) else 0),
-        )
+        ),
     )
     return sorted_editais[:max_destaques]
 
@@ -1048,12 +1256,14 @@ def _build_exclusive_intelligence(data: dict, styles: dict, sec: dict) -> list:
     num = sec["next"]()
     el.extend(_section_heading(f"{num}. Inteligência Exclusiva", styles))
 
-    el.append(Paragraph(
-        "Este relatório vai além da listagem de editais. Os quatro blocos abaixo "
-        "representam análises que exigem cruzamento de dados históricos, perfil da empresa "
-        "e modelagem competitiva — informações que não estão disponíveis em consultas individuais aos portais públicos.",
-        styles["body"],
-    ))
+    el.append(
+        Paragraph(
+            "Este relatório vai além da listagem de editais. Os quatro blocos abaixo "
+            "representam análises que exigem cruzamento de dados históricos, perfil da empresa "
+            "e modelagem competitiva — informações que não estão disponíveis em consultas individuais aos portais públicos.",
+            styles["body"],
+        )
+    )
     el.append(Spacer(1, 5 * mm))
 
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -1083,7 +1293,7 @@ def _build_exclusive_intelligence(data: dict, styles: dict, sec: dict) -> list:
         elif unique >= 2:
             insight = f"Competição moderada ({unique} fornecedores, HHI {_dec(hhi, 2)})"
         else:
-            insight = f"Sem histórico de fornecedores — mercado inexplorado"
+            insight = "Sem histórico de fornecedores — mercado inexplorado"
 
         incumbent_insights.append((idx, orgao, insight, prob))
 
@@ -1097,23 +1307,31 @@ def _build_exclusive_intelligence(data: dict, styles: dict, sec: dict) -> list:
         inc_rows = [inc_header]
         for idx, orgao, insight, prob in incumbent_insights[:8]:
             prob_color = SIGNAL_GREEN if prob >= 0.20 else (SIGNAL_AMBER if prob >= 0.10 else SIGNAL_RED)
-            inc_rows.append([
-                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-                Paragraph(orgao, styles["cell"]),
-                Paragraph(insight, styles["cell"]),
-                Paragraph(
-                    f"<b>{_pct(prob)}</b>",
-                    ParagraphStyle(f"inc_p_{idx}", parent=styles["cell_center"],
-                                   fontName="Helvetica-Bold", textColor=prob_color),
-                ),
-            ])
+            inc_rows.append(
+                [
+                    Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                    Paragraph(orgao, styles["cell"]),
+                    Paragraph(insight, styles["cell"]),
+                    Paragraph(
+                        f"<b>{_pct(prob)}</b>",
+                        ParagraphStyle(
+                            f"inc_p_{idx}",
+                            parent=styles["cell_center"],
+                            fontName="Helvetica-Bold",
+                            textColor=prob_color,
+                        ),
+                    ),
+                ]
+            )
         t = _three_rule_table(inc_rows, [avail * 0.06, avail * 0.30, avail * 0.50, avail * 0.14])
         el.append(t)
     else:
-        el.append(Paragraph(
-            "Dados de incumbência não disponíveis para os editais analisados.",
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "Dados de incumbência não disponíveis para os editais analisados.",
+                styles["body_small"],
+            )
+        )
     el.append(Spacer(1, 5 * mm))
 
     # --- 2. Calibrated Viability ---
@@ -1126,15 +1344,20 @@ def _build_exclusive_intelligence(data: dict, styles: dict, sec: dict) -> list:
         "REGIONAL": "Regional (3-10 contratos, até 3 UFs)",
         "ESTABELECIDO": "Estabelecido (10+ contratos ou 4+ UFs)",
     }
-    el.append(Paragraph(
-        f"Perfil de maturidade: <b>{profile_labels.get(profile_name, profile_name)}</b> — "
-        f"os pesos de viabilidade foram ajustados para refletir este perfil.",
-        styles["body"],
-    ))
+    el.append(
+        Paragraph(
+            f"Perfil de maturidade: <b>{profile_labels.get(profile_name, profile_name)}</b> — "
+            f"os pesos de viabilidade foram ajustados para refletir este perfil.",
+            styles["body"],
+        )
+    )
 
     # Viability ranking
-    scored = [(ed.get("_display_idx", i), ed) for i, ed in enumerate(editais, 1)
-              if isinstance(ed.get("risk_score"), dict) and ed["risk_score"].get("total", 0) > 0]
+    scored = [
+        (ed.get("_display_idx", i), ed)
+        for i, ed in enumerate(editais, 1)
+        if isinstance(ed.get("risk_score"), dict) and ed["risk_score"].get("total", 0) > 0
+    ]
     scored.sort(key=lambda x: x[1]["risk_score"]["total"], reverse=True)
 
     if scored:
@@ -1165,16 +1388,22 @@ def _build_exclusive_intelligence(data: dict, styles: dict, sec: dict) -> list:
             via_link = _fix_pncp_link(ed.get("link", ""))
             if via_link and via_link.startswith("http"):
                 obj_text = f'<a href="{via_link}" color="{LINK_BLUE.hexval()}">{obj_text}</a>'
-            via_rows.append([
-                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-                Paragraph(obj_text, styles["cell"]),
-                Paragraph(
-                    f"<b>{score}/100</b>",
-                    ParagraphStyle(f"via_s_{idx}", parent=styles["cell_center"],
-                                   fontName="Helvetica-Bold", textColor=score_color),
-                ),
-                Paragraph(factor, styles["cell"]),
-            ])
+            via_rows.append(
+                [
+                    Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                    Paragraph(obj_text, styles["cell"]),
+                    Paragraph(
+                        f"<b>{score}/100</b>",
+                        ParagraphStyle(
+                            f"via_s_{idx}",
+                            parent=styles["cell_center"],
+                            fontName="Helvetica-Bold",
+                            textColor=score_color,
+                        ),
+                    ),
+                    Paragraph(factor, styles["cell"]),
+                ]
+            )
         t = _three_rule_table(via_rows, [avail * 0.06, avail * 0.38, avail * 0.12, avail * 0.44])
         el.append(t)
     el.append(Spacer(1, 5 * mm))
@@ -1190,36 +1419,47 @@ def _build_exclusive_intelligence(data: dict, styles: dict, sec: dict) -> list:
         if roi.get("strategic_reclassification") == "INVESTIMENTO_ESTRATEGICO_ACERVO" or cat == "INVESTIMENTO":
             acervo_items.append((idx, ed))
 
-    participar_items = [(ed.get("_display_idx", i), ed) for i, ed in enumerate(editais, 1)
-                        if _normalize_recommendation(_s(ed.get("recomendacao", ""))) == "PARTICIPAR"]
+    participar_items = [
+        (ed.get("_display_idx", i), ed)
+        for i, ed in enumerate(editais, 1)
+        if _normalize_recommendation(_s(ed.get("recomendacao", ""))) == "PARTICIPAR"
+    ]
 
     if acervo_items:
-        el.append(Paragraph(
-            f"<b>{len(acervo_items)}</b> edital(is) classificado(s) como <b>Investimento Estratégico em Acervo</b> — "
-            f"o retorno imediato é marginal, mas a execução constrói atestados e relacionamento "
-            f"que desbloqueiam mercados futuros de maior valor.",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>{len(acervo_items)}</b> edital(is) classificado(s) como <b>Investimento Estratégico em Acervo</b> — "
+                f"o retorno imediato é marginal, mas a execução constrói atestados e relacionamento "
+                f"que desbloqueiam mercados futuros de maior valor.",
+                styles["body"],
+            )
+        )
         for idx, ed in acervo_items:
             obj = _trunc(_s(ed.get("objeto", "")), 150)
             valor = _currency_short(ed.get("valor_estimado"))
             orgao = _s(ed.get("orgao", ""))[:120]
-            el.append(Paragraph(
-                f"  <b>{idx}.</b> {obj} ({orgao}) — {valor}",
-                styles["body_small"],
-            ))
+            el.append(
+                Paragraph(
+                    f"  <b>{idx}.</b> {obj} ({orgao}) — {valor}",
+                    styles["body_small"],
+                )
+            )
     elif participar_items:
-        el.append(Paragraph(
-            "Nenhum edital classificado como investimento em acervo. "
-            f"Os {len(participar_items)} edital(is) recomendados para participação "
-            f"contribuem para o acervo técnico de forma orgânica.",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                "Nenhum edital classificado como investimento em acervo. "
+                f"Os {len(participar_items)} edital(is) recomendados para participação "
+                f"contribuem para o acervo técnico de forma orgânica.",
+                styles["body"],
+            )
+        )
     else:
-        el.append(Paragraph(
-            "Nenhuma oportunidade estratégica de construção de acervo identificada nesta janela.",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                "Nenhuma oportunidade estratégica de construção de acervo identificada nesta janela.",
+                styles["body"],
+            )
+        )
     el.append(Spacer(1, 5 * mm))
 
     # --- 4. Regional Clusters ---
@@ -1227,25 +1467,31 @@ def _build_exclusive_intelligence(data: dict, styles: dict, sec: dict) -> list:
     clusters_data = data.get("regional_clusters", {})
     clusters = clusters_data.get("clusters", [])
     if clusters:
-        el.append(Paragraph(
-            f"<b>{len(clusters)}</b> cluster(s) de mobilização compartilhada identificado(s). "
-            f"Uma única base operacional pode servir múltiplos editais no mesmo raio.",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>{len(clusters)}</b> cluster(s) de mobilização compartilhada identificado(s). "
+                f"Uma única base operacional pode servir múltiplos editais no mesmo raio.",
+                styles["body"],
+            )
+        )
         for cl in clusters[:4]:
             center = f"{_s(cl.get('center_municipio', ''))}/{_s(cl.get('center_uf', ''))}"
             n = cl.get("n_editais", 0)
             valor = _currency_short(cl.get("total_valor", 0))
             overlap = "prazos sobrepostos" if cl.get("timeline_overlap") else "prazos independentes"
-            el.append(Paragraph(
-                f"  — <b>{center}:</b> {n} editais, {valor}, {overlap}",
-                styles["body_small"],
-            ))
+            el.append(
+                Paragraph(
+                    f"  — <b>{center}:</b> {n} editais, {valor}, {overlap}",
+                    styles["body_small"],
+                )
+            )
     else:
-        el.append(Paragraph(
-            "Editais dispersos geograficamente — sem oportunidade de mobilização compartilhada.",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                "Editais dispersos geograficamente — sem oportunidade de mobilização compartilhada.",
+                styles["body"],
+            )
+        )
 
     el.append(Spacer(1, 8 * mm))
     el.append(PageBreak())
@@ -1312,8 +1558,12 @@ def _build_decision_table(data: dict, styles: dict, sec: dict) -> list:
         prazo = _format_prazo_short(ed.get("dias_restantes"))
 
         rec_ps = ParagraphStyle(
-            f"drec_{idx}", fontName="Helvetica-Bold", fontSize=7.5,
-            textColor=rec_color, alignment=TA_LEFT, leading=10,
+            f"drec_{idx}",
+            fontName="Helvetica-Bold",
+            fontSize=7.5,
+            textColor=rec_color,
+            alignment=TA_LEFT,
+            leading=10,
             wordWrap="CJK",
         )
 
@@ -1331,7 +1581,11 @@ def _build_decision_table(data: dict, styles: dict, sec: dict) -> list:
             else:
                 diff_parts.append("Impedimento legal")
         else:
-            if isinstance(wp, dict) and wp.get("top_supplier_share", 0) < 0.20 and wp.get("n_unique_suppliers", wp.get("unique_suppliers", 0)) >= 2:
+            if (
+                isinstance(wp, dict)
+                and wp.get("top_supplier_share", 0) < 0.20
+                and wp.get("n_unique_suppliers", wp.get("unique_suppliers", 0)) >= 2
+            ):
                 diff_parts.append("Sem fornecedor recorrente dominante")
             elif isinstance(wp, dict) and wp.get("top_supplier_share", 0) > 0.60:
                 diff_parts.append("Fornecedor recorrente forte")
@@ -1348,17 +1602,25 @@ def _build_decision_table(data: dict, styles: dict, sec: dict) -> list:
 
         differential = " · ".join(diff_parts) if diff_parts else "—"
 
-        rows.append([
-            Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-            Paragraph(objeto, styles["cell"]),
-            Paragraph(valor, styles["cell_right"]),
-            Paragraph(prazo, styles["cell_center"]),
-            Paragraph(rec_display, rec_ps),
-            Paragraph(differential, ParagraphStyle(
-                f"ddiff_{idx}", parent=styles["cell"],
-                fontName="Helvetica", fontSize=7, textColor=TEXT_SECONDARY,
-            )),
-        ])
+        rows.append(
+            [
+                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                Paragraph(objeto, styles["cell"]),
+                Paragraph(valor, styles["cell_right"]),
+                Paragraph(prazo, styles["cell_center"]),
+                Paragraph(rec_display, rec_ps),
+                Paragraph(
+                    differential,
+                    ParagraphStyle(
+                        f"ddiff_{idx}",
+                        parent=styles["cell"],
+                        fontName="Helvetica",
+                        fontSize=7,
+                        textColor=TEXT_SECONDARY,
+                    ),
+                ),
+            ]
+        )
 
     t = _three_rule_table(rows, col_w)
     el.append(t)
@@ -1374,10 +1636,12 @@ def _build_decision_table(data: dict, styles: dict, sec: dict) -> list:
             if not has_justif:
                 el.append(Spacer(1, 4 * mm))
                 has_justif = True
-            el.append(Paragraph(
-                f"<b>{idx}.</b> {_trunc(justif, 280)}",
-                styles["caption"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<b>{idx}.</b> {_trunc(justif, 280)}",
+                    styles["caption"],
+                )
+            )
 
     el.append(Spacer(1, 6 * mm))
     return el
@@ -1386,6 +1650,7 @@ def _build_decision_table(data: dict, styles: dict, sec: dict) -> list:
 # ============================================================
 # GAP-1: SCORE DECOMPOSITION VISUAL (5D Horizontal Bars)
 # ============================================================
+
 
 def _build_score_decomposition(risk_score: dict) -> list:
     """Build 5-dimension score decomposition as horizontal bars.
@@ -1436,13 +1701,23 @@ def _build_score_decomposition(risk_score: dict) -> list:
 
     # Colored circle behind total score
     from reportlab.graphics.shapes import Circle
+
     d.add(Circle(15, drawing_height - 12, 10, fillColor=total_color, strokeColor=None, fillOpacity=0.15))
-    d.add(String(15, drawing_height - 17, str(total),
-                 fontSize=14, fontName="Helvetica-Bold", fillColor=total_color, textAnchor="middle"))
-    d.add(String(32, drawing_height - 14, "/100",
-                 fontSize=8, fontName="Helvetica", fillColor=TEXT_MUTED))
-    d.add(String(60, drawing_height - 14, "Compatibilidade",
-                 fontSize=8, fontName="Helvetica", fillColor=TEXT_SECONDARY))
+    d.add(
+        String(
+            15,
+            drawing_height - 17,
+            str(total),
+            fontSize=14,
+            fontName="Helvetica-Bold",
+            fillColor=total_color,
+            textAnchor="middle",
+        )
+    )
+    d.add(String(32, drawing_height - 14, "/100", fontSize=8, fontName="Helvetica", fillColor=TEXT_MUTED))
+    d.add(
+        String(60, drawing_height - 14, "Compatibilidade", fontSize=8, fontName="Helvetica", fillColor=TEXT_SECONDARY)
+    )
 
     # Dimension bars
     y_start = drawing_height - total_header_height - row_height
@@ -1454,13 +1729,11 @@ def _build_score_decomposition(risk_score: dict) -> list:
 
         # Label with weight
         label_text = f"{_restore_accents(label)} ({peso_pct}%)"
-        d.add(String(0, y + 2, label_text,
-                     fontSize=7, fontName="Helvetica", fillColor=TEXT_SECONDARY))
+        d.add(String(0, y + 2, label_text, fontSize=7, fontName="Helvetica", fillColor=TEXT_SECONDARY))
 
         # Bar background (light gray)
         bar_x = label_width
-        d.add(Rect(bar_x, y, bar_max_width, row_height,
-                   fillColor=colors.HexColor("#ECEEF1"), strokeColor=None))
+        d.add(Rect(bar_x, y, bar_max_width, row_height, fillColor=colors.HexColor("#ECEEF1"), strokeColor=None))
 
         # Filled bar (colored by score)
         if val >= 70:
@@ -1471,12 +1744,14 @@ def _build_score_decomposition(risk_score: dict) -> list:
             bar_color = SIGNAL_RED
 
         fill_width = max(1, (val / 100.0) * bar_max_width)
-        d.add(Rect(bar_x, y, fill_width, row_height,
-                   fillColor=bar_color, strokeColor=None, fillOpacity=0.7))
+        d.add(Rect(bar_x, y, fill_width, row_height, fillColor=bar_color, strokeColor=None, fillOpacity=0.7))
 
         # Score value on the right
-        d.add(String(bar_x + bar_max_width + 5, y + 2, str(val),
-                     fontSize=8, fontName="Helvetica-Bold", fillColor=TEXT_COLOR))
+        d.add(
+            String(
+                bar_x + bar_max_width + 5, y + 2, str(val), fontSize=8, fontName="Helvetica-Bold", fillColor=TEXT_COLOR
+            )
+        )
 
     return [d, Spacer(1, 2 * mm)]
 
@@ -1484,6 +1759,7 @@ def _build_score_decomposition(risk_score: dict) -> list:
 # ============================================================
 # GAP-6: RISK BAROMETER (Traffic Light Gauge)
 # ============================================================
+
 
 def _build_risk_barometer(risk_score: dict) -> list:
     """Build a compact risk barometer (traffic light style).
@@ -1515,31 +1791,69 @@ def _build_risk_barometer(risk_score: dict) -> list:
     y_bar = 16
 
     # Three colored zones
-    d.add(Rect(0, y_bar, zone_width, gauge_height,
-               fillColor=colors.HexColor("#D4EDDA"), strokeColor=None))  # green zone
-    d.add(Rect(zone_width, y_bar, zone_width, gauge_height,
-               fillColor=colors.HexColor("#FFF3CD"), strokeColor=None))  # amber zone
-    d.add(Rect(zone_width * 2, y_bar, zone_width, gauge_height,
-               fillColor=colors.HexColor("#F8D7DA"), strokeColor=None))  # red zone
+    d.add(
+        Rect(0, y_bar, zone_width, gauge_height, fillColor=colors.HexColor("#D4EDDA"), strokeColor=None)
+    )  # green zone
+    d.add(
+        Rect(zone_width, y_bar, zone_width, gauge_height, fillColor=colors.HexColor("#FFF3CD"), strokeColor=None)
+    )  # amber zone
+    d.add(
+        Rect(zone_width * 2, y_bar, zone_width, gauge_height, fillColor=colors.HexColor("#F8D7DA"), strokeColor=None)
+    )  # red zone
 
     # Zone labels below bar
-    d.add(String(zone_width * 0.5, 4, "Baixo Risco",
-                 fontSize=6, fontName="Helvetica", fillColor=SIGNAL_GREEN, textAnchor="middle"))
-    d.add(String(zone_width * 1.5, 4, "Risco Moderado",
-                 fontSize=6, fontName="Helvetica", fillColor=SIGNAL_AMBER, textAnchor="middle"))
-    d.add(String(zone_width * 2.5, 4, "Alto Risco",
-                 fontSize=6, fontName="Helvetica", fillColor=SIGNAL_RED, textAnchor="middle"))
+    d.add(
+        String(
+            zone_width * 0.5,
+            4,
+            "Baixo Risco",
+            fontSize=6,
+            fontName="Helvetica",
+            fillColor=SIGNAL_GREEN,
+            textAnchor="middle",
+        )
+    )
+    d.add(
+        String(
+            zone_width * 1.5,
+            4,
+            "Risco Moderado",
+            fontSize=6,
+            fontName="Helvetica",
+            fillColor=SIGNAL_AMBER,
+            textAnchor="middle",
+        )
+    )
+    d.add(
+        String(
+            zone_width * 2.5,
+            4,
+            "Alto Risco",
+            fontSize=6,
+            fontName="Helvetica",
+            fillColor=SIGNAL_RED,
+            textAnchor="middle",
+        )
+    )
 
     # Triangle marker at risk_level position
     marker_x = (risk_level / 100.0) * gauge_width
     marker_x = max(4, min(marker_x, gauge_width - 4))  # clamp
     tri_size = 5
-    d.add(Polygon(
-        points=[marker_x, y_bar + gauge_height + tri_size + 1,
-                marker_x - tri_size, y_bar + gauge_height + tri_size * 2 + 1,
-                marker_x + tri_size, y_bar + gauge_height + tri_size * 2 + 1],
-        fillColor=INK, strokeColor=None,
-    ))
+    d.add(
+        Polygon(
+            points=[
+                marker_x,
+                y_bar + gauge_height + tri_size + 1,
+                marker_x - tri_size,
+                y_bar + gauge_height + tri_size * 2 + 1,
+                marker_x + tri_size,
+                y_bar + gauge_height + tri_size * 2 + 1,
+            ],
+            fillColor=INK,
+            strokeColor=None,
+        )
+    )
 
     return [d, Spacer(1, 2 * mm)]
 
@@ -1547,6 +1861,7 @@ def _build_risk_barometer(risk_score: dict) -> list:
 # ============================================================
 # HARD-004: ALERT BADGES
 # ============================================================
+
 
 def _build_alert_badges(alertas: list, styles: dict) -> list:
     """Build alert badges for an edital's critical alerts.
@@ -1597,14 +1912,19 @@ def _build_alert_badges(alertas: list, styles: dict) -> list:
     if not badge_parts:
         return []
 
-    return [Paragraph(
-        " &nbsp;&nbsp; ".join(badge_parts),
-        ParagraphStyle(
-            "alert_badges", parent=styles["body"],
-            fontName="Helvetica-Bold", fontSize=8,
-            spaceBefore=1 * mm, spaceAfter=1.5 * mm,
-        ),
-    )]
+    return [
+        Paragraph(
+            " &nbsp;&nbsp; ".join(badge_parts),
+            ParagraphStyle(
+                "alert_badges",
+                parent=styles["body"],
+                fontName="Helvetica-Bold",
+                fontSize=8,
+                spaceBefore=1 * mm,
+                spaceAfter=1.5 * mm,
+            ),
+        )
+    ]
 
 
 def _build_viability_text(risk: dict, styles: dict, _state: dict | None = None) -> list:
@@ -1623,14 +1943,16 @@ def _build_viability_text(risk: dict, styles: dict, _state: dict | None = None) 
         qualif = "Baixa"
         score_color = SIGNAL_RED
 
-    el = [Paragraph(
-        f"<b>Compatibilidade:</b> "
-        f"<font color='{score_color.hexval()}'><b>{score}/100</b></font>"
-        f" — {qualif}"
-        f"  <font size='8' color='{TEXT_MUTED.hexval()}'>"
-        f"(Adequação da oportunidade ao perfil da empresa)</font>",
-        styles["body"],
-    )]
+    el = [
+        Paragraph(
+            f"<b>Compatibilidade:</b> "
+            f"<font color='{score_color.hexval()}'><b>{score}/100</b></font>"
+            f" — {qualif}"
+            f"  <font size='8' color='{TEXT_MUTED.hexval()}'>"
+            f"(Adequação da oportunidade ao perfil da empresa)</font>",
+            styles["body"],
+        )
+    ]
 
     # Score decomposition — use actual weights from risk dict (sector-specific)
     if isinstance(risk, dict):
@@ -1645,12 +1967,14 @@ def _build_viability_text(risk: dict, styles: dict, _state: dict | None = None) 
         components = []
         for key, label in label_map.items():
             val = risk.get(key)
-            peso = weights.get(key[0:3] if key == "habilitacao" else key[:3],
-                              weights.get(key))
+            peso = weights.get(key[0:3] if key == "habilitacao" else key[:3], weights.get(key))
             # Map full key names to weight keys
             weight_key_map = {
-                "habilitacao": "hab", "financeiro": "fin",
-                "geografico": "geo", "prazo": "prazo", "competitivo": "comp",
+                "habilitacao": "hab",
+                "financeiro": "fin",
+                "geografico": "geo",
+                "prazo": "prazo",
+                "competitivo": "comp",
             }
             peso = weights.get(weight_key_map.get(key, key))
             if val is not None and peso is not None:
@@ -1659,10 +1983,12 @@ def _build_viability_text(risk: dict, styles: dict, _state: dict | None = None) 
                 components.append(f"{label}: {_safe_int(val)}")
 
         if components:
-            el.append(Paragraph(
-                f"Composição: {' | '.join(components)}",
-                styles["caption"],
-            ))
+            el.append(
+                Paragraph(
+                    f"Composição: {' | '.join(components)}",
+                    styles["caption"],
+                )
+            )
 
     # E8: Maturity adjustment display
     if isinstance(risk, dict) and risk.get("maturity_adjustment"):
@@ -1673,38 +1999,53 @@ def _build_viability_text(risk: dict, styles: dict, _state: dict | None = None) 
                 continue
             if delta != 0:
                 sign = "+" if delta > 0 else ""
-                comp_label = {"hab": "Habilitação", "fin": "Financeiro", "geo": "Geográfico",
-                              "prazo": "Prazo", "comp": "Competitivo"}.get(comp_key, comp_key)
+                comp_label = {
+                    "hab": "Habilitação",
+                    "fin": "Financeiro",
+                    "geo": "Geográfico",
+                    "prazo": "Prazo",
+                    "comp": "Competitivo",
+                }.get(comp_key, comp_key)
                 adj_parts.append(f"{comp_label} {sign}{delta}")
         if adj_parts:
             profile = risk.get("maturity_profile", "")
-            el.append(Paragraph(
-                f"<i>Ajuste por perfil de maturidade ({profile}): {', '.join(adj_parts)}</i>",
-                styles["caption"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<i>Ajuste por perfil de maturidade ({profile}): {', '.join(adj_parts)}</i>",
+                    styles["caption"],
+                )
+            )
 
     if _state is not None and not _state.get("viability_shown"):
         # Dynamic explanation based on weights
         if isinstance(risk, dict) and risk.get("weights"):
             w = risk["weights"]
             parts = []
-            name_map = {"hab": "habilitação", "fin": "valor vs. capacidade",
-                        "geo": "proximidade geográfica", "prazo": "prazo",
-                        "comp": "competitividade"}
+            name_map = {
+                "hab": "habilitação",
+                "fin": "valor vs. capacidade",
+                "geo": "proximidade geográfica",
+                "prazo": "prazo",
+                "comp": "competitividade",
+            }
             for k in sorted(w, key=lambda x: w[x], reverse=True):
                 parts.append(f"{name_map.get(k, k)} ({_pct(w[k])})")
-            el.append(Paragraph(
-                f"Pesos estimados para o setor da empresa: {', '.join(parts)}. "
-                f"Os pesos são aproximações setoriais — o peso real varia conforme o edital específico.",
-                styles["caption"],
-            ))
+            el.append(
+                Paragraph(
+                    f"Pesos estimados para o setor da empresa: {', '.join(parts)}. "
+                    f"Os pesos são aproximações setoriais — o peso real varia conforme o edital específico.",
+                    styles["caption"],
+                )
+            )
         else:
-            el.append(Paragraph(
-                "Compatibilidade calculada com base em habilitação, prazo, "
-                "valor vs. capacidade, proximidade geográfica e competitividade. "
-                "Reflete a adequação da oportunidade ao perfil da empresa.",
-                styles["caption"],
-            ))
+            el.append(
+                Paragraph(
+                    "Compatibilidade calculada com base em habilitação, prazo, "
+                    "valor vs. capacidade, proximidade geográfica e competitividade. "
+                    "Reflete a adequação da oportunidade ao perfil da empresa.",
+                    styles["caption"],
+                )
+            )
         _state["viability_shown"] = True
 
     return el
@@ -1737,15 +2078,19 @@ def _build_chronogram_table(cronograma: list, styles: dict) -> list:
             status_color = TEXT_COLOR
 
         status_ps = ParagraphStyle(
-            f"cs_{len(rows)}", parent=styles["cell"],
-            fontName="Helvetica-Bold", textColor=status_color,
+            f"cs_{len(rows)}",
+            parent=styles["cell"],
+            fontName="Helvetica-Bold",
+            textColor=status_color,
         )
 
-        rows.append([
-            Paragraph(data_str, styles["cell"]),
-            Paragraph(marco, styles["cell"]),
-            Paragraph(status, status_ps),
-        ])
+        rows.append(
+            [
+                Paragraph(data_str, styles["cell"]),
+                Paragraph(marco, styles["cell"]),
+                Paragraph(status, status_ps),
+            ]
+        )
 
     t = _three_rule_table(rows, [avail * 0.18, avail * 0.52, avail * 0.30])
     el.append(t)
@@ -1767,18 +2112,22 @@ def _build_roi_text(roi: dict, ed: dict, styles: dict, _state: dict | None = Non
     reclass = roi.get("strategic_reclassification")
     if reclass == "INVESTIMENTO_ESTRATEGICO_ACERVO":
         rationale = _s(roi.get("reclassification_rationale", ""))
-        el.append(Paragraph(
-            f"<b>Classificação: Investimento Estratégico em Acervo</b>",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                "<b>Classificação: Investimento Estratégico em Acervo</b>",
+                styles["body"],
+            )
+        )
         el.append(Paragraph(rationale, styles["body_small"]))
         # Still show calculation memory for auditability
         calc = roi.get("calculation_memory", {})
         if calc:
-            el.append(Paragraph(
-                f"Memória de cálculo: {_s(calc.get('roi_max_calc', ''))}",
-                styles["caption"],
-            ))
+            el.append(
+                Paragraph(
+                    f"Memória de cálculo: {_s(calc.get('roi_max_calc', ''))}",
+                    styles["caption"],
+                )
+            )
         el.append(Spacer(1, 2 * mm))
         return el
 
@@ -1804,27 +2153,34 @@ def _build_roi_text(roi: dict, ed: dict, styles: dict, _state: dict | None = Non
     elif confidence == "baixa":
         conf_label = " (base setorial)"
 
-    el.append(Paragraph(
-        f"<b>Resultado Potencial:</b> {roi_text}  |  "
-        f"Competitividade Est.: {prob_text}{conf_label}",
-        styles["body"],
-    ))
+    el.append(
+        Paragraph(
+            f"<b>Resultado Potencial:</b> {roi_text}  |  Competitividade Est.: {prob_text}{conf_label}",
+            styles["body"],
+        )
+    )
 
     # E1: Auditable calculation memory — each factor explicit
     calc = roi.get("calculation_memory", {})
     if calc:
-        el.append(Paragraph(
-            f"<b>Memória de cálculo</b> (fórmula: {_s(calc.get('formula', 'N/I'))})",
-            styles["caption"],
-        ))
-        el.append(Paragraph(
-            f"ROI mínimo: {_s(calc.get('roi_min_calc', 'N/I'))}",
-            styles["caption"],
-        ))
-        el.append(Paragraph(
-            f"ROI máximo: {_s(calc.get('roi_max_calc', 'N/I'))}",
-            styles["caption"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>Memória de cálculo</b> (fórmula: {_s(calc.get('formula', 'N/I'))})",
+                styles["caption"],
+            )
+        )
+        el.append(
+            Paragraph(
+                f"ROI mínimo: {_s(calc.get('roi_min_calc', 'N/I'))}",
+                styles["caption"],
+            )
+        )
+        el.append(
+            Paragraph(
+                f"ROI máximo: {_s(calc.get('roi_max_calc', 'N/I'))}",
+                styles["caption"],
+            )
+        )
     else:
         # Fallback: reconstruct from available data (backward compat)
         win_prob = ed.get("win_probability", {})
@@ -1838,18 +2194,22 @@ def _build_roi_text(roi: dict, ed: dict, styles: dict, _state: dict | None = Non
         if margin_range:
             memo_parts.append(f"Margem: {margin_range}")
         if memo_parts:
-            el.append(Paragraph(
-                "Memória: " + " × ".join(memo_parts),
-                styles["caption"],
-            ))
+            el.append(
+                Paragraph(
+                    "Memória: " + " × ".join(memo_parts),
+                    styles["caption"],
+                )
+            )
 
     if _state is not None and not _state.get("roi_shown"):
-        el.append(Paragraph(
-            "Resultado potencial = valor do edital × Competitividade Estimada × margem líquida do setor. "
-            "Competitividade Estimada calculada via modelo competitivo (fornecedores históricos, "
-            "modalidade, incumbência) ajustada pela Compatibilidade.",
-            styles["caption"],
-        ))
+        el.append(
+            Paragraph(
+                "Resultado potencial = valor do edital × Competitividade Estimada × margem líquida do setor. "
+                "Competitividade Estimada calculada via modelo competitivo (fornecedores históricos, "
+                "modalidade, incumbência) ajustada pela Compatibilidade.",
+                styles["caption"],
+            )
+        )
         _state["roi_shown"] = True
 
     el.append(Spacer(1, 2 * mm))
@@ -1875,13 +2235,15 @@ def _build_competitive_section(data: dict, styles: dict, sec: dict) -> list:
                     obj_str += f" [aditivos: +{_currency_short(aditivo)}]"
                 if situacao == "3":  # rescindido
                     obj_str += " [RESCINDIDO]"
-                entries.append({
-                    "orgao": orgao,
-                    "fornecedor": _s(c.get("nome", "")),
-                    "objeto": obj_str,
-                    "valor": c.get("valor_total"),
-                    "data": "",
-                })
+                entries.append(
+                    {
+                        "orgao": orgao,
+                        "fornecedor": _s(c.get("nome", "")),
+                        "objeto": obj_str,
+                        "valor": c.get("valor_total"),
+                        "data": "",
+                    }
+                )
         elif isinstance(ci, list):
             for c in ci[:5]:
                 obj_str = _trunc(_s(c.get("objeto", "")), 60)
@@ -1891,24 +2253,28 @@ def _build_competitive_section(data: dict, styles: dict, sec: dict) -> list:
                     obj_str += f" [aditivos: +{_currency_short(aditivo)}]"
                 if situacao == "3":  # rescindido
                     obj_str += " [RESCINDIDO]"
-                entries.append({
-                    "orgao": orgao,
-                    "fornecedor": _s(c.get("fornecedor", c.get("nome", ""))),
-                    "objeto": obj_str,
-                    "valor": c.get("valor", c.get("valor_total")),
-                    "data": c.get("data", ""),
-                })
+                entries.append(
+                    {
+                        "orgao": orgao,
+                        "fornecedor": _s(c.get("fornecedor", c.get("nome", ""))),
+                        "objeto": obj_str,
+                        "valor": c.get("valor", c.get("valor_total")),
+                        "data": c.get("data", ""),
+                    }
+                )
     if not entries:
         return []
 
     el = []
     num = sec["next"]()
     el.extend(_section_heading(f"{num}. Mapa Competitivo", styles))
-    el.append(Paragraph(
-        "Contratos históricos identificados nos órgãos licitantes — "
-        "indica fornecedores recorrentes e valores praticados.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "Contratos históricos identificados nos órgãos licitantes — "
+            "indica fornecedores recorrentes e valores praticados.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -1927,19 +2293,28 @@ def _build_competitive_section(data: dict, styles: dict, sec: dict) -> list:
         if key in seen:
             continue
         seen.add(key)
-        rows.append([
-            Paragraph(_trunc(e["orgao"], 35), styles["cell"]),
-            Paragraph(_trunc(e["fornecedor"], 30), styles["cell"]),
-            Paragraph(e["objeto"], styles["cell"]),
-            Paragraph(_currency_short(e["valor"]), styles["cell_right"]),
-            Paragraph(_date(e["data"]), styles["cell_center"]),
-        ])
+        rows.append(
+            [
+                Paragraph(_trunc(e["orgao"], 35), styles["cell"]),
+                Paragraph(_trunc(e["fornecedor"], 30), styles["cell"]),
+                Paragraph(e["objeto"], styles["cell"]),
+                Paragraph(_currency_short(e["valor"]), styles["cell_right"]),
+                Paragraph(_date(e["data"]), styles["cell_center"]),
+            ]
+        )
         if len(rows) > 20:
             break
 
-    t = _three_rule_table(rows, [
-        avail * 0.20, avail * 0.20, avail * 0.30, avail * 0.15, avail * 0.15,
-    ])
+    t = _three_rule_table(
+        rows,
+        [
+            avail * 0.20,
+            avail * 0.20,
+            avail * 0.30,
+            avail * 0.15,
+            avail * 0.15,
+        ],
+    )
     el.append(t)
     el.append(Spacer(1, 6 * mm))
 
@@ -1948,10 +2323,12 @@ def _build_competitive_section(data: dict, styles: dict, sec: dict) -> list:
     stats_by_typ = dispute_stats.get("stats_by_typology", {})
     if stats_by_typ:
         el.append(Paragraph("<b>Estatísticas Históricas de Disputas</b>", styles["h3"]))
-        el.append(Paragraph(
-            "Dados agregados de contratos encerrados — participantes, descontos e taxa de adjudicação por modalidade e faixa de valor.",
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "Dados agregados de contratos encerrados — participantes, descontos e taxa de adjudicação por modalidade e faixa de valor.",
+                styles["body_small"],
+            )
+        )
         el.append(Spacer(1, 3 * mm))
 
         ds_header = [
@@ -1970,18 +2347,27 @@ def _build_competitive_section(data: dict, styles: dict, sec: dict) -> list:
             avg_p = stats.get("avg_participants")
             avg_d = stats.get("avg_discount")
             adj_r = stats.get("adjudication_rate")
-            ds_rows.append([
-                Paragraph(_s(key.replace("_", " / ")), styles["cell"]),
-                Paragraph(str(total), styles["cell_center"]),
-                Paragraph(_dec(avg_p, 1) if avg_p is not None else "—", styles["cell_center"]),
-                Paragraph(_pct(avg_d, 1) if avg_d is not None else "—", styles["cell_center"]),
-                Paragraph(_pct(adj_r) if adj_r is not None else "—", styles["cell_center"]),
-            ])
+            ds_rows.append(
+                [
+                    Paragraph(_s(key.replace("_", " / ")), styles["cell"]),
+                    Paragraph(str(total), styles["cell_center"]),
+                    Paragraph(_dec(avg_p, 1) if avg_p is not None else "—", styles["cell_center"]),
+                    Paragraph(_pct(avg_d, 1) if avg_d is not None else "—", styles["cell_center"]),
+                    Paragraph(_pct(adj_r) if adj_r is not None else "—", styles["cell_center"]),
+                ]
+            )
 
         if len(ds_rows) > 1:
-            ds_t = _three_rule_table(ds_rows, [
-                avail * 0.30, avail * 0.15, avail * 0.18, avail * 0.18, avail * 0.19,
-            ])
+            ds_t = _three_rule_table(
+                ds_rows,
+                [
+                    avail * 0.30,
+                    avail * 0.15,
+                    avail * 0.18,
+                    avail * 0.18,
+                    avail * 0.19,
+                ],
+            )
             el.append(ds_t)
             el.append(Spacer(1, 4 * mm))
 
@@ -2006,19 +2392,25 @@ def _build_competitive_section(data: dict, styles: dict, sec: dict) -> list:
             else:
                 indicator = ""
 
-            el.append(Paragraph(
-                f"  {name} — {count} contrato(s){f' ({region})' if region else ''}{indicator}",
-                styles["body_small"],
-            ))
+            el.append(
+                Paragraph(
+                    f"  {name} — {count} contrato(s){f' ({region})' if region else ''}{indicator}",
+                    styles["body_small"],
+                )
+            )
         # F19: Note when supplier list was truncated
         if len(recurring) > 10:
-            el.append(Paragraph(
-                f"Exibidos os 10 principais fornecedores de {len(recurring)} identificados.",
-                ParagraphStyle(
-                    "recurring_trunc", parent=styles["caption"],
-                    fontName="Helvetica-Oblique", textColor=TEXT_MUTED,
-                ),
-            ))
+            el.append(
+                Paragraph(
+                    f"Exibidos os 10 principais fornecedores de {len(recurring)} identificados.",
+                    ParagraphStyle(
+                        "recurring_trunc",
+                        parent=styles["caption"],
+                        fontName="Helvetica-Oblique",
+                        textColor=TEXT_MUTED,
+                    ),
+                )
+            )
         el.append(Spacer(1, 4 * mm))
 
     # Competitive advantage summary
@@ -2027,22 +2419,32 @@ def _build_competitive_section(data: dict, styles: dict, sec: dict) -> list:
     for ed in editais:
         idx = ed.get("_display_idx", 0)
         wp = ed.get("win_probability", {})
-        if isinstance(wp, dict) and wp.get("top_supplier_share", 1) < 0.20 and wp.get("n_unique_suppliers", wp.get("unique_suppliers", 0)) >= 3:
+        if (
+            isinstance(wp, dict)
+            and wp.get("top_supplier_share", 1) < 0.20
+            and wp.get("n_unique_suppliers", wp.get("unique_suppliers", 0)) >= 3
+        ):
             favorable.append((idx, _trunc(_s(ed.get("objeto", "")), 60), wp.get("probability", 0)))
     if favorable:
-        el.append(Paragraph(
-            f"<font color='{SIGNAL_GREEN.hexval()}'><b>Mercados Favoráveis à Entrada</b></font>",
-            styles["h3"],
-        ))
-        el.append(Paragraph(
-            f"{len(favorable)} edital(is) sem fornecedor recorrente dominante (HHI baixo, nenhum fornecedor >20% do mercado):",
-            styles["body_small"],
-        ))
-        for idx, obj, prob in favorable[:5]:
-            el.append(Paragraph(
-                f"  <b>{idx}.</b> {obj} — Comp.Est.: {_pct(prob)}",
+        el.append(
+            Paragraph(
+                f"<font color='{SIGNAL_GREEN.hexval()}'><b>Mercados Favoráveis à Entrada</b></font>",
+                styles["h3"],
+            )
+        )
+        el.append(
+            Paragraph(
+                f"{len(favorable)} edital(is) sem fornecedor recorrente dominante (HHI baixo, nenhum fornecedor >20% do mercado):",
                 styles["body_small"],
-            ))
+            )
+        )
+        for idx, obj, prob in favorable[:5]:
+            el.append(
+                Paragraph(
+                    f"  <b>{idx}.</b> {obj} — Comp.Est.: {_pct(prob)}",
+                    styles["body_small"],
+                )
+            )
         el.append(Spacer(1, 4 * mm))
 
     el.append(Spacer(1, 4 * mm))
@@ -2094,25 +2496,36 @@ def _build_company_profile_content(data: dict, styles: dict) -> list:
         raw_fields.append(("Regime Tributário", " · ".join(regime_parts)))
     for label, value in raw_fields:
         if value and str(value).strip() and value != " — ":
-            info_rows.append([
-                Paragraph(f"<b>{label}</b>", ParagraphStyle(
-                    f"lbl_{label[:6]}", parent=styles["cell"],
-                    fontName="Helvetica-Bold", textColor=TEXT_SECONDARY,
-                )),
-                Paragraph(_s(str(value)), styles["cell"]),
-            ])
+            info_rows.append(
+                [
+                    Paragraph(
+                        f"<b>{label}</b>",
+                        ParagraphStyle(
+                            f"lbl_{label[:6]}",
+                            parent=styles["cell"],
+                            fontName="Helvetica-Bold",
+                            textColor=TEXT_SECONDARY,
+                        ),
+                    ),
+                    Paragraph(_s(str(value)), styles["cell"]),
+                ]
+            )
 
     if info_rows:
         info_t = Table(info_rows, colWidths=[avail * 0.22, avail * 0.78])
-        info_t.setStyle(TableStyle([
-            ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
-            ("LINEBELOW", (0, -1), (-1, -1), 0.4, RULE_COLOR),
-            *[("LINEBELOW", (0, i), (-1, i), 0.2, RULE_COLOR) for i in range(len(info_rows) - 1)],
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("TOPPADDING", (0, 0), (-1, -1), 3),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-            ("LEFTPADDING", (0, 0), (-1, -1), 5),
-        ]))
+        info_t.setStyle(
+            TableStyle(
+                [
+                    ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
+                    ("LINEBELOW", (0, -1), (-1, -1), 0.4, RULE_COLOR),
+                    *[("LINEBELOW", (0, i), (-1, i), 0.2, RULE_COLOR) for i in range(len(info_rows) - 1)],
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 3),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                ]
+            )
+        )
         el.append(info_t)
         el.append(Spacer(1, 4 * mm))
 
@@ -2138,10 +2551,12 @@ def _build_company_profile_content(data: dict, styles: dict) -> list:
             "ESTABELECIDO": ("Estabelecido — Portfólio diversificado", colors.HexColor("#2D7D46")),
         }
         label, color = profile_labels.get(profile, (profile, TEXT_SECONDARY))
-        el.append(Paragraph(
-            f"<b>Perfil de Maturidade Licitatória:</b> <font color='{color.hexval()}'><b>{label}</b></font>",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>Perfil de Maturidade Licitatória:</b> <font color='{color.hexval()}'><b>{label}</b></font>",
+                styles["body"],
+            )
+        )
         if rationale:
             el.append(Paragraph(rationale, styles["caption"]))
         el.append(Spacer(1, 2 * mm))
@@ -2178,10 +2593,12 @@ def _build_company_profile_content(data: dict, styles: dict) -> list:
             hist_text += f"  |  Valor acumulado: {_currency(valor_hist)}"
         el.append(Paragraph(hist_text, styles["body"]))
     else:
-        el.append(Paragraph(
-            "Sem histórico de contratos governamentais federais identificado.",
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "Sem histórico de contratos governamentais federais identificado.",
+                styles["body_small"],
+            )
+        )
 
     el.append(Spacer(1, 8 * mm))
     return el
@@ -2212,29 +2629,40 @@ def _build_executive_summary(data: dict, styles: dict, sec: dict | None = None) 
     # Metrics — clean boxes with thin borders
     total = len(editais)
     participar = sum(1 for e in editais if (e.get("recomendacao") or "").upper().startswith("PARTICIPAR"))
-    cautela = sum(1 for e in editais if "CAUTELA" in (e.get("recomendacao") or "").upper() or "AVALIAR" in (e.get("recomendacao") or "").upper())
+    cautela = sum(
+        1
+        for e in editais
+        if "CAUTELA" in (e.get("recomendacao") or "").upper() or "AVALIAR" in (e.get("recomendacao") or "").upper()
+    )
     valores = [_safe_float(e.get("valor_estimado")) for e in editais if e.get("valor_estimado")]
     valor_total = sum(valores)
 
     avail = PAGE_WIDTH - 2 * MARGIN
     col_w = avail / 4
     metrics = Table(
-        [[
-            _metric_cell(str(total), "Oportunidades", styles),
-            _metric_cell(str(participar), "Participar", styles),
-            _metric_cell(str(cautela), "Avaliar", styles),
-            _metric_cell(_currency_short(valor_total), "Valor Total", styles),
-        ]],
-        colWidths=[col_w] * 4, rowHeights=[20 * mm],
+        [
+            [
+                _metric_cell(str(total), "Oportunidades", styles),
+                _metric_cell(str(participar), "Participar", styles),
+                _metric_cell(str(cautela), "Avaliar", styles),
+                _metric_cell(_currency_short(valor_total), "Valor Total", styles),
+            ]
+        ],
+        colWidths=[col_w] * 4,
+        rowHeights=[20 * mm],
     )
-    metrics.setStyle(TableStyle([
-        ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
-        ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE_COLOR),
-        ("LINEBEFORE", (1, 0), (1, 0), 0.3, RULE_COLOR),
-        ("LINEBEFORE", (2, 0), (2, 0), 0.3, RULE_COLOR),
-        ("LINEBEFORE", (3, 0), (3, 0), 0.3, RULE_COLOR),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    ]))
+    metrics.setStyle(
+        TableStyle(
+            [
+                ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
+                ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE_COLOR),
+                ("LINEBEFORE", (1, 0), (1, 0), 0.3, RULE_COLOR),
+                ("LINEBEFORE", (2, 0), (2, 0), 0.3, RULE_COLOR),
+                ("LINEBEFORE", (3, 0), (3, 0), 0.3, RULE_COLOR),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )
+    )
     el.append(metrics)
     el.append(Spacer(1, 3 * mm))
 
@@ -2246,27 +2674,38 @@ def _build_executive_summary(data: dict, styles: dict, sec: dict | None = None) 
         "densidade de concorrentes e concentração de mercado. Percentual baixo é normal "
         "em licitações abertas com muitos participantes."
     )
-    el.append(Paragraph(
-        legend_text,
-        ParagraphStyle(
-            "metrics_legend", parent=styles["body_small"],
-            fontName="Helvetica", fontSize=7.5, textColor=TEXT_MUTED,
-            leading=10, spaceAfter=2 * mm,
-        ),
-    ))
+    el.append(
+        Paragraph(
+            legend_text,
+            ParagraphStyle(
+                "metrics_legend",
+                parent=styles["body_small"],
+                fontName="Helvetica",
+                fontSize=7.5,
+                textColor=TEXT_MUTED,
+                leading=10,
+                spaceAfter=2 * mm,
+            ),
+        )
+    )
     el.append(Spacer(1, 2 * mm))
 
     # F41: Excel companion reference
     n_editais = len(editais)
     if n_editais > 0:
-        el.append(Paragraph(
-            f"<i>Este relatório acompanha planilha Excel com todos os {n_editais} editais "
-            f"para análise detalhada e filtragem personalizada.</i>",
-            ParagraphStyle(
-                "excel_ref", parent=styles["body_small"],
-                fontName="Helvetica-Oblique", fontSize=8, textColor=TEXT_MUTED,
-            ),
-        ))
+        el.append(
+            Paragraph(
+                f"<i>Este relatório acompanha planilha Excel com todos os {n_editais} editais "
+                f"para análise detalhada e filtragem personalizada.</i>",
+                ParagraphStyle(
+                    "excel_ref",
+                    parent=styles["body_small"],
+                    fontName="Helvetica-Oblique",
+                    fontSize=8,
+                    textColor=TEXT_MUTED,
+                ),
+            )
+        )
         el.append(Spacer(1, 3 * mm))
 
     # Discard note — inform reader that irrelevant editais were filtered out
@@ -2280,14 +2719,18 @@ def _build_executive_summary(data: dict, styles: dict, sec: dict | None = None) 
         if motivos:
             nota += f": {motivos}"
         nota += "."
-        el.append(Paragraph(
-            f"<i>{nota}</i>",
-            ParagraphStyle(
-                "discard_note", parent=styles["caption"],
-                textColor=colors.HexColor("#888888"), fontSize=7.5,
-                spaceAfter=4 * mm,
-            ),
-        ))
+        el.append(
+            Paragraph(
+                f"<i>{nota}</i>",
+                ParagraphStyle(
+                    "discard_note",
+                    parent=styles["caption"],
+                    textColor=colors.HexColor("#888888"),
+                    fontSize=7.5,
+                    spaceAfter=4 * mm,
+                ),
+            )
+        )
 
     # UF distribution
     uf_counts: dict[str, int] = {}
@@ -2305,11 +2748,13 @@ def _build_executive_summary(data: dict, styles: dict, sec: dict | None = None) 
         rows = [header]
         for uf, cnt in sorted(uf_counts.items(), key=lambda x: -x[1])[:8]:
             pct = cnt / total * 100 if total else 0
-            rows.append([
-                Paragraph(uf, styles["cell_center"]),
-                Paragraph(str(cnt), styles["cell_center"]),
-                Paragraph(f"{pct:.0f}%".replace(".", ","), styles["cell_center"]),
-            ])
+            rows.append(
+                [
+                    Paragraph(uf, styles["cell_center"]),
+                    Paragraph(str(cnt), styles["cell_center"]),
+                    Paragraph(f"{pct:.0f}%".replace(".", ","), styles["cell_center"]),
+                ]
+            )
         tw = avail * 0.45 if len(uf_counts) <= 4 else avail * 0.6
         t = _three_rule_table(rows, [tw * 0.30, tw * 0.35, tw * 0.35])
         el.append(t)
@@ -2344,8 +2789,9 @@ def _build_strategic_positioning(data: dict, styles: dict, sec: dict | None = No
     rationale = _s(thesis_data.get("rationale", ""))
     # Sanitize: remove nonsensical discount mentions from pre-generated rationale
     import re
-    rationale = re.sub(r'desconto médio de apenas -?\d{3,}[,.]?\d*%\s*—\s*margens comprimidas\.?\s*', '', rationale)
-    rationale = re.sub(r'desconto médio de apenas N/I%?\s*—\s*margens comprimidas\.?\s*', '', rationale)
+
+    rationale = re.sub(r"desconto médio de apenas -?\d{3,}[,.]?\d*%\s*—\s*margens comprimidas\.?\s*", "", rationale)
+    rationale = re.sub(r"desconto médio de apenas N/I%?\s*—\s*margens comprimidas\.?\s*", "", rationale)
     confidence = thesis_data.get("confidence", "")
     signals = thesis_data.get("signals", {})
 
@@ -2375,20 +2821,28 @@ def _build_strategic_positioning(data: dict, styles: dict, sec: dict | None = No
         f"<font size='8' color='{TEXT_SECONDARY.hexval()}'>{conf_suffix}</font>"
         f"<br/><font size='9' color='{TEXT_COLOR.hexval()}'>{rationale}</font>",
         ParagraphStyle(
-            "thesis_cell", parent=styles["body"],
-            fontName="Times-Roman", fontSize=10, leading=14,
-            spaceBefore=0, spaceAfter=0,
+            "thesis_cell",
+            parent=styles["body"],
+            fontName="Times-Roman",
+            fontSize=10,
+            leading=14,
+            spaceBefore=0,
+            spaceAfter=0,
         ),
     )
     thesis_t = Table([[thesis_cell]], colWidths=[avail])
-    thesis_t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (0, 0), bg_color),
-        ("LINEBEFORE", (0, 0), (0, 0), 3, border_color),
-        ("TOPPADDING", (0, 0), (0, 0), 6),
-        ("BOTTOMPADDING", (0, 0), (0, 0), 6),
-        ("LEFTPADDING", (0, 0), (0, 0), 10),
-        ("RIGHTPADDING", (0, 0), (0, 0), 8),
-    ]))
+    thesis_t.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (0, 0), bg_color),
+                ("LINEBEFORE", (0, 0), (0, 0), 3, border_color),
+                ("TOPPADDING", (0, 0), (0, 0), 6),
+                ("BOTTOMPADDING", (0, 0), (0, 0), 6),
+                ("LEFTPADDING", (0, 0), (0, 0), 10),
+                ("RIGHTPADDING", (0, 0), (0, 0), 8),
+            ]
+        )
+    )
     el.append(thesis_t)
     el.append(Spacer(1, 4 * mm))
 
@@ -2446,8 +2900,9 @@ def _build_strategic_positioning(data: dict, styles: dict, sec: dict | None = No
         }
         i_trend = Paragraph(
             trend_interp.get(trend_label, ""),
-            ParagraphStyle("i_trend", parent=styles["cell_center"],
-                           fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED),
+            ParagraphStyle(
+                "i_trend", parent=styles["cell_center"], fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED
+            ),
         )
 
         n_sup = hhi.get("n_suppliers", 0)
@@ -2457,16 +2912,18 @@ def _build_strategic_positioning(data: dict, styles: dict, sec: dict | None = No
             i_hhi_text += f" (HHI {_dec(hhi_val, 2)})" if i_hhi_text else f"HHI {_dec(hhi_val, 2)}"
         i_hhi = Paragraph(
             i_hhi_text,
-            ParagraphStyle("i_hhi", parent=styles["cell_center"],
-                           fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED),
+            ParagraphStyle(
+                "i_hhi", parent=styles["cell_center"], fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED
+            ),
         )
 
         n_bench = price.get("editais_with_benchmark", 0)
         i_price_text = f"Base: {n_bench} editais" if n_bench else ""
         i_price = Paragraph(
             i_price_text,
-            ParagraphStyle("i_price", parent=styles["cell_center"],
-                           fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED),
+            ParagraphStyle(
+                "i_price", parent=styles["cell_center"], fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED
+            ),
         )
 
         col_w = avail / 3
@@ -2485,12 +2942,12 @@ def _build_strategic_positioning(data: dict, styles: dict, sec: dict | None = No
 def _build_overview_table(editais_list: list, styles: dict, start_idx: int = 1) -> list:
     avail = PAGE_WIDTH - 2 * MARGIN
     col_widths = [
-        avail * 0.06,   # #
-        avail * 0.40,   # Objeto + Órgão
-        avail * 0.06,   # UF
-        avail * 0.14,   # Valor
-        avail * 0.10,   # Prazo
-        avail * 0.24,   # Recomendação
+        avail * 0.06,  # #
+        avail * 0.40,  # Objeto + Órgão
+        avail * 0.06,  # UF
+        avail * 0.14,  # Valor
+        avail * 0.10,  # Prazo
+        avail * 0.24,  # Recomendação
     ]
 
     header = [
@@ -2512,8 +2969,11 @@ def _build_overview_table(editais_list: list, styles: dict, start_idx: int = 1) 
         rec_info = REC_STYLES.get(rec, REC_STYLES["NÃO RECOMENDADO"])
 
         rec_style = ParagraphStyle(
-            f"rec_{idx}", parent=styles["cell"],
-            fontName="Helvetica-Bold", textColor=rec_info["color"], fontSize=7,
+            f"rec_{idx}",
+            parent=styles["cell"],
+            fontName="Helvetica-Bold",
+            textColor=rec_info["color"],
+            fontSize=7,
         )
 
         objeto = _trunc(_s(ed.get("objeto", "")), 150)
@@ -2522,7 +2982,7 @@ def _build_overview_table(editais_list: list, styles: dict, start_idx: int = 1) 
         if ov_link and ov_link.startswith("http"):
             objeto_orgao = (
                 f'<a href="{ov_link}" color="{LINK_BLUE.hexval()}"><b>{objeto}</b></a>'
-                f'<br/><font size=\'7\' color=\'{TEXT_MUTED.hexval()}\'>{orgao}</font>'
+                f"<br/><font size='7' color='{TEXT_MUTED.hexval()}'>{orgao}</font>"
             )
         else:
             objeto_orgao = f"<b>{objeto}</b><br/><font size='7' color='{TEXT_MUTED.hexval()}'>{orgao}</font>"
@@ -2532,27 +2992,38 @@ def _build_overview_table(editais_list: list, styles: dict, start_idx: int = 1) 
             enc_date = _date(ed.get("data_encerramento"))
             prazo = enc_date if enc_date != "N/I" else "—"
 
-        rows.append([
-            Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-            Paragraph(objeto_orgao, styles["cell"]),
-            Paragraph(_s(ed.get("uf", "")), styles["cell_center"]),
-            Paragraph(_currency_short(ed.get("valor_estimado")), styles["cell_right"]),
-            Paragraph(prazo, styles["cell_center"]),
-            Paragraph(rec, ParagraphStyle(
-                f"rec2_{idx}", parent=rec_style, wordWrap="CJK",
-            )),
-        ])
+        rows.append(
+            [
+                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                Paragraph(objeto_orgao, styles["cell"]),
+                Paragraph(_s(ed.get("uf", "")), styles["cell_center"]),
+                Paragraph(_currency_short(ed.get("valor_estimado")), styles["cell_right"]),
+                Paragraph(prazo, styles["cell_center"]),
+                Paragraph(
+                    rec,
+                    ParagraphStyle(
+                        f"rec2_{idx}",
+                        parent=rec_style,
+                        wordWrap="CJK",
+                    ),
+                ),
+            ]
+        )
 
     result = [_three_rule_table(rows, col_widths)]
     if overflow_count > 0:
-        result.append(Paragraph(
-            f"+ {overflow_count} edital(is) adicionais disponíveis na planilha Excel em anexo",
-            ParagraphStyle(
-                "ov_overflow_note", parent=styles["caption"],
-                fontName="Helvetica-Oblique", textColor=TEXT_MUTED,
-                spaceBefore=2 * mm,
-            ),
-        ))
+        result.append(
+            Paragraph(
+                f"+ {overflow_count} edital(is) adicionais disponíveis na planilha Excel em anexo",
+                ParagraphStyle(
+                    "ov_overflow_note",
+                    parent=styles["caption"],
+                    fontName="Helvetica-Oblique",
+                    textColor=TEXT_MUTED,
+                    spaceBefore=2 * mm,
+                ),
+            )
+        )
     return result
 
 
@@ -2616,8 +3087,11 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
             f"Os demais {len(all_eligible) - MAX_DETAILED_EDITAIS} editais estão disponíveis "
             f"na planilha Excel anexa para análise complementar.</i>",
             ParagraphStyle(
-                "truncation_note", parent=styles["body"],
-                fontName="Helvetica-Oblique", fontSize=9, textColor=TEXT_MUTED,
+                "truncation_note",
+                parent=styles["body"],
+                fontName="Helvetica-Oblique",
+                fontSize=9,
+                textColor=TEXT_MUTED,
             ),
         )
         el.append(truncation_note)
@@ -2637,10 +3111,12 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
         title_text = f"<b>{num}.{idx}.</b>  {objeto}"
         if link and link.startswith("http"):
             title_text = f'<b>{num}.{idx}.</b>  <a href="{link}" color="{LINK_BLUE.hexval()}">{objeto}</a>'
-        header_block.append(Paragraph(
-            title_text,
-            styles["h2"],
-        ))
+        header_block.append(
+            Paragraph(
+                title_text,
+                styles["h2"],
+            )
+        )
 
         # HARD-004: Per-edital alert badges (replaces generic acervo warning)
         alertas = ed.get("alertas_criticos", [])
@@ -2661,38 +3137,55 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
             alert_parts.append(f"<font color='{color.hexval()}'>{icon} {label}</font>")
 
         if alert_parts:
-            header_block.append(Paragraph(
-                " &nbsp;&nbsp; ".join(alert_parts),
-                ParagraphStyle(
-                    f"alerts_{idx}", parent=styles["body"],
-                    fontName="Helvetica-Bold", fontSize=8,
-                    spaceBefore=1 * mm, spaceAfter=1 * mm,
-                ),
-            ))
+            header_block.append(
+                Paragraph(
+                    " &nbsp;&nbsp; ".join(alert_parts),
+                    ParagraphStyle(
+                        f"alerts_{idx}",
+                        parent=styles["body"],
+                        fontName="Helvetica-Bold",
+                        fontSize=8,
+                        spaceBefore=1 * mm,
+                        spaceAfter=1 * mm,
+                    ),
+                )
+            )
         elif acervo_status != "CONFIRMADO":
-            header_block.append(Paragraph(
-                "⚠ A participação efetiva depende de verificação prévia dos atestados técnicos "
-                "compatíveis com o objeto licitado.",
-                ParagraphStyle(
-                    f"acervo_warn_{idx}", parent=styles["body"],
-                    fontName="Helvetica-Oblique", fontSize=8, textColor=SIGNAL_AMBER,
-                    spaceBefore=1 * mm, spaceAfter=1 * mm,
-                ),
-            ))
+            header_block.append(
+                Paragraph(
+                    "⚠ A participação efetiva depende de verificação prévia dos atestados técnicos "
+                    "compatíveis com o objeto licitado.",
+                    ParagraphStyle(
+                        f"acervo_warn_{idx}",
+                        parent=styles["body"],
+                        fontName="Helvetica-Oblique",
+                        fontSize=8,
+                        textColor=SIGNAL_AMBER,
+                        spaceBefore=1 * mm,
+                        spaceAfter=1 * mm,
+                    ),
+                )
+            )
 
         # INSIGHT-FIRST: Lead with strategic rationale before technical data
         justificativa = _s(ed.get("justificativa", ""))
         rec_info_block = REC_STYLES.get(rec, REC_STYLES["NÃO RECOMENDADO"])
         if justificativa:
-            header_block.append(Paragraph(
-                f"<font color='{rec_info_block['color'].hexval()}'><b>{rec}</b></font>"
-                f"<font size='9' color='{TEXT_SECONDARY.hexval()}'> — {justificativa}</font>",
-                ParagraphStyle(
-                    f"insight_{idx}", parent=styles["body"],
-                    fontName="Times-Bold", fontSize=10, textColor=rec_info_block["color"],
-                    spaceBefore=1 * mm, spaceAfter=2 * mm,
-                ),
-            ))
+            header_block.append(
+                Paragraph(
+                    f"<font color='{rec_info_block['color'].hexval()}'><b>{rec}</b></font>"
+                    f"<font size='9' color='{TEXT_SECONDARY.hexval()}'> — {justificativa}</font>",
+                    ParagraphStyle(
+                        f"insight_{idx}",
+                        parent=styles["body"],
+                        fontName="Times-Bold",
+                        fontSize=10,
+                        textColor=rec_info_block["color"],
+                        spaceBefore=1 * mm,
+                        spaceAfter=2 * mm,
+                    ),
+                )
+            )
 
         # Key strategic metrics bar (viability + probability + differential)
         wp = ed.get("win_probability", {})
@@ -2723,31 +3216,49 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
         if isinstance(roi, dict) and roi.get("roi_max", 0) > 0:
             strategic_bar_parts.append(f"Resultado potencial: até {_currency_short(roi['roi_max'])}")
         if ed.get("strategic_category"):
-            cat_labels = {"QUICK_WIN": "Quick Win", "OPORTUNIDADE": "Oportunidade",
-                          "INVESTIMENTO": "Investimento Estratégico", "INACESSÍVEL": "Inacessível",
-                          "BAIXA_PRIORIDADE": "Baixa Prioridade"}
-            strategic_bar_parts.append(f"Categoria: {cat_labels.get(ed['strategic_category'], ed['strategic_category'])}")
+            cat_labels = {
+                "QUICK_WIN": "Quick Win",
+                "OPORTUNIDADE": "Oportunidade",
+                "INVESTIMENTO": "Investimento Estratégico",
+                "INACESSÍVEL": "Inacessível",
+                "BAIXA_PRIORIDADE": "Baixa Prioridade",
+            }
+            strategic_bar_parts.append(
+                f"Categoria: {cat_labels.get(ed['strategic_category'], ed['strategic_category'])}"
+            )
 
         if strategic_bar_parts:
-            header_block.append(Paragraph(
-                " &nbsp;|&nbsp; ".join(strategic_bar_parts),
-                ParagraphStyle(
-                    f"stbar_{idx}", parent=styles["body_small"],
-                    fontName="Helvetica-Bold", fontSize=8, textColor=INK,
-                    spaceBefore=0, spaceAfter=3 * mm,
-                ),
-            ))
+            header_block.append(
+                Paragraph(
+                    " &nbsp;|&nbsp; ".join(strategic_bar_parts),
+                    ParagraphStyle(
+                        f"stbar_{idx}",
+                        parent=styles["body_small"],
+                        fontName="Helvetica-Bold",
+                        fontSize=8,
+                        textColor=INK,
+                        spaceBefore=0,
+                        spaceAfter=3 * mm,
+                    ),
+                )
+            )
 
         # Ficha técnica — minimal key-value
         info_rows = []
         raw_fields = [
             ("Órgão", ed.get("orgao")),
-            ("UF / Município", (
-                f"{ed.get('uf')} — {ed.get('municipio')}" if ed.get("uf") and ed.get("municipio")
-                else f"{ed.get('uf')} — município não informado" if ed.get("uf")
-                else f"UF não informada — {ed.get('municipio')}" if ed.get("municipio")
-                else "Localização não informada"
-            )),
+            (
+                "UF / Município",
+                (
+                    f"{ed.get('uf')} — {ed.get('municipio')}"
+                    if ed.get("uf") and ed.get("municipio")
+                    else f"{ed.get('uf')} — município não informado"
+                    if ed.get("uf")
+                    else f"UF não informada — {ed.get('municipio')}"
+                    if ed.get("municipio")
+                    else "Localização não informada"
+                ),
+            ),
             ("Modalidade", ed.get("modalidade")),
             ("Valor Estimado", _currency(ed.get("valor_estimado")) if ed.get("valor_estimado") else None),
             ("Data de Abertura", _date(ed.get("data_abertura"))),
@@ -2766,9 +3277,9 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
             if ibge.get("pib_mil_reais"):
                 pib = ibge["pib_mil_reais"]
                 if pib >= 1_000_000:
-                    ibge_parts.append(f"PIB R${pib/1_000_000:.1f}B")
+                    ibge_parts.append(f"PIB R${pib / 1_000_000:.1f}B")
                 elif pib >= 1_000:
-                    ibge_parts.append(f"PIB R${pib/1_000:.0f}M")
+                    ibge_parts.append(f"PIB R${pib / 1_000:.0f}M")
                 else:
                     ibge_parts.append(f"PIB R${pib:.0f}k")
             raw_fields.append(("Município (IBGE)", " · ".join(ibge_parts)))
@@ -2778,26 +3289,37 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
 
         for label, value in raw_fields:
             if value and str(value).strip() and value != "N/I" and value != " — N/I" and str(value) != "None":
-                info_rows.append([
-                    Paragraph(f"<b>{label}</b>", ParagraphStyle(
-                        f"ft_lbl_{idx}_{label[:4]}", parent=styles["cell"],
-                        fontName="Helvetica-Bold", textColor=TEXT_SECONDARY,
-                    )),
-                    Paragraph(_s(str(value)), styles["cell"]),
-                ])
+                info_rows.append(
+                    [
+                        Paragraph(
+                            f"<b>{label}</b>",
+                            ParagraphStyle(
+                                f"ft_lbl_{idx}_{label[:4]}",
+                                parent=styles["cell"],
+                                fontName="Helvetica-Bold",
+                                textColor=TEXT_SECONDARY,
+                            ),
+                        ),
+                        Paragraph(_s(str(value)), styles["cell"]),
+                    ]
+                )
         if info_rows:
             info_t = Table(info_rows, colWidths=[avail * 0.20, avail * 0.80])
             n_info = len(info_rows)
-            info_t.setStyle(TableStyle([
-                ("LINEABOVE", (0, 0), (-1, 0), 0.4, RULE_COLOR),
-                ("LINEBELOW", (0, n_info - 1), (-1, n_info - 1), 0.4, RULE_COLOR),
-                *[("LINEBELOW", (0, i), (-1, i), 0.15, RULE_COLOR) for i in range(n_info - 1)],
-                ("BACKGROUND", (0, 0), (0, -1), BG_SUBTLE),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("TOPPADDING", (0, 0), (-1, -1), 3),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-                ("LEFTPADDING", (0, 0), (-1, -1), 5),
-            ]))
+            info_t.setStyle(
+                TableStyle(
+                    [
+                        ("LINEABOVE", (0, 0), (-1, 0), 0.4, RULE_COLOR),
+                        ("LINEBELOW", (0, n_info - 1), (-1, n_info - 1), 0.4, RULE_COLOR),
+                        *[("LINEBELOW", (0, i), (-1, i), 0.15, RULE_COLOR) for i in range(n_info - 1)],
+                        ("BACKGROUND", (0, 0), (0, -1), BG_SUBTLE),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("TOPPADDING", (0, 0), (-1, -1), 3),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                    ]
+                )
+            )
             header_block.append(info_t)
             header_block.append(Spacer(1, 3 * mm))
 
@@ -2811,11 +3333,13 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
         pop = ibge.get("populacao")
         valor_est = _safe_float(ed.get("valor_estimado"))
         if pop and valor_est and pop < 10_000 and valor_est > 5_000_000:
-            el.append(Paragraph(
-                f"<font color='{SIGNAL_AMBER.hexval()}'><b>ALERTA</b></font> "
-                f"Município com {pop:,} habitantes licitando {_currency_short(valor_est)} — verificar capacidade fiscal",
-                styles["body_small"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<font color='{SIGNAL_AMBER.hexval()}'><b>ALERTA</b></font> "
+                    f"Município com {pop:,} habitantes licitando {_currency_short(valor_est)} — verificar capacidade fiscal",
+                    styles["body_small"],
+                )
+            )
 
         # Distance
         distancia = ed.get("distancia", {})
@@ -2854,13 +3378,19 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
         organ_risk = ed.get("organ_risk", {})
         if organ_risk and organ_risk.get("organ_track_record") != "INDETERMINADO":
             track = organ_risk.get("organ_track_record", "")
-            track_colors = {"BOM": colors.HexColor("#2D7D46"), "REGULAR": colors.HexColor("#B8860B"), "RISCO": SIGNAL_RED}
+            track_colors = {
+                "BOM": colors.HexColor("#2D7D46"),
+                "REGULAR": colors.HexColor("#B8860B"),
+                "RISCO": SIGNAL_RED,
+            }
             track_color = track_colors.get(track, TEXT_SECONDARY)
-            el.append(Paragraph(
-                f"<b>Risco do Edital (Histórico do Órgão):</b> "
-                f"<font color='{track_color.hexval()}'><b>{track}</b></font>",
-                styles["body"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<b>Risco do Edital (Histórico do Órgão):</b> "
+                    f"<font color='{track_color.hexval()}'><b>{track}</b></font>",
+                    styles["body"],
+                )
+            )
             details = []
             if organ_risk.get("similar_published", 0) > 0:
                 details.append(f"{organ_risk['similar_published']} contratação(ões) similar(es) no histórico")
@@ -2882,10 +3412,12 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
         if qual_gap:
             filter_result = qual_gap.get("filter_result", "")
             if filter_result == "INCOMPATÍVEL_CNAE":
-                el.append(Paragraph(
-                    f"<font color='{SIGNAL_RED.hexval()}'><b>Incompatível com CNAEs da empresa</b></font>",
-                    styles["body"],
-                ))
+                el.append(
+                    Paragraph(
+                        f"<font color='{SIGNAL_RED.hexval()}'><b>Incompatível com CNAEs da empresa</b></font>",
+                        styles["body"],
+                    )
+                )
                 rationale = _s(qual_gap.get("incompatibility_rationale", ""))
                 if rationale:
                     el.append(Paragraph(rationale, styles["body_small"]))
@@ -2897,10 +3429,12 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
                     desc = _s(gap.get("description", ""))
                     timeline = gap.get("estimated_timeline", "")
                     action = _s(gap.get("action_required", ""))
-                    el.append(Paragraph(
-                        f"  [{gap_type}] {desc} — <i>{timeline}</i>",
-                        styles["body_small"],
-                    ))
+                    el.append(
+                        Paragraph(
+                            f"  [{gap_type}] {desc} — <i>{timeline}</i>",
+                            styles["body_small"],
+                        )
+                    )
                     if action:
                         el.append(Paragraph(f"    Ação: {action}", styles["caption"]))
                 el.append(Spacer(1, 2 * mm))
@@ -2924,27 +3458,38 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
         for title, key in analysis_fields:
             text = _s(analise.get(key, ""))
             if text:
-                analysis_rows.append([
-                    Paragraph(f"<b>{title}</b>", ParagraphStyle(
-                        f"an_lbl_{idx}_{key[:4]}", parent=styles["cell"],
-                        fontName="Helvetica-Bold", textColor=TEXT_SECONDARY,
-                    )),
-                    Paragraph(text, styles["cell"]),
-                ])
+                analysis_rows.append(
+                    [
+                        Paragraph(
+                            f"<b>{title}</b>",
+                            ParagraphStyle(
+                                f"an_lbl_{idx}_{key[:4]}",
+                                parent=styles["cell"],
+                                fontName="Helvetica-Bold",
+                                textColor=TEXT_SECONDARY,
+                            ),
+                        ),
+                        Paragraph(text, styles["cell"]),
+                    ]
+                )
 
         if analysis_rows:
             n_an = len(analysis_rows)
             box_t = Table(analysis_rows, colWidths=[avail * 0.20, avail * 0.80 - 2 * mm])
-            box_t.setStyle(TableStyle([
-                ("LINEABOVE", (0, 0), (-1, 0), 0.4, RULE_COLOR),
-                ("LINEBELOW", (0, n_an - 1), (-1, n_an - 1), 0.4, RULE_COLOR),
-                *[("LINEBELOW", (0, i), (-1, i), 0.15, RULE_COLOR) for i in range(n_an - 1)],
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("TOPPADDING", (0, 0), (-1, -1), 4),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-                ("LEFTPADDING", (0, 0), (-1, -1), 5),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 5),
-            ]))
+            box_t.setStyle(
+                TableStyle(
+                    [
+                        ("LINEABOVE", (0, 0), (-1, 0), 0.4, RULE_COLOR),
+                        ("LINEBELOW", (0, n_an - 1), (-1, n_an - 1), 0.4, RULE_COLOR),
+                        *[("LINEBELOW", (0, i), (-1, i), 0.15, RULE_COLOR) for i in range(n_an - 1)],
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("TOPPADDING", (0, 0), (-1, -1), 4),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+                    ]
+                )
+            )
             el.append(box_t)
             el.append(Spacer(1, 3 * mm))
 
@@ -2973,40 +3518,47 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
                 Paragraph("<b>Otimista</b>", styles["cell_header_center"]),
             ]
             sc_rows = [sc_header]
-            sc_rows.append([
-                Paragraph("Competitividade Est.", styles["cell"]),
-                Paragraph(_prob_fmt(sc_pess), styles["cell_center"]),
-                Paragraph(_prob_fmt(sc_base), styles["cell_center"]),
-                Paragraph(_prob_fmt(sc_opt), styles["cell_center"]),
-            ])
-            sc_rows.append([
-                Paragraph("Retorno (R$)", styles["cell"]),
-                Paragraph(
-                    _roi_range(sc_pess),
-                    ParagraphStyle(f"sc_p_{idx}", parent=styles["cell_center"],
-                                   textColor=SIGNAL_RED, fontSize=7),
-                ),
-                Paragraph(_roi_range(sc_base), styles["cell_center"]),
-                Paragraph(
-                    _roi_range(sc_opt),
-                    ParagraphStyle(f"sc_o_{idx}", parent=styles["cell_center"],
-                                   textColor=SIGNAL_GREEN, fontSize=7),
-                ),
-            ])
+            sc_rows.append(
+                [
+                    Paragraph("Competitividade Est.", styles["cell"]),
+                    Paragraph(_prob_fmt(sc_pess), styles["cell_center"]),
+                    Paragraph(_prob_fmt(sc_base), styles["cell_center"]),
+                    Paragraph(_prob_fmt(sc_opt), styles["cell_center"]),
+                ]
+            )
+            sc_rows.append(
+                [
+                    Paragraph("Retorno (R$)", styles["cell"]),
+                    Paragraph(
+                        _roi_range(sc_pess),
+                        ParagraphStyle(f"sc_p_{idx}", parent=styles["cell_center"], textColor=SIGNAL_RED, fontSize=7),
+                    ),
+                    Paragraph(_roi_range(sc_base), styles["cell_center"]),
+                    Paragraph(
+                        _roi_range(sc_opt),
+                        ParagraphStyle(f"sc_o_{idx}", parent=styles["cell_center"], textColor=SIGNAL_GREEN, fontSize=7),
+                    ),
+                ]
+            )
             # Triggers row — only if at least one scenario has a trigger
             pess_trigger = _s(sc_pess.get("trigger", ""))
             opt_trigger = _s(sc_opt.get("trigger", ""))
             if pess_trigger or opt_trigger:
                 trigger_style = ParagraphStyle(
-                    f"sc_t_{idx}", parent=styles["cell_center"],
-                    fontName="Helvetica", fontSize=6.5, textColor=TEXT_MUTED,
+                    f"sc_t_{idx}",
+                    parent=styles["cell_center"],
+                    fontName="Helvetica",
+                    fontSize=6.5,
+                    textColor=TEXT_MUTED,
                 )
-                sc_rows.append([
-                    Paragraph("Gatilho", styles["cell"]),
-                    Paragraph(pess_trigger or "—", trigger_style),
-                    Paragraph("—", trigger_style),
-                    Paragraph(opt_trigger or "—", trigger_style),
-                ])
+                sc_rows.append(
+                    [
+                        Paragraph("Gatilho", styles["cell"]),
+                        Paragraph(pess_trigger or "—", trigger_style),
+                        Paragraph("—", trigger_style),
+                        Paragraph(opt_trigger or "—", trigger_style),
+                    ]
+                )
 
             sc_col_w = avail * 0.85
             sc_t = Table(
@@ -3014,17 +3566,21 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
                 colWidths=[sc_col_w * 0.22, sc_col_w * 0.26, sc_col_w * 0.26, sc_col_w * 0.26],
             )
             n_sc = len(sc_rows)
-            sc_t.setStyle(TableStyle([
-                ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
-                ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE_HEAVY),
-                ("LINEBELOW", (0, n_sc - 1), (-1, n_sc - 1), 0.4, RULE_COLOR),
-                *[("LINEBELOW", (0, i), (-1, i), 0.15, RULE_COLOR) for i in range(1, n_sc - 1)],
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("TOPPADDING", (0, 0), (-1, -1), 2),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
-                ("LEFTPADDING", (0, 0), (-1, -1), 4),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 4),
-            ]))
+            sc_t.setStyle(
+                TableStyle(
+                    [
+                        ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
+                        ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE_HEAVY),
+                        ("LINEBELOW", (0, n_sc - 1), (-1, n_sc - 1), 0.4, RULE_COLOR),
+                        *[("LINEBELOW", (0, i), (-1, i), 0.15, RULE_COLOR) for i in range(1, n_sc - 1)],
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("TOPPADDING", (0, 0), (-1, -1), 2),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                    ]
+                )
+            )
             el.append(KeepTogether([sc_t]))
             el.append(Spacer(1, 2 * mm))
 
@@ -3034,27 +3590,31 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
             stability = sensitivity.get("stability", "")
             if stability == "ROBUSTA":
                 score_range = sensitivity.get("score_range", ["", ""])
-                el.append(Paragraph(
-                    f"<font color='{SIGNAL_GREEN.hexval()}'><b>ROBUSTA</b></font>"
-                    f"<font size='8' color='{TEXT_SECONDARY.hexval()}'>"
-                    f" — Viabilidade {sensitivity.get('original_score', '')} "
-                    f"(faixa {score_range[0]}–{score_range[1]})"
-                    f"</font>",
-                    styles["body_small"],
-                ))
+                el.append(
+                    Paragraph(
+                        f"<font color='{SIGNAL_GREEN.hexval()}'><b>ROBUSTA</b></font>"
+                        f"<font size='8' color='{TEXT_SECONDARY.hexval()}'>"
+                        f" — Viabilidade {sensitivity.get('original_score', '')} "
+                        f"(faixa {score_range[0]}–{score_range[1]})"
+                        f"</font>",
+                        styles["body_small"],
+                    )
+                )
             elif stability == "FRAGIL":
                 sensitive_to = _s(sensitivity.get("sensitive_to", ""))
                 fragil_detail = f" (sensível a {sensitive_to})" if sensitive_to else ""
                 score_range = sensitivity.get("score_range", ["", ""])
-                el.append(Paragraph(
-                    f"<font color='{SIGNAL_AMBER.hexval()}'><b>FRÁGIL</b></font>"
-                    f"<font size='8' color='{TEXT_SECONDARY.hexval()}'>"
-                    f"{fragil_detail}"
-                    f" — Viabilidade {sensitivity.get('original_score', '')} "
-                    f"(faixa {score_range[0]}–{score_range[1]})"
-                    f"</font>",
-                    styles["body_small"],
-                ))
+                el.append(
+                    Paragraph(
+                        f"<font color='{SIGNAL_AMBER.hexval()}'><b>FRÁGIL</b></font>"
+                        f"<font size='8' color='{TEXT_SECONDARY.hexval()}'>"
+                        f"{fragil_detail}"
+                        f" — Viabilidade {sensitivity.get('original_score', '')} "
+                        f"(faixa {score_range[0]}–{score_range[1]})"
+                        f"</font>",
+                        styles["body_small"],
+                    )
+                )
             el.append(Spacer(1, 1 * mm))
 
         # Triggers (decision triggers)
@@ -3064,14 +3624,19 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
                 condition = _s(trig.get("condition", ""))
                 action = _s(trig.get("action", ""))
                 if condition and action:
-                    el.append(Paragraph(
-                        f"<b>Se</b> {condition} → {action}",
-                        ParagraphStyle(
-                            f"trig_{idx}", parent=styles["body_small"],
-                            fontName="Helvetica", fontSize=7.5, textColor=TEXT_SECONDARY,
-                            leftIndent=5,
-                        ),
-                    ))
+                    el.append(
+                        Paragraph(
+                            f"<b>Se</b> {condition} → {action}",
+                            ParagraphStyle(
+                                f"trig_{idx}",
+                                parent=styles["body_small"],
+                                fontName="Helvetica",
+                                fontSize=7.5,
+                                textColor=TEXT_SECONDARY,
+                                leftIndent=5,
+                            ),
+                        )
+                    )
             el.append(Spacer(1, 2 * mm))
 
         # Q&A section
@@ -3080,35 +3645,51 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
             el.append(Paragraph("Perguntas do Decisor", styles["h3"]))
             for pergunta, resposta in perguntas.items():
                 if resposta:
-                    el.append(Paragraph(
-                        f"<b>{_s(pergunta)}</b>",
-                        ParagraphStyle(
-                            f"qa_q_{idx}", parent=styles["body"],
-                            fontName="Times-Bold", fontSize=9, textColor=TEXT_COLOR,
-                            spaceAfter=0.5 * mm,
-                        ),
-                    ))
-                    el.append(Paragraph(
-                        _s(resposta),
-                        ParagraphStyle(
-                            f"qa_a_{idx}", parent=styles["body"],
-                            fontName="Times-Roman", fontSize=9, textColor=TEXT_SECONDARY,
-                            leftIndent=0, spaceAfter=3 * mm,
-                        ),
-                    ))
+                    el.append(
+                        Paragraph(
+                            f"<b>{_s(pergunta)}</b>",
+                            ParagraphStyle(
+                                f"qa_q_{idx}",
+                                parent=styles["body"],
+                                fontName="Times-Bold",
+                                fontSize=9,
+                                textColor=TEXT_COLOR,
+                                spaceAfter=0.5 * mm,
+                            ),
+                        )
+                    )
+                    el.append(
+                        Paragraph(
+                            _s(resposta),
+                            ParagraphStyle(
+                                f"qa_a_{idx}",
+                                parent=styles["body"],
+                                fontName="Times-Roman",
+                                fontSize=9,
+                                textColor=TEXT_SECONDARY,
+                                leftIndent=0,
+                                spaceAfter=3 * mm,
+                            ),
+                        )
+                    )
 
         el.append(Spacer(1, 10 * mm))
 
     # Condensed overflow table for editais beyond MAX_DETAILED_EDITAIS
     if detailed_overflow:
-        el.append(Paragraph(
-            f"Demais {len(detailed_overflow)} edital(is) analisado(s) — ver planilha Excel em anexo para detalhamento completo",
-            ParagraphStyle(
-                "overflow_note", parent=styles["body_small"],
-                fontName="Helvetica-Oblique", textColor=TEXT_SECONDARY,
-                spaceBefore=4 * mm, spaceAfter=2 * mm,
-            ),
-        ))
+        el.append(
+            Paragraph(
+                f"Demais {len(detailed_overflow)} edital(is) analisado(s) — ver planilha Excel em anexo para detalhamento completo",
+                ParagraphStyle(
+                    "overflow_note",
+                    parent=styles["body_small"],
+                    fontName="Helvetica-Oblique",
+                    textColor=TEXT_SECONDARY,
+                    spaceBefore=4 * mm,
+                    spaceAfter=2 * mm,
+                ),
+            )
+        )
         ov_header = [
             Paragraph("#", styles["cell_header_center"]),
             Paragraph("Objeto / Órgão", styles["cell_header"]),
@@ -3126,24 +3707,36 @@ def _build_detailed_analysis(data: dict, styles: dict, sec: dict | None = None, 
             objeto_orgao_ov = f"<b>{_trunc(objeto_ov, 120)}</b><br/><font size='7' color='{TEXT_MUTED.hexval()}'>{_trunc(orgao_ov, 60)}</font>"
             link_ov = _fix_pncp_link(ed.get("link", ""))
             if link_ov and link_ov.startswith("http"):
-                objeto_orgao_ov = f'<a href="{link_ov}" color="{LINK_BLUE.hexval()}"><b>{_trunc(objeto_ov, 120)}</b></a><br/><font size=\'7\' color=\'{TEXT_MUTED.hexval()}\'>{_trunc(orgao_ov, 60)}</font>'
+                objeto_orgao_ov = f"<a href=\"{link_ov}\" color=\"{LINK_BLUE.hexval()}\"><b>{_trunc(objeto_ov, 120)}</b></a><br/><font size='7' color='{TEXT_MUTED.hexval()}'>{_trunc(orgao_ov, 60)}</font>"
             score_color = SIGNAL_GREEN if score >= 60 else (SIGNAL_AMBER if score >= 30 else SIGNAL_RED)
-            ov_rows.append([
-                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-                Paragraph(objeto_orgao_ov, styles["cell"]),
-                Paragraph(_s(ed.get("uf", "")), styles["cell_center"]),
-                Paragraph(_currency_short(ed.get("valor_estimado")), styles["cell_right"]),
-                Paragraph(
-                    f"<b>{score}</b>",
-                    ParagraphStyle(f"ov_sc_{idx}", parent=styles["cell_center"],
-                                   fontName="Helvetica-Bold", textColor=score_color),
-                ),
-                Paragraph(rec_ov, ParagraphStyle(
-                    f"ov_rec_{idx}", parent=styles["cell"],
-                    fontName="Helvetica-Bold", fontSize=7,
-                    textColor=rec_info_ov["color"], wordWrap="CJK",
-                )),
-            ])
+            ov_rows.append(
+                [
+                    Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                    Paragraph(objeto_orgao_ov, styles["cell"]),
+                    Paragraph(_s(ed.get("uf", "")), styles["cell_center"]),
+                    Paragraph(_currency_short(ed.get("valor_estimado")), styles["cell_right"]),
+                    Paragraph(
+                        f"<b>{score}</b>",
+                        ParagraphStyle(
+                            f"ov_sc_{idx}",
+                            parent=styles["cell_center"],
+                            fontName="Helvetica-Bold",
+                            textColor=score_color,
+                        ),
+                    ),
+                    Paragraph(
+                        rec_ov,
+                        ParagraphStyle(
+                            f"ov_rec_{idx}",
+                            parent=styles["cell"],
+                            fontName="Helvetica-Bold",
+                            fontSize=7,
+                            textColor=rec_info_ov["color"],
+                            wordWrap="CJK",
+                        ),
+                    ),
+                ]
+            )
         ov_col_w = [avail * 0.05, avail * 0.38, avail * 0.05, avail * 0.13, avail * 0.09, avail * 0.30]
         el.append(_three_rule_table(ov_rows, ov_col_w))
         el.append(Spacer(1, 6 * mm))
@@ -3209,10 +3802,12 @@ def _build_querido_diario_content(data: dict, styles: dict) -> list:
     if not mencoes:
         return el
 
-    el.append(Paragraph(
-        "Publicações em diários oficiais de municípios relevantes para o perfil da empresa.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "Publicações em diários oficiais de municípios relevantes para o perfil da empresa.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -3234,15 +3829,17 @@ def _build_querido_diario_content(data: dict, styles: dict) -> list:
         for exc in excerpts[:2]:
             text = _s(exc.get("text", exc) if isinstance(exc, dict) else exc)
             if text:
-                excerpt_texts.append(f"<i>\"{_trunc(text, 200)}\"</i>")
+                excerpt_texts.append(f'<i>"{_trunc(text, 200)}"</i>')
 
         trecho = "<br/>".join(excerpt_texts) if excerpt_texts else "<i>Sem trecho disponível</i>"
 
-        rows.append([
-            Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-            Paragraph(local_info, styles["cell"]),
-            Paragraph(f"<font size='7'>{trecho}</font>", styles["cell"]),
-        ])
+        rows.append(
+            [
+                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                Paragraph(local_info, styles["cell"]),
+                Paragraph(f"<font size='7'>{trecho}</font>", styles["cell"]),
+            ]
+        )
 
     t = _three_rule_table(rows, [avail * 0.05, avail * 0.22, avail * 0.73])
     el.append(t)
@@ -3289,12 +3886,14 @@ def _build_prioritization(data: dict, styles: dict, sec: dict | None = None) -> 
     el = []
     num = sec["next"]() if sec else 12
     el.extend(_section_heading(f"{num}. Priorização Consolidada", styles))
-    el.append(Paragraph(
-        f"Ranking dos {len(participar)} editais recomendados para participação, "
-        f"ordenados por retorno esperado ajustado à viabilidade. "
-        f"A empresa deve focar nos primeiros da lista e descer conforme capacidade operacional.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            f"Ranking dos {len(participar)} editais recomendados para participação, "
+            f"ordenados por retorno esperado ajustado à viabilidade. "
+            f"A empresa deve focar nos primeiros da lista e descer conforme capacidade operacional.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -3325,22 +3924,33 @@ def _build_prioritization(data: dict, styles: dict, sec: dict | None = None) -> 
 
         score_color = SIGNAL_GREEN if score >= 60 else (SIGNAL_AMBER if score >= 30 else SIGNAL_RED)
 
-        rows.append([
-            Paragraph(f"<b>{rank}º</b>", styles["cell_center"]),
-            Paragraph(f"<b>{idx}.</b> {obj}", styles["cell"]),
-            Paragraph(
-                f"<b>{score}</b>",
-                ParagraphStyle(f"pri_v_{rank}", parent=styles["cell_center"],
-                               fontName="Helvetica-Bold", textColor=score_color),
-            ),
-            Paragraph(_friendly_competition_text(prob, wp), styles["cell_center"]),
-            Paragraph(_currency_short(roi_max), styles["cell_right"]),
-            Paragraph(action, styles["cell"]),
-        ])
+        rows.append(
+            [
+                Paragraph(f"<b>{rank}º</b>", styles["cell_center"]),
+                Paragraph(f"<b>{idx}.</b> {obj}", styles["cell"]),
+                Paragraph(
+                    f"<b>{score}</b>",
+                    ParagraphStyle(
+                        f"pri_v_{rank}", parent=styles["cell_center"], fontName="Helvetica-Bold", textColor=score_color
+                    ),
+                ),
+                Paragraph(_friendly_competition_text(prob, wp), styles["cell_center"]),
+                Paragraph(_currency_short(roi_max), styles["cell_right"]),
+                Paragraph(action, styles["cell"]),
+            ]
+        )
 
-    t = _three_rule_table(rows, [
-        avail * 0.06, avail * 0.30, avail * 0.08, avail * 0.08, avail * 0.14, avail * 0.34,
-    ])
+    t = _three_rule_table(
+        rows,
+        [
+            avail * 0.06,
+            avail * 0.30,
+            avail * 0.08,
+            avail * 0.08,
+            avail * 0.14,
+            avail * 0.34,
+        ],
+    )
     el.append(t)
     el.append(Spacer(1, 6 * mm))
     return el
@@ -3363,12 +3973,14 @@ def _build_development_path(data: dict, styles: dict, sec: dict | None = None) -
     el = []
     num = sec["next"]() if sec else 13
     el.extend(_section_heading(f"{num}. Caminho de Desenvolvimento (24 meses)", styles))
-    el.append(Paragraph(
-        "Editais não recomendados no momento atual — mas que representam mercados acessíveis "
-        "com investimento em capacitação. Abaixo, o que a empresa precisa construir para "
-        "participar dessas oportunidades em futuras janelas.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "Editais não recomendados no momento atual — mas que representam mercados acessíveis "
+            "com investimento em capacitação. Abaixo, o que a empresa precisa construir para "
+            "participar dessas oportunidades em futuras janelas.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -3402,15 +4014,19 @@ def _build_development_path(data: dict, styles: dict, sec: dict | None = None) -
             else:
                 actions.append("Avaliar requisitos específicos do edital")
 
-        el.append(Paragraph(
-            f"<b>{idx}.</b> {obj} — {valor}",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>{idx}.</b> {obj} — {valor}",
+                styles["body"],
+            )
+        )
         if justif:
-            el.append(Paragraph(
-                f"<i>Motivo atual: {_trunc(justif, 120)}</i>",
-                styles["caption"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<i>Motivo atual: {_trunc(justif, 120)}</i>",
+                    styles["caption"],
+                )
+            )
         for action in actions[:3]:
             el.append(Paragraph(f"  → {action}", styles["body_small"]))
         el.append(Spacer(1, 2 * mm))
@@ -3420,19 +4036,27 @@ def _build_development_path(data: dict, styles: dict, sec: dict | None = None) -
 
 
 def _build_next_steps_horizon_table(
-    steps: list, horizon_label: str, styles: dict, avail: float,
-    header_color: Any, header_bg: Any
+    steps: list, horizon_label: str, styles: dict, avail: float, header_color: Any, header_bg: Any
 ) -> list:
     """Render a single horizon as a compact table."""
     el = []
     if not steps:
         return el
 
-    el.append(Paragraph(f"<b>{horizon_label}</b>", ParagraphStyle(
-        f"ns_h_{horizon_label[:4]}", parent=styles["h3"],
-        fontName="Helvetica-Bold", fontSize=9, textColor=header_color,
-        spaceBefore=3 * mm, spaceAfter=1 * mm,
-    )))
+    el.append(
+        Paragraph(
+            f"<b>{horizon_label}</b>",
+            ParagraphStyle(
+                f"ns_h_{horizon_label[:4]}",
+                parent=styles["h3"],
+                fontName="Helvetica-Bold",
+                fontSize=9,
+                textColor=header_color,
+                spaceBefore=3 * mm,
+                spaceAfter=1 * mm,
+            ),
+        )
+    )
 
     header_row = [
         Paragraph("Ação", styles["cell_header"]),
@@ -3444,12 +4068,14 @@ def _build_next_steps_horizon_table(
 
     for step in steps:
         if not isinstance(step, dict):
-            rows.append([
-                Paragraph(_s(step), styles["cell"]),
-                Paragraph("—", styles["cell_center"]),
-                Paragraph("—", styles["cell_center"]),
-                Paragraph("—", styles["cell_center"]),
-            ])
+            rows.append(
+                [
+                    Paragraph(_s(step), styles["cell"]),
+                    Paragraph("—", styles["cell_center"]),
+                    Paragraph("—", styles["cell_center"]),
+                    Paragraph("—", styles["cell_center"]),
+                ]
+            )
             continue
         acao = _s(step.get("acao", ""))
         edital_ref = _s(step.get("edital_ref", step.get("orgao", "")))
@@ -3466,30 +4092,40 @@ def _build_next_steps_horizon_table(
                 pass
         prioridade = _s(step.get("prioridade", ""))
         prio_upper = prioridade.upper()
-        prio_color = SIGNAL_RED if "URGENTE" in prio_upper or "ALTA" in prio_upper else (
-            SIGNAL_AMBER if "MEDIA" in prio_upper or "MÉDIA" in prio_upper else TEXT_COLOR
+        prio_color = (
+            SIGNAL_RED
+            if "URGENTE" in prio_upper or "ALTA" in prio_upper
+            else (SIGNAL_AMBER if "MEDIA" in prio_upper or "MÉDIA" in prio_upper else TEXT_COLOR)
         )
         # Include documentos_necessarios as sub-note if present
         docs = step.get("documentos_necessarios", [])
         if docs and isinstance(docs, list):
             docs_text = ", ".join(str(d) for d in docs[:3])
-            acao = f"{acao}<br/><font size='7' color='{TEXT_MUTED.hexval()}'><i>Docs: {_trunc(docs_text, 80)}</i></font>"
+            acao = (
+                f"{acao}<br/><font size='7' color='{TEXT_MUTED.hexval()}'><i>Docs: {_trunc(docs_text, 80)}</i></font>"
+            )
 
-        rows.append([
-            Paragraph(acao, styles["cell"]),
-            Paragraph(_trunc(edital_ref, 50), styles["cell_center"]),
-            Paragraph(prazo_str, styles["cell_center"]),
-            Paragraph(
-                f"<font color='{prio_color.hexval()}'><b>{prioridade}</b></font>",
-                styles["cell_center"],
-            ),
-        ])
+        rows.append(
+            [
+                Paragraph(acao, styles["cell"]),
+                Paragraph(_trunc(edital_ref, 50), styles["cell_center"]),
+                Paragraph(prazo_str, styles["cell_center"]),
+                Paragraph(
+                    f"<font color='{prio_color.hexval()}'><b>{prioridade}</b></font>",
+                    styles["cell_center"],
+                ),
+            ]
+        )
 
     t = _three_rule_table(rows, [avail * 0.48, avail * 0.22, avail * 0.17, avail * 0.13])
     # Highlight header row with subtle bg
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), header_bg),
-    ]))
+    t.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), header_bg),
+            ]
+        )
+    )
     el.append(t)
     el.append(Spacer(1, 2 * mm))
     return el
@@ -3514,37 +4150,64 @@ def _build_next_steps(data: dict, styles: dict, sec: dict | None = None) -> list
 
         has_content = any([acao_imediata, medio_prazo, desenvolvimento, checklist])
         if not has_content:
-            el.append(Paragraph(
-                "Nenhuma ação pendente identificada.",
-                ParagraphStyle("ns_empty", parent=styles["body"],
-                               textColor=TEXT_MUTED, fontName="Helvetica-Oblique"),
-            ))
+            el.append(
+                Paragraph(
+                    "Nenhuma ação pendente identificada.",
+                    ParagraphStyle(
+                        "ns_empty", parent=styles["body"], textColor=TEXT_MUTED, fontName="Helvetica-Oblique"
+                    ),
+                )
+            )
         else:
             # Ação Imediata — Red/urgent
-            el.extend(_build_next_steps_horizon_table(
-                acao_imediata, "Ação Imediata (0–7 dias)", styles, avail,
-                header_color=SIGNAL_RED,
-                header_bg=colors.HexColor("#FFF5F5"),
-            ))
+            el.extend(
+                _build_next_steps_horizon_table(
+                    acao_imediata,
+                    "Ação Imediata (0–7 dias)",
+                    styles,
+                    avail,
+                    header_color=SIGNAL_RED,
+                    header_bg=colors.HexColor("#FFF5F5"),
+                )
+            )
             # Médio Prazo — Yellow
-            el.extend(_build_next_steps_horizon_table(
-                medio_prazo, "Médio Prazo (8–21 dias)", styles, avail,
-                header_color=SIGNAL_AMBER,
-                header_bg=colors.HexColor("#FFFDF0"),
-            ))
+            el.extend(
+                _build_next_steps_horizon_table(
+                    medio_prazo,
+                    "Médio Prazo (8–21 dias)",
+                    styles,
+                    avail,
+                    header_color=SIGNAL_AMBER,
+                    header_bg=colors.HexColor("#FFFDF0"),
+                )
+            )
             # Desenvolvimento Estratégico — Blue
-            el.extend(_build_next_steps_horizon_table(
-                desenvolvimento, "Desenvolvimento Estratégico (22–30 dias)", styles, avail,
-                header_color=colors.HexColor("#1A5276"),
-                header_bg=colors.HexColor("#EBF5FB"),
-            ))
+            el.extend(
+                _build_next_steps_horizon_table(
+                    desenvolvimento,
+                    "Desenvolvimento Estratégico (22–30 dias)",
+                    styles,
+                    avail,
+                    header_color=colors.HexColor("#1A5276"),
+                    header_bg=colors.HexColor("#EBF5FB"),
+                )
+            )
             # Checklist de Habilitação — checkbox style
             if checklist:
-                el.append(Paragraph("<b>Checklist de Habilitação</b>", ParagraphStyle(
-                    "ns_chk_h", parent=styles["h3"],
-                    fontName="Helvetica-Bold", fontSize=9, textColor=INK,
-                    spaceBefore=3 * mm, spaceAfter=1 * mm,
-                )))
+                el.append(
+                    Paragraph(
+                        "<b>Checklist de Habilitação</b>",
+                        ParagraphStyle(
+                            "ns_chk_h",
+                            parent=styles["h3"],
+                            fontName="Helvetica-Bold",
+                            fontSize=9,
+                            textColor=INK,
+                            spaceBefore=3 * mm,
+                            spaceAfter=1 * mm,
+                        ),
+                    )
+                )
                 for item in checklist:
                     if isinstance(item, dict):
                         acao = _s(item.get("acao", ""))
@@ -3552,18 +4215,25 @@ def _build_next_steps(data: dict, styles: dict, sec: dict | None = None) -> list
                         doc_text = ""
                         if docs and isinstance(docs, list):
                             doc_text = f" — <i>{_trunc(', '.join(str(d) for d in docs[:3]), 80)}</i>"
-                        el.append(Paragraph(
-                            f"&#x25A1; {acao}{doc_text}",
-                            ParagraphStyle(
-                                f"chk_{acao[:8]}", parent=styles["body_small"],
-                                fontSize=9, leading=12, spaceAfter=1 * mm,
-                            ),
-                        ))
+                        el.append(
+                            Paragraph(
+                                f"&#x25A1; {acao}{doc_text}",
+                                ParagraphStyle(
+                                    f"chk_{acao[:8]}",
+                                    parent=styles["body_small"],
+                                    fontSize=9,
+                                    leading=12,
+                                    spaceAfter=1 * mm,
+                                ),
+                            )
+                        )
                     else:
-                        el.append(Paragraph(
-                            f"&#x25A1; {_s(item)}",
-                            styles["body_small"],
-                        ))
+                        el.append(
+                            Paragraph(
+                                f"&#x25A1; {_s(item)}",
+                                styles["body_small"],
+                            )
+                        )
                 el.append(Spacer(1, 2 * mm))
 
     elif isinstance(proximos, list) and proximos:
@@ -3581,46 +4251,61 @@ def _build_next_steps(data: dict, styles: dict, sec: dict | None = None) -> list
                 prioridade = _s(step.get("prioridade", ""))
                 prio_upper = prioridade.upper()
                 prio_color = SIGNAL_RED if "URGENTE" in prio_upper or "ALTA" in prio_upper else TEXT_COLOR
-                rows.append([
-                    Paragraph(acao, styles["cell"]),
-                    Paragraph(prazo, styles["cell_center"]),
-                    Paragraph(f"<font color='{prio_color.hexval()}'><b>{prioridade}</b></font>", styles["cell_center"]),
-                ])
+                rows.append(
+                    [
+                        Paragraph(acao, styles["cell"]),
+                        Paragraph(prazo, styles["cell_center"]),
+                        Paragraph(
+                            f"<font color='{prio_color.hexval()}'><b>{prioridade}</b></font>", styles["cell_center"]
+                        ),
+                    ]
+                )
             else:
-                rows.append([
-                    Paragraph(_s(step), styles["cell"]),
-                    Paragraph("—", styles["cell_center"]),
-                    Paragraph("—", styles["cell_center"]),
-                ])
+                rows.append(
+                    [
+                        Paragraph(_s(step), styles["cell"]),
+                        Paragraph("—", styles["cell_center"]),
+                        Paragraph("—", styles["cell_center"]),
+                    ]
+                )
         t = _three_rule_table(rows, [avail * 0.60, avail * 0.22, avail * 0.18])
         el.append(t)
     else:
         # Empty / missing — fallback message
-        el.append(Paragraph(
-            "Nenhuma ação pendente identificada.",
-            ParagraphStyle("ns_empty2", parent=styles["body"],
-                           textColor=TEXT_MUTED, fontName="Helvetica-Oblique"),
-        ))
+        el.append(
+            Paragraph(
+                "Nenhuma ação pendente identificada.",
+                ParagraphStyle("ns_empty2", parent=styles["body"], textColor=TEXT_MUTED, fontName="Helvetica-Oblique"),
+            )
+        )
 
     el.append(Spacer(1, 8 * mm))
 
     # Contact card
     contact_t = Table(
-        [[Paragraph(
-            "Para dúvidas ou acompanhamento:<br/>"
-            "<b>Tiago Sasaki</b> — Consultor de Inteligência em Licitações<br/>"
-            "(48) 9 8834-4559",
-            styles["body"],
-        )]],
+        [
+            [
+                Paragraph(
+                    "Para dúvidas ou acompanhamento:<br/>"
+                    "<b>Tiago Sasaki</b> — Consultor de Inteligência em Licitações<br/>"
+                    "(48) 9 8834-4559",
+                    styles["body"],
+                )
+            ]
+        ],
         colWidths=[avail],
     )
-    contact_t.setStyle(TableStyle([
-        ("LINEABOVE", (0, 0), (-1, 0), 0.4, RULE_COLOR),
-        ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE_COLOR),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-        ("LEFTPADDING", (0, 0), (-1, -1), 8),
-    ]))
+    contact_t.setStyle(
+        TableStyle(
+            [
+                ("LINEABOVE", (0, 0), (-1, 0), 0.4, RULE_COLOR),
+                ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE_COLOR),
+                ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+            ]
+        )
+    )
     el.append(contact_t)
 
     el.append(Spacer(1, 8 * mm))
@@ -3630,6 +4315,7 @@ def _build_next_steps(data: dict, styles: dict, sec: dict | None = None) -> list
 # ============================================================
 # SICAF & SOURCE CONFIDENCE
 # ============================================================
+
 
 def _build_sicaf_content(data: dict, styles: dict) -> list:
     """Render SICAF content without section heading."""
@@ -3646,25 +4332,33 @@ def _build_sicaf_content(data: dict, styles: dict) -> list:
         attempted_at = sicaf.get("attempted_at", "N/I")
         error_detail = _s(sicaf.get("error_detail", "erro não especificado"))
         amber = colors.HexColor("#D4760A")
-        el.append(Paragraph(
-            f"<font color='{amber.hexval()}'><b>ANÁLISE DE HABILITAÇÃO INCOMPLETA</b></font>",
-            styles["body"],
-        ))
-        el.append(Paragraph(
-            f"Coleta SICAF falhou em <b>{attempted_at}</b>.",
-            styles["body"],
-        ))
-        el.append(Paragraph(
-            f"Motivo: <i>{error_detail}</i>",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                f"<font color='{amber.hexval()}'><b>ANÁLISE DE HABILITAÇÃO INCOMPLETA</b></font>",
+                styles["body"],
+            )
+        )
+        el.append(
+            Paragraph(
+                f"Coleta SICAF falhou em <b>{attempted_at}</b>.",
+                styles["body"],
+            )
+        )
+        el.append(
+            Paragraph(
+                f"Motivo: <i>{error_detail}</i>",
+                styles["body"],
+            )
+        )
         el.append(Spacer(1, 2 * mm))
-        el.append(Paragraph(
-            "Esta seção não foi omitida por irrelevância. A regularidade fiscal é determinante "
-            "para a recomendação final. A ausência de dados SICAF significa que não foi possível "
-            "confirmar a situação cadastral da empresa — <b>não</b> que ela foi verificada e está regular.",
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "Esta seção não foi omitida por irrelevância. A regularidade fiscal é determinante "
+                "para a recomendação final. A ausência de dados SICAF significa que não foi possível "
+                "confirmar a situação cadastral da empresa — <b>não</b> que ela foi verificada e está regular.",
+                styles["body_small"],
+            )
+        )
         el.append(Spacer(1, 8 * mm))
         return el
 
@@ -3675,10 +4369,12 @@ def _build_sicaf_content(data: dict, styles: dict) -> list:
         if crc:
             status_cad = _s(crc.get("status_cadastral", ""))
             color = INK if status_cad == "CADASTRADO" else SIGNAL_RED
-            el.append(Paragraph(
-                f"<b>Status Cadastral (CRC):</b> <font color='{color.hexval()}'><b>{status_cad}</b></font>",
-                styles["body"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<b>Status Cadastral (CRC):</b> <font color='{color.hexval()}'><b>{status_cad}</b></font>",
+                    styles["body"],
+                )
+            )
             for field_label, key in [
                 ("Razão Social", "razao_social"),
                 ("CNAE", "atividade_principal"),
@@ -3705,10 +4401,12 @@ def _build_sicaf_content(data: dict, styles: dict) -> list:
                     val = hab.get(key)
                     if val:
                         hcolor = INK if val.lower() == "regular" else SIGNAL_RED
-                        el.append(Paragraph(
-                            f"— {field_label}: <font color='{hcolor.hexval()}'><b>{_s(val)}</b></font>",
-                            styles["body_small"],
-                        ))
+                        el.append(
+                            Paragraph(
+                                f"— {field_label}: <font color='{hcolor.hexval()}'><b>{_s(val)}</b></font>",
+                                styles["body_small"],
+                            )
+                        )
 
             detalhe = crc.get("detalhe")
             if detalhe and status_cad != "CADASTRADO":
@@ -3719,15 +4417,19 @@ def _build_sicaf_content(data: dict, styles: dict) -> list:
         if restricao:
             possui = restricao.get("possui_restricao", False)
             if possui:
-                el.append(Paragraph(
-                    f"<b>Restrições:</b> <font color='{SIGNAL_RED.hexval()}'><b>Verificar detalhes</b></font>",
-                    styles["body"],
-                ))
+                el.append(
+                    Paragraph(
+                        f"<b>Restrições:</b> <font color='{SIGNAL_RED.hexval()}'><b>Verificar detalhes</b></font>",
+                        styles["body"],
+                    )
+                )
                 for r in restricao.get("restricoes", []):
-                    el.append(Paragraph(
-                        f"— {_s(r.get('tipo', ''))} — {_s(r.get('detalhe', ''))}",
-                        styles["body_small"],
-                    ))
+                    el.append(
+                        Paragraph(
+                            f"— {_s(r.get('tipo', ''))} — {_s(r.get('detalhe', ''))}",
+                            styles["body_small"],
+                        )
+                    )
             else:
                 el.append(Paragraph("Restrições: Nenhuma identificada.", styles["body"]))
     else:
@@ -3767,11 +4469,13 @@ def _build_data_sources_content(data: dict, styles: dict) -> list:
     if not sources:
         return el
 
-    el.append(Paragraph(
-        "Cada dado neste relatório foi obtido de fontes públicas oficiais. "
-        "A tabela abaixo indica o status de cada consulta no momento da coleta.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "Cada dado neste relatório foi obtido de fontes públicas oficiais. "
+            "A tabela abaixo indica o status de cada consulta no momento da coleta.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -3797,20 +4501,25 @@ def _build_data_sources_content(data: dict, styles: dict) -> list:
         if not detail:
             return ""
         replacements = [
-            ("raw", "brutos"), ("filtered", "filtrados"), ("pages", "páginas"),
-            ("errors", "erros"), ("via Playwright", ""), ("via playwright", ""),
+            ("raw", "brutos"),
+            ("filtered", "filtrados"),
+            ("pages", "páginas"),
+            ("errors", "erros"),
+            ("via Playwright", ""),
+            ("via playwright", ""),
             ("SICAF completo", "Consulta realizada com sucesso"),
             ("Sem chave API", "Consulta não realizada"),
-            ("Skipped", "Não consultado"), ("skipped", "não consultado"),
+            ("Skipped", "Não consultado"),
+            ("skipped", "não consultado"),
             ("men\u00e7\u00f5es encontradas", "menções encontradas"),
             ("mencoes encontradas", "menções encontradas"),
         ]
         for eng, pt in replacements:
             detail = detail.replace(eng, pt)
-        detail = re.sub(r'\b\d{3}\s*OK\b', 'consultado', detail)
-        detail = re.sub(r'\bhttpx?\b', '', detail, flags=re.IGNORECASE)
-        detail = re.sub(r'\bGET\b', '', detail)
-        detail = re.sub(r'\bPOST\b', '', detail)
+        detail = re.sub(r"\b\d{3}\s*OK\b", "consultado", detail)
+        detail = re.sub(r"\bhttpx?\b", "", detail, flags=re.IGNORECASE)
+        detail = re.sub(r"\bGET\b", "", detail)
+        detail = re.sub(r"\bPOST\b", "", detail)
         return detail.strip().strip(",").strip()
 
     for key, src_label in source_labels.items():
@@ -3820,14 +4529,18 @@ def _build_data_sources_content(data: dict, styles: dict) -> list:
         detail = _sanitize_detail(detail)
 
         status_style = ParagraphStyle(
-            f"src_{key}", parent=styles["cell"],
-            fontName="Helvetica-Bold", textColor=label_color,
+            f"src_{key}",
+            parent=styles["cell"],
+            fontName="Helvetica-Bold",
+            textColor=label_color,
         )
-        rows.append([
-            Paragraph(src_label, styles["cell"]),
-            Paragraph(label, status_style),
-            Paragraph(_trunc(_s(detail), 120), styles["cell"]),
-        ])
+        rows.append(
+            [
+                Paragraph(src_label, styles["cell"]),
+                Paragraph(label, status_style),
+                Paragraph(_trunc(_s(detail), 120), styles["cell"]),
+            ]
+        )
 
     t = _three_rule_table(rows, [avail * 0.35, avail * 0.20, avail * 0.45])
     el.append(t)
@@ -3835,10 +4548,12 @@ def _build_data_sources_content(data: dict, styles: dict) -> list:
     el.append(Spacer(1, 4 * mm))
     gen_at = _date(metadata.get("generated_at", ""))
     if gen_at:
-        el.append(Paragraph(
-            f"Dados coletados em {gen_at}.",
-            styles["caption"],
-        ))
+        el.append(
+            Paragraph(
+                f"Dados coletados em {gen_at}.",
+                styles["caption"],
+            )
+        )
 
     el.append(Spacer(1, 8 * mm))
     return el
@@ -3885,29 +4600,40 @@ def _build_habilitacao_table(hab: dict, styles: dict) -> list:
     overall = hab.get("status", "?")
     label, label_color = _HAB_OVERALL_LABELS.get(overall, (overall, TEXT_SECONDARY))
 
-    el.append(Paragraph(
-        f"<b>Habilitação:</b> <font color='{label_color.hexval()}'>{label}</font>",
-        ParagraphStyle("hab_title", parent=styles["body"], fontName="Helvetica-Bold", fontSize=9),
-    ))
+    el.append(
+        Paragraph(
+            f"<b>Habilitação:</b> <font color='{label_color.hexval()}'>{label}</font>",
+            ParagraphStyle("hab_title", parent=styles["body"], fontName="Helvetica-Bold", fontSize=9),
+        )
+    )
 
     avail = PAGE_WIDTH - 2 * MARGIN
-    rows = [[
-        Paragraph("<b>Dimensão</b>", styles["cell_header"]),
-        Paragraph("<b>Status</b>", styles["cell_header"]),
-        Paragraph("<b>Detalhe</b>", styles["cell_header"]),
-    ]]
+    rows = [
+        [
+            Paragraph("<b>Dimensão</b>", styles["cell_header"]),
+            Paragraph("<b>Status</b>", styles["cell_header"]),
+            Paragraph("<b>Detalhe</b>", styles["cell_header"]),
+        ]
+    ]
 
     for dim in hab["dimensions"]:
         status = dim.get("status", "?")
         status_color = _HAB_STATUS_COLORS.get(status, TEXT_SECONDARY)
-        rows.append([
-            Paragraph(dim.get("dimension", ""), styles["cell"]),
-            Paragraph(f"<b>{status}</b>", ParagraphStyle(
-                f"hab_s_{status[:3]}", parent=styles["cell"],
-                fontName="Helvetica-Bold", textColor=status_color,
-            )),
-            Paragraph(_s(dim.get("detail", "")), styles["cell"]),
-        ])
+        rows.append(
+            [
+                Paragraph(dim.get("dimension", ""), styles["cell"]),
+                Paragraph(
+                    f"<b>{status}</b>",
+                    ParagraphStyle(
+                        f"hab_s_{status[:3]}",
+                        parent=styles["cell"],
+                        fontName="Helvetica-Bold",
+                        textColor=status_color,
+                    ),
+                ),
+                Paragraph(_s(dim.get("detail", "")), styles["cell"]),
+            ]
+        )
 
     t = _three_rule_table(rows, [avail * 0.18, avail * 0.12, avail * 0.70])
     el.append(t)
@@ -3928,17 +4654,21 @@ def _build_risk_flags(risk_analysis: dict, styles: dict) -> list:
     }
 
     risk_level = risk_analysis.get("risk_level", "")
-    el.append(Paragraph(
-        f"<b>Riscos Sistêmicos</b> — Nível geral: {risk_level}",
-        ParagraphStyle("risk_title", parent=styles["body"], fontName="Helvetica-Bold", fontSize=9),
-    ))
+    el.append(
+        Paragraph(
+            f"<b>Riscos Sistêmicos</b> — Nível geral: {risk_level}",
+            ParagraphStyle("risk_title", parent=styles["body"], fontName="Helvetica-Bold", fontSize=9),
+        )
+    )
 
     for flag in risk_analysis["flags"]:
         marker = severity_markers.get(flag.get("severity", ""), "")
-        el.append(Paragraph(
-            f"  {marker}  {_s(flag.get('flag', ''))}",
-            ParagraphStyle("risk_bullet", parent=styles["body_small"], leftIndent=8),
-        ))
+        el.append(
+            Paragraph(
+                f"  {marker}  {_s(flag.get('flag', ''))}",
+                ParagraphStyle("risk_bullet", parent=styles["body_small"], leftIndent=8),
+            )
+        )
 
     el.append(Spacer(1, 2 * mm))
     return el
@@ -3958,11 +4688,13 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
     num = sec["next"]() if sec else 7
     el.extend(_section_heading(f"{num}. Matriz Estratégica de Portfólio", styles))
 
-    el.append(Paragraph(
-        "Classificação das oportunidades por potencial estratégico, "
-        "combinando Competitividade Estimada, Compatibilidade e valor de investimento.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "Classificação das oportunidades por potencial estratégico, "
+            "combinando Competitividade Estimada, Compatibilidade e valor de investimento.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     # Categorize
@@ -3983,11 +4715,13 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
     avail = PAGE_WIDTH - 2 * MARGIN
 
     # Summary counts row
-    summary_rows = [[
-        Paragraph("<b>Categoria</b>", styles["cell_header"]),
-        Paragraph("<b>Qtd</b>", styles["cell_header"]),
-        Paragraph("<b>Descrição</b>", styles["cell_header"]),
-    ]]
+    summary_rows = [
+        [
+            Paragraph("<b>Categoria</b>", styles["cell_header"]),
+            Paragraph("<b>Qtd</b>", styles["cell_header"]),
+            Paragraph("<b>Descrição</b>", styles["cell_header"]),
+        ]
+    ]
 
     cat_descriptions = {
         "QUICK_WIN": "Alta Competitividade + alta Compatibilidade — prioridade máxima",
@@ -4001,15 +4735,21 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
         n = len(cat_info["editais"])
         if n == 0:
             continue
-        summary_rows.append([
-            Paragraph(
-                f"<b>{cat_info['label']}</b>",
-                ParagraphStyle(f"port_{cat_key[:4]}", parent=styles["cell"],
-                               fontName="Helvetica-Bold", textColor=cat_info["color"]),
-            ),
-            Paragraph(str(n), styles["cell"]),
-            Paragraph(cat_descriptions.get(cat_key, ""), styles["cell"]),
-        ])
+        summary_rows.append(
+            [
+                Paragraph(
+                    f"<b>{cat_info['label']}</b>",
+                    ParagraphStyle(
+                        f"port_{cat_key[:4]}",
+                        parent=styles["cell"],
+                        fontName="Helvetica-Bold",
+                        textColor=cat_info["color"],
+                    ),
+                ),
+                Paragraph(str(n), styles["cell"]),
+                Paragraph(cat_descriptions.get(cat_key, ""), styles["cell"]),
+            ]
+        )
 
     if len(summary_rows) > 1:
         t = _three_rule_table(summary_rows, [avail * 0.25, avail * 0.08, avail * 0.67])
@@ -4027,21 +4767,25 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
             qw_link = _fix_pncp_link(ed.get("link", ""))
             if qw_link and qw_link.startswith("http"):
                 obj = f'<a href="{qw_link}" color="{LINK_BLUE.hexval()}">{obj}</a>'
-            el.append(Paragraph(
-                f"<b>{idx}.</b> {obj} — Comp.Est. {_pct(prob)}, Valor {_currency(valor)}",
-                styles["body_small"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<b>{idx}.</b> {obj} — Comp.Est. {_pct(prob)}, Valor {_currency(valor)}",
+                    styles["body_small"],
+                )
+            )
         el.append(Spacer(1, 3 * mm))
 
     # Investments detail — with acervo unlock information
     inv = categories["INVESTIMENTO"]["editais"]
     if inv:
         el.append(Paragraph("<b>Investimentos Estratégicos — Construção de Acervo</b>", styles["h3"]))
-        el.append(Paragraph(
-            "Contratos cujo valor principal não é o retorno financeiro imediato, "
-            "mas os atestados técnicos e relacionamentos que desbloqueiam mercados futuros.",
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "Contratos cujo valor principal não é o retorno financeiro imediato, "
+                "mas os atestados técnicos e relacionamentos que desbloqueiam mercados futuros.",
+                styles["body_small"],
+            )
+        )
         el.append(Spacer(1, 2 * mm))
 
         inv_header = [
@@ -4070,12 +4814,16 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
                 # Infer from object
                 acervo_parts.append(f"Atestado: {_trunc(obj, 60)}")
 
-            inv_rows.append([
-                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-                Paragraph(f"<b>{obj}</b><br/><font size='7' color='{TEXT_MUTED.hexval()}'>{orgao}</font>", styles["cell"]),
-                Paragraph(valor, styles["cell_right"]),
-                Paragraph("; ".join(acervo_parts[:2]), styles["cell"]),
-            ])
+            inv_rows.append(
+                [
+                    Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                    Paragraph(
+                        f"<b>{obj}</b><br/><font size='7' color='{TEXT_MUTED.hexval()}'>{orgao}</font>", styles["cell"]
+                    ),
+                    Paragraph(valor, styles["cell_right"]),
+                    Paragraph("; ".join(acervo_parts[:2]), styles["cell"]),
+                ]
+            )
 
         t = _three_rule_table(inv_rows, [avail * 0.06, avail * 0.36, avail * 0.14, avail * 0.44])
         el.append(t)
@@ -4105,14 +4853,19 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
         if div_score is not None:
             cap_parts.append(f"Diversificação: {_dec(div_score)}/1,0")
         if cap_parts:
-            el.append(Paragraph(
-                " &nbsp;|&nbsp; ".join(cap_parts),
-                ParagraphStyle(
-                    "cap_note", parent=styles["body_small"],
-                    fontName="Helvetica", fontSize=8, textColor=TEXT_SECONDARY,
-                    spaceAfter=2 * mm,
-                ),
-            ))
+            el.append(
+                Paragraph(
+                    " &nbsp;|&nbsp; ".join(cap_parts),
+                    ParagraphStyle(
+                        "cap_note",
+                        parent=styles["body_small"],
+                        fontName="Helvetica",
+                        fontSize=8,
+                        textColor=TEXT_SECONDARY,
+                        spaceAfter=2 * mm,
+                    ),
+                )
+            )
 
         # Table
         opt_header = [
@@ -4135,22 +4888,26 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
             roi_color = SIGNAL_GREEN if roi_exp >= 0 else SIGNAL_RED
             cum_color = SIGNAL_GREEN if roi_cum >= 0 else SIGNAL_RED
 
-            opt_rows.append([
-                Paragraph(f"<b>{prio}</b>", styles["cell_center"]),
-                Paragraph(obj_resumo, styles["cell"]),
-                Paragraph(_currency_short(valor), styles["cell_right"]),
-                Paragraph(_currency_short(custo), styles["cell_right"]),
-                Paragraph(
-                    f"<b>{_currency_short(roi_exp)}</b>",
-                    ParagraphStyle(f"roi_{prio}", parent=styles["cell_right"],
-                                   fontName="Helvetica-Bold", textColor=roi_color),
-                ),
-                Paragraph(
-                    f"<b>{_currency_short(roi_cum)}</b>",
-                    ParagraphStyle(f"cum_{prio}", parent=styles["cell_right"],
-                                   fontName="Helvetica-Bold", textColor=cum_color),
-                ),
-            ])
+            opt_rows.append(
+                [
+                    Paragraph(f"<b>{prio}</b>", styles["cell_center"]),
+                    Paragraph(obj_resumo, styles["cell"]),
+                    Paragraph(_currency_short(valor), styles["cell_right"]),
+                    Paragraph(_currency_short(custo), styles["cell_right"]),
+                    Paragraph(
+                        f"<b>{_currency_short(roi_exp)}</b>",
+                        ParagraphStyle(
+                            f"roi_{prio}", parent=styles["cell_right"], fontName="Helvetica-Bold", textColor=roi_color
+                        ),
+                    ),
+                    Paragraph(
+                        f"<b>{_currency_short(roi_cum)}</b>",
+                        ParagraphStyle(
+                            f"cum_{prio}", parent=styles["cell_right"], fontName="Helvetica-Bold", textColor=cum_color
+                        ),
+                    ),
+                ]
+            )
 
         t = _three_rule_table(
             opt_rows,
@@ -4162,22 +4919,25 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
         corr_note = item.get("correlation_note") if optimal_set else None
         cap_warning = capacity.get("capacity_overflow_warning")
         if cap_warning:
-            el.append(Paragraph(
-                f"<i>{_s(cap_warning)}</i>",
-                ParagraphStyle("cap_warn", parent=styles["caption"],
-                               textColor=SIGNAL_AMBER, fontSize=7.5),
-            ))
+            el.append(
+                Paragraph(
+                    f"<i>{_s(cap_warning)}</i>",
+                    ParagraphStyle("cap_warn", parent=styles["caption"], textColor=SIGNAL_AMBER, fontSize=7.5),
+                )
+            )
         el.append(Spacer(1, 3 * mm))
 
     elif portfolio and not optimal_set and (capacity or correlation):
         # Portfolio data exists but no optimal set
         el.append(Spacer(1, 4 * mm))
         el.append(Paragraph("Portfólio Recomendado", styles["h3"]))
-        el.append(Paragraph(
-            "Nenhum edital apresenta retorno esperado positivo neste ciclo. "
-            "Participação representa investimento estratégico.",
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "Nenhum edital apresenta retorno esperado positivo neste ciclo. "
+                "Participação representa investimento estratégico.",
+                styles["body_small"],
+            )
+        )
         el.append(Spacer(1, 3 * mm))
 
     el.append(Spacer(1, 6 * mm))
@@ -4187,6 +4947,7 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
 # ============================================================
 # E3: COVERAGE WARNING
 # ============================================================
+
 
 def _build_coverage_warning(data: dict, styles: dict) -> list:
     """Render coverage diagnostic warning if capture rate < 70%."""
@@ -4215,26 +4976,31 @@ def _build_coverage_warning(data: dict, styles: dict) -> list:
     el = []
     amber = colors.HexColor("#D4760A")
 
-    el.append(Paragraph(
-        f"<font color='{amber.hexval()}'><b>AVISO DE COBERTURA</b></font>",
-        styles["h3"],
-    ))
+    el.append(
+        Paragraph(
+            f"<font color='{amber.hexval()}'><b>AVISO DE COBERTURA</b></font>",
+            styles["h3"],
+        )
+    )
 
-    el.append(Paragraph(
-        f"Taxa de captura: <b>{_pct(rate)}</b> ({captured} de {total} editais estimados). "
-        f"Este relatório pode não representar a totalidade das oportunidades disponíveis. "
-        f"A análise abaixo deve ser interpretada com essa limitação.",
-        styles["body"],
-    ))
+    el.append(
+        Paragraph(
+            f"Taxa de captura: <b>{_pct(rate)}</b> ({captured} de {total} editais estimados). "
+            f"Este relatório pode não representar a totalidade das oportunidades disponíveis. "
+            f"A análise abaixo deve ser interpretada com essa limitação.",
+            styles["body"],
+        )
+    )
 
     # Per-UF breakdown
     per_uf = cov.get("per_uf", [])
-    low_ufs = [p for p in per_uf if (p.get("rate") if p.get("rate") is not None else 0.0) < 0.70 and (p.get("estimated_total") or 0) > 0]
+    low_ufs = [
+        p
+        for p in per_uf
+        if (p.get("rate") if p.get("rate") is not None else 0.0) < 0.70 and (p.get("estimated_total") or 0) > 0
+    ]
     if low_ufs:
-        uf_detail = "; ".join(
-            f"{p['uf']}: {p['captured']}/{p['estimated_total']} ({_pct(p['rate'])})"
-            for p in low_ufs
-        )
+        uf_detail = "; ".join(f"{p['uf']}: {p['captured']}/{p['estimated_total']} ({_pct(p['rate'])})" for p in low_ufs)
         el.append(Paragraph(f"UFs com baixa cobertura: {uf_detail}", styles["caption"]))
 
     el.append(Spacer(1, 6 * mm))
@@ -4256,27 +5022,35 @@ def _build_sector_divergence_alert(data: dict, styles: dict) -> list:
     total = divergence.get("total_contracts", 0)
     sector = divergence.get("sector_contracts", 0)
 
-    el.append(Paragraph(
-        f"<font color='{SIGNAL_RED.hexval()}'><b>ALERTA CRÍTICO — CNAE INCONSISTENTE COM HISTÓRICO</b></font>",
-        ParagraphStyle(
-            "sector_alert_title", parent=styles["h3"],
-            fontName="Helvetica-Bold", textColor=SIGNAL_RED,
-        ),
-    ))
+    el.append(
+        Paragraph(
+            f"<font color='{SIGNAL_RED.hexval()}'><b>ALERTA CRÍTICO — CNAE INCONSISTENTE COM HISTÓRICO</b></font>",
+            ParagraphStyle(
+                "sector_alert_title",
+                parent=styles["h3"],
+                fontName="Helvetica-Bold",
+                textColor=SIGNAL_RED,
+            ),
+        )
+    )
 
-    el.append(Paragraph(
-        f"A empresa possui <b>{total} contratos governamentais</b> registrados no "
-        f"Portal Nacional de Contratações Públicas, porém "
-        f"<b>{'nenhum' if sector == 0 else f'apenas {sector}'}</b> "
-        f"está relacionado ao setor de atuação dos editais analisados neste relatório.",
-        styles["body"],
-    ))
+    el.append(
+        Paragraph(
+            f"A empresa possui <b>{total} contratos governamentais</b> registrados no "
+            f"Portal Nacional de Contratações Públicas, porém "
+            f"<b>{'nenhum' if sector == 0 else f'apenas {sector}'}</b> "
+            f"está relacionado ao setor de atuação dos editais analisados neste relatório.",
+            styles["body"],
+        )
+    )
 
-    el.append(Paragraph(
-        "O CNAE registrado indica capacidade formal para atuar no setor, mas o histórico de "
-        "contratos revela atuação predominante em segmento distinto. Isso significa que:",
-        styles["body"],
-    ))
+    el.append(
+        Paragraph(
+            "O CNAE registrado indica capacidade formal para atuar no setor, mas o histórico de "
+            "contratos revela atuação predominante em segmento distinto. Isso significa que:",
+            styles["body"],
+        )
+    )
 
     implications = [
         "A empresa provavelmente <b>não possui atestados de capacidade técnica</b> no setor — "
@@ -4286,25 +5060,34 @@ def _build_sector_divergence_alert(data: dict, styles: dict) -> list:
         "<b>a participação efetiva depende de verificação prévia do acervo real da empresa</b>",
     ]
     for imp in implications:
-        el.append(Paragraph(
-            f"— {imp}",
-            ParagraphStyle(
-                "sector_imp", parent=styles["bullet"],
-                fontName="Times-Roman", textColor=TEXT_COLOR,
-            ),
-        ))
+        el.append(
+            Paragraph(
+                f"— {imp}",
+                ParagraphStyle(
+                    "sector_imp",
+                    parent=styles["bullet"],
+                    fontName="Times-Roman",
+                    textColor=TEXT_COLOR,
+                ),
+            )
+        )
 
     el.append(Spacer(1, 2 * mm))
-    el.append(Paragraph(
-        "<b>Ação imediata recomendada:</b> Confirmar junto à empresa se existem contratos no setor "
-        "não registrados no PNCP (contratos estaduais/municipais anteriores a 2021, contratos privados). "
-        "Se confirmada a ausência de acervo, consultar a seção \"Plano de Desenvolvimento\" para "
-        "o roteiro de construção de acervo técnico.",
-        ParagraphStyle(
-            "sector_action", parent=styles["body"],
-            fontName="Helvetica", fontSize=9, textColor=INK,
-        ),
-    ))
+    el.append(
+        Paragraph(
+            "<b>Ação imediata recomendada:</b> Confirmar junto à empresa se existem contratos no setor "
+            "não registrados no PNCP (contratos estaduais/municipais anteriores a 2021, contratos privados). "
+            'Se confirmada a ausência de acervo, consultar a seção "Plano de Desenvolvimento" para '
+            "o roteiro de construção de acervo técnico.",
+            ParagraphStyle(
+                "sector_action",
+                parent=styles["body"],
+                fontName="Helvetica",
+                fontSize=9,
+                textColor=INK,
+            ),
+        )
+    )
 
     el.append(Spacer(1, 8 * mm))
     return el
@@ -4313,6 +5096,7 @@ def _build_sector_divergence_alert(data: dict, styles: dict) -> list:
 # ============================================================
 # E7: REGIONAL CLUSTER ANALYSIS
 # ============================================================
+
 
 def _build_regional_analysis(data: dict, styles: dict, sec: dict | None = None) -> list:
     """Render regional portfolio analysis with geographic clusters."""
@@ -4325,12 +5109,14 @@ def _build_regional_analysis(data: dict, styles: dict, sec: dict | None = None) 
     num = sec["next"]() if sec else 9
     el.extend(_section_heading(f"{num}. Análise Regional de Portfólio", styles))
 
-    el.append(Paragraph(
-        "Editais compatíveis agrupados por proximidade geográfica (raio de 150km). "
-        "Clusters identificam oportunidades de mobilização compartilhada — "
-        "uma única estrutura operacional servindo múltiplas frentes.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "Editais compatíveis agrupados por proximidade geográfica (raio de 150km). "
+            "Clusters identificam oportunidades de mobilização compartilhada — "
+            "uma única estrutura operacional servindo múltiplas frentes.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     editais = data.get("editais", [])
@@ -4342,15 +5128,19 @@ def _build_regional_analysis(data: dict, styles: dict, sec: dict | None = None) 
         total_valor = cl.get("total_valor", 0)
         timeline = "sim" if cl.get("timeline_overlap") else "não"
 
-        el.append(Paragraph(
-            f"<b>Cluster {cl.get('id', '')}: {center}</b> — "
-            f"{n} editais, raio {radius}km, valor total {_currency(total_valor)}",
-            styles["body"],
-        ))
-        el.append(Paragraph(
-            f"Sobreposição de prazos: {timeline}",
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>Cluster {cl.get('id', '')}: {center}</b> — "
+                f"{n} editais, raio {radius}km, valor total {_currency(total_valor)}",
+                styles["body"],
+            )
+        )
+        el.append(
+            Paragraph(
+                f"Sobreposição de prazos: {timeline}",
+                styles["body_small"],
+            )
+        )
 
         # List editais in cluster with viability analysis
         indices = cl.get("editais_indices", [])
@@ -4369,17 +5159,20 @@ def _build_regional_analysis(data: dict, styles: dict, sec: dict | None = None) 
                 cluster_roi_sum += roi_max
                 participation_cost = roi.get("calculation_memory", {}).get("custo_participacao", 0)
                 cluster_mobilization_cost += _safe_float(participation_cost)
-                el.append(Paragraph(
-                    f"  — {obj} ({mun}) — {valor}",
-                    styles["body_small"],
-                ))
+                el.append(
+                    Paragraph(
+                        f"  — {obj} ({mun}) — {valor}",
+                        styles["body_small"],
+                    )
+                )
 
         # Joint viability analysis
         if cluster_editais:
             # Check if cluster is primarily strategic (acervo) investments
             n_cluster = len(cluster_editais)
             n_acervo = sum(
-                1 for ed in cluster_editais
+                1
+                for ed in cluster_editais
                 if (ed.get("roi_potential") or {}).get("strategic_reclassification")
                 == "INVESTIMENTO_ESTRATEGICO_ACERVO"
             )
@@ -4392,37 +5185,43 @@ def _build_regional_analysis(data: dict, styles: dict, sec: dict | None = None) 
                 # ALL editais are strategic acervo → financial ROI is irrelevant
                 viability = "ESTRATÉGICO"
                 viab_color = ACCENT  # Bronze — neither green nor red
-                el.append(Paragraph(
-                    f"<b>Viabilidade conjunta:</b> <font color='{viab_color.hexval()}'>"
-                    f"<b>{viability}</b></font>"
-                    f" — Cluster de investimento em acervo técnico"
-                    f" ({n_cluster} editais, mobilização compartilhada: {_currency_short(shared_savings)})",
-                    styles["body_small"],
-                ))
+                el.append(
+                    Paragraph(
+                        f"<b>Viabilidade conjunta:</b> <font color='{viab_color.hexval()}'>"
+                        f"<b>{viability}</b></font>"
+                        f" — Cluster de investimento em acervo técnico"
+                        f" ({n_cluster} editais, mobilização compartilhada: {_currency_short(shared_savings)})",
+                        styles["body_small"],
+                    )
+                )
             elif n_acervo > 0:
                 # Mixed: some acervo, some financial
                 n_financial = n_cluster - n_acervo
                 viability = "VIÁVEL" if net_roi_cluster > 0 else "MISTO"
                 viab_color = SIGNAL_GREEN if net_roi_cluster > 0 else SIGNAL_AMBER
-                el.append(Paragraph(
-                    f"<b>Viabilidade conjunta:</b> <font color='{viab_color.hexval()}'>"
-                    f"<b>{viability}</b></font>"
-                    f" — {n_financial} edital(is) com retorno financeiro"
-                    f" + {n_acervo} investimento(s) em acervo"
-                    f" (economia de mobilização: {_currency_short(shared_savings)})",
-                    styles["body_small"],
-                ))
+                el.append(
+                    Paragraph(
+                        f"<b>Viabilidade conjunta:</b> <font color='{viab_color.hexval()}'>"
+                        f"<b>{viability}</b></font>"
+                        f" — {n_financial} edital(is) com retorno financeiro"
+                        f" + {n_acervo} investimento(s) em acervo"
+                        f" (economia de mobilização: {_currency_short(shared_savings)})",
+                        styles["body_small"],
+                    )
+                )
             else:
                 # Pure financial analysis
                 viability = "VIÁVEL" if net_roi_cluster > 0 else "INVIÁVEL"
                 viab_color = SIGNAL_GREEN if net_roi_cluster > 0 else SIGNAL_RED
-                el.append(Paragraph(
-                    f"<b>Viabilidade conjunta:</b> <font color='{viab_color.hexval()}'>"
-                    f"<b>{viability}</b></font>"
-                    f" — Resultado conjunto: {_currency_short(net_roi_cluster)}"
-                    f" (economia de mobilização compartilhada: {_currency_short(shared_savings)})",
-                    styles["body_small"],
-                ))
+                el.append(
+                    Paragraph(
+                        f"<b>Viabilidade conjunta:</b> <font color='{viab_color.hexval()}'>"
+                        f"<b>{viability}</b></font>"
+                        f" — Resultado conjunto: {_currency_short(net_roi_cluster)}"
+                        f" (economia de mobilização compartilhada: {_currency_short(shared_savings)})",
+                        styles["body_small"],
+                    )
+                )
 
         rec = _s(cl.get("recommendation", ""))
         if rec:
@@ -4430,11 +5229,13 @@ def _build_regional_analysis(data: dict, styles: dict, sec: dict | None = None) 
         el.append(Spacer(1, 3 * mm))
 
     if len(clusters) >= 2:
-        el.append(Paragraph(
-            "A decisão não é participar de cada edital individualmente — "
-            "é decidir se vale estabelecer presença operacional em cada micro-região.",
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "A decisão não é participar de cada edital individualmente — "
+                "é decidir se vale estabelecer presença operacional em cada micro-região.",
+                styles["body_small"],
+            )
+        )
 
     el.append(Spacer(1, 6 * mm))
     return el
@@ -4470,11 +5271,13 @@ def _build_development_plan(data: dict, styles: dict, sec: dict | None = None) -
     num = sec["next"]() if sec else 10
     el.extend(_section_heading(f"{num}. Plano de Desenvolvimento (12 meses)", styles))
 
-    el.append(Paragraph(
-        "Consolidação das lacunas operacionais identificadas nos editais analisados. "
-        "Cada item representa uma capacidade que, uma vez construída, abre acesso a novos mercados.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "Consolidação das lacunas operacionais identificadas nos editais analisados. "
+            "Cada item representa uma capacidade que, uma vez construída, abre acesso a novos mercados.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -4487,16 +5290,24 @@ def _build_development_plan(data: dict, styles: dict, sec: dict | None = None) -
     rows = [header]
 
     for g in unique_gaps:
-        rows.append([
-            Paragraph(_s(g.get("gap_type", "")), styles["cell"]),
-            Paragraph(_s(g.get("description", "")), styles["cell"]),
-            Paragraph(_s(g.get("estimated_timeline", "")), styles["cell_center"]),
-            Paragraph(_s(g.get("action_required", "")), styles["cell"]),
-        ])
+        rows.append(
+            [
+                Paragraph(_s(g.get("gap_type", "")), styles["cell"]),
+                Paragraph(_s(g.get("description", "")), styles["cell"]),
+                Paragraph(_s(g.get("estimated_timeline", "")), styles["cell_center"]),
+                Paragraph(_s(g.get("action_required", "")), styles["cell"]),
+            ]
+        )
 
-    t = _three_rule_table(rows, [
-        avail * 0.15, avail * 0.30, avail * 0.15, avail * 0.40,
-    ])
+    t = _three_rule_table(
+        rows,
+        [
+            avail * 0.15,
+            avail * 0.30,
+            avail * 0.15,
+            avail * 0.40,
+        ],
+    )
     el.append(t)
     el.append(Spacer(1, 6 * mm))
     return el
@@ -4505,6 +5316,7 @@ def _build_development_plan(data: dict, styles: dict, sec: dict | None = None) -
 # ============================================================
 # E10: REPORT VALIDATION
 # ============================================================
+
 
 def validate_report_completeness(data: dict) -> tuple[list[str], list[str]]:
     """Validate report data completeness.
@@ -4551,21 +5363,16 @@ def validate_report_completeness(data: dict) -> tuple[list[str], list[str]]:
 
         if vetoed and rec_upper == "PARTICIPAR":
             errors.append(
-                f"Edital {i} ({obj}): PARTICIPAR mas edital VETADO — "
-                f"motivo: {', '.join(rs.get('veto_reasons', ['?']))}"
+                f"Edital {i} ({obj}): PARTICIPAR mas edital VETADO — motivo: {', '.join(rs.get('veto_reasons', ['?']))}"
             )
 
         if score_total >= 0 and score_total > 60 and rec_upper == "NÃO RECOMENDADO" and not vetoed:
             warnings.append(
-                f"Edital {i} ({obj}): score alto ({score_total}) mas NÃO RECOMENDADO — "
-                f"verificar justificativa"
+                f"Edital {i} ({obj}): score alto ({score_total}) mas NÃO RECOMENDADO — verificar justificativa"
             )
 
         if score_total >= 0 and score_total < 30 and rec_upper == "PARTICIPAR" and not vetoed:
-            warnings.append(
-                f"Edital {i} ({obj}): score baixo ({score_total}) mas PARTICIPAR — "
-                f"verificar justificativa"
-            )
+            warnings.append(f"Edital {i} ({obj}): score baixo ({score_total}) mas PARTICIPAR — verificar justificativa")
 
         # WARNING: ROI calculation memory (desirable but not blocking)
         roi = ed.get("roi_potential", {})
@@ -4580,9 +5387,7 @@ def validate_report_completeness(data: dict) -> tuple[list[str], list[str]]:
         fiscal = rs.get("fiscal_risk", {}) if isinstance(rs, dict) else {}
         if isinstance(fiscal, dict) and fiscal.get("nivel") == "ALTO" and justif:
             if "fiscal" not in (justif or "").lower() and "inadimplência" not in (justif or "").lower():
-                warnings.append(
-                    f"Edital {i}: risco fiscal ALTO identificado mas não mencionado na justificativa"
-                )
+                warnings.append(f"Edital {i}: risco fiscal ALTO identificado mas não mencionado na justificativa")
 
     # WARNING: top-level computed fields (degraded sections, not blocking)
     if not data.get("maturity_profile") and not data.get("empresa", {}).get("maturity_profile"):
@@ -4637,6 +5442,7 @@ def validate_report_completeness(data: dict) -> tuple[list[str], list[str]]:
 # V6: SIMPLIFIED REPORT SECTIONS (Track C — 10 pages max)
 # ============================================================
 
+
 def _build_executive_summary_v6(data: dict, styles: dict, sec: dict | None = None) -> list:
     """V6 Resumo Executivo: metrics + 3 destaques + tese em 1 linha. Max 1 page."""
     el = []
@@ -4654,46 +5460,63 @@ def _build_executive_summary_v6(data: dict, styles: dict, sec: dict | None = Non
     # Metrics — 4 boxes
     total = len(editais)
     participar = sum(1 for e in editais if (e.get("recomendacao") or "").upper().startswith("PARTICIPAR"))
-    cautela = sum(1 for e in editais if "CAUTELA" in (e.get("recomendacao") or "").upper() or "AVALIAR" in (e.get("recomendacao") or "").upper())
+    cautela = sum(
+        1
+        for e in editais
+        if "CAUTELA" in (e.get("recomendacao") or "").upper() or "AVALIAR" in (e.get("recomendacao") or "").upper()
+    )
     valores = [_safe_float(e.get("valor_estimado")) for e in editais if e.get("valor_estimado")]
     valor_total = sum(valores)
 
     avail = PAGE_WIDTH - 2 * MARGIN
     col_w = avail / 4
     metrics = Table(
-        [[
-            _metric_cell(str(total), "Oportunidades", styles),
-            _metric_cell(str(participar), "Participar", styles),
-            _metric_cell(str(cautela), "Avaliar", styles),
-            _metric_cell(_currency_short(valor_total), "Valor Total", styles),
-        ]],
-        colWidths=[col_w] * 4, rowHeights=[20 * mm],
+        [
+            [
+                _metric_cell(str(total), "Oportunidades", styles),
+                _metric_cell(str(participar), "Participar", styles),
+                _metric_cell(str(cautela), "Avaliar", styles),
+                _metric_cell(_currency_short(valor_total), "Valor Total", styles),
+            ]
+        ],
+        colWidths=[col_w] * 4,
+        rowHeights=[20 * mm],
     )
-    metrics.setStyle(TableStyle([
-        ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
-        ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE_COLOR),
-        ("LINEBEFORE", (1, 0), (1, 0), 0.3, RULE_COLOR),
-        ("LINEBEFORE", (2, 0), (2, 0), 0.3, RULE_COLOR),
-        ("LINEBEFORE", (3, 0), (3, 0), 0.3, RULE_COLOR),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    ]))
+    metrics.setStyle(
+        TableStyle(
+            [
+                ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
+                ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE_COLOR),
+                ("LINEBEFORE", (1, 0), (1, 0), 0.3, RULE_COLOR),
+                ("LINEBEFORE", (2, 0), (2, 0), 0.3, RULE_COLOR),
+                ("LINEBEFORE", (3, 0), (3, 0), 0.3, RULE_COLOR),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )
+    )
     el.append(metrics)
     el.append(Spacer(1, 2 * mm))
 
     # Metrics legend — explains Compatibilidade vs Competitividade Est.
     legend_style = ParagraphStyle(
-        "metrics_legend_v6", parent=styles["caption"],
-        fontName="Helvetica", fontSize=7.5, textColor=TEXT_MUTED, leading=10,
+        "metrics_legend_v6",
+        parent=styles["caption"],
+        fontName="Helvetica",
+        fontSize=7.5,
+        textColor=TEXT_MUTED,
+        leading=10,
         spaceAfter=3 * mm,
     )
-    el.append(Paragraph(
-        "<b>COMPATIBILIDADE (0–100):</b> Avalia se a oportunidade é adequada para sua empresa "
-        "considerando modalidade, prazo, valor e localização. Score alto = oportunidade alinhada. "
-        "<b>COMPETITIVIDADE ESTIMADA (%):</b> Estima a probabilidade de vencer com base na "
-        "densidade de concorrentes e concentração de mercado. Percentual baixo é normal "
-        "em licitações abertas com muitos participantes.",
-        legend_style,
-    ))
+    el.append(
+        Paragraph(
+            "<b>COMPATIBILIDADE (0–100):</b> Avalia se a oportunidade é adequada para sua empresa "
+            "considerando modalidade, prazo, valor e localização. Score alto = oportunidade alinhada. "
+            "<b>COMPETITIVIDADE ESTIMADA (%):</b> Estima a probabilidade de vencer com base na "
+            "densidade de concorrentes e concentração de mercado. Percentual baixo é normal "
+            "em licitações abertas com muitos participantes.",
+            legend_style,
+        )
+    )
 
     # Discard note
     n_desc = data.get("_descartados_count", 0)
@@ -4702,14 +5525,18 @@ def _build_executive_summary_v6(data: dict, styles: dict, sec: dict | None = Non
         nota = f"{n_desc} licitação(ões) descartada(s) por falta de aderência ao perfil"
         if motivos:
             nota += f": {motivos}"
-        el.append(Paragraph(
-            f"<i>{nota}.</i>",
-            ParagraphStyle(
-                "discard_note_v6", parent=styles["caption"],
-                textColor=colors.HexColor("#888888"), fontSize=7.5,
-                spaceAfter=3 * mm,
-            ),
-        ))
+        el.append(
+            Paragraph(
+                f"<i>{nota}.</i>",
+                ParagraphStyle(
+                    "discard_note_v6",
+                    parent=styles["caption"],
+                    textColor=colors.HexColor("#888888"),
+                    fontSize=7.5,
+                    spaceAfter=3 * mm,
+                ),
+            )
+        )
 
     # Destaques (max 3)
     destaques = resumo.get("destaques", [])
@@ -4724,8 +5551,8 @@ def _build_executive_summary_v6(data: dict, styles: dict, sec: dict | None = Non
         thesis = thesis_data.get("thesis", "")
         rationale = _s(thesis_data.get("rationale", ""))
         # Sanitize nonsensical discount mentions
-        rationale = re.sub(r'desconto médio de apenas -?\d{3,}[,.]?\d*%\s*—\s*margens comprimidas\.?\s*', '', rationale)
-        rationale = re.sub(r'desconto médio de apenas N/I%?\s*—\s*margens comprimidas\.?\s*', '', rationale)
+        rationale = re.sub(r"desconto médio de apenas -?\d{3,}[,.]?\d*%\s*—\s*margens comprimidas\.?\s*", "", rationale)
+        rationale = re.sub(r"desconto médio de apenas N/I%?\s*—\s*margens comprimidas\.?\s*", "", rationale)
 
         if thesis:
             thesis_colors = {
@@ -4736,22 +5563,28 @@ def _build_executive_summary_v6(data: dict, styles: dict, sec: dict | None = Non
             t_color = thesis_colors.get(thesis, INK)
             # Truncate rationale to ~1 sentence
             rationale_short = _trunc(rationale, 180)
-            el.append(Paragraph(
-                f"<b>Tese:</b> <font color='{t_color.hexval()}'><b>{thesis}</b></font>"
-                f" — {rationale_short}",
-                styles["body"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<b>Tese:</b> <font color='{t_color.hexval()}'><b>{thesis}</b></font> — {rationale_short}",
+                    styles["body"],
+                )
+            )
             el.append(Spacer(1, 3 * mm))
 
     # Excel companion reference
     if editais:
-        el.append(Paragraph(
-            f"<i>Este relatório acompanha planilha Excel com todos os {len(editais)} editais.</i>",
-            ParagraphStyle(
-                "excel_ref_v6", parent=styles["body_small"],
-                fontName="Helvetica-Oblique", fontSize=8, textColor=TEXT_MUTED,
-            ),
-        ))
+        el.append(
+            Paragraph(
+                f"<i>Este relatório acompanha planilha Excel com todos os {len(editais)} editais.</i>",
+                ParagraphStyle(
+                    "excel_ref_v6",
+                    parent=styles["body_small"],
+                    fontName="Helvetica-Oblique",
+                    fontSize=8,
+                    textColor=TEXT_MUTED,
+                ),
+            )
+        )
 
     el.append(Spacer(1, 6 * mm))
     return el
@@ -4764,18 +5597,22 @@ def _get_top_fornecedores_for_edital(ed: dict) -> list[dict]:
     fornecedores = []
     if isinstance(ci, dict) and ci.get("top_fornecedores"):
         for c in ci["top_fornecedores"][:3]:
-            fornecedores.append({
-                "nome": _s(c.get("nome", "")),
-                "contratos": c.get("n_contracts", c.get("contract_count", 1)),
-                "valor": c.get("valor_total"),
-            })
+            fornecedores.append(
+                {
+                    "nome": _s(c.get("nome", "")),
+                    "contratos": c.get("n_contracts", c.get("contract_count", 1)),
+                    "valor": c.get("valor_total"),
+                }
+            )
     elif isinstance(ci, list):
         for c in ci[:3]:
-            fornecedores.append({
-                "nome": _s(c.get("fornecedor", c.get("nome", ""))),
-                "contratos": 1,
-                "valor": c.get("valor", c.get("valor_total")),
-            })
+            fornecedores.append(
+                {
+                    "nome": _s(c.get("fornecedor", c.get("nome", ""))),
+                    "contratos": 1,
+                    "valor": c.get("valor", c.get("valor_total")),
+                }
+            )
     return fornecedores
 
 
@@ -4808,11 +5645,14 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
     ficha_top = ficha_candidates[:5]
 
     if len(ficha_candidates) > 5:
-        el.append(Paragraph(
-            f"<i>As {len(ficha_candidates) - 5} oportunidades restantes estão na planilha Excel.</i>",
-            ParagraphStyle("ficha_trunc", parent=styles["body_small"],
-                           fontName="Helvetica-Oblique", textColor=TEXT_MUTED),
-        ))
+        el.append(
+            Paragraph(
+                f"<i>As {len(ficha_candidates) - 5} oportunidades restantes estão na planilha Excel.</i>",
+                ParagraphStyle(
+                    "ficha_trunc", parent=styles["body_small"], fontName="Helvetica-Oblique", textColor=TEXT_MUTED
+                ),
+            )
+        )
         el.append(Spacer(1, 3 * mm))
 
     for idx, ed, _score in ficha_top:
@@ -4840,11 +5680,18 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
         else:
             header_text += _trunc(objeto, 120)
 
-        header_para = Paragraph(header_text, ParagraphStyle(
-            f"ficha_h_{idx}", parent=styles["h2"],
-            fontName="Times-Bold", fontSize=11, textColor=INK,
-            spaceBefore=4 * mm, spaceAfter=1 * mm,
-        ))
+        header_para = Paragraph(
+            header_text,
+            ParagraphStyle(
+                f"ficha_h_{idx}",
+                parent=styles["h2"],
+                fontName="Times-Bold",
+                fontSize=11,
+                textColor=INK,
+                spaceBefore=4 * mm,
+                spaceAfter=1 * mm,
+            ),
+        )
 
         # Sub-header: valor | modalidade | prazo
         valor_str = _currency(ed.get("valor_estimado")) if ed.get("valor_estimado") else "N/I"
@@ -4858,8 +5705,11 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
         sub_header = Paragraph(
             " &nbsp;|&nbsp; ".join(sub_parts),
             ParagraphStyle(
-                f"ficha_sub_{idx}", parent=styles["body_small"],
-                fontName="Helvetica", fontSize=9, textColor=TEXT_SECONDARY,
+                f"ficha_sub_{idx}",
+                parent=styles["body_small"],
+                fontName="Helvetica",
+                fontSize=9,
+                textColor=TEXT_SECONDARY,
                 spaceAfter=3 * mm,
             ),
         )
@@ -4898,8 +5748,13 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
             capital_ok = emp_capital >= valor_est * 0.10  # 10% rule of thumb
             mark = "SIM" if capital_ok else "VERIFICAR"
             mark_color = SIGNAL_GREEN if capital_ok else SIGNAL_AMBER
-            checks.append((mark, mark_color,
-                           f"Capital mínimo ({_currency_short(emp_capital)} vs. edital {_currency_short(valor_est)})"))
+            checks.append(
+                (
+                    mark,
+                    mark_color,
+                    f"Capital mínimo ({_currency_short(emp_capital)} vs. edital {_currency_short(valor_est)})",
+                )
+            )
 
         # SICAF status
         sicaf = data.get("sicaf", {})
@@ -4942,11 +5797,18 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
 
         for mark, mark_color, text in checks[:6]:
             symbol = "&#x2611;" if mark == "SIM" else ("&#x2610;" if mark == "NÃO" else "&#x25A1;")
-            ficha_block.append(Paragraph(
-                f"<font color='{mark_color.hexval()}'><b>{symbol} {mark}</b></font> {text}",
-                ParagraphStyle(f"chk_{idx}_{len(checks)}", parent=styles["body_small"],
-                               fontSize=9, leading=12, spaceAfter=0.5 * mm),
-            ))
+            ficha_block.append(
+                Paragraph(
+                    f"<font color='{mark_color.hexval()}'><b>{symbol} {mark}</b></font> {text}",
+                    ParagraphStyle(
+                        f"chk_{idx}_{len(checks)}",
+                        parent=styles["body_small"],
+                        fontSize=9,
+                        leading=12,
+                        spaceAfter=0.5 * mm,
+                    ),
+                )
+            )
         ficha_block.append(Spacer(1, 2 * mm))
 
         # === 3. COMPETITIVIDADE ===
@@ -4974,9 +5836,7 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
         fornecedores = _get_top_fornecedores_for_edital(ed)
         if fornecedores:
             top = fornecedores[0]
-            chance_parts.append(
-                f"Fornecedor recorrente: {_trunc(top['nome'], 40)} ({top['contratos']} contrato(s))"
-            )
+            chance_parts.append(f"Fornecedor recorrente: {_trunc(top['nome'], 40)} ({top['contratos']} contrato(s))")
 
         ficha_block.append(Paragraph(" &nbsp;|&nbsp; ".join(chance_parts[:2]), styles["body"]))
         if len(chance_parts) > 2:
@@ -5007,11 +5867,17 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
         reclass = roi.get("strategic_reclassification")
         if reclass == "INVESTIMENTO_ESTRATEGICO_ACERVO":
             rationale = _s(roi.get("reclassification_rationale", ""))
-            ficha_block.append(Paragraph(
-                f"<i>Investimento Estratégico em Acervo: {_trunc(rationale, 120)}</i>",
-                ParagraphStyle(f"reclass_{idx}", parent=styles["body_small"],
-                               textColor=SIGNAL_AMBER, fontName="Helvetica-Oblique"),
-            ))
+            ficha_block.append(
+                Paragraph(
+                    f"<i>Investimento Estratégico em Acervo: {_trunc(rationale, 120)}</i>",
+                    ParagraphStyle(
+                        f"reclass_{idx}",
+                        parent=styles["body_small"],
+                        textColor=SIGNAL_AMBER,
+                        fontName="Helvetica-Oblique",
+                    ),
+                )
+            )
         ficha_block.append(Spacer(1, 2 * mm))
 
         # GAP-1: Score decomposition visual (5D horizontal bars)
@@ -5044,7 +5910,9 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
         # From organ risk
         organ_risk = ed.get("organ_risk", {})
         if organ_risk and organ_risk.get("organ_track_record") == "RISCO":
-            risks_list.append(f"<font color='{SIGNAL_RED.hexval()}'><b>[ORGAO]</b></font> Historico de problemas no orgao licitante")
+            risks_list.append(
+                f"<font color='{SIGNAL_RED.hexval()}'><b>[ORGAO]</b></font> Historico de problemas no orgao licitante"
+            )
         # Tight deadline
         dias = ed.get("dias_restantes")
         if dias is not None and _safe_int(dias) <= 7:
@@ -5053,7 +5921,9 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
         ibge = ed.get("ibge", {})
         pop = ibge.get("populacao")
         if pop and valor_est and pop < 10_000 and valor_est > 5_000_000:
-            risks_list.append(f"<font color='{SIGNAL_AMBER.hexval()}'><b>[FISCAL]</b></font> Municipio pequeno ({_fmt_pop(pop)} hab.) licitando {_currency_short(valor_est)}")
+            risks_list.append(
+                f"<font color='{SIGNAL_AMBER.hexval()}'><b>[FISCAL]</b></font> Municipio pequeno ({_fmt_pop(pop)} hab.) licitando {_currency_short(valor_est)}"
+            )
 
         if risks_list:
             for r in risks_list[:3]:
@@ -5080,11 +5950,14 @@ def _build_edital_fichas(data: dict, styles: dict, sec: dict | None = None, _sta
             else:
                 action = f"Avaliar custo-beneficio e decidir ate 7 dias antes de {_date(ed.get('data_encerramento'))}"
 
-        ficha_block.append(Paragraph(
-            f"<b>{_s(action)}</b>",
-            ParagraphStyle(f"action_{idx}", parent=styles["body"],
-                           fontName="Helvetica-Bold", fontSize=9, textColor=INK),
-        ))
+        ficha_block.append(
+            Paragraph(
+                f"<b>{_s(action)}</b>",
+                ParagraphStyle(
+                    f"action_{idx}", parent=styles["body"], fontName="Helvetica-Bold", fontSize=9, textColor=INK
+                ),
+            )
+        )
 
         ficha_block.append(Spacer(1, 6 * mm))
 
@@ -5099,7 +5972,8 @@ def _build_annex_nao_recomendado_inline(data: dict, styles: dict, sec: dict) -> 
     """Condensed table of non-recommended + vetoed editais (inline, not annex)."""
     editais = data.get("editais", [])
     nr_editais = [
-        (ed.get("_display_idx", i), ed) for i, ed in enumerate(editais, 1)
+        (ed.get("_display_idx", i), ed)
+        for i, ed in enumerate(editais, 1)
         if _normalize_recommendation(_s(ed.get("recomendacao", ""))) == "NÃO RECOMENDADO"
         or (ed.get("risk_score") or {}).get("vetoed", False)
     ]
@@ -5137,26 +6011,34 @@ def _build_annex_nao_recomendado_inline(data: dict, styles: dict, sec: dict) -> 
         else:
             justif = _trunc(_s(ed.get("justificativa", "")), 80)
 
-        obj_text = f'{mun}/{uf} — {obj}'
+        obj_text = f"{mun}/{uf} — {obj}"
         if link and link.startswith("http"):
             obj_text = f'<a href="{link}" color="{LINK_BLUE.hexval()}">{obj_text}</a>'
 
-        rows.append([
-            Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-            Paragraph(obj_text, styles["cell"]),
-            Paragraph(valor, styles["cell_right"]),
-            Paragraph(justif, styles["cell"]),
-        ])
+        rows.append(
+            [
+                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                Paragraph(obj_text, styles["cell"]),
+                Paragraph(valor, styles["cell_right"]),
+                Paragraph(justif, styles["cell"]),
+            ]
+        )
 
     t = _three_rule_table(rows, [avail * 0.06, avail * 0.34, avail * 0.12, avail * 0.48])
     el.append(t)
     if overflow_nr > 0:
-        el.append(Paragraph(
-            f"+ {overflow_nr} edital(is) adicional(is) na planilha Excel.",
-            ParagraphStyle("nr_overflow", parent=styles["caption"],
-                           fontName="Helvetica-Oblique", textColor=TEXT_MUTED,
-                           spaceBefore=2 * mm),
-        ))
+        el.append(
+            Paragraph(
+                f"+ {overflow_nr} edital(is) adicional(is) na planilha Excel.",
+                ParagraphStyle(
+                    "nr_overflow",
+                    parent=styles["caption"],
+                    fontName="Helvetica-Oblique",
+                    textColor=TEXT_MUTED,
+                    spaceBefore=2 * mm,
+                ),
+            )
+        )
     el.append(Spacer(1, 6 * mm))
     return el
 
@@ -5246,11 +6128,13 @@ def _build_development_plan_condensed(data: dict, styles: dict, sec: dict | None
     num = sec["next"]() if sec else 5
     el.extend(_section_heading(f"{num}. Plano de Desenvolvimento — Vinculado ao Pipeline", styles))
 
-    el.append(Paragraph(
-        "Lacunas operacionais priorizadas por impacto no pipeline atual. "
-        "Cada item indica os editais afetados e o deadline mais próximo.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "Lacunas operacionais priorizadas por impacto no pipeline atual. "
+            "Cada item indica os editais afetados e o deadline mais próximo.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     # Action label mapping
@@ -5282,23 +6166,28 @@ def _build_development_plan_condensed(data: dict, styles: dict, sec: dict | None
             if r["min_deadline"]:
                 deadline_text = f" (deadline: {r['min_deadline'][:10]})"
 
-            el.append(Paragraph(
-                f"<b>• {desc}</b>{deadline_text}",
-                styles["body"],
-            ))
-            el.append(Paragraph(
-                f"  Editais: {eds_text}",
-                ParagraphStyle(f"dev_eds_{tipo}", parent=styles["body_small"],
-                               textColor=TEXT_SECONDARY),
-            ))
-            el.append(Paragraph(
-                f"  → <i>{action}</i>",
-                styles["body_small"],
-            ))
+            el.append(
+                Paragraph(
+                    f"<b>• {desc}</b>{deadline_text}",
+                    styles["body"],
+                )
+            )
+            el.append(
+                Paragraph(
+                    f"  Editais: {eds_text}",
+                    ParagraphStyle(f"dev_eds_{tipo}", parent=styles["body_small"], textColor=TEXT_SECONDARY),
+                )
+            )
+            el.append(
+                Paragraph(
+                    f"  → <i>{action}</i>",
+                    styles["body_small"],
+                )
+            )
             el.append(Spacer(1, 2 * mm))
 
-    _render_tier(p1, "PRIORIDADE 1", f"Impacto em ≥3 editais")
-    _render_tier(p2, "PRIORIDADE 2", f"Impacto em 1-2 editais")
+    _render_tier(p1, "PRIORIDADE 1", "Impacto em ≥3 editais")
+    _render_tier(p2, "PRIORIDADE 2", "Impacto em 1-2 editais")
 
     el.append(Spacer(1, 6 * mm))
     return el
@@ -5315,7 +6204,7 @@ def generate_markdown(data: dict, output_path: str) -> None:
     # Header
     nome = empresa.get("nome_fantasia") or empresa.get("razao_social", "Empresa")
     cnpj = empresa.get("cnpj", "")
-    lines.append(f"# Relatorio Executivo de Oportunidades em Licitacoes")
+    lines.append("# Relatorio Executivo de Oportunidades em Licitacoes")
     lines.append(f"**{nome}** | CNPJ {cnpj}")
     lines.append(f"Data: {_today()}")
     lines.append("")
@@ -5333,8 +6222,8 @@ def generate_markdown(data: dict, output_path: str) -> None:
     avaliar_eds = [e for e in editais if "AVALIAR" in (e.get("recomendacao") or "").upper()]
     valor_total = sum(_safe_float_gen(e.get("valor_estimado")) for e in editais)
 
-    lines.append(f"| Metrica | Valor |")
-    lines.append(f"|---------|-------|")
+    lines.append("| Metrica | Valor |")
+    lines.append("|---------|-------|")
     lines.append(f"| Oportunidades | {total} |")
     lines.append(f"| Participar | {len(participar_eds)} |")
     lines.append(f"| Avaliar | {len(avaliar_eds)} |")
@@ -5375,7 +6264,11 @@ def generate_markdown(data: dict, output_path: str) -> None:
     lines.append("")
 
     # Fichas
-    ficha_eds = [e for e in editais if _normalize_recommendation(e.get("recomendacao", "")) in ("PARTICIPAR", "AVALIAR COM CAUTELA")]
+    ficha_eds = [
+        e
+        for e in editais
+        if _normalize_recommendation(e.get("recomendacao", "")) in ("PARTICIPAR", "AVALIAR COM CAUTELA")
+    ]
     ficha_eds.sort(key=lambda e: -(_safe_int((e.get("risk_score") or {}).get("total", 0))))
 
     if ficha_eds:
@@ -5403,14 +6296,18 @@ def generate_markdown(data: dict, output_path: str) -> None:
             wp = ed.get("win_probability", {}) or {}
             prob = _safe_float(wp.get("probability", 0))
             n_sup = _safe_int(wp.get("n_unique_suppliers", 0))
-            lines.append(f"**3. Temos chance?** Competitividade Est.: {_pct(prob)} | Concorrentes: ~{n_sup if n_sup else 'N/I'}")
+            lines.append(
+                f"**3. Temos chance?** Competitividade Est.: {_pct(prob)} | Concorrentes: ~{n_sup if n_sup else 'N/I'}"
+            )
             lines.append("")
 
             # ROI
             roi = ed.get("roi_potential", {}) or {}
             roi_max = roi.get("roi_max", 0)
             score = _safe_int((ed.get("risk_score") or {}).get("total", 0))
-            lines.append(f"**4. Vale o investimento?** Retorno: ate {_currency_short(roi_max)} | Compatibilidade: {score}/100")
+            lines.append(
+                f"**4. Vale o investimento?** Retorno: ate {_currency_short(roi_max)} | Compatibilidade: {score}/100"
+            )
             lines.append("")
 
             # Risks
@@ -5459,14 +6356,16 @@ def generate_markdown(data: dict, output_path: str) -> None:
     lines.append(f"- CNPJ: {empresa.get('cnpj', '')}")
     lines.append(f"- CNAE: {empresa.get('cnae_principal', '')}")
     lines.append(f"- Porte: {empresa.get('porte', '')}")
-    lines.append(f"- Capital Social: {_currency(empresa.get('capital_social')) if empresa.get('capital_social') else 'N/I'}")
+    lines.append(
+        f"- Capital Social: {_currency(empresa.get('capital_social')) if empresa.get('capital_social') else 'N/I'}"
+    )
     lines.append(f"- Sede: {empresa.get('cidade_sede', '')} — {empresa.get('uf_sede', '')}")
     lines.append("")
 
     # Footer
     lines.append("---")
-    lines.append(f"*Tiago Sasaki — Consultor de Inteligencia em Licitacoes*")
-    lines.append(f"*Relatorio confidencial preparado exclusivamente para o destinatario*")
+    lines.append("*Tiago Sasaki — Consultor de Inteligencia em Licitacoes*")
+    lines.append("*Relatorio confidencial preparado exclusivamente para o destinatario*")
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
@@ -5476,11 +6375,13 @@ def generate_markdown(data: dict, output_path: str) -> None:
 # ANNEXES (3-layer architecture: Camada 3)
 # ============================================================
 
+
 def _build_annex_nao_recomendado(data: dict, styles: dict, sec: dict) -> list:
     """Annex A: Condensed table of non-recommended + vetoed editais."""
     editais = data.get("editais", [])
     nr_editais = [
-        (ed.get("_display_idx", i), ed) for i, ed in enumerate(editais, 1)
+        (ed.get("_display_idx", i), ed)
+        for i, ed in enumerate(editais, 1)
         if _normalize_recommendation(_s(ed.get("recomendacao", ""))) == "NÃO RECOMENDADO"
         or (ed.get("risk_score") or {}).get("vetoed", False)
     ]
@@ -5522,16 +6423,18 @@ def _build_annex_nao_recomendado(data: dict, styles: dict, sec: dict) -> list:
             justif = _trunc(_s(ed.get("justificativa", "")), 80)
 
         # Make object clickable
-        obj_text = f'{mun}/{uf} — {obj}'
+        obj_text = f"{mun}/{uf} — {obj}"
         if link and link.startswith("http"):
             obj_text = f'<a href="{link}" color="{LINK_BLUE.hexval()}">{obj_text}</a>'
 
-        rows.append([
-            Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
-            Paragraph(obj_text, styles["cell"]),
-            Paragraph(valor, styles["cell_right"]),
-            Paragraph(justif, styles["cell"]),
-        ])
+        rows.append(
+            [
+                Paragraph(f"<b>{idx}</b>", styles["cell_center"]),
+                Paragraph(obj_text, styles["cell"]),
+                Paragraph(valor, styles["cell_right"]),
+                Paragraph(justif, styles["cell"]),
+            ]
+        )
 
     t = _three_rule_table(rows, [avail * 0.06, avail * 0.34, avail * 0.12, avail * 0.48])
     el.append(t)
@@ -5544,7 +6447,7 @@ def _build_annex_company_condensed(data: dict, styles: dict, sec: dict) -> list:
     el = []
     el.append(PageBreak())
     num = sec["next"]()
-    el.extend(_section_heading(f"Anexo A — Perfil da Empresa", styles))
+    el.extend(_section_heading("Anexo A — Perfil da Empresa", styles))
 
     emp = data.get("empresa", {})
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -5561,25 +6464,36 @@ def _build_annex_company_condensed(data: dict, styles: dict, sec: dict) -> list:
     ]
     for label, value in raw_fields:
         if value and str(value).strip() and value != " — ":
-            info_rows.append([
-                Paragraph(f"<b>{label}</b>", ParagraphStyle(
-                    f"lbl_c_{label[:6]}", parent=styles["cell"],
-                    fontName="Helvetica-Bold", textColor=TEXT_SECONDARY,
-                )),
-                Paragraph(_s(str(value)), styles["cell"]),
-            ])
+            info_rows.append(
+                [
+                    Paragraph(
+                        f"<b>{label}</b>",
+                        ParagraphStyle(
+                            f"lbl_c_{label[:6]}",
+                            parent=styles["cell"],
+                            fontName="Helvetica-Bold",
+                            textColor=TEXT_SECONDARY,
+                        ),
+                    ),
+                    Paragraph(_s(str(value)), styles["cell"]),
+                ]
+            )
 
     if info_rows:
         info_t = Table(info_rows, colWidths=[avail * 0.22, avail * 0.78])
-        info_t.setStyle(TableStyle([
-            ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
-            ("LINEBELOW", (0, -1), (-1, -1), 0.4, RULE_COLOR),
-            *[("LINEBELOW", (0, i), (-1, i), 0.2, RULE_COLOR) for i in range(len(info_rows) - 1)],
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("TOPPADDING", (0, 0), (-1, -1), 3),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-            ("LEFTPADDING", (0, 0), (-1, -1), 5),
-        ]))
+        info_t.setStyle(
+            TableStyle(
+                [
+                    ("LINEABOVE", (0, 0), (-1, 0), 0.6, RULE_HEAVY),
+                    ("LINEBELOW", (0, -1), (-1, -1), 0.4, RULE_COLOR),
+                    *[("LINEBELOW", (0, i), (-1, i), 0.2, RULE_COLOR) for i in range(len(info_rows) - 1)],
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 3),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                ]
+            )
+        )
         el.append(info_t)
         el.append(Spacer(1, 3 * mm))
 
@@ -5602,22 +6516,28 @@ def _build_annex_company_condensed(data: dict, styles: dict, sec: dict) -> list:
     maturity = data.get("maturity_profile") or emp.get("maturity_profile", {})
     if maturity and maturity.get("profile"):
         profile_labels = {
-            "ENTRANTE": "Entrante", "REGIONAL": "Regional", "ESTABELECIDO": "Estabelecido",
+            "ENTRANTE": "Entrante",
+            "REGIONAL": "Regional",
+            "ESTABELECIDO": "Estabelecido",
         }
-        el.append(Paragraph(
-            f"<b>Perfil:</b> {profile_labels.get(maturity['profile'], maturity['profile'])}",
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>Perfil:</b> {profile_labels.get(maturity['profile'], maturity['profile'])}",
+                styles["body"],
+            )
+        )
 
     # Contract history — single line
     historico = emp.get("historico_contratos", [])
     if historico:
         valor_hist = sum(_safe_float(c.get("valor")) for c in historico)
-        el.append(Paragraph(
-            f"<b>Historico:</b> {len(historico)} contrato(s) governamentais"
-            + (f" ({_currency(valor_hist)})" if valor_hist > 0 else ""),
-            styles["body"],
-        ))
+        el.append(
+            Paragraph(
+                f"<b>Historico:</b> {len(historico)} contrato(s) governamentais"
+                + (f" ({_currency(valor_hist)})" if valor_hist > 0 else ""),
+                styles["body"],
+            )
+        )
 
     el.append(Spacer(1, 6 * mm))
     return el
@@ -5627,7 +6547,7 @@ def _build_annex_sources_condensed(data: dict, styles: dict, sec: dict) -> list:
     """V6 Annex B: Condensed sources + methodology — ~0.5 page."""
     el = []
     num = sec["next"]()
-    el.extend(_section_heading(f"Anexo B — Fontes e Metodologia", styles))
+    el.extend(_section_heading("Anexo B — Fontes e Metodologia", styles))
 
     # Data sources — compact text list instead of table
     metadata = data.get("_metadata", {})
@@ -5644,70 +6564,85 @@ def _build_annex_sources_condensed(data: dict, styles: dict, sec: dict) -> list:
             src = sources.get(key, {})
             status_label, _ = _get_source_label(src)
             src_parts.append(f"{label}: {status_label}")
-        el.append(Paragraph(
-            "<b>Fontes consultadas:</b> " + " | ".join(src_parts),
-            styles["body_small"],
-        ))
+        el.append(
+            Paragraph(
+                "<b>Fontes consultadas:</b> " + " | ".join(src_parts),
+                styles["body_small"],
+            )
+        )
         gen_at = _date(metadata.get("generated_at", ""))
         if gen_at:
             el.append(Paragraph(f"Dados coletados em {gen_at}.", styles["caption"]))
         el.append(Spacer(1, 3 * mm))
 
     # Methodology — 3 lines instead of full tables
-    el.append(Paragraph(
-        "<b>Metodologia:</b> Compatibilidade = media ponderada de 5 dimensoes "
-        "(Habilitacao 30%, Financeiro 25%, Geografico 20%, Prazo 15%, Competitivo 10%) — "
-        "reflete a adequacao da oportunidade ao perfil da empresa; pesos sao estimativas setoriais. "
-        "Competitividade Estimada = probabilidade heuristica baseada em historico de contratacao "
-        "do orgao (densidade de concorrentes e concentracao de mercado). "
-        "Resultado potencial = valor x competitividade x margem setorial - custo.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "<b>Metodologia:</b> Compatibilidade = media ponderada de 5 dimensoes "
+            "(Habilitacao 30%, Financeiro 25%, Geografico 20%, Prazo 15%, Competitivo 10%) — "
+            "reflete a adequacao da oportunidade ao perfil da empresa; pesos sao estimativas setoriais. "
+            "Competitividade Estimada = probabilidade heuristica baseada em historico de contratacao "
+            "do orgao (densidade de concorrentes e concentracao de mercado). "
+            "Resultado potencial = valor x competitividade x margem setorial - custo.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     # Disclaimer
-    el.append(Paragraph(
-        "Este relatorio tem carater informativo e analitico. NAO constitui parecer juridico, "
-        "contabil ou de engenharia. "
-        "Limitacoes: (1) verificacao de habilitacao e PARCIAL — regularidade fiscal (CND Federal, "
-        "Estadual, Municipal, FGTS, CNDT), certidao de falencia e registro CREA/CAU NAO sao "
-        "verificados automaticamente; (2) percentual de capital minimo/patrimonio liquido e "
-        "estimativa setorial — o percentual real e definido em cada edital e deve ser conferido "
-        "antes de submeter proposta; (3) probabilidades de vitoria sao estimativas heuristicas "
-        "baseadas em dados historicos de contratacao do orgao, NAO sao projecoes estatisticas "
-        "calibradas; (4) capacidade financeira estimada e uma aproximacao — a capacidade real "
-        "depende de patrimonio liquido, receita, linhas de credito e contratos em andamento; "
-        "(5) CNAE nao e requisito legal de habilitacao — a Lei 14.133/2021 exige qualificacao "
-        "tecnica (atestados) e compatibilidade do objeto social. "
-        "A decisao de participar e de exclusiva responsabilidade da empresa. "
-        "Recomenda-se consulta a advogado e contador antes de submeter propostas.",
-        ParagraphStyle(
-            "disclaimer_v6", parent=styles["body_small"],
-            fontName="Helvetica-Oblique", fontSize=8, textColor=TEXT_MUTED,
-        ),
-    ))
+    el.append(
+        Paragraph(
+            "Este relatorio tem carater informativo e analitico. NAO constitui parecer juridico, "
+            "contabil ou de engenharia. "
+            "Limitacoes: (1) verificacao de habilitacao e PARCIAL — regularidade fiscal (CND Federal, "
+            "Estadual, Municipal, FGTS, CNDT), certidao de falencia e registro CREA/CAU NAO sao "
+            "verificados automaticamente; (2) percentual de capital minimo/patrimonio liquido e "
+            "estimativa setorial — o percentual real e definido em cada edital e deve ser conferido "
+            "antes de submeter proposta; (3) probabilidades de vitoria sao estimativas heuristicas "
+            "baseadas em dados historicos de contratacao do orgao, NAO sao projecoes estatisticas "
+            "calibradas; (4) capacidade financeira estimada e uma aproximacao — a capacidade real "
+            "depende de patrimonio liquido, receita, linhas de credito e contratos em andamento; "
+            "(5) CNAE nao e requisito legal de habilitacao — a Lei 14.133/2021 exige qualificacao "
+            "tecnica (atestados) e compatibilidade do objeto social. "
+            "A decisao de participar e de exclusiva responsabilidade da empresa. "
+            "Recomenda-se consulta a advogado e contador antes de submeter propostas.",
+            ParagraphStyle(
+                "disclaimer_v6",
+                parent=styles["body_small"],
+                fontName="Helvetica-Oblique",
+                fontSize=8,
+                textColor=TEXT_MUTED,
+            ),
+        )
+    )
 
     # Audit trail
-    import subprocess
     import hashlib
+    import subprocess
+
     try:
-        git_hash = subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=str(Path(__file__).parent.parent),
-            stderr=subprocess.DEVNULL,
-        ).decode().strip()
+        git_hash = (
+            subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=str(Path(__file__).parent.parent),
+                stderr=subprocess.DEVNULL,
+            )
+            .decode()
+            .strip()
+        )
     except Exception:
         git_hash = "N/D"
-    gen_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    json_hash = hashlib.sha256(
-        json.dumps(data, sort_keys=True, ensure_ascii=False).encode()
-    ).hexdigest()[:12]
+    gen_ts = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
+    json_hash = hashlib.sha256(json.dumps(data, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:12]
     el.append(Spacer(1, 3 * mm))
-    el.append(Paragraph(
-        _s(f"Gerado em {gen_ts} | Script v.{git_hash} | Dados SHA-256: {json_hash}", restore_accents=False),
-        ParagraphStyle("audit_v6", parent=styles["caption"],
-                       fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED),
-    ))
+    el.append(
+        Paragraph(
+            _s(f"Gerado em {gen_ts} | Script v.{git_hash} | Dados SHA-256: {json_hash}", restore_accents=False),
+            ParagraphStyle(
+                "audit_v6", parent=styles["caption"], fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED
+            ),
+        )
+    )
 
     return el
 
@@ -5717,7 +6652,7 @@ def _build_annex_company(data: dict, styles: dict, sec: dict) -> list:
     el = []
     el.append(PageBreak())
     num = sec["next"]()
-    el.extend(_section_heading(f"Anexo B — Perfil da Empresa", styles))
+    el.extend(_section_heading("Anexo B — Perfil da Empresa", styles))
     el.extend(_build_company_profile_content(data, styles))
     el.append(Spacer(1, 5 * mm))
     el.extend(_build_sicaf_content(data, styles))
@@ -5729,13 +6664,15 @@ def _build_methodology_content(styles: dict) -> list:
     el = []
     el.append(Paragraph("<b>Metodologia de Análise</b>", styles["h3"]))
 
-    el.append(Paragraph(
-        "O índice de Compatibilidade combina cinco dimensões com pesos estimados "
-        "para refletir os fatores mais determinantes na decisão de participação. "
-        "Os pesos são estimativas setoriais utilizadas como aproximação — o peso real de cada "
-        "fator varia conforme o edital específico.",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "O índice de Compatibilidade combina cinco dimensões com pesos estimados "
+            "para refletir os fatores mais determinantes na decisão de participação. "
+            "Os pesos são estimativas setoriais utilizadas como aproximação — o peso real de cada "
+            "fator varia conforme o edital específico.",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     avail = PAGE_WIDTH - 2 * MARGIN
@@ -5753,46 +6690,58 @@ def _build_methodology_content(styles: dict) -> list:
         ("Competitivo", "10%", "Histórico de fornecedores do órgão, concentração de mercado"),
     ]
     for dim, peso, desc in dimensions:
-        rows.append([
-            Paragraph(dim, styles["cell"]),
-            Paragraph(peso, styles["cell_center"]),
-            Paragraph(desc, styles["cell"]),
-        ])
+        rows.append(
+            [
+                Paragraph(dim, styles["cell"]),
+                Paragraph(peso, styles["cell_center"]),
+                Paragraph(desc, styles["cell"]),
+            ]
+        )
     t = _three_rule_table(rows, [avail * 0.18, avail * 0.12, avail * 0.70])
     el.append(t)
     el.append(Spacer(1, 5 * mm))
 
     # ROI Formula
     el.append(Paragraph("<b>Resultado Potencial (ROI)</b>", styles["h3"]))
-    el.append(Paragraph(
-        "O resultado potencial de cada edital é calculado pela fórmula:",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "O resultado potencial de cada edital é calculado pela fórmula:",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 2 * mm))
     roi_formula = ParagraphStyle(
-        "roi_formula", parent=styles["body"],
-        fontName="Helvetica-Bold", fontSize=9, textColor=INK,
-        alignment=TA_CENTER, spaceBefore=2 * mm, spaceAfter=2 * mm,
+        "roi_formula",
+        parent=styles["body"],
+        fontName="Helvetica-Bold",
+        fontSize=9,
+        textColor=INK,
+        alignment=TA_CENTER,
+        spaceBefore=2 * mm,
+        spaceAfter=2 * mm,
     )
-    el.append(Paragraph(
-        "(Valor do edital × Competitividade Estimada × Margem líquida setorial) "
-        "− Custo estimado de participação",
-        roi_formula,
-    ))
+    el.append(
+        Paragraph(
+            "(Valor do edital × Competitividade Estimada × Margem líquida setorial) − Custo estimado de participação",
+            roi_formula,
+        )
+    )
     el.append(Spacer(1, 3 * mm))
 
     # Probability calibration
     el.append(Paragraph("<b>Competitividade Estimada</b>", styles["h3"]))
-    el.append(Paragraph(
-        "A Competitividade Estimada é uma estimativa heurística da probabilidade de vitória "
-        "baseada em dados históricos de contratação do órgão licitante obtidos via Portal "
-        "Nacional de Contratações Públicas. "
-        "O modelo heurístico inspirado em análise de frequência considera o número de "
-        "contratos históricos disponíveis — NÃO é uma projeção estatística calibrada. "
-        "Percentual baixo é normal em licitações abertas com muitos participantes. "
-        "O nível de confiança da estimativa varia conforme a amostra disponível:",
-        styles["body_small"],
-    ))
+    el.append(
+        Paragraph(
+            "A Competitividade Estimada é uma estimativa heurística da probabilidade de vitória "
+            "baseada em dados históricos de contratação do órgão licitante obtidos via Portal "
+            "Nacional de Contratações Públicas. "
+            "O modelo heurístico inspirado em análise de frequência considera o número de "
+            "contratos históricos disponíveis — NÃO é uma projeção estatística calibrada. "
+            "Percentual baixo é normal em licitações abertas com muitos participantes. "
+            "O nível de confiança da estimativa varia conforme a amostra disponível:",
+            styles["body_small"],
+        )
+    )
     el.append(Spacer(1, 2 * mm))
     conf_header = [
         Paragraph("Amostra", styles["cell_header"]),
@@ -5805,37 +6754,44 @@ def _build_methodology_content(styles: dict) -> list:
         ("Menos de 5 contratos", "Baixa"),
     ]
     for amostra, confianca in conf_data:
-        conf_rows.append([
-            Paragraph(amostra, styles["cell"]),
-            Paragraph(confianca, styles["cell"]),
-        ])
+        conf_rows.append(
+            [
+                Paragraph(amostra, styles["cell"]),
+                Paragraph(confianca, styles["cell"]),
+            ]
+        )
     t2 = _three_rule_table(conf_rows, [avail * 0.50, avail * 0.50])
     el.append(t2)
     el.append(Spacer(1, 5 * mm))
 
     # Disclaimer
     disclaimer_style = ParagraphStyle(
-        "disclaimer_meth", parent=styles["body_small"],
-        fontName="Helvetica-Oblique", fontSize=8, textColor=TEXT_MUTED,
+        "disclaimer_meth",
+        parent=styles["body_small"],
+        fontName="Helvetica-Oblique",
+        fontSize=8,
+        textColor=TEXT_MUTED,
         alignment=TA_JUSTIFY,
     )
-    el.append(Paragraph(
-        "Este relatório tem caráter informativo e analítico. NÃO constitui parecer jurídico, "
-        "contábil ou de engenharia. "
-        "Limitações: (1) verificação de habilitação é PARCIAL — regularidade fiscal (CND Federal, "
-        "Estadual, Municipal, FGTS, CNDT), certidão de falência e registro CREA/CAU NÃO são "
-        "verificados automaticamente; (2) o percentual de capital mínimo/patrimônio líquido "
-        "utilizado é uma estimativa setorial — o percentual real é definido em cada edital e "
-        "deve ser conferido antes de submeter proposta; (3) Competitividade Estimada é "
-        "heurística baseada em dados históricos de contratação do órgão — percentual baixo "
-        "é normal em licitações abertas, NÃO é projeção estatística calibrada; (4) a capacidade financeira estimada é uma "
-        "aproximação — a capacidade real depende de patrimônio líquido, receita, linhas de "
-        "crédito e contratos em andamento; (5) CNAE não é requisito legal de habilitação — "
-        "a Lei 14.133/2021 exige qualificação técnica (atestados) e compatibilidade do objeto "
-        "social. A decisão de participar é de exclusiva responsabilidade da empresa. "
-        "Recomenda-se consulta a advogado e contador antes de submeter propostas.",
-        disclaimer_style,
-    ))
+    el.append(
+        Paragraph(
+            "Este relatório tem caráter informativo e analítico. NÃO constitui parecer jurídico, "
+            "contábil ou de engenharia. "
+            "Limitações: (1) verificação de habilitação é PARCIAL — regularidade fiscal (CND Federal, "
+            "Estadual, Municipal, FGTS, CNDT), certidão de falência e registro CREA/CAU NÃO são "
+            "verificados automaticamente; (2) o percentual de capital mínimo/patrimônio líquido "
+            "utilizado é uma estimativa setorial — o percentual real é definido em cada edital e "
+            "deve ser conferido antes de submeter proposta; (3) Competitividade Estimada é "
+            "heurística baseada em dados históricos de contratação do órgão — percentual baixo "
+            "é normal em licitações abertas, NÃO é projeção estatística calibrada; (4) a capacidade financeira estimada é uma "
+            "aproximação — a capacidade real depende de patrimônio líquido, receita, linhas de "
+            "crédito e contratos em andamento; (5) CNAE não é requisito legal de habilitação — "
+            "a Lei 14.133/2021 exige qualificação técnica (atestados) e compatibilidade do objeto "
+            "social. A decisão de participar é de exclusiva responsabilidade da empresa. "
+            "Recomenda-se consulta a advogado e contador antes de submeter propostas.",
+            disclaimer_style,
+        )
+    )
     return el
 
 
@@ -5844,7 +6800,7 @@ def _build_annex_sources(data: dict, styles: dict, sec: dict) -> list:
     el = []
     el.append(PageBreak())
     num = sec["next"]()
-    el.extend(_section_heading(f"Anexo C — Fontes de Dados e Metodologia", styles))
+    el.extend(_section_heading("Anexo C — Fontes de Dados e Metodologia", styles))
     el.extend(_build_data_sources_content(data, styles))
     el.append(Spacer(1, 5 * mm))
     # Methodology subsection
@@ -5857,34 +6813,39 @@ def _build_annex_sources(data: dict, styles: dict, sec: dict) -> list:
         el.extend(_build_querido_diario_content(data, styles))
 
     # F36: Audit trail
-    import subprocess
     import hashlib
+    import subprocess
+
     try:
-        git_hash = subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=str(Path(__file__).parent.parent),
-            stderr=subprocess.DEVNULL,
-        ).decode().strip()
+        git_hash = (
+            subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=str(Path(__file__).parent.parent),
+                stderr=subprocess.DEVNULL,
+            )
+            .decode()
+            .strip()
+        )
     except Exception:
         git_hash = "N/D"
 
-    gen_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    json_hash = hashlib.sha256(
-        json.dumps(data, sort_keys=True, ensure_ascii=False).encode()
-    ).hexdigest()[:12]
+    gen_ts = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
+    json_hash = hashlib.sha256(json.dumps(data, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:12]
 
-    audit_text = (
-        f"Gerado em {gen_ts} | Script v.{git_hash} | "
-        f"Dados SHA-256: {json_hash}"
-    )
+    audit_text = f"Gerado em {gen_ts} | Script v.{git_hash} | Dados SHA-256: {json_hash}"
     el.append(Spacer(1, 5 * mm))
-    el.append(Paragraph(
-        _s(audit_text, restore_accents=False),
-        ParagraphStyle(
-            "audit_trail", parent=styles["caption"],
-            fontName="Helvetica", fontSize=7, textColor=TEXT_MUTED,
-        ),
-    ))
+    el.append(
+        Paragraph(
+            _s(audit_text, restore_accents=False),
+            ParagraphStyle(
+                "audit_trail",
+                parent=styles["caption"],
+                fontName="Helvetica",
+                fontSize=7,
+                textColor=TEXT_MUTED,
+            ),
+        )
+    )
 
     return el
 
@@ -5892,6 +6853,7 @@ def _build_annex_sources(data: dict, styles: dict, sec: dict) -> list:
 # ============================================================
 # MAIN
 # ============================================================
+
 
 def _sanitize_links(data: dict) -> dict:
     editais = data.get("editais", [])
@@ -5997,6 +6959,7 @@ def generate_report_b2g(data: dict) -> BytesIO:
         if dias is not None and _safe_int(dias) <= 0:
             return False
         return True
+
     data["editais"] = [e for e in data.get("editais", []) if _is_eligible(e)]
 
     # Separate discarded editais (irrelevant to company profile) before rendering
@@ -6085,8 +7048,8 @@ def generate_report_b2g(data: dict) -> BytesIO:
             print(f"    - {e}")
         if len(validation_errors) > 10:
             print(f"    ... e mais {len(validation_errors) - 10}")
-        print(f"\n  Para corrigir, execute:")
-        print(f"    python scripts/collect-report-data.py --re-enrich <caminho-do-json>")
+        print("\n  Para corrigir, execute:")
+        print("    python scripts/collect-report-data.py --re-enrich <caminho-do-json>")
         raise ValueError(
             f"PDF bloqueado — {len(validation_errors)} campo(s) crítico(s) ausente(s) no JSON. "
             f"Execute --re-enrich para recalcular campos determinísticos sem re-coletar APIs.\n"
@@ -6099,23 +7062,24 @@ def generate_report_b2g(data: dict) -> BytesIO:
 
     # F38: LayoutError graceful handling
     try:
-        doc.build(elements, onFirstPage=_draw_footer, onLaterPages=_draw_footer,
-                  canvasmaker=_NumberedCanvas)
+        doc.build(elements, onFirstPage=_draw_footer, onLaterPages=_draw_footer, canvasmaker=_NumberedCanvas)
     except Exception as exc:
         if "Flowable" in str(exc) or "too large" in str(exc).lower():
-            print(f"WARNING: LayoutError detected. Retrying with reduced content...")
+            print("WARNING: LayoutError detected. Retrying with reduced content...")
             # Truncate oversized flowables as safety net
             for flowable in elements:
-                if hasattr(flowable, 'text') and len(getattr(flowable, 'text', '')) > 2000:
+                if hasattr(flowable, "text") and len(getattr(flowable, "text", "")) > 2000:
                     flowable.text = flowable.text[:2000] + "..."
             buffer2 = BytesIO()
             doc2 = SimpleDocTemplate(
-                buffer2, pagesize=A4,
-                leftMargin=MARGIN, rightMargin=MARGIN,
-                topMargin=MARGIN, bottomMargin=MARGIN + 10 * mm,
+                buffer2,
+                pagesize=A4,
+                leftMargin=MARGIN,
+                rightMargin=MARGIN,
+                topMargin=MARGIN,
+                bottomMargin=MARGIN + 10 * mm,
             )
-            doc2.build(elements, onFirstPage=_draw_footer, onLaterPages=_draw_footer,
-                       canvasmaker=_NumberedCanvas)
+            doc2.build(elements, onFirstPage=_draw_footer, onLaterPages=_draw_footer, canvasmaker=_NumberedCanvas)
             print("PDF generated with reduced content (LayoutError recovery)")
             buffer2.seek(0)
             return buffer2
@@ -6123,7 +7087,6 @@ def generate_report_b2g(data: dict) -> BytesIO:
             raise
     buffer.seek(0)
     return buffer
-
 
 
 def _friendly_cluster_label(raw):
@@ -6135,7 +7098,7 @@ def _friendly_cluster_label(raw):
 
 def _friendly_competition_text(prob, wp):
     """Convert probability + supplier count into a user-friendly competition label."""
-    n_suppliers = (wp.get("n_unique_suppliers", 0) if isinstance(wp, dict) else 0)
+    n_suppliers = wp.get("n_unique_suppliers", 0) if isinstance(wp, dict) else 0
     if n_suppliers > 0:
         return f"~{n_suppliers} concorrentes"
     prob_val = float(prob) if prob else 0
@@ -6151,16 +7114,17 @@ def _friendly_competition_text(prob, wp):
 def _clean_excel_str(s: str) -> str:
     """Remove illegal XML characters that openpyxl rejects."""
     import re
+
     if not isinstance(s, str):
         return str(s) if s is not None else ""
     # Remove control chars except tab, newline, carriage return
-    return re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', s)
+    return re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", s)
 
 
 def generate_excel_companion(data: dict, output_path: str) -> None:
     """Generate Excel with all editais for filtering/sorting."""
     from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.styles import Alignment, Font, PatternFill
     from openpyxl.utils import get_column_letter
 
     wb = Workbook()
@@ -6168,10 +7132,24 @@ def generate_excel_companion(data: dict, output_path: str) -> None:
     ws.title = "Oportunidades"
 
     # Headers
-    headers = ["#", "Recomendação", "Compatibilidade", "Município", "UF", "Objeto",
-               "Valor Estimado", "Modalidade", "Prazo (dias)", "Competitividade Est.",
-               "ROI Mín (R$)", "ROI Máx (R$)", "Distância (km)", "Cluster",
-               "Justificativa", "Link PNCP"]
+    headers = [
+        "#",
+        "Recomendação",
+        "Compatibilidade",
+        "Município",
+        "UF",
+        "Objeto",
+        "Valor Estimado",
+        "Modalidade",
+        "Prazo (dias)",
+        "Competitividade Est.",
+        "ROI Mín (R$)",
+        "ROI Máx (R$)",
+        "Distância (km)",
+        "Cluster",
+        "Justificativa",
+        "Link PNCP",
+    ]
 
     # Header style
     header_font = Font(bold=True, color="FFFFFF", size=10)
@@ -6185,9 +7163,9 @@ def generate_excel_companion(data: dict, output_path: str) -> None:
 
     # Color fills for recommendations
     fills = {
-        "PARTICIPAR": PatternFill(start_color="D5F5E3", fill_type="solid"),          # green
+        "PARTICIPAR": PatternFill(start_color="D5F5E3", fill_type="solid"),  # green
         "AVALIAR COM CAUTELA": PatternFill(start_color="FEF9E7", fill_type="solid"),  # amber
-        "NÃO RECOMENDADO": PatternFill(start_color="FADBD8", fill_type="solid"),      # red
+        "NÃO RECOMENDADO": PatternFill(start_color="FADBD8", fill_type="solid"),  # red
     }
 
     editais = data.get("editais", [])
@@ -6240,7 +7218,7 @@ def generate_excel_companion(data: dict, output_path: str) -> None:
             link_cell.font = Font(color="0563C1", underline="single", size=10)
 
         # Format currency column (7 = Valor Estimado)
-        ws.cell(row=row, column=7).number_format = '#,##0.00'
+        ws.cell(row=row, column=7).number_format = "#,##0.00"
 
     # Column widths
     widths = [5, 22, 8, 20, 5, 60, 15, 25, 10, 12, 12, 12, 10, 25, 50, 50]
@@ -6255,16 +7233,27 @@ def generate_excel_companion(data: dict, output_path: str) -> None:
 
     wb.save(output_path)
 
+
 def main():
     parser = argparse.ArgumentParser(description="Generate B2G Report PDF from JSON data")
     parser.add_argument("--input", required=True, help="Path to JSON data file")
     parser.add_argument("--output", help="Output PDF path (auto-generated if omitted)")
-    parser.add_argument("--save-json", action="store_true", help="Save enriched JSON (with backfilled recommendations) back to input file")
-    parser.add_argument("--partial-banner", action="store_true",
-                        help="Add 'ANALISE PARCIAL' banner (used when Auditor BLOCKED after retry)")
-    parser.add_argument("--deterministic-only", action="store_true",
-                        help="Generate report using only deterministic data (no LLM enrichment). "
-                             "Used as fallback when Analyst agent fails.")
+    parser.add_argument(
+        "--save-json",
+        action="store_true",
+        help="Save enriched JSON (with backfilled recommendations) back to input file",
+    )
+    parser.add_argument(
+        "--partial-banner",
+        action="store_true",
+        help="Add 'ANALISE PARCIAL' banner (used when Auditor BLOCKED after retry)",
+    )
+    parser.add_argument(
+        "--deterministic-only",
+        action="store_true",
+        help="Generate report using only deterministic data (no LLM enrichment). "
+        "Used as fallback when Analyst agent fails.",
+    )
     args = parser.parse_args()
 
     input_path = Path(args.input)
@@ -6272,7 +7261,7 @@ def main():
         print(f"ERROR: Input file not found: {input_path}")
         sys.exit(1)
 
-    with open(input_path, "r", encoding="utf-8") as f:
+    with open(input_path, encoding="utf-8") as f:
         data = json.load(f)
 
     if args.output:
@@ -6374,12 +7363,13 @@ def main():
     # Record pipeline metrics (GAP-E: quality tracking over time)
     try:
         sys.path.insert(0, str(Path(__file__).resolve().parent))
-        from report_metrics import record_metrics, append_metric
+        from report_metrics import append_metric, record_metrics
+
         metric = record_metrics(data)
         metric["deterministic_only"] = args.deterministic_only
         metric["partial_banner"] = args.partial_banner
         append_metric(metric)
-        print(f"Metrics recorded: data/report_metrics.jsonl")
+        print("Metrics recorded: data/report_metrics.jsonl")
     except Exception as e:
         print(f"  [metrics] Falha ao gravar métricas: {e}")
 

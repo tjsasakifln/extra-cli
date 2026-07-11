@@ -3,29 +3,29 @@
 import json
 import logging
 import time
+from collections.abc import Callable, Generator
 from datetime import date, timedelta
-from typing import Any, Callable, Dict, Generator, List
+from typing import Any
 
 import requests
+from clients.pncp.retry import (
+    DateFormat,
+    _get_format_rotation,
+    _handle_422_response,
+    _set_cached_date_format,
+    _validate_date_params,
+    calculate_delay,
+    format_date,
+)
+from exceptions import PNCPAPIError, PNCPRateLimitError
+from middleware import request_id_var
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from config import (
-    RetryConfig,
     DEFAULT_MODALIDADES,
     MODALIDADES_EXCLUIDAS,
-)
-from exceptions import PNCPAPIError, PNCPRateLimitError
-from middleware import request_id_var
-
-from clients.pncp.retry import (
-    DateFormat,
-    _get_format_rotation,
-    _validate_date_params,
-    _handle_422_response,
-    _set_cached_date_format,
-    calculate_delay,
-    format_date,
+    RetryConfig,
 )
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 # (DEBT-v3-S3 Phase 1.2: canonical definitions moved to async_client.py)
 # ============================================================================
 
-from clients.pncp.async_client import PNCPDegradedError, STATUS_PNCP_MAP  # noqa: E402, F401
+from clients.pncp.async_client import STATUS_PNCP_MAP, PNCPDegradedError  # noqa: E402, F401
 
 
 class PNCPClient:
@@ -81,10 +81,12 @@ class PNCPClient:
         session.mount("http://", adapter)
 
         # Set default headers (X-Request-ID is added per-request in fetch_page)
-        session.headers.update({
-            "User-Agent": "SmartLic/1.0 (procurement-search; contato@smartlic.tech)",
-            "Accept": "application/json",
-        })
+        session.headers.update(
+            {
+                "User-Agent": "SmartLic/1.0 (procurement-search; contato@smartlic.tech)",
+                "Accept": "application/json",
+            }
+        )
 
         return session
 
@@ -113,7 +115,7 @@ class PNCPClient:
         uf: str | None = None,
         pagina: int = 1,
         tamanho: int = 50,  # PNCP API max (reduced from 500 to 50 by PNCP ~Feb 2026)
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Fetch a single page of procurement data from PNCP API.
 
@@ -182,13 +184,12 @@ class PNCPClient:
         last_retry_after = 60
         for attempt in range(self.config.max_retries + 1):
             try:
-                logger.debug(
-                    f"Request {url} params={params} attempt={attempt + 1}/"
-                    f"{self.config.max_retries + 1}"
-                )
+                logger.debug(f"Request {url} params={params} attempt={attempt + 1}/{self.config.max_retries + 1}")
 
                 response = self.session.get(
-                    url, params=params, timeout=self.config.timeout,
+                    url,
+                    params=params,
+                    timeout=self.config.timeout,
                     headers=headers,
                 )
 
@@ -196,10 +197,7 @@ class PNCPClient:
                 if response.status_code == 429:
                     last_retry_after = int(response.headers.get("Retry-After", 60))
                     last_was_rate_limit = True
-                    logger.debug(
-                        f"Rate limited (429). Waiting {last_retry_after}s "
-                        f"(Retry-After header)"
-                    )
+                    logger.debug(f"Rate limited (429). Waiting {last_retry_after}s (Retry-After header)")
                     time.sleep(last_retry_after)
                     continue
 
@@ -244,15 +242,14 @@ class PNCPClient:
                             ) from e
 
                     # UX-336 AC3+AC5: Cache successful format + telemetry
-                    current_fmt = format_rotation[format_idx] if format_idx < len(format_rotation) else DateFormat.YYYYMMDD
+                    current_fmt = (
+                        format_rotation[format_idx] if format_idx < len(format_rotation) else DateFormat.YYYYMMDD
+                    )
                     if current_fmt != DateFormat.YYYYMMDD or format_idx > 0:
                         _set_cached_date_format(current_fmt)
                         logger.debug(f"pncp_date_format_accepted format={current_fmt}")
 
-                    logger.debug(
-                        f"Success: fetched page {pagina} "
-                        f"({len(data.get('data', []))} items)"
-                    )
+                    logger.debug(f"Success: fetched page {pagina} ({len(data.get('data', []))} items)")
                     return data
 
                 # No content - empty results (valid response)
@@ -272,16 +269,14 @@ class PNCPClient:
                     has_more_formats = (format_idx + 1) < len(format_rotation)
                     effective_attempt = 0 if has_more_formats else 1
                     result = _handle_422_response(
-                        response.text, params, data_inicial, data_final,
-                        attempt=effective_attempt, max_retries=1
+                        response.text, params, data_inicial, data_final, attempt=effective_attempt, max_retries=1
                     )
                     if result == "retry_format" and has_more_formats:
                         # UX-336: Try next date format
                         format_idx += 1
                         next_fmt = format_rotation[format_idx]
                         logger.debug(
-                            f"UX-336: Retrying with format {next_fmt} "
-                            f"(attempt {format_idx + 1}/{len(format_rotation)})"
+                            f"UX-336: Retrying with format {next_fmt} (attempt {format_idx + 1}/{len(format_rotation)})"
                         )
                         params["dataInicial"] = format_date(data_inicial, next_fmt)
                         params["dataFinal"] = format_date(data_final, next_fmt)
@@ -325,10 +320,7 @@ class PNCPClient:
                         f"url={url} params={params} "
                         f"body={response.text[:500]}"
                     )
-                    error_msg = (
-                        f"API returned non-retryable status {response.status_code}: "
-                        f"{response.text[:200]}"
-                    )
+                    error_msg = f"API returned non-retryable status {response.status_code}: {response.text[:200]}"
                     raise PNCPAPIError(error_msg)
 
                 # Retryable errors - wait and retry
@@ -343,8 +335,7 @@ class PNCPClient:
                 else:
                     # Last attempt failed
                     error_msg = (
-                        f"Failed after {self.config.max_retries + 1} attempts. "
-                        f"Last status: {response.status_code}"
+                        f"Failed after {self.config.max_retries + 1} attempts. Last status: {response.status_code}"
                     )
                     logger.error(error_msg)
                     raise PNCPAPIError(error_msg)
@@ -360,8 +351,7 @@ class PNCPClient:
                     time.sleep(delay)
                 else:
                     error_msg = (
-                        f"Failed after {self.config.max_retries + 1} attempts. "
-                        f"Last exception: {type(e).__name__}: {e}"
+                        f"Failed after {self.config.max_retries + 1} attempts. Last exception: {type(e).__name__}: {e}"
                     )
                     logger.error(error_msg)
                     raise PNCPAPIError(error_msg) from e
@@ -374,9 +364,7 @@ class PNCPClient:
         raise PNCPAPIError("Unexpected: exhausted retries without raising exception")
 
     @staticmethod
-    def _chunk_date_range(
-        data_inicial: str, data_final: str, max_days: int = 30
-    ) -> list[tuple[str, str]]:
+    def _chunk_date_range(data_inicial: str, data_final: str, max_days: int = 30) -> list[tuple[str, str]]:
         """
         Split a date range into chunks of max_days.
 
@@ -411,7 +399,7 @@ class PNCPClient:
         ufs: list[str] | None = None,
         modalidades: list[int] | None = None,
         on_progress: Callable[[int, int, int], None] | None = None,
-    ) -> Generator[Dict[str, Any], None, None]:
+    ) -> Generator[dict[str, Any], None, None]:
         """
         Fetch all procurement records with automatic pagination and date chunking.
 
@@ -432,8 +420,7 @@ class PNCPClient:
         date_chunks = self._chunk_date_range(data_inicial, data_final)
         if len(date_chunks) > 1:
             logger.debug(
-                f"Date range {data_inicial} to {data_final} split into "
-                f"{len(date_chunks)} chunks of up to 30 days"
+                f"Date range {data_inicial} to {data_final} split into {len(date_chunks)} chunks of up to 30 days"
             )
 
         # Use default modalities if not specified; always filter out excluded
@@ -445,10 +432,7 @@ class PNCPClient:
 
         for chunk_idx, (chunk_start, chunk_end) in enumerate(date_chunks):
             if len(date_chunks) > 1:
-                logger.debug(
-                    f"Processing date chunk {chunk_idx + 1}/{len(date_chunks)}: "
-                    f"{chunk_start} to {chunk_end}"
-                )
+                logger.debug(f"Processing date chunk {chunk_idx + 1}/{len(date_chunks)}: {chunk_start} to {chunk_end}")
 
             for modalidade in modalidades_to_fetch:
                 logger.debug(f"Fetching modality {modalidade}")
@@ -458,34 +442,26 @@ class PNCPClient:
                     for uf in ufs:
                         logger.debug(f"Fetching modalidade={modalidade}, UF={uf}")
                         try:
-                            for item in self._fetch_by_uf(
-                                chunk_start, chunk_end, modalidade, uf, on_progress
-                            ):
+                            for item in self._fetch_by_uf(chunk_start, chunk_end, modalidade, uf, on_progress):
                                 normalized = self._normalize_item(item, uf_hint=uf)
                                 item_id = normalized.get("numeroControlePNCP", "")
                                 if item_id and item_id not in seen_ids:
                                     seen_ids.add(item_id)
                                     yield normalized
                         except PNCPAPIError as e:
-                            logger.warning(
-                                f"Skipping modalidade={modalidade}, UF={uf}: {e}"
-                            )
+                            logger.warning(f"Skipping modalidade={modalidade}, UF={uf}: {e}")
                             continue
                 else:
                     logger.debug(f"Fetching modalidade={modalidade}, all UFs")
                     try:
-                        for item in self._fetch_by_uf(
-                            chunk_start, chunk_end, modalidade, None, on_progress
-                        ):
+                        for item in self._fetch_by_uf(chunk_start, chunk_end, modalidade, None, on_progress):
                             normalized = self._normalize_item(item)
                             item_id = normalized.get("numeroControlePNCP", "")
                             if item_id and item_id not in seen_ids:
                                 seen_ids.add(item_id)
                                 yield normalized
                     except PNCPAPIError as e:
-                        logger.warning(
-                            f"Skipping modalidade={modalidade}, all UFs: {e}"
-                        )
+                        logger.warning(f"Skipping modalidade={modalidade}, all UFs: {e}")
                         continue
 
         logger.info(
@@ -494,7 +470,7 @@ class PNCPClient:
         )
 
     @staticmethod
-    def _normalize_item(item: Dict[str, Any], uf_hint: str | None = None) -> Dict[str, Any]:
+    def _normalize_item(item: dict[str, Any], uf_hint: str | None = None) -> dict[str, Any]:
         """
         Flatten nested PNCP API response into the flat format expected by
         filter.py, excel.py and llm.py.
@@ -545,7 +521,7 @@ class PNCPClient:
         uf: str | None,
         on_progress: Callable[[int, int, int], None] | None,
         max_pages: int | None = None,  # STORY-282 AC2: Defaults to PNCP_MAX_PAGES (5)
-    ) -> Generator[Dict[str, Any], None, None]:
+    ) -> Generator[dict[str, Any], None, None]:
         """
         Fetch all pages for a specific modality and UF combination.
 
@@ -565,6 +541,7 @@ class PNCPClient:
             Dict[str, Any]: Individual procurement record
         """
         from config import PNCP_MAX_PAGES
+
         if max_pages is None:
             max_pages = PNCP_MAX_PAGES
         pagina = 1
@@ -594,10 +571,7 @@ class PNCPClient:
             tem_proxima = paginas_restantes > 0
 
             # Log page info
-            logger.info(
-                f"Page {pagina}/{total_pages}: {len(data)} items "
-                f"(total records: {total_registros})"
-            )
+            logger.info(f"Page {pagina}/{total_pages}: {len(data)} items (total records: {total_registros})")
 
             # Call progress callback if provided
             if on_progress:

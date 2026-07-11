@@ -13,6 +13,7 @@ Usage:
 Requires:
     pip install httpx pyyaml
 """
+
 from __future__ import annotations
 
 import argparse
@@ -38,6 +39,7 @@ import httpx as _httpx
 # Load .env for local development (Railway/Docker set env vars natively)
 try:
     from dotenv import load_dotenv as _load_dotenv
+
     _load_dotenv(str(Path(__file__).resolve().parent.parent / ".env"))
 except ImportError:
     pass  # python-dotenv not installed — OK in production
@@ -95,19 +97,19 @@ _DATE_CHUNK_DAYS = 14  # Each chunk covers 14 days (shorter = fewer pages per co
 # Parallel workers for PNCP fetch (all modalidade×UF×chunk combos dispatched at once)
 _PNCP_FETCH_WORKERS = 4  # Balanced: 3-5 avoids cascading timeouts on gov server
 # Adaptive rate limiter
-_RATE_LIMIT_BASE_S = 0.15   # Base interval between requests (150ms)
-_RATE_LIMIT_MAX_S = 30.0    # Max interval on slowdowns (v1.5: was 2.0s — increased for 429 backoff)
+_RATE_LIMIT_BASE_S = 0.15  # Base interval between requests (150ms)
+_RATE_LIMIT_MAX_S = 30.0  # Max interval on slowdowns (v1.5: was 2.0s — increased for 429 backoff)
 _RATE_LIMIT_SLOW_THRESHOLD_S = 5.0  # Response > 5s = "slow"
-_RATE_LIMIT_DECAY = 0.85    # Decay factor on fast responses
-_RATE_LIMIT_GROWTH = 1.5    # Growth factor on slow responses
+_RATE_LIMIT_DECAY = 0.85  # Decay factor on fast responses
+_RATE_LIMIT_GROWTH = 1.5  # Growth factor on slow responses
 # Circuit breaker: pause after consecutive timeouts
-_CIRCUIT_BREAKER_THRESHOLD = 3   # 3 consecutive failures = pause
+_CIRCUIT_BREAKER_THRESHOLD = 3  # 3 consecutive failures = pause
 _CIRCUIT_BREAKER_PAUSE_S = 15.0  # Pause duration (seconds)
 # 429 rate-limit specific (v1.5)
-_RATE_LIMIT_429_GROWTH = 2.0    # Doubling factor for 429 backoff (start 2s → 4s → 8s → ...)
-_RATE_LIMIT_429_MAX_S = 30.0    # Max interval for 429 backoff
-_RATE_LIMIT_429_INITIAL_S = 2.0 # Initial wait on first 429 (seconds)
-_PNCP_429_MAX_PER_COMBO = 10    # Max 429s per combo before suspension
+_RATE_LIMIT_429_GROWTH = 2.0  # Doubling factor for 429 backoff (start 2s → 4s → 8s → ...)
+_RATE_LIMIT_429_MAX_S = 30.0  # Max interval for 429 backoff
+_RATE_LIMIT_429_INITIAL_S = 2.0  # Initial wait on first 429 (seconds)
+_PNCP_429_MAX_PER_COMBO = 10  # Max 429s per combo before suspension
 CNAE_KEYWORD_REFINEMENTS = _crd.CNAE_KEYWORD_REFINEMENTS
 _compile_keyword_patterns = _crd._compile_keyword_patterns
 _compute_keyword_density = _crd._compute_keyword_density
@@ -128,15 +130,15 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # Checkpoint file for resume/fault-tolerance
 _CHECKPOINT_FILE = _PROJECT_ROOT / "data" / "intel_pncp_checkpoint.json"
-_CHECKPOINT_TTL_HOURS = 2      # Re-use cached UF+mod result if < 2h old
+_CHECKPOINT_TTL_HOURS = 2  # Re-use cached UF+mod result if < 2h old
 _CHECKPOINT_CLEANUP_HOURS = 24  # Evict stale checkpoint entries older than 24h
 
 # Competitive intelligence cache
 _COMPETITIVE_CACHE_FILE = str(_PROJECT_ROOT / "data" / "competitive_cache.json")
 _COMPETITIVE_CACHE_TTL_DAYS = 7  # Cache competitive intel per organ for 7 days
-_COMPETITIVE_MAX_ORGANS = 15     # Max unique organs to query
-_COMPETITIVE_WORKERS = 6         # Parallel workers for competitive intel (was 3)
-_BENCHMARK_WORKERS = 6           # Parallel workers for price benchmark (was 1/sequential)
+_COMPETITIVE_MAX_ORGANS = 15  # Max unique organs to query
+_COMPETITIVE_WORKERS = 6  # Parallel workers for competitive intel (was 3)
+_BENCHMARK_WORKERS = 6  # Parallel workers for price benchmark (was 1/sequential)
 
 # Modalidades competitivas relevantes (Lei 14.133/2021, arts. 28-29)
 #
@@ -155,10 +157,7 @@ _BENCHMARK_WORKERS = 6           # Parallel workers for price benchmark (was 1/s
 #  12: Credenciamento — cadastro aberto, não licitação
 #  15: Chamada Pública — programa agrícola (MAPA)
 #  16-19: Internacionais — irrelevante para construtoras domésticas
-MODALIDADES_BUSCA = {
-    k: v for k, v in MODALIDADES.items()
-    if k in {4, 5, 6, 7}
-}
+MODALIDADES_BUSCA = {k: v for k, v in MODALIDADES.items() if k in {4, 5, 6, 7}}
 
 # CNAE keyword density gate: 1% minimum (lower than report's 2% for zero false negatives)
 INTEL_DENSITY_MIN = 0.01
@@ -190,8 +189,9 @@ def _get_exclusion_patterns_for_sector(sector_keys: set[str] | None = None) -> l
 
     try:
         from intel_sector_loader import get_cross_sector_exclusions
+
         phrases: set[str] = set()
-        for sk in (sector_keys or {"_default"}):
+        for sk in sector_keys or {"_default"}:
             phrases.update(get_cross_sector_exclusions(sk))
 
         if not phrases:
@@ -217,6 +217,7 @@ def _get_exclusion_patterns_for_sector(sector_keys: set[str] | None = None) -> l
 # ============================================================
 # ADAPTIVE RATE LIMITER (v1.3 — DescompLicita pattern)
 # ============================================================
+
 
 class AdaptiveRateLimiter:
     """Thread-safe adaptive rate limiter for PNCP API.
@@ -304,10 +305,7 @@ class AdaptiveRateLimiter:
             self._total_429_count += 1
             # Progressive backoff: start at initial, double each time, cap at max
             # Use total_429_count to determine backoff level
-            self._interval = min(
-                self._429_max,
-                self._429_initial * (self._429_growth ** (self._total_429_count - 1))
-            )
+            self._interval = min(self._429_max, self._429_initial * (self._429_growth ** (self._total_429_count - 1)))
             wait_time = self._interval
             # Reset circuit breaker counter (429 is not a connection failure)
             self._consecutive_failures = 0
@@ -359,6 +357,7 @@ except ImportError:
     def _retry_decorator(**kwargs):  # type: ignore[misc]
         def _noop(func):
             return func
+
         return _noop
 
 
@@ -393,9 +392,10 @@ def _api_get_with_retry(
 
         # Transient failure: retry with backoff
         if attempt < max_retries:
-            delay = min(base_delay * (2 ** attempt), 30.0)
-            print(f"    [retry] {label}: attempt {attempt + 1}/{max_retries}, "
-                  f"retrying in {delay:.1f}s (status={status})")
+            delay = min(base_delay * (2**attempt), 30.0)
+            print(
+                f"    [retry] {label}: attempt {attempt + 1}/{max_retries}, retrying in {delay:.1f}s (status={status})"
+            )
             time.sleep(delay)
 
     return last_result
@@ -443,7 +443,7 @@ def _pncp_direct_get(
             if resp.status_code in (500, 502, 503, 504, 422):
                 # Transient server error, retry
                 if attempt < max_retries:
-                    delay = min(1.0 * (2 ** attempt), 30.0)
+                    delay = min(1.0 * (2**attempt), 30.0)
                     print(f"    [retry] {label}: HTTP {resp.status_code}, retry in {delay:.1f}s")
                     time.sleep(delay)
                     continue
@@ -454,7 +454,7 @@ def _pncp_direct_get(
 
         except (_httpx.TimeoutException, _httpx.ConnectError, _httpx.ReadError) as e:
             if attempt < max_retries:
-                delay = min(1.0 * (2 ** attempt), 30.0)
+                delay = min(1.0 * (2**attempt), 30.0)
                 print(f"    [retry] {label}: {type(e).__name__}, retry in {delay:.1f}s")
                 time.sleep(delay)
                 continue
@@ -466,6 +466,7 @@ def _pncp_direct_get(
 # ============================================================
 # HELPERS
 # ============================================================
+
 
 def _today() -> datetime:
     return datetime.now(UTC)
@@ -481,9 +482,9 @@ def _compute_dedup_hash(edital: dict) -> str:
     # Remove portal prefixes injected by PCP
     for prefix in ["[portal de compras públicas] - ", "[portal de compras publicas] - "]:
         if obj.startswith(prefix):
-            obj = obj[len(prefix):]
+            obj = obj[len(prefix) :]
     # Normalize: collapse extra whitespace, remove punctuation noise
-    obj = re.sub(r'\s+', ' ', obj).strip()
+    obj = re.sub(r"\s+", " ", obj).strip()
     valor = str(edital.get("valor_estimado") or 0)
     uf = edital.get("uf") or ""
     municipio = (edital.get("municipio") or "").lower().strip()
@@ -492,10 +493,31 @@ def _compute_dedup_hash(edital: dict) -> str:
 
 
 # Portuguese stop words for semantic dedup (minimal set)
-_PT_STOP_WORDS = frozenset({
-    "de", "da", "do", "das", "dos", "para", "com", "por", "em",
-    "no", "na", "nos", "nas", "ao", "aos", "a", "o", "as", "os", "e", "ou",
-})
+_PT_STOP_WORDS = frozenset(
+    {
+        "de",
+        "da",
+        "do",
+        "das",
+        "dos",
+        "para",
+        "com",
+        "por",
+        "em",
+        "no",
+        "na",
+        "nos",
+        "nas",
+        "ao",
+        "aos",
+        "a",
+        "o",
+        "as",
+        "os",
+        "e",
+        "ou",
+    }
+)
 
 
 def _token_overlap(text_a: str, text_b: str) -> float:
@@ -608,6 +630,7 @@ def _date_iso(dt: datetime) -> str:
 # CHECKPOINT HELPERS (resume / fault-tolerance)
 # ============================================================
 
+
 def _checkpoint_key(cnpj14: str, ufs: list[str], dias: int) -> str:
     """Top-level checkpoint key: {cnpj}_{ufs_sorted}_{dias}."""
     ufs_sorted = ",".join(sorted(ufs))
@@ -691,8 +714,9 @@ def search_datalake_for_intel(
     if not dl.is_enabled:
         return [], {"datalake_error": dl.init_error or "datalake disabled"}
 
-    print(f"    DataLake search: ufs={ufs}, dias={dias}, "
-          f"modalidades={sorted(modalidades.keys()) if modalidades else []}")
+    print(
+        f"    DataLake search: ufs={ufs}, dias={dias}, modalidades={sorted(modalidades.keys()) if modalidades else []}"
+    )
 
     rows, meta = dl.search_bids(
         ufs=list(ufs),
@@ -840,6 +864,7 @@ def _datalake_row_to_intel(row: dict, modalidades: dict[int, str], ufs: list[str
 # STEP 3 (fallback): EXHAUSTIVE LIVE PNCP SEARCH
 # ============================================================
 
+
 def _parse_pncp_item(item: dict, mod_code: int, mod_name: str, ufs: list[str]) -> dict | None:
     """Parse a raw PNCP API item into our internal format. Returns None if UF doesn't match."""
     orgao_entity = item.get("orgaoEntidade") or {}
@@ -857,9 +882,7 @@ def _parse_pncp_item(item: dict, mod_code: int, mod_name: str, ufs: list[str]) -
         return None
 
     objeto = (item.get("objetoCompra") or item.get("objeto") or "").strip()
-    orgao = (orgao_entity.get("razaoSocial") or
-             unidade.get("nomeUnidade") or
-             item.get("nomeOrgao") or "")
+    orgao = orgao_entity.get("razaoSocial") or unidade.get("nomeUnidade") or item.get("nomeOrgao") or ""
     municipio = unidade.get("municipioNome") or ""
     valor = _safe_float(item.get("valorTotalEstimado") or item.get("valorEstimado"))
     modalidade_nome = item.get("modalidadeNome") or mod_name
@@ -969,14 +992,14 @@ def search_pncp_exhaustive(
 
     all_items: list[dict] = []
     seen_ids: set[str] = set()
-    items_lock = threading.Lock()   # protects all_items + seen_ids
+    items_lock = threading.Lock()  # protects all_items + seen_ids
 
     source_meta = {
         "total_raw_api": 0,
         "total_after_dedup": 0,
         "pages_fetched": 0,
         "errors": 0,
-        "errors_429": 0,          # v1.5: specific 429 count
+        "errors_429": 0,  # v1.5: specific 429 count
         "combo_429_suspended": 0,  # v1.5: combos suspended due to excessive 429s
         "pagination_exhausted": [],
         "date_chunks": len(date_chunks),
@@ -984,7 +1007,7 @@ def search_pncp_exhaustive(
     # Per-combo 429 counter (shared across workers, v1.5)
     combo_429_lock = threading.Lock()
     combo_429_counts: dict[str, int] = {}
-    meta_lock = threading.Lock()   # protects source_meta
+    meta_lock = threading.Lock()  # protects source_meta
 
     use_per_uf = 1 <= len(ufs) <= 10
     uf_iterations: list[str | None] = list(ufs) if use_per_uf else [None]
@@ -999,7 +1022,7 @@ def search_pncp_exhaustive(
     if use_cache and top_key:
         checkpoint = _load_checkpoint()
     cp_top: dict = checkpoint.get(top_key, {}) if top_key else {}
-    cp_lock = threading.Lock()   # protects cp_top + checkpoint writes
+    cp_lock = threading.Lock()  # protects cp_top + checkpoint writes
 
     cutoff_ts = _today() - timedelta(hours=_CHECKPOINT_TTL_HOURS)
 
@@ -1036,8 +1059,11 @@ def search_pncp_exhaustive(
         _save_checkpoint(checkpoint)
 
     def _fetch_combo(
-        mod_code: int, mod_name: str, uf_filter: str | None,
-        chunk_start: str, chunk_end: str,
+        mod_code: int,
+        mod_name: str,
+        uf_filter: str | None,
+        chunk_start: str,
+        chunk_end: str,
     ) -> tuple[str, int, int, bool]:
         """Worker: fetch all pages for one (modalidade, UF, date_chunk) combo.
 
@@ -1112,9 +1138,11 @@ def search_pncp_exhaustive(
 
                 # Suspend combo if too many 429s
                 if combo_429_local >= _PNCP_429_MAX_PER_COMBO:
-                    print(f"    ⚡ Combo suspenso: {_PNCP_429_MAX_PER_COMBO}x 429 "
-                          f"mod={mod_code} uf={uf_label} chunk={chunk_start} — "
-                          f"reagendado para proximo batch")
+                    print(
+                        f"    ⚡ Combo suspenso: {_PNCP_429_MAX_PER_COMBO}x 429 "
+                        f"mod={mod_code} uf={uf_label} chunk={chunk_start} — "
+                        f"reagendado para proximo batch"
+                    )
                     source_meta["combo_429_suspended"] = source_meta.get("combo_429_suspended", 0) + 1
                     return (uf_label, page_count, len(combo_items), True)
 
@@ -1158,9 +1186,7 @@ def search_pncp_exhaustive(
             source_meta["pages_fetched"] += page_count
             source_meta["total_raw_api"] += local_raw
             if page_count == max_pages:
-                source_meta["pagination_exhausted"].append(
-                    f"mod={mod_code} uf={uf_label} chunk={chunk_start}"
-                )
+                source_meta["pagination_exhausted"].append(f"mod={mod_code} uf={uf_label} chunk={chunk_start}")
 
         # Save checkpoint (even on partial error — preserves what we got)
         if not error_occurred or combo_items:
@@ -1177,8 +1203,10 @@ def search_pncp_exhaustive(
 
     n_tasks = len(tasks)
     n_workers = min(n_tasks, _PNCP_FETCH_WORKERS)
-    print(f"\n  Busca paralela: {n_tasks} combos ({len(modalidades)} modalidades × "
-          f"{len(uf_iterations)} UFs × {len(date_chunks)} chunks de {_DATE_CHUNK_DAYS} dias)")
+    print(
+        f"\n  Busca paralela: {n_tasks} combos ({len(modalidades)} modalidades × "
+        f"{len(uf_iterations)} UFs × {len(date_chunks)} chunks de {_DATE_CHUNK_DAYS} dias)"
+    )
     print(f"  Workers: {n_workers} | Rate limit: {_RATE_LIMIT_BASE_S:.0f}ms base (adaptativo)")
 
     # ── Dynamic max_pages: reduce when many tasks to cap total requests ──
@@ -1199,12 +1227,9 @@ def search_pncp_exhaustive(
         print(f"  Chunked mode: {batch_size} combo(s) por batch, delay 5s entre batches")
         completed = 0
         for batch_start in range(0, n_tasks, batch_size):
-            batch = tasks[batch_start:batch_start + batch_size]
+            batch = tasks[batch_start : batch_start + batch_size]
             with concurrent.futures.ThreadPoolExecutor(max_workers=batch_size) as pool:
-                batch_futures = {
-                    pool.submit(_fetch_combo, *task): task
-                    for task in batch
-                }
+                batch_futures = {pool.submit(_fetch_combo, *task): task for task in batch}
                 for fut in concurrent.futures.as_completed(batch_futures):
                     task = batch_futures[fut]
                     mod_code, mod_name, uf_filter, chunk_start, chunk_end = task
@@ -1224,8 +1249,10 @@ def search_pncp_exhaustive(
                             source_meta["errors"] += 1
 
             # Progress indicator after each batch
-            print(f"  → Batch concluido: {completed}/{n_tasks} combos "
-                  f"(rate: {rate_limiter.current_interval*1000:.0f}ms)")
+            print(
+                f"  → Batch concluido: {completed}/{n_tasks} combos "
+                f"(rate: {rate_limiter.current_interval * 1000:.0f}ms)"
+            )
 
             # Cooldown between batches (unless last batch)
             if batch_start + batch_size < n_tasks:
@@ -1234,10 +1261,7 @@ def search_pncp_exhaustive(
     else:
         # Default: dispatch ALL combos in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=n_workers) as pool:
-            future_to_task = {
-                pool.submit(_fetch_combo, *task): task
-                for task in tasks
-            }
+            future_to_task = {pool.submit(_fetch_combo, *task): task for task in tasks}
             completed = 0
             for fut in concurrent.futures.as_completed(future_to_task):
                 task = future_to_task[fut]
@@ -1259,8 +1283,10 @@ def search_pncp_exhaustive(
 
                 # Progress indicator every 10 tasks
                 if completed % 10 == 0 or completed == n_tasks:
-                    print(f"  → {completed}/{n_tasks} combos concluídos "
-                          f"(rate: {rate_limiter.current_interval*1000:.0f}ms)")
+                    print(
+                        f"  → {completed}/{n_tasks} combos concluídos "
+                        f"(rate: {rate_limiter.current_interval * 1000:.0f}ms)"
+                    )
 
     # ── Print per-modalidade summary ──
     for mod_code in sorted(mod_stats):
@@ -1269,8 +1295,10 @@ def search_pncp_exhaustive(
         source_429_note = ""
         if ms.get("errors_429"):
             source_429_note = f" ({ms['errors_429']}x 429)"
-        print(f"    Modalidade {mod_code} ({ms['name']}): {ms['pages']} pages, "
-              f"{ms['items']} editais{err_note}{source_429_note}")
+        print(
+            f"    Modalidade {mod_code} ({ms['name']}): {ms['pages']} pages, "
+            f"{ms['items']} editais{err_note}{source_429_note}"
+        )
 
     source_meta["total_after_dedup"] = len(all_items)
 
@@ -1309,6 +1337,7 @@ def _get_sector_heuristic_patterns(sector_keys: set[str] | None = None) -> dict[
     # Try to load from YAML config
     try:
         from intel_sector_loader import load_intel_sectors_config
+
         config = load_intel_sectors_config()
         sectors_cfg = config.get("sectors", {})
     except (ImportError, FileNotFoundError):
@@ -1319,7 +1348,7 @@ def _get_sector_heuristic_patterns(sector_keys: set[str] | None = None) -> dict[
     incompat_pats: list[str] = []
     weak_pats: list[str] = []
 
-    for sk in (sector_keys or {"geral"}):
+    for sk in sector_keys or {"geral"}:
         sect = sectors_cfg.get(sk, {})
         if not isinstance(sect, dict):
             continue
@@ -1362,7 +1391,7 @@ def classify_by_object_heuristic(
 
     Returns: 'COMPATIVEL', 'INCOMPATIVEL', or 'NEEDS_REVIEW'
     """
-    obj_lower = (objeto or '').lower()
+    obj_lower = (objeto or "").lower()
     pats = _get_sector_heuristic_patterns(sector_keys)
 
     has_strong_compat = bool(pats["strong_compat"] and pats["strong_compat"].search(obj_lower))
@@ -1370,12 +1399,12 @@ def classify_by_object_heuristic(
     has_strong_incompat = bool(pats["strong_incompat"] and pats["strong_incompat"].search(obj_lower))
 
     if has_strong_compat and not has_strong_incompat:
-        return 'COMPATIVEL'
+        return "COMPATIVEL"
     if has_strong_incompat and not has_strong_compat:
-        return 'INCOMPATIVEL'
+        return "INCOMPATIVEL"
     if has_weak_compat and not has_strong_incompat:
-        return 'COMPATIVEL'
-    return 'NEEDS_REVIEW'
+        return "COMPATIVEL"
+    return "NEEDS_REVIEW"
 
 
 def apply_cnae_keyword_gate(
@@ -1523,9 +1552,9 @@ def apply_cnae_keyword_gate(
         _cnae_desc = ed.get("cnae_principal_descricao") or ""
         _heuristic = classify_by_object_heuristic(objeto, _cnae_desc, sector_keys=all_sector_keys)
         heuristic_label = None
-        if _heuristic == 'COMPATIVEL':
+        if _heuristic == "COMPATIVEL":
             # Determine strong vs weak using sector-aware patterns
-            _obj_lower_h = (objeto or '').lower()
+            _obj_lower_h = (objeto or "").lower()
             _pats = _get_sector_heuristic_patterns(all_sector_keys)
             if _pats["strong_compat"] and _pats["strong_compat"].search(_obj_lower_h):
                 confidence += 0.20  # strong_compatible
@@ -1565,8 +1594,8 @@ def apply_cnae_keyword_gate(
         ed["keyword_density"] = round(density, 4)
         ed["match_keywords"] = matched_kws
         ed["needs_llm_review"] = not is_compatible and len(matched_kws) == 0
-        ed["exclusion_reason"] = None if is_compatible else (
-            "zero_keyword_match" if len(matched_kws) == 0 else f"low_density_{density:.4f}"
+        ed["exclusion_reason"] = (
+            None if is_compatible else ("zero_keyword_match" if len(matched_kws) == 0 else f"low_density_{density:.4f}")
         )
 
         # Exclusion pattern check: reject obviously incompatible editais BEFORE LLM review.
@@ -1583,7 +1612,7 @@ def apply_cnae_keyword_gate(
 
         # Secondary heuristic classifier: resolve remaining needs_llm_review editais.
         if ed["needs_llm_review"]:
-            if _heuristic == 'COMPATIVEL':
+            if _heuristic == "COMPATIVEL":
                 ed["cnae_compatible"] = True
                 ed["needs_llm_review"] = False
                 ed["gate2_decision"] = {
@@ -1598,7 +1627,7 @@ def apply_cnae_keyword_gate(
                 stats["compatible"] += 1
                 stats["needs_llm_heuristic"] = stats.get("needs_llm_heuristic", 0) + 1
                 continue
-            elif _heuristic == 'INCOMPATIVEL':
+            elif _heuristic == "INCOMPATIVEL":
                 ed["cnae_compatible"] = False
                 ed["cnae_confidence"] = max(0.0, ed["cnae_confidence"])
                 ed["needs_llm_review"] = False
@@ -1632,30 +1661,33 @@ def apply_cnae_keyword_gate(
                 stats["needs_llm"] += 1
 
     _heuristic_total = stats.get("needs_llm_heuristic", 0)
-    _heuristic_compat = sum(
-        1 for ed in editais
-        if ed.get("gate2_decision", {}).get("reason") == "COMPATIVEL_HEURISTIC"
-    )
+    _heuristic_compat = sum(1 for ed in editais if ed.get("gate2_decision", {}).get("reason") == "COMPATIVEL_HEURISTIC")
     _heuristic_incompat = _heuristic_total - _heuristic_compat
     print()
     print(
         "  CNAE Gate: %d compativeis, %d incompativeis, "
-        "%d excluidos por padrao, %d precisam LLM review (threshold=%.0f%%)" % (
-            stats['compatible'], stats['incompatible'],
-            stats['excluded_pattern'], stats['needs_llm'],
+        "%d excluidos por padrao, %d precisam LLM review (threshold=%.0f%%)"
+        % (
+            stats["compatible"],
+            stats["incompatible"],
+            stats["excluded_pattern"],
+            stats["needs_llm"],
             confidence_threshold * 100,
         )
     )
     if _heuristic_total:
-        print(f"  Heuristic classifier: {_heuristic_compat} COMPATIVEL, "
-              f"{_heuristic_incompat} INCOMPATIVEL "
-              f"(de {_heuristic_total} restantes)")
+        print(
+            f"  Heuristic classifier: {_heuristic_compat} COMPATIVEL, "
+            f"{_heuristic_incompat} INCOMPATIVEL "
+            f"(de {_heuristic_total} restantes)"
+        )
         print("  Remaining needs_llm_review: 0")
 
 
 # ============================================================
 # STEP 4a: LLM FALLBACK FOR UNKNOWN SECTORS
 # ============================================================
+
 
 def _llm_classify_edital_relevance(
     cnae_description: str,
@@ -1682,7 +1714,7 @@ def _llm_classify_edital_relevance(
         f"A empresa tem o seguinte CNAE: {cnae_description}\n\n"
         f"O edital tem o seguinte objeto: {objeto}\n\n"
         f"O edital é relevante para uma empresa com esse CNAE?\n"
-        f"Responda APENAS \"SIM\" ou \"NAO\" (sem acentos, sem explicação)."
+        f'Responda APENAS "SIM" ou "NAO" (sem acentos, sem explicação).'
     )
 
     try:
@@ -1729,6 +1761,7 @@ def apply_llm_fallback_gate(
     # Check if LLM is available
     try:
         from intel_sector_loader import get_llm_fallback_config
+
         llm_config = get_llm_fallback_config()
     except (ImportError, FileNotFoundError):
         llm_config = {"enabled": True, "model": model, "on_failure": "reject"}
@@ -1740,8 +1773,10 @@ def apply_llm_fallback_gate(
     use_model = llm_config.get("model", model)
     on_failure = llm_config.get("on_failure", "reject")
 
-    print(f"  LLM fallback: classificando {len(needs_review)} editais ambiguos "
-          f"(setor={sector_key}, CNAE={cnae_description[:60]}...)")
+    print(
+        f"  LLM fallback: classificando {len(needs_review)} editais ambiguos "
+        f"(setor={sector_key}, CNAE={cnae_description[:60]}...)"
+    )
 
     # Use ThreadPoolExecutor for parallel LLM calls
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_concurrent) as executor:
@@ -1750,7 +1785,9 @@ def apply_llm_fallback_gate(
             objeto = ed.get("objeto", "")
             future = executor.submit(
                 _llm_classify_edital_relevance,
-                cnae_description, objeto, use_model,
+                cnae_description,
+                objeto,
+                use_model,
             )
             future_to_ed[future] = ed
 
@@ -1796,8 +1833,10 @@ def apply_llm_fallback_gate(
                     stats["llm_rejected"] += 1
                 # else: keep needs_llm_review=True (pass-through)
 
-    print(f"  LLM fallback: {stats['llm_accepted']} aceitos, "
-          f"{stats['llm_rejected']} rejeitados, {stats['llm_failed']} falhas")
+    print(
+        f"  LLM fallback: {stats['llm_accepted']} aceitos, "
+        f"{stats['llm_rejected']} rejeitados, {stats['llm_failed']} falhas"
+    )
     return stats
 
 
@@ -1896,6 +1935,7 @@ def _collect_tcu_due_diligence(api: ApiClient, cnpj14: str) -> dict:
 # ============================================================
 # STEP 4b: COMPETITIVE INTELLIGENCE PER ORGAN
 # ============================================================
+
 
 def collect_competitive_intel(
     api: ApiClient,
@@ -1999,7 +2039,7 @@ def collect_competitive_intel(
             kw_clean = kw.lower().strip()
             if kw_clean and len(kw_clean) >= 3:
                 try:
-                    kw_patterns.append(re.compile(r'\b' + re.escape(kw_clean) + r'\b', re.IGNORECASE))
+                    kw_patterns.append(re.compile(r"\b" + re.escape(kw_clean) + r"\b", re.IGNORECASE))
                 except re.error:
                     continue
 
@@ -2242,10 +2282,7 @@ def collect_competitive_intel(
 
     # Fetch in parallel (v1.4: increased from 3 to 6 workers)
     with concurrent.futures.ThreadPoolExecutor(max_workers=_COMPETITIVE_WORKERS) as pool:
-        futures = {
-            pool.submit(_fetch_with_error_handling, cnpj): cnpj
-            for cnpj in organs_to_query
-        }
+        futures = {pool.submit(_fetch_with_error_handling, cnpj): cnpj for cnpj in organs_to_query}
         for fut in concurrent.futures.as_completed(futures):
             cnpj_orgao, result = fut.result()
             if result is not None:
@@ -2267,30 +2304,29 @@ def collect_competitive_intel(
         if cnpj in organ_results:
             intel = organ_results[cnpj]
             # Strip internal cache metadata from the edital copy
-            ed["competitive_intel"] = {
-                k: v for k, v in intel.items()
-                if not k.startswith("_")
-            }
+            ed["competitive_intel"] = {k: v for k, v in intel.items() if not k.startswith("_")}
             assigned += 1
         else:
             ed["competitive_intel"] = None
 
-    print(f"  Competitive intel: {counters['cached']} do cache, "
-          f"{counters['fetched']} da API, {counters['failed']} falhas, "
-          f"{assigned} editais enriquecidos")
-
+    print(
+        f"  Competitive intel: {counters['cached']} do cache, "
+        f"{counters['fetched']} da API, {counters['failed']} falhas, "
+        f"{assigned} editais enriquecidos"
+    )
 
 
 # ============================================================
 # STEP 5: FETCH DOCUMENT LISTINGS (top 50 by valor)
 # ============================================================
 
+
 def fetch_documents_top50(api: ApiClient, editais: list[dict]) -> None:
     """Fetch document listings for top 50 cnae_compatible editais by valor. Mutates in place."""
     compatible = [ed for ed in editais if ed.get("cnae_compatible")]
     compatible_sorted = sorted(
         compatible,
-        key=lambda e: (e.get("valor_estimado") or 0.0),
+        key=lambda e: e.get("valor_estimado") or 0.0,
         reverse=True,
     )
     top50 = compatible_sorted[:50]
@@ -2343,17 +2379,21 @@ def fetch_documents_top50(api: ApiClient, editais: list[dict]) -> None:
         if status == "API" and isinstance(data, list):
             docs = []
             for d in data:
-                docs.append({
-                    "tipo": d.get("tipoDocumentoNome") or d.get("tipoDocumentoDescricao") or "",
-                    "tipo_id": d.get("tipoDocumentoId"),
-                    "titulo": d.get("titulo", ""),
-                    "sequencial": d.get("sequencialDocumento"),
-                    "download_url": (
-                        f"https://pncp.gov.br/pncp-api/v1/orgaos/{cnpj_orgao}/compras/{ano}/{seq}"
-                        f"/arquivos/{d.get('sequencialDocumento')}"
-                    ) if d.get("sequencialDocumento") else None,
-                    "ativo": d.get("statusAtivo", True),
-                })
+                docs.append(
+                    {
+                        "tipo": d.get("tipoDocumentoNome") or d.get("tipoDocumentoDescricao") or "",
+                        "tipo_id": d.get("tipoDocumentoId"),
+                        "titulo": d.get("titulo", ""),
+                        "sequencial": d.get("sequencialDocumento"),
+                        "download_url": (
+                            f"https://pncp.gov.br/pncp-api/v1/orgaos/{cnpj_orgao}/compras/{ano}/{seq}"
+                            f"/arquivos/{d.get('sequencialDocumento')}"
+                        )
+                        if d.get("sequencialDocumento")
+                        else None,
+                        "ativo": d.get("statusAtivo", True),
+                    }
+                )
             ed["documentos"] = docs
             ed["documentos_source"] = _source_tag("API", f"{len(docs)} documentos encontrados")
             with docs_cache_lock:
@@ -2386,6 +2426,7 @@ def fetch_documents_top50(api: ApiClient, editais: list[dict]) -> None:
 # ============================================================
 # STEP 6: ASSEMBLE OUTPUT
 # ============================================================
+
 
 def assemble_output(
     empresa: dict,
@@ -2429,8 +2470,8 @@ def assemble_output(
         status_counts[st] = status_counts.get(st, 0) + 1
 
     # Sort editais: compatible first (by valor desc), then incompatible (by valor desc)
-    compatible_sorted = sorted(compatible, key=lambda e: (e.get("valor_estimado") or 0.0), reverse=True)
-    incompatible_sorted = sorted(incompatible, key=lambda e: (e.get("valor_estimado") or 0.0), reverse=True)
+    compatible_sorted = sorted(compatible, key=lambda e: e.get("valor_estimado") or 0.0, reverse=True)
+    incompatible_sorted = sorted(incompatible, key=lambda e: e.get("valor_estimado") or 0.0, reverse=True)
     editais_sorted = compatible_sorted + incompatible_sorted
 
     return {
@@ -2491,7 +2532,6 @@ def assemble_output(
             },
         },
     }
-
 
 
 # ============================================================
@@ -2563,7 +2603,7 @@ def collect_price_benchmarks(
     compatible = [ed for ed in editais if ed.get("cnae_compatible")]
     compatible_sorted = sorted(
         compatible,
-        key=lambda e: (e.get("valor_estimado") or 0.0),
+        key=lambda e: e.get("valor_estimado") or 0.0,
         reverse=True,
     )
     top20 = compatible_sorted[:20]
@@ -2584,8 +2624,10 @@ def collect_price_benchmarks(
         print("  Price benchmark: nenhum orgao com CNPJ valido nos top 20")
         return
 
-    print(f"\n  Price benchmark: analisando {len(organ_editais)} orgaos dos top {len(top20)} editais "
-          f"({_BENCHMARK_WORKERS} workers)...")
+    print(
+        f"\n  Price benchmark: analisando {len(organ_editais)} orgaos dos top {len(top20)} editais "
+        f"({_BENCHMARK_WORKERS} workers)..."
+    )
 
     # Load benchmark cache
     bench_cache: dict = {}
@@ -2625,7 +2667,7 @@ def collect_price_benchmarks(
             kw_clean = kw.lower().strip()
             if kw_clean and len(kw_clean) >= 3:
                 try:
-                    bench_kw_patterns.append(re.compile(r'\b' + re.escape(kw_clean) + r'\b', re.IGNORECASE))
+                    bench_kw_patterns.append(re.compile(r"\b" + re.escape(kw_clean) + r"\b", re.IGNORECASE))
                 except re.error:
                     continue
 
@@ -2733,8 +2775,7 @@ def collect_price_benchmarks(
                     valor_estimado = _safe_float(data.get("valorTotalEstimado"))
                     valor_homologado = _safe_float(data.get("valorTotalHomologado"))
 
-                    if (valor_estimado and valor_estimado > 0
-                            and valor_homologado and valor_homologado > 0):
+                    if valor_estimado and valor_estimado > 0 and valor_homologado and valor_homologado > 0:
                         desconto = 1.0 - (valor_homologado / valor_estimado)
                         if -1.0 <= desconto <= 1.0:
                             descontos.append(desconto)
@@ -2776,8 +2817,10 @@ def collect_price_benchmarks(
                 "_cached_at": now.isoformat(),
             }
             sector_tag = " [setor]" if bench_kw_patterns else ""
-            print(f"    Orgao {cnpj_orgao}: desconto mediano {desconto_mediano:.1%} "
-                  f"({len(descontos)} contratos com resultado{sector_tag})")
+            print(
+                f"    Orgao {cnpj_orgao}: desconto mediano {desconto_mediano:.1%} "
+                f"({len(descontos)} contratos com resultado{sector_tag})"
+            )
             with bench_lock:
                 counters["fetched"] += 1
             return cnpj_orgao, result
@@ -2791,10 +2834,7 @@ def collect_price_benchmarks(
     # v1.4: Parallel benchmark collection via ThreadPoolExecutor
     n_workers = min(len(organ_editais), _BENCHMARK_WORKERS)
     with concurrent.futures.ThreadPoolExecutor(max_workers=n_workers) as pool:
-        futures = {
-            pool.submit(_fetch_organ_benchmark, cnpj): cnpj
-            for cnpj in organ_editais
-        }
+        futures = {pool.submit(_fetch_organ_benchmark, cnpj): cnpj for cnpj in organ_editais}
         for fut in concurrent.futures.as_completed(futures):
             cnpj_orgao, result = fut.result()
             if result is not None:
@@ -2802,8 +2842,7 @@ def collect_price_benchmarks(
                     organ_benchmarks[cnpj_orgao] = result
                     bench_cache[cnpj_orgao] = result
 
-    print(f"  Benchmark: {counters['cached']} cache, {counters['fetched']} fetched, "
-          f"{counters['failed']} failed")
+    print(f"  Benchmark: {counters['cached']} cache, {counters['fetched']} fetched, {counters['failed']} failed")
 
     # Apply benchmarks to top-20 editais
     applied = 0
@@ -2871,7 +2910,9 @@ def collect_price_benchmarks(
                 "desconto_pct": round(desconto_sugerido * 100, 1),
                 "faixa_agressiva": round(valor * (1 - desc_mediano), 2),
                 "faixa_conservadora": round(valor * (1 - desc_mediano * 0.5), 2),
-                "margem_liquida_pct": round(((1 - desconto_sugerido) / 0.80 - 1) * 100, 1),  # custo ~80% do valor estimado (BDI ~25%)
+                "margem_liquida_pct": round(
+                    ((1 - desconto_sugerido) / 0.80 - 1) * 100, 1
+                ),  # custo ~80% do valor estimado (BDI ~25%)
                 "confianca": "ALTA" if contratos >= 5 else "MEDIA",
                 "base_contratos": contratos,
                 "desconto_mediano_orgao": desc_mediano,
@@ -2886,6 +2927,7 @@ def collect_price_benchmarks(
 # ============================================================
 # DELTA DETECTION (compare against previous runs)
 # ============================================================
+
 
 def _detect_delta(editais: list[dict], previous_json_path: str | None) -> dict:
     """Compare editais against a previous run to detect changes.
@@ -2944,8 +2986,7 @@ def _detect_delta(editais: list[dict], previous_json_path: str | None) -> dict:
         # Check "VENCENDO": dias_restantes <= 3 now, but was > 3 previously
         dias_now = ed.get("dias_restantes")
         dias_prev = prev_ed.get("dias_restantes")
-        if (dias_now is not None and dias_prev is not None
-                and dias_now <= 3 and dias_prev > 3):
+        if dias_now is not None and dias_prev is not None and dias_now <= 3 and dias_prev > 3:
             ed["_delta_status"] = "VENCENDO"
             summary["vencendo"] += 1
             continue
@@ -2986,6 +3027,7 @@ def _find_previous_run(cnpj14: str) -> str | None:
 # MAIN
 # ============================================================
 
+
 def main():
     """Entry point for intel-collect CLI."""
     from lib.cli_validation import validate_cnpj, validate_dias, validate_ufs
@@ -2999,30 +3041,38 @@ def main():
   python scripts/intel-collect.py --cnpj 12.345.678/0001-90 --ufs SC --dias 60
   python scripts/intel-collect.py --cnpj 12345678000190 --ufs SC,PR --output out.json --quiet""",
     )
-    parser.add_argument("--cnpj", required=True,
-                        help="CNPJ da empresa, com ou sem formatacao (ex: 12345678000190 ou 12.345.678/0001-90)")
-    parser.add_argument("--ufs", required=True,
-                        help="UFs separadas por virgula — codigos de 2 letras (ex: SC,PR,RS)")
-    parser.add_argument("--dias", type=int, default=90,
-                        help="Periodo de busca em dias, 1-365 (default: 90)")
-    parser.add_argument("--output", type=str, default=None,
-                        help="Caminho do JSON de saida (default: auto-nomeado em docs/intel/)")
-    parser.add_argument("--quiet", action="store_true",
-                        help="Reduzir output no console (somente erros e resumo final)")
-    parser.add_argument("--no-cache", action="store_true",
-                        help="Ignorar checkpoint salvo e forcar nova coleta completa")
-    parser.add_argument("--skip-sicaf", action="store_true",
-                        help="Pular coleta SICAF (evita captcha do navegador)")
-    parser.add_argument("--no-datalake", action="store_true",
-                        help="Forcar busca live na API PNCP (ignorar datalake local)")
-    parser.add_argument("--chunked", action="store_true",
-                        help="Modo chunked: processa 1 combo por vez em vez de todos em paralelo. "
-                             "Reduz carga na API PNCP e evita 429 rate-limit.")
-    parser.add_argument("--batch-size", type=int, default=1, metavar="N",
-                        help="No modo chunked, processa N combos por batch (default: 1). "
-                             "Delay entre batches: 5s.")
-    parser.add_argument("--version", action="version",
-                        version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument(
+        "--cnpj",
+        required=True,
+        help="CNPJ da empresa, com ou sem formatacao (ex: 12345678000190 ou 12.345.678/0001-90)",
+    )
+    parser.add_argument("--ufs", required=True, help="UFs separadas por virgula — codigos de 2 letras (ex: SC,PR,RS)")
+    parser.add_argument("--dias", type=int, default=90, help="Periodo de busca em dias, 1-365 (default: 90)")
+    parser.add_argument(
+        "--output", type=str, default=None, help="Caminho do JSON de saida (default: auto-nomeado em docs/intel/)"
+    )
+    parser.add_argument("--quiet", action="store_true", help="Reduzir output no console (somente erros e resumo final)")
+    parser.add_argument(
+        "--no-cache", action="store_true", help="Ignorar checkpoint salvo e forcar nova coleta completa"
+    )
+    parser.add_argument("--skip-sicaf", action="store_true", help="Pular coleta SICAF (evita captcha do navegador)")
+    parser.add_argument(
+        "--no-datalake", action="store_true", help="Forcar busca live na API PNCP (ignorar datalake local)"
+    )
+    parser.add_argument(
+        "--chunked",
+        action="store_true",
+        help="Modo chunked: processa 1 combo por vez em vez de todos em paralelo. "
+        "Reduz carga na API PNCP e evita 429 rate-limit.",
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=1,
+        metavar="N",
+        help="No modo chunked, processa N combos por batch (default: 1). Delay entre batches: 5s.",
+    )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
 
     # ── Validate arguments ──
@@ -3036,14 +3086,14 @@ def main():
     cnpj_formatted = _format_cnpj(cnpj14)
     dias = args.dias
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"  INTEL-COLLECT v{VERSION}")
     print(f"  CNPJ: {cnpj_formatted}")
     print(f"  UFs:  {', '.join(ufs)}")
     print(f"  Dias: {dias}")
     print(f"  Modalidades: {sorted(MODALIDADES_BUSCA.keys())}")
     print(f"  Cache:       {'desabilitado (--no-cache)' if args.no_cache else 'habilitado (2h TTL)'}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     api = ApiClient(verbose=not args.quiet)
 
@@ -3132,7 +3182,7 @@ def main():
             all_cnaes.extend(str(c).strip() for c in cnaes_sec_raw if str(c).strip())
         else:
             all_cnaes.extend(c.strip() for c in str(cnaes_sec_raw).split(",") if c.strip())
-    print(f"  CNAEs encontrados: {len(all_cnaes)} (1 principal + {len(all_cnaes)-1} secundarios)")
+    print(f"  CNAEs encontrados: {len(all_cnaes)} (1 principal + {len(all_cnaes) - 1} secundarios)")
 
     # Map each CNAE to sector + keywords, aggregating all
     all_keywords: list[str] = []
@@ -3208,11 +3258,16 @@ def main():
             use_datalake = False
 
     if not use_datalake:
-        print(f"\n[3/7] Busca exaustiva PNCP LIVE ({dias} dias, {len(ufs)} UFs, {len(MODALIDADES_BUSCA)} modalidades)...")
+        print(
+            f"\n[3/7] Busca exaustiva PNCP LIVE ({dias} dias, {len(ufs)} UFs, {len(MODALIDADES_BUSCA)} modalidades)..."
+        )
         if args.chunked:
             print(f"  Modo chunked ativado (batch_size={args.batch_size}) — combos processados em lotes sequenciais")
         editais, source_meta = search_pncp_exhaustive(
-            api, ufs, dias, MODALIDADES_BUSCA,
+            api,
+            ufs,
+            dias,
+            MODALIDADES_BUSCA,
             cnpj14=cnpj14,
             use_cache=not args.no_cache,
             chunked=args.chunked,
@@ -3283,9 +3338,15 @@ def main():
     source_meta["total_sessao_realizada"] = n_sessao_realizada
 
     # ── Step 4: CNAE keyword gate ──
-    print(f"\n[4/7] Aplicando gate de keywords CNAE ({len(all_cnae_prefixes)} prefixos, {len(all_sector_keys)} setores)...")
+    print(
+        f"\n[4/7] Aplicando gate de keywords CNAE ({len(all_cnae_prefixes)} prefixos, {len(all_sector_keys)} setores)..."
+    )
     apply_cnae_keyword_gate(
-        editais, keywords, keyword_patterns, sector_key, cnae_prefix,
+        editais,
+        keywords,
+        keyword_patterns,
+        sector_key,
+        cnae_prefix,
         all_cnae_prefixes=all_cnae_prefixes,
         all_sector_keys=all_sector_keys,
     )
@@ -3294,7 +3355,9 @@ def main():
     if sector_key == "geral":
         print(f"\n[4a/7] LLM fallback para setor desconhecido (CNAE: {cnae_principal[:60]})...")
         llm_stats = apply_llm_fallback_gate(
-            editais, cnae_principal, sector_key,
+            editais,
+            cnae_principal,
+            sector_key,
         )
         source_meta["llm_fallback_stats"] = llm_stats
 
@@ -3328,7 +3391,6 @@ def main():
             except Exception as exc:
                 print(f"  WARN: {name} falhou: {exc}")
 
-
     # ── Step 6c: Delta detection (compare against previous run) ──
     print("\n[6c/7] Detectando delta com run anterior...")
     previous_run_path = _find_previous_run(cnpj14)
@@ -3338,8 +3400,10 @@ def main():
         print("  Nenhum run anterior encontrado — todos serao marcados como NOVO")
     delta_summary = _detect_delta(editais, previous_run_path)
     source_meta["_delta_summary"] = delta_summary
-    print(f"  Delta: {delta_summary['novos']} novos, {delta_summary['atualizados']} atualizados, "
-          f"{delta_summary['vencendo']} vencendo, {delta_summary['inalterados']} inalterados")
+    print(
+        f"  Delta: {delta_summary['novos']} novos, {delta_summary['atualizados']} atualizados, "
+        f"{delta_summary['vencendo']} vencendo, {delta_summary['inalterados']} inalterados"
+    )
 
     # ── Step 7: Save output ──
     print("\n[7/7] Montando JSON de saida...")
@@ -3382,21 +3446,23 @@ def main():
     # Summary — lead with actionable numbers
     stats = output["estatisticas"]
     st_counts = stats.get("status_temporal", {})
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("  OPORTUNIDADES IDENTIFICADAS")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"  Oportunidades abertas:  {stats['total_cnae_compativel']}")
     print(f"  Dentro da capacidade:   {stats['total_dentro_capacidade']}")
     print(f"  Valor total:            {_fmt_brl(stats['valor_total_compativel'])}")
     print(f"  Urgentes (<=7 dias):    {stats['total_urgentes']}")
     print(f"  Iminentes (7-15 dias):  {st_counts.get('IMINENTE', 0)}")
     print(f"  Planejaveis (>15 dias): {st_counts.get('PLANEJAVEL', 0)}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print("  Detalhes da coleta:")
     print(f"    Publicacoes PNCP:     {stats['total_publicacoes_consultadas']}")
     _n_enc = stats.get("total_expirados_encerrados", stats["total_expirados_removidos"])
     _n_sr = stats.get("total_sessao_realizada", 0)
-    print(f"    Descartadas:          {stats['total_expirados_removidos']} ({_n_enc} encerrados + {_n_sr} sessao realizada)")
+    print(
+        f"    Descartadas:          {stats['total_expirados_removidos']} ({_n_enc} encerrados + {_n_sr} sessao realizada)"
+    )
     print(f"    Apos filtro temporal:  {stats['total_apos_filtro_temporal']}")
     print(f"    CNAE incompativeis:   {stats['total_cnae_incompativel']}")
     print(f"    Precisam LLM review:  {stats['total_needs_llm_review']}")
@@ -3405,12 +3471,14 @@ def main():
     st_parts = ", ".join(f"{k}={v}" for k, v in sorted(st_counts.items()))
     print(f"    Status temporal:      {st_parts or 'N/A'}")
     _ds = delta_summary
-    print(f"    Delta:                {_ds['novos']} novos, {_ds['atualizados']} atualizados, "
-          f"{_ds['vencendo']} vencendo, {_ds['inalterados']} inalterados")
+    print(
+        f"    Delta:                {_ds['novos']} novos, {_ds['atualizados']} atualizados, "
+        f"{_ds['vencendo']} vencendo, {_ds['inalterados']} inalterados"
+    )
     print(f"    Semantic dedup:       {source_meta.get('total_semantic_dedup_removed', 0)} removidos")
     print(f"    Tempo total:          {elapsed:.1f}s")
     print(f"  Salvo em:               {out_path}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     api.print_stats()
     api.close()

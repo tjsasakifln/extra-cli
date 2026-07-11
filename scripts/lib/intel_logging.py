@@ -1,4 +1,5 @@
 """Shared logging configuration for intel-busca pipeline scripts."""
+
 from __future__ import annotations
 
 import logging
@@ -27,9 +28,7 @@ def setup_intel_logging(script_name: str, level: str | None = None) -> logging.L
         handler.setLevel(logging.DEBUG)
 
         # Format: [intel-collect] INFO: message
-        formatter = logging.Formatter(
-            f"[{script_name}] %(levelname)s: %(message)s"
-        )
+        formatter = logging.Formatter(f"[{script_name}] %(levelname)s: %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 

@@ -1,27 +1,18 @@
-# Tasks — Módulo `lib`
+# Lib — Tasks
 
-> 🟢 CONFIRMADO
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo
 
-### T1: Name Normalizer
-- **Arquivo legado:** `scripts/lib/name_normalizer.py`
-- **Confiança:** 🟢
-- **Descrição:** Implementar `normalize_name()` com 7-step pipeline. Dicionário de 18 abreviações. Suporte a YAML externo. Fallback difflib/rapidfuzz.
-- **Critério de pronto:** Normalização funcional para nomes com e sem acentos. Abreviações expandidas corretamente.
+| # | Tarefa | Fonte | Confiança |
+|---|--------|-------|-----------|
+| T-L01 | Implementar `normalize_name()`: NFKD + uppercase + strip + 18 abbreviations | `name_normalizer.py:1-188` | 🟢 |
+| T-L02 | Implementar `simulate_bid()`: logistic CDF, median+0.3σ, 6 setores | `bid_simulator.py:1-345` | 🟢 |
+| T-L03 | Implementar `estimate_proposal_cost()`: paramétrico, CostParams | `cost_estimator.py:1-290` | 🟢 |
+| T-L04 | Implementar `build_victory_profile()` + `score_edital_fit()`: 5 dimensões | `victory_profile.py:1-373` | 🟢 |
+| T-L05 | Implementar `extract_structured()`: regex patterns, confidence decay | `doc_templates.py:1-405` | 🟢 |
+| T-L06 | Implementar `record_outcome()` + `calibration_report()`: JSON tracker | `win_loss_tracker.py:1-145` | 🟢 |
+| T-L07 | Implementar CLI validators: CNPJ, UF, dias, model, input file, JSON | `cli_validation.py:1-186` | 🟢 |
+| T-L08 | Implementar `retry_on_failure` decorator: exponential backoff | `retry.py:1-82` | 🟢 |
+| T-L09 | Implementar `setup_intel_logging()`: stderr handler | `intel_logging.py:1-36` | 🟢 |
+| T-L10 | Definir constants: VALID_UFS, VALID_MODELS, MAX_DIAS=365 | `constants.py:1-24` | 🟢 |
 
-### T2: Bid Simulator
-- **Arquivo legado:** `scripts/lib/bid_simulator.py`
-- **Confiança:** 🟢
-- **Descrição:** `simulate_bid()` com HHI, margens setoriais, distribuição de descontos. Retornar `BidSimulation` dataclass.
-- **Critério de pronto:** Simulação retorna lance sugerido, agressivo, conservador. EV calculado.
-
-### T3: Victory Profile
-- **Arquivo legado:** `scripts/lib/victory_profile.py`
-- **Confiança:** 🟢
-- **Descrição:** `build_victory_profile()` e `score_edital_fit()`. 5 faixas populacionais. Normalização de frequências.
-- **Critério de pronto:** Perfil construído de contratos. Fit score 0-1 funcional.
-
-### T4: Cost Estimator + Win/Loss Tracker
-- **Arquivo legado:** `scripts/lib/cost_estimator.py`, `scripts/lib/win_loss_tracker.py`
-- **Confiança:** 🟢
-- **Descrição:** Estimativa de custos diretos + BDI. Tracking de propostas enviadas, ganhas e perdidas com razões.
-- **Critério de pronto:** Estimativa funcional. Tracking persiste dados.
+**Estimativa:** 3-5 dias (10 tarefas)

@@ -73,6 +73,7 @@ Resolver os 38 debitos tecnicos identificados no Brownfield Discovery Assessment
 | TD-2.1 | Reconstruir migrations do zero | 2 | 10h | TD-DB-01, TD-DB-17 |
 | TD-2.2 | Aplicar migrations 009-012 adaptadas | 2 | 5h | TD-DB-02a, TD-DB-02b |
 | TD-2.3 | Normalizacao e constraints | 2 | 6h | TD-DB-03, TD-DB-06, TD-DB-07 |
+| TD-2.4 | Sincronizar schema do DataLake local | 2 | 6h | TD-DB-02a (reaberto), TD-DB-10 |
 | TD-3.1 | Refatorar monitor.py | 3 | 8h | TD-SYS-011 |
 | TD-3.2 | Eliminar codigo duplicado | 3 | 11h | TD-SYS-016, TD-SYS-002, TD-DB-16 |
 | TD-3.3 | Adicionar type hints | 3 | 4h | TD-SYS-003 |
@@ -101,6 +102,7 @@ TD-1.3 ─┤
 TD-2.1 ─┤
 TD-2.2 ─┤ ← TD-2.1
 TD-2.3 ─┤ ← TD-2.1 (parcial)
+TD-2.4 ─┤ ← TD-2.1, TD-2.2 (schema baseline + migracoes adaptadas)
          │
 TD-3.1 ─┤ ← TD-1.3
 TD-3.2 ─┤ ← TD-0.2, TD-1.3

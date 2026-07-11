@@ -84,50 +84,95 @@ UF_NEIGHBORS: dict[str, list[str]] = {
 # Extended CNAE→sector mapping (4-digit prefix → sector key in sectors_data.yaml)
 CNAE_TO_SECTOR: dict[str, str] = {
     # Vestuário
-    "4781": "vestuario", "1412": "vestuario", "1411": "vestuario",
-    "1413": "vestuario", "1414": "vestuario",
+    "4781": "vestuario",
+    "1412": "vestuario",
+    "1411": "vestuario",
+    "1413": "vestuario",
+    "1414": "vestuario",
     # Alimentos
-    "1011": "alimentos", "1091": "alimentos", "1092": "alimentos",
-    "1093": "alimentos", "5611": "alimentos", "5612": "alimentos",
+    "1011": "alimentos",
+    "1091": "alimentos",
+    "1092": "alimentos",
+    "1093": "alimentos",
+    "5611": "alimentos",
+    "5612": "alimentos",
     "5620": "alimentos",
     # Informática / TI
-    "6201": "informatica", "6202": "informatica", "6203": "informatica",
-    "6204": "informatica", "4751": "informatica",
+    "6201": "informatica",
+    "6202": "informatica",
+    "6203": "informatica",
+    "6204": "informatica",
+    "4751": "informatica",
     # Software
-    "6209": "software", "6311": "software",
+    "6209": "software",
+    "6311": "software",
     # Engenharia / Construção
-    "4120": "engenharia", "4211": "engenharia", "4212": "engenharia",
-    "4213": "engenharia", "4221": "engenharia", "4222": "engenharia",
-    "4223": "engenharia", "4291": "engenharia", "4292": "engenharia",
-    "4299": "engenharia", "4311": "engenharia", "4312": "engenharia",
-    "4313": "engenharia", "4319": "engenharia", "4321": "engenharia",
-    "4322": "engenharia", "4329": "engenharia", "4330": "engenharia",
-    "4391": "engenharia", "4399": "engenharia", "7111": "engenharia",
+    "4120": "engenharia",
+    "4211": "engenharia",
+    "4212": "engenharia",
+    "4213": "engenharia",
+    "4221": "engenharia",
+    "4222": "engenharia",
+    "4223": "engenharia",
+    "4291": "engenharia",
+    "4292": "engenharia",
+    "4299": "engenharia",
+    "4311": "engenharia",
+    "4312": "engenharia",
+    "4313": "engenharia",
+    "4319": "engenharia",
+    "4321": "engenharia",
+    "4322": "engenharia",
+    "4329": "engenharia",
+    "4330": "engenharia",
+    "4391": "engenharia",
+    "4399": "engenharia",
+    "7111": "engenharia",
     "7112": "engenharia",
     # Facilities
-    "8121": "facilities", "8122": "facilities", "8129": "facilities",
+    "8121": "facilities",
+    "8122": "facilities",
+    "8129": "facilities",
     "8130": "facilities",
     # Vigilância / Segurança
-    "8011": "vigilancia", "8012": "vigilancia", "8020": "vigilancia",
+    "8011": "vigilancia",
+    "8012": "vigilancia",
+    "8020": "vigilancia",
     # Saúde
-    "8610": "saude", "8621": "saude", "8622": "saude", "8630": "saude",
-    "3250": "saude", "4644": "saude", "4645": "saude", "4664": "saude",
+    "8610": "saude",
+    "8621": "saude",
+    "8622": "saude",
+    "8630": "saude",
+    "3250": "saude",
+    "4644": "saude",
+    "4645": "saude",
+    "4664": "saude",
     # Transporte
-    "4921": "transporte", "4922": "transporte", "4923": "transporte",
-    "4930": "transporte", "4950": "transporte",
+    "4921": "transporte",
+    "4922": "transporte",
+    "4923": "transporte",
+    "4930": "transporte",
+    "4950": "transporte",
     # Mobiliário
-    "3101": "mobiliario", "3102": "mobiliario", "3103": "mobiliario",
+    "3101": "mobiliario",
+    "3102": "mobiliario",
+    "3103": "mobiliario",
     "3104": "mobiliario",
     # Papelaria / Material de Escritório
-    "4761": "papelaria", "1710": "papelaria", "1721": "papelaria",
+    "4761": "papelaria",
+    "1710": "papelaria",
+    "1721": "papelaria",
     # Manutenção Predial
     "8111": "manutencao_predial",
     # Materiais Elétricos
-    "2710": "materiais_eletricos", "2731": "materiais_eletricos",
-    "2732": "materiais_eletricos", "2733": "materiais_eletricos",
+    "2710": "materiais_eletricos",
+    "2731": "materiais_eletricos",
+    "2732": "materiais_eletricos",
+    "2733": "materiais_eletricos",
     "4742": "materiais_eletricos",
     # Materiais Hidráulicos
-    "2223": "materiais_hidraulicos", "4744": "materiais_hidraulicos",
+    "2223": "materiais_hidraulicos",
+    "4744": "materiais_hidraulicos",
 }
 
 
@@ -227,15 +272,15 @@ def build_proposta_json(cnpj: str, pacote: str = "semanal") -> dict:
     else:
         cnae_display = cnae_principal or cnae_code or ""
 
-    nome = (emp_raw.get("nome_fantasia") or "").strip() or emp_raw.get(
-        "razao_social", "Empresa"
-    )
+    nome = (emp_raw.get("nome_fantasia") or "").strip() or emp_raw.get("razao_social", "Empresa")
     razao_social = emp_raw.get("razao_social", nome)
     uf_sede = emp_raw.get("uf", "SP")
     cidade_sede = emp_raw.get("municipio", "")
     capital_str = emp_raw.get("capital_social", "0")
     if isinstance(capital_str, str):
-        capital = float(capital_str.replace(",", ".").replace(".", "", capital_str.count(".") - 1)) if capital_str else 0.0
+        capital = (
+            float(capital_str.replace(",", ".").replace(".", "", capital_str.count(".") - 1)) if capital_str else 0.0
+        )
     else:
         capital = float(capital_str or 0)
     porte_raw = emp_raw.get("porte", "")
@@ -245,18 +290,17 @@ def build_proposta_json(cnpj: str, pacote: str = "semanal") -> dict:
     qsa = []
     for s in emp_raw.get("qsa", []):
         if isinstance(s, dict):
-            qsa.append({
-                "nome": s.get("nome_socio", ""),
-                "qualificacao": s.get("qualificacao_socio", ""),
-            })
+            qsa.append(
+                {
+                    "nome": s.get("nome_socio", ""),
+                    "qualificacao": s.get("qualificacao_socio", ""),
+                }
+            )
 
     # CNAEs secundários
     cnaes_sec_raw = emp_raw.get("cnaes_secundarios", [])
     if isinstance(cnaes_sec_raw, list):
-        cnaes_sec = ", ".join(
-            str(c.get("codigo", c) if isinstance(c, dict) else c)
-            for c in cnaes_sec_raw[:50]
-        )
+        cnaes_sec = ", ".join(str(c.get("codigo", c) if isinstance(c, dict) else c) for c in cnaes_sec_raw[:50])
     else:
         cnaes_sec = str(cnaes_sec_raw)
 
@@ -346,9 +390,7 @@ def _run_quality_gates(output: dict) -> list[str]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Build proposta JSON — company profile + service presentation."
-    )
+    parser = argparse.ArgumentParser(description="Build proposta JSON — company profile + service presentation.")
     parser.add_argument("cnpj", help="CNPJ (digits only, e.g. 09225035000101)")
     parser.add_argument(
         "--pacote",
@@ -382,9 +424,7 @@ def main() -> None:
         print("\n[QUALITY GATE] [OK] Todas as verificações passaram")
 
     today = datetime.now()
-    out_path = args.output or (
-        f"docs/propostas/data-{cnpj}-{today.strftime('%Y-%m-%d')}.json"
-    )
+    out_path = args.output or (f"docs/propostas/data-{cnpj}-{today.strftime('%Y-%m-%d')}.json")
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
 
     with open(out_path, "w", encoding="utf-8") as f:

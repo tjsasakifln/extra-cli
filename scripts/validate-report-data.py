@@ -20,11 +20,12 @@ Exit codes:
     1 = BLOCKED (não gerar — dados incoerentes, corrigir antes)
     2 = WARNINGS (pode gerar, mas relatório deve endereçar cada warning)
 """
+
 from __future__ import annotations
 
+import io
 import json
 import sys
-import io
 import unicodedata
 from pathlib import Path
 
@@ -32,6 +33,7 @@ from pathlib import Path
 def _strip_accents(s: str) -> str:
     """Remove diacritical marks from string. E.g. 'construção' → 'construcao'."""
     return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
+
 
 if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -104,6 +106,7 @@ def validate(data: dict) -> dict:
         if _data_inicio:
             try:
                 import datetime as _dt
+
                 _year_inicio = int(_data_inicio[:4])
                 _company_age_years = _dt.date.today().year - _year_inicio
             except Exception:
@@ -185,25 +188,37 @@ def validate(data: dict) -> dict:
             # (they don't have specific technical qualifications for each edital type).
             # Only warn for specialized fields where qualifications are critical.
             _MATERIALS_CLUSTERS = {
-                "saude", "materiais hospitalares", "saneantes", "produtos de limpeza",
-                "alimentacao", "generos alimenticios", "material de expediente",
-                "expediente e escolar", "moveis", "eletrodomesticos", "vestuario",
-                "uniformes", "eventos", "locacao",
+                "saude",
+                "materiais hospitalares",
+                "saneantes",
+                "produtos de limpeza",
+                "alimentacao",
+                "generos alimenticios",
+                "material de expediente",
+                "expediente e escolar",
+                "moveis",
+                "eletrodomesticos",
+                "vestuario",
+                "uniformes",
+                "eventos",
+                "locacao",
             }
             _SPECIALIZED_CLUSTERS = {
-                "engenharia", "obras", "consultoria", "assessoria", "informatica",
-                "tecnologia", "vigilancia", "seguranca",
+                "engenharia",
+                "obras",
+                "consultoria",
+                "assessoria",
+                "informatica",
+                "tecnologia",
+                "vigilancia",
+                "seguranca",
             }
             dominant_cluster_label = ""
             if clusters:
                 dominant_cluster_label = (clusters[0].get("label") or "").lower()
 
-            is_materials_company = any(
-                mat in dominant_cluster_label for mat in _MATERIALS_CLUSTERS
-            )
-            is_specialized_company = any(
-                spec in dominant_cluster_label for spec in _SPECIALIZED_CLUSTERS
-            )
+            is_materials_company = any(mat in dominant_cluster_label for mat in _MATERIALS_CLUSTERS)
+            is_specialized_company = any(spec in dominant_cluster_label for spec in _SPECIALIZED_CLUSTERS)
 
             if is_materials_company and not is_specialized_company:
                 info.append(
@@ -227,9 +242,11 @@ def validate(data: dict) -> dict:
             )
 
     # 1d. Win probability — se TODAS são <5%, a empresa não é competitiva neste setor
-    probs = [e.get("win_probability", {}).get("probability", 0) for e in editais
-             if not e.get("risk_score", {}).get("vetoed", False)
-             and "Dispensa" not in e.get("modalidade", "")]
+    probs = [
+        e.get("win_probability", {}).get("probability", 0)
+        for e in editais
+        if not e.get("risk_score", {}).get("vetoed", False) and "Dispensa" not in e.get("modalidade", "")
+    ]
     if probs and max(probs) < 0.05 and len(probs) > 10:
         warnings.append(
             f"WIN_PROBABILITY_ALL_LOW: Todas as {len(probs)} probabilidades de vitória "
@@ -238,9 +255,11 @@ def validate(data: dict) -> dict:
         )
 
     # 1e. ROI — se TODOS são negativos, toda participação é investimento (sem retorno direto)
-    rois = [e.get("roi_potential", {}).get("roi_max", 0) for e in editais
-            if not e.get("risk_score", {}).get("vetoed", False)
-            and "Dispensa" not in e.get("modalidade", "")]
+    rois = [
+        e.get("roi_potential", {}).get("roi_max", 0)
+        for e in editais
+        if not e.get("risk_score", {}).get("vetoed", False) and "Dispensa" not in e.get("modalidade", "")
+    ]
     positive_roi = [r for r in rois if r > 0]
     if rois and not positive_roi and len(rois) > 5:
         warnings.append(
@@ -348,8 +367,9 @@ def validate(data: dict) -> dict:
     portfolio = data.get("portfolio", {})
     optimal_set = portfolio.get("optimal_set", [])
     if isinstance(optimal_set, list) and len(optimal_set) == 0:
-        editais_participar = [e for e in data.get("editais", [])
-                             if e.get("recomendacao") in ["PARTICIPAR", "AVALIAR COM CAUTELA"]]
+        editais_participar = [
+            e for e in data.get("editais", []) if e.get("recomendacao") in ["PARTICIPAR", "AVALIAR COM CAUTELA"]
+        ]
         if editais_participar:
             warnings.append(
                 f"PORTFOLIO_EMPTY_OPTIMAL: {len(editais_participar)} editais com recomendação "
@@ -359,11 +379,13 @@ def validate(data: dict) -> dict:
 
     # 2d. Scenario analysis
     if editais:
-        fragile_count = sum(1 for e in editais
-                           if e.get("sensitivity", {}).get("stability") == "FRAGIL"
-                           and e.get("recomendacao") in ["PARTICIPAR", "AVALIAR COM CAUTELA"])
-        total_relevant = sum(1 for e in editais
-                            if e.get("recomendacao") in ["PARTICIPAR", "AVALIAR COM CAUTELA"])
+        fragile_count = sum(
+            1
+            for e in editais
+            if e.get("sensitivity", {}).get("stability") == "FRAGIL"
+            and e.get("recomendacao") in ["PARTICIPAR", "AVALIAR COM CAUTELA"]
+        )
+        total_relevant = sum(1 for e in editais if e.get("recomendacao") in ["PARTICIPAR", "AVALIAR COM CAUTELA"])
         if total_relevant > 0 and fragile_count / total_relevant > 0.5:
             warnings.append(
                 f"HIGH_FRAGILITY: {fragile_count}/{total_relevant} editais relevantes têm "
@@ -375,8 +397,7 @@ def validate(data: dict) -> dict:
         all_optimistic_negative = all(
             e.get("scenarios", {}).get("optimistic", {}).get("roi_max", 0) < 0
             for e in editais
-            if e.get("recomendacao") in ["PARTICIPAR", "AVALIAR COM CAUTELA"]
-            and e.get("scenarios")
+            if e.get("recomendacao") in ["PARTICIPAR", "AVALIAR COM CAUTELA"] and e.get("scenarios")
         )
         if all_optimistic_negative and total_relevant > 0:
             warnings.append(
@@ -530,9 +551,9 @@ def validate(data: dict) -> dict:
     elif sancoes_status in ("API_FAILED", "MISSING") and has_sancoes_data:
         # Source failed but we have cached/partial data — warn, don't block
         warnings.append(
-            f"SANCOES_DADOS_ANTERIORES: Dados de sanções presentes de consulta "
-            f"anterior. AÇÃO DO ORCHESTRATOR: re-consultar Portal da Transparência "
-            f"para garantir dados atualizados antes de gerar relatório."
+            "SANCOES_DADOS_ANTERIORES: Dados de sanções presentes de consulta "
+            "anterior. AÇÃO DO ORCHESTRATOR: re-consultar Portal da Transparência "
+            "para garantir dados atualizados antes de gerar relatório."
         )
 
     # 2b. Editais vazios
@@ -573,9 +594,9 @@ def validate(data: dict) -> dict:
     # ================================================================
 
     non_disp_non_vetoed = [
-        e for e in editais
-        if "Dispensa" not in e.get("modalidade", "")
-        and not e.get("risk_score", {}).get("vetoed", False)
+        e
+        for e in editais
+        if "Dispensa" not in e.get("modalidade", "") and not e.get("risk_score", {}).get("vetoed", False)
     ]
     participar = [e for e in non_disp_non_vetoed if e.get("risk_score", {}).get("total", 0) >= 70]
     avaliar = [e for e in non_disp_non_vetoed if 40 <= e.get("risk_score", {}).get("total", 0) < 70]
@@ -638,17 +659,26 @@ def validate_post_enrichment(data: dict) -> dict:
     # 2. Justificativa coverage — every edital with recomendacao must have justificativa
     no_just = [i for i, e in enumerate(editais, 1) if e.get("recomendacao") and not e.get("justificativa")]
     if no_just:
-        blocks.append(f"{len(no_just)} editais com recomendação mas sem justificativa: #{', #'.join(str(x) for x in no_just[:10])}")
+        blocks.append(
+            f"{len(no_just)} editais com recomendação mas sem justificativa: #{', #'.join(str(x) for x in no_just[:10])}"
+        )
 
     # 3. Analise documental coverage — at least PARTICIPAR + AVALIAR should have it
-    participar_avaliar = [e for e in editais if e.get("recomendacao", "").upper() in ("PARTICIPAR", "AVALIAR COM CAUTELA")]
-    no_doc = [i for i, e in enumerate(editais, 1)
-              if e.get("recomendacao", "").upper() in ("PARTICIPAR", "AVALIAR COM CAUTELA")
-              and not e.get("analise_documental")]
+    participar_avaliar = [
+        e for e in editais if e.get("recomendacao", "").upper() in ("PARTICIPAR", "AVALIAR COM CAUTELA")
+    ]
+    no_doc = [
+        i
+        for i, e in enumerate(editais, 1)
+        if e.get("recomendacao", "").upper() in ("PARTICIPAR", "AVALIAR COM CAUTELA")
+        and not e.get("analise_documental")
+    ]
     if no_doc and len(participar_avaliar) > 0:
         pct = len(no_doc) / len(participar_avaliar) * 100
         if pct > 50:
-            warnings.append(f"{len(no_doc)}/{len(participar_avaliar)} editais PARTICIPAR/AVALIAR sem análise documental ({pct:.0f}%)")
+            warnings.append(
+                f"{len(no_doc)}/{len(participar_avaliar)} editais PARTICIPAR/AVALIAR sem análise documental ({pct:.0f}%)"
+            )
 
     # 4. delivery_validation must exist (Phase 7 gate)
     dv = data.get("delivery_validation")
@@ -680,7 +710,9 @@ def validate_post_enrichment(data: dict) -> dict:
             obj = (e.get("objeto") or "")[:40].lower().strip()
             # This is a heuristic — same municipality AND same truncated object = likely duplicate
             if mun in nr_objects and obj in nr_objects:
-                warnings.append(f"Edital PARTICIPAR em {e.get('municipio')} com objeto similar a um NÃO RECOMENDADO/DESCARTADO — verificar duplicata")
+                warnings.append(
+                    f"Edital PARTICIPAR em {e.get('municipio')} com objeto similar a um NÃO RECOMENDADO/DESCARTADO — verificar duplicata"
+                )
 
     # 6. Score-recommendation consistency (stricter than Phase 1)
     for i, e in enumerate(editais, 1):
@@ -714,6 +746,7 @@ def validate_post_enrichment(data: dict) -> dict:
     # 7. Pydantic schema validation (non-blocking — warns on schema drift)
     try:
         from report_schema import validate_post_enrichment as _schema_validate
+
         schema_errors = _schema_validate(data)
         if schema_errors:
             for err in schema_errors[:5]:
@@ -729,6 +762,7 @@ def validate_post_enrichment(data: dict) -> dict:
     deterministic_result = None
     try:
         from auditor_deterministic_checks import run_deterministic_checks
+
         deterministic_result = run_deterministic_checks(data)
         n_failed = deterministic_result.get("checks_failed", 0)
         if n_failed > 0:
@@ -737,7 +771,9 @@ def validate_post_enrichment(data: dict) -> dict:
                 motivo = f.get("motivo", "?")
                 edital_id = f.get("edital_id", "?")
                 warnings.append(f"DETERMINISTIC_{check_id}: Edital {edital_id} — {motivo}")
-            info.append(f"DETERMINISTIC_CHECKS: {n_failed} falhas em {deterministic_result.get('checks_run', 0)} checks")
+            info.append(
+                f"DETERMINISTIC_CHECKS: {n_failed} falhas em {deterministic_result.get('checks_run', 0)} checks"
+            )
         else:
             info.append(f"DETERMINISTIC_CHECKS: {deterministic_result.get('checks_run', 0)} checks — todos PASSED")
     except ImportError:
@@ -785,10 +821,12 @@ def validate_post_enrichment(data: dict) -> dict:
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser(description="Validação de dados do relatório B2G")
     parser.add_argument("json_path", help="Caminho para o JSON de dados")
-    parser.add_argument("--post-enrichment", action="store_true",
-                        help="Validar JSON após enriquecimento Claude (Phases 2-7)")
+    parser.add_argument(
+        "--post-enrichment", action="store_true", help="Validar JSON após enriquecimento Claude (Phases 2-7)"
+    )
     args = parser.parse_args()
 
     path = Path(args.json_path)
@@ -796,7 +834,7 @@ def main():
         print(f"ERROR: File not found: {path}")
         sys.exit(1)
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
     if args.post_enrichment:
@@ -805,17 +843,18 @@ def main():
         result = validate(data)
 
     mode_label = "Pós-Enriquecimento" if args.post_enrichment else "Dados"
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"📋 Validação de {mode_label} — {path.name}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Summary (only available in Phase 1 validation)
     s = result.get("summary")
     if s:
-        print(f"\n  Editais: {s['total_editais']} total | {s['participar']} PARTICIPAR | "
-              f"{s['avaliar']} AVALIAR | {s['nao_recomendado']} NR | {s['vetados']} vetados")
-        print(f"  Keywords: {s['keywords_source']} | Clusters: {s['activity_clusters']} "
-              f"(top: {s['top_cluster']})")
+        print(
+            f"\n  Editais: {s['total_editais']} total | {s['participar']} PARTICIPAR | "
+            f"{s['avaliar']} AVALIAR | {s['nao_recomendado']} NR | {s['vetados']} vetados"
+        )
+        print(f"  Keywords: {s['keywords_source']} | Clusters: {s['activity_clusters']} (top: {s['top_cluster']})")
         print(f"  Divergência setorial: {'SIM ⚠' if s['sector_divergence'] else 'NÃO'}")
 
     # Blocks
@@ -838,20 +877,20 @@ def main():
 
     # Verdict
     v = result["verdict"]
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     if v == "BLOCKED":
-        print(f"  🛑 VERDICT: BLOCKED — Relatório NÃO pode ser gerado.")
-        print(f"     Corrija os problemas abaixo ANTES de prosseguir.")
-        print(f"     NÃO contorne este bloqueio manualmente.")
-        print(f"{'='*60}")
+        print("  🛑 VERDICT: BLOCKED — Relatório NÃO pode ser gerado.")
+        print("     Corrija os problemas abaixo ANTES de prosseguir.")
+        print("     NÃO contorne este bloqueio manualmente.")
+        print(f"{'=' * 60}")
         sys.exit(1)
     elif v == "WARNINGS":
-        print(f"  ⚠️  VERDICT: WARNINGS — Pode gerar, mas relatório DEVE endereçar cada alerta.")
-        print(f"{'='*60}")
+        print("  ⚠️  VERDICT: WARNINGS — Pode gerar, mas relatório DEVE endereçar cada alerta.")
+        print(f"{'=' * 60}")
         sys.exit(2)
     else:
-        print(f"  ✅ VERDICT: OK — Dados coerentes, pode gerar relatório.")
-        print(f"{'='*60}")
+        print("  ✅ VERDICT: OK — Dados coerentes, pode gerar relatório.")
+        print(f"{'=' * 60}")
         sys.exit(0)
 
 

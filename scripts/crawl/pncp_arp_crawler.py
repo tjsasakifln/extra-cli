@@ -28,24 +28,23 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 import httpx
-
 from ingestion._base.crawler import accumulate_stats, chunk_list, empty_run_stats
 from ingestion.config import (
+    INGESTION_ARP_DAYS,
     INGESTION_ARP_ENABLED,
     INGESTION_ARP_MAX_PAGES,
-    INGESTION_ARP_DAYS,
     INGESTION_BATCH_DELAY_S,
     INGESTION_BATCH_SIZE_UFS,
     INGESTION_CONCURRENT_UFS,
-    INGESTION_UPSERT_BATCH_SIZE,
     INGESTION_UFS,
+    INGESTION_UPSERT_BATCH_SIZE,
 )
 from ingestion.metrics import (
+    ARP_PAGES_FETCHED,
     ARP_RECORDS_FETCHED,
     ARP_RECORDS_UPSERTED,
-    ARP_RUNS_TOTAL,
     ARP_RUN_DURATION,
-    ARP_PAGES_FETCHED,
+    ARP_RUNS_TOTAL,
 )
 
 logger = logging.getLogger(__name__)
@@ -93,18 +92,8 @@ def _normalise_arp_item(raw: dict, uf: str) -> dict | None:
 
         # Extract orgao info (may be nested object or flat)
         orgao = raw.get("orgaoEntidade") or raw.get("orgao") or {}
-        orgao_razao = (
-            orgao.get("razaoSocial")
-            or orgao.get("nome")
-            or raw.get("orgaoRazaoSocial")
-            or ""
-        )
-        orgao_cnpj = (
-            orgao.get("cnpj")
-            or orgao.get("cpfCnpj")
-            or raw.get("orgaoCnpj")
-            or ""
-        )
+        orgao_razao = orgao.get("razaoSocial") or orgao.get("nome") or raw.get("orgaoRazaoSocial") or ""
+        orgao_cnpj = orgao.get("cnpj") or orgao.get("cpfCnpj") or raw.get("orgaoCnpj") or ""
 
         # Clean CNPJ (digits only)
         orgao_cnpj_clean = "".join(c for c in orgao_cnpj if c.isdigit())
@@ -113,8 +102,7 @@ def _normalise_arp_item(raw: dict, uf: str) -> dict | None:
         fornecedores_raw = raw.get("fornecedores") or raw.get("participantes") or []
         if isinstance(fornecedores_raw, list):
             fornecedores = [
-                "".join(c for c in (f.get("cnpj") or f.get("cpfCnpj") or "") if c.isdigit())
-                for f in fornecedores_raw
+                "".join(c for c in (f.get("cnpj") or f.get("cpfCnpj") or "") if c.isdigit()) for f in fornecedores_raw
             ]
         else:
             fornecedores = []
@@ -124,11 +112,7 @@ def _normalise_arp_item(raw: dict, uf: str) -> dict | None:
         data_validade = raw.get("dataValidade") or raw.get("dataVigencia") or ""
 
         # Extract UF with fallback
-        uf_value = (
-            (orgao.get("uf") if isinstance(orgao, dict) else None)
-            or raw.get("uf")
-            or uf
-        )
+        uf_value = (orgao.get("uf") if isinstance(orgao, dict) else None) or raw.get("uf") or uf
 
         row = {
             "ata_id": ata_id,
@@ -141,16 +125,11 @@ def _normalise_arp_item(raw: dict, uf: str) -> dict | None:
             "data_validade": str(data_validade)[:10] if data_validade else None,
             "uf": uf_value.upper() if uf_value else uf,
             "municipio": str(
-                raw.get("municipio")
-                or (orgao.get("municipio") if isinstance(orgao, dict) else None)
-                or ""
+                raw.get("municipio") or (orgao.get("municipio") if isinstance(orgao, dict) else None) or ""
             ),
             "fornecedores": json.dumps(fornecedores, ensure_ascii=False),
             "modalidade_nome": str(
-                raw.get("modalidadeNome")
-                or raw.get("modalidade")
-                or raw.get("modalidadeContratacao")
-                or ""
+                raw.get("modalidadeNome") or raw.get("modalidade") or raw.get("modalidadeContratacao") or ""
             ),
             "content_hash": _make_content_hash(ata_id, str(data_publicacao)[:10] if data_publicacao else None),
             "source": "pncp_arp",
@@ -194,7 +173,7 @@ class PncpArpCrawler:
         self.ufs = ufs or INGESTION_UFS
         self._client: httpx.AsyncClient | None = None
 
-    async def __aenter__(self) -> "PncpArpCrawler":
+    async def __aenter__(self) -> PncpArpCrawler:
         self._client = httpx.AsyncClient(
             base_url=PNCP_BASE_URL,
             timeout=_HTTP_TIMEOUT,
@@ -241,7 +220,10 @@ class PncpArpCrawler:
         if response.status_code != 200:
             logger.warning(
                 "ARP: uf=%s page=%d HTTP %d — %s",
-                uf, page, response.status_code, response.text[:200],
+                uf,
+                page,
+                response.status_code,
+                response.text[:200],
             )
             response.raise_for_status()
 
@@ -251,10 +233,7 @@ class PncpArpCrawler:
 
     def _has_more(self, response_data: dict) -> bool:
         """Check if more pages are available."""
-        return bool(
-            response_data.get("temProximaPagina")
-            or int(response_data.get("paginasRestantes", 0)) > 0
-        )
+        return bool(response_data.get("temProximaPagina") or int(response_data.get("paginasRestantes", 0)) > 0)
 
     async def crawl_uf(
         self,
@@ -294,7 +273,9 @@ class PncpArpCrawler:
                 if resp.status_code != 200:
                     logger.warning(
                         "ARP: uf=%s page=%d HTTP %d",
-                        uf, page, resp.status_code,
+                        uf,
+                        page,
+                        resp.status_code,
                     )
                     result.errors += 1
                     break
@@ -320,10 +301,13 @@ class PncpArpCrawler:
                 has_more = self._has_more(resp_data)
                 page += 1
 
-            except (httpx.HTTPError, asyncio.TimeoutError) as exc:
+            except (TimeoutError, httpx.HTTPError) as exc:
                 logger.warning(
                     "ARP: uf=%s page=%d error — %s: %s",
-                    uf, page, type(exc).__name__, exc,
+                    uf,
+                    page,
+                    type(exc).__name__,
+                    exc,
                 )
                 result.errors += 1
                 break
@@ -358,10 +342,12 @@ class PncpArpCrawler:
                 result.unchanged = counts.get("unchanged", 0)
 
                 ARP_RECORDS_UPSERTED.labels(
-                    uf=uf, action="inserted",
+                    uf=uf,
+                    action="inserted",
                 ).inc(result.inserted)
                 ARP_RECORDS_UPSERTED.labels(
-                    uf=uf, action="updated",
+                    uf=uf,
+                    action="updated",
                 ).inc(result.updated)
 
             uf_stats = {
@@ -414,7 +400,7 @@ async def _upsert_arp_batch(rows: list[dict]) -> dict[str, int]:
     from supabase_client import get_supabase, sb_execute
 
     totals = {"inserted": 0, "updated": 0, "unchanged": 0}
-    batches = [rows[i:i + INGESTION_UPSERT_BATCH_SIZE] for i in range(0, len(rows), INGESTION_UPSERT_BATCH_SIZE)]
+    batches = [rows[i : i + INGESTION_UPSERT_BATCH_SIZE] for i in range(0, len(rows), INGESTION_UPSERT_BATCH_SIZE)]
     supabase = get_supabase()
 
     for batch_idx, batch in enumerate(batches):
@@ -443,7 +429,9 @@ async def _upsert_arp_batch(rows: list[dict]) -> dict[str, int]:
         except Exception as exc:
             logger.error(
                 "ARP upsert batch %d failed: %s: %s — continuing",
-                batch_idx + 1, type(exc).__name__, exc,
+                batch_idx + 1,
+                type(exc).__name__,
+                exc,
             )
             continue
 

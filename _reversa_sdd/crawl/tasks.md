@@ -1,65 +1,48 @@
-# Tasks — Módulo `crawl`
+# Crawl — Tasks
 
-> 🟢 CONFIRMADO — baseado em `monitor.py`, crawlers, `transformer.py`
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo
 
 ## Tarefas de Reimplementação
 
-### T1: Interface de Crawler
-- **Arquivo legado:** `scripts/crawl/monitor.py:547-569`
-- **Confiança:** 🟢
-- **Descrição:** Implementar `_load_crawler(source)` com `importlib.import_module`. Mapear source names → módulos Python. Retornar None com log se crawler não encontrado.
-- **Critério de pronto:** 8 fontes mapeadas, import dinâmico funcional, fallback para crawler não implementado.
+| # | Tarefa | Fonte | Critério de Pronto | Confiança |
+|---|--------|-------|-------------------|-----------|
+| T-C01 | Implementar interface Crawler: `crawl(mode)→list[dict]`, `transform(records)→list[dict]` | `pncp_crawler_adapter.py:1-294` | 10 crawlers implementam mesma interface | 🟢 |
+| T-C02 | Implementar PNCP crawler: GET com urllib, paginação day-by-day, filtro UF/modalidade, 17 keywords engenharia | `pncp_crawler_adapter.py:crawl()` | Retorna records com pncp_id+content_hash para SC | 🟢 |
+| T-C03 | Implementar DOM-SC crawler: Basic Auth + X-API-Key, 3 categorias | `dom_sc_crawler.py:1-360` | 3 categorias agregadas, esfera_id='M' | 🟢 |
+| T-C04 | Implementar DOE-SC crawler: Bearer token com login, cache 30min, filtro categorias | `doe_sc_crawler.py:1-728` | Token renovado em 401 | 🟢 |
+| T-C05 | Implementar PCP v2 crawler: 14 entradas modalidade mapping, inferência esfera | `pcp_crawler.py:1-438` | Modalidade mapeada com fuzzy fallback | 🟢 |
+| T-C06 | Implementar ComprasGov crawler: 2 endpoints, auto-detecção em transform() | `compras_gov_crawler.py:1-612` | Dados legado + Lei 14.133 unificados | 🟢 |
+| T-C07 | Implementar Contracts crawler: janelas 90 dias, inferência UF por CNPJ | `contracts_crawler.py:1-371` | Schema pncp_supplier_contracts | 🟢 |
+| T-C08 | Implementar TCE-SC crawler: SCMWeb, licitações+contratos, 2 fases | `tce_sc_crawler.py:1-767` | Paginação heurística (<20 itens = fim) | 🟢 |
+| T-C09 | Implementar SC Compras crawler: HTML regex, detail pages | `sc_compras_crawler.py:1-605` | Extração de 29 labels via _LABEL_MAP | 🟢 |
+| T-C10 | Implementar Transparência crawler: 4 templates, detect_platform | `transparencia_crawler.py:1-1221` | Betha→Ipam→E-gov→Genérico fallback | 🟢 |
+| T-C11 | Implementar transforms: content_hash SHA-256, normalização datas/valores | `common.py:1-213` | Todos os campos mapeados, hash determinístico | 🟢 |
+| T-C12 | Implementar upsert RPC: ON CONFLICT content_hash DO NOTHING | `db/migrations/006_upsert_rpcs.sql` | Idempotente, sem duplicatas | 🟢 |
+| T-C13 | Integrar entity_matcher.cascade no pipeline pós-upsert | `entity_matcher.py:1-297` | matched_entity_id preenchido após upsert | 🟢 |
+| T-C14 | Implementar coverage triggers: AFTER INSERT/UPDATE → entity_coverage | `db/migrations/009_indexes_and_coverage.sql` | is_covered, total_bids, last_seen_at OK | 🟢 |
+| T-C15 | Implementar checkpoint: save + is_crawl_completed_today | `checkpoint.py:1-448` | Retomada sem re-processamento | 🟢 |
+| T-C16 | Implementar circuit breaker: 5 singletons, Redis-backed | `circuit_breaker.py:1-523` | Degraded mode após 3 falhas consecutivas | 🟢 |
+| T-C17 | Implementar retry com exponential backoff 2^N | `retry.py:1-285` | Timeout chain validado em startup | 🟢 |
+| T-C18 | Implementar sanctions checker: CEIS+CNEP async, cache 24h | `sanctions.py:1-640` | is_sanctioned flag, rate limit 90/min | 🟢 |
+| T-C19 | Implementar enricher: 3 jobs ARQ, cache TTL 7-30 dias | `enricher.py:1-670` | CNPJ enrichment + IBGE codes + municipios | 🟢 |
+| T-C20 | Configurar systemd timers: 20 serviços com schedule | `deploy/systemd/*.timer` | Crawlers executam nas frequências definidas (R12) | 🟢 |
 
-### T2: Conexão PostgreSQL e Load de Entidades
-- **Arquivo legado:** `scripts/crawl/monitor.py:58-74`
-- **Confiança:** 🟢
-- **Descrição:** `_get_conn()` via `psycopg2.connect(DSN)`. `_load_entities()` com query parametrizada, filtro opcional `raio_200km`. Retornar lista de dicts.
-- **Critério de pronto:** Conexão funcional, 2.085 entidades carregadas, filtro raio_200km operante.
+## Dependências entre Tarefas
 
-### T3: Pipeline crawl_source()
-- **Arquivo legado:** `scripts/crawl/monitor.py:454-532`
-- **Confiança:** 🟢
-- **Descrição:** Orquestrar Crawl → Transform → Upsert → Entity Match → Coverage Update. Tratar exceções com try/except, log de erro, `_finish_ingestion_run(status='failed')`.
-- **Critério de pronto:** Pipeline completo executado sem erros para fonte PNCP, run registrado em `ingestion_runs`.
+```
+T-C01 (interface) → T-C02..T-C10 (crawlers)
+T-C11 (transforms) → T-C12 (upsert)
+T-C12 → T-C13 (matching) → T-C14 (coverage)
+T-C15 (checkpoint) → T-C02 (integração no incremental)
+T-C16..T-C17 (resiliência) → T-C02..T-C10 (todos crawlers)
+T-C20 (deploy) → após todos os crawlers funcionais
+```
 
-### T4: Entity Matching Cascade
-- **Arquivo legado:** `scripts/crawl/monitor.py:142-341`
-- **Confiança:** 🟢
-- **Descrição:** Implementar 3 níveis: CNPJ → nome normalizado + IBGE → fuzzy. Construir índices (dict). Para cada bid, tentar níveis em ordem. Atualizar matched_entity_id, match_method, match_score, match_confidence.
-- **Critério de pronto:** Matching funcional nos 3 níveis. Stats (cnpj, name_normalized, fuzzy, unmatched) computados corretamente. Batch commit funcional.
+## Estimativa de Esforço
 
-### T5: Content Hash Dedup
-- **Arquivo legado:** `scripts/crawl/transformer.py:30-44`
-- **Confiança:** 🟢
-- **Descrição:** `compute_content_hash(item)` → SHA-256 de `objeto|valor|situacao` canonicalizado (lowercase, strip).
-- **Critério de pronto:** Hash determinístico. Mesmo conteúdo → mesmo hash. Conteúdo diferente → hash diferente.
-
-### T6: Coverage Report
-- **Arquivo legado:** `scripts/crawl/monitor.py:348-414`
-- **Confiança:** 🟢
-- **Descrição:** Query SQL cruzando `sc_public_entities` × `entity_coverage`. Agrupar por `raio_200km`. Breakdown por source. Listar uncovered entities within 200km.
-- **Critério de pronto:** Query retorna total, covered, uncovered, pct. Breakdown por source funcional. Uncovered list populada.
-
-### T7: Ingestion Run Tracking
-- **Arquivo legado:** `scripts/crawl/monitor.py:94-117`
-- **Confiança:** 🟢
-- **Descrição:** `_start_ingestion_run()` → INSERT com status='running'. `_finish_ingestion_run()` → UPDATE com fetched/upserted/covered/status/error.
-- **Critério de pronto:** Cada execução de crawler gera 1 registro em `ingestion_runs` com dados completos.
-
-### T8: PNCP Crawler Adapter
-- **Arquivo legado:** `scripts/crawl/pncp_crawler_adapter.py`
-- **Confiança:** 🟢
-- **Descrição:** Implementar `crawl(mode)` com chunking 1-dia, paginação (50/página, max 50 páginas), delay 500ms, filtro keywords engenharia, modalidades 2,3,4,7. `transform(records)` normalizando para schema unificado.
-- **Critério de pronto:** Crawl PNCP funcional. Chunking respeita range de datas. Delay anti-429 funcional. Transform produz schema correto.
-
-### T9: DOM-SC Crawler
-- **Arquivo legado:** `scripts/crawl/dom_sc_crawler.py`
-- **Confiança:** 🟢
-- **Descrição:** Autenticação HTTP Basic Auth (CPF:CNPJ) + header X-API-Key. 3 categorias: 6 (contratos), 7 (convênios), 28 (empenhos). Janela: 90 dias full, 3 dias incremental.
-- **Critério de pronto:** Crawl funcional para 3 categorias. Autenticação funcional. Dados normalizados para schema.
-
-### T10: TCE-SC Crawler
-- **Arquivo legado:** `scripts/crawl/tce_sc_crawler.py`
-- **Confiança:** 🟢
-- **Descrição:** SCMWeb JSON API com parâmetro `p285` (TCE-SC). Mapeamento de modalidades (SCMWeb → padrão). 365 dias full, 7 dias incremental. Feature flag `TCE_SC_ENABLED`.
-- **Critério de pronto:** Crawl TCE-SC funcional. Mapeamento de modalidades correto. Feature flag respeitada.
+| Categoria | Tarefas | Esforço estimado |
+|-----------|---------|-----------------|
+| Crawlers (8) | T-C02..T-C10 | 8-12 dias |
+| Infraestrutura | T-C11..T-C19 | 4-6 dias |
+| Deploy | T-C20 | 1 dia |
+| **Total** | 20 tarefas | **13-19 dias** |

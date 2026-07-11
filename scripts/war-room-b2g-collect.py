@@ -42,24 +42,47 @@ import os
 import re
 import sys
 import time
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 from datalake_helper import DatalakeClient  # noqa: E402
 
-
 _PNCP_URL = "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao"
 _OPENCNPJ_URL = "https://api.opencnpj.org/{cnpj}"
 
-_STOPWORDS = {"de", "da", "do", "das", "dos", "para", "em", "no", "na", "nos", "nas",
-              "e", "ou", "com", "por", "a", "o", "as", "os", "um", "uma", "que", "se"}
+_STOPWORDS = {
+    "de",
+    "da",
+    "do",
+    "das",
+    "dos",
+    "para",
+    "em",
+    "no",
+    "na",
+    "nos",
+    "nas",
+    "e",
+    "ou",
+    "com",
+    "por",
+    "a",
+    "o",
+    "as",
+    "os",
+    "um",
+    "uma",
+    "que",
+    "se",
+}
 
 
 # ---------------------------------------------------------------------------
 # pncp_id resolution
 # ---------------------------------------------------------------------------
+
 
 def parse_input(arg: str) -> tuple[str | None, str | None, str | None, str | None]:
     """Retorna (cnpj_orgao, ano, sequencial, pncp_id_candidate)."""
@@ -107,15 +130,18 @@ def resolve_pncp_id(arg: str, dl: DatalakeClient) -> tuple[dict | None, str]:
         ds = f"{ano}-01-01"
         de = f"{ano}-12-31"
         rows, _ = dl.search_bids(
-            date_start=ds, date_end=de,
+            date_start=ds,
+            date_end=de,
             paginate_by_uf_modalidade=False,
             limit=5000,
         )
         rows = rows or []
         for r in rows:
-            if (r.get("orgao_cnpj") == cnpj_orgao
+            if (
+                r.get("orgao_cnpj") == cnpj_orgao
                 and r.get("pncp_id", "").endswith(f"/{ano}")
-                and _seq_from_pncp_id(r["pncp_id"]) == int(seq)):
+                and _seq_from_pncp_id(r["pncp_id"]) == int(seq)
+            ):
                 return r, "search_bids_year"
 
     # Step 3: live PNCP fallback
@@ -142,11 +168,16 @@ def _live_pncp_orgao_year(cnpj_orgao: str, ano: str, target_seq: int | None = No
     try:
         with httpx.Client(timeout=30.0) as client:
             for page in range(1, 11):
-                r = client.get(_PNCP_URL, params={
-                    "dataInicial": di, "dataFinal": df,
-                    "cnpj": cnpj_orgao,
-                    "pagina": page, "tamanhoPagina": 50,
-                })
+                r = client.get(
+                    _PNCP_URL,
+                    params={
+                        "dataInicial": di,
+                        "dataFinal": df,
+                        "cnpj": cnpj_orgao,
+                        "pagina": page,
+                        "tamanhoPagina": 50,
+                    },
+                )
                 if r.status_code == 204 or r.status_code >= 400:
                     break
                 items = (r.json() or {}).get("data") or []
@@ -193,6 +224,7 @@ def _pncp_to_normalized(item: dict) -> dict:
 # Keyword extraction (do objeto)
 # ---------------------------------------------------------------------------
 
+
 def extract_keywords(objeto: str, cap: int = 6) -> list[str]:
     """Tokens significativos (>=4 chars, sem stopwords PT-BR)."""
     tokens = re.findall(r"[a-zà-úA-ZÀ-Ú]+", (objeto or "").lower())
@@ -212,6 +244,7 @@ def extract_keywords(objeto: str, cap: int = 6) -> list[str]:
 # Empresa cliente — perfil
 # ---------------------------------------------------------------------------
 
+
 def collect_perfil_empresa(cnpj14: str, dl: DatalakeClient) -> dict | None:
     if cnpj14 and len(cnpj14) == 14:
         if dl.is_enabled:
@@ -221,6 +254,7 @@ def collect_perfil_empresa(cnpj14: str, dl: DatalakeClient) -> dict | None:
         # cache miss → live OpenCNPJ
         try:
             import httpx
+
             with httpx.Client(timeout=15.0) as client:
                 r = client.get(_OPENCNPJ_URL.format(cnpj=cnpj14))
                 if r.status_code == 200:
@@ -233,6 +267,7 @@ def collect_perfil_empresa(cnpj14: str, dl: DatalakeClient) -> dict | None:
 # ---------------------------------------------------------------------------
 # Preco alvo positioning
 # ---------------------------------------------------------------------------
+
 
 def position_preco_alvo(preco_alvo: float, stats: dict | None) -> dict:
     if not stats or preco_alvo is None or preco_alvo <= 0:
@@ -254,13 +289,15 @@ def position_preco_alvo(preco_alvo: float, stats: dict | None) -> dict:
         "posicao": f"P{round(pos)}",
         "posicao_pct": round(pos, 1),
         "alerta": alerta,
-        "p10": p10, "p90": p90,
+        "p10": p10,
+        "p90": p90,
     }
 
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="War-Room B2G — DataLake-first")
@@ -273,16 +310,17 @@ def main() -> int:
     args = ap.parse_args()
 
     dl = DatalakeClient()
-    use_dl = (not args.no_datalake) and os.getenv("DATALAKE_QUERY_ENABLED", "").lower() in ("true", "1") and dl.is_enabled
+    use_dl = (
+        (not args.no_datalake) and os.getenv("DATALAKE_QUERY_ENABLED", "").lower() in ("true", "1") and dl.is_enabled
+    )
 
     if not use_dl:
         print("AVISO: DataLake desabilitado — apenas resolucao live.", file=sys.stderr)
 
     print(f"[war-room] edital={args.edital!r} cnpj={args.cnpj} preco_alvo={args.preco_alvo}")
     t = time.time()
-    edital, fonte_res = (resolve_pncp_id(args.edital, dl) if use_dl
-                         else (_resolve_live_only(args.edital), "live_only"))
-    print(f"  resolucao={fonte_res} em {time.time()-t:.1f}s")
+    edital, fonte_res = resolve_pncp_id(args.edital, dl) if use_dl else (_resolve_live_only(args.edital), "live_only")
+    print(f"  resolucao={fonte_res} em {time.time() - t:.1f}s")
     if edital is None:
         print(f"ERRO: edital nao encontrado ({args.edital})", file=sys.stderr)
         return 1
@@ -290,7 +328,7 @@ def main() -> int:
     cnpj_orgao = edital.get("orgao_cnpj")
     uf_edital = edital.get("uf")
     keywords = extract_keywords(edital.get("objeto_compra") or "")
-    print(f"  edital: {edital.get('objeto_compra','')[:80]}")
+    print(f"  edital: {edital.get('objeto_compra', '')[:80]}")
     print(f"    orgao={cnpj_orgao} uf={uf_edital} valor={edital.get('valor_total_estimado')}")
     print(f"    keywords={keywords}")
 
@@ -310,12 +348,12 @@ def main() -> int:
         po, m_po = dl.pricing_stats(keywords=keywords, orgao_cnpj=cnpj_orgao, meses=24)
         pricing_orgao = po
         if po is None:
-            warnings.append(f"pricing_orgao: {m_po.get('datalake_error','sem dados')}")
+            warnings.append(f"pricing_orgao: {m_po.get('datalake_error', 'sem dados')}")
         # Pricing do mercado regional
         pm, m_pm = dl.pricing_stats(keywords=keywords, ufs=[uf_edital] if uf_edital else None, meses=24)
         pricing_mercado = pm
         if pm is None:
-            warnings.append(f"pricing_mercado: {m_pm.get('datalake_error','sem dados')}")
+            warnings.append(f"pricing_mercado: {m_pm.get('datalake_error', 'sem dados')}")
         # Top competitors do orgao
         comps, _ = dl.top_competitors(orgao_cnpj=cnpj_orgao, setor_keywords=keywords, meses=24, limit=10)
         incumbentes = comps or []
@@ -347,15 +385,17 @@ def main() -> int:
         "preco_alvo_info": preco_alvo_info,
         "warnings": warnings,
         "no_pdfs": args.no_pdfs,
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"  pricing_orgao_n={(pricing_orgao or {}).get('n',0)} | "
-          f"pricing_mercado_n={(pricing_mercado or {}).get('n',0)} | "
-          f"incumbentes={len(incumbentes)} | warnings={len(warnings)}")
+    print(
+        f"  pricing_orgao_n={(pricing_orgao or {}).get('n', 0)} | "
+        f"pricing_mercado_n={(pricing_mercado or {}).get('n', 0)} | "
+        f"incumbentes={len(incumbentes)} | warnings={len(warnings)}"
+    )
     print(f"  Output: {out_path}")
     return 0
 

@@ -4,8 +4,9 @@ Extracted from async_client.py to keep each file under 700 LOC.
 """
 
 import logging
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, List
+from typing import Any
 
 from clients.pncp.circuit_breaker import _circuit_breaker
 from clients.pncp.retry import ParallelFetchResult
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 # PNCPLegacyAdapter — SourceAdapter wrapper for ConsolidationService (AC6)
 # ============================================================================
+
 
 class PNCPLegacyAdapter:
     """Wraps existing PNCPClient as a SourceAdapter for multi-source consolidation.
@@ -30,8 +32,8 @@ class PNCPLegacyAdapter:
 
     def __init__(
         self,
-        ufs: List[str],
-        modalidades: List[int] | None = None,
+        ufs: list[str],
+        modalidades: list[int] | None = None,
         status: str | None = None,
         on_uf_complete: Callable | None = None,
         on_uf_status: Callable | None = None,
@@ -43,16 +45,19 @@ class PNCPLegacyAdapter:
         self._on_uf_status = on_uf_status
         # GTM-FIX-004: Truncation detection for PNCP in multi-source mode
         self.was_truncated: bool = False
-        self.truncated_ufs: List[str] = []
+        self.truncated_ufs: list[str] = []
 
     @property
     def metadata(self):
-        from clients.base import SourceMetadata, SourceCapability
+        from clients.base import SourceCapability, SourceMetadata
+
         return SourceMetadata(
-            name="PNCP", code="PNCP",
+            name="PNCP",
+            code="PNCP",
             base_url="https://pncp.gov.br/api/consulta/v1",
             capabilities={SourceCapability.PAGINATION, SourceCapability.DATE_RANGE, SourceCapability.FILTER_BY_UF},
-            rate_limit_rps=10.0, priority=1,
+            rate_limit_rps=10.0,
+            priority=1,
         )
 
     @property
@@ -67,18 +72,24 @@ class PNCPLegacyAdapter:
 
     async def health_check(self):
         from clients.base import SourceStatus
+
         if _circuit_breaker.is_degraded:
             return SourceStatus.DEGRADED
         return SourceStatus.AVAILABLE
 
     async def fetch(self, data_inicial, data_final, ufs=None, **kwargs):
         from clients.base import UnifiedProcurement
+
         _ufs = list(ufs) if ufs else self._ufs
         if len(_ufs) > 1:
             fetch_result = await buscar_todas_ufs_paralelo(
-                ufs=_ufs, data_inicial=data_inicial, data_final=data_final,
-                modalidades=self._modalidades, status=self._status,
-                max_concurrent=10, on_uf_complete=self._on_uf_complete,
+                ufs=_ufs,
+                data_inicial=data_inicial,
+                data_final=data_final,
+                modalidades=self._modalidades,
+                status=self._status,
+                max_concurrent=10,
+                on_uf_complete=self._on_uf_complete,
                 on_uf_status=self._on_uf_status,
             )
             if isinstance(fetch_result, ParallelFetchResult):
@@ -96,9 +107,13 @@ class PNCPLegacyAdapter:
             # This eliminates the to_thread overhead and the sync requests dependency
             # on this code path.
             fetch_result = await buscar_todas_ufs_paralelo(
-                ufs=_ufs, data_inicial=data_inicial, data_final=data_final,
-                modalidades=self._modalidades, status=self._status,
-                max_concurrent=10, on_uf_complete=self._on_uf_complete,
+                ufs=_ufs,
+                data_inicial=data_inicial,
+                data_final=data_final,
+                modalidades=self._modalidades,
+                status=self._status,
+                max_concurrent=10,
+                on_uf_complete=self._on_uf_complete,
                 on_uf_status=self._on_uf_status,
             )
             if isinstance(fetch_result, ParallelFetchResult):
@@ -162,15 +177,15 @@ class PNCPLegacyAdapter:
 
 
 async def buscar_todas_ufs_paralelo(
-    ufs: List[str],
+    ufs: list[str],
     data_inicial: str,
     data_final: str,
-    modalidades: List[int] | None = None,
+    modalidades: list[int] | None = None,
     status: str | None = None,
     max_concurrent: int = 10,
     on_uf_complete: Callable[[str, int], Any] | None = None,
     on_uf_status: Callable[..., Any] | None = None,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Convenience function for parallel UF search.
 
@@ -198,6 +213,7 @@ async def buscar_todas_ufs_paralelo(
         ... )
     """
     from clients.pncp.async_client import AsyncPNCPClient
+
     async with AsyncPNCPClient(max_concurrent=max_concurrent) as client:
         return await client.buscar_todas_ufs_paralelo(
             ufs=ufs,

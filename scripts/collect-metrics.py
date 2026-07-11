@@ -270,12 +270,14 @@ def check_consecutive_failures(conn: Any, threshold: int = 3) -> list[dict[str, 
     )
     results = []
     for row in cur.fetchall():
-        results.append({
-            "source": row[0],
-            "consecutive_failures": row[1],
-            "since": row[2].isoformat() if row[2] else None,
-            "last_attempt": row[3].isoformat() if row[3] else None,
-        })
+        results.append(
+            {
+                "source": row[0],
+                "consecutive_failures": row[1],
+                "since": row[2].isoformat() if row[2] else None,
+                "last_attempt": row[3].isoformat() if row[3] else None,
+            }
+        )
 
     cur.close()
     return results
@@ -343,11 +345,13 @@ def print_summary(metrics: dict[str, Any]) -> None:
 
     for src in crawl.get("sources", []):
         last_run = (src.get("last_run") or "N/A")[:16]
-        print(f"    {src['source']:20s} "
-              f"ok={src['successful']:3d} fail={src['failed']:2d} "
-              f"({src['success_rate']:5.1f}%) "
-              f"fetched={src['fetched']:5d} "
-              f"last={last_run}")
+        print(
+            f"    {src['source']:20s} "
+            f"ok={src['successful']:3d} fail={src['failed']:2d} "
+            f"({src['success_rate']:5.1f}%) "
+            f"fetched={src['fetched']:5d} "
+            f"last={last_run}"
+        )
 
     # Coverage
     cov = metrics.get("coverage", {})
@@ -380,8 +384,10 @@ def print_summary(metrics: dict[str, Any]) -> None:
         print()
         print("  --- FALHAS CONSECUTIVAS ---")
         for f in failures:
-            print(f"    {f['source']}: {f['consecutive_failures']}x "
-                  f"(since {f['since'][:16] if f.get('since') else 'N/A'})")
+            print(
+                f"    {f['source']}: {f['consecutive_failures']}x "
+                f"(since {f['since'][:16] if f.get('since') else 'N/A'})"
+            )
 
     print()
     print("=" * 60)

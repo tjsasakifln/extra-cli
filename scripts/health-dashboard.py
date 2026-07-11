@@ -56,6 +56,7 @@ DISK_CRIT_PCT = 90
 def get_db_conn():
     """Create database connection."""
     import psycopg2  # noqa: PLC0415
+
     return psycopg2.connect(DEFAULT_DSN)
 
 
@@ -67,7 +68,9 @@ def collect_system_health() -> dict[str, Any]:
     try:
         result = subprocess.run(
             ["psql", DEFAULT_DSN, "-c", "SELECT 1", "-t", "-A"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         db_ok = result.returncode == 0 and "1" in result.stdout.strip()
         health["checks"]["db"] = {
@@ -142,8 +145,7 @@ def collect_crawl_stats() -> dict[str, Any]:
                GROUP BY source
                ORDER BY source"""
         )
-        today_data = {r[0]: {"runs": r[1], "ok": r[2], "failed": r[3], "fetched": r[4]}
-                      for r in cur.fetchall()}
+        today_data = {r[0]: {"runs": r[1], "ok": r[2], "failed": r[3], "fetched": r[4]} for r in cur.fetchall()}
 
         # This week's runs
         cur.execute(
@@ -245,13 +247,14 @@ def collect_alert_summary() -> dict[str, Any]:
     """Collect active alerts summary by running check-alerts in subprocess."""
     check_alerts = str(_PROJECT_ROOT / "scripts" / "check-alerts.py")
     if not os.path.isfile(check_alerts):
-        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0,
-                "error": "check-alerts.py not found"}
+        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0, "error": "check-alerts.py not found"}
 
     try:
         result = subprocess.run(
             [sys.executable, check_alerts, "--json", "--dry-run"],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         if result.returncode in (0, 1, 2) and result.stdout.strip():
             data = json.loads(result.stdout)
@@ -262,17 +265,19 @@ def collect_alert_summary() -> dict[str, Any]:
                 "critical": sum(1 for a in alerts if a["severity"] >= 2),
                 "warnings": sum(1 for a in alerts if a["severity"] == 1),
             }
-        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0,
-                "error": f"check-alerts returned {result.returncode}: {result.stderr[:200]}"}
+        return {
+            "alerts": [],
+            "total": 0,
+            "critical": 0,
+            "warnings": 0,
+            "error": f"check-alerts returned {result.returncode}: {result.stderr[:200]}",
+        }
     except subprocess.TimeoutExpired:
-        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0,
-                "error": "check-alerts timed out"}
+        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0, "error": "check-alerts timed out"}
     except json.JSONDecodeError as e:
-        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0,
-                "error": f"JSON parse error: {e}"}
+        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0, "error": f"JSON parse error: {e}"}
     except Exception as e:
-        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0,
-                "error": str(e)[:200]}
+        return {"alerts": [], "total": 0, "critical": 0, "warnings": 0, "error": str(e)[:200]}
 
 
 # ---------------------------------------------------------------------------
@@ -281,9 +286,17 @@ def collect_alert_summary() -> dict[str, Any]:
 
 
 def _status_icon(status: str) -> str:
-    icons = {"pass": "PASS", "fail": "FAIL", "warn": "WARN", "healthy": "OK",
-             "critical": "CRIT", "warning": "WARN", "ok": "OK",
-             "success": "OK", "unknown": "?"}
+    icons = {
+        "pass": "PASS",
+        "fail": "FAIL",
+        "warn": "WARN",
+        "healthy": "OK",
+        "critical": "CRIT",
+        "warning": "WARN",
+        "ok": "OK",
+        "success": "OK",
+        "unknown": "?",
+    }
     return icons.get(status, "?")
 
 
@@ -319,21 +332,21 @@ def print_dashboard() -> None:
     if crawl.get("error"):
         print(f"    ERROR: {crawl['error']}")
     else:
-        print(f"    Runs today: {crawl.get('total_today', 0)}  |  "
-              f"Runs this week: {crawl.get('total_week', 0)}")
-        print(f"    {'Source':20s} {'Runs':>5s} {'OK':>4s} {'Fail':>5s} "
-              f"{'Rate':>7s} {'Fetched':>8s} {'Last run':>20s}")
-        print(f"    {'-'*20} {'-'*5} {'-'*4} {'-'*5} {'-'*7} {'-'*8} {'-'*20}")
+        print(f"    Runs today: {crawl.get('total_today', 0)}  |  Runs this week: {crawl.get('total_week', 0)}")
+        print(f"    {'Source':20s} {'Runs':>5s} {'OK':>4s} {'Fail':>5s} {'Rate':>7s} {'Fetched':>8s} {'Last run':>20s}")
+        print(f"    {'-' * 20} {'-' * 5} {'-' * 4} {'-' * 5} {'-' * 7} {'-' * 8} {'-' * 20}")
         for src in crawl.get("sources", []):
             rate = f"{src.get('success_rate', 0):.0f}%"
             last = (src.get("last_run") or "N/A")[:19]
-            print(f"    {src['source']:20s} "
-                  f"{src['total_runs']:5d} "
-                  f"{src['successful']:4d} "
-                  f"{src['failed']:5d} "
-                  f"{rate:>7s} "
-                  f"{src['fetched']:8d} "
-                  f"{last:>20s}")
+            print(
+                f"    {src['source']:20s} "
+                f"{src['total_runs']:5d} "
+                f"{src['successful']:4d} "
+                f"{src['failed']:5d} "
+                f"{rate:>7s} "
+                f"{src['fetched']:8d} "
+                f"{last:>20s}"
+            )
 
     # Backup
     print()
@@ -367,9 +380,11 @@ def print_dashboard() -> None:
         for a in alerts.get("alerts", []):
             sev = {0: "INFO", 1: "WARN", 2: "CRIT"}.get(a["severity"], "?")
             print(f"    [{sev}] [{a['category']}] {a['title']}")
-    print(f"    Total: {alerts.get('total', 0)} "
-          f"(critical={alerts.get('critical', 0)}, "
-          f"warnings={alerts.get('warnings', 0)})")
+    print(
+        f"    Total: {alerts.get('total', 0)} "
+        f"(critical={alerts.get('critical', 0)}, "
+        f"warnings={alerts.get('warnings', 0)})"
+    )
 
     print()
     print("=" * 70)
@@ -404,14 +419,10 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Extra Consultoria — Health Dashboard",
     )
-    p.add_argument("--summary", action="store_true",
-                   help="One-line summary suitable for monitoring")
-    p.add_argument("--json", action="store_true",
-                   help="JSON output")
-    p.add_argument("--watch", action="store_true",
-                   help="Auto-refresh every 60 seconds")
-    p.add_argument("--interval", type=int, default=60,
-                   help="Refresh interval in seconds (default: 60)")
+    p.add_argument("--summary", action="store_true", help="One-line summary suitable for monitoring")
+    p.add_argument("--json", action="store_true", help="JSON output")
+    p.add_argument("--watch", action="store_true", help="Auto-refresh every 60 seconds")
+    p.add_argument("--interval", type=int, default=60, help="Refresh interval in seconds (default: 60)")
     return p.parse_args()
 
 

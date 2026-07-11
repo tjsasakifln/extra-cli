@@ -25,6 +25,7 @@ def _logger():
     global _LOGGER
     if _LOGGER is None:
         import logging
+
         _LOGGER = logging.getLogger(__name__)
     return _LOGGER
 

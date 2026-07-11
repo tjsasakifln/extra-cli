@@ -1,158 +1,199 @@
 # Domínio — Extra Consultoria
 
-> Gerado pelo Detective em 2026-07-11T14:00:00Z
+> Gerado pelo Detective em 2026-07-11T21:30:00Z
 > doc_level: completo
+> Base: commit e9729e1 (EPIC-FEAT-001 + EPIC-TD-001)
 
 ---
 
-## Glossário
+## Glossário de Domínio
 
 | Termo | Definição | Fonte |
-|-------|-----------|-------|
-| **Licitação** | Processo formal de contratação pública. Registrado em `pncp_raw_bids`. | PNCP, DOM-SC, PCP, ComprasGov |
-| **Edital** | Documento que define o objeto, regras e condições da licitação. | PNCP |
-| **Órgão público** | Entidade publicante (prefeitura, secretaria, autarquia). 2.085 cadastrados em SC. | `sc_public_entities` |
-| **Modalidade** | Tipo de licitação: 4=Concorrência, 5=Pregão Eletrônico, 6=Pregão Presencial, 7=Dispensa, 8=Inexigibilidade, etc. | PNCP |
-| **Esfera** | Nível de governo: 1=Federal, 2=Estadual, 3=Municipal. | PNCP |
-| **CNPJ base (8 dígitos)** | Prefixo de 8 dígitos do CNPJ que identifica a entidade matriz. Usado para entity matching. | BrasilAPI |
-| **Raio 200km** | Distância de Florianópolis. Órgãos dentro deste raio são prioridade máxima (cobertura 100%). | `sc_public_entities.raio_200km` |
-| **Cobertura** | Percentual de órgãos SC que tiveram pelo menos 1 licitação capturada nos últimos 90 dias. Meta: 100%. | `entity_coverage` |
-| **CNAE** | Classificação Nacional de Atividades Econômicas. Usado para filtrar licitações relevantes por setor. | Receita Federal |
-| **Setor** | Categoria de negócio com CNAEs, heurísticas e perfis de peso próprios. 13 setores configurados. | `sectors_config.yaml` |
-| **Pipeline Intel** | Fluxo de 7 estágios que coleta e analisa licitações para 1 CNPJ alvo, gerando relatório PDF+Excel. | `intel_pipeline.py` |
-| **Entity Matching** | Processo de associar uma licitação (`pncp_raw_bids`) a um órgão cadastrado (`sc_public_entities`). Cascade de 3 níveis. | `monitor.py:_match_entities_cascade` |
-| **Ingestion Run** | Execução individual de um crawler, registrada em `ingestion_runs` para auditoria. | `monitor.py` |
-| **Content Hash** | SHA-256 do conteúdo canonicalizado (objeto+valor+situação). Evita upserts redundantes. | `transformer.py` |
-| **Purge** | Limpeza de registros com mais de 400 dias (`INGESTION_PURGE_GRACE_DAYS`). | `purge_rpc` |
-| **Gap Fill** | Estratégia de buscar licitações em portais de transparência para órgãos não cobertos pelas fontes principais. | `transparencia_crawler.py` |
-| **Zero Noise** | Filosofia: na dúvida, REJECT. Classificação LLM só aprova com alta confiança. Fallback = rejeitar. | `intel_llm_gate.py` |
-| **BDI** | Bonificação e Despesas Indiretas. Percentual sobre custo direto que cobre overhead + lucro. Referência: 25% para engenharia. | `bid_simulator.py` |
-| **HHI** | Herfindahl-Hirschman Index. Medida de concentração de mercado usada para estimar número de concorrentes. | `bid_simulator.py` |
-| **HETZNER** | Provedor de VPS (Nuremberg, Alemanha). Plano CX43 (€15.99/mo, 8GB RAM, 160GB SSD). | `docs/guides/hetzner-supabase-plan.md` |
+|-------|----------|-------|
+| **Edital** | Licitação pública registrada no sistema. Unidade central de análise. | `pncp_raw_bids` |
+| **Ente público** | Órgão da administração pública (prefeitura, câmara, fundo, autarquia) de Santa Catarina. | `sc_public_entities` |
+| **Modalidade** | Tipo de licitação: Concorrência(4), Pregão Eletrônico(5), Pregão Presencial(6), Contratação Direta(7), Inexigibilidade(8), Credenciamento(12) | `modalidade_id` |
+| **Esfera** | Nível de governo: Federal(F), Estadual(E), Municipal(M), Distrital(D) | `esfera_id` |
+| **Coverage** | Percentual de entes públicos monitorados que tiveram licitações capturadas nos últimos 90 dias por fonte | `entity_coverage` |
+| **CNAE** | Classificação Nacional de Atividades Econômicas. Prefixos de 4 dígitos mapeiam empresa a setores de licitação | `sectors_config.yaml` |
+| **Intel Pipeline** | Pipeline de 7 estágios que transforma CNPJ em relatório executivo de inteligência de mercado | `intel_pipeline.py` |
+| **Quality Gate** | Ponto de validação entre estágios do pipeline. 5 gates bloqueiam progressão se critérios não atendidos | `intel_pipeline.py:gates` |
+| **Content Hash** | SHA-256 de campos-chave do edital para deduplicação cross-source | `common.py:generate_content_hash` |
+| **Entity Match** | Vinculação de um edital ao ente público correspondente via cascade 3 níveis | `entity_matcher.py` |
+| **Bid Score** | Score 0-1 de adequação estratégica de um edital para uma empresa, calculado em 7 dimensões | `intel-analyze.py:_compute_bid_score` |
+| **HHI** | Índice Herfindahl-Hirschman de concentração de mercado. Soma dos quadrados das fatias de mercado | `intel-collect.py:_compute_intel_metrics` |
+| **Soft-delete** | Marcação `is_active=FALSE` em vez de DELETE físico. Retenção de 400 dias antes de hard-delete | `purge_old_bids()` |
+| **Source** | Fonte de dados de licitações: pncp, dom_sc, doe_sc, pcp, compras_gov, sc_compras, tce_sc, transparencia, contracts | `monitor.py:SOURCES` |
+| **Checkpoint** | Marcação de progresso de crawler para retomada após interrupção. Evita re-processamento | `ingestion_checkpoints` |
+| **Snapshot** | Registro semanal de cobertura para análise de tendência temporal | `coverage_snapshots` |
 
 ---
 
-## Regras de Negócio
+## Regras de Negócio Implícitas
 
-### R1 — Cobertura 100% raio 200km
-🟢 **CONFIRMADO** — `monitor.py:348-414`, `config/settings.py:110-111`
+### R1: Filtro de Engenharia (Crawl)
+**Regra:** Licitações do PNCP são filtradas por 17 keywords de engenharia civil. Registros sem match em `objeto_compra` são descartados.
 
-Todos os 2.085 órgãos públicos de SC dentro do raio de 200km de Florianópolis devem ser monitorados. Cobertura abaixo de 100% gera alerta (`report_coverage` retorna exit code 1 se uncovered > 0). Janela de 90 dias (`COVERAGE_WINDOW_DAYS`).
+🟢 CONFIRMADO — `pncp_crawler_adapter.py:_transform_record()`. Keywords: "construç", "obra", "engenharia", "paviment", "infraestrutura", "edificaç", "saneamento", "drenagem", "terraplanagem", "fundação", "estrutural", "rodovi", "pontilh", "concreto", "asfal", "manutenção predial", "reforma".
 
-### R2 — Cascade de Entity Matching
-🟢 **CONFIRMADO** — `monitor.py:142-341`
+### R2: Janela de Cobertura (Coverage)
+**Regra:** Um ente público é considerado "coberto" por uma fonte se teve pelo menos 1 licitação capturada nos últimos 90 dias. A janela é calculada via `GREATEST(last_seen_at, CURRENT_DATE - 90)`.
 
-Toda licitação ingerida passa por matching em 3 níveis sequenciais:
-1. **CNPJ** (score 1.0, confidence "high") — match exato pelo prefixo de 8 dígitos
-2. **Nome normalizado + IBGE** (score 1.0, confidence "high") — nome normalizado com constraint de município
-3. **Fuzzy** (threshold 0.85, confidence "high"/"medium"/"low") — similaridade de string com candidatos filtrados por IBGE
+🟢 CONFIRMADO — `update_entity_coverage()` trigger function, `COVERAGE_WINDOW_DAYS=90`.
 
-Bids sem match são marcados `match_method="unmatched"` e aparecem em `v_unmatched_bids`.
+### R3: Raio de 200km (Geo-foco)
+**Regra:** Entes públicos são classificados como `within_200km` se sua distância de Florianópolis (calculada via Haversine) for ≤ 200km. Usado como filtro primário de relevância geográfica.
 
-### R3 — Dedup por Content Hash
-🟢 **CONFIRMADO** — `transformer.py:30-44`, `db/migrations/001:18`
+🟢 CONFIRMADO — `seed_sc_entities.py:haversine_km()`, `sc_public_entities.raio_200km`.
 
-Licitações com mesmo `content_hash` (SHA-256 de objeto+valor+situação canonicalizados) são tratadas como duplicatas. A RPC `upsert_pncp_raw_bids` usa `ON CONFLICT (content_hash) DO UPDATE`.
+### R4: Capacidade Financeira 10× (Intel Pipeline)
+**Regra:** Apenas licitações com valor estimado ≤ 10× o capital social da empresa são consideradas viáveis. As que excedem vão para "consórcio" ou são descartadas.
 
-### R4 — Retenção de 400 dias
-🟢 **CONFIRMADO** — `config/settings.py:92`
+🟢 CONFIRMADO — `intel-enrich.py:271-284`, `intel-extract-docs.py:select_top_editais()`.
 
-Registros com mais de 400 dias (`INGESTION_PURGE_GRACE_DAYS`) são removidos pela RPC `purge_old_records()` executada diariamente às 04:00 UTC.
+### R5: Threshold de Participação (Bid/No-Bid)
+**Regra:** Score combinado < 0.45 força recomendação "NAO PARTICIPAR". Scores são calculados em 7 dimensões ponderadas.
 
-### R5 — Zero Noise na Classificação LLM
-🟢 **CONFIRMADO** — `intel_llm_gate.py`, `sectors_config.yaml:2097-2115`
+🟢 CONFIRMADO — `intel-analyze.py:BID_SCORE_THRESHOLD=0.45`.
 
-Classificação de editais via LLM adota filosofia "na dúvida, rejeite". Fallback em caso de erro na API = REJECT. Threshold de confiança configurável por setor (default 0.40-0.55). Só passa se o LLM responder "SIM".
+### R6: Override de Recomendação (Intel Pipeline)
+**Regra:** 6 regras mandatórias que sobrescrevem qualquer análise LLM:
+1. Status EXPIRADO → NAO PARTICIPAR
+2. Empresa sancionada (CEIS/CNEP) → NAO PARTICIPAR
+3. CNAE confidence = 0% → NAO PARTICIPAR
+4. CNAE < 20% AND victory_fit < 15% → NAO PARTICIPAR
+5. Bid score < 0.20 → NAO PARTICIPAR
+6. Nivel_dificuldade.geral ∉ {BAIXO, MEDIO, ALTO} → inválido
 
-### R6 — Classificação Setorial em 2 Camadas
-🟢 **CONFIRMADO** — `sectors_config.yaml`
+🟢 CONFIRMADO — `intel-validate.py:499-579`.
 
-1. **Camada 1 (heurísticas):** Patterns `strong_compat`, `strong_incompat`, `weak_compat` e `cross_sector_exclusions` aplicados ao objeto da licitação
-2. **Camada 2 (LLM fallback):** Acionada quando a confiança da Camada 1 fica abaixo de `cnae_gate_threshold`
+### R7: Hard Incompatible Patterns (CNAE Gate)
+**Regra:** 4 combinações CNAE+regex que forçam INCOMPATÍVEL independente de outras evidências:
+1. software/sistema/erp quando CNAE é construção (42/43/41)
+2. alimentação/refeição quando CNAE é engenharia (71/42/43)
+3. limpeza/conservação quando CNAE é construção (42/43/41)
+4. concessão/zona azul quando CNAE é construção (42/43/41)
 
-Cada setor tem seu próprio threshold e padrões independentes.
+🟢 CONFIRMADO — `intel-validate.py:HARD_INCOMPATIBLE_PATTERNS`.
 
-### R7 — Modalidades Prioritárias por Setor
-🟢 **CONFIRMADO** — `sectors_config.yaml`
+### R8: Dedup Cross-Source (Crawl)
+**Regra:** Registros de fontes diferentes representando a mesma licitação são identificados via content_hash SHA-256 e unificados no upsert (ON CONFLICT DO NOTHING).
 
-Cada setor define `priority_modalidades`. Engenharia prioriza [4,5,6,7] (Concorrência, Pregão Eletrônico, Pregão Presencial, Dispensa). Software prioriza [5,4,8] (Pregão, Concorrência, Inexigibilidade).
+🟢 CONFIRMADO — `upsert_pncp_raw_bids()`, `common.py:generate_content_hash()`.
 
-### R8 — Soft Delete
-🟢 **CONFIRMADO** — `db/migrations/001:30,50-51`
+### R9: Retenção e Purge (Database)
+**Regra:** Licitações são soft-deletadas após 400 dias da data de publicação. Após +90 dias em soft-delete, são removidas permanentemente (hard-delete).
 
-Registros nunca são deletados fisicamente em operação normal. Usam `is_active = FALSE` (soft delete). Views e queries filtram `WHERE is_active = TRUE`.
+🟢 CONFIRMADO — `purge_old_bids(400)`, `purge_old_bids_hard(90)`.
 
-### R9 — Staggered Crawl Schedule
-🟢 **CONFIRMADO** — `deploy/systemd/*.timer`
+### R10: Cache de Enriquecimento (Database)
+**Regra:** Dados de enriquecimento (BrasilAPI, IBGE) têm TTL de 90 dias. Registros stale (>30 dias sem update) são re-enriquecidos.
 
-Crawlers têm horários escalonados para evitar sobreposição e rate limiting das APIs:
-- PNCP full: 05:00 UTC (diário)
-- PNCP inc: 11:00, 17:00, 23:00 UTC
-- DOM-SC: 06:00, 14:00, 22:00 UTC
-- Purge: 04:00 UTC
-- Reports: 07:00-09:00 UTC
+🟢 CONFIRMADO — `ttl_cleanup_enriched_entities(90)`, `ENTITY_ENRICHMENT_TTL_DAYS=30`.
 
-`RandomizedDelaySec=300` em todos os timers para evitar picos exatos.
+### R11: Limite de Documentos por Edital (Intel Pipeline)
+**Regra:** Máximo de 3 documentos baixados por edital (prioridade: edital > termo de referência > planilha). Download limitado a 50MB por arquivo. Texto extraído limitado a 60K caracteres por edital.
 
-### R10 — Enriquecimento com TTL de 30 dias
-🟢 **CONFIRMADO** — `config/settings.py:116`
+🟢 CONFIRMADO — `intel-extract-docs.py:MAX_DOCS_PER_EDITAL=3, MAX_DOWNLOAD_BYTES=50MB, MAX_TEXT_PER_EDITAL=60000`.
 
-Entidades enriquecidas via BrasilAPI têm TTL de 30 dias (`ENTITY_ENRICHMENT_TTL_DAYS`). Após esse período, são re-enriquecidas para refletir mudanças cadastrais.
+### R12: Frequência de Crawl por Fonte (Deploy)
+**Regra:** Cada fonte tem frequência de atualização específica baseada na criticidade e volume:
+- PNCP: full diário (05:00 UTC) + incremental 3×/dia
+- DOM-SC: 3×/dia (06, 14, 22 UTC)
+- DOE-SC: diário (03:00 UTC)
+- TCE-SC: diário (05:30 UTC)
+- Contratos: 3×/semana (Mon, Wed, Fri)
+- Transparência: semanal (domingo)
 
-### R11 — 5 Dimensões de Scoring
-🟢 **CONFIRMADO** — `sectors_config.yaml` (weight_profile por setor)
+🟢 CONFIRMADO — 20 systemd timer files.
 
-Todo edital analisado recebe score em 5 dimensões com pesos configuráveis por setor:
-- **HAB** (habilitação): capital mínimo, atestados, certificações
-- **FIN** (financeiro): valor do edital vs capital, margem esperada
-- **GEO** (geográfico): distância, raio de atuação
-- **PRAZO** (timeline): tempo até abertura, compatibilidade com cronograma
-- **COMP** (competitivo): número esperado de concorrentes, HHI
+### R13: Isolamento de Schema por Source (Database)
+**Regra:** Cada fonte de dados tem seu próprio schema de validação e transformação, mas todos convergem para `pncp_raw_bids` unificado. A coluna `source` preserva a proveniência.
 
-### R12 — Timeline Rules por Setor
-🟢 **CONFIRMADO** — `sectors_config.yaml` (timeline_rules por setor)
+🟢 CONFIRMADO — Todos os crawlers implementam `transform() → pncp_raw_bids schema`.
 
-Prazo mínimo para participação varia por faixa de valor e setor:
-- Até R$500k: 7-30 dias (depende do setor)
-- R$500k-R$2M: 10-60 dias
-- Acima de R$2M: 15-90 dias
+### R14: Keyword Gate Probabilístico (Intel Pipeline)
+**Regra:** A compatibilidade CNAE de um edital é calculada probabilisticamente:
+- Base: densidade de keywords no objeto (cap 60%)
+- Bônus: +20% strong_compatible, +10% weak_compatible
+- Penalidade: -30% exclusion match
+- Bônus CNAE: +10% se prefix match
+- Threshold: ≥ 35% = COMPATÍVEL, < 35% = INCOMPATÍVEL
+- Casos ambíguos (confidence < 40%): fallback para GPT-4.1-nano
 
-### R13 — Single-User, Sem Auth
-🟢 **CONFIRMADO** — PRD, `config/settings.py`
+🟢 CONFIRMADO — `intel-collect.py:apply_cnae_keyword_gate()`.
 
-Sistema single-user (Tiago Sasaki). Acesso direto ao PostgreSQL sem RLS. Sem autenticação, sem RBAC, sem multi-tenancy. Decisão explícita de arquitetura: "Single user, sem REST overhead".
+### R15: Competição por HHI (Intel Pipeline)
+**Regra:** Nível de concorrência classificado por HHI: ≤2=BAIXA, ≤5=MEDIA, ≤10=ALTA, >10=MUITO_ALTA. Afeta P(vitória) e recomendação.
 
-### R14 — Exclusividade CLI
-🟢 **CONFIRMADO** — PRD (W1: Won't Have)
+🟢 CONFIRMADO — `intel-collect.py:_compute_intel_metrics()`.
 
-Interface web explicitamente excluída do escopo. Toda interação via terminal (SSH no Hetzner ou WSL local). Relatórios em PDF para apresentação ao decisor.
+### R16: Zero False Negative Philosophy (Intel Pipeline)
+**Regra:** Pipeline de coleta prioriza recall sobre precision. Prefere incluir editais borderline e deixar o CNAE gate + LLM filtrar, a arriscar perder oportunidades por filtragem precoce.
 
----
+🟡 INFERIDO — Consistente com 12 sub-etapas de coleta, keyword gate probabilístico, e LLM fallback. Não declarado explicitamente, mas evidente no design.
 
-## Decisões Extraídas do Git
+### R17: Single Tenant (Arquitetura)
+**Regra:** Sistema opera como single-tenant para Extra Construtora. Não há isolamento multi-cliente. Configurações de setor, CNAE e keywords são específicas para engenharia civil.
 
-| Decisão | Commit | Data | Impacto |
-|---------|--------|------|---------|
-| Migração smartlic.tech → standalone | `ceecf7b` | 2026-07-10 | Remove SaaS multi-tenant, adota PostgreSQL direto |
-| Remove Supabase, usa só psycopg2 | `4aa9e4f` | 2026-07-10 | Simplifica stack: sem REST, sem Supabase |
-| Sync HTTP em vez de async/ARQ | `352dac5` | 2026-07-10 | Crawlers usam urllib sync. Motivo: "Simples, sem asyncio para cron" |
-| PNCP chunking 1-dia com delay 150ms | `c5df622` | 2026-07-10 | Evita 429 Too Many Requests da API PNCP |
-| Entity matching com rapidfuzz | `5359cdb` | 2026-07-10 | Substitui CNPJ-only por cascade 3 níveis. Fallback difflib se rapidfuzz indisponível |
-| Systemd em vez de Redis/ARQ | `c062f0a` | 2026-07-10 | "Nativo Linux, sem Redis/ARQ" |
-| Filtro keywords engenharia no crawler | `352dac5` | 2026-07-10 | Reduz ruído: só coleta licitações com keywords de engenharia civil |
-| Template onFailure para webhook | `c150922` | 2026-07-10 | Notificação de falha em qualquer serviço systemd |
-| QA gates CONCERNS → Done | `92c458a` | 2026-07-10 | 28 issues documentados, 0 críticos. Todas as 7 stories aprovadas |
+🟡 INFERIDO — Hardcoded "Extra Construtora" em PDFs, keywords de engenharia, foco SC. Adaptável via config, mas não multi-tenant.
 
 ---
 
-## Lacunas Identificadas 🔴
+## Eventos de Negócio Monitorados
 
-| ID | Descrição | Localização | Severidade |
-|----|-----------|-------------|------------|
-| L1 | AC7 e AC8 do Story 001.3 requerem validação manual com DB real — fuzzy matching não verificado em produção | `story-001.3-entity-name-matching.md` | MÉDIA |
-| L2 | 🟡 Cobertura de testes <30% — plano definido: Claude gera suíte completa para crawl/intel/reports/lib | Projeto inteiro | ALTA → planejada |
-| L3 | 🟡 SICAF ativado — Playwright será instalado, sanctions.py ativo | `scripts/crawl/sanctions.py` | BAIXA → planejada |
-| L4 | 🟡 Dashboard TUI priorizado; Alertas Telegram postergado | PRD (Could Have) | BAIXA → planejada |
-| L5 | 🟡 Integração DOE-SC priorizada para próximo ciclo | PRD (Could Have) | MÉDIA → planejada |
-| L6 | 🟡 Sazonalidade: heatmap por setor + previsão de volume definidos | PRD (Should Have) | BAIXA → planejada |
-| L7 | 🟡 Dashboard completo de health dos crawlers planejado (web ou TUI) | `deploy/systemd/` | MÉDIA → planejada |
+| Evento | Onde | Severidade |
+|--------|------|-----------|
+| Crawl concluído com sucesso | `ingestion_runs.status='completed'` | INFO |
+| Crawl falhou (API fora, timeout) | `ingestion_runs.status='failed'` + webhook | HIGH |
+| Circuit breaker aberto para fonte | `circuit_breaker.degraded` | MEDIUM |
+| Entidade sancionada detectada | `sanctions.py:is_sanctioned=True` | HIGH |
+| Cobertura abaixo do target | `coverage_weekly.py:gap detection` | MEDIUM |
+| Disco baixo (<10%) | `check-alerts.py` | CRITICAL |
+| Backup falhou | `backup-database.sh` exit ≠ 0 + webhook | CRITICAL |
+| API key inválida/expirada | Crawlers 401 → log ERROR | HIGH |
+| Documento corrompido/OCR trigger | `intel-extract-docs.py: avg_chars<100` | LOW |
+| Migration pendente | `verify-schema-divergence.sh` | MEDIUM |
+| Delta detectado (NOVO/ATUALIZADO) | `intel-collect.py:_detect_delta()` | INFO |
+
+---
+
+## Constantes de Domínio
+
+| Constante | Valor | Significado |
+|-----------|-------|------------|
+| `COVERAGE_WINDOW_DAYS` | 90 | Janela para considerar ente "coberto" |
+| `INGESTION_MODALIDADES` | {4,5,6,7} | Modalidades buscadas (exclui inexigibilidade e credenciamento) |
+| `INGESTION_UFS` | ['SC'] | UFs monitoradas |
+| `BID_SCORE_THRESHOLD` | 0.45 | Nota mínima para recomendar participação |
+| `CNAE_CONFIDENCE_THRESHOLD` | 0.35 | Confiança mínima para classificar como compatível |
+| `ENTITY_MATCH_FUZZY_THRESHOLD` | 0.85 | Similaridade mínima para match fuzzy |
+| `MAX_CAPACITY_MULTIPLIER` | 10 | Teto de valor de edital como múltiplo do capital social |
+| `PURGE_RETENTION_DAYS` | 400 | Dias antes de soft-delete |
+| `PURGE_HARD_RETENTION_DAYS` | 90 | Dias em soft-delete antes de hard-delete |
+| `ENRICHMENT_TTL_DAYS` | 90 | TTL do cache de enriquecimento |
+| `SANCTIONS_CACHE_TTL_HOURS` | 24 | TTL do cache de sanções |
+| `MAX_DOCS_PER_EDITAL` | 3 | Máximo de documentos baixados por edital |
+| `MAX_DOWNLOAD_BYTES` | 50MB | Limite de download por arquivo |
+| `MAX_TEXT_PER_EDITAL` | 60K chars | Limite de texto extraído por edital |
+
+---
+
+## Fontes de Evidência
+
+| Fonte | Tipo | Artefatos |
+|-------|------|-----------|
+| Código Python | 🟢 CONFIRMADO | 139 arquivos, 98K LOC |
+| Migrations SQL | 🟢 CONFIRMADO | 19 v1 + 5 v2 |
+| Git log | 🟢 CONFIRMADO | 20 commits, 3 epics |
+| Config YAML | 🟢 CONFIRMADO | 13 setores, 8.8K LOC |
+| Systemd units | 🟢 CONFIRMADO | 40 arquivos |
+| Docs | 🟡 INFERIDO | nem todos os docs lidos |
+
+---
+
+## Lacunas 🔴
+
+1. **LACUNA** — Não há documentação explícita do modelo de negócio da Extra Consultoria (quem são os clientes, como o serviço é vendido, ticket médio). O sistema sabe gerar propostas mas o contexto comercial está implícito.
+2. **LACUNA** — Transição `monitor.py` → `orchestrator.py` não tem decisão documentada. Dois orquestradores coexistem sem critério claro de qual usar.
+3. **LACUNA** — Schema real do banco diverge das migrations em 5 pontos críticos. Não há plano de reconciliação documentado.

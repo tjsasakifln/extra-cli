@@ -182,9 +182,14 @@ def get_logger(name: str, level: str | None = None) -> logging.Logger:
                 # Emit a one-time warning via the handler itself
                 handler.format(
                     logging.LogRecord(
-                        name, logging.WARNING, __file__, 0,
-                        "File logging unavailable (%s) — falling back to stderr", (str(e),),
-                        None, None,
+                        name,
+                        logging.WARNING,
+                        __file__,
+                        0,
+                        "File logging unavailable (%s) — falling back to stderr",
+                        (str(e),),
+                        None,
+                        None,
                     ),
                 )
         else:

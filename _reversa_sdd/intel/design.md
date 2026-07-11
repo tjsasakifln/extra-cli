@@ -1,76 +1,63 @@
-# Design — Módulo `intel`
+# Intel Pipeline — Design (v1.5)
 
-> 🟢 CONFIRMADO — extraído de `intel_pipeline.py`, `sectors_config.yaml`
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | **Corrigido:** 2026-07-11 (snake_case canônico)
+> doc_level: completo
 
-## Arquitetura de Pipeline
+## ⚠️ Nomenclatura: snake_case = canônico v1.5
 
-```
-intel_pipeline.py (orquestrador, 7 stages via subprocess.run)
-  │
-  ├── Stage 1: intel_collect.py → DataLake + PNCP API
-  │   └── Busca licitações ativas para CNPJ nas UFs, dedup
-  │
-  ├── [GATE 1: Cobertura] >= 80% entidades?
-  │
-  ├── Stage 2: intel_enrich.py → BrasilAPI + IBGE
-  │   └── Enriquece CNPJ com razão social, CNAEs, município
-  │
-  ├── [GATE 2: Cadastral] CNPJ válido? CNAEs compatíveis?
-  │
-  ├── Stage 3: intel_llm_gate.py → OpenAI GPT-4.1-nano
-  │   └── Classificação binária (SIM/NAO) + zero-noise (REJECT on fail)
-  │
-  ├── [GATE 3: Ruído] Edital relevante?
-  │
-  ├── Stage 4: intel_extract_docs.py → PNCP Files API
-  │   └── Download de editais (PDF/HTML), extração de keywords
-  │
-  ├── [GATE 4: Conteúdo] Contém keywords engenharia?
-  │
-  ├── Stage 5: intel_analyze.py → OpenAI GPT-4.1-nano
-  │   └── Análise 5 dimensões: HAB, FIN, GEO, PRAZO, COMP
-  │
-  ├── Stage 6: intel_validate.py
-  │   └── Cross-check scores, valida integridade
-  │
-  ├── [GATE 5: Recomendação] Score >= threshold?
-  │
-  └── Stage 7: intel_report.py + intel_excel.py
-      └── PDF (ReportLab) + Excel (openpyxl)
-```
+Scripts intel em DUAS convenções. `intel_pipeline.py` referencia snake_case: `intel_collect.py`, `intel_enrich.py`, etc. Kebab-case é legado.
 
-## Sistema de Scoring (5 Dimensões)
-
-Cada edital recebe score de 0.0 a 1.0 em:
-
-| Dimensão | Peso (engenharia) | O que avalia |
-|----------|-------------------|--------------|
-| **HAB** (habilitação) | 0.25 | Capital mínimo, atestados técnicos, certidões fiscais |
-| **FIN** (financeiro) | 0.30 | Valor do edital vs capital social, margem esperada |
-| **GEO** (geográfico) | 0.25 | Distância da obra, raio de atuação, logística |
-| **PRAZO** (timeline) | 0.15 | Tempo até abertura, compatibilidade com cronograma |
-| **COMP** (competitivo) | 0.05 | Nº esperado de concorrentes (HHI), win rate do setor |
-
-Score final = Σ(dimensão × peso). Threshold: >= 0.55 (cnae_gate_threshold).
-
-## Classificação Setorial
+## Arquitetura Real do Pipeline
 
 ```
-1. Heurísticas (Camada 1) — sectors_config.yaml
-   ├── strong_compat patterns → MATCH direto (confidence alta)
-   ├── strong_incompat patterns → REJECT direto
-   ├── weak_compat patterns → BAIXA confiança → aciona Camada 2
-   └── cross_sector_exclusions → REJECT
-
-2. LLM Fallback (Camada 2) — acionado se confiança < cnae_gate_threshold
-   └── OpenAI GPT-4.1-nano com prompt: "SIM" ou "NAO"
+main() → [S1] intel_collect.py → [G1 inline] → [S2] intel_enrich.py → [G2 inline]
+→ [S3] intel_llm_gate.py → [G3 inline] → [S4] intel_extract_docs.py → [G4 inline]
+→ [S5] intel-analyze.py --prepare (manual, kebab!) → [S6] intel_excel.py → [G5 inline] → [S7] intel_report.py
 ```
 
-## Decisões de Design
+Gates G1-G5 são funções inline em `intel_pipeline.py`. `intel_validate.py` é validador standalone (não parte do pipeline).
 
-| Decisão | Escolha | Razão |
-|---------|---------|-------|
-| Orquestração | `subprocess.run()` por stage | Isolamento de falhas, timeout por stage, independência |
-| LLM | GPT-4.1-nano (mais barato) | Custo ~$0.0001/edital, qualidade suficiente para classificação binária |
-| Zero-noise | REJECT on API error | Falso positivo é pior que falso negativo |
-| Fallback | Heurísticas YAML → LLM | 80%+ resolvido por regras, LLM só em casos ambíguos |
+## Estágios (snake_case, v1.5)
+
+### S1: intel_collect.py (138KB, 3420 linhas)
+- **v1.5:** `_RATE_LIMIT_MAX_S=30.0` (was 2.0s), 429-specific backoff, chunked mode, per-combo 429 counters, sector-filtered benchmark, TCU_INDISPONIVEL
+- 12 sub-etapas, AdaptiveRateLimiter, CNAE gate (threshold 35%), semantic dedup, HHI
+
+### S2: intel_enrich.py
+- SICAF, sanctions, OSRM, IBGE, cost estimation, bid simulation, victory profile
+
+### S3: intel_llm_gate.py (13KB) — **não descoberto pelo Scout original**
+- `_load_sectors_yaml()`, `_build_pos_kw_from_sectors()`
+- Reclassifica ambíguos via GPT-4.1-nano
+
+### S4: intel_extract_docs.py
+- PDF cascade, ZIP/RAR, XLSX. Seleção top20 5-pass.
+
+### S5: intel-analyze.py (kebab — inconsistência na linha 801)
+- 3 modos, bid score 7D, 21 campos, adversarial review
+
+### S6: intel_excel.py — 4 sheets, 31 colunas
+
+### S7: intel_report.py — 9 seções, Big Four
+
+## Quality Gates (inline em intel_pipeline.py)
+
+| Gate | Função | Linhas | Lógica |
+|------|--------|--------|--------|
+| G1: Cobertura | `gate1_cobertura()` | 215-284 | API status, total > 0, UF coverage |
+| G2: Cadastral | `gate2_cadastral()` | 286-360 | Sanctions, SICAF, enrichment ≥ 50% |
+| G3: Ruído | `gate3_ruido()` | 362-444 | Compat ratio 5-80%, zero needs_llm_review |
+| G4: Conteúdo | `gate4_conteudo()` | 446-550 | Doc coverage ≥ 50%, watermark, dedup |
+| G5: Recomendação | `gate5_recomendacao()` | 549-720 | Remove NAO PARTICIPAR, 10× capacity |
+
+**Timeout v1.5:** `TIMEOUT_COLLECT = 1800` (30 min, was 600s)
+
+## Scripts Snake-Only (não analisados em profundidade)
+
+| Script | Tamanho | Função |
+|--------|---------|--------|
+| `intel_llm_gate.py` | 13KB | S3: LLM reclassification |
+| `intel_sector_loader.py` | 19KB | 20+ funções de config setorial |
+
+🟡 INFERIDO — Pipeline verificado em `intel_pipeline.py` (49KB). Scripts snake_case analisados parcialmente.
+🔴 LACUNA — `intel_llm_gate.py` e `intel_sector_loader.py` sem análise profunda.

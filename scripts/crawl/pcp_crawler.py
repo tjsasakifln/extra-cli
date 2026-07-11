@@ -25,12 +25,13 @@ import time
 import unicodedata
 import urllib.error
 import urllib.request
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
-from typing import Any
 
 from scripts.crawl.common import (
     generate_content_hash as _common_content_hash,
+)
+from scripts.crawl.common import (
     parse_date as _parse_date,
 )
 from scripts.crawl.security import USER_AGENT, sanitize_url_param
@@ -53,11 +54,7 @@ PCP_READ_TIMEOUT = int(os.getenv("PCP_READ_TIMEOUT", "30"))
 PCP_MAX_RETRIES = int(os.getenv("PCP_MAX_RETRIES", "2"))
 PCP_REQUEST_DELAY = float(os.getenv("PCP_REQUEST_DELAY", "0.2"))  # 200ms between pages
 
-INGESTION_UFS = [
-    u.strip().upper()
-    for u in os.getenv("INGESTION_UFS", "SC").split(",")
-    if u.strip()
-]
+INGESTION_UFS = [u.strip().upper() for u in os.getenv("INGESTION_UFS", "SC").split(",") if u.strip()]
 
 # ---------------------------------------------------------------------------
 # Modalidade mapping (string names -> numeric IDs)
@@ -118,18 +115,44 @@ def _map_modalidade(raw: str) -> tuple[int, str]:
 # ---------------------------------------------------------------------------
 
 _ESFERA_ESTADUAL_KEYWORDS = [
-    "secretaria de estado", "secretaria da", "governo do estado",
-    "fundo estadual", "companhia", "santa catarina",
-    "deinfra", "udesc", "jucesc", "detran", "ima", "imetro",
-    "aresc", "iprev", "fapesc", "fcc", "fcee", "fesporte",
-    "ciasc", "badesc", "scpar", "scgas", "ceasa", "cidasc",
-    "santur", "sudes", "pcisc", "ena",
+    "secretaria de estado",
+    "secretaria da",
+    "governo do estado",
+    "fundo estadual",
+    "companhia",
+    "santa catarina",
+    "deinfra",
+    "udesc",
+    "jucesc",
+    "detran",
+    "ima",
+    "imetro",
+    "aresc",
+    "iprev",
+    "fapesc",
+    "fcc",
+    "fcee",
+    "fesporte",
+    "ciasc",
+    "badesc",
+    "scpar",
+    "scgas",
+    "ceasa",
+    "cidasc",
+    "santur",
+    "sudes",
+    "pcisc",
+    "ena",
 ]
 
 _ESFERA_MUNICIPAL_KEYWORDS = [
-    "prefeitura", "municipio de", "camara municipal",
-    "fundacao municipal", "secretaria municipal",
-    "servico autonomo", "departamento municipal",
+    "prefeitura",
+    "municipio de",
+    "camara municipal",
+    "fundacao municipal",
+    "secretaria municipal",
+    "servico autonomo",
+    "departamento municipal",
 ]
 
 
@@ -153,8 +176,11 @@ def _infer_esfera(orgao_nome: str) -> int:
 
     # Federal keywords (less common for PCP but worth checking)
     federal_kws = [
-        "ministerio", "departamento nacional", "universidade federal",
-        "instituto federal", "fundacao universidade federal",
+        "ministerio",
+        "departamento nacional",
+        "universidade federal",
+        "instituto federal",
+        "fundacao universidade federal",
     ]
     for kw in federal_kws:
         if kw in lower:
@@ -227,13 +253,11 @@ def _fetch_page(pagina: int, data_inicial: str, data_final: str) -> tuple[list[d
                 time.sleep(retry_after)
                 continue
             if attempt < PCP_MAX_RETRIES:
-                delay = 2 ** attempt
+                delay = 2**attempt
                 _logger.debug("[PCP] HTTP %d, retrying in %ds", e.code, delay)
                 time.sleep(delay)
                 continue
-            _logger.warning(
-                "[PCP] HTTP %d after %d retries: %s", e.code, PCP_MAX_RETRIES, url
-            )
+            _logger.warning("[PCP] HTTP %d after %d retries: %s", e.code, PCP_MAX_RETRIES, url)
             return [], False
 
         except (urllib.error.URLError, TimeoutError, OSError) as e:
@@ -255,7 +279,9 @@ def _fetch_page(pagina: int, data_inicial: str, data_final: str) -> tuple[list[d
 
 def _generate_content_hash(record: dict) -> str:
     """Deterministic MD5 hash over key fields (delegates to common)."""
-    return _common_content_hash(record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"])
+    return _common_content_hash(
+        record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"]
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -280,12 +306,7 @@ def _transform_record(rec: dict) -> dict | None:
         # Buyer info from unidadeCompradora
         unidade = rec.get("unidadeCompradora") or {}
         if isinstance(unidade, dict):
-            orgao = (
-                unidade.get("nomeUnidadeCompradora")
-                or rec.get("razaoSocial")
-                or rec.get("nomeUnidade")
-                or ""
-            )
+            orgao = unidade.get("nomeUnidadeCompradora") or rec.get("razaoSocial") or rec.get("nomeUnidade") or ""
             cnpj = unidade.get("CNPJ") or unidade.get("cnpj") or ""
             municipio_nome = unidade.get("cidade") or ""
             uf = unidade.get("uf") or ""
@@ -303,11 +324,7 @@ def _transform_record(rec: dict) -> dict | None:
         # Modalidade
         tipo_lic = rec.get("tipoLicitacao") or {}
         if isinstance(tipo_lic, dict):
-            modalidade_raw = (
-                tipo_lic.get("modalidadeLicitacao")
-                or tipo_lic.get("tipoLicitacao")
-                or ""
-            )
+            modalidade_raw = tipo_lic.get("modalidadeLicitacao") or tipo_lic.get("tipoLicitacao") or ""
         else:
             modalidade_raw = str(tipo_lic) if tipo_lic else ""
 
@@ -375,7 +392,10 @@ def crawl(mode: str = "full") -> list[dict]:
 
     _logger.info(
         "[PCP] Crawl [%s]: %s to %s, UF filter=%s",
-        mode, data_inicial_str, data_final_str, INGESTION_UFS,
+        mode,
+        data_inicial_str,
+        data_final_str,
+        INGESTION_UFS,
     )
 
     all_records: list[dict] = []
@@ -406,7 +426,8 @@ def crawl(mode: str = "full") -> list[dict]:
             all_records.extend(filtered)
             _logger.debug(
                 "[PCP] Page %d: %d records after UF filter",
-                pagina, len(filtered),
+                pagina,
+                len(filtered),
             )
         else:
             all_records.extend(records)

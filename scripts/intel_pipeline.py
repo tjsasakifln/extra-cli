@@ -17,6 +17,7 @@ Usage:
     python scripts/intel-pipeline.py --cnpj 01721078000168 --ufs SC --from-step 6
     python scripts/intel-pipeline.py --cnpj 01721078000168 --ufs SC --no-cache
 """
+
 from __future__ import annotations
 
 import argparse
@@ -53,9 +54,9 @@ INTEL_DIR = PROJECT_ROOT / "data" / "intel"
 INTEL_DIR.mkdir(parents=True, exist_ok=True)
 
 # Step timeouts (seconds)
-TIMEOUT_COLLECT = 1800     # 30 min — exhaustive PNCP search (v1.5: was 600s, increased for 429 backoff)
-TIMEOUT_ENRICH = 300       # 5 min
-TIMEOUT_LLM_GATE = 120     # 2 min — pure keyword logic
+TIMEOUT_COLLECT = 1800  # 30 min — exhaustive PNCP search (v1.5: was 600s, increased for 429 backoff)
+TIMEOUT_ENRICH = 300  # 5 min
+TIMEOUT_LLM_GATE = 120  # 2 min — pure keyword logic
 TIMEOUT_EXTRACT_DOCS = 600  # 10 min — downloads from PNCP
 TIMEOUT_EXCEL = 60
 TIMEOUT_PDF = 60
@@ -72,6 +73,7 @@ _C_MAGENTA = "\033[95m"
 # ============================================================
 # HELPERS
 # ============================================================
+
 
 def _c(text: str, color: str) -> str:
     """Wrap text in ANSI color if stdout is a terminal."""
@@ -101,9 +103,7 @@ def _bold(text: str) -> str:
 
 
 def _strip_accents(s: str) -> str:
-    return "".join(
-        c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn"
-    )
+    return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
 
 
 def _slug(name: str) -> str:
@@ -212,6 +212,7 @@ def _gate_item(msg: str, level: str = "ok") -> None:
 # GATE 1: COBERTURA (after collect)
 # ============================================================
 
+
 def gate1_cobertura(data: dict, ufs_requested: list[str]) -> GateResult:
     """Validate coverage: all UFs have data, total > 0, empresa OK."""
     passed = True
@@ -262,7 +263,9 @@ def gate1_cobertura(data: dict, ufs_requested: list[str]) -> GateResult:
     pagination_exhausted = stats.get("pncp_pagination_exhausted", [])
     if pagination_exhausted:
         for pe in pagination_exhausted[:5]:
-            issues.append(f"Paginação esgotada: mod={pe.get('modalidade')} uf={pe.get('uf')} — dados possivelmente incompletos")
+            issues.append(
+                f"Paginação esgotada: mod={pe.get('modalidade')} uf={pe.get('uf')} — dados possivelmente incompletos"
+            )
             _gate_item(
                 f"Paginação esgotada: mod={pe.get('modalidade')} uf={pe.get('uf')} — dados possivelmente incompletos",
                 "warn",
@@ -282,6 +285,7 @@ def gate1_cobertura(data: dict, ufs_requested: list[str]) -> GateResult:
 # ============================================================
 # GATE 2: CADASTRAL (after enrich)
 # ============================================================
+
 
 def gate2_cadastral(data: dict, top_n: int) -> GateResult:
     """Validate cadastral enrichment: sanctions, SICAF, enrichment coverage."""
@@ -333,20 +337,19 @@ def gate2_cadastral(data: dict, top_n: int) -> GateResult:
 
     if top_candidates:
         enriched_count = sum(
-            1 for e in top_candidates
-            if e.get("distancia_km") is not None or e.get("custo_proposta") is not None
+            1 for e in top_candidates if e.get("distancia_km") is not None or e.get("custo_proposta") is not None
         )
         coverage_ratio = enriched_count / len(top_candidates)
         _gate_item(
             f"Enriquecimento: {enriched_count}/{len(top_candidates)} top candidatos com distância/custo "
-            f"({coverage_ratio*100:.0f}%)"
+            f"({coverage_ratio * 100:.0f}%)"
         )
         if coverage_ratio < 0.5:
             issues.append(
                 f"Baixo enriquecimento: apenas {enriched_count}/{len(top_candidates)} candidatos enriquecidos"
             )
             _gate_item(
-                "< 50% enriquecidos — considere re-executar intel_enrich.py com --max-editais maior",
+                "< 50% enriquecidos — considere re-executar intel-enrich.py com --max-editais maior",
                 "warn",
             )
     else:
@@ -358,6 +361,7 @@ def gate2_cadastral(data: dict, top_n: int) -> GateResult:
 # ============================================================
 # GATE 3: RUÍDO (after llm-gate)
 # ============================================================
+
 
 def gate3_ruido(data: dict) -> GateResult:
     """Validate noise gate: compatible ratio, spot samples, zero pending."""
@@ -382,23 +386,19 @@ def gate3_ruido(data: dict) -> GateResult:
     needs_review = [e for e in editais if e.get("needs_llm_review")]
 
     ratio = len(compat) / total
-    _gate_item(f"{len(compat)}/{total} compatíveis ({ratio*100:.1f}%)")
+    _gate_item(f"{len(compat)}/{total} compatíveis ({ratio * 100:.1f}%)")
 
     # 1. Ratio sanity check
     if ratio < 0.05:
-        issues.append(
-            f"Ratio compatível muito baixo ({ratio*100:.1f}%) — possível problema de keywords/exclusões"
-        )
+        issues.append(f"Ratio compatível muito baixo ({ratio * 100:.1f}%) — possível problema de keywords/exclusões")
         _gate_item(
-            f"Ratio < 5% ({ratio*100:.1f}%) — verifique keywords no intel_collect.py",
+            f"Ratio < 5% ({ratio * 100:.1f}%) — verifique keywords no intel_collect.py",
             "warn",
         )
     elif ratio > 0.80:
-        issues.append(
-            f"Ratio compatível muito alto ({ratio*100:.1f}%) — possível ausência de filtros negativos"
-        )
+        issues.append(f"Ratio compatível muito alto ({ratio * 100:.1f}%) — possível ausência de filtros negativos")
         _gate_item(
-            f"Ratio > 80% ({ratio*100:.1f}%) — verifique se filtros negativos estão aplicados",
+            f"Ratio > 80% ({ratio * 100:.1f}%) — verifique se filtros negativos estão aplicados",
             "warn",
         )
     else:
@@ -443,6 +443,7 @@ def gate3_ruido(data: dict) -> GateResult:
 # GATE 4: CONTEÚDO (after extract-docs)
 # ============================================================
 
+
 def gate4_conteudo(data: dict, top_n: int) -> GateResult:
     """Validate document extraction coverage and quality for top-N editais."""
     passed = True
@@ -468,7 +469,7 @@ def gate4_conteudo(data: dict, top_n: int) -> GateResult:
     # 1. Coverage: how many have texto_documentos
     with_docs = [e for e in top20 if e.get("texto_documentos")]
     coverage = len(with_docs) / len(top20)
-    _gate_item(f"Cobertura de documentos: {len(with_docs)}/{len(top20)} ({coverage*100:.0f}%)")
+    _gate_item(f"Cobertura de documentos: {len(with_docs)}/{len(top20)} ({coverage * 100:.0f}%)")
     if coverage < 0.5:
         issues.append(f"Baixa cobertura de documentos: {len(with_docs)}/{len(top20)}")
         _gate_item("< 50% com documentos — análise será limitada", "warn")
@@ -484,13 +485,14 @@ def gate4_conteudo(data: dict, top_n: int) -> GateResult:
             continue
         # Check if > 70% of lines are the same (watermark/header repeated)
         from collections import Counter
+
         line_counts = Counter(lines)
         most_common_count = line_counts.most_common(1)[0][1] if line_counts else 0
         if most_common_count / len(lines) > 0.7:
             watermark_count += 1
             e["_doc_extraction_warning"] = "watermark_suspected"
-            issues.append(f"Possível texto de marca-d'água em: {(e.get('objeto','')[:60])}")
-            _gate_item(f"Extração suspeita (watermark?): {(e.get('objeto','')[:60])}", "warn")
+            issues.append(f"Possível texto de marca-d'água em: {(e.get('objeto', '')[:60])}")
+            _gate_item(f"Extração suspeita (watermark?): {(e.get('objeto', '')[:60])}", "warn")
 
     if watermark_count == 0 and with_docs:
         _gate_item("Nenhuma extração suspeita de watermark detectada")
@@ -507,8 +509,8 @@ def gate4_conteudo(data: dict, top_n: int) -> GateResult:
         norm = _norm_obj(e.get("objeto", ""))
         if norm in seen_objs:
             dup_indices.append(i)
-            issues.append(f"Duplicata no top20: pos {i+1} == pos {seen_objs[norm]+1} ({norm[:60]})")
-            _gate_item(f"Duplicata detectada: posição {i+1} = posição {seen_objs[norm]+1}", "warn")
+            issues.append(f"Duplicata no top20: pos {i + 1} == pos {seen_objs[norm] + 1} ({norm[:60]})")
+            _gate_item(f"Duplicata detectada: posição {i + 1} = posição {seen_objs[norm] + 1}", "warn")
         else:
             seen_objs[norm] = i
 
@@ -517,7 +519,7 @@ def gate4_conteudo(data: dict, top_n: int) -> GateResult:
         indices_to_remove = sorted(dup_indices, reverse=True)
         for idx in indices_to_remove:
             removed = top20.pop(idx)
-            fixed.append(f"Removida duplicata: {(removed.get('objeto','')[:60])}")
+            fixed.append(f"Removida duplicata: {(removed.get('objeto', '')[:60])}")
         _gate_item(f"Removidas {len(indices_to_remove)} duplicatas do top20", "fix")
 
         # Backfill from remaining compatible editais
@@ -546,6 +548,7 @@ def gate4_conteudo(data: dict, top_n: int) -> GateResult:
 # GATE 5: RECOMENDAÇÃO (before Excel/PDF)
 # ============================================================
 
+
 def gate5_recomendacao(data: dict, top_n: int) -> GateResult:
     """Final quality gate: zero NÃO PARTICIPAR, zero duplicates, capacity check."""
     passed = True
@@ -573,7 +576,8 @@ def gate5_recomendacao(data: dict, top_n: int) -> GateResult:
 
     _gate_item(
         f"Capital social: R${capital_social:,.2f} → capacidade máxima: R${capacity_limit:,.2f}"
-        if capital_social > 0 else "Capital social não disponível — verificação de capacidade ignorada"
+        if capital_social > 0
+        else "Capital social não disponível — verificação de capacidade ignorada"
     )
 
     # Work with top-N compatible editais
@@ -593,7 +597,8 @@ def gate5_recomendacao(data: dict, top_n: int) -> GateResult:
 
     # Pass 1: Remove NÃO PARTICIPAR recommendations
     nao_participar = [
-        e for e in top20
+        e
+        for e in top20
         if "NÃO PARTICIPAR" in (e.get("analise", {}) or {}).get("recomendacao_acao", "").upper()
         or "NÃO PARTICIPAR" in (e.get("recomendacao_override", "") or "").upper()
     ]
@@ -621,18 +626,15 @@ def gate5_recomendacao(data: dict, top_n: int) -> GateResult:
     if dup_indices:
         for idx in sorted(dup_indices, reverse=True):
             removed.append(top20.pop(idx))
-            issues.append(f"Duplicata removida em posição {idx+1}")
-            _gate_item(f"Duplicata removida em posição {idx+1}", "fix")
+            issues.append(f"Duplicata removida em posição {idx + 1}")
+            _gate_item(f"Duplicata removida em posição {idx + 1}", "fix")
         fixed.append(f"Removidas {len(dup_indices)} duplicatas")
     else:
         _gate_item("Nenhuma duplicata")
 
     # Pass 3: Capacity check (10x capital social)
     if capital_social > 0:
-        over_capacity = [
-            e for e in top20
-            if float(e.get("valor_estimado") or 0) > capacity_limit
-        ]
+        over_capacity = [e for e in top20 if float(e.get("valor_estimado") or 0) > capacity_limit]
         if over_capacity:
             for e in over_capacity:
                 val = float(e.get("valor_estimado") or 0)
@@ -671,9 +673,7 @@ def gate5_recomendacao(data: dict, top_n: int) -> GateResult:
         _gate_item(f"Backfill: {added} editais adicionados (marcados _backfill=True)", "fix")
         fixed.append(f"Backfill: {added} novos editais")
         if added > 0:
-            issues.append(
-                f"Backfill: {added} editais adicionados — precisam de análise manual (sem campo 'analise')"
-            )
+            issues.append(f"Backfill: {added} editais adicionados — precisam de análise manual (sem campo 'analise')")
 
     # Pass 5: Missing 'analise' field
     missing_analise = [e for e in top20 if not e.get("analise")]
@@ -699,16 +699,14 @@ def gate5_recomendacao(data: dict, top_n: int) -> GateResult:
         obj = (e.get("objeto") or "")[:55]
         val = float(e.get("valor_estimado") or 0)
         status = _ok("PARTICIPAR") if has_participar else _warn("sem recomendação clara")
-        _gate_item(f"Top{top3.index(e)+1}: R${val:>12,.0f} | {obj} → {status}")
+        _gate_item(f"Top{top3.index(e) + 1}: R${val:>12,.0f} | {obj} → {status}")
 
     if top3 and not any(top3_ok):
         issues.append("Nenhum dos top 3 tem recomendação PARTICIPAR clara")
         _gate_item("AVISO: Nenhum dos top 3 recomenda participar claramente", "warn")
 
     # Final scorecard
-    total_removed = len(nao_participar) + len(dup_indices) + (
-        len(over_capacity) if capital_social > 0 else 0
-    )
+    total_removed = len(nao_participar) + len(dup_indices) + (len(over_capacity) if capital_social > 0 else 0)
     print(f"\n  {_bold('Scorecard Final:')}")
     print(f"    Top{top_n} final: {len(top20)} editais")
     print(f"    Removidos: {total_removed} (NÃO PARTICIPAR + duplicatas + capacidade)")
@@ -722,6 +720,7 @@ def gate5_recomendacao(data: dict, top_n: int) -> GateResult:
 # SCORECARD PRINTER
 # ============================================================
 
+
 def print_gate_summary(gate_name: str, passed: bool, issues: list[str], fixed: list[str]) -> None:
     if passed and not issues:
         print(_ok(f"  → {gate_name}: PASSED sem problemas"))
@@ -734,6 +733,7 @@ def print_gate_summary(gate_name: str, passed: bool, issues: list[str], fixed: l
 # ============================================================
 # MAIN PIPELINE
 # ============================================================
+
 
 def main() -> int:
     """Entry point for intel-pipeline CLI orchestrator."""
@@ -751,35 +751,39 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
-    parser.add_argument("--cnpj", required=True,
-                        help="CNPJ da empresa, com ou sem formatacao (ex: 12345678000190 ou 12.345.678/0001-90)")
-    parser.add_argument("--ufs", required=True,
-                        help="UFs separadas por virgula — codigos de 2 letras (ex: SC,PR,RS)")
-    parser.add_argument("--dias", type=int, default=30,
-                        help="Periodo de busca em dias, 1-365 (default: 30)")
-    parser.add_argument("--top", type=int, default=20,
-                        help="Top-N editais para analise detalhada, 1-100 (default: 20)")
-    parser.add_argument("--skip-sicaf", action="store_true",
-                        help="Pular coleta SICAF (evita captcha do navegador)")
     parser.add_argument(
-        "--from-step", type=int, default=1, metavar="N",
+        "--cnpj",
+        required=True,
+        help="CNPJ da empresa, com ou sem formatacao (ex: 12345678000190 ou 12.345.678/0001-90)",
+    )
+    parser.add_argument("--ufs", required=True, help="UFs separadas por virgula — codigos de 2 letras (ex: SC,PR,RS)")
+    parser.add_argument("--dias", type=int, default=30, help="Periodo de busca em dias, 1-365 (default: 30)")
+    parser.add_argument("--top", type=int, default=20, help="Top-N editais para analise detalhada, 1-100 (default: 20)")
+    parser.add_argument("--skip-sicaf", action="store_true", help="Pular coleta SICAF (evita captcha do navegador)")
+    parser.add_argument(
+        "--from-step",
+        type=int,
+        default=1,
+        metavar="N",
         help="Retomar a partir do passo N (1-7). Requer JSON existente em docs/intel/",
     )
     parser.add_argument(
-        "--resume", action="store_true",
+        "--resume",
+        action="store_true",
         help="Retomar pipeline do ultimo checkpoint salvo. Equivalente a --from-step automatico "
-             "baseado no JSON mais recente encontrado.",
+        "baseado no JSON mais recente encontrado.",
     )
     parser.add_argument(
-        "--no-cache", action="store_true",
+        "--no-cache",
+        action="store_true",
         help="Ignorar cache do PNCP (recoleta tudo)",
     )
     parser.add_argument(
-        "--dry-run", action="store_true",
+        "--dry-run",
+        action="store_true",
         help="Mostrar passos que seriam executados sem rodar o pipeline",
     )
-    parser.add_argument("--version", action="version",
-                        version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
 
     # ── Validate arguments ──
@@ -794,11 +798,11 @@ def main() -> int:
         steps = [
             "Step 1: Collect (intel_collect.py)",
             "Gate 1: Cobertura",
-            "Step 2: Enrich (intel_enrich.py)",
+            "Step 2: Enrich (intel-enrich.py)",
             "Gate 2: Cadastral",
             "Step 3: LLM Gate (intel_llm_gate.py)",
             "Gate 3: Ruido",
-            "Step 4: Extract Docs (intel_extract_docs.py)",
+            "Step 4: Extract Docs (intel-extract-docs.py)",
             "Gate 4: Conteudo",
             "Step 5: Analyze (manual — intel-analyze.py --prepare)",
             "Gate 5: Recomendacao",
@@ -816,10 +820,10 @@ def main() -> int:
     today = _now_str()
     INTEL_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(_bold(f"\n{'='*60}"))
+    print(_bold(f"\n{'=' * 60}"))
     print(_bold(f"  Intel Pipeline — CNPJ {cnpj14} | UFs {','.join(ufs)}"))
     print(_bold(f"  Dias: {args.dias} | Top: {args.top} | Data: {today}"))
-    print(_bold(f"{'='*60}\n"))
+    print(_bold(f"{'=' * 60}\n"))
 
     pipeline_t0 = time.time()
     step_times: dict[str, float] = {}
@@ -841,7 +845,11 @@ def main() -> int:
                 steps_done = meta.get("pipeline_steps_completed", 0)
                 if steps_done > 0 and steps_done < 7:
                     args.from_step = steps_done + 1
-                    print(_info(f"Resume automatico: pipeline executou ate step {steps_done}, retomando step {args.from_step}"))
+                    print(
+                        _info(
+                            f"Resume automatico: pipeline executou ate step {steps_done}, retomando step {args.from_step}"
+                        )
+                    )
                 elif steps_done >= 7:
                     print(_warn(f"Pipeline ja completo (step {steps_done}). Re-executando a partir do step 1."))
                     args.from_step = 1
@@ -869,9 +877,12 @@ def main() -> int:
         t0 = time.time()
 
         collect_args = [
-            "--cnpj", cnpj14,
-            "--ufs", ",".join(ufs),
-            "--dias", str(args.dias),
+            "--cnpj",
+            cnpj14,
+            "--ufs",
+            ",".join(ufs),
+            "--dias",
+            str(args.dias),
         ]
         # intel_collect.py uses --output; we let it auto-name so we can find it after
         try:
@@ -912,7 +923,7 @@ def main() -> int:
             enrich_args.append("--skip-sicaf")
 
         try:
-            _run_script("intel_enrich.py", enrich_args, TIMEOUT_ENRICH, step_label)
+            _run_script("intel-enrich.py", enrich_args, TIMEOUT_ENRICH, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 2 falhou — continuando com dados parciais"))
 
@@ -954,9 +965,13 @@ def main() -> int:
                 capital_float = 0.0
 
             BID_WEIGHTS = {
-                "fit_estrategico": 0.20, "viabilidade_financeira": 0.15,
-                "roi": 0.15, "p_vitoria": 0.15, "custo_logistico": 0.10,
-                "janela_temporal": 0.10, "concorrencia": 0.15,
+                "fit_estrategico": 0.20,
+                "viabilidade_financeira": 0.15,
+                "roi": 0.15,
+                "p_vitoria": 0.15,
+                "custo_logistico": 0.10,
+                "janela_temporal": 0.10,
+                "concorrencia": 0.15,
             }
             THRESHOLD = 0.45
 
@@ -969,10 +984,9 @@ def main() -> int:
                 if capital_float > 0 and valor > 0:
                     ratio = valor / capital_float
                     scores["viabilidade_financeira"] = (
-                        1.0 if ratio <= 1 else
-                        (0.7 if ratio <= 3 else
-                         (0.4 if ratio <= 5 else
-                          (0.2 if ratio <= 10 else 0.05)))
+                        1.0
+                        if ratio <= 1
+                        else (0.7 if ratio <= 3 else (0.4 if ratio <= 5 else (0.2 if ratio <= 10 else 0.05)))
                     )
                 else:
                     scores["viabilidade_financeira"] = 0.5
@@ -980,10 +994,9 @@ def main() -> int:
                 roi_data = ed.get("roi_proposta") or {}
                 roi_r = float(roi_data.get("ratio_valor_custo") or 0)
                 scores["roi"] = (
-                    1.0 if roi_r >= 5 else
-                    (0.7 if roi_r >= 3 else
-                     (0.4 if roi_r >= 1.5 else
-                      (0.1 if roi_r > 0 else 0.5)))
+                    1.0
+                    if roi_r >= 5
+                    else (0.7 if roi_r >= 3 else (0.4 if roi_r >= 1.5 else (0.1 if roi_r > 0 else 0.5)))
                 )
 
                 bid_sim = ed.get("_bid_simulation") or {}
@@ -1004,13 +1017,19 @@ def main() -> int:
 
                 status_ed = ed.get("status_temporal", "")
                 scores["janela_temporal"] = {
-                    "URGENTE": 0.3, "IMINENTE": 0.6, "PLANEJAVEL": 1.0, "SEM_DATA": 0.4,
+                    "URGENTE": 0.3,
+                    "IMINENTE": 0.6,
+                    "PLANEJAVEL": 1.0,
+                    "SEM_DATA": 0.4,
                 }.get(status_ed, 0.5)
 
                 ci = ed.get("competitive_intel") or {}
                 cl = ci.get("competition_level", "")
                 scores["concorrencia"] = {
-                    "BAIXA": 1.0, "MEDIA": 0.7, "ALTA": 0.4, "MUITO_ALTA": 0.2,
+                    "BAIXA": 1.0,
+                    "MEDIA": 0.7,
+                    "ALTA": 0.4,
+                    "MUITO_ALTA": 0.2,
                 }.get(cl, 0.5)
 
                 composite = sum(scores[k] * BID_WEIGHTS[k] for k in BID_WEIGHTS)
@@ -1065,11 +1084,13 @@ def main() -> int:
         t0 = time.time()
 
         extract_args = [
-            "--input", str(json_path),
-            "--top", str(args.top),
+            "--input",
+            str(json_path),
+            "--top",
+            str(args.top),
         ]
         try:
-            _run_script("intel_extract_docs.py", extract_args, TIMEOUT_EXTRACT_DOCS, step_label)
+            _run_script("intel-extract-docs.py", extract_args, TIMEOUT_EXTRACT_DOCS, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 4 falhou parcialmente — continuando com documentos disponíveis"))
 
@@ -1112,11 +1133,11 @@ def main() -> int:
         print()
 
         total_elapsed = time.time() - pipeline_t0
-        print(_bold(f"\n{'='*60}"))
+        print(_bold(f"\n{'=' * 60}"))
         print(_bold("  Pipeline PAUSADO para análise manual"))
         print(f"  Tempo acumulado: {_fmt_duration(total_elapsed)}")
         print(f"  JSON: {json_path}")
-        print(_bold(f"{'='*60}\n"))
+        print(_bold(f"{'=' * 60}\n"))
         return 0
 
     # ── GATE 5: RECOMENDAÇÃO (pre-Excel/PDF) ────────────────────
@@ -1146,8 +1167,10 @@ def main() -> int:
         # Build output xlsx path using same basename as JSON
         xlsx_path = json_path.with_suffix(".xlsx")
         excel_args = [
-            "--input", str(json_path),
-            "--output", str(xlsx_path),
+            "--input",
+            str(json_path),
+            "--output",
+            str(xlsx_path),
         ]
         try:
             _run_script("intel_excel.py", excel_args, TIMEOUT_EXCEL, step_label)
@@ -1164,8 +1187,10 @@ def main() -> int:
 
         pdf_path = json_path.with_suffix(".pdf")
         report_args = [
-            "--input", str(json_path),
-            "--output", str(pdf_path),
+            "--input",
+            str(json_path),
+            "--output",
+            str(pdf_path),
         ]
         try:
             _run_script("intel_report.py", report_args, TIMEOUT_PDF, step_label)
@@ -1186,9 +1211,9 @@ def main() -> int:
     # ── FINAL SUMMARY ────────────────────────────────────────────
     total_elapsed = time.time() - pipeline_t0
 
-    print(_bold(f"\n{'='*60}"))
+    print(_bold(f"\n{'=' * 60}"))
     print(_bold("  PIPELINE CONCLUÍDO"))
-    print(_bold(f"{'='*60}"))
+    print(_bold(f"{'=' * 60}"))
     print()
 
     # Timing per step

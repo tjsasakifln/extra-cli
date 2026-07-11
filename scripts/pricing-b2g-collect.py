@@ -51,15 +51,37 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from datalake_helper import DatalakeClient  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Keyword extraction
 # ---------------------------------------------------------------------------
 
 _STOPWORDS = {
-    "de", "da", "do", "das", "dos", "para", "em", "no", "na", "nos", "nas",
-    "e", "ou", "com", "por", "a", "o", "as", "os", "um", "uma", "que", "se",
-    "the", "of", "and",
+    "de",
+    "da",
+    "do",
+    "das",
+    "dos",
+    "para",
+    "em",
+    "no",
+    "na",
+    "nos",
+    "nas",
+    "e",
+    "ou",
+    "com",
+    "por",
+    "a",
+    "o",
+    "as",
+    "os",
+    "um",
+    "uma",
+    "que",
+    "se",
+    "the",
+    "of",
+    "and",
 }
 
 
@@ -81,6 +103,7 @@ def extract_keywords(objeto: str) -> list[str]:
 # ---------------------------------------------------------------------------
 # DataLake-first collector
 # ---------------------------------------------------------------------------
+
 
 def collect_from_datalake(
     objeto: str,
@@ -207,18 +230,20 @@ def collect_from_live(
                         if ufs_upper and uf not in ufs_upper:
                             continue
                         orgao = it.get("orgaoEntidade") or {}
-                        matches.append({
-                            "numero_controle_pncp": it.get("numeroControlePNCP"),
-                            "orgao_cnpj": orgao.get("cnpj"),
-                            "orgao_nome": orgao.get("razaoSocial"),
-                            "uf": uf,
-                            "municipio": unidade.get("municipioNome"),
-                            "esfera": (orgao.get("esferaId") or "")[:1],
-                            "valor_global": round(v, 2),
-                            "data_assinatura": it.get("dataPublicacaoPncp"),
-                            "objeto_contrato": (it.get("objetoCompra") or "")[:500],
-                            "_homologado": it.get("valorTotalHomologado") is not None,
-                        })
+                        matches.append(
+                            {
+                                "numero_controle_pncp": it.get("numeroControlePNCP"),
+                                "orgao_cnpj": orgao.get("cnpj"),
+                                "orgao_nome": orgao.get("razaoSocial"),
+                                "uf": uf,
+                                "municipio": unidade.get("municipioNome"),
+                                "esfera": (orgao.get("esferaId") or "")[:1],
+                                "valor_global": round(v, 2),
+                                "data_assinatura": it.get("dataPublicacaoPncp"),
+                                "objeto_contrato": (it.get("objetoCompra") or "")[:500],
+                                "_homologado": it.get("valorTotalHomologado") is not None,
+                            }
+                        )
                     if len(items) < 50:
                         break
                     time.sleep(0.5)  # polidez com a API PNCP
@@ -237,7 +262,7 @@ def collect_from_live(
     n = len(valores)
     media = sum(valores) / n
     var = sum((v - media) ** 2 for v in valores) / n
-    dp = var ** 0.5
+    dp = var**0.5
     cv = (dp / media * 100) if media > 0 else 0.0
 
     def percentile(p: float) -> float:
@@ -277,6 +302,7 @@ def collect_from_live(
 # Confiability label (mesma escala do .md)
 # ---------------------------------------------------------------------------
 
+
 def confiability(n: int, cv: float | None = None) -> str:
     """Confiabilidade considera N e CV.
 
@@ -299,6 +325,7 @@ def confiability(n: int, cv: float | None = None) -> str:
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Pricing B2G — análise estatística DataLake-first")
     ap.add_argument("--objeto", required=True, help='Objeto pesquisado (ex: "limpeza hospitalar")')
@@ -320,11 +347,7 @@ def main() -> int:
     args = ap.parse_args()
 
     ufs = [u.strip().upper() for u in args.uf.split(",") if u.strip()] or None
-    modalidades = (
-        [int(m) for m in args.modalidade.split(",") if m.strip()]
-        if args.modalidade
-        else _DEFAULT_MODALIDADES
-    )
+    modalidades = [int(m) for m in args.modalidade.split(",") if m.strip()] if args.modalidade else _DEFAULT_MODALIDADES
     keywords = extract_keywords(args.objeto)
     if not keywords:
         print("ERRO: --objeto não produziu keywords úteis.", file=sys.stderr)

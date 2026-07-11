@@ -1,1 +1,10 @@
 - [EPIC-FEAT-001 Validation](epic-feat-001-validation.md) -- 10 stories validadas, correcoes aplicadas, 10/10
+- [EPIC-TD-001 Validation](epic-td-001-validation.md) -- 2 stories validadas (TD-0.3, TD-2.4), 10/10 ambas
+- [EPIC-TD-002 Validation](epic-td-002-validation.md) -- 1 story validada (TD-7.1), 10/10 GO
+- [Story TD-4.4 Fix Test Suite](story-td-4-4-validation.md) -- GO 9/10, Draft → Ready
+- [Expansao TD-3.2 PNCP Resilience](story-td-3.2-pncp-resilience.md) -- GO 9.2/10, Draft → Ready (conflito ID detectado)
+- [User Profile](user_role.md) -- Tiago Sasaki, PO Extra Consultoria
+- [Epic ID Conflict](epic-td-001-id-conflict.md) -- TD-3.2 reusado em expansao pos-completude
+- [Validation Process](validation-process-po.md) -- Protocolo PO 10-point checklist
+- [Story FEAT-2.4 Selenium](story-feat-2.4-validation.md) -- GO 9.4/10, Draft -> Ready (epic alignment gap detectado)
+- [Story TD-8.2 Fix Module Imports](story-td-8-2-validation.md) -- GO 10/10, Draft -> Ready (concern AC13 falso positivo)

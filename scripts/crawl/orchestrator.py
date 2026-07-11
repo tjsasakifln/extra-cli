@@ -24,8 +24,7 @@ from typing import Any
 
 from config.logging_config import get_logger
 from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)
-
-from scripts.crawl.checkpoint import save_checkpoint, is_crawl_completed_today
+from scripts.crawl.checkpoint import is_crawl_completed_today, save_checkpoint
 
 logger = get_logger(__name__)
 
@@ -36,8 +35,16 @@ logger = get_logger(__name__)
 # DEFAULT_DSN imported from config.settings — do NOT redefine here.
 
 SOURCES = [
-    "pncp", "dom_sc", "doe_sc", "pcp", "pcp_v2",
-    "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc",
+    "pncp",
+    "dom_sc",
+    "doe_sc",
+    "pcp",
+    "pcp_v2",
+    "compras_gov",
+    "sc_compras",
+    "contracts",
+    "transparencia",
+    "tce_sc",
 ]
 
 
@@ -49,6 +56,7 @@ SOURCES = [
 def _get_conn() -> Any:
     """Create a database connection using DEFAULT_DSN."""
     import psycopg2
+
     return psycopg2.connect(DEFAULT_DSN)
 
 
@@ -260,7 +268,8 @@ def crawl_source(
 
         logger.info(
             "Upserted: %d new, %d duplicates",
-            upserted, fetched - upserted,
+            upserted,
+            fetched - upserted,
         )
 
         # Phase 4: Entity matching (only for pncp_raw_bids sources)

@@ -23,14 +23,13 @@ import os
 import re
 import sys
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
 from scripts.crawl.common import (
     digits_only,
     extract_cnpj,
-    generate_content_hash as _common_content_hash,
     parse_date,
     safe_float,
 )
@@ -129,9 +128,7 @@ def _get_token() -> str | None:
         return _auth_token
 
     if not DOE_SC_LOGIN or not DOE_SC_PASSWORD:
-        _logger.warning(
-            "[DOE-SC] Missing credentials — set DOE_SC_LOGIN and DOE_SC_PASSWORD env vars"
-        )
+        _logger.warning("[DOE-SC] Missing credentials — set DOE_SC_LOGIN and DOE_SC_PASSWORD env vars")
         return None
 
     _logger.info("[DOE-SC] Authenticating with DOE_SC_LOGIN=%s...", DOE_SC_LOGIN[:3] + "***")
@@ -178,9 +175,7 @@ def _get_token() -> str | None:
         except (AttributeError, OSError):
             pass
         if exc.code == 401:
-            _logger.error(
-                "[DOE-SC] Auth failure (401) on login — check DOE_SC_LOGIN and DOE_SC_PASSWORD"
-            )
+            _logger.error("[DOE-SC] Auth failure (401) on login — check DOE_SC_LOGIN and DOE_SC_PASSWORD")
         else:
             _logger.error("[DOE-SC] HTTP %d on login %s: %s", exc.code, url, body[:200])
         return None
@@ -188,7 +183,9 @@ def _get_token() -> str | None:
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         _logger.error(
             "[DOE-SC] Connection error on login %s: %s: %s",
-            url, type(exc).__name__, exc,
+            url,
+            type(exc).__name__,
+            exc,
         )
         return None
 
@@ -233,11 +230,7 @@ def _api_request(
     # Build URL
     url = f"{DOE_SC_API_BASE}{path}"
     if params:
-        query = "&".join(
-            f"{k}={urllib.request.quote(str(v), safe='')}"
-            for k, v in params.items()
-            if v is not None
-        )
+        query = "&".join(f"{k}={urllib.request.quote(str(v), safe='')}" for k, v in params.items() if v is not None)
         url = f"{url}?{query}"
 
     # Build request
@@ -271,36 +264,30 @@ def _api_request(
                     _logger.info("[DOE-SC] Token expired, re-authenticating...")
                     # Clear cached pages on token expiry
                     continue
-                _logger.error(
-                    "[DOE-SC] Auth failure after re-auth on %s", path
-                )
+                _logger.error("[DOE-SC] Auth failure after re-auth on %s", path)
                 return None
 
             if exc.code == 429:
                 retry_after = int(exc.headers.get("Retry-After", "60"))
-                _logger.warning(
-                    "[DOE-SC] Rate limited. Waiting %ds", retry_after
-                )
+                _logger.warning("[DOE-SC] Rate limited. Waiting %ds", retry_after)
                 time.sleep(retry_after)
                 continue
 
             if exc.code in (404, 400):
-                _logger.debug(
-                    "[DOE-SC] HTTP %d on %s", exc.code, path
-                )
+                _logger.debug("[DOE-SC] HTTP %d on %s", exc.code, path)
                 return None
 
             if attempt < MAX_RETRIES:
-                delay = 2 ** attempt
-                _logger.debug(
-                    "[DOE-SC] HTTP %d, retrying in %ds", exc.code, delay
-                )
+                delay = 2**attempt
+                _logger.debug("[DOE-SC] HTTP %d, retrying in %ds", exc.code, delay)
                 time.sleep(delay)
                 continue
 
             _logger.warning(
                 "[DOE-SC] HTTP %d after %d retries on %s",
-                exc.code, MAX_RETRIES, path,
+                exc.code,
+                MAX_RETRIES,
+                path,
             )
             return None
 
@@ -309,13 +296,15 @@ def _api_request(
                 delay = 1 + attempt
                 _logger.debug(
                     "[DOE-SC] Connection error, retrying in %ds: %s",
-                    delay, exc,
+                    delay,
+                    exc,
                 )
                 time.sleep(delay)
                 continue
             _logger.warning(
                 "[DOE-SC] Fetch error after %d retries: %s",
-                MAX_RETRIES, exc,
+                MAX_RETRIES,
+                exc,
             )
             return None
 
@@ -359,16 +348,23 @@ def _load_categories() -> list[dict]:
     else:
         _categories_cache = []
 
-    _logger.info(
-        "[DOE-SC] Loaded %d categories", len(_categories_cache)
-    )
+    _logger.info("[DOE-SC] Loaded %d categories", len(_categories_cache))
 
     # Identify procurement-relevant categories by name
     global CATEGORIAS_RELEVANTES
     procurement_keywords = [
-        "licita", "contrat", "edital", "pregao", "concorrencia",
-        "dispensa", "inexigibilidade", "convenio", "ata",
-        "adjudicacao", "homologacao", "rescisao",
+        "licita",
+        "contrat",
+        "edital",
+        "pregao",
+        "concorrencia",
+        "dispensa",
+        "inexigibilidade",
+        "convenio",
+        "ata",
+        "adjudicacao",
+        "homologacao",
+        "rescisao",
     ]
     for cat in _categories_cache:
         name = (cat.get("descricao") or cat.get("nome") or cat.get("dsCategoria") or "").lower()
@@ -381,7 +377,8 @@ def _load_categories() -> list[dict]:
 
     _logger.info(
         "[DOE-SC] Identified %d procurement-relevant categories: %s",
-        len(CATEGORIAS_RELEVANTES), sorted(CATEGORIAS_RELEVANTES),
+        len(CATEGORIAS_RELEVANTES),
+        sorted(CATEGORIAS_RELEVANTES),
     )
 
     return _categories_cache
@@ -434,7 +431,10 @@ def _fetch_materias(
 
         _logger.debug(
             "[DOE-SC] Fetching page %d/%d: %s to %s",
-            page, total_pages, date_from_str, date_to_str,
+            page,
+            total_pages,
+            date_from_str,
+            date_to_str,
         )
 
         result = _api_request("/materia", params)
@@ -446,19 +446,10 @@ def _fetch_materias(
         records: list[dict] = []
         if isinstance(result, dict):
             records = (
-                result.get("data")
-                or result.get("records")
-                or result.get("result")
-                or result.get("materias")
-                or []
+                result.get("data") or result.get("records") or result.get("result") or result.get("materias") or []
             )
             # Try pagination info
-            total_pages = (
-                result.get("totalPages")
-                or result.get("pageCount")
-                or result.get("lastPage")
-                or total_pages
-            )
+            total_pages = result.get("totalPages") or result.get("pageCount") or result.get("lastPage") or total_pages
             if total_pages == 0:
                 total_pages = 1
         elif isinstance(result, list):
@@ -472,7 +463,8 @@ def _fetch_materias(
         # If we have category filter, apply client-side
         if categorias:
             filtered = [
-                r for r in records
+                r
+                for r in records
                 if r.get("cdCategoria") in categorias
                 or r.get("categoria", {}).get("id") in categorias
                 or r.get("idCategoria") in categorias
@@ -480,12 +472,16 @@ def _fetch_materias(
             all_items.extend(filtered)
             _logger.debug(
                 "[DOE-SC] Page %d: %d records, %d after category filter",
-                page, len(records), len(filtered),
+                page,
+                len(records),
+                len(filtered),
             )
         else:
             all_items.extend(records)
             _logger.debug(
-                "[DOE-SC] Page %d: %d records", page, len(records),
+                "[DOE-SC] Page %d: %d records",
+                page,
+                len(records),
             )
 
         # Check if more pages
@@ -495,7 +491,8 @@ def _fetch_materias(
         time.sleep(HTTP_DELAY)
 
     _logger.info(
-        "[DOE-SC] Fetched %d materias total", len(all_items),
+        "[DOE-SC] Fetched %d materias total",
+        len(all_items),
     )
     return all_items
 
@@ -524,7 +521,10 @@ def crawl(mode: str = "full") -> list[dict]:
 
     _logger.info(
         "[DOE-SC] Crawling %s mode: %s to %s (%d days)",
-        mode, data_inicial, data_final, days,
+        mode,
+        data_inicial,
+        data_final,
+        days,
     )
 
     # Ensure categories are loaded for filtering
@@ -549,9 +549,7 @@ def _generate_content_hash(record: dict) -> str:
     materia_id = str(record.get("id") or record.get("cdMateria") or "")
     titulo = (record.get("titulo") or record.get("dsTitulo") or "").strip()
     categoria = str(record.get("cdCategoria") or record.get("idCategoria") or "")
-    data_pub = _parse_date(
-        record.get("dtPublicacao") or record.get("dataPublicacao") or ""
-    ) or ""
+    data_pub = _parse_date(record.get("dtPublicacao") or record.get("dataPublicacao") or "") or ""
 
     key_fields = [materia_id, titulo, categoria, data_pub]
     key_str = "|".join(key_fields)
@@ -577,7 +575,8 @@ def _extract_entity_info(text: str) -> tuple[str, str, str, str]:
     # Look for standard header patterns in the text
     header_match = re.search(
         r"(GOVERNO\s+DO\s+ESTADO\s+DE\s+SANTA\s+CATARINA.*?)(?:\n|$)",
-        text, re.IGNORECASE,
+        text,
+        re.IGNORECASE,
     )
     if header_match:
         orgao_nome = header_match.group(1).strip()
@@ -630,7 +629,8 @@ def _transform_record(raw: dict) -> dict | None:
         valor = None
         valor_match = re.search(
             r"(?:R\$|valor[:\s]+|total[:\s]+)\s*([\d\.,]+)",
-            combined_text, re.IGNORECASE,
+            combined_text,
+            re.IGNORECASE,
         )
         if valor_match:
             valor = _safe_float(valor_match.group(1))
@@ -681,12 +681,16 @@ def _transform_record(raw: dict) -> dict | None:
     except (KeyError, ValueError, TypeError, AttributeError) as exc:
         _logger.warning(
             "[DOE-SC] Transform error on materia_id=%s: %s: %s",
-            raw.get("id", raw.get("cdMateria", "?")), type(exc).__name__, exc,
+            raw.get("id", raw.get("cdMateria", "?")),
+            type(exc).__name__,
+            exc,
         )
         return None
     except Exception as exc:
         _logger.warning(
-            "[DOE-SC] Unexpected transform error: %s: %s", type(exc).__name__, exc,
+            "[DOE-SC] Unexpected transform error: %s: %s",
+            type(exc).__name__,
+            exc,
         )
         return None
 
@@ -718,11 +722,13 @@ def transform(raw_records: list[dict]) -> list[dict]:
     if skipped:
         _logger.info(
             "[DOE-SC] Transform complete: %d records, %d skipped",
-            len(transformed), skipped,
+            len(transformed),
+            skipped,
         )
     else:
         _logger.info(
-            "[DOE-SC] Transform complete: %d records", len(transformed),
+            "[DOE-SC] Transform complete: %d records",
+            len(transformed),
         )
 
     return transformed

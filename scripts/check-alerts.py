@@ -82,8 +82,12 @@ class AlertRegistry:
         self.max_severity = 0
 
     def add(
-        self, severity: int, category: str, title: str,
-        message: str, details: str = "",
+        self,
+        severity: int,
+        category: str,
+        title: str,
+        message: str,
+        details: str = "",
     ) -> None:
         """Register an alert.
 
@@ -94,14 +98,16 @@ class AlertRegistry:
             message: Human-readable alert message.
             details: Optional technical details.
         """
-        self.alerts.append({
-            "severity": severity,
-            "category": category,
-            "title": title,
-            "message": message,
-            "details": details,
-            "timestamp": datetime.now(UTC).isoformat(),
-        })
+        self.alerts.append(
+            {
+                "severity": severity,
+                "category": category,
+                "title": title,
+                "message": message,
+                "details": details,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+        )
         self.max_severity = max(self.max_severity, severity)
 
     def has_critical(self) -> bool:
@@ -189,7 +195,7 @@ def check_disk(registry: AlertRegistry) -> None:
                     f"Disco em / esta com {pct:.0f}% de uso ({free_gb:.1f}G livres "
                     f"de {total_gb:.1f}G). Atingiu o limiar critico de {ALERT_DISK_CRIT_PCT}%."
                 ),
-                details=f"total={total_gb:.1f}G used={usage.used/1024**3:.1f}G free={free_gb:.1f}G",
+                details=f"total={total_gb:.1f}G used={usage.used / 1024**3:.1f}G free={free_gb:.1f}G",
             )
         elif pct >= ALERT_DISK_WARN_PCT:
             registry.add(
@@ -212,7 +218,9 @@ def check_db_online(registry: AlertRegistry) -> None:
     try:
         result = subprocess.run(
             ["psql", DEFAULT_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         if result.returncode != 0 or "1" not in result.stdout.strip():
             registry.add(
@@ -257,8 +265,7 @@ def check_storage_box(registry: AlertRegistry) -> None:
             category="storage",
             title="Storage Box desmontado",
             message=(
-                f"O ponto de montagem {STORAGE_BOX_MOUNT} nao esta montado. "
-                "Backups para Storage Box podem falhar."
+                f"O ponto de montagem {STORAGE_BOX_MOUNT} nao esta montado. Backups para Storage Box podem falhar."
             ),
         )
         return
@@ -271,10 +278,7 @@ def check_storage_box(registry: AlertRegistry) -> None:
             severity=2,
             category="storage",
             title="Storage Box sem permissao",
-            message=(
-                f"Storage Box montado em {STORAGE_BOX_MOUNT} mas sem permissao "
-                "de leitura."
-            ),
+            message=(f"Storage Box montado em {STORAGE_BOX_MOUNT} mas sem permissao de leitura."),
         )
     except Exception as e:
         registry.add(
@@ -295,7 +299,7 @@ def check_backup(registry: AlertRegistry) -> None:
             category="backup",
             title="Log de backup nao encontrado",
             message=f"Arquivo de log de backup nao encontrado em {BACKUP_LOG_FILE}. "
-                    "Nao foi possivel verificar o status do ultimo backup.",
+            "Nao foi possivel verificar o status do ultimo backup.",
         )
         return
 
@@ -369,10 +373,7 @@ def check_api_keys(registry: AlertRegistry) -> None:
                 severity=1,
                 category="api_key",
                 title=f"API key faltando: {key}",
-                message=(
-                    f"A chave {key} ({purpose}) nao esta configurada "
-                    "no arquivo .env ou ambiente."
-                ),
+                message=(f"A chave {key} ({purpose}) nao esta configurada no arquivo .env ou ambiente."),
                 details=f"Service: {purpose}",
             )
 
@@ -413,10 +414,7 @@ def run_checks(dry_run: bool = False) -> AlertRegistry:
     check_backup(registry)
 
     # Crawl checks (requires DB — skip if DB is down)
-    if not any(
-        a["category"] == "db" and a["severity"] >= 2
-        for a in registry.alerts
-    ):
+    if not any(a["category"] == "db" and a["severity"] >= 2 for a in registry.alerts):
         check_consecutive_crawl_failures(registry, ALERT_CONSECUTIVE_FAILURES)
 
     # API key checks
@@ -454,10 +452,7 @@ def _send_alert_notifications(registry: AlertRegistry) -> None:
 
     if critical:
         subject = f"[CRITICO] {critical[0]['title']}"
-        body_lines = [
-            f"Foram detectados {len(critical)} alertas criticos e "
-            f"{len(warnings)} alertas no sistema.\n"
-        ]
+        body_lines = [f"Foram detectados {len(critical)} alertas criticos e {len(warnings)} alertas no sistema.\n"]
         for a in critical:
             body_lines.append(f"[CRITICO] {a['title']}")
             body_lines.append(f"  {a['message']}")
@@ -472,9 +467,7 @@ def _send_alert_notifications(registry: AlertRegistry) -> None:
     elif warnings:
         # Only send warnings if there are no critical issues
         subject = f"[ALERTA] {warnings[0]['title']}"
-        body_lines = [
-            f"Foram detectados {len(warnings)} alertas no sistema.\n"
-        ]
+        body_lines = [f"Foram detectados {len(warnings)} alertas no sistema.\n"]
         for a in warnings:
             body_lines.append(f"[ALERTA] {a['title']}")
             body_lines.append(f"  {a['message']}")
@@ -488,12 +481,14 @@ def parse_args() -> argparse.Namespace:
         description="Extra Consultoria — Periodic Alert Checker",
     )
     p.add_argument("--json", action="store_true", help="JSON output")
-    p.add_argument("--dry-run", action="store_true",
-                   help="Check only, do not send notifications")
-    p.add_argument("--test", action="store_true",
-                   help="Send a test alert to verify notification pipeline")
-    p.add_argument("--threshold", type=int, default=ALERT_CONSECUTIVE_FAILURES,
-                   help=f"Consecutive failure threshold (default: {ALERT_CONSECUTIVE_FAILURES})")
+    p.add_argument("--dry-run", action="store_true", help="Check only, do not send notifications")
+    p.add_argument("--test", action="store_true", help="Send a test alert to verify notification pipeline")
+    p.add_argument(
+        "--threshold",
+        type=int,
+        default=ALERT_CONSECUTIVE_FAILURES,
+        help=f"Consecutive failure threshold (default: {ALERT_CONSECUTIVE_FAILURES})",
+    )
     return p.parse_args()
 
 
@@ -544,10 +539,7 @@ def main() -> int:
 
         critical_count = sum(1 for a in registry.alerts if a["severity"] >= 2)
         warning_count = sum(1 for a in registry.alerts if a["severity"] == 1)
-        print(
-            f"Total: {len(registry.alerts)} alerts "
-            f"(critical={critical_count}, warnings={warning_count})"
-        )
+        print(f"Total: {len(registry.alerts)} alerts (critical={critical_count}, warnings={warning_count})")
 
     exit_code = 0
     if registry.has_critical():

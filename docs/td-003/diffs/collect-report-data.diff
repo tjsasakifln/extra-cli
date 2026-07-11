@@ -1,0 +1,18 @@
+497,505d496
+<         print("     → Para obter a chave: https://portaldatransparencia.gov.br/api-de-dados")
+<         print("     → Configure como varivel de ambiente: export PORTAL_TRANSPARENCIA_API_KEY='sua-chave'")
+<         result["_config_instrucao"] = {
+<             "fonte": "Portal da Transparência",
+<             "status": "UNAVAILABLE",
+<             "configuracao": "PORTAL_TRANSPARENCIA_API_KEY não definida",
+<             "instrucao": "Obtenha a chave em https://portaldatransparencia.gov.br/api-de-dados "
+<                          "e configure como varivel de ambiente PORTAL_TRANSPARENCIA_API_KEY",
+<         }
+4503c4494
+<         headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0 (report@extraconsultoria.com.br)"},
+---
+>         headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0 (report@extra-consultoria.local)"},
+4523c4514
+<             headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0 (report@extraconsultoria.com.br)"},
+---
+>             headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0 (report@extra-consultoria.local)"},

@@ -26,10 +26,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-import time
-from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
 
 # Add project root to path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -52,8 +49,10 @@ COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
 # Database helpers
 # ---------------------------------------------------------------------------
 
+
 def _get_conn():
     import psycopg2
+
     return psycopg2.connect(DEFAULT_DSN)
 
 
@@ -88,11 +87,13 @@ def _match_entity(orgao_cnpj: str, entities: list[dict]) -> dict | None:
     return None
 
 
-def _start_ingestion_run(conn, source: str) -> int:
+def _start_ingestion_run(conn, source: str, mode: str = "incremental") -> int:
+    import uuid
+
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO ingestion_runs (source, status) VALUES (%s, 'running') RETURNING id",
-        (source,),
+        "INSERT INTO ingestion_runs (source, status, crawl_batch_id, run_type) VALUES (%s, 'running', %s, %s) RETURNING id",
+        (source, str(uuid.uuid4()), mode),
     )
     run_id = cur.fetchone()[0]
     conn.commit()
@@ -100,15 +101,16 @@ def _start_ingestion_run(conn, source: str) -> int:
     return run_id
 
 
-def _finish_ingestion_run(conn, run_id: int, fetched: int, upserted: int,
-                          covered: int, status: str = "completed", error: str = ""):
+def _finish_ingestion_run(
+    conn, run_id: int, fetched: int, upserted: int, covered: int, status: str = "completed", error: str = ""
+):
     cur = conn.cursor()
     cur.execute(
         """UPDATE ingestion_runs
-           SET finished_at = NOW(), records_fetched = %s, records_upserted = %s,
-               entities_covered = %s, status = %s, error_message = %s
+           SET completed_at = NOW(), total_fetched = %s, inserted = %s,
+               updated = %s, status = %s, errors = CASE WHEN %s <> '' THEN 1 ELSE 0 END
            WHERE id = %s""",
-        (fetched, upserted, covered, status, error or None, run_id),
+        (fetched, upserted, 0, status, error or "", run_id),
     )
     conn.commit()
     cur.close()
@@ -160,9 +162,7 @@ def _match_entities_cascade(conn, source: str, entities: list[dict]) -> dict:
         - ``unmatched``: count still unmatched
         - ``total``: total bids processed
     """
-    ENTITY_MATCH_FUZZY_THRESHOLD = float(
-        os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85")
-    )
+    ENTITY_MATCH_FUZZY_THRESHOLD = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85"))
 
     # Step 1 — fetch all unmatched bids for this source
     cur = conn.cursor()
@@ -195,9 +195,9 @@ def _match_entities_cascade(conn, source: str, entities: list[dict]) -> dict:
             cnpj_index[cnpj_8] = e
 
     # Name indexes
-    name_exact_index: dict[str, dict] = {}         # normalized_name -> entity
+    name_exact_index: dict[str, dict] = {}  # normalized_name -> entity
     name_muni_index: dict[tuple[str, str], dict] = {}  # (norm_name, codigo_ibge) -> entity
-    all_entities_norm: list[dict] = []             # for fuzzy matching
+    all_entities_norm: list[dict] = []  # for fuzzy matching
 
     for e in entities:
         norm = normalize_name(e.get("razao_social", ""))
@@ -212,9 +212,11 @@ def _match_entities_cascade(conn, source: str, entities: list[dict]) -> dict:
     # Step 3 — try to import rapidfuzz (fallback to difflib)
     try:
         from rapidfuzz import fuzz as _rapidfuzz
+
         _fuzz_ratio = lambda a, b: _rapidfuzz.ratio(a, b) / 100.0
     except ImportError:
         from difflib import SequenceMatcher
+
         _fuzz_ratio = lambda a, b: SequenceMatcher(None, a, b).ratio()
 
     # Step 4 — cascade matching per bid
@@ -286,10 +288,7 @@ def _match_entities_cascade(conn, source: str, entities: list[dict]) -> dict:
                 # Filter candidates by IBGE code if available (avoids cross-municipio)
                 candidates = all_entities_norm
                 if codigo_ibge:
-                    candidates = [
-                        e for e in all_entities_norm
-                        if e.get("codigo_ibge") == codigo_ibge
-                    ]
+                    candidates = [e for e in all_entities_norm if e.get("codigo_ibge") == codigo_ibge]
 
                 for e in candidates:
                     e_norm = e.get("_normalized_name", "")
@@ -327,7 +326,12 @@ def _match_entities_cascade(conn, source: str, entities: list[dict]) -> dict:
         else:
             # Mark as unmatched with metadata (helps v_unmatched_bids analysis)
             _update_matched_entity_full(
-                conn, pncp_id, None, "unmatched", 0.0, None,
+                conn,
+                pncp_id,
+                None,
+                "unmatched",
+                0.0,
+                None,
             )
             stats["unmatched"] += 1
 
@@ -341,6 +345,7 @@ def _match_entities_cascade(conn, source: str, entities: list[dict]) -> dict:
 # ---------------------------------------------------------------------------
 # Coverage Reporting
 # ---------------------------------------------------------------------------
+
 
 def report_coverage(conn) -> dict:
     """Generate coverage report for all entities across all sources."""
@@ -372,12 +377,12 @@ def report_coverage(conn) -> dict:
         }
         result["groups"].append(group)
         result["total_entities"] += total
-        result["total_covered"] += (covered or 0)
-        result["total_uncovered"] += (uncovered or 0)
+        result["total_covered"] += covered or 0
+        result["total_uncovered"] += uncovered or 0
 
-    result["pct"] = round(
-        result["total_covered"] / result["total_entities"] * 100, 1
-    ) if result["total_entities"] > 0 else 0
+    result["pct"] = (
+        round(result["total_covered"] / result["total_entities"] * 100, 1) if result["total_entities"] > 0 else 0
+    )
 
     # Per-source breakdown
     cur.execute(
@@ -387,9 +392,7 @@ def report_coverage(conn) -> dict:
            GROUP BY source
            ORDER BY source"""
     )
-    result["by_source"] = [
-        {"source": r[0], "entities": r[1], "covered": r[2]} for r in cur.fetchall()
-    ]
+    result["by_source"] = [{"source": r[0], "entities": r[1], "covered": r[2]} for r in cur.fetchall()]
 
     # Uncovered entities within 200km (critical gap)
     cur.execute(
@@ -403,8 +406,7 @@ def report_coverage(conn) -> dict:
            ORDER BY e.municipio, e.razao_social"""
     )
     result["uncovered_entities_200km"] = [
-        {"razao_social": r[0], "cnpj_8": r[1], "municipio": r[2], "natureza": r[3]}
-        for r in cur.fetchall()
+        {"razao_social": r[0], "cnpj_8": r[1], "municipio": r[2], "natureza": r[3]} for r in cur.fetchall()
     ]
 
     cur.close()
@@ -424,9 +426,11 @@ def print_coverage_report(result: dict) -> None:
         print(f"     Cobertas: {g['covered']} ({g['pct']}%)")
         print(f"     Descobertas: {g['uncovered']}")
 
-    print(f"\n  📊 TOTAL: {result['total_entities']} entidades | "
-          f"{result['total_covered']} cobertas ({result['pct']}%) | "
-          f"{result['total_uncovered']} descobertas")
+    print(
+        f"\n  📊 TOTAL: {result['total_entities']} entidades | "
+        f"{result['total_covered']} cobertas ({result['pct']}%) | "
+        f"{result['total_uncovered']} descobertas"
+    )
 
     print("\n  📡 Por fonte (raio 200km):")
     for s in result["by_source"]:
@@ -448,6 +452,7 @@ def print_coverage_report(result: dict) -> None:
 # Crawl orchestration
 # ---------------------------------------------------------------------------
 
+
 def crawl_source(source: str, entities: list[dict], mode: str = "full") -> dict:
     """Run crawl for a specific source, match entities, return stats.
 
@@ -456,7 +461,7 @@ def crawl_source(source: str, entities: list[dict], mode: str = "full") -> dict:
         transform(records) → list[dict]  # normalized to pncp_raw_bids schema
     """
     conn = _get_conn()
-    run_id = _start_ingestion_run(conn, source)
+    run_id = _start_ingestion_run(conn, source, mode)
     fetched = 0
     upserted = 0
     matched = 0
@@ -488,6 +493,7 @@ def crawl_source(source: str, entities: list[dict], mode: str = "full") -> dict:
 
         # Phase 3: Upsert via RPC
         import json
+
         cur = conn.cursor()
         try:
             cur.execute(
@@ -511,11 +517,13 @@ def crawl_source(source: str, entities: list[dict], mode: str = "full") -> dict:
         # Phase 4: Entity matching (3-level cascade: CNPJ → name → fuzzy)
         match_stats = _match_entities_cascade(conn, source, entities)
         matched = match_stats["cnpj"] + match_stats["name_normalized"] + match_stats["fuzzy"]
-        print(f"     Matched: {matched} "
-              f"(CNPJ: {match_stats['cnpj']}, "
-              f"name: {match_stats['name_normalized']}, "
-              f"fuzzy: {match_stats['fuzzy']}, "
-              f"unmatched: {match_stats['unmatched']})")
+        print(
+            f"     Matched: {matched} "
+            f"(CNPJ: {match_stats['cnpj']}, "
+            f"name: {match_stats['name_normalized']}, "
+            f"fuzzy: {match_stats['fuzzy']}, "
+            f"unmatched: {match_stats['unmatched']})"
+        )
 
         _finish_ingestion_run(conn, run_id, fetched, upserted, matched, "completed")
         conn.close()
@@ -545,7 +553,7 @@ def _load_crawler(source: str):
     """Dynamically load crawler module for a source."""
     # All crawler modules live in scripts/crawl/
     module_map = {
-        "pncp": "pncp_crawler_adapter",   # simplified sync adapter
+        "pncp": "pncp_crawler_adapter",  # simplified sync adapter
         "dom_sc": "dom_sc_crawler",
         "pcp": "pcp_crawler",
         "compras_gov": "compras_gov_crawler",
@@ -560,6 +568,7 @@ def _load_crawler(source: str):
 
     try:
         import importlib
+
         return importlib.import_module(f"scripts.crawl.{mod_name}")
     except ImportError as e:
         print(f"     ⚠️  Cannot import {mod_name}: {e}")
@@ -570,10 +579,9 @@ def _load_crawler(source: str):
 # Main CLI
 # ---------------------------------------------------------------------------
 
+
 def parse_args():
-    p = argparse.ArgumentParser(
-        description="Multi-Source Coverage Monitor — Extra Construtora"
-    )
+    p = argparse.ArgumentParser(description="Multi-Source Coverage Monitor — Extra Construtora")
     p.add_argument(
         "--source",
         default="pncp",
@@ -671,8 +679,7 @@ def main():
     conn = _get_conn()
     try:
         result = report_coverage(conn)
-        print(f"\n  📊 Coverage: {result['pct']}% "
-              f"({result['total_covered']}/{result['total_entities']})")
+        print(f"\n  📊 Coverage: {result['pct']}% ({result['total_covered']}/{result['total_entities']})")
     finally:
         conn.close()
 

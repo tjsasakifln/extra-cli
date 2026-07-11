@@ -18,6 +18,7 @@ Requires:
     pip install httpx pyyaml
     playwright install chromium  (para SICAF)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -25,10 +26,9 @@ import importlib.util
 import io
 import json
 import os
-import re
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -93,7 +93,7 @@ except ImportError:
 
 # Victory profile (v4)
 try:
-    from victory_profile import build_victory_profile, score_edital_fit, format_fit_label
+    from victory_profile import build_victory_profile, format_fit_label, score_edital_fit
 except ImportError:
     build_victory_profile = None  # type: ignore[assignment]
     score_edital_fit = None  # type: ignore[assignment]
@@ -108,14 +108,33 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # Capitais brasileiras (para majorar custo de hospedagem)
 CAPITAIS = {
-    "AC": "RIO BRANCO", "AL": "MACEIO", "AP": "MACAPA", "AM": "MANAUS",
-    "BA": "SALVADOR", "CE": "FORTALEZA", "DF": "BRASILIA", "ES": "VITORIA",
-    "GO": "GOIANIA", "MA": "SAO LUIS", "MT": "CUIABA", "MS": "CAMPO GRANDE",
-    "MG": "BELO HORIZONTE", "PA": "BELEM", "PB": "JOAO PESSOA",
-    "PR": "CURITIBA", "PE": "RECIFE", "PI": "TERESINA", "RJ": "RIO DE JANEIRO",
-    "RN": "NATAL", "RS": "PORTO ALEGRE", "RO": "PORTO VELHO",
-    "RR": "BOA VISTA", "SC": "FLORIANOPOLIS", "SP": "SAO PAULO",
-    "SE": "ARACAJU", "TO": "PALMAS",
+    "AC": "RIO BRANCO",
+    "AL": "MACEIO",
+    "AP": "MACAPA",
+    "AM": "MANAUS",
+    "BA": "SALVADOR",
+    "CE": "FORTALEZA",
+    "DF": "BRASILIA",
+    "ES": "VITORIA",
+    "GO": "GOIANIA",
+    "MA": "SAO LUIS",
+    "MT": "CUIABA",
+    "MS": "CAMPO GRANDE",
+    "MG": "BELO HORIZONTE",
+    "PA": "BELEM",
+    "PB": "JOAO PESSOA",
+    "PR": "CURITIBA",
+    "PE": "RECIFE",
+    "PI": "TERESINA",
+    "RJ": "RIO DE JANEIRO",
+    "RN": "NATAL",
+    "RS": "PORTO ALEGRE",
+    "RO": "PORTO VELHO",
+    "RR": "BOA VISTA",
+    "SC": "FLORIANOPOLIS",
+    "SP": "SAO PAULO",
+    "SE": "ARACAJU",
+    "TO": "PALMAS",
 }
 
 # Modalidades eletrônicas (não exigem deslocamento presencial)
@@ -125,6 +144,7 @@ MODALIDADES_ELETRONICAS = {"eletrônico", "eletronica", "eletrônica", "eletroni
 # ============================================================
 # HTTP RETRY UTILITY
 # ============================================================
+
 
 def _request_with_retry(
     url: str,
@@ -148,14 +168,14 @@ def _request_with_retry(
         try:
             resp = _httpx.get(url, params=params, headers=headers, timeout=timeout)
             if resp.status_code in (429, 500, 502, 503, 504) and attempt < max_retries:
-                delay = min(1.0 * (2 ** attempt), 30.0)
+                delay = min(1.0 * (2**attempt), 30.0)
                 logger.info("[retry] HTTP %d from %s, retrying in %.0fs...", resp.status_code, url, delay)
                 time.sleep(delay)
                 continue
             return resp
         except (_httpx.TimeoutException, _httpx.ConnectError, _httpx.ReadError) as e:
             if attempt < max_retries:
-                delay = min(1.0 * (2 ** attempt), 30.0)
+                delay = min(1.0 * (2**attempt), 30.0)
                 logger.info("[retry] %s from %s, retrying in %.0fs...", type(e).__name__, url, delay)
                 time.sleep(delay)
             else:
@@ -166,6 +186,7 @@ def _request_with_retry(
 # ============================================================
 # HELPERS
 # ============================================================
+
 
 def _is_eletronico(modalidade: str) -> bool:
     """Determina se a modalidade é eletrônica (sem deslocamento presencial)."""
@@ -185,12 +206,13 @@ def _is_capital(municipio: str, uf: str) -> bool:
 
 
 def _today() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 # ============================================================
 # STEP 1: SICAF + SANCTIONS (empresa-level — run once)
 # ============================================================
+
 
 def enrich_empresa(
     api: ApiClient,
@@ -249,6 +271,7 @@ def enrich_empresa(
 # STEP 2: DISTANCE + IBGE + COST (per-edital — batch)
 # ============================================================
 
+
 def enrich_editais(
     api: ApiClient,
     editais: list[dict],
@@ -271,33 +294,36 @@ def enrich_editais(
     if capital_social and capital_social > 0:
         capacity_limit = capital_social * 10
         within_capacity = [
-            ed for ed in compatible
+            ed
+            for ed in compatible
             if not (ed.get("valor_estimado") or 0) or (ed.get("valor_estimado") or 0) <= capacity_limit
         ]
         skipped = len(compatible) - len(within_capacity)
         if skipped:
-            logger.info("[FILTRO] %d editais acima da capacidade "
-                        "(R$%s = 10x capital social R$%s) — ignorados",
-                        skipped, f"{capacity_limit:,.0f}", f"{capital_social:,.0f}")
+            logger.info(
+                "[FILTRO] %d editais acima da capacidade (R$%s = 10x capital social R$%s) — ignorados",
+                skipped,
+                f"{capacity_limit:,.0f}",
+                f"{capital_social:,.0f}",
+            )
         compatible_filtered = within_capacity
     else:
         compatible_filtered = compatible
 
     compatible_sorted = sorted(
         compatible_filtered,
-        key=lambda e: (e.get("valor_estimado") or 0.0),
+        key=lambda e: e.get("valor_estimado") or 0.0,
         reverse=True,
     )
     target_editais = compatible_sorted[:max_editais]
     target_ids = {ed["_id"] for ed in target_editais}
 
     capacity_note = (
-        f" dentro da capacidade (≤R${capital_social * 10:,.0f})"
-        if capital_social and capital_social > 0
-        else ""
+        f" dentro da capacidade (≤R${capital_social * 10:,.0f})" if capital_social and capital_social > 0 else ""
     )
-    logger.info("Enriquecendo %d editais compatíveis%s (top %d por valor)...",
-                len(target_editais), capacity_note, max_editais)
+    logger.info(
+        "Enriquecendo %d editais compatíveis%s (top %d por valor)...", len(target_editais), capacity_note, max_editais
+    )
 
     # --- 2a. Geocode sede ---
     logger.info("[GEO] Geocodificando sede: %s/%s", cidade_sede, uf_sede)
@@ -353,11 +379,15 @@ def enrich_editais(
 
         # Distance
         dist = distance_results.get(dest_key, {})
-        ed["distancia"] = dist if dist else {
-            "km": None,
-            "duracao_horas": None,
-            "_source": _source_tag("UNAVAILABLE", "Sede ou destino não geocodificado"),
-        }
+        ed["distancia"] = (
+            dist
+            if dist
+            else {
+                "km": None,
+                "duracao_horas": None,
+                "_source": _source_tag("UNAVAILABLE", "Sede ou destino não geocodificado"),
+            }
+        )
 
         # IBGE
         ibge = ibge_results.get(dest_key, {})
@@ -456,11 +486,15 @@ def enrich_editais(
                     ed["_victory_fit"] = fit
                     ed["_victory_fit_label"] = format_fit_label(fit)
                     fits_computed += 1
-                logger.info("[PERFIL] %d editais com score de aderência "
-                           "(perfil de %d contratos)", fits_computed, profile.total_contracts)
+                logger.info(
+                    "[PERFIL] %d editais com score de aderência (perfil de %d contratos)",
+                    fits_computed,
+                    profile.total_contracts,
+                )
             else:
-                logger.info("[PERFIL] Dados insuficientes para perfil de vitória "
-                            "(%d contratos < 3 mínimo)", len(all_contracts))
+                logger.info(
+                    "[PERFIL] Dados insuficientes para perfil de vitória (%d contratos < 3 mínimo)", len(all_contracts)
+                )
         else:
             logger.info("[PERFIL] Sem contratos históricos para perfil de vitória")
     else:
@@ -481,10 +515,11 @@ def enrich_editais(
 # MAIN
 # ============================================================
 
+
 def main():
     """Entry point for intel-enrich CLI."""
-    from lib.constants import INTEL_VERSION
     from lib.cli_validation import validate_input_file
+    from lib.constants import INTEL_VERSION
 
     parser = argparse.ArgumentParser(
         description="Intel Enrich — Enriquecimento SICAF/Sancoes/Distancia/Custo para /intel-busca.",
@@ -494,18 +529,19 @@ def main():
   python scripts/intel-enrich.py --input data.json --skip-sicaf
   python scripts/intel-enrich.py --input data.json --output enriched.json --max-editais 40""",
     )
-    parser.add_argument("--input", "-i", required=True,
-                        help="JSON de entrada (output do intel-collect.py). Deve existir.")
-    parser.add_argument("--output", "-o", default=None,
-                        help="JSON de saida (default: sobrescreve input)")
-    parser.add_argument("--skip-sicaf", action="store_true",
-                        help="Pular coleta SICAF (evita captcha do navegador)")
-    parser.add_argument("--max-editais", type=int, default=80,
-                        help="Max editais para enriquecer dentro da capacidade financeira (default: 80)")
-    parser.add_argument("--quiet", action="store_true",
-                        help="Reduzir output (somente erros e resumo final)")
-    parser.add_argument("--version", action="version",
-                        version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument(
+        "--input", "-i", required=True, help="JSON de entrada (output do intel-collect.py). Deve existir."
+    )
+    parser.add_argument("--output", "-o", default=None, help="JSON de saida (default: sobrescreve input)")
+    parser.add_argument("--skip-sicaf", action="store_true", help="Pular coleta SICAF (evita captcha do navegador)")
+    parser.add_argument(
+        "--max-editais",
+        type=int,
+        default=80,
+        help="Max editais para enriquecer dentro da capacidade financeira (default: 80)",
+    )
+    parser.add_argument("--quiet", action="store_true", help="Reduzir output (somente erros e resumo final)")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
 
     # ── Validate arguments ──
@@ -521,7 +557,7 @@ def main():
     logger.info("Input: %s", input_path)
     logger.info("=" * 60)
 
-    with open(input_path, "r", encoding="utf-8") as f:
+    with open(input_path, encoding="utf-8") as f:
         data = json.load(f)
 
     empresa = data.get("empresa", {})
@@ -539,7 +575,9 @@ def main():
 
     # ── Step 1: Empresa enrichment (SICAF + Sanções) ──
     # Skip if already collected by intel-collect.py (Step 1b)
-    sicaf_already = empresa.get("sicaf") and empresa["sicaf"].get("status") != "PULADO" and empresa["sicaf"].get("crc_status")
+    sicaf_already = (
+        empresa.get("sicaf") and empresa["sicaf"].get("status") != "PULADO" and empresa["sicaf"].get("crc_status")
+    )
     if sicaf_already:
         logger.info("[1/2] Verificação cadastral da empresa...")
         logger.info("SICAF já coletado no intel-collect.py — pulando")
@@ -576,7 +614,10 @@ def main():
     else:
         logger.info("[2/2] Enriquecendo editais (distância, IBGE, custo)...")
         enrich_stats = enrich_editais(
-            api, editais, cidade_sede, uf_sede,
+            api,
+            editais,
+            cidade_sede,
+            uf_sede,
             max_editais=args.max_editais,
             capital_social=capital_social,
         )
@@ -603,9 +644,14 @@ def main():
     logger.info("=" * 60)
     logger.info("SICAF:                %s", "coletado" if not args.skip_sicaf else "pulado")
     logger.info("Sancionada:           %s", "SIM" if empresa_enrich.get("sancionada") else "NÃO")
-    logger.info("Restrição SICAF:      %s",
-                "SIM" if empresa_enrich.get("restricao_sicaf")
-                else "NÃO" if empresa_enrich.get("restricao_sicaf") is not None else "N/D")
+    logger.info(
+        "Restrição SICAF:      %s",
+        "SIM"
+        if empresa_enrich.get("restricao_sicaf")
+        else "NÃO"
+        if empresa_enrich.get("restricao_sicaf") is not None
+        else "N/D",
+    )
     logger.info("Editais enriquecidos: %d", enrich_stats.get("editais_enriquecidos", 0))
     logger.info("Distâncias OK:        %d", enrich_stats.get("distancias_ok", 0))
     logger.info("IBGE OK:              %d", enrich_stats.get("ibge_ok", 0))

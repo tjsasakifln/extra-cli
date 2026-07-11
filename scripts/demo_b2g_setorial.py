@@ -32,10 +32,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import os
 import sys
-from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from collections import defaultdict
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -78,14 +77,38 @@ MIN_FORNECEDORES_THRESHOLD = 5
 # Mapeamento setor → keywords de busca (fallback se intel_sectors_config não disponível)
 FALLBACK_KEYWORDS: dict[str, list[str]] = {
     "engenharia": ["reforma", "pavimentação", "construção", "engenharia"],
-    "manutencao_predial": ["manutenção predial", "manutencao predial", "reforma predial", "instalação elétrica", "instalação hidráulica", "ar condicionado", "climatização", "pintura predial"],
+    "manutencao_predial": [
+        "manutenção predial",
+        "manutencao predial",
+        "reforma predial",
+        "instalação elétrica",
+        "instalação hidráulica",
+        "ar condicionado",
+        "climatização",
+        "pintura predial",
+    ],
     "vestuario": ["uniforme", "fardamento", "vestuário", "vestuario", "camiseta", "jaleco"],
-    "alimentos": ["merenda", "alimentação escolar", "alimentacao escolar", "gênero alimentício", "genero alimenticio", "refeição", "refeicao"],
+    "alimentos": [
+        "merenda",
+        "alimentação escolar",
+        "alimentacao escolar",
+        "gênero alimentício",
+        "genero alimenticio",
+        "refeição",
+        "refeicao",
+    ],
     "informatica": ["computador", "notebook", "impressora", "equipamento de informática", "equipamento de informatica"],
     "software": ["software", "sistema de gestão", "licença de software", "desenvolvimento de sistema"],
     "mobiliario": ["mobiliário", "mobiliario", "cadeira", "mesa", "armário", "armario"],
     "facilities": ["limpeza predial", "conservação", "conservacao", "jardinagem", "zeladoria", "portaria"],
-    "vigilancia": ["vigilância", "vigilancia", "segurança patrimonial", "seguranca patrimonial", "monitoramento", "cftv"],
+    "vigilancia": [
+        "vigilância",
+        "vigilancia",
+        "segurança patrimonial",
+        "seguranca patrimonial",
+        "monitoramento",
+        "cftv",
+    ],
     "saude": ["medicamento", "material hospitalar", "equipamento médico", "equipamento medico"],
     "transporte": ["veículo", "veiculo", "ônibus", "onibus", "combustível", "combustivel", "transporte escolar"],
     "materiais_eletricos": ["material elétrico", "material eletrico", "cabo elétrico", "lâmpada", "luminária"],
@@ -95,31 +118,114 @@ FALLBACK_KEYWORDS: dict[str, list[str]] = {
 
 # Palavras-chave para classificação de segmentos dentro de engenharia
 SEGMENT_KEYWORDS: dict[str, list[str]] = {
-    "Pavimentação": ["pavimentação", "pavimentacao", "asfáltica", "asfaltica", "recapeamento", "asfalto", "cbuq", "intertravada", "paver", "bloquete"],
-    "Drenagem e Pluvial": ["drenagem", "pluvial", "galeria", "bueiro", "sarjeta", "canalização", "microdrenagem", "macrodrenagem"],
-    "Reforma Predial": ["reforma", "predial", "pintura", "telhado", "cobertura", "impermeabilização", "impermeabilizacao", "fachada"],
-    "Construção Civil": ["construção", "construcao", "edificação", "edificacao", "ampliação", "ampliacao", "prédio", "predio"],
-    "Infraestrutura Viária": ["rodovia", "estrada", "sinalização", "sinalizacao", "ciclovia", "calçada", "calcada", "passeio", "meio-fio", "acostamento"],
+    "Pavimentação": [
+        "pavimentação",
+        "pavimentacao",
+        "asfáltica",
+        "asfaltica",
+        "recapeamento",
+        "asfalto",
+        "cbuq",
+        "intertravada",
+        "paver",
+        "bloquete",
+    ],
+    "Drenagem e Pluvial": [
+        "drenagem",
+        "pluvial",
+        "galeria",
+        "bueiro",
+        "sarjeta",
+        "canalização",
+        "microdrenagem",
+        "macrodrenagem",
+    ],
+    "Reforma Predial": [
+        "reforma",
+        "predial",
+        "pintura",
+        "telhado",
+        "cobertura",
+        "impermeabilização",
+        "impermeabilizacao",
+        "fachada",
+    ],
+    "Construção Civil": [
+        "construção",
+        "construcao",
+        "edificação",
+        "edificacao",
+        "ampliação",
+        "ampliacao",
+        "prédio",
+        "predio",
+    ],
+    "Infraestrutura Viária": [
+        "rodovia",
+        "estrada",
+        "sinalização",
+        "sinalizacao",
+        "ciclovia",
+        "calçada",
+        "calcada",
+        "passeio",
+        "meio-fio",
+        "acostamento",
+    ],
     "Saneamento": ["saneamento", "esgoto", "água", "agua", "adutora", "estação de tratamento", "fossa"],
     "Escolas e Creches": ["escola", "creche", "educação infantil", "educacao infantil", "fnde"],
-    "Saúde": ["ubs", "posto de saúde", "posto de saude", "hospital", "unidade de saúde", "unidade de saude", "unidade sanitária", "unidade sanitaria", "policlínica", "policlinica"],
-    "Esporte e Lazer": ["quadra", "ginásio", "ginasio", "praça", "praca", "parque", "campo", "centro esportivo", "complexo esportivo"],
-    "Infraestrutura Urbana": ["muro", "contenção", "contencao", "ponte", "viaduto", "terminal", "abrigo", "urbanização", "urbanizacao"],
+    "Saúde": [
+        "ubs",
+        "posto de saúde",
+        "posto de saude",
+        "hospital",
+        "unidade de saúde",
+        "unidade de saude",
+        "unidade sanitária",
+        "unidade sanitaria",
+        "policlínica",
+        "policlinica",
+    ],
+    "Esporte e Lazer": [
+        "quadra",
+        "ginásio",
+        "ginasio",
+        "praça",
+        "praca",
+        "parque",
+        "campo",
+        "centro esportivo",
+        "complexo esportivo",
+    ],
+    "Infraestrutura Urbana": [
+        "muro",
+        "contenção",
+        "contencao",
+        "ponte",
+        "viaduto",
+        "terminal",
+        "abrigo",
+        "urbanização",
+        "urbanizacao",
+    ],
 }
 
 # ── Helpers ─────────────────────────────────────────────────
 
+
 def _fmt_brl(value: float) -> str:
     """Formata valor como Real brasileiro: R$ 1.500.000,00"""
     if abs(value) >= 1_000_000:
-        return f"R$ {value/1_000_000:,.1f}M".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"R$ {value / 1_000_000:,.1f}M".replace(",", "X").replace(".", ",").replace("X", ".")
     if abs(value) >= 1_000:
-        return f"R$ {value/1_000:,.0f}K".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"R$ {value / 1_000:,.0f}K".replace(",", "X").replace(".", ",").replace("X", ".")
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
 
 def _fmt_num(value: float) -> str:
     """Formata número com separador de milhar brasileiro."""
     return f"{value:,.0f}".replace(",", ".")
+
 
 def _pct(data: list[float], p: float) -> float:
     """Percentil sobre lista ordenada."""
@@ -133,8 +239,10 @@ def _pct(data: list[float], p: float) -> float:
         return data[f]
     return data[f] + (data[c] - data[f]) * (k - f)
 
+
 def _today_str() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return datetime.now(UTC).strftime("%Y-%m-%d")
+
 
 def _get_sector_keywords(setor: str) -> list[str]:
     """Obtém keywords de busca para o setor, tentando intel_sectors_config primeiro."""
@@ -182,59 +290,124 @@ def _classify_segments(contratos: list[dict]) -> dict[str, dict]:
 # even though it matched a keyword like "obra" (→ "mão de obra")
 NEGATIVE_PATTERNS_ENGENHARIA: list[str] = [
     # Segurança e vigilância (capturados via "mão de obra")
-    "vigilância", "vigilancia", "segurança privada", "seguranca privada",
-    "segurança patrimonial", "seguranca patrimonial", "porteiro", "portaria",
-    "monitoramento eletrônico", "monitoramento eletronico",
-    "alarme", "cftv", "circuito fechado",
+    "vigilância",
+    "vigilancia",
+    "segurança privada",
+    "seguranca privada",
+    "segurança patrimonial",
+    "seguranca patrimonial",
+    "porteiro",
+    "portaria",
+    "monitoramento eletrônico",
+    "monitoramento eletronico",
+    "alarme",
+    "cftv",
+    "circuito fechado",
     # Limpeza e facilities (capturados via "mão de obra")
-    "limpeza predial", "limpeza hospitalar", "limpeza urbana",
-    "serviços de limpeza", "servicos de limpeza",
-    "higienização", "higienizacao", "asseio e conservação", "asseio e conservacao",
-    "coleta de resíduos", "coleta de residuos", "coleta de lixo",
-    "jardinagem", "paisagismo", "dedetização", "dedetizacao",
-    "zeladoria", "copeiragem",
+    "limpeza predial",
+    "limpeza hospitalar",
+    "limpeza urbana",
+    "serviços de limpeza",
+    "servicos de limpeza",
+    "higienização",
+    "higienizacao",
+    "asseio e conservação",
+    "asseio e conservacao",
+    "coleta de resíduos",
+    "coleta de residuos",
+    "coleta de lixo",
+    "jardinagem",
+    "paisagismo",
+    "dedetização",
+    "dedetizacao",
+    "zeladoria",
+    "copeiragem",
     # Alimentação (capturados via "mão de obra")
-    "merenda escolar", "alimentação escolar", "alimentacao escolar",
-    "gênero alimentício", "genero alimenticio",
-    "fornecimento de refeição", "fornecimento de refeicao",
-    "quentinha", "marmitex", "catering", "buffet",
-    "restaurante", "lanchonete",
+    "merenda escolar",
+    "alimentação escolar",
+    "alimentacao escolar",
+    "gênero alimentício",
+    "genero alimenticio",
+    "fornecimento de refeição",
+    "fornecimento de refeicao",
+    "quentinha",
+    "marmitex",
+    "catering",
+    "buffet",
+    "restaurante",
+    "lanchonete",
     # Manutenção de frota/veículos (capturados via "obra" em manutenção veicular)
-    "manutenção de frota", "manutencao de frota",
-    "manutenção de veículos", "manutencao de veiculos",
-    "gerenciamento de frota", "manutenção preditiva.*frota",
+    "manutenção de frota",
+    "manutencao de frota",
+    "manutenção de veículos",
+    "manutencao de veiculos",
+    "gerenciamento de frota",
+    "manutenção preditiva.*frota",
     "manutenção preventiva.*frota",
     # Serviços administrativos não-engenharia
-    "serviço de copeiragem", "servico de copeiragem",
-    "locação de mão de obra", "locacao de mao de obra",
-    "fornecimento de mão de obra", "fornecimento de mao de obra",
+    "serviço de copeiragem",
+    "servico de copeiragem",
+    "locação de mão de obra",
+    "locacao de mao de obra",
+    "fornecimento de mão de obra",
+    "fornecimento de mao de obra",
 ]
 
 # Patterns that RESCUE a contract from false-positive filter
 # (i.e., if the object ALSO contains obvious engineering terms, keep it)
 RESCUE_PATTERNS_ENGENHARIA: list[str] = [
     # Termos técnicos de engenharia — alta confiança
-    "pavimentação", "pavimentacao", "asf[áa]ltic[ao]", "asfalto",
-    "drenagem", "terraplenagem", "edificação", "edificacao",
-    "estrutura met[áa]lica", "concreto armado",
-    "fundação", "fundacao", "alvenaria", "concretagem",
-    "recapeamento", "cbua", "cbuq",
+    "pavimentação",
+    "pavimentacao",
+    "asf[áa]ltic[ao]",
+    "asfalto",
+    "drenagem",
+    "terraplenagem",
+    "edificação",
+    "edificacao",
+    "estrutura met[áa]lica",
+    "concreto armado",
+    "fundação",
+    "fundacao",
+    "alvenaria",
+    "concretagem",
+    "recapeamento",
+    "cbua",
+    "cbuq",
     # Ações de engenharia civil (sem preposição fixa — casa com de/da/do/das/dos)
-    "obras? de engenharia", "obras? civis?",
-    "construção", "construcao", "ampliação", "ampliacao",
-    "reforma", "pavimentação", "pavimentacao",
-    "execução de obra", "execucao de obra",
+    "obras? de engenharia",
+    "obras? civis?",
+    "construção",
+    "construcao",
+    "ampliação",
+    "ampliacao",
+    "reforma",
+    "pavimentação",
+    "pavimentacao",
+    "execução de obra",
+    "execucao de obra",
     # Tipos de edificação tipicamente construídos/reformados
-    "gin[áa]sio", "quadra (poliesportiva|coberta|esportiva)",
-    "escola", "creche", "ubs\\b", "posto de sa[úu]de",
-    "unidade (b[áa]sica )?de sa[úu]de", "hospital",
+    "gin[áa]sio",
+    "quadra (poliesportiva|coberta|esportiva)",
+    "escola",
+    "creche",
+    "ubs\\b",
+    "posto de sa[úu]de",
+    "unidade (b[áa]sica )?de sa[úu]de",
+    "hospital",
     "terminal (urbano|rodovi[áa]rio|de transporte)",
-    "centro (comunit[áa]rio|esportivo)", "praça", "praca",
-    "ponte", "viaduto", "passarela",
+    "centro (comunit[áa]rio|esportivo)",
+    "praça",
+    "praca",
+    "ponte",
+    "viaduto",
+    "passarela",
     # Projetos e serviços técnicos de engenharia
     "projeto (executivo|b[áa]sico|arquitet[ôo]nico)",
-    "fiscalização de obra", "fiscalizacao de obra",
-    "supervisão de obra", "supervisao de obra",
+    "fiscalização de obra",
+    "fiscalizacao de obra",
+    "supervisão de obra",
+    "supervisao de obra",
 ]
 
 
@@ -264,9 +437,7 @@ def _filter_false_positives(contracts: list[dict], setor: str) -> list[dict]:
 
         if neg_match and not rescue_match:
             if len(removed_examples) < 5:
-                removed_examples.append(
-                    f"  [{c.get('nome_fornecedor', '?')[:40]}] {obj[:100]}"
-                )
+                removed_examples.append(f"  [{c.get('nome_fornecedor', '?')[:40]}] {obj[:100]}")
             continue
 
         filtered.append(c)
@@ -280,6 +451,7 @@ def _filter_false_positives(contracts: list[dict], setor: str) -> list[dict]:
 
 
 # ── Core: Coleta ────────────────────────────────────────────
+
 
 def collect_setorial(
     setor: str,
@@ -369,8 +541,7 @@ def collect_setorial(
 
     # ── Valores ──────────────────────────────────────────
     valores = sorted(
-        [float(r["valor_global"]) for r in all_contracts
-         if r.get("valor_global") and float(r["valor_global"]) > 0]
+        [float(r["valor_global"]) for r in all_contracts if r.get("valor_global") and float(r["valor_global"]) > 0]
     )
     valor_total = sum(valores)
 
@@ -438,12 +609,14 @@ def collect_setorial(
             objs = " ".join(o["objetos"]).lower()
             segs = [seg for seg, kws in SEGMENT_KEYWORDS.items() if any(k in objs for k in kws)]
             if segs:
-                recorrencia.append({
-                    "orgao": o["nome"],
-                    "n_contratos": o["n"],
-                    "segmentos": segs[:3],
-                    "valor_total": round(o["valor"], 2),
-                })
+                recorrencia.append(
+                    {
+                        "orgao": o["nome"],
+                        "n_contratos": o["n"],
+                        "segmentos": segs[:3],
+                        "valor_total": round(o["valor"], 2),
+                    }
+                )
 
     return {
         "meta": {
@@ -463,7 +636,9 @@ def collect_setorial(
         },
         "orgaos": [
             {
-                "nome": o["nome"], "cnpj": o["cnpj"], "n_contratos": o["n"],
+                "nome": o["nome"],
+                "cnpj": o["cnpj"],
+                "n_contratos": o["n"],
                 "valor_total": round(o["valor"], 2),
                 "ticket_medio": round(o["valor"] / o["n"], 2) if o["n"] else 0,
                 "objetos_tipicos": o["objetos"][:3],
@@ -472,7 +647,9 @@ def collect_setorial(
         ],
         "fornecedores": [
             {
-                "nome": f["nome"], "cnpj": f["cnpj"], "n_contratos": f["n"],
+                "nome": f["nome"],
+                "cnpj": f["cnpj"],
+                "n_contratos": f["n"],
                 "valor_total": round(f["valor"], 2),
                 "ticket_medio": round(f["valor"] / f["n"], 2) if f["n"] else 0,
                 "n_orgaos": len(f["orgaos"]),
@@ -482,7 +659,8 @@ def collect_setorial(
         ],
         "segmentos": [
             {"segmento": seg, "n": d["n"], "valor_total": round(d["valor_total"], 2)}
-            for seg, d in ranked_seg if d["n"] > 0
+            for seg, d in ranked_seg
+            if d["n"] > 0
         ],
         "distribuicao_valores": {
             "n": len(valores),
@@ -494,19 +672,18 @@ def collect_setorial(
             "media": round(sum(valores) / len(valores), 2) if valores else 0,
             "total": round(sum(valores), 2),
         },
-        "sazonalidade": {
-            m: {"n": d["n"], "valor_total": round(d["valor"], 2)}
-            for m, d in sorted(monthly.items())
-        },
+        "sazonalidade": {m: {"n": d["n"], "valor_total": round(d["valor"], 2)} for m, d in sorted(monthly.items())},
         "recorrencia": recorrencia[:15],
     }
 
 
 # ── Output: Markdown ────────────────────────────────────────
 
+
 def _md_safe(s: str) -> str:
     """Escapa pipes e newlines para células de tabela Markdown."""
     return (s or "").replace("|", "\\|").replace("\n", " ").replace("\r", "")
+
 
 def generate_markdown(data: dict, setor: str, uf: str) -> str:
     """Gera relatório Markdown executivo a partir dos dados consolidados."""
@@ -523,43 +700,47 @@ def generate_markdown(data: dict, setor: str, uf: str) -> str:
     lines: list[str] = []
     a = lines.append
 
-    a(f"# Dossiê Demo Extra Consultoria Intelligence")
-    a(f"")
+    a("# Dossiê Demo Extra Consultoria Intelligence")
+    a("")
     a(f"## Inteligência B2G para {setor_nome} em {uf}")
-    a(f"")
+    a("")
     a(f"**Data de geração:** {m['data_geracao']}  ")
-    a(f"**Classificação:** DEMONSTRAÇÃO — Dados Reais de Contratos Públicos  ")
+    a("**Classificação:** DEMONSTRAÇÃO — Dados Reais de Contratos Públicos  ")
     a(f"**Versão do script:** {VERSION}  ")
-    a(f"**Preparado por:** Extra Consultoria Intelligence")
-    a(f"")
-    a(f"---")
-    a(f"")
-    a(f"## 1. Sumário Executivo")
-    a(f"")
+    a("**Preparado por:** Extra Consultoria Intelligence")
+    a("")
+    a("---")
+    a("")
+    a("## 1. Sumário Executivo")
+    a("")
 
     # Sumário comercial automático
     top_f = forns[0] if forns else {"nome": "N/D", "valor_total": 0}
     top_o = orgs[0] if orgs else {"nome": "N/D", "n_contratos": 0}
     top_seg = segs[0] if segs else {"segmento": "N/D", "valor_total": 0}
 
-    a(f"**O mercado de {setor_nome.lower()} em {uf} movimentou {_fmt_brl(m['valor_total'])} em contratos públicos nos últimos {m['periodo']}**, "
-      f"distribuídos em {_fmt_num(m['total_contratos'])} contratações de {m['orgaos_distintos']} órgãos públicos diferentes.")
-    a(f"")
-    a(f"**Por que isso importa para uma empresa que vende ao governo:**")
-    a(f"")
+    a(
+        f"**O mercado de {setor_nome.lower()} em {uf} movimentou {_fmt_brl(m['valor_total'])} em contratos públicos nos últimos {m['periodo']}**, "
+        f"distribuídos em {_fmt_num(m['total_contratos'])} contratações de {m['orgaos_distintos']} órgãos públicos diferentes."
+    )
+    a("")
+    a("**Por que isso importa para uma empresa que vende ao governo:**")
+    a("")
     a(f"- **{_fmt_brl(m['valor_total'])}** em contratos assinados — o mercado existe e é mensurável.")
     if segs:
-        a(f"- **{top_seg['segmento']} domina com {_fmt_brl(top_seg['valor_total'])}** — é o segmento de maior demanda em {uf}.")
+        a(
+            f"- **{top_seg['segmento']} domina com {_fmt_brl(top_seg['valor_total'])}** — é o segmento de maior demanda em {uf}."
+        )
     a(f"- **{m['fornecedores_ativos']} fornecedores ativos** — mercado fragmentado, sem monopólio evidente.")
     a(f"- **{m['orgaos_distintos']} órgãos compradores distintos** — base pulverizada, múltiplos pontos de entrada.")
     a(f"- **Mediana de {_fmt_brl(dv['p50'])} por contrato** — acessível a empresas de pequeno e médio porte.")
-    a(f"")
+    a("")
 
     # Achados principais (top 5 automáticos)
-    a(f"## 2. Principais Métricas")
-    a(f"")
-    a(f"| Métrica | Valor |")
-    a(f"|---------|-------|")
+    a("## 2. Principais Métricas")
+    a("")
+    a("| Métrica | Valor |")
+    a("|---------|-------|")
     a(f"| Contratos analisados | {_fmt_num(m['total_contratos'])} |")
     a(f"| Valor total | {_fmt_brl(m['valor_total'])} |")
     a(f"| Órgãos distintos | {m['orgaos_distintos']} |")
@@ -570,102 +751,118 @@ def generate_markdown(data: dict, setor: str, uf: str) -> str:
     a(f"| Segmento dominante | {top_seg['segmento']} ({_fmt_brl(top_seg['valor_total'])}) |")
     a(f"| Top órgão | {top_o['nome'][:60]} ({top_o['n_contratos']} contratos) |")
     a(f"| Top fornecedor | {top_f['nome'][:60]} ({_fmt_brl(top_f['valor_total'])}) |")
-    a(f"")
-    a(f"## 3. Recorte Analisado")
-    a(f"")
-    a(f"| Dimensão | Valor |")
-    a(f"|----------|-------|")
+    a("")
+    a("## 3. Recorte Analisado")
+    a("")
+    a("| Dimensão | Valor |")
+    a("|----------|-------|")
     a(f"| Setor analisado | {setor_nome} |")
     a(f"| UF | {uf} |")
     a(f"| Período | {m['periodo']} |")
-    a(f"| Fonte primária | PNCP — Contratos homologados (pncp_supplier_contracts) |")
-    a(f"| Contratos analisados | {_fmt_num(m['total_contratos'])} (após deduplicação e filtro valor >= {_fmt_brl(m['valor_min_filtro'])}) |")
+    a("| Fonte primária | PNCP — Contratos homologados (pncp_supplier_contracts) |")
+    a(
+        f"| Contratos analisados | {_fmt_num(m['total_contratos'])} (após deduplicação e filtro valor >= {_fmt_brl(m['valor_min_filtro'])}) |"
+    )
     a(f"| Valor total analisado | {_fmt_brl(m['valor_total'])} |")
     a(f"| Órgãos identificados | {m['orgaos_distintos']} órgãos distintos |")
     a(f"| Fornecedores ativos | {m['fornecedores_ativos']} CNPJs distintos |")
-    a(f"| Metodologia | Busca por palavras-chave setoriais com deduplicação por número de controle PNCP |")
+    a("| Metodologia | Busca por palavras-chave setoriais com deduplicação por número de controle PNCP |")
     a(f"| Keywords utilizadas | {', '.join(m.get('keywords_utilizadas', ['N/D']))} |")
-    a(f"")
-    a(f"## 4. Principais Achados")
-    a(f"")
+    a("")
+    a("## 4. Principais Achados")
+    a("")
 
     # Gerar achados automaticamente
     achados = []
 
     if segs:
-        achados.append({
-            "titulo": f"{top_seg['segmento']} é o segmento dominante",
-            "evidencia": f"{top_seg['segmento']} representa {top_seg['valor_total']/m['valor_total']*100:.0f}% do valor total contratado ({_fmt_brl(top_seg['valor_total'])}) em {top_seg['n']} contratos.",
-            "estrategia": f"Empresas com capacidade neste segmento têm demanda comprovada. Empresas sem este perfil devem focar em segmentos secundários.",
-        })
+        achados.append(
+            {
+                "titulo": f"{top_seg['segmento']} é o segmento dominante",
+                "evidencia": f"{top_seg['segmento']} representa {top_seg['valor_total'] / m['valor_total'] * 100:.0f}% do valor total contratado ({_fmt_brl(top_seg['valor_total'])}) em {top_seg['n']} contratos.",
+                "estrategia": "Empresas com capacidade neste segmento têm demanda comprovada. Empresas sem este perfil devem focar em segmentos secundários.",
+            }
+        )
 
     if dv["p50"] > 0 and dv["p75"] > dv["p50"] * 3:
-        achados.append({
-            "titulo": "Alta dispersão de valores — oportunidades para todos os portes",
-            "evidencia": f"A mediana é {_fmt_brl(dv['p50'])} mas o P75 é {_fmt_brl(dv['p75'])} — {dv['p75']/dv['p50']:.0f}x maior. Os 10% maiores contratos ultrapassam {_fmt_brl(dv['p90'])}.",
-            "estrategia": "Empresas de pequeno/médio porte devem mirar o P50. Empresas maiores têm menos concorrência no P90+.",
-        })
+        achados.append(
+            {
+                "titulo": "Alta dispersão de valores — oportunidades para todos os portes",
+                "evidencia": f"A mediana é {_fmt_brl(dv['p50'])} mas o P75 é {_fmt_brl(dv['p75'])} — {dv['p75'] / dv['p50']:.0f}x maior. Os 10% maiores contratos ultrapassam {_fmt_brl(dv['p90'])}.",
+                "estrategia": "Empresas de pequeno/médio porte devem mirar o P50. Empresas maiores têm menos concorrência no P90+.",
+            }
+        )
 
     if saz:
         meses_ord = sorted(saz.keys())
         if len(meses_ord) >= 3:
             pico_mes = max(saz.keys(), key=lambda m: saz[m]["valor_total"])
             vale_mes = min(saz.keys(), key=lambda m: saz[m]["valor_total"])
-            achados.append({
-                "titulo": f"Sazonalidade marcante — pico em {pico_mes}",
-                "evidencia": f"{pico_mes} concentrou {_fmt_brl(saz[pico_mes]['valor_total'])} em {saz[pico_mes]['n']} contratos, versus {_fmt_brl(saz[vale_mes]['valor_total'])} em {vale_mes}.",
-                "estrategia": f"Preparação de propostas deve começar 60-90 dias antes do pico sazonal. Abordagem comercial deve anteceder o ciclo de contratação.",
-            })
+            achados.append(
+                {
+                    "titulo": f"Sazonalidade marcante — pico em {pico_mes}",
+                    "evidencia": f"{pico_mes} concentrou {_fmt_brl(saz[pico_mes]['valor_total'])} em {saz[pico_mes]['n']} contratos, versus {_fmt_brl(saz[vale_mes]['valor_total'])} em {vale_mes}.",
+                    "estrategia": "Preparação de propostas deve começar 60-90 dias antes do pico sazonal. Abordagem comercial deve anteceder o ciclo de contratação.",
+                }
+            )
 
     if m["orgaos_distintos"] > 50:
-        achados.append({
-            "titulo": "Mercado pulverizado — base de órgãos compradores extensa",
-            "evidencia": f"{m['orgaos_distintos']} órgãos distintos contrataram no período. Nenhum órgão concentra mais de {orgs[0]['valor_total']/m['valor_total']*100:.0f}% do valor total.",
-            "estrategia": "A estratégia de vendas deve ser capilar. Priorize os top 20 órgãos (que concentram a maior parte do valor) e expanda gradualmente.",
-        })
+        achados.append(
+            {
+                "titulo": "Mercado pulverizado — base de órgãos compradores extensa",
+                "evidencia": f"{m['orgaos_distintos']} órgãos distintos contrataram no período. Nenhum órgão concentra mais de {orgs[0]['valor_total'] / m['valor_total'] * 100:.0f}% do valor total.",
+                "estrategia": "A estratégia de vendas deve ser capilar. Priorize os top 20 órgãos (que concentram a maior parte do valor) e expanda gradualmente.",
+            }
+        )
 
     if len(forns) >= 10:
         top3_share = sum(f["valor_total"] for f in forns[:3]) / m["valor_total"] * 100
-        achados.append({
-            "titulo": f"Top 3 fornecedores detêm apenas {top3_share:.0f}% do mercado — sem monopólio",
-            "evidencia": f"Os 3 maiores fornecedores somam {_fmt_brl(sum(f['valor_total'] for f in forns[:3]))} de {_fmt_brl(m['valor_total'])}.",
-            "estrategia": "Há espaço para novos entrantes. A barreira não é tamanho do concorrente, mas capacidade de identificar e se posicionar para oportunidades.",
-        })
+        achados.append(
+            {
+                "titulo": f"Top 3 fornecedores detêm apenas {top3_share:.0f}% do mercado — sem monopólio",
+                "evidencia": f"Os 3 maiores fornecedores somam {_fmt_brl(sum(f['valor_total'] for f in forns[:3]))} de {_fmt_brl(m['valor_total'])}.",
+                "estrategia": "Há espaço para novos entrantes. A barreira não é tamanho do concorrente, mas capacidade de identificar e se posicionar para oportunidades.",
+            }
+        )
 
     for i, ac in enumerate(achados[:8]):
-        a(f"### Achado {i+1} — {ac['titulo']}")
-        a(f"")
+        a(f"### Achado {i + 1} — {ac['titulo']}")
+        a("")
         a(f"**Evidência:** {ac['evidencia']}")
-        a(f"")
+        a("")
         a(f"**Implicação comercial:** {ac['estrategia']}")
-        a(f"")
+        a("")
 
     # ── Órgãos ───────────────────────────────────────────
-    a(f"## 5. Órgãos Compradores Prioritários")
-    a(f"")
-    a(f"| # | Órgão | Contratos | Valor Total | Ticket Médio | Objetos Típicos |")
-    a(f"|---|-------|-----------|-------------|--------------|-----------------|")
+    a("## 5. Órgãos Compradores Prioritários")
+    a("")
+    a("| # | Órgão | Contratos | Valor Total | Ticket Médio | Objetos Típicos |")
+    a("|---|-------|-----------|-------------|--------------|-----------------|")
     for i, o in enumerate(orgs[:20]):
         ticket = o["valor_total"] / o["n_contratos"] if o["n_contratos"] else 0
         obj = _md_safe(o["objetos_tipicos"][0][:80]) if o["objetos_tipicos"] else "-"
-        a(f"| {i+1} | {_md_safe(o['nome'][:55])} | {o['n_contratos']} | {_fmt_brl(o['valor_total'])} | {_fmt_brl(ticket)} | {obj} |")
-    a(f"")
+        a(
+            f"| {i + 1} | {_md_safe(o['nome'][:55])} | {o['n_contratos']} | {_fmt_brl(o['valor_total'])} | {_fmt_brl(ticket)} | {obj} |"
+        )
+    a("")
 
     # ── Fornecedores ─────────────────────────────────────
-    a(f"## 6. Fornecedores/Concorrentes Recorrentes")
-    a(f"")
-    a(f"| # | Fornecedor | CNPJ | Contratos | Valor Total | Órgãos | Ticket Médio |")
-    a(f"|---|-----------|------|-----------|-------------|--------|--------------|")
+    a("## 6. Fornecedores/Concorrentes Recorrentes")
+    a("")
+    a("| # | Fornecedor | CNPJ | Contratos | Valor Total | Órgãos | Ticket Médio |")
+    a("|---|-----------|------|-----------|-------------|--------|--------------|")
     for i, f in enumerate(forns[:20]):
         ticket = f["valor_total"] / f["n_contratos"] if f["n_contratos"] else 0
-        a(f"| {i+1} | {_md_safe(f['nome'][:50])} | {f['cnpj'][:14]} | {f['n_contratos']} | {_fmt_brl(f['valor_total'])} | {f['n_orgaos']} | {_fmt_brl(ticket)} |")
-    a(f"")
+        a(
+            f"| {i + 1} | {_md_safe(f['nome'][:50])} | {f['cnpj'][:14]} | {f['n_contratos']} | {_fmt_brl(f['valor_total'])} | {f['n_orgaos']} | {_fmt_brl(ticket)} |"
+        )
+    a("")
 
     # ── Faixas de valor ──────────────────────────────────
-    a(f"## 7. Faixas de Valor e Padrões de Contratação")
-    a(f"")
-    a(f"| Indicador | Valor |")
-    a(f"|-----------|-------|")
+    a("## 7. Faixas de Valor e Padrões de Contratação")
+    a("")
+    a("| Indicador | Valor |")
+    a("|-----------|-------|")
     a(f"| Total | {_fmt_brl(dv['total'])} |")
     a(f"| Média | {_fmt_brl(dv['media'])} |")
     a(f"| P10 | {_fmt_brl(dv['p10'])} |")
@@ -673,52 +870,54 @@ def generate_markdown(data: dict, setor: str, uf: str) -> str:
     a(f"| P50 (mediana) | {_fmt_brl(dv['p50'])} |")
     a(f"| P75 | {_fmt_brl(dv['p75'])} |")
     a(f"| P90 | {_fmt_brl(dv['p90'])} |")
-    a(f"")
-    a(f"**Leitura:** 50% dos contratos estão entre {_fmt_brl(dv['p25'])} e {_fmt_brl(dv['p75'])}. "
-      f"Contratos acima de {_fmt_brl(dv['p90'])} representam os 10% maiores e tendem a ter concorrência mais qualificada.")
-    a(f"")
+    a("")
+    a(
+        f"**Leitura:** 50% dos contratos estão entre {_fmt_brl(dv['p25'])} e {_fmt_brl(dv['p75'])}. "
+        f"Contratos acima de {_fmt_brl(dv['p90'])} representam os 10% maiores e tendem a ter concorrência mais qualificada."
+    )
+    a("")
 
     # ── Segmentos ────────────────────────────────────────
     if segs:
-        a(f"## 8. Segmentos ou Subcategorias Relevantes")
-        a(f"")
-        a(f"| Segmento | Contratos | Valor Total | % do Total |")
-        a(f"|----------|-----------|-------------|------------|")
+        a("## 8. Segmentos ou Subcategorias Relevantes")
+        a("")
+        a("| Segmento | Contratos | Valor Total | % do Total |")
+        a("|----------|-----------|-------------|------------|")
         for seg in segs[:12]:
             pct = seg["valor_total"] / m["valor_total"] * 100 if m["valor_total"] else 0
             a(f"| {seg['segmento']} | {seg['n']} | {_fmt_brl(seg['valor_total'])} | {pct:.0f}% |")
-        a(f"")
-        a(f"**Nota:** Um mesmo contrato pode pertencer a múltiplos segmentos. Percentuais não somam 100%.")
-        a(f"")
+        a("")
+        a("**Nota:** Um mesmo contrato pode pertencer a múltiplos segmentos. Percentuais não somam 100%.")
+        a("")
 
     # ── Sazonalidade ─────────────────────────────────────
     if len(saz) >= 3:
-        a(f"## 9. Sazonalidade")
-        a(f"")
-        a(f"| Mês | Contratos | Valor Total |")
-        a(f"|-----|-----------|-------------|")
+        a("## 9. Sazonalidade")
+        a("")
+        a("| Mês | Contratos | Valor Total |")
+        a("|-----|-----------|-------------|")
         for m_key in sorted(saz.keys()):
             d = saz[m_key]
             a(f"| {m_key} | {d['n']} | {_fmt_brl(d['valor_total'])} |")
-        a(f"")
+        a("")
 
     # ── Recorrência ──────────────────────────────────────
     if rec:
-        a(f"## 10. Indícios de Recorrência")
-        a(f"")
-        a(f"**Atenção:** São padrões históricos observáveis, não previsão garantida de contratação futura.")
-        a(f"")
-        a(f"| Órgão | Contratos | Segmentos Principais |")
-        a(f"|-------|-----------|---------------------|")
+        a("## 10. Indícios de Recorrência")
+        a("")
+        a("**Atenção:** São padrões históricos observáveis, não previsão garantida de contratação futura.")
+        a("")
+        a("| Órgão | Contratos | Segmentos Principais |")
+        a("|-------|-----------|---------------------|")
         for r in rec[:10]:
             a(f"| {_md_safe(r['orgao'][:50])} | {r['n_contratos']} | {', '.join(r['segmentos'])} |")
-        a(f"")
+        a("")
 
     # ── Oportunidades ────────────────────────────────────
-    a(f"## 11. Oportunidades Comerciais Priorizadas")
-    a(f"")
-    a(f"| # | Órgão-Alvo | Racional | Confiança | Esforço |")
-    a(f"|---|-----------|----------|-----------|---------|")
+    a("## 11. Oportunidades Comerciais Priorizadas")
+    a("")
+    a("| # | Órgão-Alvo | Racional | Confiança | Esforço |")
+    a("|---|-----------|----------|-----------|---------|")
     for i, o in enumerate(orgs[:10]):
         ticket = o["valor_total"] / o["n_contratos"] if o["n_contratos"] else 0
         if ticket > 1_000_000:
@@ -733,75 +932,100 @@ def generate_markdown(data: dict, setor: str, uf: str) -> str:
             confianca = "Baixa"
             esforco = "Baixo"
             racional = f"Ticket baixo ({_fmt_brl(ticket)}). Pode ser porta de entrada para relacionamento."
-        a(f"| {i+1} | {_md_safe(o['nome'][:45])} | {racional} | {confianca} | {esforco} |")
-    a(f"")
+        a(f"| {i + 1} | {_md_safe(o['nome'][:45])} | {racional} | {confianca} | {esforco} |")
+    a("")
 
     # ── Riscos ──────────────────────────────────────────
-    a(f"## 12. Riscos e Limitações")
-    a(f"")
-    a(f"**Limitações metodológicas deste dossiê:**")
-    a(f"")
-    a(f"1. **Fonte única:** Dados provenientes exclusivamente do PNCP. Contratos não publicados ou publicados apenas em diários oficiais podem não estar cobertos.")
-    a(f"2. **Ruído em objetos contratuais:** Descrições genéricas ou imprecisas podem causar falsos positivos (ex: materiais de construção classificados como obra).")
-    a(f"3. **Busca por palavras-chave:** Contratos com objetos mal descritos podem não ser capturados.")
-    a(f"4. **Cobertura do DataLake:** O período analisado está limitado à retenção do DataLake. Contratos muito antigos podem não estar disponíveis.")
-    a(f"5. **Sem verificação de aditivos:** Os valores são os originais do contrato. Aditivos posteriores não estão refletidos.")
-    a(f"6. **Não é recomendação de investimento:** Este documento é uma demonstração de inteligência de mercado. Não substitui due diligence jurídica, técnica ou comercial.")
-    a(f"7. **Demonstração:** Esta é uma versão demo gerada automaticamente. A versão premium incluiria análise documental de editais, perfil financeiro de concorrentes e monitoramento contínuo.")
-    a(f"")
+    a("## 12. Riscos e Limitações")
+    a("")
+    a("**Limitações metodológicas deste dossiê:**")
+    a("")
+    a(
+        "1. **Fonte única:** Dados provenientes exclusivamente do PNCP. Contratos não publicados ou publicados apenas em diários oficiais podem não estar cobertos."
+    )
+    a(
+        "2. **Ruído em objetos contratuais:** Descrições genéricas ou imprecisas podem causar falsos positivos (ex: materiais de construção classificados como obra)."
+    )
+    a("3. **Busca por palavras-chave:** Contratos com objetos mal descritos podem não ser capturados.")
+    a(
+        "4. **Cobertura do DataLake:** O período analisado está limitado à retenção do DataLake. Contratos muito antigos podem não estar disponíveis."
+    )
+    a(
+        "5. **Sem verificação de aditivos:** Os valores são os originais do contrato. Aditivos posteriores não estão refletidos."
+    )
+    a(
+        "6. **Não é recomendação de investimento:** Este documento é uma demonstração de inteligência de mercado. Não substitui due diligence jurídica, técnica ou comercial."
+    )
+    a(
+        "7. **Demonstração:** Esta é uma versão demo gerada automaticamente. A versão premium incluiria análise documental de editais, perfil financeiro de concorrentes e monitoramento contínuo."
+    )
+    a("")
 
     # ── Plano 30 dias ───────────────────────────────────
-    a(f"## 13. Plano de Ataque Comercial de 30 Dias")
-    a(f"")
-    a(f"### Semana 1 — Seleção e Inteligência")
-    a(f"- Selecionar 10 órgãos prioritários da Seção 5")
-    a(f"- Levantar CNPJ, telefone e email do setor de licitações de cada órgão")
-    a(f"- Verificar editais abertos destes órgãos no PNCP (últimos 30 dias)")
-    a(f"")
-    a(f"### Semana 2 — Abordagem Consultiva")
-    a(f"- Contato com 5 prefeituras de médio/alto valor")
-    a(f"- Contato com 5 prefeituras de menor porte (porta de entrada)")
-    a(f"- Follow-up dos contatos não respondidos")
-    a(f"")
-    a(f"### Semana 3 — Preparação Técnica")
-    a(f"- Para órgãos que responderam: solicitar editais e projetos básicos")
-    a(f"- Preparar documentação de habilitação (certidões atualizadas)")
-    a(f"- Elaborar planilha de preços para editais-alvo")
-    a(f"")
-    a(f"### Semana 4 — Follow-up e Refinamento")
-    a(f"- Follow-up de todos os contatos sem retorno")
-    a(f"- Novos contatos: prefeituras de pequeno porte")
-    a(f"- Planejamento do mês seguinte com base nos resultados")
-    a(f"")
+    a("## 13. Plano de Ataque Comercial de 30 Dias")
+    a("")
+    a("### Semana 1 — Seleção e Inteligência")
+    a("- Selecionar 10 órgãos prioritários da Seção 5")
+    a("- Levantar CNPJ, telefone e email do setor de licitações de cada órgão")
+    a("- Verificar editais abertos destes órgãos no PNCP (últimos 30 dias)")
+    a("")
+    a("### Semana 2 — Abordagem Consultiva")
+    a("- Contato com 5 prefeituras de médio/alto valor")
+    a("- Contato com 5 prefeituras de menor porte (porta de entrada)")
+    a("- Follow-up dos contatos não respondidos")
+    a("")
+    a("### Semana 3 — Preparação Técnica")
+    a("- Para órgãos que responderam: solicitar editais e projetos básicos")
+    a("- Preparar documentação de habilitação (certidões atualizadas)")
+    a("- Elaborar planilha de preços para editais-alvo")
+    a("")
+    a("### Semana 4 — Follow-up e Refinamento")
+    a("- Follow-up de todos os contatos sem retorno")
+    a("- Novos contatos: prefeituras de pequeno porte")
+    a("- Planejamento do mês seguinte com base nos resultados")
+    a("")
 
     # ── ROI ─────────────────────────────────────────────
-    a(f"## 14. Como Este Relatório se Paga")
-    a(f"")
-    a(f"1. **Economia de tempo:** Levantar manualmente estes dados consumiria 40-80 horas de um diretor comercial. A R$ 150/hora, isso equivale a R$ 6.000-12.000.")
-    a(f"2. **Priorização:** Focar nos 20 órgãos que mais contratam aumenta a taxa de conversão versus prospecção aleatória.")
-    a(f"3. **Precificação:** Saber a mediana de {_fmt_brl(dv['p50'])} e o P90 de {_fmt_brl(dv['p90'])} permite calibrar o porte de edital adequado ao seu negócio.")
-    a(f"4. **Antecipação:** Conhecer o ciclo de contratação permite preparar documentação antes do edital sair.")
-    a(f"")
+    a("## 14. Como Este Relatório se Paga")
+    a("")
+    a(
+        "1. **Economia de tempo:** Levantar manualmente estes dados consumiria 40-80 horas de um diretor comercial. A R$ 150/hora, isso equivale a R$ 6.000-12.000."
+    )
+    a(
+        "2. **Priorização:** Focar nos 20 órgãos que mais contratam aumenta a taxa de conversão versus prospecção aleatória."
+    )
+    a(
+        f"3. **Precificação:** Saber a mediana de {_fmt_brl(dv['p50'])} e o P90 de {_fmt_brl(dv['p90'])} permite calibrar o porte de edital adequado ao seu negócio."
+    )
+    a("4. **Antecipação:** Conhecer o ciclo de contratação permite preparar documentação antes do edital sair.")
+    a("")
 
     # ── Próximos passos ─────────────────────────────────
-    a(f"## 15. Próximos Passos")
-    a(f"")
-    a(f"1. **Validar os órgãos prioritários** contra sua própria experiência e região de atuação.")
-    a(f"2. **Solicitar versão personalizada** com seu CNPJ — inclui acervo compatível, concorrentes específicos e oportunidades abertas.")
-    a(f"3. **Contratar monitoramento mensal** para não perder novos editais nos órgãos prioritários.")
-    a(f"4. **War room para edital específico** — dossiê completo com documentos, preços de referência e checklist de habilitação.")
-    a(f"")
-    a(f"---")
-    a(f"")
+    a("## 15. Próximos Passos")
+    a("")
+    a("1. **Validar os órgãos prioritários** contra sua própria experiência e região de atuação.")
+    a(
+        "2. **Solicitar versão personalizada** com seu CNPJ — inclui acervo compatível, concorrentes específicos e oportunidades abertas."
+    )
+    a("3. **Contratar monitoramento mensal** para não perder novos editais nos órgãos prioritários.")
+    a(
+        "4. **War room para edital específico** — dossiê completo com documentos, preços de referência e checklist de habilitação."
+    )
+    a("")
+    a("---")
+    a("")
     a(f"*Dossiê gerado por Extra Consultoria Intelligence em {m['data_geracao']}.*  ")
-    a(f"*Dados: PNCP via DataLake Supabase. Metodologia: extração por palavras-chave setoriais com deduplicação.*  ")
-    a(f"*Este documento é uma demonstração de capacidade analítica. Não constitui recomendação de investimento ou garantia de resultado.*  ")
-    a(f"")
+    a("*Dados: PNCP via DataLake Supabase. Metodologia: extração por palavras-chave setoriais com deduplicação.*  ")
+    a(
+        "*Este documento é uma demonstração de capacidade analítica. Não constitui recomendação de investimento ou garantia de resultado.*  "
+    )
+    a("")
 
     return "\n".join(lines)
 
 
 # ── Output: CSV ────────────────────────────────────────────
+
 
 def generate_csv(data: dict, filepath: Path) -> None:
     """Gera CSV com órgãos, fornecedores e segmentos."""
@@ -811,14 +1035,32 @@ def generate_csv(data: dict, filepath: Path) -> None:
         w.writerow(["TIPO", "NOME", "CNPJ", "N_CONTRATOS", "VALOR_TOTAL", "TICKET_MEDIO", "DETALHES"])
         for o in data["orgaos"]:
             ticket = o["valor_total"] / o["n_contratos"] if o["n_contratos"] else 0
-            w.writerow(["ÓRGÃO", o["nome"], o["cnpj"], o["n_contratos"], o["valor_total"], round(ticket, 2),
-                        " | ".join([obj[:100] for obj in o.get("objetos_tipicos", [])[:2]])])
+            w.writerow(
+                [
+                    "ÓRGÃO",
+                    o["nome"],
+                    o["cnpj"],
+                    o["n_contratos"],
+                    o["valor_total"],
+                    round(ticket, 2),
+                    " | ".join([obj[:100] for obj in o.get("objetos_tipicos", [])[:2]]),
+                ]
+            )
         w.writerow([])
 
         for f in data["fornecedores"]:
             ticket = f["valor_total"] / f["n_contratos"] if f["n_contratos"] else 0
-            w.writerow(["FORNECEDOR", f["nome"], f["cnpj"], f["n_contratos"], f["valor_total"], round(ticket, 2),
-                        f"{f['n_orgaos']} órgãos | {' | '.join(f.get('objetos', [])[:1])}"])
+            w.writerow(
+                [
+                    "FORNECEDOR",
+                    f["nome"],
+                    f["cnpj"],
+                    f["n_contratos"],
+                    f["valor_total"],
+                    round(ticket, 2),
+                    f"{f['n_orgaos']} órgãos | {' | '.join(f.get('objetos', [])[:1])}",
+                ]
+            )
         w.writerow([])
 
         for seg in data["segmentos"]:
@@ -833,6 +1075,7 @@ def generate_csv(data: dict, filepath: Path) -> None:
 
 # ── Main ────────────────────────────────────────────────────
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Geração de Dossiê Demo B2G Setorial — v0.1",
@@ -844,13 +1087,37 @@ Exemplos:
   python scripts/demo_b2g_setorial.py --setor engenharia --uf SC --formato md --valor-min 50000
         """,
     )
-    parser.add_argument("--setor", required=True, help="Setor econômico (ex: engenharia, manutencao_predial, vestuario)")
+    parser.add_argument(
+        "--setor", required=True, help="Setor econômico (ex: engenharia, manutencao_predial, vestuario)"
+    )
     parser.add_argument("--uf", required=True, help="UF (ex: SC, SP, MG)")
-    parser.add_argument("--periodo-meses", type=int, default=DEFAULT_PERIODO_MESES, help=f"Meses de análise (default: {DEFAULT_PERIODO_MESES})")
-    parser.add_argument("--max-contratos", type=int, default=DEFAULT_MAX_CONTRATOS, help=f"Máximo de contratos (default: {DEFAULT_MAX_CONTRATOS})")
-    parser.add_argument("--valor-min", type=float, default=DEFAULT_VALOR_MIN, help=f"Valor mínimo por contrato (default: {DEFAULT_VALOR_MIN})")
-    parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_DIR, help=f"Diretório de saída (default: {DEFAULT_OUTPUT_DIR})")
-    parser.add_argument("--formato", choices=["md", "json", "csv", "todos"], default="todos", help="Formato(s) de saída (default: todos)")
+    parser.add_argument(
+        "--periodo-meses",
+        type=int,
+        default=DEFAULT_PERIODO_MESES,
+        help=f"Meses de análise (default: {DEFAULT_PERIODO_MESES})",
+    )
+    parser.add_argument(
+        "--max-contratos",
+        type=int,
+        default=DEFAULT_MAX_CONTRATOS,
+        help=f"Máximo de contratos (default: {DEFAULT_MAX_CONTRATOS})",
+    )
+    parser.add_argument(
+        "--valor-min",
+        type=float,
+        default=DEFAULT_VALOR_MIN,
+        help=f"Valor mínimo por contrato (default: {DEFAULT_VALOR_MIN})",
+    )
+    parser.add_argument(
+        "--output-dir", default=DEFAULT_OUTPUT_DIR, help=f"Diretório de saída (default: {DEFAULT_OUTPUT_DIR})"
+    )
+    parser.add_argument(
+        "--formato",
+        choices=["md", "json", "csv", "todos"],
+        default="todos",
+        help="Formato(s) de saída (default: todos)",
+    )
     args = parser.parse_args()
 
     setor = args.setor
@@ -918,7 +1185,7 @@ Exemplos:
         print(g)
 
     m = data["meta"]
-    print(f"\n=== RESUMO ===")
+    print("\n=== RESUMO ===")
     print(f"Contratos: {_fmt_num(m['total_contratos'])}")
     print(f"Valor total: {_fmt_brl(m['valor_total'])}")
     print(f"Órgãos distintos: {m['orgaos_distintos']}")

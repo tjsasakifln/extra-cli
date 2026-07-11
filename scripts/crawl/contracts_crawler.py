@@ -20,18 +20,24 @@ import json
 import logging
 import os
 import sys
+import time
+from datetime import date, timedelta
+from pathlib import Path
+from typing import Any
 
 from scripts.crawl.common import (
     digits_only as _digits_only,
+)
+from scripts.crawl.common import (
     generate_content_hash as _common_content_hash,
+)
+from scripts.crawl.common import (
     safe_date as _safe_date,
+)
+from scripts.crawl.common import (
     trunc as trunc,
 )
 from scripts.crawl.security import USER_AGENT, sanitize_url_param
-import time
-from datetime import date, datetime, timedelta
-from pathlib import Path
-from typing import Any
 
 # Add project root for standalone imports
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -49,8 +55,9 @@ CONTRACTS_PAGE_SIZE = int(os.getenv("CONTRACTS_PAGE_SIZE", "500"))
 CONTRACTS_MAX_PAGES = int(os.getenv("CONTRACTS_MAX_PAGES", "10000"))
 CONTRACTS_READ_TIMEOUT = int(os.getenv("CONTRACTS_READ_TIMEOUT", "30"))
 CONTRACTS_MAX_RETRIES = int(os.getenv("CONTRACTS_MAX_RETRIES", "3"))
-CONTRACTS_REQUEST_DELAY = float(os.getenv("CONTRACTS_REQUEST_DELAY", "0.5"))
-CONTRACTS_WINDOW_DAYS = int(os.getenv("CONTRACTS_WINDOW_DAYS", "90"))
+CONTRACTS_REQUEST_DELAY = float(os.getenv("CONTRACTS_REQUEST_DELAY", "1.0"))  # 1s between pages (avoid 429)
+CONTRACTS_WINDOW_DAYS = int(os.getenv("CONTRACTS_WINDOW_DAYS", "30"))  # Smaller windows reduce API load
+CONTRACTS_JANELA_DELAY = float(os.getenv("CONTRACTS_JANELA_DELAY", "5.0"))  # 5s between date windows
 CONTRACTS_FULL_DAYS = int(os.getenv("CONTRACTS_FULL_DAYS", "90"))
 CONTRACTS_INCREMENTAL_DAYS = int(os.getenv("CONTRACTS_INCREMENTAL_DAYS", "3"))
 
@@ -136,9 +143,7 @@ def _fmt(d: date) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _fetch_page(
-    data_ini: str, data_fim: str, page: int
-) -> tuple[list[dict], int, int]:
+def _fetch_page(data_ini: str, data_fim: str, page: int) -> tuple[list[dict], int, int]:
     """Fetch one page of contracts synchronously via urllib.
 
     Returns (items, total_records, total_pages).
@@ -186,12 +191,20 @@ def _fetch_page(
             if e.code in (404, 400):
                 logger.debug("PNCP HTTP %d for %s: %s", e.code, url, body_text)
                 return [], 0, 0
+            if e.code == 429:
+                wait = 10 * (attempt + 1)
+                logger.debug("PNCP 429, waiting %ds before retry %d/%d", wait, attempt + 1, CONTRACTS_MAX_RETRIES)
+                time.sleep(wait)
+                continue
             if attempt < CONTRACTS_MAX_RETRIES:
                 time.sleep(2**attempt)
                 continue
             logger.warning(
                 "PNCP HTTP %d after %d retries: %s — %s",
-                e.code, CONTRACTS_MAX_RETRIES, url, body_text,
+                e.code,
+                CONTRACTS_MAX_RETRIES,
+                url,
+                body_text,
             )
             return [], 0, 0
 
@@ -201,7 +214,10 @@ def _fetch_page(
                 continue
             logger.warning(
                 "PNCP network error page %d attempt %d/%d: %s — returning empty",
-                page, attempt, CONTRACTS_MAX_RETRIES, e,
+                page,
+                attempt,
+                CONTRACTS_MAX_RETRIES,
+                e,
             )
             return [], 0, 0
 
@@ -247,9 +263,7 @@ def _transform_record(rec: dict) -> dict | None:
                 break
 
         # Orgao name — unidade first, then orgao
-        orgao_nome = (
-            unidade.get("nomeUnidade") or orgao.get("razaoSocial") or ""
-        )[:300] or None
+        orgao_nome = (unidade.get("nomeUnidade") or orgao.get("razaoSocial") or "")[:300] or None
 
         # Dates
         data_publicacao = _safe_date(rec.get("dataAssinatura"))
@@ -344,10 +358,17 @@ def crawl(mode: str = "full") -> list[dict]:
         if window_records > 0:
             logger.info(
                 "Window %s->%s: %d records (%d pages)",
-                data_ini, data_fim, window_records, window_pages,
+                data_ini,
+                data_fim,
+                window_records,
+                window_pages,
             )
 
         cur = window_end + timedelta(days=1)
+
+        # Delay between date windows to respect rate limits
+        if cur < today:
+            time.sleep(CONTRACTS_JANELA_DELAY)
 
     return all_records
 

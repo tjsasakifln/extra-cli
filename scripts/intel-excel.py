@@ -22,6 +22,7 @@ from pathlib import Path
 # Windows console encoding fix
 if sys.platform == "win32":
     import io
+
     try:
         if hasattr(sys.stdout, "buffer"):
             sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -41,7 +42,7 @@ logger = setup_intel_logging("intel-excel")
 
 from openpyxl import Workbook
 from openpyxl.cell import WriteOnlyCell
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side, numbers
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 # ---------------------------------------------------------------------------
@@ -59,7 +60,7 @@ BLUE_TEXT = "1565C0"
 GRAY_TEXT = "808080"
 LINK_BLUE = "0563C1"
 
-CURRENCY_FMT = '[$R$-416] #,##0.00'
+CURRENCY_FMT = "[$R$-416] #,##0.00"
 DATE_FMT = "DD/MM/YYYY"
 DATETIME_FMT = "DD/MM/YYYY HH:MM"
 PCT_FMT = "0.0%"
@@ -70,37 +71,37 @@ _ILLEGAL_XML_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")
 
 # Column definitions: (header, width, align)
 COLUMNS = [
-    ("Recomendação", 16, "center"),           # 1  - analise.recomendacao_acao (PARTICIPAR/NÃO PARTICIPAR)
-    ("N\u00ba", 5, "center"),                # 2
-    ("Objeto", 55, "left"),                  # 3
-    ("\u00d3rg\u00e3o", 35, "left"),         # 4
-    ("UF", 5, "center"),                     # 5
-    ("Munic\u00edpio", 20, "left"),          # 6
-    ("Valor Estimado", 18, "right"),         # 7
-    ("Modalidade", 20, "left"),              # 8
+    ("Recomendação", 16, "center"),  # 1  - analise.recomendacao_acao (PARTICIPAR/NÃO PARTICIPAR)
+    ("N\u00ba", 5, "center"),  # 2
+    ("Objeto", 55, "left"),  # 3
+    ("\u00d3rg\u00e3o", 35, "left"),  # 4
+    ("UF", 5, "center"),  # 5
+    ("Munic\u00edpio", 20, "left"),  # 6
+    ("Valor Estimado", 18, "right"),  # 7
+    ("Modalidade", 20, "left"),  # 8
     ("Publica\u00e7\u00e3o", 13, "center"),  # 9
-    ("Abertura Propostas", 18, "center"),    # 10
-    ("Encerramento", 18, "center"),          # 11
-    ("Urgência", 12, "center"),             # 12 - status_temporal (URGENTE/IMINENTE/PLANEJÁVEL)
-    ("Distância (km)", 12, "right"),         # 13
-    ("Custo Proposta (R$)", 14, "right"),    # 14 — custo estimado para preparar + participar
-    ("ROI Proposta", 12, "center"),          # 15 — relação valor/custo: EXCELENTE >1000×
-    ("Aderência Perfil", 14, "center"),      # 16 - _victory_fit_label
-    ("Concorrência Setorial", 16, "center"), # 17 — nível de competição APENAS entre fornecedores do mesmo setor
+    ("Abertura Propostas", 18, "center"),  # 10
+    ("Encerramento", 18, "center"),  # 11
+    ("Urgência", 12, "center"),  # 12 - status_temporal (URGENTE/IMINENTE/PLANEJÁVEL)
+    ("Distância (km)", 12, "right"),  # 13
+    ("Custo Proposta (R$)", 14, "right"),  # 14 — custo estimado para preparar + participar
+    ("ROI Proposta", 12, "center"),  # 15 — relação valor/custo: EXCELENTE >1000×
+    ("Aderência Perfil", 14, "center"),  # 16 - _victory_fit_label
+    ("Concorrência Setorial", 16, "center"),  # 17 — nível de competição APENAS entre fornecedores do mesmo setor
     ("Fornecedores do Setor", 14, "right"),  # 18 — quantos fornecedores do setor já contrataram com o órgão
-    ("Principal Concorrente", 30, "left"),   # 19 — fornecedor com mais contratos no setor
-    ("Desconto Mediano (Órgão)", 16, "center"), # 20 — % mediano de desconto histórico (apenas compras do setor)
+    ("Principal Concorrente", 30, "left"),  # 19 — fornecedor com mais contratos no setor
+    ("Desconto Mediano (Órgão)", 16, "center"),  # 20 — % mediano de desconto histórico (apenas compras do setor)
     ("Lance Sugerido (R$)", 18, "right"),  # 21 — valor que maximiza P(vitória) × margem
-    ("Valor Esperado EV (R$)", 18, "right"), # 22 — EV = P(vitória) × margem líquida × valor estimado
-    ("P(Vitória)", 10, "center"),            # 23 — probabilidade estimada de vencer
-    ("Margem Líquida", 10, "center"),        # 24 — margem restante após desconto (BDI ref − desconto)
-    ("População", 12, "right"),              # 25
-    ("Compatível", 12, "center"),            # 26
-    ("Confiança CNAE", 12, "center"),        # 27 — pct
-    ("Dentro Capacidade", 14, "center"),     # 28
-    ("Relevância", 10, "center"),            # 29
-    ("Setor", 25, "left"),                   # 30
-    ("Link PNCP", 12, "center"),             # 31
+    ("Valor Esperado EV (R$)", 18, "right"),  # 22 — EV = P(vitória) × margem líquida × valor estimado
+    ("P(Vitória)", 10, "center"),  # 23 — probabilidade estimada de vencer
+    ("Margem Líquida", 10, "center"),  # 24 — margem restante após desconto (BDI ref − desconto)
+    ("População", 12, "right"),  # 25
+    ("Compatível", 12, "center"),  # 26
+    ("Confiança CNAE", 12, "center"),  # 27 — pct
+    ("Dentro Capacidade", 14, "center"),  # 28
+    ("Relevância", 10, "center"),  # 29
+    ("Setor", 25, "left"),  # 30
+    ("Link PNCP", 12, "center"),  # 31
 ]
 
 # ---------------------------------------------------------------------------
@@ -350,6 +351,7 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
         if isinstance(analise, str):
             try:
                 import json as _json
+
                 analise = _json.loads(analise)
             except Exception:
                 analise = {}
@@ -393,9 +395,7 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
             row.append(_dc(7, value="Sigiloso"))
 
         # Col 8: Modalidade
-        row.append(_dc(8, value=_sanitize(
-            item.get("modalidade_nome", item.get("modalidadeNome", ""))
-        )))
+        row.append(_dc(8, value=_sanitize(item.get("modalidade_nome", item.get("modalidadeNome", "")))))
 
         # Col 9: Data Publicacao
         dt_pub = _parse_dt(item.get("data_publicacao", item.get("dataPublicacaoPncp")))
@@ -429,7 +429,7 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
         dist_data = item.get("distancia", {})
         dist_km = _safe_float(dist_data.get("km")) if isinstance(dist_data, dict) else None
         if dist_km is not None:
-            row.append(_dc(13, value=dist_km, number_format='#,##0'))
+            row.append(_dc(13, value=dist_km, number_format="#,##0"))
         else:
             row.append(_dc(13, value=""))
 
@@ -523,7 +523,8 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
         # Col 23: P(Vitoria) — win probability
         win_prob = None
         if isinstance(bid_sim, dict):
-            pct = _safe_float(bid_sim.get("p_vitoria_pct")); win_prob = pct / 100.0 if pct is not None else None  # p_vitoria_pct is 0-100, Excel % fmt needs 0-1
+            pct = _safe_float(bid_sim.get("p_vitoria_pct"))
+            win_prob = pct / 100.0 if pct is not None else None  # p_vitoria_pct is 0-100, Excel % fmt needs 0-1
         if win_prob is not None:
             if win_prob >= 0.50:
                 prob_font = st["green_font"]
@@ -550,7 +551,7 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
         ibge_data = item.get("ibge", {})
         pop = ibge_data.get("populacao") if isinstance(ibge_data, dict) else None
         if pop is not None:
-            row.append(_dc(25, value=pop, number_format='#,##0'))
+            row.append(_dc(25, value=pop, number_format="#,##0"))
         else:
             row.append(_dc(25, value=""))
 
@@ -614,7 +615,7 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
 
         # Col 31: Link PNCP
         if link_pncp:
-            safe_url = str(link_pncp).replace('"', '%22')
+            safe_url = str(link_pncp).replace('"', "%22")
             link_val = f'=HYPERLINK("{safe_url}","Abrir")'
             row.append(_dc(31, value=link_val, font=st["link_font"]))
         else:
@@ -631,7 +632,8 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
             if col_idx == 2:
                 # Nº column: show count
                 c = _woc(
-                    ws, value=len(sorted_items),
+                    ws,
+                    value=len(sorted_items),
                     font=st["bold_font"],
                     border=st["thin_border"],
                     alignment=Alignment(horizontal=h_align, vertical="top"),
@@ -639,7 +641,8 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
             elif col_idx == 6:
                 # Municipio column: "TOTAL:" label
                 c = _woc(
-                    ws, value="TOTAL:",
+                    ws,
+                    value="TOTAL:",
                     font=st["bold_font"],
                     border=st["thin_border"],
                     alignment=Alignment(horizontal=h_align, vertical="top"),
@@ -647,7 +650,8 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
             elif col_idx == 7:
                 # Valor Estimado column: SUM formula (column G)
                 c = _woc(
-                    ws, value=f"=SUM(G2:G{total_row_idx - 1})",
+                    ws,
+                    value=f"=SUM(G2:G{total_row_idx - 1})",
                     font=st["bold_font"],
                     border=st["thin_border"],
                     number_format=CURRENCY_FMT,
@@ -655,7 +659,8 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
                 )
             else:
                 c = _woc(
-                    ws, value=None,
+                    ws,
+                    value=None,
                     border=st["thin_border"],
                     alignment=Alignment(horizontal=h_align, vertical="top"),
                 )
@@ -669,9 +674,14 @@ def _build_resumo_uf(wb: Workbook, items: list[dict]):
     st = _make_styles()
 
     # Aggregate
-    uf_data: dict[str, dict] = defaultdict(lambda: {
-        "qtd_total": 0, "qtd_compat": 0, "valor_total": 0.0, "valor_compat": 0.0,
-    })
+    uf_data: dict[str, dict] = defaultdict(
+        lambda: {
+            "qtd_total": 0,
+            "qtd_compat": 0,
+            "valor_total": 0.0,
+            "valor_compat": 0.0,
+        }
+    )
     for item in items:
         uf = item.get("uf", "N/D") or "N/D"
         d = uf_data[uf]
@@ -695,7 +705,8 @@ def _build_resumo_uf(wb: Workbook, items: list[dict]):
     header_row = []
     for h in headers:
         c = _woc(
-            ws, value=h,
+            ws,
+            value=h,
             font=st["header_font"],
             fill=st["header_fill"],
             alignment=st["header_align"],
@@ -720,10 +731,22 @@ def _build_resumo_uf(wb: Workbook, items: list[dict]):
         tr = len(uf_data) + 2
         total_row = [
             _woc(ws, value="TOTAL", font=st["bold_font"], border=st["thin_border"]),
-            _woc(ws, value=f"=SUM(B2:B{tr-1})", font=st["bold_font"], border=st["thin_border"]),
-            _woc(ws, value=f"=SUM(C2:C{tr-1})", font=st["bold_font"], border=st["thin_border"]),
-            _woc(ws, value=f"=SUM(D2:D{tr-1})", font=st["bold_font"], border=st["thin_border"], number_format=CURRENCY_FMT),
-            _woc(ws, value=f"=SUM(E2:E{tr-1})", font=st["bold_font"], border=st["thin_border"], number_format=CURRENCY_FMT),
+            _woc(ws, value=f"=SUM(B2:B{tr - 1})", font=st["bold_font"], border=st["thin_border"]),
+            _woc(ws, value=f"=SUM(C2:C{tr - 1})", font=st["bold_font"], border=st["thin_border"]),
+            _woc(
+                ws,
+                value=f"=SUM(D2:D{tr - 1})",
+                font=st["bold_font"],
+                border=st["thin_border"],
+                number_format=CURRENCY_FMT,
+            ),
+            _woc(
+                ws,
+                value=f"=SUM(E2:E{tr - 1})",
+                font=st["bold_font"],
+                border=st["thin_border"],
+                number_format=CURRENCY_FMT,
+            ),
         ]
         ws.append(total_row)
 
@@ -735,9 +758,7 @@ def _build_resumo_modalidade(wb: Workbook, items: list[dict]):
 
     mod_data: dict[str, dict] = defaultdict(lambda: {"qtd": 0, "valor_total": 0.0})
     for item in items:
-        mod = _sanitize(
-            item.get("modalidade_nome", item.get("modalidadeNome", ""))
-        ) or "N/D"
+        mod = _sanitize(item.get("modalidade_nome", item.get("modalidadeNome", ""))) or "N/D"
         d = mod_data[mod]
         d["qtd"] += 1
         d["valor_total"] += _safe_float(item.get("valor_estimado")) or 0.0
@@ -753,7 +774,8 @@ def _build_resumo_modalidade(wb: Workbook, items: list[dict]):
     header_row = []
     for h in headers:
         c = _woc(
-            ws, value=h,
+            ws,
+            value=h,
             font=st["header_font"],
             fill=st["header_fill"],
             alignment=st["header_align"],
@@ -774,8 +796,14 @@ def _build_resumo_modalidade(wb: Workbook, items: list[dict]):
         tr = len(mod_data) + 2
         total_row = [
             _woc(ws, value="TOTAL", font=st["bold_font"], border=st["thin_border"]),
-            _woc(ws, value=f"=SUM(B2:B{tr-1})", font=st["bold_font"], border=st["thin_border"]),
-            _woc(ws, value=f"=SUM(C2:C{tr-1})", font=st["bold_font"], border=st["thin_border"], number_format=CURRENCY_FMT),
+            _woc(ws, value=f"=SUM(B2:B{tr - 1})", font=st["bold_font"], border=st["thin_border"]),
+            _woc(
+                ws,
+                value=f"=SUM(C2:C{tr - 1})",
+                font=st["bold_font"],
+                border=st["thin_border"],
+                number_format=CURRENCY_FMT,
+            ),
         ]
         ws.append(total_row)
 
@@ -801,11 +829,7 @@ def _build_metadata(wb: Workbook, data: dict, items: list[dict]):
     total = len(items)
     compat_count = sum(1 for i in items if _cnae_label(i) == "SIM")
     incompat_count = total - compat_count
-    valor_compat = sum(
-        _safe_float(i.get("valor_estimado")) or 0
-        for i in items
-        if _cnae_label(i) == "SIM"
-    )
+    valor_compat = sum(_safe_float(i.get("valor_estimado")) or 0 for i in items if _cnae_label(i) == "SIM")
 
     # CNAE info
     cnae_principal = empresa.get("cnae_principal", {})
@@ -875,18 +899,23 @@ def _build_metadata(wb: Workbook, data: dict, items: list[dict]):
         ("Gerado em", datetime.now().strftime("%d/%m/%Y %H:%M:%S")),
         ("Script", "intel-collect.py + intel-enrich.py + intel-excel.py"),
         ("", ""),  # separator
-        ("NOTA - Aba 'Oportunidades'", f"{compat_count} oportunidades abertas identificadas em {ufs_str}. CNAE compatível + prazo vigente."),
+        (
+            "NOTA - Aba 'Oportunidades'",
+            f"{compat_count} oportunidades abertas identificadas em {ufs_str}. CNAE compatível + prazo vigente.",
+        ),
     ]
 
     for label, value in rows:
         label_cell = _woc(
-            ws, value=label,
+            ws,
+            value=label,
             font=label_font,
             fill=label_fill,
             border=st["thin_border"],
         )
         val_cell = _woc(
-            ws, value=value,
+            ws,
+            value=value,
             border=st["thin_border"],
             alignment=Alignment(wrap_text=True),
         )
@@ -910,13 +939,7 @@ def generate_excel(data: dict, output_path: str) -> str:
         Absolute path to generated file.
     """
     # Extract items — support multiple key names
-    items = (
-        data.get("oportunidades")
-        or data.get("items")
-        or data.get("editais")
-        or data.get("resultados")
-        or []
-    )
+    items = data.get("oportunidades") or data.get("items") or data.get("editais") or data.get("resultados") or []
 
     if not isinstance(items, list):
         logger.warning("campo de oportunidades nao e lista, tipo=%s", type(items).__name__)
@@ -933,9 +956,7 @@ def generate_excel(data: dict, output_path: str) -> str:
 
     # Split: main sheet = compatible + not expired; reference = all
     compat_items = [
-        it for it in items
-        if _cnae_label(it) == "SIM"
-        and str(it.get("status_temporal", "")).upper() != "EXPIRADO"
+        it for it in items if _cnae_label(it) == "SIM" and str(it.get("status_temporal", "")).upper() != "EXPIRADO"
     ]
 
     # Sheet 1: Oportunidades (only CNAE-compatible items)
@@ -964,8 +985,8 @@ def generate_excel(data: dict, output_path: str) -> str:
 
 def main():
     """Entry point for intel-excel CLI."""
-    from lib.constants import INTEL_VERSION
     from lib.cli_validation import validate_input_file
+    from lib.constants import INTEL_VERSION
 
     parser = argparse.ArgumentParser(
         description="Gera planilha Excel profissional a partir do JSON do intel-collect.py.",
@@ -975,17 +996,18 @@ def main():
   python scripts/intel-excel.py --input data.json --output planilha.xlsx""",
     )
     parser.add_argument(
-        "--input", "-i",
+        "--input",
+        "-i",
         required=True,
         help="Caminho do JSON de entrada (output do intel-collect.py). Deve existir.",
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         default=None,
         help="Caminho do .xlsx de saida (default: mesmo basename do input com extensao .xlsx)",
     )
-    parser.add_argument("--version", action="version",
-                        version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
 
     # ── Validate arguments ──
@@ -1001,30 +1023,25 @@ def main():
         output_path = f"{base}.xlsx"
 
     # Load JSON
-    with open(input_path, "r", encoding="utf-8") as f:
+    with open(input_path, encoding="utf-8") as f:
         data = json.load(f)
 
     # Generate
     abs_path = generate_excel(data, output_path)
 
     # Summary
-    items = (
-        data.get("oportunidades")
-        or data.get("items")
-        or data.get("editais")
-        or data.get("resultados")
-        or []
-    )
+    items = data.get("oportunidades") or data.get("items") or data.get("editais") or data.get("resultados") or []
     size_kb = os.path.getsize(abs_path) / 1024
     n = len(items) if isinstance(items, list) else 0
 
-    compat = sum(
-        1 for i in items
-        if _cnae_label(i) == "SIM" and str(i.get("status_temporal", "")).upper() != "EXPIRADO"
-    ) if isinstance(items, list) else 0
+    compat = (
+        sum(1 for i in items if _cnae_label(i) == "SIM" and str(i.get("status_temporal", "")).upper() != "EXPIRADO")
+        if isinstance(items, list)
+        else 0
+    )
 
     print(f"Excel gerado: {abs_path} ({compat} oportunidades, {size_kb:.0f}KB)")
-    print(f"  Abas: Oportunidades, Resumo por UF, Resumo por Modalidade, Metadata")
+    print("  Abas: Oportunidades, Resumo por UF, Resumo por Modalidade, Metadata")
 
 
 if __name__ == "__main__":

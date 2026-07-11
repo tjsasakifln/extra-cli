@@ -77,10 +77,7 @@ def send_email(subject: str, body: str) -> dict[str, Any]:
         RuntimeError: If SMTP is not configured.
     """
     if not SMTP_HOST or not SMTP_FROM or not SMTP_TO:
-        raise RuntimeError(
-            "SMTP not configured: set NOTIFY_SMTP_HOST, NOTIFY_SMTP_FROM, "
-            "NOTIFY_SMTP_TO"
-        )
+        raise RuntimeError("SMTP not configured: set NOTIFY_SMTP_HOST, NOTIFY_SMTP_FROM, NOTIFY_SMTP_TO")
 
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = f"[{PROJECT_NAME}] {subject}"
@@ -98,7 +95,8 @@ def send_email(subject: str, body: str) -> dict[str, Any]:
 
         logger.info(
             "Email sent to %s: %s",
-            SMTP_TO, subject,
+            SMTP_TO,
+            subject,
             extra={"extra_data": {"action": "notify_email", "to": SMTP_TO, "subject": subject}},
         )
         return {"success": True, "message": f"Email sent to {SMTP_TO}"}
@@ -131,9 +129,7 @@ def send_webhook(
     """
     url = webhook_url or WEBHOOK_URL
     if not url:
-        raise RuntimeError(
-            "Webhook not configured: set NOTIFY_WEBHOOK_URL"
-        )
+        raise RuntimeError("Webhook not configured: set NOTIFY_WEBHOOK_URL")
 
     # Slack-compatible message format (also works with Discord)
     payload: dict[str, Any] = {
@@ -166,7 +162,8 @@ def send_webhook(
         if 200 <= status < 300:
             logger.info(
                 "Webhook sent: %s (status=%d)",
-                subject, status,
+                subject,
+                status,
                 extra={
                     "extra_data": {
                         "action": "notify_webhook",
@@ -212,10 +209,7 @@ def dispatch(
             channels.append("webhook")
 
     if not channels:
-        logger.warning(
-            "No notification channels configured. "
-            "Set NOTIFY_SMTP_* or NOTIFY_WEBHOOK_URL."
-        )
+        logger.warning("No notification channels configured. Set NOTIFY_SMTP_* or NOTIFY_WEBHOOK_URL.")
         return []
 
     results: list[dict[str, Any]] = []
@@ -250,11 +244,14 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--subject", default="Alerta do sistema", help="Notification subject")
     p.add_argument("--body", default="", help="Notification body text")
-    p.add_argument("--channel", choices=["email", "webhook", "all"], default="all",
-                   help="Notification channel (default: all configured)")
+    p.add_argument(
+        "--channel",
+        choices=["email", "webhook", "all"],
+        default="all",
+        help="Notification channel (default: all configured)",
+    )
     p.add_argument("--webhook-url", help="Override webhook URL for this call")
-    p.add_argument("--test", action="store_true",
-                   help="Send a test notification to verify configuration")
+    p.add_argument("--test", action="store_true", help="Send a test notification to verify configuration")
     return p.parse_args()
 
 
@@ -265,11 +262,7 @@ def main() -> int:
     if args.test:
         logger.info("Sending test notification...")
         subject = "[TESTE] Notificacao de Teste — Extra Consultoria"
-        _now_ts = (
-            __import__("datetime")
-            .datetime.now(__import__("datetime").timezone.utc)
-            .isoformat()
-        )
+        _now_ts = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()
         body = (
             "Esta e uma notificacao de teste do sistema de monitoramento.\n\n"
             f"Host: {os.uname().nodename}\n"

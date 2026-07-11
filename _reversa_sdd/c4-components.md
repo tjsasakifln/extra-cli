@@ -1,66 +1,107 @@
 # C4 Componentes (Nível 3) — Extra Consultoria
 
-> Gerado pelo Architect em 2026-07-11T15:00:00Z
-> 🟢 CONFIRMADO — baseado em code-analysis.md, modules.json, código-fonte
+> Gerado pelo Architect em 2026-07-11T22:00:00Z
+> doc_level: completo
 
----
-
-## Container: Python CLI Scripts
+## Componentes do Crawl System
 
 ```mermaid
 C4Component
-    Container_Boundary(cli, "Python CLI Scripts") {
-        Component(monitor, "monitor.py", "Python 3.12", "Orquestrador multi-source. Pipeline: Crawl → Transform → Upsert → Entity Match → Coverage Update")
-        Component(pncp_adapter, "pncp_crawler_adapter.py", "Python 3.12", "Adapter PNCP API. Chunking 1-dia, filtro keywords engenharia, delay anti-429")
-        Component(dom_sc, "dom_sc_crawler.py", "Python 3.12", "DOM-SC: 3 categorias (contratos, convênios, empenhos). ~280 municípios")
-        Component(pcp_crawler, "pcp_crawler.py", "Python 3.12", "PCP v2: 100+ municípios. Name-only matching (sem CNPJ)")
-        Component(compras_gov, "compras_gov_crawler.py", "Python 3.12", "ComprasGov v3: órgãos federais SC")
-        Component(tce_sc, "tce_sc_crawler.py", "Python 3.12", "TCE-SC via SCMWeb JSON API. 365 dias full, 7 dias inc")
-        Component(transparencia, "transparencia_crawler.py", "Python 3.12", "Gap-fill: detecta Betha/Ipam/E-gov. Template-driven")
-        Component(transformer, "transformer.py", "Python 3.12", "Normalização multi-source → schema unificado. Content hash dedup")
-        Component(enricher, "enricher.py", "Python 3.12", "BrasilAPI CNPJ + IBGE. Async com semáforo(10). TTL 30 dias")
-        Component(intel_pipeline, "intel_pipeline.py", "Python 3.12", "Pipeline 7 stages com 5 quality gates. Orquestrador central")
-        Component(intel_collect, "intel_collect.py", "Python 3.12", "Coleta PNCP + DataLake para 1 CNPJ")
-        Component(intel_llm, "intel_llm_gate.py", "Python 3.12", "Gate LLM: classificação binária (SIM/NAO). Zero-noise: REJECT on fail")
-        Component(intel_analyze, "intel_analyze.py", "Python 3.12", "Análise 5 dimensões: HAB, FIN, GEO, PRAZO, COMP")
-        Component(panorama, "panorama.py", "Python 3.12", "Relatório panorama setorial. Terminal + Excel + PDF")
-        Component(name_norm, "name_normalizer.py", "Python 3.12", "Normalização PT-BR: 7-step pipeline, 18 abreviações")
-        Component(bid_sim, "bid_simulator.py", "Python 3.12", "Lance ótimo: max P(win)×margin. HHI, margens setoriais")
-        Component(victory, "victory_profile.py", "Python 3.12", "Perfil de vitória: aprendizado estatístico de contratos ganhos")
-        Component(pdf_gen, "intel_report.py", "Python 3.12", "PDF Big Four via ReportLab")
-        Component(excel_gen, "intel_excel.py", "Python 3.12", "Excel estilizado via openpyxl")
+    title Componentes — Crawl Multi-Source
+
+    Container_Boundary(crawl, "Crawl System") {
+        Component(monitor, "Monitor (legado)", "Python", "Orquestrador: loop sobre sources, coordena pipeline")
+        Component(orchestrator, "Orchestrator v2", "Python", "Refactor SRP: checkpoint TD-5.2, matching externo")
+        Component(pncp, "PNCP Adapter", "Python", "Crawler principal: PNCP API, day-by-day chunks, filtro engenharia")
+        Component(dom_sc, "DOM-SC Crawler", "Python", "Diário Municipal: 3 categorias, Basic Auth")
+        Component(doe_sc, "DOE-SC Crawler", "Python", "Diário Estadual: Bearer token, categorias, extração regex CNPJ")
+        Component(pcp, "PCP Crawler", "Python", "PCP v2 API: fuzzy modalidade mapping, inferência esfera")
+        Component(compras_gov, "ComprasGov Crawler", "Python", "2 endpoints: legado + Lei 14.133, auto-detecção")
+        Component(contracts, "Contracts Crawler", "Python", "PNCP contratos: janelas 90 dias, inferência UF por CNPJ")
+        Component(tce_sc, "TCE-SC Crawler", "Python", "SCMWeb: licitações + contratos, 2 fases coleta")
+        Component(sc_compras, "SC Compras Crawler", "Python", "HTML scraping: regex table extraction, detail pages")
+        Component(transparencia, "Transparência Crawler", "Python", "4 templates: Betha/Ipam/E-gov/Genérico, BeautifulSoup")
+        Component(templates, "Templates (4)", "Python", "Betha (80 mun), Ipam (50), E-gov (40), Genérico (fallback)")
+
+        Component(common, "Common Utils", "Python", "digits_only, safe_float, parse_date, generate_content_hash")
+        Component(checkpoint, "Checkpoint", "Python", "Sync (psycopg2) + Async (Supabase), resume support")
+        Component(security, "Security", "Python", "USER_AGENT, sanitize_url_param, make_url")
+        Component(enricher, "Enricher", "Python", "3 jobs ARQ: entities, municipios, ibge_codes")
+        Component(transformer, "Transformer", "Python", "compute_content_hash SHA-256, transform_pncp_item")
+        Component(loader, "Loader", "Python", "bulk_upsert, embedding opcional (text-embedding-3-small)")
+        Component(circuit_breaker, "Circuit Breaker", "Python", "PNCP + Redis. 5 singletons. Degraded mode")
+        Component(sanctions, "Sanctions Checker", "Python", "CEIS+CNEP async. Cache 24h TTL. Rate limit 90/min")
+        Component(retry, "Retry Logic", "Python", "validate_timeout_chain, calculate_delay exponential")
     }
 
-    ContainerDb(db, "PostgreSQL 17", "PostgreSQL", "DataLake: 8 tabelas, 3 RPCs, 1 view, FTS PT-BR")
+    Rel(monitor, pncp, "load_crawler('pncp')")
+    Rel(monitor, dom_sc, "load_crawler('dom_sc')")
+    Rel(monitor, pcp, "load_crawler('pcp')")
+    Rel(monitor, compras_gov, "load_crawler('compras_gov')")
+    Rel(monitor, contracts, "load_crawler('contracts')")
+    Rel(monitor, tce_sc, "load_crawler('tce_sc')")
+    Rel(monitor, sc_compras, "load_crawler('sc_compras')")
+    Rel(monitor, transparencia, "load_crawler('transparencia')")
 
-    Rel(monitor, pncp_adapter, "Importa e chama crawl()/transform()", "Python import")
-    Rel(monitor, dom_sc, "Importa e chama", "Python import")
-    Rel(monitor, pcp_crawler, "Importa e chama", "Python import")
-    Rel(monitor, compras_gov, "Importa e chama", "Python import")
-    Rel(monitor, tce_sc, "Importa e chama", "Python import")
-    Rel(monitor, transparencia, "Importa e chama", "Python import")
-    Rel(monitor, transformer, "Transforma dados brutos → schema", "Python function call")
-    Rel(monitor, name_norm, "Normaliza nomes para matching", "Python function call")
-    Rel(monitor, db, "UPSERT + SELECT + coverage queries", "psycopg2 SQL")
-    Rel(enricher, db, "INSERT enriched_entities", "psycopg2 SQL async")
-    Rel(intel_pipeline, intel_collect, "Stage 1: coleta", "subprocess.run")
-    Rel(intel_pipeline, intel_llm, "Stage 3: classificação", "subprocess.run")
-    Rel(intel_pipeline, intel_analyze, "Stage 5: análise", "subprocess.run")
-    Rel(intel_pipeline, pdf_gen, "Stage 7: PDF", "subprocess.run")
-    Rel(intel_pipeline, excel_gen, "Stage 7: Excel", "subprocess.run")
-    Rel(panorama, db, "SELECT queries analíticas", "psycopg2 SQL")
-    Rel(bid_sim, victory, "Usa perfil de vitória como input", "Python function call")
+    Rel(orchestrator, pncp, "load_crawler('pncp')")
+    Rel(orchestrator, dom_sc, "load_crawler('dom_sc')")
+    Rel(orchestrator, doe_sc, "load_crawler('doe_sc') NEW")
+
+    Rel(transparencia, templates, "detect_platform → get_template")
+
+    Rel(pncp, common, "import")
+    Rel(dom_sc, common, "import")
+    Rel(doe_sc, common, "import")
+    Rel(pcp, common, "import")
+    Rel(pncp, security, "USER_AGENT + sanitize")
+    Rel(pncp, retry, "import")
+    Rel(pncp, circuit_breaker, "rate limit check")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 ```
 
-## Responsabilidades por Componente
+## Componentes do Intel Pipeline
 
-| Componente | Responsabilidade | Complexidade | Dependências |
-|-----------|------------------|--------------|--------------|
-| `monitor.py` | Orquestração multi-source, entity matching, coverage | ALTA | 8 crawlers, transformer, name_normalizer, PostgreSQL |
-| `pncp_crawler_adapter.py` | Crawl PNCP com chunking, filtro, rate limiting | MÉDIA | urllib, PostgreSQL |
-| `intel_pipeline.py` | Pipeline 7 stages com quality gates | ALTA | 7 scripts via subprocess |
-| `name_normalizer.py` | Normalização PT-BR 7-step | BAIXA | unicodedata, re |
-| `bid_simulator.py` | Cálculo de lance ótimo | MÉDIA | victory_profile |
-| `victory_profile.py` | Aprendizado estatístico de padrões | MÉDIA | statistics |
-| `transformer.py` | Normalização multi-source + content hash | BAIXA | hashlib |
-| `panorama.py` | Relatórios analíticos multi-output | MÉDIA | PostgreSQL, openpyxl, ReportLab |
+```mermaid
+C4Component
+    title Componentes — Intel Pipeline (7 Estágios)
+
+    Container_Boundary(intel, "Intel Pipeline System") {
+        Component(pipeline, "Pipeline Orchestrator", "Python 1184 LOC", "intel_pipeline.py: coordena 7 estágios, 5 quality gates, timeouts")
+        Component(collect, "Collect (S1)", "Python 3193 LOC", "Coleta exaustiva PNCP. 12 sub-etapas. Adaptive rate limiter")
+        Component(enrich, "Enrich (S2)", "Python 622 LOC", "SICAF, sanctions, geocode, OSRM, IBGE, custo, simulação, victory")
+        Component(validate, "Validate (S3)", "Python 1031 LOC", "Gates 2+4+5 programáticos. 4 hard-incompatible patterns. 6 override rules")
+        Component(analyze, "Analyze (S4)", "Python 1820 LOC", "GPT-4.1-nano. 21 campos. Bid score 7D. Adversarial review cross-model")
+        Component(extract, "Extract Docs (S5)", "Python 897 LOC", "PDF (pymupdf4llm→PyMuPDF→OCR), ZIP/RAR, XLSX. Top20 selection 5-pass")
+        Component(excel, "Excel (S6)", "Python 1031 LOC", "4 sheets openpyxl write-only. 31 colunas. Big Four design tokens")
+        Component(report, "PDF Report (S7)", "Python 2178 LOC", "9 seções reportlab. Capa, sumário, análises, consórcio, timeline")
+
+        Component(gate1, "Gate 1: Cobertura", "Python", "API status, total > 0, UF coverage, pagination warnings")
+        Component(gate2, "Gate 2: Cadastral", "Python", "Sanctions check, SICAF, enrichment ≥ 50%")
+        Component(gate3, "Gate 3: Ruído", "Python", "Compat ratio 5-80%, zero needs_llm_review, spot-sample")
+        Component(gate4, "Gate 4: Conteúdo", "Python", "Doc coverage ≥ 50%, watermark detection, dedup")
+        Component(gate5, "Gate 5: Recomendação", "Python", "Remove NAO PARTICIPAR, dedup, 10× capacity check")
+    }
+
+    Rel(pipeline, collect, "subprocess run")
+    Rel(pipeline, gate1, "valida saída S1")
+    Rel(pipeline, enrich, "subprocess run")
+    Rel(pipeline, gate2, "valida saída S2")
+    Rel(pipeline, validate, "subprocess run")
+    Rel(pipeline, gate3, "valida saída S3")
+    Rel(pipeline, analyze, "subprocess run (ou --prepare)")
+    Rel(pipeline, extract, "subprocess run")
+    Rel(pipeline, gate4, "valida saída S5")
+    Rel(pipeline, excel, "subprocess run")
+    Rel(pipeline, gate5, "valida antes S6")
+    Rel(pipeline, report, "subprocess run")
+
+    Rel(collect, enrich, "JSON → data/intel/")
+    Rel(enrich, validate, "JSON enriched")
+    Rel(validate, analyze, "JSON validated")
+    Rel(analyze, extract, "JSON + analyses")
+    Rel(extract, excel, "JSON + docs + top20")
+    Rel(excel, report, "JSON final")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+```

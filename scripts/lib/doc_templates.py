@@ -11,13 +11,12 @@ Usage:
     result = extract_structured(text, DocType.EDITAL)
     print(result["habilitacao"])  # {"found": True, "value": "..."}
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
-
 
 # ============================================================
 # DOCUMENT TYPES
@@ -51,6 +50,7 @@ def detect_doc_type(titulo: str, filename: str = "") -> DocType:
 @dataclass
 class ExtractedField:
     """Result of extracting one field from document text."""
+
     found: bool = False
     value: str = ""
     raw_match: str = ""
@@ -60,6 +60,7 @@ class ExtractedField:
 @dataclass
 class StructuredExtraction:
     """Complete structured extraction from a document."""
+
     doc_type: DocType = DocType.UNKNOWN
     fields: dict[str, ExtractedField] = field(default_factory=dict)
     total_fields: int = 0

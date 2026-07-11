@@ -1,54 +1,87 @@
-# Requirements — Módulo `intel`
+# Intel Pipeline — Requirements
 
-> 🟢 CONFIRMADO — extraído de `intel_pipeline.py`, `intel_collect.py`, `intel_llm_gate.py`, `intel_analyze.py`, `intel_report.py`, `intel_excel.py`
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo | Base: e9729e1
 
-## Funcionais (FR)
+## Visão Geral
 
-| ID | Requisito | Fonte | Confiança |
-|----|-----------|-------|-----------|
-| FR-I1 | Pipeline 7 stages: collect → enrich → llm_gate → extract_docs → analyze → validate → report | `intel_pipeline.py:8-11` | 🟢 |
-| FR-I2 | 5 quality gates entre stages com vereditos PASS/FAIL/WARN | `intel_pipeline.py` | 🟢 |
-| FR-I3 | GATE 1 (Cobertura): >= 80% das entidades no raio devem ter licitações | `intel_pipeline.py` | 🟡 |
-| FR-I4 | GATE 2 (Cadastral): CNPJ válido, CNAEs compatíveis com setor da empresa | `intel_pipeline.py` | 🟡 |
-| FR-I5 | GATE 3 (Ruído): Classificação LLM — edital é relevante para o setor? (SIM/NAO) | `intel_llm_gate.py` | 🟢 |
-| FR-I6 | GATE 4 (Conteúdo): Editais contêm keywords de engenharia | `intel_pipeline.py` | 🟡 |
-| FR-I7 | GATE 5 (Recomendação): Score ponderado (HAB+FIN+GEO+PRAZO+COMP) >= threshold | `intel_analyze.py` | 🟢 |
-| FR-I8 | Classificação setorial em 2 camadas: heurísticas (YAML) → LLM fallback | `intel_llm_gate.py`, `sectors_config.yaml` | 🟢 |
-| FR-I9 | Zero-noise: erro na API OpenAI = REJECT | `intel_llm_gate.py` | 🟢 |
-| FR-I10 | 5 dimensões de scoring com pesos configuráveis por setor | `sectors_config.yaml` | 🟢 |
-| FR-I11 | Output: PDF (ReportLab) + Excel (openpyxl) estilizado | `intel_report.py`, `intel_excel.py` | 🟢 |
-| FR-I12 | Suporte a --from-step N para retomar pipeline de stage específico | `intel_pipeline.py:17` | 🟢 |
-| FR-I13 | Suporte a --no-cache para forçar re-coleta | `intel_pipeline.py:18` | 🟢 |
+Pipeline analítico de 7 estágios com 5 quality gates. Transforma um CNPJ em relatório executivo PDF+Excel com inteligência de mercado, análise de oportunidades e recomendações de participação em licitações. Usa GPT-4.1-nano para classificação e extração estruturada.
 
-## Não Funcionais (NFR)
+## Responsabilidades
 
-| ID | Requisito | Evidência | Confiança |
-|----|-----------|-----------|-----------|
-| NFR-I1 | Timeout coleta: 600s, enriquecimento: 300s, LLM gate: 120s, extração: 600s | `intel_pipeline.py:57-62` | 🟢 |
-| NFR-I2 | LLM: GPT-4.1-nano, timeout 10s, fallback = REJECT | `config/settings.py:44-45`, `sectors_config.yaml:2101-2103` | 🟢 |
-| NFR-I3 | Max 5 chamadas concorrentes à OpenAI | `config/settings.py:46` | 🟢 |
+- Coleta exaustiva de licitações do PNCP para um CNPJ com CNAE keyword gate
+- Enriquecimento cadastral (SICAF, sanções) e geográfico (distâncias, IBGE)
+- Análise LLM de 21 campos por edital com adversarial review
+- Extração de texto de documentos (PDF, ZIP, XLSX) com OCR fallback
+- Geração de relatórios executivos Excel (4 planilhas) e PDF (9 seções)
+- 5 quality gates com auto-fix entre estágios
+
+## Regras de Negócio
+
+- R4: Capacidade 10× capital social — editais acima vão para consórcio 🟢
+- R5: Bid score threshold 0.45 — abaixo força NAO PARTICIPAR 🟢
+- R6: 6 regras de override (EXPIRADO, sancionada, CNAE 0%, CNAE<20%+fit<15%, score<0.20) 🟢
+- R7: 4 hard-incompatible patterns CNAE+regex 🟢
+- R11: Max 3 docs/edital, 50MB/download, 60K chars/edital 🟢
+- R14: CNAE gate probabilístico: base 60% + bônus/penalidade, threshold 35% 🟢
+- R15: HHI competição: ≤2=BAIXA, ≤5=MEDIA, ≤10=ALTA, >10=MUITO_ALTA 🟢
+- R16: Zero false negative — prioriza recall sobre precision 🟡
+
+## Requisitos Funcionais
+
+| ID | Requisito | Prioridade | Fonte |
+|----|-----------|-----------|-------|
+| RF-I01 | Coletar licitações PNCP com 12 sub-etapas e adaptive rate limiter | Must | `intel-collect.py:1-3193` |
+| RF-I02 | Aplicar CNAE keyword gate probabilístico (threshold 35%) | Must | `intel-collect.py:1186-1464` |
+| RF-I03 | Fallback LLM (GPT-4.1-nano) para casos ambíguos | Should | `intel-collect.py:1465` |
+| RF-I04 | Semantic dedup: Jaccard > 80% + valor ±15% + mesmo órgão | Must | `intel-collect.py:407-488` |
+| RF-I05 | Enriquecer empresa: SICAF + CEIS/CNEP/CEPIM/CEAF | Must | `intel-enrich.py:195-250` |
+| RF-I06 | Enriquecer editais: distâncias OSRM, IBGE, custo, simulação, victory profile | Must | `intel-enrich.py:252-400` |
+| RF-I07 | Filtrar enriquecimento a editais dentro de 10× capital social | Must | `intel-enrich.py:271-284` |
+| RF-I08 | Validar semanticamente (4 hard-incompatible patterns) | Must | `intel-validate.py:98-120` |
+| RF-I09 | Validar completeness (forbidden words, enums, embedded "Nao consta") | Must | `intel-validate.py:338-450` |
+| RF-I10 | Validar coerência (6 override rules, expired removal) | Must | `intel-validate.py:499-579` |
+| RF-I11 | Analisar com GPT-4.1-nano: 21 campos estruturados | Must | `intel-analyze.py:750-795` |
+| RF-I12 | Computar bid score 7 dimensões (threshold 0.45) | Must | `intel-analyze.py:279-378` |
+| RF-I13 | Programmatic override antes do LLM (CNAE 0%, score < 0.20) | Must | `intel-analyze.py:883-928` |
+| RF-I14 | Extrair texto de PDFs: pymupdf4llm → PyMuPDF → OCR | Must | `intel-extract-docs.py:117-185` |
+| RF-I15 | Selecionar top20: filtro 5-pass + opportunity score | Must | `intel-extract-docs.py:636-683` |
+| RF-I16 | Gerar Excel 4 planilhas com 31 colunas | Must | `intel-excel.py:1-1031` |
+| RF-I17 | Gerar PDF executivo 9 seções (Big Four aesthetic) | Must | `intel-report.py:1-2178` |
+| RF-I18 | Executar quality gates com auto-fix entre estágios | Must | `intel_pipeline.py:200-700` |
+
+## Requisitos Não Funcionais
+
+| Tipo | Requisito | Evidência | Confiança |
+|------|----------|----------|-----------|
+| Performance | Subprocess timeouts: collect=600s, enrich=300s, llm=120s, extract=600s | `intel_pipeline.py:timeouts` | 🟢 |
+| Performance | Adaptive rate limiter: 150ms base, 2s max, growth/decay dinâmico | `intel-collect.py:214-279` | 🟢 |
+| Custo | GPT-4.1-nano: 1/10 do custo do GPT-4.1, ~$0.01/edição | `intel-analyze.py:model default` | 🟡 |
+| Qualidade | Adversarial review cross-model reduz viés de confirmação | `intel-analyze.py:945` | 🟡 |
+| Resiliência | Fallback analysis se LLM falhar (análise mínima sem IA) | `intel-analyze.py:1063` | 🟢 |
 
 ## Critérios de Aceitação
 
-**AC-I1: Pipeline executa até o fim**
-- Dado um CNPJ válido e UFs
-- Quando executo `intel_pipeline.py --cnpj <CNPJ> --ufs SC`
-- Então os 7 stages são executados em sequência e PDF + Excel são gerados em `output/`
+```gherkin
+Cenário: Pipeline completo gera relatório para CNPJ
+Dado CNPJ válido "12345678000199" com CNAE de engenharia
+E UFs=["SC"], dias=90, top=20
+Quando intel_pipeline.py executa todos os 7 estágios
+Então JSON em data/intel/ contém empresa + editais[] + top20[]
+E Excel gerado com 4 planilhas
+E PDF gerado com 9 seções
+E Todos os 5 gates retornam PASS
 
-**AC-I2: Gate bloqueia edital irrelevante**
-- Dado que um edital é classificado como NAO pelo LLM
-- Quando o GATE 3 é executado
-- Então o edital é rejeitado e não avança para stages seguintes
+Cenário: CNAE gate rejeita edital de alimentação para engenharia
+Dado CNPJ com CNAE principal 42 (construção)
+E edital com objeto "Aquisição de merenda escolar"
+Quando apply_cnae_keyword_gate é executado
+Então cnae_compatible = False
+E gate2_decision = "INCOMPATIVEL"
 
-**AC-I3: Resume de stage específico**
-- Dado que o pipeline foi interrompido no stage 4
-- Quando executo `--from-step 5`
-- Então stages 1-4 são pulados e pipeline retoma do stage 5
-
-## MoSCoW
-
-| Prioridade | Requisitos |
-|-----------|-----------|
-| **Must** | FR-I1, FR-I2, FR-I5, FR-I7, FR-I8, FR-I11 |
-| **Should** | FR-I3, FR-I4, FR-I6, FR-I9, FR-I10, FR-I12 |
-| **Could** | FR-I13 |
+Cenário: Override força NAO PARTICIPAR para edital expirado
+Dado edital com status_temporal = "EXPIRADO"
+E bid_score = 0.85 (acima do threshold)
+Quando gate5_recomendacao é executado
+Então recomendacao_acao = "NAO PARTICIPAR"
+E edital removido do top20
+```

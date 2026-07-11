@@ -20,6 +20,8 @@
   "checkpoints": {
     "scout": {
       "completed_at": "2026-07-11T12:00:00Z",
+      "re_run_at": "2026-07-11T19:00:00Z",
+      "re_run_reason": "Atualização pós commit e9729e1 (EPIC-FEAT-001 + EPIC-TD-001, +93% LOC)",
       "files": [
         "_reversa_sdd/inventory.md",
         "_reversa_sdd/dependencies.md",
@@ -27,12 +29,15 @@
       ]
     },
     "archaeologist": {
-      "completed_at": "2026-07-11T13:00:00Z",
+      "completed_at": "2026-07-11T21:00:00Z",
+      "re_run_at": "2026-07-11T21:00:00Z",
+      "re_run_reason": "Re-extração pós commit e9729e1 (+93% LOC, novo módulo matching)",
       "modules_analyzed": [
         "crawl",
         "intel",
         "reports",
         "lib",
+        "matching",
         "config",
         "db",
         "deploy",
@@ -46,11 +51,14 @@
         "_reversa_sdd/flowcharts/lib.md",
         "_reversa_sdd/flowcharts/reports.md",
         "_reversa_sdd/flowcharts/db.md",
+        "_reversa_sdd/flowcharts/matching.md",
         ".reversa/context/modules.json"
       ]
     },
     "detective": {
-      "completed_at": "2026-07-11T14:00:00Z",
+      "completed_at": "2026-07-11T21:30:00Z",
+      "re_run_at": "2026-07-11T21:30:00Z",
+      "re_run_reason": "Re-extração pós commit e9729e1 (32 stories, 2 epics)",
       "files": [
         "_reversa_sdd/domain.md",
         "_reversa_sdd/state-machines.md",
@@ -60,11 +68,21 @@
         "_reversa_sdd/adrs/003-crawlers-sync-http.md",
         "_reversa_sdd/adrs/004-entity-matching-cascade-3-niveis.md",
         "_reversa_sdd/adrs/005-gpt-4.1-nano-classificacao.md",
-        "_reversa_sdd/adrs/006-pdf-reportlab-big-four.md"
-      ]
+        "_reversa_sdd/adrs/006-pdf-reportlab-big-four.md",
+        "_reversa_sdd/adrs/007-migrations-v2-baseline.md",
+        "_reversa_sdd/adrs/008-refatoracao-orquestrador-matching.md",
+        "_reversa_sdd/adrs/009-backup-automatizado-postgresql.md",
+        "_reversa_sdd/adrs/010-logging-estruturado-json.md",
+        "_reversa_sdd/adrs/011-template-transparencia-crawler.md"
+      ],
+      "business_rules": 17,
+      "state_machines": 6,
+      "adrs_total": 11
     },
     "architect": {
-      "completed_at": "2026-07-11T15:00:00Z",
+      "completed_at": "2026-07-11T22:00:00Z",
+      "re_run_at": "2026-07-11T22:00:00Z",
+      "re_run_reason": "Re-síntese pós re-extração (commit e9729e1)",
       "files": [
         "_reversa_sdd/architecture.md",
         "_reversa_sdd/c4-context.md",
@@ -75,19 +93,26 @@
       ]
     },
     "writer": {
-      "completed_at": "2026-07-11T16:00:00Z",
-      "units_generated": 8,
-      "files_generated": 27
+      "completed_at": "2026-07-11T22:30:00Z",
+      "re_run_at": "2026-07-11T22:30:00Z",
+      "re_run_reason": "Re-geração specs pós re-extração (commit e9729e1)",
+      "units_generated": 9,
+      "files_generated": 30
     },
     "reviewer": {
-      "completed_at": "2026-07-11T17:00:00Z",
+      "completed_at": "2026-07-11T23:00:00Z",
+      "re_run_at": "2026-07-11T23:00:00Z",
+      "re_run_reason": "Revisão pós re-extração completa (commit e9729e1)",
       "files": [
         "_reversa_sdd/confidence-report.md",
         "_reversa_sdd/gaps.md",
         "_reversa_sdd/questions.md"
       ],
-      "confidence_pct": 87.5,
-      "cross_review": "não realizada (Codex indisponível)"
+      "confidence_pct": 91.0,
+      "cross_review": "não realizada (Codex indisponível)",
+      "gaps_total": 10,
+      "gaps_critical": 3,
+      "reclassifications": 4
     }
   },
   "engines": [

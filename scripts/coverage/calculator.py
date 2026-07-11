@@ -53,12 +53,12 @@ def report_coverage(conn: Any) -> dict[str, Any]:
         }
         result["groups"].append(group)
         result["total_entities"] += total
-        result["total_covered"] += (covered or 0)
-        result["total_uncovered"] += (uncovered or 0)
+        result["total_covered"] += covered or 0
+        result["total_uncovered"] += uncovered or 0
 
-    result["pct"] = round(
-        result["total_covered"] / result["total_entities"] * 100, 1
-    ) if result["total_entities"] > 0 else 0
+    result["pct"] = (
+        round(result["total_covered"] / result["total_entities"] * 100, 1) if result["total_entities"] > 0 else 0
+    )
 
     # Per-source breakdown
     cur.execute(
@@ -68,9 +68,7 @@ def report_coverage(conn: Any) -> dict[str, Any]:
            GROUP BY source
            ORDER BY source"""
     )
-    result["by_source"] = [
-        {"source": r[0], "entities": r[1], "covered": r[2]} for r in cur.fetchall()
-    ]
+    result["by_source"] = [{"source": r[0], "entities": r[1], "covered": r[2]} for r in cur.fetchall()]
 
     # Uncovered entities within 200km (critical gap)
     cur.execute(
@@ -84,8 +82,7 @@ def report_coverage(conn: Any) -> dict[str, Any]:
            ORDER BY e.municipio, e.razao_social"""
     )
     result["uncovered_entities_200km"] = [
-        {"razao_social": r[0], "cnpj_8": r[1], "municipio": r[2], "natureza": r[3]}
-        for r in cur.fetchall()
+        {"razao_social": r[0], "cnpj_8": r[1], "municipio": r[2], "natureza": r[3]} for r in cur.fetchall()
     ]
 
     cur.close()
@@ -104,7 +101,11 @@ def print_coverage_report(result: dict[str, Any]) -> None:
         label = "Dentro do raio 200km" if g["within_200km"] else "Fora do raio 200km"
         logger.info(
             "Grupo %s — Total: %d, Cobertas: %d (%s%%), Descobertas: %d",
-            label, g["total"], g["covered"], g["pct"], g["uncovered"],
+            label,
+            g["total"],
+            g["covered"],
+            g["pct"],
+            g["uncovered"],
         )
 
     logger.info(
@@ -120,7 +121,10 @@ def print_coverage_report(result: dict[str, Any]) -> None:
         pct = round(s["covered"] / s["entities"] * 100, 1) if s["entities"] > 0 else 0
         logger.info(
             "Fonte %s: %d/%d (%s%%)",
-            s["source"], s["covered"], s["entities"], pct,
+            s["source"],
+            s["covered"],
+            s["entities"],
+            pct,
         )
 
     uncovered = result.get("uncovered_entities_200km", [])
@@ -133,7 +137,8 @@ def print_coverage_report(result: dict[str, Any]) -> None:
         for e in uncovered[:20]:
             logger.info(
                 "Sem cobertura: %s | %s",
-                e["razao_social"][:50], e["municipio"] or "N/A",
+                e["razao_social"][:50],
+                e["municipio"] or "N/A",
             )
         if len(uncovered) > 20:
             logger.info("... e mais %d entidades", len(uncovered) - 20)

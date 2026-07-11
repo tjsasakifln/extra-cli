@@ -24,9 +24,7 @@ logger = get_logger(__name__)
 # Environment defaults
 # ---------------------------------------------------------------------------
 
-ENTITY_MATCH_FUZZY_THRESHOLD = float(
-    os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85")
-)
+ENTITY_MATCH_FUZZY_THRESHOLD = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85"))
 
 
 # ---------------------------------------------------------------------------
@@ -108,7 +106,8 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
     """
     logger.info(
         "Starting cascade matching for source=%s with %d entities",
-        source, len(entities),
+        source,
+        len(entities),
     )
     # Step 1 — fetch all unmatched bids for this source
     cur = conn.cursor()
@@ -239,10 +238,7 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
                 # Filter candidates by IBGE code if available
                 candidates = all_entities_norm
                 if codigo_ibge:
-                    candidates = [
-                        e for e in all_entities_norm
-                        if e.get("codigo_ibge") == codigo_ibge
-                    ]
+                    candidates = [e for e in all_entities_norm if e.get("codigo_ibge") == codigo_ibge]
 
                 for e in candidates:
                     e_norm = e.get("_normalized_name", "")
@@ -280,7 +276,12 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
             stats[match_method] = stats[match_method] + 1
         else:
             update_matched_entity_full(
-                conn, pncp_id, None, "unmatched", 0.0, None,
+                conn,
+                pncp_id,
+                None,
+                "unmatched",
+                0.0,
+                None,
             )
             stats["unmatched"] += 1
 
@@ -289,9 +290,12 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
 
     stats["total"] = sum(stats.values())
     logger.info(
-        "Cascade matching done for source=%s — CNPJ=%d, name=%d, fuzzy=%d, "
-        "unmatched=%d, total=%d",
-        source, stats["cnpj"], stats["name_normalized"],
-        stats["fuzzy"], stats["unmatched"], stats["total"],
+        "Cascade matching done for source=%s — CNPJ=%d, name=%d, fuzzy=%d, unmatched=%d, total=%d",
+        source,
+        stats["cnpj"],
+        stats["name_normalized"],
+        stats["fuzzy"],
+        stats["unmatched"],
+        stats["total"],
     )
     return stats

@@ -124,7 +124,7 @@ def _make_request(url: str) -> dict | None:
                 return None
 
             if e.code >= 500 and attempt < MAX_RETRIES:
-                delay = 2.0 * (2 ** attempt)
+                delay = 2.0 * (2**attempt)
                 _logger.warning(f"[COMPRAS_GOV] Server error {e.code}. Retrying in {delay:.1f}s")
                 time.sleep(delay)
                 continue
@@ -236,8 +236,7 @@ def _fetch_from_endpoint(
 
     if all_records:
         _logger.info(
-            f"[COMPRAS_GOV] {endpoint}{' (' + uf + ')' if uf else ''}: "
-            f"{len(all_records)} registros ({pagina} paginas)"
+            f"[COMPRAS_GOV] {endpoint}{' (' + uf + ')' if uf else ''}: {len(all_records)} registros ({pagina} paginas)"
         )
 
     return all_records
@@ -295,7 +294,9 @@ def _extract_date(value: Any) -> str | None:
 
 def _generate_content_hash(record: dict) -> str:
     """Hash MD5 deterministico para dedup (delegates to common)."""
-    return _common_content_hash(record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"])
+    return _common_content_hash(
+        record, fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"]
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -331,12 +332,7 @@ def _normalize_legacy(raw: dict) -> dict | None:
       - data_entrega_proposta -> data_abertura
     """
     try:
-        source_id = str(
-            raw.get("numero_aviso")
-            or raw.get("identificador")
-            or raw.get("id")
-            or ""
-        )
+        source_id = str(raw.get("numero_aviso") or raw.get("identificador") or raw.get("id") or "")
         if not source_id:
             return None
 
@@ -434,11 +430,7 @@ def _normalize_lei_14133(raw: dict) -> dict | None:
       - dataEncerramentoProposta -> data_encerramento
     """
     try:
-        source_id = str(
-            raw.get("numeroControlePNCP")
-            or raw.get("id")
-            or ""
-        )
+        source_id = str(raw.get("numeroControlePNCP") or raw.get("id") or "")
         if not source_id:
             return None
 
@@ -541,32 +533,23 @@ def crawl(mode: str = "full") -> list[dict]:
     data_inicial_str = data_inicial.isoformat()
     data_final_str = data_final.isoformat()
 
-    _logger.info(
-        f"[COMPRAS_GOV] Crawl {mode}: {data_inicial_str} a {data_final_str} "
-        f"UFs={INGESTION_UFS}"
-    )
+    _logger.info(f"[COMPRAS_GOV] Crawl {mode}: {data_inicial_str} a {data_final_str} UFs={INGESTION_UFS}")
 
     all_records: list[dict] = []
 
     # 1. Legacy endpoint (server-side UF filter)
     for uf in INGESTION_UFS:
-        records = _fetch_from_endpoint(
-            LEGACY_ENDPOINT, data_inicial_str, data_final_str, uf=uf
-        )
+        records = _fetch_from_endpoint(LEGACY_ENDPOINT, data_inicial_str, data_final_str, uf=uf)
         all_records.extend(records)
 
     # 2. Lei 14.133 endpoint (client-side UF filter)
-    lei_records = _fetch_from_endpoint(
-        LEI_14133_ENDPOINT, data_inicial_str, data_final_str, uf=None
-    )
+    lei_records = _fetch_from_endpoint(LEI_14133_ENDPOINT, data_inicial_str, data_final_str, uf=None)
     for r in lei_records:
         raw_uf = (r.get("uf") or "").upper()
         if raw_uf in INGESTION_UFS:
             all_records.append(r)
 
-    _logger.info(
-        f"[COMPRAS_GOV] Crawl complete: {len(all_records)} registros totais"
-    )
+    _logger.info(f"[COMPRAS_GOV] Crawl complete: {len(all_records)} registros totais")
     return all_records
 
 

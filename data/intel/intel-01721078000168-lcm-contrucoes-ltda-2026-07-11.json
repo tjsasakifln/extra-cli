@@ -45,7 +45,7 @@
     "sancionada": false,
     "sicaf": {
       "status": "FALHA_COLETA",
-      "attempted_at": "11/07/2026 15:38",
+      "attempted_at": "11/07/2026 16:32",
       "error_type": "SCRIPT_NOT_FOUND",
       "error_detail": "Arquivo collect-sicaf.py não encontrado no diretório scripts/",
       "_source": {
@@ -189,6 +189,20 @@
       "atualizados": 0,
       "vencendo": 0,
       "inalterados": 0
+    },
+    "enrichment": {
+      "version": "1.0.0",
+      "enriched_at": "2026-07-11T16:32:26.454795+00:00",
+      "sicaf_collected": true,
+      "sancionada": false,
+      "restricao_sicaf": null,
+      "editais_enriquecidos": 0,
+      "distancias_ok": 0,
+      "ibge_ok": 0,
+      "custos_ok": 0,
+      "sede_geocodificada": true,
+      "bids_computed": 0,
+      "fits_computed": 0
     }
   }
 }

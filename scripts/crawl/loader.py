@@ -11,11 +11,11 @@ logged but never block the upsert (graceful degradation).
 
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from supabase_client import get_supabase, sb_execute
 from ingestion.config import INGESTION_UPSERT_BATCH_SIZE
+from supabase_client import get_supabase, sb_execute
 
 
 def _apply_date_fallbacks(records: list[dict]) -> list[dict]:
@@ -23,13 +23,14 @@ def _apply_date_fallbacks(records: list[dict]) -> list[dict]:
 
     Caller-supplied lists are mutated in place and returned for chaining.
     """
-    fallback = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    fallback = (datetime.now(UTC) - timedelta(days=1)).isoformat()
     for r in records:
         if not r.get("data_publicacao"):
             r["data_publicacao"] = fallback
         if not r.get("data_abertura"):
             r["data_abertura"] = r["data_publicacao"]
     return records
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ _EMBEDDING_BATCH_SIZE = 100
 # ---------------------------------------------------------------------------
 # Upsert
 # ---------------------------------------------------------------------------
+
 
 async def bulk_upsert(
     records: list[dict],
@@ -73,8 +75,7 @@ async def bulk_upsert(
     _null_pub = sum(1 for r in records if not r.get("data_publicacao"))
     if _null_pub:
         logger.warning(
-            "bulk_upsert: %d/%d records still had NULL data_publicacao — "
-            "applying loader-level fallback",
+            "bulk_upsert: %d/%d records still had NULL data_publicacao — applying loader-level fallback",
             _null_pub,
             len(records),
         )
@@ -82,6 +83,7 @@ async def bulk_upsert(
 
     # STORY-438: Enrich records with embeddings when enabled
     from config.features import EMBEDDING_ENABLED
+
     if EMBEDDING_ENABLED:
         records = await _enrich_with_embeddings(records)
 
@@ -101,8 +103,7 @@ async def bulk_upsert(
             payload = _serialize_batch(batch)
 
             result = await sb_execute(
-                supabase
-                .rpc("upsert_pncp_raw_bids", {"p_records": payload}),
+                supabase.rpc("upsert_pncp_raw_bids", {"p_records": payload}),
                 category="rpc",
             )
 
@@ -146,6 +147,7 @@ async def bulk_upsert(
 # Purge
 # ---------------------------------------------------------------------------
 
+
 async def purge_old_bids(retention_days: int = 400) -> int:
     """Delete rows from pncp_raw_bids older than retention_days.
 
@@ -161,8 +163,7 @@ async def purge_old_bids(retention_days: int = 400) -> int:
     supabase = get_supabase()
     try:
         result = await sb_execute(
-            supabase
-            .rpc("purge_old_bids", {"p_retention_days": retention_days}),
+            supabase.rpc("purge_old_bids", {"p_retention_days": retention_days}),
             category="rpc",
         )
         deleted = _extract_scalar(result, default=0)
@@ -176,6 +177,7 @@ async def purge_old_bids(retention_days: int = 400) -> int:
 # ---------------------------------------------------------------------------
 # STORY-438: Embedding helpers
 # ---------------------------------------------------------------------------
+
 
 async def _enrich_with_embeddings(records: list[dict]) -> list[dict]:
     """Generate embeddings for objeto_compra and add to records.
@@ -216,6 +218,7 @@ async def _generate_embeddings_batch(
 
     try:
         from openai import AsyncOpenAI
+
         client = AsyncOpenAI()
     except Exception as exc:
         logger.warning("_generate_embeddings_batch: OpenAI client unavailable — %s", exc)
@@ -250,6 +253,7 @@ async def _generate_embeddings_batch(
 # ---------------------------------------------------------------------------
 # Private helpers
 # ---------------------------------------------------------------------------
+
 
 def _chunk(lst: list, size: int) -> list[list]:
     """Split a list into chunks of at most ``size`` items."""

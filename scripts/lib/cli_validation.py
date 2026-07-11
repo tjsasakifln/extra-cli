@@ -4,10 +4,10 @@ All validators print a user-friendly error message to stderr and call
 sys.exit(1) on failure.  They are intended to be called right after
 argparse.parse_args() -- before any business logic runs.
 """
+
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -30,8 +30,7 @@ def validate_cnpj(raw: str) -> str:
     cleaned = re.sub(r"\D", "", raw)
     if len(cleaned) != 14:
         print(
-            f"ERRO: CNPJ invalido: '{raw}' — deve conter exatamente 14 digitos "
-            f"(encontrado {len(cleaned)}).",
+            f"ERRO: CNPJ invalido: '{raw}' — deve conter exatamente 14 digitos (encontrado {len(cleaned)}).",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -63,8 +62,7 @@ def validate_ufs(raw: str) -> list[str]:
     invalid = [u for u in ufs if u not in VALID_UFS]
     if invalid:
         print(
-            f"ERRO: UF(s) invalida(s): {', '.join(invalid)}. "
-            f"UFs validas: {', '.join(sorted(VALID_UFS))}",
+            f"ERRO: UF(s) invalida(s): {', '.join(invalid)}. UFs validas: {', '.join(sorted(VALID_UFS))}",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -142,7 +140,7 @@ def validate_input_json(path_str: str) -> Path:
     """
     p = validate_input_file(path_str)
     try:
-        with open(p, "r", encoding="utf-8") as f:
+        with open(p, encoding="utf-8") as f:
             json.load(f)
     except json.JSONDecodeError as e:
         print(f"ERRO: JSON invalido em {p}: {e}", file=sys.stderr)
@@ -161,8 +159,7 @@ def validate_model(model: str) -> None:
     """
     if model not in VALID_MODELS:
         print(
-            f"ERRO: Modelo desconhecido: '{model}'. "
-            f"Modelos validos: {', '.join(sorted(VALID_MODELS))}",
+            f"ERRO: Modelo desconhecido: '{model}'. Modelos validos: {', '.join(sorted(VALID_MODELS))}",
             file=sys.stderr,
         )
         sys.exit(1)

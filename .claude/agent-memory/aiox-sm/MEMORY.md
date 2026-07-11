@@ -1,0 +1,8 @@
+- [TD-2.4 Schema Sync](td-2.4-schema-sync.md) — Schema drift no DataLake local: entity_coverage, views, ingestion_runs.source ausentes + runs travados + checkpoints vazios
+- [TD-4.4 Fix Test Suite](TD-4.4-fix-test-suite.yaml) — Story para corrigir 14 falhas + 1 collection error na suite (2026-07-11)
+- [FEAT-2.4 Selenium Crawler](story-feat-2.4-selenium.md) — Selenium crawler para portais JS-rendered, extensao do EPIC-FEAT-001 (2026-07-11)
+- [TD-3.2 PNCP Resilience](project_pncp_resilience.md) — PNCP API resilience: 429 rate-limit, pipeline timeout, SICAF/TCU fallbacks, keyword gaps (2026-07-11)
+- [TD-8.1 Reversa Cleanup](td-8.1-reversa-cleanup.md) — EPIC-TD-003: deduplicar 10 scripts, refatorar subprocess.run, corrigir psycopg2-binary (2026-07-11)
+- [Duplicatas Reversa nao sao todas identicas](feedback_reversa-duplicates-not-all-identical.md) — 4/10 pares kebab/snake_case tem diferencas reais; intel_collect.py tem upgrades v1.5 ausentes no kebab
+- [TD-8.2 Module Imports Fix](story-TD-8.2-module-imports.md) — 37/127 py files (29%) com ImportError: clients/, ingestion/, supabase_client + 5 categorias a mais
+- [PNCP API v3 Migration](project_pncp_v3_migration.md) — API v2->v3 broke crawler, coverage 0%, descoberto via Swagger UI testing 2026-07-11

@@ -9,6 +9,7 @@ a two-pass deduplication pipeline (exact + semantic).
 Usage:
     from report_dedup import normalize_for_dedup, jaccard_similarity, semantic_dedup
 """
+
 from __future__ import annotations
 
 import re
@@ -18,9 +19,7 @@ from typing import Any
 
 def _strip_accents(s: str) -> str:
     """Remove diacritics from string."""
-    return "".join(
-        c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn"
-    )
+    return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
 
 
 def normalize_for_dedup(text: str) -> set[str]:
@@ -45,13 +44,64 @@ def normalize_for_dedup(text: str) -> set[str]:
 
     # Tokenize and filter short/noise words
     stopwords = {
-        "de", "da", "do", "das", "dos", "para", "com", "em", "no", "na",
-        "nos", "nas", "por", "ao", "aos", "as", "um", "uma", "uns", "umas",
-        "e", "ou", "que", "se", "sem", "ate", "ser", "sao", "mais", "mas",
-        "ja", "la", "lhe", "lhes", "pelo", "pela", "pelos", "pelas",
-        "pra", "pro", "a", "o", "os", "as", "d", "s", "n",
-        "r$", "rs", "valor", "total", "item", "items", "itens",
-        "edital", "licitacao", "contrato", "processo",
+        "de",
+        "da",
+        "do",
+        "das",
+        "dos",
+        "para",
+        "com",
+        "em",
+        "no",
+        "na",
+        "nos",
+        "nas",
+        "por",
+        "ao",
+        "aos",
+        "as",
+        "um",
+        "uma",
+        "uns",
+        "umas",
+        "e",
+        "ou",
+        "que",
+        "se",
+        "sem",
+        "ate",
+        "ser",
+        "sao",
+        "mais",
+        "mas",
+        "ja",
+        "la",
+        "lhe",
+        "lhes",
+        "pelo",
+        "pela",
+        "pelos",
+        "pelas",
+        "pra",
+        "pro",
+        "a",
+        "o",
+        "os",
+        "as",
+        "d",
+        "s",
+        "n",
+        "r$",
+        "rs",
+        "valor",
+        "total",
+        "item",
+        "items",
+        "itens",
+        "edital",
+        "licitacao",
+        "contrato",
+        "processo",
     }
 
     tokens = set()
@@ -177,11 +227,13 @@ def semantic_dedup(
                 warning_obj_a = obj_i[:100]
                 warning_obj_b = obj_j[:100]
                 if warning_obj_a != warning_obj_b:
-                    stats["semantic_warnings"].append({
-                        "score": round(sim, 4),
-                        "objeto_a": warning_obj_a,
-                        "objeto_b": warning_obj_b,
-                    })
+                    stats["semantic_warnings"].append(
+                        {
+                            "score": round(sim, 4),
+                            "objeto_a": warning_obj_a,
+                            "objeto_b": warning_obj_b,
+                        }
+                    )
 
         deduped.append(current_best)
 

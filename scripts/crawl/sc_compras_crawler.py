@@ -13,7 +13,6 @@ Stdlib only: urllib, re, json, hashlib, logging, os, time, datetime, unicodedata
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
 import os
 import re
@@ -24,7 +23,6 @@ import urllib.error
 import urllib.request
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Any
 
 from scripts.crawl.security import sanitize_url_param
 
@@ -106,12 +104,34 @@ def _map_modalidade(raw: str) -> tuple[int | None, str]:
 # ---------------------------------------------------------------------------
 
 _ESFERA_ESTADUAL_KEYWORDS = [
-    "secretaria de estado", "secretaria da", "governo do estado",
-    "fundo estadual", "companhia", "santa catarina",
-    "deinfra", "udesc", "jucesc", "detran", "ima", "imetro",
-    "aresc", "iprev", "fapesc", "fcc", "fcee", "fesporte",
-    "ciasc", "badesc", "scpar", "scgas", "ceasa", "cidasc",
-    "santur", "sudes", "pcisc", "ena",
+    "secretaria de estado",
+    "secretaria da",
+    "governo do estado",
+    "fundo estadual",
+    "companhia",
+    "santa catarina",
+    "deinfra",
+    "udesc",
+    "jucesc",
+    "detran",
+    "ima",
+    "imetro",
+    "aresc",
+    "iprev",
+    "fapesc",
+    "fcc",
+    "fcee",
+    "fesporte",
+    "ciasc",
+    "badesc",
+    "scpar",
+    "scgas",
+    "ceasa",
+    "cidasc",
+    "santur",
+    "sudes",
+    "pcisc",
+    "ena",
 ]
 
 
@@ -214,42 +234,42 @@ def _extract_table_rows(html: str) -> list[dict]:
                 i = next_close + 8
         if depth > 0:
             continue
-        table_html = html[table_match.start():i]
+        table_html = html[table_match.start() : i]
 
         # Find tbody
-        tbody_m = re.search(r'<tbody[^>]*>(.*?)</tbody>', table_html, re.DOTALL)
+        tbody_m = re.search(r"<tbody[^>]*>(.*?)</tbody>", table_html, re.DOTALL)
         if not tbody_m:
             continue
         tbody = tbody_m.group(1)
 
         # Extract rows
-        for tr_m in re.finditer(r'<tr[^>]*>(.*?)</tr>', tbody, re.DOTALL):
-            cells = re.findall(r'<td[^>]*>(.*?)</td>', tr_m.group(1), re.DOTALL)
+        for tr_m in re.finditer(r"<tr[^>]*>(.*?)</tr>", tbody, re.DOTALL):
+            cells = re.findall(r"<td[^>]*>(.*?)</td>", tr_m.group(1), re.DOTALL)
             if len(cells) < 5:
                 continue
 
             link_cell = cells[0]
-            link_m = re.search(
-                r'<a\s+[^>]*href\s*=\s*["\']([^"\']+)["\']', link_cell
-            )
+            link_m = re.search(r'<a\s+[^>]*href\s*=\s*["\']([^"\']+)["\']', link_cell)
             url_detalhe = None
             if link_m:
                 href = link_m.group(1).strip()
                 url_detalhe = href if href.startswith("http") else f"{BASE_URL}{href}"
 
             def _strip_html(t: str) -> str:
-                return re.sub(r'<[^>]+>', '', t).strip()
+                return re.sub(r"<[^>]+>", "", t).strip()
 
-            items.append({
-                "numero_processo": _strip_html(link_cell),
-                "modalidade": _strip_html(cells[1]),
-                "objeto": _strip_html(cells[2]),
-                "orgao": _strip_html(cells[3]),
-                "data_publicacao": _strip_html(cells[4]),
-                "situacao": _strip_html(cells[5]) if len(cells) > 5 else "",
-                "valor": _strip_html(cells[6]) if len(cells) > 6 else "",
-                "url_detalhe": url_detalhe,
-            })
+            items.append(
+                {
+                    "numero_processo": _strip_html(link_cell),
+                    "modalidade": _strip_html(cells[1]),
+                    "objeto": _strip_html(cells[2]),
+                    "orgao": _strip_html(cells[3]),
+                    "data_publicacao": _strip_html(cells[4]),
+                    "situacao": _strip_html(cells[5]) if len(cells) > 5 else "",
+                    "valor": _strip_html(cells[6]) if len(cells) > 6 else "",
+                    "url_detalhe": url_detalhe,
+                }
+            )
 
     return items
 
@@ -310,30 +330,30 @@ def _extract_detail_fields(html: str) -> dict:
         re.IGNORECASE,
     )
     container_m = container_pat.search(html)
-    container_html = html[container_m.end():] if container_m else html
+    container_html = html[container_m.end() :] if container_m else html
 
     # Extract <dl> definitions: <dt>label</dt><dd>value</dd>
-    for dl_m in re.finditer(r'<dl[^>]*>(.*?)</dl>', container_html, re.DOTALL):
+    for dl_m in re.finditer(r"<dl[^>]*>(.*?)</dl>", container_html, re.DOTALL):
         inner = dl_m.group(1)
-        dts = re.findall(r'<dt[^>]*>(.*?)</dt>', inner, re.DOTALL)
-        dds = re.findall(r'<dd[^>]*>(.*?)</dd>', inner, re.DOTALL)
+        dts = re.findall(r"<dt[^>]*>(.*?)</dt>", inner, re.DOTALL)
+        dds = re.findall(r"<dd[^>]*>(.*?)</dd>", inner, re.DOTALL)
         for dt_text, dd_text in zip(dts, dds):
-            key = _normalize_label(re.sub(r'<[^>]+>', '', dt_text).strip())
-            val = re.sub(r'<[^>]+>', '', dd_text).strip()
+            key = _normalize_label(re.sub(r"<[^>]+>", "", dt_text).strip())
+            val = re.sub(r"<[^>]+>", "", dd_text).strip()
             if key and val:
                 detail_data[key] = val
 
     # Extract label-value pairs from Bootstrap form-group patterns
     field_patterns = [
         # <label>...</label> <span>...</span>
-        r'<label[^>]*>(.*?)</label>[^<]*(?:<span[^>]*>(.*?)</span>|<p[^>]*>(.*?)</p>)',
+        r"<label[^>]*>(.*?)</label>[^<]*(?:<span[^>]*>(.*?)</span>|<p[^>]*>(.*?)</p>)",
         # <strong>...</strong> <span>...</span>
-        r'<strong[^>]*>(.*?)</strong>[^<]*(?:<span[^>]*>(.*?)</span>|<p[^>]*>(.*?)</p>)',
+        r"<strong[^>]*>(.*?)</strong>[^<]*(?:<span[^>]*>(.*?)</span>|<p[^>]*>(.*?)</p>)",
     ]
     for pat in field_patterns:
         for m in re.finditer(pat, container_html, re.DOTALL | re.IGNORECASE):
-            label = re.sub(r'<[^>]+>', '', m.group(1)).strip()
-            val = re.sub(r'<[^>]+>', '', (m.group(2) or m.group(3) or "")).strip()
+            label = re.sub(r"<[^>]+>", "", m.group(1)).strip()
+            val = re.sub(r"<[^>]+>", "", (m.group(2) or m.group(3) or "")).strip()
             key = _normalize_label(label)
             if key and val and key not in detail_data:
                 detail_data[key] = val
@@ -369,7 +389,10 @@ def _fetch(url: str, params: dict[str, str] | None = None) -> str | None:
                     return resp.read().decode("utf-8", errors="replace")
                 _logger.warning(
                     "[ScCompras] HTTP %s for %s (attempt %d/%d)",
-                    resp.status, full_url, attempt, MAX_RETRIES,
+                    resp.status,
+                    full_url,
+                    attempt,
+                    MAX_RETRIES,
                 )
                 last_error = f"HTTP {resp.status}"
 
@@ -379,13 +402,20 @@ def _fetch(url: str, params: dict[str, str] | None = None) -> str | None:
                 return None
             _logger.warning(
                 "[ScCompras] HTTP %d for %s (attempt %d/%d): %s",
-                e.code, full_url, attempt, MAX_RETRIES, e,
+                e.code,
+                full_url,
+                attempt,
+                MAX_RETRIES,
+                e,
             )
             last_error = f"HTTP {e.code}"
         except Exception as e:
             _logger.warning(
                 "[ScCompras] Network error for %s (attempt %d/%d): %s",
-                full_url, attempt, MAX_RETRIES, e,
+                full_url,
+                attempt,
+                MAX_RETRIES,
+                e,
             )
             last_error = str(e)
 
@@ -394,7 +424,9 @@ def _fetch(url: str, params: dict[str, str] | None = None) -> str | None:
 
     _logger.error(
         "[ScCompras] Failed to fetch %s after %d attempts: %s",
-        full_url, MAX_RETRIES, last_error,
+        full_url,
+        MAX_RETRIES,
+        last_error,
     )
     return None
 
@@ -455,10 +487,7 @@ def _normalize_item(raw: dict, detail: dict | None = None) -> dict | None:
     if len(objeto) > 1000:
         objeto = objeto[:997] + "..."
 
-    data_publicacao = (
-        _parse_br_date(merged.get("data_publicacao"))
-        or datetime.now().date().isoformat()
-    )
+    data_publicacao = _parse_br_date(merged.get("data_publicacao")) or datetime.now().date().isoformat()
     data_abertura = _parse_br_date(merged.get("data_abertura"))
     data_encerramento = _parse_br_date(merged.get("data_encerramento"))
 
@@ -530,9 +559,7 @@ def crawl(mode: str = "full") -> list[dict]:
             items = _fetch_list_page(date_from, date_to, page)
             if not items:
                 if page == 1:
-                    _logger.warning(
-                        "[ScCompras] Page 1 returned empty — portal may be unavailable"
-                    )
+                    _logger.warning("[ScCompras] Page 1 returned empty — portal may be unavailable")
                 else:
                     _logger.info("[ScCompras] Page %d: empty — end of data", page)
                 break
@@ -549,7 +576,9 @@ def crawl(mode: str = "full") -> list[dict]:
             all_items.extend(enriched)
             _logger.debug(
                 "[ScCompras] Page %d: %d items (total: %d)",
-                page, len(enriched), len(all_items),
+                page,
+                len(enriched),
+                len(all_items),
             )
 
             time.sleep(PAGE_DELAY_S)
@@ -560,7 +589,8 @@ def crawl(mode: str = "full") -> list[dict]:
 
     _logger.info(
         "[ScCompras] Crawl complete: %d items from %d pages",
-        len(all_items), pages_fetched,
+        len(all_items),
+        pages_fetched,
     )
     return all_items
 
@@ -594,11 +624,13 @@ def transform(records: list[dict]) -> list[dict]:
     if errors:
         _logger.warning(
             "[ScCompras] Transform: %d/%d records skipped due to errors",
-            errors, len(records),
+            errors,
+            len(records),
         )
 
     _logger.info(
         "[ScCompras] Transform complete: %d -> %d normalized records",
-        len(records), len(normalized),
+        len(records),
+        len(normalized),
     )
     return normalized

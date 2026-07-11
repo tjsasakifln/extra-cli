@@ -14,12 +14,12 @@ Usage:
     from lib.bid_simulator import simulate_bid, BidSimulation
     result = simulate_bid(edital, competitive_intel, benchmark, sector="engenharia_obras")
 """
+
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass
 from typing import Any
-
 
 # ============================================================
 # DATA STRUCTURES
@@ -31,25 +31,25 @@ class BidSimulation:
     """Resultado da simulação de lance."""
 
     # Core outputs
-    lance_sugerido: float          # R$ suggested bid value (maximizes P(win) × margin)
-    desconto_sugerido_pct: float   # % discount from estimated value
-    p_vitoria_pct: float           # Estimated probability of winning (0-100)
-    margem_liquida_pct: float      # Expected net margin — what remains after discount
-    valor_esperado: float          # EV = P(win) × margem × valor_estimado — expected profit (R$)
+    lance_sugerido: float  # R$ suggested bid value (maximizes P(win) × margin)
+    desconto_sugerido_pct: float  # % discount from estimated value
+    p_vitoria_pct: float  # Estimated probability of winning (0-100)
+    margem_liquida_pct: float  # Expected net margin — what remains after discount
+    valor_esperado: float  # EV = P(win) × margem × valor_estimado — expected profit (R$)
 
     # Range
-    lance_agressivo: float         # Lower bound — higher discount, higher P(win), lower margin
-    lance_conservador: float       # Upper bound — lower discount, lower P(win), higher margin
+    lance_agressivo: float  # Lower bound — higher discount, higher P(win), lower margin
+    lance_conservador: float  # Upper bound — lower discount, lower P(win), higher margin
     desconto_agressivo_pct: float
     desconto_conservador_pct: float
 
     # Context
-    competidores_esperados: int    # Estimated number of competing bidders for this bid
-    historico_contratos: int       # Number of sector contracts used for benchmark
-    confianca: str                 # ALTA / MEDIA / BAIXA — reliability of the simulation
+    competidores_esperados: int  # Estimated number of competing bidders for this bid
+    historico_contratos: int  # Number of sector contracts used for benchmark
+    confianca: str  # ALTA / MEDIA / BAIXA — reliability of the simulation
 
     # Explanation
-    racional: str                  # Human-readable rationale for the suggested bid
+    racional: str  # Human-readable rationale for the suggested bid
 
     @property
     def has_data(self) -> bool:
@@ -62,8 +62,8 @@ class BidSimulation:
 
 SECTOR_MARGINS: dict[str, dict[str, float]] = {
     "engenharia_obras": {
-        "margem_minima": 0.05,    # 5% min margin
-        "margem_alvo": 0.12,     # 12% target
+        "margem_minima": 0.05,  # 5% min margin
+        "margem_alvo": 0.12,  # 12% target
         "bdi_referencia": 0.25,  # 25% BDI reference
     },
     "ti_software": {
@@ -209,18 +209,12 @@ def simulate_bid(
     # Extract benchmark data — check both _orgao and plain key variants (field naming evolved)
     bm = benchmark or {}
     desconto_mediano = float(
-        bm.get("desconto_mediano_orgao") or bm.get("desconto_mediano")
-        or bm.get("median_discount") or 0
+        bm.get("desconto_mediano_orgao") or bm.get("desconto_mediano") or bm.get("median_discount") or 0
     )
-    desconto_p25 = float(
-        bm.get("desconto_p25") or bm.get("p25_discount") or 0
-    )
-    desconto_p75 = float(
-        bm.get("desconto_p75") or bm.get("p75_discount") or 0
-    )
+    desconto_p25 = float(bm.get("desconto_p25") or bm.get("p25_discount") or 0)
+    desconto_p75 = float(bm.get("desconto_p75") or bm.get("p75_discount") or 0)
     historico_n = int(
-        bm.get("contratos_analisados") or bm.get("descontos_encontrados")
-        or bm.get("total_contracts") or 0
+        bm.get("contratos_analisados") or bm.get("descontos_encontrados") or bm.get("total_contracts") or 0
     )
     std_descontos = float(bm.get("desconto_std") or bm.get("std_discount") or 0)
 
@@ -297,16 +291,10 @@ def simulate_bid(
 
     # Build rationale
     parts = []
-    parts.append(
-        f"Baseado em {historico_n} contratos do orgao "
-        f"(desconto mediano {desconto_mediano:.1%})"
-    )
+    parts.append(f"Baseado em {historico_n} contratos do orgao (desconto mediano {desconto_mediano:.1%})")
     if num_competitors > 0:
         parts.append(f"~{num_competitors} concorrentes esperados")
-    parts.append(
-        f"Margem liquida projetada: {margem:.1%} "
-        f"(BDI ref: {bdi:.0%}, desconto: {desconto_sugerido:.1%})"
-    )
+    parts.append(f"Margem liquida projetada: {margem:.1%} (BDI ref: {bdi:.0%}, desconto: {desconto_sugerido:.1%})")
     if p_win >= 0.6:
         parts.append("Probabilidade favoravel de vitoria")
     elif p_win >= 0.3:

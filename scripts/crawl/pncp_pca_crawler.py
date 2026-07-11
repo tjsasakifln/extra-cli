@@ -28,23 +28,22 @@ from datetime import date, datetime
 from typing import Any
 
 import httpx
-
 from ingestion._base.crawler import accumulate_stats, chunk_list, empty_run_stats
 from ingestion.config import (
-    INGESTION_PCA_ENABLED,
-    INGESTION_PCA_MAX_PAGES,
     INGESTION_BATCH_DELAY_S,
     INGESTION_BATCH_SIZE_UFS,
     INGESTION_CONCURRENT_UFS,
-    INGESTION_UPSERT_BATCH_SIZE,
+    INGESTION_PCA_ENABLED,
+    INGESTION_PCA_MAX_PAGES,
     INGESTION_UFS,
+    INGESTION_UPSERT_BATCH_SIZE,
 )
 from ingestion.metrics import (
+    PCA_PAGES_FETCHED,
     PCA_RECORDS_FETCHED,
     PCA_RECORDS_UPSERTED,
-    PCA_RUNS_TOTAL,
     PCA_RUN_DURATION,
-    PCA_PAGES_FETCHED,
+    PCA_RUNS_TOTAL,
 )
 
 logger = logging.getLogger(__name__)
@@ -91,26 +90,12 @@ def _normalise_pca_item(raw: dict, uf: str) -> dict | None:
 
         # Extract orgao info
         orgao = raw.get("orgaoEntidade") or raw.get("orgao") or {}
-        orgao_razao = (
-            orgao.get("razaoSocial")
-            or orgao.get("nome")
-            or raw.get("orgaoRazaoSocial")
-            or ""
-        )
-        orgao_cnpj = (
-            orgao.get("cnpj")
-            or orgao.get("cpfCnpj")
-            or raw.get("orgaoCnpj")
-            or ""
-        )
+        orgao_razao = orgao.get("razaoSocial") or orgao.get("nome") or raw.get("orgaoRazaoSocial") or ""
+        orgao_cnpj = orgao.get("cnpj") or orgao.get("cpfCnpj") or raw.get("orgaoCnpj") or ""
         orgao_cnpj_clean = "".join(c for c in orgao_cnpj if c.isdigit())
 
         # UF with fallback
-        uf_value = (
-            (orgao.get("uf") if isinstance(orgao, dict) else None)
-            or raw.get("uf")
-            or uf
-        )
+        uf_value = (orgao.get("uf") if isinstance(orgao, dict) else None) or raw.get("uf") or uf
 
         # Category: material, servico, obra
         categoria_raw = raw.get("categoria") or raw.get("tipoItem") or ""
@@ -135,9 +120,7 @@ def _normalise_pca_item(raw: dict, uf: str) -> dict | None:
             "orgao_cnpj": orgao_cnpj_clean,
             "uf": uf_value.upper() if uf_value else uf,
             "municipio": str(
-                raw.get("municipio")
-                or (orgao.get("municipio") if isinstance(orgao, dict) else None)
-                or ""
+                raw.get("municipio") or (orgao.get("municipio") if isinstance(orgao, dict) else None) or ""
             ),
             "ano_exercicio": int(raw.get("anoExercicio") or raw.get("ano") or date.today().year),
             "categoria": categoria,
@@ -188,7 +171,7 @@ class PncpPcaCrawler:
         self.ufs = ufs or INGESTION_UFS
         self._client: httpx.AsyncClient | None = None
 
-    async def __aenter__(self) -> "PncpPcaCrawler":
+    async def __aenter__(self) -> PncpPcaCrawler:
         self._client = httpx.AsyncClient(
             base_url=PNCP_BASE_URL,
             timeout=_HTTP_TIMEOUT,
@@ -233,7 +216,11 @@ class PncpPcaCrawler:
         if response.status_code != 200:
             logger.warning(
                 "PCA: uf=%s ano=%d page=%d HTTP %d — %s",
-                uf, ano_exercicio, page, response.status_code, response.text[:200],
+                uf,
+                ano_exercicio,
+                page,
+                response.status_code,
+                response.text[:200],
             )
             response.raise_for_status()
 
@@ -243,10 +230,7 @@ class PncpPcaCrawler:
 
     def _has_more(self, response_data: dict) -> bool:
         """Check if more pages are available."""
-        return bool(
-            response_data.get("temProximaPagina")
-            or int(response_data.get("paginasRestantes", 0)) > 0
-        )
+        return bool(response_data.get("temProximaPagina") or int(response_data.get("paginasRestantes", 0)) > 0)
 
     async def crawl_uf(
         self,
@@ -284,10 +268,14 @@ class PncpPcaCrawler:
                 has_more = self._has_more(resp_data)
                 page += 1
 
-            except (httpx.HTTPError, asyncio.TimeoutError) as exc:
+            except (TimeoutError, httpx.HTTPError) as exc:
                 logger.warning(
                     "PCA: uf=%s ano=%d page=%d error — %s: %s",
-                    uf, ano_exercicio, page, type(exc).__name__, exc,
+                    uf,
+                    ano_exercicio,
+                    page,
+                    type(exc).__name__,
+                    exc,
                 )
                 result.errors += 1
                 break
@@ -324,10 +312,12 @@ class PncpPcaCrawler:
                 result.unchanged = counts.get("unchanged", 0)
 
                 PCA_RECORDS_UPSERTED.labels(
-                    uf=uf, action="inserted",
+                    uf=uf,
+                    action="inserted",
                 ).inc(result.inserted)
                 PCA_RECORDS_UPSERTED.labels(
-                    uf=uf, action="updated",
+                    uf=uf,
+                    action="updated",
                 ).inc(result.updated)
 
             uf_stats = {
@@ -373,7 +363,7 @@ async def _upsert_pca_batch(rows: list[dict]) -> dict[str, int]:
     from supabase_client import get_supabase, sb_execute
 
     totals = {"inserted": 0, "updated": 0, "unchanged": 0}
-    batches = [rows[i:i + INGESTION_UPSERT_BATCH_SIZE] for i in range(0, len(rows), INGESTION_UPSERT_BATCH_SIZE)]
+    batches = [rows[i : i + INGESTION_UPSERT_BATCH_SIZE] for i in range(0, len(rows), INGESTION_UPSERT_BATCH_SIZE)]
     supabase = get_supabase()
 
     for batch_idx, batch in enumerate(batches):
@@ -393,7 +383,9 @@ async def _upsert_pca_batch(rows: list[dict]) -> dict[str, int]:
         except Exception as exc:
             logger.error(
                 "PCA upsert batch %d failed: %s: %s — continuing",
-                batch_idx + 1, type(exc).__name__, exc,
+                batch_idx + 1,
+                type(exc).__name__,
+                exc,
             )
             continue
 

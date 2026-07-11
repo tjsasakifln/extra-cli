@@ -55,8 +55,7 @@ def is_crawl_completed_today(
     cur = conn.cursor()
     try:
         cur.execute(
-            "SELECT 1 FROM ingestion_checkpoints "
-            "WHERE source = %s AND scope_key = %s AND last_date = CURRENT_DATE",
+            "SELECT 1 FROM ingestion_checkpoints WHERE source = %s AND scope_key = %s AND last_date = CURRENT_DATE",
             (source, scope_key),
         )
         return cur.fetchone() is not None
@@ -194,16 +193,13 @@ def delete_checkpoint(
     cur = conn.cursor()
     try:
         cur.execute(
-            "DELETE FROM ingestion_checkpoints "
-            "WHERE source = %s AND scope_key = %s",
+            "DELETE FROM ingestion_checkpoints WHERE source = %s AND scope_key = %s",
             (source, scope_key),
         )
         conn.commit()
         deleted = cur.rowcount > 0
         if deleted:
-            logger.debug(
-                "delete_checkpoint: source=%s scope=%s — deleted", source, scope_key
-            )
+            logger.debug("delete_checkpoint: source=%s scope=%s — deleted", source, scope_key)
         return deleted
     except Exception as exc:
         logger.warning(
@@ -238,8 +234,7 @@ async def get_last_checkpoint(
     supabase = get_supabase()
     try:
         result = await sb_execute(
-            supabase
-            .table("ingestion_checkpoints")
+            supabase.table("ingestion_checkpoints")
             .select("last_date")
             .eq("uf", uf)
             .eq("modalidade_id", modalidade)
@@ -299,9 +294,9 @@ async def mark_checkpoint_failed(
             "error_message": error_message[:2000],  # Truncate for column limit
         }
         await sb_execute(
-            supabase
-            .table("ingestion_checkpoints")
-            .upsert(payload, on_conflict="source,uf,modalidade_id,crawl_batch_id"),
+            supabase.table("ingestion_checkpoints").upsert(
+                payload, on_conflict="source,uf,modalidade_id,crawl_batch_id"
+            ),
             category="write",
         )
         logger.warning(
@@ -343,9 +338,7 @@ async def create_ingestion_run(
             "status": "running",
         }
         await sb_execute(
-            supabase
-            .table("ingestion_runs")
-            .insert(payload),
+            supabase.table("ingestion_runs").insert(payload),
             category="write",
         )
         logger.info(
@@ -402,10 +395,7 @@ async def complete_ingestion_run(
             payload["error_message"] = error_message[:2000]
 
         await sb_execute(
-            supabase
-            .table("ingestion_runs")
-            .update(payload)
-            .eq("crawl_batch_id", crawl_batch_id),
+            supabase.table("ingestion_runs").update(payload).eq("crawl_batch_id", crawl_batch_id),
             category="write",
         )
         logger.info(

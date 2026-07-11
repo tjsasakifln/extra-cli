@@ -16,9 +16,8 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date
 from pathlib import Path
-from typing import Any
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
@@ -32,6 +31,7 @@ DSN = os.getenv(
 
 def get_conn():
     import psycopg2
+
     return psycopg2.connect(DSN)
 
 
@@ -47,6 +47,7 @@ def query(conn, sql: str, params: list = None) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Report sections
 # ---------------------------------------------------------------------------
+
 
 def section_volume(conn, uf: str = "SC", dias: int = 90) -> dict:
     """Total bid volume and value by modality."""
@@ -169,6 +170,7 @@ def section_coverage_gaps(conn) -> list[dict]:
 # Output
 # ---------------------------------------------------------------------------
 
+
 def print_terminal_report(sections: dict) -> None:
     """Print panorama to terminal."""
     print("\n" + "=" * 72)
@@ -181,31 +183,30 @@ def print_terminal_report(sections: dict) -> None:
     print(f"{'Modalidade':25s} {'Qtd':>5s} {'Valor Total':>18s} {'Ticket Médio':>16s}")
     print("-" * 65)
     for r in sections.get("volume", []):
-        print(f"{r['modalidade_nome'] or 'N/A':25s} {r['total_bids']:>5d} "
-              f"R$ {r['valor_total'] or 0:>15,.0f} "
-              f"R$ {r['ticket_medio'] or 0:>13,.0f}")
+        print(
+            f"{r['modalidade_nome'] or 'N/A':25s} {r['total_bids']:>5d} "
+            f"R$ {r['valor_total'] or 0:>15,.0f} "
+            f"R$ {r['ticket_medio'] or 0:>13,.0f}"
+        )
 
     # Top municípios
     print("\n── TOP 10 MUNICÍPIOS ──")
     print(f"{'Município':25s} {'Licitações':>10s} {'Valor Total':>18s} {'Órgãos':>7s}")
     print("-" * 62)
     for r in sections.get("municipios", [])[:10]:
-        print(f"{r['municipio'][:25]:25s} {r['total_bids']:>10d} "
-              f"R$ {r['valor_total'] or 0:>15,.0f} {r['orgaos']:>7d}")
+        print(f"{r['municipio'][:25]:25s} {r['total_bids']:>10d} R$ {r['valor_total'] or 0:>15,.0f} {r['orgaos']:>7d}")
 
     # Sazonalidade
     print("\n── SAZONALIDADE (últimos 12 meses) ──")
-    meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-             "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+    meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
     for r in sections.get("sazonalidade", []):
         bar = "█" * max(1, int(r["total_bids"] / 10))
-        print(f"  {meses[int(r['mes'])-1]:3s} {r['ano']}: {bar} ({r['total_bids']})")
+        print(f"  {meses[int(r['mes']) - 1]:3s} {r['ano']}: {bar} ({r['total_bids']})")
 
     # Source distribution
     print("\n── DISTRIBUIÇÃO POR FONTE ──")
     for r in sections.get("sources", []):
-        print(f"  {r['source']:15s}: {r['total_bids']:>5d} bids, "
-              f"{r['entities_covered']:>4d} entidades")
+        print(f"  {r['source']:15s}: {r['total_bids']:>5d} bids, {r['entities_covered']:>4d} entidades")
 
     # Coverage gaps
     gaps = sections.get("gaps", [])
@@ -223,7 +224,7 @@ def export_excel(sections: dict, filepath: str) -> None:
     """Export panorama sections to styled Excel."""
     try:
         import openpyxl
-        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     except ImportError:
         print("⚠️  openpyxl not installed, skipping Excel export")
         return
@@ -233,28 +234,40 @@ def export_excel(sections: dict, filepath: str) -> None:
     # -- Volume sheet --
     ws = wb.active
     ws.title = "Volume"
-    _write_sheet(ws, sections.get("volume", []),
-                 ["Modalidade", "Qtd", "Valor Total", "Ticket Médio", "Período"],
-                 ["modalidade_nome", "total_bids", "valor_total", "ticket_medio"])
+    _write_sheet(
+        ws,
+        sections.get("volume", []),
+        ["Modalidade", "Qtd", "Valor Total", "Ticket Médio", "Período"],
+        ["modalidade_nome", "total_bids", "valor_total", "ticket_medio"],
+    )
 
     # -- Municípios sheet --
     ws2 = wb.create_sheet("Municípios")
-    _write_sheet(ws2, sections.get("municipios", []),
-                 ["Município", "Licitações", "Valor Total", "Órgãos"],
-                 ["municipio", "total_bids", "valor_total", "orgaos"])
+    _write_sheet(
+        ws2,
+        sections.get("municipios", []),
+        ["Município", "Licitações", "Valor Total", "Órgãos"],
+        ["municipio", "total_bids", "valor_total", "orgaos"],
+    )
 
     # -- Sazonalidade sheet --
     ws3 = wb.create_sheet("Sazonalidade")
-    _write_sheet(ws3, sections.get("sazonalidade", []),
-                 ["Ano", "Mês", "Total Bids", "Valor Total"],
-                 ["ano", "mes", "total_bids", "valor_total"])
+    _write_sheet(
+        ws3,
+        sections.get("sazonalidade", []),
+        ["Ano", "Mês", "Total Bids", "Valor Total"],
+        ["ano", "mes", "total_bids", "valor_total"],
+    )
 
     # -- Gaps sheet --
     if sections.get("gaps"):
         ws4 = wb.create_sheet("Gaps")
-        _write_sheet(ws4, sections["gaps"],
-                     ["Órgão", "CNPJ", "Município", "Natureza Jurídica", "Raio 200km"],
-                     ["razao_social", "cnpj_8", "municipio", "natureza_juridica", "raio_200km"])
+        _write_sheet(
+            ws4,
+            sections["gaps"],
+            ["Órgão", "CNPJ", "Município", "Natureza Jurídica", "Raio 200km"],
+            ["razao_social", "cnpj_8", "municipio", "natureza_juridica", "raio_200km"],
+        )
 
     # Style
     header_fill = PatternFill(start_color="1B2A3D", end_color="1B2A3D", fill_type="solid")
@@ -288,6 +301,7 @@ def _write_sheet(ws, data: list[dict], headers: list[str], keys: list[str]):
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def parse_args():
     p = argparse.ArgumentParser(description="Market Panorama Report")

@@ -1,46 +1,33 @@
-# Design — Módulo `config`
+# Config — Design
 
-> 🟢 CONFIRMADO
+> Gerado pelo Writer em 2026-07-11T22:30:00Z | doc_level: completo
 
-## Estrutura
-
+## Settings Architecture
 ```
-config/
-├── settings.py          # Env vars → Python constants (12-factor)
-├── sectors_config.yaml  # 13 setores (2.116 linhas) — fonte única de verdade
-├── sectors_data.yaml    # Dados complementares de setores
-├── abbreviations.yaml   # Abreviações PT-BR (extensível)
-└── transparencia_config.yaml  # Portais de transparência (Betha/Ipam/E-gov)
+.env → config/settings.py → os.getenv() com defaults → módulos Python
 ```
 
-## Settings (12-factor)
-
-Toda config vem de `os.getenv()` com defaults. Sem hardcoded credentials. Categorias:
-- **Paths:** PROJECT_ROOT, SCRIPTS_DIR, DATA_DIR, OUTPUT_DIR, PDF_DIR, EXCEL_DIR, LOG_DIR
-- **Database:** LOCAL_DATALAKE_DSN, DATALAKE_BACKEND
-- **OpenAI:** API_KEY, MODEL (gpt-4.1-nano), TIMEOUT_S (10), MAX_CONCURRENT (5)
-- **APIs:** PNCP_BASE, DOM_SC_BASE, PCP_BASE, COMPRAS_GOV_BASE
-- **Ingestion:** UFS, MODALIDADES, DATE_RANGE_DAYS, PAGE_SIZE, MAX_PAGES, BATCH_DELAY_S
-- **Coverage:** TARGET_PCT (100.0), WINDOW_DAYS (90)
-- **Enrichment:** TTL_DAYS (30)
-
-## Sectors Config (YAML Schema)
-
+## Sector Config Structure (YAML)
 ```yaml
-sectors:
-  <setor>:
-    cnae_prefixes: [list]
-    sector_hints: [list]
-    heuristic_patterns:
-      strong_compat: [regex list]
-      strong_incompat: [regex list]
-      weak_compat: [regex list]
-    cross_sector_exclusions: [list]
-    competition_keywords: [list]
-    weight_profile: {hab, fin, geo, prazo, comp}
-    base_win_rate: float
-    habilitacao: {capital_minimo_pct, atestados, certifications, fiscal}
-    timeline_rules: [{max_value, min_days}]
-    priority_modalidades: [list]
-    cnae_gate_threshold: float
+engenharia:
+  cnae_prefixes: [4120, 4211, 4212, ...]  # 17 prefixes
+  sector_hints: [construção, obra, pavimentação, ...]
+  heuristic_patterns:
+    strong_compat: [...], strong_incompat: [...], weak_compat: [...]
+  cross_sector_exclusions: [...]
+  cnae_gate_threshold: 0.45
+  weight_profile: {hab: 0.25, fin: 0.25, geo: 0.15, prazo: 0.15, comp: 0.20}
+  llm_fallback: {enabled: true, confidence_threshold: 0.40, model: gpt-4.1-nano}
 ```
+
+## Logging JSON Format
+```json
+{"timestamp": "...", "level": "INFO", "module": "crawl.pncp",
+ "correlation_id": "a1b2c3d4e5f6", "message": "...", "extra_data": {...}}
+```
+contextvar-based correlation_id: thread-safe + async-safe.
+
+## Abbreviations
+18 public admin abbreviations (SEC→SECRETARIA, MUN→MUNICIPIO, PM→PREFEITURA MUNICIPAL, etc.). Word-boundary regex, longest-first ordering.
+
+🟢 CONFIRMADO

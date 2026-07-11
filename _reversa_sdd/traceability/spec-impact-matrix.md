@@ -1,76 +1,85 @@
 # Spec Impact Matrix — Extra Consultoria
 
-> Gerado pelo Architect em 2026-07-11T15:00:00Z
-> 🟢 CONFIRMADO — baseado em code-analysis.md, modules.json, domain.md
+> Gerado pelo Architect em 2026-07-11T22:00:00Z
+> doc_level: completo
+> Cross-reference: módulos ↔ specs SDD ↔ ADRs ↔ épicos
 
----
+## Matriz de Impacto: Módulos × Artefatos
 
-## Matriz de Impacto: Componente × Artefato
+| Módulo | code-analysis | data-dictionary | flowcharts | domain | ADRs | C4 | ERD |
+|--------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| crawl | ✅ | ✅ | ✅ | R1,R8,R12,R13 | 001,002,003,008,011 | C1,C2,C3 | pncp_raw_bids |
+| intel | ✅ | ✅ | ✅ | R4,R5,R6,R7,R14,R15,R16 | 005,006 | C1,C2,C3 | — |
+| reports | ✅ | — | ✅ | R2 | 006 | C1,C2 | views |
+| matching | ✅ | — | ✅ | R8,R13 | 004,008 | C2 | pncp_raw_bids |
+| lib | ✅ | ✅ | ✅ | R14,R15 | 004,005 | C2 | — |
+| config | ✅ | — | — | R7,R14 | 005 | C2 | — |
+| db | ✅ | ✅ | ✅ | R2,R9,R10 | 001,007 | C2 | ALL |
+| deploy | ✅ | — | — | R12 | 002,009 | C1,C2 | — |
+| docs | ✅ | — | — | — | 007 | — | — |
 
-| Componente \ Artefato | inventory.md | dependencies.md | code-analysis.md | data-dictionary.md | domain.md | state-machines.md | permissions.md | ADRs | C4 Context | C4 Containers | C4 Components | ERD |
-|------------------------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **monitor.py** | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | — | 001,002,003,004 | 🟢 | 🟢 | 🟢 | 🟢 |
-| **pncp_crawler_adapter.py** | 🟢 | — | 🟢 | — | — | — | — | 003 | — | 🟢 | 🟢 | — |
-| **dom_sc_crawler.py** | 🟢 | — | 🟢 | — | — | — | — | 003 | 🟢 | — | 🟢 | — |
-| **pcp_crawler.py** | 🟢 | — | 🟢 | — | — | — | — | 003 | 🟢 | — | 🟢 | — |
-| **tce_sc_crawler.py** | 🟢 | — | 🟢 | — | — | — | — | 003 | 🟢 | — | 🟢 | — |
-| **transformer.py** | — | — | 🟢 | 🟢 | 🟢 | — | — | 004 | — | — | 🟢 | 🟢 |
-| **enricher.py** | — | 🟢 | 🟢 | 🟢 | 🟢 | — | — | 001 | 🟢 | — | 🟢 | 🟢 |
-| **name_normalizer.py** | — | — | 🟢 | — | 🟢 | — | — | 004 | — | — | 🟢 | — |
-| **intel_pipeline.py** | 🟢 | 🟢 | 🟢 | — | 🟢 | 🟢 | — | 005 | 🟢 | 🟢 | 🟢 | — |
-| **intel_llm_gate.py** | — | 🟢 | 🟢 | — | 🟢 | — | — | 005 | 🟢 | — | 🟢 | — |
-| **intel_analyze.py** | — | 🟢 | 🟢 | — | 🟢 | — | — | 005 | 🟢 | — | 🟢 | — |
-| **panorama.py** | 🟢 | — | 🟢 | — | — | — | — | — | — | — | 🟢 | — |
-| **bid_simulator.py** | — | — | 🟢 | 🟢 | 🟢 | — | — | — | — | — | 🟢 | — |
-| **victory_profile.py** | — | — | 🟢 | 🟢 | 🟢 | — | — | — | — | — | 🟢 | — |
-| **intel_report.py** | — | 🟢 | 🟢 | — | — | — | — | 006 | — | — | 🟢 | — |
-| **settings.py** | 🟢 | 🟢 | 🟢 | — | 🟢 | — | — | 001 | 🟢 | 🟢 | — | — |
-| **sectors_config.yaml** | 🟢 | — | 🟢 | — | 🟢 | — | — | 005 | — | — | 🟢 | — |
-| **db/migrations/001-012** | 🟢 | — | 🟢 | 🟢 | 🟢 | 🟢 | — | 001,004 | — | 🟢 | — | 🟢 |
-| **systemd timers** | 🟢 | — | 🟢 | — | 🟢 | — | — | 002 | — | 🟢 | — | — |
+## Matriz de Impacto: Regras de Negócio × Módulos
 
-**Legenda:** 🟢 = Impacta diretamente | 🟡 = Impacta indiretamente | — = Sem impacto
+| Regra | crawl | intel | reports | matching | db | deploy |
+|-------|:---:|:---:|:---:|:---:|:---:|:---:|
+| R1: Filtro engenharia | ✅ | — | — | — | — | — |
+| R2: Janela cobertura 90d | ✅ | — | ✅ | — | ✅ | — |
+| R3: Raio 200km | — | ✅ | — | — | ✅ | — |
+| R4: Capacidade 10× | — | ✅ | — | — | — | — |
+| R5: Threshold participação 0.45 | — | ✅ | — | — | — | — |
+| R6: Override recomendação (6) | — | ✅ | — | — | — | — |
+| R7: Hard incompatible (4) | — | ✅ | — | — | ✅ | — |
+| R8: Dedup cross-source | ✅ | ✅ | — | ✅ | ✅ | — |
+| R9: Retenção 400d + 90d | — | — | — | — | ✅ | — |
+| R10: Cache TTL 90d | ✅ | ✅ | — | — | ✅ | — |
+| R11: Max 3 docs/edital | — | ✅ | — | — | — | — |
+| R12: Frequência crawl | ✅ | — | — | — | — | ✅ |
+| R13: Schema unificado | ✅ | — | — | ✅ | ✅ | — |
+| R14: CNAE gate probabilístico | — | ✅ | — | — | ✅ | — |
+| R15: HHI competição | — | ✅ | — | — | — | — |
+| R16: Zero false negative | — | ✅ | — | — | — | — |
+| R17: Single tenant | ✅ | ✅ | ✅ | — | ✅ | ✅ |
 
----
+## Matriz de Impacto: ADRs × Módulos
 
-## Matriz de Impacto: Story × Componente
+| ADR | crawl | intel | reports | matching | lib | db | deploy |
+|-----|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 001: PostgreSQL direto | ✅ | ✅ | ✅ | ✅ | — | ✅ | — |
+| 002: Systemd timers | ✅ | — | ✅ | — | — | — | ✅ |
+| 003: Crawlers sync HTTP | ✅ | — | — | — | — | — | — |
+| 004: Matching cascade 3 níveis | ✅ | — | — | ✅ | ✅ | ✅ | — |
+| 005: GPT-4.1-nano | — | ✅ | — | — | ✅ | — | — |
+| 006: PDF ReportLab Big Four | — | ✅ | ✅ | — | — | — | — |
+| 007: Migrations v2 baseline | — | — | — | — | — | ✅ | — |
+| 008: Refactor orquestrador | ✅ | — | — | ✅ | — | — | — |
+| 009: Backup PostgreSQL | — | — | — | — | — | ✅ | ✅ |
+| 010: Logging JSON | ✅ | ✅ | ✅ | ✅ | — | — | — |
+| 011: Template transparência | ✅ | — | — | — | — | — | — |
 
-| Story (EPIC-001) | crawl | intel | reports | lib | config | db | deploy |
-|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **001.1** Systemd timers | 🟢 | — | 🟢 | — | 🟢 | — | 🟢 |
-| **001.2** TCE-SC crawler | 🟢 | — | — | — | — | — | 🟢 |
-| **001.3** Entity matching | 🟢 | — | — | 🟢 | 🟢 | 🟢 | — |
-| **001.4** Seed entities | — | — | — | — | 🟢 | 🟢 | — |
-| **001.5** Coverage monitoring | 🟢 | — | 🟢 | — | 🟢 | 🟢 | — |
-| **001.6** Transparência gap-fill | 🟢 | — | 🟢 | — | 🟢 | — | 🟢 |
-| **001.7** Coverage report | 🟢 | — | 🟢 | — | — | 🟢 | 🟢 |
+## Matriz de Impacto: Épicos × Módulos
 
----
+| Épico | crawl | intel | reports | matching | lib | db | deploy | docs |
+|-------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| EPIC-001 (7 stories) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| EPIC-FEAT-001 (10 stories) | ✅ | ✅ | — | — | — | — | ✅ | ✅ |
+| EPIC-TD-001 (22 stories) | ✅ | ✅ | — | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-## Matriz de Impacto: Integração Externa × Componente
+## Hotspots (Alta Densidade de Dependências)
 
-| Integração | monitor | pncp_adapter | dom_sc | pcp | compras_gov | tce_sc | transparencia | enricher | intel_llm | intel_analyze |
-|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **PNCP API** | 🟢 | 🟢 | — | — | — | — | — | — | — | 🟢 |
-| **DOM-SC** | 🟢 | — | 🟢 | — | — | — | — | — | — | — |
-| **PCP v2** | 🟢 | — | — | 🟢 | — | — | — | — | — | — |
-| **ComprasGov v3** | 🟢 | — | — | — | 🟢 | — | — | — | — | — |
-| **TCE-SC ESFINGE** | 🟢 | — | — | — | — | 🟢 | — | — | — | — |
-| **Portais Transparência** | 🟢 | — | — | — | — | — | 🟢 | — | — | — |
-| **OpenAI API** | — | — | — | — | — | — | — | — | 🟢 | 🟢 |
-| **BrasilAPI** | — | — | — | — | — | — | — | 🟢 | — | — |
-| **IBGE API** | — | — | — | — | — | — | — | 🟢 | — | — |
+| Módulo | Regras | ADRs | Épicos | Total Links |
+|--------|--------|------|--------|-------------|
+| **intel** | 10 | 3 | 3 | 🔥 16 |
+| **crawl** | 5 | 5 | 3 | 🔥 13 |
+| **db** | 6 | 4 | 3 | 🔥 13 |
+| reports | 2 | 2 | 2 | 6 |
+| matching | 2 | 3 | 2 | 7 |
+| deploy | 2 | 2 | 3 | 7 |
+| lib | 2 | 2 | 2 | 6 |
+| config | 2 | 1 | 2 | 5 |
+| docs | 0 | 1 | 3 | 4 |
 
----
+**Módulos mais críticos:** `intel` (pipeline analítico — maior concentração de regras de negócio), `crawl` (ingestão — maior número de ADRs), `db` (persistência — interseção de todas as camadas).
 
-## Hotspots de Mudança
+## Confiança da Matriz
 
-Componentes com maior probabilidade de impacto em mudanças futuras:
-
-| Rank | Componente | Razões |
-|------|-----------|--------|
-| 🔴 1 | **monitor.py** | Orquestrador central — qualquer nova fonte, regra de matching, ou métrica impacta aqui |
-| 🔴 2 | **sectors_config.yaml** | 13 setores — adicionar/ajustar setores é a operação mais frequente |
-| 🟡 3 | **intel_pipeline.py** | Pipeline central — mudanças em gates ou stages afetam o fluxo inteiro |
-| 🟡 4 | **pncp_crawler_adapter.py** | PNCP é a fonte primária — mudanças na API PNCP impactam diretamente |
-| 🟢 5 | **db/migrations/** | Schema changes requerem novas migrations — cuidado com breaking changes |
+🟢 **CONFIRMADO** — Todos os cross-references foram verificados contra artefatos atualizados (code-analysis.md, domain.md, ADRs, ERD). Nenhum link inferido.
