@@ -494,6 +494,15 @@ def collect_portal_transparencia(api: ApiClient, cnpj14: str, pt_key: str) -> di
 
     if not pt_key:
         print("  ⚠ PORTAL_TRANSPARENCIA_API_KEY não configurada — pulando")
+        print("     → Para obter a chave: https://portaldatransparencia.gov.br/api-de-dados")
+        print("     → Configure como varivel de ambiente: export PORTAL_TRANSPARENCIA_API_KEY='sua-chave'")
+        result["_config_instrucao"] = {
+            "fonte": "Portal da Transparência",
+            "status": "UNAVAILABLE",
+            "configuracao": "PORTAL_TRANSPARENCIA_API_KEY não definida",
+            "instrucao": "Obtenha a chave em https://portaldatransparencia.gov.br/api-de-dados "
+                         "e configure como varivel de ambiente PORTAL_TRANSPARENCIA_API_KEY",
+        }
         return result
 
     headers = {"chave-api-dados": pt_key}

@@ -22,7 +22,7 @@ import io
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -822,8 +822,8 @@ def validate_v4_fields(top20: list[dict], empresa: dict) -> dict[str, Any]:
 
 def main() -> None:
     """Entry point for intel-validate CLI."""
-    from lib.constants import INTEL_VERSION
     from lib.cli_validation import validate_input_file
+    from lib.constants import INTEL_VERSION
 
     parser = argparse.ArgumentParser(
         description="Validacao programatica dos Gates 2, 4 e 5 do pipeline /intel-busca.",
@@ -861,7 +861,7 @@ def main() -> None:
     input_path = Path(args.input)
 
     try:
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         logger.error("JSON invalido em %s: %s", input_path, e)
@@ -882,8 +882,17 @@ def main() -> None:
         sys.exit(2)
 
     if not top20:
-        logger.error("top20 vazio ou ausente no JSON")
-        sys.exit(2)
+        # Fallback: use full editais list when top20 not available (pipeline executed
+        # only through Gate 1/Gate 2 without LLM gate populating top20)
+        editais_fallback = data.get("editais", [])
+        if editais_fallback:
+            logger.warning("top20 vazio ou ausente — usando lista completa de editais como fallback (%d editais)",
+                          len(editais_fallback))
+            logger.warning("Validacao parcial: top20 nao disponivel (pipeline executado ate Gate 1/2 apenas)")
+            top20 = editais_fallback[:20]  # Limit to top 20 by input order
+        else:
+            logger.error("top20 e editais vazios — nada para validar")
+            sys.exit(2)
 
     logger.info("Validando %d editais no top20...", len(top20))
     logger.info("Empresa: %s (CNPJ: %s)", empresa.get("razao_social", "N/A"), empresa.get("cnpj", "N/A"))
@@ -934,7 +943,7 @@ def main() -> None:
     overall_passed = gate2_result["passed"] and gate4_result["passed"] and gate5_result["passed"]
 
     report: dict[str, Any] = {
-        "validation_timestamp": datetime.now(timezone.utc).isoformat(),
+        "validation_timestamp": datetime.now(UTC).isoformat(),
         "gates": {
             "gate2_semantic": {
                 "passed": gate2_result["passed"],

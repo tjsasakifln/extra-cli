@@ -29,9 +29,11 @@ import sys
 import threading
 import time
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
+
+import httpx as _httpx
 
 # Load .env for local development (Railway/Docker set env vars natively)
 try:
@@ -94,13 +96,18 @@ _DATE_CHUNK_DAYS = 14  # Each chunk covers 14 days (shorter = fewer pages per co
 _PNCP_FETCH_WORKERS = 4  # Balanced: 3-5 avoids cascading timeouts on gov server
 # Adaptive rate limiter
 _RATE_LIMIT_BASE_S = 0.15   # Base interval between requests (150ms)
-_RATE_LIMIT_MAX_S = 2.0     # Max interval on slowdowns
+_RATE_LIMIT_MAX_S = 30.0    # Max interval on slowdowns (v1.5: was 2.0s — increased for 429 backoff)
 _RATE_LIMIT_SLOW_THRESHOLD_S = 5.0  # Response > 5s = "slow"
 _RATE_LIMIT_DECAY = 0.85    # Decay factor on fast responses
 _RATE_LIMIT_GROWTH = 1.5    # Growth factor on slow responses
 # Circuit breaker: pause after consecutive timeouts
 _CIRCUIT_BREAKER_THRESHOLD = 3   # 3 consecutive failures = pause
 _CIRCUIT_BREAKER_PAUSE_S = 15.0  # Pause duration (seconds)
+# 429 rate-limit specific (v1.5)
+_RATE_LIMIT_429_GROWTH = 2.0    # Doubling factor for 429 backoff (start 2s → 4s → 8s → ...)
+_RATE_LIMIT_429_MAX_S = 30.0    # Max interval for 429 backoff
+_RATE_LIMIT_429_INITIAL_S = 2.0 # Initial wait on first 429 (seconds)
+_PNCP_429_MAX_PER_COMBO = 10    # Max 429s per combo before suspension
 CNAE_KEYWORD_REFINEMENTS = _crd.CNAE_KEYWORD_REFINEMENTS
 _compile_keyword_patterns = _crd._compile_keyword_patterns
 _compute_keyword_density = _crd._compute_keyword_density
@@ -218,6 +225,8 @@ class AdaptiveRateLimiter:
     - Fast response (<2s): interval *= decay (gets faster)
     - Slow response (>5s): interval *= growth (slows down)
     - Consecutive timeouts: circuit breaker pauses all threads
+    - 429 rate-limit (v1.5): independent aggressive backoff, starts at 2s,
+      doubles each retry, max 30s. Tracked separately from other failures.
     """
 
     def __init__(
@@ -229,6 +238,9 @@ class AdaptiveRateLimiter:
         growth: float = _RATE_LIMIT_GROWTH,
         cb_threshold: int = _CIRCUIT_BREAKER_THRESHOLD,
         cb_pause: float = _CIRCUIT_BREAKER_PAUSE_S,
+        rl_429_initial: float = _RATE_LIMIT_429_INITIAL_S,
+        rl_429_growth: float = _RATE_LIMIT_429_GROWTH,
+        rl_429_max: float = _RATE_LIMIT_429_MAX_S,
     ):
         self._interval = base_interval
         self._min_interval = base_interval * 0.5
@@ -239,6 +251,11 @@ class AdaptiveRateLimiter:
         self._cb_threshold = cb_threshold
         self._cb_pause = cb_pause
         self._consecutive_failures = 0
+        # 429-specific state (v1.5)
+        self._429_initial = rl_429_initial
+        self._429_growth = rl_429_growth
+        self._429_max = rl_429_max
+        self._total_429_count = 0
         self._lock = threading.Lock()
 
     def wait(self) -> None:
@@ -272,6 +289,35 @@ class AdaptiveRateLimiter:
         if should_pause:
             print(f"    ⚡ Circuit breaker: {self._cb_threshold} failures, pausing {self._cb_pause:.0f}s")
             time.sleep(self._cb_pause)
+
+    def record_429(self) -> float:
+        """Record a 429 Too Many Requests response.
+
+        Applies aggressive progressive backoff:
+          First 429: wait 2s
+          Each subsequent 429: double the wait, cap at max 30s
+
+        Returns the new wait interval in seconds.
+        """
+        wait_time = 0.0
+        with self._lock:
+            self._total_429_count += 1
+            # Progressive backoff: start at initial, double each time, cap at max
+            # Use total_429_count to determine backoff level
+            self._interval = min(
+                self._429_max,
+                self._429_initial * (self._429_growth ** (self._total_429_count - 1))
+            )
+            wait_time = self._interval
+            # Reset circuit breaker counter (429 is not a connection failure)
+            self._consecutive_failures = 0
+        print(f"    ⚡ 429 rate-limit: backoff {wait_time:.1f}s (total 429s: {self._total_429_count})")
+        return wait_time
+
+    @property
+    def total_429_count(self) -> int:
+        with self._lock:
+            return self._total_429_count
 
     @property
     def current_interval(self) -> float:
@@ -317,7 +363,7 @@ except ImportError:
 
 
 def _api_get_with_retry(
-    api: "ApiClient",
+    api: ApiClient,
     url: str,
     params: dict | None = None,
     label: str = "",
@@ -355,12 +401,74 @@ def _api_get_with_retry(
     return last_result
 
 
+def _pncp_direct_get(
+    url: str,
+    params: dict | None = None,
+    label: str = "",
+    max_retries: int = 2,
+) -> tuple:
+    """Direct HTTP GET for PNCP with status code visibility (v1.5).
+
+    Bypasses ApiClient to expose HTTP status codes directly, allowing
+    the caller to distinguish 429 Too Many Requests from other failures.
+
+    Returns (data, status, http_status_code).
+      status is "API" for success,
+              "TOO_MANY_REQUESTS" for HTTP 429,
+              "API_FAILED" for other failures/errors.
+    """
+    for attempt in range(max_retries + 1):
+        try:
+            resp = _httpx.get(
+                url,
+                params=params,
+                timeout=30.0,
+                follow_redirects=True,
+                headers={"User-Agent": "Extra Consultoria-IntelCollector/1.0"},
+            )
+
+            if resp.status_code == 200:
+                try:
+                    return resp.json(), "API", 200
+                except _httpx.JSONDecodeError:
+                    if attempt < max_retries:
+                        time.sleep(1.0)
+                        continue
+                    return None, "API_FAILED", 200
+
+            if resp.status_code == 429:
+                # Rate-limited: return immediately with special status
+                return None, "TOO_MANY_REQUESTS", 429
+
+            if resp.status_code in (500, 502, 503, 504, 422):
+                # Transient server error, retry
+                if attempt < max_retries:
+                    delay = min(1.0 * (2 ** attempt), 30.0)
+                    print(f"    [retry] {label}: HTTP {resp.status_code}, retry in {delay:.1f}s")
+                    time.sleep(delay)
+                    continue
+                return None, "API_FAILED", resp.status_code
+
+            # Non-retryable error (4xx except 429)
+            return None, "API_FAILED", resp.status_code
+
+        except (_httpx.TimeoutException, _httpx.ConnectError, _httpx.ReadError) as e:
+            if attempt < max_retries:
+                delay = min(1.0 * (2 ** attempt), 30.0)
+                print(f"    [retry] {label}: {type(e).__name__}, retry in {delay:.1f}s")
+                time.sleep(delay)
+                continue
+            return None, "API_FAILED", None
+
+    return None, "API_FAILED", None
+
+
 # ============================================================
 # HELPERS
 # ============================================================
 
 def _today() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _compute_dedup_hash(edital: dict) -> str:
@@ -483,7 +591,7 @@ def _semantic_dedup(editais: list[dict]) -> list[dict]:
     if n_semantic_dupes > 0:
         print(f"  Dedup semantico: {n_semantic_dupes} duplicatas semanticas removidas")
     else:
-        print(f"  Dedup semantico: sem duplicatas semanticas detectadas")
+        print("  Dedup semantico: sem duplicatas semanticas detectadas")
 
     return [ed for ed in editais if ed.get("_id", "") not in removed_ids]
 
@@ -548,7 +656,7 @@ def _cleanup_old_checkpoints(data: dict) -> dict:
                 try:
                     ts = datetime.fromisoformat(ts_str)
                     if ts.tzinfo is None:
-                        ts = ts.replace(tzinfo=timezone.utc)
+                        ts = ts.replace(tzinfo=UTC)
                     if ts > cutoff:
                         keep = True
                         break
@@ -835,6 +943,8 @@ def search_pncp_exhaustive(
     modalidades: dict[int, str],
     cnpj14: str = "",
     use_cache: bool = True,
+    chunked: bool = False,
+    batch_size: int = 1,
 ) -> tuple[list[dict], dict]:
     """Fetch ALL editais from PNCP for the given UFs, modalidades, and date range.
 
@@ -843,6 +953,11 @@ def search_pncp_exhaustive(
     - All (modalidade × UF × chunk) combos dispatched in parallel (ThreadPoolExecutor)
     - Adaptive rate limiting: starts fast (150ms), slows on timeouts, circuit breaker
     - NO keyword filtering: captures everything, deduplicates by organ/year/seq
+
+    v1.5: Chunked execution mode (--chunked).
+    When chunked=True, combos are processed in sequential batches (batch_size combos
+    per batch) instead of all at once. Each batch has a 5s cool-down between batches
+    to reduce PNCP API load and avoid 429 rate-limiting.
 
     Returns (raw_editais, source_meta).
     """
@@ -861,9 +976,14 @@ def search_pncp_exhaustive(
         "total_after_dedup": 0,
         "pages_fetched": 0,
         "errors": 0,
+        "errors_429": 0,          # v1.5: specific 429 count
+        "combo_429_suspended": 0,  # v1.5: combos suspended due to excessive 429s
         "pagination_exhausted": [],
         "date_chunks": len(date_chunks),
     }
+    # Per-combo 429 counter (shared across workers, v1.5)
+    combo_429_lock = threading.Lock()
+    combo_429_counts: dict[str, int] = {}
     meta_lock = threading.Lock()   # protects source_meta
 
     use_per_uf = 1 <= len(ufs) <= 10
@@ -893,7 +1013,7 @@ def search_pncp_exhaustive(
         try:
             ts = datetime.fromisoformat(ts_str)
             if ts.tzinfo is None:
-                ts = ts.replace(tzinfo=timezone.utc)
+                ts = ts.replace(tzinfo=UTC)
             return ts > cutoff_ts
         except Exception:
             return False
@@ -921,6 +1041,11 @@ def search_pncp_exhaustive(
     ) -> tuple[str, int, int, bool]:
         """Worker: fetch all pages for one (modalidade, UF, date_chunk) combo.
 
+        v1.5: Uses direct HTTP for 429 detection. Tracks 429s per combo
+        and suspends combo after _PNCP_429_MAX_PER_COMBO (10) consecutive
+        429s. Combo suspension is non-fatal — the combo is skipped and
+        can be retried in a later chunked batch.
+
         Returns (label, page_count, item_count, had_error).
         """
         uf_label = uf_filter or "ALL"
@@ -945,6 +1070,8 @@ def search_pncp_exhaustive(
         combo_items: list[dict] = []
         local_raw = 0
         error_occurred = False
+        combo_429_local = 0  # Track 429s for this combo
+        combo_key = _subkey(mod_code, uf_label)
 
         for page in range(1, max_pages + 1):
             params = {
@@ -961,15 +1088,40 @@ def search_pncp_exhaustive(
             if page > 1:
                 rate_limiter.wait()
 
+            # v1.5: Use direct HTTP to detect 429 vs other failures
             t0 = time.monotonic()
-            data, status = _api_get_with_retry(
-                api,
+            data, status, http_code = _pncp_direct_get(
                 f"{PNCP_BASE}/contratacoes/publicacao",
                 params=params,
                 label=f"PNCP mod={mod_code} uf={uf_label} p={page}",
                 max_retries=2,
             )
             elapsed = time.monotonic() - t0
+
+            if status == "TOO_MANY_REQUESTS":
+                # 429 specific handling: aggressive backoff, per-combo tracking
+                combo_429_local += 1
+                # Update shared 429 counter
+                with combo_429_lock:
+                    combo_429_counts[combo_key] = combo_429_counts.get(combo_key, 0) + 1
+
+                with meta_lock:
+                    source_meta["errors_429"] = source_meta.get("errors_429", 0) + 1
+
+                wait_time = rate_limiter.record_429()
+
+                # Suspend combo if too many 429s
+                if combo_429_local >= _PNCP_429_MAX_PER_COMBO:
+                    print(f"    ⚡ Combo suspenso: {_PNCP_429_MAX_PER_COMBO}x 429 "
+                          f"mod={mod_code} uf={uf_label} chunk={chunk_start} — "
+                          f"reagendado para proximo batch")
+                    source_meta["combo_429_suspended"] = source_meta.get("combo_429_suspended", 0) + 1
+                    return (uf_label, page_count, len(combo_items), True)
+
+                # Wait the backoff interval before retrying same page
+                time.sleep(wait_time)
+                # Retry the same page (don't increment page counter)
+                continue
 
             if status != "API" or not data:
                 rate_limiter.record_failure()
@@ -1036,46 +1188,89 @@ def search_pncp_exhaustive(
             print(f"  Max pages/combo reduzido: {max_pages} → {effective_max} (cap 600 requests)")
             max_pages = effective_max
 
-    # ── Dispatch ALL combos in parallel ──
+    # ── Dispatch combos: parallel (default) or chunked (v1.5) ──
     # Track per-modalidade stats for display
     mod_stats: dict[int, dict] = {}
     mod_stats_lock = threading.Lock()
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=n_workers) as pool:
-        future_to_task = {
-            pool.submit(_fetch_combo, *task): task
-            for task in tasks
-        }
+    if chunked:
+        # Chunked execution: process N combos per batch sequentially
+        # Reduces PNCP API load by staggering batches with 5s cooldown
+        print(f"  Chunked mode: {batch_size} combo(s) por batch, delay 5s entre batches")
         completed = 0
-        for fut in concurrent.futures.as_completed(future_to_task):
-            task = future_to_task[fut]
-            mod_code, mod_name, uf_filter, chunk_start, chunk_end = task
-            completed += 1
-            try:
-                uf_label, pages, items, had_error = fut.result()
-                with mod_stats_lock:
-                    if mod_code not in mod_stats:
-                        mod_stats[mod_code] = {"name": mod_name, "pages": 0, "items": 0, "errors": 0}
-                    mod_stats[mod_code]["pages"] += pages
-                    mod_stats[mod_code]["items"] += items
-                    if had_error:
-                        mod_stats[mod_code]["errors"] += 1
-            except Exception as exc:
-                print(f"    ERRO: mod={mod_code} uf={uf_filter} chunk={chunk_start}: {exc}")
-                with meta_lock:
-                    source_meta["errors"] += 1
+        for batch_start in range(0, n_tasks, batch_size):
+            batch = tasks[batch_start:batch_start + batch_size]
+            with concurrent.futures.ThreadPoolExecutor(max_workers=batch_size) as pool:
+                batch_futures = {
+                    pool.submit(_fetch_combo, *task): task
+                    for task in batch
+                }
+                for fut in concurrent.futures.as_completed(batch_futures):
+                    task = batch_futures[fut]
+                    mod_code, mod_name, uf_filter, chunk_start, chunk_end = task
+                    completed += 1
+                    try:
+                        uf_label, pages, items, had_error = fut.result()
+                        with mod_stats_lock:
+                            if mod_code not in mod_stats:
+                                mod_stats[mod_code] = {"name": mod_name, "pages": 0, "items": 0, "errors": 0}
+                            mod_stats[mod_code]["pages"] += pages
+                            mod_stats[mod_code]["items"] += items
+                            if had_error:
+                                mod_stats[mod_code]["errors"] += 1
+                    except Exception as exc:
+                        print(f"    ERRO: mod={mod_code} uf={uf_filter} chunk={chunk_start}: {exc}")
+                        with meta_lock:
+                            source_meta["errors"] += 1
 
-            # Progress indicator every 10 tasks
-            if completed % 10 == 0 or completed == n_tasks:
-                print(f"  → {completed}/{n_tasks} combos concluídos "
-                      f"(rate: {rate_limiter.current_interval*1000:.0f}ms)")
+            # Progress indicator after each batch
+            print(f"  → Batch concluido: {completed}/{n_tasks} combos "
+                  f"(rate: {rate_limiter.current_interval*1000:.0f}ms)")
+
+            # Cooldown between batches (unless last batch)
+            if batch_start + batch_size < n_tasks:
+                print("    Cool-down: 5s antes do proximo batch...")
+                time.sleep(5.0)
+    else:
+        # Default: dispatch ALL combos in parallel
+        with concurrent.futures.ThreadPoolExecutor(max_workers=n_workers) as pool:
+            future_to_task = {
+                pool.submit(_fetch_combo, *task): task
+                for task in tasks
+            }
+            completed = 0
+            for fut in concurrent.futures.as_completed(future_to_task):
+                task = future_to_task[fut]
+                mod_code, mod_name, uf_filter, chunk_start, chunk_end = task
+                completed += 1
+                try:
+                    uf_label, pages, items, had_error = fut.result()
+                    with mod_stats_lock:
+                        if mod_code not in mod_stats:
+                            mod_stats[mod_code] = {"name": mod_name, "pages": 0, "items": 0, "errors": 0}
+                        mod_stats[mod_code]["pages"] += pages
+                        mod_stats[mod_code]["items"] += items
+                        if had_error:
+                            mod_stats[mod_code]["errors"] += 1
+                except Exception as exc:
+                    print(f"    ERRO: mod={mod_code} uf={uf_filter} chunk={chunk_start}: {exc}")
+                    with meta_lock:
+                        source_meta["errors"] += 1
+
+                # Progress indicator every 10 tasks
+                if completed % 10 == 0 or completed == n_tasks:
+                    print(f"  → {completed}/{n_tasks} combos concluídos "
+                          f"(rate: {rate_limiter.current_interval*1000:.0f}ms)")
 
     # ── Print per-modalidade summary ──
     for mod_code in sorted(mod_stats):
         ms = mod_stats[mod_code]
         err_note = f" ({ms['errors']} erros)" if ms["errors"] else ""
+        source_429_note = ""
+        if ms.get("errors_429"):
+            source_429_note = f" ({ms['errors_429']}x 429)"
         print(f"    Modalidade {mod_code} ({ms['name']}): {ms['pages']} pages, "
-              f"{ms['items']} editais{err_note}")
+              f"{ms['items']} editais{err_note}{source_429_note}")
 
     source_meta["total_after_dedup"] = len(all_items)
 
@@ -1455,7 +1650,7 @@ def apply_cnae_keyword_gate(
         print(f"  Heuristic classifier: {_heuristic_compat} COMPATIVEL, "
               f"{_heuristic_incompat} INCOMPATIVEL "
               f"(de {_heuristic_total} restantes)")
-        print(f"  Remaining needs_llm_review: 0")
+        print("  Remaining needs_llm_review: 0")
 
 
 # ============================================================
@@ -1614,18 +1809,24 @@ _TCU_API_BASE = "https://api-certidoes.apps.tcu.gov.br/api"
 _TCU_INIDONEOS_URL = "https://contas.tcu.gov.br/inidoneos/api/rest/inidoneo"
 
 
-def _collect_tcu_due_diligence(api: "ApiClient", cnpj14: str) -> dict:
+def _collect_tcu_due_diligence(api: ApiClient, cnpj14: str) -> dict:
     """Query TCU APIs for company due diligence (inidôneos + certidões APF).
 
     Both APIs are free and require no authentication.
-    Returns dict with 'inidoneo', 'certidoes', 'certidoes_irregulares' keys.
+    Returns dict with 'inidoneo', 'certidoes', 'certidoes_irregulares' keys
+    and '_tcu_status' reflecting API health.
+
+    v1.5: Sets TCU_INDISPONIVEL on failure so downstream knows data is missing
+    due to API unavailability (not absence of records).
     """
+    now_iso = _today().isoformat()
     result: dict[str, Any] = {
         "inidoneo": False,
         "inidoneo_detalhes": None,
         "certidoes": [],
         "certidoes_irregulares": False,
         "_source": "tcu_api",
+        "_tcu_status": "OK",
     }
 
     # 1) Check inidôneos (declared ineligible by TCU)
@@ -1650,8 +1851,15 @@ def _collect_tcu_due_diligence(api: "ApiClient", cnpj14: str) -> dict:
                     }
                     for item in (items[:5] if isinstance(items, list) else [])
                 ]
+        else:
+            result["_tcu_status"] = "TCU_INDISPONIVEL"
+            result["_tcu_status_detail"] = "API de inidoneos retornou status nao-OK"
+            result["_tcu_timestamp"] = now_iso
     except Exception as exc:
         print(f"    WARN: TCU inidoneos falhou: {exc}")
+        result["_tcu_status"] = "TCU_INDISPONIVEL"
+        result["_tcu_status_detail"] = f"Excecao: {exc}"[:200]
+        result["_tcu_timestamp"] = now_iso
 
     # 2) Certidões APF (consolidated check: TCU + CNJ + CGU CEIS + CGU CNEP)
     try:
@@ -1672,8 +1880,15 @@ def _collect_tcu_due_diligence(api: "ApiClient", cnpj14: str) -> dict:
                 result["certidoes"].append(cert_entry)
                 if cert.get("situacao") and cert["situacao"] != "NADA_CONSTA":
                     result["certidoes_irregulares"] = True
+        else:
+            result["_tcu_status"] = "TCU_INDISPONIVEL"
+            result["_tcu_status_detail"] = "API de certidoes retornou status nao-OK"
+            result["_tcu_timestamp"] = now_iso
     except Exception as exc:
         print(f"    WARN: TCU certidoes falhou: {exc}")
+        result["_tcu_status"] = "TCU_INDISPONIVEL"
+        result["_tcu_status_detail"] = f"Excecao: {exc}"[:200]
+        result["_tcu_timestamp"] = now_iso
 
     return result
 
@@ -1753,7 +1968,7 @@ def collect_competitive_intel(
         try:
             ts = datetime.fromisoformat(ts_str)
             if ts.tzinfo is None:
-                ts = ts.replace(tzinfo=timezone.utc)
+                ts = ts.replace(tzinfo=UTC)
             return (now - ts).days < _COMPETITIVE_CACHE_TTL_DAYS
         except Exception:
             return False
@@ -2250,6 +2465,8 @@ def assemble_output(
             "total_nao_expirados": len(compatible),
             "pncp_pages_fetched": source_meta.get("pages_fetched", 0),
             "pncp_errors": source_meta.get("errors", 0),
+            "pncp_errors_429": source_meta.get("errors_429", 0),
+            "pncp_combo_429_suspended": source_meta.get("combo_429_suspended", 0),
             "pncp_pagination_exhausted": source_meta.get("pagination_exhausted", []),
             "total_after_dedup": source_meta.get("total_after_xdedup", len(editais)),
             "total_semantic_dedup_removed": source_meta.get("total_semantic_dedup_removed", 0),
@@ -2319,7 +2536,7 @@ def _parse_numero_controle_pncp(numero_controle: str) -> tuple[str, str, str] | 
 
 
 def collect_price_benchmarks(
-    api: "ApiClient",
+    api: ApiClient,
     editais: list[dict],
     keywords: list[str] | None = None,
 ) -> None:
@@ -2391,7 +2608,7 @@ def collect_price_benchmarks(
         try:
             ts = datetime.fromisoformat(ts_str)
             if ts.tzinfo is None:
-                ts = ts.replace(tzinfo=timezone.utc)
+                ts = ts.replace(tzinfo=UTC)
             return ts > cache_cutoff
         except Exception:
             return False
@@ -2771,8 +2988,8 @@ def _find_previous_run(cnpj14: str) -> str | None:
 
 def main():
     """Entry point for intel-collect CLI."""
+    from lib.cli_validation import validate_cnpj, validate_dias, validate_ufs
     from lib.constants import INTEL_VERSION
-    from lib.cli_validation import validate_cnpj, validate_ufs, validate_dias
 
     parser = argparse.ArgumentParser(
         description="Intel Collect — Busca exaustiva PNCP para /intel-busca.",
@@ -2798,6 +3015,12 @@ def main():
                         help="Pular coleta SICAF (evita captcha do navegador)")
     parser.add_argument("--no-datalake", action="store_true",
                         help="Forcar busca live na API PNCP (ignorar datalake local)")
+    parser.add_argument("--chunked", action="store_true",
+                        help="Modo chunked: processa 1 combo por vez em vez de todos em paralelo. "
+                             "Reduz carga na API PNCP e evita 429 rate-limit.")
+    parser.add_argument("--batch-size", type=int, default=1, metavar="N",
+                        help="No modo chunked, processa N combos por batch (default: 1). "
+                             "Delay entre batches: 5s.")
     parser.add_argument("--version", action="version",
                         version=f"%(prog)s {INTEL_VERSION}")
     args = parser.parse_args()
@@ -2844,8 +3067,8 @@ def main():
     # ── Step 1b: SICAF + Sanções (run early so user resolves captcha upfront) ──
     skip_sicaf = getattr(args, "skip_sicaf", False)
     if not skip_sicaf:
-        print(f"\n[1b/7] Verificação cadastral SICAF + Sanções...")
-        print(f"   Navegador vai abrir. Resolva o captcha quando solicitado.\n")
+        print("\n[1b/7] Verificação cadastral SICAF + Sanções...")
+        print("   Navegador vai abrir. Resolva o captcha quando solicitado.\n")
 
         # Portal da Transparência — Sanções
         pt_key = os.environ.get("PORTAL_TRANSPARENCIA_API_KEY", "")
@@ -2859,7 +3082,7 @@ def main():
         if sancionada:
             sancoes_ativas = [k for k, v in empresa["sancoes"].items() if v and k not in ("sancionada", "inconclusive")]
             print(f"\n  *** ALERTA: Empresa SANCIONADA ({', '.join(s.upper() for s in sancoes_ativas)}) ***")
-            print(f"  *** Empresa IMPEDIDA de licitar ***")
+            print("  *** Empresa IMPEDIDA de licitar ***")
 
         # SICAF
         sicaf_data = collect_sicaf(cnpj14, verbose=True)
@@ -2876,20 +3099,20 @@ def main():
         restricao_str = "SIM" if empresa.get("restricao_sicaf") else "NÃO"
         print(f"  SICAF: CRC {crc_status} | Restrição: {restricao_str}")
         if empresa.get("restricao_sicaf"):
-            print(f"  *** ALERTA: SICAF com RESTRIÇÃO ativa — risco de inabilitação ***")
+            print("  *** ALERTA: SICAF com RESTRIÇÃO ativa — risco de inabilitação ***")
 
         # TCU Due Diligence — Inidôneos + Certidões APF (v1.4, free API, no auth)
-        print(f"  TCU: Verificando inidoneos e certidoes APF...")
+        print("  TCU: Verificando inidoneos e certidoes APF...")
         tcu_data = _collect_tcu_due_diligence(api, cnpj14)
         empresa["tcu"] = tcu_data
         if tcu_data.get("inidoneo"):
-            print(f"  *** ALERTA: Empresa declarada INIDÔNEA pelo TCU ***")
+            print("  *** ALERTA: Empresa declarada INIDÔNEA pelo TCU ***")
         if tcu_data.get("certidoes_irregulares"):
-            print(f"  *** ALERTA: Certidões APF com irregularidades ***")
+            print("  *** ALERTA: Certidões APF com irregularidades ***")
         else:
-            print(f"  TCU: Nada consta (inidoneos + certidoes APF)")
+            print("  TCU: Nada consta (inidoneos + certidoes APF)")
     else:
-        print(f"\n[1b/7] SICAF pulado (--skip-sicaf)")
+        print("\n[1b/7] SICAF pulado (--skip-sicaf)")
         empresa["sicaf"] = {"status": "PULADO"}
         empresa["sancionada"] = False
         empresa["sancoes"] = {}
@@ -2986,10 +3209,14 @@ def main():
 
     if not use_datalake:
         print(f"\n[3/7] Busca exaustiva PNCP LIVE ({dias} dias, {len(ufs)} UFs, {len(MODALIDADES_BUSCA)} modalidades)...")
+        if args.chunked:
+            print(f"  Modo chunked ativado (batch_size={args.batch_size}) — combos processados em lotes sequenciais")
         editais, source_meta = search_pncp_exhaustive(
             api, ufs, dias, MODALIDADES_BUSCA,
             cnpj14=cnpj14,
             use_cache=not args.no_cache,
+            chunked=args.chunked,
+            batch_size=args.batch_size,
         )
 
     print(f"\n  Total bruto (dedup _id): {len(editais)} editais")
@@ -3074,7 +3301,7 @@ def main():
     # ── Steps 5+6+6b: Run competitive intel, documents, and benchmark IN PARALLEL ──
     # v1.4: These three steps are independent (mutate different fields on editais)
     # Running them concurrently saves 3-15 minutes depending on cache state.
-    print(f"\n[5/7] Coletando inteligencia competitiva + documentos + price benchmark (paralelo)...")
+    print("\n[5/7] Coletando inteligencia competitiva + documentos + price benchmark (paralelo)...")
 
     def _run_competitive():
         collect_competitive_intel(api, editais, keywords=keywords)
@@ -3103,19 +3330,19 @@ def main():
 
 
     # ── Step 6c: Delta detection (compare against previous run) ──
-    print(f"\n[6c/7] Detectando delta com run anterior...")
+    print("\n[6c/7] Detectando delta com run anterior...")
     previous_run_path = _find_previous_run(cnpj14)
     if previous_run_path:
         print(f"  Run anterior encontrado: {previous_run_path}")
     else:
-        print(f"  Nenhum run anterior encontrado — todos serao marcados como NOVO")
+        print("  Nenhum run anterior encontrado — todos serao marcados como NOVO")
     delta_summary = _detect_delta(editais, previous_run_path)
     source_meta["_delta_summary"] = delta_summary
     print(f"  Delta: {delta_summary['novos']} novos, {delta_summary['atualizados']} atualizados, "
           f"{delta_summary['vencendo']} vencendo, {delta_summary['inalterados']} inalterados")
 
     # ── Step 7: Save output ──
-    print(f"\n[7/7] Montando JSON de saida...")
+    print("\n[7/7] Montando JSON de saida...")
     output = assemble_output(
         empresa=empresa,
         editais=editais,
@@ -3156,7 +3383,7 @@ def main():
     stats = output["estatisticas"]
     st_counts = stats.get("status_temporal", {})
     print(f"\n{'='*60}")
-    print(f"  OPORTUNIDADES IDENTIFICADAS")
+    print("  OPORTUNIDADES IDENTIFICADAS")
     print(f"{'='*60}")
     print(f"  Oportunidades abertas:  {stats['total_cnae_compativel']}")
     print(f"  Dentro da capacidade:   {stats['total_dentro_capacidade']}")
@@ -3165,7 +3392,7 @@ def main():
     print(f"  Iminentes (7-15 dias):  {st_counts.get('IMINENTE', 0)}")
     print(f"  Planejaveis (>15 dias): {st_counts.get('PLANEJAVEL', 0)}")
     print(f"{'='*60}")
-    print(f"  Detalhes da coleta:")
+    print("  Detalhes da coleta:")
     print(f"    Publicacoes PNCP:     {stats['total_publicacoes_consultadas']}")
     _n_enc = stats.get("total_expirados_encerrados", stats["total_expirados_removidos"])
     _n_sr = stats.get("total_sessao_realizada", 0)

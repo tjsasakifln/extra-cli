@@ -780,6 +780,43 @@ def _build_resumo_modalidade(wb: Workbook, items: list[dict]):
         ws.append(total_row)
 
 
+def _build_excel_fonte_status(empresa: dict, key: str) -> str:
+    """Build a human-readable status string for a data source (AC-C2)."""
+    if key == "sancoes_source":
+        src = empresa.get("sancoes_source", {})
+        if isinstance(src, dict):
+            st = (src.get("status") or "").upper()
+            if st in ("OK", "DISPONIVEL"):
+                return "VERDE — OK"
+            detail = src.get("detail", src.get("status", "Indisponível"))
+            return f"VERMELHO — {detail}"
+        return "CINZA — Não verificado"
+    if key == "tcu":
+        tcu = empresa.get("tcu", {})
+        if isinstance(tcu, dict):
+            if tcu.get("_tcu_status") == "TCU_INDISPONIVEL":
+                return "VERMELHO — API TCU indisponível"
+            if tcu.get("certidoes") is not None:
+                return f"VERDE — {len(tcu.get('certidoes', []))} certidão(ões)"
+            return "CINZA — TCU não consultado"
+        return "CINZA — Não consultado"
+    return "CINZA — N/I"
+
+
+def _build_excel_pncp_status(metadata: dict) -> str:
+    """Build a human-readable status string for PNCP source (AC-C2)."""
+    pncp = metadata.get("sources", {}).get("pncp", {})
+    if not pncp:
+        return "CINZA — Fonte não consultada"
+    errors = pncp.get("errors", 0)
+    pages = pncp.get("pages_fetched", 0)
+    if errors == 0:
+        return f"VERDE — {pages} páginas sem erros"
+    if errors > max(pages, 1) * 0.5:
+        return f"VERMELHO — {errors} erros em {pages} páginas (crítico)"
+    return f"AMARELO — {errors} erros em {pages} páginas"
+
+
 def _build_metadata(wb: Workbook, data: dict, items: list[dict]):
     """Build Sheet 4: Metadata (write-only mode)."""
     ws = wb.create_sheet("Metadata")
@@ -860,10 +897,16 @@ def _build_metadata(wb: Workbook, data: dict, items: list[dict]):
         ("Capital Social", _format_brl(capital) if capital else "N/D"),
         ("Capacidade (10\u00d7)", _format_brl(capacity_10x) if capacity_10x else "N/D"),
         ("", ""),  # separator
+        ("--- STATUS DAS FONTES ---", ""),
+        ("", ""),  # separator
+        ("PNCP", _build_excel_pncp_status(data["_metadata"]) if "_metadata" in data else "N/I"),
         ("Cadastro Federal (SICAF)", sicaf_status),
         ("Restri\u00e7\u00e3o Cadastral", restricao_str),
         ("San\u00e7\u00f5es Ativas", sancoes_str),
         ("Empresa Sancionada", "SIM \u26d4" if sancionada else "N\u00c3O \u2705"),
+        ("", ""),
+        ("Portal Transpar\u00eancia", _build_excel_fonte_status(empresa, "sancoes_source")),
+        ("TCU", _build_excel_fonte_status(empresa, "tcu")),
         ("", ""),  # separator
         ("UFs Buscadas", ufs_str),
         ("Per\u00edodo", periodo_str),

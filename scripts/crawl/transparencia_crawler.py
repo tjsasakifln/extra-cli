@@ -220,6 +220,37 @@ _GENERIC_KEYWORDS = [
 ]
 
 
+def _detect_platform_from_url(url: str) -> str | None:
+    """Detect platform from portal URL using substring matching.
+
+    Extracted from the URL pattern matching logic originally inline in
+    _PLATFORM_TEMPLATES iteration. Restored for backward compatibility
+    with external test suites.
+
+    Args:
+        url: Full portal URL (e.g., ``https://chapeco.atende.net/transparencia``).
+
+    Returns:
+        Platform name string (``betha``, ``ipam``, ``egov``) or ``None``
+        if the URL does not match any known platform pattern.
+    """
+    url_lower = url.lower()
+
+    # Betha (Portal Transparencia .NET) — product of Betha Sistemas
+    if "atende.net" in url_lower:
+        return "betha"
+
+    # Ipam (IpM) — product of IpM Sistemas
+    if "ipm.org.br" in url_lower:
+        return "ipam"
+
+    # E-gov — also Betha, but a different portal product line
+    if "e-gov.betha" in url_lower or "betha" in url_lower:
+        return "egov"
+
+    return None
+
+
 def detect_platform(slug: str, municipio: str = "") -> dict:
     """Detect transparency portal platform for a municipality.
 
@@ -1046,6 +1077,12 @@ def transform(records: list[dict]) -> list[dict]:
                     "data_publicacao": _parse_date(r.get("data_publicacao", "")),
                     "link_pncp": r.get("link", ""),
                     "content_hash": r.get("content_hash", ""),
+                    "source": "transparencia",
+                    "source_subtype": (
+                        r.get("_source_subtype")
+                        or record.get("template_module")
+                        or "generico"
+                    ),
                     "source_id": f"transparencia_{record.get('slug', '')}",
                 })
         elif "platform" in record:

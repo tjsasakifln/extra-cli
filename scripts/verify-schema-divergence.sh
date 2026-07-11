@@ -257,6 +257,25 @@ cmd_check_migrations() {
     fi
 
     echo ""
+
+    # Check 5: Views esperadas
+    local expected_views=(
+        "v_coverage_summary" "v_coverage_gaps" "v_coverage_gaps_by_municipio"
+        "v_coverage_trend" "v_unmatched_bids"
+    )
+
+    local missing_views=0
+    echo "Verificacao de views:"
+    for view in "${expected_views[@]}"; do
+        if grep -q "CREATE.*VIEW.*$view" "$v2_file"; then
+            success "View $view: presente"
+        else
+            warn "View $view: AUSENTE (pode estar em migration separada)"
+            missing_views=$((missing_views + 1))
+        fi
+    done
+
+    echo ""
     if [ "$missing_tables" -eq 0 ]; then
         success "Migration v2 cobre todas as tabelas do baseline"
     else

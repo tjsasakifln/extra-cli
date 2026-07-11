@@ -28,9 +28,8 @@ import subprocess
 import sys
 import time
 import unicodedata
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 # ============================================================
 # Windows console encoding fix — force UTF-8 even if already wrapped
@@ -54,7 +53,7 @@ INTEL_DIR = PROJECT_ROOT / "data" / "intel"
 INTEL_DIR.mkdir(parents=True, exist_ok=True)
 
 # Step timeouts (seconds)
-TIMEOUT_COLLECT = 600      # 10 min — exhaustive PNCP search
+TIMEOUT_COLLECT = 1800     # 30 min — exhaustive PNCP search (v1.5: was 600s, increased for 429 backoff)
 TIMEOUT_ENRICH = 300       # 5 min
 TIMEOUT_LLM_GATE = 120     # 2 min — pure keyword logic
 TIMEOUT_EXTRACT_DOCS = 600  # 10 min — downloads from PNCP
@@ -120,7 +119,7 @@ def _clean_cnpj(cnpj: str) -> str:
 
 
 def _now_str() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return datetime.now(UTC).strftime("%Y-%m-%d")
 
 
 def _fmt_duration(seconds: float) -> str:
@@ -132,7 +131,7 @@ def _fmt_duration(seconds: float) -> str:
 
 
 def _load_json(path: Path) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -230,7 +229,7 @@ def gate1_cobertura(data: dict, ufs_requested: list[str]) -> GateResult:
     # 1. empresa._source.status
     empresa_status = source.get("status", "")
     if empresa_status == "API_FAILED":
-        issues.append(f"empresa._source.status = API_FAILED — dados cadastrais indisponíveis")
+        issues.append("empresa._source.status = API_FAILED — dados cadastrais indisponíveis")
         _gate_item("empresa._source.status = API_FAILED — ABORTANDO", "err")
         passed = False
     else:
@@ -403,7 +402,7 @@ def gate3_ruido(data: dict) -> GateResult:
             "warn",
         )
     else:
-        _gate_item(f"Ratio dentro do intervalo esperado (5%–80%)")
+        _gate_item("Ratio dentro do intervalo esperado (5%–80%)")
 
     # 2. Needs review = 0
     if needs_review:
@@ -738,10 +737,14 @@ def print_gate_summary(gate_name: str, passed: bool, issues: list[str], fixed: l
 
 def main() -> int:
     """Entry point for intel-pipeline CLI orchestrator."""
-    from lib.constants import INTEL_VERSION
     from lib.cli_validation import (
-        validate_cnpj, validate_ufs, validate_dias, validate_top, validate_from_step,
+        validate_cnpj,
+        validate_dias,
+        validate_from_step,
+        validate_top,
+        validate_ufs,
     )
+    from lib.constants import INTEL_VERSION
 
     parser = argparse.ArgumentParser(
         description="Orquestrador Intel-Busca com quality gates.",
@@ -761,6 +764,11 @@ def main() -> int:
     parser.add_argument(
         "--from-step", type=int, default=1, metavar="N",
         help="Retomar a partir do passo N (1-7). Requer JSON existente em docs/intel/",
+    )
+    parser.add_argument(
+        "--resume", action="store_true",
+        help="Retomar pipeline do ultimo checkpoint salvo. Equivalente a --from-step automatico "
+             "baseado no JSON mais recente encontrado.",
     )
     parser.add_argument(
         "--no-cache", action="store_true",
@@ -823,8 +831,32 @@ def main() -> int:
 
     json_path: Path | None = None
 
-    if args.from_step >= 2:
+    if args.resume:
+        # Auto-detect resume point from most recent JSON metadata
+        args.from_step = 2  # Default: skip collect
         json_path = _find_latest_json(cnpj14)
+        if json_path is not None:
+            try:
+                meta = _load_json(json_path).get("_metadata", {})
+                steps_done = meta.get("pipeline_steps_completed", 0)
+                if steps_done > 0 and steps_done < 7:
+                    args.from_step = steps_done + 1
+                    print(_info(f"Resume automatico: pipeline executou ate step {steps_done}, retomando step {args.from_step}"))
+                elif steps_done >= 7:
+                    print(_warn(f"Pipeline ja completo (step {steps_done}). Re-executando a partir do step 1."))
+                    args.from_step = 1
+                    json_path = None
+                else:
+                    print(_info("Sem metadados de steps. Retomando do step 2."))
+            except Exception:
+                print(_info("Nao foi possivel ler metadados. Retomando do step 2."))
+        else:
+            print(_warn(f"Nenhum JSON anterior encontrado para CNPJ {cnpj14}. Executando do inicio."))
+            args.from_step = 1
+
+    if args.from_step >= 2:
+        if json_path is None:
+            json_path = _find_latest_json(cnpj14)
         if json_path is None:
             print(_err(f"--from-step {args.from_step}: nenhum JSON encontrado em {INTEL_DIR} para CNPJ {cnpj14}"))
             return 1
@@ -865,6 +897,10 @@ def main() -> int:
             print(_err("\nPipeline ABORTADO no Gate 1. Corrija os problemas e tente novamente."))
             return 1
 
+        # Track pipeline progress for --resume
+        data.setdefault("_metadata", {})["pipeline_steps_completed"] = 1
+        _save_json(json_path, data)
+
     # ── STEP 2: ENRICH ──────────────────────────────────────────
     if args.from_step <= 2:
         step_label = "Step 2: Enrich"
@@ -894,6 +930,10 @@ def main() -> int:
         if not passed:
             print(_err("\nPipeline ABORTADO no Gate 2."))
             return 1
+
+        # Track pipeline progress for --resume
+        data.setdefault("_metadata", {})["pipeline_steps_completed"] = 2
+        _save_json(json_path, data)
 
     # ── STEP 2.5: BID SCORE COMPUTATION (v2) ───────────────────
     if args.from_step <= 2:
@@ -1014,6 +1054,10 @@ def main() -> int:
             print(_err("\nPipeline ABORTADO no Gate 3."))
             return 1
 
+        # Track pipeline progress for --resume
+        data.setdefault("_metadata", {})["pipeline_steps_completed"] = 3
+        _save_json(json_path, data)
+
     # ── STEP 4: EXTRACT DOCS ────────────────────────────────────
     if args.from_step <= 4:
         step_label = "Step 4: Extract Docs"
@@ -1043,9 +1087,13 @@ def main() -> int:
             print(_err("\nPipeline ABORTADO no Gate 4."))
             return 1
 
+        # Track pipeline progress for --resume
+        data.setdefault("_metadata", {})["pipeline_steps_completed"] = 4
+        _save_json(json_path, data)
+
     # ── STEP 5: ANALYZE (MANUAL) ────────────────────────────────
     if args.from_step <= 5:
-        print(_bold(f"\n[Step 5: Analyze]"))
+        print(_bold("\n[Step 5: Analyze]"))
         print(_warn("  ┌─────────────────────────────────────────────────────────┐"))
         print(_warn("  │  Step 5 requer análise manual.                          │"))
         print(_warn("  │  Execute separadamente e depois retome com:             │"))
@@ -1065,7 +1113,7 @@ def main() -> int:
 
         total_elapsed = time.time() - pipeline_t0
         print(_bold(f"\n{'='*60}"))
-        print(_bold(f"  Pipeline PAUSADO para análise manual"))
+        print(_bold("  Pipeline PAUSADO para análise manual"))
         print(f"  Tempo acumulado: {_fmt_duration(total_elapsed)}")
         print(f"  JSON: {json_path}")
         print(_bold(f"{'='*60}\n"))
@@ -1073,7 +1121,7 @@ def main() -> int:
 
     # ── GATE 5: RECOMENDAÇÃO (pre-Excel/PDF) ────────────────────
     if args.from_step <= 6:
-        print(_bold(f"\n[Gate 5: Recomendação]"))
+        print(_bold("\n[Gate 5: Recomendação]"))
         data = _load_json(json_path)
         passed, issues, fixed = gate5_recomendacao(data, args.top)
         if fixed:
@@ -1084,6 +1132,10 @@ def main() -> int:
         if not passed:
             print(_err("\nPipeline ABORTADO no Gate 5."))
             return 1
+
+        # Track pipeline progress for --resume
+        data.setdefault("_metadata", {})["pipeline_steps_completed"] = 5
+        _save_json(json_path, data)
 
     # ── STEP 6: EXCEL ────────────────────────────────────────────
     if args.from_step <= 6:
@@ -1122,11 +1174,20 @@ def main() -> int:
 
         step_times["pdf"] = time.time() - t0
 
+    # ── Track final pipeline completion for --resume ──
+    if json_path:
+        try:
+            data = _load_json(json_path)
+            data.setdefault("_metadata", {})["pipeline_steps_completed"] = 7
+            _save_json(json_path, data)
+        except Exception:
+            pass
+
     # ── FINAL SUMMARY ────────────────────────────────────────────
     total_elapsed = time.time() - pipeline_t0
 
     print(_bold(f"\n{'='*60}"))
-    print(_bold(f"  PIPELINE CONCLUÍDO"))
+    print(_bold("  PIPELINE CONCLUÍDO"))
     print(_bold(f"{'='*60}"))
     print()
 
@@ -1159,7 +1220,7 @@ def main() -> int:
     print()
     all_passed = all(gp for gp, _, _ in all_gate_results.values())
     if all_passed:
-        print(_ok(f"  Todos os quality gates passaram. Pipeline bem-sucedido."))
+        print(_ok("  Todos os quality gates passaram. Pipeline bem-sucedido."))
     else:
         failed = [k for k, (gp, _, _) in all_gate_results.items() if not gp]
         print(_warn(f"  Atenção: gates com falha: {', '.join(failed)}"))

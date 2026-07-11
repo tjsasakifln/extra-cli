@@ -532,17 +532,17 @@ async def _fetch_ibge_municipio_lookup() -> dict[tuple[str, str], str]:
             )
             return _IBGE_MUNICIPIOS_CACHE  # fallback to stale cache
 
-        for m in municipios:
-            nome = (m.get("nome") or "").strip().lower()
-            uf = (
-                (m.get("microrregiao") or {})
-                .get("mesorregiao", {})
-                .get("UF", {})
-                .get("sigla") or ""
-            ).strip().upper()
-            codigo = str(m.get("id") or "")
-            if nome and uf and codigo:
-                lookup[(nome, uf)] = codigo
+    for m in municipios:
+        nome = (m.get("nome") or "").strip().lower()
+        uf = (
+            (m.get("microrregiao") or {})
+            .get("mesorregiao", {})
+            .get("UF", {})
+            .get("sigla") or ""
+        ).strip().upper()
+        codigo = str(m.get("id") or "")
+        if nome and uf and codigo:
+            lookup[(nome, uf)] = codigo
 
     _IBGE_MUNICIPIOS_CACHE = lookup
     _IBGE_MUNICIPIOS_CACHE_TS = now

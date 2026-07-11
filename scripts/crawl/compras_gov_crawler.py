@@ -401,6 +401,7 @@ def _normalize_legacy(raw: dict) -> dict | None:
             "data_abertura": data_abertura,
             "data_encerramento": None,
             "link_pncp": link_pncp,
+            "source_id": f"cg_leg_{source_id}",
         }
 
         result["content_hash"] = _generate_content_hash(result)
@@ -502,6 +503,7 @@ def _normalize_lei_14133(raw: dict) -> dict | None:
             "data_abertura": data_abertura,
             "data_encerramento": data_encerramento,
             "link_pncp": link_pncp,
+            "source_id": f"cg_14133_{source_id}",
         }
 
         result["content_hash"] = _generate_content_hash(result)
