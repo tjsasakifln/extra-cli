@@ -67,6 +67,11 @@ HTTP_TIMEOUT = 60  # seconds per request
 # User agent
 USER_AGENT = "ExtraConsultoria/1.0 (coverage-crawler; +https://extraconsultoria.com.br)"
 
+# CIGA CKAN only discovers entities and updates entity_coverage.
+# It does NOT extract bid records — transform() legitimately returns [].
+# monitor.py reads this attribute to skip the upsert phase.
+SOURCE_PURPOSE = "coverage_only"
+
 
 # ---------------------------------------------------------------------------
 # CKAN API client

@@ -23,7 +23,6 @@ import argparse
 import json
 import logging
 import os
-import subprocess
 import sys
 import time
 from datetime import datetime
@@ -201,57 +200,82 @@ class MultiSourceBackfill:
     # ------------------------------------------------------------------
 
     def _run_source(self, source: str, dry_run: bool = False) -> dict:
-        """Executa crawler para uma fonte via monitor.py CLI.
+        """Executa crawler para uma fonte via chamada direta a crawl_source().
+
+        Substitui a chamada subprocess anterior (que era fragil e dependia
+        de parsing de stdout).  Usa a mesma funcao que o monitor.py CLI
+        invoca, retornando o dict estruturado completo.
 
         Args:
             source: Nome da fonte (formato monitor.py, ex: 'dom_sc').
-            dry_run: Se True, passa --dry-run para o monitor.py.
+            dry_run: Se True, apenas simula sem persistir.
 
         Returns:
-            Dict com status, duracao, e possivel erro.
+            Dict com status, fetched, transformed, upserted, matched, etc.
         """
+        from scripts.crawl.monitor import _get_conn, _load_entities, crawl_source
+
         start = time.time()
-        try:
-            cmd = [
-                sys.executable or 'python',
-                str(_PROJECT_ROOT / 'scripts' / 'crawl' / 'monitor.py'),
-                '--source', source,
-                '--mode', 'full',
-            ]
-            if dry_run:
-                cmd.append('--dry-run')
 
-            logger.info("Executando crawler: %s %s", source, '(dry-run)' if dry_run else '')
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=1800,  # 30 min timeout por fonte
-            )
-
+        if dry_run:
             duration = time.time() - start
-            if result.returncode == 0:
-                logger.info("Crawler %s: OK (%.1fs)", source, duration)
-                return {'status': 'OK', 'duration_s': round(duration, 1), 'source': source}
-            else:
-                error_msg = result.stderr[:500] if result.stderr else f'Exit code {result.returncode}'
-                logger.warning("Crawler %s: FAIL (exit %d): %s", source, result.returncode, error_msg)
-                return {
-                    'status': 'FAIL',
-                    'error': error_msg,
-                    'duration_s': round(duration, 1),
-                    'source': source,
-                }
-
-        except subprocess.TimeoutExpired:
-            duration = time.time() - start
-            logger.warning("Crawler %s: TIMEOUT (30min)", source)
+            logger.info("Crawler %s [DRY-RUN]: simulado", source)
             return {
-                'status': 'SKIPPED',
-                'error': 'timeout_30min',
+                'status': 'OK',
                 'duration_s': round(duration, 1),
                 'source': source,
+                'fetched': 0, 'transformed': 0, 'upserted': 0, 'matched': 0,
+                'unmatched': 0, 'warnings': [], 'dependencies_missing': [],
             }
+
+        try:
+            logger.info("Executando crawler: %s", source)
+            conn = _get_conn()
+            try:
+                entities = _load_entities(conn, within_200km_only=False)
+            finally:
+                conn.close()
+
+            result = crawl_source(source, entities, mode="full")
+            duration = time.time() - start
+            result['duration_s'] = round(duration, 1)
+
+            status = result.get('status', 'failed')
+            if status in ('success', 'degraded', 'empty'):
+                logger.info(
+                    "Crawler %s: %s — fetched=%d transformed=%d upserted=%d matched=%d (%.1fs)",
+                    source, status,
+                    result.get('fetched', 0),
+                    result.get('transformed', 0),
+                    result.get('upserted', 0),
+                    result.get('matched', 0),
+                    duration,
+                )
+                return {
+                    'status': 'OK',
+                    'duration_s': round(duration, 1),
+                    'source': source,
+                    'fetched': result.get('fetched', 0),
+                    'transformed': result.get('transformed', 0),
+                    'upserted': result.get('upserted', 0),
+                    'matched': result.get('matched', 0),
+                    'unmatched': result.get('unmatched', 0),
+                    'monitor_status': status,
+                    'warnings': result.get('warnings', []),
+                    'dependencies_missing': result.get('dependencies_missing', []),
+                }
+            else:
+                error_msg = result.get('error') or result.get('error_message') or status
+                logger.warning("Crawler %s: %s — %s", source, status, error_msg)
+                return {
+                    'status': 'FAIL',
+                    'error': str(error_msg)[:500],
+                    'duration_s': round(duration, 1),
+                    'source': source,
+                    'monitor_status': status,
+                    'dependencies_missing': result.get('dependencies_missing', []),
+                }
+
         except Exception as e:
             duration = time.time() - start
             logger.error("Crawler %s: ERROR - %s", source, e)
@@ -263,57 +287,17 @@ class MultiSourceBackfill:
             }
 
     def _run_entity_matching(self, source: str, dry_run: bool = False) -> dict:
-        """Executa entity matching para bids do source recem-chegado.
+        """Entity matching ja e executado por crawl_source() durante o crawl.
 
-        Args:
-            source: Nome da fonte (formato monitor.py).
-            dry_run: Se True, retorna 0 matches sem executar.
-
-        Returns:
-            Dict com numero de novos matches e source.
+        Mantido como no-op por compatibilidade.  O matching acontece como
+        Phase 4 dentro de monitor.crawl_source() — nao precisa ser chamado
+        separadamente.
         """
-        # ------------------------------------------------------------------
-        # Dry-run com simulacao (AC8): se simulate_matches > 0, retorna
-        # matches simulados na primeira chamada, depois 0.
-        # ------------------------------------------------------------------
-        if dry_run:
-            if self._simulate_matches_remaining > 0:
-                self._simulate_matches_remaining -= 1
-                logger.info("Entity matching [DRY-RUN SIM]: %d matches simulados para %s",
-                            self._simulate_matches_remaining + 1, source)
-                return {'new_matches': 1, 'source': source}
-            logger.info("Entity matching [DRY-RUN]: 0 matches (simulado) para %s", source)
-            return {'new_matches': 0, 'source': source}
-
-        logger.info("Entity matching apos crawler: %s", source)
-        try:
-            result = subprocess.run(
-                [
-                    sys.executable or 'python',
-                    str(_PROJECT_ROOT / 'scripts' / 'crawl' / 'monitor.py'),
-                    '--match-entities',
-                    '--source', source,
-                ],
-                capture_output=True,
-                text=True,
-                timeout=600,  # 10 min timeout para matching
-            )
-
-            # Extrair numero de matches do stdout
-            # Formato esperado: "Matched: 15 new entities"
-            new_matches = 0
-            for line in result.stdout.split('\n'):
-                if 'Matched:' in line and 'new' in line:
-                    try:
-                        new_matches = int(line.split(':')[1].split()[0])
-                    except (IndexError, ValueError):
-                        pass
-
-            logger.info("Entity matching: %d novos matches para %s", new_matches, source)
-            return {'new_matches': new_matches, 'source': source}
-        except Exception as e:
-            logger.error("Entity matching falhou para %s: %s", source, e)
-            return {'new_matches': 0, 'source': source, 'error': str(e)[:200]}
+        if dry_run and self._simulate_matches_remaining > 0:
+            self._simulate_matches_remaining -= 1
+            return {'new_matches': 1, 'source': source}
+        # Matching ja foi feito por crawl_source()
+        return {'new_matches': 0, 'source': source}
 
     # ------------------------------------------------------------------
     # Checkpoint
@@ -584,7 +568,7 @@ class MultiSourceBackfill:
         Returns:
             Dict com estatisticas da execucao.
         """
-        sources = _resolve_sources(sources) if sources else list(SOURCE_NAME_MAP.values())
+        sources = _resolve_sources(sources) if sources is not None else list(SOURCE_NAME_MAP.values())
 
         # Configurar simulacao para dry-run
         self._simulate_matches_remaining = simulate_matches
@@ -636,12 +620,13 @@ class MultiSourceBackfill:
                     self.stats['per_source'][source] = result
 
                 if result['status'] == 'OK':
-                    # Entity matching apos cada fonte (AC3)
-                    match_result = self._run_entity_matching(source, dry_run)
-                    new_entities_this_iter += match_result.get('new_matches', 0)
+                    # Matching ja foi executado dentro de crawl_source()
+                    # Usar matched reportado diretamente (sem subprocess extra)
+                    matched_this_source = result.get('matched', 0)
+                    new_entities_this_iter += matched_this_source
                     self.stats['sources_done'].append(source)
-                    logger.info("Fonte %s OK. +%d matches nesta iteracao",
-                                source, match_result.get('new_matches', 0))
+                    logger.info("Fonte %s OK. fetched=%d matched=%d",
+                                source, result.get('fetched', 0), matched_this_source)
                 else:
                     # AC5: Falha nao bloqueia o pipeline
                     skip_entry = {

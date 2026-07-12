@@ -65,7 +65,7 @@ class TestStabilizationLoop:
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=5), \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0}
+            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
             mock_matching.return_value = {'new_matches': 0, 'source': 'pncp'}
 
             stats = pipeline.run_pipeline(
@@ -85,22 +85,18 @@ class TestStabilizationLoop:
         novas = estabiliza)"
         """
         with patch.object(pipeline, '_run_source') as mock_source, \
-             patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=0), \
              patch.object(pipeline, '_generate_report'):
-            # All sources succeed
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0}
+            # Track source calls: first call returns matches, second returns 0
+            source_call_count = [0]
 
-            # Track matching calls: first call returns matches, second returns 0
-            match_call_count = [0]
+            def source_side_effect(source, dry_run=False):
+                source_call_count[0] += 1
+                if source_call_count[0] <= 2:
+                    return {'status': 'OK', 'source': source, 'duration_s': 1.0, 'matched': 5, 'fetched': 10}
+                return {'status': 'OK', 'source': source, 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
 
-            def matching_side_effect(source, dry_run=False):
-                match_call_count[0] += 1
-                if match_call_count[0] <= 2:
-                    return {'new_matches': 5, 'source': source}
-                return {'new_matches': 0, 'source': source}
-
-            mock_matching.side_effect = matching_side_effect
+            mock_source.side_effect = source_side_effect
 
             stats = pipeline.run_pipeline(
                 sources=['pncp'],
@@ -118,8 +114,7 @@ class TestStabilizationLoop:
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=0), \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0}
-            mock_matching.return_value = {'new_matches': 1, 'source': 'pncp'}
+            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 1, 'fetched': 10}
 
             stats = pipeline.run_pipeline(
                 sources=['pncp'],
@@ -137,7 +132,7 @@ class TestStabilizationLoop:
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=0), \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0}
+            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
 
             # All sources return matches on first call, 0 on subsequent
             call_count = [0]
@@ -288,7 +283,7 @@ class TestDryRun:
         with patch.object(pipeline, '_run_source') as mock_source, \
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0}
+            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
             mock_matching.return_value = {'new_matches': 0, 'source': 'pncp'}
 
             stats = pipeline.run_pipeline(
@@ -310,7 +305,7 @@ class TestDryRun:
         """
         with patch.object(pipeline, '_run_source') as mock_source, \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0}
+            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
 
             # simulate_matches=3: first 3 calls to _run_entity_matching return 1
             # (dry-run mode in pipeline: each call decrements simulate_matches_remaining)
@@ -394,7 +389,7 @@ class TestCheckpoint:
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=10), \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0}
+            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
             mock_matching.return_value = {'new_matches': 0, 'source': 'pncp'}
 
             pipeline.run_pipeline(sources=['pncp'], dry_run=True)

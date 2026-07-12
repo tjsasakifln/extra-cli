@@ -221,6 +221,11 @@ _PLATFORM_TEMPLATES = [
         "check": lambda body: "e-gov" in body.lower()[:2000] or "betha" in body.lower()[:2000],
     },
     {
+        "platform": "sc_gov_portal",
+        "url": "https://{slug}.sc.gov.br",
+        "check": lambda body: "transpar" in body.lower()[:5000] or "licita" in body.lower()[:5000],
+    },
+    {
         "platform": "fiorilli",
         "url": "https://{slug}.fiorilli.com.br/transparencia",
         "check": lambda body: "fiorilli" in body.lower()[:2000],
@@ -368,29 +373,33 @@ def detect_platform(slug: str, municipio: str = "") -> dict:
         # Rate limiting: 500ms between requests to different domains
         time.sleep(TRANSPARENCIA_REQUEST_DELAY)
 
-    # --- Fallback: try dominio proprio via {municipio}.gov.br ---
+    # --- Fallback: try dominio proprio via {municipio}.sc.gov.br then {municipio}.gov.br ---
     if municipio:
         gov_slug = _slugify(municipio)
-        gov_url = f"https://{gov_slug}.gov.br"
-        try:
-            status, body = _fetch_url(gov_url)
-        except Exception as e:
-            _logger.debug(f"Error fetching {gov_url}: {e}")
-            status = 0
-            body = ""
+        # SC-specific pattern first (most common for SC municipalities)
+        for gov_url in (
+            f"https://{gov_slug}.sc.gov.br",
+            f"https://www.{gov_slug}.sc.gov.br",
+            f"https://{gov_slug}.gov.br",
+        ):
+            try:
+                status, body = _fetch_url(gov_url)
+            except Exception as e:
+                _logger.debug(f"Error fetching {gov_url}: {e}")
+                continue
 
-        if status == 200 or status == 302:
-            found = [kw for kw in _GENERIC_KEYWORDS if kw in body.lower()]
-            if found or status == 302:
-                result["platform"] = "proprio"
-                result["url"] = gov_url
-                result["status"] = "detected"
-                if found:
-                    result["keywords_found"] = found
-                _logger.info(
-                    f"Detected 'proprio' for '{municipio}': {gov_url}" + (f" (keywords: {found})" if found else "")
-                )
-                return result
+            if status == 200 or status == 302:
+                found = [kw for kw in _GENERIC_KEYWORDS if kw in body.lower()]
+                if found or status == 302:
+                    result["platform"] = "proprio"
+                    result["url"] = gov_url
+                    result["status"] = "detected"
+                    if found:
+                        result["keywords_found"] = found
+                    _logger.info(
+                        f"Detected 'proprio' for '{municipio}': {gov_url}" + (f" (keywords: {found})" if found else "")
+                    )
+                    return result
 
         # TODO: Google fallback search
         # spec mentions: site:{municipio}.gov.br transparencia licitacoes
@@ -1173,61 +1182,90 @@ def crawl_selenium(
 
 
 def crawl(mode: str = "full") -> list[dict]:
-    """Detect transparency platforms for SC municipalities.
+    """Crawl transparency portals for SC municipalities.
 
-    Iterates over entities (from TRANSPARENCIA_ENTITIES_FILE or stub list),
-    detects which transparency portal platform each one uses, and saves
-    results to ``data/transparencia_platforms.json``.
+    Supports multiple modes with explicit semantics:
 
-    Args:
-        mode:
-            ``"full"`` (default) — detect all entities, overwriting previous
-            results for re-detected slugs.
-            ``"incremental"`` — only detect entities not yet present in the
-            saved results file.
-            ``"template"`` — run template-driven scraping from config
-            (see ``crawl_template()``).
-            ``"selenium"`` — run Selenium-based scraping for JS-rendered portals
-            (see ``crawl_selenium()``).
+    ``"detect"``
+        Platform detection only — identify which portal platform each
+        municipality uses.  Saves results to
+        ``data/transparencia_platforms.json``.  Returns detection records
+        (municipio, slug, platform, url, status).
+
+    ``"template"``
+        Template-driven scraping via BeautifulSoup using CSS selectors
+        from ``config/transparencia_config.yaml``.  Returns scraping
+        result dicts with embedded ``records`` lists.
+
+    ``"selenium"``
+        Selenium-based scraping for JS-rendered portals.  Falls back to
+        HTTP for portals with ``requires_js: false``.  Returns scraping
+        result dicts.
+
+    ``"full"`` (default)
+        **Detection + template scraping.**  First runs platform detection,
+        then scrapes detected platforms via template config.  Returns
+        scraping results when config is available; falls back to detection
+        records otherwise (so coverage-only runs still work).
+
+    ``"incremental"``
+        Detection only for entities not yet present in saved results.
 
     Returns:
-        List of detection result dicts (see ``detect_platform`` for schema).
-        Each dict has at least: municipio, slug, platform, url, status.
-        In ``"template"`` or ``"selenium"`` mode, returns scraping result dicts.
+        List of dicts.  Detection records have at least: municipio, slug,
+        platform, url, status.  Scraping records have: municipio, slug,
+        portal_url, status, records, count.
     """
-    # Template mode delegates to crawl_template()
-    if mode == "template":
+    # ── Explicit mode routing ──────────────────────────────────────────
+    if mode in ("template",):
         return crawl_template()
 
-    # Selenium mode
-    if mode == "selenium":
+    if mode in ("selenium",):
         return crawl_selenium()
 
-    entities = _load_entities()
-    """Detect transparency platforms for SC municipalities.
+    if mode in ("detect",):
+        return _crawl_detect(mode)
 
-    Iterates over entities (from TRANSPARENCIA_ENTITIES_FILE or stub list),
-    detects which transparency portal platform each one uses, and saves
-    results to ``data/transparencia_platforms.json``.
+    if mode in ("incremental",):
+        return _crawl_detect(mode)
 
-    Args:
-        mode:
-            ``"full"`` (default) — detect all entities, overwriting previous
-            results for re-detected slugs.
-            ``"incremental"`` — only detect entities not yet present in the
-            saved results file.
-            ``"template"`` — run template-driven scraping from config
-            (see ``crawl_template()``).
+    # ── Full mode: detect + template scrape ────────────────────────────
+    if mode == "full":
+        _logger.info("Full mode: running platform detection first...")
+        _crawl_detect("full")  # updates transparencia_platforms.json
 
-    Returns:
-        List of detection result dicts (see ``detect_platform`` for schema).
-        Each dict has at least: municipio, slug, platform, url, status.
-        In ``"template"`` mode, returns scraping result dicts.
-    """
-    # Template mode delegates to crawl_template()
-    if mode == "template":
-        return crawl_template()
+        _logger.info("Full mode: running template-driven scraping...")
+        try:
+            scraping_results = crawl_template()
+            if scraping_results:
+                total_bids = sum(r.get("count", 0) for r in scraping_results)
+                _logger.info(
+                    "Full mode: template scraping returned %d portal(s) with %d bid(s)",
+                    len(scraping_results),
+                    total_bids,
+                )
+                return scraping_results
+            _logger.warning(
+                "Full mode: template scraping returned 0 results — "
+                "returning detection records as fallback"
+            )
+        except Exception as exc:
+            _logger.error(
+                "Full mode: template scraping failed: %s — "
+                "returning detection records as fallback",
+                exc,
+            )
 
+        # Fallback: return detection records so platform tracking still works
+        return _load_existing_results().get("detected", [])
+
+    # ── Unknown mode ───────────────────────────────────────────────────
+    _logger.warning("Unknown mode %r — defaulting to detection", mode)
+    return _crawl_detect("full")
+
+
+def _crawl_detect(mode: str) -> list[dict]:
+    """Run platform detection (internal — extracted from old crawl())."""
     entities = _load_entities()
     existing = _load_existing_results()
 

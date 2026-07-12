@@ -24,9 +24,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import sys
 from pathlib import Path
+
+_logger = logging.getLogger(__name__)
 
 # Add project root to path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -38,7 +41,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 # Constants
 # ---------------------------------------------------------------------------
 
-SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc", "doe_sc", "ciga_ckan", "mides-bigquery"]
+SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc", "doe_sc", "ciga_ckan", "mides-bigquery", "selenium"]
 
 from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)
 
@@ -454,18 +457,30 @@ def print_coverage_report(result: dict) -> None:
 
 
 def crawl_source(source: str, entities: list[dict], mode: str = "full") -> dict:
-    """Run crawl for a specific source, match entities, return stats.
+    """Run crawl for a specific source, match entities, return structured stats.
 
     Each source module is expected to provide:
-        crawl(mode) → list[dict]  # raw records from source
-        transform(records) → list[dict]  # normalized to pncp_raw_bids schema
+        crawl(mode) -> list[dict]  # raw records from source
+        transform(records) -> list[dict]  # normalized to canonical schema
+
+    Sources may optionally declare:
+        UPSERT_FUNCTION: str  # RPC name (default: upsert_pncp_raw_bids)
+        SOURCE_PURPOSE: str   # "bids" | "coverage_only" | "hybrid"
     """
+    from scripts.crawl.credential_validator import validate_source_credentials
+
     conn = _get_conn()
     run_id = _start_ingestion_run(conn, source, mode)
     fetched = 0
+    transformed = 0
     upserted = 0
+    updated = 0
+    duplicates = 0
     matched = 0
+    unmatched = 0
     error = ""
+    warnings: list[str] = []
+    dependencies_missing: list[str] = []
 
     try:
         # Try to import source-specific crawler
@@ -474,9 +489,31 @@ def crawl_source(source: str, entities: list[dict], mode: str = "full") -> dict:
             error = f"Crawler not implemented: {source}"
             _finish_ingestion_run(conn, run_id, 0, 0, 0, "failed", error)
             conn.close()
-            return {"source": source, "status": "skipped", "error": error}
+            return {
+                "source": source, "status": "skipped", "error": error,
+                "fetched": 0, "transformed": 0, "upserted": 0, "matched": 0,
+                "unmatched": 0, "warnings": warnings,
+                "dependencies_missing": [],
+            }
 
-        # Phase 1: Crawl
+        # ── Credential validation ──────────────────────────────────────
+        creds_ok, missing_creds = validate_source_credentials(source)
+        if not creds_ok:
+            dependencies_missing = missing_creds
+            msg = f"Missing credentials: {', '.join(missing_creds)}"
+            warnings.append(msg)
+            _finish_ingestion_run(conn, run_id, 0, 0, 0, "skipped", msg)
+            conn.close()
+            return {
+                "source": source, "status": "skipped",
+                "error_code": "missing_credentials",
+                "error_message": msg,
+                "fetched": 0, "transformed": 0, "upserted": 0, "matched": 0,
+                "unmatched": 0, "warnings": warnings,
+                "dependencies_missing": dependencies_missing,
+            }
+
+        # ── Phase 1: Crawl ─────────────────────────────────────────────
         print(f"  🔍 Crawling {source} ({mode})...")
         raw_records = crawler.crawl(mode)
         fetched = len(raw_records)
@@ -485,68 +522,127 @@ def crawl_source(source: str, entities: list[dict], mode: str = "full") -> dict:
         if not raw_records:
             _finish_ingestion_run(conn, run_id, 0, 0, 0, "completed")
             conn.close()
-            return {"source": source, "status": "ok", "fetched": 0, "upserted": 0, "matched": 0}
+            return {
+                "source": source, "status": "empty",
+                "fetched": 0, "transformed": 0, "upserted": 0, "matched": 0,
+                "unmatched": 0, "warnings": warnings,
+                "dependencies_missing": dependencies_missing,
+            }
 
-        # Phase 2: Transform to unified schema
+        # ── Phase 2: Transform ─────────────────────────────────────────
         records = crawler.transform(raw_records)
+        transformed = len(records)
         records = [{**r, "source": source} for r in records]
 
-        # Phase 3: Upsert via RPC
-        import json
-
-        cur = conn.cursor()
-        try:
-            cur.execute(
-                "SELECT * FROM upsert_pncp_raw_bids(%s)",
-                (json.dumps(records),),
+        # Detect degraded: crawl returned data but transform discarded all
+        if fetched > 0 and transformed == 0:
+            msg = (
+                f"crawl() returned {fetched} records but transform() produced 0. "
+                f"This may indicate a mode mismatch (e.g. platform detection "
+                f"instead of bid extraction) or a transform bug."
             )
-            results = cur.fetchall()
-            upserted = sum(1 for r in results if r[0] == "inserted")
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            error = f"Upsert failed: {e}"
-            _finish_ingestion_run(conn, run_id, fetched, 0, 0, "failed", error)
+            warnings.append(msg)
+            _logger.warning(msg)
+            _finish_ingestion_run(conn, run_id, fetched, 0, 0, "degraded", msg)
             conn.close()
-            return {"source": source, "status": "failed", "error": error}
-        finally:
-            cur.close()
+            return {
+                "source": source, "status": "degraded",
+                "fetched": fetched, "transformed": 0, "upserted": 0,
+                "matched": 0, "unmatched": 0,
+                "warnings": warnings,
+                "dependencies_missing": dependencies_missing,
+            }
 
-        print(f"     Upserted: {upserted} new, {fetched - upserted} duplicates")
+        # ── Phase 3: Upsert ────────────────────────────────────────────
+        # Coverage-only sources skip upsert but still do matching
+        source_purpose = getattr(crawler, "SOURCE_PURPOSE", "bids")
+        if source_purpose == "coverage_only":
+            print("     ⓘ  Source is coverage-only — skipping upsert")
+        else:
+            import json
+            upsert_fn = getattr(crawler, "UPSERT_FUNCTION", "upsert_pncp_raw_bids")
+            cur = conn.cursor()
+            try:
+                cur.execute(
+                    f"SELECT * FROM {upsert_fn}(%s)",
+                    (json.dumps(records),),
+                )
+                results_rows = cur.fetchall()
+                # RPC returns rows with status as first column
+                upserted = sum(1 for r in results_rows if r[0] == "inserted")
+                updated = sum(1 for r in results_rows if r[0] == "updated")
+                duplicates = fetched - upserted - updated
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                error = f"Upsert failed: {e}"
+                _finish_ingestion_run(conn, run_id, fetched, transformed, 0, "failed", error)
+                conn.close()
+                return {
+                    "source": source, "status": "failed", "error": error,
+                    "fetched": fetched, "transformed": transformed,
+                    "upserted": 0, "matched": 0, "unmatched": 0,
+                    "warnings": warnings,
+                    "dependencies_missing": dependencies_missing,
+                }
+            finally:
+                cur.close()
 
-        # Phase 4: Entity matching (3-level cascade: CNPJ → name → fuzzy)
+            print(f"     Upserted: {upserted} new, {updated} updated, {duplicates} duplicates")
+
+        # ── Phase 4: Entity matching ────────────────────────────────────
         match_stats = _match_entities_cascade(conn, source, entities)
         matched = match_stats["cnpj"] + match_stats["name_normalized"] + match_stats["fuzzy"]
+        unmatched = match_stats.get("unmatched", 0)
         print(
             f"     Matched: {matched} "
             f"(CNPJ: {match_stats['cnpj']}, "
             f"name: {match_stats['name_normalized']}, "
             f"fuzzy: {match_stats['fuzzy']}, "
-            f"unmatched: {match_stats['unmatched']})"
+            f"unmatched: {unmatched})"
         )
 
-        _finish_ingestion_run(conn, run_id, fetched, upserted, matched, "completed")
-        conn.close()
+        # ── Determine final status ──────────────────────────────────────
+        if warnings:
+            status = "degraded"
+        else:
+            status = "success"
 
-        return {
+        _finish_ingestion_run(conn, run_id, fetched, upserted, matched, status)
+
+        result = {
             "source": source,
-            "status": "ok",
+            "status": status,
             "fetched": fetched,
+            "transformed": transformed,
             "upserted": upserted,
+            "updated": updated,
+            "duplicates": duplicates,
             "matched": matched,
+            "unmatched": unmatched,
+            "warnings": warnings,
+            "dependencies_missing": dependencies_missing,
         }
+        conn.close()
+        return result
 
     except Exception as e:
         error = str(e)
         try:
-            _finish_ingestion_run(conn, run_id, fetched, upserted, matched, "failed", error)
+            _finish_ingestion_run(conn, run_id, fetched, transformed, matched, "failed", error)
         except Exception:
-            pass
+            _logger.exception("Failed to record ingestion run failure")
         try:
             conn.close()
         except Exception:
             pass
-        return {"source": source, "status": "failed", "error": error}
+        return {
+            "source": source, "status": "failed", "error": error,
+            "fetched": fetched, "transformed": transformed,
+            "inserted": 0, "matched": 0, "unmatched": 0,
+            "warnings": warnings,
+            "dependencies_missing": dependencies_missing,
+        }
 
 
 def _load_crawler(source: str):
@@ -564,6 +660,7 @@ def _load_crawler(source: str):
         "doe_sc": "doe_sc_crawler",
         "ciga_ckan": "ciga_ckan_crawler",
         "mides_bigquery": "mides_bigquery_crawler",
+        "selenium": "selenium_crawler_adapter",
     }
     mod_name = module_map.get(source)
     if not mod_name:
@@ -601,6 +698,7 @@ def parse_args():
             "ciga_ckan",
             "ciga-ckan",
             "mides-bigquery",
+            "selenium",
             "all",
         ],
         help="Data source to crawl (default: pncp)",
@@ -608,8 +706,8 @@ def parse_args():
     p.add_argument(
         "--mode",
         default="full",
-        choices=["full", "incremental", "dry-run"],
-        help="Crawl mode (default: full)",
+        choices=["full", "incremental", "dry-run", "template", "selenium", "detect", "backfill"],
+        help="Crawl mode (default: full). Sources may support additional modes.",
     )
     p.add_argument(
         "--report-coverage",
@@ -625,6 +723,24 @@ def parse_args():
         "--dsn",
         default=DEFAULT_DSN,
         help="PostgreSQL DSN",
+    )
+    p.add_argument(
+        "--output-json",
+        type=str,
+        default=None,
+        help="Write structured result JSON to this path",
+    )
+    p.add_argument(
+        "--date-from",
+        type=str,
+        default=None,
+        help="Start date for backfill mode (YYYY-MM-DD)",
+    )
+    p.add_argument(
+        "--date-to",
+        type=str,
+        default=None,
+        help="End date for backfill mode (YYYY-MM-DD)",
     )
     return p.parse_args()
 
@@ -673,33 +789,74 @@ def main():
         result = crawl_source(src, entities, args.mode)
         results.append(result)
 
-        status_icon = "✅" if result["status"] == "ok" else "❌"
-        print(f"  {status_icon} {result}")
+        status = result.get("status", "failed")
+        status_icon = {"success": "✅", "degraded": "⚠️", "empty": "📭", "skipped": "⏭️", "failed": "❌"}.get(status, "❓")
+        print(f"  {status_icon} {status}: fetched={result.get('fetched',0)}, transformed={result.get('transformed',0)}, "
+              f"upserted={result.get('upserted',0)}, matched={result.get('matched',0)}")
+        if result.get("warnings"):
+            for w in result["warnings"]:
+                print(f"     ⚠️  {w}")
+        if result.get("dependencies_missing"):
+            print(f"     🔑 Missing: {', '.join(result['dependencies_missing'])}")
 
     # Summary
     print(f"\n{'=' * 60}")
     print("  RESUMO")
     print(f"{'=' * 60}")
     total_fetched = sum(r.get("fetched", 0) for r in results)
+    total_transformed = sum(r.get("transformed", 0) for r in results)
     total_upserted = sum(r.get("upserted", 0) for r in results)
     total_matched = sum(r.get("matched", 0) for r in results)
-    failed = [r for r in results if r["status"] == "failed"]
+    success = [r for r in results if r.get("status") == "success"]
+    degraded = [r for r in results if r.get("status") == "degraded"]
+    empty_src = [r for r in results if r.get("status") == "empty"]
+    skipped = [r for r in results if r.get("status") == "skipped"]
+    failed = [r for r in results if r.get("status") == "failed"]
 
-    print(f"  Fetched:  {total_fetched}")
-    print(f"  Upserted: {total_upserted}")
-    print(f"  Matched:  {total_matched}")
+    print(f"  Success:   {len(success)} sources")
+    print(f"  Degraded:  {len(degraded)} sources")
+    print(f"  Empty:     {len(empty_src)} sources")
+    print(f"  Skipped:   {len(skipped)} sources")
+    print(f"  Fetched:   {total_fetched}")
+    print(f"  Transformed: {total_transformed}")
+    print(f"  Upserted:  {total_upserted}")
+    print(f"  Matched:   {total_matched}")
     if failed:
-        print(f"  Failed:   {len(failed)} sources")
+        print(f"  Failed:    {len(failed)} sources")
         for f in failed:
             print(f"    • {f['source']}: {f.get('error', 'unknown')}")
 
     # Quick coverage after crawl
     conn = _get_conn()
     try:
-        result = report_coverage(conn)
-        print(f"\n  📊 Coverage: {result['pct']}% ({result['total_covered']}/{result['total_entities']})")
+        cov_result = report_coverage(conn)
+        print(f"\n  📊 Coverage: {cov_result['pct']}% ({cov_result['total_covered']}/{cov_result['total_entities']})")
     finally:
         conn.close()
+
+    # ── Output JSON ─────────────────────────────────────────────────────
+    if args.output_json:
+        import json as _json
+        from datetime import datetime as _dt
+
+        output = {
+            "results": results,
+            "summary": {
+                "total_fetched": total_fetched,
+                "total_transformed": total_transformed,
+                "total_upserted": total_upserted,
+                "total_matched": total_matched,
+                "sources_success": len(success),
+                "sources_degraded": len(degraded),
+                "sources_empty": len(empty_src),
+                "sources_skipped": len(skipped),
+                "sources_failed": len(failed),
+                "generated_at": _dt.now().isoformat(),
+            },
+        }
+        with open(args.output_json, "w") as f:
+            _json.dump(output, f, indent=2, ensure_ascii=False)
+        print(f"\n  📄 Result JSON: {args.output_json}")
 
     return 1 if failed else 0
 

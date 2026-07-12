@@ -63,6 +63,10 @@ CONTRACTS_INCREMENTAL_DAYS = int(os.getenv("CONTRACTS_INCREMENTAL_DAYS", "3"))
 
 _ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
 
+# Contracts use a different schema (pncp_supplier_contracts) than bids.
+# monitor.py reads this attribute to dispatch to the correct upsert RPC.
+UPSERT_FUNCTION = "upsert_pncp_supplier_contracts"
+
 
 # ---------------------------------------------------------------------------
 # Helpers

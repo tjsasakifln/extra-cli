@@ -562,6 +562,13 @@ def _transform_licitacao(raw: dict) -> dict | None:
         orgao_nome = str(raw.get("Orgao", raw.get("orgao", ""))).strip()
         orgao_cnpj = _digits_only(str(raw.get("CNPJ_Orgao", raw.get("cnpj_orgao", ""))))
 
+        # Extract municipio from API response when available; fall back to
+        # Florianopolis (TCE-SC headquarters) only when the field is absent.
+        raw_municipio = str(raw.get("Municipio", raw.get("municipio", ""))).strip()
+        raw_ibge = str(raw.get("Codigo_IBGE", raw.get("codigo_ibge", ""))).strip()
+        municipio = raw_municipio if raw_municipio else "Florianopolis"
+        codigo_municipio_ibge = raw_ibge if raw_ibge else "4205407"
+
         record = {
             "pncp_id": pncp_id,
             "objeto_compra": objeto,
@@ -571,8 +578,8 @@ def _transform_licitacao(raw: dict) -> dict | None:
             "situacao_compra": situacao,
             "esfera_id": 2,  # Estadual (TCE-SC)
             "uf": "SC",
-            "municipio": "Florianopolis",  # Sede do TCE-SC
-            "codigo_municipio_ibge": "4205407",  # Florianopolis IBGE code
+            "municipio": municipio,
+            "codigo_municipio_ibge": codigo_municipio_ibge,
             "orgao_razao_social": orgao_nome or "TCE-SC",
             "orgao_cnpj": orgao_cnpj or "",
             "data_publicacao": data_publicacao or "",
@@ -613,6 +620,12 @@ def _transform_contrato(raw: dict) -> dict | None:
 
         orgao_nome = str(raw.get("Orgao", raw.get("orgao", ""))).strip()
 
+        # Extract municipio from API response when available
+        raw_municipio = str(raw.get("Municipio", raw.get("municipio", ""))).strip()
+        raw_ibge = str(raw.get("Codigo_IBGE", raw.get("codigo_ibge", ""))).strip()
+        municipio = raw_municipio if raw_municipio else "Florianopolis"
+        codigo_municipio_ibge = raw_ibge if raw_ibge else "4205407"
+
         record = {
             "pncp_id": pncp_id,
             "objeto_compra": objeto or f"Contrato - {contratado}" if contratado else "Contrato",
@@ -622,8 +635,8 @@ def _transform_contrato(raw: dict) -> dict | None:
             "situacao_compra": situacao,
             "esfera_id": 2,  # Estadual
             "uf": "SC",
-            "municipio": "Florianopolis",
-            "codigo_municipio_ibge": "4205407",
+            "municipio": municipio,
+            "codigo_municipio_ibge": codigo_municipio_ibge,
             "orgao_razao_social": orgao_nome or "TCE-SC",
             "orgao_cnpj": cnpj or "",
             "data_publicacao": data_pub or "",
