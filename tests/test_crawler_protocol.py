@@ -18,27 +18,20 @@ import pytest
 # Crawler registry — mirrors monitor.py module_map
 # ---------------------------------------------------------------------------
 
-CRAWLER_MODULES: dict[str, str] = {
-    "pncp": "scripts.crawl.pncp_crawler_adapter",
-    "dom_sc": "scripts.crawl.dom_sc_crawler",
-    "pcp": "scripts.crawl.pcp_crawler",
-    "compras_gov": "scripts.crawl.compras_gov_crawler",
-    "sc_compras": "scripts.crawl.sc_compras_crawler",
-    "contracts": "scripts.crawl.contracts_crawler",
-    "transparencia": "scripts.crawl.transparencia_crawler",
-    "tce_sc": "scripts.crawl.tce_sc_crawler",
-    "doe_sc": "scripts.crawl.doe_sc_crawler",
-    "ciga_ckan": "scripts.crawl.ciga_ckan_crawler",
-    "mides_bigquery": "scripts.crawl.mides_bigquery_crawler",
-    # Fase 1.3: selenium sera adicionado ao module_map
-    "selenium": "scripts.crawl.selenium_crawler_adapter",
-}
+CRAWLER_MODULES: dict[str, str] = {}
+COVERAGE_ONLY_SOURCES: set[str] = set()
+CREDENTIAL_SOURCES: set[str] = set()
 
-# Sources that are coverage-only (transform() legitimately returns [])
-COVERAGE_ONLY_SOURCES = {"ciga_ckan"}
-
-# Sources that require credentials to function
-CREDENTIAL_SOURCES = {"dom_sc", "doe_sc", "mides_bigquery"}
+def _init_from_registry():
+    """Populate module maps from the central source registry (called once)."""
+    global CRAWLER_MODULES, COVERAGE_ONLY_SOURCES, CREDENTIAL_SOURCES
+    if CRAWLER_MODULES:
+        return
+    from scripts.crawl.registry import iter_sources, get_credential_sources, get_coverage_only_sources
+    for info in iter_sources():
+        CRAWLER_MODULES[info.name] = f"scripts.crawl.{info.module}"
+    CREDENTIAL_SOURCES = get_credential_sources()
+    COVERAGE_ONLY_SOURCES = get_coverage_only_sources()
 
 
 # ---------------------------------------------------------------------------
@@ -48,10 +41,15 @@ CREDENTIAL_SOURCES = {"dom_sc", "doe_sc", "mides_bigquery"}
 
 def _load_module(source: str):
     """Import a crawler module by source key."""
+    _init_from_registry()
     mod_path = CRAWLER_MODULES.get(source)
     if not mod_path:
         pytest.skip(f"Unknown source: {source}")
     return importlib.import_module(mod_path)
+
+
+# Populate from registry at import time so parametrize works
+_init_from_registry()
 
 
 # ---------------------------------------------------------------------------

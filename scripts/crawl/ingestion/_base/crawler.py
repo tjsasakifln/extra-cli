@@ -168,14 +168,15 @@ def determine_status(
     transformed: int,
     errors: list[str] | None = None,
     warnings: list[str] | None = None,
+    purpose: str = "bids",
 ) -> str:
     """Compute canonical status from pipeline phase results.
 
     Rules (in priority order):
         1. Any error → ``"failed"``
-        2. ``fetched > 0`` and ``transformed == 0`` → ``"degraded"``
-           (crawler returned data but transform discarded everything —
-           usually indicates a bug or mode mismatch)
+        2. ``fetched > 0`` and ``transformed == 0``:
+           - ``purpose="coverage_only"`` → ``"success"`` (expected: no bids)
+           - otherwise → ``"degraded"`` (bug or mode mismatch)
         3. ``fetched == 0`` and no errors → ``"empty"``
         4. Warnings present but data flowed → ``"degraded"``
         5. Everything OK → ``"success"``
@@ -183,6 +184,8 @@ def determine_status(
     if errors:
         return "failed"
     if fetched > 0 and transformed == 0:
+        if purpose == "coverage_only":
+            return "success"  # expected: coverage sources don't produce bids
         return "degraded"
     if fetched == 0:
         return "empty"

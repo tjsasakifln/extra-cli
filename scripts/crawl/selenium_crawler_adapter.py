@@ -148,13 +148,18 @@ def crawl(mode: str = "full") -> list[dict]:
 
 
 def transform(records: list[dict]) -> list[dict]:
-    """Transform Selenium scraping results to pncp_raw_bids schema.
+    """Transform Selenium scraping results to canonical pncp_raw_bids schema.
 
     Cada record e um resultado de portal (com lista de bids internos).
-    Esta funcao achata (flatten) os bids para o schema padrao:
+    Esta funcao achata (flatten) os bids para o schema aceito por
+    ``upsert_pncp_raw_bids``:
 
-        orgao_nome, orgao_cnpj, modalidade, objeto, data_publicacao,
-        valor, municipio, uf, source='selenium'
+        pncp_id, objeto_compra, valor_total_estimado,
+        modalidade_id, modalidade_nome, esfera_id,
+        uf, municipio, codigo_municipio_ibge,
+        orgao_razao_social, orgao_cnpj,
+        data_publicacao, data_abertura, data_encerramento,
+        link_pncp, content_hash, source_id
 
     Args:
         records: Lista de resultados de ``crawl()``, cada um com
@@ -174,22 +179,28 @@ def transform(records: list[dict]) -> list[dict]:
             continue
 
         for bid in bids:
+            m_id, m_nome = _map_modalidade(bid.get("modalidade", ""))
+            pncp_id = _generate_pncp_id(bid, record)
+            content_hash = _make_hash(bid, record)
+
             transformed.append({
-                "orgao_nome": bid.get("orgao_nome", record.get("municipio", "")),
-                "orgao_cnpj": bid.get("orgao_cnpj", ""),
-                "orgao_razao_social": bid.get("orgao_nome", ""),
-                "modalidade": bid.get("modalidade", ""),
-                "objeto": bid.get("objeto", ""),
-                "data_publicacao": bid.get("data_publicacao", ""),
-                "valor": _parse_valor(bid.get("valor", "")),
+                "pncp_id": pncp_id,
+                "objeto_compra": bid.get("objeto", ""),
+                "valor_total_estimado": _parse_valor(bid.get("valor", "")),
+                "modalidade_id": m_id,
+                "modalidade_nome": m_nome,
+                "esfera_id": 3,  # Municipal (portais de municipios)
+                "uf": "SC",
                 "municipio": record.get("municipio", ""),
                 "codigo_municipio_ibge": record.get("ibge", ""),
-                "uf": "SC",
-                "source": "selenium",
-                "source_subtype": bid.get("framework", "unknown"),
-                "link": bid.get("portal_url", record.get("url", "")),
-                "scraped_at": datetime.now().isoformat(),
-                "content_hash": _make_hash(bid),
+                "orgao_razao_social": bid.get("orgao_nome", record.get("municipio", "")),
+                "orgao_cnpj": bid.get("orgao_cnpj", ""),
+                "data_publicacao": bid.get("data_publicacao", ""),
+                "data_abertura": None,
+                "data_encerramento": None,
+                "link_pncp": bid.get("portal_url", record.get("url", "")),
+                "content_hash": content_hash,
+                "source_id": f"selenium_{record.get('slug', '')}_{pncp_id[-12:]}",
             })
 
     _logger.info("Selenium transform: %d records -> %d flat bids", len(records), len(transformed))
@@ -229,9 +240,76 @@ def _parse_valor(valor_str: Any) -> float | None:
         return None
 
 
-def _make_hash(bid: dict) -> str:
-    """Generate a deterministic content hash for deduplication."""
+# ---------------------------------------------------------------------------
+# Modalidade mapping (extracted text → canonical id + name)
+# ---------------------------------------------------------------------------
+
+_MODALIDADE_MAP: dict[str, tuple[int, str]] = {
+    "pregao": (5, "Pregao Eletronico"),
+    "pregao eletronico": (5, "Pregao Eletronico"),
+    "pregão eletrônico": (5, "Pregao Eletronico"),
+    "pregao presencial": (6, "Pregao Presencial"),
+    "pregão presencial": (6, "Pregao Presencial"),
+    "concorrencia": (4, "Concorrencia"),
+    "concorrência": (4, "Concorrencia"),
+    "dispensa": (7, "Dispensa de Licitacao"),
+    "dispensa de licitacao": (7, "Dispensa de Licitacao"),
+    "dispensa de licitação": (7, "Dispensa de Licitacao"),
+    "inexigibilidade": (8, "Inexigibilidade"),
+    "concurso": (9, "Concurso"),
+    "leilao": (10, "Leilao"),
+    "leilão": (10, "Leilao"),
+    "tomada de precos": (3, "Tomada de Precos"),
+    "tomada de preços": (3, "Tomada de Precos"),
+    "convite": (2, "Convite"),
+    "chamada publica": (11, "Chamada Publica"),
+    "chamada pública": (11, "Chamada Publica"),
+    "credenciamento": (12, "Credenciamento"),
+}
+
+
+def _map_modalidade(raw: str) -> tuple[int, str]:
+    """Map a raw modalidade string to (modalidade_id, modalidade_nome).
+
+    Returns (0, raw) for unrecognized values.
+    """
+    if not raw:
+        return (0, "")
+    normalized = raw.strip().lower()
+    result = _MODALIDADE_MAP.get(normalized)
+    if result:
+        return result
+    return (0, raw.strip())
+
+
+def _generate_pncp_id(bid: dict, record: dict) -> str:
+    """Generate a deterministic pncp_id for Selenium bids.
+
+    Uses slug + orgao_nome + objeto + data_publicacao for uniqueness.
+    """
     import hashlib
 
-    content = f"{bid.get('orgao_nome','')}|{bid.get('modalidade','')}|{bid.get('objeto','')}|{bid.get('data_publicacao','')}"
+    raw = (
+        f"selenium_{record.get('slug', '')}_"
+        f"{bid.get('orgao_nome', '')}_"
+        f"{bid.get('objeto', '')}_"
+        f"{bid.get('data_publicacao', '')}"
+    )
+    return "sel_" + hashlib.md5(raw.encode()).hexdigest()[:32]
+
+
+def _make_hash(bid: dict, record: dict | None = None) -> str:
+    """Generate a deterministic content hash for deduplication.
+
+    Uses canonical field names matching the pncp_raw_bids schema
+    for consistency with other crawlers.
+    """
+    import hashlib
+
+    content = (
+        f"{bid.get('orgao_nome', '')}|"
+        f"{bid.get('modalidade', '')}|"
+        f"{bid.get('objeto', '')}|"
+        f"{bid.get('data_publicacao', '')}"
+    )
     return hashlib.md5(content.encode()).hexdigest()

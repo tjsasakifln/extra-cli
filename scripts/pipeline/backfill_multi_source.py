@@ -40,41 +40,12 @@ from config.settings import DEFAULT_DSN  # noqa: E402
 # ---------------------------------------------------------------------------
 
 # Ordem de execucao: fontes com maior potencial de cobertura primeiro (AC2)
-SOURCE_ORDER = [
-    'pncp',                    # Fase 1: 774+ entes
-    'dom-sc',                  # Fase 1: ~280 municipios
-    'pcp',                     # Fase 1: dados de PCP
-    'compras-gov',             # Fase 1: ComprasGov
-    'ciga-ckan',               # Fase 1: 155+ entes
-    'transparencia',           # Fase 1: batch detect
-    'sc-compras',              # Fase 2: ~100-200 entes
-    'doe-sc',                  # Fase 2: ~50-100 entes
-    'selenium',                # Fase 3: ~100-200 entes
-    'transparencia-residual',  # Fase 3: ~50-100 entes
-    'contracts',               # Fase 1: dados de contratos
-]
+# Carregada do registry central — single source of truth
+from scripts.crawl.registry import iter_sources as _registry_iter_sources
+from scripts.crawl.registry import resolve_name as _registry_resolve
 
-# Mapeamento de nomes de fontes (formato do pipeline -> formato do monitor.py)
-# Monitor.py usa underscores, o pipeline aceita hyphens para melhor legibilidade
-SOURCE_NAME_MAP: dict[str, str] = {
-    'pncp': 'pncp',
-    'dom-sc': 'dom_sc',
-    'dom_sc': 'dom_sc',
-    'pcp': 'pcp',
-    'compras-gov': 'compras_gov',
-    'compras_gov': 'compras_gov',
-    'ciga-ckan': 'ciga_ckan',
-    'ciga_ckan': 'ciga_ckan',
-    'transparencia': 'transparencia',
-    'sc-compras': 'sc_compras',
-    'sc_compras': 'sc_compras',
-    'doe-sc': 'doe_sc',
-    'doe_sc': 'doe_sc',
-    'selenium': 'selenium',
-    'transparencia-residual': 'transparencia_residual',
-    'transparencia_residual': 'transparencia_residual',
-    'contracts': 'contracts',
-}
+SOURCE_ORDER = [s.name for s in _registry_iter_sources() if s.name != "transparencia_residual"]
+# transparencia_residual excluded: crawler module not yet implemented
 
 MAX_ITERATIONS = 3
 COVERAGE_TOTAL_ENTITIES = 2085
@@ -106,20 +77,16 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 def _normalize_source(source: str) -> str:
-    """Normalize source name from pipeline format to monitor.py format.
+    """Normalize source name using the central registry.
 
     Accepts both hyphens and underscores (e.g., 'dom-sc' and 'dom_sc').
-    Returns the monitor.py-compatible underscore format.
+    Returns the canonical underscore form.
     """
-    normalized = SOURCE_NAME_MAP.get(source)
-    if normalized:
-        return normalized
-    # Fallback: replace hyphens with underscores
-    return source.replace('-', '_')
+    return _registry_resolve(source)
 
 
 def _resolve_sources(raw_sources: list[str]) -> list[str]:
-    """Resolve list of source names to monitor.py format and deduplicate."""
+    """Resolve list of source names to canonical form and deduplicate."""
     seen: set[str] = set()
     result: list[str] = []
     for s in raw_sources:
@@ -202,16 +169,22 @@ class MultiSourceBackfill:
     def _run_source(self, source: str, dry_run: bool = False) -> dict:
         """Executa crawler para uma fonte via chamada direta a crawl_source().
 
-        Substitui a chamada subprocess anterior (que era fragil e dependia
-        de parsing de stdout).  Usa a mesma funcao que o monitor.py CLI
-        invoca, retornando o dict estruturado completo.
+        Propaga o status real do CrawlerResult — nao colapsa success/degraded/
+        empty/skipped/failed em binario OK/FAIL.
+
+        Regras:
+            success → pode entrar em sources_done
+            degraded → nao entra em sources_done sem politica explicita
+            empty → nao entra em sources_done quando dados eram esperados
+            skipped → dependencia externa ausente, nao concluido
+            failed → falha operacional
 
         Args:
-            source: Nome da fonte (formato monitor.py, ex: 'dom_sc').
+            source: Nome da fonte (formato canonico, ex: 'dom_sc').
             dry_run: Se True, apenas simula sem persistir.
 
         Returns:
-            Dict com status, fetched, transformed, upserted, matched, etc.
+            Dict com o status real do CrawlerResult preservado.
         """
         from scripts.crawl.monitor import _get_conn, _load_entities, crawl_source
 
@@ -221,11 +194,12 @@ class MultiSourceBackfill:
             duration = time.time() - start
             logger.info("Crawler %s [DRY-RUN]: simulado", source)
             return {
-                'status': 'OK',
+                'status': 'dry_run',
                 'duration_s': round(duration, 1),
                 'source': source,
-                'fetched': 0, 'transformed': 0, 'upserted': 0, 'matched': 0,
-                'unmatched': 0, 'warnings': [], 'dependencies_missing': [],
+                'fetched': 0, 'transformed': 0, 'inserted': 0, 'updated': 0,
+                'matched': 0, 'unmatched': 0, 'new_entities_covered': 0,
+                'warnings': [], 'dependencies_missing': [],
             }
 
         try:
@@ -236,55 +210,66 @@ class MultiSourceBackfill:
             finally:
                 conn.close()
 
-            result = crawl_source(source, entities, mode="full")
-            duration = time.time() - start
-            result['duration_s'] = round(duration, 1)
+            # Count covered entities BEFORE this source runs
+            covered_before = self._count_covered(conn) if not dry_run else 0
 
-            status = result.get('status', 'failed')
-            if status in ('success', 'degraded', 'empty'):
-                logger.info(
-                    "Crawler %s: %s — fetched=%d transformed=%d upserted=%d matched=%d (%.1fs)",
-                    source, status,
-                    result.get('fetched', 0),
-                    result.get('transformed', 0),
-                    result.get('upserted', 0),
-                    result.get('matched', 0),
-                    duration,
-                )
-                return {
-                    'status': 'OK',
-                    'duration_s': round(duration, 1),
-                    'source': source,
-                    'fetched': result.get('fetched', 0),
-                    'transformed': result.get('transformed', 0),
-                    'upserted': result.get('upserted', 0),
-                    'matched': result.get('matched', 0),
-                    'unmatched': result.get('unmatched', 0),
-                    'monitor_status': status,
-                    'warnings': result.get('warnings', []),
-                    'dependencies_missing': result.get('dependencies_missing', []),
-                }
-            else:
-                error_msg = result.get('error') or result.get('error_message') or status
-                logger.warning("Crawler %s: %s — %s", source, status, error_msg)
-                return {
-                    'status': 'FAIL',
-                    'error': str(error_msg)[:500],
-                    'duration_s': round(duration, 1),
-                    'source': source,
-                    'monitor_status': status,
-                    'dependencies_missing': result.get('dependencies_missing', []),
-                }
+            result = crawl_source(source, entities, mode="full",
+                                  date_from=getattr(self, '_date_from', None),
+                                  date_to=getattr(self, '_date_to', None))
+            duration = time.time() - start
+
+            # Count covered entities AFTER this source runs
+            covered_after = self._count_covered(conn) if not dry_run else 0
+            new_entities = max(0, covered_after - covered_before)
+
+            monitor_status = result.status  # CrawlerResult attribute
+
+            logger.info(
+                "Crawler %s: %s — fetched=%d transformed=%d inserted=%d matched=%d (%.1fs)",
+                source, monitor_status,
+                result.fetched,
+                result.transformed,
+                result.inserted,
+                result.matched,
+                duration,
+            )
+
+            return {
+                'status': monitor_status,  # preserve real status
+                'duration_s': round(duration, 1),
+                'source': source,
+                'fetched': result.fetched,
+                'transformed': result.transformed,
+                'inserted': result.inserted,
+                'updated': result.updated,
+                'duplicates': result.duplicates,
+                'matched': result.matched,
+                'unmatched': result.unmatched,
+                'new_entities_covered': new_entities,
+                'error_message': result.error_message,
+                'warnings': result.warnings,
+                'dependencies_missing': result.dependencies_missing,
+            }
 
         except Exception as e:
             duration = time.time() - start
-            logger.error("Crawler %s: ERROR - %s", source, e)
+            logger.error("Crawler %s: FAILED — %s", source, e)
+            # Exceptions → FAILED, NOT SKIPPED
             return {
-                'status': 'SKIPPED',
-                'error': str(e)[:200],
+                'status': 'failed',
+                'error_message': str(e)[:500],
                 'duration_s': round(duration, 1),
                 'source': source,
             }
+
+    def _count_covered(self, conn) -> int:
+        """Count distinct entity_ids currently covered."""
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(DISTINCT entity_id) FROM entity_coverage WHERE is_covered = TRUE")
+            return cur.fetchone()[0] or 0
+        except Exception:
+            return 0
 
     def _run_entity_matching(self, source: str, dry_run: bool = False) -> dict:
         """Entity matching ja e executado por crawl_source() durante o crawl.
@@ -555,6 +540,8 @@ class MultiSourceBackfill:
         dry_run: bool = False,
         resume: bool = False,
         simulate_matches: int = 0,
+        date_from: str | None = None,
+        date_to: str | None = None,
     ) -> dict:
         """Executa pipeline completo com loop de estabilizacao.
 
@@ -564,11 +551,15 @@ class MultiSourceBackfill:
             resume: Retomar de checkpoint salvo.
             simulate_matches: Para dry-run: simula N matches por fonte
                               na primeira iteracao (AC8).
+            date_from: Data inicial para backfill (YYYY-MM-DD).
+            date_to: Data final para backfill (YYYY-MM-DD).
 
         Returns:
             Dict com estatisticas da execucao.
         """
-        sources = _resolve_sources(sources) if sources is not None else list(SOURCE_NAME_MAP.values())
+        self._date_from = date_from
+        self._date_to = date_to
+        sources = _resolve_sources(sources) if sources is not None else SOURCE_ORDER
 
         # Configurar simulacao para dry-run
         self._simulate_matches_remaining = simulate_matches
@@ -619,24 +610,62 @@ class MultiSourceBackfill:
                 if source not in self.stats['per_source']:
                     self.stats['per_source'][source] = result
 
-                if result['status'] == 'OK':
-                    # Matching ja foi executado dentro de crawl_source()
-                    # Usar matched reportado diretamente (sem subprocess extra)
-                    matched_this_source = result.get('matched', 0)
-                    new_entities_this_iter += matched_this_source
+                status = result['status']
+                if status == 'success':
+                    # Source completou com sucesso — entra em sources_done
+                    new_entities = result.get('new_entities_covered', 0)
+                    new_entities_this_iter += new_entities
                     self.stats['sources_done'].append(source)
-                    logger.info("Fonte %s OK. fetched=%d matched=%d",
-                                source, result.get('fetched', 0), matched_this_source)
-                else:
-                    # AC5: Falha nao bloqueia o pipeline
+                    logger.info("Fonte %s SUCCESS. fetched=%d inserted=%d matched=%d new_covered=%d",
+                                source, result.get('fetched', 0), result.get('inserted', 0),
+                                result.get('matched', 0), new_entities)
+                elif status == 'degraded':
+                    # Degradada — nao entra em sources_done sem politica explicita
                     skip_entry = {
                         'source': source,
-                        'reason': result.get('error', 'unknown'),
+                        'reason': result.get('error_message') or 'Degraded: fetch>0 but transform=0',
                         'timestamp': datetime.now().isoformat(),
                         'iteration': iteration,
+                        'status': 'degraded',
                     }
                     self.stats['sources_skipped'].append(skip_entry)
-                    logger.warning("Fonte %s SKIPPED: %s", source, result.get('error', 'unknown'))
+                    logger.warning("Fonte %s DEGRADED: %s", source, skip_entry['reason'])
+                elif status == 'empty':
+                    # Vazio — dados podem nao existir na janela
+                    skip_entry = {
+                        'source': source,
+                        'reason': 'Empty: no records in window',
+                        'timestamp': datetime.now().isoformat(),
+                        'iteration': iteration,
+                        'status': 'empty',
+                    }
+                    self.stats['sources_skipped'].append(skip_entry)
+                    logger.info("Fonte %s EMPTY (no data in window)", source)
+                elif status == 'skipped':
+                    # Dependencia ausente — nao concluido
+                    skip_entry = {
+                        'source': source,
+                        'reason': result.get('error_message') or 'Skipped: missing dependency',
+                        'timestamp': datetime.now().isoformat(),
+                        'iteration': iteration,
+                        'status': 'skipped',
+                    }
+                    self.stats['sources_skipped'].append(skip_entry)
+                    logger.warning("Fonte %s SKIPPED: %s", source, skip_entry['reason'])
+                elif status == 'dry_run':
+                    self.stats['sources_done'].append(source)
+                    logger.info("Fonte %s DRY-RUN OK", source)
+                else:
+                    # failed ou desconhecido
+                    skip_entry = {
+                        'source': source,
+                        'reason': result.get('error_message') or f'Status: {status}',
+                        'timestamp': datetime.now().isoformat(),
+                        'iteration': iteration,
+                        'status': 'failed',
+                    }
+                    self.stats['sources_skipped'].append(skip_entry)
+                    logger.error("Fonte %s FAILED: %s", source, skip_entry['reason'])
 
                 # Salvar checkpoint apos cada fonte (permite resume)
                 self._save_checkpoint()
@@ -731,6 +760,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=DEFAULT_DSN,
         help='PostgreSQL DSN (default: da env DATALAKE_DSN)',
     )
+    parser.add_argument(
+        '--date-from',
+        type=str,
+        default=None,
+        help='Start date for backfill window (YYYY-MM-DD)',
+    )
+    parser.add_argument(
+        '--date-to',
+        type=str,
+        default=None,
+        help='End date for backfill window (YYYY-MM-DD)',
+    )
 
     args = parser.parse_args(argv)
 
@@ -764,6 +805,8 @@ def main(argv: list[str] | None = None) -> int:
             dry_run=args.dry_run,
             resume=args.resume,
             simulate_matches=args.simulate_matches,
+            date_from=args.date_from,
+            date_to=args.date_to,
         )
     except KeyboardInterrupt:
         logger.warning("Pipeline interrompido pelo usuario. Checkpoint salvo em %s", CHECKPOINT_FILE)

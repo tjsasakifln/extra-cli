@@ -46,42 +46,58 @@ class CredentialRequirement:
 # ---------------------------------------------------------------------------
 
 
-SOURCE_CREDENTIALS: dict[str, list[CredentialRequirement]] = {
-    "dom_sc": [
-        CredentialRequirement("DOM_SC_CPF", "CPF para autenticacao Basic Auth no DOM-SC"),
-        CredentialRequirement("DOM_SC_CNPJ", "CNPJ para autenticacao Basic Auth no DOM-SC"),
-        CredentialRequirement("DOM_SC_API_KEY", "X-API-Key para DOM-SC"),
-    ],
-    "doe_sc": [
-        CredentialRequirement("DOE_SC_LOGIN", "Login/CPF para autenticacao no DOE-SC"),
-        CredentialRequirement("DOE_SC_PASSWORD", "Senha para autenticacao no DOE-SC"),
-    ],
-    "mides_bigquery": [
-        CredentialRequirement(
-            "GOOGLE_APPLICATION_CREDENTIALS",
-            "Caminho para o JSON de service account do BigQuery",
-        ),
-    ],
-    # -----------------------------------------------------------------------
-    # Sources below are public — no credentials required.
-    # They are listed explicitly so callers can distinguish "no creds needed"
-    # from "unknown source".
-    # -----------------------------------------------------------------------
-    "pncp": [],
-    "pcp": [],
-    "compras_gov": [],
-    "sc_compras": [],
-    "contracts": [],
-    "transparencia": [],
-    "tce_sc": [],
-    "ciga_ckan": [],
-    "selenium": [],
+# Credential requirements are sourced from the central registry.
+# Each SourceInfo.credentials is a list of env var names.
+# Descriptions are maintained here for human-readable error messages.
+
+_CREDENTIAL_DESCRIPTIONS: dict[str, str] = {
+    "DOM_SC_CPF": "CPF para autenticacao Basic Auth no DOM-SC",
+    "DOM_SC_CNPJ": "CNPJ para autenticacao Basic Auth no DOM-SC",
+    "DOM_SC_API_KEY": "X-API-Key para DOM-SC",
+    "DOE_SC_LOGIN": "Login/CPF para autenticacao no DOE-SC",
+    "DOE_SC_PASSWORD": "Senha para autenticacao no DOE-SC",
+    "GOOGLE_APPLICATION_CREDENTIALS": "Caminho para o JSON de service account do BigQuery",
 }
 
+
+def _build_source_credentials() -> dict[str, list[CredentialRequirement]]:
+    """Build SOURCE_CREDENTIALS from the central registry."""
+    from scripts.crawl.registry import iter_sources  # local import to avoid circular
+
+    result: dict[str, list[CredentialRequirement]] = {}
+    for info in iter_sources(active_only=True):
+        reqs: list[CredentialRequirement] = []
+        for env_var in info.credentials:
+            desc = _CREDENTIAL_DESCRIPTIONS.get(env_var, env_var)
+            reqs.append(CredentialRequirement(env_var, desc))
+        result[info.name] = reqs
+    return result
+
+
+# Lazily built from registry
+_SOURCE_CREDENTIALS_CACHE: dict[str, list[CredentialRequirement]] | None = None
+
+
+def _get_source_credentials() -> dict[str, list[CredentialRequirement]]:
+    global _SOURCE_CREDENTIALS_CACHE
+    if _SOURCE_CREDENTIALS_CACHE is None:
+        _SOURCE_CREDENTIALS_CACHE = _build_source_credentials()
+    return _SOURCE_CREDENTIALS_CACHE
+
+
+# Backward-compatible alias
+SOURCE_CREDENTIALS = _get_source_credentials()
+
 # Sources that are exclusively public (for fast-path skipping)
-_PUBLIC_SOURCES: set[str] = {
-    k for k, v in SOURCE_CREDENTIALS.items() if not v
-}
+_PUBLIC_SOURCES: set[str] = set()
+
+
+def _get_public_sources() -> set[str]:
+    global _PUBLIC_SOURCES
+    if not _PUBLIC_SOURCES:
+        from scripts.crawl.registry import get_public_sources
+        _PUBLIC_SOURCES = get_public_sources()
+    return _PUBLIC_SOURCES
 
 
 # ---------------------------------------------------------------------------
@@ -106,11 +122,18 @@ def validate_source_credentials(
         credential is available, and *missing* is a list of human-readable
         descriptions of what is absent.
     """
-    requirements = SOURCE_CREDENTIALS.get(source)
+    # Refresh from registry each call (lazy cache rebuilds once)
+    creds = _get_source_credentials()
+    requirements = creds.get(source)
 
     if requirements is None:
-        # Unknown source — assume no credentials needed (fail open).
-        _logger.debug("Unknown source %r — skipping credential check", source)
+        # Unknown source — check registry for existence
+        from scripts.crawl.registry import lookup
+        info = lookup(source)
+        if info is None:
+            _logger.debug("Unknown source %r — skipping credential check", source)
+            return True, []
+        # Known source with no credential requirements → public
         return True, []
 
     missing: list[str] = []
@@ -141,13 +164,14 @@ def validate_source_credentials(
 
 def is_public_source(source: str) -> bool:
     """Return True if *source* requires no credentials at all."""
-    return source in _PUBLIC_SOURCES
+    return source in _get_public_sources()
 
 
 def get_credential_report() -> dict[str, dict[str, bool]]:
     """Return a dict of ``{source: {env_var: is_set}}`` for all known sources."""
     report: dict[str, dict[str, bool]] = {}
-    for src, reqs in SOURCE_CREDENTIALS.items():
+    creds = _get_source_credentials()
+    for src, reqs in creds.items():
         report[src] = {}
         for req in reqs:
             report[src][req.env_var] = bool(os.getenv(req.env_var, "").strip())

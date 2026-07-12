@@ -266,29 +266,33 @@ class TestTransform:
         # Only floripa (2 bids) + sao jose (1 bid) = 3
         assert len(flat) == 3
 
-        # Check schema keys
+        # Check schema keys — must match upsert_pncp_raw_bids contract
         required_keys = {
-            "orgao_nome", "orgao_cnpj", "modalidade", "objeto",
-            "data_publicacao", "valor", "municipio", "codigo_municipio_ibge",
-            "uf", "source", "source_subtype",
+            "pncp_id", "objeto_compra", "valor_total_estimado",
+            "modalidade_id", "modalidade_nome", "esfera_id",
+            "uf", "municipio", "codigo_municipio_ibge",
+            "orgao_razao_social", "orgao_cnpj",
+            "data_publicacao", "link_pncp",
+            "content_hash", "source_id",
         }
         for record in flat:
-            assert required_keys.issubset(record.keys()), f"Missing keys in {record}"
+            assert required_keys.issubset(record.keys()), f"Missing keys: {required_keys - record.keys()}"
 
         # Check static values
         for record in flat:
             assert record["uf"] == "SC"
-            assert record["source"] == "selenium"
+            assert record["esfera_id"] == 3  # Municipal
 
         # Check values
         florianopolis_records = [r for r in flat if r["municipio"] == "Florianopolis"]
         assert len(florianopolis_records) == 2
-        assert florianopolis_records[0]["valor"] == 150000.0
-        assert florianopolis_records[1]["valor"] == 25000.0
+        assert florianopolis_records[0]["valor_total_estimado"] == 150000.0
+        assert florianopolis_records[1]["valor_total_estimado"] == 25000.0
 
         sao_jose_records = [r for r in flat if r["municipio"] == "Sao Jose"]
         assert len(sao_jose_records) == 1
-        assert sao_jose_records[0]["modalidade"] == "Concorrencia"
+        assert sao_jose_records[0]["modalidade_nome"] == "Concorrencia"
+        assert sao_jose_records[0]["modalidade_id"] == 4
 
     def test_transform_excludes_errors(self, sample_crawl_results):
         """Should skip portals with status != 'ok'."""
@@ -323,20 +327,22 @@ class TestTransform:
         assert flat == []
 
     def test_transform_uses_orgao_razao_social(self, sample_crawl_results):
-        """Should map orgao_nome to orgao_razao_social for entity matching."""
+        """Should populate orgao_razao_social for entity matching."""
         from scripts.crawl.selenium_crawler_adapter import transform
 
         flat = transform(sample_crawl_results)
         for record in flat:
-            assert record["orgao_razao_social"] == record["orgao_nome"]
+            assert record["orgao_razao_social"]  # must be non-empty
+            assert isinstance(record["orgao_razao_social"], str)
 
-    def test_transform_source_subtype(self, sample_crawl_results):
-        """Should carry framework as source_subtype."""
+    def test_transform_source_id(self, sample_crawl_results):
+        """Should generate deterministic source_id."""
         from scripts.crawl.selenium_crawler_adapter import transform
 
         flat = transform(sample_crawl_results)
         for record in flat:
-            assert record["source_subtype"] in ("React", "unknown")
+            assert "source_id" in record
+            assert record["source_id"].startswith("selenium_")
 
     def test_transform_content_hash(self, sample_crawl_results):
         """Should generate deterministic content_hash."""
