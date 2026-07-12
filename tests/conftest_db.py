@@ -51,16 +51,38 @@ def db_conn(test_dsn: str):
         # Apply migrations
         if MIGRATIONS_DIR.exists():
             _logger.info("Applying migrations from %s", MIGRATIONS_DIR)
+            migration_failures: list[tuple[str, str]] = []
+            migration_applied: list[str] = []
+
             for sql_file in sorted(MIGRATIONS_DIR.glob("*.sql")):
                 try:
                     with open(sql_file) as f:
                         conn.cursor().execute(f.read())
+                    migration_applied.append(sql_file.name)
                 except Exception as exc:
+                    error_msg = str(exc)[:200]
+                    migration_failures.append((sql_file.name, error_msg))
+                    if os.getenv("REQUIRE_TEST_DB") == "1":
+                        pytest.fail(
+                            f"Migration {sql_file.name} failed on clean database: {error_msg}\n"
+                            f"All migrations must apply cleanly when REQUIRE_TEST_DB=1."
+                        )
                     _logger.warning(
                         "Migration %s failed (may already be applied): %s",
                         sql_file.name,
                         exc,
                     )
+
+            _logger.info(
+                "Migrations applied: %d succeeded, %d failed",
+                len(migration_applied),
+                len(migration_failures),
+            )
+            if migration_failures:
+                _logger.warning(
+                    "Failed migrations: %s",
+                    ", ".join(f[0] for f in migration_failures),
+                )
         else:
             _logger.warning("Migrations directory not found: %s", MIGRATIONS_DIR)
 

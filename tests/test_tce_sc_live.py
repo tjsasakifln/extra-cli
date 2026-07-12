@@ -43,11 +43,11 @@ class TestTCESCLive:
 
         records = crawl("incremental")
         if not records:
-            pytest.skip("Sem registros na janela incremental")
+            pytest.fail("Sem registros na janela incremental — crawler retornou vazio")
 
         transformed = transform(records)
         if not transformed:
-            pytest.skip("Transform retornou vazio")
+            pytest.fail("Transform retornou vazio — falha na transformacao dos registros")
 
         required = {
             "pncp_id", "objeto_compra", "valor_total_estimado",
@@ -71,11 +71,14 @@ class TestTCESCLive:
 
     def test_raw_record_contains_municipio_ibge(self):
         """Raw API records must contain Municipio + Codigo_IBGE."""
+        from datetime import date, timedelta
         from scripts.crawl.tce_sc_crawler import _fetch_licitacoes
 
-        records = _fetch_licitacoes(days=30, max_records=5)
+        data_inicial = date.today() - timedelta(days=30)
+        records = _fetch_licitacoes(data_inicial=data_inicial)
+        records = records[:5]  # limit to first 5
         if not records:
-            pytest.skip("API retornou vazio")
+            pytest.fail("API retornou vazio — nao foi possivel validar campos Municipio/IBGE")
 
         print(f"  Raw records: {len(records)}")
         for rec in records[:3]:
@@ -94,7 +97,7 @@ class TestTCESCLive:
         # Use Florianopolis IBGE code
         records = crawl_by_municipio("4205407")
         if not records:
-            pytest.skip("crawl_by_municipio retornou vazio")
+            pytest.fail("crawl_by_municipio retornou vazio — nao foi possivel validar o filtro")
 
         print(f"  Records for municipio 4205407: {len(records)}")
         # Verify records are scoped to the municipio
@@ -102,10 +105,10 @@ class TestTCESCLive:
 
     def test_document_scope(self):
         """Document: TCE-SC covers SCMWeb portal p285 only, not municipal coverage."""
-        from scripts.crawl.tce_sc_crawler import _BASE_URL
+        from scripts.crawl.tce_sc_crawler import BASE_URL, ORGAO_PARAM
 
-        assert "scmweb.com.br" in _BASE_URL, f"URL inesperada: {_BASE_URL}"
-        assert "p285" in _BASE_URL, f"Portal p285 nao encontrado: {_BASE_URL}"
-        print(f"  TCE-SC scope: {_BASE_URL}")
+        assert "scmweb.com.br" in BASE_URL, f"URL inesperada: {BASE_URL}"
+        assert ORGAO_PARAM == "p285", f"Portal p285 esperado: {ORGAO_PARAM}"
+        print(f"  TCE-SC scope: {BASE_URL} (orgao={ORGAO_PARAM})")
         print("  ⓘ  TCE-SC cobre apenas o proprio TCE-SC (orgao p285).")
         print("  ⓘ  Nao deve ser usado como fonte de cobertura municipal.")

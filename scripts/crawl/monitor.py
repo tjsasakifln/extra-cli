@@ -515,6 +515,8 @@ def crawl_source(
     mode: str = "full",
     date_from: str | None = None,
     date_to: str | None = None,
+    target: str | None = None,
+    limit: int | None = None,
 ) -> CrawlerResult:
     """Run crawl for a specific source, match entities, return CrawlerResult.
 
@@ -532,7 +534,7 @@ def crawl_source(
     from datetime import datetime, timezone
 
     from scripts.crawl.credential_validator import validate_source_credentials
-    from scripts.crawl.ingestion._base.crawler import CrawlerResult, determine_status
+    from scripts.crawl.ingestion._base.crawler import CrawlRequest, CrawlerResult, determine_status
 
     started_at = datetime.now(timezone.utc)
     result = CrawlerResult(source=source)
@@ -547,7 +549,8 @@ def crawl_source(
             error = f"Crawler not implemented: {source}"
             _finish_ingestion_run(conn, run_id, 0, 0, 0, "failed", error)
             conn.close()
-            result.status = "skipped"
+            result.status = "failed"
+            result.error_code = "crawler_not_implemented"
             result.error_message = error
             result.started_at = started_at.isoformat()
             result.completed_at = datetime.now(timezone.utc).isoformat()
@@ -570,14 +573,31 @@ def crawl_source(
 
         # ── Phase 1: Crawl ─────────────────────────────────────────────
         print(f"  🔍 Crawling {source} ({mode})...")
-        raw_records = crawler.crawl(mode)
+
+        # Build CrawlRequest with all parameters
+        from datetime import date as _date
+        crawl_req = CrawlRequest(
+            mode=mode,
+            date_from=_date.fromisoformat(date_from) if date_from else None,
+            date_to=_date.fromisoformat(date_to) if date_to else None,
+            target=target,
+            limit=limit,
+        )
+
+        # Accept both CrawlRequest and plain str (backward-compatible)
+        try:
+            raw_records = crawler.crawl(crawl_req)
+        except TypeError:
+            # Fallback: crawler only accepts mode: str
+            raw_records = crawler.crawl(mode)
         result.fetched = len(raw_records)
         print(f"     Fetched: {result.fetched} records")
 
         if not raw_records:
-            _finish_ingestion_run(conn, run_id, 0, 0, 0, "completed")
+            _finish_ingestion_run(conn, run_id, 0, 0, 0, "empty")
             conn.close()
             result.status = "empty"
+            result.error_code = "empty_result"
             result.started_at = started_at.isoformat()
             result.completed_at = datetime.now(timezone.utc).isoformat()
             return result
@@ -589,11 +609,30 @@ def crawl_source(
 
         source_purpose = getattr(crawler, "SOURCE_PURPOSE", "bids")
 
+        # Count entity_coverage rows for this source (coverage evidence)
+        entities_covered_count: int | None = None
+        if source_purpose == "coverage_only":
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT COUNT(*) FROM entity_coverage WHERE source = %s AND is_covered = TRUE",
+                (source,),
+            )
+            entities_covered_count = cur.fetchone()[0] or 0
+            cur.close()
+            result.new_entities_covered = entities_covered_count
+
         # Detect degraded: crawl returned data but transform discarded all
         if result.fetched > 0 and result.transformed == 0:
             if source_purpose == "coverage_only":
-                # Expected: coverage sources don't produce bid records
-                print("     ⓘ  Source is coverage-only — transform returns empty by design")
+                if entities_covered_count and entities_covered_count > 0:
+                    print(f"     ⓘ  Source is coverage-only — {entities_covered_count} entities covered")
+                else:
+                    msg = (
+                        f"coverage-only source fetched {result.fetched} records "
+                        f"but entity_coverage has 0 covered rows. No evidence of coverage update."
+                    )
+                    result.warnings.append(msg)
+                    _logger.warning(msg)
             else:
                 msg = (
                     f"crawl() returned {result.fetched} records but transform() "
@@ -659,6 +698,7 @@ def crawl_source(
             errors=[result.error_message] if result.error_message else None,
             warnings=result.warnings if result.warnings else None,
             purpose=source_purpose,
+            entities_covered=entities_covered_count,
         )
 
         _finish_ingestion_run(conn, run_id, result.fetched, result.inserted + result.updated, result.matched, result.status)
@@ -686,6 +726,7 @@ def crawl_source(
         except Exception:
             pass
         result.status = "failed"
+        result.error_code = "runtime_error"
         result.error_message = error
         result.started_at = started_at.isoformat()
         result.completed_at = datetime.now(timezone.utc).isoformat()
@@ -825,7 +866,8 @@ def main():
             continue
 
         result = crawl_source(src, entities, args.mode,
-                              date_from=args.date_from, date_to=args.date_to)
+                              date_from=args.date_from, date_to=args.date_to,
+                              target=args.target, limit=args.limit)
         results.append(result)
 
         status_icon = {"success": "✅", "degraded": "⚠️", "empty": "📭", "skipped": "⏭️", "failed": "❌"}.get(result.status, "❓")

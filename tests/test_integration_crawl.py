@@ -308,7 +308,10 @@ class TestCrawlerResultStatus:
 
         assert determine_status(fetched=10, transformed=5) == "success"
         assert determine_status(fetched=10, transformed=0) == "degraded"
-        assert determine_status(fetched=10, transformed=0, purpose="coverage_only") == "success"
+        # coverage_only WITHOUT evidence → degraded (not success)
+        assert determine_status(fetched=10, transformed=0, purpose="coverage_only") == "degraded"
+        # coverage_only WITH evidence → success
+        assert determine_status(fetched=10, transformed=0, purpose="coverage_only", entities_covered=5) == "success"
         assert determine_status(fetched=0, transformed=0) == "empty"
         assert determine_status(fetched=10, transformed=5, errors=["fail"]) == "failed"
         assert determine_status(fetched=10, transformed=5, warnings=["warn"]) == "degraded"
@@ -372,3 +375,80 @@ class TestRegistryEquality:
         """transparencia_residual must NOT be in the active registry."""
         from scripts.crawl.registry import lookup
         assert lookup("transparencia_residual") is None
+
+
+class TestAllMigrationsApplied:
+    """Verify all migrations apply cleanly to a fresh database.
+
+    Requires REQUIRE_TEST_DB=1 to fail hard on migration errors.
+    Without it, tests are skipped if the DB is unavailable.
+    """
+
+    def test_all_migrations_applied_on_clean_db(self):
+        """Every migration in db/migrations/ must be applicable without error.
+
+        This test verifies:
+        1. All migrations are present
+        2. No migration fails when applied to a clean database
+        3. Migration files are listed
+        """
+        _require_db()
+
+        from pathlib import Path
+        MIGRATIONS_DIR = Path(__file__).parent.parent / "db" / "migrations"
+
+        assert MIGRATIONS_DIR.exists(), (
+            f"Migrations directory not found: {MIGRATIONS_DIR}"
+        )
+
+        migration_files = sorted(MIGRATIONS_DIR.glob("*.sql"))
+        assert len(migration_files) > 0, "No migration files found"
+
+        conn = _get_conn()
+        failures: list[tuple[str, str]] = []
+        applied: list[str] = []
+
+        try:
+            conn.autocommit = True
+            for sql_file in migration_files:
+                try:
+                    with open(sql_file) as f:
+                        conn.cursor().execute(f.read())
+                    applied.append(sql_file.name)
+                except Exception as e:
+                    error_msg = str(e)[:200]
+                    failures.append((sql_file.name, error_msg))
+
+            print(f"\n  Migrations applied: {len(applied)}")
+            for name in applied:
+                print(f"    ✓ {name}")
+
+            if failures:
+                print(f"\n  Migrations failed: {len(failures)}")
+                for name, error in failures:
+                    print(f"    ✗ {name}: {error}")
+                pytest.fail(
+                    f"{len(failures)} migration(s) failed on clean database:\n"
+                    + "\n".join(f"  - {n}: {e}" for n, e in failures)
+                )
+            else:
+                print(f"\n  All {len(applied)} migrations applied successfully.")
+
+        finally:
+            conn.close()
+
+    def test_migration_files_exist(self):
+        """Migration directory must contain SQL files."""
+        from pathlib import Path
+        MIGRATIONS_DIR = Path(__file__).parent.parent / "db" / "migrations"
+
+        if not MIGRATIONS_DIR.exists():
+            pytest.fail(f"Migrations directory missing: {MIGRATIONS_DIR}")
+
+        sql_files = list(MIGRATIONS_DIR.glob("*.sql"))
+        assert len(sql_files) > 0, (
+            f"No .sql files found in {MIGRATIONS_DIR}"
+        )
+        print(f"  Found {len(sql_files)} migration files:")
+        for f in sorted(sql_files):
+            print(f"    {f.name}")

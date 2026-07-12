@@ -11,6 +11,7 @@ monitor.py and backfill_multi_source.py for integration.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Any, Literal, Protocol, runtime_checkable
 
 # ---------------------------------------------------------------------------
@@ -73,7 +74,69 @@ class CrawlerProtocol(Protocol):
 
 
 # ---------------------------------------------------------------------------
-# Structured result
+# Structured request
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class CrawlRequest:
+    """Canonical request contract for crawler ``crawl()`` calls.
+
+    Crawlers should accept either a plain ``mode: str`` (backward-compatible)
+    or a ``CrawlRequest`` instance with full date/target/limit parameters.
+    """
+
+    mode: str
+    """Crawl mode: ``"full"``, ``"incremental"``, ``"backfill"``, etc."""
+
+    date_from: date | None = None
+    """Start date for date-range queries (inclusive)."""
+
+    date_to: date | None = None
+    """End date for date-range queries (inclusive)."""
+
+    target: str | None = None
+    """Limit to a single target (portal slug, IBGE code, municipio name)."""
+
+    limit: int | None = None
+    """Maximum number of records/pages/portals to process."""
+
+
+# ---------------------------------------------------------------------------
+# Structured fetch result
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class FetchResult:
+    """Structured result from a single fetch operation.
+
+    Distinguishes "source returned empty data" from "source failed".
+    Crawlers should return this instead of silently swallowing errors
+    and returning ``[]``.
+    """
+
+    records: list[dict] = field(default_factory=list)
+    """Raw records returned by the fetch (empty if failed or no data)."""
+
+    request_completed: bool = False
+    """True if the HTTP request completed successfully (regardless of data)."""
+
+    http_status: int | None = None
+    """HTTP status code if applicable (None for non-HTTP sources)."""
+
+    empty_confirmed: bool = False
+    """True only when the source responded correctly AND confirmed no records."""
+
+    errors: list[str] = field(default_factory=list)
+    """Non-empty when the fetch encountered errors (connectivity, HTTP, JSON)."""
+
+    metadata: dict = field(default_factory=dict)
+    """Additional context (URL called, retry count, etc.)."""
+
+
+# ---------------------------------------------------------------------------
+# Structured result (CrawlerResult)
 # ---------------------------------------------------------------------------
 
 
@@ -169,13 +232,15 @@ def determine_status(
     errors: list[str] | None = None,
     warnings: list[str] | None = None,
     purpose: str = "bids",
+    entities_covered: int | None = None,
 ) -> str:
     """Compute canonical status from pipeline phase results.
 
     Rules (in priority order):
         1. Any error → ``"failed"``
         2. ``fetched > 0`` and ``transformed == 0``:
-           - ``purpose="coverage_only"`` → ``"success"`` (expected: no bids)
+           - ``purpose="coverage_only"`` WITH entities_covered > 0 → ``"success"``
+           - ``purpose="coverage_only"`` WITHOUT coverage evidence → ``"degraded"``
            - otherwise → ``"degraded"`` (bug or mode mismatch)
         3. ``fetched == 0`` and no errors → ``"empty"``
         4. Warnings present but data flowed → ``"degraded"``
@@ -185,7 +250,9 @@ def determine_status(
         return "failed"
     if fetched > 0 and transformed == 0:
         if purpose == "coverage_only":
-            return "success"  # expected: coverage sources don't produce bids
+            if entities_covered is not None and entities_covered > 0:
+                return "success"
+            return "degraded"  # no evidence of coverage update
         return "degraded"
     if fetched == 0:
         return "empty"
@@ -237,6 +304,7 @@ BaseCrawler = CrawlerProtocol
 
 __all__ = [
     "BaseCrawler",
+    "CrawlRequest",
     "CrawlerProtocol",
     "CrawlerResult",
     "SourcePurpose",

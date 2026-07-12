@@ -210,16 +210,16 @@ class MultiSourceBackfill:
             finally:
                 conn.close()
 
-            # Count covered entities BEFORE this source runs
-            covered_before = self._count_covered(conn) if not dry_run else 0
+            # Count covered entities BEFORE this source runs (independent connection)
+            covered_before = self._count_covered() if not dry_run else 0
 
             result = crawl_source(source, entities, mode="full",
                                   date_from=getattr(self, '_date_from', None),
                                   date_to=getattr(self, '_date_to', None))
             duration = time.time() - start
 
-            # Count covered entities AFTER this source runs
-            covered_after = self._count_covered(conn) if not dry_run else 0
+            # Count covered entities AFTER this source runs (independent connection)
+            covered_after = self._count_covered() if not dry_run else 0
             new_entities = max(0, covered_after - covered_before)
 
             monitor_status = result.status  # CrawlerResult attribute
@@ -262,14 +262,6 @@ class MultiSourceBackfill:
                 'source': source,
             }
 
-    def _count_covered(self, conn) -> int:
-        """Count distinct entity_ids currently covered."""
-        try:
-            cur = conn.cursor()
-            cur.execute("SELECT COUNT(DISTINCT entity_id) FROM entity_coverage WHERE is_covered = TRUE")
-            return cur.fetchone()[0] or 0
-        except Exception:
-            return 0
 
     def _run_entity_matching(self, source: str, dry_run: bool = False) -> dict:
         """Entity matching ja e executado por crawl_source() durante o crawl.

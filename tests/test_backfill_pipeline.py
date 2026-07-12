@@ -65,7 +65,10 @@ class TestStabilizationLoop:
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=5), \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
+            mock_source.return_value = {'status': 'success', 'source': 'pncp', 'duration_s': 1.0,
+                                         'matched': 0, 'fetched': 0, 'new_entities_covered': 0,
+                                         'inserted': 0, 'transformed': 0, 'updated': 0,
+                                         'unmatched': 0, 'warnings': [], 'dependencies_missing': []}
             mock_matching.return_value = {'new_matches': 0, 'source': 'pncp'}
 
             stats = pipeline.run_pipeline(
@@ -93,8 +96,14 @@ class TestStabilizationLoop:
             def source_side_effect(source, dry_run=False):
                 source_call_count[0] += 1
                 if source_call_count[0] <= 2:
-                    return {'status': 'OK', 'source': source, 'duration_s': 1.0, 'matched': 5, 'fetched': 10}
-                return {'status': 'OK', 'source': source, 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
+                    return {'status': 'success', 'source': source, 'duration_s': 1.0,
+                            'matched': 5, 'fetched': 10, 'new_entities_covered': 5,
+                            'inserted': 0, 'transformed': 0, 'updated': 0,
+                            'unmatched': 0, 'warnings': [], 'dependencies_missing': []}
+                return {'status': 'success', 'source': source, 'duration_s': 1.0,
+                        'matched': 0, 'fetched': 0, 'new_entities_covered': 0,
+                        'inserted': 0, 'transformed': 0, 'updated': 0,
+                        'unmatched': 0, 'warnings': [], 'dependencies_missing': []}
 
             mock_source.side_effect = source_side_effect
 
@@ -114,7 +123,10 @@ class TestStabilizationLoop:
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=0), \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 1, 'fetched': 10}
+            mock_source.return_value = {'status': 'success', 'source': 'pncp', 'duration_s': 1.0,
+                                         'matched': 1, 'fetched': 10, 'new_entities_covered': 1,
+                                         'inserted': 0, 'transformed': 0, 'updated': 0,
+                                         'unmatched': 0, 'warnings': [], 'dependencies_missing': []}
 
             stats = pipeline.run_pipeline(
                 sources=['pncp'],
@@ -132,7 +144,7 @@ class TestStabilizationLoop:
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=0), \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
+            mock_source.return_value = {'status': 'success', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
 
             # All sources return matches on first call, 0 on subsequent
             call_count = [0]
@@ -185,8 +197,8 @@ class TestFailureHandling:
             def source_side_effect(source, dry_run=False):
                 call_count[0] += 1
                 if call_count[0] <= 1:
-                    return {'status': 'FAIL', 'error': 'Connection refused', 'source': source, 'duration_s': 1.0}
-                return {'status': 'OK', 'source': source, 'duration_s': 1.0}
+                    return {'status': 'failed', 'error_message': 'Connection refused', 'source': source, 'duration_s': 1.0}
+                return {'status': 'success', 'source': source, 'duration_s': 1.0}
 
             mock_source.side_effect = source_side_effect
             mock_matching.return_value = {'new_matches': 0, 'source': 'dom_sc'}
@@ -209,7 +221,7 @@ class TestFailureHandling:
         """Falha registrada inclui timestamp, source e iteracao."""
         with patch.object(pipeline, '_run_source') as mock_source, \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'FAIL', 'error': 'Timeout', 'source': 'pncp', 'duration_s': 30.0}
+            mock_source.return_value = {'status': 'failed', 'error_message': 'Timeout', 'source': 'pncp', 'duration_s': 30.0}
 
             stats = pipeline.run_pipeline(
                 sources=['pncp'],
@@ -283,7 +295,10 @@ class TestDryRun:
         with patch.object(pipeline, '_run_source') as mock_source, \
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
+            mock_source.return_value = {'status': 'success', 'source': 'pncp', 'duration_s': 1.0,
+                                         'matched': 0, 'fetched': 0, 'new_entities_covered': 0,
+                                         'inserted': 0, 'transformed': 0, 'updated': 0,
+                                         'unmatched': 0, 'warnings': [], 'dependencies_missing': []}
             mock_matching.return_value = {'new_matches': 0, 'source': 'pncp'}
 
             stats = pipeline.run_pipeline(
@@ -305,7 +320,7 @@ class TestDryRun:
         """
         with patch.object(pipeline, '_run_source') as mock_source, \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
+            mock_source.return_value = {'status': 'success', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
 
             # simulate_matches=3: first 3 calls to _run_entity_matching return 1
             # (dry-run mode in pipeline: each call decrements simulate_matches_remaining)
@@ -345,7 +360,7 @@ class TestCheckpoint:
             'sources_done': ['pncp'],
             'sources_skipped': [],
             'iterations': 1,
-            'per_source': {'pncp': {'status': 'OK', 'duration_s': 120.0, 'source': 'pncp'}},
+            'per_source': {'pncp': {'status': 'success', 'duration_s': 120.0, 'source': 'pncp'}},
             'total_duration_s': 120.0,
         }
         pipeline._save_checkpoint()
@@ -389,7 +404,10 @@ class TestCheckpoint:
              patch.object(pipeline, '_run_entity_matching') as mock_matching, \
              patch.object(pipeline, '_count_covered', return_value=10), \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'OK', 'source': 'pncp', 'duration_s': 1.0, 'matched': 0, 'fetched': 0}
+            mock_source.return_value = {'status': 'success', 'source': 'pncp', 'duration_s': 1.0,
+                                         'matched': 0, 'fetched': 0, 'new_entities_covered': 0,
+                                         'inserted': 0, 'transformed': 0, 'updated': 0,
+                                         'unmatched': 0, 'warnings': [], 'dependencies_missing': []}
             mock_matching.return_value = {'new_matches': 0, 'source': 'pncp'}
 
             pipeline.run_pipeline(sources=['pncp'], dry_run=True)
@@ -407,7 +425,7 @@ class TestCheckpoint:
         """Status file registra fontes skipped."""
         with patch.object(pipeline, '_run_source') as mock_source, \
              patch.object(pipeline, '_generate_report'):
-            mock_source.return_value = {'status': 'FAIL', 'error': 'Timeout', 'source': 'pncp', 'duration_s': 30.0}
+            mock_source.return_value = {'status': 'failed', 'error_message': 'Timeout', 'source': 'pncp', 'duration_s': 30.0}
 
             pipeline.run_pipeline(sources=['pncp'], dry_run=True)
 
@@ -438,21 +456,18 @@ class TestSourceNameNormalization:
         assert _normalize_source('dom_sc') == 'dom_sc'
 
     def test_normalize_all_known_sources(self):
-        """Todas as fontes do SOURCE_ORDER tem mapeamento."""
+        """Todas as fontes do SOURCE_ORDER normalizam corretamente via registry."""
         from scripts.pipeline.backfill_multi_source import (
-            SOURCE_NAME_MAP,
+            _normalize_source,
             SOURCE_ORDER,
         )
 
         for source in SOURCE_ORDER:
-            # Each source in the order must have a normalization
-            norm = SOURCE_NAME_MAP.get(source.replace('_', '-'))
-            if norm is None:
-                # Try direct lookup
-                norm = SOURCE_NAME_MAP.get(source)
-            # If no direct mapping, the fallback is replace hyphens
-            assert norm or source.replace('-', '_'), \
-                f"Source {source} has no normalization entry"
+            norm = _normalize_source(source)
+            # Must return a non-empty string (canonical underscore form)
+            assert norm, f"Source {source} has no normalization"
+            # Normalized form should not contain hyphens
+            assert '-' not in norm, f"Source {source} normalized to '{norm}' (contains hyphen)"
 
 
 # ---------------------------------------------------------------------------

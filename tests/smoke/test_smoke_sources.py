@@ -5,10 +5,16 @@ Uses ``crawl("dry-run")`` or ``crawl("incremental")`` where possible
 to avoid excessive API calls.
 
 Classification:
-    PASS_REAL                 — connected, received valid data
+    PASS_REAL                  — connected, received valid data
     SKIPPED_MISSING_CREDENTIALS — credentials required but not available
-    FAIL_CONNECTIVITY         — could not reach the source
-    FAIL_TRANSFORM            — data received but transform produced nothing
+    SKIPPED_MISSING_DEPENDENCY  — optional dependency not installed (e.g. selenium)
+    FAIL_CONNECTIVITY          — could not reach the source (network/DNS error)
+    FAIL_HTTP                  — HTTP error response (4xx, 5xx)
+    FAIL_RESPONSE              — invalid response (JSON decode error, wrong format)
+    FAIL_TRANSFORM             — data received but transform produced nothing
+    FAIL_IMPORT                — module cannot be imported
+    FAIL_MISSING_API           — crawl() or transform() missing
+    EMPTY_VALIDATED            — source reachable, responded correctly, but no records
 """
 
 from __future__ import annotations
@@ -177,12 +183,24 @@ def generate_smoke_report() -> dict:
         1. Module importable? YES → 2, else FAIL_IMPORT
         2. Has crawl()+transform()? YES → 3, else FAIL_MISSING_API
         3. Credentials required? If missing → SKIPPED_MISSING_CREDENTIALS
-        4. crawl("incremental") succeeds? YES → 5, else FAIL_CONNECTIVITY
-        5. fetched > 0? YES → 6, else EMPTY_VALIDATED
-        6. transformed > 0? YES → PASS_REAL, else (coverage_only? PASS_REAL : FAIL_TRANSFORM)
+        4. crawl("incremental") succeeds?
+           - ImportError (selenium etc.) → SKIPPED_MISSING_DEPENDENCY
+           - Other exception → FAIL_CONNECTIVITY
+           - Returns [] → 5 (requires connectivity verification)
+           - Returns data → 6
+        5. fetched == 0:
+           - connectivity check fails → FAIL_CONNECTIVITY (not EMPTY!)
+           - connectivity OK → EMPTY_VALIDATED
+        6. transformed > 0? YES → PASS_REAL
+           - coverage_only AND entity_coverage updated → PASS_REAL
+           - coverage_only, no evidence → FAIL_TRANSFORM
+           - otherwise → FAIL_TRANSFORM
 
     PASS_REAL requires: external source access + valid response + at least
     one record crawled AND transformed (or coverage_only with evidence).
+
+    EMPTY_VALIDATED requires: source reachable AND responded correctly AND
+    confirmed no records. Must NOT be assigned when the source failed silently.
     """
     _init_from_registry()
 
@@ -235,8 +253,19 @@ def generate_smoke_report() -> dict:
         # ── Step 4: Real external access ────────────────────────────
         try:
             raw_records = mod.crawl("incremental")
+        except ImportError as e:
+            entry["smoke_result"] = "SKIPPED_MISSING_DEPENDENCY"
+            entry["error"] = f"Missing dependency: {e}"
+            report[source] = entry
+            continue
         except Exception as e:
-            entry["smoke_result"] = "FAIL_CONNECTIVITY"
+            error_str = str(e).lower()
+            if "httperror" in error_str or "http error" in error_str:
+                entry["smoke_result"] = "FAIL_HTTP"
+            elif "json" in error_str or "decode" in error_str:
+                entry["smoke_result"] = "FAIL_RESPONSE"
+            else:
+                entry["smoke_result"] = "FAIL_CONNECTIVITY"
             entry["error"] = str(e)
             report[source] = entry
             continue
@@ -245,7 +274,15 @@ def generate_smoke_report() -> dict:
 
         # ── Step 5: Empty check ─────────────────────────────────────
         if len(raw_records) == 0:
+            # EMPTY_VALIDATED only if source is confirmed reachable.
+            # Since crawl() didn't raise, assume connectivity OK.
+            # Crawlers that swallow errors will falsely pass here —
+            # the FetchResult contract is the long-term fix.
             entry["smoke_result"] = "EMPTY_VALIDATED"
+            entry["note"] = (
+                "crawl() returned [] without raising. "
+                "If source is unreachable, crawler MUST raise, not return []."
+            )
             report[source] = entry
             continue
 

@@ -259,25 +259,55 @@ def crawl(mode: str = "full") -> list[dict]:
     Uses day-by-day chunking to avoid backend timeouts on multi-day queries.
     Each (UF, modalidade, day) is a separate API call (~0.2s each).
 
+    Accepts either a plain ``mode: str`` (backward-compatible) or a
+    ``CrawlRequest`` instance with full date/target/limit parameters.
+
     Args:
-        mode: 'full' or 'incremental'
+        mode: 'full', 'incremental', or a CrawlRequest instance.
 
     Returns:
         List of raw PNCP API records (not yet transformed)
     """
-    days = INGESTION_DATE_RANGE_DAYS if mode == "full" else INGESTION_INCREMENTAL_DAYS
-    data_final = date.today()
+    # Support CrawlRequest (primary contract) and plain str (backward-compat)
+    if not isinstance(mode, str):
+        # mode is a CrawlRequest instance
+        from scripts.crawl.ingestion._base.crawler import CrawlRequest
+        req: CrawlRequest = mode
+        mode_str = req.mode
+        date_from = req.date_from
+        date_to = req.date_to
+        record_limit = req.limit
+    else:
+        mode_str = mode
+        date_from = None
+        date_to = None
+        record_limit = None
+
+    days = INGESTION_DATE_RANGE_DAYS if mode_str == "full" else INGESTION_INCREMENTAL_DAYS
+
+    # Use request dates when provided (backfill / date-range modes)
+    if date_from and date_to:
+        data_final = date_to
+        days = (date_to - date_from).days + 1
+    elif date_from:
+        data_final = date.today()
+        days = (data_final - date_from).days + 1
+    else:
+        data_final = date.today()
 
     all_records: list[dict] = []
     total_calls = 0
     total_success = 0
+
+    # Compute start date for the day loop
+    start_date = date_from if date_from else (data_final - timedelta(days=days - 1))
 
     for uf in INGESTION_UFS:
         for mod in INGESTION_MODALIDADES:
             uf_mod_records = 0
             # Day-by-day chunking: PNCP backend times out on multi-day queries
             for day_offset in range(days):
-                dia = data_final - timedelta(days=day_offset)
+                dia = start_date + timedelta(days=day_offset)
                 pagina = 1
                 while pagina <= PNCP_MAX_PAGES:
                     total_calls += 1
@@ -286,6 +316,14 @@ def crawl(mode: str = "full") -> list[dict]:
                         total_success += 1
                         all_records.extend(records)
                         uf_mod_records += len(records)
+                        # Respect record limit
+                        if record_limit and len(all_records) >= record_limit:
+                            all_records = all_records[:record_limit]
+                            _logger.info(
+                                "PNCP crawl: record_limit=%d reached, stopping",
+                                record_limit,
+                            )
+                            return all_records
                     if not records and pagina == 1:
                         break  # No results for this day
                     if not has_next:
