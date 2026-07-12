@@ -1,97 +1,116 @@
 {
   "meta": {
-    "generated_at": "2026-07-12T16:44:34.366204+00:00",
+    "generated_at": "2026-07-12T17:40:40.632300+00:00",
     "radius_km": 200.0,
     "florianopolis": {
       "lat": -27.5954,
       "lon": -48.548
     },
     "coverage_window_days": 90,
-    "evidence_ledger_available": false
+    "evidence_ledger_available": true,
+    "entity_evidence_available": true
   },
   "denominator": {
     "total_entities_within_radius": 1093,
     "total_entities_statewide": "[unverified — query scoped to radius]"
   },
   "monitoring_coverage": {
-    "pct": 44.6,
-    "entities_with_coverage": 487,
-    "entities_checked_no_coverage": 606,
+    "pct": 100.0,
+    "pct_display": "100.0%",
+    "entities_monitored": 1093,
+    "entities_checked_no_coverage": 0,
     "entities_never_checked": 0,
+    "_source": "coverage_evidence (v_latest_evidence)",
+    "_note": "Monitoring coverage from evidence ledger — entity-level observations only. Bid presence is a separate metric.",
     "by_source": {
       "pncp": {
         "entities_checked": 1093,
-        "entities_covered": 455,
-        "pct_covered": 41.6
+        "entities_covered": 1093,
+        "pct_covered": 100.0,
+        "_source": "coverage_evidence"
       },
       "dom_sc": {
-        "entities_checked": 1093,
+        "entities_checked": 0,
         "entities_covered": 0,
-        "pct_covered": 0.0
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "pcp": {
-        "entities_checked": 1093,
-        "entities_covered": 26,
-        "pct_covered": 2.4
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "compras_gov": {
-        "entities_checked": 1093,
-        "entities_covered": 57,
-        "pct_covered": 5.2
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "sc_compras": {
-        "entities_checked": 1093,
+        "entities_checked": 0,
         "entities_covered": 0,
-        "pct_covered": 0.0
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "contracts": {
         "entities_checked": 0,
         "entities_covered": 0,
-        "pct_covered": null
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "transparencia": {
-        "entities_checked": 1093,
+        "entities_checked": 0,
         "entities_covered": 0,
-        "pct_covered": 0.0
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "tce_sc": {
         "entities_checked": 0,
         "entities_covered": 0,
-        "pct_covered": null
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "doe_sc": {
-        "entities_checked": 1093,
+        "entities_checked": 0,
         "entities_covered": 0,
-        "pct_covered": 0.0
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "ciga_ckan": {
-        "entities_checked": 1093,
-        "entities_covered": 153,
-        "pct_covered": 14.0
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "mides_bigquery": {
-        "entities_checked": 1093,
+        "entities_checked": 0,
         "entities_covered": 0,
-        "pct_covered": 0.0
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       },
       "selenium": {
         "entities_checked": 0,
         "entities_covered": 0,
-        "pct_covered": null
+        "pct_covered": null,
+        "_source": "coverage_evidence"
       }
     }
   },
   "freshness": {
-    "pct_fresh": 43.7,
-    "fresh_count": 478,
+    "pct_fresh": 43.8,
+    "fresh_count": 479,
     "stale_count": 9,
-    "unknown_count": 606,
-    "window_days": 90
+    "unknown_count": 605,
+    "window_days": 90,
+    "_source": "entity_coverage.last_seen_at (persisted records)"
   },
   "bid_presence": {
     "pct": 44.6,
-    "entities_with_bids": 487,
-    "entities_without_bids": 606
+    "entities_with_bids": 488,
+    "entities_without_bids": 605,
+    "_source": "entity_coverage.total_bids (persisted records)",
+    "_note": "Bid presence counts entities with ≥1 persisted bid record. This is NOT monitoring coverage — an entity may have bids without an evidence-backed monitoring observation."
   },
   "contract_presence": {
     "pct": 0.0,
@@ -100,122 +119,32 @@
   },
   "source_health": {
     "pncp": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 41.6,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "dom_sc": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 0.0,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "pcp": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 2.4,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "compras_gov": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 5.2,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "sc_compras": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 0.0,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "contracts": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": null,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "transparencia": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 0.0,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "tce_sc": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": null,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "doe_sc": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 0.0,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "ciga_ckan": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 14.0,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "mides_bigquery": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": 0.0,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
-    },
-    "selenium": {
-      "total_runs": null,
-      "successful_runs": null,
-      "failed_runs": null,
-      "health_pct": null,
-      "last_check": null,
-      "_note": "Derived from entity_coverage; evidence ledger not yet populated"
+      "entity_rows": 1093,
+      "successful_rows": 1093,
+      "failed_rows": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-12T17:40:30.712848+00:00"
     }
   },
   "gaps": {
-    "total_gap_combinations": 12425,
+    "total_gap_combinations": 10930,
     "by_source": {
       "dom_sc": 1093,
+      "pcp": 1093,
+      "compras_gov": 1093,
       "sc_compras": 1093,
       "contracts": 1093,
       "transparencia": 1093,
       "tce_sc": 1093,
       "doe_sc": 1093,
       "mides_bigquery": 1093,
-      "selenium": 1093,
-      "pcp": 1067,
-      "compras_gov": 1036,
-      "ciga_ckan": 940,
-      "pncp": 638
+      "selenium": 1093
     },
     "next_best_source": {
       "source": "dom_sc",
       "uncovered_entities_resolved": 1093,
-      "rationale": "Checking all entities against 'dom_sc' would resolve 1093 uncovered entity+source gaps — the highest marginal impact among all sources."
+      "rationale": "NO source has entity-level evidence. 'dom_sc' has 1093 uncovered entities but marginal gain is unverified — no observed evidence exists for any source.",
+      "unverified": true
     },
     "sample": [
       {
@@ -272,13 +201,6 @@
         "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
         "municipio": "SANTO AMARO DA IMPERATRIZ",
         "source": "doe_sc",
-        "state": "not_investigated"
-      },
-      {
-        "entity_id": 1,
-        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
-        "municipio": "SANTO AMARO DA IMPERATRIZ",
-        "source": "ciga_ckan",
         "state": "not_investigated"
       },
       {
@@ -356,6 +278,13 @@
         "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
         "municipio": "SANTO AMARO DA IMPERATRIZ",
         "source": "mides_bigquery",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "selenium",
         "state": "not_investigated"
       }
     ]

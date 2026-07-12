@@ -1079,6 +1079,8 @@ def crawl_source(
         )
 
         _finish_ingestion_run(conn, run_id, result.fetched, result.inserted + result.updated, result.matched, result.status)
+
+        # ── Source-level aggregate evidence ─────────────────────────────
         _record_evidence(
             conn, run_id, source, result.status,
             fetched=result.fetched, transformed=result.transformed,
@@ -1086,6 +1088,36 @@ def crawl_source(
             date_from=date_from, date_to=date_to,
             error_message=result.error_message, error_code=result.error_code,
         )
+
+        # ── Entity-level evidence projection (PNCP only) ────────────────
+        entity_evidence_stats = None
+        if source == "pncp" and entities:
+            # fetch_complete: True ONLY when the entire query scope completed
+            # without errors. Any error (transient or permanent) means some
+            # pages were not fetched → we cannot guarantee that entities
+            # without matches are truly absent → must be conservative.
+            # Success_zero is legitimate ONLY when fetch_complete=True.
+            if fetch_result is not None:
+                fetch_complete = (
+                    fetch_result.request_completed
+                    and len(fetch_result.errors) == 0
+                )
+            else:
+                fetch_complete = False
+            entity_evidence_stats = _project_entity_evidence(
+                conn=conn,
+                run_id=run_id,
+                source=source,
+                entities=entities,
+                fetch_complete=fetch_complete,
+                date_from=date_from,
+                date_to=date_to,
+                fetch_metadata=fetch_result.metadata if fetch_result else None,
+                current_pncp_ids=current_pncp_ids,
+            )
+            if entity_evidence_stats:
+                result.metadata["entity_evidence"] = entity_evidence_stats
+                conn.commit()  # Persist entity evidence rows
 
         # ── Metadata ────────────────────────────────────────────────────
         if date_from:
@@ -1122,6 +1154,180 @@ def crawl_source(
         result.started_at = started_at.isoformat()
         result.completed_at = datetime.now(timezone.utc).isoformat()
         return result
+
+
+def _project_entity_evidence(
+    conn,
+    run_id: int,
+    source: str,
+    entities: list[dict],
+    fetch_complete: bool,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    fetch_metadata: dict | None = None,
+    current_pncp_ids: list[str] | None = None,
+) -> dict | None:
+    """Project per-entity evidence rows after a crawl run.
+
+    For every applicable entity in the candidate universe, writes one
+    evidence row into coverage_evidence with entity-level granularity.
+
+    Rules (never violated):
+        - ``success_with_data`` only when the completed run produced records
+          matched to that specific entity. Counts are per-entity (queried
+          from the DB after matching), never copied from the source total.
+        - ``success_zero`` only when the whole relevant query scope and
+          pagination completed without errors (fetch_complete=True).
+        - ``partial`` when completeness is not proven (errors, incomplete
+          pagination, or fetch_complete=False).
+        - Never manufactures zero evidence from absence after a failed or
+          partial crawl.
+
+    All rows are written atomically (single transaction). The UNIQUE index
+    uq_ce_entity_run ensures idempotency — re-running the same run_id is a
+    no-op for entity rows.
+    """
+    import json as _json
+    from datetime import date as _date
+
+    try:
+        cur = conn.cursor()
+
+        # Check table exists
+        cur.execute(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')"
+        )
+        if not cur.fetchone()[0]:
+            cur.close()
+            return None
+
+        q_start = _date.fromisoformat(date_from) if date_from else None
+        q_end = _date.fromisoformat(date_to) if date_to else None
+        run_id_str = str(run_id)
+
+        # ── Query per-entity matched record counts for THIS run only ─────
+        # Only count entities whose bids were matched from the current
+        # run's pncp_ids — never include historical matches from other runs.
+        entity_counts: dict[int, int] = {}
+        if fetch_complete and current_pncp_ids:
+            cur.execute(
+                """SELECT matched_entity_id, COUNT(DISTINCT pncp_id)
+                   FROM pncp_raw_bids
+                   WHERE source = %s
+                     AND matched_entity_id IS NOT NULL
+                     AND pncp_id = ANY(%s)
+                   GROUP BY matched_entity_id""",
+                (source, current_pncp_ids),
+            )
+            for row in cur.fetchall():
+                entity_counts[row[0]] = row[1]
+
+        # ── Determine candidate universe ──────────────────────────────────
+        # Use entities within 200km as the applicable universe.
+        # If the passed entities list is already filtered, use it directly.
+        # Otherwise, only consider entities with raio_200km = TRUE.
+        candidate_entities = [e for e in entities if e.get("raio_200km")]
+        if not candidate_entities:
+            _logger.warning(
+                "_project_entity_evidence: no entities with raio_200km key — "
+                "falling back to ALL %d passed entities. Evidence may include "
+                "entities outside the intended radius.",
+                len(entities),
+            )
+            candidate_entities = entities
+
+        # ── Build metadata payload ───────────────────────────────────────
+        completeness_meta: dict = {}
+        if fetch_complete:
+            completeness_meta["completeness"] = "full_pagination_completed"
+        else:
+            completeness_meta["completeness"] = "incomplete_or_errors"
+        if fetch_metadata:
+            completeness_meta["pages_fetched"] = fetch_metadata.get("pages_fetched")
+            completeness_meta["windows"] = fetch_metadata.get("windows")
+        if date_from:
+            completeness_meta["queried_start"] = date_from
+        if date_to:
+            completeness_meta["queried_end"] = date_to
+
+        # ── Batch DELETE all old rows for this run (atomic) ─────────────
+        candidate_ids = [e["id"] for e in candidate_entities]
+        if candidate_ids:
+            cur.execute(
+                """DELETE FROM coverage_evidence
+                   WHERE entity_id = ANY(%s) AND source = %s
+                     AND data_type = %s AND run_id = %s""",
+                (candidate_ids, source, "bids", run_id_str),
+            )
+
+        # ── Write one row per entity ─────────────────────────────────────
+        written_success_data = 0
+        written_success_zero = 0
+        written_partial = 0
+
+        for entity in candidate_entities:
+            eid = entity["id"]
+            count = entity_counts.get(eid, 0)
+
+            if count > 0:
+                state = "success_with_data"
+                written_success_data += 1
+            elif fetch_complete:
+                state = "success_zero"
+                written_success_zero += 1
+            else:
+                state = "partial"
+                written_partial += 1
+
+            entity_meta = dict(completeness_meta)
+            entity_meta["entity_razao_social"] = entity.get("razao_social", "")
+
+            # INSERT after batch DELETE above — idempotent, no per-row race window.
+            cur.execute(
+                """INSERT INTO coverage_evidence
+                   (entity_id, source, data_type, queried_start, queried_end,
+                    run_id, started_at, completed_at,
+                    count_obtained, count_transformed, count_persisted,
+                    state, metadata)
+                   VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s)""",
+                (
+                    eid,
+                    source,
+                    "bids",
+                    q_start,
+                    q_end,
+                    run_id_str,
+                    count,
+                    count,
+                    count,
+                    state,
+                    _json.dumps(entity_meta, ensure_ascii=False),
+                ),
+            )
+
+        cur.close()
+
+        stats = {
+            "candidate_entities": len(candidate_entities),
+            "success_with_data": written_success_data,
+            "success_zero": written_success_zero,
+            "partial": written_partial,
+            "fetch_complete": fetch_complete,
+        }
+        print(
+            f"     Entity evidence: {written_success_data} with_data, "
+            f"{written_success_zero} zero, "
+            f"{written_partial} partial "
+            f"(of {len(candidate_entities)} candidates, "
+            f"fetch_complete={fetch_complete})"
+        )
+        return stats
+
+    except Exception:
+        _logger.exception(
+            "Failed to project entity evidence for source=%s run_id=%s", source, run_id
+        )
+        return None
 
 
 def _record_evidence(
@@ -1171,23 +1377,20 @@ def _record_evidence(
         if error_message:
             meta["error_message"] = error_message
 
+        # Idempotent upsert: DELETE old source-level aggregate row then INSERT.
+        # Partial unique indexes don't reliably support ON CONFLICT across PG versions.
+        cur.execute(
+            """DELETE FROM coverage_evidence
+               WHERE entity_id IS NULL AND source = %s AND data_type = %s AND run_id = %s""",
+            (source, "bids", str(run_id)),
+        )
         cur.execute(
             """INSERT INTO coverage_evidence
                (entity_id, source, data_type, queried_start, queried_end,
                 run_id, started_at, completed_at,
                 count_obtained, count_transformed, count_persisted,
                 state, error_message, error_code, metadata)
-               VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s, %s, %s)
-               ON CONFLICT (entity_id, source, data_type, run_id)
-               DO UPDATE SET
-                   completed_at = NOW(),
-                   count_obtained = EXCLUDED.count_obtained,
-                   count_transformed = EXCLUDED.count_transformed,
-                   count_persisted = EXCLUDED.count_persisted,
-                   state = EXCLUDED.state,
-                   error_message = EXCLUDED.error_message,
-                   error_code = EXCLUDED.error_code,
-                   metadata = EXCLUDED.metadata""",
+               VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s, %s, %s)""",
             (
                 None,  # entity_id: NULL = source-level aggregate
                 source,

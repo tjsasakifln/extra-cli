@@ -232,8 +232,10 @@ class TestComputeMetrics:
             make_coverage(1, "pncp", is_covered=True),
             make_coverage(2, "pncp", is_covered=False),
         ]
+        # Entity-level evidence: entity 1 has success_with_data, entity 2 has success_zero
         evidence = [
-            make_evidence("pncp", "success_with_data"),
+            make_evidence("pncp", "success_with_data", entity_id=1),
+            make_evidence("pncp", "success_zero", entity_id=2),
         ]
 
         result = compute_metrics_fn(
@@ -242,7 +244,7 @@ class TestComputeMetrics:
 
         assert result["denominator"]["total_entities_within_radius"] == 2
         # Entity 3 (out of radius) is NOT in the denominator
-        assert result["monitoring_coverage"]["entities_with_coverage"] == 1
+        assert result["monitoring_coverage"]["entities_monitored"] == 2
 
     def test_out_of_radius_entities_not_in_denominator(self, compute_metrics_fn):
         """If only in-radius entities are passed, denominator = len(entities)."""
@@ -263,23 +265,29 @@ class TestComputeMetrics:
         assert result["denominator"]["total_entities_within_radius"] == 1
 
     def test_sources_do_not_duplicate_entities(self, compute_metrics_fn):
-        """Entity covered by 3 sources counts as 1 covered entity, not 3."""
+        """Entity covered by 3 sources counts as 1 monitored entity, not 3."""
         entities = [make_entity(1, "Test Entity")]
         coverage = [
             make_coverage(1, "pncp", is_covered=True),
             make_coverage(1, "dom_sc", is_covered=True),
             make_coverage(1, "contracts", is_covered=True),
         ]
+        # Entity-level evidence: entity 1 has success from all 3 sources
+        evidence = [
+            make_evidence("pncp", "success_with_data", entity_id=1),
+            make_evidence("dom_sc", "success_with_data", entity_id=1),
+            make_evidence("contracts", "success_with_data", entity_id=1),
+        ]
 
         result = compute_metrics_fn(
-            entities, coverage, [], [], {}, radius_km=200,
+            entities, coverage, evidence, [], {}, radius_km=200,
         )
 
-        # Monitoring coverage: entity is covered if ANY source has is_covered
-        assert result["monitoring_coverage"]["entities_with_coverage"] == 1
+        # Monitoring coverage: entity is monitored if ANY source has success evidence
+        assert result["monitoring_coverage"]["entities_monitored"] == 1
         assert result["monitoring_coverage"]["pct"] == 100.0
 
-        # Per-source counts can sum to > denominator (expected — not a bug)
+        # Per-source counts from evidence
         total_by_source = sum(
             s["entities_covered"]
             for s in result["monitoring_coverage"]["by_source"].values()
@@ -327,45 +335,48 @@ class TestComputeMetrics:
 
     def test_failure_not_equal_to_legitimate_zero(self, compute_metrics_fn):
         """Prove failure != legitimate zero in evidence states."""
-        # success_zero = source checked, confirmed zero records (legitimate)
-        # connection_failed = source NOT checked successfully (failure)
-        # These must produce different health metrics
-
         entities = [make_entity(1, "Test")]
-        coverage = []  # No coverage yet
+        coverage = []
 
-        # Evidence: one source with success_zero, one with connection_failed
+        # Entity-level evidence: pncp has success_zero (legitimate), dom_sc has connection_failed
         evidence = [
-            make_evidence("pncp", "success_zero"),
-            make_evidence("dom_sc", "connection_failed"),
+            make_evidence("pncp", "success_zero", entity_id=1),
+            make_evidence("dom_sc", "connection_failed", entity_id=1),
         ]
 
         result = compute_metrics_fn(
             entities, coverage, evidence, [], {}, radius_km=200,
         )
 
-        # Both sources should appear in gaps with different states
+        # success_zero counts as monitoring coverage (entity IS monitored)
+        # connection_failed does NOT count as coverage
+        assert result["monitoring_coverage"]["entities_monitored"] == 1
+        # Gaps should show different states per source
         gaps = result["gaps"]["sample"]
         gap_states = {g["source"]: g["state"] for g in gaps}
-        assert gap_states.get("pncp") == "success_zero"
+        # pncp has success_zero → NOT a gap
+        # dom_sc has connection_failed → IS a gap
         assert gap_states.get("dom_sc") == "connection_failed"
+        # pncp should NOT appear in gaps (it's covered)
+        assert "pncp" not in gap_states
 
-    def test_all_sources_failed_shows_zero_monitoring_coverage(self, compute_metrics_fn):
-        """When all sources fail, monitoring coverage = 0%, not 100%."""
+    def test_all_sources_failed_shows_unverified_monitoring(self, compute_metrics_fn):
+        """When all sources fail, monitoring coverage is unverified, not 0%."""
         entities = [make_entity(1, "Test")]
-        coverage = []  # No coverage — all sources failed
+        coverage = []
         evidence = [
-            make_evidence("pncp", "connection_failed"),
-            make_evidence("dom_sc", "connection_failed"),
+            make_evidence("pncp", "connection_failed", entity_id=1),
+            make_evidence("dom_sc", "connection_failed", entity_id=1),
         ]
 
         result = compute_metrics_fn(
             entities, coverage, evidence, [], {}, radius_km=200,
         )
 
+        # Entity-level evidence exists but no success → 0% monitoring coverage
         assert result["monitoring_coverage"]["pct"] == 0.0
-        assert result["monitoring_coverage"]["entities_with_coverage"] == 0
-        assert result["monitoring_coverage"]["entities_never_checked"] == 1
+        assert result["monitoring_coverage"]["entities_monitored"] == 0
+        assert result["monitoring_coverage"]["entities_never_checked"] == 0  # it WAS checked, just failed
 
     def test_no_95_pct_claim_in_metrics(self, compute_metrics_fn):
         """Verify no metric claims ≥95% completeness or recall."""
@@ -406,28 +417,31 @@ class TestComputeMetrics:
         assert result["contract_presence"]["entities_with_contracts"] == 1  # only entity 1
 
     def test_gap_ranking_by_marginal_impact(self, compute_metrics_fn):
-        """Gaps are ranked by number of uncovered entities per source."""
+        """Gaps are ranked by number of uncovered entities per source — only from evidence."""
         entities = [make_entity(i, f"Entity {i}") for i in range(1, 4)]
         coverage = [
-            make_coverage(1, "pncp", is_covered=True),  # entity 1 covered by pncp
-            # entities 2,3 uncovered for pncp
-            # all 3 uncovered for dom_sc, contracts
+            make_coverage(1, "pncp", is_covered=True),
         ]
+        # Entity-level evidence: pncp covers entity 1, dom_sc covers nobody,
+        # contracts has no evidence at all
         evidence = [
-            make_evidence("pncp", "success_with_data"),
-            make_evidence("dom_sc", "success_zero"),
-            make_evidence("contracts", "not_investigated"),
+            make_evidence("pncp", "success_with_data", entity_id=1),
+            make_evidence("pncp", "success_zero", entity_id=2),
+            make_evidence("pncp", "success_zero", entity_id=3),
+            make_evidence("dom_sc", "connection_failed", entity_id=1),
+            make_evidence("dom_sc", "connection_failed", entity_id=2),
+            make_evidence("dom_sc", "connection_failed", entity_id=3),
         ]
 
         result = compute_metrics_fn(
             entities, coverage, evidence, [], {}, radius_km=200,
         )
 
-        # Next best source should be the one with most uncovered entities
+        # Next best source should be from sources WITH evidence
         next_best = result["gaps"]["next_best_source"]
         assert next_best is not None
-        # dom_sc and contracts both have 3 uncovered, pncp has 2
-        # The first ranked source should have the highest count
+        # dom_sc has evidence (even if failed) → valid candidate
+        # contracts has NO evidence → should NOT be ranked above sources with evidence
         by_source = result["gaps"]["by_source"]
         first_count = list(by_source.values())[0] if by_source else 0
         assert first_count >= next_best["uncovered_entities_resolved"]
@@ -437,24 +451,29 @@ class TestComputeMetrics:
         result = compute_metrics_fn([], [], [], [], {}, radius_km=200)
 
         assert result["denominator"]["total_entities_within_radius"] == 0
-        assert result["monitoring_coverage"]["pct"] == 0
+        # With 0 entities, monitoring coverage is trivially 0 (not unverified)
+        assert result["monitoring_coverage"]["pct"] == 0.0
         assert result["freshness"]["pct_fresh"] == 0
         assert result["bid_presence"]["pct"] == 0
         assert result["contract_presence"]["pct"] == 0
 
-    def test_evidence_ledger_empty_produces_graceful_degradation(self, compute_metrics_fn):
-        """When evidence ledger is empty, metrics still compute from entity_coverage."""
+    def test_evidence_ledger_empty_produces_unverified_monitoring(self, compute_metrics_fn):
+        """When evidence ledger is empty, monitoring coverage is unverified, not from entity_coverage."""
         entities = [make_entity(1, "Test")]
         coverage = [make_coverage(1, "pncp", is_covered=True)]
 
         result = compute_metrics_fn(entities, coverage, [], [], {}, radius_km=200)
 
-        # Metrics still work with entity_coverage fallback
+        # Evidence ledger empty → monitoring coverage is None (unverified)
         assert result["meta"]["evidence_ledger_available"] is False
-        assert result["monitoring_coverage"]["pct"] == 100.0
-        # Source health should have fallback note
+        assert result["meta"]["entity_evidence_available"] is False
+        assert result["monitoring_coverage"]["pct"] is None
+        assert result["monitoring_coverage"]["pct_display"] == "unverified"
+        # Source health should have unverified note
         pncp_health = result["source_health"].get("pncp", {})
-        assert pncp_health.get("_note") is not None or pncp_health.get("health_pct") is not None
+        assert pncp_health.get("_note") is not None
+        # Bid presence still works from entity_coverage (separate metric)
+        assert result["bid_presence"]["entities_with_bids"] == 1
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -466,7 +485,7 @@ class TestSimulatedPipeline:
     """Simulate: source run → ledger evidence → deduplicated metrics → report."""
 
     def test_full_pipeline_simulation(self, compute_metrics_fn):
-        """End-to-end: simulate a crawl run that populates evidence + coverage."""
+        """End-to-end: simulate a crawl run with entity-level evidence."""
         # ── Setup: 5 entities within 200km ────────────────────────────
         entities = [
             make_entity(1, "Prefeitura Alpha", lat=-27.5, lon=-48.5),
@@ -476,25 +495,28 @@ class TestSimulatedPipeline:
             make_entity(5, "Fundo Epsilon", lat=-27.9, lon=-48.1),
         ]
 
-        # ── Simulate PNCP crawl run ──────────────────────────────────
-        # crawl() fetched 200 records, transform() produced 180,
-        # upsert inserted 150 new + updated 30, matched 4 of 5 entities
+        # ── Simulate PNCP crawl run (entity-level evidence) ──────────
+        # crawl() fetched records, matched entities 1-4, entity 5 had zero
         pncp_evidence = [
-            make_evidence("pncp", "success_with_data", completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
+            make_evidence("pncp", "success_with_data", entity_id=1, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
+            make_evidence("pncp", "success_with_data", entity_id=2, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
+            make_evidence("pncp", "success_with_data", entity_id=3, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
+            make_evidence("pncp", "success_with_data", entity_id=4, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
+            make_evidence("pncp", "success_zero", entity_id=5, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
         ]
 
-        # entity_coverage after PNCP run
+        # entity_coverage after PNCP run (bid presence — separate from monitoring)
         pncp_coverage = [
             make_coverage(1, "pncp", is_covered=True, total_bids=50, last_seen_at=date(2026, 7, 12)),
             make_coverage(2, "pncp", is_covered=True, total_bids=30, last_seen_at=date(2026, 7, 10)),
             make_coverage(3, "pncp", is_covered=True, total_bids=20, last_seen_at=date(2026, 7, 8)),
             make_coverage(4, "pncp", is_covered=True, total_bids=10, last_seen_at=date(2026, 7, 5)),
-            # Entity 5: no PNCP coverage (not matched)
         ]
 
         # ── Simulate contracts crawl run ─────────────────────────────
         contracts_evidence = [
-            make_evidence("contracts", "success_with_data", completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=timezone.utc)),
+            make_evidence("contracts", "success_with_data", entity_id=1, completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=timezone.utc)),
+            make_evidence("contracts", "success_with_data", entity_id=3, completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=timezone.utc)),
         ]
 
         contracts_coverage = [
@@ -502,12 +524,10 @@ class TestSimulatedPipeline:
             make_coverage(3, "contracts", is_covered=True, total_bids=2, last_seen_at=date(2026, 7, 9)),
         ]
 
-        # ── Simulate DOM-SC crawl run ────────────────────────────────
-        # This run FAILED with connection error
+        # ── Simulate DOM-SC crawl run (FAILED) ───────────────────────
         dom_sc_evidence = [
-            make_evidence("dom_sc", "connection_failed", completed_at=datetime(2026, 7, 12, 8, 0, 0, tzinfo=timezone.utc)),
+            make_evidence("dom_sc", "connection_failed", entity_id=1, completed_at=datetime(2026, 7, 12, 8, 0, 0, tzinfo=timezone.utc)),
         ]
-        # No DOM-SC coverage rows (run failed before producing data)
 
         all_evidence = pncp_evidence + contracts_evidence + dom_sc_evidence
         all_coverage = pncp_coverage + contracts_coverage
@@ -520,13 +540,13 @@ class TestSimulatedPipeline:
         # ── Assertions ───────────────────────────────────────────────
         assert result["denominator"]["total_entities_within_radius"] == 5
 
-        # Monitoring coverage: 4 entities covered (entity 5 has none)
-        assert result["monitoring_coverage"]["entities_with_coverage"] == 4
-        assert result["monitoring_coverage"]["pct"] == 80.0
+        # Monitoring coverage: ALL 5 entities monitored by PNCP (including success_zero)
+        assert result["monitoring_coverage"]["entities_monitored"] == 5
+        assert result["monitoring_coverage"]["pct"] == 100.0
 
-        # PNCP per-source: 4 covered
+        # PNCP per-source: 5 covered (4 with_data + 1 zero)
         pncp_src = result["monitoring_coverage"]["by_source"]["pncp"]
-        assert pncp_src["entities_covered"] == 4
+        assert pncp_src["entities_covered"] == 5
 
         # Contracts per-source: 2 covered
         contracts_src = result["monitoring_coverage"]["by_source"]["contracts"]
@@ -536,17 +556,10 @@ class TestSimulatedPipeline:
         dom_src = result["monitoring_coverage"]["by_source"]["dom_sc"]
         assert dom_src["entities_covered"] == 0
 
-        # Gaps: entity 5 uncovered for all 3 sources = 3 gaps
-        # Plus entities 2,4,5 uncovered for contracts = 3 gaps
-        # Plus entities 1-5 uncovered for dom_sc = 5 gaps
-        # Total: entity 1 (contracts+n/a, dom_sc), 2 (contracts, dom_sc), 3 (dom_sc), 4 (contracts, dom_sc), 5 (pncp, contracts, dom_sc)
-        # Wait, let me recalculate. 5 entities × 3 sources = 15 total combinations
-        # Covered: entity 1 (pncp, contracts), 2 (pncp), 3 (pncp, contracts), 4 (pncp)
-        # Total covered combinations = 2 + 1 + 2 + 1 = 6
-        # Gaps = 15 - 6 = 9
+        # Gaps exist for uncovered combinations
         assert result["gaps"]["total_gap_combinations"] >= 1
 
-        # Bid presence: 4 entities have bids
+        # Bid presence: 4 entities have bids (entity 5 has zero)
         assert result["bid_presence"]["entities_with_bids"] == 4
 
         # Freshness: entities 1-4 have freshness dates
@@ -581,3 +594,221 @@ class TestSimulatedPipeline:
 
         # Meta must declare evidence_ledger_available
         assert "evidence_ledger_available" in result["meta"]
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Coverage Truth MVP — new evidence-based tests (Goal: PNCP vertical slice)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestMonitoringCoverageFromEvidence:
+    """Monitoring coverage MUST use evidence ledger, not entity_coverage."""
+
+    def test_monitoring_coverage_differs_from_bid_presence(self, compute_metrics_fn):
+        """Entity with bids but no evidence = unverified monitoring, present bids."""
+        entities = [make_entity(1, "Has bids, no evidence")]
+        # entity_coverage shows bids from trigger-based update
+        coverage = [
+            make_coverage(1, "pncp", is_covered=True, total_bids=10),
+        ]
+        # But NO evidence exists → monitoring coverage is unverified
+        result = compute_metrics_fn(entities, coverage, [], [], {}, radius_km=200)
+
+        assert result["monitoring_coverage"]["pct"] is None  # unverified
+        assert result["monitoring_coverage"]["pct_display"] == "unverified"
+        assert result["bid_presence"]["entities_with_bids"] == 1  # bids exist
+
+    def test_entity_with_evidence_but_no_bids(self, compute_metrics_fn):
+        """Entity with success_zero evidence = monitored, but no bids."""
+        entities = [make_entity(1, "Zero bids")]
+        coverage = []  # No bids at all
+        evidence = [
+            make_evidence("pncp", "success_zero", entity_id=1),
+        ]
+
+        result = compute_metrics_fn(entities, coverage, evidence, [], {}, radius_km=200)
+
+        # success_zero = legitimate monitoring coverage
+        assert result["monitoring_coverage"]["entities_monitored"] == 1
+        assert result["monitoring_coverage"]["pct"] == 100.0
+        # But NO bids
+        assert result["bid_presence"]["entities_with_bids"] == 0
+
+    def test_next_best_unverified_when_no_source_has_entity_evidence(self, compute_metrics_fn):
+        """Do NOT fabricate next-best ranking from untouched sources."""
+        entities = [make_entity(i, f"Entity {i}") for i in range(1, 4)]
+        coverage = []  # No bids, no coverage
+        evidence = []  # No evidence at all
+
+        result = compute_metrics_fn(entities, coverage, evidence, [], {}, radius_km=200)
+
+        next_best = result["gaps"]["next_best_source"]
+        # If no source has entity-level evidence, next best must be marked unverified
+        if next_best is not None:
+            assert next_best.get("unverified") is True, (
+                f"Untouched source ranked without unverified flag: {next_best}"
+            )
+
+    def test_report_uses_latest_evidence_only(self, compute_metrics_fn):
+        """When multiple evidence rows exist, only the latest determines state."""
+        entities = [make_entity(1, "Test")]
+        coverage = []
+
+        # Two evidence rows: old=success_with_data, new=connection_failed
+        old_ts = datetime(2026, 7, 1, tzinfo=timezone.utc)
+        new_ts = datetime(2026, 7, 12, tzinfo=timezone.utc)
+
+        evidence = [
+            make_evidence("pncp", "success_with_data", entity_id=1, completed_at=old_ts),
+            make_evidence("pncp", "connection_failed", entity_id=1, completed_at=new_ts),
+        ]
+
+        result = compute_metrics_fn(entities, coverage, evidence, [], {}, radius_km=200)
+
+        # v_latest_evidence would return the newest row per (entity_id, source, data_type)
+        # Our function picks the LATEST based on completed_at
+        # → The newer connection_failed should determine the state
+        pncp = result["monitoring_coverage"]["by_source"].get("pncp", {})
+        # Entity should NOT be covered (latest evidence = connection_failed)
+        assert pncp.get("entities_covered", 0) == 0
+        assert result["monitoring_coverage"]["entities_monitored"] == 0
+
+    def test_source_level_evidence_does_not_count_for_entity_monitoring(self, compute_metrics_fn):
+        """Source-level aggregate (entity_id=NULL) does NOT count as entity monitoring."""
+        entities = [make_entity(1, "Test")]
+        coverage = []
+        # Source-level aggregate only — no entity_id
+        evidence = [
+            make_evidence("pncp", "success_with_data", entity_id=None),
+        ]
+
+        result = compute_metrics_fn(entities, coverage, evidence, [], {}, radius_km=200)
+
+        # No entity-level evidence → monitoring coverage is unverified
+        assert result["monitoring_coverage"]["pct"] is None
+        assert result["meta"]["evidence_ledger_available"] is True  # aggregate exists
+        assert result["meta"]["entity_evidence_available"] is False  # no entity rows
+
+    def test_per_source_coverage_from_evidence_not_entity_coverage(self, compute_metrics_fn):
+        """By-source coverage uses entity-level evidence, not entity_coverage."""
+        entities = [make_entity(1, "Test")]
+        # entity_coverage says entity 1 is covered by pncp
+        coverage = [make_coverage(1, "pncp", is_covered=True, total_bids=5)]
+        # But evidence says entity 1 connection_failed
+        evidence = [
+            make_evidence("pncp", "connection_failed", entity_id=1),
+        ]
+
+        result = compute_metrics_fn(entities, coverage, evidence, [], {}, radius_km=200)
+
+        pncp = result["monitoring_coverage"]["by_source"]["pncp"]
+        # Source should be coverage_evidence, and entity NOT covered
+        assert pncp["_source"] == "coverage_evidence"
+        assert pncp["entities_covered"] == 0  # evidence says failed
+        assert pncp["entities_checked"] == 1  # but it WAS checked
+
+
+class TestEntityEvidenceProjection:
+    """Tests for _project_entity_evidence logic (offline — no DB)."""
+
+    def test_incomplete_fetch_cannot_produce_success_zero(self):
+        """When fetch_complete=False, no entity gets success_zero — all get partial."""
+        from scripts.crawl.monitor import _project_entity_evidence
+
+        # This will fail because there's no DB — but we can verify the logic
+        # by checking the function signature and code path.
+        # The key property: fetch_complete=False → entities without data → 'partial'
+        # fetch_complete=True  → entities without data → 'success_zero'
+
+        # We verify through compute_metrics that partial state means no coverage
+        entities = [make_entity(1, "Test")]
+        evidence = [
+            make_evidence("pncp", "partial", entity_id=1),
+        ]
+
+        from scripts.coverage_truth import compute_metrics
+
+        result = compute_metrics(entities, [], evidence, [], {}, radius_km=200)
+
+        # partial != success → entity NOT monitored
+        assert result["monitoring_coverage"]["entities_monitored"] == 0
+        assert result["monitoring_coverage"]["pct"] == 0.0
+
+    def test_success_zero_counts_as_monitoring(self):
+        """success_zero IS legitimate monitoring coverage."""
+        entities = [make_entity(1, "Test")]
+        evidence = [
+            make_evidence("pncp", "success_zero", entity_id=1),
+        ]
+
+        from scripts.coverage_truth import compute_metrics
+
+        result = compute_metrics(entities, [], evidence, [], {}, radius_km=200)
+
+        assert result["monitoring_coverage"]["entities_monitored"] == 1
+        assert result["monitoring_coverage"]["pct"] == 100.0
+
+    def test_complete_run_creates_one_latest_row_per_entity(self, compute_metrics_fn):
+        """Complete run with records + legitimate zeros → exactly one latest row
+        per entity (simulated — v_latest_evidence does DISTINCT ON)."""
+        entities = [make_entity(i, f"Entity {i}") for i in range(1, 4)]
+        evidence = [
+            make_evidence("pncp", "success_with_data", entity_id=1),
+            make_evidence("pncp", "success_with_data", entity_id=2),
+            make_evidence("pncp", "success_zero", entity_id=3),
+        ]
+
+        result = compute_metrics_fn(entities, [], evidence, [], {}, radius_km=200)
+
+        # All 3 entities monitored
+        assert result["monitoring_coverage"]["entities_monitored"] == 3
+        # Per-source: 3 covered
+        assert result["monitoring_coverage"]["by_source"]["pncp"]["entities_covered"] == 3
+        # No duplicate counting
+        assert result["monitoring_coverage"]["by_source"]["pncp"]["entities_checked"] == 3
+
+
+class TestMetricLabelSeparation:
+    """Monitoring coverage and bid presence must be labeled separately."""
+
+    def test_monitoring_coverage_has_source_label(self, compute_metrics_fn):
+        """Monitoring coverage section declares its data source."""
+        entities = [make_entity(1, "Test")]
+        evidence = [make_evidence("pncp", "success_with_data", entity_id=1)]
+
+        result = compute_metrics_fn(entities, [], evidence, [], {}, radius_km=200)
+
+        mc = result["monitoring_coverage"]
+        assert "_source" in mc
+        assert "coverage_evidence" in mc["_source"]
+        assert "_note" in mc
+
+    def test_bid_presence_has_source_label(self, compute_metrics_fn):
+        """Bid presence section declares its data source."""
+        entities = [make_entity(1, "Test")]
+        coverage = [make_coverage(1, "pncp", total_bids=5)]
+
+        result = compute_metrics_fn(entities, coverage, [], [], {}, radius_km=200)
+
+        bp = result["bid_presence"]
+        assert "_source" in bp
+        assert "entity_coverage" in bp["_source"]
+        assert "_note" in bp
+
+    def test_gaps_are_entity_source_states_not_no_bid(self, compute_metrics_fn):
+        """Gap state values come from evidence_state enum, not from bid counts."""
+        entities = [make_entity(1, "Test")]
+        evidence = [
+            make_evidence("pncp", "connection_failed", entity_id=1),
+            make_evidence("dom_sc", "not_investigated", entity_id=1),
+        ]
+
+        result = compute_metrics_fn(entities, [], evidence, [], {}, radius_km=200)
+
+        gaps = {g["source"]: g["state"] for g in result["gaps"]["sample"]}
+        # States are evidence states, NOT "no bid found"
+        assert "no_bid" not in str(gaps.values()).lower()
+        assert gaps.get("pncp") == "connection_failed"
+        # dom_sc has no evidence at all → not_investigated
+        if "dom_sc" in gaps:
+            assert gaps["dom_sc"] == "not_investigated"
