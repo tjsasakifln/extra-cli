@@ -54,6 +54,16 @@ python scripts/local_datalake.py search --uf SC --dias 30         # Buscar licit
 python scripts/local_datalake.py supplier --cnpj <CNPJ>           # Dados de fornecedor
 python scripts/local_datalake.py stats                            # Estatisticas
 
+# Opportunity Intelligence (licitacoes abertas, raio 200km Fpolis)
+python scripts/opportunity_intel/cli.py list --status open --limit 20
+python scripts/opportunity_intel/cli.py show 1
+python scripts/opportunity_intel/cli.py explain 1
+python scripts/opportunity_intel/cli.py coverage
+python scripts/opportunity_intel/cli.py source-health
+python scripts/opportunity_intel/cli.py update --source pncp
+python scripts/opportunity_intel/cli.py export --format csv -o opportunities.csv
+python scripts/opportunity_intel/manifest.py                     # Manifestos de cobertura
+
 # Infra (VPS)
 ssh ec-prod "systemctl list-timers 'extra-*'"                     # Listar timers
 ssh ec-prod "journalctl -u extra-crawl-pncp.service -n 30"        # Logs do crawler

@@ -63,6 +63,18 @@ python scripts/reports/panorama.py --output-excel
 python scripts/local_datalake.py search --uf SC --dias 30
 python scripts/local_datalake.py supplier --cnpj <CNPJ>
 python scripts/local_datalake.py stats
+
+# Opportunity Intelligence — licitações abertas
+python scripts/opportunity_intel/cli.py list --status open --limit 20
+python scripts/opportunity_intel/cli.py show 1
+python scripts/opportunity_intel/cli.py explain 1
+python scripts/opportunity_intel/cli.py coverage
+python scripts/opportunity_intel/cli.py source-health
+python scripts/opportunity_intel/cli.py update --source pncp
+python scripts/opportunity_intel/cli.py export --format csv -o opportunities.csv
+
+# Manifestos de cobertura
+python scripts/opportunity_intel/manifest.py
 ```
 
 ## Fontes de Dados
@@ -73,6 +85,23 @@ python scripts/local_datalake.py stats
 | DOM-SC | ~280 municípios SC | `dom_sc_crawler.py` |
 | PCP v2 | ~100+ municípios SC | `pcp_crawler.py` |
 | ComprasGov v3 | Órgãos federais SC | `compras_gov_crawler.py` |
+
+## Opportunity Intelligence (V1)
+
+Vertical de licitações abertas para Extra Construtora.
+Raio de 200 km de Florianópolis. Threshold: 95%.
+
+**Fluxo:** fonte oficial → fetch → raw zone → normalização →
+PostgreSQL → deduplicação → status canônico → ranking → CLI → manifesto.
+
+**Estados:** open, upcoming, closed, suspended, revoked, annulled, failed, unknown.
+**Ranking:** GO, REVIEW, NO_GO (score 0–100, fatores explicáveis, regras determinísticas).
+**Deduplicação:** ID oficial → número PNCP → órgão+processo+edital → hash (nunca similaridade textual).
+
+Arquivos gerados:
+- `output/readiness/opportunity-coverage-manifest.json`
+- `output/readiness/opportunity-coverage-gaps.csv`
+- `output/readiness/opportunity-source-health.csv`
 
 ## Cron (systemd timers)
 

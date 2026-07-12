@@ -1,0 +1,2 @@
+source,total_records,open_count,upcoming_count,closed_count,unknown_count,go_count,review_count,no_go_count,earliest_abertura,latest_encerramento,first_seen,last_seen,freshness
+test_batch,5,5,0,0,0,0,5,0,,,2026-07-12 23:13:21.665371+00:00,2026-07-12 23:13:21.665371+00:00,fresh
