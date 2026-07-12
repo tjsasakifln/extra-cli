@@ -61,3 +61,62 @@ ssh ec-prod "journalctl -u extra-crawl-pncp.service -n 30"        # Logs do craw
 # Cache IBGE
 python -c "from scripts.crawl.enricher import _ibge_cache; _ibge_cache.clear()"  # Limpar cache
 ```
+
+## Quality Assurance Toolkit (incorporado do ECC)
+
+Acervo de agentes, comandos e skills de qualidade de código Python.
+Origem: [affaan-m/ecc](https://github.com/affaan-m/ecc) — adaptado para stack Python/crawling/dados.
+
+### Uso Proativo (OBRIGATÓRIO)
+
+Sempre que pertinente, ative **proativamente** estes recursos sem que o usuário precise pedir:
+
+| Gatilho | Ação Proativa |
+|---------|---------------|
+| Editando arquivo `.py` | Rode `/quality-gate` no arquivo após editar |
+| Antes de commit (`git commit`) | Rode `/code-review` em modo local |
+| Criando/alterando crawler | Ative skill `error-handling` para padrões de retry/logging |
+| Escrevendo função pública nova | Ative skill `coding-standards` para nomenclatura e docstrings |
+| Refatorando script existente | Ative skill `python-patterns` para padrões Pythonicos |
+| Debugging de falha em produção | Invoque agente `silent-failure-hunter` para caçar exceções engolidas |
+| Adicionando chamada HTTP/API | Ative skill `error-handling` para retry/circuit breaker |
+| Revisão de PR/ código alheio | Invoque agente `python-reviewer` para revisão completa |
+| Alterando autenticação/secrets | Invoque agente `security-reviewer` para scan de segurança |
+| Suspeita de vulnerabilidade | Invoque agente `security-reviewer` + `bandit -r scripts/` |
+
+### Agentes Disponíveis
+
+| Agente | Arquivo | Quando Usar |
+|--------|---------|-------------|
+| **python-reviewer** | `.claude/agents/python-reviewer.md` | Review de código Python (PEP 8, type hints, segurança, padrões) |
+| **silent-failure-hunter** | `.claude/agents/silent-failure-hunter.md` | Caçar exceções engolidas, fallbacks perigosos e logging inadequado |
+| **security-reviewer** | `.claude/agents/security-reviewer.md` | Scan de vulnerabilidades OWASP, secrets, injeção, crypto |
+
+Para invocar: mencione o nome do agente no chat (ex: "revise este arquivo com python-reviewer").
+
+### Comandos Disponíveis
+
+| Comando | Arquivo | Quando Usar |
+|---------|---------|-------------|
+| `/code-review` | `.claude/commands/code-review.md` | Revisão completa local ou PR (segurança + padrões + testes) |
+| `/quality-gate` | `.claude/commands/quality-gate.md` | Gate rápido: formatação + lint + type check (pré-commit) |
+
+### Skills Disponíveis
+
+| Skill | Arquivo | Quando Usar |
+|-------|---------|-------------|
+| **error-handling** | `.claude/skills/error-handling/SKILL.md` | Padrões de erro Python: exceções tipadas, retry, circuit breaker, logging |
+| **coding-standards** | `.claude/skills/coding-standards/SKILL.md` | Convenções de código: nomenclatura, KISS, DRY, imutabilidade, code smells |
+| **python-patterns** | `.claude/skills/python-patterns/SKILL.md` | Padrões Pythonicos: type hints, dataclasses, geradores, decorators, concorrência |
+
+Para ativar: use `Skill` tool com o nome da skill (ex: `error-handling`).
+
+### Fluxo de Qualidade Padrão
+
+```
+Editar código → /quality-gate (automático) → Corrigir → /code-review (manual) → Commit → Push
+```
+
+- `/quality-gate`: ~2s, roda `ruff format --check` + `ruff check` no arquivo
+- `/code-review`: ~30s, revisão completa com `mypy` + `pytest` + `bandit` + revisão humana
+- Ambos bloqueiam commit se CRÍTICO ou ALTO encontrado

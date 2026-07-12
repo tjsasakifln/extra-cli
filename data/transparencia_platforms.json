@@ -1,6 +1,145 @@
 {
   "detected": [
     {
+      "municipio": "Florianopolis",
+      "slug": "florianopolis",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Joinville",
+      "slug": "joinville",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Blumenau",
+      "slug": "blumenau",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Sao Jose",
+      "slug": "sao-jose",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Chapeco",
+      "slug": "chapeco",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Criciuma",
+      "slug": "criciuma",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Lages",
+      "slug": "lages",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Itajai",
+      "slug": "itajai",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Balneario Camboriu",
+      "slug": "balneario-camboriu",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Tubarao",
+      "slug": "tubarao",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Palhoca",
+      "slug": "palhoca",
+      "platform": "betha",
+      "url": "https://palhoca.atende.net/transparencia",
+      "status": "detected",
+      "error": null,
+      "detected_at": "2026-07-11",
+      "body_hint": "betha_generic"
+    },
+    {
+      "municipio": "Brusque",
+      "slug": "brusque",
+      "platform": "betha",
+      "url": "https://brusque.atende.net/transparencia",
+      "status": "detected",
+      "error": null,
+      "detected_at": "2026-07-11",
+      "body_hint": "betha_generic"
+    },
+    {
+      "municipio": "Rio do Sul",
+      "slug": "rio-do-sul",
+      "platform": null,
+      "url": null,
+      "status": "not_found",
+      "error": null,
+      "detected_at": "2026-07-11"
+    },
+    {
+      "municipio": "Indaial",
+      "slug": "indaial",
+      "platform": "betha",
+      "url": "https://indaial.atende.net/transparencia",
+      "status": "detected",
+      "error": null,
+      "detected_at": "2026-07-11",
+      "body_hint": "betha_generic"
+    },
+    {
+      "municipio": "Biguacu",
+      "slug": "biguacu",
+      "platform": "betha",
+      "url": "https://biguacu.atende.net/transparencia",
+      "status": "detected",
+      "error": null,
+      "detected_at": "2026-07-11",
+      "body_hint": "betha_generic"
+    },
+    {
       "municipio": "Agrolandia",
       "slug": "agrolandia",
       "ibge": "4200200",
@@ -81,16 +220,6 @@
       "detected_at": "2026-07-11"
     },
     {
-      "municipio": "Biguacu",
-      "slug": "biguacu",
-      "ibge": "4202305",
-      "platform": "betha",
-      "url": "https://biguacu.atende.net/transparencia",
-      "status": "detected",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
       "municipio": "Bombinhas",
       "slug": "bombinhas",
       "ibge": "4202453",
@@ -106,16 +235,6 @@
       "ibge": "4202701",
       "platform": "betha",
       "url": "https://botuvera.atende.net/transparencia",
-      "status": "detected",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
-      "municipio": "Brusque",
-      "slug": "brusque",
-      "ibge": "4202909",
-      "platform": "betha",
-      "url": "https://brusque.atende.net/transparencia",
       "status": "detected",
       "error": null,
       "detected_at": "2026-07-11"
@@ -266,16 +385,6 @@
       "ibge": "4207304",
       "platform": "betha",
       "url": "https://imbituba.atende.net/transparencia",
-      "status": "detected",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
-      "municipio": "Indaial",
-      "slug": "indaial",
-      "ibge": "4207502",
-      "platform": "betha",
-      "url": "https://indaial.atende.net/transparencia",
       "status": "detected",
       "error": null,
       "detected_at": "2026-07-11"
@@ -436,16 +545,6 @@
       "ibge": "4211876",
       "platform": "betha",
       "url": "https://paial.atende.net/transparencia",
-      "status": "detected",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
-      "municipio": "Palhoca",
-      "slug": "palhoca",
-      "ibge": "4211900",
-      "platform": "betha",
-      "url": "https://palhoca.atende.net/transparencia",
       "status": "detected",
       "error": null,
       "detected_at": "2026-07-11"
@@ -831,16 +930,6 @@
       "detected_at": "2026-07-11"
     },
     {
-      "municipio": "Balneario Camboriu",
-      "slug": "balneario-camboriu",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
       "municipio": "Balneario De Picarras",
       "slug": "balneario-de-picarras",
       "ibge": "",
@@ -923,16 +1012,6 @@
     {
       "municipio": "Benedito Novo",
       "slug": "benedito-novo",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
-      "municipio": "Blumenau",
-      "slug": "blumenau",
       "ibge": "",
       "platform": null,
       "url": null,
@@ -1171,16 +1250,6 @@
       "detected_at": "2026-07-11"
     },
     {
-      "municipio": "Chapeco",
-      "slug": "chapeco",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
       "municipio": "Cocal Do Sul",
       "slug": "cocal-do-sul",
       "ibge": "",
@@ -1223,16 +1292,6 @@
     {
       "municipio": "Correia Pinto",
       "slug": "correia-pinto",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
-      "municipio": "Criciuma",
-      "slug": "criciuma",
       "ibge": "",
       "platform": null,
       "url": null,
@@ -1353,16 +1412,6 @@
     {
       "municipio": "Flor Do Sertao",
       "slug": "flor-do-sertao",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
-      "municipio": "Florianopolis",
-      "slug": "florianopolis",
       "ibge": "",
       "platform": null,
       "url": null,
@@ -1601,16 +1650,6 @@
       "detected_at": "2026-07-11"
     },
     {
-      "municipio": "Itajai",
-      "slug": "itajai",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
       "municipio": "Itapema",
       "slug": "itapema",
       "ibge": "",
@@ -1661,16 +1700,6 @@
       "detected_at": "2026-07-11"
     },
     {
-      "municipio": "Joinville",
-      "slug": "joinville",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
       "municipio": "Jose Boiteux",
       "slug": "jose-boiteux",
       "ibge": "",
@@ -1683,16 +1712,6 @@
     {
       "municipio": "Jupia",
       "slug": "jupia",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
-      "municipio": "Lages",
-      "slug": "lages",
       "ibge": "",
       "platform": null,
       "url": null,
@@ -2301,16 +2320,6 @@
       "detected_at": "2026-07-11"
     },
     {
-      "municipio": "Rio Do Sul",
-      "slug": "rio-do-sul",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
       "municipio": "Rio Dos Cedros",
       "slug": "rio-dos-cedros",
       "ibge": "",
@@ -2591,16 +2600,6 @@
       "detected_at": "2026-07-11"
     },
     {
-      "municipio": "Sao Jose",
-      "slug": "sao-jose",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
       "municipio": "Sao Jose Do Cedro",
       "slug": "sao-jose-do-cedro",
       "ibge": "",
@@ -2811,16 +2810,6 @@
       "detected_at": "2026-07-11"
     },
     {
-      "municipio": "Tubarao",
-      "slug": "tubarao",
-      "ibge": "",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
-      "error": null,
-      "detected_at": "2026-07-11"
-    },
-    {
       "municipio": "Turvo",
       "slug": "turvo",
       "ibge": "",
@@ -2957,10 +2946,7 @@
     "total_detected": 64,
     "total_not_found": 231,
     "total_errors": 0,
-    "mode": "full",
-    "updated_at": "2026-07-11",
-    "platforms": {
-      "betha": 64
-    }
+    "mode": "dry-run",
+    "updated_at": "2026-07-11"
   }
 }

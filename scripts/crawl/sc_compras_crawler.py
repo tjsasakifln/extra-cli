@@ -88,6 +88,8 @@ def _map_modalidade(raw: str) -> tuple[int | None, str]:
     Returns (None, raw) if not found.
     """
     normalized = _normalize_modalidade(raw)
+    if not normalized:
+        return None, raw.strip()
     mid = _MODALIDADE_MAP.get(normalized)
     if mid is not None:
         return mid, raw.strip()

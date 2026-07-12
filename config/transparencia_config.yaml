@@ -33,6 +33,18 @@ templates:
       valor: "td:nth-child(4)"
       link: "a"
 
+  ipam:
+    name: "IPAM — Portal de Compras"
+    description: "Plataforma IPAM (Instituto de Previdência) — tabela .tabela-padrao ou .grid"
+    selectors:
+      lista_licitacoes: "table.tabela-padrao, table.grid, table.licitacao"
+      modalidade: "td:nth-child(2)"
+      data: "td:nth-child(1)"
+      objeto: "td:nth-child(3)"
+      orgao: "td:nth-child(4)"
+      valor: "td:nth-child(5)"
+      link: "a"
+
   sc_gov_portal:
     name: "Portal SC.gov.br"
     description: "Template generico para portais .sc.gov.br — tabela de licitacoes padrao"
@@ -207,8 +219,16 @@ municipios:
   criciuma:
     ibge: "4204608"
     portal_url: "https://criciuma.ipm.org.br/transparencia"
-    template: "portal_transparencia_net"
+    template: "ipam"
     requires_js: false
+    selectors:
+      lista_licitacoes: "table.tabela-padrao, table.grid, table.licitacao"
+      modalidade: "td:nth-child(2)"
+      data: "td:nth-child(1)"
+      objeto: "td:nth-child(3)"
+      orgao: "td:nth-child(4)"
+      valor: "td:nth-child(5)"
+      link: "a[href]"
     ativo: true
 
   fraiburgo:
@@ -326,8 +346,16 @@ municipios:
   itajai:
     ibge: "4208203"
     portal_url: "https://itajai.ipm.org.br/transparencia"
-    template: "portal_transparencia_net"
+    template: "ipam"
     requires_js: false
+    selectors:
+      lista_licitacoes: "table.tabela-padrao, table.grid, table.licitacao"
+      modalidade: "td:nth-child(2)"
+      data: "td:nth-child(1)"
+      objeto: "td:nth-child(3)"
+      orgao: "td:nth-child(4)"
+      valor: "td:nth-child(5)"
+      link: "a[href]"
     ativo: true
 
   itapiranga:
@@ -381,8 +409,16 @@ municipios:
   lages:
     ibge: "4209300"
     portal_url: "https://lages.ipm.org.br/transparencia"
-    template: "portal_transparencia_net"
+    template: "ipam"
     requires_js: false
+    selectors:
+      lista_licitacoes: "table.tabela-padrao, table.grid, table.licitacao"
+      modalidade: "td:nth-child(2)"
+      data: "td:nth-child(1)"
+      objeto: "td:nth-child(3)"
+      orgao: "td:nth-child(4)"
+      valor: "td:nth-child(5)"
+      link: "a[href]"
     ativo: true
 
   laurentino:
@@ -655,6 +691,13 @@ municipios:
     requires_js: false
     ativo: true
 
+  jaragua-do-sul:
+    ibge: "4208906"
+    portal_url: "https://www.jaraguadosul.sc.gov.br/licitacoes"
+    template: "sc_gov_portal"
+    requires_js: false
+    ativo: true
+
   # --- sc_gov_portal (Dominio .sc.gov.br) ---
   urubici:
     ibge: "4218905"
@@ -671,13 +714,25 @@ municipios:
     requires_js: false
     selectors:
       lista_licitacoes: "table.table-licitacoes"
+      modalidade: "td:nth-child(2)"
+      data: "td:nth-child(1)"
+      objeto: "td:nth-child(3)"
+      orgao: "td:nth-child(4)"
+      valor: "td:nth-child(5)"
+      link: "a"
     ativo: true
 
   tubarao:
-    ibge: "4218700"
+    ibge: "4218707"
     portal_url: "https://tubarao.sc.gov.br"
     template: "custom"
     requires_js: false
     selectors:
       lista_licitacoes: "table.table-licitacoes"
+      modalidade: "td:nth-child(2)"
+      data: "td:nth-child(1)"
+      objeto: "td:nth-child(3)"
+      orgao: "td:nth-child(4)"
+      valor: "td:nth-child(5)"
+      link: "a"
     ativo: true

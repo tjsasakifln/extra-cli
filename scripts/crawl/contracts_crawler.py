@@ -10,8 +10,15 @@ to the pncp_supplier_contracts schema (contrato_id, fornecedor_cnpj,
 objeto_contrato, valor_total, etc.).
 
 Modes:
-  - full:        Last CONTRACTS_FULL_DAYS days (default 90)
-  - incremental: Last CONTRACTS_INCREMENTAL_DAYS days (default 3)
+  - full:           Last CONTRACTS_FULL_DAYS days (default 90)
+  - incremental:    Last CONTRACTS_INCREMENTAL_DAYS days (default 3)
+  - backfill_3y:    3-year backfill in windows with checkpoint support
+
+Design constraints (per goal criteria):
+  - Typed FetchResult distinguishes zero-real from connection/HTTP/parse/
+    transform/persist failure. Exception → empty list is PROHIBITED.
+  - UF is NEVER presumed "SC" when absent from API response.
+  - Checkpoint files enable reentrant backfill across restarts.
 """
 
 from __future__ import annotations
@@ -21,7 +28,9 @@ import logging
 import os
 import sys
 import time
+from dataclasses import dataclass, field
 from datetime import date, timedelta
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -55,17 +64,161 @@ CONTRACTS_PAGE_SIZE = int(os.getenv("CONTRACTS_PAGE_SIZE", "500"))
 CONTRACTS_MAX_PAGES = int(os.getenv("CONTRACTS_MAX_PAGES", "10000"))
 CONTRACTS_READ_TIMEOUT = int(os.getenv("CONTRACTS_READ_TIMEOUT", "30"))
 CONTRACTS_MAX_RETRIES = int(os.getenv("CONTRACTS_MAX_RETRIES", "3"))
-CONTRACTS_REQUEST_DELAY = float(os.getenv("CONTRACTS_REQUEST_DELAY", "1.0"))  # 1s between pages (avoid 429)
-CONTRACTS_WINDOW_DAYS = int(os.getenv("CONTRACTS_WINDOW_DAYS", "30"))  # Smaller windows reduce API load
-CONTRACTS_JANELA_DELAY = float(os.getenv("CONTRACTS_JANELA_DELAY", "5.0"))  # 5s between date windows
+CONTRACTS_REQUEST_DELAY = float(os.getenv("CONTRACTS_REQUEST_DELAY", "1.0"))
+CONTRACTS_WINDOW_DAYS = int(os.getenv("CONTRACTS_WINDOW_DAYS", "30"))
+CONTRACTS_JANELA_DELAY = float(os.getenv("CONTRACTS_JANELA_DELAY", "5.0"))
 CONTRACTS_FULL_DAYS = int(os.getenv("CONTRACTS_FULL_DAYS", "90"))
 CONTRACTS_INCREMENTAL_DAYS = int(os.getenv("CONTRACTS_INCREMENTAL_DAYS", "3"))
+CONTRACTS_BACKFILL_YEARS = int(os.getenv("CONTRACTS_BACKFILL_YEARS", "3"))
+CONTRACTS_CHECKPOINT_DIR = os.getenv(
+    "CONTRACTS_CHECKPOINT_DIR",
+    str(_PROJECT_ROOT / "data" / "contracts_checkpoints"),
+)
 
 _ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
 
 # Contracts use a different schema (pncp_supplier_contracts) than bids.
 # monitor.py reads this attribute to dispatch to the correct upsert RPC.
 UPSERT_FUNCTION = "upsert_pncp_supplier_contracts"
+
+
+# ---------------------------------------------------------------------------
+# Typed fetch result — zero vs failure discrimination
+# ---------------------------------------------------------------------------
+
+
+class FetchStatus(Enum):
+    """Machine-readable outcome of a fetch attempt.
+
+    Every fetch returns exactly one status.  ``SUCCESS_ZERO`` means the API
+    responded correctly but there were genuinely no records — this is NOT
+    the same as a connection failure or HTTP error.
+    """
+
+    SUCCESS_DATA = "success_data"        # Data returned (page may be non-empty)
+    SUCCESS_ZERO = "success_zero"        # API OK, zero records for this query
+    CONNECTION_FAILED = "connection_failed"  # DNS/TCP/TLS/timeout
+    HTTP_CLIENT_ERROR = "http_client_error"  # 4xx (not 429)
+    HTTP_SERVER_ERROR = "http_server_error"  # 5xx
+    HTTP_RATE_LIMIT = "http_rate_limit"     # 429
+    PARSE_FAILED = "parse_failed"           # JSON parse error
+    UNKNOWN_ERROR = "unknown_error"
+
+
+@dataclass
+class FetchResult:
+    """Result of a single page fetch with full error discrimination."""
+
+    status: FetchStatus
+    items: list[dict] = field(default_factory=list)
+    total_records: int = 0
+    total_pages: int = 0
+    current_page: int = 0
+    error_message: str | None = None
+    error_code: int | None = None
+    url: str = ""
+
+    @property
+    def is_success(self) -> bool:
+        return self.status in (FetchStatus.SUCCESS_DATA, FetchStatus.SUCCESS_ZERO)
+
+    @property
+    def is_zero(self) -> bool:
+        """True when the API returned a legitimate empty result set."""
+        return self.status == FetchStatus.SUCCESS_ZERO
+
+    @property
+    def is_failure(self) -> bool:
+        return not self.is_success
+
+    @property
+    def evidence_state(self) -> str:
+        """Map FetchStatus to coverage_evidence state enum."""
+        _map = {
+            FetchStatus.SUCCESS_DATA: "success_with_data",
+            FetchStatus.SUCCESS_ZERO: "success_zero",
+            FetchStatus.CONNECTION_FAILED: "connection_failed",
+            FetchStatus.HTTP_CLIENT_ERROR: "connection_failed",
+            FetchStatus.HTTP_SERVER_ERROR: "connection_failed",
+            FetchStatus.HTTP_RATE_LIMIT: "connection_failed",
+            FetchStatus.PARSE_FAILED: "parse_failed",
+            FetchStatus.UNKNOWN_ERROR: "connection_failed",
+        }
+        return _map.get(self.status, "connection_failed")
+
+
+# ---------------------------------------------------------------------------
+# Checkpoint (file-based, reentrant)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class CrawlCheckpoint:
+    """Reentrant checkpoint for contract backfill."""
+
+    source: str = "pncp_contracts"
+    mode: str = "backfill_3y"
+    completed_windows: list[str] = field(default_factory=list)
+    current_window_start: str | None = None
+    total_contracts_fetched: int = 0
+    total_windows_completed: int = 0
+    total_windows_failed: int = 0
+    last_error: str | None = None
+    updated_at: str | None = None
+
+    def to_dict(self) -> dict:
+        return {
+            "source": self.source,
+            "mode": self.mode,
+            "completed_windows": self.completed_windows,
+            "current_window_start": self.current_window_start,
+            "total_contracts_fetched": self.total_contracts_fetched,
+            "total_windows_completed": self.total_windows_completed,
+            "total_windows_failed": self.total_windows_failed,
+            "last_error": self.last_error,
+            "updated_at": self.updated_at,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> CrawlCheckpoint:
+        return cls(
+            source=d.get("source", "pncp_contracts"),
+            mode=d.get("mode", "backfill_3y"),
+            completed_windows=d.get("completed_windows", []),
+            current_window_start=d.get("current_window_start"),
+            total_contracts_fetched=d.get("total_contracts_fetched", 0),
+            total_windows_completed=d.get("total_windows_completed", 0),
+            total_windows_failed=d.get("total_windows_failed", 0),
+            last_error=d.get("last_error"),
+            updated_at=d.get("updated_at"),
+        )
+
+
+def _checkpoint_path(mode: str) -> str:
+    """Filesystem path for the checkpoint file."""
+    os.makedirs(CONTRACTS_CHECKPOINT_DIR, exist_ok=True)
+    return os.path.join(CONTRACTS_CHECKPOINT_DIR, f"contracts_{mode}.json")
+
+
+def load_checkpoint(mode: str) -> CrawlCheckpoint:
+    """Load checkpoint from disk, or return a fresh one."""
+    path = _checkpoint_path(mode)
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            return CrawlCheckpoint.from_dict(data)
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.warning("Corrupt checkpoint %s: %s — starting fresh", path, e)
+    return CrawlCheckpoint(mode=mode)
+
+
+def save_checkpoint(cp: CrawlCheckpoint) -> None:
+    """Persist checkpoint to disk."""
+    cp.updated_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    path = _checkpoint_path(cp.mode)
+    with open(path, "w") as f:
+        json.dump(cp.to_dict(), f, indent=2, default=str)
 
 
 # ---------------------------------------------------------------------------
@@ -143,15 +296,16 @@ def _fmt(d: date) -> str:
 
 
 # ---------------------------------------------------------------------------
-# HTTP fetch (sync, stdlib only)
+# HTTP fetch (sync, stdlib only) — typed result
 # ---------------------------------------------------------------------------
 
 
-def _fetch_page(data_ini: str, data_fim: str, page: int) -> tuple[list[dict], int, int]:
+def _fetch_page(data_ini: str, data_fim: str, page: int) -> FetchResult:
     """Fetch one page of contracts synchronously via urllib.
 
-    Returns (items, total_records, total_pages).
-    On failure returns ([], 0, 0) with a warning log.
+    Returns ``FetchResult`` with explicit status discrimination.
+    NEVER returns ``SUCCESS_ZERO`` for a failure — callers can distinguish
+    "API said zero" from "we couldn't reach the API".
     """
     import urllib.error
     import urllib.request
@@ -173,18 +327,52 @@ def _fetch_page(data_ini: str, data_fim: str, page: int) -> tuple[list[dict], in
 
             with urllib.request.urlopen(req, timeout=CONTRACTS_READ_TIMEOUT) as resp:
                 body = resp.read().decode("utf-8")
-                data = json.loads(body)
+                try:
+                    data = json.loads(body)
+                except json.JSONDecodeError as e:
+                    return FetchResult(
+                        status=FetchStatus.PARSE_FAILED,
+                        error_message=f"JSON parse error: {e}",
+                        url=url,
+                        current_page=page,
+                    )
 
             if isinstance(data, dict):
                 items = data.get("data", [])
                 total_records = int(data.get("totalRegistros", 0))
                 total_pages = int(data.get("totalPaginas", 1))
-                return (items if isinstance(items, list) else []), total_records, total_pages
+
+                if not isinstance(items, list):
+                    items = []
+
+                status = FetchStatus.SUCCESS_ZERO if len(items) == 0 else FetchStatus.SUCCESS_DATA
+                return FetchResult(
+                    status=status,
+                    items=items,
+                    total_records=total_records,
+                    total_pages=total_pages,
+                    current_page=page,
+                    url=url,
+                )
 
             if isinstance(data, list):
-                return data, len(data), 1
+                status = FetchStatus.SUCCESS_ZERO if len(data) == 0 else FetchStatus.SUCCESS_DATA
+                return FetchResult(
+                    status=status,
+                    items=data,
+                    total_records=len(data),
+                    total_pages=1,
+                    current_page=page,
+                    url=url,
+                )
 
-            return [], 0, 0
+            # Unexpected response format
+            return FetchResult(
+                status=FetchStatus.PARSE_FAILED,
+                error_message="Unexpected response format (not dict or list)",
+                url=url,
+                current_page=page,
+            )
 
         except urllib.error.HTTPError as e:
             body_text = ""
@@ -192,40 +380,80 @@ def _fetch_page(data_ini: str, data_fim: str, page: int) -> tuple[list[dict], in
                 body_text = e.read().decode("utf-8")[:200]
             except Exception:
                 pass
-            if e.code in (404, 400):
-                logger.debug("PNCP HTTP %d for %s: %s", e.code, url, body_text)
-                return [], 0, 0
+
             if e.code == 429:
-                wait = 10 * (attempt + 1)
-                logger.debug("PNCP 429, waiting %ds before retry %d/%d", wait, attempt + 1, CONTRACTS_MAX_RETRIES)
-                time.sleep(wait)
-                continue
-            if attempt < CONTRACTS_MAX_RETRIES:
-                time.sleep(2**attempt)
-                continue
-            logger.warning(
-                "PNCP HTTP %d after %d retries: %s — %s",
-                e.code,
-                CONTRACTS_MAX_RETRIES,
-                url,
-                body_text,
+                if attempt < CONTRACTS_MAX_RETRIES:
+                    wait = 10 * (attempt + 1)
+                    logger.debug("PNCP 429, waiting %ds before retry %d/%d", wait, attempt + 1, CONTRACTS_MAX_RETRIES)
+                    time.sleep(wait)
+                    continue
+                return FetchResult(
+                    status=FetchStatus.HTTP_RATE_LIMIT,
+                    error_message=f"429 Rate limit exceeded after {CONTRACTS_MAX_RETRIES} retries",
+                    error_code=429,
+                    url=url,
+                    current_page=page,
+                )
+
+            if e.code in (404, 400, 422):
+                return FetchResult(
+                    status=FetchStatus.HTTP_CLIENT_ERROR,
+                    error_message=f"HTTP {e.code}: {body_text}",
+                    error_code=e.code,
+                    url=url,
+                    current_page=page,
+                )
+
+            if e.code >= 500:
+                if attempt < CONTRACTS_MAX_RETRIES:
+                    time.sleep(2 ** attempt)
+                    continue
+                return FetchResult(
+                    status=FetchStatus.HTTP_SERVER_ERROR,
+                    error_message=f"HTTP {e.code}: {body_text}",
+                    error_code=e.code,
+                    url=url,
+                    current_page=page,
+                )
+
+            # Other 4xx (not 429, 404, 400, 422)
+            return FetchResult(
+                status=FetchStatus.HTTP_CLIENT_ERROR,
+                error_message=f"HTTP {e.code}: {body_text}",
+                error_code=e.code,
+                url=url,
+                current_page=page,
             )
-            return [], 0, 0
 
         except (urllib.error.URLError, TimeoutError, OSError) as e:
             if attempt < CONTRACTS_MAX_RETRIES:
                 time.sleep(1 + attempt)
                 continue
-            logger.warning(
-                "PNCP network error page %d attempt %d/%d: %s — returning empty",
-                page,
-                attempt,
-                CONTRACTS_MAX_RETRIES,
-                e,
+            return FetchResult(
+                status=FetchStatus.CONNECTION_FAILED,
+                error_message=f"Network error after {CONTRACTS_MAX_RETRIES} retries: {e}",
+                url=url,
+                current_page=page,
             )
-            return [], 0, 0
 
-    return [], 0, 0
+        except Exception as e:
+            if attempt < CONTRACTS_MAX_RETRIES:
+                time.sleep(1 + attempt)
+                continue
+            return FetchResult(
+                status=FetchStatus.UNKNOWN_ERROR,
+                error_message=f"Unexpected error: {type(e).__name__}: {e}",
+                url=url,
+                current_page=page,
+            )
+
+    # Should not reach here, but just in case
+    return FetchResult(
+        status=FetchStatus.UNKNOWN_ERROR,
+        error_message="Exhausted all retries",
+        url=url,
+        current_page=page,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -237,6 +465,11 @@ def _transform_record(rec: dict) -> dict | None:
     """Normalize a single PNCP /contratos item to pncp_supplier_contracts schema.
 
     Returns ``None`` if the record lacks a valid ``numeroControlePNCP``.
+
+    UF determination (GOAL CRITERION 2):
+      - Primary: ``unidadeOrgao.ufSigla`` from API response.
+      - Secondary: CNPJ-root lookup via ``_uf_from_cnpj()``.
+      - NEVER defaults to "SC".  If UF cannot be determined, it stays ``None``.
     """
     try:
         contrato_id = (rec.get("numeroControlePNCP") or "").strip()
@@ -274,12 +507,12 @@ def _transform_record(rec: dict) -> dict | None:
         data_inicio = _safe_date(rec.get("dataVigenciaInicio"))
         data_fim = _safe_date(rec.get("dataVigenciaFim"))
 
-        # UF — unidade first, CNPJ lookup second, SC fallback
-        uf = (unidade.get("ufSigla") or "")[:2] or None
+        # UF — unidade first, CNPJ lookup second, NEVER default to "SC"
+        uf = (unidade.get("ufSigla") or "")[:2].strip() or None
         if not uf:
             uf = _uf_from_cnpj(orgao_cnpj)
-        if not uf:
-            uf = "SC"
+        # GOAL CRITERION 2: No fallback to "SC".  If UF is genuinely
+        # unavailable, it stays None so downstream consumers can flag it.
 
         municipio = (unidade.get("municipioNome") or "")[:100] or None
 
@@ -307,6 +540,49 @@ def _transform_record(rec: dict) -> dict | None:
 
 
 # ---------------------------------------------------------------------------
+# CrawlResult — aggregate result with per-window evidence
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class WindowResult:
+    """Result for a single date window."""
+    window_start: str
+    window_end: str
+    status: FetchStatus
+    records_fetched: int = 0
+    pages_fetched: int = 0
+    error_message: str | None = None
+
+
+@dataclass
+class CrawlResult:
+    """Aggregate result of a crawl operation with per-window evidence."""
+    mode: str
+    windows: list[WindowResult] = field(default_factory=list)
+    total_records: int = 0
+    total_windows_ok: int = 0
+    total_windows_failed: int = 0
+    checkpoint: CrawlCheckpoint | None = None
+
+    @property
+    def evidence_rows(self) -> list[dict]:
+        """Generate evidence rows for each window."""
+        rows = []
+        for w in self.windows:
+            rows.append({
+                "source": "pncp_contracts",
+                "data_type": "contracts",
+                "queried_start": w.window_start,
+                "queried_end": w.window_end,
+                "count_obtained": w.records_fetched,
+                "state": w.status.evidence_state,
+                "error_message": w.error_message,
+            })
+        return rows
+
+
+# ---------------------------------------------------------------------------
 # Public interface (called by monitor.py)
 # ---------------------------------------------------------------------------
 
@@ -317,43 +593,90 @@ def crawl(mode: str = "full") -> list[dict]:
     Args:
         mode: 'full' — last CONTRACTS_FULL_DAYS (default 90 days)
               'incremental' — last CONTRACTS_INCREMENTAL_DAYS (default 3 days)
+              'backfill_3y' — 3-year backfill with checkpoint
 
     Returns:
         List of raw PNCP API records (not yet transformed).
-        Empty list if API is unreachable or returns no data.
+        Empty list only when API returned zero records for ALL windows.
+        On partial failure, returns whatever was fetched successfully.
     """
     days = CONTRACTS_FULL_DAYS if mode == "full" else CONTRACTS_INCREMENTAL_DAYS
     today = date.today()
-    start = today - timedelta(days=days)
 
+    if mode == "backfill_3y":
+        start = today - timedelta(days=CONTRACTS_BACKFILL_YEARS * 365)
+    else:
+        start = today - timedelta(days=days)
+
+    return _crawl_date_range(start, today, mode)
+
+
+def _crawl_date_range(
+    start: date,
+    end: date,
+    mode: str = "full",
+) -> list[dict]:
+    """Crawl contracts in a date range with windowing and checkpoint.
+
+    Returns raw records.  Uses checkpoint for 'backfill_3y' mode.
+    """
     all_records: list[dict] = []
+    checkpoint = load_checkpoint(mode) if mode == "backfill_3y" else None
 
-    # Split date range into windows (default 90 days each)
     cur = start
-    while cur < today:
-        window_end = min(cur + timedelta(days=CONTRACTS_WINDOW_DAYS - 1), today)
+    while cur < end:
+        window_end = min(cur + timedelta(days=CONTRACTS_WINDOW_DAYS - 1), end)
+        window_key = f"{_fmt(cur)}_{_fmt(window_end)}"
+
+        # Skip completed windows (reentrant)
+        if checkpoint and window_key in checkpoint.completed_windows:
+            logger.debug("Skipping completed window: %s", window_key)
+            cur = window_end + timedelta(days=1)
+            continue
+
         data_ini = _fmt(cur)
         data_fim = _fmt(window_end)
+
+        if checkpoint:
+            checkpoint.current_window_start = data_ini
+            save_checkpoint(checkpoint)
 
         page = 1
         window_records = 0
         window_pages = 0
+        window_errors: list[str] = []
 
         while page <= CONTRACTS_MAX_PAGES:
-            items, total_records, total_pages = _fetch_page(data_ini, data_fim, page)
+            result = _fetch_page(data_ini, data_fim, page)
 
-            if not items and page == 1:
-                # Window has no records at all
+            if result.is_failure:
+                window_errors.append(
+                    f"Page {page}: [{result.status.value}] {result.error_message}"
+                )
+                logger.warning(
+                    "Window %s page %d failed: %s — %s",
+                    window_key, page, result.status.value, result.error_message,
+                )
+                # On first page failure, abort the window
+                if page == 1:
+                    break
+                # On subsequent page failure, stop pagination but keep what we have
                 break
 
-            if not items:
+            if result.is_zero and page == 1:
+                # Legitimate zero — no contracts in this window
                 break
 
-            all_records.extend(items)
-            window_records += len(items)
+            if result.is_zero:
+                # No more pages
+                break
+
+            # Success with data
+            all_records.extend(result.items)
+            window_records += len(result.items)
             window_pages += 1
 
-            if page >= total_pages:
+            if page >= result.total_pages:
                 break
 
             page += 1
@@ -362,19 +685,131 @@ def crawl(mode: str = "full") -> list[dict]:
         if window_records > 0:
             logger.info(
                 "Window %s->%s: %d records (%d pages)",
-                data_ini,
-                data_fim,
-                window_records,
-                window_pages,
+                data_ini, data_fim, window_records, window_pages,
             )
+
+        # Mark window as completed
+        if checkpoint:
+            if not window_errors or window_records > 0:
+                # Window completed (possibly with partial data)
+                checkpoint.completed_windows.append(window_key)
+                checkpoint.total_windows_completed += 1
+                checkpoint.total_contracts_fetched += window_records
+            else:
+                checkpoint.total_windows_failed += 1
+                checkpoint.last_error = "; ".join(window_errors[:3])
+            save_checkpoint(checkpoint)
 
         cur = window_end + timedelta(days=1)
 
         # Delay between date windows to respect rate limits
-        if cur < today:
+        if cur < end:
             time.sleep(CONTRACTS_JANELA_DELAY)
 
     return all_records
+
+
+def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
+    """Crawl and return CrawlResult with per-window evidence.
+
+    This is the preferred API for the evidence ledger.  Returns typed
+    results that can be fed directly to the evidence pipeline.
+    """
+    days = CONTRACTS_FULL_DAYS if mode == "full" else CONTRACTS_INCREMENTAL_DAYS
+    today = date.today()
+
+    if mode == "backfill_3y":
+        start = today - timedelta(days=CONTRACTS_BACKFILL_YEARS * 365)
+    else:
+        start = today - timedelta(days=days)
+
+    result = CrawlResult(mode=mode)
+    checkpoint = load_checkpoint(mode) if mode == "backfill_3y" else None
+    result.checkpoint = checkpoint
+
+    cur = start
+    while cur < today:
+        window_end = min(cur + timedelta(days=CONTRACTS_WINDOW_DAYS - 1), today)
+        window_key = f"{_fmt(cur)}_{_fmt(window_end)}"
+
+        # Skip completed windows (reentrant)
+        if checkpoint and window_key in checkpoint.completed_windows:
+            logger.debug("Skipping completed window: %s", window_key)
+            cur = window_end + timedelta(days=1)
+            continue
+
+        data_ini = _fmt(cur)
+        data_fim = _fmt(window_end)
+
+        if checkpoint:
+            checkpoint.current_window_start = data_ini
+            save_checkpoint(checkpoint)
+
+        page = 1
+        window_records = 0
+        window_pages = 0
+        window_status = FetchStatus.SUCCESS_ZERO
+        window_error: str | None = None
+
+        while page <= CONTRACTS_MAX_PAGES:
+            fetch_result = _fetch_page(data_ini, data_fim, page)
+
+            if fetch_result.is_failure:
+                window_status = fetch_result.status
+                window_error = fetch_result.error_message
+                if page == 1:
+                    break
+                break  # Partial window — stop pagination
+
+            if fetch_result.is_zero and page == 1:
+                window_status = FetchStatus.SUCCESS_ZERO
+                break
+
+            if fetch_result.is_zero:
+                break
+
+            window_records += len(fetch_result.items)
+            window_pages += 1
+
+            if page >= fetch_result.total_pages:
+                break
+
+            page += 1
+            time.sleep(CONTRACTS_REQUEST_DELAY)
+
+        wr = WindowResult(
+            window_start=data_ini,
+            window_end=data_fim,
+            status=window_status,
+            records_fetched=window_records,
+            pages_fetched=window_pages,
+            error_message=window_error,
+        )
+        result.windows.append(wr)
+        result.total_records += window_records
+
+        if window_status.is_success:
+            result.total_windows_ok += 1
+        else:
+            result.total_windows_failed += 1
+
+        # Update checkpoint
+        if checkpoint:
+            if window_status.is_success:
+                checkpoint.completed_windows.append(window_key)
+                checkpoint.total_windows_completed += 1
+                checkpoint.total_contracts_fetched += window_records
+            else:
+                checkpoint.total_windows_failed += 1
+                checkpoint.last_error = window_error
+            save_checkpoint(checkpoint)
+
+        cur = window_end + timedelta(days=1)
+
+        if cur < today:
+            time.sleep(CONTRACTS_JANELA_DELAY)
+
+    return result
 
 
 def transform(records: list[dict]) -> list[dict]:

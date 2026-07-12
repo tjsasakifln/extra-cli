@@ -188,11 +188,19 @@ class TestTransformRecord:
         )
 
     def test_transform_contract_without_ufsigla(self):
-        """_transform_record() should fallback to CNPJ lookup or SC when ufSigla is missing."""
+        """_transform_record() should NOT presume UF=SC when ufSigla is missing.
+
+        GOAL CRITERION 2: UF is never defaulted to "SC". If ufSigla is absent
+        and CNPJ-root lookup fails, UF stays None.
+        """
         result = cc._transform_record(MOCK_CONTRACT_NO_UNIDADE)
         assert result is not None
-        # orgao_cnpj "82888888000120" is not in _CNPJ_ROOT_UF, so it should fallback to "SC"
-        assert result["uf"] == "SC"
+        # orgao_cnpj "82888888000120" is not in _CNPJ_ROOT_UF
+        # UF should be None (no fallback to "SC")
+        assert result["uf"] is None, (
+            f"UF should be None when ufSigla is missing and CNPJ lookup fails. "
+            f"Got: {result['uf']}"
+        )
         assert result["municipio"] is None
 
 
