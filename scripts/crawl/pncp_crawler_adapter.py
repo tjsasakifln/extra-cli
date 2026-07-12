@@ -1,366 +1,502 @@
-"""PNCP Crawler adapter — Extra Consultoria.
-
-Wraps the existing bids_crawler.py and pncp_client.py into the simple
-interface expected by monitor.py: crawl(mode) → list[dict], transform(records) → list[dict].
-
-This adapter bridges the gap between the original async/ARQ-based crawler
-and the new synchronous single-user monitor.
-"""
-
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 import os
-import sys
+import socket
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from dataclasses import asdict
 from datetime import date, timedelta
-from pathlib import Path
+from typing import Any
 
-from scripts.crawl.common import (
-    generate_content_hash as _common_content_hash,
+from scripts.crawl.common import safe_date, safe_float
+from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
+from scripts.crawl.pncp_contract import (
+    DEFAULT_MODALIDADES,
+    PNCP_CONSULTA_BASE,
+    PNCP_SAFE_WINDOW_DAYS,
+    PNCP_TAMANHO_PAGINA_MAX,
+    PNCP_TAMANHO_PAGINA_MIN,
+    ModalidadePNCP,
+    PNCPTargetError,
+    build_pncp_public_link,
+    digits_only,
+    format_pncp_date,
+    parse_modalidades_from_env,
+    parse_target,
 )
-from scripts.crawl.common import (
-    safe_date as _safe_date,
-)
-from scripts.crawl.common import (
-    safe_float as _safe_float,
-)
-from scripts.crawl.security import USER_AGENT, sanitize_url_param
-
-# Add project root
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(_PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT))
+from scripts.crawl.security import USER_AGENT
 
 _logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Configuration (mirrors ingestion/config.py but with env overrides)
-# ---------------------------------------------------------------------------
-
-PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v3")
-PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))  # PNCP API v3: max 50, min 10
-# PNCP API v3 rejects tamanhoPagina < 10 — clip to minimum
-if PNCP_PAGE_SIZE < 10:
-    _logger.warning("PNCP_PAGE_SIZE=%d < 10 (API v3 minimum), using 10", PNCP_PAGE_SIZE)
-    PNCP_PAGE_SIZE = 10
+PNCP_PAGE_SIZE = max(
+    PNCP_TAMANHO_PAGINA_MIN,
+    min(PNCP_TAMANHO_PAGINA_MAX, int(os.getenv("PNCP_PAGE_SIZE", str(PNCP_TAMANHO_PAGINA_MAX)))),
+)
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "200"))
 PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "30"))
-PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "2"))
-PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.5"))  # 500ms between requests (avoid 429)
-
-INGESTION_UFS = [u.strip().upper() for u in os.getenv("INGESTION_UFS", "SC").split(",") if u.strip()]
-
-# PNCP API v3 esferaId mapping (letter → integer for DB schema)
-_ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
-
-# Keyword filter removed — AC9: all records pass through by default.
-# Re-activate via INGESTION_KEYWORD_FILTER_ENABLED=true if needed.
-INGESTION_MODALIDADES = [int(m) for m in os.getenv("INGESTION_MODALIDADES", "1,2,3,4,5,6,7").split(",")]
-# Modalidades PNCP v3:
-#   1 = Pregão Presencial, 2 = Tomada de Preços, 3 = Convite
-#   4 = Concorrência, 5 = Pregão Eletrônico, 6 = Concurso
-#   7 = Dispensa, 8 = Inexigibilidade, 9 = Leilão
-#   12 = Diálogo Competitivo
-# Default: 1-7 — all competitive modalities for full coverage
-INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "90"))
+PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "3"))
+PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.5"))
 INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "1"))
+INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "30"))
+INGESTION_MODALIDADES = parse_modalidades_from_env()
+UPSERT_FUNCTION = "upsert_pncp_raw_bids"
 
-# ---------------------------------------------------------------------------
-# PNCP API Client (simplified sync version)
-# ---------------------------------------------------------------------------
+
+def _windowed_dates(date_from: date, date_to: date) -> list[tuple[date, date]]:
+    windows: list[tuple[date, date]] = []
+    cursor = date_from
+    while cursor <= date_to:
+        window_end = min(cursor + timedelta(days=PNCP_SAFE_WINDOW_DAYS - 1), date_to)
+        windows.append((cursor, window_end))
+        cursor = window_end + timedelta(days=1)
+    return windows
 
 
-def _fetch_page(uf: str, modalidade: int, pagina: int, data_inicial: date, data_final: date) -> tuple[list[dict], bool]:
-    """Fetch one page of PNCP results synchronously.
+def _request_params(request: CrawlRequest, modalidade: int, page: int) -> dict[str, str]:
+    target = parse_target(request.target)
+    if request.date_from and request.date_to and request.date_from > request.date_to:
+        raise ValueError("date_from deve ser menor ou igual a date_to")
 
-    Returns (records, has_next_page).
-    Uses correct PNCP API parameters (camelCase, YYYYMMDD dates).
-    """
-    import urllib.error
-    import urllib.request
-
-    # PNCP API: dates in YYYYMMDD format, codigoModalidadeContratacao NOT modalidade
     params = {
-        "dataInicial": data_inicial.strftime("%Y%m%d"),
-        "dataFinal": data_final.strftime("%Y%m%d"),
+        "dataInicial": format_pncp_date(request.date_from or date.today()),
+        "dataFinal": format_pncp_date(request.date_to or request.date_from or date.today()),
         "codigoModalidadeContratacao": str(modalidade),
-        "pagina": str(pagina),
+        "pagina": str(page),
         "tamanhoPagina": str(PNCP_PAGE_SIZE),
     }
-    if uf:
-        params["uf"] = uf
 
-    query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
-    url = f"{PNCP_BASE}/contratacoes/publicacao?{query}"
+    if target.kind in {"sc", "within_200km", "engineering", "municipio_nome"}:
+        params["uf"] = "SC"
+    elif target.kind == "municipio":
+        params["codigoMunicipioIbge"] = target.value or ""
+    elif target.kind == "cnpj":
+        params["cnpj"] = target.value or ""
+
+    return params
+
+
+def _http_get_json(url: str) -> FetchResult:
+    metadata = {"url": url, "retries": 0}
 
     for attempt in range(PNCP_MAX_RETRIES + 1):
+        metadata["retries"] = attempt
         try:
-            req = urllib.request.Request(url)
-            req.add_header("User-Agent", USER_AGENT)
-            req.add_header("Accept", "application/json")
+            req = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent": USER_AGENT,
+                    "Accept": "application/json",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as response:
+                status = response.status
+                raw_body = response.read()
 
-            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as resp:
-                body = resp.read().decode("utf-8")
-                # HTTP 204 No Content — no data for this day
-                if not body or not body.strip():
-                    return [], False
-                data = json.loads(body)
-
-            # PNCP API v3 response: {"data": [...], "paginasRestantes": int, "totalRegistros": int, ...}
-            if isinstance(data, dict):
-                records = data.get("data", [])
-                paginas_restantes = data.get("paginasRestantes", None)
-                if paginas_restantes is not None:
-                    has_next = bool(paginas_restantes > 0)
-                else:
-                    # Fallback v2: temProximaPagina
-                    has_next = data.get("temProximaPagina", False)
-                if isinstance(records, list):
-                    return records, has_next
-                return [], False
-
-            if isinstance(data, list):
-                return data, False
-
-            return [], False
-
-        except urllib.error.HTTPError as e:
-            body = ""
-            try:
-                body = e.read().decode("utf-8")[:200]
-            except Exception:
-                pass
-            # 429 Too Many Requests — backoff longer
-            if e.code == 429:
-                wait = 5 * (attempt + 1)
-                _logger.debug(f"PNCP 429, waiting {wait}s before retry")
-                time.sleep(wait)
-                continue
-            if e.code == 404 or e.code == 400:
-                _logger.debug(f"PNCP HTTP {e.code} for {url}: {body}")
-                return [], False
-            if attempt < PNCP_MAX_RETRIES:
-                time.sleep(2**attempt)
-                continue
-            _logger.warning(f"PNCP HTTP {e.code} after {PNCP_MAX_RETRIES} retries: {url}")
-            return [], False
-        except Exception as e:
-            if attempt < PNCP_MAX_RETRIES:
-                time.sleep(1 + attempt)
-                continue
-            _logger.warning(f"PNCP fetch error: {e}")
-            return [], False
-
-    return [], False
-
-
-def _generate_content_hash(record: dict) -> str:
-    """Deterministic hash for dedup — delegates to common.
-
-    Uses v3 API field names. Falls back to transformed field names
-    for backward compatibility during testing.
-    """
-    return _common_content_hash(
-        record,
-        fields=["orgao_cnpj", "objeto_compra", "data_publicacao", "valor_total_estimado"],
-    )
-
-
-def _transform_record(rec: dict) -> dict | None:
-    """Transform a raw PNCP API v3 record into the pncp_raw_bids schema.
-
-    PNCP API v3 nests organization data inside ``orgaoEntidade`` and
-    ``unidadeOrgao`` objects.  This function flattens those into the
-    top-level column names expected by ``upsert_pncp_raw_bids``.
-    """
-    try:
-        orgao: dict = rec.get("orgaoEntidade") or {}
-        unidade: dict = rec.get("unidadeOrgao") or {}
-
-        # Core identifiers
-        pncp_id: str = str(rec.get("numeroControlePNCP", ""))
-        if not pncp_id:
-            # Generate synthetic ID as last resort
-            pncp_id = hashlib.md5(
-                f"{orgao.get('cnpj', '')}|{rec.get('objetoCompra', '')}|{rec.get('dataPublicacao', '')}".encode(),
-                usedforsecurity=False,
-            ).hexdigest()
-
-        objeto_compra: str = rec.get("objetoCompra", "")
-
-        valor_total_estimado = _safe_float(rec.get("valorTotalEstimado"))
-
-        modalidade_id = rec.get("modalidadeId") or rec.get("codigoModalidadeContratacao", 0)
-        modalidade_nome: str = rec.get("modalidadeNome", "")
-
-        esfera_raw = orgao.get("esferaId") or rec.get("esferaId", "")
-        esfera_id = _ESFERA_MAP.get(str(esfera_raw).strip().upper())
-        # DB CHECK constraint: 1,2,3,4 or NULL. 0/NULL for unknown.
-
-        # Geography from unidadeOrgao
-        uf: str = unidade.get("siglaUf") or rec.get("uf", "SC")
-        municipio: str = unidade.get("nomeMunicipio") or rec.get("municipio", "")
-        codigo_municipio_ibge: str = unidade.get("codigoIbge") or unidade.get("codigoMunicipioIbge", "")
-
-        # Orgao info
-        orgao_razao_social: str = orgao.get("razaoSocial") or unidade.get("nomeUnidade", "")
-        orgao_cnpj: str = orgao.get("cnpj", "")
-
-        # Dates — API returns ISO strings in dataPublicacao, dataAbertura, etc.
-        data_publicacao = _safe_date(rec.get("dataPublicacao"))
-        data_abertura = _safe_date(rec.get("dataAbertura")) or data_publicacao
-        data_encerramento = _safe_date(rec.get("dataEncerramentoProposta"))
-
-        # Links
-        link_pncp: str = rec.get("linkSistemaOrigem", "")
-        if not link_pncp and pncp_id and orgao_cnpj:
-            # Build fallback PNCP link: https://pncp.gov.br/app/editais/{pncp_id}
-            link_pncp = f"https://pncp.gov.br/app/editais/{pncp_id}"
-
-        result = {
-            "pncp_id": pncp_id,
-            "objeto_compra": objeto_compra,
-            "valor_total_estimado": valor_total_estimado,
-            "modalidade_id": int(modalidade_id) if modalidade_id else 0,
-            "modalidade_nome": modalidade_nome,
-            "esfera_id": esfera_id,  # None → NULL (DB CHECK: 1,2,3,4 or NULL)
-            "uf": uf,
-            "municipio": municipio,
-            "codigo_municipio_ibge": str(codigo_municipio_ibge) if codigo_municipio_ibge else "",
-            "orgao_razao_social": orgao_razao_social,
-            "orgao_cnpj": orgao_cnpj,
-            "data_publicacao": data_publicacao,
-            "data_abertura": data_abertura,
-            "data_encerramento": data_encerramento,
-            "link_pncp": link_pncp,
-            "content_hash": "",  # computed below
-            "source": "pncp",
-            "source_id": pncp_id,
-        }
-        # Compute content hash from transformed fields — deterministic dedup
-        result["content_hash"] = _generate_content_hash(result)
-        return result
-    except Exception as e:
-        _logger.warning(f"Transform error: {e}")
-        return None
-
-
-# ---------------------------------------------------------------------------
-# Crawler interface (called by monitor.py)
-# ---------------------------------------------------------------------------
-
-
-def crawl(mode: str = "full") -> list[dict]:
-    """Crawl PNCP for configured UFs and modalidades.
-
-    Uses day-by-day chunking to avoid backend timeouts on multi-day queries.
-    Each (UF, modalidade, day) is a separate API call (~0.2s each).
-
-    Accepts either a plain ``mode: str`` (backward-compatible) or a
-    ``CrawlRequest`` instance with full date/target/limit parameters.
-
-    Args:
-        mode: 'full', 'incremental', or a CrawlRequest instance.
-
-    Returns:
-        List of raw PNCP API records (not yet transformed)
-    """
-    # Support CrawlRequest (primary contract) and plain str (backward-compat)
-    if not isinstance(mode, str):
-        # mode is a CrawlRequest instance
-        from scripts.crawl.ingestion._base.crawler import CrawlRequest
-        req: CrawlRequest = mode
-        mode_str = req.mode
-        date_from = req.date_from
-        date_to = req.date_to
-        record_limit = req.limit
-    else:
-        mode_str = mode
-        date_from = None
-        date_to = None
-        record_limit = None
-
-    days = INGESTION_DATE_RANGE_DAYS if mode_str == "full" else INGESTION_INCREMENTAL_DAYS
-
-    # Use request dates when provided (backfill / date-range modes)
-    if date_from and date_to:
-        data_final = date_to
-        days = (date_to - date_from).days + 1
-    elif date_from:
-        data_final = date.today()
-        days = (data_final - date_from).days + 1
-    else:
-        data_final = date.today()
-
-    all_records: list[dict] = []
-    total_calls = 0
-    total_success = 0
-
-    # Compute start date for the day loop
-    start_date = date_from if date_from else (data_final - timedelta(days=days - 1))
-
-    for uf in INGESTION_UFS:
-        for mod in INGESTION_MODALIDADES:
-            uf_mod_records = 0
-            # Day-by-day chunking: PNCP backend times out on multi-day queries
-            for day_offset in range(days):
-                dia = start_date + timedelta(days=day_offset)
-                pagina = 1
-                while pagina <= PNCP_MAX_PAGES:
-                    total_calls += 1
-                    records, has_next = _fetch_page(uf, mod, pagina, dia, dia)
-                    if records:
-                        total_success += 1
-                        all_records.extend(records)
-                        uf_mod_records += len(records)
-                        # Respect record limit
-                        if record_limit and len(all_records) >= record_limit:
-                            all_records = all_records[:record_limit]
-                            _logger.info(
-                                "PNCP crawl: record_limit=%d reached, stopping",
-                                record_limit,
-                            )
-                            return all_records
-                    if not records and pagina == 1:
-                        break  # No results for this day
-                    if not has_next:
-                        break
-                    pagina += 1
-                    time.sleep(PNCP_REQUEST_DELAY)
-                # Delay between days to avoid 429 rate limiting
-                if day_offset < days - 1:
-                    time.sleep(PNCP_REQUEST_DELAY)
-            if uf_mod_records > 0:
-                _logger.info(
-                    "  %s/mod%d: %d records across %d days",
-                    uf,
-                    mod,
-                    uf_mod_records,
-                    days,
+            if status == 204:
+                return FetchResult(
+                    records=[],
+                    request_completed=True,
+                    http_status=204,
+                    empty_confirmed=True,
+                    metadata=metadata,
                 )
 
-    _logger.info(
-        "PNCP crawl done: %d records, %d/%d API calls returned data",
-        len(all_records),
-        total_success,
-        total_calls,
+            try:
+                payload = json.loads(raw_body.decode("utf-8"))
+            except json.JSONDecodeError as exc:
+                return FetchResult(
+                    records=[],
+                    request_completed=True,
+                    http_status=status,
+                    empty_confirmed=False,
+                    errors=[f"JSON invalido: {exc}"],
+                    metadata=metadata,
+                )
+
+            if status == 200:
+                records = payload.get("data", []) if isinstance(payload, dict) else []
+                is_empty = bool(isinstance(payload, dict) and payload.get("empty")) or not records
+                metadata["pagination"] = {
+                    "totalRegistros": payload.get("totalRegistros") if isinstance(payload, dict) else None,
+                    "totalPaginas": payload.get("totalPaginas") if isinstance(payload, dict) else None,
+                    "numeroPagina": payload.get("numeroPagina") if isinstance(payload, dict) else None,
+                    "paginasRestantes": payload.get("paginasRestantes") if isinstance(payload, dict) else None,
+                    "empty": payload.get("empty") if isinstance(payload, dict) else None,
+                }
+                return FetchResult(
+                    records=records if isinstance(records, list) else [],
+                    request_completed=True,
+                    http_status=200,
+                    empty_confirmed=is_empty,
+                    metadata=metadata,
+                )
+
+            return FetchResult(
+                records=[],
+                request_completed=True,
+                http_status=status,
+                empty_confirmed=False,
+                errors=[f"HTTP {status} inesperado"],
+                metadata=metadata,
+            )
+        except urllib.error.HTTPError as exc:
+            status = exc.code
+            if status == 429 and attempt < PNCP_MAX_RETRIES:
+                retry_after = exc.headers.get("Retry-After")
+                wait = float(retry_after) if retry_after and retry_after.isdigit() else min(30.0, 2**attempt)
+                time.sleep(wait)
+                continue
+
+            label = "falha externa"
+            if status in {400, 404, 422}:
+                label = "erro de requisicao"
+            elif status >= 500:
+                label = "falha externa"
+            return FetchResult(
+                records=[],
+                request_completed=True,
+                http_status=status,
+                empty_confirmed=False,
+                errors=[f"{label}: HTTP {status}"],
+                metadata=metadata,
+            )
+        except urllib.error.URLError as exc:
+            reason = exc.reason
+            if isinstance(reason, socket.gaierror):
+                error = f"falha de conectividade: DNS {reason}"
+            elif isinstance(reason, TimeoutError):
+                error = "falha de conectividade: timeout"
+            else:
+                error = f"falha de conectividade: {reason}"
+            if attempt < PNCP_MAX_RETRIES:
+                time.sleep(min(10.0, 1 + attempt))
+                continue
+            return FetchResult(
+                records=[],
+                request_completed=False,
+                http_status=None,
+                empty_confirmed=False,
+                errors=[error],
+                metadata=metadata,
+            )
+        except TimeoutError:
+            if attempt < PNCP_MAX_RETRIES:
+                time.sleep(min(10.0, 1 + attempt))
+                continue
+            return FetchResult(
+                records=[],
+                request_completed=False,
+                http_status=None,
+                empty_confirmed=False,
+                errors=["falha de conectividade: timeout"],
+                metadata=metadata,
+            )
+
+    return FetchResult(
+        records=[],
+        request_completed=False,
+        http_status=None,
+        empty_confirmed=False,
+        errors=["falha externa: retries esgotados"],
+        metadata=metadata,
     )
-    return all_records
 
 
-def transform(raw_records: list[dict]) -> list[dict]:
-    """Transform raw PNCP records to unified pncp_raw_bids schema.
+def _http_get_payload(url: str) -> tuple[Any | None, FetchResult]:
+    metadata = {"url": url, "retries": 0}
 
-    No keyword filtering — all records pass through (AC9).
-    Records without orgao_cnpj are still skipped as they cannot be matched.
-    """
-    transformed = []
-    for rec in raw_records:
-        t = _transform_record(rec)
-        if not t or not t.get("orgao_cnpj"):
-            continue
-        transformed.append(t)
+    for attempt in range(PNCP_MAX_RETRIES + 1):
+        metadata["retries"] = attempt
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            return payload, FetchResult(
+                records=[payload] if isinstance(payload, dict) else (payload if isinstance(payload, list) else []),
+                request_completed=True,
+                http_status=200,
+                empty_confirmed=(not payload),
+                metadata=metadata,
+            )
+        except urllib.error.HTTPError as exc:
+            if exc.code == 429 and attempt < PNCP_MAX_RETRIES:
+                wait = min(30.0, 2 ** (attempt + 1))
+                time.sleep(wait)
+                continue
+            return None, FetchResult(
+                records=[],
+                request_completed=True,
+                http_status=exc.code,
+                empty_confirmed=False,
+                errors=[f"HTTP {exc.code}"],
+                metadata=metadata,
+            )
+        except urllib.error.URLError as exc:
+            if attempt < PNCP_MAX_RETRIES:
+                time.sleep(min(10.0, 1 + attempt))
+                continue
+            return None, FetchResult(
+                records=[],
+                request_completed=False,
+                http_status=None,
+                empty_confirmed=False,
+                errors=[f"falha de conectividade: {exc.reason}"],
+                metadata=metadata,
+            )
+        except json.JSONDecodeError as exc:
+            return None, FetchResult(
+                records=[],
+                request_completed=True,
+                http_status=200,
+                empty_confirmed=False,
+                errors=[f"JSON invalido: {exc}"],
+                metadata=metadata,
+            )
+
+    return None, FetchResult(
+        records=[],
+        request_completed=False,
+        http_status=None,
+        empty_confirmed=False,
+        errors=["falha externa: retries esgotados"],
+        metadata=metadata,
+    )
+
+
+def _fetch_publication_page(request: CrawlRequest, modalidade: int, page: int) -> FetchResult:
+    params = _request_params(request, modalidade, page)
+    url = f"{PNCP_CONSULTA_BASE}/contratacoes/publicacao?{urllib.parse.urlencode(params)}"
+    result = _http_get_json(url)
+    result.metadata["params"] = params
+    return result
+
+
+def _derive_request(mode: str | CrawlRequest) -> CrawlRequest:
+    if isinstance(mode, CrawlRequest):
+        request = mode
+    else:
+        if mode == "incremental":
+            start = date.today() - timedelta(days=INGESTION_INCREMENTAL_DAYS - 1)
+            request = CrawlRequest(mode=mode, date_from=start, date_to=date.today())
+        else:
+            start = date.today() - timedelta(days=INGESTION_DATE_RANGE_DAYS - 1)
+            request = CrawlRequest(mode=mode, date_from=start, date_to=date.today())
+
+    if request.date_from is None and request.date_to is None:
+        end = date.today()
+        days = INGESTION_INCREMENTAL_DAYS if request.mode == "incremental" else INGESTION_DATE_RANGE_DAYS
+        request = CrawlRequest(
+            mode=request.mode,
+            date_from=end - timedelta(days=days - 1),
+            date_to=end,
+            target=request.target,
+            limit=request.limit,
+        )
+    elif request.date_from is not None and request.date_to is None:
+        request = CrawlRequest(
+            mode=request.mode,
+            date_from=request.date_from,
+            date_to=request.date_from,
+            target=request.target,
+            limit=request.limit,
+        )
+
+    parse_target(request.target)
+    return request
+
+
+def _synthetic_pncp_id(raw: dict[str, Any]) -> tuple[str, bool, str]:
+    base = "|".join(
+        [
+            digits_only(((raw.get("orgaoEntidade") or {}).get("cnpj")) or raw.get("orgao_cnpj")),
+            str(raw.get("anoCompra") or ""),
+            str(raw.get("sequencialCompra") or ""),
+            str(raw.get("dataPublicacaoPncp") or ""),
+            str(raw.get("objetoCompra") or ""),
+        ]
+    )
+    import hashlib
+
+    return hashlib.sha256(base.encode("utf-8")).hexdigest(), True, "numeroControlePNCP ausente"
+
+
+def crawl(mode: str | CrawlRequest = "full") -> FetchResult:
+    request = _derive_request(mode)
+    if request.date_from is None or request.date_to is None:
+        raise ValueError("CrawlRequest precisa de date_from e date_to resolvidos")
+
+    all_records: list[dict[str, Any]] = []
+    errors: list[str] = []
+    metadata: dict[str, Any] = {
+        "endpoint": f"{PNCP_CONSULTA_BASE}/contratacoes/publicacao",
+        "modalidades": list(INGESTION_MODALIDADES or DEFAULT_MODALIDADES),
+        "target": asdict(parse_target(request.target)),
+        "windows": [],
+        "pages_fetched": 0,
+    }
+    completed_any = False
+    empty_confirmed = True
+
+    for window_start, window_end in _windowed_dates(request.date_from, request.date_to):
+        metadata["windows"].append(
+            {"date_from": window_start.isoformat(), "date_to": window_end.isoformat()}
+        )
+        for modalidade in INGESTION_MODALIDADES or DEFAULT_MODALIDADES:
+            page = 1
+            while page <= PNCP_MAX_PAGES:
+                page_request = CrawlRequest(
+                    mode=request.mode,
+                    date_from=window_start,
+                    date_to=window_end,
+                    target=request.target,
+                    limit=request.limit,
+                )
+                result = _fetch_publication_page(page_request, modalidade, page)
+                metadata["pages_fetched"] += 1
+
+                if result.request_completed:
+                    completed_any = True
+                if result.errors:
+                    errors.extend(result.errors)
+                    empty_confirmed = False
+                    break
+
+                if result.records:
+                    all_records.extend(result.records)
+                    empty_confirmed = False
+                elif not result.empty_confirmed:
+                    empty_confirmed = False
+
+                pagination = result.metadata.get("pagination") or {}
+                remaining = pagination.get("paginasRestantes")
+                if request.limit and len(all_records) >= request.limit:
+                    all_records = all_records[: request.limit]
+                    return FetchResult(
+                        records=all_records,
+                        request_completed=completed_any,
+                        http_status=result.http_status,
+                        empty_confirmed=False,
+                        errors=errors,
+                        metadata=metadata,
+                    )
+                if result.empty_confirmed and not result.records:
+                    break
+                if not isinstance(remaining, int) or remaining <= 0:
+                    break
+                page += 1
+                time.sleep(PNCP_REQUEST_DELAY)
+            time.sleep(PNCP_REQUEST_DELAY)
+
+    http_status = 200 if completed_any else None
+    return FetchResult(
+        records=all_records,
+        request_completed=completed_any,
+        http_status=http_status,
+        empty_confirmed=empty_confirmed and not all_records and not errors,
+        errors=errors,
+        metadata=metadata,
+    )
+
+
+def transform(raw_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    transformed: list[dict[str, Any]] = []
+    for raw in raw_records:
+        orgao = raw.get("orgaoEntidade") or {}
+        unidade = raw.get("unidadeOrgao") or {}
+
+        numero_controle = raw.get("numeroControlePNCP")
+        synthetic_id = False
+        synthetic_reason = None
+        pncp_id = numero_controle
+        if not pncp_id:
+            pncp_id, synthetic_id, synthetic_reason = _synthetic_pncp_id(raw)
+
+        orgao_cnpj = digits_only(orgao.get("cnpj"))
+        ano_compra = raw.get("anoCompra")
+        sequencial_compra = raw.get("sequencialCompra")
+        link_pncp = build_pncp_public_link(
+            orgao_cnpj=orgao_cnpj,
+            ano_compra=ano_compra,
+            sequencial_compra=sequencial_compra,
+        )
+
+        import hashlib
+
+        content_hash_source = "|".join(
+            [
+                str(numero_controle or ""),
+                orgao_cnpj,
+                str(ano_compra or ""),
+                str(sequencial_compra or ""),
+                str(safe_date(raw.get("dataPublicacaoPncp")) or ""),
+                str(raw.get("objetoCompra") or ""),
+            ]
+        )
+        content_hash = hashlib.sha256(content_hash_source.encode("utf-8")).hexdigest()
+
+        transformed.append(
+            {
+                "pncp_id": pncp_id,
+                "numero_controle_pncp": numero_controle,
+                "synthetic_id": synthetic_id,
+                "synthetic_id_reason": synthetic_reason,
+                "objeto_compra": raw.get("objetoCompra"),
+                "informacao_complementar": raw.get("informacaoComplementar"),
+                "valor_total_estimado": safe_float(raw.get("valorTotalEstimado")),
+                "modalidade_id": raw.get("modalidadeId"),
+                "modalidade_nome": raw.get("modalidadeNome"),
+                "situacao_compra": raw.get("situacaoCompraNome"),
+                "esfera_id": orgao.get("esferaId"),
+                "uf": unidade.get("ufSigla"),
+                "municipio": unidade.get("municipioNome"),
+                "codigo_municipio_ibge": digits_only(unidade.get("codigoIbge")),
+                "orgao_razao_social": orgao.get("razaoSocial"),
+                "orgao_cnpj": orgao_cnpj,
+                "unidade_nome": unidade.get("nomeUnidade"),
+                "data_publicacao": raw.get("dataPublicacaoPncp"),
+                "data_abertura": raw.get("dataAberturaProposta"),
+                "data_encerramento": raw.get("dataEncerramentoProposta"),
+                "link_sistema_origem": raw.get("linkSistemaOrigem"),
+                "link_pncp": link_pncp,
+                "content_hash": content_hash,
+                "source": "pncp",
+                "source_id": numero_controle or pncp_id,
+                "ano_compra": ano_compra,
+                "sequencial_compra": sequencial_compra,
+            }
+        )
     return transformed
+
+
+def fetch_compra_detail(cnpj: str, ano: int, sequencial: int) -> FetchResult:
+    url = f"{PNCP_CONSULTA_BASE}/orgaos/{digits_only(cnpj)}/compras/{int(ano)}/{int(sequencial)}"
+    payload, result = _http_get_payload(url)
+    if isinstance(payload, dict):
+        result.records = [payload]
+        result.empty_confirmed = False
+    return result
+
+
+def _fetch_list_endpoint(url: str) -> FetchResult:
+    payload, result = _http_get_payload(url)
+    if isinstance(payload, list):
+        result.records = payload
+        result.empty_confirmed = not result.records
+    return result
+
+
+def fetch_compra_items(cnpj: str, ano: int, sequencial: int) -> FetchResult:
+    url = f"https://pncp.gov.br/api/pncp/v1/orgaos/{digits_only(cnpj)}/compras/{int(ano)}/{int(sequencial)}/itens"
+    return _fetch_list_endpoint(url)
+
+
+def fetch_compra_documents(cnpj: str, ano: int, sequencial: int) -> FetchResult:
+    url = f"https://pncp.gov.br/api/pncp/v1/orgaos/{digits_only(cnpj)}/compras/{int(ano)}/{int(sequencial)}/arquivos"
+    return _fetch_list_endpoint(url)

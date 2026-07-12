@@ -36,21 +36,37 @@ class TestCrawlRequestDates:
         """crawl() must accept both CrawlRequest and plain str."""
         from scripts.crawl.pncp_crawler_adapter import crawl
 
-        # Mock _fetch_page to avoid real HTTP
-        with patch('scripts.crawl.pncp_crawler_adapter._fetch_page') as mock_fetch:
-            mock_fetch.return_value = ([], False)
+        # Mock publication fetch to avoid real HTTP
+        with patch('scripts.crawl.pncp_crawler_adapter._fetch_publication_page') as mock_fetch:
+            from scripts.crawl.ingestion._base.crawler import FetchResult
+
+            mock_fetch.return_value = FetchResult(
+                records=[],
+                request_completed=True,
+                http_status=200,
+                empty_confirmed=True,
+                metadata={"pagination": {"paginasRestantes": 0}},
+            )
 
             # Test with plain str (backward-compatible)
             result = crawl("incremental")
-            assert isinstance(result, list)
+            assert hasattr(result, "records")
 
     def test_crawl_request_dates_propagated(self):
         """CrawlRequest with dates must cause _fetch_page to be called with those dates."""
         from scripts.crawl.ingestion._base.crawler import CrawlRequest
         from scripts.crawl.pncp_crawler_adapter import crawl
 
-        with patch('scripts.crawl.pncp_crawler_adapter._fetch_page') as mock_fetch:
-            mock_fetch.return_value = ([], False)
+        with patch('scripts.crawl.pncp_crawler_adapter._fetch_publication_page') as mock_fetch:
+            from scripts.crawl.ingestion._base.crawler import FetchResult
+
+            mock_fetch.return_value = FetchResult(
+                records=[],
+                request_completed=True,
+                http_status=200,
+                empty_confirmed=True,
+                metadata={"pagination": {"paginasRestantes": 0}},
+            )
 
             req = CrawlRequest(
                 mode="backfill",
@@ -67,29 +83,32 @@ class TestCrawlRequestDates:
 
             # Get the first call's date arguments (positional: uf, mod, pagina, data_inicial, data_final)
             first_call = mock_fetch.call_args_list[0]
-            args = first_call[0]  # positional args
-            data_inicial = args[3]  # 4th positional arg
-            data_final = args[4]    # 5th positional arg
+            req = first_call[0][0]
 
-            assert data_inicial == date(2025, 1, 1), (
-                f"data_inicial={data_inicial}, expected 2025-01-01. "
+            assert req.date_from == date(2025, 1, 1), (
+                f"data_inicial={req.date_from}, expected 2025-01-01. "
                 "Dates not propagated to _fetch_page."
             )
-            assert data_final == date(2025, 1, 1), (
-                f"data_final={data_final}, expected 2025-01-01. "
+            assert req.date_to == date(2025, 1, 1), (
+                f"data_final={req.date_to}, expected 2025-01-01. "
                 "Dates not propagated to _fetch_page."
             )
-            print(f"  ✓ _fetch_page called with data_inicial={data_inicial}, data_final={data_final}")
+            print(f"  ✓ _fetch_page called with data_inicial={req.date_from}, data_final={req.date_to}")
 
     def test_crawl_request_limit_stops_early(self):
         """When limit=1, crawl must stop after fetching 1 record (or empty)."""
         from scripts.crawl.ingestion._base.crawler import CrawlRequest
         from scripts.crawl.pncp_crawler_adapter import crawl
 
-        with patch('scripts.crawl.pncp_crawler_adapter._fetch_page') as mock_fetch:
-            # Simulate returning 2 records — but limit=1 should stop after 1
-            mock_fetch.return_value = (
-                [{"id": "test1", "numeroControlePNCP": "1"}], True
+        with patch('scripts.crawl.pncp_crawler_adapter._fetch_publication_page') as mock_fetch:
+            from scripts.crawl.ingestion._base.crawler import FetchResult
+
+            mock_fetch.return_value = FetchResult(
+                records=[{"id": "test1", "numeroControlePNCP": "1"}],
+                request_completed=True,
+                http_status=200,
+                empty_confirmed=False,
+                metadata={"pagination": {"paginasRestantes": 0}},
             )
 
             req = CrawlRequest(
@@ -101,10 +120,10 @@ class TestCrawlRequestDates:
             result = crawl(req)
 
             # Should have at most 1 record
-            assert len(result) <= 1, (
-                f"limit=1 but got {len(result)} records. Limit not enforced."
+            assert len(result.records) <= 1, (
+                f"limit=1 but got {len(result.records)} records. Limit not enforced."
             )
-            print(f"  ✓ limit=1 enforced: {len(result)} record(s) returned")
+            print(f"  ✓ limit=1 enforced: {len(result.records)} record(s) returned")
 
     def test_crawl_source_accepts_target_and_limit(self):
         """crawl_source() must accept target and limit kwargs."""

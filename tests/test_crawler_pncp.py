@@ -1,136 +1,135 @@
-"""Unit tests for scripts/crawl/pncp_crawler_adapter.py.
+from __future__ import annotations
 
-Tests the sync adapter that is the single PNCP crawler implementation
-after TD-3.2 consolidation (BidsCrawler was deprecated).
-"""
+from datetime import date
+from unittest.mock import patch
 
-
+import pytest
 
 from scripts.crawl import pncp_crawler_adapter as pca
+from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
 
-# ---------------------------------------------------------------------------
-# Mock data
-# ---------------------------------------------------------------------------
 
 MOCK_RAW_RECORD = {
-    "objetoCompra": "Construcao de escola municipal",
+    "numeroControlePNCP": "12345678000199-1-000225/2026",
+    "objetoCompra": "Contratação de empresa especializada para reforma e instalações elétricas de escola",
+    "informacaoComplementar": "Com fornecimento de material e mão de obra",
     "valorTotalEstimado": 500000.00,
     "modalidadeId": 4,
-    "modalidadeNome": "Concorrencia",
+    "modalidadeNome": "Concorrência - Eletrônica",
+    "situacaoCompraNome": "Divulgada no PNCP",
     "orgaoEntidade": {
         "cnpj": "12345678000199",
         "razaoSocial": "Prefeitura Municipal de Exemplo",
         "esferaId": "M",
     },
     "unidadeOrgao": {
-        "siglaUf": "SC",
-        "nomeMunicipio": "Florianopolis",
+        "ufSigla": "SC",
+        "municipioNome": "Florianópolis",
         "codigoIbge": "4205407",
+        "nomeUnidade": "Secretaria de Educação",
     },
-    "dataPublicacao": "2026-07-01T10:00:00Z",
-    "dataAbertura": "2026-08-01T09:00:00Z",
-    "dataEncerramentoProposta": "2026-08-15T18:00:00Z",
-    "linkSistemaOrigem": "https://pncp.gov.br/contratacoes/123",
-}
-
-MOCK_RAW_NO_CNPJ = {
-    "objetoCompra": "Servico de limpeza",
-    "valorTotalEstimado": 10000.00,
-    "modalidadeId": 5,
-    "modalidadeNome": "Pregao Eletronico",
-    "dataPublicacao": "2026-07-01",
+    "anoCompra": 2026,
+    "sequencialCompra": 225,
+    "dataPublicacaoPncp": "2026-07-01T10:00:00",
+    "dataAberturaProposta": "2026-08-01T09:00:00",
+    "dataEncerramentoProposta": "2026-08-15T18:00:00",
+    "linkSistemaOrigem": "https://origem.example/edital/225",
 }
 
 
-# ---------------------------------------------------------------------------
-# _generate_content_hash()
-# ---------------------------------------------------------------------------
+class TestFetchPublicationPage:
+    def test_http_200_without_records_is_confirmed_empty(self):
+        payload = {"data": [], "totalRegistros": 0, "totalPaginas": 0, "numeroPagina": 1, "paginasRestantes": 0, "empty": True}
+        body = __import__("json").dumps(payload).encode("utf-8")
 
+        class Response:
+            status = 200
 
-class TestGenerateContentHash:
-    """Tests for _generate_content_hash()."""
+            def __enter__(self):
+                return self
 
-    def test_generates_deterministic_hash(self):
-        """Same input produces same hash."""
-        h1 = pca._generate_content_hash(MOCK_RAW_RECORD)
-        h2 = pca._generate_content_hash(MOCK_RAW_RECORD)
-        assert h1 == h2
-        assert len(h1) == 32  # MD5 hex digest
+            def __exit__(self, *args):
+                return False
 
-    def test_different_inputs_different_hashes(self):
-        """Different inputs produce different hashes."""
-        # Use normalized records (as produced by _transform_record)
-        rec1 = pca._transform_record(MOCK_RAW_RECORD)
-        rec2 = dict(MOCK_RAW_RECORD)
-        rec2["objetoCompra"] = "Reforma de predio publico"
-        rec2 = pca._transform_record(rec2)
-        assert rec1 is not None and rec2 is not None
-        h1 = pca._generate_content_hash(rec1)
-        h2 = pca._generate_content_hash(rec2)
-        assert h1 != h2
+            def read(self):
+                return body
 
+        with patch("urllib.request.urlopen", return_value=Response()):
+            result = pca._http_get_json("https://pncp.test")
+        assert result.request_completed is True
+        assert result.empty_confirmed is True
+        assert result.records == []
 
-# ---------------------------------------------------------------------------
-# _transform_record()
-# ---------------------------------------------------------------------------
+    def test_invalid_json_is_not_treated_as_empty(self):
+        class Response:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return b"{invalid"
+
+        with patch("urllib.request.urlopen", return_value=Response()):
+            result = pca._http_get_json("https://pncp.test")
+        assert result.request_completed is True
+        assert result.empty_confirmed is False
+        assert result.errors
 
 
 class TestTransformRecord:
-    """Tests for _transform_record()."""
-
-    def test_happy_path(self):
-        """_transform_record() normalizes a complete record."""
-        result = pca._transform_record(MOCK_RAW_RECORD)
-        assert result is not None
-        assert result["objeto_compra"] == "Construcao de escola municipal"
-        assert result["orgao_cnpj"] == "12345678000199"
+    def test_transform_uses_official_field_names(self):
+        result = pca.transform([MOCK_RAW_RECORD])[0]
+        assert result["pncp_id"] == "12345678000199-1-000225/2026"
+        assert result["numero_controle_pncp"] == "12345678000199-1-000225/2026"
         assert result["uf"] == "SC"
-        assert result["data_publicacao"] == "2026-07-01"
-        assert result["valor_total_estimado"] == 500000.00
+        assert result["municipio"] == "Florianópolis"
+        assert result["codigo_municipio_ibge"] == "4205407"
+        assert result["data_publicacao"] == "2026-07-01T10:00:00"
+        assert result["link_sistema_origem"] == "https://origem.example/edital/225"
+        assert result["link_pncp"] == "https://pncp.gov.br/app/editais/12345678000199/2026/225"
 
-    def test_missing_cnpj_returns_record(self):
-        """_transform_record() still returns a record even without CNPJ
-        (the CNPJ filter happens in transform(), not _transform_record)."""
-        result = pca._transform_record(MOCK_RAW_NO_CNPJ)
-        assert result is not None
-        assert result["orgao_cnpj"] == ""  # Empty but record still returned
-
-    def test_returns_content_hash(self):
-        """_transform_record() includes a content_hash field."""
-        result = pca._transform_record(MOCK_RAW_RECORD)
-        assert "content_hash" in result
-        assert len(result["content_hash"]) == 32
-
-    def test_synthetic_pncp_id_when_missing(self):
-        """_transform_record() generates synthetic ID when pncp_id is missing."""
-        rec = dict(MOCK_RAW_RECORD)
-        rec.pop("linkSistemaOrigem", None)
-        result = pca._transform_record(rec)
-        assert result is not None
-        assert len(result["pncp_id"]) == 32
+    def test_transform_creates_synthetic_id_when_missing_numero_controle(self):
+        raw = dict(MOCK_RAW_RECORD)
+        raw.pop("numeroControlePNCP")
+        result = pca.transform([raw])[0]
+        assert result["synthetic_id"] is True
+        assert result["synthetic_id_reason"] == "numeroControlePNCP ausente"
+        assert result["pncp_id"]
 
 
-# ---------------------------------------------------------------------------
-# transform()
-# ---------------------------------------------------------------------------
+class TestCrawl:
+    def test_crawl_returns_fetch_result(self):
+        with patch("scripts.crawl.pncp_crawler_adapter._fetch_publication_page") as mock_fetch:
+            mock_fetch.return_value = FetchResult(
+                records=[],
+                request_completed=True,
+                http_status=200,
+                empty_confirmed=True,
+                metadata={"pagination": {"paginasRestantes": 0}},
+            )
+            result = pca.crawl(CrawlRequest(mode="backfill", date_from=date(2026, 1, 1), date_to=date(2026, 1, 1), limit=1))
 
+        assert isinstance(result, FetchResult)
+        assert result.request_completed is True
 
-class TestTransform:
-    """Tests for transform()."""
+    def test_crawl_request_limit_stops_total_records(self):
+        with patch("scripts.crawl.pncp_crawler_adapter._fetch_publication_page") as mock_fetch:
+            mock_fetch.return_value = FetchResult(
+                records=[MOCK_RAW_RECORD],
+                request_completed=True,
+                http_status=200,
+                empty_confirmed=False,
+                metadata={"pagination": {"paginasRestantes": 0}},
+            )
+            result = pca.crawl(CrawlRequest(mode="backfill", date_from=date(2026, 1, 1), date_to=date(2026, 1, 1), limit=1))
 
-    def test_transform_empty_list(self):
-        """transform([]) returns empty list."""
-        assert pca.transform([]) == []
+        assert len(result.records) == 1
+        assert mock_fetch.call_count >= 1
 
-    def test_transform_passes_all_records_without_keyword_filter(self):
-        """transform() passes all records when no keyword filter is active (AC9)."""
-        non_eng = dict(MOCK_RAW_RECORD)
-        non_eng["objetoCompra"] = "Material de escritorio"
-        result = pca.transform([MOCK_RAW_RECORD, non_eng])
-        # Both records pass through — no keyword filtering
-        assert len(result) == 2
-
-    def test_transform_skips_records_without_cnpj(self):
-        """transform() skips records without orgao_cnpj."""
-        result = pca.transform([MOCK_RAW_NO_CNPJ])
-        assert len(result) == 0
+    def test_invalid_target_raises(self):
+        with pytest.raises(ValueError):
+            pca.crawl(CrawlRequest(mode="incremental", target="qualquer_coisa"))

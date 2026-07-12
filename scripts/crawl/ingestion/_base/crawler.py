@@ -182,6 +182,17 @@ class CrawlerResult:
     new_entities_covered: int = 0
     """Net-new entity_ids that gained coverage this run."""
 
+    classified_engineering: int = 0
+    engineering_confirmed: int = 0
+    engineering_probable: int = 0
+    engineering_review_required: int = 0
+    false_positive_discarded: int = 0
+    within_200km: int = 0
+    remaining_sc: int = 0
+    location_unconfirmed: int = 0
+    opportunities_persisted: int = 0
+    external_failures: int = 0
+
     # Timing
     started_at: str = ""
     completed_at: str = ""
@@ -210,6 +221,16 @@ class CrawlerResult:
             "unmatched": self.unmatched,
             "ambiguous": self.ambiguous,
             "new_entities_covered": self.new_entities_covered,
+            "classified_engineering": self.classified_engineering,
+            "engineering_confirmed": self.engineering_confirmed,
+            "engineering_probable": self.engineering_probable,
+            "engineering_review_required": self.engineering_review_required,
+            "false_positive_discarded": self.false_positive_discarded,
+            "within_200km": self.within_200km,
+            "remaining_sc": self.remaining_sc,
+            "location_unconfirmed": self.location_unconfirmed,
+            "opportunities_persisted": self.opportunities_persisted,
+            "external_failures": self.external_failures,
             "started_at": self.started_at,
             "completed_at": self.completed_at,
             "duration_seconds": self.duration_seconds,
