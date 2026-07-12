@@ -164,10 +164,17 @@ def classify_engineering(
         if category_hits:
             categories.append(category)
             matched_terms.extend(category_hits)
-            score += 16 if category_hits[0] in _STRONG_TERMS else 10
+            score += 20 if category_hits[0] in _STRONG_TERMS else 12
 
     unique_strong_hits = [term for term in _STRONG_TERMS if term in joined]
-    score += min(30, len(unique_strong_hits) * 8)
+    score += min(36, len(unique_strong_hits) * 12)
+
+    if "empresa especializada" in joined and unique_strong_hits:
+        score += 12
+    if ("execucao" in joined or "prestacao de servicos" in joined) and unique_strong_hits:
+        score += 10
+    if "fornecimento de material e mao de obra" in joined:
+        score += 8
 
     if items:
         score += 12

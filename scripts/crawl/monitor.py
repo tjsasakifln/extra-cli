@@ -65,7 +65,10 @@ def _get_conn():
 def _load_entities(conn, within_200km_only: bool = False) -> list[dict]:
     """Load all active SC public entities."""
     cur = conn.cursor()
-    sql = "SELECT id, razao_social, cnpj_8, municipio, codigo_ibge, natureza_juridica, raio_200km FROM sc_public_entities WHERE is_active = TRUE"
+    sql = (
+        "SELECT id, razao_social, cnpj_8, municipio, codigo_ibge, natureza_juridica, "
+        "latitude, longitude, raio_200km FROM sc_public_entities WHERE is_active = TRUE"
+    )
     if within_200km_only:
         sql += " AND raio_200km = TRUE"
     sql += " ORDER BY id"
@@ -141,6 +144,11 @@ def _finish_ingestion_run(
 ):
     """Update ingestion_runs row at end of crawl. Auto-detects schema version."""
     cur = conn.cursor()
+    db_status = status
+    if status in {"success", "degraded", "empty", "skipped"}:
+        db_status = "completed"
+    elif status not in {"completed", "failed", "running"}:
+        db_status = "completed"
 
     # Detect schema version
     cur.execute(
@@ -156,7 +164,7 @@ def _finish_ingestion_run(
                    updated = %s, status = %s,
                    errors = CASE WHEN %s <> '' THEN 1 ELSE 0 END
                WHERE id = %s""",
-            (fetched, upserted, 0, status, error or "", run_id),
+            (fetched, upserted, 0, db_status, error or "", run_id),
         )
     else:
         # v1 schema: use records_fetched, records_upserted, entities_covered
@@ -166,7 +174,7 @@ def _finish_ingestion_run(
                    records_upserted = %s, entities_covered = %s,
                    status = %s, error_message = %s
                WHERE id = %s""",
-            (fetched, upserted, covered, status, error or "", run_id),
+            (fetched, upserted, covered, db_status, error or "", run_id),
         )
     conn.commit()
     cur.close()
