@@ -878,6 +878,7 @@ def crawl_source(
         if crawler is None:
             error = f"Crawler not implemented: {source}"
             _finish_ingestion_run(conn, run_id, 0, 0, 0, "failed", error)
+            _record_evidence(conn, run_id, source, "failed", error_message=error, error_code="crawler_not_implemented")
             conn.close()
             result.status = "failed"
             result.error_code = "crawler_not_implemented"
@@ -893,6 +894,7 @@ def crawl_source(
             result.dependencies_missing = missing_creds
             result.warnings.append(msg)
             _finish_ingestion_run(conn, run_id, 0, 0, 0, "skipped", msg)
+            _record_evidence(conn, run_id, source, "skipped", error_message=msg, error_code="missing_credentials")
             conn.close()
             result.status = "skipped"
             result.error_code = "missing_credentials"
@@ -930,6 +932,7 @@ def crawl_source(
                 if not raw_records:
                     error = "; ".join(fetch_result.errors)
                     _finish_ingestion_run(conn, run_id, 0, 0, 0, "failed", error)
+                    _record_evidence(conn, run_id, source, "failed", error_message=error, error_code="fetch_failed")
                     conn.close()
                     result.status = "failed"
                     result.error_code = "fetch_failed"
@@ -948,9 +951,11 @@ def crawl_source(
             if fetch_result and (not fetch_result.request_completed or fetch_result.errors):
                 status = "failed"
             _finish_ingestion_run(conn, run_id, 0, 0, 0, status)
+            error_code = "empty_result" if status == "empty" else "fetch_failed"
+            _record_evidence(conn, run_id, source, status, error_code=error_code)
             conn.close()
             result.status = status
-            result.error_code = "empty_result" if status == "empty" else "fetch_failed"
+            result.error_code = error_code
             result.started_at = started_at.isoformat()
             result.completed_at = datetime.now(timezone.utc).isoformat()
             return result
@@ -994,6 +999,7 @@ def crawl_source(
                 result.warnings.append(msg)
                 _logger.warning(msg)
                 _finish_ingestion_run(conn, run_id, result.fetched, 0, 0, "degraded", msg)
+                _record_evidence(conn, run_id, source, "degraded", fetched=result.fetched, error_message=msg)
                 conn.close()
                 result.status = "degraded"
                 result.started_at = started_at.isoformat()
@@ -1011,6 +1017,7 @@ def crawl_source(
                 conn.rollback()
                 error = f"Upsert failed: {e}"
                 _finish_ingestion_run(conn, run_id, result.fetched, result.transformed, 0, "failed", error)
+                _record_evidence(conn, run_id, source, "failed", fetched=result.fetched, transformed=result.transformed, error_message=error, error_code="persist_failed")
                 conn.close()
                 result.status = "failed"
                 result.error_message = error
@@ -1072,6 +1079,13 @@ def crawl_source(
         )
 
         _finish_ingestion_run(conn, run_id, result.fetched, result.inserted + result.updated, result.matched, result.status)
+        _record_evidence(
+            conn, run_id, source, result.status,
+            fetched=result.fetched, transformed=result.transformed,
+            persisted=result.inserted + result.updated,
+            date_from=date_from, date_to=date_to,
+            error_message=result.error_message, error_code=result.error_code,
+        )
 
         # ── Metadata ────────────────────────────────────────────────────
         if date_from:
@@ -1095,6 +1109,7 @@ def crawl_source(
         error = str(e)
         try:
             _finish_ingestion_run(conn, run_id, result.fetched, result.transformed, result.matched, "failed", error)
+            _record_evidence(conn, run_id, source, "failed", fetched=result.fetched, transformed=result.transformed, error_message=error, error_code="runtime_error")
         except Exception:
             _logger.exception("Failed to record ingestion run failure")
         try:
@@ -1107,6 +1122,123 @@ def crawl_source(
         result.started_at = started_at.isoformat()
         result.completed_at = datetime.now(timezone.utc).isoformat()
         return result
+
+
+def _record_evidence(
+    conn,
+    run_id: int,
+    source: str,
+    state: str,
+    fetched: int = 0,
+    transformed: int = 0,
+    persisted: int = 0,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    error_message: str | None = None,
+    error_code: str | None = None,
+    metadata: dict | None = None,
+):
+    """Insert one row into coverage_evidence for this source run.
+
+    Maps monitor-level status + error_code → evidence_state enum value.
+    Records source-level evidence (entity_id = NULL) for each crawl run.
+    Never converts an exception into an empty success.
+
+    This function is exception-safe: failures are logged but never
+    propagated, so connection cleanup in the caller is not interrupted.
+    """
+    import json as _json
+    from datetime import date as _date
+
+    try:
+        # Check if coverage_evidence table exists (migration 024 may not be applied)
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')"
+        )
+        if not cur.fetchone()[0]:
+            cur.close()
+            return  # Table doesn't exist yet — skip silently
+
+        # Map monitor status + error_code → evidence_state
+        evidence_state = _map_evidence_state(state, error_code or "", fetched)
+
+        # Parse dates
+        q_start = _date.fromisoformat(date_from) if date_from else None
+        q_end = _date.fromisoformat(date_to) if date_to else None
+
+        meta = metadata or {}
+        if error_message:
+            meta["error_message"] = error_message
+
+        cur.execute(
+            """INSERT INTO coverage_evidence
+               (entity_id, source, data_type, queried_start, queried_end,
+                run_id, started_at, completed_at,
+                count_obtained, count_transformed, count_persisted,
+                state, error_message, error_code, metadata)
+               VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW(), %s, %s, %s, %s, %s, %s, %s)
+               ON CONFLICT (entity_id, source, data_type, run_id)
+               DO UPDATE SET
+                   completed_at = NOW(),
+                   count_obtained = EXCLUDED.count_obtained,
+                   count_transformed = EXCLUDED.count_transformed,
+                   count_persisted = EXCLUDED.count_persisted,
+                   state = EXCLUDED.state,
+                   error_message = EXCLUDED.error_message,
+                   error_code = EXCLUDED.error_code,
+                   metadata = EXCLUDED.metadata""",
+            (
+                None,  # entity_id: NULL = source-level aggregate
+                source,
+                "bids",
+                q_start,
+                q_end,
+                str(run_id),
+                fetched,
+                transformed,
+                persisted,
+                evidence_state,
+                error_message,
+                error_code,
+                _json.dumps(meta, ensure_ascii=False),
+            ),
+        )
+        cur.close()
+    except Exception:
+        _logger.exception("Failed to record coverage evidence for source=%s run_id=%s", source, run_id)
+
+
+def _map_evidence_state(monitor_status: str, error_code: str, fetched: int) -> str:
+    """Map monitor.py status + error_code → coverage_evidence state enum.
+
+    Rules (priority order):
+        1. Explicit error codes map to specific failure states.
+        2. monitor status maps to coarse state.
+        3. fetched > 0 distinguishes success_with_data from success_zero.
+        4. Never returns an empty-string or NULL state.
+    """
+    # Explicit error codes → specific failure states
+    if error_code:
+        error_mapping = {
+            "crawler_not_implemented": "not_applicable",
+            "missing_credentials": "auth_failed",
+            "fetch_failed": "connection_failed",
+            "persist_failed": "persist_failed",
+            "runtime_error": "connection_failed",  # conservative default
+        }
+        if error_code in error_mapping:
+            return error_mapping[error_code]
+
+    # Monitor status → evidence state
+    status_mapping = {
+        "success": "success_with_data" if fetched > 0 else "success_zero",
+        "degraded": "partial",
+        "failed": "connection_failed",
+        "empty": "success_zero",
+        "skipped": "not_investigated",
+    }
+    return status_mapping.get(monitor_status, "not_investigated")
 
 
 def _load_crawler(source: str):
