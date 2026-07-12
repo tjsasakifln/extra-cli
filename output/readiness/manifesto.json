@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-07-12",
+  "threshold": 0.95,
+  "backend": "postgresql",
+  "capacities": {
+    "historical_contracts": {
+      "description": "Entes-alvo com pelo menos 1 contrato nos últimos 3 anos",
+      "denominator": 1093,
+      "numerator": 404,
+      "coverage": 0.3698,
+      "threshold": 0.95,
+      "ready": false,
+      "uncertainty": false,
+      "uncertainty_reason": null,
+      "semantic_note": "valor_global (PNCP) — não é preço praticado. Janela de 3 anos a partir de data_assinatura.",
+      "window": "3 anos a partir de data_assinatura"
+    },
+    "competitor_winners": {
+      "description": "Entes-alvo com pelo menos 1 fornecedor vencedor identificável",
+      "denominator": 1093,
+      "numerator": 404,
+      "coverage": 0.3698,
+      "threshold": 0.95,
+      "ready": false,
+      "uncertainty": false,
+      "uncertainty_reason": null,
+      "semantic_note": "Apenas vencedores históricos (contratos assinados), não todos os licitantes. Fornecedores distintos: 63.679.",
+      "distinct_suppliers": 63679
+    },
+    "expiring_contracts": {
+      "description": "Entes-alvo com contratos terminando em 90-180 dias",
+      "denominator": 1093,
+      "numerator": 0,
+      "coverage": 0.0,
+      "threshold": 0.95,
+      "ready": false,
+      "uncertainty": true,
+      "uncertainty_reason": "100% dos contratos no raio 200km têm data_fim_vigencia NULL (0 de 423.239). Status de vigência é inferido, não declarado pelo PNCP. Os 48K contratos com data_fim_vigencia no banco completo não pertencem a entes no raio de 200km.",
+      "semantic_note": "Status do contrato inferido por data_fim_vigencia vs CURRENT_DATE. PNCP não possui campo 'status' direto. Contratos sem data_fim_vigencia são excluídos desta capacidade.",
+      "contratos_sem_data_fim": 423239,
+      "total_contratos_no_raio": 423239,
+      "pct_contratos_sem_data_fim": 100.0
+    }
+  },
+  "overall": {
+    "all_capabilities_above_threshold": false,
+    "unresolved_uncertainties": ["expiring_contracts"],
+    "exit_code": 1
+  }
+}

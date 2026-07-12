@@ -1,0 +1,4 @@
+capability,description,denominator,numerator,coverage,threshold,ready,uncertainty,uncertainty_reason,semantic_note
+historical_contracts,Entes-alvo com pelo menos 1 contrato nos últimos 3 anos,1093,404,0.3696,0.95,False,False,,valor_global (PNCP) — não é preço praticado
+competitor_winners,Entes-alvo com pelo menos 1 fornecedor vencedor identificável,1093,404,0.3696,0.95,False,False,,"Apenas vencedores históricos (contratos assinados), não todos os licitantes"
+expiring_contracts,Entes-alvo com contratos terminando em 90-180 dias,1093,0,0.0,0.95,False,True,"100.0% dos contratos no raio têm data_fim_vigencia NULL (423239 de 423239). Status de vigência é inferido, não declarado pelo PNCP.",Status do contrato inferido por data_fim_vigencia vs CURRENT_DATE. PNCP não possui campo 'status' direto. Contratos sem data_fim_vigencia são excluídos desta capacidade.
