@@ -1,0 +1,2367 @@
+# Platform Detection Results (Pass 1 + 2)
+# Generated at: 2026-07-11
+# Total: 295 | Detected: 75 | Not found: 220 | Errors: 0
+# Platform distribution: {"betha": 64, "proprio": 11}
+
+  # --- BETHA (64 municipios, 21.7%) ---
+  agrolandia:
+    nome: "Agrolandia"
+    ibge: "4200200"
+    portal_url: "https://agrolandia.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  apiuna:
+    nome: "Apiuna"
+    ibge: "4201257"
+    portal_url: "https://apiuna.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  arabuta:
+    nome: "Arabuta"
+    ibge: "4201273"
+    portal_url: "https://arabuta.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  araquari:
+    nome: "Araquari"
+    ibge: "4201307"
+    portal_url: "https://araquari.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  ararangua:
+    nome: "Ararangua"
+    ibge: "4201406"
+    portal_url: "https://ararangua.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  arvoredo:
+    nome: "Arvoredo"
+    ibge: "4201653"
+    portal_url: "https://arvoredo.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  ascurra:
+    nome: "Ascurra"
+    ibge: "4201703"
+    portal_url: "https://ascurra.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  aurora:
+    nome: "Aurora"
+    ibge: "4201901"
+    portal_url: "https://aurora.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  biguacu:
+    nome: "Biguacu"
+    ibge: "4202305"
+    portal_url: "https://biguacu.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  bombinhas:
+    nome: "Bombinhas"
+    ibge: "4202453"
+    portal_url: "https://bombinhas.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  botuvera:
+    nome: "Botuvera"
+    ibge: "4202701"
+    portal_url: "https://botuvera.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  brusque:
+    nome: "Brusque"
+    ibge: "4202909"
+    portal_url: "https://brusque.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  caibi:
+    nome: "Caibi"
+    ibge: "4203105"
+    portal_url: "https://caibi.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  camboriu:
+    nome: "Camboriu"
+    ibge: "4203204"
+    portal_url: "https://camboriu.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  canoinhas:
+    nome: "Canoinhas"
+    ibge: "4203808"
+    portal_url: "https://canoinhas.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  concordia:
+    nome: "Concordia"
+    ibge: "4204301"
+    portal_url: "https://concordia.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  corupa:
+    nome: "Corupa"
+    ibge: "4204509"
+    portal_url: "https://corupa.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  fraiburgo:
+    nome: "Fraiburgo"
+    ibge: "4205506"
+    portal_url: "https://fraiburgo.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  garopaba:
+    nome: "Garopaba"
+    ibge: "4205704"
+    portal_url: "https://garopaba.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  garuva:
+    nome: "Garuva"
+    ibge: "4205803"
+    portal_url: "https://garuva.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  gravatal:
+    nome: "Gravatal"
+    ibge: "4206207"
+    portal_url: "https://gravatal.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  guabiruba:
+    nome: "Guabiruba"
+    ibge: "4206306"
+    portal_url: "https://guabiruba.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  guaraciaba:
+    nome: "Guaraciaba"
+    ibge: "4206405"
+    portal_url: "https://guaraciaba.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  guaramirim:
+    nome: "Guaramirim"
+    ibge: "4206504"
+    portal_url: "https://guaramirim.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  guatambu:
+    nome: "Guatambu"
+    ibge: "4206652"
+    portal_url: "https://guatambu.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  ibirama:
+    nome: "Ibirama"
+    ibge: "4206900"
+    portal_url: "https://ibirama.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  imbituba:
+    nome: "Imbituba"
+    ibge: "4207304"
+    portal_url: "https://imbituba.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  indaial:
+    nome: "Indaial"
+    ibge: "4207502"
+    portal_url: "https://indaial.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  irineopolis:
+    nome: "Irineopolis"
+    ibge: "4207908"
+    portal_url: "https://irineopolis.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  ita:
+    nome: "Ita"
+    ibge: "4208005"
+    portal_url: "https://ita.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  itaiopolis:
+    nome: "Itaiopolis"
+    ibge: "4208104"
+    portal_url: "https://itaiopolis.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  itapiranga:
+    nome: "Itapiranga"
+    ibge: "4208401"
+    portal_url: "https://itapiranga.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  itapoa:
+    nome: "Itapoa"
+    ibge: "4208450"
+    portal_url: "https://itapoa.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  ituporanga:
+    nome: "Ituporanga"
+    ibge: "4208500"
+    portal_url: "https://ituporanga.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  jaguaruna:
+    nome: "Jaguaruna"
+    ibge: "4208807"
+    portal_url: "https://jaguaruna.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  jardinopolis:
+    nome: "Jardinopolis"
+    ibge: "4208955"
+    portal_url: "https://jardinopolis.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  lacerdopolis:
+    nome: "Lacerdopolis"
+    ibge: "4209201"
+    portal_url: "https://lacerdopolis.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  laurentino:
+    nome: "Laurentino"
+    ibge: "4209508"
+    portal_url: "https://laurentino.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  lontras:
+    nome: "Lontras"
+    ibge: "4209904"
+    portal_url: "https://lontras.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  massaranduba:
+    nome: "Massaranduba"
+    ibge: "4210605"
+    portal_url: "https://massaranduba.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  modelo:
+    nome: "Modelo"
+    ibge: "4210902"
+    portal_url: "https://modelo.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  navegantes:
+    nome: "Navegantes"
+    ibge: "4211306"
+    portal_url: "https://navegantes.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  ouro:
+    nome: "Ouro"
+    ibge: "4211801"
+    portal_url: "https://ouro.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  paial:
+    nome: "Paial"
+    ibge: "4211876"
+    portal_url: "https://paial.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  palhoca:
+    nome: "Palhoca"
+    ibge: "4211900"
+    portal_url: "https://palhoca.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  papanduva:
+    nome: "Papanduva"
+    ibge: "4212205"
+    portal_url: "https://papanduva.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  paraiso:
+    nome: "Paraiso"
+    ibge: "4212239"
+    portal_url: "https://paraiso.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  penha:
+    nome: "Penha"
+    ibge: "4212502"
+    portal_url: "https://penha.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  pinhalzinho:
+    nome: "Pinhalzinho"
+    ibge: "4212908"
+    portal_url: "https://pinhalzinho.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  pomerode:
+    nome: "Pomerode"
+    ibge: "4213203"
+    portal_url: "https://pomerode.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  princesa:
+    nome: "Princesa"
+    ibge: "4214151"
+    portal_url: "https://princesa.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  riqueza:
+    nome: "Riqueza"
+    ibge: "4215075"
+    portal_url: "https://riqueza.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  rodeio:
+    nome: "Rodeio"
+    ibge: "4215109"
+    portal_url: "https://rodeio.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  salete:
+    nome: "Salete"
+    ibge: "4215307"
+    portal_url: "https://salete.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  saudades:
+    nome: "Saudades"
+    ibge: "4217303"
+    portal_url: "https://saudades.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  seara:
+    nome: "Seara"
+    ibge: "4217501"
+    portal_url: "https://seara.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  taio:
+    nome: "Taio"
+    ibge: "4217808"
+    portal_url: "https://taio.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  tijucas:
+    nome: "Tijucas"
+    ibge: "4218004"
+    portal_url: "https://tijucas.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  timbo:
+    nome: "Timbo"
+    ibge: "4218202"
+    portal_url: "https://timbo.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  treviso:
+    nome: "Treviso"
+    ibge: "4218350"
+    portal_url: "https://treviso.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  tunapolis:
+    nome: "Tunapolis"
+    ibge: "4218756"
+    portal_url: "https://tunapolis.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  videira:
+    nome: "Videira"
+    ibge: "4219309"
+    portal_url: "https://videira.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  witmarsum:
+    nome: "Witmarsum"
+    ibge: "4219408"
+    portal_url: "https://witmarsum.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  zortea:
+    nome: "Zortea"
+    ibge: "4219853"
+    portal_url: "https://zortea.atende.net/transparencia"
+    template: "portal_transparencia_net"
+    requires_js: false
+    ativo: true
+
+  # --- PROPRIO (11 municipios, 3.7%) ---
+  atalanta:
+    nome: "Atalanta"
+    ibge: "4201802"
+    portal_url: "https://atalanta.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  blumenau:
+    nome: "Blumenau"
+    ibge: "4202404"
+    portal_url: "https://blumenau.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  chapeco:
+    nome: "Chapeco"
+    ibge: "4204202"
+    portal_url: "https://chapeco.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  criciuma:
+    nome: "Criciuma"
+    ibge: "4204608"
+    portal_url: "https://criciuma.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  gaspar:
+    nome: "Gaspar"
+    ibge: "4205902"
+    portal_url: "https://portaltransparencia.gaspar.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  icara:
+    nome: "Icara"
+    ibge: "4207007"
+    portal_url: "https://icara.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  itajai:
+    nome: "Itajai"
+    ibge: "4208203"
+    portal_url: "https://itajai.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  joinville:
+    nome: "Joinville"
+    ibge: "4209102"
+    portal_url: "https://joinville.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  lages:
+    nome: "Lages"
+    ibge: "4209300"
+    portal_url: "https://lages.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  sombrio:
+    nome: "Sombrio"
+    ibge: "4217709"
+    portal_url: "https://sombrio.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  urubici:
+    nome: "Urubici"
+    ibge: "4218905"
+    portal_url: "https://urubici.sc.gov.br"
+    template: "custom"
+    requires_js: false
+    ativo: true
+
+  # --- NAO ENCONTRADOS (220) ---
+  # abdon-batista:
+  #   nome: "Abdon Batista"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # abelardo-luz:
+  #   nome: "Abelardo Luz"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # agronomica:
+  #   nome: "Agronomica"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # agua-doce:
+  #   nome: "Agua Doce"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # aguas-de-chapeco:
+  #   nome: "Aguas De Chapeco"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # aguas-frias:
+  #   nome: "Aguas Frias"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # aguas-mornas:
+  #   nome: "Aguas Mornas"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # alfredo-wagner:
+  #   nome: "Alfredo Wagner"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # alto-bela-vista:
+  #   nome: "Alto Bela Vista"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # anchieta:
+  #   nome: "Anchieta"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # angelina:
+  #   nome: "Angelina"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # anita-garibaldi:
+  #   nome: "Anita Garibaldi"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # anitapolis:
+  #   nome: "Anitapolis"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # antonio-carlos:
+  #   nome: "Antonio Carlos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # armazem:
+  #   nome: "Armazem"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # arroio-trinta:
+  #   nome: "Arroio Trinta"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # balneario-arroio-do-silva:
+  #   nome: "Balneario Arroio Do Silva"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # balneario-barra-do-sul:
+  #   nome: "Balneario Barra Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # balneario-camboriu:
+  #   nome: "Balneario Camboriu"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # balneario-de-picarras:
+  #   nome: "Balneario De Picarras"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # balneario-gaivota:
+  #   nome: "Balneario Gaivota"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # balneario-rincao:
+  #   nome: "Balneario Rincao"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # bandeirante:
+  #   nome: "Bandeirante"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # barra-bonita:
+  #   nome: "Barra Bonita"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # barra-velha:
+  #   nome: "Barra Velha"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # bela-vista-do-toldo:
+  #   nome: "Bela Vista Do Toldo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # belmonte:
+  #   nome: "Belmonte"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # benedito-novo:
+  #   nome: "Benedito Novo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # bocaina-do-sul:
+  #   nome: "Bocaina Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # bom-jardim-da-serra:
+  #   nome: "Bom Jardim Da Serra"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # bom-jesus:
+  #   nome: "Bom Jesus"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # bom-jesus-do-oeste:
+  #   nome: "Bom Jesus Do Oeste"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # bom-retiro:
+  #   nome: "Bom Retiro"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # braco-do-norte:
+  #   nome: "Braco Do Norte"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # braco-do-trombudo:
+  #   nome: "Braco Do Trombudo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # brunopolis:
+  #   nome: "Brunopolis"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # cacador:
+  #   nome: "Cacador"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # calmon:
+  #   nome: "Calmon"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # campo-alegre:
+  #   nome: "Campo Alegre"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # campo-belo-do-sul:
+  #   nome: "Campo Belo Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # campo-ere:
+  #   nome: "Campo Ere"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # campos-novos:
+  #   nome: "Campos Novos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # canelinha:
+  #   nome: "Canelinha"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # capao-alto:
+  #   nome: "Capao Alto"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # capinzal:
+  #   nome: "Capinzal"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # capivari-de-baixo:
+  #   nome: "Capivari De Baixo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # catanduvas:
+  #   nome: "Catanduvas"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # caxambu-do-sul:
+  #   nome: "Caxambu Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # celso-ramos:
+  #   nome: "Celso Ramos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # cerro-negro:
+  #   nome: "Cerro Negro"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # chapadao-do-lageado:
+  #   nome: "Chapadao Do Lageado"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # cocal-do-sul:
+  #   nome: "Cocal Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # cordilheira-alta:
+  #   nome: "Cordilheira Alta"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # coronel-freitas:
+  #   nome: "Coronel Freitas"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # coronel-martins:
+  #   nome: "Coronel Martins"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # correia-pinto:
+  #   nome: "Correia Pinto"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # cunha-pora:
+  #   nome: "Cunha Pora"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # cunhatai:
+  #   nome: "Cunhatai"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # curitibanos:
+  #   nome: "Curitibanos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # descanso:
+  #   nome: "Descanso"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # dionisio-cerqueira:
+  #   nome: "Dionisio Cerqueira"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # dona-emma:
+  #   nome: "Dona Emma"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # doutor-pedrinho:
+  #   nome: "Doutor Pedrinho"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # entre-rios:
+  #   nome: "Entre Rios"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ermo:
+  #   nome: "Ermo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # erval-velho:
+  #   nome: "Erval Velho"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # faxinal-dos-guedes:
+  #   nome: "Faxinal Dos Guedes"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # flor-do-sertao:
+  #   nome: "Flor Do Sertao"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # florianopolis:
+  #   nome: "Florianopolis"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # formosa-do-sul:
+  #   nome: "Formosa Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # forquilhinha:
+  #   nome: "Forquilhinha"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # frei-rogerio:
+  #   nome: "Frei Rogerio"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # galvao:
+  #   nome: "Galvao"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # governador-celso-ramos:
+  #   nome: "Governador Celso Ramos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # grao-para:
+  #   nome: "Grao Para"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # guaruja-do-sul:
+  #   nome: "Guaruja Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # herval-d-oeste:
+  #   nome: "Herval D'Oeste"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ibiam:
+  #   nome: "Ibiam"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ibicare:
+  #   nome: "Ibicare"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ilhota:
+  #   nome: "Ilhota"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # imarui:
+  #   nome: "Imarui"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # imbuia:
+  #   nome: "Imbuia"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # iomere:
+  #   nome: "Iomere"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ipira:
+  #   nome: "Ipira"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ipora-do-oeste:
+  #   nome: "Ipora Do Oeste"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ipuacu:
+  #   nome: "Ipuacu"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ipumirim:
+  #   nome: "Ipumirim"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # iraceminha:
+  #   nome: "Iraceminha"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # irani:
+  #   nome: "Irani"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # irati:
+  #   nome: "Irati"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # itapema:
+  #   nome: "Itapema"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # jabora:
+  #   nome: "Jabora"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # jacinto-machado:
+  #   nome: "Jacinto Machado"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # jaragua-do-sul:
+  #   nome: "Jaragua Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # joacaba:
+  #   nome: "Joacaba"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # jose-boiteux:
+  #   nome: "Jose Boiteux"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # jupia:
+  #   nome: "Jupia"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # laguna:
+  #   nome: "Laguna"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # lajeado-grande:
+  #   nome: "Lajeado Grande"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # lauro-muller:
+  #   nome: "Lauro Muller"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # lebon-regis:
+  #   nome: "Lebon Regis"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # leoberto-leal:
+  #   nome: "Leoberto Leal"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # lindoia-do-sul:
+  #   nome: "Lindoia Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # luiz-alves:
+  #   nome: "Luiz Alves"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # luzerna:
+  #   nome: "Luzerna"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # macieira:
+  #   nome: "Macieira"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # mafra:
+  #   nome: "Mafra"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # major-gercino:
+  #   nome: "Major Gercino"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # major-vieira:
+  #   nome: "Major Vieira"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # maracaja:
+  #   nome: "Maracaja"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # maravilha:
+  #   nome: "Maravilha"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # marema:
+  #   nome: "Marema"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # matos-costa:
+  #   nome: "Matos Costa"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # meleiro:
+  #   nome: "Meleiro"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # mirim-doce:
+  #   nome: "Mirim Doce"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # mondai:
+  #   nome: "Mondai"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # monte-carlo:
+  #   nome: "Monte Carlo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # monte-castelo:
+  #   nome: "Monte Castelo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # morro-da-fumaca:
+  #   nome: "Morro Da Fumaca"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # morro-grande:
+  #   nome: "Morro Grande"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # nova-erechim:
+  #   nome: "Nova Erechim"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # nova-itaberaba:
+  #   nome: "Nova Itaberaba"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # nova-trento:
+  #   nome: "Nova Trento"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # nova-veneza:
+  #   nome: "Nova Veneza"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # novo-horizonte:
+  #   nome: "Novo Horizonte"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # orleans:
+  #   nome: "Orleans"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # otacilio-costa:
+  #   nome: "Otacilio Costa"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ouro-verde:
+  #   nome: "Ouro Verde"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # painel:
+  #   nome: "Painel"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # palma-sola:
+  #   nome: "Palma Sola"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # palmeira:
+  #   nome: "Palmeira"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # palmitos:
+  #   nome: "Palmitos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # passo-de-torres:
+  #   nome: "Passo De Torres"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # passos-maia:
+  #   nome: "Passos Maia"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # paulo-lopes:
+  #   nome: "Paulo Lopes"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # pedras-grandes:
+  #   nome: "Pedras Grandes"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # peritiba:
+  #   nome: "Peritiba"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # pescaria-brava:
+  #   nome: "Pescaria Brava"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # petrolandia:
+  #   nome: "Petrolandia"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # pinheiro-preto:
+  #   nome: "Pinheiro Preto"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # piratuba:
+  #   nome: "Piratuba"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # planalto-alegre:
+  #   nome: "Planalto Alegre"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ponte-alta:
+  #   nome: "Ponte Alta"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ponte-alta-do-norte:
+  #   nome: "Ponte Alta Do Norte"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # ponte-serrada:
+  #   nome: "Ponte Serrada"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # porto-belo:
+  #   nome: "Porto Belo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # porto-uniao:
+  #   nome: "Porto Uniao"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # pouso-redondo:
+  #   nome: "Pouso Redondo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # praia-grande:
+  #   nome: "Praia Grande"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # presidente-castello-branco:
+  #   nome: "Presidente Castello Branco"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # presidente-getulio:
+  #   nome: "Presidente Getulio"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # presidente-nereu:
+  #   nome: "Presidente Nereu"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # quilombo:
+  #   nome: "Quilombo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rancho-queimado:
+  #   nome: "Rancho Queimado"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rio-das-antas:
+  #   nome: "Rio Das Antas"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rio-do-campo:
+  #   nome: "Rio Do Campo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rio-do-oeste:
+  #   nome: "Rio Do Oeste"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rio-do-sul:
+  #   nome: "Rio Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rio-dos-cedros:
+  #   nome: "Rio Dos Cedros"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rio-fortuna:
+  #   nome: "Rio Fortuna"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rio-negrinho:
+  #   nome: "Rio Negrinho"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # rio-rufino:
+  #   nome: "Rio Rufino"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # romelandia:
+  #   nome: "Romelandia"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # saltinho:
+  #   nome: "Saltinho"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # salto-veloso:
+  #   nome: "Salto Veloso"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sangao:
+  #   nome: "Sangao"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # santa-cecilia:
+  #   nome: "Santa Cecilia"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # santa-helena:
+  #   nome: "Santa Helena"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # santa-rosa-de-lima:
+  #   nome: "Santa Rosa De Lima"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # santa-rosa-do-sul:
+  #   nome: "Santa Rosa Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # santa-terezinha:
+  #   nome: "Santa Terezinha"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # santa-terezinha-do-progresso:
+  #   nome: "Santa Terezinha Do Progresso"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # santiago-do-sul:
+  #   nome: "Santiago Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # santo-amaro-da-imperatriz:
+  #   nome: "Santo Amaro Da Imperatriz"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-bento-do-sul:
+  #   nome: "Sao Bento Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-bernardino:
+  #   nome: "Sao Bernardino"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-bonifacio:
+  #   nome: "Sao Bonifacio"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-carlos:
+  #   nome: "Sao Carlos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-cristovao-do-sul:
+  #   nome: "Sao Cristovao Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-domingos:
+  #   nome: "Sao Domingos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-francisco-do-sul:
+  #   nome: "Sao Francisco Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-joao-batista:
+  #   nome: "Sao Joao Batista"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-joao-do-itaperiu:
+  #   nome: "Sao Joao Do Itaperiu"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-joao-do-oeste:
+  #   nome: "Sao Joao Do Oeste"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-joao-do-sul:
+  #   nome: "Sao Joao Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-joaquim:
+  #   nome: "Sao Joaquim"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-jose:
+  #   nome: "Sao Jose"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-jose-do-cedro:
+  #   nome: "Sao Jose Do Cedro"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-jose-do-cerrito:
+  #   nome: "Sao Jose Do Cerrito"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-lourenco-do-oeste:
+  #   nome: "Sao Lourenco Do Oeste"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-ludgero:
+  #   nome: "Sao Ludgero"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-martinho:
+  #   nome: "Sao Martinho"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-miguel-da-boa-vista:
+  #   nome: "Sao Miguel Da Boa Vista"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-miguel-do-oeste:
+  #   nome: "Sao Miguel Do Oeste"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sao-pedro-de-alcantara:
+  #   nome: "Sao Pedro De Alcantara"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # schroeder:
+  #   nome: "Schroeder"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # serra-alta:
+  #   nome: "Serra Alta"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sideropolis:
+  #   nome: "Sideropolis"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # sul-brasil:
+  #   nome: "Sul Brasil"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # tangara:
+  #   nome: "Tangara"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # tigrinhos:
+  #   nome: "Tigrinhos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # timbe-do-sul:
+  #   nome: "Timbe Do Sul"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # timbo-grande:
+  #   nome: "Timbo Grande"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # tres-barras:
+  #   nome: "Tres Barras"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # treze-de-maio:
+  #   nome: "Treze De Maio"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # treze-tilias:
+  #   nome: "Treze Tilias"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # trombudo-central:
+  #   nome: "Trombudo Central"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # tubarao:
+  #   nome: "Tubarao"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # turvo:
+  #   nome: "Turvo"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # uniao-do-oeste:
+  #   nome: "Uniao Do Oeste"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # urupema:
+  #   nome: "Urupema"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # urussanga:
+  #   nome: "Urussanga"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # vargeao:
+  #   nome: "Vargeao"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # vargem:
+  #   nome: "Vargem"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # vargem-bonita:
+  #   nome: "Vargem Bonita"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # vidal-ramos:
+  #   nome: "Vidal Ramos"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # vitor-meireles:
+  #   nome: "Vitor Meireles"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # xanxere:
+  #   nome: "Xanxere"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # xavantina:
+  #   nome: "Xavantina"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false
+
+  # xaxim:
+  #   nome: "Xaxim"
+  #   ibge: ""  # TODO: lookup manual
+  #   portal_url: ""  # TODO: descobrir manualmente
+  #   template: "custom"
+  #   requires_js: false
+  #   ativo: false

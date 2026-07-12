@@ -1,0 +1,22 @@
+# /etc/systemd/system/extra-crawl-selenium.service
+# Selenium crawler — weekly (Sat 04:00 UTC)
+# JS-rendered transparency portal extraction via headless Chrome
+#
+# COVERAGE-3.1 AC10: Systemd timer para crawl incremental semanal
+# Portais JS-rendered que atualizam com frequencia: semanal e suficiente
+
+[Unit]
+Description=Extra Consultoria — Selenium JS Portal Crawler
+After=network-online.target
+Wants=network-online.target
+OnFailure=onfailure@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/monitor.py --source selenium --mode full
+User=extra-consultoria
+StandardOutput=journal
+StandardError=journal

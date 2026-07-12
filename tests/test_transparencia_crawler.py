@@ -14,7 +14,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
 from bs4 import BeautifulSoup
 
 from scripts.crawl import transparencia_crawler as tc
@@ -204,13 +203,84 @@ class TestDetectPlatform:
         assert result["status"] == "not_found"
         assert result["platform"] is None
 
+    @patch("scripts.crawl.transparencia_crawler._fetch_url")
+    def test_fiorilli(self, mock_fetch):
+        """Fiorilli platform detected."""
+        mock_fetch.side_effect = lambda url, timeout=None: (
+            (200, "<html><body>fiorilli transparencia</body></html>")
+            if "fiorilli.com.br" in url
+            else (0, "timeout")
+        )
+        result = tc.detect_platform("municipio", municipio="Municipio Teste")
+        assert result["platform"] == "fiorilli"
+        assert result["status"] == "detected"
+        assert "fiorilli.com.br" in result["url"]
+
+    @patch("scripts.crawl.transparencia_crawler._fetch_url")
+    def test_iplan(self, mock_fetch):
+        """Iplan platform detected."""
+        mock_fetch.side_effect = lambda url, timeout=None: (
+            (200, "<html><body>iplan transparencia</body></html>")
+            if "iplan.gov.br" in url
+            else (0, "timeout")
+        )
+        result = tc.detect_platform("municipio", municipio="Municipio Teste")
+        assert result["platform"] == "iplan"
+        assert result["status"] == "detected"
+        assert "iplan.gov.br" in result["url"]
+
+    @patch("scripts.crawl.transparencia_crawler._fetch_url")
+    def test_iri(self, mock_fetch):
+        """IRI platform detected."""
+        mock_fetch.side_effect = lambda url, timeout=None: (
+            (200, "<html><body>iri transparencia</body></html>")
+            if "iri.com.br" in url
+            else (0, "timeout")
+        )
+        result = tc.detect_platform("municipio", municipio="Municipio Teste")
+        assert result["platform"] == "iri"
+        assert result["status"] == "detected"
+        assert "iri.com.br" in result["url"]
+
+    @patch("scripts.crawl.transparencia_crawler._fetch_url")
+    def test_prima(self, mock_fetch):
+        """Prima platform detected."""
+        mock_fetch.side_effect = lambda url, timeout=None: (
+            (200, "<html><body>prima transparencia</body></html>")
+            if "prima.com.br" in url
+            else (0, "timeout")
+        )
+        result = tc.detect_platform("municipio", municipio="Municipio Teste")
+        assert result["platform"] == "prima"
+        assert result["status"] == "detected"
+        assert "prima.com.br" in result["url"]
+
+    @patch("scripts.crawl.transparencia_crawler._fetch_url")
+    def test_tecnospeed(self, mock_fetch):
+        """Tecnospeed platform detected."""
+        mock_fetch.side_effect = lambda url, timeout=None: (
+            (200, "<html><body>tecnospeed transparencia</body></html>")
+            if "tecnospeed.com.br" in url
+            else (0, "timeout")
+        )
+        result = tc.detect_platform("municipio", municipio="Municipio Teste")
+        assert result["platform"] == "tecnospeed"
+        assert result["status"] == "detected"
+        assert "tecnospeed.com.br" in result["url"]
+
     def test_detect_platform_from_url(self):
-        """_detect_platform_from_url correctly identifies platforms."""
+        """_detect_platform_from_url correctly identifies all 8 platforms."""
         assert tc._detect_platform_from_url("https://chapeco.atende.net/transparencia") == "betha"
         assert tc._detect_platform_from_url("https://itajai.ipm.org.br/transparencia") == "ipam"
         assert tc._detect_platform_from_url("https://florianopolis.e-gov.betha.com.br") == "egov"
         assert tc._detect_platform_from_url("https://betha.com.br/transparencia") == "egov"
         assert tc._detect_platform_from_url("https://tubarao.sc.gov.br") is None
+        # New platforms from COVERAGE-1.3
+        assert tc._detect_platform_from_url("https://municipio.fiorilli.com.br/transparencia") == "fiorilli"
+        assert tc._detect_platform_from_url("https://municipio.iplan.gov.br/transparencia") == "iplan"
+        assert tc._detect_platform_from_url("https://municipio.iri.com.br/transparencia") == "iri"
+        assert tc._detect_platform_from_url("https://municipio.prima.com.br/transparencia") == "prima"
+        assert tc._detect_platform_from_url("https://municipio.tecnospeed.com.br/transparencia") == "tecnospeed"
 
 
 # ---------------------------------------------------------------------------
@@ -408,14 +478,14 @@ class TestTransform:
 class TestLoadConfig:
     """Tests for load_config()."""
 
-    def test_12_municipios(self):
-        """load_config() returns config with 12 municipios."""
+    def test_79_municipios(self):
+        """load_config() returns config with 79 municipios."""
         config_path = str(Path(__file__).resolve().parent.parent / "config" / "transparencia_config.yaml")
         config = tc.load_config(config_path)
 
         municipios = config.get("municipios", {})
-        # The config has exactly 12 municipios
-        assert len(municipios) == 12, f"Expected 12 municipios, got {len(municipios)}"
+        # Config expanded from 12 to 79 with batch-detected Betha municipios
+        assert len(municipios) == 79, f"Expected 79 municipios, got {len(municipios)}"
 
         templates = config.get("templates", {})
         assert "portal_transparencia_net" in templates
@@ -456,12 +526,12 @@ class TestLoadConfig:
             assert slug in municipios, f"Missing E-gov municipio: {slug}"
 
     def test_custom_municipios_present(self):
-        """Custom municipios (tubarao, brusque, rio-do-sul) are configured."""
+        """Custom municipios (tubarao, rio-do-sul) are configured."""
         config_path = str(Path(__file__).resolve().parent.parent / "config" / "transparencia_config.yaml")
         config = tc.load_config(config_path)
         municipios = config.get("municipios", {})
 
-        for slug in ("tubarao", "brusque", "rio-do-sul"):
+        for slug in ("tubarao", "rio-do-sul"):
             assert slug in municipios, f"Missing custom municipio: {slug}"
             assert municipios[slug]["template"] == "custom"
 
@@ -473,6 +543,7 @@ class TestLoadConfig:
 
         for slug, cfg in municipios.items():
             ibge = cfg.get("ibge", "")
+            assert isinstance(ibge, str), f"{slug}: IBGE '{ibge}' is not a string (type={type(ibge).__name__})"
             assert len(ibge) == 7, f"{slug}: IBGE '{ibge}' is not 7 digits"
             assert ibge.isdigit(), f"{slug}: IBGE '{ibge}' is not numeric"
 
@@ -482,7 +553,7 @@ class TestLoadConfig:
         config = tc.load_config(config_path)
         municipios = config.get("municipios", {})
 
-        for slug in ("tubarao", "brusque", "rio-do-sul"):
+        for slug in ("tubarao", "rio-do-sul"):
             assert "selectors" in municipios[slug], f"{slug} missing selectors"
             sel = municipios[slug]["selectors"]
             assert "lista_licitacoes" in sel, f"{slug} missing lista_licitacoes selector"
@@ -927,8 +998,10 @@ class TestCrawl:
     @patch("scripts.crawl.transparencia_crawler._load_entities")
     @patch("scripts.crawl.transparencia_crawler._load_existing_results")
     @patch("scripts.crawl.transparencia_crawler.detect_platform")
-    def test_crawl_full(self, mock_detect, mock_existing, mock_entities):
+    @patch("scripts.crawl.transparencia_crawler._save_results")
+    def test_crawl_full(self, mock_save, mock_detect, mock_existing, mock_entities):
         """crawl('full') iterates over entities and returns results."""
+        mock_save.return_value = "/tmp/test_platforms.json"
         mock_entities.return_value = [
             {"nome": "Chapeco", "slug": "chapeco", "ibge": "4204202"},
             {"nome": "Blumenau", "slug": "blumenau", "ibge": "4202404"},
@@ -951,10 +1024,12 @@ class TestCrawl:
     @patch("scripts.crawl.transparencia_crawler._load_entities")
     @patch("scripts.crawl.transparencia_crawler._load_existing_results")
     @patch("scripts.crawl.transparencia_crawler.detect_platform")
+    @patch("scripts.crawl.transparencia_crawler._save_results")
     def test_crawl_incremental_skips_existing(
-        self, mock_detect, mock_existing, mock_entities,
+        self, mock_save, mock_detect, mock_existing, mock_entities,
     ):
         """crawl('incremental') skips already-detected slugs."""
+        mock_save.return_value = "/tmp/test_platforms.json"
         mock_entities.return_value = [
             {"nome": "Chapeco", "slug": "chapeco", "ibge": "4204202"},
             {"nome": "Blumenau", "slug": "blumenau", "ibge": "4202404"},
@@ -1152,7 +1227,7 @@ class TestSeleniumCrawler:
 
     def test_render_page_timeout_error(self):
         """render_page raises PageTimeoutError for unreachable URLs."""
-        from scripts.crawl.selenium_crawler import SeleniumCrawler, PageTimeoutError
+        from scripts.crawl.selenium_crawler import PageTimeoutError, SeleniumCrawler
 
         crawler = SeleniumCrawler(headless=True, timeout=1, request_delay=0.1)
         try:

@@ -148,7 +148,7 @@ class TestMatchEntitiesCascade:
 
         result = match_entities_cascade(conn, "pncp", SAMPLE_ENTITIES)
 
-        assert result == {"cnpj": 0, "name_normalized": 0, "fuzzy": 0, "unmatched": 0, "total": 0}
+        assert result == {"cnpj": 0, "name_normalized": 0, "alias": 0, "fuzzy": 0, "unmatched": 0, "total": 0}
 
     def test_level1_cnpj_match(self):
         """Level 1: CNPJ match should succeed."""

@@ -1,0 +1,824 @@
+# transparencia_config.yaml
+# generated_at
+# summary
+# platforms
+templates:
+  portal_transparencia_net:
+    name: Portal Transparencia .NET
+    description: Template mais comum em municipios de SC — tabela .licitacao
+    selectors:
+      lista_licitacoes: table.licitacao
+      modalidade: td:nth-child(2)
+      data: td:nth-child(1)
+      objeto: td:nth-child(3)
+      orgao: td:nth-child(4)
+      valor: td:nth-child(5)
+      link: a
+  e_gov_net:
+    name: e-Gov .NET
+    description: Segundo mais comum — plataforma e-gov da Betha
+    selectors:
+      lista_licitacoes: div.lista-licitacoes table
+      modalidade: td:nth-child(1)
+      data: td:nth-child(2)
+      objeto: td:nth-child(3)
+      valor: td:nth-child(4)
+      link: a
+  sc_gov_portal:
+    name: Portal sc.gov.br
+    description: Template generico para portais no dominio sc.gov.br (atende.net personalizado)
+    selectors:
+      lista_licitacoes: table.table-licitacoes, table.licitacao, table.table
+      modalidade: td:nth-child(2)
+      data: td:nth-child(1)
+      objeto: td:nth-child(3)
+      orgao: td:nth-child(4)
+      valor: td:nth-child(5)
+      link: a
+  custom:
+    name: Custom (HTML scraping especifico)
+    description: Template customizado — requer selectors definidos por municipio
+    selectors:
+
+municipios:
+  agrolandia:
+    nome: Agrolandia
+    ibge: 4200200
+    portal_url: https://agrolandia.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  apiuna:
+    nome: Apiuna
+    ibge: 4201257
+    portal_url: https://apiuna.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  arabuta:
+    nome: Arabuta
+    ibge: 4201273
+    portal_url: https://arabuta.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  araquari:
+    nome: Araquari
+    ibge: 4201307
+    portal_url: https://araquari.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  ararangua:
+    nome: Ararangua
+    ibge: 4201406
+    portal_url: https://ararangua.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  arvoredo:
+    nome: Arvoredo
+    ibge: 4201653
+    portal_url: https://arvoredo.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  ascurra:
+    nome: Ascurra
+    ibge: 4201703
+    portal_url: https://ascurra.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  aurora:
+    nome: Aurora
+    ibge: 4201901
+    portal_url: https://aurora.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  biguacu:
+    nome: Biguacu
+    ibge: 4202305
+    portal_url: https://biguacu.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  bombinhas:
+    nome: Bombinhas
+    ibge: 4202453
+    portal_url: https://bombinhas.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  botuvera:
+    nome: Botuvera
+    ibge: 4202701
+    portal_url: https://botuvera.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  brusque:
+    nome: Brusque
+    ibge: 4202909
+    portal_url: https://brusque.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  caibi:
+    nome: Caibi
+    ibge: 4203105
+    portal_url: https://caibi.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  camboriu:
+    nome: Camboriu
+    ibge: 4203204
+    portal_url: https://camboriu.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  canoinhas:
+    nome: Canoinhas
+    ibge: 4203808
+    portal_url: https://canoinhas.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  concordia:
+    nome: Concordia
+    ibge: 4204301
+    portal_url: https://concordia.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  corupa:
+    nome: Corupa
+    ibge: 4204509
+    portal_url: https://corupa.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  fraiburgo:
+    nome: Fraiburgo
+    ibge: 4205506
+    portal_url: https://fraiburgo.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  garopaba:
+    nome: Garopaba
+    ibge: 4205704
+    portal_url: https://garopaba.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  garuva:
+    nome: Garuva
+    ibge: 4205803
+    portal_url: https://garuva.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  gravatal:
+    nome: Gravatal
+    ibge: 4206207
+    portal_url: https://gravatal.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  guabiruba:
+    nome: Guabiruba
+    ibge: 4206306
+    portal_url: https://guabiruba.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  guaraciaba:
+    nome: Guaraciaba
+    ibge: 4206405
+    portal_url: https://guaraciaba.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  guaramirim:
+    nome: Guaramirim
+    ibge: 4206504
+    portal_url: https://guaramirim.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  guatambu:
+    nome: Guatambu
+    ibge: 4206652
+    portal_url: https://guatambu.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  ibirama:
+    nome: Ibirama
+    ibge: 4206900
+    portal_url: https://ibirama.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  imbituba:
+    nome: Imbituba
+    ibge: 4207304
+    portal_url: https://imbituba.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  indaial:
+    nome: Indaial
+    ibge: 4207502
+    portal_url: https://indaial.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  irineopolis:
+    nome: Irineopolis
+    ibge: 4207908
+    portal_url: https://irineopolis.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  ita:
+    nome: Ita
+    ibge: 4208005
+    portal_url: https://ita.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  itaiopolis:
+    nome: Itaiopolis
+    ibge: 4208104
+    portal_url: https://itaiopolis.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  itapiranga:
+    nome: Itapiranga
+    ibge: 4208401
+    portal_url: https://itapiranga.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  itapoa:
+    nome: Itapoa
+    ibge: 4208450
+    portal_url: https://itapoa.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  ituporanga:
+    nome: Ituporanga
+    ibge: 4208500
+    portal_url: https://ituporanga.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  jaguaruna:
+    nome: Jaguaruna
+    ibge: 4208807
+    portal_url: https://jaguaruna.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  jardinopolis:
+    nome: Jardinopolis
+    ibge: 4208955
+    portal_url: https://jardinopolis.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  lacerdopolis:
+    nome: Lacerdopolis
+    ibge: 4209201
+    portal_url: https://lacerdopolis.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  laurentino:
+    nome: Laurentino
+    ibge: 4209508
+    portal_url: https://laurentino.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  lontras:
+    nome: Lontras
+    ibge: 4209904
+    portal_url: https://lontras.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  massaranduba:
+    nome: Massaranduba
+    ibge: 4210605
+    portal_url: https://massaranduba.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  modelo:
+    nome: Modelo
+    ibge: 4210902
+    portal_url: https://modelo.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  navegantes:
+    nome: Navegantes
+    ibge: 4211306
+    portal_url: https://navegantes.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  ouro:
+    nome: Ouro
+    ibge: 4211801
+    portal_url: https://ouro.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  paial:
+    nome: Paial
+    ibge: 4211876
+    portal_url: https://paial.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  palhoca:
+    nome: Palhoca
+    ibge: 4211900
+    portal_url: https://palhoca.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  papanduva:
+    nome: Papanduva
+    ibge: 4212205
+    portal_url: https://papanduva.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  paraiso:
+    nome: Paraiso
+    ibge: 4212239
+    portal_url: https://paraiso.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  penha:
+    nome: Penha
+    ibge: 4212502
+    portal_url: https://penha.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  pinhalzinho:
+    nome: Pinhalzinho
+    ibge: 4212908
+    portal_url: https://pinhalzinho.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  pomerode:
+    nome: Pomerode
+    ibge: 4213203
+    portal_url: https://pomerode.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  princesa:
+    nome: Princesa
+    ibge: 4214151
+    portal_url: https://princesa.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  riqueza:
+    nome: Riqueza
+    ibge: 4215075
+    portal_url: https://riqueza.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  rodeio:
+    nome: Rodeio
+    ibge: 4215109
+    portal_url: https://rodeio.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  salete:
+    nome: Salete
+    ibge: 4215307
+    portal_url: https://salete.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  saudades:
+    nome: Saudades
+    ibge: 4217303
+    portal_url: https://saudades.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  seara:
+    nome: Seara
+    ibge: 4217501
+    portal_url: https://seara.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  taio:
+    nome: Taio
+    ibge: 4217808
+    portal_url: https://taio.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  tijucas:
+    nome: Tijucas
+    ibge: 4218004
+    portal_url: https://tijucas.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  timbo:
+    nome: Timbo
+    ibge: 4218202
+    portal_url: https://timbo.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  treviso:
+    nome: Treviso
+    ibge: 4218350
+    portal_url: https://treviso.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  tunapolis:
+    nome: Tunapolis
+    ibge: 4218756
+    portal_url: https://tunapolis.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  videira:
+    nome: Videira
+    ibge: 4219309
+    portal_url: https://videira.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  witmarsum:
+    nome: Witmarsum
+    ibge: 4219408
+    portal_url: https://witmarsum.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  zortea:
+    nome: Zortea
+    ibge: 4219853
+    portal_url: https://zortea.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: false
+    ativo: true
+  atalanta:
+    nome: Atalanta
+    ibge: 4201802
+    portal_url: https://atalanta.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  blumenau:
+    nome: Blumenau
+    ibge: 4202404
+    portal_url: https://blumenau.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  chapeco:
+    nome: Chapeco
+    ibge: 4204202
+    portal_url: https://chapeco.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  criciuma:
+    nome: Criciuma
+    ibge: 4204608
+    portal_url: https://criciuma.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  gaspar:
+    nome: Gaspar
+    ibge: 4205902
+    portal_url: https://portaltransparencia.gaspar.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  icara:
+    nome: Icara
+    ibge: 4207007
+    portal_url: https://icara.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  itajai:
+    nome: Itajai
+    ibge: 4208203
+    portal_url: https://itajai.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  joinville:
+    nome: Joinville
+    ibge: 4209102
+    portal_url: https://joinville.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  lages:
+    nome: Lages
+    ibge: 4209300
+    portal_url: https://lages.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  urubici:
+    nome: Urubici
+    ibge: 4218905
+    portal_url: https://urubici.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    ativo: true
+  florianopolis:
+    nome: Florianopolis
+    ibge: 4205407
+    portal_url: https://florianopolis.e-gov.betha.com.br
+    template: e_gov_net
+    requires_js: true
+    wait_for: div.lista-licitacoes
+    ativo: true
+  sao-jose:
+    nome: Sao Jose
+    ibge: 4216602
+    portal_url: https://sao-jose.atende.net/transparencia
+    template: portal_transparencia_net
+    requires_js: true
+    wait_for: table.licitacao
+    ativo: true
+  balneario-camboriu:
+    nome: Balneario Camboriu
+    ibge: 4202008
+    portal_url: https://balneario-camboriu.e-gov.betha.com.br
+    template: e_gov_net
+    requires_js: false
+    ativo: true
+  tubarao:
+    nome: Tubarao
+    ibge: 4218700
+    portal_url: https://tubarao.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    selectors:
+      lista_licitacoes: table.table-licitacoes
+    ativo: true
+  rio-do-sul:
+    nome: Rio do Sul
+    ibge: 4214805
+    portal_url: https://riodosul.sc.gov.br
+    template: sc_gov_portal
+    requires_js: false
+    selectors:
+      lista_licitacoes: table.table-licitacoes
+    ativo: true
+
+# ── NAO ENCONTRADOS (220) ──
+# abdon-batista:  # Abdon Batista — IBGE pendente, URL pendente
+# abelardo-luz:  # Abelardo Luz — IBGE pendente, URL pendente
+# agronomica:  # Agronomica — IBGE pendente, URL pendente
+# agua-doce:  # Agua Doce — IBGE pendente, URL pendente
+# aguas-de-chapeco:  # Aguas De Chapeco — IBGE pendente, URL pendente
+# aguas-frias:  # Aguas Frias — IBGE pendente, URL pendente
+# aguas-mornas:  # Aguas Mornas — IBGE pendente, URL pendente
+# alfredo-wagner:  # Alfredo Wagner — IBGE pendente, URL pendente
+# alto-bela-vista:  # Alto Bela Vista — IBGE pendente, URL pendente
+# anchieta:  # Anchieta — IBGE pendente, URL pendente
+# angelina:  # Angelina — IBGE pendente, URL pendente
+# anita-garibaldi:  # Anita Garibaldi — IBGE pendente, URL pendente
+# anitapolis:  # Anitapolis — IBGE pendente, URL pendente
+# antonio-carlos:  # Antonio Carlos — IBGE pendente, URL pendente
+# armazem:  # Armazem — IBGE pendente, URL pendente
+# arroio-trinta:  # Arroio Trinta — IBGE pendente, URL pendente
+# balneario-arroio-do-silva:  # Balneario Arroio Do Silva — IBGE pendente, URL pendente
+# balneario-barra-do-sul:  # Balneario Barra Do Sul — IBGE pendente, URL pendente
+# balneario-camboriu:  # Balneario Camboriu — IBGE pendente, URL pendente
+# balneario-de-picarras:  # Balneario De Picarras — IBGE pendente, URL pendente
+# balneario-gaivota:  # Balneario Gaivota — IBGE pendente, URL pendente
+# balneario-rincao:  # Balneario Rincao — IBGE pendente, URL pendente
+# bandeirante:  # Bandeirante — IBGE pendente, URL pendente
+# barra-bonita:  # Barra Bonita — IBGE pendente, URL pendente
+# barra-velha:  # Barra Velha — IBGE pendente, URL pendente
+# bela-vista-do-toldo:  # Bela Vista Do Toldo — IBGE pendente, URL pendente
+# belmonte:  # Belmonte — IBGE pendente, URL pendente
+# benedito-novo:  # Benedito Novo — IBGE pendente, URL pendente
+# bocaina-do-sul:  # Bocaina Do Sul — IBGE pendente, URL pendente
+# bom-jardim-da-serra:  # Bom Jardim Da Serra — IBGE pendente, URL pendente
+# bom-jesus:  # Bom Jesus — IBGE pendente, URL pendente
+# bom-jesus-do-oeste:  # Bom Jesus Do Oeste — IBGE pendente, URL pendente
+# bom-retiro:  # Bom Retiro — IBGE pendente, URL pendente
+# braco-do-norte:  # Braco Do Norte — IBGE pendente, URL pendente
+# braco-do-trombudo:  # Braco Do Trombudo — IBGE pendente, URL pendente
+# brunopolis:  # Brunopolis — IBGE pendente, URL pendente
+# cacador:  # Cacador — IBGE pendente, URL pendente
+# calmon:  # Calmon — IBGE pendente, URL pendente
+# campo-alegre:  # Campo Alegre — IBGE pendente, URL pendente
+# campo-belo-do-sul:  # Campo Belo Do Sul — IBGE pendente, URL pendente
+# campo-ere:  # Campo Ere — IBGE pendente, URL pendente
+# campos-novos:  # Campos Novos — IBGE pendente, URL pendente
+# canelinha:  # Canelinha — IBGE pendente, URL pendente
+# capao-alto:  # Capao Alto — IBGE pendente, URL pendente
+# capinzal:  # Capinzal — IBGE pendente, URL pendente
+# capivari-de-baixo:  # Capivari De Baixo — IBGE pendente, URL pendente
+# catanduvas:  # Catanduvas — IBGE pendente, URL pendente
+# caxambu-do-sul:  # Caxambu Do Sul — IBGE pendente, URL pendente
+# celso-ramos:  # Celso Ramos — IBGE pendente, URL pendente
+# cerro-negro:  # Cerro Negro — IBGE pendente, URL pendente
+# chapadao-do-lageado:  # Chapadao Do Lageado — IBGE pendente, URL pendente
+# cocal-do-sul:  # Cocal Do Sul — IBGE pendente, URL pendente
+# cordilheira-alta:  # Cordilheira Alta — IBGE pendente, URL pendente
+# coronel-freitas:  # Coronel Freitas — IBGE pendente, URL pendente
+# coronel-martins:  # Coronel Martins — IBGE pendente, URL pendente
+# correia-pinto:  # Correia Pinto — IBGE pendente, URL pendente
+# cunha-pora:  # Cunha Pora — IBGE pendente, URL pendente
+# cunhatai:  # Cunhatai — IBGE pendente, URL pendente
+# curitibanos:  # Curitibanos — IBGE pendente, URL pendente
+# descanso:  # Descanso — IBGE pendente, URL pendente
+# dionisio-cerqueira:  # Dionisio Cerqueira — IBGE pendente, URL pendente
+# dona-emma:  # Dona Emma — IBGE pendente, URL pendente
+# doutor-pedrinho:  # Doutor Pedrinho — IBGE pendente, URL pendente
+# entre-rios:  # Entre Rios — IBGE pendente, URL pendente
+# ermo:  # Ermo — IBGE pendente, URL pendente
+# erval-velho:  # Erval Velho — IBGE pendente, URL pendente
+# faxinal-dos-guedes:  # Faxinal Dos Guedes — IBGE pendente, URL pendente
+# flor-do-sertao:  # Flor Do Sertao — IBGE pendente, URL pendente
+# florianopolis:  # Florianopolis — IBGE pendente, URL pendente
+# formosa-do-sul:  # Formosa Do Sul — IBGE pendente, URL pendente
+# forquilhinha:  # Forquilhinha — IBGE pendente, URL pendente
+# frei-rogerio:  # Frei Rogerio — IBGE pendente, URL pendente
+# galvao:  # Galvao — IBGE pendente, URL pendente
+# governador-celso-ramos:  # Governador Celso Ramos — IBGE pendente, URL pendente
+# grao-para:  # Grao Para — IBGE pendente, URL pendente
+# guaruja-do-sul:  # Guaruja Do Sul — IBGE pendente, URL pendente
+# herval-d-oeste:  # Herval D'Oeste — IBGE pendente, URL pendente
+# ibiam:  # Ibiam — IBGE pendente, URL pendente
+# ibicare:  # Ibicare — IBGE pendente, URL pendente
+# ilhota:  # Ilhota — IBGE pendente, URL pendente
+# imarui:  # Imarui — IBGE pendente, URL pendente
+# imbuia:  # Imbuia — IBGE pendente, URL pendente
+# iomere:  # Iomere — IBGE pendente, URL pendente
+# ipira:  # Ipira — IBGE pendente, URL pendente
+# ipora-do-oeste:  # Ipora Do Oeste — IBGE pendente, URL pendente
+# ipuacu:  # Ipuacu — IBGE pendente, URL pendente
+# ipumirim:  # Ipumirim — IBGE pendente, URL pendente
+# iraceminha:  # Iraceminha — IBGE pendente, URL pendente
+# irani:  # Irani — IBGE pendente, URL pendente
+# irati:  # Irati — IBGE pendente, URL pendente
+# itapema:  # Itapema — IBGE pendente, URL pendente
+# jabora:  # Jabora — IBGE pendente, URL pendente
+# jacinto-machado:  # Jacinto Machado — IBGE pendente, URL pendente
+# jaragua-do-sul:  # Jaragua Do Sul — IBGE pendente, URL pendente
+# joacaba:  # Joacaba — IBGE pendente, URL pendente
+# jose-boiteux:  # Jose Boiteux — IBGE pendente, URL pendente
+# jupia:  # Jupia — IBGE pendente, URL pendente
+# laguna:  # Laguna — IBGE pendente, URL pendente
+# lajeado-grande:  # Lajeado Grande — IBGE pendente, URL pendente
+# lauro-muller:  # Lauro Muller — IBGE pendente, URL pendente
+# lebon-regis:  # Lebon Regis — IBGE pendente, URL pendente
+# leoberto-leal:  # Leoberto Leal — IBGE pendente, URL pendente
+# lindoia-do-sul:  # Lindoia Do Sul — IBGE pendente, URL pendente
+# luiz-alves:  # Luiz Alves — IBGE pendente, URL pendente
+# luzerna:  # Luzerna — IBGE pendente, URL pendente
+# macieira:  # Macieira — IBGE pendente, URL pendente
+# mafra:  # Mafra — IBGE pendente, URL pendente
+# major-gercino:  # Major Gercino — IBGE pendente, URL pendente
+# major-vieira:  # Major Vieira — IBGE pendente, URL pendente
+# maracaja:  # Maracaja — IBGE pendente, URL pendente
+# maravilha:  # Maravilha — IBGE pendente, URL pendente
+# marema:  # Marema — IBGE pendente, URL pendente
+# matos-costa:  # Matos Costa — IBGE pendente, URL pendente
+# meleiro:  # Meleiro — IBGE pendente, URL pendente
+# mirim-doce:  # Mirim Doce — IBGE pendente, URL pendente
+# mondai:  # Mondai — IBGE pendente, URL pendente
+# monte-carlo:  # Monte Carlo — IBGE pendente, URL pendente
+# monte-castelo:  # Monte Castelo — IBGE pendente, URL pendente
+# morro-da-fumaca:  # Morro Da Fumaca — IBGE pendente, URL pendente
+# morro-grande:  # Morro Grande — IBGE pendente, URL pendente
+# nova-erechim:  # Nova Erechim — IBGE pendente, URL pendente
+# nova-itaberaba:  # Nova Itaberaba — IBGE pendente, URL pendente
+# nova-trento:  # Nova Trento — IBGE pendente, URL pendente
+# nova-veneza:  # Nova Veneza — IBGE pendente, URL pendente
+# novo-horizonte:  # Novo Horizonte — IBGE pendente, URL pendente
+# orleans:  # Orleans — IBGE pendente, URL pendente
+# otacilio-costa:  # Otacilio Costa — IBGE pendente, URL pendente
+# ouro-verde:  # Ouro Verde — IBGE pendente, URL pendente
+# painel:  # Painel — IBGE pendente, URL pendente
+# palma-sola:  # Palma Sola — IBGE pendente, URL pendente
+# palmeira:  # Palmeira — IBGE pendente, URL pendente
+# palmitos:  # Palmitos — IBGE pendente, URL pendente
+# passo-de-torres:  # Passo De Torres — IBGE pendente, URL pendente
+# passos-maia:  # Passos Maia — IBGE pendente, URL pendente
+# paulo-lopes:  # Paulo Lopes — IBGE pendente, URL pendente
+# pedras-grandes:  # Pedras Grandes — IBGE pendente, URL pendente
+# peritiba:  # Peritiba — IBGE pendente, URL pendente
+# pescaria-brava:  # Pescaria Brava — IBGE pendente, URL pendente
+# petrolandia:  # Petrolandia — IBGE pendente, URL pendente
+# pinheiro-preto:  # Pinheiro Preto — IBGE pendente, URL pendente
+# piratuba:  # Piratuba — IBGE pendente, URL pendente
+# planalto-alegre:  # Planalto Alegre — IBGE pendente, URL pendente
+# ponte-alta:  # Ponte Alta — IBGE pendente, URL pendente
+# ponte-alta-do-norte:  # Ponte Alta Do Norte — IBGE pendente, URL pendente
+# ponte-serrada:  # Ponte Serrada — IBGE pendente, URL pendente
+# porto-belo:  # Porto Belo — IBGE pendente, URL pendente
+# porto-uniao:  # Porto Uniao — IBGE pendente, URL pendente
+# pouso-redondo:  # Pouso Redondo — IBGE pendente, URL pendente
+# praia-grande:  # Praia Grande — IBGE pendente, URL pendente
+# presidente-castello-branco:  # Presidente Castello Branco — IBGE pendente, URL pendente
+# presidente-getulio:  # Presidente Getulio — IBGE pendente, URL pendente
+# presidente-nereu:  # Presidente Nereu — IBGE pendente, URL pendente
+# quilombo:  # Quilombo — IBGE pendente, URL pendente
+# rancho-queimado:  # Rancho Queimado — IBGE pendente, URL pendente
+# rio-das-antas:  # Rio Das Antas — IBGE pendente, URL pendente
+# rio-do-campo:  # Rio Do Campo — IBGE pendente, URL pendente
+# rio-do-oeste:  # Rio Do Oeste — IBGE pendente, URL pendente
+# rio-do-sul:  # Rio Do Sul — IBGE pendente, URL pendente
+# rio-dos-cedros:  # Rio Dos Cedros — IBGE pendente, URL pendente
+# rio-fortuna:  # Rio Fortuna — IBGE pendente, URL pendente
+# rio-negrinho:  # Rio Negrinho — IBGE pendente, URL pendente
+# rio-rufino:  # Rio Rufino — IBGE pendente, URL pendente
+# romelandia:  # Romelandia — IBGE pendente, URL pendente
+# saltinho:  # Saltinho — IBGE pendente, URL pendente
+# salto-veloso:  # Salto Veloso — IBGE pendente, URL pendente
+# sangao:  # Sangao — IBGE pendente, URL pendente
+# santa-cecilia:  # Santa Cecilia — IBGE pendente, URL pendente
+# santa-helena:  # Santa Helena — IBGE pendente, URL pendente
+# santa-rosa-de-lima:  # Santa Rosa De Lima — IBGE pendente, URL pendente
+# santa-rosa-do-sul:  # Santa Rosa Do Sul — IBGE pendente, URL pendente
+# santa-terezinha:  # Santa Terezinha — IBGE pendente, URL pendente
+# santa-terezinha-do-progresso:  # Santa Terezinha Do Progresso — IBGE pendente, URL pendente
+# santiago-do-sul:  # Santiago Do Sul — IBGE pendente, URL pendente
+# santo-amaro-da-imperatriz:  # Santo Amaro Da Imperatriz — IBGE pendente, URL pendente
+# sao-bento-do-sul:  # Sao Bento Do Sul — IBGE pendente, URL pendente
+# sao-bernardino:  # Sao Bernardino — IBGE pendente, URL pendente
+# sao-bonifacio:  # Sao Bonifacio — IBGE pendente, URL pendente
+# sao-carlos:  # Sao Carlos — IBGE pendente, URL pendente
+# sao-cristovao-do-sul:  # Sao Cristovao Do Sul — IBGE pendente, URL pendente
+# sao-domingos:  # Sao Domingos — IBGE pendente, URL pendente
+# sao-francisco-do-sul:  # Sao Francisco Do Sul — IBGE pendente, URL pendente
+# sao-joao-batista:  # Sao Joao Batista — IBGE pendente, URL pendente
+# sao-joao-do-itaperiu:  # Sao Joao Do Itaperiu — IBGE pendente, URL pendente
+# sao-joao-do-oeste:  # Sao Joao Do Oeste — IBGE pendente, URL pendente
+# sao-joao-do-sul:  # Sao Joao Do Sul — IBGE pendente, URL pendente
+# sao-joaquim:  # Sao Joaquim — IBGE pendente, URL pendente
+# sao-jose:  # Sao Jose — IBGE pendente, URL pendente
+# sao-jose-do-cedro:  # Sao Jose Do Cedro — IBGE pendente, URL pendente
+# sao-jose-do-cerrito:  # Sao Jose Do Cerrito — IBGE pendente, URL pendente
+# sao-lourenco-do-oeste:  # Sao Lourenco Do Oeste — IBGE pendente, URL pendente
+# sao-ludgero:  # Sao Ludgero — IBGE pendente, URL pendente
+# sao-martinho:  # Sao Martinho — IBGE pendente, URL pendente
+# sao-miguel-da-boa-vista:  # Sao Miguel Da Boa Vista — IBGE pendente, URL pendente
+# sao-miguel-do-oeste:  # Sao Miguel Do Oeste — IBGE pendente, URL pendente
+# sao-pedro-de-alcantara:  # Sao Pedro De Alcantara — IBGE pendente, URL pendente
+# schroeder:  # Schroeder — IBGE pendente, URL pendente
+# serra-alta:  # Serra Alta — IBGE pendente, URL pendente
+# sideropolis:  # Sideropolis — IBGE pendente, URL pendente
+# sul-brasil:  # Sul Brasil — IBGE pendente, URL pendente
+# tangara:  # Tangara — IBGE pendente, URL pendente
+# tigrinhos:  # Tigrinhos — IBGE pendente, URL pendente
+# timbe-do-sul:  # Timbe Do Sul — IBGE pendente, URL pendente
+# timbo-grande:  # Timbo Grande — IBGE pendente, URL pendente
+# tres-barras:  # Tres Barras — IBGE pendente, URL pendente
+# treze-de-maio:  # Treze De Maio — IBGE pendente, URL pendente
+# treze-tilias:  # Treze Tilias — IBGE pendente, URL pendente
+# trombudo-central:  # Trombudo Central — IBGE pendente, URL pendente
+# tubarao:  # Tubarao — IBGE pendente, URL pendente
+# turvo:  # Turvo — IBGE pendente, URL pendente
+# uniao-do-oeste:  # Uniao Do Oeste — IBGE pendente, URL pendente
+# urupema:  # Urupema — IBGE pendente, URL pendente
+# urussanga:  # Urussanga — IBGE pendente, URL pendente
+# vargeao:  # Vargeao — IBGE pendente, URL pendente
+# vargem:  # Vargem — IBGE pendente, URL pendente
+# vargem-bonita:  # Vargem Bonita — IBGE pendente, URL pendente
+# vidal-ramos:  # Vidal Ramos — IBGE pendente, URL pendente
+# vitor-meireles:  # Vitor Meireles — IBGE pendente, URL pendente
+# xanxere:  # Xanxere — IBGE pendente, URL pendente
+# xavantina:  # Xavantina — IBGE pendente, URL pendente
+# xaxim:  # Xaxim — IBGE pendente, URL pendente

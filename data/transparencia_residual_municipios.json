@@ -1,0 +1,3704 @@
+{
+  "generated_at": "2026-07-11",
+  "total_residual": 231,
+  "source": "COVERAGE-1.3 batch detect",
+  "note": "Municipios sem plataforma detectada. Encaminhar para COVERAGE-3.2 (Fase 3).",
+  "residual": [
+    {
+      "municipio": "ABDON BATISTA",
+      "slug": "abdon-batista",
+      "suggested_urls": [
+        "https://abdon-batista.sc.gov.br",
+        "https://www.abdon-batista.sc.gov.br",
+        "https://transparencia.abdon-batista.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ABELARDO LUZ",
+      "slug": "abelardo-luz",
+      "suggested_urls": [
+        "https://abelardo-luz.sc.gov.br",
+        "https://www.abelardo-luz.sc.gov.br",
+        "https://transparencia.abelardo-luz.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "AGRONOMICA",
+      "slug": "agronomica",
+      "suggested_urls": [
+        "https://agronomica.sc.gov.br",
+        "https://www.agronomica.sc.gov.br",
+        "https://transparencia.agronomica.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "AGUA DOCE",
+      "slug": "agua-doce",
+      "suggested_urls": [
+        "https://agua-doce.sc.gov.br",
+        "https://www.agua-doce.sc.gov.br",
+        "https://transparencia.agua-doce.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "AGUAS DE CHAPECO",
+      "slug": "aguas-de-chapeco",
+      "suggested_urls": [
+        "https://aguas-de-chapeco.sc.gov.br",
+        "https://www.aguas-de-chapeco.sc.gov.br",
+        "https://transparencia.aguas-de-chapeco.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "AGUAS FRIAS",
+      "slug": "aguas-frias",
+      "suggested_urls": [
+        "https://aguas-frias.sc.gov.br",
+        "https://www.aguas-frias.sc.gov.br",
+        "https://transparencia.aguas-frias.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "AGUAS MORNAS",
+      "slug": "aguas-mornas",
+      "suggested_urls": [
+        "https://aguas-mornas.sc.gov.br",
+        "https://www.aguas-mornas.sc.gov.br",
+        "https://transparencia.aguas-mornas.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ALFREDO WAGNER",
+      "slug": "alfredo-wagner",
+      "suggested_urls": [
+        "https://alfredo-wagner.sc.gov.br",
+        "https://www.alfredo-wagner.sc.gov.br",
+        "https://transparencia.alfredo-wagner.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ALTO BELA VISTA",
+      "slug": "alto-bela-vista",
+      "suggested_urls": [
+        "https://alto-bela-vista.sc.gov.br",
+        "https://www.alto-bela-vista.sc.gov.br",
+        "https://transparencia.alto-bela-vista.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ANCHIETA",
+      "slug": "anchieta",
+      "suggested_urls": [
+        "https://anchieta.sc.gov.br",
+        "https://www.anchieta.sc.gov.br",
+        "https://transparencia.anchieta.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ANGELINA",
+      "slug": "angelina",
+      "suggested_urls": [
+        "https://angelina.sc.gov.br",
+        "https://www.angelina.sc.gov.br",
+        "https://transparencia.angelina.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ANITA GARIBALDI",
+      "slug": "anita-garibaldi",
+      "suggested_urls": [
+        "https://anita-garibaldi.sc.gov.br",
+        "https://www.anita-garibaldi.sc.gov.br",
+        "https://transparencia.anita-garibaldi.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ANITAPOLIS",
+      "slug": "anitapolis",
+      "suggested_urls": [
+        "https://anitapolis.sc.gov.br",
+        "https://www.anitapolis.sc.gov.br",
+        "https://transparencia.anitapolis.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ANTONIO CARLOS",
+      "slug": "antonio-carlos",
+      "suggested_urls": [
+        "https://antonio-carlos.sc.gov.br",
+        "https://www.antonio-carlos.sc.gov.br",
+        "https://transparencia.antonio-carlos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ARMAZEM",
+      "slug": "armazem",
+      "suggested_urls": [
+        "https://armazem.sc.gov.br",
+        "https://www.armazem.sc.gov.br",
+        "https://transparencia.armazem.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ARROIO TRINTA",
+      "slug": "arroio-trinta",
+      "suggested_urls": [
+        "https://arroio-trinta.sc.gov.br",
+        "https://www.arroio-trinta.sc.gov.br",
+        "https://transparencia.arroio-trinta.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ATALANTA",
+      "slug": "atalanta",
+      "suggested_urls": [
+        "https://atalanta.sc.gov.br",
+        "https://www.atalanta.sc.gov.br",
+        "https://transparencia.atalanta.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BALNEARIO ARROIO DO SILVA",
+      "slug": "balneario-arroio-do-silva",
+      "suggested_urls": [
+        "https://balneario-arroio-do-silva.sc.gov.br",
+        "https://www.balneario-arroio-do-silva.sc.gov.br",
+        "https://transparencia.balneario-arroio-do-silva.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BALNEARIO BARRA DO SUL",
+      "slug": "balneario-barra-do-sul",
+      "suggested_urls": [
+        "https://balneario-barra-do-sul.sc.gov.br",
+        "https://www.balneario-barra-do-sul.sc.gov.br",
+        "https://transparencia.balneario-barra-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BALNEARIO CAMBORIU",
+      "slug": "balneario-camboriu",
+      "suggested_urls": [
+        "https://balneario-camboriu.sc.gov.br",
+        "https://www.balneario-camboriu.sc.gov.br",
+        "https://transparencia.balneario-camboriu.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BALNEARIO DE PICARRAS",
+      "slug": "balneario-de-picarras",
+      "suggested_urls": [
+        "https://balneario-de-picarras.sc.gov.br",
+        "https://www.balneario-de-picarras.sc.gov.br",
+        "https://transparencia.balneario-de-picarras.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BALNEARIO GAIVOTA",
+      "slug": "balneario-gaivota",
+      "suggested_urls": [
+        "https://balneario-gaivota.sc.gov.br",
+        "https://www.balneario-gaivota.sc.gov.br",
+        "https://transparencia.balneario-gaivota.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BALNEARIO RINCAO",
+      "slug": "balneario-rincao",
+      "suggested_urls": [
+        "https://balneario-rincao.sc.gov.br",
+        "https://www.balneario-rincao.sc.gov.br",
+        "https://transparencia.balneario-rincao.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BANDEIRANTE",
+      "slug": "bandeirante",
+      "suggested_urls": [
+        "https://bandeirante.sc.gov.br",
+        "https://www.bandeirante.sc.gov.br",
+        "https://transparencia.bandeirante.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BARRA BONITA",
+      "slug": "barra-bonita",
+      "suggested_urls": [
+        "https://barra-bonita.sc.gov.br",
+        "https://www.barra-bonita.sc.gov.br",
+        "https://transparencia.barra-bonita.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BARRA VELHA",
+      "slug": "barra-velha",
+      "suggested_urls": [
+        "https://barra-velha.sc.gov.br",
+        "https://www.barra-velha.sc.gov.br",
+        "https://transparencia.barra-velha.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BELA VISTA DO TOLDO",
+      "slug": "bela-vista-do-toldo",
+      "suggested_urls": [
+        "https://bela-vista-do-toldo.sc.gov.br",
+        "https://www.bela-vista-do-toldo.sc.gov.br",
+        "https://transparencia.bela-vista-do-toldo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BELMONTE",
+      "slug": "belmonte",
+      "suggested_urls": [
+        "https://belmonte.sc.gov.br",
+        "https://www.belmonte.sc.gov.br",
+        "https://transparencia.belmonte.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BENEDITO NOVO",
+      "slug": "benedito-novo",
+      "suggested_urls": [
+        "https://benedito-novo.sc.gov.br",
+        "https://www.benedito-novo.sc.gov.br",
+        "https://transparencia.benedito-novo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BLUMENAU",
+      "slug": "blumenau",
+      "suggested_urls": [
+        "https://blumenau.sc.gov.br",
+        "https://www.blumenau.sc.gov.br",
+        "https://transparencia.blumenau.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BOCAINA DO SUL",
+      "slug": "bocaina-do-sul",
+      "suggested_urls": [
+        "https://bocaina-do-sul.sc.gov.br",
+        "https://www.bocaina-do-sul.sc.gov.br",
+        "https://transparencia.bocaina-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BOM JARDIM DA SERRA",
+      "slug": "bom-jardim-da-serra",
+      "suggested_urls": [
+        "https://bom-jardim-da-serra.sc.gov.br",
+        "https://www.bom-jardim-da-serra.sc.gov.br",
+        "https://transparencia.bom-jardim-da-serra.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BOM JESUS",
+      "slug": "bom-jesus",
+      "suggested_urls": [
+        "https://bom-jesus.sc.gov.br",
+        "https://www.bom-jesus.sc.gov.br",
+        "https://transparencia.bom-jesus.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BOM JESUS DO OESTE",
+      "slug": "bom-jesus-do-oeste",
+      "suggested_urls": [
+        "https://bom-jesus-do-oeste.sc.gov.br",
+        "https://www.bom-jesus-do-oeste.sc.gov.br",
+        "https://transparencia.bom-jesus-do-oeste.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BOM RETIRO",
+      "slug": "bom-retiro",
+      "suggested_urls": [
+        "https://bom-retiro.sc.gov.br",
+        "https://www.bom-retiro.sc.gov.br",
+        "https://transparencia.bom-retiro.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BRACO DO NORTE",
+      "slug": "braco-do-norte",
+      "suggested_urls": [
+        "https://braco-do-norte.sc.gov.br",
+        "https://www.braco-do-norte.sc.gov.br",
+        "https://transparencia.braco-do-norte.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BRACO DO TROMBUDO",
+      "slug": "braco-do-trombudo",
+      "suggested_urls": [
+        "https://braco-do-trombudo.sc.gov.br",
+        "https://www.braco-do-trombudo.sc.gov.br",
+        "https://transparencia.braco-do-trombudo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "BRUNOPOLIS",
+      "slug": "brunopolis",
+      "suggested_urls": [
+        "https://brunopolis.sc.gov.br",
+        "https://www.brunopolis.sc.gov.br",
+        "https://transparencia.brunopolis.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CACADOR",
+      "slug": "cacador",
+      "suggested_urls": [
+        "https://cacador.sc.gov.br",
+        "https://www.cacador.sc.gov.br",
+        "https://transparencia.cacador.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CALMON",
+      "slug": "calmon",
+      "suggested_urls": [
+        "https://calmon.sc.gov.br",
+        "https://www.calmon.sc.gov.br",
+        "https://transparencia.calmon.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CAMPO ALEGRE",
+      "slug": "campo-alegre",
+      "suggested_urls": [
+        "https://campo-alegre.sc.gov.br",
+        "https://www.campo-alegre.sc.gov.br",
+        "https://transparencia.campo-alegre.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CAMPO BELO DO SUL",
+      "slug": "campo-belo-do-sul",
+      "suggested_urls": [
+        "https://campo-belo-do-sul.sc.gov.br",
+        "https://www.campo-belo-do-sul.sc.gov.br",
+        "https://transparencia.campo-belo-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CAMPO ERE",
+      "slug": "campo-ere",
+      "suggested_urls": [
+        "https://campo-ere.sc.gov.br",
+        "https://www.campo-ere.sc.gov.br",
+        "https://transparencia.campo-ere.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CAMPOS NOVOS",
+      "slug": "campos-novos",
+      "suggested_urls": [
+        "https://campos-novos.sc.gov.br",
+        "https://www.campos-novos.sc.gov.br",
+        "https://transparencia.campos-novos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CANELINHA",
+      "slug": "canelinha",
+      "suggested_urls": [
+        "https://canelinha.sc.gov.br",
+        "https://www.canelinha.sc.gov.br",
+        "https://transparencia.canelinha.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CAPAO ALTO",
+      "slug": "capao-alto",
+      "suggested_urls": [
+        "https://capao-alto.sc.gov.br",
+        "https://www.capao-alto.sc.gov.br",
+        "https://transparencia.capao-alto.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CAPINZAL",
+      "slug": "capinzal",
+      "suggested_urls": [
+        "https://capinzal.sc.gov.br",
+        "https://www.capinzal.sc.gov.br",
+        "https://transparencia.capinzal.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CAPIVARI DE BAIXO",
+      "slug": "capivari-de-baixo",
+      "suggested_urls": [
+        "https://capivari-de-baixo.sc.gov.br",
+        "https://www.capivari-de-baixo.sc.gov.br",
+        "https://transparencia.capivari-de-baixo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CATANDUVAS",
+      "slug": "catanduvas",
+      "suggested_urls": [
+        "https://catanduvas.sc.gov.br",
+        "https://www.catanduvas.sc.gov.br",
+        "https://transparencia.catanduvas.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CAXAMBU DO SUL",
+      "slug": "caxambu-do-sul",
+      "suggested_urls": [
+        "https://caxambu-do-sul.sc.gov.br",
+        "https://www.caxambu-do-sul.sc.gov.br",
+        "https://transparencia.caxambu-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CELSO RAMOS",
+      "slug": "celso-ramos",
+      "suggested_urls": [
+        "https://celso-ramos.sc.gov.br",
+        "https://www.celso-ramos.sc.gov.br",
+        "https://transparencia.celso-ramos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CERRO NEGRO",
+      "slug": "cerro-negro",
+      "suggested_urls": [
+        "https://cerro-negro.sc.gov.br",
+        "https://www.cerro-negro.sc.gov.br",
+        "https://transparencia.cerro-negro.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CHAPADAO DO LAGEADO",
+      "slug": "chapadao-do-lageado",
+      "suggested_urls": [
+        "https://chapadao-do-lageado.sc.gov.br",
+        "https://www.chapadao-do-lageado.sc.gov.br",
+        "https://transparencia.chapadao-do-lageado.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CHAPECO",
+      "slug": "chapeco",
+      "suggested_urls": [
+        "https://chapeco.sc.gov.br",
+        "https://www.chapeco.sc.gov.br",
+        "https://transparencia.chapeco.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "COCAL DO SUL",
+      "slug": "cocal-do-sul",
+      "suggested_urls": [
+        "https://cocal-do-sul.sc.gov.br",
+        "https://www.cocal-do-sul.sc.gov.br",
+        "https://transparencia.cocal-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CORDILHEIRA ALTA",
+      "slug": "cordilheira-alta",
+      "suggested_urls": [
+        "https://cordilheira-alta.sc.gov.br",
+        "https://www.cordilheira-alta.sc.gov.br",
+        "https://transparencia.cordilheira-alta.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CORONEL FREITAS",
+      "slug": "coronel-freitas",
+      "suggested_urls": [
+        "https://coronel-freitas.sc.gov.br",
+        "https://www.coronel-freitas.sc.gov.br",
+        "https://transparencia.coronel-freitas.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CORONEL MARTINS",
+      "slug": "coronel-martins",
+      "suggested_urls": [
+        "https://coronel-martins.sc.gov.br",
+        "https://www.coronel-martins.sc.gov.br",
+        "https://transparencia.coronel-martins.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CORREIA PINTO",
+      "slug": "correia-pinto",
+      "suggested_urls": [
+        "https://correia-pinto.sc.gov.br",
+        "https://www.correia-pinto.sc.gov.br",
+        "https://transparencia.correia-pinto.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CRICIUMA",
+      "slug": "criciuma",
+      "suggested_urls": [
+        "https://criciuma.sc.gov.br",
+        "https://www.criciuma.sc.gov.br",
+        "https://transparencia.criciuma.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CUNHA PORA",
+      "slug": "cunha-pora",
+      "suggested_urls": [
+        "https://cunha-pora.sc.gov.br",
+        "https://www.cunha-pora.sc.gov.br",
+        "https://transparencia.cunha-pora.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CUNHATAI",
+      "slug": "cunhatai",
+      "suggested_urls": [
+        "https://cunhatai.sc.gov.br",
+        "https://www.cunhatai.sc.gov.br",
+        "https://transparencia.cunhatai.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "CURITIBANOS",
+      "slug": "curitibanos",
+      "suggested_urls": [
+        "https://curitibanos.sc.gov.br",
+        "https://www.curitibanos.sc.gov.br",
+        "https://transparencia.curitibanos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "DESCANSO",
+      "slug": "descanso",
+      "suggested_urls": [
+        "https://descanso.sc.gov.br",
+        "https://www.descanso.sc.gov.br",
+        "https://transparencia.descanso.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "DIONISIO CERQUEIRA",
+      "slug": "dionisio-cerqueira",
+      "suggested_urls": [
+        "https://dionisio-cerqueira.sc.gov.br",
+        "https://www.dionisio-cerqueira.sc.gov.br",
+        "https://transparencia.dionisio-cerqueira.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "DONA EMMA",
+      "slug": "dona-emma",
+      "suggested_urls": [
+        "https://dona-emma.sc.gov.br",
+        "https://www.dona-emma.sc.gov.br",
+        "https://transparencia.dona-emma.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "DOUTOR PEDRINHO",
+      "slug": "doutor-pedrinho",
+      "suggested_urls": [
+        "https://doutor-pedrinho.sc.gov.br",
+        "https://www.doutor-pedrinho.sc.gov.br",
+        "https://transparencia.doutor-pedrinho.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ENTRE RIOS",
+      "slug": "entre-rios",
+      "suggested_urls": [
+        "https://entre-rios.sc.gov.br",
+        "https://www.entre-rios.sc.gov.br",
+        "https://transparencia.entre-rios.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ERMO",
+      "slug": "ermo",
+      "suggested_urls": [
+        "https://ermo.sc.gov.br",
+        "https://www.ermo.sc.gov.br",
+        "https://transparencia.ermo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ERVAL VELHO",
+      "slug": "erval-velho",
+      "suggested_urls": [
+        "https://erval-velho.sc.gov.br",
+        "https://www.erval-velho.sc.gov.br",
+        "https://transparencia.erval-velho.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "FAXINAL DOS GUEDES",
+      "slug": "faxinal-dos-guedes",
+      "suggested_urls": [
+        "https://faxinal-dos-guedes.sc.gov.br",
+        "https://www.faxinal-dos-guedes.sc.gov.br",
+        "https://transparencia.faxinal-dos-guedes.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "FLOR DO SERTAO",
+      "slug": "flor-do-sertao",
+      "suggested_urls": [
+        "https://flor-do-sertao.sc.gov.br",
+        "https://www.flor-do-sertao.sc.gov.br",
+        "https://transparencia.flor-do-sertao.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "FLORIANOPOLIS",
+      "slug": "florianopolis",
+      "suggested_urls": [
+        "https://florianopolis.sc.gov.br",
+        "https://www.florianopolis.sc.gov.br",
+        "https://transparencia.florianopolis.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "FORMOSA DO SUL",
+      "slug": "formosa-do-sul",
+      "suggested_urls": [
+        "https://formosa-do-sul.sc.gov.br",
+        "https://www.formosa-do-sul.sc.gov.br",
+        "https://transparencia.formosa-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "FORQUILHINHA",
+      "slug": "forquilhinha",
+      "suggested_urls": [
+        "https://forquilhinha.sc.gov.br",
+        "https://www.forquilhinha.sc.gov.br",
+        "https://transparencia.forquilhinha.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "FREI ROGERIO",
+      "slug": "frei-rogerio",
+      "suggested_urls": [
+        "https://frei-rogerio.sc.gov.br",
+        "https://www.frei-rogerio.sc.gov.br",
+        "https://transparencia.frei-rogerio.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "GALVAO",
+      "slug": "galvao",
+      "suggested_urls": [
+        "https://galvao.sc.gov.br",
+        "https://www.galvao.sc.gov.br",
+        "https://transparencia.galvao.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "GASPAR",
+      "slug": "gaspar",
+      "suggested_urls": [
+        "https://gaspar.sc.gov.br",
+        "https://www.gaspar.sc.gov.br",
+        "https://transparencia.gaspar.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "GOVERNADOR CELSO RAMOS",
+      "slug": "governador-celso-ramos",
+      "suggested_urls": [
+        "https://governador-celso-ramos.sc.gov.br",
+        "https://www.governador-celso-ramos.sc.gov.br",
+        "https://transparencia.governador-celso-ramos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "GRAO PARA",
+      "slug": "grao-para",
+      "suggested_urls": [
+        "https://grao-para.sc.gov.br",
+        "https://www.grao-para.sc.gov.br",
+        "https://transparencia.grao-para.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "GUARUJA DO SUL",
+      "slug": "guaruja-do-sul",
+      "suggested_urls": [
+        "https://guaruja-do-sul.sc.gov.br",
+        "https://www.guaruja-do-sul.sc.gov.br",
+        "https://transparencia.guaruja-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "HERVAL D'OESTE",
+      "slug": "herval-d-oeste",
+      "suggested_urls": [
+        "https://herval-d-oeste.sc.gov.br",
+        "https://www.herval-d-oeste.sc.gov.br",
+        "https://transparencia.herval-d-oeste.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IBIAM",
+      "slug": "ibiam",
+      "suggested_urls": [
+        "https://ibiam.sc.gov.br",
+        "https://www.ibiam.sc.gov.br",
+        "https://transparencia.ibiam.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IBICARE",
+      "slug": "ibicare",
+      "suggested_urls": [
+        "https://ibicare.sc.gov.br",
+        "https://www.ibicare.sc.gov.br",
+        "https://transparencia.ibicare.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ICARA",
+      "slug": "icara",
+      "suggested_urls": [
+        "https://icara.sc.gov.br",
+        "https://www.icara.sc.gov.br",
+        "https://transparencia.icara.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ILHOTA",
+      "slug": "ilhota",
+      "suggested_urls": [
+        "https://ilhota.sc.gov.br",
+        "https://www.ilhota.sc.gov.br",
+        "https://transparencia.ilhota.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IMARUI",
+      "slug": "imarui",
+      "suggested_urls": [
+        "https://imarui.sc.gov.br",
+        "https://www.imarui.sc.gov.br",
+        "https://transparencia.imarui.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IMBUIA",
+      "slug": "imbuia",
+      "suggested_urls": [
+        "https://imbuia.sc.gov.br",
+        "https://www.imbuia.sc.gov.br",
+        "https://transparencia.imbuia.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IOMERE",
+      "slug": "iomere",
+      "suggested_urls": [
+        "https://iomere.sc.gov.br",
+        "https://www.iomere.sc.gov.br",
+        "https://transparencia.iomere.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IPIRA",
+      "slug": "ipira",
+      "suggested_urls": [
+        "https://ipira.sc.gov.br",
+        "https://www.ipira.sc.gov.br",
+        "https://transparencia.ipira.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IPORA DO OESTE",
+      "slug": "ipora-do-oeste",
+      "suggested_urls": [
+        "https://ipora-do-oeste.sc.gov.br",
+        "https://www.ipora-do-oeste.sc.gov.br",
+        "https://transparencia.ipora-do-oeste.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IPUACU",
+      "slug": "ipuacu",
+      "suggested_urls": [
+        "https://ipuacu.sc.gov.br",
+        "https://www.ipuacu.sc.gov.br",
+        "https://transparencia.ipuacu.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IPUMIRIM",
+      "slug": "ipumirim",
+      "suggested_urls": [
+        "https://ipumirim.sc.gov.br",
+        "https://www.ipumirim.sc.gov.br",
+        "https://transparencia.ipumirim.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IRACEMINHA",
+      "slug": "iraceminha",
+      "suggested_urls": [
+        "https://iraceminha.sc.gov.br",
+        "https://www.iraceminha.sc.gov.br",
+        "https://transparencia.iraceminha.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IRANI",
+      "slug": "irani",
+      "suggested_urls": [
+        "https://irani.sc.gov.br",
+        "https://www.irani.sc.gov.br",
+        "https://transparencia.irani.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "IRATI",
+      "slug": "irati",
+      "suggested_urls": [
+        "https://irati.sc.gov.br",
+        "https://www.irati.sc.gov.br",
+        "https://transparencia.irati.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ITAJAI",
+      "slug": "itajai",
+      "suggested_urls": [
+        "https://itajai.sc.gov.br",
+        "https://www.itajai.sc.gov.br",
+        "https://transparencia.itajai.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ITAPEMA",
+      "slug": "itapema",
+      "suggested_urls": [
+        "https://itapema.sc.gov.br",
+        "https://www.itapema.sc.gov.br",
+        "https://transparencia.itapema.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "JABORA",
+      "slug": "jabora",
+      "suggested_urls": [
+        "https://jabora.sc.gov.br",
+        "https://www.jabora.sc.gov.br",
+        "https://transparencia.jabora.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "JACINTO MACHADO",
+      "slug": "jacinto-machado",
+      "suggested_urls": [
+        "https://jacinto-machado.sc.gov.br",
+        "https://www.jacinto-machado.sc.gov.br",
+        "https://transparencia.jacinto-machado.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "JARAGUA DO SUL",
+      "slug": "jaragua-do-sul",
+      "suggested_urls": [
+        "https://jaragua-do-sul.sc.gov.br",
+        "https://www.jaragua-do-sul.sc.gov.br",
+        "https://transparencia.jaragua-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "JOACABA",
+      "slug": "joacaba",
+      "suggested_urls": [
+        "https://joacaba.sc.gov.br",
+        "https://www.joacaba.sc.gov.br",
+        "https://transparencia.joacaba.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "JOINVILLE",
+      "slug": "joinville",
+      "suggested_urls": [
+        "https://joinville.sc.gov.br",
+        "https://www.joinville.sc.gov.br",
+        "https://transparencia.joinville.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "JOSE BOITEUX",
+      "slug": "jose-boiteux",
+      "suggested_urls": [
+        "https://jose-boiteux.sc.gov.br",
+        "https://www.jose-boiteux.sc.gov.br",
+        "https://transparencia.jose-boiteux.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "JUPIA",
+      "slug": "jupia",
+      "suggested_urls": [
+        "https://jupia.sc.gov.br",
+        "https://www.jupia.sc.gov.br",
+        "https://transparencia.jupia.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LAGES",
+      "slug": "lages",
+      "suggested_urls": [
+        "https://lages.sc.gov.br",
+        "https://www.lages.sc.gov.br",
+        "https://transparencia.lages.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LAGUNA",
+      "slug": "laguna",
+      "suggested_urls": [
+        "https://laguna.sc.gov.br",
+        "https://www.laguna.sc.gov.br",
+        "https://transparencia.laguna.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LAJEADO GRANDE",
+      "slug": "lajeado-grande",
+      "suggested_urls": [
+        "https://lajeado-grande.sc.gov.br",
+        "https://www.lajeado-grande.sc.gov.br",
+        "https://transparencia.lajeado-grande.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LAURO MULLER",
+      "slug": "lauro-muller",
+      "suggested_urls": [
+        "https://lauro-muller.sc.gov.br",
+        "https://www.lauro-muller.sc.gov.br",
+        "https://transparencia.lauro-muller.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LEBON REGIS",
+      "slug": "lebon-regis",
+      "suggested_urls": [
+        "https://lebon-regis.sc.gov.br",
+        "https://www.lebon-regis.sc.gov.br",
+        "https://transparencia.lebon-regis.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LEOBERTO LEAL",
+      "slug": "leoberto-leal",
+      "suggested_urls": [
+        "https://leoberto-leal.sc.gov.br",
+        "https://www.leoberto-leal.sc.gov.br",
+        "https://transparencia.leoberto-leal.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LINDOIA DO SUL",
+      "slug": "lindoia-do-sul",
+      "suggested_urls": [
+        "https://lindoia-do-sul.sc.gov.br",
+        "https://www.lindoia-do-sul.sc.gov.br",
+        "https://transparencia.lindoia-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LUIZ ALVES",
+      "slug": "luiz-alves",
+      "suggested_urls": [
+        "https://luiz-alves.sc.gov.br",
+        "https://www.luiz-alves.sc.gov.br",
+        "https://transparencia.luiz-alves.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "LUZERNA",
+      "slug": "luzerna",
+      "suggested_urls": [
+        "https://luzerna.sc.gov.br",
+        "https://www.luzerna.sc.gov.br",
+        "https://transparencia.luzerna.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MACIEIRA",
+      "slug": "macieira",
+      "suggested_urls": [
+        "https://macieira.sc.gov.br",
+        "https://www.macieira.sc.gov.br",
+        "https://transparencia.macieira.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MAFRA",
+      "slug": "mafra",
+      "suggested_urls": [
+        "https://mafra.sc.gov.br",
+        "https://www.mafra.sc.gov.br",
+        "https://transparencia.mafra.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MAJOR GERCINO",
+      "slug": "major-gercino",
+      "suggested_urls": [
+        "https://major-gercino.sc.gov.br",
+        "https://www.major-gercino.sc.gov.br",
+        "https://transparencia.major-gercino.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MAJOR VIEIRA",
+      "slug": "major-vieira",
+      "suggested_urls": [
+        "https://major-vieira.sc.gov.br",
+        "https://www.major-vieira.sc.gov.br",
+        "https://transparencia.major-vieira.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MARACAJA",
+      "slug": "maracaja",
+      "suggested_urls": [
+        "https://maracaja.sc.gov.br",
+        "https://www.maracaja.sc.gov.br",
+        "https://transparencia.maracaja.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MARAVILHA",
+      "slug": "maravilha",
+      "suggested_urls": [
+        "https://maravilha.sc.gov.br",
+        "https://www.maravilha.sc.gov.br",
+        "https://transparencia.maravilha.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MAREMA",
+      "slug": "marema",
+      "suggested_urls": [
+        "https://marema.sc.gov.br",
+        "https://www.marema.sc.gov.br",
+        "https://transparencia.marema.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MATOS COSTA",
+      "slug": "matos-costa",
+      "suggested_urls": [
+        "https://matos-costa.sc.gov.br",
+        "https://www.matos-costa.sc.gov.br",
+        "https://transparencia.matos-costa.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MELEIRO",
+      "slug": "meleiro",
+      "suggested_urls": [
+        "https://meleiro.sc.gov.br",
+        "https://www.meleiro.sc.gov.br",
+        "https://transparencia.meleiro.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MIRIM DOCE",
+      "slug": "mirim-doce",
+      "suggested_urls": [
+        "https://mirim-doce.sc.gov.br",
+        "https://www.mirim-doce.sc.gov.br",
+        "https://transparencia.mirim-doce.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MONDAI",
+      "slug": "mondai",
+      "suggested_urls": [
+        "https://mondai.sc.gov.br",
+        "https://www.mondai.sc.gov.br",
+        "https://transparencia.mondai.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MONTE CARLO",
+      "slug": "monte-carlo",
+      "suggested_urls": [
+        "https://monte-carlo.sc.gov.br",
+        "https://www.monte-carlo.sc.gov.br",
+        "https://transparencia.monte-carlo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MONTE CASTELO",
+      "slug": "monte-castelo",
+      "suggested_urls": [
+        "https://monte-castelo.sc.gov.br",
+        "https://www.monte-castelo.sc.gov.br",
+        "https://transparencia.monte-castelo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MORRO DA FUMACA",
+      "slug": "morro-da-fumaca",
+      "suggested_urls": [
+        "https://morro-da-fumaca.sc.gov.br",
+        "https://www.morro-da-fumaca.sc.gov.br",
+        "https://transparencia.morro-da-fumaca.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "MORRO GRANDE",
+      "slug": "morro-grande",
+      "suggested_urls": [
+        "https://morro-grande.sc.gov.br",
+        "https://www.morro-grande.sc.gov.br",
+        "https://transparencia.morro-grande.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "NOVA ERECHIM",
+      "slug": "nova-erechim",
+      "suggested_urls": [
+        "https://nova-erechim.sc.gov.br",
+        "https://www.nova-erechim.sc.gov.br",
+        "https://transparencia.nova-erechim.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "NOVA ITABERABA",
+      "slug": "nova-itaberaba",
+      "suggested_urls": [
+        "https://nova-itaberaba.sc.gov.br",
+        "https://www.nova-itaberaba.sc.gov.br",
+        "https://transparencia.nova-itaberaba.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "NOVA TRENTO",
+      "slug": "nova-trento",
+      "suggested_urls": [
+        "https://nova-trento.sc.gov.br",
+        "https://www.nova-trento.sc.gov.br",
+        "https://transparencia.nova-trento.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "NOVA VENEZA",
+      "slug": "nova-veneza",
+      "suggested_urls": [
+        "https://nova-veneza.sc.gov.br",
+        "https://www.nova-veneza.sc.gov.br",
+        "https://transparencia.nova-veneza.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "NOVO HORIZONTE",
+      "slug": "novo-horizonte",
+      "suggested_urls": [
+        "https://novo-horizonte.sc.gov.br",
+        "https://www.novo-horizonte.sc.gov.br",
+        "https://transparencia.novo-horizonte.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ORLEANS",
+      "slug": "orleans",
+      "suggested_urls": [
+        "https://orleans.sc.gov.br",
+        "https://www.orleans.sc.gov.br",
+        "https://transparencia.orleans.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "OTACILIO COSTA",
+      "slug": "otacilio-costa",
+      "suggested_urls": [
+        "https://otacilio-costa.sc.gov.br",
+        "https://www.otacilio-costa.sc.gov.br",
+        "https://transparencia.otacilio-costa.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "OURO VERDE",
+      "slug": "ouro-verde",
+      "suggested_urls": [
+        "https://ouro-verde.sc.gov.br",
+        "https://www.ouro-verde.sc.gov.br",
+        "https://transparencia.ouro-verde.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PAINEL",
+      "slug": "painel",
+      "suggested_urls": [
+        "https://painel.sc.gov.br",
+        "https://www.painel.sc.gov.br",
+        "https://transparencia.painel.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PALMA SOLA",
+      "slug": "palma-sola",
+      "suggested_urls": [
+        "https://palma-sola.sc.gov.br",
+        "https://www.palma-sola.sc.gov.br",
+        "https://transparencia.palma-sola.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PALMEIRA",
+      "slug": "palmeira",
+      "suggested_urls": [
+        "https://palmeira.sc.gov.br",
+        "https://www.palmeira.sc.gov.br",
+        "https://transparencia.palmeira.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PALMITOS",
+      "slug": "palmitos",
+      "suggested_urls": [
+        "https://palmitos.sc.gov.br",
+        "https://www.palmitos.sc.gov.br",
+        "https://transparencia.palmitos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PASSO DE TORRES",
+      "slug": "passo-de-torres",
+      "suggested_urls": [
+        "https://passo-de-torres.sc.gov.br",
+        "https://www.passo-de-torres.sc.gov.br",
+        "https://transparencia.passo-de-torres.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PASSOS MAIA",
+      "slug": "passos-maia",
+      "suggested_urls": [
+        "https://passos-maia.sc.gov.br",
+        "https://www.passos-maia.sc.gov.br",
+        "https://transparencia.passos-maia.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PAULO LOPES",
+      "slug": "paulo-lopes",
+      "suggested_urls": [
+        "https://paulo-lopes.sc.gov.br",
+        "https://www.paulo-lopes.sc.gov.br",
+        "https://transparencia.paulo-lopes.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PEDRAS GRANDES",
+      "slug": "pedras-grandes",
+      "suggested_urls": [
+        "https://pedras-grandes.sc.gov.br",
+        "https://www.pedras-grandes.sc.gov.br",
+        "https://transparencia.pedras-grandes.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PERITIBA",
+      "slug": "peritiba",
+      "suggested_urls": [
+        "https://peritiba.sc.gov.br",
+        "https://www.peritiba.sc.gov.br",
+        "https://transparencia.peritiba.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PESCARIA BRAVA",
+      "slug": "pescaria-brava",
+      "suggested_urls": [
+        "https://pescaria-brava.sc.gov.br",
+        "https://www.pescaria-brava.sc.gov.br",
+        "https://transparencia.pescaria-brava.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PETROLANDIA",
+      "slug": "petrolandia",
+      "suggested_urls": [
+        "https://petrolandia.sc.gov.br",
+        "https://www.petrolandia.sc.gov.br",
+        "https://transparencia.petrolandia.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PINHEIRO PRETO",
+      "slug": "pinheiro-preto",
+      "suggested_urls": [
+        "https://pinheiro-preto.sc.gov.br",
+        "https://www.pinheiro-preto.sc.gov.br",
+        "https://transparencia.pinheiro-preto.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PIRATUBA",
+      "slug": "piratuba",
+      "suggested_urls": [
+        "https://piratuba.sc.gov.br",
+        "https://www.piratuba.sc.gov.br",
+        "https://transparencia.piratuba.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PLANALTO ALEGRE",
+      "slug": "planalto-alegre",
+      "suggested_urls": [
+        "https://planalto-alegre.sc.gov.br",
+        "https://www.planalto-alegre.sc.gov.br",
+        "https://transparencia.planalto-alegre.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PONTE ALTA",
+      "slug": "ponte-alta",
+      "suggested_urls": [
+        "https://ponte-alta.sc.gov.br",
+        "https://www.ponte-alta.sc.gov.br",
+        "https://transparencia.ponte-alta.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PONTE ALTA DO NORTE",
+      "slug": "ponte-alta-do-norte",
+      "suggested_urls": [
+        "https://ponte-alta-do-norte.sc.gov.br",
+        "https://www.ponte-alta-do-norte.sc.gov.br",
+        "https://transparencia.ponte-alta-do-norte.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PONTE SERRADA",
+      "slug": "ponte-serrada",
+      "suggested_urls": [
+        "https://ponte-serrada.sc.gov.br",
+        "https://www.ponte-serrada.sc.gov.br",
+        "https://transparencia.ponte-serrada.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PORTO BELO",
+      "slug": "porto-belo",
+      "suggested_urls": [
+        "https://porto-belo.sc.gov.br",
+        "https://www.porto-belo.sc.gov.br",
+        "https://transparencia.porto-belo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PORTO UNIAO",
+      "slug": "porto-uniao",
+      "suggested_urls": [
+        "https://porto-uniao.sc.gov.br",
+        "https://www.porto-uniao.sc.gov.br",
+        "https://transparencia.porto-uniao.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "POUSO REDONDO",
+      "slug": "pouso-redondo",
+      "suggested_urls": [
+        "https://pouso-redondo.sc.gov.br",
+        "https://www.pouso-redondo.sc.gov.br",
+        "https://transparencia.pouso-redondo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PRAIA GRANDE",
+      "slug": "praia-grande",
+      "suggested_urls": [
+        "https://praia-grande.sc.gov.br",
+        "https://www.praia-grande.sc.gov.br",
+        "https://transparencia.praia-grande.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PRESIDENTE CASTELLO BRANCO",
+      "slug": "presidente-castello-branco",
+      "suggested_urls": [
+        "https://presidente-castello-branco.sc.gov.br",
+        "https://www.presidente-castello-branco.sc.gov.br",
+        "https://transparencia.presidente-castello-branco.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PRESIDENTE GETULIO",
+      "slug": "presidente-getulio",
+      "suggested_urls": [
+        "https://presidente-getulio.sc.gov.br",
+        "https://www.presidente-getulio.sc.gov.br",
+        "https://transparencia.presidente-getulio.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "PRESIDENTE NEREU",
+      "slug": "presidente-nereu",
+      "suggested_urls": [
+        "https://presidente-nereu.sc.gov.br",
+        "https://www.presidente-nereu.sc.gov.br",
+        "https://transparencia.presidente-nereu.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "QUILOMBO",
+      "slug": "quilombo",
+      "suggested_urls": [
+        "https://quilombo.sc.gov.br",
+        "https://www.quilombo.sc.gov.br",
+        "https://transparencia.quilombo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RANCHO QUEIMADO",
+      "slug": "rancho-queimado",
+      "suggested_urls": [
+        "https://rancho-queimado.sc.gov.br",
+        "https://www.rancho-queimado.sc.gov.br",
+        "https://transparencia.rancho-queimado.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RIO DAS ANTAS",
+      "slug": "rio-das-antas",
+      "suggested_urls": [
+        "https://rio-das-antas.sc.gov.br",
+        "https://www.rio-das-antas.sc.gov.br",
+        "https://transparencia.rio-das-antas.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RIO DO CAMPO",
+      "slug": "rio-do-campo",
+      "suggested_urls": [
+        "https://rio-do-campo.sc.gov.br",
+        "https://www.rio-do-campo.sc.gov.br",
+        "https://transparencia.rio-do-campo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RIO DO OESTE",
+      "slug": "rio-do-oeste",
+      "suggested_urls": [
+        "https://rio-do-oeste.sc.gov.br",
+        "https://www.rio-do-oeste.sc.gov.br",
+        "https://transparencia.rio-do-oeste.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RIO DO SUL",
+      "slug": "rio-do-sul",
+      "suggested_urls": [
+        "https://rio-do-sul.sc.gov.br",
+        "https://www.rio-do-sul.sc.gov.br",
+        "https://transparencia.rio-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RIO DOS CEDROS",
+      "slug": "rio-dos-cedros",
+      "suggested_urls": [
+        "https://rio-dos-cedros.sc.gov.br",
+        "https://www.rio-dos-cedros.sc.gov.br",
+        "https://transparencia.rio-dos-cedros.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RIO FORTUNA",
+      "slug": "rio-fortuna",
+      "suggested_urls": [
+        "https://rio-fortuna.sc.gov.br",
+        "https://www.rio-fortuna.sc.gov.br",
+        "https://transparencia.rio-fortuna.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RIO NEGRINHO",
+      "slug": "rio-negrinho",
+      "suggested_urls": [
+        "https://rio-negrinho.sc.gov.br",
+        "https://www.rio-negrinho.sc.gov.br",
+        "https://transparencia.rio-negrinho.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "RIO RUFINO",
+      "slug": "rio-rufino",
+      "suggested_urls": [
+        "https://rio-rufino.sc.gov.br",
+        "https://www.rio-rufino.sc.gov.br",
+        "https://transparencia.rio-rufino.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "ROMELANDIA",
+      "slug": "romelandia",
+      "suggested_urls": [
+        "https://romelandia.sc.gov.br",
+        "https://www.romelandia.sc.gov.br",
+        "https://transparencia.romelandia.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SALTINHO",
+      "slug": "saltinho",
+      "suggested_urls": [
+        "https://saltinho.sc.gov.br",
+        "https://www.saltinho.sc.gov.br",
+        "https://transparencia.saltinho.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SALTO VELOSO",
+      "slug": "salto-veloso",
+      "suggested_urls": [
+        "https://salto-veloso.sc.gov.br",
+        "https://www.salto-veloso.sc.gov.br",
+        "https://transparencia.salto-veloso.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANGAO",
+      "slug": "sangao",
+      "suggested_urls": [
+        "https://sangao.sc.gov.br",
+        "https://www.sangao.sc.gov.br",
+        "https://transparencia.sangao.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANTA CECILIA",
+      "slug": "santa-cecilia",
+      "suggested_urls": [
+        "https://santa-cecilia.sc.gov.br",
+        "https://www.santa-cecilia.sc.gov.br",
+        "https://transparencia.santa-cecilia.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANTA HELENA",
+      "slug": "santa-helena",
+      "suggested_urls": [
+        "https://santa-helena.sc.gov.br",
+        "https://www.santa-helena.sc.gov.br",
+        "https://transparencia.santa-helena.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANTA ROSA DE LIMA",
+      "slug": "santa-rosa-de-lima",
+      "suggested_urls": [
+        "https://santa-rosa-de-lima.sc.gov.br",
+        "https://www.santa-rosa-de-lima.sc.gov.br",
+        "https://transparencia.santa-rosa-de-lima.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANTA ROSA DO SUL",
+      "slug": "santa-rosa-do-sul",
+      "suggested_urls": [
+        "https://santa-rosa-do-sul.sc.gov.br",
+        "https://www.santa-rosa-do-sul.sc.gov.br",
+        "https://transparencia.santa-rosa-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANTA TEREZINHA",
+      "slug": "santa-terezinha",
+      "suggested_urls": [
+        "https://santa-terezinha.sc.gov.br",
+        "https://www.santa-terezinha.sc.gov.br",
+        "https://transparencia.santa-terezinha.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANTA TEREZINHA DO PROGRESSO",
+      "slug": "santa-terezinha-do-progresso",
+      "suggested_urls": [
+        "https://santa-terezinha-do-progresso.sc.gov.br",
+        "https://www.santa-terezinha-do-progresso.sc.gov.br",
+        "https://transparencia.santa-terezinha-do-progresso.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANTIAGO DO SUL",
+      "slug": "santiago-do-sul",
+      "suggested_urls": [
+        "https://santiago-do-sul.sc.gov.br",
+        "https://www.santiago-do-sul.sc.gov.br",
+        "https://transparencia.santiago-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "slug": "santo-amaro-da-imperatriz",
+      "suggested_urls": [
+        "https://santo-amaro-da-imperatriz.sc.gov.br",
+        "https://www.santo-amaro-da-imperatriz.sc.gov.br",
+        "https://transparencia.santo-amaro-da-imperatriz.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO BENTO DO SUL",
+      "slug": "sao-bento-do-sul",
+      "suggested_urls": [
+        "https://sao-bento-do-sul.sc.gov.br",
+        "https://www.sao-bento-do-sul.sc.gov.br",
+        "https://transparencia.sao-bento-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO BERNARDINO",
+      "slug": "sao-bernardino",
+      "suggested_urls": [
+        "https://sao-bernardino.sc.gov.br",
+        "https://www.sao-bernardino.sc.gov.br",
+        "https://transparencia.sao-bernardino.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO BONIFACIO",
+      "slug": "sao-bonifacio",
+      "suggested_urls": [
+        "https://sao-bonifacio.sc.gov.br",
+        "https://www.sao-bonifacio.sc.gov.br",
+        "https://transparencia.sao-bonifacio.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO CARLOS",
+      "slug": "sao-carlos",
+      "suggested_urls": [
+        "https://sao-carlos.sc.gov.br",
+        "https://www.sao-carlos.sc.gov.br",
+        "https://transparencia.sao-carlos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO CRISTOVAO DO SUL",
+      "slug": "sao-cristovao-do-sul",
+      "suggested_urls": [
+        "https://sao-cristovao-do-sul.sc.gov.br",
+        "https://www.sao-cristovao-do-sul.sc.gov.br",
+        "https://transparencia.sao-cristovao-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO DOMINGOS",
+      "slug": "sao-domingos",
+      "suggested_urls": [
+        "https://sao-domingos.sc.gov.br",
+        "https://www.sao-domingos.sc.gov.br",
+        "https://transparencia.sao-domingos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO FRANCISCO DO SUL",
+      "slug": "sao-francisco-do-sul",
+      "suggested_urls": [
+        "https://sao-francisco-do-sul.sc.gov.br",
+        "https://www.sao-francisco-do-sul.sc.gov.br",
+        "https://transparencia.sao-francisco-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO JOAO BATISTA",
+      "slug": "sao-joao-batista",
+      "suggested_urls": [
+        "https://sao-joao-batista.sc.gov.br",
+        "https://www.sao-joao-batista.sc.gov.br",
+        "https://transparencia.sao-joao-batista.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO JOAO DO ITAPERIU",
+      "slug": "sao-joao-do-itaperiu",
+      "suggested_urls": [
+        "https://sao-joao-do-itaperiu.sc.gov.br",
+        "https://www.sao-joao-do-itaperiu.sc.gov.br",
+        "https://transparencia.sao-joao-do-itaperiu.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO JOAO DO OESTE",
+      "slug": "sao-joao-do-oeste",
+      "suggested_urls": [
+        "https://sao-joao-do-oeste.sc.gov.br",
+        "https://www.sao-joao-do-oeste.sc.gov.br",
+        "https://transparencia.sao-joao-do-oeste.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO JOAO DO SUL",
+      "slug": "sao-joao-do-sul",
+      "suggested_urls": [
+        "https://sao-joao-do-sul.sc.gov.br",
+        "https://www.sao-joao-do-sul.sc.gov.br",
+        "https://transparencia.sao-joao-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO JOAQUIM",
+      "slug": "sao-joaquim",
+      "suggested_urls": [
+        "https://sao-joaquim.sc.gov.br",
+        "https://www.sao-joaquim.sc.gov.br",
+        "https://transparencia.sao-joaquim.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO JOSE",
+      "slug": "sao-jose",
+      "suggested_urls": [
+        "https://sao-jose.sc.gov.br",
+        "https://www.sao-jose.sc.gov.br",
+        "https://transparencia.sao-jose.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO JOSE DO CEDRO",
+      "slug": "sao-jose-do-cedro",
+      "suggested_urls": [
+        "https://sao-jose-do-cedro.sc.gov.br",
+        "https://www.sao-jose-do-cedro.sc.gov.br",
+        "https://transparencia.sao-jose-do-cedro.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO JOSE DO CERRITO",
+      "slug": "sao-jose-do-cerrito",
+      "suggested_urls": [
+        "https://sao-jose-do-cerrito.sc.gov.br",
+        "https://www.sao-jose-do-cerrito.sc.gov.br",
+        "https://transparencia.sao-jose-do-cerrito.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO LOURENCO DO OESTE",
+      "slug": "sao-lourenco-do-oeste",
+      "suggested_urls": [
+        "https://sao-lourenco-do-oeste.sc.gov.br",
+        "https://www.sao-lourenco-do-oeste.sc.gov.br",
+        "https://transparencia.sao-lourenco-do-oeste.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO LUDGERO",
+      "slug": "sao-ludgero",
+      "suggested_urls": [
+        "https://sao-ludgero.sc.gov.br",
+        "https://www.sao-ludgero.sc.gov.br",
+        "https://transparencia.sao-ludgero.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO MARTINHO",
+      "slug": "sao-martinho",
+      "suggested_urls": [
+        "https://sao-martinho.sc.gov.br",
+        "https://www.sao-martinho.sc.gov.br",
+        "https://transparencia.sao-martinho.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO MIGUEL DA BOA VISTA",
+      "slug": "sao-miguel-da-boa-vista",
+      "suggested_urls": [
+        "https://sao-miguel-da-boa-vista.sc.gov.br",
+        "https://www.sao-miguel-da-boa-vista.sc.gov.br",
+        "https://transparencia.sao-miguel-da-boa-vista.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO MIGUEL DO OESTE",
+      "slug": "sao-miguel-do-oeste",
+      "suggested_urls": [
+        "https://sao-miguel-do-oeste.sc.gov.br",
+        "https://www.sao-miguel-do-oeste.sc.gov.br",
+        "https://transparencia.sao-miguel-do-oeste.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SAO PEDRO DE ALCANTARA",
+      "slug": "sao-pedro-de-alcantara",
+      "suggested_urls": [
+        "https://sao-pedro-de-alcantara.sc.gov.br",
+        "https://www.sao-pedro-de-alcantara.sc.gov.br",
+        "https://transparencia.sao-pedro-de-alcantara.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SCHROEDER",
+      "slug": "schroeder",
+      "suggested_urls": [
+        "https://schroeder.sc.gov.br",
+        "https://www.schroeder.sc.gov.br",
+        "https://transparencia.schroeder.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SERRA ALTA",
+      "slug": "serra-alta",
+      "suggested_urls": [
+        "https://serra-alta.sc.gov.br",
+        "https://www.serra-alta.sc.gov.br",
+        "https://transparencia.serra-alta.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SIDEROPOLIS",
+      "slug": "sideropolis",
+      "suggested_urls": [
+        "https://sideropolis.sc.gov.br",
+        "https://www.sideropolis.sc.gov.br",
+        "https://transparencia.sideropolis.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SOMBRIO",
+      "slug": "sombrio",
+      "suggested_urls": [
+        "https://sombrio.sc.gov.br",
+        "https://www.sombrio.sc.gov.br",
+        "https://transparencia.sombrio.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "SUL BRASIL",
+      "slug": "sul-brasil",
+      "suggested_urls": [
+        "https://sul-brasil.sc.gov.br",
+        "https://www.sul-brasil.sc.gov.br",
+        "https://transparencia.sul-brasil.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TANGARA",
+      "slug": "tangara",
+      "suggested_urls": [
+        "https://tangara.sc.gov.br",
+        "https://www.tangara.sc.gov.br",
+        "https://transparencia.tangara.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TIGRINHOS",
+      "slug": "tigrinhos",
+      "suggested_urls": [
+        "https://tigrinhos.sc.gov.br",
+        "https://www.tigrinhos.sc.gov.br",
+        "https://transparencia.tigrinhos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TIMBE DO SUL",
+      "slug": "timbe-do-sul",
+      "suggested_urls": [
+        "https://timbe-do-sul.sc.gov.br",
+        "https://www.timbe-do-sul.sc.gov.br",
+        "https://transparencia.timbe-do-sul.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TIMBO GRANDE",
+      "slug": "timbo-grande",
+      "suggested_urls": [
+        "https://timbo-grande.sc.gov.br",
+        "https://www.timbo-grande.sc.gov.br",
+        "https://transparencia.timbo-grande.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TRES BARRAS",
+      "slug": "tres-barras",
+      "suggested_urls": [
+        "https://tres-barras.sc.gov.br",
+        "https://www.tres-barras.sc.gov.br",
+        "https://transparencia.tres-barras.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TREZE DE MAIO",
+      "slug": "treze-de-maio",
+      "suggested_urls": [
+        "https://treze-de-maio.sc.gov.br",
+        "https://www.treze-de-maio.sc.gov.br",
+        "https://transparencia.treze-de-maio.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TREZE TILIAS",
+      "slug": "treze-tilias",
+      "suggested_urls": [
+        "https://treze-tilias.sc.gov.br",
+        "https://www.treze-tilias.sc.gov.br",
+        "https://transparencia.treze-tilias.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TROMBUDO CENTRAL",
+      "slug": "trombudo-central",
+      "suggested_urls": [
+        "https://trombudo-central.sc.gov.br",
+        "https://www.trombudo-central.sc.gov.br",
+        "https://transparencia.trombudo-central.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TUBARAO",
+      "slug": "tubarao",
+      "suggested_urls": [
+        "https://tubarao.sc.gov.br",
+        "https://www.tubarao.sc.gov.br",
+        "https://transparencia.tubarao.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "TURVO",
+      "slug": "turvo",
+      "suggested_urls": [
+        "https://turvo.sc.gov.br",
+        "https://www.turvo.sc.gov.br",
+        "https://transparencia.turvo.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "UNIAO DO OESTE",
+      "slug": "uniao-do-oeste",
+      "suggested_urls": [
+        "https://uniao-do-oeste.sc.gov.br",
+        "https://www.uniao-do-oeste.sc.gov.br",
+        "https://transparencia.uniao-do-oeste.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "URUBICI",
+      "slug": "urubici",
+      "suggested_urls": [
+        "https://urubici.sc.gov.br",
+        "https://www.urubici.sc.gov.br",
+        "https://transparencia.urubici.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "URUPEMA",
+      "slug": "urupema",
+      "suggested_urls": [
+        "https://urupema.sc.gov.br",
+        "https://www.urupema.sc.gov.br",
+        "https://transparencia.urupema.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "URUSSANGA",
+      "slug": "urussanga",
+      "suggested_urls": [
+        "https://urussanga.sc.gov.br",
+        "https://www.urussanga.sc.gov.br",
+        "https://transparencia.urussanga.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "VARGEAO",
+      "slug": "vargeao",
+      "suggested_urls": [
+        "https://vargeao.sc.gov.br",
+        "https://www.vargeao.sc.gov.br",
+        "https://transparencia.vargeao.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "VARGEM",
+      "slug": "vargem",
+      "suggested_urls": [
+        "https://vargem.sc.gov.br",
+        "https://www.vargem.sc.gov.br",
+        "https://transparencia.vargem.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "VARGEM BONITA",
+      "slug": "vargem-bonita",
+      "suggested_urls": [
+        "https://vargem-bonita.sc.gov.br",
+        "https://www.vargem-bonita.sc.gov.br",
+        "https://transparencia.vargem-bonita.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "VIDAL RAMOS",
+      "slug": "vidal-ramos",
+      "suggested_urls": [
+        "https://vidal-ramos.sc.gov.br",
+        "https://www.vidal-ramos.sc.gov.br",
+        "https://transparencia.vidal-ramos.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "VITOR MEIRELES",
+      "slug": "vitor-meireles",
+      "suggested_urls": [
+        "https://vitor-meireles.sc.gov.br",
+        "https://www.vitor-meireles.sc.gov.br",
+        "https://transparencia.vitor-meireles.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "XANXERE",
+      "slug": "xanxere",
+      "suggested_urls": [
+        "https://xanxere.sc.gov.br",
+        "https://www.xanxere.sc.gov.br",
+        "https://transparencia.xanxere.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "XAVANTINA",
+      "slug": "xavantina",
+      "suggested_urls": [
+        "https://xavantina.sc.gov.br",
+        "https://www.xavantina.sc.gov.br",
+        "https://transparencia.xavantina.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    },
+    {
+      "municipio": "XAXIM",
+      "slug": "xaxim",
+      "suggested_urls": [
+        "https://xaxim.sc.gov.br",
+        "https://www.xaxim.sc.gov.br",
+        "https://transparencia.xaxim.sc.gov.br"
+      ],
+      "coverage_source_alternatives": [
+        "pncp",
+        "dom_sc",
+        "ciga_ckan",
+        "sc_compras"
+      ],
+      "status": "pending_fase3"
+    }
+  ]
+}

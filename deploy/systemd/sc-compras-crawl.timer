@@ -1,0 +1,14 @@
+# /etc/systemd/system/sc-compras-crawl.timer
+# SC Compras crawler — incremental semanal (domingo 09:00 UTC)
+
+[Unit]
+Description=SC Compras Crawler Timer — Extra Consultoria
+Requires=sc-compras-crawl.service
+
+[Timer]
+OnCalendar=Sun *-*-* 09:00:00
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target

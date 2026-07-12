@@ -1,0 +1,16 @@
+# /etc/systemd/system/extra-crawl-selenium.timer
+# Selenium crawler — weekly (Sat 04:00 UTC)
+# JS-rendered portals atualizam com frequencia moderada — semanal e suficiente
+# Executar sabado cedo para capturar dados da semana antes do domingo
+
+[Unit]
+Description=Extra Consultoria — Selenium JS Portal Crawler Timer
+Requires=extra-crawl-selenium.service
+
+[Timer]
+OnCalendar=Sat *-*-* 04:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

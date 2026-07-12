@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Cobertura - Santa Catarina</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 { color: #333; margin-bottom: 20px; }
+  h2 { color: #555; margin: 20px 0 10px; }
+  .gauge-container { text-align: center; margin: 20px 0; }
+  .gauge {
+    width: 180px; height: 180px; border-radius: 50%;
+    background: conic-gradient(#4CAF50 39.7%, #ddd 39.7%);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 2.2em; font-weight: bold; color: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .gauge-label { margin-top: 8px; font-size: 1.1em; color: #666; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+  .card {
+    background: white; padding: 20px; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center;
+  }
+  .card .value { font-size: 2em; font-weight: bold; color: #333; }
+  .card .label { font-size: 0.9em; color: #888; margin-top: 5px; }
+  table { border-collapse: collapse; width: 100%; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+  th, td { border: 1px solid #e0e0e0; padding: 10px 12px; text-align: left; }
+  th { background-color: #4CAF50; color: white; font-weight: 600; cursor: pointer; }
+  th:hover { background-color: #45a049; }
+  tr:nth-child(even) { background-color: #fafafa; }
+  tr:hover { background-color: #f0f8f0; }
+  .controls { margin: 15px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  .controls input, .controls select {
+    padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px;
+    font-size: 0.95em; flex: 1; min-width: 200px;
+  }
+  .controls select { flex: 0 1 auto; }
+  .timestamp { color: #999; font-size: 0.85em; margin-top: 30px; text-align: center; }
+  .footer { margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Dashboard de Cobertura - Santa Catarina</h1>
+
+  <div class="gauge-container">
+    <div class="gauge">39.7%</div>
+    <div class="gauge-label">827 de 2085 entes cobertos</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="value">2085</div>
+      <div class="label">Total de Entes</div>
+    </div>
+    <div class="card">
+      <div class="value" style="color:#4CAF50">827</div>
+      <div class="label">Entes Cobertos</div>
+    </div>
+    <div class="card">
+      <div class="value" style="color:#F44336">1258</div>
+      <div class="label">Entes Descobertos</div>
+    </div>
+    <div class="card">
+      <div class="value">296</div>
+      <div class="label">Municipios</div>
+    </div>
+  </div>
+
+  <h2>Cobertura por Municipio</h2>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Buscar municipio..." onkeyup="filterTable()">
+    <select id="coverageFilter" onchange="filterTable()">
+      <option value="all">Todos</option>
+      <option value="good">Cobertura &gt;= 80%</option>
+      <option value="medium">Cobertura 50-79%</option>
+      <option value="bad">Cobertura &lt; 50%</option>
+    </select>
+    <span style="padding:8px 0; color:#888;">Total: 296 municipios</span>
+  </div>
+
+  <table id="coverageTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">Municipio</th>
+        <th onclick="sortTable(1)">Codigo IBGE</th>
+        <th onclick="sortTable(2)">Total Entes</th>
+        <th onclick="sortTable(3)">Cobertos</th>
+        <th onclick="sortTable(4)">% Cobertura</th>
+      </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td>ABDON BATISTA</td>
+                <td>4200051</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>ABELARDO LUZ</td>
+                <td>4200101</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>AGROLANDIA</td>
+                <td>4200200</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>AGRONOMICA</td>
+                <td>4200309</td>
+                <td>2</td>
+                <td>1</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>AGUA DOCE</td>
+                <td>4200408</td>
+                <td>2</td>
+                <td>2</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>AGUAS DE CHAPECO</td>
+                <td>4200507</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>AGUAS FRIAS</td>
+                <td>4200556</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>AGUAS MORNAS</td>
+                <td>4200606</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>ALFREDO WAGNER</td>
+                <td>4200705</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>ALTO BELA VISTA</td>
+                <td>4200754</td>
+                <td>2</td>
+                <td>1</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>ANCHIETA</td>
+                <td>4200804</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>ANGELINA</td>
+                <td>4200903</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>ANITA GARIBALDI</td>
+                <td>4201000</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>ANITAPOLIS</td>
+                <td>4201109</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>ANTONIO CARLOS</td>
+                <td>4201208</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>APIUNA</td>
+                <td>4201257</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>ARABUTA</td>
+                <td>4201273</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>ARAQUARI</td>
+                <td>4201307</td>
+                <td>10</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>ARARANGUA</td>
+                <td>4201406</td>
+                <td>9</td>
+                <td>4</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">44.4%</td>
+            </tr>
+            <tr>
+                <td>ARMAZEM</td>
+                <td>4201505</td>
+                <td>6</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>ARROIO TRINTA</td>
+                <td>4201604</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>ARVOREDO</td>
+                <td>4201653</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>ASCURRA</td>
+                <td>4201703</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>ATALANTA</td>
+                <td>4201802</td>
+                <td>7</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">42.9%</td>
+            </tr>
+            <tr>
+                <td>AURORA</td>
+                <td>4201901</td>
+                <td>8</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">62.5%</td>
+            </tr>
+            <tr>
+                <td>BALNEARIO ARROIO DO SILVA</td>
+                <td>4201950</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>BALNEARIO BARRA DO SUL</td>
+                <td>4202057</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>BALNEARIO CAMBORIU</td>
+                <td>4202008</td>
+                <td>14</td>
+                <td>8</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">57.1%</td>
+            </tr>
+            <tr>
+                <td>BALNEARIO DE PICARRAS</td>
+                <td>4212809</td>
+                <td>12</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>BALNEARIO GAIVOTA</td>
+                <td>4202073</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>BALNEARIO RINCAO</td>
+                <td>4220000</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>BANDEIRANTE</td>
+                <td>4202081</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>BARRA BONITA</td>
+                <td>4202099</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>BARRA VELHA</td>
+                <td>4202107</td>
+                <td>11</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">54.5%</td>
+            </tr>
+            <tr>
+                <td>BELA VISTA DO TOLDO</td>
+                <td>4202131</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>BELMONTE</td>
+                <td>4202156</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>BENEDITO NOVO</td>
+                <td>4202206</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>BIGUACU</td>
+                <td>4202305</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>BLUMENAU</td>
+                <td>4202404</td>
+                <td>39</td>
+                <td>10</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.6%</td>
+            </tr>
+            <tr>
+                <td>BOCAINA DO SUL</td>
+                <td>4202438</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>BOMBINHAS</td>
+                <td>4202453</td>
+                <td>6</td>
+                <td>5</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">83.3%</td>
+            </tr>
+            <tr>
+                <td>BOM JARDIM DA SERRA</td>
+                <td>4202503</td>
+                <td>7</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">42.9%</td>
+            </tr>
+            <tr>
+                <td>BOM JESUS</td>
+                <td>4202537</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>BOM JESUS DO OESTE</td>
+                <td>4202578</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>BOM RETIRO</td>
+                <td>4202602</td>
+                <td>6</td>
+                <td>5</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">83.3%</td>
+            </tr>
+            <tr>
+                <td>BOTUVERA</td>
+                <td>4202701</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>BRACO DO NORTE</td>
+                <td>4202800</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>BRACO DO TROMBUDO</td>
+                <td>4202859</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>BRUNOPOLIS</td>
+                <td>4202875</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>BRUSQUE</td>
+                <td>4202909</td>
+                <td>20</td>
+                <td>14</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">70.0%</td>
+            </tr>
+            <tr>
+                <td>CACADOR</td>
+                <td>4203006</td>
+                <td>13</td>
+                <td>6</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">46.2%</td>
+            </tr>
+            <tr>
+                <td>CAIBI</td>
+                <td>4203105</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>CALMON</td>
+                <td>4203154</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>CAMBORIU</td>
+                <td>4203204</td>
+                <td>7</td>
+                <td>6</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">85.7%</td>
+            </tr>
+            <tr>
+                <td>CAMPO ALEGRE</td>
+                <td>4203303</td>
+                <td>10</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>CAMPO BELO DO SUL</td>
+                <td>4203402</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>CAMPO ERE</td>
+                <td>4203501</td>
+                <td>8</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>CAMPOS NOVOS</td>
+                <td>4203600</td>
+                <td>8</td>
+                <td>7</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">87.5%</td>
+            </tr>
+            <tr>
+                <td>CANELINHA</td>
+                <td>4203709</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>CANOINHAS</td>
+                <td>4203808</td>
+                <td>7</td>
+                <td>6</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">85.7%</td>
+            </tr>
+            <tr>
+                <td>CAPAO ALTO</td>
+                <td>4203253</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>CAPINZAL</td>
+                <td>4203907</td>
+                <td>13</td>
+                <td>7</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">53.8%</td>
+            </tr>
+            <tr>
+                <td>CAPIVARI DE BAIXO</td>
+                <td>4203956</td>
+                <td>4</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>CATANDUVAS</td>
+                <td>4204004</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>CAXAMBU DO SUL</td>
+                <td>4204103</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>CELSO RAMOS</td>
+                <td>4204152</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>CERRO NEGRO</td>
+                <td>4204178</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>CHAPADAO DO LAGEADO</td>
+                <td>4204194</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>CHAPECO</td>
+                <td>4204202</td>
+                <td>16</td>
+                <td>4</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>COCAL DO SUL</td>
+                <td>4204251</td>
+                <td>7</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">28.6%</td>
+            </tr>
+            <tr>
+                <td>CONCORDIA</td>
+                <td>4204301</td>
+                <td>10</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>CORDILHEIRA ALTA</td>
+                <td>4204350</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>CORONEL FREITAS</td>
+                <td>4204400</td>
+                <td>5</td>
+                <td>5</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>CORONEL MARTINS</td>
+                <td>4204459</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>CORREIA PINTO</td>
+                <td>4204558</td>
+                <td>9</td>
+                <td>7</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">77.8%</td>
+            </tr>
+            <tr>
+                <td>CORUPA</td>
+                <td>4204509</td>
+                <td>9</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">22.2%</td>
+            </tr>
+            <tr>
+                <td>CRICIUMA</td>
+                <td>4204608</td>
+                <td>14</td>
+                <td>5</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">35.7%</td>
+            </tr>
+            <tr>
+                <td>CUNHA PORA</td>
+                <td>4204707</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>CUNHATAI</td>
+                <td>4204756</td>
+                <td>3</td>
+                <td>0</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">0.0%</td>
+            </tr>
+            <tr>
+                <td>CURITIBANOS</td>
+                <td>4204806</td>
+                <td>7</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">28.6%</td>
+            </tr>
+            <tr>
+                <td>DESCANSO</td>
+                <td>4204905</td>
+                <td>2</td>
+                <td>1</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>DIONISIO CERQUEIRA</td>
+                <td>4205001</td>
+                <td>5</td>
+                <td>0</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">0.0%</td>
+            </tr>
+            <tr>
+                <td>DONA EMMA</td>
+                <td>4205100</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>DOUTOR PEDRINHO</td>
+                <td>4205159</td>
+                <td>4</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>ENTRE RIOS</td>
+                <td>4205175</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>ERMO</td>
+                <td>4205191</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>ERVAL VELHO</td>
+                <td>4205209</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>FAXINAL DOS GUEDES</td>
+                <td>4205308</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>FLOR DO SERTAO</td>
+                <td>4205357</td>
+                <td>2</td>
+                <td>1</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>FLORIANOPOLIS</td>
+                <td>4205407</td>
+                <td>23</td>
+                <td>4</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">17.4%</td>
+            </tr>
+            <tr>
+                <td>FORMOSA DO SUL</td>
+                <td>4205431</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>FORQUILHINHA</td>
+                <td>4205456</td>
+                <td>6</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>FRAIBURGO</td>
+                <td>4205506</td>
+                <td>12</td>
+                <td>5</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">41.7%</td>
+            </tr>
+            <tr>
+                <td>FREI ROGERIO</td>
+                <td>4205555</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>GALVAO</td>
+                <td>4205605</td>
+                <td>2</td>
+                <td>1</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>GAROPABA</td>
+                <td>4205704</td>
+                <td>7</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">57.1%</td>
+            </tr>
+            <tr>
+                <td>GARUVA</td>
+                <td>4205803</td>
+                <td>7</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">57.1%</td>
+            </tr>
+            <tr>
+                <td>GASPAR</td>
+                <td>4205902</td>
+                <td>7</td>
+                <td>6</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">85.7%</td>
+            </tr>
+            <tr>
+                <td>GOVERNADOR CELSO RAMOS</td>
+                <td>4206009</td>
+                <td>7</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">42.9%</td>
+            </tr>
+            <tr>
+                <td>GRAO PARA</td>
+                <td>4206108</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>GRAVATAL</td>
+                <td>4206207</td>
+                <td>5</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">80.0%</td>
+            </tr>
+            <tr>
+                <td>GUABIRUBA</td>
+                <td>4206306</td>
+                <td>5</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">80.0%</td>
+            </tr>
+            <tr>
+                <td>GUARACIABA</td>
+                <td>4206405</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>GUARAMIRIM</td>
+                <td>4206504</td>
+                <td>11</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">54.5%</td>
+            </tr>
+            <tr>
+                <td>GUARUJA DO SUL</td>
+                <td>4206603</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>GUATAMBU</td>
+                <td>4206652</td>
+                <td>5</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">80.0%</td>
+            </tr>
+            <tr>
+                <td>HERVAL D'OESTE</td>
+                <td>4206702</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>IBIAM</td>
+                <td>4206751</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>IBICARE</td>
+                <td>4206801</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>IBIRAMA</td>
+                <td>4206900</td>
+                <td>9</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>ICARA</td>
+                <td>4207007</td>
+                <td>12</td>
+                <td>5</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">41.7%</td>
+            </tr>
+            <tr>
+                <td>ILHOTA</td>
+                <td>4207106</td>
+                <td>9</td>
+                <td>8</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">88.9%</td>
+            </tr>
+            <tr>
+                <td>IMARUI</td>
+                <td>4207205</td>
+                <td>7</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">14.3%</td>
+            </tr>
+            <tr>
+                <td>IMBITUBA</td>
+                <td>4207304</td>
+                <td>9</td>
+                <td>7</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">77.8%</td>
+            </tr>
+            <tr>
+                <td>IMBUIA</td>
+                <td>4207403</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>INDAIAL</td>
+                <td>4207502</td>
+                <td>8</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>IOMERE</td>
+                <td>4207577</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>IPIRA</td>
+                <td>4207601</td>
+                <td>2</td>
+                <td>1</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>IPORA DO OESTE</td>
+                <td>4207650</td>
+                <td>6</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">16.7%</td>
+            </tr>
+            <tr>
+                <td>IPUACU</td>
+                <td>4207684</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>IPUMIRIM</td>
+                <td>4207700</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>IRACEMINHA</td>
+                <td>4207759</td>
+                <td>4</td>
+                <td>0</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">0.0%</td>
+            </tr>
+            <tr>
+                <td>IRANI</td>
+                <td>4207809</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>IRATI</td>
+                <td>4207858</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>IRINEOPOLIS</td>
+                <td>4207908</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>ITA</td>
+                <td>4208005</td>
+                <td>9</td>
+                <td>4</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">44.4%</td>
+            </tr>
+            <tr>
+                <td>ITAIOPOLIS</td>
+                <td>4208104</td>
+                <td>9</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">22.2%</td>
+            </tr>
+            <tr>
+                <td>ITAJAI</td>
+                <td>4208203</td>
+                <td>17</td>
+                <td>8</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">47.1%</td>
+            </tr>
+            <tr>
+                <td>ITAPEMA</td>
+                <td>4208302</td>
+                <td>10</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">30.0%</td>
+            </tr>
+            <tr>
+                <td>ITAPIRANGA</td>
+                <td>4208401</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>ITAPOA</td>
+                <td>4208450</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>ITUPORANGA</td>
+                <td>4208500</td>
+                <td>8</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>JABORA</td>
+                <td>4208609</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>JACINTO MACHADO</td>
+                <td>4208708</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>JAGUARUNA</td>
+                <td>4208807</td>
+                <td>7</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">57.1%</td>
+            </tr>
+            <tr>
+                <td>JARAGUA DO SUL</td>
+                <td>4208906</td>
+                <td>14</td>
+                <td>7</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>JARDINOPOLIS</td>
+                <td>4208955</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>JOACABA</td>
+                <td>4209003</td>
+                <td>9</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">22.2%</td>
+            </tr>
+            <tr>
+                <td>JOINVILLE</td>
+                <td>4209102</td>
+                <td>40</td>
+                <td>11</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">27.5%</td>
+            </tr>
+            <tr>
+                <td>JOSE BOITEUX</td>
+                <td>4209151</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>JUPIA</td>
+                <td>4209177</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>LACERDOPOLIS</td>
+                <td>4209201</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>LAGES</td>
+                <td>4209300</td>
+                <td>12</td>
+                <td>9</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>LAGUNA</td>
+                <td>4209409</td>
+                <td>11</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">27.3%</td>
+            </tr>
+            <tr>
+                <td>LAJEADO GRANDE</td>
+                <td>4209458</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>LAURENTINO</td>
+                <td>4209508</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>LAURO MULLER</td>
+                <td>4209607</td>
+                <td>9</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>LEBON REGIS</td>
+                <td>4209706</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>LEOBERTO LEAL</td>
+                <td>4209805</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>LINDOIA DO SUL</td>
+                <td>4209854</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>LONTRAS</td>
+                <td>4209904</td>
+                <td>6</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>LUIZ ALVES</td>
+                <td>4210001</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>LUZERNA</td>
+                <td>4210035</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>MACIEIRA</td>
+                <td>4210050</td>
+                <td>4</td>
+                <td>0</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">0.0%</td>
+            </tr>
+            <tr>
+                <td>MAFRA</td>
+                <td>4210100</td>
+                <td>9</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>MAJOR GERCINO</td>
+                <td>4210209</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>MAJOR VIEIRA</td>
+                <td>4210308</td>
+                <td>7</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">42.9%</td>
+            </tr>
+            <tr>
+                <td>MARACAJA</td>
+                <td>4210407</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>MARAVILHA</td>
+                <td>4210506</td>
+                <td>8</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">62.5%</td>
+            </tr>
+            <tr>
+                <td>MAREMA</td>
+                <td>4210555</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>MASSARANDUBA</td>
+                <td>4210605</td>
+                <td>6</td>
+                <td>5</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">83.3%</td>
+            </tr>
+            <tr>
+                <td>MATOS COSTA</td>
+                <td>4210704</td>
+                <td>7</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">14.3%</td>
+            </tr>
+            <tr>
+                <td>MELEIRO</td>
+                <td>4210803</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>MIRIM DOCE</td>
+                <td>4210852</td>
+                <td>5</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">80.0%</td>
+            </tr>
+            <tr>
+                <td>MODELO</td>
+                <td>4210902</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>MONDAI</td>
+                <td>4211009</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>MONTE CARLO</td>
+                <td>4211058</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>MONTE CASTELO</td>
+                <td>4211108</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>MORRO DA FUMACA</td>
+                <td>4211207</td>
+                <td>6</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>MORRO GRANDE</td>
+                <td>4211256</td>
+                <td>6</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>NAVEGANTES</td>
+                <td>4211306</td>
+                <td>11</td>
+                <td>8</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">72.7%</td>
+            </tr>
+            <tr>
+                <td>NOVA ERECHIM</td>
+                <td>4211405</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>NOVA ITABERABA</td>
+                <td>4211454</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>NOVA TRENTO</td>
+                <td>4211504</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>NOVA VENEZA</td>
+                <td>4211603</td>
+                <td>6</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>NOVO HORIZONTE</td>
+                <td>4211652</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>ORLEANS</td>
+                <td>4211702</td>
+                <td>9</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">55.6%</td>
+            </tr>
+            <tr>
+                <td>OTACILIO COSTA</td>
+                <td>4211751</td>
+                <td>8</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>OURO</td>
+                <td>4211801</td>
+                <td>8</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">12.5%</td>
+            </tr>
+            <tr>
+                <td>OURO VERDE</td>
+                <td>4211850</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>PAIAL</td>
+                <td>4211876</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>PAINEL</td>
+                <td>4211892</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>PALHOCA</td>
+                <td>4211900</td>
+                <td>11</td>
+                <td>7</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">63.6%</td>
+            </tr>
+            <tr>
+                <td>PALMA SOLA</td>
+                <td>4212007</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>PALMEIRA</td>
+                <td>4212056</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>PALMITOS</td>
+                <td>4212106</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>PAPANDUVA</td>
+                <td>4212205</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>PARAISO</td>
+                <td>4212239</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>PASSO DE TORRES</td>
+                <td>4212254</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>PASSOS MAIA</td>
+                <td>4212270</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>PAULO LOPES</td>
+                <td>4212304</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>PEDRAS GRANDES</td>
+                <td>4212403</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>PENHA</td>
+                <td>4212502</td>
+                <td>9</td>
+                <td>6</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>PERITIBA</td>
+                <td>4212601</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>PESCARIA BRAVA</td>
+                <td>4212650</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>PETROLANDIA</td>
+                <td>4212700</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>PINHALZINHO</td>
+                <td>4212908</td>
+                <td>6</td>
+                <td>5</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">83.3%</td>
+            </tr>
+            <tr>
+                <td>PINHEIRO PRETO</td>
+                <td>4213005</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>PIRATUBA</td>
+                <td>4213104</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>PLANALTO ALEGRE</td>
+                <td>4213153</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>POMERODE</td>
+                <td>4213203</td>
+                <td>7</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">71.4%</td>
+            </tr>
+            <tr>
+                <td>PONTE ALTA</td>
+                <td>4213302</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>PONTE ALTA DO NORTE</td>
+                <td>4213351</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>PONTE SERRADA</td>
+                <td>4213401</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>PORTO BELO</td>
+                <td>4213500</td>
+                <td>16</td>
+                <td>12</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>PORTO UNIAO</td>
+                <td>4213609</td>
+                <td>8</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">62.5%</td>
+            </tr>
+            <tr>
+                <td>POUSO REDONDO</td>
+                <td>4213708</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>PRAIA GRANDE</td>
+                <td>4213807</td>
+                <td>7</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">28.6%</td>
+            </tr>
+            <tr>
+                <td>PRESIDENTE CASTELLO BRANCO</td>
+                <td>4213906</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>PRESIDENTE GETULIO</td>
+                <td>4214003</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>PRESIDENTE NEREU</td>
+                <td>4214102</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>PRINCESA</td>
+                <td>4214151</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>QUILOMBO</td>
+                <td>4214201</td>
+                <td>3</td>
+                <td>0</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">0.0%</td>
+            </tr>
+            <tr>
+                <td>RANCHO QUEIMADO</td>
+                <td>4214300</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>RIO DAS ANTAS</td>
+                <td>4214409</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>RIO DO CAMPO</td>
+                <td>4214508</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>RIO DO OESTE</td>
+                <td>4214607</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>RIO DOS CEDROS</td>
+                <td>4214706</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>RIO DO SUL</td>
+                <td>4214805</td>
+                <td>18</td>
+                <td>10</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">55.6%</td>
+            </tr>
+            <tr>
+                <td>RIO FORTUNA</td>
+                <td>4214904</td>
+                <td>4</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>RIO NEGRINHO</td>
+                <td>4215000</td>
+                <td>9</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">55.6%</td>
+            </tr>
+            <tr>
+                <td>RIO RUFINO</td>
+                <td>4215059</td>
+                <td>4</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>RIQUEZA</td>
+                <td>4215075</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>RODEIO</td>
+                <td>4215109</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>ROMELANDIA</td>
+                <td>4215208</td>
+                <td>3</td>
+                <td>0</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">0.0%</td>
+            </tr>
+            <tr>
+                <td>SALETE</td>
+                <td>4215307</td>
+                <td>6</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>SALTINHO</td>
+                <td>4215356</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>SALTO VELOSO</td>
+                <td>4215406</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>SANGAO</td>
+                <td>4215455</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>SANTA CATARINA</td>
+                <td>-</td>
+                <td>562</td>
+                <td>193</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">34.3%</td>
+            </tr>
+            <tr>
+                <td>SANTA CECILIA</td>
+                <td>4215505</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>SANTA HELENA</td>
+                <td>4215554</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>SANTA ROSA DE LIMA</td>
+                <td>4215604</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>SANTA ROSA DO SUL</td>
+                <td>4215653</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>SANTA TEREZINHA</td>
+                <td>4215679</td>
+                <td>5</td>
+                <td>5</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>SANTA TEREZINHA DO PROGRESSO</td>
+                <td>4215687</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>SANTIAGO DO SUL</td>
+                <td>4215695</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>SANTO AMARO DA IMPERATRIZ</td>
+                <td>4215703</td>
+                <td>10</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>SAO BENTO DO SUL</td>
+                <td>4215802</td>
+                <td>11</td>
+                <td>7</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">63.6%</td>
+            </tr>
+            <tr>
+                <td>SAO BERNARDINO</td>
+                <td>4215752</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>SAO BONIFACIO</td>
+                <td>4215901</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>SAO CARLOS</td>
+                <td>4216008</td>
+                <td>6</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>SAO CRISTOVAO DO SUL</td>
+                <td>4216057</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>SAO DOMINGOS</td>
+                <td>4216107</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>SAO FRANCISCO DO SUL</td>
+                <td>4216206</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>SAO JOAO BATISTA</td>
+                <td>4216305</td>
+                <td>10</td>
+                <td>4</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>SAO JOAO DO ITAPERIU</td>
+                <td>4216354</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>SAO JOAO DO OESTE</td>
+                <td>4216255</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>SAO JOAO DO SUL</td>
+                <td>4216404</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>SAO JOAQUIM</td>
+                <td>4216503</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>SAO JOSE</td>
+                <td>4216602</td>
+                <td>16</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">18.8%</td>
+            </tr>
+            <tr>
+                <td>SAO JOSE DO CEDRO</td>
+                <td>4216701</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>SAO JOSE DO CERRITO</td>
+                <td>4216800</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>SAO LOURENCO DO OESTE</td>
+                <td>4216909</td>
+                <td>6</td>
+                <td>5</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">83.3%</td>
+            </tr>
+            <tr>
+                <td>SAO LUDGERO</td>
+                <td>4217006</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>SAO MARTINHO</td>
+                <td>4217105</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>SAO MIGUEL DA BOA VISTA</td>
+                <td>4217154</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>SAO MIGUEL DO OESTE</td>
+                <td>4217204</td>
+                <td>11</td>
+                <td>7</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">63.6%</td>
+            </tr>
+            <tr>
+                <td>SAO PEDRO DE ALCANTARA</td>
+                <td>4217253</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>SAUDADES</td>
+                <td>4217303</td>
+                <td>5</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">40.0%</td>
+            </tr>
+            <tr>
+                <td>SCHROEDER</td>
+                <td>4217402</td>
+                <td>7</td>
+                <td>6</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">85.7%</td>
+            </tr>
+            <tr>
+                <td>SEARA</td>
+                <td>4217501</td>
+                <td>8</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>SERRA ALTA</td>
+                <td>4217550</td>
+                <td>3</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">66.7%</td>
+            </tr>
+            <tr>
+                <td>SIDEROPOLIS</td>
+                <td>4217600</td>
+                <td>3</td>
+                <td>0</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">0.0%</td>
+            </tr>
+            <tr>
+                <td>SOMBRIO</td>
+                <td>4217709</td>
+                <td>7</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">57.1%</td>
+            </tr>
+            <tr>
+                <td>SUL BRASIL</td>
+                <td>4217758</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>TAIO</td>
+                <td>4217808</td>
+                <td>8</td>
+                <td>3</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">37.5%</td>
+            </tr>
+            <tr>
+                <td>TANGARA</td>
+                <td>4217907</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>TIGRINHOS</td>
+                <td>4217956</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>TIJUCAS</td>
+                <td>4218004</td>
+                <td>12</td>
+                <td>12</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>TIMBE DO SUL</td>
+                <td>4218103</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>TIMBO</td>
+                <td>4218202</td>
+                <td>10</td>
+                <td>7</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">70.0%</td>
+            </tr>
+            <tr>
+                <td>TIMBO GRANDE</td>
+                <td>4218251</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>TRES BARRAS</td>
+                <td>4218301</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>TREVISO</td>
+                <td>4218350</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>TREZE DE MAIO</td>
+                <td>4218400</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>TREZE TILIAS</td>
+                <td>4218509</td>
+                <td>5</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">20.0%</td>
+            </tr>
+            <tr>
+                <td>TROMBUDO CENTRAL</td>
+                <td>4218608</td>
+                <td>7</td>
+                <td>4</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">57.1%</td>
+            </tr>
+            <tr>
+                <td>TUBARAO</td>
+                <td>4218707</td>
+                <td>16</td>
+                <td>9</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">56.2%</td>
+            </tr>
+            <tr>
+                <td>TUNAPOLIS</td>
+                <td>4218756</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>TURVO</td>
+                <td>4218806</td>
+                <td>8</td>
+                <td>5</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">62.5%</td>
+            </tr>
+            <tr>
+                <td>UNIAO DO OESTE</td>
+                <td>4218855</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr>
+            <tr>
+                <td>URUBICI</td>
+                <td>4218905</td>
+                <td>4</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">75.0%</td>
+            </tr>
+            <tr>
+                <td>URUPEMA</td>
+                <td>4218954</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>URUSSANGA</td>
+                <td>4219002</td>
+                <td>10</td>
+                <td>8</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">80.0%</td>
+            </tr>
+            <tr>
+                <td>VARGEAO</td>
+                <td>4219101</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>VARGEM</td>
+                <td>4219150</td>
+                <td>6</td>
+                <td>2</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>VARGEM BONITA</td>
+                <td>4219176</td>
+                <td>3</td>
+                <td>3</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>VIDAL RAMOS</td>
+                <td>4219200</td>
+                <td>5</td>
+                <td>4</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">80.0%</td>
+            </tr>
+            <tr>
+                <td>VIDEIRA</td>
+                <td>4219309</td>
+                <td>13</td>
+                <td>8</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">61.5%</td>
+            </tr>
+            <tr>
+                <td>VITOR MEIRELES</td>
+                <td>4219358</td>
+                <td>5</td>
+                <td>5</td>
+                <td style="background-color:#4CAF50; color:white; font-weight:bold">100.0%</td>
+            </tr>
+            <tr>
+                <td>WITMARSUM</td>
+                <td>4219408</td>
+                <td>5</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">60.0%</td>
+            </tr>
+            <tr>
+                <td>XANXERE</td>
+                <td>4219507</td>
+                <td>6</td>
+                <td>3</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>XAVANTINA</td>
+                <td>4219606</td>
+                <td>3</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">33.3%</td>
+            </tr>
+            <tr>
+                <td>XAXIM</td>
+                <td>4219705</td>
+                <td>4</td>
+                <td>2</td>
+                <td style="background-color:#FFC107; color:#333; font-weight:bold">50.0%</td>
+            </tr>
+            <tr>
+                <td>ZORTEA</td>
+                <td>4219853</td>
+                <td>4</td>
+                <td>1</td>
+                <td style="background-color:#F44336; color:white; font-weight:bold">25.0%</td>
+            </tr></tbody>
+  </table>
+
+  <div class="footer">
+    <strong>Nota:</strong> A cobertura atual de 39.7% reflete apenas as fontes
+    ativas (PNCP + CIGA CKAN). Apos execucao das fases de expansao (Fases 1-3),
+    a cobertura projetada e de 95%+.
+  </div>
+
+  <div class="timestamp">Ultima atualizacao: 2026-07-11 20:02:09</div>
+</div>
+
+<script>
+function filterTable() {
+  const input = document.getElementById('searchInput').value.toUpperCase();
+  const filter = document.getElementById('coverageFilter').value;
+  const table = document.getElementById('coverageTable');
+  const tr = table.getElementsByTagName('tr');
+
+  for (let i = 1; i < tr.length; i++) {
+    const td = tr[i].getElementsByTagName('td');
+    if (!td[0]) continue;
+    const municipio = td[0].textContent || td[0].innerText;
+    const pctText = td[4].textContent || td[4].innerText;
+    const pct = parseFloat(pctText);
+
+    const matchSearch = municipio.toUpperCase().indexOf(input) > -1;
+    let matchFilter = true;
+    if (filter === 'good') matchFilter = pct >= 80;
+    else if (filter === 'medium') matchFilter = pct >= 50 && pct < 80;
+    else if (filter === 'bad') matchFilter = pct < 50;
+
+    tr[i].style.display = (matchSearch && matchFilter) ? '' : 'none';
+  }
+}
+
+function sortTable(col) {
+  const table = document.getElementById('coverageTable');
+  const tbody = table.getElementsByTagName('tbody')[0];
+  const rows = Array.from(tbody.getElementsByTagName('tr'));
+
+  const ascending = table.getAttribute('data-sort-asc') !== col.toString();
+  table.setAttribute('data-sort-asc', col.toString());
+
+  rows.sort((a, b) => {
+    let x = a.getElementsByTagName('td')[col].textContent.trim();
+    let y = b.getElementsByTagName('td')[col].textContent.trim();
+    const xNum = parseFloat(x.replace('%', '').replace(',', '.'));
+    const yNum = parseFloat(y.replace('%', '').replace(',', '.'));
+    if (!isNaN(xNum) && !isNaN(yNum)) {
+      return ascending ? xNum - yNum : yNum - xNum;
+    }
+    return ascending ? x.localeCompare(y) : y.localeCompare(x);
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+}
+</script>
+</body>
+</html>

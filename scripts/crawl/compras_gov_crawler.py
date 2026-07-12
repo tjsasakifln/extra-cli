@@ -207,8 +207,8 @@ def _fetch_from_endpoint(
 
     while pagina <= max_pages:
         params: dict[str, Any] = {
-            "dataInicial": data_inicial,
-            "dataFinal": data_final,
+            "data_publicacao_inicial": data_inicial,
+            "data_publicacao_final": data_final,
             "pagina": pagina,
             "tamanhoPagina": PAGE_SIZE,
         }

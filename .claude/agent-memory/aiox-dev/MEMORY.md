@@ -3,3 +3,5 @@
 - [FEAT-3.1 Pipeline Intel CNPJ Extra](project_feat_3_1_pipeline_intel.md) — Pipeline executado para 01721078000168 (LCM CONTRUCOES LTDA) SC 90d. 0 oportunidades. report_dedup.py e intel_sectors_config.yaml criados.
 - [Story TD-0.3 Config Package Fix](story-td-0.3-config-fix.md) — config/constants.py criado com RetryConfig + 23 constantes; config/__init__.py re-exporta tudo. AC8 verificado, AC9 bloqueado por modulos externos faltantes (exceptions, middleware, metrics).
 - [Story TD-7.1 Phase 1 Auto-Fix](story-td-7.1-phase1-auto-fix.md) — ruff auto-fix: 644 fixes, 84 formatted, 222 remaining. Ready → InProgress.
+- [COVERAGE-1.5 Stash Extraction Fix](qa-fix-COVERAGE-1.5-stash-extraction.md) — dom_sc_crawler.py extraido do stash e verificado na working tree
+- [QA Fix COVERAGE-2.1 BigQuery](qa-fix-COVERAGE-2.1-mides-bigquery.md) — esfera_id de CNPJ, AC6/AC7 crawl 50K + entity matching validados

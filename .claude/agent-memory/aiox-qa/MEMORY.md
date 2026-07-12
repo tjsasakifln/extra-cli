@@ -11,3 +11,15 @@
 - [Story TD-0.3 QA Gate](story-td-0.3-qa-gate.md) — PASS verdict, 7/7 checks, 439 tests, 0 ruff errors, AC9 blocked by external deps (documented)
 - [Story TD-2.4 QA Gate](story-td-2.4-qa-gate.md) — PASS verdict, 9/9 ACs, 27/27 tests, clean CodeRabbit
 - [Story TD-8.1 QA Gate](story-td-8.1-qa-gate.md) — PASS verdict, 8/8 in-scope ACs, 439 tests, 4 files deleted, 6 diffs
+- [Story TD-8.3 QA Gate](story-td-8.3-qa-gate.md) — FAIL (original) -> PASS (RE-QA). 6/6 issues resolvidos (PNCP_BASE v3, page size clip, field names, modalidades 1-7, date range 90, pagination fallback, keyword filter). 601/601 tests, ruff clean. AC5-AC8 pending live API.
+- [Story COVERAGE-2.3 QA Gate](story-COVERAGE-2.3-qa-gate.md) — FAIL (original) -> PASS (RE-QA). 7/7 issues resolvidos e revalidados. 28/28 tests, ruff clean. AC4-AC6 blocked by creds.
+- [Story COVERAGE-1.1 QA Gate (RE-QA)](story-COVERAGE-1.1-qa-gate.md) — FAIL (original) -> FAIL (RE-QA) -> PASS (3a RE-QA). Stash@{1} finalmente aplicado. 8/8 ACs, 22/22 tests, ruff 0 errors. InReview -> Done.
+- [Story COVERAGE-1.10 QA Gate](story-COVERAGE-1.10-pcp-diagnostic.md) — FAIL (initial) -> PASS (RE-QA). 3/3 issues resolved (stash fix applied, diagnostic aligned, File List corrected). 28 tests.
+- [Story COVERAGE-1.6 RE-QA](story-COVERAGE-1.6-pcp-coverage-expansion-reqa.md) — PASS (after FAIL). 7/7 issues resolved. AC1-AC4 codigo real, 305 recs, 28/28 tests, ruff clean. 1 low new issue.
+- [Story COVERAGE-2.4 QA Gate (RE-QA)](story-COVERAGE-2.4-qa-gate.md) — PASS (RE-QA), AC4 resolvido, cmd_rebuild_coverage() com 5 passos, 0 novos erros ruff, 62+ tests
+- [Story COVERAGE-3.2 RE-QA (2a tentativa)](re-qa-c3.2-resolved.md) — PASS (apos CONCERNS). MNT-001 resolvido apos 2 tentativas. Template sc_gov_portal confirmado +12 municipios. 29/29 tests.
+- [Story TD-8.5 QA Gate](story-TD-8.5-qa-gate.md) — FAIL verdict, 1/11 ACs fully met (AC6), 5 HIGH + 3 MEDIUM + 3 LOW issues. Misrepresentations de implementacao (Tasks 5.1, 7.2), AC4 (75/295), AC10 (39.4%), +15 test regressions.
+- [Story COVERAGE-1.3 RE-QA](story-COVERAGE-1.3-reqa.md) — PASS (pos FAIL). 4 issues REQ-001/002, TST-001..005, MNT-001 resolvidos. 98/98 tests, ruff clean, 5 plataformas, 295 entries, 231 residuais. InReview -> Done.
+- [Story COVERAGE-1.5 QA Gate](story-COVERAGE-1.5-dom-sc-expansion.md) — PASS (RE-QA 2a tentativa), stash finalmente aplicado, 6/6 validacoes, ruff clean. InReview -> Done.
+- [Story TD-8.5 RE-QA](re-qa-td-8.5.md) — PASS apos FAIL original. 5/5 HIGH issues resolvidos (monitor.py doa_sc, compras_gov params, AC4/AC10 targets, test sync). 575 tests pass. InReview -> Done. Ultima story do epic.
+- [Story COVERAGE-2.1 QA Gate](story-COVERAGE-2.1-qa-gate.md) — CONCERNS -> PASS (RE-QA Final). 3/3 issues resolvidos (MNT-001 esfera_id CNPJ, AC6 crawl 50K, AC7 225 matches). 24/24 tests, ruff 0. Ultima story do EPIC-COVERAGE-100PCT.

@@ -220,6 +220,31 @@ _PLATFORM_TEMPLATES = [
         "url": "https://{slug}.e-gov.betha.com.br",
         "check": lambda body: "e-gov" in body.lower()[:2000] or "betha" in body.lower()[:2000],
     },
+    {
+        "platform": "fiorilli",
+        "url": "https://{slug}.fiorilli.com.br/transparencia",
+        "check": lambda body: "fiorilli" in body.lower()[:2000],
+    },
+    {
+        "platform": "iplan",
+        "url": "https://{slug}.iplan.gov.br/transparencia",
+        "check": lambda body: "iplan" in body.lower()[:2000],
+    },
+    {
+        "platform": "iri",
+        "url": "https://{slug}.iri.com.br/transparencia",
+        "check": lambda body: "iri" in body.lower()[:2000],
+    },
+    {
+        "platform": "prima",
+        "url": "https://{slug}.prima.com.br/transparencia",
+        "check": lambda body: "prima" in body.lower()[:2000],
+    },
+    {
+        "platform": "tecnospeed",
+        "url": "https://{slug}.tecnospeed.com.br/transparencia",
+        "check": lambda body: "tecnospeed" in body.lower()[:2000],
+    },
 ]
 
 # Keywords for generic portal detection on dominio proprio
@@ -263,6 +288,26 @@ def _detect_platform_from_url(url: str) -> str | None:
     # E-gov — also Betha, but a different portal product line
     if "e-gov.betha" in url_lower or "betha" in url_lower:
         return "egov"
+
+    # Fiorilli
+    if "fiorilli" in url_lower:
+        return "fiorilli"
+
+    # Iplan
+    if "iplan" in url_lower:
+        return "iplan"
+
+    # IRI
+    if "iri.com.br" in url_lower or "iri.sp.gov.br" in url_lower:
+        return "iri"
+
+    # Prima
+    if "prima" in url_lower:
+        return "prima"
+
+    # Tecnospeed
+    if "tecnospeed" in url_lower:
+        return "tecnospeed"
 
     return None
 
@@ -831,7 +876,6 @@ def crawl_template(
     """
     config = load_config(config_path)
     municipios = config.get("municipios", {})
-    templates = config.get("templates", {})
 
     if not municipios:
         _logger.warning("No municipios configured in transparencia_config.yaml")

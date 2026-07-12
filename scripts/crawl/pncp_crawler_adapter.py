@@ -40,8 +40,12 @@ _logger = logging.getLogger(__name__)
 # Configuration (mirrors ingestion/config.py but with env overrides)
 # ---------------------------------------------------------------------------
 
-PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v1")
+PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v3")
 PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))  # PNCP API v3: max 50, min 10
+# PNCP API v3 rejects tamanhoPagina < 10 — clip to minimum
+if PNCP_PAGE_SIZE < 10:
+    _logger.warning("PNCP_PAGE_SIZE=%d < 10 (API v3 minimum), using 10", PNCP_PAGE_SIZE)
+    PNCP_PAGE_SIZE = 10
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "200"))
 PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "30"))
 PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "2"))
@@ -52,20 +56,16 @@ INGESTION_UFS = [u.strip().upper() for u in os.getenv("INGESTION_UFS", "SC").spl
 # PNCP API v3 esferaId mapping (letter → integer for DB schema)
 _ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
 
-# Optional keyword filter — empty default means ALL records pass through
-_ENGINEERING_KEYWORDS = [
-    kw.strip().lower()
-    for kw in os.getenv("INGESTION_KEYWORDS", "").split(",")
-    if kw.strip()
-]
-INGESTION_MODALIDADES = [int(m) for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7,8,12").split(",")]
+# Keyword filter removed — AC9: all records pass through by default.
+# Re-activate via INGESTION_KEYWORD_FILTER_ENABLED=true if needed.
+INGESTION_MODALIDADES = [int(m) for m in os.getenv("INGESTION_MODALIDADES", "1,2,3,4,5,6,7").split(",")]
 # Modalidades PNCP v3:
 #   1 = Pregão Presencial, 2 = Tomada de Preços, 3 = Convite
 #   4 = Concorrência, 5 = Pregão Eletrônico, 6 = Concurso
 #   7 = Dispensa, 8 = Inexigibilidade, 9 = Leilão
 #   12 = Diálogo Competitivo
-# Default: 4,5,6,7,8,12 — covers all relevant competitive modalities
-INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "30"))
+# Default: 1-7 — all competitive modalities for full coverage
+INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "90"))
 INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "1"))
 
 # ---------------------------------------------------------------------------
@@ -112,8 +112,12 @@ def _fetch_page(uf: str, modalidade: int, pagina: int, data_inicial: date, data_
             # PNCP API v3 response: {"data": [...], "paginasRestantes": int, "totalRegistros": int, ...}
             if isinstance(data, dict):
                 records = data.get("data", [])
-                paginas_restantes = data.get("paginasRestantes", 0)
-                has_next = bool(paginas_restantes > 0)
+                paginas_restantes = data.get("paginasRestantes", None)
+                if paginas_restantes is not None:
+                    has_next = bool(paginas_restantes > 0)
+                else:
+                    # Fallback v2: temProximaPagina
+                    has_next = data.get("temProximaPagina", False)
                 if isinstance(records, list):
                     return records, has_next
                 return [], False
@@ -181,7 +185,7 @@ def _transform_record(rec: dict) -> dict | None:
         if not pncp_id:
             # Generate synthetic ID as last resort
             pncp_id = hashlib.md5(
-                f"{orgao.get('cnpj', '')}|{rec.get('objetoCompra', '')}|{rec.get('dataPublicacaoPncp', '')}".encode(),
+                f"{orgao.get('cnpj', '')}|{rec.get('objetoCompra', '')}|{rec.get('dataPublicacao', '')}".encode(),
                 usedforsecurity=False,
             ).hexdigest()
 
@@ -197,17 +201,17 @@ def _transform_record(rec: dict) -> dict | None:
         # DB CHECK constraint: 1,2,3,4 or NULL. 0/NULL for unknown.
 
         # Geography from unidadeOrgao
-        uf: str = unidade.get("ufSigla") or rec.get("uf", "SC")
-        municipio: str = unidade.get("municipioNome") or rec.get("municipio", "")
+        uf: str = unidade.get("siglaUf") or rec.get("uf", "SC")
+        municipio: str = unidade.get("nomeMunicipio") or rec.get("municipio", "")
         codigo_municipio_ibge: str = unidade.get("codigoIbge") or unidade.get("codigoMunicipioIbge", "")
 
         # Orgao info
         orgao_razao_social: str = orgao.get("razaoSocial") or unidade.get("nomeUnidade", "")
         orgao_cnpj: str = orgao.get("cnpj", "")
 
-        # Dates — API returns ISO strings in dataPublicacaoPncp, dataAberturaProposta, etc.
-        data_publicacao = _safe_date(rec.get("dataPublicacaoPncp"))
-        data_abertura = _safe_date(rec.get("dataAberturaProposta")) or data_publicacao
+        # Dates — API returns ISO strings in dataPublicacao, dataAbertura, etc.
+        data_publicacao = _safe_date(rec.get("dataPublicacao"))
+        data_abertura = _safe_date(rec.get("dataAbertura")) or data_publicacao
         data_encerramento = _safe_date(rec.get("dataEncerramentoProposta"))
 
         # Links
@@ -312,24 +316,13 @@ def crawl(mode: str = "full") -> list[dict]:
 def transform(raw_records: list[dict]) -> list[dict]:
     """Transform raw PNCP records to unified pncp_raw_bids schema.
 
-    Optionally filters by engineering keywords (INGESTION_KEYWORDS env var).
-    When INGESTION_KEYWORDS is empty (default), ALL records pass through.
+    No keyword filtering — all records pass through (AC9).
+    Records without orgao_cnpj are still skipped as they cannot be matched.
     """
     transformed = []
-    skipped = 0
     for rec in raw_records:
         t = _transform_record(rec)
         if not t or not t.get("orgao_cnpj"):
             continue
-        # Optional keyword filter — skip when _ENGINEERING_KEYWORDS is empty
-        if _ENGINEERING_KEYWORDS:
-            objeto = (t.get("objeto_compra", "") or "").lower()
-            modalidade = (t.get("modalidade_nome", "") or "").lower()
-            text = f"{objeto} {modalidade}"
-            if not any(kw in text for kw in _ENGINEERING_KEYWORDS):
-                skipped += 1
-                continue
         transformed.append(t)
-    if skipped:
-        _logger.debug("Keyword filter: %d non-engineering records skipped", skipped)
     return transformed

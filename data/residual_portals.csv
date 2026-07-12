@@ -1,0 +1,221 @@
+municipio,slug,ibge,url,entities_count
+FLORIANOPOLIS,florianopolis,4205407,https://florianopolis.sc.gov.br,22
+TUBARAO,tubarao,4218707,https://tubarao.sc.gov.br,16
+SAO JOSE,sao-jose,4216602,https://sao-jose.sc.gov.br,15
+RIO DO SUL,rio-do-sul,4214805,https://rio-do-sul.sc.gov.br,14
+JARAGUA DO SUL,jaragua-do-sul,4208906,https://jaragua-do-sul.sc.gov.br,13
+PORTO BELO,porto-belo,4213500,https://porto-belo.sc.gov.br,13
+BALNEARIO CAMBORIU,balneario-camboriu,4202008,https://balneario-camboriu.sc.gov.br,13
+BALNEARIO DE PICARRAS,balneario-de-picarras,4212809,https://balneario-de-picarras.sc.gov.br,12
+CAPINZAL,capinzal,4203907,https://capinzal.sc.gov.br,12
+CACADOR,cacador,4203006,https://cacador.sc.gov.br,11
+SAO BENTO DO SUL,sao-bento-do-sul,4215802,https://sao-bento-do-sul.sc.gov.br,11
+LAGUNA,laguna,4209409,https://laguna.sc.gov.br,10
+SAO MIGUEL DO OESTE,sao-miguel-do-oeste,4217204,https://sao-miguel-do-oeste.sc.gov.br,10
+BARRA VELHA,barra-velha,4202107,https://barra-velha.sc.gov.br,9
+CAMPO ALEGRE,campo-alegre,4203303,https://campo-alegre.sc.gov.br,9
+JOACABA,joacaba,4209003,https://joacaba.sc.gov.br,9
+MAFRA,mafra,4210100,https://mafra.sc.gov.br,9
+SAO JOAO BATISTA,sao-joao-batista,4216305,https://sao-joao-batista.sc.gov.br,9
+ITAPEMA,itapema,4208302,https://itapema.sc.gov.br,9
+OTACILIO COSTA,otacilio-costa,4211751,https://otacilio-costa.sc.gov.br,8
+SANTO AMARO DA IMPERATRIZ,santo-amaro-da-imperatriz,4215703,https://santo-amaro-da-imperatriz.sc.gov.br,8
+CAMPO ERE,campo-ere,4203501,https://campo-ere.sc.gov.br,8
+CAMPOS NOVOS,campos-novos,4203600,https://campos-novos.sc.gov.br,7
+CURITIBANOS,curitibanos,4204806,https://curitibanos.sc.gov.br,7
+ILHOTA,ilhota,4207106,https://ilhota.sc.gov.br,7
+IMARUI,imarui,4207205,https://imarui.sc.gov.br,7
+LAURO MULLER,lauro-muller,4209607,https://lauro-muller.sc.gov.br,7
+MAJOR VIEIRA,major-vieira,4210308,https://major-vieira.sc.gov.br,7
+MATOS COSTA,matos-costa,4210704,https://matos-costa.sc.gov.br,7
+MARAVILHA,maravilha,4210506,https://maravilha.sc.gov.br,7
+ORLEANS,orleans,4211702,https://orleans.sc.gov.br,7
+PORTO UNIAO,porto-uniao,4213609,https://porto-uniao.sc.gov.br,7
+PRAIA GRANDE,praia-grande,4213807,https://praia-grande.sc.gov.br,7
+RIO NEGRINHO,rio-negrinho,4215000,https://rio-negrinho.sc.gov.br,7
+URUSSANGA,urussanga,4219002,https://urussanga.sc.gov.br,7
+BOM JARDIM DA SERRA,bom-jardim-da-serra,4202503,https://bom-jardim-da-serra.sc.gov.br,6
+COCAL DO SUL,cocal-do-sul,4204251,https://cocal-do-sul.sc.gov.br,6
+CORREIA PINTO,correia-pinto,4204558,https://correia-pinto.sc.gov.br,6
+IPORA DO OESTE,ipora-do-oeste,4207650,https://ipora-do-oeste.sc.gov.br,6
+MORRO DA FUMACA,morro-da-fumaca,4211207,https://morro-da-fumaca.sc.gov.br,6
+NOVA TRENTO,nova-trento,4211504,https://nova-trento.sc.gov.br,6
+SAO FRANCISCO DO SUL,sao-francisco-do-sul,4216206,https://sao-francisco-do-sul.sc.gov.br,6
+SAO LOURENCO DO OESTE,sao-lourenco-do-oeste,4216909,https://sao-lourenco-do-oeste.sc.gov.br,6
+TROMBUDO CENTRAL,trombudo-central,4218608,https://trombudo-central.sc.gov.br,6
+TURVO,turvo,4218806,https://turvo.sc.gov.br,6
+ARMAZEM,armazem,4201505,https://armazem.sc.gov.br,6
+ANTONIO CARLOS,antonio-carlos,4201208,https://antonio-carlos.sc.gov.br,5
+BALNEARIO GAIVOTA,balneario-gaivota,4202073,https://balneario-gaivota.sc.gov.br,5
+BALNEARIO RINCAO,balneario-rincao,4220000,https://balneario-rincao.sc.gov.br,5
+CAPAO ALTO,capao-alto,4203253,https://capao-alto.sc.gov.br,5
+ANITAPOLIS,anitapolis,4201109,https://anitapolis.sc.gov.br,5
+CORONEL FREITAS,coronel-freitas,4204400,https://coronel-freitas.sc.gov.br,5
+DIONISIO CERQUEIRA,dionisio-cerqueira,4205001,https://dionisio-cerqueira.sc.gov.br,5
+CANELINHA,canelinha,4203709,https://canelinha.sc.gov.br,5
+GOVERNADOR CELSO RAMOS,governador-celso-ramos,4206009,https://governador-celso-ramos.sc.gov.br,5
+GRAO PARA,grao-para,4206108,https://grao-para.sc.gov.br,5
+FORQUILHINHA,forquilhinha,4205456,https://forquilhinha.sc.gov.br,5
+IMBUIA,imbuia,4207403,https://imbuia.sc.gov.br,5
+JACINTO MACHADO,jacinto-machado,4208708,https://jacinto-machado.sc.gov.br,5
+IPUACU,ipuacu,4207684,https://ipuacu.sc.gov.br,5
+LINDOIA DO SUL,lindoia-do-sul,4209854,https://lindoia-do-sul.sc.gov.br,5
+MONTE CARLO,monte-carlo,4211058,https://monte-carlo.sc.gov.br,5
+MONTE CASTELO,monte-castelo,4211108,https://monte-castelo.sc.gov.br,5
+MORRO GRANDE,morro-grande,4211256,https://morro-grande.sc.gov.br,5
+NOVA VENEZA,nova-veneza,4211603,https://nova-veneza.sc.gov.br,5
+NOVO HORIZONTE,novo-horizonte,4211652,https://novo-horizonte.sc.gov.br,5
+PALMA SOLA,palma-sola,4212007,https://palma-sola.sc.gov.br,5
+PEDRAS GRANDES,pedras-grandes,4212403,https://pedras-grandes.sc.gov.br,5
+PINHEIRO PRETO,pinheiro-preto,4213005,https://pinheiro-preto.sc.gov.br,5
+PIRATUBA,piratuba,4213104,https://piratuba.sc.gov.br,5
+PRESIDENTE GETULIO,presidente-getulio,4214003,https://presidente-getulio.sc.gov.br,5
+RIO DO CAMPO,rio-do-campo,4214508,https://rio-do-campo.sc.gov.br,5
+SANTA ROSA DO SUL,santa-rosa-do-sul,4215653,https://santa-rosa-do-sul.sc.gov.br,5
+SANTA ROSA DE LIMA,santa-rosa-de-lima,4215604,https://santa-rosa-de-lima.sc.gov.br,5
+SAO CARLOS,sao-carlos,4216008,https://sao-carlos.sc.gov.br,5
+SAO PEDRO DE ALCANTARA,sao-pedro-de-alcantara,4217253,https://sao-pedro-de-alcantara.sc.gov.br,5
+TIMBE DO SUL,timbe-do-sul,4218103,https://timbe-do-sul.sc.gov.br,5
+TRES BARRAS,tres-barras,4218301,https://tres-barras.sc.gov.br,5
+TIMBO GRANDE,timbo-grande,4218251,https://timbo-grande.sc.gov.br,5
+TREZE TILIAS,treze-tilias,4218509,https://treze-tilias.sc.gov.br,5
+TANGARA,tangara,4217907,https://tangara.sc.gov.br,5
+VARGEAO,vargeao,4219101,https://vargeao.sc.gov.br,5
+VARGEM,vargem,4219150,https://vargem.sc.gov.br,5
+XANXERE,xanxere,4219507,https://xanxere.sc.gov.br,5
+ALFREDO WAGNER,alfredo-wagner,4200705,https://alfredo-wagner.sc.gov.br,5
+BRACO DO NORTE,braco-do-norte,4202800,https://braco-do-norte.sc.gov.br,5
+SAO LUDGERO,sao-ludgero,4217006,https://sao-ludgero.sc.gov.br,5
+BALNEARIO ARROIO DO SILVA,balneario-arroio-do-silva,4201950,https://balneario-arroio-do-silva.sc.gov.br,4
+AGUAS MORNAS,aguas-mornas,4200606,https://aguas-mornas.sc.gov.br,4
+BELA VISTA DO TOLDO,bela-vista-do-toldo,4202131,https://bela-vista-do-toldo.sc.gov.br,4
+BELMONTE,belmonte,4202156,https://belmonte.sc.gov.br,4
+BOM JESUS,bom-jesus,4202537,https://bom-jesus.sc.gov.br,4
+ABDON BATISTA,abdon-batista,4200051,https://abdon-batista.sc.gov.br,4
+BRACO DO TROMBUDO,braco-do-trombudo,4202859,https://braco-do-trombudo.sc.gov.br,4
+CAXAMBU DO SUL,caxambu-do-sul,4204103,https://caxambu-do-sul.sc.gov.br,4
+CELSO RAMOS,celso-ramos,4204152,https://celso-ramos.sc.gov.br,4
+ANCHIETA,anchieta,4200804,https://anchieta.sc.gov.br,4
+ANGELINA,angelina,4200903,https://angelina.sc.gov.br,4
+CUNHA PORA,cunha-pora,4204707,https://cunha-pora.sc.gov.br,4
+DONA EMMA,dona-emma,4205100,https://dona-emma.sc.gov.br,4
+HERVAL D'OESTE,herval-d-oeste,4206702,https://herval-d-oeste.sc.gov.br,4
+IOMERE,iomere,4207577,https://iomere.sc.gov.br,4
+IPUMIRIM,ipumirim,4207700,https://ipumirim.sc.gov.br,4
+IRACEMINHA,iraceminha,4207759,https://iraceminha.sc.gov.br,4
+JABORA,jabora,4208609,https://jabora.sc.gov.br,4
+LEBON REGIS,lebon-regis,4209706,https://lebon-regis.sc.gov.br,4
+LEOBERTO LEAL,leoberto-leal,4209805,https://leoberto-leal.sc.gov.br,4
+LUZERNA,luzerna,4210035,https://luzerna.sc.gov.br,4
+MARACAJA,maracaja,4210407,https://maracaja.sc.gov.br,4
+MELEIRO,meleiro,4210803,https://meleiro.sc.gov.br,4
+MACIEIRA,macieira,4210050,https://macieira.sc.gov.br,4
+OURO VERDE,ouro-verde,4211850,https://ouro-verde.sc.gov.br,4
+PAULO LOPES,paulo-lopes,4212304,https://paulo-lopes.sc.gov.br,4
+PRESIDENTE NEREU,presidente-nereu,4214102,https://presidente-nereu.sc.gov.br,4
+RANCHO QUEIMADO,rancho-queimado,4214300,https://rancho-queimado.sc.gov.br,4
+RIO DOS CEDROS,rio-dos-cedros,4214706,https://rio-dos-cedros.sc.gov.br,4
+SALTO VELOSO,salto-veloso,4215406,https://salto-veloso.sc.gov.br,4
+SANTA TEREZINHA DO PROGRESSO,santa-terezinha-do-progresso,4215687,https://santa-terezinha-do-progresso.sc.gov.br,4
+SANTIAGO DO SUL,santiago-do-sul,4215695,https://santiago-do-sul.sc.gov.br,4
+SAO CRISTOVAO DO SUL,sao-cristovao-do-sul,4216057,https://sao-cristovao-do-sul.sc.gov.br,4
+SANGAO,sangao,4215455,https://sangao.sc.gov.br,4
+SAO JOSE DO CERRITO,sao-jose-do-cerrito,4216800,https://sao-jose-do-cerrito.sc.gov.br,4
+SAO JOSE DO CEDRO,sao-jose-do-cedro,4216701,https://sao-jose-do-cedro.sc.gov.br,4
+TIGRINHOS,tigrinhos,4217956,https://tigrinhos.sc.gov.br,4
+UNIAO DO OESTE,uniao-do-oeste,4218855,https://uniao-do-oeste.sc.gov.br,4
+VIDAL RAMOS,vidal-ramos,4219200,https://vidal-ramos.sc.gov.br,4
+XAXIM,xaxim,4219705,https://xaxim.sc.gov.br,4
+ARROIO TRINTA,arroio-trinta,4201604,https://arroio-trinta.sc.gov.br,4
+BALNEARIO BARRA DO SUL,balneario-barra-do-sul,4202057,https://balneario-barra-do-sul.sc.gov.br,4
+GUARUJA DO SUL,guaruja-do-sul,4206603,https://guaruja-do-sul.sc.gov.br,4
+SAO JOAO DO SUL,sao-joao-do-sul,4216404,https://sao-joao-do-sul.sc.gov.br,4
+AGUAS FRIAS,aguas-frias,4200556,https://aguas-frias.sc.gov.br,3
+BOM JESUS DO OESTE,bom-jesus-do-oeste,4202578,https://bom-jesus-do-oeste.sc.gov.br,3
+AGUAS DE CHAPECO,aguas-de-chapeco,4200507,https://aguas-de-chapeco.sc.gov.br,3
+BARRA BONITA,barra-bonita,4202099,https://barra-bonita.sc.gov.br,3
+BENEDITO NOVO,benedito-novo,4202206,https://benedito-novo.sc.gov.br,3
+ABELARDO LUZ,abelardo-luz,4200101,https://abelardo-luz.sc.gov.br,3
+CAMPO BELO DO SUL,campo-belo-do-sul,4203402,https://campo-belo-do-sul.sc.gov.br,3
+CAPIVARI DE BAIXO,capivari-de-baixo,4203956,https://capivari-de-baixo.sc.gov.br,3
+BANDEIRANTE,bandeirante,4202081,https://bandeirante.sc.gov.br,3
+CERRO NEGRO,cerro-negro,4204178,https://cerro-negro.sc.gov.br,3
+CHAPADAO DO LAGEADO,chapadao-do-lageado,4204194,https://chapadao-do-lageado.sc.gov.br,3
+CALMON,calmon,4203154,https://calmon.sc.gov.br,3
+CORDILHEIRA ALTA,cordilheira-alta,4204350,https://cordilheira-alta.sc.gov.br,3
+CORONEL MARTINS,coronel-martins,4204459,https://coronel-martins.sc.gov.br,3
+ENTRE RIOS,entre-rios,4205175,https://entre-rios.sc.gov.br,3
+FAXINAL DOS GUEDES,faxinal-dos-guedes,4205308,https://faxinal-dos-guedes.sc.gov.br,3
+DOUTOR PEDRINHO,doutor-pedrinho,4205159,https://doutor-pedrinho.sc.gov.br,3
+ERVAL VELHO,erval-velho,4205209,https://erval-velho.sc.gov.br,3
+CATANDUVAS,catanduvas,4204004,https://catanduvas.sc.gov.br,3
+FORMOSA DO SUL,formosa-do-sul,4205431,https://formosa-do-sul.sc.gov.br,3
+BRUNOPOLIS,brunopolis,4202875,https://brunopolis.sc.gov.br,3
+FREI ROGERIO,frei-rogerio,4205555,https://frei-rogerio.sc.gov.br,3
+ERMO,ermo,4205191,https://ermo.sc.gov.br,3
+CUNHATAI,cunhatai,4204756,https://cunhatai.sc.gov.br,3
+IBIAM,ibiam,4206751,https://ibiam.sc.gov.br,3
+IRANI,irani,4207809,https://irani.sc.gov.br,3
+JOSE BOITEUX,jose-boiteux,4209151,https://jose-boiteux.sc.gov.br,3
+LAJEADO GRANDE,lajeado-grande,4209458,https://lajeado-grande.sc.gov.br,3
+JUPIA,jupia,4209177,https://jupia.sc.gov.br,3
+IRATI,irati,4207858,https://irati.sc.gov.br,3
+LUIZ ALVES,luiz-alves,4210001,https://luiz-alves.sc.gov.br,3
+MAJOR GERCINO,major-gercino,4210209,https://major-gercino.sc.gov.br,3
+MIRIM DOCE,mirim-doce,4210852,https://mirim-doce.sc.gov.br,3
+NOVA ERECHIM,nova-erechim,4211405,https://nova-erechim.sc.gov.br,3
+NOVA ITABERABA,nova-itaberaba,4211454,https://nova-itaberaba.sc.gov.br,3
+MAREMA,marema,4210555,https://marema.sc.gov.br,3
+PASSO DE TORRES,passo-de-torres,4212254,https://passo-de-torres.sc.gov.br,3
+PASSOS MAIA,passos-maia,4212270,https://passos-maia.sc.gov.br,3
+PAINEL,painel,4211892,https://painel.sc.gov.br,3
+PALMITOS,palmitos,4212106,https://palmitos.sc.gov.br,3
+PONTE ALTA,ponte-alta,4213302,https://ponte-alta.sc.gov.br,3
+PONTE ALTA DO NORTE,ponte-alta-do-norte,4213351,https://ponte-alta-do-norte.sc.gov.br,3
+PONTE SERRADA,ponte-serrada,4213401,https://ponte-serrada.sc.gov.br,3
+PLANALTO ALEGRE,planalto-alegre,4213153,https://planalto-alegre.sc.gov.br,3
+POUSO REDONDO,pouso-redondo,4213708,https://pouso-redondo.sc.gov.br,3
+PRESIDENTE CASTELLO BRANCO,presidente-castello-branco,4213906,https://presidente-castello-branco.sc.gov.br,3
+RIO DAS ANTAS,rio-das-antas,4214409,https://rio-das-antas.sc.gov.br,3
+PERITIBA,peritiba,4212601,https://peritiba.sc.gov.br,3
+PETROLANDIA,petrolandia,4212700,https://petrolandia.sc.gov.br,3
+RIO DO OESTE,rio-do-oeste,4214607,https://rio-do-oeste.sc.gov.br,3
+RIO RUFINO,rio-rufino,4215059,https://rio-rufino.sc.gov.br,3
+RIO FORTUNA,rio-fortuna,4214904,https://rio-fortuna.sc.gov.br,3
+SANTA CECILIA,santa-cecilia,4215505,https://santa-cecilia.sc.gov.br,3
+SANTA HELENA,santa-helena,4215554,https://santa-helena.sc.gov.br,3
+SANTA TEREZINHA,santa-terezinha,4215679,https://santa-terezinha.sc.gov.br,3
+SAO BONIFACIO,sao-bonifacio,4215901,https://sao-bonifacio.sc.gov.br,3
+SAO DOMINGOS,sao-domingos,4216107,https://sao-domingos.sc.gov.br,3
+SAO BERNARDINO,sao-bernardino,4215752,https://sao-bernardino.sc.gov.br,3
+ROMELANDIA,romelandia,4215208,https://romelandia.sc.gov.br,3
+QUILOMBO,quilombo,4214201,https://quilombo.sc.gov.br,3
+SAO JOAO DO ITAPERIU,sao-joao-do-itaperiu,4216354,https://sao-joao-do-itaperiu.sc.gov.br,3
+SAO JOAO DO OESTE,sao-joao-do-oeste,4216255,https://sao-joao-do-oeste.sc.gov.br,3
+SAO MARTINHO,sao-martinho,4217105,https://sao-martinho.sc.gov.br,3
+SAO MIGUEL DA BOA VISTA,sao-miguel-da-boa-vista,4217154,https://sao-miguel-da-boa-vista.sc.gov.br,3
+SERRA ALTA,serra-alta,4217550,https://serra-alta.sc.gov.br,3
+SALTINHO,saltinho,4215356,https://saltinho.sc.gov.br,3
+SUL BRASIL,sul-brasil,4217758,https://sul-brasil.sc.gov.br,3
+TREZE DE MAIO,treze-de-maio,4218400,https://treze-de-maio.sc.gov.br,3
+SIDEROPOLIS,sideropolis,4217600,https://sideropolis.sc.gov.br,3
+VITOR MEIRELES,vitor-meireles,4219358,https://vitor-meireles.sc.gov.br,3
+SCHROEDER,schroeder,4217402,https://schroeder.sc.gov.br,3
+XAVANTINA,xavantina,4219606,https://xavantina.sc.gov.br,3
+BOCAINA DO SUL,bocaina-do-sul,4202438,https://bocaina-do-sul.sc.gov.br,3
+ANITA GARIBALDI,anita-garibaldi,4201000,https://anita-garibaldi.sc.gov.br,3
+BOM RETIRO,bom-retiro,4202602,https://bom-retiro.sc.gov.br,3
+IBICARE,ibicare,4206801,https://ibicare.sc.gov.br,3
+SAO JOAQUIM,sao-joaquim,4216503,https://sao-joaquim.sc.gov.br,3
+PALMEIRA,palmeira,4212056,https://palmeira.sc.gov.br,3
+ALTO BELA VISTA,alto-bela-vista,4200754,https://alto-bela-vista.sc.gov.br,2
+AGRONOMICA,agronomica,4200309,https://agronomica.sc.gov.br,2
+FLOR DO SERTAO,flor-do-sertao,4205357,https://flor-do-sertao.sc.gov.br,2
+DESCANSO,descanso,4204905,https://descanso.sc.gov.br,2
+IPIRA,ipira,4207601,https://ipira.sc.gov.br,2
+GALVAO,galvao,4205605,https://galvao.sc.gov.br,2
+MONDAI,mondai,4211009,https://mondai.sc.gov.br,2
+PESCARIA BRAVA,pescaria-brava,4212650,https://pescaria-brava.sc.gov.br,2
+URUPEMA,urupema,4218954,https://urupema.sc.gov.br,2
+VARGEM BONITA,vargem-bonita,4219176,https://vargem-bonita.sc.gov.br,2
+AGUA DOCE,agua-doce,4200408,https://agua-doce.sc.gov.br,2

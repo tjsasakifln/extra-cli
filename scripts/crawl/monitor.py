@@ -38,7 +38,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 # Constants
 # ---------------------------------------------------------------------------
 
-SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc"]
+SOURCES = ["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc", "doe_sc", "ciga_ckan", "mides-bigquery"]
 
 from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)
 
@@ -561,6 +561,9 @@ def _load_crawler(source: str):
         "contracts": "contracts_crawler",
         "transparencia": "transparencia_crawler",
         "tce_sc": "tce_sc_crawler",
+        "doe_sc": "doe_sc_crawler",
+        "ciga_ckan": "ciga_ckan_crawler",
+        "mides_bigquery": "mides_bigquery_crawler",
     }
     mod_name = module_map.get(source)
     if not mod_name:
@@ -585,7 +588,21 @@ def parse_args():
     p.add_argument(
         "--source",
         default="pncp",
-        choices=["pncp", "dom_sc", "pcp", "compras_gov", "sc_compras", "contracts", "transparencia", "tce_sc", "all"],
+        choices=[
+            "pncp",
+            "dom_sc",
+            "pcp",
+            "compras_gov",
+            "sc_compras",
+            "contracts",
+            "transparencia",
+            "tce_sc",
+            "doe_sc",
+            "ciga_ckan",
+            "ciga-ckan",
+            "mides-bigquery",
+            "all",
+        ],
         help="Data source to crawl (default: pncp)",
     )
     p.add_argument(
@@ -639,7 +656,8 @@ def main():
     print(f"\n📋 {len(entities)} entidades carregadas ({within} no raio 200km)")
 
     # Run crawl
-    sources = SOURCES if args.source == "all" else [args.source]
+    source_name = args.source.replace("-", "_")  # normalize hyphens (e.g. ciga-ckan → ciga_ckan)
+    sources = SOURCES if source_name == "all" else [source_name]
 
     results = []
     for src in sources:

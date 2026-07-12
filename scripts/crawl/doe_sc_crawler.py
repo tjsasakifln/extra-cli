@@ -50,6 +50,7 @@ DOE_SC_API_HOST = os.getenv(
     "https://portal.doe.sea.sc.gov.br/apis",
 )
 DOE_SC_API_BASE = f"{DOE_SC_API_HOST}/doe-api"
+DOE_SC_PORTAL = "https://portal.doe.sea.sc.gov.br"
 
 # Credentials para autenticacao
 DOE_SC_LOGIN = os.getenv("DOE_SC_LOGIN", "")
@@ -136,7 +137,9 @@ def _get_token() -> str | None:
     import urllib.error
     import urllib.request
 
-    url = f"{DOE_SC_API_BASE}/login"
+    # Login endpoint is at {DOE_SC_API_HOST}/login (/apis/login),
+    # NOT {DOE_SC_API_BASE}/login (/apis/doe-api/login)
+    url = f"{DOE_SC_API_HOST}/login"
     payload = json.dumps({"login": DOE_SC_LOGIN, "password": DOE_SC_PASSWORD}).encode("utf-8")
 
     req = urllib.request.Request(url, data=payload, method="POST")
@@ -732,3 +735,152 @@ def transform(raw_records: list[dict]) -> list[dict]:
         )
 
     return transformed
+
+
+# ---------------------------------------------------------------------------
+# Diagnostic interface (called by monitor.py in dry-run mode)
+# ---------------------------------------------------------------------------
+
+
+def diagnostic() -> dict:
+    """Run comprehensive diagnostics of the DOE-SC API connectivity.
+
+    Tests:
+        1. Portal homepage accessibility
+        2. Login endpoint existence
+        3. API resource endpoint (unauthenticated)
+        4. Credentials availability
+        5. DNS resolution
+
+    Returns:
+        Dict with diagnostic results matching monitor.py dry-run expectations.
+    """
+    import time
+    import urllib.error
+    import urllib.request
+
+    result: dict = {
+        "summary": "",
+        "total_time_s": 0.0,
+        "main_portal": {},
+        "e_lic": {},
+        "list_page_test": {},
+        "auth_status": {},
+    }
+    start = time.time()
+
+    # Test 1: Portal homepage
+    try:
+        t0 = time.time()
+        req = urllib.request.Request(DOE_SC_PORTAL)
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            portal_time = round(time.time() - t0, 3)
+            result["main_portal"] = {
+                "status_code": resp.status,
+                "response_time_s": portal_time,
+                "reachable": True,
+                "cloudflare_detected": False,
+            }
+    except Exception as e:
+        result["main_portal"] = {
+            "status_code": 0,
+            "response_time_s": 0.0,
+            "reachable": False,
+            "error": str(e),
+        }
+
+    # Test 2: Login endpoint
+    try:
+        t0 = time.time()
+        url = f"{DOE_SC_API_HOST}/login"
+        payload = json.dumps({"login": "test", "password": "test"}).encode("utf-8")
+        req = urllib.request.Request(url, data=payload, method="POST")
+        req.add_header("Content-Type", "application/json")
+        req.add_header("Accept", "application/json")
+        req.add_header("User-Agent", "Extra-Consultoria/1.0")
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            login_time = round(time.time() - t0, 3)
+            result["e_lic"] = {
+                "status_code": resp.status,
+                "response_time_s": login_time,
+                "reachable": True,
+            }
+    except urllib.error.HTTPError as e:
+        login_time = round(time.time() - t0, 3)
+        result["e_lic"] = {
+            "status_code": e.code,
+            "response_time_s": login_time,
+            "reachable": True,
+            "note": "Login endpoint exists (returns 400=bad_credentials, not 404)",
+        }
+    except Exception as e:
+        result["e_lic"] = {
+            "status_code": 0,
+            "response_time_s": 0.0,
+            "reachable": False,
+            "error": str(e),
+        }
+
+    # Test 3: Materia endpoint (unauthenticated)
+    try:
+        t0 = time.time()
+        url = f"{DOE_SC_API_BASE}/materia?page=1&perPage=5"
+        req = urllib.request.Request(url)
+        req.add_header("Accept", "application/json")
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            list_time = round(time.time() - t0, 3)
+            result["list_page_test"] = {
+                "status_code": resp.status,
+                "response_time_s": list_time,
+                "reachable": True,
+            }
+    except urllib.error.HTTPError as e:
+        list_time = round(time.time() - t0, 3)
+        result["list_page_test"] = {
+            "status_code": e.code,
+            "response_time_s": list_time,
+            "reachable": True,
+            "note": "API endpoint requires auth (401 expected without token)",
+        }
+    except Exception as e:
+        result["list_page_test"] = {
+            "status_code": 0,
+            "response_time_s": 0.0,
+            "reachable": False,
+            "error": str(e),
+        }
+
+    # Test 4: Auth status
+    credentials_available = bool(DOE_SC_LOGIN and DOE_SC_PASSWORD)
+    result["auth_status"] = {
+        "credentials_available": credentials_available,
+        "can_authenticate": credentials_available,
+        "login_endpoint": f"{DOE_SC_API_HOST}/login",
+        "note": "Credentials required" if not credentials_available else "Credentials available",
+    }
+
+    result["total_time_s"] = round(time.time() - start, 3)
+
+    # Build summary
+    portal_ok = result["main_portal"].get("reachable", False)
+    login_ok = result["e_lic"].get("reachable", False)
+    can_auth = result["auth_status"]["can_authenticate"]
+
+    summary_parts = []
+    if portal_ok:
+        summary_parts.append("portal=OK")
+    else:
+        summary_parts.append("portal=FAIL")
+
+    if login_ok:
+        summary_parts.append("login_endpoint=OK")
+    else:
+        summary_parts.append("login_endpoint=FAIL")
+
+    if can_auth:
+        summary_parts.append("auth=READY")
+    else:
+        summary_parts.append("auth=BLOCKED")
+
+    result["summary"] = f"DOE-SC: {', '.join(summary_parts)}"
+    return result

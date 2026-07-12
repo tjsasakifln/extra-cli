@@ -4,10 +4,7 @@ Tests the sync adapter that is the single PNCP crawler implementation
 after TD-3.2 consolidation (BidsCrawler was deprecated).
 """
 
-import hashlib
-from unittest.mock import Mock, patch
 
-import pytest
 
 from scripts.crawl import pncp_crawler_adapter as pca
 
@@ -26,12 +23,12 @@ MOCK_RAW_RECORD = {
         "esferaId": "M",
     },
     "unidadeOrgao": {
-        "ufSigla": "SC",
-        "municipioNome": "Florianopolis",
+        "siglaUf": "SC",
+        "nomeMunicipio": "Florianopolis",
         "codigoIbge": "4205407",
     },
-    "dataPublicacaoPncp": "2026-07-01T10:00:00Z",
-    "dataAberturaProposta": "2026-08-01T09:00:00Z",
+    "dataPublicacao": "2026-07-01T10:00:00Z",
+    "dataAbertura": "2026-08-01T09:00:00Z",
     "dataEncerramentoProposta": "2026-08-15T18:00:00Z",
     "linkSistemaOrigem": "https://pncp.gov.br/contratacoes/123",
 }
@@ -41,7 +38,7 @@ MOCK_RAW_NO_CNPJ = {
     "valorTotalEstimado": 10000.00,
     "modalidadeId": 5,
     "modalidadeNome": "Pregao Eletronico",
-    "dataPublicacaoPncp": "2026-07-01",
+    "dataPublicacao": "2026-07-01",
 }
 
 
@@ -125,15 +122,13 @@ class TestTransform:
         """transform([]) returns empty list."""
         assert pca.transform([]) == []
 
-    def test_transform_filters_by_keyword(self):
-        """transform() filters non-engineering records."""
+    def test_transform_passes_all_records_without_keyword_filter(self):
+        """transform() passes all records when no keyword filter is active (AC9)."""
         non_eng = dict(MOCK_RAW_RECORD)
         non_eng["objetoCompra"] = "Material de escritorio"
-        with patch.object(pca, "_ENGINEERING_KEYWORDS", ["construc", "engenharia", "reforma"]):
-            result = pca.transform([MOCK_RAW_RECORD, non_eng])
-        # Only the engineering record should pass
-        assert len(result) == 1
-        assert "Construcao" in result[0]["objeto_compra"]
+        result = pca.transform([MOCK_RAW_RECORD, non_eng])
+        # Both records pass through — no keyword filtering
+        assert len(result) == 2
 
     def test_transform_skips_records_without_cnpj(self):
         """transform() skips records without orgao_cnpj."""

@@ -1,0 +1,23 @@
+# /etc/systemd/system/extra-crawl-ciga-ckan.timer
+# CIGA CKAN crawler — incremental semanal (domingo 02:00 UTC)
+# Staggered: after extra-db-backup (01:00) and before pncp crawlers (03:00)
+#
+# Deploy:
+#   sudo cp deploy/systemd/extra-crawl-ciga-ckan.service /etc/systemd/system/
+#   sudo cp deploy/systemd/extra-crawl-ciga-ckan.timer /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable extra-crawl-ciga-ckan.timer
+#   sudo systemctl start extra-crawl-ciga-ckan.timer
+#   sudo systemctl status extra-crawl-ciga-ckan.timer
+
+[Unit]
+Description=Extra Consultoria — CIGA CKAN Crawler Timer
+Requires=extra-crawl-ciga-ckan.service
+
+[Timer]
+OnCalendar=Sun *-*-* 02:00:00
+RandomizedDelaySec=300
+Persistent=true
+
+[Install]
+WantedBy=timers.target

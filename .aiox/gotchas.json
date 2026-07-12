@@ -1,0 +1,48 @@
+{
+  "stories": {
+    "EPIC-COVERAGE-100PCT": {
+      "type": "master-plan-epic",
+      "version": "1.0",
+      "created_by": "River (SM)",
+      "created_at": "2026-07-11",
+      "status": "Draft",
+      "next_actions": [
+        "PM review and approval of master plan",
+        "Create individual COVERAGE-1.x stories from epic",
+        "Research CIGA CKAN URL (pre-requisite for COVERAGE-1.2)"
+      ],
+      "warnings": [
+        "TCE-SC e-Sfinge is INVIABLE without ICP-Brasil cert (R$300-800/yr)",
+        "DOM-SC API needs contract with CIGA for API key",
+        "BigQuery account not yet available — COVERAGE-2.1 PULADA 2026-07-11 (sem service account, sem SDK). Reativar se conta GCP for criada."
+      ],
+      "process": {
+        "epic_dependencies": [
+          "EPIC-FEAT-001 (crawlers implemented)",
+          "EPIC-TD-003 (PNCP v3 migration fixed)",
+          "story-FEAT-0.1 (coverage baseline measured)"
+        ],
+        "stories_planned": 15,
+        "phases": 3,
+        "estimated_days": 11
+      }
+    }
+  },
+  "sprint-planning": {
+    "epic_coverage_100pct": {
+      "status": "master_plan_created",
+      "estimated_first_story": "COVERAGE-1.1 (Entity Matching Enhancement) — can start immediately",
+      "blockers": ["Need PM approval for master plan", "Need CIGA CKAN URL research"],
+      "recommended_sprint_1": "Phase 1 stories (1.1-1.7) — 2 dias, 6-10 stories paralelas"
+    }
+  },
+  "process": {
+    "notes": [
+      "This epic is a coordination epic — it does not fit the standard story template",
+      "Each COVERAGE-X.Y entry will be expanded into a full story document before implementation",
+      "Entity matching enhancement (COVERAGE-1.1) is the highest priority — unlocks all others",
+      "CIGA CKAN research is the most impactful single task (200-300 new entities)",
+      "COVERAGE-2.1 (MiDES BigQuery) PULADA 2026-07-11 — BigQuery account nao disponivel. Reativar quando conta GCP for criada."
+    ]
+  }
+}

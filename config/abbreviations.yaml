@@ -21,3 +21,19 @@ INST: INSTITUTO
 FUND: FUNDACAO
 AUT: AUTARQUIA
 CONS: CONSORCIO
+
+# Siglas comuns da administracao publica de Santa Catarina
+# Usado pelo name_normalizer.py para expandir siglas em nomes de entes publicos
+# Estas siglas sao comuns em orgaos como fundos, conselhos, institutos, etc.
+# Mantidas separadas das abreviacoes porque tem significado contextual diferente
+siglas:
+  PMF: "PREFEITURA MUNICIPAL DE"
+  FMS: "FUNDO MUNICIPAL DE SAUDE"
+  FUS: "FUNDO DE URBANIZACAO"
+  FMAS: "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL"
+  FME: "FUNDO MUNICIPAL DE EDUCACAO"
+  CMDCA: "CONSELHO MUNICIPAL DOS DIREITOS DA CRIANCA E DO ADOLESCENTE"
+  IPUF: "INSTITUTO DE PLANEJAMENTO URBANO DE"
+  CASAN: "COMPANHIA CATARINENSE DE AGUAS E SANEAMENTO"
+  CELESC: "CENTRAIS ELETRICAS DE SANTA CATARINA"
+  DEINFRA: "DEPARTAMENTO DE INFRAESTRUTURA DE SANTA CATARINA"

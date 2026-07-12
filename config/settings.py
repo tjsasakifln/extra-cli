@@ -50,7 +50,7 @@ OPENAI_MAX_CONCURRENT = int(os.getenv("OPENAI_MAX_CONCURRENT", "5"))
 # ---------------------------------------------------------------------------
 # PNCP API
 # ---------------------------------------------------------------------------
-PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v1")
+PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v3")
 PNCP_FILES_BASE = os.getenv("PNCP_FILES_BASE", "https://pncp.gov.br/api/pncp/v1")
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "50"))
 PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))
@@ -83,7 +83,7 @@ COMPRAS_GOV_BASE = os.getenv(
 # Ingestion Settings
 # ---------------------------------------------------------------------------
 INGESTION_UFS = os.getenv("INGESTION_UFS", "SC").split(",")
-INGESTION_MODALIDADES = [int(m) for m in os.getenv("INGESTION_MODALIDADES", "4,5,6,7,8,12").split(",")]
+INGESTION_MODALIDADES = [int(m) for m in os.getenv("INGESTION_MODALIDADES", "1,2,3,4,5,6,7").split(",")]
 INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "30"))
 INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "3"))
 INGESTION_PURGE_GRACE_DAYS = int(os.getenv("INGESTION_PURGE_GRACE_DAYS", "400"))

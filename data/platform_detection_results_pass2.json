@@ -1,0 +1,7276 @@
+[
+  {
+    "municipio": "BALNEARIO ARROIO DO SILVA",
+    "slug": "balneario-arroio-do-silva",
+    "ibge": "4201950",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://balneario-arroio-do-silva.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.balneario-arroio-do-silva.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.balneario-arroio-do-silva.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.balneario-arroio-do-silva.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BARRA VELHA",
+    "slug": "barra-velha",
+    "ibge": "4202107",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://barra-velha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.barra-velha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.barra-velha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.barra-velha.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "AGUAS MORNAS",
+    "slug": "aguas-mornas",
+    "ibge": "4200606",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://aguas-mornas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.aguas-mornas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.aguas-mornas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.aguas-mornas.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BELA VISTA DO TOLDO",
+    "slug": "bela-vista-do-toldo",
+    "ibge": "4202131",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://bela-vista-do-toldo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.bela-vista-do-toldo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.bela-vista-do-toldo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.bela-vista-do-toldo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "AGUAS FRIAS",
+    "slug": "aguas-frias",
+    "ibge": "4200556",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://aguas-frias.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.aguas-frias.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.aguas-frias.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.aguas-frias.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BELMONTE",
+    "slug": "belmonte",
+    "ibge": "4202156",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://belmonte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.belmonte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.belmonte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.belmonte.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BOM JESUS",
+    "slug": "bom-jesus",
+    "ibge": "4202537",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://bom-jesus.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.bom-jesus.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.bom-jesus.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.bom-jesus.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BOM JARDIM DA SERRA",
+    "slug": "bom-jardim-da-serra",
+    "ibge": "4202503",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://bom-jardim-da-serra.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.bom-jardim-da-serra.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.bom-jardim-da-serra.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.bom-jardim-da-serra.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BOM JESUS DO OESTE",
+    "slug": "bom-jesus-do-oeste",
+    "ibge": "4202578",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://bom-jesus-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.bom-jesus-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.bom-jesus-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.bom-jesus-do-oeste.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "AGUAS DE CHAPECO",
+    "slug": "aguas-de-chapeco",
+    "ibge": "4200507",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://aguas-de-chapeco.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.aguas-de-chapeco.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.aguas-de-chapeco.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.aguas-de-chapeco.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ANTONIO CARLOS",
+    "slug": "antonio-carlos",
+    "ibge": "4201208",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://antonio-carlos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.antonio-carlos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.antonio-carlos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.antonio-carlos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ABDON BATISTA",
+    "slug": "abdon-batista",
+    "ibge": "4200051",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://abdon-batista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.abdon-batista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.abdon-batista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.abdon-batista.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ALTO BELA VISTA",
+    "slug": "alto-bela-vista",
+    "ibge": "4200754",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://alto-bela-vista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.alto-bela-vista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.alto-bela-vista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.alto-bela-vista.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BALNEARIO GAIVOTA",
+    "slug": "balneario-gaivota",
+    "ibge": "4202073",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://balneario-gaivota.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.balneario-gaivota.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.balneario-gaivota.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.balneario-gaivota.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BALNEARIO DE PICARRAS",
+    "slug": "balneario-de-picarras",
+    "ibge": "4212809",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://balneario-de-picarras.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.balneario-de-picarras.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.balneario-de-picarras.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.balneario-de-picarras.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BARRA BONITA",
+    "slug": "barra-bonita",
+    "ibge": "4202099",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://barra-bonita.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.barra-bonita.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.barra-bonita.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.barra-bonita.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BENEDITO NOVO",
+    "slug": "benedito-novo",
+    "ibge": "4202206",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://benedito-novo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.benedito-novo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.benedito-novo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.benedito-novo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BALNEARIO RINCAO",
+    "slug": "balneario-rincao",
+    "ibge": "4220000",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://balneario-rincao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.balneario-rincao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.balneario-rincao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.balneario-rincao.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BRACO DO TROMBUDO",
+    "slug": "braco-do-trombudo",
+    "ibge": "4202859",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://braco-do-trombudo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.braco-do-trombudo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.braco-do-trombudo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.braco-do-trombudo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ABELARDO LUZ",
+    "slug": "abelardo-luz",
+    "ibge": "4200101",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://abelardo-luz.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.abelardo-luz.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.abelardo-luz.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.abelardo-luz.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CAMPO ALEGRE",
+    "slug": "campo-alegre",
+    "ibge": "4203303",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://campo-alegre.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.campo-alegre.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.campo-alegre.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.campo-alegre.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CAMPO BELO DO SUL",
+    "slug": "campo-belo-do-sul",
+    "ibge": "4203402",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://campo-belo-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.campo-belo-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.campo-belo-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.campo-belo-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ATALANTA",
+    "slug": "atalanta",
+    "ibge": "4201802",
+    "platform": "proprio",
+    "url": "https://atalanta.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://atalanta.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 78309,
+    "keywords_found": []
+  },
+  {
+    "municipio": "CAPAO ALTO",
+    "slug": "capao-alto",
+    "ibge": "4203253",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://capao-alto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.capao-alto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.capao-alto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.capao-alto.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CAMPOS NOVOS",
+    "slug": "campos-novos",
+    "ibge": "4203600",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://campos-novos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.campos-novos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.campos-novos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.campos-novos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CAPIVARI DE BAIXO",
+    "slug": "capivari-de-baixo",
+    "ibge": "4203956",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://capivari-de-baixo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.capivari-de-baixo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.capivari-de-baixo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.capivari-de-baixo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CAXAMBU DO SUL",
+    "slug": "caxambu-do-sul",
+    "ibge": "4204103",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://caxambu-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.caxambu-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.caxambu-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.caxambu-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ANITAPOLIS",
+    "slug": "anitapolis",
+    "ibge": "4201109",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://anitapolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.anitapolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.anitapolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.anitapolis.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CELSO RAMOS",
+    "slug": "celso-ramos",
+    "ibge": "4204152",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://celso-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.celso-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.celso-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.celso-ramos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BANDEIRANTE",
+    "slug": "bandeirante",
+    "ibge": "4202081",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://bandeirante.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.bandeirante.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.bandeirante.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.bandeirante.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CERRO NEGRO",
+    "slug": "cerro-negro",
+    "ibge": "4204178",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://cerro-negro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.cerro-negro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.cerro-negro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.cerro-negro.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "AGRONOMICA",
+    "slug": "agronomica",
+    "ibge": "4200309",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://agronomica.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.agronomica.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.agronomica.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.agronomica.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CHAPADAO DO LAGEADO",
+    "slug": "chapadao-do-lageado",
+    "ibge": "4204194",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://chapadao-do-lageado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.chapadao-do-lageado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.chapadao-do-lageado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.chapadao-do-lageado.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ANCHIETA",
+    "slug": "anchieta",
+    "ibge": "4200804",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://anchieta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.anchieta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.anchieta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.anchieta.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ANGELINA",
+    "slug": "angelina",
+    "ibge": "4200903",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://angelina.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.angelina.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.angelina.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.angelina.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CACADOR",
+    "slug": "cacador",
+    "ibge": "4203006",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://cacador.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.cacador.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.cacador.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.cacador.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "COCAL DO SUL",
+    "slug": "cocal-do-sul",
+    "ibge": "4204251",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://cocal-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.cocal-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.cocal-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.cocal-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CALMON",
+    "slug": "calmon",
+    "ibge": "4203154",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://calmon.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.calmon.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.calmon.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.calmon.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CORONEL FREITAS",
+    "slug": "coronel-freitas",
+    "ibge": "4204400",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://coronel-freitas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.coronel-freitas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.coronel-freitas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.coronel-freitas.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CORDILHEIRA ALTA",
+    "slug": "cordilheira-alta",
+    "ibge": "4204350",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://cordilheira-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.cordilheira-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.cordilheira-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.cordilheira-alta.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CORONEL MARTINS",
+    "slug": "coronel-martins",
+    "ibge": "4204459",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://coronel-martins.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.coronel-martins.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.coronel-martins.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.coronel-martins.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CUNHA PORA",
+    "slug": "cunha-pora",
+    "ibge": "4204707",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://cunha-pora.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.cunha-pora.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.cunha-pora.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.cunha-pora.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CORREIA PINTO",
+    "slug": "correia-pinto",
+    "ibge": "4204558",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://correia-pinto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.correia-pinto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.correia-pinto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.correia-pinto.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "DONA EMMA",
+    "slug": "dona-emma",
+    "ibge": "4205100",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://dona-emma.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.dona-emma.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.dona-emma.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.dona-emma.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ENTRE RIOS",
+    "slug": "entre-rios",
+    "ibge": "4205175",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://entre-rios.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.entre-rios.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.entre-rios.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.entre-rios.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CRICIUMA",
+    "slug": "criciuma",
+    "ibge": "4204608",
+    "platform": "proprio",
+    "url": "https://criciuma.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://criciuma.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 68179,
+    "keywords_found": []
+  },
+  {
+    "municipio": "FAXINAL DOS GUEDES",
+    "slug": "faxinal-dos-guedes",
+    "ibge": "4205308",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://faxinal-dos-guedes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.faxinal-dos-guedes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.faxinal-dos-guedes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.faxinal-dos-guedes.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "DIONISIO CERQUEIRA",
+    "slug": "dionisio-cerqueira",
+    "ibge": "4205001",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://dionisio-cerqueira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.dionisio-cerqueira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.dionisio-cerqueira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.dionisio-cerqueira.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "DOUTOR PEDRINHO",
+    "slug": "doutor-pedrinho",
+    "ibge": "4205159",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://doutor-pedrinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.doutor-pedrinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.doutor-pedrinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.doutor-pedrinho.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ERVAL VELHO",
+    "slug": "erval-velho",
+    "ibge": "4205209",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://erval-velho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.erval-velho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.erval-velho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.erval-velho.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CANELINHA",
+    "slug": "canelinha",
+    "ibge": "4203709",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://canelinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.canelinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.canelinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.canelinha.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CATANDUVAS",
+    "slug": "catanduvas",
+    "ibge": "4204004",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://catanduvas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.catanduvas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.catanduvas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.catanduvas.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "FORMOSA DO SUL",
+    "slug": "formosa-do-sul",
+    "ibge": "4205431",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://formosa-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.formosa-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.formosa-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.formosa-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "FLOR DO SERTAO",
+    "slug": "flor-do-sertao",
+    "ibge": "4205357",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://flor-do-sertao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.flor-do-sertao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.flor-do-sertao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.flor-do-sertao.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BRUNOPOLIS",
+    "slug": "brunopolis",
+    "ibge": "4202875",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://brunopolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.brunopolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.brunopolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.brunopolis.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "FREI ROGERIO",
+    "slug": "frei-rogerio",
+    "ibge": "4205555",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://frei-rogerio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.frei-rogerio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.frei-rogerio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.frei-rogerio.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "GOVERNADOR CELSO RAMOS",
+    "slug": "governador-celso-ramos",
+    "ibge": "4206009",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://governador-celso-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.governador-celso-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.governador-celso-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.governador-celso-ramos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CHAPECO",
+    "slug": "chapeco",
+    "ibge": "4204202",
+    "platform": "proprio",
+    "url": "https://chapeco.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://chapeco.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 272913,
+    "keywords_found": []
+  },
+  {
+    "municipio": "GRAO PARA",
+    "slug": "grao-para",
+    "ibge": "4206108",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://grao-para.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.grao-para.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.grao-para.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.grao-para.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "HERVAL D'OESTE",
+    "slug": "herval-d-oeste",
+    "ibge": "4206702",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://herval-d-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.herval-d-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.herval-d-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.herval-d-oeste.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ERMO",
+    "slug": "ermo",
+    "ibge": "4205191",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ermo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ermo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ermo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ermo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BLUMENAU",
+    "slug": "blumenau",
+    "ibge": "4202404",
+    "platform": "proprio",
+    "url": "https://blumenau.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://blumenau.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 48449,
+    "keywords_found": []
+  },
+  {
+    "municipio": "CUNHATAI",
+    "slug": "cunhatai",
+    "ibge": "4204756",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://cunhatai.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.cunhatai.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.cunhatai.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.cunhatai.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "DESCANSO",
+    "slug": "descanso",
+    "ibge": "4204905",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://descanso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.descanso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.descanso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.descanso.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ICARA",
+    "slug": "icara",
+    "ibge": "4207007",
+    "platform": "proprio",
+    "url": "https://icara.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://icara.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 40663,
+    "keywords_found": [
+      "transparência",
+      "transparencia",
+      "portal da transparência"
+    ]
+  },
+  {
+    "municipio": "CURITIBANOS",
+    "slug": "curitibanos",
+    "ibge": "4204806",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://curitibanos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.curitibanos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.curitibanos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.curitibanos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IBIAM",
+    "slug": "ibiam",
+    "ibge": "4206751",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ibiam.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ibiam.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ibiam.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ibiam.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ILHOTA",
+    "slug": "ilhota",
+    "ibge": "4207106",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ilhota.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ilhota.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ilhota.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ilhota.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "FORQUILHINHA",
+    "slug": "forquilhinha",
+    "ibge": "4205456",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://forquilhinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.forquilhinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.forquilhinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.forquilhinha.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IPORA DO OESTE",
+    "slug": "ipora-do-oeste",
+    "ibge": "4207650",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ipora-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ipora-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ipora-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ipora-do-oeste.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IMARUI",
+    "slug": "imarui",
+    "ibge": "4207205",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://imarui.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.imarui.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.imarui.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.imarui.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IOMERE",
+    "slug": "iomere",
+    "ibge": "4207577",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://iomere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.iomere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.iomere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.iomere.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IMBUIA",
+    "slug": "imbuia",
+    "ibge": "4207403",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://imbuia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.imbuia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.imbuia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.imbuia.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IPIRA",
+    "slug": "ipira",
+    "ibge": "4207601",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ipira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ipira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ipira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ipira.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "GALVAO",
+    "slug": "galvao",
+    "ibge": "4205605",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://galvao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.galvao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.galvao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.galvao.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ITAJAI",
+    "slug": "itajai",
+    "ibge": "4208203",
+    "platform": "proprio",
+    "url": "https://itajai.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://itajai.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 4079,
+    "keywords_found": []
+  },
+  {
+    "municipio": "JACINTO MACHADO",
+    "slug": "jacinto-machado",
+    "ibge": "4208708",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://jacinto-machado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.jacinto-machado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.jacinto-machado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.jacinto-machado.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IPUACU",
+    "slug": "ipuacu",
+    "ibge": "4207684",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ipuacu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ipuacu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ipuacu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ipuacu.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "JARAGUA DO SUL",
+    "slug": "jaragua-do-sul",
+    "ibge": "4208906",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://jaragua-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.jaragua-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.jaragua-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.jaragua-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IPUMIRIM",
+    "slug": "ipumirim",
+    "ibge": "4207700",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ipumirim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ipumirim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ipumirim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ipumirim.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IRANI",
+    "slug": "irani",
+    "ibge": "4207809",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://irani.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.irani.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.irani.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.irani.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "JOSE BOITEUX",
+    "slug": "jose-boiteux",
+    "ibge": "4209151",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://jose-boiteux.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.jose-boiteux.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.jose-boiteux.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.jose-boiteux.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IRACEMINHA",
+    "slug": "iraceminha",
+    "ibge": "4207759",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://iraceminha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.iraceminha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.iraceminha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.iraceminha.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "JABORA",
+    "slug": "jabora",
+    "ibge": "4208609",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://jabora.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.jabora.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.jabora.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.jabora.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LAURO MULLER",
+    "slug": "lauro-muller",
+    "ibge": "4209607",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://lauro-muller.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.lauro-muller.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.lauro-muller.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.lauro-muller.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LAJEADO GRANDE",
+    "slug": "lajeado-grande",
+    "ibge": "4209458",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://lajeado-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.lajeado-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.lajeado-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.lajeado-grande.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LEBON REGIS",
+    "slug": "lebon-regis",
+    "ibge": "4209706",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://lebon-regis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.lebon-regis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.lebon-regis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.lebon-regis.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "JUPIA",
+    "slug": "jupia",
+    "ibge": "4209177",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://jupia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.jupia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.jupia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.jupia.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "JOACABA",
+    "slug": "joacaba",
+    "ibge": "4209003",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://joacaba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.joacaba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.joacaba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.joacaba.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LEOBERTO LEAL",
+    "slug": "leoberto-leal",
+    "ibge": "4209805",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://leoberto-leal.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.leoberto-leal.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.leoberto-leal.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.leoberto-leal.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "FLORIANOPOLIS",
+    "slug": "florianopolis",
+    "ibge": "4205407",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://florianopolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.florianopolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.florianopolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.florianopolis.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IRATI",
+    "slug": "irati",
+    "ibge": "4207858",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://irati.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.irati.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.irati.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.irati.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LINDOIA DO SUL",
+    "slug": "lindoia-do-sul",
+    "ibge": "4209854",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://lindoia-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.lindoia-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.lindoia-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.lindoia-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LUIZ ALVES",
+    "slug": "luiz-alves",
+    "ibge": "4210001",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://luiz-alves.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.luiz-alves.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.luiz-alves.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.luiz-alves.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MAJOR GERCINO",
+    "slug": "major-gercino",
+    "ibge": "4210209",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://major-gercino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.major-gercino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.major-gercino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.major-gercino.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MAJOR VIEIRA",
+    "slug": "major-vieira",
+    "ibge": "4210308",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://major-vieira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.major-vieira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.major-vieira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.major-vieira.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "JOINVILLE",
+    "slug": "joinville",
+    "ibge": "4209102",
+    "platform": "proprio",
+    "url": "https://joinville.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://joinville.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 56186,
+    "keywords_found": [
+      "transparência"
+    ]
+  },
+  {
+    "municipio": "MATOS COSTA",
+    "slug": "matos-costa",
+    "ibge": "4210704",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://matos-costa.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.matos-costa.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.matos-costa.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.matos-costa.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LAGUNA",
+    "slug": "laguna",
+    "ibge": "4209409",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://laguna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.laguna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.laguna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.laguna.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MIRIM DOCE",
+    "slug": "mirim-doce",
+    "ibge": "4210852",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://mirim-doce.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.mirim-doce.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.mirim-doce.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.mirim-doce.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MAFRA",
+    "slug": "mafra",
+    "ibge": "4210100",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://mafra.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.mafra.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.mafra.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.mafra.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LUZERNA",
+    "slug": "luzerna",
+    "ibge": "4210035",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://luzerna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.luzerna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.luzerna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.luzerna.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MARACAJA",
+    "slug": "maracaja",
+    "ibge": "4210407",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://maracaja.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.maracaja.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.maracaja.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.maracaja.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MONTE CARLO",
+    "slug": "monte-carlo",
+    "ibge": "4211058",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://monte-carlo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.monte-carlo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.monte-carlo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.monte-carlo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MONTE CASTELO",
+    "slug": "monte-castelo",
+    "ibge": "4211108",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://monte-castelo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.monte-castelo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.monte-castelo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.monte-castelo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "NOVA ERECHIM",
+    "slug": "nova-erechim",
+    "ibge": "4211405",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://nova-erechim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.nova-erechim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.nova-erechim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.nova-erechim.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MORRO GRANDE",
+    "slug": "morro-grande",
+    "ibge": "4211256",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://morro-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.morro-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.morro-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.morro-grande.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MORRO DA FUMACA",
+    "slug": "morro-da-fumaca",
+    "ibge": "4211207",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://morro-da-fumaca.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.morro-da-fumaca.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.morro-da-fumaca.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.morro-da-fumaca.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MELEIRO",
+    "slug": "meleiro",
+    "ibge": "4210803",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://meleiro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.meleiro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.meleiro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.meleiro.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MONDAI",
+    "slug": "mondai",
+    "ibge": "4211009",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://mondai.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.mondai.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.mondai.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.mondai.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MACIEIRA",
+    "slug": "macieira",
+    "ibge": "4210050",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://macieira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.macieira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.macieira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.macieira.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "NOVA ITABERABA",
+    "slug": "nova-itaberaba",
+    "ibge": "4211454",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://nova-itaberaba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.nova-itaberaba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.nova-itaberaba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.nova-itaberaba.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "NOVA TRENTO",
+    "slug": "nova-trento",
+    "ibge": "4211504",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://nova-trento.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.nova-trento.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.nova-trento.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.nova-trento.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MAREMA",
+    "slug": "marema",
+    "ibge": "4210555",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://marema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.marema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.marema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.marema.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "NOVA VENEZA",
+    "slug": "nova-veneza",
+    "ibge": "4211603",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://nova-veneza.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.nova-veneza.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.nova-veneza.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.nova-veneza.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "NOVO HORIZONTE",
+    "slug": "novo-horizonte",
+    "ibge": "4211652",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://novo-horizonte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.novo-horizonte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.novo-horizonte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.novo-horizonte.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "OTACILIO COSTA",
+    "slug": "otacilio-costa",
+    "ibge": "4211751",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://otacilio-costa.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.otacilio-costa.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.otacilio-costa.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.otacilio-costa.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PALMA SOLA",
+    "slug": "palma-sola",
+    "ibge": "4212007",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://palma-sola.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.palma-sola.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.palma-sola.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.palma-sola.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "OURO VERDE",
+    "slug": "ouro-verde",
+    "ibge": "4211850",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ouro-verde.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ouro-verde.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ouro-verde.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ouro-verde.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PASSO DE TORRES",
+    "slug": "passo-de-torres",
+    "ibge": "4212254",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://passo-de-torres.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.passo-de-torres.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.passo-de-torres.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.passo-de-torres.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PASSOS MAIA",
+    "slug": "passos-maia",
+    "ibge": "4212270",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://passos-maia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.passos-maia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.passos-maia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.passos-maia.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "MARAVILHA",
+    "slug": "maravilha",
+    "ibge": "4210506",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://maravilha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.maravilha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.maravilha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.maravilha.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PAULO LOPES",
+    "slug": "paulo-lopes",
+    "ibge": "4212304",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://paulo-lopes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.paulo-lopes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.paulo-lopes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.paulo-lopes.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ORLEANS",
+    "slug": "orleans",
+    "ibge": "4211702",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://orleans.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.orleans.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.orleans.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.orleans.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PEDRAS GRANDES",
+    "slug": "pedras-grandes",
+    "ibge": "4212403",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://pedras-grandes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.pedras-grandes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.pedras-grandes.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.pedras-grandes.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PESCARIA BRAVA",
+    "slug": "pescaria-brava",
+    "ibge": "4212650",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://pescaria-brava.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.pescaria-brava.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.pescaria-brava.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.pescaria-brava.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PINHEIRO PRETO",
+    "slug": "pinheiro-preto",
+    "ibge": "4213005",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://pinheiro-preto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.pinheiro-preto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.pinheiro-preto.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.pinheiro-preto.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PAINEL",
+    "slug": "painel",
+    "ibge": "4211892",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://painel.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.painel.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.painel.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.painel.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PALMITOS",
+    "slug": "palmitos",
+    "ibge": "4212106",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://palmitos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.palmitos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.palmitos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.palmitos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PONTE ALTA",
+    "slug": "ponte-alta",
+    "ibge": "4213302",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ponte-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ponte-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ponte-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ponte-alta.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PONTE ALTA DO NORTE",
+    "slug": "ponte-alta-do-norte",
+    "ibge": "4213351",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ponte-alta-do-norte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ponte-alta-do-norte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ponte-alta-do-norte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ponte-alta-do-norte.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PONTE SERRADA",
+    "slug": "ponte-serrada",
+    "ibge": "4213401",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ponte-serrada.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ponte-serrada.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ponte-serrada.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ponte-serrada.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PLANALTO ALEGRE",
+    "slug": "planalto-alegre",
+    "ibge": "4213153",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://planalto-alegre.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.planalto-alegre.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.planalto-alegre.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.planalto-alegre.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PORTO BELO",
+    "slug": "porto-belo",
+    "ibge": "4213500",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://porto-belo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.porto-belo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.porto-belo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.porto-belo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PORTO UNIAO",
+    "slug": "porto-uniao",
+    "ibge": "4213609",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://porto-uniao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.porto-uniao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.porto-uniao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.porto-uniao.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "POUSO REDONDO",
+    "slug": "pouso-redondo",
+    "ibge": "4213708",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://pouso-redondo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.pouso-redondo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.pouso-redondo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.pouso-redondo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PIRATUBA",
+    "slug": "piratuba",
+    "ibge": "4213104",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://piratuba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.piratuba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.piratuba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.piratuba.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PRAIA GRANDE",
+    "slug": "praia-grande",
+    "ibge": "4213807",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://praia-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.praia-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.praia-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.praia-grande.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "GASPAR",
+    "slug": "gaspar",
+    "ibge": "4205902",
+    "platform": "proprio",
+    "url": "https://portaltransparencia.gaspar.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://gaspar.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.gaspar.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.gaspar.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.gaspar.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 178734,
+    "keywords_found": [
+      "transparencia"
+    ]
+  },
+  {
+    "municipio": "PRESIDENTE NEREU",
+    "slug": "presidente-nereu",
+    "ibge": "4214102",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://presidente-nereu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.presidente-nereu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.presidente-nereu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.presidente-nereu.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PRESIDENTE GETULIO",
+    "slug": "presidente-getulio",
+    "ibge": "4214003",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://presidente-getulio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.presidente-getulio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.presidente-getulio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.presidente-getulio.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PRESIDENTE CASTELLO BRANCO",
+    "slug": "presidente-castello-branco",
+    "ibge": "4213906",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://presidente-castello-branco.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.presidente-castello-branco.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.presidente-castello-branco.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.presidente-castello-branco.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RANCHO QUEIMADO",
+    "slug": "rancho-queimado",
+    "ibge": "4214300",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rancho-queimado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rancho-queimado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rancho-queimado.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rancho-queimado.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RIO DAS ANTAS",
+    "slug": "rio-das-antas",
+    "ibge": "4214409",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rio-das-antas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rio-das-antas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rio-das-antas.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rio-das-antas.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PERITIBA",
+    "slug": "peritiba",
+    "ibge": "4212601",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://peritiba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.peritiba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.peritiba.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.peritiba.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RIO DO CAMPO",
+    "slug": "rio-do-campo",
+    "ibge": "4214508",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rio-do-campo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rio-do-campo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rio-do-campo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rio-do-campo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RIO DOS CEDROS",
+    "slug": "rio-dos-cedros",
+    "ibge": "4214706",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rio-dos-cedros.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rio-dos-cedros.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rio-dos-cedros.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rio-dos-cedros.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PETROLANDIA",
+    "slug": "petrolandia",
+    "ibge": "4212700",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://petrolandia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.petrolandia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.petrolandia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.petrolandia.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RIO DO OESTE",
+    "slug": "rio-do-oeste",
+    "ibge": "4214607",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rio-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rio-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rio-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rio-do-oeste.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RIO DO SUL",
+    "slug": "rio-do-sul",
+    "ibge": "4214805",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rio-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rio-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rio-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rio-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RIO RUFINO",
+    "slug": "rio-rufino",
+    "ibge": "4215059",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rio-rufino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rio-rufino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rio-rufino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rio-rufino.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RIO FORTUNA",
+    "slug": "rio-fortuna",
+    "ibge": "4214904",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rio-fortuna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rio-fortuna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rio-fortuna.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rio-fortuna.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "RIO NEGRINHO",
+    "slug": "rio-negrinho",
+    "ibge": "4215000",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://rio-negrinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.rio-negrinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.rio-negrinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.rio-negrinho.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANTA CECILIA",
+    "slug": "santa-cecilia",
+    "ibge": "4215505",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://santa-cecilia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.santa-cecilia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.santa-cecilia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.santa-cecilia.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANTA ROSA DO SUL",
+    "slug": "santa-rosa-do-sul",
+    "ibge": "4215653",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://santa-rosa-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.santa-rosa-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.santa-rosa-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.santa-rosa-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SALTO VELOSO",
+    "slug": "salto-veloso",
+    "ibge": "4215406",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://salto-veloso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.salto-veloso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.salto-veloso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.salto-veloso.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANTA HELENA",
+    "slug": "santa-helena",
+    "ibge": "4215554",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://santa-helena.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.santa-helena.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.santa-helena.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.santa-helena.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANTA ROSA DE LIMA",
+    "slug": "santa-rosa-de-lima",
+    "ibge": "4215604",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://santa-rosa-de-lima.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.santa-rosa-de-lima.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.santa-rosa-de-lima.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.santa-rosa-de-lima.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANTA TEREZINHA DO PROGRESSO",
+    "slug": "santa-terezinha-do-progresso",
+    "ibge": "4215687",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://santa-terezinha-do-progresso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.santa-terezinha-do-progresso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.santa-terezinha-do-progresso.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.santa-terezinha-do-progresso.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANTA TEREZINHA",
+    "slug": "santa-terezinha",
+    "ibge": "4215679",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://santa-terezinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.santa-terezinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.santa-terezinha.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.santa-terezinha.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANTO AMARO DA IMPERATRIZ",
+    "slug": "santo-amaro-da-imperatriz",
+    "ibge": "4215703",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://santo-amaro-da-imperatriz.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.santo-amaro-da-imperatriz.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.santo-amaro-da-imperatriz.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.santo-amaro-da-imperatriz.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANTIAGO DO SUL",
+    "slug": "santiago-do-sul",
+    "ibge": "4215695",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://santiago-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.santiago-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.santiago-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.santiago-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "LAGES",
+    "slug": "lages",
+    "ibge": "4209300",
+    "platform": "proprio",
+    "url": "https://lages.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://lages.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 146378,
+    "keywords_found": []
+  },
+  {
+    "municipio": "SAO CRISTOVAO DO SUL",
+    "slug": "sao-cristovao-do-sul",
+    "ibge": "4216057",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-cristovao-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-cristovao-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-cristovao-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-cristovao-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO BENTO DO SUL",
+    "slug": "sao-bento-do-sul",
+    "ibge": "4215802",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-bento-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-bento-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-bento-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-bento-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO BONIFACIO",
+    "slug": "sao-bonifacio",
+    "ibge": "4215901",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-bonifacio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-bonifacio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-bonifacio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-bonifacio.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO DOMINGOS",
+    "slug": "sao-domingos",
+    "ibge": "4216107",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-domingos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-domingos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-domingos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-domingos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO CARLOS",
+    "slug": "sao-carlos",
+    "ibge": "4216008",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-carlos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-carlos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-carlos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-carlos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SANGAO",
+    "slug": "sangao",
+    "ibge": "4215455",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sangao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sangao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sangao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sangao.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO FRANCISCO DO SUL",
+    "slug": "sao-francisco-do-sul",
+    "ibge": "4216206",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-francisco-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-francisco-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-francisco-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-francisco-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO BERNARDINO",
+    "slug": "sao-bernardino",
+    "ibge": "4215752",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-bernardino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-bernardino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-bernardino.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-bernardino.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ROMELANDIA",
+    "slug": "romelandia",
+    "ibge": "4215208",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://romelandia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.romelandia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.romelandia.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.romelandia.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO JOAO BATISTA",
+    "slug": "sao-joao-batista",
+    "ibge": "4216305",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-joao-batista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-joao-batista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-joao-batista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-joao-batista.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "QUILOMBO",
+    "slug": "quilombo",
+    "ibge": "4214201",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://quilombo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.quilombo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.quilombo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.quilombo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO JOAO DO ITAPERIU",
+    "slug": "sao-joao-do-itaperiu",
+    "ibge": "4216354",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-joao-do-itaperiu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-joao-do-itaperiu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-joao-do-itaperiu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-joao-do-itaperiu.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO JOAO DO OESTE",
+    "slug": "sao-joao-do-oeste",
+    "ibge": "4216255",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-joao-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-joao-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-joao-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-joao-do-oeste.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO JOSE DO CERRITO",
+    "slug": "sao-jose-do-cerrito",
+    "ibge": "4216800",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-jose-do-cerrito.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-jose-do-cerrito.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-jose-do-cerrito.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-jose-do-cerrito.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO MARTINHO",
+    "slug": "sao-martinho",
+    "ibge": "4217105",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-martinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-martinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-martinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-martinho.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO JOSE DO CEDRO",
+    "slug": "sao-jose-do-cedro",
+    "ibge": "4216701",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-jose-do-cedro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-jose-do-cedro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-jose-do-cedro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-jose-do-cedro.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO LOURENCO DO OESTE",
+    "slug": "sao-lourenco-do-oeste",
+    "ibge": "4216909",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-lourenco-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-lourenco-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-lourenco-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-lourenco-do-oeste.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO JOSE",
+    "slug": "sao-jose",
+    "ibge": "4216602",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-jose.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-jose.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-jose.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-jose.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO MIGUEL DA BOA VISTA",
+    "slug": "sao-miguel-da-boa-vista",
+    "ibge": "4217154",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-miguel-da-boa-vista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-miguel-da-boa-vista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-miguel-da-boa-vista.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-miguel-da-boa-vista.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO MIGUEL DO OESTE",
+    "slug": "sao-miguel-do-oeste",
+    "ibge": "4217204",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-miguel-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-miguel-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-miguel-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-miguel-do-oeste.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO PEDRO DE ALCANTARA",
+    "slug": "sao-pedro-de-alcantara",
+    "ibge": "4217253",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-pedro-de-alcantara.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-pedro-de-alcantara.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-pedro-de-alcantara.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-pedro-de-alcantara.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SERRA ALTA",
+    "slug": "serra-alta",
+    "ibge": "4217550",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://serra-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.serra-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.serra-alta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.serra-alta.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SALTINHO",
+    "slug": "saltinho",
+    "ibge": "4215356",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://saltinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.saltinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.saltinho.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.saltinho.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SUL BRASIL",
+    "slug": "sul-brasil",
+    "ibge": "4217758",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sul-brasil.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sul-brasil.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sul-brasil.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sul-brasil.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TIMBE DO SUL",
+    "slug": "timbe-do-sul",
+    "ibge": "4218103",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://timbe-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.timbe-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.timbe-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.timbe-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TRES BARRAS",
+    "slug": "tres-barras",
+    "ibge": "4218301",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://tres-barras.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.tres-barras.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.tres-barras.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.tres-barras.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TIMBO GRANDE",
+    "slug": "timbo-grande",
+    "ibge": "4218251",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://timbo-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.timbo-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.timbo-grande.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.timbo-grande.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TREZE DE MAIO",
+    "slug": "treze-de-maio",
+    "ibge": "4218400",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://treze-de-maio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.treze-de-maio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.treze-de-maio.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.treze-de-maio.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TREZE TILIAS",
+    "slug": "treze-tilias",
+    "ibge": "4218509",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://treze-tilias.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.treze-tilias.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.treze-tilias.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.treze-tilias.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TANGARA",
+    "slug": "tangara",
+    "ibge": "4217907",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://tangara.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.tangara.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.tangara.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.tangara.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TIGRINHOS",
+    "slug": "tigrinhos",
+    "ibge": "4217956",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://tigrinhos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.tigrinhos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.tigrinhos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.tigrinhos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TROMBUDO CENTRAL",
+    "slug": "trombudo-central",
+    "ibge": "4218608",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://trombudo-central.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.trombudo-central.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.trombudo-central.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.trombudo-central.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "UNIAO DO OESTE",
+    "slug": "uniao-do-oeste",
+    "ibge": "4218855",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://uniao-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.uniao-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.uniao-do-oeste.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.uniao-do-oeste.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SIDEROPOLIS",
+    "slug": "sideropolis",
+    "ibge": "4217600",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sideropolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sideropolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sideropolis.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sideropolis.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TUBARAO",
+    "slug": "tubarao",
+    "ibge": "4218707",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://tubarao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.tubarao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.tubarao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.tubarao.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "URUPEMA",
+    "slug": "urupema",
+    "ibge": "4218954",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://urupema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.urupema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.urupema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.urupema.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "VARGEM BONITA",
+    "slug": "vargem-bonita",
+    "ibge": "4219176",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://vargem-bonita.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.vargem-bonita.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.vargem-bonita.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.vargem-bonita.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "VIDAL RAMOS",
+    "slug": "vidal-ramos",
+    "ibge": "4219200",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://vidal-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.vidal-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.vidal-ramos.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.vidal-ramos.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "VITOR MEIRELES",
+    "slug": "vitor-meireles",
+    "ibge": "4219358",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://vitor-meireles.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.vitor-meireles.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.vitor-meireles.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.vitor-meireles.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "TURVO",
+    "slug": "turvo",
+    "ibge": "4218806",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://turvo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.turvo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.turvo.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.turvo.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "VARGEAO",
+    "slug": "vargeao",
+    "ibge": "4219101",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://vargeao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.vargeao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.vargeao.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.vargeao.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SCHROEDER",
+    "slug": "schroeder",
+    "ibge": "4217402",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://schroeder.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.schroeder.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.schroeder.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.schroeder.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "VARGEM",
+    "slug": "vargem",
+    "ibge": "4219150",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://vargem.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.vargem.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.vargem.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.vargem.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "XANXERE",
+    "slug": "xanxere",
+    "ibge": "4219507",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://xanxere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.xanxere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.xanxere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.xanxere.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "URUBICI",
+    "slug": "urubici",
+    "ibge": "4218905",
+    "platform": "proprio",
+    "url": "https://urubici.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://urubici.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 151379,
+    "keywords_found": [
+      "transparência"
+    ]
+  },
+  {
+    "municipio": "XAVANTINA",
+    "slug": "xavantina",
+    "ibge": "4219606",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://xavantina.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.xavantina.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.xavantina.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.xavantina.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "XAXIM",
+    "slug": "xaxim",
+    "ibge": "4219705",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://xaxim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.xaxim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.xaxim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.xaxim.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BOCAINA DO SUL",
+    "slug": "bocaina-do-sul",
+    "ibge": "4202438",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://bocaina-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.bocaina-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.bocaina-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.bocaina-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ANITA GARIBALDI",
+    "slug": "anita-garibaldi",
+    "ibge": "4201000",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://anita-garibaldi.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.anita-garibaldi.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.anita-garibaldi.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.anita-garibaldi.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "AGUA DOCE",
+    "slug": "agua-doce",
+    "ibge": "4200408",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://agua-doce.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.agua-doce.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.agua-doce.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.agua-doce.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ARROIO TRINTA",
+    "slug": "arroio-trinta",
+    "ibge": "4201604",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://arroio-trinta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.arroio-trinta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.arroio-trinta.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.arroio-trinta.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BOM RETIRO",
+    "slug": "bom-retiro",
+    "ibge": "4202602",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://bom-retiro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.bom-retiro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.bom-retiro.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.bom-retiro.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BALNEARIO BARRA DO SUL",
+    "slug": "balneario-barra-do-sul",
+    "ibge": "4202057",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://balneario-barra-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.balneario-barra-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.balneario-barra-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.balneario-barra-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ALFREDO WAGNER",
+    "slug": "alfredo-wagner",
+    "ibge": "4200705",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://alfredo-wagner.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.alfredo-wagner.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.alfredo-wagner.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.alfredo-wagner.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CAMPO ERE",
+    "slug": "campo-ere",
+    "ibge": "4203501",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://campo-ere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.campo-ere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.campo-ere.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.campo-ere.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BRACO DO NORTE",
+    "slug": "braco-do-norte",
+    "ibge": "4202800",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://braco-do-norte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.braco-do-norte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.braco-do-norte.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.braco-do-norte.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "BALNEARIO CAMBORIU",
+    "slug": "balneario-camboriu",
+    "ibge": "4202008",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://balneario-camboriu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.balneario-camboriu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.balneario-camboriu.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.balneario-camboriu.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SOMBRIO",
+    "slug": "sombrio",
+    "ibge": "4217709",
+    "platform": "proprio",
+    "url": "https://sombrio.sc.gov.br",
+    "status": "detected",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sombrio.sc.gov.br",
+        "status": "detected"
+      }
+    ],
+    "body_size": 200858,
+    "keywords_found": []
+  },
+  {
+    "municipio": "ARMAZEM",
+    "slug": "armazem",
+    "ibge": "4201505",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://armazem.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.armazem.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.armazem.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.armazem.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "ITAPEMA",
+    "slug": "itapema",
+    "ibge": "4208302",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://itapema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.itapema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.itapema.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.itapema.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "CAPINZAL",
+    "slug": "capinzal",
+    "ibge": "4203907",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://capinzal.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.capinzal.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.capinzal.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.capinzal.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "GUARUJA DO SUL",
+    "slug": "guaruja-do-sul",
+    "ibge": "4206603",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://guaruja-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.guaruja-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.guaruja-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.guaruja-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "IBICARE",
+    "slug": "ibicare",
+    "ibge": "4206801",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://ibicare.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.ibicare.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.ibicare.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.ibicare.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO JOAO DO SUL",
+    "slug": "sao-joao-do-sul",
+    "ibge": "4216404",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-joao-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-joao-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-joao-do-sul.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-joao-do-sul.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO JOAQUIM",
+    "slug": "sao-joaquim",
+    "ibge": "4216503",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-joaquim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-joaquim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-joaquim.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-joaquim.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "SAO LUDGERO",
+    "slug": "sao-ludgero",
+    "ibge": "4217006",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://sao-ludgero.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.sao-ludgero.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.sao-ludgero.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.sao-ludgero.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "PALMEIRA",
+    "slug": "palmeira",
+    "ibge": "4212056",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://palmeira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.palmeira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.palmeira.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.palmeira.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  },
+  {
+    "municipio": "URUSSANGA",
+    "slug": "urussanga",
+    "ibge": "4219002",
+    "platform": null,
+    "url": null,
+    "status": "not_found",
+    "error": null,
+    "detected_at": "2026-07-11",
+    "pass2_patterns_tried": [
+      {
+        "pattern": "sc_gov_main",
+        "url": "https://urussanga.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_transparencia",
+        "url": "https://transparencia.urussanga.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_www",
+        "url": "https://www.urussanga.sc.gov.br",
+        "status": "not_found"
+      },
+      {
+        "pattern": "sc_gov_portal",
+        "url": "https://portaltransparencia.urussanga.sc.gov.br",
+        "status": "not_found"
+      }
+    ]
+  }
+]

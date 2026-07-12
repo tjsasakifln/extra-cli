@@ -1,0 +1,62 @@
+{
+  "data": [
+    {
+      "orgaoEntidade": {
+        "cnpj": "12345678000199",
+        "razaoSocial": "Prefeitura Municipal de Exemplo",
+        "nome": "Prefeitura Municipal de Exemplo",
+        "esferaId": "M"
+      },
+      "unidadeOrgao": {
+        "codigoUnidade": "12345",
+        "nomeUnidade": "Secretaria de Obras",
+        "siglaUf": "SC",
+        "nomeMunicipio": "Florianopolis",
+        "codigoIbge": "4205407"
+      },
+      "numeroControlePNCP": "PNCP-2026-00123",
+      "objetoCompra": "Construcao de escola municipal",
+      "valorTotalEstimado": 500000.00,
+      "modalidadeId": 4,
+      "modalidadeNome": "Concorrencia",
+      "dataPublicacao": "2026-07-01T10:00:00Z",
+      "dataAbertura": "2026-08-01T09:00:00Z",
+      "dataEncerramentoProposta": "2026-08-15T18:00:00Z",
+      "situacaoCompraId": 1,
+      "situacaoCompraNome": "Divulgada",
+      "linkSistemaOrigem": "https://pncp.gov.br/contratacoes/123",
+      "paginasRestantes": 3,
+      "totalRegistros": 45
+    },
+    {
+      "orgaoEntidade": {
+        "cnpj": "98765432000188",
+        "razaoSocial": "Prefeitura Municipal de Outro Lugar",
+        "nome": "Prefeitura Municipal de Outro Lugar",
+        "esferaId": "M"
+      },
+      "unidadeOrgao": {
+        "codigoUnidade": "67890",
+        "nomeUnidade": "Secretaria de Educacao",
+        "siglaUf": "SC",
+        "nomeMunicipio": "Joinville",
+        "codigoIbge": "4209102"
+      },
+      "numeroControlePNCP": "PNCP-2026-00456",
+      "objetoCompra": "Reforma de predio publico",
+      "valorTotalEstimado": 250000.00,
+      "modalidadeId": 5,
+      "modalidadeNome": "Pregao Eletronico",
+      "dataPublicacao": "2026-07-02T08:00:00Z",
+      "dataAbertura": "2026-08-02T09:00:00Z",
+      "dataEncerramentoProposta": "2026-08-20T18:00:00Z",
+      "situacaoCompraId": 1,
+      "situacaoCompraNome": "Divulgada",
+      "linkSistemaOrigem": "https://pncp.gov.br/contratacoes/456",
+      "paginasRestantes": 2,
+      "totalRegistros": 30
+    }
+  ],
+  "paginasRestantes": 2,
+  "totalRegistros": 30
+}

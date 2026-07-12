@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "cnpjOrgao": "12345678000199",
+      "nomeOrgao": "Prefeitura Municipal de Exemplo",
+      "esferaId": "M",
+      "uf": "SC",
+      "municipio": "Florianopolis",
+      "codigoIbge": "4205407",
+      "numeroControlePNCP": "PNCP-LEGACY-00123",
+      "objetoCompra": "Construcao de escola municipal",
+      "valorTotalEstimado": 500000.00,
+      "codigoModalidadeContratacao": 4,
+      "nomeModalidade": "Concorrencia",
+      "dataPublicacaoPncp": "2026-07-01T10:00:00Z",
+      "dataAberturaProposta": "2026-08-01T09:00:00Z",
+      "linkSistemaOrigem": "https://pncp.gov.br/contratacoes/legacy/123",
+      "temProximaPagina": false
+    }
+  ],
+  "temProximaPagina": false,
+  "totalRegistros": 1
+}

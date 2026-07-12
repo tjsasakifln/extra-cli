@@ -1,0 +1,27 @@
+# /etc/systemd/system/extra-crawl-ciga-ckan.service
+# CIGA CKAN crawler — incremental semanal (domingo 02:00 UTC)
+# Extra Consultoria — Story COVERAGE-1.2
+#
+# Deploy:
+#   sudo cp deploy/systemd/extra-crawl-ciga-ckan.service /etc/systemd/system/
+#   sudo cp deploy/systemd/extra-crawl-ciga-ckan.timer /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable extra-crawl-ciga-ckan.timer
+#   sudo systemctl start extra-crawl-ciga-ckan.timer
+
+[Unit]
+Description=Extra Consultoria — CIGA CKAN DOM-SC Coverage Crawler
+Documentation=https://dados.ciga.sc.gov.br/
+After=network-online.target
+Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/ciga_ckan_crawler.py --all-months --source ciga_ckan
+User=extra-consultoria
+StandardOutput=journal
+StandardError=journal
