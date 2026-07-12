@@ -247,17 +247,25 @@ JOIN target_universe u ON c.orgao_cnpj LIKE u.cnpj8 || '%'
 
 
 def _get_connection(db_path: str | None = None):
-    """Get a DB connection — PostgreSQL if DSN is set, else SQLite."""
+    """Get a DB connection — PostgreSQL if DSN is set, else SQLite.
+
+    When LOCAL_DATALAKE_DSN is explicitly set: fail closed on PostgreSQL
+    connection failure — NO silent SQLite fallback.
+    """
     dsn = os.getenv("LOCAL_DATALAKE_DSN", "")
     if dsn:
         try:
             import psycopg2
+
             conn = psycopg2.connect(dsn, connect_timeout=5)
             conn.autocommit = True
             return conn, "postgresql"
         except Exception as e:
-            print(f"WARNING: PostgreSQL DSN set but connection failed: {e}", file=sys.stderr)
-            print("Falling back to SQLite.", file=sys.stderr)
+            raise ConnectionError(
+                f"PostgreSQL connection failed with explicit LOCAL_DATALAKE_DSN. "
+                f"Refusing to fall back to SQLite. Set DSN correctly or unset to use SQLite. "
+                f"Error: {e}"
+            ) from e
 
     path = db_path or DEFAULT_DB_PATH
     conn = sqlite3.connect(path)
@@ -445,7 +453,7 @@ def _print_table(rows: list[Any], description: Any) -> None:
         for i, val in enumerate(row):
             s = str(val) if val is not None else "NULL"
             if len(s) > widths[i]:
-                s = s[:widths[i] - 3] + "..."
+                s = s[: widths[i] - 3] + "..."
             vals.append(s.ljust(widths[i]))
         print(" | ".join(vals))
 
@@ -480,8 +488,13 @@ def seed_target_universe(conn: Any, backend: str) -> int:
                     distancia_km, within_200km)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)""",
                 (
-                    e.razao_social, e.cnpj8, e.municipio, e.codigo_ibge,
-                    e.natureza_juridica, e.latitude, e.longitude,
+                    e.razao_social,
+                    e.cnpj8,
+                    e.municipio,
+                    e.codigo_ibge,
+                    e.natureza_juridica,
+                    e.latitude,
+                    e.longitude,
                     e.distancia_km,
                 ),
             )

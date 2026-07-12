@@ -86,8 +86,8 @@ systemctl enable pncp-report-weekly.timer # Seg 07:00 UTC
 
 ## Métricas
 
-- **2.085** órgãos públicos SC monitorados
-- **100%** cobertura alvo (raio 200km)
+- **2.085** órgãos públicos SC no universo-alvo
+- Cobertura verificada via `scripts/consulting_readiness.py` (consulte `coverage_manifest.json`)
 - **5** fontes de dados
 - **13** setores configurados
 
