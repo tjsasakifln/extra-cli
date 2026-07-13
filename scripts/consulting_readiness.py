@@ -30,6 +30,8 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.lib.universe import normalize_cnpj8
+
 _logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -46,6 +48,20 @@ COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SEED = str(PROJECT_ROOT / "Extra - alvos de licitação. R-0.xlsx")
 DEFAULT_OUTPUT_DIR = str(PROJECT_ROOT / "output" / "readiness")
+
+# Known-blocked sources that must NEVER be reported as success.
+# Each entry documents why the source cannot execute in the current
+# environment (missing credentials, Selenium dependency, etc.).
+# These override whatever the DB view says.
+SOURCE_BLOCKERS: dict[str, str] = {
+    "doe_sc": "Requer Selenium + certificado digital",
+    "dom_sc": "Portal requer navegação interativa (Selenium)",
+    "pcp": "Portal requer Selenium + CAPTCHA",
+    "sc_compras": "API não documentada, acesso instável",
+    "transparencia": "Portais individuais por município (295+)",
+    "mides_bigquery": "BigQuery requer credencial GCP",
+    "selenium": "Não é fonte, é infraestrutura de acesso",
+}
 
 # Column mapping for the seed spreadsheet "Extra - alvos de licitação. R-0.xlsx" (0-indexed)
 COL_RAZAO = 0
@@ -193,7 +209,7 @@ def load_target_universe(
             continue
 
         razao = str(row[COL_RAZAO]).strip()
-        cnpj8 = _normalize_cnpj8(str(row[COL_CNPJ8])) if len(row) > COL_CNPJ8 and row[COL_CNPJ8] else ""
+        cnpj8 = normalize_cnpj8(str(row[COL_CNPJ8])) if len(row) > COL_CNPJ8 and row[COL_CNPJ8] else ""
         municipio = str(row[COL_MUNICIPIO]).strip() if len(row) > COL_MUNICIPIO and row[COL_MUNICIPIO] else ""
         ibge = str(int(row[COL_IBGE])) if len(row) > COL_IBGE and row[COL_IBGE] else ""
         natureza = str(row[COL_NATUREZA]).strip() if len(row) > COL_NATUREZA and row[COL_NATUREZA] else ""
@@ -290,13 +306,6 @@ def _parse_coords(lat_raw: Any, lon_raw: Any) -> tuple[float | None, float | Non
         return lat, lon, True
     except (ValueError, TypeError):
         return None, None, False
-
-
-def _normalize_cnpj8(raw: str) -> str:
-    """Strip non-digit characters from CNPJ8 string."""
-    import re
-
-    return re.sub(r"\D", "", raw)
 
 
 # ---------------------------------------------------------------------------
@@ -853,6 +862,56 @@ def compute_freshness(
 # ---------------------------------------------------------------------------
 
 
+def _apply_source_blockers(
+    health: dict[str, dict[str, Any]],
+    per_source: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Override source health for known-blocked sources.
+
+    Rule #3 — ``success_zero`` requires applicable source with declared
+    window, complete pagination, and recent real execution.  Sources that
+    require credentials, Selenium, or other unavailable infrastructure
+    are reclassified to ``blocked`` or ``not_applicable``, NEVER ``success_*``.
+
+    Logs a warning for each reclassified source.
+    """
+    for src in list(health.keys()):
+        if src not in SOURCE_BLOCKERS:
+            continue
+
+        reason = SOURCE_BLOCKERS[src]
+        status = "not_applicable" if src == "selenium" else "blocked"
+
+        _logger.warning(
+            "Source '%s' reclassified as %s: %s",
+            src,
+            status,
+            reason,
+        )
+
+        health[src] = {
+            "entity_rows": 0,
+            "successful": 0,
+            "failed": 0,
+            "health_pct": None,
+            "last_check": None,
+            "status": status,
+            "blocker_reason": reason,
+        }
+
+    # Apply blockers to per_source breakdown as well
+    if per_source is not None:
+        for src in list(per_source.keys()):
+            if src in SOURCE_BLOCKERS:
+                reason = SOURCE_BLOCKERS[src]
+                status = "not_applicable" if src == "selenium" else "blocked"
+                per_source[src]["status"] = status
+                per_source[src]["blocker_reason"] = reason
+                per_source[src]["pct"] = None
+
+    return health
+
+
 def compute_readiness(
     universe: TargetUniverse,
     evidence: list[dict],
@@ -1052,6 +1111,11 @@ def compute_readiness(
             "health_pct": round(success / total * 100, 1) if total > 0 else None,
             "last_check": (sh["last_check_at"].isoformat() if sh.get("last_check_at") else None),
         }
+
+    # ── Apply SOURCE_BLOCKERS override ──────────────────────────────────
+    # Rule #3: known-blocked sources are never "success", even if the DB
+    # view reports phantom entity rows.
+    _apply_source_blockers(health, per_source)
 
     # ── Commercial metrics — computed from DB ───────────────────────────
     # NOTE: Heavy contract queries use a SEPARATE connection with per-query
@@ -1277,6 +1341,19 @@ def print_summary(metrics: dict[str, Any]) -> None:
     print(f"    Fresh:   {fh['fresh_count']}")
     print(f"    Stale:   {fh['stale_count']}")
     print(f"    Unknown: {fh['unknown_count']}")
+    print()
+    print("  SOURCE HEALTH:")
+    for src, info in sorted(metrics.get("source_health", {}).items()):
+        status = info.get("status", "")
+        hp = info.get("health_pct")
+        last = info.get("last_check") or "never"
+        if status:
+            reason = info.get("blocker_reason", "")
+            print(f"    {src:<20s}  [{status:<15s}]  {reason}")
+        elif hp is not None:
+            print(f"    {src:<20s}  health={hp:>6.1f}%  last_check={last}")
+        else:
+            print(f"    {src:<20s}  health=unverified  last_check={last}")
     print()
     print("  COMMERCIAL METRICS:")
     cm = metrics.get("commercial_metrics", {})

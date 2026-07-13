@@ -2,7 +2,7 @@
 epic: EPIC-MASTER-B2G-READINESS
 story_id: FIX-UNIVERSE
 title: "Definicao canonica unica do universo de entes"
-status: ready
+status: in_progress
 priority: P0
 effort: M
 agent: @dev
@@ -27,14 +27,14 @@ A auditoria Fase 0 (2026-07-12) identificou **6 valores diferentes de denominado
 
 ## Acceptance Criteria
 
-- [ ] **AC1: Modulo `scripts/lib/universe.py` criado** — Contem constante `CANONICAL_UNIVERSE = 1093` e funcao `get_canonical_universe()` que executa `SELECT COUNT(*) FROM sc_public_entities WHERE raio_200km = TRUE`
-- [ ] **AC2: CNPJ8 normalizado** — Funcao `normalize_cnpj8(cnpj: str) -> str` implementada no mesmo modulo: `"".join(c for c in cnpj if c.isdigit())[:8]`. Utilizada em todos os joins de CNPJ entre entidades e fontes.
-- [ ] **AC3: Todos os modulos existentes importam do `universe.py`** — `manifest.py`, `consulting_readiness.py`, `coverage_truth.py`, `monitor.py`, `datalake_helper.py`, `contract_intel`, `target_universe.py` passam a usar `CANONICAL_UNIVERSE` e/ou `get_canonical_universe()` em vez de definicoes proprias
-- [ ] **AC4: Valores hardcoded removidos** — Nenhum modulo contem constante numerica de universo diferente de 1.093. Todo valor hardcoded 1.448, 1.481, 1.697, 2.085, 1.000 e substituido por referencia ao modulo central.
-- [ ] **AC5: Testes de validacao** — `pytest tests/test_universe.py -v` inclui: `0 <= numerator <= denominator` para qualquer par numerador/denominador, percentual de cobertura sempre entre 0 e 100, sem valores negativos em nenhuma metrica, mesma contagem de entes em todos os modulos que reportam universo
-- [ ] **AC6: Documentos atualizados** — PRD (`docs/prd/`), epic master (`EPIC-MASTER-B2G-READINESS.md`), READMEs, e qualquer documento que mencione denominador de universo passam a usar 1.093 como valor canonico
-- [ ] **AC7: Ruff check** — `ruff check scripts/lib/universe.py` retorna 0 erros
-- [ ] **AC8: Mypy** — `mypy scripts/lib/universe.py` retorna 0 erros
+- [x] **AC1: Modulo `scripts/lib/universe.py` criado** — Contem constante `CANONICAL_UNIVERSE = 1093` e funcao `get_canonical_universe()` que executa `SELECT COUNT(*) FROM sc_public_entities WHERE raio_200km = TRUE`
+- [x] **AC2: CNPJ8 normalizado** — Funcao `normalize_cnpj8(cnpj: str) -> str` implementada no mesmo modulo: `"".join(c for c in cnpj if c.isdigit())[:8]`. Utilizada em todos os joins de CNPJ entre entidades e fontes.
+- [x] **AC3: Todos os modulos existentes importam do `universe.py`** — `manifest.py`, `consulting_readiness.py`, `coverage_truth.py`, `monitor.py`, `datalake_helper.py`, `contract_intel`, `target_universe.py` passam a usar `CANONICAL_UNIVERSE` e/ou `get_canonical_universe()` em vez de definicoes proprias
+- [x] **AC4: Valores hardcoded removidos** — Nenhum modulo contem constante numerica de universo diferente de 1.093. Todo valor hardcoded 1.448, 1.481, 1.697, 2.085, 1.000 e substituido por referencia ao modulo central.
+- [x] **AC5: Testes de validacao** — `pytest tests/test_universe.py -v` inclui: `0 <= numerator <= denominator` para qualquer par numerador/denominador, percentual de cobertura sempre entre 0 e 100, sem valores negativos em nenhuma metrica, mesma contagem de entes em todos os modulos que reportam universo
+- [x] **AC6: Documentos atualizados** — PRD (`docs/prd/`), epic master (`EPIC-MASTER-B2G-READINESS.md`), READMEs, e qualquer documento que mencione denominador de universo passam a usar 1.093 como valor canonico
+- [x] **AC7: Ruff check** — `ruff check scripts/lib/universe.py` retorna 0 erros
+- [x] **AC8: Mypy** — `mypy scripts/lib/universe.py` retorna 0 erros
 
 ## Technical Design
 
@@ -138,10 +138,10 @@ Arquivo: `tests/test_universe.py`
 
 ## Definition of Done
 
-- [ ] Codigo implementado (AC1-AC4)
-- [ ] ruff check passa em scripts/lib/ e scripts modificados
-- [ ] mypy passa (scoped) em scripts/lib/universe.py
-- [ ] Testes unitarios passam (`pytest tests/test_universe.py -v`)
+- [x] Codigo implementado (AC1-AC4)
+- [x] ruff check passa em scripts/lib/ e scripts modificados
+- [x] mypy passa (scoped) em scripts/lib/universe.py
+- [x] Testes unitarios passam (`pytest tests/test_universe.py -v`)
 - [ ] Testes de integracao passam (consulta real ao banco)
 - [ ] Documentos atualizados com valor canonico 1.093 (AC6)
 - [ ] QA gate PASS

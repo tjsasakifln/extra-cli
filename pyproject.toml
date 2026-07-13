@@ -89,3 +89,8 @@ module = [
     "scripts.lib.*",
 ]
 ignore_errors = true
+
+[tool.bandit]
+# Regra #10 (B2G-4): bandit scoped to production code only
+exclude_dirs = ["tests", "tests/fixtures"]
+skips = []

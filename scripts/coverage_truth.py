@@ -15,12 +15,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import math
 import os
 import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
+
+_logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -34,6 +37,20 @@ COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "docs" / "coverage-truth"
+
+# Known-blocked sources — Rule #3: never report as success.
+# Each entry documents why the source cannot execute in the current
+# environment (missing credentials, Selenium dependency, etc.).
+# These override whatever the DB view says.
+SOURCE_BLOCKERS: dict[str, str] = {
+    "doe_sc": "Requer Selenium + certificado digital",
+    "dom_sc": "Portal requer navegação interativa (Selenium)",
+    "pcp": "Portal requer Selenium + CAPTCHA",
+    "sc_compras": "API não documentada, acesso instável",
+    "transparencia": "Portais individuais por município (295+)",
+    "mides_bigquery": "BigQuery requer credencial GCP",
+    "selenium": "Não é fonte, é infraestrutura de acesso",
+}
 
 # Source lists derived from central registry at import time
 try:
@@ -229,6 +246,43 @@ def load_contract_presence(conn, entity_ids: list[int]) -> dict[int, bool]:
 # ---------------------------------------------------------------------------
 
 
+def _apply_source_blockers(health: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Override source health for known-blocked sources.
+
+    Rule #3 — ``success_zero`` requires applicable source with declared
+    window, complete pagination, and recent real execution.  Sources that
+    require credentials, Selenium, or other unavailable infrastructure
+    are reclassified to ``blocked`` or ``not_applicable``, NEVER ``success_*``.
+
+    Logs a warning for each reclassified source.
+    """
+    for src in list(health.keys()):
+        if src not in SOURCE_BLOCKERS:
+            continue
+
+        reason = SOURCE_BLOCKERS[src]
+        status = "not_applicable" if src == "selenium" else "blocked"
+
+        _logger.warning(
+            "Source '%s' reclassified as %s: %s",
+            src,
+            status,
+            reason,
+        )
+
+        health[src] = {
+            "entity_rows": 0,
+            "successful_rows": 0,
+            "failed_rows": 0,
+            "health_pct": None,
+            "last_check": None,
+            "status": status,
+            "blocker_reason": reason,
+        }
+
+    return health
+
+
 def compute_metrics(
     entities: list[dict],
     coverage: list[dict],
@@ -385,6 +439,11 @@ def compute_metrics(
                 "last_check": None,
                 "_note": "Evidence ledger empty — source health unverified",
             }
+
+    # ── Apply SOURCE_BLOCKERS override ──────────────────────────────────
+    # Rule #3: known-blocked sources are never "success", even if the DB
+    # view reports phantom entity rows.
+    _apply_source_blockers(health)
 
     # ── Entity/source gaps (from evidence state) ────────────────────────
     # A gap exists when an entity+source pair has no success evidence.
@@ -562,11 +621,16 @@ def print_summary(metrics: dict[str, Any]) -> None:
     print()
     print("  SOURCE HEALTH (from evidence ledger):")
     for src, h in sorted(metrics["source_health"].items()):
-        hp = h.get("health_pct")
-        hp_str = f"{hp}%" if hp is not None else "unverified"
-        last = h.get("last_check") or "never"
-        note = f" [{h.get('_note', '')}]" if h.get("_note") else ""
-        print(f"    {src:<20s}  health={hp_str:>10s}  last_check={last}{note}")
+        status = h.get("status", "")
+        if status:
+            reason = h.get("blocker_reason", "")
+            print(f"    {src:<20s}  [{status:<15s}]  {reason}")
+        else:
+            hp = h.get("health_pct")
+            hp_str = f"{hp}%" if hp is not None else "unverified"
+            last = h.get("last_check") or "never"
+            note = f" [{h.get('_note', '')}]" if h.get("_note") else ""
+            print(f"    {src:<20s}  health={hp_str:>10s}  last_check={last}{note}")
     print()
     print(f"  GAPS: {gaps['total_gap_combinations']} entity+source pairs without success evidence")
     print("  Top gap sources (by entity count):")
@@ -678,25 +742,30 @@ def build_markdown(metrics: dict[str, Any]) -> str:
     lines.append("")
     lines.append("## Source Health (from evidence ledger)")
     lines.append("")
-    lines.append("| Source | Entity Rows | Successful | Failed | Health % | Last Check |")
-    lines.append("|--------|------------|------------|--------|----------|------------|")
+    lines.append("| Source | Status | Entity Rows | Successful | Failed | Health % | Last Check |")
+    lines.append("|--------|--------|------------|------------|--------|----------|------------|")
     for src in ALL_SOURCES:
         h = metrics["source_health"].get(src, {})
+        status = h.get("status", "")
         total = h.get("entity_rows")
         success = h.get("successful_rows")
         failed = h.get("failed_rows")
         hp = h.get("health_pct")
         last = h.get("last_check") or "never"
         note = h.get("_note", "")
+        blocker = h.get("blocker_reason", "")
 
+        status_s = status if status else "active"
         total_s = str(total) if total is not None else "?"
         success_s = str(success) if success is not None else "?"
         failed_s = str(failed) if failed is not None else "?"
         hp_s = f"{hp}%" if hp is not None else "unverified"
 
-        lines.append(f"| {src} | {total_s} | {success_s} | {failed_s} | {hp_s} | {last} |")
+        lines.append(f"| {src} | {status_s} | {total_s} | {success_s} | {failed_s} | {hp_s} | {last} |")
         if note:
-            lines.append(f"| | _{note}_ | | | | |")
+            lines.append(f"| | | _{note}_ | | | | |")
+        if blocker:
+            lines.append(f"| | ⚠️ {blocker} | | | | | |")
     lines.append("")
     lines.append("## Entity/Source Gaps")
     lines.append("")

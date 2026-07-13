@@ -24,6 +24,11 @@ from typing import Any
 import psycopg2
 import psycopg2.extras
 
+# Canonical universe imported from central module.
+# The DB flag raio_200km is inconsistent (1448 rows, includes 355 extra)
+# so we use the audited canonical constant from scripts.lib.universe.
+from scripts.lib.universe import CANONICAL_UNIVERSE
+
 _logger = logging.getLogger(__name__)
 
 DEFAULT_DSN = os.getenv(
@@ -36,13 +41,6 @@ OUTPUT_DIR = os.path.join(
     "readiness",
 )
 THRESHOLD = float(os.getenv("OI_COVERAGE_THRESHOLD", "0.95"))
-
-# Canonical universe: entities within 200 km of Florianópolis.
-# Source: seed spreadsheet column "Raio 200km?" = SIM + Haversine <= 200 km.
-# The DB flag raio_200km is inconsistent (1448 rows, includes 355 extra).
-# Audited in docs/coverage-truth/fase0-audit-2026-07-12.md.
-# This constant MUST match the canonical spreadsheet count.
-CANONICAL_UNIVERSE_WITHIN_200KM = 1093
 
 
 def generate(dsn: str | None = None, threshold: float = THRESHOLD) -> dict[str, Any]:
@@ -98,7 +96,7 @@ def _build_manifest(conn) -> dict[str, Any]:
     # Target universe: canonical 1093 entities within 200 km.
     # The DB flag raio_200km is inconsistent (1448 vs canonical 1093),
     # so we use the audited canonical constant.
-    total_entities = CANONICAL_UNIVERSE_WITHIN_200KM
+    total_entities = CANONICAL_UNIVERSE
 
     # Entities with any opportunity data, filtered to within 200 km radius
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -164,7 +162,7 @@ def _build_manifest(conn) -> dict[str, Any]:
     # Validation asserts before computing percentage
     # ------------------------------------------------------------------
     assert entities_with_data >= 0, f"entities_with_data negativo: {entities_with_data}"
-    assert total_entities > 0, f"total_entities é zero (canonical universe = {CANONICAL_UNIVERSE_WITHIN_200KM})"
+    assert total_entities > 0, f"total_entities é zero (canonical universe = {CANONICAL_UNIVERSE})"
     assert entities_with_data <= total_entities, (
         f"entities_with_data ({entities_with_data}) > total_entities ({total_entities})"
     )

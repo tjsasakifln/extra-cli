@@ -1,0 +1,67 @@
+# Pre-commit hooks — gates locais antes do commit
+#
+# Regra #10 (B2G-4): Gates fail-closed — bloqueiam commit se falharem
+# Instalar: pip install pre-commit && pre-commit install
+# Rodar manual: pre-commit run --all-files
+
+repos:
+  # ────────────────────────────────────────────────────────────────────────────
+  # RUFF — formato + linter
+  # ────────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.5
+    hooks:
+      - id: ruff-format
+        name: ruff-format
+        description: "Auto-format Python code (ruff formatter)"
+      - id: ruff
+        name: ruff-check
+        description: "Lint Python code (ruff linter) with auto-fix"
+        args: [--fix]
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # MYPY — type check (apenas módulos de produção)
+  # ────────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        name: mypy-types
+        description: "Static type checking (production modules only)"
+        args: ["scripts/", "--ignore-missing-imports"]
+        pass_filenames: false
+        files: ^scripts/
+        verbose: true
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # BANDIT — segurança (apenas HIGH severity, exclui tests/)
+  # ────────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.0
+    hooks:
+      - id: bandit
+        name: bandit-security
+        description: "Security linter (HIGH severity only, excludes tests/)"
+        args:
+          - "-r"
+          - "scripts/"
+          - "--severity-level"
+          - "high"
+          - "--confidence-level"
+          - "high"
+        files: ^scripts/
+        pass_filenames: false
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # PRE-COMMIT-HOOKS — secrets e aws credentials
+  # ────────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: detect-aws-credentials
+        name: detect-aws-credentials
+        description: "Detect AWS credentials committed by accident"
+        args: [--allow-missing-credentials]
+      - id: detect-private-key
+        name: detect-private-key
+        description: "Detect private keys committed by accident"

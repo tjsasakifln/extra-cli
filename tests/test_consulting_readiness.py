@@ -6,7 +6,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -20,6 +20,7 @@ from scripts.consulting_readiness import (  # noqa: E402
     TargetEntity,
     TargetUniverse,
     _parse_coords,
+    _safe_metric_query,
     compute_readiness,
     haversine_km,
     load_target_universe,
@@ -1017,3 +1018,154 @@ class TestConfigurableThreshold:
             0.95,
         )
         assert metrics_hi["coverage"]["passed"] is False
+
+
+# ---------------------------------------------------------------------------
+# Safe metric query — transaction isolation
+# ---------------------------------------------------------------------------
+
+
+class TestSafeMetricQuery:
+    """Tests for _safe_metric_query transaction isolation."""
+
+    def test_safe_metric_query_rollback_on_error(self):
+        """On timeout, _safe_metric_query returns None and calls rollback."""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_cursor.execute.side_effect = Exception("canceling statement due to statement timeout")
+
+        result = _safe_metric_query(mock_conn, "test_query", "SELECT 1")
+
+        assert result is None
+        mock_conn.rollback.assert_called_once()
+
+    def test_safe_metric_query_success_returns_dicts(self):
+        """Successful _safe_metric_query returns list of dicts with column names."""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_cursor.description = [("count",), ("total",)]
+        mock_cursor.fetchall.return_value = [(5, 100.0)]
+
+        result = _safe_metric_query(mock_conn, "test_query", "SELECT count, total FROM t")
+
+        assert result == [{"count": 5, "total": 100.0}]
+        mock_conn.rollback.assert_not_called()
+
+    def test_safe_metric_query_sets_per_query_timeout(self):
+        """_safe_metric_query sets SET LOCAL statement_timeout per query."""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_cursor.description = []
+        mock_cursor.fetchall.return_value = []
+
+        _safe_metric_query(mock_conn, "test_query", "SELECT 1", timeout="15s")
+
+        # Verify SET LOCAL was called with the timeout
+        set_local_call = mock_cursor.execute.call_args_list[0]
+        assert "SET LOCAL statement_timeout" in str(set_local_call)
+        assert "15s" in str(set_local_call)
+
+    def test_commercial_metrics_independent_after_timeout(self):
+        """After a timeout on one metric query, subsequent queries work.
+
+        This tests the cascade scenario from the bug report:
+        1. contract_value_agg times out
+        2. desagio MUST still work (not "transaction aborted")
+        3. relicitacao MUST still work (not "transaction aborted")
+
+        We simulate this by patching psycopg2.connect to return a mock
+        that fails on the first query and succeeds on subsequent ones.
+        """
+        call_log: list[str] = []
+
+        def mock_execute(self, query, params=None):
+            query_str = str(query)
+            if "SET LOCAL" in query_str:
+                return None
+            call_log.append(query_str[:80])
+            if len(call_log) == 1:
+                raise Exception("canceling statement due to statement timeout")
+            return None
+
+        mock_cursor = MagicMock()
+        mock_cursor.description = [("cnt",)]
+        mock_cursor.fetchall.return_value = [(0,)]
+        mock_cursor.execute.side_effect = mock_execute
+
+        mock_commercial_conn = MagicMock()
+        mock_commercial_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        # Simple universe with one entity
+        universe = TargetUniverse(
+            total_resolved=1,
+            total_within_radius=1,
+            radius_km=200,
+        )
+        entity = TargetEntity(
+            razao_social="Test",
+            cnpj8="00000001",
+            municipio="Test",
+            codigo_ibge="4205407",
+            natureza_juridica="Prefeitura",
+            latitude=-27.5,
+            longitude=-48.5,
+            distancia_km=10,
+            within_radius=True,
+            resolution="resolved",
+        )
+        universe.entities = [entity]
+        entity_data = {"00000001": {"id": 1, "cnpj_8": "00000001"}}
+        evidence = [
+            {
+                "entity_id": 1,
+                "source": "pncp",
+                "state": "success_with_data",
+                "completed_at": "2026-07-12T10:00:00Z",
+            }
+        ]
+
+        main_mock_conn = MagicMock()
+        main_cursor = MagicMock()
+        main_mock_conn.cursor.return_value = main_cursor
+        main_cursor.__enter__.return_value = main_cursor
+        main_cursor.fetchall.return_value = []
+        main_cursor.fetchone.return_value = [0]
+
+        with patch("psycopg2.connect", return_value=mock_commercial_conn):
+            metrics = compute_readiness(
+                universe,
+                evidence,
+                [],
+                [],
+                entity_data,
+                main_mock_conn,
+                0.95,
+            )
+
+        cm = metrics["commercial_metrics"]
+
+        # contract_total_value must be error (first query times out)
+        assert cm["contract_total_value"]["status"] == "error", (
+            f"Expected error, got {cm['contract_total_value']['status']}"
+        )
+
+        # desagio must NOT be error with "transaction aborted" message
+        # It can be "no_data" (empty tables) but NOT "error" from cascaded abort
+        desagio_reason = cm["desagio"].get("reason", "")
+        assert "transaction is aborted" not in desagio_reason.lower(), (
+            f"Desagio should not show transaction aborted: {desagio_reason}"
+        )
+
+        # relicitacao must NOT be error with "transaction aborted" message
+        relicitacao_reason = cm["relicitacao_probability"].get("reason", "")
+        assert "transaction is aborted" not in relicitacao_reason.lower(), (
+            f"Relicitacao should not show transaction aborted: {relicitacao_reason}"
+        )
+
+        # All metrics should have a valid status (not cascading error)
+        valid_statuses = {"ready", "no_data", "error", "manual", "limited"}
+        for key in ["contract_total_value", "desagio", "relicitacao_probability"]:
+            assert cm[key]["status"] in valid_statuses, f"{key} has unexpected status: {cm[key]['status']}"
