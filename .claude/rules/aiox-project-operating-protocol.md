@@ -23,11 +23,15 @@ Antes de agir: (1) classificar solicitação, (2) identificar agente com autorid
 
 | Nível | Aplica-se a | Fluxo mínimo |
 |-------|------------|-------------|
-| **FAST** | Typo, doc não-operacional, cosmético isolado, mudança trivial sem efeito funcional | Registro leve + diff revisado + testes aplicáveis. Sem push automático. |
-| **STANDARD** | Bugs, features localizadas, refatorações limitadas | @sm → @po → @dev → @qa → @po → @devops |
-| **HIGH-RISK** | Segurança, auth, dados, migrations, pagamentos, arquitetura, infra, produção, refatorações amplas | @architect + @data-engineer (se DB) + @sm → @po → @dev → @qa (aprofundado) → gate sistêmico → @po → @devops |
+| **FAST** | SOMENTE: typo, doc não-operacional, formatação, comentário sem mudança de comportamento, cosmético comprovadamente isolado | Registro + diff. Sem push automático. |
+| **STANDARD** | Bugs localizados, features localizadas, refatorações limitadas, testes, mudanças funcionais normais | @sm → @po → @dev → @qa → @po → @devops |
+| **HIGH-RISK** | Auth, segurança, criptografia, dados, migrations, pagamentos, infra, CI/CD, produção, deploy, arquitetura, contratos públicos, dependências sensíveis, mudanças sistêmicas, alteração de protocolo AIOX | @architect + @data-engineer (se DB) → @sm → @po → @dev → @qa aprofundado → gate sistêmico → @po → @devops |
 
-**Default: STANDARD.** Na dúvida, subir para o nível mais rigoroso.
+**FAST NUNCA inclui:** auth, segurança, secrets, dados, migrations, infra, produção, deploy, pagamentos, contratos de API, dependências, configuração operacional, código executável (.py/.js/.ts/.sql/.sh), scripts/, CI/CD, hooks, regras AIOX, CLAUDE.md, .aiox-core/. Na dúvida, sobe para STANDARD.
+
+**PROTOCOL-PROTECTED** (nunca FAST, requer sessão de manutenção separada): CLAUDE.md, .claude/CLAUDE.md, .claude/settings*, .claude/hooks/**, .claude/rules/**, .claude/skills/**, .aiox-core/constitution.md, .aiox-core/**/authority*.
+
+**Default: STANDARD.** Na dúvida, nível superior.
 
 ---
 
@@ -88,11 +92,22 @@ Após QA PASS: @po executa po-close-story.md. Verifica veredito, reconcilia chec
 
 ---
 
-## 8. Publicação — somente @devops após gates
+## 8. Publicação — evidence-based (não confia em env vars)
 
-Pré-condições para push: story fechada pelo PO, QA veredito aceitável, lint/typecheck/testes/build passam.
+Pré-condições verificadas via `.aiox/state/stories/{story-id}.json`:
+1. Story status "Done"
+2. po_closed: true
+3. qa_verdict: PASS, CONCERNS ou WAIVED
+4. gates.lint, gates.tests: PASS
+5. reviewed_commit === HEAD (código não alterado após QA)
+6. Working tree limpa
+7. publication_authorized: true
+8. Nenhum arquivo de protocolo modificado durante implementação
 
-**@devops é o único que executa `git push`, cria PR, release ou tag.** Hook `enforce-git-push-authority.cjs` bloqueia qualquer outro.
+**Identidade declaratória de agente (env vars, @agent no prompt) NÃO é usada como autorização.**
+Apenas evidências reais no state file são consideradas.
+
+**@devops é o único que executa operações remotas.** Push sem state file válido é bloqueado por `enforce-git-push-authority.cjs`.
 
 ---
 
@@ -115,6 +130,20 @@ Procedimentos detalhados em skills acionadas automaticamente:
 | aiox-brownfield | Discovery e saneamento de legado | `.claude/skills/aiox-brownfield/SKILL.md` |
 | aiox-wave-gate | Gate sistêmico ao final de wave | `.claude/skills/aiox-wave-gate/SKILL.md` |
 | aiox-publish | Publicação segura via @devops | `.claude/skills/aiox-publish/SKILL.md` |
+
+---
+
+## 11. Estado estruturado — fonte de verdade operacional
+
+Estado das stories em `.aiox/state/stories/{story-id}.json` (schema: `.aiox/state/stories/schema.json`).
+
+Hooks leem estado estruturado, NÃO fazem regex frágil em markdown.
+
+Transições válidas: Draft→Ready→InProgress→InReview→Done. InReview→InProgress (QA FAIL).
+
+Transições IMPOSSÍVEIS (bloqueadas): Draft→Done, Done→InProgress, InProgress→Done sem QA, po_closed=true com qa_verdict=FAIL, publication_authorized=true com gates PENDING.
+
+**O state file é a fonte operacional. A story markdown é o documento humano.**
 
 ---
 

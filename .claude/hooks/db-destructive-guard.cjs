@@ -2,23 +2,19 @@
 'use strict';
 
 /**
- * db-destructive-guard.cjs — PreToolUse hook.
+ * db-destructive-guard.cjs — PreToolUse hook v2.0.
  *
- * Bloqueia operações destrutivas em banco de dados sem story HIGH-RISK,
- * snapshot/backup e plano de rollback.
- *
- * Protocolo:
- * - Intercepta Bash com comandos SQL/DB destrutivos
- * - Exige story com nível HIGH-RISK
- * - Exige evidência de snapshot/backup recente
- * - Exige plano de rollback documentado
- * - Bloqueia em ambiente remoto/produção sem autorização explícita
+ * Bloqueia operações DB destrutivas sem story HIGH-RISK + snapshot + rollback.
+ * Usa estado estruturado (.aiox/state/stories/) como fonte primária.
  */
 
 const fs = require('fs');
 const path = require('path');
+const {
+  findAnyStoryState,
+  VALID_RISK_LEVELS,
+} = require('./story-state.cjs');
 
-/** Padrões de comando destrutivo em banco */
 const DESTRUCTIVE_DB_PATTERNS = [
   /\bDROP\s+(TABLE|DATABASE|SCHEMA|INDEX|VIEW|FUNCTION|TRIGGER|COLUMN)\b/i,
   /\bTRUNCATE\s+(TABLE\s+)?/i,
@@ -35,7 +31,6 @@ const DESTRUCTIVE_DB_PATTERNS = [
   /\bpython.*\bcursor\.execute\b/i,
 ];
 
-/** Arquivos de migração que são seguros (já passaram por review) */
 const MIGRATION_FILE_PATTERN = /db\/migrations\/\d{3}_.*\.sql$/;
 
 function readStdin() {
@@ -61,34 +56,6 @@ function isMigrationFile(command) {
   return MIGRATION_FILE_PATTERN.test(command);
 }
 
-function findHighRiskStory(projectRoot) {
-  const storiesDir = path.join(projectRoot, 'docs', 'stories');
-  let stories = [];
-  try { stories = fs.readdirSync(storiesDir).filter(f => f.endsWith('.md')); }
-  catch (_) { return null; }
-
-  for (const storyFile of stories) {
-    const storyPath = path.join(storiesDir, storyFile);
-    try {
-      const content = fs.readFileSync(storyPath, 'utf8');
-      const riskMatch = content.match(/^Risk Level:\s*(.+)$/im) ||
-                        content.match(/^Nível de Risco:\s*(.+)$/im) ||
-                        content.match(/^\*\*Risk:\*\*\s*(.+)$/im);
-      const statusMatch = content.match(/^Status:\s*(.+)$/m);
-
-      if (riskMatch && statusMatch) {
-        const risk = riskMatch[1].trim().toUpperCase();
-        const status = statusMatch[1].trim();
-        if ((risk === 'HIGH-RISK' || risk === 'HIGH' || risk === 'CRITICAL' || risk === 'P0') &&
-            (status === 'Ready' || status === 'InProgress' || status === 'InReview')) {
-          return { file: storyFile, path: storyPath, risk, status };
-        }
-      }
-    } catch (_) {}
-  }
-  return null;
-}
-
 function hasRecentSnapshot(projectRoot) {
   const snapshotDir = path.join(projectRoot, 'db', 'snapshots');
   try {
@@ -101,16 +68,6 @@ function hasRecentSnapshot(projectRoot) {
     }
   } catch (_) {}
   return false;
-}
-
-function hasRollbackPlan(projectRoot, storyFile) {
-  if (!storyFile) return false;
-  const storyPath = path.join(projectRoot, 'docs', 'stories', storyFile);
-  try {
-    const content = fs.readFileSync(storyPath, 'utf8');
-    return /\brollback\b/i.test(content) || /\breversão\b/i.test(content) ||
-           /\brollback plan\b/i.test(content) || /\bplano de rollback\b/i.test(content);
-  } catch (_) { return false; }
 }
 
 function isRemoteTarget(command) {
@@ -139,80 +96,60 @@ async function main() {
 
   const command = input?.tool_input?.command || '';
   if (!isDestructiveDB(command)) return;
-  if (isMigrationFile(command)) return;  // migration files são revisadas
+  if (isMigrationFile(command)) return;
 
   const cwd = input?.cwd || process.cwd();
-  const story = findHighRiskStory(cwd);
+  const story = findAnyStoryState(cwd);
 
-  if (!story) {
+  // Check HIGH-RISK story
+  if (!story || story.risk_level !== 'HIGH-RISK') {
     emitDecision('deny', [
-      '❌ BLOQUEIO: Operação destrutiva de banco sem story HIGH-RISK.',
+      '❌ BLOQUEIO: Operação DB destrutiva sem story HIGH-RISK.',
       '',
       `Comando: ${command.substring(0, 150)}`,
       '',
-      'Protocolo AIOX: operações DB destrutivas exigem:',
-      '  1. Story classificada como HIGH-RISK',
-      '  2. Snapshot/backup recente (< 24h)',
-      '  3. Plano de rollback documentado na story',
+      'Requer:',
+      '  1. Story com risk_level: "HIGH-RISK" em .aiox/state/stories/',
+      '  2. Snapshot/backup recente (< 24h) em db/snapshots/',
+      '  3. Plano de rollback documentado (rollback_plan no state file)',
       '',
-      'Ação necessária:',
-      '  1. @sm cria story HIGH-RISK para esta operação',
-      '  2. @data-engineer executa snapshot',
-      '  3. @data-engineer documenta rollback',
-      '  4. @po valida story',
-      '  5. Reexecute com story ativa',
+      story ? `Story atual: ${story.story_id} (${story.risk_level})` : 'Nenhuma story encontrada.',
     ].join('\n'));
     return;
   }
 
-  // Verificar snapshot
-  if (!hasRecentSnapshot(cwd)) {
+  // Check snapshot
+  if (!hasRecentSnapshot(cwd) && !story.snapshot_evidence) {
     emitDecision('deny', [
-      '❌ BLOQUEIO: Snapshot/backup recente não encontrado.',
-      '',
-      'Operações DB destrutivas exigem snapshot com < 24h.',
-      '',
-      'Ação necessária:',
-      '  1. @data-engineer: execute db-snapshot',
-      '  2. Salve em db/snapshots/',
-      '  3. Reexecute a operação',
+      '❌ BLOQUEIO: Sem snapshot/backup recente.',
+      'Execute snapshot (@data-engineer: db-snapshot) antes de continuar.',
     ].join('\n'));
     return;
   }
 
-  // Verificar rollback
-  if (!hasRollbackPlan(cwd, story.file)) {
+  // Check rollback plan
+  if (!story.rollback_plan) {
     emitDecision('deny', [
-      '❌ BLOQUEIO: Plano de rollback não documentado na story.',
-      '',
-      `Story: ${story.file}`,
-      '',
-      'Ação necessária:',
-      '  1. Documente o plano de rollback na story',
-      '  2. Inclua: comando de reversão, procedimento, responsável',
-      '  3. Reexecute a operação',
+      '❌ BLOQUEIO: rollback_plan ausente no state file.',
+      'Documente o plano de reversão antes de continuar.',
     ].join('\n'));
     return;
   }
 
-  // Alerta extra para remote
+  // Remote warning
   if (isRemoteTarget(command)) {
     emitDecision('allow', [
       '⚠️  ALERTA: Operação DB destrutiva em ambiente REMOTO.',
-      `Story: ${story.file} (${story.risk})`,
-      `Snapshot: verificado. Rollback: documentado.`,
-      '',
-      'Confirme que esta operação é intencional e autorizada.',
+      `Story: ${story.story_id} (${story.risk_level})`,
+      'Snapshot: verificado. Rollback: documentado.',
+      'Confirme que esta operação é intencional.',
     ].join('\n'));
     return;
   }
-
-  // Tudo OK — permitir
-  // (sem output = allow implícito)
 }
 
 const timer = setTimeout(() => process.exit(0), 4000);
 timer.unref();
 main().then(() => process.exit(0)).catch(() => process.exit(0));
 
-module.exports = { isDestructiveDB, findHighRiskStory, hasRecentSnapshot, hasRollbackPlan, isRemoteTarget };
+module.exports = { isDestructiveDB, hasRecentSnapshot, isRemoteTarget };

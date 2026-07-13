@@ -1,0 +1,24 @@
+{
+  "story_id": "qw-01-radar-auditavel",
+  "risk_level": "STANDARD",
+  "status": "InReview",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "scope_files": [
+    "scripts/opportunity_intel/cli.py",
+    "scripts/opportunity_intel/manifest.py",
+    "scripts/consulting_readiness.py"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "NA",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": null,
+  "snapshot_evidence": null,
+  "publication_authorized": false,
+  "maintenance_mode": false
+}

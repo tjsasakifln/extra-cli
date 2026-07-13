@@ -2,58 +2,29 @@
 'use strict';
 
 /**
- * no-story-no-edit.cjs — PreToolUse hook.
+ * no-story-no-edit.cjs — PreToolUse hook v2.0.
  *
- * Bloqueia Edit/Write/Bash que modifiquem código sem story ativa e validada.
- * Exceções: FAST (typo/doc), read-only, config do próprio protocolo.
- *
- * Protocolo:
- * - Lê JSON do stdin (evento PreToolUse do Claude Code)
- * - Intercepta Edit, Write, Bash (comandos de alteração de código)
- * - Verifica existência de story ativa em docs/stories/
- * - Verifica se story está validada pelo PO (status != Draft)
- * - Permite FAST, investigação read-only, arquivos de protocolo
+ * Bloqueia Edit/Write/Bash que modifiquem código sem story ativa.
+ * PROTOCOL-PROTECTED: bloqueia alteração de arquivos de enforcement.
+ * Usa estado estruturado (.aiox/state/stories/) como fonte primária.
  */
 
 const fs = require('fs');
 const path = require('path');
+const {
+  isProtocolProtected,
+  findActiveStoryState,
+  isFastPath,
+  isCodeFile,
+} = require('./story-state.cjs');
 
-/** Extensões de código que exigem story */
-const CODE_EXTENSIONS = new Set([
-  '.py', '.js', '.ts', '.tsx', '.jsx', '.sql', '.yaml', '.yml',
-  '.toml', '.cfg', '.ini', '.json', '.sh', '.bash', '.zsh',
-  '.html', '.css', '.scss', '.less', '.vue', '.svelte',
-]);
-
-/** Arquivos/padrões FAST — não exigem story */
-const FAST_PATTERNS = [
-  /^README\.md$/i,
-  /\.md$/i,  // todos os markdown são FAST por padrão
-  /^\.claude\//,   // arquivos do próprio protocolo
-  /^\.env\.example$/,
-  /^\.gitignore$/,
-  /^\.prettierrc/,
-  /^\.editorconfig$/,
-  /^LICENSE$/i,
-  /^CHANGELOG/i,
-  /^CONTRIBUTING/i,
-];
-
-/** Arquivos que NUNCA são FAST mesmo sendo .md */
-const NEVER_FAST = [
-  /docs\/stories\//,
-  /docs\/prd\//,
-  /docs\/architecture\//,
-];
-
-/** Padrões de comando Bash que indicam alteração de código */
 const CODE_EDIT_BASH_PATTERNS = [
   /\bsed\s+-i\b/,
   /\brm\s+-/,
   /\bmv\s+/,
   /\bcp\s+-.*\.(py|js|ts|sql)\b/,
   /\bgit\s+rm\b/,
-  />\s*\S+\.(py|js|ts|sql)/,  // redirecionamento para arquivo de código
+  />\s*\S+\.(py|js|ts|sql)/,
 ];
 
 function readStdin() {
@@ -69,49 +40,6 @@ function readStdin() {
   });
 }
 
-function isCodeFile(filePath) {
-  if (!filePath) return false;
-  const ext = path.extname(filePath).toLowerCase();
-  if (!CODE_EXTENSIONS.has(ext)) return false;
-  return true;
-}
-
-function isFastPath(filePath) {
-  if (!filePath) return false;
-  const normalized = filePath.replace(/\\/g, '/');
-
-  for (const never of NEVER_FAST) {
-    if (never.test(normalized)) return false;
-  }
-  for (const fast of FAST_PATTERNS) {
-    if (fast.test(normalized)) return true;
-  }
-  return false;
-}
-
-function findActiveStory(projectRoot) {
-  const storiesDir = path.join(projectRoot, 'docs', 'stories');
-  let stories = [];
-  try { stories = fs.readdirSync(storiesDir).filter(f => f.endsWith('.md')); }
-  catch (_) { return null; }
-
-  for (const storyFile of stories) {
-    const storyPath = path.join(storiesDir, storyFile);
-    try {
-      const content = fs.readFileSync(storyPath, 'utf8');
-      // Verificar status: Ready, InProgress, InReview
-      const statusMatch = content.match(/^Status:\s*(.+)$/m);
-      if (statusMatch) {
-        const status = statusMatch[1].trim();
-        if (status === 'Ready' || status === 'InProgress' || status === 'InReview') {
-          return { file: storyFile, path: storyPath, status };
-        }
-      }
-    } catch (_) {}
-  }
-  return null;
-}
-
 function isBashCodeEdit(command) {
   if (!command || typeof command !== 'string') return false;
   return CODE_EDIT_BASH_PATTERNS.some(p => p.test(command));
@@ -119,6 +47,16 @@ function isBashCodeEdit(command) {
 
 function isCodeEditTool(toolName) {
   return toolName === 'Edit' || toolName === 'Write' || toolName === 'NotebookEdit';
+}
+
+function getMaintenanceSessionActive(projectRoot) {
+  try {
+    const sentinel = path.join(projectRoot, '.aiox', 'state', '.maintenance-session');
+    if (!fs.existsSync(sentinel)) return false;
+    const stat = fs.statSync(sentinel);
+    const ageMin = (Date.now() - stat.mtimeMs) / 60000;
+    return ageMin < 30; // 30 min TTL
+  } catch (_) { return false; }
 }
 
 function emitDecision(decision, reason) {
@@ -140,65 +78,80 @@ async function main() {
   const filePath = toolInput?.file_path || '';
   const cwd = input?.cwd || process.cwd();
 
-  // Bash: verificar comandos de edição de código
+  // ── Bash commands ──────────────────────────────────────────────────────
   if (toolName === 'Bash') {
     const command = toolInput?.command || '';
     if (!isBashCodeEdit(command)) return;
-    // Bash code edit — verificar story
-    const story = findActiveStory(cwd);
+
+    const story = findActiveStoryState(cwd);
     if (!story) {
       emitDecision('deny', [
         '❌ BLOQUEIO: Comando de alteração de código sem story ativa.',
         '',
-        'Protocolo AIOX seção 4: Story obrigatória antes de código.',
         `Comando: ${command.substring(0, 120)}`,
         '',
-        'Ação necessária:',
-        '  1. Solicite criação de story ao @sm',
-        '  2. Aguarde validação do @po',
-        '  3. Reexecute com story ativa',
-        '',
-        'Exceções: FAST, investigação read-only, arquivos de protocolo.',
+        'Ação: @sm cria story → @po valida → reexecute.',
       ].join('\n'));
     }
     return;
   }
 
-  // Edit/Write/NotebookEdit: verificar arquivo
-  if (isCodeEditTool(toolName)) {
-    if (!filePath) return;  // sem arquivo, não podemos verificar
+  // ── Edit/Write/NotebookEdit ────────────────────────────────────────────
+  if (!isCodeEditTool(toolName)) return;
+  if (!filePath) return;
 
-    // FAST: permitir
-    if (isFastPath(filePath)) return;
-
-    // Código: verificar story
-    if (!isCodeFile(filePath)) return;  // não é código, permitir
-
-    const story = findActiveStory(cwd);
-    if (!story) {
+  // ── PROTOCOL-PROTECTED check (runs BEFORE any other check) ─────────────
+  if (isProtocolProtected(filePath)) {
+    const maintenance = getMaintenanceSessionActive(cwd);
+    if (!maintenance) {
       emitDecision('deny', [
-        '❌ BLOQUEIO: Edição de código sem story ativa e validada.',
+        '❌ BLOQUEIO: Arquivo PROTOCOL-PROTECTED.',
         '',
         `Arquivo: ${filePath}`,
         '',
-        'Protocolo AIOX seção 4: Story obrigatória antes de código.',
-        'Pré-condições: story com status Ready, InProgress ou InReview.',
+        'Arquivos de enforcement (.claude/hooks/, .claude/rules/, .claude/settings*,',
+        '.aiox-core/constitution.md, CLAUDE.md) NÃO podem ser alterados durante',
+        'tarefas normais (FAST, STANDARD ou HIGH-RISK).',
         '',
-        'Ação necessária:',
-        '  1. @sm cria/refina story em docs/stories/',
-        '  2. @po valida (status → Ready)',
-        '  3. Reexecute a edição',
+        'Para manutenção do protocolo:',
+        '  1. Abra uma sessão SEPARADA (não esta implementação)',
+        '  2. Digite: INICIAR MANUTENÇÃO DO PROTOCOLO AIOX',
+        '  3. Faça as alterações necessárias',
+        '  4. Execute TODOS os testes dos hooks',
+        '  5. Encerre a manutenção explicitamente',
         '',
-        'Exceções FAST: README.md, docs/*.md, .claude/*, .gitignore, LICENSE.',
-        'Mudança trivial sem efeito funcional? Classifique como FAST e justifique.',
+        'Policy: enforcement não pode ser modificado por implementação funcional.',
       ].join('\n'));
+      return;
     }
-    // Story ativa encontrada — permitir
+    // Maintenance mode active — allow but log
+    // (audit log would go here in production)
+    return;
   }
+
+  // ── FAST path ──────────────────────────────────────────────────────────
+  if (isFastPath(filePath)) return;
+  if (!isCodeFile(filePath)) return;
+
+  // ── Story check via structured state ───────────────────────────────────
+  const story = findActiveStoryState(cwd);
+  if (!story) {
+    emitDecision('deny', [
+      '❌ BLOQUEIO: Edição de código sem story ativa.',
+      '',
+      `Arquivo: ${filePath}`,
+      '',
+      'Protocolo AIOX: Story obrigatória antes de código.',
+      'Story deve estar em .aiox/state/stories/ com status Ready/InProgress/InReview.',
+      '',
+      'Ação: @sm cria story → @po valida → state file criado → reexecute.',
+    ].join('\n'));
+  }
+  // Story ativa — permitido
 }
 
 const timer = setTimeout(() => process.exit(0), 4000);
 timer.unref();
 main().then(() => process.exit(0)).catch(() => process.exit(0));
 
-module.exports = { isCodeFile, isFastPath, findActiveStory, isBashCodeEdit };
+module.exports = { isProtocolProtected, isFastPath, isCodeFile, getMaintenanceSessionActive };

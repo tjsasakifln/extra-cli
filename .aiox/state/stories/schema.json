@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": ".aiox/state/stories/schema.json",
+  "title": "AIOX Story State",
+  "description": "Structured operational state for AIOX story lifecycle. Source of truth for hooks.",
+  "type": "object",
+  "required": ["story_id", "risk_level", "status", "po_validated", "qa_verdict", "po_closed", "scope_files", "gates"],
+  "properties": {
+    "story_id": { "type": "string", "description": "Matches story filename without extension" },
+    "risk_level": { "type": "string", "enum": ["FAST", "STANDARD", "HIGH-RISK"] },
+    "status": { "type": "string", "enum": ["Draft", "Ready", "InProgress", "InReview", "Done"] },
+    "po_validated": { "type": "boolean" },
+    "qa_verdict": { "type": "string", "enum": ["PENDING", "PASS", "CONCERNS", "FAIL", "WAIVED"] },
+    "po_closed": { "type": "boolean" },
+    "scope_files": { "type": "array", "items": { "type": "string" } },
+    "reviewed_commit": { "type": ["string", "null"] },
+    "gates": {
+      "type": "object",
+      "properties": {
+        "lint": { "type": "string", "enum": ["PENDING", "PASS", "FAIL", "NA"] },
+        "typecheck": { "type": "string", "enum": ["PENDING", "PASS", "FAIL", "NA"] },
+        "tests": { "type": "string", "enum": ["PENDING", "PASS", "FAIL", "NA"] },
+        "build": { "type": "string", "enum": ["PENDING", "PASS", "FAIL", "NA"] }
+      },
+      "required": ["lint", "typecheck", "tests", "build"]
+    },
+    "rollback_plan": { "type": ["string", "null"] },
+    "snapshot_evidence": { "type": ["string", "null"] },
+    "publication_authorized": { "type": "boolean" },
+    "maintenance_mode": { "type": "boolean", "description": "Session explicitly dedicated to protocol maintenance" }
+  }
+}
