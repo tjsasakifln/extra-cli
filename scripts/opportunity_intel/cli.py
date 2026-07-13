@@ -2,6 +2,7 @@
 """Opportunity Intelligence CLI — consult and export open bidding opportunities.
 
 Commands:
+    radar        — Execute the QW-01 auditable radar
     list         — List opportunities with filters
     show ID      — Show full details for one opportunity
     explain ID   — Explain ranking factors for one opportunity
@@ -18,6 +19,7 @@ Usage:
     python scripts/opportunity_intel/cli.py source-health
     python scripts/opportunity_intel/cli.py update --source pncp
     python scripts/opportunity_intel/cli.py export --format csv --output opportunities.csv
+    python -m scripts.opportunity_intel.cli radar --profile config/client_profiles/extra.yaml
 """
 
 from __future__ import annotations
@@ -33,6 +35,7 @@ from typing import Any
 
 import psycopg2
 import psycopg2.extras
+import psycopg2.sql
 
 _logger = logging.getLogger(__name__)
 
@@ -52,7 +55,7 @@ def _get_conn(dsn: str | None = None):
     return conn
 
 
-def _query(conn, sql: str, params: tuple | None = None) -> list[dict]:
+def _query(conn, sql: Any, params: tuple | None = None) -> list[dict]:
     with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(sql, params)
         return list(cur.fetchall())
@@ -100,10 +103,13 @@ def cmd_list(args: argparse.Namespace):
 
     where = " AND ".join(conditions)
     order = "ORDER BY ranking_score DESC, data_abertura ASC NULLS LAST"
-    limit = f"LIMIT {min(args.limit or 50, 500)}"
-
-    sql = f"SELECT * FROM opportunity_intel WHERE {where} {order} {limit}"
-    rows = _query(conn, sql, tuple(params) if params else None)
+    limit = min(500, max(1, args.limit or 50))
+    query = psycopg2.sql.SQL("SELECT * FROM opportunity_intel WHERE {} {} LIMIT %s").format(
+        psycopg2.sql.SQL(where),
+        psycopg2.sql.SQL(order),
+    )
+    params.append(limit)
+    rows = _query(conn, query, tuple(params))
 
     if not rows:
         print("Nenhuma oportunidade encontrada.")
@@ -297,10 +303,13 @@ def cmd_export(args: argparse.Namespace):
         params.extend(rankings)
 
     where = " AND ".join(conditions)
-    limit = f"LIMIT {min(args.limit or 500, 5000)}"
-    sql = f"SELECT * FROM opportunity_intel WHERE {where} ORDER BY ranking_score DESC {limit}"
+    limit = min(5000, max(1, args.limit or 500))
+    query = psycopg2.sql.SQL(
+        "SELECT * FROM opportunity_intel WHERE {} ORDER BY ranking_score DESC LIMIT %s"
+    ).format(psycopg2.sql.SQL(where))
+    params.append(limit)
 
-    rows = _query(conn, sql, tuple(params) if params else None)
+    rows = _query(conn, query, tuple(params))
 
     output_path = args.output or f"opportunity_export.{args.format}"
 
@@ -326,6 +335,26 @@ def cmd_export(args: argparse.Namespace):
 
     print(f"Exportado {len(rows)} registros para {output_path}")
     conn.close()
+
+
+def cmd_radar(args: argparse.Namespace):
+    """Execute the PostgreSQL-only QW-01 auditable radar."""
+    from scripts.opportunity_intel.radar import run_radar
+
+    execution = run_radar(
+        dsn=args.dsn,
+        profile_path=args.profile,
+        seed_path=args.seed,
+        window_days=args.window_days,
+        output_root=args.output_dir,
+        update_mode=args.update,
+        timeout=args.timeout,
+        max_retries=args.max_retries,
+        max_pages=args.max_pages,
+        max_records=args.max_records,
+    )
+    print(json.dumps(execution.__dict__, ensure_ascii=False, indent=2, sort_keys=True))
+    raise SystemExit(execution.exit_code)
 
 
 # ---------------------------------------------------------------------------
@@ -544,9 +573,23 @@ Examples:
   python scripts/opportunity_intel/cli.py source-health
   python scripts/opportunity_intel/cli.py update --source pncp
   python scripts/opportunity_intel/cli.py export --format csv -o ops.csv
+  python -m scripts.opportunity_intel.cli radar --profile config/client_profiles/extra.yaml
         """,
     )
     sub = parser.add_subparsers(dest="command", help="Comando")
+
+    # QW-01 auditable radar
+    p_radar = sub.add_parser("radar", help="Executar radar auditável QW-01")
+    p_radar.add_argument("--profile", default="config/client_profiles/extra.yaml")
+    p_radar.add_argument("--seed", default="Extra - alvos de licitação. R-0.xlsx")
+    p_radar.add_argument("--window-days", type=int, default=45)
+    p_radar.add_argument("--output-dir", default="output/qw-01")
+    p_radar.add_argument("--update", choices=["auto", "always", "never"], default="auto")
+    p_radar.add_argument("--timeout", type=int, default=10)
+    p_radar.add_argument("--max-retries", type=int, default=0)
+    p_radar.add_argument("--max-pages", type=int)
+    p_radar.add_argument("--max-records", type=int)
+    p_radar.add_argument("--dsn", default=DEFAULT_DSN)
 
     # list
     p_list = sub.add_parser("list", help="Listar oportunidades")
@@ -610,6 +653,7 @@ def main(argv: list[str] | None = None):
         sys.exit(1)
 
     commands = {
+        "radar": cmd_radar,
         "list": cmd_list,
         "show": cmd_show,
         "explain": cmd_explain,
@@ -632,7 +676,7 @@ def main(argv: list[str] | None = None):
         print(f"Erro de banco de dados: {e}")
         sys.exit(1)
     except Exception as e:
-        _logger.error("Unexpected error: %s", e)
+        _logger.exception("Unexpected error while executing %s", args.command)
         print(f"Erro: {e}")
         sys.exit(1)
 

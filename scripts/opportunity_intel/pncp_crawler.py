@@ -18,14 +18,16 @@ import logging
 import os
 from datetime import date, timedelta
 from typing import Any
+from urllib.parse import urlencode
 
+from scripts.crawl.pncp_contract import DEFAULT_MODALIDADES, format_pncp_date
 from scripts.opportunity_intel.crawler_base import BaseOpportunityCrawler, CrawlRequest
 
 _logger = logging.getLogger(__name__)
 
 # Constants
 PNCP_CONSULTA_BASE = "https://pncp.gov.br/api/consulta/v1"
-PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "500"))
+PNCP_PAGE_SIZE = min(50, max(10, int(os.getenv("PNCP_PAGE_SIZE", "50"))))
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "200"))
 PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.5"))
 
@@ -37,13 +39,29 @@ class PncpOpportunityCrawler(BaseOpportunityCrawler):
     currently accepting proposals (open status).
     """
 
-    def __init__(self, dsn: str | None = None):
+    def __init__(
+        self,
+        dsn: str | None = None,
+        *,
+        timeout: int | None = None,
+        max_retries: int | None = None,
+        request_delay: float | None = None,
+        max_pages: int | None = None,
+    ):
+        kwargs: dict[str, Any] = {}
+        if timeout is not None:
+            kwargs["timeout"] = timeout
+        if max_retries is not None:
+            kwargs["max_retries"] = max_retries
         super().__init__(
             source_name="pncp",
             dsn=dsn,
             page_size=PNCP_PAGE_SIZE,
-            max_pages=PNCP_MAX_PAGES,
-            request_delay=PNCP_REQUEST_DELAY,
+            max_pages=max_pages if max_pages is not None else PNCP_MAX_PAGES,
+            request_delay=(
+                request_delay if request_delay is not None else PNCP_REQUEST_DELAY
+            ),
+            **kwargs,
         )
 
     def build_url(self, request: CrawlRequest, page: int) -> str:
@@ -52,17 +70,22 @@ class PncpOpportunityCrawler(BaseOpportunityCrawler):
         This endpoint returns only contracts with open proposal periods.
         Optional filters: uf, codigoModalidadeContratacao, pagina, tamanhoPagina.
         """
+        if not request.target or not request.target.startswith("modalidade:"):
+            raise ValueError("PNCP open-proposals crawl requires target='modalidade:<1-19>'")
+        modalidade = int(request.target.split(":", 1)[1])
+        if modalidade not in DEFAULT_MODALIDADES:
+            raise ValueError(f"Unsupported PNCP modalidade: {modalidade}")
         params: dict[str, str] = {
+            "dataFinal": format_pncp_date(request.date_to or date.today()),
+            "codigoModalidadeContratacao": str(modalidade),
             "pagina": str(page),
             "tamanhoPagina": str(self.page_size),
+            "uf": "SC",
         }
-        # Filter for SC contracts within 200km target
-        params["uf"] = "SC"
-
-        qs = "&".join(f"{k}={v}" for k, v in params.items())
+        qs = urlencode(params)
         return f"{PNCP_CONSULTA_BASE}/contratacoes/proposta?{qs}"
 
-    def parse_response(self, raw_data: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def parse_response(self, raw_data: Any) -> list[dict[str, Any]]:
         """Extract contratacao records from PNCP API response.
 
         PNCP returns: [{...contratacao fields...}, ...]
@@ -72,8 +95,6 @@ class PncpOpportunityCrawler(BaseOpportunityCrawler):
             # Wrapped response
             if "data" in raw_data:
                 data = raw_data["data"]
-                self._last_total = raw_data.get("totalRegistros")
-                self._last_pages = raw_data.get("totalPaginas")
                 return data if isinstance(data, list) else []
             # Single record?
             if "numeroControlePNCP" in raw_data:
@@ -119,7 +140,7 @@ class PncpPublicationCrawler(BaseOpportunityCrawler):
         qs = "&".join(f"{k}={v}" for k, v in params.items())
         return f"{PNCP_CONSULTA_BASE}/contratacoes/publicacao?{qs}"
 
-    def parse_response(self, raw_data: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def parse_response(self, raw_data: Any) -> list[dict[str, Any]]:
         """Same response format as PncpOpportunityCrawler."""
         if isinstance(raw_data, dict):
             if "data" in raw_data:

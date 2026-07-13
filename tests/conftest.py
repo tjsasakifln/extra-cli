@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -18,6 +19,15 @@ def _mock_psycopg2_connect(request):
     Excludes ``TestPostgreSQLFailClosed`` which explicitly tests connection
     failure behavior.
     """
+    # Real database access is opt-in. Several legacy integration tests mutate
+    # shared local tables, so a marker alone must never disable isolation.
+    if (
+        request.node.get_closest_marker("integration") is not None
+        and os.getenv("REQUIRE_TEST_DB") == "1"
+    ):
+        yield
+        return
+
     # Allow TestPostgreSQLFailClosed to test real connection failures
     cls = getattr(request, "cls", None)
     if cls is not None and cls.__name__ == "TestPostgreSQLFailClosed":

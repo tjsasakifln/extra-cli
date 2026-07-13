@@ -151,15 +151,15 @@ class TestComputeCanonicalStatus:
         assert status == "unknown"  # fail-closed: not open just by recency
         assert "fail-closed" in motivo.lower()
 
-    def test_closed_old_publication(self):
-        """Old publication (>90d) without status → closed."""
+    def test_unproven_old_publication_is_unknown(self):
+        """Publication age alone cannot prove either an open or closed window."""
         now = datetime.now(UTC)
         six_months_ago = now - timedelta(days=180)
         status, motivo = compute_canonical_status(
             status_fonte=None,
             data_publicacao=six_months_ago,
         )
-        assert status == "closed"
+        assert status == "unknown"
 
     def test_source_status_overrides_temporal(self):
         """Source status should take priority over temporal evidence."""

@@ -53,7 +53,7 @@ CLOSED_WINDOW_DAYS = 365
 
 # PNCP situacao_compra values -> canonical
 _PNCP_STATUS_MAP: dict[str, str] = {
-    "divulgada no pncp": "open",  # Published on PNCP — active
+    # "Divulgada no PNCP" proves publication, not an open proposal window.
     "recebendo proposta": "open",  # Accepting proposals
     "aberta": "open",  # Open
     "em andamento": "open",  # In progress
@@ -210,11 +210,11 @@ def infer_status_from_dates(
             f"modalidade={modalidade} sem encerramento -> closed (inferido)"
         )
 
-    # Rule 3: Published > OPEN_WINDOW_DAYS + open modality -> OPEN
+    # Publication age or modality alone never proves an open proposal window.
     if days_since > OPEN_WINDOW_DAYS and modalidade_lower in OPEN_MODALITIES:
-        return "open", (
+        return "unknown", (
             f"publicado ha {days_since}d + modalidade={modalidade} "
-            f"sem encerramento -> open (modalidade sem prazo formal)"
+            "sem encerramento -> unknown (publicacao nao prova abertura)"
         )
 
     # Rule 4: Published > OPEN_WINDOW_DAYS (but <= CLOSED_WINDOW) -> UNKNOWN
@@ -223,8 +223,11 @@ def infer_status_from_dates(
             f"publicado ha {days_since}d ({OPEN_WINDOW_DAYS}-{CLOSED_WINDOW_DAYS}d) sem encerramento -> unknown"
         )
 
-    # Rule 5: Published <= OPEN_WINDOW_DAYS -> OPEN
-    return "open", (f"publicado ha {days_since}d (<={OPEN_WINDOW_DAYS}d) sem encerramento -> open (inferido)")
+    # Rule 5: Recent publication still lacks open-status evidence.
+    return "unknown", (
+        f"publicado ha {days_since}d (<={OPEN_WINDOW_DAYS}d) sem encerramento "
+        "-> unknown (fail-closed: publicacao nao prova abertura)"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -378,18 +381,18 @@ def infer_bid_status_sql() -> str:
              AND LOWER(TRIM(COALESCE(modalidade_nome, ''))) LIKE '%%pregao%%'
              THEN 'closed'
 
-        -- Published > 90d ago + open modality -> open
+        -- Publication/modality without deadline is not proof of open status
         WHEN data_publicacao IS NOT NULL AND data_publicacao < CURRENT_DATE - INTERVAL '{OPEN_WINDOW_DAYS} days'
              AND LOWER(TRIM(COALESCE(modalidade_nome, ''))) IN ('dispensa', 'inexigibilidade', 'credenciamento', 'adesao', 'chamamento publico', 'chamada publica')
-             THEN 'open'
+             THEN 'unknown'
 
         -- Published > 90d ago (but <=365d) -> unknown
         WHEN data_publicacao IS NOT NULL AND data_publicacao < CURRENT_DATE - INTERVAL '{OPEN_WINDOW_DAYS} days'
              THEN 'unknown'
 
-        -- Published <= 90d ago -> open (within typical window)
+        -- Published <= 90d ago -> unknown without deadline/open endpoint
         WHEN data_publicacao IS NOT NULL
-             THEN 'open'
+             THEN 'unknown'
 
         -- data_abertura in future -> upcoming
         WHEN data_abertura IS NOT NULL AND data_abertura > CURRENT_DATE

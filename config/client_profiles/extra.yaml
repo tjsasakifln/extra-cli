@@ -1,0 +1,78 @@
+profile_id: extra_construtora
+display_name: Extra Empreiteira e Construtora
+version: 1
+
+desired_object_types:
+  - id: reforma_predial
+    label: Reforma predial
+    terms:
+      - reforma predial
+      - reforma de edificio publico
+      - reforma de edificacao publica
+  - id: manutencao_predial
+    label: Manutenção predial
+    terms:
+      - manutencao predial
+      - manutencao de edificio publico
+      - manutencao de edificacao publica
+  - id: construcao_edificios_publicos
+    label: Construção de edifícios públicos
+    terms:
+      - construcao de edificio publico
+      - construcao de edificacao publica
+      - construcao de predio publico
+
+positive_terms:
+  - engenharia civil
+  - obra de engenharia
+  - reforma
+  - manutencao predial
+  - construcao de edificio
+
+# Sem termos negativos comerciais definidos pelo cliente nesta fase.
+negative_terms: []
+
+# Nulo significa que nenhuma modalidade foi aprovada ou rejeitada a priori.
+allowed_modalities: null
+priority_municipalities: []
+priority_distance_km: 200
+minimum_value: null
+maximum_value: null
+minimum_days_to_deadline: null
+
+documents:
+  require_official_notice: false
+  require_attachments: false
+
+engineering_categories:
+  - reforma_predial
+  - manutencao_predial
+  - construcao_edificios_publicos
+
+hard_blocks:
+  require_within_radius: true
+  require_future_deadline: true
+  exclude_terminal_or_suspended: true
+  require_official_url: false
+
+weights:
+  data_confidence:
+    official_source: 15
+    status_evidence: 25
+    future_deadline: 20
+    official_url: 10
+    entity_match: 15
+    freshness: 10
+    field_completeness: 5
+  client_fit:
+    desired_object_type: 40
+    positive_terms: 20
+    distance: 20
+    modality: 5
+    deadline: 5
+    documents: 10
+
+triage_thresholds:
+  priority_min_data_confidence: 70
+  priority_min_client_fit: 55
+  discard_max_client_fit: 20

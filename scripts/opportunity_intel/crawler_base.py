@@ -78,8 +78,19 @@ class BaseOpportunityCrawler(ABC):
         """Build the HTTP URL for a given page."""
 
     @abstractmethod
-    def parse_response(self, raw_data: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def parse_response(self, raw_data: Any) -> list[dict[str, Any]]:
         """Extract record list from raw API response body."""
+
+    def extract_pagination(self, raw_data: Any) -> tuple[int | None, int | None]:
+        """Extract total pages/records without relying on mutable parser state."""
+        if not isinstance(raw_data, dict):
+            return None, None
+        total_pages = raw_data.get("totalPaginas")
+        total_records = raw_data.get("totalRegistros")
+        return (
+            int(total_pages) if isinstance(total_pages, int | float) else None,
+            int(total_records) if isinstance(total_records, int | float) else None,
+        )
 
     # ------------------------------------------------------------------
     # HTTP fetch with retry/backoff
@@ -98,6 +109,14 @@ class BaseOpportunityCrawler(ABC):
         - Timeout/connection error (retry)
         """
         metadata: dict[str, Any] = {"url": url, "page": page, "retries": 0}
+        parsed_url = urllib.parse.urlparse(url)
+        if parsed_url.scheme != "https" or not parsed_url.hostname:
+            return FetchResult(
+                status=0,
+                error="Blocked URL: opportunity crawlers require an absolute HTTPS endpoint",
+                page=page,
+                metadata=metadata,
+            )
 
         for attempt in range(self.max_retries + 1):
             metadata["retries"] = attempt
@@ -109,7 +128,8 @@ class BaseOpportunityCrawler(ABC):
                         "Accept": "application/json",
                     },
                 )
-                with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                # URL scheme and hostname are fail-closed above.
+                with urllib.request.urlopen(req, timeout=self.timeout) as response:  # nosec B310
                     status = response.status
                     raw_body = response.read()
 
@@ -117,6 +137,8 @@ class BaseOpportunityCrawler(ABC):
                     return FetchResult(
                         status=204,
                         page=page,
+                        page_size=self.page_size,
+                        completion_rule="http_204_complete",
                         metadata=metadata,
                     )
 
@@ -130,11 +152,21 @@ class BaseOpportunityCrawler(ABC):
                             page=page,
                             metadata=metadata,
                         )
+                    total_pages, total_records = self.extract_pagination(data)
                     records = self.parse_response(data)
+                    completion_rule = None
+                    if total_pages is not None and page >= total_pages:
+                        completion_rule = "reported_total_pages"
+                    elif len(records) < self.page_size:
+                        completion_rule = "short_page_without_total"
                     return FetchResult(
                         status=200,
                         raw_data=records if records else [],
                         page=page,
+                        total_pages=total_pages,
+                        total_records=total_records,
+                        page_size=self.page_size,
+                        completion_rule=completion_rule,
                         metadata=metadata,
                     )
 
@@ -230,14 +262,20 @@ class BaseOpportunityCrawler(ABC):
         """
         results: list[FetchResult] = []
         start_page = 1
+        fetched_records = 0
+        effective_max_pages = request.max_pages or self.max_pages
+        effective_max_records = request.max_records if request.max_records is not None else request.limit
+
+        if request.mode == "full":
+            self._delete_checkpoint(request)
 
         # Load checkpoint if incremental
         if request.mode == "incremental":
             start_page = self._load_checkpoint(request)
 
-        for page in range(start_page, self.max_pages + 1):
-            if request.limit and len(results) >= request.limit:
-                _logger.info("Limit %d reached at page %d", request.limit, page)
+        for page in range(start_page, effective_max_pages + 1):
+            if effective_max_records is not None and fetched_records >= effective_max_records:
+                _logger.info("Record limit %d reached before page %d", effective_max_records, page)
                 break
 
             url = self.build_url(request, page)
@@ -248,17 +286,18 @@ class BaseOpportunityCrawler(ABC):
 
             if result.error:
                 _logger.error("Page %d failed: %s", page, result.error)
-                if result.status and 400 <= result.status < 500:
-                    break  # Client error — don't retry further pages
-                continue
+                break
+
+            fetched_records += len(result.raw_data)
+
+            # Save actual record count, never number of pages.
+            if request.mode != "dry-run":
+                self._save_checkpoint(request, page, len(result.raw_data), result)
 
             # Check if last page
             if result.empty or result.is_last_page:
                 _logger.info("Last page reached at %d (empty=%s)", page, result.empty)
                 break
-
-            # Save checkpoint
-            self._save_checkpoint(request, page, len(results))
 
             # Rate limit
             if self.request_delay > 0:
@@ -387,19 +426,49 @@ class BaseOpportunityCrawler(ABC):
                 return row[0] + 1
         return 1
 
-    def _save_checkpoint(self, request: CrawlRequest, page: int, total_records: int):
+    def _save_checkpoint(
+        self,
+        request: CrawlRequest,
+        page: int,
+        page_records: int,
+        result: FetchResult,
+    ) -> None:
         """Save pagination checkpoint."""
         conn = self._get_conn()
         scope = request.target or "default"
         with conn.cursor() as cur:
             cur.execute(
-                """INSERT INTO opportunity_checkpoints (source, scope_key, last_page, records_fetched, updated_at)
-                   VALUES (%s, %s, %s, %s, NOW())
+                """INSERT INTO opportunity_checkpoints (
+                       source, scope_key, last_page, records_fetched, pages_expected,
+                       scope_complete, completion_reason, updated_at
+                   )
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
                    ON CONFLICT (source, scope_key)
                    DO UPDATE SET last_page = EXCLUDED.last_page,
                                  records_fetched = opportunity_checkpoints.records_fetched + EXCLUDED.records_fetched,
+                                 pages_expected = EXCLUDED.pages_expected,
+                                 scope_complete = EXCLUDED.scope_complete,
+                                 completion_reason = EXCLUDED.completion_reason,
                                  updated_at = NOW()""",
-                (self.source_name, scope, page, total_records),
+                (
+                    self.source_name,
+                    scope,
+                    page,
+                    page_records,
+                    result.total_pages,
+                    result.is_last_page,
+                    result.completion_rule,
+                ),
+            )
+
+    def _delete_checkpoint(self, request: CrawlRequest) -> None:
+        """Reset one full-crawl scope while leaving other scopes untouched."""
+        conn = self._get_conn()
+        scope = request.target or "default"
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM opportunity_checkpoints WHERE source = %s AND scope_key = %s",
+                (self.source_name, scope),
             )
 
     def _bulk_upsert(self, batch: list[dict[str, Any]]) -> tuple[int, int]:
@@ -448,17 +517,52 @@ class BaseOpportunityCrawler(ABC):
             results = self.crawl(request)
             counts = self.process_results(results, run_id)
 
-            # Determine final status
+            pages_processed = len(results)
+            pages_expected = next((item.total_pages for item in results if item.total_pages is not None), None)
+            scope_complete = bool(results) and all(item.success for item in results) and results[-1].is_last_page
+            stopped_by_limit = (request.max_records or request.limit) is not None and counts["fetched"] >= int(
+                request.max_records or request.limit or 0
+            )
+            stopped_by_max_pages = bool(results) and len(results) >= (request.max_pages or self.max_pages)
+
+            # Determine final status from scope completion, not error ratio.
             if counts["errors"] > 0 and counts["fetched"] == 0:
                 status = "failed"
-            elif counts["fetched"] == 0:
+            elif scope_complete and counts["fetched"] == 0:
                 status = "completed_zero"
-            elif counts["errors"] > counts["fetched"] * 0.5:
-                status = "partial"
-            else:
+            elif scope_complete and not stopped_by_limit and not stopped_by_max_pages:
                 status = "completed"
+            else:
+                status = "partial"
 
             self._finish_run(run_id, status, counts)
+            with self._get_conn().cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE opportunity_runs
+                    SET pages_processed = %s,
+                        pages_expected = %s,
+                        records_expected = %s,
+                        scope_complete = %s,
+                        completion_reason = %s,
+                        metadata = metadata || %s::jsonb
+                    WHERE id = %s
+                    """,
+                    (
+                        pages_processed,
+                        pages_expected,
+                        next((item.total_records for item in results if item.total_records is not None), None),
+                        scope_complete and not stopped_by_limit and not stopped_by_max_pages,
+                        results[-1].completion_rule if results else "no_pages",
+                        json.dumps(
+                            {
+                                "stopped_by_record_limit": stopped_by_limit,
+                                "stopped_by_max_pages": stopped_by_max_pages,
+                            }
+                        ),
+                        run_id,
+                    ),
+                )
             _logger.info(
                 "Run %d finished: status=%s, fetched=%d, inserted=%d, updated=%d",
                 run_id,

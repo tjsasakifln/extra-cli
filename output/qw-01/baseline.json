@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-07-13T12:57:59Z",
+  "git": {
+    "branch": "main",
+    "sha": "0fef9debf195af19953dcbfb702b2ad499369b11",
+    "dirty_before_qw01": true,
+    "preexisting_changes_preserved": [
+      ".claude/agent-memory/aiox-dev/MEMORY.md",
+      "output/readiness/opportunity-coverage-gaps.csv",
+      "output/readiness/opportunity-coverage-manifest.json",
+      "output/readiness/opportunity-source-health.csv",
+      "Extra - alvos de licitação. R-0.backup.xlsx"
+    ]
+  },
+  "runtime": {
+    "python_command": "missing",
+    "python3": "3.12.3",
+    "postgres_server": "16.14",
+    "postgres_container": "smartlic-datalake",
+    "postgres_port": 54399,
+    "backend_proof": "postgresql",
+    "sqlite_readiness_allowed": false
+  },
+  "seed": {
+    "path": "Extra - alvos de licitação. R-0.xlsx",
+    "sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+    "rows": 2085,
+    "within_radius_flag": 1093,
+    "outside_radius_flag": 992,
+    "missing_coordinates": 0,
+    "unique_cnpj8": 2082,
+    "duplicate_cnpj8_values": 1,
+    "duplicate_cnpj8_rows": 3,
+    "duplicate_composite_rows": 0,
+    "stable_identity_choice": "normalized(cnpj8)|normalized(municipio)|normalized(razao_social)"
+  },
+  "database_universe": {
+    "rows": 2088,
+    "active": 2085,
+    "active_raio_200km": 1445,
+    "active_distance_lte_200": 1445,
+    "schema_fingerprint": "f58ddc6b1ee82a41b321d3b30248d865000c6e20787d76477f21b93ebf115fcd",
+    "schema_fingerprint_rows": 459
+  },
+  "data": {
+    "pncp_raw_bids": 259161,
+    "pncp_raw_bids_matched": 115022,
+    "pncp_raw_bids_matched_entities": 997,
+    "opportunity_intel_production": 96682,
+    "opportunity_intel_open": 46555,
+    "opportunity_runs_pncp": {"failed": 1, "completed": 0},
+    "opportunity_coverage_rows": 0,
+    "pncp_supplier_contracts": 3689859
+  },
+  "commands": {
+    "critical_tests": {"exit_code": 0, "passed": 105, "skipped": 1},
+    "consulting_readiness": {
+      "exit_code": 0,
+      "claimed_status": "PASS",
+      "claimed_monitoring_percent": 99.7,
+      "valid_for_qw01": false,
+      "fresh_entities": 518,
+      "stale_entities": 33,
+      "unknown_freshness_entities": 539,
+      "failure_class": ["code", "data_evidence"]
+    },
+    "freshness_gate": {
+      "exit_code": 1,
+      "error": "pncp_supplier_contracts missing required business date column data_publicacao",
+      "failure_class": ["code", "schema_drift"]
+    },
+    "opportunity_manifest": {
+      "exit_code": 2,
+      "data_presence_percent": 42.18,
+      "numerator": 461,
+      "declared_denominator": 1093,
+      "gaps_population_query": "sc_public_entities.raio_200km = TRUE",
+      "gaps_population_size": 1445,
+      "failure_class": ["code", "stale_artifact"]
+    },
+    "opportunity_cli": {
+      "coverage_entity_rows": 0,
+      "source_health_records": 96682,
+      "latest_run_status": "failed"
+    }
+  },
+  "confirmed_findings": [
+    "three competing universe definitions",
+    "data presence mislabeled as coverage",
+    "success_zero rebuilt without scope/pagination proof",
+    "PNCP pagination totals not propagated",
+    "checkpoint pages counted as records",
+    "completed status does not prove full scope",
+    "update all only runs two PNCP strategies",
+    "freshness contract business column does not exist",
+    "contract metrics reference nonexistent columns",
+    "open status inferred from publication recency",
+    "generic score mixes data confidence and client fit",
+    "versioned readiness artifacts are stale/inconsistent"
+  ],
+  "status": "FAIL",
+  "readiness_proven": false
+}

@@ -40,26 +40,41 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
     - uf, municipio, codigoMunicipioIbge
     """
     source_id = raw.get("numeroControlePNCP", "") or str(raw.get("id", ""))
-    orgao_cnpj = raw.get("orgaoCNPJ", "") or raw.get("orgaoCnpj", "")
-    orgao_nome = raw.get("orgaoRazaoSocial", "") or raw.get("orgaoNome", "")
-    objeto = raw.get("objeto", "") or raw.get("descricaoObjeto", "")
+    orgao = raw.get("orgaoEntidade") if isinstance(raw.get("orgaoEntidade"), dict) else {}
+    unidade = raw.get("unidadeOrgao") if isinstance(raw.get("unidadeOrgao"), dict) else {}
+    orgao_cnpj = raw.get("orgaoCNPJ", "") or raw.get("orgaoCnpj", "") or orgao.get("cnpj", "")
+    orgao_nome = raw.get("orgaoRazaoSocial", "") or raw.get("orgaoNome", "") or orgao.get("razaoSocial", "")
+    objeto = raw.get("objeto", "") or raw.get("objetoCompra", "") or raw.get("descricaoObjeto", "")
     modalidade = raw.get("modalidadeNome", "")
-    modalidade_id = raw.get("codigoModalidade", 0)
+    modalidade_id = raw.get("codigoModalidade", 0) or raw.get("modalidadeId", 0)
     if isinstance(modalidade_id, str) and modalidade_id.isdigit():
         modalidade_id = int(modalidade_id)
     uf = raw.get("uf", "SC") or "SC"
-    municipio = raw.get("municipio", "") or raw.get("nomeMunicipio", "")
-    codigo_ibge = raw.get("codigoMunicipioIbge", "") or raw.get("codigoIBGE", "")
+    municipio = raw.get("municipio", "") or raw.get("nomeMunicipio", "") or unidade.get("municipioNome", "")
+    codigo_ibge = (
+        raw.get("codigoMunicipioIbge", "")
+        or raw.get("codigoIBGE", "")
+        or unidade.get("codigoIbge", "")
+    )
 
     valor_estimado = safe_float(raw.get("valorTotalEstimado", raw.get("valorEstimado")))
 
     data_publicacao = _parse_dt(raw.get("dataPublicacao") or raw.get("dataPublicacaoPncp"))
     data_abertura = _parse_dt(raw.get("dataAbertura") or raw.get("dataAberturaProposta"))
-    data_encerramento = _parse_dt(raw.get("dataEncerramento") or raw.get("dataFechamentoProposta"))
+    data_encerramento = _parse_dt(
+        raw.get("dataEncerramento")
+        or raw.get("dataEncerramentoProposta")
+        or raw.get("dataFechamentoProposta")
+    )
 
-    status_fonte = raw.get("situacaoCompra", "") or raw.get("situacao", "")
+    status_fonte = raw.get("situacaoCompra", "") or raw.get("situacaoCompraNome", "") or raw.get("situacao", "")
     link_edital = raw.get("linkSistemaOrigem", "") or raw.get("urlSistemaOrigem", "")
     link_pncp = raw.get("linkPNCP", "") or raw.get("url", "")
+    if not link_pncp and orgao_cnpj and raw.get("anoCompra") and raw.get("sequencialCompra"):
+        link_pncp = (
+            f"https://pncp.gov.br/app/editais/{orgao_cnpj}/"
+            f"{int(raw['anoCompra'])}/{int(raw['sequencialCompra'])}"
+        )
 
     record = OpportunityRecord(
         source="pncp",
@@ -74,18 +89,22 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
         municipio=municipio if municipio else None,
         codigo_ibge=codigo_ibge if codigo_ibge else None,
         numero_processo=raw.get("numeroProcesso", ""),
-        numero_edital=raw.get("numeroEdital", ""),
+        numero_edital=raw.get("numeroEdital", "") or raw.get("numeroCompra", ""),
         modalidade=modalidade if modalidade else None,
         modalidade_id=modalidade_id if modalidade_id else None,
         objeto=objeto,
         valor_estimado=valor_estimado,
-        valor_semantica="estimado" if valor_estimado else None,
+        valor_semantica="valor_total_estimado_informado_pelo_pncp" if valor_estimado is not None else None,
         data_publicacao=data_publicacao,
         data_abertura=data_abertura,
         data_encerramento=data_encerramento,
         status_fonte=status_fonte if status_fonte else None,
         link_edital=link_edital if link_edital else None,
-        proveniencia={"source": "pncp", "all_fields": "pncp_api"},
+        proveniencia={
+            "source": "pncp",
+            "all_fields": "pncp_api",
+            "status_evidence": str(raw.get("_qw01_status_evidence") or "source_and_dates"),
+        },
     )
 
     # Compute content hash, status, and ranking
@@ -98,6 +117,9 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
         data_publicacao=data_publicacao,
         modalidade=modalidade,
     )
+    if raw.get("_qw01_status_evidence") == "pncp_open_proposals_endpoint":
+        record.status_canonico = "open"
+        record.status_motivo = "Retornado pelo endpoint PNCP de propostas abertas"
     record.status_data = datetime.now(UTC)
 
     ranking = compute_ranking(

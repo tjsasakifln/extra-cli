@@ -198,7 +198,9 @@ class CrawlRequest:
     date_from: date | None = None
     date_to: date | None = None
     mode: str = "full"  # full, incremental, dry-run
-    limit: int | None = None
+    limit: int | None = None  # Deprecated alias for max_records
+    max_pages: int | None = None
+    max_records: int | None = None
     page_size: int = 500
 
 
@@ -220,6 +222,8 @@ class FetchResult:
     page: int = 1
     total_pages: int | None = None
     total_records: int | None = None
+    page_size: int | None = None
+    completion_rule: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -234,4 +238,10 @@ class FetchResult:
     def is_last_page(self) -> bool:
         if self.total_pages is not None:
             return self.page >= self.total_pages
-        return self.empty
+        if self.status == 204:
+            return True
+        if self.empty:
+            return True
+        if self.page_size is not None and self.success:
+            return len(self.raw_data) < self.page_size
+        return False
