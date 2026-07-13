@@ -6,11 +6,25 @@
 > **Revisão:** 2026-07-12 — Coverage manifest real (64.4%), 604 unresolved, métricas comerciais ALL not_ready, consolidação epics
 > **Status:** Aprovado (living document)
 
+> **Nota de fase:** este PRD mistura alvo futuro e capacidade atual. Na fase corrente, o baseline operacional e `local-first`, com datalake local e prioridade absoluta em freshness auditável de editais e contratos históricos. Acompanhamento de obras permanece fora de escopo.
+
 ---
 
 ## Visão
 
 Plataforma CLI de consultoria estratégica para licitações públicas, provendo inteligência de mercado acionável para tomada de decisão da Extra Construtora.
+
+Escopo corrente:
+
+- editais abertos
+- contratos históricos
+- concorrentes/vencedores históricos
+- apoio a preços praticados
+
+Fora de escopo agora:
+
+- acompanhamento de obras
+- gestão de execução contratual
 
 ## Problema
 
@@ -28,10 +42,10 @@ Sem esses dados, a construtora toma decisões no escuro: não sabe quais editais
 
 Sistema automatizado que:
 
-1. **Monitora 100% dos 2.085 órgãos públicos de SC** diariamente via múltiplas fontes (PNCP, DOM-SC, PCP, ComprasGov, TCE-SC, portais de transparência)
-2. **Mantém datalake histórico** de licitações + contratos + preços praticados em PostgreSQL no Hetzner
+1. **Monitora progressivamente o universo alvo** via múltiplas fontes, sem assumir 100% de cobertura enquanto freshness e evidência não estiverem provadas
+2. **Mantém datalake histórico** de licitações + contratos em PostgreSQL, atualmente operado em ambiente local
 3. **Gera relatórios de inteligência** (PDF Big Four aesthetic + Excel) sob demanda via CLI
-4. **Roda em Hetzner VPS** com cron jobs (systemd timers), acessível via terminal/SSH
+4. **Evolui para Hetzner VPS + Supabase + cron jobs** quando o fluxo local estiver validado
 
 ## Persona Única
 

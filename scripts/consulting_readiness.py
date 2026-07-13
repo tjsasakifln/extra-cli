@@ -701,7 +701,7 @@ def _compute_entity_price_differential(conn) -> dict[str, Any]:
                 "entities_without_contracts": None,
             }
             return {
-                "status": "NOT_READY",
+                "status": "not_ready",
                 "readiness": "LIMITED",
                 "reason": (
                     "PNCP nao prove linkage item-a-item entre valor estimado e valor "
@@ -722,7 +722,7 @@ def _compute_entity_price_differential(conn) -> dict[str, Any]:
                 },
             }
         return {
-            "status": "NOT_READY",
+            "status": "not_ready",
             "readiness": "LIMITED",
             "reason": (
                 "Nenhuma entidade no raio 200km possui dados simultaneos de "
@@ -1664,6 +1664,15 @@ def compute_readiness(
         hhi = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}  # noqa: F841
         supplier_ranking = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}  # noqa: F841
 
+    win_rate_metric = {
+        "status": "not_ready",
+        "reason": (
+            "Win rate real exige proposal_tracking (propostas enviadas vs vencidas "
+            "por CNPJ). PNCP não expõe propostas perdedoras."
+        ),
+        "alternative_metrics_available": ["market_share", "award_share", "hhi", "supplier_ranking"],
+    }
+
     commercial_metrics = {
         "contract_total_value": {
             "status": contract_value_agg["status"],
@@ -1683,15 +1692,9 @@ def compute_readiness(
             "reason": relicitacao_stats["reason"],
             "value": relicitacao_stats["value"],
         },
+        "win_rate": win_rate_metric,
         "competitive_intelligence": {
-            "win_rate": {
-                "status": "NOT_READY",
-                "reason": (
-                    "Win rate real exige proposal_tracking (propostas enviadas vs vencidas "
-                    "por CNPJ). PNCP não expõe propostas perdedoras."
-                ),
-                "alternative_metrics_available": ["market_share", "award_share", "hhi", "supplier_ranking"],
-            },
+            "win_rate": win_rate_metric,
             "market_share": {
                 "status": market_share["status"],
                 "reason": market_share["reason"],

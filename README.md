@@ -3,6 +3,27 @@
 Plataforma CLI de consultoria estratégica para licitações públicas.
 Single-client: Extra Construtora.
 
+## Fase Atual
+
+Escopo operacional atual:
+
+- busca de editais abertos
+- histórico de contratos para análise
+- mapeamento de concorrentes e vencedores
+- apoio a leitura de preços praticados
+
+Fora de escopo por enquanto:
+
+- acompanhamento de obras
+- execução/monitoramento físico-financeiro de contratos
+
+Importante:
+
+- nesta fase o projeto roda com **datalake local**
+- a futura arquitetura com **VPS Hetzner + Supabase + crons** continua sendo alvo, não baseline operacional
+- base local legada **não deve ser presumida fresca**
+- qualquer decisão de uso consultivo deve verificar `source-health`, manifests e `last_seen` antes de confiar nos dados
+
 ## Stack
 
 - **Python 3.12** — scripts de coleta, análise, PDF
@@ -91,6 +112,12 @@ python scripts/opportunity_intel/manifest.py
 Vertical de licitações abertas para Extra Construtora.
 Raio de 200 km de Florianópolis. Threshold: 95%.
 
+Estado real nesta fase:
+
+- a estrutura de oportunidade existe
+- cobertura e freshness ainda precisam ser provadas por fonte e por ente
+- o threshold de 95% nao deve ser considerado atendido apenas por presenca de registros no banco
+
 **Fluxo:** fonte oficial → fetch → raw zone → normalização →
 PostgreSQL → deduplicação → status canônico → ranking → CLI → manifesto.
 
@@ -119,6 +146,11 @@ systemctl enable pncp-report-weekly.timer # Seg 07:00 UTC
 - Cobertura verificada via `scripts/consulting_readiness.py` (consulte `coverage_manifest.json`)
 - **5** fontes de dados
 - **13** setores configurados
+
+Observação:
+
+- o indicador mais importante nesta fase é **freshness auditável**
+- cobertura, histórico de contratos e inteligência competitiva só são confiáveis quando a coleta recente estiver provada nas fontes críticas
 
 ## CI Gates (Regra #10 — B2G-4)
 

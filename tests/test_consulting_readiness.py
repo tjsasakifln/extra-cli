@@ -1166,6 +1166,6 @@ class TestSafeMetricQuery:
         )
 
         # All metrics should have a valid status (not cascading error)
-        valid_statuses = {"ready", "no_data", "error", "manual", "limited"}
+        valid_statuses = {"ready", "no_data", "error", "manual", "limited", "not_ready"}
         for key in ["contract_total_value", "desagio", "relicitacao_probability"]:
             assert cm[key]["status"] in valid_statuses, f"{key} has unexpected status: {cm[key]['status']}"

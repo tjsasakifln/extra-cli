@@ -191,6 +191,17 @@ class TestManifestQueries:
         try:
             cur = conn.cursor()
 
+            cur.execute("""
+                SELECT COUNT(*)
+                FROM opportunity_intel
+                WHERE is_active = TRUE
+                  AND source != 'test_batch'
+                  AND orgao_cnpj IS NOT NULL
+            """)
+            active_rows = cur.fetchone()[0]
+            if active_rows == 0:
+                pytest.skip("No active opportunity data in local datalake; join behavior cannot be validated")
+
             # OLD join (direct equality) — should find 0 matches
             cur.execute("""
                 SELECT COUNT(*) AS cnt

@@ -4,6 +4,8 @@
 **Status:** Em execução
 **Exit esperado:** PARTIAL (exit 2) — threshold 95% inalcançável sem múltiplas fontes adicionais
 
+> **Atualização de fase:** partes deste plano ficaram obsoletas apos a criacao de `scripts/opportunity_intel/` e migrations 027-028. O bloqueio principal deixou de ser "existencia da vertical" e passou a ser **freshness auditável + cobertura real por fonte** no datalake local.
+
 ---
 
 ## 1. Baseline (FASE 0 — Auditoria)
@@ -17,7 +19,7 @@
 | Fontes com dados reais | 4 (pncp, mides_bigquery, compras_gov, pcp) |
 | Cobertura entes 200km | 39% (807/2.085 total, ~488/1.093 no raio) |
 | Históricos/vencedores | 36,98% (404/1.093) |
-| Vincendos (abertas) | 0% — NÃO EXISTE tracking de oportunidades abertas |
+| Oportunidades abertas | Estrutura existe, mas freshness/cobertura local ainda nao provadas |
 | Preço praticado | NOT_READY |
 | Deságio | NOT_READY |
 | Win rate | NOT_READY |
@@ -44,14 +46,11 @@
 
 ### 1.3 O Que Falta (Opportunity Intelligence)
 
-- **Sistema de tracking de licitações abertas** (vincendas/upcoming/open)
-- **Modelo de dados de oportunidade** — status canônico, ranking, explicação
-- **CLI de oportunidades** — list, show, explain, coverage, source-health, update, export
-- **Deduplicação cross-source** — ID oficial, número PNCP, órgão+processo+edital
-- **Ranking explicável** — GO/REVIEW/NO_GO, score 0-100, fatores, regras, confiança
-- **Normalização de status** — open, upcoming, closed, suspended, revoked, annulled, failed, unknown
-- **Manifestos de cobertura** — opportunity-coverage-manifest.json, gaps.csv, source-health.csv
-- **Testes** — parsing, estados, dedup, paginação, cobertura, success_zero, proveniência, idempotência
+- **Freshness auditável por fonte** — provar `last_success_at`, janela coberta e volume recente
+- **Freshness auditável de contratos históricos** — incremental + checkpoints + evidência por run
+- **Cobertura real por ente/fonte** — separar presença de dado, monitoramento e coleta fresca
+- **Ativação consistente das fontes críticas** — primeiro PNCP editais e PNCP contratos
+- **Gate fail-closed para base local obsoleta** — não aceitar leitura consultiva sem fonte crítica fresca
 
 ---
 
