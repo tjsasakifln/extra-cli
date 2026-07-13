@@ -128,3 +128,21 @@ Sem isso, o projeto parece mais pronto do que realmente esta.
    - `latest_business_date`
 
 Sem esse bloco, qualquer analise de editais ou contratos continua dependente de base potencialmente obsoleta.
+
+## Status apos quick win adicional
+
+Este bloco ja foi iniciado com `scripts/freshness_gate.py`.
+
+Entrega atual:
+
+- gate dedicado para fontes criticas `pncp` e `contracts`
+- leitura combinada de `ingestion_runs` + tabelas cruas
+- status `fresh`, `stale` e `never`
+- artefatos `output/readiness/freshness-gate.json` e `.csv`
+- exit code `2` quando fonte critica nao prova frescor
+
+O proximo passo passa a ser operacional:
+
+- validar e corrigir o `LOCAL_DATALAKE_DSN`
+- garantir execucao recorrente dos crawlers criticos
+- usar o gate como prerequisito antes de qualquer analise consultiva

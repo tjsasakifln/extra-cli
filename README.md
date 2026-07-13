@@ -96,6 +96,7 @@ python scripts/opportunity_intel/cli.py export --format csv -o opportunities.csv
 
 # Manifestos de cobertura
 python scripts/opportunity_intel/manifest.py
+python scripts/freshness_gate.py
 ```
 
 ## Fontes de Dados
@@ -129,6 +130,8 @@ Arquivos gerados:
 - `output/readiness/opportunity-coverage-manifest.json`
 - `output/readiness/opportunity-coverage-gaps.csv`
 - `output/readiness/opportunity-source-health.csv`
+- `output/readiness/freshness-gate.json`
+- `output/readiness/freshness-gate.csv`
 
 ## Cron (systemd timers)
 
