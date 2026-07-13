@@ -113,7 +113,6 @@ def collect_entity_data(conn) -> dict:
 def rebuild(conn, entity_data: dict, dry_run: bool = False) -> dict[str, Any]:
     """Rebuild evidence ledger from actual data."""
     entity_ids = entity_data["entity_ids"]
-    has_bids = entity_data["has_bids"]
     has_contracts = entity_data["has_contracts"]
     entities_with_data = entity_data["entities_with_data"]
 

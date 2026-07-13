@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Any
 
 import psycopg2
+import psycopg2.extensions
 import psycopg2.extras
 
 _logger = logging.getLogger(__name__)
@@ -80,7 +81,7 @@ CRITICAL_SOURCES: tuple[CriticalSourceSpec, ...] = (
 )
 
 
-def _get_conn(dsn: str | None = None):
+def _get_conn(dsn: str | None = None) -> psycopg2.extensions.connection:
     effective_dsn = dsn or DEFAULT_DSN
     try:
         conn = psycopg2.connect(effective_dsn)
@@ -93,14 +94,14 @@ def _get_conn(dsn: str | None = None):
     return conn
 
 
-def _query_one_dict(conn, sql: str, params: tuple[Any, ...]) -> dict[str, Any]:
+def _query_one_dict(conn: psycopg2.extensions.connection, sql: str, params: tuple[Any, ...]) -> dict[str, Any]:
     with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(sql, params)
         row = cur.fetchone()
         return dict(row) if row else {}
 
 
-def _table_columns(conn, table_name: str) -> set[str]:
+def _table_columns(conn: psycopg2.extensions.connection, table_name: str) -> set[str]:
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -145,7 +146,7 @@ def _status_from_snapshot(
     return "fresh", None
 
 
-def _run_snapshot(conn, spec: CriticalSourceSpec) -> dict[str, Any]:
+def _run_snapshot(conn: psycopg2.extensions.connection, spec: CriticalSourceSpec) -> dict[str, Any]:
     columns = _table_columns(conn, "ingestion_runs")
     finished_col = _pick_existing_column(columns, "completed_at", "finished_at")
     started_col = _pick_existing_column(columns, "started_at")
@@ -165,7 +166,7 @@ def _run_snapshot(conn, spec: CriticalSourceSpec) -> dict[str, Any]:
     return _query_one_dict(conn, sql, (spec.run_source,))
 
 
-def _data_snapshot(conn, spec: CriticalSourceSpec) -> dict[str, Any]:
+def _data_snapshot(conn: psycopg2.extensions.connection, spec: CriticalSourceSpec) -> dict[str, Any]:
     table_columns = _table_columns(conn, spec.table_name)
     if "ingested_at" not in table_columns:
         raise RuntimeError(f"{spec.table_name} missing required column ingested_at")
@@ -190,7 +191,11 @@ def _data_snapshot(conn, spec: CriticalSourceSpec) -> dict[str, Any]:
     return _query_one_dict(conn, sql, (spec.recent_window_hours, *source_params))
 
 
-def evaluate_source(conn, spec: CriticalSourceSpec, now: datetime | None = None) -> dict[str, Any]:
+def evaluate_source(
+    conn: psycopg2.extensions.connection,
+    spec: CriticalSourceSpec,
+    now: datetime | None = None,
+) -> dict[str, Any]:
     now = now or datetime.now(UTC)
     run_snapshot = _run_snapshot(conn, spec)
     data_snapshot = _data_snapshot(conn, spec)

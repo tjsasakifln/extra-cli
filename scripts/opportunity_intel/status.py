@@ -108,8 +108,6 @@ _GENERIC_STATUS_MAP: dict[str, str] = {
     "encerrada": "closed",
     "concluído": "closed",
     "concluida": "closed",
-    "concluído": "closed",
-    "concluida": "closed",
     "finalizado": "closed",
     "finalizada": "closed",
     "homologado": "closed",

@@ -165,10 +165,10 @@ Gates **fail-closed**: qualquer falha = CI vermelho. Nenhum job usa `continue-on
 
 | Gate | Job | Ferramenta | Onde | Fail-Close |
 |------|-----|-----------|------|------------|
-| Lint | `lint` | `ruff check .` | `.github/workflows/ci.yml` | SIM — quebra em qualquer violação |
-| Type Check | `type-check` | `mypy .` | `.github/workflows/ci.yml` | SIM — quebra em erro de tipo |
-| Testes | `test` | `pytest` + `--cov-fail-under=10` | `.github/workflows/ci.yml` + `pytest.ini` | SIM — threshold mínimo 10% |
-| Testes Completos | `test-all` | `pytest -m ""` (sem exclusão) | `.github/workflows/ci.yml` | SIM — roda todos os marcadores |
+| Lint | `lint` | `ruff check scripts/` | `.github/workflows/ci.yml` | SIM — quebra em qualquer violação no código de produção |
+| Type Check | `type-check` | `mypy` no caminho crítico de freshness/readiness | `.github/workflows/ci.yml` | SIM — escopo expandido gradualmente via TD-7.1 |
+| Testes Críticos | `test` | suíte de freshness/readiness + `--cov-fail-under=10` | `.github/workflows/ci.yml` | SIM — threshold mínimo 10% no caminho crítico |
+| Testes Completos | `test-all` | `pytest -m ""` (sem exclusão) | `.github/workflows/ci.yml` | MANUAL — fail-closed via `workflow_dispatch` enquanto dependências externas são provisionadas |
 | Segurança | `security` | `bandit -r scripts/` (HIGH severity) | `.github/workflows/ci.yml` + `pyproject.toml` | SIM — quebra em falha HIGH |
 | Auditoria Deps | `dependency-audit` | `pip-audit --strict` | `.github/workflows/ci.yml` | SIM — quebra em CVE conhecido |
 | Pre-Commit (local) | — | ruff + mypy + bandit + secrets | `.pre-commit-config.yaml` | SIM — bloqueia commit local |

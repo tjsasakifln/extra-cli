@@ -20,6 +20,7 @@ import json
 import math
 import os
 import re
+import subprocess
 import sys
 import time
 import urllib.request
@@ -409,7 +410,8 @@ def main() -> int:
     # ── Re-run consulting_readiness.py ────────────────────────────────────
     print("\n🔄 Re-running consulting_readiness.py to verify...")
     readiness_script = PROJECT_ROOT / "scripts" / "consulting_readiness.py"
-    exit_code = os.system(f'python3 "{readiness_script}"')
+    completed = subprocess.run([sys.executable, str(readiness_script)], check=False)
+    exit_code = completed.returncode
     if exit_code == 0:
         print("\n✅ Readiness check PASSED")
     else:

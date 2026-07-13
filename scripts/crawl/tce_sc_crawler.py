@@ -351,7 +351,6 @@ def _fetch_licitacoes(
 
     records: list[dict] = []
     page = 1
-    seen_ids: set[str] = set()
 
     while page <= TCE_SC_MAX_PAGES:
         params["pn"] = str(page)
