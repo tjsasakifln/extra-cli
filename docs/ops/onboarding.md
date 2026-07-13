@@ -25,6 +25,12 @@ para um unico cliente: **Extra Construtora**. O sistema coleta, processa e anali
 dados de licitacoes de multiplas fontes governamentais, gerando relatorios
 estrategicos em PDF e Excel.
 
+Nota de fase:
+
+- baseline atual: `local-first`
+- o datalake local pode conter dados legados
+- o frescor das fontes criticas deve ser provado antes de confiar nos resultados
+
 ### Arquitetura Simplificada
 
 ```
@@ -171,6 +177,9 @@ psql $LOCAL_DATALAKE_DSN -c "SELECT current_database(), version()"
 
 # Verificar health check
 python scripts/health_check.py
+
+# Verificar freshness das fontes criticas
+python scripts/freshness_gate.py
 
 # Rodar testes
 pytest tests/test_transformer.py -v

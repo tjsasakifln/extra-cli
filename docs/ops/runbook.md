@@ -16,6 +16,7 @@
 - [Como Aplicar Migrations](#como-aplicar-migrations)
 - [Como Executar Healthcheck](#como-executar-healthcheck)
 - [Como Verificar Cobertura](#como-verificar-cobertura)
+- [Como Verificar Freshness Critico](#como-verificar-freshness-critico)
 - [Monitoramento de Logs](#monitoramento-de-logs)
 
 ---
@@ -23,6 +24,13 @@
 ## Visao Geral do Sistema
 
 O sistema Extra Consultoria e uma plataforma CLI de inteligencia em licitacoes publicas que monitora 2.085 orgaos publicos de Santa Catarina em 5+ fontes de dados abertos.
+
+Nota operacional desta fase:
+
+- o projeto pode operar com datalake local legado
+- cobertura isolada nao prova utilidade consultiva
+- antes de qualquer analise, deve-se verificar freshness das fontes criticas
+- fontes criticas atuais: `pncp` para editais e `contracts` para historico contratual
 
 ### Arquitetura Resumida
 
@@ -512,6 +520,50 @@ journalctl -u extra-health-check.service --no-pager -n 20
 # Relatorio rapido (le dados do banco, nao faz crawl)
 python scripts/crawl/monitor.py --report-coverage
 ```
+
+## Como Verificar Freshness Critico
+
+Este passo e obrigatorio antes de usar o sistema para:
+
+- editais abertos
+- contratos historicos
+- concorrentes e vencedores
+- analises consultivas derivadas do datalake local
+
+```bash
+# Gate unico de freshness local-first
+python scripts/freshness_gate.py
+```
+
+Artefatos gerados:
+
+- `output/readiness/freshness-gate.json`
+- `output/readiness/freshness-gate.csv`
+
+Interpretacao dos status:
+
+- `fresh`: fonte critica provou execucao recente e persistencia dentro do SLA
+- `stale`: houve execucao ou dados, mas fora do SLA
+- `never`: nao existe prova de execucao bem-sucedida
+
+SLAs padrao nesta fase:
+
+- `pncp`: 24h
+- `contracts`: 576h (24 dias)
+
+Overrides opcionais:
+
+```bash
+FRESHNESS_SLA_PNCP_HOURS=24
+FRESHNESS_SLA_CONTRACTS_HOURS=576
+python scripts/freshness_gate.py
+```
+
+Regra operacional:
+
+- exit code `0`: fontes criticas frescas
+- exit code `2`: nao usar a base local como prova consultiva
+- exit code `1`: corrigir `LOCAL_DATALAKE_DSN` ou disponibilidade do PostgreSQL
 
 ### Consulta Direta no Banco
 
