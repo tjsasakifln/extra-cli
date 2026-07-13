@@ -1,3 +1,41 @@
+# Extra Consultoria
+
+<!-- PROJECT-CUSTOMIZED: AIOX-OPERATING-PROTOCOL -->
+## Protocolo Operacional AIOX (OBRIGATÓRIO)
+
+**Toda solicitação de desenvolvimento neste projeto segue o AIOX Operating Protocol.**
+
+Regra completa: `.claude/rules/aiox-project-operating-protocol.md`
+
+### Regras fundamentais (resumo executivo)
+
+1. **AIOX é o modo padrão.** Claude infere automaticamente agentes, workflows e gates. Usuário NÃO precisa digitar `@dev`, `@qa`, etc.
+2. **Story obrigatória antes de código.** Nenhuma alteração sem story validada por @sm e @po.
+3. **Ciclo completo:** @sm → @po → @dev → @qa → @po fecha → @devops publica.
+4. **Autoridade exclusiva:** @devops push/PR, @architect arquitetura, @qa veredito, @po fechamento.
+5. **Gate sistêmico por wave.** Aprovação isolada de stories não equivale a sistema saudável.
+6. **Modo YOLO (L2) como default.** Confirmação somente para operações destrutivas/irreversíveis.
+
+### Workflows automáticos por tipo de solicitação
+
+| Solicitação | Workflow | Agentes |
+|------------|----------|---------|
+| "corrija um bug" | SDC (story-development-cycle) | @sm → @po → @dev → @qa → @po → @devops |
+| "implemente uma feature" | Spec Pipeline → SDC | @pm → @architect → @sm → @po → @dev → @qa |
+| "refatore X" | Análise de impacto + SDC | @architect → @sm → @po → @dev → @qa |
+| "faça uma migration" | Data-Engineer + SDC | @data-engineer → @architect → @dev → @qa |
+| "publique as alterações" | Pre-push gates → push | @qa → @devops |
+| "auditoria do sistema" | Brownfield Discovery | @architect → @data-engineer → @qa → @analyst → @pm |
+
+### Correção de desvio
+
+Se código for alterado sem story, agente atuar fora de autoridade, ou ciclo for quebrado → interrompa e corrija o curso automaticamente.
+
+> **Regra completa com 20 seções:** `.claude/rules/aiox-project-operating-protocol.md`
+<!-- END: AIOX-OPERATING-PROTOCOL -->
+
+---
+
 # Reversa
 
 > Framework de Engenharia Reversa instalado neste projeto.
