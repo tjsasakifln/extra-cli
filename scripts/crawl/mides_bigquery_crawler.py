@@ -416,7 +416,7 @@ def _make_content_hash(record: dict) -> str:
             "numero",
         ]
     )
-    return hashlib.md5(raw.encode("utf-8")).hexdigest()
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def _extract_cnpj_from_id_licitacao(id_licitacao: str | None) -> str | None:

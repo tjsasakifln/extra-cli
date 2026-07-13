@@ -56,8 +56,7 @@ SELENIUM_UA_FILE = os.getenv("SELENIUM_UA_FILE", "")
 # Default User-Agent rotation pool
 _DEFAULT_USER_AGENTS = [
     # Chrome 125 on Windows
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
     # Chrome 125 on macOS
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
@@ -67,8 +66,7 @@ _DEFAULT_USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0",
     # Chrome 125 on Linux
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
 ]
 
 # Viewport sizes for randomisation (common real-user resolutions)
@@ -307,8 +305,7 @@ class SeleniumCrawler:
             return driver
         except Exception as e:
             raise SeleniumUnavailableError(
-                f"Failed to initialise Firefox WebDriver: {e}. "
-                "Ensure geckodriver is installed."
+                f"Failed to initialise Firefox WebDriver: {e}. Ensure geckodriver is installed."
             ) from e
 
     def _ensure_driver(self) -> Any:
@@ -376,14 +373,11 @@ class SeleniumCrawler:
                 from selenium.webdriver.support import expected_conditions as ec
                 from selenium.webdriver.support.ui import WebDriverWait
 
-                WebDriverWait(driver, self.timeout).until(
-                    ec.presence_of_element_located((By.CSS_SELECTOR, wait_for))
-                )
+                WebDriverWait(driver, self.timeout).until(ec.presence_of_element_located((By.CSS_SELECTOR, wait_for)))
                 _logger.debug("Wait condition met: '%s' on %s", wait_for, url)
             except Exception as e:
                 _logger.warning(
-                    "Wait for selector '%s' timed out on %s: %s. "
-                    "Returning current DOM state.",
+                    "Wait for selector '%s' timed out on %s: %s. Returning current DOM state.",
                     wait_for,
                     url,
                     e,
@@ -442,9 +436,7 @@ class SeleniumCrawler:
                     self.driver = None
                     self._driver_initialised = False
 
-        raise PageTimeoutError(
-            f"Failed to render {url} after {max_retries + 1} attempts: {last_error}"
-        )
+        raise PageTimeoutError(f"Failed to render {url} after {max_retries + 1} attempts: {last_error}")
 
     # ------------------------------------------------------------------
     # Scrape (render + delegate to template)
@@ -549,9 +541,7 @@ class SeleniumCrawler:
                 return result
         elif selectors:
             # Direct selector-based extraction (inline scraping)
-            records = self._scrape_with_selectors(
-                soup, selectors, slug, ibge, portal_url
-            )
+            records = self._scrape_with_selectors(soup, selectors, slug, ibge, portal_url)
         else:
             result["status"] = "parse_error"
             result["error"] = "No template_module or selectors provided"

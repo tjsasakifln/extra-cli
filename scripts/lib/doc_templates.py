@@ -23,7 +23,7 @@ from enum import Enum
 # ============================================================
 
 
-class DocType(str, Enum):
+class DocType(str, Enum):  # noqa: UP042
     EDITAL = "edital"
     TERMO_REFERENCIA = "termo_referencia"
     PLANILHA = "planilha"

@@ -36,15 +36,17 @@ SKIP_PATTERNS = (
 )
 
 # Known non-importable files (entry-point scripts, __main__ modules, etc.)
-SKIP_FILES = frozenset({
-    # Entry-point scripts (run via python path/to/script.py, not as modules)
-    "scripts/run.py",
-    "scripts/validate-report-data.py",
-    "scripts/generate-report-b2g.py",
-    "scripts/export-sc-200km-final.py",  # module-level DB connection side effect
-    # __main__ variant
-    "scripts/intel-enrich.py",     # hyphen in name, needs importlib
-})
+SKIP_FILES = frozenset(
+    {
+        # Entry-point scripts (run via python path/to/script.py, not as modules)
+        "scripts/run.py",
+        "scripts/validate-report-data.py",
+        "scripts/generate-report-b2g.py",
+        "scripts/export-sc-200km-final.py",  # module-level DB connection side effect
+        # __main__ variant
+        "scripts/intel-enrich.py",  # hyphen in name, needs importlib
+    }
+)
 
 # Files with hyphens that need importlib import
 HYPHENATED_FILES = {

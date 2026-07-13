@@ -29,7 +29,10 @@ _CATEGORY_TERMS: dict[str, tuple[str, ...]] = {
     "PREVENCAO_CONTRA_INCENDIO": ("ppci", "preventivo contra incendio", "combate a incendio"),
     "PROJETOS_DE_ENGENHARIA": ("projeto executivo", "projeto basico", "projeto estrutural", "servicos de engenharia"),
     "FISCALIZACAO_E_SUPERVISAO": ("fiscalizacao de obra", "supervisao de obra", "gerenciamento de obra"),
-    "LAUDOS_E_PERICIAS": ("laudo", "pericia",),
+    "LAUDOS_E_PERICIAS": (
+        "laudo",
+        "pericia",
+    ),
     "TOPOGRAFIA": ("topografia", "levantamento planialtimetrico"),
     "SONDAGEM": ("sondagem",),
     "ENGENHARIA_AMBIENTAL": ("engenharia ambiental", "licenciamento ambiental"),
@@ -89,7 +92,9 @@ class EngineeringClassification:
     reasons: dict[str, Any]
 
 
-def _collect_texts(record: dict, detail: dict | None, items: list[dict], documents: list[dict]) -> tuple[list[str], list[str]]:
+def _collect_texts(
+    record: dict, detail: dict | None, items: list[dict], documents: list[dict]
+) -> tuple[list[str], list[str]]:
     fields_used: list[str] = []
     texts: list[str] = []
 

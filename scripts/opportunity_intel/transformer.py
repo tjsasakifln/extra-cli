@@ -96,6 +96,7 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
         data_abertura=data_abertura,
         data_encerramento=data_encerramento,
         data_publicacao=data_publicacao,
+        modalidade=modalidade,
     )
     record.status_data = datetime.now(UTC)
 

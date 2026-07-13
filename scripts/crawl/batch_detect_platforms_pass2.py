@@ -92,11 +92,13 @@ def detect_pass2(args: tuple) -> dict:
     # Try additional patterns in order
     for pattern_name, url_template, _ in ADDITIONAL_PATTERNS:
         check = check_pattern(slug, pattern_name, url_template)
-        result["pass2_patterns_tried"].append({
-            "pattern": pattern_name,
-            "url": check["url"],
-            "status": check["status"],
-        })
+        result["pass2_patterns_tried"].append(
+            {
+                "pattern": pattern_name,
+                "url": check["url"],
+                "status": check["status"],
+            }
+        )
 
         if check["status"] == "detected":
             result["platform"] = "proprio"
@@ -126,9 +128,8 @@ def get_not_found_list() -> list[dict]:
 
     # We need the IBGE codes - get from database
     import psycopg2
-    conn = psycopg2.connect(
-        "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres"
-    )
+
+    conn = psycopg2.connect("postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
     cur = conn.cursor()
     cur.execute(
         """
@@ -139,19 +140,23 @@ def get_not_found_list() -> list[dict]:
         ORDER BY municipio
     """
     )
-    all_muns = {row[0].strip().upper(): {"ibge": row[1].strip() if row[1] else None, "slug": _slugify(row[0].strip())}
-                for row in cur.fetchall()}
+    all_muns = {
+        row[0].strip().upper(): {"ibge": row[1].strip() if row[1] else None, "slug": _slugify(row[0].strip())}
+        for row in cur.fetchall()
+    }
     conn.close()
 
     not_found_names = set(report["not_found_list"])
     municipios = []
     for nome in sorted(not_found_names):
         m = all_muns.get(nome.upper(), {})
-        municipios.append({
-            "nome": nome,
-            "slug": m.get("slug", _slugify(nome)),
-            "ibge": m.get("ibge", ""),
-        })
+        municipios.append(
+            {
+                "nome": nome,
+                "slug": m.get("slug", _slugify(nome)),
+                "ibge": m.get("ibge", ""),
+            }
+        )
 
     return municipios
 
@@ -217,7 +222,9 @@ def generate_final_yaml(final: dict) -> str:
     lines = []
     lines.append("# Platform Detection Results (Pass 1 + 2)")
     lines.append(f"# Generated at: {final['generated_at']}")
-    lines.append(f"# Total: {final['total']} | Detected: {final['total_detected']} | Not found: {final['not_found']} | Errors: {final['errors']}")
+    lines.append(
+        f"# Total: {final['total']} | Detected: {final['total_detected']} | Not found: {final['not_found']} | Errors: {final['errors']}"
+    )
     lines.append(f"# Platform distribution: {json.dumps(final['platforms'])}")
     lines.append("")
 
@@ -229,7 +236,9 @@ def generate_final_yaml(final: dict) -> str:
         by_platform.setdefault(d["platform"], []).append(d)
 
     for platform, items in sorted(by_platform.items()):
-        lines.append(f"  # --- {platform.upper()} ({len(items)} municipios, {len(items)/final['total']*100:.1f}%) ---")
+        lines.append(
+            f"  # --- {platform.upper()} ({len(items)} municipios, {len(items) / final['total'] * 100:.1f}%) ---"
+        )
         for item in items:
             slug = item["slug"]
             nome = item["municipio"].title()
@@ -258,10 +267,10 @@ def generate_final_yaml(final: dict) -> str:
         for nome in final["not_found_list"]:
             slug_val = _slugify(nome)
             lines.append(f"  # {slug_val}:")
-            lines.append(f"  #   nome: \"{nome.title()}\"")
-            lines.append("  #   ibge: \"\"  # TODO: lookup manual")
-            lines.append("  #   portal_url: \"\"  # TODO: descobrir manualmente")
-            lines.append("  #   template: \"custom\"")
+            lines.append(f'  #   nome: "{nome.title()}"')
+            lines.append('  #   ibge: ""  # TODO: lookup manual')
+            lines.append('  #   portal_url: ""  # TODO: descobrir manualmente')
+            lines.append('  #   template: "custom"')
             lines.append("  #   requires_js: false")
             lines.append("  #   ativo: false")
             lines.append("")
@@ -277,12 +286,12 @@ def main():
 
     # Step 2: Run batch detection with expanded patterns
     total = len(municipios)
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"Pass 2 - Expanded pattern detection for {total} SC municipalities")
     print(f"Patterns: {len(ADDITIONAL_PATTERNS)} per municipio")
     print(f"Concurrency: {MAX_WORKERS} workers")
     print(f"Started at: {datetime.now().strftime('%H:%M:%S')}")
-    print(f"{'='*70}\n")
+    print(f"{'=' * 70}\n")
 
     args_list = [(mun, i + 1, total) for i, mun in enumerate(municipios)]
     results = []
@@ -295,21 +304,23 @@ def main():
                 results.append(future.result())
             except Exception as e:
                 mun = futures[future]
-                results.append({
-                    "municipio": mun["nome"],
-                    "slug": mun["slug"],
-                    "ibge": mun.get("ibge", ""),
-                    "platform": None,
-                    "url": None,
-                    "status": "error",
-                    "error": str(e),
-                    "detected_at": date.today().isoformat(),
-                })
+                results.append(
+                    {
+                        "municipio": mun["nome"],
+                        "slug": mun["slug"],
+                        "ibge": mun.get("ibge", ""),
+                        "platform": None,
+                        "url": None,
+                        "status": "error",
+                        "error": str(e),
+                        "detected_at": date.today().isoformat(),
+                    }
+                )
 
     elapsed = time.time() - start_time
-    print(f"\n{'='*70}")
-    print(f"Pass 2 completed in {elapsed:.1f}s ({elapsed/60:.1f}min)")
-    print(f"{'='*70}\n")
+    print(f"\n{'=' * 70}")
+    print(f"Pass 2 completed in {elapsed:.1f}s ({elapsed / 60:.1f}min)")
+    print(f"{'=' * 70}\n")
 
     # Step 3: Save pass2 results
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -328,18 +339,20 @@ def main():
     print(f"Final merged results saved to: {final_report_path}")
 
     # Step 6: Print summary
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("FINAL SUMMARY (Pass 1 + Pass 2)")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"  Total municipios:         {final['total']}")
     print(f"  Pass 1 detected (Betha):  {final['pass1_detected']}")
     print(f"  Pass 2 detected (Proprio): {final['pass2_newly_detected']}")
-    print(f"  Total detected:           {final['total_detected']} ({final['total_detected']/final['total']*100:.1f}%)")
-    print(f"  Still not found:          {final['not_found']} ({final['not_found']/final['total']*100:.1f}%)")
+    print(
+        f"  Total detected:           {final['total_detected']} ({final['total_detected'] / final['total'] * 100:.1f}%)"
+    )
+    print(f"  Still not found:          {final['not_found']} ({final['not_found'] / final['total'] * 100:.1f}%)")
     print(f"  Errors:                   {final['errors']}")
     print("\nPlatform distribution:")
-    for plat, count in final['platforms'].items():
-        print(f"  {plat}: {count} ({count/final['total']*100:.1f}%)")
+    for plat, count in final["platforms"].items():
+        print(f"  {plat}: {count} ({count / final['total'] * 100:.1f}%)")
 
     # Step 7: Generate YAML
     yaml_entries = generate_final_yaml(final)
@@ -349,13 +362,21 @@ def main():
     print(f"\nFinal YAML config saved to: {output_yaml}")
 
     # Show how many config lines were generated
-    yaml_lines = yaml_entries.split('\n')
-    active_entries = len([l for l in yaml_lines if l.strip().startswith('-') == False and l.strip().endswith(':') and l[0] != '#' and l[0] != ' '])
-    print(f"YAML entries: ~{len([l for l in yaml_lines if l.strip().endswith(':') and not l.startswith('#') and not l.startswith(' ')])} config blocks generated")
+    yaml_lines = yaml_entries.split("\n")
+    len(
+        [
+            ln
+            for ln in yaml_lines
+            if not ln.strip().startswith("-") and ln.strip().endswith(":") and ln[0] != "#" and ln[0] != " "
+        ]
+    )
+    print(
+        f"YAML entries: ~{len([ln for ln in yaml_lines if ln.strip().endswith(':') and not ln.startswith('#') and not ln.startswith(' ')])} config blocks generated"
+    )
 
     # Step 8: Print pass2 detected cities
     print("\nNewly detected cities (Pass 2):")
-    for d in sorted(final['detected_list_pass2'], key=lambda x: x['municipio']):
+    for d in sorted(final["detected_list_pass2"], key=lambda x: x["municipio"]):
         print(f"  {d['municipio']:40s} -> {d['url']}")
 
 

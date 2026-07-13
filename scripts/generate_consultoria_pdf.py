@@ -1082,7 +1082,7 @@ def _build_cover(empresa, today, validity_date):
 
 
 def _build_carta_decisor(empresa, setor, honorific, decisor_full):
-    nome = restore_accents((empresa.get("nome_fantasia") or "").strip() or empresa.get("razao_social", "Empresa"))
+    restore_accents((empresa.get("nome_fantasia") or "").strip() or empresa.get("razao_social", "Empresa"))
     cidade = restore_accents(empresa.get("cidade_sede", ""))
     uf = empresa.get("uf_sede", "")
     setor = restore_accents(setor)

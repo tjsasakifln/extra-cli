@@ -20,7 +20,6 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -135,7 +134,9 @@ def crawl(mode: str = "full") -> list[dict]:
         summary = batch.run_batch(portals)
         _logger.info(
             "Selenium batch complete: %d portals, %d bids, %d failed",
-            summary["portal_count"], summary["extracted"], summary["failed"],
+            summary["portal_count"],
+            summary["extracted"],
+            summary["failed"],
         )
         return summary.get("results", [])
 
@@ -183,25 +184,27 @@ def transform(records: list[dict]) -> list[dict]:
             pncp_id = _generate_pncp_id(bid, record)
             content_hash = _make_hash(bid, record)
 
-            transformed.append({
-                "pncp_id": pncp_id,
-                "objeto_compra": bid.get("objeto", ""),
-                "valor_total_estimado": _parse_valor(bid.get("valor", "")),
-                "modalidade_id": m_id,
-                "modalidade_nome": m_nome,
-                "esfera_id": 3,  # Municipal (portais de municipios)
-                "uf": "SC",
-                "municipio": record.get("municipio", ""),
-                "codigo_municipio_ibge": record.get("ibge", ""),
-                "orgao_razao_social": bid.get("orgao_nome", record.get("municipio", "")),
-                "orgao_cnpj": bid.get("orgao_cnpj", ""),
-                "data_publicacao": bid.get("data_publicacao", ""),
-                "data_abertura": None,
-                "data_encerramento": None,
-                "link_pncp": bid.get("portal_url", record.get("url", "")),
-                "content_hash": content_hash,
-                "source_id": f"selenium_{record.get('slug', '')}_{pncp_id[-12:]}",
-            })
+            transformed.append(
+                {
+                    "pncp_id": pncp_id,
+                    "objeto_compra": bid.get("objeto", ""),
+                    "valor_total_estimado": _parse_valor(bid.get("valor", "")),
+                    "modalidade_id": m_id,
+                    "modalidade_nome": m_nome,
+                    "esfera_id": 3,  # Municipal (portais de municipios)
+                    "uf": "SC",
+                    "municipio": record.get("municipio", ""),
+                    "codigo_municipio_ibge": record.get("ibge", ""),
+                    "orgao_razao_social": bid.get("orgao_nome", record.get("municipio", "")),
+                    "orgao_cnpj": bid.get("orgao_cnpj", ""),
+                    "data_publicacao": bid.get("data_publicacao", ""),
+                    "data_abertura": None,
+                    "data_encerramento": None,
+                    "link_pncp": bid.get("portal_url", record.get("url", "")),
+                    "content_hash": content_hash,
+                    "source_id": f"selenium_{record.get('slug', '')}_{pncp_id[-12:]}",
+                }
+            )
 
     _logger.info("Selenium transform: %d records -> %d flat bids", len(records), len(transformed))
     return transformed
@@ -295,7 +298,7 @@ def _generate_pncp_id(bid: dict, record: dict) -> str:
         f"{bid.get('objeto', '')}_"
         f"{bid.get('data_publicacao', '')}"
     )
-    return "sel_" + hashlib.md5(raw.encode()).hexdigest()[:32]
+    return "sel_" + hashlib.sha256(raw.encode()).hexdigest()[:32]
 
 
 def _make_hash(bid: dict, record: dict | None = None) -> str:
@@ -312,4 +315,4 @@ def _make_hash(bid: dict, record: dict | None = None) -> str:
         f"{bid.get('objeto', '')}|"
         f"{bid.get('data_publicacao', '')}"
     )
-    return hashlib.md5(content.encode()).hexdigest()
+    return hashlib.sha256(content.encode()).hexdigest()

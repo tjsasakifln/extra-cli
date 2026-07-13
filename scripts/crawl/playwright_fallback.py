@@ -53,13 +53,11 @@ _DEVICE_SCALE_FACTORS = [1, 1, 1, 1, 2]
 
 # User-Agent strings
 _USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
 ]
 
 
@@ -105,7 +103,9 @@ class PlaywrightFallback:
 
         _logger.info(
             "PlaywrightFallback initialised: browser=%s headless=%s timeout=%dms",
-            self.browser_type, self.headless, self.timeout,
+            self.browser_type,
+            self.headless,
+            self.timeout,
         )
 
     # ------------------------------------------------------------------
@@ -120,9 +120,7 @@ class PlaywrightFallback:
         try:
             from playwright.sync_api import sync_playwright
         except ImportError as e:
-            raise PlaywrightUnavailableError(
-                "Playwright not installed. Install with: pip install playwright"
-            ) from e
+            raise PlaywrightUnavailableError("Playwright not installed. Install with: pip install playwright") from e
 
         try:
             self._playwright = sync_playwright().start()
@@ -173,14 +171,16 @@ class PlaywrightFallback:
 
             _logger.info(
                 "Playwright browser launched: %s (viewport: %dx%d, scale: %d)",
-                self.browser_type, width, height, device_scale,
+                self.browser_type,
+                width,
+                height,
+                device_scale,
             )
             return self._browser
 
         except Exception as e:
             raise PlaywrightUnavailableError(
-                f"Failed to launch Playwright {self.browser_type}: {e}. "
-                "Run: playwright install"
+                f"Failed to launch Playwright {self.browser_type}: {e}. Run: playwright install"
             ) from e
 
     # ------------------------------------------------------------------
@@ -221,7 +221,9 @@ class PlaywrightFallback:
             except Exception as e:
                 _logger.warning(
                     "Wait for '%s' timed out on %s: %s. Returning current DOM.",
-                    wait_for, url, e,
+                    wait_for,
+                    url,
+                    e,
                 )
 
         # Extra time for async rendering
@@ -264,7 +266,10 @@ class PlaywrightFallback:
                     backoff = (attempt + 1) * 2.0
                     _logger.warning(
                         "Render attempt %d/%d failed for %s. Retrying in %.1fs...",
-                        attempt + 1, max_retries + 1, url, backoff,
+                        attempt + 1,
+                        max_retries + 1,
+                        url,
+                        backoff,
                     )
                     time.sleep(backoff)
                     self.close()
@@ -272,9 +277,7 @@ class PlaywrightFallback:
                     self._context = None
                     self._page = None
 
-        raise PlaywrightPageError(
-            f"Failed to render {url} after {max_retries + 1} attempts: {last_error}"
-        )
+        raise PlaywrightPageError(f"Failed to render {url} after {max_retries + 1} attempts: {last_error}")
 
     # ------------------------------------------------------------------
     # Screenshot (debug)

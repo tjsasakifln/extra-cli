@@ -18,7 +18,7 @@ import json
 import math
 import os
 import sys
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -45,14 +45,31 @@ try:
 except ImportError:
     # Fallback: hardcoded lists (must match registry.py)
     ALL_SOURCES = [
-        "pncp", "dom_sc", "pcp", "compras_gov", "sc_compras",
-        "contracts", "transparencia", "tce_sc", "doe_sc",
-        "ciga_ckan", "mides_bigquery", "selenium",
+        "pncp",
+        "dom_sc",
+        "pcp",
+        "compras_gov",
+        "sc_compras",
+        "contracts",
+        "transparencia",
+        "tce_sc",
+        "doe_sc",
+        "ciga_ckan",
+        "mides_bigquery",
+        "selenium",
     ]
     BID_SOURCES = [
-        "pncp", "dom_sc", "pcp", "compras_gov", "sc_compras",
-        "contracts", "transparencia", "tce_sc", "doe_sc",
-        "mides_bigquery", "selenium",
+        "pncp",
+        "dom_sc",
+        "pcp",
+        "compras_gov",
+        "sc_compras",
+        "contracts",
+        "transparencia",
+        "tce_sc",
+        "doe_sc",
+        "mides_bigquery",
+        "selenium",
     ]
     CONTRACT_SOURCES = ["contracts"]
 
@@ -94,12 +111,7 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Calculate great-circle distance in km between two points."""
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(math.radians(lat1))
-        * math.cos(math.radians(lat2))
-        * math.sin(dlon / 2) ** 2
-    )
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     return EARTH_RADIUS_KM * 2 * math.asin(math.sqrt(a))
 
 
@@ -108,9 +120,7 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 # ---------------------------------------------------------------------------
 
 
-def load_entities_within_radius(
-    conn, radius_km: float = DEFAULT_RADIUS_KM
-) -> list[dict]:
+def load_entities_within_radius(conn, radius_km: float = DEFAULT_RADIUS_KM) -> list[dict]:
     """Load active entities, filter by Haversine distance from Florianópolis.
 
     Uses the pre-computed ``raio_200km`` column as a fast pre-filter when
@@ -140,8 +150,10 @@ def load_entities_within_radius(
         for e in all_entities:
             if e["latitude"] is not None and e["longitude"] is not None:
                 dist = haversine_km(
-                    FLORIANOPOLIS_LAT, FLORIANOPOLIS_LON,
-                    float(e["latitude"]), float(e["longitude"]),
+                    FLORIANOPOLIS_LAT,
+                    FLORIANOPOLIS_LON,
+                    float(e["latitude"]),
+                    float(e["longitude"]),
                 )
                 if dist <= radius_km:
                     e["distancia_fk"] = dist
@@ -172,9 +184,7 @@ def load_latest_evidence(conn) -> list[dict]:
     Returns empty list if the table does not exist (migration not yet applied).
     """
     cur = conn.cursor()
-    cur.execute(
-        "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')"
-    )
+    cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')")
     if not cur.fetchone()[0]:
         cur.close()
         return []
@@ -188,9 +198,7 @@ def load_source_health(conn) -> list[dict]:
     Returns empty list if the view does not exist.
     """
     cur = conn.cursor()
-    cur.execute(
-        "SELECT EXISTS (SELECT 1 FROM information_schema.views WHERE table_name = 'v_source_health')"
-    )
+    cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.views WHERE table_name = 'v_source_health')")
     if not cur.fetchone()[0]:
         cur.close()
         return []
@@ -282,9 +290,7 @@ def compute_metrics(
     if n_entities == 0:
         monitoring_coverage_pct: float | None = 0.0  # trivial: no entities
     elif has_any_entity_evidence:
-        monitoring_coverage_pct = round(
-            len(entities_monitored) / n_entities * 100, 1
-        )
+        monitoring_coverage_pct = round(len(entities_monitored) / n_entities * 100, 1)
     else:
         monitoring_coverage_pct = None  # unverified
 
@@ -303,9 +309,7 @@ def compute_metrics(
         per_source_coverage[src] = {
             "entities_checked": checked,
             "entities_covered": covered,
-            "pct_covered": (
-                round(covered / checked * 100, 1) if checked > 0 else None
-            ),
+            "pct_covered": (round(covered / checked * 100, 1) if checked > 0 else None),
             "_source": "coverage_evidence",
         }
 
@@ -327,9 +331,7 @@ def compute_metrics(
                 freshness[eid] = dt
 
     entities_with_bids = len({eid for eid in entity_ids if bid_count.get(eid, 0) > 0})
-    bid_presence_pct = (
-        round(entities_with_bids / n_entities * 100, 1) if n_entities > 0 else 0.0
-    )
+    bid_presence_pct = round(entities_with_bids / n_entities * 100, 1) if n_entities > 0 else 0.0
 
     # ── Freshness (from persisted records) ──────────────────────────────
 
@@ -343,20 +345,12 @@ def compute_metrics(
     fresh_count = sum(1 for d in freshness_days.values() if d <= COVERAGE_WINDOW_DAYS)
     stale_count = sum(1 for d in freshness_days.values() if d > COVERAGE_WINDOW_DAYS)
     unknown_freshness = n_entities - len(freshness_days)
-    freshness_pct = (
-        round(fresh_count / n_entities * 100, 1) if n_entities > 0 else 0.0
-    )
+    freshness_pct = round(fresh_count / n_entities * 100, 1) if n_entities > 0 else 0.0
 
     # ── Contract presence ───────────────────────────────────────────────
 
-    entities_with_contracts = sum(
-        1 for eid in entity_ids if contract_presence.get(eid, False)
-    )
-    contract_presence_pct = (
-        round(entities_with_contracts / n_entities * 100, 1)
-        if n_entities > 0
-        else 0.0
-    )
+    entities_with_contracts = sum(1 for eid in entity_ids if contract_presence.get(eid, False))
+    contract_presence_pct = round(entities_with_contracts / n_entities * 100, 1) if n_entities > 0 else 0.0
 
     # ── Source health (from evidence ledger) ────────────────────────────
 
@@ -377,14 +371,8 @@ def compute_metrics(
                 "entity_rows": total,
                 "successful_rows": success,
                 "failed_rows": failed,
-                "health_pct": (
-                    round(success / total * 100, 1) if total > 0 else None
-                ),
-                "last_check": (
-                    sh["last_check_at"].isoformat()
-                    if sh.get("last_check_at")
-                    else None
-                ),
+                "health_pct": (round(success / total * 100, 1) if total > 0 else None),
+                "last_check": (sh["last_check_at"].isoformat() if sh.get("last_check_at") else None),
             }
     else:
         # No evidence ledger rows at all → unverified for every source
@@ -407,29 +395,25 @@ def compute_metrics(
         for src in BID_SOURCES:
             ev = entity_source_evidence.get((eid, src))
             if ev is None:
-                gaps.append({
-                    "entity_id": eid,
-                    "razao_social": (
-                        entity_by_id[eid]["razao_social"]
-                        if eid in entity_by_id
-                        else "?"
-                    ),
-                    "municipio": entity_by_id.get(eid, {}).get("municipio", ""),
-                    "source": src,
-                    "state": "not_investigated",
-                })
+                gaps.append(
+                    {
+                        "entity_id": eid,
+                        "razao_social": (entity_by_id[eid]["razao_social"] if eid in entity_by_id else "?"),
+                        "municipio": entity_by_id.get(eid, {}).get("municipio", ""),
+                        "source": src,
+                        "state": "not_investigated",
+                    }
+                )
             elif ev["state"] not in evidence_success_states:
-                gaps.append({
-                    "entity_id": eid,
-                    "razao_social": (
-                        entity_by_id[eid]["razao_social"]
-                        if eid in entity_by_id
-                        else "?"
-                    ),
-                    "municipio": entity_by_id.get(eid, {}).get("municipio", ""),
-                    "source": src,
-                    "state": ev["state"],
-                })
+                gaps.append(
+                    {
+                        "entity_id": eid,
+                        "razao_social": (entity_by_id[eid]["razao_social"] if eid in entity_by_id else "?"),
+                        "municipio": entity_by_id.get(eid, {}).get("municipio", ""),
+                        "source": src,
+                        "state": ev["state"],
+                    }
+                )
 
     # Marginal gap impact per source — only for sources WITH evidence
     source_gap_counts: dict[str, int] = {}
@@ -438,14 +422,8 @@ def compute_metrics(
         source_gap_counts[src] = source_gap_counts.get(src, 0) + 1
 
     # Only rank sources that actually have entity-level evidence
-    sources_with_evidence = {
-        src for (eid, src) in entity_source_evidence.keys()
-    }
-    ranked_candidates = [
-        (src, count)
-        for src, count in source_gap_counts.items()
-        if src in sources_with_evidence
-    ]
+    sources_with_evidence = {src for (eid, src) in entity_source_evidence.keys()}
+    ranked_candidates = [(src, count) for src, count in source_gap_counts.items() if src in sources_with_evidence]
     ranked_candidates.sort(key=lambda x: -x[1])
 
     next_best: dict[str, Any] | None = None
@@ -479,7 +457,7 @@ def compute_metrics(
 
     return {
         "meta": {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "radius_km": radius_km,
             "florianopolis": {"lat": FLORIANOPOLIS_LAT, "lon": FLORIANOPOLIS_LON},
             "coverage_window_days": COVERAGE_WINDOW_DAYS,
@@ -492,11 +470,7 @@ def compute_metrics(
         },
         "monitoring_coverage": {
             "pct": monitoring_coverage_pct,
-            "pct_display": (
-                f"{monitoring_coverage_pct}%"
-                if monitoring_coverage_pct is not None
-                else "unverified"
-            ),
+            "pct_display": (f"{monitoring_coverage_pct}%" if monitoring_coverage_pct is not None else "unverified"),
             "entities_monitored": len(entities_monitored),
             "entities_checked_no_coverage": len(entities_checked - entities_monitored),
             "entities_never_checked": entities_never_checked,
@@ -534,12 +508,7 @@ def compute_metrics(
         "source_health": health,
         "gaps": {
             "total_gap_combinations": len(gaps),
-            "by_source": {
-                src: count
-                for src, count in sorted(
-                    source_gap_counts.items(), key=lambda x: -x[1]
-                )
-            },
+            "by_source": {src: count for src, count in sorted(source_gap_counts.items(), key=lambda x: -x[1])},
             "next_best_source": next_best,
             "sample": gaps[:20],
         },
@@ -571,7 +540,9 @@ def print_summary(metrics: dict[str, Any]) -> None:
     print()
     print(f"  DENOMINATOR:  {denom['total_entities_within_radius']} active entities within radius")
     print()
-    print(f"  MONITORING COVERAGE:  {mc_pct_display} ({mc.get('entities_monitored', '?')}/{denom['total_entities_within_radius']})")
+    print(
+        f"  MONITORING COVERAGE:  {mc_pct_display} ({mc.get('entities_monitored', '?')}/{denom['total_entities_within_radius']})"
+    )
     print(f"    Source: {mc.get('_source', '?')}")
     print(f"    Checked (no success): {mc.get('entities_checked_no_coverage', '?')}")
     print(f"    Never checked:        {mc.get('entities_never_checked', '?')}")
@@ -581,9 +552,13 @@ def print_summary(metrics: dict[str, Any]) -> None:
     print(f"    Stale:  {fh['stale_count']}")
     print(f"    Unknown:{fh['unknown_count']}")
     print()
-    print(f"  BID PRESENCE (persisted records): {bp['pct']}% ({bp['entities_with_bids']}/{denom['total_entities_within_radius']})")
-    print(f"    ⚠️  Bid presence ≠ monitoring coverage. See report for details.")
-    print(f"  CONTRACT PRESENCE:                {cp['pct']}% ({cp['entities_with_contracts']}/{denom['total_entities_within_radius']})")
+    print(
+        f"  BID PRESENCE (persisted records): {bp['pct']}% ({bp['entities_with_bids']}/{denom['total_entities_within_radius']})"
+    )
+    print("    ⚠️  Bid presence ≠ monitoring coverage. See report for details.")
+    print(
+        f"  CONTRACT PRESENCE:                {cp['pct']}% ({cp['entities_with_contracts']}/{denom['total_entities_within_radius']})"
+    )
     print()
     print("  SOURCE HEALTH (from evidence ledger):")
     for src, h in sorted(metrics["source_health"].items()):
@@ -594,7 +569,7 @@ def print_summary(metrics: dict[str, Any]) -> None:
         print(f"    {src:<20s}  health={hp_str:>10s}  last_check={last}{note}")
     print()
     print(f"  GAPS: {gaps['total_gap_combinations']} entity+source pairs without success evidence")
-    print(f"  Top gap sources (by entity count):")
+    print("  Top gap sources (by entity count):")
     for src, count in list(gaps.get("by_source", {}).items())[:5]:
         print(f"    {src:<20s}  {count} entities")
     next_src = gaps.get("next_best_source")
@@ -622,9 +597,13 @@ def build_markdown(metrics: dict[str, Any]) -> str:
     lines.append("# Coverage Truth Report")
     lines.append("")
     lines.append(f"**Generated:** {meta['generated_at']}")
-    lines.append(f"**Radius:** {meta['radius_km']} km from Florianópolis ({meta['florianopolis']['lat']}, {meta['florianopolis']['lon']})")
+    lines.append(
+        f"**Radius:** {meta['radius_km']} km from Florianópolis ({meta['florianopolis']['lat']}, {meta['florianopolis']['lon']})"
+    )
     lines.append(f"**Coverage window:** {meta['coverage_window_days']} days")
-    lines.append(f"**Evidence ledger:** {'Available' if meta['evidence_ledger_available'] else 'Unverified — ledger empty'}")
+    lines.append(
+        f"**Evidence ledger:** {'Available' if meta['evidence_ledger_available'] else 'Unverified — ledger empty'}"
+    )
     lines.append("")
     lines.append("---")
     lines.append("")
@@ -637,11 +616,19 @@ def build_markdown(metrics: dict[str, Any]) -> str:
     lines.append("")
     lines.append("| Metric | Definition | Source |")
     lines.append("|--------|-----------|--------|")
-    lines.append("| Monitoring Coverage | % of entities with ≥1 source having evidence state `success_*` | `coverage_evidence` (v_latest_evidence) |")
-    lines.append(f"| Freshness | % of entities with `last_seen_at` within {COVERAGE_WINDOW_DAYS} days | `entity_coverage.last_seen_at` |")
+    lines.append(
+        "| Monitoring Coverage | % of entities with ≥1 source having evidence state `success_*` | `coverage_evidence` (v_latest_evidence) |"
+    )
+    lines.append(
+        f"| Freshness | % of entities with `last_seen_at` within {COVERAGE_WINDOW_DAYS} days | `entity_coverage.last_seen_at` |"
+    )
     lines.append("| Bid Presence | % of entities with ≥1 persisted bid record | `entity_coverage.total_bids` |")
-    lines.append("| Contract Presence | % of entities with a contract record | `entity_coverage` (source='contracts') |")
-    lines.append("| Source Health | % of successful entity-level evidence rows per source | `coverage_evidence` (v_source_health) |")
+    lines.append(
+        "| Contract Presence | % of entities with a contract record | `entity_coverage` (source='contracts') |"
+    )
+    lines.append(
+        "| Source Health | % of successful entity-level evidence rows per source | `coverage_evidence` (v_source_health) |"
+    )
     lines.append("| Entity/Source Gaps | Entity+source pairs without `success_*` evidence | `coverage_evidence` |")
     lines.append("")
     lines.append("## Monitoring Coverage")
@@ -649,7 +636,9 @@ def build_markdown(metrics: dict[str, Any]) -> str:
     mc_pct_display = mc.get("pct_display", f"{mc.get('pct', '?')}%")
     mc_note = mc.get("_note", "")
     mc_source = mc.get("_source", "?")
-    lines.append(f"- **Coverage:** {mc_pct_display} ({mc.get('entities_monitored', '?')}/{denom['total_entities_within_radius']})")
+    lines.append(
+        f"- **Coverage:** {mc_pct_display} ({mc.get('entities_monitored', '?')}/{denom['total_entities_within_radius']})"
+    )
     lines.append(f"- Source: `{mc_source}`")
     if mc_note:
         lines.append(f"- ⚠️  {mc_note}")
@@ -730,7 +719,9 @@ def build_markdown(metrics: dict[str, Any]) -> str:
         lines.append(f"**Rationale:** {next_src['rationale']}")
         if next_src.get("unverified"):
             lines.append("")
-            lines.append("⚠️  **Marginal gain is unverified.** No source has entity-level evidence in the ledger. This ranking reflects only the count of uncovered entity+source combinations — it does NOT reflect observed source effectiveness.")
+            lines.append(
+                "⚠️  **Marginal gain is unverified.** No source has entity-level evidence in the ledger. This ranking reflects only the count of uncovered entity+source combinations — it does NOT reflect observed source effectiveness."
+            )
         lines.append("")
     lines.append("### Sample Gaps (first 20)")
     lines.append("")
@@ -771,7 +762,7 @@ def cmd_report(args: argparse.Namespace) -> int:
     except Exception as e:
         print(f"❌ Cannot connect to database: {e}")
         print(f"   DSN: {_get_dsn()}")
-        print(f"   Set LOCAL_DATALAKE_DSN env var to override.")
+        print("   Set LOCAL_DATALAKE_DSN env var to override.")
         return 1
 
     try:
@@ -807,8 +798,12 @@ def cmd_report(args: argparse.Namespace) -> int:
     # ── Compute metrics ──────────────────────────────────────────────────
     print("Computing metrics...")
     metrics = compute_metrics(
-        entities, coverage, evidence, source_health,
-        contract_presence, radius_km,
+        entities,
+        coverage,
+        evidence,
+        source_health,
+        contract_presence,
+        radius_km,
     )
 
     # ── Print summary ────────────────────────────────────────────────────

@@ -113,14 +113,15 @@ def print_baseline_report(result: dict) -> None:
     print(f"  Entity Matching Baseline Report — {result['label']}")
     print("=" * 72)
 
-    print(f"\n  Overall: {result['total_matched']}/{result['total_bids']} "
-          f"matched ({result['overall_pct']}%)")
+    print(f"\n  Overall: {result['total_matched']}/{result['total_bids']} matched ({result['overall_pct']}%)")
     print(f"  Distinct entities covered: {result['distinct_entities_covered']}")
 
     print("\n  --- By Source ---")
     for source, stats in sorted(result["by_source"].items()):
-        print(f"    {source:20s}: {stats['matched']:6d}/{stats['total']:6d} "
-              f"({stats['pct']:5.1f}%)  [{stats['unmatched']} unmatched]")
+        print(
+            f"    {source:20s}: {stats['matched']:6d}/{stats['total']:6d} "
+            f"({stats['pct']:5.1f}%)  [{stats['unmatched']} unmatched]"
+        )
 
     print("\n  --- By Match Method ---")
     for method, cnt in sorted(result["by_method"].items()):
@@ -153,9 +154,7 @@ def save_report(result: dict, path: str | None = None) -> str | None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Measure entity matching coverage baseline"
-    )
+    parser = argparse.ArgumentParser(description="Measure entity matching coverage baseline")
     parser.add_argument(
         "--before",
         action="store_true",
@@ -210,13 +209,11 @@ def main() -> int:
 
                 if after_entities < before_entities:
                     lost = before_entities - after_entities
-                    print(f"  ❌ REGRESSION: {lost} entities lost coverage "
-                          f"({before_entities} -> {after_entities})")
+                    print(f"  ❌ REGRESSION: {lost} entities lost coverage ({before_entities} -> {after_entities})")
                     return 1
                 else:
                     gained = after_entities - before_entities
-                    print(f"  ✅ ZERO REGRESSION: {before_entities} -> "
-                          f"{after_entities} entities covered (+{gained})")
+                    print(f"  ✅ ZERO REGRESSION: {before_entities} -> {after_entities} entities covered (+{gained})")
                     return 0
             else:
                 print("  ⚠️  No saved baseline found. Run with --before first.")

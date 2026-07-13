@@ -96,7 +96,7 @@ class PNCPClient:
 
         Sleeps if necessary to maintain minimum interval between requests.
         """
-        MIN_INTERVAL = 0.1  # 100ms = 10 requests/second
+        MIN_INTERVAL = 0.1  # noqa: N806  # 100ms = 10 requests/second
 
         elapsed = time.time() - self._last_request_time
         if elapsed < MIN_INTERVAL:

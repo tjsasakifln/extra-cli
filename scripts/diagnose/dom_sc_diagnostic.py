@@ -201,23 +201,24 @@ def _check_pagination_api(date_from: date, date_to: date) -> dict[str, Any]:
     data_o100 = _api_request(url, params)
     total_o100 = len(data_o100.get("publicacoes", [])) if data_o100 and "_error" not in data_o100 else 0
 
-    results.update({
-        "total_sem_paginacao": total_sem_pagina,
-        "total_com_pagina_1": total_p1,
-        "total_com_pagina_2": total_p2,
-        "total_com_offset_0": total_o0,
-        "total_com_offset_100": total_o100,
-        "pagination_supported": (
-            "YES" if total_p1 > 0 and total_p2 >= 0 and total_p1 != total_p2
-            else "PARTIAL" if total_p1 > 0
-            else "NO"
-        ),
-        "offset_supported": (
-            "YES" if total_o0 > 0 and total_o100 >= 0 and total_o0 != total_o100
-            else "NO"
-        ),
-        "observations": [],
-    })
+    results.update(
+        {
+            "total_sem_paginacao": total_sem_pagina,
+            "total_com_pagina_1": total_p1,
+            "total_com_pagina_2": total_p2,
+            "total_com_offset_0": total_o0,
+            "total_com_offset_100": total_o100,
+            "pagination_supported": (
+                "YES"
+                if total_p1 > 0 and total_p2 >= 0 and total_p1 != total_p2
+                else "PARTIAL"
+                if total_p1 > 0
+                else "NO"
+            ),
+            "offset_supported": ("YES" if total_o0 > 0 and total_o100 >= 0 and total_o0 != total_o100 else "NO"),
+            "observations": [],
+        }
+    )
 
     # Build observations
     obs = results["observations"]
@@ -361,24 +362,18 @@ def run_diagnostic(sample_size: int = 0, days: int = 90) -> dict:
 
     # Summary
     api_ok = sum(
-        1 for v in results.get("api_categorias", {}).values()
-        if isinstance(v, dict) and v.get("status") == "OK"
+        1 for v in results.get("api_categorias", {}).values() if isinstance(v, dict) and v.get("status") == "OK"
     )
     api_fail = sum(
-        1 for v in results.get("api_categorias", {}).values()
-        if isinstance(v, dict) and v.get("status") != "OK"
+        1 for v in results.get("api_categorias", {}).values() if isinstance(v, dict) and v.get("status") != "OK"
     )
     results["summary"] = {
         "categorias_ok": api_ok,
         "categorias_fail": api_fail,
         "total_categorias": len(CATEGORIAS),
-        "site_acessivel": any(
-            v.get("status") == 200 for v in results.get("site_accessibility", {}).values()
-        ),
+        "site_acessivel": any(v.get("status") == 200 for v in results.get("site_accessibility", {}).values()),
         "pagination_supported": results.get("pagination", {}).get("pagination_supported", "UNKNOWN"),
-        "credentials_ok": all(
-            v.startswith("OK") for v in results.get("credentials", {}).values()
-        ),
+        "credentials_ok": all(v.startswith("OK") for v in results.get("credentials", {}).values()),
     }
 
     return results
@@ -423,9 +418,11 @@ def print_diagnostic_report(results: dict) -> None:
         if isinstance(info, dict):
             status = info.get("status", "?")
             if status == "OK":
-                print(f"     {cat_key:15s}: OK | {info.get('total_publicacoes', 0):6d} pubs | "
-                      f"{info.get('total_municipios', 0):3d} municipios | "
-                      f"{info.get('total_orgaos_8', 0):3d} orgaos")
+                print(
+                    f"     {cat_key:15s}: OK | {info.get('total_publicacoes', 0):6d} pubs | "
+                    f"{info.get('total_municipios', 0):3d} municipios | "
+                    f"{info.get('total_orgaos_8', 0):3d} orgaos"
+                )
                 top5 = info.get("top5_municipios", [])
                 if top5:
                     print(f"                  Top5: {top5[:3]}")
@@ -450,9 +447,11 @@ def print_diagnostic_report(results: dict) -> None:
         if isinstance(info, dict):
             st = info.get("status", "?")
             if st == 200:
-                print(f"     {label:20s}: OK ({info.get('bytes', 0)} bytes, "
-                      f"captcha={info.get('has_captcha', '?')}, "
-                      f"form={info.get('has_form', '?')})")
+                print(
+                    f"     {label:20s}: OK ({info.get('bytes', 0)} bytes, "
+                    f"captcha={info.get('has_captcha', '?')}, "
+                    f"form={info.get('has_form', '?')})"
+                )
             else:
                 print(f"     {label:20s}: FAIL (status={st})")
 
@@ -498,7 +497,9 @@ def generate_markdown_report(results: dict) -> str:
         flag = "OK" if status.startswith("OK") else "MISSING"
         lines.append(f"| `{var}` | {flag} |")
     lines.append("")
-    lines.append(f"**Verdict:** {'All credentials present' if all(s.startswith('OK') for s in creds.values()) else 'WARNING: Missing credentials will cause API failures'}")
+    lines.append(
+        f"**Verdict:** {'All credentials present' if all(s.startswith('OK') for s in creds.values()) else 'WARNING: Missing credentials will cause API failures'}"
+    )
     lines.append("")
 
     lines.append("## 2. Site Accessibility")
@@ -508,7 +509,7 @@ def generate_markdown_report(results: dict) -> str:
     for label, info in results.get("site_accessibility", {}).items():
         if isinstance(info, dict):
             st = info.get("status", "?")
-            detail = f"{info.get('bytes', 0)} bytes" if st == 200 else info.get('error', 'N/A')
+            detail = f"{info.get('bytes', 0)} bytes" if st == 200 else info.get("error", "N/A")
             icon = "OK" if st == 200 else "FAIL"
             lines.append(f"| {label} | {icon} | st={st}, {detail} |")
     lines.append("")

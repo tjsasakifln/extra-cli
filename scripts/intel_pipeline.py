@@ -480,7 +480,7 @@ def gate4_conteudo(data: dict, top_n: int) -> GateResult:
         texto = e.get("texto_documentos", "")
         if not texto:
             continue
-        lines = [l.strip() for l in texto.split("\n") if l.strip()]
+        lines = [line.strip() for line in texto.split("\n") if line.strip()]
         if len(lines) < 5:
             continue
         # Check if > 70% of lines are the same (watermark/header repeated)

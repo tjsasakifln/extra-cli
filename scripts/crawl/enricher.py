@@ -428,7 +428,7 @@ async def _enrich_one_municipio(ibge_code: str, slug: str, sem: asyncio.Semaphor
             )
 
             # Populacao estimada (SIDRA agregado 1705, variavel 93)
-            populacao: Optional[int] = None
+            populacao: int | None = None
             try:
                 r_pop = await client.get(
                     f"{_IBGE_API_BASE}/v3/agregados/1705/periodos/2023/variaveis/93?localidades=N6[{ibge_code}]",
@@ -503,7 +503,6 @@ async def _fetch_ibge_municipio_lookup() -> dict[tuple[str, str], str]:
 
     # Simple retry with exponential backoff: 1s → 2s → 4s
     max_retries = 3
-    last_error: str | None = None
     for attempt in range(max_retries + 1):
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
@@ -512,7 +511,6 @@ async def _fetch_ibge_municipio_lookup() -> dict[tuple[str, str], str]:
                     follow_redirects=True,
                 )
                 if resp.status_code != 200:
-                    last_error = f"HTTP {resp.status_code}"
                     if attempt < max_retries:
                         delay = 2**attempt
                         logger.warning(
@@ -534,7 +532,7 @@ async def _fetch_ibge_municipio_lookup() -> dict[tuple[str, str], str]:
                 municipios = resp.json()
                 break  # success — exit retry loop
         except (httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError) as e:
-            last_error = str(e)
+            str(e)
             if attempt < max_retries:
                 delay = 2**attempt
                 logger.warning(

@@ -18,6 +18,7 @@ from typing import Any, Literal, Protocol, runtime_checkable
 # Source purpose markers
 # ---------------------------------------------------------------------------
 
+
 class SourcePurpose:
     """Marker constants for crawler module ``SOURCE_PURPOSE`` attribute."""
 

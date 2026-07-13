@@ -61,7 +61,7 @@ def query_conn(conn, sql: str, params: list[Any] | None = None) -> list[dict]:
 
 def cmd_stats() -> int:
     """Show datalake table statistics."""
-    CORE = [
+    CORE = [  # noqa: N806
         "pncp_raw_bids",
         "pncp_supplier_contracts",
         "enriched_entities",
@@ -182,7 +182,7 @@ def cmd_supplier(args: argparse.Namespace) -> int:
 
     dias = args.dias or 365
     end_date = date.today()
-    start_date = end_date - timedelta(days=dias)
+    end_date - timedelta(days=dias)
 
     rows = query(
         """SELECT ni_fornecedor, nome_fornecedor, orgao_cnpj, orgao_nome, uf, municipio,

@@ -96,6 +96,7 @@ def _get_public_sources() -> set[str]:
     global _PUBLIC_SOURCES
     if not _PUBLIC_SOURCES:
         from scripts.crawl.registry import get_public_sources
+
         _PUBLIC_SOURCES = get_public_sources()
     return _PUBLIC_SOURCES
 
@@ -129,6 +130,7 @@ def validate_source_credentials(
     if requirements is None:
         # Unknown source — check registry for existence
         from scripts.crawl.registry import lookup
+
         info = lookup(source)
         if info is None:
             _logger.debug("Unknown source %r — skipping credential check", source)

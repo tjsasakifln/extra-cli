@@ -18,8 +18,7 @@ class AsyncPNCPClient:
 
     def __init__(self, *args: Any, **kwargs: Any):
         raise NotImplementedError(
-            "pncp_client.AsyncPNCPClient is DEPRECATED (TD-3.2). "
-            "Use scripts/crawl/pncp_crawler.py instead."
+            "pncp_client.AsyncPNCPClient is DEPRECATED (TD-3.2). Use scripts/crawl/pncp_crawler.py instead."
         )
 
 

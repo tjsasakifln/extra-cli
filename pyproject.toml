@@ -15,11 +15,39 @@ lint.select = [
 lint.ignore = [
     "E501",  # Line too long — handled by formatter
     "N802",  # Allow lowercase function names for internal helpers
+    "N999",  # Allow hyphens in module names (e.g. war-room-b2g-collect)
 ]
 
 # Allow unused imports in __init__.py
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"scripts/collect_report_data.py" = ["N806", "F841"]
+"scripts/collect-report-data.py" = ["N806", "F841"]
+"scripts/intel_report.py" = ["N806", "F841", "E402"]
+"scripts/intel-report.py" = ["N806", "F841", "E402"]
+"scripts/intel_excel.py" = ["N806", "F841", "E402", "E741"]
+"scripts/intel-excel.py" = ["N806", "F841", "E402", "E741"]
+"scripts/intel_pipeline.py" = ["N806", "F841", "E402"]
+"scripts/generate_proposta_pdf.py" = ["N806", "F841"]
+"scripts/generate-proposta-pdf.py" = ["N806", "F841"]
+"scripts/reports/coverage_weekly.py" = ["N806", "F841"]
+"scripts/collect-metrics.py" = ["E402"]
+"scripts/intel-enrich.py" = ["E402"]
+"scripts/intel-validate.py" = ["E402"]
+"scripts/intel_validate.py" = ["E402"]
+"scripts/health-dashboard.py" = ["E402"]
+"scripts/notify.py" = ["E402"]
+"scripts/intel-analyze.py" = ["E402"]
+"scripts/intel_llm_gate.py" = ["E402"]
+"scripts/check-alerts.py" = ["E402"]
+"scripts/pipeline/backfill_multi_source.py" = ["E402"]
+"scripts/crawl/batch_detect_platforms.py" = ["E402"]
+"scripts/crawl/batch_detect_platforms_pass2.py" = ["E402"]
+"scripts/crawl/generate_transparencia_config.py" = ["E402"]
+"scripts/crawl/monitor.py" = ["E402"]
+"scripts/export-sc-200km-final.py" = ["E402"]
+"scripts/fix/activate_dormant_sources.py" = ["E402"]
+"scripts/fix/resolve_unresolved_entities.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.12"

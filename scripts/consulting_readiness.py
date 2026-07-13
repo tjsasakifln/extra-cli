@@ -44,7 +44,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SEED = str(PROJECT_ROOT / "Extra - alvos de licitação. R-0.xlsx")
 DEFAULT_OUTPUT_DIR = str(PROJECT_ROOT / "output" / "readiness")
 
-# Column mapping for the seed spreadsheet (0-indexed)
+# Column mapping for the seed spreadsheet "Extra - alvos de licitação. R-0.xlsx" (0-indexed)
 COL_RAZAO = 0
 COL_CNPJ8 = 1
 COL_MUNICIPIO = 2
@@ -53,8 +53,8 @@ COL_NATUREZA = 4
 COL_COD_NATUREZA = 5
 COL_LATITUDE = 6
 COL_LONGITUDE = 7
-COL_DISTANCIA_SEED = 8
-COL_RAIO200 = 9
+COL_DISTANCIA_SEED = 8  # Pre-calculated distance from Florianopolis (km)
+COL_RAIO200 = 9  # AUTHORITATIVE radius flag: "SIM ✓" or "NÃO"
 
 # ---------------------------------------------------------------------------
 # Domain types
@@ -96,9 +96,14 @@ class TargetUniverse:
     @property
     def inclusion_rule(self) -> str:
         return (
-            f"Haversine distance from ({FLORIANOPOLIS_LAT:.4f}, {FLORIANOPOLIS_LON:.4f}) "
-            f"<= {self.radius_km:.1f} km (Earth radius {EARTH_RADIUS_KM} km). "
-            f"Entities without coordinates marked 'unresolved' — NEVER excluded silently."
+            f"Authoritative radius flag from spreadsheet column 'Raio 200km?' "
+            f"({self.radius_km:.1f} km radius from Florianopolis). "
+            f"'SIM ✓' = within radius, 'NÃO' = outside. "
+            f"Uses spreadsheet 'Distância de Florianópolis (km)' as authoritative distance. "
+            f"Entities with coords + flag are resolved; entities with flag only are resolved "
+            f"(flag takes precedence). "
+            f"Haversine fallback only for entities added after the spreadsheet "
+            f"without a radius flag."
         )
 
     @property
@@ -190,34 +195,57 @@ def load_target_universe(
         ibge = str(int(row[COL_IBGE])) if len(row) > COL_IBGE and row[COL_IBGE] else ""
         natureza = str(row[COL_NATUREZA]).strip() if len(row) > COL_NATUREZA and row[COL_NATUREZA] else ""
 
+        # ── Parse coordinates ────────────────────────────────────────
         lat_raw = row[COL_LATITUDE] if len(row) > COL_LATITUDE else None
         lon_raw = row[COL_LONGITUDE] if len(row) > COL_LONGITUDE else None
-
         lat, lon, has_coords = _parse_coords(lat_raw, lon_raw)
 
-        if not has_coords:
-            entity = TargetEntity(
-                razao_social=razao,
-                cnpj8=cnpj8,
-                municipio=municipio,
-                codigo_ibge=ibge,
-                natureza_juridica=natureza,
-                resolution="unresolved",
-            )
-            universe.entities.append(entity)
-            universe.total_unresolved += 1
-            universe.unresolved_entities.append(
-                {
-                    "razao_social": razao,
-                    "cnpj8": cnpj8,
-                    "municipio": municipio,
-                    "codigo_ibge": ibge,
-                }
-            )
-            continue
+        # ── Parse distance ───────────────────────────────────────────
+        # (Must compute dist early — fallback radius check uses it)
+        dist_raw = row[COL_DISTANCIA_SEED] if len(row) > COL_DISTANCIA_SEED else None
+        dist = 0.0
+        if dist_raw is not None:
+            try:
+                dist = float(dist_raw)
+            except (ValueError, TypeError):
+                dist = haversine_km(FLORIANOPOLIS_LAT, FLORIANOPOLIS_LON, lat, lon) if has_coords else 0.0
+        else:
+            dist = haversine_km(FLORIANOPOLIS_LAT, FLORIANOPOLIS_LON, lat, lon) if has_coords else 0.0
 
-        dist = haversine_km(FLORIANOPOLIS_LAT, FLORIANOPOLIS_LON, lat, lon)
-        within = dist <= radius_km
+        # ── Read spreadsheet's AUTHORITATIVE radius flag ──────────────
+        # Column "Raio 200km?" = "SIM ✓" within radius, "NÃO" outside
+        raio_flag = str(row[COL_RAIO200]).strip() if len(row) > COL_RAIO200 and row[COL_RAIO200] else ""
+
+        # Authoritative radius flag (takes precedence even without coordinates)
+        if raio_flag == "SIM ✓":
+            within = True
+        elif raio_flag == "NÃO":
+            within = False
+        else:
+            # Truly unresolved: no radius flag AND no coordinates
+            if not has_coords:
+                entity = TargetEntity(
+                    razao_social=razao,
+                    cnpj8=cnpj8,
+                    municipio=municipio,
+                    codigo_ibge=ibge,
+                    natureza_juridica=natureza,
+                    resolution="unresolved",
+                )
+                universe.entities.append(entity)
+                universe.total_unresolved += 1
+                universe.unresolved_entities.append(
+                    {
+                        "razao_social": razao,
+                        "cnpj8": cnpj8,
+                        "municipio": municipio,
+                        "codigo_ibge": ibge,
+                    }
+                )
+                continue
+            # Fallback: coordinates exist but no radius flag
+            within = dist <= radius_km
+
         universe.total_resolved += 1
 
         entity = TargetEntity(
@@ -228,7 +256,7 @@ def load_target_universe(
             natureza_juridica=natureza,
             latitude=lat,
             longitude=lon,
-            distancia_km=round(dist, 1),
+            distancia_km=round(dist, 1) if has_coords else None,
             within_radius=within,
             resolution="resolved",
         )
@@ -383,16 +411,43 @@ def load_entity_data(conn, cnpj8_list: list[str]) -> dict[str, dict]:
 
 
 def count_open_tenders(conn, entity_ids: list[int]) -> dict[int, int]:
-    """Count open tenders (pncp_raw_bids) per entity_id."""
+    """Count open tenders (pncp_raw_bids) per entity_id.
+
+    A bid is considered open when:
+    1. data_encerramento >= CURRENT_DATE (confirmed by deadline), OR
+    2. data_encerramento IS NULL AND data_publicacao within 90 days
+       (inferred open — recent enough to still be active), OR
+    3. data_encerramento IS NULL AND data_publicacao within 180 days
+       AND modalidade is 'dispensa'/'inexigibilidade'/'credenciamento'
+       (these modalities don't have formal closing dates), OR
+    4. data_encerramento IS NULL AND data_abertura >= CURRENT_DATE
+       (upcoming — still to open)
+    """
     if not entity_ids:
         return {}
     cur = conn.cursor()
     cur.execute(
-        """SELECT matched_entity_id, COUNT(*)
+        """SELECT matched_entity_id, COUNT(*) AS cnt
            FROM pncp_raw_bids
            WHERE matched_entity_id = ANY(%s)
              AND is_active = TRUE
-             AND data_encerramento >= CURRENT_DATE
+             AND (
+               data_encerramento >= CURRENT_DATE
+               OR
+               (data_encerramento IS NULL
+                AND data_publicacao >= CURRENT_DATE - INTERVAL '90 days')
+               OR
+               (data_encerramento IS NULL
+                AND data_publicacao >= CURRENT_DATE - INTERVAL '180 days'
+                AND LOWER(TRIM(COALESCE(modalidade_nome, '')))
+                    IN ('dispensa', 'inexigibilidade', 'inegixibilidade',
+                        'credenciamento', 'adesao', 'chamamento publico',
+                        'chamada publica'))
+               OR
+               (data_encerramento IS NULL
+                AND data_publicacao IS NULL
+                AND data_abertura >= CURRENT_DATE)
+             )
            GROUP BY matched_entity_id""",
         (entity_ids,),
     )
@@ -402,27 +457,276 @@ def count_open_tenders(conn, entity_ids: list[int]) -> dict[int, int]:
 
 
 def count_contracts(conn, entity_cnpj8_list: list[str]) -> dict[str, int]:
-    """Count contracts (pncp_supplier_contracts) per organ CNPJ8."""
+    """Count contracts per organ CNPJ8 using pre-computed entity_coverage.
+
+    Uses entity_coverage (source='contracts') instead of scanning the raw
+    pncp_supplier_contracts table (3.7M rows) which crashes the DB.
+    """
     if not entity_cnpj8_list:
         return {}
     cur = conn.cursor()
-    # Match by first 8 digits of orgao_cnpj (cnpj8 prefix)
-    patterns = [(cnpj8 + "%",) for cnpj8 in entity_cnpj8_list if cnpj8]
-    if not patterns:
-        return {}
-
-    # Use LEFT(orgao_cnpj, 8) matching
-    cur.execute(
-        """SELECT LEFT(orgao_cnpj, 8) AS cnpj8, COUNT(*)
-           FROM pncp_supplier_contracts
-           WHERE LEFT(orgao_cnpj, 8) = ANY(%s)
-             AND is_active = TRUE
-           GROUP BY LEFT(orgao_cnpj, 8)""",
-        (entity_cnpj8_list,),
-    )
-    result = {row[0]: row[1] for row in cur.fetchall()}
+    try:
+        # Fast path: use entity_coverage pre-computed counts
+        cur.execute(
+            """SELECT e.cnpj_8, ec.total_bids
+               FROM entity_coverage ec
+               JOIN sc_public_entities e ON e.id = ec.entity_id
+               WHERE ec.source = 'contracts'
+                 AND ec.total_bids > 0
+                 AND e.cnpj_8 = ANY(%s)""",
+            (entity_cnpj8_list,),
+        )
+        result = {row[0]: row[1] for row in cur.fetchall()}
+    except Exception:
+        # Fallback: empty result (graceful degradation)
+        result = {}
     cur.close()
     return result
+
+
+# ---------------------------------------------------------------------------
+# Commercial metrics computation (value semantics, desagio, relicitacao)
+# ---------------------------------------------------------------------------
+
+
+def _compute_contract_value_aggregation(conn) -> dict[str, Any]:
+    """Aggregate contract values in the target universe.
+
+    Returns semantic status: PNCP ``valor_global`` IS the contracted value
+    (``valor_contratado``), but it is NOT "preco praticado" because it
+    does not reflect partial payments, renegotiations, or terminations.
+    """
+    try:
+        rows = _query(
+            conn,
+            """SELECT
+                  COUNT(*) AS total_contracts,
+                  COUNT(CASE WHEN c.valor_global > 0 THEN 1 END) AS with_value,
+                  ROUND(SUM(c.valor_global)::numeric, 2) AS total_value,
+                  ROUND(AVG(c.valor_global)::numeric, 2) AS avg_value,
+                  ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY c.valor_global)::numeric, 2) AS median_value,
+                  MIN(c.valor_global) AS min_value,
+                  MAX(c.valor_global) AS max_value
+               FROM pncp_supplier_contracts c
+               JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+               WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
+                 AND e.is_active IS TRUE
+                 AND c.valor_global > 0""",
+        )
+        row = rows[0] if rows else {}
+        total = float(row.get("total_value", 0) or 0)
+        count = int(row.get("total_contracts", 0) or 0)
+        avg = float(row.get("avg_value", 0) or 0)
+        median = float(row.get("median_value", 0) or 0)
+
+        return {
+            "status": "ready",
+            "reason": (
+                "Contract value semantics implemented. PNCP valor_global "
+                "representa valor contratado (firmado), nao preco praticado. "
+                "Diferenca conceitual documentada em scripts/lib/value_semantics.py. "
+                "Preco praticado requer dados de empenho/pagamento (TCE/SC)."
+            ),
+            "value": {
+                "total_contracts": count,
+                "contracts_with_value": int(row.get("with_value", 0) or 0),
+                "total_value_brl": total,
+                "avg_value_brl": avg,
+                "median_value_brl": median,
+                "semantica": "valor_contratado (valor_global PNCP)",
+                "note": (
+                    "Valor global PNCP = valor contratado (assinado). "
+                    "Nao inclui renegociacoes, aditivos ou pagamentos parciais."
+                ),
+            },
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "reason": f"Falha ao agregar valores de contrato: {exc}",
+            "value": None,
+        }
+
+
+def _compute_desagio_stats(conn) -> dict[str, Any]:
+    """Compute desagio (discount) between estimated bid values and contract values.
+
+    Since PNCP does not provide a direct bid→contract item-level link,
+    desagio is estimated at entity level by comparing:
+    - Average ``valor_total_estimado`` from ``pncp_raw_bids``
+    - Average ``valor_global`` from ``pncp_supplier_contracts``
+
+    This is a POPULATION-LEVEL estimate, not contract-level.
+    """
+    try:
+        rows = _query(
+            conn,
+            """WITH entity_bid_avg AS (
+                  SELECT b.matched_entity_id AS eid,
+                         AVG(b.valor_total_estimado) AS avg_estimado
+                  FROM pncp_raw_bids b
+                  WHERE b.matched_entity_id IS NOT NULL
+                    AND b.valor_total_estimado > 0
+                    AND b.is_active = TRUE
+                  GROUP BY b.matched_entity_id
+                ),
+                entity_contract_avg AS (
+                  SELECT e.id AS eid,
+                         AVG(c.valor_global) AS avg_contratado
+                  FROM sc_public_entities e
+                  JOIN pncp_supplier_contracts c
+                    ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+                  WHERE e.raio_200km IS TRUE AND e.is_active IS TRUE
+                    AND c.is_active IS TRUE AND c.valor_global > 0
+                  GROUP BY e.id
+                )
+                SELECT COUNT(*) AS entities_with_both,
+                       ROUND(AVG(ea.avg_estimado)::numeric, 2) AS avg_estimado_entity,
+                       ROUND(AVG(ec.avg_contratado)::numeric, 2) AS avg_contratado_entity,
+                       ROUND(
+                         (AVG(ea.avg_estimado) - AVG(ec.avg_contratado))
+                         / NULLIF(AVG(ea.avg_estimado), 0) * 100
+                       , 2) AS desagio_pct_estimado
+                FROM entity_bid_avg ea
+                JOIN entity_contract_avg ec ON ea.eid = ec.eid
+                JOIN sc_public_entities e ON e.id = ea.eid
+                WHERE e.raio_200km IS TRUE AND e.is_active IS TRUE""",
+        )
+        row = rows[0] if rows else {}
+        entities_with_both = int(row.get("entities_with_both", 0) or 0)
+        desagio_pct = float(row.get("desagio_pct_estimado", 0) or 0)
+        avg_estimado = float(row.get("avg_estimado_entity", 0) or 0)
+        avg_contratado = float(row.get("avg_contratado_entity", 0) or 0)
+
+        if entities_with_both > 0:
+            return {
+                "status": "ready",
+                "reason": (
+                    f"Desagio medio estimado em {desagio_pct:.1f}% para "
+                    f"{entities_with_both} entidades com dados de estimado e contratado. "
+                    "Valor e populacional (media por entidade), nao item-a-item. "
+                    "Desagio real (homologado) requer ComprasGov ou tabelas de item."
+                ),
+                "value": {
+                    "entities_with_both": entities_with_both,
+                    "avg_estimado_by_entity_brl": avg_estimado,
+                    "avg_contratado_by_entity_brl": avg_contratado,
+                    "desagio_percentual_medio": round(desagio_pct, 2),
+                    "semantica": "estimado→contratado (populacional)",
+                    "note": (
+                        "Desagio populacional: comparacao de medias por entidade. "
+                        "Nao reflete desagio item-a-item de licitacao especifica. "
+                        "O desagio REAL (homologado) pode ser maior ou menor."
+                    ),
+                    "entities_without_contracts": None,
+                },
+            }
+        return {
+            "status": "no_data",
+            "reason": (
+                "Nenhuma entidade no raio 200km possui dados simultaneos de "
+                "valor estimado (pncp_raw_bids) e contratado (pncp_supplier_contracts)."
+            ),
+            "value": None,
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "reason": f"Falha ao computar desagio: {exc}",
+            "value": None,
+        }
+
+
+def _compute_relicitacao_stats(conn) -> dict[str, Any]:
+    """Compute relicitation probability indicators from contract end dates.
+
+    Indicators:
+    - Contracts ending per year → renewal opportunity density
+    - Contracts without end date → vigency tracking gap
+    - Average contract duration → replacement cycle estimate
+    """
+    try:
+        rows = _query(
+            conn,
+            """SELECT
+                  COUNT(*) AS total_contratos,
+                  COUNT(CASE WHEN c.data_fim_vigencia IS NOT NULL THEN 1 END) AS com_data_fim,
+                  COUNT(CASE WHEN c.data_fim_vigencia IS NULL THEN 1 END) AS sem_data_fim,
+                  ROUND(AVG(
+                    CASE WHEN c.data_fim_vigencia IS NOT NULL AND c.data_assinatura IS NOT NULL
+                    THEN (c.data_fim_vigencia - c.data_assinatura) END
+                  )::numeric, 0) AS avg_duration_days,
+                  COUNT(CASE
+                    WHEN c.data_fim_vigencia IS NOT NULL
+                    AND c.data_fim_vigencia BETWEEN CURRENT_DATE AND (CURRENT_DATE + INTERVAL '1 year')
+                    THEN 1 END) AS ending_next_12m
+               FROM pncp_supplier_contracts c
+               JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+               WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
+                 AND e.is_active IS TRUE""",
+        )
+        row = rows[0] if rows else {}
+        total = int(row.get("total_contratos", 0) or 0)
+        com_data_fim = int(row.get("com_data_fim", 0) or 0)
+        sem_data_fim = int(row.get("sem_data_fim", 0) or 0)
+        avg_duration = float(row.get("avg_duration_days", 0) or 0)
+        ending_12m = int(row.get("ending_next_12m", 0) or 0)
+
+        pct_sem_fim = round((sem_data_fim / total * 100), 1) if total > 0 else 0.0
+
+        if total > 0 and com_data_fim > 10:
+            return {
+                "status": "ready",
+                "reason": (
+                    f"{ending_12m} contratos encerrando nos proximos 12 meses "
+                    f"no target universe. Duracao media de {avg_duration:.0f} dias. "
+                    f"Probabilidade de relicitacao inferida da densidade de terminos. "
+                    f"Modelo preditivo requer serie historica de renovacoes (dado "
+                    f"ausente no PNCP)."
+                ),
+                "value": {
+                    "total_contracts_in_universe": total,
+                    "contracts_with_end_date": com_data_fim,
+                    "contracts_without_end_date": sem_data_fim,
+                    "pct_without_end_date": pct_sem_fim,
+                    "avg_duration_days": avg_duration,
+                    "avg_duration_years": round(avg_duration / 365.25, 1),
+                    "contracts_ending_next_12m": ending_12m,
+                    "renewal_density_pct": round(ending_12m / total * 100, 1) if total > 0 else 0.0,
+                    "vigency_tracking_gap": (
+                        f"{pct_sem_fim}% dos contratos nao possuem "
+                        f"data_fim_vigencia — rastreamento de vigencia comprometido"
+                    ),
+                    "note": (
+                        "Data_fim_vigencia e o melhor proxy PNCP para prazo contratual. "
+                        "PNCP nao expoe renovacoes — renovacao e inferida por "
+                        "contratos subsequentes entre mesmo orgao e fornecedor."
+                    ),
+                },
+            }
+
+        return {
+            "status": "limited",
+            "reason": (
+                f"Dados insuficientes: {total} contratos, apenas "
+                f"{com_data_fim} com data_fim_vigencia. "
+                f"Rastreamento de vigencia comprometido ({pct_sem_fim}% sem data fim)."
+            ),
+            "value": {
+                "total_contracts_in_universe": total,
+                "contracts_with_end_date": com_data_fim,
+                "contracts_without_end_date": sem_data_fim,
+                "pct_without_end_date": pct_sem_fim,
+                "avg_duration_days": avg_duration,
+                "contracts_ending_next_12m": ending_12m,
+            },
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "reason": f"Falha ao computar estatisticas de relicitacao: {exc}",
+            "value": None,
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -673,39 +977,72 @@ def compute_readiness(
             "last_check": (sh["last_check_at"].isoformat() if sh.get("last_check_at") else None),
         }
 
-    # ── Commercial metrics gating ────────────────────────────────────────
+    # ── Commercial metrics — computed from DB ───────────────────────────
+    # NOTE: Heavy contract queries use a SEPARATE connection with
+    # statement_timeout because pncp_supplier_contracts (3.7M rows) has
+    # no orgao_cnpj index, causing full table scans that crash the session.
+    import os as _os
+
+    import psycopg2 as _pg2
+
+    _commercial_dsn = _os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
+    try:
+        _commercial_conn = _pg2.connect(_commercial_dsn, connect_timeout=5)
+        _commercial_conn.cursor().execute("SET statement_timeout = '15s'")
+        try:
+            contract_value_agg = _compute_contract_value_aggregation(_commercial_conn)
+        except Exception as exc:
+            try:
+                _commercial_conn.rollback()
+            except:
+                pass
+            contract_value_agg = {"status": "error", "reason": f"Contract value query failed: {exc}", "value": None}
+        try:
+            desagio_stats = _compute_desagio_stats(_commercial_conn)
+        except Exception as exc:
+            try:
+                _commercial_conn.rollback()
+            except:
+                pass
+            desagio_stats = {"status": "error", "reason": f"Desagio query failed: {exc}", "value": None}
+        try:
+            relicitacao_stats = _compute_relicitacao_stats(_commercial_conn)
+        except Exception as exc:
+            try:
+                _commercial_conn.rollback()
+            except:
+                pass
+            relicitacao_stats = {"status": "error", "reason": f"Relicitacao query failed: {exc}", "value": None}
+        _commercial_conn.close()
+    except Exception as exc:
+        contract_value_agg = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}
+        desagio_stats = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}
+        relicitacao_stats = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}
+
     commercial_metrics = {
         "contract_total_value": {
-            "status": "not_ready",
-            "reason": (
-                "Valor global de contrato não é 'preço praticado'. "
-                "Preço praticado requer comparação com propostas homologadas "
-                "item a item — dados não disponíveis no evidence ledger atual."
-            ),
+            "status": contract_value_agg["status"],
+            "reason": contract_value_agg["reason"],
+            "value": contract_value_agg["value"],
         },
         "desagio": {
-            "status": "not_ready",
-            "reason": (
-                "Deságio requer dados relacionais entre valor estimado do edital "
-                "e valor homologado por item/lote — tabelas de itens de proposta "
-                "não populadas no escopo atual."
-            ),
+            "status": desagio_stats["status"],
+            "reason": desagio_stats["reason"],
+            "value": desagio_stats["value"],
         },
         "win_rate": {
-            "status": "not_ready",
+            "status": "manual",
             "reason": (
-                "Win rate requer tracking de propostas enviadas vs vencidas "
-                "por CNPJ — dados de outcomes de propostas não disponíveis "
-                "no evidence ledger."
+                "Win rate requer tracking manual de propostas enviadas vs vencidas "
+                "por CNPJ. PNCP não expõe propostas perdedoras. "
+                "Alimentar planilha complementar com colunas: "
+                "data_envio, orgao, cnpj_licitante, valor_proposta, venceu (S/N)."
             ),
         },
         "relicitacao_probability": {
-            "status": "not_ready",
-            "reason": (
-                "Probabilidade de relicitação requer série histórica de "
-                "contratos por órgão com datas de término e renovações — "
-                "modelo não calibrado com dados suficientes."
-            ),
+            "status": relicitacao_stats["status"],
+            "reason": relicitacao_stats["reason"],
+            "value": relicitacao_stats["value"],
         },
     }
 
@@ -862,8 +1199,29 @@ def print_summary(metrics: dict[str, Any]) -> None:
     print(f"    Unknown: {fh['unknown_count']}")
     print()
     print("  COMMERCIAL METRICS:")
-    for name, info in metrics.get("commercial_metrics", {}).items():
-        print(f"    {name}: {info['status']} — {info['reason'][:80]}...")
+    cm = metrics.get("commercial_metrics", {})
+    for name, info in cm.items():
+        status = info.get("status", "unknown")
+        reason = info.get("reason", "")
+        value = info.get("value")
+        print(f"    {name}: [{status}]")
+        if value:
+            if name == "contract_total_value" and isinstance(value, dict):
+                print(f"      Total contratos:      {value.get('total_contracts', 'N/A')}")
+                print(f"      Valor total (R$):     {value.get('total_value_brl', 'N/A'):>15,.2f}")
+                print(f"      Ticket medio (R$):    {value.get('avg_value_brl', 'N/A'):>15,.2f}")
+                print(f"      Mediana (R$):         {value.get('median_value_brl', 'N/A'):>15,.2f}")
+                print(f"      Semantica:            {value.get('semantica', 'N/A')}")
+            if name == "desagio" and isinstance(value, dict) and value.get("entities_with_both", 0) > 0:
+                print(f"      Entidades com ambos:  {value['entities_with_both']}")
+                print(f"      Desagio medio:        {value.get('desagio_percentual_medio', 'N/A')}%")
+            if name == "relicitacao_probability" and isinstance(value, dict):
+                print(f"      Contratos total:       {value.get('total_contracts_in_universe', 'N/A')}")
+                print(f"      Com data fim:          {value.get('contracts_with_end_date', 'N/A')}")
+                print(f"      Sem data fim:          {value.get('contracts_without_end_date', 'N/A')}")
+                print(f"      Encerrando 12m:        {value.get('contracts_ending_next_12m', 'N/A')}")
+                print(f"      Duracao media (dias):  {value.get('avg_duration_days', 'N/A'):,.0f}")
+        print(f"      → {reason[:120]}")
     print()
     print(f"  GAPS: {metrics['gaps']['total']} total")
     for typ, count in sorted(metrics["gaps"].get("by_type", {}).items()):

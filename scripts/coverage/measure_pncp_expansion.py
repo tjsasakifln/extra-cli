@@ -86,14 +86,13 @@ def measure() -> int:
 **Data:** {datetime.now().isoformat()}
 **Baseline:** {before} entes cobertos
 **Resultado:** {after} entes cobertos
-**Ganho:** +{delta} entidades ({'+' if delta > 0 else ''}{round(100 * delta / before, 1) if before > 0 else 'N/A'}%)
+**Ganho:** +{delta} entidades ({"+" if delta > 0 else ""}{round(100 * delta / before, 1) if before > 0 else "N/A"}%)
 
 ## Details
 - Crawl exit code: {result.returncode}
 - Rate limits: `grep -c '429' logs/crawl-pncp-*.log || echo '0'`
 """
-
-    )
+        )
 
     # Generate coverage report via monitor
     print("\n--- Coverage Report ---")

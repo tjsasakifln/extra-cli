@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date
 from enum import IntEnum
-from typing import Iterable
 
 
 class ModalidadePNCP(IntEnum):

@@ -58,9 +58,7 @@ def get_municipios_from_db() -> list[dict]:
 
     from scripts.crawl.transparencia_crawler import _slugify
 
-    conn = psycopg2.connect(
-        os.getenv("DATABASE_URL", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
-    )
+    conn = psycopg2.connect(os.getenv("DATABASE_URL", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres"))
     cur = conn.cursor()
     cur.execute(
         """
@@ -82,11 +80,13 @@ def get_municipios_from_db() -> list[dict]:
         if nome_clean in seen:
             continue
         seen.add(nome_clean)
-        municipios.append({
-            "nome": nome_clean,
-            "ibge": ibge.strip() if ibge else None,
-            "slug": _slugify(nome_clean),
-        })
+        municipios.append(
+            {
+                "nome": nome_clean,
+                "ibge": ibge.strip() if ibge else None,
+                "slug": _slugify(nome_clean),
+            }
+        )
     return municipios
 
 
@@ -155,16 +155,18 @@ def run_batch_detection(municipios: list[dict]) -> list[dict]:
                 results.append(result)
             except Exception as e:
                 mun = futures[future]
-                results.append({
-                    "municipio": mun["nome"],
-                    "slug": mun["slug"],
-                    "ibge": mun.get("ibge", ""),
-                    "platform": None,
-                    "url": None,
-                    "status": "error",
-                    "error": str(e),
-                    "detected_at": date.today().isoformat(),
-                })
+                results.append(
+                    {
+                        "municipio": mun["nome"],
+                        "slug": mun["slug"],
+                        "ibge": mun.get("ibge", ""),
+                        "platform": None,
+                        "url": None,
+                        "status": "error",
+                        "error": str(e),
+                        "detected_at": date.today().isoformat(),
+                    }
+                )
 
     elapsed = time.time() - start_time
     print(f"\n{'=' * 70}")
@@ -213,9 +215,7 @@ def generate_report(results: list[dict]) -> dict:
     }
 
 
-def save_results_as_transparencia_format(
-    results: list[dict], output_path: str | Path
-) -> None:
+def save_results_as_transparencia_format(results: list[dict], output_path: str | Path) -> None:
     """Save results in the format expected by transparencia_crawler._load_existing_results().
 
     The format is:
@@ -238,9 +238,7 @@ def save_results_as_transparencia_format(
             "total_errors": error_count,
             "mode": "batch_detect_all",
             "updated_at": date.today().isoformat(),
-            "platforms": sorted(set(
-                r.get("platform") for r in results if r.get("platform")
-            )),
+            "platforms": sorted(set(r.get("platform") for r in results if r.get("platform"))),
         },
     }
 
@@ -251,9 +249,7 @@ def save_results_as_transparencia_format(
     print(f"\nResults saved to: {output_path}")
 
 
-def save_residual_municipios(
-    detected_list: list[dict], not_found_list: list[str], output_path: str | Path
-) -> None:
+def save_residual_municipios(detected_list: list[dict], not_found_list: list[str], output_path: str | Path) -> None:
     """Save list of municipios WITHOUT detected platform for Fase 3 follow-up.
 
     Format: JSON with per-municipio info, suggested next steps for manual discovery.
@@ -264,22 +260,24 @@ def save_residual_municipios(
     residual: list[dict] = []
     for nome in sorted(not_found_list):
         slug = _slugify(nome)
-        residual.append({
-            "municipio": nome,
-            "slug": slug,
-            "suggested_urls": [
-                f"https://{slug}.sc.gov.br",
-                f"https://www.{slug}.sc.gov.br",
-                f"https://transparencia.{slug}.sc.gov.br",
-            ],
-            "coverage_source_alternatives": [
-                "pncp",
-                "dom_sc",
-                "ciga_ckan",
-                "sc_compras",
-            ],
-            "status": "pending_fase3",
-        })
+        residual.append(
+            {
+                "municipio": nome,
+                "slug": slug,
+                "suggested_urls": [
+                    f"https://{slug}.sc.gov.br",
+                    f"https://www.{slug}.sc.gov.br",
+                    f"https://transparencia.{slug}.sc.gov.br",
+                ],
+                "coverage_source_alternatives": [
+                    "pncp",
+                    "dom_sc",
+                    "ciga_ckan",
+                    "sc_compras",
+                ],
+                "status": "pending_fase3",
+            }
+        )
 
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -307,9 +305,7 @@ def save_residual_municipios(
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Batch detect transparency platforms for all SC municipios"
-    )
+    parser = argparse.ArgumentParser(description="Batch detect transparency platforms for all SC municipios")
     parser.add_argument(
         "--slug",
         default=None,

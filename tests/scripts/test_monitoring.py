@@ -582,16 +582,23 @@ class TestCheckAlerts:
         """Backup ran recently — no alert."""
         import scripts.check_alerts as m
 
+        # Use a timestamp relative to now (2 hours ago) so the test
+        # always passes regardless of when it is run.
+        from datetime import UTC, datetime, timedelta
+
+        recent_ts = (datetime.now(UTC) - timedelta(hours=2)).isoformat()
+        log_line = (
+            f'[2026-07-11 06:00:00] [INFO] LOG_JSON: '
+            f'{{"event":"backup","timestamp":"{recent_ts}",'
+            f'"status":"success","size_bytes":1048576}}\n'
+        )
+
         with (
             patch("scripts.check_alerts.Path.exists", return_value=True),
             patch("scripts.check_alerts.Path.read_text") as mock_read,
             patch("scripts.check_alerts.ALERT_BACKUP_MAX_HOURS", 28),
         ):
-            mock_read.return_value = (
-                '[2026-07-11 06:00:00] [INFO] LOG_JSON: '
-                '{"event":"backup","timestamp":"2026-07-11T06:00:00+00:00",'
-                '"status":"success","size_bytes":1048576}\n'
-            )
+            mock_read.return_value = log_line
 
             reg = m.AlertRegistry()
             m.check_backup(reg)

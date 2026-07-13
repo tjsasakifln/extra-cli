@@ -55,8 +55,16 @@ proprio_municipios = {d["municipio"].strip().upper(): d for d in final["detected
 
 # Manually verified valid ones (Sombrio excluded - returns 500)
 valid_proprio = [
-    "ATALANTA", "BLUMENAU", "CHAPECO", "CRICIUMA", "GASPAR",
-    "ICARA", "ITAJAI", "JOINVILLE", "LAGES", "URUBICI",
+    "ATALANTA",
+    "BLUMENAU",
+    "CHAPECO",
+    "CRICIUMA",
+    "GASPAR",
+    "ICARA",
+    "ITAJAI",
+    "JOINVILLE",
+    "LAGES",
+    "URUBICI",
 ]
 
 for d in final["detected_list_pass2"]:
@@ -182,6 +190,7 @@ config["templates"] = {
 config["municipios"] = municipios
 
 # ── Write to file ──
+
 
 def dict_to_yaml(data, indent=0):
     """Custom YAML emitter with OrderedDict support and comments."""

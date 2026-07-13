@@ -56,7 +56,7 @@ SELECT
     c.ingested_at
 FROM pncp_supplier_contracts c
 JOIN sc_public_entities e
-    ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    ON c.orgao_cnpj8 = e.cnpj_8
 WHERE e.raio_200km IS TRUE
   AND c.is_active IS TRUE
   -- 3-year window: contracts signed in last 3 years
@@ -84,7 +84,7 @@ WITH fornecedor_orgao_agg AS (
         COUNT(*)                                                AS qtd_contratos_orgao
     FROM pncp_supplier_contracts c
     JOIN sc_public_entities e
-        ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+        ON c.orgao_cnpj8 = e.cnpj_8
     WHERE e.raio_200km IS TRUE
       AND c.is_active IS TRUE
       AND c.ni_fornecedor IS NOT NULL
@@ -156,7 +156,7 @@ SELECT
     e.municipio                                              AS ente_municipio
 FROM pncp_supplier_contracts c
 JOIN sc_public_entities e
-    ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    ON c.orgao_cnpj8 = e.cnpj_8
 WHERE e.raio_200km IS TRUE
   AND c.is_active IS TRUE
   AND c.data_fim_vigencia IS NOT NULL
@@ -234,7 +234,7 @@ WITH categorias AS (
         END                                                      AS categoria_agrupada
     FROM pncp_supplier_contracts c
     JOIN sc_public_entities e
-        ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+        ON c.orgao_cnpj8 = e.cnpj_8
     WHERE e.raio_200km IS TRUE
       AND c.is_active IS TRUE
       AND c.valor_global IS NOT NULL

@@ -20,8 +20,6 @@ from scripts.crawl.pncp_contract import (
     PNCP_SAFE_WINDOW_DAYS,
     PNCP_TAMANHO_PAGINA_MAX,
     PNCP_TAMANHO_PAGINA_MIN,
-    ModalidadePNCP,
-    PNCPTargetError,
     build_pncp_public_link,
     digits_only,
     format_pncp_date,
@@ -345,9 +343,7 @@ def crawl(mode: str | CrawlRequest = "full") -> FetchResult:
     empty_confirmed = True
 
     for window_start, window_end in _windowed_dates(request.date_from, request.date_to):
-        metadata["windows"].append(
-            {"date_from": window_start.isoformat(), "date_to": window_end.isoformat()}
-        )
+        metadata["windows"].append({"date_from": window_start.isoformat(), "date_to": window_end.isoformat()})
         for modalidade in INGESTION_MODALIDADES or DEFAULT_MODALIDADES:
             page = 1
             while page <= PNCP_MAX_PAGES:

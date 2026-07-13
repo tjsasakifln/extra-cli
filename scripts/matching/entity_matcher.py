@@ -28,17 +28,13 @@ logger = get_logger(__name__)
 ENTITY_MATCH_FUZZY_THRESHOLD = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85"))
 """Default fuzzy threshold for entity name matching."""
 
-ENTITY_MATCH_FUZZY_THRESHOLD_SMALL_CITY = float(
-    os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD_SMALL_CITY", "0.75")
-)
+ENTITY_MATCH_FUZZY_THRESHOLD_SMALL_CITY = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD_SMALL_CITY", "0.75"))
 """Fuzzy threshold for small cities (< 5,000 inhabitants)."""
 
 SMALL_CITY_POPULATION_THRESHOLD = int(os.getenv("SMALL_CITY_POPULATION_THRESHOLD", "5000"))
 """Population below which a city is considered 'small' for threshold adjustment."""
 
-ENTITY_MATCH_LOG_UNKNOWN_ABBREVIATIONS = (
-    os.getenv("ENTITY_MATCH_LOG_UNKNOWN_ABBREVIATIONS", "true").lower() == "true"
-)
+ENTITY_MATCH_LOG_UNKNOWN_ABBREVIATIONS = os.getenv("ENTITY_MATCH_LOG_UNKNOWN_ABBREVIATIONS", "true").lower() == "true"
 """Whether to log unknown abbreviations found during normalization."""
 
 # ---------------------------------------------------------------------------
@@ -514,8 +510,7 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
 
     stats["total"] = sum(stats.values())
     logger.info(
-        "Cascade matching done for source=%s — "
-        "CNPJ=%d, name=%d, alias=%d, fuzzy=%d, unmatched=%d, total=%d",
+        "Cascade matching done for source=%s — CNPJ=%d, name=%d, alias=%d, fuzzy=%d, unmatched=%d, total=%d",
         source,
         stats["cnpj"],
         stats["name_normalized"],

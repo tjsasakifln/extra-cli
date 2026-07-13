@@ -381,7 +381,6 @@ def apply_auto_fixes(data: dict, failures: list[dict]) -> list[str]:
         # C6 and C9 -> NAO RECOMENDADO (hard block)
         # C12, C13, C14 -> AVALIAR COM CAUTELA (soft downgrade)
         hard_block_checks = {"C6", "C9"}
-        soft_downgrade_checks = {"C12", "C13", "C14"}
 
         has_hard_block = bool(hard_block_checks & set(checks_hit))
 
@@ -398,7 +397,7 @@ def apply_auto_fixes(data: dict, failures: list[dict]) -> list[str]:
 
         # Skip if already at target or more restrictive
         current_upper = (old_rec or "").upper().strip()
-        REC_SEVERITY = {
+        REC_SEVERITY = {  # noqa: N806
             "PARTICIPAR": 3,
             "AVALIAR COM CAUTELA": 2,
             "AVALIAR": 2,

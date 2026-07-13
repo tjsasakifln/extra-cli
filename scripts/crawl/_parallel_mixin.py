@@ -271,7 +271,7 @@ class _PNCPParallelMixin:
             # Reduce concurrency
             self._semaphore = asyncio.Semaphore(3)  # type: ignore[attr-defined]
             # GTM-FIX-029 AC2: 120s in degraded mode (was 45s)
-            PER_UF_TIMEOUT = _pncp_timeout_per_uf_degraded()
+            PER_UF_TIMEOUT = _pncp_timeout_per_uf_degraded()  # noqa: N806
         else:
             # STORY-252 AC10: Health canary — lightweight probe before full search
             canary_ok = await self.health_canary()  # type: ignore[attr-defined]
@@ -284,7 +284,7 @@ class _PNCPParallelMixin:
             # GTM-FIX-029 AC1/AC3: PER_UF_TIMEOUT raised from 30s to 90s
             # With tamanhoPagina=50, each modality needs ~10x more pages than before.
             # Calculation: 4 mods × ~15s/mod (with retry) = ~60s + 30s margin = 90s
-            PER_UF_TIMEOUT = _pncp_timeout_per_uf()
+            PER_UF_TIMEOUT = _pncp_timeout_per_uf()  # noqa: N806
 
         # Helper to safely call async/sync callbacks
         async def _safe_callback(cb, *args, **kwargs):
@@ -390,7 +390,7 @@ class _PNCPParallelMixin:
             )
             await asyncio.sleep(5)
 
-            RETRY_TIMEOUT = _pncp_timeout_per_uf_degraded()
+            RETRY_TIMEOUT = _pncp_timeout_per_uf_degraded()  # noqa: N806
 
             async def _retry_uf(uf: str) -> tuple[list[dict[str, Any]], bool]:
                 await _safe_callback(on_uf_status, uf, "retrying", attempt=2, max=2)

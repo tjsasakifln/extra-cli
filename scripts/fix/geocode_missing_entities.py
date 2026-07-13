@@ -37,6 +37,7 @@ log = get_logger(__name__)
 # Database helpers
 # ---------------------------------------------------------------------------
 
+
 def _get_conn():
     """Create database connection from DEFAULT_DSN."""
     return psycopg2.connect(DEFAULT_DSN)
@@ -94,6 +95,7 @@ SQL_REMAINING_DETAIL = """
 # Ensure geocode_method column exists
 # ---------------------------------------------------------------------------
 
+
 def _ensure_geocode_method_column(conn) -> bool:
     """Add geocode_method column if it does not exist.
 
@@ -115,6 +117,7 @@ def _ensure_geocode_method_column(conn) -> bool:
 # ---------------------------------------------------------------------------
 # Report generation
 # ---------------------------------------------------------------------------
+
 
 def generate_report() -> dict:
     """Gera relatorio dos entes sem coordenadas e estatisticas.
@@ -139,22 +142,22 @@ def generate_report() -> dict:
             cur.execute(SQL_REMAINING_DETAIL)
             remaining = [
                 {
-                    'id': r[0],
-                    'razao_social': r[1],
-                    'codigo_ibge': r[2],
-                    'municipio': r[3],
-                    'natureza_juridica': r[4],
-                    'motivo': _motivo_falta_coordenada(r[2], r[3]),
+                    "id": r[0],
+                    "razao_social": r[1],
+                    "codigo_ibge": r[2],
+                    "municipio": r[3],
+                    "natureza_juridica": r[4],
+                    "motivo": _motivo_falta_coordenada(r[2], r[3]),
                 }
                 for r in cur.fetchall()
             ]
 
         report = {
-            'total_entes': total,
-            'total_com_coordenadas': total_with,
-            'total_sem_coordenadas': total_missing,
-            'pct_cobertura': round(100.0 * total_with / total, 1) if total > 0 else 0,
-            'entes_sem_coordenadas': remaining,
+            "total_entes": total,
+            "total_com_coordenadas": total_with,
+            "total_sem_coordenadas": total_missing,
+            "pct_cobertura": round(100.0 * total_with / total, 1) if total > 0 else 0,
+            "entes_sem_coordenadas": remaining,
         }
         return report
 
@@ -176,6 +179,7 @@ def _motivo_falta_coordenada(codigo_ibge: str | None, municipio: str | None) -> 
 # ---------------------------------------------------------------------------
 # Main geocoding execution
 # ---------------------------------------------------------------------------
+
 
 def run_geocode(dry_run: bool = True) -> dict:
     """Executa a geocodificacao dos entes sem coordenadas.
@@ -202,35 +206,35 @@ def run_geocode(dry_run: bool = True) -> dict:
 
         if not rows:
             conn.close()
-            return {'total': 0, 'message': 'Nenhum ente sem coordenadas'}
+            return {"total": 0, "message": "Nenhum ente sem coordenadas"}
 
         # Geocodificar (agrupado por municipio)
         resultados = geocoder.geocode_batch(rows)
         log.info(
             "Geocoding: %d municipios OK, %d falhas (entidades: %d totais, %d IDs atualizaveis)",
-            resultados['geocoded'],
-            resultados['failed'],
-            resultados['total_entities'],
-            len(resultados['updated_ids']),
+            resultados["geocoded"],
+            resultados["failed"],
+            resultados["total_entities"],
+            len(resultados["updated_ids"]),
         )
 
         if not dry_run:
             updated = 0
-            entity_map = {r['id']: r for r in rows}
+            entity_map = {r["id"]: r for r in rows}
 
-            for entity_id in resultados['updated_ids']:
+            for entity_id in resultados["updated_ids"]:
                 entity = entity_map.get(entity_id)
                 if not entity:
                     continue
 
-                cache_key = entity.get('codigo_ibge') or entity.get('municipio')
+                cache_key = entity.get("codigo_ibge") or entity.get("municipio")
                 cache_entry = geocoder.cache.get(cache_key, {})
                 if not isinstance(cache_entry, dict):
                     continue
 
-                lat = cache_entry.get('lat')
-                lon = cache_entry.get('lon')
-                method = cache_entry.get('method', 'unknown')
+                lat = cache_entry.get("lat")
+                lon = cache_entry.get("lon")
+                method = cache_entry.get("method", "unknown")
 
                 if lat is not None and lon is not None and validate_coords(lat, lon):
                     # Calcular distancia ate Florianopolis
@@ -239,43 +243,51 @@ def run_geocode(dry_run: bool = True) -> dict:
 
                     with conn.cursor() as cur:
                         if has_method_column:
-                            cur.execute(SQL_UPDATE_WITH_METHOD, [
-                                lat, lon,
-                                round(distancia, 2),
-                                raio_200,
-                                method,
-                                entity_id,
-                            ])
+                            cur.execute(
+                                SQL_UPDATE_WITH_METHOD,
+                                [
+                                    lat,
+                                    lon,
+                                    round(distancia, 2),
+                                    raio_200,
+                                    method,
+                                    entity_id,
+                                ],
+                            )
                         else:
-                            cur.execute(SQL_UPDATE_COORDS, [
-                                lat, lon,
-                                round(distancia, 2),
-                                raio_200,
-                                entity_id,
-                            ])
+                            cur.execute(
+                                SQL_UPDATE_COORDS,
+                                [
+                                    lat,
+                                    lon,
+                                    round(distancia, 2),
+                                    raio_200,
+                                    entity_id,
+                                ],
+                            )
                     updated += 1
 
             conn.commit()
             log.info("Commitado: %d entes atualizados com coordenadas", updated)
-            resultados['updated'] = updated
+            resultados["updated"] = updated
 
             # Log do cache salvo
             cache_entries = len(geocoder.cache)
             log.info("Cache salvo em %s com %d entradas", geocoder.cache_file, cache_entries)
         else:
             log.info("DRY-RUN: nenhum UPDATE persistido")
-            estimativa = len(resultados['updated_ids'])
+            estimativa = len(resultados["updated_ids"])
             log.info("Estimativa: %d entes seriam atualizados", estimativa)
-            resultados['updated'] = 0
+            resultados["updated"] = 0
 
-        resultados['total'] = len(rows)
-        resultados['geocoder_stats'] = dict(geocoder.stats)
+        resultados["total"] = len(rows)
+        resultados["geocoder_stats"] = dict(geocoder.stats)
         return resultados
 
     except Exception as e:
         log.error("Erro fatal: %s", e)
         conn.rollback()
-        return {'error': str(e)}
+        return {"error": str(e)}
     finally:
         conn.close()
 
@@ -284,28 +296,29 @@ def run_geocode(dry_run: bool = True) -> dict:
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
         description="Geocodifica entes sem coordenadas na tabela sc_public_entities",
     )
     parser.add_argument(
-        '--dry-run',
-        action='store_true',
+        "--dry-run",
+        action="store_true",
         default=False,
-        help='Simular sem alterar o banco (padrao)',
+        help="Simular sem alterar o banco (padrao)",
     )
     parser.add_argument(
-        '--commit',
-        action='store_true',
+        "--commit",
+        action="store_true",
         default=False,
-        help='Executar e persistir alteracoes no banco',
+        help="Executar e persistir alteracoes no banco",
     )
     parser.add_argument(
-        '--report-only',
-        action='store_true',
+        "--report-only",
+        action="store_true",
         default=False,
-        help='Apenas gerar relatorio dos entes sem coordenadas',
+        help="Apenas gerar relatorio dos entes sem coordenadas",
     )
     return parser.parse_args(argv)
 
@@ -323,11 +336,11 @@ def main() -> None:
         print(f"Cobertura:             {report['pct_cobertura']}%")
         print()
 
-        if report['entes_sem_coordenadas']:
+        if report["entes_sem_coordenadas"]:
             print("Entes sem coordenadas:")
             print(f"{'ID':>6} {'Razao Social':<50} {'IBGE':<8} {'Municipio':<25} {'Motivo'}")
             print("-" * 120)
-            for ente in report['entes_sem_coordenadas']:
+            for ente in report["entes_sem_coordenadas"]:
                 print(
                     f"{ente['id']:>6} "
                     f"{ente['razao_social'][:48]:<50} "
@@ -351,12 +364,12 @@ def main() -> None:
 
     resultados = run_geocode(dry_run=dry_run)
 
-    if 'error' in resultados:
-        log.error("Falha na execucao: %s", resultados['error'])
+    if "error" in resultados:
+        log.error("Falha na execucao: %s", resultados["error"])
         sys.exit(1)
 
-    if 'message' in resultados:
-        log.info(resultados['message'])
+    if "message" in resultados:
+        log.info(resultados["message"])
         return
 
     print("\n=== RESULTADO DA GEOCODIFICACAO ===\n")
@@ -366,11 +379,11 @@ def main() -> None:
     print(f"Entes atualizados:          {resultados.get('updated', 0)}")
     print(f"Total municipios unicos:    {resultados.get('total_municipios', 0)}")
 
-    cache_hits = resultados.get('geocoder_stats', {}).get('cache_hit', 0)
-    nominatim_calls = resultados.get('geocoder_stats', {}).get('nominatim', 0)
+    cache_hits = resultados.get("geocoder_stats", {}).get("cache_hit", 0)
+    nominatim_calls = resultados.get("geocoder_stats", {}).get("nominatim", 0)
     print(f"Cache hits:                 {cache_hits}")
     print(f"Chamadas Nominatim:         {nominatim_calls}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

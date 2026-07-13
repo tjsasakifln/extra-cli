@@ -1092,7 +1092,7 @@ def _fallback_analysis(
     objeto = edital.get("objeto", "N/A")
     municipio = edital.get("municipio", "N/A")
     uf = edital.get("uf", "N/A")
-    valor = _safe_float(edital.get("valor_estimado"))
+    _safe_float(edital.get("valor_estimado"))
 
     sancionada = empresa.get("sancionada", False)
     status = edital.get("status_temporal", "")

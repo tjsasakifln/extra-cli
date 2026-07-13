@@ -535,7 +535,7 @@ def process_edital(edital: dict[str, Any], idx: int, total: int) -> None:
 
             if extractions:
                 merged = merge_extractions(extractions)
-                total_fields = sum(ext.total_fields for ext in extractions)
+                sum(ext.total_fields for ext in extractions)
                 found_count = sum(1 for f in merged.values() if f.found)
                 completeness = round(found_count / max(len(merged), 1) * 100, 1) if merged else 0.0
                 doc_types_processed = list(

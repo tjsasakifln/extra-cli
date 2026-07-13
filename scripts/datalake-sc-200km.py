@@ -45,7 +45,7 @@ def _today() -> str:
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Calculate distance in km between two points using Haversine formula."""
-    R = 6371.0  # Earth radius in km
+    R = 6371.0  # noqa: N806  # Earth radius in km
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
     a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
@@ -347,7 +347,7 @@ def enrich_suppliers_radius(report: dict, within: dict[str, dict], conn):
     batch_data = []
     for s in suppliers:
         cnpj = s["cnpj"]
-        mun_list = within.values()
+        within.values()
         # Find which municipalities this supplier operates in
         data = {
             "cnpj": cnpj,

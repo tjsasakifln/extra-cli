@@ -150,10 +150,7 @@ def load_target_universe(
     try:
         import openpyxl
     except ImportError:
-        raise ImportError(
-            "openpyxl is required to read the seed spreadsheet. "
-            "Install with: pip install openpyxl"
-        )
+        raise ImportError("openpyxl is required to read the seed spreadsheet. Install with: pip install openpyxl")
 
     wb = openpyxl.load_workbook(seed_path, read_only=True, data_only=True)
     ws = wb.active
@@ -196,12 +193,14 @@ def load_target_universe(
                 pass
 
         if not has_coords:
-            entities_without_coords.append({
-                "razao_social": razao,
-                "cnpj8": cnpj8,
-                "municipio": municipio,
-                "codigo_ibge": ibge,
-            })
+            entities_without_coords.append(
+                {
+                    "razao_social": razao,
+                    "cnpj8": cnpj8,
+                    "municipio": municipio,
+                    "codigo_ibge": ibge,
+                }
+            )
             universe.total_without_coords += 1
             continue
 
@@ -209,8 +208,10 @@ def load_target_universe(
 
         # Compute distance (always recompute — do not trust spreadsheet)
         dist = haversine(
-            FLORIPA_CENTER[0], FLORIPA_CENTER[1],
-            lat, lon,
+            FLORIPA_CENTER[0],
+            FLORIPA_CENTER[1],
+            lat,
+            lon,
         )
         within = dist <= radius_km
 
@@ -306,27 +307,31 @@ def main() -> None:
     """Print target universe summary as JSON for auditability."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Build the deterministic target universe (200km from Florianópolis)."
-    )
+    parser = argparse.ArgumentParser(description="Build the deterministic target universe (200km from Florianópolis).")
     parser.add_argument(
-        "--seed", default=None,
+        "--seed",
+        default=None,
         help=f"Path to seed Excel (default: {DEFAULT_SEED})",
     )
     parser.add_argument(
-        "--radius", type=float, default=TARGET_RADIUS_KM,
+        "--radius",
+        type=float,
+        default=TARGET_RADIUS_KM,
         help=f"Radius in km (default: {TARGET_RADIUS_KM})",
     )
     parser.add_argument(
-        "--output", default=None,
+        "--output",
+        default=None,
         help="Write JSON to file instead of stdout",
     )
     parser.add_argument(
-        "--list-entities", action="store_true",
+        "--list-entities",
+        action="store_true",
         help="Include full entity list in output",
     )
     parser.add_argument(
-        "--list-cnpj8", action="store_true",
+        "--list-cnpj8",
+        action="store_true",
         help="List unique CNPJ8 roots within radius",
     )
     args = parser.parse_args()

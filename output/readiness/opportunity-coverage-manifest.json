@@ -1,24 +1,33 @@
 {
   "meta": {
-    "generated_at": "2026-07-12T23:13:58.629595+00:00",
+    "generated_at": "2026-07-13T00:14:14.386876+00:00",
     "tool": "opportunity_intel.manifest",
     "threshold": 0.95,
     "radius_km": 200,
     "reference_city": "Florianópolis"
   },
   "universe": {
-    "total_entities_within_200km": 1096,
-    "entities_with_opportunity_data": 0,
-    "entities_without_data": 1096,
-    "pct_entities_with_data": 0.0
+    "total_entities_within_200km": 1448,
+    "entities_with_opportunity_data": 3851,
+    "entities_without_data": -2403,
+    "pct_entities_with_data": 265.95
   },
   "opportunities": {
-    "total": 5,
-    "open": 5,
+    "total": 96687,
+    "open": 46560,
     "by_status": {
-      "open": 5
+      "closed": 50000,
+      "open": 46560,
+      "unknown": 53,
+      "annulled": 41,
+      "revoked": 22,
+      "suspended": 11
     },
     "by_source": {
+      "pncp": {
+        "total": 96682,
+        "open": 46555
+      },
       "test_batch": {
         "total": 5,
         "open": 5
@@ -26,13 +35,13 @@
     }
   },
   "freshness": {
-    "last_24h": 5,
-    "last_7d": 5,
-    "last_30d": 5
+    "last_24h": 96687,
+    "last_7d": 96687,
+    "last_30d": 96687
   },
   "readiness": {
-    "passes_threshold": false,
-    "exit_code": 2,
-    "gap_to_threshold": 0.95
+    "passes_threshold": true,
+    "exit_code": 0,
+    "gap_to_threshold": 0
   }
 }

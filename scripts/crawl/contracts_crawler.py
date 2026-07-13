@@ -95,13 +95,13 @@ class FetchStatus(Enum):
     the same as a connection failure or HTTP error.
     """
 
-    SUCCESS_DATA = "success_data"        # Data returned (page may be non-empty)
-    SUCCESS_ZERO = "success_zero"        # API OK, zero records for this query
+    SUCCESS_DATA = "success_data"  # Data returned (page may be non-empty)
+    SUCCESS_ZERO = "success_zero"  # API OK, zero records for this query
     CONNECTION_FAILED = "connection_failed"  # DNS/TCP/TLS/timeout
     HTTP_CLIENT_ERROR = "http_client_error"  # 4xx (not 429)
     HTTP_SERVER_ERROR = "http_server_error"  # 5xx
-    HTTP_RATE_LIMIT = "http_rate_limit"     # 429
-    PARSE_FAILED = "parse_failed"           # JSON parse error
+    HTTP_RATE_LIMIT = "http_rate_limit"  # 429
+    PARSE_FAILED = "parse_failed"  # JSON parse error
     UNKNOWN_ERROR = "unknown_error"
 
 
@@ -406,7 +406,7 @@ def _fetch_page(data_ini: str, data_fim: str, page: int) -> FetchResult:
 
             if e.code >= 500:
                 if attempt < CONTRACTS_MAX_RETRIES:
-                    time.sleep(2 ** attempt)
+                    time.sleep(2**attempt)
                     continue
                 return FetchResult(
                     status=FetchStatus.HTTP_SERVER_ERROR,
@@ -547,6 +547,7 @@ def _transform_record(rec: dict) -> dict | None:
 @dataclass
 class WindowResult:
     """Result for a single date window."""
+
     window_start: str
     window_end: str
     status: FetchStatus
@@ -558,6 +559,7 @@ class WindowResult:
 @dataclass
 class CrawlResult:
     """Aggregate result of a crawl operation with per-window evidence."""
+
     mode: str
     windows: list[WindowResult] = field(default_factory=list)
     total_records: int = 0
@@ -570,15 +572,17 @@ class CrawlResult:
         """Generate evidence rows for each window."""
         rows = []
         for w in self.windows:
-            rows.append({
-                "source": "pncp_contracts",
-                "data_type": "contracts",
-                "queried_start": w.window_start,
-                "queried_end": w.window_end,
-                "count_obtained": w.records_fetched,
-                "state": w.status.evidence_state,
-                "error_message": w.error_message,
-            })
+            rows.append(
+                {
+                    "source": "pncp_contracts",
+                    "data_type": "contracts",
+                    "queried_start": w.window_start,
+                    "queried_end": w.window_end,
+                    "count_obtained": w.records_fetched,
+                    "state": w.status.evidence_state,
+                    "error_message": w.error_message,
+                }
+            )
         return rows
 
 
@@ -650,12 +654,13 @@ def _crawl_date_range(
             result = _fetch_page(data_ini, data_fim, page)
 
             if result.is_failure:
-                window_errors.append(
-                    f"Page {page}: [{result.status.value}] {result.error_message}"
-                )
+                window_errors.append(f"Page {page}: [{result.status.value}] {result.error_message}")
                 logger.warning(
                     "Window %s page %d failed: %s — %s",
-                    window_key, page, result.status.value, result.error_message,
+                    window_key,
+                    page,
+                    result.status.value,
+                    result.error_message,
                 )
                 # On first page failure, abort the window
                 if page == 1:
@@ -685,7 +690,10 @@ def _crawl_date_range(
         if window_records > 0:
             logger.info(
                 "Window %s->%s: %d records (%d pages)",
-                data_ini, data_fim, window_records, window_pages,
+                data_ini,
+                data_fim,
+                window_records,
+                window_pages,
             )
 
         # Mark window as completed

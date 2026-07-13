@@ -11,6 +11,7 @@ from typing import Any
 
 class PNCPDegradedError(Exception):
     """Raised when PNCP circuit breaker is in degraded state."""
+
     pass
 
 

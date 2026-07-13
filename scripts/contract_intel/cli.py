@@ -109,7 +109,7 @@ SELECT
          ELSE 0.0 END                                                      AS coverage
 FROM sc_public_entities e
 LEFT JOIN pncp_supplier_contracts c
-    ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    ON c.orgao_cnpj8 = e.cnpj_8
     AND c.is_active IS TRUE
     AND c.data_assinatura >= (CURRENT_DATE - INTERVAL '3 years')
 WHERE e.raio_200km IS TRUE
@@ -130,7 +130,7 @@ SELECT
          ELSE 0.0 END                                                      AS coverage
 FROM sc_public_entities e
 LEFT JOIN pncp_supplier_contracts c
-    ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    ON c.orgao_cnpj8 = e.cnpj_8
     AND c.is_active IS TRUE
 WHERE e.raio_200km IS TRUE
   AND e.is_active IS TRUE
@@ -160,7 +160,7 @@ SELECT
         AS total_contratos_no_raio
 FROM sc_public_entities e
 LEFT JOIN pncp_supplier_contracts c
-    ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    ON c.orgao_cnpj8 = e.cnpj_8
     AND c.is_active IS TRUE
 WHERE e.raio_200km IS TRUE
   AND e.is_active IS TRUE
@@ -545,7 +545,9 @@ def _manifesto_pg(conn: Any) -> dict[str, Any]:
             f"{pct_sem_fim}% dos contratos no raio têm data_fim_vigencia NULL "
             f"({contratos_sem_fim} de {total_contratos}). "
             f"Status de vigência é inferido, não declarado pelo PNCP."
-        ) if uncertainty else None,
+        )
+        if uncertainty
+        else None,
         "semantic_note": (
             "Status do contrato inferido por data_fim_vigencia vs CURRENT_DATE. "
             "PNCP não possui campo 'status' direto. "
@@ -593,7 +595,7 @@ def _count_distinct_suppliers_pg(cur: Any) -> str:
         cur.execute("""
             SELECT COUNT(DISTINCT c.ni_fornecedor)
             FROM pncp_supplier_contracts c
-            JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+            JOIN sc_public_entities e ON c.orgao_cnpj8 = e.cnpj_8
             WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
               AND c.ni_fornecedor IS NOT NULL AND c.ni_fornecedor != ''
         """)
@@ -613,10 +615,10 @@ def _print_manifesto_table(manifesto: dict[str, Any]) -> None:
     print(f"  Backend: {manifesto.get('backend', 'N/A')}")
     print()
     print(f"  {'Capability':<30s} {'Coverage':>8s} {'Ready':>6s} {'Uncertain':>10s}")
-    print(f"  {'-'*30} {'-'*8} {'-'*6} {'-'*10}")
+    print(f"  {'-' * 30} {'-' * 8} {'-' * 6} {'-' * 10}")
 
     for name, cap in caps.items():
-        cov_str = f"{cap.get('coverage', 0):.1%}" if isinstance(cap.get('coverage'), (int, float)) else "N/A"
+        cov_str = f"{cap.get('coverage', 0):.1%}" if isinstance(cap.get("coverage"), (int, float)) else "N/A"
         ready_str = "SIM" if cap.get("ready") else "NÃO"
         uncert_str = "SIM" if cap.get("uncertainty") else "NÃO"
         print(f"  {name:<30s} {cov_str:>8s} {ready_str:>6s} {uncert_str:>10s}")
@@ -648,24 +650,35 @@ def _write_manifesto_csv(manifesto: dict[str, Any], args: argparse.Namespace) ->
 
     with open(output_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow([
-            "capability", "description", "denominator", "numerator",
-            "coverage", "threshold", "ready", "uncertainty",
-            "uncertainty_reason", "semantic_note",
-        ])
+        writer.writerow(
+            [
+                "capability",
+                "description",
+                "denominator",
+                "numerator",
+                "coverage",
+                "threshold",
+                "ready",
+                "uncertainty",
+                "uncertainty_reason",
+                "semantic_note",
+            ]
+        )
         for name, cap in caps.items():
-            writer.writerow([
-                name,
-                cap.get("description", ""),
-                cap.get("denominator", ""),
-                cap.get("numerator", ""),
-                cap.get("coverage", ""),
-                cap.get("threshold", READINESS_THRESHOLD),
-                str(cap.get("ready", False)),
-                str(cap.get("uncertainty", False)),
-                cap.get("uncertainty_reason", ""),
-                cap.get("semantic_note", ""),
-            ])
+            writer.writerow(
+                [
+                    name,
+                    cap.get("description", ""),
+                    cap.get("denominator", ""),
+                    cap.get("numerator", ""),
+                    cap.get("coverage", ""),
+                    cap.get("threshold", READINESS_THRESHOLD),
+                    str(cap.get("ready", False)),
+                    str(cap.get("uncertainty", False)),
+                    cap.get("uncertainty_reason", ""),
+                    cap.get("semantic_note", ""),
+                ]
+            )
 
     if not getattr(args, "quiet", False):
         print(f"  Gaps CSV: {output_path}")
@@ -755,27 +768,27 @@ def _pg_stats_query() -> str:
     SELECT 'Contratos no raio (total)',
            CAST(COUNT(*) AS TEXT)
     FROM pncp_supplier_contracts c
-    JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    JOIN sc_public_entities e ON c.orgao_cnpj8 = e.cnpj_8
     WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
     UNION ALL
     SELECT 'Fornecedores distintos',
            CAST(COUNT(DISTINCT ni_fornecedor) AS TEXT)
     FROM pncp_supplier_contracts c
-    JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    JOIN sc_public_entities e ON c.orgao_cnpj8 = e.cnpj_8
     WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
       AND ni_fornecedor IS NOT NULL AND ni_fornecedor != ''
     UNION ALL
     SELECT 'Valor total contratos (R$)',
            CAST(ROUND(SUM(valor_global)::numeric, 2) AS TEXT)
     FROM pncp_supplier_contracts c
-    JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    JOIN sc_public_entities e ON c.orgao_cnpj8 = e.cnpj_8
     WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
       AND valor_global IS NOT NULL
     UNION ALL
     SELECT 'Contratos com data_fim_vigencia',
            CAST(COUNT(*) AS TEXT)
     FROM pncp_supplier_contracts c
-    JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    JOIN sc_public_entities e ON c.orgao_cnpj8 = e.cnpj_8
     WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
       AND data_fim_vigencia IS NOT NULL
     UNION ALL
@@ -783,7 +796,7 @@ def _pg_stats_query() -> str:
            COALESCE(MIN(data_assinatura)::text, 'N/A') || ' to '
            || COALESCE(MAX(data_assinatura)::text, 'N/A')
     FROM pncp_supplier_contracts c
-    JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
+    JOIN sc_public_entities e ON c.orgao_cnpj8 = e.cnpj_8
     WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
     """
 
@@ -815,6 +828,10 @@ def _sqlite_stats_query() -> str:
     WHERE c.is_active = 1 AND valor_global IS NOT NULL
     """
 
+
+# Backward-compatible module-level alias for smoke tests.
+# Uses SQLite-safe syntax (default). PG callers use _pg_stats_query() directly.
+QUERY_STATS = _sqlite_stats_query()
 
 # ---------------------------------------------------------------------------
 # Output helpers
@@ -896,6 +913,255 @@ def _write_csv(args: argparse.Namespace, rows: list[dict[str, Any]]) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Commercial metrics commands (precos, desagio)
+# ---------------------------------------------------------------------------
+
+
+def cmd_precos(conn: Any, args: argparse.Namespace, backend: str) -> int:
+    """Price history and value aggregation for a specific organ."""
+    orgao = args.orgao
+    periodo = args.periodo
+
+    if backend != "postgresql":
+        print("❌ precos command requires PostgreSQL (LOCAL_DATALAKE_DSN).", file=sys.stderr)
+        return 1
+
+    queries = {
+        "contracts": f"""
+            SELECT
+                c.numero_controle_pncp AS contrato_id,
+                c.valor_global AS valor_contrato,
+                c.data_assinatura,
+                c.data_fim_vigencia,
+                c.orgao_nome,
+                c.nr_contrato,
+                c.objeto_contrato
+            FROM pncp_supplier_contracts c
+            WHERE c.orgao_cnpj LIKE '{orgao}%'
+              AND c.is_active IS TRUE
+              AND c.valor_global > 0
+              AND c.data_assinatura >= (CURRENT_DATE - INTERVAL '{periodo} years')
+            ORDER BY c.data_assinatura DESC
+        """,
+        "bids": f"""
+            SELECT
+                b.numero_controle_pncp,
+                b.valor_total_estimado,
+                b.modalidade_nome,
+                b.data_abertura,
+                b.objeto_compra
+            FROM pncp_raw_bids b
+            WHERE b.orgao_cnpj LIKE '{orgao}%'
+              AND b.is_active IS TRUE
+              AND b.valor_total_estimado > 0
+              AND b.data_publicacao >= (CURRENT_DATE - INTERVAL '{periodo} years')
+            ORDER BY b.data_abertura DESC
+            LIMIT 50
+        """,
+        "aggregation": f"""
+            SELECT
+                'contract' AS tipo,
+                'valor_global (PNCP)' AS coluna,
+                'valor_contratado' AS semantica,
+                COUNT(*) AS total,
+                ROUND(SUM(c.valor_global)::numeric, 2) AS soma,
+                ROUND(AVG(c.valor_global)::numeric, 2) AS media,
+                ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY c.valor_global)::numeric, 2) AS mediana,
+                MIN(c.valor_global) AS minimo,
+                MAX(c.valor_global) AS maximo
+            FROM pncp_supplier_contracts c
+            WHERE c.orgao_cnpj LIKE '{orgao}%'
+              AND c.is_active IS TRUE AND c.valor_global > 0
+              AND c.data_assinatura >= (CURRENT_DATE - INTERVAL '{periodo} years')
+            UNION ALL
+            SELECT
+                'bid' AS tipo,
+                'valor_total_estimado (PNCP)' AS coluna,
+                'valor_estimado' AS semantica,
+                COUNT(*),
+                ROUND(SUM(b.valor_total_estimado)::numeric, 2),
+                ROUND(AVG(b.valor_total_estimado)::numeric, 2),
+                ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY b.valor_total_estimado)::numeric, 2),
+                MIN(b.valor_total_estimado),
+                MAX(b.valor_total_estimado)
+            FROM pncp_raw_bids b
+            WHERE b.orgao_cnpj LIKE '{orgao}%'
+              AND b.is_active IS TRUE AND b.valor_total_estimado > 0
+              AND b.data_publicacao >= (CURRENT_DATE - INTERVAL '{periodo} years')
+        """,
+    }
+
+    cur = conn.cursor()
+
+    # Entity info
+    cur.execute(f"""
+        SELECT razao_social, cnpj_8, municipio
+        FROM sc_public_entities
+        WHERE cnpj_8 = LEFT('{orgao}', 8) AND is_active = TRUE
+        LIMIT 1
+    """)
+    entity = cur.fetchone()
+
+    result: dict[str, Any] = {
+        "orgao": orgao,
+        "entity_name": entity[0] if entity else "N/A",
+        "cnpj8": entity[1] if entity else "",
+        "municipio": entity[2] if entity else "",
+        "periodo_anos": periodo,
+        "contracts": [],
+        "bids": [],
+        "aggregation": [],
+    }
+
+    # Contracts
+    cur.execute(queries["contracts"])
+    result["contracts"] = _query_to_dicts(cur, cur.fetchall())
+
+    # Bids
+    cur.execute(queries["bids"])
+    result["bids"] = _query_to_dicts(cur, cur.fetchall())
+
+    # Aggregation
+    cur.execute(queries["aggregation"])
+    result["aggregation"] = _query_to_dicts(cur, cur.fetchall())
+
+    cur.close()
+
+    if args.format == "json":
+        _output(args, result)
+    elif args.format == "csv":
+        _write_csv(args, result.get("contracts", []))
+    else:
+        e = result
+        print(f"\n  PRECOS — {e['entity_name']} ({e['cnpj8']})")
+        print(f"  Orgao CNPJ: {e['orgao']} | Periodo: {e['periodo_anos']} anos")
+        print()
+        print("  VALUE SEMANTICS:")
+        for agg in e.get("aggregation", []):
+            print(f"    {agg['semantica']:25s} | {agg['coluna']}")
+            print(f"      Total:      R$ {agg['soma']:>15,.2f}")
+            print(f"      Media:      R$ {agg['media']:>15,.2f}")
+            print(f"      Mediana:    R$ {agg['mediana']:>15,.2f}")
+            print(f"      Min-Max:    R$ {agg['minimo']:>12,.2f} — R$ {agg['maximo']:>12,.2f}")
+            print(f"      Qtd:        {agg['total']}")
+            print()
+
+        ct = e.get("contracts", [])
+        if ct:
+            print(f"  CONTRACTS (last {min(len(ct), 5)} of {len(ct)}):")
+            for c in ct[:5]:
+                dt = c.get("data_assinatura", "") or ""
+                val = c.get("valor_contrato", 0) or 0
+                print(f"    {str(dt)[:10]}  R$ {float(val):>12,.2f}  {c.get('objeto_contrato', '')[:60]}")
+            if len(ct) > 5:
+                print(f"    ... and {len(ct) - 5} more contracts")
+
+        bids = e.get("bids", [])
+        if bids:
+            print(f"\n  BIDS (last {min(len(bids), 5)} of {len(bids)}):")
+            for b in bids[:5]:
+                dt = b.get("data_abertura", "") or ""
+                val = b.get("valor_total_estimado", 0) or 0
+                print(
+                    f"    {str(dt)[:10]}  R$ {float(val):>12,.2f}  {b.get('modalidade_nome', '')[:20]}  {b.get('objeto_compra', '')[:50]}"
+                )
+            if len(bids) > 5:
+                print(f"    ... and {len(bids) - 5} more bids")
+        print()
+
+    return 0
+
+
+def cmd_desagio(conn: Any, args: argparse.Namespace, backend: str) -> int:
+    """Average desagio by modality."""
+    if backend != "postgresql":
+        print("❌ desagio command requires PostgreSQL (LOCAL_DATALAKE_DSN).", file=sys.stderr)
+        return 1
+
+    modalidade_filter = ""
+    if args.modalidade:
+        modalidade_filter = f"AND b.modalidade_nome ILIKE '%{args.modalidade}%'"
+
+    query = f"""
+        WITH bid_contract_pairs AS (
+            SELECT
+                b.matched_entity_id,
+                b.modalidade_nome,
+                b.valor_total_estimado AS estimado,
+                ROUND(AVG(c.valor_global)::numeric, 2) AS contratado_medio
+            FROM pncp_raw_bids b
+            JOIN sc_public_entities e ON e.id = b.matched_entity_id
+            JOIN pncp_supplier_contracts c
+              ON c.orgao_cnpj8 = e.cnpj_8
+            WHERE b.matched_entity_id IS NOT NULL
+              AND b.valor_total_estimado > 0
+              AND c.valor_global > 0
+              AND c.is_active IS TRUE
+              AND b.is_active IS TRUE
+              AND e.raio_200km IS TRUE
+              AND e.is_active IS TRUE
+              AND b.modalidade_nome IS NOT NULL
+              {modalidade_filter}
+            GROUP BY b.matched_entity_id, b.modalidade_nome, b.valor_total_estimado
+        )
+        SELECT
+            modalidade_nome,
+            COUNT(*) AS pares,
+            ROUND(AVG(estimado)::numeric, 2) AS avg_estimado,
+            ROUND(AVG(contratado_medio)::numeric, 2) AS avg_contratado,
+            ROUND(
+              (AVG(estimado) - AVG(contratado_medio))
+              / NULLIF(AVG(estimado), 0) * 100
+            , 2) AS desagio_pct,
+            ROUND(
+              PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY
+                (estimado - contratado_medio) / NULLIF(estimado, 0) * 100
+              )::numeric
+            , 2) AS desagio_mediana_pct
+        FROM bid_contract_pairs
+        GROUP BY modalidade_nome
+        ORDER BY desagio_pct DESC
+    """
+
+    cur = conn.cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    if args.format == "json":
+        result = _query_to_dicts(cur, rows)
+        _output(args, result)
+    elif args.format == "csv":
+        result = _query_to_dicts(cur, rows)
+        _write_csv(args, result)
+    else:
+        if not rows:
+            print("(no data)")
+        else:
+            print("\n  DESAGIO MEDIO POR MODALIDADE (target universe 200km)")
+            print(
+                f"  {'Modalidade':<25s} {'Pares':>6s} {'Desagio%':>9s} {'Mediana%':>9s} {'Estimado':>15s} {'Contratado':>15s}"
+            )
+            print(f"  {'-' * 25} {'-' * 6} {'-' * 9} {'-' * 9} {'-' * 15} {'-' * 15}")
+            for r in rows:
+                modalidade, pares, est, cont, desagio, mediana = r[:6]
+                est_str = f"R$ {float(est or 0):>10,.2f}" if est else "N/A"
+                cont_str = f"R$ {float(cont or 0):>10,.2f}" if cont else "N/A"
+                desagio_str = f"{float(desagio or 0):>7.2f}%" if desagio else "N/A"
+                mediana_str = f"{float(mediana or 0):>7.2f}%" if mediana else "N/A"
+                print(
+                    f"  {str(modalidade)[:25]:<25s} {int(pares or 0):>6d} {desagio_str:>9s} {mediana_str:>9s} {est_str:>15s} {cont_str:>15s}"
+                )
+        print()
+        print("  Nota: Desagio calculado como (estimado - contratado)/estimado.")
+        print("  Compara valor_total_estimado do bid com valor_global medio dos contratos")
+        print("  da mesma entidade. Nao e desagio item-a-item homologado.")
+        print()
+
+    cur.close()
+    return 0
+
+
+# ---------------------------------------------------------------------------
 # Main CLI
 # ---------------------------------------------------------------------------
 
@@ -941,6 +1207,21 @@ def main() -> int:
     # seed
     _ = sub.add_parser("seed", help="Seed target universe into local DB")
 
+    # precos — Price history for an entity
+    p_precos = sub.add_parser("precos", help="Price history and value aggregation for an entity")
+    p_precos.add_argument("--orgao", type=str, required=True, help="Organ CNPJ (8 or 14 digits)")
+    p_precos.add_argument("--periodo", type=int, default=3, help="Analysis window in years (default: 3)")
+    p_precos.add_argument("--format", choices=["table", "json", "csv"], default="table")
+    p_precos.add_argument("--output", default=None, help="Output file path")
+    p_precos.add_argument("--output-csv", default=None, help="CSV output path")
+
+    # desagio — Average desagio by modality
+    p_desagio = sub.add_parser("desagio", help="Average desagio (discount) by modality")
+    p_desagio.add_argument("--modalidade", type=str, default=None, help="Filter by modality name")
+    p_desagio.add_argument("--format", choices=["table", "json", "csv"], default="table")
+    p_desagio.add_argument("--output", default=None, help="Output file path")
+    p_desagio.add_argument("--output-csv", default=None, help="CSV output path")
+
     # DB path (for SQLite)
     parser.add_argument("--db", default=None, help="SQLite database path")
 
@@ -971,6 +1252,10 @@ def main() -> int:
             return cmd_manifesto(conn, args, backend)
         elif args.command == "stats":
             return cmd_stats(conn, args, backend)
+        elif args.command == "precos":
+            return cmd_precos(conn, args, backend)
+        elif args.command == "desagio":
+            return cmd_desagio(conn, args, backend)
         else:
             parser.print_help()
             return 1

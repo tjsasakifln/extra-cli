@@ -169,7 +169,7 @@ def validate(data: dict) -> dict:
     # PARCIALMENTE_APTA sozinho é normal em engenharia (requisitos detalhados exigem análise do edital).
     hab_statuses = [e.get("habilitacao_analysis", {}).get("status", "") for e in editais]
     parcial = hab_statuses.count("PARCIALMENTE_APTA")
-    inapta = hab_statuses.count("INAPTA")
+    hab_statuses.count("INAPTA")
     total_avaliados = len([h for h in hab_statuses if h])
     has_sector_divergence = bool(empresa.get("_sector_divergence"))
     if total_avaliados > 5:
@@ -187,7 +187,7 @@ def validate(data: dict) -> dict:
             # For materials/supplies companies, high partial habilitacao is EXPECTED
             # (they don't have specific technical qualifications for each edital type).
             # Only warn for specialized fields where qualifications are critical.
-            _MATERIALS_CLUSTERS = {
+            _MATERIALS_CLUSTERS = {  # noqa: N806
                 "saude",
                 "materiais hospitalares",
                 "saneantes",
@@ -203,7 +203,7 @@ def validate(data: dict) -> dict:
                 "eventos",
                 "locacao",
             }
-            _SPECIALIZED_CLUSTERS = {
+            _SPECIALIZED_CLUSTERS = {  # noqa: N806
                 "engenharia",
                 "obras",
                 "consultoria",
@@ -330,7 +330,7 @@ def validate(data: dict) -> dict:
     # 2b. Strategic thesis coherence
     strategic_thesis = data.get("strategic_thesis", {})
     if strategic_thesis:
-        thesis = strategic_thesis.get("thesis")
+        strategic_thesis.get("thesis")
         market_trend = strategic_thesis.get("signals", {}).get("trend", {})
         if isinstance(market_trend, str):
             # trend is just the label (e.g. "EXPANSAO"), not a dict
@@ -471,7 +471,7 @@ def validate(data: dict) -> dict:
     # 2a. Fontes obrigatórias — Persona: "Eu paguei por este relatório.
     # Se falta um dado, INVESTIGUE por que e resolva. Não me diga 'indisponível'."
     sources = metadata.get("sources", {})
-    _SOURCE_HUMAN_NAMES = {
+    _SOURCE_HUMAN_NAMES = {  # noqa: N806
         "opencnpj": "Receita Federal (cadastro empresarial)",
         "pncp": "Portal Nacional de Contratações Públicas",
         "portal_transparencia_sancoes": "Portal da Transparência (sanções)",
@@ -480,7 +480,7 @@ def validate(data: dict) -> dict:
         "sicaf": "SICAF (cadastro de fornecedores)",
         "ibge": "IBGE (dados municipais)",
     }
-    _SOURCE_INVESTIGATION = {
+    _SOURCE_INVESTIGATION = {  # noqa: N806
         "opencnpj": (
             "INVESTIGAR: (1) Testar https://api.opencnpj.org/{CNPJ} manualmente. "
             "(2) Se API estiver fora, usar BrasilAPI como fallback: "

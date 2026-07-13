@@ -56,6 +56,9 @@ DEFAULT_DELAY_SECONDS = float(os.getenv("TCE_SC_REQUEST_DELAY", "2.0"))
 # Max retries per failed request
 MAX_RETRIES = int(os.getenv("TCE_SC_MAX_RETRIES", "3"))
 
+# Max fetch pages per endpoint (API does not support server-side pagination)
+TCE_SC_MAX_PAGES = int(os.getenv("TCE_SC_MAX_PAGES", "30"))
+
 # Full crawl window (days)
 TCE_SC_FULL_DAYS = int(os.getenv("TCE_SC_FULL_DAYS", "365"))
 
@@ -348,8 +351,9 @@ def _fetch_licitacoes(
 
     records: list[dict] = []
     page = 1
+    seen_ids: set[str] = set()
 
-    while True:
+    while page <= TCE_SC_MAX_PAGES:
         params["pn"] = str(page)
         _logger.debug("[TCE-SC] Fetching page %d of licitacoes", page)
 
@@ -420,7 +424,7 @@ def _fetch_contratos(
     records: list[dict] = []
     page = 1
 
-    while True:
+    while page <= TCE_SC_MAX_PAGES:
         params["pn"] = str(page)
         _logger.debug("[TCE-SC] Fetching page %d of contratos", page)
 
@@ -671,6 +675,7 @@ def transform(records: list[dict]) -> list[dict]:
     """
     transformed: list[dict] = []
     skipped = 0
+    seen_ids: set[str] = set()
 
     for rec in records:
         tipo = rec.pop("_tipo", "licitacao")
@@ -681,6 +686,11 @@ def transform(records: list[dict]) -> list[dict]:
             t = _transform_licitacao(rec)
 
         if t and t.get("pncp_id"):
+            pid = t["pncp_id"]
+            if pid in seen_ids:
+                skipped += 1
+                continue
+            seen_ids.add(pid)
             transformed.append(t)
         else:
             skipped += 1

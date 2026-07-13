@@ -1,0 +1,211 @@
+{
+  "meta": {
+    "generated_at": "2026-07-13T00:41:50.965842+00:00",
+    "radius_km": 200.0,
+    "threshold": 0.95,
+    "coverage_window_days": 90,
+    "florianopolis": {
+      "lat": -27.5954,
+      "lon": -48.548
+    },
+    "exit_code": 0
+  },
+  "universe": {
+    "seed_file": "/mnt/d/extra consultoria/Extra - alvos de licitação. R-0.xlsx",
+    "total_seed_rows": 2085,
+    "confirmed_universe": 2085,
+    "potential_universe": 2085,
+    "unresolved": 0,
+    "duplicates": 0,
+    "within_radius": 1093,
+    "outside_radius": 992,
+    "duplicate_cnpj8_list": [],
+    "unresolved_entities": [],
+    "inclusion_rule": "Authoritative radius flag from spreadsheet column 'Raio 200km?' (200.0 km radius from Florianopolis). 'SIM ✓' = within radius, 'NÃO' = outside. Uses spreadsheet 'Distância de Florianópolis (km)' as authoritative distance. Entities with coords + flag are resolved; entities with flag only are resolved (flag takes precedence). Haversine fallback only for entities added after the spreadsheet without a radius flag.",
+    "center_lat": -27.5954,
+    "center_lon": -48.548,
+    "radius_km": 200.0
+  },
+  "coverage": {
+    "numerator": 1093,
+    "denominator_conservative": 1093,
+    "denominator_confirmed": 1093,
+    "percent": 100.0,
+    "threshold": 95.0,
+    "passed": true,
+    "unresolved_block": null,
+    "entities_monitored": 1093,
+    "entities_unmonitored": 0,
+    "stale": 33,
+    "partial": 0,
+    "failed": 0,
+    "not_investigated": 0,
+    "unresolved": 0
+  },
+  "open_tenders": {
+    "entities_with_open_tenders": 398,
+    "total_open_tenders": 18081,
+    "pct_of_confirmed": 36.4
+  },
+  "contracts": {
+    "entities_with_contracts": 404,
+    "total_contracts": 423239,
+    "pct_of_confirmed": 37.0
+  },
+  "freshness": {
+    "fresh_count": 515,
+    "stale_count": 33,
+    "unknown_count": 545,
+    "window_days": 90
+  },
+  "per_source": {
+    "ciga_ckan": {
+      "checked": 459,
+      "covered": 459,
+      "pct": 100.0
+    },
+    "compras_gov": {
+      "checked": 459,
+      "covered": 459,
+      "pct": 100.0
+    },
+    "contracts": {
+      "checked": 1093,
+      "covered": 1093,
+      "pct": 100.0
+    },
+    "doe_sc": {
+      "checked": 459,
+      "covered": 459,
+      "pct": 100.0
+    },
+    "dom_sc": {
+      "checked": 459,
+      "covered": 459,
+      "pct": 100.0
+    },
+    "mides_bigquery": {
+      "checked": 459,
+      "covered": 459,
+      "pct": 100.0
+    },
+    "pcp": {
+      "checked": 459,
+      "covered": 459,
+      "pct": 100.0
+    },
+    "pncp": {
+      "checked": 1093,
+      "covered": 1093,
+      "pct": 100.0
+    },
+    "sc_compras": {
+      "checked": 459,
+      "covered": 459,
+      "pct": 100.0
+    },
+    "transparencia": {
+      "checked": 459,
+      "covered": 459,
+      "pct": 100.0
+    }
+  },
+  "source_health": {
+    "ciga_ckan": {
+      "entity_rows": 631,
+      "successful": 631,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    },
+    "compras_gov": {
+      "entity_rows": 631,
+      "successful": 631,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    },
+    "contracts": {
+      "entity_rows": 1445,
+      "successful": 1445,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:30:44.436265+00:00"
+    },
+    "doe_sc": {
+      "entity_rows": 631,
+      "successful": 631,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    },
+    "dom_sc": {
+      "entity_rows": 631,
+      "successful": 631,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    },
+    "mides_bigquery": {
+      "entity_rows": 631,
+      "successful": 631,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    },
+    "pcp": {
+      "entity_rows": 631,
+      "successful": 631,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    },
+    "pncp": {
+      "entity_rows": 1445,
+      "successful": 1445,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    },
+    "sc_compras": {
+      "entity_rows": 631,
+      "successful": 631,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    },
+    "transparencia": {
+      "entity_rows": 631,
+      "successful": 631,
+      "failed": 0,
+      "health_pct": 100.0,
+      "last_check": "2026-07-13T00:21:02.518904+00:00"
+    }
+  },
+  "commercial_metrics": {
+    "contract_total_value": {
+      "status": "error",
+      "reason": "Falha ao agregar valores de contrato: canceling statement due to statement timeout\n",
+      "value": null
+    },
+    "desagio": {
+      "status": "error",
+      "reason": "Falha ao computar desagio: current transaction is aborted, commands ignored until end of transaction block\n",
+      "value": null
+    },
+    "win_rate": {
+      "status": "manual",
+      "reason": "Win rate requer tracking manual de propostas enviadas vs vencidas por CNPJ. PNCP não expõe propostas perdedoras. Alimentar planilha complementar com colunas: data_envio, orgao, cnpj_licitante, valor_proposta, venceu (S/N)."
+    },
+    "relicitacao_probability": {
+      "status": "error",
+      "reason": "Falha ao computar estatisticas de relicitacao: current transaction is aborted, commands ignored until end of transaction block\n",
+      "value": null
+    }
+  },
+  "gaps": {
+    "total": 0,
+    "by_type": {}
+  },
+  "gaps_detail": []
+}

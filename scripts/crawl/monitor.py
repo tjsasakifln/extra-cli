@@ -42,9 +42,13 @@ if str(_PROJECT_ROOT) not in sys.path:
 # ---------------------------------------------------------------------------
 
 # SOURCES loaded from central registry — single source of truth
-from scripts.crawl.registry import iter_sources, lookup as _registry_lookup, resolve_name as _registry_resolve
+from scripts.crawl.registry import iter_sources
+from scripts.crawl.registry import lookup as _registry_lookup
+from scripts.crawl.registry import resolve_name as _registry_resolve
 
 SOURCES = [s.name for s in iter_sources()]
+
+from datetime import UTC
 
 from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)
 
@@ -109,7 +113,7 @@ def _start_ingestion_run(conn, source: str, mode: str = "incremental") -> int:
     import uuid
 
     # Map mode to valid run_type for DB constraint compatibility
-    _VALID_RUN_TYPES = {"full", "incremental", "dry-run"}
+    _VALID_RUN_TYPES = {"full", "incremental", "dry-run"}  # noqa: N806
     db_run_type = mode if mode in _VALID_RUN_TYPES else "full"
 
     cur = conn.cursor()
@@ -226,7 +230,7 @@ def _match_entities_cascade(conn, source: str, entities: list[dict], pncp_ids: l
         - ``unmatched``: count still unmatched
         - ``total``: total bids processed
     """
-    ENTITY_MATCH_FUZZY_THRESHOLD = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85"))
+    ENTITY_MATCH_FUZZY_THRESHOLD = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85"))  # noqa: N806
 
     # Step 1 — fetch all unmatched bids for this source
     cur = conn.cursor()
@@ -291,11 +295,13 @@ def _match_entities_cascade(conn, source: str, entities: list[dict], pncp_ids: l
     try:
         from rapidfuzz import fuzz as _rapidfuzz
 
-        _fuzz_ratio = lambda a, b: _rapidfuzz.ratio(a, b) / 100.0
+        def _fuzz_ratio(a: str, b: str) -> float:
+            return _rapidfuzz.ratio(a, b) / 100.0
     except ImportError:
         from difflib import SequenceMatcher
 
-        _fuzz_ratio = lambda a, b: SequenceMatcher(None, a, b).ratio()
+        def _fuzz_ratio(a: str, b: str) -> float:
+            return SequenceMatcher(None, a, b).ratio()
 
     # Step 4 — cascade matching per bid
     stats = {"cnpj": 0, "name_normalized": 0, "fuzzy": 0, "unmatched": 0}
@@ -578,7 +584,9 @@ def _load_cached_pncp_enrichment(conn, pncp_id: str) -> tuple[dict | None, list[
     return row[0], row[1] or [], row[2] or []
 
 
-def _store_cached_pncp_enrichment(conn, pncp_id: str, detail: dict | None, items: list[dict], documents: list[dict]) -> None:
+def _store_cached_pncp_enrichment(
+    conn, pncp_id: str, detail: dict | None, items: list[dict], documents: list[dict]
+) -> None:
     from psycopg2.extras import Json
 
     cur = conn.cursor()
@@ -642,7 +650,12 @@ def _build_pncp_opportunities(
             quick.score >= 35 or target_parsed.kind == "engineering" or engineering_only
         )
 
-        if needs_hydration and record.get("orgao_cnpj") and record.get("ano_compra") and record.get("sequencial_compra"):
+        if (
+            needs_hydration
+            and record.get("orgao_cnpj")
+            and record.get("ano_compra")
+            and record.get("sequencial_compra")
+        ):
             detail, items, documents = _load_cached_pncp_enrichment(conn, record["pncp_id"])
             if not detail and not items and not documents:
                 detail_res = pncp.fetch_compra_detail(
@@ -683,7 +696,9 @@ def _build_pncp_opportunities(
         elif target_parsed.kind == "municipio_nome":
             selected = (location.municipio or "").strip().lower() == (target_parsed.value or "").strip().lower()
         elif target_parsed.kind == "cnpj":
-            selected = "".join(ch for ch in (record.get("orgao_cnpj") or "") if ch.isdigit()) == (target_parsed.value or "")
+            selected = "".join(ch for ch in (record.get("orgao_cnpj") or "") if ch.isdigit()) == (
+                target_parsed.value or ""
+            )
         elif target_parsed.kind == "within_200km":
             selected = location.within_200km
         elif target_parsed.kind == "engineering":
@@ -847,7 +862,7 @@ def crawl_source(
     limit: int | None = None,
     engineering_only: bool = False,
     within_200km_only: bool = False,
-) -> CrawlerResult:
+) -> CrawlerResult:  # noqa: F821
     """Run crawl for a specific source, match entities, return CrawlerResult.
 
     Each source module is expected to provide:
@@ -861,12 +876,12 @@ def crawl_source(
     Returns:
         CrawlerResult with all counters and status populated.
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from scripts.crawl.credential_validator import validate_source_credentials
-    from scripts.crawl.ingestion._base.crawler import CrawlRequest, CrawlerResult, determine_status
+    from scripts.crawl.ingestion._base.crawler import CrawlerResult, CrawlRequest, determine_status
 
-    started_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
     result = CrawlerResult(source=source)
 
     conn = _get_conn()
@@ -884,7 +899,7 @@ def crawl_source(
             result.error_code = "crawler_not_implemented"
             result.error_message = error
             result.started_at = started_at.isoformat()
-            result.completed_at = datetime.now(timezone.utc).isoformat()
+            result.completed_at = datetime.now(UTC).isoformat()
             return result
 
         # ── Credential validation ──────────────────────────────────────
@@ -900,7 +915,7 @@ def crawl_source(
             result.error_code = "missing_credentials"
             result.error_message = msg
             result.started_at = started_at.isoformat()
-            result.completed_at = datetime.now(timezone.utc).isoformat()
+            result.completed_at = datetime.now(UTC).isoformat()
             return result
 
         # ── Phase 1: Crawl ─────────────────────────────────────────────
@@ -908,6 +923,7 @@ def crawl_source(
 
         # Build CrawlRequest with all parameters
         from datetime import date as _date
+
         crawl_req = CrawlRequest(
             mode=mode,
             date_from=_date.fromisoformat(date_from) if date_from else None,
@@ -938,7 +954,7 @@ def crawl_source(
                     result.error_code = "fetch_failed"
                     result.error_message = error
                     result.started_at = started_at.isoformat()
-                    result.completed_at = datetime.now(timezone.utc).isoformat()
+                    result.completed_at = datetime.now(UTC).isoformat()
                     return result
         else:
             raw_records = raw_response
@@ -957,7 +973,7 @@ def crawl_source(
             result.status = status
             result.error_code = error_code
             result.started_at = started_at.isoformat()
-            result.completed_at = datetime.now(timezone.utc).isoformat()
+            result.completed_at = datetime.now(UTC).isoformat()
             return result
 
         # ── Phase 2: Transform ─────────────────────────────────────────
@@ -1003,7 +1019,7 @@ def crawl_source(
                 conn.close()
                 result.status = "degraded"
                 result.started_at = started_at.isoformat()
-                result.completed_at = datetime.now(timezone.utc).isoformat()
+                result.completed_at = datetime.now(UTC).isoformat()
                 return result
 
         # ── Phase 3: Upsert ────────────────────────────────────────────
@@ -1017,12 +1033,21 @@ def crawl_source(
                 conn.rollback()
                 error = f"Upsert failed: {e}"
                 _finish_ingestion_run(conn, run_id, result.fetched, result.transformed, 0, "failed", error)
-                _record_evidence(conn, run_id, source, "failed", fetched=result.fetched, transformed=result.transformed, error_message=error, error_code="persist_failed")
+                _record_evidence(
+                    conn,
+                    run_id,
+                    source,
+                    "failed",
+                    fetched=result.fetched,
+                    transformed=result.transformed,
+                    error_message=error,
+                    error_code="persist_failed",
+                )
                 conn.close()
                 result.status = "failed"
                 result.error_message = error
                 result.started_at = started_at.isoformat()
-                result.completed_at = datetime.now(timezone.utc).isoformat()
+                result.completed_at = datetime.now(UTC).isoformat()
                 return result
 
             print(f"     Upserted: {result.inserted} new, {result.updated} updated, {result.duplicates} duplicates")
@@ -1078,15 +1103,23 @@ def crawl_source(
             entities_covered=entities_covered_count,
         )
 
-        _finish_ingestion_run(conn, run_id, result.fetched, result.inserted + result.updated, result.matched, result.status)
+        _finish_ingestion_run(
+            conn, run_id, result.fetched, result.inserted + result.updated, result.matched, result.status
+        )
 
         # ── Source-level aggregate evidence ─────────────────────────────
         _record_evidence(
-            conn, run_id, source, result.status,
-            fetched=result.fetched, transformed=result.transformed,
+            conn,
+            run_id,
+            source,
+            result.status,
+            fetched=result.fetched,
+            transformed=result.transformed,
             persisted=result.inserted + result.updated,
-            date_from=date_from, date_to=date_to,
-            error_message=result.error_message, error_code=result.error_code,
+            date_from=date_from,
+            date_to=date_to,
+            error_message=result.error_message,
+            error_code=result.error_code,
         )
 
         # ── Entity-level evidence projection (PNCP only) ────────────────
@@ -1098,10 +1131,7 @@ def crawl_source(
             # without matches are truly absent → must be conservative.
             # Success_zero is legitimate ONLY when fetch_complete=True.
             if fetch_result is not None:
-                fetch_complete = (
-                    fetch_result.request_completed
-                    and len(fetch_result.errors) == 0
-                )
+                fetch_complete = fetch_result.request_completed and len(fetch_result.errors) == 0
             else:
                 fetch_complete = False
             entity_evidence_stats = _project_entity_evidence(
@@ -1132,8 +1162,8 @@ def crawl_source(
             result.metadata["within_200km_only"] = True
 
         result.started_at = started_at.isoformat()
-        result.completed_at = datetime.now(timezone.utc).isoformat()
-        result.duration_seconds = (datetime.now(timezone.utc) - started_at).total_seconds()
+        result.completed_at = datetime.now(UTC).isoformat()
+        result.duration_seconds = (datetime.now(UTC) - started_at).total_seconds()
         conn.close()
         return result
 
@@ -1141,7 +1171,16 @@ def crawl_source(
         error = str(e)
         try:
             _finish_ingestion_run(conn, run_id, result.fetched, result.transformed, result.matched, "failed", error)
-            _record_evidence(conn, run_id, source, "failed", fetched=result.fetched, transformed=result.transformed, error_message=error, error_code="runtime_error")
+            _record_evidence(
+                conn,
+                run_id,
+                source,
+                "failed",
+                fetched=result.fetched,
+                transformed=result.transformed,
+                error_message=error,
+                error_code="runtime_error",
+            )
         except Exception:
             _logger.exception("Failed to record ingestion run failure")
         try:
@@ -1152,7 +1191,7 @@ def crawl_source(
         result.error_code = "runtime_error"
         result.error_message = error
         result.started_at = started_at.isoformat()
-        result.completed_at = datetime.now(timezone.utc).isoformat()
+        result.completed_at = datetime.now(UTC).isoformat()
         return result
 
 
@@ -1194,9 +1233,7 @@ def _project_entity_evidence(
         cur = conn.cursor()
 
         # Check table exists
-        cur.execute(
-            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')"
-        )
+        cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')")
         if not cur.fetchone()[0]:
             cur.close()
             return None
@@ -1324,9 +1361,7 @@ def _project_entity_evidence(
         return stats
 
     except Exception:
-        _logger.exception(
-            "Failed to project entity evidence for source=%s run_id=%s", source, run_id
-        )
+        _logger.exception("Failed to project entity evidence for source=%s run_id=%s", source, run_id)
         return None
 
 
@@ -1359,9 +1394,7 @@ def _record_evidence(
     try:
         # Check if coverage_evidence table exists (migration 024 may not be applied)
         cur = conn.cursor()
-        cur.execute(
-            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')"
-        )
+        cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'coverage_evidence')")
         if not cur.fetchone()[0]:
             cur.close()
             return  # Table doesn't exist yet — skip silently
@@ -1594,9 +1627,13 @@ def main():
         )
         results.append(result)
 
-        status_icon = {"success": "✅", "degraded": "⚠️", "empty": "📭", "skipped": "⏭️", "failed": "❌"}.get(result.status, "❓")
-        print(f"  {status_icon} {result.status}: fetched={result.fetched}, transformed={result.transformed}, "
-              f"inserted={result.inserted}, updated={result.updated}, matched={result.matched}")
+        status_icon = {"success": "✅", "degraded": "⚠️", "empty": "📭", "skipped": "⏭️", "failed": "❌"}.get(
+            result.status, "❓"
+        )
+        print(
+            f"  {status_icon} {result.status}: fetched={result.fetched}, transformed={result.transformed}, "
+            f"inserted={result.inserted}, updated={result.updated}, matched={result.matched}"
+        )
         if src == "pncp":
             print(
                 "     engenharia="

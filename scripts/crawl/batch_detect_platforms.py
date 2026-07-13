@@ -45,13 +45,12 @@ OUTPUT_FILE = OUTPUT_DIR / "platform_detection_results.json"
 # Get municipios from database
 # ---------------------------------------------------------------------------
 
+
 def get_municipios_from_db() -> list[dict]:
     """Fetch all SC municipios with IBGE codes from the database."""
     import psycopg2
 
-    conn = psycopg2.connect(
-        "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres"
-    )
+    conn = psycopg2.connect("postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
     cur = conn.cursor()
     cur.execute(
         """
@@ -67,11 +66,13 @@ def get_municipios_from_db() -> list[dict]:
 
     municipios = []
     for nome, ibge in rows:
-        municipios.append({
-            "nome": nome.strip().upper(),
-            "ibge": ibge.strip() if ibge else None,
-            "slug": _slugify(nome),
-        })
+        municipios.append(
+            {
+                "nome": nome.strip().upper(),
+                "ibge": ibge.strip() if ibge else None,
+                "slug": _slugify(nome),
+            }
+        )
     return municipios
 
 
@@ -84,6 +85,7 @@ def get_municipios_from_file() -> list[dict]:
 # ---------------------------------------------------------------------------
 # Batch detection with concurrency
 # ---------------------------------------------------------------------------
+
 
 def detect_single(args: tuple) -> dict:
     """Run detect_platform for one municipio. Wrapped for ThreadPoolExecutor."""
@@ -123,11 +125,11 @@ def detect_single(args: tuple) -> dict:
 def run_batch_detection(municipios: list[dict]) -> list[dict]:
     """Run detection for all municipios using thread pool concurrency."""
     total = len(municipios)
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"Batch platform detection for {total} SC municipalities")
     print(f"Concurrency: {MAX_WORKERS} workers")
     print(f"Started at: {datetime.now().strftime('%H:%M:%S')}")
-    print(f"{'='*70}\n")
+    print(f"{'=' * 70}\n")
 
     # Prepare args with index for progress tracking
     args_list = [(mun, i + 1, total) for i, mun in enumerate(municipios)]
@@ -144,21 +146,23 @@ def run_batch_detection(municipios: list[dict]) -> list[dict]:
                 results.append(result)
             except Exception as e:
                 mun = futures[future]
-                results.append({
-                    "municipio": mun["nome"],
-                    "slug": mun["slug"],
-                    "ibge": mun.get("ibge", ""),
-                    "platform": None,
-                    "url": None,
-                    "status": "error",
-                    "error": str(e),
-                    "detected_at": date.today().isoformat(),
-                })
+                results.append(
+                    {
+                        "municipio": mun["nome"],
+                        "slug": mun["slug"],
+                        "ibge": mun.get("ibge", ""),
+                        "platform": None,
+                        "url": None,
+                        "status": "error",
+                        "error": str(e),
+                        "detected_at": date.today().isoformat(),
+                    }
+                )
 
     elapsed = time.time() - start_time
-    print(f"\n{'='*70}")
-    print(f"Completed in {elapsed:.1f}s ({elapsed/60:.1f}min)")
-    print(f"{'='*70}\n")
+    print(f"\n{'=' * 70}")
+    print(f"Completed in {elapsed:.1f}s ({elapsed / 60:.1f}min)")
+    print(f"{'=' * 70}\n")
 
     return results
 
@@ -166,6 +170,7 @@ def run_batch_detection(municipios: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Report & Export
 # ---------------------------------------------------------------------------
+
 
 def generate_report(results: list[dict]) -> dict:
     """Generate summary report from detection results."""
@@ -176,6 +181,7 @@ def generate_report(results: list[dict]) -> dict:
 
     # Platform distribution
     from collections import Counter
+
     platform_counts = Counter(r["platform"] for r in detected)
 
     return {
@@ -208,7 +214,9 @@ def generate_yaml_entries(report: dict) -> str:
     lines = []
     lines.append("# Platform Detection Results (auto-generated)")
     lines.append(f"# Generated at: {report['generated_at']}")
-    lines.append(f"# Total: {report['total']} | Detected: {report['detected']} | Not found: {report['not_found']} | Errors: {report['errors']}")
+    lines.append(
+        f"# Total: {report['total']} | Detected: {report['detected']} | Not found: {report['not_found']} | Errors: {report['errors']}"
+    )
     lines.append(f"# Platform distribution: {json.dumps(report['platforms'])}")
     lines.append("")
 
@@ -235,9 +243,9 @@ def generate_yaml_entries(report: dict) -> str:
 
             lines.append(f"  {slug}:")
             lines.append(f'    nome: "{nome}"')
-            lines.append(f"    ibge: \"{item['ibge']}\"")
+            lines.append(f'    ibge: "{item["ibge"]}"')
             lines.append(f'    portal_url: "{url}"')
-            lines.append(f"    template: \"{template}\"")
+            lines.append(f'    template: "{template}"')
             lines.append("    requires_js: false")
             lines.append("    ativo: true")
             lines.append("")
@@ -247,10 +255,10 @@ def generate_yaml_entries(report: dict) -> str:
         lines.append("  # --- NOT FOUND ({}) ---".format(len(report["not_found_list"])))
         for nome in report["not_found_list"]:
             lines.append(f"  # {_slugify(nome)}:")
-            lines.append(f"  #   nome: \"{nome.title()}\"")
-            lines.append("  #   ibge: \"\"  # TODO: lookup IBGE code")
-            lines.append("  #   portal_url: \"\"  # TODO: manual discovery")
-            lines.append("  #   template: \"custom\"")
+            lines.append(f'  #   nome: "{nome.title()}"')
+            lines.append('  #   ibge: ""  # TODO: lookup IBGE code')
+            lines.append('  #   portal_url: ""  # TODO: manual discovery')
+            lines.append('  #   template: "custom"')
             lines.append("  #   requires_js: false")
             lines.append("  #   ativo: false")
             lines.append("")
@@ -261,6 +269,7 @@ def generate_yaml_entries(report: dict) -> str:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main():
     # Step 1: Get municipios
@@ -287,16 +296,16 @@ def main():
     print(f"Results saved to: {OUTPUT_FILE}")
 
     # Step 5: Print summary
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("SUMMARY")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"  Total municipios:  {report['total']}")
-    print(f"  Detected:          {report['detected']} ({report['detected']/report['total']*100:.1f}%)")
-    print(f"  Not found:         {report['not_found']} ({report['not_found']/report['total']*100:.1f}%)")
+    print(f"  Detected:          {report['detected']} ({report['detected'] / report['total'] * 100:.1f}%)")
+    print(f"  Not found:         {report['not_found']} ({report['not_found'] / report['total'] * 100:.1f}%)")
     print(f"  Errors:            {report['errors']}")
     print("\nPlatform distribution:")
-    for plat, count in report['platforms'].items():
-        print(f"  {plat}: {count} ({count/report['total']*100:.1f}%)")
+    for plat, count in report["platforms"].items():
+        print(f"  {plat}: {count} ({count / report['total'] * 100:.1f}%)")
 
     # Step 6: Generate YAML
     yaml_entries = generate_yaml_entries(report)

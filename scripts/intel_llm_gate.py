@@ -422,22 +422,22 @@ def main():
 
             with open(args.neg_keywords_file, encoding="utf-8") as nf:
                 neg_data = yaml.safe_load(nf) or {}
-            NEG_KW = [str(k).lower() for k in neg_data.get("neg_keywords", []) if k]
+            NEG_KW = [str(k).lower() for k in neg_data.get("neg_keywords", []) if k]  # noqa: N806
             logger.info("Negative keywords: %d loaded from %s", len(NEG_KW), args.neg_keywords_file)
         except Exception as e:
             logger.warning("Falha ao carregar --neg-keywords-file: %s — usando lista universal padrão", e)
-            NEG_KW = NEG_KW_DEFAULT
+            NEG_KW = NEG_KW_DEFAULT  # noqa: N806
     else:
-        NEG_KW = NEG_KW_DEFAULT
+        NEG_KW = NEG_KW_DEFAULT  # noqa: N806
 
     # ── Load positive keywords (dynamic from sector_keys) ──
     sector_keys = data.get("busca", {}).get("sector_keys", [])
     sectors_yaml = _load_sectors_yaml()
-    POS_KW = []
+    POS_KW = []  # noqa: N806
     matched_keys = []
 
     if sector_keys and sectors_yaml:
-        POS_KW, matched_keys = _build_pos_kw_from_sectors(sector_keys, sectors_yaml)
+        POS_KW, matched_keys = _build_pos_kw_from_sectors(sector_keys, sectors_yaml)  # noqa: N806
         if POS_KW:
             logger.info(
                 "Positive keywords: %d loaded from sectors_data.yaml (sectors: %s)",
@@ -448,13 +448,13 @@ def main():
             logger.warning(
                 "Sector keys %s não encontrados em sectors_data.yaml — usando lista fallback embutida", sector_keys
             )
-            POS_KW = POS_KW_FALLBACK
+            POS_KW = POS_KW_FALLBACK  # noqa: N806
     else:
         if not sectors_yaml:
             logger.warning("sectors_data.yaml não encontrado — usando lista fallback embutida")
         else:
             logger.warning("sector_keys não encontrado no JSON — usando lista fallback embutida")
-        POS_KW = POS_KW_FALLBACK
+        POS_KW = POS_KW_FALLBACK  # noqa: N806
 
     # ── Gate logic ──
     llm_review = [e for e in data["editais"] if e.get("needs_llm_review")]

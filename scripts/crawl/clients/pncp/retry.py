@@ -12,6 +12,7 @@ from typing import Any
 
 class DateFormat:
     """Date format constants."""
+
     YYYYMMDD = "YYYYMMDD"
     YYYY_MM_DD = "YYYY-MM-DD"
     DDMMYYYY = "DDMMYYYY"
@@ -41,9 +42,33 @@ class ParallelFetchResult:
 
 # UFs ordered by population (largest first)
 UFS_BY_POPULATION: list[str] = [
-    "SP", "MG", "RJ", "BA", "RS", "PR", "PE", "CE", "PA", "MA",
-    "SC", "GO", "DF", "ES", "AL", "PB", "RN", "MT", "PI", "RO",
-    "SE", "TO", "AM", "AC", "AP", "RR", "MS",
+    "SP",
+    "MG",
+    "RJ",
+    "BA",
+    "RS",
+    "PR",
+    "PE",
+    "CE",
+    "PA",
+    "MA",
+    "SC",
+    "GO",
+    "DF",
+    "ES",
+    "AL",
+    "PB",
+    "RN",
+    "MT",
+    "PI",
+    "RO",
+    "SE",
+    "TO",
+    "AM",
+    "AC",
+    "AP",
+    "RR",
+    "MS",
 ]
 
 
@@ -76,7 +101,7 @@ def _validate_date_params(
 
 
 def calculate_delay(attempt: int, config: Any) -> float:
-    return min(config.base_delay * (config.exponential_base ** attempt), config.max_delay)
+    return min(config.base_delay * (config.exponential_base**attempt), config.max_delay)
 
 
 def format_date(date_str: str, fmt: str) -> str:

@@ -2183,7 +2183,7 @@ def _build_roi_text(roi: dict, ed: dict, styles: dict, _state: dict | None = Non
         )
     else:
         # Fallback: reconstruct from available data (backward compat)
-        win_prob = ed.get("win_probability", {})
+        ed.get("win_probability", {})
         memo_parts = []
         valor_edital = _safe_float(ed.get("valor_estimado"))
         if valor_edital > 0:
@@ -3983,7 +3983,7 @@ def _build_development_path(data: dict, styles: dict, sec: dict | None = None) -
     )
     el.append(Spacer(1, 3 * mm))
 
-    avail = PAGE_WIDTH - 2 * MARGIN
+    PAGE_WIDTH - 2 * MARGIN
 
     for idx, ed in nao_rec[:8]:  # Top 8
         obj = _trunc(_s(ed.get("objeto", "")), 150)
@@ -4916,7 +4916,7 @@ def _build_portfolio_section(data: dict, styles: dict, sec: dict | None = None) 
         el.append(t)
 
         # Correlation note
-        corr_note = item.get("correlation_note") if optimal_set else None
+        item.get("correlation_note") if optimal_set else None
         cap_warning = capacity.get("capacity_overflow_warning")
         if cap_warning:
             el.append(
@@ -6060,7 +6060,7 @@ def _build_development_plan_condensed(data: dict, styles: dict, sec: dict | None
             continue
 
         idx = ed.get("_display_idx", 0)
-        obj = _trunc(_s(ed.get("objeto", "")), 50)
+        _trunc(_s(ed.get("objeto", "")), 50)
         mun = _s(ed.get("municipio", ""))
         uf = _s(ed.get("uf", ""))
         deadline = ed.get("data_encerramento") or ed.get("data_abertura") or ""
@@ -6138,7 +6138,7 @@ def _build_development_plan_condensed(data: dict, styles: dict, sec: dict | None
     el.append(Spacer(1, 3 * mm))
 
     # Action label mapping
-    _ACTION_LABELS = {
+    _ACTION_LABELS = {  # noqa: N806
         "CAT_REQUIRED": "Solicitar atestado de capacidade técnica ao contratante mais recente",
         "CAPITAL_LIMITROFE": "Estruturar carta de fiança bancária ou consórcio",
         "PRAZO_CRITICO": "Mobilizar equipe imediatamente para preparação de proposta",
@@ -6390,7 +6390,7 @@ def _build_annex_nao_recomendado(data: dict, styles: dict, sec: dict) -> list:
 
     el = []
     el.append(PageBreak())
-    num = sec["next"]()
+    sec["next"]()
     # Count vetoed separately for clarity in heading
     n_vetados = sum(1 for _, ed in nr_editais if (ed.get("risk_score") or {}).get("vetoed", False))
     heading_detail = f"{len(nr_editais)}"
@@ -6446,7 +6446,7 @@ def _build_annex_company_condensed(data: dict, styles: dict, sec: dict) -> list:
     """V6 Annex A: Condensed company profile — key data only, ~0.5 page."""
     el = []
     el.append(PageBreak())
-    num = sec["next"]()
+    sec["next"]()
     el.extend(_section_heading("Anexo A — Perfil da Empresa", styles))
 
     emp = data.get("empresa", {})
@@ -6546,7 +6546,7 @@ def _build_annex_company_condensed(data: dict, styles: dict, sec: dict) -> list:
 def _build_annex_sources_condensed(data: dict, styles: dict, sec: dict) -> list:
     """V6 Annex B: Condensed sources + methodology — ~0.5 page."""
     el = []
-    num = sec["next"]()
+    sec["next"]()
     el.extend(_section_heading("Anexo B — Fontes e Metodologia", styles))
 
     # Data sources — compact text list instead of table
@@ -6651,7 +6651,7 @@ def _build_annex_company(data: dict, styles: dict, sec: dict) -> list:
     """Annex B: Company profile + SICAF (reference material)."""
     el = []
     el.append(PageBreak())
-    num = sec["next"]()
+    sec["next"]()
     el.extend(_section_heading("Anexo B — Perfil da Empresa", styles))
     el.extend(_build_company_profile_content(data, styles))
     el.append(Spacer(1, 5 * mm))
@@ -6799,7 +6799,7 @@ def _build_annex_sources(data: dict, styles: dict, sec: dict) -> list:
     """Annex C: Data sources + methodology + gazette mentions + audit trail."""
     el = []
     el.append(PageBreak())
-    num = sec["next"]()
+    sec["next"]()
     el.extend(_section_heading("Anexo C — Fontes de Dados e Metodologia", styles))
     el.extend(_build_data_sources_content(data, styles))
     el.append(Spacer(1, 5 * mm))
@@ -6991,7 +6991,7 @@ def generate_report_b2g(data: dict) -> BytesIO:
 
     empresa = data.get("empresa", {})
     nome = _s(empresa.get("nome_fantasia") or empresa.get("razao_social", "Empresa"))
-    cnpj = _s(empresa.get("cnpj", ""), restore_accents=False)
+    _s(empresa.get("cnpj", ""), restore_accents=False)
 
     doc = SimpleDocTemplate(
         buffer,
@@ -7342,7 +7342,7 @@ def main():
     if file_size < 10_000:
         print(f"WARNING: PDF suspiciously small ({file_size} bytes). May be corrupt.")
     n_recommended = len([e for e in data.get("editais", []) if e.get("recomendacao") != "NÃO RECOMENDADO"])
-    min_pages = max(5, n_recommended)
+    max(5, n_recommended)
     print(f"PDF generated: {output_path} ({file_size:,} bytes)")
     print(f"Size: {file_size / 1024:.1f} KB")
 

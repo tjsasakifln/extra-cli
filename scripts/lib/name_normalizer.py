@@ -174,9 +174,32 @@ def find_unknown_abbreviations(
 
     # Also treat common Portuguese words as known to reduce noise
     _common_words: set[str] = {
-        "DE", "DA", "DO", "DAS", "DOS", "E", "A", "O", "EM", "COM", "SEM",
-        "PARA", "POR", "NA", "NO", "NAS", "NOS", "UM", "UMA", "SE",
-        "AO", "AOS", "PELA", "PELO", "PELAS", "PELOS",
+        "DE",
+        "DA",
+        "DO",
+        "DAS",
+        "DOS",
+        "E",
+        "A",
+        "O",
+        "EM",
+        "COM",
+        "SEM",
+        "PARA",
+        "POR",
+        "NA",
+        "NO",
+        "NAS",
+        "NOS",
+        "UM",
+        "UMA",
+        "SE",
+        "AO",
+        "AOS",
+        "PELA",
+        "PELO",
+        "PELAS",
+        "PELOS",
     }
     known_set = known_set | _common_words
 

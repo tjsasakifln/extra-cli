@@ -6,10 +6,20 @@ Interface esperada pelo monitor.py:
     crawl(mode) -> list[dict]       # raw records da API
     transform(records) -> list[dict]  # normalizados para pncp_raw_bids schema
 
-Estrategia de dois endpoints:
-  - Legado (/modulo-legado/1_consultarLicitacao): pre-2024, filtra UF server-side
-  - Lei 14.133 (/modulo-contratacoes/1_consultarContratacoes_PNCP_14133): pos-2024,
-    UF filtering client-side (API nao suporta filtro)
+Estrategia de endpoints (v3 API):
+  - Lei 14.133 (/modulo-contratacoes/1_consultarContratacoes_PNCP_14133):
+    PRIMARY. Suporta filtro UF (unidadeOrgaoUfSigla). Retorna CNPJ, orgao,
+    modalidade, valores, datas. Usa parametros camelCase.
+  - Legado (/modulo-legado/1_consultarLicitacao):
+    SECONDARY (opcional via COMPRASGOV_LEGACY_ENABLED=true).
+    Nao possui filtro UF funcional na v3. Nao retorna CNPJ nem razao social.
+
+Notas sobre migracao v2 -> v3:
+  - Response key mudou de "data" para "resultado"
+  - 14.133: parametros agora camelCase (dataPublicacaoPncpInicial, etc.)
+  - 14.133: requer codigoModalidade (0 = todas)
+  - Legado: uf ignorado pela API (qualquer valor retorna dados nacionais)
+  - Page size minimo: 10 (max 500)
 
 Sem async, sem httpx, sem clients.base. Apenas urllib da stdlib.
 """
@@ -44,11 +54,16 @@ _logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 BASE_URL = os.getenv("COMPRASGOV_BASE", "https://dadosabertos.compras.gov.br")
-PAGE_SIZE = int(os.getenv("COMPRASGOV_PAGE_SIZE", "500"))
+PAGE_SIZE = int(os.getenv("COMPRASGOV_PAGE_SIZE", "100"))  # Min 10, max 500
 MAX_PAGES = int(os.getenv("COMPRASGOV_MAX_PAGES", "50"))
 READ_TIMEOUT = int(os.getenv("COMPRASGOV_READ_TIMEOUT", "30"))
 MAX_RETRIES = int(os.getenv("COMPRASGOV_MAX_RETRIES", "2"))
 REQUEST_DELAY = float(os.getenv("COMPRASGOV_REQUEST_DELAY", "0.2"))  # 200ms = 5 req/s
+LEGACY_ENABLED = os.getenv("COMPRASGOV_LEGACY_ENABLED", "").lower() in (
+    "true",
+    "1",
+    "yes",
+)
 
 INGESTION_UFS = [u.strip().upper() for u in os.getenv("INGESTION_UFS", "SC").split(",") if u.strip()]
 INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "3"))
@@ -59,7 +74,7 @@ LEGACY_ENDPOINT = "/modulo-legado/1_consultarLicitacao"
 LEI_14133_ENDPOINT = "/modulo-contratacoes/1_consultarContratacoes_PNCP_14133"
 
 # Modalidade name -> ID mapping (baseado na nomenclatura PNCP/ComprasGov)
-_MODALIDADE_ID_MAP: dict[str, int] = {
+_MODALIDADE_NAME_MAP: dict[str, int] = {
     "Pregão": 1,
     "Pregao": 1,
     "Concorrência": 3,
@@ -80,6 +95,21 @@ _MODALIDADE_ID_MAP: dict[str, int] = {
     "Inexigibilidade de Licitação": 11,
     "Inexigibilidade de Licitacao": 11,
     "Convite": 12,
+}
+
+# Modalidade int code -> name mapping (para legacy endpoint que retorna int)
+_LEGACY_MODALIDADE_MAP: dict[int, str] = {
+    1: "Pregão",
+    3: "Concorrência",
+    4: "Concurso",
+    5: "Pregão",
+    6: "Tomada de Preços",
+    7: "Diálogo Competitivo",
+    8: "Credenciamento",
+    9: "Pré-qualificação",
+    10: "Dispensa de Licitação",
+    11: "Inexigibilidade",
+    12: "Convite",
 }
 
 # ---------------------------------------------------------------------------
@@ -152,48 +182,42 @@ def _make_request(url: str) -> dict | None:
     return None
 
 
-def _fetch_page(endpoint: str, params: dict) -> tuple[list[dict], bool]:
-    """Busca uma pagina de um endpoint ComprasGov.
+def _fetch_page(url: str) -> tuple[list[dict], bool]:
+    """Busca uma pagina de um endpoint ComprasGov v3.
+
+    Response schema (v3):
+      { "resultado": [...], "totalRegistros": N, "totalPaginas": N, "paginasRestantes": N }
 
     Args:
-        endpoint: Caminho da API (ex: /modulo-legado/1_consultarLicitacao)
-        params: Dicionario de parametros de query
+        url: URL completa com query params
 
     Returns:
         (records_list, has_more_pages)
     """
-    query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
-    url = f"{BASE_URL}{endpoint}?{query}"
-
     data = _make_request(url)
     if data is None:
         return [], False
 
-    records = data.get("data", [])
+    records = data.get("resultado", [])
     if not isinstance(records, list):
         return [], False
 
-    # Resposta inclui paginasRestantes para controle de paginacao
     paginas_restantes = data.get("paginasRestantes", 0)
     has_more = paginas_restantes > 0
 
     return records, has_more
 
 
-def _fetch_from_endpoint(
+def _paginate(
     endpoint: str,
-    data_inicial: str,
-    data_final: str,
-    uf: str | None = None,
+    base_params: dict[str, Any],
     max_pages: int | None = None,
 ) -> list[dict]:
     """Fetch paginado de um endpoint.
 
     Args:
-        endpoint: Caminho da API
-        data_inicial: Data inicio YYYY-MM-DD
-        data_final: Data fim YYYY-MM-DD
-        uf: Codigo UF (opcional, server-side filter no legado)
+        endpoint: Caminho da API (ex: /modulo-contratacoes/...)
+        base_params: Parametros de query (sem pagina, adicionado automaticamente)
         max_pages: Paginas maximas (default: MAX_PAGES global)
 
     Returns:
@@ -206,16 +230,12 @@ def _fetch_from_endpoint(
     pagina = 1
 
     while pagina <= max_pages:
-        params: dict[str, Any] = {
-            "data_publicacao_inicial": data_inicial,
-            "data_publicacao_final": data_final,
-            "pagina": pagina,
-            "tamanhoPagina": PAGE_SIZE,
-        }
-        if uf:
-            params["uf"] = uf
+        params = dict(base_params)
+        params["pagina"] = pagina
+        query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
+        url = f"{BASE_URL}{endpoint}?{query}"
 
-        records, has_more = _fetch_page(endpoint, params)
+        records, has_more = _fetch_page(url)
 
         if not records:
             if pagina == 1:
@@ -235,9 +255,7 @@ def _fetch_from_endpoint(
         time.sleep(REQUEST_DELAY)  # Rate limiting
 
     if all_records:
-        _logger.info(
-            f"[COMPRAS_GOV] {endpoint}{' (' + uf + ')' if uf else ''}: {len(all_records)} registros ({pagina} paginas)"
-        )
+        _logger.info(f"[COMPRAS_GOV] {endpoint}: {len(all_records)} registros ({pagina} paginas)")
 
     return all_records
 
@@ -308,129 +326,34 @@ def _modalidade_id(nome: str) -> int:
     """Mapeia nome da modalidade para ID numerico."""
     if not nome:
         return 0
-    return _MODALIDADE_ID_MAP.get(nome.strip(), 0)
+    return _MODALIDADE_NAME_MAP.get(nome.strip(), 0)
 
 
 # ---------------------------------------------------------------------------
-# Normalization: Legacy endpoint (pre-2024)
-# ---------------------------------------------------------------------------
-
-
-def _normalize_legacy(raw: dict) -> dict | None:
-    """Normaliza registro do endpoint legado para schema pncp_raw_bids.
-
-    Legacy field mapping:
-      - numero_aviso / identificador / id -> pncp_id (prefixo cg_leg_)
-      - objeto / descricao -> objeto_compra
-      - valor_estimado / valor -> valor_total_estimado
-      - uasg.nome / orgao_nome -> orgao_razao_social
-      - uasg.cnpj / cnpj -> orgao_cnpj
-      - uf -> uf
-      - municipio -> municipio
-      - modalidade.descricao -> modalidade_nome
-      - data_publicacao -> data_publicacao
-      - data_entrega_proposta -> data_abertura
-    """
-    try:
-        source_id = str(raw.get("numero_aviso") or raw.get("identificador") or raw.get("id") or "")
-        if not source_id:
-            return None
-
-        pncp_id = f"cg_leg_{source_id}"
-
-        # Objeto
-        objeto_compra = raw.get("objeto") or raw.get("descricao") or ""
-
-        # Valor
-        valor = raw.get("valor_estimado") or raw.get("valor") or 0
-        if isinstance(valor, str):
-            try:
-                valor = float(valor.replace(".", "").replace(",", "."))
-            except ValueError:
-                valor = 0.0
-        valor_float = float(valor) if valor else None
-        if valor_float == 0:
-            valor_float = None
-
-        # Orgao
-        uasg = raw.get("uasg") or {}
-        if isinstance(uasg, dict):
-            orgao_razao_social = uasg.get("nome") or raw.get("orgao_nome") or ""
-            orgao_cnpj = uasg.get("cnpj") or raw.get("cnpj") or ""
-        else:
-            orgao_razao_social = raw.get("orgao_nome") or ""
-            orgao_cnpj = raw.get("cnpj") or ""
-
-        # Localizacao
-        uf = raw.get("uf") or "SC"
-        municipio = raw.get("municipio") or ""
-
-        # Modalidade
-        modalidade_obj = raw.get("modalidade") or {}
-        if isinstance(modalidade_obj, dict):
-            modalidade_nome = modalidade_obj.get("descricao") or ""
-        else:
-            modalidade_nome = str(modalidade_obj) if modalidade_obj else ""
-
-        # Datas
-        data_publicacao = _extract_date(raw.get("data_publicacao"))
-        data_abertura = _extract_date(raw.get("data_entrega_proposta"))
-
-        # Link
-        link_pncp = raw.get("link") or ""
-        if not link_pncp and source_id:
-            link_pncp = f"{BASE_URL}/modulo-legado/licitacao/{source_id}"
-
-        result = {
-            "pncp_id": pncp_id,
-            "objeto_compra": objeto_compra,
-            "valor_total_estimado": valor_float,
-            "modalidade_id": _modalidade_id(modalidade_nome),
-            "modalidade_nome": modalidade_nome,
-            "esfera_id": 1,  # Federal
-            "uf": uf,
-            "municipio": municipio,
-            "codigo_municipio_ibge": raw.get("codigo_municipio_ibge", ""),
-            "orgao_razao_social": orgao_razao_social,
-            "orgao_cnpj": orgao_cnpj,
-            "data_publicacao": data_publicacao,
-            "data_abertura": data_abertura,
-            "data_encerramento": None,
-            "link_pncp": link_pncp,
-            "source_id": f"cg_leg_{source_id}",
-        }
-
-        result["content_hash"] = _generate_content_hash(result)
-        return result
-
-    except Exception as e:
-        _logger.warning(f"[COMPRAS_GOV] Legacy normalization error: {e}")
-        return None
-
-
-# ---------------------------------------------------------------------------
-# Normalization: Lei 14.133 endpoint (pos-2024)
+# Normalization: Lei 14.133 endpoint (pos-2024, PRIMARY)
 # ---------------------------------------------------------------------------
 
 
 def _normalize_lei_14133(raw: dict) -> dict | None:
     """Normaliza registro do endpoint Lei 14.133 para schema pncp_raw_bids.
 
-    Lei 14.133 field mapping:
-      - numeroControlePNCP / id -> pncp_id (prefixo cg_14133_)
-      - objetoCompra -> objeto_compra
-      - valorTotalEstimado / valorEstimado -> valor_total_estimado
-      - orgaoEntidade.razaoSocial -> orgao_razao_social
-      - orgaoEntidade.cnpj -> orgao_cnpj
-      - orgaoEntidade.municipio -> municipio
-      - uf -> uf
-      - modalidadeNome -> modalidade_nome
-      - dataPublicacaoPncp -> data_publicacao
-      - dataAberturaProposta -> data_abertura
-      - dataEncerramentoProposta -> data_encerramento
+    v3 API field mapping (camelCase):
+      - numeroControlePNCP / idCompra  -> pncp_id (prefixo cg_14133_)
+      - objetoCompra                   -> objeto_compra
+      - valorTotalEstimado             -> valor_total_estimado
+      - orgaoEntidadeRazaoSocial       -> orgao_razao_social
+      - orgaoEntidadeCnpj              -> orgao_cnpj
+      - unidadeOrgaoMunicipioNome      -> municipio
+      - unidadeOrgaoUfSigla            -> uf
+      - unidadeOrgaoCodigoIbge         -> codigo_municipio_ibge
+      - modalidadeNome                 -> modalidade_nome
+      - modalidadeIdPncp               -> modalidade_id
+      - dataPublicacaoPncp             -> data_publicacao
+      - dataAberturaPropostaPncp       -> data_abertura
+      - dataEncerramentoPropostaPncp   -> data_encerramento
     """
     try:
-        source_id = str(raw.get("numeroControlePNCP") or raw.get("id") or "")
+        source_id = str(raw.get("numeroControlePNCP") or raw.get("idCompra") or "")
         if not source_id:
             return None
 
@@ -451,41 +374,39 @@ def _normalize_lei_14133(raw: dict) -> dict | None:
             valor_float = None
 
         # Orgao
-        orgao_obj = raw.get("orgaoEntidade") or {}
-        if isinstance(orgao_obj, dict):
-            orgao_razao_social = orgao_obj.get("razaoSocial") or ""
-            orgao_cnpj = orgao_obj.get("cnpj") or ""
-            municipio = orgao_obj.get("municipio") or ""
-            codigo_ibge = orgao_obj.get("codigoIbge") or ""
-        else:
-            orgao_razao_social = ""
-            orgao_cnpj = ""
-            municipio = ""
-            codigo_ibge = ""
+        orgao_razao_social = raw.get("orgaoEntidadeRazaoSocial") or ""
+        orgao_cnpj = raw.get("orgaoEntidadeCnpj") or ""
 
         # Localizacao
-        uf = raw.get("uf") or "SC"
+        uf = raw.get("unidadeOrgaoUfSigla") or ""
+        municipio = raw.get("unidadeOrgaoMunicipioNome") or ""
+        codigo_ibge = raw.get("unidadeOrgaoCodigoIbge") or ""
 
         # Modalidade
         modalidade_nome = raw.get("modalidadeNome") or ""
+        modalidade_id = raw.get("modalidadeIdPncp") or _modalidade_id(modalidade_nome)
 
         # Datas
         data_publicacao = _extract_date(raw.get("dataPublicacaoPncp"))
-        data_abertura = _extract_date(raw.get("dataAberturaProposta"))
-        data_encerramento = _extract_date(raw.get("dataEncerramentoProposta"))
+        data_abertura = _extract_date(raw.get("dataAberturaPropostaPncp"))
+        data_encerramento = _extract_date(raw.get("dataEncerramentoPropostaPncp"))
 
         # Link
         link_pncp = raw.get("url") or raw.get("link") or ""
         if not link_pncp and source_id:
             link_pncp = f"https://pncp.gov.br/app/editais/{source_id}"
 
+        # Esfera
+        esfera_raw = raw.get("orgaoEntidadeEsferaId") or ""
+        esfera_id = {"F": 1, "E": 2, "M": 3}.get(esfera_raw, 1)
+
         result = {
             "pncp_id": pncp_id,
             "objeto_compra": objeto_compra,
             "valor_total_estimado": valor_float,
-            "modalidade_id": _modalidade_id(modalidade_nome),
+            "modalidade_id": modalidade_id,
             "modalidade_nome": modalidade_nome,
-            "esfera_id": 1,  # Federal
+            "esfera_id": esfera_id,
             "uf": uf,
             "municipio": municipio,
             "codigo_municipio_ibge": str(codigo_ibge) if codigo_ibge else "",
@@ -507,6 +428,98 @@ def _normalize_lei_14133(raw: dict) -> dict | None:
 
 
 # ---------------------------------------------------------------------------
+# Normalization: Legacy endpoint (pre-2024, SECONDARY)
+# ---------------------------------------------------------------------------
+
+
+def _normalize_legacy(raw: dict) -> dict | None:
+    """Normaliza registro do endpoint legado para schema pncp_raw_bids.
+
+    v3 Legacy field mapping:
+      - id_compra / identificador     -> pncp_id (prefixo cg_leg_)
+      - objeto                        -> objeto_compra
+      - valor_estimado_total          -> valor_total_estimado
+      - nome_modalidade               -> modalidade_nome
+      - modalidade (int)              -> modalidade_id
+      - data_publicacao               -> data_publicacao
+      - data_abertura_proposta / data_entrega_proposta -> data_abertura
+
+    NOTA: O endpoint legado NAO retorna CNPJ do orgao, razao social,
+    UF ou municipio. Esses campos serao deixados vazios. O filtro
+    do transform() nao descarta legacy records por falta de CNPJ.
+    """
+    try:
+        source_id = str(raw.get("id_compra") or raw.get("identificador") or raw.get("numero_aviso") or "")
+        if not source_id:
+            return None
+
+        pncp_id = f"cg_leg_{source_id}"
+
+        # Objeto
+        objeto_compra = raw.get("objeto") or ""
+
+        # Valor
+        valor = raw.get("valor_estimado_total") or raw.get("valor_estimado") or raw.get("valor_homologado_total") or 0
+        if isinstance(valor, str):
+            try:
+                valor = float(valor.replace(".", "").replace(",", "."))
+            except ValueError:
+                valor = 0.0
+        valor_float = float(valor) if valor else None
+        if valor_float == 0:
+            valor_float = None
+
+        # Legacy API nao fornece CNPJ ou razao social
+        orgao_cnpj = ""
+        orgao_razao_social = ""
+
+        # Modalidade - legacy usa codigo inteiro
+        modalidade_id = raw.get("modalidade") or 0
+        modalidade_nome = raw.get("nome_modalidade") or _LEGACY_MODALIDADE_MAP.get(modalidade_id, "")
+
+        # Legacy endpoint nao tem UF ou municipio no response padrao
+        uf = ""
+        municipio = ""
+        codigo_ibge = ""
+
+        # Datas
+        data_publicacao = _extract_date(raw.get("data_publicacao"))
+        data_abertura = _extract_date(raw.get("data_abertura_proposta") or raw.get("data_entrega_proposta"))
+        data_encerramento = None
+
+        # Link
+        link_pncp = ""
+        if source_id:
+            link_pncp = f"{BASE_URL}/modulo-legado/licitacao/{source_id}"
+
+        result = {
+            "pncp_id": pncp_id,
+            "objeto_compra": objeto_compra,
+            "valor_total_estimado": valor_float,
+            "modalidade_id": modalidade_id,
+            "modalidade_nome": modalidade_nome,
+            "esfera_id": 1,  # Federal (default)
+            "uf": uf,
+            "municipio": municipio,
+            "codigo_municipio_ibge": codigo_ibge,
+            "orgao_razao_social": orgao_razao_social,
+            "orgao_cnpj": orgao_cnpj,
+            "data_publicacao": data_publicacao,
+            "data_abertura": data_abertura,
+            "data_encerramento": data_encerramento,
+            "link_pncp": link_pncp,
+            "source_id": f"cg_leg_{source_id}",
+        }
+
+        result["content_hash"] = _generate_content_hash(result)
+        return result
+
+    except Exception as e:
+        _logger.warning(f"[COMPRAS_GOV] Legacy normalization error: {e}")
+        return None
+
+
+# ---------------------------------------------------------------------------
 # Public interface (chamado pelo monitor.py)
 # ---------------------------------------------------------------------------
 
@@ -514,12 +527,11 @@ def _normalize_lei_14133(raw: dict) -> dict | None:
 def crawl(mode: str = "full") -> list[dict]:
     """Crawl ComprasGov v3 para as UFs configuradas.
 
-    Consulta ambos os endpoints em sequencia:
-      1. Legado: filtra UF server-side (1 request stream por UF)
-      2. Lei 14.133: filtra UF client-side (fetch all, filtra pos)
-
-    Os registros sao retornados crus (raw) como vieram da API.
-    O transform() detecta automaticamente qual endpoint gerou cada um.
+    Endpoints:
+      1. Lei 14.133 (PRIMARY): filtra UF server-side via unidadeOrgaoUfSigla.
+         Suporta paginacao, retorna CNPJ, orgao, modalidade, valores, datas.
+      2. Legado (SECONDARY, opcional): ativado via COMPRASGOV_LEGACY_ENABLED=true.
+         O parametro uf e ignorado pela API v3 — crawl nacional (todas UFs).
 
     Args:
         mode: 'full' (janela maior) ou 'incremental' (janela menor)
@@ -533,21 +545,39 @@ def crawl(mode: str = "full") -> list[dict]:
     data_inicial_str = data_inicial.isoformat()
     data_final_str = data_final.isoformat()
 
-    _logger.info(f"[COMPRAS_GOV] Crawl {mode}: {data_inicial_str} a {data_final_str} UFs={INGESTION_UFS}")
+    _logger.info(
+        f"[COMPRAS_GOV] Crawl {mode}: {data_inicial_str} a {data_final_str} UFs={INGESTION_UFS} page_size={PAGE_SIZE}"
+    )
 
     all_records: list[dict] = []
 
-    # 1. Legacy endpoint (server-side UF filter)
+    # 1. Lei 14.133 endpoint (PRIMARY) — server-side UF filter
     for uf in INGESTION_UFS:
-        records = _fetch_from_endpoint(LEGACY_ENDPOINT, data_inicial_str, data_final_str, uf=uf)
+        params: dict[str, Any] = {
+            "dataPublicacaoPncpInicial": data_inicial_str,
+            "dataPublicacaoPncpFinal": data_final_str,
+            "codigoModalidade": 0,  # 0 = todas as modalidades
+            "unidadeOrgaoUfSigla": uf,
+            "tamanhoPagina": PAGE_SIZE,
+        }
+        records = _paginate(LEI_14133_ENDPOINT, params)
         all_records.extend(records)
 
-    # 2. Lei 14.133 endpoint (client-side UF filter)
-    lei_records = _fetch_from_endpoint(LEI_14133_ENDPOINT, data_inicial_str, data_final_str, uf=None)
-    for r in lei_records:
-        raw_uf = (r.get("uf") or "").upper()
-        if raw_uf in INGESTION_UFS:
-            all_records.append(r)
+    # 2. Legacy endpoint (SECONDARY, opcional)
+    if LEGACY_ENABLED:
+        _logger.info("[COMPRAS_GOV] Legacy crawling enabled (COMPRASGOV_LEGACY_ENABLED=true)")
+        _logger.warning(
+            "[COMPRAS_GOV] Legacy endpoint nao filtra por UF na v3. Crawling nacional. Registros sem CNPJ/orgao."
+        )
+        legacy_params: dict[str, Any] = {
+            "data_publicacao_inicial": data_inicial_str,
+            "data_publicacao_final": data_final_str,
+            "tamanhoPagina": PAGE_SIZE,
+        }
+        legacy_records = _paginate(LEGACY_ENDPOINT, legacy_params)
+        all_records.extend(legacy_records)
+    else:
+        _logger.debug("[COMPRAS_GOV] Legacy endpoint disabled (set COMPRASGOV_LEGACY_ENABLED=true to enable)")
 
     _logger.info(f"[COMPRAS_GOV] Crawl complete: {len(all_records)} registros totais")
     return all_records
@@ -581,8 +611,9 @@ def transform(raw_records: list[dict]) -> list[dict]:
         if result is None:
             continue
 
-        # Filtro: requer CNPJ do orgao minimamente
-        if not result.get("orgao_cnpj"):
+        # Filtro CNPJ: exigido para 14.133, dispensado para legacy
+        is_modern = result["pncp_id"].startswith("cg_14133_")
+        if is_modern and not result.get("orgao_cnpj"):
             continue
 
         # Dedup por pncp_id

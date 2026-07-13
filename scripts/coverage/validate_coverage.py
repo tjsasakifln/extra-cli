@@ -46,41 +46,32 @@ NATUREZA_CAUSA_HEURISTIC = {
     "Consórcio Público de Direito Privado": "sem_obrigacao_legal_14133",
     "Sociedade de Economia Mista": "sem_obrigacao_legal_14133",
     "Empresa Pública": "sem_obrigacao_legal_14133",
-
     # === Orgaos do Judiciario — regime juridico distinto (LC 35/79) ===
     "Órgão Público do Poder Judiciário Estadual": "sem_obrigacao_legal_14133",
     "Órgão Público do Poder Judiciário Federal": "sem_obrigacao_legal_14133",
-
     # === Fundos publicos — dados raramente publicados em portais de licitacao ===
     "Fundo Público da Administração Indireta Estadual ou do Distrito Federal": "sem_dados_publicos",
     "Fundo Público da Administração Direta Estadual ou do Distrito Federal": "sem_dados_publicos",
     "Fundo Público da Administração Direta Federal": "sem_dados_publicos",
-
     # === Fundacoes de direito privado — regime hibrido, adesao parcial ao PNCP ===
     "Fundação Pública de Direito Privado Federal": "sem_dados_publicos",
     "Fundação Pública de Direito Privado Municipal": "sem_dados_publicos",
-
     # === Fundacoes de direito publico — cobertura PNCP incompleta ===
     "Fundação Pública de Direito Público Municipal": "sem_dados_publicos",
     "Fundação Pública de Direito Público Estadual ou do Distrito Federal": "sem_dados_publicos",
     "Fundação Pública de Direito Público Federal": "sem_dados_publicos",
-
     # === Autarquias — cobertura PNCP incompleta ===
     "Autarquia Municipal": "sem_dados_publicos",
     "Autarquia Federal": "sem_dados_publicos",
     "Autarquia Estadual ou do Distrito Federal": "sem_dados_publicos",
-
     # === Orgaos autonomos ===
     "Órgão Público Autônomo Municipal": "sem_dados_publicos",
-
     # === Entes estaduais/federais — fora do escopo PNCP municipal ===
     "Estado ou Distrito Federal": "sem_dados_publicos",
     "Órgão Público do Poder Executivo Estadual ou do Distrito Federal": "sem_dados_publicos",
     "Órgão Público do Poder Executivo Federal": "sem_dados_publicos",
-
     # === Orgaos legislativos — publicam no DOM-SC ===
     "Órgão Público do Poder Legislativo Municipal": "dom_sc_sem_api_key",
-
     # === Consorcios — frequentemente sem portal proprio ===
     "Consórcio Público de Direito Público (Associação Pública)": "sem_dados_publicos",
 }
@@ -160,19 +151,13 @@ class CoverageValidator:
                 f"(PNCP + CIGA CKAN). Requer investigacao manual."
             )
         elif causa == "sem_obrigacao_legal_14133":
-            parts.append(
-                f"Entidade do tipo '{natureza}' nao abrangida pela Lei 14.133."
-            )
+            parts.append(f"Entidade do tipo '{natureza}' nao abrangida pela Lei 14.133.")
         elif causa == "sem_dados_publicos":
             parts.append(
-                f"Entidade '{natureza}' em {municipio} sem dados publicos "
-                f"de licitacao encontrados nas fontes atuais."
+                f"Entidade '{natureza}' em {municipio} sem dados publicos de licitacao encontrados nas fontes atuais."
             )
         elif causa == "dom_sc_sem_api_key":
-            parts.append(
-                "Provaveis dados existentes no DOM-SC, mas requer API key "
-                "contratada com o CIGA."
-            )
+            parts.append("Provaveis dados existentes no DOM-SC, mas requer API key contratada com o CIGA.")
 
         if cnpj:
             parts.append(f"CNPJ-8: {cnpj}")
@@ -184,11 +169,19 @@ class CoverageValidator:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, "w", newline="", encoding="utf-8-sig") as f:
             writer = csv.writer(f, delimiter=";")
-            writer.writerow([
-                "id", "razao_social", "cnpj_8", "municipio",
-                "codigo_ibge", "natureza_juridica",
-                "causa_raiz", "investigado_em", "observacoes",
-            ])
+            writer.writerow(
+                [
+                    "id",
+                    "razao_social",
+                    "cnpj_8",
+                    "municipio",
+                    "codigo_ibge",
+                    "natureza_juridica",
+                    "causa_raiz",
+                    "investigado_em",
+                    "observacoes",
+                ]
+            )
             for ent in entities:
                 writer.writerow(ent)
 
@@ -302,11 +295,13 @@ class CoverageValidator:
         # ASCII bar chart for causes
         max_count = max(causas.values()) if causas else 1
         scale = max(1, max_count // 40)
-        causas_bar = "\n".join([
-            f"  {causa.replace('_', ' ').title().ljust(30)} | "
-            f"{'#' * min((count // scale) if scale > 0 else count, 60)} ({count})"
-            for causa, count in sorted(causas.items(), key=lambda x: -x[1])
-        ])
+        causas_bar = "\n".join(
+            [
+                f"  {causa.replace('_', ' ').title().ljust(30)} | "
+                f"{'#' * min((count // scale) if scale > 0 else count, 60)} ({count})"
+                for causa, count in sorted(causas.items(), key=lambda x: -x[1])
+            ]
+        )
 
         # Build recommendations matrix
         recs = self._build_recommendations(causas, uncovered)
@@ -337,138 +332,150 @@ class CoverageValidator:
         for fonte, count in sorted(por_fonte.items(), key=lambda x: -x[1]):
             report_lines.append(f"| {fonte} | {count} |")
 
-        report_lines.extend([
-            "",
-            "## Cobertura por Natureza Juridica",
-            "",
-            "| Natureza Juridica | Total | Cobertos | % |",
-            "|-------------------|-------|----------|---|",
-        ])
+        report_lines.extend(
+            [
+                "",
+                "## Cobertura por Natureza Juridica",
+                "",
+                "| Natureza Juridica | Total | Cobertos | % |",
+                "|-------------------|-------|----------|---|",
+            ]
+        )
         for r in por_natureza:
             nat_total = r[1]
             nat_covered = r[2] or 0
             nat_pct = round(100.0 * nat_covered / nat_total, 1) if nat_total > 0 else 0
             report_lines.append(f"| {r[0]} | {nat_total} | {nat_covered} | {nat_pct}% |")
 
-        report_lines.extend([
-            "",
-            "## Entes Descobertos por Causa Raiz",
-            "",
-            "```",
-            causas_bar,
-            "```",
-            "",
-            "## Top 10 Municipios com Pior Cobertura",
-            "",
-            "| Municipio | Total | Cobertos | Descobertos |",
-            "|-----------|-------|----------|-------------|",
-        ])
+        report_lines.extend(
+            [
+                "",
+                "## Entes Descobertos por Causa Raiz",
+                "",
+                "```",
+                causas_bar,
+                "```",
+                "",
+                "## Top 10 Municipios com Pior Cobertura",
+                "",
+                "| Municipio | Total | Cobertos | Descobertos |",
+                "|-----------|-------|----------|-------------|",
+            ]
+        )
         for m in top_municipios:
             m_total = m[1]
             m_covered = m[2] or 0
             report_lines.append(f"| {m[0]} | {m_total} | {m_covered} | {m_total - m_covered} |")
 
-        report_lines.extend([
-            "",
-            "## Recomendacoes",
-            "",
-            "### Fazer Agora (Alto Impacto, Baixo Esforco)",
-        ])
+        report_lines.extend(
+            [
+                "",
+                "## Recomendacoes",
+                "",
+                "### Fazer Agora (Alto Impacto, Baixo Esforco)",
+            ]
+        )
         report_lines.append(self._format_recs(recs, "alta_baixo"))
-        report_lines.extend([
-            "",
-            "### Planejar (Alto Impacto, Alto Esforco)",
-        ])
+        report_lines.extend(
+            [
+                "",
+                "### Planejar (Alto Impacto, Alto Esforco)",
+            ]
+        )
         report_lines.append(self._format_recs(recs, "alta_alto"))
-        report_lines.extend([
-            "",
-            "### Baixa Prioridade (Baixo Impacto)",
-        ])
+        report_lines.extend(
+            [
+                "",
+                "### Baixa Prioridade (Baixo Impacto)",
+            ]
+        )
         report_lines.append(self._format_recs(recs, "baixa"))
 
-        report_lines.extend([
-            "",
-            "## Viabilidade de 100% de Cobertura",
-            "",
-            "**Status: INVIALVEL** no cenario atual sem investimento adicional.",
-            "",
-            "### Analise",
-            "",
-            f"A cobertura atual de {pct}% ({covered}/{total}) esta aquem da meta de 95%+.",
-            "As principais barreiras sao:",
-            "",
-            f"1. **Fontes limitadas:** Apenas {len(por_fonte)} fontes ativas cobrindo",
-            f"   {covered} entes.",
-            "2. **Fases 1-3 nao executadas:** As stories de expansao de cobertura",
-            "   (1.1 a 3.3) ainda nao foram implementadas. Cada fase adiciona novas",
-            "   fontes que potencialmente cobrem centenas de entes adicionais.",
-            "3. **Entes sem obrigacao legal:** Entes do tipo Servico Social Autonomo",
-            "   e Consorcio Publico de Direito Privado nao sao abrangidos pela Lei 14.133.",
-            "",
-            "### Teto Realista",
-            "",
-            "| Cenario | Cobertura Estimada | Acoes Necessarias |",
-            "|---------|--------------------|-------------------|",
-            f"| Atual (somente fontes ativas) | {pct}% | Nenhuma |",
-            "| + Fase 1 (Quick Wins + fontes abertas) | ~75% | Stories 1.1-1.11 |",
-            "| + Fase 2 (fontes com credenciais) | ~90% | Stories 2.1-2.4 |",
-            "| + Fase 3 (scraping pesado + backfill) | ~95% | Stories 3.1-3.3 |",
-            "| + Residual (ICP-Brasil, DOM-SC API) | ~97-98% | Investimento em API keys |",
-            "| **100%** | **INVIALVEL** | Entes extintos/sem obrigacao legal tornam 100% impossivel |",
-            "",
-            "**Conclusao:** O teto realista viavel e de ~97-98% apos execucao completa",
-            "de todas as fases mais investimento em API keys (DOM-SC, ICP-Brasil).",
-            "100% e inviavel devido a entes extintos e sem obrigacao legal.",
-            "",
-            "## Reuniao de Encerramento do Epic",
-            "",
-            "### Tempo Total Estimado",
-            "",
-            "| Fase | Stories | Horas Estimadas |",
-            "|------|---------|-----------------|",
-            "| Fase 1 — Fontes Abertas | 11 stories | ~35h |",
-            "| Fase 2 — Credenciais | 4 stories | ~20h |",
-            "| Fase 3 — Scraping + Residual | 4 stories | ~23h |",
-            "| **Total** | **19 stories** | **~78h** |",
-            "",
-            "### Cobertura Final vs Target",
-            "",
-            "| Fase | Target | Atual | Diferenca |",
-            "|------|--------|-------|-----------|",
-            f"| Atual (pre-fases) | 47% | {pct}% | {round(pct - 47, 1)}pp |",
-            "| Apos Fase 1 | 75% | — | — |",
-            "| Apos Fase 2 | 90% | — | — |",
-            "| Apos Fase 3 | 95%+ | — | — |",
-            "",
-            "### Licoes Aprendidas (preliminares)",
-            "",
-            f"1. **Cobertura inicial subestimada:** A cobertura real de {pct}% ({covered}/{total})",
-            "   e menor que os 47% estimados inicialmente. Parte da diferenca pode ser",
-            "   devida a entes do estado (SC) e orgaos estaduais que requerem fontes",
-            "   especificas.",
-            "2. **Dependencia de fontes externas:** PNCP cobre principalmente municipios",
-            "   e orgaos municipais. Entes estaduais e federais requerem fontes",
-            "   adicionais (DOE-SC, SC Compras, ComprasGov).",
-            f"3. **Necessidade de backfill:** O hiato de {uncovered} entes descobertos evidencia",
-            "   que as stories de expansao (1.1-3.3) sao pre-requisito para esta",
-            "   validacao.",
-            "",
-            "### Pendentes Conhecidos",
-            "",
-            "- [ ] Executar COVERAGE-1.1 a COVERAGE-3.3 (expansao de fontes)",
-            "- [ ] Revisar COVERAGE-3.4 apos execucao do backfill (COVERAGE-3.3)",
-            "- [ ] Contratar API key DOM-SC (custo: R$0-500/ano)",
-            "- [ ] Avaliar certificado ICP-Brasil para TCE-SC (custo: R$300-800/ano)",
-            "",
-            "### Decisao",
-            "",
-            "**Epic em andamento — fases de implementacao necessarias antes da",
-            "validacao final.** Recomenda-se executar as stories de expansao (Fases 1-3)",
-            "e entao revisitar esta story de validacao com o backfill concluido.",
-            "",
-            "---",
-            f"*Gerado em: {now}*",
-        ])
+        report_lines.extend(
+            [
+                "",
+                "## Viabilidade de 100% de Cobertura",
+                "",
+                "**Status: INVIALVEL** no cenario atual sem investimento adicional.",
+                "",
+                "### Analise",
+                "",
+                f"A cobertura atual de {pct}% ({covered}/{total}) esta aquem da meta de 95%+.",
+                "As principais barreiras sao:",
+                "",
+                f"1. **Fontes limitadas:** Apenas {len(por_fonte)} fontes ativas cobrindo",
+                f"   {covered} entes.",
+                "2. **Fases 1-3 nao executadas:** As stories de expansao de cobertura",
+                "   (1.1 a 3.3) ainda nao foram implementadas. Cada fase adiciona novas",
+                "   fontes que potencialmente cobrem centenas de entes adicionais.",
+                "3. **Entes sem obrigacao legal:** Entes do tipo Servico Social Autonomo",
+                "   e Consorcio Publico de Direito Privado nao sao abrangidos pela Lei 14.133.",
+                "",
+                "### Teto Realista",
+                "",
+                "| Cenario | Cobertura Estimada | Acoes Necessarias |",
+                "|---------|--------------------|-------------------|",
+                f"| Atual (somente fontes ativas) | {pct}% | Nenhuma |",
+                "| + Fase 1 (Quick Wins + fontes abertas) | ~75% | Stories 1.1-1.11 |",
+                "| + Fase 2 (fontes com credenciais) | ~90% | Stories 2.1-2.4 |",
+                "| + Fase 3 (scraping pesado + backfill) | ~95% | Stories 3.1-3.3 |",
+                "| + Residual (ICP-Brasil, DOM-SC API) | ~97-98% | Investimento em API keys |",
+                "| **100%** | **INVIALVEL** | Entes extintos/sem obrigacao legal tornam 100% impossivel |",
+                "",
+                "**Conclusao:** O teto realista viavel e de ~97-98% apos execucao completa",
+                "de todas as fases mais investimento em API keys (DOM-SC, ICP-Brasil).",
+                "100% e inviavel devido a entes extintos e sem obrigacao legal.",
+                "",
+                "## Reuniao de Encerramento do Epic",
+                "",
+                "### Tempo Total Estimado",
+                "",
+                "| Fase | Stories | Horas Estimadas |",
+                "|------|---------|-----------------|",
+                "| Fase 1 — Fontes Abertas | 11 stories | ~35h |",
+                "| Fase 2 — Credenciais | 4 stories | ~20h |",
+                "| Fase 3 — Scraping + Residual | 4 stories | ~23h |",
+                "| **Total** | **19 stories** | **~78h** |",
+                "",
+                "### Cobertura Final vs Target",
+                "",
+                "| Fase | Target | Atual | Diferenca |",
+                "|------|--------|-------|-----------|",
+                f"| Atual (pre-fases) | 47% | {pct}% | {round(pct - 47, 1)}pp |",
+                "| Apos Fase 1 | 75% | — | — |",
+                "| Apos Fase 2 | 90% | — | — |",
+                "| Apos Fase 3 | 95%+ | — | — |",
+                "",
+                "### Licoes Aprendidas (preliminares)",
+                "",
+                f"1. **Cobertura inicial subestimada:** A cobertura real de {pct}% ({covered}/{total})",
+                "   e menor que os 47% estimados inicialmente. Parte da diferenca pode ser",
+                "   devida a entes do estado (SC) e orgaos estaduais que requerem fontes",
+                "   especificas.",
+                "2. **Dependencia de fontes externas:** PNCP cobre principalmente municipios",
+                "   e orgaos municipais. Entes estaduais e federais requerem fontes",
+                "   adicionais (DOE-SC, SC Compras, ComprasGov).",
+                f"3. **Necessidade de backfill:** O hiato de {uncovered} entes descobertos evidencia",
+                "   que as stories de expansao (1.1-3.3) sao pre-requisito para esta",
+                "   validacao.",
+                "",
+                "### Pendentes Conhecidos",
+                "",
+                "- [ ] Executar COVERAGE-1.1 a COVERAGE-3.3 (expansao de fontes)",
+                "- [ ] Revisar COVERAGE-3.4 apos execucao do backfill (COVERAGE-3.3)",
+                "- [ ] Contratar API key DOM-SC (custo: R$0-500/ano)",
+                "- [ ] Avaliar certificado ICP-Brasil para TCE-SC (custo: R$300-800/ano)",
+                "",
+                "### Decisao",
+                "",
+                "**Epic em andamento — fases de implementacao necessarias antes da",
+                "validacao final.** Recomenda-se executar as stories de expansao (Fases 1-3)",
+                "e entao revisitar esta story de validacao com o backfill concluido.",
+                "",
+                "---",
+                f"*Gerado em: {now}*",
+            ]
+        )
 
         report = "\n".join(report_lines)
 
@@ -597,7 +604,7 @@ class CoverageValidator:
             rows += f"""
             <tr>
                 <td>{m_nome}</td>
-                <td>{m_ibge or '-'}</td>
+                <td>{m_ibge or "-"}</td>
                 <td>{m_total}</td>
                 <td>{m_covered}</td>
                 <td style="background-color:{color}; color:{text_color}; font-weight:bold">{m_pct}%</td>

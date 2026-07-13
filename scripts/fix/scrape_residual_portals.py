@@ -164,15 +164,17 @@ class ResidualPortalScraper:
         import requests
 
         session = requests.Session()
-        session.headers.update({
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/125.0.0.0 Safari/537.36"
-            ),
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
-        })
+        session.headers.update(
+            {
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/125.0.0.0 Safari/537.36"
+                ),
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+            }
+        )
         return session
 
     # ------------------------------------------------------------------
@@ -281,9 +283,7 @@ class ResidualPortalScraper:
             _logger.warning("[%s] Level 1: unexpected error for %s: %s", municipio, url, e)
             return []
 
-    def _parse_elements(
-        self, elements: list[Any], template_name: str, url: str, municipio: str
-    ) -> list[dict]:
+    def _parse_elements(self, elements: list[Any], template_name: str, url: str, municipio: str) -> list[dict]:
         """Parse extracted elements into bid records.
 
         Args:
@@ -593,9 +593,7 @@ class ResidualPortalScraper:
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
-        options.add_argument(
-            "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        )
+        options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
 
         driver = None
         try:
@@ -603,9 +601,7 @@ class ResidualPortalScraper:
             driver.set_page_load_timeout(self.timeout)
             driver.get(url)
 
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.TAG_NAME, "body"))
-            )
+            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
             time.sleep(1)  # Allow async rendering
 
             # Detect tables/rows via JavaScript
@@ -725,18 +721,20 @@ class ResidualPortalScraper:
             if url_match:
                 link = url_match.group(0)
 
-            bids.append({
-                "slug": _slugify(municipio),
-                "municipio": municipio,
-                "modalidade": modalidade,
-                "data_publicacao": data_publicacao,
-                "objeto": objeto,
-                "valor": valor,
-                "link": link,
-                "portal_url": url,
-                "content_hash": content_hash,
-                "_source_subtype": "selenium",
-            })
+            bids.append(
+                {
+                    "slug": _slugify(municipio),
+                    "municipio": municipio,
+                    "modalidade": modalidade,
+                    "data_publicacao": data_publicacao,
+                    "objeto": objeto,
+                    "valor": valor,
+                    "link": link,
+                    "portal_url": url,
+                    "content_hash": content_hash,
+                    "_source_subtype": "selenium",
+                }
+            )
 
         return bids
 
@@ -829,7 +827,9 @@ class ResidualPortalScraper:
         new_entities = 0
 
         total = len(entries)
-        _logger.info("Processing %d residual municipalities (resume=%s, already_done=%d)", total, resume, len(processed_slugs))
+        _logger.info(
+            "Processing %d residual municipalities (resume=%s, already_done=%d)", total, resume, len(processed_slugs)
+        )
 
         for i, entry in enumerate(entries):
             slug = entry.get("slug", _slugify(entry.get("municipio", "")))
@@ -838,7 +838,9 @@ class ResidualPortalScraper:
                 _logger.debug("[%d/%d] Skipping %s (already processed)", i + 1, total, slug)
                 continue
 
-            _logger.info("[%d/%d] Processing %s (%s)...", i + 1, total, entry.get("municipio", slug), entry.get("url", "no URL"))
+            _logger.info(
+                "[%d/%d] Processing %s (%s)...", i + 1, total, entry.get("municipio", slug), entry.get("url", "no URL")
+            )
 
             result = self.scrape_municipio(entry)
             results.append(result)
@@ -849,15 +851,17 @@ class ResidualPortalScraper:
                 new_entities += 1
                 _logger.info("  -> OK: %d bids (method=%s)", len(result["bids"]), result["method"])
             else:
-                inviaveis.append({
-                    "municipio": entry.get("municipio", slug),
-                    "slug": slug,
-                    "ibge": entry.get("ibge", ""),
-                    "url": entry.get("url", ""),
-                    "motivo": result.get("error", "unknown"),
-                    "method": result.get("method", "failed"),
-                    "duration_seconds": result.get("duration_seconds", 0),
-                })
+                inviaveis.append(
+                    {
+                        "municipio": entry.get("municipio", slug),
+                        "slug": slug,
+                        "ibge": entry.get("ibge", ""),
+                        "url": entry.get("url", ""),
+                        "motivo": result.get("error", "unknown"),
+                        "method": result.get("method", "failed"),
+                        "duration_seconds": result.get("duration_seconds", 0),
+                    }
+                )
                 _logger.info("  -> INVIABLE: %s", result.get("error", "unknown"))
 
             batch_count += 1
@@ -968,13 +972,15 @@ def load_residual_list(filepath: str | None = None) -> list[dict]:
             entities_count = int(row.get("entities_count", "0") or "0")
 
             if municipio:
-                entries.append({
-                    "municipio": municipio,
-                    "slug": slug,
-                    "ibge": ibge,
-                    "url": url,
-                    "entities_count": entities_count,
-                })
+                entries.append(
+                    {
+                        "municipio": municipio,
+                        "slug": slug,
+                        "ibge": ibge,
+                        "url": url,
+                        "entities_count": entities_count,
+                    }
+                )
 
     # Sort by entities_count descending (higher priority first)
     entries.sort(key=lambda e: e["entities_count"], reverse=True)
@@ -1006,7 +1012,13 @@ def crawl(mode: str = "full") -> list[dict]:
     if mode == "dry-run":
         _logger.info("DRY RUN: %d residual municipalities would be processed", len(entries))
         for e in entries:
-            _logger.info("  %s (%s) — %s — %d entities", e.get("municipio"), e.get("slug"), e.get("url"), e.get("entities_count", 0))
+            _logger.info(
+                "  %s (%s) — %s — %d entities",
+                e.get("municipio"),
+                e.get("slug"),
+                e.get("url"),
+                e.get("entities_count", 0),
+            )
         return []
 
     scraper = ResidualPortalScraper()
@@ -1039,7 +1051,11 @@ def crawl(mode: str = "full") -> list[dict]:
 
     _logger.info(
         "Crawl complete: %d total, %d ok (%d bids), %d inviaveis. Saved to %s",
-        len(results), ok_count, total_bids, inviavel_count, output_path,
+        len(results),
+        ok_count,
+        total_bids,
+        inviavel_count,
+        output_path,
     )
 
     return results
@@ -1096,23 +1112,26 @@ def transform(records: list[dict]) -> list[dict]:
                     else:
                         data_publicacao = ""
 
-            normalized.append({
-                "pncp_id": content_hash or hashlib.md5(str(datetime.now().timestamp()).encode(), usedforsecurity=False).hexdigest(),
-                "objeto_compra": bid.get("objeto", ""),
-                "valor_total_estimado": valor,
-                "modalidade_nome": bid.get("modalidade", ""),
-                "uf": "SC",
-                "municipio": municipio,
-                "codigo_municipio_ibge": ibge,
-                "orgao_razao_social": bid.get("orgao", ""),
-                "data_publicacao": data_publicacao or None,
-                "link_pncp": bid.get("link", ""),
-                "content_hash": content_hash,
-                "source": "transparencia_residual",
-                "source_subtype": bid.get("_source_subtype", method),
-                "source_id": f"transparencia_residual_{slug}",
-                "method": method,
-            })
+            normalized.append(
+                {
+                    "pncp_id": content_hash
+                    or hashlib.md5(str(datetime.now().timestamp()).encode(), usedforsecurity=False).hexdigest(),
+                    "objeto_compra": bid.get("objeto", ""),
+                    "valor_total_estimado": valor,
+                    "modalidade_nome": bid.get("modalidade", ""),
+                    "uf": "SC",
+                    "municipio": municipio,
+                    "codigo_municipio_ibge": ibge,
+                    "orgao_razao_social": bid.get("orgao", ""),
+                    "data_publicacao": data_publicacao or None,
+                    "link_pncp": bid.get("link", ""),
+                    "content_hash": content_hash,
+                    "source": "transparencia_residual",
+                    "source_subtype": bid.get("_source_subtype", method),
+                    "source_id": f"transparencia_residual_{slug}",
+                    "method": method,
+                }
+            )
 
     _logger.info("transform: %d records -> %d normalized", len(records), len(normalized))
     return normalized
@@ -1193,13 +1212,15 @@ def generate_residual_csv(output_path: str | None = None) -> str:
         if not url and patterns:
             url = patterns[0].get("url", "")
 
-        rows.append({
-            "municipio": municipio,
-            "slug": slug,
-            "ibge": ibge,
-            "url": url,
-            "entities_count": entities_count,
-        })
+        rows.append(
+            {
+                "municipio": municipio,
+                "slug": slug,
+                "ibge": ibge,
+                "url": url,
+                "entities_count": entities_count,
+            }
+        )
 
     # Sort by entities_count descending
     rows.sort(key=lambda r: r["entities_count"], reverse=True)

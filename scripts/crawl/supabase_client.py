@@ -20,8 +20,7 @@ def get_supabase() -> Any:
     global _sb_client
     if _sb_client is None:
         raise NotImplementedError(
-            "supabase_client not configured. "
-            "Initialize via supabase_client.init() or configure in settings."
+            "supabase_client not configured. Initialize via supabase_client.init() or configure in settings."
         )
     return _sb_client
 
@@ -48,6 +47,7 @@ def init(url: str | None = None, key: str | None = None) -> None:
     global _sb_client
     try:
         from supabase import create_client
+
         _sb_client = create_client(url or "", key or "")
     except (ImportError, Exception):
         pass

@@ -183,7 +183,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
         Returns:
             ``True`` if PNCP responded successfully, ``False`` otherwise.
         """
-        CANARY_TIMEOUT = 5.0  # seconds
+        CANARY_TIMEOUT = 5.0  # noqa: N806  # seconds
 
         if self._client is None:
             raise RuntimeError("Client not initialized. Use async context manager.")
@@ -324,7 +324,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
         await pncp_rate_limiter.acquire(timeout=5.0)
 
         # Local rate limiter (per-worker baseline, always active)
-        MIN_INTERVAL = 0.1  # 100ms
+        MIN_INTERVAL = 0.1  # noqa: N806  # 100ms
 
         current_time = asyncio.get_running_loop().time()
         elapsed = current_time - self._last_request_time

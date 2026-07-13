@@ -7,25 +7,27 @@
       "url": null,
       "status": "not_found",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12"
     },
     {
       "municipio": "Joinville",
       "slug": "joinville",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
+      "platform": "sc_gov_portal",
+      "url": "https://joinville.sc.gov.br",
+      "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12",
+      "body_hint": "sc_gov_portal"
     },
     {
       "municipio": "Blumenau",
       "slug": "blumenau",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
+      "platform": "sc_gov_portal",
+      "url": "https://blumenau.sc.gov.br",
+      "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12",
+      "body_hint": "sc_gov_portal_generic"
     },
     {
       "municipio": "Sao Jose",
@@ -34,43 +36,47 @@
       "url": null,
       "status": "not_found",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12"
     },
     {
       "municipio": "Chapeco",
       "slug": "chapeco",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
+      "platform": "sc_gov_portal",
+      "url": "https://chapeco.sc.gov.br",
+      "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12",
+      "body_hint": "sc_gov_portal_generic"
     },
     {
       "municipio": "Criciuma",
       "slug": "criciuma",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
+      "platform": "sc_gov_portal",
+      "url": "https://criciuma.sc.gov.br",
+      "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12",
+      "body_hint": "sc_gov_portal_generic"
     },
     {
       "municipio": "Lages",
       "slug": "lages",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
+      "platform": "sc_gov_portal",
+      "url": "https://lages.sc.gov.br",
+      "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12",
+      "body_hint": "sc_gov_portal_generic"
     },
     {
       "municipio": "Itajai",
       "slug": "itajai",
-      "platform": null,
-      "url": null,
-      "status": "not_found",
+      "platform": "sc_gov_portal",
+      "url": "https://itajai.sc.gov.br",
+      "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12",
+      "body_hint": "sc_gov_portal_generic"
     },
     {
       "municipio": "Balneario Camboriu",
@@ -79,7 +85,7 @@
       "url": null,
       "status": "not_found",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12"
     },
     {
       "municipio": "Tubarao",
@@ -88,7 +94,7 @@
       "url": null,
       "status": "not_found",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12"
     },
     {
       "municipio": "Palhoca",
@@ -97,7 +103,7 @@
       "url": "https://palhoca.atende.net/transparencia",
       "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11",
+      "detected_at": "2026-07-12",
       "body_hint": "betha_generic"
     },
     {
@@ -107,7 +113,7 @@
       "url": "https://brusque.atende.net/transparencia",
       "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11",
+      "detected_at": "2026-07-12",
       "body_hint": "betha_generic"
     },
     {
@@ -117,7 +123,7 @@
       "url": null,
       "status": "not_found",
       "error": null,
-      "detected_at": "2026-07-11"
+      "detected_at": "2026-07-12"
     },
     {
       "municipio": "Indaial",
@@ -126,7 +132,7 @@
       "url": "https://indaial.atende.net/transparencia",
       "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11",
+      "detected_at": "2026-07-12",
       "body_hint": "betha_generic"
     },
     {
@@ -136,7 +142,7 @@
       "url": "https://biguacu.atende.net/transparencia",
       "status": "detected",
       "error": null,
-      "detected_at": "2026-07-11",
+      "detected_at": "2026-07-12",
       "body_hint": "betha_generic"
     },
     {
@@ -2942,11 +2948,11 @@
   ],
   "metadata": {
     "version": 1,
-    "total_entities": 295,
-    "total_detected": 64,
-    "total_not_found": 231,
+    "total_entities": 15,
+    "total_detected": 70,
+    "total_not_found": 225,
     "total_errors": 0,
-    "mode": "dry-run",
-    "updated_at": "2026-07-11"
+    "mode": "full",
+    "updated_at": "2026-07-12"
   }
 }

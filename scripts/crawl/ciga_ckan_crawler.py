@@ -52,13 +52,15 @@ CKAN_BASE = "https://dados.ciga.sc.gov.br"
 CKAN_API = f"{CKAN_BASE}/api/3/action"
 
 # Procurement-relevant categories in DOM-SC publications
-PROCUREMENT_CATEGORIES = frozenset({
-    "Contratos",
-    "Licitações",
-    "Ata de registro de preços",
-    "Extrato de Contrato",
-    "Convênios",
-})
+PROCUREMENT_CATEGORIES = frozenset(
+    {
+        "Contratos",
+        "Licitações",
+        "Ata de registro de preços",
+        "Extrato de Contrato",
+        "Convênios",
+    }
+)
 
 # Rate limiting
 REQUEST_DELAY = 0.5  # seconds between CKAN requests
@@ -112,9 +114,7 @@ def get_package(pkg_id: str) -> dict | None:
 def list_domsc_months() -> list[str]:
     """List all DOM-SC monthly dataset IDs, sorted oldest first."""
     all_datasets = list_datasets()
-    domsc = sorted(
-        [d for d in all_datasets if d.startswith(("domsc-publicacoes-de-", "dom-sc-publicacoes-de-"))]
-    )
+    domsc = sorted([d for d in all_datasets if d.startswith(("domsc-publicacoes-de-", "dom-sc-publicacoes-de-"))])
     return domsc
 
 
@@ -237,6 +237,7 @@ def _normalize_name(name: str) -> str:
     if not name:
         return ""
     from scripts.lib.name_normalizer import normalize_name
+
     return normalize_name(name)
 
 
@@ -321,38 +322,38 @@ def _generate_name_aliases(norm_name: str) -> list[str]:
     # Pattern 1: "PREFEITURA MUNICIPAL DE X" -> "MUNICIPIO DE X"
     _prefix_prefeitura = "PREFEITURA MUNICIPAL DE "
     if norm_name.startswith(_prefix_prefeitura):
-        city = norm_name[len(_prefix_prefeitura):]
+        city = norm_name[len(_prefix_prefeitura) :]
         # Use library normalizer to handle accents, apostrophes
         aliases.append(normalize_name(f"MUNICIPIO DE {city}"))
 
     # Pattern 2: "PREFEITURA DE X" -> "MUNICIPIO DE X"
     _prefix_prefeitura_short = "PREFEITURA DE "
     if norm_name.startswith(_prefix_prefeitura_short):
-        city = norm_name[len(_prefix_prefeitura_short):]
+        city = norm_name[len(_prefix_prefeitura_short) :]
         aliases.append(normalize_name(f"MUNICIPIO DE {city}"))
 
     # Pattern 3: "CAMARA DE VEREADORES DE X" -> "X CAMARA DE VEREADORES"
     _prefix_camara_vereadores = "CAMARA DE VEREADORES DE "
     if norm_name.startswith(_prefix_camara_vereadores):
-        city = norm_name[len(_prefix_camara_vereadores):]
+        city = norm_name[len(_prefix_camara_vereadores) :]
         aliases.append(normalize_name(f"{city} CAMARA DE VEREADORES"))
 
     # Pattern 4: "X CAMARA DE VEREADORES" -> "CAMARA DE VEREADORES DE X"
     _suffix_camara_vereadores = " CAMARA DE VEREADORES"
     if norm_name.endswith(_suffix_camara_vereadores):
-        city = norm_name[:-len(_suffix_camara_vereadores)]
+        city = norm_name[: -len(_suffix_camara_vereadores)]
         aliases.append(normalize_name(f"CAMARA DE VEREADORES DE {city}"))
 
     # Pattern 5: "CAMARA MUNICIPAL DE X" -> "X CAMARA MUNICIPAL"
     _prefix_camara_municipal = "CAMARA MUNICIPAL DE "
     if norm_name.startswith(_prefix_camara_municipal):
-        city = norm_name[len(_prefix_camara_municipal):]
+        city = norm_name[len(_prefix_camara_municipal) :]
         aliases.append(normalize_name(f"{city} CAMARA MUNICIPAL"))
 
     # Pattern 6: "CAMARA MUNICIPAL DE VEREADORES DE X" -> "X CAMARA MUNICIPAL DE VEREADORES"
     _prefix_camara_municipal_vereadores = "CAMARA MUNICIPAL DE VEREADORES DE "
     if norm_name.startswith(_prefix_camara_municipal_vereadores):
-        city = norm_name[len(_prefix_camara_municipal_vereadores):]
+        city = norm_name[len(_prefix_camara_municipal_vereadores) :]
         aliases.append(normalize_name(f"{city} CAMARA MUNICIPAL DE VEREADORES"))
 
     # Filter out duplicates while preserving order
@@ -430,9 +431,11 @@ def match_entities(
     def _fuzz_ratio(a: str, b: str) -> float:
         try:
             from rapidfuzz import fuzz as _rapidfuzz
+
             return _rapidfuzz.ratio(a, b) / 100.0
         except ImportError:
             from difflib import SequenceMatcher
+
             return SequenceMatcher(None, a, b).ratio()
 
     fuzzy_threshold = 0.85
@@ -508,10 +511,7 @@ def match_entities(
         # --- Level 3: Fuzzy within same municipio ---
         if not matched_entity:
             # Filter candidates by municipio
-            candidates = [
-                e for e in db_entities
-                if (e.get("municipio") or "").upper().strip() == municipio
-            ]
+            candidates = [e for e in db_entities if (e.get("municipio") or "").upper().strip() == municipio]
             if not candidates:
                 candidates = db_entities  # fallback to all
 
@@ -638,9 +638,7 @@ def report_coverage_impact(conn, source: str) -> dict:
     cur = conn.cursor()
 
     # Total entities within 200km
-    cur.execute(
-        "SELECT COUNT(*) FROM sc_public_entities WHERE is_active = TRUE AND raio_200km = TRUE"
-    )
+    cur.execute("SELECT COUNT(*) FROM sc_public_entities WHERE is_active = TRUE AND raio_200km = TRUE")
     total_200km = cur.fetchone()[0]
 
     # Entities covered by this source
@@ -793,7 +791,9 @@ def run_month(month_id: str, source: str, within_200km: bool) -> dict:
         print(f"\n  Coverage impact ({source}):")
         print(f"    Source-covered entities: {impact['source_covered']}")
         print(f"    Exclusive to this source: {impact['exclusive_covered']}")
-        print(f"    Total covered: {impact['total_covered']}/{impact['total_entities_200km']} ({impact['coverage_pct']}%)")
+        print(
+            f"    Total covered: {impact['total_covered']}/{impact['total_entities_200km']} ({impact['coverage_pct']}%)"
+        )
         print(f"    Still uncovered: {impact['total_uncovered']}")
 
         return {
@@ -824,7 +824,9 @@ def run_reports(source: str):
         print(f"\n  Coverage impact ({source}):")
         print(f"    Source-covered entities: {impact['source_covered']}")
         print(f"    Exclusive to this source: {impact['exclusive_covered']}")
-        print(f"    Total covered: {impact['total_covered']}/{impact['total_entities_200km']} ({impact['coverage_pct']}%)")
+        print(
+            f"    Total covered: {impact['total_covered']}/{impact['total_entities_200km']} ({impact['coverage_pct']}%)"
+        )
         print(f"    Still uncovered: {impact['total_uncovered']}")
 
         # List uncovered
@@ -856,7 +858,9 @@ def parse_args():
     p.add_argument("--all-months", action="store_true", help="Crawl all available months")
     p.add_argument("--source", default="ciga_ckan", help="Source tag for entity_coverage")
     p.add_argument("--report", action="store_true", help="Print coverage report and exit")
-    p.add_argument("--within-200km", action="store_true", default=True, help="Only match entities within 200km (default: True)")
+    p.add_argument(
+        "--within-200km", action="store_true", default=True, help="Only match entities within 200km (default: True)"
+    )
     p.add_argument("--list", action="store_true", help="List available DOM-SC months and exit")
     return p.parse_args()
 

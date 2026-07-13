@@ -44,6 +44,10 @@ def temp_db():
     conn.row_factory = sqlite3.Row
 
     # Create schema
+    # Import _ensure_tables to use canonical schema (matches QUERY_STATS)
+    from scripts.contract_intel.cli import _ensure_tables
+
+    # Create target_universe table manually (seed_target_universe writes to it)
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS target_universe (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,28 +62,12 @@ def temp_db():
             within_200km INTEGER NOT NULL DEFAULT 1
         );
         CREATE INDEX IF NOT EXISTS idx_tu_cnpj8 ON target_universe(cnpj8);
-
-        CREATE TABLE IF NOT EXISTS pncp_supplier_contracts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            contrato_id TEXT UNIQUE NOT NULL,
-            orgao_cnpj TEXT,
-            orgao_nome TEXT,
-            fornecedor_cnpj TEXT,
-            fornecedor_nome TEXT,
-            objeto_contrato TEXT,
-            valor_total REAL,
-            data_inicio TEXT,
-            data_fim TEXT,
-            data_publicacao TEXT,
-            uf TEXT,
-            municipio TEXT,
-            source_id TEXT,
-            ingested_at TEXT DEFAULT (datetime('now'))
-        );
-        CREATE INDEX IF NOT EXISTS idx_contracts_orgao ON pncp_supplier_contracts(orgao_cnpj);
-        CREATE INDEX IF NOT EXISTS idx_contracts_fornecedor ON pncp_supplier_contracts(fornecedor_cnpj);
-        CREATE INDEX IF NOT EXISTS idx_contracts_data_fim ON pncp_supplier_contracts(data_fim);
     """)
+    conn.commit()
+
+    # Use canonical pncp_supplier_contracts schema from _ensure_tables
+    # (matches column names used by QUERY_STATS, _sqlite_stats_query, etc.)
+    _ensure_tables(conn, "sqlite")
     conn.commit()
 
     yield conn, db_path

@@ -1468,9 +1468,8 @@ def apply_cnae_keyword_gate(
     _heuristic_incompat = _heuristic_total - _heuristic_compat
     print()
     print(
-        "  CNAE Gate: %d compativeis, %d incompativeis, "
-        "%d excluidos por padrao, %d precisam LLM review (threshold=%.0f%%)"
-        % (
+        "  CNAE Gate: {} compativeis, {} incompativeis, "
+        "{} excluidos por padrao, {} precisam LLM review (threshold={:.0f}%)".format(
             stats["compatible"],
             stats["incompatible"],
             stats["excluded_pattern"],

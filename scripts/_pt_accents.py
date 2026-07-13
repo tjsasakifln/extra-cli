@@ -192,7 +192,6 @@ REPLACEMENTS: dict[str, str] = {
     "transacoes": "transações",
     "transacao": "transação",
     "execucoes": "execuções",
-    "prorrogacoes": "prorrogações",
     "preocupacao": "preocupação",
     "preocupacoes": "preocupações",
     "instrucoes": "instruções",
@@ -586,7 +585,6 @@ REPLACEMENTS: dict[str, str] = {
     "tao": "tão",
     "balcao": "balcão",
     "balcoes": "balcões",
-    "gestao": "gestão",  # already
     "oficializacao": "oficialização",
     "degustacao": "degustação",
     "reajuste": "reajuste",  # correct
@@ -657,7 +655,6 @@ REPLACEMENTS: dict[str, str] = {
     "temporarias": "temporárias",
     "temporario": "temporário",
     "temporarios": "temporários",
-    "regulatoria": "regulatória",
     "regulatoria": "regulatória",
     "regulatorias": "regulatórias",
     "regulatorio": "regulatório",
@@ -910,10 +907,6 @@ REPLACEMENTS: dict[str, str] = {
     "politicos": "políticos",
     "proibicao": "proibição",
     "proibicoes": "proibições",
-    "proximo": "próximo",
-    "proximos": "próximos",
-    "proxima": "próxima",
-    "proximas": "próximas",
     "concluido": "concluído",
     "concluida": "concluída",
     "concluidos": "concluídos",
@@ -953,7 +946,6 @@ REPLACEMENTS: dict[str, str] = {
     "premios": "prêmios",
     "series": "séries",
     "serie": "série",
-    "estavel": "estável",
     "instavel": "instável",
     "incrivel": "incrível",
     "terrivel": "terrível",
@@ -978,9 +970,7 @@ REPLACEMENTS: dict[str, str] = {
     "dificeis": "difíceis",
     "facil": "fácil",
     "faceis": "fáceis",
-    "movel": "móvel",
     "hotel": "hotel",  # correct (hotel doesn't take accent)
-    "nivel": "nível",  # already in
     # -------- Outras palavras comuns --------
     "saude": "saúde",
     # NOTE: "pais" NOT included — ambiguous ("país" vs plural of "pai" = "parents").
@@ -1005,10 +995,6 @@ REPLACEMENTS: dict[str, str] = {
     "estrategico": "estratégico",
     "estrategicos": "estratégicos",
     "estrategicas": "estratégicas",
-    "politica": "política",
-    "politicas": "políticas",
-    "politico": "político",
-    "politicos": "políticos",
     "analitica": "analítica",
     "analitico": "analítico",
     "analiticas": "analíticas",

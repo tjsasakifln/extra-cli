@@ -78,9 +78,7 @@ TRANSPARENCIA_CONFIG = os.getenv(
 )
 """Caminho para o arquivo YAML de configuracao de templates."""
 
-TRANSPARENCIA_SELENIUM_ENABLED = os.getenv(
-    "TRANSPARENCIA_SELENIUM_ENABLED", "false"
-).lower() in ("true", "1", "yes")
+TRANSPARENCIA_SELENIUM_ENABLED = os.getenv("TRANSPARENCIA_SELENIUM_ENABLED", "false").lower() in ("true", "1", "yes")
 """Habilita modo selenium para portais JS (FEAT-2.4)."""
 
 SELENIUM_HEADLESS = os.getenv("SELENIUM_HEADLESS", "true").lower() in ("true", "1", "yes")
@@ -1108,18 +1106,20 @@ def crawl_selenium(
                     http_result["method"] = "http_fallback"
                     results.append(http_result)
                 except Exception as e2:
-                    results.append({
-                        "municipio": nome,
-                        "slug": slug,
-                        "ibge": ibge,
-                        "portal_url": portal_url,
-                        "status": "error",
-                        "records": [],
-                        "count": 0,
-                        "error": f"Selenium: {e}; HTTP fallback: {e2}",
-                        "scraped_at": datetime.now().isoformat(),
-                        "method": "fallback_error",
-                    })
+                    results.append(
+                        {
+                            "municipio": nome,
+                            "slug": slug,
+                            "ibge": ibge,
+                            "portal_url": portal_url,
+                            "status": "error",
+                            "records": [],
+                            "count": 0,
+                            "error": f"Selenium: {e}; HTTP fallback: {e2}",
+                            "scraped_at": datetime.now().isoformat(),
+                            "method": "fallback_error",
+                        }
+                    )
         else:
             # HTTP path (requires_js false or selenium unavailable)
             http_count += 1
@@ -1135,18 +1135,20 @@ def crawl_selenium(
                 results.append(result)
             except Exception as e:
                 _logger.error(f"HTTP scraping failed for {slug}: {e}")
-                results.append({
-                    "municipio": nome,
-                    "slug": slug,
-                    "ibge": ibge,
-                    "portal_url": portal_url,
-                    "status": "error",
-                    "records": [],
-                    "count": 0,
-                    "error": str(e),
-                    "scraped_at": datetime.now().isoformat(),
-                    "method": "http_error",
-                })
+                results.append(
+                    {
+                        "municipio": nome,
+                        "slug": slug,
+                        "ibge": ibge,
+                        "portal_url": portal_url,
+                        "status": "error",
+                        "records": [],
+                        "count": 0,
+                        "error": str(e),
+                        "scraped_at": datetime.now().isoformat(),
+                        "method": "http_error",
+                    }
+                )
 
         # Count results
         if results and results[-1]["status"] == "ok":
@@ -1165,12 +1167,24 @@ def crawl_selenium(
     for r in results:
         method_tag = r.get("method", "?")
         status_icon = "OK" if r["status"] == "ok" else "XX"
-        _logger.info("  [%s][%s] %-30s | %4d licitacoes | %s",
-                     status_icon, method_tag, r['municipio'], r['count'], r.get('status', '?'))
+        _logger.info(
+            "  [%s][%s] %-30s | %4d licitacoes | %s",
+            status_icon,
+            method_tag,
+            r["municipio"],
+            r["count"],
+            r.get("status", "?"),
+        )
     _logger.info("-" * 60)
-    _logger.info("  Total: %d | Selenium: %d | HTTP: %d | OK: %d | Erros: %d | Licitacoes: %d",
-                 len(results), selenium_count, http_count,
-                 success_count, error_count, total_licitacoes)
+    _logger.info(
+        "  Total: %d | Selenium: %d | HTTP: %d | OK: %d | Erros: %d | Licitacoes: %d",
+        len(results),
+        selenium_count,
+        http_count,
+        success_count,
+        error_count,
+        total_licitacoes,
+    )
     _logger.info("=" * 60)
 
     return results
@@ -1245,14 +1259,10 @@ def crawl(mode: str = "full") -> list[dict]:
                     total_bids,
                 )
                 return scraping_results
-            _logger.warning(
-                "Full mode: template scraping returned 0 results — "
-                "returning detection records as fallback"
-            )
+            _logger.warning("Full mode: template scraping returned 0 results — returning detection records as fallback")
         except Exception as exc:
             _logger.error(
-                "Full mode: template scraping failed: %s — "
-                "returning detection records as fallback",
+                "Full mode: template scraping failed: %s — returning detection records as fallback",
                 exc,
             )
 

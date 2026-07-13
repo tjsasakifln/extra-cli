@@ -19,6 +19,7 @@ class _PNCPParallelMixin:
 
     Full implementation in scripts/crawl/_parallel_mixin.py.
     """
+
     pass
 
 

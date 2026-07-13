@@ -3,16 +3,16 @@
 Adapted from legacy async/httpx/class-based crawler to the simple sync interface
 expected by monitor.py: crawl(mode) -> list[dict], transform(records) -> list[dict].
 
-Sources:
-  - compras.sc.gov.br — Main unified portal (primary)
-  - e-lic.sc.gov.br — Electronic bidding system (Paradigma platform, secondary)
+Rewritten to use the JSON API (SPA React backend) instead of HTML scraping.
+The portal migrated to a React SPA with a JSON API at /api/editais.
 
-Stdlib only: urllib, re, json, hashlib, logging, os, time, datetime, unicodedata.
+Stdlib only: urllib, json, hashlib, logging, os, time, datetime.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import os
 import re
@@ -20,11 +20,10 @@ import sys
 import time
 import unicodedata
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import date, datetime, timedelta
 from pathlib import Path
-
-from scripts.crawl.security import sanitize_url_param
 
 # Add project root to path for standalone usage
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -38,7 +37,6 @@ _logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 BASE_URL = os.getenv("SC_COMPRAS_BASE_URL", "https://compras.sc.gov.br")
-E_LIC_URL = os.getenv("SC_COMPRAS_E_LIC_URL", "https://e-lic.sc.gov.br")
 
 HTTP_TIMEOUT = int(os.getenv("SC_COMPRAS_TIMEOUT", "45"))
 MAX_RETRIES = int(os.getenv("SC_COMPRAS_MAX_RETRIES", "3"))
@@ -57,6 +55,7 @@ _MODALIDADE_MAP: dict[str, int] = {
     "pregao eletronico": 5,
     "pregao presencial": 6,
     "concorrencia": 4,
+    "concorrencia eletronica": 4,
     "concorrencia antiga": 1,
     "tomada de precos": 2,
     "convite": 3,
@@ -65,8 +64,15 @@ _MODALIDADE_MAP: dict[str, int] = {
     "dialogo competitivo": 13,
     "dispena de licitacao": 7,
     "dispensa de licitacao": 7,
+    "dispensa com cotacao eletronica": 7,
     "contratacao direta": 7,
     "inexigibilidade": 8,
+    "inexigencia de licitacao": 8,
+    "procedimento de licitacao": 4,
+    "selecao de consultor individual": 7,
+    "selecao direta": 7,
+    "selecao baseada na qualidade e custo": 7,
+    "selecao baseada na qualificacao dos consultores": 7,
     "credenciamento": 12,
 }
 
@@ -200,212 +206,90 @@ def _content_hash(*parts: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# HTML parsing (stdlib — regex-based, no BeautifulSoup)
+# API-to-canonical mapping
 # ---------------------------------------------------------------------------
 
 
-def _extract_table_rows(html: str) -> list[dict]:
-    """Extract rows from the portal's bootstrap table using regex.
+def _api_item_to_canonical(item: dict, detail: dict | None = None) -> dict:
+    """Map API JSON items/detail to the canonical dict keys expected by _normalize_item.
 
-    Returns list of dicts with keys:
-        numero_processo, modalidade, objeto, orgao, data_publicacao,
-        situacao, valor, url_detalhe
+    API list fields:
+        id, processo, tipo, orgaoSigla, orgaoNome, objeto,
+        entregaProposta, abertura, situacao
+
+    API detail fields (from /api/editais/{id}):
+        id, modalidade, edital, dataAtualizacao, objeto, natureza,
+        dataPublicacao (YYYY-MM-DD), dataEntrega, dataAbertura,
+        processoSgpe, situacao, tipoSituacao, observacao, temRetificacao,
+        dataSituacao, dataArremate, dataEncerramento, origem, linkArquivosFTP
+
+    Merges optional detail over list data before returning.
     """
-    items: list[dict] = []
+    merged = dict(item)
+    if detail:
+        merged.update(detail)
 
-    # Locate <table class="table"> blocks
-    table_pattern = re.compile(
-        r'<table[^>]*class\s*=\s*["\'][^"\']*\btable\b[^"\']*["\'][^>]*>',
-        re.IGNORECASE,
-    )
-    for table_match in table_pattern.finditer(html):
-        # Find matching </table> (handle nesting naively)
-        table_start = table_match.end()
-        depth = 1
-        i = table_start
-        while i < len(html) and depth > 0:
-            next_open = html.find("<table", i, i + 20)
-            next_close = html.find("</table>", i)
-            if next_close == -1:
-                break
-            if next_open != -1 and next_open < next_close:
-                depth += 1
-                i = next_open + 7
-            else:
-                depth -= 1
-                i = next_close + 8
-        if depth > 0:
-            continue
-        table_html = html[table_match.start() : i]
+    # Map API keys to canonical keys
+    numero = merged.get("edital") or merged.get("processo") or ""
+    url_detalhe = f"{BASE_URL}/editais/{merged.get('id', '')}" if merged.get("id") else None
 
-        # Find tbody
-        tbody_m = re.search(r"<tbody[^>]*>(.*?)</tbody>", table_html, re.DOTALL)
-        if not tbody_m:
-            continue
-        tbody = tbody_m.group(1)
+    canonical = {
+        "numero_processo": numero.strip(),
+        "api_id": merged.get("id"),
+        "modalidade": merged.get("modalidade") or merged.get("tipo") or "",
+        "objeto": merged.get("objeto", "").strip(),
+        "orgao": merged.get("orgaoNome", "").strip(),
+        "orgao_sigla": merged.get("orgaoSigla", "").strip(),
+        "data_publicacao": merged.get("dataPublicacao", "").strip(),
+        "data_abertura": merged.get("dataAbertura") or merged.get("abertura") or "",
+        "data_encerramento": merged.get("dataEncerramento") or "",
+        "situacao": merged.get("situacao", "").strip(),
+        "url_detalhe": url_detalhe,
+        # Not available from API (were in old HTML):
+        "orgao_cnpj": "",
+        "municipio": "",
+        "uf": "",
+        "valor": None,
+    }
 
-        # Extract rows
-        for tr_m in re.finditer(r"<tr[^>]*>(.*?)</tr>", tbody, re.DOTALL):
-            cells = re.findall(r"<td[^>]*>(.*?)</td>", tr_m.group(1), re.DOTALL)
-            if len(cells) < 5:
-                continue
-
-            link_cell = cells[0]
-            link_m = re.search(r'<a\s+[^>]*href\s*=\s*["\']([^"\']+)["\']', link_cell)
-            url_detalhe = None
-            if link_m:
-                href = link_m.group(1).strip()
-                url_detalhe = href if href.startswith("http") else f"{BASE_URL}{href}"
-
-            def _strip_html(t: str) -> str:
-                return re.sub(r"<[^>]+>", "", t).strip()
-
-            items.append(
-                {
-                    "numero_processo": _strip_html(link_cell),
-                    "modalidade": _strip_html(cells[1]),
-                    "objeto": _strip_html(cells[2]),
-                    "orgao": _strip_html(cells[3]),
-                    "data_publicacao": _strip_html(cells[4]),
-                    "situacao": _strip_html(cells[5]) if len(cells) > 5 else "",
-                    "valor": _strip_html(cells[6]) if len(cells) > 6 else "",
-                    "url_detalhe": url_detalhe,
-                }
-            )
-
-    return items
-
-
-# Label-to-key mapping for detail pages
-_LABEL_MAP: dict[str, str] = {
-    "numero do processo": "numero_processo",
-    "numero": "numero_processo",
-    "processo": "numero_processo",
-    "modalidade": "modalidade",
-    "objeto": "objeto",
-    "objeto da licitacao": "objeto",
-    "objeto da compra": "objeto",
-    "valor total estimado": "valor",
-    "valor estimado": "valor",
-    "valor": "valor",
-    "situacao": "situacao",
-    "situacao da compra": "situacao",
-    "orgao": "orgao",
-    "orgao entidade": "orgao",
-    "orgao/entidade": "orgao",
-    "cnpj do orgao": "orgao_cnpj",
-    "cnpj": "orgao_cnpj",
-    "municipio": "municipio",
-    "uf": "uf",
-    "data de publicacao": "data_publicacao",
-    "data publicacao": "data_publicacao",
-    "publicacao": "data_publicacao",
-    "data de abertura": "data_abertura",
-    "data abertura": "data_abertura",
-    "abertura": "data_abertura",
-    "data de encerramento": "data_encerramento",
-    "data encerramento": "data_encerramento",
-    "encerramento": "data_encerramento",
-    "esfera": "esfera",
-    "esfera id": "esfera",
-}
-
-
-def _normalize_label(text: str) -> str | None:
-    """Map a Portuguese detail-page label to canonical key."""
-    normalized = text.lower().strip().rstrip(":")
-    normalized = unicodedata.normalize("NFKD", normalized)
-    normalized = normalized.encode("ascii", "ignore").decode("ascii")
-    return _LABEL_MAP.get(normalized)
-
-
-def _extract_detail_fields(html: str) -> dict:
-    """Parse detail page HTML for additional fields using regex.
-
-    Returns dict with canonical keys (numero_processo, orgao_cnpj, etc.).
-    """
-    detail_data: dict = {}
-
-    # Try to find the detail container div
-    container_pat = re.compile(
-        r'<div[^>]*(?:class\s*=\s*["\'][^"\']*\b(?:detalhe-licitacao|panel-body|content-wrapper)\b[^"\']*["\'])',
-        re.IGNORECASE,
-    )
-    container_m = container_pat.search(html)
-    container_html = html[container_m.end() :] if container_m else html
-
-    # Extract <dl> definitions: <dt>label</dt><dd>value</dd>
-    for dl_m in re.finditer(r"<dl[^>]*>(.*?)</dl>", container_html, re.DOTALL):
-        inner = dl_m.group(1)
-        dts = re.findall(r"<dt[^>]*>(.*?)</dt>", inner, re.DOTALL)
-        dds = re.findall(r"<dd[^>]*>(.*?)</dd>", inner, re.DOTALL)
-        for dt_text, dd_text in zip(dts, dds):
-            key = _normalize_label(re.sub(r"<[^>]+>", "", dt_text).strip())
-            val = re.sub(r"<[^>]+>", "", dd_text).strip()
-            if key and val:
-                detail_data[key] = val
-
-    # Extract label-value pairs from Bootstrap form-group patterns
-    field_patterns = [
-        # <label>...</label> <span>...</span>
-        r"<label[^>]*>(.*?)</label>[^<]*(?:<span[^>]*>(.*?)</span>|<p[^>]*>(.*?)</p>)",
-        # <strong>...</strong> <span>...</span>
-        r"<strong[^>]*>(.*?)</strong>[^<]*(?:<span[^>]*>(.*?)</span>|<p[^>]*>(.*?)</p>)",
-    ]
-    for pat in field_patterns:
-        for m in re.finditer(pat, container_html, re.DOTALL | re.IGNORECASE):
-            label = re.sub(r"<[^>]+>", "", m.group(1)).strip()
-            val = re.sub(r"<[^>]+>", "", (m.group(2) or m.group(3) or "")).strip()
-            key = _normalize_label(label)
-            if key and val and key not in detail_data:
-                detail_data[key] = val
-
-    return detail_data
+    return canonical
 
 
 # ---------------------------------------------------------------------------
-# HTTP helpers (sync, urllib only)
+# API request helpers (JSON API, no HTML scraping)
 # ---------------------------------------------------------------------------
 
 
-def _fetch(url: str, params: dict[str, str] | None = None) -> str | None:
-    """Fetch a URL via GET with retries. Returns body text or None on failure."""
-    if params:
-        query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
-        full_url = f"{url}?{query}"
-    else:
-        full_url = url
-
+def _api_request(url: str) -> dict | None:
+    """Make a GET request to the SC Compras JSON API. Returns parsed dict or None."""
     last_error: str | None = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            req = urllib.request.Request(full_url)
+            req = urllib.request.Request(url)
+            req.add_header("Accept", "application/json")
             req.add_header(
                 "User-Agent",
                 "Mozilla/5.0 (compatible; SmartLic-Bot/1.0; +https://smartlic.tech/bot)",
             )
-            req.add_header("Accept", "text/html,application/xhtml+xml")
-
             with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
                 if resp.status == 200:
-                    return resp.read().decode("utf-8", errors="replace")
+                    return json.loads(resp.read().decode("utf-8", errors="replace"))
                 _logger.warning(
                     "[ScCompras] HTTP %s for %s (attempt %d/%d)",
                     resp.status,
-                    full_url,
+                    url,
                     attempt,
                     MAX_RETRIES,
                 )
                 last_error = f"HTTP {resp.status}"
-
         except urllib.error.HTTPError as e:
             if e.code in (404, 410):
-                _logger.debug("[ScCompras] %s returned %d — no data", full_url, e.code)
+                _logger.debug("[ScCompras] %s returned %d — no data", url, e.code)
                 return None
             _logger.warning(
                 "[ScCompras] HTTP %d for %s (attempt %d/%d): %s",
                 e.code,
-                full_url,
+                url,
                 attempt,
                 MAX_RETRIES,
                 e,
@@ -414,7 +298,7 @@ def _fetch(url: str, params: dict[str, str] | None = None) -> str | None:
         except Exception as e:
             _logger.warning(
                 "[ScCompras] Network error for %s (attempt %d/%d): %s",
-                full_url,
+                url,
                 attempt,
                 MAX_RETRIES,
                 e,
@@ -426,40 +310,48 @@ def _fetch(url: str, params: dict[str, str] | None = None) -> str | None:
 
     _logger.error(
         "[ScCompras] Failed to fetch %s after %d attempts: %s",
-        full_url,
+        url,
         MAX_RETRIES,
         last_error,
     )
     return None
 
 
-def _fetch_list_page(date_from: str, date_to: str, page: int) -> list[dict]:
-    """Fetch one page of the SC portal listing. Returns parsed items."""
-    # Primary URL
-    html = _fetch(
-        f"{BASE_URL}/licitacoes",
-        {"pagina": str(page), "data_publicacao_inicio": date_from, "data_publicacao_fim": date_to},
+def _fetch_api_list(ano: int) -> list[dict]:
+    """Fetch all items from /api/editais for a given year.
+
+    Uses a large page size so the API returns all matching items in one
+    response (the 'pagina' parameter is ignored by the backend for this
+    endpoint, so pagination iteration is not possible server-side).
+
+    Returns a list of raw API item dicts, or empty list on failure.
+    """
+    params = {"ano": str(ano), "tamanhoPagina": "3000"}
+    query = "&".join(f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items())
+    full_url = f"{BASE_URL}/api/editais?{query}"
+
+    data = _api_request(full_url)
+    if not data:
+        return []
+
+    items = data.get("conteudo", [])
+    total = data.get("totalElementos", 0)
+    _logger.debug(
+        "[ScCompras] API list: ano=%d -> %d items returned (total=%d)",
+        ano,
+        len(items),
+        total,
     )
-    if not html:
-        # Fallback to e-lic URL
-        html = _fetch(
-            f"{E_LIC_URL}/licitacao",
-            {"pagina": str(page), "data_inicio": date_from, "data_fim": date_to},
-        )
-        if not html:
-            return []
-
-    return _extract_table_rows(html)
+    return items
 
 
-def _fetch_detail_page(url: str) -> dict:
-    """Fetch and parse a detail page. Returns dict or {} on failure."""
-    if not url:
-        return {}
-    html = _fetch(url)
-    if not html:
-        return {}
-    return _extract_detail_fields(html)
+def _fetch_api_detail(item_id: int) -> dict | None:
+    """Fetch /api/editais/{id} detail for a single edital.
+
+    Returns the detail dict (includes dataPublicacao, modalidade, natureza,
+    dataAbertura, dataEncerramento, etc.) or None on failure.
+    """
+    return _api_request(f"{BASE_URL}/api/editais/{item_id}")
 
 
 # ---------------------------------------------------------------------------
@@ -467,41 +359,47 @@ def _fetch_detail_page(url: str) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def _normalize_item(raw: dict, detail: dict | None = None) -> dict | None:
+def _normalize_item(raw: dict) -> dict | None:
     """Normalize a raw SC portal item to pncp_raw_bids schema.
 
-    Merges optional detail data over raw list data before normalization.
-    Returns None if item is skippable (empty numero_processo).
+    The raw dict should be the canonical dict produced by _api_item_to_canonical()
+    (keys: numero_processo, modalidade, objeto, orgao, data_publicacao,
+    situacao, valor, url_detalhe, orgau_cnpj, municipio, etc.).
 
     Does NOT include 'source' — monitor.py adds it.
     Content hash uses MD5.
     """
-    merged = dict(raw)
-    if detail:
-        merged.update(detail)
-
-    numero = (merged.get("numero_processo") or "").strip()
+    numero = (raw.get("numero_processo") or "").strip()
+    api_id = raw.get("api_id")
     if not numero:
         return None
 
-    pncp_id = f"sc-{numero}"
-    objeto = (merged.get("objeto") or "").strip()
+    # Use API id for uniqueness (process numbers are shared across editais)
+    if api_id is not None:
+        pncp_id = f"sc-{api_id}"
+        source_id = pncp_id
+    else:
+        pncp_id = f"sc-{numero}"
+        source_id = pncp_id
+    objeto = (raw.get("objeto") or "").strip()
     if len(objeto) > 1000:
         objeto = objeto[:997] + "..."
 
-    data_publicacao = _parse_br_date(merged.get("data_publicacao")) or datetime.now().date().isoformat()
-    data_abertura = _parse_br_date(merged.get("data_abertura"))
-    data_encerramento = _parse_br_date(merged.get("data_encerramento"))
+    # data_publicacao may come from the API detail (dataPublicacao, YYYY-MM-DD)
+    # or fall back to today
+    data_publicacao = _parse_br_date(raw.get("data_publicacao")) or datetime.now().date().isoformat()
+    data_abertura = _parse_br_date(raw.get("data_abertura"))
+    data_encerramento = _parse_br_date(raw.get("data_encerramento"))
 
-    orgao = (merged.get("orgao") or "").strip()
-    orgao_cnpj = _digits_only(merged.get("orgao_cnpj"))
-    valor = _parse_br_number(merged.get("valor"))
+    orgao = (raw.get("orgao") or "").strip()
+    orgao_cnpj = _digits_only(raw.get("orgao_cnpj"))
+    valor = _parse_br_number(raw.get("valor"))
 
-    modalidade_raw = (merged.get("modalidade") or "").strip()
+    modalidade_raw = (raw.get("modalidade") or "").strip()
     modalidade_id, modalidade_nome = _map_modalidade(modalidade_raw)
 
-    municipio = (merged.get("municipio") or "").strip()
-    url_detalhe = (merged.get("url_detalhe") or "").strip()
+    municipio = (raw.get("municipio") or "").strip()
+    url_detalhe = (raw.get("url_detalhe") or "").strip()
     esfera = _infer_esfera(orgao)
 
     content_hash = _content_hash(pncp_id, data_publicacao, objeto)
@@ -523,7 +421,7 @@ def _normalize_item(raw: dict, detail: dict | None = None) -> dict | None:
         "data_encerramento": data_encerramento or None,
         "link_pncp": url_detalhe or None,
         "content_hash": content_hash,
-        "source_id": pncp_id,
+        "source_id": source_id,
     }
 
 
@@ -533,66 +431,96 @@ def _normalize_item(raw: dict, detail: dict | None = None) -> dict | None:
 
 
 def crawl(mode: str = "full") -> list[dict]:
-    """Crawl SC Compras portal.
+    """Crawl SC Compras portal via JSON API.
 
-    Fetches list pages and their detail pages, merging all available fields
-    into each raw record.
+    Fetches the edital list from /api/editais (all at once, since the API
+    ignores pagination parameters), then optionally enriches each item with
+    detail from /api/editais/{id} to obtain additional fields (data_publicacao,
+    data_encerramento, clean modalidade, etc.).
+
+    Detail enrichment is enabled by default (matching the pre-SPA behavior).
+    Set SC_COMPRAS_LIST_ONLY=1 to fetch list data only (faster, but loses
+    publication dates which fall back to the current date).
 
     Args:
         mode: 'full' (last 30 days) or 'incremental' (last 3 days)
 
     Returns:
-        List of raw item dicts with fields from both list and detail pages.
-        Empty list on failure (graceful degradation).
+        List of raw item dicts in canonical format (keys expected by
+        _normalize_item / transform). Empty list on failure (graceful
+        degradation).
     """
     days = SC_COMPRAS_FULL_DAYS if mode == "full" else SC_COMPRAS_INCREMENTAL_DAYS
     today_d = date.today()
     date_from_d = today_d - timedelta(days=days)
-    date_from = date_from_d.isoformat()
-    date_to = today_d.isoformat()
 
-    _logger.info("[ScCompras] Crawling %s mode: %s -> %s", mode, date_from, date_to)
-
-    all_items: list[dict] = []
-    pages_fetched = 0
-
-    try:
-        for page in range(1, MAX_PAGES + 1):
-            items = _fetch_list_page(date_from, date_to, page)
-            if not items:
-                if page == 1:
-                    _logger.warning("[ScCompras] Page 1 returned empty — portal may be unavailable")
-                else:
-                    _logger.info("[ScCompras] Page %d: empty — end of data", page)
-                break
-
-            pages_fetched += 1
-
-            # Enrich with detail page data
-            enriched: list[dict] = []
-            for item in items:
-                url = item.get("url_detalhe")
-                detail = _fetch_detail_page(url) if url else {}
-                enriched.append(dict(item, **detail))
-
-            all_items.extend(enriched)
-            _logger.debug(
-                "[ScCompras] Page %d: %d items (total: %d)",
-                page,
-                len(enriched),
-                len(all_items),
-            )
-
-            time.sleep(PAGE_DELAY_S)
-
-    except Exception as e:
-        _logger.warning("[ScCompras] Crawl error after %d pages: %s", pages_fetched, e)
-        # Return what we have so far, don't raise
+    fetch_detail_flag = not bool(int(os.getenv("SC_COMPRAS_LIST_ONLY", "0")))
 
     _logger.info(
-        "[ScCompras] Crawl complete: %d items from %d pages",
-        len(all_items),
-        pages_fetched,
+        "[ScCompras] Crawling %s mode: %s -> %s (JSON API, detail=%s)",
+        mode,
+        date_from_d.isoformat(),
+        today_d.isoformat(),
+        fetch_detail_flag,
+    )
+
+    # Determine which years to fetch
+    years_needed = {today_d.year}
+    if date_from_d.year < today_d.year:
+        years_needed.add(date_from_d.year)
+
+    all_items: list[dict] = []
+    items_count = 0
+
+    for ano in sorted(years_needed, reverse=True):
+        raw_items = _fetch_api_list(ano)
+        if not raw_items:
+            _logger.warning(
+                "[ScCompras] No data for year %d — API may be unavailable",
+                ano,
+            )
+            continue
+
+        if fetch_detail_flag:
+            _logger.info(
+                "[ScCompras] Enriching %d items with details (year %d) ...",
+                len(raw_items),
+                ano,
+            )
+        else:
+            _logger.info(
+                "[ScCompras] Using list-only for %d items (year %d); publication dates will default to today",
+                len(raw_items),
+                ano,
+            )
+
+        for i, item in enumerate(raw_items):
+            try:
+                if fetch_detail_flag:
+                    detail = _fetch_api_detail(item["id"])
+                else:
+                    detail = None
+
+                canonical = _api_item_to_canonical(item, detail)
+                all_items.append(canonical)
+                items_count += 1
+            except Exception as e:
+                _logger.debug(
+                    "[ScCompras] Error processing item %s: %s",
+                    item.get("processo", item.get("id", "?")),
+                    e,
+                )
+                # Fallback: use list-only data
+                canonical = _api_item_to_canonical(item)
+                all_items.append(canonical)
+                items_count += 1
+
+        time.sleep(PAGE_DELAY_S)
+
+    _logger.info(
+        "[ScCompras] Crawl complete: %d items from %d year(s)",
+        items_count,
+        len(years_needed),
     )
     return all_items
 

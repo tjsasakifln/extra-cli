@@ -26,16 +26,18 @@ import requests
 
 log = logging.getLogger(__name__)
 
-CACHE_FILE = 'data/geocode_cache.json'
-IBGE_API_URL = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios/{ibge}'
-NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
+CACHE_FILE = "data/geocode_cache.json"
+IBGE_API_URL = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios/{ibge}"
+NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 NOMINATIM_RATE = 1.0  # 1 request per second (OSM policy)
-USER_AGENT = 'ExtraConsultoria/1.0 (coverage-analysis)'
+USER_AGENT = "ExtraConsultoria/1.0 (coverage-analysis)"
 
 # Bounding box de Santa Catarina
 SC_BBOX = {
-    'min_lat': -29.5, 'max_lat': -25.5,
-    'min_lon': -53.5, 'max_lon': -48.0,
+    "min_lat": -29.5,
+    "max_lat": -25.5,
+    "min_lon": -53.5,
+    "max_lon": -48.0,
 }
 
 # Coordenadas de Florianopolis (sede administrativa de SC)
@@ -59,10 +61,7 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     dlat = lat2_r - lat1_r
     dlon = lon2_r - lon1_r
 
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(lat1_r) * math.cos(lat2_r) * math.sin(dlon / 2) ** 2
-    )
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1_r) * math.cos(lat2_r) * math.sin(dlon / 2) ** 2
     c = 2 * math.asin(math.sqrt(a))
     return EARTH_RADIUS_KM * c
 
@@ -77,10 +76,7 @@ def validate_coords(lat: float, lon: float) -> bool:
     Returns:
         True se estiver dentro do bounding box de Santa Catarina.
     """
-    return (
-        SC_BBOX['min_lat'] <= lat <= SC_BBOX['max_lat']
-        and SC_BBOX['min_lon'] <= lon <= SC_BBOX['max_lon']
-    )
+    return SC_BBOX["min_lat"] <= lat <= SC_BBOX["max_lat"] and SC_BBOX["min_lon"] <= lon <= SC_BBOX["max_lon"]
 
 
 class Geocoder:
@@ -95,7 +91,7 @@ class Geocoder:
         self.cache = self._load_cache(cache_file)
         self.cache_file = cache_file
         self._last_nominatim_time = 0.0
-        self.stats = {'cache_hit': 0, 'ibge_api': 0, 'nominatim': 0, 'failed': 0}
+        self.stats = {"cache_hit": 0, "ibge_api": 0, "nominatim": 0, "failed": 0}
 
     # ------------------------------------------------------------------
     # Cache management
@@ -122,25 +118,28 @@ class Geocoder:
         migrated = False
         for key, value in list(data.items()):
             if isinstance(value, list) and len(value) == 2:
-                municipio_nome = key.split('|')[0] if '|' in key else key
+                municipio_nome = key.split("|")[0] if "|" in key else key
                 data[key] = {
-                    'municipio': municipio_nome,
-                    'lat': value[0],
-                    'lon': value[1],
-                    'method': 'legacy_cache',
-                    'cached_at': datetime.now().isoformat(),
+                    "municipio": municipio_nome,
+                    "lat": value[0],
+                    "lon": value[1],
+                    "method": "legacy_cache",
+                    "cached_at": datetime.now().isoformat(),
                 }
                 migrated = True
 
         if migrated:
-            log.info("Cache migrado do formato legado para novo formato (%d entradas)", sum(1 for v in data.values() if isinstance(v, dict) and v.get('method') == 'legacy_cache'))
+            log.info(
+                "Cache migrado do formato legado para novo formato (%d entradas)",
+                sum(1 for v in data.values() if isinstance(v, dict) and v.get("method") == "legacy_cache"),
+            )
 
         return data
 
     def _save_cache(self) -> None:
         """Persiste o cache em arquivo JSON."""
-        os.makedirs(os.path.dirname(self.cache_file) or '.', exist_ok=True)
-        with open(self.cache_file, 'w') as f:
+        os.makedirs(os.path.dirname(self.cache_file) or ".", exist_ok=True)
+        with open(self.cache_file, "w") as f:
             json.dump(self.cache, f, indent=2, ensure_ascii=False)
 
     # ------------------------------------------------------------------
@@ -173,13 +172,13 @@ class Geocoder:
         cache_key = ibge or municipio
         if cache_key and cache_key in self.cache:
             entry = self.cache[cache_key]
-            if isinstance(entry, dict) and entry.get('lat') is not None and entry.get('lon') is not None:
-                self.stats['cache_hit'] += 1
-                return entry['lat'], entry['lon'], 'cache'
+            if isinstance(entry, dict) and entry.get("lat") is not None and entry.get("lon") is not None:
+                self.stats["cache_hit"] += 1
+                return entry["lat"], entry["lon"], "cache"
 
         if not municipio:
-            self.stats['failed'] += 1
-            return None, None, 'failed'
+            self.stats["failed"] += 1
+            return None, None, "failed"
 
         # Nivel 2: IBGE API (obter nome oficial do municipio)
         municipio_nome = municipio
@@ -189,8 +188,8 @@ class Geocoder:
                 resp = requests.get(url, timeout=5)
                 if resp.status_code == 200:
                     data = resp.json()
-                    municipio_nome = data.get('nome', municipio)
-                    self.stats['ibge_api'] += 1
+                    municipio_nome = data.get("nome", municipio)
+                    self.stats["ibge_api"] += 1
                 else:
                     log.warning("IBGE API retornou status %s para IBGE %s", resp.status_code, ibge)
             except requests.RequestException as e:
@@ -206,17 +205,14 @@ class Geocoder:
 
                 query = f"{municipio_nome}, SC, Brazil"
                 params = {
-                    'q': query,
-                    'format': 'json',
-                    'limit': 1,
-                    'countrycodes': 'br',
-                    'bounded': 1,
-                    'viewbox': (
-                        f"{SC_BBOX['min_lon']},{SC_BBOX['min_lat']},"
-                        f"{SC_BBOX['max_lon']},{SC_BBOX['max_lat']}"
-                    ),
+                    "q": query,
+                    "format": "json",
+                    "limit": 1,
+                    "countrycodes": "br",
+                    "bounded": 1,
+                    "viewbox": (f"{SC_BBOX['min_lon']},{SC_BBOX['min_lat']},{SC_BBOX['max_lon']},{SC_BBOX['max_lat']}"),
                 }
-                headers = {'User-Agent': USER_AGENT}
+                headers = {"User-Agent": USER_AGENT}
 
                 resp = requests.get(NOMINATIM_URL, params=params, headers=headers, timeout=10)
                 self._last_nominatim_time = time.time()
@@ -225,33 +221,37 @@ class Geocoder:
                     results = resp.json()
                     if results:
                         data = results[0]
-                        lat, lon = float(data['lat']), float(data['lon'])
+                        lat, lon = float(data["lat"]), float(data["lon"])
 
                         # Validar bounding box
                         if not validate_coords(lat, lon):
                             log.warning(
                                 "Coordenadas fora do bounding box SC para %s: (%s, %s)",
-                                municipio_nome, lat, lon,
+                                municipio_nome,
+                                lat,
+                                lon,
                             )
-                            self.stats['failed'] += 1
-                            return None, None, 'out_of_bounds'
+                            self.stats["failed"] += 1
+                            return None, None, "out_of_bounds"
 
                         # Salvar no cache
                         final_key = ibge or municipio_nome
                         self.cache[final_key] = {
-                            'municipio': municipio_nome,
-                            'lat': lat,
-                            'lon': lon,
-                            'method': 'nominatim',
-                            'cached_at': datetime.now().isoformat(),
+                            "municipio": municipio_nome,
+                            "lat": lat,
+                            "lon": lon,
+                            "method": "nominatim",
+                            "cached_at": datetime.now().isoformat(),
                         }
                         self._save_cache()
 
-                        self.stats['nominatim'] += 1
-                        return lat, lon, 'nominatim'
+                        self.stats["nominatim"] += 1
+                        return lat, lon, "nominatim"
                 else:
                     log.warning(
-                        "Nominatim retornou status %s para %s", resp.status_code, municipio_nome,
+                        "Nominatim retornou status %s para %s",
+                        resp.status_code,
+                        municipio_nome,
                     )
 
             except requests.RequestException as e:
@@ -259,8 +259,8 @@ class Geocoder:
             except (ValueError, KeyError, IndexError) as e:
                 log.warning("Erro ao parsear resposta Nominatim para %s: %s", municipio_nome, e)
 
-        self.stats['failed'] += 1
-        return None, None, 'failed'
+        self.stats["failed"] += 1
+        return None, None, "failed"
 
     def geocode_batch(self, entities: list[dict]) -> dict[str, Any]:
         """Geocodifica uma lista de entidades, agrupando por municipio.
@@ -283,16 +283,16 @@ class Geocoder:
         # Agrupar por codigo_ibge (ou municipio como fallback)
         municipios: dict[str, dict] = {}
         for ent in entities:
-            key = ent.get('codigo_ibge') or ent.get('municipio')
+            key = ent.get("codigo_ibge") or ent.get("municipio")
             if key is None:
                 continue  # ente sem identificacao geografica — impossivel geocodificar
             if key not in municipios:
                 municipios[key] = {
-                    'ibge': ent.get('codigo_ibge'),
-                    'municipio': ent.get('municipio'),
-                    'entity_ids': [],
+                    "ibge": ent.get("codigo_ibge"),
+                    "municipio": ent.get("municipio"),
+                    "entity_ids": [],
                 }
-            municipios[key]['entity_ids'].append(ent['id'])
+            municipios[key]["entity_ids"].append(ent["id"])
 
         log.info(
             "Agrupados %d entidades em %d municipios unicos",
@@ -301,21 +301,21 @@ class Geocoder:
         )
 
         results: dict[str, Any] = {
-            'geocoded': 0,
-            'failed': 0,
-            'total_municipios': len(municipios),
-            'total_entities': len(entities),
-            'updated_ids': [],
+            "geocoded": 0,
+            "failed": 0,
+            "total_municipios": len(municipios),
+            "total_entities": len(entities),
+            "updated_ids": [],
         }
 
         for key, mun in municipios.items():
-            lat, lon, method = self.geocode(ibge=mun['ibge'], municipio=mun['municipio'])
+            lat, lon, method = self.geocode(ibge=mun["ibge"], municipio=mun["municipio"])
 
             if lat is not None and lon is not None:
-                results['geocoded'] += 1
-                results['updated_ids'].extend(mun['entity_ids'])
+                results["geocoded"] += 1
+                results["updated_ids"].extend(mun["entity_ids"])
             else:
-                results['failed'] += 1
+                results["failed"] += 1
                 log.warning("Falha ao geocodificar municipio: %s (metodo=%s)", key, method)
 
         return results
