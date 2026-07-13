@@ -1,37 +1,38 @@
 # Extra Consultoria
 
 <!-- PROJECT-CUSTOMIZED: AIOX-OPERATING-PROTOCOL -->
-## Protocolo Operacional AIOX (OBRIGATÓRIO)
+## Protocolo AIOX — Obrigatório
 
-**Toda solicitação de desenvolvimento neste projeto segue o AIOX Operating Protocol.**
+**Toda solicitação de desenvolvimento segue o AIOX automaticamente.**
+Regra: `.claude/rules/aiox-project-operating-protocol.md`
+Skills: `.claude/skills/aiox-*/SKILL.md`
 
-Regra completa: `.claude/rules/aiox-project-operating-protocol.md`
+### Regras fundamentais
 
-### Regras fundamentais (resumo executivo)
-
-1. **AIOX é o modo padrão.** Claude infere automaticamente agentes, workflows e gates. Usuário NÃO precisa digitar `@dev`, `@qa`, etc.
-2. **Story obrigatória antes de código.** Nenhuma alteração sem story validada por @sm e @po.
+1. **AIOX é modo padrão.** Agentes, workflows e gates inferidos automaticamente. Não digite `@agente`.
+2. **Story obrigatória antes de código.** @sm cria → @po valida → @dev implementa. Exceção: FAST.
 3. **Ciclo completo:** @sm → @po → @dev → @qa → @po fecha → @devops publica.
 4. **Autoridade exclusiva:** @devops push/PR, @architect arquitetura, @qa veredito, @po fechamento.
-5. **Gate sistêmico por wave.** Aprovação isolada de stories não equivale a sistema saudável.
-6. **Modo YOLO (L2) como default.** Confirmação somente para operações destrutivas/irreversíveis.
+5. **Níveis de risco:** FAST (trivial), STANDARD (normal, default), HIGH-RISK (segurança/dados/arch).
+6. **QA independente:** Nunca o implementador como única fonte de validação.
 
-### Workflows automáticos por tipo de solicitação
+### Workflows automáticos
 
-| Solicitação | Workflow | Agentes |
-|------------|----------|---------|
-| "corrija um bug" | SDC (story-development-cycle) | @sm → @po → @dev → @qa → @po → @devops |
-| "implemente uma feature" | Spec Pipeline → SDC | @pm → @architect → @sm → @po → @dev → @qa |
-| "refatore X" | Análise de impacto + SDC | @architect → @sm → @po → @dev → @qa |
-| "faça uma migration" | Data-Engineer + SDC | @data-engineer → @architect → @dev → @qa |
-| "publique as alterações" | Pre-push gates → push | @qa → @devops |
-| "auditoria do sistema" | Brownfield Discovery | @architect → @data-engineer → @qa → @analyst → @pm |
+| Solicitação | Nível | Workflow |
+|------------|-------|----------|
+| "corrija um typo no README" | FAST | Registro + diff |
+| "corrija um bug" | STANDARD | SDC completo |
+| "implemente uma feature" | STANDARD | Spec Pipeline → SDC |
+| "refatore este módulo" | STANDARD | Impacto → SDC |
+| "faça uma migration" | HIGH-RISK | @data-engineer → @architect → SDC |
+| "publique as alterações" | — | @qa gate → @devops push |
+| "auditoria do sistema" | — | Brownfield Discovery |
 
 ### Correção de desvio
 
-Se código for alterado sem story, agente atuar fora de autoridade, ou ciclo for quebrado → interrompa e corrija o curso automaticamente.
+Código sem story, agente fora de autoridade, QA autoaplicado, push sem gates → interromper e corrigir.
 
-> **Regra completa com 20 seções:** `.claude/rules/aiox-project-operating-protocol.md`
+> Protocolo completo: `.claude/rules/aiox-project-operating-protocol.md` (10 seções)
 <!-- END: AIOX-OPERATING-PROTOCOL -->
 
 ---
@@ -68,31 +69,30 @@ O Reversa escreve apenas em `.reversa/`, `_reversa_sdd/`, `_reversa_docs/` e `_r
 
 ```bash
 # Crawl
-python scripts/crawl/monitor.py --source pncp --mode full        # Crawl completo PNCP
-python scripts/crawl/monitor.py --source all --mode incremental   # Crawl incremental todas fontes
-python scripts/crawl/monitor.py --report-coverage                 # Relatorio de cobertura
+python scripts/crawl/monitor.py --source pncp --mode full
+python scripts/crawl/monitor.py --source all --mode incremental
+python scripts/crawl/monitor.py --report-coverage
 
 # Testes
-pytest tests/test_cache_ibge.py -v                                # Testes do cache IBGE
-pytest tests/test_transformer.py -v                               # Testes do transformer
-pytest -m unit                                                     # Apenas testes unitarios
-pytest --cov=scripts --cov-report=term-missing                    # Com cobertura
+pytest tests/ -v
+pytest -m unit
+pytest --cov=scripts --cov-report=term-missing
 
 # Lint e Type Check
-ruff check scripts/                                               # Lint
-ruff format scripts/                                              # Formatacao
-mypy scripts/                                                     # Type checking
+ruff check scripts/
+ruff format scripts/
+mypy scripts/
 
 # Pipeline de Inteligencia
-python scripts/intel_pipeline.py --cnpj <CNPJ> --ufs SC           # Pipeline para 1 CNPJ
-python scripts/reports/panorama.py --output-excel                 # Relatorio panoramico
+python scripts/intel_pipeline.py --cnpj <CNPJ> --ufs SC
+python scripts/reports/panorama.py --output-excel
 
 # DataLake CLI
-python scripts/local_datalake.py search --uf SC --dias 30         # Buscar licitacoes
-python scripts/local_datalake.py supplier --cnpj <CNPJ>           # Dados de fornecedor
-python scripts/local_datalake.py stats                            # Estatisticas
+python scripts/local_datalake.py search --uf SC --dias 30
+python scripts/local_datalake.py supplier --cnpj <CNPJ>
+python scripts/local_datalake.py stats
 
-# Opportunity Intelligence (licitacoes abertas, raio 200km Fpolis)
+# Opportunity Intelligence
 python scripts/opportunity_intel/cli.py list --status open --limit 20
 python scripts/opportunity_intel/cli.py show 1
 python scripts/opportunity_intel/cli.py explain 1
@@ -100,14 +100,14 @@ python scripts/opportunity_intel/cli.py coverage
 python scripts/opportunity_intel/cli.py source-health
 python scripts/opportunity_intel/cli.py update --source pncp
 python scripts/opportunity_intel/cli.py export --format csv -o opportunities.csv
-python scripts/opportunity_intel/manifest.py                     # Manifestos de cobertura
+python scripts/opportunity_intel/manifest.py
 
 # Infra (VPS)
-ssh ec-prod "systemctl list-timers 'extra-*'"                     # Listar timers
-ssh ec-prod "journalctl -u extra-crawl-pncp.service -n 30"        # Logs do crawler
+ssh ec-prod "systemctl list-timers 'extra-*'"
+ssh ec-prod "journalctl -u extra-crawl-pncp.service -n 30"
 
 # Cache IBGE
-python -c "from scripts.crawl.enricher import _ibge_cache; _ibge_cache.clear()"  # Limpar cache
+python -c "from scripts.crawl.enricher import _ibge_cache; _ibge_cache.clear()"
 ```
 
 ## Quality Assurance Toolkit (incorporado do ECC)
@@ -117,54 +117,28 @@ Origem: [affaan-m/ecc](https://github.com/affaan-m/ecc) — adaptado para stack 
 
 ### Uso Proativo (OBRIGATÓRIO)
 
-Sempre que pertinente, ative **proativamente** estes recursos sem que o usuário precise pedir:
-
 | Gatilho | Ação Proativa |
 |---------|---------------|
 | Editando arquivo `.py` | Rode `/quality-gate` no arquivo após editar |
 | Antes de commit (`git commit`) | Rode `/code-review` em modo local |
-| Criando/alterando crawler | Ative skill `error-handling` para padrões de retry/logging |
-| Escrevendo função pública nova | Ative skill `coding-standards` para nomenclatura e docstrings |
-| Refatorando script existente | Ative skill `python-patterns` para padrões Pythonicos |
-| Debugging de falha em produção | Invoque agente `silent-failure-hunter` para caçar exceções engolidas |
-| Adicionando chamada HTTP/API | Ative skill `error-handling` para retry/circuit breaker |
-| Revisão de PR/ código alheio | Invoque agente `python-reviewer` para revisão completa |
-| Alterando autenticação/secrets | Invoque agente `security-reviewer` para scan de segurança |
+| Criando/alterando crawler | Ative skill `error-handling` |
+| Escrevendo função pública nova | Ative skill `coding-standards` |
+| Refatorando script existente | Ative skill `python-patterns` |
+| Debugging de falha em produção | Invoque agente `silent-failure-hunter` |
+| Adicionando chamada HTTP/API | Ative skill `error-handling` |
+| Revisão de PR/ código alheio | Invoque agente `python-reviewer` |
+| Alterando autenticação/secrets | Invoque agente `security-reviewer` |
 | Suspeita de vulnerabilidade | Invoque agente `security-reviewer` + `bandit -r scripts/` |
-
-### Agentes Disponíveis
-
-| Agente | Arquivo | Quando Usar |
-|--------|---------|-------------|
-| **python-reviewer** | `.claude/agents/python-reviewer.md` | Review de código Python (PEP 8, type hints, segurança, padrões) |
-| **silent-failure-hunter** | `.claude/agents/silent-failure-hunter.md` | Caçar exceções engolidas, fallbacks perigosos e logging inadequado |
-| **security-reviewer** | `.claude/agents/security-reviewer.md` | Scan de vulnerabilidades OWASP, secrets, injeção, crypto |
-
-Para invocar: mencione o nome do agente no chat (ex: "revise este arquivo com python-reviewer").
 
 ### Comandos Disponíveis
 
-| Comando | Arquivo | Quando Usar |
-|---------|---------|-------------|
-| `/code-review` | `.claude/commands/code-review.md` | Revisão completa local ou PR (segurança + padrões + testes) |
-| `/quality-gate` | `.claude/commands/quality-gate.md` | Gate rápido: formatação + lint + type check (pré-commit) |
-
-### Skills Disponíveis
-
-| Skill | Arquivo | Quando Usar |
-|-------|---------|-------------|
-| **error-handling** | `.claude/skills/error-handling/SKILL.md` | Padrões de erro Python: exceções tipadas, retry, circuit breaker, logging |
-| **coding-standards** | `.claude/skills/coding-standards/SKILL.md` | Convenções de código: nomenclatura, KISS, DRY, imutabilidade, code smells |
-| **python-patterns** | `.claude/skills/python-patterns/SKILL.md` | Padrões Pythonicos: type hints, dataclasses, geradores, decorators, concorrência |
-
-Para ativar: use `Skill` tool com o nome da skill (ex: `error-handling`).
+| Comando | Quando Usar |
+|---------|-------------|
+| `/code-review` | Revisão completa local ou PR |
+| `/quality-gate` | Gate rápido: formatação + lint + type check |
 
 ### Fluxo de Qualidade Padrão
 
 ```
-Editar código → /quality-gate (automático) → Corrigir → /code-review (manual) → Commit → Push
+Editar código → /quality-gate → Corrigir → /code-review → Commit → Push
 ```
-
-- `/quality-gate`: ~2s, roda `ruff format --check` + `ruff check` no arquivo
-- `/code-review`: ~30s, revisão completa com `mypy` + `pytest` + `bandit` + revisão humana
-- Ambos bloqueiam commit se CRÍTICO ou ALTO encontrado

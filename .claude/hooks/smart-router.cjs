@@ -21,13 +21,13 @@ const ROUTES = [
 
   // Desenvolvimento
   { patterns: [/\bbug\b/i, /\berro\b/i, /\bquebrou\b/i, /\bfix\b/i, /\bnão funciona\b/i, /\bproblema\b/i, /\bfalha\b/i],
-    skill: 'squad-creator', args: 'extra-consultoria-hotfix', label: 'BUG/HOTFIX' },
+    skill: "aiox-story-cycle", label: "BUG → AIOX" },
   { patterns: [/\bfeature\b/i, /\bfuncionalidade\b/i, /\bimplementar\b/i, /\bimplementação\b/i, /\bimplementando\b/i, /\badicionar\b/i, /\bdesenvolver\b/i, /nova.*feature/i, /\bnova.*funcionalidade\b/i, /\bYOLO\b/],
-    skill: 'squad-creator', args: 'extra-consultoria-feature-e2e', label: 'FEATURE' },
+    skill: "aiox-story-cycle", label: "FEATURE → AIOX" },
   { patterns: [/\bintegrar api\b/i, /\bnovo cliente\b/i, /\bfonte de dados\b/i, /\bintegração\b.*\bapi\b/i],
-    skill: 'squad-creator', args: 'extra-consultoria-api-integration', label: 'API INTEGRATION' },
+    skill: "aiox-story-cycle", label: "API INTEGRATION → AIOX" },
   { patterns: [/\bperformance\b/i, /\blento\b/i, /\btimeout\b/i, /\botimizar\b/i, /\blatência\b/i],
-    skill: 'squad-creator', args: 'extra-consultoria-performance-audit', label: 'PERFORMANCE' },
+    skill: "aiox-story-cycle", label: "PERFORMANCE → AIOX" },
   { patterns: [/próxima issue/i, /o que fazer/i, /próximo passo/i, /\bprioridade\b/i, /\bbacklog\b/i],
     skill: 'pick-next-issue', label: 'NEXT ISSUE' },
   { patterns: [/\brevisar pr\b/i, /\bfazer merge\b/i, /\bvalidar pr\b/i, /\bgovernance pr\b/i, /\breview.*pr\b/i],
@@ -35,11 +35,11 @@ const ROUTES = [
   { patterns: [/\broadmap\b/i, /\bauditar\b/i, /está atrasado/i, /\bstatus geral\b/i, /\bsincronizar\b/i],
     skill: 'audit-roadmap', label: 'ROADMAP AUDIT' },
   { patterns: [/\bbanco de dados\b/i, /\bschema\b/i, /\bmigrações?\b/i, /\bsupabase\b.*\bestrutura\b/i, /\bRLS\b/, /\bquery\b/i],
-    skill: 'data-engineer', label: 'DATA ENGINEER' },
+    skill: "aiox-story-cycle", label: "DATA ENGINEER → AIOX" },
   { patterns: [/\bcriar\s+testes?\b/i, /\bescrev[ae]r?\s+testes?\b/i, /\bgerar\s+testes?\b/i, /\brodar\s+testes?\b/i, /\bexecutar\s+testes?\b/i, /\btestes?\s+falhando\b/i, /\btestes?\s+quebrando\b/i, /\bcobertura\s+de\s+testes?\b/i, /\bcobertura\b.*\btestes?\b/i, /\bsuite.*testes?\b/i, /\bQA\b/, /\bvalidação.*qualidade\b/i, /\btest\s+coverage\b/i, /\btest\s+suite\b/i],
-    skill: 'qa', label: 'QA' },
+    skill: "aiox-story-cycle", label: "QA → AIOX" },
   { patterns: [/\barquitetura\b/i, /\bimpacto.*mudança\b/i, /\bADR\b/, /\bdesign.*sistema\b/i, /\btrade-off\b/i],
-    skill: 'architect', label: 'ARCHITECT' },
+    skill: "aiox-story-cycle", label: "ARCHITECT → AIOX" },
 
   // Inteligência B2G
   { patterns: [/\bCNPJ\b/i, /\bedi.*histórico\b/i, /\banalisar.*CNPJ\b/i],
