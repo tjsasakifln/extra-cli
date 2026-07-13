@@ -97,6 +97,10 @@ python scripts/opportunity_intel/cli.py export --format csv -o opportunities.csv
 # Manifestos de cobertura
 python scripts/opportunity_intel/manifest.py
 python scripts/freshness_gate.py
+
+# SLAs opcionais do freshness gate
+#   FRESHNESS_SLA_PNCP_HOURS=24
+#   FRESHNESS_SLA_CONTRACTS_HOURS=576
 ```
 
 ## Fontes de Dados

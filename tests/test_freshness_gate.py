@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+import importlib
+import os
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+import scripts.freshness_gate as freshness_gate
 from scripts.freshness_gate import (
     CriticalSourceSpec,
     _get_conn,
@@ -116,3 +119,25 @@ def test_get_conn_sets_autocommit() -> None:
         conn = _get_conn("postgresql://ok")
     assert conn is fake_conn
     assert conn.autocommit is True
+
+
+def test_sla_env_overrides_are_loaded() -> None:
+    old_pncp = os.environ.get("FRESHNESS_SLA_PNCP_HOURS")
+    old_contracts = os.environ.get("FRESHNESS_SLA_CONTRACTS_HOURS")
+    try:
+        os.environ["FRESHNESS_SLA_PNCP_HOURS"] = "12"
+        os.environ["FRESHNESS_SLA_CONTRACTS_HOURS"] = "240"
+        reloaded = importlib.reload(freshness_gate)
+        specs = {spec.source_name: spec for spec in reloaded.CRITICAL_SOURCES}
+        assert specs["pncp"].freshness_sla_hours == 12
+        assert specs["contracts"].freshness_sla_hours == 240
+    finally:
+        if old_pncp is None:
+            os.environ.pop("FRESHNESS_SLA_PNCP_HOURS", None)
+        else:
+            os.environ["FRESHNESS_SLA_PNCP_HOURS"] = old_pncp
+        if old_contracts is None:
+            os.environ.pop("FRESHNESS_SLA_CONTRACTS_HOURS", None)
+        else:
+            os.environ["FRESHNESS_SLA_CONTRACTS_HOURS"] = old_contracts
+        importlib.reload(freshness_gate)

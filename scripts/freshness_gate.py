@@ -63,8 +63,8 @@ CRITICAL_SOURCES: tuple[CriticalSourceSpec, ...] = (
         run_source="pncp",
         table_name="pncp_raw_bids",
         data_source="pncp",
-        recent_window_hours=24,
-        freshness_sla_hours=24,
+        recent_window_hours=int(os.getenv("FRESHNESS_RECENT_WINDOW_PNCP_HOURS", "24")),
+        freshness_sla_hours=int(os.getenv("FRESHNESS_SLA_PNCP_HOURS", "24")),
         business_date_column="data_publicacao",
     ),
     CriticalSourceSpec(
@@ -73,8 +73,8 @@ CRITICAL_SOURCES: tuple[CriticalSourceSpec, ...] = (
         run_source="contracts",
         table_name="pncp_supplier_contracts",
         data_source="pncp_contracts",
-        recent_window_hours=24 * 7,
-        freshness_sla_hours=24 * 24,
+        recent_window_hours=int(os.getenv("FRESHNESS_RECENT_WINDOW_CONTRACTS_HOURS", str(24 * 7))),
+        freshness_sla_hours=int(os.getenv("FRESHNESS_SLA_CONTRACTS_HOURS", str(24 * 24))),
         business_date_column="data_publicacao",
     ),
 )
