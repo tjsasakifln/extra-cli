@@ -18,9 +18,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from scripts.opportunity_intel.manifest import (  # noqa: E402
-    CANONICAL_UNIVERSE_WITHIN_200KM,
-)
+from scripts.lib.universe import CANONICAL_UNIVERSE  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -54,14 +52,14 @@ class TestCanonicalUniverse:
 
     def test_denominator_is_1093(self):
         """The canonical universe MUST be 1093 entities within 200 km."""
-        assert CANONICAL_UNIVERSE_WITHIN_200KM == 1093, (
-            f"Canonical universe changed from 1093 to {CANONICAL_UNIVERSE_WITHIN_200KM}. "
+        assert CANONICAL_UNIVERSE == 1093, (
+            f"Canonical universe changed from 1093 to {CANONICAL_UNIVERSE}. "
             "Update docs/coverage-truth/fase0-audit-2026-07-12.md if this is intentional."
         )
 
     def test_denominator_is_positive(self):
         """Canonical universe must be positive."""
-        assert CANONICAL_UNIVERSE_WITHIN_200KM > 0
+        assert CANONICAL_UNIVERSE > 0
 
 
 class TestCoverageMath:
@@ -140,8 +138,8 @@ class TestManifestQueries:
             row = cur.fetchone()
             entities_with_data: int = row[0]
 
-            assert 0 <= entities_with_data <= CANONICAL_UNIVERSE_WITHIN_200KM, (
-                f"entities_with_data ({entities_with_data}) outside valid range [0, {CANONICAL_UNIVERSE_WITHIN_200KM}]"
+            assert 0 <= entities_with_data <= CANONICAL_UNIVERSE, (
+                f"entities_with_data ({entities_with_data}) outside valid range [0, {CANONICAL_UNIVERSE}]"
             )
         finally:
             conn.close()
