@@ -1,0 +1,319 @@
+{
+  "metadata": {
+    "run_id": "qw01-20260713T135656Z-44d39e82",
+    "generated_at": "2026-07-13T13:56:56.839195+00:00",
+    "git_sha": "ce55095fac094ae44b00448a1fa0a746fab19f31",
+    "branch": "main",
+    "seed_path": "/mnt/d/extra consultoria/Extra - alvos de licitação. R-0.xlsx",
+    "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+    "schema_fingerprint": "2b192ed781a38f2df6d3a5f3ca5d9ee9d1737fc7048ff2c4bb6a4b10a6aeaa4f"
+  },
+  "schema": {
+    "backend": "postgresql",
+    "postgres_version": "PostgreSQL 16.14 (Debian 16.14-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+    "required_tables": [
+      "coverage_evidence",
+      "opportunity_intel",
+      "opportunity_runs",
+      "sc_public_entities"
+    ],
+    "migration_029_ready": true
+  },
+  "profile": {
+    "path": "/mnt/d/extra consultoria/config/client_profiles/extra.yaml",
+    "id": "extra_construtora"
+  },
+  "commands": [
+    "python3 -m scripts.opportunity_intel.cli radar --profile config/client_profiles/extra.yaml --window-days 45 --output-dir output/qw-01"
+  ],
+  "source_runs": [
+    {
+      "external_run_id": "qw01-20260713T135656Z-44d39e82",
+      "db_run_id": 4,
+      "status": "completed",
+      "scope_complete": true,
+      "pages_expected": 19,
+      "pages_processed": 19,
+      "records_expected": null,
+      "records_fetched": 34,
+      "records_inserted": 0,
+      "records_updated": 34,
+      "error_code": null,
+      "error_message": null,
+      "scopes": [
+        {
+          "scope_key": "uf=SC;modalidade=1",
+          "modalidade": 1,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=2",
+          "modalidade": 2,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=3",
+          "modalidade": 3,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=4",
+          "modalidade": 4,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": 5,
+          "records_fetched": 5,
+          "scope_complete": true,
+          "completion_rule": "reported_total_pages",
+          "http_status": 200,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=5",
+          "modalidade": 5,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=6",
+          "modalidade": 6,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": 14,
+          "records_fetched": 14,
+          "scope_complete": true,
+          "completion_rule": "reported_total_pages",
+          "http_status": 200,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=7",
+          "modalidade": 7,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=8",
+          "modalidade": 8,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": 10,
+          "records_fetched": 10,
+          "scope_complete": true,
+          "completion_rule": "reported_total_pages",
+          "http_status": 200,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=9",
+          "modalidade": 9,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=10",
+          "modalidade": 10,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=11",
+          "modalidade": 11,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=12",
+          "modalidade": 12,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": 5,
+          "records_fetched": 5,
+          "scope_complete": true,
+          "completion_rule": "reported_total_pages",
+          "http_status": 200,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=13",
+          "modalidade": 13,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=14",
+          "modalidade": 14,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=15",
+          "modalidade": 15,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=16",
+          "modalidade": 16,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=17",
+          "modalidade": 17,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=18",
+          "modalidade": 18,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        },
+        {
+          "scope_key": "uf=SC;modalidade=19",
+          "modalidade": 19,
+          "pages_expected": 1,
+          "pages_processed": 1,
+          "records_expected": null,
+          "records_fetched": 0,
+          "scope_complete": true,
+          "completion_rule": "http_204_complete",
+          "http_status": 204,
+          "error_code": null,
+          "error_message": null
+        }
+      ]
+    }
+  ],
+  "record_counts": {
+    "radar": 673,
+    "coverage_gaps": 0,
+    "monitoring_denominator": 1093,
+    "triage": {
+      "PRIORITARIA": 2,
+      "REVISAR": 127,
+      "DESCARTAR": 544
+    }
+  },
+  "test_results": {
+    "status": "not_run_for_this_artifact",
+    "path": "/mnt/d/extra consultoria/output/qw-01/quality-gates.json"
+  },
+  "warnings": [
+    "3009 oportunidades futuras foram bloqueadas por estarem fora do universo"
+  ],
+  "claims_explicitly_blocked": [
+    "cobertura multicanal de 95%",
+    "recomendação definitiva de participação",
+    "preço efetivamente pago ou deságio real",
+    "conjunto completo de licitantes"
+  ],
+  "readiness": "PARTIAL",
+  "exit_code": 2
+}

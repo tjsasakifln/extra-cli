@@ -366,7 +366,7 @@ def _update_or_reuse_source(
         persist=True,
         timeout=timeout,
         max_retries=max_retries,
-        request_delay=0.0,
+        request_delay=None,
     )
 
 

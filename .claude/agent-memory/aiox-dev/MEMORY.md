@@ -5,3 +5,7 @@
 - [Story TD-7.1 Phase 1 Auto-Fix](story-td-7.1-phase1-auto-fix.md) — ruff auto-fix: 644 fixes, 84 formatted, 222 remaining. Ready → InProgress.
 - [COVERAGE-1.5 Stash Extraction Fix](qa-fix-COVERAGE-1.5-stash-extraction.md) — dom_sc_crawler.py extraido do stash e verificado na working tree
 - [QA Fix COVERAGE-2.1 BigQuery](qa-fix-COVERAGE-2.1-mides-bigquery.md) — esfera_id de CNPJ, AC6/AC7 crawl 50K + entity matching validados
+- [Manifest 265% Coverage Bug](manifest-265pct-coverage-bug.md) — Canonical universe 1093, JOIN por raio_200km, asserts, test_batch exclusion
+- [QA Fix Transaction Aborted Cascade](qa-fix-transaction-aborted.md) — _safe_metric_query com per-query timeout e rollback, isolamento de transacoes em consulting_readiness.py
+- [CI Gates Fail-Closed](feedback_ci_fail_closed_gates.md) — B2G-4: bandit sem continue-on-error, pip-audit adicionado, pre-commit hooks criados
+- [Regra #9 Competitive Intelligence](regra-9-competitive-intelligence.md) — market share, award share, HHI, supplier ranking em consulting_readiness.py

@@ -199,8 +199,9 @@ class BaseOpportunityCrawler(ABC):
                     )
 
             except urllib.error.HTTPError as e:
-                if attempt < self.max_retries and e.code >= 500:
-                    wait = 2**attempt
+                if attempt < self.max_retries and (e.code == 429 or e.code >= 500):
+                    retry_after = e.headers.get("Retry-After") if e.headers else None
+                    wait = _retry_wait_seconds(retry_after, attempt)
                     _logger.warning("HTTP %s, retry %d/%d", e.code, attempt + 1, self.max_retries)
                     time.sleep(wait)
                     continue
@@ -595,4 +596,11 @@ class BaseOpportunityCrawler(ABC):
             self._conn.close()
 
 
-# stdlib import for socket.timeout
+def _retry_wait_seconds(retry_after: str | None, attempt: int) -> float:
+    """Honor bounded Retry-After seconds, otherwise use exponential backoff."""
+    if retry_after:
+        try:
+            return min(60.0, max(0.0, float(retry_after)))
+        except ValueError:
+            pass
+    return float(5 * 2**attempt)

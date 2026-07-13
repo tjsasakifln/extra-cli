@@ -33,6 +33,7 @@ def test_pncp_open_monitoring_smoke_is_fail_closed() -> None:
     )
 
     assert len(outcome.scopes) == 19
+    assert any(scope.http_status in {200, 204} for scope in outcome.scopes)
     assert outcome.status in {"completed", "completed_zero", "partial", "failed"}
     if not outcome.scope_complete:
         assert outcome.status in {"partial", "failed"}

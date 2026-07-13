@@ -1,23 +1,25 @@
 {
   "meta": {
-    "generated_at": "2026-07-13T00:14:14.386876+00:00",
+    "generated_at": "2026-07-13T01:49:32.678745+00:00",
     "tool": "opportunity_intel.manifest",
     "threshold": 0.95,
     "radius_km": 200,
-    "reference_city": "Florianópolis"
+    "reference_city": "Florianópolis",
+    "canonical_universe_source": "seed spreadsheet 'Extra - alvos de licitação. R-0.xlsx' column 'Raio 200km?' = SIM + Haversine <= 200 km"
   },
   "universe": {
-    "total_entities_within_200km": 1448,
-    "entities_with_opportunity_data": 3851,
-    "entities_without_data": -2403,
-    "pct_entities_with_data": 265.95
+    "total_entities_within_200km": 1093,
+    "total_entities_db_flag": null,
+    "entities_with_opportunity_data": 461,
+    "entities_without_data": 632,
+    "pct_entities_with_data": 42.18
   },
   "opportunities": {
-    "total": 96687,
-    "open": 46560,
+    "total": 96682,
+    "open": 46555,
     "by_status": {
       "closed": 50000,
-      "open": 46560,
+      "open": 46555,
       "unknown": 53,
       "annulled": 41,
       "revoked": 22,
@@ -27,21 +29,17 @@
       "pncp": {
         "total": 96682,
         "open": 46555
-      },
-      "test_batch": {
-        "total": 5,
-        "open": 5
       }
     }
   },
   "freshness": {
-    "last_24h": 96687,
-    "last_7d": 96687,
-    "last_30d": 96687
+    "last_24h": 96682,
+    "last_7d": 96682,
+    "last_30d": 96682
   },
   "readiness": {
-    "passes_threshold": true,
-    "exit_code": 0,
-    "gap_to_threshold": 0
+    "passes_threshold": false,
+    "exit_code": 2,
+    "gap_to_threshold": 52.82
   }
 }

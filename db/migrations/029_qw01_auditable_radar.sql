@@ -59,6 +59,24 @@ ALTER TABLE coverage_evidence ADD CONSTRAINT ck_ce_success_zero_scope
         )
     ) NOT VALID;
 
+-- Migration 024 introduced ``partial`` as a valid enum state, but some local
+-- databases carry a later trigger revision that rejects it. QW-01 requires an
+-- explicit partial state whenever pagination cannot be proven complete.
+CREATE OR REPLACE FUNCTION fn_validate_coverage_evidence()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.state = 'success_with_data' AND NEW.count_persisted <= 0 THEN
+        RAISE EXCEPTION 'success_with_data requires count_persisted > 0 (got %)', NEW.count_persisted;
+    END IF;
+    IF NEW.state = 'success_zero' AND NEW.count_persisted > 0 THEN
+        RAISE EXCEPTION 'success_zero requires count_persisted = 0 (got %)', NEW.count_persisted;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
 DROP INDEX IF EXISTS uq_ce_entity_run;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_ce_legacy_entity_run
@@ -125,7 +143,7 @@ BEGIN
             (rec->>'data_encerramento')::TIMESTAMPTZ, rec->>'status_fonte',
             COALESCE(rec->>'status_canonico', 'unknown'), rec->>'status_motivo',
             (rec->>'status_data')::TIMESTAMPTZ, rec->>'link_edital',
-            CASE WHEN rec->'link_anexos' IS NOT NULL
+            CASE WHEN jsonb_typeof(rec->'link_anexos') = 'array'
                 THEN ARRAY(SELECT * FROM jsonb_array_elements_text(rec->'link_anexos')) END,
             COALESCE(rec->'proveniencia', '{}'::jsonb), COALESCE(rec->'metadata', '{}'::jsonb)
         )

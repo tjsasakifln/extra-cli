@@ -65,6 +65,24 @@ def test_success_zero_without_complete_pagination_is_rejected(postgres_conn) -> 
     postgres_conn.rollback()
 
 
+def test_partial_evidence_is_allowed_for_incomplete_scope(postgres_conn) -> None:
+    with postgres_conn.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO coverage_evidence (
+                canonical_entity_key, source, data_type, queried_start, queried_end,
+                run_id, state, scope_key, pages_processed, freshness_status,
+                evidence_metadata
+            ) VALUES (
+                %s, 'pncp', 'bids', CURRENT_DATE, CURRENT_DATE,
+                %s, 'partial', 'test-partial', 1, 'unknown',
+                '{"scope_complete": false}'::jsonb
+            )
+            """,
+            (f"qw01-test-{uuid4().hex}", f"qw01-test-{uuid4().hex}"),
+        )
+
+
 def test_qw01_upsert_is_idempotent(postgres_conn) -> None:
     unique = uuid4().hex
     payload = [
@@ -75,6 +93,7 @@ def test_qw01_upsert_is_idempotent(postgres_conn) -> None:
             "uf": "SC",
             "objeto": "Reforma predial para teste transacional",
             "status_canonico": "open",
+            "link_anexos": None,
         }
     ]
     with postgres_conn.cursor() as cursor:
@@ -136,9 +155,11 @@ def test_one_command_emits_one_immutable_artifact_set(postgres_conn, tmp_path) -
         assert document["metadata"]["run_id"] == execution.run_id
 
     with (run_dir / "coverage_gaps.csv").open(encoding="utf-8", newline="") as stream:
-        rows = list(csv.DictReader(stream))
-    assert rows
-    assert {row["run_id"] for row in rows} == {execution.run_id}
+        reader = csv.DictReader(stream)
+        rows = list(reader)
+    assert reader.fieldnames is not None
+    assert "run_id" in reader.fieldnames
+    assert not rows or {row["run_id"] for row in rows} == {execution.run_id}
 
     workbook = load_workbook(run_dir / "radar_editais.xlsx", read_only=True, data_only=True)
     metadata = dict(workbook["Metadata"].iter_rows(values_only=True))

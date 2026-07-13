@@ -1,6 +1,6 @@
 # QW-01 — Radar Auditável de Editais Abertos
 
-Status: InProgress
+Status: InReview
 
 ## Story
 
@@ -24,8 +24,8 @@ Como consultor da Extra Construtora, quero executar localmente um radar de edita
 - [x] Corrigir paginação/runs/freshness.
 - [x] Implementar perfil, scores, radar e artefatos.
 - [x] Adicionar testes unitários, integração PostgreSQL e smoke opt-in.
-- [ ] Executar migration, run real e quality gates.
-- [ ] Atualizar documentação e registrar resultados.
+- [x] Executar migration, run real e quality gates.
+- [x] Atualizar documentação e registrar resultados.
 
 ## Dev Agent Record
 
@@ -36,8 +36,10 @@ Codex GPT-5
 ### Debug Log References
 
 - `docs/reports/qw-01-baseline.md`
-- `tests/test_qw01_radar.py`: 95 testes direcionados no checkpoint, incluindo regressões relacionadas.
-- `tests/test_qw01_postgres.py`: 4 testes PostgreSQL opt-in.
+- `output/qw-01/qw01-20260713T135656Z-44d39e82/`: execução operacional auditável.
+- `tests/test_qw01_radar.py`: suíte dirigida final com 97 testes aprovados e 1 skip esperado.
+- `tests/test_qw01_postgres.py`: 5 testes PostgreSQL opt-in aprovados.
+- Regressão crítica do CI: 105 testes aprovados, 1 skip esperado e cobertura combinada de 42,44%.
 
 ### Completion Notes List
 
@@ -46,8 +48,11 @@ Codex GPT-5
 - CLI `radar` e conjunto de artefatos validados contra PostgreSQL real com `update_mode=never`.
 - Paginação incompleta e `success_zero` sem escopo completo falham fechados no Python e no banco.
 - Exportações CSV/XLSX removem controles inválidos e neutralizam fórmulas externas.
-- Checkpoint: Ruff, compileall, Bandit, pip-audit, 95 testes direcionados e 4 integrações PostgreSQL passaram.
-- Smoke PNCP real permanece opt-in para o run operacional final.
+- Run operacional `qw01-20260713T135656Z-44d39e82`: 1.093 entidades resolvidas, 100% de cobertura de monitoramento, 28,27% de presença de dados e readiness `PARTIAL` por fonte única.
+- O radar final publicou 673 linhas: 2 `PRIORITARIA`, 127 `REVISAR` e 544 `DESCARTAR`; todos os artefatos JSON compartilham o mesmo `run_id`.
+- Ruff, mypy no boundary oficial do CI, compileall, Bandit, pip-audit, 97 testes dirigidos, 5 integrações PostgreSQL e 105 testes críticos passaram.
+- Smoke PNCP real opt-in aprovado com resposta HTTP bem-sucedida; throttling 429 agora aplica retry/backoff limitado.
+- As duas tentativas operacionais anteriores falharam fechadas e preservaram apenas seus snapshots de universo para auditoria.
 
 ### File List
 
@@ -58,6 +63,10 @@ Codex GPT-5
 - `docs/reports/qw-01-baseline.md`
 - `docs/stories/qw-01-radar-auditavel.md`
 - `output/qw-01/baseline.json`
+- `output/qw-01/source-applicability.csv`
+- `output/qw-01/qw01-20260713T135329Z-15051580/`
+- `output/qw-01/qw01-20260713T135514Z-1b0c9da9/`
+- `output/qw-01/qw01-20260713T135656Z-44d39e82/`
 - `scripts/lib/universe.py`
 - `scripts/opportunity_intel/cli.py`
 - `scripts/opportunity_intel/crawler_base.py`
@@ -83,6 +92,7 @@ Codex GPT-5
 | 2026-07-13 | 0.1.0 | Story criada a partir do pedido explícito QW-01. | @dev |
 | 2026-07-13 | 0.2.0 | Desenvolvimento retomado em modo autônomo — Status: Ready for Dev → InProgress. | @dev |
 | 2026-07-13 | 0.3.0 | Núcleo, migration e testes do radar auditável validados; checkpoint pronto para publicação. | @dev |
+| 2026-07-13 | 0.4.0 | Run operacional e gates finais validados — Status: InProgress → InReview. | @dev |
 
 ## QA Results
 

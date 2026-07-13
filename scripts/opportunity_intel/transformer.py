@@ -40,8 +40,10 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
     - uf, municipio, codigoMunicipioIbge
     """
     source_id = raw.get("numeroControlePNCP", "") or str(raw.get("id", ""))
-    orgao = raw.get("orgaoEntidade") if isinstance(raw.get("orgaoEntidade"), dict) else {}
-    unidade = raw.get("unidadeOrgao") if isinstance(raw.get("unidadeOrgao"), dict) else {}
+    orgao_raw = raw.get("orgaoEntidade")
+    orgao: dict[str, Any] = orgao_raw if isinstance(orgao_raw, dict) else {}
+    unidade_raw = raw.get("unidadeOrgao")
+    unidade: dict[str, Any] = unidade_raw if isinstance(unidade_raw, dict) else {}
     orgao_cnpj = raw.get("orgaoCNPJ", "") or raw.get("orgaoCnpj", "") or orgao.get("cnpj", "")
     orgao_nome = raw.get("orgaoRazaoSocial", "") or raw.get("orgaoNome", "") or orgao.get("razaoSocial", "")
     objeto = raw.get("objeto", "") or raw.get("objetoCompra", "") or raw.get("descricaoObjeto", "")

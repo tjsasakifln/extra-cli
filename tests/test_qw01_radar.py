@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
+from unittest.mock import MagicMock, patch
+from urllib.error import HTTPError
 
 from openpyxl import Workbook
 
 from scripts.lib.universe import CanonicalEntity, CanonicalUniverse, load_canonical_universe
 from scripts.opportunity_intel.cli import build_parser
-from scripts.opportunity_intel.crawler_base import BaseOpportunityCrawler
+from scripts.opportunity_intel.crawler_base import BaseOpportunityCrawler, _retry_wait_seconds
 from scripts.opportunity_intel.models import CrawlRequest, FetchResult
 from scripts.opportunity_intel.pncp_audit import _summarize_scope
 from scripts.opportunity_intel.profile import load_client_profile
@@ -71,8 +73,12 @@ class _StubCrawler(BaseOpportunityCrawler):
 
 
 class _UrlValidationCrawler(BaseOpportunityCrawler):
-    def __init__(self):
-        super().__init__(source_name="url-test", dsn="postgresql://unused", max_retries=0)
+    def __init__(self, max_retries: int = 0):
+        super().__init__(
+            source_name="url-test",
+            dsn="postgresql://unused",
+            max_retries=max_retries,
+        )
 
     def build_url(self, request: CrawlRequest, page: int) -> str:
         return "file:///etc/passwd"
@@ -183,6 +189,31 @@ def test_crawler_rejects_non_https_urls_before_opening() -> None:
     result = _UrlValidationCrawler().fetch_page("file:///etc/passwd", page=1)
     assert result.status == 0
     assert result.error == "Blocked URL: opportunity crawlers require an absolute HTTPS endpoint"
+
+
+def test_crawler_retries_http_429_and_honors_retry_after() -> None:
+    url = "https://pncp.gov.br/example"
+    throttled = HTTPError(url, 429, "Too Many Requests", {"Retry-After": "0"}, None)
+    response = MagicMock()
+    response.__enter__.return_value.status = 204
+    response.__enter__.return_value.read.return_value = b""
+    crawler = _UrlValidationCrawler(max_retries=1)
+
+    with (
+        patch("urllib.request.urlopen", side_effect=[throttled, response]) as urlopen,
+        patch("time.sleep") as sleep,
+    ):
+        result = crawler.fetch_page(url, page=1)
+
+    assert result.success is True
+    assert result.completion_rule == "http_204_complete"
+    assert urlopen.call_count == 2
+    sleep.assert_called_once_with(0.0)
+
+
+def test_retry_backoff_is_conservative_without_retry_after() -> None:
+    assert _retry_wait_seconds(None, 0) == 5.0
+    assert _retry_wait_seconds(None, 1) == 10.0
 
 
 def test_page_limit_cannot_be_complete_or_success_zero() -> None:

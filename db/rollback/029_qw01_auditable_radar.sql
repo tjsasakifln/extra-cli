@@ -3,6 +3,24 @@
 
 BEGIN;
 
+CREATE OR REPLACE FUNCTION fn_validate_coverage_evidence()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.state = 'partial' THEN
+        RAISE EXCEPTION 'state=partial is deprecated';
+    END IF;
+    IF NEW.state = 'success_with_data' AND NEW.count_persisted <= 0 THEN
+        RAISE EXCEPTION 'success_with_data requires count_persisted > 0 (got %)', NEW.count_persisted;
+    END IF;
+    IF NEW.state = 'success_zero' AND NEW.count_persisted > 0 THEN
+        RAISE EXCEPTION 'success_zero requires count_persisted = 0 (got %)', NEW.count_persisted;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
 DROP FUNCTION IF EXISTS upsert_qw01_pncp_opportunities(JSONB);
 
 DROP INDEX IF EXISTS uq_or_external_run_id;
