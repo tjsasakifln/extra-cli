@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import logging
 import math
 import os
 import sys
@@ -28,6 +29,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
+
+_logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -337,6 +340,39 @@ def _query(conn, sql: str, params: list | None = None) -> list[dict]:
     return rows
 
 
+def _safe_metric_query(
+    conn,
+    query_name: str,
+    query: str,
+    params: tuple | list | None = None,
+    timeout: str = "30s",
+) -> list[dict] | None:
+    """Execute metric query with per-query timeout and transaction isolation.
+
+    Uses ``SET LOCAL statement_timeout`` for per-query timeout so that even
+    if the connection has a global ``statement_timeout``, this per-query value
+    overrides it for the current transaction.
+
+    On failure (timeout, connection error, etc.), rolls back the aborted
+    transaction so subsequent queries on the same connection are not affected
+    by PostgreSQL's "current transaction is aborted" state.
+
+    Returns:
+        List[dict] on success, ``None`` on failure (transaction rolled back).
+    """
+    _logger.info("Running metric query: %s (timeout=%s)", query_name, timeout)
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SET LOCAL statement_timeout = %s", (timeout,))
+            cur.execute(query, params)
+            cols = [d[0] for d in cur.description] if cur.description else []
+            return [dict(zip(cols, row)) for row in cur.fetchall()]
+    except Exception as e:
+        conn.rollback()
+        _logger.error("Metric query failed: name=%s error=%s timeout=%s", query_name, e, timeout)
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Evidence and coverage data loading
 # ---------------------------------------------------------------------------
@@ -478,6 +514,7 @@ def count_contracts(conn, entity_cnpj8_list: list[str]) -> dict[str, int]:
         )
         result = {row[0]: row[1] for row in cur.fetchall()}
     except Exception:
+        _logger.exception("Failed to count contracts for %d entities", len(entity_cnpj8_list))
         # Fallback: empty result (graceful degradation)
         result = {}
     cur.close()
@@ -497,8 +534,9 @@ def _compute_contract_value_aggregation(conn) -> dict[str, Any]:
     does not reflect partial payments, renegotiations, or terminations.
     """
     try:
-        rows = _query(
+        rows = _safe_metric_query(
             conn,
+            "contract_value_agg",
             """SELECT
                   COUNT(*) AS total_contracts,
                   COUNT(CASE WHEN c.valor_global > 0 THEN 1 END) AS with_value,
@@ -512,7 +550,14 @@ def _compute_contract_value_aggregation(conn) -> dict[str, Any]:
                WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
                  AND e.is_active IS TRUE
                  AND c.valor_global > 0""",
+            timeout="30s",
         )
+        if rows is None:
+            return {
+                "status": "error",
+                "reason": "Contract value aggregation query failed (timeout or connection error)",
+                "value": None,
+            }
         row = rows[0] if rows else {}
         total = float(row.get("total_value", 0) or 0)
         count = int(row.get("total_contracts", 0) or 0)
@@ -541,6 +586,11 @@ def _compute_contract_value_aggregation(conn) -> dict[str, Any]:
             },
         }
     except Exception as exc:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        _logger.error("contract_total_value failed: %s", exc, exc_info=True)
         return {
             "status": "error",
             "reason": f"Falha ao agregar valores de contrato: {exc}",
@@ -559,8 +609,9 @@ def _compute_desagio_stats(conn) -> dict[str, Any]:
     This is a POPULATION-LEVEL estimate, not contract-level.
     """
     try:
-        rows = _query(
+        rows = _safe_metric_query(
             conn,
+            "desagio_stats",
             """WITH entity_bid_avg AS (
                   SELECT b.matched_entity_id AS eid,
                          AVG(b.valor_total_estimado) AS avg_estimado
@@ -591,7 +642,14 @@ def _compute_desagio_stats(conn) -> dict[str, Any]:
                 JOIN entity_contract_avg ec ON ea.eid = ec.eid
                 JOIN sc_public_entities e ON e.id = ea.eid
                 WHERE e.raio_200km IS TRUE AND e.is_active IS TRUE""",
+            timeout="30s",
         )
+        if rows is None:
+            return {
+                "status": "error",
+                "reason": "Desagio query failed (timeout or connection error)",
+                "value": None,
+            }
         row = rows[0] if rows else {}
         entities_with_both = int(row.get("entities_with_both", 0) or 0)
         desagio_pct = float(row.get("desagio_pct_estimado", 0) or 0)
@@ -630,6 +688,11 @@ def _compute_desagio_stats(conn) -> dict[str, Any]:
             "value": None,
         }
     except Exception as exc:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        _logger.error("desagio_stats failed: %s", exc, exc_info=True)
         return {
             "status": "error",
             "reason": f"Falha ao computar desagio: {exc}",
@@ -646,8 +709,9 @@ def _compute_relicitacao_stats(conn) -> dict[str, Any]:
     - Average contract duration → replacement cycle estimate
     """
     try:
-        rows = _query(
+        rows = _safe_metric_query(
             conn,
+            "relicitacao_stats",
             """SELECT
                   COUNT(*) AS total_contratos,
                   COUNT(CASE WHEN c.data_fim_vigencia IS NOT NULL THEN 1 END) AS com_data_fim,
@@ -664,7 +728,14 @@ def _compute_relicitacao_stats(conn) -> dict[str, Any]:
                JOIN sc_public_entities e ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
                WHERE e.raio_200km IS TRUE AND c.is_active IS TRUE
                  AND e.is_active IS TRUE""",
+            timeout="30s",
         )
+        if rows is None:
+            return {
+                "status": "error",
+                "reason": "Relicitacao stats query failed (timeout or connection error)",
+                "value": None,
+            }
         row = rows[0] if rows else {}
         total = int(row.get("total_contratos", 0) or 0)
         com_data_fim = int(row.get("com_data_fim", 0) or 0)
@@ -722,6 +793,11 @@ def _compute_relicitacao_stats(conn) -> dict[str, Any]:
             },
         }
     except Exception as exc:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        _logger.error("relicitacao_stats failed: %s", exc, exc_info=True)
         return {
             "status": "error",
             "reason": f"Falha ao computar estatisticas de relicitacao: {exc}",
@@ -978,9 +1054,13 @@ def compute_readiness(
         }
 
     # ── Commercial metrics — computed from DB ───────────────────────────
-    # NOTE: Heavy contract queries use a SEPARATE connection with
-    # statement_timeout because pncp_supplier_contracts (3.7M rows) has
-    # no orgao_cnpj index, causing full table scans that crash the session.
+    # NOTE: Heavy contract queries use a SEPARATE connection with per-query
+    # statement_timeout via _safe_metric_query() so that a timeout on one
+    # metric query does not cascade to the others (transaction isolation).
+    #
+    # TODO: Add index on pncp_supplier_contracts(orgao_cnpj) to prevent
+    # full table scans (3.7M rows). The LIKE e.cnpj_8 || '%' join pattern
+    # causes seq scans that trigger statement_timeout.
     import os as _os
 
     import psycopg2 as _pg2
@@ -988,30 +1068,30 @@ def compute_readiness(
     _commercial_dsn = _os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
     try:
         _commercial_conn = _pg2.connect(_commercial_dsn, connect_timeout=5)
-        _commercial_conn.cursor().execute("SET statement_timeout = '15s'")
+        pass  # No global SET statement_timeout -- each _safe_metric_query call sets per-query timeout via SET LOCAL
         try:
             contract_value_agg = _compute_contract_value_aggregation(_commercial_conn)
         except Exception as exc:
             try:
                 _commercial_conn.rollback()
-            except:
-                pass
+            except Exception:
+                _logger.exception("Failed to rollback commercial connection after contract value query failure")
             contract_value_agg = {"status": "error", "reason": f"Contract value query failed: {exc}", "value": None}
         try:
             desagio_stats = _compute_desagio_stats(_commercial_conn)
         except Exception as exc:
             try:
                 _commercial_conn.rollback()
-            except:
-                pass
+            except Exception:
+                _logger.exception("Failed to rollback commercial connection after desagio query failure")
             desagio_stats = {"status": "error", "reason": f"Desagio query failed: {exc}", "value": None}
         try:
             relicitacao_stats = _compute_relicitacao_stats(_commercial_conn)
         except Exception as exc:
             try:
                 _commercial_conn.rollback()
-            except:
-                pass
+            except Exception:
+                _logger.exception("Failed to rollback commercial connection after relicitacao query failure")
             relicitacao_stats = {"status": "error", "reason": f"Relicitacao query failed: {exc}", "value": None}
         _commercial_conn.close()
     except Exception as exc:
@@ -1338,7 +1418,7 @@ def main() -> int:
         try:
             conn.close()
         except Exception:
-            pass
+            _logger.warning("Failed to close DB connection after data loading failure")
         return 1
 
     # ── 5. Generate output artifacts ─────────────────────────────────────

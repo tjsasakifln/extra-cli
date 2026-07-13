@@ -26,8 +26,7 @@ import logging
 import os
 import re
 import time
-from datetime import datetime, timedelta
-from typing import Any
+from datetime import datetime
 
 import asyncpg
 
@@ -292,9 +291,9 @@ async def query_datalake(
 
     if query_term:
         # Clean and normalize for tsquery
-        cleaned = re.sub(r'[^\w\s]', ' ', query_term.lower()).strip()
+        cleaned = re.sub(r"[^\w\s]", " ", query_term.lower()).strip()
         if cleaned:
-            tsquery = ' & '.join(cleaned.split())
+            tsquery = " & ".join(cleaned.split())
 
     if termo_customizado:
         websearch_text = termo_customizado
@@ -332,8 +331,8 @@ async def query_datalake(
                         modo_busca=modo_busca,
                         offset=page_offset,
                     )
-                except Exception as e:
-                    logger.warning("Local datalake query failed for UF=%s: %s", uf, e)
+                except Exception:
+                    logger.exception("Local datalake query failed for UF=%s", uf)
                     return rows
 
                 if not batch:
@@ -411,9 +410,7 @@ async def get_row_count(uf: str | None = None) -> int:
                 "SELECT count(*) FROM pncp_raw_bids WHERE is_active = true AND uf = $1",
                 uf,
             )
-        return await conn.fetchval(
-            "SELECT count(*) FROM pncp_raw_bids WHERE is_active = true"
-        )
+        return await conn.fetchval("SELECT count(*) FROM pncp_raw_bids WHERE is_active = true")
 
 
 async def get_supplier_contracts(cnpj: str, limit: int = 100) -> list[dict]:
@@ -450,9 +447,7 @@ async def get_contracts_by_orgao(cnpj: str, limit: int = 100) -> list[dict]:
         return [dict(r) for r in rows]
 
 
-async def get_contracts_by_setor_uf(
-    setor: str, uf: str, limit: int = 500
-) -> list[dict]:
+async def get_contracts_by_setor_uf(setor: str, uf: str, limit: int = 500) -> list[dict]:
     """Get contracts filtered by sector and UF.
 
     Uses the rpc_count_contracts_setor_uf RPC for sector classification.

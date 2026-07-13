@@ -575,6 +575,8 @@ def _load_cached_pncp_enrichment(conn, pncp_id: str) -> tuple[dict | None, list[
         )
         row = cur.fetchone()
     except Exception:
+        _logger.exception("Failed to load cached PNCP enrichment for pncp_id=%s", pncp_id)
+        # Cache is best-effort, not critical path — degrade gracefully
         return None, [], []
     finally:
         cur.close()
@@ -605,6 +607,7 @@ def _store_cached_pncp_enrichment(
         )
         conn.commit()
     except Exception:
+        _logger.exception("Failed to store PNCP enrichment cache for pncp_id=%s", pncp_id)
         conn.rollback()
     finally:
         cur.close()
@@ -1186,7 +1189,7 @@ def crawl_source(
         try:
             conn.close()
         except Exception:
-            pass
+            _logger.warning("Failed to close DB connection after ingestion failure")
         result.status = "failed"
         result.error_code = "runtime_error"
         result.error_message = error

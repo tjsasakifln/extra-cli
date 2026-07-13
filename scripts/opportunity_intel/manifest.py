@@ -6,7 +6,7 @@ Generates:
     output/readiness/opportunity-source-health.csv
 
 Exit codes:
-    0 — PASS  (coverage ≥ threshold)
+    0 — PASS  (coverage >= threshold)
     2 — below threshold (PARTIAL)
     1 — technical failure
 """
@@ -37,6 +37,13 @@ OUTPUT_DIR = os.path.join(
 )
 THRESHOLD = float(os.getenv("OI_COVERAGE_THRESHOLD", "0.95"))
 
+# Canonical universe: entities within 200 km of Florianópolis.
+# Source: seed spreadsheet column "Raio 200km?" = SIM + Haversine <= 200 km.
+# The DB flag raio_200km is inconsistent (1448 rows, includes 355 extra).
+# Audited in docs/coverage-truth/fase0-audit-2026-07-12.md.
+# This constant MUST match the canonical spreadsheet count.
+CANONICAL_UNIVERSE_WITHIN_200KM = 1093
+
 
 def generate(dsn: str | None = None, threshold: float = THRESHOLD) -> dict[str, Any]:
     """Generate all coverage manifest files.
@@ -61,8 +68,8 @@ def generate(dsn: str | None = None, threshold: float = THRESHOLD) -> dict[str, 
         _write_csv(os.path.join(OUTPUT_DIR, "opportunity-source-health.csv"), source_health)
 
         # Determine exit code
-        coverage_pct = manifest.get("coverage", {}).get("pct_entities_with_data", 0)
-        exit_code = 0 if coverage_pct >= threshold else 2
+        coverage_pct = float(manifest.get("universe", {}).get("pct_entities_with_data", 0))
+        exit_code = 0 if coverage_pct >= threshold * 100 else 2
 
         return {
             "exit_code": exit_code,
@@ -78,55 +85,70 @@ def generate(dsn: str | None = None, threshold: float = THRESHOLD) -> dict[str, 
 
 
 def _build_manifest(conn) -> dict[str, Any]:
-    """Build coverage manifest JSON."""
+    """Build coverage manifest JSON.
+
+    Returns:
+        Coverage manifest dict with universe, opportunities, freshness.
+
+    Raises:
+        AssertionError: If coverage math is invalid (negative, >100%, etc).
+    """
     now = datetime.now(UTC).isoformat()
 
-    # Target universe: entities within 200km
+    # Target universe: canonical 1093 entities within 200 km.
+    # The DB flag raio_200km is inconsistent (1448 vs canonical 1093),
+    # so we use the audited canonical constant.
+    total_entities = CANONICAL_UNIVERSE_WITHIN_200KM
+
+    # Entities with any opportunity data, filtered to within 200 km radius
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    cur.execute("SELECT COUNT(*) AS cnt FROM sc_public_entities WHERE raio_200km = TRUE")
-    total_entities = cur.fetchone()["cnt"]
-
-    # Entities with any opportunity data
     cur.execute("""
-        SELECT COUNT(DISTINCT orgao_cnpj) AS cnt
-        FROM opportunity_intel
-        WHERE is_active = TRUE
-          AND orgao_cnpj IS NOT NULL
+        SELECT COUNT(DISTINCT oi.orgao_cnpj) AS cnt
+        FROM opportunity_intel oi
+        INNER JOIN sc_public_entities spe
+            ON spe.cnpj_8 = LEFT(oi.orgao_cnpj, 8)
+        WHERE oi.is_active = TRUE
+          AND oi.orgao_cnpj IS NOT NULL
+          AND oi.source != 'test_batch'
+          AND spe.raio_200km = TRUE
     """)
     entities_with_data = cur.fetchone()["cnt"]
 
-    # Total opportunities by status
+    # Total opportunities by status (exclude test_batch)
     cur.execute("""
         SELECT status_canonico, COUNT(*) AS cnt
         FROM opportunity_intel
         WHERE is_active = TRUE
+          AND source != 'test_batch'
         GROUP BY status_canonico
         ORDER BY cnt DESC
     """)
     by_status = {row["status_canonico"]: row["cnt"] for row in cur.fetchall()}
 
-    # Open opportunities
+    # Open opportunities (exclude test_batch)
     cur.execute("""
         SELECT COUNT(*) AS cnt
         FROM opportunity_intel
         WHERE status_canonico IN ('open', 'upcoming')
           AND is_active = TRUE
+          AND source != 'test_batch'
     """)
     open_count = cur.fetchone()["cnt"]
 
-    # By source
+    # By source (exclude test_batch)
     cur.execute("""
         SELECT source, COUNT(*) AS cnt,
                COUNT(*) FILTER (WHERE status_canonico IN ('open', 'upcoming')) AS open_cnt
         FROM opportunity_intel
         WHERE is_active = TRUE
+          AND source != 'test_batch'
         GROUP BY source
         ORDER BY cnt DESC
     """)
     by_source = {row["source"]: {"total": row["cnt"], "open": row["open_cnt"]} for row in cur.fetchall()}
 
-    # Freshness
+    # Freshness (exclude test_batch)
     cur.execute("""
         SELECT
             COUNT(*) FILTER (WHERE ingested_at >= NOW() - INTERVAL '24 hours') AS fresh_24h,
@@ -134,10 +156,25 @@ def _build_manifest(conn) -> dict[str, Any]:
             COUNT(*) FILTER (WHERE ingested_at >= NOW() - INTERVAL '30 days') AS fresh_30d
         FROM opportunity_intel
         WHERE is_active = TRUE
+          AND source != 'test_batch'
     """)
     freshness = cur.fetchone()
 
+    # ------------------------------------------------------------------
+    # Validation asserts before computing percentage
+    # ------------------------------------------------------------------
+    assert entities_with_data >= 0, f"entities_with_data negativo: {entities_with_data}"
+    assert total_entities > 0, f"total_entities é zero (canonical universe = {CANONICAL_UNIVERSE_WITHIN_200KM})"
+    assert entities_with_data <= total_entities, (
+        f"entities_with_data ({entities_with_data}) > total_entities ({total_entities})"
+    )
+
     pct_covered = round(entities_with_data / total_entities * 100, 2) if total_entities > 0 else 0.0
+    entities_without_data = total_entities - entities_with_data
+
+    # Sanity checks on output
+    assert 0 <= pct_covered <= 100, f"pct_covered inválido: {pct_covered}"
+    assert entities_without_data >= 0, f"entities_without_data negativo: {entities_without_data}"
 
     return {
         "meta": {
@@ -146,11 +183,16 @@ def _build_manifest(conn) -> dict[str, Any]:
             "threshold": THRESHOLD,
             "radius_km": 200,
             "reference_city": "Florianópolis",
+            "canonical_universe_source": (
+                "seed spreadsheet 'Extra - alvos de licitação. R-0.xlsx' "
+                "column 'Raio 200km?' = SIM + Haversine <= 200 km"
+            ),
         },
         "universe": {
             "total_entities_within_200km": total_entities,
+            "total_entities_db_flag": None,  # DB flag is inconsistent (1448 vs 1093)
             "entities_with_opportunity_data": entities_with_data,
-            "entities_without_data": total_entities - entities_with_data,
+            "entities_without_data": entities_without_data,
             "pct_entities_with_data": pct_covered,
         },
         "opportunities": {
@@ -165,15 +207,19 @@ def _build_manifest(conn) -> dict[str, Any]:
             "last_30d": freshness["fresh_30d"] if freshness else 0,
         },
         "readiness": {
-            "passes_threshold": pct_covered >= THRESHOLD,
-            "exit_code": 0 if pct_covered >= THRESHOLD else 2,
-            "gap_to_threshold": round(max(0, THRESHOLD - pct_covered / 100), 2),
+            "passes_threshold": pct_covered >= THRESHOLD * 100,
+            "exit_code": 0 if pct_covered >= THRESHOLD * 100 else 2,
+            "gap_to_threshold": round(max(0, THRESHOLD * 100 - pct_covered), 2),
         },
     }
 
 
 def _build_gaps(conn) -> list[dict[str, Any]]:
-    """Build coverage gaps CSV data."""
+    """Build coverage gaps CSV data.
+
+    Lists entities within 200 km radius, flagging whether they have
+    opportunity data. Excludes test_batch records.
+    """
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     cur.execute("""
@@ -187,7 +233,10 @@ def _build_gaps(conn) -> list[dict[str, Any]]:
             spe.raio_200km,
             CASE WHEN oi.orgao_cnpj IS NOT NULL THEN TRUE ELSE FALSE END AS has_opportunity_data
         FROM sc_public_entities spe
-        LEFT JOIN opportunity_intel oi ON spe.cnpj_8 = oi.orgao_cnpj AND oi.is_active = TRUE
+        LEFT JOIN opportunity_intel oi
+            ON spe.cnpj_8 = LEFT(oi.orgao_cnpj, 8)
+            AND oi.is_active = TRUE
+            AND oi.source != 'test_batch'
         WHERE spe.raio_200km = TRUE
         GROUP BY spe.id, spe.razao_social, spe.cnpj_8, spe.municipio,
                  spe.codigo_ibge, spe.distancia_fk, spe.raio_200km,
@@ -199,7 +248,10 @@ def _build_gaps(conn) -> list[dict[str, Any]]:
 
 
 def _build_source_health(conn) -> list[dict[str, Any]]:
-    """Build source health CSV data."""
+    """Build source health CSV data.
+
+    Excludes test_batch from production metrics.
+    """
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     cur.execute("""
@@ -225,6 +277,7 @@ def _build_source_health(conn) -> list[dict[str, Any]]:
             END AS freshness
         FROM opportunity_intel
         WHERE is_active = TRUE
+          AND source != 'test_batch'
         GROUP BY source
         ORDER BY total_records DESC
     """)
