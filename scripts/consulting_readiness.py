@@ -531,7 +531,7 @@ def count_contracts(conn, entity_cnpj8_list: list[str]) -> dict[str, int]:
 
 
 # ---------------------------------------------------------------------------
-# Commercial metrics computation (value semantics, desagio, relicitacao)
+# Commercial metrics computation (value semantics, entity price differential, relicitacao)
 # ---------------------------------------------------------------------------
 
 
@@ -607,20 +607,34 @@ def _compute_contract_value_aggregation(conn) -> dict[str, Any]:
         }
 
 
-def _compute_desagio_stats(conn) -> dict[str, Any]:
-    """Compute desagio (discount) between estimated bid values and contract values.
+def _compute_entity_price_differential(conn) -> dict[str, Any]:
+    """Compute entity-level price differential between estimated and contracted values.
 
-    Since PNCP does not provide a direct bid→contract item-level link,
-    desagio is estimated at entity level by comparing:
-    - Average ``valor_total_estimado`` from ``pncp_raw_bids``
-    - Average ``valor_global`` from ``pncp_supplier_contracts``
+    CRITICAL LIMITATION — this is NOT desagio (real discount).
+    PNCP does NOT provide item-level linkage between estimated bid values and
+    contracted/homologated values. Therefore, this function computes a
+    POPULATION-LEVEL entity price differential:
 
-    This is a POPULATION-LEVEL estimate, not contract-level.
+    - Average ``valor_total_estimado`` from ``pncp_raw_bids`` per entity
+    - Average ``valor_global`` from ``pncp_supplier_contracts`` per entity
+    - Difference expressed as percentage of estimated average
+
+    What this IS: entity-level comparison of population averages.
+    What this is NOT: real desagio (requires tracking the same item from
+    bid through homologation/contract).
+
+    Requirements for READY desagio:
+    - ``bid_contract_linkage``: PNCP does not provide bid→contract item-level link
+    - ``item_level_tracking``: PNCP does not expose item-level tracking
+    - ``proposal_tracking``: requires complementary spreadsheet (ComprasGov/TCE data)
+
+    The minimum viable metric is entity_price_differential, which warns
+    readers it is NOT item-level desagio.
     """
     try:
         rows = _safe_metric_query(
             conn,
-            "desagio_stats",
+            "entity_price_differential",
             """WITH entity_bid_avg AS (
                   SELECT b.matched_entity_id AS eid,
                          AVG(b.valor_total_estimado) AS avg_estimado
@@ -661,51 +675,79 @@ def _compute_desagio_stats(conn) -> dict[str, Any]:
             }
         row = rows[0] if rows else {}
         entities_with_both = int(row.get("entities_with_both", 0) or 0)
-        desagio_pct = float(row.get("desagio_pct_estimado", 0) or 0)
+        pct_diff = float(row.get("desagio_pct_estimado", 0) or 0)
         avg_estimado = float(row.get("avg_estimado_entity", 0) or 0)
         avg_contratado = float(row.get("avg_contratado_entity", 0) or 0)
 
         if entities_with_both > 0:
-            return {
-                "status": "ready",
-                "reason": (
-                    f"Desagio medio estimado em {desagio_pct:.1f}% para "
-                    f"{entities_with_both} entidades com dados de estimado e contratado. "
-                    "Valor e populacional (media por entidade), nao item-a-item. "
-                    "Desagio real (homologado) requer ComprasGov ou tabelas de item."
+            price_differential = {
+                "entities_with_both": entities_with_both,
+                "avg_estimado_by_entity_brl": avg_estimado,
+                "avg_contratado_by_entity_brl": avg_contratado,
+                "price_differential_pct": round(pct_diff, 2),
+                "semantica": "estimado→contratado (populacional por entidade)",
+                "note": (
+                    "Diferenca entre medias populacionais por entidade. "
+                    "Nao reflete desagio real item-a-item da mesma licitacao/lote. "
+                    "O desagio REAL (homologado) requer linkage bid-item-contrato."
                 ),
-                "value": {
-                    "entities_with_both": entities_with_both,
-                    "avg_estimado_by_entity_brl": avg_estimado,
-                    "avg_contratado_by_entity_brl": avg_contratado,
-                    "desagio_percentual_medio": round(desagio_pct, 2),
-                    "semantica": "estimado→contratado (populacional)",
-                    "note": (
-                        "Desagio populacional: comparacao de medias por entidade. "
-                        "Nao reflete desagio item-a-item de licitacao especifica. "
-                        "O desagio REAL (homologado) pode ser maior ou menor."
-                    ),
-                    "entities_without_contracts": None,
+                "entities_without_contracts": None,
+            }
+            return {
+                "status": "NOT_READY",
+                "readiness": "LIMITED",
+                "reason": (
+                    "PNCP nao prove linkage item-a-item entre valor estimado e valor "
+                    "homologado/contratado. Calculo atual e DIFERENCIAL DE PRECO "
+                    "POPULACIONAL por orgao (medias agregadas), nao desagio real. "
+                    f"Diferencial medio: {pct_diff:.1f}% para {entities_with_both} "
+                    f"entidades com dados de estimado e contratado. "
+                    "Desagio READY exigiria tracking do mesmo item desde o edital ate "
+                    "a homologacao."
+                ),
+                "available_metric": "entity_price_differential",
+                "price_differential": price_differential,
+                "desagio_readiness_requirements": {
+                    "bid_contract_linkage": False,
+                    "item_level_tracking": False,
+                    "proposal_tracking": False,
+                    "minimum_viable": "entity_price_differential",
                 },
             }
         return {
-            "status": "no_data",
+            "status": "NOT_READY",
+            "readiness": "LIMITED",
             "reason": (
                 "Nenhuma entidade no raio 200km possui dados simultaneos de "
-                "valor estimado (pncp_raw_bids) e contratado (pncp_supplier_contracts)."
+                "valor estimado (pncp_raw_bids) e contratado (pncp_supplier_contracts). "
+                "Mesmo com dados, o calculo seria diferencial populacional, nao desagio real."
             ),
-            "value": None,
+            "available_metric": "entity_price_differential",
+            "price_differential": None,
+            "desagio_readiness_requirements": {
+                "bid_contract_linkage": False,
+                "item_level_tracking": False,
+                "proposal_tracking": False,
+                "minimum_viable": "entity_price_differential",
+            },
         }
     except Exception as exc:
         try:
             conn.rollback()
         except Exception:
             pass
-        _logger.error("desagio_stats failed: %s", exc, exc_info=True)
+        _logger.error("entity_price_differential failed: %s", exc, exc_info=True)
         return {
             "status": "error",
-            "reason": f"Falha ao computar desagio: {exc}",
-            "value": None,
+            "reason": f"Falha ao computar diferencial de precos: {exc}",
+            "available_metric": "entity_price_differential",
+            "price_differential": None,
+            "desagio_readiness_requirements": {
+                "bid_contract_linkage": False,
+                "item_level_tracking": False,
+                "proposal_tracking": False,
+                "minimum_viable": "entity_price_differential",
+            },
         }
 
 
@@ -1132,7 +1174,9 @@ def compute_readiness(
     _commercial_dsn = _os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
     try:
         _commercial_conn = _pg2.connect(_commercial_dsn, connect_timeout=5)
-        pass  # No global SET statement_timeout -- each _safe_metric_query call sets per-query timeout via SET LOCAL
+        # No global SET statement_timeout -- cada _safe_metric_query()
+        # define per-query timeout via SET LOCAL, garantindo que um
+        # timeout em uma metrica nao afete as demais.
         try:
             contract_value_agg = _compute_contract_value_aggregation(_commercial_conn)
         except Exception as exc:
@@ -1142,13 +1186,13 @@ def compute_readiness(
                 _logger.exception("Failed to rollback commercial connection after contract value query failure")
             contract_value_agg = {"status": "error", "reason": f"Contract value query failed: {exc}", "value": None}
         try:
-            desagio_stats = _compute_desagio_stats(_commercial_conn)
+            desagio_stats = _compute_entity_price_differential(_commercial_conn)
         except Exception as exc:
             try:
                 _commercial_conn.rollback()
             except Exception:
-                _logger.exception("Failed to rollback commercial connection after desagio query failure")
-            desagio_stats = {"status": "error", "reason": f"Desagio query failed: {exc}", "value": None}
+                _logger.exception("Failed to rollback commercial connection after price differential query failure")
+            desagio_stats = {"status": "error", "reason": f"Price differential query failed: {exc}", "value": None}
         try:
             relicitacao_stats = _compute_relicitacao_stats(_commercial_conn)
         except Exception as exc:
@@ -1171,8 +1215,11 @@ def compute_readiness(
         },
         "desagio": {
             "status": desagio_stats["status"],
+            "readiness": desagio_stats.get("readiness"),
             "reason": desagio_stats["reason"],
-            "value": desagio_stats["value"],
+            "available_metric": desagio_stats.get("available_metric", "entity_price_differential"),
+            "price_differential": desagio_stats.get("price_differential"),
+            "desagio_readiness_requirements": desagio_stats.get("desagio_readiness_requirements"),
         },
         "win_rate": {
             "status": "manual",
@@ -1369,9 +1416,15 @@ def print_summary(metrics: dict[str, Any]) -> None:
                 print(f"      Ticket medio (R$):    {value.get('avg_value_brl', 'N/A'):>15,.2f}")
                 print(f"      Mediana (R$):         {value.get('median_value_brl', 'N/A'):>15,.2f}")
                 print(f"      Semantica:            {value.get('semantica', 'N/A')}")
-            if name == "desagio" and isinstance(value, dict) and value.get("entities_with_both", 0) > 0:
-                print(f"      Entidades com ambos:  {value['entities_with_both']}")
-                print(f"      Desagio medio:        {value.get('desagio_percentual_medio', 'N/A')}%")
+            if name == "desagio":
+                readiness = info.get("readiness", "")
+                print(f"      [readiness: {readiness}]")
+                pd = info.get("price_differential")
+                if pd and pd.get("entities_with_both", 0) > 0:
+                    print(f"      Entidades com ambos:  {pd['entities_with_both']}")
+                    print(f"      Diferencial medio:    {pd.get('price_differential_pct', 'N/A')}%")
+                else:
+                    print("      (sem dados de precos)")
             if name == "relicitacao_probability" and isinstance(value, dict):
                 print(f"      Contratos total:       {value.get('total_contracts_in_universe', 'N/A')}")
                 print(f"      Com data fim:          {value.get('contracts_with_end_date', 'N/A')}")
