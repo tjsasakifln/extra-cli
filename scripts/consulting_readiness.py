@@ -670,8 +670,15 @@ def _compute_entity_price_differential(conn) -> dict[str, Any]:
         if rows is None:
             return {
                 "status": "error",
-                "reason": "Desagio query failed (timeout or connection error)",
-                "value": None,
+                "reason": "Entity price differential query failed (timeout or connection error)",
+                "available_metric": "entity_price_differential",
+                "price_differential": None,
+                "desagio_readiness_requirements": {
+                    "bid_contract_linkage": False,
+                    "item_level_tracking": False,
+                    "proposal_tracking": False,
+                    "minimum_viable": "entity_price_differential",
+                },
             }
         row = rows[0] if rows else {}
         entities_with_both = int(row.get("entities_with_both", 0) or 0)
@@ -854,6 +861,420 @@ def _compute_relicitacao_stats(conn) -> dict[str, Any]:
             "reason": f"Falha ao computar estatisticas de relicitacao: {exc}",
             "value": None,
         }
+
+
+# ---------------------------------------------------------------------------
+# Competitive Intelligence (Regra #9) — market share, award share, HHI, ranking
+# ---------------------------------------------------------------------------
+# Regra #9: "Contratos vencidos/total de licitações não é win rate. Sem
+# participações, publicar market share, award share, ranking e HHI. Win rate
+# real exige proposal_tracking."
+# ---------------------------------------------------------------------------
+
+
+def _compute_market_share(conn, entity_cnpj8_list: list[str]) -> dict[str, Any]:
+    """Compute supplier market share within the canonical universe.
+
+    Market share = supplier's contracts (or value) as % of total universe
+    contracts and value.
+
+    Returns:
+        dict with ``status``, ``reason``, and ``value`` containing top
+        suppliers with contract_share_pct and value_share_pct.
+    """
+    try:
+        # ── Universe totals (denominator) ───────────────────────────────
+        universe_rows = _safe_metric_query(
+            conn,
+            "market_share_universe",
+            """SELECT
+                  COUNT(DISTINCT c.contrato_id) AS total_contracts,
+                  SUM(c.valor_global) AS total_value
+               FROM pncp_supplier_contracts c
+               INNER JOIN sc_public_entities e ON e.cnpj_8 = LEFT(c.orgao_cnpj, 8)
+               WHERE e.raio_200km IS TRUE
+                 AND c.fornecedor_cnpj IS NOT NULL
+                 AND c.is_active IS TRUE""",
+            timeout="60s",
+        )
+        if universe_rows is None:
+            return {"status": "error", "reason": "Market share universe query failed", "value": None}
+
+        universe_row = universe_rows[0] if universe_rows else {}
+        total_contracts = float(universe_row.get("total_contracts", 0) or 0)
+        total_value = float(universe_row.get("total_value", 0) or 0)
+
+        if total_contracts == 0:
+            return {"status": "no_data", "reason": "No contracts found in universe", "value": None}
+
+        # ── Per-supplier stats ─────────────────────────────────────────
+        supplier_rows = _safe_metric_query(
+            conn,
+            "market_share_suppliers",
+            """SELECT
+                  c.fornecedor_cnpj,
+                  c.fornecedor_nome,
+                  COUNT(DISTINCT c.contrato_id) AS total_contracts,
+                  SUM(c.valor_global) AS total_value,
+                  COUNT(DISTINCT c.orgao_cnpj) AS entities_served
+               FROM pncp_supplier_contracts c
+               INNER JOIN sc_public_entities e ON e.cnpj_8 = LEFT(c.orgao_cnpj, 8)
+               WHERE e.raio_200km IS TRUE
+                 AND c.fornecedor_cnpj IS NOT NULL
+                 AND c.is_active IS TRUE
+               GROUP BY c.fornecedor_cnpj, c.fornecedor_nome
+               ORDER BY total_contracts DESC""",
+            timeout="60s",
+        )
+        if supplier_rows is None:
+            return {"status": "error", "reason": "Market share supplier query failed", "value": None}
+
+        top_suppliers: list[dict[str, Any]] = []
+        for row in supplier_rows:
+            supplier_contracts = float(row.get("total_contracts", 0) or 0)
+            supplier_value = float(row.get("total_value", 0) or 0)
+            top_suppliers.append(
+                {
+                    "fornecedor_cnpj": row.get("fornecedor_cnpj"),
+                    "fornecedor_nome": row.get("fornecedor_nome"),
+                    "total_contracts": int(supplier_contracts),
+                    "total_value_brl": round(supplier_value, 2),
+                    "contract_share_pct": round(supplier_contracts / total_contracts * 100, 2)
+                    if total_contracts > 0
+                    else 0.0,
+                    "value_share_pct": round(supplier_value / total_value * 100, 2) if total_value > 0 else 0.0,
+                    "entities_served": int(row.get("entities_served", 0) or 0),
+                }
+            )
+
+        return {
+            "status": "ready",
+            "reason": (
+                f"Market share computed for {len(top_suppliers)} suppliers "
+                f"in the {int(total_contracts):,}-contract universe. "
+                f"Total universe value: R$ {total_value:,.2f}."
+            ),
+            "value": {
+                "total_suppliers": len(top_suppliers),
+                "total_contracts_in_universe": int(total_contracts),
+                "total_value_in_universe_brl": round(total_value, 2),
+                "top_suppliers": top_suppliers[:100],
+            },
+        }
+    except Exception as exc:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        _logger.error("market_share computation failed: %s", exc, exc_info=True)
+        return {"status": "error", "reason": f"Market share computation failed: {exc}", "value": None}
+
+
+def _compute_award_share(conn, entity_cnpj8_list: list[str]) -> dict[str, Any]:
+    """Compute award concentration per entity.
+
+    For each public entity in the 200km radius, lists the top suppliers
+    by both contract count and contract value, along with their share
+    of the entity's total awards.
+
+    Returns:
+        dict with ``by_entity`` list showing each entity's top suppliers.
+    """
+    try:
+        rows = _safe_metric_query(
+            conn,
+            "award_share",
+            """WITH entity_supplier_stats AS (
+                  SELECT
+                    e.cnpj_8 AS entity_cnpj8,
+                    e.razao_social AS entity_name,
+                    c.fornecedor_cnpj,
+                    c.fornecedor_nome,
+                    COUNT(DISTINCT c.contrato_id) AS contract_count,
+                    SUM(c.valor_global) AS contract_value
+                  FROM pncp_supplier_contracts c
+                  INNER JOIN sc_public_entities e ON e.cnpj_8 = LEFT(c.orgao_cnpj, 8)
+                  WHERE e.raio_200km IS TRUE
+                    AND c.fornecedor_cnpj IS NOT NULL
+                    AND c.is_active IS TRUE
+                  GROUP BY e.cnpj_8, e.razao_social, c.fornecedor_cnpj, c.fornecedor_nome
+                ),
+                entity_totals AS (
+                  SELECT entity_cnpj8,
+                    SUM(contract_count) AS total_contracts,
+                    SUM(contract_value) AS total_value
+                  FROM entity_supplier_stats
+                  GROUP BY entity_cnpj8
+                )
+                SELECT
+                  ess.entity_cnpj8,
+                  ess.entity_name,
+                  ess.fornecedor_cnpj,
+                  ess.fornecedor_nome,
+                  ess.contract_count,
+                  ess.contract_value,
+                  et.total_contracts,
+                  et.total_value,
+                  ROUND(ess.contract_count::numeric / NULLIF(et.total_contracts, 0) * 100, 2) AS contract_share_pct,
+                  ROUND(ess.contract_value::numeric / NULLIF(et.total_value, 0) * 100, 2) AS value_share_pct
+                FROM entity_supplier_stats ess
+                JOIN entity_totals et ON ess.entity_cnpj8 = et.entity_cnpj8
+                ORDER BY ess.entity_cnpj8, ess.contract_count DESC""",
+            timeout="60s",
+        )
+        if rows is None:
+            return {"status": "error", "reason": "Award share query failed", "value": None}
+
+        by_entity: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            eid = str(row.get("entity_cnpj8") or "")
+            if eid not in by_entity:
+                by_entity[eid] = {
+                    "entity_cnpj8": eid,
+                    "entity_name": row.get("entity_name"),
+                    "total_contracts": int(row.get("total_contracts", 0) or 0),
+                    "total_value_brl": round(float(row.get("total_value", 0) or 0), 2),
+                    "top_suppliers": [],
+                }
+            by_entity[eid]["top_suppliers"].append(
+                {
+                    "fornecedor_cnpj": row.get("fornecedor_cnpj"),
+                    "fornecedor_nome": row.get("fornecedor_nome"),
+                    "contract_count": int(row.get("contract_count", 0) or 0),
+                    "contract_value_brl": round(float(row.get("contract_value", 0) or 0), 2),
+                    "contract_share_pct": float(row.get("contract_share_pct", 0) or 0),
+                    "value_share_pct": float(row.get("value_share_pct", 0) or 0),
+                }
+            )
+
+        return {
+            "status": "ready",
+            "reason": f"Award share computed for {len(by_entity)} entities in the target universe.",
+            "value": {
+                "by_entity": list(by_entity.values()),
+            },
+        }
+    except Exception as exc:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        _logger.error("award_share computation failed: %s", exc, exc_info=True)
+        return {"status": "error", "reason": f"Award share computation failed: {exc}", "value": None}
+
+
+def _classify_hhi(hhi_value: float) -> str:
+    """Classify HHI value per U.S. DOJ/FTC Horizontal Merger Guidelines."""
+    if hhi_value < 1500:
+        return "nao concentrado"
+    elif hhi_value <= 2500:
+        return "moderadamente concentrado"
+    else:
+        return "altamente concentrado"
+
+
+def _compute_hhi(conn, entity_cnpj8_list: list[str]) -> dict[str, Any]:
+    """Compute Herfindahl-Hirschman Index per entity and globally.
+
+    HHI = sum of squared market shares (as percentages, 0-100 scale).
+    Classification per U.S. DOJ/FTC guidelines:
+        <1500  = nao concentrado
+        1500-2500 = moderadamente concentrado
+        >2500  = altamente concentrado
+
+    Returns:
+        dict with global HHI and per-entity HHI breakdown.
+    """
+    try:
+        # ── Global HHI ─────────────────────────────────────────────────
+        global_rows = _safe_metric_query(
+            conn,
+            "hhi_global",
+            """WITH supplier_stats AS (
+                  SELECT
+                    c.fornecedor_cnpj,
+                    SUM(c.valor_global) AS total_value
+                  FROM pncp_supplier_contracts c
+                  INNER JOIN sc_public_entities e ON e.cnpj_8 = LEFT(c.orgao_cnpj, 8)
+                  WHERE e.raio_200km IS TRUE
+                    AND c.fornecedor_cnpj IS NOT NULL
+                    AND c.is_active IS TRUE
+                  GROUP BY c.fornecedor_cnpj
+                ),
+                grand_total AS (
+                  SELECT SUM(total_value) AS gt FROM supplier_stats
+                )
+                SELECT
+                  ROUND(
+                    SUM(POWER(s.total_value::numeric / NULLIF(gt.gt, 0) * 100, 2))::numeric,
+                    2
+                  ) AS hhi
+                FROM supplier_stats s, grand_total gt
+                WHERE gt.gt > 0""",
+            timeout="60s",
+        )
+        if global_rows is None:
+            return {"status": "error", "reason": "Global HHI query failed", "value": None}
+
+        global_hhi = float(global_rows[0].get("hhi", 0) or 0) if global_rows else 0.0
+
+        # ── Per-entity HHI ─────────────────────────────────────────────
+        entity_rows = _safe_metric_query(
+            conn,
+            "hhi_per_entity",
+            """WITH entity_supplier_stats AS (
+                  SELECT
+                    e.cnpj_8 AS entity_cnpj8,
+                    e.razao_social AS entity_name,
+                    c.fornecedor_cnpj,
+                    SUM(c.valor_global) AS contract_value
+                  FROM pncp_supplier_contracts c
+                  INNER JOIN sc_public_entities e ON e.cnpj_8 = LEFT(c.orgao_cnpj, 8)
+                  WHERE e.raio_200km IS TRUE
+                    AND c.fornecedor_cnpj IS NOT NULL
+                    AND c.is_active IS TRUE
+                  GROUP BY e.cnpj_8, e.razao_social, c.fornecedor_cnpj
+                ),
+                entity_total AS (
+                  SELECT entity_cnpj8, SUM(contract_value) AS et
+                  FROM entity_supplier_stats
+                  GROUP BY entity_cnpj8
+                )
+                SELECT
+                  ess.entity_cnpj8,
+                  ess.entity_name,
+                  ROUND(
+                    SUM(POWER(ess.contract_value::numeric / NULLIF(et.et, 0) * 100, 2))::numeric,
+                    2
+                  ) AS hhi
+                FROM entity_supplier_stats ess
+                JOIN entity_total et ON ess.entity_cnpj8 = et.entity_cnpj8
+                WHERE et.et > 0
+                GROUP BY ess.entity_cnpj8, ess.entity_name
+                ORDER BY hhi DESC""",
+            timeout="60s",
+        )
+
+        per_entity: list[dict[str, Any]] = []
+        if entity_rows:
+            for row in entity_rows:
+                hhi_val = float(row.get("hhi", 0) or 0)
+                per_entity.append(
+                    {
+                        "entity_cnpj8": row.get("entity_cnpj8"),
+                        "entity_name": row.get("entity_name"),
+                        "hhi": hhi_val,
+                        "classification": _classify_hhi(hhi_val),
+                    }
+                )
+
+        return {
+            "status": "ready",
+            "reason": (
+                f"HHI global: {global_hhi:.1f} ({_classify_hhi(global_hhi)}). "
+                f"HHI por entidade computado para {len(per_entity)} entidades."
+            ),
+            "value": {
+                "global_hhi": round(global_hhi, 2),
+                "global_classification": _classify_hhi(global_hhi),
+                "by_entity": per_entity,
+            },
+        }
+    except Exception as exc:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        _logger.error("HHI computation failed: %s", exc, exc_info=True)
+        return {"status": "error", "reason": f"HHI computation failed: {exc}", "value": None}
+
+
+def _compute_supplier_ranking(
+    conn,
+    entity_cnpj8_list: list[str],
+    top_n: int = 20,
+) -> dict[str, Any]:
+    """Rank suppliers by contracts, value, and entities served.
+
+    Produces three ranked lists:
+        - ``by_contracts``: top suppliers by number of contracts
+        - ``by_value``: top suppliers by total contract value
+        - ``by_entities_served``: top suppliers by distinct entities served
+
+    Returns:
+        dict with three ranked lists of up to ``top_n`` suppliers each.
+    """
+    try:
+        rows = _safe_metric_query(
+            conn,
+            "supplier_ranking",
+            """SELECT
+                  c.fornecedor_cnpj,
+                  c.fornecedor_nome,
+                  COUNT(DISTINCT c.contrato_id) AS total_contracts,
+                  SUM(c.valor_global) AS total_value,
+                  COUNT(DISTINCT c.orgao_cnpj) AS entities_served
+               FROM pncp_supplier_contracts c
+               INNER JOIN sc_public_entities e ON e.cnpj_8 = LEFT(c.orgao_cnpj, 8)
+               WHERE e.raio_200km IS TRUE
+                 AND c.fornecedor_cnpj IS NOT NULL
+                 AND c.is_active IS TRUE
+               GROUP BY c.fornecedor_cnpj, c.fornecedor_nome""",
+            timeout="60s",
+        )
+        if rows is None:
+            return {"status": "error", "reason": "Supplier ranking query failed", "value": None}
+
+        ranked_by_contracts = sorted(
+            rows,
+            key=lambda r: float(r.get("total_contracts", 0) or 0),
+            reverse=True,
+        )
+        ranked_by_value = sorted(
+            rows,
+            key=lambda r: float(r.get("total_value", 0) or 0),
+            reverse=True,
+        )
+        ranked_by_entities = sorted(
+            rows,
+            key=lambda r: float(r.get("entities_served", 0) or 0),
+            reverse=True,
+        )
+
+        def _build_ranked_list(
+            source: list[dict],
+            limit: int,
+        ) -> list[dict[str, Any]]:
+            result: list[dict[str, Any]] = []
+            for i, row in enumerate(source[:limit], 1):
+                result.append(
+                    {
+                        "rank": i,
+                        "fornecedor_cnpj": row.get("fornecedor_cnpj"),
+                        "fornecedor_nome": row.get("fornecedor_nome"),
+                        "total_contracts": int(row.get("total_contracts", 0) or 0),
+                        "total_value_brl": round(float(row.get("total_value", 0) or 0), 2),
+                        "entities_served": int(row.get("entities_served", 0) or 0),
+                    }
+                )
+            return result
+
+        return {
+            "status": "ready",
+            "reason": (f"Supplier ranking computed: top {top_n} por contratos, valor, e entidades atendidas."),
+            "value": {
+                "by_contracts": _build_ranked_list(ranked_by_contracts, top_n),
+                "by_value": _build_ranked_list(ranked_by_value, top_n),
+                "by_entities_served": _build_ranked_list(ranked_by_entities, top_n),
+            },
+        }
+    except Exception as exc:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        _logger.error("supplier_ranking computation failed: %s", exc, exc_info=True)
+        return {"status": "error", "reason": f"Supplier ranking computation failed: {exc}", "value": None}
 
 
 # ---------------------------------------------------------------------------
@@ -1201,11 +1622,47 @@ def compute_readiness(
             except Exception:
                 _logger.exception("Failed to rollback commercial connection after relicitacao query failure")
             relicitacao_stats = {"status": "error", "reason": f"Relicitacao query failed: {exc}", "value": None}
+        try:
+            market_share = _compute_market_share(_commercial_conn, cnpj8_list)
+        except Exception as exc:
+            try:
+                _commercial_conn.rollback()
+            except Exception:
+                _logger.exception("Failed to rollback commercial connection after market share query failure")
+            market_share = {"status": "error", "reason": f"Market share query failed: {exc}", "value": None}
+        try:
+            award_share = _compute_award_share(_commercial_conn, cnpj8_list)
+        except Exception as exc:
+            try:
+                _commercial_conn.rollback()
+            except Exception:
+                _logger.exception("Failed to rollback commercial connection after award share query failure")
+            award_share = {"status": "error", "reason": f"Award share query failed: {exc}", "value": None}
+        try:
+            hhi = _compute_hhi(_commercial_conn, cnpj8_list)
+        except Exception as exc:
+            try:
+                _commercial_conn.rollback()
+            except Exception:
+                _logger.exception("Failed to rollback commercial connection after HHI query failure")
+            hhi = {"status": "error", "reason": f"HHI query failed: {exc}", "value": None}
+        try:
+            supplier_ranking = _compute_supplier_ranking(_commercial_conn, cnpj8_list)
+        except Exception as exc:
+            try:
+                _commercial_conn.rollback()
+            except Exception:
+                _logger.exception("Failed to rollback commercial connection after supplier ranking query failure")
+            supplier_ranking = {"status": "error", "reason": f"Supplier ranking query failed: {exc}", "value": None}
         _commercial_conn.close()
     except Exception as exc:
         contract_value_agg = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}
         desagio_stats = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}
         relicitacao_stats = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}
+        market_share = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}  # noqa: F841
+        award_share = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}  # noqa: F841
+        hhi = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}  # noqa: F841
+        supplier_ranking = {"status": "error", "reason": f"Commercial connection failed: {exc}", "value": None}  # noqa: F841
 
     commercial_metrics = {
         "contract_total_value": {
@@ -1222,18 +1679,47 @@ def compute_readiness(
             "desagio_readiness_requirements": desagio_stats.get("desagio_readiness_requirements"),
         },
         "win_rate": {
-            "status": "manual",
+            "status": "NOT_READY",
             "reason": (
-                "Win rate requer tracking manual de propostas enviadas vs vencidas "
-                "por CNPJ. PNCP não expõe propostas perdedoras. "
-                "Alimentar planilha complementar com colunas: "
-                "data_envio, orgao, cnpj_licitante, valor_proposta, venceu (S/N)."
+                "Win rate real exige proposal_tracking (propostas enviadas vs vencidas "
+                "por CNPJ). PNCP não expõe propostas perdedoras."
             ),
+            "alternative_metrics_available": ["market_share", "award_share", "hhi", "supplier_ranking"],
         },
         "relicitacao_probability": {
             "status": relicitacao_stats["status"],
             "reason": relicitacao_stats["reason"],
             "value": relicitacao_stats["value"],
+        },
+        "competitive_intelligence": {
+            "win_rate": {
+                "status": "NOT_READY",
+                "reason": (
+                    "Win rate real exige proposal_tracking (propostas enviadas vs vencidas "
+                    "por CNPJ). PNCP não expõe propostas perdedoras."
+                ),
+                "alternative_metrics_available": ["market_share", "award_share", "hhi", "supplier_ranking"],
+            },
+            "market_share": {
+                "status": market_share["status"],
+                "reason": market_share["reason"],
+                "value": market_share["value"],
+            },
+            "award_share": {
+                "status": award_share["status"],
+                "reason": award_share["reason"],
+                "value": award_share["value"],
+            },
+            "hhi": {
+                "status": hhi["status"],
+                "reason": hhi["reason"],
+                "value": hhi["value"],
+            },
+            "supplier_ranking": {
+                "status": supplier_ranking["status"],
+                "reason": supplier_ranking["reason"],
+                "value": supplier_ranking["value"],
+            },
         },
     }
 
@@ -1432,6 +1918,58 @@ def print_summary(metrics: dict[str, Any]) -> None:
                 print(f"      Encerrando 12m:        {value.get('contracts_ending_next_12m', 'N/A')}")
                 print(f"      Duracao media (dias):  {value.get('avg_duration_days', 'N/A'):,.0f}")
         print(f"      → {reason[:120]}")
+    # ── Competitive Intelligence section ─────────────────────────────────
+    ci = metrics.get("commercial_metrics", {}).get("competitive_intelligence", {})
+    if ci:
+        print()
+        print("  COMPETITIVE INTELLIGENCE (Regra #9):")
+        wr = ci.get("win_rate", {})
+        print(f"    win_rate: [{wr.get('status', 'unknown')}]")
+        print(f"      → {wr.get('reason', '')[:120]}")
+        print(f"      alternative_metrics: {wr.get('alternative_metrics_available', [])}")
+
+        ms = ci.get("market_share", {})
+        print(f"    market_share: [{ms.get('status', 'unknown')}]")
+        ms_val = ms.get("value")
+        if ms_val:
+            print(f"      Fornecedores:          {ms_val.get('total_suppliers', 'N/A')}")
+            print(f"      Total contratos:       {ms_val.get('total_contracts_in_universe', 'N/A')}")
+            print(f"      Valor total (R$):      {ms_val.get('total_value_in_universe_brl', 'N/A'):>15,.2f}")
+            top3 = ms_val.get("top_suppliers", [])[:3]
+            for s in top3:
+                print(
+                    f"      Top: {s.get('fornecedor_nome', 'N/A'):<40s}  "
+                    f"contratos={s.get('total_contracts', 0)}  "
+                    f"share={s.get('contract_share_pct', 0):.1f}%"
+                )
+
+        aw = ci.get("award_share", {})
+        print(f"    award_share: [{aw.get('status', 'unknown')}]")
+        aw_val = aw.get("value")
+        if aw_val:
+            by_entity = aw_val.get("by_entity", [])
+            print(f"      Entidades analisadas: {len(by_entity)}")
+
+        h = ci.get("hhi", {})
+        print(f"    hhi: [{h.get('status', 'unknown')}]")
+        h_val = h.get("value")
+        if h_val:
+            print(f"      HHI global:            {h_val.get('global_hhi', 'N/A'):>10.1f}")
+            print(f"      Classificacao global:  {h_val.get('global_classification', 'N/A')}")
+            print(f"      Entidades com HHI:     {len(h_val.get('by_entity', []))}")
+
+        sr = ci.get("supplier_ranking", {})
+        print(f"    supplier_ranking: [{sr.get('status', 'unknown')}]")
+        sr_val = sr.get("value")
+        if sr_val:
+            by_val = sr_val.get("by_value", [])
+            if by_val:
+                print("      Top 3 por valor:")
+                for s in by_val[:3]:
+                    print(
+                        f"        #{s.get('rank')}: {s.get('fornecedor_nome', 'N/A'):<40s}  "
+                        f"R$ {s.get('total_value_brl', 0):>12,.2f}"
+                    )
     print()
     print(f"  GAPS: {metrics['gaps']['total']} total")
     for typ, count in sorted(metrics["gaps"].get("by_type", {}).items()):
