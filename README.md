@@ -120,6 +120,32 @@ systemctl enable pncp-report-weekly.timer # Seg 07:00 UTC
 - **5** fontes de dados
 - **13** setores configurados
 
+## CI Gates (Regra #10 — B2G-4)
+
+Gates **fail-closed**: qualquer falha = CI vermelho. Nenhum job usa `continue-on-error: true` ou `|| true`.
+
+| Gate | Job | Ferramenta | Onde | Fail-Close |
+|------|-----|-----------|------|------------|
+| Lint | `lint` | `ruff check .` | `.github/workflows/ci.yml` | SIM — quebra em qualquer violação |
+| Type Check | `type-check` | `mypy .` | `.github/workflows/ci.yml` | SIM — quebra em erro de tipo |
+| Testes | `test` | `pytest` + `--cov-fail-under=10` | `.github/workflows/ci.yml` + `pytest.ini` | SIM — threshold mínimo 10% |
+| Testes Completos | `test-all` | `pytest -m ""` (sem exclusão) | `.github/workflows/ci.yml` | SIM — roda todos os marcadores |
+| Segurança | `security` | `bandit -r scripts/` (HIGH severity) | `.github/workflows/ci.yml` + `pyproject.toml` | SIM — quebra em falha HIGH |
+| Auditoria Deps | `dependency-audit` | `pip-audit --strict` | `.github/workflows/ci.yml` | SIM — quebra em CVE conhecido |
+| Pre-Commit (local) | — | ruff + mypy + bandit + secrets | `.pre-commit-config.yaml` | SIM — bloqueia commit local |
+
+**Configurações:**
+- `pytest.ini`: exclui `slow` por default; `integration` e `smoke` rodam no CI
+- `pyproject.toml`: `[tool.bandit]` exclui `tests/` e `tests/fixtures/`
+- `.pre-commit-config.yaml`: bandit scoped a HIGH severity em `scripts/`; secrets detecta AWS credentials e chaves privadas
+
+**Instalação local do pre-commit:**
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files  # verificação manual
+```
+
 ---
 
 *Extra Consultoria — Tiago Sasaki. Construído sobre Synkra AIOX v5.2.9.*
