@@ -923,7 +923,7 @@ def _compute_market_share(conn, entity_cnpj8_list: list[str]) -> dict[str, Any]:
                  AND c.fornecedor_cnpj IS NOT NULL
                  AND c.is_active IS TRUE
                GROUP BY c.fornecedor_cnpj, c.fornecedor_nome
-               ORDER BY total_contracts DESC""",
+               ORDER BY total_value DESC""",
             timeout="60s",
         )
         if supplier_rows is None:
@@ -1678,14 +1678,6 @@ def compute_readiness(
             "price_differential": desagio_stats.get("price_differential"),
             "desagio_readiness_requirements": desagio_stats.get("desagio_readiness_requirements"),
         },
-        "win_rate": {
-            "status": "NOT_READY",
-            "reason": (
-                "Win rate real exige proposal_tracking (propostas enviadas vs vencidas "
-                "por CNPJ). PNCP não expõe propostas perdedoras."
-            ),
-            "alternative_metrics_available": ["market_share", "award_share", "hhi", "supplier_ranking"],
-        },
         "relicitacao_probability": {
             "status": relicitacao_stats["status"],
             "reason": relicitacao_stats["reason"],
@@ -1891,6 +1883,8 @@ def print_summary(metrics: dict[str, Any]) -> None:
     print("  COMMERCIAL METRICS:")
     cm = metrics.get("commercial_metrics", {})
     for name, info in cm.items():
+        if name == "competitive_intelligence":
+            continue
         status = info.get("status", "unknown")
         reason = info.get("reason", "")
         value = info.get("value")
