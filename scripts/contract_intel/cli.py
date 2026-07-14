@@ -205,7 +205,7 @@ def _ensure_views_pg(cur: Any) -> None:
         return
     try:
         cur.execute(migration_path.read_text())
-    except Exception:
+    except Exception:  # noqa: S110
         pass  # Views may already exist or migration already applied
 
 
@@ -927,7 +927,7 @@ def cmd_precos(conn: Any, args: argparse.Namespace, backend: str) -> int:
         return 1
 
     queries = {
-        "contracts": f"""
+        "contracts": """
             SELECT
                 c.numero_controle_pncp AS contrato_id,
                 c.valor_global AS valor_contrato,
@@ -937,13 +937,13 @@ def cmd_precos(conn: Any, args: argparse.Namespace, backend: str) -> int:
                 c.nr_contrato,
                 c.objeto_contrato
             FROM pncp_supplier_contracts c
-            WHERE c.orgao_cnpj LIKE '{orgao}%'
+            WHERE c.orgao_cnpj LIKE %s
               AND c.is_active IS TRUE
               AND c.valor_global > 0
-              AND c.data_assinatura >= (CURRENT_DATE - INTERVAL '{periodo} years')
+              AND c.data_assinatura >= (CURRENT_DATE - %s * INTERVAL '1 year')
             ORDER BY c.data_assinatura DESC
         """,
-        "bids": f"""
+        "bids": """
             SELECT
                 b.numero_controle_pncp,
                 b.valor_total_estimado,
@@ -951,14 +951,14 @@ def cmd_precos(conn: Any, args: argparse.Namespace, backend: str) -> int:
                 b.data_abertura,
                 b.objeto_compra
             FROM pncp_raw_bids b
-            WHERE b.orgao_cnpj LIKE '{orgao}%'
+            WHERE b.orgao_cnpj LIKE %s
               AND b.is_active IS TRUE
               AND b.valor_total_estimado > 0
-              AND b.data_publicacao >= (CURRENT_DATE - INTERVAL '{periodo} years')
+              AND b.data_publicacao >= (CURRENT_DATE - %s * INTERVAL '1 year')
             ORDER BY b.data_abertura DESC
             LIMIT 50
         """,
-        "aggregation": f"""
+        "aggregation": """
             SELECT
                 'contract' AS tipo,
                 'valor_global (PNCP)' AS coluna,
@@ -970,9 +970,9 @@ def cmd_precos(conn: Any, args: argparse.Namespace, backend: str) -> int:
                 MIN(c.valor_global) AS minimo,
                 MAX(c.valor_global) AS maximo
             FROM pncp_supplier_contracts c
-            WHERE c.orgao_cnpj LIKE '{orgao}%'
+            WHERE c.orgao_cnpj LIKE %s
               AND c.is_active IS TRUE AND c.valor_global > 0
-              AND c.data_assinatura >= (CURRENT_DATE - INTERVAL '{periodo} years')
+              AND c.data_assinatura >= (CURRENT_DATE - %s * INTERVAL '1 year')
             UNION ALL
             SELECT
                 'bid' AS tipo,
@@ -985,21 +985,27 @@ def cmd_precos(conn: Any, args: argparse.Namespace, backend: str) -> int:
                 MIN(b.valor_total_estimado),
                 MAX(b.valor_total_estimado)
             FROM pncp_raw_bids b
-            WHERE b.orgao_cnpj LIKE '{orgao}%'
+            WHERE b.orgao_cnpj LIKE %s
               AND b.is_active IS TRUE AND b.valor_total_estimado > 0
-              AND b.data_publicacao >= (CURRENT_DATE - INTERVAL '{periodo} years')
+              AND b.data_publicacao >= (CURRENT_DATE - %s * INTERVAL '1 year')
         """,
     }
 
     cur = conn.cursor()
 
+    # Common params for contracts and bids
+    base_params = (f"{orgao}%", periodo)
+    # Aggregation has 2x each (union of contracts + bids)
+    agg_params = (f"{orgao}%", periodo, f"{orgao}%", periodo)
+
     # Entity info
-    cur.execute(f"""
-        SELECT razao_social, cnpj_8, municipio
-        FROM sc_public_entities
-        WHERE cnpj_8 = LEFT('{orgao}', 8) AND is_active = TRUE
-        LIMIT 1
-    """)
+    cur.execute(
+        """SELECT razao_social, cnpj_8, municipio
+           FROM sc_public_entities
+           WHERE cnpj_8 = LEFT(%s, 8) AND is_active = TRUE
+           LIMIT 1""",
+        (orgao,),
+    )
     entity = cur.fetchone()
 
     result: dict[str, Any] = {
@@ -1014,15 +1020,15 @@ def cmd_precos(conn: Any, args: argparse.Namespace, backend: str) -> int:
     }
 
     # Contracts
-    cur.execute(queries["contracts"])
+    cur.execute(queries["contracts"], base_params)
     result["contracts"] = _query_to_dicts(cur, cur.fetchall())
 
     # Bids
-    cur.execute(queries["bids"])
+    cur.execute(queries["bids"], base_params)
     result["bids"] = _query_to_dicts(cur, cur.fetchall())
 
     # Aggregation
-    cur.execute(queries["aggregation"])
+    cur.execute(queries["aggregation"], agg_params)
     result["aggregation"] = _query_to_dicts(cur, cur.fetchall())
 
     cur.close()
@@ -1078,11 +1084,9 @@ def cmd_desagio(conn: Any, args: argparse.Namespace, backend: str) -> int:
         print("❌ desagio command requires PostgreSQL (LOCAL_DATALAKE_DSN).", file=sys.stderr)
         return 1
 
-    modalidade_filter = ""
-    if args.modalidade:
-        modalidade_filter = f"AND b.modalidade_nome ILIKE '%{args.modalidade}%'"
+    params: list[Any] = []
 
-    query = f"""
+    query = """
         WITH bid_contract_pairs AS (
             SELECT
                 b.matched_entity_id,
@@ -1101,7 +1105,12 @@ def cmd_desagio(conn: Any, args: argparse.Namespace, backend: str) -> int:
               AND e.raio_200km IS TRUE
               AND e.is_active IS TRUE
               AND b.modalidade_nome IS NOT NULL
-              {modalidade_filter}
+    """
+    if args.modalidade:
+        query += " AND b.modalidade_nome ILIKE %s"
+        params.append(f"%{args.modalidade}%")
+
+    query += """
             GROUP BY b.matched_entity_id, b.modalidade_nome, b.valor_total_estimado
         )
         SELECT
@@ -1124,7 +1133,7 @@ def cmd_desagio(conn: Any, args: argparse.Namespace, backend: str) -> int:
     """
 
     cur = conn.cursor()
-    cur.execute(query)
+    cur.execute(query, params)
     rows = cur.fetchall()
 
     if args.format == "json":

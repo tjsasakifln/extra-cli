@@ -160,7 +160,7 @@ def _run_snapshot(conn: psycopg2.extensions.connection, spec: CriticalSourceSpec
             COUNT(*) AS total_runs
         FROM ingestion_runs
         WHERE source = %s
-    """
+    """  # noqa: S608 -- column names from schema introspection (information_schema), not user input
     return _query_one_dict(conn, sql, (spec.run_source,))
 
 
@@ -185,7 +185,7 @@ def _data_snapshot(conn: psycopg2.extensions.connection, spec: CriticalSourceSpe
         WHERE 1=1
           {source_sql}
           {active_sql}
-    """
+    """  # noqa: S608 -- table/column names from CRITICAL_SOURCES constants, values parameterized via %s
     return _query_one_dict(conn, sql, (spec.recent_window_hours, *source_params))
 
 

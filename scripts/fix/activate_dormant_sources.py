@@ -708,6 +708,7 @@ def update_entity_coverage(conn, entities: list[dict], dry_run: bool = False) ->
         return {"new_covered": new_covered, "multi_source": multi_source, "state": "dry_run"}
 
     # Insert/update entity_coverage rows for newly matched entities
+    failed_coverage_updates = 0
     for entity in candidate_entities:
         eid = entity["id"]
         if eid in entity_sources:
@@ -726,10 +727,12 @@ def update_entity_coverage(conn, entities: list[dict], dry_run: bool = False) ->
                         )
                         updated_count += 1
                     except Exception:
-                        pass
+                        failed_coverage_updates += 1
 
     conn.commit()
     cur.close()
+    if failed_coverage_updates:
+        _logger.warning("Failed to update coverage for %d entity-source pairs", failed_coverage_updates)
 
     # New entities covered count
     new_covered = sum(1 for e in candidate_entities if e["id"] in entity_sources and e["id"] not in already_covered)

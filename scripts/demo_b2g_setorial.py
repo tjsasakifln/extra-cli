@@ -256,7 +256,7 @@ def _get_sector_keywords(setor: str) -> list[str]:
                 if kw:
                     return kw[:8]  # Limitar a 8 para evitar queries muito restritivas
         except Exception:
-            pass  # Fallback abaixo
+            print(f"  AVISO: Falha ao carregar keywords setoriais para {setor}, usando fallback")
 
     # Fallback para keywords hardcoded
     if setor in FALLBACK_KEYWORDS:

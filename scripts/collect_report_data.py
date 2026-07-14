@@ -329,7 +329,7 @@ class ApiClient:
                         # F01: Retry once on corrupt JSON, then return API_CORRUPT
                         if attempt < MAX_RETRIES - 1:
                             self._inc_stat("retries")
-                            wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())
+                            wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())  # noqa: S311  # Non-cryptographic, jitter for retry backoff
                             if self.verbose:
                                 with self._print_lock:
                                     print(f" ⟳ JSON parse error, retry in {wait:.1f}s", end="", flush=True)
@@ -340,7 +340,7 @@ class ApiClient:
                 if resp.status_code in (429, 500, 502, 503, 504, 422):
                     self._inc_stat("retries")
                     # F26: Add jitter to retry backoff (AWS recommended pattern)
-                    wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())
+                    wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())  # noqa: S311  # Non-cryptographic, jitter for retry backoff
                     if self.verbose:
                         with self._print_lock:
                             print(f" ⟳ {resp.status_code}, retry in {wait:.1f}s", end="", flush=True)
@@ -357,13 +357,13 @@ class ApiClient:
                         body = resp.text[:300] if hasattr(resp, "text") else str(resp.content[:300])
                         print(f"    [DEBUG] 400 response: {body}")
                     except Exception:
-                        pass
+                        print("    [DEBUG] Could not extract 400 response body")
                 return None, "API_FAILED"
 
             except (httpx.TimeoutException, httpx.ConnectError, httpx.ReadError) as e:
                 self._inc_stat("retries")
                 # F26: Add jitter to retry backoff
-                wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())
+                wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())  # noqa: S311  # Non-cryptographic, jitter for retry backoff
                 if self.verbose:
                     err_type = type(e).__name__
                     with self._print_lock:
@@ -9977,7 +9977,7 @@ def collect_sicaf(cnpj14: str, verbose: bool = True) -> dict:
             "--skip-linhas",
         ]
 
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603  # Controlled internal script path, CNPJ is validated input
             cmd,
             timeout=300,  # 5 min max (includes captcha wait time)
             capture_output=not verbose,
@@ -10044,7 +10044,7 @@ def collect_sicaf(cnpj14: str, verbose: bool = True) -> dict:
         # Cleanup temp file
         try:
             Path(tmp_path).unlink(missing_ok=True)
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort temp file cleanup in finally block
             pass
 
 

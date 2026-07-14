@@ -50,7 +50,7 @@ _scripts_dir = str(Path(__file__).resolve().parent)
 if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
 
-from lib.intel_logging import setup_intel_logging
+from lib.intel_logging import setup_intel_logging  # noqa: E402 — import after sys.path.insert for scripts_dir
 
 logger = setup_intel_logging("intel_enrich")
 
@@ -83,7 +83,10 @@ _calculate_distances_table = _crd._calculate_distances_table
 _lib_dir = str(Path(__file__).resolve().parent / "lib")
 if _lib_dir not in sys.path:
     sys.path.insert(0, _lib_dir)
-from cost_estimator import estimate_proposal_cost, estimate_roi_simple
+from cost_estimator import (  # noqa: E402 — import after sys.path.insert for lib dir
+    estimate_proposal_cost,
+    estimate_roi_simple,
+)
 
 # Bid simulator (v4)
 try:

@@ -46,7 +46,7 @@ from scripts.crawl.common import (
 from scripts.crawl.common import (
     trunc as trunc,
 )
-from scripts.crawl.security import USER_AGENT, sanitize_url_param
+from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
 
 # Add project root for standalone imports
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -321,11 +321,12 @@ def _fetch_page(data_ini: str, data_fim: str, page: int) -> FetchResult:
 
     for attempt in range(CONTRACTS_MAX_RETRIES + 1):
         try:
-            req = urllib.request.Request(url)
+            validate_url_scheme(url)
+            req = urllib.request.Request(url)  # noqa: S310 — validated above
             req.add_header("User-Agent", USER_AGENT)
             req.add_header("Accept", "application/json")
 
-            with urllib.request.urlopen(req, timeout=CONTRACTS_READ_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=CONTRACTS_READ_TIMEOUT) as resp:  # noqa: S310 — validated above
                 body = resp.read().decode("utf-8")
                 try:
                     data = json.loads(body)
@@ -379,7 +380,7 @@ def _fetch_page(data_ini: str, data_fim: str, page: int) -> FetchResult:
             try:
                 body_text = e.read().decode("utf-8")[:200]
             except Exception:
-                pass
+                logger.debug("[CONTRACTS] Could not read error body from HTTP response")
 
             if e.code == 429:
                 if attempt < CONTRACTS_MAX_RETRIES:

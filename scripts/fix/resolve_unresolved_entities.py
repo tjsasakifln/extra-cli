@@ -82,8 +82,8 @@ def _fetch_json(url: str) -> Any:
     """Fetch and decode JSON from URL (handles gzip)."""
     import gzip
 
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept-Encoding": "gzip"})
-    resp = urllib.request.urlopen(req, timeout=15)
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept-Encoding": "gzip"})  # noqa: S310 — hardcoded HTTPS Nominatim API endpoint
+    resp = urllib.request.urlopen(req, timeout=15)  # noqa: S310 — hardcoded HTTPS Nominatim API endpoint
     raw = resp.read()
     try:
         return json.loads(raw.decode("utf-8"))
@@ -412,7 +412,7 @@ def main() -> int:
     # ── Re-run consulting_readiness.py ────────────────────────────────────
     print("\n🔄 Re-running consulting_readiness.py to verify...")
     readiness_script = PROJECT_ROOT / "scripts" / "consulting_readiness.py"
-    completed = subprocess.run([sys.executable, str(readiness_script)], check=False)
+    completed = subprocess.run([sys.executable, str(readiness_script)], check=False)  # noqa: S603 — hardcoded project script path, no user input
     exit_code = completed.returncode
     if exit_code == 0:
         print("\n✅ Readiness check PASSED")

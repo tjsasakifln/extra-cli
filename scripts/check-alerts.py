@@ -216,8 +216,8 @@ def check_db_online(registry: AlertRegistry) -> None:
     """Check PostgreSQL connectivity via psql."""
     logger.debug("Checking DB connectivity")
     try:
-        result = subprocess.run(
-            ["psql", DEFAULT_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],
+        result = subprocess.run(  # noqa: S603 — shell=False default
+            ["psql", DEFAULT_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
             capture_output=True,
             text=True,
             timeout=10,

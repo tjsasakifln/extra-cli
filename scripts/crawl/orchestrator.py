@@ -315,10 +315,10 @@ def crawl_source(
         error = str(e)
         try:
             _finish_ingestion_run(conn, run_id, fetched, upserted, matched, "failed", error)
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort: ingestion run reporting in error handler
             pass
         try:
             conn.close()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort: connection cleanup in error handler
             pass
         return {"source": source, "status": "failed", "error": error}

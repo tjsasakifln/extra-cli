@@ -110,7 +110,9 @@ def validate(data: dict) -> dict:
                 _year_inicio = int(_data_inicio[:4])
                 _company_age_years = _dt.date.today().year - _year_inicio
             except Exception:
-                pass
+                import sys
+
+                print("WARN: Could not parse data_inicio for company age calculation", file=sys.stderr)
         if _company_age_years > 5:
             warnings.append(
                 f"HISTORICO_INCONCLUSIVE: Empresa com capital > R${capital:,.0f} e "

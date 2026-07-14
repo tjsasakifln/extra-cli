@@ -186,8 +186,8 @@ CNAE_TO_SECTOR: dict[str, str] = {
 def _http_get_json(url: str) -> dict | list | None:
     """Fetch JSON from URL, return None on error."""
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})  # noqa: S310 — hardcoded HTTPS BrasilAPI endpoint
+        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS BrasilAPI endpoint
             return json.loads(resp.read())
     except Exception as e:
         print(f"  [WARN] HTTP error: {e}")

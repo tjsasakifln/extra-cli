@@ -44,8 +44,8 @@ DISK_CRIT_PCT = 90
 def check_db() -> tuple[bool, str]:
     """Check PostgreSQL connectivity via psql."""
     try:
-        result = subprocess.run(
-            ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],
+        result = subprocess.run(  # noqa: S603 — shell=False default
+            ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
             capture_output=True,
             text=True,
             timeout=10,

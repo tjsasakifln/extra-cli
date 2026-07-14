@@ -160,20 +160,23 @@ def _build_manifest(conn) -> dict[str, Any]:
     freshness = cur.fetchone()
 
     # ------------------------------------------------------------------
-    # Validation asserts before computing percentage
+    # Validation checks before computing percentage
     # ------------------------------------------------------------------
-    assert entities_with_data >= 0, f"entities_with_data negativo: {entities_with_data}"
-    assert total_entities > 0, f"total_entities é zero (canonical universe = {CANONICAL_UNIVERSE})"
-    assert entities_with_data <= total_entities, (
-        f"entities_with_data ({entities_with_data}) > total_entities ({total_entities})"
-    )
+    if entities_with_data < 0:
+        raise ValueError(f"entities_with_data negativo: {entities_with_data}")
+    if total_entities <= 0:
+        raise ValueError(f"total_entities é zero (canonical universe = {CANONICAL_UNIVERSE})")
+    if entities_with_data > total_entities:
+        raise ValueError(f"entities_with_data ({entities_with_data}) > total_entities ({total_entities})")
 
     pct_covered = round(entities_with_data / total_entities * 100, 2) if total_entities > 0 else 0.0
     entities_without_data = total_entities - entities_with_data
 
     # Sanity checks on output
-    assert 0 <= pct_covered <= 100, f"pct_covered inválido: {pct_covered}"
-    assert entities_without_data >= 0, f"entities_without_data negativo: {entities_without_data}"
+    if not 0 <= pct_covered <= 100:
+        raise ValueError(f"pct_covered inválido: {pct_covered}")
+    if entities_without_data < 0:
+        raise ValueError(f"entities_without_data negativo: {entities_without_data}")
 
     return {
         "meta": {

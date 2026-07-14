@@ -60,7 +60,7 @@ REVIEW_MAX_TEXT_CHARS = 10_000  # Max text chars for adversarial review context
 REVIEW_MAX_TOKENS = 1_000  # Max tokens for review response
 
 # Thread-safe print lock
-import threading
+import threading  # noqa: E402 — module-level import after constants and class definitions
 
 _print_lock = threading.Lock()
 

@@ -40,7 +40,7 @@ from scripts.crawl.common import (
 from scripts.crawl.common import (
     safe_float as _safe_float,
 )
-from scripts.crawl.security import USER_AGENT, sanitize_url_param
+from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -131,14 +131,14 @@ def _api_request(url: str, params: dict[str, Any]) -> dict | None:
     credentials = f"{DOM_SC_CPF}:{DOM_SC_CNPJ}"
     encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
 
-    req = urllib.request.Request(full_url)
+    req = urllib.request.Request(full_url)  # noqa: S310 — validated at caller (hardcoded HTTPS BASE_URL)
     req.add_header("Authorization", f"Basic {encoded_creds}")
     req.add_header("X-API-Key", DOM_SC_API_KEY)
     req.add_header("User-Agent", USER_AGENT)
     req.add_header("Accept", "application/json")
 
     try:
-        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — validated at caller (hardcoded HTTPS BASE_URL)
             body = resp.read().decode("utf-8")
             return json.loads(body)
     except urllib.error.HTTPError as exc:
@@ -220,22 +220,23 @@ def _fetch_publication_detail(url_origem: str) -> dict | None:
     import urllib.error
     import urllib.request
 
-    if not url_origem or not url_origem.startswith("http"):
+    if not url_origem:
         return None
+    validate_url_scheme(url_origem)
 
     import base64
 
     credentials = f"{DOM_SC_CPF}:{DOM_SC_CNPJ}"
     encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
 
-    req = urllib.request.Request(url_origem)
+    req = urllib.request.Request(url_origem)  # noqa: S310 — validated above
     req.add_header("Authorization", f"Basic {encoded_creds}")
     req.add_header("X-API-Key", DOM_SC_API_KEY)
     req.add_header("User-Agent", USER_AGENT)
     req.add_header("Accept", "application/json, text/html")
 
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310 — validated above
             body = resp.read().decode("utf-8", errors="replace")
 
         # Try JSON first (API response)

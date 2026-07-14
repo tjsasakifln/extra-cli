@@ -42,8 +42,8 @@ def extract_link(element: Any, selector: str, base_url: str) -> str:
                 parsed = urlparse(base_url)
                 return f"{parsed.scheme}://{parsed.netloc}{href}"
             return href
-    except Exception:
-        pass
+    except Exception:  # noqa: S110
+        pass  # Best-effort URL resolution — return empty on any parse failure
     return ""
 
 

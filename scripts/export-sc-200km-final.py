@@ -22,7 +22,7 @@ OUTPUT = f"docs/intel/sc-200km-engenharia-contatos-{datetime.now().strftime('%Y%
 import os as _os
 
 CONTACTS = {}
-_merged_path = "/tmp/all_contacts_merged.json"
+_merged_path = "/tmp/all_contacts_merged.json"  # noqa: S108 — intentional shared path between scripts in same pipeline
 if _os.path.exists(_merged_path):
     with open(_merged_path) as _f:
         _merged = json.load(_f)
@@ -227,7 +227,7 @@ print(f"Final contacts loaded: {len(CONTACTS)}")
 # ============================================================
 # QUERY TOP 100
 # ============================================================
-with open("/tmp/sc_200km.json") as f:
+with open("/tmp/sc_200km.json") as f:  # noqa: S108 — intentional shared path between scripts in same pipeline
     muns = json.load(f)
 names = [m["nome"].upper() for m in muns]
 
@@ -295,8 +295,8 @@ GOV_STARTS = [
     "FUNDO NACIONAL",
 ]
 
-eng_includes = " OR ".join([f"LOWER(nome_fornecedor) LIKE '%%{k}%%'" for k in ENG_KW])
-gov_excludes = " OR ".join([f"UPPER(nome_fornecedor) LIKE '{p}%%'" for p in GOV_STARTS])
+eng_includes = " OR ".join([f"LOWER(nome_fornecedor) LIKE '%%{k}%%'" for k in ENG_KW])  # noqa: S608 -- hardcoded keywords, no user input
+gov_excludes = " OR ".join([f"UPPER(nome_fornecedor) LIKE '{p}%%'" for p in GOV_STARTS])  # noqa: S608 -- hardcoded prefixes, no user input
 
 conn = psycopg2.connect(DSN)
 cur = conn.cursor()
@@ -328,7 +328,7 @@ WHERE uf = 'SC'
     OR UPPER(nome_fornecedor) LIKE 'COOPERATIVA%%')
 GROUP BY ni_fornecedor, nome_fornecedor
 ORDER BY val DESC LIMIT 100
-"""
+"""  # noqa: S608 -- eng_includes/gov_excludes from hardcoded lists, names is %s parameterized
 cur.execute(query, (names,))
 rows = cur.fetchall()
 conn.close()

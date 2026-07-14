@@ -648,7 +648,7 @@ def _load_checkpoint() -> dict:
             with open(_CHECKPOINT_FILE, encoding="utf-8") as f:
                 return json.load(f)
     except Exception:
-        pass
+        print(f"  WARN: Falha ao carregar checkpoint de {_CHECKPOINT_FILE}")
     return {}
 
 
@@ -668,6 +668,7 @@ def _cleanup_old_checkpoints(data: dict) -> dict:
     """Remove top-level keys (and sub-keys) older than _CHECKPOINT_CLEANUP_HOURS."""
     cutoff = _today() - timedelta(hours=_CHECKPOINT_CLEANUP_HOURS)
     cleaned: dict = {}
+    bad_ts_count = 0
     for top_key, sub_dict in data.items():
         if not isinstance(sub_dict, dict):
             continue
@@ -684,9 +685,11 @@ def _cleanup_old_checkpoints(data: dict) -> dict:
                         keep = True
                         break
                 except Exception:
-                    pass
+                    bad_ts_count += 1
         if keep:
             cleaned[top_key] = sub_dict
+    if bad_ts_count:
+        print(f"  WARN: {bad_ts_count} entradas de checkpoint com timestamp invalido ignoradas")
     return cleaned
 
 
@@ -1309,7 +1312,7 @@ def search_pncp_exhaustive(
             if len(cleaned) != len(checkpoint):
                 _save_checkpoint(cleaned)
         except Exception:
-            pass
+            print("  WARN: Falha ao limpar checkpoints stale")
 
     return all_items, source_meta
 
@@ -1992,7 +1995,7 @@ def collect_competitive_intel(
     try:
         cache = _load_json_cache(_COMPETITIVE_CACHE_FILE)
     except Exception:
-        pass
+        print(f"  WARN: Falha ao carregar cache competitivo de {_COMPETITIVE_CACHE_FILE}")
 
     now = _today()
     results_lock = threading.Lock()
@@ -2339,7 +2342,7 @@ def fetch_documents_top50(api: ApiClient, editais: list[dict]) -> None:
         if docs_cache:
             print(f"  Docs cache: {len(docs_cache)} entradas carregadas do disco")
     except Exception:
-        pass
+        print(f"  WARN: Falha ao carregar cache de documentos de {DOCS_CACHE_FILE}")
 
     print(f"\n  Buscando documentos para top {len(top50)} editais compativeis por valor...")
     counter_lock = threading.Lock()
@@ -2635,7 +2638,7 @@ def collect_price_benchmarks(
         if bench_cache:
             print(f"  Benchmark cache: {len(bench_cache)} orgaos carregados do disco")
     except Exception:
-        pass
+        print(f"  WARN: Falha ao carregar cache de benchmark de {BENCHMARK_CACHE_FILE}")
 
     now = _today()
     cache_cutoff = now - timedelta(days=_BENCHMARK_CACHE_TTL_DAYS)

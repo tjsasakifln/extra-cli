@@ -60,7 +60,7 @@ def fetch_all_gaps(conn, municipio: str | None = None) -> list[dict]:
                    fontes_ativas, gap_total
             FROM v_coverage_gaps
             {where}
-            ORDER BY municipio, razao_social""",
+            ORDER BY municipio, razao_social""",  # noqa: S608 -- where uses %s for user values, municipio param via %s
         params,
     )
     # Convert array columns to string for Excel compatibility

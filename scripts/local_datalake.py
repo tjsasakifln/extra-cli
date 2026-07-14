@@ -90,7 +90,7 @@ def cmd_stats() -> int:
         try:
             conn = get_conn()
             with conn.cursor() as cur:
-                cur.execute(f'SELECT count(*) FROM "{table}"')
+                cur.execute(f'SELECT count(*) FROM "{table}"')  # noqa: S608 -- table validated by regex ^[a-z_][a-z0-9_]*$
                 cnt = cur.fetchone()[0]
                 cur.execute(f"SELECT pg_size_pretty(pg_total_relation_size('\"{table}\"'::regclass))")
                 total_sz = cur.fetchone()[0]
@@ -149,7 +149,7 @@ def cmd_search(args: argparse.Namespace) -> int:
         "p_embedding": None,
     }
     arg_parts = [f'"{k}" := %s' for k in full_params]
-    sql = f'SELECT * FROM "public"."search_datalake"({", ".join(arg_parts)})'
+    sql = f'SELECT * FROM "public"."search_datalake"({", ".join(arg_parts)})'  # noqa: S608 -- function name hardcoded, values via %s placeholders
     rows = query(sql, list(full_params.values()))
 
     # Output
@@ -237,7 +237,7 @@ def cmd_pricing(args: argparse.Namespace) -> int:
 
     sql = f"""SELECT valor_global FROM pncp_supplier_contracts
               WHERE {" AND ".join(wheres)}
-              ORDER BY data_assinatura DESC LIMIT 1000"""
+              ORDER BY data_assinatura DESC LIMIT 1000"""  # noqa: S608 -- all values parameterized via %s
     rows = query(sql, params)
 
     if not rows:
@@ -298,7 +298,7 @@ def cmd_competitors(args: argparse.Namespace) -> int:
               WHERE {" AND ".join(wheres)}
               GROUP BY ni_fornecedor, nome_fornecedor
               ORDER BY n_contratos DESC, valor_total DESC
-              LIMIT %s"""
+              LIMIT %s"""  # noqa: S608 -- all values parameterized via %s
     params.append(min(args.limit, 20))
 
     rows = query(sql, params)

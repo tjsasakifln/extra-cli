@@ -6622,8 +6622,8 @@ def _build_annex_sources_condensed(data: dict, styles: dict, sec: dict) -> list:
 
     try:
         git_hash = (
-            subprocess.check_output(
-                ["git", "rev-parse", "--short", "HEAD"],
+            subprocess.check_output(  # noqa: S603 — shell=False default
+                ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607 — git resolved from PATH
                 cwd=str(Path(__file__).parent.parent),
                 stderr=subprocess.DEVNULL,
             )
@@ -6818,8 +6818,8 @@ def _build_annex_sources(data: dict, styles: dict, sec: dict) -> list:
 
     try:
         git_hash = (
-            subprocess.check_output(
-                ["git", "rev-parse", "--short", "HEAD"],
+            subprocess.check_output(  # noqa: S603 — shell=False default
+                ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607 — git resolved from PATH
                 cwd=str(Path(__file__).parent.parent),
                 stderr=subprocess.DEVNULL,
             )

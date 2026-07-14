@@ -138,7 +138,7 @@ def _fetch_url(url: str, timeout: int | None = None) -> tuple[int, str]:
     import urllib.request
 
     t = timeout or TRANSPARENCIA_TIMEOUT
-    req = urllib.request.Request(url)
+    req = urllib.request.Request(url)  # noqa: S310 — hardcoded HTTPS transparencia portal endpoint
     req.add_header(
         "User-Agent",
         "Extra-Consultoria/1.0 (transparencia-crawler; +https://extraconsultoria.com.br)",
@@ -146,7 +146,7 @@ def _fetch_url(url: str, timeout: int | None = None) -> tuple[int, str]:
     req.add_header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 
     try:
-        with urllib.request.urlopen(req, timeout=t) as resp:
+        with urllib.request.urlopen(req, timeout=t) as resp:  # noqa: S310 — hardcoded HTTPS transparencia portal endpoint
             body = resp.read().decode("utf-8", errors="replace")
             return resp.status, body
     except urllib.error.HTTPError as e:
@@ -176,7 +176,7 @@ def _head_url(url: str, timeout: int | None = None) -> int:
     import urllib.request
 
     t = timeout or TRANSPARENCIA_TIMEOUT
-    req = urllib.request.Request(url, method="HEAD")
+    req = urllib.request.Request(url, method="HEAD")  # noqa: S310 — hardcoded HTTPS transparencia portal endpoint
     req.add_header(
         "User-Agent",
         "Extra-Consultoria/1.0 (transparencia-crawler; +https://extraconsultoria.com.br)",
@@ -184,7 +184,7 @@ def _head_url(url: str, timeout: int | None = None) -> int:
     req.add_header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 
     try:
-        with urllib.request.urlopen(req, timeout=t) as resp:
+        with urllib.request.urlopen(req, timeout=t) as resp:  # noqa: S310 — hardcoded HTTPS transparencia portal endpoint
             return resp.status
     except urllib.error.HTTPError as e:
         return e.code
@@ -715,7 +715,11 @@ def _extract_row(
                 else:
                     row["link"] = href
         except Exception:
-            pass
+            _logger.debug(
+                "[TRANSPARENCIA] Could not parse link from href=%s at portal %s",
+                href if "href" in dir() else "?",
+                portal_url if "portal_url" in dir() else "?",
+            )
 
     # Skip empty rows (no data extracted at all)
     if not any([row["modalidade"], row["objeto"], row["data_publicacao"]]):

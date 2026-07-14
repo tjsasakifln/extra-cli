@@ -118,7 +118,7 @@ class BaseOpportunityCrawler(ABC):
         for attempt in range(self.max_retries + 1):
             metadata["retries"] = attempt
             try:
-                req = urllib.request.Request(
+                req = urllib.request.Request(  # noqa: S310 — validated above (lines 109-116)
                     url,
                     headers={
                         "User-Agent": USER_AGENT,
@@ -126,7 +126,7 @@ class BaseOpportunityCrawler(ABC):
                     },
                 )
                 # URL scheme and hostname are fail-closed above.
-                with urllib.request.urlopen(req, timeout=self.timeout) as response:  # nosec B310
+                with urllib.request.urlopen(req, timeout=self.timeout) as response:  # noqa: S310 — validated above (lines 109-116)
                     status = response.status
                     raw_body = response.read()
 

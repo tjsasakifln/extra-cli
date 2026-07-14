@@ -156,7 +156,7 @@ def backfill(
     ranking_tier = _ranking_tier_sql()
 
     # Count first
-    count_sql = f"SELECT COUNT(*) FROM pncp_raw_bids pb WHERE {where}"
+    count_sql = f"SELECT COUNT(*) FROM pncp_raw_bids pb WHERE {where}"  # noqa: S608 -- where clause uses %s for user values, SQL composition from internal helpers
     _logger.info("Counting backfill candidates...")
     print(f"  SQL: {count_sql[:120]}...")
     cur.execute(count_sql, params)
@@ -224,7 +224,7 @@ def backfill(
         END AS ranking
     FROM scored s
     ORDER BY s.data_publicacao DESC NULLS LAST
-    """
+    """  # noqa: S608 -- inferred/ranking_score/ranking_tier from internal SQL helpers, where uses %s for values
 
     if limit:
         select_sql += f" LIMIT {limit}"
@@ -381,7 +381,7 @@ def update_entity_coverage(dsn: str | None = None) -> dict:
                 GROUP BY tue.db_entity_id
             ) subq
             WHERE ec.entity_id = subq.id AND ec.source = 'pncp'
-            RETURNING ec.entity_id, ec.total_bids"""
+            RETURNING ec.entity_id, ec.total_bids"""  # noqa: S608 -- inferred from internal SQL helper (infer_bid_status_sql)
     )
 
     updated = cur.rowcount

@@ -194,7 +194,7 @@ def main() -> int:
                         result["screenshot"] = ss
                         _logger.info("  Debug screenshot saved: %s", ss)
                 except Exception:
-                    pass
+                    _logger.warning("Failed to save debug screenshot for %s", slug, exc_info=True)
 
             results.append(result)
 

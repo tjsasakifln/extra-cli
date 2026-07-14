@@ -60,6 +60,56 @@ SSL_VERIFY_ENABLED = True
 _OMIT = object()
 
 
+# ---------------------------------------------------------------------------
+# URL scheme validation
+# ---------------------------------------------------------------------------
+
+# Scheme allowlist — only https:// is permitted by default for all crawlers.
+# http:// is ONLY allowed for specific sources that require it (e.g., some
+# municipio-level portals that lack HTTPS).
+ALLOWED_SCHEMES: tuple[str, ...] = ("https",)
+ALLOWED_SCHEMES_WITH_HTTP: tuple[str, ...] = ("https", "http")
+
+
+def validate_url_scheme(url: str, *, allow_http: bool = False) -> str:
+    """Validate that a URL uses an allowed scheme (https by default).
+
+    This is the primary SSRF defense for all crawler HTTP clients.  It
+    rejects ``file://``, ``ftp://``, ``data://``, ``javascript://`` and any
+    other unexpected scheme before the URL reaches ``urlopen()``.
+
+    Args:
+        url: URL to validate.
+        allow_http: If ``True`` also allow ``http://``.  Use ONLY when the
+            official source does not support HTTPS and this is documented.
+
+    Returns:
+        The validated URL (enables inline use like
+        ``urlopen(validate_url_scheme(url))``).
+
+    Raises:
+        ValueError: If the URL's scheme is not in the allowlist.
+    """
+    parsed = urllib.parse.urlparse(url)
+    allowed = ALLOWED_SCHEMES_WITH_HTTP if allow_http else ALLOWED_SCHEMES
+    if parsed.scheme not in allowed:
+        raise ValueError(
+            f"Disallowed URL scheme '{parsed.scheme}' in {url[:100]!r}. "
+            f"Only {' or '.join('://' + s for s in allowed)} are permitted."
+        )
+    return url
+
+
+def validate_url_scheme_optional(url: str | None, *, allow_http: bool = False) -> str | None:
+    """Like :func:`validate_url_scheme` but accepts ``None`` (pass-through).
+
+    Convenience for call sites where the URL may be ``None``.
+    """
+    if url is None:
+        return None
+    return validate_url_scheme(url, allow_http=allow_http)
+
+
 def sanitize_url_param(value: Any) -> str:
     """URL-encode a parameter value safely.
 

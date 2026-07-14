@@ -398,8 +398,8 @@ def _detect_format(content_type: str, url: str, local_path: str) -> str:
             return "rar"
         # XLSX is also a ZIP with specific internal structure
         # If PK magic and xlsx suffix → xlsx already handled above
-    except Exception:
-        pass
+    except Exception:  # noqa: S110
+        pass  # Best-effort file type detection — return "unknown" on any failure
 
     return "unknown"
 

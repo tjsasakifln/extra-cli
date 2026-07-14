@@ -216,11 +216,11 @@ def _fetch_page(pagina: int, data_inicial: str, data_final: str) -> tuple[list[d
 
     for attempt in range(PCP_MAX_RETRIES + 1):
         try:
-            req = urllib.request.Request(url)
+            req = urllib.request.Request(url)  # noqa: S310 — hardcoded HTTPS PCP API endpoint (PCP_BASE = https://...)
             req.add_header("Accept", "application/json")
             req.add_header("User-Agent", USER_AGENT)
 
-            with urllib.request.urlopen(req, timeout=PCP_READ_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=PCP_READ_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS PCP API endpoint
                 body = resp.read().decode("utf-8")
                 data = json.loads(body)
 
@@ -243,7 +243,7 @@ def _fetch_page(pagina: int, data_inicial: str, data_final: str) -> tuple[list[d
             try:
                 body = e.read().decode("utf-8")[:200]
             except Exception:
-                pass
+                _logger.debug("[PCP] Could not read error body from HTTP %d response", e.code)
             if e.code in (404, 400):
                 _logger.debug("[PCP] HTTP %d: %s", e.code, body)
                 return [], False

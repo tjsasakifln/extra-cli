@@ -37,6 +37,7 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from config.logging_config import get_logger, set_correlation_id
+from scripts.crawl.security import validate_url_scheme
 
 logger = get_logger(__name__)
 
@@ -147,7 +148,8 @@ def send_webhook(
     }
 
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
+    validate_url_scheme(url)
+    req = urllib.request.Request(  # noqa: S310 — validated above
         url,
         data=data,
         headers={"Content-Type": "application/json"},
@@ -155,7 +157,7 @@ def send_webhook(
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — validated above
             status = resp.status
             body_resp = resp.read().decode("utf-8").strip()
 

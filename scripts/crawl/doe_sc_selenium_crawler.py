@@ -235,6 +235,7 @@ def _selenium_login(driver: Any, login: str, password: str) -> None:
             if login_field.is_displayed():
                 break
         except Exception:
+            _logger.debug("[DOE-SC-SELENIUM] Login selector '%s' not found", sel)
             continue
     else:
         _logger.warning("[DOE-SC-SELENIUM] Login input field not found")
@@ -247,6 +248,7 @@ def _selenium_login(driver: Any, login: str, password: str) -> None:
             if password_field.is_displayed():
                 break
         except Exception:
+            _logger.debug("[DOE-SC-SELENIUM] Password selector '%s' not found", sel)
             continue
     else:
         _logger.warning("[DOE-SC-SELENIUM] Password input field not found")
@@ -265,6 +267,7 @@ def _selenium_login(driver: Any, login: str, password: str) -> None:
             if submit_button.is_displayed():
                 break
         except Exception:
+            _logger.debug("[DOE-SC-SELENIUM] Submit button selector '%s' not found", sel)
             continue
     else:
         _logger.warning("[DOE-SC-SELENIUM] Submit button not found")
@@ -330,6 +333,7 @@ def _selenium_extract_materias(
                     _logger.info("[DOE-SC-SELENIUM] Loaded materia page: %s", url)
                     break
             except Exception:
+                _logger.debug("[DOE-SC-SELENIUM] Navigation to '%s' failed — skipping", url)
                 continue
 
         if not navigated:
@@ -368,6 +372,7 @@ def _selenium_extract_materias(
                     page += 1
                     break
             except Exception:
+                _logger.debug("[DOE-SC-SELENIUM] Next page selector '%s' not found", sel)
                 continue
 
         if not found_next:
@@ -422,6 +427,7 @@ def _extract_page_data(
                 )
                 break
         except Exception:
+            _logger.debug("[DOE-SC-SELENIUM] Row selector '%s' failed", sel)
             continue
 
     if not rows:
@@ -435,8 +441,7 @@ def _extract_page_data(
                 len(text),
             )
         except Exception:
-            pass
-        return []
+            _logger.debug("[DOE-SC-SELENIUM] Body text extraction failed")
 
     for row in rows:
         try:

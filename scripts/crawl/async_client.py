@@ -441,7 +441,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                                 self.config.base_delay * (self.config.exponential_base**attempt), self.config.max_delay
                             )
                             if self.config.jitter:
-                                delay *= random.uniform(0.5, 1.5)
+                                delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
                             await asyncio.sleep(delay)
                             continue
                         else:
@@ -464,7 +464,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                                 self.config.base_delay * (self.config.exponential_base**attempt), self.config.max_delay
                             )
                             if self.config.jitter:
-                                delay *= random.uniform(0.5, 1.5)
+                                delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
                             await asyncio.sleep(delay)
                             continue
                         else:
@@ -549,7 +549,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                 if attempt < self.config.max_retries:
                     delay = min(self.config.base_delay * (self.config.exponential_base**attempt), self.config.max_delay)
                     if self.config.jitter:
-                        delay *= random.uniform(0.5, 1.5)
+                        delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
                     logger.debug(f"Error {response.status_code}. Retrying in {delay:.1f}s")
                     await asyncio.sleep(delay)
                 else:

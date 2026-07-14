@@ -66,8 +66,8 @@ def collect_system_health() -> dict[str, Any]:
 
     # DB connectivity
     try:
-        result = subprocess.run(
-            ["psql", DEFAULT_DSN, "-c", "SELECT 1", "-t", "-A"],
+        result = subprocess.run(  # noqa: S603 — shell=False default
+            ["psql", DEFAULT_DSN, "-c", "SELECT 1", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
             capture_output=True,
             text=True,
             timeout=10,
@@ -250,7 +250,7 @@ def collect_alert_summary() -> dict[str, Any]:
         return {"alerts": [], "total": 0, "critical": 0, "warnings": 0, "error": "check-alerts.py not found"}
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 — shell=False default; sys.executable is explicit path
             [sys.executable, check_alerts, "--json", "--dry-run"],
             capture_output=True,
             text=True,

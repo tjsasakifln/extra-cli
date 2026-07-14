@@ -144,9 +144,9 @@ class PlaywrightFallback:
             )
 
             # Create context with stealth configuration
-            width, height = random.choice(_VIEWPORT_SIZES)
-            device_scale = random.choice(_DEVICE_SCALE_FACTORS)
-            user_agent = random.choice(_USER_AGENTS)
+            width, height = random.choice(_VIEWPORT_SIZES)  # noqa: S311  # Non-cryptographic, viewport randomisation for anti-bot
+            device_scale = random.choice(_DEVICE_SCALE_FACTORS)  # noqa: S311  # Non-cryptographic, device scale randomisation
+            user_agent = random.choice(_USER_AGENTS)  # noqa: S311  # Non-cryptographic, UA rotation for anti-bot
 
             self._context = self._browser.new_context(
                 viewport={"width": width, "height": height},
@@ -312,28 +312,28 @@ class PlaywrightFallback:
         if self._page is not None:
             try:
                 self._page.close()
-            except Exception:
+            except Exception:  # noqa: S110  # Best-effort cleanup in close()
                 pass
             self._page = None
 
         if self._context is not None:
             try:
                 self._context.close()
-            except Exception:
+            except Exception:  # noqa: S110  # Best-effort cleanup in close()
                 pass
             self._context = None
 
         if self._browser is not None:
             try:
                 self._browser.close()
-            except Exception:
+            except Exception:  # noqa: S110  # Best-effort cleanup in close()
                 pass
             self._browser = None
 
         if hasattr(self, "_playwright") and self._playwright is not None:
             try:
                 self._playwright.stop()
-            except Exception:
+            except Exception:  # noqa: S110  # Best-effort cleanup in close()
                 pass
 
         _logger.debug("PlaywrightFallback closed")

@@ -103,7 +103,7 @@ def _load_municipio_cache(client: Any = None) -> dict[str, str]:
     SELECT id_municipio, nome
     FROM `{PROJECT_ID}.{TABLE_MUNICIPIO_REF}`
     WHERE sigla_uf = 'SC'
-    """
+    """  # noqa: S608 -- internal constants only, no user input
     cache: dict[str, str] = {}
     try:
         rows = client.query(query).result()
@@ -169,7 +169,7 @@ def build_sc_query(
       AND ano = {year}
       AND id_municipio IS NOT NULL
     ORDER BY ano, mes, id_municipio, numero
-    """
+    """  # noqa: S608 -- internal constants only, no user input
     if limit is not None:
         sql += f"\n    LIMIT {limit}"
     if offset is not None:
@@ -218,7 +218,7 @@ def build_incremental_query(days_back: int = 90) -> str:
       AND data >= DATE_SUB(CURRENT_DATE(), INTERVAL {days_back} DAY)
       AND id_municipio IS NOT NULL
     ORDER BY data, id_municipio, numero
-    """
+    """  # noqa: S608 -- internal constants only, no user input
 
 
 # ---------------------------------------------------------------------------

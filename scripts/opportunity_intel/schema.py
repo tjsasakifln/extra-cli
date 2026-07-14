@@ -138,14 +138,14 @@ def schema_fingerprint(conn: Any) -> str:
 
 def git_identity() -> GitIdentity:
     """Read local Git identity without changing repository state."""
-    branch = subprocess.run(
-        ["git", "branch", "--show-current"],
+    branch = subprocess.run(  # noqa: S603 — shell=False default
+        ["git", "branch", "--show-current"],  # noqa: S607 — git resolved from PATH (dev/CI env)
         check=True,
         capture_output=True,
         text=True,
     ).stdout.strip()
-    sha = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
+    sha = subprocess.run(  # noqa: S603 — shell=False default
+        ["git", "rev-parse", "HEAD"],  # noqa: S607 — git resolved from PATH (dev/CI env)
         check=True,
         capture_output=True,
         text=True,

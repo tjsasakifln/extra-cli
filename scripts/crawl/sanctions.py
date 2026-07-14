@@ -164,7 +164,7 @@ class SanctionsChecker:
     def _calculate_backoff(self, attempt: int) -> float:
         """Exponential backoff with jitter."""
         delay = min(2.0 * (2**attempt), 60.0)
-        delay *= random.uniform(0.5, 1.5)
+        delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
         return delay
 
     async def _request_with_retry(

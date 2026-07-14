@@ -50,7 +50,11 @@ def init(url: str | None = None, key: str | None = None) -> None:
 
         _sb_client = create_client(url or "", key or "")
     except (ImportError, Exception):
-        pass
+        import logging
+
+        logging.getLogger(__name__).warning(
+            "Supabase client init failed (supabase package may not be installed)", exc_info=True
+        )
 
 
 __all__ = [

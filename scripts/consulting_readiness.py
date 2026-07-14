@@ -51,7 +51,7 @@ DEFAULT_OUTPUT_DIR = str(PROJECT_ROOT / "output" / "readiness")
 
 # Backward compatibility: exported for tests that import from consulting_readiness
 # (Story 1.3 refactored to CanonicalUniverse; these aliases preserve test compatibility)
-from scripts.lib.universe import (
+from scripts.lib.universe import (  # noqa: E402 — import after sys.path hacks for project root
     CanonicalEntity,
 )
 
@@ -139,7 +139,7 @@ class TargetUniverse:
         return iter(self.entities.values())
 
 
-import math
+import math  # noqa: E402 — module-level import after class definitions with backward compat
 
 EARTH_RADIUS_KM = 6371.0  # noqa: N816
 
@@ -502,7 +502,7 @@ def _compute_contract_value_aggregation(conn) -> dict[str, Any]:
     except Exception as exc:
         try:
             conn.rollback()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort rollback in error handler
             pass
         _logger.error("contract_total_value failed: %s", exc, exc_info=True)
         return {
@@ -646,7 +646,7 @@ def _compute_entity_price_differential(conn) -> dict[str, Any]:
     except Exception as exc:
         try:
             conn.rollback()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort rollback in error handler
             pass
         _logger.error("entity_price_differential failed: %s", exc, exc_info=True)
         return {
@@ -758,7 +758,7 @@ def _compute_relicitacao_stats(conn) -> dict[str, Any]:
     except Exception as exc:
         try:
             conn.rollback()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort rollback in error handler
             pass
         _logger.error("relicitacao_stats failed: %s", exc, exc_info=True)
         return {
@@ -869,7 +869,7 @@ def _compute_market_share(conn, entity_cnpj8_list: list[str]) -> dict[str, Any]:
     except Exception as exc:
         try:
             conn.rollback()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort rollback in error handler
             pass
         _logger.error("market_share computation failed: %s", exc, exc_info=True)
         return {"status": "error", "reason": f"Market share computation failed: {exc}", "value": None}
@@ -962,7 +962,7 @@ def _compute_award_share(conn, entity_cnpj8_list: list[str]) -> dict[str, Any]:
     except Exception as exc:
         try:
             conn.rollback()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort rollback in error handler
             pass
         _logger.error("award_share computation failed: %s", exc, exc_info=True)
         return {"status": "error", "reason": f"Award share computation failed: {exc}", "value": None}
@@ -1088,7 +1088,7 @@ def _compute_hhi(conn, entity_cnpj8_list: list[str]) -> dict[str, Any]:
     except Exception as exc:
         try:
             conn.rollback()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort rollback in error handler
             pass
         _logger.error("HHI computation failed: %s", exc, exc_info=True)
         return {"status": "error", "reason": f"HHI computation failed: {exc}", "value": None}
@@ -1176,7 +1176,7 @@ def _compute_supplier_ranking(
     except Exception as exc:
         try:
             conn.rollback()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort rollback in error handler
             pass
         _logger.error("supplier_ranking computation failed: %s", exc, exc_info=True)
         return {"status": "error", "reason": f"Supplier ranking computation failed: {exc}", "value": None}

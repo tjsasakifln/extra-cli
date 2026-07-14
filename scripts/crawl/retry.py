@@ -313,6 +313,6 @@ def calculate_delay(attempt: int, config: RetryConfig) -> float:
 
     if config.jitter:
         # Add ±50% jitter to prevent thundering herd
-        delay *= random.uniform(0.5, 1.5)
+        delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
 
     return delay

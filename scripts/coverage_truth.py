@@ -838,7 +838,7 @@ def cmd_report(args: argparse.Namespace) -> int:
         print(f"❌ Data loading failed: {e}")
         try:
             conn.close()
-        except Exception:
+        except Exception:  # noqa: S110  # Best-effort connection cleanup in error handler
             pass
         return 1
 

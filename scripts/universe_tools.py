@@ -77,8 +77,8 @@ def sha256_file(path: str | Path) -> str:
 def get_git_sha() -> str | None:
     """Return the current git commit SHA, or None if unavailable."""
     try:
-        result = subprocess.run(  # noqa: S607
-            ["git", "rev-parse", "HEAD"],
+        result = subprocess.run(  # noqa: S603 — shell=False default
+            ["git", "rev-parse", "HEAD"],  # noqa: S607 — git resolved from PATH (dev/CI env)
             capture_output=True,
             text=True,
             timeout=10,

@@ -333,7 +333,7 @@ def _load_sectors_yaml() -> dict:
                 with open(p, encoding="utf-8") as f:
                     return yaml.safe_load(f) or {}
             except Exception:
-                pass
+                logger.warning("Failed to load sectors_data.yaml from %s", p, exc_info=True)
     return {}
 
 

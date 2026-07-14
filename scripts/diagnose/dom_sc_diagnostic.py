@@ -68,14 +68,14 @@ def _api_request(url: str, params: dict[str, Any]) -> dict | None:
     credentials = f"{dom_sc_cpf}:{dom_sc_cnpj}"
     encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
 
-    req = urllib.request.Request(full_url)
+    req = urllib.request.Request(full_url)  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
     req.add_header("Authorization", f"Basic {encoded_creds}")
     req.add_header("X-API-Key", dom_sc_api_key)
     req.add_header("User-Agent", USER_AGENT)
     req.add_header("Accept", "application/json")
 
     try:
-        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
             body = resp.read().decode("utf-8")
             return json.loads(body)
     except urllib.error.HTTPError as exc:
@@ -99,11 +99,11 @@ def _test_site_accessibility() -> dict:
         ("site_login", f"{BASE_URL}/?r=site/login"),
     ]:
         try:
-            req = urllib.request.Request(test_url)
+            req = urllib.request.Request(test_url)  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
             from scripts.crawl.security import USER_AGENT
 
             req.add_header("User-Agent", USER_AGENT)
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
                 body = resp.read()
                 results[label] = {
                     "status": resp.status,
@@ -253,9 +253,9 @@ def _test_html_scraping_fallback() -> dict[str, Any]:
 
     for label, url in test_urls:
         try:
-            req = urllib.request.Request(url)
+            req = urllib.request.Request(url)  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
             req.add_header("User-Agent", USER_AGENT)
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
                 body = resp.read().decode("utf-8", errors="replace")
                 results[label] = {
                     "status": resp.status,

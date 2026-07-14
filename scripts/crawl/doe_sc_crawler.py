@@ -33,7 +33,7 @@ from scripts.crawl.common import (
     parse_date,
     safe_float,
 )
-from scripts.crawl.security import USER_AGENT
+from scripts.crawl.security import USER_AGENT, validate_url_scheme
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -50,6 +50,8 @@ DOE_SC_API_HOST = os.getenv(
     "DOE_SC_API_HOST",
     "https://portal.doe.sea.sc.gov.br/apis",
 )
+# Validate scheme at module init — env var could be set to non-HTTPS
+validate_url_scheme(DOE_SC_API_HOST)
 DOE_SC_API_BASE = f"{DOE_SC_API_HOST}/doe-api"
 DOE_SC_PORTAL = "https://portal.doe.sea.sc.gov.br"
 
@@ -143,7 +145,7 @@ def _get_token() -> str | None:
     url = f"{DOE_SC_API_HOST}/login"
     payload = json.dumps({"login": DOE_SC_LOGIN, "password": DOE_SC_PASSWORD}).encode("utf-8")
 
-    req = urllib.request.Request(url, data=payload, method="POST")
+    req = urllib.request.Request(url, data=payload, method="POST")  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
     req.add_header("Content-Type", "application/json")
     req.add_header("Accept", "application/json")
     req.add_header(
@@ -152,7 +154,7 @@ def _get_token() -> str | None:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
             body = resp.read().decode("utf-8")
             data = json.loads(body)
 
@@ -238,7 +240,7 @@ def _api_request(
         url = f"{url}?{query}"
 
     # Build request
-    req = urllib.request.Request(url, method=method)
+    req = urllib.request.Request(url, method=method)  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
     req.add_header("Authorization", f"Bearer {token}")
     req.add_header("Accept", "application/json")
     req.add_header("Content-Type", "application/json")
@@ -255,7 +257,7 @@ def _api_request(
 
     for attempt in range(MAX_RETRIES + 1):
         try:
-            with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
                 body = resp.read().decode("utf-8")
                 return json.loads(body)
 
@@ -773,8 +775,8 @@ def diagnostic() -> dict:
     # Test 1: Portal homepage
     try:
         t0 = time.time()
-        req = urllib.request.Request(DOE_SC_PORTAL)
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        req = urllib.request.Request(DOE_SC_PORTAL)  # noqa: S310 — hardcoded HTTPS portal URL
+        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — hardcoded HTTPS portal URL
             portal_time = round(time.time() - t0, 3)
             result["main_portal"] = {
                 "status_code": resp.status,
@@ -795,11 +797,11 @@ def diagnostic() -> dict:
         t0 = time.time()
         url = f"{DOE_SC_API_HOST}/login"
         payload = json.dumps({"login": "test", "password": "test"}).encode("utf-8")
-        req = urllib.request.Request(url, data=payload, method="POST")
+        req = urllib.request.Request(url, data=payload, method="POST")  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
         req.add_header("Content-Type", "application/json")
         req.add_header("Accept", "application/json")
         req.add_header("User-Agent", USER_AGENT)
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
             login_time = round(time.time() - t0, 3)
             result["e_lic"] = {
                 "status_code": resp.status,
@@ -826,9 +828,9 @@ def diagnostic() -> dict:
     try:
         t0 = time.time()
         url = f"{DOE_SC_API_BASE}/materia?page=1&perPage=5"
-        req = urllib.request.Request(url)
+        req = urllib.request.Request(url)  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
         req.add_header("Accept", "application/json")
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
             list_time = round(time.time() - t0, 3)
             result["list_page_test"] = {
                 "status_code": resp.status,

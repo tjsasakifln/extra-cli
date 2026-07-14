@@ -82,9 +82,9 @@ SOURCE_PURPOSE = "coverage_only"
 
 def _ckan_request(url: str) -> dict | None:
     """Make a CKAN API GET request with error handling."""
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})  # noqa: S310 — hardcoded HTTPS CKAN API endpoint
     try:
-        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS CKAN API endpoint
             result = json.loads(resp.read())
         if not result.get("success"):
             _logger.warning("CKAN API returned success=false for %s", url)
@@ -147,9 +147,9 @@ def download_resource(url: str) -> dict | None:
     DOM-SC resources are ZIP files containing one JSON file with key
     ``autopublicacoes`` (a list of publication dicts).
     """
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})  # noqa: S310 — hardcoded HTTPS CKAN API endpoint
     try:
-        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS CKAN API endpoint
             raw = resp.read()
     except Exception as e:
         _logger.error("Failed to download %s: %s", url, e)

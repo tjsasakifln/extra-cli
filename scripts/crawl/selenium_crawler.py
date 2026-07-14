@@ -137,7 +137,7 @@ class SeleniumCrawler:
         self.timeout = timeout or SELENIUM_TIMEOUT
         self.request_delay = request_delay or SELENIUM_REQUEST_DELAY
         self._user_agents = user_agents or list(_DEFAULT_USER_AGENTS)
-        self._ua_index = random.randint(0, len(self._user_agents) - 1)
+        self._ua_index = random.randint(0, len(self._user_agents) - 1)  # noqa: S311  # Non-cryptographic, UA rotation for anti-bot
 
         self.driver: Any = None
         self._last_request: float = 0.0
@@ -252,7 +252,7 @@ class SeleniumCrawler:
                 },
             )
             # Randomise viewport
-            width, height = random.choice(_VIEWPORT_SIZES)
+            width, height = random.choice(_VIEWPORT_SIZES)  # noqa: S311  # Non-cryptographic, viewport randomisation for anti-bot
             driver.set_window_size(width, height)
             driver.implicitly_wait(SELENIUM_IMPLICIT_WAIT)
             driver.set_page_load_timeout(SELENIUM_PAGE_LOAD_TIMEOUT)
@@ -296,7 +296,7 @@ class SeleniumCrawler:
 
         try:
             driver = webdriver.Firefox(options=options)
-            width, height = random.choice(_VIEWPORT_SIZES)
+            width, height = random.choice(_VIEWPORT_SIZES)  # noqa: S311  # Non-cryptographic, viewport randomisation for anti-bot
             driver.set_window_size(width, height)
             driver.implicitly_wait(SELENIUM_IMPLICIT_WAIT)
             driver.set_page_load_timeout(SELENIUM_PAGE_LOAD_TIMEOUT)
@@ -610,7 +610,7 @@ class SeleniumCrawler:
             if records:
                 return records
         except Exception:
-            pass
+            _logger.warning("CSS selector extraction failed, falling back to container-based extraction", exc_info=True)
 
         # Fallback: container-based extraction
         try:

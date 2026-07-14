@@ -83,14 +83,14 @@ def _http_get_json(url: str) -> FetchResult:
     for attempt in range(PNCP_MAX_RETRIES + 1):
         metadata["retries"] = attempt
         try:
-            req = urllib.request.Request(
+            req = urllib.request.Request(  # noqa: S310 — hardcoded HTTPS PNCP API endpoint (callers use https://pncp.gov.br)
                 url,
                 headers={
                     "User-Agent": USER_AGENT,
                     "Accept": "application/json",
                 },
             )
-            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as response:
+            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as response:  # noqa: S310 — hardcoded HTTPS PNCP API endpoint
                 status = response.status
                 raw_body = response.read()
 
@@ -210,11 +210,11 @@ def _http_get_payload(url: str) -> tuple[Any | None, FetchResult]:
     for attempt in range(PNCP_MAX_RETRIES + 1):
         metadata["retries"] = attempt
         try:
-            req = urllib.request.Request(
+            req = urllib.request.Request(  # noqa: S310 — hardcoded HTTPS PNCP API endpoint (callers use https://pncp.gov.br)
                 url,
                 headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
             )
-            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as response:
+            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as response:  # noqa: S310 — hardcoded HTTPS PNCP API endpoint
                 payload = json.loads(response.read().decode("utf-8"))
             return payload, FetchResult(
                 records=[payload] if isinstance(payload, dict) else (payload if isinstance(payload, list) else []),

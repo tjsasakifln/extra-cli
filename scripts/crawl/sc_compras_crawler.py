@@ -30,7 +30,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from scripts.crawl.security import USER_AGENT  # noqa: E402
+from scripts.crawl.security import USER_AGENT, validate_url_scheme  # noqa: E402
 
 _logger = logging.getLogger(__name__)
 
@@ -267,13 +267,14 @@ def _api_request(url: str) -> dict | None:
     last_error: str | None = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            req = urllib.request.Request(url)
+            validate_url_scheme(url)
+            req = urllib.request.Request(url)  # noqa: S310 — validated above
             req.add_header("Accept", "application/json")
             req.add_header(
                 "User-Agent",
                 USER_AGENT,
             )
-            with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — validated above
                 if resp.status == 200:
                     return json.loads(resp.read().decode("utf-8", errors="replace"))
                 _logger.warning(

@@ -105,7 +105,7 @@ class PNCPCircuitBreaker:
                         },
                     )
                 except Exception:
-                    pass
+                    logger.warning("Failed to add Sentry breadcrumb for CB [%s] open", self.name, exc_info=True)
 
     async def record_success(self) -> None:
         """Record a successful request. Resets the failure counter."""
@@ -146,7 +146,9 @@ class PNCPCircuitBreaker:
                             data={"source": self.name},
                         )
                     except Exception:
-                        pass
+                        logger.warning(
+                            "Failed to add Sentry breadcrumb for CB [%s] recovered", self.name, exc_info=True
+                        )
                     return True
             finally:
                 self._lock.release()

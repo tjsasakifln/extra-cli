@@ -106,7 +106,7 @@ class _LocalPgQuery:
         return self
 
     def execute(self) -> _LocalPgResult:
-        sql = f"SELECT {self._cols} FROM {self._table}"
+        sql = f"SELECT {self._cols} FROM {self._table}"  # noqa: S608 -- internal query builder, values are %s parameterized
         if self._wheres:
             sql += " WHERE " + " AND ".join(self._wheres)
         if self._order_col:
@@ -168,7 +168,7 @@ class _LocalPg:
             else:
                 arg_list.append(f'"{k}" := %s')
                 values.append(v)
-        sql = f'SELECT * FROM "public"."{fn_name}"({", ".join(arg_list)})'
+        sql = f'SELECT * FROM "public"."{fn_name}"({", ".join(arg_list)})'  # noqa: S608 -- function name is internal, values are %s parameterized
         with self._cursor() as cur:
             cur.execute(sql, values)
             cols = [d[0] for d in cur.description] if cur.description else []

@@ -117,8 +117,8 @@ def enrich_coordinates(municipalities: dict[str, dict], delay: float = 0.1):
                         pass
 
                     fetched += 1
-            except Exception:
-                pass
+            except Exception:  # noqa: S110
+                pass  # Per-row fetch — single failure shouldn't abort batch
 
             time.sleep(delay)
             if fetched % 50 == 0:
@@ -223,7 +223,7 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
                SUM(valor_estimado) as valor_total_estimado
         FROM pncp_raw_bids
         WHERE uf = 'SC' AND UPPER(municipio) IN ({placeholders})
-    """,
+    """,  # noqa: S608 -- placeholders are %s for parameterized IN clause
         mun_sql_list,
     )
     row = cur.fetchone()
@@ -242,7 +242,7 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
         GROUP BY UPPER(municipio)
         ORDER BY COUNT(*) DESC
         LIMIT 20
-    """,
+    """,  # noqa: S608 -- placeholders are %s for parameterized IN clause
         mun_sql_list,
     )
     report["bids"]["por_municipio"] = [
@@ -258,7 +258,7 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
                SUM(valor_global) as valor_total
         FROM pncp_supplier_contracts
         WHERE uf = 'SC' AND UPPER(municipio) IN ({placeholders})
-    """,
+    """,  # noqa: S608 -- placeholders are %s for parameterized IN clause
         mun_sql_list,
     )
     row = cur.fetchone()
@@ -294,7 +294,7 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
     ]
     eng_conditions = " OR ".join(
         [f"(LOWER(nome_fornecedor) LIKE '%{k}%' OR LOWER(objeto_contrato) LIKE '%{k}%')" for k in eng_keywords]
-    )
+    )  # noqa: S608 -- eng_keywords is a hardcoded list of search terms, no user input
 
     cur.execute(
         f"""
@@ -310,7 +310,7 @@ def cross_datalake(within: dict[str, dict], conn) -> dict[str, Any]:
           AND LENGTH(ni_fornecedor) = 14
         GROUP BY ni_fornecedor, nome_fornecedor
         ORDER BY contratos DESC
-    """,
+    """,  # noqa: S608 -- eng_conditions uses hardcoded keywords, IN uses %s placeholders
         mun_sql_list,
     )
 

@@ -254,12 +254,12 @@ def _api_request(params: dict[str, Any], timeout: int = HTTP_TIMEOUT) -> dict | 
 
     for attempt in range(MAX_RETRIES + 1):
         try:
-            req = urllib.request.Request(full_url)
+            req = urllib.request.Request(full_url)  # noqa: S310 — hardcoded HTTPS TCE-SC portal endpoint
             req.add_header("User-Agent", USER_AGENT)
             req.add_header("Accept", "application/json")
             req.add_header("Accept-Language", "pt-BR,pt;q=0.9")
 
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 — hardcoded HTTPS TCE-SC portal endpoint
                 body = resp.read().decode("utf-8")
 
             # Handle empty response (204 No Content)

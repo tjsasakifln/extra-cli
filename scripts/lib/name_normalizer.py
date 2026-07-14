@@ -85,7 +85,9 @@ def _load_siglas() -> dict[str, str]:
             if isinstance(siglas_raw, dict):
                 _SIGLAS = {k.upper().strip(): v.upper().strip() for k, v in siglas_raw.items()}
     except (FileNotFoundError, ImportError, Exception):
-        pass
+        import logging
+
+        logging.getLogger(__name__).warning("Failed to load siglas config, using defaults", exc_info=True)
 
     _SIGLAS_LOADED = True
     return _SIGLAS
