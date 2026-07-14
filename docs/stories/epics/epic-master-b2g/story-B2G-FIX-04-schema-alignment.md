@@ -1,7 +1,7 @@
 ---
 story_id: B2G-FIX-04
 title: "Alinhar schema código↔banco — 10 tabelas fantasmas e colunas divergentes"
-status: InProgress
+status: Done
 priority: P0
 risk_level: HIGH-RISK
 effort: M
@@ -89,21 +89,21 @@ Sem alinhamento schema↔código, qualquer operação de crawler ou pipeline pod
 
 ## Tasks
 
-- [ ] Task 1: Executar auditoria completa de queries vs schema real
-- [ ] Task 2: Criar `scripts/schema/diagnostics.py`
-- [ ] Task 3: Criar migrations corretivas para tabelas e colunas faltantes
-- [ ] Task 4: Corrigir queries com colunas fantasmas
-- [ ] Task 5: Atualizar `current-schema.sql` e SHA256
-- [ ] Task 6: Testar `setup_db.sh` em banco vazio
-- [ ] Task 7: Corrigir `test_canonical_views_exist`
+- [x] Task 1: Executar auditoria completa de queries vs schema real
+- [x] Task 2: Criar `scripts/schema/diagnostics.py`
+- [x] Task 3: Criar migrations corretivas para tabelas e colunas faltantes
+- [x] Task 4: Corrigir queries com colunas fantasmas
+- [x] Task 5: Atualizar `current-schema.sql` e SHA256
+- [x] Task 6: Testar `setup_db.sh` em banco vazio
+- [x] Task 7: Corrigir `test_canonical_views_exist`
 
 ## Definition of Done
 
-- [ ] diagnostics.py funcional e reportando zero divergências
-- [ ] setup_db.sh funcional em banco vazio
-- [ ] test_canonical_views_exist passa
-- [ ] Nenhuma query referencia tabela ou coluna inexistente
-- [ ] current-schema.sql e SHA256 atualizados
+- [x] diagnostics.py funcional e reportando zero divergências
+- [x] setup_db.sh funcional em banco vazio
+- [x] test_canonical_views_exist passa
+- [x] Nenhuma query referencia tabela ou coluna inexistente
+- [x] current-schema.sql e SHA256 atualizados
 
 ## Arquivos Afetados
 
