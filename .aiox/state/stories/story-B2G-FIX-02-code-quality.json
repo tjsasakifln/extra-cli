@@ -1,27 +1,65 @@
 {
   "story_id": "B2G-FIX-02",
   "title": "Code quality cleanup — lint + format + type hints críticos",
-  "status": "InProgress",
+  "status": "Done",
   "priority": "P0",
   "risk_level": "STANDARD",
   "epic": "EPIC-MASTER-B2G-READINESS",
   "phase": 0,
   "po_validated": true,
-  "qa_verdict": "PENDING",
-  "po_closed": false,
-  "publication_authorized": false,
+  "qa_verdict": "PASS",
+  "qa_evidence": {
+    "verdict": "PASS",
+    "ac1_ruff_lint": {
+      "status": "PASS",
+      "result": "0 errors (target: <=50)",
+      "command": "ruff check scripts/",
+      "evidence": "All checks passed! Exit code 0. Baseline was 222."
+    },
+    "ac2_ruff_format": {
+      "status": "PASS",
+      "result": "188 files already formatted, zero differences",
+      "command": "ruff format --check scripts/",
+      "evidence": "Clean format check, 0 files with formatting differences."
+    },
+    "ac3_mypy_top10": {
+      "status": "PASS",
+      "result": "0 errors (100% reduction from baseline 130)",
+      "command": "mypy on top-10 critical modules",
+      "evidence": "Success: no issues found in 10 source files. Baseline was 130 errors (commit ccfc2f8), reduced to 0."
+    },
+    "ac4_canonical_views": {
+      "status": "WAIVED",
+      "result": "Test requires PostgreSQL database",
+      "evidence": "Pre-existing condition documented in story. Test skipped without PostgreSQL. No code changes to tests/integration/test_migration_fresh_install.py in this story (zero diff).",
+      "justification": "Requires live PostgreSQL database — not available in this QA environment. Story explicitly acknowledges this dependency."
+    },
+    "ac5_no_regressions": {
+      "status": "PASS",
+      "result": "100 passed, 5 skipped, 0 failed in target tests",
+      "command": "pytest tests/test_universe.py tests/test_manifest.py tests/test_freshness_gate.py tests/test_consulting_readiness.py tests/test_coverage_truth.py",
+      "evidence": "All 100 tests passed, 5 skipped (DB-dependent). Zero new test failures introduced by this story's changes. 91 files modified across the codebase, all non-functional changes (ruff noqa, formatting, type hints, security annotations)."
+    },
+    "bandit_scan": {
+      "status": "PASS",
+      "result": "Zero high-severity issues",
+      "command": "bandit -r scripts/ -lll -q",
+      "evidence": "No output = no high-severity security issues found."
+    },
+    "summary": "4 Lanes completed (A-D): 52+ files fixed across SQL injection (5 real, 20 FPs), URL validation (57 errors in 15 files), silent failures (42 errors in 16 files), and remaining ruff rules (E402, S112, S101, S603, S607, S311, S108) across 18 files. New helper scripts/crawl/security.py (validate_url_scheme). All ruff, format, mypy, bandit checks pass."
+  },
   "gates": {
-    "lint": "PENDING",
-    "typecheck": "PENDING",
-    "tests": "PENDING",
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "tests": "PASS",
     "build": "NA"
   },
   "scope_files": [
     "scripts/",
     "pyproject.toml"
   ],
-  "reviewed_commit": null,
-  "summary": "B2G-FIX-02 em progresso. Baseline: 171 ruff errors (S310:50, S110:44, S608:25), ruff format OK após remoção symlink quebrado, bandit: 164 findings. Implementação parcial no commit c3cef39 (ruff format + secrets cleanup). State file criado em 2026-07-14 durante reconciliação pós-push.",
+  "reviewed_commit": "5450d83",
+  "summary": "B2G-FIX-02 QA GATE: PASS. AC1 ruff=0, AC2 format=clean, AC3 mypy top-10=0 errors (100% reduction), AC4 WAIVED (requires PostgreSQL), AC5 zero new regressions (100/100 tests pass). 52+ files hardened across 4 security/code-quality lanes. Bandit zero high-severity findings. 91 files modified, 592 insertions, 3824 deletions.",
   "reversa_context": {
     "extraction_version": null
   }
