@@ -26,6 +26,12 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- ============================================================
+-- 0. Garantir coluna is_active (B2G-FIX-04: adicionada via DDL manual,
+--    nunca constou em migration. Necessaria para o partial index abaixo.)
+-- ============================================================
+ALTER TABLE pncp_supplier_contracts ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+
+-- ============================================================
 -- 1. GIN index com gin_trgm_ops em objeto_contrato
 -- ============================================================
 --

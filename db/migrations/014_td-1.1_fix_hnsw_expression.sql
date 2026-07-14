@@ -34,7 +34,16 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
 -- ============================================================
--- 2. Recreate search_datalake with corrected HNSW expression
+-- 2. Drop old search_datalake signature (migration 005)
+--    The new function has a different parameter list. Without DROP,
+--    PostgreSQL treats them as overloads, making COMMENT ambiguous.
+-- ============================================================
+DROP FUNCTION IF EXISTS search_datalake(
+    TEXT[], DATE, DATE, TEXT, INT[], NUMERIC, NUMERIC, INT[], TEXT[], INT
+);
+
+-- ============================================================
+-- 3. Recreate search_datalake with corrected HNSW expression
 -- ============================================================
 --
 -- Esta funcao tem 13 parametros e suporta hybrid search (FTS + embedding).

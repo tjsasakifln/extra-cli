@@ -27,6 +27,12 @@
 
 BEGIN;
 
+-- B2G-FIX-04: DROP views first — CREATE OR REPLACE cannot change column lists
+DROP VIEW IF EXISTS v_contract_historical CASCADE;
+DROP VIEW IF EXISTS v_supplier_winners CASCADE;
+DROP VIEW IF EXISTS v_expiring_contracts CASCADE;
+DROP VIEW IF EXISTS v_contract_intel_percentis CASCADE;
+
 -- ==========================================================================
 -- View 1: v_contract_historical
 -- Historical contracts (3-year window) for target universe entities.
@@ -34,20 +40,17 @@ BEGIN;
 
 CREATE OR REPLACE VIEW v_contract_historical AS
 SELECT
-    c.numero_controle_pncp                                   AS contrato_id,
+    c.contrato_id,
     c.orgao_cnpj,
     c.orgao_nome,
-    c.ni_fornecedor                                          AS fornecedor_cnpj,
-    c.nome_fornecedor                                        AS fornecedor_nome,
+    c.fornecedor_cnpj,
+    c.fornecedor_nome,
     c.objeto_contrato,
-    c.valor_global                                           AS valor_contrato,
-    c.data_assinatura                                        AS data_inicio_contrato,
-    c.data_fim_vigencia                                      AS data_fim_contrato,
+    c.valor_total                                            AS valor_contrato,
+    c.data_inicio                                            AS data_inicio_contrato,
+    c.data_fim                                               AS data_fim_contrato,
     c.uf,
     c.municipio,
-    c.esfera,
-    c.nr_contrato,
-    c.ano,
     e.razao_social                                           AS ente_razao_social,
     e.municipio                                              AS ente_municipio,
     e.codigo_ibge                                            AS ente_codigo_ibge,
@@ -56,11 +59,10 @@ SELECT
     c.ingested_at
 FROM pncp_supplier_contracts c
 JOIN sc_public_entities e
-    ON c.orgao_cnpj8 = e.cnpj_8
+    ON LEFT(c.orgao_cnpj, 8) = e.cnpj_8
 WHERE e.raio_200km IS TRUE
   AND c.is_active IS TRUE
-  -- 3-year window: contracts signed in last 3 years
-  AND c.data_assinatura >= (CURRENT_DATE - INTERVAL '3 years');
+  AND c.data_inicio >= (CURRENT_DATE - INTERVAL '3 years');
 
 COMMENT ON VIEW v_contract_historical IS
 'Historical contracts (3-year window) for public entities within 200 km of Florianópolis.
@@ -76,48 +78,47 @@ When PNCP does not distinguish, the semantic is marked as unknown at the API lev
 CREATE OR REPLACE VIEW v_supplier_winners AS
 WITH fornecedor_orgao_agg AS (
     SELECT
-        c.ni_fornecedor,
-        c.nome_fornecedor,
+        c.fornecedor_cnpj,
+        c.fornecedor_nome,
         c.orgao_cnpj,
         c.orgao_nome,
-        SUM(COALESCE(c.valor_global, 0))                       AS valor_orgao,
+        SUM(COALESCE(c.valor_total, 0))                        AS valor_orgao,
         COUNT(*)                                                AS qtd_contratos_orgao
     FROM pncp_supplier_contracts c
     JOIN sc_public_entities e
-        ON c.orgao_cnpj8 = e.cnpj_8
+        ON LEFT(c.orgao_cnpj, 8) = e.cnpj_8
     WHERE e.raio_200km IS TRUE
       AND c.is_active IS TRUE
-      AND c.ni_fornecedor IS NOT NULL
-      AND c.ni_fornecedor != ''
-    GROUP BY c.ni_fornecedor, c.nome_fornecedor, c.orgao_cnpj, c.orgao_nome
+      AND c.fornecedor_cnpj IS NOT NULL
+      AND c.fornecedor_cnpj != ''
+    GROUP BY c.fornecedor_cnpj, c.fornecedor_nome, c.orgao_cnpj, c.orgao_nome
 ),
 fornecedor_totals AS (
     SELECT
-        fo.ni_fornecedor,
-        fo.nome_fornecedor,
+        fo.fornecedor_cnpj,
+        fo.fornecedor_nome,
         SUM(fo.qtd_contratos_orgao)                             AS qtd_contratos,
         SUM(fo.valor_orgao)                                     AS valor_total,
         ROUND(AVG(fo.valor_orgao)::numeric, 2)                  AS ticket_medio_contrato,
         COUNT(DISTINCT fo.orgao_cnpj)                           AS qtd_orgaos_distintos,
         STRING_AGG(DISTINCT fo.orgao_nome, '; ' ORDER BY fo.orgao_nome) AS orgaos_lista
     FROM fornecedor_orgao_agg fo
-    GROUP BY fo.ni_fornecedor, fo.nome_fornecedor
+    GROUP BY fo.fornecedor_cnpj, fo.fornecedor_nome
 ),
 hhi_calc AS (
     SELECT
         ft.*,
-        -- HHI computed from per-agency value shares
         ROUND(
             (SELECT SUM(POWER(fo2.valor_orgao * 1.0 / NULLIF(ft.valor_total, 0), 2) * 10000)
              FROM fornecedor_orgao_agg fo2
-             WHERE fo2.ni_fornecedor = ft.ni_fornecedor),
+             WHERE fo2.fornecedor_cnpj = ft.fornecedor_cnpj),
             0
         )                                                        AS hhi_concentracao
     FROM fornecedor_totals ft
 )
 SELECT
-    ni_fornecedor                                               AS fornecedor_cnpj,
-    nome_fornecedor                                             AS fornecedor_nome,
+    fornecedor_cnpj,
+    fornecedor_nome,
     qtd_contratos,
     ROUND(valor_total::numeric, 2)                              AS valor_total_contratos,
     ticket_medio_contrato,
@@ -140,29 +141,29 @@ Value column is valor_global from PNCP — NOT preço praticado.';
 
 CREATE OR REPLACE VIEW v_expiring_contracts AS
 SELECT
-    c.numero_controle_pncp                                   AS contrato_id,
+    c.contrato_id,
     c.orgao_cnpj,
     c.orgao_nome,
-    c.ni_fornecedor                                          AS fornecedor_cnpj,
-    c.nome_fornecedor                                        AS fornecedor_nome,
+    c.fornecedor_cnpj,
+    c.fornecedor_nome,
     c.objeto_contrato,
-    c.valor_global                                           AS valor_contrato,
-    c.data_assinatura                                        AS data_inicio_contrato,
-    c.data_fim_vigencia                                      AS data_fim_contrato,
-    (c.data_fim_vigencia - CURRENT_DATE)                     AS dias_ate_fim,
+    c.valor_total                                            AS valor_contrato,
+    c.data_inicio                                            AS data_inicio_contrato,
+    c.data_fim                                               AS data_fim_contrato,
+    (c.data_fim - CURRENT_DATE)                              AS dias_ate_fim,
     c.uf,
     c.municipio,
     e.razao_social                                           AS ente_razao_social,
     e.municipio                                              AS ente_municipio
 FROM pncp_supplier_contracts c
 JOIN sc_public_entities e
-    ON c.orgao_cnpj8 = e.cnpj_8
+    ON LEFT(c.orgao_cnpj, 8) = e.cnpj_8
 WHERE e.raio_200km IS TRUE
   AND c.is_active IS TRUE
-  AND c.data_fim_vigencia IS NOT NULL
-  AND c.data_fim_vigencia BETWEEN (CURRENT_DATE + INTERVAL '90 days')
-                               AND (CURRENT_DATE + INTERVAL '180 days')
-ORDER BY c.data_fim_vigencia, c.valor_global DESC NULLS LAST;
+  AND c.data_fim IS NOT NULL
+  AND c.data_fim BETWEEN (CURRENT_DATE + INTERVAL '90 days')
+                     AND (CURRENT_DATE + INTERVAL '180 days')
+ORDER BY c.data_fim, c.valor_total DESC NULLS LAST;
 
 COMMENT ON VIEW v_expiring_contracts IS
 'Active contracts ending between 90 and 180 days from today (renewal/rebidding window).
@@ -177,7 +178,7 @@ Value column is valor_global from PNCP — NOT preço praticado.';
 CREATE OR REPLACE VIEW v_contract_intel_percentis AS
 WITH categorias AS (
     SELECT
-        c.valor_global                                           AS valor,
+        c.valor_total                                            AS valor,
         CASE
             WHEN c.objeto_contrato ILIKE '%obra%'
               OR c.objeto_contrato ILIKE '%construção%'
@@ -234,11 +235,11 @@ WITH categorias AS (
         END                                                      AS categoria_agrupada
     FROM pncp_supplier_contracts c
     JOIN sc_public_entities e
-        ON c.orgao_cnpj8 = e.cnpj_8
+        ON LEFT(c.orgao_cnpj, 8) = e.cnpj_8
     WHERE e.raio_200km IS TRUE
       AND c.is_active IS TRUE
-      AND c.valor_global IS NOT NULL
-      AND c.valor_global > 0
+      AND c.valor_total IS NOT NULL
+      AND c.valor_total > 0
 )
 SELECT
     categoria_agrupada                                        AS categoria,

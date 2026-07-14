@@ -198,6 +198,10 @@ COMMENT ON VIEW public.v_coverage_gaps_by_municipio IS
 -- 3a. Add source column (se ausente)
 ALTER TABLE public.ingestion_runs ADD COLUMN IF NOT EXISTS source TEXT;
 
+-- 3a2. Add completed_at and metadata columns (B2G-FIX-04: schema v2 drift)
+ALTER TABLE public.ingestion_runs ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
+ALTER TABLE public.ingestion_runs ADD COLUMN IF NOT EXISTS metadata JSONB;
+
 -- 3b. Reset stuck ingestion runs (IDs 3, 4, 5)
 -- Adaptado para schema v2: usa completed_at (nao finished_at)
 -- e metadata jsonb (nao error_message text)
@@ -226,6 +230,9 @@ WHERE id IN (3, 4, 5)
 ALTER TABLE public.ingestion_checkpoints ADD COLUMN IF NOT EXISTS scope_key TEXT;
 ALTER TABLE public.ingestion_checkpoints ADD COLUMN IF NOT EXISTS last_id TEXT;
 ALTER TABLE public.ingestion_checkpoints ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ;
+ALTER TABLE public.ingestion_checkpoints ADD COLUMN IF NOT EXISTS uf TEXT;
+ALTER TABLE public.ingestion_checkpoints ADD COLUMN IF NOT EXISTS modalidade_id INT;
+ALTER TABLE public.ingestion_checkpoints ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
 
 -- Popula scope_key para registros existentes (converte uf+modalidade_id)
 UPDATE public.ingestion_checkpoints

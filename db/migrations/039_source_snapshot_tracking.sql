@@ -299,7 +299,8 @@ COMMENT ON FUNCTION public.fn_reconcile_source_snapshot IS
 -- ============================================================================
 -- 5. Update v_opportunity_open to filter by source_active=TRUE
 -- ============================================================================
-
+-- B2G-FIX-04: DROP first — CREATE OR REPLACE cannot change column list
+DROP VIEW IF EXISTS v_opportunity_open;
 CREATE OR REPLACE VIEW v_opportunity_open AS
 SELECT
     oi.*,

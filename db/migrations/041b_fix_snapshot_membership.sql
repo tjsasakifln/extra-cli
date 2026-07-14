@@ -25,7 +25,8 @@ BEGIN;
 -- ============================================================================
 -- 1. Fix fn_record_snapshot_membership — accept the keys Python actually sends
 -- ============================================================================
-
+-- B2G-FIX-04: DROP old signature (039 uses BIGINT, TEXT, JSONB)
+DROP FUNCTION IF EXISTS public.fn_record_snapshot_membership(BIGINT, TEXT, JSONB);
 CREATE OR REPLACE FUNCTION public.fn_record_snapshot_membership(
     p_run_id INTEGER,
     p_source_name TEXT,

@@ -63,14 +63,28 @@ EXPECTED_TABLES: set[str] = {
 }
 
 EXPECTED_VIEWS: set[str] = {
-    "v_unmatched_bids",
-    "v_schema_integrity",
-    "v_canonical_contracts",
-    "v_canonical_bids",
-    "v_contract_intel",
-    "v_entity_coverage_summary",
-    "v_active_target_universe",
-    "v_opportunity_ranking",
+    # Created by migrations AND consumed by Python code
+    "v_unmatched_bids",              # 011, 021a, 021d
+    "v_schema_integrity",            # 036
+    "v_latest_evidence",             # 024 — consulting_readiness.py
+    "v_source_health",               # 024 — consulting_readiness.py
+    "v_coverage_gaps_by_municipio",  # 012/020 — local_datalake.py
+    "v_contract_historical",         # 026 — contract_intel/cli.py
+    "v_supplier_winners",            # 026 — contract_intel/cli.py
+    "v_expiring_contracts",          # 026 — contract_intel/cli.py
+    "v_contracts_canonical",         # 030 — competitive_intel_validation.py
+    "v_opportunity_coverage_summary", # 027 — opportunity_intel/cli.py
+    "v_target_universe_active",      # 038 — universe_tools.py
+}
+
+# Functions that MUST exist (created by migrations, consumed by code)
+EXPECTED_FUNCTIONS: set[str] = {
+    "search_datalake",                  # 005/014 — core search
+    "upsert_pncp_raw_bids",             # 006/023 — ingest
+    "upsert_pncp_supplier_contracts",    # 006 — ingest
+    "fn_record_snapshot_membership",     # 039/041b — reconciliation
+    "fn_reconcile_source_snapshot",      # 039/041b — reconciliation
+    "generate_coverage_snapshot",        # 012/021a — coverage snapshots
 }
 
 # FK constraints that MUST be validated (migration 041a)
@@ -96,6 +110,7 @@ class SchemaReport:
     tables_missing: list[str] = field(default_factory=list)
     tables_extra: list[str] = field(default_factory=list)
     views_missing: list[str] = field(default_factory=list)
+    functions_missing: list[str] = field(default_factory=list)
     fks_not_valid: list[dict[str, str]] = field(default_factory=list)
     fks_missing: list[dict[str, str]] = field(default_factory=list)
     critical_findings: list[str] = field(default_factory=list)
@@ -161,6 +176,16 @@ def run_diagnostics(dsn: str | None = None) -> SchemaReport:
         actual_views = {row[0] for row in cur.fetchall()}
         report.views_missing = sorted(EXPECTED_VIEWS - actual_views)
 
+        # --- Function comparison ---
+        cur.execute("""
+            SELECT routine_name FROM information_schema.routines
+            WHERE routine_type = 'FUNCTION'
+              AND routine_schema = 'public'
+            ORDER BY routine_name
+        """)
+        actual_functions = {row[0] for row in cur.fetchall()}
+        report.functions_missing = sorted(EXPECTED_FUNCTIONS - actual_functions)
+
         # --- FK validation (migration 041a risk) ---
         for fk in PENDING_FK_VALIDATION:
             cur.execute(
@@ -199,7 +224,6 @@ def run_diagnostics(dsn: str | None = None) -> SchemaReport:
         cur.execute("""
             SELECT COUNT(*) FROM source_snapshot_membership
             WHERE source_record_id = 'unknown'
-              AND is_active = TRUE
         """)
         unknown_records = cur.fetchone()[0]
         if unknown_records > 0:
@@ -231,6 +255,7 @@ def print_report(report: SchemaReport, json_output: bool = False) -> int:
                     "tables_missing": report.tables_missing,
                     "tables_extra": report.tables_extra,
                     "views_missing": report.views_missing,
+                    "functions_missing": report.functions_missing,
                     "fks_not_valid": [f"{fk['constraint']} ON {fk['table']}" for fk in report.fks_not_valid],
                     "fks_missing": [f"{fk['constraint']} ON {fk['table']}" for fk in report.fks_missing],
                     "critical_findings": report.critical_findings,
@@ -277,6 +302,14 @@ def print_report(report: SchemaReport, json_output: bool = False) -> int:
             print(f"  - {v}")
     else:
         print("[PASS] All expected views present.")
+
+    # Functions
+    if report.functions_missing:
+        print(f"[WARN] {len(report.functions_missing)} expected functions missing:")
+        for f in report.functions_missing:
+            print(f"  - {f}")
+    else:
+        print("[PASS] All expected functions present.")
 
     # FKs
     if report.fks_missing:

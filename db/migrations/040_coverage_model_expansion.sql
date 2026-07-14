@@ -17,21 +17,8 @@
 -- Idempotente: Sim (IF NOT EXISTS, DO $$ blocks)
 -- ============================================================================
 
-BEGIN;
-
--- ============================================================================
--- 1. Expandir o enum evidence_state com 4 novos estados
--- ============================================================================
--- Estados atuais: success_with_data, success_zero, partial, connection_failed,
---                  auth_failed, parse_failed, transform_failed, persist_failed,
---                  not_applicable, not_investigated
--- Novos estados:  pending, running, blocked, stale
--- Mapeamento:     "error" e o nome generico; os estados especificos existentes
---                 (connection_failed, auth_failed, etc.) continuam valendo.
-
--- PostgreSQL nao permite ALTER ENUM ADD VALUE dentro de uma transacao que
--- tambem faz outras operacoes. Usamos DO $$ blocks para cada ADD VALUE.
--- Cada um e uma transacao implicita separada (via DO).
+-- B2G-FIX-04: ALTER TYPE ADD VALUE cannot run inside a multi-statement
+-- transaction. Execute enum additions BEFORE the main BEGIN block.
 
 DO $$ BEGIN
     ALTER TYPE evidence_state ADD VALUE IF NOT EXISTS 'pending' BEFORE 'running';
@@ -52,6 +39,9 @@ DO $$ BEGIN
     ALTER TYPE evidence_state ADD VALUE IF NOT EXISTS 'stale' AFTER 'blocked';
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+-- Now safe to start transaction for remaining DDL
+BEGIN;
 
 -- ============================================================================
 -- 2. Adicionar novas colunas a coverage_evidence (Secao 9)
@@ -392,7 +382,7 @@ SELECT
     COUNT(*) FILTER (WHERE ce.entity_id IS NOT NULL AND ce.state IN ('pending', 'running')) AS in_progress,
     COUNT(*) FILTER (WHERE ce.entity_id IS NOT NULL AND ce.state = 'blocked') AS blocked,
     COUNT(*) FILTER (WHERE ce.entity_id IS NOT NULL AND ce.state = 'stale') AS stale,
-    COUNT(*) FILTER (WHERE ce.entity_id IS NOT NULL AND ce.state LIKE '%failed') AS errored,
+    COUNT(*) FILTER (WHERE ce.entity_id IS NOT NULL AND ce.state::TEXT LIKE '%failed') AS errored,
     ROUND(
         100.0 * COUNT(*) FILTER (WHERE ce.entity_id IS NOT NULL AND ce.state IN ('success_with_data', 'success_zero'))
         / GREATEST(COUNT(*) FILTER (WHERE ce.entity_id IS NOT NULL), 1), 1

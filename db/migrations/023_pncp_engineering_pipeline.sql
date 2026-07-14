@@ -106,6 +106,9 @@ COMMENT ON TABLE public.sc_municipalities IS
 COMMENT ON TABLE public.engineering_opportunities IS
     'Camada derivada com classificacao de engenharia civil, geografia SC e links separados do PNCP.';
 
+-- B2G-FIX-04: DROP old signature (006 returns TABLE(action,pncp_id,content_hash);
+-- 023 returns TABLE(inserted,updated,unchanged)). CREATE OR REPLACE cannot change return type.
+DROP FUNCTION IF EXISTS public.upsert_pncp_raw_bids(JSONB);
 CREATE OR REPLACE FUNCTION public.upsert_pncp_raw_bids(p_records JSONB)
 RETURNS TABLE (inserted INTEGER, updated INTEGER, unchanged INTEGER)
 LANGUAGE plpgsql

@@ -109,6 +109,8 @@ CREATE INDEX IF NOT EXISTS idx_cov_match_method
 -- ============================================================
 -- 4. Update v_coverage_summary to include match_method
 -- ============================================================
+-- B2G-FIX-04: DROP first because CREATE OR REPLACE cannot rename columns
+DROP VIEW IF EXISTS v_coverage_summary;
 CREATE OR REPLACE VIEW v_coverage_summary AS
 SELECT
     ec.source,

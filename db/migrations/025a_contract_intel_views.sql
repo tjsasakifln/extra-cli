@@ -45,7 +45,7 @@ SELECT
     c.ingested_at
 FROM pncp_supplier_contracts c
 JOIN sc_public_entities e
-    ON c.orgao_cnpj LIKE e.cnpj_raiz || '%'
+    ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
 WHERE e.raio_200km IS TRUE
    OR e.distancia_fk <= 200.0;
 
@@ -68,7 +68,7 @@ WITH fornecedor_orgao_agg AS (
         COUNT(*) AS qtd_contratos_orgao
     FROM pncp_supplier_contracts c
     JOIN sc_public_entities e
-        ON c.orgao_cnpj LIKE e.cnpj_raiz || '%'
+        ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
     WHERE (e.raio_200km IS TRUE OR e.distancia_fk <= 200.0)
       AND c.fornecedor_cnpj IS NOT NULL
       AND c.fornecedor_cnpj != ''
@@ -82,20 +82,35 @@ fornecedor_totals AS (
         SUM(valor_orgao)                                                       AS valor_total_contratos,
         ROUND(AVG(valor_orgao), 2)                                             AS valor_medio_contrato,
         COUNT(DISTINCT orgao_cnpj)                                             AS qtd_orgaos_distintos,
-        -- HHI computed from per-agency shares (correct formula)
-        ROUND(
-            SUM(POWER(
-                valor_orgao * 1.0 / NULLIF(SUM(valor_orgao) OVER (
-                    PARTITION BY fornecedor_cnpj
-                ), 0), 2
-            )) * 10000,
-            0
-        )                                                                       AS hhi_concentracao,
         STRING_AGG(DISTINCT orgao_nome, '; ' ORDER BY orgao_nome)              AS orgaos_lista
     FROM fornecedor_orgao_agg
     GROUP BY fornecedor_cnpj, fornecedor_nome
+),
+fornecedor_hhi AS (
+    -- B2G-FIX-04: HHI computed in separate CTE (cannot nest window function inside aggregate)
+    SELECT
+        fo.fornecedor_cnpj,
+        ROUND(
+            SUM(POWER(
+                fo.valor_orgao * 1.0 / NULLIF(ft.valor_total_contratos, 0), 2
+            )) * 10000,
+            0
+        )                                                                       AS hhi_concentracao
+    FROM fornecedor_orgao_agg fo
+    JOIN fornecedor_totals ft ON fo.fornecedor_cnpj = ft.fornecedor_cnpj
+    GROUP BY fo.fornecedor_cnpj
 )
-SELECT * FROM fornecedor_totals
+SELECT
+    ft.fornecedor_cnpj,
+    ft.fornecedor_nome,
+    ft.qtd_contratos,
+    ft.valor_total_contratos,
+    ft.valor_medio_contrato,
+    ft.qtd_orgaos_distintos,
+    COALESCE(fh.hhi_concentracao, 0)                                            AS hhi_concentracao,
+    ft.orgaos_lista
+FROM fornecedor_totals ft
+LEFT JOIN fornecedor_hhi fh ON ft.fornecedor_cnpj = fh.fornecedor_cnpj
 ORDER BY valor_total_contratos DESC;
 
 COMMENT ON VIEW v_contract_intel_fornecedores IS
@@ -122,7 +137,7 @@ SELECT
     e.razao_social AS ente_razao_social
 FROM pncp_supplier_contracts c
 JOIN sc_public_entities e
-    ON c.orgao_cnpj LIKE e.cnpj_raiz || '%'
+    ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
 WHERE (e.raio_200km IS TRUE OR e.distancia_fk <= 200.0)
   AND c.data_fim IS NOT NULL
   AND c.data_fim::date BETWEEN (CURRENT_DATE + INTERVAL '90 days')
@@ -198,7 +213,7 @@ WITH categorias AS (
         END                                                                     AS categoria_agrupada
     FROM pncp_supplier_contracts c
     JOIN sc_public_entities e
-        ON c.orgao_cnpj LIKE e.cnpj_raiz || '%'
+        ON c.orgao_cnpj LIKE e.cnpj_8 || '%'
     WHERE (e.raio_200km IS TRUE OR e.distancia_fk <= 200.0)
       AND c.valor_total IS NOT NULL
       AND c.valor_total > 0

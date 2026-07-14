@@ -48,7 +48,7 @@ ALTER TABLE IF EXISTS public.pncp_supplier_contracts
 ALTER TABLE IF EXISTS public.pncp_supplier_contracts
     DROP CONSTRAINT IF EXISTS fk_contracts_supplier_entity;
 
-RAISE NOTICE 'Part 1: Dropped 3 broken FKs (fk_bids_orgao_entity, fk_contracts_orgao_entity, fk_contracts_supplier_entity).';
+DO $$ BEGIN RAISE NOTICE 'Part 1: Dropped 3 broken FKs (fk_bids_orgao_entity, fk_contracts_orgao_entity, fk_contracts_supplier_entity).'; END; $$;
 
 -- ============================================================================
 -- PART 2: Add generated cnpj_8 columns to child tables
@@ -130,7 +130,6 @@ BEGIN
         ALTER TABLE public.pncp_raw_bids
             ADD CONSTRAINT fk_bids_orgao_entity_v2
             FOREIGN KEY (orgao_cnpj_8) REFERENCES public.sc_public_entities(cnpj_8)
-            ON UPDATE CASCADE ON DELETE SET NULL
             NOT VALID;
         RAISE NOTICE 'FK fk_bids_orgao_entity_v2 created (NOT VALID).';
     ELSE
@@ -144,7 +143,6 @@ BEGIN
         ALTER TABLE public.pncp_supplier_contracts
             ADD CONSTRAINT fk_contracts_orgao_entity_v2
             FOREIGN KEY (orgao_cnpj_8) REFERENCES public.sc_public_entities(cnpj_8)
-            ON UPDATE CASCADE ON DELETE SET NULL
             NOT VALID;
         RAISE NOTICE 'FK fk_contracts_orgao_entity_v2 created (NOT VALID).';
     ELSE
@@ -158,7 +156,6 @@ BEGIN
         ALTER TABLE public.pncp_supplier_contracts
             ADD CONSTRAINT fk_contracts_supplier_entity_v2
             FOREIGN KEY (fornecedor_cnpj_8) REFERENCES public.sc_public_entities(cnpj_8)
-            ON UPDATE CASCADE ON DELETE SET NULL
             NOT VALID;
         RAISE NOTICE 'FK fk_contracts_supplier_entity_v2 created (NOT VALID).';
     ELSE
@@ -204,7 +201,7 @@ CREATE INDEX IF NOT EXISTS idx_contracts_fornecedor_cnpj_8
     ON public.pncp_supplier_contracts (fornecedor_cnpj_8)
     WHERE fornecedor_cnpj_8 IS NOT NULL;
 
-RAISE NOTICE 'Fix 041 complete. Run VALIDATE CONSTRAINT separately for each FK in low-traffic window.';
+DO $$ BEGIN RAISE NOTICE 'Fix 041 complete. Run VALIDATE CONSTRAINT separately for each FK in low-traffic window.'; END; $$;
 
 -- ============================================================================
 -- PART 6: Update schema integrity view to reference new FK names
@@ -279,7 +276,7 @@ FROM (VALUES
     ('uq_oi_content_hash')
 ) AS o(object_name);
 
-RAISE NOTICE 'Part 6: Updated v_schema_integrity view with new FK constraint names.';
+DO $$ BEGIN RAISE NOTICE 'Part 6: Updated v_schema_integrity view with new FK constraint names.'; END; $$;
 
 -- ============================================================================
 -- Rollback SQL
