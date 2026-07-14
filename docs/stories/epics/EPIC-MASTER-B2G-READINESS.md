@@ -69,10 +69,10 @@ Infraestrutura de inteligência B2G para CONFENGE: coleta multi-source → backf
 
 | ID | Título | Status | Esforço | Deps |
 |----|--------|--------|---------|------|
-| **B2G-FIX-01** | Corrigir imports, PNCP URL, logging, arquivos duplicados | ready | M | — |
-| **B2G-FIX-02** | Code quality cleanup — lint + format + type hints | ready | L | B2G-FIX-01 |
-| **B2G-FIX-03** | Universo canônico único (finalizar FIX-UNIVERSE) | ready | S | — |
-| **B2G-FIX-04** | Alinhar schema código↔banco (finalizar FIX-SCHEMA-MISMATCH) | ready | M | — |
+| **B2G-FIX-01** | Corrigir imports, PNCP URL, logging, arquivos duplicados | Done | M | — |
+| **B2G-FIX-02** | Code quality cleanup — lint + format + type hints | InProgress | L | B2G-FIX-01 |
+| **B2G-FIX-03** | Universo canônico único (finalizar FIX-UNIVERSE) | InReview | S | — |
+| **B2G-FIX-04** | Alinhar schema código↔banco (finalizar FIX-SCHEMA-MISMATCH) | InProgress | M | — |
 
 ### Fase 1 — PROVISIONING (VPS real)
 

@@ -15,6 +15,12 @@
     "tests": "PASS",
     "review": "PASS"
   },
+  "scope_files": [
+    "scripts/lib/universe.py",
+    "scripts/opportunity_intel/manifest.py",
+    "scripts/consulting_readiness.py",
+    "scripts/coverage_truth.py"
+  ],
   "files_modified": [
     "scripts/coverage_truth.py"
   ],

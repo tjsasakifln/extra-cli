@@ -8,7 +8,7 @@ Usage:
 
 Requires:
     - psycopg2
-    - LOCAL_DATALAKE_DSN env var (default: postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres)
+    - LOCAL_DATALAKE_DSN env var (default: postgresql://postgres@127.0.0.1:54399/postgres, configure password via env)
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ import psycopg2
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
+DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@127.0.0.1:54399/postgres")
 
 
 def count_covered(source: str = "pncp") -> int:

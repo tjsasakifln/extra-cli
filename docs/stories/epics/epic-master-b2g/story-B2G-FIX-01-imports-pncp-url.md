@@ -1,7 +1,7 @@
 ---
 story_id: B2G-FIX-01
 title: "Corrigir imports quebrados, config package e URL base do PNCP"
-status: ready
+status: Done
 priority: P0
 risk_level: STANDARD
 effort: M

@@ -1,20 +1,28 @@
 {
   "story_id": "B2G-FIX-04",
   "title": "Alinhar schema código↔banco — 10 tabelas fantasmas e colunas divergentes",
-  "status": "InReview",
+  "status": "InProgress",
   "priority": "P0",
   "risk_level": "HIGH-RISK",
   "epic": "EPIC-MASTER-B2G-READINESS",
   "phase": 0,
   "po_validated": true,
-  "qa_verdict": "PASS",
+  "qa_verdict": "PENDING",
   "po_closed": false,
+  "reopened_reason": "QA PASS foi prematuro — diagnostics.py nunca executado contra banco real. AC1, AC4, AC5 requerem validação com PostgreSQL. Follow-ups do QA listavam 'Executar diagnostics.py contra banco local' e 'Executar setup_db.sh em banco vazio' como não realizados.",
   "publication_authorized": false,
   "gates": {
     "lint": "PASS",
     "tests": "PASS",
     "review": "PASS"
   },
+  "scope_files": [
+    "scripts/schema/diagnostics.py",
+    "scripts/schema/audit_sql_references.py",
+    "db/migrations/",
+    "db/current-schema.sql",
+    "db/setup_db.sh"
+  ],
   "files_modified": [
     "scripts/schema/diagnostics.py"
   ],

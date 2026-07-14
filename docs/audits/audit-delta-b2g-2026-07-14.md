@@ -208,3 +208,55 @@ Padrão A (`{source}-crawl.service`), Padrão B (`pncp-{func}.service`), Padrão
 ---
 
 *Delta gerado por convergência de 5 subagentes — 2026-07-14*
+
+---
+
+## 9. Post-Push Reconciliation — 2026-07-14 (Segunda Sessão)
+
+**Commit inspecionado:** `c3cef395cf42d421720daae335e6fe2254769490`
+**Branch:** main
+**Working tree:** limpa (após correções iniciais)
+
+### 9.1 Reconciliação de Estado AIOX
+
+| Story | Status Markdown | Status State File | Status Real | Ação |
+|-------|----------------|-------------------|-------------|------|
+| B2G-FIX-01 | ready → **Done** | Done, po_closed=true, qa=PASS | IMPLEMENTED_AND_VERIFIED (parcial — AC1 inválido, ver abaixo) | Markdown atualizado. State file: adicionado scope_files, reviewed_commit fixado. |
+| B2G-FIX-02 | ready → **InProgress** | **INEXISTENTE** → criado | PARTIALLY_IMPLEMENTED (commit c3cef39 = ruff format + secrets) | State file criado. Status: InProgress, qa=PENDING. |
+| B2G-FIX-03 | ready → **InReview** | InReview, qa=PASS, po_closed=false | IMPLEMENTED_NOT_VERIFIED (AC1-AC5 OK, AC6 NEEDS_RETEST) | Markdown atualizado. State file: adicionado scope_files. Aguarda PO close. |
+| B2G-FIX-04 | ready → **InProgress** | InReview→**InProgress**, qa=PASS→**PENDING** | IMPLEMENTED_NOT_VERIFIED — QA foi prematuro | Reaberta. diagnostics.py existe mas NUNCA rodou contra banco real. AC2-AC5 requerem PostgreSQL. |
+| EPIC Master | todas "ready" | N/A | Ver 9.2 | Status atualizados para refletir realidade. |
+
+### 9.2 Divergências Corrigidas
+
+1. **B2G-FIX-01 state file**: `reviewed_commit: "HEAD"` → hash real `3ede23a...`. Adicionado `scope_files` (ausente, violava schema.json required).
+2. **B2G-FIX-03 state file**: Adicionado `scope_files` (ausente).
+3. **B2G-FIX-04 state file**: Adicionado `scope_files`, `reopened_reason`. Status InReview→InProgress, qa_verdict PASS→PENDING.
+4. **B2G-FIX-02 state file**: Criado do zero (não existia).
+5. **Symlink quebrado**: `scripts/degradation.py → crawl/degradation.py` removido (causava `ruff format` falhar). O arquivo alvo foi deletado no B2G-FIX-01.
+
+### 9.3 B2G-FIX-01 AC1 — WAIVED (Premissa Incorreta)
+
+A story exigia alterar URL para `pncp-consulta/v1`. Verificação Exa MCP (2026-07-14) confirmou que o endpoint oficial do PNCP é `api/consulta/v1` (Swagger UI em `https://pncp.gov.br/api/consulta/swagger-ui/index.html`). O código já usava a URL correta. A story será atualizada para WAIVED neste AC.
+
+**Evidência**: [PNCP Swagger UI](https://pncp.gov.br/api/consulta/swagger-ui/index.html), [Manual PNCP API Consultas v1.0](https://www.gov.br/pncp/pt-br/pncp/manuais/versoes-anteriores/ManualPNCPAPIConsultasVerso1.0.pdf)
+
+### 9.4 Novos Achados Nesta Sessão
+
+1. **3 novos pares snake/kebab criados pelo B2G-FIX-01**: `intel_analyze`, `intel_enrich`, `intel_extract_docs` — versões kebab removidas agora.
+2. **2 secrets restantes**: `scripts/coverage/measure_pncp_expansion.py:28` — senha `smartlic_local` removida do default DSN.
+3. **PNCP URL estava correta**: O endpoint `api/consulta/v1` é o oficial. A premissa do B2G-FIX-01 AC1 estava errada.
+4. **config/settings.py:55** ainda usa `api/consulta/v3` — inconsistência com o resto do código que usa `v1`.
+
+### 9.5 Baseline Atualizada (2026-07-14 Sessão 2)
+
+| Métrica | Valor |
+|---------|-------|
+| Ruff errors | 171 (S310:50, S110:44, S608:25, S311:14, S607:10, S112:8, S603:7, E402:5, S101:5, S108:2, E902:1) |
+| Ruff format | LIMPO (188 arquivos, após remover symlink quebrado + 3 kebab duplicatas) |
+| Bandit findings | 164 (LOW:113, MEDIUM:51) |
+| Secrets hardcoded | 2 → **0** (corrigido em measure_pncp_expansion.py) |
+| Snake/kebab duplicates | 3 novos → **0** (kebab removidos) |
+| Testes rápidos | 31 passed, 1 skipped |
+| PostgreSQL disponível | Docker `smartlic-datalake` na porta 54399 |
+| Symlinks quebrados | 1 → **0** (degradation.py removido) |

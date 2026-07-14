@@ -1,0 +1,28 @@
+{
+  "story_id": "B2G-FIX-02",
+  "title": "Code quality cleanup — lint + format + type hints críticos",
+  "status": "InProgress",
+  "priority": "P0",
+  "risk_level": "STANDARD",
+  "epic": "EPIC-MASTER-B2G-READINESS",
+  "phase": 0,
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "scope_files": [
+    "scripts/",
+    "pyproject.toml"
+  ],
+  "reviewed_commit": null,
+  "summary": "B2G-FIX-02 em progresso. Baseline: 171 ruff errors (S310:50, S110:44, S608:25), ruff format OK após remoção symlink quebrado, bandit: 164 findings. Implementação parcial no commit c3cef39 (ruff format + secrets cleanup). State file criado em 2026-07-14 durante reconciliação pós-push.",
+  "reversa_context": {
+    "extraction_version": null
+  }
+}

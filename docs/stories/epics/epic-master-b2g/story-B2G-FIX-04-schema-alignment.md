@@ -1,7 +1,7 @@
 ---
 story_id: B2G-FIX-04
 title: "Alinhar schema código↔banco — 10 tabelas fantasmas e colunas divergentes"
-status: ready
+status: InProgress
 priority: P0
 risk_level: HIGH-RISK
 effort: M

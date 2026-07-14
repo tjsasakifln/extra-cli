@@ -1,7 +1,7 @@
 ---
 story_id: B2G-FIX-03
 title: "Universo canônico único — eliminar 6 denominadores divergentes"
-status: ready
+status: InReview
 priority: P0
 risk_level: STANDARD
 effort: M
