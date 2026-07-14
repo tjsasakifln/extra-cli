@@ -13,4 +13,5 @@
 - [Story 1.3 Close](story-1.3-close.md) -- Story 1.3 Universe Authority closed, 6/11 ACs GO (follow-up), 5 QA issues tech debt
 - [Story 1.4 Close](story-1.4-close.md) -- Story 1.4 Reconcile Open Tenders closed, REQ-001 fix confirmed, TST-001/TST-002 accepted as operational tech debt
 - [Story 1.5 Close](story-1.5-close.md) -- Story 1.5 Coverage Model closed, 97/97 tests, 12/12 tasks, TD-003/027/033 resolved
+- [Story B2G-FIX-04 Close](story-b2g-fix-04-close.md) -- B2G-FIX-04 Schema Alignment closed, 5/5 ACs PASS, 47 migrations green, QA PASS, publication authorized
 - [Epic TD Complete](epic-technical-debt-complete.md) -- Epic de Resolucao de Debitos Tencicos completo (5/5 stories). Proximo: P0-06 a P0-09
