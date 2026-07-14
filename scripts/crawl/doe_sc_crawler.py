@@ -33,6 +33,7 @@ from scripts.crawl.common import (
     parse_date,
     safe_float,
 )
+from scripts.crawl.security import USER_AGENT
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -147,7 +148,7 @@ def _get_token() -> str | None:
     req.add_header("Accept", "application/json")
     req.add_header(
         "User-Agent",
-        "Extra-Consultoria/1.0 (consultoria-licitacoes)",
+        USER_AGENT,
     )
 
     try:
@@ -243,7 +244,7 @@ def _api_request(
     req.add_header("Content-Type", "application/json")
     req.add_header(
         "User-Agent",
-        "Extra-Consultoria/1.0 (consultoria-licitacoes)",
+        USER_AGENT,
     )
     req.add_header("Origin", "https://portal.doe.sea.sc.gov.br")
     req.add_header("Referer", "https://portal.doe.sea.sc.gov.br/")
@@ -797,7 +798,7 @@ def diagnostic() -> dict:
         req = urllib.request.Request(url, data=payload, method="POST")
         req.add_header("Content-Type", "application/json")
         req.add_header("Accept", "application/json")
-        req.add_header("User-Agent", "Extra-Consultoria/1.0")
+        req.add_header("User-Agent", USER_AGENT)
         with urllib.request.urlopen(req, timeout=15) as resp:
             login_time = round(time.time() - t0, 3)
             result["e_lic"] = {

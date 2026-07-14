@@ -18,13 +18,15 @@ from pathlib import Path
 
 import yaml
 
+from scripts.crawl.security import USER_AGENT
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
 BRASILAPI_CNPJ = "https://brasilapi.com.br/api/cnpj/v1"
 REQUEST_TIMEOUT = 20
-USER_AGENT = "Mozilla/5.0 (Extra Consultoria/1.0)"
+# USER_AGENT imported from scripts.crawl.security
 
 # Sector-agnostic authority examples
 AUTORIDADE_EXEMPLOS = [

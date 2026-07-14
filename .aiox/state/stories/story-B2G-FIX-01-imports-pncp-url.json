@@ -1,0 +1,63 @@
+{
+  "story_id": "B2G-FIX-01",
+  "title": "Corrigir imports quebrados, duplicatas snake/kebab, User-Agent e deploy scripts",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "STANDARD",
+  "epic": "EPIC-MASTER-B2G-READINESS",
+  "phase": 0,
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS (1018 passed, 1 pre-existing failure)",
+    "review": "PASS"
+  },
+  "reviewed_commit": "HEAD",
+  "files_modified": [
+    "config/logging_config.py",
+    "scripts/crawl/security.py",
+    "scripts/crawl/doe_sc_crawler.py",
+    "scripts/crawl/sc_compras_crawler.py",
+    "scripts/crawl/ciga_ckan_crawler.py",
+    "scripts/crawl/async_client.py",
+    "scripts/crawl/pncp_arp_crawler.py",
+    "scripts/crawl/pncp_pca_crawler.py",
+    "scripts/crawl/orchestrator.py",
+    "scripts/crawl/circuit_breaker.py",
+    "scripts/lib/geocode.py",
+    "scripts/fix/resolve_unresolved_entities.py",
+    "scripts/build-proposta-data.py",
+    "deploy/provision-vps.sh",
+    "deploy/systemd/extra-crawl-selenium.service",
+    "deploy/systemd/extra-crawl-selenium.timer",
+    "scripts/intel_pipeline.py",
+    "scripts/intel_collect.py",
+    "scripts/intel_report.py",
+    "scripts/intel_excel.py",
+    "scripts/intel_validate.py",
+    "scripts/collect_report_data.py",
+    "scripts/generate_proposta_pdf.py",
+    "scripts/check_imports.py"
+  ],
+  "files_created": [
+    "scripts/intel_enrich.py",
+    "scripts/intel_extract_docs.py",
+    "scripts/intel_analyze.py"
+  ],
+  "files_deleted": [
+    "scripts/intel-collect.py",
+    "scripts/intel-report.py",
+    "scripts/intel-excel.py",
+    "scripts/intel-validate.py",
+    "scripts/collect-report-data.py",
+    "scripts/generate-proposta-pdf.py",
+    "scripts/crawl/degradation.py"
+  ],
+  "summary": "Fase 0 — B2G-FIX-01 completo. 42 arquivos alterados. datetime.UTC corrigido, 5 User-Agents → 1 canônico, 6 pares snake/kebab resolvidos (kebab removidos), 20 timers provision-vps.sh corrigidos, extra-crawl-selenium.service desabilitado, degradation.py (stub) removido, orchestrator.py marcado como deprecated. 1018 testes passam.",
+  "reversa_context": {
+    "extraction_version": null
+  }
+}

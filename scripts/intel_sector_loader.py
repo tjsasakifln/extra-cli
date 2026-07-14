@@ -22,7 +22,7 @@ Provides:
   - get_all_cross_sector_exclusions() → {sector_key: [phrases]}
   - get_all_competition_keywords() → {sector_key: [keywords]}
 
-Used by: collect-report-data.py, intel-collect.py
+Used by: collect_report_data.py, intel_collect.py
 """
 
 from __future__ import annotations

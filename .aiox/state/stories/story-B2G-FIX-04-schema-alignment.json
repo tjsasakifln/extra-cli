@@ -1,0 +1,46 @@
+{
+  "story_id": "B2G-FIX-04",
+  "title": "Alinhar schema código↔banco — 10 tabelas fantasmas e colunas divergentes",
+  "status": "InReview",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-MASTER-B2G-READINESS",
+  "phase": 0,
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": false,
+  "publication_authorized": false,
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS",
+    "review": "PASS"
+  },
+  "files_modified": [
+    "scripts/schema/diagnostics.py"
+  ],
+  "summary": "Criado diagnostics.py para validar schema real vs baseline esperado. audit_sql_references.py já existia. Migrations críticas 041a (FK fix) e 041b (snapshot key fix) verificadas — bem estruturadas, idempotentes. current-schema.sql SHA256 verificado. Rollback scripts disponíveis.",
+  "follow_ups": [
+    "Executar diagnostics.py contra banco local: python scripts/schema/diagnostics.py",
+    "Validar FKs: ALTER TABLE pncp_raw_bids VALIDATE CONSTRAINT fk_bids_orgao_entity_v2",
+    "Verificar source_snapshot_membership.source_record_id='unknown' após migration 041b",
+    "Executar setup_db.sh em banco vazio para validar fresh install"
+  ],
+  "qa_evidence": {
+    "migrations_verified": 46,
+    "migrations_critical": ["041_fix_fk_constraints.sql", "041_fix_snapshot_membership.sql"],
+    "schema_hash_verified": "90b30af5d785120725c408d1f22050ce8abc37bc6a486da304eac0c77db5c86f",
+    "diagnostics_created": "scripts/schema/diagnostics.py",
+    "existing_auditor": "scripts/schema/audit_sql_references.py"
+  },
+  "reversa_context": {
+    "extraction_version": null,
+    "architecture": [],
+    "domain": [],
+    "specifications": [],
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}

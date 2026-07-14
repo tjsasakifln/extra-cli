@@ -997,7 +997,7 @@ def main() -> int:
             enrich_args.append("--skip-sicaf")
 
         try:
-            _run_script("intel-enrich.py", enrich_args, TIMEOUT_ENRICH, step_label)
+            _run_script("intel_enrich.py", enrich_args, TIMEOUT_ENRICH, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 2 falhou — continuando com dados parciais"))
 
@@ -1164,7 +1164,7 @@ def main() -> int:
             str(args.top),
         ]
         try:
-            _run_script("intel-extract-docs.py", extract_args, TIMEOUT_EXTRACT_DOCS, step_label)
+            _run_script("intel_extract_docs.py", extract_args, TIMEOUT_EXTRACT_DOCS, step_label)
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
             print(_warn("  Step 4 falhou parcialmente — continuando com documentos disponíveis"))
 

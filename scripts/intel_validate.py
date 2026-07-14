@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-intel-validate.py — Programmatic validation for Gates 2, 4, and 5 of /intel-busca.
+intel_validate.py — Programmatic validation for Gates 2, 4, and 5 of /intel-busca.
 
 Validates analysis quality after intel-analyze.py fills top20[].analise,
 enforcing semantic compatibility, field completeness, and report coherence
 before PDF generation.
 
 Usage:
-    python scripts/intel-validate.py --input docs/intel/intel-CNPJ-slug-YYYY-MM-DD.json
-    python scripts/intel-validate.py --input data.json --fix
-    python scripts/intel-validate.py --input data.json --fix --strict
-    python scripts/intel-validate.py --input data.json --output validation-report.json
+    python scripts/intel_validate.py --input docs/intel/intel-CNPJ-slug-YYYY-MM-DD.json
+    python scripts/intel_validate.py --input data.json --fix
+    python scripts/intel_validate.py --input data.json --fix --strict
+    python scripts/intel_validate.py --input data.json --output validation-report.json
 
 Requires:
     No external dependencies (stdlib only).
@@ -812,9 +812,9 @@ def main() -> None:
         description="Validacao programatica dos Gates 2, 4 e 5 do pipeline /intel-busca.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Exemplos:
-  python scripts/intel-validate.py --input data.json
-  python scripts/intel-validate.py --input data.json --fix
-  python scripts/intel-validate.py --input data.json --fix --strict""",
+  python scripts/intel_validate.py --input data.json
+  python scripts/intel_validate.py --input data.json --fix
+  python scripts/intel_validate.py --input data.json --fix --strict""",
     )
     parser.add_argument(
         "--input",

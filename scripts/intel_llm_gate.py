@@ -385,7 +385,7 @@ def main():
         "--input",
         "-i",
         required=True,
-        help="JSON de entrada (output do intel-collect.py). Deve existir.",
+        help="JSON de entrada (output do intel_collect.py). Deve existir.",
     )
     parser.add_argument(
         "--neg-keywords-file",

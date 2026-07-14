@@ -29,9 +29,8 @@ from clients.pncp.retry import (
 from exceptions import PNCPAPIError, PNCPRateLimitError
 from middleware import request_id_var
 
-from config import (
-    RetryConfig,
-)
+from config import RetryConfig
+from scripts.crawl.security import PNCP_USER_AGENT
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +157,7 @@ class AsyncPNCPClient(_PNCPParallelMixin):
                 max_keepalive_connections=self.max_concurrent,
             ),
             headers={
-                "User-Agent": "SmartLic/1.0 (procurement-search; contato@smartlic.tech)",
+                "User-Agent": PNCP_USER_AGENT,
                 "Accept": "application/json",
             },
             follow_redirects=True,

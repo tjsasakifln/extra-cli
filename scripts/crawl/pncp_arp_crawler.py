@@ -47,6 +47,8 @@ from ingestion.metrics import (
     ARP_RUNS_TOTAL,
 )
 
+from scripts.crawl.security import USER_AGENT
+
 logger = logging.getLogger(__name__)
 
 PNCP_BASE_URL = "https://pncp.gov.br/api/consulta/v1"
@@ -178,7 +180,7 @@ class PncpArpCrawler:
             base_url=PNCP_BASE_URL,
             timeout=_HTTP_TIMEOUT,
             headers={
-                "User-Agent": "SmartLic/1.0 (procurement-search; contato@smartlic.tech)",
+                "User-Agent": USER_AGENT,
                 "Accept": "application/json",
             },
             follow_redirects=True,

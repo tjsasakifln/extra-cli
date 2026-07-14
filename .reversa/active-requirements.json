@@ -1,0 +1,10 @@
+{
+  "schema-version": 1,
+  "feature-dir": "_reversa_forward/001-modulos-alta-confianca",
+  "feature-id": "001",
+  "short-name": "modulos-alta-confianca",
+  "started-at": "2026-07-14T12:00:00Z",
+  "current-stage": "coding-em-progresso",
+  "stages-completed": ["requirements", "clarify", "plan", "to-do"],
+  "paused-features": []
+}

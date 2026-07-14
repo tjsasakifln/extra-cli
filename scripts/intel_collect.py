@@ -6,9 +6,9 @@ Busca exaustiva no PNCP por editais abertos de licitacoes competitivas
 para um dado CNPJ + UFs. Zero falsos negativos, zero falsos positivos.
 
 Usage:
-    python scripts/intel-collect.py --cnpj 12345678000190 --ufs SC,PR,RS
-    python scripts/intel-collect.py --cnpj 12.345.678/0001-90 --ufs SC --dias 60
-    python scripts/intel-collect.py --cnpj 12345678000190 --ufs SC,PR --output out.json
+    python scripts/intel_collect.py --cnpj 12345678000190 --ufs SC,PR,RS
+    python scripts/intel_collect.py --cnpj 12.345.678/0001-90 --ufs SC --dias 60
+    python scripts/intel_collect.py --cnpj 12345678000190 --ufs SC,PR --output out.json
 
 Requires:
     pip install httpx pyyaml
@@ -45,7 +45,7 @@ except ImportError:
     pass  # python-dotenv not installed — OK in production
 
 # Fix Windows console encoding for Unicode output
-# Guard: only wrap if not already wrapped (collect-report-data.py also wraps on import)
+# Guard: only wrap if not already wrapped (collect_report_data.py also wraps on import)
 if sys.platform == "win32":
     try:
         if hasattr(sys.stdout, "buffer") and not isinstance(sys.stdout, io.TextIOWrapper):
@@ -56,15 +56,15 @@ if sys.platform == "win32":
         pass  # Already wrapped or buffer closed
 
 # ============================================================
-# IMPORT from collect-report-data.py (hyphenated filename)
+# IMPORT from collect_report_data.py (hyphenated filename)
 # ============================================================
 
-# Ensure scripts/ is on sys.path so collect-report-data.py can import its siblings (report_dedup)
+# Ensure scripts/ is on sys.path so collect_report_data.py can import its siblings (report_dedup)
 _scripts_dir = str(Path(__file__).resolve().parent)
 if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
 
-_crd_path = str(Path(__file__).resolve().parent / "collect-report-data.py")
+_crd_path = str(Path(__file__).resolve().parent / "collect_report_data.py")
 _spec = importlib.util.spec_from_file_location("collect_report_data", _crd_path)
 if _spec is None or _spec.loader is None:
     print(f"ERROR: Cannot load {_crd_path}")
@@ -2517,7 +2517,7 @@ def assemble_output(
         "editais": editais_sorted,
         "_metadata": {
             "generated_at": now.isoformat(),
-            "script": "intel-collect.py",
+            "script": "intel_collect.py",
             "version": VERSION,
             "sources": {
                 "pncp": {
@@ -3036,9 +3036,9 @@ def main():
         description="Intel Collect — Busca exaustiva PNCP para /intel-busca.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Exemplos:
-  python scripts/intel-collect.py --cnpj 12345678000190 --ufs SC,PR,RS
-  python scripts/intel-collect.py --cnpj 12.345.678/0001-90 --ufs SC --dias 60
-  python scripts/intel-collect.py --cnpj 12345678000190 --ufs SC,PR --output out.json --quiet""",
+  python scripts/intel_collect.py --cnpj 12345678000190 --ufs SC,PR,RS
+  python scripts/intel_collect.py --cnpj 12.345.678/0001-90 --ufs SC --dias 60
+  python scripts/intel_collect.py --cnpj 12345678000190 --ufs SC,PR --output out.json --quiet""",
     )
     parser.add_argument(
         "--cnpj",

@@ -10,7 +10,7 @@ e condições comerciais. Foco nos 5 eixos de serviço:
   - Elaboração de Propostas
   - Acompanhamento de Contratos
 
-Design: Big Four / Management Consulting aesthetic (idêntico ao intel-report.py).
+Design: Big Four / Management Consulting aesthetic (idêntico ao intel_report.py).
   Paleta: charcoal navy + warm bronze. Tipografia: Times-Roman serif.
   Tabelas: three-rule sem cor, sem zebra.
 
@@ -53,7 +53,7 @@ except ImportError:
     sys.exit(1)
 
 # ============================================================
-# DESIGN TOKENS, Big Four Aesthetic (matches intel-report.py)
+# DESIGN TOKENS, Big Four Aesthetic (matches intel_report.py)
 # ============================================================
 
 INK = colors.HexColor("#1B2A3D")

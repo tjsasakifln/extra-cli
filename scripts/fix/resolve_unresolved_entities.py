@@ -27,6 +27,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from scripts.crawl.security import USER_AGENT
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -49,7 +51,7 @@ COL_LONGITUDE = 7
 COL_DISTANCIA = 8
 COL_RAIO200 = 9
 
-USER_AGENT = "ExtraConsultoriaB2G/1.0 (research@extraconsultoria.com.br)"
+# USER_AGENT imported from scripts.crawl.security
 NOMINATIM_DELAY = 1.1  # seconds between requests (respect rate limit)
 
 _DSN = os.getenv(

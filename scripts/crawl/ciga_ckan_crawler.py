@@ -41,6 +41,7 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from config.settings import DEFAULT_DSN  # noqa: E402
+from scripts.crawl.security import USER_AGENT  # noqa: E402
 
 _logger = logging.getLogger(__name__)
 
@@ -66,8 +67,7 @@ PROCUREMENT_CATEGORIES = frozenset(
 REQUEST_DELAY = 0.5  # seconds between CKAN requests
 HTTP_TIMEOUT = 60  # seconds per request
 
-# User agent
-USER_AGENT = "ExtraConsultoria/1.0 (coverage-crawler; +https://extraconsultoria.com.br)"
+# User agent — imported from scripts.crawl.security
 
 # CIGA CKAN only discovers entities and updates entity_coverage.
 # It does NOT extract bid records — transform() legitimately returns [].

@@ -24,13 +24,15 @@ from typing import Any
 
 import requests
 
+from scripts.crawl.security import USER_AGENT
+
 log = logging.getLogger(__name__)
 
 CACHE_FILE = "data/geocode_cache.json"
 IBGE_API_URL = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios/{ibge}"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 NOMINATIM_RATE = 1.0  # 1 request per second (OSM policy)
-USER_AGENT = "ExtraConsultoria/1.0 (coverage-analysis)"
+# USER_AGENT imported from scripts.crawl.security
 
 # Bounding box de Santa Catarina
 SC_BBOX = {

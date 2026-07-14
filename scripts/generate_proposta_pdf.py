@@ -1098,7 +1098,7 @@ def build_pdf(data, output_path, pacote_recomendado="semanal"):
     cta_box = Table(
         [
             [Paragraph("Responda agora pelo WhatsApp: (48) 9 8834-4559", S["CTAWhite"])],
-            [Paragraph("ou envie um email para tiago.sasaki@confenge.com.br", S["CTAWhiteSub"])],
+            [Paragraph("ou envie um email para tiago.sasaki@extraconsultoria.com.br", S["CTAWhiteSub"])],
         ],
         colWidths=[CONTENT_W],
     )
@@ -1133,10 +1133,10 @@ def build_pdf(data, output_path, pacote_recomendado="semanal"):
     story.append(HRFlowable(width="40%", thickness=1, color=NAVY, spaceAfter=4 * mm, spaceBefore=4 * mm))
     story.append(Paragraph("<b>Tiago Sasaki</b>", S["Body"]))
     story.append(Paragraph("Engenheiro | Servidor Público Efetivo", S["Body"]))
-    story.append(Paragraph("Consultor de Licitações | CONFENGE", S["Body"]))
+    story.append(Paragraph("Consultor de Licitações | Extra Consultoria", S["Body"]))
     story.append(Spacer(1, 2 * mm))
     story.append(Paragraph("<b>WhatsApp:</b> (48) 9 8834-4559", S["Body"]))
-    story.append(Paragraph("<b>Email:</b> tiago.sasaki@confenge.com.br", S["Body"]))
+    story.append(Paragraph("<b>Email:</b> tiago.sasaki@extraconsultoria.com.br", S["Body"]))
     story.append(Spacer(1, 4 * mm))
     story.append(
         Paragraph(

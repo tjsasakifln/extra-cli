@@ -724,7 +724,7 @@ def main() -> None:
         "--input",
         required=True,
         metavar="JSON",
-        help="Caminho para o JSON gerado pelo intel-collect.py. Deve existir.",
+        help="Caminho para o JSON gerado pelo intel_collect.py. Deve existir.",
     )
     parser.add_argument(
         "--top",

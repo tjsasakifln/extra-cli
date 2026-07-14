@@ -1,10 +1,14 @@
 # /etc/systemd/system/extra-crawl-selenium.timer
-# Selenium crawler — weekly (Sat 04:00 UTC)
-# JS-rendered portals atualizam com frequencia moderada — semanal e suficiente
-# Executar sabado cedo para capturar dados da semana antes do domingo
+# Selenium crawler — INTENTIONALLY DISABLED
+#
+# NOTA: Este timer NAO esta na lista do provision-vps.sh porque o servico
+# correspondente (extra-crawl-selenium.service) foi desabilitado.
+#
+# Selenium foi removido como fonte de dados independente (Story 1.5 fix).
+# O servico ExecStart=/bin/false intencionalmente para falhar explicitamente.
 
 [Unit]
-Description=Extra Consultoria — Selenium JS Portal Crawler Timer
+Description=Extra Consultoria — Selenium JS Portal Crawler Timer [DISABLED]
 Requires=extra-crawl-selenium.service
 
 [Timer]

@@ -2,7 +2,7 @@
 """
 Analise automatizada via LLM dos top 20 editais do /intel-busca.
 
-Le o JSON gerado pelo intel-extract-docs.py (com campo top20[].texto_documentos)
+Le o JSON gerado pelo intel_extract_docs.py (com campo top20[].texto_documentos)
 e produz analise estruturada por edital em top20[].analise usando GPT-4.1-nano.
 
 Tambem gera resumo_executivo e proximos_passos automaticamente.
@@ -72,7 +72,7 @@ def _tprint(*args: Any, **kwargs: Any) -> None:
 
 
 # ============================================================
-# ANALYSIS SCHEMA (matches intel-report.py expectations)
+# ANALYSIS SCHEMA (matches intel_report.py expectations)
 # ============================================================
 
 ANALYSIS_FIELDS = [

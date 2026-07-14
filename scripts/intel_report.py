@@ -8,8 +8,8 @@ institucional com análise estratégica individual.
 Design: Big Four / Management Consulting aesthetic — idêntico ao generate-report-b2g.py.
 
 Usage:
-    python scripts/intel-report.py --input data.json --output report.pdf
-    python scripts/intel-report.py --input data.json  # output auto-named
+    python scripts/intel_report.py --input data.json --output report.pdf
+    python scripts/intel_report.py --input data.json  # output auto-named
 """
 
 from __future__ import annotations
@@ -2695,8 +2695,8 @@ def main():
         description="Gera PDF de Inteligencia de Mercado (Top 20 Oportunidades) a partir de JSON enriquecido.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Exemplos:
-  python scripts/intel-report.py --input docs/intel/intel-12345678000190-slug-2026-03-18.json
-  python scripts/intel-report.py --input data.json --output relatorio.pdf""",
+  python scripts/intel_report.py --input docs/intel/intel-12345678000190-slug-2026-03-18.json
+  python scripts/intel_report.py --input data.json --output relatorio.pdf""",
     )
     parser.add_argument(
         "--input",

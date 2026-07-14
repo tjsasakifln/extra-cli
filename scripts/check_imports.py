@@ -52,7 +52,6 @@ SKIP_FILES = frozenset(
 HYPHENATED_FILES = {
     "scripts/intel-enrich.py",
     "scripts/intel-extract-docs.py",
-    "scripts/intel-collect.py",
 }
 
 

@@ -1,0 +1,288 @@
+{
+  "generated_at": "2026-07-14T11:42:56.343113+00:00",
+  "threshold": 80,
+  "modules": [
+    {
+      "module": "scripts/opportunity_intel",
+      "coverage_pct": 0.0,
+      "pass": false,
+      "total_lines": 2342,
+      "covered_lines": 0,
+      "files": [
+        {
+          "file": "scripts/opportunity_intel/__init__.py",
+          "total_lines": 1,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/backfill.py",
+          "total_lines": 159,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/cli.py",
+          "total_lines": 334,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/crawler_base.py",
+          "total_lines": 237,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/dedup.py",
+          "total_lines": 39,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/manifest.py",
+          "total_lines": 91,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/models.py",
+          "total_lines": 104,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/pncp_audit.py",
+          "total_lines": 224,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/pncp_crawler.py",
+          "total_lines": 60,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/profile.py",
+          "total_lines": 83,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/radar.py",
+          "total_lines": 294,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/ranking.py",
+          "total_lines": 133,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/reconciliation.py",
+          "total_lines": 152,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/schema.py",
+          "total_lines": 48,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/scoring.py",
+          "total_lines": 144,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/status.py",
+          "total_lines": 72,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/opportunity_intel/transformer.py",
+          "total_lines": 167,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        }
+      ]
+    },
+    {
+      "module": "scripts/coverage",
+      "coverage_pct": 0.0,
+      "pass": false,
+      "total_lines": 589,
+      "covered_lines": 0,
+      "files": [
+        {
+          "file": "scripts/coverage/__init__.py",
+          "total_lines": 0,
+          "covered_lines": 0,
+          "coverage_pct": 100.0
+        },
+        {
+          "file": "scripts/coverage/blockers.py",
+          "total_lines": 34,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/coverage/calculator.py",
+          "total_lines": 39,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/coverage/manifest.py",
+          "total_lines": 93,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/coverage/measure_pncp_expansion.py",
+          "total_lines": 49,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/coverage/run_matching.py",
+          "total_lines": 34,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/coverage/states.py",
+          "total_lines": 104,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/coverage/validate_coverage.py",
+          "total_lines": 236,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        }
+      ]
+    },
+    {
+      "module": "scripts/contract_intel",
+      "coverage_pct": 0.0,
+      "pass": false,
+      "total_lines": 623,
+      "covered_lines": 0,
+      "files": [
+        {
+          "file": "scripts/contract_intel/__init__.py",
+          "total_lines": 0,
+          "covered_lines": 0,
+          "coverage_pct": 100.0
+        },
+        {
+          "file": "scripts/contract_intel/cli.py",
+          "total_lines": 465,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/contract_intel/target_universe.py",
+          "total_lines": 158,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        }
+      ]
+    },
+    {
+      "module": "scripts/pipeline",
+      "coverage_pct": 0.0,
+      "pass": false,
+      "total_lines": 365,
+      "covered_lines": 0,
+      "files": [
+        {
+          "file": "scripts/pipeline/__init__.py",
+          "total_lines": 0,
+          "covered_lines": 0,
+          "coverage_pct": 100.0
+        },
+        {
+          "file": "scripts/pipeline/backfill_multi_source.py",
+          "total_lines": 365,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        }
+      ]
+    },
+    {
+      "module": "scripts/lib/universe.py",
+      "coverage_pct": 0.0,
+      "pass": false,
+      "total_lines": 193,
+      "covered_lines": 0,
+      "files": [
+        {
+          "file": "scripts/lib/universe.py",
+          "total_lines": 193,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        }
+      ]
+    },
+    {
+      "module": "scripts/lib/supplier_metrics.py",
+      "coverage_pct": 0.0,
+      "pass": false,
+      "total_lines": 0,
+      "covered_lines": 0,
+      "files": []
+    },
+    {
+      "module": "scripts/lib/price_pipeline.py",
+      "coverage_pct": 0.0,
+      "pass": false,
+      "total_lines": 0,
+      "covered_lines": 0,
+      "files": []
+    },
+    {
+      "module": "scripts/reports",
+      "coverage_pct": 0.0,
+      "pass": false,
+      "total_lines": 754,
+      "covered_lines": 0,
+      "files": [
+        {
+          "file": "scripts/reports/__init__.py",
+          "total_lines": 1,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/reports/coverage_gaps.py",
+          "total_lines": 118,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/reports/coverage_weekly.py",
+          "total_lines": 505,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        },
+        {
+          "file": "scripts/reports/panorama.py",
+          "total_lines": 130,
+          "covered_lines": 0,
+          "coverage_pct": 0.0
+        }
+      ]
+    }
+  ],
+  "result": "fail",
+  "failed_count": 8
+}

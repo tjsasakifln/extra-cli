@@ -89,8 +89,7 @@ class PNCPCircuitBreaker:
                     f"Circuit breaker [{self.name}] TRIPPED after {self.consecutive_failures} "
                     f"consecutive failures — degraded for {self.cooldown_seconds}s"
                 )
-                # Issue #1921: Track degradation via unified metric
-                _track_cb_degradation(self.name)
+                # Issue #1921: Degradation tracking was a stub — removed with scripts/crawl/degradation.py
                 # STORY-305 AC13: Sentry breadcrumb on state transition
                 try:
                     import sentry_sdk
@@ -440,20 +439,6 @@ return {failures, 0}
                 await pipe.execute()
             except Exception as e:
                 logger.debug(f"Redis CB fallback (reset_async): {e}")
-
-
-# Issue #1921: Track circuit breaker degradation via unified metric.
-def _track_cb_degradation(source_name: str) -> None:
-    """Increment the unified degradation counter for a CB trip.
-
-    Best-effort, never raises.
-    """
-    try:
-        from degradation import track_degradation
-
-        track_degradation(source=f"cb:{source_name}", mode="circuit_open")
-    except Exception:
-        pass
 
 
 # Module-level singletons — one per data source (GTM-FIX-005 AC9)

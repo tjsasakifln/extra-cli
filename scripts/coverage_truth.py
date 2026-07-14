@@ -138,48 +138,26 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def load_entities_within_radius(conn, radius_km: float = DEFAULT_RADIUS_KM) -> list[dict]:
-    """Load active entities, filter by Haversine distance from Florianópolis.
+    """Load active entities within radius using the canonical target universe.
 
-    Uses the pre-computed ``raio_200km`` column as a fast pre-filter when
-    radius_km == 200, then applies exact Haversine for correctness.
+    B2G-FIX-03: Uses ``target_universe_entities`` with ``radius_decision =
+    'included'`` from the latest snapshot run.  The old ``sc_public_entities.
+    raio_200km`` flag was inconsistent (1448 rows, 355 extra) and is no longer
+    used as a denominator source.
     """
-    if abs(radius_km - 200.0) < 0.5:
-        # Fast path: use pre-computed boolean flag
-        entities = _query(
-            conn,
-            """SELECT id, razao_social, cnpj_8, municipio, codigo_ibge,
-                      natureza_juridica, latitude, longitude, distancia_fk
-               FROM sc_public_entities
-               WHERE is_active = TRUE AND raio_200km = TRUE
-               ORDER BY id""",
-        )
-    else:
-        # Slow path: load all, filter by Haversine in Python
-        all_entities = _query(
-            conn,
-            """SELECT id, razao_social, cnpj_8, municipio, codigo_ibge,
-                      natureza_juridica, latitude, longitude
-               FROM sc_public_entities
-               WHERE is_active = TRUE
-               ORDER BY id""",
-        )
-        entities = []
-        for e in all_entities:
-            if e["latitude"] is not None and e["longitude"] is not None:
-                dist = haversine_km(
-                    FLORIANOPOLIS_LAT,
-                    FLORIANOPOLIS_LON,
-                    float(e["latitude"]),
-                    float(e["longitude"]),
-                )
-                if dist <= radius_km:
-                    e["distancia_fk"] = dist
-                    entities.append(e)
-            else:
-                # Entities without coordinates: include with warning
-                e["distancia_fk"] = None
-                entities.append(e)
-
+    entities = _query(
+        conn,
+        """SELECT spe.id, spe.razao_social, spe.cnpj_8, spe.municipio,
+                  spe.codigo_ibge, spe.natureza_juridica,
+                  spe.latitude, spe.longitude,
+                  tue.distance_km AS distancia_fk
+           FROM target_universe_entities tue
+           JOIN sc_public_entities spe ON spe.cnpj_8 = tue.cnpj8
+           WHERE tue.universe_run_id = (SELECT MAX(id) FROM target_universe_runs)
+             AND tue.radius_decision = 'included'
+             AND spe.is_active = TRUE
+           ORDER BY spe.id""",
+    )
     return entities
 
 

@@ -85,7 +85,7 @@ class JsonFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         log_entry: dict[str, Any] = {
-            "timestamp": datetime.fromtimestamp(record.created, tz=datetime.UTC).isoformat(),
+            "timestamp": datetime.fromtimestamp(record.created, tz=datetime.timezone.utc).isoformat(),
             "level": record.levelname,
             "module": record.name,
             "correlation_id": get_correlation_id() or "",
@@ -111,7 +111,7 @@ class JsonFormatter(logging.Formatter):
         except (TypeError, ValueError, OverflowError) as e:
             # Fallback: emit simplified record if serialization fails
             fallback = {
-                "timestamp": datetime.fromtimestamp(record.created, tz=datetime.UTC).isoformat(),
+                "timestamp": datetime.fromtimestamp(record.created, tz=datetime.timezone.utc).isoformat(),
                 "level": record.levelname,
                 "module": record.name,
                 "correlation_id": get_correlation_id() or "",

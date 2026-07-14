@@ -1,0 +1,43 @@
+{
+  "story_id": "B2G-FIX-03",
+  "title": "Universo canônico único — eliminar 6 denominadores divergentes",
+  "status": "InReview",
+  "priority": "P0",
+  "risk_level": "STANDARD",
+  "epic": "EPIC-MASTER-B2G-READINESS",
+  "phase": 0,
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": false,
+  "publication_authorized": false,
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS",
+    "review": "PASS"
+  },
+  "files_modified": [
+    "scripts/coverage_truth.py"
+  ],
+  "summary": "Universo canônico já estava 80% implementado. scripts/lib/universe.py fornece CANONICAL_UNIVERSE=1093 com provenance da planilha seed. manifest.py, consulting_readiness.py, radar.py já usavam o universo canônico. Única correção: coverage_truth.py usava raio_200km=TRUE (1448 linhas, 355 extras) → substituído por target_universe_entities.radius_decision='included'.",
+  "qa_evidence": {
+    "verified_consumers": [
+      "scripts/lib/universe.py — fonte canônica, CANONICAL_UNIVERSE=1093",
+      "scripts/opportunity_intel/manifest.py — importa CANONICAL_UNIVERSE, usa target_universe_entities",
+      "scripts/consulting_readiness.py — importa load_canonical_universe",
+      "scripts/coverage_truth.py — CORRIGIDO: target_universe_entities em vez de raio_200km",
+      "scripts/opportunity_intel/radar.py — importa load_canonical_universe",
+      "scripts/universe_tools.py — importa load_canonical_universe"
+    ]
+  },
+  "reversa_context": {
+    "extraction_version": null,
+    "architecture": [],
+    "domain": [],
+    "specifications": [],
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}

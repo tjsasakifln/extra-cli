@@ -261,20 +261,28 @@ install_systemd_timers() {
     cp "$APP_DIR/deploy/systemd/"*.timer /etc/systemd/system/
     systemctl daemon-reload
 
-    # Enable all timers
+    # Enable all timers — names MUST match .timer files on disk
+    # NOTE: PNCP split into full + incremental + contracts + enrich + purge
     timers=(
-        extra-crawl-pncp
-        extra-crawl-dom-sc
-        extra-crawl-pcp
-        extra-crawl-compras-gov
-        extra-crawl-tce-sc
+        pncp-crawl-full
+        pncp-crawl-inc
+        pncp-contracts
+        pncp-enrich
+        pncp-purge
+        pncp-report-weekly
+        dom-sc-crawl
+        pcp-crawl
+        compras-gov-crawl
+        sc-compras-crawl
+        tce-sc-crawl
+        transparencia-crawl
         extra-crawl-doe-sc
-        extra-crawl-transparencia
-        extra-crawl-contracts
-        extra-coverage-report
-        extra-panorama-weekly
+        extra-crawl-ciga-ckan
+        coverage-report
+        coverage-report-weekly
+        extra-check-alerts
+        extra-collect-metrics
         extra-db-backup
-        extra-db-purge
         extra-health-check
     )
 

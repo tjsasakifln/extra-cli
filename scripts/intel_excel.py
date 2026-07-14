@@ -6,8 +6,8 @@ Gera planilha profissional com TODAS as oportunidades encontradas,
 classificadas por compatibilidade CNAE e capacidade financeira.
 
 Usage:
-    python scripts/intel-excel.py --input docs/intel/intel-12345678000190-2026-03-18.json
-    python scripts/intel-excel.py --input data.json --output custom.xlsx
+    python scripts/intel_excel.py --input docs/intel/intel-12345678000190-2026-03-18.json
+    python scripts/intel_excel.py --input data.json --output custom.xlsx
 """
 
 import argparse
@@ -940,7 +940,7 @@ def _build_metadata(wb: Workbook, data: dict, items: list[dict]):
         ("Oportunidades Identificadas", compat_count),
         ("Valor Total das Oportunidades", _format_brl(valor_compat)),
         ("Gerado em", datetime.now().strftime("%d/%m/%Y %H:%M:%S")),
-        ("Script", "intel-collect.py + intel-enrich.py + intel-excel.py"),
+        ("Script", "intel_collect.py + intel-enrich.py + intel_excel.py"),
         ("", ""),  # separator
         (
             "NOTA - Aba 'Oportunidades'",
@@ -1032,17 +1032,17 @@ def main():
     from lib.constants import INTEL_VERSION
 
     parser = argparse.ArgumentParser(
-        description="Gera planilha Excel profissional a partir do JSON do intel-collect.py.",
+        description="Gera planilha Excel profissional a partir do JSON do intel_collect.py.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Exemplos:
-  python scripts/intel-excel.py --input docs/intel/intel-12345678000190-slug-2026-03-18.json
-  python scripts/intel-excel.py --input data.json --output planilha.xlsx""",
+  python scripts/intel_excel.py --input docs/intel/intel-12345678000190-slug-2026-03-18.json
+  python scripts/intel_excel.py --input data.json --output planilha.xlsx""",
     )
     parser.add_argument(
         "--input",
         "-i",
         required=True,
-        help="Caminho do JSON de entrada (output do intel-collect.py). Deve existir.",
+        help="Caminho do JSON de entrada (output do intel_collect.py). Deve existir.",
     )
     parser.add_argument(
         "--output",

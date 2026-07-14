@@ -1,0 +1,80 @@
+# ============================================
+# Extra Consultoria — Local Development Stack
+# ============================================
+#
+# Uso local (WSL2):
+#   docker compose -f docker-compose.local.yml up -d
+#   docker compose -f docker-compose.local.yml exec app bash
+#   docker compose -f docker-compose.local.yml down
+#
+# Uso com override de env vars (VPS, CI):
+#   docker compose -f docker-compose.local.yml --env-file .env.production up -d
+#   docker compose -f docker-compose.local.yml --env-file .env.staging  up -d
+#
+# Para rodar tests de integracao (apenas DB):
+#   docker compose -f docker-compose.local.yml up -d test-db
+#   TEST_DSN=postgresql://test:test@localhost:5433/extra_test pytest -m integration
+#
+# ============================================
+# Design principles: KISS, self-contained,
+# future-proof (mesma imagem/rede, override
+# apenas via --env-file).
+# ============================================
+
+services:
+  # ------------------------------------------------------------------
+  # PostgreSQL 16 + PostGIS — banco para tests de integracao
+  # Mantido exatamente como no docker-compose.yml original (reuso total)
+  # ------------------------------------------------------------------
+  test-db:
+    image: postgis/postgis:16-3.4
+    container_name: extra-test-db
+    environment:
+      POSTGRES_DB: extra_test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports:
+      - "5433:5432"
+    tmpfs: /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test -d extra_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    networks:
+      - extra-network
+
+  # ------------------------------------------------------------------
+  # Python 3.12 — container de desenvolvimento
+  # Fica rodando (tail -f /dev/null) para execucao manual de scripts
+  # ------------------------------------------------------------------
+  app:
+    image: python:3.12-slim
+    container_name: extra-app
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - ./output:/app/output
+      - ./config:/app/config
+    command: tail -f /dev/null
+    environment:
+      # Database — DATABASE_URL e o padrao preferencial (SEC-03).
+      # Em VPS: sobrescrever via --env-file apontando para Hetzner.
+      DATABASE_URL: ${DATABASE_URL:-}
+
+      # Test DSN — aponta para test-db dentro da rede docker.
+      # O service_healthy no depends_on garante que o PG estah pronto.
+      TEST_DSN: ${TEST_DSN:-}
+
+      # OpenAI — usado pelo pipeline de inteligencia (intel_analyze.py)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    depends_on:
+      test-db:
+        condition: service_healthy
+    networks:
+      - extra-network
+
+networks:
+  extra-network:
+    name: extra-network
+    driver: bridge

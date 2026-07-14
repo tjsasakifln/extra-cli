@@ -2,7 +2,7 @@
 """
 Validação determinística de dados do relatório B2G.
 
-Analisa o JSON gerado por collect-report-data.py e emite:
+Analisa o JSON gerado por collect_report_data.py e emite:
   - BLOCK: Problemas que IMPEDEM a geração do relatório (dados incoerentes)
   - WARN:  Problemas que devem ser mencionados no relatório
   - INFO:  Observações para contexto
@@ -78,7 +78,7 @@ def validate(data: dict) -> dict:
                 f"CONTRACT_CNPJ_MISMATCH: {foreign}/{checked} contratos históricos pertencem "
                 f"a outro CNPJ (não {cnpj_empresa}). A API PNCP /contratos ignorou o filtro "
                 f"cnpjFornecedor e retornou contratos de terceiros. Toda a análise de clusters, "
-                f"keywords e UFs está comprometida. Ação: re-executar collect-report-data.py "
+                f"keywords e UFs está comprometida. Ação: re-executar collect_report_data.py "
                 f"(versão >= 2026-03-17 com fix de filtragem client-side)."
             )
         elif foreign > 0:
@@ -115,7 +115,7 @@ def validate(data: dict) -> dict:
             warnings.append(
                 f"HISTORICO_INCONCLUSIVE: Empresa com capital > R${capital:,.0f} e "
                 f"{_company_age_years} anos de atividade mas 0 contratos encontrados — "
-                f"histórico pode estar incompleto. Verificar se collect-report-data.py "
+                f"histórico pode estar incompleto. Verificar se collect_report_data.py "
                 f"encontrou erros nas APIs (PNCP /contratos, ComprasGov) ou se a empresa "
                 f"genuinamente não tem histórico de contratos públicos."
             )
@@ -132,7 +132,7 @@ def validate(data: dict) -> dict:
                 f"KEYWORDS_CNAE_FALLBACK: Empresa tem {len(historico)} contratos históricos "
                 f"mas keywords vieram do CNAE (fallback), não do histórico real. "
                 f"Os editais encontrados podem estar no setor ERRADO. "
-                f"Ação: re-executar collect-report-data.py com versão corrigida do clustering."
+                f"Ação: re-executar collect_report_data.py com versão corrigida do clustering."
             )
         elif len(historico) > 0:
             warnings.append(
@@ -143,7 +143,7 @@ def validate(data: dict) -> dict:
         warnings.append(
             "KEYWORDS_SOURCE_UNKNOWN: Campo _keywords_source ausente no JSON. "
             "Não é possível verificar se a busca usou histórico real ou CNAE fallback. "
-            "Re-executar collect-report-data.py versão >= d12b03be."
+            "Re-executar collect_report_data.py versão >= d12b03be."
         )
 
     # 1b. Sector divergence — CNAE não bate com contratos reais
@@ -315,7 +315,7 @@ def validate(data: dict) -> dict:
                         f"({share_pct:.0f}% da atividade) está representado em apenas "
                         f"{match_pct:.0f}% dos editais ({matching}/{len(editais)}). "
                         f"Os editais buscados NÃO correspondem ao perfil real da empresa. "
-                        f"AÇÃO OBRIGATÓRIA: Re-executar collect-report-data.py — a busca "
+                        f"AÇÃO OBRIGATÓRIA: Re-executar collect_report_data.py — a busca "
                         f"precisa incluir modalidades e keywords adequadas ao cluster dominante. "
                         f"Este bloqueio é IRREVOGÁVEL — não contornar manualmente."
                     )
@@ -514,7 +514,7 @@ def validate(data: dict) -> dict:
                 f"DADO_AUSENTE_{src_name.upper()}: {human_name} não retornou dados. "
                 f"AÇÃO DO ORCHESTRATOR: investigar a falha (WebSearch para documentação "
                 f"da API, testar endpoint manualmente, verificar se mudou URL/auth), "
-                f"corrigir collect-report-data.py se necessário, e re-executar coleta. "
+                f"corrigir collect_report_data.py se necessário, e re-executar coleta. "
                 f"O relatório NÃO será gerado com dado faltante. "
                 f"Dicas: {investigation}"
             )

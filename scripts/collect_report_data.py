@@ -12,9 +12,9 @@ explícito de falhas. Cada dado recebe um campo `_source`:
   - "UNAVAILABLE"  → fonte não disponível / não implementada
 
 Usage:
-    python scripts/collect-report-data.py --cnpj 12345678000190
-    python scripts/collect-report-data.py --cnpj 12.345.678/0001-90 --output data.json
-    python scripts/collect-report-data.py --cnpj 12345678000190 --dias 30 --ufs SC,PR
+    python scripts/collect_report_data.py --cnpj 12345678000190
+    python scripts/collect_report_data.py --cnpj 12.345.678/0001-90 --output data.json
+    python scripts/collect_report_data.py --cnpj 12345678000190 --dias 30 --ufs SC,PR
 
 Requires:
     pip install httpx pyyaml
@@ -511,6 +511,15 @@ def collect_portal_transparencia(api: ApiClient, cnpj14: str, pt_key: str) -> di
 
     if not pt_key:
         print("  ⚠ PORTAL_TRANSPARENCIA_API_KEY não configurada — pulando")
+        print("     → Para obter a chave: https://portaldatransparencia.gov.br/api-de-dados")
+        print("     → Configure como varivel de ambiente: export PORTAL_TRANSPARENCIA_API_KEY='sua-chave'")
+        result["_config_instrucao"] = {
+            "fonte": "Portal da Transparência",
+            "status": "UNAVAILABLE",
+            "configuracao": "PORTAL_TRANSPARENCIA_API_KEY não definida",
+            "instrucao": "Obtenha a chave em https://portaldatransparencia.gov.br/api-de-dados "
+            "e configure como varivel de ambiente PORTAL_TRANSPARENCIA_API_KEY",
+        }
         return result
 
     headers = {"chave-api-dados": pt_key}
@@ -5312,7 +5321,7 @@ def _geocode(api: ApiClient, cidade: str, uf: str) -> tuple[float, float] | None
             "limit": 1,
             "countrycodes": "br",
         },
-        headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0 (report@extra-consultoria.local)"},
+        headers={"User-Agent": "Extra Consultoria-ReportCollector/1.0 (report@extraconsultoria.com.br)"},
         label=f"Geocode: {cidade}/{uf}",
     )
     if status == "API" and data and isinstance(data, list) and len(data) > 0:
@@ -10137,7 +10146,7 @@ def assemble_report_data(
     return {
         "_metadata": {
             "generated_at": _date_iso(_today()),
-            "generator": "collect-report-data.py v1.0",
+            "generator": "collect_report_data.py v1.0",
             "contract_search_exhaustive": transparencia.get("_contract_search_exhaustive", True),
             "sources": {
                 "opencnpj": empresa.get("_source", {}),
@@ -10181,9 +10190,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python scripts/collect-report-data.py --cnpj 12345678000190
-  python scripts/collect-report-data.py --cnpj 09.225.035/0001-01 --ufs MG,SP --dias 30
-  python scripts/collect-report-data.py --cnpj 12345678000190 --output custom.json --quiet
+  python scripts/collect_report_data.py --cnpj 12345678000190
+  python scripts/collect_report_data.py --cnpj 09.225.035/0001-01 --ufs MG,SP --dias 30
+  python scripts/collect_report_data.py --cnpj 12345678000190 --output custom.json --quiet
         """,
     )
     parser.add_argument(

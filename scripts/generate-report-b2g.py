@@ -2851,7 +2851,7 @@ def _build_strategic_positioning(data: dict, styles: dict, sec: dict | None = No
     trend = signals.get("trend", {})
     hhi = signals.get("hhi", {})
     price = signals.get("price", {})
-    # Flat-key fallback (collect-report-data.py outputs flat keys)
+    # Flat-key fallback (collect_report_data.py outputs flat keys)
     if isinstance(trend, str):
         trend = {"growth_rate_pct": signals.get("growth_rate_pct", 0), "label": trend}
     if isinstance(hhi, str):
@@ -7049,7 +7049,7 @@ def generate_report_b2g(data: dict) -> BytesIO:
         if len(validation_errors) > 10:
             print(f"    ... e mais {len(validation_errors) - 10}")
         print("\n  Para corrigir, execute:")
-        print("    python scripts/collect-report-data.py --re-enrich <caminho-do-json>")
+        print("    python scripts/collect_report_data.py --re-enrich <caminho-do-json>")
         raise ValueError(
             f"PDF bloqueado — {len(validation_errors)} campo(s) crítico(s) ausente(s) no JSON. "
             f"Execute --re-enrich para recalcular campos determinísticos sem re-coletar APIs.\n"

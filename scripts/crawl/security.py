@@ -33,7 +33,7 @@ USER_AGENT = "Extra-Consultoria/1.0 (consultoria-licitacoes; +https://extraconsu
 
 # Alternative UA for PNCP-specific clients that need to identify differently
 # to API providers who expect the SmartLic application identity.
-PNCP_USER_AGENT = "SmartLic/1.0 (procurement-search; contato@smartlic.tech)"
+PNCP_USER_AGENT = USER_AGENT
 
 # ---------------------------------------------------------------------------
 # SSL verification

@@ -2,7 +2,7 @@
 """
 HARD-001: Semantic deduplication module.
 
-Extracted from collect-report-data.py to keep the main file focused on
+Extracted from collect_report_data.py to keep the main file focused on
 data collection. Provides token normalization, Jaccard similarity, and
 a two-pass deduplication pipeline (exact + semantic).
 

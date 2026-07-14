@@ -2,7 +2,7 @@
 """
 Enriquecimento de dados para o comando /intel-busca.
 
-Adiciona ao JSON gerado pelo intel-collect.py:
+Adiciona ao JSON gerado pelo intel_collect.py:
   - Verificação SICAF (CRC + restrição)
   - Verificação de sanções (CEIS/CNEP/CEPIM/CEAF)
   - Distância sede→edital (OSRM)
@@ -43,7 +43,7 @@ if sys.platform == "win32":
         pass
 
 # ============================================================
-# IMPORT from collect-report-data.py (same pattern as intel-collect.py)
+# IMPORT from collect_report_data.py (same pattern as intel_collect.py)
 # ============================================================
 
 _scripts_dir = str(Path(__file__).resolve().parent)
@@ -54,7 +54,7 @@ from lib.intel_logging import setup_intel_logging
 
 logger = setup_intel_logging("intel-enrich")
 
-_crd_path = str(Path(__file__).resolve().parent / "collect-report-data.py")
+_crd_path = str(Path(__file__).resolve().parent / "collect_report_data.py")
 _spec = importlib.util.spec_from_file_location("collect_report_data", _crd_path)
 if _spec is None or _spec.loader is None:
     print(f"ERROR: Cannot load {_crd_path}")
@@ -530,7 +530,7 @@ def main():
   python scripts/intel-enrich.py --input data.json --output enriched.json --max-editais 40""",
     )
     parser.add_argument(
-        "--input", "-i", required=True, help="JSON de entrada (output do intel-collect.py). Deve existir."
+        "--input", "-i", required=True, help="JSON de entrada (output do intel_collect.py). Deve existir."
     )
     parser.add_argument("--output", "-o", default=None, help="JSON de saida (default: sobrescreve input)")
     parser.add_argument("--skip-sicaf", action="store_true", help="Pular coleta SICAF (evita captcha do navegador)")
@@ -574,13 +574,13 @@ def main():
     api = ApiClient(verbose=not args.quiet)
 
     # ── Step 1: Empresa enrichment (SICAF + Sanções) ──
-    # Skip if already collected by intel-collect.py (Step 1b)
+    # Skip if already collected by intel_collect.py (Step 1b)
     sicaf_already = (
         empresa.get("sicaf") and empresa["sicaf"].get("status") != "PULADO" and empresa["sicaf"].get("crc_status")
     )
     if sicaf_already:
         logger.info("[1/2] Verificação cadastral da empresa...")
-        logger.info("SICAF já coletado no intel-collect.py — pulando")
+        logger.info("SICAF já coletado no intel_collect.py — pulando")
         empresa_enrich = {
             "sicaf": empresa.get("sicaf", {}),
             "sancoes": empresa.get("sancoes", {}),

@@ -30,6 +30,8 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.crawl.security import USER_AGENT  # noqa: E402
+
 _logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -269,7 +271,7 @@ def _api_request(url: str) -> dict | None:
             req.add_header("Accept", "application/json")
             req.add_header(
                 "User-Agent",
-                "Mozilla/5.0 (compatible; SmartLic-Bot/1.0; +https://smartlic.tech/bot)",
+                USER_AGENT,
             )
             with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
                 if resp.status == 200:

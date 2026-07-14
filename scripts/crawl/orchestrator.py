@@ -1,30 +1,39 @@
-"""Crawl orchestrator module — loop principal e scheduling.
+"""
+DEPRECATED: Use scripts.crawl.monitor instead.
+This module is kept for reference only. Do not use in new code.
 
-Gerencia o pipeline completo de ingestao por source:
-    Crawl -> Transform -> Upsert -> Entity Match -> Coverage Update
+The registry at scripts.crawl.registry is the single source of truth
+for all data sources — orchestrator's hardcoded SOURCES list and
+module_map are obsolete and may be removed in a future release.
 
-Cada source e um modulo de crawler independente que fornece:
-    crawl(mode) -> list[dict]      # raw records from source
-    transform(records) -> list[dict]  # normalized to pncp_raw_bids schema
-
-Checkpoints (TD-5.2):
-    - Cada source salva checkpoint apos conclusao bem-sucedida
-    - Modo ``incremental`` verifica checkpoint antes de executar:
-      se o source ja completou o crawl hoje, pula
-    - Checkpoints usam a tabela ``ingestion_checkpoints`` (migration 004)
-    - Gerencia de checkpoint em ``scripts.crawl.checkpoint``
+Original docstring:
+    Crawl orchestrator module — loop principal e scheduling.
+    Gerencia o pipeline completo de ingestao por source:
+        Crawl -> Transform -> Upsert -> Entity Match -> Coverage Update
+    Cada source e um modulo de crawler independente que fornece:
+        crawl(mode) -> list[dict]
+        transform(records) -> list[dict]
 """
 
-from __future__ import annotations
+# NOTE: from __future__ must be first per PEP 563
+from __future__ import annotations  # noqa: E402
 
-import importlib
-import json
-from datetime import date
-from typing import Any
+import warnings
 
-from config.logging_config import get_logger
-from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)
-from scripts.crawl.checkpoint import is_crawl_completed_today, save_checkpoint
+warnings.warn(
+    "scripts.crawl.orchestrator is deprecated, use scripts.crawl.monitor",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+import importlib  # noqa: E402 — deprecation warning before imports is intentional
+import json  # noqa: E402
+from datetime import date  # noqa: E402
+from typing import Any  # noqa: E402
+
+from config.logging_config import get_logger  # noqa: E402
+from config.settings import DEFAULT_DSN  # noqa: E402 — single source of truth (TD-3.2)
+from scripts.crawl.checkpoint import is_crawl_completed_today, save_checkpoint  # noqa: E402
 
 logger = get_logger(__name__)
 
