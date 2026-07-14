@@ -17,6 +17,13 @@ import pytest
 
 from config.settings import DEFAULT_DSN
 
+pytestmark = [
+    pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database tests",
+    ),
+]
+
 
 def _conn():
     return psycopg2.connect(DEFAULT_DSN)

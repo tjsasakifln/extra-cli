@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -21,6 +22,13 @@ import psycopg2.extras
 import pytest
 
 from scripts.opportunity_intel.reconciliation import SourceSnapshotReconciler
+
+pytestmark = [
+    pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database tests",
+    ),
+]
 
 # ---------------------------------------------------------------------------
 # Fixtures

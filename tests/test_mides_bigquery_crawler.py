@@ -130,7 +130,7 @@ class TestMakeContentHash:
         h1 = mides._make_content_hash(sample_empenho)
         h2 = mides._make_content_hash(sample_empenho)
         assert h1 == h2
-        assert len(h1) == 32  # md5 hexdigest
+        assert len(h1) == 64  # sha256 hexdigest
 
     def test_different_records_different_hash(self, sample_empenho, sample_empenho_no_cnpj):
         """Different records should produce different hashes."""
@@ -222,7 +222,7 @@ class TestTransform:
         assert r["data_abertura"] is None
         assert r["source"] == "mides-bigquery"
         assert r["is_active"] is True
-        assert len(r["content_hash"]) == 32
+        assert len(r["content_hash"]) == 64  # sha256 hexdigest
         # esfera_id derived from CNPJ (78511052000110 starts with 7 → private → default 3)
         assert r["esfera_id"] == 3
 

@@ -31,7 +31,14 @@ if str(_PROJECT_ROOT) not in sys.path:
 # Markers: requires test PostgreSQL (docker-compose)
 # ---------------------------------------------------------------------------
 
-pytestmark = [pytest.mark.integration, pytest.mark.database]
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.database,
+    pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database tests",
+    ),
+]
 
 MIGRATION_026 = _PROJECT_ROOT / "db" / "migrations" / "026_contract_intel_truth_v1.sql"
 

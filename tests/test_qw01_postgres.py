@@ -15,7 +15,14 @@ from openpyxl import load_workbook
 from scripts.opportunity_intel.radar import run_radar
 from scripts.opportunity_intel.schema import validate_qw01_schema
 
-pytestmark = [pytest.mark.integration, pytest.mark.database]
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.database,
+    pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database tests",
+    ),
+]
 
 DSN = os.getenv(
     "TEST_DSN",

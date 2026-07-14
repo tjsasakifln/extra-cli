@@ -9,16 +9,11 @@ from scripts.crawl import compras_gov_crawler as cgc
 # ---------------------------------------------------------------------------
 
 MOCK_LEGACY_RECORD = {
-    "numero_aviso": "20230001",
+    "id_compra": "20230001",
     "objeto": "Contratacao de servico de limpeza",
     "valor_estimado": 150000.00,
-    "uasg": {
-        "nome": "Universidade Federal de Santa Catarina",
-        "cnpj": "00000000000191",
-    },
-    "uf": "SC",
-    "municipio": "Florianopolis",
-    "modalidade": {"descricao": "Pregao"},
+    "modalidade": 1,
+    "nome_modalidade": "Pregao",
     "data_publicacao": "2023-06-15T10:00:00",
     "data_entrega_proposta": "2023-07-15T18:00:00",
 }
@@ -27,30 +22,23 @@ MOCK_14133_RECORD = {
     "numeroControlePNCP": "123456789",
     "objetoCompra": "Aquisicao de equipamentos de informatica",
     "valorTotalEstimado": 50000.00,
-    "orgaoEntidade": {
-        "razaoSocial": "Instituto Federal de Santa Catarina",
-        "cnpj": "11111111111111",
-        "municipio": "Sao Jose",
-        "codigoIbge": "4205400",
-    },
-    "uf": "SC",
+    "orgaoEntidadeRazaoSocial": "Instituto Federal de Santa Catarina",
+    "orgaoEntidadeCnpj": "11111111111111",
+    "unidadeOrgaoUfSigla": "SC",
+    "unidadeOrgaoMunicipioNome": "Sao Jose",
+    "unidadeOrgaoCodigoIbge": "4205400",
     "modalidadeNome": "Concorrencia",
     "dataPublicacaoPncp": "2025-01-10T08:00:00",
-    "dataAberturaProposta": "2025-02-10T09:00:00",
-    "dataEncerramentoProposta": "2025-02-10T18:00:00",
+    "dataAberturaPropostaPncp": "2025-02-10T09:00:00",
+    "dataEncerramentoPropostaPncp": "2025-02-10T18:00:00",
 }
 
 MOCK_LEGACY_RECORD_NO_CNPJ = {
-    "numero_aviso": "20230002",
+    "id_compra": "20230002",
     "objeto": "Servico sem CNPJ",
     "valor_estimado": 10000.00,
-    "uasg": {
-        "nome": "Orgao Sem CNPJ",
-        "cnpj": "",
-    },
-    "uf": "SC",
-    "municipio": "Florianopolis",
-    "modalidade": {"descricao": "Pregao"},
+    "modalidade": 1,
+    "nome_modalidade": "Pregao",
     "data_publicacao": "2023-06-20T10:00:00",
     "data_entrega_proposta": "2023-07-20T18:00:00",
 }
@@ -91,18 +79,18 @@ class TestTransform:
 
         record = result[0]
 
-        # Verify all pncp_raw_bids fields are present
+        # Legacy API returns limited fields (no CNPJ, orgao, UF, municipio)
         assert record["pncp_id"].startswith("cg_leg_")
         assert record["objeto_compra"] == "Contratacao de servico de limpeza"
         assert record["valor_total_estimado"] == 150000.00
-        assert record["modalidade_id"] == 1  # Pregao
+        assert record["modalidade_id"] == 1  # Pregao (codigo inteiro)
         assert record["modalidade_nome"] == "Pregao"
-        assert record["esfera_id"] == 1  # Federal
-        assert record["uf"] == "SC"
-        assert record["municipio"] == "Florianopolis"
+        assert record["esfera_id"] == 1  # Federal (default)
+        assert record["uf"] == ""  # Legacy endpoint nao fornece UF
+        assert record["municipio"] == ""  # Legacy endpoint nao fornece municipio
         assert record["codigo_municipio_ibge"] == ""
-        assert record["orgao_razao_social"] == "Universidade Federal de Santa Catarina"
-        assert record["orgao_cnpj"] == "00000000000191"
+        assert record["orgao_razao_social"] == ""  # Legacy endpoint nao fornece orgao
+        assert record["orgao_cnpj"] == ""  # Legacy endpoint nao fornece CNPJ
         assert record["data_publicacao"] == "2023-06-15"
         assert record["data_abertura"] == "2023-07-15"
         assert record["data_encerramento"] is None
@@ -168,6 +156,7 @@ class TestTransform:
         assert len(result) == 1, f"Expected 1 record after dedup, got {len(result)}"
 
     def test_transform_missing_cnpj_filtered(self):
-        """transform() filters out records without CNPJ."""
-        result = cgc.transform([MOCK_LEGACY_RECORD_NO_CNPJ])
-        assert len(result) == 0, "Records without CNPJ should be filtered out"
+        """transform() filters out 14133 records without CNPJ, but keeps legacy records."""
+        # Legacy records without CNPJ are preserved (CNPJ filter only for 14133)
+        legacy_result = cgc.transform([MOCK_LEGACY_RECORD_NO_CNPJ])
+        assert len(legacy_result) == 1, "Legacy records without CNPJ should be preserved"

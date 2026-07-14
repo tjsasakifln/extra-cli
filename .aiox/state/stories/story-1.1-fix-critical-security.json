@@ -1,0 +1,42 @@
+{
+  "story_id": "story-1.1-fix-critical-security",
+  "risk_level": "HIGH-RISK",
+  "status": "InReview",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": false,
+  "scope_files": [
+    "config/settings.py",
+    ".env.example",
+    "scripts/crawl/monitor.py",
+    "scripts/crawl/bids_crawler.py",
+    "scripts/intel_pipeline.py",
+    "pyproject.toml"
+  ],
+  "reviewed_commit": "d2ff075",
+  "gates": {
+    "lint": "FAIL",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": null,
+  "snapshot_evidence": null,
+  "publication_authorized": false,
+  "maintenance_mode": false,
+  "reversa_context": {
+    "extraction_version": "1.2.50",
+    "architecture": [
+      "_reversa_sdd/architecture.md"
+    ],
+    "domain": [
+      "_reversa_sdd/domain.md"
+    ],
+    "specifications": null,
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}

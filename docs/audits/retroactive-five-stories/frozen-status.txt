@@ -1,0 +1,10 @@
+ M .claude/hooks/enforce-git-push-authority.cjs
+ M .claude/hooks/no-story-no-edit.cjs
+ M .claude/hooks/smart-router.cjs
+ M .claude/hooks/story-state.cjs
+ M .claude/skills/aiox-route/SKILL.md
+ M CLAUDE.md
+ M data/transparencia_scrape_results.json
+?? .claude/rules/aiox-reversa-integration.md
+?? .claude/skills/aiox-reversa-bridge/
+?? docs/audits/

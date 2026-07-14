@@ -8,15 +8,14 @@ Covers all public and private functions:
 - _parse_br_number
 - _digits_only
 - _content_hash
-- _extract_table_rows
-- _extract_detail_fields
 - _normalize_item
 - crawl
 - transform
-- diagnostic
 """
 
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from scripts.crawl import sc_compras_crawler as sc
 
@@ -330,70 +329,35 @@ class TestContentHash:
 
 
 class TestExtractTableRows:
-    """Tests for _extract_table_rows()."""
+    """_extract_table_rows() removed in API refactoring (JSON API replaces HTML scraping)."""
 
-    HTML_WITH_TABLE = """
-    <table class="table table-striped">
-      <thead><tr><th>Processo</th><th>Modalidade</th><th>Objeto</th><th>Orgao</th><th>Data</th><th>Situacao</th><th>Valor</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><a href="/licitacao/123">2025/00001</a></td>
-          <td>Pregao Eletronico</td>
-          <td>Contratacao de servico de limpeza</td>
-          <td>Secretaria de Estado da Saude</td>
-          <td>15/06/2025</td>
-          <td>Divulgado</td>
-          <td>150.000,00</td>
-        </tr>
-        <tr>
-          <td><a href="/licitacao/456">2025/00002</a></td>
-          <td>Concorrencia</td>
-          <td>Obra de infraestrutura</td>
-          <td>DEINFRA</td>
-          <td>20/06/2025</td>
-          <td>Aberta</td>
-          <td>2.500.000,00</td>
-        </tr>
-      </tbody>
-    </table>
-    """
-
+    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
     def test_extracts_rows_from_table(self):
-        """Table rows are extracted with all fields."""
-        result = sc._extract_table_rows(self.HTML_WITH_TABLE)
-        assert len(result) == 2
+        pass
 
+    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
     def test_extracts_numero_processo(self):
-        """numero_processo is extracted from anchor text."""
-        result = sc._extract_table_rows(self.HTML_WITH_TABLE)
-        assert result[0]["numero_processo"] == "2025/00001"
-        assert result[1]["numero_processo"] == "2025/00002"
+        pass
 
+    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
     def test_extracts_modalidade(self):
-        """Modalidade is extracted."""
-        result = sc._extract_table_rows(self.HTML_WITH_TABLE)
-        assert result[0]["modalidade"] == "Pregao Eletronico"
+        pass
 
+    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
     def test_extracts_objeto(self):
-        """Objeto is extracted."""
-        result = sc._extract_table_rows(self.HTML_WITH_TABLE)
-        assert "servico de limpeza" in result[0]["objeto"]
+        pass
 
+    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
     def test_extracts_url_detalhe(self):
-        """URL detalhe is constructed from href."""
-        result = sc._extract_table_rows(self.HTML_WITH_TABLE)
-        assert sc.BASE_URL in result[0]["url_detalhe"]
-        assert "/licitacao/123" in result[0]["url_detalhe"]
+        pass
 
+    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
     def test_returns_empty_for_no_table(self):
-        """HTML without table returns empty list."""
-        result = sc._extract_table_rows("<html><body>No table here</body></html>")
-        assert result == []
+        pass
 
+    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
     def test_handles_empty_tbody(self):
-        """Table with empty tbody returns empty list."""
-        result = sc._extract_table_rows('<table class="table"><tbody></tbody></table>')
-        assert result == []
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -402,93 +366,39 @@ class TestExtractTableRows:
 
 
 class TestExtractDetailFields:
-    """Tests for _extract_detail_fields()."""
+    """_extract_detail_fields() removed in API refactoring (JSON API replaces HTML scraping)."""
 
-    HTML_WITH_DL = """
-    <div class="panel-body">
-      <dl>
-        <dt>Numero do Processo</dt>
-        <dd>2025/00001</dd>
-        <dt>Orgao/Entidade</dt>
-        <dd>Secretaria de Estado da Saude</dd>
-        <dt>CNPJ do Orgao</dt>
-        <dd>12.345.678/0001-99</dd>
-        <dt>Valor Total Estimado</dt>
-        <dd>150.000,00</dd>
-        <dt>Data de Abertura</dt>
-        <dd>01/07/2025</dd>
-        <dt>Data de Encerramento</dt>
-        <dd>15/07/2025</dd>
-        <dt>Municipio</dt>
-        <dd>Florianopolis</dd>
-        <dt>UF</dt>
-        <dd>SC</dd>
-      </dl>
-    </div>
-    """
-
+    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
     def test_extracts_dl_fields(self):
-        """Detail fields are extracted from <dl> definitions."""
-        result = sc._extract_detail_fields(self.HTML_WITH_DL)
-        assert result.get("numero_processo") == "2025/00001"
-        assert result.get("orgao") == "Secretaria de Estado da Saude"
-        assert result.get("orgao_cnpj") == "12.345.678/0001-99"
+        pass
 
+    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
     def test_extracts_date_fields(self):
-        """Date fields are extracted."""
-        result = sc._extract_detail_fields(self.HTML_WITH_DL)
-        assert result.get("data_abertura") == "01/07/2025"
-        assert result.get("data_encerramento") == "15/07/2025"
+        pass
 
+    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
     def test_extracts_valor(self):
-        """Valor field is extracted."""
-        result = sc._extract_detail_fields(self.HTML_WITH_DL)
-        assert result.get("valor") == "150.000,00"
+        pass
 
+    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
     def test_extracts_municipio(self):
-        """Municipio field is extracted."""
-        result = sc._extract_detail_fields(self.HTML_WITH_DL)
-        assert result.get("municipio") == "Florianopolis"
+        pass
 
+    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
     def test_returns_empty_for_no_data(self):
-        """HTML without detail data returns empty dict."""
-        result = sc._extract_detail_fields("<html><body>No detail</body></html>")
-        assert result == {}
+        pass
 
+    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
     def test_handles_empty_html(self):
-        """Empty string returns empty dict."""
-        result = sc._extract_detail_fields("")
-        assert result == {}
+        pass
 
-    HTML_WITH_LABEL = """
-    <div class="content-wrapper">
-      <label>Objeto da Licitacao</label>
-      <span>Contratacao de servico de limpeza predial</span><br/>
-      <label>Situacao da Compra</label>
-      <span>Divulgado</span>
-    </div>
-    """
-
+    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
     def test_extracts_label_span_patterns(self):
-        """Fields from label/span patterns are extracted."""
-        result = sc._extract_detail_fields(self.HTML_WITH_LABEL)
-        assert result.get("objeto") == "Contratacao de servico de limpeza predial"
-        assert result.get("situacao") == "Divulgado"
+        pass
 
-    HTML_WITH_STRONG = """
-    <div class="content-wrapper">
-      <strong>Modalidade</strong>
-      <span>Pregao Eletronico</span><br/>
-      <strong>Data Publicacao</strong>
-      <p>15/06/2025</p>
-    </div>
-    """
-
+    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
     def test_extracts_strong_span_patterns(self):
-        """Fields from strong/span patterns are extracted."""
-        result = sc._extract_detail_fields(self.HTML_WITH_STRONG)
-        assert result.get("modalidade") == "Pregao Eletronico"
-        assert result.get("data_publicacao") == "15/06/2025"
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -619,181 +529,84 @@ class TestTransform:
 
 
 class TestCrawl:
-    """Tests for crawl() with mocked HTTP."""
+    """Tests for crawl() with mocked API."""
 
-    @patch("scripts.crawl.sc_compras_crawler._fetch_list_page", return_value=[])
-    def test_crawl_returns_list(self, mock_fetch):
+    @patch("scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value=None)
+    @patch("scripts.crawl.sc_compras_crawler._fetch_api_list", return_value=[])
+    def test_crawl_returns_list(self, mock_list, mock_detail):
         """crawl() returns a list even when API returns no data."""
         result = sc.crawl(mode="full")
         assert isinstance(result, list)
 
-    @patch("scripts.crawl.sc_compras_crawler._fetch_list_page", return_value=[])
-    def test_crawl_full_default_days(self, mock_fetch):
+    @patch("scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value=None)
+    @patch("scripts.crawl.sc_compras_crawler._fetch_api_list", return_value=[])
+    def test_crawl_full_default_days(self, mock_list, mock_detail):
         """crawl('full') uses SC_COMPRAS_FULL_DAYS."""
         result = sc.crawl(mode="full")
         assert isinstance(result, list)
 
-    @patch("scripts.crawl.sc_compras_crawler._fetch_list_page", return_value=[])
-    def test_crawl_incremental(self, mock_fetch):
+    @patch("scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value=None)
+    @patch("scripts.crawl.sc_compras_crawler._fetch_api_list", return_value=[])
+    def test_crawl_incremental(self, mock_list, mock_detail):
         """crawl('incremental') returns a list."""
         result = sc.crawl(mode="incremental")
         assert isinstance(result, list)
 
+    @patch("scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value={"id": 1, "modalidade": "Pregao Eletronico"})
     @patch(
-        "scripts.crawl.sc_compras_crawler._fetch_list_page",
-        return_value=[{"numero_processo": "2025/00001", "url_detalhe": ""}],
+        "scripts.crawl.sc_compras_crawler._fetch_api_list",
+        return_value=[{"id": 1, "processo": "2025/00001"}],
     )
-    def test_crawl_with_items(self, mock_fetch):
+    def test_crawl_with_items(self, mock_list, mock_detail):
         """crawl() returns items when data is available."""
         result = sc.crawl(mode="full")
         assert len(result) >= 1
 
 
 # ---------------------------------------------------------------------------
-# diagnostic() — mocked
+# Obsolete test classes (functions removed in API refactoring)
 # ---------------------------------------------------------------------------
 
 
 class TestDiagnostic:
-    """Tests for diagnostic() with mocked HTTP."""
+    """Diagnostic removed in API refactoring (no longer an HTML-scraping crawler)."""
 
-    @patch("scripts.crawl.sc_compras_crawler._check_url")
-    def test_diagnostic_returns_expected_structure(self, mock_check_url):
-        """diagnostic() returns expected dict structure."""
-        mock_check_url.return_value = {
-            "url": "https://compras.sc.gov.br",
-            "reachable": True,
-            "status_code": 200,
-            "response_time_s": 0.5,
-            "cloudflare_detected": False,
-            "anti_bot_detected": False,
-            "error": None,
-        }
-        result = sc.diagnostic()
-        assert "timestamp" in result
-        assert "base_url" in result
-        assert "e_lic_url" in result
-        assert "main_portal" in result
-        assert "e_lic" in result
-        assert "list_page_test" in result
-        assert "total_time_s" in result
-        assert "summary" in result
+    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
+    def test_diagnostic_returns_expected_structure(self):
+        pass
 
-    @patch("scripts.crawl.sc_compras_crawler._check_url")
-    def test_diagnostic_reachable_summary(self, mock_check_url):
-        """diagnostic() returns positive summary when reachable."""
-        mock_check_url.return_value = {
-            "reachable": True,
-            "status_code": 200,
-            "response_time_s": 0.5,
-            "cloudflare_detected": False,
-            "anti_bot_detected": False,
-            "error": None,
-        }
-        result = sc.diagnostic()
-        assert "fully operational" in result["summary"].lower()
-        assert "no anti-bot" in result["summary"].lower()
+    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
+    def test_diagnostic_reachable_summary(self):
+        pass
 
-    @patch("scripts.crawl.sc_compras_crawler._check_url")
-    def test_diagnostic_cloudflare_summary(self, mock_check_url):
-        """diagnostic() flags Cloudflare detection."""
-        def side_effect(url):
-            if "licitac" in url:
-                return {
-                    "reachable": True, "status_code": 200,
-                    "response_time_s": 0.5, "cloudflare_detected": False,
-                    "anti_bot_detected": False, "error": None,
-                }
-            return {
-                "reachable": True, "status_code": 200,
-                "response_time_s": 0.5, "cloudflare_detected": True,
-                "anti_bot_detected": True, "error": None,
-            }
-        mock_check_url.side_effect = side_effect
-        result = sc.diagnostic()
-        assert "anti-bot challenge" in result["summary"].lower()
+    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
+    def test_diagnostic_cloudflare_summary(self):
+        pass
 
-    @patch("scripts.crawl.sc_compras_crawler._check_url")
-    def test_diagnostic_unreachable_summary(self, mock_check_url):
-        """diagnostic() reports unreachable portals."""
-        mock_check_url.return_value = {
-            "reachable": False, "status_code": None,
-            "response_time_s": -1.0, "cloudflare_detected": False,
-            "anti_bot_detected": False, "error": "Timeout (15s)",
-        }
-        result = sc.diagnostic()
-        assert "unreachable" in result["summary"].lower()
+    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
+    def test_diagnostic_unreachable_summary(self):
+        pass
 
-    @patch("scripts.crawl.sc_compras_crawler._check_url")
-    def test_diagnostic_e_lic_fallback(self, mock_check_url):
-        """diagnostic() shows e-lic fallback when main portal is down."""
-        def side_effect(url):
-            if "compras.sc.gov.br" in url:
-                return {
-                    "reachable": False, "status_code": None,
-                    "response_time_s": -1.0, "cloudflare_detected": False,
-                    "anti_bot_detected": False, "error": "Timeout (15s)",
-                }
-            return {
-                "reachable": True, "status_code": 200,
-                "response_time_s": 0.3, "cloudflare_detected": False,
-                "anti_bot_detected": False, "error": None,
-            }
-        mock_check_url.side_effect = side_effect
-        result = sc.diagnostic()
-        assert "e-lic" in result["summary"].lower()
-        assert "reachable" in result["summary"].lower()
-
-
-# ---------------------------------------------------------------------------
-# _check_url() — not mocked (integration-light)
-# ---------------------------------------------------------------------------
+    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
+    def test_diagnostic_e_lic_fallback(self):
+        pass
 
 
 class TestCheckUrl:
-    """Tests for _check_url() with network mocking."""
+    """_check_url() removed in API refactoring (no longer needs URL checks)."""
 
-    @patch("urllib.request.urlopen")
-    def test_check_url_success(self, mock_urlopen):
-        """_check_url() returns reachable=True for HTTP 200."""
-        mock_resp = MagicMock()
-        mock_resp.status = 200
-        mock_resp.read.return_value = b"<html><body>OK</body></html>"
-        mock_urlopen.return_value.__enter__.return_value = mock_resp
+    @pytest.mark.skip(reason="sc_compras_crawler._check_url() removed in API refactoring")
+    def test_check_url_success(self):
+        pass
 
-        result = sc._check_url("https://compras.sc.gov.br")
-        assert result["reachable"] is True
-        assert result["status_code"] == 200
-        assert result["response_time_s"] >= 0
-        assert result["cloudflare_detected"] is False
-        assert result["anti_bot_detected"] is False
-        assert result["error"] is None
+    @pytest.mark.skip(reason="sc_compras_crawler._check_url() removed in API refactoring")
+    def test_check_url_cloudflare_detected(self):
+        pass
 
-    @patch("urllib.request.urlopen")
-    def test_check_url_cloudflare_detected(self, mock_urlopen):
-        """_check_url() detects Cloudflare challenge."""
-        mock_resp = MagicMock()
-        mock_resp.status = 200
-        mock_resp.read.return_value = b"<html>Cloudflare challenge page</html>"
-        mock_urlopen.return_value.__enter__.return_value = mock_resp
+    @pytest.mark.skip(reason="sc_compras_crawler._check_url() removed in API refactoring")
+    def test_check_url_captcha_detected(self):
+        pass
 
-        result = sc._check_url("https://compras.sc.gov.br")
-        assert result["cloudflare_detected"] is True
-
-    @patch("urllib.request.urlopen")
-    def test_check_url_captcha_detected(self, mock_urlopen):
-        """_check_url() detects CAPTCHA."""
-        mock_resp = MagicMock()
-        mock_resp.status = 200
-        mock_resp.read.return_value = b"<html>cf-turnstile widget</html>"
-        mock_urlopen.return_value.__enter__.return_value = mock_resp
-
-        result = sc._check_url("https://compras.sc.gov.br")
-        assert result["anti_bot_detected"] is True
-
-    @patch("urllib.request.urlopen", side_effect=TimeoutError("timed out"))
-    def test_check_url_timeout(self, mock_urlopen):
-        """_check_url() handles timeout gracefully."""
-        result = sc._check_url("https://compras.sc.gov.br")
-        assert result["reachable"] is False
-        assert "Timeout" in result["error"]
+    @pytest.mark.skip(reason="sc_compras_crawler._check_url() removed in API refactoring")
+    def test_check_url_timeout(self):
+        pass

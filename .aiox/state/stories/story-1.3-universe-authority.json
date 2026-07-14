@@ -1,0 +1,45 @@
+{
+  "story_id": "story-1.3-universe-authority",
+  "risk_level": "STANDARD",
+  "status": "InProgress",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": false,
+  "scope_files": [
+    "db/migrations/037-038",
+    "scripts/universe_tools.py",
+    "scripts/lib/universe_query.py",
+    "scripts/lib/universe.py",
+    "scripts/consulting_readiness.py",
+    "scripts/intel_pipeline.py",
+    "scripts/opportunity_intel/manifest.py",
+    "scripts/opportunity_intel/backfill.py",
+    "scripts/reports/panorama.py"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "FAIL",
+    "typecheck": "NA",
+    "tests": "FAIL",
+    "build": "NA"
+  },
+  "rollback_plan": null,
+  "snapshot_evidence": null,
+  "publication_authorized": false,
+  "maintenance_mode": false,
+  "reversa_context": {
+    "extraction_version": "1.2.50",
+    "architecture": [
+      "_reversa_sdd/architecture.md"
+    ],
+    "domain": [
+      "_reversa_sdd/domain.md"
+    ],
+    "specifications": null,
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}

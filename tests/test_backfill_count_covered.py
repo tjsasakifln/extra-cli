@@ -102,6 +102,10 @@ class TestCountCoveredNoDuplicate:
 class TestNewEntitiesCovered:
     """Verify new_entities_covered calculation in _run_source."""
 
+    @pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database tests",
+    )
     def test_new_entities_covered_calculation(self):
         """Insert coverage, run source, verify new_entities_covered == 1."""
         _require_db()
@@ -160,6 +164,10 @@ class TestNewEntitiesCovered:
         finally:
             conn.close()
 
+    @pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database tests",
+    )
     def test_run_source_new_entities_covered_in_result(self):
         """_run_source must include new_entities_covered in its result dict."""
         _require_db()

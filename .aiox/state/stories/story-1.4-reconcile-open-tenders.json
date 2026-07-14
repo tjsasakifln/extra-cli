@@ -1,0 +1,22 @@
+{
+  "story_id": "story-1.4-reconcile-open-tenders",
+  "risk_level": "STANDARD",
+  "status": "InProgress",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "scope_files": [
+    "scripts/opportunity_intel/reconciliation.py",
+    "scripts/opportunity_intel/pncp_audit.py",
+    "db/migrations/041_fix_snapshot_membership.sql"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING"
+  },
+  "rollback_plan": null,
+  "snapshot_evidence": null,
+  "publication_authorized": false
+}

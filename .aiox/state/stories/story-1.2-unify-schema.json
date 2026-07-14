@@ -1,0 +1,43 @@
+{
+  "story_id": "story-1.2-unify-schema",
+  "risk_level": "HIGH-RISK",
+  "status": "InReview",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": false,
+  "scope_files": [
+    "db/migrations/030-036",
+    "db/migrations/041_fix_fk_constraints.sql",
+    "scripts/schema/audit_sql_references.py",
+    "db/current-schema.sql",
+    "db/current-schema.sha256"
+  ],
+  "reviewed_commit": "d2ff075",
+  "gates": {
+    "lint": "FAIL",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Rollback SQL documentado na migration 041 (DROP CONSTRAINT / DROP COLUMN / DROP INDEX)",
+  "snapshot_evidence": null,
+  "publication_authorized": false,
+  "maintenance_mode": false,
+  "reversa_context": {
+    "extraction_version": "1.2.50",
+    "architecture": [
+      "_reversa_sdd/architecture.md"
+    ],
+    "domain": [
+      "_reversa_sdd/domain.md"
+    ],
+    "specifications": [
+      "_reversa_sdd/db/"
+    ],
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}

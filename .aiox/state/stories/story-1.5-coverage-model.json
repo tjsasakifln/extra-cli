@@ -1,0 +1,45 @@
+{
+  "story_id": "story-1.5-coverage-model",
+  "risk_level": "STANDARD",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "scope_files": [
+    "db/migrations/040",
+    "scripts/coverage/states.py",
+    "scripts/coverage/manifest.py",
+    "scripts/coverage/blockers.py",
+    "scripts/crawl/registry.py",
+    "scripts/matching/entity_matcher.py",
+    "scripts/crawl/monitor.py",
+    "config/source_applicability.yaml"
+  ],
+  "reviewed_commit": "d2ff075",
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": null,
+  "snapshot_evidence": null,
+  "publication_authorized": true,
+  "maintenance_mode": false,
+  "reversa_context": {
+    "extraction_version": "1.2.50",
+    "architecture": [
+      "_reversa_sdd/architecture.md"
+    ],
+    "domain": null,
+    "specifications": [
+      "_reversa_sdd/coverage/design.md",
+      "_reversa_sdd/coverage/requirements.md"
+    ],
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}

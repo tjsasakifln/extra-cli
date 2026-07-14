@@ -299,18 +299,16 @@ def test_smoke_sql_views_syntax(temp_db):
     conn, db_path = temp_db
 
     from scripts.contract_intel.cli import (
-        QUERY_ATIVOS_90_180,
-        QUERY_FORNECEDORES,
-        QUERY_HISTORICO,
-        QUERY_PERCENTIS,
         QUERY_STATS,
+        _sqlite_expiring_query,
+        _sqlite_fornecedores_query,
+        _sqlite_historico_query,
     )
 
     queries = {
-        "historico": QUERY_HISTORICO,
-        "fornecedores": QUERY_FORNECEDORES,
-        "ativos_90_180": QUERY_ATIVOS_90_180,
-        "percentis": QUERY_PERCENTIS,
+        "historico": _sqlite_historico_query(),
+        "fornecedores": _sqlite_fornecedores_query(),
+        "ativos_90_180": _sqlite_expiring_query(),
         "stats": QUERY_STATS,
     }
 

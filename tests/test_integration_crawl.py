@@ -47,7 +47,14 @@ def _get_conn():
 # Tests
 # ---------------------------------------------------------------------------
 
-pytestmark = [pytest.mark.integration, pytest.mark.database]
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.database,
+    pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database integration tests",
+    ),
+]
 
 
 class TestDatabaseConnectivity:

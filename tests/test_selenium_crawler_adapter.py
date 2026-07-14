@@ -351,7 +351,7 @@ class TestTransform:
         flat = transform(sample_crawl_results)
         for record in flat:
             assert "content_hash" in record
-            assert len(record["content_hash"]) == 32  # md5 hex
+            assert len(record["content_hash"]) == 64  # sha256 hexdigest
 
 
 # ---------------------------------------------------------------------------
