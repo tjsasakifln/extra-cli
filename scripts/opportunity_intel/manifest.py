@@ -33,7 +33,7 @@ _logger = logging.getLogger(__name__)
 
 DEFAULT_DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
-    "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
+    "postgresql://postgres@127.0.0.1:5433/pncp_datalake",
 )
 OUTPUT_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),

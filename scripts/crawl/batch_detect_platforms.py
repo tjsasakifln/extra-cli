@@ -50,7 +50,7 @@ def get_municipios_from_db() -> list[dict]:
     """Fetch all SC municipios with IBGE codes from the database."""
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
+    conn = psycopg2.connect(os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@127.0.0.1:5433/pncp_datalake"))
     cur = conn.cursor()
     cur.execute(
         """

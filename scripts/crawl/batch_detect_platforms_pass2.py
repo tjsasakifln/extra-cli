@@ -12,6 +12,7 @@ Also re-checks a few key cities that might have been rate-limited in pass 1.
 
 import json
 import logging
+import os
 import sys
 import time
 from collections import Counter
@@ -129,7 +130,7 @@ def get_not_found_list() -> list[dict]:
     # We need the IBGE codes - get from database
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
+    conn = psycopg2.connect(os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@127.0.0.1:5433/pncp_datalake"))
     cur = conn.cursor()
     cur.execute(
         """

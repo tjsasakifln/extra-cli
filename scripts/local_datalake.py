@@ -10,7 +10,7 @@ Uso:
     python scripts/local_datalake.py stats
     python scripts/local_datalake.py detail --pncp-id 13714142000162-1-000014/2026
 
-Requer: psycopg2, LOCAL_DATALAKE_DSN (default: postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres)
+Requer: psycopg2, LOCAL_DATALAKE_DSN (default: postgresql://postgres@127.0.0.1:5433/pncp_datalake)
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
+DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@127.0.0.1:5433/pncp_datalake")
 
 _console = Console()
 

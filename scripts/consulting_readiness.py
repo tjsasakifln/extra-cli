@@ -222,7 +222,7 @@ def _make_summary(universe) -> dict:
 def _get_dsn() -> str:
     return os.getenv(
         "LOCAL_DATALAKE_DSN",
-        "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
+        "postgresql://postgres@127.0.0.1:5433/pncp_datalake",
     )
 
 
@@ -1498,7 +1498,7 @@ def compute_readiness(
 
     import psycopg2 as _pg2
 
-    _commercial_dsn = _os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres")
+    _commercial_dsn = _os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@127.0.0.1:5433/pncp_datalake")
     try:
         _commercial_conn = _pg2.connect(_commercial_dsn, connect_timeout=5)
         # No global SET statement_timeout -- cada _safe_metric_query()
