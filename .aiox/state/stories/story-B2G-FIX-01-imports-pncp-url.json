@@ -15,7 +15,7 @@
     "tests": "PASS (1018 passed, 1 pre-existing failure)",
     "review": "PASS"
   },
-  "reviewed_commit": "113e188",
+  "reviewed_commit": "d45728d",
   "scope_files": [
     "config/logging_config.py",
     "scripts/crawl/security.py",
