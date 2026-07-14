@@ -1,0 +1,32 @@
+{
+  "story_id": "b2g-audit-consolidation",
+  "risk_level": "FAST",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "WAIVED",
+  "po_closed": true,
+  "scope_files": [
+    "docs/audits/audit-b2g-readiness-2026-07-14.md",
+    "docs/stories/epics/EPIC-MASTER-B2G-READINESS.md",
+    "docs/stories/epics/epic-master-b2g/story-B2G-*.md"
+  ],
+  "reviewed_commit": "02b8ac896d462922a9da629d995ef01af4768623",
+  "gates": {
+    "lint": "NA",
+    "tests": "NA",
+    "security": "NA"
+  },
+  "publication_authorized": true,
+  "publication_reason": "Documentacao apenas — auditoria tecnica + consolidacao de backlog. Nenhuma alteracao de codigo. Protocol-level task (FAST).",
+  "reversa_context": {
+    "extraction_version": null,
+    "architecture": [],
+    "domain": [],
+    "specifications": [],
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}
