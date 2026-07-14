@@ -1,14 +1,14 @@
 {
   "story_id": "B2G-FIX-03",
   "title": "Universo canônico único — eliminar 6 denominadores divergentes",
-  "status": "InReview",
+  "status": "Done",
   "priority": "P0",
   "risk_level": "STANDARD",
   "epic": "EPIC-MASTER-B2G-READINESS",
   "phase": 0,
   "po_validated": true,
   "qa_verdict": "PASS",
-  "po_closed": false,
+  "po_closed": true,
   "publication_authorized": false,
   "gates": {
     "lint": "PASS",
