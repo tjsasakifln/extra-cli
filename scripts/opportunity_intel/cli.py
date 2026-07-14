@@ -555,6 +555,90 @@ def _fmt_date(val: Any) -> str:
     return str(val)[:10]
 
 
+def cmd_briefing(args: argparse.Namespace) -> None:
+    """Briefing diário de oportunidades — foco em decisão comercial.
+
+    Consulta pncp_raw_bids diretamente e exibe resumo priorizado
+    por data de abertura (mais urgente primeiro).
+    """
+    from datetime import date, timedelta
+
+    conn = _get_conn(args.dsn)
+    cur = conn.cursor()
+
+    horizon = date.today() + timedelta(days=args.dias)
+
+    query = """
+        SELECT orgao_razao_social, uf, modalidade_nome, objeto_compra,
+               valor_total_estimado, data_abertura, data_publicacao,
+               situacao_compra, link_pncp
+        FROM pncp_raw_bids
+        WHERE is_active = TRUE
+          AND data_abertura IS NOT NULL
+          AND data_abertura >= CURRENT_DATE
+          AND data_abertura <= %s
+        ORDER BY data_abertura ASC, valor_total_estimado DESC NULLS LAST
+        LIMIT %s
+    """
+    cur.execute(query, (horizon, args.limit))
+    rows = cur.fetchall()
+
+    if not rows:
+        print("Nenhuma oportunidade com data de abertura definida no horizonte.")
+        print(f"Tente aumentar --dias (atual: {args.dias})")
+        cur.close()
+        conn.close()
+        return
+
+    # Count by urgency
+    hoje = date.today()
+    urgentes = [r for r in rows if r[5] and r[5] <= hoje + timedelta(days=7)]
+    proximas = [r for r in rows if r[5] and hoje + timedelta(days=7) < r[5] <= horizon]
+
+    print("\n=== BRIEFING DIÁRIO — Extra Construtora ===")
+    print(f"Gerado: {date.today().strftime('%d/%m/%Y')} | Fonte: PNCP")
+    print(f"Horizonte: {args.dias} dias | Oportunidades: {len(rows)}")
+    print()
+
+    if urgentes:
+        print(f"🔴 URGENTE (próximos 7 dias): {len(urgentes)}")
+        print("-" * 80)
+        for r in urgentes[:10]:
+            nome, uf, mod, obj, valor, dt_ab, dt_pub, sit, link = r
+            obj_short = (obj or "Sem objeto")[:80]
+            val_str = f"R$ {float(valor or 0):,.2f}" if valor else "N/D"
+            dt_str = dt_ab.strftime("%d/%m/%Y") if dt_ab else "N/D"
+            print(f"  [{mod or '?'}] {obj_short}")
+            print(f"  Órgão: {nome or '?'} ({uf or '?'}) | Valor: {val_str} | Abertura: {dt_str}")
+            if link:
+                print(f"  Link: {link}")
+            print()
+
+    if proximas:
+        print(f"🟡 EM BREVE (8-{args.dias} dias): {len(proximas)}")
+        print("-" * 80)
+        for r in proximas[:10]:
+            nome, uf, mod, obj, valor, dt_ab, dt_pub, sit, link = r
+            obj_short = (obj or "Sem objeto")[:80]
+            val_str = f"R$ {float(valor or 0):,.2f}" if valor else "N/D"
+            dt_str = dt_ab.strftime("%d/%m/%Y") if dt_ab else "N/D"
+            print(f"  [{mod or '?'}] {obj_short}")
+            print(f"  Órgão: {nome or '?'} ({uf or '?'}) | Valor: {val_str} | Abertura: {dt_str}")
+            print()
+
+    # Summary stats
+    cur.execute("""
+        SELECT COUNT(*), COUNT(DISTINCT orgao_cnpj),
+               COALESCE(SUM(valor_total_estimado), 0)
+        FROM pncp_raw_bids WHERE is_active = TRUE
+    """)
+    total, orgs, soma = cur.fetchone()
+    print(f"📊 TOTAL NO BANCO: {total} editais | {orgs} órgãos | Valor total: R$ {float(soma):,.2f}")
+
+    cur.close()
+    conn.close()
+
+
 # ---------------------------------------------------------------------------
 # CLI parser
 # ---------------------------------------------------------------------------
@@ -641,6 +725,12 @@ Examples:
     p_exp2.add_argument("--limit", type=int, default=500)
     p_exp2.add_argument("--dsn", default=DEFAULT_DSN)
 
+    p_brief = sub.add_parser("briefing", help="Briefing diário de oportunidades")
+    p_brief.add_argument("--dias", type=int, default=7, help="Horizonte em dias (default: 7)")
+    p_brief.add_argument("--uf", default=None, help="Filtrar por UF")
+    p_brief.add_argument("--limit", type=int, default=20, help="Máximo de oportunidades")
+    p_brief.add_argument("--dsn", default=DEFAULT_DSN)
+
     return parser
 
 
@@ -661,6 +751,7 @@ def main(argv: list[str] | None = None) -> None:
         "source-health": cmd_source_health,
         "update": cmd_update,
         "export": cmd_export,
+        "briefing": cmd_briefing,
     }
 
     cmd_fn = commands.get(args.command)

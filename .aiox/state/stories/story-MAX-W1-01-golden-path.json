@@ -1,0 +1,38 @@
+{
+  "story_id": "MAX-W1-01",
+  "title": "Subir PostgreSQL + aplicar migration v3 + validar golden path",
+  "status": "InReview",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-B2G-MAX-EVOLUTION",
+  "phase": 1,
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": false,
+  "publication_authorized": false,
+  "reviewed_commit": null,
+  "rollback_plan": "Ambiente Docker tmpfs. Dados voláteis. Container restart limpa tudo. docker compose down && docker compose up -d test-db para reconstruir.",
+  "snapshot_evidence": "db/snapshots/pre-wave1-20260714.txt",
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS",
+    "typecheck": "NA",
+    "build": "NA"
+  },
+  "scope_files": [
+    "db/migrations/",
+    "db/setup_db.sh",
+    "scripts/opportunity_intel/cli.py"
+  ],
+  "files_modified": [
+    "scripts/opportunity_intel/cli.py"
+  ],
+  "summary": "Wave 1 concluída. PostgreSQL online com 47 migrations. 200 registros PNCP reais importados. Comando briefing funcional: python3 scripts/opportunity_intel/cli.py briefing --dias 90. Golden path provado end-to-end.",
+  "evidence": {
+    "migrations": "47/47 applied successfully",
+    "pncp_records": 200,
+    "briefing_command": "python3 scripts/opportunity_intel/cli.py briefing --dias 90",
+    "ruff": "PASS (1 minor f-string fixed)",
+    "briefing_output_sample": "6 oportunidades futuras, 5 urgentes (7 dias), 1 em breve (8-90 dias)"
+  }
+}
