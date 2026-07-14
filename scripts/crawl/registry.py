@@ -44,7 +44,7 @@ SourceCapability = Literal[
 
 AuthorityLevel = Literal["federal", "estadual", "municipal", "multi"]
 
-SnapshotSemantics = Literal["full_refresh", "incremental", "append_only"]
+SnapshotSemantics = Literal["full_refresh", "incremental", "append_only", "coverage_only"]
 
 
 @dataclass
@@ -145,7 +145,7 @@ class SourceInfo:
     is_public: bool = True
     """Whether this source requires no credentials."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.is_public and not self.credentials:
             self.is_public = False
         if self.credentials:
@@ -415,7 +415,7 @@ def iter_sources(
     Returns:
         Sorted list of SourceInfo matching the filters.
     """
-    sources = _REGISTRY.values()
+    sources: list[SourceInfo] = list(_REGISTRY.values())
     if active_only:
         sources = [s for s in sources if s.is_active]
     if purpose:

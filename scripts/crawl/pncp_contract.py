@@ -132,7 +132,7 @@ def build_pncp_public_link(
     cnpj = digits_only(orgao_cnpj)
     if len(cnpj) != 14 or ano_compra in (None, "") or sequencial_compra in (None, ""):
         return None
-    return f"https://pncp.gov.br/app/editais/{cnpj}/{int(ano_compra)}/{int(sequencial_compra)}"
+    return f"https://pncp.gov.br/app/editais/{cnpj}/{int(ano_compra)}/{int(sequencial_compra)}"  # type: ignore[arg-type]
 
 
 def explain_modalidades(modalidades: Iterable[int]) -> list[str]:

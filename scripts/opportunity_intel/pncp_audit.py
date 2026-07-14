@@ -151,12 +151,12 @@ def run_pncp_open_monitoring(
                     record["_qw01_status_evidence"] = "pncp_open_proposals_endpoint"
                     raw_records.append(record)
 
-            outcome = _summarize_scope(modalidade, results, max_pages, remaining_records)
-            scopes.append(outcome)
-            if outcome.error_code and outcome.error_code.startswith(("HTTP_", "NETWORK")):
-                source_blocker = outcome
+            scope_outcome = _summarize_scope(modalidade, results, max_pages, remaining_records)
+            scopes.append(scope_outcome)
+            if scope_outcome.error_code and scope_outcome.error_code.startswith(("HTTP_", "NETWORK")):
+                source_blocker = scope_outcome
             if remaining_records is not None:
-                remaining_records -= outcome.records_fetched
+                remaining_records -= scope_outcome.records_fetched
 
         deduplicated = _deduplicate_raw_records(raw_records)
         inserted = 0
@@ -165,17 +165,15 @@ def run_pncp_open_monitoring(
             inserted, updated = _persist_records(conn, deduplicated, db_run_id, external_run_id)
 
         scope_complete = len(scopes) == len(DEFAULT_MODALIDADES) and all(scope.scope_complete for scope in scopes)
-        pages_processed = sum(scope.pages_processed for scope in scopes)
-        pages_expected = (
-            sum(int(scope.pages_expected) for scope in scopes)
-            if scope_complete and all(scope.pages_expected is not None for scope in scopes)
-            else None
-        )
-        records_expected = (
-            sum(int(scope.records_expected) for scope in scopes)
-            if scope_complete and all(scope.records_expected is not None for scope in scopes)
-            else None
-        )
+        pages_processed = sum(s.pages_processed for s in scopes)
+        if scope_complete and all(s.pages_expected is not None for s in scopes):
+            pages_expected: int | None = sum(int(s.pages_expected) for s in scopes)  # type: ignore[arg-type, misc]
+        else:
+            pages_expected = None
+        if scope_complete and all(s.records_expected is not None for s in scopes):
+            records_expected: int | None = sum(int(s.records_expected) for s in scopes)  # type: ignore[arg-type, misc]
+        else:
+            records_expected = None
         records_fetched = len(deduplicated)
         failed_scopes = [scope for scope in scopes if not scope.scope_complete]
         if scope_complete and records_fetched == 0:
@@ -547,7 +545,8 @@ def _project_coverage_evidence(
 
 
 def _raw_org_cnpj(record: dict[str, Any]) -> str:
-    orgao = record.get("orgaoEntidade") if isinstance(record.get("orgaoEntidade"), dict) else {}
+    orgao_val = record.get("orgaoEntidade")
+    orgao = orgao_val if isinstance(orgao_val, dict) else {}
     return str(record.get("orgaoCNPJ") or record.get("orgaoCnpj") or orgao.get("cnpj") or "")
 
 

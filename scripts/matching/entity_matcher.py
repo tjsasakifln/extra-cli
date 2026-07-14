@@ -75,7 +75,7 @@ def _load_population_data() -> dict[str, int]:
         return _POPULATION_DATA
 
     try:
-        import yaml
+        import yaml  # type: ignore[import-untyped]
 
         with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
@@ -283,7 +283,7 @@ def _build_fuzz_ratio() -> Callable[[str, str], float]:
             "for fuzzy entity matching. Install via: pip install rapidfuzz"
         )
 
-        def _ratio(a: str, b: str) -> float:  # type: ignore[misc]
+        def _ratio(a: str, b: str) -> float:
             return SequenceMatcher(None, a, b).ratio()
 
     return _ratio
@@ -569,7 +569,7 @@ def match_entities_cascade(
                 match_score,
                 match_confidence,
             )
-            stats[match_method] = stats[match_method] + 1  # type: ignore[literal-required]
+            stats[match_method] = stats[match_method] + 1
         else:
             update_matched_entity_full(
                 conn,

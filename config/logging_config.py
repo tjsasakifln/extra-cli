@@ -24,7 +24,7 @@ import os
 import sys
 import uuid
 from contextvars import ContextVar
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 # ---------------------------------------------------------------------------
@@ -85,7 +85,7 @@ class JsonFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         log_entry: dict[str, Any] = {
-            "timestamp": datetime.fromtimestamp(record.created, tz=datetime.timezone.utc).isoformat(),
+            "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
             "level": record.levelname,
             "module": record.name,
             "correlation_id": get_correlation_id() or "",
@@ -111,7 +111,7 @@ class JsonFormatter(logging.Formatter):
         except (TypeError, ValueError, OverflowError) as e:
             # Fallback: emit simplified record if serialization fails
             fallback = {
-                "timestamp": datetime.fromtimestamp(record.created, tz=datetime.timezone.utc).isoformat(),
+                "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
                 "level": record.levelname,
                 "module": record.name,
                 "correlation_id": get_correlation_id() or "",
@@ -152,7 +152,7 @@ def get_logger(name: str, level: str | None = None) -> logging.Logger:
     # Avoid duplicate handlers on repeated calls
     if not logger.handlers:
         if _LOG_FORMAT == "json":
-            formatter = JsonFormatter()
+            formatter: logging.Formatter = JsonFormatter()
         else:
             formatter = logging.Formatter(
                 "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
