@@ -45,6 +45,13 @@ plan/
 # QA gate artifacts (runtime)
 docs/qa/gates/
 
+# Profile calibration & quality scan outputs (runtime)
+output/profile-calibration/
+output/quality/
+
+# Analysis docs (runtime)
+docs/analysis/
+
 # Coverage reports (runtime)
 .coverage
 htmlcov/

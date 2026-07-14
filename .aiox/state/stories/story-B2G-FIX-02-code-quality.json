@@ -60,7 +60,7 @@
     "scripts/",
     "pyproject.toml"
   ],
-  "reviewed_commit": "62cd591",
+  "reviewed_commit": "113e188",
   "summary": "B2G-FIX-02 QA GATE: PASS. AC1 ruff=0, AC2 format=clean, AC3 mypy top-10=0 errors (100% reduction), AC4 WAIVED (requires PostgreSQL), AC5 zero new regressions (100/100 tests pass). 52+ files hardened across 4 security/code-quality lanes. Bandit zero high-severity findings. 91 files modified, 592 insertions, 3824 deletions.",
   "reversa_context": {
     "extraction_version": null
