@@ -228,6 +228,7 @@ class ResidualPortalScraper:
                 try:
                     elements = soup.select(template["selector"])
                 except Exception:
+                    _logger.debug("[%s] Template selector '%s' failed", municipio, template["name"])
                     continue
 
                 if not elements:
@@ -661,7 +662,7 @@ class ResidualPortalScraper:
                 try:
                     driver.quit()
                 except Exception:
-                    pass
+                    _logger.debug("[%s] Selenium driver quit failed", municipio)
 
     def _parse_selenium_results(self, results: list[str], municipio: str, url: str) -> list[dict]:
         """Parse Selenium extraction results into bid records.

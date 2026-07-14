@@ -167,6 +167,7 @@ def _div_extraction(soup: Any, url: str, slug: str, ibge: str) -> list[dict]:
             if records:
                 return records
         except Exception:
+            _logger.debug("Selenium base: div extraction pattern '%s' failed", pattern)
             continue
 
     return []

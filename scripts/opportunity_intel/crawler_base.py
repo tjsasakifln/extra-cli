@@ -384,9 +384,9 @@ class BaseOpportunityCrawler(ABC):
                     ),
                 ),
             )
-            return cur.fetchone()[0]
+            return cur.fetchone()[0]  # type: ignore[no-any-return]
 
-    def _finish_run(self, run_id: int, status: str, counts: dict[str, int], error: str | None = None):
+    def _finish_run(self, run_id: int, status: str, counts: dict[str, int], error: str | None = None) -> None:
         """Update opportunity_runs with final status."""
         conn = self._get_conn()
         with conn.cursor() as cur:
@@ -421,7 +421,7 @@ class BaseOpportunityCrawler(ABC):
             row = cur.fetchone()
             if row and row[0]:
                 _logger.info("Resuming from checkpoint: page %d", row[0] + 1)
-                return row[0] + 1
+                return row[0] + 1  # type: ignore[no-any-return]
         return 1
 
     def _save_checkpoint(
@@ -587,7 +587,7 @@ class BaseOpportunityCrawler(ABC):
                 "error": str(e),
             }
 
-    def close(self):
+    def close(self) -> None:
         """Close database connection."""
         if self._conn and not self._conn.closed:
             self._conn.close()

@@ -60,13 +60,13 @@ COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
 # ---------------------------------------------------------------------------
 
 
-def _get_conn():
+def _get_conn() -> Any:
     import psycopg2
 
     return psycopg2.connect(DEFAULT_DSN)
 
 
-def _load_entities(conn, within_200km_only: bool = False) -> list[dict]:
+def _load_entities(conn: Any, within_200km_only: bool = False) -> list[dict[str, Any]]:
     """Load all active SC public entities."""
     cur = conn.cursor()
     sql = (
@@ -86,7 +86,7 @@ def _load_entities(conn, within_200km_only: bool = False) -> list[dict]:
 # NOTE: match_entity is imported from matching/entity_matcher (TD-027 unified)
 
 
-def _start_ingestion_run(conn, source: str, mode: str = "incremental") -> int:
+def _start_ingestion_run(conn: Any, source: str, mode: str = "incremental") -> int:
     """Insert a new ingestion_runs row, returning its id.
 
     Auto-detects whether the schema has crawl_batch_id/run_type (v2)
@@ -126,12 +126,12 @@ def _start_ingestion_run(conn, source: str, mode: str = "incremental") -> int:
     run_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
-    return run_id
+    return run_id  # type: ignore[no-any-return]
 
 
 def _finish_ingestion_run(
-    conn, run_id: int, fetched: int, upserted: int, covered: int, status: str = "completed", error: str = ""
-):
+    conn: Any, run_id: int, fetched: int, upserted: int, covered: int, status: str = "completed", error: str = ""
+) -> None:
     """Update ingestion_runs row at end of crawl. Auto-detects schema version."""
     cur = conn.cursor()
     db_status = status
@@ -180,7 +180,7 @@ from scripts.matching.entity_matcher import (
 # ---------------------------------------------------------------------------
 
 
-def report_coverage(conn) -> dict:
+def report_coverage(conn: Any) -> dict[str, Any]:
     """Generate coverage report for all entities across all sources."""
     cur = conn.cursor()
 
@@ -199,7 +199,7 @@ def report_coverage(conn) -> dict:
     )
     rows = cur.fetchall()
 
-    result = {"groups": [], "total_entities": 0, "total_covered": 0, "total_uncovered": 0}
+    result: dict[str, Any] = {"groups": [], "total_entities": 0, "total_covered": 0, "total_uncovered": 0}
     for raio, total, covered, uncovered in rows:
         group = {
             "within_200km": raio,
@@ -286,7 +286,7 @@ def print_coverage_report(result: dict) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _upsert_raw_records(conn, records: list[dict], upsert_fn: str) -> tuple[int, int, int]:
+def _upsert_raw_records(conn: Any, records: list[dict[str, Any]], upsert_fn: str) -> tuple[int, int, int]:
     import json
 
     from psycopg2.sql import SQL, Identifier
@@ -316,7 +316,7 @@ def _upsert_raw_records(conn, records: list[dict], upsert_fn: str) -> tuple[int,
     return inserted, updated, unchanged
 
 
-def _load_cached_pncp_enrichment(conn, pncp_id: str) -> tuple[dict | None, list[dict], list[dict]]:
+def _load_cached_pncp_enrichment(conn: Any, pncp_id: str) -> tuple[dict[str, Any] | None, list[dict[str, Any]], list[dict[str, Any]]]:
     cur = conn.cursor()
     try:
         cur.execute(
@@ -341,7 +341,7 @@ def _load_cached_pncp_enrichment(conn, pncp_id: str) -> tuple[dict | None, list[
 
 
 def _store_cached_pncp_enrichment(
-    conn, pncp_id: str, detail: dict | None, items: list[dict], documents: list[dict]
+    conn: Any, pncp_id: str, detail: dict[str, Any] | None, items: list[dict[str, Any]], documents: list[dict[str, Any]]
 ) -> None:
     from psycopg2.extras import Json
 
@@ -368,9 +368,9 @@ def _store_cached_pncp_enrichment(
 
 
 def _build_pncp_opportunities(
-    conn,
-    records: list[dict],
-    entities: list[dict],
+    conn: Any,
+    records: list[dict[str, Any]],
+    entities: list[dict[str, Any]],
     *,
     target: str | None,
     engineering_only: bool,
@@ -505,7 +505,7 @@ def _build_pncp_opportunities(
     return opportunities, stats
 
 
-def _persist_engineering_opportunities(conn, opportunities: list[dict]) -> int:
+def _persist_engineering_opportunities(conn: Any, opportunities: list[dict[str, Any]]) -> int:
     import json
 
     from psycopg2.extras import execute_values

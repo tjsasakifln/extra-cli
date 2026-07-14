@@ -225,7 +225,7 @@ def run_radar(
         monitoring, gaps = build_monitoring_metrics(universe, evidence)
         presence_ids = _load_presence_ids(conn, universe)
         presence_denominator = len(universe.conservative_monitoring_population)
-        data_presence = {
+        data_presence: dict[str, Any] = {
             "denominator": presence_denominator,
             "numerator": len(presence_ids),
             "percent": bounded_percent(len(presence_ids), presence_denominator),
@@ -632,7 +632,7 @@ def _source_applicability(universe: CanonicalUniverse) -> list[dict[str, Any]]:
         if selected:
             operational_status = "selected_for_execution"
             blocker = ""
-            applicable = denominator
+            applicable: int | str = denominator
         else:
             operational_status = "registered_not_proven"
             blocker = (
@@ -741,7 +741,7 @@ def _write_optional_xlsx(
     warnings: list[str],
 ) -> None:
     try:
-        from openpyxl import Workbook
+        from openpyxl import Workbook  # type: ignore[import-untyped]
     except ImportError:
         warnings.append("radar_editais.xlsx não gerado: openpyxl indisponível")
         return
@@ -814,7 +814,7 @@ def _load_gate_results(output_root: Path) -> dict[str, Any]:
     path = output_root.resolve() / "quality-gates.json"
     if not path.is_file():
         return {"status": "not_run_for_this_artifact", "path": str(path)}
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8"))  # type: ignore[no-any-return]
 
 
 def _gap_action(state: str) -> str:

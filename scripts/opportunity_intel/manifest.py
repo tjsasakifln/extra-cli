@@ -82,7 +82,7 @@ def generate(dsn: str | None = None, threshold: float = THRESHOLD) -> dict[str, 
         conn.close()
 
 
-def _build_manifest(conn) -> dict[str, Any]:
+def _build_manifest(conn: Any) -> dict[str, Any]:
     """Build coverage manifest JSON.
 
     Returns:
@@ -216,7 +216,7 @@ def _build_manifest(conn) -> dict[str, Any]:
     }
 
 
-def _build_gaps(conn) -> list[dict[str, Any]]:
+def _build_gaps(conn: Any) -> list[dict[str, Any]]:
     """Build coverage gaps CSV data.
 
     Lists entities within 200 km radius, flagging whether they have
@@ -252,7 +252,7 @@ def _build_gaps(conn) -> list[dict[str, Any]]:
     return list(cur.fetchall())
 
 
-def _build_source_health(conn) -> list[dict[str, Any]]:
+def _build_source_health(conn: Any) -> list[dict[str, Any]]:
     """Build source health CSV data.
 
     Excludes test_batch from production metrics.
@@ -290,13 +290,13 @@ def _build_source_health(conn) -> list[dict[str, Any]]:
     return list(cur.fetchall())
 
 
-def _write_json(path: str, data: Any):
+def _write_json(path: str, data: Any) -> None:
     with open(path, "w") as f:
         json.dump(data, f, default=str, indent=2, ensure_ascii=False)
     _logger.info("Wrote %s", path)
 
 
-def _write_csv(path: str, rows: list[dict[str, Any]]):
+def _write_csv(path: str, rows: list[dict[str, Any]]) -> None:
     if not rows:
         _logger.warning("No data for %s", path)
         with open(path, "w", newline="") as f:
@@ -314,7 +314,7 @@ def _write_csv(path: str, rows: list[dict[str, Any]]):
 # ---------------------------------------------------------------------------
 
 
-def main():
+def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
     try:

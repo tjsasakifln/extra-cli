@@ -8,8 +8,8 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from clients.pncp.circuit_breaker import _circuit_breaker
-from clients.pncp.retry import ParallelFetchResult
+from clients.pncp.circuit_breaker import _circuit_breaker  # type: ignore[import-not-found]
+from clients.pncp.retry import ParallelFetchResult  # type: ignore[import-not-found]
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +48,8 @@ class PNCPLegacyAdapter:
         self.truncated_ufs: list[str] = []
 
     @property
-    def metadata(self):
-        from clients.base import SourceCapability, SourceMetadata
+    def metadata(self) -> Any:
+        from clients.base import SourceCapability, SourceMetadata  # type: ignore[import-not-found]
 
         return SourceMetadata(
             name="PNCP",
@@ -63,21 +63,21 @@ class PNCPLegacyAdapter:
     @property
     def name(self) -> str:
         """Human-readable source name (GTM-FIX-024 T1)."""
-        return self.metadata.name
+        return self.metadata.name  # type: ignore[no-any-return]
 
     @property
     def code(self) -> str:
         """Short code for logs/metrics (GTM-FIX-024 T1)."""
-        return self.metadata.code
+        return self.metadata.code  # type: ignore[no-any-return]
 
-    async def health_check(self):
+    async def health_check(self) -> Any:
         from clients.base import SourceStatus
 
         if _circuit_breaker.is_degraded:
             return SourceStatus.DEGRADED
         return SourceStatus.AVAILABLE
 
-    async def fetch(self, data_inicial, data_final, ufs=None, **kwargs):
+    async def fetch(self, data_inicial: str, data_final: str, ufs: list[str] | None = None, **kwargs: Any) -> Any:
         from clients.base import UnifiedProcurement
 
         _ufs = list(ufs) if ufs else self._ufs
@@ -169,10 +169,10 @@ class PNCPLegacyAdapter:
                 raw_data=item,
             )
 
-    def normalize(self, raw_record):
+    def normalize(self, raw_record: Any) -> None:
         pass
 
-    async def close(self):
+    async def close(self) -> None:
         pass
 
 
@@ -212,10 +212,10 @@ async def buscar_todas_ufs_paralelo(
         ...     data_final="2026-01-15"
         ... )
     """
-    from clients.pncp.async_client import AsyncPNCPClient
+    from clients.pncp.async_client import AsyncPNCPClient  # type: ignore[import-not-found]
 
     async with AsyncPNCPClient(max_concurrent=max_concurrent) as client:
-        return await client.buscar_todas_ufs_paralelo(
+        return await client.buscar_todas_ufs_paralelo(  # type: ignore[no-any-return]
             ufs=ufs,
             data_inicial=data_inicial,
             data_final=data_final,
