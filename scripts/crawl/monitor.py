@@ -28,6 +28,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 _logger = logging.getLogger(__name__)
 
@@ -316,7 +317,9 @@ def _upsert_raw_records(conn: Any, records: list[dict[str, Any]], upsert_fn: str
     return inserted, updated, unchanged
 
 
-def _load_cached_pncp_enrichment(conn: Any, pncp_id: str) -> tuple[dict[str, Any] | None, list[dict[str, Any]], list[dict[str, Any]]]:
+def _load_cached_pncp_enrichment(
+    conn: Any, pncp_id: str
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]], list[dict[str, Any]]]:
     cur = conn.cursor()
     try:
         cur.execute(
@@ -619,7 +622,7 @@ def crawl_source(
     limit: int | None = None,
     engineering_only: bool = False,
     within_200km_only: bool = False,
-) -> CrawlerResult:  # noqa: F821
+) -> Any:
     """Run crawl for a specific source, match entities, return CrawlerResult.
 
     Each source module is expected to provide:
@@ -636,7 +639,11 @@ def crawl_source(
     from datetime import datetime
 
     from scripts.crawl.credential_validator import validate_source_credentials
-    from scripts.crawl.ingestion._base.crawler import CrawlerResult, CrawlRequest, determine_status
+    from scripts.crawl.ingestion._base.crawler import (  # type: ignore[import-not-found]
+        CrawlerResult,
+        CrawlRequest,
+        determine_status,
+    )
 
     started_at = datetime.now(UTC)
     result = CrawlerResult(source=source)
@@ -727,7 +734,7 @@ def crawl_source(
             error_code = "empty_result" if status == "empty" else "fetch_failed"
             _record_evidence(conn, run_id, source, status, error_code=error_code)
             conn.close()
-            result.status = status
+            result.status = status  # type: ignore[assignment]
             result.error_code = error_code
             result.started_at = started_at.isoformat()
             result.completed_at = datetime.now(UTC).isoformat()
@@ -851,7 +858,7 @@ def crawl_source(
             )
 
         # ── Determine final status ──────────────────────────────────────
-        result.status = determine_status(
+        result.status = determine_status(  # type: ignore[assignment]
             fetched=result.fetched,
             transformed=result.transformed,
             errors=[result.error_message] if result.error_message else None,
@@ -953,16 +960,16 @@ def crawl_source(
 
 
 def _project_entity_evidence(
-    conn,
+    conn: Any,
     run_id: int,
     source: str,
-    entities: list[dict],
+    entities: list[dict[str, Any]],
     fetch_complete: bool,
     date_from: str | None = None,
     date_to: str | None = None,
-    fetch_metadata: dict | None = None,
+    fetch_metadata: dict[str, Any] | None = None,
     current_pncp_ids: list[str] | None = None,
-) -> dict | None:
+) -> dict[str, Any] | None:
     """Project per-entity evidence rows after a crawl run.
 
     For every applicable entity in the candidate universe, writes one
@@ -1123,7 +1130,7 @@ def _project_entity_evidence(
 
 
 def _record_evidence(
-    conn,
+    conn: Any,
     run_id: int,
     source: str,
     state: str,
@@ -1134,8 +1141,8 @@ def _record_evidence(
     date_to: str | None = None,
     error_message: str | None = None,
     error_code: str | None = None,
-    metadata: dict | None = None,
-):
+    metadata: dict[str, Any] | None = None,
+) -> None:
     """Insert one row into coverage_evidence for this source run.
 
     Maps monitor-level status + error_code → evidence_state enum value.
@@ -1234,7 +1241,7 @@ def _map_evidence_state(monitor_status: str, error_code: str, fetched: int) -> s
     return status_mapping.get(monitor_status, "not_investigated")
 
 
-def _load_crawler(source: str):
+def _load_crawler(source: str) -> Any:
     """Dynamically load crawler module for a source using the central registry."""
     import importlib
 
@@ -1254,7 +1261,7 @@ def _load_crawler(source: str):
 # ---------------------------------------------------------------------------
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Multi-Source Coverage Monitor — Extra Construtora")
     from scripts.crawl.registry import iter_choices as _registry_choices
 
@@ -1328,8 +1335,8 @@ def parse_args():
     return p.parse_args()
 
 
-def main():
-    from scripts.crawl.ingestion._base.crawler import CrawlerResult
+def main() -> int:
+    from scripts.crawl.ingestion._base.crawler import CrawlerResult  # type: ignore[import-not-found]
 
     args = parse_args()
 
@@ -1491,8 +1498,8 @@ def main():
                 "generated_at": _dt.now().isoformat(),
             },
         }
-        with open(args.output_json, "w") as f:
-            _json.dump(output, f, indent=2, ensure_ascii=False)
+        with open(args.output_json, "w") as fh:
+            _json.dump(output, fh, indent=2, ensure_ascii=False)
         print(f"\n  📄 Result JSON: {args.output_json}")
 
     # ── Exit code ───────────────────────────────────────────────────────
