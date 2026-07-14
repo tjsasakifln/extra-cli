@@ -639,7 +639,7 @@ def crawl_source(
     from datetime import datetime
 
     from scripts.crawl.credential_validator import validate_source_credentials
-    from scripts.crawl.ingestion._base.crawler import (  # type: ignore[import-not-found]
+    from scripts.crawl.ingestion._base.crawler import (
         CrawlerResult,
         CrawlRequest,
         determine_status,
@@ -1336,7 +1336,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    from scripts.crawl.ingestion._base.crawler import CrawlerResult  # type: ignore[import-not-found]
+    from scripts.crawl.ingestion._base.crawler import CrawlerResult
 
     args = parse_args()
 
