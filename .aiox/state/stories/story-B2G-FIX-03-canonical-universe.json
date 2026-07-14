@@ -9,7 +9,7 @@
   "po_validated": true,
   "qa_verdict": "PASS",
   "po_closed": true,
-  "publication_authorized": false,
+  "publication_authorized": true,
   "gates": {
     "lint": "PASS",
     "tests": "PASS",
@@ -25,6 +25,7 @@
     "scripts/coverage_truth.py"
   ],
   "summary": "Universo canônico já estava 80% implementado. scripts/lib/universe.py fornece CANONICAL_UNIVERSE=1093 com provenance da planilha seed. manifest.py, consulting_readiness.py, radar.py já usavam o universo canônico. Única correção: coverage_truth.py usava raio_200km=TRUE (1448 linhas, 355 extras) → substituído por target_universe_entities.radius_decision='included'.",
+  "reviewed_commit": "62cd591",
   "qa_evidence": {
     "verified_consumers": [
       "scripts/lib/universe.py — fonte canônica, CANONICAL_UNIVERSE=1093",
