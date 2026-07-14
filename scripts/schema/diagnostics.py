@@ -24,7 +24,6 @@ import logging
 import os
 import sys
 from dataclasses import dataclass, field
-from typing import Any
 
 try:
     import psycopg2
@@ -104,11 +103,7 @@ class SchemaReport:
 
     @property
     def aligned(self) -> bool:
-        return (
-            len(self.tables_missing) == 0
-            and len(self.fks_not_valid) == 0
-            and len(self.fks_missing) == 0
-        )
+        return len(self.tables_missing) == 0 and len(self.fks_not_valid) == 0 and len(self.fks_missing) == 0
 
     @property
     def exit_code(self) -> int:
@@ -168,18 +163,20 @@ def run_diagnostics(dsn: str | None = None) -> SchemaReport:
 
         # --- FK validation (migration 041a risk) ---
         for fk in PENDING_FK_VALIDATION:
-            cur.execute("""
+            cur.execute(
+                """
                 SELECT convalidated
                 FROM pg_catalog.pg_constraint
                 WHERE conname = %s
                   AND conrelid = %s::regclass
-            """, (fk["constraint"], fk["table"]))
+            """,
+                (fk["constraint"], fk["table"]),
+            )
             row = cur.fetchone()
             if row is None:
                 report.fks_missing.append(fk)
                 report.critical_findings.append(
-                    f"FK {fk['constraint']} ON {fk['table']} does not exist — "
-                    f"migration 041a may not have been applied"
+                    f"FK {fk['constraint']} ON {fk['table']} does not exist — migration 041a may not have been applied"
                 )
             elif row[0] is False:
                 report.fks_not_valid.append(fk)
@@ -196,9 +193,7 @@ def run_diagnostics(dsn: str | None = None) -> SchemaReport:
         """)
         stuck_runs = cur.fetchone()[0]
         if stuck_runs > 0:
-            report.warnings.append(
-                f"{stuck_runs} ingestion runs stuck in 'running' state for >4 hours"
-            )
+            report.warnings.append(f"{stuck_runs} ingestion runs stuck in 'running' state for >4 hours")
 
         # --- Check for snapshot reconciliation risk (migration 041b) ---
         cur.execute("""
@@ -226,23 +221,25 @@ def run_diagnostics(dsn: str | None = None) -> SchemaReport:
 def print_report(report: SchemaReport, json_output: bool = False) -> int:
     """Print the diagnostic report and return exit code."""
     if json_output:
-        print(json.dumps({
-            "connected": report.connected,
-            "db_name": report.db_name,
-            "migration_count": report.migration_count,
-            "aligned": report.aligned,
-            "tables_missing": report.tables_missing,
-            "tables_extra": report.tables_extra,
-            "views_missing": report.views_missing,
-            "fks_not_valid": [
-                f"{fk['constraint']} ON {fk['table']}" for fk in report.fks_not_valid
-            ],
-            "fks_missing": [
-                f"{fk['constraint']} ON {fk['table']}" for fk in report.fks_missing
-            ],
-            "critical_findings": report.critical_findings,
-            "warnings": report.warnings,
-        }, indent=2, default=str))
+        print(
+            json.dumps(
+                {
+                    "connected": report.connected,
+                    "db_name": report.db_name,
+                    "migration_count": report.migration_count,
+                    "aligned": report.aligned,
+                    "tables_missing": report.tables_missing,
+                    "tables_extra": report.tables_extra,
+                    "views_missing": report.views_missing,
+                    "fks_not_valid": [f"{fk['constraint']} ON {fk['table']}" for fk in report.fks_not_valid],
+                    "fks_missing": [f"{fk['constraint']} ON {fk['table']}" for fk in report.fks_missing],
+                    "critical_findings": report.critical_findings,
+                    "warnings": report.warnings,
+                },
+                indent=2,
+                default=str,
+            )
+        )
         return report.exit_code
 
     # Text output

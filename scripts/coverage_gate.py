@@ -69,10 +69,7 @@ def _load_gate_config(project_root: Path) -> dict[str, Any]:
     parser.read(str(coveragerc))
 
     if not parser.has_section("coverage_gate"):
-        _logger.error(
-            "Section [coverage_gate] not found in .coveragerc — "
-            "add 'modules', 'threshold' and 'output' keys"
-        )
+        _logger.error("Section [coverage_gate] not found in .coveragerc — add 'modules', 'threshold' and 'output' keys")
         sys.exit(3)
 
     modules_raw = parser.get("coverage_gate", "modules", fallback="")
@@ -83,9 +80,7 @@ def _load_gate_config(project_root: Path) -> dict[str, Any]:
         sys.exit(3)
 
     threshold = parser.getint("coverage_gate", "threshold", fallback=80)
-    output_rel = parser.get(
-        "coverage_gate", "output", fallback="output/coverage/coverage-gate-report.json"
-    )
+    output_rel = parser.get("coverage_gate", "output", fallback="output/coverage/coverage-gate-report.json")
 
     return {
         "modules": modules,

@@ -53,7 +53,6 @@ DEFAULT_OUTPUT_DIR = str(PROJECT_ROOT / "output" / "readiness")
 # (Story 1.3 refactored to CanonicalUniverse; these aliases preserve test compatibility)
 from scripts.lib.universe import (
     CanonicalEntity,
-    CanonicalUniverse,
 )
 
 
