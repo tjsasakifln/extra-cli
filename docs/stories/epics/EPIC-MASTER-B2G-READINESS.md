@@ -1,228 +1,278 @@
-# EPIC-MASTER-B2G-READINESS: Plataforma de Inteligência B2G — Extra Construtora
+# EPIC-MASTER-B2G-READINESS v3.0: Infraestrutura de Inteligência B2G — CONFENGE
 
 **Epic ID:** EPIC-MASTER-B2G-READINESS (Single Source of Truth)
-**Criado por:** Morgan (PM) — Synkra AIOX
-**Data:** 2026-07-12
+**Versão:** 3.0
+**Data:** 2026-07-14
 **Status:** Active
+**Autor:** Claude Opus 4.8 (DeepSeek v4 Pro) — Auditoria + Consolidação
 **PRD:** `docs/prd/PRD-consultoria-extra.md` v2.0
+**Auditoria:** `docs/audits/audit-b2g-readiness-2026-07-14.md`
+
+---
+
+## Mudanças na v3.0
+
+1. **Contexto estratégico atualizado:** De "Extra Construtora analytics" para "CONFENGE commercial intelligence"
+2. **60+ stories consolidadas em ~35 stories** com dependências lineares e gates verificáveis
+3. **Stories "Done" reabertas** quando ACs não foram verificados em ambiente real (FEAT-4.1, TD-8.5)
+4. **Stories "Ready" reavaliadas** — FIX-UNIVERSE e FIX-TRANSACTION marcadas como implementadas
+5. **Stories obsoletas arquivadas** — B2G-5 (Supabase path), COVERAGE-2.1 (MiDES), C1/C4 (Telegram/TUI)
+6. **Gates objetivos** que exigem evidência de execução real, não apenas script
+7. **Nomenclatura unificada:** `B2G-{FASE}-{NUM}` para todas as stories
 
 ---
 
 ## Objetivo
 
-Unificar todo o backlog de desenvolvimento da plataforma Extra Consultoria em um único epic mestre, com fases claras, dependências mapeadas e status tracking para cada story. Substitui EPIC-001, EPIC-COVERAGE-100PCT, EPIC-FEAT-001, EPIC-TD-001, EPIC-TD-002, EPIC-TD-003 como fonte única de verdade.
+Infraestrutura de inteligência B2G para CONFENGE: coleta multi-source → backfill histórico → sinais comerciais → operação contínua em VPS Hetzner de baixo custo.
 
-## Situação Atual (2026-07-12)
-
-### Cobertura
-
-| Indicador | Valor |
-|-----------|-------|
-| Total entes na planilha | 2.085 |
-| Universo confirmado | 1.481 |
-| Nao resolvidos (sem coordenadas) | 604 |
-| Dentro do raio 200km | 1.093 |
-| Fora do raio 200km | 388 |
-| **Cobertura** | **64.4%** (threshold 95% — NAO PASSOU) |
-| Entes com editais abertos | 220 (20.1%) |
-| Entes com contratos | 404 (37.0%) |
-| Freshness fresh | 479 |
-| Freshness stale | 9 |
-| Freshness unknown | 605 |
-| Source health PNCP | 100% |
-
-### Comercial — ALL NOT_READY
-
-| Métrica | Status |
-|---------|--------|
-| contract_total_value | NOT_READY |
-| desagio | NOT_READY |
-| win_rate | NOT_READY |
-| relicitacao_probability | NOT_READY |
-
-### Quality
-
-| Indicador | Valor |
-|-----------|-------|
-| Ruff lint | 222 erros (apos auto-fix, antes 932) |
-| Ruff format | 96/96 arquivos formatados |
-| Mypy | 706+ erros em 60+ arquivos |
-| Test coverage | ~6% |
-| Systemd timers ativos | 3/11 |
-| CRITICAL/HIGH blockers | TD-0.1 backup, TD-0.2 imports quebrados, TD-8.2 module imports |
-
-## Fases
-
-### Fase 0 — Emergencia (Technical Debt CRITICAL)
-
-Stories que resolvem blockers CRITICAL. Devem ser executadas antes de qualquer outra fase.
-
-| Story | Nome | Status | Prioridade | Agente | Depende de |
-|-------|------|--------|------------|--------|------------|
-| TD-0.1 | Setup backup automatizado | Ready | P0 | @dev | Nenhuma |
-| TD-0.2 | Corrigir imports quebrados | Ready | P0 | @dev | Nenhuma |
-| TD-0.3 | Config package fix | Ready | P0 | @dev | Nenhuma |
-| TD-8.2 | Fix broken module imports | Draft | P0 | @dev | Nenhuma |
-
-### Fase 1 — Quick Wins & Qualidade
-
-| Story | Nome | Status | Prioridade | Agente | Depende de |
-|-------|------|--------|------------|--------|------------|
-| TD-1.1 | Otimizacao de queries | Ready | P1 | @dev | Nenhuma |
-| TD-1.2 | Remover segredos hardcoded | Ready | P1 | @dev | Nenhuma |
-| TD-1.3 | Iniciar suite de testes | Ready | P1 | @qa | Nenhuma |
-| TD-7.1 | Code quality cleanup (lint + format + types) | **InProgress** | P1 | @dev | Nenhuma |
-| TD-8.1 | Reversa cleanup — duplicacao, subprocess, psycopg2 | Draft | P1 | @dev | TD-8.2 |
-| TD-4.3 | Code review + lint automatizado | Ready | P1 | @dev | TD-7.1 |
-
-### Fase 2 — Schema & Migrations
-
-| Story | Nome | Status | Prioridade | Agente | Depende de |
-|-------|------|--------|------------|--------|------------|
-| TD-2.1 | Reconstruir migrations do zero | Ready | P1 | @data-engineer | TD-0.1 |
-| TD-2.2 | Aplicar migrations adaptadas | Ready | P1 | @data-engineer | TD-2.1 |
-| TD-2.3 | Normalizacao e constraints | Ready | P1 | @data-engineer | TD-2.1 |
-| TD-2.4 | Sincronizar schema do DataLake | Ready | P1 | @data-engineer | TD-2.1, TD-2.2 |
-| TD-8.3 | PNCP API v3 migration | Draft | P1 | @dev | TD-8.2 |
-| **B2G-5** | Schema final + Supabase path | Draft | P1 | @data-engineer | TD-2.x |
-
-### Fase 3 — Refactoring & Crawlers
-
-| Story | Nome | Status | Prioridade | Agente | Depende de |
-|-------|------|--------|------------|--------|------------|
-| TD-3.1 | Refatorar monitor.py | Ready | P1 | @dev | TD-1.3 |
-| TD-3.2 | Eliminar codigo duplicado | Ready | P1 | @dev | TD-0.2, TD-1.3 |
-| TD-3.3 | Adicionar type hints | Ready | P1 | @dev | Nenhuma |
-| TD-3.4 | Melhorar tratamento de erros | Ready | P1 | @dev | Nenhuma |
-| FEAT-1.1 | Adaptar DOM-SC crawler | Ready | P1 | @dev | Nenhuma |
-| FEAT-1.2 | Adaptar PCP v2 crawler | Ready | P2 | @dev | Nenhuma |
-| FEAT-1.3 | Adaptar ComprasGov crawler | Ready | P2 | @dev | Nenhuma |
-| FEAT-1.4 | Adaptar Contracts crawler | Ready | P3 | @dev | Nenhuma |
-
-### Fase 4 — Coverage & Geocoding
-
-| Story | Nome | Status | Prioridade | Agente | Depende de |
-|-------|------|--------|------------|--------|------------|
-| **B2G-1** | Resolver 604 entidades nao resolvidas | Draft | P0 | @dev | Nenhuma |
-| COVERAGE-1.1 | Entity matching enhancement | Ready | P0 | @analyst + @dev | B2G-1 |
-| COVERAGE-1.2 | CIGA CKAN crawler | Ready | P0 | @dev | Nenhuma |
-| COVERAGE-1.3 | Portal Transparencia batch detect | Ready | P0 | @dev | Nenhuma |
-| COVERAGE-1.4 | PNCP v3 coverage expansion | Ready | P1 | @dev | TD-8.3 |
-| COVERAGE-1.5 | DOM-SC expansion | Ready | P1 | @dev | FEAT-1.1 |
-| COVERAGE-1.6 | PCP coverage expansion | Ready | P1 | @dev | FEAT-1.2 |
-| COVERAGE-1.7 | Gap analysis report | Ready | P1 | @analyst | B2G-1 |
-| COVERAGE-1.8 | Hierarchical match | Ready | P1 | @analyst | B2G-1 |
-| COVERAGE-1.9 | SC Dados Abertos fix | Ready | P1 | @dev | Nenhuma |
-| COVERAGE-1.10 | PCP diagnostic | Ready | P1 | @dev | FEAT-1.2 |
-| COVERAGE-1.11 | Geocoding | Ready | P1 | @dev | B2G-1 |
-| COVERAGE-2.1 | MiDES BigQuery integration | Ready | P2 | @data-engineer | Nenhuma |
-| COVERAGE-2.2 | SC Compras crawler activation | Ready | P2 | @dev | Nenhuma |
-| COVERAGE-2.3 | DOE-SC crawler activation | Ready | P2 | @dev | Nenhuma |
-| COVERAGE-2.4 | Entity coverage rebuild | Ready | P2 | @data-engineer | B2G-1 |
-| COVERAGE-3.1 | Selenium crawler JS portals | Ready | P3 | @dev | Nenhuma |
-| COVERAGE-3.2 | Portal Transparencia individual | Ready | P3 | @dev | COVERAGE-1.3 |
-| COVERAGE-3.3 | Multi-source backfill pipeline | Ready | P3 | @dev | COVERAGE-x.x |
-| COVERAGE-3.4 | Coverage validation documentation | Ready | P3 | @analyst | COVERAGE-x.x |
-
-### Fase 5 — Comercial Metrics
-
-| Story | Nome | Status | Prioridade | Agente | Depende de |
-|-------|------|--------|------------|--------|------------|
-| **B2G-2** | Metricas comerciais — preco praticado | Draft | P1 | @data-engineer | B2G-1, TD-2.x |
-| **B2G-3** | Concorrencia e win rate | Draft | P1 | @data-engineer | B2G-2 |
-| FEAT-3.1 | Pipeline Intel CNPJ Extra | Ready | P1 | @dev | Nenhuma |
-
-### Fase 6 — Producao & Automacao
-
-| Story | Nome | Status | Prioridade | Agente | Depende de |
-|-------|------|--------|------------|--------|------------|
-| **B2G-4** | Quality Gate Automation | Draft | P1 | @dev | TD-7.1 |
-| TD-4.1 | Expandir cobertura de testes | Ready | P1 | @qa | TD-1.3, TD-3.1, TD-3.2 |
-| TD-4.2 | Setup CI/CD pipeline | Ready | P1 | @devops | TD-4.1 |
-| TD-5.1 | Logging estruturado | Ready | P1 | @dev | TD-3.1, TD-3.4 |
-| TD-5.2 | Resume para crawlers | Ready | P2 | @dev | Nenhuma |
-| TD-5.3 | Otimizacao de performance | Ready | P2 | @dev | TD-2.1 |
-| TD-5.4 | Hardening de seguranca | Ready | P2 | @dev | TD-1.2 |
-| TD-5.5 | Monitoramento e alertas | Ready | P2 | @dev | TD-5.1 |
-| FEAT-4.1 | Provisionar Hetzner VPS | Ready | P1 | @devops | TD-0.1 |
-| TD-6.1 | Documentacao operacional | Ready | P2 | @dev | Fases anteriores |
-| TD-6.2 | Runbooks e onboarding | Ready | P2 | @dev | TD-6.1 |
-
-### Fase 7 — Expansao (Backlog)
-
-| Story | Nome | Status | Prioridade | Agente | Depende de |
-|-------|------|--------|------------|--------|------------|
-| FEAT-2.3 | Criar DOE-SC crawler | Ready | P2 | @dev | Nenhuma |
-| C1 | Alertas Telegram | Draft | P3 | @dev | Nenhuma |
-| C3 | DOE-SC integracao | Draft | P3 | @dev | FEAT-2.3 |
-| C4 | Dashboard TUI | Draft | P3 | @dev | Nenhuma |
-
-## Dependencias Grafo
-
-```
-Fase 0 (TD-0.x, TD-8.x)
-  |
-  v
-Fase 1 (TD-1.x, TD-7.1, TD-8.1)
-  |
-  v
-Fase 2 (TD-2.x, B2G-5, TD-8.3)
-  |
-  +---> Fase 3 (TD-3.x, FEAT-1.x)
-  |        |
-  |        v
-  +---> Fase 4 (B2G-1, COVERAGE-x.x)
-  |        |
-  |        v
-  +---> Fase 5 (B2G-2, B2G-3, FEAT-3.1)
-  |
-  +---> Fase 6 (B2G-4, TD-4.x, TD-5.x, FEAT-4.1)
-           |
-           v
-       Fase 7 (FEAT-2.3, C1, C3, C4)
-```
-
-## Criterios de Sucesso Globais
-
-- [ ] **Coverage >=95%** — `coverage_manifest.coverage.passed == True`
-- [ ] **Zero unresolved** — `coverage_manifest.universe.unresolved == 0`
-- [ ] **Preco praticado DISPONIVEL** — CLI mostra desagio medio por modalidade, orgao, periodo
-- [ ] **Win rate DISPONIVEL** — CLI `competitors` com ranking, win rate, ticket medio
-- [ ] **Quality gate automatizado** — `scripts/ci-check.sh` bloqueia commits com CRITICAL/HIGH
-- [ ] **Schema unificado** — Migration 006-v3 aplicada limpa, export SQLite->PostgreSQL funcional
-- [ ] **Systemd timers** — 11/11 ativos sem erro
-- [ ] **Test coverage** — >=60% modulos core, >=30% suporte, >=10% geral
-- [ ] **Mypy** — 50% reducao nos erros `no-untyped-def` e `no-any-return` nos top-10 modulos
-- [ ] **Ruff lint** — <= 50 erros (apenas non-fixaveis intencionais)
-
-## Historico de Epics Consolidadas
-
-| Epic | Stories | Status Original | Destino |
-|------|---------|----------------|---------|
-| **EPIC-001** (docs/stories/epics/epic-001-100-cobertura/) | 7 stories | Backlog | Mantido como historico. Stories incorporadas as Fases 4 e 6 do master. |
-| **EPIC-COVERAGE-100PCT** (docs/stories/epics/epic-coverage-100pct/) | 20 stories | Draft | Mantido como referencia historica. Stories incorporadas a Fase 4. |
-| **EPIC-FEAT-001** (docs/stories/epics/epic-feat-001-crawlers-coverage/) | 10 stories | Ready | Mantido como historico. Stories incorporadas as Fases 3, 5, 7. |
-| **EPIC-TD-001** (docs/stories/epics/epic-td-001-resolution/) | 22 stories | Ready | Mantido como historico. Stories incorporadas as Fases 0-6. |
-| **EPIC-TD-002** (docs/stories/epics/epic-td-002-code-quality/) | 1 story | — | Fundido ao EPIC-TD-001. Story TD-7.1 em InProgress. |
-| **EPIC-TD-003** (docs/stories/epics/epic-td-003-reversa-remediation/) | 5 stories | Draft | Mantido como historico. Stories incorporadas as Fases 0-2. |
-
-## Stories Novas (Criadas neste master)
-
-| Story ID | Nome | Fase | Arquivo |
-|----------|------|------|---------|
-| B2G-1 | Resolver 604 entidades nao resolvidas | Fase 4 | `docs/stories/epics/epic-master-b2g/story-B2G-1-resolver-604-unresolved.md` |
-| B2G-2 | Metricas comerciais — preco praticado | Fase 5 | `docs/stories/epics/epic-master-b2g/story-B2G-2-preco-praticado.md` |
-| B2G-3 | Concorrencia e win rate | Fase 5 | `docs/stories/epics/epic-master-b2g/story-B2G-3-concorrencia-win-rate.md` |
-| B2G-4 | Quality Gate Automation | Fase 6 | `docs/stories/epics/epic-master-b2g/story-B2G-4-quality-gate-automation.md` |
-| B2G-5 | Schema final + Supabase path | Fase 2 | `docs/stories/epics/epic-master-b2g/story-B2G-5-schema-supabase-path.md` |
-
-## ADRs Criados
-
-| ADR | Título | Arquivo |
-|-----|--------|---------|
-| ADR-002 | Preco Praticado — Multi-source Value Semantics | `docs/decisions/adr-002-preco-praticado.md` |
-| ADR-003 | Supabase Self-Hosted em Hetzner | `docs/decisions/adr-003-supabase-self-hosted.md` |
+**Métrica principal:** capacidade de detectar oportunidades comercialmente relevantes (poucas, priorizadas, acionáveis), não volume bruto de dados.
 
 ---
 
-*Epic gerado por Morgan (PM Agent) — Synkra AIOX v5.2.9*
+## Baseline Real (2026-07-14)
+
+### O que realmente existe e funciona
+
+| Componente | Status |
+|-----------|--------|
+| 14 crawlers implementados (código) | ✅ |
+| Crawlers funcionalmente testados (não quebrados) | ✅ 10/14 (ARP e PCA quebrados, Selenium zumbi, bids_crawler dead code) |
+| Crawlers com teste de escala (>0 records) | ⚠️ 3/14 (PNCP 1.463, PCP 251, ComprasGov 1.508) |
+| PNCP URL correta | ❌ 7 arquivos com URL antiga |
+| PostgreSQL local com 41 migrations | ✅ (schema diverge do código em 10 tabelas) |
+| 20 systemd timer pairs | ✅ (3 padrões de nomenclatura inconsistentes) |
+| Backup script (410 linhas) | ✅ (nunca testado com Storage Box real) |
+| Restore script (255 linhas) | ✅ (nunca testado com restore real) |
+| VPS Hetzner provisionada | ❌ (scripts existem, nunca executados) |
+| 604 entidades geocodificadas | ❌ (scripts existem, nunca executados) |
+| Universo canônico único | ⚠️ (FIX-UNIVERSE 95% implementado, falta coverage/manifest.py) |
+| Testes (1.230 funções) | ⚠️ 4.8% coverage, 1 teste quebrado |
+| Cobertura real de entidades | 39.4% (822/2.085) multi-source; 8.2% (90/1.093) só PNCP |
+
+### O que está "Done" mas não está em produção
+
+| Story | Status documentado | Estado real |
+|-------|-------------------|-------------|
+| FEAT-4.1 (Hetzner VPS) | Done | Scripts criados. VPS nunca provisionada. |
+| TD-8.5 (Multi-source backfill) | Done | 39.4% coverage. 5/7 crawlers não executaram. ACs rebaixados durante QA. |
+| FIX-UNIVERSE | In Review | 95% implementado. Só falta `coverage/manifest.py`. |
+| FIX-TRANSACTION | Ready | Código implementado e funcional. Status desatualizado. |
+
+---
+
+## Fases e Stories
+
+### Fase 0 — CRITICAL FIXES (bloqueadores)
+
+**Gate: READY_TO_PROVISION**
+
+| ID | Título | Status | Esforço | Deps |
+|----|--------|--------|---------|------|
+| **B2G-FIX-01** | Corrigir imports, PNCP URL, logging, arquivos duplicados | ready | M | — |
+| **B2G-FIX-02** | Code quality cleanup — lint + format + type hints | ready | L | B2G-FIX-01 |
+| **B2G-FIX-03** | Universo canônico único (finalizar FIX-UNIVERSE) | ready | S | — |
+| **B2G-FIX-04** | Alinhar schema código↔banco (finalizar FIX-SCHEMA-MISMATCH) | ready | M | — |
+
+### Fase 1 — PROVISIONING (VPS real)
+
+**Gate: READY_FOR_PNCP**
+
+| ID | Título | Status | Esforço | Deps |
+|----|--------|--------|---------|------|
+| **B2G-INFRA-01** | Provisionar VPS Hetzner CX22 + unificar systemd | ready | M | Fase 0 |
+| **B2G-INFRA-02** | PostgreSQL + migrations + seeds na VPS | ready | S | B2G-INFRA-01, B2G-FIX-04 |
+| **B2G-INFRA-03** | Hardening SSH + firewall + fail2ban | ready | S | B2G-INFRA-01 |
+| **B2G-INFRA-04** | Backup automatizado + restore testado | ready | M | B2G-INFRA-02 |
+
+### Fase 2 — DATA FOUNDATION
+
+**Gate: READY_FOR_BACKFILL (parcial)**
+
+| ID | Título | Status | Esforço | Deps |
+|----|--------|--------|---------|------|
+| **B2G-DB-01** | Schema canônico final — baseline limpa, constraints, índices | ready | L | B2G-FIX-04, B2G-INFRA-02 |
+| **B2G-DB-02** | Modelo canônico de dados — entidades, provenance, dedup | draft | L | B2G-DB-01 |
+| **B2G-DB-03** | Geocodificar 604 entidades não resolvidas | ready | M | B2G-FIX-03 |
+| **B2G-DB-04** | Registry de portais por entidade + detector de plataforma | draft | M | B2G-DB-03 |
+| **B2G-DB-05** | Sistema de checkpoints para retomada de backfill | ready | M | B2G-DB-01 |
+
+### Fase 3 — CRAWLER ACTIVATION
+
+| ID | Título | Status | Esforço | Deps |
+|----|--------|--------|---------|------|
+| **B2G-CRAWL-01** | Corrigir e ativar PNCP v3 | ready | M | B2G-FIX-01, B2G-INFRA-02 |
+| **B2G-CRAWL-02** | Ativar PCP + ComprasGov em escala | ready | M | B2G-CRAWL-01 |
+| **B2G-CRAWL-03** | Obter credenciais e ativar DOM-SC | ready | M | Credenciais |
+| **B2G-CRAWL-04** | Obter credenciais e ativar DOE-SC | ready | M | Credenciais |
+| **B2G-CRAWL-05** | Ativar TCE-SC com otimização | ready | M | B2G-CRAWL-01 |
+| **B2G-CRAWL-06** | Executar Transparência crawl (75 portais) | ready | L | B2G-DB-04 |
+| **B2G-CRAWL-07** | Estratégia Playwright (substitui Selenium) | draft | L | B2G-CRAWL-06 |
+
+### Fase 4 — BACKFILL
+
+**Gate: READY_FOR_MULTI_SOURCE**
+
+| ID | Título | Status | Esforço | Deps |
+|----|--------|--------|---------|------|
+| **B2G-BACKFILL-01** | Backfill PNCP controlado — 90 dias | ready | M | B2G-CRAWL-01, B2G-DB-01, B2G-DB-05 |
+| **B2G-BACKFILL-02** | Orquestrador de backfill — CLI, resume, status | ready | L | B2G-BACKFILL-01 |
+| **B2G-BACKFILL-03** | Sistema de resume/checkpoint para todos os crawlers | ready | M | B2G-DB-05 |
+| **B2G-BACKFILL-04** | Backfill multi-source — PCP + ComprasGov + TCE-SC | ready | L | B2G-BACKFILL-01 |
+| **B2G-BACKFILL-05** | Backfill DOM-SC + DOE-SC (quando credenciais) | ready | M | B2G-CRAWL-03, B2G-CRAWL-04 |
+
+### Fase 5 — INTELLIGENCE
+
+**Gate: READY_FOR_COMMERCIAL_INTELLIGENCE**
+
+| ID | Título | Status | Esforço | Deps |
+|----|--------|--------|---------|------|
+| **B2G-INTEL-01** | Classificação AEC — keywords + CPV + embeddings | draft | L | B2G-DB-02 |
+| **B2G-INTEL-02** | Pipeline de sinais comerciais para CONFENGE | ready | L | B2G-INTEL-01, B2G-BACKFILL-01 |
+| **B2G-INTEL-03** | Scoring de leads — 12 dimensões, explicável | draft | M | B2G-INTEL-02 |
+| **B2G-INTEL-04** | Dossiê automático por oportunidade | draft | L | B2G-INTEL-03 |
+| **B2G-INTEL-05** | Cobertura comercialmente útil (recall/precisão) | draft | M | B2G-INTEL-02 |
+| **B2G-INTEL-06** | DOM-SC e DOE-SC como sensores de eventos | draft | M | B2G-CRAWL-03, B2G-CRAWL-04 |
+
+### Fase 6 — HARDENING
+
+| ID | Título | Status | Esforço | Deps |
+|----|--------|--------|---------|------|
+| **B2G-SEC-01** | Secrets management — sem hardcode, permissões mínimas | ready | M | B2G-INFRA-01 |
+| **B2G-SEC-02** | Firewall + fail2ban + SSH key-only | ready | S | B2G-INFRA-03 |
+| **B2G-OBS-01** | Observabilidade — logs JSON, métricas, health check | ready | M | B2G-INFRA-01 |
+| **B2G-OBS-02** | CLI operacional unificada | ready | L | B2G-BACKFILL-02 |
+| **B2G-TEST-01** | Testes — unit + contract + integration + smoke | ready | L | B2G-FIX-01 |
+| **B2G-CI-01** | CI/CD — lint gate, test gate, secrets scan | draft | M | B2G-TEST-01 |
+
+### Fase 7 — CONTINUOUS OPERATION
+
+| ID | Título | Status | Esforço | Deps |
+|----|--------|--------|---------|------|
+| **B2G-OPS-01** | Unificar e ativar systemd timers | ready | M | B2G-INFRA-01 |
+| **B2G-OPS-03** | Disaster recovery — simulação perda VPS + bootstrap | ready | M | B2G-INFRA-04 |
+| **B2G-OPS-04** | Rollout gradual — ativar timers um a um | ready | M | B2G-OPS-01 |
+
+### Backlog Estratégico
+
+| ID | Título | Status | Esforço |
+|----|--------|--------|---------|
+| **B2G-STRAT-01** | Exa MCP como fallback de resolução de portais | draft | S |
+| **B2G-STRAT-02** | Coleta de documentos — editais, anexos, contratos | draft | L |
+| **B2G-STRAT-03** | Benchmark 30 dias vs serviço pago | draft | M |
+| **B2G-STRAT-04** | Delimitação geográfica precisa (Haversine obra) | draft | M |
+
+---
+
+## Dependências (Grafo)
+
+```
+Fase 0 (B2G-FIX-01..04)
+  ↓
+Fase 1 (B2G-INFRA-01..04)
+  ↓
+Fase 2 (B2G-DB-01..05) ─────────────┐
+  ↓                                  │
+Fase 3 (B2G-CRAWL-01..07)           │
+  ↓                                  │
+Fase 4 (B2G-BACKFILL-01..05) ←──────┘
+  ↓
+Fase 5 (B2G-INTEL-01..06)
+  ↓
+Fase 6 (B2G-SEC-*, B2G-OBS-*, B2G-TEST-*, B2G-CI-*)  (paralelo com Fase 5)
+  ↓
+Fase 7 (B2G-OPS-01..04)
+```
+
+---
+
+## Gates Objetivos
+
+### READY_TO_PROVISION
+- [ ] B2G-FIX-01..04 Done
+- [ ] ruff ≤50 erros
+- [ ] pytest core passando
+- [ ] Credenciais Hetzner obtidas
+
+### READY_FOR_PNCP
+- [ ] VPS acessível via SSH
+- [ ] PostgreSQL funcional, schema limpo
+- [ ] Backup→restore ciclo testado
+- [ ] PNCP incremental funcional na VPS
+
+### READY_FOR_BACKFILL (controlado)
+- [ ] PNCP ativo e funcionando
+- [ ] ≥2 fontes adicionais ativas
+- [ ] Checkpoints operacionais
+- [ ] Backfill 7 dias executado sem erro
+
+### READY_FOR_MULTI_SOURCE
+- [ ] ≥4 fontes com backfill completo
+- [ ] Cobertura ≥70% entidades no raio 200km
+- [ ] Registry de portais populado
+- [ ] Dedup cross-source funcional
+
+### READY_FOR_COMMERCIAL_INTELLIGENCE
+- [ ] Classificação AEC ≥90% precisão
+- [ ] Pipeline de sinais emitindo ≥5 oportunidades/dia
+- [ ] Scoring calibrado
+- [ ] Dossiê de exemplo gerado
+
+---
+
+## Critérios de Sucesso Globais
+
+- [ ] Cobertura ≥70% entidades no raio 200km (realista; 95% requer resolver 604 unresolved)
+- [ ] ≥5 oportunidades comerciais priorizadas/dia
+- [ ] Custo mensal ≤€15 (VPS + Storage Box)
+- [ ] Backup→restore testado e documentado
+- [ ] 20+ systemd timers ativos com nomenclatura unificada
+- [ ] CLI operacional: source-health, crawl, backfill, signals, export
+- [ ] Zero secrets hardcoded
+- [ ] Testes core ≥30% coverage
+
+---
+
+## Stories Consolidadas/Arquivadas
+
+| Story Original | Destino |
+|---------------|---------|
+| EPIC-001, EPIC-COVERAGE-100PCT, EPIC-FEAT-001, EPIC-TD-001..003 | Consolidados neste master |
+| B2G-1 (604 entidades) | → B2G-DB-03 |
+| B2G-2 (preço praticado) + B2G-3 (win rate) | → B2G-INTEL-02 (sinais comerciais) |
+| B2G-4 (quality gate) | → B2G-CI-01 + B2G-TEST-01 |
+| B2G-5 (Supabase path) | **Arquivado** — decisão: PostgreSQL bare metal |
+| FIX-MANIFEST + FIX-UNIVERSE | → B2G-FIX-03 |
+| FIX-SCHEMA-MISMATCH + FIX-TRANSACTION | → B2G-FIX-04 (schema apenas; transaction já implementado) |
+| TD-0.1..0.3, TD-8.2 | → B2G-FIX-01 |
+| TD-7.1, TD-3.3 | → B2G-FIX-02 |
+| TD-2.1..2.4 | → B2G-DB-01 |
+| TD-5.2, TD-8.5 | → B2G-BACKFILL-01..03 |
+| FEAT-4.1 | → B2G-INFRA-01..04 (reaberta) |
+| FEAT-1.1..1.4, FEAT-2.1..2.4 | → B2G-CRAWL-01..07 |
+| COVERAGE-1.1..1.11 | → B2G-DB-03 + B2G-DB-04 |
+| COVERAGE-2.1 (MiDES) | **Arquivado** |
+| COVERAGE-3.1 (Selenium JS) | → B2G-CRAWL-07 (Playwright) |
+| C1, C4 (Telegram, TUI) | **Arquivado** (backlog distante) |
+| B2G-STRAT-01..04 | **Novos** — escopo CONFENGE |
+
+---
+
+## Estimativas
+
+| Fase | Stories | Esforço Total | Duração (part-time) |
+|------|---------|--------------|---------------------|
+| 0 — Critical Fixes | 4 | 22-32h | 2-4 dias |
+| 1 — Provisioning | 4 | 12-18h | 1-2 dias |
+| 2 — Data Foundation | 5 | 36-48h | 3-5 dias |
+| 3 — Crawler Activation | 7 | 40-58h | 5-8 dias |
+| 4 — Backfill | 5 | 34-46h | 5-8 dias (+ execução) |
+| 5 — Intelligence | 6 | 46-62h | 5-8 dias |
+| 6 — Hardening | 6 | 36-49h | 3-5 dias |
+| 7 — Continuous Ops | 3 | 18-26h | 3-5 dias |
+| **Total** | **40** | **242-337h** | **27-45 dias úteis** |
+
+---
+
+*EPIC-MASTER v3.0 — 2026-07-14*
+*Próximo passo: executar Fase 0 (B2G-FIX-01 a B2G-FIX-04)*
