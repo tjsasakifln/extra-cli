@@ -36,8 +36,10 @@ class TestHaversine:
     def test_florianopolis_to_self_zero(self):
         """Distance from Florianópolis to itself should be 0."""
         d = haversine(
-            FLORIPA_CENTER[0], FLORIPA_CENTER[1],
-            FLORIPA_CENTER[0], FLORIPA_CENTER[1],
+            FLORIPA_CENTER[0],
+            FLORIPA_CENTER[1],
+            FLORIPA_CENTER[0],
+            FLORIPA_CENTER[1],
         )
         assert d == 0.0, f"Self-distance should be 0, got {d}"
 
@@ -50,9 +52,7 @@ class TestHaversine:
     def test_florianopolis_to_porto_alegre(self):
         """Florianópolis to Porto Alegre (~380 km — outside radius)."""
         d = haversine(-27.5954, -48.5480, -30.0346, -51.2177)
-        assert d > TARGET_RADIUS_KM, (
-            f"Floripa→Porto Alegre ({d:.0f} km) should exceed {TARGET_RADIUS_KM} km"
-        )
+        assert d > TARGET_RADIUS_KM, f"Floripa→Porto Alegre ({d:.0f} km) should exceed {TARGET_RADIUS_KM} km"
 
     def test_florianopolis_to_sao_paulo(self):
         """Florianópolis to São Paulo (~500 km — far outside)."""
@@ -142,28 +142,54 @@ class TestLoadTargetUniverse:
         mock_ws = MagicMock()
         mock_wb.active = mock_ws
         # Each row is a tuple of values matching the spreadsheet columns
-        mock_ws.iter_rows.return_value = [
-            (r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9])
-            for r in rows
-        ]
+        mock_ws.iter_rows.return_value = [(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9]) for r in rows]
         return mock_wb
 
     def test_load_from_spreadsheet(self):
         """Load target universe from a mock spreadsheet."""
         rows = [
-            ("PREFEITURA MUNICIPAL DE FLORIANOPOLIS", "82888888", "FLORIANOPOLIS",
-             4205407, "Município", 1244, -27.5954, -48.5480, 0.0, "SIM ✓"),
-            ("PREFEITURA MUNICIPAL DE JOINVILLE", "83109888", "JOINVILLE",
-             4209102, "Município", 1244, -26.3044, -48.8467, 160.0, "SIM ✓"),
-            ("PREFEITURA MUNICIPAL DE LAGES", "83888888", "LAGES",
-             4209300, "Município", 1244, -27.8160, -50.3260, 180.0, "SIM ✓"),
+            (
+                "PREFEITURA MUNICIPAL DE FLORIANOPOLIS",
+                "82888888",
+                "FLORIANOPOLIS",
+                4205407,
+                "Município",
+                1244,
+                -27.5954,
+                -48.5480,
+                0.0,
+                "SIM ✓",
+            ),
+            (
+                "PREFEITURA MUNICIPAL DE JOINVILLE",
+                "83109888",
+                "JOINVILLE",
+                4209102,
+                "Município",
+                1244,
+                -26.3044,
+                -48.8467,
+                160.0,
+                "SIM ✓",
+            ),
+            (
+                "PREFEITURA MUNICIPAL DE LAGES",
+                "83888888",
+                "LAGES",
+                4209300,
+                "Município",
+                1244,
+                -27.8160,
+                -50.3260,
+                180.0,
+                "SIM ✓",
+            ),
         ]
 
         mock_openpyxl = MagicMock()
         mock_openpyxl.load_workbook.return_value = self._mock_workbook(rows)
 
-        with patch.dict(sys.modules, {"openpyxl": mock_openpyxl}), \
-             patch("os.path.exists", return_value=True):
+        with patch.dict(sys.modules, {"openpyxl": mock_openpyxl}), patch("os.path.exists", return_value=True):
             universe = load_target_universe(seed_path="/fake/path.xlsx")
 
         assert universe.total_seed_rows == 3
@@ -173,78 +199,73 @@ class TestLoadTargetUniverse:
     def test_entities_without_coordinates_excluded(self):
         """Entities without coordinates are flagged, never silently included."""
         rows = [
-            ("ENTIDADE COM COORDS", "11111111", "MUN1", 4200001, "Mun", 1244,
-             -27.5, -48.5, 50.0, "SIM ✓"),
-            ("ENTIDADE SEM COORDS", "22222222", "MUN2", 4200002, "Mun", 1244,
-             None, None, None, ""),
+            ("ENTIDADE COM COORDS", "11111111", "MUN1", 4200001, "Mun", 1244, -27.5, -48.5, 50.0, "SIM ✓"),
+            ("ENTIDADE SEM COORDS", "22222222", "MUN2", 4200002, "Mun", 1244, None, None, None, ""),
         ]
 
         mock_openpyxl = MagicMock()
         mock_openpyxl.load_workbook.return_value = self._mock_workbook(rows)
 
-        with patch.dict(sys.modules, {"openpyxl": mock_openpyxl}), \
-             patch("os.path.exists", return_value=True):
+        with patch.dict(sys.modules, {"openpyxl": mock_openpyxl}), patch("os.path.exists", return_value=True):
             universe = load_target_universe(seed_path="/fake/path.xlsx")
 
         assert universe.total_seed_rows == 2
         assert universe.total_with_coords == 1
         assert universe.total_without_coords == 1, (
-            "Entities without coordinates must be counted as 'without_coords', "
-            "never silently included"
+            "Entities without coordinates must be counted as 'without_coords', never silently included"
         )
 
     def test_cnpj8_duplicates_counted(self):
         """CNPJ8 duplicates within 200km must be counted, never deduplicated silently."""
         rows = [
-            ("SEC MUNICIPAL DE EDUCACAO", "62111111", "MUN1", 4200001, "Órgão", 1031,
-             -27.5, -48.5, 50.0, "SIM ✓"),
-            ("MUNICIPIO DE MUN1", "62111111", "MUN1", 4200001, "Município", 1244,
-             -27.5, -48.5, 50.0, "SIM ✓"),
-            ("CAMARA DE MUN1", "62111111", "MUN1", 4200001, "Legislativo", 1066,
-             -27.5, -48.5, 50.0, "SIM ✓"),
+            ("SEC MUNICIPAL DE EDUCACAO", "62111111", "MUN1", 4200001, "Órgão", 1031, -27.5, -48.5, 50.0, "SIM ✓"),
+            ("MUNICIPIO DE MUN1", "62111111", "MUN1", 4200001, "Município", 1244, -27.5, -48.5, 50.0, "SIM ✓"),
+            ("CAMARA DE MUN1", "62111111", "MUN1", 4200001, "Legislativo", 1066, -27.5, -48.5, 50.0, "SIM ✓"),
         ]
 
         mock_openpyxl = MagicMock()
         mock_openpyxl.load_workbook.return_value = self._mock_workbook(rows)
 
-        with patch.dict(sys.modules, {"openpyxl": mock_openpyxl}), \
-             patch("os.path.exists", return_value=True):
+        with patch.dict(sys.modules, {"openpyxl": mock_openpyxl}), patch("os.path.exists", return_value=True):
             universe = load_target_universe(seed_path="/fake/path.xlsx")
 
         # All 3 entities have same CNPJ8 (same municipality)
-        assert universe.unique_cnpj8_within == 1, (
-            f"Expected 1 unique CNPJ8, got {universe.unique_cnpj8_within}"
-        )
-        assert universe.duplicate_cnpj8_count == 1, (
-            f"Expected 1 duplicate CNPJ8, got {universe.duplicate_cnpj8_count}"
-        )
+        assert universe.unique_cnpj8_within == 1, f"Expected 1 unique CNPJ8, got {universe.unique_cnpj8_within}"
+        assert universe.duplicate_cnpj8_count == 1, f"Expected 1 duplicate CNPJ8, got {universe.duplicate_cnpj8_count}"
         assert "62111111" in universe.duplicate_cnpj8_list
 
     def test_distance_recomputed_not_trusted(self):
         """Distance is always recomputed via Haversine, never trusted from spreadsheet."""
         rows = [
             # Spreadsheet says 500 km (should be within 200km but wrong in sheet)
-            ("FAR ENTITY", "99111111", "FAR", 4209999, "Mun", 1244,
-             -27.5, -48.5, 500.0, ""),  # Actually close to Floripa!
+            (
+                "FAR ENTITY",
+                "99111111",
+                "FAR",
+                4209999,
+                "Mun",
+                1244,
+                -27.5,
+                -48.5,
+                500.0,
+                "",
+            ),  # Actually close to Floripa!
         ]
 
         mock_openpyxl = MagicMock()
         mock_openpyxl.load_workbook.return_value = self._mock_workbook(rows)
 
-        with patch.dict(sys.modules, {"openpyxl": mock_openpyxl}), \
-             patch("os.path.exists", return_value=True):
+        with patch.dict(sys.modules, {"openpyxl": mock_openpyxl}), patch("os.path.exists", return_value=True):
             universe = load_target_universe(seed_path="/fake/path.xlsx")
 
         # The entity at (-27.5, -48.5) is ~10 km from Floripa
         # but spreadsheet said 500 km.  We recompute, so it should be within 200km.
         assert universe.total_within_200km == 1, (
-            "Entity at (-27.5, -48.5) should be within 200km of Florianópolis "
-            "regardless of what spreadsheet claims"
+            "Entity at (-27.5, -48.5) should be within 200km of Florianópolis regardless of what spreadsheet claims"
         )
         entity = universe.entities[0]
         assert entity.distancia_km < 200, (
-            f"Recomputed distance ({entity.distancia_km} km) should be < 200, "
-            f"spreadsheet incorrectly claimed 500 km"
+            f"Recomputed distance ({entity.distancia_km} km) should be < 200, spreadsheet incorrectly claimed 500 km"
         )
 
     def test_file_not_found_raises(self):
@@ -265,14 +286,10 @@ class TestFilters:
     def sample_universe(self):
         u = TargetUniverse()
         u.entities = [
-            TargetEntity("E1", "11111111", "MUN1", "4200001", "X",
-                         -27.6, -48.5, 10.0, True),
-            TargetEntity("E2", "11111111", "MUN1", "4200001", "Y",
-                         -27.6, -48.5, 10.0, True),
-            TargetEntity("E3", "22222222", "MUN2", "4200002", "Z",
-                         -27.7, -48.6, 25.0, True),
-            TargetEntity("E4", "33333333", "FAR", "4299999", "W",
-                         -29.5, -50.0, 250.0, False),
+            TargetEntity("E1", "11111111", "MUN1", "4200001", "X", -27.6, -48.5, 10.0, True),
+            TargetEntity("E2", "11111111", "MUN1", "4200001", "Y", -27.6, -48.5, 10.0, True),
+            TargetEntity("E3", "22222222", "MUN2", "4200002", "Z", -27.7, -48.6, 25.0, True),
+            TargetEntity("E4", "33333333", "FAR", "4299999", "W", -29.5, -50.0, 250.0, False),
         ]
         return u
 
@@ -300,6 +317,4 @@ class TestFilters:
         """Municipality list must be subset of SC, not 'all SC'."""
         result = unique_municipios_within_radius(sample_universe)
         # If result were 295 (all SC municipalities), that would be the shortcut
-        assert len(result) < 295, (
-            f"Got {len(result)} municipalities — if 295, that's the 'all SC' shortcut"
-        )
+        assert len(result) < 295, f"Got {len(result)} municipalities — if 295, that's the 'all SC' shortcut"

@@ -92,9 +92,7 @@ class TestCheckMissingCredentials:
         assert blocker.source == "dom_sc"
 
     def test_multiple_missing(self):
-        blocker = check_missing_credentials_blocker(
-            "doe_sc", ["DOE_SC_LOGIN", "DOE_SC_PASSWORD"]
-        )
+        blocker = check_missing_credentials_blocker("doe_sc", ["DOE_SC_LOGIN", "DOE_SC_PASSWORD"])
         assert blocker is not None
         assert "DOE_SC_LOGIN" in blocker.action_required
         assert "DOE_SC_PASSWORD" in blocker.action_required

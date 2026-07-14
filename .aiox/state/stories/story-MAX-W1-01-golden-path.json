@@ -10,7 +10,7 @@
   "qa_verdict": "PASS",
   "po_closed": false,
   "publication_authorized": false,
-  "reviewed_commit": null,
+  "reviewed_commit": "d9674e2",
   "rollback_plan": "Ambiente Docker tmpfs. Dados voláteis. Container restart limpa tudo. docker compose down && docker compose up -d test-db para reconstruir.",
   "snapshot_evidence": "db/snapshots/pre-wave1-20260714.txt",
   "gates": {

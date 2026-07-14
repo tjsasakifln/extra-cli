@@ -124,10 +124,8 @@ class TestFetchApiBehavior:
             enricher._IBGE_MUNICIPIOS_CACHE_TS = 0.0
 
             api_data = [
-                {"id": 4205407, "nome": "Florianopolis",
-                 "microrregiao": {"mesorregiao": {"UF": {"sigla": "SC"}}}},
-                {"id": 4204202, "nome": "Chapeco",
-                 "microrregiao": {"mesorregiao": {"UF": {"sigla": "SC"}}}},
+                {"id": 4205407, "nome": "Florianopolis", "microrregiao": {"mesorregiao": {"UF": {"sigla": "SC"}}}},
+                {"id": 4204202, "nome": "Chapeco", "microrregiao": {"mesorregiao": {"UF": {"sigla": "SC"}}}},
             ]
 
             mock_instance = _make_async_client_mock(200, api_data)
@@ -153,8 +151,7 @@ class TestFetchApiBehavior:
             enricher._IBGE_MUNICIPIOS_CACHE_TS = time.monotonic() - (8 * 24 * 3600)
 
             fresh_data = [
-                {"id": 3550308, "nome": "Sao Paulo",
-                 "microrregiao": {"mesorregiao": {"UF": {"sigla": "SP"}}}},
+                {"id": 3550308, "nome": "Sao Paulo", "microrregiao": {"mesorregiao": {"UF": {"sigla": "SP"}}}},
             ]
 
             mock_instance = _make_async_client_mock(200, fresh_data)
@@ -250,8 +247,7 @@ class TestFetchWithNoCache:
             enricher._IBGE_MUNICIPIOS_CACHE_TS = 0.0
 
             api_data = [
-                {"id": 4205407, "nome": "Floripa",
-                 "microrregiao": {"mesorregiao": {"UF": {"sigla": "SC"}}}},
+                {"id": 4205407, "nome": "Floripa", "microrregiao": {"mesorregiao": {"UF": {"sigla": "SC"}}}},
             ]
 
             mock_instance = _make_async_client_mock(200, api_data)

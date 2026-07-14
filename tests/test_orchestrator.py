@@ -114,8 +114,9 @@ class TestFinishIngestionRun:
         conn = MagicMock()
         cursor = conn.cursor.return_value
 
-        _finish_ingestion_run(conn, run_id=5, fetched=0, upserted=0,
-                              covered=0, status="failed", error="Connection timeout")
+        _finish_ingestion_run(
+            conn, run_id=5, fetched=0, upserted=0, covered=0, status="failed", error="Connection timeout"
+        )
 
         params = cursor.execute.call_args[0][1]
         # Params order: (fetched, upserted, covered, status, error, run_id)
@@ -143,8 +144,7 @@ class TestLoadEntities:
             ("raio_200km", None, None, None, None, None, None),
         ]
         cursor.fetchall.return_value = [
-            (1, "PREFEITURA MUNICIPAL DE FLORIANOPOLIS", "12345678",
-             "Florianopolis", "4205407", "PREFEITURA", True),
+            (1, "PREFEITURA MUNICIPAL DE FLORIANOPOLIS", "12345678", "Florianopolis", "4205407", "PREFEITURA", True),
         ]
 
         entities = load_entities(conn)
@@ -246,9 +246,7 @@ class TestCrawlSource:
     @patch("scripts.crawl.orchestrator.load_crawler")
     @patch("scripts.crawl.orchestrator._get_conn")
     @patch("scripts.matching.entity_matcher.match_entities_cascade")
-    def test_successful_crawl_returns_ok(
-        self, mock_match, mock_get_conn, mock_load_crawler
-    ):
+    def test_successful_crawl_returns_ok(self, mock_match, mock_get_conn, mock_load_crawler):
         """Successful full crawl returns status 'ok' with counts."""
         mock_conn = MagicMock()
         mock_get_conn.return_value = mock_conn
@@ -256,8 +254,7 @@ class TestCrawlSource:
         mock_cursor.fetchone.return_value = (1,)  # run_id
         mock_cursor.fetchall.return_value = [("inserted",)]
         mock_cursor.description = _BASE_CURSOR_DESCRIPTION
-        mock_match.return_value = {"cnpj": 1, "name_normalized": 0, "fuzzy": 0,
-                                    "unmatched": 0, "total": 1}
+        mock_match.return_value = {"cnpj": 1, "name_normalized": 0, "fuzzy": 0, "unmatched": 0, "total": 1}
 
         mock_crawler = MagicMock()
         mock_crawler.crawl.return_value = [{"id": "1"}]
@@ -315,9 +312,7 @@ class TestCrawlSource:
     @patch("scripts.crawl.orchestrator.load_crawler")
     @patch("scripts.crawl.orchestrator._get_conn")
     @patch("scripts.matching.entity_matcher.match_entities_cascade")
-    def test_entity_matching_not_called_for_contracts(
-        self, mock_match, mock_get_conn, mock_load_crawler
-    ):
+    def test_entity_matching_not_called_for_contracts(self, mock_match, mock_get_conn, mock_load_crawler):
         """Entity matching is skipped for contracts source."""
         mock_conn = MagicMock()
         mock_get_conn.return_value = mock_conn

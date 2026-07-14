@@ -127,12 +127,22 @@ class TestTransform:
 
         # Count total fields (16 campos)
         expected_fields = {
-            "pncp_id", "objeto_compra", "valor_total_estimado",
-            "modalidade_id", "modalidade_nome", "esfera_id",
-            "uf", "municipio", "codigo_municipio_ibge",
-            "orgao_razao_social", "orgao_cnpj",
-            "data_publicacao", "data_abertura", "data_encerramento",
-            "link_pncp", "content_hash",
+            "pncp_id",
+            "objeto_compra",
+            "valor_total_estimado",
+            "modalidade_id",
+            "modalidade_nome",
+            "esfera_id",
+            "uf",
+            "municipio",
+            "codigo_municipio_ibge",
+            "orgao_razao_social",
+            "orgao_cnpj",
+            "data_publicacao",
+            "data_abertura",
+            "data_encerramento",
+            "link_pncp",
+            "content_hash",
         }
         assert set(record.keys()) == expected_fields, (
             f"Field mismatch. Extra: {set(record.keys()) - expected_fields}. "
@@ -147,9 +157,7 @@ class TestTransform:
         that transform preserves both records with the same pncp_id.
         """
         result = pcp.transform([MOCK_RECORD, MOCK_RECORD])
-        assert len(result) == 2, (
-            f"Expected 2 records (no in-memory dedup), got {len(result)}"
-        )
+        assert len(result) == 2, f"Expected 2 records (no in-memory dedup), got {len(result)}"
 
 
 # ---------------------------------------------------------------------------

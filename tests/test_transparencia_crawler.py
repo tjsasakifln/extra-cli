@@ -157,6 +157,7 @@ class TestDetectPlatform:
     @patch("scripts.crawl.transparencia_crawler._fetch_url")
     def test_ipam(self, mock_fetch):
         """Ipam URL pattern (ipm.org.br) detected."""
+
         # Betha and E-gov fail (or timeout), Ipam succeeds
         def side_effect(url, timeout=None):
             if "atende.net" in url:
@@ -166,6 +167,7 @@ class TestDetectPlatform:
             if "ipm.org.br" in url:
                 return (200, "<html><body>ipm transparencia</body></html>")
             return (0, "not found")
+
         mock_fetch.side_effect = side_effect
 
         result = tc.detect_platform("itajai", municipio="Itajai")
@@ -177,6 +179,7 @@ class TestDetectPlatform:
     @patch("scripts.crawl.transparencia_crawler._fetch_url")
     def test_egov(self, mock_fetch):
         """E-gov URL pattern (e-gov.betha.com.br) detected."""
+
         def side_effect(url, timeout=None):
             if "atende.net" in url:
                 return (0, "timeout")
@@ -185,6 +188,7 @@ class TestDetectPlatform:
             if "ipm.org.br" in url:
                 return (0, "timeout")
             return (0, "not found")
+
         mock_fetch.side_effect = side_effect
 
         result = tc.detect_platform("florianopolis", municipio="Florianopolis")
@@ -207,9 +211,7 @@ class TestDetectPlatform:
     def test_fiorilli(self, mock_fetch):
         """Fiorilli platform detected."""
         mock_fetch.side_effect = lambda url, timeout=None: (
-            (200, "<html><body>fiorilli transparencia</body></html>")
-            if "fiorilli.com.br" in url
-            else (0, "timeout")
+            (200, "<html><body>fiorilli transparencia</body></html>") if "fiorilli.com.br" in url else (0, "timeout")
         )
         result = tc.detect_platform("municipio", municipio="Municipio Teste")
         assert result["platform"] == "fiorilli"
@@ -220,9 +222,7 @@ class TestDetectPlatform:
     def test_iplan(self, mock_fetch):
         """Iplan platform detected."""
         mock_fetch.side_effect = lambda url, timeout=None: (
-            (200, "<html><body>iplan transparencia</body></html>")
-            if "iplan.gov.br" in url
-            else (0, "timeout")
+            (200, "<html><body>iplan transparencia</body></html>") if "iplan.gov.br" in url else (0, "timeout")
         )
         result = tc.detect_platform("municipio", municipio="Municipio Teste")
         assert result["platform"] == "iplan"
@@ -233,9 +233,7 @@ class TestDetectPlatform:
     def test_iri(self, mock_fetch):
         """IRI platform detected."""
         mock_fetch.side_effect = lambda url, timeout=None: (
-            (200, "<html><body>iri transparencia</body></html>")
-            if "iri.com.br" in url
-            else (0, "timeout")
+            (200, "<html><body>iri transparencia</body></html>") if "iri.com.br" in url else (0, "timeout")
         )
         result = tc.detect_platform("municipio", municipio="Municipio Teste")
         assert result["platform"] == "iri"
@@ -246,9 +244,7 @@ class TestDetectPlatform:
     def test_prima(self, mock_fetch):
         """Prima platform detected."""
         mock_fetch.side_effect = lambda url, timeout=None: (
-            (200, "<html><body>prima transparencia</body></html>")
-            if "prima.com.br" in url
-            else (0, "timeout")
+            (200, "<html><body>prima transparencia</body></html>") if "prima.com.br" in url else (0, "timeout")
         )
         result = tc.detect_platform("municipio", municipio="Municipio Teste")
         assert result["platform"] == "prima"
@@ -859,6 +855,7 @@ class TestHttpHelpers:
     def test_head_url_error(self, mock_urlopen):
         """_head_url returns 0 on connection error."""
         import urllib.error
+
         mock_urlopen.side_effect = urllib.error.URLError("test error")
         assert tc._head_url("https://example.com") == 0
 
@@ -875,8 +872,13 @@ class TestHttpHelpers:
     def test_fetch_url_http_error(self, mock_urlopen):
         """_fetch_url returns HTTP error code on 4xx/5xx."""
         import urllib.error
+
         mock_urlopen.side_effect = urllib.error.HTTPError(
-            "https://example.com", 404, "Not Found", {}, None,
+            "https://example.com",
+            404,
+            "Not Found",
+            {},
+            None,
         )
         status, body = tc._fetch_url("https://example.com")
         assert status == 404
@@ -920,12 +922,20 @@ class TestMakeRecord:
     def test_make_record_consistency(self):
         """Same inputs produce same content_hash."""
         r1 = tmpl_base.make_record(
-            slug="a", ibge="1", portal_url="u",
-            modalidade="M", data_publicacao="D", objeto="O",
+            slug="a",
+            ibge="1",
+            portal_url="u",
+            modalidade="M",
+            data_publicacao="D",
+            objeto="O",
         )
         r2 = tmpl_base.make_record(
-            slug="b", ibge="2", portal_url="v",
-            modalidade="M", data_publicacao="D", objeto="O",
+            slug="b",
+            ibge="2",
+            portal_url="v",
+            modalidade="M",
+            data_publicacao="D",
+            objeto="O",
         )
         assert r1 is not None and r2 is not None
         # Content hash ignores slug/ibge/portal_url
@@ -951,7 +961,8 @@ class TestParseTableRows:
         """
         soup = BeautifulSoup(html, "html.parser")
         records = tmpl_base.parse_table_rows(
-            soup, "table.licitacao",
+            soup,
+            "table.licitacao",
             url="https://example.com",
             slug="teste",
             ibge="4200000",
@@ -974,8 +985,11 @@ class TestParseTableRows:
         """
         soup = BeautifulSoup(html, "html.parser")
         records = tmpl_base.parse_table_rows(
-            soup, "table",
-            url="", slug="t", ibge="",
+            soup,
+            "table",
+            url="",
+            slug="t",
+            ibge="",
             modalidade_sel="td:nth-child(1)",
         )
         assert len(records) == 1
@@ -1026,7 +1040,11 @@ class TestCrawl:
     @patch("scripts.crawl.transparencia_crawler.detect_platform")
     @patch("scripts.crawl.transparencia_crawler._save_results")
     def test_crawl_incremental_skips_existing(
-        self, mock_save, mock_detect, mock_existing, mock_entities,
+        self,
+        mock_save,
+        mock_detect,
+        mock_existing,
+        mock_entities,
     ):
         """crawl('incremental') skips already-detected slugs."""
         mock_save.return_value = "/tmp/test_platforms.json"

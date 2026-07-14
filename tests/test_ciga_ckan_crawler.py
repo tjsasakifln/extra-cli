@@ -69,10 +69,42 @@ def sample_publications(sample_publication) -> list[dict]:
 def db_entities() -> list[dict]:
     """Simulated sc_public_entities rows."""
     return [
-        {"id": 1001, "razao_social": "PREFEITURA MUNICIPAL DE FLORIANOPOLIS", "cnpj_8": "12345678", "municipio": "FLORIANOPOLIS", "codigo_ibge": "4205407", "natureza_juridica": "MUNICIPIO", "raio_200km": True},
-        {"id": 1002, "razao_social": "PREFEITURA MUNICIPAL DE SAO JOSE", "cnpj_8": "23456789", "municipio": "SAO JOSE", "codigo_ibge": "4205506", "natureza_juridica": "MUNICIPIO", "raio_200km": True},
-        {"id": 1003, "razao_social": "CAMARA DE VEREADORES DE FLORIANOPOLIS", "cnpj_8": "34567890", "municipio": "FLORIANOPOLIS", "codigo_ibge": "4205407", "natureza_juridica": "CAMARA", "raio_200km": True},
-        {"id": 1004, "razao_social": "SECRETARIA MUNICIPAL DE SAUDE DE FLORIANOPOLIS", "cnpj_8": "45678901", "municipio": "FLORIANOPOLIS", "codigo_ibge": "4205407", "natureza_juridica": "SECRETARIA", "raio_200km": True},
+        {
+            "id": 1001,
+            "razao_social": "PREFEITURA MUNICIPAL DE FLORIANOPOLIS",
+            "cnpj_8": "12345678",
+            "municipio": "FLORIANOPOLIS",
+            "codigo_ibge": "4205407",
+            "natureza_juridica": "MUNICIPIO",
+            "raio_200km": True,
+        },
+        {
+            "id": 1002,
+            "razao_social": "PREFEITURA MUNICIPAL DE SAO JOSE",
+            "cnpj_8": "23456789",
+            "municipio": "SAO JOSE",
+            "codigo_ibge": "4205506",
+            "natureza_juridica": "MUNICIPIO",
+            "raio_200km": True,
+        },
+        {
+            "id": 1003,
+            "razao_social": "CAMARA DE VEREADORES DE FLORIANOPOLIS",
+            "cnpj_8": "34567890",
+            "municipio": "FLORIANOPOLIS",
+            "codigo_ibge": "4205407",
+            "natureza_juridica": "CAMARA",
+            "raio_200km": True,
+        },
+        {
+            "id": 1004,
+            "razao_social": "SECRETARIA MUNICIPAL DE SAUDE DE FLORIANOPOLIS",
+            "cnpj_8": "45678901",
+            "municipio": "FLORIANOPOLIS",
+            "codigo_ibge": "4205407",
+            "natureza_juridica": "SECRETARIA",
+            "raio_200km": True,
+        },
     ]
 
 
@@ -452,11 +484,25 @@ class TestLoadDbEntities:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value = mock_cursor
-        mock_cursor.description = [("id",), ("razao_social",), ("cnpj_8",), ("municipio",),
-                                    ("codigo_ibge",), ("natureza_juridica",), ("raio_200km",)]
+        mock_cursor.description = [
+            ("id",),
+            ("razao_social",),
+            ("cnpj_8",),
+            ("municipio",),
+            ("codigo_ibge",),
+            ("natureza_juridica",),
+            ("raio_200km",),
+        ]
         mock_cursor.fetchall.return_value = [
-            (e["id"], e["razao_social"], e["cnpj_8"], e["municipio"],
-             e["codigo_ibge"], e["natureza_juridica"], e["raio_200km"])
+            (
+                e["id"],
+                e["razao_social"],
+                e["cnpj_8"],
+                e["municipio"],
+                e["codigo_ibge"],
+                e["natureza_juridica"],
+                e["raio_200km"],
+            )
             for e in db_entities
         ]
         result = ciga._load_db_entities(mock_conn, within_200km_only=False)
@@ -468,11 +514,25 @@ class TestLoadDbEntities:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value = mock_cursor
-        mock_cursor.description = [("id",), ("razao_social",), ("cnpj_8",), ("municipio",),
-                                    ("codigo_ibge",), ("natureza_juridica",), ("raio_200km",)]
+        mock_cursor.description = [
+            ("id",),
+            ("razao_social",),
+            ("cnpj_8",),
+            ("municipio",),
+            ("codigo_ibge",),
+            ("natureza_juridica",),
+            ("raio_200km",),
+        ]
         mock_cursor.fetchall.return_value = [
-            (e["id"], e["razao_social"], e["cnpj_8"], e["municipio"],
-             e["codigo_ibge"], e["natureza_juridica"], e["raio_200km"])
+            (
+                e["id"],
+                e["razao_social"],
+                e["cnpj_8"],
+                e["municipio"],
+                e["codigo_ibge"],
+                e["natureza_juridica"],
+                e["raio_200km"],
+            )
             for e in db_entities
         ]
 
@@ -496,8 +556,10 @@ class TestMatchEntities:
                 "raw_name": "PREFEITURA MUNICIPAL DE FLORIANOPOLIS",
                 "norm_name": "PREFEITURA MUNICIPAL DE FLORIANOPOLIS",
                 "municipio": "FLORIANOPOLIS",
-                "count": 1, "categories": ["Contratos"],
-                "first_seen": "2025-12-15", "last_seen": "2025-12-15",
+                "count": 1,
+                "categories": ["Contratos"],
+                "first_seen": "2025-12-15",
+                "last_seen": "2025-12-15",
             },
         }
         matched = ciga.match_entities(entities, db_entities)
@@ -513,8 +575,10 @@ class TestMatchEntities:
                 "raw_name": "CAMARA DE VEREADORES DE FLORIANOPOLIS",
                 "norm_name": "CAMARA DE VEREADORES DE FLORIANOPOLIS",
                 "municipio": "",
-                "count": 1, "categories": ["Contratos"],
-                "first_seen": "2025-11-01", "last_seen": "2025-11-01",
+                "count": 1,
+                "categories": ["Contratos"],
+                "first_seen": "2025-11-01",
+                "last_seen": "2025-11-01",
             },
         }
         matched = ciga.match_entities(entities, db_entities)
@@ -530,8 +594,10 @@ class TestMatchEntities:
                 "raw_name": "PREFEITURA MUNICIPAL DE FLORIANOPOLIS",
                 "norm_name": "PREFEITURA MUNICIPAL DE FLORIANOPOLIS",
                 "municipio": "",
-                "count": 1, "categories": ["Contratos"],
-                "first_seen": "2025-12-15", "last_seen": "2025-12-15",
+                "count": 1,
+                "categories": ["Contratos"],
+                "first_seen": "2025-12-15",
+                "last_seen": "2025-12-15",
             },
         }
         matched = ciga.match_entities(entities, db_entities)
@@ -550,8 +616,10 @@ class TestMatchEntities:
                 "raw_name": "PREF MUNICIPAL DE FLORIANOPOLIS",
                 "norm_name": "PREF MUNICIPAL DE FLORIANOPOLIS",
                 "municipio": "FLORIANOPOLIS",
-                "count": 1, "categories": ["Contratos"],
-                "first_seen": "2025-12-15", "last_seen": "2025-12-15",
+                "count": 1,
+                "categories": ["Contratos"],
+                "first_seen": "2025-12-15",
+                "last_seen": "2025-12-15",
             },
         }
         matched = ciga.match_entities(entities, db_entities)
@@ -567,8 +635,10 @@ class TestMatchEntities:
                 "raw_name": "SECRETARIA DE EDUCACAO DE ALGUM LUGAR",
                 "norm_name": "SECRETARIA DE EDUCACAO DE ALGUM LUGAR",
                 "municipio": "ALGUMLUGAR",
-                "count": 1, "categories": ["Contratos"],
-                "first_seen": "2025-06-01", "last_seen": "2025-06-01",
+                "count": 1,
+                "categories": ["Contratos"],
+                "first_seen": "2025-06-01",
+                "last_seen": "2025-06-01",
             },
         }
         matched = ciga.match_entities(entities, db_entities)
@@ -659,10 +729,10 @@ class TestReportCoverageImpact:
         mock_conn.cursor.return_value = mock_cursor
         # 4 queries return: total_200km, source_covered, total_covered, exclusive_covered
         mock_cursor.fetchone.side_effect = [
-            (500,),   # total_200km
-            (120,),   # source_covered
-            (350,),   # total_covered
-            (45,),    # exclusive_covered
+            (500,),  # total_200km
+            (120,),  # source_covered
+            (350,),  # total_covered
+            (45,),  # exclusive_covered
         ]
 
         result = ciga.report_coverage_impact(mock_conn, "ciga_ckan")
@@ -741,6 +811,7 @@ class TestDownloadMonth:
 
         # Patch download_resource to return publications
         with patch.object(ciga, "download_resource") as mock_dl:
+
             def _side_effect(url):
                 if "z1" in url:
                     return {"autopublicacoes": [{"categoria": "Contratos", "entidade": "X", "municipio": "Y"}]}
@@ -784,11 +855,13 @@ class TestMonitorIntegration:
     def test_ciga_ckan_in_sources(self):
         """monitor.py SOURCES list contains ciga_ckan."""
         from scripts.crawl.monitor import SOURCES
+
         assert "ciga_ckan" in SOURCES
 
     def test_ciga_ckan_in_module_map(self):
         """monitor.py module_map contains ciga_ckan -> ciga_ckan_crawler."""
         from scripts.crawl.monitor import _load_crawler
+
         module = _load_crawler("ciga_ckan")
         assert module is not None
         assert hasattr(module, "crawl")

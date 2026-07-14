@@ -365,6 +365,7 @@ class TestMatchEntitiesCascadeDifflibFallback:
 
         # Inject a difflib-based fuzz_ratio into the entity_matcher module
         import scripts.matching.entity_matcher as em
+
         em._fuzz_ratio = lambda a, b: SequenceMatcher(None, a, b).ratio()
 
         bids = [
@@ -397,6 +398,7 @@ class TestMatchEntitiesCascadeDifflibFallback:
         conn = _make_mock_conn(bids)
 
         import scripts.matching.entity_matcher as em
+
         result = em.match_entities_cascade(conn, "pncp", SAMPLE_ENTITIES)
 
         assert result["total"] >= 1

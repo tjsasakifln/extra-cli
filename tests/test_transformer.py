@@ -8,12 +8,11 @@ Covers all public and private functions:
 """
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
 from scripts.crawl import transformer as tr
-
 
 # ---------------------------------------------------------------------------
 # _date_fallback_iso()
@@ -38,12 +37,10 @@ class TestDateFallbackIso:
         """_date_fallback_iso() returns ~24h before now."""
         result = tr._date_fallback_iso()
         parsed = datetime.fromisoformat(result)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         diff = now - parsed
         # Should be between 23h and 25h ago
-        assert 82800 <= diff.total_seconds() <= 90000, (
-            f"Expected ~24h ago, got {diff.total_seconds():.0f}s"
-        )
+        assert 82800 <= diff.total_seconds() <= 90000, f"Expected ~24h ago, got {diff.total_seconds():.0f}s"
 
 
 # ---------------------------------------------------------------------------

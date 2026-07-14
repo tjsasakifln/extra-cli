@@ -107,22 +107,15 @@ class TestAC3FullCrawl:
             for resource in resources:
                 pubs = resource["content"]["autopublicacoes"]
                 # Filter to procurement categories
-                procurement_pubs = [
-                    p for p in pubs
-                    if p["categoria"] in ciga.PROCUREMENT_CATEGORIES
-                ]
+                procurement_pubs = [p for p in pubs if p["categoria"] in ciga.PROCUREMENT_CATEGORIES]
                 total_publications += len(procurement_pubs)
                 if procurement_pubs:
                     months_with_data += 1
 
-        assert months_with_data >= 34, (
-            f"Only {months_with_data}/36 months had procurement data "
-            "(expected >= 34)"
-        )
+        assert months_with_data >= 34, f"Only {months_with_data}/36 months had procurement data (expected >= 34)"
         assert total_publications > 0, "Total procurement publications must be > 0"
         assert total_publications >= 36 * 3, (
-            f"Expected at least 108 publications across 36 months "
-            f"(3 resources/month), got {total_publications}"
+            f"Expected at least 108 publications across 36 months (3 resources/month), got {total_publications}"
         )
 
     def test_crawl_download_month_pipeline(self):
@@ -138,14 +131,8 @@ class TestAC3FullCrawl:
         for resource in ac_data.generate_month_resources(month_id):
             content = resource["content"]
             pubs = content.get("autopublicacoes", [])
-            procurement_only = [
-                p for p in pubs
-                if p.get("categoria") in ciga.PROCUREMENT_CATEGORIES
-            ]
-            non_procurement = [
-                p for p in pubs
-                if p.get("categoria") not in ciga.PROCUREMENT_CATEGORIES
-            ]
+            procurement_only = [p for p in pubs if p.get("categoria") in ciga.PROCUREMENT_CATEGORIES]
+            non_procurement = [p for p in pubs if p.get("categoria") not in ciga.PROCUREMENT_CATEGORIES]
             assert len(procurement_only) > 0, "Expected procurement publications"
             # Our synthetic data uses only procurement categories
             assert len(non_procurement) == 0, "Non-procurement should be empty"
@@ -157,9 +144,7 @@ class TestAC3FullCrawl:
         with patch.object(ciga, "list_domsc_months", return_value=datasets):
             with patch.object(ciga, "download_month") as mock_dl:
                 # Each month returns some publications
-                mock_dl.return_value = [
-                    {"categoria": "Contratos", "entidade": "PREFEITURA MUNICIPAL DE FLORIANOPOLIS"}
-                ]
+                mock_dl.return_value = [{"categoria": "Contratos", "entidade": "PREFEITURA MUNICIPAL DE FLORIANOPOLIS"}]
                 results = ciga.crawl(mode="full")
                 assert len(results) == 36, "All 36 months should be processed"
                 assert mock_dl.call_count == 36
@@ -283,10 +268,7 @@ class TestAC4EntityMatching:
         """At least 200 entities match with high or medium confidence."""
         matched = ciga.match_entities(ciga_entities, db_entities)
 
-        high_medium = [
-            e for e in matched.values()
-            if e.get("match_confidence") in ("high", "medium")
-        ]
+        high_medium = [e for e in matched.values() if e.get("match_confidence") in ("high", "medium")]
 
         assert len(high_medium) >= 200, (
             f"Only {len(high_medium)} entities matched with high/medium confidence "
@@ -297,29 +279,18 @@ class TestAC4EntityMatching:
         """At least 180 matches are high confidence (name_muni or name_only)."""
         matched = ciga.match_entities(ciga_entities, db_entities)
 
-        high_confidence = [
-            e for e in matched.values()
-            if e.get("match_confidence") == "high"
-        ]
+        high_confidence = [e for e in matched.values() if e.get("match_confidence") == "high"]
 
-        assert len(high_confidence) >= 180, (
-            f"Only {len(high_confidence)} high confidence matches "
-            f"(expected >= 180)"
-        )
+        assert len(high_confidence) >= 180, f"Only {len(high_confidence)} high confidence matches (expected >= 180)"
 
     def test_unmatched_entities_remain_unmatched(self, db_entities, ciga_entities):
         """Unknown entities that don't exist in DB remain unmatched."""
         matched = ciga.match_entities(ciga_entities, db_entities)
 
-        unmatched = [
-            e for e in matched.values()
-            if e.get("matched_entity_id") is None
-        ]
+        unmatched = [e for e in matched.values() if e.get("matched_entity_id") is None]
 
         # At least some should be unmatched (we added 40 unknown entities)
-        assert len(unmatched) >= 30, (
-            f"Expected >= 30 unmatched entities, got {len(unmatched)}"
-        )
+        assert len(unmatched) >= 30, f"Expected >= 30 unmatched entities, got {len(unmatched)}"
 
     def test_matches_use_cascade_levels(self, db_entities, ciga_entities):
         """Matches use all cascade levels (name_muni, name_only, alias, fuzzy)."""
@@ -335,10 +306,7 @@ class TestAC4EntityMatching:
 
         matched = ciga.match_entities(ciga_entities, db_entities)
 
-        methods_used = {
-            e.get("match_method") for e in matched.values()
-            if e.get("matched_entity_id") is not None
-        }
+        methods_used = {e.get("match_method") for e in matched.values() if e.get("matched_entity_id") is not None}
 
         assert "name_muni" in methods_used, "Level 1 (name+municipio) not used"
         assert "name_only" in methods_used, "Level 2 (name only) not used"
@@ -355,9 +323,7 @@ class TestAC4EntityMatching:
 
         stats = ciga.update_coverage(mock_conn, matched, "ciga_ckan")
         assert stats["errors"] == 0, "No errors expected during upsert"
-        assert stats["inserted"] >= 200, (
-            f"Expected >= 200 inserts, got {stats['inserted']}"
-        )
+        assert stats["inserted"] >= 200, f"Expected >= 200 inserts, got {stats['inserted']}"
 
 
 # ---------------------------------------------------------------------------
@@ -383,10 +349,10 @@ class TestAC5Deferred:
 
         # Simulate exclusive coverage scenario
         mock_cursor.fetchone.side_effect = [
-            (500,),   # total_200km
-            (120,),   # source_covered
-            (350,),   # total_covered
-            (45,),    # exclusive_covered
+            (500,),  # total_200km
+            (120,),  # source_covered
+            (350,),  # total_covered
+            (45,),  # exclusive_covered
         ]
 
         result = ciga.report_coverage_impact(mock_conn, "ciga_ckan")
@@ -423,15 +389,14 @@ class TestAC6Deferred:
         monthly_stats: list[dict] = []
         for ds in datasets:
             resources = ac_data.generate_month_resources(ds)
-            total_pubs = sum(
-                len(r["content"]["autopublicacoes"])
-                for r in resources
+            total_pubs = sum(len(r["content"]["autopublicacoes"]) for r in resources)
+            monthly_stats.append(
+                {
+                    "month": ds,
+                    "publications": total_pubs,
+                    "status": "ok",
+                }
             )
-            monthly_stats.append({
-                "month": ds,
-                "publications": total_pubs,
-                "status": "ok",
-            })
 
         assert len(monthly_stats) == 36
         assert all(s["publications"] > 0 for s in monthly_stats)

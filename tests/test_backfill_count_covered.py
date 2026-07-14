@@ -20,6 +20,7 @@ def _require_db():
     dsn = os.getenv("TEST_DSN", "postgresql://test:test@localhost:5433/extra_test")
     try:
         import psycopg2
+
         conn = psycopg2.connect(dsn)
         conn.close()
     except Exception as e:
@@ -30,6 +31,7 @@ def _require_db():
 
 def _get_conn():
     import psycopg2
+
     dsn = os.getenv("TEST_DSN", "postgresql://test:test@localhost:5433/extra_test")
     return psycopg2.connect(dsn)
 
@@ -42,14 +44,8 @@ class TestCountCoveredNoDuplicate:
         from scripts.pipeline.backfill_multi_source import MultiSourceBackfill
 
         # Count methods named _count_covered
-        methods = [
-            name for name, _ in MultiSourceBackfill.__dict__.items()
-            if name == "_count_covered"
-        ]
-        assert len(methods) == 1, (
-            f"Expected 1 _count_covered, found {len(methods)}. "
-            "Remove the duplicate definition."
-        )
+        methods = [name for name, _ in MultiSourceBackfill.__dict__.items() if name == "_count_covered"]
+        assert len(methods) == 1, f"Expected 1 _count_covered, found {len(methods)}. Remove the duplicate definition."
 
     def test_count_covered_returns_int(self):
         """_count_covered() must return an integer without requiring arguments."""
@@ -60,9 +56,7 @@ class TestCountCoveredNoDuplicate:
         pipeline = MultiSourceBackfill(dsn=dsn)
 
         result = pipeline._count_covered()
-        assert isinstance(result, int), (
-            f"_count_covered() returned {type(result).__name__}, expected int"
-        )
+        assert isinstance(result, int), f"_count_covered() returned {type(result).__name__}, expected int"
 
     def test_run_pipeline_no_type_error(self):
         """run_pipeline(dry_run=False) must not raise TypeError from _count_covered."""
@@ -72,31 +66,35 @@ class TestCountCoveredNoDuplicate:
         dsn = os.getenv("TEST_DSN", "postgresql://test:test@localhost:5433/extra_test")
         pipeline = MultiSourceBackfill(dsn=dsn)
 
-        with patch.object(pipeline, '_run_source') as mock_source, \
-             patch.object(pipeline, '_generate_report'):
+        with patch.object(pipeline, "_run_source") as mock_source, patch.object(pipeline, "_generate_report"):
             mock_source.return_value = {
-                'status': 'dry_run',
-                'source': 'pncp',
-                'duration_s': 0.1,
-                'fetched': 0, 'transformed': 0, 'inserted': 0, 'updated': 0,
-                'matched': 0, 'unmatched': 0, 'new_entities_covered': 0,
-                'warnings': [], 'dependencies_missing': [],
+                "status": "dry_run",
+                "source": "pncp",
+                "duration_s": 0.1,
+                "fetched": 0,
+                "transformed": 0,
+                "inserted": 0,
+                "updated": 0,
+                "matched": 0,
+                "unmatched": 0,
+                "new_entities_covered": 0,
+                "warnings": [],
+                "dependencies_missing": [],
             }
 
             # This should NOT raise TypeError
             try:
                 stats = pipeline.run_pipeline(
-                    sources=['pncp'],
+                    sources=["pncp"],
                     dry_run=True,
                 )
             except TypeError as e:
                 pytest.fail(
-                    f"run_pipeline() raised TypeError: {e}. "
-                    "Check that _count_covered() is called without arguments."
+                    f"run_pipeline() raised TypeError: {e}. Check that _count_covered() is called without arguments."
                 )
 
             assert isinstance(stats, dict), f"Expected dict, got {type(stats).__name__}"
-            assert 'entities_before' in stats
+            assert "entities_before" in stats
 
 
 class TestNewEntitiesCovered:
@@ -144,23 +142,17 @@ class TestNewEntitiesCovered:
             new_count = max(0, after_insert - baseline)
 
             # Verify the new coverage was counted
-            assert after_insert >= baseline, (
-                f"Coverage decreased: {baseline} → {after_insert}"
-            )
+            assert after_insert >= baseline, f"Coverage decreased: {baseline} → {after_insert}"
             print(f"  baseline={baseline}, after_insert={after_insert}, new={new_count}")
 
             # Cleanup
-            cur.execute(
-                "DELETE FROM entity_coverage WHERE source = 'test_count_covered'"
-            )
+            cur.execute("DELETE FROM entity_coverage WHERE source = 'test_count_covered'")
             conn.commit()
             cur.close()
 
             # Verify cleanup
             after_cleanup = pipeline._count_covered()
-            assert after_cleanup == baseline, (
-                f"Cleanup failed: {baseline} != {after_cleanup}"
-            )
+            assert after_cleanup == baseline, f"Cleanup failed: {baseline} != {after_cleanup}"
         finally:
             conn.close()
 
@@ -176,16 +168,18 @@ class TestNewEntitiesCovered:
         dsn = os.getenv("TEST_DSN", "postgresql://test:test@localhost:5433/extra_test")
         pipeline = MultiSourceBackfill(dsn=dsn)
 
-        with patch('scripts.pipeline.backfill_multi_source._get_conn') as mock_get_conn, \
-             patch('scripts.pipeline.backfill_multi_source._load_entities') as mock_load, \
-             patch('scripts.pipeline.backfill_multi_source.crawl_source') as mock_crawl:
-
+        with (
+            patch("scripts.pipeline.backfill_multi_source._get_conn") as mock_get_conn,
+            patch("scripts.pipeline.backfill_multi_source._load_entities") as mock_load,
+            patch("scripts.pipeline.backfill_multi_source.crawl_source") as mock_crawl,
+        ):
             # Setup mock connection
             mock_conn = MagicMock()
             mock_get_conn.return_value = mock_conn
             mock_load.return_value = []
 
             from scripts.crawl.ingestion._base.crawler import CrawlerResult
+
             result = CrawlerResult(
                 source="pncp",
                 status="success",
@@ -199,17 +193,18 @@ class TestNewEntitiesCovered:
 
             # Mock _count_covered to simulate coverage change
             call_count = [0]
+
             def count_side_effect():
                 call_count[0] += 1
                 return 10 if call_count[0] == 1 else 13  # before=10, after=13
 
-            with patch.object(pipeline, '_count_covered', side_effect=count_side_effect):
-                run_result = pipeline._run_source('pncp', dry_run=False)
+            with patch.object(pipeline, "_count_covered", side_effect=count_side_effect):
+                run_result = pipeline._run_source("pncp", dry_run=False)
 
-            assert 'new_entities_covered' in run_result, (
+            assert "new_entities_covered" in run_result, (
                 f"Result missing 'new_entities_covered': {list(run_result.keys())}"
             )
-            assert run_result['new_entities_covered'] == 3, (
+            assert run_result["new_entities_covered"] == 3, (
                 f"Expected 3 new entities covered, got {run_result['new_entities_covered']}"
             )
             print(f"  new_entities_covered={run_result['new_entities_covered']} (13-10=3)")

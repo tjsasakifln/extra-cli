@@ -190,6 +190,7 @@ class TestDatalakeClient:
         """is_enabled returns False when DATALAKE_QUERY_ENABLED not set."""
         with patch.dict(os.environ, {}, clear=True):
             from scripts.datalake_helper import DatalakeClient
+
             client = DatalakeClient()
             assert client.is_enabled is False
 
@@ -197,6 +198,7 @@ class TestDatalakeClient:
         """is_enabled returns False when DATALAKE_QUERY_ENABLED=false."""
         with patch.dict(os.environ, {"DATALAKE_QUERY_ENABLED": "false"}, clear=True):
             from scripts.datalake_helper import DatalakeClient
+
             client = DatalakeClient()
             assert client.is_enabled is False
 
@@ -204,6 +206,7 @@ class TestDatalakeClient:
         """is_enabled returns True when DATALAKE_QUERY_ENABLED=true."""
         with patch.dict(os.environ, {"DATALAKE_QUERY_ENABLED": "true"}, clear=True):
             from scripts.datalake_helper import DatalakeClient
+
             client = DatalakeClient()
             assert client.is_enabled is True
 
@@ -211,6 +214,7 @@ class TestDatalakeClient:
         """backend returns 'local' when enabled."""
         with patch.dict(os.environ, {"DATALAKE_QUERY_ENABLED": "true"}, clear=True):
             from scripts.datalake_helper import DatalakeClient
+
             client = DatalakeClient()
             # Must call is_enabled first to trigger initialization
             _ = client.is_enabled
@@ -219,18 +223,21 @@ class TestDatalakeClient:
     def test_backend_is_none_when_disabled(self):
         """backend returns 'none' when disabled."""
         from scripts.datalake_helper import DatalakeClient
+
         client = DatalakeClient()
         assert client.backend == "none"
 
     def test_init_error_is_none_when_disabled(self):
         """init_error provides reason when disabled."""
         from scripts.datalake_helper import DatalakeClient
+
         client = DatalakeClient()
         assert client.init_error is not None or client.is_enabled is False
 
     def test_search_bids_returns_none_when_disabled(self):
         """search_bids returns None when disabled."""
         from scripts.datalake_helper import DatalakeClient
+
         client = DatalakeClient()
         rows, meta = client.search_bids()
         assert rows is None

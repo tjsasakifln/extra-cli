@@ -20,10 +20,8 @@ Classification:
 from __future__ import annotations
 
 import importlib
-import os
 
 import pytest
-
 
 # ---------------------------------------------------------------------------
 # Registry — mirrors monitor.py module_map
@@ -33,12 +31,14 @@ CRAWLER_MODULES: dict[str, str] = {}
 CREDENTIAL_SOURCES: set[str] = set()
 COVERAGE_ONLY_SOURCES: set[str] = set()
 
+
 def _init_from_registry():
     """Populate module maps from the central source registry (called once)."""
     global CRAWLER_MODULES, CREDENTIAL_SOURCES, COVERAGE_ONLY_SOURCES
     if CRAWLER_MODULES:
         return
-    from scripts.crawl.registry import iter_sources, get_credential_sources, get_coverage_only_sources
+    from scripts.crawl.registry import get_coverage_only_sources, get_credential_sources, iter_sources
+
     for info in iter_sources():
         CRAWLER_MODULES[info.name] = f"scripts.crawl.{info.module}"
     CREDENTIAL_SOURCES = get_credential_sources()
@@ -122,9 +122,7 @@ class TestTransformEmptyList:
     def test_transform_empty_returns_list(self, source: str):
         mod = _get_module(source)
         result = mod.transform([])
-        assert isinstance(result, list), (
-            f"{source}: transform([]) returned {type(result).__name__}"
-        )
+        assert isinstance(result, list), f"{source}: transform([]) returned {type(result).__name__}"
 
 
 # ---------------------------------------------------------------------------
@@ -151,9 +149,7 @@ class TestPublicSourcesRealData:
         except Exception as e:
             pytest.fail(f"{source}: crawl('incremental') raised: {e}")
 
-        assert isinstance(records, list), (
-            f"{source}: crawl('incremental') returned {type(records).__name__}"
-        )
+        assert isinstance(records, list), f"{source}: crawl('incremental') returned {type(records).__name__}"
 
         if len(records) == 0:
             print(f"  [EMPTY] {source}: no records in incremental window (may be normal)")
@@ -280,15 +276,14 @@ def generate_smoke_report() -> dict:
             # the FetchResult contract is the long-term fix.
             entry["smoke_result"] = "EMPTY_VALIDATED"
             entry["note"] = (
-                "crawl() returned [] without raising. "
-                "If source is unreachable, crawler MUST raise, not return []."
+                "crawl() returned [] without raising. If source is unreachable, crawler MUST raise, not return []."
             )
             report[source] = entry
             continue
 
         # ── Step 6: Transform check ─────────────────────────────────
         try:
-            sample = raw_records[:min(len(raw_records), 10)]
+            sample = raw_records[: min(len(raw_records), 10)]
             transformed = mod.transform(sample)
             entry["transformed"] = len(transformed)
         except Exception as e:
@@ -306,10 +301,7 @@ def generate_smoke_report() -> dict:
             entry["note"] = "coverage_only source: transform returns empty by design"
         else:
             entry["smoke_result"] = "FAIL_TRANSFORM"
-            entry["error"] = (
-                f"crawl() returned {len(raw_records)} records but "
-                f"transform() produced 0 — degraded source"
-            )
+            entry["error"] = f"crawl() returned {len(raw_records)} records but transform() produced 0 — degraded source"
 
         report[source] = entry
 

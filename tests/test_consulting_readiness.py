@@ -17,15 +17,12 @@ if str(_PROJECT_ROOT) not in sys.path:
 
 from scripts.consulting_readiness import (  # noqa: E402
     EARTH_RADIUS_KM,
-    TargetEntity,
     TargetUniverse,
     _parse_coords,
     _safe_metric_query,
     compute_readiness,
     haversine_km,
-    load_target_universe,
 )
-
 from scripts.lib.universe import CanonicalEntity, normalize_identity_text  # noqa: E402
 
 _ENTITY_COUNTER: int = 0
@@ -49,11 +46,7 @@ def _make_entity(
 
     if within_radius is None and resolution is not None:
         within_radius = True if resolution == "resolved" else None
-    radius_decision = (
-        "included" if within_radius is True
-        else "unresolved" if within_radius is None
-        else "excluded"
-    )
+    radius_decision = "included" if within_radius is True else "unresolved" if within_radius is None else "excluded"
     decision_method = "legacy_test_helper"
     identity_text = normalize_identity_text(f"{cnpj8}|{municipio}|{razao_social}")
     entity_id = f"test-{_ENTITY_COUNTER:04d}"
@@ -413,7 +406,6 @@ class TestCommercialMetricsNotReady:
     de relicitação must be marked not_ready without relational data."""
 
     def test_all_commercial_metrics_not_ready(self):
-
         universe = TargetUniverse(
             total_resolved=1,
             total_within_radius=1,
@@ -536,7 +528,6 @@ class TestExitCodes:
     """Tests that the correct exit codes are produced."""
 
     def test_readiness_passed_exit_code_0(self):
-
         universe = TargetUniverse(
             total_resolved=10,
             total_within_radius=10,
@@ -591,7 +582,6 @@ class TestExitCodes:
         assert metrics["coverage"]["passed"] is True
 
     def test_below_threshold_exit_code_2(self):
-
         universe = TargetUniverse(
             total_resolved=10,
             total_within_radius=10,
@@ -837,7 +827,6 @@ class TestConservativeDenominator:
     INCREASE the denominator, making coverage harder to prove."""
 
     def test_unresolved_increases_denominator(self):
-
         # Scenario A: 10 resolved, 0 unresolved
         universe = TargetUniverse(
             total_resolved=10,
@@ -938,7 +927,6 @@ class TestConfigurableThreshold:
     """Threshold must be configurable, not hardcoded."""
 
     def test_threshold_0_5_passes(self):
-
         universe = TargetUniverse(
             total_resolved=10,
             total_within_radius=10,

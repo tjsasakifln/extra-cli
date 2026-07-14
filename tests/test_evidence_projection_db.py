@@ -66,7 +66,6 @@ def _setup():
 
 
 class TestNullAggregateUniqueness:
-
     def test_duplicate_null_aggregate_rejected(self):
         conn = _conn()
         cur = conn.cursor()
@@ -127,7 +126,6 @@ class TestNullAggregateUniqueness:
 
 
 class TestEntityEvidenceIdempotency:
-
     def test_same_run_id_replay_is_noop(self):
         conn = _conn()
         cur = conn.cursor()
@@ -167,7 +165,6 @@ class TestEntityEvidenceIdempotency:
 
 
 class TestLatestEvidenceView:
-
     def test_latest_returns_one_row_per_entity(self):
         conn = _conn()
         cur = conn.cursor()
@@ -222,7 +219,6 @@ class TestLatestEvidenceView:
 
 
 class TestSuccessZeroCompletenessCheck:
-
     def test_success_zero_with_queried_dates_accepted(self):
         conn = _conn()
         cur = conn.cursor()
@@ -265,15 +261,15 @@ class TestSuccessZeroCompletenessCheck:
             conn.commit()
 
         error_text = str(exc.value).lower()
-        assert any(w in error_text for w in ("ck_success_zero", "check", "violation", "violates")), \
+        assert any(w in error_text for w in ("ck_success_zero", "check", "violation", "violates")), (
             f"Expected CHECK violation, got: {exc.value}"
+        )
         conn.rollback()
         cur.close()
         conn.close()
 
 
 class TestProjectEntityEvidenceIntegration:
-
     def test_complete_run_writes_one_row_per_entity(self):
         from scripts.crawl.monitor import _project_entity_evidence
 
@@ -286,8 +282,13 @@ class TestProjectEntityEvidenceIntegration:
         ]
 
         stats = _project_entity_evidence(
-            conn=conn, run_id=run_id, source="pncp", entities=entities,
-            fetch_complete=True, date_from="2026-07-01", date_to="2026-07-07",
+            conn=conn,
+            run_id=run_id,
+            source="pncp",
+            entities=entities,
+            fetch_complete=True,
+            date_from="2026-07-01",
+            date_to="2026-07-07",
         )
 
         assert stats is not None
@@ -316,8 +317,13 @@ class TestProjectEntityEvidenceIntegration:
         ]
 
         stats = _project_entity_evidence(
-            conn=conn, run_id=run_id, source="pncp", entities=entities,
-            fetch_complete=False, date_from="2026-07-01", date_to="2026-07-07",
+            conn=conn,
+            run_id=run_id,
+            source="pncp",
+            entities=entities,
+            fetch_complete=False,
+            date_from="2026-07-01",
+            date_to="2026-07-07",
         )
 
         assert stats is not None
@@ -344,12 +350,22 @@ class TestProjectEntityEvidenceIntegration:
         ]
 
         _project_entity_evidence(
-            conn=conn, run_id=run_id, source="pncp", entities=entities,
-            fetch_complete=True, date_from="2026-07-01", date_to="2026-07-07",
+            conn=conn,
+            run_id=run_id,
+            source="pncp",
+            entities=entities,
+            fetch_complete=True,
+            date_from="2026-07-01",
+            date_to="2026-07-07",
         )
         _project_entity_evidence(
-            conn=conn, run_id=run_id, source="pncp", entities=entities,
-            fetch_complete=True, date_from="2026-07-01", date_to="2026-07-07",
+            conn=conn,
+            run_id=run_id,
+            source="pncp",
+            entities=entities,
+            fetch_complete=True,
+            date_from="2026-07-01",
+            date_to="2026-07-07",
         )
 
         cur = conn.cursor()
@@ -365,8 +381,7 @@ class TestProjectEntityEvidenceIntegration:
         conn.close()
 
     def test_source_aggregate_and_entity_rows_coexist(self):
-        from scripts.crawl.monitor import _project_entity_evidence
-        from scripts.crawl.monitor import _record_evidence
+        from scripts.crawl.monitor import _project_entity_evidence, _record_evidence
 
         conn = _conn()
         run_id = f"test-evid-both-{os.getpid()}"
@@ -375,13 +390,24 @@ class TestProjectEntityEvidenceIntegration:
         ]
 
         _record_evidence(
-            conn, run_id, "pncp", "success",
-            fetched=100, transformed=95, persisted=90,
-            date_from="2026-07-01", date_to="2026-07-07",
+            conn,
+            run_id,
+            "pncp",
+            "success",
+            fetched=100,
+            transformed=95,
+            persisted=90,
+            date_from="2026-07-01",
+            date_to="2026-07-07",
         )
         _project_entity_evidence(
-            conn=conn, run_id=run_id, source="pncp", entities=entities,
-            fetch_complete=True, date_from="2026-07-01", date_to="2026-07-07",
+            conn=conn,
+            run_id=run_id,
+            source="pncp",
+            entities=entities,
+            fetch_complete=True,
+            date_from="2026-07-01",
+            date_to="2026-07-07",
         )
 
         cur = conn.cursor()

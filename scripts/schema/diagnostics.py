@@ -64,27 +64,27 @@ EXPECTED_TABLES: set[str] = {
 
 EXPECTED_VIEWS: set[str] = {
     # Created by migrations AND consumed by Python code
-    "v_unmatched_bids",              # 011, 021a, 021d
-    "v_schema_integrity",            # 036
-    "v_latest_evidence",             # 024 — consulting_readiness.py
-    "v_source_health",               # 024 — consulting_readiness.py
+    "v_unmatched_bids",  # 011, 021a, 021d
+    "v_schema_integrity",  # 036
+    "v_latest_evidence",  # 024 — consulting_readiness.py
+    "v_source_health",  # 024 — consulting_readiness.py
     "v_coverage_gaps_by_municipio",  # 012/020 — local_datalake.py
-    "v_contract_historical",         # 026 — contract_intel/cli.py
-    "v_supplier_winners",            # 026 — contract_intel/cli.py
-    "v_expiring_contracts",          # 026 — contract_intel/cli.py
-    "v_contracts_canonical",         # 030 — competitive_intel_validation.py
-    "v_opportunity_coverage_summary", # 027 — opportunity_intel/cli.py
-    "v_target_universe_active",      # 038 — universe_tools.py
+    "v_contract_historical",  # 026 — contract_intel/cli.py
+    "v_supplier_winners",  # 026 — contract_intel/cli.py
+    "v_expiring_contracts",  # 026 — contract_intel/cli.py
+    "v_contracts_canonical",  # 030 — competitive_intel_validation.py
+    "v_opportunity_coverage_summary",  # 027 — opportunity_intel/cli.py
+    "v_target_universe_active",  # 038 — universe_tools.py
 }
 
 # Functions that MUST exist (created by migrations, consumed by code)
 EXPECTED_FUNCTIONS: set[str] = {
-    "search_datalake",                  # 005/014 — core search
-    "upsert_pncp_raw_bids",             # 006/023 — ingest
-    "upsert_pncp_supplier_contracts",    # 006 — ingest
-    "fn_record_snapshot_membership",     # 039/041b — reconciliation
-    "fn_reconcile_source_snapshot",      # 039/041b — reconciliation
-    "generate_coverage_snapshot",        # 012/021a — coverage snapshots
+    "search_datalake",  # 005/014 — core search
+    "upsert_pncp_raw_bids",  # 006/023 — ingest
+    "upsert_pncp_supplier_contracts",  # 006 — ingest
+    "fn_record_snapshot_membership",  # 039/041b — reconciliation
+    "fn_reconcile_source_snapshot",  # 039/041b — reconciliation
+    "generate_coverage_snapshot",  # 012/021a — coverage snapshots
 }
 
 # FK constraints that MUST be validated (migration 041a)

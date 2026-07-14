@@ -155,12 +155,24 @@ class TestSemanticDedup:
     def test_removes_exact_duplicates_by_id(self):
         """Remove items with identical cnpj_orgao+ano+sequencial keys."""
         editais = [
-            {"cnpj_orgao": "12345678000199", "ano_compra": "2024", "sequencial_compra": "1",
-             "objeto": "Construção de ponte"},
-            {"cnpj_orgao": "12345678000199", "ano_compra": "2024", "sequencial_compra": "1",
-             "objeto": "Construção de ponte"},
-            {"cnpj_orgao": "99999999000199", "ano_compra": "2024", "sequencial_compra": "2",
-             "objeto": "Pavimentação urbana"},
+            {
+                "cnpj_orgao": "12345678000199",
+                "ano_compra": "2024",
+                "sequencial_compra": "1",
+                "objeto": "Construção de ponte",
+            },
+            {
+                "cnpj_orgao": "12345678000199",
+                "ano_compra": "2024",
+                "sequencial_compra": "1",
+                "objeto": "Construção de ponte",
+            },
+            {
+                "cnpj_orgao": "99999999000199",
+                "ano_compra": "2024",
+                "sequencial_compra": "2",
+                "objeto": "Pavimentação urbana",
+            },
         ]
         deduped, stats = semantic_dedup(editais)
         assert len(deduped) == 2
@@ -172,10 +184,18 @@ class TestSemanticDedup:
         # A e B compartilham todos os 6 tokens de A, B tem 1 extra
         # Jaccard = 6/7 ~= 0.857
         editais = [
-            {"cnpj_orgao": "111", "ano_compra": "2024", "sequencial_compra": "1",
-             "objeto": "construcao ponte metalica rodovia pavimentacao asfalto"},
-            {"cnpj_orgao": "222", "ano_compra": "2024", "sequencial_compra": "2",
-             "objeto": "construcao ponte metalica rodovia pavimentacao asfalto concreto"},
+            {
+                "cnpj_orgao": "111",
+                "ano_compra": "2024",
+                "sequencial_compra": "1",
+                "objeto": "construcao ponte metalica rodovia pavimentacao asfalto",
+            },
+            {
+                "cnpj_orgao": "222",
+                "ano_compra": "2024",
+                "sequencial_compra": "2",
+                "objeto": "construcao ponte metalica rodovia pavimentacao asfalto concreto",
+            },
         ]
         deduped, stats = semantic_dedup(editais, jaccard_threshold=0.80)
         assert len(deduped) == 1
@@ -185,10 +205,18 @@ class TestSemanticDedup:
         """Log warning for items with similarity between warning_threshold and jaccard_threshold."""
         # Texts share 2 of 6 tokens → Jaccard = 2/6 ≈ 0.33
         editais = [
-            {"cnpj_orgao": "111", "ano_compra": "2024", "sequencial_compra": "1",
-             "objeto": "pavimentacao asfaltica vias urbanas municipais escola"},
-            {"cnpj_orgao": "222", "ano_compra": "2024", "sequencial_compra": "2",
-             "objeto": "pavimentacao asfaltica ruas bairros centro hospital"},
+            {
+                "cnpj_orgao": "111",
+                "ano_compra": "2024",
+                "sequencial_compra": "1",
+                "objeto": "pavimentacao asfaltica vias urbanas municipais escola",
+            },
+            {
+                "cnpj_orgao": "222",
+                "ano_compra": "2024",
+                "sequencial_compra": "2",
+                "objeto": "pavimentacao asfaltica ruas bairros centro hospital",
+            },
         ]
         # warning_threshold below Jaccard (0.33) to trigger grey-zone warnings
         # jaccard_threshold high so they are NOT removed as duplicates
@@ -209,10 +237,18 @@ class TestSemanticDedup:
     def test_preserves_unique_items(self):
         """Keep all items when there are no duplicates."""
         editais = [
-            {"cnpj_orgao": "111", "ano_compra": "2024", "sequencial_compra": "1",
-             "objeto": "Construção de escola municipal"},
-            {"cnpj_orgao": "222", "ano_compra": "2024", "sequencial_compra": "2",
-             "objeto": "Aquisição de ambulância para emergências"},
+            {
+                "cnpj_orgao": "111",
+                "ano_compra": "2024",
+                "sequencial_compra": "1",
+                "objeto": "Construção de escola municipal",
+            },
+            {
+                "cnpj_orgao": "222",
+                "ano_compra": "2024",
+                "sequencial_compra": "2",
+                "objeto": "Aquisição de ambulância para emergências",
+            },
         ]
         deduped, stats = semantic_dedup(editais)
         assert len(deduped) == 2

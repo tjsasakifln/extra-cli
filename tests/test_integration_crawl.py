@@ -19,16 +19,17 @@ import os
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _require_db():
     """Skip or fail based on REQUIRE_TEST_DB env var."""
     dsn = os.getenv("TEST_DSN", "postgresql://postgres@localhost:5433/postgres")
     try:
         import psycopg2
+
         conn = psycopg2.connect(dsn)
         conn.close()
     except Exception as e:
@@ -39,6 +40,7 @@ def _require_db():
 
 def _get_conn():
     import psycopg2
+
     dsn = os.getenv("TEST_DSN", "postgresql://postgres@localhost:5433/postgres")
     return psycopg2.connect(dsn)
 
@@ -129,26 +131,28 @@ class TestUpsertRPC:
         cur = conn.cursor()
 
         test_id = "test_integration_001"
-        record = [{
-            "pncp_id": test_id,
-            "objeto_compra": "Objeto de teste integracao",
-            "valor_total_estimado": 50000.00,
-            "modalidade_id": 5,
-            "modalidade_nome": "Pregao Eletronico",
-            "esfera_id": 3,
-            "uf": "SC",
-            "municipio": "Florianopolis",
-            "codigo_municipio_ibge": "4205407",
-            "orgao_razao_social": "Prefeitura Municipal de Florianopolis",
-            "orgao_cnpj": "82892598000199",
-            "data_publicacao": "2026-07-01",
-            "data_abertura": None,
-            "data_encerramento": None,
-            "link_pncp": "https://pncp.gov.br/test/001",
-            "content_hash": "test_integration_hash_001",
-            "source": "test_integration",
-            "source_id": "test_integration_src_001",
-        }]
+        record = [
+            {
+                "pncp_id": test_id,
+                "objeto_compra": "Objeto de teste integracao",
+                "valor_total_estimado": 50000.00,
+                "modalidade_id": 5,
+                "modalidade_nome": "Pregao Eletronico",
+                "esfera_id": 3,
+                "uf": "SC",
+                "municipio": "Florianopolis",
+                "codigo_municipio_ibge": "4205407",
+                "orgao_razao_social": "Prefeitura Municipal de Florianopolis",
+                "orgao_cnpj": "82892598000199",
+                "data_publicacao": "2026-07-01",
+                "data_abertura": None,
+                "data_encerramento": None,
+                "link_pncp": "https://pncp.gov.br/test/001",
+                "content_hash": "test_integration_hash_001",
+                "source": "test_integration",
+                "source_id": "test_integration_src_001",
+            }
+        ]
 
         try:
             cur.execute("SELECT * FROM upsert_pncp_raw_bids(%s)", (json.dumps(record),))
@@ -183,24 +187,26 @@ class TestUpsertRPC:
         conn = _get_conn()
         cur = conn.cursor()
 
-        record = [{
-            "pncp_id": "test_dedup_002",
-            "objeto_compra": "Teste dedup",
-            "valor_total_estimado": 100.00,
-            "modalidade_id": 5,
-            "modalidade_nome": "Pregao",
-            "esfera_id": 3,
-            "uf": "SC",
-            "municipio": "Test",
-            "codigo_municipio_ibge": "4205407",
-            "orgao_razao_social": "Test",
-            "orgao_cnpj": "12345678000199",
-            "data_publicacao": "2026-07-01",
-            "link_pncp": "https://test.com",
-            "content_hash": "test_dedup_hash_unique",
-            "source": "test_integration",
-            "source_id": "test_dedup_src",
-        }]
+        record = [
+            {
+                "pncp_id": "test_dedup_002",
+                "objeto_compra": "Teste dedup",
+                "valor_total_estimado": 100.00,
+                "modalidade_id": 5,
+                "modalidade_nome": "Pregao",
+                "esfera_id": 3,
+                "uf": "SC",
+                "municipio": "Test",
+                "codigo_municipio_ibge": "4205407",
+                "orgao_razao_social": "Test",
+                "orgao_cnpj": "12345678000199",
+                "data_publicacao": "2026-07-01",
+                "link_pncp": "https://test.com",
+                "content_hash": "test_dedup_hash_unique",
+                "source": "test_integration",
+                "source_id": "test_dedup_src",
+            }
+        ]
 
         try:
             # First insert
@@ -231,22 +237,26 @@ class TestSeleniumSchemaContract:
         from scripts.crawl.selenium_crawler_adapter import transform
 
         # Simulate a Selenium crawl result
-        sample = [{
-            "status": "ok",
-            "slug": "florianopolis",
-            "municipio": "Florianopolis",
-            "ibge": "4205407",
-            "url": "https://example.com/portal",
-            "bids": [{
-                "orgao_nome": "Prefeitura de Florianopolis",
-                "orgao_cnpj": "82892598000199",
-                "modalidade": "Pregao",
-                "objeto": "Contratacao de servicos de TI",
-                "data_publicacao": "2026-07-11",
-                "valor": "R$ 150.000,00",
-                "portal_url": "https://example.com/lic/1",
-            }],
-        }]
+        sample = [
+            {
+                "status": "ok",
+                "slug": "florianopolis",
+                "municipio": "Florianopolis",
+                "ibge": "4205407",
+                "url": "https://example.com/portal",
+                "bids": [
+                    {
+                        "orgao_nome": "Prefeitura de Florianopolis",
+                        "orgao_cnpj": "82892598000199",
+                        "modalidade": "Pregao",
+                        "objeto": "Contratacao de servicos de TI",
+                        "data_publicacao": "2026-07-11",
+                        "valor": "R$ 150.000,00",
+                        "portal_url": "https://example.com/lic/1",
+                    }
+                ],
+            }
+        ]
 
         records = transform(sample)
         assert len(records) == 1
@@ -291,6 +301,7 @@ class TestSourceRegistry:
     def test_all_modules_importable(self):
         """Every source in the registry must be importable."""
         import importlib
+
         from scripts.crawl.registry import iter_sources
 
         for info in iter_sources():
@@ -303,6 +314,7 @@ class TestSourceRegistry:
     def test_no_duplicate_names(self):
         """Registry must not contain duplicate source names."""
         from scripts.crawl.registry import iter_sources
+
         names = [s.name for s in iter_sources()]
         assert len(names) == len(set(names)), f"Duplicate names: {names}"
 
@@ -330,6 +342,7 @@ class TestDateForwarding:
     def test_date_args_accepted_by_crawl_source(self):
         """crawl_source() must accept date_from/date_to kwargs."""
         import inspect
+
         from scripts.crawl.monitor import crawl_source
 
         sig = inspect.signature(crawl_source)
@@ -342,8 +355,8 @@ class TestRegistryEquality:
     """Verify registry sources match across all consumers."""
 
     def test_registry_matches_monitor_sources(self):
-        from scripts.crawl.registry import iter_sources
         from scripts.crawl.monitor import SOURCES
+        from scripts.crawl.registry import iter_sources
 
         registry_names = {s.name for s in iter_sources()}
         monitor_names = set(SOURCES)
@@ -381,6 +394,7 @@ class TestRegistryEquality:
     def test_transparencia_residual_not_in_registry(self):
         """transparencia_residual must NOT be in the active registry."""
         from scripts.crawl.registry import lookup
+
         assert lookup("transparencia_residual") is None
 
 
@@ -402,11 +416,10 @@ class TestAllMigrationsApplied:
         _require_db()
 
         from pathlib import Path
+
         MIGRATIONS_DIR = Path(__file__).parent.parent / "db" / "migrations"
 
-        assert MIGRATIONS_DIR.exists(), (
-            f"Migrations directory not found: {MIGRATIONS_DIR}"
-        )
+        assert MIGRATIONS_DIR.exists(), f"Migrations directory not found: {MIGRATIONS_DIR}"
 
         migration_files = sorted(MIGRATIONS_DIR.glob("*.sql"))
         assert len(migration_files) > 0, "No migration files found"
@@ -447,15 +460,14 @@ class TestAllMigrationsApplied:
     def test_migration_files_exist(self):
         """Migration directory must contain SQL files."""
         from pathlib import Path
+
         MIGRATIONS_DIR = Path(__file__).parent.parent / "db" / "migrations"
 
         if not MIGRATIONS_DIR.exists():
             pytest.fail(f"Migrations directory missing: {MIGRATIONS_DIR}")
 
         sql_files = list(MIGRATIONS_DIR.glob("*.sql"))
-        assert len(sql_files) > 0, (
-            f"No .sql files found in {MIGRATIONS_DIR}"
-        )
+        assert len(sql_files) > 0, f"No .sql files found in {MIGRATIONS_DIR}"
         print(f"  Found {len(sql_files)} migration files:")
         for f in sorted(sql_files):
             print(f"    {f.name}")

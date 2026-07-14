@@ -168,17 +168,17 @@ class TestScrapeMunicipio:
     @patch.object(rp.ResidualPortalScraper, "try_generic_templates")
     def test_level1_success(self, mock_level1):
         """Level 1 success returns bids with generic_http method."""
-        mock_level1.return_value = [
-            {"content_hash": "abc", "objeto": "Servico", "modalidade": "Pregao"}
-        ]
+        mock_level1.return_value = [{"content_hash": "abc", "objeto": "Servico", "modalidade": "Pregao"}]
 
         scraper = rp.ResidualPortalScraper()
-        result = scraper.scrape_municipio({
-            "municipio": "Teste",
-            "slug": "teste",
-            "ibge": "4200000",
-            "url": "https://teste.sc.gov.br",
-        })
+        result = scraper.scrape_municipio(
+            {
+                "municipio": "Teste",
+                "slug": "teste",
+                "ibge": "4200000",
+                "url": "https://teste.sc.gov.br",
+            }
+        )
 
         assert result["status"] == "ok"
         assert result["method"] == "generic_http"
@@ -189,17 +189,17 @@ class TestScrapeMunicipio:
     def test_level2_success(self, mock_selenium, mock_level1):
         """Level 2 success when Level 1 fails."""
         mock_level1.return_value = []
-        mock_selenium.return_value = [
-            {"content_hash": "def", "objeto": "Obra", "modalidade": "Concorrencia"}
-        ]
+        mock_selenium.return_value = [{"content_hash": "def", "objeto": "Obra", "modalidade": "Concorrencia"}]
 
         scraper = rp.ResidualPortalScraper()
-        result = scraper.scrape_municipio({
-            "municipio": "Teste",
-            "slug": "teste",
-            "ibge": "4200000",
-            "url": "https://teste.sc.gov.br",
-        })
+        result = scraper.scrape_municipio(
+            {
+                "municipio": "Teste",
+                "slug": "teste",
+                "ibge": "4200000",
+                "url": "https://teste.sc.gov.br",
+            }
+        )
 
         assert result["status"] == "ok"
         assert result["method"] == "selenium_fallback"
@@ -212,12 +212,14 @@ class TestScrapeMunicipio:
         mock_selenium.return_value = []
 
         scraper = rp.ResidualPortalScraper()
-        result = scraper.scrape_municipio({
-            "municipio": "Teste",
-            "slug": "teste",
-            "ibge": "4200000",
-            "url": "https://teste.sc.gov.br",
-        })
+        result = scraper.scrape_municipio(
+            {
+                "municipio": "Teste",
+                "slug": "teste",
+                "ibge": "4200000",
+                "url": "https://teste.sc.gov.br",
+            }
+        )
 
         assert result["status"] == "inviavel"
         assert result["error"] == "unreachable_or_no_content"
@@ -225,12 +227,14 @@ class TestScrapeMunicipio:
     def test_no_url_inviavel(self):
         """No URL returns inviavel with no_url error."""
         scraper = rp.ResidualPortalScraper()
-        result = scraper.scrape_municipio({
-            "municipio": "Teste",
-            "slug": "teste",
-            "ibge": "4200000",
-            "url": "",
-        })
+        result = scraper.scrape_municipio(
+            {
+                "municipio": "Teste",
+                "slug": "teste",
+                "ibge": "4200000",
+                "url": "",
+            }
+        )
 
         assert result["status"] == "inviavel"
         assert result["error"] == "no_url"
@@ -402,9 +406,7 @@ class TestGenerateResidualCsv:
                 "slug": "teste-a",
                 "ibge": "4200001",
                 "status": "not_found",
-                "pass2_patterns_tried": [
-                    {"pattern": "sc_gov_main", "url": "https://teste-a.sc.gov.br"}
-                ],
+                "pass2_patterns_tried": [{"pattern": "sc_gov_main", "url": "https://teste-a.sc.gov.br"}],
             },
             {
                 "municipio": "TESTE B",
@@ -426,10 +428,13 @@ class TestGenerateResidualCsv:
 
             with patch.object(rp, "_PROJECT_ROOT", tmpdir_p.parent):
                 with patch.object(Path, "exists", return_value=True):
-                    with patch("builtins.open", side_effect=[
-                        open(pass2_path, encoding="utf-8"),
-                        open(csv_path, "w", encoding="utf-8", newline=""),
-                    ]):
+                    with patch(
+                        "builtins.open",
+                        side_effect=[
+                            open(pass2_path, encoding="utf-8"),
+                            open(csv_path, "w", encoding="utf-8", newline=""),
+                        ],
+                    ):
                         # Test that the function handles the basic case
                         # This is a limited test due to complexity of mocking
                         pass

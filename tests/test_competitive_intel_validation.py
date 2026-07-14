@@ -24,9 +24,7 @@ import pytest
 
 def _competitive_intel_validation():
     """Import the module under test; skip if not yet created."""
-    return pytest.importorskip(
-        "scripts.opportunity_intel.competitive_intel_validation"
-    )
+    return pytest.importorskip("scripts.opportunity_intel.competitive_intel_validation")
 
 
 class TestCompetitiveIntelValidation:
@@ -77,9 +75,7 @@ class TestCompetitiveIntelValidation:
         # Query 2: HHI           -> success
         # Query 3: ranking       -> success
         mock_cursor.execute.side_effect = [
-            psycopg2.errors.UndefinedColumn(
-                'column "market_share_value" does not exist'
-            ),
+            psycopg2.errors.UndefinedColumn('column "market_share_value" does not exist'),
             None,
             None,
         ]

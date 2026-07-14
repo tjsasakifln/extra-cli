@@ -76,12 +76,9 @@ def seed_data(pg_conn):
 
     # Insert 3 target entities within 200km
     entities = [
-        ("99111111", "PREFEITURA TESTE A", "FLORIANOPOLIS", "4205407",
-         -27.5954, -48.5480, 0.0, True),
-        ("99222222", "PREFEITURA TESTE B", "SAO JOSE", "4216602",
-         -27.6135, -48.6367, 10.0, True),
-        ("99333333", "PREFEITURA TESTE C", "JOINVILLE", "4209102",
-         -26.3044, -48.8467, 160.0, True),
+        ("99111111", "PREFEITURA TESTE A", "FLORIANOPOLIS", "4205407", -27.5954, -48.5480, 0.0, True),
+        ("99222222", "PREFEITURA TESTE B", "SAO JOSE", "4216602", -27.6135, -48.6367, 10.0, True),
+        ("99333333", "PREFEITURA TESTE C", "JOINVILLE", "4209102", -26.3044, -48.8467, 160.0, True),
     ]
     for cnpj8, nome, mun, ibge, lat, lon, dist, raio in entities:
         cur.execute(
@@ -99,38 +96,93 @@ def seed_data(pg_conn):
 
     contracts = [
         # Historical contracts (within 3yr window)
-        ("PNCP-99111111-2-00001/2024", "99111111000101", "PREFEITURA TESTE A",
-         "11111111000101", "FORNECEDOR ALFA LTDA", "Serviços de limpeza predial",
-         120000.00, today - timedelta(days=365), today + timedelta(days=365),
-         "SC", "FLORIANOPOLIS", "test_fixture"),
-
-        ("PNCP-99111111-2-00002/2024", "99111111000101", "PREFEITURA TESTE A",
-         "22222222000102", "FORNECEDOR BETA SA", "Fornecimento de combustível",
-         450000.00, today - timedelta(days=180), today + timedelta(days=730),
-         "SC", "FLORIANOPOLIS", "test_fixture"),
-
-        ("PNCP-99222222-2-00001/2024", "99222222000101", "PREFEITURA TESTE B",
-         "11111111000101", "FORNECEDOR ALFA LTDA", "Manutenção de ar condicionado",
-         85000.00, today - timedelta(days=500), today + timedelta(days=200),
-         "SC", "SAO JOSE", "test_fixture"),
-
+        (
+            "PNCP-99111111-2-00001/2024",
+            "99111111000101",
+            "PREFEITURA TESTE A",
+            "11111111000101",
+            "FORNECEDOR ALFA LTDA",
+            "Serviços de limpeza predial",
+            120000.00,
+            today - timedelta(days=365),
+            today + timedelta(days=365),
+            "SC",
+            "FLORIANOPOLIS",
+            "test_fixture",
+        ),
+        (
+            "PNCP-99111111-2-00002/2024",
+            "99111111000101",
+            "PREFEITURA TESTE A",
+            "22222222000102",
+            "FORNECEDOR BETA SA",
+            "Fornecimento de combustível",
+            450000.00,
+            today - timedelta(days=180),
+            today + timedelta(days=730),
+            "SC",
+            "FLORIANOPOLIS",
+            "test_fixture",
+        ),
+        (
+            "PNCP-99222222-2-00001/2024",
+            "99222222000101",
+            "PREFEITURA TESTE B",
+            "11111111000101",
+            "FORNECEDOR ALFA LTDA",
+            "Manutenção de ar condicionado",
+            85000.00,
+            today - timedelta(days=500),
+            today + timedelta(days=200),
+            "SC",
+            "SAO JOSE",
+            "test_fixture",
+        ),
         # Expiring contract (90-180 days)
-        ("PNCP-99333333-2-00001/2025", "99333333000101", "PREFEITURA TESTE C",
-         "33333333000103", "FORNECEDOR GAMA ME", "Consultoria em TI",
-         200000.00, today - timedelta(days=700), today + timedelta(days=120),
-         "SC", "JOINVILLE", "test_fixture"),
-
+        (
+            "PNCP-99333333-2-00001/2025",
+            "99333333000101",
+            "PREFEITURA TESTE C",
+            "33333333000103",
+            "FORNECEDOR GAMA ME",
+            "Consultoria em TI",
+            200000.00,
+            today - timedelta(days=700),
+            today + timedelta(days=120),
+            "SC",
+            "JOINVILLE",
+            "test_fixture",
+        ),
         # Contract without data_fim_vigencia (should be excluded from expiring)
-        ("PNCP-99111111-2-00003/2025", "99111111000101", "PREFEITURA TESTE A",
-         "44444444000104", "FORNECEDOR DELTA EIRELI", "Material de escritório",
-         35000.00, today - timedelta(days=90), None,
-         "SC", "FLORIANOPOLIS", "test_fixture"),
-
+        (
+            "PNCP-99111111-2-00003/2025",
+            "99111111000101",
+            "PREFEITURA TESTE A",
+            "44444444000104",
+            "FORNECEDOR DELTA EIRELI",
+            "Material de escritório",
+            35000.00,
+            today - timedelta(days=90),
+            None,
+            "SC",
+            "FLORIANOPOLIS",
+            "test_fixture",
+        ),
         # Old contract (> 3yr, excluded from historical)
-        ("PNCP-99111111-2-00004/2020", "99111111000101", "PREFEITURA TESTE A",
-         "55555555000105", "FORNECEDOR ANTIGO LTDA", "Obra de pavimentação",
-         500000.00, today - timedelta(days=1200), today - timedelta(days=900),
-         "SC", "FLORIANOPOLIS", "test_fixture"),
+        (
+            "PNCP-99111111-2-00004/2020",
+            "99111111000101",
+            "PREFEITURA TESTE A",
+            "55555555000105",
+            "FORNECEDOR ANTIGO LTDA",
+            "Obra de pavimentação",
+            500000.00,
+            today - timedelta(days=1200),
+            today - timedelta(days=900),
+            "SC",
+            "FLORIANOPOLIS",
+            "test_fixture",
+        ),
     ]
 
     for row in contracts:
@@ -161,18 +213,20 @@ def seed_data(pg_conn):
 class TestViewsExist:
     """All 4 analytical views are created."""
 
-    @pytest.mark.parametrize("view_name", [
-        "v_contract_historical",
-        "v_supplier_winners",
-        "v_expiring_contracts",
-        "v_contract_intel_percentis",
-    ])
+    @pytest.mark.parametrize(
+        "view_name",
+        [
+            "v_contract_historical",
+            "v_supplier_winners",
+            "v_expiring_contracts",
+            "v_contract_intel_percentis",
+        ],
+    )
     def test_view_exists(self, pg_conn, view_name):
         """View exists in information_schema."""
         cur = pg_conn.cursor()
         cur.execute(
-            "SELECT table_name FROM information_schema.views "
-            "WHERE table_schema = 'public' AND table_name = %s",
+            "SELECT table_name FROM information_schema.views WHERE table_schema = 'public' AND table_name = %s",
             (view_name,),
         )
         assert cur.fetchone() is not None, f"View {view_name} not found"
@@ -184,8 +238,7 @@ class TestHistoricalContracts:
     def test_returns_contracts_in_3yr_window(self, pg_conn, seed_data):
         """Only contracts signed in the last 3 years are returned."""
         cur = pg_conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM v_contract_historical "
-                     "WHERE orgao_cnpj LIKE '99%'")
+        cur.execute("SELECT COUNT(*) FROM v_contract_historical WHERE orgao_cnpj LIKE '99%'")
         count = cur.fetchone()[0]
         # 5 contracts total, 1 is >3yr old → 4 should be in view
         assert count == 4, f"Expected 4 contracts in 3yr window, got {count}"
@@ -193,10 +246,7 @@ class TestHistoricalContracts:
     def test_old_contract_excluded(self, pg_conn, seed_data):
         """Contracts older than 3 years are excluded."""
         cur = pg_conn.cursor()
-        cur.execute(
-            "SELECT COUNT(*) FROM v_contract_historical "
-            "WHERE contrato_id = 'PNCP-99111111-2-00004/2020'"
-        )
+        cur.execute("SELECT COUNT(*) FROM v_contract_historical WHERE contrato_id = 'PNCP-99111111-2-00004/2020'")
         assert cur.fetchone()[0] == 0, "Old contract should be excluded"
 
     def test_entity_info_included(self, pg_conn, seed_data):
@@ -235,8 +285,7 @@ class TestSupplierWinners:
         """HHI concentration index is computed for each supplier."""
         cur = pg_conn.cursor()
         cur.execute(
-            "SELECT fornecedor_cnpj, hhi_concentracao "
-            "FROM v_supplier_winners WHERE fornecedor_cnpj LIKE '11111111%'"
+            "SELECT fornecedor_cnpj, hhi_concentracao FROM v_supplier_winners WHERE fornecedor_cnpj LIKE '11111111%'"
         )
         row = cur.fetchone()
         assert row is not None
@@ -250,10 +299,7 @@ class TestExpiringContracts:
     def test_returns_contracts_in_window(self, pg_conn, seed_data):
         """Only contracts with data_fim_vigencia in 90-180 days are returned."""
         cur = pg_conn.cursor()
-        cur.execute(
-            "SELECT contrato_id, dias_ate_fim FROM v_expiring_contracts "
-            "WHERE orgao_cnpj LIKE '99%'"
-        )
+        cur.execute("SELECT contrato_id, dias_ate_fim FROM v_expiring_contracts WHERE orgao_cnpj LIKE '99%'")
         rows = cur.fetchall()
         # Only the GAMA contract should match (120 days)
         assert len(rows) == 1, f"Expected 1 expiring contract, got {len(rows)}"
@@ -263,10 +309,7 @@ class TestExpiringContracts:
     def test_null_fim_vigencia_excluded(self, pg_conn, seed_data):
         """Contracts without data_fim_vigencia are excluded."""
         cur = pg_conn.cursor()
-        cur.execute(
-            "SELECT COUNT(*) FROM v_expiring_contracts "
-            "WHERE contrato_id = 'PNCP-99111111-2-00003/2025'"
-        )
+        cur.execute("SELECT COUNT(*) FROM v_expiring_contracts WHERE contrato_id = 'PNCP-99111111-2-00003/2025'")
         assert cur.fetchone()[0] == 0, "Contract without end date should be excluded"
 
 
@@ -292,10 +335,7 @@ class TestCLICommands:
     def test_historico_returns_contracts(self, pg_conn, seed_data):
         """historico command returns expected contracts."""
         cur = pg_conn.cursor()
-        cur.execute(
-            "SELECT COUNT(*) FROM v_contract_historical "
-            "WHERE orgao_cnpj LIKE '99%'"
-        )
+        cur.execute("SELECT COUNT(*) FROM v_contract_historical WHERE orgao_cnpj LIKE '99%'")
         assert cur.fetchone()[0] > 0
 
     def test_fornecedores_ranks_by_value(self, pg_conn, seed_data):
@@ -313,10 +353,7 @@ class TestCLICommands:
     def test_ativos_returns_expiring(self, pg_conn, seed_data):
         """ativos command returns contracts in 90-180 day window."""
         cur = pg_conn.cursor()
-        cur.execute(
-            "SELECT COUNT(*) FROM v_expiring_contracts "
-            "WHERE orgao_cnpj LIKE '99%'"
-        )
+        cur.execute("SELECT COUNT(*) FROM v_expiring_contracts WHERE orgao_cnpj LIKE '99%'")
         assert cur.fetchone()[0] == 1
 
 
@@ -358,30 +395,46 @@ class TestManifesto:
         manifesto["generated_at"] = "2026-07-12"
         manifesto["threshold"] = 0.95
         manifesto["backend"] = "postgresql"
-        manifesto["overall"] = {"exit_code": 1,
-                                "all_capabilities_above_threshold": False,
-                                "unresolved_uncertainties": []}
+        manifesto["overall"] = {
+            "exit_code": 1,
+            "all_capabilities_above_threshold": False,
+            "unresolved_uncertainties": [],
+        }
 
         csv_path = tmp_path / "manifesto.csv"
         caps = manifesto.get("capacities", {})
 
         with open(csv_path, "w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([
-                "capability", "description", "denominator", "numerator",
-                "coverage", "threshold", "ready", "uncertainty",
-                "uncertainty_reason", "semantic_note",
-            ])
+            writer.writerow(
+                [
+                    "capability",
+                    "description",
+                    "denominator",
+                    "numerator",
+                    "coverage",
+                    "threshold",
+                    "ready",
+                    "uncertainty",
+                    "uncertainty_reason",
+                    "semantic_note",
+                ]
+            )
             for name, cap in caps.items():
-                writer.writerow([
-                    name, cap.get("description", ""),
-                    cap.get("denominator", ""), cap.get("numerator", ""),
-                    cap.get("coverage", ""), 0.95,
-                    str(cap.get("ready", False)),
-                    str(cap.get("uncertainty", False)),
-                    cap.get("uncertainty_reason", ""),
-                    cap.get("semantic_note", ""),
-                ])
+                writer.writerow(
+                    [
+                        name,
+                        cap.get("description", ""),
+                        cap.get("denominator", ""),
+                        cap.get("numerator", ""),
+                        cap.get("coverage", ""),
+                        0.95,
+                        str(cap.get("ready", False)),
+                        str(cap.get("uncertainty", False)),
+                        cap.get("uncertainty_reason", ""),
+                        cap.get("semantic_note", ""),
+                    ]
+                )
 
         # Verify CSV
         with open(csv_path) as f:
@@ -466,17 +519,21 @@ class TestSQLiteFallback:
                    (numero_controle_pncp, orgao_cnpj, ni_fornecedor, nome_fornecedor,
                     objeto_contrato, valor_global, data_assinatura, is_active)
                    VALUES (?, ?, ?, ?, ?, ?, ?, 1)""",
-                ("PNCP-TEST-1", "99111111000101", "11111111000101", "FORNECEDOR TESTE",
-                 "Serviço teste", 10000.00, today_str),
+                (
+                    "PNCP-TEST-1",
+                    "99111111000101",
+                    "11111111000101",
+                    "FORNECEDOR TESTE",
+                    "Serviço teste",
+                    10000.00,
+                    today_str,
+                ),
             )
             conn.commit()
 
             # Query
             cur = conn.cursor()
-            cur.execute(
-                "SELECT COUNT(*) FROM pncp_supplier_contracts "
-                "WHERE orgao_cnpj LIKE '99111111%'"
-            )
+            cur.execute("SELECT COUNT(*) FROM pncp_supplier_contracts WHERE orgao_cnpj LIKE '99111111%'")
             assert cur.fetchone()[0] == 1
             conn.close()
         finally:

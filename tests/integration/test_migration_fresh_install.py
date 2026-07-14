@@ -97,8 +97,7 @@ def test_migration_files_exist():
 
     sql_files = sorted(MIGRATIONS_DIR.glob("*.sql"))
     assert len(sql_files) >= 36, (
-        f"Expected at least 36 migration files, found {len(sql_files)}. "
-        f"Missing migrations 030-036?"
+        f"Expected at least 36 migration files, found {len(sql_files)}. Missing migrations 030-036?"
     )
 
     for i in range(30, 37):
@@ -237,12 +236,15 @@ def test_upsert_functions_are_set_based():
 
     try:
         for func_name in ("upsert_pncp_raw_bids", "upsert_pncp_supplier_contracts"):
-            cur.execute("""
+            cur.execute(
+                """
                 SELECT pg_catalog.pg_get_functiondef(p.oid)
                 FROM pg_proc p
                 WHERE p.proname = %s
                   AND p.pronamespace = 'public'::regnamespace
-            """, (func_name,))
+            """,
+                (func_name,),
+            )
             row = cur.fetchone()
             assert row is not None, f"Function {func_name} not found"
             body = row[0]

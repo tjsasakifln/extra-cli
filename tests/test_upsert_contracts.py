@@ -62,8 +62,12 @@ class TestUpsertRecordSchema:
         result = cc.transform([self.MOCK_CONTRACT])
         record = result[0]
         required = {
-            "contrato_id", "orgao_cnpj", "fornecedor_cnpj",
-            "fornecedor_nome", "valor_total", "uf",
+            "contrato_id",
+            "orgao_cnpj",
+            "fornecedor_cnpj",
+            "fornecedor_nome",
+            "valor_total",
+            "uf",
         }
         missing = required - set(record.keys())
         assert not missing, f"Missing required fields: {missing}"
@@ -82,9 +86,7 @@ class TestUpsertRecordSchema:
         # Dates must be ISO strings or None
         for date_field in ("data_inicio", "data_fim", "data_publicacao"):
             val = record.get(date_field)
-            assert val is None or isinstance(val, str), (
-                f"{date_field} should be str or None, got {type(val)}"
-            )
+            assert val is None or isinstance(val, str), f"{date_field} should be str or None, got {type(val)}"
 
     def test_contrato_id_is_unique_key(self):
         """contrato_id must be non-empty for the ON CONFLICT clause."""

@@ -15,12 +15,9 @@ class TestCoverageOnlyEvidence:
         from scripts.crawl.ingestion._base.crawler import determine_status
 
         # No entities_covered arg → degraded
-        result = determine_status(
-            fetched=10, transformed=0, purpose="coverage_only"
-        )
+        result = determine_status(fetched=10, transformed=0, purpose="coverage_only")
         assert result == "degraded", (
-            f"Expected 'degraded', got '{result}'. "
-            "coverage_only without coverage evidence must not be 'success'."
+            f"Expected 'degraded', got '{result}'. coverage_only without coverage evidence must not be 'success'."
         )
 
     def test_coverage_only_zero_evidence_is_degraded(self):
@@ -28,12 +25,13 @@ class TestCoverageOnlyEvidence:
         from scripts.crawl.ingestion._base.crawler import determine_status
 
         result = determine_status(
-            fetched=10, transformed=0, purpose="coverage_only",
+            fetched=10,
+            transformed=0,
+            purpose="coverage_only",
             entities_covered=0,
         )
         assert result == "degraded", (
-            f"Expected 'degraded', got '{result}'. "
-            "entities_covered=0 means no coverage update happened."
+            f"Expected 'degraded', got '{result}'. entities_covered=0 means no coverage update happened."
         )
 
     def test_coverage_only_with_evidence_is_success(self):
@@ -41,24 +39,24 @@ class TestCoverageOnlyEvidence:
         from scripts.crawl.ingestion._base.crawler import determine_status
 
         result = determine_status(
-            fetched=10, transformed=0, purpose="coverage_only",
+            fetched=10,
+            transformed=0,
+            purpose="coverage_only",
             entities_covered=5,
         )
         assert result == "success", (
-            f"Expected 'success', got '{result}'. "
-            "coverage_only with entities_covered=5 should be success."
+            f"Expected 'success', got '{result}'. coverage_only with entities_covered=5 should be success."
         )
 
     def test_determine_status_accepts_entities_covered(self):
         """determine_status() must accept entities_covered kwarg."""
         import inspect
+
         from scripts.crawl.ingestion._base.crawler import determine_status
 
         sig = inspect.signature(determine_status)
         params = list(sig.parameters.keys())
-        assert "entities_covered" in params, (
-            f"determine_status missing 'entities_covered' param: {params}"
-        )
+        assert "entities_covered" in params, f"determine_status missing 'entities_covered' param: {params}"
 
     def test_smoke_report_coverage_only_no_longer_autopass(self):
         """Smoke report: coverage_only without evidence → FAIL_TRANSFORM, not PASS_REAL."""
@@ -75,14 +73,18 @@ class TestCoverageOnlyEvidence:
         # Simulate what happens when crawl_source processes a coverage_only source:
         # If entity_coverage has 0 rows → degraded
         status_no_cov = determine_status(
-            fetched=10, transformed=0, purpose="coverage_only",
+            fetched=10,
+            transformed=0,
+            purpose="coverage_only",
             entities_covered=0,
         )
         assert status_no_cov == "degraded"
 
         # If entity_coverage has rows → success
         status_with_cov = determine_status(
-            fetched=10, transformed=0, purpose="coverage_only",
+            fetched=10,
+            transformed=0,
+            purpose="coverage_only",
             entities_covered=3,
         )
         assert status_with_cov == "success"

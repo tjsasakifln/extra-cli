@@ -108,12 +108,18 @@ class TestBuildEntityHierarchy:
             [_pref_row(id=1)],
             # Second fetchall: entidades
             [
-                _ente_row(id=10, razao_social="Secretaria Inativa",
-                          natureza_juridica="Órgão Público do Poder Executivo Municipal",
-                          is_active=False),
-                _ente_row(id=11, razao_social="Secretaria Ativa",
-                          natureza_juridica="Órgão Público do Poder Executivo Municipal",
-                          is_active=True),
+                _ente_row(
+                    id=10,
+                    razao_social="Secretaria Inativa",
+                    natureza_juridica="Órgão Público do Poder Executivo Municipal",
+                    is_active=False,
+                ),
+                _ente_row(
+                    id=11,
+                    razao_social="Secretaria Ativa",
+                    natureza_juridica="Órgão Público do Poder Executivo Municipal",
+                    is_active=True,
+                ),
             ],
         ]
 
@@ -148,9 +154,12 @@ class TestBuildEntityHierarchy:
             [],
             # entidades (entity with null codigo_ibge)
             [
-                _ente_row(id=10, razao_social="Sem IBGE",
-                          natureza_juridica="Órgão Público do Poder Executivo Municipal",
-                          codigo_ibge=None),
+                _ente_row(
+                    id=10,
+                    razao_social="Sem IBGE",
+                    natureza_juridica="Órgão Público do Poder Executivo Municipal",
+                    codigo_ibge=None,
+                ),
             ],
         ]
 
@@ -169,9 +178,12 @@ class TestBuildEntityHierarchy:
             [_pref_row(id=1, codigo_ibge="4205407")],
             # entidades (IBGE 4205408 - no matching prefeitura)
             [
-                _ente_row(id=10, razao_social="Secretaria",
-                          natureza_juridica="Órgão Público do Poder Executivo Municipal",
-                          codigo_ibge="4205408"),
+                _ente_row(
+                    id=10,
+                    razao_social="Secretaria",
+                    natureza_juridica="Órgão Público do Poder Executivo Municipal",
+                    codigo_ibge="4205408",
+                ),
             ],
         ]
 
@@ -190,8 +202,11 @@ class TestBuildEntityHierarchy:
             [_pref_row(id=1)],
             # entidades
             [
-                _ente_row(id=10, razao_social="Secretaria Coberta",
-                          natureza_juridica="Órgão Público do Poder Executivo Municipal"),
+                _ente_row(
+                    id=10,
+                    razao_social="Secretaria Coberta",
+                    natureza_juridica="Órgão Público do Poder Executivo Municipal",
+                ),
             ],
         ]
         # Return 1 for the coverage check query (fetchone returns a row)
@@ -212,9 +227,12 @@ class TestBuildEntityHierarchy:
             [_pref_row(id=1)],
             # entidades (camara com bids proprios)
             [
-                _ente_row(id=10, razao_social="Camara Municipal",
-                          natureza_juridica="Órgão Público do Poder Legislativo Municipal",
-                          cnpj_8="55555555"),
+                _ente_row(
+                    id=10,
+                    razao_social="Camara Municipal",
+                    natureza_juridica="Órgão Público do Poder Legislativo Municipal",
+                    cnpj_8="55555555",
+                ),
             ],
         ]
         # No direct coverage (first fetchone returns None)
@@ -236,10 +254,16 @@ class TestBuildEntityHierarchy:
             [_pref_row(id=1)],
             # entidades
             [
-                _ente_row(id=10, razao_social="Secretaria de Educacao",
-                          natureza_juridica="Órgão Público do Poder Executivo Municipal"),
-                _ente_row(id=11, razao_social="Fundo de Saude",
-                          natureza_juridica="Fundo Público da Administração Direta Municipal"),
+                _ente_row(
+                    id=10,
+                    razao_social="Secretaria de Educacao",
+                    natureza_juridica="Órgão Público do Poder Executivo Municipal",
+                ),
+                _ente_row(
+                    id=11,
+                    razao_social="Fundo de Saude",
+                    natureza_juridica="Fundo Público da Administração Direta Municipal",
+                ),
             ],
         ]
         # No direct coverage for either
@@ -261,15 +285,19 @@ class TestBuildEntityHierarchy:
             [_pref_row(id=1, razao_social="Municipio")],
             # entidades (one of each type)
             [
-                _ente_row(id=10, razao_social="Secretaria",
-                          natureza_juridica="Órgão Público do Poder Executivo Municipal",
-                          cnpj_8="11111111"),
-                _ente_row(id=11, razao_social="Autarquia",
-                          natureza_juridica="Autarquia Municipal",
-                          cnpj_8="22222222"),
-                _ente_row(id=12, razao_social="Fundacao",
-                          natureza_juridica="Fundação Pública de Direito Público Municipal",
-                          cnpj_8="33333333"),
+                _ente_row(
+                    id=10,
+                    razao_social="Secretaria",
+                    natureza_juridica="Órgão Público do Poder Executivo Municipal",
+                    cnpj_8="11111111",
+                ),
+                _ente_row(id=11, razao_social="Autarquia", natureza_juridica="Autarquia Municipal", cnpj_8="22222222"),
+                _ente_row(
+                    id=12,
+                    razao_social="Fundacao",
+                    natureza_juridica="Fundação Pública de Direito Público Municipal",
+                    cnpj_8="33333333",
+                ),
             ],
         ]
         cursor.fetchone.return_value = None

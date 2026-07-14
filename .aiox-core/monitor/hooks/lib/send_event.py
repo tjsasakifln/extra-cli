@@ -26,17 +26,10 @@ def send_event(event_type: str, data: dict[str, Any]) -> bool:
         True if sent successfully, False otherwise
     """
     try:
-        payload = json.dumps({
-            "type": event_type,
-            "timestamp": int(time.time() * 1000),
-            "data": data
-        }).encode("utf-8")
+        payload = json.dumps({"type": event_type, "timestamp": int(time.time() * 1000), "data": data}).encode("utf-8")
 
         req = urllib.request.Request(
-            f"{SERVER_URL}/events",
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST"
+            f"{SERVER_URL}/events", data=payload, headers={"Content-Type": "application/json"}, method="POST"
         )
 
         urllib.request.urlopen(req, timeout=TIMEOUT_MS / 1000)

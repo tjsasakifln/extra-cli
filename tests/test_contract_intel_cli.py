@@ -91,9 +91,7 @@ class TestSeed:
             conn.close()
 
             assert _count > 0, f"Expected > 0 entities, got {_count}"
-            assert _count == 1093, (
-                f"Expected 1093 entities within 200km, got {_count}"
-            )
+            assert _count == 1093, f"Expected 1093 entities within 200km, got {_count}"
 
             # Verify data
             conn2 = sqlite3.connect(db_path)
@@ -155,9 +153,7 @@ class TestStats:
             # (no contracts loaded, just target universe)
             unique_entities_row = [r for r in rows if "Unique entities" in r[0]]
             assert len(unique_entities_row) == 1
-            assert unique_entities_row[0][1] == "0", (
-                "Unique entities should be 0 (no contracts, only target universe)"
-            )
+            assert unique_entities_row[0][1] == "0", "Unique entities should be 0 (no contracts, only target universe)"
         finally:
             os.unlink(db_path)
 
@@ -182,6 +178,7 @@ class TestJsonOutput:
 # ---------------------------------------------------------------------------
 # DB unavailability test
 # ---------------------------------------------------------------------------
+
 
 class TestDbUnavailable:
     """Graceful handling when no DB is available."""

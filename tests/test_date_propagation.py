@@ -9,8 +9,6 @@ from __future__ import annotations
 from datetime import date
 from unittest.mock import patch
 
-import pytest
-
 
 class TestCrawlRequestDates:
     """Verify CrawlRequest dates reach the HTTP layer."""
@@ -37,7 +35,7 @@ class TestCrawlRequestDates:
         from scripts.crawl.pncp_crawler_adapter import crawl
 
         # Mock publication fetch to avoid real HTTP
-        with patch('scripts.crawl.pncp_crawler_adapter._fetch_publication_page') as mock_fetch:
+        with patch("scripts.crawl.pncp_crawler_adapter._fetch_publication_page") as mock_fetch:
             from scripts.crawl.ingestion._base.crawler import FetchResult
 
             mock_fetch.return_value = FetchResult(
@@ -57,7 +55,7 @@ class TestCrawlRequestDates:
         from scripts.crawl.ingestion._base.crawler import CrawlRequest
         from scripts.crawl.pncp_crawler_adapter import crawl
 
-        with patch('scripts.crawl.pncp_crawler_adapter._fetch_publication_page') as mock_fetch:
+        with patch("scripts.crawl.pncp_crawler_adapter._fetch_publication_page") as mock_fetch:
             from scripts.crawl.ingestion._base.crawler import FetchResult
 
             mock_fetch.return_value = FetchResult(
@@ -77,21 +75,17 @@ class TestCrawlRequestDates:
             crawl(req)
 
             # Verify _fetch_page was called at least once
-            assert mock_fetch.call_count >= 1, (
-                "_fetch_page was never called — dates not propagated"
-            )
+            assert mock_fetch.call_count >= 1, "_fetch_page was never called — dates not propagated"
 
             # Get the first call's date arguments (positional: uf, mod, pagina, data_inicial, data_final)
             first_call = mock_fetch.call_args_list[0]
             req = first_call[0][0]
 
             assert req.date_from == date(2025, 1, 1), (
-                f"data_inicial={req.date_from}, expected 2025-01-01. "
-                "Dates not propagated to _fetch_page."
+                f"data_inicial={req.date_from}, expected 2025-01-01. Dates not propagated to _fetch_page."
             )
             assert req.date_to == date(2025, 1, 1), (
-                f"data_final={req.date_to}, expected 2025-01-01. "
-                "Dates not propagated to _fetch_page."
+                f"data_final={req.date_to}, expected 2025-01-01. Dates not propagated to _fetch_page."
             )
             print(f"  ✓ _fetch_page called with data_inicial={req.date_from}, data_final={req.date_to}")
 
@@ -100,7 +94,7 @@ class TestCrawlRequestDates:
         from scripts.crawl.ingestion._base.crawler import CrawlRequest
         from scripts.crawl.pncp_crawler_adapter import crawl
 
-        with patch('scripts.crawl.pncp_crawler_adapter._fetch_publication_page') as mock_fetch:
+        with patch("scripts.crawl.pncp_crawler_adapter._fetch_publication_page") as mock_fetch:
             from scripts.crawl.ingestion._base.crawler import FetchResult
 
             mock_fetch.return_value = FetchResult(
@@ -120,14 +114,13 @@ class TestCrawlRequestDates:
             result = crawl(req)
 
             # Should have at most 1 record
-            assert len(result.records) <= 1, (
-                f"limit=1 but got {len(result.records)} records. Limit not enforced."
-            )
+            assert len(result.records) <= 1, f"limit=1 but got {len(result.records)} records. Limit not enforced."
             print(f"  ✓ limit=1 enforced: {len(result.records)} record(s) returned")
 
     def test_crawl_source_accepts_target_and_limit(self):
         """crawl_source() must accept target and limit kwargs."""
         import inspect
+
         from scripts.crawl.monitor import crawl_source
 
         sig = inspect.signature(crawl_source)

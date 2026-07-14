@@ -11,7 +11,7 @@ Tests cover:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from unittest.mock import MagicMock
 
 from scripts.coverage.manifest import (
@@ -131,7 +131,7 @@ class TestBuildManifestFromDb:
 
         # First query: view exists
         cursor.fetchone.side_effect = [
-            [True],   # view exists
+            [True],  # view exists
         ]
         # Second query: no rows
         cursor.fetchall.return_value = []

@@ -13,10 +13,10 @@ from typing import Any
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Generic helper fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def sample_pncp_item() -> dict[str, Any]:

@@ -42,9 +42,7 @@ FLORIANOPOLIS_LNG = -48.5480
 EARTH_RADIUS_KM = 6371.0
 
 BRASIL_API_URL = "https://brasilapi.com.br/api/ibge/municipios/v1/SC"
-IBGE_API_URL = (
-    "https://servicodados.ibge.gov.br/api/v1/localidades/estados/42/municipios"
-)
+IBGE_API_URL = "https://servicodados.ibge.gov.br/api/v1/localidades/estados/42/municipios"
 
 SHEET_NAME = "Entes Públicos SC"
 TABLE_NAME = "sc_public_entities"
@@ -343,8 +341,7 @@ def find_spreadsheet(project_root: Path) -> Path:
         return candidates[0]
 
     raise FileNotFoundError(
-        "Spreadsheet 'Extra - alvos de licitacao. R-0.xlsx' not found. "
-        "Place it in project root or pass --xlsx <path>."
+        "Spreadsheet 'Extra - alvos de licitacao. R-0.xlsx' not found. Place it in project root or pass --xlsx <path>."
     )
 
 
@@ -617,24 +614,16 @@ def verify_import(conn) -> dict[str, Any]:
     cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE cnpj_8 IS NULL")
     null_cnpj = cur.fetchone()["cnt"]
 
-    cur.execute(
-        f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE municipio IS NULL"
-    )
+    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE municipio IS NULL")
     null_municipio = cur.fetchone()["cnt"]
 
-    cur.execute(
-        f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE is_active = TRUE"
-    )
+    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE is_active = TRUE")
     active = cur.fetchone()["cnt"]
 
-    cur.execute(
-        f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE codigo_ibge IS NULL"
-    )
+    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE codigo_ibge IS NULL")
     pending_ibge = cur.fetchone()["cnt"]
 
-    cur.execute(
-        f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE raio_200km = TRUE"
-    )
+    cur.execute(f"SELECT COUNT(*) AS cnt FROM {TABLE_NAME} WHERE raio_200km = TRUE")
     raio_count = cur.fetchone()["cnt"]
 
     cur.execute(f"SELECT COUNT(DISTINCT municipio) AS cnt FROM {TABLE_NAME}")
@@ -727,28 +716,18 @@ def main() -> None:
         # Step 4: Validate against acceptance criteria
         errors: list[str] = []
         if stats["total"] < EXPECTED_COUNT:
-            errors.append(
-                f"AC4 FAIL: Expected {EXPECTED_COUNT} entities, got {stats['total']}"
-            )
+            errors.append(f"AC4 FAIL: Expected {EXPECTED_COUNT} entities, got {stats['total']}")
         if stats["null_cnpj"] > 0:
-            errors.append(
-                f"AC4 FAIL: Found {stats['null_cnpj']} entities with NULL cnpj_8"
-            )
+            errors.append(f"AC4 FAIL: Found {stats['null_cnpj']} entities with NULL cnpj_8")
         if stats["null_municipio"] > 0:
-            errors.append(
-                f"AC4 FAIL: Found {stats['null_municipio']} entities with "
-                f"NULL municipio"
-            )
+            errors.append(f"AC4 FAIL: Found {stats['null_municipio']} entities with NULL municipio")
         if stats["pending_ibge"] > 0:
             log.warning(
-                "AC3: IBGE codes still pending for %d entities "
-                "- these will skip IBGE-constrained matching",
+                "AC3: IBGE codes still pending for %d entities - these will skip IBGE-constrained matching",
                 stats["pending_ibge"],
             )
         if stats["active"] < EXPECTED_COUNT:
-            errors.append(
-                f"AC5 FAIL: Expected {EXPECTED_COUNT} active, got {stats['active']}"
-            )
+            errors.append(f"AC5 FAIL: Expected {EXPECTED_COUNT} active, got {stats['active']}")
 
         if errors:
             for err in errors:

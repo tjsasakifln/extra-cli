@@ -8,7 +8,6 @@ import pytest
 from scripts.crawl import pncp_crawler_adapter as pca
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
 
-
 MOCK_RAW_RECORD = {
     "numeroControlePNCP": "12345678000199-1-000225/2026",
     "objetoCompra": "Contratação de empresa especializada para reforma e instalações elétricas de escola",
@@ -39,7 +38,14 @@ MOCK_RAW_RECORD = {
 
 class TestFetchPublicationPage:
     def test_http_200_without_records_is_confirmed_empty(self):
-        payload = {"data": [], "totalRegistros": 0, "totalPaginas": 0, "numeroPagina": 1, "paginasRestantes": 0, "empty": True}
+        payload = {
+            "data": [],
+            "totalRegistros": 0,
+            "totalPaginas": 0,
+            "numeroPagina": 1,
+            "paginasRestantes": 0,
+            "empty": True,
+        }
         body = __import__("json").dumps(payload).encode("utf-8")
 
         class Response:
@@ -111,7 +117,9 @@ class TestCrawl:
                 empty_confirmed=True,
                 metadata={"pagination": {"paginasRestantes": 0}},
             )
-            result = pca.crawl(CrawlRequest(mode="backfill", date_from=date(2026, 1, 1), date_to=date(2026, 1, 1), limit=1))
+            result = pca.crawl(
+                CrawlRequest(mode="backfill", date_from=date(2026, 1, 1), date_to=date(2026, 1, 1), limit=1)
+            )
 
         assert isinstance(result, FetchResult)
         assert result.request_completed is True
@@ -125,7 +133,9 @@ class TestCrawl:
                 empty_confirmed=False,
                 metadata={"pagination": {"paginasRestantes": 0}},
             )
-            result = pca.crawl(CrawlRequest(mode="backfill", date_from=date(2026, 1, 1), date_to=date(2026, 1, 1), limit=1))
+            result = pca.crawl(
+                CrawlRequest(mode="backfill", date_from=date(2026, 1, 1), date_to=date(2026, 1, 1), limit=1)
+            )
 
         assert len(result.records) == 1
         assert mock_fetch.call_count >= 1

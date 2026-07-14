@@ -92,8 +92,18 @@ PROCUREMENT_CATEGORIES = [
 
 # Month names in Portuguese (lowercase, as used in CKAN dataset IDs)
 MONTH_NAMES = [
-    "janeiro", "fevereiro", "marco", "abril", "maio", "junho",
-    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+    "janeiro",
+    "fevereiro",
+    "marco",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
 ]
 
 
@@ -118,15 +128,17 @@ def generate_sc_entities() -> list[dict[str, Any]]:
             # Generate a unique CNPJ_8 for each entity
             cnpj_8 = f"{next_id:08d}"
 
-            entities.append({
-                "id": next_id,
-                "razao_social": razao_social,
-                "cnpj_8": cnpj_8,
-                "municipio": city_nome,
-                "codigo_ibge": city_info["codigo_ibge"],
-                "natureza_juridica": _infer_natureza(razao_social),
-                "raio_200km": city_info["raio_200km"],
-            })
+            entities.append(
+                {
+                    "id": next_id,
+                    "razao_social": razao_social,
+                    "cnpj_8": cnpj_8,
+                    "municipio": city_nome,
+                    "codigo_ibge": city_info["codigo_ibge"],
+                    "natureza_juridica": _infer_natureza(razao_social),
+                    "raio_200km": city_info["raio_200km"],
+                }
+            )
             next_id += 1
 
     return entities
@@ -187,14 +199,16 @@ def make_synthetic_publications(city: str, month_label: str) -> list[dict[str, s
 
     for entidade in entities_for_month:
         for cat in PROCUREMENT_CATEGORIES[:3]:  # 3 categories per entity
-            day = (entities_for_month.index(entidade) * 10 + PROCUREMENT_CATEGORIES.index(cat) + 1)
-            pubs.append({
-                "entidade": entidade,
-                "municipio": city_upper,
-                "data": f"{year}-{month_num:02d}-{day:02d}T08:00:00",
-                "categoria": cat,
-                "resumo": f"Publicacao de {cat.lower()}",
-            })
+            day = entities_for_month.index(entidade) * 10 + PROCUREMENT_CATEGORIES.index(cat) + 1
+            pubs.append(
+                {
+                    "entidade": entidade,
+                    "municipio": city_upper,
+                    "data": f"{year}-{month_num:02d}-{day:02d}T08:00:00",
+                    "categoria": cat,
+                    "resumo": f"Publicacao de {cat.lower()}",
+                }
+            )
 
     return pubs
 
@@ -228,12 +242,14 @@ def generate_month_resources(month_id: str) -> list[dict[str, Any]]:
         for city_info in batch_cities:
             all_pubs.extend(make_synthetic_publications(city_info["nome"], month_label))
 
-        resources.append({
-            "url": f"https://dados.ciga.sc.gov.br/dataset/{month_id}/resource-{batch}.zip",
-            "name": f"Publicacoes - Parte {batch + 1}",
-            "format": "ZIP",
-            "content": {"autopublicacoes": all_pubs},
-        })
+        resources.append(
+            {
+                "url": f"https://dados.ciga.sc.gov.br/dataset/{month_id}/resource-{batch}.zip",
+                "name": f"Publicacoes - Parte {batch + 1}",
+                "format": "ZIP",
+                "content": {"autopublicacoes": all_pubs},
+            }
+        )
 
     return resources
 
@@ -246,10 +262,7 @@ def generate_month_package(month_id: str) -> dict[str, Any]:
     """
     resources = generate_month_resources(month_id)
     # Strip the binary content for the CKAN package response
-    resources_meta = [
-        {"url": r["url"], "name": r["name"], "format": r["format"]}
-        for r in resources
-    ]
+    resources_meta = [{"url": r["url"], "name": r["name"], "format": r["format"]} for r in resources]
     return {
         "id": month_id,
         "name": month_id,

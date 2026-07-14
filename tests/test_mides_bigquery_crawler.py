@@ -290,16 +290,30 @@ class TestTransform:
 
         # Two records with same id_empenho_bd=None and same composite key
         rec1 = mock_bq_row(
-            ano=2024, mes=1, data="2024-01-04", sigla_uf="SC",
-            id_municipio=4200051, orgao="1", id_licitacao=None,
-            id_empenho_bd=None, numero="1",
-            descricao="primeiro item", valor_final=100.0,
+            ano=2024,
+            mes=1,
+            data="2024-01-04",
+            sigla_uf="SC",
+            id_municipio=4200051,
+            orgao="1",
+            id_licitacao=None,
+            id_empenho_bd=None,
+            numero="1",
+            descricao="primeiro item",
+            valor_final=100.0,
         )
         rec2 = mock_bq_row(
-            ano=2024, mes=1, data="2024-01-04", sigla_uf="SC",
-            id_municipio=4200051, orgao="1", id_licitacao=None,
-            id_empenho_bd=None, numero="1",
-            descricao="segundo item", valor_final=200.0,
+            ano=2024,
+            mes=1,
+            data="2024-01-04",
+            sigla_uf="SC",
+            id_municipio=4200051,
+            orgao="1",
+            id_licitacao=None,
+            id_empenho_bd=None,
+            numero="1",
+            descricao="segundo item",
+            valor_final=200.0,
         )
 
         result = mides.transform([rec1, rec2])

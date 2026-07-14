@@ -97,9 +97,7 @@ class TestFetchResult:
             status=FetchStatus.CONNECTION_FAILED,
             error_message="Timeout",
         )
-        assert result.items == [], (
-            "Failed fetch must have empty items list, not fake/mocked data"
-        )
+        assert result.items == [], "Failed fetch must have empty items list, not fake/mocked data"
         assert result.total_records == 0
 
     def test_evidence_state_mapping(self):
@@ -107,15 +105,18 @@ class TestFetchResult:
         for status in FetchStatus:
             state = FetchResult(status=status).evidence_state
             valid_states = {
-                "success_with_data", "success_zero", "connection_failed",
-                "parse_failed", "transform_failed", "persist_failed",
-                "not_applicable", "not_investigated", "partial",
+                "success_with_data",
+                "success_zero",
+                "connection_failed",
+                "parse_failed",
+                "transform_failed",
+                "persist_failed",
+                "not_applicable",
+                "not_investigated",
+                "partial",
                 "auth_failed",
             }
-            assert state in valid_states, (
-                f"FetchStatus.{status.name} maps to '{state}', "
-                f"not in valid evidence states"
-            )
+            assert state in valid_states, f"FetchStatus.{status.name} maps to '{state}', not in valid evidence states"
 
 
 # ---------------------------------------------------------------------------
@@ -216,9 +217,7 @@ class TestUfNotDefaulted:
         }
         result = _transform_record(rec)
         assert result is not None
-        assert result["uf"] == "PR", (
-            f"UF should be 'PR' from API, got '{result['uf']}'"
-        )
+        assert result["uf"] == "PR", f"UF should be 'PR' from API, got '{result['uf']}'"
 
     def test_uf_from_cnpj_lookup_used_secondary(self):
         """When API has no ufSigla, CNPJ root lookup is used."""
@@ -234,9 +233,7 @@ class TestUfNotDefaulted:
         }
         result = _transform_record(rec)
         assert result is not None
-        assert result["uf"] == "DF", (
-            f"UF should be 'DF' from CNPJ root (000000), got '{result['uf']}'"
-        )
+        assert result["uf"] == "DF", f"UF should be 'DF' from CNPJ root (000000), got '{result['uf']}'"
 
     def test_uf_never_defaults_to_sc(self):
         """When both API and CNPJ lookup fail, UF stays None — NEVER 'SC'."""
@@ -253,8 +250,7 @@ class TestUfNotDefaulted:
         result = _transform_record(rec)
         assert result is not None
         assert result["uf"] is None, (
-            f"UF must be None when both API and CNPJ lookup fail. "
-            f"Got: '{result['uf']}'. DO NOT default to 'SC'."
+            f"UF must be None when both API and CNPJ lookup fail. Got: '{result['uf']}'. DO NOT default to 'SC'."
         )
 
     def test_uf_empty_string_treated_as_missing(self):
@@ -270,9 +266,7 @@ class TestUfNotDefaulted:
         }
         result = _transform_record(rec)
         assert result is not None
-        assert result["uf"] is None, (
-            f"Empty '' ufSigla must result in None UF, got '{result['uf']}'"
-        )
+        assert result["uf"] is None, f"Empty '' ufSigla must result in None UF, got '{result['uf']}'"
 
 
 # ---------------------------------------------------------------------------
@@ -287,11 +281,13 @@ class TestFetchPageMocked:
     def test_fetch_page_success_with_data(self, mock_urlopen):
         """Successful fetch with data returns SUCCESS_DATA."""
         mock_resp = MagicMock()
-        mock_resp.read.return_value = json.dumps({
-            "data": [{"numeroControlePNCP": "X"}],
-            "totalRegistros": 1,
-            "totalPaginas": 1,
-        }).encode("utf-8")
+        mock_resp.read.return_value = json.dumps(
+            {
+                "data": [{"numeroControlePNCP": "X"}],
+                "totalRegistros": 1,
+                "totalPaginas": 1,
+            }
+        ).encode("utf-8")
         mock_urlopen.return_value.__enter__.return_value = mock_resp
 
         result = _fetch_page("20250101", "20250131", 1)
@@ -303,11 +299,13 @@ class TestFetchPageMocked:
     def test_fetch_page_success_zero(self, mock_urlopen):
         """Successful fetch with zero items returns SUCCESS_ZERO."""
         mock_resp = MagicMock()
-        mock_resp.read.return_value = json.dumps({
-            "data": [],
-            "totalRegistros": 0,
-            "totalPaginas": 1,
-        }).encode("utf-8")
+        mock_resp.read.return_value = json.dumps(
+            {
+                "data": [],
+                "totalRegistros": 0,
+                "totalPaginas": 1,
+            }
+        ).encode("utf-8")
         mock_urlopen.return_value.__enter__.return_value = mock_resp
 
         result = _fetch_page("20250101", "20250131", 1)
@@ -331,7 +329,11 @@ class TestFetchPageMocked:
     def test_fetch_page_http_404_returns_client_error(self, mock_urlopen):
         """HTTP 404 returns HTTP_CLIENT_ERROR, not empty success."""
         mock_urlopen.side_effect = urllib.error.HTTPError(
-            "https://test", 404, "Not Found", {}, None,
+            "https://test",
+            404,
+            "Not Found",
+            {},
+            None,
         )
 
         result = _fetch_page("20250101", "20250131", 1)
@@ -352,7 +354,11 @@ class TestFetchPageMocked:
     def test_fetch_page_http_500_with_retries(self, mock_urlopen):
         """HTTP 500 with retries returns HTTP_SERVER_ERROR after exhausting."""
         mock_urlopen.side_effect = urllib.error.HTTPError(
-            "https://test", 500, "Internal Server Error", {}, None,
+            "https://test",
+            500,
+            "Internal Server Error",
+            {},
+            None,
         )
 
         result = _fetch_page("20250101", "20250131", 1)

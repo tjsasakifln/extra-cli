@@ -10,12 +10,6 @@ Tests cover:
 
 from __future__ import annotations
 
-import re
-import sys
-import time
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from scripts.intel_pipeline import (
@@ -27,8 +21,7 @@ from scripts.intel_pipeline import (
     gate2_cadastral,
 )
 from scripts.lib.cli_validation import validate_cnpj, validate_dias, validate_ufs
-from scripts.lib.constants import MAX_DIAS, MAX_PIPELINE_STEP, MAX_TOP
-
+from scripts.lib.constants import MAX_DIAS, MAX_PIPELINE_STEP
 
 # ===========================================================================
 # Pipeline Stage Definitions
@@ -41,9 +34,7 @@ class TestPipelineStages:
     def test_pipeline_stages_count(self):
         """The pipeline must define exactly 7 stages (1-7)."""
         # MAX_PIPELINE_STEP from lib.constants is the authoritative source
-        assert MAX_PIPELINE_STEP == 7, (
-            f"Expected 7 pipeline stages, got MAX_PIPELINE_STEP={MAX_PIPELINE_STEP}"
-        )
+        assert MAX_PIPELINE_STEP == 7, f"Expected 7 pipeline stages, got MAX_PIPELINE_STEP={MAX_PIPELINE_STEP}"
 
     def test_pipeline_steps_documented(self):
         """The module docstring must list all 7 pipeline steps."""
@@ -54,9 +45,7 @@ class TestPipelineStages:
         assert "collect" in doc, "Docstring missing stage: Collect"
         assert "enrich" in doc, "Docstring missing stage: Enrich"
         assert "llm gate" in doc or "llm_gate" in doc, "Docstring missing stage: LLM Gate"
-        assert "extract docs" in doc or "extract_docs" in doc, (
-            "Docstring missing stage: Extract Docs"
-        )
+        assert "extract docs" in doc or "extract_docs" in doc, "Docstring missing stage: Extract Docs"
         assert "analyze" in doc, "Docstring missing stage: Analyze"
         assert "excel" in doc, "Docstring missing stage: Excel"
         assert "pdf" in doc or "report" in doc, "Docstring missing stage: PDF Report"

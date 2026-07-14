@@ -13,7 +13,7 @@ Covers all public and private functions:
 - transform
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -417,21 +417,23 @@ class TestTransform:
 
     def test_transform_single_record(self):
         """transform() normalizes a record with all pncp_raw_bids fields."""
-        raw = [{
-            "numero_processo": "2025/00001",
-            "modalidade": "Pregao Eletronico",
-            "objeto": "Contratacao de servico de limpeza",
-            "orgao": "Secretaria de Estado da Saude",
-            "orgao_cnpj": "12.345.678/0001-99",
-            "data_publicacao": "15/06/2025",
-            "data_abertura": "01/07/2025",
-            "data_encerramento": "15/07/2025",
-            "situacao": "Divulgado",
-            "valor": "150.000,00",
-            "municipio": "Florianopolis",
-            "uf": "SC",
-            "url_detalhe": "https://compras.sc.gov.br/licitacao/123",
-        }]
+        raw = [
+            {
+                "numero_processo": "2025/00001",
+                "modalidade": "Pregao Eletronico",
+                "objeto": "Contratacao de servico de limpeza",
+                "orgao": "Secretaria de Estado da Saude",
+                "orgao_cnpj": "12.345.678/0001-99",
+                "data_publicacao": "15/06/2025",
+                "data_abertura": "01/07/2025",
+                "data_encerramento": "15/07/2025",
+                "situacao": "Divulgado",
+                "valor": "150.000,00",
+                "municipio": "Florianopolis",
+                "uf": "SC",
+                "url_detalhe": "https://compras.sc.gov.br/licitacao/123",
+            }
+        ]
         result = sc.transform(raw)
         assert len(result) == 1
         record = result[0]
@@ -459,22 +461,35 @@ class TestTransform:
 
     def test_transform_returns_correct_field_set(self):
         """transform() returns all expected pncp_raw_bids fields."""
-        raw = [{
-            "numero_processo": "2025/00001",
-            "modalidade": "Pregao Eletronico",
-            "objeto": "Servico",
-            "orgao": "Secretaria de Estado",
-            "orgao_cnpj": "12.345.678/0001-99",
-            "data_publicacao": "15/06/2025",
-        }]
+        raw = [
+            {
+                "numero_processo": "2025/00001",
+                "modalidade": "Pregao Eletronico",
+                "objeto": "Servico",
+                "orgao": "Secretaria de Estado",
+                "orgao_cnpj": "12.345.678/0001-99",
+                "data_publicacao": "15/06/2025",
+            }
+        ]
         result = sc.transform(raw)
         expected_fields = {
-            "pncp_id", "objeto_compra", "valor_total_estimado",
-            "modalidade_id", "modalidade_nome", "esfera_id",
-            "uf", "municipio", "codigo_municipio_ibge",
-            "orgao_razao_social", "orgao_cnpj",
-            "data_publicacao", "data_abertura", "data_encerramento",
-            "link_pncp", "content_hash", "source_id",
+            "pncp_id",
+            "objeto_compra",
+            "valor_total_estimado",
+            "modalidade_id",
+            "modalidade_nome",
+            "esfera_id",
+            "uf",
+            "municipio",
+            "codigo_municipio_ibge",
+            "orgao_razao_social",
+            "orgao_cnpj",
+            "data_publicacao",
+            "data_abertura",
+            "data_encerramento",
+            "link_pncp",
+            "content_hash",
+            "source_id",
         }
         assert set(result[0].keys()) == expected_fields, (
             f"Field mismatch. Extra: {set(result[0].keys()) - expected_fields}. "
@@ -483,42 +498,50 @@ class TestTransform:
 
     def test_transform_skips_empty_numero_processo(self):
         """Record without numero_processo is skipped."""
-        raw = [{
-            "numero_processo": "",
-            "modalidade": "Pregao",
-            "objeto": "Servico",
-            "orgao": "Orgao",
-        }]
+        raw = [
+            {
+                "numero_processo": "",
+                "modalidade": "Pregao",
+                "objeto": "Servico",
+                "orgao": "Orgao",
+            }
+        ]
         result = sc.transform(raw)
         assert len(result) == 0
 
     def test_transform_truncates_long_objeto(self):
         """Objeto longer than 1000 chars is truncated."""
-        raw = [{
-            "numero_processo": "2025/00001",
-            "objeto": "X" * 2000,
-            "orgao": "Orgao",
-        }]
+        raw = [
+            {
+                "numero_processo": "2025/00001",
+                "objeto": "X" * 2000,
+                "orgao": "Orgao",
+            }
+        ]
         result = sc.transform(raw)
         assert len(result[0]["objeto_compra"]) == 1000  # 997 + "..."
 
     def test_transform_estadual_esfera(self):
         """State entities get esfera_id='E'."""
-        raw = [{
-            "numero_processo": "2025/00001",
-            "objeto": "Servico",
-            "orgao": "Secretaria de Estado da Educacao",
-        }]
+        raw = [
+            {
+                "numero_processo": "2025/00001",
+                "objeto": "Servico",
+                "orgao": "Secretaria de Estado da Educacao",
+            }
+        ]
         result = sc.transform(raw)
         assert result[0]["esfera_id"] == "E"
 
     def test_transform_municipal_esfera(self):
         """Municipal entities get esfera_id='M'."""
-        raw = [{
-            "numero_processo": "2025/00001",
-            "objeto": "Servico",
-            "orgao": "Prefeitura Municipal de Florianopolis",
-        }]
+        raw = [
+            {
+                "numero_processo": "2025/00001",
+                "objeto": "Servico",
+                "orgao": "Prefeitura Municipal de Florianopolis",
+            }
+        ]
         result = sc.transform(raw)
         assert result[0]["esfera_id"] == "M"
 
@@ -552,7 +575,9 @@ class TestCrawl:
         result = sc.crawl(mode="incremental")
         assert isinstance(result, list)
 
-    @patch("scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value={"id": 1, "modalidade": "Pregao Eletronico"})
+    @patch(
+        "scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value={"id": 1, "modalidade": "Pregao Eletronico"}
+    )
     @patch(
         "scripts.crawl.sc_compras_crawler._fetch_api_list",
         return_value=[{"id": 1, "processo": "2025/00001"}],

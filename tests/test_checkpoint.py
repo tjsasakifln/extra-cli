@@ -35,7 +35,6 @@ from scripts.crawl.checkpoint import (
     save_checkpoint,
 )
 
-
 # ===================================================================
 # is_crawl_completed_today
 # ===================================================================
@@ -169,12 +168,12 @@ class TestGetCheckpoint:
         conn = MagicMock()
         cursor = conn.cursor.return_value
         cursor.fetchone.return_value = (
-            "pncp",          # source
-            "default",       # scope_key
-            0,               # last_page
+            "pncp",  # source
+            "default",  # scope_key
+            0,  # last_page
             date(2026, 7, 11),  # last_date
-            None,            # last_id
-            142,             # records_fetched
+            None,  # last_id
+            142,  # records_fetched
             "2026-07-11 10:00:00",  # updated_at
         )
 

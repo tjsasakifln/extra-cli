@@ -188,8 +188,7 @@ def test_smoke_fetch_result_discrimination():
 
     # Critical: connection_failed and success_zero must NOT be confused
     assert r2.status != r3.status, (
-        "SUCCESS_ZERO and CONNECTION_FAILED must be different! "
-        "Cannot convert exception to empty list."
+        "SUCCESS_ZERO and CONNECTION_FAILED must be different! Cannot convert exception to empty list."
     )
 
     # Every failure has an evidence_state
@@ -236,10 +235,7 @@ def test_smoke_uf_never_defaults_to_sc():
         "dataAssinatura": "2025-01-01T00:00:00Z",
     }
     r2 = _transform_record(rec2)
-    assert r2["uf"] is None, (
-        f"UF must be None when absent, got '{r2['uf']}'. "
-        f"No fallback to 'SC' allowed."
-    )
+    assert r2["uf"] is None, f"UF must be None when absent, got '{r2['uf']}'. No fallback to 'SC' allowed."
 
     print("  ✓ UF from API used when present")
     print("  ✓ UF stays None when absent (no 'SC' fallback)")
@@ -266,11 +262,13 @@ def test_smoke_checkpoint_idempotency():
     )
 
     import tempfile
+
     with tempfile.TemporaryDirectory() as tmpdir:
         path = os.path.join(tmpdir, "contracts_test_smoke.json")
 
         import scripts.crawl.contracts_crawler as cc
-        with patch.object(cc, '_checkpoint_path', return_value=path):
+
+        with patch.object(cc, "_checkpoint_path", return_value=path):
             save_checkpoint(cp1)
 
             # Load and verify
@@ -337,8 +335,10 @@ def test_smoke_geo_filter():
 
     # Entity at Florianopolis center
     d0 = haversine(
-        FLORIANOPOLIS[0], FLORIANOPOLIS[1],
-        FLORIANOPOLIS[0], FLORIANOPOLIS[1],
+        FLORIANOPOLIS[0],
+        FLORIANOPOLIS[1],
+        FLORIANOPOLIS[0],
+        FLORIANOPOLIS[1],
     )
     assert d0 == 0.0
 
@@ -375,13 +375,15 @@ def test_smoke_document_blockers():
     # Check if we can reach PNCP API
     try:
         import urllib.request
-        req = urllib.request.Request("https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260101&dataFinal=20260102&pagina=1")
+
+        req = urllib.request.Request(
+            "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260101&dataFinal=20260102&pagina=1"
+        )
         req.add_header("User-Agent", "ExtraConsultoria/1.0 (smoke-test)")
         urllib.request.urlopen(req, timeout=5)
     except Exception as e:
         blockers.append(
-            f"BLOCKED: PNCP API not reachable → {e}. "
-            "Crawl tests use mocks. Real contract data not fetched."
+            f"BLOCKED: PNCP API not reachable → {e}. Crawl tests use mocks. Real contract data not fetched."
         )
 
     # Print blockers — this is NOT a failure, it's honest documentation

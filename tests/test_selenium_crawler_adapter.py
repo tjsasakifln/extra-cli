@@ -268,12 +268,21 @@ class TestTransform:
 
         # Check schema keys — must match upsert_pncp_raw_bids contract
         required_keys = {
-            "pncp_id", "objeto_compra", "valor_total_estimado",
-            "modalidade_id", "modalidade_nome", "esfera_id",
-            "uf", "municipio", "codigo_municipio_ibge",
-            "orgao_razao_social", "orgao_cnpj",
-            "data_publicacao", "link_pncp",
-            "content_hash", "source_id",
+            "pncp_id",
+            "objeto_compra",
+            "valor_total_estimado",
+            "modalidade_id",
+            "modalidade_nome",
+            "esfera_id",
+            "uf",
+            "municipio",
+            "codigo_municipio_ibge",
+            "orgao_razao_social",
+            "orgao_cnpj",
+            "data_publicacao",
+            "link_pncp",
+            "content_hash",
+            "source_id",
         }
         for record in flat:
             assert required_keys.issubset(record.keys()), f"Missing keys: {required_keys - record.keys()}"

@@ -168,11 +168,19 @@ class TestTransformRecord:
 
         # Count total fields (12 campos)
         expected_fields = {
-            "contrato_id", "orgao_cnpj", "orgao_nome",
-            "fornecedor_cnpj", "fornecedor_nome",
-            "objeto_contrato", "valor_total",
-            "data_inicio", "data_fim", "data_publicacao",
-            "uf", "municipio", "source_id",
+            "contrato_id",
+            "orgao_cnpj",
+            "orgao_nome",
+            "fornecedor_cnpj",
+            "fornecedor_nome",
+            "objeto_contrato",
+            "valor_total",
+            "data_inicio",
+            "data_fim",
+            "data_publicacao",
+            "uf",
+            "municipio",
+            "source_id",
         }
         assert set(result.keys()) == expected_fields, (
             f"Field mismatch. Extra: {set(result.keys()) - expected_fields}. "
@@ -198,8 +206,7 @@ class TestTransformRecord:
         # orgao_cnpj "82888888000120" is not in _CNPJ_ROOT_UF
         # UF should be None (no fallback to "SC")
         assert result["uf"] is None, (
-            f"UF should be None when ufSigla is missing and CNPJ lookup fails. "
-            f"Got: {result['uf']}"
+            f"UF should be None when ufSigla is missing and CNPJ lookup fails. Got: {result['uf']}"
         )
         assert result["municipio"] is None
 

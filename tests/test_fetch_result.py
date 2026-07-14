@@ -6,8 +6,6 @@ from "source failed and error was swallowed".
 
 from __future__ import annotations
 
-from unittest.mock import patch
-
 
 class TestFetchResult:
     """Verify FetchResult contract and error classification."""
@@ -100,10 +98,16 @@ class TestFetchResult:
         """Smoke report must define all error classification constants."""
         # Verify the classification strings are valid without running full report
         valid_results = {
-            "PASS_REAL", "EMPTY_VALIDATED",
-            "FAIL_CONNECTIVITY", "FAIL_HTTP", "FAIL_RESPONSE",
-            "FAIL_IMPORT", "FAIL_MISSING_API", "FAIL_TRANSFORM",
-            "SKIPPED_MISSING_CREDENTIALS", "SKIPPED_MISSING_DEPENDENCY",
+            "PASS_REAL",
+            "EMPTY_VALIDATED",
+            "FAIL_CONNECTIVITY",
+            "FAIL_HTTP",
+            "FAIL_RESPONSE",
+            "FAIL_IMPORT",
+            "FAIL_MISSING_API",
+            "FAIL_TRANSFORM",
+            "SKIPPED_MISSING_CREDENTIALS",
+            "SKIPPED_MISSING_DEPENDENCY",
         }
         # All must be strings (classification constants)
         for r in valid_results:

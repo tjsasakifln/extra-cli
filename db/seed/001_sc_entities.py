@@ -51,8 +51,7 @@ def find_spreadsheet(project_root: Path) -> Path:
     if candidates:
         return candidates[0]
     raise FileNotFoundError(
-        "Spreadsheet 'Extra - alvos de licitação. R-0.xlsx' not found. "
-        "Place it in project root or pass --xlsx <path>."
+        "Spreadsheet 'Extra - alvos de licitação. R-0.xlsx' not found. Place it in project root or pass --xlsx <path>."
     )
 
 
@@ -121,18 +120,20 @@ def read_spreadsheet(xlsx_path: Path) -> list[dict]:
         if codigo_ibge:
             codigo_ibge = "".join(c for c in codigo_ibge if c.isdigit())
 
-        entities.append({
-            "razao_social": razao_social,
-            "cnpj_8": cnpj_8,
-            "municipio": municipio,
-            "codigo_ibge": codigo_ibge,
-            "natureza_juridica": natureza_juridica,
-            "cod_natureza": cod_natureza,
-            "latitude": latitude,
-            "longitude": longitude,
-            "distancia_fk": distancia,
-            "raio_200km": raio,
-        })
+        entities.append(
+            {
+                "razao_social": razao_social,
+                "cnpj_8": cnpj_8,
+                "municipio": municipio,
+                "codigo_ibge": codigo_ibge,
+                "natureza_juridica": natureza_juridica,
+                "cod_natureza": cod_natureza,
+                "latitude": latitude,
+                "longitude": longitude,
+                "distancia_fk": distancia,
+                "raio_200km": raio,
+            }
+        )
 
     wb.close()
     return entities
@@ -207,7 +208,7 @@ def main():
         seed_database(None, entities, dry_run=True)
         return
 
-    print(f"\n🔌 Connecting to database...")
+    print("\n🔌 Connecting to database...")
     conn = psycopg2.connect(args.dsn)
     conn.autocommit = False
 

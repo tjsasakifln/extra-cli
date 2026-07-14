@@ -8,7 +8,6 @@ from copy import deepcopy
 
 import pytest
 
-
 pytestmark = [
     pytest.mark.integration,
     pytest.mark.database,

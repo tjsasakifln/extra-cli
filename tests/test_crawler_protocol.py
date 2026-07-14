@@ -13,7 +13,6 @@ import importlib
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Crawler registry — mirrors monitor.py module_map
 # ---------------------------------------------------------------------------
@@ -22,12 +21,14 @@ CRAWLER_MODULES: dict[str, str] = {}
 COVERAGE_ONLY_SOURCES: set[str] = set()
 CREDENTIAL_SOURCES: set[str] = set()
 
+
 def _init_from_registry():
     """Populate module maps from the central source registry (called once)."""
     global CRAWLER_MODULES, COVERAGE_ONLY_SOURCES, CREDENTIAL_SOURCES
     if CRAWLER_MODULES:
         return
-    from scripts.crawl.registry import iter_sources, get_credential_sources, get_coverage_only_sources
+    from scripts.crawl.registry import get_coverage_only_sources, get_credential_sources, iter_sources
+
     for info in iter_sources():
         CRAWLER_MODULES[info.name] = f"scripts.crawl.{info.module}"
     CREDENTIAL_SOURCES = get_credential_sources()
@@ -84,9 +85,7 @@ class TestCrawlerSignatures:
         """transform([]) must always return a list (never None or exception)."""
         mod = _load_module(source)
         result = mod.transform([])
-        assert isinstance(result, list), (
-            f"{source}: transform([]) returned {type(result).__name__}, expected list"
-        )
+        assert isinstance(result, list), f"{source}: transform([]) returned {type(result).__name__}, expected list"
 
     @pytest.mark.unit
     @pytest.mark.parametrize("source", sorted(CRAWLER_MODULES))
@@ -98,9 +97,7 @@ class TestCrawlerSignatures:
         sig = inspect.signature(mod.crawl)
         params = list(sig.parameters.keys())
         # Must have at least a 'mode' parameter
-        assert "mode" in params, (
-            f"{source}: crawl() signature missing 'mode' parameter: {params}"
-        )
+        assert "mode" in params, f"{source}: crawl() signature missing 'mode' parameter: {params}"
 
 
 class TestCrawlerProtocol:
@@ -129,9 +126,7 @@ class TestSourcePurpose:
     def test_coverage_only_has_purpose_marker(self, source: str):
         mod = _load_module(source)
         purpose = getattr(mod, "SOURCE_PURPOSE", None)
-        assert purpose is not None, (
-            f"{source}: coverage-only source must set SOURCE_PURPOSE = 'coverage_only'"
-        )
+        assert purpose is not None, f"{source}: coverage-only source must set SOURCE_PURPOSE = 'coverage_only'"
 
 
 # ---------------------------------------------------------------------------

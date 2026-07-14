@@ -11,13 +11,12 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import os
 import smtplib
 import sys
 import urllib.error
 from pathlib import Path
 from types import ModuleType
-from unittest.mock import ANY, MagicMock, Mock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -56,7 +55,8 @@ def _load_hyphenated_module(name: str) -> ModuleType:
         raise ImportError(f"Script not found: {file_path}")
 
     spec = importlib.util.spec_from_file_location(
-        f"scripts.{underscored}", str(file_path),
+        f"scripts.{underscored}",
+        str(file_path),
     )
     if spec is None or spec.loader is None:
         raise ImportError(f"Cannot load spec for: {name}")
@@ -76,7 +76,6 @@ _load_hyphenated_module("health-dashboard")
 
 # notify.py has no hyphen and can be imported normally
 import scripts.notify as notify_mod  # noqa: E402
-
 
 # ===========================================================================
 # notify.py tests
@@ -119,9 +118,7 @@ class TestNotifyEmail:
             patch("scripts.notify.SMTP_USE_TLS", True),
         ):
             instance = mock_smtp.return_value.__enter__.return_value
-            instance.login.side_effect = smtplib.SMTPAuthenticationError(
-                535, b"Authentication failed"
-            )
+            instance.login.side_effect = smtplib.SMTPAuthenticationError(535, b"Authentication failed")
             result = notify_mod.send_email("Subject", "Body")
 
             assert result["success"] is False
@@ -212,7 +209,9 @@ class TestNotifyWebhook:
             mock_request.return_value.__enter__.return_value = mock_response
 
             result = notify_mod.send_webhook(
-                "Alert", "Body", webhook_url="https://custom.test.com/wh",
+                "Alert",
+                "Body",
+                webhook_url="https://custom.test.com/wh",
             )
             assert result["success"] is True
             assert "custom.test.com" in mock_request.call_args[0][0].full_url
@@ -224,10 +223,8 @@ class TestNotifyDispatch:
     def test_dispatch_all_channels(self):
         """Dispatch sends to both email and webhook when both configured."""
         with (
-            patch("scripts.notify.send_email",
-                  return_value={"success": True, "message": "OK"}),
-            patch("scripts.notify.send_webhook",
-                  return_value={"success": True, "message": "OK"}),
+            patch("scripts.notify.send_email", return_value={"success": True, "message": "OK"}),
+            patch("scripts.notify.send_webhook", return_value={"success": True, "message": "OK"}),
             patch("scripts.notify.SMTP_HOST", "smtp.test.com"),
             patch("scripts.notify.SMTP_FROM", "from@test.com"),
             patch("scripts.notify.SMTP_TO", "to@test.com"),
@@ -252,10 +249,8 @@ class TestNotifyDispatch:
     def test_dispatch_channel_failure_continues(self):
         """One channel fails, the other still executes."""
         with (
-            patch("scripts.notify.send_email",
-                  return_value={"success": False, "message": "Fail"}),
-            patch("scripts.notify.send_webhook",
-                  return_value={"success": True, "message": "OK"}),
+            patch("scripts.notify.send_email", return_value={"success": False, "message": "Fail"}),
+            patch("scripts.notify.send_webhook", return_value={"success": True, "message": "OK"}),
             patch("scripts.notify.SMTP_HOST", "smtp.test.com"),
             patch("scripts.notify.SMTP_FROM", "from@test.com"),
             patch("scripts.notify.SMTP_TO", "to@test.com"),
@@ -270,10 +265,8 @@ class TestNotifyDispatch:
     def test_dispatch_specific_channel(self):
         """Dispatch only to specified channel."""
         with (
-            patch("scripts.notify.send_email",
-                  return_value={"success": True, "message": "OK"}),
-            patch("scripts.notify.send_webhook",
-                  return_value={"success": True, "message": "OK"}),
+            patch("scripts.notify.send_email", return_value={"success": True, "message": "OK"}),
+            patch("scripts.notify.send_webhook", return_value={"success": True, "message": "OK"}),
         ):
             results = notify_mod.dispatch("Alert", "Body", channels=["email"])
 
@@ -290,6 +283,7 @@ class TestNotifyDispatch:
 def cm_mod():
     """Fixture providing the collect-metrics module."""
     import scripts.collect_metrics as m  # noqa: F811
+
     return m
 
 
@@ -304,10 +298,8 @@ class TestCollectMetrics:
         mock_cur = MagicMock()
         mock_conn.cursor.return_value = mock_cur
         mock_cur.fetchall.return_value = [
-            ("pncp", 10, 9, 1, 500, 450, 400,
-             _dt("2026-07-11T12:00:00"), _dt("2026-07-11T12:00:00")),
-            ("dom_sc", 5, 5, 0, 200, 190, 180,
-             _dt("2026-07-11T10:00:00"), _dt("2026-07-11T10:00:00")),
+            ("pncp", 10, 9, 1, 500, 450, 400, _dt("2026-07-11T12:00:00"), _dt("2026-07-11T12:00:00")),
+            ("dom_sc", 5, 5, 0, 200, 190, 180, _dt("2026-07-11T10:00:00"), _dt("2026-07-11T10:00:00")),
         ]
 
         result = m.collect_crawl_metrics(mock_conn, days=7)
@@ -361,7 +353,7 @@ class TestCollectMetrics:
         import scripts.collect_metrics as m
 
         log = (
-            '[2026-07-11 06:00:00] [INFO] LOG_JSON: '
+            "[2026-07-11 06:00:00] [INFO] LOG_JSON: "
             '{"event":"backup","timestamp":"2026-07-11T06:00:00+00:00",'
             '"file":"dump.gz","size_bytes":1048576,"duration_sec":120,"status":"success"}\n'
         )
@@ -558,8 +550,7 @@ class TestCheckAlerts:
 
         with (
             patch("scripts.check_alerts.os.path.ismount", return_value=True),
-            patch("scripts.check_alerts.os.listdir",
-                  return_value=["backup_1.dump"]),
+            patch("scripts.check_alerts.os.listdir", return_value=["backup_1.dump"]),
         ):
             reg = m.AlertRegistry()
             m.check_storage_box(reg)
@@ -580,15 +571,15 @@ class TestCheckAlerts:
 
     def test_check_backup_recent(self):
         """Backup ran recently — no alert."""
-        import scripts.check_alerts as m
-
         # Use a timestamp relative to now (2 hours ago) so the test
         # always passes regardless of when it is run.
         from datetime import UTC, datetime, timedelta
 
+        import scripts.check_alerts as m
+
         recent_ts = (datetime.now(UTC) - timedelta(hours=2)).isoformat()
         log_line = (
-            f'[2026-07-11 06:00:00] [INFO] LOG_JSON: '
+            f"[2026-07-11 06:00:00] [INFO] LOG_JSON: "
             f'{{"event":"backup","timestamp":"{recent_ts}",'
             f'"status":"success","size_bytes":1048576}}\n'
         )
@@ -614,7 +605,7 @@ class TestCheckAlerts:
             patch("scripts.check_alerts.Path.read_text") as mock_read,
         ):
             mock_read.return_value = (
-                '[2026-07-11 06:00:00] [INFO] LOG_JSON: '
+                "[2026-07-11 06:00:00] [INFO] LOG_JSON: "
                 '{"event":"backup","timestamp":"2026-07-11T06:00:00+00:00",'
                 '"status":"failed","size_bytes":0}\n'
             )
@@ -706,8 +697,7 @@ class TestHealthDashboard:
         """DB error during crawl stats collection returns error field."""
         import scripts.health_dashboard as m
 
-        with patch("scripts.health_dashboard.get_db_conn",
-                   side_effect=Exception("DB down")):
+        with patch("scripts.health_dashboard.get_db_conn", side_effect=Exception("DB down")):
             result = m.collect_crawl_stats()
 
             assert result["error"] is not None
@@ -717,14 +707,15 @@ class TestHealthDashboard:
         """Alert summary runs check-alerts.py as subprocess and parses JSON."""
         import scripts.health_dashboard as m
 
-        mock_json = json.dumps({
-            "event": "alert_check",
-            "total_alerts": 1,
-            "alerts": [
-                {"severity": 2, "category": "disk",
-                 "title": "Disk critical", "message": "90% used"},
-            ],
-        })
+        mock_json = json.dumps(
+            {
+                "event": "alert_check",
+                "total_alerts": 1,
+                "alerts": [
+                    {"severity": 2, "category": "disk", "title": "Disk critical", "message": "90% used"},
+                ],
+            }
+        )
 
         with (
             patch("scripts.health_dashboard.subprocess.run") as mock_run,
@@ -758,12 +749,14 @@ class TestHealthDashboard:
 
         with (
             patch("scripts.health_dashboard.Path.exists", return_value=True),
-            patch("scripts.health_dashboard.Path.read_text",
-                  return_value=(
-                      '[2026-07-11 06:00:00] [INFO] LOG_JSON: '
-                      '{"event":"backup","timestamp":"2026-07-11T06:00:00+00:00",'
-                      '"status":"success","size_bytes":2097152}\n'
-                  )),
+            patch(
+                "scripts.health_dashboard.Path.read_text",
+                return_value=(
+                    "[2026-07-11 06:00:00] [INFO] LOG_JSON: "
+                    '{"event":"backup","timestamp":"2026-07-11T06:00:00+00:00",'
+                    '"status":"success","size_bytes":2097152}\n'
+                ),
+            ),
         ):
             result = m.collect_backup_status()
 

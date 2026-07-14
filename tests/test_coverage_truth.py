@@ -12,8 +12,7 @@ Key properties proven:
 
 from __future__ import annotations
 
-import math
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 import pytest
 
@@ -75,7 +74,7 @@ def make_evidence(
         "source": source,
         "data_type": "bids",
         "state": state,
-        "completed_at": completed_at or datetime.now(timezone.utc),
+        "completed_at": completed_at or datetime.now(UTC),
         "run_id": "test-run-001",
         "queried_start": None,
         "queried_end": None,
@@ -93,6 +92,7 @@ ALL_TEST_SOURCES = ["pncp", "dom_sc", "contracts"]
 # ---------------------------------------------------------------------------
 # Import the real compute_metrics
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def compute_metrics_fn():
@@ -239,7 +239,12 @@ class TestComputeMetrics:
         ]
 
         result = compute_metrics_fn(
-            entities, coverage, evidence, [], {}, radius_km=200,
+            entities,
+            coverage,
+            evidence,
+            [],
+            {},
+            radius_km=200,
         )
 
         assert result["denominator"]["total_entities_within_radius"] == 2
@@ -259,7 +264,12 @@ class TestComputeMetrics:
         ]
 
         result = compute_metrics_fn(
-            entities_in_radius, coverage, [], [], {}, radius_km=200,
+            entities_in_radius,
+            coverage,
+            [],
+            [],
+            {},
+            radius_km=200,
         )
 
         assert result["denominator"]["total_entities_within_radius"] == 1
@@ -280,7 +290,12 @@ class TestComputeMetrics:
         ]
 
         result = compute_metrics_fn(
-            entities, coverage, evidence, [], {}, radius_km=200,
+            entities,
+            coverage,
+            evidence,
+            [],
+            {},
+            radius_km=200,
         )
 
         # Monitoring coverage: entity is monitored if ANY source has success evidence
@@ -288,10 +303,7 @@ class TestComputeMetrics:
         assert result["monitoring_coverage"]["pct"] == 100.0
 
         # Per-source counts from evidence
-        total_by_source = sum(
-            s["entities_covered"]
-            for s in result["monitoring_coverage"]["by_source"].values()
-        )
+        total_by_source = sum(s["entities_covered"] for s in result["monitoring_coverage"]["by_source"].values())
         # Multiple sources covering same entity → total > denominator
         assert total_by_source >= 1
 
@@ -313,7 +325,12 @@ class TestComputeMetrics:
         ]
 
         result = compute_metrics_fn(
-            entities, coverage, [], [], {}, radius_km=200,
+            entities,
+            coverage,
+            [],
+            [],
+            {},
+            radius_km=200,
         )
 
         # Freshness: 2 of 3 are fresh (entity 1 and 3)
@@ -345,7 +362,12 @@ class TestComputeMetrics:
         ]
 
         result = compute_metrics_fn(
-            entities, coverage, evidence, [], {}, radius_km=200,
+            entities,
+            coverage,
+            evidence,
+            [],
+            {},
+            radius_km=200,
         )
 
         # success_zero counts as monitoring coverage (entity IS monitored)
@@ -370,7 +392,12 @@ class TestComputeMetrics:
         ]
 
         result = compute_metrics_fn(
-            entities, coverage, evidence, [], {}, radius_km=200,
+            entities,
+            coverage,
+            evidence,
+            [],
+            {},
+            radius_km=200,
         )
 
         # Entity-level evidence exists but no success → 0% monitoring coverage
@@ -388,7 +415,12 @@ class TestComputeMetrics:
         ]
 
         result = compute_metrics_fn(
-            entities, coverage, [], [], {}, radius_km=200,
+            entities,
+            coverage,
+            [],
+            [],
+            {},
+            radius_km=200,
         )
 
         # The metric values themselves may be any percentage
@@ -410,7 +442,12 @@ class TestComputeMetrics:
         contract_presence = {1: True}  # Only entity 1 has contracts
 
         result = compute_metrics_fn(
-            entities, coverage, [], [], contract_presence, radius_km=200,
+            entities,
+            coverage,
+            [],
+            [],
+            contract_presence,
+            radius_km=200,
         )
 
         assert result["bid_presence"]["entities_with_bids"] == 2  # both have bids
@@ -434,7 +471,12 @@ class TestComputeMetrics:
         ]
 
         result = compute_metrics_fn(
-            entities, coverage, evidence, [], {}, radius_km=200,
+            entities,
+            coverage,
+            evidence,
+            [],
+            {},
+            radius_km=200,
         )
 
         # Next best source should be from sources WITH evidence
@@ -498,11 +540,33 @@ class TestSimulatedPipeline:
         # ── Simulate PNCP crawl run (entity-level evidence) ──────────
         # crawl() fetched records, matched entities 1-4, entity 5 had zero
         pncp_evidence = [
-            make_evidence("pncp", "success_with_data", entity_id=1, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
-            make_evidence("pncp", "success_with_data", entity_id=2, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
-            make_evidence("pncp", "success_with_data", entity_id=3, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
-            make_evidence("pncp", "success_with_data", entity_id=4, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
-            make_evidence("pncp", "success_zero", entity_id=5, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=timezone.utc)),
+            make_evidence(
+                "pncp",
+                "success_with_data",
+                entity_id=1,
+                completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC),
+            ),
+            make_evidence(
+                "pncp",
+                "success_with_data",
+                entity_id=2,
+                completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC),
+            ),
+            make_evidence(
+                "pncp",
+                "success_with_data",
+                entity_id=3,
+                completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC),
+            ),
+            make_evidence(
+                "pncp",
+                "success_with_data",
+                entity_id=4,
+                completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC),
+            ),
+            make_evidence(
+                "pncp", "success_zero", entity_id=5, completed_at=datetime(2026, 7, 12, 9, 0, 0, tzinfo=UTC)
+            ),
         ]
 
         # entity_coverage after PNCP run (bid presence — separate from monitoring)
@@ -515,8 +579,18 @@ class TestSimulatedPipeline:
 
         # ── Simulate contracts crawl run ─────────────────────────────
         contracts_evidence = [
-            make_evidence("contracts", "success_with_data", entity_id=1, completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=timezone.utc)),
-            make_evidence("contracts", "success_with_data", entity_id=3, completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=timezone.utc)),
+            make_evidence(
+                "contracts",
+                "success_with_data",
+                entity_id=1,
+                completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=UTC),
+            ),
+            make_evidence(
+                "contracts",
+                "success_with_data",
+                entity_id=3,
+                completed_at=datetime(2026, 7, 12, 10, 0, 0, tzinfo=UTC),
+            ),
         ]
 
         contracts_coverage = [
@@ -526,7 +600,12 @@ class TestSimulatedPipeline:
 
         # ── Simulate DOM-SC crawl run (FAILED) ───────────────────────
         dom_sc_evidence = [
-            make_evidence("dom_sc", "connection_failed", entity_id=1, completed_at=datetime(2026, 7, 12, 8, 0, 0, tzinfo=timezone.utc)),
+            make_evidence(
+                "dom_sc",
+                "connection_failed",
+                entity_id=1,
+                completed_at=datetime(2026, 7, 12, 8, 0, 0, tzinfo=UTC),
+            ),
         ]
 
         all_evidence = pncp_evidence + contracts_evidence + dom_sc_evidence
@@ -534,7 +613,12 @@ class TestSimulatedPipeline:
 
         # ── Compute metrics ──────────────────────────────────────────
         result = compute_metrics_fn(
-            entities, all_coverage, all_evidence, [], {}, radius_km=200,
+            entities,
+            all_coverage,
+            all_evidence,
+            [],
+            {},
+            radius_km=200,
         )
 
         # ── Assertions ───────────────────────────────────────────────
@@ -645,9 +729,7 @@ class TestMonitoringCoverageFromEvidence:
         next_best = result["gaps"]["next_best_source"]
         # If no source has entity-level evidence, next best must be marked unverified
         if next_best is not None:
-            assert next_best.get("unverified") is True, (
-                f"Untouched source ranked without unverified flag: {next_best}"
-            )
+            assert next_best.get("unverified") is True, f"Untouched source ranked without unverified flag: {next_best}"
 
     def test_report_uses_latest_evidence_only(self, compute_metrics_fn):
         """When multiple evidence rows exist, only the latest determines state."""
@@ -655,8 +737,8 @@ class TestMonitoringCoverageFromEvidence:
         coverage = []
 
         # Two evidence rows: old=success_with_data, new=connection_failed
-        old_ts = datetime(2026, 7, 1, tzinfo=timezone.utc)
-        new_ts = datetime(2026, 7, 12, tzinfo=timezone.utc)
+        old_ts = datetime(2026, 7, 1, tzinfo=UTC)
+        new_ts = datetime(2026, 7, 12, tzinfo=UTC)
 
         evidence = [
             make_evidence("pncp", "success_with_data", entity_id=1, completed_at=old_ts),
@@ -713,7 +795,6 @@ class TestEntityEvidenceProjection:
 
     def test_incomplete_fetch_cannot_produce_success_zero(self):
         """When fetch_complete=False, no entity gets success_zero — all get partial."""
-        from scripts.crawl.monitor import _project_entity_evidence
 
         # This will fail because there's no DB — but we can verify the logic
         # by checking the function signature and code path.

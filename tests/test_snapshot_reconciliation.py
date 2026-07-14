@@ -66,32 +66,22 @@ def clean_test_data(conn: Any) -> None:
     """Remove test data before and after each test."""
     # Clean up before test
     with conn.cursor() as cursor:
+        cursor.execute("DELETE FROM source_snapshot_membership WHERE source = 'test_pncp'")
         cursor.execute(
-            "DELETE FROM source_snapshot_membership "
-            "WHERE source = 'test_pncp'"
+            "DELETE FROM opportunity_intel WHERE source = 'test_pncp' AND crawl_batch_id = 'test_reconciliation'"
         )
         cursor.execute(
-            "DELETE FROM opportunity_intel "
-            "WHERE source = 'test_pncp' AND crawl_batch_id = 'test_reconciliation'"
-        )
-        cursor.execute(
-            "DELETE FROM opportunity_runs "
-            "WHERE source = 'test_pncp' AND metadata->>'test_reconciliation' = 'true'"
+            "DELETE FROM opportunity_runs WHERE source = 'test_pncp' AND metadata->>'test_reconciliation' = 'true'"
         )
     yield
     # Clean up after test
     with conn.cursor() as cursor:
+        cursor.execute("DELETE FROM source_snapshot_membership WHERE source = 'test_pncp'")
         cursor.execute(
-            "DELETE FROM source_snapshot_membership "
-            "WHERE source = 'test_pncp'"
+            "DELETE FROM opportunity_intel WHERE source = 'test_pncp' AND crawl_batch_id = 'test_reconciliation'"
         )
         cursor.execute(
-            "DELETE FROM opportunity_intel "
-            "WHERE source = 'test_pncp' AND crawl_batch_id = 'test_reconciliation'"
-        )
-        cursor.execute(
-            "DELETE FROM opportunity_runs "
-            "WHERE source = 'test_pncp' AND metadata->>'test_reconciliation' = 'true'"
+            "DELETE FROM opportunity_runs WHERE source = 'test_pncp' AND metadata->>'test_reconciliation' = 'true'"
         )
 
 
@@ -268,15 +258,23 @@ def test_scenario_3_reappearing_record_reactivates(
     id1 = _create_opportunity(conn, "SRC-001")
 
     run_a = _create_run(conn, status="completed", scope_complete=True)
-    reconciler.record_memberships(run_a, "test_pncp", [
-        {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
-    ])
+    reconciler.record_memberships(
+        run_a,
+        "test_pncp",
+        [
+            {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
+        ],
+    )
 
     run_b = _create_run(conn, status="completed", scope_complete=True)
     # Run B does NOT see ID 1
-    reconciler.record_memberships(run_b, "test_pncp", [
-        {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
-    ])
+    reconciler.record_memberships(
+        run_b,
+        "test_pncp",
+        [
+            {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
+        ],
+    )
 
     # Inactivate ID 1 via run B
     reconciler.reconcile(run_b, "test_pncp")
@@ -284,10 +282,14 @@ def test_scenario_3_reappearing_record_reactivates(
 
     # Act: Run C sees ID 1 again
     run_c = _create_run(conn, status="completed", scope_complete=True)
-    reconciler.record_memberships(run_c, "test_pncp", [
-        {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
-        {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
-    ])
+    reconciler.record_memberships(
+        run_c,
+        "test_pncp",
+        [
+            {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
+            {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
+        ],
+    )
     result = reconciler.reconcile(run_c, "test_pncp")
 
     # Assert
@@ -369,15 +371,23 @@ def test_scenario_6_only_completed_run_reconciles(
 
     # Running run A (concurrent, not finished)
     run_running = _create_run(conn, status="running", scope_complete=False)
-    reconciler.record_memberships(run_running, "test_pncp", [
-        {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
-    ])
+    reconciler.record_memberships(
+        run_running,
+        "test_pncp",
+        [
+            {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
+        ],
+    )
 
     # Running run B (concurrent, not finished)
     run_running2 = _create_run(conn, status="running", scope_complete=False)
-    reconciler.record_memberships(run_running2, "test_pncp", [
-        {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
-    ])
+    reconciler.record_memberships(
+        run_running2,
+        "test_pncp",
+        [
+            {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
+        ],
+    )
 
     # Act: try to reconcile both running runs
     result_a = reconciler.reconcile(run_running, "test_pncp")
@@ -391,10 +401,14 @@ def test_scenario_6_only_completed_run_reconciles(
 
     # Now complete a run C that only sees ID 1 and 2
     run_c = _create_run(conn, status="completed", scope_complete=True)
-    reconciler.record_memberships(run_c, "test_pncp", [
-        {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
-        {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
-    ])
+    reconciler.record_memberships(
+        run_c,
+        "test_pncp",
+        [
+            {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
+            {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
+        ],
+    )
     result_c = reconciler.reconcile(run_c, "test_pncp")
 
     # Assert: only run C's reconciliation takes effect
@@ -420,10 +434,14 @@ def test_scenario_7_reconciliation_is_idempotent(
     id3 = _create_opportunity(conn, "SRC-003")
 
     run_a = _create_run(conn, status="completed", scope_complete=True)
-    reconciler.record_memberships(run_a, "test_pncp", [
-        {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
-        {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
-    ])
+    reconciler.record_memberships(
+        run_a,
+        "test_pncp",
+        [
+            {"source_id": "SRC-001", "numero_controle_pncp": "SRC-001"},
+            {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
+        ],
+    )
 
     # Act: First reconciliation
     result1 = reconciler.reconcile(run_a, "test_pncp")
@@ -454,9 +472,7 @@ def test_scenario_7_reconciliation_is_idempotent(
 # ===========================================================================
 
 
-def test_scenario_limited_run_blocked(
-    conn: Any, reconciler: SourceSnapshotReconciler, clean_test_data: None
-) -> None:
+def test_scenario_limited_run_blocked(conn: Any, reconciler: SourceSnapshotReconciler, clean_test_data: None) -> None:
     """A run stopped by record/page limit should never inactivate."""
     id1 = _create_opportunity(conn, "SRC-001")
 
@@ -467,9 +483,13 @@ def test_scenario_limited_run_blocked(
         scope_complete=True,
         metadata={"stopped_by_record_limit": True},
     )
-    reconciler.record_memberships(run_limited, "test_pncp", [
-        {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
-    ])
+    reconciler.record_memberships(
+        run_limited,
+        "test_pncp",
+        [
+            {"source_id": "SRC-002", "numero_controle_pncp": "SRC-002"},
+        ],
+    )
 
     # Act
     result = reconciler.reconcile(run_limited, "test_pncp")

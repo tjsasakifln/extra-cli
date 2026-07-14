@@ -45,11 +45,22 @@ def test_all_sql_references_resolve():
                 # Filter out common false positives
                 if obj[0].islower() and not any(
                     kw in obj.lower()
-                    for kw in ["timestamp", "numeric", "varchar", "integer",
-                               "boolean", "bigint", "serial", "decimal",
-                               "precision", "interval"]
+                    for kw in [
+                        "timestamp",
+                        "numeric",
+                        "varchar",
+                        "integer",
+                        "boolean",
+                        "bigint",
+                        "serial",
+                        "decimal",
+                        "precision",
+                        "interval",
+                    ]
                 ):
-                    failures.append(f"  {ref.file}:{ref.line} — unknown object `{obj}`\n    SQL: {ref.sql_snippet[:120]}")
+                    failures.append(
+                        f"  {ref.file}:{ref.line} — unknown object `{obj}`\n    SQL: {ref.sql_snippet[:120]}"
+                    )
 
     if failures:
         msg = (

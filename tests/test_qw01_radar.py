@@ -174,9 +174,7 @@ def test_crawler_preserves_api_totals_and_limits_records_not_pages() -> None:
         ]
     )
     totals = crawler.extract_pagination({"data": [], "totalPaginas": 3, "totalRegistros": 5})
-    results = crawler.crawl(
-        CrawlRequest(source="stub", mode="dry-run", max_pages=10, max_records=2, page_size=2)
-    )
+    results = crawler.crawl(CrawlRequest(source="stub", mode="dry-run", max_pages=10, max_records=2, page_size=2))
 
     assert totals == (3, 5)
     assert len(results) == 1
@@ -323,5 +321,5 @@ def test_cli_exposes_auditable_radar_options() -> None:
 
 def test_spreadsheet_export_sanitizes_controls_and_formulas() -> None:
     assert _spreadsheet_cell("Reforma\x1c predial") == "Reforma predial"
-    assert _spreadsheet_cell("=HYPERLINK(\"https://evil.test\")") == "'=HYPERLINK(\"https://evil.test\")"
+    assert _spreadsheet_cell('=HYPERLINK("https://evil.test")') == '\'=HYPERLINK("https://evil.test")'
     assert _spreadsheet_cell(123.45) == 123.45

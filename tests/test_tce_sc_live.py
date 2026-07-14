@@ -23,12 +23,14 @@ class TestTCESCLive:
         """SCMWeb API must be reachable."""
         from scripts.crawl.tce_sc_crawler import _api_request
 
-        result = _api_request({
-            "page": "licitacoes",
-            "export": "json",
-            "type": "licitacoes",
-            "pn": "1",
-        })
+        result = _api_request(
+            {
+                "page": "licitacoes",
+                "export": "json",
+                "type": "licitacoes",
+                "pn": "1",
+            }
+        )
         assert result is not None, "API retornou None"
         assert isinstance(result, (dict, list)), f"Tipo inesperado: {type(result)}"
         print(f"  API response type: {type(result).__name__}")
@@ -50,10 +52,20 @@ class TestTCESCLive:
             pytest.fail("Transform retornou vazio — falha na transformacao dos registros")
 
         required = {
-            "pncp_id", "objeto_compra", "valor_total_estimado",
-            "modalidade_id", "modalidade_nome", "uf", "municipio",
-            "codigo_municipio_ibge", "orgao_razao_social", "orgao_cnpj",
-            "data_publicacao", "link_pncp", "content_hash", "source_id",
+            "pncp_id",
+            "objeto_compra",
+            "valor_total_estimado",
+            "modalidade_id",
+            "modalidade_nome",
+            "uf",
+            "municipio",
+            "codigo_municipio_ibge",
+            "orgao_razao_social",
+            "orgao_cnpj",
+            "data_publicacao",
+            "link_pncp",
+            "content_hash",
+            "source_id",
         }
         for rec in transformed[:5]:
             missing = required - rec.keys()
@@ -72,6 +84,7 @@ class TestTCESCLive:
     def test_raw_record_contains_municipio_ibge(self):
         """Raw API records must contain Municipio + Codigo_IBGE."""
         from datetime import date, timedelta
+
         from scripts.crawl.tce_sc_crawler import _fetch_licitacoes
 
         data_inicial = date.today() - timedelta(days=30)

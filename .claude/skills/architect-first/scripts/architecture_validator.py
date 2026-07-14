@@ -9,12 +9,10 @@ Usage:
     python architecture_validator.py [--path ARCH_DOC_PATH]
 """
 
-import os
-import sys
 import argparse
 import re
+import sys
 from pathlib import Path
-from typing import List, Dict, Set, Tuple
 
 
 class ValidationIssue:
@@ -38,7 +36,7 @@ class ArchitectureValidator:
     def __init__(self, doc_path: Path):
         self.doc_path = doc_path
         self.content = ""
-        self.issues: List[ValidationIssue] = []
+        self.issues: list[ValidationIssue] = []
 
         # Required sections in architecture doc
         self.required_sections = [
@@ -62,7 +60,7 @@ class ArchitectureValidator:
     def _load_document(self) -> bool:
         """Load architecture document"""
         try:
-            with open(self.doc_path, "r", encoding="utf-8") as f:
+            with open(self.doc_path, encoding="utf-8") as f:
                 self.content = f.read()
             return True
         except Exception as e:
@@ -119,9 +117,7 @@ class ArchitectureValidator:
             r"#{2,3}\s+.*[Dd]iagram",  # Diagram sections
         ]
 
-        has_diagrams = any(
-            re.search(pattern, self.content) for pattern in diagram_indicators
-        )
+        has_diagrams = any(re.search(pattern, self.content) for pattern in diagram_indicators)
 
         if not has_diagrams:
             self.issues.append(
@@ -192,9 +188,7 @@ class ArchitectureValidator:
             "workflow",
         ]
 
-        has_data_flow = any(
-            kw in self.content.lower() for kw in data_flow_keywords
-        )
+        has_data_flow = any(kw in self.content.lower() for kw in data_flow_keywords)
 
         if not has_data_flow:
             self.issues.append(
@@ -240,8 +234,7 @@ class ArchitectureValidator:
                 ValidationIssue(
                     "warning",
                     "INTEGRATION",
-                    "Integration section is brief. Document all external integrations, "
-                    "APIs, and interfaces in detail.",
+                    "Integration section is brief. Document all external integrations, APIs, and interfaces in detail.",
                 )
             )
 
@@ -305,8 +298,7 @@ class ArchitectureValidator:
                 ValidationIssue(
                     "warning",
                     "DECISIONS",
-                    "Architectural decisions not documented. Include decision rationale "
-                    "and alternatives considered.",
+                    "Architectural decisions not documented. Include decision rationale and alternatives considered.",
                 )
             )
 
@@ -320,8 +312,7 @@ class ArchitectureValidator:
                 ValidationIssue(
                     "warning",
                     "COMPLETENESS",
-                    f"Document is brief ({word_count} words). "
-                    "Ensure sufficient detail for implementation.",
+                    f"Document is brief ({word_count} words). Ensure sufficient detail for implementation.",
                 )
             )
 
@@ -343,8 +334,7 @@ class ArchitectureValidator:
                 ValidationIssue(
                     "info",
                     "EXAMPLES",
-                    "Few code examples found. Consider adding code snippets "
-                    "to illustrate implementation.",
+                    "Few code examples found. Consider adding code snippets to illustrate implementation.",
                 )
             )
 
@@ -461,9 +451,7 @@ class ArchitectureValidator:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Validate architecture documentation completeness"
-    )
+    parser = argparse.ArgumentParser(description="Validate architecture documentation completeness")
     parser.add_argument(
         "--path",
         type=Path,

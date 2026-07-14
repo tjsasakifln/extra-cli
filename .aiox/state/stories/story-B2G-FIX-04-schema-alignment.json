@@ -11,7 +11,7 @@
   "po_closed": true,
   "reopened_reason": "QA PASS foi prematuro — diagnostics.py nunca executado contra banco real. AC1, AC4, AC5 requerem validação com PostgreSQL. Follow-ups do QA listavam 'Executar diagnostics.py contra banco local' e 'Executar setup_db.sh em banco vazio' como não realizados.",
   "publication_authorized": true,
-  "reviewed_commit": "97f612e",
+  "reviewed_commit": "d9674e2",
   "rollback_plan": "DROP DATABASE pncp_datalake; RECREATE DATABASE pncp_datalake; REAPPLY migrations via bash db/setup_db.sh. Sem dados em producao — fresh install test environment.",
   "snapshot_evidence": "db/snapshots/b2g-fix-04-fresh-install-20260714.txt",
   "gates": {

@@ -12,7 +12,7 @@ Tests cover:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from scripts.coverage.states import (
     COVERED_STATES,
@@ -23,7 +23,6 @@ from scripts.coverage.states import (
     is_valid_transition,
     map_monitor_state_to_evidence,
 )
-
 
 # ---------------------------------------------------------------------------
 # CoverageState enum
@@ -163,31 +162,38 @@ class TestDetermineInitialState:
 
 class TestDetermineRunResultState:
     def test_success_with_data_when_fetched(self):
-        result = determine_run_result_state(
-            fetched=10, transformed=10, persisted=10, fetch_complete=True
-        )
+        result = determine_run_result_state(fetched=10, transformed=10, persisted=10, fetch_complete=True)
         assert result == CoverageState.SUCCESS_WITH_DATA
 
     def test_success_zero_with_pagination_proof(self):
         """success_zero requires pagination proof."""
         result = determine_run_result_state(
-            fetched=0, transformed=0, persisted=0,
-            fetch_complete=True, supports_zero_proof=True,
-            pages_expected=5, pages_processed=5,
+            fetched=0,
+            transformed=0,
+            persisted=0,
+            fetch_complete=True,
+            supports_zero_proof=True,
+            pages_expected=5,
+            pages_processed=5,
         )
         assert result == CoverageState.SUCCESS_ZERO, f"Expected success_zero, got {result}"
 
     def test_partial_when_pagination_incomplete(self):
         """Without pagination proof, zero records = partial."""
         result = determine_run_result_state(
-            fetched=0, transformed=0, persisted=0,
-            fetch_complete=True, supports_zero_proof=False,
+            fetched=0,
+            transformed=0,
+            persisted=0,
+            fetch_complete=True,
+            supports_zero_proof=False,
         )
         assert result == CoverageState.PARTIAL, f"Expected partial, got {result}"
 
     def test_partial_when_fetch_incomplete(self):
         result = determine_run_result_state(
-            fetched=0, transformed=0, persisted=0,
+            fetched=0,
+            transformed=0,
+            persisted=0,
             fetch_complete=False,
         )
         assert result == CoverageState.PARTIAL
@@ -195,17 +201,24 @@ class TestDetermineRunResultState:
     def test_success_zero_with_records_expected_zero(self):
         """When records_expected=0 and fetch complete, success_zero is valid."""
         result = determine_run_result_state(
-            fetched=0, transformed=0, persisted=0,
-            fetch_complete=True, records_expected=0,
+            fetched=0,
+            transformed=0,
+            persisted=0,
+            fetch_complete=True,
+            records_expected=0,
         )
         assert result == CoverageState.SUCCESS_ZERO
 
     def test_partial_when_pages_missing(self):
         """Partial pagination even with fetch_complete."""
         result = determine_run_result_state(
-            fetched=0, transformed=0, persisted=0,
-            fetch_complete=True, supports_zero_proof=True,
-            pages_expected=10, pages_processed=3,
+            fetched=0,
+            transformed=0,
+            persisted=0,
+            fetch_complete=True,
+            supports_zero_proof=True,
+            pages_expected=10,
+            pages_processed=3,
         )
         assert result == CoverageState.PARTIAL
 
@@ -217,47 +230,35 @@ class TestDetermineRunResultState:
 
 class TestEvaluateFreshness:
     def test_fresh_within_sla(self):
-        checked = datetime.now(timezone.utc) - timedelta(hours=2)
-        state, freshness = evaluate_freshness(
-            CoverageState.SUCCESS_WITH_DATA, checked, freshness_sla_hours=24
-        )
+        checked = datetime.now(UTC) - timedelta(hours=2)
+        state, freshness = evaluate_freshness(CoverageState.SUCCESS_WITH_DATA, checked, freshness_sla_hours=24)
         assert state == CoverageState.SUCCESS_WITH_DATA
         assert freshness == "fresh"
 
     def test_stale_beyond_sla(self):
-        checked = datetime.now(timezone.utc) - timedelta(hours=30)
-        state, freshness = evaluate_freshness(
-            CoverageState.SUCCESS_WITH_DATA, checked, freshness_sla_hours=24
-        )
+        checked = datetime.now(UTC) - timedelta(hours=30)
+        state, freshness = evaluate_freshness(CoverageState.SUCCESS_WITH_DATA, checked, freshness_sla_hours=24)
         assert state == CoverageState.SUCCESS_WITH_DATA  # State unchanged, freshness flagged
         assert freshness == "stale"
 
     def test_overdue_double_sla(self):
-        checked = datetime.now(timezone.utc) - timedelta(hours=72)
-        state, freshness = evaluate_freshness(
-            CoverageState.SUCCESS_WITH_DATA, checked, freshness_sla_hours=24
-        )
+        checked = datetime.now(UTC) - timedelta(hours=72)
+        state, freshness = evaluate_freshness(CoverageState.SUCCESS_WITH_DATA, checked, freshness_sla_hours=24)
         assert state == CoverageState.STALE
         assert freshness == "overdue"
 
     def test_not_applicable_returns_unknown(self):
-        state, freshness = evaluate_freshness(
-            CoverageState.NOT_APPLICABLE, None, freshness_sla_hours=24
-        )
+        state, freshness = evaluate_freshness(CoverageState.NOT_APPLICABLE, None, freshness_sla_hours=24)
         assert freshness == "unknown"
 
     def test_no_checked_at_returns_unknown(self):
-        state, freshness = evaluate_freshness(
-            CoverageState.PENDING, None, freshness_sla_hours=24
-        )
+        state, freshness = evaluate_freshness(CoverageState.PENDING, None, freshness_sla_hours=24)
         assert freshness == "unknown"
 
     def test_naive_datetime_conversion(self):
         """Handle naive datetimes by converting to timezone-aware."""
         checked = datetime.now() - timedelta(hours=2)  # naive
-        state, freshness = evaluate_freshness(
-            CoverageState.SUCCESS_WITH_DATA, checked, freshness_sla_hours=24
-        )
+        state, freshness = evaluate_freshness(CoverageState.SUCCESS_WITH_DATA, checked, freshness_sla_hours=24)
         assert freshness == "fresh"
 
 

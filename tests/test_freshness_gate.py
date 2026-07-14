@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
 import importlib
 import os
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from datetime import UTC, datetime, timedelta
+from unittest.mock import MagicMock, patch
 
 import scripts.freshness_gate as freshness_gate
 from scripts.freshness_gate import (
@@ -81,17 +80,23 @@ def test_evaluate_source_uses_run_and_data_snapshots() -> None:
     spec = _spec()
 
     with (
-        patch("scripts.freshness_gate._run_snapshot", return_value={
-            "last_success_at": now - timedelta(hours=3),
-            "successful_runs": 7,
-            "total_runs": 9,
-        }),
-        patch("scripts.freshness_gate._data_snapshot", return_value={
-            "last_ingested_at": now - timedelta(hours=2),
-            "latest_business_date": now - timedelta(hours=4),
-            "recent_records": 123,
-            "total_records": 999,
-        }),
+        patch(
+            "scripts.freshness_gate._run_snapshot",
+            return_value={
+                "last_success_at": now - timedelta(hours=3),
+                "successful_runs": 7,
+                "total_runs": 9,
+            },
+        ),
+        patch(
+            "scripts.freshness_gate._data_snapshot",
+            return_value={
+                "last_ingested_at": now - timedelta(hours=2),
+                "latest_business_date": now - timedelta(hours=4),
+                "recent_records": 123,
+                "total_records": 999,
+            },
+        ),
     ):
         row = evaluate_source(conn=object(), spec=spec, now=now)
 

@@ -100,12 +100,23 @@ class TestTransform:
 
         # Count total fields
         expected_fields = {
-            "pncp_id", "objeto_compra", "valor_total_estimado",
-            "modalidade_id", "modalidade_nome", "esfera_id",
-            "uf", "municipio", "codigo_municipio_ibge",
-            "orgao_razao_social", "orgao_cnpj",
-            "data_publicacao", "data_abertura", "data_encerramento",
-            "link_pncp", "content_hash", "source_id",
+            "pncp_id",
+            "objeto_compra",
+            "valor_total_estimado",
+            "modalidade_id",
+            "modalidade_nome",
+            "esfera_id",
+            "uf",
+            "municipio",
+            "codigo_municipio_ibge",
+            "orgao_razao_social",
+            "orgao_cnpj",
+            "data_publicacao",
+            "data_abertura",
+            "data_encerramento",
+            "link_pncp",
+            "content_hash",
+            "source_id",
         }
         assert set(record.keys()) == expected_fields, (
             f"Field mismatch. Extra: {set(record.keys()) - expected_fields}. "
@@ -138,12 +149,23 @@ class TestTransform:
 
         # Count total fields
         expected_fields = {
-            "pncp_id", "objeto_compra", "valor_total_estimado",
-            "modalidade_id", "modalidade_nome", "esfera_id",
-            "uf", "municipio", "codigo_municipio_ibge",
-            "orgao_razao_social", "orgao_cnpj",
-            "data_publicacao", "data_abertura", "data_encerramento",
-            "link_pncp", "content_hash", "source_id",
+            "pncp_id",
+            "objeto_compra",
+            "valor_total_estimado",
+            "modalidade_id",
+            "modalidade_nome",
+            "esfera_id",
+            "uf",
+            "municipio",
+            "codigo_municipio_ibge",
+            "orgao_razao_social",
+            "orgao_cnpj",
+            "data_publicacao",
+            "data_abertura",
+            "data_encerramento",
+            "link_pncp",
+            "content_hash",
+            "source_id",
         }
         assert set(record.keys()) == expected_fields, (
             f"Field mismatch. Extra: {set(record.keys()) - expected_fields}. "
