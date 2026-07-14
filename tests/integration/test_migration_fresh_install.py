@@ -52,9 +52,9 @@ EXPECTED_VIEWS = CANONICAL_VIEWS_5 | {
     "v_opportunity_coverage_summary",
 }
 EXPECTED_CONSTRAINTS = {
-    "fk_bids_orgao_entity",
-    "fk_contracts_supplier_entity",
-    "fk_contracts_orgao_entity",
+    "fk_bids_orgao_entity_v2",
+    "fk_contracts_supplier_entity_v2",
+    "fk_contracts_orgao_entity_v2",
     "uq_spe_cnpj_8",
     "uq_oi_content_hash",
 }
