@@ -49,13 +49,13 @@ DEFAULT_DSN = os.getenv(
 # ---------------------------------------------------------------------------
 
 
-def _get_conn(dsn: str | None = None):
+def _get_conn(dsn: str | None = None) -> Any:
     conn = psycopg2.connect(dsn or DEFAULT_DSN)
     conn.autocommit = True
     return conn
 
 
-def _query(conn, sql: Any, params: tuple | None = None) -> list[dict]:
+def _query(conn: Any, sql: Any, params: tuple[Any, ...] | None = None) -> list[dict[str, Any]]:
     with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(sql, params)
         return list(cur.fetchall())
@@ -66,7 +66,7 @@ def _query(conn, sql: Any, params: tuple | None = None) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
-def cmd_list(args: argparse.Namespace):
+def cmd_list(args: argparse.Namespace) -> None:
     """List opportunities with filters."""
     conn = _get_conn(args.dsn)
     conditions = ["is_active = TRUE"]
@@ -119,7 +119,7 @@ def cmd_list(args: argparse.Namespace):
     conn.close()
 
 
-def cmd_show(args: argparse.Namespace):
+def cmd_show(args: argparse.Namespace) -> None:
     """Show full details for one opportunity."""
     conn = _get_conn(args.dsn)
 
@@ -139,7 +139,7 @@ def cmd_show(args: argparse.Namespace):
     conn.close()
 
 
-def cmd_explain(args: argparse.Namespace):
+def cmd_explain(args: argparse.Namespace) -> None:
     """Explain ranking factors for one opportunity."""
     conn = _get_conn(args.dsn)
 
@@ -159,7 +159,7 @@ def cmd_explain(args: argparse.Namespace):
     conn.close()
 
 
-def cmd_coverage(args: argparse.Namespace):
+def cmd_coverage(args: argparse.Namespace) -> None:
     """Coverage dashboard."""
     conn = _get_conn(args.dsn)
 
@@ -197,7 +197,7 @@ def cmd_coverage(args: argparse.Namespace):
     conn.close()
 
 
-def cmd_source_health(args: argparse.Namespace):
+def cmd_source_health(args: argparse.Namespace) -> None:
     """Health check per source."""
     conn = _get_conn(args.dsn)
 
@@ -243,7 +243,7 @@ def cmd_source_health(args: argparse.Namespace):
     conn.close()
 
 
-def cmd_update(args: argparse.Namespace):
+def cmd_update(args: argparse.Namespace) -> None:
     """Run crawl for specified source(s)."""
     from scripts.opportunity_intel.pncp_crawler import (
         PncpOpportunityCrawler,
@@ -256,7 +256,7 @@ def cmd_update(args: argparse.Namespace):
         source = source.strip()
         print(f"\n=== Atualizando fonte: {source} ===\n")
 
-        crawler = None
+        crawler: Any = None
         if source == "pncp":
             crawler = PncpOpportunityCrawler(dsn=args.dsn)
         elif source == "pncp_publication":
@@ -284,7 +284,7 @@ def cmd_update(args: argparse.Namespace):
             crawler.close()
 
 
-def cmd_export(args: argparse.Namespace):
+def cmd_export(args: argparse.Namespace) -> None:
     """Export opportunities as JSON or CSV."""
     conn = _get_conn(args.dsn)
 
@@ -337,7 +337,7 @@ def cmd_export(args: argparse.Namespace):
     conn.close()
 
 
-def cmd_radar(args: argparse.Namespace):
+def cmd_radar(args: argparse.Namespace) -> None:
     """Execute the PostgreSQL-only QW-01 auditable radar."""
     from scripts.opportunity_intel.radar import run_radar
 
@@ -362,7 +362,7 @@ def cmd_radar(args: argparse.Namespace):
 # ---------------------------------------------------------------------------
 
 
-def _print_table(rows: list[dict], fmt: str = "table"):
+def _print_table(rows: list[dict[str, Any]], fmt: str = "table") -> None:
     """Print rows as table or JSON."""
     if fmt == "json":
         print(json.dumps(rows, default=str, indent=2, ensure_ascii=False))
@@ -404,13 +404,13 @@ def _print_table(rows: list[dict], fmt: str = "table"):
         print(" | ".join(values))
 
 
-def _print_detail(row: dict):
+def _print_detail(row: dict[str, Any]) -> None:
     """Print full detail for one opportunity."""
     print(f"\n{'=' * 70}")
     print(f"OPORTUNIDADE #{row.get('id')}")
     print(f"{'=' * 70}")
 
-    sections = [
+    sections: list[tuple[str, list[tuple[str, Any]]]] = [
         (
             "Identificação",
             [
@@ -495,7 +495,7 @@ def _print_detail(row: dict):
     print(f"\n{'=' * 70}\n")
 
 
-def _print_explain(row: dict):
+def _print_explain(row: dict[str, Any]) -> None:
     """Print ranking explanation for one opportunity."""
     print(f"\n{'=' * 70}")
     print(f"EXPLICAÇÃO DE RANKING — Oportunidade #{row.get('id')}")
@@ -644,7 +644,7 @@ Examples:
     return parser
 
 
-def main(argv: list[str] | None = None):
+def main(argv: list[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
 
