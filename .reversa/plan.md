@@ -1,8 +1,9 @@
 # Plano de Exploração — extra consultoria
 
-> Criado pelo Reversa em 2026-07-11
+> Reexecução completa iniciada pelo Reversa em 2026-07-13
+> Motivo: 30 novos commits (591 arquivos, +252K/-24K LOC) após última execução em 2026-07-11
+> `doc_level`: completo | Organização: por módulo
 > Marque cada tarefa com ✅ quando concluída.
-> Você pode editar este plano antes de iniciar: adicione, remova ou reordene tarefas conforme necessário.
 
 ---
 
@@ -14,50 +15,62 @@
 
 ## Decisão de organização das specs 🗂️
 
-> Entre o Scout e o Arqueólogo, o Reversa pergunta como você quer organizar as specs (por módulo, caso de uso, endpoint, híbrida, por features ou customizada). A escolha fica persistida em `.reversa/config.toml` na seção `[specs]` e não será reperguntada em execuções futuras. Para reapresentar o menu, remova manualmente a seção.
+> Organização mantida: **por módulo** (persistido em `.reversa/config.toml`).
 
 ## Fase 2: Escavação 🏗️
 
-> Módulos identificados pelo Scout em 2026-07-11.
+> Módulos identificados pelo Scout em 2026-07-13 (17 módulos).
 
-- [x] **Archaeologist** — Análise do módulo `crawl` (35 arquivos, 14K LOC, 10 crawlers + 4 templates) ✅
-- [x] **Archaeologist** — Análise do módulo `intel` (8 arquivos, 12K LOC, pipeline 7 stages + 5 gates) ✅
-- [x] **Archaeologist** — Análise do módulo `reports` (6 arquivos, 9.5K LOC, PDF/Excel executivo) ✅
-- [x] **Archaeologist** — Análise do módulo `lib` (11 arquivos, 2.5K LOC, 6 algoritmos core) ✅
-- [x] **Archaeologist** — Análise do módulo `matching` (2 arquivos, 300 LOC, cascade 3 níveis) ✅
-- [x] **Archaeologist** — Análise do módulo `config` (7 arquivos, 8.8K LOC YAML, 13 setores B2G) ✅
-- [x] **Archaeologist** — Análise do módulo `db` (25 arquivos, 6K LOC SQL, 19 migrations + schema real) ✅
-- [x] **Archaeologist** — Análise do módulo `deploy` (42 arquivos, 3.5K LOC, 20 systemd timers) ✅
-- [x] **Archaeologist** — Análise do módulo `docs` (50 arquivos, 4K LOC, TD docs + arquitetura) ✅
+- [ ] **Archaeologist** — Análise do módulo `crawl` (51 .py, ~65K LOC, 10+ crawlers, ingestion pipeline)
+- [ ] **Archaeologist** — Análise do módulo `opportunity_intel` (16 .py, ~15K LOC, QW-01 Radar, ranking, scoring)
+- [ ] **Archaeologist** — Análise do módulo `contract_intel` (3 .py, ~60K LOC, universo-alvo, CLI contratos)
+- [ ] **Archaeologist** — Análise do módulo `lib` (15 .py, ~12K LOC, universe, geocode, name normalizer, victory profile)
+- [ ] **Archaeologist** — Análise do módulo `matching` (3 .py, ~28K LOC, entity matcher cascade 3 níveis)
+- [ ] **Archaeologist** — Análise do módulo `coverage` (4 .py, ~44K LOC, validate, calculator, measure expansion)
+- [ ] **Archaeologist** — Análise do módulo `reports` (4 .py, ~64K LOC, PDF/Excel executivo, cobertura semanal)
+- [ ] **Archaeologist** — Análise do módulo `fix` (7 .py, ~165K LOC, scrape residual, repair scripts)
+- [ ] **Archaeologist** — Análise do módulo `pipeline` (2 .py, ~34K LOC, backfill multi-fonte)
+- [ ] **Archaeologist** — Análise do módulo `diagnose` (1 .py, ~25K LOC, DOM-SC diagnostics)
+- [ ] **Archaeologist** — Análise do módulo `transparencia` (1 .py, ~14K LOC, detecção automática de portais)
+- [ ] **Archaeologist** — Análise do módulo `config` (config/, 3 .py + YAMLs, settings, 13 setores B2G)
+- [ ] **Archaeologist** — Análise do módulo `db` (33 + 8 migrations, schema completo, seed)
+- [ ] **Archaeologist** — Análise do módulo `deploy` (20 systemd timers, provisionamento, hardening)
+- [ ] **Archaeologist** — Análise do módulo `root_scripts` (~40 scripts CLI top-level, entry points principais)
+- [ ] **Archaeologist** — Análise do módulo `tests` (64 testes, fixtures, smoke)
+- [ ] **Archaeologist** — Análise do módulo `docs` (590 arquivos, 7 epics, ADRs, PRDs, runbooks)
 
 ## Fase 3: Interpretação 🧠
 
-- [x] **Detetive** — Arqueologia Git (20 commits, 3 epics) ✅
-- [x] **Detetive** — 17 regras de negócio implícitas e 6 máquinas de estado ✅
-- [x] **Detetive** — Matriz de permissões (single-tenant, sem RBAC) ✅
-- [x] **Detetive** — 11 ADRs (6 originais + 5 novos do commit e9729e1) ✅
-- [x] **Arquiteto** — Diagramas C4 (Contexto, Containers, Componentes) ✅
-- [x] **Arquiteto** — ERD completo (8 tabelas, 33 índices, 10 funções, 5 views) ✅
-- [x] **Arquiteto** — Spec Impact Matrix (cross-reference módulos×regras×ADRs×épicos) ✅
+- [ ] **Detetive** — Arqueologia Git (30 commits desde última execução) ✅
+- [ ] **Detetive** — Regras de negócio implícitas (R18-R26: deságio, competitive intel, QW-01, gates, evidence ledger) ✅
+- [ ] **Detetive** — Máquinas de estado (MS7-MS10: evidence_state, QW-01 Radar, Readiness Gate, Freshness Gate) ✅
+- [ ] **Detetive** — ADRs retroativos (012-016: QW-01, Coverage Truth, Fail-Closed CI, Semantic Values, Competitive Intel) ✅
+- [ ] **Arquiteto** — Diagramas C4 (Contexto +2 sistemas, Containers +4, Componentes +3 diagramas) ✅
+- [ ] **Arquiteto** — ERD completo (+2 tabelas: coverage_evidence, opportunity_intel; +1 enum: evidence_state) ✅
+- [ ] **Arquiteto** — Spec Impact Matrix (+8 módulos, +9 regras, +5 ADRs, +1 cross-cutting concern) ✅
 
 ## Fase 4: Geração 📝
 
-- [x] **Redator** — Specs SDD por componente (9 módulos, 27 arquivos canônicos) ✅
-- [x] **Redator** — N/A: sem API HTTP (sistema CLI) ✅
-- [x] **Redator** — N/A: sistema single-tenant CLI, sem user stories tradicionais ✅
-- [x] **Redator** — Code/Spec Matrix (75 arquivos mapeados, 84% cobertura 🟢) ✅
+- [x] **Redator** — Specs SDD por componente (17 módulos) ✅
+- [x] **Redator** — Code/Spec Matrix (147 entradas, 92% cobertura) ✅
+
+> **Concluído em 2026-07-13.** 32 arquivos gerados: 9 novos módulos + 2 parciais completados + 2 contracts.md + code-spec-matrix atualizada.
+> **Fontes brownfield integradas:** plano-mestre (9 EPICs P0, DoD §22), epic-technical-debt (5 stories), 35 lacunas documentadas.
 
 ## Fase 5: Revisão ✅
 
-- [x] **Revisor** — Revisão cruzada de specs (Codex indisponível, revisão solo) ✅
-- [x] **Revisor** — 6 perguntas para validação (3 🔴, 3 🟠) em questions.md ✅
-- [x] **Revisor** — Relatório de confiança final (91% 🟢, 10 gaps, 4 reclassificações) ✅
+- [x] **Revisor** — Revisão cruzada de specs (5 agentes QA paralelos) ✅
+- [x] **Revisor** — Perguntas para validação humana (5 questões, todas respondidas) ✅
+- [x] **Revisor** — Relatório de confiança final (78% geral, 17 módulos) ✅
+
+> **Concluído em 2026-07-13.** 24 lacunas consolidadas (8 críticas, 7 altas, 5 médias, 4 baixas).
+> 4 correções in-place: reports/design.md expandido, docs/tasks.md expandido, diagnose e transparencia aprofundados.
+> 4 sub-specs lib geradas. Code-spec-matrix expandida para 263 entradas (100%).
+> Intel/ migrado para root_scripts/. Confiança: 78% 🟡 (escopo 2× maior que extração anterior).
 
 ---
 
 ## Agentes Independentes
-
-> Execute estes agentes quando os recursos estiverem disponíveis — podem rodar em qualquer fase.
 
 - [ ] **Visor** — Análise de interface via screenshots
 - [ ] **Data Master** — Análise completa do banco de dados
@@ -68,7 +81,6 @@
 
 ## Próximo passo
 
-Após o Time de Descoberta concluir e o `_reversa_sdd/` estar populado, você pode disparar um dos fluxos seguintes:
+Fase de Geração — Redator produz specs SDD por módulo. Em seguida, Revisor faz revisão cruzada.
 
-- `/reversa-migrate`: orquestrador do **Time de Migração** (Paradigm Advisor → Curator → Strategist → Designer → Screen Translator → Inspector). Gera as specs do sistema novo. Saída em `_reversa_sdd/migration/` e `_reversa_sdd/screens/`.
-- `/reversa-reconstructor`: gera plano bottom-up para reimplementar o software a partir das specs do legado (uma tarefa por sessão).
+Após o Time de Descoberta concluir, disparar `/reversa-migrate` ou `/reversa-reconstructor`.

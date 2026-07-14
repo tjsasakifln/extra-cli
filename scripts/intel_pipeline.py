@@ -31,6 +31,14 @@ import time
 import unicodedata
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
+
+# ============================================================
+# Ensure scripts/ is on sys.path for lib.* imports (TD-019)
+# ============================================================
+_scripts_dir = Path(__file__).resolve().parent
+if str(_scripts_dir) not in sys.path:
+    sys.path.insert(0, str(_scripts_dir))
 
 # ============================================================
 # Windows console encoding fix — force UTF-8 even if already wrapped
@@ -44,9 +52,7 @@ if sys.platform == "win32":
     except (ValueError, AttributeError):
         pass
 
-# ============================================================
-# CONSTANTS
-# ============================================================
+from scripts.lib.terminal import bold, cyan, green, red, yellow
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPTS_DIR.parent
@@ -61,45 +67,29 @@ TIMEOUT_EXTRACT_DOCS = 600  # 10 min — downloads from PNCP
 TIMEOUT_EXCEL = 60
 TIMEOUT_PDF = 60
 
-# Colors (ANSI codes for terminal)
-_C_RESET = "\033[0m"
-_C_GREEN = "\033[92m"
-_C_RED = "\033[91m"
-_C_YELLOW = "\033[93m"
-_C_CYAN = "\033[96m"
-_C_BOLD = "\033[1m"
-_C_MAGENTA = "\033[95m"
-
 # ============================================================
 # HELPERS
 # ============================================================
 
 
-def _c(text: str, color: str) -> str:
-    """Wrap text in ANSI color if stdout is a terminal."""
-    if sys.stdout.isatty() if hasattr(sys.stdout, "isatty") else False:
-        return f"{color}{text}{_C_RESET}"
-    return text
-
-
 def _ok(text: str) -> str:
-    return _c(text, _C_GREEN)
+    return green(text)
 
 
 def _err(text: str) -> str:
-    return _c(text, _C_RED)
+    return red(text)
 
 
 def _warn(text: str) -> str:
-    return _c(text, _C_YELLOW)
+    return yellow(text)
 
 
 def _info(text: str) -> str:
-    return _c(text, _C_CYAN)
+    return cyan(text)
 
 
 def _bold(text: str) -> str:
-    return _c(text, _C_BOLD)
+    return bold(text)
 
 
 def _strip_accents(s: str) -> str:
@@ -149,13 +139,62 @@ def _find_latest_json(cnpj14: str) -> Path | None:
     return max(candidates, key=lambda p: p.stat().st_mtime)
 
 
+# Pipeline step results (populated by _run_script, used by TD-005 JSON output)
+_pipeline_steps: list[dict[str, Any]] = []
+_pipeline_run_id: str = ""
+_pipeline_json_path: str | None = None
+
+
+def _set_pipeline_json_path(path: str | None) -> None:
+    global _pipeline_json_path
+    _pipeline_json_path = path
+
+
+def _generate_run_id(cnpj: str) -> str:
+    """Generate a unique run ID for this pipeline execution."""
+    return f"intel-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}-{cnpj[:8]}"
+
+
+def _write_pipeline_json(path: str, run_id: str, args, start_time: float) -> None:
+    """Write structured pipeline execution JSON (TD-005)."""
+    total_duration = time.time() - start_time
+    payload = {
+        "run_id": run_id,
+        "pipeline": "intel-busca",
+        "version": __import__("lib.constants", fromlist=["INTEL_VERSION"]).INTEL_VERSION,
+        "started_at": datetime.now(UTC).isoformat(),
+        "total_duration_seconds": round(total_duration, 1),
+        "parameters": {
+            "cnpj": args.cnpj,
+            "ufs": args.ufs,
+            "dias": args.dias,
+            "top": args.top,
+            "skip_sicaf": args.skip_sicaf,
+            "from_step": args.from_step,
+            "no_cache": args.no_cache,
+        },
+        "steps": _pipeline_steps,
+        "status": "completed" if all(s["status"] == "completed" for s in _pipeline_steps) else "partial",
+    }
+    path_obj = Path(path)
+    path_obj.parent.mkdir(parents=True, exist_ok=True)
+    path_obj.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(f"\n  {_info('JSON')}: Pipeline structured output → {path_obj}")
+
+
 def _run_script(
     script_name: str,
     args: list[str],
     timeout: int,
     step_label: str,
 ) -> subprocess.CompletedProcess:
-    """Run a Python script via subprocess with PYTHONIOENCODING=utf-8."""
+    """Run a Python script via subprocess with PYTHONIOENCODING=utf-8.
+
+    Captures step metadata for the structured pipeline JSON output (TD-005).
+    """
     script_path = str(SCRIPTS_DIR / script_name)
     cmd = [sys.executable, script_path] + args
     env = os.environ.copy()
@@ -163,6 +202,13 @@ def _run_script(
 
     print(f"  $ {' '.join(cmd[:4])} {' '.join(cmd[4:])[:100]}")
     t0 = time.time()
+    step_result: dict[str, Any] = {
+        "step": step_label,
+        "script": script_name,
+        "cmd": " ".join(cmd),
+        "started_at": datetime.now(UTC).isoformat(),
+        "status": "running",
+    }
     try:
         result = subprocess.run(
             cmd,
@@ -172,14 +218,30 @@ def _run_script(
             capture_output=False,  # allow live output
         )
         elapsed = time.time() - t0
+        step_result["status"] = "completed"
+        step_result["duration_seconds"] = round(elapsed, 1)
+        step_result["returncode"] = result.returncode
+        step_result["finished_at"] = datetime.now(UTC).isoformat()
         print(f"  {_ok('OK')} {step_label} concluído em {_fmt_duration(elapsed)}")
+        _pipeline_steps.append(step_result)
         return result
     except subprocess.TimeoutExpired:
         elapsed = time.time() - t0
+        step_result["status"] = "timeout"
+        step_result["duration_seconds"] = round(elapsed, 1)
+        step_result["finished_at"] = datetime.now(UTC).isoformat()
+        step_result["error"] = f"Timeout after {timeout}s"
+        _pipeline_steps.append(step_result)
         print(_err(f"\n  ERRO: {step_label} excedeu timeout de {timeout}s ({_fmt_duration(elapsed)})"))
         raise
     except subprocess.CalledProcessError as e:
         elapsed = time.time() - t0
+        step_result["status"] = "failed"
+        step_result["duration_seconds"] = round(elapsed, 1)
+        step_result["returncode"] = e.returncode
+        step_result["finished_at"] = datetime.now(UTC).isoformat()
+        step_result["error"] = f"Exit code {e.returncode}"
+        _pipeline_steps.append(step_result)
         print(_err(f"\n  ERRO: {step_label} falhou com código {e.returncode} ({_fmt_duration(elapsed)})"))
         raise
 
@@ -784,7 +846,19 @@ def main() -> int:
         help="Mostrar passos que seriam executados sem rodar o pipeline",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {INTEL_VERSION}")
+    parser.add_argument(
+        "--pipeline-json",
+        type=str,
+        default=None,
+        metavar="FILE",
+        help="Output path for structured pipeline JSON (TD-005). Includes run_id, step statuses, timestamps.",
+    )
     args = parser.parse_args()
+
+    # ── Initialize TD-005 JSON output ──
+    run_id = _generate_run_id(args.cnpj)
+    if args.pipeline_json:
+        _set_pipeline_json_path(args.pipeline_json)
 
     # ── Validate arguments ──
     cnpj14 = validate_cnpj(args.cnpj)
@@ -1251,6 +1325,10 @@ def main() -> int:
         print(_warn(f"  Atenção: gates com falha: {', '.join(failed)}"))
 
     # Calibration hint for bid score feedback loop
+    # ── Write structured pipeline JSON (TD-005) ──
+    if _pipeline_json_path:
+        _write_pipeline_json(_pipeline_json_path, run_id, args, pipeline_t0)
+
     _cnpj_hint = cnpj14
     if json_path:
         try:

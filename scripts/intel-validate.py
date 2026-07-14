@@ -48,24 +48,6 @@ from lib.intel_logging import setup_intel_logging
 
 logger = setup_intel_logging("intel-validate")
 
-# ============================================================
-# CONSTANTS
-# ============================================================
-
-# ANSI colors
-_C_RESET = "\033[0m"
-_C_GREEN = "\033[92m"
-_C_RED = "\033[91m"
-_C_YELLOW = "\033[93m"
-_C_CYAN = "\033[96m"
-_C_BOLD = "\033[1m"
-
-
-def _c(text: str, color: str) -> str:
-    if sys.stdout.isatty() if hasattr(sys.stdout, "isatty") else False:
-        return f"{color}{text}{_C_RESET}"
-    return text
-
 
 def _ok(msg: str) -> None:
     logger.info("PASS %s", msg)

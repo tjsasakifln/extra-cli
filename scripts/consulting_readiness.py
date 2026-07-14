@@ -22,15 +22,16 @@ import argparse
 import csv
 import json
 import logging
-import math
 import os
 import sys
-from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
-from scripts.lib.universe import normalize_cnpj8
+from scripts.lib.universe import (
+    CanonicalUniverse,
+    load_canonical_universe,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -40,7 +41,6 @@ _logger = logging.getLogger(__name__)
 
 FLORIANOPOLIS_LAT = -27.5954
 FLORIANOPOLIS_LON = -48.5480
-EARTH_RADIUS_KM = 6371.0
 DEFAULT_RADIUS_KM = 200.0
 DEFAULT_THRESHOLD = 0.95
 COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
@@ -48,6 +48,78 @@ COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SEED = str(PROJECT_ROOT / "Extra - alvos de licitação. R-0.xlsx")
 DEFAULT_OUTPUT_DIR = str(PROJECT_ROOT / "output" / "readiness")
+
+# Backward compatibility: exported for tests that import from consulting_readiness
+# (Story 1.3 refactored to CanonicalUniverse; these aliases preserve test compatibility)
+from scripts.lib.universe import (
+    CanonicalEntity,
+    CanonicalUniverse,
+)
+
+
+class TargetEntity(CanonicalEntity):
+    """Backward-compatible alias (Story 1.3)."""
+
+
+class TargetUniverse:
+    """Backward-compatible wrapper around CanonicalUniverse (Story 1.3)."""
+
+    def __init__(self, entities=None, radius_km=None):
+        if entities is None:
+            self._canonical = None  # empty state for tests
+        else:
+            self._canonical = CanonicalUniverse(
+                seed_path=DEFAULT_SEED,
+                seed_sha256="",
+                radius_km=radius_km or DEFAULT_RADIUS_KM,
+            )
+        self.entities = entities or {}
+
+    def __getattr__(self, name):
+        if self._canonical is not None and hasattr(self._canonical, name):
+            return getattr(self._canonical, name)
+        raise AttributeError(name)
+
+    def __len__(self):
+        return len(self.entities)
+
+    def __iter__(self):
+        return iter(self.entities.values())
+
+
+import math
+
+EARTH_RADIUS_KM = 6371.0  # noqa: N816
+
+
+def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate distance in km between two points using Haversine formula."""
+    R = 6371.0  # noqa: N806
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+
+def load_target_universe(path=None, radius_km=None):
+    """Backward-compatible wrapper around CanonicalUniverse (Story 1.3)."""
+    from scripts.lib.universe import CanonicalUniverse
+
+    return CanonicalUniverse(path or DEFAULT_SEED, radius_km or DEFAULT_RADIUS_KM)
+
+
+def _parse_coords(lat_raw: Any, lon_raw: Any) -> tuple[float | None, float | None, bool]:
+    """Parse coordinate pair. Returns (lat, lon, has_coords)."""
+    if lat_raw is None or lon_raw is None:
+        return None, None, False
+    try:
+        lat = float(lat_raw)
+        lon = float(lon_raw)
+        return lat, lon, True
+    except (ValueError, TypeError):
+        return None, None, False
+
 
 # Known-blocked sources that must NEVER be reported as success.
 # Each entry documents why the source cannot execute in the current
@@ -63,249 +135,30 @@ SOURCE_BLOCKERS: dict[str, str] = {
     "selenium": "Não é fonte, é infraestrutura de acesso",
 }
 
-# Column mapping for the seed spreadsheet "Extra - alvos de licitação. R-0.xlsx" (0-indexed)
-COL_RAZAO = 0
-COL_CNPJ8 = 1
-COL_MUNICIPIO = 2
-COL_IBGE = 3
-COL_NATUREZA = 4
-COL_COD_NATUREZA = 5
-COL_LATITUDE = 6
-COL_LONGITUDE = 7
-COL_DISTANCIA_SEED = 8  # Pre-calculated distance from Florianopolis (km)
-COL_RAIO200 = 9  # AUTHORITATIVE radius flag: "SIM ✓" or "NÃO"
-
 # ---------------------------------------------------------------------------
-# Domain types
+# Universe adapter
 # ---------------------------------------------------------------------------
 
 
-@dataclass
-class TargetEntity:
-    """One entity from the seed spreadsheet, with resolution status."""
-
-    razao_social: str
-    cnpj8: str
-    municipio: str
-    codigo_ibge: str
-    natureza_juridica: str
-    latitude: float | None = None
-    longitude: float | None = None
-    distancia_km: float | None = None
-    within_radius: bool = False
-    resolution: str = "resolved"  # resolved | unresolved | duplicate
-
-
-@dataclass
-class TargetUniverse:
-    """Auditable target universe derived from the seed spreadsheet."""
-
-    entities: list[TargetEntity] = field(default_factory=list)
-    total_seed_rows: int = 0
-    total_resolved: int = 0
-    total_unresolved: int = 0
-    total_duplicates: int = 0
-    total_within_radius: int = 0
-    total_outside_radius: int = 0
-    unresolved_entities: list[dict[str, str]] = field(default_factory=list)
-    duplicate_cnpj8_list: list[str] = field(default_factory=list)
-    seed_file: str = ""
-    radius_km: float = DEFAULT_RADIUS_KM
-
-    @property
-    def inclusion_rule(self) -> str:
-        return (
-            f"Authoritative radius flag from spreadsheet column 'Raio 200km?' "
-            f"({self.radius_km:.1f} km radius from Florianopolis). "
-            f"'SIM ✓' = within radius, 'NÃO' = outside. "
-            f"Uses spreadsheet 'Distância de Florianópolis (km)' as authoritative distance. "
-            f"Entities with coords + flag are resolved; entities with flag only are resolved "
-            f"(flag takes precedence). "
-            f"Haversine fallback only for entities added after the spreadsheet "
-            f"without a radius flag."
-        )
-
-    @property
-    def confirmed_universe_count(self) -> int:
-        """Entities with confirmed coordinates (resolved + within radius or outside)."""
-        return self.total_resolved
-
-    @property
-    def potential_universe_count(self) -> int:
-        """Confirmed + unresolved = maximum possible universe."""
-        return self.total_resolved + self.total_unresolved
-
-    def summary(self) -> dict[str, Any]:
-        return {
-            "seed_file": self.seed_file,
-            "total_seed_rows": self.total_seed_rows,
-            "confirmed_universe": self.total_resolved,
-            "potential_universe": self.potential_universe_count,
-            "unresolved": self.total_unresolved,
-            "duplicates": self.total_duplicates,
-            "within_radius": self.total_within_radius,
-            "outside_radius": self.total_outside_radius,
-            "duplicate_cnpj8_list": self.duplicate_cnpj8_list,
-            "unresolved_entities": self.unresolved_entities,
-            "inclusion_rule": self.inclusion_rule,
-            "center_lat": FLORIANOPOLIS_LAT,
-            "center_lon": FLORIANOPOLIS_LON,
-            "radius_km": self.radius_km,
-        }
-
-
-# ---------------------------------------------------------------------------
-# Haversine
-# ---------------------------------------------------------------------------
-
-
-def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """Great-circle distance in km between two points."""
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
-    return EARTH_RADIUS_KM * 2 * math.asin(math.sqrt(a))
-
-
-# ---------------------------------------------------------------------------
-# Universe loading
-# ---------------------------------------------------------------------------
-
-
-def load_target_universe(
-    seed_path: str | None = None,
-    radius_km: float = DEFAULT_RADIUS_KM,
-) -> TargetUniverse:
-    """Load seed spreadsheet and build auditable target universe.
-
-    Entities without coordinates are marked ``unresolved`` — NEVER excluded.
-    """
-    if seed_path is None:
-        seed_path = DEFAULT_SEED
-
-    if not os.path.exists(seed_path):
-        raise FileNotFoundError(f"Seed file not found: {seed_path}")
-
-    try:
-        import openpyxl
-    except ImportError:
-        raise ImportError("openpyxl is required. Install with: pip install openpyxl")
-
-    wb = openpyxl.load_workbook(seed_path, read_only=True, data_only=True)
-    ws = wb.active
-    rows = list(ws.iter_rows(min_row=2, values_only=True))
-    wb.close()
-
-    universe = TargetUniverse(
-        seed_file=seed_path,
-        radius_km=radius_km,
-        total_seed_rows=len(rows),
-    )
-
-    cnpj8_seen: dict[str, int] = {}
-
-    for row in rows:
-        if not row or not row[COL_RAZAO]:
-            continue
-
-        razao = str(row[COL_RAZAO]).strip()
-        cnpj8 = normalize_cnpj8(str(row[COL_CNPJ8])) if len(row) > COL_CNPJ8 and row[COL_CNPJ8] else ""
-        municipio = str(row[COL_MUNICIPIO]).strip() if len(row) > COL_MUNICIPIO and row[COL_MUNICIPIO] else ""
-        ibge = str(int(row[COL_IBGE])) if len(row) > COL_IBGE and row[COL_IBGE] else ""
-        natureza = str(row[COL_NATUREZA]).strip() if len(row) > COL_NATUREZA and row[COL_NATUREZA] else ""
-
-        # ── Parse coordinates ────────────────────────────────────────
-        lat_raw = row[COL_LATITUDE] if len(row) > COL_LATITUDE else None
-        lon_raw = row[COL_LONGITUDE] if len(row) > COL_LONGITUDE else None
-        lat, lon, has_coords = _parse_coords(lat_raw, lon_raw)
-
-        # ── Parse distance ───────────────────────────────────────────
-        # (Must compute dist early — fallback radius check uses it)
-        dist_raw = row[COL_DISTANCIA_SEED] if len(row) > COL_DISTANCIA_SEED else None
-        dist = 0.0
-        if dist_raw is not None:
-            try:
-                dist = float(dist_raw)
-            except (ValueError, TypeError):
-                dist = haversine_km(FLORIANOPOLIS_LAT, FLORIANOPOLIS_LON, lat, lon) if has_coords else 0.0
-        else:
-            dist = haversine_km(FLORIANOPOLIS_LAT, FLORIANOPOLIS_LON, lat, lon) if has_coords else 0.0
-
-        # ── Read spreadsheet's AUTHORITATIVE radius flag ──────────────
-        # Column "Raio 200km?" = "SIM ✓" within radius, "NÃO" outside
-        raio_flag = str(row[COL_RAIO200]).strip() if len(row) > COL_RAIO200 and row[COL_RAIO200] else ""
-
-        # Authoritative radius flag (takes precedence even without coordinates)
-        if raio_flag == "SIM ✓":
-            within = True
-        elif raio_flag == "NÃO":
-            within = False
-        else:
-            # Truly unresolved: no radius flag AND no coordinates
-            if not has_coords:
-                entity = TargetEntity(
-                    razao_social=razao,
-                    cnpj8=cnpj8,
-                    municipio=municipio,
-                    codigo_ibge=ibge,
-                    natureza_juridica=natureza,
-                    resolution="unresolved",
-                )
-                universe.entities.append(entity)
-                universe.total_unresolved += 1
-                universe.unresolved_entities.append(
-                    {
-                        "razao_social": razao,
-                        "cnpj8": cnpj8,
-                        "municipio": municipio,
-                        "codigo_ibge": ibge,
-                    }
-                )
-                continue
-            # Fallback: coordinates exist but no radius flag
-            within = dist <= radius_km
-
-        universe.total_resolved += 1
-
-        entity = TargetEntity(
-            razao_social=razao,
-            cnpj8=cnpj8,
-            municipio=municipio,
-            codigo_ibge=ibge,
-            natureza_juridica=natureza,
-            latitude=lat,
-            longitude=lon,
-            distancia_km=round(dist, 1) if has_coords else None,
-            within_radius=within,
-            resolution="resolved",
-        )
-        universe.entities.append(entity)
-
-        if within:
-            universe.total_within_radius += 1
-            cnpj8_seen[cnpj8] = cnpj8_seen.get(cnpj8, 0) + 1
-        else:
-            universe.total_outside_radius += 1
-
-    # Compute duplicates
-    for cnpj8, count in cnpj8_seen.items():
-        if count > 1:
-            universe.total_duplicates += 1
-            universe.duplicate_cnpj8_list.append(cnpj8)
-
-    return universe
-
-
-def _parse_coords(lat_raw: Any, lon_raw: Any) -> tuple[float | None, float | None, bool]:
-    """Parse coordinate pair. Returns (lat, lon, has_coords)."""
-    if lat_raw is None or lon_raw is None:
-        return None, None, False
-    try:
-        lat = float(lat_raw)
-        lon = float(lon_raw)
-        return lat, lon, True
-    except (ValueError, TypeError):
-        return None, None, False
+def _make_summary(universe) -> dict:
+    """CanonicalUniverse.summary() to legacy dict for print_summary compat."""
+    s = universe.summary()
+    return {
+        "seed_file": universe.seed_path,
+        "total_seed_rows": s["total_seed_rows"],
+        "confirmed_universe": s["resolved_rows"],
+        "potential_universe": s["total_seed_rows"],
+        "unresolved": s["unresolved_rows"],
+        "duplicates": len(s["duplicate_cnpj_roots"]),
+        "within_radius": s["within_radius"],
+        "outside_radius": s["outside_radius"],
+        "duplicate_cnpj8_list": s["duplicate_cnpj_roots"],
+        "unresolved_entities": [],
+        "inclusion_rule": s["radius_formula"],
+        "center_lat": FLORIANOPOLIS_LAT,
+        "center_lon": FLORIANOPOLIS_LON,
+        "radius_km": universe.radius_km,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -1376,7 +1229,7 @@ def _apply_source_blockers(
 
 
 def compute_readiness(
-    universe: TargetUniverse,
+    universe: CanonicalUniverse,
     evidence: list[dict],
     source_health: list[dict],
     coverage_rows: list[dict],
@@ -1387,8 +1240,8 @@ def compute_readiness(
     """Compute the readiness assessment from all data sources."""
 
     # ── Build entity ID sets ─────────────────────────────────────────────
-    resolved_within = [e for e in universe.entities if e.resolution == "resolved" and e.within_radius]
-    unresolved = [e for e in universe.entities if e.resolution == "unresolved"]
+    resolved_within = universe.included
+    unresolved = universe.unresolved
 
     # Map CNPJ8 → entity data
     cnpj8_to_entity = entity_data
@@ -1740,7 +1593,7 @@ def compute_readiness(
             "florianopolis": {"lat": FLORIANOPOLIS_LAT, "lon": FLORIANOPOLIS_LON},
             "exit_code": 0 if readiness_passed else 2,
         },
-        "universe": universe.summary(),
+        "universe": _make_summary(universe),
         "coverage": {
             "numerator": numerator,
             "denominator_conservative": denominator_conservative,
@@ -2021,21 +1874,18 @@ def main() -> int:
     # ── 1. Load target universe ──────────────────────────────────────────
     try:
         print("Loading target universe from seed file...")
-        universe = load_target_universe(args.seed, args.radius_km)
+        universe = load_canonical_universe(args.seed or DEFAULT_SEED, args.radius_km)
     except FileNotFoundError as e:
-        print(f"❌ {e}", file=sys.stderr)
-        return 1
-    except ImportError as e:
         print(f"❌ {e}", file=sys.stderr)
         return 1
 
     print(
-        f"   Universe: {universe.total_resolved} resolved, "
-        f"{universe.total_unresolved} unresolved, "
-        f"{universe.total_within_radius} within radius"
+        f"   Universe: {len(universe.included) + len(universe.excluded)} resolved, "
+        f"{len(universe.unresolved)} unresolved, "
+        f"{len(universe.included)} within radius"
     )
 
-    if universe.total_resolved == 0 and universe.total_unresolved == 0:
+    if len(universe.included) == 0 and len(universe.unresolved) == 0 and len(universe.excluded) == 0:
         print("❌ No entities found in seed file.", file=sys.stderr)
         return 1
 

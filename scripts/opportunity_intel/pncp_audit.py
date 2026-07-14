@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import date
@@ -14,7 +15,10 @@ from scripts.crawl.pncp_contract import DEFAULT_MODALIDADES
 from scripts.lib.universe import CanonicalUniverse, normalize_cnpj8
 from scripts.opportunity_intel.models import CrawlRequest, FetchResult
 from scripts.opportunity_intel.pncp_crawler import PncpOpportunityCrawler
+from scripts.opportunity_intel.reconciliation import SourceSnapshotReconciler
 from scripts.opportunity_intel.transformer import normalize_record
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -210,6 +214,31 @@ def run_pncp_open_monitoring(
                 period_start=period_start,
                 period_end=period_end,
             )
+            # Story 1.4: Trigger snapshot reconciliation for completed runs
+            if scope_complete and outcome.status in ("completed", "completed_zero"):
+                try:
+                    reconciler = SourceSnapshotReconciler(dsn)
+                    recon_result = reconciler.reconcile(
+                        run_id=db_run_id,
+                        source="pncp",
+                        records=list(deduplicated) if deduplicated else None,
+                    )
+                    _logger.info(
+                        "Snapshot reconciliation for run %d: %s",
+                        db_run_id,
+                        "skipped"
+                        if recon_result.skipped
+                        else f"active_before={recon_result.active_before}, "
+                        f"inactivated={recon_result.inactivated}, "
+                        f"reactivated={recon_result.reactivated}",
+                    )
+                except Exception as recon_err:
+                    _logger.error(
+                        "Snapshot reconciliation failed for run %d: %s",
+                        db_run_id,
+                        recon_err,
+                        exc_info=True,
+                    )
         return outcome
     except Exception as exc:
         if conn is not None and db_run_id is not None:
@@ -388,9 +417,7 @@ def _project_coverage_evidence(
     period_start: date,
     period_end: date,
 ) -> None:
-    root_counts = Counter(
-        normalize_cnpj8(_raw_org_cnpj(record)) for record in outcome.records if _raw_org_cnpj(record)
-    )
+    root_counts = Counter(normalize_cnpj8(_raw_org_cnpj(record)) for record in outcome.records if _raw_org_cnpj(record))
     scope_key = f"uf=SC;modalidades=1-19;{period_start.isoformat()}:{period_end.isoformat()}"
     scopes_payload = [asdict(scope) for scope in outcome.scopes]
     completion_rule = "reported_total_pages" if outcome.scope_complete else "scope_incomplete"

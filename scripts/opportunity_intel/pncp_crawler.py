@@ -58,9 +58,7 @@ class PncpOpportunityCrawler(BaseOpportunityCrawler):
             dsn=dsn,
             page_size=PNCP_PAGE_SIZE,
             max_pages=max_pages if max_pages is not None else PNCP_MAX_PAGES,
-            request_delay=(
-                request_delay if request_delay is not None else PNCP_REQUEST_DELAY
-            ),
+            request_delay=(request_delay if request_delay is not None else PNCP_REQUEST_DELAY),
             **kwargs,
         )
 

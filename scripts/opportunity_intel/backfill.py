@@ -371,13 +371,14 @@ def update_entity_coverage(dsn: str | None = None) -> dict:
             SET is_covered = TRUE,
                 total_bids = subq.open_count
             FROM (
-                SELECT e.id, COUNT(*) as open_count
-                FROM sc_public_entities e
-                JOIN pncp_raw_bids pb ON e.id = pb.matched_entity_id
-                WHERE e.raio_200km = TRUE
+                SELECT tue.db_entity_id AS id, COUNT(*) as open_count
+                FROM target_universe_entities tue
+                JOIN pncp_raw_bids pb ON tue.db_entity_id = pb.matched_entity_id
+                WHERE tue.universe_run_id = (SELECT MAX(id) FROM target_universe_runs)
+                  AND tue.radius_decision = 'included'
                   AND pb.is_active = TRUE
                   AND ({inferred}) IN ('open', 'upcoming')
-                GROUP BY e.id
+                GROUP BY tue.db_entity_id
             ) subq
             WHERE ec.entity_id = subq.id AND ec.source = 'pncp'
             RETURNING ec.entity_id, ec.total_bids"""

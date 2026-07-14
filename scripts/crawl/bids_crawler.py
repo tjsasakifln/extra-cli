@@ -54,10 +54,19 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import sys
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
-from ingestion._base.crawler import (
+# Ensure scripts/crawl/ and scripts/ are on sys.path for ingestion.* and pncp_client imports (TD-001)
+_this_dir = Path(__file__).resolve().parent
+_scripts_dir = _this_dir.parent
+for _p in (_this_dir, _scripts_dir):
+    if str(_p) not in sys.path:
+        sys.path.insert(0, str(_p))
+
+from ingestion._base.crawler import (  # noqa: E402
     BaseCrawler,
     CrawlerResult,
     accumulate_stats,

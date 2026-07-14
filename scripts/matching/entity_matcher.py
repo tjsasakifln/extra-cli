@@ -3,6 +3,15 @@
 Fornece o pipeline de entity matching usado pelo sistema de monitoramento
 para associar bids/licitacoes a entidades publicas cadastradas.
 
+Unificado (TD-027): unica implementacao de entity matching.
+Consumidores migrados para usar esta funcao:
+    - ``scripts/crawl/monitor.py`` (antes tinha copia privada)
+    - ``scripts/crawl/orchestrator.py`` (ja importava destaqui)
+    - ``scripts/coverage/run_matching.py`` (migrado)
+    - ``scripts/fix/scrape_residual_portals.py`` (migrado)
+
+Type hints completos (TD-003): todas as funcoes publicas tem tipos especificos.
+
 Strategies (aplicadas em ordem por bid):
     Level 1 — CNPJ exact match (8-digit base)          [confidence: high]
     Level 2 — Normalized name + municipio constraint   [confidence: high]
@@ -14,10 +23,13 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from config.logging_config import get_logger
 from scripts.lib.name_normalizer import find_unknown_abbreviations, normalize_name
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 logger = get_logger(__name__)
 
@@ -25,16 +37,18 @@ logger = get_logger(__name__)
 # Environment defaults
 # ---------------------------------------------------------------------------
 
-ENTITY_MATCH_FUZZY_THRESHOLD = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85"))
+ENTITY_MATCH_FUZZY_THRESHOLD: float = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85"))
 """Default fuzzy threshold for entity name matching."""
 
-ENTITY_MATCH_FUZZY_THRESHOLD_SMALL_CITY = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD_SMALL_CITY", "0.75"))
+ENTITY_MATCH_FUZZY_THRESHOLD_SMALL_CITY: float = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD_SMALL_CITY", "0.75"))
 """Fuzzy threshold for small cities (< 5,000 inhabitants)."""
 
-SMALL_CITY_POPULATION_THRESHOLD = int(os.getenv("SMALL_CITY_POPULATION_THRESHOLD", "5000"))
+SMALL_CITY_POPULATION_THRESHOLD: int = int(os.getenv("SMALL_CITY_POPULATION_THRESHOLD", "5000"))
 """Population below which a city is considered 'small' for threshold adjustment."""
 
-ENTITY_MATCH_LOG_UNKNOWN_ABBREVIATIONS = os.getenv("ENTITY_MATCH_LOG_UNKNOWN_ABBREVIATIONS", "true").lower() == "true"
+ENTITY_MATCH_LOG_UNKNOWN_ABBREVIATIONS: bool = (
+    os.getenv("ENTITY_MATCH_LOG_UNKNOWN_ABBREVIATIONS", "true").lower() == "true"
+)
 """Whether to log unknown abbreviations found during normalization."""
 
 # ---------------------------------------------------------------------------
@@ -99,7 +113,11 @@ def _get_fuzzy_threshold(codigo_ibge: str) -> float:
 
 
 def _get_small_city_ibge_codes() -> set[str]:
-    """Return set of IBGE codes for municipalities with population < threshold."""
+    """Return set of IBGE codes for municipalities with population < threshold.
+
+    Returns:
+        Set of IBGE code strings.
+    """
     pop_data = _load_population_data()
     return {code for code, pop in pop_data.items() if pop < SMALL_CITY_POPULATION_THRESHOLD}
 
@@ -218,7 +236,16 @@ def update_matched_entity_full(
     match_score: float | None = None,
     match_confidence: str | None = None,
 ) -> None:
-    """Set ``matched_entity_id`` + match metadata on a bid record."""
+    """Set ``matched_entity_id`` + match metadata on a bid record.
+
+    Args:
+        conn: Database connection.
+        pncp_id: Bid identifier.
+        entity_id: Matched entity ID (or None for unmatched).
+        match_method: Method used (cnpj, name_normalized, alias, fuzzy, unmatched).
+        match_score: Match score (0.0 to 1.0).
+        match_confidence: Confidence level (high|medium|low).
+    """
     cur = conn.cursor()
     cur.execute(
         """UPDATE pncp_raw_bids
@@ -233,77 +260,59 @@ def update_matched_entity_full(
 
 
 # ---------------------------------------------------------------------------
-# Cascade matching
+# Cascade matching (TD-027 unified, TD-003 full type hints)
 # ---------------------------------------------------------------------------
 
 
-def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]]) -> dict[str, int]:
-    """3-level+ cascade entity matching for a source.
-
-    Logs ``match_method``, ``match_score``, ``match_confidence`` to the bid row
-    for every bid (including unmatched).
-
-    Strategies (applied in order per bid):
-        Level 1 — CNPJ exact match (8-digit base)          [confidence: high]
-        Level 2 — Normalized name + municipio constraint   [confidence: high]
-        Level 2b — Alias matching (padroes de nome)        [confidence: high]
-        Level 3 — Fuzzy matching (rapidfuzz / difflib)     [confidence: high|medium|low]
-
-    Args:
-        conn: Database connection.
-        source: Data source tag (``pncp``, ``dom_sc``, etc.).
-        entities: List of entity dicts from ``load_entities()``.
+def _build_fuzz_ratio() -> Callable[[str, str], float]:
+    """Build a fuzzy ratio function using rapidfuzz (preferred) or difflib.
 
     Returns:
-        Stats dict with keys ``cnpj``, ``name_normalized``, ``alias``,
-        ``fuzzy``, ``unmatched``, ``total``.
+        A function that takes two strings and returns a similarity ratio (0.0-1.0).
     """
-    logger.info(
-        "Starting cascade matching for source=%s with %d entities",
-        source,
-        len(entities),
-    )
-
-    # Build known abbreviations set for AC5 detection
-    known_abbrev: set[str] = set()
     try:
-        from scripts.lib.name_normalizer import ABBREVIATIONS
+        from rapidfuzz import fuzz as _rapidfuzz
 
-        known_abbrev.update(ABBREVIATIONS.keys())
-    except Exception:
-        pass
+        def _ratio(a: str, b: str) -> float:
+            return _rapidfuzz.ratio(a, b) / 100.0
+    except ImportError:
+        from difflib import SequenceMatcher
 
-    # Step 1 — fetch all unmatched bids for this source
-    cur = conn.cursor()
-    cur.execute(
-        """SELECT pncp_id, orgao_cnpj, orgao_razao_social, municipio,
-                  codigo_municipio_ibge
-           FROM pncp_raw_bids
-           WHERE source = %s AND matched_entity_id IS NULL
-             AND (
-                (orgao_cnpj IS NOT NULL AND orgao_cnpj != '')
-                OR (orgao_razao_social IS NOT NULL AND orgao_razao_social != '')
-             )""",
-        (source,),
-    )
-    cols = [d[0] for d in cur.description]
-    unmatched_bids = [dict(zip(cols, row)) for row in cur.fetchall()]
-    cur.close()
+        logger.warning(
+            "rapidfuzz not installed — falling back to difflib.SequenceMatcher "
+            "for fuzzy entity matching. Install via: pip install rapidfuzz"
+        )
 
-    if not unmatched_bids:
-        logger.info("No unmatched bids for source=%s — skipping matching", source)
-        return {"cnpj": 0, "name_normalized": 0, "alias": 0, "fuzzy": 0, "unmatched": 0, "total": 0}
+        def _ratio(a: str, b: str) -> float:  # type: ignore[misc]
+            return SequenceMatcher(None, a, b).ratio()
 
-    logger.info("Matching %d bids for source=%s", len(unmatched_bids), source)
-    # Step 2 — build entity lookup structures
-    # CNPJ index: cnpj_8 -> entity
+    return _ratio
+
+
+def _build_entity_indexes(
+    entities: list[dict[str, Any]],
+) -> tuple[
+    dict[str, dict[str, Any]],  # cnpj_index
+    dict[str, dict[str, Any]],  # name_exact_index
+    dict[tuple[str, str], dict[str, Any]],  # name_muni_index
+    dict[tuple[str, str], dict[str, Any]],  # alias_muni_index
+    list[dict[str, Any]],  # all_entities_norm
+]:
+    """Build entity lookup indexes for cascade matching.
+
+    Args:
+        entities: List of entity dicts.
+
+    Returns:
+        Tuple of (cnpj_index, name_exact_index, name_muni_index,
+                  alias_muni_index, all_entities_norm).
+    """
     cnpj_index: dict[str, dict[str, Any]] = {}
     for e in entities:
         cnpj_8 = e.get("cnpj_8")
         if cnpj_8:
             cnpj_index[cnpj_8] = e
 
-    # Name indexes
     name_exact_index: dict[str, dict[str, Any]] = {}
     name_muni_index: dict[tuple[str, str], dict[str, Any]] = {}
     alias_muni_index: dict[tuple[str, str], dict[str, Any]] = {}
@@ -329,23 +338,98 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
                     if key not in alias_muni_index:
                         alias_muni_index[key] = e
 
-    # Step 3 — try to import rapidfuzz (fallback to difflib)
+    return cnpj_index, name_exact_index, name_muni_index, alias_muni_index, all_entities_norm
+
+
+def match_entities_cascade(
+    conn: Any,
+    source: str,
+    entities: list[dict[str, Any]],
+    pncp_ids: list[str] | None = None,
+) -> dict[str, int]:
+    """3-level+ cascade entity matching for a source.
+
+    Logs ``match_method``, ``match_score``, ``match_confidence`` to the bid row
+    for every bid (including unmatched).
+
+    TD-027: Unica implementacao de entity matching. Removida copia em monitor.py.
+    TD-003: Type hints completos em todas as funcoes.
+
+    Strategies (applied in order per bid):
+        Level 1 — CNPJ exact match (8-digit base)          [confidence: high]
+        Level 2 — Normalized name + municipio constraint   [confidence: high]
+        Level 2b — Alias matching (padroes de nome)        [confidence: high]
+        Level 3 — Fuzzy matching (rapidfuzz / difflib)     [confidence: high|medium|low]
+
+    Args:
+        conn: Database connection.
+        source: Data source tag (``pncp``, ``dom_sc``, etc.).
+        entities: List of entity dicts from ``load_entities()``.
+        pncp_ids: Optional list of specific pncp_ids to match.
+                  If None, matches all unmatched bids for the source.
+
+    Returns:
+        Stats dict with keys ``cnpj``, ``name_normalized``, ``alias``,
+        ``fuzzy``, ``unmatched``, ``total``.
+    """
+    logger.info(
+        "Starting cascade matching for source=%s with %d entities (pncp_ids=%s)",
+        source,
+        len(entities),
+        "ALL" if pncp_ids is None else f"{len(pncp_ids)} ids",
+    )
+
+    # Build known abbreviations set for AC5 detection
+    known_abbrev: set[str] = set()
     try:
-        from rapidfuzz import fuzz as _rapidfuzz
+        from scripts.lib.name_normalizer import ABBREVIATIONS
 
-        def _fuzz_ratio(a: str, b: str) -> float:
-            return _rapidfuzz.ratio(a, b) / 100.0
-    except ImportError:
-        from difflib import SequenceMatcher
+        known_abbrev.update(ABBREVIATIONS.keys())
+    except Exception:
+        logger.debug("Could not load ABBREVIATIONS — continuing without known abbreviations")
 
-        logger.warning(
-            "rapidfuzz not installed — falling back to difflib.SequenceMatcher "
-            "for fuzzy entity matching. This is slower and less accurate. "
-            "Install rapidfuzz via: pip install rapidfuzz"
+    # Step 1 — fetch all unmatched bids for this source
+    cur = conn.cursor()
+    if pncp_ids:
+        cur.execute(
+            """SELECT pncp_id, orgao_cnpj, orgao_razao_social, municipio,
+                      codigo_municipio_ibge
+               FROM pncp_raw_bids
+               WHERE source = %s
+                 AND pncp_id = ANY(%s)
+                 AND (
+                    (orgao_cnpj IS NOT NULL AND orgao_cnpj != '')
+                    OR (orgao_razao_social IS NOT NULL AND orgao_razao_social != '')
+                 )""",
+            (source, pncp_ids),
         )
+    else:
+        cur.execute(
+            """SELECT pncp_id, orgao_cnpj, orgao_razao_social, municipio,
+                      codigo_municipio_ibge
+               FROM pncp_raw_bids
+               WHERE source = %s AND matched_entity_id IS NULL
+                 AND (
+                    (orgao_cnpj IS NOT NULL AND orgao_cnpj != '')
+                    OR (orgao_razao_social IS NOT NULL AND orgao_razao_social != '')
+                 )""",
+            (source,),
+        )
+    cols = [d[0] for d in cur.description]
+    unmatched_bids = [dict(zip(cols, row)) for row in cur.fetchall()]
+    cur.close()
 
-        def _fuzz_ratio(a: str, b: str) -> float:  # type: ignore[misc]
-            return SequenceMatcher(None, a, b).ratio()
+    if not unmatched_bids:
+        logger.info("No unmatched bids for source=%s — skipping matching", source)
+        return {"cnpj": 0, "name_normalized": 0, "alias": 0, "fuzzy": 0, "unmatched": 0, "total": 0}
+
+    logger.info("Matching %d bids for source=%s", len(unmatched_bids), source)
+
+    # Step 2 — build entity lookup structures
+    cnpj_index, name_exact_index, name_muni_index, alias_muni_index, all_entities_norm = _build_entity_indexes(entities)
+
+    # Step 3 — build fuzzy ratio function
+    _fuzz_ratio = _build_fuzz_ratio()
 
     # Step 4 — cascade matching per bid
     stats: dict[str, int] = {"cnpj": 0, "name_normalized": 0, "alias": 0, "fuzzy": 0, "unmatched": 0}
@@ -354,14 +438,14 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
     all_unknown_abbrevs: set[str] = set()
 
     for bid in unmatched_bids:
-        pncp_id = bid["pncp_id"]
-        orgao_cnpj = (bid.get("orgao_cnpj") or "").strip()
-        orgao_razao = (bid.get("orgao_razao_social") or "").strip()
-        codigo_ibge = (bid.get("codigo_municipio_ibge") or "").strip()
+        pncp_id: str = bid["pncp_id"]
+        orgao_cnpj: str = (bid.get("orgao_cnpj") or "").strip()
+        orgao_razao: str = (bid.get("orgao_razao_social") or "").strip()
+        codigo_ibge: str = (bid.get("codigo_municipio_ibge") or "").strip()
 
-        matched_entity = None
-        match_method = "unmatched"
-        match_score = 0.0
+        matched_entity: dict[str, Any] | None = None
+        match_method: str = "unmatched"
+        match_score: float = 0.0
         match_confidence: str | None = None
 
         # Detect unknown abbreviations (AC5)
@@ -443,8 +527,8 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
         if orgao_razao and not matched_entity and all_entities_norm:
             norm_name = normalize_name(orgao_razao)
             if norm_name:
-                best_score = 0.0
-                best_entity = None
+                best_score: float = 0.0
+                best_entity: dict[str, Any] | None = None
 
                 # Filter candidates by IBGE code if available
                 candidates = all_entities_norm
@@ -485,7 +569,7 @@ def match_entities_cascade(conn: Any, source: str, entities: list[dict[str, Any]
                 match_score,
                 match_confidence,
             )
-            stats[match_method] = stats[match_method] + 1
+            stats[match_method] = stats[match_method] + 1  # type: ignore[literal-required]
         else:
             update_matched_entity_full(
                 conn,

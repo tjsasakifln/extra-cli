@@ -165,8 +165,7 @@ class CanonicalUniverse:
             "db_matched_rows": sum(entity.db_entity_id is not None for entity in self.entities),
             "identity_formula": "sha256(normalized_cnpj8|normalized_municipio|normalized_razao_social)",
             "radius_formula": (
-                "seed column 'Raio 200km?': SIM = included, NAO = excluded; "
-                "missing/unknown decision remains unresolved"
+                "seed column 'Raio 200km?': SIM = included, NAO = excluded; missing/unknown decision remains unresolved"
             ),
         }
 
@@ -264,9 +263,7 @@ def _parse_seed_row(seed_row: int, row: tuple[Any, ...], radius_km: float) -> di
         raise ValueError(f"Seed row {seed_row} has invalid CNPJ root: {values[1]!r}")
     razao_social = str(values[0]).strip()
     municipio = str(values[2] or "").strip()
-    identity_key = "|".join(
-        (cnpj8, normalize_identity_text(municipio), normalize_identity_text(razao_social))
-    )
+    identity_key = "|".join((cnpj8, normalize_identity_text(municipio), normalize_identity_text(razao_social)))
 
     latitude = _optional_float(values[6])
     longitude = _optional_float(values[7])

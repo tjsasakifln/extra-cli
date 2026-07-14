@@ -1,8 +1,9 @@
 # Máquinas de Estado — Extra Consultoria
 
-> Gerado pelo Detective em 2026-07-11T21:30:00Z
+> Gerado pelo Detective em 2026-07-13T17:00:00Z
 > doc_level: completo
-> Base: commit e9729e1
+> Base: commit 249340d
+> Adições: MS7 (evidence_state), MS8 (QW-01 Radar), MS9 (Readiness Gate), MS10 (Freshness Gate)
 
 ---
 
@@ -168,3 +169,149 @@ stateDiagram-v2
 ```
 
 🟢 CONFIRMADO — `intel_pipeline.py:main()`.
+
+---
+
+## MS7: Estado de Evidência de Cobertura (Evidence Ledger)
+
+**Entidade:** `coverage_evidence` | **Campo:** `evidence_state` (enum)
+
+```mermaid
+stateDiagram-v2
+    [*] --> not_investigated: fonte nunca executada para (entity, source)
+    not_investigated --> success_with_data: crawl OK + fetched > 0
+    not_investigated --> success_zero: crawl OK + fetched = 0
+    not_investigated --> partial: crawl degraded
+    not_investigated --> connection_failed: fetch_failed / runtime_error
+    not_investigated --> auth_failed: missing_credentials
+    not_investigated --> parse_failed: parse error
+    not_investigated --> transform_failed: transform error
+    not_investigated --> persist_failed: DB write error
+    not_investigated --> not_applicable: crawler_not_implemented / SOURCE_BLOCKERS
+
+    success_with_data --> success_with_data: re-crawl (update count_obtained)
+    success_zero --> success_with_data: re-crawl com dados
+    connection_failed --> success_with_data: retry bem-sucedido
+    auth_failed --> success_with_data: credencial corrigida
+    partial --> success_with_data: recovery completo
+
+    note right of not_investigated: Estado default<br/>NUNCA assume coberto
+    note right of not_applicable: Fonte bloqueada<br/>SOURCE_BLOCKERS override
+    note right of success_with_data: Único estado "coberto"<br/>para métricas de readiness
+```
+
+🟢 CONFIRMADO — `supabase/migrations/006-v3-unified-schema.sql:391` (enum definition), `scripts/crawl/monitor.py:_map_evidence_state()`.
+
+**Mapeamento determinístico:** `monitor_status + error_code → evidence_state`:
+
+| monitor_status | error_code | fetched | evidence_state |
+|---------------|------------|---------|---------------|
+| success | — | > 0 | `success_with_data` |
+| success | — | = 0 | `success_zero` |
+| degraded | — | any | `partial` |
+| failed | — | any | `connection_failed` |
+| empty | — | any | `success_zero` |
+| skipped | — | any | `not_investigated` |
+| — | crawler_not_implemented | — | `not_applicable` |
+| — | missing_credentials | — | `auth_failed` |
+| — | fetch_failed | — | `connection_failed` |
+| — | persist_failed | — | `persist_failed` |
+| — | runtime_error | — | `connection_failed` |
+
+**Estados considerados "coberto" para readiness:** apenas `success_with_data` e `success_zero`.
+
+---
+
+## MS8: QW-01 Radar Execution
+
+**Entidade:** `RadarExecution` | **Campo:** `exit_code`, `readiness`
+
+```mermaid
+stateDiagram-v2
+    [*] --> validating: iniciar radar
+    validating --> schema_check: validate_qw01_schema()
+    schema_check --> universe_load: schema OK
+    schema_check --> [*]: schema mismatch (exit 1)
+
+    universe_load --> evidence_query: load_canonical_universe()
+    evidence_query --> compute_metrics: latest evidence por entity
+    compute_metrics --> threshold_check: monitoring_coverage%
+
+    threshold_check --> ready: coverage ≥ 95%
+    threshold_check --> not_ready: coverage < 95%
+
+    ready --> scoring: score_opportunity() todas
+    not_ready --> scoring: score_opportunity() todas (non-blocking)
+
+    scoring --> export: CSV + JSON output/
+    export --> [*]: exit 0 (ready) ou exit 2 (not ready)
+
+    note right of ready: readiness = "ready"<br/>triage_counts populated
+    note right of not_ready: readiness = "monitoring_below_threshold"<br/>gaps CSV gerado
+```
+
+🟢 CONFIRMADO — `scripts/opportunity_intel/radar.py:cmd_radar()`, `RadarExecution`, `MONITORING_THRESHOLD=95.0`.
+
+**Exit codes:** 0 = pronto (coverage ≥ 95%), 2 = abaixo do threshold, 1 = falha técnica.
+
+---
+
+## MS9: Consulting Readiness Gate
+
+**Entidade:** Execução do gate | **Lógica:** `consulting_readiness.py`
+
+```mermaid
+stateDiagram-v2
+    [*] --> load_universe: --radius-km R --threshold T
+    load_universe --> resolve_entities: match canonical → sc_public_entities
+    resolve_entities --> query_evidence: latest coverage_evidence
+    query_evidence --> apply_blockers: SOURCE_BLOCKERS override
+
+    apply_blockers --> compute_coverage: covered / conservative_population
+    compute_negative --> export_manifest: coverage_manifest.json + gaps.csv
+    compute_ready --> export_manifest: coverage_manifest.json
+
+    compute_coverage --> compute_ready: coverage ≥ threshold
+    compute_coverage --> compute_negative: coverage < threshold
+
+    export_manifest --> [*]: exit 0 (ready) ou exit 2 (not ready)
+
+    note right of compute_ready: exit 0<br/>"Consulting Ready"
+    note right of compute_negative: exit 2<br/>gap report gerado
+```
+
+🟢 CONFIRMADO — `scripts/consulting_readiness.py:main()`. `DEFAULT_THRESHOLD=0.95`.
+
+---
+
+## MS10: Freshness Gate SLA
+
+**Entidade:** `CriticalSourceSpec` | **Campo:** `freshness_sla_hours`
+
+```mermaid
+stateDiagram-v2
+    [*] --> check_pncp: verificar PNCP (SLA 24h)
+    [*] --> check_contracts: verificar Contracts (SLA 24d)
+
+    check_pncp --> pncp_fresh: MAX(last_run_at) ≥ NOW() - 24h
+    check_pncp --> pncp_stale: sem run recente
+
+    check_contracts --> contracts_fresh: MAX(last_run_at) ≥ NOW() - 24d
+    check_contracts --> contracts_stale: sem run recente
+
+    pncp_fresh --> aggregate: ✓
+    pncp_stale --> aggregate: ✗
+    contracts_fresh --> aggregate: ✓
+    contracts_stale --> aggregate: ✗
+
+    aggregate --> all_fresh: todas fresh
+    aggregate --> some_stale: ≥1 stale
+
+    all_fresh --> [*]: exit 0
+    some_stale --> [*]: exit 2
+
+    note right of pncp_stale: SLA configurável:<br/>FRESHNESS_SLA_PNCP_HOURS
+    note right of contracts_stale: SLA configurável:<br/>FRESHNESS_SLA_CONTRACTS_HOURS
+```
+
+🟢 CONFIRMADO — `scripts/freshness_gate.py:CRITICAL_SOURCES`, `main()`. SLAs configuráveis via env vars.

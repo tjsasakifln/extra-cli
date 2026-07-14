@@ -1,225 +1,315 @@
 # Database Audit — Extra Consultoria
 
-**Data:** 2026-07-11
-**Banco:** PostgreSQL 16.4, `postgres` database, porta 54399
-**Tamanho:** 4.1 GB
-**Tabelas:** 6 (199K bids + 3.69M contratos + 13.8K enrichments + 2K entes + 2 tabelas de ingestao)
+**Data:** 2026-07-13
+**Schema snapshot:** `supabase/current-schema.sql` (2026-07-11, v2 baseline)
+**Ultima migration:** `006-v3-unified-schema.sql` (2026-07-12, v3 consolidated)
+**Database version:** PostgreSQL 18.4 (Ubuntu 18.4-1.pgdg24.04+1)
 
 ---
 
-## 1. Schema Quality Assessment
+## 1. Security Audit
 
-### Strengths
+### 1.1 RLS Coverage
 
-1. **Chaves primarias em todas as tabelas** — Nenhuma tabela sem PK.
-2. **Check constraints em ingestion_runs** — `run_type` e `status` tem valores validados.
-3. **Check constraint em ingestion_checkpoints** — `status` validado.
-4. **Unique constraints de dedup** — `content_hash` UNIQUE em bids e contracts, `cnpj_8` UNIQUE em sc_public_entities.
-5. **Triggers de updated_at** — Consistentes em bids e contracts.
-6. **Trigger de TSVECTOR** — Auto-atualizacao do vetor de full-text search.
-7. **Partial indexes** — Uso extensivo de `WHERE` clauses em indexes (bids: `is_active`, `data_encerramento IS NOT NULL`, etc.).
-8. **Genereted Always As Identity** — ingestion_checkpoints e ingestion_runs usam identity columns (melhor que SERIAL).
-9. **Text search config customizada** — `portuguese_smartlic` com unaccent + portuguese_stem.
-10. **Soft-delete padrao** — `is_active` column em todas as tabelas principais.
+| Tabela | RLS Ativa | Policies | Risco | Notas |
+|--------|-----------|----------|-------|-------|
+| `sc_public_entities` | NAO | 0 | BAIXO | Dados publicos, sem PII |
+| `pncp_raw_bids` | NAO | 0 | BAIXO | Dados de licitacao (publicos por lei) |
+| `pncp_supplier_contracts` | NAO | 0 | BAIXO | Dados contratuais publicos |
+| `enriched_entities` | NAO | 0 | BAIXO | Cache de API publica |
+| `entity_coverage` | NAO | 0 | BAIXO | Metadados internos |
+| `coverage_snapshots` | NAO | 0 | BAIXO | Metricas internas |
+| `ingestion_runs` | NAO | 0 | BAIXO | Audit trail interno |
+| `ingestion_checkpoints` | NAO | 0 | BAIXO | Estado de crawler |
 
-### Issues Found
+**Avaliacao:** Nao ha RLS policy em nenhuma tabela. Nao ha necessidade atual pois o banco opera como single-user (role `postgres`). Se o banco for exposto via Supabase ou API no futuro, RLS sera necessario para:
+- Separar acesso leitura vs escrita
+- Prevenir delecao acidental de dados de batch
+- Proteger metadados de ingestao (ingestion_runs contem error_message com possivel informacao interna)
 
-#### ISSUE-1: Drift completo entre migrations e schema real
-- **Severidade:** CRITICAL
-- **Descricao:** Nenhuma das 12 migrations corresponde ao schema real do banco. As migrations 001-008 definem schemas diferentes do que esta em producao (colunas diferentes, tipos diferentes, constraints diferentes). As migrations 009-012 nunca foram aplicadas.
-- **Impacto:** Impossivel reconstruir o banco a partir das migrations. Qualquer novo desenvolvedor nao consegue replicar o ambiente.
-- **Recomendacao:** Regenerar todas as migrations para refletir o schema real (via `pg_dump --schema-only`). Estabelecer processo de migration tracking.
+### 1.2 Access Patterns
 
-#### ISSUE-2: `esfera_id` como TEXT (inconsistente)
-- **Severidade:** MEDIUM
-- **Tabela:** `pncp_raw_bids`
-- **Descricao:** Migration 001 define `esfera_id INT`, mas o schema real usa `esfera_id TEXT` com valores como 'F', 'E', 'M', 'D'.
-- **Impacto:** Perda de validacao de dominio. Nao ha CHECK constraint para limitar os valores.
-- **Recomendacao:** Adicionar CHECK constraint `esfera_id IN ('F','E','M','D')` ou criar tabela de lookup.
+- **Unico role:** `postgres` (superuser)
+- **Conexao:** Driver `psycopg2` raw (sem ORM, sem pooler, sem Supabase REST)
+- **Porta:** 5432 (default PostgreSQL, nao 54399 como documentado anteriormente)
+- **Host:** Local (sem exposicao externa)
 
-#### ISSUE-3: `data_publicacao`, `data_abertura`, `data_encerramento` como TIMESTAMPTZ
-- **Severidade:** MEDIUM
-- **Tabela:** `pncp_raw_bids`
-- **Descricao:** Migration define como DATE, mas o real usa TIMESTAMPTZ. Alem disso, nao ha NOT NULL constraint apesar do codigo aplicar fallback de data.
-- **Recomendacao:** Decidir se precisa de TIME (aparentemente nao) e consolidar para DATE com NOT NULL.
+### 1.3 Secrets Management
 
-#### ISSUE-4: `objeto_compra` NOT NULL sem fallbank no schema
-- **Severidade:** MEDIUM
-- **Tabela:** `pncp_raw_bids`
-- **Descricao:** `objeto_compra` é NOT NULL, mas nao ha DEFAULT. Se um record chegar sem objeto, a query quebra.
-- **Recomendacao:** Adicionar DEFAULT '' ou garantir que o loader sempre preencha.
+| Risco | Descricao | Localizacao | Severidade |
+|-------|-----------|-------------|------------|
+| Credencial em texto puro | `postgres:smartlic_local` hardcoded em config/settings.py | `config/settings.py` e scripts Python | **MEDIO** |
+| Senha versionada | A credencial esta em arquivos versionados no git | Multiplos scripts | **MEDIO** |
 
-#### ISSUE-5: enriched_entities schema divergente
-- **Severidade:** HIGH
-- **Tabela:** `enriched_entities`
-- **Descricao:** Migration 003 define schema com colunas `cnpj`, `razao_social`, `cnae_principal`, etc. O real usa schema generico `entity_type`/`entity_id`/`data` JSONB. O TTL de 30 dias mencionado no codigo nao é enforceado pelo banco.
-- **Impacto:** Cache pode crescer indefinidamente sem garbage collection.
-- **Recomendacao:** Adicionar job de cleanup periodico ou TTL-based partitioning.
+**Recomendacao:** Mover para `.env` file ou `pg_service.conf`. Manter credencial default apenas para desenvolvimento local. Nunca usar em staging/production.
 
-#### ISSUE-6: ingestion_checkpoints sem uso
-- **Severidade:** LOW
-- **Descricao:** Tabela tem 0 registros. A estrutura e os indexes existem mas nunca foram populados.
-- **Impacto:** Crawlers nao sao resumeveis — em caso de falha, recomecam do inicio.
-- **Recomendacao:** Integrar checkpoints nos crawlers ou remover a tabela.
+### 1.4 SQL Injection Risk
+
+- **Baixo risco** — O codigo Python usa `psycopg2` com query parameterized (`%s` placeholders) em `datalake_helper.py` e `local_datalake.py`.
+- Funcoes PL/pgSQL usam `ON CONFLICT` e `jsonb_array_elements` com dados internos (sem input direto do usuario).
+- Risco moderado se houver endpoints HTTP que aceitem SQL params sem sanitizacao.
+
+**Avaliacao:** Aceitavel para uso atual.
 
 ---
 
-## 2. Security Audit
+## 2. Performance Audit
 
-### RLS Policies
-- **NENHUMA** policy de Row-Level Security configurada.
-- **Avaliacao:** Aceitavel para single-user (apenas role `postgres`). Se o banco for exposto futuramente, RLS sera necessario.
+### 2.1 Table Sizing (estimado)
 
-### SQL Injection Risk
-- **Baixo risco** — O codigo Python usa `psycopg2` com query parameterized (`%s` placeholders) em todo o `datalake_helper.py` e `local_datalake.py`.
-- **Risco moderado** no `monitor.py` linha 498: `cur.execute("SELECT * FROM upsert_pncp_raw_bids(%s)", (json.dumps(records),))` — embora com placeholder `%s`, o JSON e gerado internamente (sem input do usuario), entao e seguro.
-- **Avaliacao:** Aceitavel.
+| Tabela | Registros (est.) | Storage (est.) | Indexes |
+|--------|-----------------|----------------|---------|
+| `pncp_raw_bids` | ~200K | ~650 MB dados + ~400 MB indices | 15 |
+| `pncp_supplier_contracts` | ~3.7M | ~2.2 GB dados + ~1.3 GB indices | 8 |
+| `enriched_entities` | ~14K | < 1 MB | 2 |
+| `sc_public_entities` | ~2K | < 1 MB | 6 |
+| `entity_coverage` | ~4K | < 1 MB | 4 |
+| `coverage_snapshots` | variavel | < 1 MB | 3 |
+| `ingestion_runs` | ~5 | < 1 MB | 2 |
+| `ingestion_checkpoints` | 0 | < 1 MB | 1 |
 
-### Permission Model
-- Unico role: `postgres` (superuser).
-- Sem roles de aplicacao, sem usuarios separados para leitura/escrita.
-- **Avaliacao:** Aceitavel para single-user. Se houver expansao, criar roles `datalake_reader` (SELECT apenas) e `datalake_writer` (INSERT/UPDATE).
+### 2.2 Index Coverage Analysis
 
-### Secrets Management
-- **Credencial** `postgres:smartlic_local` hardcoded como default no `config/settings.py` e em varios scripts Python.
-- **Avaliacao:** Risco MEDIO. A senha "smartlic_local" esta em texto puro em multiplos lugares, versionada no git.
-- **Recomendacao:** Mover para `.env` file ou usar `pgpass`. Manter credencial default apenas para desenvolvimento local, nunca em staging/production.
+**pncp_raw_bids (15 indexes):** Cobertura boa para os principais padroes de consulta. Destaques:
 
----
+| Index | Coverage | Notas |
+|-------|----------|-------|
+| `idx_bids_tsv` (GIN) | Full-text search | Essencial para `search_datalake()` |
+| `idx_bids_uf_data` (BTREE) | Filtro UF + data | Cobre o padrao mais comum |
+| `idx_bids_modalidade` (BTREE) | Filtro modalidade | Composto com data |
+| `idx_bids_active` (BTREE, partial) | Filtro ativos | Partial index reduz tamanho |
+| `idx_bids_matched_entity` (BTREE, partial) | Join coverage | Partial index, eficiente |
+| `idx_bids_valor` (BTREE) | Filtro valor | Index separado, necessario para range scans |
+| `idx_bids_encerramento` (BTREE, partial) | Filtro encerramento | Partial, IS NOT NULL |
+| `idx_bids_source` (BTREE) | Filtro fonte | Baixa cardinalidade (~5 valores), util para cobertura |
 
-## 3. Performance Audit
+**Potenciais indexes faltantes:**
+- `idx_bids_objeto_trgm` nao existe no v2 baseline (mas esta no v1 divergente) — sem trigram fallback. A funcao `search_datalake` usa ILIKE como fallback, que faz full table scan.
+- `idx_bids_objeto_trgm` seria necessario se o ILIKE fallback for usado com frequencia.
 
-### Missing Indexes
+**pncp_supplier_contracts (8 indexes):** Cobertura adequada.
 
-1. **`pncp_raw_bids.matched_entity_id`** — Nao ha index para joins com `sc_public_entities`. A query de coverage no monitor.py faz LEFT JOIN sem index.
-   - **Impacto:** POTENCIALMENTE ALTO se a coverage query rodar frequente.
-   - **Sql sugerido:** `CREATE INDEX IF NOT EXISTS idx_bids_matched_entity_id ON pncp_raw_bids(matched_entity_id) WHERE matched_entity_id IS NOT NULL;`
+| Index | Coverage | Notas |
+|-------|----------|-------|
+| `idx_psc_objeto_trgm` (GIN) | Trigram search | Essencial para buscas em `objeto_contrato` |
+| `idx_psc_fornecedor` (BTREE) | Lookup fornecedor | Composto com data_publicacao DESC |
+| `idx_psc_orgao` (BTREE) | Lookup orgao | Index simples |
+| `idx_psc_uf` (BTREE) | Filtro UF | Composto com data |
+| `idx_psc_valor` (BTREE) | Filtro valor | Index separado |
+| `idx_psc_data` (BTREE) | Ordenacao data | DESC para mais recentes primeiro |
 
-2. **`pncp_raw_bids.source`** — Embora haja `idx_pncp_raw_bids_uf_date`, nao ha index simples apenas em `source` para queries do tipo "todas bids de X source".
-   - **Impacto:** BAIXO (source tem baixa cardinalidade).
+**Potenciais indexes faltantes:**
+- Nao ha partial index `is_active` em `pncp_supplier_contracts` (diferente de `pncp_raw_bids`) — queries que filtram por ativos podem escanear mais registros.
 
-### Query Analysis
+**sc_public_entities (6 indexes):** Cobertura excessiva para 2K registros.
 
-**Query problematica:** `search_datalake` function linha 210-213:
-```sql
-(1.0 - (b.embedding <=> p_embedding)) > v_cos_threshold
-```
-Quando `p_embedding` e fornecido, a funcao faz scan sequencial se o HNSW index nao for usado corretamente. O HNSW index com `vector_cosine_ops` requer operador `<=>` no ORDER BY ou WHERE com operador de distancia. A expressao `1.0 - (vec <=> ...)` e uma transformacao que pode impedir o uso do index.
+| Index | Necessidade | Notas |
+|-------|-------------|-------|
+| `idx_spe_cnpj` | Util | Lookup por CNPJ 8-digit |
+| `idx_spe_ibge` | Util | Join por codigo IBGE |
+| `idx_spe_municipio` | Moderada | 293 municipios, baixa cardinalidade |
+| `idx_spe_natureza` | Moderada | ~10 valores distintos |
+| `idx_spe_raio` | Util | Filtro geografico |
+| `idx_spe_municipio` duplicata da funcionalidade de `idx_spe_ibge` | — | Ambos usados em contextos diferentes |
 
-**Recomendacao:** Testar `EXPLAIN ANALYZE` com e sem embedding filter. Se o HNSW nao for usado, reescrever como:
-```sql
-AND (b.embedding <=> p_embedding) < (1.0 - v_cos_threshold)
-```
+**Nota:** Para 2K registros, indexes extras tem custo negligible e sao justificaveis pela frequencia das queries.
 
-### Anti-patterns Found
+### 2.3 Full-Text Search Performance
 
-1. **GIST trigram index muito grande (294 MB):** `idx_pncp_raw_bids_objeto_trgm` consome 294 MB para uma tabela de 268 MB de dados. Isso acontece porque o GIST index em texto e muito custoso. Considere substituir por GIN trigram index, que e 2-3x menor (mas lento para updates).
-   - **Impacto:** MEDIO (custo de storage + manutencao).
-   - **Recomendacao:** Avaliar se `word_similarity()` fallback e usado com frequencia. Se sim, trocar para `idx_pncp_raw_bids_objeto_trgm ON pncp_raw_bids USING GIN (objeto_compra gin_trgm_ops)`.
+A funcao `search_datalake` usa:
+1. `ts_rank(b.tsv, to_tsquery('portuguese', p_tsquery))` — usa GIN index `idx_bids_tsv`
+2. Fallback ILIKE: `b.objeto_compra ILIKE '%' || p_tsquery || '%'` — **sem index de trigram**, faz full table scan
 
-2. **Constraints sem index no `datalake_helper.py`:** `supplier_contracts()` usa `ILIRE` em `objeto_contrato` sem index GIN/GIST. A tabela de 3.69M contratos faz full table scan a cada busca textual.
-   - **Impacto:** ALTO para queries de pricing/competitors.
-   - **Recomendacao:** Adicionar index: `CREATE INDEX idx_psc_objeto_trgm ON pncp_supplier_contracts USING GIN (objeto_contrato gin_trgm_ops) WHERE is_active = true;`
+**Recomendacao:** Adicionar index GIN trigram em `objeto_compra` se o ILIKE fallback for usado com frequencia.
 
-3. **`upsert_pncp_supplier_contracts` row-by-row:** A funcao itera com `FOR rec IN SELECT * FROM jsonb_array_elements(...)` e faz SELECT + INSERT separadamente. Isso e ~10x mais lento que a abordagem set-based.
-   - **Impacto:** MEDIO (3.69M contratos inseridos com esse metodo).
-   - **Recomendacao:** Re-escrever usando `jsonb_to_recordset()` + INSERT ... ON CONFLICT como em `upsert_supplier_contracts`.
+### 2.4 Coverage Query Performance
 
-4. **`search_datalake` sem index para `websearch_text`:** A funcao tenta parsear `p_websearch_text` como TSQUERY, mas nao ha index GIN que cubra `tsv` para queries websearch-to-tsquery.
-   - **Impacto:** BAIXO (o mesmo GIN index atende).
+O trigger `trg_bids_coverage` executa `update_entity_coverage()` a cada INSERT em `pncp_raw_bids`. A funcao faz:
+1. SELECT em `sc_public_entities` por `id` — usa PK (rapido)
+2. INSERT ... ON CONFLICT em `entity_coverage` — usa PK composto (rapido)
 
----
+**Avaliacao:** Performance aceitavel para volume atual (~200K registros). Monitorar se volume aumentar > 1M.
 
-## 4. Database Technical Debt Inventory
+### 2.5 Batch Upsert Performance
 
-| ID | Debito | Severidade | Tabela/Objeto | Impacto | Recomendacao |
-|----|--------|------------|---------------|---------|-------------|
-| DT-01 | Migrations totalmente divergentes do schema real | CRITICAL | Todas | Rebuild impossivel | Regenerar migrations com `pg_dump --schema-only` |
-| DT-02 | 4 migrations nunca aplicadas (009-012) | HIGH | entity_coverage, views, snapshots | Funcionalidade de coverage ausente | Aplicar migrations 009, 010, 011, 012 |
-| DT-03 | enriched_entities sem TTL enforcement | MEDIUM | enriched_entities | Cache cresce sem controle | Job de cleanup ou partitioning |
-| DT-04 | upsert_pncp_supplier_contracts row-by-row | MEDIUM | pncp_supplier_contracts | Performance subotima | Re-escrever set-based |
-| DT-05 | Senha hardcoded em multiplos scripts | MEDIUM | config/settings.py | Exposicao de credencial | Migrar para .env |
-| DT-06 | GIST trigram index superdimensionado | MEDIUM | pncp_raw_bids | 294 MB de index | Avaliar GIN trigram |
-| DT-07 | Missing index matched_entity_id | LOW | pncp_raw_bids | Coverage queries lentas | Adicionar index |
-| DT-08 | Missing GIN index on objeto_contrato | HIGH | pncp_supplier_contracts | Full table scans em contratos | Adicionar GIN trigram index |
-| DT-09 | esfera_id sem CHECK constraint | LOW | pncp_raw_bids | Dominio nao validado | Adicionar CHECK |
-| DT-10 | ingestion_checkpoints sem uso | LOW | ingestion_checkpoints | Dead code | Integrar ou remover |
-| DT-11 | search_datalake HNSW pode nao ser usado | MEDIUM | Function | Queries embedding lentas | Reescrever expressao `1.0 - <=>` |
-| DT-12 | Codigo referencia tabela/search_results_cache que nao existe | LOW | local_datalake.py | Confusao | Remover da listagem stats |
-| DT-13 | Codigo referencia colunas que nao existem no schema | MEDIUM | datalake_helper.py | Queries podem falhar | Sincronizar schema Python x PG |
-| DT-14 | `purge_old_bids` faz DELETE fisico (irreversivel) | MEDIUM | pncp_raw_bids | Perda de dados historicos | Migrar para soft-delete |
+`upsert_pncp_raw_bids` e `upsert_pncp_supplier_contracts` usam **iteracao row-by-row** com `FOR rec IN SELECT * FROM jsonb_array_elements(p_records)`. Esta abordagem e:
+- 1 round-trip por registro dentro da funcao (pl/pgsql loop)
+- ~5-10x mais lento que abordagem set-based com `jsonb_to_recordset()` + INSERT ... ON CONFLICT
 
----
+**Impacto:** MEDIO para `pncp_raw_bids` (200K registros). BAIXO para volume atual, mas pode ser gargalo com crescimentos.
 
-## 5. Migration Hygiene
+### 2.6 Anti-patterns
 
-### Problemas Graves
-
-1. **Migrations nao sao o source of truth.** O banco foi evoluido diretamente com DDL avulso. As migrations existentes sao versoes desatualizadas e enganosas.
-
-2. **Nao ha tracking de migrations aplicadas.** Nenhuma tabela `_migrations` ou `schema_migrations_history` controla o estado.
-
-3. **Nomes de migrations nao seguem convencao de reversibilidade.** Nao ha `DOWN` scripts para rollback.
-
-4. **Ordem de aplicacao problematica:** Migration 009 referencia `entity_coverage` tabela e triggers que dependem de `sc_public_entities` e `pncp_raw_bids`, mas estas tabelas tem schema diferente do esperado.
-
-### Recomendacoes
-
-1. Executar `pg_dump --schema-only --no-owner --no-acl > db/schemas/current-schema.sql` para capturar o estado real.
-2. Criar migrations regeneradas (`migration 001-v2`, `002-v2`, etc.) que refletem o schema real.
-3. Aplicar migrations 009-012 (adaptadas para o schema atual).
-4. Criar tabela de tracking de migrations.
+1. **GIN index em `objeto_contrato` ja existe** (diferente da auditoria anterior que reportava como ausente) — `idx_psc_objeto_trgm` esta presente no v2 baseline.
+2. **Row-by-row upsert** — `upsert_pncp_raw_bids` e `upsert_pncp_supplier_contracts` usam loop PL/pgSQL em vez de set-based operation.
+3. **Sem index ILIKE em `pncp_raw_bids.objeto_compra`** — fallback `ILIKE '%query%'` na `search_datalake` nao e coberto por index.
+4. **Datas como DATE vs TIMESTAMPTZ** — `data_publicacao`, `data_abertura`, `data_encerramento` sao DATE em `pncp_raw_bids`, mas TIMESTAMPTZ no `search_datalake` e em funcoes de coverage. Consistencia e recomendavel.
+5. **`pncp_raw_bids.content_hash` UNIQUE sem partial** — o UNIQUE constraint permite apenas um registro com determinado hash, mesmo que `is_active = false`. Se houver re-insercao de registros previamente deletados, o upsert falha (faz NOTHING).
 
 ---
 
-## 6. Recommendations (Prioritized)
+## 3. Data Integrity Audit
 
-### Criticas (fazer imediatamente)
+### 3.1 Constraints Analysis
 
-1. **[CRITICAL] Regenerar migrations** — `pg_dump --schema-only > db/schema/schema-current.sql` e criar novo conjunto de migrations que corresponda ao banco real.
+| Tabela | PK | FK | UNIQUE | CHECK | NOT NULL coverage |
+|--------|----|----|--------|-------|-------------------|
+| `sc_public_entities` | OK | 0 | 0 | 0 | razao_social, cnpj_8, is_active, raio_200km |
+| `pncp_raw_bids` | OK | 1 (SET NULL) | 1 | 0 | is_active, source |
+| `pncp_supplier_contracts` | OK | 0 | 1 | 0 | source |
+| `enriched_entities` | OK | 0 | 0 | 0 | cnpj |
+| `entity_coverage` | OK | 1 (CASCADE) | 0 | 0 | entity_id, source |
+| `coverage_snapshots` | OK | 0 | 0 | 0 | snapshot_date, source |
+| `ingestion_runs` | OK | 0 | 0 | 0 | source, status |
+| `ingestion_checkpoints` | OK | 0 | 0 | 0 | source, scope_key |
 
-2. **[HIGH] Aplicar migrations 009-012** — Criar entity_coverage, views de coverage, unmatched_bids, coverage_snapshots. Sem isso, o sistema de monitoramento de cobertura nao funciona.
+**Observacoes:**
 
-3. **[HIGH] Adicionar index GIN em `pncp_supplier_contracts.objeto_contrato`** — Queries ILIKE atualmente varrem 3.69M registros sequencialmente.
-   ```sql
-   CREATE INDEX idx_psc_objeto_trgm ON pncp_supplier_contracts
-   USING GIN (objeto_contrato gin_trgm_ops) WHERE is_active = true;
-   ```
+1. **Ausencia de CHECK constraints** — Nenhuma tabela tem CHECK constraints para validar dominio de dados. Exemplos:
+   - `esfera_id` deveria ser restrito a 1,2,3,4 (ou NULL)
+   - `source` deveria ter valores conhecidos (`pncp`, `dom_sc`, `pcp`, etc.)
+   - `status` em `ingestion_runs` deveria ser `running`, `completed`, `failed`
+   - `natureza_juridica` em `sc_public_entities` sem controle de dominio
 
-### Importantes (fazer nessa sprint)
+2. **UNIQUE ausente em `sc_public_entities.cnpj_8`** — Ha index BTREE em `cnpj_8`, mas nao UNIQUE constraint. Isso permite duplicatas de CNPJ raiz, o que e indesejavel para matching de entidades.
 
-4. **[MEDIUM] Otimizar `upsert_pncp_supplier_contracts`** — Substituir FOR loop por `jsonb_to_recordset()`.
+3. **`pncp_raw_bids` com poucos NOT NULL** — Apenas `is_active`, `source`, `ingested_at`, `updated_at` sao NOT NULL. Colunas criticas como `objeto_compra`, `data_publicacao`, `uf` sao NULLABLE.
 
-5. **[MEDIUM] Mover senha do DB para .env** — Remover `smartlic_local` do codigo fonte.
+4. **`objeto_compra` NOT NULL nao e enforceado** — No schema real, `objeto_compra` aceita NULL. Se o upsert receber um registro sem `objeto_compra`, o `to_tsvector('portuguese', NULL)` retorna NULL, nao erro.
 
-6. **[MEDIUM] Auditar expressao HNSW em `search_datalake`** — Verificar se o index de embedding esta sendo utilizado.
+### 3.2 Orphaned Data Risks
 
-7. **[MEDIUM] Adicionar `matched_entity_id` index** — Facilitar joins com sc_public_entities.
+| Relacao | Risco | Mitigacao |
+|---------|-------|-----------|
+| `entity_coverage.entity_id` -> `sc_public_entities.id` | BAIXO | ON DELETE CASCADE |
+| `pncp_raw_bids.matched_entity_id` -> `sc_public_entities.id` | BAIXO | ON DELETE SET NULL |
+| `pncp_raw_bids` sem FK para `sc_public_entities` alem de `matched_entity_id` | MEDIO | `orgao_cnpj` nao tem FK — se o CNPJ nao existir em `sc_public_entities`, a bid fica orfa |
+| `pncp_supplier_contracts` sem FK para `pncp_raw_bids` ou `sc_public_entities` | MEDIO | Contracts sao independentes, sem cascata |
 
-### Baixa prioridade (para referencia)
+### 3.3 Coverage Data Quality
 
-8. **[LOW] CHECK constraint em `esfera_id`** — Validar valores como 'F', 'E', 'M', 'D'.
+O sistema de coverage depende de:
+1. Trigger `trg_bids_coverage` (AFTER INSERT em `pncp_raw_bids`)
+2. Trigger `trg_bids_coverage_update` (AFTER UPDATE de `matched_entity_id`)
+3. Funcao `generate_coverage_snapshot` (timer semanal)
 
-9. **[LOW] Decidir destino das `ingestion_checkpoints`** — Usar ou remover.
+**Problema:** Se houver bulk INSERT que nao passe pelos triggers (ex: `INSERT ... SELECT` direto, ou `COPY`), o `entity_coverage` NAO e atualizado. A funcao `upsert_pncp_raw_bids` passa pelos triggers corretamente.
 
-10. **[LOW] Atualizar `local_datalake.py`** — Remover referencias a tabelas inexistentes da lista `CORE`.
+**Recomendacao:** Adicionar job periodico de reconciliacao de coverage para capturar registros que possam ter bypassado os triggers.
 
 ---
 
-## Resumo de Metricas
+## 4. Migration Health
+
+### 4.1 Migration Track Analysis
+
+| Track | Arquivos | Status | Problema |
+|-------|----------|--------|----------|
+| v1 (db/migrations/) | 001-014 | ARCHIVED | Totalmente divergente do schema real. DDL aplicado diretamente sem atualizar migrations. |
+| v2 (supabase/migrations/) | _migrations, 001-v2 a 005-v2 | BASELINE | Representa o schema real capturado via pg_dump em 2026-07-11. Todos os objetos existentes estao cobertos. 002-005 adicionam coverage, views, snapshots, match_logging. |
+| v3 (supabase/migrations/) | 006-v3 | PENDING | Consolidacao de tabelas faltantes dos v1 021-028. 10 novas tabelas, 11 novas colunas, 6 novas views, 4 novas funcoes. |
+
+### 4.2 Migration Status (v2)
+
+| Migration | Objetivo | Status no banco real |
+|-----------|----------|---------------------|
+| `_migrations.sql` | Tabela de tracking | Aplicada (presente no schema) |
+| `001-v2_initial_schema.sql` | Baseline completo | Aplicada (base do schema) |
+| `002-v2_entity_coverage.sql` | Coverage table + triggers | Aplicada (presente no schema) |
+| `003-v2_coverage_views.sql` | Views de coverage | Aplicada (presente no schema) |
+| `004-v2_coverage_snapshots.sql` | Snapshots + function | Aplicada (presente no schema) |
+| `005-v2_match_logging.sql` | Colunas de match logging | **PARCIAL** — colunas `match_method`, `match_score`, `match_confidence` NAO estao no schema real (current-schema.sql nao as inclui) |
+
+### 4.3 Migration Gaps
+
+1. **005-v2 nao aplicada totalmente:** As colunas `match_method`, `match_score`, `match_confidence` nao estao no `current-schema.sql`. Possivelmente foram adicionadas depois ou a migration e posterior ao snapshot.
+
+2. **006-v3 nao aplicada:** A migration unificada v3 (10 tabelas) nao foi aplicada ao banco real. Depende de verificacao manual.
+
+3. **Ordem de dependencia v2:** A migration `003-v2` DEPENDE de `005-v2` (match_logging), mas a numeracao sequencial coloca 003 antes de 005. Isso e uma armadilha de aplicacao.
+
+4. **Nao ha ordem de rollback documentada:** Apenas o checksum e a migration sao registrados, mas nao ha script de rollback alem do campo `rollback_sql` na tabela `_migrations`.
+
+---
+
+## 5. Technical Debt Inventory
+
+| ID | Debito | Severidade | Objeto | Impacto | Esforco | Recomendacao |
+|----|--------|------------|--------|---------|---------|-------------|
+| DT-01 | Colunas match_logging (match_method, match_score, match_confidence) ausentes no schema real | **HIGH** | `pncp_raw_bids` | Match cascade nao registra qualidade dos matches. Sem audit trail de matching. Impossivel depurar falsos positivos. | BAIXO | Executar migration 005-v2 ou adicionar colunas manualmente |
+| DT-02 | 10 tabelas v3 nao aplicadas ao banco | **HIGH** | Multiplas | Funcionalidades de oportunidade, engenharia e hierarquia ausentes. Oportunity intel pipeline bloqueado. | MEDIO | Aplicar migration 006-v3 apos validacao |
+| DT-03 | Ordem de dependencia v2 incorreta (003 depende de 005) | **MEDIUM** | 003-v2, 005-v2 | Migration 003-v2 referencia match_method que so e criada em 005-v2. Aplicacao fora de ordem quebra. | BAIXO | Renumerar migrations para ordem topologica correta ou adicionar IF EXISTS nas views |
+| DT-04 | upsert_pncp_raw_bids row-by-row | **MEDIUM** | Funcao | Performance subotima para grandes batches. Loop PL/pgSQL ~5-10x mais lento que set-based. | MEDIO | Re-escrever usando `jsonb_to_recordset()` + INSERT ... ON CONFLICT |
+| DT-05 | upsert_pncp_supplier_contracts row-by-row | **MEDIUM** | Funcao | Mesmo problema do DT-04, aplicado a tabela de 3.7M registros. | MEDIO | Re-escrever usando `jsonb_to_recordset()` + INSERT ... ON CONFLICT |
+| DT-06 | Sem UNIQUE constraint em `sc_public_entities.cnpj_8` | **MEDIUM** | `sc_public_entities` | Permite duplicatas de CNPJ raiz, comprometendo matching de entidades. | BAIXO | Adicionar UNIQUE INDEX ou UNIQUE constraint |
+| DT-07 | Senha hardcoded em config/settings.py | **MEDIUM** | `config/settings.py` | Exposicao de credencial em texto puro versionada no git. | BAIXO | Migrar para `.env` ou `pg_service.conf` |
+| DT-08 | Sem CHECK constraint para `esfera_id` | **LOW** | `pncp_raw_bids` | Dominio de 1,2,3,4 nao validado. Valores invalidos passam sem erro. | BAIXO | Adicionar CHECK (esfera_id IS NULL OR esfera_id IN (1,2,3,4)) |
+| DT-09 | Sem CHECK constraint para `source` | **LOW** | Multiplas tabelas | Fontes invalidas (typos, valores inesperados) nao sao rejeitadas. | BAIXO | Adicionar CHECK em todas as tabelas com coluna source |
+| DT-10 | Sem CHECK constraint para `status` em `ingestion_runs` | **LOW** | `ingestion_runs` | Status invalidos podem ser inseridos sem erro. | BAIXO | Adicionar CHECK (status IN ('running','completed','failed')) |
+| DT-11 | Funcao `search_datalake` com fallback ILIKE sem index de trigram | **LOW** | `pncp_raw_bids` | Fallback ILIKE faz full table scan. Sem index GIN/GIST em `objeto_compra`. | BAIXO | Adicionar GIN trigram index se fallback for usado com frequencia |
+| DT-12 | Data types inconsistentes (DATE vs TIMESTAMPTZ) | **LOW** | `pncp_raw_bids` | `data_publicacao`, `data_abertura`, `data_encerramento` sao DATE, mas algumas funcoes esperam TIMESTAMPTZ. | BAIXO | Consolidar para DATE (dados de licitacao nao tem componente de hora) |
+| DT-13 | ingestion_checkpoints vazia e sem uso | **LOW** | `ingestion_checkpoints` | Estrutura existe mas nunca populada. Crawlers nao usam checkpoint. | BAIXO | Integrar checkpoints nos crawlers ou remover a tabela |
+| DT-14 | Nao ha coverage reconciliation periodica | **MEDIUM** | `entity_coverage` | Bulk operations que bypassam triggers nao atualizam coverage. Dados ficam inconsistentes. | MEDIO | Adicionar job schedule que executa recalculacao de coverage |
+| DT-15 | `pncp_raw_bids.content_hash` UNIQUE sem partial para `is_active` | **LOW** | `pncp_raw_bids` | Re-insercao de registro previamente soft-deletado falha (ON CONFLICT DO NOTHING). | BAIXO | Criar UNIQUE parcial `UNIQUE(content_hash) WHERE is_active = true` |
+| DT-16 | GIN index `idx_psc_objeto_trgm` ausente no v2 baseline | **MEDIUM** | `pncp_supplier_contracts` | O index trigram existe no schema real, mas nao esta na migration v2 baseline. Divergencia entre migration e banco. | BAIXO | Adicionar criacao do index GIN na migration 001-v2 ou 005-v2 |
+| DT-17 | Colunas `match_method`, `match_score`, `match_confidence` em 005-v2 mas ausentes no schema real | **HIGH** | 005-v2 migration | Migration define colunas que nao existem no banco. Ou a migration nunca foi aplicada, ou as colunas foram removidas. | BAIXO | Verificar estado real do banco e aplicar ou remover da migration |
+
+---
+
+## 6. Summary Dashboard
 
 | Metrica | Valor |
 |---------|-------|
-| Tabelas | 6 |
-| Indices | 36 (sum 36) |
-| Funcoes customizadas | 10 (8 projeto + 162 extensao = 170) |
+| Tabelas (v2 baseline) | 8 |
+| Tabelas (v3 pendente) | +10 (total 18) |
+| Indexes | 40 (15 + 8 + 2 + 6 + 4 + 3 + 2 + 0) |
+| Funcoes customizadas | 8 |
 | Triggers | 3 |
-| Views | 0 |
+| Views | 4 (v2) + 6 (v3) = 10 |
 | RLS Policies | 0 |
-| Roles | 1 (superuser) |
-| Extensoes | 4 (pg_trgm, plpgsql, unaccent, vector) |
-| Total de debitos identificados | 14 |
-| Debitos criticos | 1 (DT-01) |
-| Debitos high | 3 (DT-02, DT-05, DT-08) |
-| Debitos medium | 7 |
-| Debitos low | 3 |
+| Roles de aplicacao | 1 (superuser) |
+| Extensoes | 2 (pg_trgm, uuid-ossp) |
+| FKs | 2 (v2) + 6 (v3) = 8 |
+| Total debitos identificados | 17 |
+| Debitos CRITICAL | 0 |
+| Debitos HIGH | 3 (DT-01, DT-02, DT-17) |
+| Debitos MEDIUM | 6 (DT-03, DT-04, DT-05, DT-06, DT-07, DT-14) |
+| Debitos LOW | 8 |
+
+---
+
+## 7. Prioritized Recommendations
+
+### Imediatas (Criticas / High)
+
+1. **[HIGH] Verificar e aplicar migration 005-v2 (match_logging):** As colunas `match_method`, `match_score`, `match_confidence` sao necessarias para audit trail de matching. Verificar se ja existem no banco e aplicar se necessario.
+
+2. **[HIGH] Aplicar migration 006-v3 (unified schema):** Desbloqueia as funcionalidades de opportunity intel, engenharia civil e coverage evidence. Exige validacao previa em ambiente de staging.
+
+3. **[HIGH] Validar estado real das migrations v2:** Confirmar se 005-v2 foi aplicada ao banco ou se o snapshot current-schema.sql e anterior a ela.
+
+### Curto Prazo (Medium)
+
+4. Adicionar UNIQUE constraint em `sc_public_entities.cnpj_8` para prevenir duplicatas no matching.
+
+5. Corrigir ordem de dependencia entre 003-v2 e 005-v2 na documentacao ou renumerar migrations.
+
+6. Re-escrever `upsert_pncp_raw_bids` e `upsert_pncp_supplier_contracts` para set-based.
+
+7. Adicionar job de reconciliacao de coverage periodico.
+
+8. Migrar credencial do banco para `.env`.
+
+### Medio Prazo (Low)
+
+9. Adicionar CHECK constraints para dominios: `esfera_id`, `source`, `status`.
+
+10. Consolidar tipos DATE vs TIMESTAMPTZ nas colunas de data.
+
+11. Decidir destino de `ingestion_checkpoints`.
+
+12. Adicionar GIN trigram index para fallback ILIKE em `objeto_compra`.
+
+---
+
+*Audit gerado em 2026-07-13. Schema snapshot de referencia: `supabase/current-schema.sql`. Migration tracks: v1 (archived), v2 (baseline), v3 (pending consolidation).*

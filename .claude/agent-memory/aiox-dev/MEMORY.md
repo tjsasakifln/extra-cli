@@ -9,3 +9,5 @@
 - [QA Fix Transaction Aborted Cascade](qa-fix-transaction-aborted.md) — _safe_metric_query com per-query timeout e rollback, isolamento de transacoes em consulting_readiness.py
 - [CI Gates Fail-Closed](feedback_ci_fail_closed_gates.md) — B2G-4: bandit sem continue-on-error, pip-audit adicionado, pre-commit hooks criados
 - [Regra #9 Competitive Intelligence](regra-9-competitive-intelligence.md) — market share, award share, HHI, supplier ranking em consulting_readiness.py
+- [Story 1.1 Fix Critical Security](story-1.1-fix-critical-security.md) — 6 debitos P0 resolvidos: SEC-03/02/01 + TD-001/019/021
+- [Story 1.3 Universe Authority](story-1.3-universe-authority.md) — Snapshot tables, duplicate loader removed, seed blocking, env configs, TD-005 JSON, query migration partial

@@ -53,20 +53,14 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
         modalidade_id = int(modalidade_id)
     uf = raw.get("uf", "SC") or "SC"
     municipio = raw.get("municipio", "") or raw.get("nomeMunicipio", "") or unidade.get("municipioNome", "")
-    codigo_ibge = (
-        raw.get("codigoMunicipioIbge", "")
-        or raw.get("codigoIBGE", "")
-        or unidade.get("codigoIbge", "")
-    )
+    codigo_ibge = raw.get("codigoMunicipioIbge", "") or raw.get("codigoIBGE", "") or unidade.get("codigoIbge", "")
 
     valor_estimado = safe_float(raw.get("valorTotalEstimado", raw.get("valorEstimado")))
 
     data_publicacao = _parse_dt(raw.get("dataPublicacao") or raw.get("dataPublicacaoPncp"))
     data_abertura = _parse_dt(raw.get("dataAbertura") or raw.get("dataAberturaProposta"))
     data_encerramento = _parse_dt(
-        raw.get("dataEncerramento")
-        or raw.get("dataEncerramentoProposta")
-        or raw.get("dataFechamentoProposta")
+        raw.get("dataEncerramento") or raw.get("dataEncerramentoProposta") or raw.get("dataFechamentoProposta")
     )
 
     status_fonte = raw.get("situacaoCompra", "") or raw.get("situacaoCompraNome", "") or raw.get("situacao", "")
@@ -74,8 +68,7 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
     link_pncp = raw.get("linkPNCP", "") or raw.get("url", "")
     if not link_pncp and orgao_cnpj and raw.get("anoCompra") and raw.get("sequencialCompra"):
         link_pncp = (
-            f"https://pncp.gov.br/app/editais/{orgao_cnpj}/"
-            f"{int(raw['anoCompra'])}/{int(raw['sequencialCompra'])}"
+            f"https://pncp.gov.br/app/editais/{orgao_cnpj}/{int(raw['anoCompra'])}/{int(raw['sequencialCompra'])}"
         )
 
     record = OpportunityRecord(

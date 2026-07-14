@@ -30,9 +30,11 @@ for _d in (INTEL_DIR, REPORTS_DIR, PDF_DIR, EXCEL_DIR, LOG_DIR):
 # ---------------------------------------------------------------------------
 # Database
 # ---------------------------------------------------------------------------
-LOCAL_DATALAKE_DSN = os.getenv(
+# DATABASE_URL supersedes LOCAL_DATALAKE_DSN if set (SEC-03)
+_DATABASE_URL = os.getenv("DATABASE_URL")
+LOCAL_DATALAKE_DSN = _DATABASE_URL or os.getenv(
     "LOCAL_DATALAKE_DSN",
-    "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
+    "postgresql://postgres:@127.0.0.1:54399/postgres",
 )
 # DEFAULT_DSN alias for backward compatibility with monitor.py and orchestrator.py
 DEFAULT_DSN = LOCAL_DATALAKE_DSN

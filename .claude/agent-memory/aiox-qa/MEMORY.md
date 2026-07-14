@@ -1,3 +1,4 @@
+- [Story 1.1 Fix Critical Security](story-1.1-fix-critical-security.md) — CONCERNS, 6/6 ACs, 44/45 tests, 3 low issues (MNT-001, DOC-001, TST-001)
 - [Story FEAT-3.1 QA Gate](story-FEAT-3.1-qa-gate.md) — CONCERNS verdict, 8/8 ACs, 1 medium + 2 low issues, 42 tests
 - [Story 001.2 QA Gate](story-0012-qa-gate.md) — CONCERNS verdict, 9/10 ACs, 3 medium issues documented
 - [Story 001.7 QA Gate](story-0017-qa-gate.md) — CONCERNS verdict, 2 REQs partially unmet (AC4 views, AC2 bar chart), 3 medium issues
@@ -23,3 +24,8 @@
 - [Story COVERAGE-1.5 QA Gate](story-COVERAGE-1.5-dom-sc-expansion.md) — PASS (RE-QA 2a tentativa), stash finalmente aplicado, 6/6 validacoes, ruff clean. InReview -> Done.
 - [Story TD-8.5 RE-QA](re-qa-td-8.5.md) — PASS apos FAIL original. 5/5 HIGH issues resolvidos (monitor.py doa_sc, compras_gov params, AC4/AC10 targets, test sync). 575 tests pass. InReview -> Done. Ultima story do epic.
 - [Story COVERAGE-2.1 QA Gate](story-COVERAGE-2.1-qa-gate.md) — CONCERNS -> PASS (RE-QA Final). 3/3 issues resolvidos (MNT-001 esfera_id CNPJ, AC6 crawl 50K, AC7 225 matches). 24/24 tests, ruff 0. Ultima story do EPIC-COVERAGE-100PCT.
+- [Technical Debt Assessment QA Review](technical-debt-assessment-qa-review.md) — NEEDS WORK, 9 gaps (2 CRITICAL: security + testing), 5 cross-cutting risks, 72+ debts reviewed
+- [Global Review 2026-07-13](global-review-2026-07-13.md) — 24 lacunas: 8 CRITICAL, 7 HIGH, 5 MEDIUM, 4 LOW. 2 novas (H-07 M-05), 76 arquivos nao mapeados
+- [Story 1.2 Unify Schema QA Gate](story-1.2-unify-schema-qa-gate.md) — CONCERNS verdict, 12/12 ACs (4 partial), 4 issues (1 medium REQ-001 + 3 low), 14/14 tests, ruff 0
+- [Story 1.3 Universe Authority QA Gate](story-1.3-qa-gate.md) — CONCERNS verdict, core infra complete, 5 issues (2 REQ, 1 TST, 2 MNT), 11/11 tests
+- [Story 1.5 Coverage Model QA Gate](story-1.5-coverage-model-qa-gate.md) — PASS verdict, 12/12 tasks, 97/97 tests, TD-003+TD-027+TD-033 resolved, 2 low issues

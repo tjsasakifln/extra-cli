@@ -1,73 +1,88 @@
 # Fluxograma — Módulo Matching
 
-> Gerado pelo Archaeologist em 2026-07-11T21:00:00Z
-> doc_level: completo
-> Base: commit e9729e1
+> Gerado pelo Archaeologist em 2026-07-13
 
-## Entity Matching Cascade (3 níveis)
+## Entity Matching Cascade — 3 Níveis
 
 ```mermaid
 flowchart TD
-    START(["match_entities_cascade(conn, source, entities)"]) --> FETCH[Busca bids unmatched<br/>SELECT * FROM pncp_raw_bids<br/>WHERE matched_entity_id IS NULL<br/>AND source = p_source]
-    FETCH --> BUILD[Constrói 3 índices in-memory]
-    BUILD --> IDX1["cnpj_index: dict[str, dict]<br/>key = cnpj_8 (8 digitos base)"]
-    IDX1 --> IDX2["name_exact_index: dict[str, dict]<br/>key = normalize_name(razao_social)"]
-    IDX2 --> IDX3["name_muni_index: dict[tuple, dict]<br/>key = (normalize_name, codigo_ibge)"]
-    IDX3 --> LOOP{"Para cada bid sem match"}
+    A[Input: orgao_cnpj + orgao_nome + municipio + codigo_ibge] --> B[Nível 1: CNPJ Exact]
 
-    LOOP --> LV1{"orgao_cnpj preenchido<br/>E no cnpj_index?"}
-    LV1 -->|sim| MATCH1["match_method = 'cnpj'<br/>match_score = 1.0<br/>match_confidence = 'high'"]
-    LV1 -->|não| NM["normalize_name(orgao_razao_social)"]
+    B --> C[Extract CNPJ8 = digits[:8]]
+    C --> D[Query: SELECT FROM sc_public_entities WHERE cnpj_8 = CNPJ8]
+    D --> E{Found?}
 
-    NM --> LV2{"(nm, codigo_ibge)<br/>em name_muni_index?"}
-    LV2 -->|sim| MATCH2["match_method = 'name_normalized'<br/>match_score = 1.0<br/>match_confidence = 'high'"]
-    LV2 -->|não| LV2B{"nm em<br/>name_exact_index?"}
-    LV2B -->|sim| MATCH2
+    E -->|1 match| F[✅ CONFIRMED — confidence: HIGH]
+    E -->|>1 match| G[⚠️ Ambiguous — choose closest municipio match]
+    E -->|0 matches| H[Nível 2: Name + Municipio]
 
-    LV2B -->|não| LV3[Fuzzy Matching]
-    LV3 --> FILTER{"codigo_ibge disponível?"}
-    FILTER -->|sim| CANDIDATES["Filtra all_entities_norm<br/>WHERE codigo_ibge = bid.ibge<br/>reduz espaço de busca"]
-    FILTER -->|não| ALL["Todos os all_entities_norm"]
-    CANDIDATES --> FUZZ
-    ALL --> FUZZ["Para cada candidato:<br/>score = fuzz_ratio(nm, candidate._normalized_name)<br/>rapidfuzz (preferido) ou difflib"]
-    FUZZ --> BEST["Seleciona max(score)<br/>acima de ENTITY_MATCH_FUZZY_THRESHOLD<br/>(default: 0.85)"]
-    BEST --> TIER{"Melhor score?"}
-    TIER -->|"score ≥ 0.95"| HIGH["match_method = 'fuzzy'<br/>match_confidence = 'high'"]
-    TIER -->|"score ≥ 0.85"| MED["match_method = 'fuzzy'<br/>match_confidence = 'medium'"]
-    TIER -->|"< 0.85"| NONE["match_method = 'unmatched'<br/>match_score = 0.0<br/>matched_entity_id = NULL"]
+    G --> F
 
-    MATCH1 --> UPDATE
-    MATCH2 --> UPDATE
-    HIGH --> UPDATE
-    MED --> UPDATE
-    NONE --> UPDATE
+    H --> I[Normalize orgao_nome]
+    I --> J["normalize_name(): NFKD → UPPER → strip accents → expand abbreviations → remove punctuation → trim"]
+    J --> K[Normalize municipio]
+    K --> L[Query: WHERE normalized_name = X AND municipio = Y]
+    L --> M{Found?}
 
-    UPDATE["UPDATE pncp_raw_bids SET<br/>matched_entity_id = entity.id,<br/>match_method = ...,<br/>match_score = ...,<br/>match_confidence = ...<br/>WHERE pncp_id = bid.pncp_id"]
+    M -->|1 match| N[✅ CONFIRMED — confidence: HIGH]
+    M -->|>1 match| O[⚠️ Ambiguous — fallback to fuzzy]
+    M -->|0 matches| P[Nível 2b: Alias Matching]
 
-    UPDATE --> COUNT[Incrementa contador<br/>stats[method] += 1]
-    COUNT --> NEXT{"Próximo bid?"}
-    NEXT -->|sim| LOOP
-    NEXT -->|não| COMMIT["conn.commit()<br/>transação única"]
-    COMMIT --> RETURN["Retorna stats:<br/>{cnpj, name_normalized,<br/>fuzzy, unmatched, total}"]
-    RETURN --> END(["Fim"])
+    P --> Q[Apply siglas + patterns]
+    Q --> R["Ex: 'PM DE X' ↔ 'PREFEITURA MUNICIPAL DE X'"]
+    R --> S[Query with alias-expanded names]
+    S --> T{Found?}
+
+    T -->|Yes| U[✅ CONFIRMED — confidence: HIGH]
+    T -->|No| V[Nível 3: Fuzzy Matching]
+
+    V --> W[Get fuzzy threshold for municipio]
+    W --> X["_get_fuzzy_threshold(codigo_ibge)"]
+    X --> Y{População}
+    Y -->|< 5000 hab| Z[Threshold = 0.75]
+    Y -->|>= 5000 hab| AA[Threshold = 0.85]
+
+    Z --> AB[rapidfuzz.fuzz.ratio]
+    AA --> AB
+    AB --> AC{Score >= threshold?}
+
+    AC -->|Yes > 0.90| AD[✅ Matched — confidence: HIGH]
+    AC -->|Yes 0.85-0.90| AE[⚠️ Matched — confidence: MEDIUM]
+    AC -->|Yes 0.75-0.85| AF[⚠️ Matched — confidence: LOW]
+    AC -->|No| AG[❌ No match — entity UNRESOLVED]
+
+    O --> AB
 ```
 
-## Função: match_entity (single-entity lookup)
+## Fuzzy Threshold por População
 
 ```mermaid
-flowchart TD
-    START(["match_entity(orgao_cnpj, entities)"]) --> CLEAN[Limpa CNPJ<br/>remove não-dígitos]
-    CLEAN --> EXACT{"CNPJ 8-digit base<br/>em cnpj_index?"}
-    EXACT -->|sim| RETURN1["Retorna entity dict<br/>(match exato)"]
-    EXACT -->|não| PREFIX{"CNPJ 14-digit prefix<br/>em alguma entry?"}
-    PREFIX -->|sim| RETURN2["Retorna entity dict<br/>(match prefixo)"]
-    PREFIX -->|não| NULL_RET["Retorna None"]
+flowchart LR
+    A[codigo_ibge] --> B[_load_population_data]
+    B --> C[config/municipio_population.yaml]
+    C --> D{População}
+
+    D -->|< 5000| E[Threshold 0.75]
+    D -->|>= 5000| F[Threshold 0.85]
+
+    E --> G["Ex: Santiago do Sul (1,465 hab)"]
+    F --> H["Ex: Florianópolis (537,211 hab)"]
+
+    G --> I[Justificativa: nomes mais curtos, menos distintivos]
+    H --> J[Justificativa: nomes mais longos, mais distintivos]
 ```
 
-## Função: update_matched_entity_full
+## Name Normalizer Pipeline
 
 ```mermaid
-flowchart TD
-    START(["update_matched_entity_full(conn, pncp_id, entity_id, method, score, confidence)"]) --> SQL["UPDATE pncp_raw_bids<br/>SET matched_entity_id = entity_id,<br/>    match_method = method,<br/>    match_score = score,<br/>    match_confidence = confidence<br/>WHERE pncp_id = pncp_id"]
-    SQL --> END(["Fim<br/>(sem commit — batch)"])
+flowchart LR
+    A[Raw name] --> B[NFKD normalize]
+    B --> C[Strip combining chars]
+    C --> D[UPPERCASE]
+    D --> E[Remove punctuation]
+    E --> F[Expand abbreviations]
+    F --> G["SEC → SECRETARIA\nMUN → MUNICIPIO\nPM → PREFEITURA MUNICIPAL\nFMS → FUNDO MUNICIPAL DE SAUDE\n... (20 patterns)"]
+    G --> H[Remove CNPJ numbers]
+    H --> I[Trim + collapse spaces]
+    I --> J[Normalized output]
 ```

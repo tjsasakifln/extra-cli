@@ -8,3 +8,9 @@
 - [Validation Process](validation-process-po.md) -- Protocolo PO 10-point checklist
 - [Story FEAT-2.4 Selenium](story-feat-2.4-validation.md) -- GO 9.4/10, Draft -> Ready (epic alignment gap detectado)
 - [Story TD-8.2 Fix Module Imports](story-td-8-2-validation.md) -- GO 10/10, Draft -> Ready (concern AC13 falso positivo)
+- [Story 1.1 Close](story-1.1-close.md) -- Story 1.1 Fix Critical Security closed, 6/6 ACs Done
+- [Story 1.2 Close](story-1.2-close.md) -- Story 1.2 Unify Schema closed, 12/12 ACs GO, 4 QA issues tech debt
+- [Story 1.3 Close](story-1.3-close.md) -- Story 1.3 Universe Authority closed, 6/11 ACs GO (follow-up), 5 QA issues tech debt
+- [Story 1.4 Close](story-1.4-close.md) -- Story 1.4 Reconcile Open Tenders closed, REQ-001 fix confirmed, TST-001/TST-002 accepted as operational tech debt
+- [Story 1.5 Close](story-1.5-close.md) -- Story 1.5 Coverage Model closed, 97/97 tests, 12/12 tasks, TD-003/027/033 resolved
+- [Epic TD Complete](epic-technical-debt-complete.md) -- Epic de Resolucao de Debitos Tencicos completo (5/5 stories). Proximo: P0-06 a P0-09

@@ -1,8 +1,9 @@
 # Domínio — Extra Consultoria
 
-> Gerado pelo Detective em 2026-07-11T21:30:00Z
+> Gerado pelo Detective em 2026-07-13T17:00:00Z
 > doc_level: completo
-> Base: commit e9729e1 (EPIC-FEAT-001 + EPIC-TD-001)
+> Base: commit 249340d (QW-01 Radar + Competitive Intel + Readiness Gates)
+> Delta: 30 commits desde e9729e1 (182 arquivos, +47K/-20K LOC)
 
 ---
 
@@ -26,6 +27,20 @@
 | **Source** | Fonte de dados de licitações: pncp, dom_sc, doe_sc, pcp, compras_gov, sc_compras, tce_sc, transparencia, contracts | `monitor.py:SOURCES` |
 | **Checkpoint** | Marcação de progresso de crawler para retomada após interrupção. Evita re-processamento | `ingestion_checkpoints` |
 | **Snapshot** | Registro semanal de cobertura para análise de tendência temporal | `coverage_snapshots` |
+| **Coverage Truth** | Auditoria determinística de cobertura: cada (entity, source) tem estado de evidência auditável no ledger. NUNCA infere cobertura sem registro | `coverage_evidence` |
+| **Evidence Ledger** | Tabela imutável `coverage_evidence` que registra cada tentativa de crawl por (entity, source, data_type, run_id). Fonte única de verdade sobre cobertura | `coverage_evidence` |
+| **Canonical Universe** | Planilha seed "Extra - alvos de licitação. R-0.xlsx" como autoridade única de membership. DB radius flags são dados diagnósticos, NUNCA denominador | `scripts/lib/universe.py` |
+| **QW-01 Radar** | Pipeline operacional de oportunidades abertas: crawl → dedup → status canônico → ranking → scoring → CSV auditável. PostgreSQL-only, determinístico | `scripts/opportunity_intel/radar.py` |
+| **Deságio** | Desconto entre valor estimado (edital) e valor homologado/contratado. Fórmula: (estimado − homologado) / estimado. NUNCA entre global e outro estágio semântico | `scripts/lib/value_semantics.py` |
+| **HHI** | Índice Herfindahl-Hirschman de concentração de mercado. ≤2=BAIXA, ≤5=MEDIA, ≤10=ALTA, >10=MUITO_ALTA. Calculado global + por entidade | `scripts/opportunity_intel/ranking.py` |
+| **Readiness Gate** | Gate CI: coverage ≥ 95% → exit 0; coverage < 95% → exit 2 (fail-closed). Bloqueia deploy se cobertura insuficiente | `scripts/consulting_readiness.py` |
+| **Freshness Gate** | Gate CI: verifica SLA de frescor por fonte crítica. PNCP: 24h, Contracts: 24d. Exit 0 se todas fresh, exit 2 se stale | `scripts/freshness_gate.py` |
+| **Fail-Closed** | Padrão arquitetural: na dúvida, falha. Status desconhecido → `unknown`. Cobertura não verificada → `not_investigated`. Nunca assume sucesso por default | Cross-cutting |
+| **SOURCE_BLOCKERS** | 7 fontes com bloqueio documentado (Selenium, CAPTCHA, GCP creds, etc.). Sobrescrevem qualquer status do DB. Impedem falsos positivos de cobertura | `consulting_readiness.py` |
+| **Conservative Denominator** | Denominador sempre inclui entidades não resolvidas. `conservative_monitoring_population = resolved + unresolved`. Nunca subestima população | `lib/universe.py` |
+| **Value Semantics** | 5 estágios semânticos de valor: ESTIMADO → HOMOLOGADO → CONTRATADO → PAGO → GLOBAL. Cada source expõe valor em estágio específico. Proibido comparar estágios diferentes | `lib/value_semantics.py` |
+| **Triage** | Classificação final da oportunidade: GO (score ≥ 70), REVIEW (40-69), NO_GO (< 40). Sempre triagem para humano — NUNCA decisão autônoma de participar | `opportunity_intel/scoring.py` |
+| **Client Profile** | YAML de perfil do cliente com CNAEs, keywords, municípios prioritários, limites financeiros. Alimenta scoring contextualizado. Ex: `config/client_profiles/extra.yaml` | `opportunity_intel/profile.py` |
 
 ---
 
@@ -138,6 +153,60 @@
 
 🟡 INFERIDO — Hardcoded "Extra Construtora" em PDFs, keywords de engenharia, foco SC. Adaptável via config, mas não multi-tenant.
 
+### R18: Deságio — Estágios Semânticos de Valor (Regra #8)
+**Regra:** Deságio só pode ser calculado entre ESTIMADO e HOMOLOGADO (ou CONTRATADO) da MESMA licitação. NUNCA entre `valor_global` (PNCP contracts) e `valor_total_estimado` (PNCP bids) sem verificar que são a mesma licitação. Os 5 estágios semânticos são imutáveis: ESTIMADO → HOMOLOGADO → CONTRATADO → PAGO → GLOBAL. `valor_global` do PNCP NÃO é "preço praticado" — é teto contratual máximo.
+
+🟢 CONFIRMADO — `scripts/lib/value_semantics.py:calculate_desagio()`, `compute_bid_contract_desagio()`. Enum `ValorSemantica` com 5 estágios. `SOURCE_VALUE_TYPES` mapeia cada (source, entity_type) ao seu estágio semântico. Reclassificado como LIMITED em 2026-07-12 (commit 132df3e).
+
+### R19: Competitive Intelligence — Market Share e HHI (Regra #9)
+**Regra:** Market share é calculado como `share = valor_fornecedor / valor_total_entidade` usando apenas contratos CONFIRMADOS. HHI é calculado globalmente e por entidade. Ranking de fornecedores por: (1) número de contratos, (2) valor total, (3) número de entidades distintas servidas. Win rate permanece NOT_READY — métricas alternativas disponíveis (market share, award share, supplier ranking). TOP 20 fornecedores por valor. Ordenação: `ORDER BY total_value DESC`.
+
+🟢 CONFIRMADO — `scripts/opportunity_intel/ranking.py:_compute_market_share()`, `_compute_hhi()`, `_compute_supplier_ranking()`. Commit 77265b5.
+
+### R20: QW-01 Radar — Threshold e Exit Codes
+**Regra:** QW-01 radar operacional com 3 métricas de readiness:
+1. `universe_resolution`: % de entidades do universo canônico resolvidas no DB
+2. `monitoring_coverage`: % de entidades com evidência de monitoring success na janela
+3. `data_presence`: % de entidades com pelo menos 1 registro em `pncp_raw_bids`
+
+Monitoring threshold: **95%**. Abaixo disso → exit code 2. Radar NUNCA emite veredito definitivo de participação — sempre triagem para humano.
+
+🟢 CONFIRMADO — `scripts/opportunity_intel/radar.py:MONITORING_THRESHOLD=95.0`, `build_monitoring_metrics()`. Commit ce55095, 249340d.
+
+### R21: Coverage Truth — Evidence Ledger Imutável
+**Regra:** Toda alegação de cobertura deve ser rastreável a uma linha em `coverage_evidence`. 10 estados possíveis: `success_with_data`, `success_zero`, `partial`, `connection_failed`, `auth_failed`, `parse_failed`, `transform_failed`, `persist_failed`, `not_applicable`, `not_investigated`. Mapeamento determinístico: `monitor_status + error_code → evidence_state`. Estado default para fonte nunca investigada: `not_investigated`. Estado para fonte bloqueada: `not_applicable`.
+
+🟢 CONFIRMADO — `scripts/crawl/monitor.py:_map_evidence_state()`, `_project_entity_evidence()`. `supabase/migrations/006-v3-unified-schema.sql:391` (enum definition). Commits a91ccfd, 0ee490b.
+
+### R22: Consulting Readiness Gate — Fail-Closed
+**Regra:** Gate de CI que bloqueia deploy se cobertura < 95%. Calcula cobertura como `entidades_com_evidencia / conservative_monitoring_population`. Nunca marca fonte bloqueada como "coberta" — `SOURCE_BLOCKERS` sobrescreve qualquer status do DB. Exit 0 = pronto para consultoria, Exit 2 = dados insuficientes, Exit 1 = falha técnica.
+
+🟢 CONFIRMADO — `scripts/consulting_readiness.py:main()`. 7 fontes em `SOURCE_BLOCKERS`. Commit 9e2ff90, 1195495.
+
+### R23: Freshness Gate SLA — Configurável por Fonte
+**Regra:** Cada fonte crítica tem SLA de frescor independente, configurável via env vars:
+- PNCP (editais abertos): `FRESHNESS_SLA_PNCP_HOURS` (default 24h), `FRESHNESS_RECENT_WINDOW_PNCP_HOURS` (default 24h)
+- Contracts (histórico): `FRESHNESS_SLA_CONTRACTS_HOURS` (default 576h = 24 dias), `FRESHNESS_RECENT_WINDOW_CONTRACTS_HOURS` (default 168h = 7 dias)
+
+Gate verifica `MAX(last_run_at) ≥ NOW() - SLA` para cada critical source. Exit 0 se todas fresh.
+
+🟢 CONFIRMADO — `scripts/freshness_gate.py:CRITICAL_SOURCES`. Commits 15177dc, 3eeb4d6, 1c8b63f.
+
+### R24: CI Fail-Closed — Gates Bloqueiam Progressão
+**Regra:** Todos os gates de CI seguem padrão fail-closed: na dúvida, falha. Readiness gate + Freshness gate são pré-condições para deploy. Restaurados como críticos após remediação P1 (commit 0fef9de). Nenhum gate pode ser bypassed sem documentar justificativa.
+
+🟢 CONFIRMADO — `scripts/consulting_readiness.py` exit codes, `scripts/freshness_gate.py` exit codes. Commits 0fef9de, 824af88.
+
+### R25: Canonical Universe — Planilha como Autoridade
+**Regra:** A planilha "Extra - alvos de licitação. R-0.xlsx" é a ÚNICA autoridade para membership no universo alvo. Coluna `COL_RAIO200` (index 9) com valor "SIM ✓" é o flag autoritativo de raio. DB radius flags (`sc_public_entities.raio_200km`) são dados diagnósticos, NUNCA denominador. Hash SHA-256 do arquivo seed registrado em todo artefato para auditabilidade. Constante `CANONICAL_UNIVERSE = 1093` é valor histórico legado — código novo DEVE derivar de `load_canonical_universe()`.
+
+🟢 CONFIRMADO — `scripts/lib/universe.py:load_canonical_universe()`, `CanonicalEntity`, `sha256_file()`. Commit 824af88.
+
+### R26: Conservative Denominator — População Nunca Subestimada
+**Regra:** `conservative_monitoring_population = resolved + unresolved`. Entidades não resolvidas (sem CNPJ8 match no DB) contam no denominador. Isso garante que cobertura nunca seja superestimada por excluir entidades que o sistema não conseguiu encontrar. Entidades com `COL_RAIO200 != "SIM ✓"` são excluídas (fora do raio), não unresolved.
+
+🟢 CONFIRMADO — `scripts/lib/universe.py:CanonicalUniverse.conservative_monitoring_population`. `scripts/opportunity_intel/radar.py:build_monitoring_metrics()`.
+
 ---
 
 ## Eventos de Negócio Monitorados
@@ -155,6 +224,11 @@
 | Documento corrompido/OCR trigger | `intel-extract-docs.py: avg_chars<100` | LOW |
 | Migration pendente | `verify-schema-divergence.sh` | MEDIUM |
 | Delta detectado (NOVO/ATUALIZADO) | `intel-collect.py:_detect_delta()` | INFO |
+| Readiness gate FAIL | `consulting_readiness.py` exit 2 | CRITICAL |
+| Freshness gate STALE | `freshness_gate.py` exit 2 | CRITICAL |
+| QW-01 radar abaixo 95% | `radar.py:monitoring_coverage < 95%` | HIGH |
+| Evidência de cobertura projetada | `coverage_evidence` INSERT | INFO |
+| Fonte bloqueada reportada como coberta | `SOURCE_BLOCKERS` override | CRITICAL |
 
 ---
 
@@ -176,6 +250,16 @@
 | `MAX_DOCS_PER_EDITAL` | 3 | Máximo de documentos baixados por edital |
 | `MAX_DOWNLOAD_BYTES` | 50MB | Limite de download por arquivo |
 | `MAX_TEXT_PER_EDITAL` | 60K chars | Limite de texto extraído por edital |
+| `MONITORING_THRESHOLD` | 95.0% | Threshold mínimo de cobertura para QW-01 radar |
+| `FRESHNESS_SLA_PNCP_HOURS` | 24 | SLA de frescor para editais abertos PNCP |
+| `FRESHNESS_SLA_CONTRACTS_HOURS` | 576 | SLA de frescor para contratos históricos (24 dias) |
+| `CANONICAL_UNIVERSE` | 1093 | Tamanho legado do universo canônico (não usar como denominador) |
+| `DEFAULT_RADIUS_KM` | 200.0 | Raio padrão a partir de Florianópolis |
+| `READINESS_THRESHOLD` | 0.95 | Threshold mínimo para consulting readiness gate |
+| `RANKING_GO_THRESHOLD` | 70 | Score mínimo para triagem GO |
+| `RANKING_REVIEW_MIN` | 40 | Score mínimo para triagem REVIEW (abaixo = NO_GO) |
+| `FLORIANOPOLIS_LAT` | -27.5954 | Latitude do centro geo de referência |
+| `FLORIANOPOLIS_LON` | -48.5480 | Longitude do centro geo de referência |
 
 ---
 
@@ -183,12 +267,13 @@
 
 | Fonte | Tipo | Artefatos |
 |-------|------|-----------|
-| Código Python | 🟢 CONFIRMADO | 139 arquivos, 98K LOC |
-| Migrations SQL | 🟢 CONFIRMADO | 19 v1 + 5 v2 |
-| Git log | 🟢 CONFIRMADO | 20 commits, 3 epics |
-| Config YAML | 🟢 CONFIRMADO | 13 setores, 8.8K LOC |
+| Código Python | 🟢 CONFIRMADO | 277 arquivos, 137K LOC |
+| Migrations SQL | 🟢 CONFIRMADO | 41 migrations (v1+v2+v3) |
+| Git log | 🟢 CONFIRMADO | 30 novos commits (e9729e1..249340d), 4 epics |
+| Config YAML | 🟢 CONFIRMADO | 13 setores, 8.8K LOC, client profiles |
 | Systemd units | 🟢 CONFIRMADO | 40 arquivos |
-| Docs | 🟡 INFERIDO | nem todos os docs lidos |
+| Spreadsheet seed | 🟢 CONFIRMADO | "Extra - alvos de licitação. R-0.xlsx", SHA-256 auditável |
+| Docs | 🟢 CONFIRMADO | 590+ arquivos, 7 epics, PRDs, runbooks, ADRs |
 
 ---
 
@@ -197,3 +282,6 @@
 1. **LACUNA** — Não há documentação explícita do modelo de negócio da Extra Consultoria (quem são os clientes, como o serviço é vendido, ticket médio). O sistema sabe gerar propostas mas o contexto comercial está implícito.
 2. **LACUNA** — Transição `monitor.py` → `orchestrator.py` não tem decisão documentada. Dois orquestradores coexistem sem critério claro de qual usar.
 3. **LACUNA** — Schema real do banco diverge das migrations em 5 pontos críticos. Não há plano de reconciliação documentado.
+4. **LACUNA** — Win rate de fornecedores permanece `NOT_READY`. Métricas alternativas (market share, HHI, supplier ranking) implementadas mas win rate requer dados de resultado de licitação que não estão disponíveis nas fontes atuais.
+5. **LACUNA** — ComprasGov e TCE/SC estão documentados no mapeamento semântico (`SOURCE_VALUE_TYPES`) mas NÃO ingeridos. Bloqueio: ComprasGov requer API key não disponível, TCE/SC requer parsing de empenhos.
+6. **LACUNA** — 7 fontes em `SOURCE_BLOCKERS` sem plano de ativação. Apenas PNCP e Contracts estão ativos. DOM-SC, DOE-SC, PCP, SC-Compras, Transparência bloqueados por Selenium/CAPTCHA/API não documentada.

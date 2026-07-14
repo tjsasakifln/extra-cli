@@ -1,14 +1,17 @@
 # ERD Completo — Extra Consultoria DataLake
 
-> Gerado pelo Architect em 2026-07-11T22:00:00Z
+> Gerado pelo Architect em 2026-07-13T17:30:00Z
 > doc_level: completo
-> PostgreSQL 18.4 com extensões: pg_trgm, uuid-ossp, unaccent, vector
+> Base: commit 249340d, PostgreSQL 18.4 + PostGIS
+> Delta: +2 tabelas (coverage_evidence, opportunity_intel), +1 enum (evidence_state)
 
 ```mermaid
 erDiagram
     sc_public_entities ||--o{ pncp_raw_bids : "matched_entity_id (SET NULL)"
-    sc_public_entities ||--o{ entity_coverage : "entity_id (CASCADE)"
-    pncp_raw_bids ||--o{ entity_coverage : "trigger AFTER INSERT/UPDATE"
+    sc_public_entities ||--o{ coverage_evidence : "entity_id (SET NULL on delete?)"
+    sc_public_entities ||--o{ opportunity_intel : "entity_id FK"
+    pncp_raw_bids ||--o{ pncp_supplier_contracts : "numero_controle_pncp"
+    ingestion_runs ||--o{ coverage_evidence : "run_id FK"
     ingestion_runs ||--o{ ingestion_checkpoints : "source reference"
 
     sc_public_entities {
@@ -21,163 +24,195 @@ erDiagram
         double_precision latitude "coordenada"
         double_precision longitude "coordenada"
         double_precision distancia_fk "km de Florianópolis (Haversine)"
-        boolean raio_200km "dentro do raio de 200km?"
+        boolean raio_200km "dentro do raio de 200km? DIAGNÓSTICO, não autoritativo"
         boolean is_active "ente ativo?"
         timestamptz created_at "data de criação"
     }
 
     pncp_raw_bids {
-        text pncp_id PK "ID da licitação"
-        text objeto_compra "descrição do objeto"
-        numeric valor_total_estimado "18,2"
-        int modalidade_id "4=Conc 5=PE 6=PP 7=CD 8=Inex"
-        text modalidade_nome "nome da modalidade"
-        text situacao_compra "situação"
-        text esfera_id "F|E|M|D"
-        text uf "sigla UF 2 chars"
-        text municipio "nome do município"
-        text codigo_municipio_ibge "IBGE 7 dígitos"
-        text orgao_razao_social "nome do órgão"
-        text orgao_cnpj "CNPJ 14 dígitos"
-        text unidade_nome "unidade administrativa"
-        timestamptz data_publicacao "publicação do edital"
-        timestamptz data_abertura "abertura das propostas"
-        timestamptz data_encerramento "encerramento"
-        text link_sistema_origem "link fonte"
-        text link_pncp "link PNCP"
-        text content_hash UK "SHA-256 dedup"
-        tsvector tsv "full-text search PT-BR"
-        text source "pncp|dom_sc|doe_sc|pcp|compras_gov|..."
-        text source_id "ID na fonte original"
-        int matched_entity_id FK "FK sc_public_entities.id"
-        text match_method "cnpj|name_normalized|fuzzy|unmatched"
-        decimal match_score "4,3 (0.0-1.0)"
-        text match_confidence "high|medium|low"
-        vector embedding "256d text-embedding-3-small"
-        boolean is_active "soft-delete flag"
-        timestamptz ingested_at "data de ingestão"
-        timestamptz updated_at "última atualização"
+        text pncp_id PK "ID único da licitação PNCP"
+        text numero_controle_pncp "Número de controle PNCP (FK→contracts)"
+        text orgao_cnpj "CNPJ do órgão licitante"
+        text orgao_nome "Nome do órgão"
+        text objeto_compra "Descrição do objeto (GIN index)"
+        numeric valor_total_estimado "Valor estimado da licitação"
+        text modalidade "Modalidade (concorrência, pregão...)"
+        text situacao_compra "Status na fonte original"
+        text uf "UF do órgão"
+        text municipio "Município do órgão"
+        text codigo_ibge "Código IBGE do município"
+        text content_hash "SHA-256 para dedup cross-source"
+        text source "Fonte de origem (pncp, dom_sc, etc.)"
+        text source_url "URL original"
+        text link_edital "Link do edital"
+        timestamptz data_publicacao "Data de publicação"
+        timestamptz data_abertura "Data de abertura das propostas"
+        timestamptz data_encerramento "Data de encerramento"
+        int matched_entity_id FK "FK→sc_public_entities.id"
+        text match_method "CNPJ, name_normalized, fuzzy"
+        text match_confidence "high, medium, low"
+        boolean is_active "Registro ativo (soft delete)"
+        timestamptz ingested_at "Timestamp de ingestão"
+        timestamptz enriched_at "Timestamp de enriquecimento"
     }
 
     pncp_supplier_contracts {
-        serial id PK "identificador interno"
-        text contrato_id UK "ID do contrato PNCP"
-        text numero_controle_pncp "número controle"
-        text orgao_cnpj "CNPJ órgão"
-        text orgao_nome "nome órgão"
-        text fornecedor_cnpj "CNPJ fornecedor"
-        text fornecedor_nome "nome fornecedor"
-        text objeto_contrato "objeto"
-        numeric valor_total "18,2"
-        date data_inicio "início vigência"
-        date data_fim "fim vigência"
-        date data_publicacao "publicação"
-        text uf "UF do contrato"
-        text municipio "município"
-        text source "fonte"
-        text source_id "ID fonte"
-        text content_hash UK "hash dedup"
-        timestamptz ingested_at "data ingestão"
+        text numero_controle_pncp PK "Número de controle PNCP (único)"
+        text orgao_cnpj "CNPJ do órgão contratante"
+        text orgao_cnpj8 "CNPJ raiz 8 dígitos — chave de join"
+        text orgao_nome "Nome do órgão"
+        text ni_fornecedor "CNPJ/CPF do fornecedor"
+        text nome_fornecedor "Nome do fornecedor"
+        text objeto_contrato "Objeto do contrato"
+        numeric valor_global "Valor global (CONTRATADO, não 'preço praticado')"
+        date data_assinatura "Data de assinatura"
+        date data_fim_vigencia "Data de fim da vigência"
+        date data_publicacao "Data de publicação no PNCP"
+        text uf "UF inferida do CNPJ do órgão"
+        text municipio "Município inferido"
+        boolean is_active "Registro ativo"
+        timestamptz ingested_at "Timestamp de ingestão"
+        int orgao_entity_id FK "FK→sc_public_entities.id (resolvido)"
     }
 
-    enriched_entities {
-        text entity_type PK "cnpj|municipio"
-        text entity_id PK "CNPJ 14d|IBGE 7d"
-        jsonb data "dados BrasilAPI/IBGE"
-        timestamptz enriched_at "data enriquecimento"
-        text enriched_source "brasilapi|ibge"
+    coverage_evidence {
+        bigserial id PK "identificador interno"
+        int entity_id FK "FK→sc_public_entities.id (pode ser NULL)"
+        text source "Fonte de dados (pncp, contracts, etc.)"
+        text data_type "Tipo de dado (bids, contracts)"
+        date queried_start "Início da janela de consulta"
+        date queried_end "Fim da janela de consulta"
+        text run_id "ID da execução (UUID)"
+        timestamptz started_at "Início da execução"
+        timestamptz completed_at "Fim da execução"
+        int count_obtained "Registros obtidos (0 = success_zero)"
+        evidence_state state "Estado da evidência (enum)"
+        text error_code "Código de erro (se houver)"
+        text error_message "Mensagem de erro (se houver)"
+        text applicability "Aplicabilidade da evidência"
+        text notes "Notas adicionais"
+        text git_sha "Git SHA do código que gerou"
+        text schema_fingerprint "Hash do schema no momento"
     }
 
-    entity_coverage {
-        int entity_id PK_FK "FK sc_public_entities CASCADE"
-        text source PK "fonte de dados"
-        timestamptz last_seen_at "última aparição"
-        int total_bids "total licitações"
-        boolean is_covered "coberto 90d?"
-        boolean within_200km "raio 200km?"
+    evidence_state {
+        text success_with_data "Crawl OK + dados obtidos"
+        text success_zero "Crawl OK + zero registros"
+        text partial "Crawl degraded (parcial)"
+        text connection_failed "Falha de conexão/API"
+        text auth_failed "Falha de autenticação"
+        text parse_failed "Falha de parsing"
+        text transform_failed "Falha de transformação"
+        text persist_failed "Falha de persistência"
+        text not_applicable "Fonte não aplicável/bloqueada"
+        text not_investigated "Nunca investigada (DEFAULT)"
     }
 
-    coverage_snapshots {
-        serial id PK "identificador"
-        date snapshot_date "data snapshot"
-        text source "fonte"
-        int total_entities "total entes"
-        int covered_entities "entes cobertos"
-        decimal pct_covered "5,2 percentual"
-    }
-
-    ingestion_checkpoints {
-        text source PK "fonte"
-        text scope_key PK "escopo (uf_modalidade)"
-        int last_page "última página"
-        date last_date "última data"
-        text last_id "último ID"
-        int records_fetched "total baixado"
-        timestamptz updated_at "atualização"
+    opportunity_intel {
+        bigserial id PK "identificador interno"
+        text opportunity_key UK "Hash único: source+source_id"
+        text source "Fonte de origem"
+        text source_id "ID na fonte"
+        text source_ids "IDs em múltiplas fontes (dedup)"
+        text official_url "URL oficial"
+        int entity_id FK "FK→sc_public_entities.id"
+        text orgao_cnpj "CNPJ do órgão"
+        text orgao_nome "Nome do órgão"
+        text municipio "Município"
+        numeric distancia_km "Distância de Florianópolis"
+        text objeto "Descrição do objeto"
+        text categoria "Categoria inferida"
+        text modalidade "Modalidade da licitação"
+        numeric valor_estimado "Valor estimado"
+        text valor_semantica "Estágio semântico do valor"
+        date data_publicacao "Data de publicação"
+        date data_abertura "Data de abertura"
+        date data_encerramento "Data de encerramento"
+        int dias_restantes "Dias até encerramento"
+        text status_canonico "Status canônico (open/closed/unknown...)"
+        text status_evidence "Evidência do status"
+        text ranking "GO, REVIEW, NO_GO"
+        int ranking_score "Score 0-100"
+        int data_confidence_score "Confiança nos dados 0-100"
+        int client_fit_score "Fit com perfil do cliente 0-100"
+        text triage_recommendation "Recomendação de triagem"
+        jsonb positive_factors "Fatores positivos"
+        jsonb negative_factors "Fatores negativos"
+        jsonb blockers "Bloqueadores disparados"
+        jsonb missing_fields "Campos ausentes"
+        timestamptz first_seen_at "Primeira visualização"
+        timestamptz last_seen_at "Última visualização"
+        text run_id "ID da execução QW-01"
+        timestamptz generated_at "Data de geração"
+        text git_sha "Git SHA"
+        text seed_sha256 "SHA-256 da planilha seed"
+        text schema_fingerprint "Hash do schema"
+        boolean is_active "Registro ativo"
     }
 
     ingestion_runs {
-        serial id PK "identificador"
-        text source "fonte"
-        timestamptz started_at "início"
-        timestamptz finished_at "fim"
-        int records_fetched "baixados"
-        int records_upserted "inseridos/atualizados"
-        int entities_covered "entes cobertos"
-        text status "running|completed|failed"
-        text error_message "erro se falhou"
-        jsonb metadata "metadados extra"
+        serial id PK "identificador interno"
+        text source "Fonte executada"
+        text mode "full ou incremental"
+        text status "running, completed, failed"
+        int records_fetched "Registros obtidos"
+        int records_upserted "Registros inseridos/atualizados"
+        text error_message "Mensagem de erro"
+        timestamptz started_at "Início"
+        timestamptz completed_at "Fim"
+        text run_id "ID da execução"
+    }
+
+    ingestion_checkpoints {
+        serial id PK "identificador interno"
+        text source "Fonte"
+        text last_cursor "Último cursor processado"
+        date last_date "Última data processada"
+        timestamptz updated_at "Atualização"
+    }
+
+    entity_coverage {
+        serial id PK "identificador interno"
+        int entity_id FK "FK→sc_public_entities"
+        text source "Fonte"
+        date last_seen_at "Última data com registro"
+        boolean is_covered "Coberto nos últimos 90 dias?"
+        timestamptz calculated_at "Data do cálculo"
     }
 ```
 
-## Cardinalidades
+## Relacionamentos
 
-| Entidade A | Relação | Entidade B | Cardinalidade |
-|-----------|---------|-----------|---------------|
-| sc_public_entities | has | pncp_raw_bids | 1:N (matched_entity_id FK, SET NULL) |
-| sc_public_entities | has | entity_coverage | 1:N (entity_id FK, CASCADE) |
-| pncp_raw_bids | updates | entity_coverage | Trigger (AFTER INSERT/UPDATE) |
-| ingestion_runs | references | — | source (sem FK, acoplamento fraco) |
+| Origem | Destino | Cardinalidade | FK | Notas |
+|--------|---------|:---:|-----|-------|
+| sc_public_entities | pncp_raw_bids | 1:N | matched_entity_id | SET NULL on entity delete |
+| sc_public_entities | coverage_evidence | 1:N | entity_id | Pode ser NULL (run sem entity match) |
+| sc_public_entities | opportunity_intel | 1:N | entity_id | Pode ser NULL |
+| pncp_raw_bids | pncp_supplier_contracts | 1:N | numero_controle_pncp | Nem todo bid tem contrato |
+| ingestion_runs | coverage_evidence | 1:N | run_id | Uma run gera N evidências |
+| ingestion_runs | ingestion_checkpoints | 1:N | source | Checkpoint por fonte |
 
-## Índices (33)
+## Views Analíticas
+
+| View | Base | Propósito |
+|------|------|-----------|
+| `entity_coverage` | sc_public_entities + pncp_raw_bids | Trigger-maintained: entidade coberta se teve licitação em 90 dias |
+| `coverage_summary` | coverage_evidence | Agregação: cobertura por source, data_type, state |
+| `latest_evidence` | coverage_evidence | DISTINCT ON (entity_id, source, data_type): último estado por entidade |
+| `vw_opportunity_ranking` | opportunity_intel | Ranking materializado: GO/REVIEW/NO_GO com scores |
+| `vw_competitive_intel` | pncp_supplier_contracts + sc_public_entities | Fornecedores agregados por entidade |
+| `readiness_dashboard` | coverage_evidence + sc_public_entities | Métricas de readiness: cobertura%, gaps, blockers |
+
+## Índices Críticos
 
 | Tabela | Índice | Tipo | Propósito |
 |--------|--------|------|-----------|
-| pncp_raw_bids | tsv | GIN | Full-text search português |
-| pncp_raw_bids | objeto_compra | GIN (trgm) | Trigram similarity |
-| pncp_raw_bids | embedding | HNSW | Vector similarity (pgvector) |
-| pncp_raw_bids | content_hash | UNIQUE BTREE | Dedup cross-source |
-| pncp_raw_bids | (uf, data_publicacao DESC) | BTREE | Filtro geo-temporal |
-| pncp_raw_bids | (modalidade_id, data_publicacao DESC) | BTREE | Filtro modalidade |
-| pncp_raw_bids | (is_active, data_publicacao DESC) | BTREE (partial) | Purge scans |
-| pncp_supplier_contracts | (fornecedor_cnpj, data_publicacao DESC) | BTREE | Competitive intel |
-| pncp_supplier_contracts | objeto_contrato | GIN (trgm) | Contract search |
-| sc_public_entities | cnpj_8 | BTREE (unique) | Entity matching nivel 1 |
-| sc_public_entities | (raio_200km, is_active) | BTREE | Geo-foco filter |
-| entity_coverage | (is_covered, within_200km) | BTREE | Coverage dashboard |
-| entity_coverage | (source, is_covered) | BTREE | Source breakdown |
-
-## Views (5)
-
-| View | Propósito | Fonte |
-|------|----------|-------|
-| v_coverage_summary | Cobertura % por source, 90d window | migration 009 |
-| v_coverage_gaps | Entes sem cobertura | migration 012 |
-| v_coverage_gaps_by_municipio | Gaps agregados por município | migration 012 |
-| v_coverage_trend | Tendência semanal com LAG | migration 012 |
-| v_unmatched_bids | Bids sem entity match | migration 011 |
-
-## Funções PL/pgSQL (10)
-
-| Função | Tipo | Retorno |
-|--------|------|---------|
-| search_datalake(10 params) | STABLE | TABLE (13 cols) — FTS + ILIKE |
-| upsert_pncp_raw_bids(JSONB) | VOLATILE | TABLE (action, pncp_id, hash) |
-| upsert_pncp_supplier_contracts(JSONB) | VOLATILE | TABLE (action, contrato_id) |
-| purge_old_bids(INT) | VOLATILE | TABLE (purged, remaining) — soft-delete |
-| purge_old_bids_hard(INT) | VOLATILE | Hard-delete pós soft-retention |
-| ttl_cleanup_enriched_entities(INT) | VOLATILE | TTL cache cleanup |
-| set_updated_at() | TRIGGER | BEFORE UPDATE — auto timestamp |
-| update_entity_coverage() | TRIGGER | AFTER INSERT — coverage tracking |
-| update_entity_coverage_on_update() | TRIGGER | AFTER UPDATE — re-match tracking |
-| generate_coverage_snapshot(DATE) | VOLATILE | Snapshot semanal por source |
+| coverage_evidence | `idx_evidence_entity_source` | B-tree (entity_id, source, data_type) | Latest evidence query |
+| coverage_evidence | `idx_evidence_run` | B-tree (run_id) | Run-level aggregation |
+| coverage_evidence | `idx_evidence_state` | Partial (state = 'success_with_data') | Readiness metrics |
+| opportunity_intel | `idx_oi_status_ranking` | B-tree (status_canonico, ranking) | List/filter queries |
+| opportunity_intel | `idx_oi_entity` | B-tree (entity_id) | Entity-level queries |
+| opportunity_intel | `idx_oi_opportunity_key` | UNIQUE (opportunity_key) | Dedup UPSERT |
+| opportunity_intel | `idx_oi_numero_controle` | B-tree (numero_controle_pncp) | PNCP cross-reference |
+| pncp_raw_bids | `idx_bids_objeto_gin` | GIN (objeto_compra) | Full-text search |
+| pncp_raw_bids | `idx_bids_content_hash` | B-tree (content_hash) | Dedup lookup |

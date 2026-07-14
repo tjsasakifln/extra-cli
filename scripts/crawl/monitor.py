@@ -83,21 +83,7 @@ def _load_entities(conn, within_200km_only: bool = False) -> list[dict]:
     return entities
 
 
-def _match_entity(orgao_cnpj: str, entities: list[dict]) -> dict | None:
-    """Match an orgao_cnpj (14 digits) against entity list (cnpj_8 base)."""
-    if not orgao_cnpj:
-        return None
-    cnpj_clean = "".join(c for c in orgao_cnpj if c.isdigit())
-    # Try exact 14-digit match first
-    for e in entities:
-        if e["cnpj_8"] and cnpj_clean.startswith(e["cnpj_8"]):
-            return e
-    # Try just the 8-digit base
-    cnpj_base = cnpj_clean[:8]
-    for e in entities:
-        if e["cnpj_8"] == cnpj_base:
-            return e
-    return None
+# NOTE: match_entity is imported from matching/entity_matcher (TD-027 unified)
 
 
 def _start_ingestion_run(conn, source: str, mode: str = "incremental") -> int:
@@ -184,247 +170,10 @@ def _finish_ingestion_run(
     cur.close()
 
 
-def _update_matched_entity_full(
-    conn,
-    pncp_id: str,
-    entity_id: int | None,
-    match_method: str | None = None,
-    match_score: float | None = None,
-    match_confidence: str | None = None,
-):
-    """Set matched_entity_id + match metadata on a bid record."""
-    cur = conn.cursor()
-    cur.execute(
-        """UPDATE pncp_raw_bids
-           SET matched_entity_id = %s,
-               match_method = %s,
-               match_score = %s,
-               match_confidence = %s
-           WHERE pncp_id = %s""",
-        (entity_id, match_method, match_score, match_confidence, pncp_id),
-    )
-    cur.close()
-
-
-def _match_entities_cascade(conn, source: str, entities: list[dict], pncp_ids: list[str] | None = None) -> dict:
-    """3-level cascade entity matching for a source.
-
-    Strategies (applied in order per bid):
-        Level 1 — CNPJ exact match (8-digit base)          [confidence: high]
-        Level 2 — Normalized name + municipio constraint   [confidence: high]
-        Level 3 — Fuzzy matching (difflib / rapidfuzz)     [confidence: high|medium|low]
-
-    Logs ``match_method``, ``match_score``, ``match_confidence`` to the bid row
-    for every bid (including unmatched).
-
-    Args:
-        conn: Database connection.
-        source: Data source tag (``pncp``, ``dom_sc``, etc.).
-        entities: List of entity dicts from ``_load_entities()``.
-
-    Returns:
-        Stats dict with keys:
-        - ``cnpj``: count matched via Level 1
-        - ``name_normalized``: count matched via Level 2
-        - ``fuzzy``: count matched via Level 3
-        - ``unmatched``: count still unmatched
-        - ``total``: total bids processed
-    """
-    ENTITY_MATCH_FUZZY_THRESHOLD = float(os.getenv("ENTITY_MATCH_FUZZY_THRESHOLD", "0.85"))  # noqa: N806
-
-    # Step 1 — fetch all unmatched bids for this source
-    cur = conn.cursor()
-    if pncp_ids:
-        cur.execute(
-            """SELECT pncp_id, orgao_cnpj, orgao_razao_social, municipio,
-                      codigo_municipio_ibge
-               FROM pncp_raw_bids
-               WHERE source = %s
-                 AND pncp_id = ANY(%s)
-                 AND (
-                    (orgao_cnpj IS NOT NULL AND orgao_cnpj != '')
-                    OR (orgao_razao_social IS NOT NULL AND orgao_razao_social != '')
-                 )""",
-            (source, pncp_ids),
-        )
-    else:
-        cur.execute(
-            """SELECT pncp_id, orgao_cnpj, orgao_razao_social, municipio,
-                      codigo_municipio_ibge
-               FROM pncp_raw_bids
-               WHERE source = %s AND matched_entity_id IS NULL
-                 AND (
-                    (orgao_cnpj IS NOT NULL AND orgao_cnpj != '')
-                    OR (orgao_razao_social IS NOT NULL AND orgao_razao_social != '')
-                 )""",
-            (source,),
-        )
-    cols = [d[0] for d in cur.description]
-    unmatched_bids = [dict(zip(cols, row)) for row in cur.fetchall()]
-    cur.close()
-
-    if not unmatched_bids:
-        return {"cnpj": 0, "name_normalized": 0, "fuzzy": 0, "unmatched": 0, "total": 0}
-
-    # Step 2 — build entity lookup structures
-    from scripts.lib.name_normalizer import normalize_name
-
-    # CNPJ index: cnpj_8 -> entity
-    cnpj_index: dict[str, dict] = {}
-    for e in entities:
-        cnpj_8 = e.get("cnpj_8")
-        if cnpj_8:
-            cnpj_index[cnpj_8] = e
-
-    # Name indexes
-    name_exact_index: dict[str, dict] = {}  # normalized_name -> entity
-    name_muni_index: dict[tuple[str, str], dict] = {}  # (norm_name, codigo_ibge) -> entity
-    all_entities_norm: list[dict] = []  # for fuzzy matching
-
-    for e in entities:
-        norm = normalize_name(e.get("razao_social", ""))
-        if norm:
-            name_exact_index[norm] = e
-            e["_normalized_name"] = norm
-            ibge = e.get("codigo_ibge")
-            if ibge:
-                name_muni_index[(norm, ibge)] = e
-            all_entities_norm.append(e)
-
-    # Step 3 — try to import rapidfuzz (fallback to difflib)
-    try:
-        from rapidfuzz import fuzz as _rapidfuzz
-
-        def _fuzz_ratio(a: str, b: str) -> float:
-            return _rapidfuzz.ratio(a, b) / 100.0
-    except ImportError:
-        from difflib import SequenceMatcher
-
-        def _fuzz_ratio(a: str, b: str) -> float:
-            return SequenceMatcher(None, a, b).ratio()
-
-    # Step 4 — cascade matching per bid
-    stats = {"cnpj": 0, "name_normalized": 0, "fuzzy": 0, "unmatched": 0}
-
-    for bid in unmatched_bids:
-        pncp_id = bid["pncp_id"]
-        orgao_cnpj = (bid.get("orgao_cnpj") or "").strip()
-        orgao_razao = (bid.get("orgao_razao_social") or "").strip()
-        codigo_ibge = (bid.get("codigo_municipio_ibge") or "").strip()
-
-        matched_entity = None
-        match_method = "unmatched"
-        match_score = 0.0
-        match_confidence: str | None = None
-
-        # ------------------------------------------------------------------
-        # Level 1: CNPJ exact match (8-digit base)
-        # ------------------------------------------------------------------
-        if orgao_cnpj and not matched_entity:
-            cnpj_clean = "".join(c for c in orgao_cnpj if c.isdigit())
-            cnpj_base = cnpj_clean[:8]
-
-            # Exact 8-digit match
-            if cnpj_base in cnpj_index:
-                matched_entity = cnpj_index[cnpj_base]
-                match_method = "cnpj"
-                match_score = 1.0
-                match_confidence = "high"
-            elif len(cnpj_clean) >= 14:
-                # Prefix match: 14-digit CNPJ starting with entity's 8-digit base
-                for prefix, e in cnpj_index.items():
-                    if cnpj_clean.startswith(prefix):
-                        matched_entity = e
-                        match_method = "cnpj"
-                        match_score = 1.0
-                        match_confidence = "high"
-                        break
-
-        # ------------------------------------------------------------------
-        # Level 2: Normalized name + municipio constraint
-        # ------------------------------------------------------------------
-        if orgao_razao and not matched_entity:
-            norm_name = normalize_name(orgao_razao)
-            if norm_name:
-                # 2a — with municipio constraint (IBGE code)
-                if codigo_ibge and (norm_name, codigo_ibge) in name_muni_index:
-                    matched_entity = name_muni_index[(norm_name, codigo_ibge)]
-                    match_method = "name_normalized"
-                    match_score = 1.0
-                    match_confidence = "high"
-
-                # 2b — without municipio constraint (fallback)
-                if not matched_entity and norm_name in name_exact_index:
-                    matched_entity = name_exact_index[norm_name]
-                    match_method = "name_normalized"
-                    match_score = 1.0
-                    match_confidence = "high"
-
-        # ------------------------------------------------------------------
-        # Level 3: Fuzzy matching (difflib / rapidfuzz)
-        # ------------------------------------------------------------------
-        if orgao_razao and not matched_entity and all_entities_norm:
-            norm_name = normalize_name(orgao_razao)
-            if norm_name:
-                best_score = 0.0
-                best_entity = None
-
-                # Filter candidates by IBGE code if available (avoids cross-municipio)
-                candidates = all_entities_norm
-                if codigo_ibge:
-                    candidates = [e for e in all_entities_norm if e.get("codigo_ibge") == codigo_ibge]
-
-                for e in candidates:
-                    e_norm = e.get("_normalized_name", "")
-                    if not e_norm:
-                        continue
-                    score = _fuzz_ratio(norm_name, e_norm)
-                    if score > best_score:
-                        best_score = score
-                        best_entity = e
-
-                if best_score >= ENTITY_MATCH_FUZZY_THRESHOLD and best_entity:
-                    matched_entity = best_entity
-                    match_method = "fuzzy"
-                    match_score = round(best_score, 3)
-                    if best_score >= 0.95:
-                        match_confidence = "high"
-                    elif best_score >= ENTITY_MATCH_FUZZY_THRESHOLD:
-                        match_confidence = "medium"
-                    else:
-                        match_confidence = "low"
-
-        # ------------------------------------------------------------------
-        # Update bid with result
-        # ------------------------------------------------------------------
-        if matched_entity:
-            _update_matched_entity_full(
-                conn,
-                pncp_id,
-                matched_entity["id"],
-                match_method,
-                match_score,
-                match_confidence,
-            )
-            stats[match_method] = stats[match_method] + 1  # type: ignore[literal-required]
-        else:
-            # Mark as unmatched with metadata (helps v_unmatched_bids analysis)
-            _update_matched_entity_full(
-                conn,
-                pncp_id,
-                None,
-                "unmatched",
-                0.0,
-                None,
-            )
-            stats["unmatched"] += 1
-
-    # Single commit for the entire batch
-    conn.commit()
-
-    stats["total"] = sum(stats.values())
-    return stats
-
+# TD-027: Unificado — entity matching agora em scripts/matching/entity_matcher.py
+from scripts.matching.entity_matcher import (
+    match_entities_cascade as _match_entities_cascade,
+)
 
 # ---------------------------------------------------------------------------
 # Coverage Reporting
@@ -540,9 +289,14 @@ def print_coverage_report(result: dict) -> None:
 def _upsert_raw_records(conn, records: list[dict], upsert_fn: str) -> tuple[int, int, int]:
     import json
 
+    from psycopg2.sql import SQL, Identifier
+
     cur = conn.cursor()
     try:
-        cur.execute(f"SELECT * FROM {upsert_fn}(%s)", (json.dumps(records),))
+        cur.execute(
+            SQL("SELECT * FROM {} (%s)").format(Identifier(upsert_fn)),
+            (json.dumps(records),),
+        )
         rows = cur.fetchall()
         conn.commit()
     finally:

@@ -1,52 +1,54 @@
-# Perguntas para Validação — Extra Consultoria
+# Perguntas para Validação Humana — Extra Consultoria (v3.0)
 
-> Gerado pelo Reviewer em 2026-07-11T23:00:00Z | Respondido: 2026-07-11
-> doc_level: completo
-
----
-
-## Q1: Orquestrador Canônico ✅
-**Resposta:** Migrar para `orchestrator.py`. Atualizar systemd timers para usar orchestrator como entry point. Deprecar `monitor.py` gradualmente (strangler fig pattern).
-
-**Ação:** Atualizar `_reversa_sdd/crawl/design.md` — declarar `orchestrator.py` como canônico, `monitor.py` como legacy.
-**Impacto nos GAPs:** GAP-02 resolve com migração planejada.
+> Gerado pelo Reviewer em 2026-07-13 | doc_level: completo | Base: 249340d
+> **Revisão:** 5 agentes QA paralelos, 24 lacunas consolidadas
+> **answer_mode:** chat
 
 ---
 
-## Q2: Estratégia de Migração do Schema ✅
-**Resposta:** Aplicar baseline v2 limpa (`001-v2_initial_schema.sql`) + migrações v2 (002-005). Abandonar migrations v1 como histórico.
+## Q1: Módulo `intel/` — Manter ou migrar para `root_scripts/`?
 
-**Ação:** Atualizar `_reversa_sdd/db/design.md` — declarar v2 como canônica. Adicionar tarefa no `db/tasks.md`: T-D16 (migração v1→v2).
-**Impacto nos GAPs:** GAP-01 resolve com baseline v2 aplicada.
+**Contexto:** As matrizes (code-spec-matrix, spec-impact-matrix) tratam `intel/` como módulo separado, mas ele NÃO existe na lista oficial de 17 módulos do `surface.json`. Os 8 scripts do pipeline legado (intel_pipeline.py, intel-collect.py, etc.) estão funcionalmente em `scripts/` (top-level), que pertence a `root_scripts/`.
 
----
+**Opções:**
+1. Manter `intel/` como módulo legado separado (18º módulo) — preserva documentação existente
+2. Migrar conteúdo do `intel/` para `root_scripts/` — consolida, mas perde granularidade
+3. Criar sub-pasta `root_scripts/intel_legacy/` — meio termo
 
-## Q3: Mapeamento de Portais de Transparência ✅
-**Resposta:** Mapear via `detect_platform` em lote para todos os 295 municípios SC. Popular `transparencia_config.yaml` automaticamente.
-
-**Ação:** Adicionar tarefa no `crawl/tasks.md`: T-C21 (batch platform detection para 295 municípios).
-**Impacto nos GAPs:** GAP-04 resolve com script de detecção em lote.
+**Impacto:** code-spec-matrix, spec-impact-matrix, 8 entradas de arquivos
 
 ---
 
-## Q4: SICAF — Confiabilidade ✅
-**Resposta:** Pipeline prossegue em degraded mode sem SICAF. Plano: migrar de Playwright para Selenium para maior confiabilidade.
+## Q2: Módulo `lib/` — 4 submódulos críticos sem documentação
 
-**Ação:** Atualizar `intel/tasks.md`: T-I09 revisado para incluir migração Playwright→Selenium.
-**Impacto nos GAPs:** GAP-05 reduz severidade (degraded mode existe). Selenium mitiga fragilidade.
+**Contexto:** A spec de `lib/` documenta 10 submódulos, mas `scripts/lib/` tem 14. Os 4 ausentes são os MAIS REFERENCIADOS por outros módulos:
+- `universe.py` — usado como HARD dependency por opportunity_intel e contract_intel
+- `geocode.py` — Haversine, coordenadas, distância
+- `entity_hierarchy.py` — hierarquia de entidades (município→estado→federal)
+- `value_semantics.py` — semântica de valores (pré-requisito para P1-01)
 
----
-
-## Q5: Estratégia de Testes ✅
-**Resposta:** TDD no ciclo forward. Cada nova feature com teste obrigatório. Cobertura do legado aumenta organicamente.
-
-**Ação:** Registrar como requisito não funcional no `architecture.md`.
-**Impacto nos GAPs:** GAP-06 endereçado por política (não por esforço retroativo).
+**Pergunta:** Devo gerar sub-specs detalhadas para esses 4 módulos agora, ou documentá-los como parte da spec existente de `lib/`?
 
 ---
 
-## Q6: ARP/PCA Crawlers ✅
-**Resposta:** Manter async. Executar separadamente na VPS (fora do pipeline sync principal) quando dados estiverem validados.
+## Q3: 76 arquivos Python não mapeados na code-spec-matrix
 
-**Ação:** Adicionar tarefa no `deploy/tasks.md`: T-DP09 (systemd timer para ARP/PCA async).
-**Impacto nos GAPs:** GAP-07 resolvido — async é intencional, não débito.
+**Contexto:** A matriz lista ~135 arquivos (92% de cobertura), mas ~76 arquivos Python existem no disco sem entrada individual. Incluem crawlers ativos (ciga_ckan, mides_bigquery, doe_sc_selenium, selenium_crawler), subdiretórios inteiros (crawl/clients/, crawl/ingestion/), e scripts auxiliares.
+
+**Pergunta:** Expandir a matriz para 100% (listando todos os ~277 .py) ou manter agrupamento por módulo (cobertura atual de ~70% dos arquivos individuais)?
+
+---
+
+## Q4: Diagnose e Transparência — Aprofundar agora ou depois?
+
+**Contexto:** Ambos os módulos têm specs superficiais (2 FRs cada para 25K e 14K LOC respectivamente). São módulos periféricos — não bloqueiam os EPICs P0 prioritários.
+
+**Pergunta:** Aprofundar a documentação desses módulos agora (custo: ~2h, 4-6 specs adicionais) ou deixar como está e priorizar apenas quando forem alvo de desenvolvimento?
+
+---
+
+## Q5: Baseline de commits — Normalizar?
+
+**Contexto:** `docs/requirements.md` referencia commit `e9729e1` (2026-07-11) enquanto `docs/design.md` referencia `249340d` (2026-07-13). Outros specs da extração anterior também podem ter bases divergentes.
+
+**Pergunta:** Devo normalizar TODOS os specs para a base `249340d` (HEAD atual) ou manter a base original de cada spec (rastreabilidade histórica)?

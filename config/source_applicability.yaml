@@ -1,0 +1,238 @@
+# =============================================================================
+# Source Applicability Rules — Story 1.5
+# =============================================================================
+# Define regras de decisao de aplicabilidade para cada fonte por:
+#   - esfera: federal | estadual | municipal | *
+#   - natureza_juridica: pref | cam | gov | aut | outro | *
+#   - plataforma: pncp_aderente | *
+#
+# Uma fonte e "applicable" para um ente quando todas as condicoes sao satisfeitas.
+# A regra de maior prioridade vence em caso de conflito.
+#
+# Formato:
+#   source_name:
+#     rules:
+#       - filter: {esfera: ..., natureza: ..., plataforma: ...}
+#         applicable: true|false
+#         priority: 0-100 (maior = maior prioridade)
+#         reason: "Justificativa textual"
+#
+# Referencia: Secao 9 do Plano Mestre, P0-05
+# =============================================================================
+
+version: "1.0"
+updated_at: "2026-07-13"
+status: draft  # Valores: draft | active | superseded
+
+# Regras de aplicabilidade por fonte
+sources:
+
+  # --------------------------------------------------------------------------
+  # PNCP API (federal + adesao voluntaria)
+  # --------------------------------------------------------------------------
+  pncp:
+    display_name: "PNCP API"
+    authority_level: federal
+    sla_hours: 4
+    default_applicable: true
+    rules:
+      - filter: {esfera: "*", natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 0
+        reason: "Fonte federal com adesao voluntaria de todas as esferas e naturezas"
+    notes:
+      - "Cobre entes que aderem voluntariamente ao PNCP — maioria dos municipios de SC"
+      - "Fonte primaria para open_tenders e historical_contracts"
+
+  # --------------------------------------------------------------------------
+  # DOM-SC (Diario Oficial dos Municipios de SC)
+  # --------------------------------------------------------------------------
+  dom_sc:
+    display_name: "DOM-SC"
+    authority_level: municipal
+    sla_hours: 24
+    default_applicable: false
+    rules:
+      - filter: {esfera: municipal, natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 10
+        reason: "Diario oficial dos municipios de SC"
+      - filter: {esfera: estadual, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 10
+        reason: "DOM-SC nao cobre entes estaduais"
+      - filter: {esfera: federal, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 10
+        reason: "DOM-SC nao cobre entes federais"
+    notes:
+      - "Requer API key do CIGA"
+      - "Cobertura apenas de municipios de SC"
+
+  # --------------------------------------------------------------------------
+  # PCP (Portal de Compras Publicas)
+  # --------------------------------------------------------------------------
+  pcp:
+    display_name: "Portal de Compras Publicas"
+    authority_level: multi
+    sla_hours: 24
+    default_applicable: true
+    rules:
+      - filter: {esfera: "*", natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 0
+        reason: "Plataforma multiestadual com ampla cobertura"
+    notes:
+      - "Multiplataforma: cobre licitacoes de varios estados"
+      - "Fonte secundaria para open_tenders"
+
+  # --------------------------------------------------------------------------
+  # ComprasGov (compras federais)
+  # --------------------------------------------------------------------------
+  compras_gov:
+    display_name: "ComprasGov"
+    authority_level: federal
+    sla_hours: 12
+    default_applicable: true
+    rules:
+      - filter: {esfera: "*", natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 0
+        reason: "Compras federais com adesao multiesfera"
+    notes:
+      - "Fonte complementar ao PNCP para compras federais"
+
+  # --------------------------------------------------------------------------
+  # SC Compras
+  # --------------------------------------------------------------------------
+  sc_compras:
+    display_name: "SC Compras"
+    authority_level: estadual
+    sla_hours: 24
+    default_applicable: true
+    rules:
+      - filter: {esfera: "*", natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 0
+        reason: "Plataforma estadual de SC"
+    notes:
+      - "Cobre entes de SC (estaduais e municipais que usam a plataforma)"
+
+  # --------------------------------------------------------------------------
+  # Transparencia Portais
+  # --------------------------------------------------------------------------
+  transparencia:
+    display_name: "Portais da Transparencia"
+    authority_level: municipal
+    sla_hours: 48
+    default_applicable: false
+    rules:
+      - filter: {esfera: municipal, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 5
+        reason: "Aplicavel apenas quando o portal de transparencia e verificavel"
+    notes:
+      - "Aplicabilidade depende da existencia de portal de transparencia ativo"
+      - "Validacao por ente especifica e necessaria"
+
+  # --------------------------------------------------------------------------
+  # TCE-SC (Tribunal de Contas de SC)
+  # --------------------------------------------------------------------------
+  tce_sc:
+    display_name: "TCE-SC SCMWeb"
+    authority_level: estadual
+    sla_hours: 24
+    default_applicable: true
+    rules:
+      - filter: {esfera: "*", natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 0
+        reason: "Tribunal de Contas de SC — todas as esferas"
+    notes:
+      - "Cobre entes jurisdicionados ao TCE-SC"
+      - "e-Sfinge requer certificado ICP-Brasil"
+
+  # --------------------------------------------------------------------------
+  # DOE-SC (Diario Oficial Estadual de SC)
+  # --------------------------------------------------------------------------
+  doe_sc:
+    display_name: "DOE-SC"
+    authority_level: estadual
+    sla_hours: 24
+    default_applicable: false
+    rules:
+      - filter: {esfera: estadual, natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 10
+        reason: "Diario oficial estadual de SC"
+      - filter: {esfera: municipal, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 10
+        reason: "DOE-SC nao cobre entes municipais diretamente"
+      - filter: {esfera: federal, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 10
+        reason: "DOE-SC nao cobre entes federais"
+    notes:
+      - "Requer credenciais de acesso"
+
+  # --------------------------------------------------------------------------
+  # CIGA CKAN
+  # --------------------------------------------------------------------------
+  ciga_ckan:
+    display_name: "CIGA CKAN"
+    authority_level: municipal
+    sla_hours: 48
+    default_applicable: false
+    rules:
+      - filter: {esfera: municipal, natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 10
+        reason: "CIGA CKAN — dados municipais de SC"
+      - filter: {esfera: estadual, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 10
+        reason: "CIGA CKAN nao cobre entes estaduais"
+      - filter: {esfera: federal, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 10
+        reason: "CIGA CKAN nao cobre entes federais"
+    notes:
+      - "Apenas cobertura (coverage_only), sem extracao de bids"
+      - "Requer contrato com CIGA para API key"
+
+  # --------------------------------------------------------------------------
+  # MIDES BigQuery
+  # --------------------------------------------------------------------------
+  mides_bigquery:
+    display_name: "MIDES BigQuery"
+    authority_level: estadual
+    sla_hours: 48
+    default_applicable: false
+    rules:
+      - filter: {esfera: estadual, natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 10
+        reason: "MIDES BigQuery — dados estaduais de compras"
+      - filter: {esfera: municipal, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 10
+        reason: "MIDES BigQuery nao cobre entes municipais"
+      - filter: {esfera: federal, natureza: "*", plataforma: "*"}
+        applicable: false
+        priority: 10
+        reason: "MIDES BigQuery nao cobre entes federais"
+    notes:
+      - "PULADA ate conta GCP estar disponivel"
+      - "Requer service account do Google Cloud"
+
+# ------------------------------------------------------------------------------
+# Exclusoes manuais conhecidas (ente especifico, override)
+# ------------------------------------------------------------------------------
+manual_overrides: []
+# Formato:
+#   - entity_id: 123
+#     source: transparencia
+#     applicable: false
+#     reason: "Portal de transparencia inexistente apesar de ser municipal"
+#     overrides_since: "2026-01-01"

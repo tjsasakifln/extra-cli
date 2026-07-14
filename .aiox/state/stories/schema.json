@@ -27,6 +27,21 @@
     "rollback_plan": { "type": ["string", "null"] },
     "snapshot_evidence": { "type": ["string", "null"] },
     "publication_authorized": { "type": "boolean" },
-    "maintenance_mode": { "type": "boolean", "description": "Session explicitly dedicated to protocol maintenance" }
+    "maintenance_mode": { "type": "boolean", "description": "Session explicitly dedicated to protocol maintenance" },
+    "reversa_context": {
+      "type": "object",
+      "description": "Cross-reference to Reversa extraction artifacts. Never copied inline — references only.",
+      "properties": {
+        "extraction_version": { "type": ["string", "null"], "description": "Reversa version from .reversa/state.json" },
+        "architecture": { "type": "array", "items": { "type": "string" }, "description": "Paths to architecture docs in _reversa_sdd/" },
+        "domain": { "type": "array", "items": { "type": "string" }, "description": "Paths to domain/business-rule docs" },
+        "specifications": { "type": "array", "items": { "type": "string" }, "description": "Paths to module specs (design.md, etc.)" },
+        "requirements": { "type": ["string", "null"], "description": "Path to _reversa_forward/<feature>/requirements.md" },
+        "roadmap": { "type": ["string", "null"], "description": "Path to _reversa_forward/<feature>/roadmap.md" },
+        "actions": { "type": ["string", "null"], "description": "Path to _reversa_forward/<feature>/actions.md" },
+        "regression_watch": { "type": ["string", "null"], "description": "Path to _reversa_forward/<feature>/regression-watch.md" },
+        "legacy_impact": { "type": ["string", "null"], "description": "Path to _reversa_forward/<feature>/legacy-impact.md" }
+      }
+    }
   }
 }

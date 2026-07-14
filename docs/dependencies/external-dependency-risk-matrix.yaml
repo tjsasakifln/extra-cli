@@ -1,0 +1,253 @@
+# =============================================================================
+# External Dependency Risk Matrix — Story 1.5 (TD-033)
+# =============================================================================
+# Matriz de riscos de dependencias externas usadas pelo sistema Extra Consultoria.
+#
+# Cada entrada documenta:
+#   - SLA conhecido (ou "best_effort" quando nao formalizado)
+#   - Rate limits documentados
+#   - Plano de fallback caso a dependencia fique indisponivel
+#   - Custo estimado de operacao
+#   - Data da ultima verificacao
+#
+# Formato:
+#   dependency_name:
+#     type: api | scraper | database | service
+#     provider: Nome do provedor
+#     purpose: Descricao do uso
+#     sla: { availability, response_time, formal_level }
+#     rate_limit: { requests_per_minute | requests_per_day | unknown }
+#     fallback_plan: Plano B
+#     cost_estimate: { per_month | free | unknown }
+#     last_verified: YYYY-MM-DD
+#     risk_level: low | medium | high
+#
+# Referencia: TD-033 (Brownfield Assessment), Secao 9 do Plano Mestre
+# =============================================================================
+
+version: "1.0"
+updated_at: "2026-07-13"
+status: draft  # draft | validated | active
+
+dependencies:
+
+  # --------------------------------------------------------------------------
+  # PNCP API — Portal Nacional de Contratacoes Publicas
+  # --------------------------------------------------------------------------
+  pncp_api:
+    type: api
+    provider: "Governo Federal — Ministerio da Gestao"
+    purpose: "Fonte primaria de licitacoes e contratos publicos federais"
+    endpoint: "https://pncp.gov.br/api/consulta"
+    sla:
+      availability: "99.5% (observado, sem SLA formal)"
+      response_time: "< 2s tipico, > 10s em pico"
+      formal_level: "best_effort"  # Nao ha SLA contratual
+    rate_limit:
+      requests_per_minute: 60  # observado, nao documentado
+      notes: "Rate limit implícito via 429 Too Many Requests"
+    fallback_plan:
+      primary: "Retry exponencial com circuit breaker (5 tentativas, 60s cooldown)"
+      secondary: "Cache local de enriquecimento (pncp_enrichment_cache)"
+      tertiary: "Dados de fontes alternativas (PCP, ComprasGov, DOM-SC)"
+      offline_mode: "Operacao continua com dados em cache por ate 7 dias"
+    cost_estimate:
+      per_month: 0  # Gratuito (dados publicos)
+    last_verified: "2026-07-10"
+    risk_level: medium
+    risks:
+      - id: PNCP-R1
+        description: "Mudanca de schema na API sem aviso previo"
+        impact: "Parsing quebrado ate adaptacao"
+        likelihood: medium
+        mitigation: "Testes de schema (test_pncp_pipeline_db) detectam mudancas"
+      - id: PNCP-R2
+        description: "Indisponibilidade prolongada (> 1 hora)"
+        impact: "Dados de licitacoes nao atualizados"
+        likelihood: low
+        mitigation: "Fallback para fontes alternativas"
+      - id: PNCP-R3
+        description: "Rate limit agressivo durante backfill"
+        impact: "Backfill demora mais que o esperado"
+        likelihood: medium
+        mitigation: "Backfill com backoff adaptativo e janelas de horario"
+    notes:
+      - "API publica sem autenticacao — sujeita a oscilacoes sem aviso"
+      - "Migracao PNCP v3 em andamento — requer atencao a breaking changes"
+
+  # --------------------------------------------------------------------------
+  # BEC — Bolsa Eletronica de Compras (SP)
+  # --------------------------------------------------------------------------
+  bec:
+    type: scraper
+    provider: "Governo do Estado de Sao Paulo"
+    purpose: "Fonte secundaria de compras publicas"
+    endpoint: "https://www.bec.sp.gov.br"
+    sla:
+      availability: "99% (observado)"
+      response_time: "Variavel — 1-5s"
+      formal_level: "best_effort"
+    rate_limit:
+      requests_per_minute: 30
+      notes: "Scraping — evitar acesso simultaneo excessivo"
+    fallback_plan:
+      primary: "Retry com backoff (3 tentativas)"
+      secondary: "Dados de fontes alternativas (PNCP, PCP)"
+      tertiary: "Cache de ultima execucao bem-sucedida"
+    cost_estimate:
+      per_month: 0  # Dados publicos
+    last_verified: "2026-07-10"
+    risk_level: medium
+    risks:
+      - id: BEC-R1
+        description: "Mudanca na estrutura HTML do portal"
+        impact: "Scraping quebrado"
+        likelihood: high
+        mitigation: "Testes de extracao detectam mudancas; manutencao periodica"
+      - id: BEC-R2
+        description: "Bloqueio de IP por scraping"
+        impact: "Fonte temporariamente indisponivel"
+        likelihood: medium
+        mitigation: "Rotacao de User-Agent; delay entre requests"
+    notes:
+      - "Scraping de HTML — frágil a mudancas de layout"
+      - "Nao ha API publica documentada"
+
+  # --------------------------------------------------------------------------
+  # TCE-SC — Tribunal de Contas de Santa Catarina
+  # --------------------------------------------------------------------------
+  tce_sc:
+    type: scraper
+    provider: "TCE-SC"
+    purpose: "Dados de contratos e licitacoes do estado de SC"
+    endpoint: "https://www.tcesc.tc.br"
+    sla:
+      availability: "98% (observado)"
+      response_time: "1-3s"
+      formal_level: "best_effort"
+    rate_limit:
+      requests_per_minute: 30
+      notes: "Scraping — limites nao documentados"
+    fallback_plan:
+      primary: "Retry com backoff (3 tentativas)"
+      secondary: "Dados de outras fontes (PNCP, SC Compras)"
+      tertiary: "Cache de ultima execucao"
+    cost_estimate:
+      per_month: 0  # Dados publicos
+      special: "e-Sfinge requer certificado ICP-Brasil (R$300-800/ano) — INVIABILIZADO"
+    last_verified: "2026-07-10"
+    risk_level: medium
+    risks:
+      - id: TCE-R1
+        description: "e-Sfinge requer certificado ICP-Brasil"
+        impact: "Acesso a dados detalhados bloqueado sem certificado"
+        likelihood: high
+        mitigation: "Usar SCMWeb (dados abertos) como alternativa; certificado e custo nao aprovado"
+      - id: TCE-R2
+        description: "Mudanca no portal SCMWeb"
+        impact: "Scraping quebrado"
+        likelihood: medium
+        mitigation: "Monitoramento de mudancas; adaptacao rapida"
+    notes:
+      - "SCMWeb (dados abertos) viavel sem certificado"
+      - "e-Sfinge (dados detalhados) INVIABILIZADO — certificado R$300-800/ano nao aprovado"
+
+  # --------------------------------------------------------------------------
+  # IBGE API — Instituto Brasileiro de Geografia e Estatistica
+  # --------------------------------------------------------------------------
+  ibge_api:
+    type: api
+    provider: "IBGE"
+    purpose: "Geocodificacao, dados de municipios, CNAE, populacao"
+    endpoint: "https://servicodados.ibge.gov.br/api"
+    sla:
+      availability: "99.9% (observado)"
+      response_time: "< 1s"
+      formal_level: "best_effort"
+    rate_limit:
+      requests_per_minute: 60
+      notes: "API publica sem autenticacao"
+    fallback_plan:
+      primary: "Cache local de resultados (ibge_cache)"
+      secondary: "Dados estaticos em config/municipio_population.yaml"
+      tertiary: "Fallback para dados aproximados (CEP -> municipio)"
+    cost_estimate:
+      per_month: 0  # Gratuito
+    last_verified: "2026-07-10"
+    risk_level: low
+    risks:
+      - id: IBGE-R1
+        description: "API lenta ou indisponivel"
+        impact: "Geocodificacao atrasada"
+        likelihood: low
+        mitigation: "Cache local com TTL de 30 dias; operacao continua com dados em cache"
+    notes:
+      - "API estavel, raramente apresenta problemas"
+      - "Cache local cobre a maioria dos casos de uso"
+
+  # --------------------------------------------------------------------------
+  # BrasilAPI — Dados publicos brasileiros
+  # --------------------------------------------------------------------------
+  brasil_api:
+    type: api
+    provider: "BrasilAPI (comunidade)"
+    purpose: "Enriquecimento de dados (CEP, CNPJ, bancos)"
+    endpoint: "https://brasilapi.com.br/api"
+    sla:
+      availability: "99% (observado)"
+      response_time: "< 2s"
+      formal_level: "best_effort"  # Projeto comunitario sem SLA
+    rate_limit:
+      requests_per_minute: 60
+      notes: "Rate limit generoso, mas nao documentado formalmente"
+    fallback_plan:
+      primary: "Retry com backoff (3 tentativas, circuit breaker 30s)"
+      secondary: "Dados parciais (somente o que ja esta em cache)"
+      tertiary: "Ignorar enriquecimento — operacao continua sem"
+    cost_estimate:
+      per_month: 0  # Gratuito (projeto open source)
+    last_verified: "2026-07-10"
+    risk_level: low
+    risks:
+      - id: BRASILAPI-R1
+        description: "API fora do ar (projeto comunitario)"
+        impact: "Enriquecimento de CNPJ/CEP nao realizado"
+        likelihood: low
+        mitigation: "Cache local; operacao continua sem enriquecimento"
+      - id: BRASILAPI-R2
+        description: "Dados inconsistentes ou desatualizados"
+        impact: "Enriquecimento com dados incorretos"
+        likelihood: medium
+        mitigation: "Validacao basica de dados; registro de anomalias"
+    notes:
+      - "Projeto comunitario SEM SLA formal"
+      - "Alternativa: API publica da Receita Federal (menos estavel)"
+
+# ------------------------------------------------------------------------------
+# Tabela resumo de riscos
+# ------------------------------------------------------------------------------
+risk_summary:
+  high_risk: []
+  medium_risk:
+    - pncp_api
+    - bec
+    - tce_sc
+  low_risk:
+    - ibge_api
+    - brasil_api
+  unknown:
+    notes: "Nenhuma dependencia sem avaliacao — todas documentadas acima (TD-033 resolvido)"
+
+# ------------------------------------------------------------------------------
+# Recomendacoes
+# ------------------------------------------------------------------------------
+recommendations:
+  - priority: high
+    action: "Monitorar PNCP v3 migration — pode quebrar parsing atual"
+    timeframe: "Antes da ativacao em producao"
+  - priority: medium
+    action: "Documentar SLA formal com provedores sempre que possivel"
+    timeframe: "Proximo ciclo de contratacao"
+  - priority: low
+    action: "Avaliar BrasilAPI self-hosted para maior confiabilidade"
+    timeframe: "Quando recurso de infraestrutura disponivel"

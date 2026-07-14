@@ -1,122 +1,72 @@
-# Lacunas — Extra Consultoria
+# Gaps Report — Extra Consultoria (v3.0)
 
-> Gerado pelo Reviewer em 2026-07-11T23:00:00Z
-> doc_level: completo
-> Severidade: 🔴 crítico / 🟠 moderado / 🟢 cosmético
+> Gerado pelo Reviewer em 2026-07-13 | doc_level: completo | Base: 249340d
+> **Fonte:** Consolidação de 5 agentes QA (Grupos A-E) + gaps v2.0 remanescentes
 
-## Lacunas Críticas 🔴
+## 🔴 CRÍTICAS (8) — Bloqueiam operação confiável
 
-### GAP-00: Convenção Dupla de Nomenclatura (snake_case vs kebab-case) 🆕
-**Severidade:** 🔴 CRÍTICO
-**Módulo:** intel
-**Descoberto por:** SM (Scrum Master) em 2026-07-11
-**Descrição:** Scripts intel existem em DUAS convenções. `intel_pipeline.py` referencia snake_case como canônico. Kebab-case é legado. O Scout e Archaeologist do Reversa analisaram APENAS a versão kebab-case (legado), perdendo:
-- `intel_collect.py` (138KB snake_case, v1.5) vs `intel-collect.py` (127KB kebab, analisado) — **11KB de upgrades v1.5 perdidos**
-- `intel_llm_gate.py` (13KB) — script S3 do pipeline, NUNCA analisado
-- `intel_sector_loader.py` (19KB) — 20+ funções de config setorial, NUNCA analisado
-- `intel_pipeline.py` (49KB) — orquestrador real, NUNCA analisado em profundidade
-**Impacto:** Todos os artefatos do módulo intel (code-analysis, specs, flowcharts, ADRs) são baseados na versão legada/errada dos scripts.
-**Mitigação:** Atualizar intel/design.md com pipeline real (snake_case). Análise profunda de `intel_llm_gate.py` e `intel_sector_loader.py` pendente.
-**Fonte:** SM report, `intel_pipeline.py:876-1153` (referencia snake_case)
+| ID | Lacuna | Módulo | Bloqueia | Origem |
+|----|--------|--------|----------|--------|
+| G-01 | Schema fragmentado: 3 diretórios (db/migrations, supabase/migrations, current-schema.sql) | db | P0-02 | v2.0 |
+| G-02 | Snapshot reconciliation não implementado (673 vs 34 registros) | opportunity_intel | P0-04 | v3.0 |
+| G-03 | 4 módulos lib ausentes: universe, geocode, entity_hierarchy, value_semantics | lib | P0-03, P0-05 | v3.0 |
+| G-04 | ~18 crawlers reais, 9 documentados + subdiretórios omitidos (clients/, ingestion/) | crawl | P0-06 | v3.0 |
+| G-05 | diagnose (25K LOC) e transparencia (14K LOC) com apenas 2 FRs cada | diagnose, transparencia | — | v3.0 |
+| G-06 | Módulo `intel/` nas matrizes não existe na lista oficial de 17 módulos | code-spec-matrix | Consistência | v3.0 |
+| G-07 | 76 arquivos Python não listados individualmente na code-spec-matrix | code-spec-matrix | Rastreabilidade | v3.0 |
+| G-08 | Views canônicas não materializadas (v_contracts, v_suppliers, v_entities, v_value_obs) | db, contract_intel | P0-02, P0-09 | v3.0 |
 
-### GAP-01: Schema Real vs Migrations Divergentes
-**Severidade:** 🔴 CRÍTICO
-**Módulo:** db
-**Descrição:** Schema real do PostgreSQL diverge das migrations v1 em 5 pontos:
-- `esfera_id` é TEXT ('F','E','M','D') no banco real, INT nas migrations v1
-- `data_publicacao`/`data_abertura`/`data_encerramento` são TIMESTAMPTZ no real, DATE nas migrations
-- `enriched_entities` usa `entity_type`/`entity_id`/`data JSONB` — schema completamente diferente da migration 003 (colunas planas)
-- 0 views existem no banco real (migrations 009-012 nunca foram aplicadas)
-- Extensão `vector` (pgvector) existe no banco real mas não está documentada em nenhuma migration v1
-**Impacto:** Impossível recriar o banco a partir das migrations v1. Migrations v2 baseline resolvem parcialmente.
-**Mitigação:** Baseline v2 (`001-v2_initial_schema.sql`, 840 linhas, pg_dump --schema-only). Manter `verify-schema-divergence.sh`.
-**Fonte:** `DB-AUDIT.md:DT-01`, `migration-rebuild.md:D1-D5`
+## 🟡 ALTAS (7) — Afetam qualidade significativamente
 
-### GAP-02: Orquestrador Dual
-**Severidade:** 🔴 CRÍTICO
-**Módulo:** crawl
-**Descrição:** `monitor.py` (684 linhas, legado) e `orchestrator.py` (306 linhas, refatorado) coexistem sem critério claro de qual usar. Monitor tem entity matching inline; Orchestrator tem checkpoint TD-5.2 e matching externo.
-**Impacto:** Mudanças de bugfix precisam ser aplicadas em dois lugares. Systemd timers referenciam `monitor.py` (não `orchestrator.py`).
-**Fonte:** `code-analysis.md:GAP`, `ADR-008`
+| ID | Lacuna | Módulo | Origem |
+|----|--------|--------|--------|
+| G-09 | Reports não documenta dependência do módulo Coverage | reports | v3.0 |
+| G-10 | db spec sem refs ao plano-mestre §6 e migrations 030-036 | db | v3.0 |
+| G-11 | config/constants.py invisível em todos os specs | config | v3.0 |
+| G-12 | Sobreposição crawl PNCP: intel (legado) vs opportunity_intel (novo) | intel, opportunity_intel | v3.0 |
+| G-13 | Duas funções de universo sem relação documentada | lib, contract_intel | v3.0 |
+| G-14 | docs/requirements.md (base e9729e1) vs docs/design.md (base 249340d) | docs | v3.0 |
+| G-15 | Convenção dupla de nomenclatura (snake_case vs kebab-case) nos scripts intel | intel | v2.0 |
 
-### GAP-03: Sistema de Checkpoint Dual
-**Severidade:** 🔴 CRÍTICO
-**Módulo:** crawl
-**Descrição:** Dois sistemas de checkpoint coexistem: sync (psycopg2, usado por `orchestrator.py`) e async (Supabase, usado por `bids_crawler.py`). A tabela `ingestion_checkpoints` tem schema diferente entre os dois.
-**Impacto:** Checkpoints não são compartilhados entre sistemas. `bids_crawler.py` é dead code — seu sistema de checkpoint deveria ser removido.
-**Fonte:** `checkpoint.py:1-448`
+## 🟢 MÉDIAS (5)
 
-## Lacunas Moderadas 🟠
+| ID | Lacuna | Módulo | Origem |
+|----|--------|--------|--------|
+| G-16 | bids_crawler.py possivelmente dead code | crawl | v3.0 |
+| G-17 | Helpers duplicados (_digits_only, _safe_float, _parse_date) entre crawlers | crawl | v2.0 |
+| G-18 | Transição de orquestrador (monitor.py → orchestrator.py) não documentada | crawl | v2.0 |
+| G-19 | Modelo de negócio da consultoria não documentado formalmente | docs | v3.0 |
+| G-20 | SICAF via Playwright — dependência frágil de captcha | intel | v2.0 |
 
-### GAP-04: Framework Transparência sem Dados
-**Severidade:** 🟠 MODERADO
-**Módulo:** config, crawl
-**Descrição:** `transparencia_config.yaml` tem estrutura completa de CSS selectors mas `municipios: {}` está vazio. Os 4 templates (Betha, Ipam, E-gov, Genérico) estão implementados e prontos, mas o mapeamento de qual município usa qual plataforma não foi populado.
-**Impacto:** Transparência crawler funciona apenas com os 15 municípios hardcoded no fallback.
-**Fonte:** `transparencia_config.yaml:1-61`, `transparencia_crawler.py:_load_entities()`
+## ⚪ BAIXAS (4)
 
-### GAP-05: SICAF via Playwright — Dependência Frágil
-**Severidade:** 🟠 MODERADO
-**Módulo:** intel
-**Descrição:** Verificação SICAF usa Playwright para automação de navegador com captcha. Mudanças no site do SICAF quebram essa integração sem aviso.
-**Impacto:** Pipeline Intel perde verificação cadastral federal. Gate 2 (Cadastral) fica incompleto.
-**Fonte:** `intel-enrich.py:collect_sicaf()`
+| ID | Lacuna | Módulo | Origem |
+|----|--------|--------|--------|
+| G-21 | Version pinning ausente em requirements.txt | config | v2.0 |
+| G-22 | Docs operacionais potencialmente desatualizados (30 commits) | docs | v2.0 |
+| G-23 | Sem smoke tests para 7 fontes complementares | tests | v3.0 |
+| G-24 | transparencia_config.yaml com municipios: {} vazio | transparencia | v2.0 |
 
-### GAP-06: Cobertura de Testes Insuficiente
-**Severidade:** 🟠 MODERADO
-**Módulo:** todos
-**Descrição:** 17 arquivos de teste para 98K LOC Python — cobertura estimada <30%. Módulos críticos (intel, crawl) têm baixa cobertura.
-**Impacto:** Refatorações são arriscadas. Regressões não detectadas até falha em produção.
-**Fonte:** `surface.json:test_coverage_estimate`
+## Lacunas Resolvidas (v2.0 → v3.0)
 
-### GAP-07: ARP/PCA Crawlers Incompatíveis
-**Severidade:** 🟠 MODERADO
-**Módulo:** crawl
-**Descrição:** `pncp_arp_crawler.py` (525 linhas) e `pncp_pca_crawler.py` (472 linhas) são async (httpx), incompatíveis com a interface sync `crawl(mode)`/`transform(records)` usada por monitor.py e orchestrator.py.
-**Impacto:** Funcionalidades ARP (Atas de Registro de Preço) e PCA (Plano de Contratação Anual) não estão integradas ao pipeline de ingestão principal.
-**Fonte:** `code-analysis.md:crawl`
+| ID | Lacuna Original | Resolução |
+|----|----------------|-----------|
+| GAP-01 (antigo) | Schema v1 vs migrations divergentes | Baseline v2 aplicada. Migrations 030-036 planejadas no plano-mestre §6 |
+| GAP-02 (antigo) | Orquestrador dual (monitor.py vs orchestrator.py) | Decidido: orchestrator.py canônico. Systemd timers a migrar |
+| GAP-07 (antigo) | ARP/PCA incompatíveis com pipeline sync | Async é intencional. Execução separada na VPS |
 
-## Lacunas Cosméticas 🟢
+## Relação com Plano-Mestre
 
-### GAP-08: Helpers Duplicados
-**Severidade:** 🟢 COSMÉTICO
-**Módulo:** crawl
-**Descrição:** `_digits_only`, `_safe_float`, `_parse_date` implementadas em múltiplos crawlers em vez de importar de `common.py`.
-**Fonte:** `code-analysis.md:anti-patterns`
+| EPIC P0 | Gaps Relacionados | Status |
+|---------|-------------------|--------|
+| P0-01 (Documentação) | G-14, G-19, G-22 | ❌ Não iniciado |
+| P0-02 (Schema) | G-01, G-08, G-10 | ❌ Não iniciado |
+| P0-03 (Universo) | G-03, G-13 | 🔄 Parcial |
+| P0-04 (Reconciliação) | G-02 | ❌ Não iniciado |
+| P0-05 (Cobertura) | G-03 | 🔄 Parcial |
+| P0-06 (Fontes) | G-04 | ❌ Não iniciado |
+| P0-07 (Perfil) | — | ❌ Não iniciado |
+| P0-08 (Contratos) | G-08 | ❌ Não iniciado |
+| P0-09 (Concorrentes) | G-08 | ❌ Não iniciado |
 
-### GAP-09: Requirements.txt sem Version Pinning
-**Severidade:** 🟢 COSMÉTICO
-**Módulo:** config
-**Descrição:** Dependências sem versões exatas. `httpx>=0.28.1` em vez de `httpx==0.28.1`.
-**Fonte:** `requirements.txt`
-
-### GAP-10: Docs Desatualizados Pós-EPIC-TD-001
-**Severidade:** 🟢 COSMÉTICO
-**Módulo:** docs
-**Descrição:** Documentos de arquitetura e TD podem estar desatualizados após as 32 stories do commit e9729e1.
-**Fonte:** Inferido — Mudanças massivas (+93% LOC) sem atualização proporcional de docs.
-
----
-
-## Resumo
-
-| Severidade | Count | Itens |
-|-----------|-------|-------|
-| 🔴 Crítico | 1 | **GAP-00** (dual naming snake_case vs kebab) |
-| 🟠 Moderado | 0 | — |
-| 🟢 Cosmético | 3 | GAP-08, GAP-09, GAP-10 |
-| ✅ Resolvido | 3 | GAP-01, GAP-02, GAP-07 |
-| 🔜 Em plano | 4 | GAP-03, GAP-04, GAP-05, GAP-06 |
-| **Total** | **11** | |
-
-## Resoluções (2026-07-11)
-
-| GAP | Decisão | Status |
-|-----|---------|--------|
-| GAP-01 (Schema) | Aplicar baseline v2 limpa, abandonar v1 | ✅ Decidido |
-| GAP-02 (Orquestrador) | Migrar para orchestrator.py, systemd timers atualizados | ✅ Decidido |
-| GAP-03 (Checkpoint dual) | Remover async (bids_crawler = dead code), manter sync | 🔜 Pendente |
-| GAP-04 (Transparência) | detect_platform em lote para 295 municípios SC | 🔜 Pendente |
-| GAP-05 (SICAF) | Degraded mode existe. Migrar Playwright→Selenium | 🔜 Pendente |
-| GAP-06 (Testes) | TDD no ciclo forward | 🔜 Pendente (política) |
-| GAP-07 (ARP/PCA) | Async é intencional, executar separado na VPS | ✅ Decidido |
+**Conclusão:** Nenhum EPIC P0 concluído. Sistema `PARTIAL / NOT CLIENT-READY`.

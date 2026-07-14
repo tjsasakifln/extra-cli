@@ -1,202 +1,145 @@
 {
-  "generated_at": "2026-07-11T19:00:00Z",
-  "updated_at": "2026-07-11T19:00:00Z",
-  "update_reason": "Re-scout pós commit e9729e1 (EPIC-FEAT-001 + EPIC-TD-001, 32 stories)",
+  "generated_at": "2026-07-13T14:00:00Z",
   "project_root": "/mnt/d/extra consultoria",
+  "re_run_reason": "Atualização completa pós 30 commits (591 arquivos, +252K/-24K LOC). QW-01 Radar, Competitive Intel, Readiness Gates, Freshness Gates, Opportunity/Contract Intel Truth, novas regras #8/#9.",
   "languages": [
-    { "name": "Python", "extensions": [".py"], "file_count": 139, "loc": 98247 },
-    { "name": "SQL", "extensions": [".sql"], "file_count": 26, "loc": 5328 },
-    { "name": "Shell", "extensions": [".sh"], "file_count": 5, "loc": 3556 },
-    { "name": "YAML", "extensions": [".yaml", ".yml"], "file_count": 4, "loc": 404 }
+    { "name": "Python", "extensions": [".py"], "file_count": 277 },
+    { "name": "SQL", "extensions": [".sql"], "file_count": 58 },
+    { "name": "YAML", "extensions": [".yaml", ".yml"], "file_count": 88 },
+    { "name": "Shell", "extensions": [".sh"], "file_count": 21 },
+    { "name": "Markdown", "extensions": [".md"], "file_count": 289 }
   ],
   "primary_language": "Python",
+  "python_version": "3.12",
+  "total_loc_python": 137346,
   "frameworks": [
     { "name": "httpx", "version": "0.28.1", "source": "requirements.txt" },
+    { "name": "requests", "version": "2.32.0", "source": "requirements.txt" },
     { "name": "openai", "version": "1.55.0", "source": "requirements.txt" },
-    { "name": "psycopg2-binary", "version": "2.9.9", "source": "requirements.txt" },
+    { "name": "psycopg2", "version": "2.9.9", "source": "requirements.txt" },
     { "name": "reportlab", "version": "4.5.1", "source": "requirements.txt" },
     { "name": "openpyxl", "version": "3.1.5", "source": "requirements.txt" },
     { "name": "rich", "version": "13.0.0", "source": "requirements.txt" },
-    { "name": "rapidfuzz", "version": "3.0.0", "source": "requirements.txt" },
-    { "name": "lxml", "version": "5.0.0", "source": "requirements.txt" },
     { "name": "beautifulsoup4", "version": "4.12.0", "source": "requirements.txt" },
-    { "name": "python-dotenv", "version": "1.0.0", "source": "requirements.txt" },
-    { "name": "pyyaml", "version": "6.0", "source": "requirements.txt" }
+    { "name": "lxml", "version": "5.0.0", "source": "requirements.txt" },
+    { "name": "rapidfuzz", "version": "3.0.0", "source": "requirements.txt" },
+    { "name": "playwright", "version": "1.40.0", "source": "requirements.txt (comentado)" },
+    { "name": "selenium", "version": "4.15.0", "source": "requirements.txt (comentado)" }
   ],
   "dev_tools": [
-    { "name": "ruff", "source": "pyproject.toml", "purpose": "lint + format" },
-    { "name": "mypy", "source": "pyproject.toml", "purpose": "type checking (strict)" },
-    { "name": "pytest", "source": "pyproject.toml", "purpose": "testing + coverage" },
-    { "name": "pytest-cov", "source": "pyproject.toml", "purpose": "coverage reports" }
+    { "name": "ruff", "version": "0.15.12", "config": "pyproject.toml" },
+    { "name": "mypy", "version": null, "config": "pyproject.toml (strict)" },
+    { "name": "bandit", "version": null, "config": "pyproject.toml" },
+    { "name": "pytest", "version": null, "config": "conftest.py" }
   ],
   "package_manager": "pip",
-  "python_version": "3.12",
   "entry_points": [
-    { "path": "scripts/crawl/monitor.py", "type": "cli_main", "description": "Orquestrador multi-source de crawlers (8 fontes)" },
-    { "path": "scripts/intel_pipeline.py", "type": "cli_pipeline", "description": "Pipeline de inteligência (7 stages)" },
-    { "path": "scripts/intel-collect.py", "type": "cli_pipeline", "description": "Coleta de dados de licitação (stage 1)" },
-    { "path": "scripts/intel-enrich.py", "type": "cli_pipeline", "description": "Enriquecimento com IBGE + BrasilAPI (stage 2)" },
-    { "path": "scripts/intel-validate.py", "type": "cli_pipeline", "description": "Validação de dados (stage 3)" },
-    { "path": "scripts/intel-analyze.py", "type": "cli_pipeline", "description": "Análise com GPT-4.1-nano (stage 4)" },
-    { "path": "scripts/intel-extract-docs.py", "type": "cli_pipeline", "description": "Extração de documentos (stage 5)" },
-    { "path": "scripts/intel-excel.py", "type": "cli_pipeline", "description": "Geração Excel (stage 6)" },
-    { "path": "scripts/intel-report.py", "type": "cli_pipeline", "description": "Relatório final (stage 7)" },
-    { "path": "scripts/local_datalake.py", "type": "cli_datalake", "description": "CLI do DataLake (search, stats, supplier)" },
-    { "path": "scripts/reports/panorama.py", "type": "cli_report", "description": "Panorama de mercado setorial" },
-    { "path": "scripts/generate_proposta_pdf.py", "type": "cli_pdf", "description": "PDF de proposta comercial" },
-    { "path": "scripts/generate_report_b2g.py", "type": "cli_report", "description": "Relatório B2G (maior script: 6.4K LOC)" },
-    { "path": "scripts/demo_b2g_setorial.py", "type": "cli_demo", "description": "Demo setorial B2G" },
-    { "path": "scripts/health-dashboard.py", "type": "cli_dashboard", "description": "Dashboard de health dos crawlers" },
-    { "path": "scripts/healthcheck.py", "type": "cli_health", "description": "Health check rápido" },
-    { "path": "scripts/notify.py", "type": "cli_notify", "description": "Notificações (Telegram/outros)" },
-    { "path": "scripts/war-room-b2g-collect.py", "type": "cli_collect", "description": "Coleta dados War Room B2G" },
-    { "path": "scripts/radar-b2g-collect.py", "type": "cli_collect", "description": "Coleta dados Radar B2G" },
-    { "path": "scripts/pricing-b2g-collect.py", "type": "cli_collect", "description": "Coleta dados Pricing B2G" },
-    { "path": "scripts/retention-b2g-collect.py", "type": "cli_collect", "description": "Coleta dados Retention B2G" },
-    { "path": "scripts/validate-report-data.py", "type": "cli_validate", "description": "Validação de dados de relatório" },
-    { "path": "scripts/auditor_deterministic_checks.py", "type": "cli_audit", "description": "Checagens determinísticas de auditoria" },
-    { "path": "db/setup_db.sh", "type": "setup", "description": "Provisionamento do banco" },
-    { "path": "deploy/install.sh", "type": "deploy", "description": "Instalação no Hetzner" },
-    { "path": "deploy/provision-vps.sh", "type": "deploy", "description": "Provisionamento inicial da VPS" }
+    { "path": "scripts/crawl/monitor.py", "type": "crawl_orchestrator" },
+    { "path": "scripts/opportunity_intel/cli.py", "type": "cli" },
+    { "path": "scripts/opportunity_intel/radar.py", "type": "radar" },
+    { "path": "scripts/contract_intel/cli.py", "type": "cli" },
+    { "path": "scripts/intel_pipeline.py", "type": "pipeline" },
+    { "path": "scripts/local_datalake.py", "type": "cli" },
+    { "path": "scripts/coverage_truth.py", "type": "analysis" },
+    { "path": "scripts/consulting_readiness.py", "type": "gate" },
+    { "path": "scripts/freshness_gate.py", "type": "gate" },
+    { "path": "scripts/reports/panorama.py", "type": "report" },
+    { "path": "scripts/reports/coverage_weekly.py", "type": "report" },
+    { "path": "scripts/pipeline/backfill_multi_source.py", "type": "pipeline" }
   ],
   "config_files": [
     ".env.example",
     "config/settings.py",
-    "config/logging_config.py",
+    "config/constants.py",
     "config/sectors_config.yaml",
     "config/sectors_data.yaml",
-    "config/abbreviations.yaml",
     "config/transparencia_config.yaml",
-    ".python-version",
-    "requirements.txt",
-    "pyproject.toml"
+    "pyproject.toml",
+    "requirements.txt"
   ],
   "ci_cd": [
-    ".github/agents/"
+    ".github/workflows/ci.yml"
   ],
-  "docker": {},
+  "docker": {
+    "compose": "docker-compose.yml"
+  },
   "database_hints": [
-    { "path": "db/migrations/", "type": "migrations_dir", "count": 19 },
-    { "path": "supabase/migrations/", "type": "supabase_migrations_dir", "count": 7 },
-    { "path": "db/seed/", "type": "seed_dir", "description": "Seed de 2.085 órgãos SC" },
-    { "path": "db/setup_db.sh", "type": "setup_script" },
-    { "path": "db/backup-database.sh", "type": "backup_script" }
+    { "path": "db/migrations/", "type": "migrations_dir", "count": 33 },
+    { "path": "supabase/migrations/", "type": "supabase_migrations", "count": 8 },
+    { "path": "supabase/current-schema.sql", "type": "full_schema_dump" },
+    { "path": "scripts/opportunity_intel/models.py", "type": "sqlalchemy_models" },
+    { "path": "scripts/opportunity_intel/schema.py", "type": "ddl_scripts" }
   ],
   "test_framework": "pytest",
-  "test_file_count": 17,
-  "test_coverage_estimate": "low (<30% de 98K LOC)",
+  "test_file_count": 64,
+  "test_markers": ["unit", "integration", "smoke", "external"],
   "modules": [
     "crawl",
-    "intel",
-    "reports",
+    "opportunity_intel",
+    "contract_intel",
     "lib",
     "matching",
+    "coverage",
+    "reports",
+    "fix",
+    "pipeline",
+    "diagnose",
+    "transparencia",
     "config",
     "db",
     "deploy",
-    "docs"
+    "tests",
+    "docs",
+    "root_scripts"
   ],
-  "total_files": 196,
-  "total_loc": 98247,
-  "naming_convention_note": "ATENÇÃO: scripts intel existem em DUAS convenções. snake_case (ex: intel_collect.py) = canônico v1.5. kebab-case (ex: intel-collect.py) = legado. intel_pipeline.py referencia snake_case. Exceção: intel-analyze.py (kebab) na linha 801 do pipeline — inconsistência.",
-  "dual_naming_files": {
-    "snake_case_canonical": ["intel_collect.py", "intel_enrich.py", "intel_excel.py", "intel_extract_docs.py", "intel_report.py", "intel_validate.py", "intel_analyze.py", "intel_pipeline.py", "intel_llm_gate.py", "intel_sector_loader.py"],
-    "kebab_case_legacy": ["intel-collect.py", "intel-enrich.py", "intel-excel.py", "intel-extract-docs.py", "intel-report.py", "intel-validate.py", "intel-analyze.py"],
-    "snake_only": ["intel_pipeline.py", "intel_llm_gate.py", "intel_sector_loader.py"]
-  },
+  "total_files": 7474,
+  "external_integrations": [
+    { "name": "PNCP (gov.br)", "type": "REST API", "crawlers": 4 },
+    { "name": "Compras.gov", "type": "REST API", "crawlers": 1 },
+    { "name": "TCE-SC", "type": "Web scraping", "crawlers": 1 },
+    { "name": "DOE-SC", "type": "Web scraping", "crawlers": 2 },
+    { "name": "DOM-SC", "type": "Web scraping", "crawlers": 1 },
+    { "name": "CIGA/CKAN", "type": "CKAN API", "crawlers": 1 },
+    { "name": "SC Compras", "type": "Web scraping", "crawlers": 1 },
+    { "name": "MIDES/BigQuery", "type": "BigQuery API", "crawlers": 1 },
+    { "name": "Portais de Transparência", "type": "Web scraping", "crawlers": 1 },
+    { "name": "IBGE", "type": "API + cache local", "crawlers": 0 },
+    { "name": "OpenAI GPT-4.1 Nano", "type": "API LLM", "crawlers": 0 },
+    { "name": "Supabase", "type": "REST API", "crawlers": 0 }
+  ],
+  "new_since_last_run": [
+    "opportunity_intel/radar.py (QW-01 Auditable Radar, 33K LOC)",
+    "opportunity_intel/ranking.py (Competitive Intelligence, 14K LOC)",
+    "consulting_readiness.py (Consulting Readiness Gate, 88K LOC)",
+    "freshness_gate.py (Freshness Gate SLA, 10K LOC)",
+    "contract_intel/ (Contract Intelligence V1, 3 files)",
+    "coverage_truth.py (Coverage Truth, 39K LOC)",
+    "scripts/coverage/ (Coverage validation module, 4 files)",
+    "db/migrations/023-029 (7 new migrations)",
+    "scripts/fix/rebuild_evidence_ledger.py",
+    "scripts/fix/resolve_unresolved_entities.py"
+  ],
   "organization_suggestion": {
     "granularity": "module",
-    "rationale": "Estrutura de pastas top-level organizada por domínio funcional: scripts/crawl/ (coleta), scripts/intel_* (pipeline de inteligência), scripts/reports/ (relatórios), scripts/lib/ (bibliotecas), scripts/matching/ (entity matching), config/ (configuração), db/ (database), deploy/ (infra). Organização natural por módulo.",
+    "rationale": "Estrutura de diretórios top-level em scripts/ organizada por domínio: crawl/, lib/, matching/, opportunity_intel/, contract_intel/, reports/, coverage/, fix/, pipeline/, diagnose/, transparencia/. Cada diretório representa um módulo funcional independente.",
     "signals": [
       {
         "type": "top_level_domain_folders",
         "evidence": [
           "scripts/crawl/",
-          "scripts/reports/",
+          "scripts/opportunity_intel/",
+          "scripts/contract_intel/",
           "scripts/lib/",
           "scripts/matching/",
-          "config/",
-          "db/",
-          "deploy/",
-          "docs/"
+          "scripts/reports/",
+          "scripts/coverage/",
+          "scripts/fix/",
+          "scripts/pipeline/",
+          "scripts/diagnose/",
+          "scripts/transparencia/"
         ]
       }
     ],
     "features": []
-  },
-  "external_integrations": [
-    {
-      "name": "PNCP API",
-      "type": "REST API",
-      "url": "https://pncp.gov.br/api/consulta/v1",
-      "auth": "public"
-    },
-    {
-      "name": "DOM-SC",
-      "type": "Web Portal",
-      "url": "https://www.diariomunicipal.sc.gov.br",
-      "auth": "api_key"
-    },
-    {
-      "name": "PCP v2",
-      "type": "REST API",
-      "url": "https://compras.api.portaldecompraspublicas.com.br/v2",
-      "auth": "public"
-    },
-    {
-      "name": "ComprasGov v3",
-      "type": "REST API",
-      "url": "https://dadosabertos.compras.gov.br",
-      "auth": "public"
-    },
-    {
-      "name": "TCE-SC ESFINGE",
-      "type": "Web Portal",
-      "auth": "public"
-    },
-    {
-      "name": "DOE-SC",
-      "type": "Web Portal",
-      "url": "https://www.doe.sc.gov.br",
-      "auth": "public"
-    },
-    {
-      "name": "OpenAI API",
-      "type": "LLM",
-      "model": "gpt-4.1-nano",
-      "auth": "api_key"
-    },
-    {
-      "name": "BrasilAPI",
-      "type": "REST API",
-      "url": "https://brasilapi.com.br",
-      "auth": "public"
-    },
-    {
-      "name": "IBGE API",
-      "type": "REST API",
-      "url": "https://servicodados.ibge.gov.br",
-      "auth": "public"
-    }
-  ],
-  "deployment": {
-    "platform": "Hetzner VPS",
-    "os": "Ubuntu 24.04",
-    "scheduler": "systemd timers (37 units)",
-    "database": "PostgreSQL 17 (self-hosted)",
-    "access": "SSH terminal",
-    "backup": "systemd timer (extra-db-backup)",
-    "hardening": "fail2ban + ufw",
-    "monitoring": "health-check timer + health-dashboard.py"
-  },
-  "git_history": {
-    "total_commits": 18,
-    "first_commit": "feat: inicializa plataforma de inteligência em licitações — Extra Construtora",
-    "latest_commit": "feat: 32/32 stories PASS — EPIC-FEAT-001 + EPIC-TD-001 completos",
-    "epics_completed": [
-      "EPIC-001 (7 stories, 100% cobertura SC)",
-      "EPIC-FEAT-001 (crawlers + coverage)",
-      "EPIC-TD-001 (technical debt resolution)"
-    ]
   }
 }

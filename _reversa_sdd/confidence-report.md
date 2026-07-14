@@ -1,103 +1,85 @@
-# Relatório de Confiança — Extra Consultoria
+# Confidence Report — Extra Consultoria (v3.0)
 
-> Gerado pelo Reviewer em 2026-07-11T23:00:00Z
-> doc_level: completo
-> Base: re-extração completa pós commit e9729e1 (32 stories, EPIC-FEAT-001 + EPIC-TD-001)
+> Gerado pelo Reviewer em 2026-07-13 | doc_level: completo | Base: 249340d
+> **Revisão cruzada externa:** Não realizada (Codex indisponível)
+> **Revisão paralela:** 5 agentes QA (Grupos A-E), 24 lacunas consolidadas, 12 inconsistências, 8 contradições cross-module
 
 ## Sumário Executivo
 
-**Confiança geral: 91% 🟢** (acima dos 87.5% da extração anterior)
+**Confiança geral: 78% 🟡** (em queda de 91% na v2.0 — a diferença reflete profundidade maior, não degradação real)
 
-Re-extração completa dos 9 módulos após commit com +93% LOC. Todas as fases do pipeline Reversa foram re-executadas: Scout → Archaeologist → Detective → Architect → Writer → Reviewer.
+A extração anterior (2026-07-11) cobria 9 módulos com 75 arquivos mapeados. Esta extração cobre 17 módulos com ~195 arquivos mapeados. A queda no percentual reflete: (a) 8 novos módulos com análise inicial menos profunda (diagnose, transparencia, fix, pipeline, tests, root_scripts, contract_intel, coverage), (b) descoberta de 4 módulos lib não documentados, (c) ~18 crawlers vs 9 documentados, (d) 76 arquivos não listados na code-spec-matrix.
 
-| Métrica | Anterior | Atual | Delta |
-|---------|---------|-------|-------|
-| Confiança geral | 87.5% | 91% | +3.5pp |
-| Regras de negócio | 12 | 17 | +5 |
-| ADRs | 6 | 11 | +5 |
-| Módulos analisados | 8 | 9 | +1 (matching) |
-| Máquinas de estado | 4 | 6 | +2 |
-| Arquivos mapeados | ~50 | 75 | +25 |
-| Cobertura code/spec | ~70% | 84% | +14pp |
-
-## Confiança por Fase
-
-| Fase | Artefatos | 🟢 CONFIRMADO | 🟡 INFERIDO | 🔴 LACUNA | Confiança |
-|------|----------|--------------|------------|----------|-----------|
-| Reconhecimento (Scout) | surface.json, inventory.md, dependencies.md | 95% | 5% | 0% | 95% |
-| Escavação (Archaeologist) | code-analysis, data-dictionary, flowcharts (6), modules.json | 90% | 8% | 2% | 93% |
-| Interpretação (Detetive) | domain, state-machines, permissions, 11 ADRs | 85% | 10% | 5% | 88% |
-| Interpretação (Arquiteto) | architecture, C4 (3), ERD, spec-impact-matrix | 90% | 8% | 2% | 92% |
-| Geração (Writer) | 9 units × 3 specs + traceability | 88% | 10% | 2% | 90% |
-| Revisão (Reviewer) | confidence-report, gaps, questions | — | — | — | — |
+| Métrica | v2.0 (2026-07-11) | v3.0 (2026-07-13) | Delta |
+|---------|-------------------|--------------------|-------|
+| Confiança geral | 91% | 78% | -13pp (escopo 2× maior) |
+| Módulos cobertos | 9 | 17 | +8 |
+| Arquivos mapeados | 75 | ~195 | +120 |
+| Regras de negócio | 17 | ~50 | +33 |
+| ADRs | 11 | 16 | +5 |
+| 🔴 Lacunas documentadas | 6 | 35 | +29 |
+| Code-spec coverage | 84% | 92% (dos listados) | +8pp |
 
 ## Confiança por Módulo
 
-| Módulo | Arquivos | 🟢 | 🟡 | 🔴 | Score |
-|--------|---------|-----|-----|-----|-------|
-| crawl | 35 Python | 32 | 2 | 1 | 95% |
-| intel | 8 Python | 7 | 1 | 0 | 95% |
-| reports | 6 Python | 5 | 1 | 0 | 92% |
-| matching | 2 Python | 2 | 0 | 0 | 97% |
-| lib | 11 Python | 10 | 1 | 0 | 95% |
-| config | 7 YAML+Python | 7 | 0 | 0 | 95% |
-| db | 25 SQL+Python | 20 | 3 | 2 | 88% |
-| deploy | 42 Shell+systemd | 40 | 2 | 0 | 95% |
-| docs | ~50 Markdown | 30 | 15 | 5 | 80% |
+| Módulo | 🟢 | 🟡 | 🔴 | Score | Veredito |
+|--------|-----|-----|-----|-------|----------|
+| deploy | 90% | 8% | 2% | 94% | ✅ APPROVED |
+| tests | 88% | 10% | 2% | 93% | ✅ APPROVED |
+| matching | 82% | 13% | 5% | 89% | ✅ APPROVED |
+| opportunity_intel | 85% | 10% | 5% | 90% | ✅ APPROVED |
+| contract_intel | 83% | 12% | 5% | 89% | ✅ APPROVED |
+| root_scripts | 85% | 10% | 5% | 90% | ✅ APPROVED |
+| crawl | 82% | 13% | 5% | 89% | ✅ APPROVED |
+| intel (legado) Ⓜ️ | 80% | 15% | 5% | 88% | ✅ APPROVED |
+| reports | 75% | 15% | 10% | 83% | ✅ APPROVED |
+| config | 78% | 17% | 5% | 87% | ⚠️ NEEDS WORK |
+| coverage | 78% | 15% | 7% | 86% | ⚠️ NEEDS WORK |
+| db | 75% | 15% | 10% | 83% | ⚠️ NEEDS WORK |
+| docs | 75% | 15% | 10% | 83% | ⚠️ NEEDS WORK |
+| lib | 72% | 20% | 8% | 82% | ⚠️ NEEDS WORK |
+| pipeline | 70% | 20% | 10% | 80% | ⚠️ NEEDS WORK |
+| fix | 65% | 25% | 10% | 78% | ❌ NEEDS WORK |
+| diagnose | 55% | 25% | 20% | 68% | ❌ NEEDS WORK |
+| transparencia | 55% | 25% | 20% | 68% | ❌ NEEDS WORK |
 
-## Reclassificações Aplicadas
+> **Legenda:** Ⓜ️ = modulo migrado. `intel (legado)` foi incorporado a `root_scripts/` em 2026-07-13. Consulte `_reversa_sdd/intel/README.md` para historico.
 
-| Item | Unit | De | Para | Motivo |
-|------|------|----|------|--------|
-| Adversarial review (T-I17) | intel/tasks.md | 🟢 | 🟡 | Cross-model review depende de modelo alternativo disponível — não verificado em produção |
-| R16: Zero false negative | domain.md | 🟡 | 🟡 (mantido) | Filosofia de design inferida, não declarada. Consistente com arquitetura mas sem evidência direta |
-| T-C02: PNCP crawler | crawl/tasks.md | 🟢 | 🟢 (mantido) | Verificado em `pncp_crawler_adapter.py:crawl()` |
-| SICAF Playwright (T-I09) | intel/tasks.md | 🟢 | 🟡 | Playwright com captcha — confiabilidade depende de mudanças no site SICAF |
-| transparencia_config municipios | config/ | 🟢 | 🟡 | YAML tem estrutura pronta mas `municipios: {}` vazio — framework sem dados |
-| seed IBGE strategies | db/ | 🟢 | 🟢 (mantido) | 4 estratégias verificadas em `seed_sc_entities.py:resolve_ibge_code()` |
+## Confiança por Fase
 
-## Inconsistências Resolvidas
+| Fase | Artefatos | 🟢 | 🟡 | 🔴 | Score |
+|------|----------|-----|-----|-----|-------|
+| Reconhecimento (Scout) | surface.json, inventory.md, dependencies.md | 90% | 8% | 2% | 94% |
+| Escavação (Archaeologist) | code-analysis, data-dictionary, flowcharts (6), modules.json | 88% | 10% | 2% | 93% |
+| Interpretação (Detetive) | domain, state-machines, permissions, 16 ADRs | 85% | 10% | 5% | 90% |
+| Interpretação (Arquiteto) | architecture, C4 (3), ERD, spec-impact-matrix | 90% | 8% | 2% | 94% |
+| Geração (Writer) | 17 units × 3 specs + contracts + traceability | 78% | 17% | 5% | 85% |
 
-1. **crawl/design.md referia 12 migrations → corrigido para 19 v1 + 5 v2**
-2. **intel/requirements.md referia `intel_llm_gate.py` → corrigido para `intel-analyze.py`** (hyphen vs underscore)
-3. **db/design.md referia schema com colunas planas → atualizado para schema real (JSONB enriched_entities)**
-4. **deploy/ mencionava "13 systemd timers" → corrigido para 20 (10 v1 + 10 extra)**
+## Correções Aplicadas Durante a Revisão
 
-## Lacunas que Persistem (Ver gaps.md)
+| Arquivo | Mudança | Motivo |
+|---------|---------|--------|
+| reports/design.md | 12 linhas → 75 linhas | Spec insuficiente para implementação |
+| docs/tasks.md | 5 tarefas → 12 tarefas | Zero tarefas para 3 lacunas 🔴 documentadas |
 
-1. 🔴 DT-01: Schema real vs migrations diverge (esfera_id, data_*, enriched_entities)
-2. 🔴 DT-03: Dois orquestradores coexistem (monitor.py + orchestrator.py) — qual é canônico?
-3. 🔴 DT-04: Dois sistemas de checkpoint (sync psycopg2 + async Supabase)
-4. 🟡 transparencia_config.yaml: framework pronto, 0 municípios mapeados
-5. 🟡 SICAF via Playwright — dependência de automação de captcha
-6. 🟡 Cobertura de testes <30% para 98K LOC
+## Reclassificações
 
-## Métricas de Cobertura
-
-| Métrica | Valor |
-|---------|-------|
-| Arquivos do legado | 75 (principais) |
-| Mapeados em specs | 63 (84%) |
-| Cobertos parcialmente | 12 (16%) |
-| Não mapeados | 0 (0%) |
-| Units geradas | 9 |
-| Specs canônicos | 27 |
-| Artefatos opcionais | 3 (flowcharts×6, traceability) |
-| ADRs | 11 |
-| Diagramas C4 | 3 (contexto, containers, componentes) |
-| Diagramas ER | 1 (8 tabelas + relacionamentos) |
-| Máquinas de estado | 6 |
-| Regras de negócio | 17 |
-
-## Revisão Cruzada
-
-- **Engine externa consultada:** Nenhuma (Codex indisponível)
-- **Revisão:** Solo, baseada em cross-reference manual de todos os artefatos
+| Item | De | Para | Motivo |
+|------|----|------|--------|
+| reports/design.md completude | 🟢 | 🟡→🟢 | Expandido na revisão |
+| docs/tasks.md cobertura | 🟡 | 🟡→🟢 | Expandido na revisão |
+| crawl cobertura de crawlers | 🟢 | 🟡 | 9 documentados, ~18 reais |
+| lib completude | 🟢 | 🔴 | 4 módulos críticos ausentes |
+| diagnose profundidade | 🟡 | 🔴 | 2 FRs para 25K LOC |
+| transparencia profundidade | 🟡 | 🔴 | 2 FRs para 14K LOC |
 
 ## Veredito Final
 
-**PASS ✅** — Especificações adequadas para reimplementação por agente de IA.
+**⚠️ NEEDS WORK — PARTIAL / NOT CLIENT-READY**
 
-Confiança de 91% está acima do threshold de 80% recomendado para início de ciclo forward. As 6 lacunas identificadas (3 críticas, 3 moderadas) não bloqueiam o entendimento do sistema mas devem ser resolvidas antes de refatorações profundas nos módulos afetados (db, crawl).
+As specs cobrem todos os 17 módulos. Módulos core (crawl, opportunity_intel, contract_intel, matching) têm boa documentação. Módulos periféricos (diagnose, transparencia, fix) têm documentação superficial que precisa ser aprofundada.
 
-**Recomendação:** Prosseguir para `/reversa-forward` com foco inicial nos módulos de maior confiança (matching 97%, crawl 95%, intel 95%) e abordar as lacunas do db (88%) como primeiras tarefas do ciclo forward.
+**Recomendação:**
+1. Executar stories 1.1→1.5 do epic-technical-debt.md (resolvem 60% das lacunas críticas)
+2. Expandir diagnose, transparencia e fix quando forem priorizados
+3. Prosseguir para `/reversa-forward` nos módulos de maior confiança (deploy, tests, opportunity_intel)

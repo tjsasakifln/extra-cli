@@ -1,317 +1,273 @@
 # Inventário do Projeto — Extra Consultoria
 
-> Atualizado pelo Scout em 2026-07-11T19:00:00Z (re-scout pós commit e9729e1)
-> doc_level: completo
+> Gerado pelo Scout em 2026-07-13
+> Reexecução completa — 30 commits após última análise (2026-07-11)
 
 ---
 
-## Sumário
+## 1. Visão Geral
 
-| Métrica | Valor Anterior | Valor Atual | Delta |
-|---------|---------------|-------------|-------|
-| Arquivos Python | 58 | 139 | +81 |
-| LOC Python | 50.651 | 98.247 | +47.596 |
-| Arquivos SQL | 12 | 26 | +14 |
-| LOC SQL | 771 | 5.328 | +4.557 |
-| Arquivos de teste | 10 | 17 | +7 |
-| Migrations DB | 12 | 19 | +7 |
-| Supabase migrations | 0 | 7 | +7 |
-| Systemd timers | 13 | 37 | +24 |
-| Módulos | 8 | 9 | +1 (matching) |
-| Epics concluídos | 1 | 3 | +2 |
+| Métrica | Valor |
+|---------|-------|
+| **Total de arquivos fonte** | 7,474 |
+| **Arquivos Python (.py)** | 277 |
+| **LOC Python total** | ~137,346 |
+| **Arquivos SQL (.sql)** | 58 |
+| **Arquivos YAML/YML** | 88 |
+| **Shell scripts (.sh)** | 21 |
+| **Documentação (.md)** | 289 |
+| **Arquivos de teste** | 64 |
+| **Linguagem principal** | Python 3.12 |
+| **Gerenciador de pacotes** | pip (requirements.txt) |
 
 ---
 
-## Estrutura de Diretórios
+## 2. Estrutura de Diretórios
 
 ```
-/
-├── scripts/                     # 139 arquivos Python (98.247 LOC)
-│   ├── crawl/                   # 30 arquivos — crawlers + orquestrador (8 fontes)
-│   │   ├── monitor.py           # Orquestrador multi-source
-│   │   ├── orchestrator.py      # Lógica de orquestração
-│   │   ├── checkpoint.py        # Checkpoint/resume de crawls
-│   │   ├── circuit_breaker.py   # Proteção contra falhas em cascata
-│   │   ├── config.py            # Configuração dos crawlers
-│   │   ├── common.py            # Utilitários comuns
-│   │   ├── security.py          # Sanitização de SQL
-│   │   ├── async_client.py      # Cliente HTTP assíncrono
-│   │   ├── sync_client.py       # Cliente HTTP síncrono
-│   │   ├── _parallel_mixin.py   # Mixin de paralelismo
-│   │   ├── retry.py             # Retry com backoff
-│   │   ├── adapter.py           # Adaptador de fonte
-│   │   ├── transformer.py       # Transformação de dados
-│   │   ├── enricher.py          # Enriquecimento (IBGE, BrasilAPI)
-│   │   ├── loader.py            # Carga no PostgreSQL
-│   │   ├── pncp_crawler.py      # PNCP (API v1)
-│   │   ├── pncp_pca_crawler.py  # PNCP PCA (planos de contratação)
-│   │   ├── pncp_arp_crawler.py  # PNCP ARP (atas de registro de preço)
-│   │   ├── pncp_crawler_adapter.py # Adaptador PNCP
-│   │   ├── compras_gov_crawler.py  # ComprasGov v3
-│   │   ├── contracts_crawler.py    # Contratos (PNCP)
-│   │   ├── pcp_crawler.py         # PCP v2
-│   │   ├── bids_crawler.py        # Licitações
-│   │   ├── transparencia_crawler.py # Transparência (maior: 41K)
-│   │   ├── tce_sc_crawler.py      # TCE-SC ESFINGE
-│   │   ├── sc_compras_crawler.py  # SC Compras
-│   │   ├── doe_sc_crawler.py      # DOE-SC
-│   │   ├── dom_sc_crawler.py      # DOM-SC
-│   │   └── sanctions.py           # SICAF (requer Playwright)
-│   ├── intel_pipeline.py       # Pipeline principal (orquestrador 7 stages)
-│   ├── intel-collect.py        # Stage 1 — Coleta (3.2K LOC)
-│   ├── intel-enrich.py         # Stage 2 — Enriquecimento
-│   ├── intel-validate.py       # Stage 3 — Validação
-│   ├── intel-analyze.py        # Stage 4 — Análise GPT (1.8K LOC)
-│   ├── intel-extract-docs.py   # Stage 5 — Extração docs
-│   ├── intel-excel.py          # Stage 6 — Geração Excel
-│   ├── intel-report.py         # Stage 7 — Relatório final (2.2K LOC)
-│   ├── intel_llm_gate.py       # Gate de qualidade LLM
-│   ├── intel_sector_loader.py  # Carregador de setores
-│   ├── local_datalake.py       # CLI DataLake (search, stats, supplier)
-│   ├── datalake_helper.py      # Helpers do DataLake
-│   ├── datalake-sc-200km.py    # DataLake SC raio 200km
-│   ├── export-sc-200km-final.py # Export SC 200km
-│   ├── matching/               # 2 arquivos — Entity matching
-│   │   ├── __init__.py
-│   │   └── entity_matcher.py   # Casamento de entidades (fuzzy)
-│   ├── reports/                # 3 arquivos — Relatórios
-│   │   ├── panorama.py         # Panorama setorial
-│   │   ├── coverage_gaps.py    # Análise de gaps de cobertura
-│   │   └── coverage_weekly.py  # Relatório semanal de cobertura
-│   ├── lib/                    # 10 arquivos — Biblioteca compartilhada
-│   │   ├── bid_simulator.py    # Simulador de licitações
-│   │   ├── cost_estimator.py   # Estimador de custos
-│   │   ├── victory_profile.py  # Perfil de vitória
-│   │   ├── win_loss_tracker.py # Rastreador win/loss
-│   │   ├── name_normalizer.py  # Normalização de nomes
-│   │   ├── doc_templates.py    # Templates de documentos
-│   │   ├── cli_validation.py   # Validação CLI
-│   │   ├── intel_logging.py    # Logging do pipeline
-│   │   ├── retry.py            # Retry (lib-level)
-│   │   └── constants.py        # Constantes
-│   ├── generate_report_b2g.py  # Relatório B2G (6.5K LOC — maior script)
-│   ├── generate_proposta_pdf.py # PDF proposta comercial
-│   ├── generate_consultoria_pdf.py # PDF consultoria
-│   ├── demo_b2g_setorial.py    # Demo setorial B2G
-│   ├── health-dashboard.py     # Dashboard health crawlers
-│   ├── health_check.py         # Health check rápido
-│   ├── healthcheck.py          # Health check alternativo
-│   ├── notify.py               # Notificações
-│   ├── pricing-b2g-collect.py  # Coleta Pricing B2G
-│   ├── radar-b2g-collect.py    # Coleta Radar B2G
-│   ├── retention-b2g-collect.py # Coleta Retention B2G
-│   ├── war-room-b2g-collect.py # Coleta War Room B2G
-│   ├── validate-report-data.py # Validação dados relatório
-│   ├── report_dedup.py         # Deduplicação de relatórios
-│   ├── auditor_deterministic_checks.py # Auditoria determinística
-│   ├── build-proposta-data.py  # Build dados proposta
-│   ├── check-alerts.py         # Verificação de alertas
-│   ├── collect-metrics.py      # Coleta de métricas
-│   ├── collect-report-data.py  # Coleta dados relatório
-│   ├── collect_report_data.py  # ⚠️ DUPLICADO de collect-report-data.py
-│   ├── _pt_accents.py          # Normalização de acentos PT-BR
-│   └── conftest.py             # Config pytest raiz
-├── config/                     # Configuração
-│   ├── settings.py             # Settings central
-│   ├── logging_config.py       # Config de logging
-│   ├── sectors_config.yaml     # Config de setores
-│   ├── sectors_data.yaml       # Dados de setores
-│   ├── abbreviations.yaml      # Abreviações
-│   └── transparencia_config.yaml # Config transparência
-├── db/                         # Database
-│   ├── migrations/             # 19 migrations SQL
-│   ├── seed/                   # Seed 2.085 órgãos SC
-│   ├── setup_db.sh             # Provisionamento
-│   ├── apply-migrations.sh     # Aplicação de migrations
-│   ├── backup-database.sh      # Backup
-│   ├── restore-database.sh     # Restore
-│   ├── verify-schema-divergence.sh # Verificação schema
-│   └── cleanup-expired-entities.sql # Limpeza entidades expiradas
-├── supabase/                   # Supabase
-│   └── migrations/             # 7 migrations Supabase
-├── deploy/                     # Infraestrutura
-│   ├── install.sh              # Instalação VPS
-│   ├── provision-vps.sh        # Provisionamento inicial
-│   ├── systemd/                # 37 units (18 serviços + 18 timers + 1 template)
-│   └── hardening/              # Hardening segurança
-│       ├── fail2ban-jail.conf
-│       ├── pg_hba.conf
-│       └── ufw-rules.sh
-├── docs/                       # Documentação
-│   ├── prd/                    # PRDs
-│   ├── architecture/           # Documentação de arquitetura
-│   ├── guides/                 # Guias
-│   ├── ops/                    # Operações
-│   ├── qa/                     # QA gates e relatórios
-│   ├── reports/                # Relatórios de projeto
-│   ├── research/               # Pesquisas
-│   ├── reviews/                # Revisões
-│   ├── sessions/               # Logs de sessão
-│   ├── stories/                # Stories de desenvolvimento
-│   │   └── epics/              # 3 epics documentados
-│   └── td-001/                 # Technical Debt 001
-│       └── coverage-reports/   # Relatórios de cobertura
-├── tests/                      # 17 arquivos de teste
-│   ├── test_cache_ibge.py
-│   ├── test_checkpoint.py
-│   ├── test_common.py
-│   ├── test_compras_gov_crawler.py
-│   ├── test_contracts_crawler.py
-│   ├── test_coverage_calculator.py
-│   ├── test_crawler_pncp.py
-│   ├── test_datalake_helper.py
-│   ├── test_entity_matcher.py
-│   ├── test_intel_pipeline.py
-│   ├── test_orchestrator.py
-│   ├── test_pcp_crawler.py
-│   ├── test_report_dedup.py
-│   ├── test_transformer.py
-│   ├── test_transparencia_crawler.py
-│   ├── test_upsert_contracts.py
-│   └── scripts/test_monitoring.py
-├── .github/agents/             # 12 definições de agentes AIOX
-├── .env.example
-├── requirements.txt
-├── pyproject.toml              # ruff + mypy + pytest config
-├── .python-version             # 3.12
-└── CLAUDE.md                   # Instruções do projeto
+extra-consultoria/
+├── scripts/                        # Código-fonte principal (137K LOC)
+│   ├── crawl/                      # Crawlers web (51 .py, ~65K LOC)
+│   │   ├── clients/                # APIs tipadas (PNCP, base)
+│   │   ├── ingestion/              # Pipeline de ingestão (6 .py)
+│   │   ├── transparencia_templates/# Templates de portais (7 .py)
+│   │   ├── monitor.py              # Orquestrador de crawlers (71K)
+│   │   ├── transparencia_crawler.py# Crawler de transparência (57K)
+│   │   ├── contracts_crawler.py    # Crawler de contratos (29K)
+│   │   ├── ciga_ckan_crawler.py    # Crawler CIGA/CKAN (34K)
+│   │   ├── tce_sc_crawler.py       # Crawler TCE-SC (26K)
+│   │   ├── doe_sc_crawler.py       # Crawler DOE-SC (28K)
+│   │   ├── selenium_crawler.py     # Crawler Selenium genérico (28K)
+│   │   └── ...                     # +40 arquivos adicionais
+│   ├── opportunity_intel/          # Opportunity Intelligence (16 .py, ~15K LOC)
+│   │   ├── cli.py                  # CLI principal (23K)
+│   │   ├── radar.py                # QW-01 Radar operacional (33K)
+│   │   ├── crawler_base.py         # Base de crawlers (23K)
+│   │   ├── transformer.py          # Transformador de dados (18K)
+│   │   ├── status.py               # Status/readiness gates (16K)
+│   │   ├── pncp_audit.py           # Auditoria PNCP (20K)
+│   │   ├── ranking.py              # Competitive intelligence (14K)
+│   │   ├── scoring.py              # Scoring de oportunidades (9K)
+│   │   ├── models.py               # Modelos SQLAlchemy (8K)
+│   │   ├── schema.py               # Schema DDL (5K)
+│   │   ├── dedup.py                # Deduplicação (7K)
+│   │   ├── backfill.py             # Backfill histórico (14K)
+│   │   ├── manifest.py             # Manifestos de cobertura (12K)
+│   │   └── profile.py              # Perfis de fornecedor (5K)
+│   ├── contract_intel/             # Contract Intelligence (3 .py, ~60K LOC)
+│   │   ├── cli.py                  # CLI contratos (47K)
+│   │   └── target_universe.py      # Universo-alvo determinístico (12K)
+│   ├── lib/                        # Biblioteca compartilhada (15 .py, ~12K LOC)
+│   │   ├── universe.py             # CANONICAL_UNIVERSE (14K)
+│   │   ├── doc_templates.py        # Templates de documentos (14K)
+│   │   ├── entity_hierarchy.py     # Hierarquia de entidades (13K)
+│   │   ├── geocode.py              # Geocodificação (12K)
+│   │   ├── name_normalizer.py      # Normalização de nomes (10K)
+│   │   ├── value_semantics.py      # Semântica de valores (9K)
+│   │   ├── victory_profile.py      # Perfil de vitória (12K)
+│   │   ├── bid_simulator.py        # Simulador de licitações (12K)
+│   │   ├── cost_estimator.py       # Estimador de custos (10K)
+│   │   └── ...
+│   ├── matching/                   # Entity matching (3 .py, ~28K LOC)
+│   │   ├── entity_matcher.py       # Matcher cascade 3 níveis (20K)
+│   │   └── measure_baseline.py     # Baseline de acurácia (8K)
+│   ├── coverage/                   # Cobertura e validação (4 .py, ~44K LOC)
+│   │   ├── validate_coverage.py    # Validador de cobertura (34K)
+│   │   ├── calculator.py           # Calculadora de cobertura (5K)
+│   │   ├── measure_pncp_expansion.py# Medição de expansão PNCP (4K)
+│   │   └── run_matching.py         # Execução de matching (2K)
+│   ├── reports/                    # Relatórios (4 .py, ~64K LOC)
+│   │   ├── coverage_weekly.py      # Relatório semanal (44K)
+│   │   ├── panorama.py             # Panorama (12K)
+│   │   └── coverage_gaps.py        # Gaps de cobertura (7K)
+│   ├── fix/                        # Scripts de reparo (7 .py, ~165K LOC)
+│   │   ├── scrape_residual_portals.py# Scrape residual (51K)
+│   │   ├── activate_dormant_sources.py# Ativação de fontes (34K)
+│   │   ├── resolve_unresolved_entities.py# Resolução de entidades (16K)
+│   │   ├── rebuild_evidence_ledger.py# Reconstrução de ledger (15K)
+│   │   ├── sc_dados_abertos_backfill.py# Backfill SC dados abertos (21K)
+│   │   └── geocode_missing_entities.py# Geocodificação pendente (13K)
+│   ├── pipeline/                   # Pipeline de backfill (2 .py, ~34K LOC)
+│   │   └── backfill_multi_source.py# Backfill multi-fonte (34K)
+│   ├── diagnose/                   # Diagnóstico (1 .py, ~25K LOC)
+│   │   └── dom_sc_diagnostic.py    # Diagnóstico DOM-SC (25K)
+│   ├── transparencia/              # Detecção de portais (1 .py, ~14K LOC)
+│   │   └── run_detect_all.py       # Detector automático (14K)
+│   ├── [root scripts]              # ~40 scripts CLI top-level (~500K+ LOC)
+│   │   ├── intel_pipeline.py       # Pipeline de inteligência (50K)
+│   │   ├── intel_collect.py        # Coleta de inteligência (138K)
+│   │   ├── intel_analyze.py        # Análise de inteligência (71K)
+│   │   ├── intel_report.py         # Relatório de inteligência (99K)
+│   │   ├── consulting_readiness.py # Readiness gate (88K)
+│   │   ├── coverage_truth.py       # Coverage truth (39K)
+│   │   ├── freshness_gate.py       # Freshness gate (10K)
+│   │   ├── generate_consultoria_pdf.py# PDF consultoria (66K)
+│   │   ├── generate_report_b2g.py  # Relatório B2G (287K)
+│   │   ├── local_datalake.py       # CLI DataLake (26K)
+│   │   └── ...
+├── config/                         # Configuração
+│   ├── settings.py                 # Settings centralizados
+│   ├── constants.py                # Constantes
+│   ├── sectors_config.yaml         # Config de setores B2G (61K)
+│   ├── sectors_data.yaml           # Dados setoriais (177K)
+│   ├── transparencia_config.yaml   # Config de transparência (19K)
+│   ├── municipio_population.yaml   # População por município
+│   ├── abbreviations.yaml          # Abreviações
+│   └── client_profiles/            # Perfis de cliente
+├── db/                             # Database
+│   ├── migrations/                 # 33 migrations SQL
+│   ├── rollback/                   # Rollback scripts
+│   ├── seed/                       # Seed data
+│   └── setup_db.sh                 # Setup script
+├── supabase/                       # Supabase
+│   ├── migrations/                 # 8 migrations versionadas
+│   └── docs/                       # Documentação do schema
+├── deploy/                         # Deploy
+│   ├── systemd/                    # 20 pares service+timer
+│   ├── hardening/                  # Hardening scripts
+│   ├── install.sh                  # Instalação
+│   └── provision-vps.sh            # Provisionamento VPS
+├── tests/                          # 64 arquivos de teste
+│   ├── fixtures/                   # Fixtures
+│   ├── smoke/                      # Smoke tests
+│   └── scripts/                    # Scripts auxiliares
+├── docs/                           # 590 arquivos de documentação
+│   ├── architecture/               # Arquitetura
+│   ├── stories/                    # Stories de desenvolvimento
+│   │   └── epics/                  # 7 epics
+│   ├── prd/                        # PRDs
+│   ├── decisions/                  # ADRs
+│   ├── coverage-truth/             # Coverage truth docs
+│   ├── ops/                        # Runbooks operacionais
+│   ├── qa/                         # QA gates e reports
+│   └── ...
+├── data/                           # Dados locais (51 arquivos)
+│   ├── intel/                      # Dados de inteligência
+│   ├── reports/                    # Relatórios
+│   ├── dumps/                      # Dumps
+│   └── contracts_checkpoints/      # Checkpoints
+├── output/                         # Outputs (25 arquivos)
+│   ├── pdfs/                       # PDFs gerados
+│   ├── excels/                     # Excels gerados
+│   ├── logs/                       # Logs
+│   ├── qw-01/                      # QW-01 radar runs
+│   ├── readiness/                  # Readiness reports
+│   └── reports/                    # Relatórios
+├── pipeline/                       # Estado de pipelines
+├── plan/                           # Planos e checklists DoD
+├── .github/workflows/ci.yml        # CI/CD (GitHub Actions)
+├── docker-compose.yml              # PostgreSQL para testes
+├── requirements.txt                # Dependências Python
+├── pyproject.toml                  # Config ruff + mypy + bandit
+└── .env.example                    # Template de variáveis
 ```
 
 ---
 
-## Módulos Identificados (9)
+## 3. Entry Points (CLI)
 
-| # | Módulo | Arquivos | LOC | Descrição |
-|---|--------|----------|-----|-----------|
-| 1 | **crawl** | 30 | ~27.000 | Crawlers multi-source (8 fontes) + orquestrador |
-| 2 | **intel** | 17 | ~38.000 | Pipeline 7 stages + scripts kebab + LLM gate |
-| 3 | **reports** | 4 | ~6.000 | Panorama setorial, coverage gaps, weekly |
-| 4 | **lib** | 10 | ~3.200 | Simulação, estimativa, normalização, templates |
-| 5 | **matching** | 2 | ~300 | Entity matching com fuzzy |
-| 6 | **config** | 6 | ~400 | Settings, logging, YAMLs de setores |
-| 7 | **db** | 26 | ~5.328 | 19 migrations + 7 supabase + scripts |
-| 8 | **deploy** | 41 | ~3.556 | 37 systemd units + hardening + provision |
-| 9 | **docs** | ~50 | — | PRDs, arquitetura, stories, QA gates |
-
----
-
-## Entry Points (27 CLIs)
+O sistema é **CLI-first** (Artigo I da Constitution AIOX). Entry points principais:
 
 | Entry Point | Tipo | Descrição |
 |-------------|------|-----------|
-| `scripts/crawl/monitor.py` | CLI | Orquestrador de crawlers |
-| `scripts/intel_pipeline.py` | CLI | Pipeline inteligência 7 stages |
-| `scripts/intel-collect.py` | CLI | Coleta dados licitação |
-| `scripts/intel-enrich.py` | CLI | Enriquecimento IBGE/BrasilAPI |
-| `scripts/intel-validate.py` | CLI | Validação dados |
-| `scripts/intel-analyze.py` | CLI | Análise GPT-4.1-nano |
-| `scripts/intel-extract-docs.py` | CLI | Extração documentos |
-| `scripts/intel-excel.py` | CLI | Geração Excel |
-| `scripts/intel-report.py` | CLI | Relatório final |
-| `scripts/local_datalake.py` | CLI | DataLake search/stats/supplier |
-| `scripts/reports/panorama.py` | CLI | Panorama setorial |
-| `scripts/generate_report_b2g.py` | CLI | Relatório B2G |
-| `scripts/generate_proposta_pdf.py` | CLI | PDF proposta |
-| `scripts/health-dashboard.py` | CLI | Dashboard health |
-| `scripts/healthcheck.py` | CLI | Health check |
-| `scripts/notify.py` | CLI | Notificações |
-| `scripts/war-room-b2g-collect.py` | CLI | War Room B2G |
-| `scripts/radar-b2g-collect.py` | CLI | Radar B2G |
-| `scripts/pricing-b2g-collect.py` | CLI | Pricing B2G |
-| `scripts/retention-b2g-collect.py` | CLI | Retention B2G |
-| `scripts/validate-report-data.py` | CLI | Validação relatório |
-| `scripts/auditor_deterministic_checks.py` | CLI | Auditoria |
-| `db/setup_db.sh` | Shell | Provisionamento DB |
-| `db/backup-database.sh` | Shell | Backup |
-| `deploy/install.sh` | Shell | Instalação VPS |
-| `deploy/provision-vps.sh` | Shell | Provisionamento VPS |
+| `scripts/crawl/monitor.py` | Orquestrador | Crawl completo/incremental PNCP + todas as fontes |
+| `scripts/opportunity_intel/cli.py` | CLI | Opportunity Intelligence (list, show, explain, update, export) |
+| `scripts/opportunity_intel/radar.py` | Radar | QW-01 Auditable Opportunity Radar |
+| `scripts/contract_intel/cli.py` | CLI | Contract Intelligence (consult, export, stats) |
+| `scripts/intel_pipeline.py` | Pipeline | Pipeline de inteligência para 1 CNPJ |
+| `scripts/local_datalake.py` | CLI | DataLake local (search, supplier, stats) |
+| `scripts/coverage_truth.py` | Análise | Coverage truth assessment |
+| `scripts/consulting_readiness.py` | Gate | Consulting Readiness Gate |
+| `scripts/freshness_gate.py` | Gate | Freshness Gate SLA check |
+| `scripts/reports/panorama.py` | Relatório | Panorama setorial |
+| `scripts/reports/coverage_weekly.py` | Relatório | Relatório semanal de cobertura |
+| `scripts/pipeline/backfill_multi_source.py` | Pipeline | Backfill multi-fonte |
 
 ---
 
-## Linguagens e Frameworks
+## 4. Banco de Dados (Superficial)
 
-- **Python 3.12** — 98.247 LOC em 139 arquivos
-- **PostgreSQL 17** — 5.328 LOC SQL em 26 arquivos
-- **Shell** — 3.556 LOC em 5 scripts
-- **YAML** — 404 LOC em 4 arquivos de configuração
-
-### Stack Principal
-- **HTTP:** httpx 0.28.1 (sync + async)
-- **LLM:** OpenAI 1.55.0 (gpt-4.1-nano)
-- **DB:** psycopg2-binary 2.9.9
-- **PDF:** reportlab 4.5.1
-- **Excel:** openpyxl 3.1.5
-- **CLI:** rich 13.0.0
-- **Fuzzy:** rapidfuzz 3.0.0
-- **HTML:** lxml 5.0.0, beautifulsoup4 4.12.0
-
-### Dev Tools
-- **Lint/Format:** ruff (pyproject.toml)
-- **Type Check:** mypy (strict mode)
-- **Test:** pytest + pytest-cov
+| Componente | Descrição |
+|------------|-----------|
+| **SGDB** | PostgreSQL 16 + PostGIS |
+| **Migrations** | 33 SQL files em `db/migrations/` |
+| **Supabase** | 8 migrations versionadas em `supabase/migrations/` |
+| **Schema atual** | `supabase/current-schema.sql` (25K) |
+| **Seed** | `db/seed/` |
+| **Índices** | GIN, HNSW, B-tree (conforme migrations) |
+| **Funções** | RPCs: search_datalake, upsert, purge, coverage |
+| **Modelos** | `scripts/opportunity_intel/models.py` (SQLAlchemy) |
 
 ---
 
-## Integrações Externas (9)
+## 5. Cobertura de Testes
 
-| # | Nome | Tipo | Auth |
-|---|------|------|------|
-| 1 | PNCP API | REST | Pública |
-| 2 | DOM-SC | Web | API Key |
-| 3 | PCP v2 | REST | Pública |
-| 4 | ComprasGov v3 | REST | Pública |
-| 5 | TCE-SC ESFINGE | Web | Pública |
-| 6 | DOE-SC | Web | Pública |
-| 7 | OpenAI | LLM | API Key |
-| 8 | BrasilAPI | REST | Pública |
-| 9 | IBGE API | REST | Pública |
+| Métrica | Valor |
+|---------|-------|
+| **Framework** | pytest |
+| **Total de arquivos** | 64 |
+| **Tipos** | Unitários, integração, smoke, E2E externo |
+| **Banco de testes** | PostgreSQL via docker-compose (`TEST_DSN`) |
+| **Marcadores** | `unit`, `integration`, `smoke`, `external` |
+| **CI** | GitHub Actions (`ci.yml`) |
+| **Cobertura** | pytest-cov disponível |
 
 ---
 
-## Infraestrutura
+## 6. CI/CD
 
-- **Plataforma:** Hetzner VPS (Ubuntu 24.04)
-- **Scheduler:** systemd (37 units: 18 serviços + 18 timers + 1 template)
-- **Banco:** PostgreSQL 17 self-hosted
-- **Backup:** systemd timer `extra-db-backup`
-- **Hardening:** fail2ban + ufw
-- **Acesso:** SSH terminal
-
----
-
-## Cobertura de Testes
-
-- **Framework:** pytest + pytest-cov
-- **Arquivos:** 17 (era 10)
-- **Cobertura estimada:** baixa (<30% de 98K LOC)
-- **Categorias:** unit, integration, slow
+| Componente | Path |
+|------------|------|
+| **CI** | `.github/workflows/ci.yml` (7KB) |
+| **Lint** | ruff (config em `pyproject.toml`) |
+| **Type check** | mypy (strict config em `pyproject.toml`) |
+| **Security** | bandit (config em `pyproject.toml`) |
+| **Pre-commit** | `/quality-gate` + `/code-review` via AIOX |
 
 ---
 
-## ⚠️ Duplicações Detectadas
+## 7. Deploy (VPS)
 
-| Arquivo 1 | Arquivo 2 | Tamanho |
-|-----------|-----------|---------|
-| `scripts/collect-report-data.py` | `scripts/collect_report_data.py` | 426 KB (idêntico) |
-| `scripts/generate-report-b2g.py` | `scripts/generate_report_b2g.py` | 271 KB (idêntico) |
-| `scripts/generate-proposta-pdf.py` | `scripts/generate_proposta_pdf.py` | ~40 KB |
-| `scripts/intel-analyze.py` | `scripts/intel_analyze.py` | 70 KB (idêntico) |
-| `scripts/intel-collect.py` | `scripts/intel_collect.py` | 127 KB (idêntico) |
-| `scripts/intel-enrich.py` | `scripts/intel_enrich.py` | 24 KB (idêntico) |
-| `scripts/intel-excel.py` | `scripts/intel_excel.py` | 38 KB (idêntico) |
-| `scripts/intel-extract-docs.py` | `scripts/intel_extract_docs.py` | 34 KB (idêntico) |
-| `scripts/intel-report.py` | `scripts/intel_report.py` | 87 KB (idêntico) |
-| `scripts/intel-validate.py` | `scripts/intel_validate.py` | 40 KB (idêntico) |
-
-**10 pares de arquivos duplicados** — scripts com nome kebab-case e snake_case idênticos. Infla o codebase em ~+50K LOC artificialmente.
+- **Orquestrador:** systemd (20 pares service+timer)
+- **Provisionamento:** `deploy/provision-vps.sh`
+- **Hardening:** `deploy/hardening/`
+- **Backup:** `scripts/backup-database.sh` (systemd timer)
+- **Monitoramento:** health-check, check-alerts, collect-metrics (todos systemd)
 
 ---
 
-## Notas do Scout (Re-run)
+## 8. Módulos Identificados
 
-1. **Crescimento explosivo:** +93% LOC em 1 commit. Código gerado por IA (Claude) com possíveis inconsistências de estilo entre módulos.
-2. **Duplicação sistemática:** 10 pares de scripts duplicados (kebab vs snake_case). Provável artefato de geração.
-3. **Cobertura de testes diluída:** 17 testes para 98K LOC = densidade <1 teste por 5.7K LOC.
-4. **Novo módulo `matching/`** não documentado nos artefatos SDD existentes.
-5. **7 supabase migrations** — camada adicional de DB não coberta pelo ERD atual.
-6. **Scripts B2G** (pricing, radar, retention, war-room) formam um subsistema de business intelligence não mapeado nas specs.
+| # | Módulo | Path | .py | Função |
+|---|--------|------|-----|--------|
+| 1 | **crawl** | `scripts/crawl/` | 51 | Crawlers web, ingestão, monitoramento |
+| 2 | **opportunity_intel** | `scripts/opportunity_intel/` | 16 | Licitações abertas, QW-01 Radar, ranking |
+| 3 | **lib** | `scripts/lib/` | 15 | Biblioteca compartilhada (universe, geocode, matching utils) |
+| 4 | **contract_intel** | `scripts/contract_intel/` | 3 | Contract Intelligence, universo-alvo |
+| 5 | **matching** | `scripts/matching/` | 3 | Entity matching cascade 3 níveis |
+| 6 | **coverage** | `scripts/coverage/` | 4 | Cálculo e validação de cobertura |
+| 7 | **reports** | `scripts/reports/` | 4 | Relatórios PDF/Excel executivos |
+| 8 | **fix** | `scripts/fix/` | 7 | Scripts de reparo/backfill de dados |
+| 9 | **pipeline** | `scripts/pipeline/` | 2 | Pipeline de backfill multi-fonte |
+| 10 | **diagnose** | `scripts/diagnose/` | 1 | Diagnóstico de crawlers |
+| 11 | **transparencia** | `scripts/transparencia/` | 1 | Detecção automática de portais |
+| 12 | **config** | `config/` | 3 | Configuração centralizada (settings, constants) |
+| 13 | **db** | `db/` + `supabase/` | — | 33 + 8 migrations SQL, schema |
+| 14 | **deploy** | `deploy/` | — | 20 systemd timers, provisionamento |
+| 15 | **tests** | `tests/` | 64 | Testes automatizados |
+| 16 | **docs** | `docs/` | — | 590 arquivos de documentação |
+| 17 | **root_scripts** | `scripts/*.py` | ~40 | Entry points CLI, pipelines, relatórios |
+
+---
+
+## 9. Novos Módulos (vs. última execução em 2026-07-11)
+
+| Módulo | Descrição | Commits relacionados |
+|--------|-----------|---------------------|
+| QW-01 Radar | `opportunity_intel/radar.py` (33K) | `249340d`, `ce55095` |
+| Competitive Intel | `opportunity_intel/ranking.py` (14K) | `77265b5` |
+| Readiness Gates | `consulting_readiness.py` (88K), `freshness_gate.py` (10K) | `0fef9de`, `3eeb4d6`, `15177dc` |
+| Contract Intel V1 | `contract_intel/` (3 arquivos) | `86fc886`, `2ee6f4f` |
+| Coverage Truth | `coverage_truth.py` (39K), `scripts/coverage/` | `1195495`, `824af88` |
+| Evidence Ledger | `db/migrations/024_coverage_evidence_ledger.sql` | `0ee490b` |
+| Opportunity Schema | `db/migrations/027_opportunity_intel.sql` | `7454a0f` |

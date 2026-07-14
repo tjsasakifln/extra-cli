@@ -1,97 +1,112 @@
 # Fluxograma — Módulo Lib
 
-> Gerado pelo Archaeologist em 2026-07-11T21:00:00Z
-> doc_level: completo
-> Base: commit e9729e1
+> Gerado pelo Archaeologist em 2026-07-13
 
-## Name Normalizer
+## CanonicalUniverse Resolution
 
 ```mermaid
 flowchart TD
-    START(["normalize_name(name, expand_abbreviations=True)"]) --> NFKD[NFKD normalize<br/>Unicode → ASCII<br/>remove acentos]
-    NFKD --> UPPER[Uppercase]
-    UPPER --> PUNCT[Remove pontuação<br/>regex: &#91;^\w\s&#93;]
-    PUNCT --> CNPJ[Remove CNPJ numbers<br/>8-14 digit sequences]
-    CNPJ --> SPACE[Collapse whitespace]
-    SPACE --> EXPAND{expand_abbreviations?}
-    EXPAND -->|sim| ABBREV[Expande 18 abreviaturas<br/>word-boundary regex<br/>longest-first ordering]
-    EXPAND -->|não| IRRELEVANT
-    ABBREV --> IRRELEVANT{remove_irrelevant?}
-    IRRELEVANT -->|sim| STRIP[Remove termos de contato<br/>CNPJ, CPF, END, CEP,<br/>FONE, TELEFONE, EMAIL,<br/>SITE, HTTP, HTTPS, WWW]
-    IRRELEVANT -->|não| END
-    STRIP --> END(["Retorna nome normalizado"])
+    A[load_canonical_universe] --> B[sha256_file do spreadsheet]
+    B --> C[load_workbook openpyxl]
+
+    C --> D[Para cada linha]
+    D --> E[Extract: razao_social, cnpj8, municipio, ibge, natureza, lat, lon, distancia, raio200]
+    E --> F{Coordenadas?}
+
+    F -->|Sim| G[Compute Haversine distance]
+    G --> H{distancia <= 200km?}
+    H -->|Yes| I[within_radius = TRUE]
+    H -->|No| J[within_radius = FALSE]
+
+    F -->|Não| K[within_radius = NULL]
+    K --> L[decision_method = 'sem_coordenadas']
+
+    I --> M[decision_method = 'haversine']
+    J --> M
+
+    I --> N[Build CanonicalEntity]
+    J --> N
+    K --> N
+
+    N --> O[Detect duplicates]
+    O --> P{CNPJ8 já visto?}
+    P -->|Yes| Q[duplicate_root = TRUE]
+    P -->|No| R[duplicate_root = FALSE]
+
+    Q --> S[Add to duplicate_roots list]
+    R --> T[Add to entities list]
+
+    S --> U{Próxima linha?}
+    T --> U
+    U -->|Yes| D
+    U -->|No| V[Return CanonicalUniverse]
+
+    V --> W[.included: 900+ entidades]
+    V --> X[.excluded: ~100 entidades]
+    V --> Y[.unresolved: ~30 entidades]
+    V --> Z[.conservative_monitoring_population: included + unresolved]
 ```
 
-## Victory Profile — Build + Score
+## Value Semantics Pipeline
 
 ```mermaid
-flowchart TD
-    START(["build_victory_profile(contracts, capital, ufs)"]) --> STATS[Estatísticas de valor<br/>mean, std, q25, q75, min, max]
-    STATS --> MOD[Modalidade weights<br/>frequência relativa]
-    MOD --> POP[População brackets<br/>micro|pequeno|medio|grande|metropole]
-    POP --> KW[Keyword frequency<br/>min 2 ocorrências<br/>top 50]
-    KW --> DIST[Distância mean + max]
-    DIST --> UF[UF weights<br/>frequência relativa]
-    UF --> PROFILE(["VictoryProfile"])
+flowchart LR
+    A[Source + Entity Type] --> B[SOURCE_VALUE_TYPES]
 
-    PROFILE --> SCORE_START(["score_edital_fit(edital, profile)"])
-    SCORE_START --> V["Valor (30%):<br/>Gaussian z-score fit<br/>penaliza > 3× max"]
-    V --> K["Keyword (25%):<br/>weighted Jaccard overlap<br/>edital kw ∩ profile kw"]
-    K --> M["Modalidade (15%):<br/>direct frequency lookup"]
-    M --> G["Geografia (15%):<br/>UF weight × distance penalty<br/>>2× mean → 0.5"]
-    G --> P["População (15%):<br/>bracket frequency lookup"]
-    P --> SUM["Soma ponderada<br/>0.0-1.0"]
-    SUM --> LABEL{"Score?"}
-    LABEL -->|"≥ 0.7"| EXCEL["Excellent fit"]
-    LABEL -->|"≥ 0.5"| GOOD["Good fit"]
-    LABEL -->|"≥ 0.3"| MODERATE["Moderate fit"]
-    LABEL -->|"< 0.3"| POOR["Poor fit"]
+    B --> C["pncp + bids → ESTIMADO\n(valor_total_estimado)"]
+    B --> D["pncp + contracts → CONTRATADO\n(valor_global — NÃO é 'preço praticado')"]
+    B --> E["compras_gov + bids → HOMOLOGADO\n(valor homologado por item/lote)"]
+    B --> F["tce_sc + contracts → PAGO\n(empenhos — pagamentos efetivos)"]
+
+    C --> G[calculate_desagio]
+    D --> G
+    E --> G
+
+    G --> H{Semânticas compatíveis?}
+    H -->|ESTIMADO → HOMOLOGADO| I[✅ Deságio válido]
+    H -->|ESTIMADO → CONTRATADO| I
+    H -->|GLOBAL → qualquer| J[❌ Deságio inválido]
+    H -->|qualquer → GLOBAL| J
+
+    I --> K["desagio_percentual = (valor1 - valor2) / valor1 * 100"]
+    J --> L[ERROR: semânticas incompatíveis]
 ```
 
-## Cost Estimator
+## Geocode Pipeline
 
 ```mermaid
-flowchart TD
-    START(["estimate_proposal_cost(distancia_km, duracao_h, is_capital, is_eletronico)"]) --> ELETRONICO{is_eletronico?}
-    ELETRONICO -->|sim| MIN_COST["Custo mínimo: R$ 600<br/>tempo de preparo"]
-    MIN_COST --> VISITA{Visita técnica?<br/>dist > 200km}
-    VISITA -->|sim| ADD_KM["+ R$ 2/km ida e volta"]
-    VISITA -->|não| ROI_CALC
-    ADD_KM --> ROI_CALC
+flowchart LR
+    A[municipio + codigo_ibge] --> B{IBGE cache?}
+    B -->|Hit| C[Return cached lat/lon]
+    B -->|Miss| D[IBGE API request]
 
-    ELETRONICO -->|não| DESLOC["Deslocamento:<br/>dist × 2 × R$ 0.80/km"]
-    DESLOC --> HOSP{Distância > 200km?}
-    HOSP -->|sim, >500km| HOSP2["2 diárias<br/>capital: R$ 280<br/>interior: R$ 180"]
-    HOSP -->|sim, ≤500km| HOSP1["1 diária"]
-    HOSP -->|não| ALIM
-    HOSP1 --> ALIM[Alimentação<br/>per diem: R$ 80]
-    HOSP2 --> ALIM
-    ALIM --> PEDAGIO[Pedágio<br/>5 faixas: R$ 0-250<br/>× 2 ida/volta]
-    PEDAGIO --> TECNICO[Tempo técnico:<br/>(viagem + sessão) × R$ 150/h]
-    TECNICO --> FIXO[Custos fixos<br/>proposta + mobilização]
+    D --> E[Parse response]
+    E --> F{Valid?}
+    F -->|Yes| G[Store in cache]
+    F -->|No| H[Return None + log]
 
-    FIXO --> ROI_CALC[estimate_roi_simple<br/>ratio = valor / custo]
-    ROI_CALC --> CLASS{"ratio?"}
-    CLASS -->|"≥ 500"| EXC["EXCELENTE"]
-    CLASS -->|"≥ 100"| BOM["BOM"]
-    CLASS -->|"≥ 30"| MOD["MODERADO"]
-    CLASS -->|"≥ 10"| MARG["MARGINAL"]
-    CLASS -->|"< 10"| DESF["DESFAVORAVEL"]
+    G --> I[Return lat/lon]
+
+    C --> J[Haversine distance]
+    I --> J
+
+    J --> K["haversine(lat1, lon1, lat2, lon2)\n= 2 * R * arcsin(sqrt(\n  sin²(Δlat/2) + cos(lat1)*cos(lat2)*sin²(Δlon/2)\n))\nR = 6371 km"]
 ```
 
-## Doc Templates — Structured Extraction
+## Name Normalizer Pipeline
 
 ```mermaid
-flowchart TD
-    START(["extract_structured(text, doc_type)"]) --> DETECT[detect_doc_type<br/>título + filename<br/>→ EDITAL|TERMO_REFERENCIA|PLANILHA]
-    DETECT --> PATTERNS[Carrega patterns<br/>por doc_type]
-    PATTERNS --> LOOP{"Para cada field"}
-    LOOP --> REGEX["Tenta regex patterns<br/>confidence = 1.0 - (i × 0.15)<br/>floor 0.3"]
-    REGEX --> MATCH{"Match?"}
-    MATCH -->|sim| SET["ExtractedField(found=True, value, confidence)"]
-    MATCH -->|não| NEXT
-    SET --> NEXT{"Próximo field?"}
-    NEXT -->|sim| LOOP
-    NEXT -->|não| RESULT["StructuredExtraction<br/>{doc_type, fields[], completeness_pct}"]
-    RESULT --> END(["Fim"])
+flowchart LR
+    A[Raw name] --> B[NFKD normalize]
+    B --> C[Strip combining chars]
+    C --> D[UPPERCASE]
+    D --> E[Remove punctuation: re.sub]
+    E --> F[Expand abbreviations]
+
+    F --> G["SEC → SECRETARIA\nMUN → MUNICIPIO\nPM → PREFEITURA MUNICIPAL\nFMS → FUNDO MUNICIPAL DE SAUDE\nFME → FUNDO MUNICIPAL DE EDUCACAO\nCM → CAMARA MUNICIPAL\n... 20 patterns total"]
+
+    G --> H[Remove CNPJ numbers: re.sub]
+    H --> I[Collapse whitespace]
+    I --> J[Strip]
+    J --> K[Normalized output]
 ```

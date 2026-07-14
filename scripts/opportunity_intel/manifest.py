@@ -98,18 +98,19 @@ def _build_manifest(conn) -> dict[str, Any]:
     # so we use the audited canonical constant.
     total_entities = CANONICAL_UNIVERSE
 
-    # Entities with any opportunity data, filtered to within 200 km radius
+    # Entities with any opportunity data, filtered to canonical universe snapshot
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     cur.execute("""
         SELECT COUNT(DISTINCT oi.orgao_cnpj) AS cnt
         FROM opportunity_intel oi
-        INNER JOIN sc_public_entities spe
-            ON spe.cnpj_8 = LEFT(oi.orgao_cnpj, 8)
+        INNER JOIN target_universe_entities tue
+            ON tue.cnpj8 = LEFT(oi.orgao_cnpj, 8)
+           AND tue.radius_decision = 'included'
         WHERE oi.is_active = TRUE
           AND oi.orgao_cnpj IS NOT NULL
           AND oi.source != 'test_batch'
-          AND spe.raio_200km = TRUE
+          AND tue.universe_run_id = (SELECT MAX(id) FROM target_universe_runs)
     """)
     entities_with_data = cur.fetchone()["cnt"]
 
@@ -224,22 +225,25 @@ def _build_gaps(conn) -> list[dict[str, Any]]:
         SELECT
             spe.id,
             spe.razao_social,
-            spe.cnpj_8,
-            spe.municipio,
-            spe.codigo_ibge,
-            spe.distancia_fk,
-            spe.raio_200km,
+            tue.cnpj8 AS cnpj_8,
+            tue.municipality AS municipio,
+            tue.ibge_code AS codigo_ibge,
+            tue.distance_km AS distancia_fk,
+            tue.radius_decision,
             CASE WHEN oi.orgao_cnpj IS NOT NULL THEN TRUE ELSE FALSE END AS has_opportunity_data
-        FROM sc_public_entities spe
+        FROM target_universe_entities tue
+        LEFT JOIN sc_public_entities spe
+            ON spe.cnpj_8 = tue.cnpj8
         LEFT JOIN opportunity_intel oi
-            ON spe.cnpj_8 = LEFT(oi.orgao_cnpj, 8)
+            ON tue.cnpj8 = LEFT(oi.orgao_cnpj, 8)
             AND oi.is_active = TRUE
             AND oi.source != 'test_batch'
-        WHERE spe.raio_200km = TRUE
-        GROUP BY spe.id, spe.razao_social, spe.cnpj_8, spe.municipio,
-                 spe.codigo_ibge, spe.distancia_fk, spe.raio_200km,
+        WHERE tue.universe_run_id = (SELECT MAX(id) FROM target_universe_runs)
+          AND tue.radius_decision = 'included'
+        GROUP BY spe.id, spe.razao_social, tue.cnpj8, tue.municipality,
+                 tue.ibge_code, tue.distance_km, tue.radius_decision,
                  CASE WHEN oi.orgao_cnpj IS NOT NULL THEN TRUE ELSE FALSE END
-        ORDER BY has_opportunity_data ASC, spe.distancia_fk ASC NULLS LAST
+        ORDER BY has_opportunity_data ASC, tue.distance_km ASC NULLS LAST
     """)
 
     return list(cur.fetchall())

@@ -8,81 +8,156 @@
   "doc_level": "completo",
   "output_folder": "_reversa_sdd",
   "forward_folder": "_reversa_forward",
-  "phase": null,
-  "completed": [
-    "reconhecimento",
-    "escavacao",
-    "interpretacao",
-    "geracao",
-    "revisao"
-  ],
+  "phase": "concluido",
+  "completed": ["reconhecimento", "escavacao", "interpretacao", "geracao", "revisao"],
   "pending": [],
+  "redator_progress": {
+    "started_at": "2026-07-13T18:00:00Z",
+    "completed_at": "2026-07-13T23:00:00Z",
+    "granularity": "module",
+    "total_units": 17,
+    "total_files_planned": 32,
+    "completed_files": [
+      "deploy/design.md", "deploy/requirements.md", "deploy/tasks.md",
+      "crawl/design.md", "crawl/requirements.md", "crawl/tasks.md",
+      "intel/design.md", "intel/requirements.md", "intel/tasks.md",
+      "matching/design.md", "matching/requirements.md", "matching/tasks.md",
+      "lib/design.md", "lib/requirements.md", "lib/tasks.md",
+      "reports/design.md", "reports/requirements.md", "reports/tasks.md",
+      "config/design.md", "config/requirements.md", "config/tasks.md",
+      "db/design.md", "db/requirements.md", "db/tasks.md",
+      "docs/design.md", "docs/requirements.md", "docs/tasks.md",
+      "opportunity_intel/design.md", "opportunity_intel/requirements.md", "opportunity_intel/tasks.md", "opportunity_intel/contracts.md",
+      "contract_intel/design.md", "contract_intel/requirements.md", "contract_intel/tasks.md", "contract_intel/contracts.md",
+      "coverage/design.md", "coverage/requirements.md", "coverage/tasks.md",
+      "fix/design.md", "fix/requirements.md", "fix/tasks.md",
+      "pipeline/design.md", "pipeline/requirements.md", "pipeline/tasks.md",
+      "diagnose/design.md", "diagnose/requirements.md", "diagnose/tasks.md",
+      "transparencia/design.md", "transparencia/requirements.md", "transparencia/tasks.md",
+      "tests/design.md", "tests/requirements.md", "tests/tasks.md",
+      "root_scripts/design.md", "root_scripts/requirements.md", "root_scripts/tasks.md",
+      "user-stories/pipeline-inteligencia.md",
+      "traceability/code-spec-matrix.md"
+    ],
+    "current_unit": "done",
+    "current_file_index": 32,
+    "brownfield_sources": [
+      "plano-mestre-fechamento-gaps-extra-consultoria.md",
+      "docs/stories/epic-technical-debt.md",
+      "docs/stories/story-1.1.md",
+      "docs/stories/story-1.2.md",
+      "docs/stories/story-1.3.md",
+      "docs/stories/story-1.4.md",
+      "docs/stories/story-1.5.md"
+    ]
+  },
   "checkpoints": {
     "scout": {
-      "completed_at": "2026-07-11T12:00:00Z",
-      "re_run_at": "2026-07-11T19:00:00Z",
-      "re_run_reason": "Atualização pós commit e9729e1 (EPIC-FEAT-001 + EPIC-TD-001, +93% LOC)",
-      "files": [
-        "_reversa_sdd/inventory.md",
-        "_reversa_sdd/dependencies.md",
-        ".reversa/context/surface.json"
-      ]
+      "completed_at": "2026-07-13T14:00:00Z",
+      "re_run": true,
+      "stats": { "total_files": 7474, "python_files": 277, "total_loc_python": 137346, "modules_identified": 17 }
     },
     "archaeologist": {
-      "completed_at": "2026-07-11T21:00:00Z",
-      "re_run_at": "2026-07-11T21:00:00Z",
-      "re_run_reason": "Re-extração pós commit e9729e1 (+93% LOC, novo módulo matching)",
+      "completed_at": "2026-07-13T15:00:00Z",
+      "re_run": true,
       "modules_analyzed": [
-        "crawl",
-        "intel",
-        "reports",
-        "lib",
-        "matching",
-        "config",
-        "db",
-        "deploy",
-        "docs"
+        "crawl", "opportunity_intel", "contract_intel", "lib", "matching",
+        "coverage", "reports", "fix", "pipeline", "diagnose", "transparencia",
+        "config", "db", "deploy", "root_scripts", "tests", "docs"
       ],
       "files": [
         "_reversa_sdd/code-analysis.md",
         "_reversa_sdd/data-dictionary.md",
         "_reversa_sdd/flowcharts/crawl.md",
         "_reversa_sdd/flowcharts/intel.md",
+        "_reversa_sdd/flowcharts/matching.md",
+        "_reversa_sdd/flowcharts/db.md",
         "_reversa_sdd/flowcharts/lib.md",
         "_reversa_sdd/flowcharts/reports.md",
-        "_reversa_sdd/flowcharts/db.md",
-        "_reversa_sdd/flowcharts/matching.md",
         ".reversa/context/modules.json"
-      ]
+      ],
+      "stats": {
+        "algorithms_documented": 15,
+        "entities_documented": 12,
+        "cross_cutting_concerns": 6,
+        "flowcharts_generated": 6
+      }
     },
     "detective": {
-      "completed_at": "2026-07-11T21:30:00Z",
-      "re_run_at": "2026-07-11T21:30:00Z",
-      "re_run_reason": "Re-extração pós commit e9729e1 (32 stories, 2 epics)",
+      "completed_at": "2026-07-13T17:00:00Z",
+      "re_run": true,
+      "re_run_reason": "30 novos commits com regras de negócio, gates e competitive intel",
       "files": [
         "_reversa_sdd/domain.md",
         "_reversa_sdd/state-machines.md",
         "_reversa_sdd/permissions.md",
-        "_reversa_sdd/adrs/001-postgresql-direto-sem-api.md",
-        "_reversa_sdd/adrs/002-systemd-timers-em-vez-de-redis.md",
-        "_reversa_sdd/adrs/003-crawlers-sync-http.md",
-        "_reversa_sdd/adrs/004-entity-matching-cascade-3-niveis.md",
-        "_reversa_sdd/adrs/005-gpt-4.1-nano-classificacao.md",
-        "_reversa_sdd/adrs/006-pdf-reportlab-big-four.md",
-        "_reversa_sdd/adrs/007-migrations-v2-baseline.md",
-        "_reversa_sdd/adrs/008-refatoracao-orquestrador-matching.md",
-        "_reversa_sdd/adrs/009-backup-automatizado-postgresql.md",
-        "_reversa_sdd/adrs/010-logging-estruturado-json.md",
-        "_reversa_sdd/adrs/011-template-transparencia-crawler.md"
+        "_reversa_sdd/adrs/012-qw01-radar-operacional.md",
+        "_reversa_sdd/adrs/013-coverage-truth-evidence-ledger.md",
+        "_reversa_sdd/adrs/014-fail-closed-ci-gates.md",
+        "_reversa_sdd/adrs/015-semantic-value-stages.md",
+        "_reversa_sdd/adrs/016-competitive-intelligence-market-share.md"
       ],
-      "business_rules": 17,
-      "state_machines": 6,
-      "adrs_total": 11
+      "stats": {
+        "business_rules_documented": 26,
+        "new_rules_added": 9,
+        "state_machines_documented": 10,
+        "new_state_machines_added": 4,
+        "adrs_generated": 16,
+        "new_adrs_added": 5,
+        "lacunas_identified": 6
+      }
+    },
+    "writer": {
+      "completed_at": "2026-07-13T23:30:00Z",
+      "re_run": true,
+      "re_run_reason": "30 novos commits + artefatos brownfield (plano-mestre, epic-technical-debt, 5 stories)",
+      "files": [
+        "_reversa_sdd/deploy/design.md",
+        "_reversa_sdd/docs/design.md",
+        "_reversa_sdd/opportunity_intel/requirements.md",
+        "_reversa_sdd/opportunity_intel/design.md",
+        "_reversa_sdd/opportunity_intel/tasks.md",
+        "_reversa_sdd/opportunity_intel/contracts.md",
+        "_reversa_sdd/contract_intel/requirements.md",
+        "_reversa_sdd/contract_intel/design.md",
+        "_reversa_sdd/contract_intel/tasks.md",
+        "_reversa_sdd/contract_intel/contracts.md",
+        "_reversa_sdd/coverage/requirements.md",
+        "_reversa_sdd/coverage/design.md",
+        "_reversa_sdd/coverage/tasks.md",
+        "_reversa_sdd/fix/requirements.md",
+        "_reversa_sdd/fix/design.md",
+        "_reversa_sdd/fix/tasks.md",
+        "_reversa_sdd/pipeline/requirements.md",
+        "_reversa_sdd/pipeline/design.md",
+        "_reversa_sdd/pipeline/tasks.md",
+        "_reversa_sdd/diagnose/requirements.md",
+        "_reversa_sdd/diagnose/design.md",
+        "_reversa_sdd/diagnose/tasks.md",
+        "_reversa_sdd/transparencia/requirements.md",
+        "_reversa_sdd/transparencia/design.md",
+        "_reversa_sdd/transparencia/tasks.md",
+        "_reversa_sdd/tests/requirements.md",
+        "_reversa_sdd/tests/design.md",
+        "_reversa_sdd/tests/tasks.md",
+        "_reversa_sdd/root_scripts/requirements.md",
+        "_reversa_sdd/root_scripts/design.md",
+        "_reversa_sdd/root_scripts/tasks.md",
+        "_reversa_sdd/traceability/code-spec-matrix.md"
+      ],
+      "stats": {
+        "total_files_generated": 32,
+        "new_modules": 9,
+        "partial_modules_completed": 2,
+        "contracts_generated": 2,
+        "lacunas_documented": 35,
+        "brownfield_references": 6
+      }
     },
     "architect": {
-      "completed_at": "2026-07-11T22:00:00Z",
-      "re_run_at": "2026-07-11T22:00:00Z",
-      "re_run_reason": "Re-síntese pós re-extração (commit e9729e1)",
+      "completed_at": "2026-07-13T17:30:00Z",
+      "re_run": true,
+      "re_run_reason": "30 novos commits — novas verticais, CI gates, evidence ledger, ERD expandido",
       "files": [
         "_reversa_sdd/architecture.md",
         "_reversa_sdd/c4-context.md",
@@ -90,41 +165,43 @@
         "_reversa_sdd/c4-components.md",
         "_reversa_sdd/erd-complete.md",
         "_reversa_sdd/traceability/spec-impact-matrix.md"
-      ]
-    },
-    "writer": {
-      "completed_at": "2026-07-11T22:30:00Z",
-      "re_run_at": "2026-07-11T22:30:00Z",
-      "re_run_reason": "Re-geração specs pós re-extração (commit e9729e1)",
-      "units_generated": 9,
-      "files_generated": 30
+      ],
+      "stats": {
+        "adrs_documented": 16,
+        "containers_identified": 14,
+        "components_documented": 40,
+        "entities_er_documented": 9,
+        "integrations_documented": 13,
+        "technical_debts_identified": 13,
+        "cross_cutting_concerns": 7
+      }
     },
     "reviewer": {
-      "completed_at": "2026-07-11T23:00:00Z",
-      "re_run_at": "2026-07-11T23:00:00Z",
-      "re_run_reason": "Revisão pós re-extração completa (commit e9729e1)",
-      "files": [
-        "_reversa_sdd/confidence-report.md",
-        "_reversa_sdd/gaps.md",
-        "_reversa_sdd/questions.md"
-      ],
-      "confidence_pct": 91.0,
-      "cross_review": "não realizada (Codex indisponível)",
-      "gaps_total": 10,
-      "gaps_critical": 3,
-      "reclassifications": 4
+      "completed_at": "2026-07-13T23:59:00Z",
+      "re_run": true,
+      "review_agents": 5,
+      "stats": {
+        "total_lacunas_consolidated": 24,
+        "critical": 8, "high": 7, "medium": 5, "low": 4,
+        "specs_corrected_in_place": 4,
+        "questions_answered": 5,
+        "code_spec_matrix": "263 entries (100%)",
+        "lib_subspecs": 4,
+        "diagnose_rfs": 28,
+        "transparencia_rfs": 15
+      }
     }
   },
-  "engines": [
-    "claude-code"
+  "previous_runs": [
+    {
+      "completed_at": "2026-07-11T23:00:00Z",
+      "last_commit": "e9729e1",
+      "all_phases_completed": true
+    }
   ],
+  "engines": ["claude-code"],
   "agents": [
-    "reversa",
-    "reversa-scout",
-    "reversa-archaeologist",
-    "reversa-detective",
-    "reversa-architect",
-    "reversa-writer",
-    "reversa-reviewer"
+    "reversa", "reversa-scout", "reversa-archaeologist",
+    "reversa-detective", "reversa-architect", "reversa-writer", "reversa-reviewer"
   ]
 }

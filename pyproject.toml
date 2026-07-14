@@ -9,6 +9,7 @@ lint.select = [
     "F",   # pyflakes (logic errors)
     "I",   # isort (import ordering)
     "N",   # pep8-naming (naming conventions)
+    "S",   # bandit (security — SEC-01: detect SQL injection via f-strings)
     "W",   # pycodestyle warnings
     "UP",  # pyupgrade (modern Python idioms)
 ]
@@ -27,7 +28,7 @@ lint.ignore = [
 "scripts/intel-report.py" = ["N806", "F841", "E402"]
 "scripts/intel_excel.py" = ["N806", "F841", "E402", "E741"]
 "scripts/intel-excel.py" = ["N806", "F841", "E402", "E741"]
-"scripts/intel_pipeline.py" = ["N806", "F841", "E402"]
+"scripts/intel_pipeline.py" = ["N806", "F841", "E402", "S603", "S110"]
 "scripts/generate_proposta_pdf.py" = ["N806", "F841"]
 "scripts/generate-proposta-pdf.py" = ["N806", "F841"]
 "scripts/reports/coverage_weekly.py" = ["N806", "F841"]
@@ -37,6 +38,10 @@ lint.ignore = [
 "scripts/intel_validate.py" = ["E402"]
 "scripts/health-dashboard.py" = ["E402"]
 "scripts/notify.py" = ["E402"]
+# Test files — assertions are normal, imports may need sys.path hack
+"tests/integration/test_all_sql_references.py" = ["S101", "E402"]
+"tests/integration/test_migration_fresh_install.py" = ["S101", "S110"]
+"tests/test_snapshot_reconciliation.py" = ["S101"]
 "scripts/intel-analyze.py" = ["E402"]
 "scripts/intel_llm_gate.py" = ["E402"]
 "scripts/check-alerts.py" = ["E402"]
@@ -45,6 +50,7 @@ lint.ignore = [
 "scripts/crawl/batch_detect_platforms_pass2.py" = ["E402"]
 "scripts/crawl/generate_transparencia_config.py" = ["E402"]
 "scripts/crawl/monitor.py" = ["E402"]
+"scripts/crawl/bids_crawler.py" = ["E402"]
 "scripts/export-sc-200km-final.py" = ["E402"]
 "scripts/fix/activate_dormant_sources.py" = ["E402"]
 "scripts/fix/resolve_unresolved_entities.py" = ["E402"]

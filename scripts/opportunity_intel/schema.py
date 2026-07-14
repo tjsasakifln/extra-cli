@@ -83,9 +83,7 @@ def validate_qw01_schema(conn: Any) -> dict[str, Any]:
             for table, required in REQUIRED_COLUMNS.items()
             if required - present.get(table, set())
         }
-        cursor.execute(
-            "SELECT to_regprocedure('upsert_qw01_pncp_opportunities(jsonb)') IS NOT NULL"
-        )
+        cursor.execute("SELECT to_regprocedure('upsert_qw01_pncp_opportunities(jsonb)') IS NOT NULL")
         function_present = bool(cursor.fetchone()[0])
     if missing or not function_present:
         details = {"missing_columns": missing, "upsert_function_present": function_present}

@@ -154,15 +154,16 @@ def section_coverage_gaps(conn) -> list[dict]:
     """Entities with NO coverage (most critical for monitoring)."""
     return query(
         conn,
-        """SELECT e.razao_social, e.cnpj_8, e.municipio, e.natureza_juridica,
-                  e.raio_200km, e.distancia_fk
-           FROM sc_public_entities e
-           WHERE e.is_active = TRUE
-             AND e.raio_200km = TRUE
-             AND e.id NOT IN (
+        """SELECT tue.legal_name AS razao_social, tue.cnpj8 AS cnpj_8,
+                  tue.municipality AS municipio, tue.legal_nature AS natureza_juridica,
+                  tue.radius_decision, tue.distance_km AS distancia_fk
+           FROM target_universe_entities tue
+           WHERE tue.universe_run_id = (SELECT MAX(id) FROM target_universe_runs)
+             AND tue.radius_decision = 'included'
+             AND tue.db_entity_id NOT IN (
                  SELECT entity_id FROM entity_coverage WHERE is_covered = TRUE
              )
-           ORDER BY e.municipio, e.razao_social""",
+           ORDER BY tue.municipality, tue.legal_name""",
     )
 
 

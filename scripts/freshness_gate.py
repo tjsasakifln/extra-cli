@@ -35,13 +35,11 @@ import psycopg2
 import psycopg2.extensions
 import psycopg2.extras
 
+from config.settings import DEFAULT_DSN  # single source of truth (TD-002)
+
 _logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_DSN = os.getenv(
-    "LOCAL_DATALAKE_DSN",
-    "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
-)
 OUTPUT_DIR = PROJECT_ROOT / "output" / "readiness"
 
 

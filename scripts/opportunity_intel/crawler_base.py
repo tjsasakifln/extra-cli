@@ -24,6 +24,7 @@ from typing import Any
 import psycopg2
 import psycopg2.extras
 
+from config.settings import DEFAULT_DSN  # single source of truth (TD-002)
 from scripts.crawl.security import USER_AGENT
 from scripts.opportunity_intel.models import CrawlRequest, FetchResult
 from scripts.opportunity_intel.transformer import normalize_record
@@ -31,10 +32,6 @@ from scripts.opportunity_intel.transformer import normalize_record
 _logger = logging.getLogger(__name__)
 
 # Defaults — override via env
-DEFAULT_DSN = os.getenv(
-    "LOCAL_DATALAKE_DSN",
-    "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
-)
 DEFAULT_TIMEOUT = int(os.getenv("OI_READ_TIMEOUT", "30"))
 DEFAULT_MAX_RETRIES = int(os.getenv("OI_MAX_RETRIES", "3"))
 DEFAULT_REQUEST_DELAY = float(os.getenv("OI_REQUEST_DELAY", "0.5"))

@@ -1,8 +1,9 @@
 # Permissões e Papéis — Extra Consultoria
 
-> Gerado pelo Detective em 2026-07-11T21:30:00Z
+> Gerado pelo Detective em 2026-07-13T17:00:00Z
 > doc_level: completo
-> Base: commit e9729e1
+> Base: commit 249340d
+> Verificação: sem novas RLS policies, sem multi-tenancy. Diagnóstico mantido.
 
 ---
 
@@ -16,6 +17,7 @@
 - Systemd timers executam como `extra-consultoria` (sudo para journalctl/systemctl)
 - Relatórios PDF são gerados localmente, sem controle de acesso
 - Sem API HTTP — toda interação é CLI
+- Novas tabelas (coverage_evidence, opportunity_intel) seguem mesmo padrão: sem RLS, sem row-level security
 
 🟡 **INFERIDO** — Design intencional. Plataforma de consultoria opera como ferramenta interna do consultor Tiago Sasaki, não como SaaS multi-usuário.
 

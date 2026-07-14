@@ -76,9 +76,7 @@ def score_opportunity(
     else:
         negative.append("Objeto sem correspondência direta com os três tipos priorizados")
 
-    matched_positive_terms = [
-        term for term in profile.positive_terms if normalize_identity_text(term) in object_text
-    ]
+    matched_positive_terms = [term for term in profile.positive_terms if normalize_identity_text(term) in object_text]
     if matched_positive_terms:
         fit_score += min(
             fit_weights.get("positive_terms", 0),
@@ -86,9 +84,7 @@ def score_opportunity(
         )
         positive.append("Termos positivos: " + ", ".join(matched_positive_terms))
 
-    matched_negative_terms = [
-        term for term in profile.negative_terms if normalize_identity_text(term) in object_text
-    ]
+    matched_negative_terms = [term for term in profile.negative_terms if normalize_identity_text(term) in object_text]
     if matched_negative_terms:
         negative.append("Termos negativos: " + ", ".join(matched_negative_terms))
         blockers.append("Objeto contém termo negativo configurado")
@@ -150,9 +146,8 @@ def score_opportunity(
     thresholds = profile.triage_thresholds
     if blockers or fit_score <= thresholds.get("discard_max_client_fit", 20):
         triage = "DESCARTAR"
-    elif (
-        data_score >= thresholds.get("priority_min_data_confidence", 70)
-        and fit_score >= thresholds.get("priority_min_client_fit", 55)
+    elif data_score >= thresholds.get("priority_min_data_confidence", 70) and fit_score >= thresholds.get(
+        "priority_min_client_fit", 55
     ):
         triage = "PRIORITARIA"
     else:

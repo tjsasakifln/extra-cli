@@ -24,8 +24,9 @@ def main() -> None:
 
     conn = psycopg2.connect(DEFAULT_DSN, connect_timeout=10)
 
-    # Load entities using monitor.py's own functions
-    from scripts.crawl.monitor import _load_entities, _match_entities_cascade
+    # Load entities
+    from scripts.crawl.monitor import _load_entities
+    from scripts.matching.entity_matcher import match_entities_cascade
 
     entities = _load_entities(conn)
     print(f"Loaded {len(entities)} entities")
@@ -42,7 +43,7 @@ def main() -> None:
 
     # Run entity matching
     print("Running entity matching...")
-    stats = _match_entities_cascade(conn, "pncp", entities)
+    stats = match_entities_cascade(conn, "pncp", entities)
     print("Matching complete:")
     print(f"  CNPJ matched: {stats.get('cnpj', 0)}")
     print(f"  Name matched: {stats.get('name_normalized', 0)}")

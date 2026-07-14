@@ -1,268 +1,188 @@
 # QA Review — Technical Debt Assessment
 
-**Revisor:** @qa (Quinn, Guardian)
-**Data:** 2026-07-11
-**Documentos Revisados:**
-- `docs/prd/technical-debt-DRAFT.md` (v1.0, Fase 7)
-- `docs/architecture/system-architecture.md` (Fase 1)
-- `supabase/docs/DB-AUDIT.md` (Fase 2)
-- `supabase/docs/SCHEMA.md` (referencia schema)
+**Revisor:** Quinn (@qa)
+**Data:** 2026-07-13
+**Documentos de Referencia:**
+- `docs/prd/technical-debt-DRAFT.md` (v2.0) — Consolidacao de debitos (60 originais)
+- `docs/reviews/db-specialist-review.md` — Dara: 21 debitos de database (17 validados + 4 liquidos apos fusao/adicione)
+- `docs/reviews/ux-specialist-review.md` — Uma: 17 debitos de frontend/UX (12 validados + 5 adicionados)
 
 ---
 
-## Gate Decision: NEEDS WORK (com gaps addressaveis)
+## Gate Status: NEEDS WORK
 
-**Score:** 7.5/10
-**Rationale:** O DRAFT e solido e cobre os 30 debitos principais com boa organizacao por severidade e area. A analise de quick wins e a matriz de riscos sao bem construidas. No entanto, ha 5 gaps significativos de escopo (CI/CD, backup, documentacao, observabilidade, seguranca) e 2 contradicoes entre os documentos fonte que precisam ser resolvidas antes da finalizacao. O assessment precisa de uma rodada de ajustes, mas nao de reestruturacao.
-
----
-
-## 1. Completeness Assessment
-
-### 1.1 Areas Cobertas (Bem)
-
-- [x] System-level technical debt (16 items, cobertura ampla dos anti-padroes)
-- [x] Database-level technical debt (14 items, migration hygiene + performance + data quality)
-- [x] Matriz de priorizacao consolidada com dependencias
-- [x] Quick wins identificados (4 items, 12-14h de esforco)
-- [x] Riscos preliminares com probababilidade e impacto
-- [x] Perguntas especificas para especialistas (@data-engineer e @qa)
-- [x] Cobertura estatistica por severidade e area
-- [x] NFRs de seguranca (SQL injection, secrets, RLS) parcialmente cobertos
-
-### 1.2 Gaps Identificados
-
-| # | Gap | Severidade | Impacto | Recomendacao |
-|---|-----|------------|---------|-------------|
-| GAP-01 | Ausencia total de debito de CI/CD | HIGH | Sem pipeline automatizado, qualquer correcao e manual e propensa a erro. 64k linhas sem lint, sem type check, sem testes automatizados em CI. | Adicionar debito: "Ausencia de CI/CD pipeline (lint, type check, testes em PR)" como MEDIUM/HIGH. |
-| GAP-02 | Sem debito de backup e disaster recovery | HIGH | 4.1 GB de dados criticos de licitacao sem estrategia documentada de backup. Uma corrupcao de banco perde todo o DataLake. | Adicionar debito: "Sem backup automatizado do PostgreSQL (4.1 GB)" como HIGH. Verificar se existe pg_dump schedule via cron/systemd. |
-| GAP-03 | Sem debito de documentacao e onboarding | MEDIUM | README existe mas nao ha documentacao de setup, runbook, ou arquitetura de deploy. Qualquer novo desenvolvedor levaria dias para entender o sistema. | Adicionar debito: "Documentacao insuficiente para onboarding e operacao" como MEDIUM. |
-| GAP-04 | Observabilidade limitada ao healthcheck | MEDIUM | TD-SYS-015 cobre healthcheck, mas faltam: logging estruturado com correlation IDs, metricas de cobertura historicas, alertas de falha de crawl, dashboard de status. | Expandir TD-SYS-015 para incluir logging estruturado e metricas, ou criar debito separado para observabilidade. |
-| GAP-05 | Seguranca alem de secrets e SQL injection | MEDIUM | Cobertos: SQL injection (parcial), DB password hardcoded, RLS. Nao cobertos: rate limiting em APIs externas, cust exposure de API keys (OpenAI tem custo), firewall de aplicacao, audit trail de acesso. | Adicionar nota no risk assessment sobre expansao futura de seguranca ou debito MEDIUM para "Falta de security hardening em VPS". |
-
-### 1.3 O que NAO esta no assessment mas deveria estar
-
-1. **TD-CI-001: Ausencia de pipeline CI/CD** -- Nao ha GitHub Actions ou similar para lint (ruff), type check (mypy), ou testes automatizados. Toda mudanca e aplicada manualmente via SSH + git pull na VPS. Risco alto de regression silenciosa.
-2. **TD-OPS-001: Sem backup automatizado do banco** -- 4.1 GB de dados sem backup documentado. Se a VPS perder o disco, todo o DataLake de 199K bids + 3.69M contratos e perdido.
-3. **TD-DOC-001: Documentacao de setup e operacao insuficiente** -- README existe mas nao ha runbook, nem instrucoes de deploy, nem arquitetura de alto nivel para novos contribuidores.
-4. **TD-OBS-001: Logging sem correlation IDs e sem agregacao centralizada** -- Atualmente usa logging basico do Python. Em caso de falha em pipeline de 7 steps, nao ha como correlacionar eventos entre scripts.
-5. **TD-SEC-002: Falta de firewall de aplicacao e network hardening** -- PostgreSQL exposto em Hetzner sem firewall de aplicacao (mencionado como ATENCAO no system-architecture.md mas nao como debito formal).
+**Veredicto:** NEEDS WORK com 2 gaps CRITICAL e 3 riscos cruzados nao mitigados. O assessment e robusto nas areas cobertas, mas possui lacunas estruturais que precisam ser enderecadas antes da aprovacao final.
 
 ---
 
-## 2. Cross-Cutting Risks
+### Gaps Identificados
 
-| Risco | Areas Afetadas | Debites Relacionados | Probabilidade | Impacto | Mitigacao |
-|-------|---------------|---------------------|---------------|---------|-----------|
-| Refatoracao de crawler quebra producao sem testes para detectar | Crawl System, Database | TD-SYS-009, TD-SYS-011, TD-SYS-016 | ALTA | CRITICO | Criar test suite para transformer.py (funcao pura) como primeira prioridade; congelar mudancas no monitor.py ate ter testes |
-| Correcao de migrations pode perder dados se mal executada | Database Schema, DataLake | TD-DB-01, TD-DB-02, TD-DB-13 | MEDIA | CRITICO | Executar `pg_dump --schema-only` primeiro; trabalhar em copia do banco; documentar rollback para cada migration corretiva |
-| BidsCrawler pode ja estar quebrado em producao (imports ingestion/) | Crawl System | TD-SYS-001, TD-SYS-016 | MEDIA | ALTO | Verificar experimentalmente se o BidsCrawler executa; se nao, documentar como dead code e remover ou criar package ingestion/ |
-| Duas implementacoes PNCP divergem em dados processados | Crawl System, Intel Pipeline | TD-SYS-016, TD-DB-04 | MEDIA | ALTO | Audit de resultados entre as duas implementacoes; consolidar para uma unica via antes de novas features |
-| YAML de config (2.116 linhas) com erro silencioso corrompe analise setorial | Intel Pipeline, Config | TD-SYS-013 | BAIXA | ALTO | Adicionar schema validation com Pydantic ou JSON Schema ASAP |
-| DELETE fisico do purge remove dados irreversivelmente | Database, Reporting | TD-DB-14 | BAIXA | ALTO | Adicionar soft-delete com retention policy antes do proximo purge agendado |
-| Senha do DB hardcoded em git exposta se repositorio for comprometido | Security, Database | TD-DB-05, Seguranca | BAIXA | ALTO | Rotacionar senha imediatamente, migrar para .env, remover do historico git (ou aceitar risco para senha local) |
-
----
-
-## 3. Dependency Validation
-
-### 3.1 Ordem de Resolucao
-
-A ordem proposta na matriz consolidada (Secao 5 do DRAFT) esta correta em linhas gerais, mas sugiro os seguintes ajustes:
-
-| Prioridade Atual | Ajuste | Justificativa |
-|-----------------|--------|---------------|
-| P1: TD-SYS-001 (imports quebrados) | Manter | Independente, quick win de 4h |
-| P2: TD-DB-01 (migrations divergentes) | Manter | Pre-requisito para TD-DB-02, TD-DB-13, TD-DB-09 |
-| P3: TD-SYS-009 (ausencia de testes) | **Subir para P1 executando em paralelo** | Nao depende de ninguem; comecar com transformer.py e entity matching enquanto P1 e P2 sao resolvidos |
-| P4: TD-DB-08 (missing GIN index) | Manter | Independente, quick win de 2h |
-| P5: TD-SYS-003 (type hints) | Manter | Independente, mas baixo impacto sozinho |
-| P6: TD-DB-02 (migrations 009-012) | **Depende de TD-DB-01** | Nao aplicar antes de estabilizar o schema baseline |
-| P7: TD-SYS-011 (monitor.py refactor) | Manter | **Depende de TD-SYS-009** (nao refatorar 687 linhas sem testes) |
-| P8: TD-SYS-016 (consolidar crawlers) | **Depende de TD-SYS-001 + TD-SYS-009** | So faz sentido apos BidsCrawler funcional e com testes |
-
-**Ordem recomendada:**
-
-```
-FASE 0 (Quick Wins, paralelo):
-  ├── TD-SYS-001 (fix imports)
-  ├── TD-DB-08 (GIN index)
-  ├── TD-SYS-009 (iniciar test suite com transformer.py)
-  └── TD-DB-05 (mover senha para .env)
-
-FASE 1 (Schema Stabilization):
-  └── TD-DB-01 (regenerar migrations do schema real)
-      └── TD-DB-02 (aplicar 009-012 adaptadas)
-      └── TD-DB-13 (corrigir schema divergence)
-
-FASE 2 (Refactoring Safe):
-  └── TD-SYS-009 (expandir test suite)
-      └── TD-SYS-011 (refatorar monitor.py)
-      └── TD-SYS-016 (consolidar crawlers)
-
-FASE 3 (Quality):
-  ├── TD-SYS-003 (type hints)
-  ├── TD-SYS-008 (constantes para settings.py)
-  ├── TD-SYS-013 (schema validation YAML)
-  └── TD-DB-04 (otimizar upsert row-by-row)
-
-FASE 4 (Resilience):
-  ├── TD-SYS-014 (API key renewal)
-  ├── TD-SYS-015 (healthcheck + observabilidade)
-  ├── TD-DB-03 (TTL enforcement)
-  ├── TD-DB-14 (soft-delete purge)
-  └── TD-DB-11 (HNSW expression fix)
-
-FASE 5 (Polish):
-  └── Items LOW restantes
-```
-
-### 3.2 Bloqueios Identificados
-
-| Bloqueio | Debites Afetados | Descricao | Desbloqueio |
-|----------|-----------------|-----------|-------------|
-| Schema baseline precisa ser estabelecido | TD-DB-02, TD-DB-09, TD-DB-13 | Nao da para aplicar migrations 009-012 ou adicionar CHECK constraints antes de saber qual e o schema real | Executar `pg_dump --schema-only` e criar migrations v2 |
-| Zero testes impedem refactoring seguro | TD-SYS-011, TD-SYS-016 | Monitor.py de 687 linhas e a consolidacao de crawlers sao operacoes de alto risco sem testes | Comecar test suite com transformer.py (funcao pura, zero dependencias) |
-| BidsCrawler pode estar inoperante | TD-SYS-001, TD-SYS-016 | Se BidsCrawler nao executa, a consolidacao (TD-SYS-016) pode ser apenas remocao de dead code | Verificar experimentalmente se roda; se nao, documentar como dead code |
-
-### 3.3 Dependencias Circulares
-
-Nao foram identificadas dependencias circulares entre os debitos. A matriz de dependencias no DRAFT (Secao 5) esta correta e sem ciclos.
+| # | Gap | Area Afetada | Severidade | Recomendacao |
+|---|-----|-------------|------------|--------------|
+| GAP-001 | **Ausencia de categoria "Seguranca" no assessment** — debitos de seguranca estao espalhados como TD-016 (SQL injection), TD-029 (SA JSON no repo), DT-07 (senha hardcoded) sem visao consolidada de postura de seguranca. Nao ha analise de OWASP Top 10, vulnerabilidades de dependencias (bibliotecas desatualizadas), nem auditoria de permissoes do service account. | Transversal (Todas as areas) | **CRITICAL** | Criar secao dedicada a seguranca com inventario de: (1) credenciais versionadas, (2) dependencias com CVEs conhecidas, (3) exposicao de endpoints internos, (4) permissoes de service accounts GCP/Supabase, (5) OWASP Top 10 aplicavel ao stack. |
+| GAP-002 | **Ausencia de categoria "Testes/QA" como debito autonomo** — TD-026 (coverage minima), TD-030 (schema.py sem testes), TD-024 (migrations falham silenciosamente) estao classificados como "Sistema". Nao ha analise de: qual a cobertura atual, quais modulos sao criticos sem testes, qualidade dos testes existentes (nao apenas quantidade), nem estrategia de test doubles (mocks vs integracao). | Testes / QA | **CRITICAL** | Criar secao dedicada a qualidade de testes com: (1) cobertura atual por modulo (pytest --cov), (2) inventario de modulos sem testes, (3) qualidade dos asserts (nao apenas "testes passam"), (4) velocidade do test suite, (5) presenca de testes de integracao vs unitarios. |
+| GAP-003 | **Documentacao nao avaliada como debito** — o projeto tem documentacao espalhada (frontend-spec.md, SCHEMA.md, DB-AUDIT.md, system-architecture.md) mas sem avaliacao de: documentacao desatualizada, docstrings ausentes, READMEs inconsistentes, ADRs faltando. | Documentacao | HIGH | Adicionar auditoria de documentacao: (1) docstrings em modulos publicos, (2) README por diretorio, (3) documentacao de endpoints/CLIs, (4) runbooks de operacao, (5) ADRs para decisoes arquiteturais. |
+| GAP-004 | **Performance e observabilidade nao avaliadas** — TD-015 (healthcheck unificado) cobre apenas um aspecto. Nao ha analise de: latencia de queries, uso de memoria dos crawlers, contencao de conexoes com banco, logging estruturado para debugging, tracing de pipelines. | Observabilidade / Performance | HIGH | Adicionar secao de observabilidade: (1) latencia P50/P95/P99 dos crawlers, (2) metricas de uso de memoria/CPU, (3) logging estruturado (JSON structured logs), (4) tracing de pipeline de inteligencia. |
+| GAP-005 | **Nao ha analise de dependencias externas e riscos de terceiros** — o projeto depende de: PNCP API (governo federal, sem SLA), BEC/ComprasGov, TCE-SC, CIGA, IBGE, BrasilAPI, BigQuery (planejado). Nenhuma dessas dependencias tem avaliacao de: risco de breaking change, rate limits, disponibilidade historica, custos de API. | Dependencias Externas | HIGH | Adicionar matriz de dependencias externas com: (1) SLA/disponibilidade historica, (2) rate limits conhecidos, (3) risco de breaking change, (4) planos de fallback, (5) custos. |
+| GAP-006 | **Sem debito de configuracao de ambientes** — nao ha distincao entre dev/staging/producao no assessment. TD-021 (BASE_URL divergente) e TD-002 (DEFAULT_DSN duplicado) tocam no assunto mas nao ha visao consolidada de: ambientes existentes, configuracao por ambiente, segredo por ambiente, strategy de feature flags. | Infra / DevOps | MEDIUM | Adicionar secao de ambientes: (1) quantos ambientes existem, (2) como a configuracao difere entre eles, (3) secrets management por ambiente, (4) estrategia de promocao entre ambientes. |
+| GAP-007 | **Monitoramento pos-resolucao nao planejado** — o assessment lista debitos e resolucoes, mas nao define metricas para verificar se a resolucao foi eficaz. Exemplo: refatorar monitor.py (TD-010) — como saber se melhorou? Reducao de linhas? Reducao de bugs? Melhoria de velocidade de execucao? | Qualidade / Metricas | MEDIUM | Para cada debito P0/P1, definir metrica de sucesso pos-resolucao (ex: "TD-010: reducao de 1756 para <800 linhas + 0 regressao em testes de crawl"). |
+| GAP-008 | **Risco de regressao do TD-010 (monitor.py) subestimado** — o DRAFT estima 8h para refatorar 1756 linhas. Isso e extremamente agressivo. Um arquivo com 1756 linhas que acopla orquestracao + entity matching + coverage tipicamente leva 20-40h para refatorar com seguranca (testes primeiro, extracao incremental, validacao). | Sistema | MEDIUM | Revisar estimativa de TD-010 para 20-30h, ou dividir em sub-debitos: (1) extracao de entity matching (TD-010a, 8h), (2) extracao de coverage (TD-010b, 6h), (3) extracao de database helpers (TD-010c, 4h), (4) cleanup e type hints (TD-010d, 4h). |
+| GAP-009 | **TD-025 (ORM) sem estimativa realista ou justificativa** — "20h+" para implementar ORM em todo o projeto. ORM e uma decisao arquitetural de alto impacto, com trade-offs (performance, complexidade de queries, overhead de aprendizado). Nao ha analise de alternativas (SQLAlchemy Core vs ORM, query builder vs ORM completo). | Sistema | MEDIUM | Substituir "20h+" por analise de: (1) quais modulos se beneficiariam de ORM, (2) quais queries sao complexas demais para ORM, (3) recomendacao concreta (SQLAlchemy? Psycopg3 raw com dataclasses?), (4) estimativa por fase. |
 
 ---
 
-## 4. Test Strategy
+### Riscos Cruzados
 
-### 4.1 Testes por Categoria de Debito
-
-| Categoria | Tipo de Teste | Ferramenta | Criterio de Aceite |
-|-----------|--------------|------------|-------------------|
-| Schema/DB | Migration test (apply + rollback) | pytest + pg_dump | Migrations V2 aplicam e revertem sem perda de dados |
-| Crawl (transformer) | Unit test (funcao pura) | pytest | 100% das funcoes de transform testadas com dados reais amostrados |
-| Crawl (entity matching) | Unit test + Integration test | pytest + rapidfuzz | 3-level cascade testada com 100+ casos de edge (CNPJ, nome, fuzzy) |
-| SQL Performance | EXPLAIN ANALYZE em staging | psql + pg_stat_statements | Zero sequential scans em tabelas > 100K registros; HNSW index confirmado via EXPLAIN |
-| Seguranca | Secret scan | detect-secrets / trufflehog | Zero secrets hardcoded no repositorio |
-| Config YAML | Schema validation | Pydantic + pytest | 100% dos YAMLs validados contra schema tipado |
-| Regression | Smoke test end-to-end | pytest | Pipeline de crawl + intel executado em staging com dataset reduzido |
-
-### 4.2 Metricas de Qualidade
-
-| Metrica | Baseline Atual | Target Pos-Resolucao |
-|---------|---------------|---------------------|
-| Cobertura de testes (linhas) | 0% | >= 40% (core modules: transformer, entity matching, loader) |
-| Debitos CRITICAL | 3 | 0 |
-| Debitos HIGH | 5 | <= 2 |
-| Debitos MEDIUM | 14 | <= 5 |
-| Sequential scans em tabelas > 100K | 2+ (pncp_supplier_contracts, pncp_raw_bids) | 0 |
-| Migrations divergentes | 12/12 | 0/12 |
-| Secrets hardcoded no codigo | 1+ (smartlic_local) | 0 |
-| CI/CD pipeline | Ausente | Presente (lint + type check + test) |
-| Backup automatizado | Ausente | Presente (pg_dump diario) |
-
-### 4.3 Testes de Regression (Cenarios que NAO podem quebrar)
-
-1. **Pipeline de crawl completo:** monitor.py --source pncp --full deve completar upsert sem erros
-2. **Entity matching 3-level cascade:** Matching de bids existentes deve produzir os mesmos resultados apos refatoracao
-3. **Intel pipeline end-to-end:** intel_pipeline.py --cnpj X deve produzir relatorio Excel + PDF
-4. **Search datalake:** search_datalake() RPC com filtros variados deve retornar resultados consistentes
-5. **Dedup por content_hash:** Ingestao do mesmo registro duas vezes nao deve duplicar dados
-6. **Purge com soft-delete:** Apos migrar para soft-delete, dados marcados como inativos devem ser invisiveis para queries normais
+| Risco | Areas Afetadas | Severidade | Mitigacao |
+|-------|---------------|------------|-----------|
+| CR-001 | **Refatoracao do monitor.py (TD-010) quebrar crawlers em producao** — 1756 linhas com SRP violado, entity matching duplicado (TD-027), imports quebrados (TD-001), state global mutavel (TD-004). Qualquer extracao pode quebrar o crawl de producao, que roda em timer systemd. | Sistema, Database (coverage triggers) | **CRITICAL** | (1) Nao refatorar antes de ter test suite de integracao para os crawlers. (2) Criar branch separada. (3) Testar com snapshot de dados reais antes de fazer merge. (4) Ter rollback plan documentado. (5) Executar em paralelo (crawler antigo + novo) por 1 semana para comparar resultados. |
+| CR-002 | **Senha no git (DT-07) + Service Account JSON (TD-029) + Configuracoes divergentes (TD-021) = exposicao composta de credenciais** — senha do banco no git, SA da BigQuery no repo, BASE_URL da API PNCP configurado incorretamente. Um unico acesso malicioso ao repo compromete banco, GCP e dados de API. | Database, Sistema, Seguranca | **CRITICAL** | (1) Priorizar DT-07 e TD-029 como P0 (nao P1/P2). (2) BFG cleanup do git history. (3) Rotacionar todas as senhas expostas. (4) Auditoria de acessos ao repo. (5) Adicionar .env.example sem valores reais + .gitignore. |
+| CR-003 | **DT-02 (v3 migration) sem rollback testado** — o DRAFT e Dara concordam que a migration e segura (apenas CREATEs), mas 10 tabelas novas + 6 views + 4 funcoes e uma mudanca significativa. Qualquer erro na migration pode contaminar o schema de producao com objetos parciais. | Database, Sistema (opportunity_intel) | HIGH | (1) Dry-run em copia do banco de producao (nao apenas staging limpo). (2) Rollback script testado. (3) Feature flag no opportunity_intel para operar com/sem v3. (4) Validar opportunity_intel/cli.py apos migration antes de marcar DT-02 como resolvido. |
+| CR-004 | **Dependencia UX-01 (Web UI) em cadeia TD-025 -> TD-028** — Web UI depende de ORM (TD-025, P2, 20h+) e CI/CD (TD-028, P1, 6h). Se ambos forem tratados como P2/P1 sem cronograma vinculado, UX-01 fica bloqueado indefinidamente. Planejamento estrategico precisa disso mapeado. | Frontend/UX, Sistema | MEDIUM | Definir marco "Web UI desbloqueada" com datas estimadas. Se ORM for muito caro (20h+), considerar alternativa (SQL raw com dataclasses) para desbloquear Web UI mais cedo. |
+| CR-005 | **Sprint 0 com P0 em 3 areas diferentes sem coordenacao** — TD-010 (Sistema, 8h), DT-02 (Database, 4h), UX-02 (UX, 8h) sao P0 em areas diferentes, mas o time de desenvolvimento provavelmente e o mesmo (ou compartilha dependencias como o banco de producao). Tentar fazer os 3 em paralelo no Sprint 0 pode causar conflito de recursos. | Gestao, Todas as areas | MEDIUM | Sequenciar Sprint 0 como: Semana 1 = UX-02 (8h, independente, impacto imediato) + DT-07 (1h, seguranca) + TD-029 (1h, seguranca). Semana 2 = DT-02 (4h, migration). Semana 3 = TD-010 (8-20h, refatoracao maior). |
 
 ---
 
-## 5. Severity Adjustments
+### Dependencias Validadas
 
-| ID | Severidade DRAFT | Severidade QA | Justificativa |
-|----|-----------------|--------------|---------------|
-| TD-SYS-012 (fallback difflib) | LOW | **MEDIUM** | Fallback silencioso degrada qualidade do matching sem nenhum alerta. Em 2.085 orgaos, matching de baixa qualidade pode fazer o sistema perder licitacoes relevantes. Deve ao menos gerar Warning via logging. |
-| TD-DB-05 (senha hardcoded) | MEDIUM | MEDIUM (mantido) | Senha "smartlic_local" parece ser apenas local dev. Se essa mesma senha for usada em producao, subiria para HIGH. Verificar com o lead. |
-| TD-DB-10 (ingestion_checkpoints) | LOW | **MEDIUM**** | Tabela com 0 registros significa que crawlers NAO SAO resumeveis. Em caso de falha no meio de um crawl de 2.085 orgaos, tudo recomeca do zero. Perda de eficiencia operacional significativa. |
-| TD-SYS-004 (cache IBGE module-level) | MEDIUM | **HIGH** | Estado global mutavel em modulo compartilhado entre crawlers async. Race condition com concorrencia async (Semaphore) pode corromper cache ou causar comportamento imprevisivel. |
+A matriz de dependencias da Secao 6 do DRAFT foi validada contra as revisoes dos especialistas. Resultado:
 
-**Nota:** As severidades revisadas aumentam o total estimado em ~2-4h adicionais para enderecar os ajustes.
+**Correto:**
+- Grupo 1 (Monitor.py Refactor): TD-010 desbloqueia TD-027, TD-003, TD-016, TD-007, TD-012 -- **CONFIRMADO**
+- Grupo 2 (Entity Matching): TD-027 -> DT-01, DT-17 -- **CONFIRMADO** (DT-17 removido como duplicata de DT-01)
+- Grupo 3 (Database v3): DT-02 -> UX-09, TD-030 -- **CONFIRMADO**
+- Grupo 4 (CI/CD): TD-028 -> TD-024, TD-026, TD-029 -- **CONFIRMADO**
+- Grupo 6 (UX CLI): UX-03 -> UX-04, UX-05, UX-06, UX-08, UX-11, UX-12 -- **CONFIRMADO e FORTALECIDO** pela analise de Uma (UX-03 desbloqueia 7 debitos)
+- Grupo 7 (Longo Prazo): UX-01 depende de TD-025 + TD-028 -- **CONFIRMADO**
 
----
+**Ajustes necessarios:**
 
-## 6. Quality Observations
+| Relacao Original | Ajuste | Fonte |
+|-----------------|--------|-------|
+| Grupo 2: DT-06 -> DT-01, TD-027 | DT-06 e desejavel antes de DT-01 (UNIQUE em cnpj_8 garante matched_entity_id unico), mas NAO e blocker absoluto. DT-06 e DT-01 podem ser resolvidos em paralelo. | Dara (db-specialist-review) |
+| Grupo 5: DT-04 -> TD-011, TD-020 | DT-05 (contracts, 3.7M) que tem impacto real, nao DT-04 (bids, 200K). Corrigir a matriz para apontar DT-05 como impacto principal em TD-011. | Dara (db-specialist-review) |
+| Grupo 3: DT-02 -> UX-09 | Confirmado. Adicionar tambem: DT-02 depende de DT-03 (ordem de migrations) -> DT-16 (atualizar baseline). A chain fica: DT-03 -> DT-16 -> DT-02 -> UX-09. | Dara (db-specialist-review) |
+| TD-010 -> TD-027 | Confirmado. Adicionar: TD-010 tambem pode impactar TD-004 (estado global, cache IBGE) durante refatoracao. | Analise propria (QA) |
 
-### 6.1 Documentacao
+**Potenciais bloqueios nao mapeados:**
 
-A documentacao produzida nas Fases 1-2 e de alta qualidade:
+1. **DT-07 (senha) antes de qualquer deploy:** Se a senha for de producao, o deploy de QUALQUER mudanca no sistema expoe a senha. DT-07 deveria ser P0, nao P1.
+2. **Nao ha dependencia entre DT-05 (contracts) e TD-011 (dual crawlers):** O crawl de contracts PNCP e feito tanto pelo sync adapter quanto pelo async BidsCrawler. Refatorar DT-05 sem decidir qual implementacao de crawler manter (TD-011) pode gerar retrabalho.
+3. **UX-17 (radar summary) nao depende de nada, mas DEVERIA:** O radar e implementado em opportunity_intel, que depende de DT-02 (v3) para algumas metricas. Se UX-17 for implementado antes de DT-02, pode ficar incompleto.
 
-| Documento | Qualidade | Observacoes |
-|-----------|-----------|-------------|
-| `system-architecture.md` | EXCELENTE | Cobre arquitetura, fluxos, dependencias, seguranca, anti-padroes. 606 linhas de analise aprofundada. |
-| `DB-AUDIT.md` | EXCELENTE | Audit completo de schema, seguranca, performance, migrations. Metricas claras. |
-| `SCHEMA.md` | EXCELENTE | Documentacao detalhada do schema real com ER textual, indexes, triggers, funcoes. |
-| `technical-debt-DRAFT.md` | BOM | Organizado e claro, mas com 5 gaps de escopo e 2 contradicoes a resolver. |
-
-### 6.2 Consistencia (Contradicoes entre documentos fonte)
-
-Duas contradicoes importantes entre system-architecture.md e DB-AUDIT.md que o DRAFT reconhece mas precisa resolver:
-
-**Contradicao 1: SQL Injection Risk**
-- `system-architecture.md` (sec. 10): Classifica SQL queries em monitor.py como **MEDIO** risco de SQL injection
-- `DB-AUDIT.md` (sec. 2): Classifica como **Baixo risco** (queries parameterized, JSON interno)
-- **Posicao QA:** Concordo com DB-AUDIT. O `%s` placeholder com JSON gerado internamente e seguro. No entanto, a funcao `_match_entities_cascade` usa f-strings na linha 67-68 para queries SQL -- isso SIM e um risco que precisa de auditoria especifica. Recomendo auditar essa funcao em particular.
-
-**Contradicao 2: ORM vs Raw SQL**
-- `system-architecture.md` (sec. 7.4): Trata ausencia de ORM como anti-padrao ("Acoplamento DB, sem type safety")
-- `DB-AUDIT.md` (sec. 2): Aceita como seguro para single-user
-- **Posicao QA:** Para single-user com Python puro, raw SQL com psycopg2 e aceitavel e pragmatico. Adicionar ORM (SQLAlchemy) seria um investimento significativo sem retorno claro para o cenario atual. Removeria do anti-pattern ou reclassificaria como INFORMATIVO (nao como debito).
-
-### 6.3 Traceability
-
-Os debitos sao rastreaveis ate sua origem nos documentos fonte:
-
-- **TD-SYS-001 a TD-SYS-016:** Originam-se de `system-architecture.md` (secoes 7.4 Anti-Padroes e 8 Tech Debt Inventory)
-- **TD-DB-01 a TD-DB-14:** Originam-se de `DB-AUDIT.md` (secoes 1 Issues, 2 Security, 3 Performance, 4 DB Debt Inventory)
-- Os IDs usam nomenclatura clara (TD-SYS e TD-DB) e cada debito referencia arquivo/linha especifica
-- A matriz consolidada (secao 5) mapeia dependencias entre debitos corretamente
-
-**Melhoria sugerida:** Adicionar coluna "Documento Fonte" na matriz consolidada para rastreabilidade direta (ex: "system-architecture.md sec 8") sem precisar consultar as tabelas originais.
+**Ciclos:** Nenhum ciclo de dependencia identificado. A ordem topologica e viavel.
 
 ---
 
-## 7. Final Recommendations
+### Cobertura do Assessment
 
-### Acoes Obrigatorias (antes de seguir para Fase 8)
+| Area | Cobertura | Notas |
+|------|-----------|-------|
+| Sistema/Infra | 80% | 30 debitos originais cobrem arquivos especificos, mas faltam: (1) dependencias externas (APIs governamentais), (2) ambientes (dev/staging/prod), (3) observabilidade, (4) documentacao. Ver GAP-003, GAP-004, GAP-005. |
+| Database | 90% | Dara fez revisao exemplar: 17 originais + 6 novos + 1 fusao = 21 debitos. SCHEMA.md, DB-AUDIT.md, current-schema.sql usados como fontes. Faltou: auditoria de permissoes de roles do banco, analise de conexoes simultaneas. |
+| Frontend/UX | 90% | Uma fez revisao completa com metodologia de priorizacao UX propria. 7 journeys analisadas. 5 novos debitos adicionados. Web UI (UX-01) com estimativa revisada para baixo (40h MVP). |
+| Seguranca | **15%** | **GAP CRITICO.** Os debitos de seguranca existem (DT-07, TD-016, TD-029) mas estao fragmentados. Nao ha: analise de dependencias com CVE, OWASP Top 10, revisao de permissoes, threat modeling. Ver GAP-001. |
+| Testes | **20%** | **GAP CRITICO.** TD-026 e TD-030 sao os unicos debitos relacionados a testes. Nao ha: cobertura atual, qualidade dos testes existentes, testes de integracao vs unitarios, test doubles strategy. Ver GAP-002. |
+| DevOps/CI-CD | 40% | Apenas TD-028 (sem CI/CD). Nao ha: deployment strategy, infra as code, backup strategy, monitoring/alerting, secrets management no pipeline. |
 
-1. **Resolver as 2 contradicoes** entre system-architecture.md e DB-AUDIT.md (SQL injection risk e ORM anti-pattern) -- documentar a posicao final do projeto.
-
-2. **Adicionar os 5 novos debitos:** TD-CI-001 (CI/CD), TD-OPS-001 (backup), TD-DOC-001 (documentacao), TD-OBS-001 (logging/observabilidade), TD-SEC-002 (network hardening). Se a decisao for nao incluir, documentar explicitamente o por que na secao de riscos.
-
-3. **Aplicar os ajustes de severidade:** TD-SYS-012 (LOW -> MEDIUM), TD-SYS-004 (MEDIUM -> HIGH), TD-DB-10 (LOW -> MEDIUM). Recalcular a matriz com as horas extras.
-
-4. **Ajustar ordem de resolucao** para refletir a Fase 0 paralela (quick wins + comeco de test suite simultaneos) conforme secao 3.1 deste review.
-
-5. **Auditar `_match_entities_cascade` no monitor.py** para confirmar se as f-strings SQL (linhas 67-68) sao seguras ou sao vetor de SQL injection.
-
-### Acoes Recomendadas
-
-6. Adicionar coluna "Documento Fonte" na matriz consolidada para rastreabilidade direta.
-
-7. Expandir a secao de riscos para incluir os riscos de cross-cutting identificados na secao 2 deste review.
-
-8. Atualizar estimativa de esforco total: 105-125h + ~15-25h (5 novos debitos + ajustes de severidade) = **120-150h estimados**.
+**Nota metodologica:** As areas com cobertura baixa (Seguranca 15%, Testes 20%) nao invalidam o assessment existente, mas significam que o assessment esta INCOMPLETO para tomada de decisao de investimento. Recomenda-se completar as lacunas antes de aprovar o plano de execucao.
 
 ---
 
-## Resumo
+### Testes Requeridos Pos-Resolucao
 
-| Componente | Status |
-|-----------|--------|
-| Cobertura de debitos de sistema | 16/16 (bom) |
-| Cobertura de debitos de database | 14/14 (bom) |
-| Gaps de escopo identificados | 5 novos debitos (CI/CD, backup, docs, observabilidade, network) |
-| Contradicoes entre docs fonte | 2 (SQL injection, ORM) |
-| Ajustes de severidade | 3 upgrades (TD-SYS-012, TD-SYS-004, TD-DB-10) |
-| Dependencias circulares | 0 |
-| Bloqueios identificados | 3 (schema baseline, test suite, BidsCrawler status) |
-| Estimativa ajustada | 120-150h (vs 105-125h original) |
-| **Gate Decision** | **NEEDS WORK** -- aprovar apos ajustes dos 5 gaps e 2 contradicoes |
-
-**Veredicto:** O assessment e 80% completo e bem estruturado. Os 5 gaps de escopo sao enderecaveis em 1-2 horas de edicao. As 2 contradicoes entre documentos fonte precisam de resolucao de posicao. Recomendo: (1) incorporar os ajustes deste review, (2) submeter para Fase 8 (Assessment Final) com @architect, (3) garantir que os novos debitos de CI/CD e backup nao sejam esquecidos no plano de acao.
+| Debito | Tipo de Teste | Criterio de Aceite |
+|--------|---------------|-------------------|
+| TD-010 (Refatorar monitor.py) | Testes de integracao dos crawlers + Testes comparativos (antes/depois) | (1) Testes de integracao com snapshot de dados reais passam. (2) Output do crawl (quantidade de registros inseridos) e identico antes e depois. (3) Zero regressao em testes existentes. |
+| TD-027 (Unificar entity matching) | Testes de matching + Validacao com dados rotulados | (1) Suite de matching tests com casos conhecidos (matches verdadeiros, falsos positivos conhecidos, matches fuzzy). (2) Precisao e recall >= 95% em dataset de validacao. (3) Zero duplicacao de implementacao (monitor.py nao tem mais funcao de matching). |
+| DT-02 (Migration v3) | Testes de schema + Testes de integracao pos-migration | (1) Validacao automatica: todas as 10 tabelas, 6 views, 4 funcoes existem no schema. (2) opportunity_intel/cli.py funciona contra as novas tabelas. (3) Nenhuma tabela existente foi alterada (check de colunas + tipos). |
+| DT-05 (Refatorar upsert contracts) | Testes de performance + Testes de equivalencia de dados | (1) Set-based upsert leva <= 30% do tempo do row-by-row para mesmo batch. (2) Quantidade de registros inseridos/atualizados e identica. (3) Gatilhos (triggers de coverage) continuam funcionando. |
+| DT-01 (Match logging columns) | Testes de colunas + Testes de migracao | (1) Colunas match_method, match_score, match_confidence existem e aceitam NULL (backwards compatible). (2) Migration pode ser executada multiplas vezes (idempotente). (3) Selects existentes continuam funcionando (compatibilidade de schema). |
+| UX-02 (Progress indicators) | Testes de CLI + Testes visuais (screenshot) | (1) --progress flag ou comportamento automatico nos 3 comandos (update, radar, generate-report). (2) Screenshot mostra barra de progresso visivel. (3) Nao ha degradacao de performance (progress no terminal nao adiciona > 1s de overhead). |
+| TD-028 (CI/CD) | Testes de pipeline + Testes de quality gate | (1) GitHub Actions com ruff, mypy, pytest rodam em < 5 min. (2) PR com fail em quality gate e bloqueado. (3) Testes de banco rodam com REQUIRE_TEST_DB=1. (4) Cache de dependencias otimizado (< 1min restore). |
+| DT-07 (Senha para .env) | Testes de seguranca + Testes de conexao | (1) Nenhuma senha em texto puro no repo (grep -r "postgres:" repo retorna 0 resultados fora de .env.example). (2) BFG cleanup removeu senha do git history. (3) Conexao ao banco funciona com DATABASE_URL de environment variable. (4) .env no .gitignore. |
+| TD-029 (SA JSON cleanup) | Testes de seguranca + Validacao de acesso | (1) SA JSON removido do repo. (2) Novo mecanismo (Workload Identity Federation ou Vault) configurado. (3) Crawler de BigQuery (se ativado) funciona sem JSON no filesystem. |
+| Debitos novos (DT-18 a DT-23, UX-13 a UX-17) | Testes especificos por debito | Cada debito novo precisa de pelo menos 1 teste automatizado validando a resolucao (ex: DT-19 FK orgao_cnpj -> testar que INSERT com orgao_cnpj invalido e rejeitado). |
 
 ---
 
-— Quinn, guardiao da qualidade
+### Metricas de Qualidade Recomendadas
+
+**Metricas Pre-Resolucao (baseline):**
+
+| Metrica | Alvo | Ferramenta | Frequencia |
+|---------|------|-----------|------------|
+| Cobertura de codigo (total) | >= 60% (pre), >= 75% (pos) | pytest --cov | Semanal |
+| Cobertura por modulo: scripts/crawl/ | >= 50% | pytest --cov=crawl | Semanal |
+| Cobertura por modulo: scripts/opportunity_intel/ | >= 50% | pytest --cov=opportunity_intel | Semanal |
+| Cobertura por modulo: scripts/coverage/ | >= 40% | pytest --cov=coverage | Semanal |
+| Erros de lint (ruff) | 0 (zero) | ruff check | Pre-commit |
+| Erros de type check (mypy) | 0 (zero) | mypy | CI |
+| Debitos P0/P1 abertos | Decrescente | Planilha/Issue tracker | Semanal |
+| Testes de integracao passando | 100% | pytest -m integration | CI |
+| Linhas do monitor.py | < 800 (de 1756) | wc -l | Por release |
+| Duplicacao de implementacoes de matching | 0 (zero) | grep -r "match" scripts/ | Por release |
+| Senhas no git history | 0 (zero) | trufflehog ou git leaks | Por commit |
+
+**Metricas de Qualidade de UX Pos-Resolucao:**
+
+| Metrica | Alvo | Metodo |
+|---------|------|--------|
+| Tempo medio de comando sem feedback | < 2s (qualquer comando) | --time output |
+| Truncamento de colunas | Nenhuma coluna < 60 chars | Revisao de codigo |
+| Mensagens de erro amigaveis | 100% dos erros tem [ERROR] + sugestao | grep -r "print.*Error" scripts/ |
+| Comandos com progress indicator | 3/3 (update, radar, report) | Checklist |
+| Radars com summary pos-execucao | 100% dos radars | Checklist |
+
+**Metricas de Qualidade de Database Pos-Resolucao:**
+
+| Metrica | Alvo | Metodo |
+|---------|------|--------|
+| UNIQUE constraints adicionadas | 2 (DT-06, DT-15) | SQL: SELECT COUNT(*) |
+| CHECK constraints adicionadas | 3 (DT-08, DT-09, DT-10) | SQL: SELECT COUNT(*) |
+| Migrations com ordem correta | 0 dependencias ciclicas | Revisao manual |
+| upsert set-based implementados | 2/2 (DT-04, DT-05) | Revisao de codigo |
+| FKs adicionadas | 2 (DT-19, DT-20) | SQL: SELECT COUNT(*) |
+| Coverage reconciliation job ativo | 1 job semanal rodando | systemctl list-timers |
+
+---
+
+### Parecer Final
+
+**O technical debt assessment e EXCELENTE nas areas que cobre** — 60 debitos originais, expandidos para 72+ apos revisoes dos especialistas (Dara e Uma). A metodologia de Brownfield Discovery foi bem aplicada, as fontes (system-architecture.md, DB-AUDIT.md, frontend-spec.md) sao verificaveis, e as revisoes dos especialistas adicionaram profundidade significativa.
+
+**Porem, 2 lacunas estruturais impedem a aprovacao total:**
+
+1. **Seguranca (GAP-001):** O assessment trata seguranca como tema transversal sem secao dedicada. Credenciais no git (DT-07, TD-029), SQL injection potencial (TD-016), e dependencias sem auditoria de CVE representam risco real de incidente. Sem avaliacao consolidada, o plano de execucao pode subpriorizar seguranca.
+
+2. **Testes/QA (GAP-002):** O assessment nao avalia a qualidade e cobertura dos testes existentes antes de comecar a refatoracao. Refatorar 1756 linhas de monitor.py (TD-010) ou unificar entity matching (TD-027) sem baseline de testes e risco alto de quebrar funcionalidade existente sem deteccao.
+
+**Alem disso, 3 riscos cruzados nao mitigados requerem atencao imediata:**
+
+- CR-001 (Refatoracao de monitor.py quebrando crawlers)
+- CR-002 (Exposicao composta de credenciais — DT-07 + TD-029)
+- CR-003 (DT-02 sem rollback testado)
+
+**Pontos fortes do assessment:**
+- Cobertura detalhada de database (21 debitos) com analise de volume real de dados
+- Priorizacao UX baseada em journeys reais, nao apenas opiniao tecnica
+- Matriz de dependencias validada e majoritariamente correta
+- Estimativas de esforco calibradas (excecao: TD-010)
+- Revisoes dos especialistas acrescentaram 11 novos debitos (DT-18 a DT-23, UX-13 a UX-17)
+
+**Recomendacoes para atingir APPROVED:**
+
+1. **Criar secao de seguranca** com threat modeling leve e inventario de credenciais (2-4h de trabalho do @architect com @analyst)
+2. **Criar secao de testes** com cobertura atual por modulo e inventario de modulos criticos sem testes (2h de trabalho do @qa)
+3. **Revisar estimativa do TD-010** de 8h para 20-30h ou decompor em sub-debitos
+4. **Elevar DT-07 e TD-029 para P0** (risco de seguranca real)
+5. **Adicionar metricas de sucesso pos-resolucao** para todos os debitos P0/P1
+6. **Documentar plano de rollback** para DT-02 (migration v3) antes da execucao
+
+**Veredicto final: NEEDS WORK** — o assessment e 85% completo (excelente nas areas cobertas), mas as lacunas de seguranca e testes sao estruturais demais para aprovacao total neste estado. Apos enderecar os 2 gaps CRITICAL (GAP-001, GAP-002) e revisar 3 estimativas (GAP-008, TD-025, UX-01), o assessment estara pronto para aprovacao.
+
+---
+
+*Revisao gerada por Quinn (@qa) em 2026-07-13.*
+*Documentos de referencia: technical-debt-DRAFT.md (v2.0, Aria), db-specialist-review.md (Dara), ux-specialist-review.md (Uma).*
+*Status: NEEDS WORK — 2 gaps CRITICAL + 3 riscos nao mitigados + 4 recomendacoes de melhoria.*

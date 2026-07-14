@@ -16,7 +16,8 @@ Integracao com monitor.py:
     - ``crawl(mode)`` → carrega lista residual, executa scraping, retorna resultados
     - ``transform(records)`` → normaliza para schema pncp_raw_bids
       com ``source = 'transparencia_residual'``
-    - ``_match_entities_cascade(conn, source, entities)`` → entity matching
+    - ``match_entities_cascade(conn, source, entities)`` → entity matching via
+      scripts/matching/entity_matcher.py (TD-027 unified)
 
 Usage:
     python -m scripts.fix.scrape_residual_portals --mode full
@@ -1253,11 +1254,11 @@ def match_entities(conn: Any, source: str, entities: list[dict]) -> dict:
     Returns:
         Stats dict with match counts.
     """
-    # Import and reuse monitor's cascade matcher
+    # Import and reuse unified cascade matcher (TD-027)
     try:
-        from scripts.crawl.monitor import _match_entities_cascade
+        from scripts.matching.entity_matcher import match_entities_cascade
 
-        stats = _match_entities_cascade(conn, source, entities)
+        stats = match_entities_cascade(conn, source, entities)
         _logger.info(
             "Entity matching for %s: %d matched (%d CNPJ, %d name, %d fuzzy), %d unmatched",
             source,
@@ -1269,7 +1270,7 @@ def match_entities(conn: Any, source: str, entities: list[dict]) -> dict:
         )
         return stats
     except ImportError as e:
-        _logger.error("Could not import monitor._match_entities_cascade: %s", e)
+        _logger.error("Could not import match_entities_cascade: %s", e)
         return {"cnpj": 0, "name_normalized": 0, "fuzzy": 0, "unmatched": 0, "total": 0}
     except Exception as e:
         _logger.error("Entity matching failed: %s", e)

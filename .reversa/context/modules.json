@@ -1,171 +1,241 @@
 {
-  "generated_at": "2026-07-11T21:00:00Z",
-  "based_on_commit": "e9729e1",
-  "total_modules": 9,
+  "generated_at": "2026-07-13T15:00:00Z",
+  "total_modules": 17,
+  "re_run": true,
+  "re_run_reason": "Atualização completa pós 30 commits. +8 módulos desde 2026-07-11.",
   "modules": [
     {
       "name": "crawl",
       "path": "scripts/crawl/",
-      "files": 35,
-      "loc_estimate": 14000,
-      "type": "core",
-      "summary": "Pipeline de ingestão multi-source com 10 crawlers sync + 2 async legados. 4 templates de transparência (Betha, Ipam, E-gov, Genérico). Infra de retry, circuit breaker, checkpoint, enrichment e sanctions.",
-      "key_algorithms": [
-        "Entity matching cascade 3 níveis (CNPJ → nome+município → fuzzy rapidfuzz/difflib)",
-        "Content hash SHA-256 para dedup cross-source",
-        "Adaptive rate limiting com circuit breaker (3 falhas consecutivas = 15s pause)",
-        "Paginação day-by-day chunking para APIs sem cursor",
-        "OCR fallback (pytesseract) para PDFs extraídos de portais"
+      "purpose": "Crawlers web, pipeline de ingestão, orquestração e monitoramento de fontes de licitações B2G",
+      "primary_files": ["monitor.py", "transparencia_crawler.py", "contracts_crawler.py", "ciga_ckan_crawler.py", "tce_sc_crawler.py", "doe_sc_crawler.py", "selenium_crawler.py", "enricher.py", "sync_client.py", "async_client.py", "circuit_breaker.py", "checkpoint.py"],
+      "functions": [
+        {"name": "crawl_source", "file": "monitor.py", "params": ["conn", "source", "entities", "mode"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "_match_entities_cascade", "file": "monitor.py", "params": ["conn", "source", "entities", "pncp_ids"], "returns": "dict", "confidence": "confirmed"},
+        {"name": "_project_entity_evidence", "file": "monitor.py", "params": ["conn", "source", "entity_id", "run_id", "state", "records_fetched"], "returns": "None", "confidence": "confirmed"}
       ],
-      "entities": ["pncp_raw_bids", "pncp_supplier_contracts", "pncp_raw_atas", "pncp_raw_pca", "ingestion_checkpoints", "ingestion_runs", "enriched_entities"],
-      "entry_points": ["monitor.py", "orchestrator.py"],
-      "external_integrations": ["PNCP API", "DOM-SC API", "DOE-SC API", "PCP v2 API", "ComprasGov API", "TCE-SC (SCMWeb)", "Portais Transparência Municipais", "SC Compras/e-lic", "BrasilAPI", "IBGE API", "Portal da Transparência (CEIS/CNEP)", "OpenAI (embeddings)"]
+      "entities": [
+        {"name": "CrawlRequest", "fields": [{"name": "source", "type": "str", "required": true}, {"name": "params", "type": "dict", "required": false}], "confidence": "confirmed"},
+        {"name": "FetchResult", "fields": [{"name": "records", "type": "list[dict]", "required": true}, {"name": "total_fetched", "type": "int", "required": true}], "confidence": "confirmed"}
+      ],
+      "business_rules": [
+        {"description": "Circuit breaker: CLOSED → OPEN após N falhas consecutivas → HALF_OPEN após timeout", "location": "circuit_breaker.py", "confidence": "confirmed"},
+        {"description": "Retry com exponential backoff + jitter, max 3 tentativas", "location": "retry.py", "confidence": "confirmed"},
+        {"description": "Checkpoint por data: salva último cursor, retoma de onde parou", "location": "checkpoint.py", "confidence": "confirmed"}
+      ],
+      "dependencies": ["lib", "matching", "config", "db"],
+      "algorithms": ["entity_matching_cascade", "circuit_breaker", "exponential_backoff_retry", "content_hash_dedup"],
+      "complexity": "very_high"
     },
     {
-      "name": "intel",
-      "path": "scripts/",
-      "files": 8,
-      "loc_estimate": 12000,
-      "type": "core",
-      "summary": "Pipeline de inteligência B2G em 7 estágios com 5 quality gates. Coleta exaustiva PNCP, enriquecimento cadastral/geográfico, análise GPT-4.1-nano, extração docs, geração Excel e PDF executivo.",
-      "key_algorithms": [
-        "Bid/No-Bid scoring 7 dimensões (pesos: fit 20%, viabilidade 15%, ROI 15%, P(vitória) 15%, logística 10%, janela 10%, concorrência 15%)",
-        "CNAE keyword gate probabilístico com threshold 35% + LLM fallback",
-        "Semantic dedup Jaccard token overlap (>80%) + valor (±15%) + mesmo órgão",
-        "HHI (Herfindahl-Hirschman) para nível de concorrência",
-        "Simulação de lance ótimo via logistic CDF ajustado por N competidores",
-        "Victory profile multi-fator (valor 30%, keyword 25%, modalidade 15%, geografia 15%, população 15%)",
-        "Extração de PDF: pymupdf4llm → PyMuPDF → OCR pytesseract"
+      "name": "opportunity_intel",
+      "path": "scripts/opportunity_intel/",
+      "purpose": "Inteligência de licitações abertas, QW-01 Radar operacional, ranking competitivo, scoring para triagem humana",
+      "primary_files": ["cli.py", "radar.py", "crawler_base.py", "transformer.py", "status.py", "pncp_audit.py", "ranking.py", "scoring.py", "models.py", "schema.py", "dedup.py", "manifest.py", "profile.py"],
+      "functions": [
+        {"name": "score_opportunity", "file": "scoring.py", "params": ["row", "entity", "profile", "status_evidence", "now", "freshness_window_days"], "returns": "RadarScores", "confidence": "confirmed"},
+        {"name": "calculate_canonical_status", "file": "status.py", "params": ["source", "source_status", "data_encerramento", "modalidade", "now"], "returns": "str", "confidence": "confirmed"},
+        {"name": "cmd_radar", "file": "cli.py", "params": ["args"], "returns": "int (exit code)", "confidence": "confirmed"}
       ],
-      "entities": ["empresa", "editais[]", "top20[]", "validation_report", "resumo_executivo", "proximos_passos"],
-      "entry_points": ["intel_pipeline.py"],
-      "external_integrations": ["OpenAI (GPT-4.1-nano, text-embedding-3-small)", "PNCP API", "BrasilAPI", "IBGE API", "OSRM", "Portal da Transparência", "SICAF (Playwright)"]
+      "entities": [
+        {"name": "OpportunityRecord", "fields": [{"name": "source", "type": "str", "required": true}, {"name": "source_id", "type": "str", "required": true}, {"name": "status_canonico", "type": "str", "required": true}, {"name": "ranking", "type": "str", "required": true}, {"name": "ranking_score", "type": "int", "required": true}], "confidence": "confirmed"},
+        {"name": "RadarExecution", "fields": [{"name": "run_id", "type": "str", "required": true}, {"name": "exit_code", "type": "int", "required": true}, {"name": "readiness", "type": "str", "required": true}, {"name": "monitoring_coverage_percent", "type": "float", "required": true}], "confidence": "confirmed"},
+        {"name": "RadarScores", "fields": [{"name": "data_confidence_score", "type": "int", "required": true}, {"name": "client_fit_score", "type": "int", "required": true}, {"name": "triage_recommendation", "type": "str", "required": true}], "confidence": "confirmed"}
+      ],
+      "business_rules": [
+        {"description": "Regra #9: market share, HHI, supplier ranking — apenas com dados contratuais confirmados", "location": "ranking.py", "confidence": "confirmed"},
+        {"description": "QW-01: monitoring threshold 95%, exit code 2 abaixo disso", "location": "radar.py", "confidence": "confirmed"},
+        {"description": "Status: source_map → temporal → heuristic com janela 90/365 dias", "location": "status.py", "confidence": "confirmed"},
+        {"description": "Ranking determinístico: HARD_BLOCKS (6) + POSITIVE (9) + NEGATIVE (9)", "location": "ranking.py", "confidence": "confirmed"},
+        {"description": "Nunca emitir veredito definitivo de participação — sempre triagem para humano", "location": "scoring.py", "confidence": "confirmed"}
+      ],
+      "dependencies": ["lib", "crawl", "db"],
+      "algorithms": ["qw01_radar_pipeline", "canonical_status_3level", "deterministic_ranking", "dual_scoring_triage"],
+      "complexity": "high"
     },
     {
-      "name": "reports",
-      "path": "scripts/reports/",
-      "files": 6,
-      "loc_estimate": 9500,
-      "type": "output",
-      "summary": "Relatórios: panorama de mercado, cobertura diário/semanal, proposta comercial PDF, e relatório B2G executivo (6.4K LOC, 80+ funções). Design system Big Four.",
-      "key_algorithms": [
-        "Cobertura %: entidades cobertas/total por source, janela 90 dias",
-        "Tendência semanal: delta entre últimos 2 snapshots distintos",
-        "4 regras de recomendação automatizada por faixa de cobertura",
-        "Score decomposition em 5 dimensões de risco",
-        "ROI multi-fator com ratio valor/custo por distância"
+      "name": "contract_intel",
+      "path": "scripts/contract_intel/",
+      "purpose": "Contract Intelligence — consulta de contratos históricos, ranking de fornecedores, contratos expirando, readiness manifest",
+      "primary_files": ["cli.py", "target_universe.py"],
+      "functions": [
+        {"name": "cmd_historical", "file": "cli.py", "params": ["args"], "returns": "None", "confidence": "confirmed"},
+        {"name": "cmd_suppliers", "file": "cli.py", "params": ["args"], "returns": "None", "confidence": "confirmed"},
+        {"name": "load_target_universe", "file": "target_universe.py", "params": ["seed_path", "radius_km"], "returns": "TargetUniverse", "confidence": "confirmed"}
       ],
-      "entities": ["v_coverage_summary", "v_coverage_gaps", "v_coverage_gaps_by_municipio", "v_coverage_trend", "coverage_snapshots"],
-      "entry_points": ["panorama.py", "coverage_weekly.py", "generate-report-b2g.py", "generate-proposta-pdf.py"],
-      "external_integrations": ["PostgreSQL (views agregadas)"]
+      "entities": [
+        {"name": "TargetEntity", "fields": [{"name": "razao_social", "type": "str", "required": true}, {"name": "cnpj8", "type": "str", "required": true}, {"name": "distancia_km", "type": "float", "required": true}, {"name": "within_200km", "type": "bool", "required": true}], "confidence": "confirmed"},
+        {"name": "TargetUniverse", "fields": [{"name": "entities", "type": "list[TargetEntity]", "required": true}, {"name": "inclusion_rule", "type": "str", "required": true}], "confidence": "confirmed"}
+      ],
+      "business_rules": [
+        {"description": "valor_global NÃO é 'preço praticado' — é valor contratual (CONTRATADO, não PAGO)", "location": "cli.py", "confidence": "confirmed"},
+        {"description": "Readiness threshold: 95% — exit code 2 abaixo", "location": "cli.py", "confidence": "confirmed"},
+        {"description": "Denominador conservador: entidades sem contrato contam no denominador", "location": "cli.py", "confidence": "confirmed"}
+      ],
+      "dependencies": ["lib", "db"],
+      "algorithms": ["target_universe_haversine", "supplier_hhi_ranking", "expiring_contract_window"],
+      "complexity": "high"
     },
     {
       "name": "lib",
       "path": "scripts/lib/",
-      "files": 11,
-      "loc_estimate": 2500,
-      "type": "shared",
-      "summary": "Utilitários compartilhados: normalização de nomes (NFKD + abreviaturas), simulação de lance, estimativa de custos, victory profile, doc templates (regex), win/loss tracker, constants e logging.",
-      "key_algorithms": [
-        "NFKD normalize + 18 abreviaturas de administração pública",
-        "Optimal discount: median + 0.3σ, capped por margem mínima setorial",
-        "P(vitória): logistic CDF ^ (N-1) competidores",
-        "Cost estimation paramétrico (distância, capital/interior, eletrônico/presencial)",
-        "Regex structured extraction com confidence decay (-0.15 por pattern)"
+      "purpose": "Biblioteca compartilhada — universo canônico, geocodificação, normalização de nomes, semântica de valores",
+      "primary_files": ["universe.py", "doc_templates.py", "entity_hierarchy.py", "geocode.py", "name_normalizer.py", "value_semantics.py", "victory_profile.py", "bid_simulator.py", "cost_estimator.py"],
+      "functions": [
+        {"name": "load_canonical_universe", "file": "universe.py", "params": ["seed_path", "radius_km"], "returns": "CanonicalUniverse", "confidence": "confirmed"},
+        {"name": "normalize_name", "file": "name_normalizer.py", "params": ["name"], "returns": "str", "confidence": "confirmed"},
+        {"name": "haversine", "file": "geocode.py", "params": ["lat1", "lon1", "lat2", "lon2"], "returns": "float", "confidence": "confirmed"},
+        {"name": "calculate_desagio", "file": "value_semantics.py", "params": ["valor1", "valor2", "semantica1", "semantica2"], "returns": "dict", "confidence": "confirmed"}
       ],
-      "entities": ["BidSimulation", "CostParams", "VictoryProfile", "StructuredExtraction", "ExtractedField"],
-      "entry_points": [],
-      "external_integrations": []
+      "entities": [
+        {"name": "CanonicalEntity", "fields": [{"name": "entity_id", "type": "str", "required": true}, {"name": "cnpj8", "type": "str", "required": true}, {"name": "within_radius", "type": "bool|null", "required": true}], "confidence": "confirmed"},
+        {"name": "CanonicalUniverse", "fields": [{"name": "entities", "type": "list[CanonicalEntity]", "required": true}, {"name": "seed_sha256", "type": "str", "required": true}], "confidence": "confirmed"}
+      ],
+      "business_rules": [
+        {"description": "Regra #8: deságio = (estimado - homologado) / estimado. NUNCA entre global e outro estágio", "location": "value_semantics.py", "confidence": "confirmed"},
+        {"description": "CANONICAL_UNIVERSE = 1093 entidades (spreadsheet seed)", "location": "universe.py", "confidence": "confirmed"},
+        {"description": "Raio 200km: Haversine, Earth radius 6371 km, centro Florianópolis (-27.5954, -48.5480)", "location": "geocode.py", "confidence": "confirmed"}
+      ],
+      "dependencies": ["config"],
+      "algorithms": ["haversine_distance", "name_normalizer_pipeline", "value_semantics_5stage", "canonical_universe_resolution"],
+      "complexity": "medium"
     },
     {
       "name": "matching",
       "path": "scripts/matching/",
-      "files": 2,
-      "loc_estimate": 300,
-      "type": "core",
-      "summary": "Entity matching para entes públicos catarinenses. Cascade 3 níveis extraído do monitor.py legado como módulo independente. Usa rapidfuzz com fallback difflib.",
-      "key_algorithms": [
-        "Nível 1: CNPJ exact match (8 dígitos base → 14 prefixo)",
-        "Nível 2: Nome normalizado + constraint município (índice composto)",
-        "Nível 3: Fuzzy rapidfuzz/difflib (threshold 0.85, ≥0.95=high, ≥0.85=medium)"
+      "purpose": "Entity matching cascade de 3 níveis — CNPJ exato → nome+município → fuzzy matching com threshold ajustável",
+      "primary_files": ["entity_matcher.py", "measure_baseline.py"],
+      "functions": [
+        {"name": "match_entity", "file": "entity_matcher.py", "params": ["cnpj", "nome", "municipio", "codigo_ibge"], "returns": "dict|null", "confidence": "confirmed"}
       ],
-      "entities": ["sc_public_entities", "pncp_raw_bids.matched_entity_id"],
-      "entry_points": ["entity_matcher.py"],
-      "external_integrations": ["PostgreSQL"]
+      "business_rules": [
+        {"description": "Threshold fuzzy padrão: 0.85; cidades pequenas (<5000 hab): 0.75", "location": "entity_matcher.py", "confidence": "confirmed"},
+        {"description": "Cascade: CNPJ8 → normalized_name+municipio → alias → fuzzy", "location": "entity_matcher.py", "confidence": "confirmed"}
+      ],
+      "dependencies": ["lib", "config"],
+      "algorithms": ["entity_matching_cascade_3level", "population_adjusted_fuzzy_threshold"],
+      "complexity": "low"
+    },
+    {
+      "name": "coverage",
+      "path": "scripts/coverage/",
+      "purpose": "Cálculo, validação e projeção de cobertura de entidades por fonte",
+      "primary_files": ["validate_coverage.py", "calculator.py", "measure_pncp_expansion.py", "run_matching.py"],
+      "business_rules": [
+        {"description": "24 naturezas jurídicas mapeadas para 8 causas raiz de não-cobertura", "location": "validate_coverage.py", "confidence": "confirmed"},
+        {"description": "Coverage = entidades com evidência / total entidades no raio", "location": "calculator.py", "confidence": "confirmed"}
+      ],
+      "dependencies": ["lib", "db", "matching"],
+      "complexity": "medium"
+    },
+    {
+      "name": "reports",
+      "path": "scripts/reports/",
+      "purpose": "Relatórios PDF/Excel executivos — cobertura semanal, panorama setorial, gaps",
+      "primary_files": ["coverage_weekly.py", "panorama.py", "coverage_gaps.py"],
+      "dependencies": ["lib", "db"],
+      "complexity": "medium"
+    },
+    {
+      "name": "fix",
+      "path": "scripts/fix/",
+      "purpose": "Scripts de reparo, backfill e ativação de fontes dormentes",
+      "primary_files": ["scrape_residual_portals.py", "activate_dormant_sources.py", "resolve_unresolved_entities.py", "rebuild_evidence_ledger.py", "sc_dados_abertos_backfill.py", "geocode_missing_entities.py"],
+      "dependencies": ["crawl", "lib", "db", "matching"],
+      "complexity": "high"
+    },
+    {
+      "name": "pipeline",
+      "path": "scripts/pipeline/",
+      "purpose": "Pipeline de backfill multi-fonte com checkpoint",
+      "primary_files": ["backfill_multi_source.py"],
+      "dependencies": ["crawl", "lib", "db"],
+      "complexity": "low"
+    },
+    {
+      "name": "diagnose",
+      "path": "scripts/diagnose/",
+      "purpose": "Diagnóstico detalhado de crawlers específicos",
+      "primary_files": ["dom_sc_diagnostic.py"],
+      "dependencies": ["crawl", "db"],
+      "complexity": "low"
+    },
+    {
+      "name": "transparencia",
+      "path": "scripts/transparencia/",
+      "purpose": "Detecção automática de plataformas de portais de transparência municipais",
+      "primary_files": ["run_detect_all.py"],
+      "dependencies": ["crawl", "config"],
+      "complexity": "low"
     },
     {
       "name": "config",
       "path": "config/",
-      "files": 7,
-      "loc_estimate": 8800,
-      "type": "config",
-      "summary": "Configuração: settings.py (env vars), logging JSON com correlation_id, 13 setores B2G em YAML com keywords context-gated e exclusion rules, abbreviations, transparencia CSS selectors.",
-      "key_algorithms": [
-        "Context-gated keywords: trigger word requer co-occurrence signals",
-        "CNAE gate threshold por setor (0.40-0.55)",
-        "4 regras hard-incompatible (software/alimentação/limpeza/concessão → engenharia)",
-        "JSON logging com correlation_id contextvar"
-      ],
-      "entities": [],
-      "entry_points": [],
-      "external_integrations": []
+      "purpose": "Configuração centralizada — settings, constantes, setores B2G, portais, população",
+      "primary_files": ["settings.py", "constants.py", "sectors_config.yaml", "sectors_data.yaml", "transparencia_config.yaml", "municipio_population.yaml", "abbreviations.yaml", "logging_config.py"],
+      "dependencies": [],
+      "complexity": "low"
     },
     {
       "name": "db",
-      "path": "db/",
-      "files": 25,
-      "loc_estimate": 6000,
-      "type": "infra",
-      "summary": "Database: 19 migrations v1 + 5 migrations v2 (Supabase baseline). Schema real diverge das migrations (14 débitos técnicos documentados). Seed de 2.085 entes SC com cálculo Haversine.",
-      "key_algorithms": [
-        "Haversine distance (lat/lng → km de Florianópolis)",
-        "IBGE code resolution: 4 estratégias (exato → sem conectivos → sem espaços → prefixo)",
-        "Full-text search ts_rank + ILIKE fallback",
-        "Coverage window: GREATEST(last_seen_at, CURRENT_DATE - 90)",
-        "Batch upsert ON CONFLICT content_hash DO NOTHING",
-        "Soft-delete (400d) + hard-delete (+90d)"
+      "path": "db/ + supabase/",
+      "purpose": "Schema PostgreSQL + PostGIS — 41 migrations, 8 tabelas core, 4 views analíticas, 5+ RPCs",
+      "primary_files": ["migrations/001-029", "supabase/migrations/001-006", "supabase/current-schema.sql"],
+      "entities": [
+        {"name": "pncp_raw_bids", "fields": [{"name": "pncp_id", "type": "text", "required": true}, {"name": "valor_total_estimado", "type": "numeric", "required": false}], "confidence": "confirmed"},
+        {"name": "pncp_supplier_contracts", "fields": [{"name": "numero_controle_pncp", "type": "text", "required": true}, {"name": "valor_global", "type": "numeric", "required": false}], "confidence": "confirmed"},
+        {"name": "sc_public_entities", "fields": [{"name": "cnpj_8", "type": "text", "required": true}, {"name": "raio_200km", "type": "boolean", "required": false}], "confidence": "confirmed"},
+        {"name": "opportunity_intel", "fields": [{"name": "source", "type": "text", "required": true}, {"name": "status_canonico", "type": "text", "required": true}], "confidence": "confirmed"},
+        {"name": "coverage_evidence", "fields": [{"name": "state", "type": "evidence_state", "required": true}, {"name": "applicability", "type": "text", "required": true}], "confidence": "confirmed"}
       ],
-      "entities": ["pncp_raw_bids", "pncp_supplier_contracts", "sc_public_entities", "enriched_entities", "entity_coverage", "coverage_snapshots", "ingestion_checkpoints", "ingestion_runs"],
-      "entry_points": ["db/setup_db.sh", "db/seed/seed_sc_entities.py"],
-      "external_integrations": ["PostgreSQL 18.4", "pgvector", "BrasilAPI (IBGE codes)"]
+      "dependencies": [],
+      "complexity": "high"
     },
     {
       "name": "deploy",
       "path": "deploy/",
-      "files": 42,
-      "loc_estimate": 3500,
-      "type": "infra",
-      "summary": "Infra: provisionamento VPS Hetzner (10 steps), 20 systemd timer/service pairs, hardening (fail2ban, ufw, pg_hba), backup automatizado, health checks 30min, métricas horárias, OnFailure webhooks.",
-      "key_algorithms": [
-        "PG tuning CX22: shared_buffers=1GB, effective_cache=2GB, work_mem=64MB, random_page_cost=1.1",
-        "SSH hardening: porta 2222, root key-only, sem X11, sem password auth",
-        "Escalonamento crawlers: offsets 30min para evitar contenção",
-        "OnFailure webhook: POST JSON para WEBHOOK_URL"
+      "purpose": "Orquestração de crawlers na VPS via systemd — 20 pares service+timer, provisionamento, hardening",
+      "primary_files": ["provision-vps.sh", "install.sh", "systemd/*.service", "systemd/*.timer"],
+      "dependencies": ["db"],
+      "complexity": "low"
+    },
+    {
+      "name": "root_scripts",
+      "path": "scripts/*.py",
+      "purpose": "Entry points CLI de alto nível — pipelines, gates, PDFs, dashboards",
+      "primary_files": ["intel_pipeline.py", "consulting_readiness.py", "coverage_truth.py", "freshness_gate.py", "generate_consultoria_pdf.py", "generate_report_b2g.py", "local_datalake.py"],
+      "business_rules": [
+        {"description": "Consulting Readiness Gate: exit 0 se coverage >= 95%, exit 2 caso contrário", "location": "consulting_readiness.py", "confidence": "confirmed"},
+        {"description": "Freshness Gate: SLA configurável por env var (PNCP: 24h, Contracts: 24d)", "location": "freshness_gate.py", "confidence": "confirmed"},
+        {"description": "SOURCE_BLOCKERS: 7 fontes bloqueadas documentadas com justificativa", "location": "consulting_readiness.py", "confidence": "confirmed"}
       ],
-      "entities": [],
-      "entry_points": ["deploy/install.sh", "deploy/provision-vps.sh"],
-      "external_integrations": ["Hetzner VPS CX22", "Hetzner Storage Box", "systemd", "ufw", "fail2ban", "Prometheus node_exporter"]
+      "dependencies": ["crawl", "lib", "matching", "coverage", "reports", "db"],
+      "algorithms": ["readiness_gate", "freshness_gate_sla", "coverage_truth_assessment"],
+      "complexity": "very_high"
+    },
+    {
+      "name": "tests",
+      "path": "tests/",
+      "purpose": "Testes automatizados — 64 arquivos, unitários + integração + smoke + E2E",
+      "primary_files": ["conftest.py", "conftest_db.py"],
+      "dependencies": ["crawl", "opportunity_intel", "contract_intel", "coverage", "lib", "matching"],
+      "complexity": "medium"
     },
     {
       "name": "docs",
       "path": "docs/",
-      "files": 50,
-      "loc_estimate": 4000,
-      "type": "docs",
-      "summary": "Documentação: diagnósticos TD (16 docs), arquitetura C4, PRD, quality gates (26+ YAML), runbooks operacionais, stories de desenvolvimento.",
-      "key_algorithms": [],
-      "entities": [],
-      "entry_points": [],
-      "external_integrations": []
+      "purpose": "Documentação — 590 arquivos, 7 epics, ADRs, PRDs, runbooks, architecture",
+      "primary_files": ["architecture/", "stories/epics/", "decisions/", "ops/", "qa/"],
+      "dependencies": [],
+      "complexity": "medium"
     }
   ],
   "cross_cutting_concerns": [
-    "Design system Big Four (INK #1B2A3D, ACCENT #8B7355, Times+Helvetica, margens 2.2cm)",
-    "Content hash SHA-256 para dedup cross-source e change detection",
-    "Retry com exponential backoff (2^attempt) em todos os crawlers",
-    "Circuit breaker Redis-backed para rate limiting cross-worker",
-    "Correlation ID contextvar para tracing ponta-a-ponta",
-    "Soft-delete + hard-delete para purge com janela de segurança",
-    "Cascade matching 3 níveis como padrão de entity resolution"
+    {"name": "Fail-closed pattern", "description": "Nunca marcar como 'aberto' por default. Status desconhecido → unknown.", "modules": ["opportunity_intel", "coverage", "crawl"]},
+    {"name": "CNPJ8 matching", "description": "Toda resolução de entidade usa CNPJ raiz de 8 dígitos.", "modules": ["matching", "lib", "crawl", "opportunity_intel"]},
+    {"name": "Deterministic first", "description": "Ranking/scoring determinístico. LLM opcional, nunca requisito.", "modules": ["opportunity_intel", "root_scripts"]},
+    {"name": "Evidência auditável", "description": "Toda cobertura registrada no coverage_evidence ledger.", "modules": ["crawl", "coverage", "db"]},
+    {"name": "Conservative denominator", "description": "População = incluídos + não resolvidos (nunca subestima).", "modules": ["lib", "opportunity_intel", "contract_intel"]},
+    {"name": "Value semantics awareness", "description": "Nunca chamar valor_global de 'preço praticado'. 5 estágios semânticos.", "modules": ["lib", "contract_intel", "reports"]}
   ]
 }

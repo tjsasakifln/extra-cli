@@ -370,9 +370,7 @@ def _update_or_reuse_source(
     )
 
 
-def _load_recent_complete_run(
-    conn: Any, generated: datetime, window_days: int
-) -> PncpRunOutcome | None:
+def _load_recent_complete_run(conn: Any, generated: datetime, window_days: int) -> PncpRunOutcome | None:
     with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
         cursor.execute(
             """
@@ -434,16 +432,14 @@ def _load_presence_ids(conn: Any, universe: CanonicalUniverse) -> set[str]:
             """
             SELECT DISTINCT orgao_cnpj, orgao_nome, municipio
             FROM opportunity_intel
-            WHERE source = 'pncp' AND is_active IS TRUE
+            WHERE source = 'pncp' AND is_active IS TRUE AND source_active IS TRUE
               AND COALESCE(crawl_batch_id, '') <> 'test_batch'
             """
         )
         rows = cursor.fetchall()
     resolved: set[str] = set()
     for row in rows:
-        entity, _ = universe.resolve_opportunity(
-            row["orgao_cnpj"], row["orgao_nome"], row["municipio"]
-        )
+        entity, _ = universe.resolve_opportunity(row["orgao_cnpj"], row["orgao_nome"], row["municipio"])
         if entity is not None:
             resolved.add(entity.entity_id)
     return resolved
@@ -461,7 +457,7 @@ def _load_and_score_candidates(
         cursor.execute(
             """
             SELECT * FROM opportunity_intel
-            WHERE source = 'pncp' AND is_active IS TRUE
+            WHERE source = 'pncp' AND is_active IS TRUE AND source_active IS TRUE
               AND data_encerramento > %s
               AND status_canonico NOT IN ('closed','suspended','revoked','annulled','failed')
               AND COALESCE(crawl_batch_id, '') <> 'test_batch'
@@ -593,9 +589,7 @@ def _field_readiness(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def _source_health(
-    outcome: PncpRunOutcome | None, generated: datetime, window_days: int
-) -> dict[str, Any]:
+def _source_health(outcome: PncpRunOutcome | None, generated: datetime, window_days: int) -> dict[str, Any]:
     if outcome is None:
         return {
             "source": "pncp",
@@ -657,9 +651,7 @@ def _source_applicability(universe: CanonicalUniverse) -> list[dict[str, Any]]:
                 "expected_gap_reduction": "unknown",
                 "selected_for_qw": selected,
                 "rationale": (
-                    "Fonte primária oficial do QW-01"
-                    if selected
-                    else "Não expandir a vertical sem prova ponta a ponta"
+                    "Fonte primária oficial do QW-01" if selected else "Não expandir a vertical sem prova ponta a ponta"
                 ),
             }
         )
@@ -694,15 +686,10 @@ def _write_radar_csv(path: Path, rows: list[dict[str, Any]]) -> None:
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=RADAR_COLUMNS, extrasaction="ignore")
         writer.writeheader()
-        writer.writerows(
-            {column: _spreadsheet_cell(row.get(column)) for column in RADAR_COLUMNS}
-            for row in rows
-        )
+        writer.writerows({column: _spreadsheet_cell(row.get(column)) for column in RADAR_COLUMNS} for row in rows)
 
 
-def _write_gaps_csv(
-    path: Path, rows: list[dict[str, Any]], metadata: dict[str, Any]
-) -> None:
+def _write_gaps_csv(path: Path, rows: list[dict[str, Any]], metadata: dict[str, Any]) -> None:
     columns = (
         "entity_id",
         "razao_social",
@@ -727,9 +714,7 @@ def _write_gaps_csv(
             writer.writerow({column: _spreadsheet_cell(output.get(column)) for column in columns})
 
 
-def _write_source_applicability(
-    path: Path, rows: list[dict[str, Any]], metadata: dict[str, Any]
-) -> None:
+def _write_source_applicability(path: Path, rows: list[dict[str, Any]], metadata: dict[str, Any]) -> None:
     base = (
         "source",
         "target_group",
@@ -805,10 +790,7 @@ def _write_summary(
         "",
     ]
     if priority:
-        lines.extend(
-            f"- [{row['opportunity_key']}]({row['official_url']}): {row['objeto']}"
-            for row in priority
-        )
+        lines.extend(f"- [{row['opportunity_key']}]({row['official_url']}): {row['objeto']}" for row in priority)
     else:
         lines.append("Nenhuma oportunidade atingiu os limiares configurados nesta execução.")
     lines.extend(["", "## Limitações e fontes bloqueadas", ""])

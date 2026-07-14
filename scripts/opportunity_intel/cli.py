@@ -304,9 +304,9 @@ def cmd_export(args: argparse.Namespace):
 
     where = " AND ".join(conditions)
     limit = min(5000, max(1, args.limit or 500))
-    query = psycopg2.sql.SQL(
-        "SELECT * FROM opportunity_intel WHERE {} ORDER BY ranking_score DESC LIMIT %s"
-    ).format(psycopg2.sql.SQL(where))
+    query = psycopg2.sql.SQL("SELECT * FROM opportunity_intel WHERE {} ORDER BY ranking_score DESC LIMIT %s").format(
+        psycopg2.sql.SQL(where)
+    )
     params.append(limit)
 
     rows = _query(conn, query, tuple(params))
