@@ -210,3 +210,74 @@ def generate_content_hash(record: dict, fields: list[str] | None = None) -> str:
     key_fields = [str(record.get(f, "")) for f in fields]
     key_str = "|".join(key_fields)
     return hashlib.md5(key_str.encode("utf-8"), usedforsecurity=False).hexdigest()
+
+
+# ---------------------------------------------------------------------------
+# Cross-source canonical hash (CM-13)
+# ---------------------------------------------------------------------------
+
+
+def _normalize_objeto(objeto: str | None) -> str:
+    """Normaliza objeto de licitação para hash determinístico.
+
+    Remove: acentos, pontuação dupla, espaços extras, case folding.
+    """
+    if not objeto:
+        return ""
+    import unicodedata
+
+    s = objeto.strip().lower()
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+    # Remove pontuação dupla e espaços múltiplos
+    s = re.sub(r"[^\w\s]", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def _normalize_modalidade(modalidade: str | None) -> str:
+    """Normaliza nome de modalidade para hash cross-source."""
+    if not modalidade:
+        return ""
+    return modalidade.strip().lower()
+
+
+def generate_cross_source_hash(
+    modalidade: str | None = None,
+    objeto: str | None = None,
+    orgao_cnpj_raiz: str | None = None,
+    data_publicacao: str | None = None,
+    valor_total: float | None = None,
+    use_md5: bool = False,
+) -> str:
+    """Hash canônico cross-source para dedup multi-fonte.
+
+    Story: CM-13 — Deduplicação Multicanal e Aliases de Compradores.
+
+    Combinação normalizada de:
+      modalidade + objeto_normalizado + orgao_raiz + data + valor
+
+    Usa SHA-256 por padrão (colisão extremamente improvável).
+    ``use_md5=True`` produz MD5 para compatibilidade retroativa.
+
+    Args:
+        modalidade: Nome da modalidade (ex: "Pregão Eletrônico").
+        objeto: Texto do objeto da licitação.
+        orgao_cnpj_raiz: CNPJ raiz (8 dígitos) do órgão publicante.
+        data_publicacao: Data de publicação (YYYY-MM-DD).
+        valor_total: Valor total estimado (float).
+        use_md5: Se True, usa MD5 em vez de SHA-256.
+
+    Returns:
+        Hash hex digest (64 chars SHA-256, 32 chars MD5).
+    """
+    parts = [
+        _normalize_modalidade(modalidade),
+        _normalize_objeto(objeto),
+        orgao_cnpj_raiz or "",
+        data_publicacao or "",
+        f"{valor_total:.2f}" if valor_total is not None else "",
+    ]
+    key = "|".join(parts)
+    if use_md5:
+        return hashlib.md5(key.encode("utf-8"), usedforsecurity=False).hexdigest()
+    return hashlib.sha256(key.encode("utf-8")).hexdigest()

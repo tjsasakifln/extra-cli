@@ -198,12 +198,17 @@ def generate_name_aliases(norm_name: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def match_entity(orgao_cnpj: str, entities: list[dict[str, Any]]) -> dict[str, Any] | None:
+def match_entity(
+    orgao_cnpj: str,
+    entities: list[dict[str, Any]],
+    resolver: Any | None = None,
+) -> dict[str, Any] | None:
     """Match an ``orgao_cnpj`` (14 digits) against entity list (``cnpj_8`` base).
 
     Args:
         orgao_cnpj: CNPJ string (may include non-digit chars).
         entities: List of entity dicts with ``cnpj_8`` key.
+        resolver: Optional EntityResolver for alias expansion (CM-13).
 
     Returns:
         Matched entity dict, or ``None``.
@@ -220,6 +225,16 @@ def match_entity(orgao_cnpj: str, entities: list[dict[str, Any]]) -> dict[str, A
     for e in entities:
         if e["cnpj_8"] == cnpj_base:
             return e
+    # CM-13: Try resolved parent CNPJ via entity_aliases
+    if resolver is not None:
+        try:
+            resolved = resolver.resolve(cnpj_base)
+            if resolved and resolved != cnpj_base:
+                for e in entities:
+                    if e["cnpj_8"] == resolved:
+                        return e
+        except Exception:
+            logger.debug("Entity resolver fallback failed for %s", cnpj_base, exc_info=True)
     return None
 
 
@@ -357,6 +372,7 @@ def match_entities_cascade(
 
     Strategies (applied in order per bid):
         Level 1 — CNPJ exact match (8-digit base)          [confidence: high]
+        Level 1b — CNPJ alias resolution (CM-13)           [confidence: high]
         Level 2 — Normalized name + municipio constraint   [confidence: high]
         Level 2b — Alias matching (padroes de nome)        [confidence: high]
         Level 3 — Fuzzy matching (rapidfuzz / difflib)     [confidence: high|medium|low]
@@ -369,7 +385,7 @@ def match_entities_cascade(
                   If None, matches all unmatched bids for the source.
 
     Returns:
-        Stats dict with keys ``cnpj``, ``name_normalized``, ``alias``,
+        Stats dict with keys ``cnpj``, ``cnpj_alias``, ``name_normalized``, ``alias``,
         ``fuzzy``, ``unmatched``, ``total``.
     """
     logger.info(
@@ -432,7 +448,7 @@ def match_entities_cascade(
     _fuzz_ratio = _build_fuzz_ratio()
 
     # Step 4 — cascade matching per bid
-    stats: dict[str, int] = {"cnpj": 0, "name_normalized": 0, "alias": 0, "fuzzy": 0, "unmatched": 0}
+    stats: dict[str, int] = {"cnpj": 0, "cnpj_alias": 0, "name_normalized": 0, "alias": 0, "fuzzy": 0, "unmatched": 0}
 
     # Track unknown abbreviations across all bids (AC5)
     all_unknown_abbrevs: set[str] = set()
@@ -477,6 +493,25 @@ def match_entities_cascade(
                         match_score = 1.0
                         match_confidence = "high"
                         break
+
+            # CM-13: CNPJ alias resolution fallback
+            # Secretaria publica com CNPJ da prefeitura → resolve alias
+            if not matched_entity and cnpj_base:
+                try:
+                    from scripts.lib.entity_resolver import EntityResolver
+                    _resolver = EntityResolver(conn)
+                    resolved_base = _resolver.resolve(cnpj_base)
+                    if resolved_base and resolved_base != cnpj_base and resolved_base in cnpj_index:
+                        matched_entity = cnpj_index[resolved_base]
+                        match_method = "cnpj_alias"
+                        match_score = 1.0
+                        match_confidence = "high"
+                        logger.debug(
+                            "CM-13 alias: %s → %s → entity %s",
+                            cnpj_base, resolved_base, matched_entity.get("id"),
+                        )
+                except Exception:
+                    logger.debug("CM-13 alias resolution failed for %s", cnpj_base, exc_info=True)
 
         # ------------------------------------------------------------------
         # Level 2: Normalized name + municipio constraint
@@ -594,9 +629,10 @@ def match_entities_cascade(
 
     stats["total"] = sum(stats.values())
     logger.info(
-        "Cascade matching done for source=%s — CNPJ=%d, name=%d, alias=%d, fuzzy=%d, unmatched=%d, total=%d",
+        "Cascade matching done for source=%s — CNPJ=%d, cnpj_alias=%d, name=%d, alias=%d, fuzzy=%d, unmatched=%d, total=%d",
         source,
         stats["cnpj"],
+        stats.get("cnpj_alias", 0),
         stats["name_normalized"],
         stats["alias"],
         stats["fuzzy"],
