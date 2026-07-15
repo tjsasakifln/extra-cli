@@ -307,12 +307,12 @@ def _transform_record(rec: dict) -> dict | None:
         unidade = rec.get("unidadeCompradora") or {}
         if isinstance(unidade, dict):
             orgao = unidade.get("nomeUnidadeCompradora") or rec.get("razaoSocial") or rec.get("nomeUnidade") or ""
-            cnpj = unidade.get("CNPJ") or unidade.get("cnpj") or ""
+            cnpj = unidade.get("CNPJ") or unidade.get("cnpj") or None
             municipio_nome = unidade.get("cidade") or ""
             uf = unidade.get("uf") or ""
         else:
             orgao = rec.get("razaoSocial") or ""
-            cnpj = ""
+            cnpj = None
             municipio_nome = ""
             uf = ""
 
