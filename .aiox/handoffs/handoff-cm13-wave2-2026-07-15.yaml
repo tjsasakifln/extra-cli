@@ -1,0 +1,52 @@
+handoff:
+  from_agent: "aiox-master"
+  to_agent: "aiox-devops"
+  pipeline: "EPIC-COVERAGE-MAX-200KM"
+  wave: 2
+  session_summary: "CM-13 implementado: 459 entity aliases, resolver, hash cross-source, dedup engine, integração entity matcher Level 1b. QA CONCERNS com 2 HIGH resolvidos. Story Done, publication authorized."
+  story_context:
+    completed:
+      - story_id: "CM-13"
+        title: "Deduplicação Multicanal e Aliases de Compradores"
+        status: "Done"
+        qa_verdict: "CONCERNS"
+        reviewed_commit: "bb4cad0"
+        po_closed: true
+        publication_authorized: true
+    active:
+      - story_id: "CM-06"
+        title: "Cobertura PNCP de editais e contratos"
+        status: "Ready"
+        score: 95
+        note: "Epic status corrigido Draft→Ready. Story file existe. Próxima prioridade."
+    next: "CM-06 — backfill PNCP: entity_coverage, contratos 36 meses, ARP/PCA max_pages=100, circuit breaker real, page checkpoint"
+  decisions:
+    - "CM-02/CM-03 dependencies WAIVED — seed uses direct municipio matching, no importer needed"
+    - "Hash implementation unified: dedup.py imports from common.py (not duplicated)"
+    - "Entity matcher Level 1b added: cnpj_alias fallback after direct CNPJ match fails"
+    - "CM-06 epic status fixed: Draft→Ready (story file was already Ready)"
+  files_modified:
+    - "db/migrations/043_entity_aliases.sql (NOVO)"
+    - "db/seed/002_entity_aliases.py (NOVO)"
+    - "scripts/lib/entity_resolver.py (NOVO)"
+    - "scripts/lib/dedup.py (NOVO)"
+    - "scripts/crawl/common.py (MODIFICADO — generate_cross_source_hash)"
+    - "scripts/matching/entity_matcher.py (MODIFICADO — cnpj_alias Level 1b)"
+    - "tests/test_entity_resolver.py (NOVO — 17 testes)"
+    - ".aiox/state/stories/CM-13-dedup-aliases.json (NOVO)"
+    - "docs/stories/CM-13-dedup-aliases.md (MODIFICADO — status Done, change log)"
+    - "docs/stories/epics/EPIC-COVERAGE-MAX-200KM.md (MODIFICADO — CM-13 Done, CM-06 fix)"
+  commits:
+    - "bb4cad0 feat: CM-13 — entity aliases + cross-source dedup + resolver integration"
+    - "58e5c88 chore: CM-13 governance — reviewed_commit bb4cad0 + epic sync"
+  branch: "epic-coverage-max-200km"
+  metrics_delta:
+    entity_aliases: "0 → 459"
+    secretarias_resolved: "0/179 → 179/179"
+    unmatched: 2
+  follow_ups:
+    - "MEDIUM: Testes fail-closed (DB failure, empty cache) → CM-14"
+    - "MEDIUM: Normalização municipio no seed → CM-14"
+    - "MEDIUM: Testes hash/dedup multi-fonte → CM-14"
+    - "LOW: Guardrail anti-circular aliases → backlog"
+  next_action: "@devops push dos commits bb4cad0 + 58e5c88. Verificar gate pre-push. Depois @sm criar CM-06 state file para próxima rodada."
