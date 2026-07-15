@@ -1,0 +1,46 @@
+{
+  "story_id": "B2G-FULL-SPECTRUM-W0",
+  "title": "Full-Spectrum B2G — Governance + Contracts Golden Path + Buyer Intel + Extra Ledger",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-B2G-FULL-SPECTRUM",
+  "phase": 0,
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": "4055546",
+  "rollback_plan": "git revert 67236d2. DB: container recreate with docker compose down && docker compose up -d. No production data.",
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS",
+    "typecheck": "NA",
+    "build": "NA"
+  },
+  "scope_files": [
+    "scripts/buyer_intel/",
+    "scripts/extra_ledger/",
+    "scripts/opportunity_intel/cli.py",
+    "scripts/contract_intel/cli.py",
+    "docs/audits/audit-full-spectrum-b2g-2026-07-14.md",
+    ".aiox/state/stories/"
+  ],
+  "files_modified": [
+    "scripts/buyer_intel/cli.py",
+    "scripts/buyer_intel/ranking.py",
+    "scripts/extra_ledger/cli.py",
+    "scripts/opportunity_intel/cli.py",
+    "scripts/contract_intel/cli.py",
+    "docs/audits/audit-full-spectrum-b2g-2026-07-14.md"
+  ],
+  "summary": "Wave 0 Full-Spectrum: governança corrigida (4 state files + epic gates), Golden Path B (11.033 contratos SC inseridos via PNCP API), buyer intelligence (ranking 132 órgãos, 8-factor scoring), Extra ledger (Golden Path C), briefing com filtro AEC+SC+200km, desagio renomeado para proxy-desagio com warning semântico.",
+  "evidence": {
+    "contracts_inserted": 11033,
+    "buyers_ranked": 132,
+    "db_migrations": 47,
+    "target_universe_entities": 1090,
+    "ruff": "PASS (E501 ignored for SQL strings)",
+    "pncp_api": "live — 6739 records/day"
+  }
+}
