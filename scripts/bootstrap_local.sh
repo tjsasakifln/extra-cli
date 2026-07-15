@@ -323,7 +323,7 @@ step_load_seed() {
         return 0
     fi
 
-    local seed_script="${PROJECT_ROOT}/scripts/db/seed_sc_entities.py"
+    local seed_script="${PROJECT_ROOT}/db/seed/seed_sc_entities.py"
 
     # -----------------------------------------------------------------------
     # Substeps 3a: seed_sc_entities
@@ -335,7 +335,7 @@ step_load_seed() {
         if [ "${sc_count}" = "0" ]; then
             echo "  Running seed_sc_entities.py (sc_public_entities is empty)..."
             local output
-            output=$(cd "${PROJECT_ROOT}" && python scripts/db/seed_sc_entities.py 2>&1) || {
+            output=$(cd "${PROJECT_ROOT}" && python3 scripts/db/seed_sc_entities.py 2>&1) || {
                 fail "seed_sc_entities.py failed"
                 echo "  Error: ${output}"
                 return 1
@@ -381,7 +381,7 @@ print(f'  Canonical denominator: {universe.summary()[\"conservative_monitoring_d
         # Run load_canonical_universe anyway for validation since there's no DB table to skip
         echo "  Running load_canonical_universe() for validation only..."
         local output
-        output=$(cd "${PROJECT_ROOT}" && python -c "
+        output=$(cd "${PROJECT_ROOT}" && python3 -c "
 from scripts.lib.universe import load_canonical_universe
 universe = load_canonical_universe()
 print(f'Canonical universe validated: {len(universe.entities)} total rows')
@@ -414,7 +414,7 @@ step_verify_fingerprint() {
 
     echo "  Running validate_qw01_schema..."
     local output
-    output=$(cd "${PROJECT_ROOT}" && python -c "
+    output=$(cd "${PROJECT_ROOT}" && python3 -c "
 import sys
 from scripts.opportunity_intel.schema import connect_postgres, validate_qw01_schema, schema_fingerprint
 conn = connect_postgres('${dsn}')

@@ -383,7 +383,7 @@ def crawl(mode: str = "full") -> list[dict]:
         List of raw PCP API records (not yet transformed).
         Already filtered by UF=SC client-side.
     """
-    days = 30 if mode == "full" else 3
+    days = 365 if mode == "full" else 3
     data_final = date.today()
     data_inicial = data_final - timedelta(days=days)
 

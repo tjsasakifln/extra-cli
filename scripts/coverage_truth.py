@@ -45,7 +45,6 @@ DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "docs" / "coverage-truth"
 SOURCE_BLOCKERS: dict[str, str] = {
     "doe_sc": "Requer Selenium + certificado digital",
     "dom_sc": "Portal requer navegação interativa (Selenium)",
-    "pcp": "Portal requer Selenium + CAPTCHA",
     "sc_compras": "API não documentada, acesso instável",
     "transparencia": "Portais individuais por município (295+)",
     "mides_bigquery": "BigQuery requer credencial GCP",
