@@ -1,0 +1,46 @@
+{
+  "assessed_at": "2026-07-15",
+  "classification": "NO_GO",
+  "total_checks": 20,
+  "pass": 14,
+  "fail": 2,
+  "concerns": 1,
+  "unknown": 3,
+  "blockers": [
+    "Migrations: apenas 16/42 aplicadas",
+    "Rollback: apenas 1/42 migrations com rollback",
+    "Smoke test: nunca executado",
+    "Browser headless: nao validado"
+  ],
+  "checks": {
+    "docker_compose": "PASS",
+    "postgresql_persistente": "PASS",
+    "migrations_fresh_install": "FAIL",
+    "seeds_idempotentes": "PASS",
+    "systemd_services": "PASS",
+    "systemd_timers": "PASS",
+    "browser_headless": "CONCERNS",
+    "backup": "PASS",
+    "restore": "UNKNOWN",
+    "health_checks": "PASS",
+    "alertas": "PASS",
+    "ci_gates": "PASS",
+    "seguranca_secrets": "PASS",
+    "firewall": "PASS",
+    "usuario_non_root": "PASS",
+    "timezone": "PASS",
+    "idempotencia": "PASS",
+    "rollback": "FAIL",
+    "cd_deploy": "UNKNOWN",
+    "smoke_test": "UNKNOWN"
+  },
+  "conditions_for_go": [
+    "Fresh install (42 migrations) em ambiente limpo",
+    "Crawl PNCP 7 dias SC com sucesso",
+    "Briefing gerado com dados reais",
+    "Reconciliacao contra planilha executada",
+    "Backup + restore testados",
+    "Browser headless validado",
+    "Health check apos reboot"
+  ]
+}

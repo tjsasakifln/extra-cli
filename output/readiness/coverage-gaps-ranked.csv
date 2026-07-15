@@ -1,0 +1,30 @@
+entity_type,total_entities,entities_with_data,recall_pct,available_sources,primary_miss_cause
+Órgão Público do Poder Executivo Municipal,179,0,0.0,PNCP_ONLY,MISSED_ENTITY_ALIAS
+Município,123,35,28.5,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Fundação Pública de Direito Público Municipal,119,1,0.8,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público do Poder Executivo Estadual ou do Distrito Federal,102,6,5.9,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público do Poder Legislativo Municipal,98,2,2.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público do Poder Judiciário Estadual,78,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Fundo Público da Administração Direta Estadual ou do Distrito Federal,70,2,2.9,PNCP_ONLY,MISSED_ENTITY_ALIAS
+Autarquia Municipal,61,0,0.0,PNCP_ONLY,MISSED_ENTITY_ALIAS
+Sociedade de Economia Mista,60,1,1.7,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Autarquia Federal,58,3,5.2,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público do Poder Executivo Federal,56,3,5.4,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Consórcio Público de Direito Público (Associação Pública),37,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Empresa Pública,34,6,17.6,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Autarquia Estadual ou do Distrito Federal,18,2,11.1,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Serviço Social Autônomo,15,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Fundação Pública de Direito Público Estadual ou do Distrito Federal,12,1,8.3,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público do Poder Judiciário Federal,8,3,37.5,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Fundação Pública de Direito Público Federal,8,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público Autônomo Estadual ou do Distrito Federal,4,2,50.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Fundação Pública de Direito Privado Municipal,4,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Consórcio Público de Direito Privado,2,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Fundo Público da Administração Indireta Estadual ou do Distrito Federal,2,0,0.0,PNCP_ONLY,MISSED_ENTITY_ALIAS
+Fundação Pública de Direito Privado Federal,1,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público Autônomo Federal,1,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público do Poder Legislativo Estadual ou do Distrito Federal,1,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Órgão Público do Poder Legislativo Federal,1,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Estado ou Distrito Federal,1,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED
+Fundo Público da Administração Direta Federal,1,0,0.0,PNCP_ONLY,MISSED_ENTITY_ALIAS
+Órgão Público Autônomo Municipal,1,0,0.0,PNCP_ONLY,MISSED_SOURCE_NOT_COVERED

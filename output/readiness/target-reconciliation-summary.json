@@ -1,0 +1,431 @@
+{
+  "generated_at": "2026-07-15T08:26:17.509339",
+  "auditor": "Agente E - Reconciliação com Planilha de Alvos",
+  "spreadsheet": {
+    "file": "Extra - alvos de licitação. R-0.xlsx",
+    "total_rows": 2085,
+    "headers": [
+      "Razão Social",
+      "CNPJ (8 dígitos)",
+      "Município",
+      "Código IBGE",
+      "Natureza Jurídica",
+      "Cód. Natureza",
+      "Latitude",
+      "Longitude",
+      "Distância de Florianópolis (km)",
+      "Raio 200km?"
+    ]
+  },
+  "universe": {
+    "targets_within_200km": 1093,
+    "outside_radius": 992,
+    "confirmed_universe": 1093,
+    "inclusion_rule": "Planilha original coluna 'Raio 200km?' = SIM"
+  },
+  "db_availability": {
+    "status": "OFFLINE",
+    "tables_used": [
+      "output/readiness/opportunity-coverage-gaps.csv",
+      "output/readiness/coverage_manifest.json",
+      "output/readiness/opportunity-coverage-manifest.json",
+      "output/readiness/manifesto.json"
+    ],
+    "note": "PostgreSQL offline; análise via arquivos de cobertura locais"
+  },
+  "match_results": {
+    "FOUND_EXACT": {
+      "count": 309,
+      "definition": "Ente com dados de oportunidades coletados no PNCP"
+    },
+    "MISSED_SOURCE_NOT_COVERED": {
+      "count": 1776,
+      "definition": "Ente monitorado mas sem licitações coletadas no PNCP"
+    },
+    "MISSED_GEOGRAPHY": {
+      "count": 992,
+      "definition": "Ente fora do raio de 200km (excluído do escopo)"
+    }
+  },
+  "recall": {
+    "global": {
+      "numerator": 309,
+      "denominator": 1093,
+      "percentage": 28.3,
+      "formula": "FOUND_EXACT / targets_within_200km"
+    },
+    "by_entity_level": {
+      "municipal": {
+        "found": 192,
+        "total": 580,
+        "percentage": 33.1
+      },
+      "state_federal": {
+        "found": 117,
+        "total": 513,
+        "percentage": 22.8
+      }
+    },
+    "by_natureza_juridica": {
+      "Órgão Público do Poder Executivo Municipal": {
+        "found": 2,
+        "total": 179,
+        "percentage": 1.1
+      },
+      "Fundação Pública de Direito Público Municipal": {
+        "found": 29,
+        "total": 119,
+        "percentage": 24.4
+      },
+      "Órgão Público do Poder Executivo Estadual ou do Distrito Federal": {
+        "found": 18,
+        "total": 99,
+        "percentage": 18.2
+      },
+      "Órgão Público do Poder Legislativo Municipal": {
+        "found": 47,
+        "total": 98,
+        "percentage": 48.0
+      },
+      "Município": {
+        "found": 87,
+        "total": 95,
+        "percentage": 91.6
+      },
+      "Órgão Público do Poder Judiciário Estadual": {
+        "found": 1,
+        "total": 78,
+        "percentage": 1.3
+      },
+      "Autarquia Municipal": {
+        "found": 17,
+        "total": 61,
+        "percentage": 27.9
+      },
+      "Fundo Público da Administração Direta Estadual ou do Distrito Federal": {
+        "found": 6,
+        "total": 61,
+        "percentage": 9.8
+      },
+      "Sociedade de Economia Mista": {
+        "found": 4,
+        "total": 59,
+        "percentage": 6.8
+      },
+      "Autarquia Federal": {
+        "found": 36,
+        "total": 57,
+        "percentage": 63.2
+      },
+      "Órgão Público do Poder Executivo Federal": {
+        "found": 14,
+        "total": 44,
+        "percentage": 31.8
+      },
+      "Consórcio Público de Direito Público (Associação Pública)": {
+        "found": 10,
+        "total": 37,
+        "percentage": 27.0
+      },
+      "Empresa Pública": {
+        "found": 15,
+        "total": 34,
+        "percentage": 44.1
+      },
+      "Autarquia Estadual ou do Distrito Federal": {
+        "found": 6,
+        "total": 15,
+        "percentage": 40.0
+      },
+      "Serviço Social Autônomo": {
+        "found": 0,
+        "total": 15,
+        "percentage": 0.0
+      },
+      "Fundação Pública de Direito Público Estadual ou do Distrito Federal": {
+        "found": 5,
+        "total": 10,
+        "percentage": 50.0
+      },
+      "Fundação Pública de Direito Público Federal": {
+        "found": 4,
+        "total": 8,
+        "percentage": 50.0
+      },
+      "Órgão Público do Poder Judiciário Federal": {
+        "found": 3,
+        "total": 7,
+        "percentage": 42.9
+      },
+      "Fundação Pública de Direito Privado Municipal": {
+        "found": 0,
+        "total": 4,
+        "percentage": 0.0
+      },
+      "Consórcio Público de Direito Privado": {
+        "found": 0,
+        "total": 2,
+        "percentage": 0.0
+      }
+    },
+    "by_municipio": {
+      "SANTA CATARINA": {
+        "found": 117,
+        "total": 513,
+        "percentage": 22.8
+      },
+      "JOINVILLE": {
+        "found": 6,
+        "total": 36,
+        "percentage": 16.7
+      },
+      "BLUMENAU": {
+        "found": 5,
+        "total": 35,
+        "percentage": 14.3
+      },
+      "FLORIANOPOLIS": {
+        "found": 1,
+        "total": 22,
+        "percentage": 4.5
+      },
+      "BRUSQUE": {
+        "found": 8,
+        "total": 16,
+        "percentage": 50.0
+      },
+      "RIO DO SUL": {
+        "found": 4,
+        "total": 14,
+        "percentage": 28.6
+      },
+      "PORTO BELO": {
+        "found": 7,
+        "total": 13,
+        "percentage": 53.8
+      },
+      "NAVEGANTES": {
+        "found": 6,
+        "total": 10,
+        "percentage": 60.0
+      },
+      "LAGUNA": {
+        "found": 1,
+        "total": 10,
+        "percentage": 10.0
+      },
+      "ITAPEMA": {
+        "found": 2,
+        "total": 9,
+        "percentage": 22.2
+      },
+      "BARRA VELHA": {
+        "found": 3,
+        "total": 9,
+        "percentage": 33.3
+      },
+      "ARAQUARI": {
+        "found": 3,
+        "total": 9,
+        "percentage": 33.3
+      },
+      "CAMPO ALEGRE": {
+        "found": 2,
+        "total": 9,
+        "percentage": 22.2
+      },
+      "LAGES": {
+        "found": 5,
+        "total": 9,
+        "percentage": 55.6
+      },
+      "SANTO AMARO DA IMPERATRIZ": {
+        "found": 2,
+        "total": 8,
+        "percentage": 25.0
+      },
+      "GUARAMIRIM": {
+        "found": 2,
+        "total": 8,
+        "percentage": 25.0
+      },
+      "ILHOTA": {
+        "found": 5,
+        "total": 7,
+        "percentage": 71.4
+      },
+      "PENHA": {
+        "found": 3,
+        "total": 7,
+        "percentage": 42.9
+      },
+      "ORLEANS": {
+        "found": 2,
+        "total": 7,
+        "percentage": 28.6
+      },
+      "LAURO MULLER": {
+        "found": 1,
+        "total": 7,
+        "percentage": 14.3
+      }
+    }
+  },
+  "entity_monitoring_coverage": {
+    "entities_monitored": 1093,
+    "entities_unmonitored": 0,
+    "pct_monitored": 100.0,
+    "threshold_passed": true
+  },
+  "opportunity_data_summary": {
+    "total_opportunities": 96682,
+    "open_opportunities": 46555,
+    "entities_with_data": 461,
+    "entities_without_data": 632,
+    "pct_with_data": 42.18,
+    "sources": [
+      "PNCP"
+    ],
+    "passes_threshold": false
+  },
+  "freshness": {
+    "stale_entities": 33,
+    "fresh_entities": 515,
+    "unknown_freshness": 545
+  },
+  "missed_entity_examples": {
+    "state_level": [
+      {
+        "razao_social": "FUNDO ESTADUAL DE PROMOCAO SOCIAL E ERRADICACAO DA POBREZA",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Fundo Público da Administração Direta Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "COLEGIADO SUPERIOR DE SEGURANCA PUBLICA E PERICIA OFICIAL",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Órgão Público do Poder Executivo Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "FUNDO ROTATIVO REGIONAL DO MEDIO VALE DO ITAJAI (FR-07)",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Fundo Público da Administração Direta Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "FUNDO ROTATIVO REGIONAL DO VALE DO ITAJAI (FR-04)",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Fundo Público da Administração Direta Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "SECRETARIA DE ESTADO DO TURISMO",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Órgão Público do Poder Executivo Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "SECRETARIA DE ESTADO DE PORTOS, AEROPORTOS E FERROVIAS",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Órgão Público do Poder Executivo Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "SECRETARIA DE ESTADO DO MEIO AMBIENTE E DA ECONOMIA VERDE",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Órgão Público do Poder Executivo Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "FUNDO ROTATIVO REGIONAL DO PLANALTO NORTE (FR-08)",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Fundo Público da Administração Direta Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "FUNDO ESTADUAL DE SEGURANCA ALIMENTAR E NUTRICIONAL",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Fundo Público da Administração Direta Estadual ou do Distrito Federal"
+      },
+      {
+        "razao_social": "SECRETARIA EXECUTIVA DA AQUICULTURA E PESCA",
+        "municipio": "SANTA CATARINA",
+        "natureza": "Órgão Público do Poder Executivo Estadual ou do Distrito Federal"
+      }
+    ],
+    "municipal": [
+      {
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "natureza": "Órgão Público do Poder Executivo Municipal"
+      },
+      {
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "natureza": "Órgão Público do Poder Legislativo Municipal"
+      },
+      {
+        "razao_social": "FUNDO MUNICIPAL DE TURISMO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "natureza": "Fundação Pública de Direito Público Municipal"
+      },
+      {
+        "razao_social": "FUNDO MUNICIPAL DE DESENVOLVIMENTO AGROPECUARIO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "natureza": "Fundação Pública de Direito Público Municipal"
+      },
+      {
+        "razao_social": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO M",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "natureza": "Autarquia Municipal"
+      },
+      {
+        "razao_social": "DIRETORIA DE DEFESA CIVIL DE SANTO AMARO DA IMPERATRIZ",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "natureza": "Órgão Público do Poder Executivo Municipal"
+      },
+      {
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "GOVERNADOR CELSO RAMOS",
+        "natureza": "Órgão Público do Poder Executivo Municipal"
+      },
+      {
+        "razao_social": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO",
+        "municipio": "GOVERNADOR CELSO RAMOS",
+        "natureza": "Autarquia Municipal"
+      },
+      {
+        "razao_social": "GOVERNADOR CELSO RAMOS CAMARA MUNICIPAL",
+        "municipio": "GOVERNADOR CELSO RAMOS",
+        "natureza": "Órgão Público do Poder Legislativo Municipal"
+      },
+      {
+        "razao_social": "FUNDACAO DO MEIO AMBIENTE DE GOVERNADOR CELSO RAMOS - FAMGOV",
+        "municipio": "GOVERNADOR CELSO RAMOS",
+        "natureza": "Fundação Pública de Direito Público Municipal"
+      }
+    ]
+  },
+  "root_causes": [
+    {
+      "cause": "PNCP como única fonte",
+      "impact": "Alta - 632 entes dentro do raio sem dados de licitação",
+      "detail": "Apenas o PNCP (Portal Nacional de Contratações Públicas) está sendo usado como fonte. Fontes estaduais (CIGA, DOE/SC, ComprasGov, SC Compras) e municipais (transparência) estão configuradas mas sem dados coletados ou apenas com cobertura parcial."
+    },
+    {
+      "cause": "Entes estaduais/federais sub-representados no PNCP",
+      "impact": "Médio - recall de apenas 22.8% para entes estaduais",
+      "detail": "Entes estaduais e federais (513 entes 'SANTA CATARINA', órgãos do judiciário, executivo estadual) têm baixa cobertura. O PNCP tem dados principalmente de entes municipais."
+    },
+    {
+      "cause": "Secretarias municipais sem dados individuais",
+      "impact": "Médio - apenas 1.1% das secretarias executivas municipais",
+      "detail": "Secretarias municipais de educação, saúde, etc. são listadas como entes separados na planilha, mas frequentemente as licitações são publicadas em nome do município (CNPJ mãe), não da secretaria."
+    },
+    {
+      "cause": "Cobertura de fontes estaduais configurada mas sem dados",
+      "impact": "Alto - 10 fontes adicionais configuradas mas não operacionais",
+      "detail": "CIGA CKAN, ComprasGov, DOE/SC, DOM/SC, MIDES BigQuery, PCP, SC Compras e Transparência estão configurados mas sem registros de oportunidades para a maioria dos entes."
+    }
+  ],
+  "recommendations": [
+    "Ativar crawlers das fontes estaduais (CIGA, DOE/SC, SC Compras) para capturar licitações estaduais",
+    "Implementar coleta de dados de transparência municipal para municípios do raio",
+    "Analisar se licitações de secretarias são publicadas como município ou como ente individual",
+    "Implementar lógica de deduplicação e agregação por CNPJ base (município mãe)",
+    "Para entes estaduais/federais: verificar se PNCP cobre ou se há fonte específica"
+  ]
+}
