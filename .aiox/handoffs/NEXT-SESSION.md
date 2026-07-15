@@ -1,80 +1,97 @@
 # Handoff — Extra Consultoria (2026-07-15)
 
 **De:** @aiox-master (Orion) → **Para:** próxima sessão
-**Handoff canônico:** `.aiox/handoffs/NEXT-SESSION.md`
-**HEAD:** `9a6698a` (main, NOT pushed)
-**Working tree:** LIMPO
+**HEAD:** `2b49be2` (main, pushed)
+**Working tree:** limpo (2 untracked: output/readiness/freshness-gate.*)
 
 ---
 
-## 1. CM-08 Concluído: PNCP API Validation
+## 1. Ciclos Completados
 
-**Commit:** 9a6698a | **Status:** Done, QA CONCERNS (TST-001)
-**Arquivos:** pncp_contract.py, pncp_crawler_adapter.py, contracts_crawler.py
+### CM-08: PNCP API Validation (9a6698a)
+- Page size real ≠ docs: contratações max=50, contratos max=500
+- UF filter contratos quebrado server-side → post-filtro client-side
+- `crawl_contracts()` + `transform_contracts()` + `transform_with_uf_filter()`
+- QA: CONCERNS (TST-001: testes unitários pendentes)
 
-### Descobertas contra API real (2026-07-15):
-
-| Endpoint | Doc diz | API real | Status |
-|----------|---------|----------|--------|
-| contratações/publicacao page_size | 500 | **50** (100→400) | DOCS ERRADOS |
-| contratos page_size | 500 | **500** (1000→400) | DOCS OK |
-| contratos UF filter | funciona | **quebrado** (SC=PR=SP) | BUG SERVER-SIDE |
-| contratações UF filter | funciona | **funciona** | OK |
-
-### Ações:
-- `PNCP_TAMANHO_PAGINA_MAX_CONTRATACOES=50`, `PNCP_TAMANHO_PAGINA_MAX_CONTRATOS=500`
-- `crawl_contracts()` + `transform_contracts()` no adapter
-- `transform_with_uf_filter()` post-filtro client-side
-- 244k contratos disponíveis no endpoint (0 ingeridos)
+### CM-09: ComprasGov V3 Validation (2b49be2)
+- API funcional **sem geo-restrição** — 52 SC registros em 6.5 meses
+- Crawler completo, zero alterações de código
+- QA: PASS
 
 ---
 
-## 2. Ranking Próximo Incremento
+## 2. Estado das Fontes
+
+| Fonte | Status | Volume | Blocker |
+|-------|--------|--------|---------|
+| **PCP** | ✅ Ativa | 1.9k bids SC | Nenhum |
+| **ComprasGov V3** | ✅ Validada | 52/6meses SC | Nenhum (ativar no orchestrator) |
+| **CIGA CKAN** | ✅ Validada | 30.904/mês SC | Nenhum (578 pacotes) |
+| **PNCP Contratos** | 🟡 Crawler pronto | 244k nacional | VPS Brasil |
+| **PNCP Editais** | 🟡 Crawler pronto | 1.2k SC/15d | VPS Brasil |
+| **DOM-SC** | 🟡 Crawler pronto | ? | Credenciais API v2 |
+| **TCE-SC** | ⬜ Pendente | ? | Não validado |
+| **DOE-SC** | 🔴 Bloqueado | — | Selenium + certificado digital |
+| **Transparência** | 🔴 Bloqueado | — | 295+ portais individuais |
+| **Mides BigQuery** | 🔴 Bloqueado | — | Credencial GCP |
+| **SC Compras** | 🔴 Bloqueado | — | API instável |
+
+### DOM-SC: SOURCE_BLOCKERS desatualizado
+SOURCE_BLOCKERS diz "Portal requer navegação interativa (Selenium)" mas crawler já migrou para REST API v2 (`diariomunicipal.sc.gov.br/?r=remote/list`). Bloqueio real: credenciais (DOM_SC_CPF, DOM_SC_CNPJ, DOM_SC_API_KEY).
+
+---
+
+## 3. Cobertura
+
+- **Geral:** 8% (166/2085) — só PCP
+- **Potencial pós-ativação:** ~15-20% com ComprasGov + CIGA + TCE-SC
+- **Contratos:** 0 rows (244k disponíveis, bloqueados por VPS)
+
+---
+
+## 4. Ranking Próximo Incremento
 
 | # | Incremento | ROI | Blocker |
 |---|-----------|-----|---------|
-| **1** | **Ativar crawl contratos 244k** | ALTÍSSIMO | VPS Brasil |
-| 2 | Validar códigos modalidade PNCP | ALTO | Rate limit |
-| 3 | Ativar compras_gov + ciga_ckan + tce_sc | ALTO | Nenhum |
-| 4 | Corrigir intel_pipeline.py import bug | MÉDIO | Nenhum |
-| 5 | Preencher stubs metrics.py + redis_pool.py | MÉDIO | Nenhum |
+| **1** | Corrigir SOURCE_BLOCKERS dom_sc | ALTO | Nenhum |
+| **2** | Story CM-10: CIGA CKAN (30k/mês) | ALTO | Nenhum |
+| **3** | Story CM-11: TCE-SC validação | ALTO | Nenhum |
+| **4** | Ativar ComprasGov no orchestrator | ALTO | Nenhum |
+| **5** | Validar códigos modalidade PNCP | MÉDIO | Rate limit |
+| **6** | Story CM-09: crawl contratos 244k | ALTÍSSIMO | VPS Brasil |
 
 ---
 
-## 3. Estado do Sistema
-
-- **Cobertura:** 8% (166/2085 entidades), apenas PCP funcional
-- **Fontes:** 1/11 ativas (PCP), 3 bloqueadas, 4 nunca invocadas
-- **DB:** PostgreSQL em 127.0.0.1:5433, migrations parcialmente rastreadas
-- **Contratos:** 0 rows em pncp_supplier_contracts (crawler nunca rodou)
-- **Governança:** 4 stories 1.x Done com gates FAIL/PENDING
-
----
-
-## 4. Comandos
+## 5. Comandos
 
 ```bash
-# Testar contratos (precisa VPS Brasil):
-python3 scripts/crawl/monitor.py --source contracts --mode incremental
+# CIGA CKAN (funciona já!):
+python3 -m scripts.crawl.ciga_ckan_crawler --month 12-2025
 
-# Validar códigos modalidade (após rate limit reset):
-for code in 1 2 3 4 5 6 7 8 9 12; do
-  curl -s "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?dataInicial=20250701&dataFinal=20250715&codigoModalidadeContratacao=$code&pagina=1&tamanhoPagina=2&uf=SC" | python3 -c "import sys,json; d=json.load(sys.stdin); print(f'Code $code: {d.get(\"totalRegistros\",0)}')"
-  sleep 2
-done
+# ComprasGov (funciona já!):
+python3 scripts/crawl/monitor.py --source compras_gov --mode full
 
-# Conexão DB
+# DOM-SC (precisa credenciais):
+# export DOM_SC_CPF=... DOM_SC_CNPJ=... DOM_SC_API_KEY=...
+python3 scripts/crawl/monitor.py --source dom_sc --mode full
+
+# Conexão DB:
 PGPASSWORD=test psql -h 127.0.0.1 -p 5433 -U test -d pncp_datalake
-
-# Testes
-python3 -m pytest tests/ -k contracts -v
 ```
 
 ---
 
-## 5. Classificação: GO_WITH_CONDITIONS
+## 6. UNKNOWN
 
-**Condições:**
-1. VPS Brasil → desbloqueia PNCP contratos + editais
-2. Testes unitários crawl_contracts (TST-001)
-3. Push commits acumulados via @devops
+- Códigos modalidade PNCP exatos que a API aceita (docs divergem da API real)
+- Se VPS Brasil resolveria geo-restrição (tudo indica que sim)
+- Volume real TCE-SC (não validado)
+- Se `/api/pncp` (nova API) tem endpoints equivalentes funcionais
+
+## 7. Classificação: GO_WITH_CONDITIONS
+
+**Condições pendentes:**
+1. VPS Brasil → desbloqueia PNCP (maior fonte)
+2. Credenciais DOM-SC → ativa cobertura municipal
+3. Ativar fontes já validadas (ComprasGov, CIGA) no orchestrator
