@@ -215,29 +215,29 @@ Waves 2, 3, 4 podem ser parcialmente paralelizadas (arquivos independentes).
 - [x] Ruff limpo, testes core passando
 
 ### W2-GATE: Multi-Source
-- [x] >=2 fontes com dados
-- [x] source-health funcional
-- [x] Checkpoint testado
-- [x] Dead code isolado
+- [ ] >=2 fontes com dados
+- [ ] source-health funcional
+- [ ] Checkpoint testado
+- [ ] Dead code isolado
 
 ### W3-GATE: Commercial Ready
-- [x] Classificação AEC >=80% precisão
-- [x] Briefing utilizável
-- [x] Dossiê de exemplo gerado
-- [x] Export Excel + PDF
+- [ ] Classificação AEC >=80% precisão
+- [ ] Briefing utilizável
+- [ ] Dossiê de exemplo gerado
+- [ ] Export Excel + PDF
 
 ### W4-GATE: Production Ready
-- [x] Backup/restore testados
-- [x] Systemd unificado
-- [x] Zero secrets
-- [x] MyPy <50 erros
+- [ ] Backup/restore testados
+- [ ] Systemd unificado
+- [ ] Zero secrets
+- [ ] MyPy <50 erros
 
 ### W5-GATE: Publication
-- [x] QA sistêmico PASS
-- [x] PO closed
-- [x] reviewed_commit === HEAD
-- [x] Working tree limpa
-- [x] DevOps push autorizado
+- [ ] QA sistêmico PASS
+- [ ] PO closed
+- [ ] reviewed_commit === HEAD
+- [ ] Working tree limpa
+- [ ] DevOps push autorizado
 
 ---
 

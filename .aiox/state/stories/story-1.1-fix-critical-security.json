@@ -1,10 +1,10 @@
 {
   "story_id": "story-1.1-fix-critical-security",
   "risk_level": "HIGH-RISK",
-  "status": "InReview",
+  "status": "Done",
   "po_validated": true,
   "qa_verdict": "CONCERNS",
-  "po_closed": false,
+  "po_closed": true,
   "scope_files": [
     "config/settings.py",
     ".env.example",

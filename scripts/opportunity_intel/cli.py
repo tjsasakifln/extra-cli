@@ -558,8 +558,7 @@ def _fmt_date(val: Any) -> str:
 def cmd_briefing(args: argparse.Namespace) -> None:
     """Briefing diário de oportunidades — foco em decisão comercial.
 
-    Consulta pncp_raw_bids diretamente e exibe resumo priorizado
-    por data de abertura (mais urgente primeiro).
+    Filtra por AEC (engenharia/construção/obras), SC, e raio 200km.
     """
     from datetime import date, timedelta
 
@@ -569,23 +568,32 @@ def cmd_briefing(args: argparse.Namespace) -> None:
     horizon = date.today() + timedelta(days=args.dias)
 
     query = """
-        SELECT orgao_razao_social, uf, modalidade_nome, objeto_compra,
-               valor_total_estimado, data_abertura, data_publicacao,
-               situacao_compra, link_pncp
-        FROM pncp_raw_bids
-        WHERE is_active = TRUE
-          AND data_abertura IS NOT NULL
-          AND data_abertura >= CURRENT_DATE
-          AND data_abertura <= %s
-        ORDER BY data_abertura ASC, valor_total_estimado DESC NULLS LAST
+        SELECT b.orgao_razao_social, b.uf, b.modalidade_nome, b.objeto_compra,
+               b.valor_total_estimado, b.data_abertura, b.data_publicacao,
+               b.situacao_compra, b.link_pncp,
+               e.municipio AS municipio_orgao, e.distancia_fk
+        FROM pncp_raw_bids b
+        JOIN sc_public_entities e ON b.orgao_cnpj_8 = e.cnpj_8
+        WHERE b.is_active = TRUE
+          AND b.data_abertura IS NOT NULL
+          AND b.data_abertura >= CURRENT_DATE
+          AND b.data_abertura <= %s
+          AND b.uf = 'SC'
+          AND e.raio_200km = TRUE
+          AND (
+              b.objeto_compra ~* '(obra|construção|edificação|pavimentação|drenagem|saneamento|reforma|manutenção.*predial|engenharia|infraestrutura|instalação|fiscalização.*obra|serviço.*técnico.*eng|execução|edifício|rodovia|ponte|galeria|concreto|asfalto|terraplenagem|fundação|estrutura|contenção|revestimento|telhado|cobertura|hidráulica|elétrica.*predial|combate.*incêndio|acessibilidade|calçada|passeio|praça|urbanização|paisagismo|arquitet*)'
+              OR b.objeto_compra ~* '(elaboração.*projeto|projeto.*executivo|projeto.*básico|estudo.*viabilidade|orçamento.*obra|memorial.*descritivo|CAD|BIM|as built|ART|RRT|CREA|CAU)'
+              OR b.modalidade_nome ~* '(concorrência|tomada.*preço|concorrência.*eletrônica|RDC|regime.*diferenciado|pregão.*eletrônico|dispensa.*obra|convite)'
+          )
+        ORDER BY b.data_abertura ASC, b.valor_total_estimado DESC NULLS LAST
         LIMIT %s
     """
     cur.execute(query, (horizon, args.limit))
     rows = cur.fetchall()
 
     if not rows:
-        print("Nenhuma oportunidade com data de abertura definida no horizonte.")
-        print(f"Tente aumentar --dias (atual: {args.dias})")
+        print("Nenhuma oportunidade AEC em SC no raio de 200km com data definida.")
+        print(f"Tente aumentar --dias (atual: {args.dias}) ou verifique dados PNCP.")
         cur.close()
         conn.close()
         return
@@ -597,19 +605,21 @@ def cmd_briefing(args: argparse.Namespace) -> None:
 
     print("\n=== BRIEFING DIÁRIO — Extra Construtora ===")
     print(f"Gerado: {date.today().strftime('%d/%m/%Y')} | Fonte: PNCP")
-    print(f"Horizonte: {args.dias} dias | Oportunidades: {len(rows)}")
+    print(f"Filtros: AEC | SC | Raio 200km | Horizonte: {args.dias} dias")
+    print(f"Oportunidades: {len(rows)} ({len(urgentes)} urgentes, {len(proximas)} em breve)")
     print()
 
     if urgentes:
         print(f"🔴 URGENTE (próximos 7 dias): {len(urgentes)}")
         print("-" * 80)
         for r in urgentes[:10]:
-            nome, uf, mod, obj, valor, dt_ab, dt_pub, sit, link = r
+            nome, uf, mod, obj, valor, dt_ab, dt_pub, sit, link, mun, dist = r
             obj_short = (obj or "Sem objeto")[:80]
             val_str = f"R$ {float(valor or 0):,.2f}" if valor else "N/D"
             dt_str = dt_ab.strftime("%d/%m/%Y") if dt_ab else "N/D"
+            dist_str = f"{float(dist):.0f}km" if dist else "?"
             print(f"  [{mod or '?'}] {obj_short}")
-            print(f"  Órgão: {nome or '?'} ({uf or '?'}) | Valor: {val_str} | Abertura: {dt_str}")
+            print(f"  Órgão: {nome or '?'} — {mun or '?'} ({dist_str}) | Valor: {val_str} | Abertura: {dt_str}")
             if link:
                 print(f"  Link: {link}")
             print()
@@ -618,22 +628,30 @@ def cmd_briefing(args: argparse.Namespace) -> None:
         print(f"🟡 EM BREVE (8-{args.dias} dias): {len(proximas)}")
         print("-" * 80)
         for r in proximas[:10]:
-            nome, uf, mod, obj, valor, dt_ab, dt_pub, sit, link = r
+            nome, uf, mod, obj, valor, dt_ab, dt_pub, sit, link, mun, dist = r
             obj_short = (obj or "Sem objeto")[:80]
             val_str = f"R$ {float(valor or 0):,.2f}" if valor else "N/D"
             dt_str = dt_ab.strftime("%d/%m/%Y") if dt_ab else "N/D"
+            dist_str = f"{float(dist):.0f}km" if dist else "?"
             print(f"  [{mod or '?'}] {obj_short}")
-            print(f"  Órgão: {nome or '?'} ({uf or '?'}) | Valor: {val_str} | Abertura: {dt_str}")
+            print(f"  Órgão: {nome or '?'} — {mun or '?'} ({dist_str}) | Valor: {val_str} | Abertura: {dt_str}")
             print()
 
-    # Summary stats
+    # Summary stats — AEC + SC + 200km only
     cur.execute("""
-        SELECT COUNT(*), COUNT(DISTINCT orgao_cnpj),
-               COALESCE(SUM(valor_total_estimado), 0)
-        FROM pncp_raw_bids WHERE is_active = TRUE
+        SELECT COUNT(*), COUNT(DISTINCT b.orgao_cnpj),
+               COALESCE(SUM(b.valor_total_estimado), 0)
+        FROM pncp_raw_bids b
+        JOIN sc_public_entities e ON b.orgao_cnpj_8 = e.cnpj_8
+        WHERE b.is_active = TRUE AND b.uf = 'SC' AND e.raio_200km = TRUE
+          AND (
+              b.objeto_compra ~* '(obra|construção|edificação|pavimentação|drenagem|saneamento|reforma|manutenção.*predial|engenharia|infraestrutura|instalação|fiscalização.*obra|serviço.*técnico.*eng|execução|edifício|rodovia|ponte|galeria|concreto|asfalto|terraplenagem|fundação|estrutura|contenção|revestimento|telhado|cobertura|hidráulica|elétrica.*predial|combate.*incêndio|acessibilidade|calçada|passeio|praça|urbanização|paisagismo|arquitet*)'
+              OR b.objeto_compra ~* '(elaboração.*projeto|projeto.*executivo|projeto.*básico|estudo.*viabilidade|orçamento.*obra|memorial.*descritivo|CAD|BIM|as built|ART|RRT|CREA|CAU)'
+              OR b.modalidade_nome ~* '(concorrência|tomada.*preço|concorrência.*eletrônica|RDC|regime.*diferenciado|pregão.*eletrônico|dispensa.*obra|convite)'
+          )
     """)
     total, orgs, soma = cur.fetchone()
-    print(f"📊 TOTAL NO BANCO: {total} editais | {orgs} órgãos | Valor total: R$ {float(soma):,.2f}")
+    print(f"📊 TOTAL AEC NO RAIO 200km: {total} editais | {orgs} órgãos | Valor: R$ {float(soma):,.2f}")
 
     cur.close()
     conn.close()

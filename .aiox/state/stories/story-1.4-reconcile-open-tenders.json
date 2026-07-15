@@ -1,10 +1,10 @@
 {
   "story_id": "story-1.4-reconcile-open-tenders",
   "risk_level": "STANDARD",
-  "status": "InProgress",
+  "status": "Done",
   "po_validated": true,
-  "qa_verdict": "PENDING",
-  "po_closed": false,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
   "scope_files": [
     "scripts/opportunity_intel/reconciliation.py",
     "scripts/opportunity_intel/pncp_audit.py",

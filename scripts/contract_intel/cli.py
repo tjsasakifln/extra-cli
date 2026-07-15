@@ -1161,9 +1161,21 @@ def cmd_desagio(conn: Any, args: argparse.Namespace, backend: str) -> int:
                     f"  {str(modalidade)[:25]:<25s} {int(pares or 0):>6d} {desagio_str:>9s} {mediana_str:>9s} {est_str:>15s} {cont_str:>15s}"
                 )
         print()
-        print("  Nota: Desagio calculado como (estimado - contratado)/estimado.")
-        print("  Compara valor_total_estimado do bid com valor_global medio dos contratos")
-        print("  da mesma entidade. Nao e desagio item-a-item homologado.")
+        print("  ⚠️  SEMANTIC WARNING — LIMITACAO CONHECIDA")
+        print("  ─────────────────────────────────────────")
+        print("  Este comando compara valor_total_estimado (EDITAL) com valor_global")
+        print("  medio (CONTRATADO) da MESMA ENTIDADE, agregado por modalidade.")
+        print()
+        print("  NAO e desagio homologado item-a-item. NAO estabelece que um contrato")
+        print("  deriva de determinado edital. NAO use em relatorio para cliente sem")
+        print("  contextualizar como proxy exploratoria com as limitacoes documentadas.")
+        print()
+        print("  Para desagio real: necessario vinculo deterministico entre:")
+        print("  valor_estimado → procedimento → resultado homologado → item/lote/proposta")
+        print()
+        print("  Metodo: (AVG(estimado) - AVG(contratado_medio)) / AVG(estimado) * 100")
+        print("  Fonte:  pncp_raw_bids (ESTIMADO) vs pncp_supplier_contracts (CONTRATADO)")
+        print("  Nivel:  entidade (orgao) — NAO item, NAO lote, NAO proposta")
         print()
 
     cur.close()
@@ -1224,8 +1236,8 @@ def main() -> int:
     p_precos.add_argument("--output", default=None, help="Output file path")
     p_precos.add_argument("--output-csv", default=None, help="CSV output path")
 
-    # desagio — Average desagio by modality
-    p_desagio = sub.add_parser("desagio", help="Average desagio (discount) by modality")
+    # proxy-desagio — Exploratory proxy for discount estimation (NOT item-level desagio)
+    p_desagio = sub.add_parser("proxy-desagio", help="Exploratory discount proxy by modality (entity-level, NOT item-level)")
     p_desagio.add_argument("--modalidade", type=str, default=None, help="Filter by modality name")
     p_desagio.add_argument("--format", choices=["table", "json", "csv"], default="table")
     p_desagio.add_argument("--output", default=None, help="Output file path")
@@ -1263,7 +1275,7 @@ def main() -> int:
             return cmd_stats(conn, args, backend)
         elif args.command == "precos":
             return cmd_precos(conn, args, backend)
-        elif args.command == "desagio":
+        elif args.command in ("desagio", "proxy-desagio"):
             return cmd_desagio(conn, args, backend)
         else:
             parser.print_help()
