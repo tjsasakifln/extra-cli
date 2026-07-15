@@ -19,7 +19,7 @@ A Extra Consultoria e uma plataforma CLI de inteligencia em licitacoes publicas,
 - 44 services/timers systemd para automacao de crawl
 - ~117.099 linhas Python + SQL
 
-**Arquitetura:** DataLake PostgreSQL centralizado rodando em Hetzner VPS, com crawlers Python async/await que coletam, transformam e fazem upsert de dados de licitacoes publicas. Tres pipelines de inteligencia independentes operam sobre o DataLake: Intel-Busca (sob demanda), Opportunity Intel (radar QW-01 agendado), Contract Intel (consultas analiticas).
+**Arquitetura:** DataLake PostgreSQL centralizado rodando em VPS em nuvem (provedor a definir — ver ADR-007), com crawlers Python async/await que coletam, transformam e fazem upsert de dados de licitacoes publicas. Tres pipelines de inteligencia independentes operam sobre o DataLake: Intel-Busca (sob demanda), Opportunity Intel (radar QW-01 agendado), Contract Intel (consultas analiticas).
 
 ---
 
@@ -28,7 +28,7 @@ A Extra Consultoria e uma plataforma CLI de inteligencia em licitacoes publicas,
 | Camada | Tecnologia | Versao | Justificativa |
 |--------|-----------|--------|---------------|
 | Linguagem | Python | 3.12 | Ecossistema rico para crawling e LLM |
-| Database | PostgreSQL 17 + PostGIS | 17 / 3.4 | Single-user, pg_trgm fuzzy, PostGIS geo |
+| Database | PostgreSQL 16 + PostGIS | 16 / 3.4 | Single-user, pg_trgm fuzzy, PostGIS geo |
 | HTTP Async | httpx | >=0.28.1 | Async nativo para crawl concorrente |
 | LLM Classificacao | OpenAI GPT-4.1-nano | - | Custo baixo, qualidade suficiente |
 | PDF Generation | ReportLab | >=4.5.1 | Relatorios estilo Big Four |
@@ -41,7 +41,7 @@ A Extra Consultoria e uma plataforma CLI de inteligencia em licitacoes publicas,
 | Scheduler | systemd timers | Nativo Linux | Zero dependencia externa |
 | Pre-commit | ruff + mypy + bandit | v0.9.5 / v1.13.0 / v1.8.0 | Quality gates pre-commit |
 | Test DB | PostgreSQL + PostGIS (Docker) | 16-3.4 | Container temporario para integration tests |
-| Deploy | Hetzner VPS + Ubuntu | 24.04 | Cloud host dedicado |
+| Deploy | VPS em nuvem + Ubuntu | 24.04 | Cloud host dedicado (provedor a definir — ADR-007) |
 
 ---
 
@@ -418,7 +418,7 @@ A Extra Consultoria e uma plataforma CLI de inteligencia em licitacoes publicas,
 │                        ▼                                         │
 │           ┌────────────────────────┐                             │
 │           │  DATA LAKE (PostgreSQL) │                             │
-│           │  Hetzner VPS           │                             │
+│           │  VPS em Nuvem          │                             │
 │           │  pncp_raw_bids         │                             │
 │           │  pncp_supplier_contracts│                             │
 │           │  sc_public_entities    │                             │
@@ -538,7 +538,7 @@ intel_pipeline.py --cnpj <CNPJ> --ufs SC,PR,RS
 | IBGE Localidades | `https://servicodados.ibge.gov.br/api/v1/localidades` | Publica | `enricher.py` | Nao documentado |
 | OpenAI | `https://api.openai.com/v1` | API Key | `intel_llm_gate.py`, `loader.py` | Paga |
 | Supabase | Configurado via `SUPABASE_URL` | Service Role Key | `supabase_client.py` (legacy) | Free tier limits |
-| PostgreSQL | Hetzner VPS | `LOCAL_DATALAKE_DSN` | Todos os subsistemas | N/A |
+| PostgreSQL | VPS em nuvem | `LOCAL_DATALAKE_DSN` | Todos os subsistemas | N/A |
 
 ### 5.2 Fluxo de Dados Entre Camadas
 
@@ -768,15 +768,17 @@ pre-commit run --all-files
 pytest --cov=scripts --cov-report=term-missing
 ```
 
-### 9.2 Ambiente de Producao (Hetzner VPS)
+### 9.2 Ambiente de Produção (VPS em Nuvem)
 
 **Sistema:** Ubuntu 24.04
-**Database:** PostgreSQL 17 + PostGIS
-**Deploy:** `deploy/install.sh` + `deploy/provision-vps.sh`
+**Database:** PostgreSQL 16 + PostGIS
+**Deploy:** `deploy/install.sh` + Ansible (ver ADR-008)
 **Scheduler:** 44 systemd services/timers
-**Backup:** Hetzner Storage Box via `extra-db-backup.service`
-**Logging:** `/var/log/extra-*.log` com rotacao
+**Backup:** Storage externo (desacoplado de provedor) via `extra-db-backup.service`
+**Logging:** `/var/log/extra-*.log` com rotação
 **Hardening:** fail2ban, UFW, pg_hba.conf restrito
+
+**Nota:** O provedor de nuvem ainda não está definido. Ver `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md` para a estratégia de seleção e `docs/ops/cloud-deployment-plan.md` para o plano operacional.
 
 ### 9.3 Services Systemd por Categoria
 

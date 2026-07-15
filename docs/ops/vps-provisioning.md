@@ -1,32 +1,54 @@
-# Provisionamento VPS Hetzner — Extra Consultoria
+# Provisionamento de VPS — Extra Consultoria
 
 > Documentacao de provisionamento da infraestrutura de producao.
-> **Story:** FEAT-4.1 — Provisionar Hetzner VPS
+> **Versão:** 2.0 — 2026-07-15 (desacoplado de provedor específico)
 > **Responsavel:** @devops (Gage)
+
+## Aviso
+
+Esta documentação está em transição. As seções específicas da Hetzner permanecem como registro histórico e implementação existente, mas a direção arquitetural é provider-agnostic.
+
+**Estratégia atual:** Ansible como ferramenta primária de configuração (Estágio 1). OpenTofu/Terraform como camada futura de provisionamento (Estágio 2).
+Ver `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md` e `docs/architecture/adr/ADR-008-infrastructure-as-code-strategy.md`.
 
 ## Sumario
 
-- [Especificacao Tecnica](#especificacao-tecnica)
-- [Provisionamento Rapido](#provisionamento-rapido)
-- [Passo a Passo Manual](#passo-a-passo-manual)
+- [Dimensionamento de Referência](#dimensionamento-de-referencia)
+- [Especificacao Tecnica (Hetzner — registro historico)](#especificacao-tecnica-hetzner)
+- [Provisionamento](#provisionamento)
 - [Systemd Timers](#systemd-timers)
-- [Storage Box](#storage-box)
+- [Backup](#backup)
 - [Firewall](#firewall)
 - [Manutencao](#manutencao)
 - [Troubleshooting](#troubleshooting)
 
-## Especificacao Tecnica
+## Dimensionamento de Referência
 
-| Item | Especificacao |
-|------|---------------|
-| **Plano** | Hetzner CX22 (2 vCPU, 4 GB RAM, 40 GB SSD) |
-| **SO** | Ubuntu 24.04 LTS |
-| **Regiao** | Nuremberg (nbg1-dc3) |
-| **Storage Box** | BX11 (100 GB) |
-| **Custo estimado** | ~EUR 7,40/mes (~R$ 45/mes) |
-| **Traffic** | 20 TB/mes (CX22) |
+O dimensionamento abaixo é a referência de implantação inicial para o cenário pós-backfill (4M+ contratos, centenas de milhares de editais, múltiplas fontes, crescimento contínuo).
 
-### Custo Detalhado
+| Recurso | Referência Inicial |
+|---------|-------------------|
+| RAM | 32 GB |
+| CPU | Dedicada (boa disponibilidade sustentada) |
+| Armazenamento | ~1 TB NVMe (expansível) |
+| PostgreSQL | 16 |
+| SO | Ubuntu 24.04 LTS |
+
+O dimensionamento real depende do provedor selecionado e dos resultados do teste comparativo da API PNCP (ver ADR-007).
+
+## Especificacao Tecnica (Hetzner — registro historico)
+
+A configuração abaixo é o provisionamento atual documentado na story FEAT-4.1. **Esta configuração (CX22, 4 GB RAM, 40 GB SSD) é inadequada para o volume de dados esperado após backfill.**
+
+| Item | Especificacao (ATUAL) | Especificacao (REFERÊNCIA FUTURA) |
+|------|---------------|----------------------------------|
+| **Plano** | Hetzner CX22 (2 vCPU, 4 GB RAM, 40 GB SSD) | ~32 GB RAM, CPU dedicada, ~1 TB NVMe |
+| **SO** | Ubuntu 24.04 LTS | Ubuntu 24.04 LTS |
+| **Regiao** | Nuremberg (nbg1-dc3) | A definir (EUA costa leste preferencial, condicionado a teste PNCP) |
+| **Storage Box** | BX11 (100 GB) | Storage externo (provider-agnostic) |
+| **Custo estimado** | ~EUR 7,40/mes | A cotar conforme provedor selecionado |
+
+### Custo Detalhado (Hetzner CX22 — ATUAL)
 
 | Item | Custo (EUR/mes) |
 |------|-----------------|
@@ -35,11 +57,20 @@
 | IP extra (se necessario) | 1,50 |
 | **Total** | **~7,39 - 8,89** |
 
-## Provisionamento Rapido
+**Nota:** Este custo é da configuração atual subdimensionada. O custo da configuração de referência (32 GB RAM, ~1 TB NVMe) será significativamente maior e depende do provedor selecionado.
 
-### Metodo 1: Script automatico (recomendado)
+## Provisionamento
 
-Apos boot da VPS, execute como root:
+### Método recomendado: Ansible (Estágio 1)
+
+Playbook Ansible como forma canônica de configurar a VPS, oferecendo idempotência, rastreabilidade e reexecução segura.
+
+```bash
+# Localmente, a partir do repositório
+ansible-playbook -i inventory.yml playbooks/site.yml
+```
+
+### Método histórico: Script bash (Hetzner)
 
 ```bash
 # SSH na VPS
@@ -49,66 +80,47 @@ ssh root@<IP_DA_VPS>
 bash <(curl -fsSL https://raw.githubusercontent.com/extra-consultoria/main/deploy/provision-vps.sh)
 ```
 
-### Metodo 2: Hetzner Cloud API (automatizado)
+### Método histórico: Hetzner Cloud API
 
 Requer `hcloud` CLI instalado e API token configurado:
 
 ```bash
-# Instalar hcloud CLI
-# https://community.hetzner.com/tutorials/howto-hcloud-cli
-
-# Configurar token
 export HCLOUD_TOKEN="seu-token-aqui"
-
-# Criar VPS
 hcloud server create \
   --name extra-consultoria \
   --type cx22 \
   --image ubuntu-24.04 \
   --location nbg1 \
-  --ssh-key ~/.ssh/id_ed25519.pub \
-  --enable-ipv4 \
-  --enable-ipv6
-
-# Criar Storage Box via Hetzner Robot (web console apenas)
-# https://robot.hetzner.com/storagebox
+  --ssh-key ~/.ssh/id_ed25519.pub
 ```
 
-### Metodo 3: Hetzner Console (manual)
-
-1. Acesse https://console.hetzner.cloud/
-2. Crie projeto "Extra Consultoria"
-3. Crie servidor: CX22, Ubuntu 24.04, nbg1
-4. Adicione sua chave SSH
-5. Apos boot, execute o script de provisionamento
-
-## Passo a Passo Manual
+## Passo a Passo (registro historico para Hetzner)
 
 ### 1. System Packages
 
 ```bash
 apt-get update && apt-get upgrade -y
-apt-get install -y python3 python3-pip python3-venv postgresql postgresql-client \
+apt-get install -y python3 python3-pip python3-venv postgresql-16 postgresql-client-16 \
   sshfs gzip curl wget git ufw fail2ban htop unattended-upgrades
 ```
 
-### 2. PostgreSQL
+### 2. PostgreSQL 16
 
 ```bash
 # Configurar para ouvir apenas localhost
-sed -i "s/^#listen_addresses = 'localhost'/listen_addresses = 'localhost'/" /etc/postgresql/*/main/postgresql.conf
+sed -i "s/^#listen_addresses = 'localhost'/listen_addresses = 'localhost'/" /etc/postgresql/16/main/postgresql.conf
 
-# Tuning para CX22 (2 vCPU, 4 GB RAM)
-cat >> /etc/postgresql/*/main/postgresql.conf << 'EOF'
-shared_buffers = 1GB
-effective_cache_size = 2GB
+# Tuning para 32 GB RAM (referência)
+cat >> /etc/postgresql/16/main/postgresql.conf << 'EOF'
+shared_buffers = 8GB
+effective_cache_size = 24GB
 work_mem = 64MB
-maintenance_work_mem = 256MB
+maintenance_work_mem = 1GB
 random_page_cost = 1.1
 effective_io_concurrency = 200
-wal_buffers = 16MB
-max_parallel_workers = 2
-max_parallel_workers_per_gather = 2
+wal_buffers = 64MB
+max_parallel_workers = 4
+max_parallel_workers_per_gather = 4
 EOF
 
 systemctl restart postgresql
@@ -118,46 +130,20 @@ sudo -u postgres createdb pncp_datalake
 sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'SENHA_SEGURA'"
 ```
 
+**Nota:** O tuning acima é para a configuração de referência (32 GB RAM). Ajustar conforme o hardware real provisionado.
+
 ### 3. Clone e Deploy
 
 ```bash
-# Criar usuario de aplicacao
 useradd -m -s /bin/bash extra-consultoria
-
-# Clonar repositorio
 git clone https://github.com/extra-consultoria/extra-consultoria.git /opt/extra-consultoria
 cd /opt/extra-consultoria
 chown -R extra-consultoria:extra-consultoria /opt/extra-consultoria
-
-# Dependencias Python
 pip3 install -r requirements.txt
-
-# Migrations e seeds
 bash db/setup_db.sh postgresql://postgres:SENHA@localhost:5432/pncp_datalake
 ```
 
-### 4. Systemd Timers
-
-```bash
-# Copiar arquivos
-cp deploy/systemd/*.service /etc/systemd/system/
-cp deploy/systemd/*.timer /etc/systemd/system/
-systemctl daemon-reload
-
-# Habilitar todos os timers
-for timer in extra-crawl-pncp extra-crawl-dom-sc extra-crawl-pcp \
-  extra-crawl-compras-gov extra-crawl-tce-sc extra-crawl-doe-sc \
-  extra-crawl-transparencia extra-crawl-contracts extra-coverage-report \
-  extra-panorama-weekly extra-db-backup extra-db-purge extra-health-check; do
-  systemctl enable "${timer}.timer"
-  systemctl start "${timer}.timer"
-done
-
-# Verificar
-systemctl list-timers 'extra-*'
-```
-
-### 5. SSH Hardening
+### 4. SSH Hardening
 
 ```bash
 # Editar /etc/ssh/sshd_config
@@ -168,7 +154,7 @@ PasswordAuthentication no
 systemctl restart sshd
 ```
 
-### 6. Firewall
+### 5. Firewall
 
 ```bash
 ufw default deny incoming
@@ -212,9 +198,13 @@ ExecStart=/usr/bin/curl -sf --max-time 10 -X POST \
   "${WEBHOOK_URL}"
 ```
 
-## Storage Box
+## Storage Box (Backup Externo)
 
-### Configuracao
+### Aviso
+
+A documentação abaixo referencia Hetzner Storage Box como implementação atual. A estratégia de backup é provider-agnostic (ver `docs/ops/backup.md` e `docs/ops/cloud-deployment-plan.md`). Storage Box da Hetzner não é requisito arquitetural.
+
+### Configuracao (Hetzner — implementação atual)
 
 A Storage Box Hetzner (BX11, 100 GB) e montada via sshfs para backups:
 
@@ -368,6 +358,6 @@ find /opt/extra-consultoria/ -name "*.dump*" -delete
 
 ---
 
-> **Documentacao gerada em:** 2026-07-11
-> **Story:** FEAT-4.1 — Provisionar Hetzner VPS
+> **Ultima atualizacao:** 2026-07-15 (desacoplado de Hetzner como baseline)
+> **Story original:** FEAT-4.1 — Provisionar Hetzner VPS
 > **Responsavel:** @devops (Gage)

@@ -35,15 +35,15 @@ Nota operacional desta fase:
 ### Arquitetura Resumida
 
 ```
-[Fontes Externas]                    [Hetzner VPS]
+[Fontes Externas]                    [VPS em Nuvem]
   PNCP API ──┐                      ┌──────────────────────┐
-  DOM-SC  ───┤                      │  PostgreSQL 17        │
+  DOM-SC  ───┤                      │  PostgreSQL 16        │
   PCP API ───┤──► Crawlers ────────►│  pncp_raw_bids        │
   ComprasGov ┤    (Python 3.12)     │  sc_public_entities   │
   TCE-SC  ───┤                      │  entity_coverage      │
   Transparen─┘                      └──────────────────────┘
                                             │
-                                     [Hetzner Storage Box]
+                                     [Storage Externo]
                                      backups/postgresql/
                                        daily/ (7 dias)
                                        weekly/ (4 semanas)

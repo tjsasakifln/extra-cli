@@ -1,6 +1,13 @@
-# Plano Hetzner + Supabase Self-Hosted — Extra Construtora
+# Plano Hetzner + Supabase Self-Hosted — Extra Construtora (HISTÓRICO)
 
-> **Data:** 2026-07-10 | **Autor:** AIOX PM | **Decisão:** CX43 (menor custo)
+> **Data:** 2026-07-10 | **Autor:** AIOX PM | **Status:** HISTÓRICO — substituído por ADR-007 e ADR-008
+> 
+> **Nota (2026-07-15):** Este documento é mantido como registro histórico. A direção arquitetural atual está documentada em:
+> - `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md` — Estratégia de hospedagem
+> - `docs/architecture/adr/ADR-008-infrastructure-as-code-strategy.md` — Estratégia de IaC
+> - `docs/ops/cloud-deployment-plan.md` — Plano operacional
+>
+> Hetzner não é mais baseline obrigatório. Supabase não é mais a direção assumida para o estágio inicial.
 
 ---
 
@@ -34,7 +41,7 @@
 
 | Serviço | vCPU | RAM | Disco |
 |---------|------|-----|-------|
-| PostgreSQL 17 | 2-3 | 4 GB | 60 GB |
+| PostgreSQL 16 | 2-3 | 4 GB | 60 GB |
 | GoTrue (auth) | 0.5 | 256 MB | — |
 | Kong (API gateway) | 0.5 | 512 MB | — |
 | PostgREST | 0.5 | 256 MB | — |

@@ -19,11 +19,13 @@
 
 **Conclusão:** `api/consulta/v1` é o endpoint CORRETO e ATIVO. A alegação da auditoria original de que deveria ser `pncp-consulta/v1` é **FALSE_POSITIVE**.
 
+**Nota (2026-07-15):** O código atualmente utiliza `https://pncp.gov.br/api/consulta/v3` como endpoint canônico (`config/settings.py` L55, `.env.example` L25), migrado durante a story TD-8.3. A pesquisa confirma que `api/consulta/v1` funciona, mas o código foi intencionalmente migrado para `v3`. Existe ambiguidade entre as versões de API documentadas (v1 no Swagger UI, v3 no OpenAPI spec e no código). Ver `docs/research/pncp-api-2026-07-12.md` para o levantamento completo dos endpoints. Esta divergência entre documentação oficial e versão em uso no código deve ser monitorada.
+
 **Impacto no código:** NENHUM. URLs atuais estão corretas. Story B2G-FIX-01 precisa ser atualizada para REMOVER a tarefa de "corrigir URL PNCP".
 
 **Confidence:** HIGH — OpenAPI spec oficial do governo + múltiplas fontes independentes.
 
-**Divergências:** Nenhuma.
+**Divergências:** O código migrou para `v3` (story TD-8.3) enquanto a documentação Swagger referencia `v1` como endpoint base. Esta divergência requer validação operacional — ambos os endpoints podem coexistir, ou um pode ser obsoleto. Ver ADR-007 para o plano de teste comparativo.
 
 ---
 

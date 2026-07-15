@@ -20,14 +20,15 @@ Fora de escopo por enquanto:
 Importante:
 
 - nesta fase o projeto roda com **datalake local**
-- a futura arquitetura com **VPS Hetzner + Supabase + crons** continua sendo alvo, não baseline operacional
+- a futura arquitetura com **VPS em nuvem + PostgreSQL + systemd timers** é o alvo, não baseline operacional
+- o provedor de nuvem ainda não está definido (ver `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md`)
 - base local legada **não deve ser presumida fresca**
 - qualquer decisão de uso consultivo deve verificar `source-health`, manifests e `last_seen` antes de confiar nos dados
 
 ## Stack
 
 - **Python 3.12** — scripts de coleta, análise, PDF
-- **PostgreSQL 17** — DataLake (Hetzner VPS)
+- **PostgreSQL 16** — DataLake (versão canônica inicial)
 - **systemd timers** — cron jobs
 - **ReportLab** — PDFs Big Four aesthetic
 - **OpenAI GPT-4.1-nano** — análise de editais
@@ -53,7 +54,7 @@ output/         PDFs e Excels gerados
 pip install -r requirements.txt
 
 # 2. Database
-# Provisionar PostgreSQL no Hetzner e configurar .env:
+# Provisionar PostgreSQL e configurar .env:
 #   LOCAL_DATALAKE_DSN=postgresql://postgres:pass@<ip>:5432/pncp_datalake
 bash db/setup_db.sh
 

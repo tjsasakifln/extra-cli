@@ -30,20 +30,21 @@ Nota de fase:
 - baseline atual: `local-first`
 - o datalake local pode conter dados legados
 - o frescor das fontes criticas deve ser provado antes de confiar nos resultados
+- provedor de nuvem a definir (ver `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md`)
 
 ### Arquitetura Simplificada
 
 ```
-[Fontes Externas]                 [VPS Hetzner]              [Cliente]
+[Fontes Externas]                 [VPS em Nuvem]              [Cliente]
      PNCP                     +---------------------+      +---------+
-     DOM-SC                   | PostgreSQL (4.1 GB)  |----->| PDFs   |
+     DOM-SC                   | PostgreSQL 16        |----->| PDFs   |
      PCP v2       ===crawl==> | Crawlers (systemd)   |=====>| Excel  |
      ComprasGov               | Intel Pipeline       |      | Web    |
      Portal Transparencia     | Relatorios           |      +---------+
                               +---------------------+
                                    ^
                                    |
-                              [Storage Box]
+                              [Storage Externo]
                               (backups diarios)
 ```
 
@@ -53,14 +54,14 @@ Nota de fase:
 |------------|-----------|--------|
 | Linguagem | Python | 3.12+ |
 | HTTP Client | httpx | 0.28+ |
-| Database | PostgreSQL | 17 |
-| ORM indireto | Supabase SDK (sb) | -- |
+| Database | PostgreSQL | 16 |
+| ORM indireto | psycopg2 (SQL direto) | -- |
 | PDF | ReportLab | 4.5+ |
 | Excel | openpyxl | 3.1+ |
 | CLI | rich | 13+ |
 | LLM | OpenAI GPT-4.1-nano | -- |
 | Agendamento | systemd timers | -- |
-| Infra | Hetzner CX22 (2vCPU, 4GB) | Ubuntu 24.04 |
+| Infra | VPS em nuvem (provider a definir) | Ubuntu 24.04 |
 
 ### Crawlers Disponiveis
 
@@ -121,7 +122,7 @@ O pipeline de enriquecimento (enricher.py) adiciona dados externos:
 | Requisito | Minimo | Recomendado |
 |-----------|--------|-------------|
 | Python | 3.10+ | 3.12+ |
-| PostgreSQL | 14 | 17 |
+| PostgreSQL | 14 | 16 |
 | pip | Ultima versao | -- |
 | Git | 2.x | Ultima versao |
 

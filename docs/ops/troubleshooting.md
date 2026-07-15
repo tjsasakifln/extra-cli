@@ -65,7 +65,7 @@ grep LOCAL_DATALAKE_DSN .env
 sudo systemctl start postgresql
 
 # Verificar pg_hba.conf para conexoes remotas (se aplicavel)
-sudo cat /etc/postgresql/17/main/pg_hba.conf | grep -E "^host"
+sudo cat /etc/postgresql/16/main/pg_hba.conf | grep -E "^host"
 
 # Liberar firewall (se necessario)
 sudo ufw allow 5432/tcp
@@ -97,10 +97,10 @@ Crawling ... (stuck for minutes)
 journalctl -u pncp-crawl-full.service --no-pager -n 50 | grep -i "timeout\|error\|fail"
 
 # 2. Verificar conectividade com a API fonte
-curl -s -o /dev/null -w "%{http_code}" "https://pncp.gov.br/api/consulta/v1/"
+curl -s -o /dev/null -w "%{http_code}" "https://pncp.gov.br/api/consulta/v3/"
 
 # 3. Verificar tempo de resposta
-curl -s -o /dev/null -w "Tempo: %{time_total}s\n" "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?pagina=1"
+curl -s -o /dev/null -w "Tempo: %{time_total}s\n" "https://pncp.gov.br/api/consulta/v3/contratacoes/publicacao?pagina=1"
 
 # 4. Verificar uso de recursos durante o crawl
 htop
@@ -586,13 +586,13 @@ Is the server running on that host and accepting TCP/IP?
 
 ```bash
 # Verificar listen_addresses
-sudo cat /etc/postgresql/17/main/postgresql.conf | grep listen_addresses
+sudo cat /etc/postgresql/16/main/postgresql.conf | grep listen_addresses
 
 # Se estiver como localhost, alterar para *
-sudo sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/17/main/postgresql.conf
+sudo sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/16/main/postgresql.conf
 
 # Adicionar entrada no pg_hba.conf
-echo "host pncp_datalake postgres 0.0.0.0/0 md5" | sudo tee -a /etc/postgresql/17/main/pg_hba.conf
+echo "host pncp_datalake postgres 0.0.0.0/0 md5" | sudo tee -a /etc/postgresql/16/main/pg_hba.conf
 
 # Reiniciar PostgreSQL
 sudo systemctl restart postgresql
@@ -662,7 +662,7 @@ No records found for source X
 journalctl -u pncp-crawl-full.service --no-pager -n 30 | grep -i "fetch\|found\|records"
 
 # 2. Testar API fonte diretamente
-curl -s "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?pagina=1&tamanho=1" | python -m json.tool | head -20
+curl -s "https://pncp.gov.br/api/consulta/v3/contratacoes/publicacao?pagina=1&tamanhoPagina=10" | python -m json.tool | head -20
 
 # 3. Verificar configuracao de data range
 grep INGESTION_DATE_RANGE_DAYS .env

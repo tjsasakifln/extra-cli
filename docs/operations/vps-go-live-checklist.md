@@ -11,7 +11,7 @@ Nenhum item pode ser UNKNOWN ou FAIL. CONCERNS requer justificativa documentada.
 | # | Condição | Status | Evidência necessária |
 |---|----------|--------|---------------------|
 | 1 | Fresh install Ubuntu 24.04 LTS | UNKNOWN | `provision-vps.sh` executado do zero, exit 0 |
-| 2 | PostgreSQL 17 com 42 migrations | **FAIL** | `SELECT count(*) FROM _migrations` = 42 |
+| 2 | PostgreSQL 16 com 42 migrations | **FAIL** | `SELECT count(*) FROM _migrations` = 42 |
 | 3 | Seeds idempotentes | PASS | `db/seed/001_sc_entities.py` → 2.085 entes |
 | 4 | Crawl PNCP mínimo (7 dias SC) | UNKNOWN | Log mostra X registros, 0 erros |
 | 5 | Briefing gerado com dados reais | UNKNOWN | `output/readiness/*.json` com timestamps recentes |

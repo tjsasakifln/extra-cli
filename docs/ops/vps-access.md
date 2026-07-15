@@ -1,8 +1,14 @@
 # Acesso VPS Producao — Extra Consultoria
 
 > Folha de acesso a infraestrutura de producao.
-> **Story:** FEAT-4.1 — Provisionar Hetzner VPS
+> **Versão:** 2.0 — 2026-07-15 (provider-agnostic)
+> **Story original:** FEAT-4.1 — Provisionar Hetzner VPS
 > **Responsavel:** @devops (Gage)
+
+## Nota
+
+O provedor de nuvem ainda não está definido. Os exemplos abaixo usam Hetzner como referência da implementação atual, mas os princípios de acesso (SSH key-only, non-root, firewall) são válidos para qualquer provedor.
+Ver `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md`.
 
 ## Acesso SSH
 
@@ -37,9 +43,11 @@ Conectar:
 ssh ec-prod
 ```
 
-## Console Hetzner
+## Console do Provedor
 
-Acesso de emergencia (rescue mode) via web console:
+Acesso de emergencia (rescue mode) via console web do provedor contratado.
+
+### Hetzner (implementação atual)
 
 1. https://console.hetzner.cloud/
 2. Projeto: Extra Consultoria

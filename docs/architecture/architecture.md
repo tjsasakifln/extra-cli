@@ -3,20 +3,22 @@
 ## Visão Geral
 
 Plataforma CLI de inteligência em licitações. Single-user, single-client
-(Extra Construtora). DataLake PostgreSQL no Hetzner. Multi-source data
+(Extra Construtora). DataLake PostgreSQL em VPS em nuvem. Multi-source data
 ingestion. Relatórios PDF Big Four aesthetic.
+
+Provedor de nuvem a definir. Ver `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md`.
 
 ## C4 — Nível 1 (Contexto)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Usuário: Tiago Sasaki (Consultor)                               │
-│  Acesso: SSH terminal (WSL → Hetzner VPS)                        │
+│  Acesso: SSH terminal (WSL → VPS em nuvem)                        │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│  Extra Consultoria Platform (Hetzner VPS)                        │
+│  Extra Consultoria Platform (VPS em Nuvem)                        │
 │                                                                   │
 │  scripts/crawl/monitor.py  ← systemd timers                      │
 │  scripts/intel_pipeline.py ← CLI on-demand                       │
@@ -35,10 +37,10 @@ ingestion. Relatórios PDF Big Four aesthetic.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Hetzner VPS (Ubuntu 24.04)                    │
+│                     VPS em Nuvem (Ubuntu 24.04)                    │
 │                                                                   │
 │  ┌─────────────────────┐  ┌──────────────────────┐              │
-│  │ systemd timers      │  │ PostgreSQL 17         │              │
+│  │ systemd timers      │  │ PostgreSQL 16         │              │
 │  │                     │  │                       │              │
 │  │ pncp-crawl-full     │  │ pncp_raw_bids         │              │
 │  │ pncp-crawl-inc      │  │ pncp_supplier_contracts│             │

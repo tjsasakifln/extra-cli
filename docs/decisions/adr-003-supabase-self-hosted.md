@@ -1,7 +1,7 @@
 # ADR-003: Supabase Self-Hosted em Hetzner — Arquitetura de Migração
 
-**Status:** Proposto (2026-07-12)
-**Decision:** Documentar caminho de migração do PostgreSQL local para Supabase self-hosted em Hetzner, sem executar o deploy.
+**Status:** Proposed (2026-07-12) — Revisado (2026-07-15)
+**Decision:** Documentar caminho de migração do PostgreSQL local para Supabase self-hosted. **Nota (2026-07-15):** A direção arquitetural atual favorece PostgreSQL puro (Opção A) para o estágio inicial, com Supabase self-hosted como possibilidade futura, não como baseline obrigatório. Ver ADR-007 e ADR-008.
 **Author:** Dara (Data Engineer) / Gage (DevOps) — Synkra AIOX
 **PRD:** `docs/prd/PRD-consultoria-extra.md` v2.0
 
@@ -11,9 +11,9 @@
 
 Atualmente, o DataLake Extra Consultoria roda em PostgreSQL local:
 
-- **Local (desenvolvimento):** PostgreSQL 17 em porta variável (5433 ou 54399), schema `pncp_datalake`
+- **Local (desenvolvimento):** PostgreSQL 16 em porta variável (5433 ou 54399), schema `pncp_datalake`
 - **WSL/Windows:** Acesso via `localhost` com forwarding de porta
-- **Hetzner VPS (futuro):** PostgreSQL 17 puro, sem Supabase
+- **Hetzner VPS (futuro):** PostgreSQL 16 puro, sem Supabase
 - **Testes:** SQLite (unitário) + PostgreSQL (integração)
 
 O PRD prevê migração futura para Supabase self-hosted no Hetzner VPS para:
@@ -30,7 +30,7 @@ No entanto, o deploy em Supabase é **futuro** — esta ADR documenta o caminho,
 
 ### Opção A: PostgreSQL Puro no Hetzner (Status Quo)
 
-**Descrição:** Manter PostgreSQL 17 puro no Hetzner VPS, sem Supabase. Acesso via `psql` e scripts Python com `psycopg2`.
+**Descrição:** Manter PostgreSQL 16 puro no Hetzner VPS, sem Supabase. Acesso via `psql` e scripts Python com `psycopg2`.
 
 **Prós:**
 - Simples, sem overhead de containers

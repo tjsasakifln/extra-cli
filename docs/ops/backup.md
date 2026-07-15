@@ -1,27 +1,58 @@
 # Backup Automatizado do PostgreSQL
 
 > Documentacao do sistema de backup do banco PostgreSQL (DataLake da Extra Consultoria).
+> **Versão:** 2.0 — 2026-07-15 (desacoplado de provedor específico)
 > **Debito:** TD-DB-15 (CRITICAL) -- Ausencia total de backup strategy
+
+## Aviso
+
+A estratégia de backup é **provider-agnostic**. A implementação atual usa Hetzner Storage Box como destino, mas a direção arquitetural é armazenamento externo desacoplado de provedor (object storage, volume separado ou storage box de qualquer fornecedor).
+
+**A Hetzner Storage Box não é requisito obrigatório.** Ver `docs/ops/cloud-deployment-plan.md` para a estratégia completa.
 
 ## Sumario
 
+- [Estratégia de Backup](#estrategia-de-backup)
 - [Arquitetura](#arquitetura)
 - [Scripts](#scripts)
 - [Instalacao no Servidor](#instalacao-no-servidor)
 - [Systemd Service e Timer](#systemd-service-e-timer)
-- [Configuracao Hetzner Storage Box](#configuracao-hetzner-storage-box)
+- [Configuracao de Storage Externo](#configuracao-de-storage-externo)
 - [Retention Policy](#retention-policy)
 - [Restore](#restore)
 - [Monitoramento](#monitoramento)
 - [Perguntas Frequentes](#perguntas-frequentes)
 
+## Estratégia de Backup
+
+### Direção pretendida
+
+- Backup fora da máquina principal
+- Backup criptografado (em trânsito via SSH)
+- Retenção diária (7) e semanal (4)
+- Armazenamento externo (provider-agnostic)
+- Possibilidade de point-in-time recovery (WAL archiving — futuro)
+- Ferramentas: `pg_dump` (atual) → `pgBackRest` ou `WAL-G` (evolução futura)
+- Testes periódicos de restauração
+- Registro do último backup válido
+- Alertas de falha
+
+### Implementação atual
+
+O script `scripts/backup-database.sh` implementa backup via `pg_dump --format=custom` com destino em storage externo montado via sshfs. A implementação atual usa Hetzner Storage Box, mas o script é adaptável a qualquer destino sshfs ou object storage.
+
+### O que NÃO é backup
+
+- Snapshots do provedor não substituem backup do PostgreSQL
+- Réplicas não substituem backup (protegem contra falha de hardware, não contra erro lógico)
+
 ## Arquitetura
 
 ```
-[VPS Hetzner]                        [Hetzner Storage Box]
+[VPS em Nuvem]                      [Storage Externo]
 +---------------+                    +---------------------+
-| PostgreSQL    |                    | backups/postgresql/ |
-| 4.1 GB (pncp) |                    |  +-- daily/         |
+| PostgreSQL 16 |                    | backups/postgresql/ |
+| (pncp)        |                    |  +-- daily/         |
 +-------+-------+                    |  |   +-- pncp_*.gz  |
         |                            |  +-- weekly/        |
         | pg_dump --format=custom    |      +-- pncp_*.gz  |
@@ -131,7 +162,7 @@ BACKUP_LOG_FILE=/var/log/backup-database.log
 
 ```bash
 apt update
-apt install -y postgresql-client-16 sshfs gzip
+apt install -y postgresql-client-16 sshfs gzip  # PostgreSQL 16 (versão canônica inicial)
 ```
 
 ### 3. Copiar script para o servidor
@@ -248,11 +279,11 @@ systemctl start extra-db-backup.service
 journalctl -u extra-db-backup.service --no-pager -n 50
 ```
 
-## Configuracao Hetzner Storage Box
+## Configuracao de Storage Externo
 
-A Storage Box e fornecida pela Hetzner como parte da infraestrutura do VPS.
+O backup deve ser armazenado fora da máquina principal. A implementação atual usa Hetzner Storage Box via sshfs, mas qualquer destino compatível com sshfs ou object storage pode ser utilizado.
 
-### Dados de Acesso
+### Dados de Acesso (exemplo com Hetzner Storage Box — implementação atual)
 
 | Campo | Valor |
 |-------|-------|
