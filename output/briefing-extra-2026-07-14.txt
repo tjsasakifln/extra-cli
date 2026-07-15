@@ -1,0 +1,30 @@
+
+=== BRIEFING DIÁRIO — Extra Construtora ===
+Gerado: 14/07/2026 | Fonte: PNCP
+Filtros: AEC | SC | Raio 200km | Horizonte: 90 dias
+Oportunidades: 6 (6 urgentes, 0 em breve)
+
+🔴 URGENTE (próximos 7 dias): 6
+--------------------------------------------------------------------------------
+  [Dispensa] Contratação emergencial de instituição para a prestação de serviços especializad
+  Órgão: FUNDO MUNICIPAL DE SAUDE DE ARAQUARI - SC — ? (?) | Valor: R$ 756,151.02 | Abertura: 15/07/2026
+
+  [Pregão - Eletrônico] Contratação de empresa para a prestação de serviços de transporte de crianças, a
+  Órgão: FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE CONCORDIA — ? (?) | Valor: R$ 609,200.00 | Abertura: 15/07/2026
+
+  [Dispensa] Contratação de serviços que compreendem reparos decorrentes de infiltrações na p
+  Órgão: MINISTERIO DA JUSTICA E SEGURANCA PUBLICA — SANTA CATARINA (0km) | Valor: R$ 58,508.88 | Abertura: 15/07/2026
+  Link: https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=20037006001082026
+
+  [Dispensa] SERVIÇO DE SONDAGEM À PERCUSSÃO COM ENSAIO SPT (STANDARD PENETRATION TEST) PARA 
+  Órgão: INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SANTA CATARINA — SANTA CATARINA (0km) | Valor: R$ 23,352.02 | Abertura: 15/07/2026
+  Link: https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=15851606001672026
+
+  [Dispensa] Prestação de serviços de manutenção corretiva dos sistemas de ar-condicionado da
+  Órgão: COMANDO DO EXERCITO — SANTA CATARINA (0km) | Valor: R$ 11,515.00 | Abertura: 15/07/2026
+  Link: https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=16044306000322026
+
+  [Dispensa] Contratação de empresa para revisão da conservadora de vacinas a fim de garantir
+  Órgão: FUNDO MUNICIPAL DE SAUDE DE CERRO NEGRO — ? (?) | Valor: R$ 1,100.00 | Abertura: 15/07/2026
+
+📊 TOTAL AEC NO RAIO 200km: 150 editais | 83 órgãos | Valor: R$ 179,517,998.16

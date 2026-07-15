@@ -568,24 +568,25 @@ def cmd_briefing(args: argparse.Namespace) -> None:
     horizon = date.today() + timedelta(days=args.dias)
 
     query = """
-        SELECT b.orgao_razao_social, b.uf, b.modalidade_nome, b.objeto_compra,
-               b.valor_total_estimado, b.data_abertura, b.data_publicacao,
-               b.situacao_compra, b.link_pncp,
+        SELECT COALESCE(e.razao_social, oi.orgao_nome) AS orgao_nome,
+               oi.uf, oi.modalidade, oi.objeto,
+               oi.valor_estimado, oi.data_abertura, oi.data_publicacao,
+               oi.status_canonico, oi.link_edital,
                e.municipio AS municipio_orgao, e.distancia_fk
-        FROM pncp_raw_bids b
-        JOIN sc_public_entities e ON b.orgao_cnpj_8 = e.cnpj_8
-        WHERE b.is_active = TRUE
-          AND b.data_abertura IS NOT NULL
-          AND b.data_abertura >= CURRENT_DATE
-          AND b.data_abertura <= %s
-          AND b.uf = 'SC'
-          AND e.raio_200km = TRUE
+        FROM opportunity_intel oi
+        LEFT JOIN sc_public_entities e ON LEFT(oi.orgao_cnpj, 8) = e.cnpj_8
+        WHERE oi.is_active = TRUE
+          AND oi.data_abertura IS NOT NULL
+          AND oi.data_abertura >= CURRENT_DATE
+          AND oi.data_abertura <= %s
+          AND oi.uf = 'SC'
+          AND (e.raio_200km = TRUE OR e.raio_200km IS NULL)
           AND (
-              b.objeto_compra ~* '(obra|construção|edificação|pavimentação|drenagem|saneamento|reforma|manutenção.*predial|engenharia|infraestrutura|instalação|fiscalização.*obra|serviço.*técnico.*eng|execução|edifício|rodovia|ponte|galeria|concreto|asfalto|terraplenagem|fundação|estrutura|contenção|revestimento|telhado|cobertura|hidráulica|elétrica.*predial|combate.*incêndio|acessibilidade|calçada|passeio|praça|urbanização|paisagismo|arquitet*)'
-              OR b.objeto_compra ~* '(elaboração.*projeto|projeto.*executivo|projeto.*básico|estudo.*viabilidade|orçamento.*obra|memorial.*descritivo|CAD|BIM|as built|ART|RRT|CREA|CAU)'
-              OR b.modalidade_nome ~* '(concorrência|tomada.*preço|concorrência.*eletrônica|RDC|regime.*diferenciado|pregão.*eletrônico|dispensa.*obra|convite)'
+              oi.objeto ~* '(obra|construção|edificação|pavimentação|drenagem|saneamento|reforma|manutenção.*predial|engenharia|infraestrutura|instalação|fiscalização.*obra|serviço.*técnico.*eng|execução|edifício|rodovia|ponte|galeria|concreto|asfalto|terraplenagem|fundação|estrutura|contenção|revestimento|telhado|cobertura|hidráulica|elétrica.*predial|combate.*incêndio|acessibilidade|calçada|passeio|praça|urbanização|paisagismo|arquitet*)'
+              OR oi.objeto ~* '(elaboração.*projeto|projeto.*executivo|projeto.*básico|estudo.*viabilidade|orçamento.*obra|memorial.*descritivo|CAD|BIM|as built|ART|RRT|CREA|CAU)'
+              OR oi.modalidade ~* '(concorrência|tomada.*preço|RDC|regime.*diferenciado|pregão|dispensa|convite)'
           )
-        ORDER BY b.data_abertura ASC, b.valor_total_estimado DESC NULLS LAST
+        ORDER BY oi.data_abertura ASC, oi.valor_estimado DESC NULLS LAST
         LIMIT %s
     """
     cur.execute(query, (horizon, args.limit))
@@ -600,8 +601,8 @@ def cmd_briefing(args: argparse.Namespace) -> None:
 
     # Count by urgency
     hoje = date.today()
-    urgentes = [r for r in rows if r[5] and r[5] <= hoje + timedelta(days=7)]
-    proximas = [r for r in rows if r[5] and hoje + timedelta(days=7) < r[5] <= horizon]
+    urgentes = [r for r in rows if r[5] and r[5].date() <= hoje + timedelta(days=7)]
+    proximas = [r for r in rows if r[5] and hoje + timedelta(days=7) < r[5].date() <= horizon]
 
     print("\n=== BRIEFING DIÁRIO — Extra Construtora ===")
     print(f"Gerado: {date.today().strftime('%d/%m/%Y')} | Fonte: PNCP")
@@ -639,15 +640,15 @@ def cmd_briefing(args: argparse.Namespace) -> None:
 
     # Summary stats — AEC + SC + 200km only
     cur.execute("""
-        SELECT COUNT(*), COUNT(DISTINCT b.orgao_cnpj),
-               COALESCE(SUM(b.valor_total_estimado), 0)
-        FROM pncp_raw_bids b
-        JOIN sc_public_entities e ON b.orgao_cnpj_8 = e.cnpj_8
-        WHERE b.is_active = TRUE AND b.uf = 'SC' AND e.raio_200km = TRUE
+        SELECT COUNT(*), COUNT(DISTINCT oi.orgao_cnpj),
+               COALESCE(SUM(oi.valor_estimado), 0)
+        FROM opportunity_intel oi
+        LEFT JOIN sc_public_entities e ON LEFT(oi.orgao_cnpj, 8) = e.cnpj_8
+        WHERE oi.is_active = TRUE AND oi.uf = 'SC' AND (e.raio_200km = TRUE OR e.raio_200km IS NULL)
           AND (
-              b.objeto_compra ~* '(obra|construção|edificação|pavimentação|drenagem|saneamento|reforma|manutenção.*predial|engenharia|infraestrutura|instalação|fiscalização.*obra|serviço.*técnico.*eng|execução|edifício|rodovia|ponte|galeria|concreto|asfalto|terraplenagem|fundação|estrutura|contenção|revestimento|telhado|cobertura|hidráulica|elétrica.*predial|combate.*incêndio|acessibilidade|calçada|passeio|praça|urbanização|paisagismo|arquitet*)'
-              OR b.objeto_compra ~* '(elaboração.*projeto|projeto.*executivo|projeto.*básico|estudo.*viabilidade|orçamento.*obra|memorial.*descritivo|CAD|BIM|as built|ART|RRT|CREA|CAU)'
-              OR b.modalidade_nome ~* '(concorrência|tomada.*preço|concorrência.*eletrônica|RDC|regime.*diferenciado|pregão.*eletrônico|dispensa.*obra|convite)'
+              oi.objeto ~* '(obra|construção|edificação|pavimentação|drenagem|saneamento|reforma|manutenção.*predial|engenharia|infraestrutura|instalação|fiscalização.*obra|serviço.*técnico.*eng|execução|edifício|rodovia|ponte|galeria|concreto|asfalto|terraplenagem|fundação|estrutura|contenção|revestimento|telhado|cobertura|hidráulica|elétrica.*predial|combate.*incêndio|acessibilidade|calçada|passeio|praça|urbanização|paisagismo|arquitet*)'
+              OR oi.objeto ~* '(elaboração.*projeto|projeto.*executivo|projeto.*básico|estudo.*viabilidade|orçamento.*obra|memorial.*descritivo|CAD|BIM|as built|ART|RRT|CREA|CAU)'
+              OR oi.modalidade ~* '(concorrência|tomada.*preço|RDC|regime.*diferenciado|pregão|dispensa|convite)'
           )
     """)
     total, orgs, soma = cur.fetchone()

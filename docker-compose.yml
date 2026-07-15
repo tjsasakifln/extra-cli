@@ -1,8 +1,15 @@
-# PostgreSQL + PostGIS for integration tests
+# PostgreSQL + PostGIS — banco local persistente
 # Usage:
 #   docker compose up -d test-db
-#   TEST_DSN=postgresql://test:test@localhost:5433/extra_test pytest -m integration
 #   docker compose down
+#
+# Databases:
+#   extra_test     — integration tests (tmpfs, volatile)
+#   pncp_datalake  — production data (volume, persistent)
+#
+# Connection strings:
+#   DATABASE_URL=postgresql://test:test@localhost:5433/pncp_datalake
+#   TEST_DSN=postgresql://test:test@localhost:5433/extra_test
 
 services:
   test-db:
@@ -13,9 +20,14 @@ services:
       POSTGRES_PASSWORD: test
     ports:
       - "5433:5432"
-    tmpfs: /var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U test -d extra_test"]
       interval: 2s
       timeout: 5s
       retries: 10
+
+volumes:
+  pgdata:
+    driver: local
