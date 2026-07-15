@@ -68,3 +68,8 @@ data/geocode_cache.json
 data/scrape_residual_progress.json
 data/extra_ledger.json
 db/log/
+
+# Environment files — keep only .env.example tracked
+.env.dev
+.env.production
+.env.staging
