@@ -10,7 +10,7 @@
   "qa_verdict": "PASS",
   "po_closed": true,
   "publication_authorized": true,
-  "reviewed_commit": "4055546",
+  "reviewed_commit": "48bfb87",
   "rollback_plan": "git revert 67236d2. DB: container recreate with docker compose down && docker compose up -d. No production data.",
   "gates": {
     "lint": "PASS",
