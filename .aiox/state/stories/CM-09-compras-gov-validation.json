@@ -1,0 +1,49 @@
+{
+  "story_id": "CM-09",
+  "story_title": "Validação e Ativação ComprasGov V3",
+  "story_path": "docs/stories/CM-09-compras-gov-validation.md",
+  "epic_id": "EPIC-COVERAGE-MAX-200KM",
+  "status": "Done",
+  "risk_level": "STANDARD",
+  "created_at": "2026-07-15T20:30:00Z",
+  "updated_at": "2026-07-15T20:35:00Z",
+  "po_validated": true,
+  "po_closed": false,
+  "publication_authorized": false,
+  "qa_verdict": "PASS",
+  "qa_evidence": {
+    "reviewer": "Quinn (@qa)",
+    "reviewed_at": "2026-07-15T20:35:00Z",
+    "issues": [],
+    "acceptance_criteria": {
+      "AC1": "PASS — crawl() retorna [] em janela curta sem dados, sem exception",
+      "AC2": "PASS — _paginate com UF=SC retorna 8 registros com CNPJ e UF",
+      "AC3": "PASS — transform() produz schema pncp_raw_bids correto"
+    },
+    "smoke_test": {
+      "endpoint": "dadosabertos.compras.gov.br",
+      "records_fetched": 8,
+      "uf": "SC",
+      "date_range": "2025-06-01 a 2025-07-15",
+      "transform_success": true,
+      "geo_restricted": false
+    }
+  },
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS",
+    "typecheck": "NA"
+  },
+  "scope_files": [
+    "scripts/crawl/compras_gov_crawler.py"
+  ],
+  "decisions": [
+    "Crawler pronto sem alterações — validação apenas",
+    "ComprasGov sem geo-restrição → pode rodar de qualquer IP",
+    "Date format YYYY-MM-DD documentado (≠ PNCP YYYYMMDD)"
+  ],
+  "files_modified": [
+    "docs/stories/CM-09-compras-gov-validation.md"
+  ]
+}
