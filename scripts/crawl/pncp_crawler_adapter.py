@@ -19,6 +19,7 @@ from scripts.crawl.pncp_contract import (
     PNCP_CONSULTA_BASE,
     PNCP_SAFE_WINDOW_DAYS,
     PNCP_TAMANHO_PAGINA_MAX,
+    PNCP_TAMANHO_PAGINA_MAX_CONTRATOS,
     PNCP_TAMANHO_PAGINA_MIN,
     build_pncp_public_link,
     digits_only,
@@ -33,6 +34,13 @@ _logger = logging.getLogger(__name__)
 PNCP_PAGE_SIZE = max(
     PNCP_TAMANHO_PAGINA_MIN,
     min(PNCP_TAMANHO_PAGINA_MAX, int(os.getenv("PNCP_PAGE_SIZE", str(PNCP_TAMANHO_PAGINA_MAX)))),
+)
+PNCP_CONTRATOS_PAGE_SIZE = max(
+    PNCP_TAMANHO_PAGINA_MIN,
+    min(
+        PNCP_TAMANHO_PAGINA_MAX_CONTRATOS,
+        int(os.getenv("PNCP_CONTRATOS_PAGE_SIZE", str(PNCP_TAMANHO_PAGINA_MAX_CONTRATOS))),
+    ),
 )
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "200"))
 PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "120"))
@@ -469,6 +477,198 @@ def transform(raw_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             }
         )
     return transformed
+
+
+# ---------------------------------------------------------------------------
+# Contratos (historical contracts) — /api/consulta/v1/contratos
+# ---------------------------------------------------------------------------
+# API docs: dataInicial (required), dataFinal (required), pagina (required).
+# Optional: tamanhoPagina, uf, cnpj, codigoMunicipioIbge.
+# WARNING: UF filter is broken server-side (returns same totalRegistros for
+# any UF). Post-filtering is applied in transform_contracts() when target
+# specifies a UF.
+# ---------------------------------------------------------------------------
+
+
+def _fetch_contracts_page(request: CrawlRequest, page: int) -> FetchResult:
+    """Fetch one page of contratos from the PNCP consulta API."""
+    params: dict[str, str] = {
+        "dataInicial": format_pncp_date(request.date_from or date.today()),
+        "dataFinal": format_pncp_date(request.date_to or request.date_from or date.today()),
+        "pagina": str(page),
+        "tamanhoPagina": str(PNCP_CONTRATOS_PAGE_SIZE),
+    }
+    # UF filter passed to API even though it's broken server-side —
+    # reduces response size slightly in some cases. Post-filter in transform.
+    target = parse_target(request.target)
+    if target.kind in {"sc", "within_200km", "engineering"}:
+        params["uf"] = "SC"
+    elif target.kind == "municipio":
+        params["codigoMunicipioIbge"] = target.value or ""
+    elif target.kind == "cnpj":
+        params["cnpj"] = target.value or ""
+
+    url = f"{PNCP_CONSULTA_BASE}/contratos?{urllib.parse.urlencode(params)}"
+    result = _http_get_json(url)
+    result.metadata["params"] = params
+    return result
+
+
+def crawl_contracts(mode: str | CrawlRequest = "full") -> FetchResult:
+    """Crawl PNCP contratos endpoint with windowed date pagination."""
+    request = _derive_request(mode)
+    if request.date_from is None or request.date_to is None:
+        raise ValueError("CrawlRequest precisa de date_from e date_to resolvidos")
+
+    all_records: list[dict[str, Any]] = []
+    errors: list[str] = []
+    metadata: dict[str, Any] = {
+        "endpoint": f"{PNCP_CONSULTA_BASE}/contratos",
+        "target": asdict(parse_target(request.target)),
+        "windows": [],
+        "pages_fetched": 0,
+    }
+    completed_any = False
+    empty_confirmed = True
+
+    for window_start, window_end in _windowed_dates(request.date_from, request.date_to):
+        metadata["windows"].append({"date_from": window_start.isoformat(), "date_to": window_end.isoformat()})
+        page = 1
+        while page <= PNCP_MAX_PAGES:
+            page_request = CrawlRequest(
+                mode=request.mode,
+                date_from=window_start,
+                date_to=window_end,
+                target=request.target,
+                limit=request.limit,
+            )
+            result = _fetch_contracts_page(page_request, page)
+            metadata["pages_fetched"] += 1
+
+            if result.request_completed:
+                completed_any = True
+            if result.errors:
+                errors.extend(result.errors)
+                empty_confirmed = False
+                break
+
+            if result.records:
+                all_records.extend(result.records)
+                empty_confirmed = False
+            elif not result.empty_confirmed:
+                empty_confirmed = False
+
+            pagination = result.metadata.get("pagination") or {}
+            remaining = pagination.get("paginasRestantes")
+            if request.limit and len(all_records) >= request.limit:
+                all_records = all_records[: request.limit]
+                return FetchResult(
+                    records=all_records,
+                    request_completed=completed_any,
+                    http_status=result.http_status,
+                    empty_confirmed=False,
+                    errors=errors,
+                    metadata=metadata,
+                )
+            if result.empty_confirmed and not result.records:
+                break
+            if not isinstance(remaining, int) or remaining <= 0:
+                break
+            page += 1
+            time.sleep(PNCP_REQUEST_DELAY)
+        time.sleep(PNCP_REQUEST_DELAY)
+
+    http_status = 200 if completed_any else None
+    return FetchResult(
+        records=all_records,
+        request_completed=completed_any,
+        http_status=http_status,
+        empty_confirmed=empty_confirmed and not all_records and not errors,
+        errors=errors,
+        metadata=metadata,
+    )
+
+
+def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Transform raw PNCP contratos records into the canonical supplier_contracts schema."""
+    transformed: list[dict[str, Any]] = []
+    for raw in raw_records:
+        orgao = raw.get("orgaoEntidade") or {}
+        unidade = raw.get("unidadeOrgao") or {}
+        unidade_sub = raw.get("unidadeSubRogada") or {}
+
+        numero_controle = raw.get("numeroControlePncpCompra")
+        orgao_cnpj = digits_only(orgao.get("cnpj"))
+        fornecedor_cnpj = digits_only(raw.get("niFornecedor"))
+        ano_contrato = raw.get("anoContrato")
+        sequencial_contrato = raw.get("sequencialContrato")
+
+        contrato_id_parts = [
+            orgao_cnpj,
+            str(ano_contrato or ""),
+            str(sequencial_contrato or ""),
+        ]
+        contrato_id = "|".join(contrato_id_parts) if all(contrato_id_parts) else None
+
+        import hashlib
+
+        content_hash_source = "|".join(
+            [
+                str(numero_controle or ""),
+                orgao_cnpj,
+                fornecedor_cnpj,
+                str(ano_contrato or ""),
+                str(sequencial_contrato or ""),
+                str(raw.get("dataPublicacaoPncp") or ""),
+            ]
+        )
+        content_hash = hashlib.sha256(content_hash_source.encode("utf-8")).hexdigest()
+
+        transformed.append(
+            {
+                "contrato_id": contrato_id,
+                "numero_controle_pncp_compra": numero_controle,
+                "numero_controle_pncp_ata": raw.get("numeroControlePncpAta"),
+                "orgao_cnpj": orgao_cnpj,
+                "orgao_razao_social": orgao.get("razaoSocial"),
+                "orgao_esfera_id": orgao.get("esferaId"),
+                "unidade_nome": unidade.get("nomeUnidade"),
+                "unidade_uf": unidade.get("ufSigla"),
+                "unidade_municipio": unidade.get("municipioNome"),
+                "unidade_codigo_ibge": digits_only(unidade.get("codigoIbge")),
+                "unidade_sub_rogada_nome": unidade_sub.get("nomeUnidadeSubRogada"),
+                "fornecedor_cnpj": fornecedor_cnpj,
+                "fornecedor_tipo_pessoa": raw.get("tipoPessoa"),
+                "fornecedor_pais_codigo": raw.get("codigoPaisFornecedor"),
+                "ano_contrato": ano_contrato,
+                "sequencial_contrato": sequencial_contrato,
+                "tipo_contrato": raw.get("tipoContrato"),
+                "numero_contrato_empenho": raw.get("numeroContratoEmpenho"),
+                "categoria_processo": raw.get("categoriaProcesso"),
+                "processo": raw.get("processo"),
+                "informacao_complementar": raw.get("informacaoComplementar"),
+                "data_assinatura": raw.get("dataAssinatura"),
+                "data_vigencia_inicio": raw.get("dataVigenciaInicio"),
+                "data_vigencia_fim": raw.get("dataVigenciaFim"),
+                "data_publicacao_pncp": raw.get("dataPublicacaoPncp"),
+                "data_atualizacao": raw.get("dataAtualizacao"),
+                "valor_inicial": safe_float(raw.get("valorInicial")),
+                "valor_global": safe_float(raw.get("valorGlobal")),
+                "valor_parcela": safe_float(raw.get("valorParcela")),
+                "valor_acumulado": safe_float(raw.get("valorAcumulado")),
+                "content_hash": content_hash,
+                "source": "pncp",
+                "source_id": numero_controle or contrato_id,
+            }
+        )
+    return transformed
+
+
+def crawl_contracts_and_transform(mode: str | CrawlRequest = "full") -> tuple[list[dict[str, Any]], FetchResult]:
+    """Crawl + transform contratos in one call. Returns (transformed_records, raw_result)."""
+    raw = crawl_contracts(mode)
+    records = transform_contracts(raw.records) if raw.records else []
+    return records, raw
 
 
 def fetch_compra_detail(cnpj: str, ano: int, sequencial: int) -> FetchResult:

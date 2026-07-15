@@ -34,7 +34,13 @@ PNCP_CONSULTA_BASE = os.getenv("PNCP_CONSULTA_BASE", "https://pncp.gov.br/api/co
 PNCP_API_BASE = os.getenv("PNCP_API_BASE", "https://pncp.gov.br/api/pncp/v1")
 PNCP_DATE_FORMAT = "%Y%m%d"
 PNCP_TAMANHO_PAGINA_MIN = 10
-PNCP_TAMANHO_PAGINA_MAX = 50
+# NOTE: page size limits DIFFER per endpoint despite docs claiming 500 for both.
+# - contratações/publicacao: max 50  (returns 400 "Tamanho de página inválido" above 50)
+# - contratos:               max 500 (verified 2026-07-15)
+# Tested against live API: 50→OK, 100→400 for contratações; 500→OK, 1000→400 for contratos.
+PNCP_TAMANHO_PAGINA_MAX_CONTRATACOES = 50
+PNCP_TAMANHO_PAGINA_MAX_CONTRATOS = 500
+PNCP_TAMANHO_PAGINA_MAX = PNCP_TAMANHO_PAGINA_MAX_CONTRATACOES  # legacy compat
 PNCP_SAFE_WINDOW_DAYS = int(os.getenv("PNCP_SAFE_WINDOW_DAYS", "7"))
 
 DEFAULT_MODALIDADES = tuple(mod.value for mod in ModalidadePNCP)

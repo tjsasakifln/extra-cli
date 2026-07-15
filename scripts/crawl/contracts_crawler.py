@@ -837,3 +837,23 @@ def transform(records: list[dict]) -> list[dict]:
         if t and t.get("fornecedor_cnpj"):
             transformed.append(t)
     return transformed
+
+
+def transform_with_uf_filter(records: list[dict], uf: str | None = None) -> list[dict]:
+    """Transform + optional client-side UF post-filter.
+
+    The PNCP contratos API UF filter is broken server-side (returns same
+    totalRegistros for any UF).  Use this when target filtering is needed.
+
+    Args:
+        records: Raw records from crawl().
+        uf: Two-letter UF to filter by (e.g. ``"SC"``).  ``None`` = no filter.
+
+    Returns:
+        Normalized records, optionally filtered to the given UF.
+    """
+    transformed = transform(records)
+    if uf:
+        uf_upper = uf.upper().strip()
+        transformed = [r for r in transformed if (r.get("uf") or "").upper() == uf_upper]
+    return transformed
