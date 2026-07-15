@@ -88,14 +88,14 @@ recall para >80% em 4 ondas de implementação.
 | CM-03 | Reconciliação golden dataset e taxonomia de misses | 1 | CM-02 | 90 | Ready |
 | CM-04 | Recall, freshness e source health por ente e fonte | 1 | CM-03 | 80 | Draft |
 | CM-05 | Detecção fail-closed de zero anômalo e paginação truncada | 1 | CM-04 | 75 | Draft |
-| CM-06 | Cobertura PNCP de editais e contratos (correção + backfill) | 2 | CM-05 | 95 | Draft |
+| CM-06 | Cobertura PNCP de editais e contratos (correção + backfill) | 2 | CM-05 | 95 | Ready |
 | CM-07 | Cobertura DOM-SC e publicações suplementares (validação) | 2 | CM-05 | 70 | Draft |
 | CM-08 | Cobertura PCP/TCE-SC com expansão para municípios | 2 | CM-05 | 65 | Draft |
 | CM-09 | Framework parametrizado para famílias de portais municipais | 3 | CM-05 | 72 | Draft |
 | CM-10 | Reparo do Transparência (detecção + scraping) | 3 | CM-09 | 85 | Draft |
 | CM-11 | Segunda fonte/família com maior ganho marginal | 3 | CM-10 | 60 | Draft |
 | CM-12 | Coleta de anexos, retificações e republicações | 3 | CM-06 | 55 | Draft |
-| CM-13 | Deduplicação multicanal e aliases de compradores | 2 | CM-03 | 92 | Ready |
+| CM-13 | Deduplicação multicanal e aliases de compradores | 2 | CM-03 | 92 | ✅ DONE (bb4cad0) |
 | CM-14 | Regression suite baseada em oportunidades reais conhecidas | 2 | CM-03 | 68 | Draft |
 | CM-15 | Provisionamento idempotente de VPS | 4 | CM-06 | 50 | Draft |
 | CM-16 | Operação headless de browser em Linux | 4 | CM-15 | 45 | Draft |

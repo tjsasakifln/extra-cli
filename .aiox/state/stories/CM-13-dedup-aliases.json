@@ -18,7 +18,7 @@
   "qa_reviewed_by": "aiox-qa (Quinn)",
   "qa_concerns_resolved": true,
   "qa_concerns_summary": "2 HIGH issues resolvidos (hash dedup + AC-2 integration). 3 MEDIUM mantidos como follow-up (testes de falha, normalização municipio, guardrail circular).",
-  "reviewed_commit": null,
+  "reviewed_commit": "bb4cad0",
   "po_closed": true,
   "po_closed_at": "2026-07-15T18:00:00Z",
   "po_closed_by": "aiox-master (Orion)",
