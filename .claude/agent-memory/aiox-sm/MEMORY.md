@@ -6,3 +6,4 @@
 - [Duplicatas Reversa nao sao todas identicas](feedback_reversa-duplicates-not-all-identical.md) — 4/10 pares kebab/snake_case tem diferencas reais; intel_collect.py tem upgrades v1.5 ausentes no kebab
 - [TD-8.2 Module Imports Fix](story-TD-8.2-module-imports.md) — 37/127 py files (29%) com ImportError: clients/, ingestion/, supabase_client + 5 categorias a mais
 - [PNCP API v3 Migration](project_pncp_v3_migration.md) — API v2->v3 broke crawler, coverage 0%, descoberto via Swagger UI testing 2026-07-11
+- [CM-07 Bootstrap + PCP Expand](cm-07-bootstrap-pcp-expand.md) — Story Draft: DB bootstrap, SOURCE_BLOCKERS PCP fix, PCP 365d expand (2026-07-15)
