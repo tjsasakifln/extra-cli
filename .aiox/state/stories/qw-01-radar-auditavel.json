@@ -10,7 +10,7 @@
     "scripts/opportunity_intel/manifest.py",
     "scripts/consulting_readiness.py"
   ],
-  "reviewed_commit": "d9674e2",
+  "reviewed_commit": null,
   "gates": {
     "lint": "PASS",
     "typecheck": "NA",
