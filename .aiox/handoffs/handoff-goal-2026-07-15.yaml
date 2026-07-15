@@ -1,0 +1,125 @@
+handoff:
+  from_agent: "aiox-master (Orion)"
+  to_agent: "aiox-dev (Dex) ou aiox-devops (Gage)"
+  pipeline: "EPIC-COVERAGE-MAX-200KM"
+  wave: "2→3 transition"
+  session_summary: >
+    /goal executado. 7 subagentes de descoberta paralelos + 1 incremento completo (PCP fix).
+    PCP crawler pipeline corrigido e operacional: 294 bids SC ingeridos, 65 entidades cobertas.
+    DB function upsert_pncp_raw_bids corrigida (::INTEGER casts).
+    ComprasGov API testada (0 resultados — endpoints podem ter mudado).
+    PNCP API confirmada inacessível deste IP (bloqueio persiste).
+
+  story_context:
+    completed_this_session:
+      - story_id: "CM-06-PCP-fix"
+        title: "Fix PCP Crawler — CNPJ None para evitar FK violation"
+        status: "Done"
+        qa_verdict: "PASS"
+        reviewed_commit: "3920474"
+        note: >
+          PCP API v2 não retorna CNPJ. orgao_cnpj="" gerava orgao_cnpj_8=""
+          que violava FK fk_bids_orgao_entity_v2. Fix: "" → None.
+          DB function upsert_pncp_raw_bids: adicionado NULLIF+::INTEGER em esfera_id,
+          cast ::INTEGER em SUM() results.
+          QA PASS (28/28 testes PCP passam, 1 concern resolvido).
+    already_completed:
+      - story_id: "CM-03"
+        title: "Reconciliação Golden Dataset e Taxonomia de Misses"
+        status: "Done"
+        qa_verdict: "PASS"
+        reviewed_commit: "0d749f1"
+      - story_id: "CM-13"
+        title: "Deduplicação Multicanal e Aliases de Compradores"
+        status: "Done"
+        qa_verdict: "CONCERNS"
+        reviewed_commit: "bb4cad0"
+    active:
+      - story_id: "CM-06"
+        status: "InProgress"
+        qa_verdict: "CONCERNS"
+        note: "AC-3, AC-4: PASS. AC-1,2,5,6: BLOCKED (PNCP API)."
+
+  branch: "epic-coverage-max-200km"
+  head: "3920474 fix: PCP crawler — CNPJ None para evitar FK violation (CM-06-PCP)"
+
+  decisions:
+    - "PCP crawler funcional: API aberta, sem auth, UF filtering client-side"
+    - "ComprasGov API endpoints podem ter mudado (404 em /api/livre/licitacao)"
+    - "target_universe_entities vazia — CM-02 (importador de planilha) pendente"
+    - "FK fk_bids_orgao_entity_v2 bloqueia registros sem CNPJ — usar NULL, não ''"
+
+  files_modified_this_session:
+    - "scripts/crawl/pcp_crawler.py (linhas 310, 315: '' → None)"
+    - ".aiox/state/stories/CM-06-PCP-fix.json (NOVO state file)"
+    - "DB: function upsert_pncp_raw_bids (::INTEGER casts)"
+    - ".aiox/handoffs/handoff-goal-2026-07-15.yaml (atualizado)"
+
+  metrics_delta:
+    baseline:
+      pcp_bids: 0
+      pcp_entities_covered: 0
+      total_bids: 0
+      coverage_pct: "0%"
+    result:
+      pcp_bids: 294
+      pcp_orgs: 139
+      entities_covered_total: 65
+      entities_covered_canonical: 13
+      coverage_pct: "1.2% (13/1093 canonical), 3.1% (65/2085 total)"
+      matched_bids: 102
+      unmatched_bids: 192
+
+  blockers:
+    - type: "EXTERNAL"
+      description: "PNCP API inacessível deste IP (189.9.176.245:443). TLS ok, servidor não responde HTTP."
+      mitigation: "Deploy VPS Brasil ou proxy/VPN brasileiro."
+      affected: "CM-06 AC-1, AC-2, AC-5, AC-6"
+    - type: "EXTERNAL"
+      description: "ComprasGov API retornando 404 — endpoints podem ter mudado desde adaptação do crawler."
+      mitigation: "Investigar nova URL base ou documentação atualizada via Exa MCP."
+      affected: "ComprasGov crawler (scripts/crawl/compras_gov_crawler.py)"
+
+  next_actions_ranked:
+    - priority: 1
+      action: "Provisionar VPS Brasil (CM-15) — desbloqueia PNCP API"
+      return: "ALTÍSSIMO (PNCP cobre ~80% entidades canônicas)"
+      effort: "1-2h (script deploy/provision-vps.sh pronto)"
+      blocked_by: "Credenciais Hetzner?"
+    - priority: 2
+      action: "Expandir PCP para 180-365 dias (mais cobertura SC)"
+      return: "ALTO (mais bids SC, entidades cobertas)"
+      effort: "30min (mudar parâmetro de data)"
+      blocked_by: null
+    - priority: 3
+      action: "Investigar ComprasGov API nova URL"
+      return: "ALTO (101 entidades federais SC)"
+      effort: "1-2h (Exa MCP + Playwright)"
+      blocked_by: null
+    - priority: 4
+      action: "CM-02: Importar planilha de alvos (target_universe_entities)"
+      return: "MÉDIO (formaliza universo canônico)"
+      effort: "1h"
+      blocked_by: "Planilha Excel disponível?"
+
+  commands_uteis:
+    pcp_crawl: "python3 scripts/crawl/monitor.py --source pcp --mode full --dsn 'postgresql://test:test@127.0.0.1:5433/pncp_datalake' --within-200km-only"
+    pcp_90days: "PCP_MAX_PAGES_V2=200 python3 -c '...' (ver script na sessão)"
+    db_metrics: "PGPASSWORD=test psql -h 127.0.0.1 -p 5433 -U test -d pncp_datalake -c \"SELECT source, count(*) FROM pncp_raw_bids GROUP BY source; SELECT count(DISTINCT entity_id) FROM entity_coverage WHERE is_covered = true;\""
+    tests_pcp: "python3 -m pytest tests/ -k pcp -v"
+    push: "AIOX_ACTIVE_AGENT=devops git push origin epic-coverage-max-200km"
+
+  classification: "GO_WITH_CONDITIONS"
+
+  conditions:
+    - "VPS Brasil necessário para PNCP (maior fonte de cobertura)"
+    - "Credenciais DOM-SC API necessárias para crawler municipal"
+    - "ComprasGov API endpoints precisam ser verificados"
+    - "Planilha Excel de alvos necessária para CM-02"
+
+  proxima_story_exata: >
+    CM-15 (VPS Provisioning): executar deploy/provision-vps.sh em Hetzner Brasil.
+    Pré-condição: credenciais Hetzner + IP brasileiro.
+    Se VPS disponível: rodar crawl PNCP + Contracts + verificar recall via reconcile.
+    Se VPS indisponível: expandir PCP para 180 dias OU investigar ComprasGov.
+    Comando: ssh ec-prod "systemctl start extra-crawl-pcp" (se timer instalado).
