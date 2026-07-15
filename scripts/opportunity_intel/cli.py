@@ -658,6 +658,26 @@ def cmd_briefing(args: argparse.Namespace) -> None:
     conn.close()
 
 
+def cmd_reconcile(args: argparse.Namespace) -> None:
+    """Target universe reconciliation report (CM-03)."""
+    # Add project root to sys.path for cross-package import
+    _script_dir = os.path.dirname(os.path.abspath(__file__))
+    _project_root = os.path.abspath(os.path.join(_script_dir, "..", ".."))
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+
+    from scripts.coverage.reconcile_targets import run_reconcile
+
+    output = run_reconcile(
+        manifest_path=args.manifest,
+        reconciliation_path=args.reconciliation,
+        source_coverage_path=args.source_coverage,
+        fmt=args.format,
+        output_csv=args.output_csv,
+    )
+    print(output)
+
+
 # ---------------------------------------------------------------------------
 # CLI parser
 # ---------------------------------------------------------------------------
@@ -744,6 +764,26 @@ Examples:
     p_exp2.add_argument("--limit", type=int, default=500)
     p_exp2.add_argument("--dsn", default=DEFAULT_DSN)
 
+    # reconcile
+    p_rec = sub.add_parser("reconcile", help="Relatório de reconciliação do universo-alvo (CM-03)")
+    p_rec.add_argument("--format", default="table", choices=["table", "json"], help="Formato de saída")
+    p_rec.add_argument("--output-csv", default="", help="Exportar entes não encontrados para CSV")
+    p_rec.add_argument(
+        "--manifest",
+        default="output/readiness/target-universe-manifest.json",
+        help="Caminho para o manifest do universo-alvo",
+    )
+    p_rec.add_argument(
+        "--reconciliation",
+        default="output/readiness/target-reconciliation.csv",
+        help="Caminho para o CSV de reconciliação",
+    )
+    p_rec.add_argument(
+        "--source-coverage",
+        default="output/readiness/source-entity-coverage.csv",
+        help="Caminho para o CSV de cobertura por fonte",
+    )
+
     p_brief = sub.add_parser("briefing", help="Briefing diário de oportunidades")
     p_brief.add_argument("--dias", type=int, default=7, help="Horizonte em dias (default: 7)")
     p_brief.add_argument("--uf", default=None, help="Filtrar por UF")
@@ -771,6 +811,7 @@ def main(argv: list[str] | None = None) -> None:
         "update": cmd_update,
         "export": cmd_export,
         "briefing": cmd_briefing,
+        "reconcile": cmd_reconcile,
     }
 
     cmd_fn = commands.get(args.command)

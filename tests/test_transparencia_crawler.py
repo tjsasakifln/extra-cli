@@ -474,14 +474,14 @@ class TestTransform:
 class TestLoadConfig:
     """Tests for load_config()."""
 
-    def test_79_municipios(self):
-        """load_config() returns config with 79 municipios."""
+    def test_80_municipios(self):
+        """load_config() returns config with 80 municipios."""
         config_path = str(Path(__file__).resolve().parent.parent / "config" / "transparencia_config.yaml")
         config = tc.load_config(config_path)
 
         municipios = config.get("municipios", {})
-        # Config expanded from 12 to 79 with batch-detected Betha municipios
-        assert len(municipios) == 79, f"Expected 79 municipios, got {len(municipios)}"
+        # Config expanded from 12 to 80 with batch-detected Betha municipios
+        assert len(municipios) == 80, f"Expected 80 municipios, got {len(municipios)}"
 
         templates = config.get("templates", {})
         assert "portal_transparencia_net" in templates

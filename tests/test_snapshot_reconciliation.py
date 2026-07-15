@@ -28,6 +28,7 @@ pytestmark = [
         os.getenv("REQUIRE_TEST_DB") != "1",
         reason="Set REQUIRE_TEST_DB=1 to run database tests",
     ),
+    pytest.mark.integration,
 ]
 
 # ---------------------------------------------------------------------------
@@ -449,12 +450,10 @@ def test_scenario_7_reconciliation_is_idempotent(
     # Act: Second reconciliation (same run!)
     result2 = reconciler.reconcile(run_a, "test_pncp")
 
-    # Assert: same counts
-    assert result1.inactivated == result2.inactivated
-    assert result1.reactivated == result2.reactivated
-    # Second run should inactivate 0 because they're already inactive
-    assert result2.inactivated == 0, "Idempotent: second run should inactivate 0"
+    # Assert: idempotent — first run inactivates, subsequent runs do nothing
     assert result1.inactivated == 1, "First run should inactivate 1 (ID 3)"
+    assert result2.inactivated == 0, "Idempotent: second run should inactivate 0 (already done)"
+    assert result1.reactivated == result2.reactivated
     assert _get_source_active(conn, id1) is True
     assert _get_source_active(conn, id2) is True
     assert _get_source_active(conn, id3) is False
