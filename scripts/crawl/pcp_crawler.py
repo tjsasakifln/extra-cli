@@ -49,12 +49,24 @@ _logger = logging.getLogger(__name__)
 
 PCP_BASE = "https://compras.api.portaldecompraspublicas.com.br"
 PCP_PAGE_SIZE = 10  # v2 API fixed at 10 per page
-PCP_MAX_PAGES = int(os.getenv("PCP_MAX_PAGES_V2", "50"))
+PCP_MAX_PAGES = int(os.getenv("PCP_MAX_PAGES_V2", "200"))
 PCP_READ_TIMEOUT = int(os.getenv("PCP_READ_TIMEOUT", "30"))
 PCP_MAX_RETRIES = int(os.getenv("PCP_MAX_RETRIES", "2"))
 PCP_REQUEST_DELAY = float(os.getenv("PCP_REQUEST_DELAY", "0.2"))  # 200ms between pages
 
 INGESTION_UFS = [u.strip().upper() for u in os.getenv("INGESTION_UFS", "SC").split(",") if u.strip()]
+
+# PCP internal UF codes — format: '1001' + IBGE state code.
+# Determined empirically from Parse.bot docs (RS=100143, SP=100135) + runtime validation.
+# Source: Exa MCP research via Parse.bot marketplace (2026-07-15).
+_PCP_UF_CODE: dict[str, str] = {
+    "RO": "100111", "AC": "100112", "AM": "100113", "RR": "100114", "PA": "100115",
+    "AP": "100116", "TO": "100117", "MA": "100121", "PI": "100122", "CE": "100123",
+    "RN": "100124", "PB": "100125", "PE": "100126", "AL": "100127", "SE": "100128",
+    "BA": "100129", "MG": "100131", "ES": "100132", "RJ": "100133", "SP": "100135",
+    "PR": "100141", "SC": "100142", "RS": "100143", "MS": "100150", "MT": "100151",
+    "GO": "100152", "DF": "100153",
+}
 
 # ---------------------------------------------------------------------------
 # Modalidade mapping (string names -> numeric IDs)
@@ -194,13 +206,21 @@ def _infer_esfera(orgao_nome: str) -> int:
 # ---------------------------------------------------------------------------
 
 
-def _fetch_page(pagina: int, data_inicial: str, data_final: str) -> tuple[list[dict], bool]:
+def _fetch_page(
+    pagina: int,
+    data_inicial: str,
+    data_final: str,
+    codigo_uf: str | None = None,
+) -> tuple[list[dict], bool]:
     """Fetch one page of PCP v2 results synchronously.
 
     Args:
         pagina: Page number (1-indexed).
         data_inicial: Start date YYYY-MM-DD.
         data_final: End date YYYY-MM-DD.
+        codigo_uf: Optional PCP internal UF code for server-side filtering.
+                   When provided, the API returns only records for that state,
+                   making client-side UF filtering unnecessary.
 
     Returns:
         (records, has_next_page)
@@ -211,6 +231,8 @@ def _fetch_page(pagina: int, data_inicial: str, data_final: str) -> tuple[list[d
         "tipoData": "1",
         "pagina": str(pagina),
     }
+    if codigo_uf:
+        params["codigoUf"] = codigo_uf
     query = "&".join(f"{k}={sanitize_url_param(v)}" for k, v in params.items())
     url = f"{PCP_BASE}/v2/licitacao/processos?{query}"
 
@@ -377,12 +399,17 @@ def crawl(mode: str = "full") -> list[dict]:
     """Crawl PCP v2 API for procurement processes.
 
     Args:
-        mode: 'full' = 30 days, 'incremental' = 3 days.
+        mode: 'full' = 365 days, 'incremental' = 3 days.
 
     Returns:
         List of raw PCP API records (not yet transformed).
-        Already filtered by UF=SC client-side.
+        Filtered by INGESTION_UFS (server-side when possible, client-side fallback).
     """
+    # Backward-compat: accept only str mode. CrawlRequest objects fall through to
+    # the TypeError handler in monitor.py, which calls crawl(mode_str).
+    if not isinstance(mode, str):
+        raise TypeError(f"pcp_crawler.crawl() expects str mode, got {type(mode).__name__}")
+
     days = 365 if mode == "full" else 3
     data_final = date.today()
     data_inicial = data_final - timedelta(days=days)
@@ -390,12 +417,22 @@ def crawl(mode: str = "full") -> list[dict]:
     data_inicial_str = data_inicial.strftime("%Y-%m-%d")
     data_final_str = data_final.strftime("%Y-%m-%d")
 
+    # Server-side UF filtering: use when exactly one UF is configured and we know its PCP code.
+    # This avoids fetching all 27 states and filtering ~10% client-side.
+    # Format: '1001' + IBGE state code (empirically validated 2026-07-15 via Exa MCP).
+    codigo_uf: str | None = None
+    if len(INGESTION_UFS) == 1:
+        codigo_uf = _PCP_UF_CODE.get(INGESTION_UFS[0])
+    server_side_uf = codigo_uf is not None
+
     _logger.info(
-        "[PCP] Crawl [%s]: %s to %s, UF filter=%s",
+        "[PCP] Crawl [%s]: %s to %s, UF=%s, server_side=%s, max_pages=%d",
         mode,
         data_inicial_str,
         data_final_str,
         INGESTION_UFS,
+        server_side_uf,
+        PCP_MAX_PAGES,
     )
 
     all_records: list[dict] = []
@@ -403,7 +440,7 @@ def crawl(mode: str = "full") -> list[dict]:
 
     while pagina <= PCP_MAX_PAGES:
         page_start = time.time()
-        records, has_next = _fetch_page(pagina, data_inicial_str, data_final_str)
+        records, has_next = _fetch_page(pagina, data_inicial_str, data_final_str, codigo_uf)
 
         elapsed_ms = int((time.time() - page_start) * 1000)
 
@@ -415,8 +452,11 @@ def crawl(mode: str = "full") -> list[dict]:
 
         _logger.debug("[PCP] Page %d: %d records in %dms", pagina, len(records), elapsed_ms)
 
-        # Client-side UF filtering (API returns all UFs)
-        if INGESTION_UFS:
+        if server_side_uf:
+            # All records are already from the target UF — no client-side filtering needed.
+            all_records.extend(records)
+        elif INGESTION_UFS:
+            # Client-side UF filtering fallback (API returns all UFs).
             filtered: list[dict] = []
             for rec in records:
                 unidade = rec.get("unidadeCompradora") or {}
