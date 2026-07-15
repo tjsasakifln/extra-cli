@@ -9,11 +9,12 @@ Usage:
     python validate_risk_mitigation.py [--path PROJECT_PATH] [--risks RISKS_FILE]
 """
 
+import os
+import sys
 import argparse
 import re
-import sys
 from pathlib import Path
-
+from typing import List, Dict, Tuple
 import yaml
 
 
@@ -43,10 +44,10 @@ class RiskMitigationValidator:
     def __init__(self, project_path: Path, risks_file: Path = None):
         self.project_path = project_path
         self.risks_file = risks_file
-        self.risks: list[Risk] = []
-        self.mitigation_docs: dict[str, str] = {}
+        self.risks: List[Risk] = []
+        self.mitigation_docs: Dict[str, str] = {}
 
-    def _find_risk_documents(self) -> list[Path]:
+    def _find_risk_documents(self) -> List[Path]:
         """Find all documents that might contain risks"""
         risk_doc_patterns = [
             "**/architecture/*.md",
@@ -65,7 +66,7 @@ class RiskMitigationValidator:
     def _extract_risks_from_doc(self, doc_path: Path):
         """Extract risks from a document"""
         try:
-            with open(doc_path, encoding="utf-8") as f:
+            with open(doc_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Look for risk sections
@@ -107,7 +108,9 @@ class RiskMitigationValidator:
                 continue
 
             # Extract from bullet: - **Risk:** description
-            bullet_match = re.match(r"[-*]\s+\*\*([^:*]+):?\*\*\s+(.*)", line, re.IGNORECASE)
+            bullet_match = re.match(
+                r"[-*]\s+\*\*([^:*]+):?\*\*\s+(.*)", line, re.IGNORECASE
+            )
             if bullet_match:
                 name = bullet_match.group(1).strip()
                 description = bullet_match.group(2).strip()
@@ -134,7 +137,7 @@ class RiskMitigationValidator:
         else:
             return "medium"
 
-    def _find_mitigation_documents(self) -> list[Path]:
+    def _find_mitigation_documents(self) -> List[Path]:
         """Find documents that might contain mitigations"""
         mitigation_patterns = [
             "**/architecture/*.md",
@@ -153,20 +156,24 @@ class RiskMitigationValidator:
     def _extract_mitigations_from_doc(self, doc_path: Path):
         """Extract mitigations from document"""
         try:
-            with open(doc_path, encoding="utf-8") as f:
+            with open(doc_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Store entire content as potential mitigation source
             self.mitigation_docs[str(doc_path)] = content
 
         except Exception as e:
-            print(f"Warning: Could not parse {doc_path}: {e}", file=sys.stderr)
+            print(
+                f"Warning: Could not parse {doc_path}: {e}", file=sys.stderr
+            )
 
     def _match_risks_to_mitigations(self):
         """Match identified risks to mitigations"""
         for risk in self.risks:
             # Search for risk name/keywords in mitigation docs
-            risk_keywords = set(re.findall(r"\b\w{4,}\b", risk.name.lower()))  # Words 4+ chars
+            risk_keywords = set(
+                re.findall(r"\b\w{4,}\b", risk.name.lower())
+            )  # Words 4+ chars
 
             for doc_path, content in self.mitigation_docs.items():
                 content_lower = content.lower()
@@ -193,7 +200,7 @@ class RiskMitigationValidator:
             return
 
         try:
-            with open(self.risks_file) as f:
+            with open(self.risks_file, "r") as f:
                 data = yaml.safe_load(f)
 
             if "risks" in data:
@@ -260,7 +267,9 @@ class RiskMitigationValidator:
         """Report results and return exit code"""
         if not self.risks:
             print("⚠️  No risks identified in project documentation.")
-            print("   This might mean:")
+            print(
+                "   This might mean:"
+            )
             print("   - Project has no documented risks")
             print("   - Risk documentation not in expected locations")
             print("   - Risk documentation format not recognized")
@@ -275,7 +284,9 @@ class RiskMitigationValidator:
         mitigated = [r for r in self.risks if r.mitigation]
         unmitigated = [r for r in self.risks if not r.mitigation]
 
-        high_unmitigated = [r for r in unmitigated if r.severity == "high"]
+        high_unmitigated = [
+            r for r in unmitigated if r.severity == "high"
+        ]
 
         print("=" * 80)
         print("RISK MITIGATION REPORT")
@@ -293,7 +304,9 @@ class RiskMitigationValidator:
         # Report unmitigated risks first
         if unmitigated:
             print("❌ UNMITIGATED RISKS:")
-            for risk in sorted(unmitigated, key=lambda r: {"high": 0, "medium": 1, "low": 2}[r.severity]):
+            for risk in sorted(
+                unmitigated, key=lambda r: {"high": 0, "medium": 1, "low": 2}[r.severity]
+            ):
                 print(risk)
             print()
 
@@ -345,14 +358,18 @@ class RiskMitigationValidator:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate risk mitigation coverage")
+    parser = argparse.ArgumentParser(
+        description="Validate risk mitigation coverage"
+    )
     parser.add_argument(
         "--path",
         type=Path,
         default=Path.cwd(),
         help="Project path to scan (default: current directory)",
     )
-    parser.add_argument("--risks", type=Path, help="YAML file with explicit risk definitions")
+    parser.add_argument(
+        "--risks", type=Path, help="YAML file with explicit risk definitions"
+    )
 
     args = parser.parse_args()
 

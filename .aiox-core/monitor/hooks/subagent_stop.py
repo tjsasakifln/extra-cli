@@ -4,14 +4,14 @@ SubagentStop hook - captures when a subagent (Task tool) stops.
 """
 
 import json
-import os
 import sys
+import os
 
 # Add lib to path
 sys.path.insert(0, os.path.dirname(__file__))
 
-from lib.enrich import enrich_event
 from lib.send_event import send_event
+from lib.enrich import enrich_event
 
 
 def main():

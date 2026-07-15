@@ -1,0 +1,44 @@
+{
+  "story_id": "qw-01-radar-auditavel",
+  "risk_level": "STANDARD",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "scope_files": [
+    "scripts/opportunity_intel/cli.py",
+    "scripts/opportunity_intel/manifest.py",
+    "scripts/consulting_readiness.py"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": null,
+  "snapshot_evidence": null,
+  "publication_authorized": true,
+  "maintenance_mode": false,
+  "reversa_context": {
+    "extraction_version": "1.2.50",
+    "architecture": [
+      "_reversa_sdd/architecture.md",
+      "_reversa_sdd/c4-components.md"
+    ],
+    "domain": [
+      "_reversa_sdd/domain.md"
+    ],
+    "specifications": [
+      "_reversa_sdd/opportunity_intel/design.md",
+      "_reversa_sdd/opportunity_intel/requirements.md",
+      "_reversa_sdd/coverage/design.md"
+    ],
+    "requirements": null,
+    "roadmap": null,
+    "actions": null,
+    "regression_watch": null,
+    "legacy_impact": null
+  }
+}

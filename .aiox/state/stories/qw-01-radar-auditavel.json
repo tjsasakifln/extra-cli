@@ -1,6 +1,6 @@
 {
   "story_id": "qw-01-radar-auditavel",
-  "risk_level": "STANDARD",
+  "risk_level": "HIGH-RISK",
   "status": "Done",
   "po_validated": true,
   "qa_verdict": "CONCERNS",
@@ -17,7 +17,7 @@
     "tests": "PASS",
     "build": "NA"
   },
-  "rollback_plan": null,
+  "rollback_plan": "DB local de desenvolvimento. Dados podem ser recriados via re-crawl. Schema versionado em migrations.",
   "snapshot_evidence": null,
   "publication_authorized": true,
   "maintenance_mode": false,

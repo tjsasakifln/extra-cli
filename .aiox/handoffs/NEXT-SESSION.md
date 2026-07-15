@@ -1,6 +1,8 @@
-# Handoff — Extra Consultoria (2026-07-10)
+# Handoff — Extra Consultoria (2026-07-15)
 
-**De:** @pm (Morgan) → **Para:** @dev (Dex) — próxima sessão
+**De:** @aiox-master (Orion) → **Para:** @dev (Dex) ou @devops (Gage) — próxima sessão
+**Handoff canônico:** `.aiox/handoffs/handoff-goal-2026-07-15.yaml`
+**HEAD:** `0d749f1` (main = epic-coverage-max-200km, pushed)
 
 ---
 

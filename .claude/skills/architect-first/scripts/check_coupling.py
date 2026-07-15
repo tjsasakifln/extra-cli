@@ -11,11 +11,12 @@ Usage:
     python check_coupling.py [--path PROJECT_PATH] [--config CONFIG_FILE]
 """
 
-import argparse
+import os
 import re
 import sys
+import argparse
 from pathlib import Path
-
+from typing import List, Dict, Set, Tuple
 import yaml
 
 
@@ -49,7 +50,7 @@ class CouplingChecker:
 
     def __init__(self, project_path: Path, config_path: Path = None):
         self.project_path = project_path
-        self.violations: list[CouplingViolation] = []
+        self.violations: List[CouplingViolation] = []
         self.config = self._load_config(config_path)
 
         # Modules to check for coupling (from config or defaults)
@@ -58,10 +59,14 @@ class CouplingChecker:
             # Auto-detect expansion packs
             expansion_pack_dir = project_path / "expansion-packs"
             if expansion_pack_dir.exists():
-                self.modules = [d.name for d in expansion_pack_dir.iterdir() if d.is_dir()]
+                self.modules = [
+                    d.name for d in expansion_pack_dir.iterdir() if d.is_dir()
+                ]
 
         # File patterns to scan
-        self.file_patterns = self.config.get("file_patterns", ["*.py", "*.js", "*.ts", "*.yaml", "*.yml"])
+        self.file_patterns = self.config.get(
+            "file_patterns", ["*.py", "*.js", "*.ts", "*.yaml", "*.yml"]
+        )
 
         # Exclude patterns
         self.exclude_patterns = self.config.get(
@@ -76,16 +81,16 @@ class CouplingChecker:
             ],
         )
 
-    def _load_config(self, config_path: Path = None) -> dict:
+    def _load_config(self, config_path: Path = None) -> Dict:
         """Load configuration file if exists"""
         if config_path and config_path.exists():
-            with open(config_path) as f:
+            with open(config_path, "r") as f:
                 return yaml.safe_load(f) or {}
 
         # Try default config location
         default_config = self.project_path / ".coupling-check.yaml"
         if default_config.exists():
-            with open(default_config) as f:
+            with open(default_config, "r") as f:
                 return yaml.safe_load(f) or {}
 
         return {}
@@ -98,7 +103,7 @@ class CouplingChecker:
                 return True
         return False
 
-    def _find_files_to_scan(self) -> list[Path]:
+    def _find_files_to_scan(self) -> List[Path]:
         """Find all files to scan for coupling violations"""
         files = []
         for pattern in self.file_patterns:
@@ -116,14 +121,17 @@ class CouplingChecker:
             if re.match(r"^\s*(from|import)\s+", line):
                 for module in self.modules:
                     # Check if importing from another module directly
-                    if re.search(rf"\bfrom\s+{module}\b", line) or re.search(rf"\bimport\s+{module}\b", line):
+                    if re.search(rf"\bfrom\s+{module}\b", line) or re.search(
+                        rf"\bimport\s+{module}\b", line
+                    ):
                         self.violations.append(
                             CouplingViolation(
                                 str(file_path),
                                 line_num,
                                 line,
                                 "HARDCODED_IMPORT",
-                                f"Direct import of module '{module}'. Use plugin/config-based loading instead.",
+                                f"Direct import of module '{module}'. "
+                                f"Use plugin/config-based loading instead.",
                             )
                         )
 
@@ -137,7 +145,8 @@ class CouplingChecker:
                                 line_num,
                                 line,
                                 "HARDCODED_IMPORT",
-                                f"Direct import of module '{module}'. Use plugin/config-based loading instead.",
+                                f"Direct import of module '{module}'. "
+                                f"Use plugin/config-based loading instead.",
                             )
                         )
 
@@ -199,7 +208,7 @@ class CouplingChecker:
     def check_file(self, file_path: Path):
         """Check a single file for coupling violations"""
         try:
-            with open(file_path, encoding="utf-8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             self._check_hardcoded_imports(file_path, content)
@@ -235,7 +244,7 @@ class CouplingChecker:
         print(f"❌ Found {len(self.violations)} coupling violation(s):")
 
         # Group violations by type
-        by_type: dict[str, list[CouplingViolation]] = {}
+        by_type: Dict[str, List[CouplingViolation]] = {}
         for violation in self.violations:
             if violation.violation_type not in by_type:
                 by_type[violation.violation_type] = []
@@ -273,14 +282,18 @@ class CouplingChecker:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Check for coupling violations in codebase")
+    parser = argparse.ArgumentParser(
+        description="Check for coupling violations in codebase"
+    )
     parser.add_argument(
         "--path",
         type=Path,
         default=Path.cwd(),
         help="Project path to scan (default: current directory)",
     )
-    parser.add_argument("--config", type=Path, help="Configuration file path (YAML)")
+    parser.add_argument(
+        "--config", type=Path, help="Configuration file path (YAML)"
+    )
 
     args = parser.parse_args()
 

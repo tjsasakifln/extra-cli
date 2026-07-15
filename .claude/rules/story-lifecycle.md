@@ -1,6 +1,7 @@
 ---
 paths:
   - "docs/stories/**"
+  - "docs/framework/epics/**"
   - ".aiox-core/development/**"
 ---
 
@@ -114,6 +115,8 @@ if CRITICAL persist after 2 iterations:
 ```yaml
 storyId: STORY-42
 verdict: PASS | CONCERNS | FAIL | WAIVED
+reviewer: Quinn (@qa)
+reviewed_revision: commit:abc1234
 issues:
   - severity: low | medium | high
     category: code | tests | requirements | performance | security | docs
@@ -124,7 +127,7 @@ issues:
 ## QA Loop (Iterative Review-Fix)
 
 ```
-@qa review → verdict → @dev fixes → re-review (max 5 iterations)
+@qa review → verdict → @dev fixes → re-review (max 3 iterations)
 ```
 
 **Commands:**
@@ -134,7 +137,7 @@ issues:
 - `*escalate-qa-loop` — Force manual escalation
 
 **Escalation triggers:**
-- max_iterations_reached (default: 5)
+- max_iterations_reached (default: 3)
 - verdict_blocked
 - fix_failure (after retries)
 - manual_escalate (user command)

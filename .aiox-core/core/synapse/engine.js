@@ -180,8 +180,11 @@ class PipelineMetrics {
 // SynapseEngine
 // ---------------------------------------------------------------------------
 
-/** Hard pipeline timeout in milliseconds. */
-const PIPELINE_TIMEOUT_MS = 100;
+/** Default pipeline timeout in milliseconds. */
+const DEFAULT_PIPELINE_TIMEOUT_MS = 100;
+const PIPELINE_TIMEOUT_MS = DEFAULT_PIPELINE_TIMEOUT_MS;
+const MAX_PIPELINE_TIMEOUT_MS = 30000;
+const SYNAPSE_PIPELINE_TIMEOUT_ENV = 'AIOX_SYNAPSE_PIPELINE_TIMEOUT_MS';
 
 /**
  * NOG-18: Default active layers (L0-L2 only).
@@ -190,6 +193,39 @@ const PIPELINE_TIMEOUT_MS = 100;
  */
 const DEFAULT_ACTIVE_LAYERS = [0, 1, 2];
 const LEGACY_MODE = process.env.SYNAPSE_LEGACY_MODE === 'true';
+
+function parsePipelineTimeoutMs(value, source, logger = console) {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0 || parsed > MAX_PIPELINE_TIMEOUT_MS) {
+    logger.warn(
+      `[synapse:engine] Invalid pipeline timeout from ${source}: ${value}. ` +
+      `Using default ${DEFAULT_PIPELINE_TIMEOUT_MS}ms. Valid range: 1-${MAX_PIPELINE_TIMEOUT_MS}ms.`,
+    );
+    return DEFAULT_PIPELINE_TIMEOUT_MS;
+  }
+  return parsed;
+}
+
+/**
+ * Resolve the SYNAPSE pipeline timeout from environment, config, or default.
+ *
+ * @param {object} [config] - Core config containing `synapse.pipelineTimeoutMs`.
+ * @param {{ warn: (message: string) => void }} [logger] - Invalid-value logger.
+ * @returns {number} Valid timeout in milliseconds.
+ */
+function resolvePipelineTimeoutMs(config = {}, logger = console) {
+  const envTimeout = process.env[SYNAPSE_PIPELINE_TIMEOUT_ENV];
+  if (envTimeout !== undefined && envTimeout !== '') {
+    return parsePipelineTimeoutMs(envTimeout, SYNAPSE_PIPELINE_TIMEOUT_ENV, logger);
+  }
+
+  const configTimeout = config && config.synapse && config.synapse.pipelineTimeoutMs;
+  if (configTimeout !== undefined && configTimeout !== null) {
+    return parsePipelineTimeoutMs(configTimeout, 'core-config synapse.pipelineTimeoutMs', logger);
+  }
+
+  return DEFAULT_PIPELINE_TIMEOUT_MS;
+}
 
 /**
  * Safely read the last processing error exposed by a layer.
@@ -258,13 +294,22 @@ class SynapseEngine {
    * @param {object} session - Session state (SYN-2 schema)
    * @param {number} [session.prompt_count=0] - Number of prompts so far
    * @param {object} [processConfig] - Per-call config overrides
+   * @param {() => bigint} [processConfig.nowNs] - Deterministic monotonic clock for tests.
    * @returns {Promise<{ xml: string, metrics: object }>}
    */
   async process(prompt, session, processConfig) {
     const safeProcessConfig = (processConfig && typeof processConfig === 'object') ? processConfig : {};
     const mergedConfig = { ...this.config, ...safeProcessConfig };
+    if (this.config.synapse || safeProcessConfig.synapse) {
+      mergedConfig.synapse = { ...(this.config.synapse || {}), ...(safeProcessConfig.synapse || {}) };
+    }
+    const pipelineTimeoutMs = resolvePipelineTimeoutMs(mergedConfig);
+    const pipelineNow =
+      typeof safeProcessConfig.nowNs === 'function'
+        ? safeProcessConfig.nowNs
+        : process.hrtime.bigint;
     const metrics = new PipelineMetrics();
-    metrics.totalStart = process.hrtime.bigint();
+    metrics.totalStart = pipelineNow();
 
     // 1. Calculate bracket (or use fixed layers in non-legacy mode)
     const promptCount = (session && session.prompt_count) || 0;
@@ -279,7 +324,7 @@ class SynapseEngine {
 
       // Guard: no layer config (invalid bracket — should not happen)
       if (!layerConfig) {
-        metrics.totalEnd = process.hrtime.bigint();
+        metrics.totalEnd = pipelineNow();
         return { xml: '', metrics: metrics.getSummary() };
       }
       activeLayers = layerConfig.layers;
@@ -304,15 +349,22 @@ class SynapseEngine {
         continue;
       }
 
-      // Check hard pipeline timeout (convert hrtime to ms for comparison)
-      if (Number(process.hrtime.bigint() - metrics.totalStart) / 1e6 > PIPELINE_TIMEOUT_MS) {
+      // Check pipeline timeout (convert hrtime to ms for comparison)
+      const elapsedMs = Number(pipelineNow() - metrics.totalStart) / 1e6;
+      if (elapsedMs > pipelineTimeoutMs) {
         // Log remaining layers as skipped
         const remaining = this.layers.slice(this.layers.indexOf(layer));
+        const skippedLayerIds = [];
         for (const r of remaining) {
           if (activeLayers.includes(r.layer) && !metrics.layers[r.name]) {
             metrics.skipLayer(r.name, 'Pipeline timeout');
+            skippedLayerIds.push(`${r.layer}:${r.name}`);
           }
         }
+        console.warn(
+          `[synapse:engine] Pipeline timeout after ${elapsedMs.toFixed(2)}ms ` +
+          `(budget ${pipelineTimeoutMs}ms). Skipping layers: ${skippedLayerIds.join(', ') || 'none'}.`,
+        );
         break;
       }
 
@@ -365,7 +417,7 @@ class SynapseEngine {
       }
     }
 
-    metrics.totalEnd = process.hrtime.bigint();
+    metrics.totalEnd = pipelineNow();
     const summary = metrics.getSummary();
 
     // Persist hook metrics (fire-and-forget)
@@ -437,4 +489,8 @@ module.exports = {
   SynapseEngine,
   PipelineMetrics,
   PIPELINE_TIMEOUT_MS,
+  DEFAULT_PIPELINE_TIMEOUT_MS,
+  MAX_PIPELINE_TIMEOUT_MS,
+  SYNAPSE_PIPELINE_TIMEOUT_ENV,
+  resolvePipelineTimeoutMs,
 };

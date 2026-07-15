@@ -20,6 +20,7 @@
 #   AIOX_DEBUG        - Enable debug logging (default: false)
 #   AIOX_TIMEOUT      - Timeout in seconds (default: 300)
 #   CLAUDE_CMD        - Claude CLI command (default: claude)
+#   AIOX_MODEL_BUDGET_CEILING_USD - Required positive budget ceiling
 #
 # Exit Codes:
 #   0 - Success
@@ -98,6 +99,8 @@ Environment Variables:
   AIOX_TIMEOUT       Timeout in seconds (default: 300)
   AIOX_INLINE_MODE   Run without a visual terminal (default: false)
   CLAUDE_CMD         Claude CLI command (default: claude)
+  AIOX_MODEL_BUDGET_CEILING_USD
+                     Required positive ceiling for automated model dispatch
 
 Examples:
   ${SCRIPT_NAME} dev develop "story-11.2"
@@ -110,6 +113,7 @@ Exit Codes:
   2 - Unsupported OS
   3 - No terminal found
   4 - Spawn failed
+  5 - Dispatch governance rejected the request
 EOF
 }
 
@@ -241,22 +245,30 @@ spawn_macos() {
   # Check for iTerm2 first (better AppleScript support)
   if [[ -d "/Applications/iTerm.app" ]]; then
     log_debug "Using iTerm2"
-    osascript << EOF
+    osascript - "$cmd" <<'EOF'
+on run argv
+set commandText to item 1 of argv
 tell application "iTerm"
   activate
   set newWindow to (create window with default profile)
   tell current session of newWindow
-    write text "${cmd}"
+    write text commandText
   end tell
 end tell
+end run
 EOF
   else
     # Fallback to Terminal.app
     log_debug "Using Terminal.app"
-    osascript -e "tell application \"Terminal\"
-      activate
-      do script \"${cmd}\"
-    end tell"
+    osascript - "$cmd" <<'EOF'
+on run argv
+set commandText to item 1 of argv
+tell application "Terminal"
+  activate
+  do script commandText
+end tell
+end run
+EOF
   fi
 }
 
@@ -327,30 +339,131 @@ spawn_wsl() {
 # Inline Execution (Story 12.10 - No visual terminal)
 # ============================================
 
+# Build the prompt payload for a real agent run (Claude CLI when available).
+build_agent_prompt() {
+  local prompt=""
+  prompt+="You are the AIOX agent @${AGENT}. Execute task *${TASK}"
+  [[ -n "$PARAMS" ]] && prompt+=" ${PARAMS}"
+  prompt+=". Follow .aiox-core/constitution.md and agent authority rules. "
+  prompt+="Load persona from .aiox-core/development/agents/ when present. "
+  if [[ -n "$CONTEXT_FILE" && -f "$CONTEXT_FILE" ]]; then
+    prompt+="Context file: ${CONTEXT_FILE}. "
+    # shellcheck disable=SC2002
+    prompt+="Context JSON: $(cat "$CONTEXT_FILE" 2>/dev/null | head -c 8000). "
+  fi
+  prompt+="Write a structured result (summary, files touched, next steps)."
+  printf '%s' "$prompt"
+}
+
+# Enforce Constitution XII before the first automated model call.
+run_dispatch_guard() {
+  local script_dir guard_script
+  script_dir="$(cd "$(dirname "$0")" && pwd)"
+  guard_script="${script_dir}/../infrastructure/scripts/pre-dispatch-guard.js"
+  if [[ ! -f "$guard_script" ]]; then
+    log_error "Dispatch governance guard not found: $guard_script"
+    return 5
+  fi
+
+  AIOX_DISPATCH_AGENT="$AGENT" \
+    AIOX_DISPATCH_TASK="$TASK" \
+    AIOX_DISPATCH_PARAMS="$PARAMS" \
+    AIOX_DISPATCH_CONTEXT="$CONTEXT_FILE" \
+    AIOX_PROJECT_ROOT="${AIOX_PROJECT_ROOT:-$(pwd)}" \
+    node "$guard_script" >&2
+}
+
+# Resolve CLI: CLAUDE_CMD, then claude, then empty.
+resolve_agent_cli() {
+  if [[ -n "${CLAUDE_CMD}" ]] && command -v "${CLAUDE_CMD}" &>/dev/null; then
+    echo "${CLAUDE_CMD}"
+    return 0
+  fi
+  if command -v claude &>/dev/null; then
+    echo "claude"
+    return 0
+  fi
+  echo ""
+  return 1
+}
+
+# Run agent via CLI; write transcript to OUTPUT_FILE.
+run_agent_cli() {
+  local mode_label="${1:-session}"
+  local cli
+  cli="$(resolve_agent_cli || true)"
+
+  {
+    echo "=== AIOX Agent Session (${mode_label}) ==="
+    echo "Agent: ${AGENT}"
+    echo "Task: ${TASK}"
+    [[ -n "$PARAMS" ]] && echo "Params: ${PARAMS}"
+    [[ -n "$CONTEXT_FILE" ]] && echo "Context: ${CONTEXT_FILE}"
+    echo ""
+    echo "Executing: @${AGENT} *${TASK} ${PARAMS}"
+    echo ""
+  } > "${OUTPUT_FILE}"
+
+  if [[ -z "$cli" ]]; then
+    {
+      echo "ERROR: No agent CLI found (set CLAUDE_CMD or install \`claude\`)."
+      echo "Stub mode is disabled — refusing to fake agent execution."
+      echo "=== Session Failed ==="
+    } >> "${OUTPUT_FILE}"
+    log_error "No agent CLI available (CLAUDE_CMD/claude)"
+    return 4
+  fi
+
+  local prompt
+  if ! run_dispatch_guard; then
+    {
+      echo "ERROR: Automated dispatch governance rejected the request."
+      echo "=== Session Failed ==="
+    } >> "${OUTPUT_FILE}"
+    return 5
+  fi
+  prompt="$(build_agent_prompt)"
+  log_info "Invoking agent CLI: ${cli}"
+
+  # Prefer print/non-interactive flags when present; fall back to piping prompt.
+  set +e
+  if "${cli}" --help 2>&1 | grep -qE -- '--print|print mode'; then
+    printf '%s\n' "$prompt" | "${cli}" --print >> "${OUTPUT_FILE}" 2>&1
+  else
+    printf '%s\n' "$prompt" | "${cli}" >> "${OUTPUT_FILE}" 2>&1
+  fi
+  local rc=$?
+  set -e
+
+  if [[ $rc -ne 0 ]]; then
+    {
+      echo ""
+      echo "Agent CLI exited with code ${rc}"
+      echo "=== Session Failed ==="
+    } >> "${OUTPUT_FILE}"
+    return 4
+  fi
+
+  {
+    echo ""
+    echo "=== Session Complete ==="
+  } >> "${OUTPUT_FILE}"
+  return 0
+}
+
 spawn_inline() {
   log_info "Running in inline mode (no visual terminal)"
 
-  # Build the command
-  local output=""
-  output+="=== AIOX Agent Session (Inline) ===$(printf '\n')"
-  output+="Agent: ${AGENT}$(printf '\n')"
-  output+="Task: ${TASK}$(printf '\n')"
-  [[ -n "$PARAMS" ]] && output+="Params: ${PARAMS}$(printf '\n')"
-  [[ -n "$CONTEXT_FILE" ]] && output+="Context: ${CONTEXT_FILE}$(printf '\n')"
-  output+="$(printf '\n')"
-  output+="Executing: @${AGENT} *${TASK} ${PARAMS}$(printf '\n')"
-  output+="Agent execution would happen here...$(printf '\n')"
-  output+="=== Session Complete ===$(printf '\n')"
+  local inline_result=0
+  run_agent_cli "Inline" || inline_result=$?
+  if [[ $inline_result -ne 0 ]]; then
+    rm -f "${LOCK_FILE}"
+    return "$inline_result"
+  fi
 
-  # Write output directly to file
-  echo "$output" > "${OUTPUT_FILE}"
-
-  # Remove lock file immediately (inline is synchronous)
   rm -f "${LOCK_FILE}"
-
   log_info "Inline execution complete"
   log_debug "Output written to: $OUTPUT_FILE"
-
   return 0
 }
 
@@ -370,35 +483,47 @@ spawn_terminal() {
 
   # Check for inline mode (Story 12.10 - fallback for non-visual environments)
   if [[ "$INLINE_MODE" == "true" ]]; then
-    spawn_inline
+    local inline_result=0
+    spawn_inline || inline_result=$?
+    if [[ $inline_result -ne 0 ]]; then
+      echo "$OUTPUT_FILE"
+      return "$inline_result"
+    fi
     echo "$OUTPUT_FILE"
     return 0
   fi
 
-  # Build the command to run in the new terminal
-  local agent_cmd="${CLAUDE_CMD}"
-
-  # Add agent activation
-  agent_cmd="${agent_cmd} --print-only"  # Just for testing, real impl would use actual claude flags
-
-  # For now, we'll create a simpler command that demonstrates the concept
-  # The actual claude CLI integration will depend on how claude accepts agent/task args
-  local full_cmd="echo '=== AIOX Agent Session ===' && "
-  full_cmd+="echo 'Agent: ${AGENT}' && "
-  full_cmd+="echo 'Task: ${TASK}' && "
-  [[ -n "$PARAMS" ]] && full_cmd+="echo 'Params: ${PARAMS}' && "
-  [[ -n "$CONTEXT_FILE" ]] && full_cmd+="echo 'Context: ${CONTEXT_FILE}' && "
-  full_cmd+="echo '' && "
-
-  # Actual execution would be something like:
-  # full_cmd+="${CLAUDE_CMD} @${AGENT} *${TASK} ${PARAMS}"
-  # For now, simulate the output
-  full_cmd+="echo 'Executing: @${AGENT} *${TASK} ${PARAMS}' && "
-  full_cmd+="echo 'Agent execution would happen here...' && "
-  full_cmd+="echo '=== Session Complete ===' "
-
-  # Redirect output to file and remove lock when done
-  full_cmd+=" > '${OUTPUT_FILE}' 2>&1; rm -f '${LOCK_FILE}'"
+  # Real agent run in a new terminal (no echo-stub).
+  # Re-invoke this script in inline mode so run_agent_cli owns the protocol.
+  local script_self quoted
+  script_self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+  local full_cmd=""
+  printf -v quoted '%q' "$OUTPUT_DIR"
+  full_cmd+="AIOX_INLINE_MODE=true AIOX_OUTPUT_DIR=${quoted} "
+  printf -v quoted '%q' "$DEBUG"
+  full_cmd+="AIOX_DEBUG=${quoted} "
+  printf -v quoted '%q' "$CLAUDE_CMD"
+  full_cmd+="CLAUDE_CMD=${quoted} "
+  printf -v quoted '%q' "${AIOX_MODEL_BUDGET_CEILING_USD:-}"
+  full_cmd+="AIOX_MODEL_BUDGET_CEILING_USD=${quoted} "
+  printf -v quoted '%q' "$script_self"
+  full_cmd+="bash ${quoted}"
+  for value in "$AGENT" "$TASK"; do
+    printf -v quoted '%q' "$value"
+    full_cmd+=" ${quoted}"
+  done
+  if [[ -n "$PARAMS" ]]; then
+    printf -v quoted '%q' "$PARAMS"
+    full_cmd+=" ${quoted}"
+  fi
+  if [[ -n "$CONTEXT_FILE" ]]; then
+    printf -v quoted '%q' "$CONTEXT_FILE"
+    full_cmd+=" --context ${quoted}"
+  fi
+  printf -v quoted '%q' "$OUTPUT_FILE"
+  full_cmd+=" --output ${quoted}; rc=\$?; "
+  printf -v quoted '%q' "$LOCK_FILE"
+  full_cmd+="rm -f ${quoted}; exit \$rc"
 
   # Spawn based on OS
   case "$os" in

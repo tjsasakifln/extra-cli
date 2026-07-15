@@ -1,0 +1,375 @@
+- generic [ref=e3]:
+  - generic [ref=e6]:
+    - img "Swagger UI" [ref=e8]
+    - generic [ref=e9]:
+      - textbox [ref=e10]: /pncp-api/v3/api-docs
+      - button "Explore" [ref=e11] [cursor=pointer]
+  - generic [ref=e14]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "API PNCP 1.0 OAS3" [level=2] [ref=e20]:
+          - text: API PNCP
+          - generic [ref=e21]:
+            - generic [ref=e22]: "1.0"
+            - generic [ref=e24]: OAS3
+        - link "/pncp-api/v3/api-docs" [ref=e26] [cursor=pointer]:
+          - /url: /pncp-api/v3/api-docs
+      - paragraph [ref=e30]: API REST de serviços do Portal Nacional de Contratações Públicas (PNCP)
+      - generic [ref=e31]:
+        - link "Serviço Federal de Processamento de Dados - Serpro - Website" [ref=e33] [cursor=pointer]:
+          - /url: https://www.serpro.gov.br
+        - link "Send email to Serviço Federal de Processamento de Dados - Serpro" [ref=e34] [cursor=pointer]:
+          - /url: mailto:css.serpro@serpro.gov.br
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - text: Servers
+        - combobox [ref=e40]:
+          - option "/api/pncp" [selected]
+          - option "http://localhost:8080/pncp-api"
+      - button "Authorize" [ref=e42] [cursor=pointer]
+    - generic [ref=e48]:
+      - heading [level=3] [ref=e51] [cursor=pointer]:
+        - link "Usuário" [ref=e52]:
+          - /url: "#/Usuário"
+        - paragraph [ref=e55]: Manutenção de Usuários
+        - button "Expand operation" [ref=e56]
+      - heading [level=3] [ref=e61] [cursor=pointer]:
+        - link "Plano de Contratação" [ref=e62]:
+          - /url: "#/Plano%20de%20Contratação"
+        - paragraph [ref=e65]: Manutenção de Planos de Contratação
+        - button "Expand operation" [ref=e66]
+      - generic [ref=e70]:
+        - heading [level=3] [ref=e347] [cursor=pointer]:
+          - link "Contratação" [ref=e72]:
+            - /url: "#/Contratação"
+          - paragraph [ref=e75]: Manutenção de Contratações
+          - button "Collapse operation" [expanded] [ref=e348]
+        - generic [ref=e350]:
+          - generic [ref=e353] [cursor=pointer]:
+            - 'button "put /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}" [ref=e354]':
+              - generic [ref=e355]: PUT
+              - link [ref=e357]:
+                - /url: "#/Contratação/retificarCompra"
+              - generic [ref=e359]: Retificar Contratação
+            - button "authorization button unlocked" [ref=e362]
+            - generic "Copy to clipboard"
+          - generic [ref=e368] [cursor=pointer]:
+            - 'button "delete /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}" [ref=e369]':
+              - generic [ref=e370]: DELETE
+              - link [ref=e372]:
+                - /url: "#/Contratação/removerCompra"
+              - generic [ref=e374]: Excluir Contratação
+            - button "authorization button unlocked" [ref=e377]
+            - generic "Copy to clipboard"
+          - generic [ref=e383] [cursor=pointer]:
+            - 'button "patch /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}" [ref=e384]':
+              - generic [ref=e385]: PATCH
+              - link [ref=e387]:
+                - /url: "#/Contratação/retificarParcialmenteCompra"
+              - generic [ref=e389]: Retificar parcialmente uma Contratação
+            - button "authorization button unlocked" [ref=e392]
+            - generic "Copy to clipboard"
+          - generic [ref=e398] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}" [ref=e399]':
+              - generic [ref=e400]: GET
+              - link [ref=e402]:
+                - /url: "#/Contratação/recuperarCompraItem"
+              - generic [ref=e404]: Consultar Item de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e410] [cursor=pointer]:
+            - 'button "put /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}" [ref=e411]':
+              - generic [ref=e412]: PUT
+              - link [ref=e414]:
+                - /url: "#/Contratação/retificarCompraItem"
+              - generic [ref=e416]: Retificar Item de Contratação
+            - button "authorization button unlocked" [ref=e419]
+            - generic "Copy to clipboard"
+          - generic [ref=e425] [cursor=pointer]:
+            - 'button "patch /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}" [ref=e426]':
+              - generic [ref=e427]: PATCH
+              - link [ref=e429]:
+                - /url: "#/Contratação/retificarParcialmenteCompraItem"
+              - generic [ref=e431]: Retificar Parcialmente um Item de Contratação
+            - button "authorization button unlocked" [ref=e434]
+            - generic "Copy to clipboard"
+          - generic [ref=e440] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}/resultados/{sequencialResultado}" [ref=e441]':
+              - generic [ref=e442]: GET
+              - link [ref=e444]:
+                - /url: "#/Contratação/recuperarResultado"
+              - generic [ref=e446]: Consultar Resultado de Item de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e452] [cursor=pointer]:
+            - 'button "put /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}/resultados/{sequencialResultado}" [ref=e453]':
+              - generic [ref=e454]: PUT
+              - link [ref=e456]:
+                - /url: "#/Contratação/retificarCompraItemResultado"
+              - generic [ref=e458]: Retificar Resultado de Item de Contratação
+            - button "authorization button unlocked" [ref=e461]
+            - generic "Copy to clipboard"
+          - generic [ref=e467] [cursor=pointer]:
+            - 'button "post /v1/orgaos/{cnpj}/compras" [ref=e468]':
+              - generic [ref=e469]: POST
+              - link [ref=e471]:
+                - /url: "#/Contratação/incluirCompra"
+              - generic [ref=e473]: Inserir Contratação
+            - button "authorization button unlocked" [ref=e476]
+            - generic "Copy to clipboard"
+          - generic [ref=e482] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens" [ref=e483]':
+              - generic [ref=e484]: GET
+              - link [ref=e486]:
+                - /url: "#/Contratação/pesquisarCompraItem"
+              - generic [ref=e488]: Consultar Todos os Itens de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e494] [cursor=pointer]:
+            - 'button "post /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens" [ref=e495]':
+              - generic [ref=e496]: POST
+              - link [ref=e498]:
+                - /url: "#/Contratação/incluirCompraItem"
+              - generic [ref=e500]: Inserir Item de Contratação
+            - button "authorization button unlocked" [ref=e503]
+            - generic "Copy to clipboard"
+          - generic [ref=e509] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}/resultados" [ref=e510]':
+              - generic [ref=e511]: GET
+              - link [ref=e513]:
+                - /url: "#/Contratação/recuperarResultados"
+              - generic [ref=e515]: Consultar Resultados de Item de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e521] [cursor=pointer]:
+            - 'button "post /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}/resultados" [ref=e522]':
+              - generic [ref=e523]: POST
+              - link [ref=e525]:
+                - /url: "#/Contratação/incluirCompraItemResultado"
+              - generic [ref=e527]: Inserir Resultado de Item de Contratação
+            - button "authorization button unlocked" [ref=e530]
+            - generic "Copy to clipboard"
+          - generic [ref=e536] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}/imagem" [ref=e537]':
+              - generic [ref=e538]: GET
+              - link [ref=e540]:
+                - /url: "#/Contratação/getImagemLista"
+              - generic [ref=e542]: Recuperar Imagens de um Item de uma Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e548] [cursor=pointer]:
+            - 'button "post /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}/imagem" [ref=e549]':
+              - generic [ref=e550]: POST
+              - link [ref=e552]:
+                - /url: "#/Contratação/inserirImagem"
+              - generic [ref=e554]: Inserir Imagem de um Item de Contratação
+            - button "authorization button unlocked" [ref=e557]
+            - generic "Copy to clipboard"
+          - generic [ref=e563] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/arquivos" [ref=e564]':
+              - generic [ref=e565]: GET
+              - link [ref=e567]:
+                - /url: "#/Contratação/recuperarInformacoesDocumentosCompra"
+              - generic [ref=e569]: Consultar Documentos de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e575] [cursor=pointer]:
+            - 'button "post /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/arquivos" [ref=e576]':
+              - generic [ref=e577]: POST
+              - link [ref=e579]:
+                - /url: "#/Contratação/inserirArquivo_2"
+              - generic [ref=e581]: Inserir Documento de Contratação
+            - button "authorization button unlocked" [ref=e584]
+            - generic "Copy to clipboard"
+          - generic [ref=e590] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}/imagem/{sequencialImagem}" [ref=e591]':
+              - generic [ref=e592]: GET
+              - link [ref=e594]:
+                - /url: "#/Contratação/getImagem"
+              - generic [ref=e596]: Recuperar Imagem de um Item de uma Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e602] [cursor=pointer]:
+            - 'button "delete /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/{numeroItem}/imagem/{sequencialImagem}" [ref=e603]':
+              - generic [ref=e604]: DELETE
+              - link [ref=e606]:
+                - /url: "#/Contratação/removerImagem"
+              - generic [ref=e608]: Remover Imagem de um Item de uma Contratação
+            - button "authorization button unlocked" [ref=e611]
+            - generic "Copy to clipboard"
+          - generic [ref=e617] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/itens/quantidade" [ref=e618]':
+              - generic [ref=e619]: GET
+              - link [ref=e621]:
+                - /url: "#/Contratação/recuperarCompraItemQuantidade"
+              - generic [ref=e623]: Consultar Quantidade Item de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e629] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/historico" [ref=e630]':
+              - generic [ref=e631]: GET
+              - link [ref=e633]:
+                - /url: "#/Contratação/consultarCompra"
+              - generic [ref=e635]: Consultar Histórico de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e641] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/historico/quantidade" [ref=e642]':
+              - generic [ref=e643]: GET
+              - link [ref=e645]:
+                - /url: "#/Contratação/consultarQuantidade"
+              - generic [ref=e647]: Consultar Quantidade Histórico de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e653] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/arquivos/{sequencialDocumento}" [ref=e654]':
+              - generic [ref=e655]: GET
+              - link [ref=e657]:
+                - /url: "#/Contratação/recuperarArquivo_3"
+              - generic [ref=e659]: Baixar Arquivo/Documento de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e665] [cursor=pointer]:
+            - 'button "delete /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/arquivos/{sequencialDocumento}" [ref=e666]':
+              - generic [ref=e667]: DELETE
+              - link [ref=e669]:
+                - /url: "#/Contratação/removerDocumentoCompra"
+              - generic [ref=e671]: Excluir Arquivo/Documento de Contratação
+            - button "authorization button unlocked" [ref=e674]
+            - generic "Copy to clipboard"
+          - generic [ref=e680] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/arquivos/quantidade" [ref=e681]':
+              - generic [ref=e682]: GET
+              - link [ref=e684]:
+                - /url: "#/Contratação/recuperarCompraDocumentoQuantidade"
+              - generic [ref=e686]: Consultar Quantidade de Documentos de Contratação
+            - generic "Copy to clipboard"
+          - generic [ref=e692] [cursor=pointer]:
+            - 'button "get /v1/orgaos/{cnpj}/compras/{ano}/{sequencial}/arquivos/excluidos/{sequencialDocumento}" [ref=e693]':
+              - generic [ref=e694]: GET
+              - link [ref=e696]:
+                - /url: "#/Contratação/recuperarArquivoExlcuido"
+              - generic [ref=e698]: Baixar Arquivo/Documento Excluído de Contratação
+            - button "authorization button unlocked" [ref=e701]
+            - generic "Copy to clipboard"
+      - heading [level=3] [ref=e81] [cursor=pointer]:
+        - link "Fonte orçamentária da contratação" [ref=e82]:
+          - /url: "#/Fonte%20orçamentária%20da%20contratação"
+        - paragraph [ref=e85]: Manutenção de fontes orçamentárias de uma contratação
+        - button "Expand operation" [ref=e86]
+      - heading [level=3] [ref=e91] [cursor=pointer]:
+        - link "Ata" [ref=e92]:
+          - /url: "#/Ata"
+        - paragraph [ref=e95]: Manutenção de Atas de Registro de Preços
+        - button "Expand operation" [ref=e96]
+      - heading [level=3] [ref=e101] [cursor=pointer]:
+        - link "Partes Envolvidas" [ref=e102]:
+          - /url: "#/Partes%20Envolvidas"
+        - paragraph [ref=e105]: Manutenção de Partes Envolvidas
+        - button "Expand operation" [ref=e106]
+      - heading [level=3] [ref=e111] [cursor=pointer]:
+        - link "Contrato/Empenho" [ref=e112]:
+          - /url: "#/Contrato/Empenho"
+        - paragraph [ref=e115]: Manutenção de Contratos/Empenhos
+        - button "Expand operation" [ref=e116]
+      - heading [level=3] [ref=e121] [cursor=pointer]:
+        - link "Instrumento de Cobrança de Contrato/Empenho" [ref=e122]:
+          - /url: "#/Instrumento%20de%20Cobrança%20de%20Contrato/Empenho"
+        - paragraph [ref=e125]: Manutenção de Instrumento de Cobrança de Contrato/Empenho
+        - button "Expand operation" [ref=e126]
+      - heading [level=3] [ref=e131] [cursor=pointer]:
+        - link "Empenho" [ref=e132]:
+          - /url: "#/Empenho"
+        - paragraph [ref=e135]: Manutenção de Empenhos
+        - button "Expand operation" [ref=e136]
+      - heading [level=3] [ref=e141] [cursor=pointer]:
+        - link "Termo de Contrato" [ref=e142]:
+          - /url: "#/Termo%20de%20Contrato"
+        - paragraph [ref=e145]: Manutenção de Termos de Contrato
+        - button "Expand operation" [ref=e146]
+      - heading [level=3] [ref=e151] [cursor=pointer]:
+        - link "Órgão" [ref=e152]:
+          - /url: "#/Órgão"
+        - paragraph [ref=e155]: Manutenção de Órgãos
+        - button "Expand operation" [ref=e156]
+      - heading [level=3] [ref=e161] [cursor=pointer]:
+        - link "Unidade" [ref=e162]:
+          - /url: "#/Unidade"
+        - paragraph [ref=e165]: Manutenção de Unidades do Órgão
+        - button "Expand operation" [ref=e166]
+      - heading [level=3] [ref=e171] [cursor=pointer]:
+        - link "Instrumento convocatório" [ref=e172]:
+          - /url: "#/Instrumento%20convocatório"
+        - paragraph [ref=e175]: Manutenção de instrumentos convocatórios
+        - button "Expand operation" [ref=e176]
+      - heading [level=3] [ref=e181] [cursor=pointer]:
+        - link "Modalidade" [ref=e182]:
+          - /url: "#/Modalidade"
+        - paragraph [ref=e185]: Manutenção de modalidades de contratação
+        - button "Expand operation" [ref=e186]
+      - heading [level=3] [ref=e191] [cursor=pointer]:
+        - link "Amparo legal" [ref=e192]:
+          - /url: "#/Amparo%20legal"
+        - paragraph [ref=e195]: Manutenção de amparos legais
+        - button "Expand operation" [ref=e196]
+      - heading [level=3] [ref=e201] [cursor=pointer]:
+        - link "Modo de disputa" [ref=e202]:
+          - /url: "#/Modo%20de%20disputa"
+        - paragraph [ref=e205]: Manutenção dos modos de disputas
+        - button "Expand operation" [ref=e206]
+      - heading [level=3] [ref=e211] [cursor=pointer]:
+        - link "Critério de julgamento" [ref=e212]:
+          - /url: "#/Critério%20de%20julgamento"
+        - paragraph [ref=e215]: Manutenção de critérios de julgamentos
+        - button "Expand operation" [ref=e216]
+      - heading [level=3] [ref=e221] [cursor=pointer]:
+        - link "Fonte orçamentária" [ref=e222]:
+          - /url: "#/Fonte%20orçamentária"
+        - paragraph [ref=e225]: Manutenção de Fontes Orçamentárias
+        - button "Expand operation" [ref=e226]
+      - heading [level=3] [ref=e231] [cursor=pointer]:
+        - link "Catálogo" [ref=e232]:
+          - /url: "#/Catálogo"
+        - paragraph [ref=e235]: Manutenção dos catálogos
+        - button "Expand operation" [ref=e236]
+      - heading [level=3] [ref=e241] [cursor=pointer]:
+        - link "Categoria de Item" [ref=e242]:
+          - /url: "#/Categoria%20de%20Item"
+        - paragraph [ref=e245]: Manutenção das Categorias de Item
+        - button "Expand operation" [ref=e246]
+      - heading [level=3] [ref=e251] [cursor=pointer]:
+        - link "Porte da Empresa" [ref=e252]:
+          - /url: "#/Porte%20da%20Empresa"
+        - paragraph [ref=e255]: Manutenção de portes de empresas
+        - button "Expand operation" [ref=e256]
+      - heading [level=3] [ref=e261] [cursor=pointer]:
+        - link "Tipo de Instrumento de Cobrança" [ref=e262]:
+          - /url: "#/Tipo%20de%20Instrumento%20de%20Cobrança"
+        - paragraph [ref=e265]: Manutenção dos Tipos de Instrumentos de Cobrança
+        - button "Expand operation" [ref=e266]
+      - heading [level=3] [ref=e271] [cursor=pointer]:
+        - link "Tipo de Contrato" [ref=e272]:
+          - /url: "#/Tipo%20de%20Contrato"
+        - paragraph [ref=e275]: Manutenção dos Tipos de Contratos
+        - button "Expand operation" [ref=e276]
+      - heading [level=3] [ref=e281] [cursor=pointer]:
+        - link "Tipo de Documento" [ref=e282]:
+          - /url: "#/Tipo%20de%20Documento"
+        - paragraph [ref=e285]: Manutenção dos Tipos de Documentos
+        - button "Expand operation" [ref=e286]
+      - heading [level=3] [ref=e291] [cursor=pointer]:
+        - link "Tipos de Parte Envolvida" [ref=e292]:
+          - /url: "#/Tipos%20de%20Parte%20Envolvida"
+        - paragraph [ref=e295]: Manutenção de Tipos de Parte Envolvida
+        - button "Expand operation" [ref=e296]
+      - heading [level=3] [ref=e301] [cursor=pointer]:
+        - link "Conformidade Instrumento Convocatório, Modalidade de Contratação e Amparo Legal" [ref=e302]:
+          - /url: "#/Conformidade%20Instrumento%20Convocatório,%20Modalidade%20de%20Contratação%20e%20Amparo%20Legal"
+        - paragraph [ref=e305]: Manutenção de Conformidade Instrumento Convocatório, Modalidade de Contratação e Amparo Legal
+        - button "Expand operation" [ref=e306]
+      - heading [level=3] [ref=e311] [cursor=pointer]:
+        - link "Conformidade Instrumento convocatório e Modo de disputa" [ref=e312]:
+          - /url: "#/Conformidade%20Instrumento%20convocatório%20e%20Modo%20de%20disputa"
+        - paragraph [ref=e315]: Manutenção de conformidade entre instrumentos convocatórios e modos de disputa
+        - button "Expand operation" [ref=e316]
+      - heading [level=3] [ref=e321] [cursor=pointer]:
+        - link "Conformidade Modalidade e Critério de Julgamento" [ref=e322]:
+          - /url: "#/Conformidade%20Modalidade%20e%20Critério%20de%20Julgamento"
+        - paragraph [ref=e325]: Manutenção de conformidade entre Modalidade de Contratação e Critério de Julgamento
+        - button "Expand operation" [ref=e326]
+      - heading [level=3] [ref=e331] [cursor=pointer]:
+        - link "Conformidade Modalidade e Fonte Orçamentaria" [ref=e332]:
+          - /url: "#/Conformidade%20Modalidade%20e%20Fonte%20Orçamentaria"
+        - paragraph [ref=e335]: Manutenção de conformidade entre Modalidade de Contratação e Fonte Orçamentaria
+        - button "Expand operation" [ref=e336]
+    - heading [level=4] [ref=e342] [cursor=pointer]:
+      - button "Schemas" [ref=e343]
