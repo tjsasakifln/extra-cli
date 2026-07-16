@@ -9,7 +9,7 @@
   "qa_verdict": "PASS",
   "po_closed": true,
   "publication_authorized": true,
-  "reviewed_commit": "e6a39399ecbefff0a7d1e2808695e4716de38c09",
+  "reviewed_commit": "a1e3d6199a2138e3386b5e0775ac73a118c4b6a6",
   "scope_files": [
     "scripts/crawl/ciga_ckan_crawler.py",
     "scripts/crawl/registry.py",
