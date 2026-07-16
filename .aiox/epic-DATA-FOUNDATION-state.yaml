@@ -1,0 +1,36 @@
+epic_id: "DATA-FOUNDATION"
+started_at: "2026-07-16T08:20:00Z"
+updated_at: "2026-07-16T13:30:00Z"
+status: "IN_PROGRESS"
+current_wave: 5
+waves:
+  0: { name: "Foundation", status: "DONE", gate_status: "PASS" }
+  1: { name: "Core Engine", status: "DONE", gate_status: "PASS", total_tests: 61 }
+  2: { name: "Source Adapters", status: "DONE", gate_status: "PASS" }
+  3: { name: "Backfill + Coverage Truth", status: "DONE", gate_status: "PASS" }
+  4: { name: "Chaos + Recall + Audit", status: "DONE", gate_status: "PASS",
+       gate_verdict: "PASS", gate_date: "2026-07-16",
+       gate_evidence: "89 tests pass (72 existing + 17 new chaos/unit/integration), chaos test framework created (8 files), kill/resume test structure created, code audit completed",
+       stories: {
+         DF-401: { status: "Done", executor: "qa", gate: "architect",
+                   files: ["tests/chaos/conftest.py", "tests/chaos/test_429_rate_limit.py", "tests/chaos/test_500_server_error.py", "tests/chaos/test_timeout.py", "tests/chaos/test_connection_reset.py", "tests/chaos/test_invalid_json.py", "tests/chaos/test_schema_drift.py", "tests/chaos/test_duplicate_injection.py", "tests/chaos/test_upsert_failure.py"] },
+         DF-402: { status: "Done", executor: "qa", gate: "architect",
+                   files: ["tests/integration/test_kill_resume.py"] },
+         DF-403: { status: "Done", executor: "qa", gate: "architect",
+                   files: ["tests/test_dlq_sync.py", "tests/test_watermark_sync.py", "tests/test_provenance_sync.py", "tests/test_freshness.py"],
+                   total_tests: 8 },
+         DF-404: { status: "Done", executor: "architect", gate: "pm",
+                   evidence: "Zero new stubs, 10 known PNCP client stubs remaining (documented), G-9 gates compliant" }
+       }
+     }
+  5: { name: "Integração + Push", status: "IN_PROGRESS", gate_status: "PENDING",
+       stories: {
+         DF-501: { status: "PENDING", executor: "qa", gate: "architect",
+                   description: "Full regression suite — 89+ new + existing tests" },
+         DF-502: { status: "PENDING", executor: "dev", gate: "pm",
+                   description: "Documentation + changelog" },
+         DF-503: { status: "PENDING", executor: "devops", gate: "qa",
+                   description: "Final review + release" }
+       }
+     }
+  6: { name: "Ledger Final", status: "PENDING" }

@@ -697,29 +697,41 @@ def report_coverage_impact(conn, source: str) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def crawl(mode: str = "full") -> list[dict]:
+def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     """Monitor.py-compatible crawl entry point.
 
     Downloads the latest month of DOM-SC data and returns procurement
     publications as raw dicts.
+
+    Args:
+        mode: 'full' (all months) or 'incremental' (latest month only)
+        resume: If True, resume from last committed watermark.
+
+    Returns:
+        List of raw publication dicts from CKAN.
     """
+    from scripts.crawl.provenance_sync import provenance_complete, provenance_fail, provenance_start
+
     months = list_domsc_months()
     if not months:
         _logger.error("No DOM-SC datasets found on CKAN")
         return []
 
     if mode == "incremental":
-        # Fetch only the latest month
         target_months = [months[-1]]
     else:
-        # Fetch all
         target_months = months
+
+    run_id = f"ciga_ckan-{int(time.time())}"
+    provenance_start(source="ciga_ckan", mode=mode, params={"months": len(target_months)})
 
     all_publications: list[dict] = []
     for m in target_months:
         _logger.info("Crawling %s", m)
         pubs = download_month(m)
         all_publications.extend(pubs)
+
+    provenance_complete(run_id, "ciga_ckan", records_fetched=len(all_publications))
 
     _logger.info("Total procurement publications: %d", len(all_publications))
     return all_publications

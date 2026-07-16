@@ -16,6 +16,7 @@ from typing import Any
 import requests
 
 from scripts.crawl.common import safe_float, safe_int
+from scripts.crawl.dlq_sync import dlq_write
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
 from scripts.crawl.pncp_contract import (
     DEFAULT_MODALIDADES,
@@ -31,6 +32,7 @@ from scripts.crawl.pncp_contract import (
     parse_target,
 )
 from scripts.crawl.security import USER_AGENT
+from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
 _logger = logging.getLogger(__name__)
 
@@ -423,19 +425,37 @@ def _synthetic_pncp_id(raw: dict[str, Any]) -> tuple[str, bool, str]:
     return hashlib.sha256(base.encode("utf-8")).hexdigest(), True, "numeroControlePNCP ausente"
 
 
-def crawl(mode: str | CrawlRequest = "full") -> FetchResult:
+def crawl(mode: str | CrawlRequest = "full", resume: bool = False) -> FetchResult:
+    """Crawl PNCP publicacao endpoint with windowed date pagination.
+
+    Parameters
+    ----------
+    mode : str or CrawlRequest
+        Crawl mode string or CrawlRequest object.
+    resume : bool
+        If True, read last committed watermark and resume from next page.
+        Backward-compatible: default False means no watermark integration.
+
+    Returns
+    -------
+    FetchResult
+        Combined results across all windows, modalidades, and pages.
+    """
     request = _derive_request(mode)
     if request.date_from is None or request.date_to is None:
         raise ValueError("CrawlRequest precisa de date_from e date_to resolvidos")
 
     all_records: list[dict[str, Any]] = []
     errors: list[str] = []
+    run_id = f"pncp-{int(time.time())}"
     metadata: dict[str, Any] = {
         "endpoint": f"{PNCP_CONSULTA_BASE}/contratacoes/publicacao",
         "modalidades": list(INGESTION_MODALIDADES or DEFAULT_MODALIDADES),
         "target": asdict(parse_target(request.target)),
         "windows": [],
         "pages_fetched": 0,
+        "resume": resume,
+        "run_id": run_id,
     }
     completed_any = False
     empty_confirmed = True
@@ -444,6 +464,17 @@ def crawl(mode: str | CrawlRequest = "full") -> FetchResult:
         metadata["windows"].append({"date_from": window_start.isoformat(), "date_to": window_end.isoformat()})
         for modalidade in INGESTION_MODALIDADES or DEFAULT_MODALIDADES:
             page = 1
+
+            # --- Resume support: skip pages already committed ---
+            if resume:
+                last_page = watermark_read(source="pncp", scope_key="page")
+                if last_page is not None:
+                    try:
+                        page = max(1, int(last_page))
+                        _logger.info("PNCP resume: starting from page %d (last committed)", page)
+                    except (ValueError, TypeError):
+                        page = 1
+
             while page <= PNCP_MAX_PAGES:
                 page_request = CrawlRequest(
                     mode=request.mode,
@@ -457,9 +488,19 @@ def crawl(mode: str | CrawlRequest = "full") -> FetchResult:
 
                 if result.request_completed:
                     completed_any = True
+
                 if result.errors:
                     errors.extend(result.errors)
                     empty_confirmed = False
+                    # --- DLQ integration: route error to Dead Letter Queue ---
+                    dlq_write(
+                        source="pncp",
+                        run_id=run_id,
+                        stage="fetch",
+                        error_code=f"http_{result.http_status}" if result.http_status else "fetch_failed",
+                        error_message="; ".join(result.errors),
+                        payload={"modalidade": modalidade, "page": page, "params": result.metadata.get("params")},
+                    )
                     break
 
                 if result.records:
@@ -467,6 +508,10 @@ def crawl(mode: str | CrawlRequest = "full") -> FetchResult:
                     empty_confirmed = False
                 elif not result.empty_confirmed:
                     empty_confirmed = False
+
+                # --- Watermark commit: persists page number after successful fetch ---
+                if resume:
+                    watermark_commit(source="pncp", scope_key="page", value=str(page), run_id=run_id)
 
                 pagination = result.metadata.get("pagination") or {}
                 remaining = pagination.get("paginasRestantes")
@@ -596,19 +641,36 @@ def _fetch_contracts_page(request: CrawlRequest, page: int) -> FetchResult:
     return result
 
 
-def crawl_contracts(mode: str | CrawlRequest = "full") -> FetchResult:
-    """Crawl PNCP contratos endpoint with windowed date pagination."""
+def crawl_contracts(mode: str | CrawlRequest = "full", resume: bool = False) -> FetchResult:
+    """Crawl PNCP contratos endpoint with windowed date pagination.
+
+    Parameters
+    ----------
+    mode : str or CrawlRequest
+        Crawl mode string or CrawlRequest object.
+    resume : bool
+        If True, resume from last committed watermark.
+        Backward-compatible: default False.
+
+    Returns
+    -------
+    FetchResult
+        Combined results across all windows and pages.
+    """
     request = _derive_request(mode)
     if request.date_from is None or request.date_to is None:
         raise ValueError("CrawlRequest precisa de date_from e date_to resolvidos")
 
     all_records: list[dict[str, Any]] = []
     errors: list[str] = []
+    run_id = f"pncp-contracts-{int(time.time())}"
     metadata: dict[str, Any] = {
         "endpoint": f"{PNCP_CONSULTA_BASE}/contratos",
         "target": asdict(parse_target(request.target)),
         "windows": [],
         "pages_fetched": 0,
+        "resume": resume,
+        "run_id": run_id,
     }
     completed_any = False
     empty_confirmed = True
@@ -616,6 +678,16 @@ def crawl_contracts(mode: str | CrawlRequest = "full") -> FetchResult:
     for window_start, window_end in _windowed_dates(request.date_from, request.date_to):
         metadata["windows"].append({"date_from": window_start.isoformat(), "date_to": window_end.isoformat()})
         page = 1
+
+        if resume:
+            last_page = watermark_read(source="pncp_contracts", scope_key="page")
+            if last_page is not None:
+                try:
+                    page = max(1, int(last_page))
+                    _logger.info("PNCP contracts resume: starting from page %d", page)
+                except (ValueError, TypeError):
+                    page = 1
+
         while page <= PNCP_MAX_PAGES:
             page_request = CrawlRequest(
                 mode=request.mode,
@@ -632,6 +704,14 @@ def crawl_contracts(mode: str | CrawlRequest = "full") -> FetchResult:
             if result.errors:
                 errors.extend(result.errors)
                 empty_confirmed = False
+                dlq_write(
+                    source="pncp_contracts",
+                    run_id=run_id,
+                    stage="fetch",
+                    error_code=f"http_{result.http_status}" if result.http_status else "fetch_failed",
+                    error_message="; ".join(result.errors),
+                    payload={"page": page, "params": result.metadata.get("params")},
+                )
                 break
 
             if result.records:
@@ -639,6 +719,9 @@ def crawl_contracts(mode: str | CrawlRequest = "full") -> FetchResult:
                 empty_confirmed = False
             elif not result.empty_confirmed:
                 empty_confirmed = False
+
+            if resume:
+                watermark_commit(source="pncp_contracts", scope_key="page", value=str(page), run_id=run_id)
 
             pagination = result.metadata.get("pagination") or {}
             remaining = pagination.get("paginasRestantes")

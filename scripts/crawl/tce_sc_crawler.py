@@ -29,7 +29,10 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.crawl.dlq_sync import dlq_write
+from scripts.crawl.provenance_sync import provenance_complete, provenance_fail, provenance_start
 from scripts.crawl.security import USER_AGENT, sanitize_url_param
+from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -462,7 +465,7 @@ def _fetch_contratos(
 # ---------------------------------------------------------------------------
 
 
-def crawl(mode: str = "full") -> list[dict]:
+def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     """Crawl TCE-SC SCMWeb API.
 
     Coleta licitacoes e contratos do SCMWeb. No modo 'full', busca o periodo
@@ -471,6 +474,7 @@ def crawl(mode: str = "full") -> list[dict]:
 
     Args:
         mode: 'full' (periodo completo) ou 'incremental' (ultimos dias).
+        resume: If True, resume from last committed watermark.
 
     Returns:
         Lista de registros brutos (dicts) mesclando licitacoes e contratos,
@@ -483,6 +487,7 @@ def crawl(mode: str = "full") -> list[dict]:
     days = TCE_SC_FULL_DAYS if mode == "full" else TCE_SC_INCREMENTAL_DAYS
     data_final = date.today()
     data_inicial = data_final - timedelta(days=days)
+    run_id = f"tce_sc-{int(time.time())}"
 
     _logger.info(
         "[TCE-SC] Crawling %s mode: %s to %s (%d days)",
@@ -492,7 +497,11 @@ def crawl(mode: str = "full") -> list[dict]:
         days,
     )
 
+    # Provenance: start run
+    provenance_start(source="tce_sc", mode=mode, params={"data_inicial": str(data_inicial), "data_final": str(data_final)})
+
     all_records: list[dict] = []
+    errors = 0
 
     # Fase 1: Licitacoes
     try:
@@ -503,6 +512,15 @@ def crawl(mode: str = "full") -> list[dict]:
         _logger.info("[TCE-SC] Licitações: %d records", len(licitacoes))
     except Exception as exc:
         _logger.error("[TCE-SC] Failed to fetch licitações: %s", exc)
+        dlq_write(
+            source="tce_sc",
+            run_id=run_id,
+            stage="fetch",
+            error_code="licitacoes_failed",
+            error_message=str(exc)[:2000],
+            payload={"phase": "licitacoes", "data_inicial": str(data_inicial), "data_final": str(data_final)},
+        )
+        errors += 1
 
     # Rate limit entre chamadas
     if all_records:
@@ -517,6 +535,25 @@ def crawl(mode: str = "full") -> list[dict]:
         _logger.info("[TCE-SC] Contratos: %d records", len(contratos))
     except Exception as exc:
         _logger.error("[TCE-SC] Failed to fetch contratos: %s", exc)
+        dlq_write(
+            source="tce_sc",
+            run_id=run_id,
+            stage="fetch",
+            error_code="contratos_failed",
+            error_message=str(exc)[:2000],
+            payload={"phase": "contratos", "data_inicial": str(data_inicial), "data_final": str(data_final)},
+        )
+        errors += 1
+
+    # Provenance: complete or fail
+    if errors > 0:
+        provenance_fail(run_id, "tce_sc", error_message=f"{errors} phases failed", records_fetched=len(all_records))
+    else:
+        provenance_complete(run_id, "tce_sc", records_fetched=len(all_records))
+
+    # Watermark: commit date range
+    if resume:
+        watermark_commit(source="tce_sc", scope_key="date", value=str(data_final), run_id=run_id)
 
     _logger.info("[TCE-SC] Crawl complete: %d total records", len(all_records))
     return all_records

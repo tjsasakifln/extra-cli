@@ -34,7 +34,10 @@ from scripts.crawl.common import (
 from scripts.crawl.common import (
     parse_date as _parse_date,
 )
+from scripts.crawl.dlq_sync import dlq_write
+from scripts.crawl.provenance_sync import provenance_complete, provenance_fail, provenance_start
 from scripts.crawl.security import USER_AGENT, sanitize_url_param
+from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -395,11 +398,12 @@ def _transform_record(rec: dict) -> dict | None:
 # ---------------------------------------------------------------------------
 
 
-def crawl(mode: str = "full") -> list[dict]:
+def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     """Crawl PCP v2 API for procurement processes.
 
     Args:
         mode: 'full' = 365 days, 'incremental' = 3 days.
+        resume: If True, resume from last committed watermark.
 
     Returns:
         List of raw PCP API records (not yet transformed).
@@ -418,12 +422,26 @@ def crawl(mode: str = "full") -> list[dict]:
     data_final_str = data_final.strftime("%Y-%m-%d")
 
     # Server-side UF filtering: use when exactly one UF is configured and we know its PCP code.
-    # This avoids fetching all 27 states and filtering ~10% client-side.
-    # Format: '1001' + IBGE state code (empirically validated 2026-07-15 via Exa MCP).
     codigo_uf: str | None = None
     if len(INGESTION_UFS) == 1:
         codigo_uf = _PCP_UF_CODE.get(INGESTION_UFS[0])
     server_side_uf = codigo_uf is not None
+
+    # Provenance: start run
+    run_id = provenance_start(source="pcp", mode=mode, params={"data_inicial": data_inicial_str, "data_final": data_final_str})
+    if run_id is None:
+        run_id = f"pcp-{int(time.time())}"
+
+    # Watermark: determine starting page
+    start_page = 1
+    if resume:
+        last_commit = watermark_read(source="pcp", scope_key="page")
+        if last_commit is not None:
+            try:
+                start_page = max(1, int(last_commit))
+                _logger.info("[PCP] Resume: starting from page %d", start_page)
+            except (ValueError, TypeError):
+                start_page = 1
 
     _logger.info(
         "[PCP] Crawl [%s]: %s to %s, UF=%s, server_side=%s, max_pages=%d",
@@ -436,11 +454,31 @@ def crawl(mode: str = "full") -> list[dict]:
     )
 
     all_records: list[dict] = []
-    pagina = 1
+    pagina = start_page
+    dlq_errors = 0
 
     while pagina <= PCP_MAX_PAGES:
         page_start = time.time()
-        records, has_next = _fetch_page(pagina, data_inicial_str, data_final_str, codigo_uf)
+
+        try:
+            records, has_next = _fetch_page(pagina, data_inicial_str, data_final_str, codigo_uf)
+        except Exception as e:
+            _logger.error("[PCP] Page %d fetch failed: %s", pagina, e)
+            dlq_write(
+                source="pcp",
+                run_id=run_id,
+                stage="fetch",
+                error_code="fetch_failed",
+                error_message=str(e),
+                payload={"page": pagina},
+            )
+            dlq_errors += 1
+            if dlq_errors >= 3:
+                _logger.error("[PCP] Too many DLQ errors, aborting crawl")
+                break
+            pagina += 1
+            time.sleep(PCP_REQUEST_DELAY)
+            continue
 
         elapsed_ms = int((time.time() - page_start) * 1000)
 
@@ -453,10 +491,8 @@ def crawl(mode: str = "full") -> list[dict]:
         _logger.debug("[PCP] Page %d: %d records in %dms", pagina, len(records), elapsed_ms)
 
         if server_side_uf:
-            # All records are already from the target UF — no client-side filtering needed.
             all_records.extend(records)
         elif INGESTION_UFS:
-            # Client-side UF filtering fallback (API returns all UFs).
             filtered: list[dict] = []
             for rec in records:
                 unidade = rec.get("unidadeCompradora") or {}
@@ -464,21 +500,27 @@ def crawl(mode: str = "full") -> list[dict]:
                 if uf.upper() in INGESTION_UFS:
                     filtered.append(rec)
             all_records.extend(filtered)
-            _logger.debug(
-                "[PCP] Page %d: %d records after UF filter",
-                pagina,
-                len(filtered),
-            )
         else:
             all_records.extend(records)
+
+        # Watermark commit after successful page
+        if resume:
+            watermark_commit(source="pcp", scope_key="page", value=str(pagina), run_id=run_id)
 
         if not has_next:
             break
 
         pagina += 1
-        time.sleep(PCP_REQUEST_DELAY)  # Rate limiting
+        time.sleep(PCP_REQUEST_DELAY)
 
     _logger.info("[PCP] Crawl complete: %d records (%d pages)", len(all_records), pagina)
+
+    # Provenance: complete or fail
+    if dlq_errors > 0:
+        provenance_fail(run_id, "pcp", error_message=f"{dlq_errors} DLQ errors", records_fetched=len(all_records))
+    else:
+        provenance_complete(run_id, "pcp", records_fetched=len(all_records))
+
     return all_records
 
 

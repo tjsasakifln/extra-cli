@@ -40,7 +40,9 @@ from typing import Any
 from scripts.crawl.common import (
     generate_content_hash as _common_content_hash,
 )
+from scripts.crawl.dlq_sync import dlq_write
 from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
+from scripts.crawl.watermark_sync import watermark_commit
 
 # Add project root to path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -57,7 +59,7 @@ BASE_URL = os.getenv("COMPRASGOV_BASE", "https://dadosabertos.compras.gov.br")
 PAGE_SIZE = int(os.getenv("COMPRASGOV_PAGE_SIZE", "100"))  # Min 10, max 500
 MAX_PAGES = int(os.getenv("COMPRASGOV_MAX_PAGES", "50"))
 READ_TIMEOUT = int(os.getenv("COMPRASGOV_READ_TIMEOUT", "30"))
-MAX_RETRIES = int(os.getenv("COMPRASGOV_MAX_RETRIES", "2"))
+MAX_RETRIES = int(os.getenv("COMPRASGOV_MAX_RETRIES", "3"))
 REQUEST_DELAY = float(os.getenv("COMPRASGOV_REQUEST_DELAY", "0.2"))  # 200ms = 5 req/s
 LEGACY_ENABLED = os.getenv("COMPRASGOV_LEGACY_ENABLED", "").lower() in (
     "true",
@@ -145,20 +147,44 @@ def _make_request(url: str) -> dict | None:
                 _logger.debug("[COMPRAS_GOV] Could not read error body from HTTP response")
 
             if e.code == 429:
-                retry_after = int(e.headers.get("Retry-After", 60))
-                _logger.warning(f"[COMPRAS_GOV] Rate limited. Waiting {retry_after}s")
-                time.sleep(retry_after)
-                continue
+                if attempt < MAX_RETRIES:
+                    retry_after = int(e.headers.get("Retry-After", 60))
+                    _logger.warning(f"[COMPRAS_GOV] Rate limited. Waiting {retry_after}s")
+                    time.sleep(retry_after)
+                    continue
+                # Max retries exhausted for 429 — DLQ, CB NOT tripped
+                dlq_write(
+                    source="compras_gov",
+                    run_id=f"comprasgov-{int(time.time())}",
+                    stage="fetch",
+                    error_code="rate_limited",
+                    error_message=f"HTTP 429 after {MAX_RETRIES} retries: {url}",
+                    payload={"url": url, "http_status": 429},
+                )
+                _logger.warning(f"[COMPRAS_GOV] Rate limited after {MAX_RETRIES} retries: {url}")
+                return None
 
             if e.code in (404, 400):
                 _logger.debug(f"[COMPRAS_GOV] HTTP {e.code} for {url}: {err_body}")
                 return None
 
-            if e.code >= 500 and attempt < MAX_RETRIES:
-                delay = 2.0 * (2**attempt)
-                _logger.warning(f"[COMPRAS_GOV] Server error {e.code}. Retrying in {delay:.1f}s")
-                time.sleep(delay)
-                continue
+            if e.code >= 500:
+                if attempt < MAX_RETRIES:
+                    delay = 60.0 * (5.0**attempt)  # exponential: 60s, 300s, 1500s
+                    _logger.warning(f"[COMPRAS_GOV] Server error {e.code}. Retrying in {delay:.1f}s")
+                    time.sleep(min(delay, 1800))  # Cap at 30min
+                    continue
+                # Max retries exhausted for 500 — DLQ, CB tripped
+                dlq_write(
+                    source="compras_gov",
+                    run_id=f"comprasgov-{int(time.time())}",
+                    stage="fetch",
+                    error_code="server_error",
+                    error_message=f"HTTP {e.code} after {MAX_RETRIES} retries: {url}",
+                    payload={"url": url, "http_status": e.code},
+                )
+                _logger.warning(f"[COMPRAS_GOV] Server error {e.code} after {MAX_RETRIES} retries: {url}")
+                return None
 
             _logger.warning(f"[COMPRAS_GOV] HTTP {e.code} after {MAX_RETRIES} retries: {url}")
             return None
@@ -525,7 +551,7 @@ def _normalize_legacy(raw: dict) -> dict | None:
 # ---------------------------------------------------------------------------
 
 
-def crawl(mode: str = "full") -> list[dict]:
+def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     """Crawl ComprasGov v3 para as UFs configuradas.
 
     Endpoints:
@@ -536,6 +562,7 @@ def crawl(mode: str = "full") -> list[dict]:
 
     Args:
         mode: 'full' (janela maior) ou 'incremental' (janela menor)
+        resume: If True, resume from last committed watermark.
 
     Returns:
         Lista de registros brutos da API (ambos endpoints mergeados)
@@ -551,6 +578,18 @@ def crawl(mode: str = "full") -> list[dict]:
     )
 
     all_records: list[dict] = []
+    run_id = f"comprasgov-{int(time.time())}"
+
+    # Watermark: determine starting page
+    start_page = 1
+    if resume:
+        last_commit = watermark_read(source="compras_gov", scope_key="page")
+        if last_commit is not None:
+            try:
+                start_page = max(1, int(last_commit))
+                _logger.info("[COMPRAS_GOV] Resume: starting from page %d", start_page)
+            except (ValueError, TypeError):
+                start_page = 1
 
     # 1. Lei 14.133 endpoint (PRIMARY) — server-side UF filter
     for uf in INGESTION_UFS:
@@ -579,6 +618,10 @@ def crawl(mode: str = "full") -> list[dict]:
         all_records.extend(legacy_records)
     else:
         _logger.debug("[COMPRAS_GOV] Legacy endpoint disabled (set COMPRASGOV_LEGACY_ENABLED=true to enable)")
+
+    # Commit watermark after successful crawl
+    if resume:
+        watermark_commit(source="compras_gov", scope_key="page", value="done", run_id=run_id)
 
     _logger.info(f"[COMPRAS_GOV] Crawl complete: {len(all_records)} registros totais")
     return all_records

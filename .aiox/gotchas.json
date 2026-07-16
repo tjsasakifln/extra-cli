@@ -44,5 +44,126 @@
       "CIGA CKAN research is the most impactful single task (200-300 new entities)",
       "COVERAGE-2.1 (MiDES BigQuery) PULADA 2026-07-11 — BigQuery account nao disponivel. Reativar quando conta GCP for criada."
     ]
+  },
+  "authority_overrides": {
+    "brownfield_phase_10b": {
+      "description": "Brownfield Discovery Phase 10b (story creation) — runtime override for agent authority conflict",
+      "severity": "CRITICAL",
+      "conflict": "Three different owners across three artifacts: workflow says @pm, task says @po, agent-authority says @sm exclusively owns *draft/*create-story",
+      "override": "Delegate to @sm for story creation, NOT @pm. The agent-authority.md rule is authoritative (Constitutional).",
+      "enforcement": "When executing brownfield-discovery.yaml Phase 10b step 'story_creation', route to @sm *draft instead of @pm *create-story.",
+      "created": "2026-07-16",
+      "created_by": "River (SM) via *correct-course"
+    }
+  },
+  "checklist_gaps": {
+    "spec_quality_checklist_missing": {
+      "description": "spec-critique.md references spec-quality-checklist.md for selfCritique.checklistRef, but the file does not exist anywhere in .aiox-core/",
+      "severity": "HIGH",
+      "impact": "Self-critique step in spec-critique.md cannot load its validation checklist",
+      "fallback": "Use story-lifecycle.md Phase 4 QA checks (7 quality checks) as substitute criteria: (1) code review patterns, (2) unit tests, (3) acceptance criteria, (4) no regressions, (5) performance, (6) security, (7) documentation.",
+      "remediation": "Create .aiox-core/development/checklists/spec-quality-checklist.md derived from spec-critique.md dimension checks (accuracy, completeness, consistency, feasibility, alignment) or resolve via framework update.",
+      "created": "2026-07-16",
+      "created_by": "River (SM) via *correct-course"
+    }
+  },
+  "template_path_mismatches": {
+    "spec_tmpl_path": {
+      "description": "spec-write-spec.md references template path development/templates/spec-tmpl.md but the file lives at product/templates/spec-tmpl.md",
+      "severity": "MEDIUM",
+      "impact": "Template auto-resolution fails at development/templates/spec-tmpl.md",
+      "correct_path": ".aiox-core/product/templates/spec-tmpl.md",
+      "runtime_workaround": "When executing spec-write-spec, load template from product/templates/spec-tmpl.md (not development/templates/).",
+      "created": "2026-07-16",
+      "created_by": "River (SM) via *correct-course"
+    }
+  },
+  "workflow_name_drift": {
+    "development_cycle": {
+      "description": "development-cycle.yaml references task names that do not match actual task filenames in development/tasks/",
+      "severity": "LOW",
+      "mapping_table": {
+        "validate-story-draft": "validate-next-story.md",
+        "develop": "NO MATCHING FILE (use dev-develop-story.md or build-component.md)",
+        "self-heal": "NO MATCHING FILE (functionality embedded in coderabbit-integration.md rules)",
+        "quality-review": "NO MATCHING FILE (use qa-gate.md or agent-quality-gate.md)",
+        "push-and-pr": "NO MATCHING FILE (use add-mcp.md or ci-cd-configuration.md, but @devops exclusive)",
+        "story-checkpoint": "story-checkpoint.md (MATCHES)"
+      },
+      "mismatch_count": "5 of 6 task names do not match actual filenames",
+      "runtime_workaround": "Resolve as follows: validate-story-draft -> validate-next-story.md; develop -> dev-develop-story.md; self-heal -> apply coderabbit-integration.md rules directly; quality-review -> qa-gate.md; push-and-pr -> delegate to @devops.",
+      "recommendation": "Update development-cycle.yaml task references to match actual filenames, or rename task files to match workflow names.",
+      "created": "2026-07-16",
+      "created_by": "River (SM) via *correct-course"
+    }
+  },
+  "pipeline_skip_logic_gaps": {
+    "spec_pipeline_simple_skip": {
+      "description": "spec-pipeline.yaml assess step has skip_if condition that can skip complexity.json generation, but research step's skip_if condition depends on complexity.json existing",
+      "severity": "MEDIUM",
+      "gap": "If assess step is skipped (source === 'simple' or overrideComplexity === 'SIMPLE'), complexity.json is never created. Research step later checks skip_if: 'complexity.result === SIMPLE' but complexity.json is absent, causing a reference error.",
+      "runtime_guard": "Before evaluating research step's skip_if condition, verify complexity.json exists. If absent (assess was skipped), treat complexity as SIMPLE and skip research automatically.",
+      "scenario_1": "SIMPLE pipeline path (gather -> spec -> critique): research step is not in the steps list, so no issue. Guard is still recommended for edge cases.",
+      "scenario_2": "STANDARD pipeline with SIMPLE override: assess skipped, complexity.json absent, research runs but skip_if references nonexistent field. GUARD REQUIRED.",
+      "remediation": "Update spec-pipeline.yaml research step to: (1) check if complexity.json exists first, (2) if absent default to skip research phase, OR add guard logic to assess step to always generate a minimal complexity.json when skipped.",
+      "created": "2026-07-16",
+      "created_by": "River (SM) via *correct-course"
+    }
+  },
+  "epic_orchestration": {
+    "state_file_mismatch": {
+      "description": "epic-orchestration.yaml (line 180-182) declares state persistence at .aiox/workflow-state/${epicId}-pipeline.json (JSON format), but execute-epic-plan.md writes to .aiox/epic-{epicId}-state.yaml (YAML format)",
+      "severity": "MEDIUM",
+      "impact": "State file written by execute-epic-plan.md cannot be found at the path expected by epic-orchestration.yaml template. Resume across sessions via execute-epic-plan.md action=continue works (uses .aiox/epic-{epicId}-state.yaml path directly), but the orchestration template cannot read the state.",
+      "resolution": "Runtime canonical location is .aiox/epic-{epicId}-state.yaml (YAML format), matching execute-epic-plan.md implementation. .aiox/workflow-state/ directory created with README documenting the mismatch.",
+      "canonical_path": ".aiox/epic-{epicId}-state.yaml",
+      "canonical_format": "YAML",
+      "template_path": ".aiox/workflow-state/${epicId}-pipeline.json",
+      "template_format": "JSON",
+      "created": "2026-07-16",
+      "created_by": "River (SM) via CONCERN-1 epic-orchestration validation"
+    },
+    "execution_yaml_missing": {
+      "description": "8 epics exist in docs/stories/epics/, none have EPIC-{ID}-EXECUTION.yaml execution plans required by epic-orchestration",
+      "severity": "LOW",
+      "impact": "No epic can currently be executed via the epic-orchestration workflow. This is expected — epic-orchestration has not been used in this project yet.",
+      "expected_first_epic": "DATA-FOUNDATION",
+      "expected_first_epic_note": "DATA-FOUNDATION epic will be the first to use epic-orchestration properly with a full EXECUTION.yaml plan. The remaining 7 epics (EPIC-COVERAGE-MAX-200KM, EPIC-MASTER-B2G-READINESS, epic-001-100-cobertura, epic-b2g-max-evolution, epic-coverage-100pct, epic-master-b2g, epic-td-001-resolution, epic-td-002-code-quality, epic-td-003-reversa-remediation, epic-feat-001-crawlers-coverage) do not require execution plans until they are prioritized for wave-based execution.",
+      "created": "2026-07-16",
+      "created_by": "River (SM) via CONCERN-2 epic-orchestration validation"
+    },
+    "po_epic_context_missing": {
+      "description": "execute-epic-plan.md dependencies list (line 241) references po-epic-context.md, but this markdown documentation file does not exist. The JS implementation exists at .aiox-core/core/orchestration/epic-context-accumulator.js",
+      "severity": "MEDIUM",
+      "impact": "PO cannot reference po-epic-context.md for context accumulation during epic validation. The functionality exists but is undocumented in markdown form.",
+      "module_path": ".aiox-core/core/orchestration/epic-context-accumulator.js",
+      "module_api": {
+        "class": "EpicContextAccumulator",
+        "factory": "createEpicContextAccumulator(sessionState)",
+        "main_method": "buildAccumulatedContext(epicId, storyN, options)",
+        "main_method_params": "storyN (0-based index of current story), options.filesToModify (string[]), options.executor (string)",
+        "compression_levels": ["full_detail", "metadata_plus_files", "metadata_only"],
+        "token_limit": 8000,
+        "hard_cap_per_story": 600,
+        "exported_utilities": ["estimateTokens(text)", "getCompressionLevel(storyIndex, currentN)", "buildFileIndex(stories)", "hasFileOverlap(storyFiles, targetFiles)", "truncateToTokens(text, maxTokens)", "formatStoryEntry(story, level)"]
+      },
+      "runtime_workaround": "PO should use EpicContextAccumulator JS module directly until po-epic-context.md documentation is created. Import via: require('.aiox-core/core/orchestration/epic-context-accumulator').createEpicContextAccumulator(sessionState).buildAccumulatedContext(epicId, storyN, { filesToModify, executor })",
+      "remediation": "Create docs/stories/epics/po-epic-context.md documenting the module API for PO use during epic validation",
+      "created": "2026-07-16",
+      "created_by": "River (SM) via CONCERN-3 epic-orchestration validation"
+    },
+    "gate_agent_hardcoded": {
+      "description": "execute-epic-plan.md hardcodes subagent_type: 'aiox-architect' for wave gate (line 622) and final gate (line 726), while epic-orchestration.yaml uses ${wave.gate_agent} (dynamic, line 138)",
+      "severity": "MEDIUM",
+      "impact": "Wave gate agent cannot be customized per wave via the execution plan. All gates default to aiox-architect regardless of wave risk profile.",
+      "runtime_override_rule": "Wave gate agent is read from execution plan's waves[].gate_agent field. If present, that value overrides the hardcoded 'aiox-architect'. Default behavior: STANDARD risk waves use @qa as gate agent; HIGH-RISK waves use @architect + @qa joint gate. The hardcoded value in execute-epic-plan.md (line 622, line 726) is the fallback when no gate_agent is specified in the execution plan wave definition.",
+      "default_mapping": {
+        "STANDARD": "aiox-qa",
+        "HIGH_RISK": "joint: aiox-architect + aiox-qa",
+        "fallback": "aiox-architect (when wave.gate_agent not specified)"
+      },
+      "created": "2026-07-16",
+      "created_by": "River (SM) via CONCERN-4 epic-orchestration validation"
+    }
   }
 }

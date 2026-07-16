@@ -1,0 +1,1289 @@
+# ============================================================
+# EPIC-DATA-FOUNDATION EXECUTION PLAN
+# MISSÃO DATA-FOUNDATION — Fundação Resiliente de Dados B2G
+#
+# Template: epic-orchestration.yaml (v1.0.0)
+# Inner loop: development-cycle.yaml
+# Spec: docs/prd/MISSÃO-DATA-FOUNDATION-spec.md
+# Critique: docs/qa/MISSÃO-DATA-FOUNDATION-critique.md
+# Risk: HIGH-RISK (auth, dados, migrations, produção)
+# Class: COMPLEX (score 23/25)
+#
+# @author Bob (Strategist) / PM Agent
+# @version 1.0.0
+# @date 2026-07-16
+# ============================================================
+
+execution:
+  epic_id: "DATA-FOUNDATION"
+  epic_name: "MISSÃO DATA-FOUNDATION — Fundação Resiliente de Dados B2G"
+  epic_spec: "docs/prd/MISSÃO-DATA-FOUNDATION-spec.md"
+  epic_critique: "docs/qa/MISSÃO-DATA-FOUNDATION-critique.md"
+  orchestrator: "@pm"
+  risk_level: "HIGH-RISK"
+  template: "epic-orchestration"
+  storyBasePath: "docs/stories"
+
+  description: >
+    Build the production-grade data foundation for the B2G intelligence
+    platform: Dead Letter Queue, watermarks, provenance, dedup,
+    kill/resume lifecycle, real stub replacements, chaos testing,
+    and 3-year backfill.
+
+  # ============================================================
+  # CONFIGURATION
+  # ============================================================
+  config:
+    maxConcurrency: 4
+    worktreeIsolation: true
+    gatePolicy: strict
+    requireIntegrationReview: true
+    storyTimeout: 7200000          # 2h per story
+    gateTimeout: 1800000           # 30min per wave gate
+    totalTimeout: 43200000         # 12h total
+    retryMax: 2
+
+  # ============================================================
+  # TRACEABILITY
+  # ============================================================
+  traceability:
+    wave_0: "FR-2.1 (amendment), NFR-4.3, architecture readiness"
+    wave_1: "FR-1, FR-2, FR-3.6, FR-4, NFR-1, NFR-2, NFR-3, NFR-4, NFR-5"
+    wave_2: "FR-3.1, FR-3.2, FR-3.3, FR-3.4, FR-3.5, FR-3.6.5"
+    wave_3: "FR-4.1, FR-4.2, FR-4.6, FR-2.8, FR-2.9"
+    wave_4: "FR-5, NFR-1.5, NFR-1.6, NFR-5.1, NFR-5.2"
+    wave_5: "NFR-4.3 (verification), all NFR-1, all gates G-9.1..G-9.6"
+
+  # ============================================================
+  # STORY DEFINITIONS (22 stories across 6 waves)
+  # ============================================================
+  stories:
+
+    # ─── Wave 0: Foundation (3 stories) ──────────────────────
+
+    DF-001:
+      title: "Baseline Performance Benchmark"
+      description: >
+        Measure current crawl throughput before any implementation
+        changes per NFR-4.3. Run monitor.py --source X --mode dry-run
+        --benchmark for PNCP, PCP, ComprasGov, dom_sc, contracts.
+        Record baseline JSON for comparison after implementation.
+      file: "df-001-baseline-benchmark.story.md"
+      executor: "@dev"
+      quality_gate: "@analyst"
+      quality_gate_tools:
+        - performance_review
+        - data_validation
+      complexity: "S"
+      priority: "MUST"
+      effort_hours: 2
+      acceptance_criteria:
+        - "Given PNCP source, when benchmark runs, baseline JSON includes crawl_duration, records_fetched, records_persisted"
+        - "Given PCP source, when benchmark runs, baseline captures same metrics"
+        - "Given ComprasGov source, when benchmark runs, baseline captures same metrics"
+        - "Given dom_sc source, when benchmark runs, baseline captures same metrics"
+        - "Given all sources, baseline file is timestamped and stored at docs/benchmarks/baseline-<date>.json"
+      test_requirements:
+        - "Manual verification: benchmark output exists and metrics are non-zero"
+      evidence_requirements:
+        - "docs/benchmarks/baseline-*.json"
+      key_files:
+        - "docs/benchmarks/"
+      branch: "feat/df-001-baseline-benchmark"
+      trace: ["NFR-4.3"]
+
+    DF-002:
+      title: "Architecture ADRs — Data Foundation Components"
+      description: >
+        Create Architecture Decision Records for all new components:
+        DLQ strategy (table design, TTL, purge), watermark model
+        (page-level granularity), provenance schema, dedup via
+        content_hash, kill/resume signal handling, stub replacement
+        phased approach. Address critique: DLQ payload size limit
+        (max 100KB per FR-2.1).
+      file: "df-002-adr-technical-design.story.md"
+      executor: "@architect"
+      quality_gate: "@pm"
+      quality_gate_tools:
+        - architecture_review
+        - design_validation
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 3
+      acceptance_criteria:
+        - "Given the spec, ADRs exist for DLQ, watermark, provenance, dedup, kill/resume"
+        - "Given FR-2.1 amendment, ADR specifies 100KB max payload with truncation flag"
+        - "Given stub replacement plan, ADR defines Phase A/B/C order (metrics+base -> redis+supabase -> clients/pncp)"
+        - "Given CON-4 (no LLM in data path), ADRs confirm deterministic routing"
+        - "Given CON-7 (source-agnostic), ADRs confirm DLQ/watermark interfaces are source-agnostic"
+      test_requirements:
+        - "Each ADR reviewed by @pm for completeness"
+      evidence_requirements:
+        - "docs/architecture/adr-data-foundation-dlq.md"
+        - "docs/architecture/adr-data-foundation-watermark.md"
+        - "docs/architecture/adr-data-foundation-provenance.md"
+        - "docs/architecture/adr-data-foundation-dedup.md"
+        - "docs/architecture/adr-data-foundation-kill-resume.md"
+        - "docs/architecture/adr-data-foundation-stub-phases.md"
+      key_files:
+        - "docs/architecture/"
+      branch: "feat/df-002-adr-technical-design"
+      trace:
+        - "FR-2.1"
+        - "FR-2.3"
+        - "FR-2.5"
+        - "FR-2.7"
+        - "FR-4.4"
+        - "FR-3.6"
+        - "CON-4"
+        - "CON-7"
+
+    DF-003:
+      title: "Database Migration — DLQ, Watermark, Provenance, Dedup Tables"
+      description: >
+        Create PostgreSQL migration scripts for 4 new tables:
+        dlq_entries, pipeline_watermarks, pipeline_runs, record_hashes.
+        All tables are NEW (no ALTER of existing 50 migrations per CON-7).
+        Each table must have proper indexes, FK constraints validated
+        against existing schema.
+      file: "df-003-data-layer-migration.story.md"
+      executor: "@data-engineer"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - schema_validation
+        - migration_review
+        - integrity_check
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 4
+      acceptance_criteria:
+        - "Given migration run, dlq_entries table exists with columns: id, source, run_id, phase, payload, error_code, error_message, error_traceback, failed_at, replayed_at, replayed_by, purge_after"
+        - "Given migration run, dlq_entries has indexes on source and unreplayed entries"
+        - "Given migration run, pipeline_watermarks table exists with PK (source, scope_key, watermark_type, watermark_value)"
+        - "Given migration run, pipeline_runs table exists with proper columns and PK"
+        - "Given migration run, record_hashes table exists with content_hash PK"
+        - "Given existing 50 migrations, no FK conflicts or ALTER operations on existing tables"
+        - "Given full test suite, all 1326 existing tests pass after migration"
+      test_requirements:
+        - "Migration rollback test: revert 4 new tables and verify existing tests still pass"
+        - "Schema validation: each table matches spec SQL exactly"
+      evidence_requirements:
+        - "migrations/<timestamp>_create_dlq_entries.sql"
+        - "migrations/<timestamp>_create_pipeline_watermarks.sql"
+        - "migrations/<timestamp>_create_pipeline_runs.sql"
+        - "migrations/<timestamp>_create_record_hashes.sql"
+        - "full test suite pass evidence"
+      key_files:
+        - "migrations/"
+      branch: "feat/df-003-data-layer-migration"
+      trace:
+        - "FR-2.1"
+        - "FR-2.3"
+        - "FR-2.5"
+        - "FR-2.7"
+        - "CON-1"
+        - "CON-7"
+
+    # ─── Wave 1: Core Engine (5 stories, parallel) ───────────
+
+    DF-101:
+      title: "DLQ Core — Write, Replay, Purge, Console CLI"
+      description: >
+        Implement the Dead Letter Queue module (scripts/crawl/dlq.py):
+        dlq_write routes failed records to dlq_entries table;
+        dlq_replay re-processes entries; dlq_purge auto-purges based
+        on TTL; CLI commands via monitor.py (--dlq-list, --dlq-replay,
+        --dlq-purge). Max payload: 100KB with truncation flag
+        (from FR-2.1 amendment).
+      file: "df-101-dlq-core.story.md"
+      executor: "@dev"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - code_review
+        - integration_test
+        - data_integrity
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 6
+      acceptance_criteria:
+        - "Given a failed record, dlq_write routes it to dlq_entries with source, run_id, phase, payload, error_code"
+        - "Given a failed record, payload is truncated at 100KB with truncation_flag=true"
+        - "Given DLQ entries, --dlq-list shows entries filtered by source"
+        - "Given DLQ entries, --dlq-replay re-processes entries and updates replayed_at"
+        - "Given DLQ entries older than TTL, --dlq-purge removes them"
+        - "Given NFR-4.1, DLQ write overhead is < 5% of total crawl time"
+      test_requirements:
+        - "30+ unit tests for DLQ logic (write, replay, purge, truncation)"
+        - "10 integration tests for DLQ end-to-end"
+      evidence_requirements:
+        - "scripts/crawl/dlq.py"
+        - "tests/unit/test_dlq.py"
+        - "tests/integration/test_dlq.py"
+      key_files:
+        - "scripts/crawl/dlq.py"
+      branch: "feat/df-101-dlq-core"
+      trace:
+        - "FR-2.1"
+        - "FR-2.2"
+        - "NFR-1.4"
+        - "NFR-2.2"
+        - "NFR-4.1"
+        - "FR-4.7"
+
+    DF-102:
+      title: "Watermark Engine — Fine-Grained Progress Tracking"
+      description: >
+        Implement watermark module (scripts/crawl/watermark.py):
+        watermark_read gets last committed watermark; watermark_commit
+        persists progress; supports page-level, date-level, entity-level,
+        chunk-level granularity. Committed before data writes (WAL-style
+        per NFR-3.3). --resume flag reads last watermark and continues.
+      file: "df-102-watermark-engine.story.md"
+      executor: "@dev"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - code_review
+        - data_integrity
+        - concurrency_check
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 5
+      acceptance_criteria:
+        - "Given a source, watermark_commit persists to pipeline_watermarks with source, scope_key, type, value, run_id"
+        - "Given a committed watermark, watermark_read returns the latest value"
+        - "Given NFR-3.3, watermark is committed in same transaction or BEFORE data writes"
+        - "Given NFR-4.2, watermark commit overhead is < 100ms p99 per page"
+        - "Given --resume flag, crawl resumes from last committed watermark, not start"
+      test_requirements:
+        - "20+ unit tests for watermark read/commit/resume"
+        - "Integration test: crash + resume produces no duplicates or gaps"
+      evidence_requirements:
+        - "scripts/crawl/watermark.py"
+        - "tests/unit/test_watermark.py"
+      key_files:
+        - "scripts/crawl/watermark.py"
+      branch: "feat/df-102-watermark-engine"
+      trace:
+        - "FR-2.5"
+        - "FR-2.6"
+        - "FR-4.2"
+        - "FR-4.3"
+        - "NFR-1.6"
+        - "NFR-3.3"
+        - "NFR-4.2"
+
+    DF-103:
+      title: "Provenance Tracking + Run Recording"
+      description: >
+        Implement provenance module (scripts/crawl/provenance.py):
+        run_start creates pipeline_runs record; run_complete updates
+        with counts; run_fail records failures; run_killed records
+        SIGTERM interruption. Each record optionally annotated with
+        producing run_id (field-level provenance).
+      file: "df-103-provenance-tracking.story.md"
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - code_review
+        - data_quality
+        - traceability_audit
+      complexity: "S"
+      priority: "MUST"
+      effort_hours: 3
+      acceptance_criteria:
+        - "Given a crawl start, run_start creates pipeline_runs record with run_id, source, mode, params, started_at"
+        - "Given a crawl completes, run_complete updates record with counts and completed_at"
+        - "Given a crawl fails, run_fail records error_message and status=failed"
+        - "Given a kill signal, run_killed sets status=killed"
+        - "Given NFR-2.4, provenance table is queryable by source, run_id, status"
+      test_requirements:
+        - "15+ unit tests for provenance recording"
+      evidence_requirements:
+        - "scripts/crawl/provenance.py"
+        - "tests/unit/test_provenance.py"
+      key_files:
+        - "scripts/crawl/provenance.py"
+      branch: "feat/df-103-provenance-tracking"
+      trace:
+        - "FR-2.3"
+        - "FR-2.4"
+        - "NFR-2.4"
+        - "NFR-3.2"
+
+    DF-104:
+      title: "Dedup Pipeline — Central Content-Hash Deduplication"
+      description: >
+        Implement central dedup module (scripts/crawl/dedup.py):
+        dedup_check returns first_seen_at if hash exists; dedup_register
+        inserts new hash. Configurable strategy: skip, update_last_seen,
+        update_payload. Uses existing per-crawler hash functions as input.
+        Opt-in, backward compatible with existing upsert pipeline.
+      file: "df-104-dedup-pipeline.story.md"
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - code_review
+        - data_integrity
+        - performance_review
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 4
+      acceptance_criteria:
+        - "Given a content_hash, dedup_check returns existing record or None"
+        - "Given a new record, dedup_register inserts into record_hashes"
+        - "Given duplicate record with strategy=skip, second submission returns 'unchanged'"
+        - "Given duplicate record with strategy=update_last_seen, last_seen_at is updated"
+        - "Given NFR-3.1, identical records produce zero duplicates"
+      test_requirements:
+        - "20+ unit tests for dedup operations"
+      evidence_requirements:
+        - "scripts/crawl/dedup.py"
+        - "tests/unit/test_dedup.py"
+      key_files:
+        - "scripts/crawl/dedup.py"
+      branch: "feat/df-104-dedup-pipeline"
+      trace:
+        - "FR-2.7"
+        - "NFR-3.1"
+        - "FR-4.6"
+
+    DF-105:
+      title: "Engine Resilience — Kill/Resume, Fail-Closed, Bootstrap, Status CLI"
+      description: >
+        Implement engine-level resilience features: SIGTERM handler
+        for graceful shutdown at page boundary (commits watermark);
+        fail-closed semantics (unhandled exception aborts pipeline);
+        --bootstrap to initialize a source; --resume to continue from
+        last watermark; --status to show per-source progress;
+        timeout chain validation extended to all sources.
+      file: "df-105-engine-resilience.story.md"
+      executor: "@dev"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - code_review
+        - resilience_test
+        - integration_test
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 6
+      acceptance_criteria:
+        - "Given SIGTERM, shutdown completes within 30s (NFR-1.5)"
+        - "Given SIGTERM, current watermark is committed before exit"
+        - "Given unhandled exception, pipeline aborts with no partial data commit (NFR-1.1)"
+        - "Given --bootstrap, watermark created, credentials validated, pipeline_runs record created"
+        - "Given --status, output shows source, status, watermark, dlq_count, freshness, last_run_at"
+        - "Given kill+resume, NFR-1.6: exactly-once semantics (no duplicates, no gaps)"
+      test_requirements:
+        - "5 integration tests for kill/resume (FR-5.10)"
+      evidence_requirements:
+        - "scripts/crawl/engine/resilience.py"
+        - "scripts/crawl/monitor.py (enhanced)"
+        - "tests/integration/test_kill_resume.py (initial 2 tests)"
+      key_files:
+        - "scripts/crawl/engine/"
+        - "scripts/crawl/monitor.py"
+      branch: "feat/df-105-engine-resilience"
+      trace:
+        - "FR-1.3"
+        - "FR-4.1"
+        - "FR-4.3"
+        - "FR-4.4"
+        - "FR-4.5"
+        - "FR-4.7"
+        - "FR-4.8"
+        - "NFR-1.1"
+        - "NFR-1.5"
+        - "NFR-1.6"
+
+    # ─── Wave 2: Source Adapters (4 stories, parallel) ───────
+
+    DF-201:
+      title: "PNCP Adapter — DLQ + Watermark Integration"
+      description: >
+        Integrate DLQ and watermark into existing PNCP adapter.
+        Replace clients/pncp stub (FR-3.6.5) with real PNCP client
+        inheriting from BaseHTTPClient (Phase C). Add page-level
+        watermarks to PNCP crawl loop. PNCP is the essential source.
+        All changes backward-compatible (opt-in).
+      file: "df-201-pncp-adapter-dlq.story.md"
+      executor: "@dev"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - code_review
+        - integration_test
+        - backward_compat_check
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 5
+      acceptance_criteria:
+        - "Given PNCP crawl, watermark commits per page (page-level granularity)"
+        - "Given PNCP fetch failure, record routes to DLQ via dlq_write"
+        - "Given --resume, PNCP resumes from last committed page-watermark"
+        - "Given existing PNCP adapter, interface remains backward-compatible (new features opt-in)"
+        - "Given clients/pncp stub, replaced with real PNCPClient inheriting from BaseHTTPClient"
+      test_requirements:
+        - "Integration test: PNCP crawl with fault injection -> DLQ entries created"
+        - "Existing PNCP tests still pass"
+      evidence_requirements:
+        - "scripts/crawl/clients/pncp.py (replacement)"
+        - "scripts/crawl/sources/pncp/adapter.py (enhanced)"
+      key_files:
+        - "scripts/crawl/clients/pncp.py"
+        - "scripts/crawl/sources/pncp/"
+      branch: "feat/df-201-pncp-adapter-dlq"
+      trace:
+        - "FR-3.1"
+        - "FR-3.6.5"
+
+    DF-202:
+      title: "PCP Client — Full DLQ/Watermark/Provenance Integration"
+      description: >
+        Replace PCP stub client with full implementation inheriting
+        from BaseHTTPClient. Add page-level watermarks, DLQ integration,
+        and provenance recording. PCP is a P0 production source.
+      file: "df-202-pcp-client-dlq.story.md"
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - code_review
+        - integration_test
+        - data_quality
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 5
+      acceptance_criteria:
+        - "Given PCP crawl, watermark commits per page"
+        - "Given PCP fetch/parse failure, record routes to DLQ"
+        - "Given PCP crawl start/end, provenance records created"
+        - "Given existing PCP pipeline, backward compatibility maintained"
+      test_requirements:
+        - "Integration test: PCP crawl with fault injection"
+      evidence_requirements:
+        - "scripts/crawl/sources/pcp/crawler.py (enhanced)"
+      key_files:
+        - "scripts/crawl/sources/pcp/"
+      branch: "feat/df-202-pcp-client-dlq"
+      trace:
+        - "FR-3.2"
+
+    DF-203:
+      title: "ComprasGov Adapter — DLQ + Watermark Integration"
+      description: >
+        Integrate DLQ and watermark into existing ComprasGov adapter.
+        Add page-level watermarks. Ensure HTTP 429 handling with
+        rate-limit detection + backoff (3x), then DLQ with
+        error_code='rate_limited'. Circuit breaker does NOT trip on 429.
+        HTTP 500: retry exponential backoff (base 60s, multiplier 5,
+        max 3), then DLQ, CB tripped after threshold.
+      file: "df-203-comprasgov-adapter-dlq.story.md"
+      executor: "@dev"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - code_review
+        - integration_test
+        - resilience_test
+      complexity: "S"
+      priority: "MUST"
+      effort_hours: 3
+      acceptance_criteria:
+        - "Given ComprasGov crawl, watermark commits per page"
+        - "Given 429 response, retry 3x with backoff, then DLQ with error_code='rate_limited'"
+        - "Given 429 response, circuit breaker does not trip"
+        - "Given 500 response, retry with exponential backoff (base 60s, multiplier 5, max 3), then DLQ"
+      test_requirements:
+        - "Integration test: simulated 429 -> DLQ, CB not tripped"
+      evidence_requirements:
+        - "scripts/crawl/sources/compras_gov/crawler.py (enhanced)"
+      key_files:
+        - "scripts/crawl/sources/compras_gov/"
+      branch: "feat/df-203-comprasgov-adapter-dlq"
+      trace:
+        - "FR-3.3"
+        - "FR-5.1"
+        - "FR-5.2"
+
+    DF-204:
+      title: "CIGA CKAN + TCE-SC/DOE-SC/DOM-SC — Provenance + Watermarks"
+      description: >
+        Add provenance recording and fine-grained watermarks to existing
+        crawlers: CIGA CKAN (coverage-only, DLQ optional per spec),
+        TCE-SC, DOE-SC, DOM-SC. These are existing crawlers needing
+        DLQ + watermark enhancement.
+      file: "df-204-remaining-sources-provenance.story.md"
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - code_review
+        - data_quality
+      complexity: "M"
+      priority: "SHOULD"
+      effort_hours: 4
+      acceptance_criteria:
+        - "Given TCE-SC crawl, provenance record created on start/end"
+        - "Given DOE-SC crawl, watermark committed per date"
+        - "Given DOM-SC crawl, watermark committed per date"
+        - "Given CIGA CKAN crawl, provenance record created"
+        - "Given any crawl failure, error routes to DLQ for TCE/DOE/DOM"
+      test_requirements:
+        - "Unit tests for each source's watermark integration"
+      evidence_requirements:
+        - "scripts/crawl/sources/tce_sc/crawler.py (enhanced)"
+        - "scripts/crawl/sources/doe_sc/crawler.py (enhanced)"
+        - "scripts/crawl/sources/dom_sc/crawler.py (enhanced)"
+        - "scripts/crawl/sources/ciga_ckan/crawler.py (enhanced)"
+      key_files:
+        - "scripts/crawl/sources/tce_sc/"
+        - "scripts/crawl/sources/doe_sc/"
+        - "scripts/crawl/sources/dom_sc/"
+      branch: "feat/df-204-remaining-sources-provenance"
+      trace:
+        - "FR-3.4"
+        - "FR-3.5"
+
+    # ─── Wave 3: Backfill + Coverage Truth (3 stories, sequential) ──
+
+    DF-301:
+      title: "Stub Phase B — redis_pool + supabase_client Replacement"
+      description: >
+        Replace remaining stubs: redis_pool.py and supabase_client.py
+        (Phase B of the planned stub replacement sequence).
+        RedisPool with connection lifecycle, retry, graceful fallback.
+        SupabaseClient with connection management, health check, pooling.
+      file: "df-301-stub-phase-b-redis-supabase.story.md"
+      executor: "@dev"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - code_review
+        - integration_test
+        - fallback_test
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 4
+      acceptance_criteria:
+        - "Given Redis available, RedisPool provides connection with lifecycle management"
+        - "Given Redis unavailable, RedisPool falls back gracefully (CON-6 pattern)"
+        - "Given Supabase available, SupabaseClient provides connection with health check"
+        - "Given Supabase unavailable, client raises appropriate error for caller to handle"
+        - "Given CON-2 (20 connections limit), batching and pooling implemented"
+      test_requirements:
+        - "Unit tests for each path (success, fallback, failure)"
+      evidence_requirements:
+        - "scripts/crawl/redis_pool.py (replacement)"
+        - "scripts/crawl/supabase_client.py (replacement)"
+      key_files:
+        - "scripts/crawl/redis_pool.py"
+        - "scripts/crawl/supabase_client.py"
+      branch: "feat/df-301-stub-phase-b-redis-supabase"
+      trace:
+        - "FR-3.6.2"
+        - "FR-3.6.3"
+        - "CON-2"
+        - "CON-6"
+
+    DF-302:
+      title: "Freshness Evaluator + Coverage State Machine Integration"
+      description: >
+        Implement runtime freshness evaluation (scripts/crawl/freshness.py)
+        tied to the existing coverage state machine (states.py).
+        After each crawl run, evaluate freshness per source/entity,
+        update coverage_evidence state, expose via --freshness CLI.
+      file: "df-302-freshness-coverage.story.md"
+      executor: "@dev"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - code_review
+        - integration_test
+        - state_machine_audit
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 4
+      acceptance_criteria:
+        - "Given completed crawl run, freshness evaluator updates coverage_evidence state"
+        - "Given stale data, freshness evaluator marks source as stale"
+        - "Given --freshness flag, output shows per-source freshness status"
+        - "Given existing coverage state machine (states.py), evaluator integrates without breaking existing transitions"
+      test_requirements:
+        - "10+ unit tests for freshness evaluation"
+      evidence_requirements:
+        - "scripts/crawl/freshness.py"
+        - "scripts/crawl/monitor.py (--freshness)"
+        - "tests/unit/test_freshness.py"
+      key_files:
+        - "scripts/crawl/freshness.py"
+      branch: "feat/df-302-freshness-coverage"
+      trace:
+        - "FR-2.8"
+        - "FR-2.9"
+
+    DF-303:
+      title: "3-Year Backfill Execution + Coverage Truth"
+      description: >
+        Run full 3-year backfill for PNCP, PCP, ComprasGov, dom_sc,
+        contracts using enhanced backfill mode with watermark commits
+        per chunk. Validate coverage truth: verify all sources have
+        watermarks, dedup hashes registered, provenance records complete.
+        Coverage report showing before/after coverage deltas.
+      file: "df-303-backfill-3yr-coverage.story.md"
+      executor: "@devops"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - data_quality
+        - coverage_audit
+        - production_review
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 6
+      acceptance_criteria:
+        - "Given PNCP backfill (3 years), watermarks committed for every chunk"
+        - "Given PCP backfill, watermarks committed, provenance records created"
+        - "Given ComprasGov backfill, watermarks committed"
+        - "Given backfill complete, coverage report shows before/after entity coverage"
+        - "Given NFR-3.1, zero duplicate records from repeated backfill ranges"
+        - "Given all sources, coverage truth documented with per-source status"
+      test_requirements:
+        - "Verification: count pipeline_runs records matches expected per backfill chunk"
+      evidence_requirements:
+        - "Backfill execution log"
+        - "Coverage report (before/after)"
+        - "pipeline_watermarks table dump for each source"
+      key_files:
+        - "scripts/crawl/monitor.py (backfill mode)"
+      branch: "feat/df-303-backfill-3yr-coverage"
+      trace:
+        - "FR-4.1"
+        - "FR-4.2"
+        - "FR-4.6"
+        - "NFR-3.1"
+
+    # ─── Wave 4: Chaos + Recall + Semantic Audit (4 stories, parallel) ──
+
+    DF-401:
+      title: "Chaos Test Suite — 7 Failure Scenarios, 35 Tests"
+      description: >
+        Build tests/chaos/ module with shared fault injection fixtures
+        (conftest_chaos.py). Implement 5 tests per scenario (35 total)
+        using pytest marker @pytest.mark.chaos, covering HTTP 429,
+        HTTP 500, timeout, connection reset, invalid JSON, schema drift,
+        duplicate injection, and upsert failure scenarios.
+      file: "df-401-chaos-test-suite.story.md"
+      executor: "@qa"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - test_quality
+        - coverage_validation
+        - resilience_audit
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 8
+      acceptance_criteria:
+        - "Given 429 response, test verifies retry 3x with backoff, DLQ with error_code='rate_limited', CB not tripped"
+        - "Given 500 response, test verifies retry with backoff, DLQ after max retries, CB tripped after threshold"
+        - "Given connect/read timeout, test verifies retry with backoff, DLQ after max retries"
+        - "Given ConnectionResetError, test verifies retry, then DLQ"
+        - "Given invalid/truncated JSON, test verifies DLQ with error_code='parse_failed', no retry"
+        - "Given schema drift (missing/changed fields), test verifies DLQ with error_code='schema_drift'"
+        - "Given duplicate submission, test verifies 'unchanged' returned, no duplicate row"
+        - "Given DB persist failure, test verifies DLQ entry with original payload preserved"
+      test_requirements:
+        - "35 chaos tests (5 per scenario), pytest marker @pytest.mark.chaos"
+        - "Shared conftest_chaos.py with fault injection fixtures"
+        - "Each test asserts specific outcome (DLQ entry, retry count, CB state)"
+      evidence_requirements:
+        - "tests/chaos/conftest_chaos.py"
+        - "tests/chaos/test_429_rate_limit.py"
+        - "tests/chaos/test_500_server_error.py"
+        - "tests/chaos/test_timeout.py"
+        - "tests/chaos/test_connection_reset.py"
+        - "tests/chaos/test_invalid_json.py"
+        - "tests/chaos/test_schema_drift.py"
+        - "tests/chaos/test_duplicate_injection.py"
+        - "tests/chaos/test_upsert_failure.py"
+      key_files:
+        - "tests/chaos/"
+      branch: "feat/df-401-chaos-test-suite"
+      trace:
+        - "FR-5.1"
+        - "FR-5.2"
+        - "FR-5.3"
+        - "FR-5.4"
+        - "FR-5.5"
+        - "FR-5.6"
+        - "FR-5.7"
+        - "FR-5.8"
+
+    DF-402:
+      title: "Kill/Resume Integration Test Suite"
+      description: >
+        Implement 5 integration tests for kill/resume lifecycle:
+        normal completion; SIGTERM mid-crawl with verification;
+        resume-after-kill with no duplicates/gaps; multiple
+        kill/resume cycles; kill during DLQ write.
+      file: "df-402-kill-resume-integration.story.md"
+      executor: "@qa"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - test_quality
+        - resilience_validation
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 4
+      acceptance_criteria:
+        - "Given kill/resume flow, after 3 cycles all data is present exactly once"
+        - "Given SIGTERM during page boundary, watermark is committed before exit"
+        - "Given NFR-1.5, shutdown completes within 30s"
+        - "Given NFR-1.6, exactly-once semantics: no duplicates, no gaps"
+      test_requirements:
+        - "5 integration tests with actual signal handling"
+        - "Test uses SIGTERM (not mock) — real process signal"
+      evidence_requirements:
+        - "tests/integration/test_kill_resume.py (enhanced, 5 tests)"
+      key_files:
+        - "tests/integration/test_kill_resume.py"
+      branch: "feat/df-402-kill-resume-integration"
+      trace:
+        - "FR-5.10"
+        - "NFR-1.5"
+        - "NFR-1.6"
+
+    DF-403:
+      title: "Unit Test Coverage — DLQ, Watermark, Provenance, Dedup, Freshness"
+      description: >
+        Complete unit test coverage for all new modules targeting >= 80%
+        per module (NFR-5.2): 30+ DLQ, 20+ watermark, 15+ provenance,
+        20+ dedup, 10+ freshness. Total: 95+ new unit tests.
+        Type annotations on all public functions (NFR-5.3).
+      file: "df-403-unit-test-coverage.story.md"
+      executor: "@qa"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - coverage_validation
+        - code_quality
+        - test_audit
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 6
+      acceptance_criteria:
+        - "Given DLQ module, unit test coverage >= 80%"
+        - "Given Watermark module, unit test coverage >= 80%"
+        - "Given Provenance module, unit test coverage >= 80%"
+        - "Given Dedup module, unit test coverage >= 80%"
+        - "Given Freshness module, unit test coverage >= 80%"
+        - "Given all modules, type annotations present on all public functions (NFR-5.3)"
+      test_requirements:
+        - "95+ total new unit tests"
+        - "Coverage >= 80% per module"
+        - "mypy --strict passes on all new modules"
+      evidence_requirements:
+        - "tests/unit/test_dlq.py (enhanced, 30+ tests)"
+        - "tests/unit/test_watermark.py (enhanced, 20+ tests)"
+        - "tests/unit/test_provenance.py (enhanced, 15+ tests)"
+        - "tests/unit/test_dedup.py (enhanced, 20+ tests)"
+        - "tests/unit/test_freshness.py (enhanced, 10+ tests)"
+        - "Coverage report showing >= 80% per module"
+      key_files:
+        - "tests/unit/"
+      branch: "feat/df-403-unit-test-coverage"
+      trace:
+        - "NFR-5.2"
+        - "NFR-5.3"
+
+    DF-404:
+      title: "Code Audit — Zero Stubs, Compliance Verification"
+      description: >
+        Audit entire codebase for remaining stubs. Verify all 6 stub
+        modules replaced, FR-5.1 through FR-5.8 compliance, G-9.1
+        through G-9.6 pass (no new stubs, DLQ durability, watermark
+        transaction integrity, chaos tests pass, kill/resume passes,
+        zero regression). NFR-5.1 verification: zero stubs.
+      file: "df-404-code-audit-stub-verification.story.md"
+      executor: "@architect"
+      quality_gate: "@pm"
+      quality_gate_tools:
+        - code_audit
+        - compliance_check
+        - documentation_review
+      complexity: "S"
+      priority: "MUST"
+      effort_hours: 3
+      acceptance_criteria:
+        - "Given codebase audit, zero '# STUB' patterns remain"
+        - "Given FR-3.6, all 6 stub modules identified and verified replaced"
+        - "Given compliance check, G-9.1 through G-9.6 all pass"
+        - "Given documentation check, all new public functions documented"
+        - "Given migration audit, no ALTER operations on existing tables (CON-7)"
+      test_requirements:
+        - "grep -r 'STUB' scripts/ returns empty"
+        - "Code review covers all 6 stub replacement modules"
+      evidence_requirements:
+        - "Stub audit report (grep results)"
+        - "G-9 compliance report"
+        - "NFR-5.1 verification (stub count = 0)"
+      key_files:
+        - "scripts/crawl/"
+      branch: "feat/df-404-code-audit-stub-verification"
+      trace:
+        - "FR-3.6"
+        - "NFR-5.1"
+        - "G-9.1"
+        - "G-9.2"
+        - "G-9.3"
+        - "G-9.4"
+        - "G-9.5"
+        - "G-9.6"
+
+    # ─── Wave 5: Final Integration + Push (3 stories, sequential) ──
+
+    DF-501:
+      title: "Full Regression Suite — 140+ New + 1326 Existing Tests"
+      description: >
+        Execute complete test suite: 140+ new tests (unit, integration,
+        chaos) + 1326 existing tests. Verify zero regression (G-9.6).
+        Generate coverage report. Run mypy --strict on all new modules.
+        Run lint (ruff) on all changed files.
+        Compare benchmark: post-implementation vs baseline (NFR-4.3).
+      file: "df-501-full-regression-suite.story.md"
+      executor: "@qa"
+      quality_gate: "@architect"
+      quality_gate_tools:
+        - test_quality
+        - regression_validation
+        - coverage_audit
+      complexity: "M"
+      priority: "MUST"
+      effort_hours: 4
+      acceptance_criteria:
+        - "Given full test suite, all 1326 existing tests pass (zero regression)"
+        - "Given full test suite, all 140+ new tests pass"
+        - "Given coverage report, new modules >= 80% coverage (NFR-5.2)"
+        - "Given mypy, all new public functions typed (NFR-5.3)"
+        - "Given lint, ruff passes on all changed files"
+        - "Given benchmark comparison, crawl throughput at baseline parity (NFR-4.3)"
+      test_requirements:
+        - "Full pytest run with coverage"
+        - "mypy --strict on new modules"
+        - "ruff check on changed files"
+      evidence_requirements:
+        - "Full test suite pass log"
+        - "Coverage report"
+        - "Benchmark comparison: baseline vs post-implementation"
+      key_files:
+        - "tests/"
+      branch: "feat/df-501-full-regression-suite"
+      trace:
+        - "G-9.6"
+        - "NFR-5.2"
+        - "NFR-5.3"
+        - "NFR-4.3"
+
+    DF-502:
+      title: "Documentation + Changelog + Operations Guide"
+      description: >
+        Update project documentation: operations guide for new CLI
+        commands (--dlq-list, --dlq-replay, --dlq-purge, --bootstrap,
+        --resume, --status, --freshness); architecture docs referencing
+        new ADRs; changelog with per-module changes; README updates
+        if applicable; document backfill execution steps.
+      file: "df-502-documentation-changelog.story.md"
+      executor: "@dev"
+      quality_gate: "@pm"
+      quality_gate_tools:
+        - documentation_review
+        - completeness_check
+      complexity: "S"
+      priority: "SHOULD"
+      effort_hours: 3
+      acceptance_criteria:
+        - "Given operations guide, all new CLI flags documented with examples"
+        - "Given architecture docs, new ADRs referenced from relevant sections"
+        - "Given changelog, per-module changes recorded"
+        - "Given README, updated if interface changes affect users"
+      test_requirements:
+        - "Documentation review: all CLI flags documented"
+      evidence_requirements:
+        - "docs/guides/operations-guide.md (or updated)"
+        - "CHANGELOG.md entries"
+      key_files:
+        - "docs/"
+        - "CHANGELOG.md"
+      branch: "feat/df-502-documentation-changelog"
+      trace:
+        - "FR-4.7"
+        - "FR-2.2"
+
+    DF-503:
+      title: "Final Integration Review + Release"
+      description: >
+        Final review by @qa: all waves complete, all gates passed,
+        all evidence files exist. @devops creates final PR with
+        accumulated changes, runs pre-push checklist, tags release,
+        and pushes to main.
+      file: "df-503-final-integration-release.story.md"
+      executor: "@devops"
+      quality_gate: "@qa"
+      quality_gate_tools:
+        - pre_push_checklist
+        - release_checklist
+      complexity: "S"
+      priority: "MUST"
+      effort_hours: 2
+      acceptance_criteria:
+        - "Given all waves complete, @qa confirms DoD met"
+        - "Given DoD met, @devops creates PR with all wave branches"
+        - "Given PR created, pre-push checklist passes"
+        - "Given pre-push pass, tag released version and push to main"
+      test_requirements:
+        - "Pre-push checklist executed and passed"
+      evidence_requirements:
+        - "PR created on GitHub"
+        - "Release tag created"
+        - "Pre-push checklist report"
+      key_files: []
+      branch: "main (final merge)"
+      trace:
+        - "All NFRs"
+        - "All G-9 gates"
+
+  # ============================================================
+  # WAVE DEFINITIONS (6 waves, 22 stories)
+  # ============================================================
+  waves:
+
+    - wave: 0
+      name: "Foundation — Specs + ADRs + Baseline + DB"
+      description: >
+        Establish the foundation before any code changes: measure
+        current performance (baseline), document architecture decisions,
+        create database tables. Sequential because ADRs inform migration
+        design and baseline must precede implementation.
+      gate_agent: "@architect"
+      parallel: false
+      stories:
+        - DF-001
+        - DF-002
+        - DF-003
+      merge:
+        order:
+          - "feat/df-001-baseline-benchmark"
+          - "feat/df-002-adr-technical-design"
+          - "feat/df-003-data-layer-migration"
+        conflict_risk: "very low"
+        notes: "Stories are additive (new docs, new migrations). No conflict expected."
+        tag: "wave-0-complete"
+
+    - wave: 1
+      name: "Core Engine — DLQ, Watermark, Provenance, Dedup, Resilience"
+      description: >
+        Implement the four core data layer modules (DLQ, watermark,
+        provenance, dedup) and engine resilience (kill/resume,
+        fail-closed). All 5 stories run in parallel because they
+        write to exclusive file sets. Wave gate validates
+        cross-module integration.
+      gate_agent: "@architect"
+      parallel: true
+      max_concurrency: 4
+      stories:
+        - DF-101
+        - DF-102
+        - DF-103
+        - DF-104
+        - DF-105
+      merge:
+        order:
+          - "feat/df-102-watermark-engine"
+          - "feat/df-101-dlq-core"
+          - "feat/df-103-provenance-tracking"
+          - "feat/df-104-dedup-pipeline"
+          - "feat/df-105-engine-resilience"
+        conflict_risk: "low"
+        notes: >
+          All stories write to exclusive module files (no file overlap).
+          Merge in dependency order: watermark -> DLQ -> provenance ->
+          dedup -> engine (engine imports all other modules).
+        tag: "wave-1-complete"
+
+    - wave: 2
+      name: "Source Adapters — DLQ + Watermark per Fonte"
+      description: >
+        Integrate DLQ, watermark, and provenance into each source
+        adapter. Each source has its own worktree. 4 sources in
+        parallel: PNCP (critical, Phase C stub replacement), PCP,
+        ComprasGov, and remaining sources (CIGA/TCE/DOE/DOM).
+      gate_agent: "@qa"
+      parallel: true
+      max_concurrency: 4
+      worktree_per_story: true
+      stories:
+        - DF-201
+        - DF-202
+        - DF-203
+        - DF-204
+      merge:
+        order:
+          - "feat/df-201-pncp-adapter-dlq"
+          - "feat/df-203-comprasgov-adapter-dlq"
+          - "feat/df-202-pcp-client-dlq"
+          - "feat/df-204-remaining-sources-provenance"
+        conflict_risk: "medium"
+        notes: >
+          Each story touches different source directories: no file
+          overlap. PNCP is the essential source; gate review must
+          validate DLQ paths. Base client already replaced in Wave 1.
+        tag: "wave-2-complete"
+
+    - wave: 3
+      name: "Backfill 3 Years + Coverage Truth + Stub Phase B"
+      description: >
+        Complete stub replacement (Phase B: redis_pool + supabase_client),
+        implement freshness evaluator integrated with coverage state
+        machine, and execute 3-year backfill for all P0 sources with
+        watermark commits. Sequential because infrastructure must
+        precede backfill, and freshness depends on backfill data.
+      gate_agent: "@qa"
+      parallel: false
+      stories:
+        - DF-301
+        - DF-302
+        - DF-303
+      merge:
+        order:
+          - "feat/df-301-stub-phase-b-redis-supabase"
+          - "feat/df-302-freshness-coverage"
+          - "feat/df-303-backfill-3yr-coverage"
+        conflict_risk: "low"
+        notes: >
+          Sequential: Redis/Supabase replacement -> Freshness -> Backfill.
+          Backfill executes on production data. @qa verifies coverage
+          truth after backfill.
+        tag: "wave-3-complete"
+
+    - wave: 4
+      name: "Chaos + Tests + Code Audit"
+      description: >
+        Quality wave: chaos test suite (35 tests across 7 scenarios),
+        kill/resume integration tests (5 tests), unit test coverage
+        for all modules (95+ tests), and final code audit for zero
+        stubs. All stories in parallel because they write to exclusive
+        test files.
+      gate_agent: "@architect"
+      parallel: true
+      max_concurrency: 4
+      stories:
+        - DF-401
+        - DF-402
+        - DF-403
+        - DF-404
+      merge:
+        order:
+          - "feat/df-401-chaos-test-suite"
+          - "feat/df-402-kill-resume-integration"
+          - "feat/df-403-unit-test-coverage"
+          - "feat/df-404-code-audit-stub-verification"
+        conflict_risk: "low"
+        notes: >
+          All stories write to different test directories: tests/chaos/*
+          vs tests/integration/* vs tests/unit/*. No file overlap.
+          Code audit is read-only across codebase.
+        tag: "wave-4-complete"
+
+    - wave: 5
+      name: "Final Integration — Regressão, Documentação, Release"
+      description: >
+        Final integration wave: full regression suite (140+ new and
+        1326 existing tests), documentation and changelog, final
+        release. Sequential because documentation depends on regression
+        passing, and release depends on both.
+      gate_agent: "@qa"
+      parallel: false
+      stories:
+        - DF-501
+        - DF-502
+        - DF-503
+      merge:
+        order:
+          - "feat/df-501-full-regression-suite"
+          - "feat/df-502-documentation-changelog"
+          - "main (final PR)"
+        conflict_risk: "low"
+        notes: >
+          Sequential: Regression -> Documentation -> Release.
+          DF-503 (@devops) is the final gate for PR creation and push.
+          Pre-push checklist executed before merge.
+        tag: "wave-5-complete"
+
+  # ============================================================
+  # FINAL GATE
+  # ============================================================
+  final_gate:
+    agent: "@architect"
+    tag: "data-foundation-v1.0-complete"
+    focus: >
+      Full epic-level audit: verify all waves complete, all gates
+      APPROVED, all 22 stories Done, all evidence files exist.
+      Validate the data foundation is production-grade: DLQ never
+      loses data, watermark enables resume, provenance tracks every
+      run, dedup prevents duplicates, kill/resume works, all stubs
+      replaced, chaos tests pass.
+    checks:
+      - "All 6 waves completed with APPROVED gates"
+      - "All 22 stories status=Done"
+      - "Zero stubs remaining in codebase (NFR-5.1)"
+      - "DLQ, watermark, provenance, dedup tables exist and are populated"
+      - "Kill/resume integration tests pass (5/5)"
+      - "Chaos suite passes (35/35)"
+      - "Full regression: 1326 + 140 tests pass"
+      - "Baseline performance parity confirmed (NFR-4.3)"
+      - "Coverage truth documented with per-source status"
+      - "All 6 ADRs created and approved"
+
+  # ============================================================
+  # DEFINITION OF DONE
+  # ============================================================
+  definition_of_done:
+    - "DLQ table exists with write/replay/purge lifecycle; failed records never silently lost"
+    - "All 11 sources have page-level or date-level watermarks; --resume works per source"
+    - "Every crawl run produces a provenance record queryable by source/run_id/status"
+    - "Central dedup prevents duplicate records across all sources"
+    - "SIGTERM handler enables graceful shutdown within 30s at page boundary"
+    - "All 6 stub modules replaced with real implementations"
+    - "Chaos test suite: 35 tests across 7 failure scenarios, all passing"
+    - "Kill/resume integration: 5 tests passing, exactly-once semantics verified"
+    - "Freshness evaluator integrated with coverage state machine"
+    - "Zero regression in existing 1326 tests"
+    - "New module test coverage >= 80% each; type annotations on all public functions"
+    - "Baseline performance parity confirmed"
+    - "All 6 ADRs created, reviewed, and approved"
+    - "Operations guide documents all new CLI commands with examples"
+    - "Coverage truth documented with per-source status after 3-year backfill"
+
+  # ============================================================
+  # RISK ASSESSMENT
+  # ============================================================
+  risk_assessment:
+    overall: "HIGH-RISK"
+    rationale: >
+      This mission touches database migrations, data integrity,
+      production crawl pipeline, and replaces 6 stub modules.
+      It introduces new database tables and changes the crawl
+      lifecycle. Per AIOX protocol, HIGH-RISK requires @architect
+      review on all architectural stories and strict gate enforcement.
+    risks:
+      - risk: "Stub replacement breaks existing imports"
+        probability: "Medium"
+        impact: "High"
+        mitigation: "Backward-compatible imports; full test suite before/after each replacement; Phase A/B/C staggering per critique recommendation"
+        owner: "@dev"
+      - risk: "DLQ table grows unbounded"
+        probability: "Medium"
+        impact: "Low"
+        mitigation: "Auto-purge TTL policy; --dlq-purge command; monitoring on dlq_count"
+        owner: "@data-engineer"
+      - risk: "Kill/resume leaves inconsistent state"
+        probability: "Low"
+        impact: "Critical"
+        mitigation: "WAL-style watermark commit before data writes; 5 integration tests with real signals"
+        owner: "@dev + @qa"
+      - risk: "Performance regression from DLQ writes"
+        probability: "Medium"
+        impact: "Medium"
+        mitigation: "Baseline benchmark before impl; NFR-4.1 < 5% overhead target; async DLQ writes where possible"
+        owner: "@dev"
+      - risk: "Existing 1326 tests regress"
+        probability: "Medium"
+        impact: "High"
+        mitigation: "All new features opt-in (backward compatible); G-9.6 blocks merge on regression; Wave 5 regression suite"
+        owner: "@qa"
+      - risk: "Migration conflicts with existing 50 migrations"
+        probability: "Medium"
+        impact: "High"
+        mitigation: "New tables only (no ALTER); FK validation against existing schema; ADR-reviewed migration"
+        owner: "@data-engineer"
+      - risk: "PNCP essential source degraded without fresh data"
+        probability: "Low"
+        impact: "High"
+        mitigation: "PNCP adapter changes are opt-in (backward compatible); Wave 2 validates with existing test suite before merges"
+        owner: "@dev"
+
+  # ============================================================
+  # EXECUTOR MATRIX — Quick Reference
+  # ============================================================
+  executor_matrix:
+    stories_by_executor:
+      "@dev":
+        - DF-001
+        - DF-101
+        - DF-102
+        - DF-103
+        - DF-104
+        - DF-105
+        - DF-201
+        - DF-202
+        - DF-203
+        - DF-204
+        - DF-301
+        - DF-302
+        - DF-502
+      "@architect":
+        - DF-002
+        - DF-404
+      "@data-engineer":
+        - DF-003
+      "@qa":
+        - DF-401
+        - DF-402
+        - DF-403
+        - DF-501
+      "@devops":
+        - DF-303
+        - DF-503
+
+    quality_gate_by_agent:
+      "@architect":
+        - DF-003
+        - DF-101
+        - DF-102
+        - DF-105
+        - DF-201
+        - DF-203
+        - DF-301
+        - DF-401
+        - DF-402
+        - DF-403
+        - DF-501
+      "@qa":
+        - DF-103
+        - DF-104
+        - DF-202
+        - DF-204
+        - DF-302
+        - DF-303
+        - DF-503
+      "@analyst":
+        - DF-001
+      "@pm":
+        - DF-002
+        - DF-404
+        - DF-502
+
+  # executor != quality_gate for ALL 22 stories (verified):
+  # DF-001: @dev != @analyst       ✓
+  # DF-002: @architect != @pm       ✓
+  # DF-003: @data-engineer != @architect   ✓
+  # DF-101: @dev != @architect      ✓
+  # DF-102: @dev != @architect      ✓
+  # DF-103: @dev != @qa             ✓
+  # DF-104: @dev != @qa             ✓
+  # DF-105: @dev != @architect      ✓
+  # DF-201: @dev != @architect      ✓
+  # DF-202: @dev != @qa             ✓
+  # DF-203: @dev != @architect      ✓
+  # DF-204: @dev != @qa             ✓
+  # DF-301: @dev != @architect      ✓
+  # DF-302: @dev != @qa             ✓
+  # DF-303: @devops != @qa          ✓
+  # DF-401: @qa != @architect       ✓
+  # DF-402: @qa != @architect       ✓
+  # DF-403: @qa != @architect       ✓
+  # DF-404: @architect != @pm       ✓
+  # DF-501: @qa != @architect       ✓
+  # DF-502: @dev != @pm             ✓
+  # DF-503: @devops != @qa          ✓

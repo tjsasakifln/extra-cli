@@ -40,7 +40,10 @@ from scripts.crawl.common import (
 from scripts.crawl.common import (
     safe_float as _safe_float,
 )
+from scripts.crawl.dlq_sync import dlq_write
+from scripts.crawl.provenance_sync import provenance_complete, provenance_fail, provenance_start
 from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
+from scripts.crawl.watermark_sync import watermark_commit, watermark_read
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -410,11 +413,12 @@ def _fetch_publications(date_from: date, date_to: date) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
-def crawl(mode: str = "full") -> list[dict]:
+def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     """Crawl DOM-SC API for all categories.
 
     Args:
         mode: 'full' (180 days) or 'incremental' (3 days)
+        resume: If True, resume from last committed watermark.
 
     Returns:
         List of raw publication dicts from the API.
@@ -432,6 +436,7 @@ def crawl(mode: str = "full") -> list[dict]:
     days = DOM_SC_FULL_DAYS if mode == "full" else DOM_SC_INCREMENTAL_DAYS
     data_final = date.today()
     data_inicial = data_final - timedelta(days=days)
+    run_id = f"dom_sc-{int(time.time())}"
 
     _logger.info(
         "[DOM-SC] Crawling %s mode: %s to %s (%d days)",
@@ -441,8 +446,31 @@ def crawl(mode: str = "full") -> list[dict]:
         days,
     )
 
-    raw_records = _fetch_publications(data_inicial, data_final)
-    _logger.info("[DOM-SC] Fetched %d raw records", len(raw_records))
+    # Provenance: start run
+    provenance_start(source="dom_sc", mode=mode, params={"data_inicial": str(data_inicial), "data_final": str(data_final)})
+
+    try:
+        raw_records = _fetch_publications(data_inicial, data_final)
+        _logger.info("[DOM-SC] Fetched %d raw records", len(raw_records))
+
+        # Provenance: complete run
+        provenance_complete(run_id, "dom_sc", records_fetched=len(raw_records))
+
+        # Watermark: commit date range
+        if resume:
+            watermark_commit(source="dom_sc", scope_key="date", value=str(data_final), run_id=run_id)
+    except Exception as e:
+        _logger.error("[DOM-SC] Crawl failed: %s", e)
+        dlq_write(
+            source="dom_sc",
+            run_id=run_id,
+            stage="fetch",
+            error_code="crawl_failed",
+            error_message=str(e)[:2000],
+            payload={"mode": mode, "data_inicial": str(data_inicial), "data_final": str(data_final)},
+        )
+        provenance_fail(run_id, "dom_sc", error_message=str(e))
+        return []
 
     return raw_records
 

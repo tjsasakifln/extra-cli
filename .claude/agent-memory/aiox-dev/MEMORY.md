@@ -11,3 +11,4 @@
 - [Regra #9 Competitive Intelligence](regra-9-competitive-intelligence.md) — market share, award share, HHI, supplier ranking em consulting_readiness.py
 - [Story 1.1 Fix Critical Security](story-1.1-fix-critical-security.md) — 6 debitos P0 resolvidos: SEC-03/02/01 + TD-001/019/021
 - [Story 1.3 Universe Authority](story-1.3-universe-authority.md) — Snapshot tables, duplicate loader removed, seed blocking, env configs, TD-005 JSON, query migration partial
+- [Runtime Test PCP + ComprasGov](runtime-test-pcp-comprasgov.md) — 2026-07-15: PCP 200/0.79s/294 recs, ComprasGov 200/0.25s/1 rec, 2 bugs (dedup intra-batch, coverage_evidence check)

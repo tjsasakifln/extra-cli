@@ -2,3 +2,4 @@
 - [VPS Provisioning FEAT-4.1](feat-4.1-vps-provisioning.md) — Hetzner VPS provision-vps.sh + 13 systemd timers + docs [Story FEAT-4.1]
 - [Golden Path Operacional GP-01](gp-01-golden-path-publicado.md) — DB persistente + 298 PNCP oportunidades + briefing funcional [Story GP-01]
 - [CM-13 Dedup Aliases Publicado](cm-13-dedup-aliases-published.md) — entity_aliases + cross-source dedup + resolver integration [Story CM-13] [Epic EPIC-COVERAGE-MAX-200KM]
+- [Git Push Authority Enforce](git-push-authority-enforce.md) — PreToolUse hook blocks push unless AIOX_ACTIVE_AGENT=@devops

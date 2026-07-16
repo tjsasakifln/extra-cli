@@ -1,0 +1,503 @@
+# MISSÃO DATA-FOUNDATION AIOX -- Implementation Plan
+# Phase: 6/6 Spec Pipeline | Architect: Aria
+# Complexity: COMPLEX (score 23) | Status: APPROVED
+
+implementation_plan:
+  version: "1.0"
+  date: "2026-07-16"
+  classification: COMPLEX
+  total_estimated_hours: 280
+  total_new_tests: 140+
+  new_tables: 7
+  risk_level: HIGH
+
+  # ==========================================================================
+  # PHASED DELIVERY
+  # ==========================================================================
+  phases:
+    - id: PHASE_A
+      name: "Foundation -- Metrics + Base Client + DLQ Tables"
+      hours: 80
+      risk: HIGH  # touching core infrastructure
+      dependencies: []
+      description: >
+        Replace the two most critical stubs (metrics.py, clients/base/),
+        create DLQ/watermark/provenance tables, and implement the DLQ engine.
+        This phase is the bedrock -- everything else builds on it.
+
+      tasks:
+        - id: A.1
+          name: "Replace metrics.py stub with real Prometheus implementation"
+          fr: FR-3.6.1
+          hours: 12
+          files:
+            - scripts/crawl/metrics.py
+            - tests/test_metrics.py
+          description: >
+            Implement real PrometheusClient class with Counter, Histogram, Gauge.
+            Metrics: crawl_duration_seconds (Histogram), records_fetched_total (Counter),
+            records_persisted_total (Counter), errors_total (Counter with error_code label),
+            cb_state (Gauge with source label), dlq_count (Gauge with source label).
+            Backward-compatible: existing imports keep working.
+          tests: 15 unit tests
+
+        - id: A.2
+          name: "Replace clients/base/ stub with real BaseHTTPClient"
+          fr: FR-3.6.4
+          hours: 20
+          files:
+            - scripts/crawl/clients/base/base.py
+            - scripts/crawl/clients/base/__init__.py
+            - tests/test_base_client.py
+          description: >
+            Implement BaseHTTPClient with: retry with exponential backoff,
+            configurable timeout chain, circuit breaker integration, Prometheus
+            metrics instrumentation, structured logging, rate limit detection (429).
+            Uses httpx.AsyncClient as transport.
+          tests: 20 unit tests
+
+        - id: A.3
+          name: "Create DLQ/Watermark/Provenance/Run tables (migrations 045-048)"
+          fr: FR-2.1, FR-2.3, FR-2.5
+          hours: 8
+          files:
+            - db/migrations/045_dlq_entries.sql
+            - db/migrations/046_pipeline_watermarks.sql
+            - db/migrations/047_pipeline_runs.sql
+            - db/migrations/048_record_hashes.sql
+          description: >
+            Four new migrations creating the DLQ, watermark, provenance,
+            and dedup tables as specified in Section 7 of the spec.
+            All tables use IF NOT EXISTS for idempotency.
+
+        - id: A.4
+          name: "Implement DLQ engine (write + list + replay + purge)"
+          fr: FR-2.1, FR-2.2
+          hours: 16
+          files:
+            - scripts/crawl/dlq.py
+            - tests/test_dlq.py
+          description: >
+            DLQEngine class with: push() for writing entries,
+            list(source, phase, unreplayed_only) for inspection,
+            replay(run_id) for reprocessing, purge(older_than) for cleanup.
+            Payload truncated at 100KB with truncation flag.
+            All operations durable (committed transaction).
+          tests: 20 unit + 5 integration
+
+        - id: A.5
+          name: "Implement watermark engine"
+          fr: FR-2.5, FR-2.6
+          hours: 12
+          files:
+            - scripts/crawl/watermark.py
+            - tests/test_watermark.py
+          description: >
+            WatermarkEngine class with: commit(source, scope, type, value) for
+            writing progress markers, get_last(source, scope) for resume point,
+            list(source) for viewing all watermarks.
+            Watermark committed in same transaction as data writes (NFR-1.6).
+          tests: 15 unit + 3 integration
+
+        - id: A.6
+          name: "Implement provenance (pipeline_runs) tracking"
+          fr: FR-2.3
+          hours: 12
+          files:
+            - scripts/crawl/provenance.py
+            - tests/test_provenance.py
+          description: >
+            ProvenanceTracker class: start_run(), complete_run(), fail_run(),
+            kill_run(). Each run records params snapshot, timing, counts.
+            Queryable by source, date range, status.
+          tests: 10 unit + 2 integration
+
+    - id: PHASE_B
+      name: "Resilience -- Redis + Supabase + Dedup + Freshness"
+      hours: 80
+      risk: MEDIUM
+      dependencies: [PHASE_A]
+      description: >
+        Replace the remaining stubs (redis_pool, supabase_client),
+        implement central dedup pipeline, and integrate freshness
+        evaluation into the crawl runtime.
+
+      tasks:
+        - id: B.1
+          name: "Replace redis_pool.py stub with real Redis connection pool"
+          fr: FR-3.6.2
+          hours: 12
+          files:
+            - scripts/crawl/redis_pool.py
+            - tests/test_redis_pool.py
+          description: >
+            Implement RedisPool with: connection lifecycle management,
+            async get_redis_pool() with lazy initialization, health check,
+            graceful degradation (returns None if Redis unavailable),
+            configurable pool size and timeouts.
+          tests: 10 unit + 2 integration
+
+        - id: B.2
+          name: "Replace supabase_client.py stub with real Supabase client"
+          fr: FR-3.6.3
+          hours: 12
+          files:
+            - scripts/crawl/supabase_client.py
+            - tests/test_supabase_client.py
+          description: >
+            Implement real SupabaseClient with: connection management,
+            health check endpoint, retry on transient failures,
+            structured logging, graceful fallback for read operations.
+            Write operations fail closed (no silent data loss).
+          tests: 10 unit + 3 integration
+
+        - id: B.3
+          name: "Implement central dedup pipeline"
+          fr: FR-2.7
+          hours: 16
+          files:
+            - scripts/crawl/dedup.py
+            - tests/test_dedup.py
+          description: >
+            DedupEngine using record_hashes table. Interface: is_duplicate(hash)
+            and register(hash, source, run_id). Integrates with existing per-crawler
+            content_hash functions. Strategy: configurable (skip, update_last_seen).
+            Idempotency guarantee: same hash = no duplicate row.
+          tests: 15 unit + 3 integration
+
+        - id: B.4
+          name: "Implement runtime freshness evaluator"
+          fr: FR-2.8
+          hours: 16
+          files:
+            - scripts/crawl/freshness.py
+            - tests/test_freshness.py
+          description: >
+            FreshnessEvaluator using evaluate_freshness() from scripts/coverage/states.py.
+            After each crawl run, evaluates freshness per source/entity/capability.
+            Updates coverage_evidence state to STALE when SLA violated.
+            CLI: --freshness flag for monitor.py.
+          tests: 10 unit + 2 integration
+
+        - id: B.5
+          name: "Integrate coverage evidence writes into crawl pipeline"
+          fr: FR-2.9
+          hours: 8
+          files:
+            - scripts/crawl/coverage_integration.py
+            - tests/test_coverage_integration.py
+          description: >
+            Make coverage evidence writes mandatory (not optional) in the
+            crawl pipeline. Use coverage state machine for state determination.
+            Backward-compatible: sources without coverage config skip gracefully.
+          tests: 5 unit + 2 integration
+
+        - id: B.6
+          name: "Add DLQ + watermark to PNCP adapter"
+          fr: FR-3.1
+          hours: 16
+          files:
+            - scripts/crawl/pncp_crawler_adapter.py
+            - tests/crawlers/test_pncp_dlq_watermark.py
+          description: >
+            Integrate DLQ engine and watermark engine into existing PNCP adapter.
+            Failed records route to DLQ. Page-level watermarks committed during crawl.
+            Resume support: --resume flag reads last watermark and continues.
+            No changes to existing public interface.
+          tests: 8 integration
+
+    - id: PHASE_C
+      name: "Client Replacement -- PNCP Client + PCP Client"
+      hours: 50
+      risk: HIGH  # replacing active production components
+      dependencies: [PHASE_A, PHASE_B]
+      description: >
+        Replace the clients/pncp/ stub with a real PNCP client built on
+        the new BaseHTTPClient. Also integrate DLQ/watermark into PCP,
+        ComprasGov, and remaining non-stub sources.
+
+      tasks:
+        - id: C.1
+          name: "Replace clients/pncp/ stub with real PNCPClient"
+          fr: FR-3.6.5
+          hours: 20
+          files:
+            - scripts/crawl/clients/pncp/base.py
+            - scripts/crawl/clients/pncp/async_client.py
+            - scripts/crawl/clients/pncp/retry.py
+            - scripts/crawl/clients/pncp/_parallel_mixin.py
+            - tests/test_pncp_client.py
+          description: >
+            Implement PNCPClient inheriting from BaseHTTPClient.
+            Endpoints: search, contract, modality, pagination.
+            Date format handling (existing DateFormat class preserved).
+            422 recovery preserved. Circuit breaker integration preserved.
+            New: real Prometheus metrics, structured logging, rate limit detection.
+            Removed: stub implementations.
+          tests: 20 unit + 5 integration
+
+        - id: C.2
+          name: "Integrate DLQ + watermark into PCP crawler"
+          fr: FR-3.2
+          hours: 10
+          files:
+            - scripts/crawl/pcp_crawler.py
+            - tests/crawlers/test_pcp_dlq_watermark.py
+          description: >
+            Add DLQ integration for parse/transform/persist failures.
+            Add page-level watermark commits.
+            Add resume support.
+          tests: 5 integration
+
+        - id: C.3
+          name: "Integrate DLQ + watermark into ComprasGov crawler"
+          fr: FR-3.3
+          hours: 10
+          files:
+            - scripts/crawl/compras_gov_crawler.py
+            - tests/crawlers/test_comprasgov_dlq_watermark.py
+          description: >
+            Add DLQ integration and page-level watermarks to ComprasGov
+            crawler. Already validated source (CM-09), no functional changes.
+          tests: 4 integration
+
+        - id: C.4
+          name: "Integrate DLQ + watermark into remaining sources (SC, TCE, DOE, DOM, contracts)"
+          fr: FR-3.5
+          hours: 10
+          files:
+            - scripts/crawl/sc_compras_crawler.py
+            - scripts/crawl/tce_sc_crawler.py
+            - scripts/crawl/doe_sc_crawler.py
+            - scripts/crawl/dom_sc_crawler.py
+            - scripts/crawl/contracts_crawler.py
+            - tests/crawlers/test_remaining_dlq_watermark.py
+          description: >
+            Add DLQ integration and watermarks to remaining production sources.
+            Each source gets DLQ routing for failures and watermark commit.
+            No functional changes to crawl logic.
+          tests: 8 integration
+
+    - id: PHASE_D
+      name: "Operations -- Bootstrap/Backfill/Resume/Kill + Status CLI"
+      hours: 40
+      risk: MEDIUM
+      dependencies: [PHASE_A, PHASE_B]
+      description: >
+        Implement the operations model: bootstrap, enhanced backfill,
+        resume, kill handler, and status CLI all integrated into monitor.py.
+
+      tasks:
+        - id: D.1
+          name: "Implement bootstrap command"
+          fr: FR-4.1
+          hours: 6
+          files:
+            - scripts/crawl/operations.py
+            - tests/test_operations_bootstrap.py
+          description: >
+            --bootstrap flag for monitor.py. Creates initial watermark,
+            registers pipeline run, validates credentials, validates
+            connectivity. Reports success/failure per source.
+          tests: 4 unit
+
+        - id: D.2
+          name: "Enhance backfill with watermark commits"
+          fr: FR-4.2
+          hours: 8
+          files:
+            - scripts/crawl/monitor.py
+            - tests/test_backfill_watermark.py
+          description: >
+            Backfill mode (existing) enhanced: each chunk commits watermark.
+            Resume from last chunk if interrupted. Modifies existing
+            backfill flow in monitor.py only.
+          tests: 3 integration
+
+        - id: D.3
+          name: "Implement --resume flag"
+          fr: FR-4.3
+          hours: 8
+          files:
+            - scripts/crawl/monitor.py
+            - tests/test_resume.py
+          description: >
+            --resume flag reads last committed watermark from pipeline_watermarks
+            table and resumes crawl from that point. Works for any source
+            with watermark support. Reports resume point on start.
+          tests: 4 integration
+
+        - id: D.4
+          name: "Implement SIGTERM kill handler"
+          fr: FR-4.4
+          hours: 10
+          files:
+            - scripts/crawl/monitor.py
+            - tests/test_kill_resume.py
+          description: >
+            Signal handler for SIGTERM. Sets shutdown_requested flag.
+            Crawl loop checks flag at page boundaries. Commits current
+            watermark before exit. No partial data in target tables.
+            Timeout: graceful shutdown within 30 seconds (NFR-1.5).
+          tests: 5 integration (including kill/resume cycle)
+
+        - id: D.5
+          name: "Implement --status CLI"
+          fr: FR-4.7
+          hours: 8
+          files:
+            - scripts/crawl/monitor.py
+            - tests/test_status_cli.py
+          description: >
+            --status flag for monitor.py. Reports per source: current state,
+            last watermark, DLQ count, freshness status, last run time.
+            Machine-readable (JSON) and human-readable (table) output.
+          tests: 4 unit
+
+    - id: PHASE_E
+      name: "Quality -- Chaos Tests + Stub Verification"
+      hours: 30
+      risk: LOW
+      dependencies: [PHASE_A, PHASE_B, PHASE_C, PHASE_D]
+      description: >
+        The complete chaos test suite, stub verification gates, and
+        regression testing across all 1326+ existing tests.
+
+      tasks:
+        - id: E.1
+          name: "Create chaos test fixtures (conftest_chaos.py)"
+          fr: FR-5.9
+          hours: 8
+          files:
+            - tests/chaos/__init__.py
+            - tests/chaos/conftest_chaos.py
+          description: >
+            Shared fault injection fixtures: mock_429_response,
+            mock_500_response, mock_timeout, mock_connection_reset,
+            mock_invalid_json, mock_schema_drift.
+            Uses pytest fixtures + unittest.mock + httpx mock transport.
+            All fixtures support --run-chaos marker.
+          tests: N/A (fixtures only)
+
+        - id: E.2
+          name: "Write chaos tests for all 8 failure scenarios"
+          fr: FR-5.1 through FR-5.8
+          hours: 14
+          files:
+            - tests/chaos/test_429_handling.py
+            - tests/chaos/test_500_handling.py
+            - tests/chaos/test_timeout.py
+            - tests/chaos/test_connection_reset.py
+            - tests/chaos/test_invalid_json.py
+            - tests/chaos/test_schema_drift.py
+            - tests/chaos/test_duplicate_injection.py
+            - tests/chaos/test_upsert_failure.py
+          description: >
+            8 test files, one per failure scenario. Each uses shared fixtures
+            from E.1 and asserts specific outcomes per FR-5.x spec.
+          tests: 35 chaos tests
+
+        - id: E.3
+          name: "Write kill/resume integration test"
+          fr: FR-5.10
+          hours: 4
+          files:
+            - tests/chaos/test_kill_resume_cycle.py
+          description: >
+            Full kill/resume cycle: start crawl, send SIGTERM, verify watermark,
+            resume, verify no duplicates/gaps. Uses subprocess to run monitor.py.
+          tests: 5 integration
+
+        - id: E.4
+          name: "Stub verification gate: grep for # STUB in all modules"
+          fr: FR-3.6, NFR-5.1
+          hours: 2
+          files:
+            - tests/test_no_stubs.py (new)
+          description: >
+            Automated test that greps for "# STUB", "STUB:", "stub" comment
+            patterns in all scripts/crawl/ modules. Fails if any found.
+            Also verifies that metrics.py exports real objects (not None).
+          tests: 2 unit
+
+        - id: E.5
+          name: "Full regression test run"
+          fr: NFR-4.3
+          hours: 2
+          files: []
+          description: >
+            Run full test suite (pytest) to verify zero regression in
+            existing 1326 tests. Document any failures.
+          tests: regression check
+
+  # ==========================================================================
+  # MIGRATION PLAN
+  # ==========================================================================
+  migrations:
+    new:
+      - db/migrations/045_dlq_entries.sql
+      - db/migrations/046_pipeline_watermarks.sql
+      - db/migrations/047_pipeline_runs.sql
+      - db/migrations/048_record_hashes.sql
+      - db/migrations/049_freshness_indexes.sql
+      - db/migrations/050_dlq_auto_purge.sql
+      - db/migrations/051_provenance_lookup_indexes.sql
+
+    impact:
+      - No ALTER of existing tables (safe)
+      - No FK constraints to existing tables (no migration conflicts with existing 50)
+      - All new tables are independent (zero risk to existing schema)
+
+  # ==========================================================================
+  # RISK REGISTER
+  # ==========================================================================
+  risks:
+    - id: R-1
+      description: "Phase A touches core infrastructure -- any regression blocks all downstream phases"
+      probability: MEDIUM
+      impact: CRITICAL
+      mitigation: "Run full test suite after each task in Phase A. No advancement to Phase B until A.1-A.6 all pass."
+
+    - id: R-2
+      description: "PNCP client replacement (C.1) may break existing production paths if interface changes"
+      probability: MEDIUM
+      impact: HIGH
+      mitigation: "New client implements same public interface. Old client kept as fallback for one release cycle."
+
+    - id: R-3
+      description: "Kill handler (D.4) may cause data inconsistency if signal arrives during DB write"
+      probability: LOW
+      impact: CRITICAL
+      mitigation: "Atomic write pattern: write data + watermark in same transaction. Signal flag checked outside transaction."
+
+    - id: R-4
+      description: "Redis fallback path may not be exercised in CI without Redis service"
+      probability: HIGH
+      impact: MEDIUM
+      mitigation: "Add Redis service to CI (docker-compose). Tests run both with and without Redis available."
+
+    - id: R-5
+      description: "Existing 1326 tests may have implicit dependencies on stub behavior"
+      probability: MEDIUM
+      impact: HIGH
+      mitigation: "Run full regression after EACH stub replacement. Fix test assumptions about stubs before proceeding."
+
+  # ==========================================================================
+  # ACCEPTANCE CRITERIA (DoD)
+  # ==========================================================================
+  definition_of_done:
+    - All 7 migrations applied and tested
+    - All 6 stub modules replaced with real implementations
+    - DLQ engine: write/list/replay/purge all functional
+    - Watermark engine: commit/resume/list all functional
+    - Provenance tracker: start/complete/fail/kill all functional
+    - Dedup pipeline: duplicate detection prevents duplicate rows
+    - Freshness evaluator: STALE state correctly assigned on SLA violation
+    - Kill handler: graceful shutdown within 30s, clean resume
+    - Status CLI: per-source status report works
+    - Bootstrap command: new source initialization works
+    - Chaos test suite: 35+ tests passing
+    - Kill/resume integration test: 5 tests passing
+    - Regression: zero failures in existing 1326+ tests
+    - No STUB comments remain in scripts/crawl/
+    - Prometheus metrics: at least 5 real metrics exported
