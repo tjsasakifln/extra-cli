@@ -31,17 +31,27 @@ import logging
 import os
 import sys
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any
 
 import psycopg2
 import psycopg2.extras
 import psycopg2.sql
 
+# Auto-load .env from project root
+_ENV_FILE = Path(__file__).resolve().parent.parent.parent / ".env"
+if _ENV_FILE.exists():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(_ENV_FILE)
+    except ImportError:
+        pass
+
 _logger = logging.getLogger(__name__)
 
 DEFAULT_DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
-    "postgresql://postgres@127.0.0.1:5433/pncp_datalake",
+    "postgresql://test:test@127.0.0.1:5433/pncp_datalake",
 )
 
 # ---------------------------------------------------------------------------
@@ -245,6 +255,12 @@ def cmd_source_health(args: argparse.Namespace) -> None:
 
 def cmd_update(args: argparse.Namespace) -> None:
     """Run crawl for specified source(s)."""
+    # Add project root to sys.path for cross-package import
+    _script_dir = os.path.dirname(os.path.abspath(__file__))
+    _project_root = os.path.abspath(os.path.join(_script_dir, "..", ".."))
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+
     from scripts.opportunity_intel.pncp_crawler import (
         PncpOpportunityCrawler,
         PncpPublicationCrawler,

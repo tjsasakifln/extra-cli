@@ -17,10 +17,17 @@ from __future__ import annotations
 import json
 import logging
 import os
+import sys
 from datetime import UTC, datetime
+from pathlib import Path
 
 import psycopg2
 import psycopg2.extras
+
+# Add project root to sys.path for cross-package import
+_project_root = Path(__file__).resolve().parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
 _logger = logging.getLogger(__name__)
 

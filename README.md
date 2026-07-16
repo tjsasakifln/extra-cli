@@ -68,6 +68,22 @@ psql $LOCAL_DATALAKE_DSN -c "SELECT count(*) FROM sc_public_entities"
 ## Comandos
 
 ```bash
+# Golden Path — Pipeline de validação completa (idempotente)
+make golden-path
+make golden-path GOLDEN_PATH_FLAGS="--verbose"
+make golden-path GOLDEN_PATH_FLAGS="--skip-freshness"
+make golden-path-quick                                    # pula freshness + reports
+
+# O golden-path executa:
+#   1. db-up (PostgreSQL via Docker)
+#   2. bootstrap (migrations + seed)
+#   3. Crawl de 3 fontes (pncp, pcp, compras_gov) com timeout 120s e retry 3x
+#   4. Freshness gate (validação de atualidade dos dados)
+#   5. Relatórios Excel + PDF
+#
+# Ledger de execução: output/golden-path/ledger.json
+# Logs: output/golden-path/gp-*.log
+
 # Crawl multi-source
 python scripts/crawl/monitor.py --source pncp --mode full
 python scripts/crawl/monitor.py --source all --mode incremental

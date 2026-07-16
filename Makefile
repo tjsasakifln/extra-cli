@@ -21,11 +21,21 @@ help:
 	@echo ''
 	@echo 'Usage: make <target> [ENV=local|production]'
 	@echo ''
+	@echo '── Golden Path ───────────────────────────────────────────────────'
+	@echo '  golden-path     Pipeline completo: db-up → bootstrap → crawl'
+	@echo '                 (pncp+pcp+compras_gov) → freshness → reports'
+	@echo '                 (Excel+PDF). Idempotente.'
+	@echo '  golden-path-quick  Igual golden-path mas pula freshness+reports'
+	@echo '                 (via --skip-freshness --skip-reports)'
+	@echo '  GOLDEN_PATH_FLAGS= Passe flags extras para golden_path.py,'
+	@echo '                 ex: make golden-path GOLDEN_PATH_FLAGS="--verbose"'
+	@echo ''
 	@echo '── Pipeline ──────────────────────────────────────────────────────'
 	@echo '  run-pipeline   Executa pipeline completo (bootstrap → crawl →'
 	@echo '                 intel → relatório)'
 	@echo '  run-crawl      Ingestão: crawl PNCP modo full'
 	@echo '  run-report     Relatórios: panorama + Excel'
+	@echo '  report-executivo  Relatorio executivo PDF + Excel (Extra Construtora)'
 	@echo ''
 	@echo '── Testes ─────────────────────────────────────────────────────────'
 	@echo '  test           Roda testes (exceto slow) com cobertura'
@@ -46,6 +56,22 @@ help:
 	@echo '  current: $(ENV)'
 	@echo '  use: make <target> ENV=production'
 
+# ── Golden Path ─────────────────────────────────────────────────────────────
+
+.PHONY: golden-path
+golden-path:
+	@echo '==> [$(ENV)] Golden Path — Pipeline de validação completa'
+	$(MAKE) db-up
+	$(MAKE) bootstrap
+	python $(SCRIPTS_DIR)/golden_path.py $(GOLDEN_PATH_FLAGS)
+
+.PHONY: golden-path-quick
+golden-path-quick:
+	@echo '==> [$(ENV)] Golden Path — Rápido (pula freshness e reports)'
+	$(MAKE) db-up
+	$(MAKE) bootstrap
+	python $(SCRIPTS_DIR)/golden_path.py --skip-freshness --skip-reports
+
 # ── Pipeline ────────────────────────────────────────────────────────────────
 
 .PHONY: run-pipeline
@@ -65,6 +91,13 @@ run-crawl:
 run-report:
 	@echo '==> [$(ENV)] Gerando relatórios'
 	python $(SCRIPTS_DIR)/reports/panorama.py --output-excel
+
+.PHONY: report-executivo
+report-executivo:
+	@echo '==> [$(ENV)] Gerando relatório executivo PDF + Excel (Extra Construtora)'
+	python $(SCRIPTS_DIR)/reports/executive_report.py
+	python $(SCRIPTS_DIR)/reports/executive_excel.py
+	@echo '==> Relatório executivo gerado em output/reports/'
 
 # ── Testes ──────────────────────────────────────────────────────────────────
 

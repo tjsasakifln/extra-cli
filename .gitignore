@@ -28,6 +28,16 @@ Thumbs.db
 .claude/settings.local.json
 .aiox/install-log.txt
 __pycache__/
+
+# Runtime outputs (Extra Consultoria)
+output/excels/
+output/golden-path/
+output/bootstrap/
+output/readiness/
+output/runs/
+
+# Agent memories (runtime)
+.claude/agent-memory/
 *.pyc
 
 # Service Account Keys (sensitive)
