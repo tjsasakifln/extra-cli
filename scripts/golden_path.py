@@ -299,6 +299,12 @@ def crawl_source(
     for attempt in range(1, source.max_retries + 1):
         start = time.monotonic()
         try:
+            child_env = os.environ.copy()
+            # Ensure project root is importable for `config.*` and `scripts.*`
+            # when monitor.py is launched as a subprocess (not as -m package).
+            root = str(_PROJECT_ROOT)
+            existing = child_env.get("PYTHONPATH", "")
+            child_env["PYTHONPATH"] = root if not existing else f"{root}{os.pathsep}{existing}"
             result = subprocess.run(  # noqa: S603
                 [
                     sys.executable,
@@ -316,6 +322,7 @@ def crawl_source(
                 capture_output=True,
                 text=True,
                 timeout=source.timeout_s,
+                env=child_env,
             )
             dur = (time.monotonic() - start) * 1000
             attempts = attempt
