@@ -1797,8 +1797,161 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 
 | Data | Commit | Alteração | Motivo | Responsável |
 |---|---|---|---|---|
+| 2026-07-16 | feat/session-constatations | §38 constatação de sessão + HTML diretoria | Rastreabilidade e briefing executivo | Campanha PE-30D |
+| 2026-07-16 | feat/subagents-wave-next | Auditoria 30d, C2.7/K3.2/C2.8/Q5 (82 testes), Q5.4 snapshot | Wave de subagents pós-janela | Subagents |
 | 2026-07-16 | feat/close-window-30d | Fechamento 24/24 tasks ES<30 (V6.1/I4.1/L1.5+C2/Q5; V6.2 só BLOCKED_EXTERNAL compra) | Exigência: 100% janela 30d úteis | Campanha PE-30D |
 | 2026-07-16 | HEAD re-prova | Validação técnica mission: unit+CIGA+GATE-1 (54/54 mig, universe 1093, golden path, backup restore) | Re-prova claims 30d + CIGA | Mission validation |
 | 2026-07-16 | epic/plano-executivo-30d | Campanha 30d: versionamento na raiz; §1 (2 itens) aceitos com evidência; GATE-0 LOCKED; GATE-1/LOCAL_READY **não** atingidos; baselines em `docs/baseline/` e ledger em `docs/ops/ledger/` | Executar janela G0+L1+início C2/K3 do plano executivo com subagents paralelos | Campanha PE-30D / Tiago |
+| 2026-07-16 | PE-C2-05 | DOM-SC via CIGA Dados público (sem API key); `ciga_ckan` hybrid | E-mail CIGA 2026-07 | PE-C2-05 |
 | 2026-07-16 | — | Auditoria de completude comercial e agnosticidade de agentes | Cobrir diagnóstico, serviços recorrentes e uso com Claude Code, Codex, Cursor ou ferramentas futuras | Aurora / Tiago Sasaki |
 |  |  | Criação do documento | Consolidar critérios de evolução do projeto | Tiago Sasaki |
+
+---
+
+# 38. Constatções da sessão de execução (2026-07-16)
+
+> **Propósito:** registro de referência para sessões futuras e para a diretoria.  
+> **Não substitui** o aceite item a item das seções 1–36.  
+> **Não declara** `LOCAL_READY`, cobertura ≥95% nem `PROJECT_DONE`.  
+> **Fontes de verdade cruzadas:** `extra-consultoria-plano-executivo.html`, `docs/ops/ledger/*`, `docs/baseline/*`, PRs #1–#5 em `main`.
+
+## 38.1 Escopo e regra de ouro da sessão
+
+| # | Constatação |
+|---|-------------|
+| C-01 | O plano canônico é `extra-consultoria-plano-executivo.html` + este `DOD.md` (antes untracked; versionados na raiz). |
+| C-02 | PERT total até `PROJECT_DONE` ≈ **167 dias úteis**. A campanha pedida cobria a **janela ES &lt; 30** (primeiros ~30 dias úteis), **não** o projeto inteiro. |
+| C-03 | Janela ES &lt; 30 (PERT float) = **24 tasks**, esforço M ≈ **91 pessoa-dias** (estimativa do plano, não horas humanas medidas). |
+| C-04 | Meta de cobertura do DoD: **≥95% editais e ≥95% contratos, separados**. Meta legada &gt;80% (épicos antigos) fica **subordinada** (R-02 resolvido em favor do DoD — `docs/baseline/scope-freeze-95.md`). |
+| C-05 | Commit / story Done **não** implica item DoD aceito. Aceite exige evidência no HEAD. |
+| C-06 | Exigência posterior do solicitante: fechar **tudo** da janela de 30 dias úteis, não “grande parte”. |
+
+## 38.2 Gates de campanha (não confundir com gates DoD §35)
+
+| Gate plano | Status ao fim da sessão | Evidência |
+|------------|-------------------------|-----------|
+| **GATE-0 BASELINE_LOCKED** | **LOCKED** | `docs/ops/ledger/GATE-0-BASELINE-LOCKED.md` |
+| **GATE-1 LOCAL_FOUNDATION** | **Majoritariamente PASS** (fundação local) | `docs/ops/ledger/GATE-1-LOCAL-FOUNDATION.md` |
+| **GATE-2 EDITAIS_95** | Não atingido | Fora da janela / sem 95% |
+| **GATE-3 CONTRATOS_95** | Não atingido | Fora da janela / sem 95% |
+| **DoD LOCAL_READY** (§35.1) | **NÃO ATINGIDO** | Exige ROL1+ROL3+95%+aceite Tiago |
+| **DoD VPS_OPERATIONAL** (§35.2) | **NÃO ATINGIDO** | VPS não contratada |
+| **DoD PROJECT_DONE** (§35.3) | **NÃO ATINGIDO** | — |
+
+## 38.3 Fechamento da janela 30 dias úteis (24 tasks)
+
+| Resultado | Qtd | Notas |
+|-----------|-----|-------|
+| Engenharia com evidência (`evidence`) | **23** | G0.*, L1.*, V6.1, I4.1, C2.1–C2.6, K3.1, Q5.1 |
+| Bloqueio externo humano/financeiro | **1** | **V6.2** — contratar VPS / credenciais (owner Tiago); pacote READY |
+| Planned residual na janela | **0** | — |
+
+Auditoria adversarial de subagent (`docs/ops/ledger/WINDOW-30D-AUDIT-SUBAGENT.md`):
+
+| Veredito estrito | Qtd |
+|------------------|-----|
+| DONE (evidência forte) | 14 |
+| DONE_PARTIAL (existe artefato, claim ou índice stale) | 9 |
+| BLOCKED_EXTERNAL | 1 (V6.2) |
+| Fake path | 0 |
+
+**Nota de método:** o HTML usa `Math.ceil` no PERT; a lista canônica de 24 tasks da campanha usa duração float. Documentado na auditoria — não inventar 24 com ceil.
+
+Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
+
+### 38.3.1 Destaques por frente (janela)
+
+| Frente | Constatação |
+|--------|-------------|
+| **G0** | DoD+HTML versionados; rebaseline HEAD; freeze 95%; ledger+RACI; GATE-0 LOCKED. |
+| **L1** | Fresh migrations **54/54** (pgvector); fix migration **049** (DROP views + DROP CHECK integer em `esfera_id` antes de ALTER TYPE TEXT); universo **1093 included / 2085** materializado; golden path **SUCCESS** crawl+Excel+PDF (`gp-20260716-200904`); backup/restore local PASS (60 tables); fix shadow `scripts/crawl/config.py` vs pacote `config/` em `monitor.py`. |
+| **C2 (início)** | Fórmulas/success_zero/freshness documentados; PCP OK; ComprasGov OK; TCE-SC smoke **n≈65.970**; DOM canônico = **CIGA Dados** (sem chave); PNCP com timeouts de API documentados (código+049 ok). |
+| **K3.1** | Schema/semântica contratos auditados; gaps `valor_total` vs `valor_global` registrados. |
+| **I4.1** | Perfil `config/client_profiles/extra.yaml` **v2** (região SC 200 km, modalidades, value_band_soft, constraints). |
+| **V6.1** | ADR: Netcup preferencial 32 GB / ~1 TB; Hetzner fallback; PG16 bare-metal; teste PNCP do DC obrigatório antes de fechar região. |
+| **V6.2** | Pacote de compra + inventário de secrets entregue; **falta conta/pagamento** (não automatizável). |
+| **Q5.1** | Suite crítica expandida: **82 PASS** (CIGA transform+crawler, ledger, DLQ, watermark, freshness). |
+
+## 38.4 DOM-SC / CIGA (constatação crítica de integração)
+
+| # | Constatação |
+|---|-------------|
+| C-DOM-01 | E-mail CIGA: integração via **https://dados.ciga.sc.gov.br**, dados **públicos**, **sem cadastro/API key**. Doc: CKAN 2.9 API. |
+| C-DOM-02 | Portal ao vivo: CKAN **2.9.2**; org `ciga`; tags `DOMSC`, `Publicações - DOMSC`. |
+| C-DOM-03 | Path **canônico** no código: source `ciga_ckan` (hybrid, open_tenders + coverage_truth, credentials `[]`). |
+| C-DOM-04 | Path **legado** `dom_sc` (diariomunicipal + CPF/CNPJ/API key) permanece opcional e **BLOCKED** sem secrets. |
+| C-DOM-05 | Datasets mensais: `domsc-publicacoes-de-MM-YYYY` (~54); ~90 ZIPs/mês; JSON `autopublicacoes` com codigo/titulo/data/entidade/municipio/categoria/link/texto. |
+| C-DOM-06 | JSON CIGA **não traz** CNPJ nem valor monetário — transform mantém `null` (não inventar). |
+| C-DOM-07 | Parâmetros de API úteis: `package_list`, `package_search?fq=tags:DOMSC`, `package_show`, download `resource.url`. Auth só para write (não usado). |
+| C-DOM-08 | Evidências: `docs/baseline/c2-domsc-ciga-dados-unblocked.md`, `c2-ciga-ckan-runtime.md`, PE-C2-05 / PR #2. |
+
+## 38.5 Pós-janela 30d (wave de subagents)
+
+| # | Constatação | Artefato |
+|---|-------------|----------|
+| C-NX-01 | **C2.7** residual: `sc_compras` RUN-ready (smoke **n=2602**); `doe_sc` BLOCKED creds vazias; transparência frágil; residual municipal alto custo. | `docs/baseline/c2.7-residual-portals-plan.md` |
+| C-NX-02 | **K3.2** backfill PNCP 3y: infra READY TO PILOT; primeiro pilot **90d contratos**; 3y só após go/no-go. | `docs/baseline/k3.2-pncp-backfill-ready.md` |
+| C-NX-03 | **C2.8** aliases: 459 aliases ativos; `DedupEngine` existe mas **não wired**; cross-source dedup 0 rows → PARTIAL. | `docs/baseline/c2.8-dedup-aliases-status.md` |
+| C-NX-04 | **Q5.4** snapshot: ruff debt no crawl tree; bandit 0 HIGH; pip-audit ruidoso no env. | `docs/baseline/q5.4-quality-security-snapshot.md` |
+| C-NX-05 | Próxima ordem de ataque recomendada: (1) ingest sc_compras, (2) pilot K3.2 90d, (3) wire dedup cross-source, (4) DOE-SC se cred, (5) V6.2 compra Tiago. | plan C2.7 + K3.2 |
+
+## 38.6 Bugs e correções técnicas da sessão
+
+| # | Problema | Correção |
+|---|----------|----------|
+| B-01 | Migration 049 falhava em fresh install: views + CHECK `esfera_id = ANY(ARRAY[1,2,3,4])` (int) impediam ALTER para TEXT | DROP views + DROP constraint + ALTER + recreate views/check texto |
+| B-02 | Golden path / monitor: `config is not a package` — `scripts/crawl/config.py` shadow do pacote `config/` quando script dir fica à frente no `sys.path` | `monitor.py` força project root no início do path; golden_path injeta PYTHONPATH |
+| B-03 | Ledger golden_path corrompido (`runs` aninhado) | `_normalize_ledger_runs` + testes `tests/test_golden_path_ledger.py` |
+| B-04 | Compose sem extensão `vector` | imagem `pgvector/pgvector:pg16` |
+| B-05 | DB operacional sem tabelas DF (pipeline_*) após troca de volume | reaplicar migrations 045–049 |
+
+## 38.7 Publicações GitHub (rastreio)
+
+| PR | Conteúdo |
+|----|----------|
+| #1 | Campanha plano 30d / GATE-0 + fundação parcial |
+| #2 | PE-C2-05 CIGA Dados DOM público |
+| #3 | Re-prova mission + fix 049 + universo + backup |
+| #4 | Fechar janela 30d (V6.1, I4.1, L1.5 PDF/Excel, pack V6.2) |
+| #5 | Wave subagents: audit, C2.7, K3.2, C2.8, Q5 82, Q5.4 |
+
+## 38.8 O que **pode** ser dito à diretoria (hoje)
+
+1. Existe **Definition of Done** e **plano executivo** versionados e auditáveis.  
+2. **Fundação local** reprovada: migrations limpas, universo 1093, golden path com Excel/PDF, backup/restore local, testes críticos verdes.  
+3. **DOM/SC** desbloqueado via dados abertos CIGA (**sem custo de API key**).  
+4. **Múltiplas fontes** com prova de coleta (PCP, ComprasGov, TCE-SC, CIGA).  
+5. **Decisão de VPS** documentada; falta apenas **contratação** (ação do titular).  
+6. **Meta 95%** permanece o gate comercial — ainda **não** atingida; trabalho seguinte é cobertura/backfill, não “mais narrativa”.
+
+## 38.9 O que **não** pode ser dito à diretoria (hoje)
+
+1. “95% de cobertura de editais/contratos.”  
+2. “Sistema pronto para entrega comercial integral / PROJECT_DONE.”  
+3. “VPS em produção / operação 24×7 autônoma.”  
+4. “Todos os itens do DoD estão aceitos” (apenas **2/≈1340** checkboxes de processo).  
+5. “Path autenticado DOM-SC está operacional” (só CIGA público).  
+6. “Backfill de 3 anos de contratos concluído” (apenas readiness de pilot).
+
+## 38.10 Ações humanas pendentes (Tiago / diretoria)
+
+| Prioridade | Ação | Desbloqueia |
+|------------|------|-------------|
+| P0 | Contratar VPS (Netcup preferencial ou Hetzner) e entregar SSH + backup remote | V6.2, depois V6.3+ |
+| P0 | Confirmar ou ajustar meta formal 95% vs prazo de 6 meses (PERT P50 &gt; 6 meses) | Cronograma honestidade |
+| P1 | Credenciais DOE-SC se quiser diário estadual | C2.7 WP-C |
+| P1 | Preencher órgãos prioritários e concorrentes no perfil Extra v2 | I4 entregáveis A–B |
+| P2 | Credenciais DOM legado só se CIGA for insuficiente | path `dom_sc` |
+
+## 38.11 Índice de artefatos da sessão
+
+| Tema | Path |
+|------|------|
+| Plano HTML | `extra-consultoria-plano-executivo.html` |
+| GATE-0 / GATE-1 / janela 30d | `docs/ops/ledger/GATE-0-*.md`, `GATE-1-*.md`, `WINDOW-30D-*.md` |
+| Freeze 95% | `docs/baseline/scope-freeze-95.md` |
+| CIGA/DOM | `docs/baseline/c2-domsc-ciga-dados-unblocked.md` |
+| C2.7 / C2.8 / K3.2 / Q5 | `docs/baseline/c2.7-*`, `c2.8-*`, `k3.2-*`, `q5-*` |
+| Perfil Extra | `config/client_profiles/extra.yaml` |
+| ADR VPS | `docs/architecture/adr/ADR-007-v6.1-provider-decision.md` |
+| Pack compra VPS | `docs/ops/v6.2-procurement-credentials-package.md` |
