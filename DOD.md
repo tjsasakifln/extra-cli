@@ -1797,6 +1797,7 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 
 | Data | Commit | Alteração | Motivo | Responsável |
 |---|---|---|---|---|
+| 2026-07-16 | HEAD re-prova | Validação técnica mission: unit+CIGA+GATE-1 (54/54 mig, universe 1093, golden path, backup restore) | Re-prova claims 30d + CIGA | Mission validation |
 | 2026-07-16 | epic/plano-executivo-30d | Campanha 30d: versionamento na raiz; §1 (2 itens) aceitos com evidência; GATE-0 LOCKED; GATE-1/LOCAL_READY **não** atingidos; baselines em `docs/baseline/` e ledger em `docs/ops/ledger/` | Executar janela G0+L1+início C2/K3 do plano executivo com subagents paralelos | Campanha PE-30D / Tiago |
 | 2026-07-16 | — | Auditoria de completude comercial e agnosticidade de agentes | Cobrir diagnóstico, serviços recorrentes e uso com Claude Code, Codex, Cursor ou ferramentas futuras | Aurora / Tiago Sasaki |
 |  |  | Criação do documento | Consolidar critérios de evolução do projeto | Tiago Sasaki |
