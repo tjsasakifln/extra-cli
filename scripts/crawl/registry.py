@@ -194,8 +194,11 @@ _RAW: list[SourceInfo] = [
         supports_pagination=True,
         supports_zero_proof=False,
         reconciliation_strategy="key_based",
-        order=2,
-        description="DOM-SC (Diario Oficial dos Municipios de SC)",
+        order=12,  # legacy path; ciga_ckan is preferred for municipal DOM
+        description=(
+            "DOM-SC path legado (diariomunicipal.sc.gov.br remote/list) — "
+            "requer CPF/CNPJ/API key. Preferir ciga_ckan (CIGA Dados público)."
+        ),
     ),
     SourceInfo(
         name="pcp",
@@ -316,20 +319,24 @@ _RAW: list[SourceInfo] = [
     ),
     SourceInfo(
         name="ciga_ckan",
-        aliases=["ciga-ckan"],
+        aliases=["ciga-ckan", "dom-ciga", "dom_sc_public"],
         module="ciga_ckan_crawler",
-        purpose="coverage_only",
-        capabilities=["coverage_truth"],
+        purpose="hybrid",
+        capabilities=["open_tenders", "coverage_truth"],
         authority_level="municipal",
-        entity_types=["municipios"],
+        entity_types=["municipios", "prefeituras", "camaras"],
         credential_names=[],
-        snapshot_semantics="coverage_only",
+        credentials=[],
+        snapshot_semantics="incremental",
         freshness_sla_hours=48,
         supports_pagination=True,
         supports_zero_proof=False,
-        reconciliation_strategy="coverage_only",
-        order=10,
-        description="CIGA CKAN (coverage assessment only — no bids extracted)",
+        reconciliation_strategy="key_based",
+        order=2,  # prefer over authenticated dom_sc for municipal SC
+        description=(
+            "CIGA Dados CKAN (dados.ciga.sc.gov.br) — caminho canônico DOM/SC. "
+            "API pública, sem chave. Extrai publicações de compras + coverage."
+        ),
     ),
     SourceInfo(
         name="mides_bigquery",

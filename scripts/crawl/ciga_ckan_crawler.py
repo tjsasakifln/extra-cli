@@ -69,10 +69,23 @@ HTTP_TIMEOUT = 60  # seconds per request
 
 # User agent — imported from scripts.crawl.security
 
-# CIGA CKAN only discovers entities and updates entity_coverage.
-# It does NOT extract bid records — transform() legitimately returns [].
-# monitor.py reads this attribute to skip the upsert phase.
-SOURCE_PURPOSE = "coverage_only"
+# Canonical DOM/SC path via public CIGA Dados (CKAN) — no API key.
+# Confirmed by CIGA (2026-07): dados públicos, sem cadastro/chave.
+# hybrid = entity coverage (CLI) + bid-level transform for monitor upsert.
+# Path legado autenticado: scripts/crawl/dom_sc_crawler.py (opcional).
+SOURCE_PURPOSE = "hybrid"
+
+# Esfera municipal (alinhado a dom_sc_crawler)
+ESFERA_ID_MUNICIPAL = 3
+
+# Map DOM-SC publication categories → rough modality labels (not PNCP codes)
+CATEGORIA_TO_MODALIDADE: dict[str, tuple[int, str]] = {
+    "Licitações": (1, "Licitações (DOM-SC)"),
+    "Contratos": (6, "Contratos (DOM-SC)"),
+    "Extrato de Contrato": (6, "Extrato de Contrato (DOM-SC)"),
+    "Convênios": (7, "Convênios (DOM-SC)"),
+    "Ata de registro de preços": (8, "Ata de registro de preços (DOM-SC)"),
+}
 
 
 # ---------------------------------------------------------------------------
@@ -710,7 +723,7 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     Returns:
         List of raw publication dicts from CKAN.
     """
-    from scripts.crawl.provenance_sync import provenance_complete, provenance_fail, provenance_start
+    from scripts.crawl.provenance_sync import provenance_complete, provenance_start
 
     months = list_domsc_months()
     if not months:
@@ -737,16 +750,126 @@ def crawl(mode: str = "full", resume: bool = False) -> list[dict]:
     return all_publications
 
 
-def transform(records: list[dict]) -> list[dict]:
-    """Monitor.py-compatible transform entry point.
+def _strip_html_snippet(html: str, max_len: int = 280) -> str:
+    """Reduce publication HTML to a short plain-text snippet (no inventing fields)."""
+    if not html:
+        return ""
+    import re
 
-    CIGA CKAN data is not directly transformable to pncp_raw_bids schema
-    (it has no CNPJ, no structured bid data). Returns an empty list
-    to signal that bid-level import is not supported yet.
+    text = re.sub(r"(?is)<script[^>]*>.*?</script>", " ", html)
+    text = re.sub(r"(?is)<style[^>]*>.*?</style>", " ", text)
+    text = re.sub(r"(?s)<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    if len(text) > max_len:
+        return text[: max_len - 3] + "..."
+    return text
+
+
+def _content_hash(raw: dict) -> str:
+    import hashlib
+
+    key = "|".join(
+        [
+            str(raw.get("codigo") or ""),
+            str(raw.get("titulo") or ""),
+            str(raw.get("data") or "")[:10],
+            str(raw.get("entidade") or ""),
+            str(raw.get("categoria") or ""),
+            str(raw.get("link") or raw.get("url") or ""),
+        ]
+    )
+    return hashlib.md5(key.encode("utf-8"), usedforsecurity=False).hexdigest()
+
+
+def transform_record(raw: dict) -> dict | None:
+    """Transform one CIGA ``autopublicacoes`` row to pncp_raw_bids-shaped dict.
+
+    Honest mapping:
+    - Has: codigo, titulo, data, entidade, municipio, categoria, link
+    - Does NOT invent: valor estimado/homologado, CNPJ, datas de abertura/encerramento
+    - orgao_cnpj is None (SOURCE_UNAVAILABLE at field level)
     """
-    # Future: could parse structured metadata from the publication text
-    _logger.warning("CIGA CKAN transform() not implemented — entity-coverage only")
-    return []
+    if not isinstance(raw, dict):
+        return None
+
+    codigo = raw.get("codigo")
+    if codigo is None or str(codigo).strip() == "":
+        return None
+
+    unique_id = str(codigo).strip()
+    titulo = (raw.get("titulo") or "").strip()
+    entidade = (raw.get("entidade") or "").strip()
+    municipio = (raw.get("municipio") or "").strip()
+    categoria = (raw.get("categoria") or "").strip()
+    data_raw = (raw.get("data") or "")[:10]
+    link = (raw.get("link") or raw.get("url") or "").strip()
+
+    # Only procurement-relevant categories (same filter as download_month)
+    if categoria and categoria not in PROCUREMENT_CATEGORIES:
+        return None
+
+    modalidade_id, modalidade_nome = CATEGORIA_TO_MODALIDADE.get(
+        categoria, (0, categoria or "DOM-SC")
+    )
+
+    snippet = _strip_html_snippet(raw.get("texto") or "")
+    parts = [p for p in [categoria, municipio or "SC", titulo or entidade] if p]
+    objeto = " | ".join(parts)
+    if snippet:
+        objeto = f"{objeto} — {snippet}" if objeto else snippet
+    if len(objeto) > 500:
+        objeto = objeto[:497] + "..."
+
+    pncp_id_input = f"ciga_ckan|{unique_id}|{data_raw}|{municipio}"
+    import hashlib
+
+    pncp_id = hashlib.md5(pncp_id_input.encode("utf-8"), usedforsecurity=False).hexdigest()
+
+    return {
+        "pncp_id": pncp_id,
+        "objeto_compra": objeto or f"Publicação DOM-SC {unique_id}",
+        "valor_total_estimado": None,  # not present in CIGA JSON
+        "modalidade_id": modalidade_id,
+        "modalidade_nome": modalidade_nome,
+        "esfera_id": ESFERA_ID_MUNICIPAL,
+        "uf": "SC",
+        "municipio": municipio or None,
+        "codigo_municipio_ibge": "",
+        "orgao_razao_social": entidade or None,
+        "orgao_cnpj": None,  # CIGA public JSON does not provide CNPJ
+        "data_publicacao": data_raw or None,
+        "data_abertura": None,
+        "data_encerramento": None,
+        "link_pncp": link or f"https://diariomunicipal.sc.gov.br/?q=id:{unique_id}",
+        "content_hash": _content_hash(raw),
+        "source_id": unique_id,
+        "source": "ciga_ckan",
+        # provenance helpers (optional consumers)
+        "dom_categoria": categoria or None,
+        "dom_titulo": titulo or None,
+    }
+
+
+def transform(records: list[dict]) -> list[dict]:
+    """Monitor.py-compatible transform — public CIGA Dados → bid-shaped records.
+
+    CIGA does not require credentials (e-mail CIGA / portal dados.ciga.sc.gov.br).
+    Missing financial fields remain None — never fabricated.
+    """
+    transformed: list[dict] = []
+    skipped = 0
+    for rec in records:
+        t = transform_record(rec)
+        if t:
+            transformed.append(t)
+        else:
+            skipped += 1
+    _logger.info(
+        "CIGA CKAN transform: %d records kept, %d skipped (non-procurement or missing id)",
+        len(transformed),
+        skipped,
+    )
+    return transformed
 
 
 # ---------------------------------------------------------------------------

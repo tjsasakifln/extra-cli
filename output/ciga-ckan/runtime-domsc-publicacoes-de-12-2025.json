@@ -1,0 +1,13 @@
+{
+  "run_id": "ciga-runtime-1784241626",
+  "target_month": "domsc-publicacoes-de-12-2025",
+  "months_available": 54,
+  "resources_sampled": 3,
+  "resources_total_in_month": 90,
+  "procurement_pubs": 533,
+  "transformed": 533,
+  "elapsed_s": 6.11,
+  "auth": "none",
+  "portal": "https://dados.ciga.sc.gov.br",
+  "status": "OK"
+}

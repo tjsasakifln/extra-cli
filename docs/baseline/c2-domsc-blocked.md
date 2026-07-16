@@ -1,19 +1,20 @@
-# C2.5 — DOM-SC BLOCKED (PE-C2-02)
+# C2.5 — DOM-SC path autenticado BLOCKED (histórico)
 
-**Story:** PE-C2-02 (AC: C2.5 DOM-SC)  
-**Data evidência:** 2026-07-16T22:10–22:20Z (aprox.)  
-**Branch:** `epic/plano-executivo-30d`  
-**HEAD:** `1f7aa7c`  
-**Ambiente:** workstation local + `.env` do repositório
+**Story original:** PE-C2-02  
+**Atualização:** 2026-07-16 — **PE-C2-05** desbloqueia DOM/SC via **CIGA Dados público** (`ciga_ckan`).  
+**Ver desbloqueio:** `docs/baseline/c2-domsc-ciga-dados-unblocked.md`
+
+Este documento permanece como evidência do path **legado** `dom_sc` (API `diariomunicipal.sc.gov.br` com CPF/CNPJ/API key), que continua opcional e sem credenciais no `.env` local.
 
 ---
 
-## Veredito
+## Veredito (path legado `dom_sc` apenas)
 
 | Campo | Valor |
 |-------|--------|
-| **Status** | **BLOCKED** |
-| **Motivo** | Credenciais ausentes / vazias no `.env` |
+| **Status path legado** | **BLOCKED** (sem credenciais) |
+| **Status path canônico** | **UNBLOCKED** via `ciga_ckan` (PE-C2-05) |
+| **Motivo legado** | Credenciais ausentes / vazias no `.env` |
 | **Import** | OK (`scripts.crawl.dom_sc_crawler`) |
 | **Dry-run monitor** | OK (não exercita auth) |
 | **Crawl real** | Retorna `[]` sem chamar API autenticada |
