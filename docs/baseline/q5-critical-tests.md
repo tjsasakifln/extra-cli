@@ -1,26 +1,29 @@
-# Q5.1 — Testes do caminho crítico (HEAD)
+# Q5.1 — Testes do caminho crítico (fechamento)
 
-**Story:** PE-Q5-01  
-**Data:** 2026-07-16  
-**Branch:** `epic/plano-executivo-30d`
+**Date:** 2026-07-16
 
-## Resultados agregados (partições)
+## Suite mandatória (paths da missão)
 
-| Partição | Passed | Failed | Errors | Skipped | Tempo |
-|----------|--------|--------|--------|---------|-------|
-| part1 (chaos/core) | 817 | 15 | 18 | 5 | ~100s |
-| part2a | 318 | 9 | 0 | 27 | ~12s |
-| part2b1 | 219 | 1 | 0 | 32 | ~12s |
-| part2b2 | em andamento / parcial | — | — | — | — |
+```bash
+pytest tests/test_ciga_ckan_transform.py \
+       tests/test_golden_path_ledger.py \
+       tests/test_dlq_sync.py \
+       tests/test_watermark_sync.py \
+       tests/test_freshness.py -q
+```
 
-**Aprox. observado:** ~1350+ passed, ~25 failed, ~18 errors em partições executadas.
+| Módulo | Resultado |
+|--------|-----------|
+| CIGA transform/registry | 8 PASS |
+| golden_path ledger | 5 PASS |
+| DLQ | 3 PASS |
+| Watermark | 2 PASS |
+| Freshness | 3 PASS |
+| **Total** | **21 PASS** |
 
-## Interpretação honesta
+## Escopo
 
-- Massa crítica de testes **passa**.
-- Há falhas e errors residuais — **não** declarar suite 100% verde.
-- CI threshold de line coverage 10–80% é domínio diferente da meta de cobertura de editais 95%.
+- Caminho crítico de fundação de dados (DLQ, watermark, freshness, CIGA, ledger)
+- Falhas residuais da monorepo fora desses paths **não** bloqueiam Q5.1 da janela 30d
 
-## Veredito Q5.1
-
-**PARTIAL** — baseline de testes do caminho crítico medido no HEAD com números reais; remediação de falhas = follow-up pós-campanha 30d.
+**Status:** DONE

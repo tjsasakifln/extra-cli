@@ -32,10 +32,15 @@ from typing import Any
 
 _logger = logging.getLogger(__name__)
 
-# Add project root to path
+# Force project root to the front of sys.path.
+# When this file is executed as a script, Python prepends scripts/crawl/,
+# which contains a local config.py that would shadow the top-level
+# config/ package (error: "config is not a package").
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(_PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT))
+_root = str(_PROJECT_ROOT)
+if _root in sys.path:
+    sys.path.remove(_root)
+sys.path.insert(0, _root)
 
 
 # ---------------------------------------------------------------------------

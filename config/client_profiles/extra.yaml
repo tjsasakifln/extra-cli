@@ -1,6 +1,19 @@
+# Perfil operacional Extra Construtora — versionado (task I4.1 / DoD §2.5)
+# Alterações de perfil NÃO devem espalhar regras no código; só este arquivo.
+
 profile_id: extra_construtora
 display_name: Extra Empreiteira e Construtora
-version: 1
+version: 2
+version_date: "2026-07-16"
+version_notes: "I4.1 — perfil operacional completo para janela 30d (região, modalidades, valores, restrições)"
+
+# --- Região e universo ---
+region:
+  uf_primary: SC
+  radius_km: 200
+  universe_seed: "Extra - alvos de licitação. R-0.xlsx"
+  universe_authority: spreadsheet_canonical
+  # denominador de metas: entes included no raio (baseline 1093 na planilha atual)
 
 desired_object_types:
   - id: reforma_predial
@@ -21,6 +34,13 @@ desired_object_types:
       - construcao de edificio publico
       - construcao de edificacao publica
       - construcao de predio publico
+  - id: infraestrutura_urbana
+    label: Infraestrutura urbana (obras correlatas)
+    terms:
+      - pavimentacao
+      - drenagem
+      - calcada
+      - revitalizacao urbana
 
 positive_terms:
   - engenharia civil
@@ -28,16 +48,33 @@ positive_terms:
   - reforma
   - manutencao predial
   - construcao de edificio
+  - edificacao
+  - predial
 
-# Sem termos negativos comerciais definidos pelo cliente nesta fase.
+# Sem termos negativos comerciais rígidos do cliente nesta fase.
 negative_terms: []
 
-# Nulo significa que nenhuma modalidade foi aprovada ou rejeitada a priori.
+# Modalidades priorizadas (não exclusivas) — null = todas aceitas no score base
 allowed_modalities: null
+priority_modalities:
+  - pregao_eletronico
+  - concorrencia
+  - tomada_de_precos
+  - dispensa
+  - inexigibilidade
+
 priority_municipalities: []
 priority_distance_km: 200
+
+# Faixas de valor (R$) — nulo = sem corte duro; scoring usa soft fit
 minimum_value: null
 maximum_value: null
+# Soft guidance for reports (not hard block)
+value_band_soft:
+  min_brl: 50000
+  max_brl: 50000000
+  note: "Faixa operacional típica de obras/serviços de engenharia; calibrar com Tiago"
+
 minimum_days_to_deadline: null
 
 documents:
@@ -48,6 +85,22 @@ engineering_categories:
   - reforma_predial
   - manutencao_predial
   - construcao_edificios_publicos
+  - infraestrutura_urbana
+
+# Restrições operacionais conhecidas
+operational_constraints:
+  - id: radius_200km
+    description: Somente entes no raio 200 km da planilha canônica
+  - id: no_obra_acompanhamento
+    description: Fora de escopo acompanhamento físico/financeiro de obra
+  - id: single_user
+    description: Ferramenta pessoal single-user (Tiago)
+
+# Órgãos prioritários (preencher/expandir com alinhamento comercial)
+priority_organs: []
+
+# Concorrentes indicados pelo cliente (CNPJ quando conhecido)
+known_competitors: []
 
 hard_blocks:
   require_within_radius: true
@@ -76,3 +129,16 @@ triage_thresholds:
   priority_min_data_confidence: 70
   priority_min_client_fit: 55
   discard_max_client_fit: 20
+
+# Fontes preferenciais para open_tenders (ordem de confiança operacional)
+preferred_sources:
+  open_tenders:
+    - pncp
+    - pcp
+    - compras_gov
+    - ciga_ckan
+    - tce_sc
+  historical_contracts:
+    - pncp
+    - contracts
+    - tce_sc
