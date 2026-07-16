@@ -1,23 +1,25 @@
-# L1.7 — Backup e restore local
+# L1.7 — Backup e restore local (re-prova)
 
-**Story:** PE-L1-03  
 **Data:** 2026-07-16
 
-## Scripts
+## Método
 
-- `scripts/backup-database.sh` (existe)
-- Documentação operacional em `docs/operations/` / deploy
+1. `pg_dump -Fc` de `pncp_datalake` via container
+2. `pg_restore` em DB throwaway `restore_drill`
 
-## Execução nesta campanha
+## Resultado
 
-| Check | Status |
+| Check | Valor |
 |-------|--------|
-| Script legível e versionado | DONE |
-| Postgres local em `:5433` | PASS (compose up) |
-| Backup real + restore drill completo | **NOT EXECUTED** nesta sessão (tempo / risco de overwrite) |
+| Dump size | ~515 KB (amostra local) |
+| Restore exit | **0** |
+| Tables public | **60** |
+| `pncp_raw_bids` | **346** |
+| `target_universe_entities` | **2085** |
 
-## Veredito L1.7
+Capture: `gate1-backup-restore.log`.
 
-**PARTIAL / OPEN** — script existe; **DoD exige teste efetivamente executado**. Registrar follow-up: backup dump + restore em DB throwaway.
+## Nota
 
-**BLOCKER residual para GATE-1 total:** restore drill.
+- Storage Box remoto / `backup-database.sh` completo **não** exercitado (requer `BACKUP_STORAGE_BOX_SSH`).
+- Drill local prova dump→restore do schema+dados no Postgres do compose.
