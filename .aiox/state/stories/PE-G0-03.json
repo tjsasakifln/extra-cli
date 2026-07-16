@@ -1,0 +1,31 @@
+{
+  "story_id": "PE-G0-03",
+  "title": "Ledger de evidências + RACI kick-off",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "STANDARD",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": "3e38733bb6e808e6d1e6356b4adee7325578efca",
+  "scope_files": [
+    "docs/ops/ledger/"
+  ],
+  "files_modified": [
+    "docs/ops/ledger/README.md",
+    "docs/ops/ledger/evidence-index.md",
+    "docs/ops/ledger/raci-kickoff.md",
+    "docs/ops/ledger/GATE-0-BASELINE-LOCKED.md"
+  ],
+  "gates": {
+    "lint": "NA",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Reverter commits da story; não altera produção VPS.",
+  "snapshot_evidence": null,
+  "summary": "Ledger + RACI + GATE-0 LOCKED."
+}

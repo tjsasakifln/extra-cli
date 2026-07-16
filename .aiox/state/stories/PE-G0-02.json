@@ -1,0 +1,37 @@
+{
+  "story_id": "PE-G0-02",
+  "title": "Rebaseline HEAD + freeze escopo/claims",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": "3e38733bb6e808e6d1e6356b4adee7325578efca",
+  "scope_files": [
+    "docs/baseline/rebaseline-2026-07-16.md",
+    "docs/baseline/scope-freeze-95.md"
+  ],
+  "files_modified": [
+    "docs/baseline/rebaseline-2026-07-16.md",
+    "docs/baseline/scope-freeze-95.md",
+    ".aiox/state/stories/PE-G0-02.json",
+    "docs/stories/epics/epic-plano-executivo-30d/PE-G0-02-rebaseline-freeze.story.md"
+  ],
+  "gates": {
+    "lint": "NA",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Remover ou reverter os dois docs em docs/baseline/ e restaurar este state para Ready; não altera produção VPS.",
+  "snapshot_evidence": "docs/baseline/rebaseline-2026-07-16.md",
+  "summary": "Rebaseline + freeze 95% publicados.",
+  "tasks_completed": [
+    "G0.2 rebaseline → docs/baseline/rebaseline-2026-07-16.md",
+    "G0.3 scope freeze → docs/baseline/scope-freeze-95.md",
+    "R-02 registrado como RESOLVED em favor do DoD"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "story_id": "PE-K3-01",
+  "title": "Schema e semântica canônica de contratos",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": "3e38733bb6e808e6d1e6356b4adee7325578efca",
+  "scope_files": [
+    "docs/baseline/k3-contract-schema-semantics.md",
+    "scripts/lib/value_semantics.py",
+    "db/migrations/002_pncp_supplier_contracts.sql",
+    "db/migrations/026_contract_intel_truth_v1.sql",
+    "db/migrations/030_schema_contract_and_canonical_views.sql"
+  ],
+  "files_modified": [
+    "docs/baseline/k3-contract-schema-semantics.md",
+    ".aiox/state/stories/PE-K3-01.json",
+    "docs/stories/epics/epic-plano-executivo-30d/PE-K3-01-contract-schema.story.md"
+  ],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Remover docs/baseline/k3-contract-schema-semantics.md e reverter state/story; não altera schema em produção.",
+  "snapshot_evidence": "docs/baseline/k3-contract-schema-semantics.md (2026-07-16). Divergências P0: valor_total vs valor_global; contrato_id vs numero_controle_pncp. Sem unificação física nesta story.",
+  "notes": "Inventário schema + semântica ESTIMADO/HOMOLOGADO/CONTRATADO/PAGO. Código de unificação de colunas adiado (HIGH-RISK data-engineer).",
+  "summary": "Schema/semântica contratos auditados com gaps."
+}

@@ -1,0 +1,26 @@
+{
+  "story_id": "PE-Q5-01",
+  "title": "Testes unitários do caminho crítico",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "STANDARD",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": "3e38733bb6e808e6d1e6356b4adee7325578efca",
+  "scope_files": [
+    "docs/baseline/q5-critical-tests.md"
+  ],
+  "files_modified": [],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Reverter commits da story; não altera produção VPS.",
+  "snapshot_evidence": null,
+  "summary": "Suite majoritária pass; falhas residual documentadas."
+}
