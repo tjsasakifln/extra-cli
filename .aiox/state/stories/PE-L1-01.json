@@ -1,0 +1,34 @@
+{
+  "story_id": "PE-L1-01",
+  "title": "Ambiente limpo + fresh migrations",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": null,
+  "scope_files": [
+    "docs/baseline/l1-env-prereqs.md",
+    "docs/baseline/l1-fresh-migrations.md"
+  ],
+  "files_modified": [
+    "docs/baseline/l1-env-prereqs.md",
+    "docs/baseline/l1-fresh-migrations.md"
+  ],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Remover docs/baseline/l1-env-prereqs.md e l1-fresh-migrations.md; reverter state para Ready. Containers pe-l1-pgvector e DB pe_l1_fresh são locais descartáveis.",
+  "snapshot_evidence": "docs/baseline/l1-env-prereqs.md; docs/baseline/l1-fresh-migrations.md; db/log/migration-20260716_191104.log; db/log/migration-20260716_191121.log",
+  "summary": "Env OK; fresh migrations PARTIAL (049). compose pgvector.",
+  "blockers": [
+    "docker-compose default image lacks pgvector/vector extension",
+    "migration 049 fails on fresh install due to view dependency on pncp_raw_bids.esfera_id"
+  ]
+}

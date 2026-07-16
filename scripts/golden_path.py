@@ -164,17 +164,37 @@ class RunRecord:
 # ---------------------------------------------------------------------------
 
 
+def _normalize_ledger_runs(runs: Any) -> list[dict]:
+    """Return a flat list of run records; unwrap nested corruption safely."""
+    # Prior bug: _save_final_ledger passed the whole ledger dict into _save_ledger,
+    # producing {"version":1,"runs":{"version":1,"runs":[...]}}.
+    while isinstance(runs, dict) and "runs" in runs:
+        runs = runs["runs"]
+    if not isinstance(runs, list):
+        return []
+    return [r for r in runs if isinstance(r, dict)]
+
+
 def _load_ledger() -> dict:
     if _LEDGER_PATH.exists():
-        with open(_LEDGER_PATH) as f:
-            return json.load(f)
+        try:
+            with open(_LEDGER_PATH) as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            return {"version": 1, "runs": []}
+        if not isinstance(data, dict):
+            return {"version": 1, "runs": []}
+        return {
+            "version": data.get("version", 1),
+            "runs": _normalize_ledger_runs(data.get("runs", [])),
+        }
     return {"version": 1, "runs": []}
 
 
 def _save_ledger(runs: list[dict], ledger_path: Path | None = None) -> None:
     path = ledger_path or _LEDGER_PATH
     data = _load_ledger()
-    data["runs"] = runs
+    data["runs"] = _normalize_ledger_runs(runs)
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
@@ -537,10 +557,11 @@ def _save_final_ledger(
         reports=reports,
         freshness=freshness,
     )
-    runs = _load_ledger()
-    runs["runs"].append(asdict(record))
+    data = _load_ledger()
+    run_list = _normalize_ledger_runs(data.get("runs", []))
+    run_list.append(asdict(record))
     path = Path(ledger_path_str) if ledger_path_str else _LEDGER_PATH
-    _save_ledger(runs, path)
+    _save_ledger(run_list, path)
     _echo(f"\nLedger salvo:  {path}")
     _echo(f"Log salvo:     {_log_file}")
 

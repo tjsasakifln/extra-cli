@@ -1,0 +1,78 @@
+{
+  "story_id": "PE-C2-02",
+  "title": "Evidências runtime PNCP/PCP/ComprasGov",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": null,
+  "scope_files": [
+    "docs/baseline/c2-pncp-runtime.md",
+    "docs/baseline/c2-pcp-tce-runtime.md",
+    "docs/baseline/c2-comprasgov-runtime.md",
+    "docs/baseline/c2-domsc-blocked.md"
+  ],
+  "files_modified": [
+    "docs/baseline/c2-pncp-runtime.md",
+    "docs/baseline/c2-pcp-tce-runtime.md",
+    "docs/baseline/c2-comprasgov-runtime.md",
+    "docs/baseline/c2-domsc-blocked.md"
+  ],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Remover docs/baseline/c2-*-runtime.md e c2-domsc-blocked.md; reverter state para Ready.",
+  "snapshot_evidence": {
+    "captured_at": "2026-07-16T22:15:00Z",
+    "head": "1f7aa7c",
+    "branch": "epic/plano-executivo-30d",
+    "environment": "local workstation + pncp_datalake@127.0.0.1:5433",
+    "sources": {
+      "pncp": {
+        "status": "PARTIAL_BLOCKED",
+        "import": "OK",
+        "dry_run": "OK",
+        "api_publicacao": "TIMEOUT/DISCONNECT",
+        "db_rows_source_pncp": 0,
+        "evidence": "docs/baseline/c2-pncp-runtime.md"
+      },
+      "pcp": {
+        "status": "OK",
+        "import": "OK",
+        "api_page1_sc": 10,
+        "db_rows_approx": 340,
+        "matched_rows": 135,
+        "distinct_entities_matched": 78,
+        "evidence": "docs/baseline/c2-pcp-tce-runtime.md"
+      },
+      "tce_sc": {
+        "status": "API_OK_NO_INGEST_THIS_SESSION",
+        "import": "OK",
+        "licitacoes_2026": 2880,
+        "evidence": "docs/baseline/c2-pcp-tce-runtime.md"
+      },
+      "compras_gov": {
+        "status": "OK",
+        "import": "OK",
+        "api_sc_45d_page1": 8,
+        "crawl_incremental_n": 2,
+        "db_rows_approx": 3,
+        "evidence": "docs/baseline/c2-comprasgov-runtime.md"
+      },
+      "dom_sc": {
+        "status": "BLOCKED",
+        "reason": "DOM_SC_CPF/CNPJ/API_KEY empty in .env",
+        "crawl_incremental_n": 0,
+        "evidence": "docs/baseline/c2-domsc-blocked.md"
+      }
+    }
+  },
+  "summary": "PCP/ComprasGov OK; PNCP timeout; DOM-SC BLOCKED."
+}

@@ -13,7 +13,10 @@
 
 services:
   test-db:
-    image: postgis/postgis:16-3.4
+    # pgvector/pgvector:pg16 includes PostGIS-compatible stack + extension vector
+    # (migration 014 requires CREATE EXTENSION vector). postgis/postgis alone BLOCKS fresh install.
+    # Evidência campanha 30d: docs/baseline/l1-fresh-migrations.md (PE-L1-01).
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_DB: extra_test
       POSTGRES_USER: test

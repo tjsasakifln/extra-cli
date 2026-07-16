@@ -1,0 +1,27 @@
+{
+  "story_id": "PE-CLOSE-01",
+  "title": "Atualizar DoD/HTML + publicação main",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": null,
+  "scope_files": [
+    "DOD.md",
+    "extra-consultoria-plano-executivo.html"
+  ],
+  "files_modified": [],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Reverter commits da story; não altera produção VPS.",
+  "snapshot_evidence": null,
+  "summary": "DoD/HTML atualizados; publicação via PR."
+}

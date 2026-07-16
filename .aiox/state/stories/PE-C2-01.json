@@ -1,0 +1,37 @@
+{
+  "story_id": "PE-C2-01",
+  "title": "Fórmulas cobertura + success_zero/freshness",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": null,
+  "scope_files": [
+    "docs/baseline/c2-coverage-formulas.md",
+    "docs/baseline/c2-success-zero-freshness.md",
+    "scripts/coverage_truth.py",
+    "scripts/freshness_gate.py",
+    "scripts/consulting_readiness.py",
+    "scripts/coverage_gate.py"
+  ],
+  "files_modified": [
+    "docs/baseline/c2-coverage-formulas.md",
+    "docs/baseline/c2-success-zero-freshness.md",
+    ".aiox/state/stories/PE-C2-01.json",
+    "docs/stories/epics/epic-plano-executivo-30d/PE-C2-01-coverage-formulas.story.md"
+  ],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Remover docs/baseline/c2-*.md e reverter state/story; não altera produção VPS.",
+  "snapshot_evidence": "docs/baseline/c2-coverage-formulas.md + docs/baseline/c2-success-zero-freshness.md (2026-07-16). Código de produção NÃO alterado. Gaps P0: split capability gates, numerador sem freshness, SLA contratos 24d vs DoD 7d.",
+  "notes": "Documentação + verificação apenas. Constantes 0.8/80 são line-coverage (.coveragerc/coverage_gate) ou UI (validate_coverage) — não alinhadas a 95% operacional de propósito.",
+  "summary": "Fórmulas e gaps success_zero/freshness documentados."
+}

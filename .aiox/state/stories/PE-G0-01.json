@@ -1,0 +1,33 @@
+{
+  "story_id": "PE-G0-01",
+  "title": "Versionar DoD/plano e registrar autoridade",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "STANDARD",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": null,
+  "scope_files": [
+    "DOD.md",
+    "extra-consultoria-plano-executivo.html",
+    "docs/stories/epics/epic-plano-executivo-30d/"
+  ],
+  "files_modified": [
+    "DOD.md",
+    "extra-consultoria-plano-executivo.html",
+    "docs/stories/epics/epic-plano-executivo-30d/EPIC-PLANO-EXECUTIVO-30D.md",
+    "docs/stories/epics/epic-plano-executivo-30d/PE-G0-01-versionar-dod.story.md"
+  ],
+  "gates": {
+    "lint": "NA",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Reverter commits da story; não altera produção VPS.",
+  "snapshot_evidence": null,
+  "summary": "DoD e HTML versionados; 2 itens §1 aceitos."
+}

@@ -1,0 +1,35 @@
+{
+  "story_id": "PE-L1-02",
+  "title": "Universo canônico + registry capability",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": null,
+  "scope_files": [
+    "docs/baseline/l1-universe-reconciliation.md",
+    "docs/baseline/l1-source-capability-registry.md"
+  ],
+  "files_modified": [
+    "docs/baseline/l1-universe-reconciliation.md",
+    "docs/baseline/l1-source-capability-registry.md"
+  ],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Remover docs/baseline/l1-universe-reconciliation.md e l1-source-capability-registry.md; reverter state para Ready. Nenhuma alteração de código de aplicação.",
+  "snapshot_evidence": "docs/baseline/l1-universe-reconciliation.md; docs/baseline/l1-source-capability-registry.md; seed SHA256 d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+  "summary": "Universo 1093 planilha OK; DB materialization 0.",
+  "blockers": [
+    "target_universe_entities empty on local pncp_datalake — universe not materialised in DB",
+    "entity×source×capability applicability not reconciled (registry is source-level only)",
+    "DOM-SC and DOE-SC credentials empty in local .env"
+  ]
+}
