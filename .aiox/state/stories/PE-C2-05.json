@@ -1,0 +1,42 @@
+{
+  "story_id": "PE-C2-05",
+  "title": "Desbloquear DOM-SC via CIGA Dados (sem API key)",
+  "status": "Done",
+  "priority": "P0",
+  "risk_level": "HIGH-RISK",
+  "epic": "EPIC-PLANO-EXECUTIVO-30D",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "reviewed_commit": "e6a39399ecbefff0a7d1e2808695e4716de38c09",
+  "scope_files": [
+    "scripts/crawl/ciga_ckan_crawler.py",
+    "scripts/crawl/registry.py",
+    "config/source_applicability.yaml",
+    ".env.example",
+    "tests/test_ciga_ckan_transform.py",
+    "docs/baseline/c2-domsc-ciga-dados-unblocked.md",
+    "docs/baseline/c2-ciga-ckan-runtime.md"
+  ],
+  "files_modified": [
+    "scripts/crawl/ciga_ckan_crawler.py",
+    "scripts/crawl/registry.py",
+    "config/source_applicability.yaml",
+    ".env.example",
+    "tests/test_ciga_ckan_transform.py",
+    "docs/baseline/c2-domsc-ciga-dados-unblocked.md",
+    "docs/baseline/c2-ciga-ckan-runtime.md",
+    "docs/baseline/c2-domsc-blocked.md",
+    "extra-consultoria-plano-executivo.html",
+    "docs/stories/epics/epic-plano-executivo-30d/PE-C2-05-ciga-dados-dom.story.md"
+  ],
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "summary": "CIGA Dados path público sem chave; transform 533/533 na amostra; 8 unit tests PASS; C2.5 evidence no plano HTML.",
+  "rollback_plan": "Reverter commit; registry volta coverage_only."
+}

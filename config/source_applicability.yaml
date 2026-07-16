@@ -66,7 +66,8 @@ sources:
         priority: 10
         reason: "DOM-SC nao cobre entes federais"
     notes:
-      - "Requer API key do CIGA"
+      - "Path legado autenticado (diariomunicipal.sc.gov.br) — opcional"
+      - "Caminho canônico público: ciga_ckan em dados.ciga.sc.gov.br (sem API key)"
       - "Cobertura apenas de municipios de SC"
 
   # --------------------------------------------------------------------------
@@ -180,7 +181,7 @@ sources:
   # CIGA CKAN
   # --------------------------------------------------------------------------
   ciga_ckan:
-    display_name: "CIGA CKAN"
+    display_name: "CIGA Dados (DOM-SC público)"
     authority_level: municipal
     sla_hours: 48
     default_applicable: false
@@ -188,7 +189,7 @@ sources:
       - filter: {esfera: municipal, natureza: "*", plataforma: "*"}
         applicable: true
         priority: 10
-        reason: "CIGA CKAN — dados municipais de SC"
+        reason: "CIGA Dados — publicações DOM/SC municipais (CKAN público)"
       - filter: {esfera: estadual, natureza: "*", plataforma: "*"}
         applicable: false
         priority: 10
@@ -198,8 +199,10 @@ sources:
         priority: 10
         reason: "CIGA CKAN nao cobre entes federais"
     notes:
-      - "Apenas cobertura (coverage_only), sem extracao de bids"
-      - "Requer contrato com CIGA para API key"
+      - "Portal https://dados.ciga.sc.gov.br — dados públicos, sem cadastro/chave (CIGA)"
+      - "API CKAN 2.9; datasets mensais domsc-publicacoes-de-MM-YYYY"
+      - "Extrai publicações de compras (open_tenders) + entity coverage; sem inventar valores"
+      - "Caminho canônico DOM/SC; dom_sc autenticado é legado opcional"
 
   # --------------------------------------------------------------------------
   # MIDES BigQuery
