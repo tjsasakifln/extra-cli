@@ -9,7 +9,7 @@
   "qa_verdict": "CONCERNS",
   "po_closed": true,
   "publication_authorized": true,
-  "reviewed_commit": null,
+  "reviewed_commit": "3e38733bb6e808e6d1e6356b4adee7325578efca",
   "scope_files": [
     "docs/baseline/l1-env-prereqs.md",
     "docs/baseline/l1-fresh-migrations.md"
