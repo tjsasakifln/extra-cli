@@ -12,7 +12,7 @@ from dataclasses import asdict
 from datetime import date, timedelta
 from typing import Any
 
-from scripts.crawl.common import safe_date, safe_float
+from scripts.crawl.common import safe_date, safe_float, safe_int
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
 from scripts.crawl.pncp_contract import (
     DEFAULT_MODALIDADES,
@@ -454,10 +454,10 @@ def transform(raw_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "objeto_compra": raw.get("objetoCompra"),
                 "informacao_complementar": raw.get("informacaoComplementar"),
                 "valor_total_estimado": safe_float(raw.get("valorTotalEstimado")),
-                "modalidade_id": raw.get("modalidadeId"),
+                "modalidade_id": safe_int(raw.get("modalidadeId")),
                 "modalidade_nome": raw.get("modalidadeNome"),
                 "situacao_compra": raw.get("situacaoCompraNome"),
-                "esfera_id": orgao.get("esferaId"),
+                "esfera_id": safe_int(orgao.get("esferaId")),
                 "uf": unidade.get("ufSigla"),
                 "municipio": unidade.get("municipioNome"),
                 "codigo_municipio_ibge": digits_only(unidade.get("codigoIbge")),
@@ -631,7 +631,7 @@ def transform_contracts(raw_records: list[dict[str, Any]]) -> list[dict[str, Any
                 "numero_controle_pncp_ata": raw.get("numeroControlePncpAta"),
                 "orgao_cnpj": orgao_cnpj,
                 "orgao_razao_social": orgao.get("razaoSocial"),
-                "orgao_esfera_id": orgao.get("esferaId"),
+                "orgao_esfera_id": safe_int(orgao.get("esferaId")),
                 "unidade_nome": unidade.get("nomeUnidade"),
                 "unidade_uf": unidade.get("ufSigla"),
                 "unidade_municipio": unidade.get("municipioNome"),

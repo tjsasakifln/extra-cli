@@ -1,36 +1,59 @@
-# Handoff — Extra Consultoria (2026-07-15)
+# Handoff — Extra Consultoria (2026-07-15 sessão goal)
 
 **De:** @aiox-master (Orion) → **Para:** próxima sessão
-**HEAD:** `cc1969a` (main, pushed)
-**Working tree:** limpo (+ SOURCE_BLOCKERS fix pendente commit)
+**HEAD:** `70a4755` (main)
+**Working tree:** fix safe_int pendente commit + freshness-gate untracked
 
 ---
 
-## 1. Ciclos Completados
+## 1. Descobertas da Sessão
 
-### CM-08: PNCP API Validation
-- Page size real: contratações max=50, contratos max=500
-- UF filter contratos quebrado → post-filtro client-side
-- `crawl_contracts()` + `transform_contracts()` + `transform_with_uf_filter()`
-- QA: CONCERNS (TST-001), commit: 9a6698a
+### PNCP NÃO é geo-bloqueado
+- Diagnóstico anterior ERRADO. Railway costa leste EUA sempre funcionou.
+- API responde do WSL: 0.5s, 49 registros SC/dia, 546 nacional/dia.
+- Erro real: `tamanhoPagina=5` < mínimo 10 → HTTP 400. Timeout por rate limit.
 
-### CM-09: ComprasGov V3 Validation
-- API funcional sem geo-restrição — 52 SC/6meses
-- QA: PASS, commit: 2b49be2
+### Bug safe_int corrigido
+- `modalidade_id` e `esfera_id` vinham como string ("M"=Municipal) → upsert quebrava.
+- Adicionado `safe_int()` em `scripts/crawl/common.py`.
+- Aplicado em `pncp_crawler_adapter.py` linhas 457, 460, 634.
+- **221 registros PNCP fetched mas 0 inseridos** por causa desse bug. Correção aplicada.
+
+### CIGA CKAN é coverage_only
+- `transform()` retorna `[]` por design. Não produz bids.
+- API CKAN funciona: 578 packages, dados DOM/SC.
+- `run_month()` disponível para entity_coverage direto.
+
+### ComprasGov API 404
+- `dadosabertos.compras.gov.br` retorna 404 do Azure para endpoints documentados.
+- Swagger mostra módulos mas API não está deployed ou rotas diferentes.
 
 ---
 
-## 2. Estado das Fontes
+## 2. Estado Real da Cobertura
 
-| Fonte | Status | Volume | Blocker |
-|-------|--------|--------|---------|
-| **PCP** | ✅ Ativa | 1.9k SC | Nenhum |
-| **ComprasGov V3** | ✅ Validada | 52/6meses SC | Nenhum |
-| **CIGA CKAN** | ✅ Validada | 30.904/mês | Nenhum |
-| **PNCP Contratos** | 🟡 Pronto | 244k nacional | VPS Brasil |
-| **PNCP Editais** | 🟡 Pronto | 1.2k SC/15d | VPS Brasil |
-| **DOM-SC** | 🟡 Pronto | ? | Credenciais API v2 |
-| **TCE-SC** | ⬜ Pendente | ? | Não validado |
+| Métrica | Valor |
+|----------|-------|
+| Entes planilha Extra | 2.085 |
+| Dentro raio 200km | 1.093 |
+| **Editais — SC total** | **171 / 2.085 = 8,2%** |
+| **Editais — dentro 200km** | **34 / 1.093 = 3,1%** |
+| **Contratos** | **0%** |
+| Bids no banco | 1.976 (todos PCP) |
+| Entidades cobertas | 171 (34 no raio) |
+
+---
+
+## 3. Estado das Fontes (Runtime Confirmado)
+
+| Fonte | Status | Evidência | Blocker |
+|-------|--------|-----------|---------|
+| **PCP** | ✅ Ativa | 1.976 bids, 171 entes | Nenhum |
+| **PNCP** | 🟡 Bug fix pendente | API responde, 221 fetched | safe_int corrigido, re-roDar |
+| **CIGA CKAN** | 🟡 coverage_only | 578 packages | Implementar run_month() |
+| **ComprasGov** | 🔴 API offline | Azure 404 | Aguardar deploy |
+| **DOM-SC** | 🟡 Pronto | API REST v2 | Credenciais (dom@consorciociga.gov.br) |
+| **TCE-SC** | ⬜ Não validado | — | Validar |
 | **DOE-SC** | 🔴 Bloqueado | — | Selenium + certificado |
 | **Transparência** | 🔴 Bloqueado | — | 295+ portais |
 | **Mides BigQuery** | 🔴 Bloqueado | — | Credencial GCP |
@@ -38,52 +61,57 @@
 
 ---
 
-## 3. DOM-SC: Credenciais
+## 4. Ranking Próximas Ações
 
-**SOURCE_BLOCKERS corrigido** (era "Selenium", agora "Aguardando credenciais API REST v2")
-
-**Como obter:**
-- Email: dom@consorciociga.gov.br
-- WhatsApp: (48) 98406-1060
-- Enviar CNPJ da Extra Consultoria, solicitar acesso à API `?r=remote/list`
-- Homologação: domscdev.beta.consorciociga.gov.br
-
----
-
-## 4. Próximo Incremento
-
-| # | Incremento | ROI | Blocker |
-|---|-----------|-----|---------|
-| **1** | CM-10: CIGA CKAN 30k/mês | ALTO | Nenhum |
-| **2** | Ativar ComprasGov no orchestrator | ALTO | Nenhum |
-| **3** | Validar TCE-SC | ALTO | Nenhum |
-| **4** | Obter credenciais DOM-SC | ALTO | Email CIGA |
-| **5** | Contratos 244k | ALTÍSSIMO | VPS Brasil |
+| # | Ação | ROI | Blocker |
+|---|------|-----|---------|
+| **1** | Rodar PNCP com safe_int fix | ALTÍSSIMO | Nenhum |
+| **2** | Obter credenciais DOM-SC | ALTO | Email CIGA |
+| **3** | CIGA CKAN run_month() | MÉDIO | coverage_only |
+| **4** | Corrigir CNPJ no PCP crawler | MÉDIO | Nenhum |
+| **5** | Provisionar Railway/VPS para PNCP full | ALTO | Setup |
+| **6** | Fechar stories administrativas (CM-08, CM-09, CM-06-PCP-fix) | BAIXO | Nenhum |
 
 ---
 
 ## 5. Comandos
 
 ```bash
-# CIGA CKAN (funciona já):
-python3 -m scripts.crawl.ciga_ckan_crawler --all-months
+# PNCP (após safe_int fix):
+PNCP_PAGE_SIZE=50 PNCP_READ_TIMEOUT=30 PNCP_REQUEST_DELAY=0.2 \
+INGESTION_DATE_RANGE_DAYS=7 \
+DATABASE_URL="postgresql://test:test@127.0.0.1:5433/pncp_datalake" \
+python3 scripts/crawl/monitor.py --source pncp --mode full
 
-# ComprasGov (funciona já):
-python3 scripts/crawl/monitor.py --source compras_gov --mode full
-
-# DOM-SC (após obter credenciais):
-export DOM_SC_CPF=... DOM_SC_CNPJ=... DOM_SC_API_KEY=...
-python3 scripts/crawl/monitor.py --source dom_sc --mode full
+# PCP (funcionando):
+DATABASE_URL="postgresql://test:test@127.0.0.1:5433/pncp_datalake" \
+python3 scripts/crawl/monitor.py --source pcp --mode full
 
 # DB:
 PGPASSWORD=test psql -h 127.0.0.1 -p 5433 -U test -d pncp_datalake
+
+# Cobertura:
+python3 scripts/coverage_truth.py
 ```
 
 ---
 
-## 6. Classificação: GO_WITH_CONDITIONS
+## 6. Bugs Conhecidos
+
+1. **safe_int** — `modalidade_id` e `esfera_id` quebram upsert (CORRIGIDO, não commitado)
+2. **match_method** — sempre vazio no `entity_coverage`
+3. **PCP CNPJ** — 100% `orgao_cnpj` NULL (API PCP não retorna CNPJ)
+4. **config.settings** — fallback DSN aponta porta 54399 sem senha
+5. **freshness_gate** — não detecta dados PCP (só busca source='pncp')
+
+---
+
+## 7. Classificação: GO_WITH_CONDITIONS
 
 **Condições:**
-1. VPS Brasil → desbloqueia PNCP (maior fonte)
-2. Credenciais DOM-SC → email dom@consorciociga.gov.br
-3. Ativar fontes validadas (ComprasGov, CIGA) no orchestrator
+1. Commit + push do safe_int fix (esta sessão)
+2. Rodar PNCP crawl com correção → esperado +200 bids SC/dia
+3. Credenciais DOM-SC → email dom@consorciociga.gov.br
+4. ComprasGov API voltar ao ar → monitorar
+
+**Métrica alvo próxima sessão:** cobertura editais > 15% dentro 200km (vs 3.1% atual)

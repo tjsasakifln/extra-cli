@@ -127,6 +127,37 @@ def safe_float(value: Any) -> float | None:
         return None
 
 
+def safe_int(value: Any) -> int | None:
+    """Safely parse a value to ``int``.
+
+    Handles strings with non-numeric prefixes (e.g. ``"M4"`` → 4),
+    pure strings, and ``int`` / ``float`` directly.
+
+    Args:
+        value: Value to convert (str, int, float, or None).
+
+    Returns:
+        ``int`` or ``None`` if unparseable.
+    """
+    if value is None:
+        return None
+    try:
+        if isinstance(value, int):
+            return value
+        if isinstance(value, float):
+            return int(value)
+        val_str = str(value).strip()
+        if not val_str:
+            return None
+        # Extract digits only (handles "M4" → 4, "M" → None)
+        digits = "".join(c for c in val_str if c.isdigit())
+        if digits:
+            return int(digits)
+        return None
+    except (ValueError, TypeError):
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Date helpers
 # ---------------------------------------------------------------------------
