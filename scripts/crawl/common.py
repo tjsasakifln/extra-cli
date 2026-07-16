@@ -266,10 +266,20 @@ def _normalize_objeto(objeto: str | None) -> str:
 
 
 def _normalize_modalidade(modalidade: str | None) -> str:
-    """Normaliza nome de modalidade para hash cross-source."""
+    """Normaliza nome de modalidade para hash cross-source.
+
+    Mesma higiene de acentos/case que ``_normalize_objeto`` (sem strip de
+    pontuação além do essencial): evita hashes divergentes entre fontes
+    que publicam "Pregão" vs "Pregao".
+    """
     if not modalidade:
         return ""
-    return modalidade.strip().lower()
+    import unicodedata
+
+    s = modalidade.strip().lower()
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
 
 
 def generate_cross_source_hash(
