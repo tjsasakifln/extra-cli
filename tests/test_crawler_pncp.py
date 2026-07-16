@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from datetime import date
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 
 from scripts.crawl import pncp_crawler_adapter as pca
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
@@ -46,44 +47,102 @@ class TestFetchPublicationPage:
             "paginasRestantes": 0,
             "empty": True,
         }
-        body = __import__("json").dumps(payload).encode("utf-8")
+        response = MagicMock()
+        response.status_code = 200
+        response.headers = {"content-type": "application/json"}
+        response.json.return_value = payload
+        session = MagicMock()
+        session.get.return_value = response
 
-        class Response:
-            status = 200
+        result = pca._http_get_json("https://pncp.test", session=session)
 
-            def __enter__(self):
-                return self
-
-            def __exit__(self, *args):
-                return False
-
-            def read(self):
-                return body
-
-        with patch("urllib.request.urlopen", return_value=Response()):
-            result = pca._http_get_json("https://pncp.test")
         assert result.request_completed is True
         assert result.empty_confirmed is True
         assert result.records == []
 
     def test_invalid_json_is_not_treated_as_empty(self):
-        class Response:
-            status = 200
+        response = MagicMock()
+        response.status_code = 200
+        response.headers = {"content-type": "application/json"}
+        response.json.side_effect = requests.exceptions.JSONDecodeError("invalid", "{", 1)
+        session = MagicMock()
+        session.get.return_value = response
 
-            def __enter__(self):
-                return self
+        result = pca._http_get_json("https://pncp.test", session=session)
 
-            def __exit__(self, *args):
-                return False
-
-            def read(self):
-                return b"{invalid"
-
-        with patch("urllib.request.urlopen", return_value=Response()):
-            result = pca._http_get_json("https://pncp.test")
-        assert result.request_completed is True
+        assert result.request_completed is False
         assert result.empty_confirmed is False
         assert result.errors
+        assert session.get.call_count == 1
+
+    def test_http_500_retries_then_succeeds(self):
+        failure = MagicMock()
+        failure.status_code = 500
+        failure.headers = {"content-type": "application/json"}
+        success = MagicMock()
+        success.status_code = 204
+        success.headers = {}
+        session = MagicMock()
+        session.get.side_effect = [failure, success]
+        sleeps: list[float] = []
+
+        result = pca._http_get_json(
+            "https://pncp.test",
+            session=session,
+            sleeper=sleeps.append,
+        )
+
+        assert result.request_completed is True
+        assert session.get.call_count == 2
+        assert len(sleeps) == 1
+
+    def test_http_429_respects_retry_after(self):
+        limited = MagicMock()
+        limited.status_code = 429
+        limited.headers = {"Retry-After": "7"}
+        success = MagicMock()
+        success.status_code = 204
+        success.headers = {}
+        session = MagicMock()
+        session.get.side_effect = [limited, success]
+        sleeps: list[float] = []
+
+        result = pca._http_get_json(
+            "https://pncp.test",
+            session=session,
+            sleeper=sleeps.append,
+        )
+
+        assert result.request_completed is True
+        assert sleeps == [7.0]
+
+    def test_deterministic_4xx_is_not_retried(self):
+        response = MagicMock()
+        response.status_code = 422
+        response.headers = {"content-type": "application/json"}
+        session = MagicMock()
+        session.get.return_value = response
+
+        result = pca._http_get_json("https://pncp.test", session=session)
+
+        assert result.request_completed is False
+        assert result.http_status == 422
+        assert session.get.call_count == 1
+
+    def test_unexpected_schema_is_not_retried_or_marked_empty(self):
+        response = MagicMock()
+        response.status_code = 200
+        response.headers = {"content-type": "application/json"}
+        response.json.return_value = {"unexpected": []}
+        session = MagicMock()
+        session.get.return_value = response
+
+        result = pca._http_get_json("https://pncp.test", session=session)
+
+        assert result.request_completed is False
+        assert result.empty_confirmed is False
+        assert result.errors[0].startswith("schema invalido")
+        assert session.get.call_count == 1
 
 
 class TestTransformRecord:
@@ -97,6 +156,7 @@ class TestTransformRecord:
         assert result["data_publicacao"] == "2026-07-01T10:00:00"
         assert result["link_sistema_origem"] == "https://origem.example/edital/225"
         assert result["link_pncp"] == "https://pncp.gov.br/app/editais/12345678000199/2026/225"
+        assert result["raw_payload"] == MOCK_RAW_RECORD
 
     def test_transform_creates_synthetic_id_when_missing_numero_controle(self):
         raw = dict(MOCK_RAW_RECORD)

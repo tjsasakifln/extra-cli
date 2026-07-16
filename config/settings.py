@@ -52,7 +52,7 @@ OPENAI_MAX_CONCURRENT = int(os.getenv("OPENAI_MAX_CONCURRENT", "5"))
 # ---------------------------------------------------------------------------
 # PNCP API
 # ---------------------------------------------------------------------------
-PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v3")
+PNCP_BASE = os.getenv("PNCP_BASE", "https://pncp.gov.br/api/consulta/v1")
 PNCP_FILES_BASE = os.getenv("PNCP_FILES_BASE", "https://pncp.gov.br/api/pncp/v1")
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "50"))
 PNCP_PAGE_SIZE = int(os.getenv("PNCP_PAGE_SIZE", "50"))

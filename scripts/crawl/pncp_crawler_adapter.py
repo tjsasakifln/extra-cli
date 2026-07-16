@@ -3,16 +3,19 @@ from __future__ import annotations
 import json
 import logging
 import os
-import socket
+import random
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import asdict
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
+from email.utils import parsedate_to_datetime
 from typing import Any
 
-from scripts.crawl.common import safe_date, safe_float, safe_int
+import requests
+
+from scripts.crawl.common import safe_float, safe_int
 from scripts.crawl.ingestion._base.crawler import CrawlRequest, FetchResult
 from scripts.crawl.pncp_contract import (
     DEFAULT_MODALIDADES,
@@ -43,13 +46,26 @@ PNCP_CONTRATOS_PAGE_SIZE = max(
     ),
 )
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "200"))
+PNCP_CONNECT_TIMEOUT = float(os.getenv("PNCP_CONNECT_TIMEOUT", "10"))
 PNCP_READ_TIMEOUT = int(os.getenv("PNCP_READ_TIMEOUT", "120"))
-PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "3"))
+PNCP_MAX_RETRIES = int(os.getenv("PNCP_MAX_RETRIES", "8"))
 PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.5"))
+PNCP_RETRY_BASE_DELAY = float(os.getenv("PNCP_RETRY_BASE_DELAY", "5"))
+PNCP_RETRY_MAX_DELAY = float(os.getenv("PNCP_RETRY_MAX_DELAY", "60"))
+PNCP_RETRY_JITTER = float(os.getenv("PNCP_RETRY_JITTER", "0.2"))
+PNCP_RATE_LIMIT_FALLBACK = float(os.getenv("PNCP_RATE_LIMIT_FALLBACK", "60"))
 INGESTION_INCREMENTAL_DAYS = int(os.getenv("INGESTION_INCREMENTAL_DAYS", "1"))
 INGESTION_DATE_RANGE_DAYS = int(os.getenv("INGESTION_DATE_RANGE_DAYS", "30"))
 INGESTION_MODALIDADES = parse_modalidades_from_env()
 UPSERT_FUNCTION = "upsert_pncp_raw_bids"
+_TRANSIENT_HTTP_STATUS = {408, 425, 429, 500, 502, 503, 504}
+_PAGINATION_FIELDS = (
+    "totalRegistros",
+    "totalPaginas",
+    "numeroPagina",
+    "paginasRestantes",
+    "empty",
+)
 
 
 def _windowed_dates(date_from: date, date_to: date) -> list[tuple[date, date]]:
@@ -85,24 +101,125 @@ def _request_params(request: CrawlRequest, modalidade: int, page: int) -> dict[s
     return params
 
 
-def _http_get_json(url: str) -> FetchResult:
-    metadata = {"url": url, "retries": 0}
-
-    for attempt in range(PNCP_MAX_RETRIES + 1):
-        metadata["retries"] = attempt
+def _retry_after_seconds(value: str | None) -> float | None:
+    if not value:
+        return None
+    try:
+        return max(0.0, float(value))
+    except ValueError:
         try:
-            req = urllib.request.Request(  # noqa: S310 — hardcoded HTTPS PNCP API endpoint (callers use https://pncp.gov.br)
-                url,
-                headers={
-                    "User-Agent": USER_AGENT,
-                    "Accept": "application/json",
-                },
-            )
-            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as response:  # noqa: S310 — hardcoded HTTPS PNCP API endpoint
-                status = response.status
-                raw_body = response.read()
+            retry_at = parsedate_to_datetime(value)
+        except (TypeError, ValueError):
+            return None
+        if retry_at.tzinfo is None:
+            retry_at = retry_at.replace(tzinfo=UTC)
+        return max(0.0, (retry_at - datetime.now(UTC)).total_seconds())
+
+
+def _retry_delay(attempt: int, retry_after: float | None = None) -> float:
+    if retry_after is not None:
+        return retry_after
+    base = min(PNCP_RETRY_MAX_DELAY, PNCP_RETRY_BASE_DELAY * (2**attempt))
+    jitter = base * PNCP_RETRY_JITTER
+    return max(0.0, base + random.uniform(-jitter, jitter))  # noqa: S311 - retry jitter is not security-sensitive
+
+
+def _validate_publication_payload(payload: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError("payload raiz deve ser objeto JSON")
+    missing = [field for field in ("data", *_PAGINATION_FIELDS) if field not in payload]
+    if missing:
+        raise ValueError(f"campos ausentes: {', '.join(missing)}")
+    records = payload["data"]
+    if not isinstance(records, list):
+        raise ValueError("campo data deve ser lista")
+    if any(not isinstance(record, dict) for record in records):
+        raise ValueError("campo data contem item que nao e objeto")
+    missing_ids = [index for index, record in enumerate(records) if not record.get("numeroControlePNCP")]
+    if missing_ids:
+        raise ValueError(f"numeroControlePNCP ausente nos indices {missing_ids[:5]}")
+
+    for field in ("totalRegistros", "totalPaginas", "numeroPagina", "paginasRestantes"):
+        if isinstance(payload[field], bool) or not isinstance(payload[field], int) or payload[field] < 0:
+            raise ValueError(f"campo {field} deve ser inteiro nao-negativo")
+    if not isinstance(payload["empty"], bool):
+        raise ValueError("campo empty deve ser booleano")
+    if payload["empty"] and (records or payload["totalRegistros"] != 0):
+        raise ValueError("payload empty=true contradiz data/totalRegistros")
+    if not records and payload["totalRegistros"] > 0 and payload["numeroPagina"] <= payload["totalPaginas"]:
+        raise ValueError("pagina vazia contradiz totalRegistros/totalPaginas")
+
+    pagination = {field: payload[field] for field in _PAGINATION_FIELDS}
+    return records, pagination
+
+
+def _http_get_json(
+    url: str,
+    *,
+    session: requests.Session | None = None,
+    sleeper: Any = time.sleep,
+) -> FetchResult:
+    metadata: dict[str, Any] = {"url": url, "retries": 0, "retry_delays": []}
+    http = session or requests.Session()
+    close_session = session is None
+
+    try:
+        for attempt in range(PNCP_MAX_RETRIES + 1):
+            metadata["retries"] = attempt
+            try:
+                response = http.get(
+                    url,
+                    headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+                    timeout=(PNCP_CONNECT_TIMEOUT, PNCP_READ_TIMEOUT),
+                )
+            except (requests.Timeout, requests.ConnectionError) as exc:
+                if attempt < PNCP_MAX_RETRIES:
+                    wait = _retry_delay(attempt)
+                    metadata["retry_delays"].append(wait)
+                    sleeper(wait)
+                    continue
+                return FetchResult(
+                    records=[],
+                    request_completed=False,
+                    http_status=None,
+                    empty_confirmed=False,
+                    errors=[f"falha de conectividade: {type(exc).__name__}: {exc}"],
+                    metadata=metadata,
+                )
+
+            status = response.status_code
+            metadata["response_headers"] = {
+                key: response.headers.get(key)
+                for key in ("content-type", "date", "retry-after", "cache-control")
+                if response.headers.get(key) is not None
+            }
+
+            if status in _TRANSIENT_HTTP_STATUS:
+                if attempt < PNCP_MAX_RETRIES:
+                    retry_after = _retry_after_seconds(response.headers.get("Retry-After"))
+                    wait = _retry_delay(attempt, retry_after)
+                    if status == 429 and retry_after is None:
+                        wait = max(wait, PNCP_RATE_LIMIT_FALLBACK)
+                    metadata["retry_delays"].append(wait)
+                    sleeper(wait)
+                    continue
+                return FetchResult(
+                    records=[],
+                    request_completed=False,
+                    http_status=status,
+                    empty_confirmed=False,
+                    errors=[f"falha transitoria: HTTP {status}; retries esgotados"],
+                    metadata=metadata,
+                )
 
             if status == 204:
+                metadata["pagination"] = {
+                    "totalRegistros": 0,
+                    "totalPaginas": 0,
+                    "numeroPagina": 1,
+                    "paginasRestantes": 0,
+                    "empty": True,
+                }
                 return FetchResult(
                     records=[],
                     request_completed=True,
@@ -111,96 +228,62 @@ def _http_get_json(url: str) -> FetchResult:
                     metadata=metadata,
                 )
 
-            try:
-                payload = json.loads(raw_body.decode("utf-8"))
-            except json.JSONDecodeError as exc:
+            if status != 200:
                 return FetchResult(
                     records=[],
-                    request_completed=True,
+                    request_completed=False,
                     http_status=status,
+                    empty_confirmed=False,
+                    errors=[f"erro de requisicao: HTTP {status}"],
+                    metadata=metadata,
+                )
+
+            content_type = response.headers.get("content-type", "")
+            if "json" not in content_type.lower():
+                return FetchResult(
+                    records=[],
+                    request_completed=False,
+                    http_status=200,
+                    empty_confirmed=False,
+                    errors=[f"schema invalido: Content-Type {content_type or '<ausente>'}"],
+                    metadata=metadata,
+                )
+
+            try:
+                payload = response.json()
+            except requests.exceptions.JSONDecodeError as exc:
+                return FetchResult(
+                    records=[],
+                    request_completed=False,
+                    http_status=200,
                     empty_confirmed=False,
                     errors=[f"JSON invalido: {exc}"],
                     metadata=metadata,
                 )
 
-            if status == 200:
-                records = payload.get("data", []) if isinstance(payload, dict) else []
-                is_empty = bool(isinstance(payload, dict) and payload.get("empty")) or not records
-                metadata["pagination"] = {
-                    "totalRegistros": payload.get("totalRegistros") if isinstance(payload, dict) else None,
-                    "totalPaginas": payload.get("totalPaginas") if isinstance(payload, dict) else None,
-                    "numeroPagina": payload.get("numeroPagina") if isinstance(payload, dict) else None,
-                    "paginasRestantes": payload.get("paginasRestantes") if isinstance(payload, dict) else None,
-                    "empty": payload.get("empty") if isinstance(payload, dict) else None,
-                }
+            try:
+                records, pagination = _validate_publication_payload(payload)
+            except ValueError as exc:
                 return FetchResult(
-                    records=records if isinstance(records, list) else [],
-                    request_completed=True,
+                    records=[],
+                    request_completed=False,
                     http_status=200,
-                    empty_confirmed=is_empty,
+                    empty_confirmed=False,
+                    errors=[f"schema invalido: {exc}"],
                     metadata=metadata,
                 )
 
+            metadata["pagination"] = pagination
             return FetchResult(
-                records=[],
+                records=records,
                 request_completed=True,
-                http_status=status,
-                empty_confirmed=False,
-                errors=[f"HTTP {status} inesperado"],
+                http_status=200,
+                empty_confirmed=not records and pagination["totalRegistros"] == 0,
                 metadata=metadata,
             )
-        except urllib.error.HTTPError as exc:
-            status = exc.code
-            if status == 429 and attempt < PNCP_MAX_RETRIES:
-                retry_after = exc.headers.get("Retry-After")
-                wait = float(retry_after) if retry_after and retry_after.isdigit() else min(30.0, 2**attempt)
-                time.sleep(wait)
-                continue
-
-            label = "falha externa"
-            if status in {400, 404, 422}:
-                label = "erro de requisicao"
-            elif status >= 500:
-                label = "falha externa"
-            return FetchResult(
-                records=[],
-                request_completed=True,
-                http_status=status,
-                empty_confirmed=False,
-                errors=[f"{label}: HTTP {status}"],
-                metadata=metadata,
-            )
-        except urllib.error.URLError as exc:
-            reason = exc.reason
-            if isinstance(reason, socket.gaierror):
-                error = f"falha de conectividade: DNS {reason}"
-            elif isinstance(reason, TimeoutError):
-                error = "falha de conectividade: timeout"
-            else:
-                error = f"falha de conectividade: {reason}"
-            if attempt < PNCP_MAX_RETRIES:
-                time.sleep(min(10.0, 1 + attempt))
-                continue
-            return FetchResult(
-                records=[],
-                request_completed=False,
-                http_status=None,
-                empty_confirmed=False,
-                errors=[error],
-                metadata=metadata,
-            )
-        except TimeoutError:
-            if attempt < PNCP_MAX_RETRIES:
-                time.sleep(min(10.0, 1 + attempt))
-                continue
-            return FetchResult(
-                records=[],
-                request_completed=False,
-                http_status=None,
-                empty_confirmed=False,
-                errors=["falha de conectividade: timeout"],
-                metadata=metadata,
-            )
+    finally:
+        if close_session:
+            http.close()
 
     return FetchResult(
         records=[],
@@ -276,10 +359,17 @@ def _http_get_payload(url: str) -> tuple[Any | None, FetchResult]:
     )
 
 
-def _fetch_publication_page(request: CrawlRequest, modalidade: int, page: int) -> FetchResult:
+def _fetch_publication_page(
+    request: CrawlRequest,
+    modalidade: int,
+    page: int,
+    *,
+    session: requests.Session | None = None,
+    sleeper: Any = time.sleep,
+) -> FetchResult:
     params = _request_params(request, modalidade, page)
     url = f"{PNCP_CONSULTA_BASE}/contratacoes/publicacao?{urllib.parse.urlencode(params)}"
-    result = _http_get_json(url)
+    result = _http_get_json(url, session=session, sleeper=sleeper)
     result.metadata["params"] = params
     return result
 
@@ -433,16 +523,7 @@ def transform(raw_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
         import hashlib
 
-        content_hash_source = "|".join(
-            [
-                str(numero_controle or ""),
-                orgao_cnpj,
-                str(ano_compra or ""),
-                str(sequencial_compra or ""),
-                str(safe_date(raw.get("dataPublicacaoPncp")) or ""),
-                str(raw.get("objetoCompra") or ""),
-            ]
-        )
+        content_hash_source = json.dumps(raw, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
         content_hash = hashlib.sha256(content_hash_source.encode("utf-8")).hexdigest()
 
         transformed.append(
@@ -474,6 +555,7 @@ def transform(raw_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "source_id": numero_controle or pncp_id,
                 "ano_compra": ano_compra,
                 "sequencial_compra": sequencial_compra,
+                "raw_payload": raw,
             }
         )
     return transformed

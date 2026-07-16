@@ -709,17 +709,25 @@ def crawl_source(
             result.metadata["fetch_result"] = fetch_result.metadata
             if fetch_result.errors:
                 result.external_failures = 1
-                if not raw_records:
-                    error = "; ".join(fetch_result.errors)
-                    _finish_ingestion_run(conn, run_id, 0, 0, 0, "failed", error)
-                    _record_evidence(conn, run_id, source, "failed", error_message=error, error_code="fetch_failed")
-                    conn.close()
-                    result.status = "failed"
-                    result.error_code = "fetch_failed"
-                    result.error_message = error
-                    result.started_at = started_at.isoformat()
-                    result.completed_at = datetime.now(UTC).isoformat()
-                    return result
+                error = "; ".join(fetch_result.errors)
+                _finish_ingestion_run(conn, run_id, len(raw_records), 0, 0, "failed", error)
+                _record_evidence(
+                    conn,
+                    run_id,
+                    source,
+                    "failed",
+                    fetched=len(raw_records),
+                    error_message=error,
+                    error_code="fetch_incomplete",
+                )
+                conn.close()
+                result.fetched = len(raw_records)
+                result.status = "failed"
+                result.error_code = "fetch_incomplete"
+                result.error_message = error
+                result.started_at = started_at.isoformat()
+                result.completed_at = datetime.now(UTC).isoformat()
+                return result
         else:
             raw_records = raw_response
 
