@@ -150,3 +150,10 @@ Tentativa de **destruir** claims da sessão. Cada item: PASS / FAIL / CONCERNS c
 - Run: https://github.com/tjsasakifln/extra-consultoria/actions/runs/29576072258
 - Jobs obrigatórios: Lint, mypy, Test critical, bandit, pip-audit = **SUCCESS**
 - Test All (full suite): SKIPPED (workflow policy)
+
+
+## 16. List identity fix
+
+- Bug: covered list 107 vs commercial 116.
+- Fix: single `counts_for_coverage` → `commercial_entity_ids` → file; assert equal.
+- Verified: **116 lines == 116 numerator**, `list_identity_ok=true`.

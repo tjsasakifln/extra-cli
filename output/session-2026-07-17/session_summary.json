@@ -4,13 +4,19 @@
   "final_db_covered": 116,
   "final_pct": 10.61,
   "delta_abs": 64,
-  "delta_pct_points": 5.85,
-  "radar_total": 2735,
+  "entities_covered_lines": 116,
+  "entities_uncovered_lines": 977,
+  "list_identity_ok": true,
   "open_opportunities": 757,
   "open_engineering": 68,
   "open_with_deadline": 438,
   "go_recommendations": 14,
+  "source_presence": {
+    "ciga_dom": 79,
+    "pncp_sc": 79,
+    "sc_compras": 4
+  },
   "official_acts_total": 15738,
-  "generated_at": "2026-07-17T11:10:21.299190+00:00",
-  "adversarial_audit": "docs/ops/session-2026-07-17/ADVERSARIAL-AUDIT.md"
+  "pr": "https://github.com/tjsasakifln/extra-consultoria/pull/9",
+  "generated_at": "2026-07-17T11:20:22.128453+00:00"
 }

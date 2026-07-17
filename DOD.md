@@ -2393,108 +2393,107 @@ Mesmo com cobertura de editais baixa no raio:
 
 > **Branch:** `epic/coverage-200km-operational`  
 > **HEAD inicial:** `84249471a3c0b53ea51d038207bfe4ffc4b4e966`  
-> **Commit técnico+docs desta sessão:** `32851a1dd4da73b386cb6cbe83bf3c2d3dae4fa7`  
-> **Missão:** aumentar o numerador canônico de entidades cobertas no raio 200 km (denominador fixo **1.093**), com dados reais e claims honestos.  
-> **Evidência:** `output/session-2026-07-17/` · `coverage_canonical.json` · `COVERAGE_REPORT.md` · `session_summary.json`
+> **Commits:** `32851a1` (coleta) · `dea7a73` (comercial+audit) · `966bcbb`+ (CI stamp)  
+> **PR:** https://github.com/tjsasakifln/extra-consultoria/pull/9 · Actions run `29576072258` **SUCCESS**  
+> **Evidência:** `docs/ops/session-2026-07-17/` · `ADVERSARIAL-AUDIT.md` · `coverage_canonical.json`
 
-### 43.1 Resultado de cobertura (denominador inalterado)
+### 43.1 Resultado de cobertura (denominador inalterado = 1.093)
 
 | Métrica | Valor | Notas |
 |---------|-------|-------|
-| Baseline histórico (pré-sessão) | **52 / 1.093 (4,76%)** | Preservado; metodologia anterior |
-| Cobertura comercial headline (`commercial_opportunity_any`) | **116 / 1.093 (10,61%)** | OPEN/UPCOMING/RECENT matched |
-| Delta absoluto vs baseline | **+64 entidades** | +5,85 p.p. |
-| Loose is_covered (não-claim) | ≤125 | não usar como headline |
-| Listas nominais | cobertas + descobertas | `entities_covered.jsonl` / `entities_uncovered.jsonl` |
+| Baseline histórico (pré-sessão) | **52 / 1.093 (4,76%)** | Preservado; série histórica |
+| **Headline comercial** `commercial_opportunity_any` | **116 / 1.093 (10,61%)** | OPEN/UPCOMING/RECENT matched ao universo |
+| Delta vs baseline | **+64 entidades** | +5,85 p.p. |
+| Lista nominal cobertas | **116 linhas** | `entities_covered.jsonl` · `list_identity_ok=true` |
+| Lista nominal descobertas | **977 linhas** | `entities_uncovered.jsonl` |
+| Loose `is_covered` union (não-claim) | ~133 | **não** usar como headline |
 
-**Fórmula canônica desta sessão:**  
-`COUNT(DISTINCT entity_id WHERE is_covered AND raio_200km) / 1093`.
+**Fórmula headline:**  
+`COUNT(DISTINCT entity_id com ≥1 registro counts_for_coverage)` / `1093`  
+onde `counts_for_coverage` = match canônico + status ∈ {OPEN_OPPORTUNITY, UPCOMING_OPPORTUNITY, RECENT_NOTICE}.
 
-Fontes que entraram no numerador (atribução por `entity_coverage.source`):
+**Atribuição de fontes no conjunto comercial de 116** (uma entidade pode ter várias fontes; contagens de presença):
 
-| Fonte | Entidades com is_covered | Evidência de sessão |
-|-------|--------------------------|---------------------|
-| `pncp` | 65 | PNCP SC focado (mod. 6) + resolução CNPJ/município |
-| `dom_sc` | 62 | CIGA DOM full jul/2026 → match prefeitura/município |
-| `sc_compras` | 37 | Ano 2026 integral 2.602 (órgãos estaduais) |
-| `pcp` / `compras_gov` | 14 / 1 | pré-existentes |
+| Fonte (session) | Entidades com match comercial |
+|-----------------|-------------------------------|
+| `ciga_dom` → `dom_sc` | 79 |
+| `pncp_sc` → `pncp` | 79 |
+| `sc_compras` | 4 |
 
 ### 43.2 Volume coletado e persistido
 
-| Fonte | Modo | Período | Registros | Persistidos `official_acts` | Erros / limitações | Run ID |
-|-------|------|---------|-----------|-----------------------------|--------------------|--------|
-| CIGA DOM-SC | full + incremental | pacote `domsc-publicacoes-de-07-2026` | **10.269** (full 15 ZIPs) / 2ª onda +10k mid-month | **12.636** (acumulado) | 0 falhas de resource | `ciga-dom-20260717T104504Z-a04e1e294b` |
-| Portal Compras SC | full list-only | ano 2026 | **2.602 / 2.602** API | **2.602** | sem CNPJ/município na listagem; detail não fan-out | `sc_compras-full-20260717T104504Z-17e01aabbe` |
-| Compras SC | incremental 2ª | checkpoint | **0 novos** | — | prova de não-duplicação (empty new) | `sc_compras-incremental-20260717T105219Z-41a1f57d62` |
-| PNCP SC focado | full + retry | 14d, UF=SC, mod 6 | **330** | via coverage match (não full upsert bids) | HTTP **429** em janelas finais | `pncp-sc-20260717T105219Z-720727ae08` |
-| DOE-SC | (prévio) | 2025 sample | 500 | 500 | sem expansão bulk 2026 no CKAN | pré-sessão |
+| Fonte | Modo | Registros | Persistidos `official_acts` | Limitações | Run / artefato |
+|-------|------|-----------|-----------------------------|------------|----------------|
+| CIGA DOM | full 15 ZIPs + incr. | **10.269** | **12.636** | — | `ciga-dom-20260717T104504Z-*` |
+| Compras SC | full list + detail 200 opens | **2.602/2.602** | **2.602** | prazo via `dataEntrega` em 200 | `sc_compras-full-*` + enriched |
+| PNCP SC | UF=SC mod.6, 2 rodadas | **541** | coverage match | 429 residual parcial | `pncp-sc-*-9d6dd91153` |
+| DOE-SC | prévio | 500 | 500 | bulk 2026 ausente no CKAN | pré-sessão |
 
-**Banco `official_acts`:** **15.738** atos · dups `(source, record_hash)` = **0** · migrations 051/052 aplicadas.
+**Banco:** **15.738** atos · dups `(source,record_hash)` = **0** · migrations 051/052 applied.
 
-### 43.3 Oportunidades comerciais (radar)
+### 43.3 Oportunidades (radar live)
 
-Artefato: `output/session-2026-07-17/radar_opportunities.jsonl` (**2.820** linhas)
+Artefatos: `radar_opportunities.jsonl` + `radar_opportunities.csv` (ranking, GO/REVIEW/NO_GO, distance_km)
 
-| Status canônico | Qtd |
-|-----------------|-----|
-| OPEN_OPPORTUNITY | **784** |
-| UPCOMING_OPPORTUNITY | 8 |
-| RECENT_NOTICE | 1.931 |
-| OTHER_PROCUREMENT_ACT | 97 |
+| Indicador | Valor |
+|-----------|-------|
+| OPEN_OPPORTUNITY | **757** |
+| OPEN com prazo conhecido | **438** |
+| OPEN + engenharia | **68** |
+| Recomendação **GO** | **14** |
+| UPCOMING | (no radar JSONL) |
+| RECENT_NOTICE | restante do radar |
 
-| Filtro engenharia | Qtd |
-|-------------------|-----|
-| OPEN + setor engenharia/construção | **95** |
-| OPEN com URL/documento | **618** |
-| Setores (amostra): obras_civis, pavimentação, saneamento, manutenção predial, infra urbana | ver radar |
-
-Classificadores: `scripts/coverage/commercial_status.py`, `scripts/coverage/sector_engineering.py` · testes `tests/test_commercial_status.py` (8 PASS no subset).
+Classificadores: `commercial_status.py` (não marca “Publicado Resultado” como OPEN) · `sector_engineering.py` · testes 10 PASS.
 
 ### 43.4 Reconciliação
 
-- Sample 200: regra dominante ainda `compras_sc_id_crosswalk` (local) — **não** é número de controle PNCP oficial.  
-- **0** claim de match PNCP oficial por número de controle nesta sessão.  
-- Divergências de data na amostra: presentes; documentos frequentemente ausentes na listagem Compras SC.
+- Sample: dominante `compras_sc_id_crosswalk` (local) — **não** nº PNCP oficial.  
+- **0** claim de match PNCP oficial massivo nesta sessão.
 
 ### 43.5 Claims permitidos
 
-1. Cobertura canônica no raio **subiu de 52 para 138 / 1.093 (12,63%)** com listas nominais.  
-2. CIGA processou **ordem de grandeza superior ao smoke** (10k+ pubs; 12.636 atos CIGA no banco).  
-3. Compras SC **2.602/2.602** do totalElementos 2026 em list-only.  
-4. Radar com **784** oportunidades abertas classificadas; **95** abertas + engenharia.  
-5. Upsert de atos idempotente (0 grupos duplicados).  
-6. Classificador comercial + filtro setorial determinísticos com testes.
+1. Headline comercial **116/1.093 (10,61%)**, Δ **+64**, listas nominais com `list_identity_ok`.  
+2. CIGA em escala >> smoke (10k+ pubs; 12.636 atos).  
+3. Compras SC **2.602/2.602** do totalElementos 2026.  
+4. Radar **757** OPEN · **68** eng · **438** c/ prazo · **14** GO.  
+5. official_acts **15.738**, dups **0**.  
+6. CI remota **PASS** no PR #9.
 
 ### 43.6 Claims proibidos
 
-1. **95%** de cobertura editais/contratos.  
-2. **LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE**.  
-3. Piloto nacional PNCP 90d completo.  
-4. PNCP SC “completo” nos 14 dias (429 parcial).  
-5. Match por número PNCP oficial massivo.  
-6. Operação diária autônoma em VPS.  
-7. Que todo ato CIGA seja edital aberto (muitos são atas/homologações — filtrados no radar).
+1. 95% cobertura.  
+2. LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE.  
+3. PNCP SC 14d completo.  
+4. Match PNCP oficial massivo.  
+5. Operação diária autônoma.  
+6. **138** como headline (foi is_covered loose; **não** permitido).  
+7. **784/95** como contagens OPEN/eng (stale; live = **757/68**).  
+8. Todas as OPEN com prazo validado (só 438/757).
 
 ### 43.7 Gargalo único residual
 
-**Ainda há 955 entidades do universo 1.093 sem oportunidade/edital matchado** (87,37% descobertas). Próximo alívio: (1) enriquecer Compras SC com detail/CNPJ; (2) retomar PNCP SC com backoff após 429; (3) expandir resolução de órgãos CIGA além de prefeituras (câmaras, autarquias); (4) VPS para rotina.
+**Ainda 977/1.093 entidades sem oportunidade comercial matched (~89,4%).**  
+Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução CIGA além de prefeituras, VPS.
 
-### 43.8 Código e pipeline entregues nesta sessão
+### 43.8 Código entregue
 
-- `scripts/coverage/commercial_status.py`
-- `scripts/coverage/sector_engineering.py`
-- `scripts/coverage/session_coverage_pipeline.py`
-- `scripts/crawl/pncp_sc_focused.py`
-- `scripts/ingestion/load_official_acts_session.py` (preferência de artefato não-vazio)
-- `tests/test_commercial_status.py`
+- `scripts/coverage/commercial_status.py`  
+- `scripts/coverage/sector_engineering.py`  
+- `scripts/coverage/session_coverage_pipeline.py`  
+- `scripts/crawl/pncp_sc_focused.py`  
+- `tests/test_commercial_status.py`  
+- `docs/ops/session-2026-07-17/ADVERSARIAL-AUDIT.md`
 
-### 43.10 Correção adversarial (pós-auditoria)
+### 43.9 Correção adversarial (lista = headline)
 
-Após auditoria independente (`docs/ops/session-2026-07-17/ADVERSARIAL-AUDIT.md`):
+- Bug: `entities_covered.jsonl` tinha 107 vs numerator 116.  
+- Fix: single source of truth `counts_for_coverage` → `commercial_entity_ids` → arquivo; assert `n_cov == commercial_num`.  
+- Verificação: `list_identity_ok=true`, 116 linhas, 977 descobertas.
 
-1. **Headline comercial = 116/1.093 (10,61%)**, não 138 (is_covered loose).
-2. Classificador: `Publicado Resultado da Licitação` → RESULT (nunca OPEN).
-3. Radar: ranking + GO/REVIEW/NO_GO + CSV; 757 OPEN, 438 com prazo, 68 eng., 14 GO.
-4. Baseline com quality gates (ruff/mypy/pytest/pip-audit).
-5. CI remota: **PASS** PR #9 Actions run 29576072258 (lint/mypy/tests/bandit/pip-audit).
+### 43.10 CI
+
+- PR #9: https://github.com/tjsasakifln/extra-consultoria/pull/9  
+- Run: https://github.com/tjsasakifln/extra-consultoria/actions/runs/29576072258  
+- Lint, mypy, Test critical, bandit, pip-audit = **SUCCESS**
 

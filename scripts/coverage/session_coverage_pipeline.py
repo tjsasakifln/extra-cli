@@ -369,16 +369,19 @@ def process_sources(indexes: dict[str, Any], as_of: date) -> dict[str, Any]:
                 indexes=indexes,
             )
             is_opp_act = (cat or "") in COVERAGE_ACT_CATEGORIES
-            # Commercial coverage: only opportunity-class acts with entity match.
-            # Homologação/contrato/ata never count (comm.status filters that).
+            # Commercial coverage: commercial status OPEN/UPCOMING/RECENT + entity match.
+            # Classifier already excludes homologação/contrato as RESULT/CONTRACT.
+            # Do not require act_category alone — RECENT_NOTICE from text signal counts.
             counts_for_coverage = bool(
                 match.get("canonical_entity_id")
-                and is_opp_act
                 and comm.status in STRICT_OPPORTUNITY_STATUSES | {"RECENT_NOTICE"}
             )
             counts_for_historical_bid = bool(
                 match.get("canonical_entity_id")
-                and is_opp_act
+                and (
+                    is_opp_act
+                    or comm.status in STRICT_OPPORTUNITY_STATUSES | {"RECENT_NOTICE"}
+                )
                 and comm.status
                 not in {"NOT_RELEVANT", "CONTRACT", "AMENDMENT", "RESULT"}
             )
@@ -733,23 +736,21 @@ def compute_coverage(
             source_contribution[mid].add(r["source"])
         st = r.get("commercial", {}).get("status")
         pub = _pub_date(r)
-        if r.get("counts_for_coverage") or (
-            st in STRICT_OPPORTUNITY_STATUSES and mid
-        ):
-            entities_any_commercial.add(mid)
-        if st in STRICT_OPPORTUNITY_STATUSES:
+        # Single source of truth for commercial numerator: counts_for_coverage only.
+        # Do NOT OR with bare status (that inflated commercial vs entity lists).
+        if r.get("counts_for_coverage"):
             entities_any_commercial.add(mid)
             if pub and pub >= window_30:
                 entities_30d.add(mid)
             if pub and pub >= window_90:
                 entities_90d.add(mid)
-        if st == "OPEN_OPPORTUNITY":
+        if st == "OPEN_OPPORTUNITY" and r.get("counts_for_coverage"):
             entities_open.add(mid)
-        if r.get("sector", {}).get("sector_match"):
+        if r.get("sector", {}).get("sector_match") and r.get("counts_for_coverage"):
             entities_eng.add(mid)
             if st == "OPEN_OPPORTUNITY":
                 entities_open_eng.add(mid)
-        if r.get("url"):
+        if r.get("url") and r.get("counts_for_coverage"):
             entities_with_doc.add(mid)
 
     # DB-covered set
@@ -883,6 +884,10 @@ def compute_coverage(
         },
         "db_covered_before_or_after_update": covered_db,
         "combined_numerator": len(combined_hist),
+        "commercial_entity_ids": sorted(entities_any_commercial),
+        "commercial_source_contribution": {
+            str(eid): sorted(srcs) for eid, srcs in source_contribution.items() if eid in entities_any_commercial
+        },
         "denominator": denom_canonical,
         "denominator_live": denom_live,
     }
@@ -942,12 +947,33 @@ def write_outputs(
     paths: dict[str, str] = {}
     entity_distance = entity_distance or {}
 
-    # Headline = commercial opportunity coverage (not loose is_covered)
-    commercial_num = 0
+    # Headline = commercial opportunity coverage (not loose is_covered).
+    # Use the exact entity-id set from compute_coverage (single source of truth).
+    commercial_ids: set[int] = set(int(x) for x in (coverage.get("commercial_entity_ids") or []))
+    if not commercial_ids:
+        for met in coverage["metrics"]:
+            if met.get("name") == "commercial_opportunity_any":
+                # fallback sample only — prefer full list
+                commercial_ids = set(int(x) for x in (met.get("entity_ids_sample") or []))
+                break
+    commercial_num = len(commercial_ids)
+    # Prefer metric numerator when full id list present
     for met in coverage["metrics"]:
         if met.get("name") == "commercial_opportunity_any":
-            commercial_num = int(met.get("numerator") or 0)
+            commercial_num = int(met.get("numerator") or commercial_num)
             break
+    # Enforce identity: numerator must equal len(commercial_ids) when ids are complete
+    if coverage.get("commercial_entity_ids") is not None:
+        commercial_num = len(commercial_ids)
+        for met in coverage["metrics"]:
+            if met.get("name") == "commercial_opportunity_any":
+                met["numerator"] = commercial_num
+                met["result_pct"] = (
+                    round(commercial_num / coverage["denominator"] * 100, 2)
+                    if coverage["denominator"]
+                    else 0.0
+                )
+                met["entity_ids_full_count"] = commercial_num
     denom = coverage["denominator"]
     commercial_pct = round(commercial_num / denom * 100, 2) if denom else 0.0
 
@@ -975,6 +1001,9 @@ def write_outputs(
         "new_entities_vs_db": coverage["new_entities_vs_db"],
         "combined_numerator": coverage["combined_numerator"],
         "commercial_numerator": commercial_num,
+        "commercial_entity_ids": sorted(commercial_ids),
+        "commercial_source_contribution": coverage.get("commercial_source_contribution") or {},
+        "entities_covered_file_count": None,  # filled after write
         "denominator": denom,
         "result_pct": commercial_pct,
         "loose_combined_pct": round(
@@ -988,33 +1017,53 @@ def write_outputs(
     cov_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
     paths["coverage_canonical"] = str(cov_path)
 
-    # Commercial-covered entity list (from metrics sample + records)
-    commercial_ids: set[int] = set()
-    for r in processed["records"]:
-        if r.get("counts_for_coverage") and r.get("entity_match", {}).get("canonical_entity_id"):
-            commercial_ids.add(int(r["entity_match"]["canonical_entity_id"]))
+    # commercial_ids already built above from coverage["commercial_entity_ids"]
+    src_contrib = coverage.get("commercial_source_contribution") or {}
 
     cov_list = OUT_DIR / "entities_covered.jsonl"
     unc_list = OUT_DIR / "entities_uncovered.jsonl"
     n_cov = n_unc = 0
     with cov_list.open("w", encoding="utf-8") as fhc, unc_list.open("w", encoding="utf-8") as fhu:
-        for e in coverage["covered_entities"] + coverage["uncovered_entities"]:
+        all_entities = coverage["covered_entities"] + coverage["uncovered_entities"]
+        seen_eids: set[int] = set()
+        for e in all_entities:
             eid = int(e["entity_id"])
+            seen_eids.add(eid)
             row = dict(e)
             row["commercial_covered"] = eid in commercial_ids
             row["is_covered"] = eid in commercial_ids
             row["coverage_status"] = "covered" if eid in commercial_ids else "uncovered"
+            row["sources_session"] = src_contrib.get(str(eid)) or row.get("sources_session") or []
             if eid in commercial_ids:
                 fhc.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
                 n_cov += 1
             else:
-                row["absence_reason"] = row.get("absence_reason") or (
-                    "no_commercial_opportunity_matched"
-                )
+                row["absence_reason"] = "no_commercial_opportunity_matched"
                 fhu.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
                 n_unc += 1
+        # Safety: any commercial id not in universe rows (should be empty)
+        for eid in sorted(commercial_ids - seen_eids):
+            row = {
+                "entity_id": eid,
+                "commercial_covered": True,
+                "is_covered": True,
+                "coverage_status": "covered",
+                "sources_session": src_contrib.get(str(eid)) or [],
+                "absence_reason": None,
+            }
+            fhc.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
+            n_cov += 1
+    if n_cov != commercial_num:
+        raise RuntimeError(
+            f"entities_covered count {n_cov} != commercial_numerator {commercial_num}"
+        )
     paths["entities_covered"] = str(cov_list)
     paths["entities_uncovered"] = str(unc_list)
+    paths["entities_covered_count"] = str(n_cov)
+    # Rewrite coverage_canonical with file count identity stamp
+    payload["entities_covered_file_count"] = n_cov
+    payload["list_identity_ok"] = n_cov == commercial_num == len(commercial_ids)
+    cov_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
 
     cw_path = OUT_DIR / "entity_crosswalk.jsonl"
     seen: set[Any] = set()
