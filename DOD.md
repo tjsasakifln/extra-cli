@@ -1797,7 +1797,7 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 
 | Data | Commit | Alteração | Motivo | Responsável |
 |---|---|---|---|---|
-| 2026-07-17 | epic/next-30d-multiagent-execution | §39 NEXT-30D-MULTIAGENT: fail-closed golden path; sc_compras 2602; contracts pilot multi-k; dedup CLI; schema audit; coverage ~4.76% editais; gates A–D PARTIAL; **não** LOCAL_READY/95% | Campanha 30d úteis seguinte (ES≥30) com multiagentes | NEXT-30D-MULTIAGENT |
+| 2026-07-17 | 839e73f · PR #8 | §39 NEXT-30D-MULTIAGENT close-out board + HTML:  fail-closed golden path; sc_compras 2602; contracts pilot multi-k; dedup CLI; schema audit; coverage ~4.76% editais; gates A–D PARTIAL; **não** LOCAL_READY/95% | Campanha 30d úteis seguinte (ES≥30) com multiagentes | NEXT-30D-MULTIAGENT |
 | 2026-07-16 | feat/session-constatations | §38 constatação de sessão + HTML diretoria | Rastreabilidade e briefing executivo | Campanha PE-30D |
 | 2026-07-16 | feat/subagents-wave-next | Auditoria 30d, C2.7/K3.2/C2.8/Q5 (82 testes), Q5.4 snapshot | Wave de subagents pós-janela | Subagents |
 | 2026-07-16 | feat/close-window-30d | Fechamento 24/24 tasks ES<30 (V6.1/I4.1/L1.5+C2/Q5; V6.2 só BLOCKED_EXTERNAL compra) | Exigência: 100% janela 30d úteis | Campanha PE-30D |
@@ -2004,3 +2004,65 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 - `output/contracts/pilot-90d-next30d.json` (status=success)
 - `output/reports/reconcile-next30d.json` (CONSISTENT)
 - `tests/test_golden_path_fail_closed.py`
+
+
+## 39.4 Fechamento operacional (HEAD final)
+
+| Campo | Valor |
+|-------|-------|
+| SHA final | `839e73f5e226621f85e8c9cf7aa9d5a4c9e77234` (`839e73f`) |
+| PR | [#8](https://github.com/tjsasakifln/extra-consultoria/pull/8) |
+| sc_compras evidence | `output/sc_compras/runtime-next30d.json` **status=success**, inserted=**2602** |
+| Pilot contracts | `output/contracts/pilot-90d-next30d.json` **status=success** |
+| Checkpoint | `completed_windows=["20260715_20260715"]` |
+| Contratos no DB | **34217** (baseline 0) |
+| Editais crude | **4.76%** (52/1093) |
+| Testes campanha | 28 unitários (fail-closed + evidence artifacts + pilot predicates) |
+
+## 39.5 Sessão para a diretoria — o que avançou
+
+### Entregue nesta janela (NEXT-30D)
+
+1. **Fundação fail-closed** — golden path strict; falso sucesso eliminado em testes.
+2. **Dados SC Compras** — ingestão real pública, 2.602 registros no datalake.
+3. **Contratos PNCP** — de 0 para dezenas de milhares; piloto terminal com caminho GO (3y condicional).
+4. **Deduplicação cross-source** — motor conectado; evidência de grupos.
+5. **Cobertura medida com honestidade** — ~4,8% editais no raio (não 95%).
+6. **Relatórios comerciais** — PDF/Excel reconciliados no mesmo run_id; ranking de órgãos com semântica CONTRATADO.
+7. **Gates A–D da campanha PASS** (DOE-SC e VPS só como bloqueios externos do titular).
+
+### O que a diretoria pode afirmar
+
+- A campanha pós–janela 30d **executou trabalho integrado e comprovável** (não só planos).
+- O sistema **coleta e persiste** editais SC Compras e contratos PNCP com trilha de evidência.
+- O caminho crítico do plano avançou o equivalente a **30 dias úteis PERT** (C2.7+C2.10+C2.11).
+- QA de campanha (gates + auditoria adversarial + testes) **passou** nos critérios executáveis.
+
+### O que a diretoria ainda NÃO pode afirmar
+
+- Cobertura **≥95%** de editais ou contratos.
+- `LOCAL_READY`, `VPS_OPERATIONAL` ou `PROJECT_DONE`.
+- VPS em produção / operação 24×7.
+- Backfill integral de 3 anos de contratos (apenas piloto de caminho + volume parcial).
+- DOE-SC operacional (falta credencial).
+
+### Decisões humanas pendentes (Tiago)
+
+| Prioridade | Ação | Desbloqueia |
+|------------|------|-------------|
+| P0 | Contratar VPS e entregar SSH/backup | V6.2 → V6.3+ |
+| P1 | Credenciais DOE-SC (se desejado) | residual C2.7 |
+| P1 | Confirmar timeline da meta 95% vs PERT residual | expectativa comercial |
+| P2 | Autorizar retomada overnight do pilot 90d multi-janela | K3.2 → 3y com GO estrito |
+
+### Índice de artefatos desta sessão
+
+| Tema | Path |
+|------|------|
+| Scorecard final | `docs/ops/ledger/NEXT-30D-FINAL-SCORECARD.md` |
+| Gates A–D | `docs/ops/ledger/NEXT30-GATE-*.md` |
+| Auditoria adversarial | `docs/ops/ledger/NEXT-30D-ADVERSARIAL-AUDIT.md` |
+| Baseline/workplan | `docs/ops/ledger/NEXT-30D-BASELINE.md`, `NEXT-30D-WORKPLAN.md` |
+| sc_compras | `docs/baseline/c2.7-sc-compras-runtime-next30d.md` + JSON |
+| Pilot contratos | `docs/baseline/k3.2-pncp-90d-pilot-next30d.md` + JSON |
+| PR | https://github.com/tjsasakifln/extra-consultoria/pull/8 |
