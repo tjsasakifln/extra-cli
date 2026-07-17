@@ -1,8 +1,8 @@
 """Apply SQL migrations safely for CI and local gates.
 
 Handles CREATE INDEX CONCURRENTLY (cannot run inside a transaction block) by
-executing those statements alone under autocommit. Supports fresh-install and
-upgrade-from-snapshot paths used by the resilience gate.
+rewriting to CREATE INDEX on empty CI databases. Executes each file as a whole
+script under autocommit to preserve dollar-quoted function bodies.
 """
 
 from __future__ import annotations
@@ -26,123 +26,38 @@ def list_migrations(root: Path, *, max_num: int | None = None) -> list[Path]:
     return files
 
 
-def split_statements(sql: str) -> list[str]:
-    """Naive statement splitter that respects simple dollar-quotes and strings."""
-    statements: list[str] = []
-    buf: list[str] = []
-    i = 0
-    in_single = False
-    dollar_tag: str | None = None
-    while i < len(sql):
-        ch = sql[i]
-        if dollar_tag:
-            if sql.startswith(dollar_tag, i):
-                buf.append(dollar_tag)
-                i += len(dollar_tag)
-                dollar_tag = None
-                continue
-            buf.append(ch)
-            i += 1
-            continue
-        if in_single:
-            buf.append(ch)
-            if ch == "'" and not (i + 1 < len(sql) and sql[i + 1] == "'"):
-                in_single = False
-            elif ch == "'" and i + 1 < len(sql) and sql[i + 1] == "'":
-                buf.append("'")
-                i += 2
-                continue
-            i += 1
-            continue
-        if ch == "'":
-            in_single = True
-            buf.append(ch)
-            i += 1
-            continue
-        if ch == "$":
-            m = re.match(r"\$[A-Za-z0-9_]*\$", sql[i:])
-            if m:
-                dollar_tag = m.group(0)
-                buf.append(dollar_tag)
-                i += len(dollar_tag)
-                continue
-        if ch == ";":
-            stmt = "".join(buf).strip()
-            if stmt:
-                statements.append(stmt)
-            buf = []
-            i += 1
-            continue
-        buf.append(ch)
-        i += 1
-    tail = "".join(buf).strip()
-    if tail:
-        statements.append(tail)
-    return statements
-
-
-def normalize_statement(stmt: str, *, allow_concurrent: bool) -> str | None:
-    s = stmt.strip()
-    if not s:
-        return None
-    # Drop comment-only / empty payloads (psycopg2 rejects empty execute).
-    without_comments = re.sub(r"--[^\n]*", "", s)
-    without_comments = re.sub(r"/\*.*?\*/", "", without_comments, flags=re.DOTALL).strip()
-    if not without_comments:
-        return None
-    if re.fullmatch(r"BEGIN", without_comments, re.IGNORECASE) or re.fullmatch(
-        r"COMMIT", without_comments, re.IGNORECASE
-    ):
-        return None  # runner owns transactions
-    if not allow_concurrent and _CONCURRENTLY.search(s):
-        s = _CONCURRENTLY.sub("CREATE INDEX", s)
-    s = s.strip()
-    return s or None
+def prepare_sql(sql: str, *, allow_concurrent: bool) -> str:
+    # Runner owns transaction boundaries.
+    sql = _BEGIN.sub("", sql)
+    sql = _COMMIT.sub("", sql)
+    if not allow_concurrent:
+        sql = _CONCURRENTLY.sub("CREATE INDEX", sql)
+    return sql.strip()
 
 
 def apply_file(conn: Any, path: Path, *, allow_concurrent: bool = False) -> None:
-    sql = path.read_text(encoding="utf-8")
-    # Strip outer transaction wrappers; runner decides.
-    sql = _BEGIN.sub("", sql)
-    sql = _COMMIT.sub("", sql)
-    statements = split_statements(sql)
+    raw = path.read_text(encoding="utf-8")
+    sql = prepare_sql(raw, allow_concurrent=allow_concurrent)
+    if not sql:
+        print(f"skip_empty {path.name}", flush=True)
+        return
+    # Whole-file execute preserves dollar-quoted PL/pgSQL bodies.
+    prev = conn.autocommit
+    conn.autocommit = True
     cur = conn.cursor()
     try:
-        for raw in statements:
-            stmt = normalize_statement(raw, allow_concurrent=allow_concurrent)
-            if not stmt:
-                continue
-            if not stmt.strip():
-                continue
-            needs_autocommit = bool(_CONCURRENTLY.search(stmt))
-            if needs_autocommit:
-                # Must not be inside an open transaction.
-                prev = conn.autocommit
-                conn.autocommit = True
-                try:
-                    cur.execute(stmt)
-                finally:
-                    conn.autocommit = prev
-            else:
-                try:
-                    cur.execute(stmt)
-                except Exception as exc:
-                    # Optional extensions (e.g. vector) may be absent on minimal images.
-                    msg = str(exc).lower()
-                    if "extension" in msg and ("is not available" in msg or "does not exist" in msg):
-                        print(f"skip_optional_extension in {path.name}: {exc}", flush=True)
-                        if not conn.autocommit:
-                            conn.rollback()
-                        continue
-                    raise
-        if not conn.autocommit:
-            conn.commit()
-    except Exception:
-        if not conn.autocommit:
-            conn.rollback()
-        raise
+        try:
+            cur.execute(sql)
+        except Exception as exc:
+            msg = str(exc).lower()
+            if "extension" in msg and ("is not available" in msg or "does not exist" in msg):
+                print(f"skip_optional_extension in {path.name}: {exc}", flush=True)
+                return
+            # If multi-statement failed mid-way on optional vector types, re-raise.
+            raise
     finally:
         cur.close()
+        conn.autocommit = prev
 
 
 def apply_range(
@@ -158,7 +73,6 @@ def apply_range(
     files = [p for p in list_migrations(root, max_num=max_num) if int(p.name[:3]) >= min_num]
     applied: list[str] = []
     conn = psycopg2.connect(dsn)
-    conn.autocommit = False
     try:
         for path in files:
             apply_file(conn, path, allow_concurrent=allow_concurrent)
