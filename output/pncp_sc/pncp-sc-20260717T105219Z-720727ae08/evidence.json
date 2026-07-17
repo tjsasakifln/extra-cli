@@ -1,0 +1,49 @@
+{
+  "run_id": "pncp-sc-20260717T105219Z-720727ae08",
+  "git_sha": "84249471a3c0b53ea51d038207bfe4ffc4b4e966",
+  "git_branch": "epic/coverage-200km-operational",
+  "started_at": "2026-07-17T10:52:19.185395+00:00",
+  "completed_at": "2026-07-17T10:52:26.447755+00:00",
+  "host_id": "72aa0c75ebd3",
+  "command": "scripts.crawl.pncp_sc_focused",
+  "args": {
+    "days": 14,
+    "mode": "full",
+    "chunk_days": 2
+  },
+  "env_non_secret": {},
+  "checkpoint_path": "/mnt/d/extra consultoria/data/pncp_sc_checkpoints/checkpoint.json",
+  "checkpoint_hash": "f975d4f7bc0103da0ab08a0d41c01a294048d43769277fd300de10911d8a4a37",
+  "output_path": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T105219Z-720727ae08/contratacoes.jsonl",
+  "output_hash": "93addc966c9c0ee549e8ce874307ee1f5431097d0926156a9e61e61e359a5372",
+  "log_path": null,
+  "log_hash": null,
+  "migration_head": null,
+  "counts_before": {},
+  "counts_after": {
+    "records_written": 330,
+    "windows": 8,
+    "pages": 13,
+    "fetched": 330,
+    "new": 330,
+    "skipped_dup": 0,
+    "http_errors": 6,
+    "by_modalidade": {
+      "6": 330
+    }
+  },
+  "status": "ok",
+  "errors": [
+    "2026-07-07_2026-07-08_m6:p4:HTTP 429",
+    "2026-07-09_2026-07-10_m6:p1:HTTP 429",
+    "2026-07-11_2026-07-12_m6:p1:HTTP 429",
+    "2026-07-13_2026-07-14_m6:p1:HTTP 429",
+    "2026-07-15_2026-07-16_m6:p1:HTTP 429",
+    "2026-07-17_2026-07-17_m6:p1:HTTP 429"
+  ],
+  "criteria": {},
+  "claims_allowed": [],
+  "claims_forbidden": [],
+  "source": "pncp_sc",
+  "live_fetch": true
+}

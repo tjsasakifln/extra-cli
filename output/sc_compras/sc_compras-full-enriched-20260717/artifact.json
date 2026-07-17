@@ -1,0 +1,8 @@
+{
+  "run_id": "sc_compras-full-enriched-20260717",
+  "source": "sc_compras",
+  "mode": "full_enriched_deadlines",
+  "records": 2602,
+  "open_detail_enriched": 200,
+  "note": "dataEntrega mapped as data_encerramento when dataEncerramento null; past deadlines reclassified by commercial classifier"
+}

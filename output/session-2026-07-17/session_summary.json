@@ -1,0 +1,22 @@
+{
+  "baseline": "52/1093 (4.76%)",
+  "headline_metric": "commercial_opportunity_any",
+  "final_db_covered": 116,
+  "final_pct": 10.61,
+  "delta_abs": 64,
+  "entities_covered_lines": 116,
+  "entities_uncovered_lines": 977,
+  "list_identity_ok": true,
+  "open_opportunities": 757,
+  "open_engineering": 68,
+  "open_with_deadline": 438,
+  "go_recommendations": 14,
+  "source_presence": {
+    "ciga_dom": 79,
+    "pncp_sc": 79,
+    "sc_compras": 4
+  },
+  "official_acts_total": 15738,
+  "pr": "https://github.com/tjsasakifln/extra-consultoria/pull/9",
+  "generated_at": "2026-07-17T11:20:22.128453+00:00"
+}

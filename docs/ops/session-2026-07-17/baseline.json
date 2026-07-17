@@ -1,0 +1,45 @@
+{
+  "session_date": "2026-07-17",
+  "generated_at": "2026-07-17T11:09:34.741000+00:00",
+  "head_sha": "c75c7369e12d24ef689a16c11b553ca52d1e8e13",
+  "branch": "epic/coverage-200km-operational",
+  "database": "pncp_datalake@127.0.0.1:5433",
+  "counts": {
+    "official_acts": 15738,
+    "by_source": {
+      "ciga_dom": 12636,
+      "dados_abertos_sc": 500,
+      "sc_compras": 2602
+    },
+    "duplicate_groups": 0,
+    "entities_covered_is_covered": 116,
+    "commercial_numerator": 116,
+    "commercial_pct": 10.61,
+    "radar_rows": 2735
+  },
+  "migrations": [
+    {
+      "version": "051",
+      "status": "applied"
+    },
+    {
+      "version": "052",
+      "status": "applied"
+    }
+  ],
+  "quality_gates": {
+    "ruff_exit": 0,
+    "mypy_exit": 0,
+    "bandit_note": "B310 medium on urllib HTTPS PNCP (nosec documented)",
+    "pip_audit": "No known vulnerabilities found",
+    "pytest_commercial": "10 passed",
+    "log_path": "/tmp/grok-goal-e35148c70f2c/implementer/quality_gates.txt"
+  },
+  "artifacts": {
+    "coverage_canonical": "output/session-2026-07-17/coverage_canonical.json",
+    "radar_jsonl": "output/session-2026-07-17/radar_opportunities.jsonl",
+    "radar_csv": "output/session-2026-07-17/radar_opportunities.csv",
+    "entities_covered": "output/session-2026-07-17/entities_covered.jsonl"
+  },
+  "baseline_historical_52_1093": true
+}

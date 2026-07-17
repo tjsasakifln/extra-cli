@@ -1,0 +1,44 @@
+{
+  "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+  "git_sha": "c75c7369e12d24ef689a16c11b553ca52d1e8e13",
+  "git_branch": "epic/coverage-200km-operational",
+  "started_at": "2026-07-17T11:08:00.810745+00:00",
+  "completed_at": "2026-07-17T11:08:49.526058+00:00",
+  "host_id": "72aa0c75ebd3",
+  "command": "scripts.crawl.pncp_sc_focused",
+  "args": {
+    "days": 7,
+    "mode": "incremental",
+    "chunk_days": 1
+  },
+  "env_non_secret": {},
+  "checkpoint_path": "/mnt/d/extra consultoria/data/pncp_sc_checkpoints/checkpoint.json",
+  "checkpoint_hash": "f1c66bc494bdf7525fe4bbd4428928fd8fb6fc30c536cd4caa04fa38a9a3a0fb",
+  "output_path": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T110800Z-9d6dd91153/contratacoes.jsonl",
+  "output_hash": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+  "log_path": null,
+  "log_hash": null,
+  "migration_head": null,
+  "counts_before": {},
+  "counts_after": {
+    "records_written": 541,
+    "windows": 8,
+    "pages": 16,
+    "fetched": 541,
+    "new": 541,
+    "skipped_dup": 0,
+    "http_errors": 1,
+    "by_modalidade": {
+      "6": 541
+    }
+  },
+  "status": "ok",
+  "errors": [
+    "2026-07-12_2026-07-12_m6:p1:JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+  ],
+  "criteria": {},
+  "claims_allowed": [],
+  "claims_forbidden": [],
+  "source": "pncp_sc",
+  "live_fetch": true
+}

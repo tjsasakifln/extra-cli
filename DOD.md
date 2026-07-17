@@ -2387,3 +2387,113 @@ Mesmo com cobertura de editais baixa no raio:
 - HTML: `extra-consultoria-plano-executivo.html` (painel “Trabalho financiado”)  
 - Repositório: https://github.com/tjsasakifln/extra-consultoria (`main`)
 
+---
+
+## 43. Sessão operacional — cobertura 200 km (2026-07-17)
+
+> **Branch:** `epic/coverage-200km-operational`  
+> **HEAD inicial:** `84249471a3c0b53ea51d038207bfe4ffc4b4e966`  
+> **Commits:** `32851a1` (coleta) · `dea7a73` (comercial+audit) · `966bcbb`+ (CI stamp)  
+> **PR:** https://github.com/tjsasakifln/extra-consultoria/pull/9 · Actions run `29576072258` **SUCCESS**  
+> **Evidência:** `docs/ops/session-2026-07-17/` · `ADVERSARIAL-AUDIT.md` · `coverage_canonical.json`
+
+### 43.1 Resultado de cobertura (denominador inalterado = 1.093)
+
+| Métrica | Valor | Notas |
+|---------|-------|-------|
+| Baseline histórico (pré-sessão) | **52 / 1.093 (4,76%)** | Preservado; série histórica |
+| **Headline comercial** `commercial_opportunity_any` | **116 / 1.093 (10,61%)** | OPEN/UPCOMING/RECENT matched ao universo |
+| Delta vs baseline | **+64 entidades** | +5,85 p.p. |
+| Lista nominal cobertas | **116 linhas** | `entities_covered.jsonl` · `list_identity_ok=true` |
+| Lista nominal descobertas | **977 linhas** | `entities_uncovered.jsonl` |
+| Loose `is_covered` union (não-claim) | ~133 | **não** usar como headline |
+
+**Fórmula headline:**  
+`COUNT(DISTINCT entity_id com ≥1 registro counts_for_coverage)` / `1093`  
+onde `counts_for_coverage` = match canônico + status ∈ {OPEN_OPPORTUNITY, UPCOMING_OPPORTUNITY, RECENT_NOTICE}.
+
+**Atribuição de fontes no conjunto comercial de 116** (uma entidade pode ter várias fontes; contagens de presença):
+
+| Fonte (session) | Entidades com match comercial |
+|-----------------|-------------------------------|
+| `ciga_dom` → `dom_sc` | 79 |
+| `pncp_sc` → `pncp` | 79 |
+| `sc_compras` | 4 |
+
+### 43.2 Volume coletado e persistido
+
+| Fonte | Modo | Registros | Persistidos `official_acts` | Limitações | Run / artefato |
+|-------|------|-----------|-----------------------------|------------|----------------|
+| CIGA DOM | full 15 ZIPs + incr. | **10.269** | **12.636** | — | `ciga-dom-20260717T104504Z-*` |
+| Compras SC | full list + detail 200 opens | **2.602/2.602** | **2.602** | prazo via `dataEntrega` em 200 | `sc_compras-full-*` + enriched |
+| PNCP SC | UF=SC mod.6, 2 rodadas | **541** | coverage match | 429 residual parcial | `pncp-sc-*-9d6dd91153` |
+| DOE-SC | prévio | 500 | 500 | bulk 2026 ausente no CKAN | pré-sessão |
+
+**Banco:** **15.738** atos · dups `(source,record_hash)` = **0** · migrations 051/052 applied.
+
+### 43.3 Oportunidades (radar live)
+
+Artefatos: `radar_opportunities.jsonl` + `radar_opportunities.csv` (ranking, GO/REVIEW/NO_GO, distance_km)
+
+| Indicador | Valor |
+|-----------|-------|
+| OPEN_OPPORTUNITY | **757** |
+| OPEN com prazo conhecido | **438** |
+| OPEN + engenharia | **68** |
+| Recomendação **GO** | **14** |
+| UPCOMING | (no radar JSONL) |
+| RECENT_NOTICE | restante do radar |
+
+Classificadores: `commercial_status.py` (não marca “Publicado Resultado” como OPEN) · `sector_engineering.py` · testes 10 PASS.
+
+### 43.4 Reconciliação
+
+- Sample: dominante `compras_sc_id_crosswalk` (local) — **não** nº PNCP oficial.  
+- **0** claim de match PNCP oficial massivo nesta sessão.
+
+### 43.5 Claims permitidos
+
+1. Headline comercial **116/1.093 (10,61%)**, Δ **+64**, listas nominais com `list_identity_ok`.  
+2. CIGA em escala >> smoke (10k+ pubs; 12.636 atos).  
+3. Compras SC **2.602/2.602** do totalElementos 2026.  
+4. Radar **757** OPEN · **68** eng · **438** c/ prazo · **14** GO.  
+5. official_acts **15.738**, dups **0**.  
+6. CI remota **PASS** no PR #9.
+
+### 43.6 Claims proibidos
+
+1. 95% cobertura.  
+2. LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE.  
+3. PNCP SC 14d completo.  
+4. Match PNCP oficial massivo.  
+5. Operação diária autônoma.  
+6. **138** como headline (foi is_covered loose; **não** permitido).  
+7. **784/95** como contagens OPEN/eng (stale; live = **757/68**).  
+8. Todas as OPEN com prazo validado (só 438/757).
+
+### 43.7 Gargalo único residual
+
+**Ainda 977/1.093 entidades sem oportunidade comercial matched (~89,4%).**  
+Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução CIGA além de prefeituras, VPS.
+
+### 43.8 Código entregue
+
+- `scripts/coverage/commercial_status.py`  
+- `scripts/coverage/sector_engineering.py`  
+- `scripts/coverage/session_coverage_pipeline.py`  
+- `scripts/crawl/pncp_sc_focused.py`  
+- `tests/test_commercial_status.py`  
+- `docs/ops/session-2026-07-17/ADVERSARIAL-AUDIT.md`
+
+### 43.9 Correção adversarial (lista = headline)
+
+- Bug: `entities_covered.jsonl` tinha 107 vs numerator 116.  
+- Fix: single source of truth `counts_for_coverage` → `commercial_entity_ids` → arquivo; assert `n_cov == commercial_num`.  
+- Verificação: `list_identity_ok=true`, 116 linhas, 977 descobertas.
+
+### 43.10 CI
+
+- PR #9: https://github.com/tjsasakifln/extra-consultoria/pull/9  
+- Run: https://github.com/tjsasakifln/extra-consultoria/actions/runs/29576072258  
+- Lint, mypy, Test critical, bandit, pip-audit = **SUCCESS**
+
