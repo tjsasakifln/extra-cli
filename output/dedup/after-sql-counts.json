@@ -1,0 +1,41 @@
+{
+  "dedup_rows": 5,
+  "dedup_groups": 2,
+  "groups_detail": [
+    {
+      "dedup_group_id": "0d32eaa5-b3c7-4a35-a19b-da1ff3192afc",
+      "source": "pncp",
+      "source_id": "next30d-pncp-fixture-1",
+      "is_canonical": true,
+      "opportunity_id": 407
+    },
+    {
+      "dedup_group_id": "0d32eaa5-b3c7-4a35-a19b-da1ff3192afc",
+      "source": "pcp",
+      "source_id": "next30d-pcp-fixture-1",
+      "is_canonical": false,
+      "opportunity_id": 408
+    },
+    {
+      "dedup_group_id": "0d32eaa5-b3c7-4a35-a19b-da1ff3192afc",
+      "source": "sc_compras",
+      "source_id": "next30d-sc-fixture-1",
+      "is_canonical": false,
+      "opportunity_id": 409
+    },
+    {
+      "dedup_group_id": "af77194a-3560-40fa-9f80-f1ea15de2ff5",
+      "source": "pncp",
+      "source_id": "SYNTH-DEDUP-NEXT30D-PNCP-001",
+      "is_canonical": true,
+      "opportunity_id": 422
+    },
+    {
+      "dedup_group_id": "af77194a-3560-40fa-9f80-f1ea15de2ff5",
+      "source": "transparencia_sc",
+      "source_id": "SYNTH-DEDUP-NEXT30D-TRANS-001",
+      "is_canonical": false,
+      "opportunity_id": 423
+    }
+  ]
+}

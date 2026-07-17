@@ -1,0 +1,41 @@
+{
+  "run_id": "dedup-20260717-001408",
+  "timestamp": "2026-07-17T00:14:08.377986+00:00",
+  "dry_run": false,
+  "seed_synthetic": false,
+  "dsn_host": "127.0.0.1:5433/pncp_datalake",
+  "before": {
+    "dedup_rows": 3,
+    "dedup_groups": 1,
+    "active_opportunities": 10,
+    "opportunities_by_source": {
+      "test_batch": 5,
+      "pncp": 2,
+      "pcp": 1,
+      "sc_compras": 1,
+      "transparencia_sc": 1
+    }
+  },
+  "engine_stats": {
+    "total_ops": 10,
+    "groups_found": 2,
+    "duplicates": 5,
+    "inserted": 5
+  },
+  "after": {
+    "dedup_rows": 5,
+    "dedup_groups": 2,
+    "active_opportunities": 10,
+    "opportunities_by_source": {
+      "test_batch": 5,
+      "pncp": 2,
+      "pcp": 1,
+      "sc_compras": 1,
+      "transparencia_sc": 1
+    }
+  },
+  "delta_dedup_rows": 2,
+  "delta_dedup_groups": 1,
+  "outcome": "success",
+  "note": "Cross-source groups written or detected"
+}
