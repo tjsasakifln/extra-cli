@@ -1,0 +1,76 @@
+{
+  "report": "commercial-sample-sc",
+  "audience": "Extra Construtora / consultoria B2G SC",
+  "generated_at": "2026-07-17T01:25:59.526355+00:00",
+  "confidence": "low_to_medium",
+  "coverage": {
+    "editais_crude_pct": 4.76,
+    "covered_200km": 52,
+    "editais_denominator": 1093,
+    "methodology_note": "Cobertura bruta = órgãos/municípios cobertos no recorte 200km sobre denominador documentado; NÃO é 95% DoD."
+  },
+  "freshness": {
+    "artifact": "output/readiness/freshness-gate.json",
+    "all_critical_fresh": false,
+    "failing_sources": [
+      "pncp",
+      "contracts"
+    ],
+    "generated_at": "2026-07-16T01:01:47.721723+00:00"
+  },
+  "contracts_pilot": {
+    "status": "partial",
+    "go_no_go_3y": "NO-GO",
+    "go_no_go_path": "GO",
+    "path_proof_status": "success",
+    "path_proof_days": 1,
+    "full_90d": "not_completed",
+    "totals_path_or_session": {
+      "fetched": 6169,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "pages": 13,
+      "page_errors": 0,
+      "windows_ok": 1,
+      "windows_failed": 0,
+      "windows_skipped_resume": 0,
+      "note": "totals reflect path_proof clean window; full 90d national not finished"
+    },
+    "db_snapshot_in_artifact": {
+      "pncp_supplier_contracts_count": 42216,
+      "min_data_publicacao": "2021-08-26",
+      "max_data_publicacao": "2026-12-16",
+      "note": "cumulative ingest from path_proof + partial national runs"
+    }
+  },
+  "opportunities": {
+    "note": "Lista de abertas exige PNCP editais frescos + ranking; freshness atual indica fontes críticas sem last_success_at em artefato.",
+    "open_sample": [],
+    "ranking_available": false
+  },
+  "db_sample": {
+    "available": false,
+    "reason": "no DSN"
+  },
+  "claims_allowed": [
+    "Path proof de 1 dia de contratos PNCP foi demonstrado em artefato partial.",
+    "Cobertura bruta de editais permanece da ordem de poucos pontos percentuais (~4.76%).",
+    "Existem dezenas de milhares de contratos persistidos por runs parciais/cumulativos.",
+    "CKAN Dados SC e CIGA expõem Action API pública sem token (descoberta em sessão)."
+  ],
+  "claims_forbidden": [
+    "Universo completo de editais SC coberto",
+    "Piloto nacional 90d de contratos concluído",
+    "GO para backfill 3 anos não supervisionado",
+    "VPS operacional",
+    "CONTRATOS_95 / editais 95%"
+  ],
+  "disclaimers": [
+    "Cobertura bruta de editais ~4.76% — amostra incompleta; não use como universo exaustivo de SC.",
+    "Piloto de contratos PNCP status=partial; backfill nacional 90d/3y NÃO autorizado.",
+    "Fontes críticas sem prova de freshness: pncp, contracts",
+    "Datas em pncp_supplier_contracts.data_publicacao podem refletir dataAssinatura histórica (semântica legada) — não interpretar MIN/MAX como cobertura da janela de coleta.",
+    "VPS/infra remota não deve ser tratada como operacional sem evidência."
+  ]
+}
