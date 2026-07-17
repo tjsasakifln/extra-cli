@@ -141,8 +141,10 @@ class TestGapReport:
                 cnpj="123",
                 natureza_juridica="prefeitura",
                 municipio="X",
-                access_status="accessible",
-                next_action="done",
+                access_status="collected",  # only collected/verified/operational close gaps
+                next_action="monitor",
+                current_blocker="none",
+                last_success_at="2026-07-17T00:00:00+00:00",
             ),
             EntitySourceRecord(
                 canonical_id="2",
@@ -154,11 +156,26 @@ class TestGapReport:
                 next_action="probe",
                 current_blocker="no_api",
             ),
+            EntitySourceRecord(
+                canonical_id="3",
+                razao_social="C",
+                cnpj="789",
+                natureza_juridica="prefeitura",
+                municipio="Z",
+                access_status="mapped",
+                next_action="ingest_ciga_dom_publications_for_municipio",
+                current_blocker="none",  # must be derived — never bare none in gaps
+                collection_strategy="ciga_ckan_shared_municipio",
+            ),
         ]
         rows = gap_rows(recs)
-        assert len(rows) == 1
-        assert rows[0]["canonical_id"] == "2"
-        assert rows[0]["blocker_class"] == "no_api"
+        assert len(rows) == 2
+        by_id = {r["canonical_id"]: r for r in rows}
+        assert "1" not in by_id
+        assert by_id["2"]["blocker_class"] == "no_api"
+        assert by_id["3"]["blocker_class"] != "none"
+        assert by_id["3"]["blocker_class"] == "pending_collection"
+        assert by_id["3"]["cause"] == "pending_collection"
 
 
 @pytest.mark.unit
@@ -193,9 +210,13 @@ class TestAcquisitionStrategies:
         )
         assert summary["local_hits"] == 1
         assert summary["updated"] == 1
-        assert rec.access_status == "accessible"
+        # Offline local index hit maps path only — NOT operational accessible/collected
+        assert rec.access_status == "mapped"
+        assert rec.current_blocker == "pending_live_verification"
+        assert rec.last_success_at is None
         assert rec.external_ids.get("cnpj14") == "83169623000110"
         assert any(e.get("type") == "pncp_orgao_probe" for e in rec.evidences)
+        assert any(e.get("outcome") == "local_hit_index_only" for e in rec.evidences)
 
     def test_pncp_orgao_probe_records_miss_evidence(self) -> None:
         rec = EntitySourceRecord(
@@ -266,6 +287,8 @@ class TestAcquisitionStrategies:
         assert summary["entities_linked"] == 2
         assert recs[0].access_status == "mapped"
         assert recs[1].access_status == "mapped"
+        assert recs[0].current_blocker == "pending_collection"
+        assert recs[0].last_success_at is None  # path known ≠ operational success
         assert "ciga_ckan" in recs[0].plataformas
         assert "ciga_ckan" in recs[1].plataformas
         assert recs[0].diario_oficial

@@ -3,17 +3,18 @@
   "expected_entities": 1093,
   "mapped_or_better": 605,
   "mapped_pct": 55.35,
-  "operational": 105,
-  "operational_pct": 9.61,
+  "operational": 0,
+  "operational_pct": 0.0,
   "by_status": {
-    "mapped": 500,
-    "unknown": 488,
-    "accessible": 105
+    "mapped": 605,
+    "unknown": 488
   },
   "by_blocker": {
-    "none": 692,
+    "pending_collection": 483,
     "credential": 264,
-    "fragmented": 137
+    "fragmented": 137,
+    "pending_live_verification": 105,
+    "none": 104
   },
   "by_strategy": {
     "ciga_ckan_shared_municipio": 483,
@@ -69,7 +70,7 @@
   "with_portal_transparencia": 269,
   "with_portal_institucional": 398,
   "with_diario_oficial": 556,
-  "avg_mapping_confidence": 0.5002,
+  "avg_mapping_confidence": 0.4939,
   "registry_path": "/mnt/d/extra consultoria/data/entity_source_registry.jsonl",
   "summary_path": "/mnt/d/extra consultoria/data/entity_source_registry_summary.json"
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-17T12:24:53.704164+00:00",
+  "generated_at": "2026-07-17T12:32:06.251627+00:00",
   "as_of": "2026-07-17",
   "denominator": {
     "value": 1093,
@@ -63,14 +63,14 @@
       "kind": "coverage",
       "label": "Operational source coverage",
       "status": "READY",
-      "numerator": 105,
+      "numerator": 0,
       "denominator": 1093,
-      "pct": 9.61,
+      "pct": 0.0,
       "formula": "entities with ≥1 official source: mapped + accessible + collected + normalized + reconciled + verified within SLA + recent evidence / denominator",
       "target_pct": 95.0,
-      "reason": "entity_source_registry_operational_statuses",
+      "reason": "entity_source_registry_strict_operational",
       "limitations": [
-        "From entity_source_registry access_status in {accessible,collected,operational,fresh,verified}; registry_rows=1093. Mapped-only does NOT count. Full SLA chain (normalized+reconciled+verified within SLA) still partial."
+        "Operational = access_status in {collected,verified,operational} with last_success_at and non-dry-run evidence. accessible_only_excluded=0; dry_run_rejected=0; registry_rows=1093. Mapped/accessible ≠ §3.2 pipeline."
       ],
       "sample_size": null,
       "field_breakdown": null,

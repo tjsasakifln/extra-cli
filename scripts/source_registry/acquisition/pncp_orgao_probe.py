@@ -278,7 +278,8 @@ def probe_pncp_orgaos(
                 "sample_count": local.get("sample_count"),
                 "sources": local.get("sources"),
             }
-            # Local evidence of PNCP presence → at least mapped/accessible
+            # Local index hit proves historical raw artifact presence only.
+            # Does NOT count as operational coverage (no live collect/normalize/reconcile/verify).
             rec.external_ids = dict(rec.external_ids or {})
             if cnpj14:
                 rec.external_ids["cnpj14"] = cnpj14
@@ -286,13 +287,16 @@ def probe_pncp_orgaos(
             if "pncp" not in rec.plataformas:
                 rec.plataformas = list(rec.plataformas) + ["pncp"]
             rec.integration_type = "api_json"
-            rec.access_status = "accessible" if (local.get("sample_count") or 0) >= 1 else "mapped"
+            rec.access_status = "mapped"
             rec.collection_strategy = "pncp_monitor_by_cnpj"
-            rec.current_blocker = "none"
-            rec.next_action = "schedule_pncp_incremental_for_orgao"
-            rec.mapping_confidence = min(1.0, max(rec.mapping_confidence, 0.75))
-            rec.last_success_at = attempt["attempted_at"]
-            attempt["outcome"] = "local_hit"
+            rec.current_blocker = "pending_live_verification"
+            rec.next_action = (
+                "run_live_pncp_orgao_probe_with_network; then schedule_incremental; "
+                "do_not_count_offline_index_as_operational"
+            )
+            rec.mapping_confidence = min(1.0, max(rec.mapping_confidence, 0.65))
+            # Explicitly do NOT set last_success_at on offline local index hits
+            attempt["outcome"] = "local_hit_index_only"
 
         api_result = None
         if use_network and cnpj14 and len(_digits(cnpj14)) == 14:
@@ -305,19 +309,22 @@ def probe_pncp_orgaos(
             }
             if api_result.get("ok"):
                 stats["api_hits"] += 1
+                # Live API reachability → accessible only (still need collect+reconcile for operational)
                 rec.access_status = "accessible"
-                rec.last_success_at = attempt["attempted_at"]
-                rec.mapping_confidence = min(1.0, max(rec.mapping_confidence, 0.9))
+                rec.last_success_at = None  # success of probe ≠ collected pipeline
+                rec.last_attempt_at = attempt["attempted_at"]
+                rec.current_blocker = "pending_collection"
+                rec.next_action = "run_pncp_incremental_collect_normalize_reconcile_for_orgao"
+                rec.mapping_confidence = min(1.0, max(rec.mapping_confidence, 0.85))
                 if api_result.get("razao_social") and not rec.nome_fantasia:
                     rec.nome_fantasia = api_result["razao_social"]
-                attempt["outcome"] = "api_hit"
+                attempt["outcome"] = "api_reachable"
             else:
                 if api_result.get("error") and "http" not in str(api_result.get("error")):
                     stats["api_errors"] += 1
                 else:
                     stats["api_misses"] += 1
-                # Keep local_hit status if we had one; else mark failed attempt
-                if attempt["outcome"] != "local_hit":
+                if attempt["outcome"] not in {"local_hit_index_only", "local_hit"}:
                     attempt["outcome"] = "api_miss"
                     rec.access_status = rec.access_status if rec.access_status != "unknown" else "failed"
                     rec.current_blocker = rec.current_blocker or "no_api"
@@ -346,9 +353,8 @@ def probe_pncp_orgaos(
         }
         rec.evidences = list(rec.evidences or []) + [evidence]
         rec.last_attempt_at = attempt["attempted_at"]
-        if attempt["outcome"] in {"local_hit", "api_hit"}:
+        if attempt["outcome"] in {"local_hit_index_only", "local_hit", "api_reachable", "api_hit"}:
             stats["updated"] += 1
-            # ensure by_id points to same object (already does — in-place)
             _ = by_id.get(rec.canonical_id)
         attempts.append(attempt)
 

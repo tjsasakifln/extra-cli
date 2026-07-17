@@ -23,12 +23,62 @@ def _is_gap(record: EntitySourceRecord) -> bool:
     return record.access_status not in OPERATIONAL_STATUSES
 
 
+def derive_blocker_class(record: EntitySourceRecord) -> str:
+    """Never emit bare 'none' for a gap — every gap must have a cause class."""
+    raw = (record.current_blocker or "").strip().lower()
+    if raw and raw not in {"none", "null", "n/a", ""}:
+        return raw
+
+    status = (record.access_status or "").lower()
+    strategy = (record.collection_strategy or "").lower()
+    next_action = (record.next_action or "").lower()
+    plats = " ".join(record.plataformas or []).lower()
+
+    if status in {"blocked", "failed"}:
+        return "no_api"
+    if "credential" in next_action or "doe_sc" in strategy or "dom_sc" in strategy and "ciga" not in strategy:
+        if "credential" in strategy or "doe" in strategy:
+            return "credential"
+    if "credential" in (record.current_blocker or ""):
+        return "credential"
+    if "rate" in next_action or "429" in next_action:
+        return "rate_limited"
+    if "captcha" in next_action:
+        return "captcha"
+    if "javascript" in next_action or "selenium" in next_action or "js" in strategy:
+        return "javascript"
+    if "pdf" in strategy or "pdf" in next_action:
+        return "pdf"
+    if "pending_live" in raw or "local_hit" in next_action or "offline" in next_action:
+        return "pending_live_verification"
+    if "pending_collection" in next_action or "ingest_" in next_action or "collect" in next_action:
+        return "pending_collection"
+    if "reconcile" in next_action:
+        return "awaiting_reconciliation"
+    if "ciga" in strategy or "shared" in strategy:
+        return "pending_collection"
+    if "pncp" in strategy:
+        return "pending_live_verification"
+    if "sc_compras" in strategy or "tce" in strategy:
+        return "pending_collection"
+    if status in {"mapped", "accessible"}:
+        return "pending_collection"
+    if status in {"unknown", "source_not_identified"}:
+        return "fragmented" if not plats else "pending_collection"
+    return "fragmented"
+
+
 def gap_rows(records: list[EntitySourceRecord]) -> list[dict[str, Any]]:
     """Build gap row dicts for non-operational entities."""
     rows: list[dict[str, Any]] = []
     for r in records:
         if not _is_gap(r):
             continue
+        blocker = derive_blocker_class(r)
+        next_action = r.next_action or (
+            f"execute strategy={r.collection_strategy or 'multi_source_discovery'}; "
+            f"resolve blocker={blocker}"
+        )
         rows.append(
             {
                 "canonical_id": r.canonical_id,
@@ -40,8 +90,9 @@ def gap_rows(records: list[EntitySourceRecord]) -> list[dict[str, Any]]:
                 "ibge_code": r.ibge_code,
                 "entity_type": r.natureza_juridica,
                 "access_status": r.access_status,
-                "blocker_class": r.current_blocker or "none",
-                "next_action": r.next_action,
+                "blocker_class": blocker,
+                "cause": blocker,
+                "next_action": next_action,
                 "priority": r.priority,
                 "strategy": r.collection_strategy,
                 "plataformas": r.plataformas,

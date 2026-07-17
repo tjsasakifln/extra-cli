@@ -84,6 +84,7 @@ def _section_new_open(
                        data_abertura, ranking_score
                 FROM opportunity_intel
                 WHERE is_active = TRUE
+                  AND COALESCE(source, '') <> 'test_batch'
                   AND status_canonico IN ('open', 'upcoming')
                   AND (
                     ingested_at >= NOW() - (%s || ' hours')::interval
@@ -139,6 +140,7 @@ def _section_near_deadline(
                        COALESCE(data_encerramento, data_abertura) AS prazo
                 FROM opportunity_intel
                 WHERE is_active = TRUE
+                  AND COALESCE(source, '') <> 'test_batch'
                   AND status_canonico IN ('open', 'upcoming')
                   AND COALESCE(data_encerramento, data_abertura) IS NOT NULL
                   AND COALESCE(data_encerramento, data_abertura)::date
@@ -186,6 +188,7 @@ def _section_review(conn: Any | None, pg_err: str | None) -> SectionResult:
                        ranking, ranking_score, status_canonico, source
                 FROM opportunity_intel
                 WHERE is_active = TRUE
+                  AND COALESCE(source, '') <> 'test_batch'
                   AND ranking = 'REVIEW'
                 ORDER BY ranking_score DESC NULLS LAST
                 LIMIT 30
@@ -380,7 +383,7 @@ def _section_expiring(conn: Any | None, pg_err: str | None) -> SectionResult:
                     """
                     SELECT numero_controle_pncp AS contrato_id,
                            orgao_nome, nome_fornecedor AS fornecedor_nome,
-                           objeto_contrato, valor_global AS valor_contrato,
+                           objeto_contrato, valor_total AS valor_contrato,
                            data_fim_vigencia AS data_fim_contrato,
                            (data_fim_vigencia - CURRENT_DATE) AS dias_ate_fim,
                            municipio

@@ -40,11 +40,16 @@ BLOCKER_CATEGORIES: tuple[str, ...] = (
     "fragmented",
     "credential",
     "not_applicable",
+    "pending_collection",
+    "pending_live_verification",
+    "awaiting_reconciliation",
+    "dry_run_index_only",
     "none",
 )
 
-# Statuses considered operationally covered (gap report excludes these).
-OPERATIONAL_STATUSES: frozenset[str] = frozenset({"accessible", "collected"})
+# Operationally covered ONLY after collect+normalize+reconcile+verify evidence.
+# `accessible` alone (e.g. offline index hit / HEAD 200) is NOT operational coverage.
+OPERATIONAL_STATUSES: frozenset[str] = frozenset({"collected", "verified", "operational"})
 
 
 # ---------------------------------------------------------------------------

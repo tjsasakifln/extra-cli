@@ -132,19 +132,19 @@ def expand_ciga_by_municipio(
             rec.evidences = list(rec.evidences or []) + [evidence]
             rec.last_attempt_at = ts
 
-            # Upgrade status: shared portal is a real monitoring path
+            # Shared portal is a real *monitoring path* (mapped), not operational coverage.
+            # Operational requires collect+normalize+reconcile+verify of publications.
             if rec.access_status in {"unknown", "source_not_identified", "failed"}:
                 rec.access_status = "mapped"
-                rec.current_blocker = "none"
-                rec.next_action = "ingest_ciga_dom_publications_for_municipio"
+                rec.current_blocker = "pending_collection"
+                rec.next_action = "ingest_ciga_dom_publications_for_municipio_then_reconcile"
                 rec.mapping_confidence = min(1.0, max(rec.mapping_confidence, 0.65))
-                rec.last_success_at = ts
+                # Do NOT set last_success_at — path known ≠ collection succeeded
                 updated += 1
             elif rec.access_status == "mapped":
-                rec.next_action = "ingest_ciga_dom_publications_for_municipio"
-                rec.current_blocker = (
-                    rec.current_blocker if rec.current_blocker not in {None, "no_api", "fragmented"} else "none"
-                )
+                rec.next_action = "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+                if rec.current_blocker in {None, "none", "no_api", "fragmented"}:
+                    rec.current_blocker = "pending_collection"
                 updated += 1
             entities_linked += 1
 

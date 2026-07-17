@@ -959,19 +959,16 @@ def compute_operational_source_coverage(
     now = as_of or datetime.now(UTC)
     limitations: list[str] = []
 
-    # 0) Entity source registry — preferred when present (honest access_status)
+    # 0) Entity source registry — ONLY collected/verified/operational with non-dry-run evidence.
+    # `accessible` from offline index hits is NOT operational (§3.2 full pipeline).
     reg_path = Path(registry_path) if registry_path else DEFAULT_REGISTRY_PATH
     if reg_path.exists():
-        operational_statuses = {
-            "accessible",
-            "collected",
-            "operational",
-            "fresh",
-            "verified",
-        }
+        operational_statuses = {"collected", "verified", "operational"}
         try:
             num = 0
             total = 0
+            dry_run_false_positives = 0
+            accessible_only = 0
             with reg_path.open(encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
@@ -980,21 +977,41 @@ def compute_operational_source_coverage(
                     total += 1
                     row = json.loads(line)
                     st = str(row.get("access_status") or "").lower()
-                    if st in operational_statuses:
-                        num += 1
+                    if st == "accessible":
+                        accessible_only += 1
+                    if st not in operational_statuses:
+                        continue
+                    # Reject dry_run / offline-only promotions
+                    evidences = row.get("evidences") or []
+                    if any(
+                        isinstance(e, dict)
+                        and (e.get("dry_run") is True or e.get("use_network") is False)
+                        and e.get("type") in {"pncp_orgao_probe", "ciga_municipio_expand"}
+                        for e in evidences
+                    ) and not any(
+                        isinstance(e, dict)
+                        and e.get("type") in {"collect_success", "reconcile_success", "coverage_evidence"}
+                        for e in evidences
+                    ):
+                        dry_run_false_positives += 1
+                        continue
+                    if not row.get("last_success_at"):
+                        continue
+                    num += 1
             if total > 0:
                 limitations.append(
-                    f"From entity_source_registry access_status in "
-                    f"{{accessible,collected,operational,fresh,verified}}; "
-                    f"registry_rows={total}. Mapped-only does NOT count. "
-                    "Full SLA chain (normalized+reconciled+verified within SLA) still partial."
+                    "Operational = access_status in {collected,verified,operational} "
+                    "with last_success_at and non-dry-run evidence. "
+                    f"accessible_only_excluded={accessible_only}; "
+                    f"dry_run_rejected={dry_run_false_positives}; registry_rows={total}. "
+                    "Mapped/accessible ≠ §3.2 pipeline."
                 )
                 return _ready(
                     metric_id,
                     num,
                     denominator,
                     limitations=limitations,
-                    reason="entity_source_registry_operational_statuses",
+                    reason="entity_source_registry_strict_operational",
                 )
         except (OSError, json.JSONDecodeError) as exc:
             limitations.append(f"registry_read_error: {type(exc).__name__}: {exc}")

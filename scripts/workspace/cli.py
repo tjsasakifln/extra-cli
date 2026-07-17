@@ -80,7 +80,7 @@ def cmd_opportunities(args: argparse.Namespace) -> int:
         return 0
 
     try:
-        conditions = ["is_active = TRUE"]
+        conditions = ["is_active = TRUE", "COALESCE(source, '') <> 'test_batch'"]
         params: list[Any] = []
 
         if args.status:
@@ -191,12 +191,73 @@ def cmd_dossier(args: argparse.Namespace) -> int:
                 )
             if rows:
                 row = rows[0]
+                fatores = row.get("ranking_fatores") or row.get("ranking_reasons") or row.get("explain_json")
+                regras = row.get("ranking_regras")
+                qualidade = row.get("qualidade_fatores")
+                # Build explainable surface even when structured columns sparse
+                positive: list[str] = []
+                negative: list[str] = []
+                missing = list(row.get("dados_ausentes") or [])
+                if isinstance(fatores, dict):
+                    for k, v in fatores.items():
+                        try:
+                            if float(v) >= 0:
+                                positive.append(f"{k}={v}")
+                            else:
+                                negative.append(f"{k}={v}")
+                        except (TypeError, ValueError):
+                            positive.append(f"{k}={v}")
+                elif isinstance(fatores, list):
+                    positive.extend(str(x) for x in fatores)
+                # Deterministic fallback explain when ranking_fatores empty
+                if not positive and not negative:
+                    if row.get("status_canonico") in {"open", "upcoming"}:
+                        positive.append("status_canonico_open_or_upcoming")
+                    if row.get("source") and row.get("source") != "test_batch":
+                        positive.append(f"official_source={row.get('source')}")
+                    if row.get("valor_estimado"):
+                        positive.append(f"valor_estimado_present={row.get('valor_estimado')}")
+                    if row.get("link_edital") or row.get("source_url"):
+                        positive.append("official_url_present")
+                    obj = (row.get("objeto") or "").lower()
+                    eng_terms = ("reforma", "manutenc", "edific", "predial", "constru", "obra")
+                    if any(t in obj for t in eng_terms):
+                        positive.append("objeto_matches_engineering_terms")
+                    else:
+                        negative.append("objeto_no_engineering_terms_detected")
+                    if row.get("ranking_score") in (None, 0, 0.0):
+                        negative.append("ranking_score_zero_or_null_needs_recalibration")
+                if row.get("ranking") == "NO_GO":
+                    negative.append("ranking=NO_GO")
+                if not row.get("orgao_nome"):
+                    missing.append("orgao_nome")
+                if not row.get("valor_estimado"):
+                    missing.append("valor_estimado")
+                if not row.get("data_encerramento"):
+                    missing.append("data_encerramento")
+                if not row.get("numero_processo") and not row.get("numero_edital"):
+                    missing.append("processo_or_edital_number")
+                if (row.get("source") or "") == "test_batch":
+                    negative.append("source=test_batch (synthetic fixture — not production signal)")
                 explain = {
                     "ranking": row.get("ranking"),
                     "ranking_score": row.get("ranking_score"),
-                    "ranking_reasons": row.get("ranking_reasons") or row.get("explain_json"),
-                    "data_confidence": row.get("data_confidence"),
-                    "client_fit": row.get("client_fit"),
+                    "ranking_confianca": row.get("ranking_confianca") or "LOW",
+                    "ranking_fatores": fatores,
+                    "ranking_regras": regras,
+                    "qualidade_score": row.get("qualidade_score"),
+                    "qualidade_fatores": qualidade,
+                    "positive_factors": positive,
+                    "negative_factors": negative,
+                    "missing_fields": missing,
+                    "status_canonico": row.get("status_canonico"),
+                    "status_motivo": row.get("status_motivo"),
+                    "source": row.get("source"),
+                    "explain_mode": "structured_columns" if fatores else "deterministic_fallback",
+                    "disclaimer": (
+                        "Recomendação explicável a partir de colunas ranking_* ou fallback determinístico; "
+                        "não substitui julgamento humano. GO exige fit de perfil Extra."
+                    ),
                 }
         except Exception as exc:  # noqa: BLE001
             err = f"{err or ''}; query: {exc}"
@@ -513,7 +574,7 @@ def cmd_competitors(args: argparse.Namespace) -> int:
                     conn,
                     """
                     SELECT numero_controle_pncp, orgao_nome, objeto_contrato,
-                           valor_global, data_assinatura, data_fim_vigencia,
+                           valor_total, data_assinatura, data_fim_vigencia,
                            municipio, uf, ni_fornecedor, nome_fornecedor
                     FROM pncp_supplier_contracts
                     WHERE is_active IS TRUE
@@ -544,12 +605,12 @@ def cmd_competitors(args: argparse.Namespace) -> int:
                         SELECT ni_fornecedor AS fornecedor_cnpj,
                                MAX(nome_fornecedor) AS fornecedor_nome,
                                COUNT(*) AS qtd_contratos,
-                               SUM(valor_global) AS valor_total_contratos,
-                               AVG(valor_global) AS ticket_medio_contrato
+                               SUM(valor_total) AS valor_total_contratos,
+                               AVG(valor_total) AS ticket_medio_contrato
                         FROM pncp_supplier_contracts
                         WHERE is_active IS TRUE AND ni_fornecedor IS NOT NULL
                         GROUP BY ni_fornecedor
-                        ORDER BY SUM(valor_global) DESC NULLS LAST
+                        ORDER BY SUM(valor_total) DESC NULLS LAST
                         LIMIT %s
                         """,
                         (args.limit,),
@@ -611,7 +672,7 @@ def cmd_expiring_contracts(args: argparse.Namespace) -> int:
                         """
                         SELECT numero_controle_pncp AS contrato_id,
                                orgao_nome, nome_fornecedor AS fornecedor_nome,
-                               objeto_contrato, valor_global AS valor_contrato,
+                               objeto_contrato, valor_total AS valor_contrato,
                                data_fim_vigencia AS data_fim_contrato,
                                (data_fim_vigencia - CURRENT_DATE) AS dias_ate_fim,
                                municipio
@@ -677,7 +738,8 @@ def cmd_prices(args: argparse.Namespace) -> int:
                 print("NOT_READY — use --keywords 'reforma,predial' ou --category")
             return 0
 
-        wheres = ["is_active IS TRUE", "valor_global > 1"]
+        # Schema real: valor_total (não valor_global) em pncp_supplier_contracts
+        wheres = ["is_active IS TRUE", "valor_total IS NOT NULL", "valor_total > 1"]
         params: list[Any] = []
         for kw in kws:
             wheres.append("objeto_contrato ILIKE %s")
@@ -687,13 +749,47 @@ def cmd_prices(args: argparse.Namespace) -> int:
             params.append(args.uf.upper())
 
         sql = f"""
-            SELECT valor_global
+            SELECT valor_total AS valor_contratado,
+                   objeto_contrato,
+                   orgao_nome,
+                   data_assinatura,
+                   'CONTRATADO'::text AS valor_semantica
             FROM pncp_supplier_contracts
             WHERE {" AND ".join(wheres)}
             ORDER BY data_assinatura DESC NULLS LAST
             LIMIT 1000
         """  # noqa: S608
-        rows = pg_query(conn, sql, tuple(params))
+        try:
+            rows = pg_query(conn, sql, tuple(params))
+        except Exception as exc:  # noqa: BLE001 — try opportunity_intel estimated fallback
+            # Fallback: valor_estimado from opportunities (explicit semantics ESTIMADO)
+            try:
+                oi_wheres = ["is_active IS TRUE", "valor_estimado IS NOT NULL", "valor_estimado > 1", "source <> 'test_batch'"]
+                oi_params: list[Any] = []
+                for kw in kws:
+                    oi_wheres.append("objeto ILIKE %s")
+                    oi_params.append(f"%{kw}%")
+                oi_sql = f"""
+                    SELECT valor_estimado AS valor_contratado, objeto AS objeto_contrato,
+                           orgao_nome, data_publicacao AS data_assinatura,
+                           'ESTIMADO'::text AS valor_semantica
+                    FROM opportunity_intel
+                    WHERE {" AND ".join(oi_wheres)}
+                    LIMIT 1000
+                """  # noqa: S608
+                rows = pg_query(conn, oi_sql, tuple(oi_params))
+                err = f"contracts query failed ({exc}); using opportunity_intel ESTIMADO"
+            except Exception as exc2:  # noqa: BLE001
+                payload = {
+                    "status": "NOT_READY",
+                    "reason": f"price panel query failed: {exc}; fallback: {exc2}",
+                    "keywords": kws,
+                }
+                if args.json:
+                    print(json.dumps(payload, indent=2, ensure_ascii=False))
+                else:
+                    print(f"NOT_READY — {payload['reason']}")
+                return 0
     finally:
         conn.close()
 
@@ -702,6 +798,7 @@ def cmd_prices(args: argparse.Namespace) -> int:
             "status": "NOT_READY",
             "reason": "Sem contratos para as keywords informadas",
             "keywords": kws,
+            "semantics": "valor_total (CONTRATADO) when available",
         }
         if args.json:
             print(json.dumps(payload, indent=2, ensure_ascii=False))
@@ -709,7 +806,11 @@ def cmd_prices(args: argparse.Namespace) -> int:
             print("NOT_READY — sem amostra de preços.")
         return 0
 
-    valores = sorted(float(r["valor_global"]) for r in rows if r.get("valor_global") is not None)
+    valores = sorted(
+        float(r["valor_contratado"])
+        for r in rows
+        if r.get("valor_contratado") is not None
+    )
     n = len(valores)
 
     def pct(p: float) -> float:
@@ -806,7 +907,7 @@ def cmd_contracts(args: argparse.Namespace) -> int:
                     """
                     SELECT numero_controle_pncp AS contrato_id,
                            orgao_nome, nome_fornecedor AS fornecedor_nome,
-                           objeto_contrato, valor_global AS valor_contrato,
+                           objeto_contrato, valor_total AS valor_contrato,
                            data_assinatura AS data_inicio_contrato,
                            data_fim_vigencia AS data_fim_contrato,
                            municipio, uf
