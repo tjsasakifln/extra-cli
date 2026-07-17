@@ -776,7 +776,7 @@ svg {
   </style>
   <div class="ep-shell">
     <header class="ep-top">
-      <div class="ep-brand"><div class="ep-mark">EX</div><div><div class="ep-eyebrow">Extra Construtora · Consultoria B2G</div><div class="ep-title">Plano mestre de entrega, controle e aceite</div><div class="ep-sub">Atualização diretoria 17/07/2026 · Sessão multiagente §41 · HEAD técnico `8b8138a` · DOE/DOM/Compras ingestão real · 2964 atos no DB · Editais ~4.76% · Meta 95% e VPS ainda abertas</div></div></div>
+      <div class="ep-brand"><div class="ep-mark">EX</div><div><div class="ep-eyebrow">Extra Construtora · Consultoria B2G</div><div class="ep-title">Plano mestre de entrega, controle e aceite</div><div class="ep-sub">Briefing diretoria 17/07/2026 · Trabalho financiado §42 · Ingestão real SC · 2.964 atos no banco · Editais no raio 4,76% · Meta 95% e VPS ainda abertas · Claims honestos</div></div></div>
       <div class="ep-actions"><button class="ep-btn" id="ep-copy-summary">Copiar resumo</button><button class="ep-btn" id="ep-print">Imprimir / PDF</button></div>
     </header>
     <nav class="ep-nav" aria-label="Seções do planejamento">
@@ -801,11 +801,33 @@ svg {
         </div>
         <div class="ep-section-head"><div><div class="ep-kicker">Roadmap</div><div class="ep-section-title">Oito frentes com gates explícitos</div></div><div class="ep-section-note" id="ep-roadmap-date"></div></div>
         <div class="ep-phases" id="ep-phase-cards"></div>
-        <div class="ep-section-head"><div><div class="ep-kicker">Linha de base executiva</div><div class="ep-section-title">O que pode e o que ainda não pode ser afirmado</div></div></div>
+        <div class="ep-section-head"><div><div class="ep-kicker">Trabalho financiado · §42</div><div class="ep-section-title">O que o investimento técnico já comprou para a Extra Construtora</div></div><div class="ep-section-note">DoD §42 · Evidência em <code>docs/ops/session-2026-07-17/</code> · Não é LOCAL_READY</div></div>
         <div class="ep-grid">
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Pode afirmar</div><p class="ep-meta">Sessão §41 (HEAD técnico <code>8b8138a</code>): ingestão <strong>live</strong> DOE-SC (500 rows CSV 2025) + DOM/CIGA (2454 pubs, 223 munis) + Compras SC incremental; <strong>2964</strong> atos em <code>official_acts</code>; classificador 25 cats; reconciliação 30 pares via <code>compras_sc_id_crosswalk</code> (sc-*, não nº PNCP); 0 pncp_number_exact no smoke; coverage multi-fonte com 4,76% histórico intacto; CI critical 300 PASS; relatório comercial com 14 disclaimers.</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Não pode afirmar ainda</div><p class="ep-meta">Piloto nacional 90d = success; backfill 3 anos; cobertura ≥95% editais/contratos; LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE; 2602 como universo multi-ano; 74,92% munis CIGA como meta DoD de editais; reconciliação por nº PNCP oficial; sc-* como se fosse PNCP; VPS contratada.</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Próxima decisão</div><p class="ep-meta"><strong>Gargalo #1:</strong> cobertura de editais no raio 200 km (~4,76% — 52/1093). Priorizar backfill multi-fonte de editais/contratos + freshness PNCP + documentos. Secundário: pilot 90d supervisionado; VPS; resource DOE 2026 quando o CKAN publicar.</p></div>
+          <div class="ep-card ep-span-12"><div class="ep-alert"><strong>Em uma frase</strong><span>O financiamento até 17/07/2026 <em>não</em> comprou plataforma 95% pronta e autônoma. Comprou <strong>fundação auditável de inteligência B2G em SC</strong>: fontes públicas reais coletadas, persistidas e classificadas, métricas com denominador, CI verde e relatório comercial com disclaimers — base para a wave de cobertura de editais.</span></div></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">Atos no banco</div><div class="ep-value">2.964</div><div class="ep-meta">official_acts · CIGA 2.454 · DOE 500 · Compras 10 · dups 0</div></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">DOM municipal (amostra)</div><div class="ep-value">221/295</div><div class="ep-meta">74,9% munis SC com pub na amostra CIGA · <em>não é meta 95% de editais</em></div></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">Editais no raio 200 km</div><div class="ep-value">4,76%</div><div class="ep-meta">52 / 1.093 entes · <strong>gargalo #1</strong> · histórico preservado</div></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">Qualidade</div><div class="ep-value">CI ✓</div><div class="ep-meta">300 testes críticos PASS · GitHub Actions verde em main</div></div>
+          <div class="ep-card ep-span-6"><div class="ep-kicker">Portfolio entregue (financiado)</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
+            <li>Cadeia de evidência fail-closed (run_id, hashes, claims).</li>
+            <li>Datas de contrato com semântica (migration 051).</li>
+            <li>Modelo de atos oficiais multi-fonte (migration 052).</li>
+            <li>Ingestão live DOE-SC (CKAN) + DOM-SC (CIGA) + Compras SC.</li>
+            <li>Classificador de 25 categorias de atos (sem LLM obrigatório).</li>
+            <li>Reconciliação inicial honesta + métricas com denominador.</li>
+            <li>Relatório comercial com disclaimers automáticos.</li>
+          </ul></div>
+          <div class="ep-card ep-span-6"><div class="ep-kicker">Ainda não financiado / não prometido</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
+            <li>Cobertura ≥95% editais ou contratos no raio.</li>
+            <li>LOCAL_READY · VPS_OPERATIONAL · PROJECT_DONE.</li>
+            <li>Piloto PNCP 90d nacional concluído · backfill 3 anos.</li>
+            <li>Operação autônoma diária em produção.</li>
+            <li>Reconciliação ampla DOE/DOM ↔ nº PNCP oficial.</li>
+            <li>DOE bulk 2026 no catálogo CKAN (ainda termina em 2025).</li>
+          </ul></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Pode afirmar</div><p class="ep-meta">Ingestão <strong>live</strong> multi-fonte SC; <strong>2.964</strong> atos no PG local; classificador em produção assistida; 30 pares <code>compras_sc_id_crosswalk</code> (não nº PNCP); 4,76% editais no raio intacto; 221/295 munis na amostra CIGA; CI verde; relatório comercial com 14 disclaimers.</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Não pode afirmar ainda</div><p class="ep-meta">95% de cobertura; piloto 90d = success; 3 anos backfill; LOCAL_READY/VPS/PROJECT_DONE; 2602 como universo multi-ano; 74,9% munis como meta de editais; sc-* como se fosse PNCP.</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Decisão pedida</div><p class="ep-meta"><strong>Recomendado (A):</strong> investir a próxima onda em cobertura de editais no raio (4,76%→95%). <strong>Paralelo (C):</strong> VPS quando houver budget. Detalhe em DoD §42.7.</p></div>
         </div>
       </section>
 
@@ -813,41 +835,41 @@ svg {
       <section class="ep-panel" data-panel="next30d-board" id="ep-next30d-session">
         <div class="ep-section-head">
           <div>
-            <div class="ep-kicker">Sessão 2026-07-17 · Multiagente §41 — ingestão real multi-fonte</div>
-            <div class="ep-section-title">Fontes públicas coletadas, persistidas, classificadas e reconciliadas (amostra)</div>
+            <div class="ep-kicker">Painel de prestação de contas · DoD §41–§42</div>
+            <div class="ep-section-title">Trabalho financiado com evidência — pronto para a diretoria</div>
           </div>
-          <div class="ep-section-note">Fonte: DoD §41 · SHA técnico <code>8b8138a</code> · Sem 95% / LOCAL_READY / PROJECT_DONE / 90d full success</div>
+          <div class="ep-section-note">SHA técnico <code>8b8138a</code> · correção <code>3bf1a3b</code> · Sem 95% / LOCAL_READY / PROJECT_DONE / 90d full success</div>
         </div>
         <div class="ep-grid">
-          <div class="ep-card ep-span-3"><div class="ep-kicker">SHA base → técnico</div><p class="ep-meta"><code>0a2806f</code> → <code>8b8138a</code><br>docs de fechamento no commit documental seguinte</p></div>
-          <div class="ep-card ep-span-3"><div class="ep-kicker">Banco official_acts</div><p class="ep-meta"><strong>2964</strong> atos upsertados<br>CIGA 2454 · DOE 500 · Compras 10 · dups 0</p></div>
-          <div class="ep-card ep-span-3"><div class="ep-kicker">DOM / CIGA smoke</div><p class="ep-meta">Pacote <code>domsc-publicacoes-de-07-2026</code><br>223 observados · <strong>221/295</strong> no universo IBGE · live_fetch=true</p></div>
-          <div class="ep-card ep-span-3"><div class="ep-kicker">Editais (raio) histórico</div><p class="ep-meta"><strong>4.76%</strong><br>52/1093 entes — <em>não sobrescrito</em></p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">DOE-SC Dados Abertos</div><p class="ep-meta">CSV 2025 (7,3 MB) · 500 rows smoke · SHA-256 raw · classificador · sem resource 2026 no catálogo CKAN</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Compras SC + reconciliação</div><p class="ep-meta">Incremental + checkpoint · meta API 2602 (ano) · <strong>30</strong> matches <code>compras_sc_id_crosswalk</code> (mirror sc-* em pncp_raw_bids; <strong>não</strong> nº PNCP) · docs ausentes na listagem</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Qualidade / CI</div><p class="ep-meta">Critical suite <strong>300 passed / 5 skipped</strong> · ruff/mypy/bandit PASS · migrations 051+052 no PG local · classifier 25 cats</p></div>
-          <div class="ep-card ep-span-6"><div class="ep-kicker">Pode dizer à diretoria</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
-            <li>Fontes públicas SC deixaram de ser só discovery: há download, raw zone, classificação e DB.</li>
-            <li>Inteligência comercial de amostra (oportunidades abertas, atos recentes, disclaimers automáticos).</li>
-            <li>Municípios com publicação na amostra CIGA ~75% do SC — sinal operacional, <strong>não</strong> meta DoD 95% de editais.</li>
-            <li>Meta 95%, VPS e piloto 90d completo permanecem abertos — claims honestos.</li>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">Linha do tempo de commits</div><p class="ep-meta"><code>0a2806f</code> → <code>8b8138a</code> (código)<br>→ <code>3bf1a3b</code> (claims honestos)<br>→ docs §42 em main</p></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">Banco official_acts</div><p class="ep-meta"><strong>2.964</strong> atos upsertados<br>CIGA 2.454 · DOE 500 · Compras 10 · dups 0<br>Migrations 051 + 052 aplicadas</p></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">DOM / CIGA (live)</div><p class="ep-meta">Pacote <code>domsc-publicacoes-de-07-2026</code><br><strong>2.454</strong> pubs · <strong>221/295</strong> munis<br><code>live_fetch=true</code></p></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">Editais (raio) — gargalo</div><p class="ep-meta"><strong>4,76%</strong><br>52 / 1.093 entes<br><em>denominador canônico DoD</em></p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">DOE-SC Dados Abertos</div><p class="ep-meta">CSV 2025 (7,3 MB) · 500 rows smoke · raw imutável SHA-256 · classificado · catálogo CKAN ainda sem resource 2026</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Compras SC + reconciliação</div><p class="ep-meta">Incremental + checkpoint · meta API 2.602 (ano) · <strong>30</strong> matches <code>compras_sc_id_crosswalk</code> · <strong>0</strong> nº PNCP real no smoke · docs incompletos na listagem</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Qualidade / CI</div><p class="ep-meta">Critical <strong>300 passed / 5 skipped</strong> · ruff/mypy/bandit/pip-audit · Actions success em <code>main</code> · classifier 25 categorias</p></div>
+          <div class="ep-card ep-span-6"><div class="ep-kicker">Valor imediato para a Extra</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
+            <li>Radar municipal de atos (homologações, atas, extratos) em amostra CIGA.</li>
+            <li>Radar estadual bulk DOE processável e classificado (piloto).</li>
+            <li>Oportunidades Compras SC com links oficiais (amostra).</li>
+            <li>Relatório comercial que <em>não esconde</em> baixa cobertura nem gaps.</li>
           </ul></div>
-          <div class="ep-card ep-span-6"><div class="ep-kicker">Ainda depende / próximo gargalo</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
-            <li><strong>P0:</strong> subir cobertura de editais no raio 200 km (4,76% → meta 95%).</li>
-            <li>Expandir reconciliação DOE/DOM com identificadores estruturados (processo/CNPJ).</li>
-            <li>Pilot 90d PNCP multi-janela supervisionado + freshness PNCP.</li>
-            <li><strong>V6.2</strong> — contratar VPS; resource DOE 2026 quando publicado no CKAN.</li>
+          <div class="ep-card ep-span-6"><div class="ep-kicker">Próximo investimento (recomendação)</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
+            <li><strong>A — Cobertura (P0):</strong> editais no raio 4,76% → trajetória 95%.</li>
+            <li><strong>C — Infra:</strong> VPS (V6.2) para rotina diária fora do laptop.</li>
+            <li>Pilot 90d PNCP supervisionado + freshness (secundário a A).</li>
+            <li>Reconciliação DOE/DOM com processo/CNPJ estruturado.</li>
           </ul></div>
-          <div class="ep-card ep-span-12"><div class="ep-kicker">Evidências para auditoria (sessão §41)</div><p class="ep-meta">
-            <code>DOD.md</code> §41 ·
+          <div class="ep-card ep-span-12"><div class="ep-kicker">Evidências para auditoria (técnica e de investimento)</div><p class="ep-meta">
+            <code>DOD.md</code> §41–§42 ·
             <code>docs/ops/session-2026-07-17/</code> ·
-            <code>db/migrations/052_official_acts.sql</code> ·
+            <code>db/migrations/051_*.sql</code> · <code>052_official_acts.sql</code> ·
             <code>scripts/crawl/dados_abertos_sc_crawler.py</code> ·
             <code>scripts/crawl/ciga_dom_publications.py</code> ·
             <code>scripts/crawl/sc_compras_crawler.py</code> ·
             <code>scripts/matching/official_acts_reconcile.py</code> ·
-            <code>output/reconciliation/</code> ·
-            <code>output/coverage/multi_source-latest.md</code>
+            <code>output/coverage/multi_source-latest.md</code> ·
+            GitHub Actions em <code>main</code>
           </p></div>
         </div>
       </section>

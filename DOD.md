@@ -1797,6 +1797,10 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 
 | Data | Commit | Alteração | Motivo | Responsável |
 |---|---|---|---|---|
+| 2026-07-17 | aca4408→HEAD · main | §42 briefing executivo trabalho financiado + HTML diretoria; consolida §40–§41 com claims honestos | Apresentação à Extra Construtora | Diretoria / Principal Eng |
+| 2026-07-17 | 3bf1a3b · main | fix adversarial: sc-* ≠ pncp_number; 052 em `_migrations`; CIGA 221/295 + live_fetch | Auditoria independente | Multiagent §41 fix |
+| 2026-07-17 | 8b8138a · main | §41 ingestão real DOE/DOM/Compras, official_acts 2964, recon, métricas, CI | Execução multiagente live | Multiagent §41 |
+| 2026-07-17 | cce2f3d · main | docs §41 DOD/HTML sessão multi-fonte | Fechamento documental | Multiagent §41 |
 | 2026-07-17 | 0628e36 · main | §40 sessão multiagente: fundação run_id/evidence, pilot 90d fail-closed, datas 051, CKAN SC/CIGA/Compras/PNCP smokes, CI, relatório comercial; **não** 90d full / 95% / VPS | Execução real + auditoria de evidência | Multiagent execution |
 | 2026-07-17 | 839e73f · PR #8 | §39 NEXT-30D-MULTIAGENT close-out board + HTML:  fail-closed golden path; sc_compras 2602; contracts pilot multi-k; dedup CLI; schema audit; coverage ~4.76% editais; gates A–D PARTIAL; **não** LOCAL_READY/95% | Campanha 30d úteis seguinte (ES≥30) com multiagentes | NEXT-30D-MULTIAGENT |
 | 2026-07-16 | feat/session-constatations | §38 constatação de sessão + HTML diretoria | Rastreabilidade e briefing executivo | Campanha PE-30D |
@@ -2177,8 +2181,8 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 
 > **HEAD inicial:** `0a2806f8dcaf56377680c640390f73e27cd1d393`  
 > **SHA técnico (código/evidência):** `8b8138aa05fff521f329b8c00221acd0bb147e24`  
-> **SHA correção adversarial (recon/metrics/052):** `3bf1a3ba877defe43fcf3c6623af70b4c3a91475`
-> **SHA documental final (HEAD da publicação):** ver último commit em `main` após este fechamento; SHA técnico estável abaixo.  
+> **SHA correção adversarial (recon/metrics/052):** `3bf1a3ba877defe43fcf3c6623af70b4c3a91475`  
+> **HEAD de publicação desta rodada (pré-briefing):** `aca44086d84de3148d2295ce9ab20d42a8c14c73`  
 > **Branch:** `main`  
 > **Natureza:** execução real (live_fetch) + persistência local + testes. **Não** declara LOCAL_READY, 95%, 90d pilot success, VPS ou PROJECT_DONE.
 
@@ -2285,4 +2289,100 @@ Após revisão independente, foram corrigidos:
 - Bundle evidência: `docs/ops/session-2026-07-17/`
 - HTML diretoria: `extra-consultoria-plano-executivo.html` (painel sessão §41)
 - Commit técnico: `8b8138a`
+
+---
+
+## 42. Briefing executivo — trabalho financiado (diretoria Extra Construtora)
+
+> **Data de corte:** 2026-07-17  
+> **Branch:** `main`  
+> **HEAD pré-publicação deste briefing:** `aca4408` · técnico de ingestão `8b8138a` · correção de claims `3bf1a3b`  
+> **Público:** diretoria / sponsor da consultoria B2G  
+> **Tom:** o que o investimento técnico **já comprou** (evidência), o que **ainda não** pode ser prometido, e o **único gargalo** que trava a operação diária.
+
+### 42.1 Em uma frase
+
+O financiamento até esta data **não comprou** “plataforma 95% pronta e autônoma”, mas **comprou** uma **fundação auditável de inteligência B2G em SC**: fontes públicas reais coletadas, persistidas, classificadas, com métricas honestas, CI verde e relatório comercial com disclaimers — pronta para a próxima wave de cobertura de editais.
+
+### 42.2 O que o investimento já entregou (portfolio comprovado)
+
+| # | Capacidade financiada | Estado | Prova material |
+|---|----------------------|--------|----------------|
+| 1 | **Cadeia de evidência** (run_id, hash, git, claims fail-closed) | Operacional em pilotos/crawls | `scripts/crawl/run_evidence.py`, testes de artefato |
+| 2 | **Semântica de datas de contrato** (assinatura ≠ publicação) | Migration 051 aplicada | `db/migrations/051_*.sql` |
+| 3 | **Modelo unificado de atos oficiais** (DOE/DOM multi-fonte) | Migration 052 + 2964 atos no PG local | `db/migrations/052_official_acts.sql`, load session |
+| 4 | **Ingestão real DOE-SC** (Dados Abertos / CKAN CSV) | Smoke live 500 rows + raw SHA-256 | `dados_abertos_sc_crawler`, artefatos smoke |
+| 5 | **Ingestão real DOM-SC** (CIGA público, sem token) | Smoke live **2454** pubs · **221/295** munis no universo | `ciga_dom_publications`, summary resselado |
+| 6 | **Portal Compras SC incremental** | Smoke/incremental + checkpoint + run_id | `sc_compras_crawler` |
+| 7 | **Classificador de atos de contratação** | 25 categorias, corpus, sem LLM obrigatório | `act_classifier.py` |
+| 8 | **Reconciliação inicial multi-fonte** | 30 pares `compras_sc_id_crosswalk` (honesto: não é nº PNCP) | `official_acts_reconcile` |
+| 9 | **Métricas de cobertura com denominador** | 4,76% histórico preservado + métricas multi-fonte | `multi_source_coverage` |
+| 10 | **Relatório comercial com disclaimers** | JSON/HTML/CSV/XLSX amostra real | `docs/ops/session-2026-07-17/commercial-*` |
+| 11 | **Qualidade automatizada** | CI GitHub **verde** (lint, mypy, tests, bandit, pip-audit) | Actions em `main` |
+| 12 | **Governança DoD + HTML diretoria** | §38–§42; painel executivo atualizado | `DOD.md`, `extra-consultoria-plano-executivo.html` |
+
+### 42.3 Resultados quantificados (mesma data de corte)
+
+| Indicador | Valor | Como ler |
+|-----------|-------|----------|
+| Atos oficiais no banco local | **2.964** | CIGA 2.454 + DOE 500 + Compras 10 (smoke/sessão) |
+| Publicações DOM (amostra jul/2026) | **2.454** | 2 ZIPs do pacote mensal mais recente |
+| Municípios SC com pub na amostra | **221 / 295 (74,9%)** | Sinal de rede municipal — **não** é meta DoD de editais |
+| Editais no raio 200 km (histórico) | **4,76% (52 / 1.093)** | **Gargalo comercial #1** — denominador canônico |
+| Contratos PNCP no DB (estoque) | ~63k total · ~21k SC | Base histórica; freshness PNCP ainda falha no gate |
+| Matches reconciliação smoke | **30** crosswalk Compras↔espelho local | **0** match por número de controle PNCP real |
+| Suite crítica local | **300 passed / 5 skipped** | Mesma família da CI |
+| CI GitHub Actions | **success** nos jobs default | Não confundir com “produto pronto” |
+
+### 42.4 Antes × agora (para a diretoria)
+
+| Antes (pré-ondas recentes) | Agora (pós §40–§41) |
+|---------------------------|---------------------|
+| Fontes SC em grande parte “descobertas” ou smoke frágil | Download real, raw zone, checkpoint, classificação, load no banco |
+| Datas de contrato misturadas | Colunas semânticas + migration 051 |
+| Sem modelo canônico de ato oficial multi-fonte | Tabelas `official_acts*` + upsert idempotente |
+| Claims de piloto fáceis de inflar | Fail-closed: partial → NO-GO; sc-* **não** vira PNCP |
+| Cobertura só como “número solto” | Numerador/denominador/fórmula/limitações por métrica |
+| HTML com narrativa genérica | Painel §41/§42 com o que pode / não pode afirmar |
+
+### 42.5 O que o financiamento **ainda não** comprou (não negociável)
+
+1. **Cobertura ≥95%** de editais ou contratos no raio 200 km.  
+2. **LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE.**  
+3. **Piloto PNCP nacional de 90 dias concluído** e backfill de 3 anos autorizado.  
+4. **Operação autônoma diária** em produção (timers VPS, soak, alertas 24/7).  
+5. **Reconciliação ampla** DOE/DOM ↔ PNCP por identificadores oficiais.  
+6. **DOE-SC 2026 em bulk no CKAN** (catálogo público ainda termina em 2025).  
+
+### 42.6 Valor para a Extra Construtora (uso imediato)
+
+Mesmo com cobertura de editais baixa no raio:
+
+- **Radar municipal:** amostra CIGA de atos recentes (homologações, atas, extratos) em centenas de municípios SC.  
+- **Radar estadual bulk:** DOE aberto processável e classificado (piloto).  
+- **Oportunidades no Portal Compras SC:** listagem pública incremental com links oficiais (amostra).  
+- **Relatório comercial honesto:** oportunidades abertas + disclaimers automáticos (não vende cobertura inexistente).  
+- **Risco de decisão controlado:** a diretoria vê gaps com o mesmo rigor que vê conquistas.
+
+### 42.7 Decisão pedida à diretoria / sponsor
+
+| Opção | Foco do próximo investimento | Efeito |
+|-------|------------------------------|--------|
+| **A — Cobertura (recomendado)** | Subir editais no raio 200 km (4,76% → trajetória 95%) multi-fonte | Maximiza valor comercial da consultoria |
+| B — Profundidade PNCP | Pilot 90d supervisionado + freshness | Fortalece contratos/histórico nacional |
+| C — Infra | Contratar VPS (V6.2) | Habilita operação recorrente fora do laptop |
+| D — Misto | A (maioria) + C (mínimo) | Cobertura + base de operação |
+
+**Recomendação técnica:** **A**, com **C** assim que houver budget de infra — sem VPS a coleta real não vira rotina diária confiável.
+
+### 42.8 Gargalo único (inalterado)
+
+**Cobertura de editais no universo 200 km (~4,76%).**
+
+### 42.9 Índice de evidência para auditoria financeira / técnica
+
+- Bundle sessão: `docs/ops/session-2026-07-17/`  
+- DoD detalhado da onda: §41 (+ correção §41.10)  
+- HTML: `extra-consultoria-plano-executivo.html` (painel “Trabalho financiado”)  
+- Repositório: https://github.com/tjsasakifln/extra-consultoria (`main`)
 
