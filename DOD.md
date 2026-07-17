@@ -2525,8 +2525,8 @@ Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução C
 **Decisão:** `LOCAL_RESILIENCE_READY`  
 **Não implica:** `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95% ou freshness externa garantida.  
 **Branch:** `feat/local-resilience-ready-20260717`  
-**Commit:** `3252010`  
-**Smoke gate:** 180 passed, 24 skipped  
+**Commit:** `a4f8549` (+ chain feat/local-resilience)  
+**Smoke gate:** 181 passed, 24 skipped  
 **Documento canônico:** `docs/operations/PRE-VPS-READINESS.md`  
 **Diagnóstico pré-código:** `docs/operations/LOCAL-RESILIENCE-DIAGNOSIS.md`
 
@@ -2602,4 +2602,28 @@ python3 -m scripts.ops.health
 
 Somente após aceite de QA/PO e publicação: checklist de provisionamento em
 `docs/operations/PRE-VPS-READINESS.md` §Checklist.
+
+### 44.7 Publicação e prestacao de contas (diretoria)
+
+| Campo | Valor |
+|---|---|
+| Gate local | `make resilience-gate` → 181 passed / 24 skipped |
+| Estado | `LOCAL_RESILIENCE_READY` (não VPS_OPERATIONAL) |
+| Branch de origem | `feat/local-resilience-ready-20260717` |
+| HTML executivo | `extra-consultoria-plano-executivo.html` (gráficos real vs planejado) |
+| Documento de readiness | `docs/operations/PRE-VPS-READINESS.md` |
+
+**Avanço real vs planejado (snapshot 2026-07-17):**
+
+| Dimensão | Planejado (meta) | Real (evidência) | Delta |
+|---|---:|---:|---|
+| Source registry | 1.093/1.093 | 1.093/1.093 | 0 |
+| Sinal comercial (não cobertura) | trajetória → 95% | 116/1.093 (10,61%) | −84,4 p.p. |
+| Cobertura operacional estrita | ≥1.039/1.093 (95%) | 0/1.093 (0%) | −95 p.p. |
+| Resiliência pré-VPS (E3.S1+S2 mecânica) | 100% critérios locais | 100% gate local | 0 |
+| VPS operacional (E3.S3) | timers + soak 24h | 0% (não provisionada) | −100 p.p. |
+| Stories E3.S1 / E3.S2 | Done com QA/PO | InReview | aguarda QA/PO |
+| Project Done | 100% | ~0,1% aceite formal DoD | bloqueado |
+
+Próximo investimento: (A) cobertura comercial → 95%; (B) provisionar VPS só após checklist PRE-VPS; (C) QA/PO fecham E3.S1/S2.
 
