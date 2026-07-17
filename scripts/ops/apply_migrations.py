@@ -85,11 +85,19 @@ def normalize_statement(stmt: str, *, allow_concurrent: bool) -> str | None:
     s = stmt.strip()
     if not s:
         return None
-    if re.fullmatch(r"BEGIN", s, re.IGNORECASE) or re.fullmatch(r"COMMIT", s, re.IGNORECASE):
+    # Drop comment-only / empty payloads (psycopg2 rejects empty execute).
+    without_comments = re.sub(r"--[^\n]*", "", s)
+    without_comments = re.sub(r"/\*.*?\*/", "", without_comments, flags=re.DOTALL).strip()
+    if not without_comments:
+        return None
+    if re.fullmatch(r"BEGIN", without_comments, re.IGNORECASE) or re.fullmatch(
+        r"COMMIT", without_comments, re.IGNORECASE
+    ):
         return None  # runner owns transactions
     if not allow_concurrent and _CONCURRENTLY.search(s):
         s = _CONCURRENTLY.sub("CREATE INDEX", s)
-    return s
+    s = s.strip()
+    return s or None
 
 
 def apply_file(conn: Any, path: Path, *, allow_concurrent: bool = False) -> None:
@@ -103,6 +111,8 @@ def apply_file(conn: Any, path: Path, *, allow_concurrent: bool = False) -> None
         for raw in statements:
             stmt = normalize_statement(raw, allow_concurrent=allow_concurrent)
             if not stmt:
+                continue
+            if not stmt.strip():
                 continue
             needs_autocommit = bool(_CONCURRENTLY.search(stmt))
             if needs_autocommit:
