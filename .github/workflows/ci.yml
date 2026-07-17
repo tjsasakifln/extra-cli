@@ -77,16 +77,21 @@ jobs:
 
       - name: Run mypy type check
         # Start strict typing at the current business-critical boundary and
-        # expand it module-by-module under TD-7.1.
-        run: >-
-          mypy
-          scripts/freshness_gate.py
-          scripts/lib/universe.py
-          scripts/opportunity_intel/models.py
-          scripts/opportunity_intel/status.py
-          scripts/opportunity_intel/ranking.py
-          scripts/opportunity_intel/dedup.py
-          scripts/opportunity_intel/transformer.py
+        # expand it module-by-module under TD-7.1. Resilience modules included.
+        run: |
+          mypy \
+            scripts/freshness_gate.py \
+            scripts/lib/universe.py \
+            scripts/opportunity_intel/models.py \
+            scripts/opportunity_intel/status.py \
+            scripts/opportunity_intel/ranking.py \
+            scripts/opportunity_intel/dedup.py \
+            scripts/opportunity_intel/transformer.py
+          mypy --follow-imports=skip \
+            scripts/crawl/ingestion/_base/crawler.py \
+            scripts/crawl/resilience \
+            scripts/ops/resilient_cycle.py \
+            scripts/ops/health.py
 
   # ============================================================================
   # TEST — critical readiness regression suite
@@ -190,6 +195,132 @@ jobs:
         run: pytest tests/ -m "" --cov --cov-fail-under=10
         env:
           CI: true
+
+  # ============================================================================
+  # RESILIENCE GATE — pre-VPS truth (fail-closed, no continue-on-error)
+  # ============================================================================
+  resilience-gate:
+    name: Resilience Gate (pre-VPS)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: pncp_datalake
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d pncp_datalake"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/pncp_datalake
+      RESILIENCE_ENV: test
+      RESILIENCE_REQUIRE_DB: "0"
+      CI: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff mypy pytest pytest-asyncio pytest-cov psycopg2-binary
+
+      - name: Ruff resilience modules
+        run: >
+          ruff check
+          scripts/crawl/ingestion/_base/crawler.py
+          scripts/crawl/resilience
+          scripts/ops
+          tests/test_local_resilience.py
+          tests/test_resilience_vertical_slice.py
+
+      - name: Mypy resilience modules
+        run: >
+          mypy --follow-imports=skip
+          scripts/crawl/ingestion/_base/crawler.py
+          scripts/crawl/resilience
+          scripts/ops/resilient_cycle.py
+          scripts/ops/health.py
+          scripts/ops/validate_systemd.py
+
+      - name: Validate systemd units
+        run: python -m scripts.ops.validate_systemd
+
+      - name: Fresh-install migrations 001-054
+        run: |
+          python - <<'PY'
+          import os, pathlib, psycopg2
+          dsn = os.environ["DATABASE_URL"]
+          root = pathlib.Path("db/migrations")
+          files = sorted(root.glob("*.sql"))
+          assert files, "no migrations found"
+          # Apply in numeric order for 001..054 when present
+          selected = [p for p in files if p.name[:3].isdigit() and int(p.name[:3]) <= 54]
+          conn = psycopg2.connect(dsn)
+          conn.autocommit = True
+          cur = conn.cursor()
+          for path in selected:
+              sql = path.read_text(encoding="utf-8")
+              try:
+                  cur.execute(sql)
+                  print("applied", path.name)
+              except Exception as exc:
+                  # Some migrations may depend on optional objects; fail hard on syntax.
+                  print("migration_error", path.name, exc)
+                  raise
+          cur.close()
+          conn.close()
+          print("migrations_ok", len(selected))
+          PY
+
+      - name: Resilience unit + chaos + vertical (offline)
+        run: >
+          pytest -o addopts='' -q
+          tests/test_local_resilience.py
+          tests/test_resilience_vertical_slice.py
+          tests/test_fetch_result.py
+          tests/test_watermark.py
+          tests/test_dlq.py
+          -m "not slow and not e2e"
+          --tb=short
+
+      - name: Controlled fixture cycle + live health blocked
+        run: |
+          export RESILIENCE_STATE_PATH="$RUNNER_TEMP/resilience-ci"
+          export RESILIENCE_ENV=fixture
+          export RESILIENCE_REQUIRE_DB=0
+          export RESILIENCE_PAGE_SIZE=1
+          export RESILIENCE_REQUEST_DELAY=0
+          python -m scripts.ops.resilient_cycle --env fixture
+          python -m scripts.ops.health --env fixture
+          set +e
+          python -m scripts.ops.health --env development
+          code=$?
+          set -e
+          test "$code" -eq 2
+
+      - name: Upload resilience artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resilience-gate-artifacts
+          path: |
+            output/resilience/
+            ${{ runner.temp }}/resilience-ci/
+          retention-days: 14
+          if-no-files-found: ignore
 
   # ============================================================================
   # SECURITY — bandit (fail-closed, sem continue-on-error)

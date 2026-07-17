@@ -118,7 +118,9 @@ def _retry_after_seconds(value: str | None) -> float | None:
         return max(0.0, (retry_at - datetime.now(UTC)).total_seconds())
 
 
-def _retry_delay(attempt: int, retry_after: float | None = None) -> float:
+def _retry_delay(attempt: int, retry_after: float | None = None, *, http_policy: Any | None = None) -> float:
+    if http_policy is not None:
+        return float(http_policy.retry_delay(attempt, retry_after))
     if retry_after is not None:
         return retry_after
     base = min(PNCP_RETRY_MAX_DELAY, PNCP_RETRY_BASE_DELAY * (2**attempt))
@@ -160,23 +162,47 @@ def _http_get_json(
     *,
     session: requests.Session | None = None,
     sleeper: Any = time.sleep,
+    http_policy: Any | None = None,
 ) -> FetchResult:
-    metadata: dict[str, Any] = {"url": url, "retries": 0, "retry_delays": []}
+    # Policy is resolved at call time so env changes apply without module reload.
+    if http_policy is None:
+        try:
+            from scripts.crawl.resilience.http_policy import HttpResiliencePolicy
+
+            http_policy = HttpResiliencePolicy.from_env()
+        except Exception:
+            http_policy = None
+    max_retries = int(http_policy.max_retries) if http_policy is not None else PNCP_MAX_RETRIES
+    connect_timeout = float(http_policy.connect_timeout) if http_policy is not None else PNCP_CONNECT_TIMEOUT
+    read_timeout = float(http_policy.read_timeout) if http_policy is not None else PNCP_READ_TIMEOUT
+    rate_fallback = float(http_policy.retry_after_fallback) if http_policy is not None else PNCP_RATE_LIMIT_FALLBACK
+    transient = set(http_policy.transient_statuses) if http_policy is not None else set(_TRANSIENT_HTTP_STATUS)
+
+    metadata: dict[str, Any] = {
+        "url": url,
+        "retries": 0,
+        "retry_delays": [],
+        "http_policy": {
+            "max_retries": max_retries,
+            "connect_timeout": connect_timeout,
+            "read_timeout": read_timeout,
+        },
+    }
     http = session or requests.Session()
     close_session = session is None
 
     try:
-        for attempt in range(PNCP_MAX_RETRIES + 1):
+        for attempt in range(max_retries + 1):
             metadata["retries"] = attempt
             try:
                 response = http.get(
                     url,
                     headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
-                    timeout=(PNCP_CONNECT_TIMEOUT, PNCP_READ_TIMEOUT),
+                    timeout=(connect_timeout, read_timeout),
                 )
             except (requests.Timeout, requests.ConnectionError) as exc:
-                if attempt < PNCP_MAX_RETRIES:
-                    wait = _retry_delay(attempt)
+                if attempt < max_retries:
+                    wait = _retry_delay(attempt, http_policy=http_policy)
                     metadata["retry_delays"].append(wait)
                     sleeper(wait)
                     continue
@@ -196,12 +222,12 @@ def _http_get_json(
                 if response.headers.get(key) is not None
             }
 
-            if status in _TRANSIENT_HTTP_STATUS:
-                if attempt < PNCP_MAX_RETRIES:
+            if status in transient:
+                if attempt < max_retries:
                     retry_after = _retry_after_seconds(response.headers.get("Retry-After"))
-                    wait = _retry_delay(attempt, retry_after)
+                    wait = _retry_delay(attempt, retry_after, http_policy=http_policy)
                     if status == 429 and retry_after is None:
-                        wait = max(wait, PNCP_RATE_LIMIT_FALLBACK)
+                        wait = max(wait, rate_fallback)
                     metadata["retry_delays"].append(wait)
                     sleeper(wait)
                     continue
@@ -368,10 +394,11 @@ def _fetch_publication_page(
     *,
     session: requests.Session | None = None,
     sleeper: Any = time.sleep,
+    http_policy: Any | None = None,
 ) -> FetchResult:
     params = _request_params(request, modalidade, page)
     url = f"{PNCP_CONSULTA_BASE}/contratacoes/publicacao?{urllib.parse.urlencode(params)}"
-    result = _http_get_json(url, session=session, sleeper=sleeper)
+    result = _http_get_json(url, session=session, sleeper=sleeper, http_policy=http_policy)
     result.metadata["params"] = params
     return result
 
