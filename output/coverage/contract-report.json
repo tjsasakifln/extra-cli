@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-17T12:32:06.251627+00:00",
+  "generated_at": "2026-07-17T13:33:54.866794+00:00",
   "as_of": "2026-07-17",
   "denominator": {
     "value": 1093,
@@ -70,7 +70,7 @@
       "target_pct": 95.0,
       "reason": "entity_source_registry_strict_operational",
       "limitations": [
-        "Operational = access_status in {collected,verified,operational} with last_success_at and non-dry-run evidence. accessible_only_excluded=0; dry_run_rejected=0; registry_rows=1093. Mapped/accessible ≠ §3.2 pipeline."
+        "Operational = verified/operational with seven stages true, per-source SLA, run/raw/hash/normalized/reconciliation provenance. accessible_only_excluded=0; dry_run_rejected=16; registry_rows=1093. Mapped/accessible ≠ §3.2 pipeline."
       ],
       "sample_size": null,
       "field_breakdown": null,
@@ -81,15 +81,15 @@
       "metric_id": "freshness_coverage",
       "kind": "coverage",
       "label": "Freshness coverage",
-      "status": "READY",
-      "numerator": 35,
+      "status": "NOT_READY",
+      "numerator": null,
       "denominator": 1093,
-      "pct": 3.2,
+      "pct": null,
       "formula": "entities verified within applicable SLA / denominator",
       "target_pct": null,
-      "reason": "entity_coverage.last_seen_at_within_sla",
+      "reason": "freshness_manifest.json is source-level, not entity-level. Entity freshness requires entity_coverage.last_seen_at or coverage_evidence.observed_at.",
       "limitations": [
-        "SLA window = open_opportunities_hours (24h)"
+        "session freshness_manifest at /mnt/d/extra consultoria/docs/ops/session-2026-07-17; not entity-level SLA rollup"
       ],
       "sample_size": null,
       "field_breakdown": null,
@@ -106,10 +106,10 @@
       "pct": null,
       "formula": "true positives in stratified benchmark sample / sample positives",
       "target_pct": null,
-      "reason": "No stratified benchmark sample found. opportunity_recall MUST NOT be computed from database opportunity counts. Provide data/benchmarks/opportunity_recall_sample.json with fields: relevant (bool), retrieved (bool) per sample item.",
+      "reason": "Recall sample is incomplete: unlabeled=0, captured_without_evidence=0, missing_strata=['autarquia', 'camara', 'fundacao', 'platform_pncp', 'platform_sc_compras', 'source_html', 'source_js']",
       "limitations": [
-        "benchmark_sample_missing",
-        "never_use_db_counts_for_recall"
+        "sample=/mnt/d/extra consultoria/docs/qa/recall-sample-2026-07-17.json",
+        "stratified_sample_incomplete"
       ],
       "sample_size": null,
       "field_breakdown": null,

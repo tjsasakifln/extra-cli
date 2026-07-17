@@ -133,11 +133,11 @@ def map_ciga(rec: dict[str, Any], run_id: str) -> dict[str, Any]:
 
 
 def map_doe(rec: dict[str, Any], run_id: str) -> dict[str, Any]:
-    external_id = str(rec.get("numero_publicacao") or "") or None
-    title = rec.get("titulo") or ""
-    text = rec.get("texto_ou_extrato") or ""
-    pub = rec.get("data_publicacao") or rec.get("data_edicao")
-    source = "dados_abertos_sc"
+    external_id = str(rec.get("external_id") or rec.get("numero_publicacao") or "") or None
+    title = rec.get("title") or rec.get("titulo") or ""
+    text = rec.get("texto_ou_extrato") or title
+    pub = rec.get("publication_date") or rec.get("data_publicacao") or rec.get("data_edicao")
+    source = str(rec.get("source") or "dados_abertos_sc")
     rh = rec.get("record_hash") or compute_record_hash(
         source, external_id=external_id, title=title, raw_text=text, publication_date=pub
     )
@@ -148,7 +148,7 @@ def map_doe(rec: dict[str, Any], run_id: str) -> dict[str, Any]:
         "title": title[:2000] if title else None,
         "raw_text": (text or "")[:50000] or None,
         "raw_json": rec,
-        "orgao_nome": rec.get("orgao"),
+        "orgao_nome": rec.get("orgao_nome") or rec.get("orgao"),
         "municipio": None,
         "uf": "SC",
         "ente_federativo": "estadual",
@@ -156,19 +156,21 @@ def map_doe(rec: dict[str, Any], run_id: str) -> dict[str, Any]:
         "edition_date": rec.get("data_edicao"),
         "event_date": pub,
         "date_semantics": "edition_and_publication_from_csv",
-        "edition_number": str(rec.get("numero_edicao") or "") or None,
-        "category": rec.get("act_category") or rec.get("categoria"),
+        "edition_number": str(rec.get("edition_number") or rec.get("numero_edicao") or "") or None,
+        "category": rec.get("act_category") or rec.get("source_category") or rec.get("categoria"),
         "category_source": "classifier",
         "category_confidence": _conf_label(rec.get("act_confidence")),
         "classification_evidence": str(rec.get("act_evidence") or "")[:2000] or None,
         "section": rec.get("categoria"),
-        "source_url": rec.get("link_extrato") or rec.get("link_edicao"),
+        "source_url": rec.get("source_url") or rec.get("link_extrato") or rec.get("link_edicao"),
         "run_id": run_id,
         "status": "active",
         "proveniencia": {
             "portal": rec.get("portal") or "dados.sc.gov.br",
             "resource_id": rec.get("resource_id"),
             "resource_name": rec.get("resource_name"),
+            "resource_url": rec.get("resource_url"),
+            "record_hash": rec.get("record_hash"),
         },
         "metadata": {
             "unidade": rec.get("unidade"),
@@ -273,6 +275,9 @@ def load_source(
                 return result
         else:
             mapper = map_doe
+    elif source == "doe_sc_public_ckan":
+        path = _latest_path("output/doe_sc/*/publications.jsonl")
+        mapper = map_doe
     elif source == "sc_compras":
         path = _latest_path("output/sc_compras/sc_compras-*/licitacoes.jsonl")
         mapper = map_sc_compras
@@ -400,7 +405,11 @@ def main(argv: list[str] | None = None) -> int:
         validation["error"] = f"{type(exc).__name__}: {exc}"
 
     completed = datetime.now(UTC)
-    status = "ok" if not any(s.get("errors") for s in per_source) else "partial"
+    status = (
+        "ok"
+        if per_source and not any(s.get("errors") or s.get("error") for s in per_source)
+        else "partial"
+    )
     counts_after = {
         "sources": {s["source"]: s.get("inserted", 0) + s.get("updated", 0) for s in per_source},
         "validation": validation,

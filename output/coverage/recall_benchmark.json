@@ -1,11 +1,50 @@
 {
-  "status": "NOT_READY",
-  "captured": null,
-  "published_in_sample": null,
-  "pct": null,
+  "status": "PARTIAL",
+  "captured": 4,
+  "published_in_sample": 4,
+  "pct": 100.0,
   "as_of": "2026-07-17",
-  "formula": "captured / published_in_sample",
-  "notes": "Sample still scaffold-only (EXAMPLE items). Populate portal_items from independent portal observation, set captured_by_system true/false with evidence, re-run evaluate.",
-  "strata_coverage": {},
-  "forbidden_proxy_used": false
+  "generated_at": "2026-07-17T13:05:04.058701+00:00",
+  "formula": "captured / published_in_sample (independent stratified portal sample)",
+  "notes": "All real items labeled; missing_strata=['autarquia', 'fundacao', 'camara', 'source_html', 'source_js', 'platform_pncp', 'platform_sc_compras']; target recall 95% on validated sample",
+  "strata_coverage": {
+    "municipio_pequeno": {
+      "published": 1,
+      "captured": 1
+    },
+    "admin_direta": {
+      "published": 3,
+      "captured": 3
+    },
+    "source_api": {
+      "published": 4,
+      "captured": 4
+    },
+    "source_pdf": {
+      "published": 4,
+      "captured": 4
+    },
+    "platform_ciga": {
+      "published": 4,
+      "captured": 4
+    },
+    "municipio_medio": {
+      "published": 1,
+      "captured": 1
+    },
+    "municipio_grande": {
+      "published": 1,
+      "captured": 1
+    },
+    "consorcio": {
+      "published": 1,
+      "captured": 1
+    },
+    "admin_indireta": {
+      "published": 1,
+      "captured": 1
+    }
+  },
+  "forbidden_proxy_used": false,
+  "target_pct": 95.0
 }

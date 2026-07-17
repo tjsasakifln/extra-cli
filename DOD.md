@@ -6,13 +6,34 @@
 >
 > **Escopo funcional:** inteligência sobre editais, contratos, concorrentes e referências de valores; monitoramento recorrente; triagem e análise técnica de editais; análise de planilhas, composições e BDI; apoio à decisão e à elaboração de propostas; acompanhamento administrativo de contratos sem acompanhamento de obra.
 >
-> **Fora de escopo:** acompanhamento físico, financeiro, documental ou fotográfico de obras em execução.
+> **Fora de escopo:** somente acompanhamento físico de obras (medição em campo, fiscalização física, diário de obra, avanço físico e inspeções presenciais). O acompanhamento administrativo de contratos, publicações, pagamentos públicos, prazos, reajustes, aditivos, garantias, renovações, sanções e possíveis relicitações permanece incluído.
 >
 > **Universo canônico:** planilha `Extra - alvos de licitação. R-0.xlsx`.
 >
 > **Meta mínima:** cobertura operacional auditável de **95% para editais** e **95% para contratos**, calculadas separadamente sobre os entes marcados na planilha como pertencentes ao raio de 200 km.
 >
 > **Agnosticidade de desenvolvimento:** os requisitos, evidências, comandos e gates deste documento não dependem de Claude Code, Codex, Cursor, AIOX, MCP proprietário, IDE específica ou qualquer outro agente. Ferramentas podem acelerar o trabalho; nenhuma delas define o que significa pronto.
+
+## Atualização comprovada — ciclo B2G operacional de 17/07/2026
+
+> Este ciclo **não** declara `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE` nem cobertura de 95%. Ele corrige o contrato de medição e entrega fatias operacionais reproduzíveis.
+
+- [x] O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`; testes adversariais de identidade.
+- [x] `commercial_opportunity_any` foi reclassificada como sinal comercial `entities_with_recent_commercial_signal`: **116/1.093 (10,61%)**, explicitamente não cobertura.
+- [x] Existe registro canônico explícito para **1.093/1.093 entidades**, sincronizado no PostgreSQL por `python3 -m scripts.source_registry sync-db`; a existência do registro não implica fonte operacional.
+- [x] A cobertura operacional usa sete estágios, SLA e proveniência (`run_id`, raw URI, SHA-256, IDs normalizados e reconciliação) e falha fechada. Resultado comprovado: **0/1.093 (0%)**, meta mantida em 95%.
+- [x] Existe relatório nominal para os **1.093 gaps**, cada um com blocker e próxima ação. Distribuição: `pending_collection=714`, `pending_live_verification=226`, `fragmented=153`.
+- [x] DOM/SC e DOE/SC possuem caminhos públicos sem credenciais. Evidência live: CIGA `ciga-dom-20260717T125842Z-cf9890803b` (15.793 registros, 282 municípios observados); DOE CKAN `doe-public-20260717T125621Z-45de2aa780` (41.080 lidos, 19.139 normalizados, SHA-256 preservado). Ambos estão fora do SLA de 24h e **não** elevam cobertura operacional.
+- [x] Migrations 052/053 foram aplicadas localmente após snapshot; 1.093 registros de entidade e amostra de 300 atos foram persistidos, com zero grupos duplicados por `(source, record_hash)`. Evidência: `output/session-evidence/official-acts-load-20260717.json`.
+- [x] O workspace cotidiano executa `today`, `opportunities`, `dossier`, `coverage`, `competitors`, `expiring-contracts`, `prices`, `edital analyze`, `proposal support`, `contracts`, `decide` e relatórios; `GO` legado é rebaixado a `REVIEW` quando o perfil da Extra está incompleto.
+- [x] O benchmark preliminar contém quatro publicações oficiais CIGA com ID, URL e hash. Resultado observado 4/4, mas estado **PARTIAL/NOT_READY** por estratos ausentes e limitação de independência; não é claim de recall de 100%.
+- [x] Testes críticos deste ciclo: **74 passed**; golden path estrito PCP: `gp-20260717-102949`, exit code 0, 184 fetched, 7 inserted. O golden path PNCP falhou por timeout e permanece evidência de source health degradado.
+- [ ] Suíte global/CI verde. Execução local ampla encontrou dívida de ambiente/schema em views canônicas e testes dependentes de banco; o item permanece aberto até o check remoto concluir sem falhas.
+- [ ] Freshness coverage mensurável por entidade dentro dos SLAs.
+- [ ] Recall independente e estratificado ≥95%.
+- [ ] Cobertura operacional ≥95% (mínimo **1.039/1.093** entidades).
+
+Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/recall-sample-2026-07-17.json`, `output/coverage/` e `output/golden-path/b2g-cycle-pcp-20260717.json`.
 
 ---
 
@@ -2496,4 +2517,3 @@ Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução C
 - PR #9: https://github.com/tjsasakifln/extra-consultoria/pull/9  
 - Run: https://github.com/tjsasakifln/extra-consultoria/actions/runs/29576072258  
 - Lint, mypy, Test critical, bandit, pip-audit = **SUCCESS**
-

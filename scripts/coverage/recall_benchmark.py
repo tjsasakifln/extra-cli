@@ -15,7 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -103,12 +103,19 @@ def evaluate_sample(sample: dict[str, Any]) -> dict[str, Any]:
         }
 
     labeled = [i for i in real if i.get("captured_by_system") is not None]
-    if len(labeled) < len(real):
-        notes = f"{len(real) - len(labeled)} items missing captured_by_system label"
-    else:
-        notes = "All real items labeled"
+    unlabeled = len(real) - len(labeled)
+    invalid_captured = [
+        i for i in labeled if i.get("captured_by_system") is True and not i.get("capture_evidence")
+    ]
+    invalid_misses = [
+        i
+        for i in labeled
+        if i.get("captured_by_system") is False
+        and i.get("miss_reason") not in {"source_gap", "match_gap", "window_gap", "other"}
+    ]
+    notes = "All real items labeled" if not unlabeled else f"{unlabeled} items missing captured_by_system label"
 
-    published = len(labeled)
+    published = len(real)
     captured = sum(1 for i in labeled if i.get("captured_by_system") is True)
     strata_cov: dict[str, dict[str, int]] = {}
     for i in labeled:
@@ -119,21 +126,27 @@ def evaluate_sample(sample: dict[str, Any]) -> dict[str, Any]:
                 strata_cov[s]["captured"] += 1
 
     missing_strata = [s for s in REQUIRED_STRATA if s not in strata_cov]
-    status = "READY" if published > 0 and not missing_strata else "PARTIAL"
+    status = (
+        "READY"
+        if published > 0 and not missing_strata and not unlabeled and not invalid_captured and not invalid_misses
+        else "PARTIAL"
+    )
     if published == 0:
         status = "NOT_READY"
 
-    pct = (captured / published * 100.0) if published else None
+    pct = (captured / published * 100.0) if published and not unlabeled else None
     return {
         "status": status,
         "captured": captured if published else None,
         "published_in_sample": published if published else None,
         "pct": pct,
         "as_of": date.today().isoformat(),
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "formula": "captured / published_in_sample (independent stratified portal sample)",
         "notes": notes
         + (f"; missing_strata={missing_strata}" if missing_strata else "")
+        + (f"; captured_without_evidence={len(invalid_captured)}" if invalid_captured else "")
+        + (f"; misses_without_reason={len(invalid_misses)}" if invalid_misses else "")
         + "; target recall 95% on validated sample",
         "strata_coverage": strata_cov,
         "forbidden_proxy_used": False,

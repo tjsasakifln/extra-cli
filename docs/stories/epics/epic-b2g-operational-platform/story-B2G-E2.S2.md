@@ -1,6 +1,6 @@
 ---
 story_id: B2G-E2.S2
-title: "Source discovery + aquisição PNCP/CIGA → ESR"
+title: "Source discovery + aquisição pública PNCP/CIGA/DOE-SC → ESR"
 status: InProgress
 priority: P0
 risk_level: STANDARD
@@ -27,7 +27,8 @@ Converte unknown→applicable com prova; alimenta M2 e coletas target-set.
 
 **IN:** Jobs de discovery para PNCP (org/CNPJ match) e CIGA (publicações/órgãos); writers ESR; raw em output/; fail-closed se fetch rate_limited.
 
-**OUT:** Todos os portais municipais; DOE auth; M2≥95%.
+**OUT:** Todos os portais residuais; M2≥95%. A API autenticada de publicação
+do DOE não é dependência da leitura pública.
 
 ## Acceptance Criteria
 
@@ -56,6 +57,17 @@ Converte unknown→applicable com prova; alimenta M2 e coletas target-set.
    **When** binding escrito,  
    **Then** confidence=low e não promove sozinho a “covered” sem evidence success de crawl.
 
+6. **AC6 — DOE-SC público sem credencial**
+   **Given** os datasets oficiais `Diário Oficial SC - Publicações/Edições`,
+   **When** o adapter CKAN público executa,
+   **Then** descobre e baixa CSV sem login, preserva raw+SHA-256, normaliza atos
+   relevantes e marca freshness como gap quando o recurso estiver fora do SLA.
+
+7. **AC7 — identidade segura**
+   **Given** CNPJ raiz associado a múltiplas entidades,
+   **When** promoção por evidência executa,
+   **Then** nenhuma entidade é promovida sem identificador adicional inequívoco.
+
 ## Fontes de dados
 
 - PNCP API (consulta)
@@ -83,14 +95,17 @@ B2G-E2.S1 (ESR)
 
 ## Evidência
 
-- run_id em output/pncp_sc ou output/ciga_dom
-- Diff stats ESR before/after
+- `docs/ops/session-b2g-platform-2026-07-17/LIVE-SOURCE-EVIDENCE.json`
+- CIGA run `ciga-dom-20260717T125842Z-cf9890803b`
+- DOE run `doe-public-20260717T125621Z-45de2aa780`
+- Persistência: `output/session-evidence/official-acts-load-20260717.json`
 
 ## Definition of Done
 
-- [ ] AC1–5
-- [ ] Documentado comando Tiago/ops
-- [ ] File list
+- [ ] AC1–3 PNCP/CIGA binding completo (parcial; promoção estrita ainda 0)
+- [x] AC4–7: política raw, match ambíguo fail-closed, DOE público e identidade segura
+- [x] Documentado comando Tiago/ops
+- [x] File list
 
 ## Comandos de validação
 
@@ -107,3 +122,18 @@ pytest tests/ -k "discovery or esr_pncp or esr_ciga" -v
 | Data | Autor | Nota |
 |------|-------|------|
 | 2026-07-17 | Morgan (PM) | InProgress |
+| 2026-07-17 | River (SM) | AC6–7 refinados; DOE público e identidade fail-closed |
+| 2026-07-17 | Dex (Dev) | DOE/DOM públicos executados; story permanece InProgress pelos AC1–3 |
+
+## File List
+
+- `scripts/crawl/doe_sc_publications.py`
+- `scripts/crawl/ciga_dom_publications.py`
+- `scripts/crawl/ingestion/load_official_acts_session.py`
+- `scripts/source_registry/acquisition/promote_from_evidence.py`
+- `scripts/source_registry/persistence.py`
+- `db/migrations/052_official_acts.sql`
+- `db/migrations/053_entity_source_registry.sql`
+- `tests/test_doe_sc_publications.py`
+- `tests/test_load_official_acts_session.py`
+- `tests/unit/source_registry/test_promote_from_evidence.py`

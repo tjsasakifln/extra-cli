@@ -141,7 +141,7 @@ class TestGapReport:
                 cnpj="123",
                 natureza_juridica="prefeitura",
                 municipio="X",
-                access_status="collected",  # only collected/verified/operational close gaps
+                access_status="collected",  # collected is not verified within SLA
                 next_action="monitor",
                 current_blocker="none",
                 last_success_at="2026-07-17T00:00:00+00:00",
@@ -169,9 +169,9 @@ class TestGapReport:
             ),
         ]
         rows = gap_rows(recs)
-        assert len(rows) == 2
+        assert len(rows) == 3
         by_id = {r["canonical_id"]: r for r in rows}
-        assert "1" not in by_id
+        assert by_id["1"]["blocker_class"] == "pending_live_verification"
         assert by_id["2"]["blocker_class"] == "no_api"
         assert by_id["3"]["blocker_class"] != "none"
         assert by_id["3"]["blocker_class"] == "pending_collection"

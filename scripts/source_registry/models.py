@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 # ---------------------------------------------------------------------------
@@ -24,6 +25,8 @@ ACCESS_STATUSES: tuple[str, ...] = (
     "mapped",
     "accessible",
     "collected",
+    "verified",
+    "operational",
     "failed",
     "blocked",
     "unknown",
@@ -49,7 +52,10 @@ BLOCKER_CATEGORIES: tuple[str, ...] = (
 
 # Operationally covered ONLY after collect+normalize+reconcile+verify evidence.
 # `accessible` alone (e.g. offline index hit / HEAD 200) is NOT operational coverage.
-OPERATIONAL_STATUSES: frozenset[str] = frozenset({"collected", "verified", "operational"})
+OPERATIONAL_STATUSES: frozenset[str] = frozenset({"verified", "operational"})
+REQUIRED_OPERATIONAL_STAGES: frozenset[str] = frozenset(
+    {"mapped", "accessible", "collected", "normalized", "reconciled", "verified_within_sla"}
+)
 
 
 # ---------------------------------------------------------------------------
@@ -108,8 +114,38 @@ class EntitySourceRecord:
 
     @property
     def is_operational(self) -> bool:
-        """True when the entity is operationally covered."""
-        return self.access_status in OPERATIONAL_STATUSES
+        """Compatibility property; strict reports use ``is_strict_operational``."""
+        return is_strict_operational(self)
+
+
+def is_strict_operational(record: EntitySourceRecord, *, as_of: datetime | None = None) -> bool:
+    """Verify status, seven stages, provenance and per-record SLA."""
+    if record.access_status not in OPERATIONAL_STATUSES or not record.last_success_at:
+        return False
+    try:
+        last_success = datetime.fromisoformat(record.last_success_at.replace("Z", "+00:00"))
+        if last_success.tzinfo is None:
+            last_success = last_success.replace(tzinfo=UTC)
+    except (TypeError, ValueError):
+        return False
+    now = as_of or datetime.now(UTC)
+    if last_success < now - timedelta(hours=int(record.sla_hours or 24)):
+        return False
+    for evidence in record.evidences or []:
+        if not isinstance(evidence, dict) or evidence.get("dry_run") is not False:
+            continue
+        stages = evidence.get("stages") or {}
+        if not all(stages.get(stage) is True for stage in REQUIRED_OPERATIONAL_STAGES):
+            continue
+        if not all(
+            evidence.get(key)
+            for key in ("raw_uri", "raw_sha256", "normalized_record_ids", "reconciliation_id")
+        ):
+            continue
+        if not (evidence.get("pipeline_run_id") or evidence.get("run_id")):
+            continue
+        return True
+    return False
 
 
 # ---------------------------------------------------------------------------

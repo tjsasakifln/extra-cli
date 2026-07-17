@@ -73,11 +73,28 @@ pipeline/*.log
 !pipeline/.gitkeep
 
 # Data artifacts (runtime)
+data/raw/
+data/edital_workspace/
+data/proposal_workspace/
+data/pncp_sc_checkpoints/
+data/*_checkpoints/*.json
 data/cnpj_cache.json
 data/geocode_cache.json
 data/scrape_residual_progress.json
 data/extra_ledger.json
 db/log/
+
+# Reproducible operational runs. Small summary/manifests are versioned only
+# when a story explicitly promotes them as evidence.
+output/ciga_dom/*/
+output/doe_sc/*/
+output/pncp_sc/*/
+output/sc_compras/*/
+output/sc_compras/*.jsonl
+output/reconciliation/*/
+output/coverage/acquisition/
+output/session-evidence/*
+scripts/output/
 
 # Environment files — keep only .env.example tracked
 .env.dev

@@ -109,6 +109,18 @@ def cmd_stats(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_sync_db(args: argparse.Namespace) -> int:
+    """Persist the 1093-row registry in the canonical PostgreSQL table."""
+    from scripts.source_registry.persistence import sync_registry_to_postgres
+
+    records = load_registry(args.registry)
+    result = sync_registry_to_postgres(records, dsn=args.dsn)
+    result["expected_universe"] = 1093
+    result["denominator_unchanged"] = True
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0 if result["persisted_total"] == 1093 else 1
+
+
 def cmd_acquire(args: argparse.Namespace) -> int:
     records = load_registry(args.registry)
     strategy = (args.strategy or "").strip().lower()
@@ -134,9 +146,27 @@ def cmd_acquire(args: argparse.Namespace) -> int:
             limit=limit if limit > 0 else 0,
             persist=True,
         )
+    elif strategy in {"promote_from_evidence", "pipeline_evidence", "promote"}:
+        from scripts.source_registry.acquisition.promote_from_evidence import (
+            promote_from_pipeline_evidence,
+        )
+
+        summary = promote_from_pipeline_evidence(
+            records,
+            dsn=getattr(args, "dsn", None),
+            limit=limit if limit > 0 else 0,
+            persist=True,
+        )
+    elif strategy in {"normalize_blockers", "fix_blockers"}:
+        from scripts.source_registry.acquisition.promote_from_evidence import (
+            normalize_registry_blockers,
+        )
+
+        summary = normalize_registry_blockers(records, persist=True)
     else:
         print(
-            f"Unknown strategy: {strategy!r}. Use: pncp_orgao_probe | ciga_municipio_expand",
+            f"Unknown strategy: {strategy!r}. Use: pncp_orgao_probe | "
+            "ciga_municipio_expand | promote_from_evidence | normalize_blockers",
             file=sys.stderr,
         )
         return 2
@@ -193,15 +223,30 @@ def build_parser() -> argparse.ArgumentParser:
     p_stats.add_argument("--registry", type=Path, default=None)
     p_stats.set_defaults(func=cmd_stats)
 
+    p_sync = sub.add_parser("sync-db", help="Idempotently persist registry in PostgreSQL")
+    p_sync.add_argument("--registry", type=Path, default=None)
+    p_sync.add_argument("--dsn", default=None, help="PostgreSQL DSN")
+    p_sync.set_defaults(func=cmd_sync_db)
+
     p_acq = sub.add_parser("acquire", help="Run acquisition strategy")
     p_acq.add_argument(
         "--strategy",
         required=True,
-        choices=["pncp_orgao_probe", "ciga_municipio_expand", "ciga"],
+        choices=[
+            "pncp_orgao_probe",
+            "ciga_municipio_expand",
+            "ciga",
+            "promote_from_evidence",
+            "pipeline_evidence",
+            "promote",
+            "normalize_blockers",
+            "fix_blockers",
+        ],
         help="Acquisition strategy name",
     )
     p_acq.add_argument("--limit", type=int, default=100)
     p_acq.add_argument("--registry", type=Path, default=None)
+    p_acq.add_argument("--dsn", default=None, help="PostgreSQL DSN for promote_from_evidence")
     p_acq.add_argument(
         "--dry-run",
         action=argparse.BooleanOptionalAction,

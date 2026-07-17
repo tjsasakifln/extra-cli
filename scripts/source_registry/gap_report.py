@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from scripts.source_registry.builder import load_registry
-from scripts.source_registry.models import OPERATIONAL_STATUSES, EntitySourceRecord
+from scripts.source_registry.models import EntitySourceRecord, is_strict_operational
 
 logger = logging.getLogger(__name__)
 
@@ -20,25 +20,31 @@ DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "output" / "coverage"
 
 def _is_gap(record: EntitySourceRecord) -> bool:
     """Entity is a gap when not operationally covered."""
-    return record.access_status not in OPERATIONAL_STATUSES
+    return not is_strict_operational(record)
 
 
 def derive_blocker_class(record: EntitySourceRecord) -> str:
     """Never emit bare 'none' for a gap — every gap must have a cause class."""
     raw = (record.current_blocker or "").strip().lower()
-    if raw and raw not in {"none", "null", "n/a", ""}:
-        return raw
-
     status = (record.access_status or "").lower()
     strategy = (record.collection_strategy or "").lower()
     next_action = (record.next_action or "").lower()
     plats = " ".join(record.plataformas or []).lower()
 
+    # DOE-SC and DOM-SC have public read paths. A credential may be needed for
+    # publishing/authenticated portal functions, never for the canonical
+    # public acquisition strategy.
+    if raw == "credential" and ("doe_sc" in strategy or "doe_sc" in plats or "dom_sc" in plats):
+        return "pending_collection"
+    if raw and raw not in {"none", "null", "n/a", ""}:
+        return raw
+
+    if status == "collected":
+        return "pending_live_verification"
     if status in {"blocked", "failed"}:
         return "no_api"
-    if "credential" in next_action or "doe_sc" in strategy or "dom_sc" in strategy and "ciga" not in strategy:
-        if "credential" in strategy or "doe" in strategy:
-            return "credential"
+    if "credential" in next_action or "credential" in strategy:
+        return "credential"
     if "credential" in (record.current_blocker or ""):
         return "credential"
     if "rate" in next_action or "429" in next_action:
@@ -133,7 +139,7 @@ def generate_gap_report(
     summary: dict[str, Any] = {
         "generated_at": generated_at,
         "total_entities": len(records),
-        "operational": sum(1 for r in records if r.access_status in OPERATIONAL_STATUSES),
+        "operational": sum(1 for r in records if is_strict_operational(r)),
         "gaps": len(rows),
         "gap_pct": round(100.0 * len(rows) / len(records), 2) if records else 0.0,
         "by_blocker_class": dict(by_blocker.most_common()),

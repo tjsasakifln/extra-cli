@@ -229,7 +229,7 @@ def scaffold_edital(path_or_url: str) -> dict[str, Any]:
 
     missing = [c[0] for c in EDITAL_CHECKLIST]
     return {
-        "status": "OK",
+        "status": "PARTIAL",
         "folder": str(folder),
         "recommendation": "REVIEW",
         "missing_evidence": missing,
@@ -356,7 +356,7 @@ def scaffold_proposal(opp_id: str) -> dict[str, Any]:
     (folder / "DISCLAIMER.txt").write_text(PROPOSAL_DISCLAIMER + "\n", encoding="utf-8")
 
     return {
-        "status": "OK",
+        "status": "PARTIAL",
         "folder": str(folder),
         "opportunity_id": str(opp_id),
         "disclaimer": PROPOSAL_DISCLAIMER,

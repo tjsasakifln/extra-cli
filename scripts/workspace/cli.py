@@ -16,6 +16,7 @@ import sys
 from datetime import datetime
 from typing import Any
 
+from scripts.source_registry.models import EntitySourceRecord, is_strict_operational
 from scripts.workspace import actions as workspace_actions
 from scripts.workspace.common import (
     CLIENT_PROFILE,
@@ -307,6 +308,29 @@ def cmd_dossier(args: argparse.Namespace) -> int:
     if missing_fields:
         fit_notes.append(f"Perfil incompleto: {', '.join(missing_fields[:8])}")
 
+    # The persisted legacy ranking is an input, not the operational decision.
+    # A GO is impossible while material client-profile fields are still pending.
+    persisted_recommendation = (row or {}).get("ranking")
+    effective_recommendation = persisted_recommendation
+    if persisted_recommendation == "GO" and missing_fields:
+        effective_recommendation = "REVIEW"
+        if explain is None:
+            explain = {
+                "positive_factors": [],
+                "negative_factors": [],
+                "missing_fields": [],
+                "ranking_confianca": "LOW",
+                "source": (row or {}).get("source"),
+            }
+        explain.setdefault("negative_factors", []).append(
+            "client_profile_incomplete_blocks_go"
+        )
+        explain.setdefault("missing_fields", []).extend(missing_fields)
+        explain["persisted_recommendation"] = persisted_recommendation
+        explain["effective_recommendation"] = effective_recommendation
+        explain["ranking_confianca"] = "LOW"
+        explain["profile_gate"] = "BLOCKED"
+
     next_steps = [
         "Ler edital oficial e preencher checklist (workspace edital analyze)",
         "Validar ranking com explain / evidências",
@@ -321,6 +345,8 @@ def cmd_dossier(args: argparse.Namespace) -> int:
         "pg_error": err,
         "opportunity": row,
         "explain": explain,
+        "persisted_recommendation": persisted_recommendation,
+        "effective_recommendation": effective_recommendation,
         "profile_fit_notes": fit_notes,
         "missing_profile_fields": missing_fields,
         "human_overrides": human,
@@ -479,7 +505,12 @@ def cmd_coverage(args: argparse.Namespace) -> int:
     # Entity/source gaps sample
     if ENTITY_SOURCE_REGISTRY.exists():
         for row in load_jsonl(ENTITY_SOURCE_REGISTRY, limit=50):
-            if not row.get("is_covered") or row.get("gap"):
+            try:
+                record = EntitySourceRecord.from_dict(row)
+                operational = is_strict_operational(record)
+            except (TypeError, ValueError, KeyError):
+                operational = False
+            if not operational:
                 gaps.append(row)
     else:
         uncovered = SESSION_DIR / "entities_uncovered.jsonl"

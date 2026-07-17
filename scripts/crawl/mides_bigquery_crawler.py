@@ -453,6 +453,11 @@ def transform(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     Returns:
         List of dicts ready for upsert_pncp_raw_bids.
     """
+    # Empty transformations are pure and must not open a database connection.
+    # This keeps health checks and offline QA deterministic.
+    if not records:
+        return []
+
     municipio_cache = _load_municipio_cache()
 
     # Track seen pncp_ids to handle duplicates (some records share

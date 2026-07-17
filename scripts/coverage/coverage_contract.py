@@ -959,13 +959,14 @@ def compute_operational_source_coverage(
     now = as_of or datetime.now(UTC)
     limitations: list[str] = []
 
-    # 0) Entity source registry — ONLY collected/verified/operational with non-dry-run evidence.
-    # `accessible` from offline index hits is NOT operational (§3.2 full pipeline).
+    # 0) Entity source registry — ONLY verified/operational with complete,
+    # recent and auditable evidence. `accessible`/`collected` are intermediate
+    # states and never satisfy §3.2 by themselves.
     reg_path = Path(registry_path) if registry_path else DEFAULT_REGISTRY_PATH
     if reg_path.exists():
-        operational_statuses = {"collected", "verified", "operational"}
+        operational_statuses = {"verified", "operational"}
         try:
-            num = 0
+            covered_entities: set[str] = set()
             total = 0
             dry_run_false_positives = 0
             accessible_only = 0
@@ -981,34 +982,63 @@ def compute_operational_source_coverage(
                         accessible_only += 1
                     if st not in operational_statuses:
                         continue
-                    # Reject dry_run / offline-only promotions
                     evidences = row.get("evidences") or []
-                    if any(
+                    required_stages = {
+                        "mapped",
+                        "accessible",
+                        "collected",
+                        "normalized",
+                        "reconciled",
+                        "verified_within_sla",
+                    }
+                    complete_evidence = any(
+                        isinstance(e, dict)
+                        and e.get("dry_run") is False
+                        and required_stages.issubset((e.get("stages") or {}).keys())
+                        and all((e.get("stages") or {}).get(stage) is True for stage in required_stages)
+                        and bool(e.get("pipeline_run_id") or e.get("run_id"))
+                        and bool(e.get("raw_uri"))
+                        and bool(e.get("raw_sha256"))
+                        and bool(e.get("normalized_record_ids"))
+                        and bool(e.get("reconciliation_id"))
+                        for e in evidences
+                    )
+                    only_dry_run_probe = any(
                         isinstance(e, dict)
                         and (e.get("dry_run") is True or e.get("use_network") is False)
                         and e.get("type") in {"pncp_orgao_probe", "ciga_municipio_expand"}
                         for e in evidences
-                    ) and not any(
-                        isinstance(e, dict)
-                        and e.get("type") in {"collect_success", "reconcile_success", "coverage_evidence"}
-                        for e in evidences
-                    ):
+                    ) and not complete_evidence
+                    if only_dry_run_probe:
                         dry_run_false_positives += 1
                         continue
                     if not row.get("last_success_at"):
                         continue
-                    num += 1
+                    if not complete_evidence:
+                        dry_run_false_positives += 1
+                        continue
+                    last_success = _parse_ts(row.get("last_success_at"))
+                    sla_hours = int(row.get("sla_hours") or slas.default_freshness_hours())
+                    if last_success is None or last_success < now - timedelta(hours=sla_hours):
+                        continue
+                    entity_key = (
+                        row.get("canonical_id")
+                        or row.get("canonical_entity_id")
+                        or row.get("entity_id")
+                    )
+                    if entity_key:
+                        covered_entities.add(str(entity_key))
             if total > 0:
                 limitations.append(
-                    "Operational = access_status in {collected,verified,operational} "
-                    "with last_success_at and non-dry-run evidence. "
+                    "Operational = verified/operational with seven stages true, "
+                    "per-source SLA, run/raw/hash/normalized/reconciliation provenance. "
                     f"accessible_only_excluded={accessible_only}; "
                     f"dry_run_rejected={dry_run_false_positives}; registry_rows={total}. "
                     "Mapped/accessible ≠ §3.2 pipeline."
                 )
                 return _ready(
                     metric_id,
-                    num,
+                    len(covered_entities),
                     denominator,
                     limitations=limitations,
                     reason="entity_source_registry_strict_operational",
@@ -1016,6 +1046,24 @@ def compute_operational_source_coverage(
         except (OSError, json.JSONDecodeError) as exc:
             limitations.append(f"registry_read_error: {type(exc).__name__}: {exc}")
 
+    # No registry proof means no defensible operational claim. Historical
+    # ``entity_coverage`` rows and session opportunity lists are deliberately
+    # not accepted as substitutes for the seven-stage evidence contract.
+    return _not_ready(
+        metric_id,
+        reason=(
+            "No usable entity-source registry evidence with all seven stages, "
+            "per-source SLA and auditable provenance. Proxy counts are forbidden."
+        ),
+        denominator=denominator,
+        limitations=limitations + [
+            "entity_coverage_and_session_proxies_rejected",
+            "requires_run_raw_hash_normalized_and_reconciliation_ids",
+        ],
+    )
+
+    # Legacy fallbacks retained below for backwards code archaeology only;
+    # fail-closed return above prevents them from producing operational claims.
     if conn is not None:
         try:
             cur = conn.cursor()
@@ -1262,13 +1310,15 @@ def compute_opportunity_recall(
     candidates: list[Path] = []
     if benchmark_path is not None:
         candidates.append(Path(benchmark_path))
-    candidates.extend(
-        [
+    else:
+        candidates.extend(
+            [
             PROJECT_ROOT / "data" / "benchmarks" / "opportunity_recall_sample.json",
             PROJECT_ROOT / "data" / "benchmarks" / "opportunity_recall_sample.jsonl",
+            PROJECT_ROOT / "docs" / "qa" / "recall-sample-2026-07-17.json",
             PROJECT_ROOT / "docs" / "ops" / "session-2026-07-17" / "opportunity_recall_sample.json",
-        ]
-    )
+            ]
+        )
 
     path: Path | None = next((p for p in candidates if p.is_file()), None)
     if path is None:
@@ -1294,8 +1344,45 @@ def compute_opportunity_recall(
                 reason=f"Failed to parse benchmark sample at {path}",
                 denominator=None,
             )
-        items_raw = raw.get("items") or raw.get("sample") or raw.get("records") or []
+        items_raw = (
+            raw.get("items")
+            or raw.get("portal_items")
+            or raw.get("sample")
+            or raw.get("records")
+            or []
+        )
         items = [i for i in items_raw if isinstance(i, dict)]
+        if raw.get("portal_items") is not None:
+            # Canonical recall-runner schema.
+            unlabeled = [i for i in items if i.get("captured_by_system") is None]
+            invalid_captured = [
+                i
+                for i in items
+                if i.get("captured_by_system") is True and not i.get("capture_evidence")
+            ]
+            required_strata = set((raw.get("methodology") or {}).get("required_strata") or [])
+            observed_strata = {s for i in items for s in (i.get("strata") or [])}
+            missing_strata = sorted(required_strata - observed_strata)
+            if unlabeled or invalid_captured or missing_strata:
+                return _not_ready(
+                    metric_id,
+                    reason=(
+                        "Recall sample is incomplete: "
+                        f"unlabeled={len(unlabeled)}, "
+                        f"captured_without_evidence={len(invalid_captured)}, "
+                        f"missing_strata={missing_strata}"
+                    ),
+                    denominator=None,
+                    limitations=[f"sample={path}", "stratified_sample_incomplete"],
+                )
+            items = [
+                {
+                    **i,
+                    "relevant": True,
+                    "retrieved": i.get("captured_by_system") is True,
+                }
+                for i in items
+            ]
 
     relevant = [i for i in items if i.get("relevant") is True]
     if not relevant:

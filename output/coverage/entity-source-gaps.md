@@ -1,6 +1,6 @@
 # Entity Source Gaps
 
-**Generated:** 2026-07-17T12:30:49.741054+00:00
+**Generated:** 2026-07-17T13:01:15.562831+00:00
 **Total entities:** 1093
 **Operational:** 0
 **Gaps:** 1093 (100.0%)
@@ -9,26 +9,28 @@
 
 | Blocker | Count |
 |---------|------:|
-| `pending_collection` | 484 |
-| `credential` | 264 |
-| `pending_live_verification` | 208 |
-| `fragmented` | 137 |
+| `pending_collection` | 714 |
+| `pending_live_verification` | 226 |
+| `fragmented` | 153 |
 
 ## By access status
 
 | Status | Count |
 |--------|------:|
-| `mapped` | 605 |
-| `unknown` | 488 |
+| `mapped` | 506 |
+| `unknown` | 487 |
+| `collected` | 84 |
+| `verified` | 16 |
 
 ## By strategy
 
 | Strategy | Count |
 |----------|------:|
-| `ciga_ckan_shared_municipio` | 483 |
-| `sc_compras_and_doe_sc` | 264 |
+| `ciga_ckan_shared_municipio` | 450 |
+| `sc_compras_and_doe_sc` | 263 |
 | `pncp_cnpj_lookup` | 224 |
-| `pncp_monitor_by_cnpj` | 105 |
+| `pipeline_evidence_promote` | 100 |
+| `pncp_monitor_by_cnpj` | 39 |
 | `multi_source_probe` | 16 |
 | `ciga_ckan_municipio_expand` | 1 |
 
@@ -43,7 +45,7 @@
 | 1 | BENEDITO NOVO CAMARA DE VEREADORES | BENEDITO NOVO | `pending_collection` | ingest_ciga_dom_publications_for_municipio_then_reconcile | `ciga_ckan_shared_municipio` |
 | 1 | BOM JARDIM DA SERRA CAMARA DE VEREADORES | BOM JARDIM DA SERRA | `pending_collection` | ingest_ciga_dom_publications_for_municipio_then_reconcile | `ciga_ckan_shared_municipio` |
 | 1 | CAMARA DE VEREADORES DE AURORA | AURORA | `pending_collection` | ingest_ciga_dom_publications_for_municipio_then_reconcile | `ciga_ckan_shared_municipio` |
-| 1 | CAMARA DE VEREADORES DE BARRA VELHA | BARRA VELHA | `pending_live_verification` | run_live_pncp_orgao_probe_with_network; then schedule_incremental; do_not_count_offline_index_as_operational | `pncp_monitor_by_cnpj` |
+| 1 | CAMARA DE VEREADORES DE BARRA VELHA | BARRA VELHA | `fragmented` | maintain_incremental_crawl_and_freshness_sla | `pipeline_evidence_promote` |
 | 1 | CAMARA DE VEREADORES DE IMBUIA | IMBUIA | `pending_collection` | ingest_ciga_dom_publications_for_municipio_then_reconcile | `ciga_ckan_shared_municipio` |
 | 1 | CAMARA DE VEREADORES DE PONTE ALTA/SC | PONTE ALTA | `pending_collection` | ingest_ciga_dom_publications_for_municipio_then_reconcile | `ciga_ckan_shared_municipio` |
 | 1 | CAMARA DE VEREADORES DE POUSO REDONDO | POUSO REDONDO | `pending_collection` | ingest_ciga_dom_publications_for_municipio_then_reconcile | `ciga_ckan_shared_municipio` |

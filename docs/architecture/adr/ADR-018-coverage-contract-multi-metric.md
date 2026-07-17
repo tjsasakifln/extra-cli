@@ -25,7 +25,7 @@ Adotar um **contrato multi-métrica** obrigatório. Todo relatório, CLI, DoD e 
 | ID | Nome | Definição | Alvo proposta |
 |----|------|-----------|---------------|
 | **M1** | `entities_with_recent_commercial_signal` | Entidades do universo 1.093 com ≥1 oportunidade OPEN/UPCOMING/RECENT matched (não RESULT genérico, não só ato oficial) | **Não é 95%** — cresce com mercado + recall |
-| **M2** | `operational_source_coverage` | Entidades com ≥1 fonte **aplicável** e evidência `success_*` dentro do SLA da fonte | **≥ 95%** |
+| **M2** | `operational_source_coverage` | Entidades com ≥1 fonte aplicável, sete estágios comprovados (`mapped` → `verified_within_sla`) e proveniência completa (`run_id`, raw URI/hash, IDs normalizados, reconciliação) | **≥ 95%** |
 | **M3** | `monitoring_evidence_coverage` | Entidades com observation no evidence ledger (pode ser monitoring-only) | Informativo |
 | **M4** | `bid_presence_coverage` | Entidades com ≥1 bid/contrato persistido | Informativo (≠ monitoring) |
 | **M5** | `source_health` | Por fonte: success rate, last_success, blocker | SLA operacional |
@@ -39,6 +39,7 @@ Adotar um **contrato multi-métrica** obrigatório. Todo relatório, CLI, DoD e 
 5. Todo JSON de métrica inclui: `as_of`, `git_sha` (se aplicável), `numerator`, `denominator`, `formula`, `source_artifacts[]`.
 6. **List identity:** `|covered| + |uncovered| = denominator` e `|covered| = numerator`.
 7. Artefatos stale sem `as_of` válido → status `UNVERIFIED`, nunca % “bonito”.
+8. Status `accessible`, `collected` ou `verified` sem a evidência completa não entra em M2; proxies de `entity_coverage` e volume no banco são rejeitados.
 
 ### Rename de campos (migração)
 
@@ -68,6 +69,13 @@ Adotar um **contrato multi-métrica** obrigatório. Todo relatório, CLI, DoD e 
 - [ ] `workspace coverage` e manifests usam nomes canônicos
 - [ ] Testes: list identity 116=116 no fixture da sessão; denominador 1093 imutável
 - [ ] Documentação PRD delta referencia este ADR
+
+## Verificação de implementação — 17/07/2026
+
+- M1: 116/1.093 (10,61%), rotulado como sinal comercial.
+- M2 estrito: 0/1.093 (0%); meta preservada.
+- Testes adversariais cobrem status `collected`, SLA expirado, falta de estágio/proveniência, IDs duplicados e ausência de registry.
+- `workspace coverage` mostra o contrato e gaps nominais; M3/M5 completos continuam no backlog, portanto os critérios globais acima permanecem abertos.
 
 ## Referências
 

@@ -1,0 +1,35 @@
+schema: 1
+story: 'B2G-E1.S2 + B2G-E2.S2'
+gate: CONCERNS
+status_reason: >
+  A calculadora estrita, registry, DOE/DOM públicos, persistência e workspace
+  passaram nos testes críticos e no golden path PCP. O ciclo não satisfaz o
+  objetivo final de 95%: M2=0/1093, freshness e recall continuam NOT_READY;
+  a suíte global depende de schema/banco legado e não fechou verde localmente.
+reviewer: 'Quinn (QA adversarial)'
+updated: '2026-07-17T10:35:00-03:00'
+verification:
+  targeted_tests: '74 passed'
+  golden_path: 'gp-20260717-102949 SUCCESS; PCP fetched=184 inserted=7'
+  pncp_golden_path: 'gp-20260717-102924 FAILED timeout 15s'
+  database: '1093 registry rows; 300 official acts; 0 duplicate source/hash groups'
+  coverage: 'mapping record coverage 1093/1093; operational 0/1093'
+  recall: '4/4 observed but PARTIAL/NOT_READY due missing strata and independence'
+top_issues:
+  - id: COV-001
+    severity: high
+    finding: 'Nenhuma entidade possui ainda ledger completo de sete estágios dentro do SLA; M2=0/1093.'
+    suggested_action: 'Implementar ledger por execução/fonte/entidade, reconciliar atos e verificar ≥1039 entidades dentro do SLA.'
+  - id: REC-001
+    severity: high
+    finding: 'Benchmark cobre somente quatro itens CIGA e não é independente; sete estratos obrigatórios ausentes.'
+    suggested_action: 'Executar amostra independente PNCP, SC Compras, HTML, JS, autarquia, fundação e câmara.'
+  - id: FRESH-001
+    severity: high
+    finding: 'CIGA observado termina em 11/07 e DOE público em 14/07/2025; ambos fora do SLA de 24h.'
+    suggested_action: 'Descobrir recursos mais recentes/rotas de edição e registrar freshness por entidade.'
+  - id: TEST-ENV-001
+    severity: medium
+    finding: 'Suíte global local falha por views ausentes em bancos de teste e contém grupos dependentes do ambiente; testes tocados estão verdes.'
+    suggested_action: 'Alinhar bootstrap do banco de CI, aplicar todas as migrations e exigir suíte remota verde antes de merge final.'
+waiver: { active: false }

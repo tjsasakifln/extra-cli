@@ -53,7 +53,8 @@ CREATE TABLE IF NOT EXISTS public.entity_source_registry (
     -- Access / SLA
     access_status           TEXT NOT NULL DEFAULT 'unknown'
                             CHECK (access_status IN (
-                                'mapped', 'accessible', 'collected', 'failed',
+                                'mapped', 'accessible', 'collected', 'verified',
+                                'operational', 'failed',
                                 'blocked', 'unknown', 'source_not_identified'
                             )),
     last_success_at         TIMESTAMPTZ,
@@ -107,7 +108,7 @@ COMMENT ON COLUMN public.entity_source_registry.canonical_id IS
     'Stable id: {cnpj8}:{NAME_SLUG}';
 
 COMMENT ON COLUMN public.entity_source_registry.access_status IS
-    'mapped|accessible|collected|failed|blocked|unknown|source_not_identified';
+    'mapped|accessible|collected|verified|operational|failed|blocked|unknown|source_not_identified';
 
 COMMENT ON COLUMN public.entity_source_registry.current_blocker IS
     'rate_limited|no_api|legacy_portal|pdf|javascript|captcha|fragmented|credential|not_applicable|none';

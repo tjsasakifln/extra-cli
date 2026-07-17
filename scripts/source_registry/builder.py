@@ -343,8 +343,8 @@ def _decide_status_and_strategy(
             blocker = "no_api"
         elif sphere == "estadual":
             strategy = "sc_compras_and_doe_sc"
-            next_action = "probe_sc_compras_and_doe"
-            blocker = "credential"  # DOE often needs credentials
+            next_action = "collect_public_sc_compras_and_doe_ckan"
+            blocker = "pending_collection"
         elif sphere == "federal":
             blocker = "none"
         else:
