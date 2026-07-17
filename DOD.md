@@ -1797,6 +1797,7 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 
 | Data | Commit | Alteração | Motivo | Responsável |
 |---|---|---|---|---|
+| 2026-07-17 | 0628e36 · main | §40 sessão multiagente: fundação run_id/evidence, pilot 90d fail-closed, datas 051, CKAN SC/CIGA/Compras/PNCP smokes, CI, relatório comercial; **não** 90d full / 95% / VPS | Execução real + auditoria de evidência | Multiagent execution |
 | 2026-07-17 | 839e73f · PR #8 | §39 NEXT-30D-MULTIAGENT close-out board + HTML:  fail-closed golden path; sc_compras 2602; contracts pilot multi-k; dedup CLI; schema audit; coverage ~4.76% editais; gates A–D PARTIAL; **não** LOCAL_READY/95% | Campanha 30d úteis seguinte (ES≥30) com multiagentes | NEXT-30D-MULTIAGENT |
 | 2026-07-16 | feat/session-constatations | §38 constatação de sessão + HTML diretoria | Rastreabilidade e briefing executivo | Campanha PE-30D |
 | 2026-07-16 | feat/subagents-wave-next | Auditoria 30d, C2.7/K3.2/C2.8/Q5 (82 testes), Q5.4 snapshot | Wave de subagents pós-janela | Subagents |
@@ -2001,7 +2002,7 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 - `docs/baseline/q5.4-remediation-next30d.md`
 - `docs/baseline/i4-reports-next30d.md`
 - `output/sc_compras/runtime-next30d.json`
-- `output/contracts/pilot-90d-next30d.json` (status=success)
+- `output/contracts/pilot-90d-next30d.json` (**status=partial**; path_proof 1d; **não** success do 90d nacional)
 - `output/reports/reconcile-next30d.json` (CONSISTENT)
 - `tests/test_golden_path_fail_closed.py`
 
@@ -2010,14 +2011,13 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 
 | Campo | Valor |
 |-------|-------|
-| SHA final | `839e73f5e226621f85e8c9cf7aa9d5a4c9e77234` (`839e73f`) |
-| PR | [#8](https://github.com/tjsasakifln/extra-consultoria/pull/8) |
+| SHA final campanha | `839e73f` · PR [#8](https://github.com/tjsasakifln/extra-consultoria/pull/8) |
 | sc_compras evidence | `output/sc_compras/runtime-next30d.json` **status=success**, inserted=**2602** |
 | Pilot contracts | `output/contracts/pilot-90d-next30d.json` **status=partial** (path GO · 3y NO-GO) |
-| Checkpoint | `completed_windows=["20260715_20260715"]` |
-| Contratos no DB | **34217** (baseline 0) |
+| Checkpoint path_1d | `completed_windows=["20260715_20260715"]` (isolado pós-sessão §40) |
+| Contratos no DB (artefato) | dezenas de milhares (cumulativo; ver §40) |
 | Editais crude | **4.76%** (52/1093) |
-| Testes campanha | 28 unitários (fail-closed + evidence artifacts + pilot predicates) |
+| Testes campanha | 28+ unitários (fail-closed + evidence artifacts + pilot predicates) |
 
 ## 39.5 Sessão para a diretoria — o que avançou
 
@@ -2066,3 +2066,107 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 | sc_compras | `docs/baseline/c2.7-sc-compras-runtime-next30d.md` + JSON |
 | Pilot contratos | `docs/baseline/k3.2-pncp-90d-pilot-next30d.md` + JSON |
 | PR | https://github.com/tjsasakifln/extra-consultoria/pull/8 |
+
+---
+
+# 40. Sessão multiagente — fundação de evidência e fontes SC (2026-07-17)
+
+> **Não declara** `LOCAL_READY`, cobertura ≥95%, `VPS_OPERATIONAL`, piloto nacional 90d **success**, nem GO para backfill 3 anos.  
+> **Fontes:** commits `d178896`…`0628e36` em `main`, `docs/ops/discovery/*`, `docs/ops/ledger/EVIDENCE-INCONSISTENCY-MATRIX.md`, artefatos em `output/contracts/`.
+
+## 40.1 Resultado executivo desta sessão
+
+| Campo | Valor |
+|-------|-------|
+| SHA base (início sessão) | `21290e1` |
+| SHA final | `0628e36` (docs §40 / HTML nesta publicação) |
+| Foco | Verdade operacional: run_id, pilot fail-closed, datas, fontes públicas SC, CI, relatório comercial |
+| Piloto 90d nacional | **partial** · path_proof 1d **attestation** · `go_no_go_3y=NO-GO` |
+| Smoke 7d contratos | **success** só no span 7d · `go_no_go_3y=NO-GO` (floor 90d) |
+| Editais crude | **~4,76%** (inalterado como claim de cobertura) |
+| VPS / DOE-SC auth | **não** operacional / residual externo |
+
+## 40.2 Entregas por frente
+
+### Fundação e verdade (Onda 1)
+
+| Entrega | Path / evidência |
+|---------|------------------|
+| Cadeia `run_id` + evidence (SHA-256, git, claims) | `scripts/crawl/run_evidence.py` |
+| Pilot 90d: full-coverage, retry, GO floor ≥90d, seal | `scripts/crawl/run_contracts_90d_pilot.py` |
+| Lock de run local | `scripts/crawl/run_lock.py` |
+| Matriz de inconsistências de evidência | `docs/ops/ledger/EVIDENCE-INCONSISTENCY-MATRIX.md` |
+| Scorecard/gates reconciliados (partial, não success) | `NEXT-30D-FINAL-SCORECARD.md`, `NEXT30-GATE-D.md`, audit |
+| Checkpoints isolados path_1d / span_7d | `data/contracts_checkpoints/path_1d/`, `span_7d/` |
+| Artefatos selados com path_proof.window ∈ completed_windows | `output/contracts/pilot-90d-next30d.json`, `pilot-7d-smoke.json` |
+
+### Modelo temporal (schema)
+
+| Entrega | Path |
+|---------|------|
+| Migration 051 datas semânticas (assinatura ≠ publicação) | `db/migrations/051_contract_date_semantics.sql` |
+| Transform PNCP corrigido + validators | `scripts/crawl/contracts_crawler.py`, `date_semantics.py` |
+| Testes de semântica | `tests/test_contract_date_semantics.py` |
+
+### Fontes públicas validadas (live smoke)
+
+| Fonte | Resultado | Artefato |
+|-------|-----------|----------|
+| Dados Abertos SC (CKAN) | Action API **sem token**; DOE bulk 28 resources | `docs/ops/discovery/sc-ckan-discovery.*`, `dados_abertos_sc_crawler.py` |
+| CIGA Dados | package_search `domsc` público (~428) | `discover_ciga_packages.py` |
+| Portal Compras SC | JSON `/api/editais` **200**, n≈2602 (2026) | `sc_compras_crawler` smoke, discovery |
+| E-Lic SC | Sem bulk JSON anônimo (stub + limitação documentada) | `elic_sc_stub.py` |
+| PNCP contratos | GET anônimo OK | `smoke_pncp_public.py`, `pncp-smoke.json` |
+| Comprasnet Contratos | Catálogo público; massa v1 **JWT** | discovery |
+| Classificador de atos DOM/DOE | Determinístico (17 categorias) | `act_classifier.py` |
+
+### Relatório, CI, operação
+
+| Entrega | Path |
+|---------|------|
+| Sample comercial SC com disclaimers | `scripts/reports/commercial_sample_sc.py` (+ evidence em discovery) |
+| CI default inclui pilot/evidence/datas/ckan/smoke | `.github/workflows/ci.yml` |
+| Suite crítica evidência | ≥71 testes fail-closed (path⊆checkpoint, foreign run, hash, partial→NO-GO) |
+
+## 40.3 Claims permitidos (sessão)
+
+1. Path proof de contratos PNCP (1 dia) foi **atestado** com `run_id` e checkpoint coerente (`path_1d`).
+2. Full 90d nacional **não** foi concluído; `go_no_go_3y=NO-GO`.
+3. Smoke 7d (1 janela) tem evidência selada em `span_7d` e **não** autoriza 3y.
+4. CKAN SC e CIGA respondem Action API pública sem token (provas live).
+5. Compras SC expõe JSON público de editais; PNCP `/contratos` é anônimo.
+6. `dataAssinatura` **não** deve ser usada como “publicação” (migration 051 + transform).
+7. Cobertura bruta de editais permanece da ordem de **~4,76%**.
+
+## 40.4 Claims proibidos (sessão)
+
+1. Piloto nacional 90d = `success`.
+2. GO para backfill 3 anos não supervisionado.
+3. CONTRATOS_95 / editais 95% / LOCAL_READY / VPS operacional.
+4. Seal = re-crawl live (attestation ≠ fetch).
+5. MIN/MAX de `data_publicacao` legada como prova de cobertura da janela de coleta.
+6. E-Lic como fonte bulk estável sem integração dedicada.
+
+## 40.5 Gargalo único de maior impacto
+
+**Completar o piloto nacional de contratos PNCP em 90 dias** (volume ~495k, timeouts, multi-janela supervisionada), com migration 051 aplicada no DB real e reprocessamento de datas — sem isso não há GO para 3y nem base temporal confiável para cruzar SC.
+
+## 40.6 Índice de commits desta sessão (antes desta publicação docs)
+
+| SHA | Mensagem |
+|-----|----------|
+| `d178896` | fix(contracts): full-coverage pilot semantics, run_id evidence, 90d GO floor |
+| `748e918` | feat(schema): contract date semantics migration and transform fix |
+| `c54e6b3` | docs(evidence): reconcile pilot partial/NO-GO claims and fail-closed tests |
+| `ccb18f2` | feat(sources): public CKAN SC crawler, CIGA discovery, act classifier |
+| `704ee75` | feat(sources): Compras SC smoke, PNCP public probe, E-Lic stub |
+| `019dc92` | feat(reports,ci): honest commercial sample and critical CI gates |
+| `cd56c35` | chore(evidence): sync 7d window checkpoint and commercial sample artifact |
+| `1da8619`…`0628e36` | fix(evidence): seal run_id chain, content-hash, path_proof ⊆ checkpoint |
+
+## 40.7 Referências cruzadas
+
+- Discovery: `docs/ops/discovery/`
+- Matriz: `docs/ops/ledger/EVIDENCE-INCONSISTENCY-MATRIX.md`
+- Pilot: `output/contracts/pilot-90d-next30d.json`, `pilot-7d-smoke.json`
+- HTML: `extra-consultoria-plano-executivo.html` (painel sessão §40)

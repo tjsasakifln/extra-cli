@@ -776,7 +776,7 @@ svg {
   </style>
   <div class="ep-shell">
     <header class="ep-top">
-      <div class="ep-brand"><div class="ep-mark">EX</div><div><div class="ep-eyebrow">Extra Construtora · Consultoria B2G</div><div class="ep-title">Plano mestre de entrega, controle e aceite</div><div class="ep-sub">Atualização diretoria 17/07/2026 · Campanha NEXT-30D · HEAD `839e73f` · PR #8 · Contratos 34217 (era 0) · sc_compras 2602 · Editais ~4.76% · Gates A–D PASS · Meta 95% e VPS ainda abertas</div></div></div>
+      <div class="ep-brand"><div class="ep-mark">EX</div><div><div class="ep-eyebrow">Extra Construtora · Consultoria B2G</div><div class="ep-title">Plano mestre de entrega, controle e aceite</div><div class="ep-sub">Atualização diretoria 17/07/2026 · Sessão multiagente §40 · HEAD `0628e36` · Pilot 90d partial + path 1d · Fontes SC públicas validadas · Editais ~4.76% · Meta 95% e VPS ainda abertas</div></div></div>
       <div class="ep-actions"><button class="ep-btn" id="ep-copy-summary">Copiar resumo</button><button class="ep-btn" id="ep-print">Imprimir / PDF</button></div>
     </header>
     <nav class="ep-nav" aria-label="Seções do planejamento">
@@ -803,9 +803,9 @@ svg {
         <div class="ep-phases" id="ep-phase-cards"></div>
         <div class="ep-section-head"><div><div class="ep-kicker">Linha de base executiva</div><div class="ep-section-title">O que pode e o que ainda não pode ser afirmado</div></div></div>
         <div class="ep-grid">
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Pode afirmar</div><p class="ep-meta">Campanha NEXT-30D (HEAD 839e73f): sc_compras 2.602 OK; contratos PNCP 34217 (baseline 0) com piloto terminal success; golden path fail-closed; dedup cross-source wired; PDF/Excel reconciliados; gates A–D PASS; CP PERT +30 dias úteis. Janela 30d anterior (ES&lt;30) permanece fechada em engenharia.</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Não pode afirmar ainda</div><p class="ep-meta">Cobertura ≥95% editais e contratos (separados); LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE; backfill integral 3 anos; DOE-SC sem credencial; VPS contratada. Editais medidos ~4.76% no raio (52/1.093) — presença, não aceitação DoD.</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Próxima decisão</div><p class="ep-meta">(1) Contratar VPS (ADR-007) e entregar SSH/backup. (2) Credenciais DOE-SC se prioridade estadual. (3) Confirmar expectativa comercial da meta 95% vs residual PERT. (4) Opcional: retomar pilot 90d multi-janela overnight antes do backfill 3y.</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Pode afirmar</div><p class="ep-meta">Sessão §40 (HEAD 0628e36): cadeia run_id/evidence; pilot 90d <strong>partial</strong> com path 1d atestado; GO 3y = NO-GO; CKAN SC + CIGA + Compras SC + PNCP públicos validados; datas (051) corrigidas; CI com testes de evidência; relatório comercial com disclaimers. NEXT-30D (PR #8) permanece base: sc_compras 2602, editais ~4.76%.</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Não pode afirmar ainda</div><p class="ep-meta">Piloto nacional 90d = success; backfill 3 anos; cobertura ≥95% editais/contratos; LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE; DOE-SC near-real-time sem credencial; VPS contratada. Editais ~4.76% (52/1.093) — medição, não aceite DoD.</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Próxima decisão</div><p class="ep-meta">(1) Run supervisionado multi-janela 90d PNCP (gargalo #1). (2) Aplicar migration 051 + reprocessar datas. (3) Contratar VPS. (4) Credenciais DOE-SC se prioridade. (5) Expectativa comercial 95% vs residual PERT.</p></div>
         </div>
       </section>
 
@@ -813,38 +813,40 @@ svg {
       <section class="ep-panel" data-panel="next30d-board" id="ep-next30d-session">
         <div class="ep-section-head">
           <div>
-            <div class="ep-kicker">Sessão 2026-07-17 · Campanha NEXT-30D-MULTIAGENT</div>
+            <div class="ep-kicker">Sessão 2026-07-17 · Multiagente §40 + campanha NEXT-30D</div>
             <div class="ep-section-title">Avanço para avaliação da diretoria</div>
           </div>
-          <div class="ep-section-note">Fonte: DoD §39 · PR #8 · HEAD 839e73f · Sem declaração de 95% / LOCAL_READY / PROJECT_DONE</div>
+          <div class="ep-section-note">Fonte: DoD §39–§40 · HEAD 0628e36 · Sem 95% / LOCAL_READY / PROJECT_DONE / 90d full success</div>
         </div>
         <div class="ep-grid">
-          <div class="ep-card ep-span-3"><div class="ep-kicker">SHA base → final</div><p class="ep-meta"><code>77ff8a8</code> → <code>839e73f</code><br>PR <a href="https://github.com/tjsasakifln/extra-consultoria/pull/8">#8</a></p></div>
-          <div class="ep-card ep-span-3"><div class="ep-kicker">Contratos PNCP</div><p class="ep-meta"><strong>34217</strong> linhas<br>Baseline: 0 · Pilot: partial (path GO / 3y NO-GO)</p></div>
-          <div class="ep-card ep-span-3"><div class="ep-kicker">SC Compras</div><p class="ep-meta"><strong>2602</strong> inseridos<br>status=success</p></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">SHA base → final (sessão)</div><p class="ep-meta"><code>21290e1</code> → <code>0628e36</code><br>Campanha PR <a href="https://github.com/tjsasakifln/extra-consultoria/pull/8">#8</a> incorporada</p></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">Piloto contratos</div><p class="ep-meta"><strong>partial</strong> · path 1d atestado<br>3y <strong>NO-GO</strong> · checkpoints isolados path_1d / span_7d</p></div>
+          <div class="ep-card ep-span-3"><div class="ep-kicker">Fontes SC públicas</div><p class="ep-meta">CKAN SC · CIGA · Compras JSON · PNCP GET<br>sem token de leitura (provas live)</p></div>
           <div class="ep-card ep-span-3"><div class="ep-kicker">Editais (raio)</div><p class="ep-meta"><strong>4.76%</strong><br>52/1093 entes cobertos</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Gates da campanha</div><p class="ep-meta">A FOUNDATION · B DATA (+DOE blocked) · C INTEL · D ACCEPTANCE — todos <strong>PASS</strong> nos critérios executáveis.</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Caminho crítico</div><p class="ep-meta">C2.7 (15) + C2.10 (5) + C2.11 escalate (10) = <strong>30 dias úteis PERT</strong> avançados nesta janela.</p></div>
-          <div class="ep-card ep-span-4"><div class="ep-kicker">Qualidade</div><p class="ep-meta">Golden path fail-closed · schema audit OK · 28 testes de campanha · PDF×Excel CONSISTENT · snapshot integrity 1.0</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Fundação de evidência</div><p class="ep-meta">run_id + SHA-256 + git · path_proof.window ∈ checkpoint · foreign run bloqueado · partial → NO-GO · ≥71 testes fail-closed</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Datas / schema</div><p class="ep-meta">Migration <strong>051</strong>: data_assinatura ≠ data_publicacao_fonte · validators · transform PNCP corrigido</p></div>
+          <div class="ep-card ep-span-4"><div class="ep-kicker">Qualidade / CI</div><p class="ep-meta">Pilotos testes no job CI default · commercial sample com disclaimers · act classifier DOM/DOE</p></div>
           <div class="ep-card ep-span-6"><div class="ep-kicker">Pode dizer à diretoria</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
-            <li>Trabalho <em>executado e comprovado</em>, não apenas planejado.</li>
-            <li>Ingestão real de editais estaduais (SC Compras) e volume material de contratos PNCP.</li>
-            <li>Controles de verdade (fail-closed, gates, auditoria adversarial) ativos.</li>
-            <li>Meta comercial de 95% permanece o norte — ainda não atingida.</li>
+            <li>Narrativa de “90d success” foi <em>corrigida</em>: partial + path 1d + NO-GO 3y.</li>
+            <li>Ingestão e discovery públicos SC/CIGA/PNCP com evidência reproduzível.</li>
+            <li>Controles de verdade (run_id, hashes, gates de artefato) endurecidos nesta sessão.</li>
+            <li>Meta 95% e VPS permanecem o norte — ainda não atingidos.</li>
           </ul></div>
-          <div class="ep-card ep-span-6"><div class="ep-kicker">Ainda depende do titular</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
-            <li><strong>V6.2</strong> — pagar/contratar VPS e credenciais SSH/backup.</li>
-            <li><strong>DOE-SC</strong> — login/senha se quiser diário estadual.</li>
-            <li>Alinhamento de expectativa de prazo da meta 95%.</li>
+          <div class="ep-card ep-span-6"><div class="ep-kicker">Ainda depende do titular / ops</div><ul class="ep-meta" style="margin:0;padding-left:1.2rem">
+            <li><strong>P0 técnico</strong> — pilot 90d multi-janela supervisionado (volume ~495k).</li>
+            <li><strong>V6.2</strong> — contratar VPS e SSH/backup.</li>
+            <li><strong>DOE-SC</strong> — credencial se quiser diário near-real-time (CKAN bulk já público).</li>
+            <li>Expectativa comercial da meta 95% vs residual PERT.</li>
           </ul></div>
-          <div class="ep-card ep-span-12"><div class="ep-kicker">Evidências para auditoria</div><p class="ep-meta">
-            <code>docs/ops/ledger/NEXT-30D-FINAL-SCORECARD.md</code> ·
-            <code>NEXT30-GATE-A…D.md</code> ·
-            <code>NEXT-30D-ADVERSARIAL-AUDIT.md</code> ·
-            <code>output/sc_compras/runtime-next30d.json</code> ·
+          <div class="ep-card ep-span-12"><div class="ep-kicker">Evidências para auditoria (sessão §40)</div><p class="ep-meta">
+            <code>DOD.md</code> §40 ·
+            <code>docs/ops/ledger/EVIDENCE-INCONSISTENCY-MATRIX.md</code> ·
+            <code>docs/ops/discovery/*</code> ·
             <code>output/contracts/pilot-90d-next30d.json</code> ·
-            <code>output/reports/reconcile-next30d.json</code> ·
-            DoD §39
+            <code>output/contracts/pilot-7d-smoke.json</code> ·
+            <code>db/migrations/051_contract_date_semantics.sql</code> ·
+            <code>scripts/crawl/run_evidence.py</code> ·
+            CI <code>.github/workflows/ci.yml</code>
           </p></div>
         </div>
       </section>
