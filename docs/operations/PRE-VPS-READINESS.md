@@ -172,12 +172,21 @@ Registrados em DoD §44. Gate mínimo local (2026-07-17, branch
 | `ruff check` (módulos resiliência) | pass |
 | `mypy --follow-imports=skip` (7 arquivos) | pass |
 | `python3 -m scripts.ops.validate_systemd` | pass |
-| `make resilient-smoke` | **180 passed**, 24 skipped (~16s) |
-| `tests/test_local_resilience.py` | **31 passed** (~8s) |
-| `make resilient-local-cycle` | exit 0, status `healthy` |
-| `python3 -m scripts.ops.health` | exit 0 |
+| `make resilient-smoke` | **181 passed**, 24 skipped (~14s) |
+| `tests/test_local_resilience.py` + chaos 429 | **35 passed** (~10s) |
+| `make resilient-local-cycle` (2×) | exit 0, status `healthy` (idempotente) |
+| `python3 -m scripts.ops.health` (2×) | exit 0 |
+| `python3 -m scripts.ops.validate_systemd` | pass |
 
 Fixtures controladas; `--live` é opt-in e não faz parte do gate de READY.
+
+**Nota honesta sobre filtros amplos `-k`:** ao rodar
+`pytest -k "checkpoint or resume or watermark or dlq"` e
+`pytest -k "chaos or resilience or idempot"` no repositório inteiro,
+podem aparecer falhas em `tests/test_opportunity_integration.py` (mock de DB
+sem tabelas `opportunity_*`). Isso é **pré-existente e fora do caminho
+ADR-021**. O gate canônico é `make resilience-gate` / `make resilient-smoke`.
+Filtros com `and not opportunity` passam.
 
 ## Riscos residuais
 

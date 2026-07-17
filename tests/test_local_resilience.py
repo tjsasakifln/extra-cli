@@ -268,10 +268,72 @@ def test_crash_after_raw_does_not_advance_watermark(tmp_path: Path) -> None:
 
 
 def test_crash_after_canonical_before_evidence_does_not_advance_watermark(tmp_path: Path) -> None:
+    """Canonical persisted, evidence incomplete → WatermarkStore must refuse commit."""
+    checkpoints = CheckpointStore(tmp_path / "checkpoints")
+    ledger = EvidenceLedger(tmp_path / "evidence")
+    watermarks = WatermarkStore(tmp_path / "watermarks")
     canonical = tmp_path / "canonical.json"
     canonical.write_text('[{"id": 1}]', encoding="utf-8")
-    assert canonical.is_file()
+
+    # Simulate crash after canonical write: checkpoint still partial, provenance incomplete.
+    cp = CanonicalCheckpoint(
+        source="pncp",
+        run_id="crash-r1",
+        request_scope="window=2026-07-17:2026-07-17|modalidade=1|page=1",
+        status="partial",
+        pages_fetched=1,
+        pages_expected=2,
+    )
+    checkpoints.save(cp)
+    incomplete = FetchResult(
+        status="partial",
+        records=[{"id": 1}],
+        request_completed=False,
+        pages_fetched=1,
+        pages_expected=2,
+        provenance={},  # missing provenance blocks satisfactory evidence
+    )
+    path, evidence = ledger.write(
+        source="pncp",
+        run_id="crash-r1",
+        request_scope=cp.request_scope,
+        result=incomplete,
+        window={"date_from": "2026-07-17", "date_to": "2026-07-17"},
+    )
+    assert evidence["satisfactory"] is False
+    with pytest.raises(ValueError, match="watermark exige"):
+        watermarks.commit(cp, path, evidence)
     assert not list((tmp_path / "watermarks").glob("**/*.json"))
+    assert checkpoints.pending("pncp")
+    assert canonical.is_file()
+
+
+def test_sc_compras_incomplete_bulk_never_success(tmp_path: Path) -> None:
+    """total_elementos > len(items) must be partial — empty virtual pages are not completeness."""
+    items = [{"id": i} for i in range(50)]
+
+    def list_fetcher(_year: int) -> tuple[list[dict], dict]:
+        return items, {"ok": True, "total_elementos": 100, "url": "fixture://sc-incomplete"}
+
+    adapter = ScComprasAdapter(config(tmp_path, page_size=50, max_pages=10), list_fetcher=list_fetcher)
+    result = adapter.fetch(
+        CrawlRequest(mode="incremental", date_from=date(2026, 7, 17), date_to=date(2026, 7, 17), run_id="sc-incomplete")
+    )
+    assert result.status == "partial"
+    assert result.empty_confirmed is False
+    assert result.coverage_satisfactory is False
+    assert len(result.records) == 50
+    assert result.pages_fetched < result.pages_expected
+    assert any("records_lt_reported_total" in w or "empty_virtual_page" in w for w in result.warnings)
+    ledger = EvidenceLedger(tmp_path / "evidence")
+    _path, evidence = ledger.write(
+        source="sc_compras",
+        run_id="sc-incomplete",
+        request_scope="year=2026",
+        result=result,
+        window={"date_from": "2026-07-17", "date_to": "2026-07-17"},
+    )
+    assert evidence["satisfactory"] is False
 
 
 def test_migration_enforces_fail_closed_evidence() -> None:

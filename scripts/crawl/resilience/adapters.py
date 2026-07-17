@@ -317,11 +317,15 @@ class ScComprasAdapter(_AdapterBase):
         if not meta.get("ok", True) and not items:
             status: FetchStatus = "rate_limited" if meta.get("http_status") == 429 else ("auth_blocked" if meta.get("http_status") in {401, 403} else "error")
             return FetchResult(status=status, request_completed=False, http_status=meta.get("http_status"), empty_confirmed=False, errors=[str(meta.get("error") or "list_fetch_failed")], provenance=self._provenance(request, run_id), metadata={"run_id": run_id})
-        pages_expected = math.ceil(total / self.config.page_size) if isinstance(total, int) and total else 0
+        bulk_count = len(items)
+        # Fail-closed: reported total is the completeness truth for this bulk endpoint.
+        # Virtual empty pages must never invent completeness when bulk is shorter.
+        pages_expected = math.ceil(total / self.config.page_size) if isinstance(total, int) and total > 0 else 0
         max_pages = min(request.limit or self.config.max_pages, self.config.max_pages)
         pages_to_process = min(pages_expected, max_pages) if pages_expected else 0
         records: list[dict[str, Any]] = []
         raw_refs: list[dict[str, str]] = []
+        warnings: list[str] = []
         pages_complete = 0
         for index in range(pages_to_process):
             scope = f"year={year}|page={index + 1}"
@@ -331,7 +335,7 @@ class ScComprasAdapter(_AdapterBase):
                 if cp.raw_reference and Path(cp.raw_reference).is_file():
                     raw_doc = json.loads(Path(cp.raw_reference).read_text(encoding="utf-8"))
                     payload = raw_doc.get("payload", [])
-                    if isinstance(payload, list):
+                    if isinstance(payload, list) and payload:
                         records.extend(payload)
                         raw_refs.append(
                             {
@@ -340,9 +344,21 @@ class ScComprasAdapter(_AdapterBase):
                                 "request_scope": scope,
                             }
                         )
-                pages_complete += 1
+                        pages_complete += 1
+                    else:
+                        warnings.append(f"empty_checkpoint_page_{index + 1}")
+                        break
+                else:
+                    warnings.append(f"missing_raw_for_checkpoint_page_{index + 1}")
+                    break
                 continue
             page_items = items[index * self.config.page_size : (index + 1) * self.config.page_size]
+            if not page_items:
+                # Bulk payload ended before reported total/pages — incomplete, not success.
+                warnings.append(
+                    f"empty_virtual_page_{index + 1}_bulk_count_{bulk_count}_total_{total}"
+                )
+                break
             provenance = self._provenance(request, run_id)
             provenance.update({"endpoint": meta.get("url") or self.legacy.BASE_URL, "page": index + 1, "http_status": 200})
             raw_path, digest = self.raw.persist(source=self.source_id, run_id=run_id, request_scope=scope, payload=page_items, provenance=provenance)
@@ -350,13 +366,40 @@ class ScComprasAdapter(_AdapterBase):
             records.extend(page_items)
             pages_complete += 1
             self.checkpoints.save(CanonicalCheckpoint(source=self.source_id, run_id=run_id, request_scope=scope, target=request.target, date_from=request.date_from.isoformat() if request.date_from else None, date_to=request.date_to.isoformat() if request.date_to else None, window=str(year), page=index + 1, status="raw_persisted", attempt_count=1, last_http_status=200, content_hash=digest, raw_reference=str(raw_path), pages_fetched=1, pages_expected=pages_expected))
-        status = "success" if pages_expected > 0 and pages_complete >= pages_expected else "partial"
+
+        records_match_total = (
+            isinstance(total, int)
+            and total > 0
+            and len(records) >= total
+            and bulk_count >= total
+        )
+        pages_complete_ok = pages_expected > 0 and pages_complete >= pages_expected
+        if pages_expected > max_pages:
+            warnings.append("page_limit_prevents_completeness")
+        if isinstance(total, int) and total > 0 and len(records) < total:
+            warnings.append(f"records_lt_reported_total:{len(records)}<{total}")
         # Public endpoint does not provide a target-scoped zero proof.
-        if not records and status == "success":
+        if records_match_total and pages_complete_ok and records:
+            status = "success"
+        else:
             status = "partial"
         provenance = self._provenance(request, run_id)
-        provenance.update({"endpoint": meta.get("url") or self.legacy.BASE_URL, "raw": raw_refs, "reported_total": total})
-        return FetchResult(status=status, records=records, request_completed=status == "success", http_status=200, http_statuses=[200], empty_confirmed=False, pages_fetched=pages_complete, pages_expected=pages_expected, resume_token=f"year={year}|page={pages_complete + 1}", checkpoint={"year": year}, warnings=["page_limit_prevents_completeness"] if status == "partial" and pages_expected > max_pages else [], provenance=provenance, metadata={"run_id": run_id, "raw": raw_refs})
+        provenance.update({"endpoint": meta.get("url") or self.legacy.BASE_URL, "raw": raw_refs, "reported_total": total, "bulk_count": bulk_count})
+        return FetchResult(
+            status=status,
+            records=records,
+            request_completed=status == "success",
+            http_status=200,
+            http_statuses=[200],
+            empty_confirmed=False,
+            pages_fetched=pages_complete,
+            pages_expected=pages_expected,
+            resume_token=f"year={year}|page={pages_complete + 1}",
+            checkpoint={"year": year, "bulk_count": bulk_count, "reported_total": total},
+            warnings=warnings,
+            provenance=provenance,
+            metadata={"run_id": run_id, "raw": raw_refs, "bulk_count": bulk_count},
+        )
 
     def normalize(self, raw: list[dict[str, Any]]) -> list[CanonicalRecord]:
         canonical = [self.legacy._api_item_to_canonical(item) for item in raw]

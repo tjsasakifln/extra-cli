@@ -60,3 +60,12 @@ O registry contém 11 adapters ativos: `pncp`, `ciga_ckan`, `pcp`, `compras_gov`
 ## Gate antes da implementação
 
 **NOT_READY**, pelos blockers: contrato paralelo, false empty no monitor, checkpoint PNCP com scope insuficiente, watermark antecipado, evidence sem predicate único de completude, CIGA/SC partial com exit 0, ausência de health consolidado e systemd concorrente.
+
+## Achados pós-implementação (auditoria adversarial)
+
+| Achado | Correção |
+|---|---|
+| SC Compras contava páginas virtuais vazias quando `total_elementos > len(items)` e podia emitir `success` | `ScComprasAdapter.fetch` agora exige `len(records) >= total` e interrompe em página virtual vazia → `partial` |
+| Chaos `tests/chaos/test_429_rate_limit.py` era stub `pass` | Substituído por testes reais no caminho ADR-021 (PNCP/SC) |
+| `test_crash_after_canonical_before_evidence` não exercitava stores | Reescrito com EvidenceLedger + WatermarkStore |
+| Filtros amplos `-k checkpoint/idempot` acionam `test_opportunity_integration` (mock DB) | Pré-existente; fora do gate canônico `make resilience-gate` |
