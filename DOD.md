@@ -2525,7 +2525,7 @@ Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução C
 **Decisão:** `LOCAL_RESILIENCE_READY`  
 **Não implica:** `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95% ou freshness externa garantida.  
 **Branch:** `feat/local-resilience-ready-20260717`  
-**Commit:** `debad71`  
+**Commit:** `3252010`  
 **Smoke gate:** 180 passed, 24 skipped  
 **Documento canônico:** `docs/operations/PRE-VPS-READINESS.md`  
 **Diagnóstico pré-código:** `docs/operations/LOCAL-RESILIENCE-DIAGNOSIS.md`
@@ -2553,8 +2553,8 @@ make resilience-gate
   ruff: pass
   mypy (7 módulos críticos): pass
   validate_systemd: pass
-  resilient-smoke: 180 passed, 24 skipped (~16s)
-  tests/test_local_resilience.py: 31 passed (~8s)
+  resilient-smoke: 181 passed, 24 skipped (~14s)
+  tests/test_local_resilience.py + chaos 429: 35 passed (~10s)
   resilient-local-cycle (fixtures): exit 0 healthy
   python3 -m scripts.ops.health: exit 0
 ```
@@ -2583,6 +2583,13 @@ python3 -m scripts.ops.health
 4. Demais adapters (PCP, compras.gov, TCE, etc.) validados neste gate.
 5. Stories E3.S1/S2 **Done** (permanecem **InReview** até QA/PO independentes).
 6. Scheduler em produção ou soak 24h.
+
+### 44.4b Correção adversarial pós-READY
+
+- Bug: SC Compras podia marcar `success` com páginas virtuais vazias quando `total_elementos > len(items)`.
+- Fix: `records_match_total` + stop em empty virtual page → `partial`.
+- Chaos 429 stubs removidos; crash-before-watermark reescrito com stores reais.
+- Commit: `3252010`.
 
 ### 44.5 Riscos residuais
 
