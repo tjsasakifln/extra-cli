@@ -16,12 +16,12 @@ Typical usage::
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from typing import Any
 
 import psycopg2
 import psycopg2.extras
 
-from scripts.crawl.metrics import WATERMARK_COMMITS_TOTAL, WATERMARK_AGE_SECONDS
+from scripts.crawl.metrics import WATERMARK_COMMITS_TOTAL
 
 logger = logging.getLogger(__name__)
 

@@ -697,16 +697,24 @@ def _crawl_date_range(
                 window_pages,
             )
 
-        # Mark window as completed
+        # Mark window as completed ONLY when fully successful.
+        # Partial data after page errors must NOT be treated as complete —
+        # otherwise resume skips the window and silently under-covers K3.2.
         if checkpoint:
-            if not window_errors or window_records > 0:
-                # Window completed (possibly with partial data)
+            fully_ok = not window_errors
+            if fully_ok:
                 checkpoint.completed_windows.append(window_key)
                 checkpoint.total_windows_completed += 1
                 checkpoint.total_contracts_fetched += window_records
             else:
                 checkpoint.total_windows_failed += 1
                 checkpoint.last_error = "; ".join(window_errors[:3])
+                logger.warning(
+                    "Window %s NOT marked complete (errors=%d, records=%d)",
+                    window_key,
+                    len(window_errors),
+                    window_records,
+                )
             save_checkpoint(checkpoint)
 
         cur = window_end + timedelta(days=1)
