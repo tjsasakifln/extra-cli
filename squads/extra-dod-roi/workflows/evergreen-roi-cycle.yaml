@@ -2,14 +2,20 @@
 id: evergreen-roi-cycle
 name: evergreen-roi-cycle
 type: orchestration
-version: "1.0.0"
+version: "1.1.0"
 description: >
-  Acquire lock, snapshot, reconcile DoD truth, build graph, rank by ROI,
-  implement smallest high-ROI slice, adversarial QA, evidence, draft PR,
-  release lock, point next ROI. Never auto-merge. Never false green.
+  FOOL-PROOF AIOX-bound cycle: force-next binds ranking[0] to story Draft,
+  then non-skippable @po -> @dev -> @qa -> @po -> @devops, then re-rank.
+  Never auto-merge. Never false green. Never cherry-pick non-#1 work.
 squad: extra-dod-roi
 owner: "@roi-orchestrator"
 permission: write
+foolproof: true
+enforcement:
+  policy: data/enforcement-policy.yaml
+  entry: force-next
+  selection_rule: ranking[0] only
+  allow_skip: false
 outcomes:
   - PASS
   - FAIL_REWORK
@@ -38,6 +44,24 @@ handoff_prompts:
     On veto or unsafe state, stop with named outcome; release lock; no silent continue.
 
 sequence:
+  - id: force-next-bind
+    step: 0
+    agent: roi-orchestrator
+    task: roi-orchestrator-force-next.md
+    action: "FOOL-PROOF entry: rank, select ranking[0] only, card, AIOX story Draft"
+    script: scripts/force_next.py
+    creates: state/cycles/current.json
+    on_fail: ABORTED_UNSAFE_STATE
+    on_empty_unlocked: NO_UNLOCKED_WORK
+
+  - id: aiox-po-ready
+    step: 0.5
+    agent: critical-path-roi-planner
+    action: "MANDATORY @po validate-story-draft — cannot implement before Ready"
+    validates: po_validated
+    aiox_map: "@po"
+    on_fail: BLOCKED_HUMAN_DECISION
+
   - id: acquire-lock
     step: 1
     agent: roi-orchestrator
@@ -132,25 +156,29 @@ sequence:
   - id: validate-preconditions
     step: 14
     agent: roi-orchestrator
-    action: "Validate readiness checklist before implement"
+    action: "Validate readiness + enforce_aiox_path implement + aiox-compliance"
     validates: readiness-checklist.md
     checklist: readiness-checklist.md
+    script: scripts/enforce_aiox_path.py
     on_external: BLOCKED_EXTERNAL
     on_human: BLOCKED_HUMAN_DECISION
+    on_fail: ABORTED_UNSAFE_STATE
 
   - id: create-isolated-branch
     step: 15
     agent: delivery-engineer
-    action: "Create isolated branch or worktree (never main)"
+    action: "Create isolated branch or worktree (never main) — AIOX @dev"
     creates: git_branch
     guard: never_main
+    aiox_map: "@dev"
 
   - id: implement
     step: 16
     agent: delivery-engineer
     task: delivery-engineer-implement-selected-slice.md
-    action: "Implement selected slice only"
+    action: "Implement ranking[0] slice only — AIOX @dev"
     updates: product_files_authorized_by_card
+    aiox_map: "@dev"
 
   - id: implementer-tests
     step: 17
@@ -159,29 +187,41 @@ sequence:
     action: "Run implementer local tests and gates"
     validates: implementer_tests
     creates: state/evidence/
+    aiox_map: "@dev"
 
   - id: handoff-qa
     step: 18
     agent: delivery-engineer
-    action: "Write handoff package for adversarial QA"
+    action: "Write handoff package for adversarial QA; status InReview"
     creates: state/handoffs/
+    aiox_map: "@dev"
 
   - id: adversarial-qa
     step: 19
     agent: adversarial-qa-auditor
     task: adversarial-qa-auditor-run-adversarial-verification.md
-    action: "Independent adversarial verification"
+    action: "Independent adversarial verification — AIOX @qa only"
     validates: adversarial-qa-checklist.md
     creates: state/qa/
     independent: true
+    aiox_map: "@qa"
+    script: scripts/enforce_aiox_path.py
 
   - id: rework-loop
     step: 20
     agent: roi-orchestrator
-    action: "On FAIL return to implement; cap rework iterations"
+    action: "On FAIL return to implement; cap rework iterations; never skip QA"
     on_fail: FAIL_REWORK
     max_iterations: 3
     return_to: implement
+
+  - id: aiox-po-close
+    step: 20.5
+    agent: evidence-release-steward
+    action: "MANDATORY @po close story after acceptable QA"
+    validates: po_closed
+    aiox_map: "@po"
+    script: scripts/enforce_aiox_path.py
 
   - id: consolidate-evidence
     step: 21
@@ -198,6 +238,7 @@ sequence:
     updates: DOD.md
     validates: evidence-checklist.md
     guard: only_after_pass
+    script: scripts/enforce_aiox_path.py
 
   - id: atomic-commits
     step: 23
@@ -208,9 +249,10 @@ sequence:
   - id: open-draft-pr
     step: 24
     agent: evidence-release-steward
-    action: "Open draft PR without merge"
+    action: "Open draft PR without merge — AIOX @devops only for remote"
     creates: draft_pr
     guard: draft_only_never_merge
+    aiox_map: "@devops"
 
   - id: cycle-report
     step: 25
@@ -225,11 +267,12 @@ sequence:
     action: "Release cycle lock"
     script: scripts/cycle_lock.py
 
-  - id: point-next-roi
+  - id: force-rerank
     step: 27
-    agent: critical-path-roi-planner
-    task: critical-path-roi-planner-explain-next-best-action.md
-    action: "Explain next best unlocked ROI work"
+    agent: roi-orchestrator
+    task: roi-orchestrator-force-next.md
+    action: "INEVITABLE re-rank: force-next for next highest ROI"
+    script: scripts/force_next.py
     creates: next_roi_pointer
     outcome: PASS
 

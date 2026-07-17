@@ -2,7 +2,11 @@
 
 Squad **local e privado** (UNLICENSED) para o repositório Extra Consultoria.
 
-Ciclo evergreen: reconstruir o estado real da codebase → reconciliar com `DOD.md` → grafo de dependências → filtrar UNLOCKED → rankear por ROI → execution card → implementar fatia mínima → QA adversarial independente → evidências → draft PR → apontar próximo ROI.
+**Modo fool-proof (v1.1):** a única entrada de escrita recomendada é `force-next`.
+Ela **força** o ranking[0], materializa story AIOX Draft e **impede** implementar
+fora da sequência `@po → @dev → @qa → @po → @devops`. Ver `docs/FOOLPROOF.md`.
+
+Ciclo evergreen: reconstruir o estado real da codebase → reconciliar com `DOD.md` → grafo de dependências → filtrar UNLOCKED → rankear por ROI → execution card → **story AIOX** → implementar fatia mínima → QA adversarial independente → evidências → draft PR → **re-rank obrigatório**.
 
 **Não publica** em aiox-squads, marketplace ou repositórios externos.
 
@@ -32,36 +36,44 @@ Workers determinísticos em `scripts/` para parse, score, snapshot, lock e `rank
 
 ## Comandos
 
+### Fool-proof (use isto)
+
+```bash
+# 1) Amarra inevitavelmente o ranking[0] + story AIOX Draft
+python squads/extra-dod-roi/scripts/cli.py force-next
+
+# 2) Depois do @po Ready — gate fail-closed antes de codar
+python squads/extra-dod-roi/scripts/cli.py enforce implement
+
+# 3) Estado do ciclo
+python squads/extra-dod-roi/scripts/cli.py cycle
+
+# 4) Ao fechar a story — re-rank obrigatório
+python squads/extra-dod-roi/scripts/cli.py force-next
+```
+
 ### Read-only
 
 ```bash
-# Status do squad
 python squads/extra-dod-roi/scripts/cli.py status
-
-# Snapshot
 python squads/extra-dod-roi/scripts/cli.py scan-state
-
-# Auditoria DoD (summary)
 python squads/extra-dod-roi/scripts/cli.py audit-dod --summary
-
-# Rank next (principal prova read-only)
 python squads/extra-dod-roi/scripts/cli.py rank-next
-python squads/extra-dod-roi/scripts/rank_next_cli.py --top 5
-
-# Explicar próximo
 python squads/extra-dod-roi/scripts/cli.py explain-next
 ```
 
 Via agente `@roi-orchestrator` (AIOX):
 
+- `*force-next` (entrada principal)
 - `*status` · `*scan-state` · `*audit-dod` · `*rank-next` · `*explain-next`
 - `*plan-next` · `*verify-current` · `*show-blockers`
 
 ### Write (exigem permissão de escrita)
 
-- `*execute-next` — implementa fatia do execution card
-- `*run-cycle` — workflow `evergreen-roi-cycle` completo
-- `*resume-cycle` — retoma ciclo interrompido (com stale detection)
+- `*force-next` — **entrada fool-proof** (rank + card + story Draft)
+- `*execute-next` — só após Ready + `enforce implement` ok
+- `*run-cycle` — workflow completo (inclui force-next)
+- `*resume-cycle` — retoma ciclo (stale detection; sem pular fases)
 
 ## Persistência
 

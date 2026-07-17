@@ -1,0 +1,45 @@
+# Binding: squad roles → AIOX agents (non-negotiable)
+version: "1.0.0"
+squad: extra-dod-roi
+protocol: ".claude/rules/aiox-project-operating-protocol.md"
+story_cycle: ".claude/skills/aiox-story-cycle/SKILL.md"
+
+role_map:
+  roi-orchestrator:
+    aiox: "@aiox-master"  # orchestration only; never replaces exclusive authorities
+    may_not: ["push", "qa_verdict", "po_close", "story_ac_edit"]
+  codebase-cartographer:
+    aiox: null
+    mode: read-only
+  dod-truth-auditor:
+    aiox: "@qa"  # truth veto aligned with quality authority on claims
+    may_not: ["implement"]
+  critical-path-roi-planner:
+    aiox: "@sm"  # planning/materialize story draft from card
+    also: ["@pm for epic context if needed"]
+  delivery-engineer:
+    aiox: "@dev"
+    exclusive_as: implementer
+  adversarial-qa-auditor:
+    aiox: "@qa"
+    exclusive_as: qa
+    independence: required
+  evidence-release-steward:
+    aiox: "@devops"
+    exclusive: ["git push", "gh pr create", "release"]
+    also_po_docs: "@po for DoD claim authorization after PASS"
+
+mandatory_artifacts_per_cycle:
+  - state/rankings/latest.json
+  - state/execution-cards/current.json
+  - state/cycles/current.json
+  - docs/stories/{story_id}.md
+  - .aiox/state/stories/{story_id}.json
+
+risk_default: STANDARD
+risk_escalate_if:
+  - auth/security/secrets
+  - migrations/schema
+  - production/infra/VPS
+  - CI/CD
+  - protocol files

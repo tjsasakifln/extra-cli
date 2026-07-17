@@ -28,7 +28,8 @@ def acquire(squad_root: Path, owner: str, force: bool = False) -> int:
         "acquired_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     lp.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"ok": True, "lock": payload}, indent=2))
+    # stderr so force-next --json stays pure on stdout
+    print(json.dumps({"ok": True, "lock": payload}, indent=2), file=sys.stderr)
     return 0
 
 
@@ -36,7 +37,7 @@ def release(squad_root: Path) -> int:
     lp = lock_path(squad_root)
     if lp.exists():
         lp.unlink()
-    print(json.dumps({"ok": True, "released": True}, indent=2))
+    print(json.dumps({"ok": True, "released": True}, indent=2), file=sys.stderr)
     return 0
 
 

@@ -1,0 +1,103 @@
+# Fool-proof enforcement policy — extra-dod-roi
+# Versioned. Changing this is PROTOCOL-level; do not weaken casually.
+version: "1.0.0"
+mode: strict  # only allowed mode in production use
+
+# Single legal write entrypoints
+write_entrypoints:
+  - force-next
+  - run-cycle
+  - resume-cycle
+forbidden_write_shortcuts:
+  - implement without force-next / run-cycle
+  - pick candidate other than ranking[0]
+  - skip rank when stale
+  - self-approve QA
+  - update DOD.md before QA PASS + PO close path
+  - git push without @devops after po_closed
+  - work directly on main for product code
+  - invent scope outside execution card
+  - weaken acceptance criteria to unlock
+
+# Must execute #1 UNLOCKED only (or independent batch declared in card with same rank batch flag)
+selection:
+  rule: ranking[0] only
+  allow_batch: false  # v1: single slice only — fool-proof simplicity
+  re_rank_required_if_stale: true
+  stale_triggers:
+    - HEAD changed
+    - DOD.md hash changed
+    - open PRs set changed
+    - ranking older than max_rank_age_hours
+  max_rank_age_hours: 4
+
+# Irreversible AIOX sequence — no phase may be skipped
+aiox_sequence:
+  - id: RANK
+    agent: critical-path-roi-planner
+    aiox_map: null
+    required: true
+  - id: CARD
+    agent: critical-path-roi-planner
+    aiox_map: null
+    required: true
+  - id: STORY_DRAFT
+    agent: sm  # AIOX @sm materializes from card
+    aiox_map: "@sm"
+    required: true
+  - id: STORY_READY
+    agent: po
+    aiox_map: "@po"
+    required: true
+    gate: po_validated == true
+  - id: IMPLEMENT
+    agent: delivery-engineer
+    aiox_map: "@dev"
+    required: true
+    gate: status in [Ready, InProgress]
+  - id: IN_REVIEW
+    agent: delivery-engineer
+    aiox_map: "@dev"
+    required: true
+    gate: status == InReview
+  - id: QA
+    agent: adversarial-qa-auditor
+    aiox_map: "@qa"
+    required: true
+    independence: must_differ_from_implementer
+    gate: qa_verdict in [PASS, CONCERNS, WAIVED] for proceed; FAIL → rework
+  - id: PO_CLOSE
+    agent: po
+    aiox_map: "@po"
+    required: true
+    gate: po_closed == true
+  - id: PUBLISH
+    agent: evidence-release-steward
+    aiox_map: "@devops"
+    required: true
+    gate: draft PR only; never auto-merge; publication_authorized from state
+  - id: RERANK
+    agent: critical-path-roi-planner
+    aiox_map: null
+    required: true
+    note: cycle incomplete until next ROI pointed
+
+abort_codes:
+  SKIP_PHASE: "Attempted to skip mandatory AIOX phase"
+  WRONG_CANDIDATE: "Attempted work not equal to ranking[0]"
+  STALE_RANK: "Ranking stale vs HEAD/DOD/PRs"
+  SELF_QA: "Implementer identity equals QA identity"
+  NO_STORY: "No AIOX story state for selected work"
+  PO_NOT_READY: "Story not Ready (po_validated false)"
+  QA_NOT_PASS: "QA not PASS/CONCERNS/WAIVED"
+  DOD_PREMATURE: "DoD checkbox update before authorized"
+  MAIN_WRITE: "Product write attempted on main"
+  SCOPE_DRIFT: "Files outside execution card scope"
+  HUMAN_BLOCKER: "External/human blocker — cannot force unlock"
+  NO_UNLOCKED: "No unlocked work — cycle ends with blockers only"
+
+human_only_overrides:
+  - BLOCKED_EXTERNAL (document only)
+  - BLOCKED_HUMAN_DECISION (Tiago explicit)
+  - irreversible infra cost
+# There is NO flag to skip AIOX sequence.

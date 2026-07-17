@@ -137,5 +137,71 @@ class SquadSmoke(unittest.TestCase):
         self.assertNotRegex(text, r"/mnt/|/home/|[A-Z]:\\")
 
 
+
+class FoolproofEnforcement(unittest.TestCase):
+    def test_policy_and_binding_exist(self):
+        self.assertTrue((SQUAD / "data" / "enforcement-policy.yaml").is_file())
+        self.assertTrue((SQUAD / "data" / "aiox-binding.yaml").is_file())
+        self.assertTrue((SQUAD / "docs" / "FOOLPROOF.md").is_file())
+        self.assertTrue((SQUAD / "scripts" / "force_next.py").is_file())
+        self.assertTrue((SQUAD / "scripts" / "enforce_aiox_path.py").is_file())
+
+    def test_implement_blocked_without_ready_cycle(self):
+        # Without a Ready story, implement gate must fail closed
+        proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "enforce_aiox_path.py"), "implement"],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        # May be MAIN_WRITE if on main, or SKIP_PHASE / NO_STORY / PO_NOT_READY
+        self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+        data = json.loads(proc.stdout)
+        self.assertFalse(data.get("ok", True))
+        self.assertIn(
+            data.get("abort_code"),
+            {
+                "MAIN_WRITE",
+                "SKIP_PHASE",
+                "NO_STORY",
+                "PO_NOT_READY",
+                "MISSING_ARTIFACT",
+                "WRONG_CANDIDATE",
+                "STALE_RANK",
+            },
+        )
+
+    def test_cycle_illegal_transition_aborts(self):
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPTS / "cycle_state.py"),
+                "init",
+            ],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        proc2 = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPTS / "cycle_state.py"),
+                "advance",
+                "--to",
+                "IMPLEMENTING",
+                "--actor",
+                "test",
+            ],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertNotEqual(proc2.returncode, 0)
+
+
 if __name__ == "__main__":
     unittest.main()

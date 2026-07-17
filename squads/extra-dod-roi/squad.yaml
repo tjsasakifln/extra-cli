@@ -1,8 +1,8 @@
 name: extra-dod-roi
-version: 1.0.0
+version: 1.1.0
 short-title: Extra DoD ROI Evergreen
-description: 'Evergreen cycle: reconstruct real codebase state, reconcile with DOD.md, rank unlocked work by ROI, implement
-  the smallest high-ROI slice, adversarial QA, evidence, draft PR — no false greens.'
+description: Fool-proof evergreen DoD/ROI cycle bound to AIOX SDC. force-next inevitably selects ranking[0], materializes
+  story, and blocks any path that skips @po/@dev/@qa/@po/@devops.
 author: Tiago Jun Sasaki
 license: UNLICENSED
 slashPrefix: extra-roi
@@ -34,6 +34,7 @@ components:
   - delivery-engineer-implement-selected-slice.md
   - dod-truth-auditor-reconcile-dod-truth.md
   - evidence-release-steward-publish-evidence-and-handoff.md
+  - roi-orchestrator-force-next.md
   - roi-orchestrator-resume-cycle.md
   - roi-orchestrator-run-evergreen-roi-cycle.md
   - roi-orchestrator-show-blockers.md
@@ -49,10 +50,11 @@ components:
   workflows:
   - evergreen-roi-cycle.yaml
   checklists:
-  - truth-audit-checklist.md
-  - readiness-checklist.md
   - adversarial-qa-checklist.md
+  - aiox-compliance-checklist.md
   - evidence-checklist.md
+  - readiness-checklist.md
+  - truth-audit-checklist.md
   templates:
   - execution-card.md
   - cycle-report.md
@@ -62,7 +64,11 @@ components:
   scripts:
   - cli.py
   - cycle_lock.py
+  - cycle_state.py
+  - enforce_aiox_path.py
+  - force_next.py
   - graph_build.py
+  - materialize_aiox_story.py
   - parse_dod.py
   - rank_next_cli.py
   - score_roi.py
@@ -120,3 +126,20 @@ commands:
   show-blockers:
     task: roi-orchestrator-show-blockers.md
     mode: read-only
+  force-next:
+    task: roi-orchestrator-force-next.md
+    mode: write
+    permission: required
+    foolproof: true
+    description: Inevitably bind ranking[0] to AIOX SDC; only legal write entry with run-cycle
+  enforce:
+    task: roi-orchestrator-force-next.md
+    mode: read-only
+    description: Fail-closed phase gate
+enforcement:
+  mode: strict
+  policy: data/enforcement-policy.yaml
+  aiox_binding: data/aiox-binding.yaml
+  entry: force-next
+  selection_rule: ranking[0] only
+  allow_skip: false

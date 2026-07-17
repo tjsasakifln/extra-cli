@@ -15,3 +15,14 @@
 | `*resume-cycle` | roi-orchestrator-resume-cycle.md | **write** |
 
 CLI equivalents under `scripts/cli.py`.
+
+## Fool-proof (v1.1)
+
+| Command | Mode |
+|---------|------|
+| `*force-next` / `cli.py force-next` | write — ranking[0] + AIOX story Draft |
+| `cli.py enforce <action>` | read-only gate |
+| `cli.py cycle` | read-only state machine |
+| `cli.py advance --to PHASE` | write — legal transitions only |
+
+See `docs/FOOLPROOF.md`.
