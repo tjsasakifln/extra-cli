@@ -73,6 +73,11 @@ def apply_completion_filters(
             "ROI-cand-full-suite-schema-debt Done with QA PASS + PO close",
         ),
         (
+            "cand-coverage-slice-pending-collection",
+            ["ROI-cand-coverage-slice-pending-collection"],
+            "ROI-cand-coverage-slice-pending-collection Done with QA PASS + PO close (M2 N>0 provenance)",
+        ),
+        (
             "cand-workspace-daily-evidence-pack",
             ["ROI-cand-workspace-daily-evidence-pack"],
             "ROI-cand-workspace-daily-evidence-pack Done with QA/PO",
