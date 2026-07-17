@@ -1,0 +1,67 @@
+{
+  "story_id": "ROI-cand-coverage-slice-pending-collection",
+  "title": "Fatia vertical de cobertura operacional: desbloquear pending_collection com proveniência (N entidades, não 95%)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "InReview",
+  "story_file": "docs/stories/ROI-cand-coverage-slice-pending-collection.md",
+  "created_at": "2026-07-17T23:09:24Z",
+  "updated_at": "2026-07-17T23:14:33Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "scope_files": [
+    "scripts/source_registry/acquisition/promote_from_evidence.py",
+    "tests/unit/source_registry/test_promote_from_evidence.py",
+    "docs/ops/session-2026-07-17-coverage-slice/",
+    "docs/stories/ROI-cand-coverage-slice-pending-collection.md",
+    ".aiox/state/stories/ROI-cand-coverage-slice-pending-collection.json",
+    "data/entity_source_registry.jsonl",
+    "output/coverage/"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-17T230924Z",
+    "candidate_id": "cand-coverage-slice-pending-collection",
+    "roi": 1.62,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  },
+  "po_validation": {
+    "validated_by": "Pax (@po)",
+    "validated_at": "2026-07-17T23:11:23Z",
+    "verdict": "GO",
+    "score": 8,
+    "notes": [
+      "AC: N>0 entities with run_id/raw/sha provenance via promote_from_evidence enrichment",
+      "Must not claim 95% or rename commercial as coverage",
+      "HIGH-RISK data claims — independent QA required"
+    ]
+  },
+  "dev_implementation": {
+    "branch": "extra-roi/cand-coverage-slice-pending-collection",
+    "m2_numerator": 5,
+    "m2_denominator": 1093
+  }
+}

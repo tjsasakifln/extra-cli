@@ -1,27 +1,28 @@
 {
   "total_entities": 1093,
   "expected_entities": 1093,
-  "mapped_or_better": 590,
-  "mapped_pct": 53.98,
-  "operational": 0,
-  "operational_pct": 0.0,
+  "mapped_or_better": 586,
+  "mapped_pct": 53.61,
+  "operational": 5,
+  "operational_pct": 0.46,
   "by_status": {
-    "mapped": 506,
+    "mapped": 503,
     "unknown": 487,
-    "collected": 84,
-    "verified": 16
+    "collected": 83,
+    "verified": 20
   },
   "by_blocker": {
     "pending_collection": 714,
-    "pending_live_verification": 226,
-    "fragmented": 153
+    "pending_live_verification": 222,
+    "fragmented": 152,
+    "none": 5
   },
   "by_strategy": {
     "ciga_ckan_shared_municipio": 450,
     "sc_compras_and_doe_sc": 263,
     "pncp_cnpj_lookup": 224,
-    "pipeline_evidence_promote": 100,
-    "pncp_monitor_by_cnpj": 39,
+    "pipeline_evidence_promote": 103,
+    "pncp_monitor_by_cnpj": 36,
     "multi_source_probe": 16,
     "ciga_ckan_municipio_expand": 1
   },
@@ -71,7 +72,7 @@
   "with_portal_transparencia": 269,
   "with_portal_institucional": 398,
   "with_diario_oficial": 556,
-  "avg_mapping_confidence": 0.5128,
+  "avg_mapping_confidence": 0.5134,
   "registry_path": "/mnt/d/extra consultoria/data/entity_source_registry.jsonl",
   "summary_path": "/mnt/d/extra consultoria/data/entity_source_registry_summary.json"
 }
