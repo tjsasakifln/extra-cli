@@ -1171,12 +1171,17 @@ def _finalize(
     )
 
     summary_path = jsonl_path.parent / "summary.json"
+    # Mode smoke/incremental/full against CIGA public API is live collection.
+    live_fetch = True
+    attestation = False
     summary = {
         "run_id": run_id,
         "source": SOURCE_NAME,
         "mode": mode,
         "package_id": package_id,
         "status": status,
+        "live_fetch": live_fetch,
+        "attestation": attestation,
         "counts": counts,
         "municipalities": muni_stats,
         "selected_resource_ids": selected_ids or [],
@@ -1240,7 +1245,12 @@ def _finalize(
         resource_stats=resource_stats,
         output_hash=sha256_file(jsonl_path) if jsonl_path.exists() else None,
         checkpoint_hash=sha256_file(checkpoint_file) if checkpoint_file.exists() else None,
+        live_fetch=live_fetch,
+        attestation=attestation,
     )
+    # build_run_evidence may ignore unknown kwargs — force required flags
+    evidence["live_fetch"] = live_fetch
+    evidence["attestation"] = attestation
     evidence_path.write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Convenience latest pointers

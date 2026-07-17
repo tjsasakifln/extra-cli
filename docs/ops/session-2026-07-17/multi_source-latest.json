@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "run_id": "20260717T022209Z-652a459dcd",
+  "run_id": "20260717T023429Z-6e25d3f381",
   "calc_date": "2026-07-17",
-  "generated_at": "2026-07-17T02:22:09.306656+00:00",
+  "generated_at": "2026-07-17T02:34:29.162170+00:00",
   "window_days": 30,
   "as_of": "2026-07-17",
   "project_root": "/mnt/d/extra consultoria",
@@ -69,7 +69,7 @@
         "Evidence ledger was empty at truth generation; bid presence uses entity_coverage only."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 4.76,
       "result_unit": "pct",
       "confidence": "high",
@@ -98,7 +98,7 @@
         "CIGA DOM run mode=smoke — partial resource selection; underestimates full coverage."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 74.92,
       "result_unit": "pct",
       "confidence": "medium",
@@ -136,7 +136,7 @@
         "This metric is intentionally SEPARATE from historical_editais_raw_coverage (4.76%)."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 20.31,
       "result_unit": "pct",
       "confidence": "medium",
@@ -164,7 +164,7 @@
         "Do not interpret this as municipal publication coverage or as the historical 4.76% metric."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 28.27,
       "result_unit": "pct",
       "confidence": "low",
@@ -192,7 +192,7 @@
         "Source coverage for 'dados_abertos_sc' uses a source-specific denominator; do not average blindly."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 1.22,
       "result_unit": "pct",
       "confidence": "low",
@@ -220,7 +220,7 @@
         "Source coverage for 'ciga_dom' uses a source-specific denominator; do not average blindly."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 74.92,
       "result_unit": "pct",
       "confidence": "medium",
@@ -258,7 +258,7 @@
         "Source coverage for 'sc_compras' uses a source-specific denominator; do not average blindly."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 0.38,
       "result_unit": "pct",
       "confidence": "medium",
@@ -282,7 +282,7 @@
         "Source coverage for 'pncp' uses a source-specific denominator; do not average blindly."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 4.76,
       "result_unit": "pct",
       "confidence": "medium",
@@ -306,7 +306,7 @@
         "Smoke artifacts often cover a single day → low temporal coverage even if source is healthy."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 3.23,
       "result_unit": "pct",
       "confidence": "medium",
@@ -335,7 +335,7 @@
         "Smoke artifacts often cover a single day → low temporal coverage even if source is healthy."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 3.23,
       "result_unit": "pct",
       "confidence": "medium",
@@ -364,7 +364,7 @@
         "Smoke artifacts often cover a single day → low temporal coverage even if source is healthy."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 0.0,
       "result_unit": "pct",
       "confidence": "medium",
@@ -392,7 +392,7 @@
         "Counts origin: records."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 94.74,
       "result_unit": "pct",
       "confidence": "medium",
@@ -525,7 +525,7 @@
         "Counts origin: records."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 94.74,
       "result_unit": "pct",
       "confidence": "medium",
@@ -649,7 +649,7 @@
         "Empty string / null / empty list count as missing."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 92.81,
       "result_unit": "pct",
       "confidence": "high",
@@ -717,7 +717,7 @@
         "Empty string / null / empty list count as missing."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 55.56,
       "result_unit": "pct",
       "confidence": "high",
@@ -797,7 +797,7 @@
         "Empty string / null / empty list count as missing."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 75.0,
       "result_unit": "pct",
       "confidence": "high",
@@ -871,7 +871,7 @@
         "Link fields checked: ['url']"
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 100.0,
       "result_unit": "pct",
       "confidence": "high",
@@ -895,7 +895,7 @@
         "Link fields checked: ['link_pncp', 'documentos']"
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 100.0,
       "result_unit": "pct",
       "confidence": "high",
@@ -920,7 +920,7 @@
         "Link fields checked: ['link_edicao', 'link_extrato']"
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": 0.0,
       "result_unit": "pct",
       "confidence": "high",
@@ -932,10 +932,10 @@
     },
     {
       "name": "freshness_hours_ciga_dom",
-      "numerator": 0.12,
+      "numerator": 0.33,
       "denominator": 1,
       "formula": "(now_utc - last_collection_completed_at).total_seconds()/3600",
-      "period": "as of 2026-07-17T02:22:09.306656+00:00",
+      "period": "as of 2026-07-17T02:34:29.162170+00:00",
       "sources": [
         "/mnt/d/extra consultoria/output/ciga_dom/latest_summary.json",
         "/mnt/d/extra consultoria/output/ciga_dom/freshness_manifest.json",
@@ -947,22 +947,22 @@
         "Does not prove downstream DB persistence — file artifact only."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
-      "result": 0.12,
+      "run_id": "20260717T023429Z-6e25d3f381",
+      "result": 0.33,
       "result_unit": "hours",
       "confidence": "high",
       "last_collection_at": "2026-07-17T02:14:43.245799+00:00",
       "latest_business_date": "2026-07-16",
-      "hours_since_collection": 0.12,
-      "hours_since_latest_business_date": 26.37,
+      "hours_since_collection": 0.33,
+      "hours_since_latest_business_date": 26.57,
       "method": "summary.completed_at + freshness_manifest.generated_at + freshness_manifest.latest_resource_modified + max(record business dates)"
     },
     {
       "name": "freshness_hours_sc_compras",
-      "numerator": 0.11,
+      "numerator": 0.31,
       "denominator": 1,
       "formula": "(now_utc - last_collection_completed_at).total_seconds()/3600",
-      "period": "as of 2026-07-17T02:22:09.306656+00:00",
+      "period": "as of 2026-07-17T02:34:29.162170+00:00",
       "sources": [
         "/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/artifact.json",
         "/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl"
@@ -973,22 +973,22 @@
         "Does not prove downstream DB persistence — file artifact only."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
-      "result": 0.11,
+      "run_id": "20260717T023429Z-6e25d3f381",
+      "result": 0.31,
       "result_unit": "hours",
       "confidence": "high",
       "last_collection_at": "2026-07-17T02:15:45+00:00",
       "latest_business_date": "2026-08-04",
-      "hours_since_collection": 0.11,
-      "hours_since_latest_business_date": -429.63,
+      "hours_since_collection": 0.31,
+      "hours_since_latest_business_date": -429.43,
       "method": "summary.completed_at + max(record business dates)"
     },
     {
       "name": "freshness_hours_dados_abertos_sc",
-      "numerator": 0.14,
+      "numerator": 0.35,
       "denominator": 1,
       "formula": "(now_utc - last_collection_completed_at).total_seconds()/3600",
-      "period": "as of 2026-07-17T02:22:09.306656+00:00",
+      "period": "as of 2026-07-17T02:34:29.162170+00:00",
       "sources": [
         "/mnt/d/extra consultoria/output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json",
         "/mnt/d/extra consultoria/data/normalized/dados_abertos_sc/0f2223f5-df6c-4860-96d6-f25636107379/dados-sc-smoke-20260717T021337Z-f4cfe4b907.jsonl"
@@ -999,14 +999,14 @@
         "Does not prove downstream DB persistence — file artifact only."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
-      "result": 0.14,
+      "run_id": "20260717T023429Z-6e25d3f381",
+      "result": 0.35,
       "result_unit": "hours",
       "confidence": "high",
       "last_collection_at": "2026-07-17T02:13:40.425813+00:00",
       "latest_business_date": "2025-07-01",
-      "hours_since_collection": 0.14,
-      "hours_since_latest_business_date": 9146.37,
+      "hours_since_collection": 0.35,
+      "hours_since_latest_business_date": 9146.57,
       "method": "summary.completed_at + max(record business dates)"
     },
     {
@@ -1014,7 +1014,7 @@
       "numerator": null,
       "denominator": 1,
       "formula": "(now_utc - last_collection_completed_at).total_seconds()/3600",
-      "period": "as of 2026-07-17T02:22:09.306656+00:00",
+      "period": "as of 2026-07-17T02:34:29.162170+00:00",
       "sources": [
         "/mnt/d/extra consultoria/output/readiness/freshness-gate.json",
         "/mnt/d/extra consultoria/output/readiness/freshness-gate.json"
@@ -1025,7 +1025,7 @@
         "Does not prove downstream DB persistence — file artifact only."
       ],
       "calc_date": "2026-07-17",
-      "run_id": "20260717T022209Z-652a459dcd",
+      "run_id": "20260717T023429Z-6e25d3f381",
       "result": null,
       "result_unit": "hours",
       "confidence": "none",
@@ -1056,9 +1056,9 @@
     "document_coverage_ciga_dom": 100.0,
     "document_coverage_sc_compras": 100.0,
     "document_coverage_dados_abertos_sc": 0.0,
-    "freshness_hours_ciga_dom": 0.12,
-    "freshness_hours_sc_compras": 0.11,
-    "freshness_hours_dados_abertos_sc": 0.14,
+    "freshness_hours_ciga_dom": 0.33,
+    "freshness_hours_sc_compras": 0.31,
+    "freshness_hours_dados_abertos_sc": 0.35,
     "freshness_hours_pncp": null
   }
 }

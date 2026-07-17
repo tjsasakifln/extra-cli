@@ -1,8 +1,8 @@
 # Multi-Source Coverage Report
 
-**run_id:** `20260717T022209Z-652a459dcd`
+**run_id:** `20260717T023429Z-6e25d3f381`
 **calc_date:** 2026-07-17
-**generated_at:** 2026-07-17T02:22:09.306656+00:00
+**generated_at:** 2026-07-17T02:34:29.162170+00:00
 **window_days:** 30
 **as_of:** 2026-07-17
 
@@ -45,9 +45,9 @@
 | `document_coverage_ciga_dom` | 100.0 | 2454 | 2454 | high | pct |
 | `document_coverage_sc_compras` | 100.0 | 10 | 10 | high | pct |
 | `document_coverage_dados_abertos_sc` | 0.0 | 0 | 500 | high | pct |
-| `freshness_hours_ciga_dom` | 0.12 | 0.12 | 1 | high | hours |
-| `freshness_hours_sc_compras` | 0.11 | 0.11 | 1 | high | hours |
-| `freshness_hours_dados_abertos_sc` | 0.14 | 0.14 | 1 | high | hours |
+| `freshness_hours_ciga_dom` | 0.33 | 0.33 | 1 | high | hours |
+| `freshness_hours_sc_compras` | 0.31 | 0.31 | 1 | high | hours |
+| `freshness_hours_dados_abertos_sc` | 0.35 | 0.35 | 1 | high | hours |
 | `freshness_hours_pncp` | n/a | None | 1 | none | hours |
 
 ## Metric details
@@ -61,7 +61,7 @@
 - **period:** snapshot as of 2026-07-17 (entity_coverage, radius 200 km FLN)
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/coverage/next30d-metrics-final.json`
   - `output/coverage/next30d-metrics-final.json`
@@ -86,7 +86,7 @@
 - **period:** last 30d ending 2026-07-17 (business date of publication)
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T021436Z-08120b3f8f/publications.jsonl`
   - `/mnt/d/extra consultoria/output/ciga_dom/latest_summary.json`
@@ -116,7 +116,7 @@
 - **period:** last 30d ending 2026-07-17
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl`
   - `/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T021436Z-08120b3f8f/publications.jsonl`
@@ -143,7 +143,7 @@
 - **period:** snapshot 2026-07-15
 - **confidence:** low
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/readiness/target-reconciliation-summary.json`
 - **limitations:**
@@ -163,7 +163,7 @@
 - **period:** mode=smoke; resource subset of package diario-oficial-sc-publicacoes
 - **confidence:** low
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json`
   - `/mnt/d/extra consultoria/data/normalized/dados_abertos_sc/0f2223f5-df6c-4860-96d6-f25636107379/dados-sc-smoke-20260717T021337Z-f4cfe4b907.jsonl`
@@ -188,7 +188,7 @@
 - **period:** publication dates present in current CIGA artifact (may be single-day smoke)
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/ciga_dom/latest_summary.json`
   - `/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T021436Z-08120b3f8f/publications.jsonl`
@@ -213,7 +213,7 @@
 - **period:** API year filter=2026; mode=incremental
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/artifact.json`
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl`
@@ -236,7 +236,7 @@
 - **period:** datalake snapshot 2026-07-17
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/readiness/freshness-gate.json`
   - `/mnt/d/extra consultoria/output/coverage/next30d-metrics-final.json`
@@ -258,7 +258,7 @@
 - **period:** last 30d ending 2026-07-17
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T021436Z-08120b3f8f/publications.jsonl`
   - `/mnt/d/extra consultoria/output/ciga_dom/latest_summary.json`
@@ -282,7 +282,7 @@
 - **period:** last 30d ending 2026-07-17
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl`
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/artifact.json`
@@ -306,7 +306,7 @@
 - **period:** last 30d ending 2026-07-17
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/data/normalized/dados_abertos_sc/0f2223f5-df6c-4860-96d6-f25636107379/dados-sc-smoke-20260717T021337Z-f4cfe4b907.jsonl`
   - `/mnt/d/extra consultoria/output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json`
@@ -328,7 +328,7 @@
 - **period:** artifact snapshot
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T021436Z-08120b3f8f/publications.jsonl`
   - `/mnt/d/extra consultoria/output/ciga_dom/latest_summary.json`
@@ -366,7 +366,7 @@
 - **period:** artifact snapshot
 - **confidence:** medium
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/data/normalized/dados_abertos_sc/0f2223f5-df6c-4860-96d6-f25636107379/dados-sc-smoke-20260717T021337Z-f4cfe4b907.jsonl`
   - `/mnt/d/extra consultoria/output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json`
@@ -404,7 +404,7 @@
 - **period:** artifact snapshot
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T021436Z-08120b3f8f/publications.jsonl`
   - `/mnt/d/extra consultoria/output/ciga_dom/latest_summary.json`
@@ -433,7 +433,7 @@
 - **period:** artifact snapshot
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl`
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/artifact.json`
@@ -464,7 +464,7 @@
 - **period:** artifact snapshot
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/data/normalized/dados_abertos_sc/0f2223f5-df6c-4860-96d6-f25636107379/dados-sc-smoke-20260717T021337Z-f4cfe4b907.jsonl`
   - `/mnt/d/extra consultoria/output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json`
@@ -494,7 +494,7 @@
 - **period:** artifact snapshot
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T021436Z-08120b3f8f/publications.jsonl`
   - `/mnt/d/extra consultoria/output/ciga_dom/latest_summary.json`
@@ -514,7 +514,7 @@
 - **period:** artifact snapshot
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl`
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/artifact.json`
@@ -534,7 +534,7 @@
 - **period:** artifact snapshot
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/data/normalized/dados_abertos_sc/0f2223f5-df6c-4860-96d6-f25636107379/dados-sc-smoke-20260717T021337Z-f4cfe4b907.jsonl`
   - `/mnt/d/extra consultoria/output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json`
@@ -547,14 +547,14 @@
 
 ### `freshness_hours_ciga_dom`
 
-- **result:** 0.12 (hours)
-- **numerator:** 0.12
+- **result:** 0.33 (hours)
+- **numerator:** 0.33
 - **denominator:** 1
 - **formula:** (now_utc - last_collection_completed_at).total_seconds()/3600
-- **period:** as of 2026-07-17T02:22:09.306656+00:00
+- **period:** as of 2026-07-17T02:34:29.162170+00:00
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/ciga_dom/latest_summary.json`
   - `/mnt/d/extra consultoria/output/ciga_dom/freshness_manifest.json`
@@ -566,20 +566,20 @@
 - **extras:**
   - last_collection_at: `2026-07-17T02:14:43.245799+00:00`
   - latest_business_date: `2026-07-16`
-  - hours_since_collection: `0.12`
-  - hours_since_latest_business_date: `26.37`
+  - hours_since_collection: `0.33`
+  - hours_since_latest_business_date: `26.57`
   - method: `summary.completed_at + freshness_manifest.generated_at + freshness_manifest.latest_resource_modified + max(record business dates)`
 
 ### `freshness_hours_sc_compras`
 
-- **result:** 0.11 (hours)
-- **numerator:** 0.11
+- **result:** 0.31 (hours)
+- **numerator:** 0.31
 - **denominator:** 1
 - **formula:** (now_utc - last_collection_completed_at).total_seconds()/3600
-- **period:** as of 2026-07-17T02:22:09.306656+00:00
+- **period:** as of 2026-07-17T02:34:29.162170+00:00
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/artifact.json`
   - `/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl`
@@ -590,20 +590,20 @@
 - **extras:**
   - last_collection_at: `2026-07-17T02:15:45+00:00`
   - latest_business_date: `2026-08-04`
-  - hours_since_collection: `0.11`
-  - hours_since_latest_business_date: `-429.63`
+  - hours_since_collection: `0.31`
+  - hours_since_latest_business_date: `-429.43`
   - method: `summary.completed_at + max(record business dates)`
 
 ### `freshness_hours_dados_abertos_sc`
 
-- **result:** 0.14 (hours)
-- **numerator:** 0.14
+- **result:** 0.35 (hours)
+- **numerator:** 0.35
 - **denominator:** 1
 - **formula:** (now_utc - last_collection_completed_at).total_seconds()/3600
-- **period:** as of 2026-07-17T02:22:09.306656+00:00
+- **period:** as of 2026-07-17T02:34:29.162170+00:00
 - **confidence:** high
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json`
   - `/mnt/d/extra consultoria/data/normalized/dados_abertos_sc/0f2223f5-df6c-4860-96d6-f25636107379/dados-sc-smoke-20260717T021337Z-f4cfe4b907.jsonl`
@@ -614,8 +614,8 @@
 - **extras:**
   - last_collection_at: `2026-07-17T02:13:40.425813+00:00`
   - latest_business_date: `2025-07-01`
-  - hours_since_collection: `0.14`
-  - hours_since_latest_business_date: `9146.37`
+  - hours_since_collection: `0.35`
+  - hours_since_latest_business_date: `9146.57`
   - method: `summary.completed_at + max(record business dates)`
 
 ### `freshness_hours_pncp`
@@ -624,10 +624,10 @@
 - **numerator:** None
 - **denominator:** 1
 - **formula:** (now_utc - last_collection_completed_at).total_seconds()/3600
-- **period:** as of 2026-07-17T02:22:09.306656+00:00
+- **period:** as of 2026-07-17T02:34:29.162170+00:00
 - **confidence:** none
 - **calc_date:** 2026-07-17
-- **run_id:** `20260717T022209Z-652a459dcd`
+- **run_id:** `20260717T023429Z-6e25d3f381`
 - **sources:**
   - `/mnt/d/extra consultoria/output/readiness/freshness-gate.json`
   - `/mnt/d/extra consultoria/output/readiness/freshness-gate.json`

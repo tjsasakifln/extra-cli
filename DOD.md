@@ -2177,7 +2177,7 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 
 > **HEAD inicial:** `0a2806f8dcaf56377680c640390f73e27cd1d393`  
 > **SHA técnico (código/evidência):** `8b8138aa05fff521f329b8c00221acd0bb147e24`
-> **SHA documental final:** `025c2de4373e850d099fd02ad62c1de0b6f0e282`  
+> **SHA documental final (HEAD da publicação):** ver último commit em `main` após este fechamento; SHA técnico estável abaixo.  
 > **Branch:** `main`  
 > **Natureza:** execução real (live_fetch) + persistência local + testes. **Não** declara LOCAL_READY, 95%, 90d pilot success, VPS ou PROJECT_DONE.
 
@@ -2191,12 +2191,12 @@ Transformar descobertas de fontes públicas SC em **ingestão real, incremental,
 |--------|---------|-----------|
 | CI baseline | Suite crítica verde; ruff/mypy/bandit/pip-audit (deps) PASS; migration 051 aplicada no DB local | `docs/ops/session-2026-07-17/baseline-ci-a.json`; pytest critical **300 passed, 5 skipped** |
 | DOE-SC (Dados Abertos) | Download real CSV 2025, raw imutável + SHA-256, 500 rows smoke, classificados, checkpoint/retomada | `output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json`; `scripts/crawl/dados_abertos_sc_crawler.py` |
-| CIGA/DOM | Smoke live pacote `domsc-publicacoes-de-07-2026`; **2454** publicações; **223** municípios observados / 295 universo; zip-slip safe | `docs/ops/session-2026-07-17/ciga-dom-latest-summary.json`; `scripts/crawl/ciga_dom_publications.py` |
+| CIGA/DOM | Smoke live pacote `domsc-publicacoes-de-07-2026`; **2454** publicações; **223** observados; **221/295** cobertos no universo IBGE (accent-normalized); zip-slip safe; `live_fetch=true` | `docs/ops/session-2026-07-17/ciga-dom-latest-summary.json`; `scripts/crawl/ciga_dom_publications.py` |
 | Schema 052 | `official_acts*` + helpers; apply idempotente em PG local | `db/migrations/052_official_acts.sql`; `scripts/schema/official_acts.py` |
 | Persistência | **2964** atos no banco (ciga_dom 2454 + dados_abertos_sc 500 + sc_compras 10); 0 grupos duplicados (source, hash) | `docs/ops/session-2026-07-17/official-acts-load.json` |
 | Classificador | 25 categorias; corpus 35 casos; confiança float + needs_human_review | `scripts/crawl/act_classifier.py`; `tests/fixtures/act_classifier_corpus.json` |
 | Compras SC | Incremental real + checkpoint + run_id; API ano devolve lista completa (meta **2602** em 2026); smoke 20 regs | `docs/ops/session-2026-07-17/sc-compras-smoke-artifact.json` |
-| Reconciliação | 30 matches determinísticos Compras SC ↔ PNCP (`pncp_number_exact`); DOE/DOM sem match estruturado no smoke | `output/reconciliation/reconcile-20260717T022208Z-345999f5bf/` |
+| Reconciliação | 30 matches via `compras_sc_id_crosswalk` (ids `sc-*` espelhados em `pncp_raw_bids` — **não** número de controle PNCP real); **0** `pncp_number_exact` no smoke; DOE/DOM sem match estruturado | `output/reconciliation/reconcile-20260717T023428Z-3b096d2b41/` |
 | Coverage | Métricas separadas; histórico **4,76%** preservado; municípios 30d **74,92%** (221/295) em amostra CIGA | `docs/ops/session-2026-07-17/multi_source-latest.md` |
 | Comercial | JSON/CSV/XLSX/HTML com disclaimers automáticos (baixa cobertura, freshness pncp/contracts) | `docs/ops/session-2026-07-17/commercial-b2g-session-sc.*` |
 
@@ -2204,7 +2204,7 @@ Transformar descobertas de fontes públicas SC em **ingestão real, incremental,
 
 | Item | Valor |
 |------|-------|
-| Migrations | 051 contract date semantics (aplicada + backfill 63574 rows); 052 official_acts (idempotente) |
+| Migrations | 051 contract date semantics (aplicada + backfill 63574 rows); 052 official_acts (SQL aplicado + linha em `_migrations` status=applied) |
 | Tabelas novas | `official_act_resources`, `official_acts`, `official_act_classifications`, `official_act_links`, `official_act_source_links`, `official_act_matches` |
 | Inserts sessão | 2964 `official_acts` (upsert idempotente) |
 | Duplicidades | 0 grupos (source, record_hash) |
@@ -2222,24 +2222,25 @@ Transformar descobertas de fontes públicas SC em **ingestão real, incremental,
 
 ### 41.5 Claims permitidos
 
-1. Ingestão **live** DOE-SC (CKAN CSV 2025, 500 rows processados) e DOM-SC (CIGA, 2454 pubs) com `live_fetch=true`.
-2. Persistência real em `official_acts` (2964) no PostgreSQL local.
+1. Ingestão **live** DOE-SC (CKAN CSV 2025, 500 rows processados) e DOM-SC (CIGA, 2454 pubs) com `live_fetch=true` / `attestation=false`.
+2. Persistência real em `official_acts` (2964) no PostgreSQL local; migration **052** aplicada e registrada em `_migrations`.
 3. Classificação determinística de atos (sem LLM obrigatório).
-4. Reconciliação inicial determinística: 30 pares Compras SC↔PNCP.
+4. Reconciliação inicial: **30** pares via regra `compras_sc_id_crosswalk` (ids `sc-*` do portal Compras SC também presentes em `pncp_raw_bids` como espelho local). **0** matches `pncp_number_exact` com número de controle PNCP real no smoke.
 5. Cobertura bruta de editais no raio permanece **~4,76%** (metodologia histórica intacta).
-6. Municipípios com publicação na amostra CIGA ~75% do universo SC (295) — **não** é cobertura de editais DoD 95%.
-7. Suite crítica CI-equivalente **300 passed / 5 skipped** nesta sessão.
+6. Municípios com publicação na amostra CIGA: **221/295 = 74,92%** (resumo resselado, chaves accent-normalized) — **não** é cobertura de editais DoD 95%.
+7. Suite crítica CI-equivalente **300 passed / 5 skipped** nesta sessão (antes da correção de claims); testes de reconciliação+ciga **48 passed** após o fix.
 8. Catálogo DOE no CKAN ainda **termina em 2025** (sem resource 2026 no `package_show`).
 
 ### 41.6 Claims proibidos
 
 1. LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE / CONTRATOS_95 / EDITAIS_95.
 2. Piloto PNCP 90d nacional = success; backfill 3 anos autorizado.
-3. Cobertura de editais ≥95% ou “operação autônoma diária confiável”.
+3. Cobertura de editais ≥95% ou "operação autônoma diária confiável".
 4. 2602 editais Compras SC como cobertura histórica total (é meta do filtro ano, não prova multi-ano).
 5. 74,92% municípios = meta DoD de editais.
-6. Reconciliação ampla DOE/DOM↔PNCP (smoke só casou Compras SC ids `sc-*`).
-7. Ingestão completa/incremental contínua DOE+DOM em produção/VPS.
+6. Reconciliação ampla DOE/DOM ↔ PNCP oficial.
+7. Tratar ids `sc-*` ou linhas espelho em `pncp_raw_bids` como número de controle PNCP / `pncp_number_exact`.
+8. Ingestão completa/incremental contínua DOE+DOM em produção/VPS.
 
 ### 41.7 Gargalo único de maior impacto
 
@@ -2268,6 +2269,15 @@ python3 -m scripts.matching.official_acts_reconcile --mode smoke
 python3 -m scripts.coverage.multi_source_coverage
 python3 -m scripts.reports.commercial_b2g_session --output-dir output/reports
 ```
+
+### 41.10 Correção adversarial (mesma sessão)
+
+Após revisão independente, foram corrigidos:
+
+1. **Reconciliação:** `sc-*` não é mais promovido a `pncp_number`; regra `pncp_number_exact` exige formato PNCP real; smoke re-executado com `compras_sc_id_crosswalk` × 30 e **0** `pncp_number_exact`.
+2. **Migration 052:** registrada em `_migrations` (status=applied) no DB local.
+3. **CIGA evidence:** flags explícitas `live_fetch=true` / `attestation=false`; municípios resselados **221/295** (antes 138 por interseção sem normalização consistente no artefato).
+4. **SHA documental:** não embutir SHA auto-referente órfão; usar HEAD de `main` após o commit de correção.
 
 ### 41.9 Referências
 

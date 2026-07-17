@@ -54,8 +54,9 @@ def test_normalize_pncp_number():
         normalize_pncp_number("83102459000123-2-002798/2026")
         == "83102459000123-2-002798/2026"
     )
-    assert normalize_pncp_number("sc-41624") == "sc-41624"
-    assert normalize_pncp_number("prefix sc-99 suffix") == "sc-99"
+    # sc-* portal ids must NEVER become pncp_number (self-link trap)
+    assert normalize_pncp_number("sc-41624") is None
+    assert normalize_pncp_number("prefix sc-99 suffix") is None
     assert normalize_pncp_number(None) is None
 
 
@@ -440,6 +441,7 @@ def test_record_from_compras_sc():
     }
     rec = record_from_compras_sc(raw, 0)
     assert rec.compras_sc_id == "sc-41624"
+    assert rec.pncp_number is None  # sc-* must not promote to pncp_number
     assert rec.modalidade == "dispensa"
     assert rec.status == "homologado"
     assert rec.has_documents is False
@@ -457,7 +459,42 @@ def test_record_from_pncp_bid_sc_crosswalk():
     }
     rec = record_from_pncp_bid(raw)
     assert rec.compras_sc_id == "sc-58075"
+    assert rec.pncp_number is None  # mirror of Compras SC in pncp_raw_bids
     assert rec.modalidade == "inexigibilidade"
+
+
+def test_sc_self_match_is_not_pncp_number_exact():
+    """Regression: sc-* mirrored into pncp_raw_bids must not claim pncp_number_exact."""
+    left = record_from_compras_sc(
+        {
+            "api_id": 60847,
+            "pncp_id": "sc-60847",
+            "source_id": "sc-60847",
+            "orgao_razao_social": "SES",
+            "status": "Aberto",
+            "data_publicacao": "2026-07-16",
+        },
+        0,
+    )
+    right = record_from_pncp_bid(
+        {
+            "pncp_id": "sc-60847",
+            "numero_controle_pncp": "sc-60847",
+            "orgao_razao_social": "SES",
+            "data_publicacao": "2026-07-16",
+            "uf": "SC",
+        }
+    )
+    assert left.pncp_number is None
+    assert right.pncp_number is None
+    idx = MatchIndex()
+    idx.add(right)
+    m = match_record_against_index(left, idx)
+    assert m is not None
+    assert m.rule == "compras_sc_id_crosswalk"
+    assert m.rule != "pncp_number_exact"
+    # Index must not contain sc-* under by_pncp
+    assert "sc-60847" not in idx.by_pncp
 
 
 def test_record_from_pncp_contract():

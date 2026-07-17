@@ -269,21 +269,36 @@ def normalize_identifier(value: str | None) -> str | None:
     return "/".join(norm_parts)
 
 
+def is_real_pncp_control_number(value: str | None) -> bool:
+    """True only for official PNCP control numbers (never sc-* portal ids)."""
+    if not value:
+        return False
+    s = str(value).strip()
+    if s.lower().startswith("sc-"):
+        return False
+    if _RE_PNCP.search(s):
+        return True
+    return bool(re.fullmatch(r"\d{14}-\d+-\d+/\d{4}", s))
+
+
 def normalize_pncp_number(value: str | None) -> str | None:
+    """Normalize an official PNCP control number.
+
+    Never promotes Compras SC portal ids (``sc-NNNN``) to pncp_number — those
+    must use ``compras_sc_id`` / rule ``compras_sc_id_crosswalk`` only.
+    Real PNCP form: 14-digit CNPJ + sequence + year (with separators).
+    """
     if not value:
         return None
     s = str(value).strip()
+    if s.lower().startswith("sc-") or _RE_SC_ID.fullmatch(s.strip()):
+        return None
     m = _RE_PNCP.search(s)
     if m:
         return m.group(1)
-    # Accept sc-NNNN as secondary pncp-like id (Compras SC ingested into PNCP)
-    m2 = _RE_SC_ID.search(s)
-    if m2:
-        return f"sc-{m2.group(1)}"
-    if s.lower().startswith("sc-"):
-        return s.lower()
-    # Bare digits-only not treated as PNCP control number
-    return s if re.fullmatch(r"\d{14}-\d+-\d+/\d{4}", s) else (s if s.startswith("sc-") else None)
+    if re.fullmatch(r"\d{14}-\d+-\d+/\d{4}", s):
+        return s
+    return None
 
 
 def normalize_modalidade(value: str | int | None) -> str | None:
@@ -596,10 +611,8 @@ def record_from_compras_sc(raw: dict[str, Any], idx: int) -> Record:
     if sc_id is None and api_id is not None:
         sc_id = f"sc-{api_id}"
 
+    # Only real PNCP control numbers — never promote sc-* portal ids
     pncp = normalize_pncp_number(raw.get("numero_controle_pncp") or raw.get("pncp_number"))
-    # sc-* is both compras id and local pncp_id in this datalake
-    if not pncp and sc_id:
-        pncp = sc_id
 
     docs = raw.get("documentos")
     has_docs = None
@@ -637,10 +650,11 @@ def record_from_compras_sc(raw: dict[str, Any], idx: int) -> Record:
 
 def record_from_pncp_bid(raw: dict[str, Any]) -> Record:
     pncp_id = str(raw.get("pncp_id") or raw.get("source_id") or "")
-    numero = raw.get("numero_controle_pncp") or pncp_id
-    pncp_norm = normalize_pncp_number(str(numero) if numero else None) or (
-        pncp_id.lower() if pncp_id.lower().startswith("sc-") else None
-    )
+    numero = raw.get("numero_controle_pncp")
+    # Prefer explicit numero_controle_pncp; never treat sc-* id as PNCP number
+    pncp_norm = normalize_pncp_number(str(numero) if numero else None)
+    if pncp_norm is None:
+        pncp_norm = normalize_pncp_number(pncp_id)
     sc_id = None
     if pncp_id.lower().startswith("sc-"):
         sc_id = pncp_id.lower()
@@ -652,6 +666,8 @@ def record_from_pncp_bid(raw: dict[str, Any]) -> Record:
             m = _RE_SC_ID.search(pncp_id)
             if m:
                 sc_id = f"sc-{m.group(1)}"
+    # Rows that are only sc-* mirrors in pncp_raw_bids are inventory copies of
+    # Compras SC — keep compras_sc_id for crosswalk, leave pncp_number empty.
 
     process = normalize_identifier(
         raw.get("process_number") or raw.get("numero_processo")
@@ -1079,7 +1095,7 @@ class MatchIndex:
 
     def add(self, rec: Record) -> None:
         self.all.append(rec)
-        if rec.pncp_number:
+        if rec.pncp_number and is_real_pncp_control_number(rec.pncp_number):
             self.by_pncp[rec.pncp_number].append(rec)
         k = _index_key_parts(rec.process_number, rec.orgao_cnpj)
         if k:
@@ -1107,9 +1123,13 @@ class MatchIndex:
 
 def _candidates_for_rule(rule: str, probe: Record, index: MatchIndex) -> list[Record]:
     if rule == "pncp_number_exact":
-        if not probe.pncp_number:
+        if not probe.pncp_number or not is_real_pncp_control_number(probe.pncp_number):
             return []
-        return list(index.by_pncp.get(probe.pncp_number, []))
+        return [
+            r
+            for r in index.by_pncp.get(probe.pncp_number, [])
+            if is_real_pncp_control_number(r.pncp_number)
+        ]
     if rule == "process_number_orgao_cnpj":
         k = _index_key_parts(probe.process_number, probe.orgao_cnpj)
         return list(index.by_process_cnpj.get(k, [])) if k else []
