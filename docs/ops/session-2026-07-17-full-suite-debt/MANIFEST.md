@@ -46,7 +46,7 @@ python3 -m pytest -o addopts='' -q \
 |------|---------|
 | `01-critical-readiness.txt` | pytest console (197 passed, 24 skipped on refresh) |
 | `01-critical-readiness.exit` | `CRITICAL_EXIT=0` |
-| `02-critical-skip-reasons.txt` | short test summary of the 5 skips |
+| `02-critical-skip-reasons.txt` | short test summary of the 24 skips (4 reason groups) |
 
 **Claims allowed from this evidence:**
 
