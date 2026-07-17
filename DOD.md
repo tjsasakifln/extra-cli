@@ -2170,3 +2170,108 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 - Matriz: `docs/ops/ledger/EVIDENCE-INCONSISTENCY-MATRIX.md`
 - Pilot: `output/contracts/pilot-90d-next30d.json`, `pilot-7d-smoke.json`
 - HTML: `extra-consultoria-plano-executivo.html` (painel sessão §40)
+
+---
+
+## 41. Sessão multiagente — ingestão real DOE/DOM/Compras + reconciliação (2026-07-17)
+
+> **HEAD inicial:** `0a2806f8dcaf56377680c640390f73e27cd1d393`  
+> **SHA técnico (código/evidência):** `8b8138aa05fff521f329b8c00221acd0bb147e24`
+> **SHA documental final:** `025c2de4373e850d099fd02ad62c1de0b6f0e282`  
+> **Branch:** `main`  
+> **Natureza:** execução real (live_fetch) + persistência local + testes. **Não** declara LOCAL_READY, 95%, 90d pilot success, VPS ou PROJECT_DONE.
+
+### 41.1 Objetivo da rodada
+
+Transformar descobertas de fontes públicas SC em **ingestão real, incremental, auditável e reconciliada** (DOE-SC via Dados Abertos, DOM via CIGA, Compras SC), com classificação determinística, schema unificado, métricas com denominador explícito e relatório comercial honesto.
+
+### 41.2 Entregas comprovadas
+
+| Frente | Entrega | Evidência |
+|--------|---------|-----------|
+| CI baseline | Suite crítica verde; ruff/mypy/bandit/pip-audit (deps) PASS; migration 051 aplicada no DB local | `docs/ops/session-2026-07-17/baseline-ci-a.json`; pytest critical **300 passed, 5 skipped** |
+| DOE-SC (Dados Abertos) | Download real CSV 2025, raw imutável + SHA-256, 500 rows smoke, classificados, checkpoint/retomada | `output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json`; `scripts/crawl/dados_abertos_sc_crawler.py` |
+| CIGA/DOM | Smoke live pacote `domsc-publicacoes-de-07-2026`; **2454** publicações; **223** municípios observados / 295 universo; zip-slip safe | `docs/ops/session-2026-07-17/ciga-dom-latest-summary.json`; `scripts/crawl/ciga_dom_publications.py` |
+| Schema 052 | `official_acts*` + helpers; apply idempotente em PG local | `db/migrations/052_official_acts.sql`; `scripts/schema/official_acts.py` |
+| Persistência | **2964** atos no banco (ciga_dom 2454 + dados_abertos_sc 500 + sc_compras 10); 0 grupos duplicados (source, hash) | `docs/ops/session-2026-07-17/official-acts-load.json` |
+| Classificador | 25 categorias; corpus 35 casos; confiança float + needs_human_review | `scripts/crawl/act_classifier.py`; `tests/fixtures/act_classifier_corpus.json` |
+| Compras SC | Incremental real + checkpoint + run_id; API ano devolve lista completa (meta **2602** em 2026); smoke 20 regs | `docs/ops/session-2026-07-17/sc-compras-smoke-artifact.json` |
+| Reconciliação | 30 matches determinísticos Compras SC ↔ PNCP (`pncp_number_exact`); DOE/DOM sem match estruturado no smoke | `output/reconciliation/reconcile-20260717T022208Z-345999f5bf/` |
+| Coverage | Métricas separadas; histórico **4,76%** preservado; municípios 30d **74,92%** (221/295) em amostra CIGA | `docs/ops/session-2026-07-17/multi_source-latest.md` |
+| Comercial | JSON/CSV/XLSX/HTML com disclaimers automáticos (baixa cobertura, freshness pncp/contracts) | `docs/ops/session-2026-07-17/commercial-b2g-session-sc.*` |
+
+### 41.3 Banco (local `pncp_datalake` @ 5433)
+
+| Item | Valor |
+|------|-------|
+| Migrations | 051 contract date semantics (aplicada + backfill 63574 rows); 052 official_acts (idempotente) |
+| Tabelas novas | `official_act_resources`, `official_acts`, `official_act_classifications`, `official_act_links`, `official_act_source_links`, `official_act_matches` |
+| Inserts sessão | 2964 `official_acts` (upsert idempotente) |
+| Duplicidades | 0 grupos (source, record_hash) |
+
+### 41.4 Cobertura e freshness (honestas)
+
+| Métrica | Resultado | Denominador | Confiança |
+|---------|-----------|-------------|-----------|
+| `historical_editais_raw_coverage` | **4,76%** | 52/1093 entes raio 200 km | high (não sobrescrita) |
+| `municipalities_with_publication_30d` | 74,92% | 221/295 munis IBGE SC | medium (smoke 2 ZIPs de jul/2026) |
+| `source_coverage_sc_compras` | 0,38% | 10/2602 (meta API ano) | medium (amostra page-limited) |
+| `source_coverage_dados_abertos_sc` | 1,22% | 500/~41080 linhas CSV 2025 | low (smoke) |
+| Freshness ciga/sc/dados | <1 h pós-coleta | artefatos completed_at | high |
+| Freshness pncp/contracts gate | falhando | freshness_gate | — |
+
+### 41.5 Claims permitidos
+
+1. Ingestão **live** DOE-SC (CKAN CSV 2025, 500 rows processados) e DOM-SC (CIGA, 2454 pubs) com `live_fetch=true`.
+2. Persistência real em `official_acts` (2964) no PostgreSQL local.
+3. Classificação determinística de atos (sem LLM obrigatório).
+4. Reconciliação inicial determinística: 30 pares Compras SC↔PNCP.
+5. Cobertura bruta de editais no raio permanece **~4,76%** (metodologia histórica intacta).
+6. Municipípios com publicação na amostra CIGA ~75% do universo SC (295) — **não** é cobertura de editais DoD 95%.
+7. Suite crítica CI-equivalente **300 passed / 5 skipped** nesta sessão.
+8. Catálogo DOE no CKAN ainda **termina em 2025** (sem resource 2026 no `package_show`).
+
+### 41.6 Claims proibidos
+
+1. LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE / CONTRATOS_95 / EDITAIS_95.
+2. Piloto PNCP 90d nacional = success; backfill 3 anos autorizado.
+3. Cobertura de editais ≥95% ou “operação autônoma diária confiável”.
+4. 2602 editais Compras SC como cobertura histórica total (é meta do filtro ano, não prova multi-ano).
+5. 74,92% municípios = meta DoD de editais.
+6. Reconciliação ampla DOE/DOM↔PNCP (smoke só casou Compras SC ids `sc-*`).
+7. Ingestão completa/incremental contínua DOE+DOM em produção/VPS.
+
+### 41.7 Gargalo único de maior impacto
+
+**Cobertura de editais no universo 200 km (~4,76%)** — o ganho municipal via CIGA melhora sinais de publicação, mas **não** substitui backfill multi-fonte de editais/contratos no denominador 1093 entes com freshness PNCP e documentos.
+
+### 41.8 Como reproduzir (ordem)
+
+```bash
+# CI critical
+pytest tests/test_freshness_gate.py tests/test_universe.py tests/test_manifest.py \
+  tests/test_consulting_readiness.py tests/test_coverage_truth.py \
+  tests/test_resolve_unresolved_entities.py tests/test_golden_path_fail_closed.py \
+  tests/test_golden_path_ledger.py tests/test_contracts_window_complete.py \
+  tests/test_contracts_pilot_completion.py tests/test_evidence_artifact_consistency.py \
+  tests/test_cross_source_hash.py tests/test_commercial_sample_sc.py \
+  tests/test_run_evidence.py tests/test_contract_date_semantics.py \
+  tests/test_dados_abertos_sc_crawler.py tests/test_act_classifier.py \
+  tests/test_smoke_pncp_public.py tests/test_sc_compras_smoke.py \
+  tests/test_contracts_uf_filter.py -o addopts='' -q
+
+python3 -m scripts.crawl.dados_abertos_sc_crawler --mode smoke
+python3 -m scripts.crawl.ciga_dom_publications --mode smoke
+python3 -m scripts.crawl.sc_compras_crawler --mode smoke --max-pages 2
+python3 -m scripts.ingestion.load_official_acts_session
+python3 -m scripts.matching.official_acts_reconcile --mode smoke
+python3 -m scripts.coverage.multi_source_coverage
+python3 -m scripts.reports.commercial_b2g_session --output-dir output/reports
+```
+
+### 41.9 Referências
+
+- Bundle evidência: `docs/ops/session-2026-07-17/`
+- HTML diretoria: `extra-consultoria-plano-executivo.html` (painel sessão §41)
+- Commit técnico: `8b8138a`
+
