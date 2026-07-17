@@ -122,13 +122,28 @@ jobs:
           tests/test_golden_path_fail_closed.py
           tests/test_golden_path_ledger.py
           tests/test_contracts_window_complete.py
+          tests/test_contracts_pilot_completion.py
+          tests/test_evidence_artifact_consistency.py
           tests/test_cross_source_hash.py
+          tests/test_commercial_sample_sc.py
+          tests/test_run_evidence.py
+          tests/test_contract_date_semantics.py
+          tests/test_dados_abertos_sc_crawler.py
+          tests/test_act_classifier.py
+          tests/test_smoke_pncp_public.py
+          tests/test_sc_compras_smoke.py
+          tests/test_contracts_uf_filter.py
           -o addopts=''
           --cov=scripts.freshness_gate
           --cov=scripts.lib.universe
           --cov=scripts.consulting_readiness
           --cov=scripts.coverage_truth
           --cov=scripts.golden_path
+          --cov=scripts.crawl.run_contracts_90d_pilot
+          --cov=scripts.crawl.act_classifier
+          --cov=scripts.crawl.date_semantics
+          --cov=scripts.crawl.run_evidence
+          --cov=scripts.reports.commercial_sample_sc
           --cov-report=term-missing
           --cov-report=html:docs/td-001/coverage-reports/
           --cov-fail-under=10
