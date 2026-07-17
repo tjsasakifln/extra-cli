@@ -1423,6 +1423,22 @@ def build_metodologia(stats: dict, oportunidades: list[dict], styles: dict) -> l
         )
 
     el.append(Spacer(1, 4 * mm))
+
+    run_meta = stats.get("run_meta") or {}
+    if run_meta:
+        el.append(Paragraph("Identidade do Run (reconciliacao PDF x Excel)", styles["h2"]))
+        el.append(
+            Paragraph(
+                f"Run ID: <b>{_s(run_meta.get('run_id'))}</b> | "
+                f"as_of: {_s((run_meta.get('cutoff') or {}).get('as_of_date'))} | "
+                f"UF filter: {_s((run_meta.get('filters') or {}).get('uf'))} | "
+                f"sample: {_s((run_meta.get('sample_size') or {}).get('label'))} | "
+                f"git: {_s(run_meta.get('git_sha'))}",
+                styles["body_small"] if "body_small" in styles else styles["caption"],
+            )
+        )
+        el.append(Spacer(1, 2 * mm))
+
     el.append(
         Paragraph(
             f"Relatorio gerado em {_today()}. Proxima atualizacao recomendada: 7 dias.",
@@ -1438,7 +1454,9 @@ def build_metodologia(stats: dict, oportunidades: list[dict], styles: dict) -> l
 # ============================================================
 
 
-def generate_executive_report(output_path: str):
+def generate_executive_report(output_path: str, run_id: str | None = None, uf: str = "SC"):
+    from scripts.reports.run_metadata import build_run_metadata, write_sidecar
+
     conn = get_conn()
     styles = _build_styles()
 
@@ -1470,6 +1488,11 @@ def generate_executive_report(output_path: str):
             if c == "HIGH":
                 confianca_high += 1
 
+        raw_bids_count = scalar(conn, "SELECT COUNT(*) FROM pncp_raw_bids WHERE is_active = true") or 0
+        ultima_atualizacao = (
+            scalar(conn, "SELECT MAX(updated_at)::text FROM opportunity_intel WHERE is_active = true") or "N/I"
+        )
+
         stats = {
             "total_oportunidades": total,
             "total_go": go_count,
@@ -1482,7 +1505,25 @@ def generate_executive_report(output_path: str):
             "confianca_dist": confianca_dist,
             "fontes_usadas": ["PNCP (Portal Nacional de Contratacoes Publicas)"],
             "_raw_oportunidades": oportunidades,
+            "total": total,
+            "go_count": go_count,
+            "no_go_count": no_go_count,
+            "review_count": review_count,
+            "raw_bids_count": raw_bids_count,
+            "vincendos_count": len(vincendos),
+            "ultima_atualizacao": ultima_atualizacao,
         }
+
+        run_meta = build_run_metadata(
+            run_id=run_id,
+            artifact_kind="pdf",
+            script="scripts/reports/executive_report.py",
+            uf=uf,
+            stats=stats,
+        )
+        stats["run_meta"] = run_meta
+        stats["run_id"] = run_meta["run_id"]
+        stats["sample_label"] = run_meta["sample_size"]["label"]
 
         # Build document
         elements = []
@@ -1530,7 +1571,8 @@ def generate_executive_report(output_path: str):
         )
         doc.build(elements, onLaterPages=_draw_footer, canvasmaker=_NumberedCanvas)
 
-        return output_path
+        write_sidecar(output_path, run_meta)
+        return output_path, stats
 
     finally:
         conn.close()
@@ -1550,14 +1592,21 @@ def main():
         "-o",
         help="Caminho do PDF de saida (default: output/reports/executivo-extra-YYYY-MM-DD.pdf)",
     )
+    parser.add_argument(
+        "--run-id",
+        help="Run ID compartilhado com o Excel (reconcile_pdf_excel). Se omitido, gera um novo.",
+    )
+    parser.add_argument("--uf", default="SC", help="UF de referencia no metadata (default SC)")
     args = parser.parse_args()
 
     today_str = datetime.now(UTC).strftime("%Y-%m-%d")
     output_path = args.output or f"output/reports/executivo-extra-{today_str}.pdf"
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-    result = generate_executive_report(output_path)
+    result, stats = generate_executive_report(output_path, run_id=args.run_id, uf=args.uf)
     print(f"PDF gerado: {result}")
+    print(f"  Run ID: {stats.get('run_id')} sample={stats.get('sample_label')}")
+    print(f"  Sidecar: {result}.meta.json")
 
 
 if __name__ == "__main__":

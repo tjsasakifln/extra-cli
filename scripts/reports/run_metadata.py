@@ -106,8 +106,13 @@ CLAIMS_FORBIDDEN = [
 
 def _git_sha_short() -> str:
     try:
-        out = subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
+        import shutil
+
+        git_bin = shutil.which("git")
+        if not git_bin:
+            return "unknown"
+        out = subprocess.check_output(  # noqa: S603 — fixed git binary + fixed args
+            [git_bin, "rev-parse", "--short", "HEAD"],
             stderr=subprocess.DEVNULL,
             text=True,
             timeout=5,

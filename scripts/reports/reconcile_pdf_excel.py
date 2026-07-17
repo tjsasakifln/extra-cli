@@ -208,16 +208,17 @@ def compare_filters(
         _profile_version(excel_meta),
         critical=True,
     )
+    # run_id is critical when BOTH sides declare one (paired generation).
+    # If either side lacks run_id, treat as soft (legacy artifacts).
+    pdf_run = (pdf_meta or {}).get("run_id")
+    excel_run = (excel_meta or {}).get("run_id")
+    run_id_critical = bool(pdf_run) and bool(excel_run)
+    _check("run_id", pdf_run, excel_run, critical=run_id_critical)
+
     _check(
         "profile_id",
         (pdf_meta or {}).get("profile_id"),
         (excel_meta or {}).get("profile_id"),
-        critical=False,
-    )
-    _check(
-        "run_id",
-        (pdf_meta or {}).get("run_id"),
-        (excel_meta or {}).get("run_id"),
         critical=False,
     )
     _check(
