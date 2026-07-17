@@ -117,19 +117,60 @@ test-all:
 .PHONY: resilient-smoke
 resilient-smoke:
 	python3 -m scripts.ops.validate_systemd
-	python3 -m pytest -o addopts='' -q tests/test_local_resilience.py tests/test_fetch_result.py tests/test_crawler_pncp.py tests/test_sc_compras_crawler.py tests/test_ciga_dom_publications.py tests/test_dlq.py tests/test_watermark.py
+	python3 -m pytest -o addopts='' -q \
+		tests/test_local_resilience.py \
+		tests/test_resilience_vertical_slice.py \
+		tests/test_fetch_result.py \
+		tests/test_crawler_pncp.py \
+		tests/test_sc_compras_crawler.py \
+		tests/test_ciga_dom_publications.py \
+		tests/test_dlq.py \
+		tests/test_watermark.py \
+		-m "not database and not slow"
 
 .PHONY: resilient-local-cycle
 resilient-local-cycle:
-	RESILIENCE_PAGE_SIZE=1 RESILIENCE_REQUEST_DELAY=0 python3 -m scripts.ops.resilient_cycle
-	python3 -m scripts.ops.health
+	RESILIENCE_ENV=fixture RESILIENCE_REQUIRE_DB=0 RESILIENCE_PAGE_SIZE=1 RESILIENCE_REQUEST_DELAY=0 \
+		python3 -m scripts.ops.resilient_cycle --env fixture
+	# Fixture health may be green; live health must stay blocked without live evidence.
+	python3 -m scripts.ops.health --env fixture
+	@python3 -c "from scripts.ops.health import collect_health; import sys; c,_=collect_health(env='development'); sys.exit(0 if c==2 else 1)"
 
 .PHONY: resilience-gate
 resilience-gate:
-	ruff check scripts/crawl/ingestion/_base/crawler.py scripts/crawl/resilience scripts/ops tests/test_local_resilience.py
-	mypy --follow-imports=skip scripts/crawl/ingestion/_base/crawler.py scripts/crawl/resilience scripts/ops/resilient_cycle.py scripts/ops/health.py
+	ruff check scripts/crawl/ingestion/_base/crawler.py scripts/crawl/resilience scripts/ops tests/test_local_resilience.py tests/test_resilience_vertical_slice.py
+	mypy --follow-imports=skip \
+		scripts/crawl/ingestion/_base/crawler.py \
+		scripts/crawl/resilience \
+		scripts/ops/resilient_cycle.py \
+		scripts/ops/health.py \
+		scripts/ops/validate_systemd.py
 	$(MAKE) resilient-smoke
 	$(MAKE) resilient-local-cycle
+
+.PHONY: pre-vps-final-gate-offline
+pre-vps-final-gate-offline:
+	@echo '==> pre-vps-final-gate-offline (no internet)'
+	$(MAKE) resilience-gate
+	python3 -m pytest -o addopts='' -q tests/test_local_resilience.py tests/test_resilience_vertical_slice.py -m "not database and not slow and not e2e"
+
+.PHONY: pre-vps-live-canary
+pre-vps-live-canary:
+	@echo '==> pre-vps-live-canary (real sources; never in CI auto)'
+	@test -n "$${DATABASE_URL}$${LOCAL_DATALAKE_DSN}" || (echo 'DATABASE_URL or LOCAL_DATALAKE_DSN required for live canary with DB' && exit 2)
+	RESILIENCE_ENV=development RESILIENCE_REQUIRE_DB=1 \
+		python3 -m scripts.ops.resilient_cycle --live --env development --source pncp
+	RESILIENCE_ENV=development RESILIENCE_REQUIRE_DB=1 \
+		python3 -m scripts.ops.resilient_cycle --live --env development --source ciga_dom
+	RESILIENCE_ENV=development RESILIENCE_REQUIRE_DB=1 \
+		python3 -m scripts.ops.resilient_cycle --live --env development --source sc_compras
+	python3 -m scripts.ops.health --env development
+
+.PHONY: pre-vps-final-gate
+pre-vps-final-gate:
+	@echo '==> pre-vps-final-gate (offline + recent live canary evidence)'
+	$(MAKE) pre-vps-final-gate-offline
+	python3 -c "from scripts.ops.health import collect_health; import sys; c,r=collect_health(env='development'); print(r); sys.exit(0 if c==0 else 2)"
 
 # ── Lint ────────────────────────────────────────────────────────────────────
 

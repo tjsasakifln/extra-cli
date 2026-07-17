@@ -21,7 +21,14 @@ def _mock_psycopg2_connect(request):
     """
     # Real database access is opt-in. Several legacy integration tests mutate
     # shared local tables, so a marker alone must never disable isolation.
-    if request.node.get_closest_marker("integration") is not None and os.getenv("REQUIRE_TEST_DB") == "1":
+    if request.node.get_closest_marker("integration") is not None and os.getenv("REQUIRE_REAL_DB") == "1":
+        yield
+        return
+
+    # Pre-VPS resilience vertical slice needs a real PostgreSQL connection.
+    if request.node.get_closest_marker("database") is not None and os.getenv(
+        "RESILIENCE_REQUIRE_DB", ""
+    ).lower() in {"1", "true", "yes"}:
         yield
         return
 

@@ -27,17 +27,26 @@ Importante:
 
 ### Estado de resiliência pré-VPS
 
-O núcleo local das fontes prioritárias está em `LOCAL_RESILIENCE_READY`: PNCP,
-CIGA/DOM-SC público e SC Compras usam o contrato ADR-021, com fail-closed,
-checkpoint/resume, raw/proveniência, evidence, watermark, DLQ e health
-consolidado. Isso **não** significa `LOCAL_READY`, `VPS_OPERATIONAL`, 95% de
-cobertura ou freshness externa comprovada.
+**Veredito atual: `NOT_READY` para `PRE_VPS_FINAL_READY`.**  
+O selo `LOCAL_RESILIENCE_READY` foi **destruído** pela auditoria adversarial
+(`docs/operations/PRE-VPS-FINAL-ADVERSARIAL-AUDIT.md`): fixture ≠ live,
+JSON local ≠ PostgreSQL operacional, job recente ≠ conteúdo fresco.
+
+Estados honestos:
+
+| Estado | Significado |
+|--------|-------------|
+| `PRE_VPS_OFFLINE_READY` | Gates offline (lint/type/unit/chaos/fixture isolation) |
+| `PRE_VPS_LIVE_CANARY_READY` | Canaries live + PG das 3 fontes prioritárias |
+| `PRE_VPS_FINAL_READY` | Offline + canary + CI + revisão adversarial |
+| `NOT_READY` | Qualquer bloqueio acima |
 
 ```bash
-make resilient-smoke
-make resilient-local-cycle
-make resilience-gate
-python3 -m scripts.ops.health
+make pre-vps-final-gate-offline
+make pre-vps-live-canary    # exige DATABASE_URL; nunca no CI auto
+make pre-vps-final-gate
+python3 -m scripts.ops.health              # live only; exit 2 sem evidência
+python3 -m scripts.ops.health --env fixture
 ```
 
 O padrão usa fixtures controladas; acesso live exige `--live`. Veja

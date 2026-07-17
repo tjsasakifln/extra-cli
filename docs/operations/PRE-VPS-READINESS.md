@@ -2,20 +2,26 @@
 
 | Campo | Valor |
 |---|---|
-| Data | 2026-07-17 |
+| Data | 2026-07-17 (atualizado no truth gate) |
 | Escopo | PNCP, CIGA/DOM-SC público e SC Compras |
-| Estado | `LOCAL_RESILIENCE_READY` |
-| Não implica | `LOCAL_READY`, `VPS_OPERATIONAL` ou `PROJECT_DONE` |
+| Estado | `NOT_READY` (selo `LOCAL_RESILIENCE_READY` **destruído**) |
+| Offline gate | ver `make pre-vps-final-gate-offline` |
+| Não implica | `PRE_VPS_FINAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE` |
+| Auditoria adversarial | `docs/operations/PRE-VPS-FINAL-ADVERSARIAL-AUDIT.md` |
+| Truth report | `docs/operations/PRE-VPS-FINAL-TRUTH.md` |
 | Diagnóstico anterior | `docs/operations/LOCAL-RESILIENCE-DIAGNOSIS.md` |
 
 ## Decisão
 
-**READY para iniciar o provisionamento futuro da VPS.** O contrato de coleta, os
-gates fail-closed e o caminho local controlado são reproduzíveis sem internet e
-sem manter uma sessão interativa aberta. Nenhuma VPS foi provisionada ou ativada.
+**NÃO READY para provisionar VPS com base no selo antigo.** A auditoria adversarial
+provou falsos verdes: health após fixtures, path resiliente sem PostgreSQL,
+freshness sem conteúdo, dualidade de systemd.
 
-Esta decisão valida a mecânica de resiliência. Ela não declara 95% de cobertura,
-freshness real das fontes externas nem scheduler em produção.
+Após o truth gate, o caminho canônico unifica pipeline + PostgreSQL (live) e
+isola fixture. O veredito permanece `NOT_READY` até canary live documentada
+das três fontes + CI `resilience-gate` verde + revisão independente.
+
+Nenhuma VPS foi provisionada ou ativada.
 
 ## Contrato operacional
 

@@ -77,16 +77,21 @@ jobs:
 
       - name: Run mypy type check
         # Start strict typing at the current business-critical boundary and
-        # expand it module-by-module under TD-7.1.
-        run: >-
-          mypy
-          scripts/freshness_gate.py
-          scripts/lib/universe.py
-          scripts/opportunity_intel/models.py
-          scripts/opportunity_intel/status.py
-          scripts/opportunity_intel/ranking.py
-          scripts/opportunity_intel/dedup.py
-          scripts/opportunity_intel/transformer.py
+        # expand it module-by-module under TD-7.1. Resilience modules included.
+        run: |
+          mypy \
+            scripts/freshness_gate.py \
+            scripts/lib/universe.py \
+            scripts/opportunity_intel/models.py \
+            scripts/opportunity_intel/status.py \
+            scripts/opportunity_intel/ranking.py \
+            scripts/opportunity_intel/dedup.py \
+            scripts/opportunity_intel/transformer.py
+          mypy --follow-imports=skip \
+            scripts/crawl/ingestion/_base/crawler.py \
+            scripts/crawl/resilience \
+            scripts/ops/resilient_cycle.py \
+            scripts/ops/health.py
 
   # ============================================================================
   # TEST — critical readiness regression suite
@@ -190,6 +195,156 @@ jobs:
         run: pytest tests/ -m "" --cov --cov-fail-under=10
         env:
           CI: true
+
+  # ============================================================================
+  # RESILIENCE GATE — pre-VPS truth (fail-closed, no continue-on-error)
+  # ============================================================================
+  resilience-gate:
+    name: Resilience Gate (pre-VPS)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # pgvector image: migrations include CREATE EXTENSION vector
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: pncp_datalake
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d pncp_datalake"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/pncp_datalake
+      RESILIENCE_ENV: test
+      RESILIENCE_REQUIRE_DB: "0"
+      CI: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff mypy pytest pytest-asyncio pytest-cov psycopg2-binary prometheus_client
+
+      - name: Ruff resilience modules
+        run: >
+          ruff check
+          scripts/crawl/ingestion/_base/crawler.py
+          scripts/crawl/resilience
+          scripts/ops
+          tests/test_local_resilience.py
+          tests/test_resilience_vertical_slice.py
+
+      - name: Mypy resilience modules
+        run: >
+          mypy --follow-imports=skip
+          scripts/crawl/ingestion/_base/crawler.py
+          scripts/crawl/resilience
+          scripts/ops/resilient_cycle.py
+          scripts/ops/health.py
+          scripts/ops/validate_systemd.py
+
+      - name: Validate systemd units
+        run: python -m scripts.ops.validate_systemd
+
+      - name: Migrations + resilience tests + fixture isolation (single step)
+        # Single step keeps PG service state: restarts between steps can wipe ephemeral volumes.
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/pncp_datalake
+          RESILIENCE_ENV: test
+        run: |
+          set -euo pipefail
+          python -m scripts.ops.apply_migrations --mode fresh --min 1 --max 54
+          python - <<'PY'
+          import os, psycopg2, sys
+          conn = psycopg2.connect(os.environ["DATABASE_URL"])
+          cur = conn.cursor()
+          cur.execute("SELECT current_database(), current_user")
+          print("conn", cur.fetchone())
+          cur.execute("SELECT count(*) FROM pg_tables WHERE schemaname='public'")
+          n = cur.fetchone()[0]
+          print("public_tables", n)
+          cur.execute("SELECT 1 FROM pg_proc WHERE proname='upsert_pncp_raw_bids' LIMIT 1")
+          has = cur.fetchone() is not None
+          print("has_upsert", has)
+          cur.close(); conn.close()
+          if n < 1 or not has:
+              sys.exit("schema verification failed after fresh migrations")
+          PY
+          # Upgrade path on a second database
+          PGPASSWORD=test psql -h localhost -U test -d postgres -v ON_ERROR_STOP=1 -c "DROP DATABASE IF EXISTS pncp_upgrade;"
+          PGPASSWORD=test psql -h localhost -U test -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE pncp_upgrade;"
+          DATABASE_URL=postgresql://test:test@localhost:5432/pncp_upgrade \
+            python -m scripts.ops.apply_migrations --mode fresh --min 1 --max 40
+          DATABASE_URL=postgresql://test:test@localhost:5432/pncp_upgrade \
+            python -m scripts.ops.apply_migrations --mode upgrade --min 41 --max 54
+          # Unit/chaos offline
+          pytest -o addopts='' -q \
+            tests/test_local_resilience.py \
+            tests/test_resilience_vertical_slice.py \
+            tests/test_fetch_result.py \
+            tests/test_watermark.py \
+            tests/test_dlq.py \
+            -m "not slow and not e2e and not database" \
+            --tb=short
+          # Real PG vertical slice — re-assert schema immediately before tests
+          python - <<'PY'
+          import os, psycopg2, sys
+          dsn = os.environ["DATABASE_URL"]
+          print("vertical_dsn", dsn)
+          conn = psycopg2.connect(dsn)
+          cur = conn.cursor()
+          cur.execute("SELECT current_database(), current_user")
+          print("vertical_conn", cur.fetchone())
+          cur.execute("SELECT count(*) FROM pg_tables WHERE schemaname='public'")
+          n = cur.fetchone()[0]
+          print("vertical_public_tables", n)
+          cur.close(); conn.close()
+          if n < 1:
+              # Re-apply if service volume was wiped
+              import subprocess
+              subprocess.check_call([sys.executable, "-m", "scripts.ops.apply_migrations", "--mode", "fresh", "--min", "1", "--max", "54"])
+          PY
+          RESILIENCE_REQUIRE_DB=1 DATABASE_URL="$DATABASE_URL" pytest -o addopts='' -q \
+            tests/test_resilience_vertical_slice.py \
+            -m "database and not slow" \
+            --tb=short
+          # Fixture cycle isolation
+          export RESILIENCE_STATE_PATH="$RUNNER_TEMP/resilience-ci"
+          export RESILIENCE_ENV=fixture
+          export RESILIENCE_REQUIRE_DB=0
+          export RESILIENCE_PAGE_SIZE=1
+          export RESILIENCE_REQUEST_DELAY=0
+          python -m scripts.ops.resilient_cycle --env fixture
+          python -m scripts.ops.health --env fixture
+          set +e
+          python -m scripts.ops.health --env development
+          code=$?
+          set -e
+          test "$code" -eq 2
+
+      - name: Upload resilience artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resilience-gate-artifacts
+          path: |
+            output/resilience/
+            ${{ runner.temp }}/resilience-ci/
+          retention-days: 14
+          if-no-files-found: ignore
 
   # ============================================================================
   # SECURITY — bandit (fail-closed, sem continue-on-error)
