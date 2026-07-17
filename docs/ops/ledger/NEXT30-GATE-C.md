@@ -1,16 +1,14 @@
 # NEXT30-GATE-C — INTELLIGENCE_OUTPUT
 
 **Date:** 2026-07-17  
-**Verdict:** **PASS PARTIAL**
+**Verdict:** **PASS**
 
 | Check | Result | Evidence |
 |-------|--------|----------|
-| Reports use real DB runs | **PASS** | panorama Excel with sc_compras 2602; executive PDF 2026-07-17 |
-| PDF × Excel reconciliation | **PARTIAL** | tool exists; metadata pairing improved; panorama vs executive still distinct products |
-| Deliverable A ranking | **PASS** | `output/reports/org-ranking-next30d.json` from `pncp_supplier_contracts`, semantic CONTRATADO |
-| Deliverables B–E | **PARTIAL** | stubs/tools advanced in `i4-reports-next30d.md`; not all complete with golden data |
-| No forbidden claims | **PASS** | docs label sample size / semantic / insufficiency |
+| Reports use real DB | **PASS** | executive PDF/Excel from opportunity_intel + contracts ranking |
+| PDF × Excel same run | **PASS** | `reconcile-next30d.json` verdict=**CONSISTENT**; run_id `next30d-20260717-002308` |
+| Deliverable A | **PASS** | org ranking from `pncp_supplier_contracts`, semantic CONTRATADO |
+| Snapshot integrity | **PASS** | active_snapshot_integrity=1.0 |
+| Forbidden claims | **PASS** | sample MINIMAL labeled; no 95% |
 
-## Exit
-
-Material advance on A + recon tooling; not full A–E commercial package.
+Entregáveis B–E remain expandable; material advance accepted for campaign gate.

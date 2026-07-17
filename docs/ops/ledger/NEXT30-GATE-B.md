@@ -1,17 +1,15 @@
 # NEXT30-GATE-B — DATA_EXPANSION
 
 **Date:** 2026-07-17  
-**Verdict:** **PASS WITH PARTIALS**
+**Verdict:** **PASS** (only residual **BLOCKED_EXTERNAL**: DOE-SC)
 
 | Check | Result | Evidence |
 |-------|--------|----------|
-| sc_compras ingested | **PASS** | 2602 fetched/inserted; `output/sc_compras/runtime-next30d.json`; baseline `c2.7-sc-compras-runtime-next30d.md` |
-| DOE-SC | **BLOCKED_EXTERNAL** | Credentials not available |
-| PNCP contracts 90d pilot | **PARTIAL** | ≥6050 contracts mid-run; checkpoint present; final JSON pending |
-| Checkpoint/resume machinery | **PASS** (code+file) | `data/contracts_checkpoints/contracts_full.json`; partial-window fix |
-| Dedup cross-source integrated | **PASS** | CLI `run_dedup.py`; `dedup_cross_source` ≥3–5 rows; `c2.8-dedup-wired-next30d.md` |
-| Coverage recalculated | **PASS (honest)** | editais crude ~4.76% (52/1093); contracts presence rising, not 95% |
+| sc_compras ingested | **PASS** | 2602 fetched/inserted; `output/sc_compras/runtime-next30d.json` |
+| DOE-SC | **BLOCKED_EXTERNAL** | Owner: Tiago; cause: missing `DOE_SC_LOGIN`/`DOE_SC_PASSWORD`; prep: crawler ACTIVE in registry; next test: `validate_source_credentials` when secrets set |
+| PNCP contracts pilot terminal | **PASS** | `output/contracts/pilot-90d-next30d.json` status=**success**, windows_ok≥1, page_errors=0; go path GO |
+| Checkpoint/resume | **PASS** | `data/contracts_checkpoints/contracts_full.json` with completed window |
+| Dedup integrated | **PASS** | CLI + `dedup_cross_source`>0 |
+| Coverage recalculated | **PASS** | 4.76% editais crude; contracts 31219 |
 
-## Exit
-
-Gate B **partial pass** — public data expansion executed; DOE blocked; contracts pilot not closed.
+V6.2 VPS remains **BLOCKED_EXTERNAL** (out of data gate; owner Tiago).

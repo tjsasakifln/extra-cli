@@ -166,21 +166,33 @@ def run_pilot(
             window_skipped = 0
             window_transformed = 0
 
+            pages_exhausted = False
+            last_total_pages = 0
+            print(f"WINDOW_START {window_key}", flush=True)
             while page <= CONTRACTS_MAX_PAGES:
                 result = _fetch_page(data_ini, data_fim, page)
                 if result.is_failure:
                     msg = f"Page {page}: [{result.status.value}] {result.error_message}"
                     window_errors.append(msg)
                     logger.warning("Window %s %s", window_key, msg)
+                    print(f"WINDOW_ERR {window_key} {msg}", flush=True)
                     report["totals"]["page_errors"] += 1
                     break
 
                 if result.is_zero:
+                    pages_exhausted = True
                     break
 
+                last_total_pages = int(result.total_pages or 0)
                 window_records_raw.extend(result.items)
                 window_pages += 1
                 report["totals"]["pages"] += 1
+                if page == 1 or page % 10 == 0:
+                    print(
+                        f"PAGE {window_key} p={page}/{last_total_pages} "
+                        f"batch={len(result.items)} ins_total={report['totals']['inserted']}",
+                        flush=True,
+                    )
 
                 # Transform + upsert incrementally every UPSERT_BATCH raw pages worth
                 if len(window_records_raw) >= UPSERT_BATCH or page >= result.total_pages:
@@ -209,9 +221,18 @@ def run_pilot(
                         break
 
                 if page >= result.total_pages:
+                    pages_exhausted = True
                     break
                 page += 1
                 time.sleep(CONTRACTS_REQUEST_DELAY)
+            else:
+                # while-else: loop ended because page > MAX without exhausting pages
+                if not pages_exhausted and last_total_pages and page <= last_total_pages:
+                    window_errors.append(
+                        f"Hit CONTRACTS_MAX_PAGES={CONTRACTS_MAX_PAGES} before "
+                        f"total_pages={last_total_pages}; window incomplete"
+                    )
+                    report["totals"]["page_errors"] += 1
 
             # Flush any remainder not yet upserted (e.g. last partial batch)
             if window_records_raw and not window_errors:
@@ -278,6 +299,15 @@ def run_pilot(
                 window_skipped,
                 elapsed,
             )
+            # Intermediate evidence so a kill mid-run still leaves a non-empty terminal-ish file
+            if output_json:
+                interim = dict(report)
+                interim["status"] = "running"
+                interim["checkpoint"] = checkpoint.to_dict()
+                Path(output_json).parent.mkdir(parents=True, exist_ok=True)
+                Path(output_json).write_text(
+                    json.dumps(interim, indent=2, default=str), encoding="utf-8"
+                )
 
             cur_date = window_end + timedelta(days=1)
             if cur_date < today:
@@ -406,11 +436,28 @@ def main() -> int:
         default="output/contracts/pilot-90d-next30d.json",
     )
     ap.add_argument("--days", type=int, default=CONTRACTS_FULL_DAYS)
+    ap.add_argument(
+        "--reset-checkpoint",
+        action="store_true",
+        help="Clear completed_windows for a fresh pilot range (keeps file path)",
+    )
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     if not args.dsn and not args.dry_run:
         print("ERROR: --dsn or DATABASE_URL required", file=sys.stderr)
         return 2
+
+    if args.reset_checkpoint:
+        cp = load_checkpoint("full")
+        cp.completed_windows = []
+        cp.current_window_start = None
+        cp.total_windows_completed = 0
+        cp.total_windows_failed = 0
+        cp.total_contracts_fetched = 0
+        cp.last_error = None
+        save_checkpoint(cp)
+        logger = logging.getLogger("contracts_90d_pilot")
+        logger.info("Checkpoint reset for mode=full")
 
     report = run_pilot(
         args.dsn or "",

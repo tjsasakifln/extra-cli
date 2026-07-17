@@ -26,13 +26,15 @@
 | **C2.10** | Auditar cobertura editais | C2.6–C2.9 | 3 | 5 | 8 | **5** | 58 | 63 | **CP** | A4 | coverage_truth | report editais | seq CP | médio |
 | C2.11 | Remediação gaps editais | C2.10 | 6 | 10 | 15 | **10** | 63 | 73 | **CP** | A4 | multi-source | gaps remediated ou escalate | seq CP | alto |
 
-## CP acumulado (trabalho novo prioritário)
+## CP acumulado (trabalho novo prioritário) — FINAL
 
-| Ordem | ID | PERT | Cum | Nota |
-|-------|-----|------|-----|------|
-| 1 | C2.7 | 15 | 15 | SC Compras + residuais públicos; DOE se creds |
-| 2 | C2.10 | 5 | 20 | Coverage truth editais |
-| 3 | C2.11 | 10 | **30** | Remediação ou decisão de escopo formal |
+| Ordem | ID | PERT | Cum | Status final |
+|-------|-----|------|-----|--------------|
+| 1 | C2.7 | 15 | 15 | **DONE** public sc_compras; DOE **BLOCKED_EXTERNAL** |
+| 2 | C2.10 | 5 | 20 | **DONE** measured 4.76% |
+| 3 | C2.11 | 10 | **30** | **DONE** formal escalate (not fake 95%) |
+
+**CP PERT ≥ 30 achieved** without declaring DoD 95%.
 
 Paralelo que não entra no CP mas fecha janela: K3.2 (12), C2.8 (7), C2.9 (8), Q5.4 (6), golden fail-closed, schema.
 
