@@ -1,0 +1,373 @@
+{
+  "meta": {
+    "generated_at": "2026-07-17T00:11:02.838757+00:00",
+    "radius_km": 200,
+    "florianopolis": {
+      "lat": -27.5954,
+      "lon": -48.548
+    },
+    "coverage_window_days": 90,
+    "evidence_ledger_available": false,
+    "entity_evidence_available": false
+  },
+  "denominator": {
+    "total_entities_within_radius": 1093,
+    "total_entities_statewide": "[unverified — query scoped to radius]"
+  },
+  "monitoring_coverage": {
+    "pct": null,
+    "pct_display": "unverified",
+    "entities_monitored": 0,
+    "entities_checked_no_coverage": 0,
+    "entities_never_checked": 1093,
+    "_source": "coverage_evidence (v_latest_evidence)",
+    "_note": "Monitoring coverage from evidence ledger — entity-level observations only. Bid presence is a separate metric.",
+    "by_source": {
+      "pncp": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "ciga_ckan": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "pcp": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "compras_gov": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "sc_compras": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "contracts": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "transparencia": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "tce_sc": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "doe_sc": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "mides_bigquery": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      },
+      "dom_sc": {
+        "entities_checked": 0,
+        "entities_covered": 0,
+        "pct_covered": null,
+        "_source": "coverage_evidence"
+      }
+    }
+  },
+  "freshness": {
+    "pct_fresh": 4.8,
+    "fresh_count": 52,
+    "stale_count": 0,
+    "unknown_count": 1041,
+    "window_days": 90,
+    "_source": "entity_coverage.last_seen_at (persisted records)"
+  },
+  "bid_presence": {
+    "pct": 4.8,
+    "entities_with_bids": 52,
+    "entities_without_bids": 1041,
+    "_source": "entity_coverage.total_bids (persisted records)",
+    "_note": "Bid presence counts entities with ≥1 persisted bid record. This is NOT monitoring coverage — an entity may have bids without an evidence-backed monitoring observation."
+  },
+  "contract_presence": {
+    "pct": 0.0,
+    "entities_with_contracts": 0,
+    "entities_without_contracts": 1093
+  },
+  "source_health": {
+    "pncp": {
+      "entity_rows": null,
+      "successful_rows": null,
+      "failed_rows": null,
+      "health_pct": null,
+      "last_check": null,
+      "_note": "Evidence ledger empty — source health unverified"
+    },
+    "ciga_ckan": {
+      "entity_rows": null,
+      "successful_rows": null,
+      "failed_rows": null,
+      "health_pct": null,
+      "last_check": null,
+      "_note": "Evidence ledger empty — source health unverified"
+    },
+    "pcp": {
+      "entity_rows": null,
+      "successful_rows": null,
+      "failed_rows": null,
+      "health_pct": null,
+      "last_check": null,
+      "_note": "Evidence ledger empty — source health unverified"
+    },
+    "compras_gov": {
+      "entity_rows": null,
+      "successful_rows": null,
+      "failed_rows": null,
+      "health_pct": null,
+      "last_check": null,
+      "_note": "Evidence ledger empty — source health unverified"
+    },
+    "sc_compras": {
+      "entity_rows": 0,
+      "successful_rows": 0,
+      "failed_rows": 0,
+      "health_pct": null,
+      "last_check": null,
+      "status": "blocked",
+      "blocker_reason": "API não documentada, acesso instável"
+    },
+    "contracts": {
+      "entity_rows": null,
+      "successful_rows": null,
+      "failed_rows": null,
+      "health_pct": null,
+      "last_check": null,
+      "_note": "Evidence ledger empty — source health unverified"
+    },
+    "transparencia": {
+      "entity_rows": 0,
+      "successful_rows": 0,
+      "failed_rows": 0,
+      "health_pct": null,
+      "last_check": null,
+      "status": "blocked",
+      "blocker_reason": "Portais individuais por município (295+)"
+    },
+    "tce_sc": {
+      "entity_rows": null,
+      "successful_rows": null,
+      "failed_rows": null,
+      "health_pct": null,
+      "last_check": null,
+      "_note": "Evidence ledger empty — source health unverified"
+    },
+    "doe_sc": {
+      "entity_rows": 0,
+      "successful_rows": 0,
+      "failed_rows": 0,
+      "health_pct": null,
+      "last_check": null,
+      "status": "blocked",
+      "blocker_reason": "Requer Selenium + certificado digital"
+    },
+    "mides_bigquery": {
+      "entity_rows": 0,
+      "successful_rows": 0,
+      "failed_rows": 0,
+      "health_pct": null,
+      "last_check": null,
+      "status": "blocked",
+      "blocker_reason": "BigQuery requer credencial GCP"
+    },
+    "dom_sc": {
+      "entity_rows": 0,
+      "successful_rows": 0,
+      "failed_rows": 0,
+      "health_pct": null,
+      "last_check": null,
+      "status": "blocked",
+      "blocker_reason": "Aguardando credenciais API REST v2 (CPF+CNPJ+X-API-Key). Contatar dom@consorciociga.gov.br"
+    }
+  },
+  "gaps": {
+    "total_gap_combinations": 11990,
+    "by_source": {
+      "pncp": 1090,
+      "ciga_ckan": 1090,
+      "pcp": 1090,
+      "compras_gov": 1090,
+      "sc_compras": 1090,
+      "contracts": 1090,
+      "transparencia": 1090,
+      "tce_sc": 1090,
+      "doe_sc": 1090,
+      "mides_bigquery": 1090,
+      "dom_sc": 1090
+    },
+    "next_best_source": {
+      "source": "pncp",
+      "uncovered_entities_resolved": 1090,
+      "rationale": "NO source has entity-level evidence. 'pncp' has 1090 uncovered entities but marginal gain is unverified — no observed evidence exists for any source.",
+      "unverified": true
+    },
+    "sample": [
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "pncp",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "ciga_ckan",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "pcp",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "compras_gov",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "sc_compras",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "contracts",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "transparencia",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "tce_sc",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "doe_sc",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "mides_bigquery",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 1,
+        "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "dom_sc",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "pncp",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "ciga_ckan",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "pcp",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "compras_gov",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "sc_compras",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "contracts",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "transparencia",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "tce_sc",
+        "state": "not_investigated"
+      },
+      {
+        "entity_id": 2,
+        "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+        "municipio": "SANTO AMARO DA IMPERATRIZ",
+        "source": "doe_sc",
+        "state": "not_investigated"
+      }
+    ]
+  }
+}

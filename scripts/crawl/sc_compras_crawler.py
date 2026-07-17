@@ -146,7 +146,11 @@ _ESFERA_ESTADUAL_KEYWORDS = [
 
 
 def _infer_esfera(orgao_nome: str) -> str:
-    """Infer sphere from orgao name: 'E' (Estadual), 'M' (Municipal), or ''."""
+    """Infer sphere letter from orgao name: 'E' (Estadual) or 'M' (Municipal).
+
+    Letter codes are mapped to PNCP numeric esfera_id in _normalize_item
+    (E→2, M→3) to satisfy chk_pncp_raw_bids_esfera_id ('1'|'2'|'3'|'4').
+    """
     lower = orgao_nome.lower().strip()
     for kw in _ESFERA_ESTADUAL_KEYWORDS:
         if kw in lower:
@@ -154,6 +158,10 @@ def _infer_esfera(orgao_nome: str) -> str:
     if lower.startswith("pm ") or lower.startswith("prefeitura"):
         return "M"
     return "E"
+
+
+# PNCP esfera_id codes (TEXT): 1=Federal, 2=Estadual, 3=Municipal, 4=Distrital
+_ESFERA_LETTER_TO_ID: dict[str, str] = {"F": "1", "E": "2", "M": "3"}
 
 
 # ---------------------------------------------------------------------------
@@ -403,7 +411,9 @@ def _normalize_item(raw: dict) -> dict | None:
 
     municipio = (raw.get("municipio") or "").strip()
     url_detalhe = (raw.get("url_detalhe") or "").strip()
-    esfera = _infer_esfera(orgao)
+    esfera_letter = _infer_esfera(orgao)
+    # DB constraint chk_pncp_raw_bids_esfera_id allows only '1'|'2'|'3'|'4'
+    esfera = _ESFERA_LETTER_TO_ID.get(esfera_letter, "2")
 
     content_hash = _content_hash(pncp_id, data_publicacao, objeto)
 

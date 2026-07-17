@@ -443,7 +443,7 @@ class TestTransform:
         assert record["valor_total_estimado"] == 150000.0
         assert record["modalidade_id"] == 5
         assert record["modalidade_nome"] == "Pregao Eletronico"
-        assert record["esfera_id"] == "E"
+        assert record["esfera_id"] == "2"  # PNCP: Estadual
         assert record["uf"] == "SC"
         assert record["municipio"] == "Florianopolis"
         assert record["codigo_municipio_ibge"] is None
@@ -522,7 +522,7 @@ class TestTransform:
         assert len(result[0]["objeto_compra"]) == 1000  # 997 + "..."
 
     def test_transform_estadual_esfera(self):
-        """State entities get esfera_id='E'."""
+        """State entities get esfera_id='2' (PNCP Estadual)."""
         raw = [
             {
                 "numero_processo": "2025/00001",
@@ -531,10 +531,10 @@ class TestTransform:
             }
         ]
         result = sc.transform(raw)
-        assert result[0]["esfera_id"] == "E"
+        assert result[0]["esfera_id"] == "2"
 
     def test_transform_municipal_esfera(self):
-        """Municipal entities get esfera_id='M'."""
+        """Municipal entities get esfera_id='3' (PNCP Municipal)."""
         raw = [
             {
                 "numero_processo": "2025/00001",
@@ -543,7 +543,7 @@ class TestTransform:
             }
         ]
         result = sc.transform(raw)
-        assert result[0]["esfera_id"] == "M"
+        assert result[0]["esfera_id"] == "3"
 
 
 # ---------------------------------------------------------------------------
