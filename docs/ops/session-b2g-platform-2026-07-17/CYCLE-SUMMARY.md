@@ -10,7 +10,7 @@
 |----------|------------------------|-----------------|------|
 | Sinal comercial (`entities_with_recent_commercial_signal`) | 116/1093 (10,61%) | **116/1093 (10,61%)** — renomeado, não confundir com cobertura | n/a (sinal) |
 | Source mapping coverage | inexistente formal | **1093/1093 (100%)** | 100% |
-| Operational source coverage | confuso com sinal comercial | **105/1093 (9,61%)** registry accessible | **95%** |
+| Operational source coverage | confuso com sinal comercial | **0/1093 (0%)** estrito (collected/verified only; dry_run local_hit NÃO conta) | **95%** |
 | Freshness coverage | parcial | **35/1093 (3,2%)** SLA proxy | 95% |
 | Opportunity recall | ausente | **NOT_READY** (scaffold) | 95% |
 | Field completeness | implícito | **~17,7%** mean decision fields | alto |
