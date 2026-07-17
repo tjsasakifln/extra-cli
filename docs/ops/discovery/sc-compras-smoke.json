@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "ano": 2026,
+  "url": "https://compras.sc.gov.br/api/editais?ano=2026&tamanhoPagina=5",
+  "base_url": "https://compras.sc.gov.br",
+  "total_elementos": 2602,
+  "count": 2602,
+  "sample_ids": [
+    41624,
+    58075,
+    58109
+  ],
+  "error": null,
+  "elapsed_s": 1.024,
+  "public_json": true,
+  "probed_at": "2026-07-16T22:24:10Z",
+  "sample_keys": [
+    "id",
+    "processo",
+    "tipo",
+    "orgaoSigla",
+    "orgaoNome",
+    "objeto",
+    "entregaProposta",
+    "abertura",
+    "situacao"
+  ]
+}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Portal de Compras - CIASC</title>
+</head>
+<body>
+  <form method="post" action="./Default.aspx" id="aspnetForm">
+    <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEP" />
+    <div id="areaConteudo">
+      <div id="gridPainelEletronico" class="k-content"></div>
+      <div id="carregandoListaPainelEletronico" class="carregandoDados"></div>
+    </div>
+  </form>
+  <script type="text/javascript">
+    var endpoints = {
+      processos: "Portal/WebService/Servicos.asmx/PesquisarProcessos",
+      painel: "Portal/WebService/Servicos.asmx/PesquisaPainelEletronico"
+    };
+  </script>
+</body>
+</html>

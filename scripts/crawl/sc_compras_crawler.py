@@ -443,6 +443,51 @@ def _normalize_item(raw: dict) -> dict | None:
 # ---------------------------------------------------------------------------
 
 
+def smoke(ano: int | None = None) -> dict:
+    """Connectivity smoke against public JSON API (list only, no detail fan-out).
+
+    Performs a single GET ``/api/editais?ano=YYYY`` and returns a diagnostics
+    dict suitable for ops probes. Does not enrich details (avoids N+1).
+
+    Returns:
+        dict with keys: ok, http-ish status via ok flag, ano, total_elementos,
+        count, sample_ids, error, base_url.
+    """
+    year = ano or date.today().year
+    params = {"ano": str(year), "tamanhoPagina": "5"}
+    query = "&".join(f"{k}={urllib.parse.quote(str(v))}" for k, v in params.items())
+    full_url = f"{BASE_URL}/api/editais?{query}"
+    started = time.time()
+    out: dict = {
+        "ok": False,
+        "ano": year,
+        "url": full_url,
+        "base_url": BASE_URL,
+        "total_elementos": None,
+        "count": 0,
+        "sample_ids": [],
+        "error": None,
+        "elapsed_s": None,
+        "public_json": True,
+        "probed_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+    data = _api_request(full_url)
+    out["elapsed_s"] = round(time.time() - started, 3)
+    if not data:
+        out["error"] = "empty_or_failed_response"
+        return out
+    items = data.get("conteudo") or []
+    if not isinstance(items, list):
+        out["error"] = "unexpected_conteudo_type"
+        return out
+    out["ok"] = True
+    out["total_elementos"] = data.get("totalElementos")
+    out["count"] = len(items)
+    out["sample_ids"] = [it.get("id") for it in items[:3] if isinstance(it, dict)]
+    out["sample_keys"] = list(items[0].keys()) if items and isinstance(items[0], dict) else []
+    return out
+
+
 def crawl(mode: str = "full") -> list[dict]:
     """Crawl SC Compras portal via JSON API.
 
@@ -456,17 +501,30 @@ def crawl(mode: str = "full") -> list[dict]:
     publication dates which fall back to the current date).
 
     Args:
-        mode: 'full' (last 30 days) or 'incremental' (last 3 days)
+        mode: 'full' (last 30 days), 'incremental' (last 3 days), or
+            'smoke' (list-only connectivity probe — returns up to a few
+            canonical items without detail enrichment).
 
     Returns:
         List of raw item dicts in canonical format (keys expected by
         _normalize_item / transform). Empty list on failure (graceful
-        degradation).
+        degradation). For mode='smoke', at most 5 list items (no detail).
     """
+    if mode == "smoke":
+        result = smoke()
+        if not result.get("ok"):
+            _logger.warning("[ScCompras] smoke failed: %s", result.get("error"))
+            return []
+        # Re-fetch list via helper and map first few items list-only
+        raw_items = _fetch_api_list(int(result["ano"]))
+        sample = raw_items[:5]
+        return [_api_item_to_canonical(it) for it in sample]
+
     days = SC_COMPRAS_FULL_DAYS if mode == "full" else SC_COMPRAS_INCREMENTAL_DAYS
     today_d = date.today()
     date_from_d = today_d - timedelta(days=days)
 
+    # smoke already handled; list-only env still applies to full/incremental
     fetch_detail_flag = not bool(int(os.getenv("SC_COMPRAS_LIST_ONLY", "0")))
 
     _logger.info(
@@ -577,3 +635,19 @@ def transform(records: list[dict]) -> list[dict]:
         len(normalized),
     )
     return normalized
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI: ``python -m scripts.crawl.sc_compras_crawler smoke``."""
+    args = list(argv if argv is not None else sys.argv[1:])
+    cmd = (args[0] if args else "smoke").lower()
+    if cmd in {"smoke", "--smoke"}:
+        result = smoke()
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("ok") else 1
+    print("Usage: python -m scripts.crawl.sc_compras_crawler smoke", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

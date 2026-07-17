@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260709&dataFinal=20260716&pagina=1&tamanhoPagina=10",
+  "http_status": 200,
+  "error": null,
+  "count": 10,
+  "total_registros": 42096,
+  "total_paginas": 4210,
+  "sample_uf": "SC",
+  "sc_in_page": 3,
+  "elapsed_s": 0.38,
+  "probed_at": "2026-07-17T01:25:59Z",
+  "window": {
+    "data_inicial": "20260709",
+    "data_final": "20260716"
+  },
+  "page_size": 10,
+  "page": 1,
+  "sample_ids": [
+    "83102277000152-2-000532/2026",
+    "83102277000152-2-000533/2026",
+    "83102277000152-2-000534/2026"
+  ],
+  "source": "pncp_consulta_contratos",
+  "base": "https://pncp.gov.br/api/consulta/v1"
+}

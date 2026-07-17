@@ -1,0 +1,269 @@
+{
+  "discovery_id": "compras-sc-elic-pncp-comprasnet",
+  "probed_at": "2026-07-17T01:18:00Z",
+  "agent": "Subagent F+H",
+  "user_agent": "Extra-Consultoria/1.0 (consultoria-licitacoes; +https://extraconsultoria.com.br)",
+  "timeout_s": 20,
+  "rate_limit_note": "sleep >= 0.8s between probes; no captcha bypass; no secrets",
+  "targets": [
+    {
+      "name": "Portal Compras SC",
+      "base_url": "https://compras.sc.gov.br/",
+      "stack": "React SPA (Vite) + nginx + JSON API",
+      "homepage": {
+        "method": "HEAD/GET",
+        "http_status": 200,
+        "content_type": "text/html",
+        "spa_entry": "/js/index.DaEEVxkq.js",
+        "notes": "Shell HTML only; data via /api/*"
+      },
+      "public_json": true,
+      "endpoints": [
+        {
+          "method": "GET",
+          "url": "https://compras.sc.gov.br/api/editais",
+          "auth": "none (anonymous)",
+          "required_params": ["ano"],
+          "optional_params": ["tamanhoPagina", "pagina"],
+          "observed": {
+            "without_ano": {"http_status": 400, "body": "[{\"mensagemUsuario\":\"Parâmetro ano é obrigatório.\"}]"},
+            "with_ano_2026": {
+              "http_status": 200,
+              "content_type": "application/json",
+              "schema_keys": ["conteudo", "pagina", "porPagina", "totalPaginas", "totalElementos"],
+              "totalElementos": 2602,
+              "item_keys": ["id", "processo", "tipo", "orgaoSigla", "orgaoNome", "objeto", "entregaProposta", "abertura", "situacao"],
+              "pagination_note": "tamanhoPagina/pagina appear ignored; full year list returned in one payload (~1.3MB for 2026)"
+            }
+          }
+        },
+        {
+          "method": "GET",
+          "url": "https://compras.sc.gov.br/api/editais/{id}",
+          "auth": "none (anonymous)",
+          "observed": {
+            "id_41624": {
+              "http_status": 200,
+              "item_keys": [
+                "id", "modalidade", "edital", "dataAtualizacao", "objeto", "natureza",
+                "dataPublicacao", "dataEntrega", "dataAbertura", "processoSgpe", "situacao",
+                "tipoSituacao", "observacao", "temRetificacao", "dataSituacao", "dataArremate",
+                "dataEncerramento", "origem", "linkArquivosFTP"
+              ]
+            }
+          }
+        }
+      ],
+      "missing_paths_404": [
+        "/api/v1/editais",
+        "/api/licitacoes",
+        "/api/orgaos",
+        "/api/modalidades",
+        "/api/contratos",
+        "/api/processos",
+        "/api/health"
+      ],
+      "adapter": {
+        "module": "scripts/crawl/sc_compras_crawler.py",
+        "status": "exists_and_aligned",
+        "smoke": "crawl(mode='smoke') or smoke()",
+        "recommendation": "Prefer list-only smoke (SC_COMPRAS_LIST_ONLY=1) for connectivity; avoid full detail crawl in probes"
+      }
+    },
+    {
+      "name": "E-Lic SC (Portal de Compras CIASC)",
+      "base_url": "https://e-lic.sc.gov.br/",
+      "stack": "ASP.NET / IIS / Paradigma + Kendo UI + AjaxPro; Power BI refs in CSP",
+      "homepage": {
+        "method": "HEAD/GET",
+        "http_status": 302,
+        "redirect": "/Default.aspx",
+        "final_status": 200,
+        "content_type": "text/html; charset=utf-8",
+        "title": "Portal de Compras - CIASC",
+        "captcha_on_homepage": false,
+        "login_ui_present": true
+      },
+      "public_json": false,
+      "endpoints": [
+        {
+          "method": "GET",
+          "url": "https://e-lic.sc.gov.br/portal/Mural.aspx",
+          "auth": "none (public HTML mural)",
+          "http_status": 200,
+          "content_type": "text/html",
+          "size_bytes_observed": 413028,
+          "notes": "Large server-rendered HTML; no stable public JSON list discovered"
+        },
+        {
+          "method": "GET/POST",
+          "url": "https://e-lic.sc.gov.br/Portal/WebService/Servicos.asmx/*",
+          "auth": "session-oriented ASP.NET ASMX (not open data)",
+          "methods_referenced_in_html": [
+            "PesquisarProcessos",
+            "PesquisaPainelEletronico",
+            "PesquisaPainelEletronicoModuloModalidade",
+            "PesquisarAlertaPublico",
+            "AdicionarCookieAlerta"
+          ],
+          "observed": {
+            "GET_Servicos.asmx": "302 → /Core/erro.aspx (no WSDL browse)",
+            "GET_PesquisarProcessos": "500 text/plain: method name is not valid (expects POST/SOAP style)",
+            "GET_PesquisaPainelEletronico": "500 Missing parameter: bFlMultiMoeda",
+            "GET_PesquisarAlertaPublico": "200 XML RetornoAjax with application error payload"
+          }
+        },
+        {
+          "method": "GET",
+          "url": "https://e-lic.sc.gov.br/ajaxpro/core.ashx",
+          "http_status": 200,
+          "notes": "AjaxPro client library only — not a data API"
+        }
+      ],
+      "blocked_paths": [
+        {"path": "/api", "status": 403},
+        {"path": "/swagger", "status": 200, "notes": "returns tiny HTML shell (~406B), not OpenAPI"}
+      ],
+      "limitation": "No anonymous open JSON API for editais/contratos suitable for bulk crawl. Primary surface is authenticated/session ASP.NET + ASMX. HTML mural is public but brittle.",
+      "adapter": {
+        "module": "scripts/crawl/elic_sc_stub.py",
+        "status": "stub_html_selector_map",
+        "recommendation": "Do not implement aggressive ASMX scraping. Prefer Compras SC JSON + PNCP for SC coverage. Revisit if public open-data feed appears."
+      }
+    },
+    {
+      "name": "PNCP Consulta API",
+      "base_url": "https://pncp.gov.br/api/consulta/v1",
+      "public_json": true,
+      "auth": "none (anonymous GET)",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/contratos",
+          "url_example": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260101&dataFinal=20260107&pagina=1&tamanhoPagina=10",
+          "required_params": ["dataInicial", "dataFinal", "pagina", "tamanhoPagina"],
+          "date_format": "YYYYMMDD",
+          "observed": {
+            "tamanhoPagina_1": {"http_status": 400, "message": "Tamanho de página inválido"},
+            "tamanhoPagina_10": {
+              "http_status": 200,
+              "totalRegistros_window": 16420,
+              "keys": ["data", "totalRegistros", "totalPaginas", "numeroPagina", "paginasRestantes", "empty"],
+              "item_has_uf": "unidadeOrgao.ufSigla"
+            },
+            "tamanhoPagina_50_100_500": {"http_status": 200, "note": "accepted for /contratos"}
+          },
+          "uf_filter": {
+            "server_side": "broken_or_unreliable (documented in contracts_crawler)",
+            "client_side": "scripts.crawl.contracts_crawler.transform_with_uf_filter / uf_from_unidade"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/contratacoes/publicacao",
+          "url_example": "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?dataInicial=20260101&dataFinal=20260107&codigoModalidadeContratacao=6&pagina=1&tamanhoPagina=10",
+          "required_params": ["dataInicial", "dataFinal", "codigoModalidadeContratacao", "pagina", "tamanhoPagina"],
+          "observed": {
+            "tamanhoPagina_1": {"http_status": 400, "message": "must be greater than or equal to 10"},
+            "tamanhoPagina_10": {"http_status": 200}
+          }
+        }
+      ],
+      "notes": [
+        "HEAD on base /api/consulta/v1 may reset connection; use concrete resource paths",
+        "Adapter: scripts/crawl/contracts_crawler.py (CONTRACTS_BASE)",
+        "Smoke: scripts/crawl/smoke_pncp_public.py → docs/ops/discovery/pncp-smoke.json"
+      ]
+    },
+    {
+      "name": "Comprasnet Contratos (contratos.gov.br)",
+      "base_url": "https://contratos.comprasnet.gov.br",
+      "docs_ui": "https://contratos.comprasnet.gov.br/api/docs",
+      "openapi": [
+        "https://contratos.comprasnet.gov.br/docs",
+        "https://contratos.comprasnet.gov.br/docs/api-docs.json"
+      ],
+      "openapi_info": {
+        "title": "API Contratos.gov.br",
+        "version": "1.0",
+        "path_count": 70
+      },
+      "auth": {
+        "scheme": "bearerAuth (HTTP Bearer JWT)",
+        "login": "POST /api/v1/auth/login",
+        "logout": "POST /api/v1/auth/logout",
+        "anonymous_error": {"http_status": 401, "body": "{\"status\":\"Authorization Token not found\"}"}
+      },
+      "endpoints_observed": [
+        {
+          "path": "/api/contrato/orgaos",
+          "auth_required": false,
+          "http_status": 200,
+          "notes": "public list of org codes with active contracts"
+        },
+        {
+          "path": "/api/contrato/unidades",
+          "auth_required": false,
+          "http_status": 200,
+          "notes": "public list of unit codes"
+        },
+        {
+          "path": "/api/contrato/{id}/*",
+          "auth_required": false,
+          "http_status": 200,
+          "notes": "many legacy subresources return [] for unknown id without 401"
+        },
+        {
+          "path": "/api/v1/contrato",
+          "auth_required": true,
+          "http_status": 401
+        },
+        {
+          "path": "/api/v1/contrato/publicacoes",
+          "auth_required": true,
+          "http_status": 401
+        },
+        {
+          "path": "/api/v1/contrato/itens",
+          "auth_required": true,
+          "http_status": 401
+        }
+      ],
+      "recommendation": "Bulk contract intel for federal contratos requires registered credentials/JWT. Not a drop-in anonymous replacement for PNCP /contratos. Catalog endpoints (orgaos/unidades) are anonymously readable."
+    }
+  ],
+  "summary_table": [
+    {
+      "source": "Compras SC",
+      "public_json": true,
+      "auth": "none",
+      "primary_endpoint": "GET /api/editais?ano=YYYY",
+      "adapter": "sc_compras_crawler.py",
+      "crawl_ready": true
+    },
+    {
+      "source": "E-Lic SC",
+      "public_json": false,
+      "auth": "session/ASMX (not open data)",
+      "primary_endpoint": "HTML Mural + ASMX Servicos",
+      "adapter": "elic_sc_stub.py",
+      "crawl_ready": false
+    },
+    {
+      "source": "PNCP contratos",
+      "public_json": true,
+      "auth": "none",
+      "primary_endpoint": "GET /api/consulta/v1/contratos",
+      "adapter": "contracts_crawler.py + smoke_pncp_public.py",
+      "crawl_ready": true
+    },
+    {
+      "source": "Comprasnet Contratos",
+      "public_json": "partial (catalog only)",
+      "auth": "JWT Bearer for v1 bulk",
+      "primary_endpoint": "https://contratos.comprasnet.gov.br/docs",
+      "adapter": "none (discovery only)",
+      "crawl_ready": false
+    }
+  ]
+}
