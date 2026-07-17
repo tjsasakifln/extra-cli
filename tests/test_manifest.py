@@ -202,7 +202,9 @@ class TestManifestQueries:
             if active_rows == 0:
                 pytest.skip("No active opportunity data in local datalake; join behavior cannot be validated")
 
-            # OLD join (direct equality) — should find 0 matches
+            # OLD join (direct equality on full CNPJ) — only 14-digit orgao_cnpj
+            # can prove the bug (8 chars never equal 14). Rows already stored as
+            # 8-digit prefixes would match both joins and are excluded here.
             cur.execute("""
                 SELECT COUNT(*) AS cnt
                 FROM sc_public_entities spe
@@ -212,6 +214,7 @@ class TestManifestQueries:
                     WHERE oi.is_active = TRUE
                       AND oi.source != 'test_batch'
                       AND oi.orgao_cnpj IS NOT NULL
+                      AND length(regexp_replace(oi.orgao_cnpj, '[^0-9]', '', 'g')) >= 14
                       AND spe.cnpj_8 = oi.orgao_cnpj
                   )
             """)
@@ -227,18 +230,18 @@ class TestManifestQueries:
                     WHERE oi.is_active = TRUE
                       AND oi.source != 'test_batch'
                       AND oi.orgao_cnpj IS NOT NULL
-                      AND spe.cnpj_8 = LEFT(oi.orgao_cnpj, 8)
+                      AND spe.cnpj_8 = LEFT(regexp_replace(oi.orgao_cnpj, '[^0-9]', '', 'g'), 8)
                   )
             """)
             new_join_matches = cur.fetchone()[0]
 
-            # The old join returns 0 (cnpj_8=8 chars vs orgao_cnpj=14 chars)
+            # Full-length CNPJs must not match cnpj_8 via direct equality
             assert old_join_matches == 0, (
                 f"Old direct join found {old_join_matches} matches (should be 0 — "
-                "cnpj_8 is 8 chars, orgao_cnpj is 14 chars)"
+                "cnpj_8 is 8 chars, full orgao_cnpj is 14 digits)"
             )
 
-            # The new join returns real matches (cnpj_8 = LEFT(orgao_cnpj, 8))
+            # The new join returns real matches (cnpj_8 = LEFT(digits, 8))
             assert new_join_matches > 0, (
                 f"New LEFT join found {new_join_matches} matches (should be > 0 — "
                 "entities with opportunity data within 200km radius)"

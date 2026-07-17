@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Commercial sample report for Extra Construtora (SC) — artifact-first.
 
-Builds an honest advisory sample from committed artifacts and optional DB.
+Builds an honest advisory sample from committed artifacts, session runs
+(Compras SC, DOM/CIGA, DOE), coverage metrics, reconciliation and optional DB.
 Never hides low coverage or stale freshness. Does not invent GO for 3y.
 
 Usage:
-  PYTHONPATH=. python3 scripts/reports/commercial_sample_sc.py \\
+  PYTHONPATH=. python3 -m scripts.reports.commercial_sample_sc \\
     --output output/reports/commercial-sample-sc.json
 """
 
@@ -22,6 +23,14 @@ from typing import Any
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
+
+from scripts.reports.commercial_b2g_session import (  # noqa: E402
+    build_session_report,
+    write_all,
+    write_csv_bundle,
+    write_html,
+    write_xlsx,
+)
 
 
 def _load_json(path: Path) -> dict[str, Any] | list[Any] | None:
@@ -130,7 +139,7 @@ def _db_sample(dsn: str | None, limit: int = 15) -> dict[str, Any]:
     return out
 
 
-def build_report(*, dsn: str | None = None) -> dict[str, Any]:
+def build_report(*, dsn: str | None = None, include_session: bool = True) -> dict[str, Any]:
     pilot = _load_json(_PROJECT_ROOT / "output/contracts/pilot-90d-next30d.json") or {}
     metrics = _load_json(_PROJECT_ROOT / "output/coverage/next30d-metrics-final.json") or {}
     freshness = _load_json(_PROJECT_ROOT / "output/readiness/freshness-gate.json") or {}
@@ -143,11 +152,52 @@ def build_report(*, dsn: str | None = None) -> dict[str, Any]:
     pilot_status = pilot.get("status") or metrics.get("pilot_status")
     path_proof = pilot.get("path_proof") or {}
 
+    session: dict[str, Any] | None = None
+    if include_session:
+        try:
+            session = build_session_report(dsn=dsn)
+        except Exception as e:  # noqa: BLE001 — sample must still build without session
+            session = {"available": False, "error": f"{type(e).__name__}: {e}"}
+
+    open_sample: list[dict[str, Any]] = []
+    ranking_available = False
+    opp_note = (
+        "Lista de abertas exige PNCP editais frescos + ranking; "
+        "freshness atual indica fontes críticas sem last_success_at em artefato."
+    )
+    if isinstance(session, dict) and session.get("report") == "commercial-b2g-session-sc":
+        open_sample = list(session.get("opportunities_open") or [])
+        ranking_available = bool((session.get("org_ranking") or {}).get("available"))
+        sc = session.get("sc_compras") or {}
+        if sc.get("available"):
+            opp_note = (
+                f"Amostra Compras SC mode={sc.get('mode')} live_fetch={sc.get('live_fetch')} "
+                f"run_id={sc.get('run_id')}; open={len(open_sample)}. "
+                "Não é universo completo do portal."
+            )
+
+    base_disclaimers = _disclaimer(
+        float(coverage_pct) if coverage_pct is not None else None,
+        str(pilot_status) if pilot_status else None,
+        freshness if isinstance(freshness, dict) else None,
+    )
+    # Merge session disclaimers (dedupe)
+    merged_disc: list[str] = list(base_disclaimers)
+    if isinstance(session, dict):
+        for d in session.get("disclaimers") or []:
+            if d not in merged_disc:
+                merged_disc.append(d)
+
+    confidence = "low_to_medium"
+    if isinstance(session, dict) and session.get("confidence"):
+        confidence = str(session["confidence"])
+
     report: dict[str, Any] = {
         "report": "commercial-sample-sc",
         "audience": "Extra Construtora / consultoria B2G SC",
         "generated_at": datetime.now(UTC).isoformat(),
-        "confidence": "low_to_medium",
+        "confidence": confidence,
+        "run_id": (session or {}).get("run_id") if isinstance(session, dict) else None,
         "coverage": {
             "editais_crude_pct": coverage_pct,
             "covered_200km": metrics.get("covered_200km"),
@@ -174,19 +224,108 @@ def build_report(*, dsn: str | None = None) -> dict[str, Any]:
             "db_snapshot_in_artifact": pilot.get("db"),
         },
         "opportunities": {
-            "note": (
-                "Lista de abertas exige PNCP editais frescos + ranking; "
-                "freshness atual indica fontes críticas sem last_success_at em artefato."
-            ),
-            "open_sample": [],
-            "ranking_available": False,
+            "note": opp_note,
+            "open_sample": open_sample,
+            "recently_published": (session or {}).get("opportunities_recent")
+            if isinstance(session, dict)
+            else [],
+            "ranking_available": ranking_available,
+            "status_counts": (
+                ((session or {}).get("sc_compras") or {}).get("opportunities") or {}
+            ).get("status_counts")
+            if isinstance(session, dict)
+            else {},
+            "buyer_orgs_top": (
+                ((session or {}).get("sc_compras") or {}).get("opportunities") or {}
+            ).get("buyer_orgs_top")
+            if isinstance(session, dict)
+            else [],
+            "modalities": (
+                ((session or {}).get("sc_compras") or {}).get("opportunities") or {}
+            ).get("modalities")
+            if isinstance(session, dict)
+            else [],
+            "gaps_in_sample": (
+                ((session or {}).get("sc_compras") or {}).get("opportunities") or {}
+            ).get("gaps_in_sample")
+            if isinstance(session, dict)
+            else {},
         },
-        "db_sample": _db_sample(dsn),
+        "session_sources": {
+            "sc_compras": {
+                "run_id": ((session or {}).get("sc_compras") or {}).get("run_id"),
+                "live_fetch": ((session or {}).get("sc_compras") or {}).get("live_fetch"),
+                "mode": ((session or {}).get("sc_compras") or {}).get("mode"),
+                "available": ((session or {}).get("sc_compras") or {}).get("available"),
+            }
+            if isinstance(session, dict)
+            else None,
+            "dom_ciga": {
+                "run_id": ((session or {}).get("dom_ciga") or {}).get("run_id"),
+                "live_fetch": ((session or {}).get("dom_ciga") or {}).get("live_fetch"),
+                "records_loaded": ((session or {}).get("dom_ciga") or {}).get("records_loaded"),
+                "procurement_like_count": ((session or {}).get("dom_ciga") or {}).get(
+                    "procurement_like_count"
+                ),
+                "act_category_counts": ((session or {}).get("dom_ciga") or {}).get(
+                    "act_category_counts"
+                ),
+            }
+            if isinstance(session, dict)
+            else None,
+            "doe_sc": {
+                "run_id": ((session or {}).get("doe_sc") or {}).get("run_id"),
+                "live_fetch": ((session or {}).get("doe_sc") or {}).get("live_fetch"),
+                "act_categories": ((session or {}).get("doe_sc") or {}).get("act_categories"),
+                "mode": ((session or {}).get("doe_sc") or {}).get("mode"),
+            }
+            if isinstance(session, dict)
+            else None,
+            "reconciliation": (session or {}).get("reconciliation")
+            if isinstance(session, dict)
+            else None,
+            "live_fetch_summary": (session or {}).get("live_fetch_summary")
+            if isinstance(session, dict)
+            else None,
+            "evidence_chain": (session or {}).get("evidence_chain")
+            if isinstance(session, dict)
+            else None,
+            "key_findings": (session or {}).get("key_findings") if isinstance(session, dict) else None,
+            "status_changes": (session or {}).get("status_changes")
+            if isinstance(session, dict)
+            else None,
+            "recent_dom_acts": ((session or {}).get("dom_ciga") or {}).get("recent_procurement_acts")
+            if isinstance(session, dict)
+            else [],
+            "recent_doe_acts": ((session or {}).get("doe_sc") or {}).get("sample_recent_acts")
+            if isinstance(session, dict)
+            else [],
+            "org_ranking": (session or {}).get("org_ranking") if isinstance(session, dict) else None,
+            "winning_suppliers": ((session or {}).get("db_sample") or {}).get("winning_suppliers_sc")
+            if isinstance(session, dict)
+            else None,
+            "similar_contracts": ((session or {}).get("db_sample") or {}).get("similar_contracts_sc")
+            if isinstance(session, dict)
+            else None,
+        },
+        "db_sample": _db_sample(dsn)
+        if not (isinstance(session, dict) and (session.get("db_sample") or {}).get("available"))
+        else {
+            "available": True,
+            "contracts_total": (session.get("db_sample") or {}).get("contracts_total"),
+            "contracts_sc_or_null_uf": (session.get("db_sample") or {}).get("contracts_sc"),
+            "top_orgaos_sc": (session.get("db_sample") or {}).get("top_orgaos_sc"),
+            "top_fornecedores_sc": (session.get("db_sample") or {}).get("winning_suppliers_sc"),
+            "raw_bids_sc": (session.get("db_sample") or {}).get("raw_bids_sc"),
+            "similar_contracts_sc": (session.get("db_sample") or {}).get("similar_contracts_sc"),
+            "live_fetch": (session.get("db_sample") or {}).get("live_fetch"),
+        },
         "claims_allowed": [
             "Path proof de 1 dia de contratos PNCP foi demonstrado em artefato partial.",
             "Cobertura bruta de editais permanece da ordem de poucos pontos percentuais (~4.76%).",
             "Existem dezenas de milhares de contratos persistidos por runs parciais/cumulativos.",
             "CKAN Dados SC e CIGA expõem Action API pública sem token (descoberta em sessão).",
+            "Amostra Compras SC / DOM / DOE desta sessão com live_fetch e gaps documentados.",
         ],
         "claims_forbidden": [
             "Universo completo de editais SC coberto",
@@ -194,12 +333,9 @@ def build_report(*, dsn: str | None = None) -> dict[str, Any]:
             "GO para backfill 3 anos não supervisionado",
             "VPS operacional",
             "CONTRATOS_95 / editais 95%",
+            "Smoke DOM/DOE como cobertura estadual completa",
         ],
-        "disclaimers": _disclaimer(
-            float(coverage_pct) if coverage_pct is not None else None,
-            str(pilot_status) if pilot_status else None,
-            freshness if isinstance(freshness, dict) else None,
-        ),
+        "disclaimers": merged_disc,
     }
     return report
 
@@ -216,14 +352,78 @@ def main() -> int:
         default=os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN"),
         help="Optional PostgreSQL DSN for live sample",
     )
+    ap.add_argument(
+        "--no-session",
+        action="store_true",
+        help="Skip loading session artifacts (legacy sample only)",
+    )
+    ap.add_argument(
+        "--also-session-bundle",
+        action="store_true",
+        default=True,
+        help="Also write commercial-b2g-session-sc.{json,csv,xlsx,html} (default: on)",
+    )
+    ap.add_argument(
+        "--no-session-bundle",
+        action="store_true",
+        help="Do not write the multi-format session bundle",
+    )
+    ap.add_argument(
+        "--formats",
+        default="json,csv,xlsx,html",
+        help="Comma list of formats for the sample output side-car (csv,xlsx,html)",
+    )
     args = ap.parse_args()
-    report = build_report(dsn=args.dsn)
+    report = build_report(dsn=args.dsn, include_session=not args.no_session)
     out = Path(args.output)
     if not out.is_absolute():
         out = _PROJECT_ROOT / out
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
-    print(json.dumps({"wrote": str(out), "confidence": report["confidence"], "disclaimers": len(report["disclaimers"])}, indent=2))
+
+    extras: dict[str, str] = {}
+    formats = {f.strip().lower() for f in args.formats.split(",") if f.strip()}
+    stem = out.with_suffix("")
+    # Build a session-shaped view for multi-format writers when session present
+    session_view: dict[str, Any] | None = None
+    if not args.no_session:
+        try:
+            session_view = build_session_report(dsn=args.dsn)
+        except Exception:  # noqa: BLE001
+            session_view = None
+
+    if session_view and "csv" in formats:
+        extras["csv"] = str(write_csv_bundle(session_view, Path(str(stem) + ".csv")))
+    if session_view and "xlsx" in formats:
+        xp = write_xlsx(session_view, Path(str(stem) + ".xlsx"))
+        if xp:
+            extras["xlsx"] = str(xp)
+    if session_view and "html" in formats:
+        extras["html"] = str(write_html(session_view, Path(str(stem) + ".html")))
+
+    bundle_paths: dict[str, str] = {}
+    if not args.no_session_bundle and args.also_session_bundle and session_view:
+        bundle_paths = write_all(
+            session_view,
+            output_dir=out.parent,
+            basename="commercial-b2g-session-sc",
+        )
+
+    print(
+        json.dumps(
+            {
+                "wrote": str(out),
+                "extras": extras,
+                "session_bundle": bundle_paths,
+                "run_id": report.get("run_id"),
+                "confidence": report["confidence"],
+                "disclaimers": len(report["disclaimers"]),
+                "open_sample": len((report.get("opportunities") or {}).get("open_sample") or []),
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 

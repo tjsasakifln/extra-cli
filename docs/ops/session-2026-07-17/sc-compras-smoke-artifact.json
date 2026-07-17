@@ -1,0 +1,168 @@
+{
+  "run_id": "sc_compras-smoke-20260717T021517Z-29e6bf8f10",
+  "source": "sc_compras",
+  "mode": "smoke",
+  "ano": 2026,
+  "status": "ok",
+  "live_fetch": true,
+  "started_at": "2026-07-17T02:15:17Z",
+  "completed_at": "2026-07-17T02:15:19Z",
+  "metrics": {
+    "live_fetch": true,
+    "api_total_elementos_reported": 2602,
+    "records_raw": 20,
+    "records_normalized": 20,
+    "duplicates": 0,
+    "incomplete_records": 0,
+    "empty_fields": {
+      "objeto_compra": 0,
+      "orgao_razao_social": 0,
+      "data_publicacao": 0,
+      "data_abertura": 4,
+      "data_encerramento": 20,
+      "valor_total_estimado": 20,
+      "modalidade_nome": 0,
+      "municipio": 20,
+      "orgao_cnpj": 20,
+      "link_pncp": 0,
+      "status": 0,
+      "documentos": 20
+    },
+    "non_sc_records": 0,
+    "temporal_range": {
+      "min": "2025-11-20",
+      "max": "2026-07-16"
+    },
+    "freshness_hours_from_max_date": 26.26,
+    "elapsed_s": 2.054,
+    "coverage_claim": "api_total_elementos is live metadata for the requested year filter only; not claimed as full portal historical coverage",
+    "selection": {
+      "mode": "smoke",
+      "page_size": 10,
+      "pages_limit": 2,
+      "input_count": 2602,
+      "strategy": "first_n_pages"
+    },
+    "list_meta": {
+      "ano": 2026,
+      "total_elementos": 2602,
+      "total_paginas": 261,
+      "por_pagina": 10,
+      "items_returned": 2602,
+      "ok": true,
+      "url": "https://compras.sc.gov.br/api/editais?ano=2026&tamanhoPagina=3000"
+    },
+    "fetch_detail": false,
+    "pages_processed": 2
+  },
+  "checkpoint": {
+    "source": "sc_compras",
+    "mode": "smoke",
+    "last_max_id": 58132,
+    "last_seen_ids": [
+      41624,
+      57612,
+      58075,
+      58109,
+      58110,
+      58111,
+      58112,
+      58115,
+      58117,
+      58118,
+      58119,
+      58120,
+      58125,
+      58126,
+      58127,
+      58128,
+      58129,
+      58130,
+      58131,
+      58132
+    ],
+    "last_year": 2026,
+    "pages_completed": 2,
+    "total_fetched": 20,
+    "last_error": null,
+    "updated_at": "2026-07-17T02:15:19Z",
+    "meta": {
+      "run_id": "sc_compras-smoke-20260717T021517Z-29e6bf8f10",
+      "run_ids": [
+        "sc_compras-smoke-20260717T021517Z-29e6bf8f10"
+      ],
+      "previous_run_ids": []
+    }
+  },
+  "checkpoint_path": "/mnt/d/extra consultoria/data/sc_compras_checkpoints/sc_compras_smoke.json",
+  "raw_pages": [
+    "/mnt/d/extra consultoria/data/raw/sc_compras/sc_compras-smoke-20260717T021517Z-29e6bf8f10/page_0000.json",
+    "/mnt/d/extra consultoria/data/raw/sc_compras/sc_compras-smoke-20260717T021517Z-29e6bf8f10/page_0001.json"
+  ],
+  "output_path": "/mnt/d/extra consultoria/output/sc_compras/sc_compras-smoke-20260717T021517Z-29e6bf8f10/licitacoes.jsonl",
+  "sample_ids": [
+    41624,
+    57612,
+    58075,
+    58109,
+    58110
+  ],
+  "records_normalized": 20,
+  "evidence": {
+    "run_id": "sc_compras-smoke-20260717T021517Z-29e6bf8f10",
+    "git_sha": "0a2806f8dcaf56377680c640390f73e27cd1d393",
+    "git_branch": "main",
+    "started_at": "2026-07-17T02:15:17Z",
+    "completed_at": "2026-07-17T02:15:19Z",
+    "host_id": "72aa0c75ebd3",
+    "command": "scripts.crawl.sc_compras_crawler",
+    "args": {
+      "mode": "smoke",
+      "ano": 2026,
+      "max_pages": 2,
+      "fetch_detail": false,
+      "page_size": 10
+    },
+    "env_non_secret": {},
+    "checkpoint_path": "/mnt/d/extra consultoria/data/sc_compras_checkpoints/sc_compras_smoke.json",
+    "checkpoint_hash": "db6779cfb24248d2d7db028b224cfd0145d633a6e5556cfb89c050ccbf13ea00",
+    "output_path": "/mnt/d/extra consultoria/output/sc_compras/sc_compras-smoke-20260717T021517Z-29e6bf8f10/licitacoes.jsonl",
+    "output_hash": "fead0c3d5f7c43055370fcfb033cbef85eff628cb187006151ee3f7eb53cf785",
+    "log_path": null,
+    "log_hash": null,
+    "migration_head": null,
+    "counts_before": {
+      "checkpoint_total_fetched": 0
+    },
+    "counts_after": {
+      "records_normalized": 20,
+      "records_raw": 20,
+      "api_total_elementos_reported": 2602
+    },
+    "status": "ok",
+    "errors": [],
+    "criteria": {
+      "modes": [
+        "smoke",
+        "incremental",
+        "full"
+      ],
+      "live_fetch_required_for_smoke_claim": true
+    },
+    "claims_allowed": [
+      "year_filter_live_totalElementos_metadata",
+      "records_fetched_this_run",
+      "checkpoint_resume_by_last_max_id"
+    ],
+    "claims_forbidden": [
+      "full_portal_historical_coverage",
+      "unverified_2602_as_complete_universe"
+    ],
+    "source": "sc_compras",
+    "live_fetch": true,
+    "checkpoint_content_sha256": "24febcb90cfba82f6f3fc882c6f3fd034d304d08628076e03ddc43fe3f48e6f4"
+  },
+  "errors": [],
+  "artifact_path": "/mnt/d/extra consultoria/output/sc_compras/sc_compras-smoke-20260717T021517Z-29e6bf8f10/artifact.json",
+  "artifact_sha256": "40d40bbd764c46b7bd0f39dcfa9aee1372da6ac42613b16b385ee6ebb9a4224e"
+}

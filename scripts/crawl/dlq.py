@@ -211,6 +211,8 @@ class DurableDLQ:
             where_clause = " AND ".join(conditions) if conditions else "TRUE"
 
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                # where_clause is built only from fixed fragments + %s placeholders
+                # (never raw user input); values go through params.
                 cur.execute(
                     f"""
                     SELECT id, source, run_id, phase, error_code, error_message,
@@ -219,7 +221,7 @@ class DurableDLQ:
                     WHERE {where_clause}
                     ORDER BY failed_at DESC
                     LIMIT %s OFFSET %s
-                    """,
+                    """,  # noqa: S608
                     (*params, limit, offset),
                 )
                 rows = cur.fetchall()

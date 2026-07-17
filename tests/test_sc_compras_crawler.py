@@ -490,6 +490,9 @@ class TestTransform:
             "link_pncp",
             "content_hash",
             "source_id",
+            "status",
+            "documentos",
+            "api_id",
         }
         assert set(result[0].keys()) == expected_fields, (
             f"Field mismatch. Extra: {set(result[0].keys()) - expected_fields}. "
@@ -555,37 +558,369 @@ class TestCrawl:
     """Tests for crawl() with mocked API."""
 
     @patch("scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value=None)
-    @patch("scripts.crawl.sc_compras_crawler._fetch_api_list", return_value=[])
+    @patch(
+        "scripts.crawl.sc_compras_crawler._fetch_api_list_meta",
+        return_value=([], {"ok": False, "total_elementos": 0}),
+    )
     def test_crawl_returns_list(self, mock_list, mock_detail):
         """crawl() returns a list even when API returns no data."""
         result = sc.crawl(mode="full")
         assert isinstance(result, list)
 
     @patch("scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value=None)
-    @patch("scripts.crawl.sc_compras_crawler._fetch_api_list", return_value=[])
+    @patch(
+        "scripts.crawl.sc_compras_crawler._fetch_api_list_meta",
+        return_value=([], {"ok": False, "total_elementos": 0}),
+    )
     def test_crawl_full_default_days(self, mock_list, mock_detail):
         """crawl('full') uses SC_COMPRAS_FULL_DAYS."""
         result = sc.crawl(mode="full")
         assert isinstance(result, list)
 
     @patch("scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value=None)
-    @patch("scripts.crawl.sc_compras_crawler._fetch_api_list", return_value=[])
+    @patch(
+        "scripts.crawl.sc_compras_crawler._fetch_api_list_meta",
+        return_value=([], {"ok": False, "total_elementos": 0}),
+    )
     def test_crawl_incremental(self, mock_list, mock_detail):
         """crawl('incremental') returns a list."""
         result = sc.crawl(mode="incremental")
         assert isinstance(result, list)
 
     @patch(
-        "scripts.crawl.sc_compras_crawler._fetch_api_detail", return_value={"id": 1, "modalidade": "Pregao Eletronico"}
+        "scripts.crawl.sc_compras_crawler._fetch_api_detail",
+        return_value={"id": 1, "modalidade": "Pregao Eletronico"},
     )
     @patch(
-        "scripts.crawl.sc_compras_crawler._fetch_api_list",
-        return_value=[{"id": 1, "processo": "2025/00001"}],
+        "scripts.crawl.sc_compras_crawler._fetch_api_list_meta",
+        return_value=([{"id": 1, "processo": "2025/00001"}], {"ok": True, "total_elementos": 1}),
     )
     def test_crawl_with_items(self, mock_list, mock_detail):
         """crawl() returns items when data is available."""
         result = sc.crawl(mode="full")
         assert len(result) >= 1
+
+
+# ---------------------------------------------------------------------------
+# Pagination / selection / dedupe helpers
+# ---------------------------------------------------------------------------
+
+
+def _sample_item(i: int, **extra) -> dict:
+    base = {
+        "id": i,
+        "processo": f"{i:04d}/2026",
+        "tipo": "Pregão Eletrônico",
+        "orgaoSigla": "SED",
+        "orgaoNome": "Secretaria de Estado da Educação",
+        "objeto": f"Objeto {i}",
+        "entregaProposta": None,
+        "abertura": None,
+        "situacao": "Aberto",
+    }
+    base.update(extra)
+    return base
+
+
+class TestVirtualPagination:
+    def test_virtual_pages_split(self):
+        items = [_sample_item(i) for i in range(25)]
+        pages = sc._virtual_pages(items, page_size=10)
+        assert len(pages) == 3
+        assert len(pages[0]) == 10
+        assert len(pages[2]) == 5
+
+    def test_page_slice_empty_out_of_range(self):
+        items = [_sample_item(1)]
+        assert sc._page_slice(items, page=5, page_size=10) == []
+
+    def test_empty_bulk_yields_no_pages(self):
+        assert sc._virtual_pages([]) == []
+
+
+class TestSelectItemsForMode:
+    def test_smoke_first_pages(self):
+        items = [_sample_item(i) for i in range(1, 51)]
+        selected, meta = sc.select_items_for_mode(items, "smoke", max_pages=2, page_size=10)
+        assert len(selected) == 20
+        assert meta["strategy"] == "first_n_pages"
+
+    def test_incremental_since_checkpoint(self):
+        items = [_sample_item(i) for i in range(1, 31)]
+        cp = sc.ScComprasCheckpoint(mode="incremental", last_max_id=25)
+        selected, meta = sc.select_items_for_mode(
+            items, "incremental", checkpoint=cp, max_pages=5, page_size=10
+        )
+        ids = [it["id"] for it in selected]
+        assert ids == [26, 27, 28, 29, 30]
+        assert meta["strategy"] == "since_last_max_id"
+
+    def test_incremental_no_checkpoint_takes_newest(self):
+        items = [_sample_item(i) for i in range(1, 41)]
+        selected, meta = sc.select_items_for_mode(
+            items, "incremental", checkpoint=None, max_pages=2, page_size=10
+        )
+        assert len(selected) == 20
+        assert meta["strategy"] == "newest_pages_no_checkpoint"
+        assert selected[0]["id"] == 21
+
+
+class TestDedupe:
+    def test_duplicate_detection(self):
+        items = [_sample_item(1), _sample_item(1), _sample_item(2)]
+        unique, dups = sc.dedupe_by_api_id(items)
+        assert len(unique) == 2
+        assert dups == 1
+
+
+class TestMetricsIncomplete:
+    def test_empty_fields_and_incomplete(self):
+        normalized = [
+            {
+                "pncp_id": "sc-1",
+                "objeto_compra": None,
+                "orgao_razao_social": "Orgao",
+                "data_publicacao": "2026-01-01",
+                "data_abertura": None,
+                "data_encerramento": None,
+                "valor_total_estimado": None,
+                "modalidade_nome": None,
+                "municipio": None,
+                "orgao_cnpj": None,
+                "link_pncp": None,
+                "status": None,
+                "documentos": [],
+                "uf": "SC",
+            }
+        ]
+        from datetime import UTC, datetime
+
+        m = sc.compute_metrics(
+            normalized,
+            raw_count=1,
+            api_total_elementos=100,
+            duplicate_count=0,
+            started_at=datetime.now(UTC),
+            live_fetch=False,
+        )
+        assert m["incomplete_records"] == 1
+        assert m["empty_fields"]["objeto_compra"] == 1
+        assert m["empty_fields"]["valor_total_estimado"] == 1
+        assert m["api_total_elementos_reported"] == 100
+        assert m["non_sc_records"] == 0
+        assert m["temporal_range"]["min"] == "2026-01-01"
+
+
+# ---------------------------------------------------------------------------
+# HTTP retry (429 / 500)
+# ---------------------------------------------------------------------------
+
+
+class TestApiRequestRetry:
+    def test_retries_on_429_then_success(self):
+        import io
+        import urllib.error
+
+        ok_body = b'{"conteudo":[]}'
+        calls = {"n": 0}
+
+        class FakeResp:
+            status = 200
+
+            def read(self):
+                return ok_body
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        def fake_urlopen(req, timeout=None):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise urllib.error.HTTPError(
+                    url="https://compras.sc.gov.br/api/editais",
+                    code=429,
+                    msg="Too Many",
+                    hdrs={"Retry-After": "0"},
+                    fp=io.BytesIO(b""),
+                )
+            return FakeResp()
+
+        with (
+            patch.object(sc.urllib.request, "urlopen", side_effect=fake_urlopen),
+            patch.object(sc.time, "sleep"),
+            patch.object(sc, "MAX_RETRIES", 3),
+        ):
+            data = sc._api_request("https://compras.sc.gov.br/api/editais?ano=2026")
+        assert data == {"conteudo": []}
+        assert calls["n"] == 2
+
+    def test_retries_on_500_then_fails(self):
+        import io
+        import urllib.error
+
+        def always_500(req, timeout=None):
+            raise urllib.error.HTTPError(
+                url="https://compras.sc.gov.br/api/editais",
+                code=500,
+                msg="Err",
+                hdrs=None,
+                fp=io.BytesIO(b""),
+            )
+
+        with (
+            patch.object(sc.urllib.request, "urlopen", side_effect=always_500),
+            patch.object(sc.time, "sleep"),
+            patch.object(sc, "MAX_RETRIES", 2),
+        ):
+            data = sc._api_request("https://compras.sc.gov.br/api/editais?ano=2026")
+        assert data is None
+
+
+# ---------------------------------------------------------------------------
+# Checkpoint resume + run() pipeline
+# ---------------------------------------------------------------------------
+
+
+class TestCheckpointAndRun:
+    def test_checkpoint_save_load(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(sc, "CHECKPOINT_DIR", tmp_path)
+        cp = sc.ScComprasCheckpoint(mode="incremental", last_max_id=99, total_fetched=5)
+        path = sc.save_checkpoint(cp)
+        assert path.is_file()
+        loaded = sc.load_checkpoint("incremental")
+        assert loaded.last_max_id == 99
+        assert loaded.total_fetched == 5
+
+    def test_run_empty_page(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(sc, "CHECKPOINT_DIR", tmp_path / "ck")
+        monkeypatch.setattr(sc, "RAW_DIR", tmp_path / "raw")
+        monkeypatch.setattr(sc, "OUTPUT_DIR", tmp_path / "out")
+        art = sc.run(
+            mode="smoke",
+            ano=2026,
+            max_pages=1,
+            fetch_detail=False,
+            persist=True,
+            live_fetch=False,
+            preloaded_items=[],
+            preloaded_meta={"ok": True, "total_elementos": 0, "ano": 2026},
+            run_id="test-empty",
+        )
+        assert art["run_id"] == "test-empty"
+        assert art["records_normalized"] == 0
+        assert art["live_fetch"] is False
+        assert art["metrics"]["records_raw"] == 0
+
+    def test_run_pagination_two_pages(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(sc, "CHECKPOINT_DIR", tmp_path / "ck")
+        monkeypatch.setattr(sc, "RAW_DIR", tmp_path / "raw")
+        monkeypatch.setattr(sc, "OUTPUT_DIR", tmp_path / "out")
+        monkeypatch.setattr(sc, "PAGE_SIZE", 5)
+        items = [_sample_item(i) for i in range(1, 13)]
+        art = sc.run(
+            mode="smoke",
+            ano=2026,
+            max_pages=2,
+            fetch_detail=False,
+            persist=True,
+            live_fetch=False,
+            preloaded_items=items,
+            preloaded_meta={"ok": True, "total_elementos": 100, "ano": 2026},
+            run_id="test-pages",
+        )
+        assert art["records_normalized"] == 10  # 2 pages * 5
+        assert art["metrics"]["pages_processed"] == 2
+        assert art["metrics"]["api_total_elementos_reported"] == 100
+        assert (tmp_path / "raw" / "test-pages" / "page_0000.json").is_file()
+        assert (tmp_path / "out" / "test-pages" / "licitacoes.jsonl").is_file()
+        assert art["evidence"]["run_id"] == "test-pages"
+
+    def test_checkpoint_resume_skips_seen(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(sc, "CHECKPOINT_DIR", tmp_path / "ck")
+        monkeypatch.setattr(sc, "RAW_DIR", tmp_path / "raw")
+        monkeypatch.setattr(sc, "OUTPUT_DIR", tmp_path / "out")
+        monkeypatch.setattr(sc, "PAGE_SIZE", 10)
+        # Seed checkpoint
+        sc.save_checkpoint(
+            sc.ScComprasCheckpoint(mode="incremental", last_max_id=5, total_fetched=5)
+        )
+        items = [_sample_item(i) for i in range(1, 11)]
+        art = sc.run(
+            mode="incremental",
+            ano=2026,
+            max_pages=2,
+            fetch_detail=False,
+            persist=True,
+            live_fetch=False,
+            preloaded_items=items,
+            preloaded_meta={"ok": True, "total_elementos": 10, "ano": 2026},
+            run_id="test-resume",
+        )
+        # only ids 6..10
+        assert art["records_normalized"] == 5
+        assert art["checkpoint"]["last_max_id"] == 10
+        assert art["metrics"]["selection"]["strategy"] == "since_last_max_id"
+
+    def test_run_duplicate_metrics(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(sc, "CHECKPOINT_DIR", tmp_path / "ck")
+        monkeypatch.setattr(sc, "RAW_DIR", tmp_path / "raw")
+        monkeypatch.setattr(sc, "OUTPUT_DIR", tmp_path / "out")
+        items = [_sample_item(1), _sample_item(1), _sample_item(2)]
+        art = sc.run(
+            mode="full",
+            ano=2026,
+            max_pages=1,
+            fetch_detail=False,
+            persist=True,
+            live_fetch=False,
+            preloaded_items=items,
+            preloaded_meta={"ok": True, "total_elementos": 3, "ano": 2026},
+            run_id="test-dups",
+        )
+        assert art["records_normalized"] == 2
+        assert art["metrics"]["duplicates"] >= 1
+
+    def test_run_with_detail_loader(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(sc, "CHECKPOINT_DIR", tmp_path / "ck")
+        monkeypatch.setattr(sc, "RAW_DIR", tmp_path / "raw")
+        monkeypatch.setattr(sc, "OUTPUT_DIR", tmp_path / "out")
+
+        def detail_loader(iid: int) -> dict:
+            return {
+                "id": iid,
+                "modalidade": "Pregão Eletrônico",
+                "edital": f"{iid:04d}/2026",
+                "dataPublicacao": "2026-03-01",
+                "dataAbertura": "2026-03-15T10:00:00",
+                "dataEncerramento": None,
+                "situacao": "Em Recebimento de Proposta",
+                "linkArquivosFTP": f"ftp://example/{iid}",
+                "natureza": "Serviços",
+            }
+
+        art = sc.run(
+            mode="incremental",
+            ano=2026,
+            max_pages=1,
+            fetch_detail=True,
+            persist=True,
+            live_fetch=False,
+            preloaded_items=[_sample_item(7)],
+            preloaded_meta={"ok": True, "total_elementos": 1},
+            detail_loader=detail_loader,
+            run_id="test-detail",
+        )
+        assert art["records_normalized"] == 1
+        # read normalized line
+        lines = (tmp_path / "out" / "test-detail" / "licitacoes.jsonl").read_text().strip().splitlines()
+        rec = __import__("json").loads(lines[0])
+        assert rec["data_publicacao"] == "2026-03-01"
+        assert rec["status"] == "Em Recebimento de Proposta"
+        assert rec["documentos"]
+        assert rec["modalidade_id"] == 5
 
 
 # ---------------------------------------------------------------------------

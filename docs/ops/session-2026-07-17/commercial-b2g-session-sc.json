@@ -1,0 +1,2769 @@
+{
+  "report": "commercial-b2g-session-sc",
+  "schema_version": 1,
+  "audience": "Extra Construtora / consultoria B2G SC",
+  "run_id": "commercial-b2g-20260717-022210-1d5ca725",
+  "generated_at": "2026-07-17T02:22:10.606830+00:00",
+  "git_sha": "0a2806f",
+  "confidence": "low_to_medium",
+  "live_fetch_summary": {
+    "sc_compras": true,
+    "ciga_dom": true,
+    "doe_dados_sc": true,
+    "db_sample": true,
+    "coverage_metrics": false,
+    "note": "Flags honestas: métricas de cobertura/ranking/reconciliação são atestação de artefato."
+  },
+  "evidence_chain": [
+    {
+      "source": "sc_compras",
+      "run_id": "sc_compras-incremental-20260717T021544Z-4d70d47986",
+      "live_fetch": true,
+      "path": "output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/artifact.json",
+      "sha256": "ce40db706c4bc563c2b73fd36c18abb2c20578f5a738c5851ef23f2c79b6448b",
+      "status": "ok"
+    },
+    {
+      "source": "ciga_dom",
+      "run_id": "ciga-dom-20260717T021436Z-08120b3f8f",
+      "live_fetch": true,
+      "path": "output/ciga_dom/latest_summary.json",
+      "status": "success"
+    },
+    {
+      "source": "dados_abertos_sc_doe",
+      "run_id": "dados-sc-smoke-20260717T021337Z-f4cfe4b907",
+      "live_fetch": true,
+      "path": "output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json",
+      "status": "ok"
+    },
+    {
+      "source": "coverage_metrics",
+      "run_id": null,
+      "live_fetch": false,
+      "path": "output/coverage/next30d-metrics-final.json",
+      "attestation": true
+    },
+    {
+      "source": "coverage_truth",
+      "run_id": null,
+      "live_fetch": false,
+      "path": "output/sc_compras/coverage-truth/coverage-truth-2026-07-16.json",
+      "attestation": true
+    },
+    {
+      "source": "freshness_gate",
+      "run_id": null,
+      "live_fetch": false,
+      "path": "output/readiness/freshness-gate.json",
+      "attestation": true
+    },
+    {
+      "source": "org_ranking",
+      "run_id": null,
+      "live_fetch": false,
+      "path": "output/reports/org-ranking-next30d.json",
+      "status": "OK",
+      "attestation": true
+    },
+    {
+      "source": "reconcile_pdf_excel",
+      "run_id": "next30d-20260717-002308",
+      "live_fetch": false,
+      "path": "output/reports/reconcile-next30d.json",
+      "status": "CONSISTENT",
+      "attestation": true
+    },
+    {
+      "source": "db_sample",
+      "run_id": null,
+      "live_fetch": true,
+      "available": true,
+      "reason": null
+    }
+  ],
+  "coverage": {
+    "editais_crude_pct": 4.76,
+    "covered_200km": 52,
+    "editais_denominator": 1093,
+    "pncp_supplier_contracts": 63574,
+    "pncp_raw_bids": 2948,
+    "pilot_status": "partial",
+    "go_no_go_3y": "NO-GO",
+    "go_no_go_path": "GO",
+    "metrics_note": "Reconciled 2026-07-17: path_proof 1d only; full 90d national incomplete; contracts count cumulative from partial runs. Do NOT treat pilot_status as full 90d success.",
+    "metrics_path": "output/coverage/next30d-metrics-final.json",
+    "coverage_truth": {
+      "path": "output/sc_compras/coverage-truth/coverage-truth-2026-07-16.json",
+      "monitoring_pct_display": "unverified",
+      "monitoring_pct": null,
+      "freshness": {
+        "pct_fresh": 4.8,
+        "fresh_count": 52,
+        "stale_count": 0,
+        "unknown_count": 1041,
+        "window_days": 90,
+        "_source": "entity_coverage.last_seen_at (persisted records)"
+      },
+      "bid_presence": {
+        "pct": 4.8,
+        "entities_with_bids": 52,
+        "entities_without_bids": 1041,
+        "_source": "entity_coverage.total_bids (persisted records)",
+        "_note": "Bid presence counts entities with ≥1 persisted bid record. This is NOT monitoring coverage — an entity may have bids without an evidence-backed monitoring observation."
+      },
+      "contract_presence": {
+        "pct": 0.0,
+        "entities_with_contracts": 0,
+        "entities_without_contracts": 1093
+      },
+      "gaps_total": 11990,
+      "gaps_sample": [
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "pncp",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "ciga_ckan",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "pcp",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "compras_gov",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "sc_compras",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "contracts",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "transparencia",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "tce_sc",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "doe_sc",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "mides_bigquery",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 1,
+          "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "dom_sc",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "pncp",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "ciga_ckan",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "pcp",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "compras_gov",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "sc_compras",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "contracts",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "transparencia",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "tce_sc",
+          "state": "not_investigated"
+        },
+        {
+          "entity_id": 2,
+          "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+          "municipio": "SANTO AMARO DA IMPERATRIZ",
+          "source": "doe_sc",
+          "state": "not_investigated"
+        }
+      ],
+      "source_health_notes": {
+        "pncp": "Evidence ledger empty — source health unverified",
+        "ciga_ckan": "Evidence ledger empty — source health unverified",
+        "pcp": "Evidence ledger empty — source health unverified",
+        "compras_gov": "Evidence ledger empty — source health unverified",
+        "sc_compras": "blocked",
+        "contracts": "Evidence ledger empty — source health unverified",
+        "transparencia": "blocked",
+        "tce_sc": "Evidence ledger empty — source health unverified",
+        "doe_sc": "blocked",
+        "mides_bigquery": "blocked",
+        "dom_sc": "blocked"
+      }
+    },
+    "freshness_gate": {
+      "path": "output/readiness/freshness-gate.json",
+      "all_critical_fresh": false,
+      "failing_sources": [
+        "pncp",
+        "contracts"
+      ],
+      "generated_at": "2026-07-16T01:01:47.721723+00:00"
+    },
+    "runtime_next30d": {
+      "path": "output/sc_compras/runtime-next30d.json",
+      "summary": {
+        "total_fetched": 2602,
+        "total_transformed": 2602,
+        "total_inserted": 2602,
+        "total_updated": 0,
+        "total_matched": 2272,
+        "total_classified_engineering": 0,
+        "total_engineering_confirmed": 0,
+        "total_engineering_probable": 0,
+        "total_within_200km": 0,
+        "total_remaining_sc": 0,
+        "total_location_unconfirmed": 0,
+        "total_false_positive": 0,
+        "total_persisted_opportunities": 0,
+        "total_external_failures": 0,
+        "sources_success": 1,
+        "sources_degraded": 0,
+        "sources_empty": 0,
+        "sources_skipped": 0,
+        "sources_failed": 0,
+        "generated_at": "2026-07-16T21:09:15.696435"
+      },
+      "results": [
+        {
+          "source": "sc_compras",
+          "status": "success",
+          "fetched": 2602,
+          "transformed": 2602,
+          "inserted": 2602,
+          "updated": 0,
+          "duplicates": 0,
+          "matched": 2272,
+          "unmatched": 330,
+          "ambiguous": 0,
+          "new_entities_covered": 0,
+          "classified_engineering": 0,
+          "engineering_confirmed": 0,
+          "engineering_probable": 0,
+          "engineering_review_required": 0,
+          "false_positive_discarded": 0,
+          "within_200km": 0,
+          "remaining_sc": 0,
+          "location_unconfirmed": 0,
+          "opportunities_persisted": 0,
+          "external_failures": 0,
+          "started_at": "2026-07-17T00:09:07.964982+00:00",
+          "completed_at": "2026-07-17T00:09:15.662059+00:00",
+          "duration_seconds": 7.697101,
+          "error_code": null,
+          "error_message": null,
+          "dependencies_missing": [],
+          "warnings": [],
+          "metadata": {}
+        }
+      ]
+    },
+    "code_coverage_gate": {
+      "path": "output/coverage/coverage-gate-report.json",
+      "result": "fail",
+      "note": "Gate de cobertura de código (pytest-cov), NÃO cobertura comercial de editais."
+    }
+  },
+  "sc_compras": {
+    "available": true,
+    "run_id": "sc_compras-incremental-20260717T021544Z-4d70d47986",
+    "mode": "incremental",
+    "status": "ok",
+    "live_fetch": true,
+    "artifact_path": "output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/artifact.json",
+    "jsonl_path": "output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl",
+    "artifact_sha256": "ce40db706c4bc563c2b73fd36c18abb2c20578f5a738c5851ef23f2c79b6448b",
+    "artifact": {
+      "metrics": {
+        "live_fetch": true,
+        "api_total_elementos_reported": 2602,
+        "records_raw": 10,
+        "records_normalized": 10,
+        "duplicates": 0,
+        "incomplete_records": 0,
+        "empty_fields": {
+          "objeto_compra": 0,
+          "orgao_razao_social": 0,
+          "data_publicacao": 0,
+          "data_abertura": 2,
+          "data_encerramento": 10,
+          "valor_total_estimado": 10,
+          "modalidade_nome": 0,
+          "municipio": 10,
+          "orgao_cnpj": 10,
+          "link_pncp": 0,
+          "status": 0,
+          "documentos": 10
+        },
+        "non_sc_records": 0,
+        "temporal_range": {
+          "min": "2026-07-16",
+          "max": "2026-08-04"
+        },
+        "freshness_hours_from_max_date": -429.74,
+        "elapsed_s": 1.391,
+        "coverage_claim": "api_total_elementos is live metadata for the requested year filter only; not claimed as full portal historical coverage",
+        "selection": {
+          "mode": "incremental",
+          "page_size": 10,
+          "pages_limit": 1,
+          "input_count": 2602,
+          "strategy": "newest_pages_no_checkpoint",
+          "date_from_hint": "2026-07-13"
+        },
+        "list_meta": {
+          "ano": 2026,
+          "total_elementos": 2602,
+          "total_paginas": 261,
+          "por_pagina": 10,
+          "items_returned": 2602,
+          "ok": true,
+          "url": "https://compras.sc.gov.br/api/editais?ano=2026&tamanhoPagina=3000"
+        },
+        "fetch_detail": false,
+        "pages_processed": 1
+      },
+      "sample_ids": [
+        60847,
+        60848,
+        60849,
+        60850,
+        60851
+      ],
+      "errors": [],
+      "started_at": "2026-07-17T02:15:44Z",
+      "completed_at": "2026-07-17T02:15:45Z",
+      "evidence": {
+        "run_id": "sc_compras-incremental-20260717T021544Z-4d70d47986",
+        "git_sha": "0a2806f8dcaf56377680c640390f73e27cd1d393",
+        "git_branch": "main",
+        "started_at": "2026-07-17T02:15:44Z",
+        "completed_at": "2026-07-17T02:15:45Z",
+        "command": "scripts.crawl.sc_compras_crawler",
+        "output_hash": "e66acca4c0feedde32bf651e57540c938e2c53212c6fc91223aa2cf7fbcecb19",
+        "checkpoint_hash": "547de4554b83aaab25638e6fefe863513d0579140ecad7ad4fc5aca4a39973b3"
+      }
+    },
+    "smoke_side": {
+      "run_id": "sc_compras-smoke-20260717T021517Z-29e6bf8f10",
+      "live_fetch": true,
+      "records_count": 20,
+      "status_counts": {
+        "Homologado": 15,
+        "Aguardando Homologação": 1,
+        "Fracassado": 2,
+        "Deserto": 1,
+        "Em Recebimento de Proposta": 1
+      },
+      "artifact_path": "output/sc_compras/sc_compras-smoke-20260717T021517Z-29e6bf8f10/artifact.json"
+    },
+    "opportunities": {
+      "total_records": 10,
+      "status_counts": {
+        "Em Recebimento de Proposta": 1,
+        "Aguardando Abertura da Sessão": 7,
+        "Aguardando Homologação": 2
+      },
+      "open_count": 8,
+      "semi_open_count": 2,
+      "closed_count": 0,
+      "open_opportunities": [
+        {
+          "source_id": "sc-60847",
+          "status": "Em Recebimento de Proposta",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Saúde - SES",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Dispensa com Cotação Eletrônica (Serviços)",
+          "objeto": "Contratação de serviço de acolhimento/internação em residencial terapêutico, no território de Santa Catarina, em atendimento aosautos nº5027796-55.2026.8.24.0023/SC, em favor do paciente E. G. P., conforme condições, quantidades e exigências estabelecidas neste instrumento, para…",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-07-24",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60847",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60848",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Kit de Transposição de Obstáculos pré-fabricadas de concreto para reconstrução e restabelecimento de acessos para a Secretaria de Estado da Proteção e Defesa Civil",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60848",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60849",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Registro de preços para futura e eventual aquisição de alimentos para lanches e refeições oferecidos aos educandos atendidos no campus para a Fundação Catarinense de Educação Especial.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60849",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60850",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Aquisição de Retinógrafos portáteis digitais para a Secretaria de Estado da Saúde",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60850",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60851",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Aquisição de licença de softwares para o Corpo de Bombeiros Militar de Santa Catarina.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60851",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60852",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Aquisição de testes psicométricos e instrumentos psicológicos para psicólogos para a Polícia Civil de Santa Catarina.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-04",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60852",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60853",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Aquisição de testes psicológicos para a Polícia Militar de Santa Catarina",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-04",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60853",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60854",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Serviços)",
+          "objeto": "Contratação semi-integrada de empresa qualificada em serviços de engenharia para elaboração de projetos (projeto Sistema Proteção contra Descargas Atmosféricas - SPDA e projeto do bloco de coroamento da base do reservatório); fornecimento e execução da instalação de Reservatório…",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60854",
+          "documentos_count": 0
+        }
+      ],
+      "semi_open_sample": [
+        {
+          "source_id": "sc-60855",
+          "status": "Aguardando Homologação",
+          "status_bucket": "semi_open",
+          "orgao": "Polícia Civil - PC",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Dispensa de Licitação (Serviços)",
+          "objeto": "Contratação de concessionária autorizada para realização de revisão preventiva, em razão da garantia de fábrica, em 1 (uma) viatura da frota da Polícia Civil de Santa Catarina.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": null,
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60855",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60856",
+          "status": "Aguardando Homologação",
+          "status_bucket": "semi_open",
+          "orgao": "Fundação Universidade do Estado de Santa Catarina - UDESC",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Inexigência de Licitação (Serviços)",
+          "objeto": "Contratação de estande Cota OURO para participação da UDESC no Startup Summit 2026, a ser realizado entre os dias 26 a 28 de agosto de 2026 no Centro de Eventos CentroSul em Florianópolis/SC.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": null,
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60856",
+          "documentos_count": 0
+        }
+      ],
+      "recently_published": [
+        {
+          "source_id": "sc-60847",
+          "status": "Em Recebimento de Proposta",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Saúde - SES",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Dispensa com Cotação Eletrônica (Serviços)",
+          "objeto": "Contratação de serviço de acolhimento/internação em residencial terapêutico, no território de Santa Catarina, em atendimento aosautos nº5027796-55.2026.8.24.0023/SC, em favor do paciente E. G. P., conforme condições, quantidades e exigências estabelecidas neste instrumento, para…",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-07-24",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60847",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60848",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Kit de Transposição de Obstáculos pré-fabricadas de concreto para reconstrução e restabelecimento de acessos para a Secretaria de Estado da Proteção e Defesa Civil",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60848",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60849",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Registro de preços para futura e eventual aquisição de alimentos para lanches e refeições oferecidos aos educandos atendidos no campus para a Fundação Catarinense de Educação Especial.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60849",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60850",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Aquisição de Retinógrafos portáteis digitais para a Secretaria de Estado da Saúde",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60850",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60851",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Aquisição de licença de softwares para o Corpo de Bombeiros Militar de Santa Catarina.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60851",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60852",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Aquisição de testes psicométricos e instrumentos psicológicos para psicólogos para a Polícia Civil de Santa Catarina.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-04",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60852",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60853",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "objeto": "Aquisição de testes psicológicos para a Polícia Militar de Santa Catarina",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-04",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60853",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60854",
+          "status": "Aguardando Abertura da Sessão",
+          "status_bucket": "open",
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Pregão Eletrônico (Serviços)",
+          "objeto": "Contratação semi-integrada de empresa qualificada em serviços de engenharia para elaboração de projetos (projeto Sistema Proteção contra Descargas Atmosféricas - SPDA e projeto do bloco de coroamento da base do reservatório); fornecimento e execução da instalação de Reservatório…",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": "2026-08-03",
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60854",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60855",
+          "status": "Aguardando Homologação",
+          "status_bucket": "semi_open",
+          "orgao": "Polícia Civil - PC",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Dispensa de Licitação (Serviços)",
+          "objeto": "Contratação de concessionária autorizada para realização de revisão preventiva, em razão da garantia de fábrica, em 1 (uma) viatura da frota da Polícia Civil de Santa Catarina.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": null,
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60855",
+          "documentos_count": 0
+        },
+        {
+          "source_id": "sc-60856",
+          "status": "Aguardando Homologação",
+          "status_bucket": "semi_open",
+          "orgao": "Fundação Universidade do Estado de Santa Catarina - UDESC",
+          "orgao_cnpj": null,
+          "municipio": null,
+          "uf": "SC",
+          "modalidade": "Inexigência de Licitação (Serviços)",
+          "objeto": "Contratação de estande Cota OURO para participação da UDESC no Startup Summit 2026, a ser realizado entre os dias 26 a 28 de agosto de 2026 no Centro de Eventos CentroSul em Florianópolis/SC.",
+          "valor_total_estimado": null,
+          "data_publicacao": "2026-07-16",
+          "data_abertura": null,
+          "data_encerramento": null,
+          "link_oficial": "https://compras.sc.gov.br/editais/60856",
+          "documentos_count": 0
+        }
+      ],
+      "buyer_orgs_top": [
+        {
+          "orgao": "Secretaria de Estado da Administração - SEA",
+          "n": 7
+        },
+        {
+          "orgao": "Secretaria de Estado da Saúde - SES",
+          "n": 1
+        },
+        {
+          "orgao": "Polícia Civil - PC",
+          "n": 1
+        },
+        {
+          "orgao": "Fundação Universidade do Estado de Santa Catarina - UDESC",
+          "n": 1
+        }
+      ],
+      "modalities": [
+        {
+          "modalidade": "Pregão Eletrônico (Materiais)",
+          "n": 6
+        },
+        {
+          "modalidade": "Dispensa com Cotação Eletrônica (Serviços)",
+          "n": 1
+        },
+        {
+          "modalidade": "Pregão Eletrônico (Serviços)",
+          "n": 1
+        },
+        {
+          "modalidade": "Dispensa de Licitação (Serviços)",
+          "n": 1
+        },
+        {
+          "modalidade": "Inexigência de Licitação (Serviços)",
+          "n": 1
+        }
+      ],
+      "gaps_in_sample": {
+        "missing_documentos": 10,
+        "missing_valor_estimado": 10,
+        "missing_municipio": 10,
+        "pct_missing_documentos": 100.0,
+        "pct_missing_valor": 100.0,
+        "pct_missing_municipio": 100.0
+      }
+    },
+    "reason": null
+  },
+  "status_changes": {
+    "comparable": false,
+    "shared_ids": 0,
+    "changes_count": 0,
+    "changes": [],
+    "note": "Sem IDs compartilhados entre amostras; status changes não detectáveis nesta sessão."
+  },
+  "dom_ciga": {
+    "available": true,
+    "run_id": "ciga-dom-20260717T021436Z-08120b3f8f",
+    "live_fetch": true,
+    "status": "success",
+    "package_id": "domsc-publicacoes-de-07-2026",
+    "counts": {
+      "resources_available": 44,
+      "zips_available": 44,
+      "selected": 2,
+      "completed_resources_prior": 0,
+      "resources_processed_ok": 2,
+      "resources_failed": 0,
+      "resources_skipped_checkpoint": 0,
+      "files_processed": 2,
+      "files_skipped_checkpoint": 0,
+      "records_normalized": 2454,
+      "municipalities_observed": 223
+    },
+    "municipalities": {
+      "universe_source": "static_sc_list",
+      "universe_count": 295,
+      "observed_count": 223,
+      "covered_in_universe": 138,
+      "gap_count": 157,
+      "gaps_sample": [
+        "abelardo luz",
+        "agrolandia",
+        "agronomica",
+        "agua doce",
+        "aguas de chapeco",
+        "aguas frias",
+        "aguas mornas",
+        "alfredo wagner",
+        "anchieta",
+        "anita garibaldi",
+        "anitapolis",
+        "antonio carlos",
+        "arabuta",
+        "araquari",
+        "ararangua",
+        "armazem",
+        "ascurra",
+        "atalanta",
+        "balneario arroio do silva",
+        "balneario barra do sul",
+        "balneario camboriu",
+        "balneario gaivota",
+        "balneario picarras",
+        "balneario rincao",
+        "bela vista do toldo",
+        "biguacu",
+        "bocaina do sul",
+        "bom jardim da serra",
+        "bom retiro",
+        "braco do norte",
+        "braco do trombudo",
+        "brunopolis",
+        "cacador",
+        "camboriu",
+        "campo belo do sul",
+        "campo ere",
+        "capao alto",
+        "catanduvas",
+        "celso ramos",
+        "chapadao do lageado",
+        "chapeco",
+        "concordia",
+        "coronel freitas",
+        "corupa",
+        "criciuma",
+        "cunha pora",
+        "cunhatai",
+        "curitibanos",
+        "dona emma",
+        "entre rios"
+      ],
+      "observed_sample": [
+        "abdon batista",
+        "agrolândia",
+        "agronômica",
+        "alto bela vista",
+        "angelina",
+        "anitápolis",
+        "antônio carlos",
+        "apiuna",
+        "arabutã",
+        "araranguá",
+        "armazém",
+        "arroio trinta",
+        "arvoredo",
+        "aurora",
+        "balneário arroio do silva",
+        "balneário barra do sul",
+        "balneário camboriú",
+        "balneário gaivota",
+        "balneário piçarras",
+        "balneário rincão",
+        "bandeirante",
+        "barra bonita",
+        "barra velha",
+        "belmonte",
+        "benedito novo",
+        "biguaçu",
+        "blumenau",
+        "bom jesus",
+        "bom jesus do oeste",
+        "bombinhas",
+        "botuvera",
+        "braço do norte",
+        "braço do trombudo",
+        "brusque",
+        "caibi",
+        "calmon",
+        "camboriú",
+        "campo alegre",
+        "campos novos",
+        "canelinha",
+        "canoinhas",
+        "capinzal",
+        "capivari de baixo",
+        "capão alto",
+        "caxambu do sul",
+        "caçador",
+        "cerro negro",
+        "chapecó",
+        "cocal do sul",
+        "concórdia"
+      ]
+    },
+    "records_loaded": 2454,
+    "act_category_counts": {
+      "ata_registro_precos": 1226,
+      "outros": 517,
+      "homologacao": 135,
+      "outros_atos_contratacao": 130,
+      "nao_relacionado": 88,
+      "termo_aditivo": 84,
+      "extrato_contrato": 59,
+      "inexigibilidade": 51,
+      "dispensa": 49,
+      "aviso_licitacao": 24,
+      "apostilamento": 17,
+      "chamamento_publico": 15,
+      "edital": 15,
+      "retificacao": 13,
+      "errata": 9,
+      "credenciamento": 8,
+      "revogacao": 5,
+      "resultado": 3,
+      "rescisao": 2,
+      "intencao_registro_precos": 2,
+      "suspensao": 1,
+      "adjudicacao": 1
+    },
+    "act_confidence_labels": {
+      "high": 213,
+      "low": 669,
+      "medium": 1572
+    },
+    "procurement_like_count": 1833,
+    "municipalities_observed_top": [
+      {
+        "municipio": "Balneário Rincão",
+        "n": 42
+      },
+      {
+        "municipio": "Brusque",
+        "n": 41
+      },
+      {
+        "municipio": "Ibirama",
+        "n": 30
+      },
+      {
+        "municipio": "Araranguá",
+        "n": 27
+      },
+      {
+        "municipio": "São Miguel do Oeste",
+        "n": 25
+      },
+      {
+        "municipio": "Camboriú",
+        "n": 24
+      },
+      {
+        "municipio": "Rio do Sul",
+        "n": 23
+      },
+      {
+        "municipio": "Forquilhinha",
+        "n": 21
+      },
+      {
+        "municipio": "Timbó",
+        "n": 19
+      },
+      {
+        "municipio": "Águas de Chapecó",
+        "n": 18
+      },
+      {
+        "municipio": "Canoinhas",
+        "n": 17
+      },
+      {
+        "municipio": "Porto Belo",
+        "n": 17
+      },
+      {
+        "municipio": "Caibi",
+        "n": 16
+      },
+      {
+        "municipio": "Gravatal",
+        "n": 15
+      },
+      {
+        "municipio": "Santo Amaro da Imperatriz",
+        "n": 15
+      },
+      {
+        "municipio": "Ipuaçu",
+        "n": 14
+      },
+      {
+        "municipio": "Blumenau",
+        "n": 13
+      },
+      {
+        "municipio": "Papanduva",
+        "n": 12
+      },
+      {
+        "municipio": "Itapoá",
+        "n": 12
+      },
+      {
+        "municipio": "Pescaria Brava",
+        "n": 12
+      }
+    ],
+    "recent_procurement_acts": [
+      {
+        "data": "2026-07-16",
+        "municipio": "Vargem",
+        "orgao": "Prefeitura municipal de Vargem",
+        "titulo": "EDITAL 07_2026 - NUTRICIONISTA E PROFESSORA DE INGLÊS",
+        "categoria_dom": "Edital",
+        "act_category": "outros_atos_contratacao",
+        "act_confidence": 0.35,
+        "act_confidence_label": "low",
+        "act_needs_human_review": true,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784208060_edital_07_2026__nutricionista_e_professora_de_ingls_extrato.pdf",
+        "codigo": "8512316"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": "São Bernardino",
+        "orgao": "Prefeitura municipal de São Bernardino",
+        "titulo": "DECRETO 302/2026",
+        "categoria_dom": "Decretos",
+        "act_category": "homologacao",
+        "act_confidence": 0.6066,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": true,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784131693_dec302__homologa_resultato__chamada_pblica_052026_extrato.pdf",
+        "codigo": "8513484"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "ARP26CIN001638-CINCATARINA-ALTERMED MATERIAL MEDICO HOSPITALAR LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188801_arp26cin001638cincatarinaaltermed_material_medico_hospitalar_ltda_extrato.pdf",
+        "codigo": "8515108"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "ARP26CIN001639-CINCATARINA-ALTERMED MATERIAL MEDICO HOSPITALAR LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188816_arp26cin001639cincatarinaaltermed_material_medico_hospitalar_ltda_extrato.pdf",
+        "codigo": "8515109"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "ARP26CIN001640-CINCATARINA-ALTERMED MATERIAL MEDICO HOSPITALAR LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188828_arp26cin001640cincatarinaaltermed_material_medico_hospitalar_ltda_extrato.pdf",
+        "codigo": "8515110"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "ARP26CIN001646-CINCATARINA-PROMEFARMA MEDICAMENTOS E PRODUTOS HOSPITALARES LT-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188842_arp26cin001646cincatarinapromefarma_medicamentos_e_produtos_hospitalares_lt_extrato.pdf",
+        "codigo": "8515111"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "ARP26CIN001652-CINCATARINA-ONLY STYLE COMERCIAL DE PRODUTOS ELETRONICOS LTDA-PAL000111/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188854_arp26cin001652cincatarinaonly_style_comercial_de_produtos_eletronicos_ltda_extrato.pdf",
+        "codigo": "8515112"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN140350-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-M. CARREGA COMÉRCIO DE PRODUTOS HOSPITALARES LTDA-PAL000122/2024 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188865_mop26cin140350fundo_municipal_de_saude_de_santiago_do_sulm._carrega_comc389rcio_de_produtos_hospitalares_ltda_extrato.pdf",
+        "codigo": "8515113"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN147171-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-EMBRAST INDÚSTRIA E COMÉRCIO LTDA-PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188880_mop26cin147171fundo_municipal_de_saude_de_santiago_do_sulembrast_indc39astria_e_comc389rcio_ltda_extrato.pdf",
+        "codigo": "8515114"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN147200-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-JF COMERCIO DE MATERIAL E MEDICAMENTOS HOSPITALARE-PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188898_mop26cin147200fundo_municipal_de_saude_de_santiago_do_suljf_comercio_de_material_e_medicamentos_hospitalare_extrato.pdf",
+        "codigo": "8515115"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN148039-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-CONQUISTA DISTRIBUIDORA DE MEDICAMENTOS E PRODUTOS-PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188915_mop26cin148039fundo_municipal_de_saude_de_santiago_do_sulconquista_distribuidora_de_medicamentos_e_produtos_extrato.pdf",
+        "codigo": "8515116"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN148058-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-AUTOMX SOLUCOES LTDA-PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188926_mop26cin148058fundo_municipal_de_saude_de_santiago_do_sulautomx_solucoes_ltda_extrato.pdf",
+        "codigo": "8515117"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN148350-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-CIRURGICA NOSSA SENHORA LTDA-PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188936_mop26cin148350fundo_municipal_de_saude_de_santiago_do_sulcirurgica_nossa_senhora_ltda_extrato.pdf",
+        "codigo": "8515118"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN148426-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-DIPROM - DISTRIBUIDORA DE PRODUTOS ODONTOLOGICOS E-PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188947_mop26cin148426fundo_municipal_de_saude_de_santiago_do_suldiprom__distribuidora_de_produtos_odontologicos_e_extrato.pdf",
+        "codigo": "8515119"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN148504-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-DELF DISTRIBUIDORA DE MEDICAMENTOS LTDA-PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188964_mop26cin148504fundo_municipal_de_saude_de_santiago_do_suldelf_distribuidora_de_medicamentos_ltda_extrato.pdf",
+        "codigo": "8515120"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN148734-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-DELTA SHOP DISTRIBUIDORA DE PRODUTOS HOSPITALARES -PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188976_mop26cin148734fundo_municipal_de_saude_de_santiago_do_suldelta_shop_distribuidora_de_produtos_hospitalares__extrato.pdf",
+        "codigo": "8515121"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN148759-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-ATLANTICA DISTRIBUIDORA DE PRODUTOS LTDA-PAL000112/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188988_mop26cin148759fundo_municipal_de_saude_de_santiago_do_sulatlantica_distribuidora_de_produtos_ltda_extrato.pdf",
+        "codigo": "8515122"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN173393-TUBARÃO-OTHALA COMERCIO LTDA-PAL000143/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784188999_mop26cin173393tubarc383oothala_comercio_ltda_extrato.pdf",
+        "codigo": "8515123"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN187776-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-ILG COMERCIAL LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189016_mop26cin187776fundo_municipal_de_saude_de_santiago_do_sulilg_comercial_ltda_extrato.pdf",
+        "codigo": "8515124"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN191818-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-CENTERMEDI-COMERCIO DE PRODUTOS HOSPITALARES LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189026_mop26cin191818fundo_municipal_de_saude_de_santiago_do_sulcentermedicomercio_de_produtos_hospitalares_ltda_extrato.pdf",
+        "codigo": "8515125"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN195643-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-VERTICE MEDICAMENTOS LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189040_mop26cin195643fundo_municipal_de_saude_de_santiago_do_sulvertice_medicamentos_ltda_extrato.pdf",
+        "codigo": "8515126"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN195994-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-PROMEFARMA MEDICAMENTOS E PRODUTOS HOSPITALARES LT-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189051_mop26cin195994fundo_municipal_de_saude_de_santiago_do_sulpromefarma_medicamentos_e_produtos_hospitalares_lt_extrato.pdf",
+        "codigo": "8515127"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN198663-TUBARÃO-OTHALA COMERCIO LTDA-PAL000143/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189064_mop26cin198663tubarc383oothala_comercio_ltda_extrato.pdf",
+        "codigo": "8515128"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN199600-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-DIMEVA DISTRIBUIDORA E IMPORTADORA LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189081_mop26cin199600fundo_municipal_de_saude_de_santiago_do_suldimeva_distribuidora_e_importadora_ltda_extrato.pdf",
+        "codigo": "8515129"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN201575-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-DIMEBRAS - DISTRIBUIDORA DE MEDICAMENTOS BRASIL LT-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189098_mop26cin201575fundo_municipal_de_saude_de_santiago_do_suldimebras__distribuidora_de_medicamentos_brasil_lt_extrato.pdf",
+        "codigo": "8515130"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN203094-INPREVID-ELEVATE UTILIDADES LTDA-PAL000143/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189112_mop26cin203094inprevidelevate_utilidades_ltda_extrato.pdf",
+        "codigo": "8515131"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN204097-TUBARÃO-OTHALA COMERCIO LTDA-PAL000143/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189129_mop26cin204097tubarc383oothala_comercio_ltda_extrato.pdf",
+        "codigo": "8515132"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN205384-FUNDO MUNICIPAL DE SAUDE DE GALVAO-SK MATERIAIS PARA ESCRITORIO LTDA-PAL000084/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189140_mop26cin205384fundo_municipal_de_saude_de_galvaosk_materiais_para_escritorio_ltda_extrato.pdf",
+        "codigo": "8515133"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN206226-ARMAZÉM-DIAGNOSTICA INDUSTRIA E COMERCIO LTDA-PAL000126/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189152_mop26cin206226armazc389mdiagnostica_industria_e_comercio_ltda_extrato.pdf",
+        "codigo": "8515134"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN206508-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-PRÓ CIRÚRGICA CHAPECÓ PRODUTOS PARA SAÚDE LTDA-PAL000002/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189165_mop26cin206508fundo_municipal_de_saude_de_santiago_do_sulprc393_circ39argica_chapecc393_produtos_para_sac39ade_ltda_extrato.pdf",
+        "codigo": "8515135"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN206973-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-ALTERMED MATERIAL MEDICO HOSPITALAR LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189178_mop26cin206973fundo_municipal_de_saude_de_santiago_do_sulaltermed_material_medico_hospitalar_ltda_extrato.pdf",
+        "codigo": "8515136"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN206996-FUNDO MUNICIPAL DE SAUDE DE GALVAO-ALTERMED MATERIAL MEDICO HOSPITALAR LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189188_mop26cin206996fundo_municipal_de_saude_de_galvaoaltermed_material_medico_hospitalar_ltda_extrato.pdf",
+        "codigo": "8515137"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN207304-FUNDO MUNICIPAL DE SAUDE DE GALVAO-ALTERMED MATERIAL MEDICO HOSPITALAR LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189201_mop26cin207304fundo_municipal_de_saude_de_galvaoaltermed_material_medico_hospitalar_ltda_extrato.pdf",
+        "codigo": "8515138"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN207386-FUNDO MUNICIPAL DE SAUDE DE GALVAO-CENTERMEDI-COMERCIO DE PRODUTOS HOSPITALARES LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189213_mop26cin207386fundo_municipal_de_saude_de_galvaocentermedicomercio_de_produtos_hospitalares_ltda_extrato.pdf",
+        "codigo": "8515139"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN207387-FUNDO MUNICIPAL DE SAUDE DE GALVAO-DIMEVA DISTRIBUIDORA E IMPORTADORA LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189227_mop26cin207387fundo_municipal_de_saude_de_galvaodimeva_distribuidora_e_importadora_ltda_extrato.pdf",
+        "codigo": "8515140"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN207663-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-DIMEVA DISTRIBUIDORA E IMPORTADORA LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189238_mop26cin207663fundo_municipal_de_saude_de_santiago_do_suldimeva_distribuidora_e_importadora_ltda_extrato.pdf",
+        "codigo": "8515141"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN207674-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-ALTERMED MATERIAL MEDICO HOSPITALAR LTDA-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189253_mop26cin207674fundo_municipal_de_saude_de_santiago_do_sulaltermed_material_medico_hospitalar_ltda_extrato.pdf",
+        "codigo": "8515142"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN209288-FUNDO MUNICIPAL DE SAUDE DE SANTIAGO DO SUL-PROMEFARMA MEDICAMENTOS E PRODUTOS HOSPITALARES LT-PAL000097/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189266_mop26cin209288fundo_municipal_de_saude_de_santiago_do_sulpromefarma_medicamentos_e_produtos_hospitalares_lt_extrato.pdf",
+        "codigo": "8515143"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN209464-MUNICÍPIO DE CAÇADOR-SEBOLD INDÚSTRIA DE COSMÉTICOS LTDA-PAL000125/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189278_mop26cin209464municc38dpio_de_cac387adorsebold_indc39astria_de_cosmc389ticos_ltda_extrato.pdf",
+        "codigo": "8515144"
+      },
+      {
+        "data": "2026-07-16",
+        "municipio": null,
+        "orgao": "CINCATARINA - Consórcio Interfederativo Santa Catarina",
+        "titulo": "MOP26CIN209472-MUNICÍPIO DE VIDEIRA-SEBOLD INDÚSTRIA DE COSMÉTICOS LTDA-PAL000125/2025 - CINCATARINA",
+        "categoria_dom": "Ata de registro de preços",
+        "act_category": "ata_registro_precos",
+        "act_confidence": 0.759,
+        "act_confidence_label": "medium",
+        "act_needs_human_review": false,
+        "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1784189288_mop26cin209472municc38dpio_de_videirasebold_indc39astria_de_cosmc389ticos_ltda_extrato.pdf",
+        "codigo": "8515145"
+      }
+    ],
+    "freshness_manifest": {
+      "path": "output/ciga_dom/freshness_manifest.json",
+      "status": "success",
+      "latest_resource_modified": "2026-07-16T19:14:41.616762",
+      "package_year_month": "2026-07",
+      "resource_count": 44
+    },
+    "evidence_path": "output/ciga_dom/latest_evidence.json",
+    "summary_path": "output/ciga_dom/latest_summary.json",
+    "jsonl_path": "output/ciga_dom/ciga-dom-20260717T021436Z-08120b3f8f/publications.jsonl",
+    "mode": "smoke"
+  },
+  "doe_sc": {
+    "available": true,
+    "run_id": "dados-sc-smoke-20260717T021337Z-f4cfe4b907",
+    "live_fetch": true,
+    "status": "ok",
+    "portal": "dados.sc.gov.br",
+    "package": "diario-oficial-sc-publicacoes",
+    "mode": "smoke",
+    "artifact_path": "output/dados_abertos_sc/smoke-dados-sc-smoke-20260717T021337Z-f4cfe4b907.json",
+    "counts": {
+      "resources_listed": 14,
+      "resources_selected": 1,
+      "resources_downloaded": 1,
+      "resources_skipped_identical": 0,
+      "resources_resumed": 0,
+      "rows_normalized": 500,
+      "rows_read": 500,
+      "errors": 0,
+      "act_categories": {
+        "outros": 144,
+        "outros_atos_contratacao": 92,
+        "suspensao": 57,
+        "extrato_contrato": 46,
+        "termo_aditivo": 33,
+        "nao_relacionado": 26,
+        "resultado": 26,
+        "aviso_licitacao": 19,
+        "ata_registro_precos": 13,
+        "edital": 7,
+        "homologacao": 7,
+        "inexigibilidade": 7,
+        "rescisao": 6,
+        "anulacao": 3,
+        "chamamento_publico": 3,
+        "credenciamento": 3,
+        "dispensa": 3,
+        "apostilamento": 2,
+        "revogacao": 2,
+        "errata": 1
+      }
+    },
+    "act_categories": {
+      "outros": 144,
+      "outros_atos_contratacao": 92,
+      "suspensao": 57,
+      "extrato_contrato": 46,
+      "termo_aditivo": 33,
+      "nao_relacionado": 26,
+      "resultado": 26,
+      "aviso_licitacao": 19,
+      "ata_registro_precos": 13,
+      "edital": 7,
+      "homologacao": 7,
+      "inexigibilidade": 7,
+      "rescisao": 6,
+      "anulacao": 3,
+      "chamamento_publico": 3,
+      "credenciamento": 3,
+      "dispensa": 3,
+      "apostilamento": 2,
+      "revogacao": 2,
+      "errata": 1
+    },
+    "sample_recent_acts": [
+      {
+        "data_publicacao": "2025-04-01",
+        "orgao": "Publicações Diversas",
+        "titulo": "EDITAL DE CONVOCAÇÃO A presidente do Sindicato dos Trabalhadores no Serviço Público de Araquari, no",
+        "tipo_ato": "EDITAL",
+        "categoria": "Publicações Diversas",
+        "act_category_from_counts_only": true,
+        "link_extrato": null,
+        "link_edicao": null,
+        "numero_publicacao": "1067736",
+        "numero_edicao": "22483"
+      },
+      {
+        "data_publicacao": "2025-04-01",
+        "orgao": "BESCOR – BESC S.A. Corretora Seguros Administradora de Bens  em Liquidação",
+        "titulo": "EDITAL DE CONVOCAÇÃO ASSEMBLEIA GERAL ORDINÁRIA Ficam convocados os Senhores Acionistas desta Compa",
+        "tipo_ato": "COMUNICADO",
+        "categoria": "BESCOR – BESC S.A. Corretora Seguros Administradora de Bens  em Liquidação",
+        "act_category_from_counts_only": true,
+        "link_extrato": null,
+        "link_edicao": null,
+        "numero_publicacao": "1068417",
+        "numero_edicao": "22483"
+      },
+      {
+        "data_publicacao": "2025-04-01",
+        "orgao": "Publicações Diversas",
+        "titulo": "TRITON MÁQUINAS AGRÍCOLAS LTDA. - CNPJ 84.586.734/0001-94 - EDITAL DE CONVOCAÇÃO PARA REUNIÃO DE SÓC",
+        "tipo_ato": "CONVOCAÇÃO",
+        "categoria": "Publicações Diversas",
+        "act_category_from_counts_only": true,
+        "link_extrato": null,
+        "link_edicao": null,
+        "numero_publicacao": "1068494",
+        "numero_edicao": "22483"
+      },
+      {
+        "data_publicacao": "2025-04-01",
+        "orgao": "IAZEPE – Imbituba Administradora Zona Proc. Exportação",
+        "titulo": "EDITAL DE CONVOCAÇÃO ASSEMBLÉIA GERAL ORDINÁRIA Ficam convocados os Senhores Acionistas desta Empres",
+        "tipo_ato": "COMUNICADO",
+        "categoria": "IAZEPE – Imbituba Administradora Zona Proc. Exportação",
+        "act_category_from_counts_only": true,
+        "link_extrato": null,
+        "link_edicao": null,
+        "numero_publicacao": "1068596",
+        "numero_edicao": "22483"
+      },
+      {
+        "data_publicacao": "2025-04-01",
+        "orgao": "Secretarias de Estado",
+        "titulo": "POLÍCIA MILITAR DO ESTADO DE SANTA CATARINA - PM/SC DIRETORIA DE APOIO LOGISTICO E FINANÇAS AVISO DE",
+        "tipo_ato": "LICITAÇÃO",
+        "categoria": "Secretarias de Estado",
+        "act_category_from_counts_only": true,
+        "link_extrato": null,
+        "link_edicao": null,
+        "numero_publicacao": "1068773",
+        "numero_edicao": "22483"
+      }
+    ],
+    "selected_resources": [
+      {
+        "id": "0f2223f5-df6c-4860-96d6-f25636107379",
+        "name": "publicacoes_2025.csv",
+        "format": "CSV",
+        "period": "2025",
+        "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2025.csv"
+      }
+    ],
+    "note": "Amostra DOE é smoke (1 resource); act_categories refletem rows normalizadas do resource processado — não universo DOE completo."
+  },
+  "org_ranking": {
+    "available": true,
+    "path": "output/reports/org-ranking-next30d.json",
+    "status": "OK",
+    "source_table": "pncp_supplier_contracts",
+    "valor_semantica": "CONTRATADO",
+    "uf_filter": "SC",
+    "count": 50,
+    "rows": [
+      {
+        "orgao": "FUNDO MUNICIPAL DE SAÚDE DE ABELARDO LUZ",
+        "orgao_cnpj": "10532003000120",
+        "uf": "SC",
+        "qtd": 48,
+        "valor_total": 194428.16,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE SÃO JOÃO BATISTA",
+        "orgao_cnpj": "82925652000100",
+        "uf": "SC",
+        "qtd": 42,
+        "valor_total": 86820.96,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE BRAÇO DO NORTE",
+        "orgao_cnpj": "82926551000145",
+        "uf": "SC",
+        "qtd": 23,
+        "valor_total": 53713.46,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE BLUMENAU",
+        "orgao_cnpj": "83108357000115",
+        "uf": "SC",
+        "qtd": 21,
+        "valor_total": 75249.48,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "FUNDO MUNICIPAL DE SAÚDE DE SÃO FRANCISCO DO SUL",
+        "orgao_cnpj": "03264792000108",
+        "uf": "SC",
+        "qtd": 19,
+        "valor_total": 89671.13,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE CAÇADOR",
+        "orgao_cnpj": "83074302000131",
+        "uf": "SC",
+        "qtd": 19,
+        "valor_total": 24794.59,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "FUNDO MUNICIPAL DE SAUDE DE INDAIAL",
+        "orgao_cnpj": "11355483000163",
+        "uf": "SC",
+        "qtd": 18,
+        "valor_total": 49060.76,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE PALHOÇA",
+        "orgao_cnpj": "82892316000108",
+        "uf": "SC",
+        "qtd": 18,
+        "valor_total": 5602.69,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE SÃO CRISTOVÃO DO SUL",
+        "orgao_cnpj": "95991261000127",
+        "uf": "SC",
+        "qtd": 17,
+        "valor_total": 12242.23,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE SANTA TEREZINHA DO PROGRESSO",
+        "orgao_cnpj": "01612847000190",
+        "uf": "SC",
+        "qtd": 17,
+        "valor_total": 11682.3,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE CALMON",
+        "orgao_cnpj": "95949806000137",
+        "uf": "SC",
+        "qtd": 17,
+        "valor_total": 8979.92,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "FUNDO MUNICIPAL DE SAÚDE DE LAGES",
+        "orgao_cnpj": "11840546000177",
+        "uf": "SC",
+        "qtd": 16,
+        "valor_total": 67270.17,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE CANOINHAS",
+        "orgao_cnpj": "83102384000180",
+        "uf": "SC",
+        "qtd": 16,
+        "valor_total": 22960.47,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE ÁGUAS FRIAS",
+        "orgao_cnpj": "95990180000102",
+        "uf": "SC",
+        "qtd": 16,
+        "valor_total": 15886.31,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE CERRO NEGRO",
+        "orgao_cnpj": "95991097000158",
+        "uf": "SC",
+        "qtd": 15,
+        "valor_total": 291637.6,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE PORTO UNIÃO",
+        "orgao_cnpj": "83102541000158",
+        "uf": "SC",
+        "qtd": 15,
+        "valor_total": 11091.67,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "FUNDO MUNICIPAL DE SAÚDE DE RANCHO QUEIMADO",
+        "orgao_cnpj": "09522642000125",
+        "uf": "SC",
+        "qtd": 15,
+        "valor_total": 10430.15,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE ITÁ",
+        "orgao_cnpj": "83024240000153",
+        "uf": "SC",
+        "qtd": 15,
+        "valor_total": 10363.28,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE RANCHO QUEIMADO",
+        "orgao_cnpj": "82892357000196",
+        "uf": "SC",
+        "qtd": 14,
+        "valor_total": 20632.69,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE TURVO",
+        "orgao_cnpj": "82548983000160",
+        "uf": "SC",
+        "qtd": 14,
+        "valor_total": 13977.02,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE NOVA VENEZA",
+        "orgao_cnpj": "82916826000160",
+        "uf": "SC",
+        "qtd": 14,
+        "valor_total": 11341.69,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "FUNDO MUNICIPAL DE SAÚDE DE NOVA TRENTO",
+        "orgao_cnpj": "08858200000191",
+        "uf": "SC",
+        "qtd": 14,
+        "valor_total": 10211.74,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE CORONEL FREITAS",
+        "orgao_cnpj": "83021824000175",
+        "uf": "SC",
+        "qtd": 13,
+        "valor_total": 4599.15,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE CANELINHA",
+        "orgao_cnpj": "82562893000123",
+        "uf": "SC",
+        "qtd": 12,
+        "valor_total": 116422.76,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      },
+      {
+        "orgao": "MUNICÍPIO DE MAJOR VIEIRA",
+        "orgao_cnpj": "83102392000127",
+        "uf": "SC",
+        "qtd": 12,
+        "valor_total": 14665.59,
+        "valor_semantica": "CONTRATADO",
+        "source_table": "pncp_supplier_contracts",
+        "value_column": "valor_total"
+      }
+    ],
+    "notes": [
+      "Ranking derivado de pncp_supplier_contracts (1345 contratos ativos). valor_semantica=CONTRATADO (coluna valor_total)."
+    ],
+    "claims": {
+      "allowed": [
+        "Ranking de órgãos por contagem/valor com semântica explícita (CONTRATADO).",
+        "Tabela-fonte: pncp_supplier_contracts."
+      ],
+      "forbidden": [
+        "Afirmar 'mercado completo SC' com amostra pequena.",
+        "Tratar ESTIMADO como CONTRATADO.",
+        "Inferir contratos vincendos a partir de pncp_raw_bids."
+      ]
+    },
+    "generated_at": "2026-07-17T00:13:27.704557Z"
+  },
+  "reconciliation": {
+    "available": true,
+    "path": "output/reports/reconcile-next30d.json",
+    "verdict": "CONSISTENT",
+    "consistent": true,
+    "critical_mismatches": 0,
+    "soft_mismatches": 0,
+    "pdf_path": "output/reports/executivo-extra-2026-07-17.pdf",
+    "excel_path": "output/reports/executivo-extra-2026-07-17.xlsx",
+    "reason": "PDF and Excel share cutoff, UF and profile version filters",
+    "pdf_run_id": "next30d-20260717-002308",
+    "excel_run_id": "next30d-20260717-002308"
+  },
+  "db_sample": {
+    "available": true,
+    "live_fetch": true,
+    "contracts_total": 63574,
+    "contracts_sc": 21467,
+    "top_orgaos_sc": [
+      {
+        "orgao_nome": "MUNICÍPIO DE JARAGUÁ DO SUL",
+        "orgao_cnpj": "83102459000123",
+        "n": 511,
+        "valor_sum": 554328.78
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE SÃO JOÃO BATISTA",
+        "orgao_cnpj": "82925652000100",
+        "n": 394,
+        "valor_sum": 1107698.58
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE BRAÇO DO NORTE",
+        "orgao_cnpj": "82926551000145",
+        "n": 210,
+        "valor_sum": 1681200.1
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE VIDEIRA",
+        "orgao_cnpj": "83039842000184",
+        "n": 179,
+        "valor_sum": 1176179.71
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE CANOINHAS",
+        "orgao_cnpj": "83102384000180",
+        "n": 155,
+        "valor_sum": 839560.92
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE BRUSQUE",
+        "orgao_cnpj": "83102343000194",
+        "n": 146,
+        "valor_sum": 785282.09
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE PORTO UNIÃO",
+        "orgao_cnpj": "83102541000158",
+        "n": 144,
+        "valor_sum": 988677.44
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE FRAIBURGO",
+        "orgao_cnpj": "82947979000174",
+        "n": 143,
+        "valor_sum": 302556.2
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE BLUMENAU",
+        "orgao_cnpj": "83108357000115",
+        "n": 134,
+        "valor_sum": 2177418.64
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE BARRA VELHA",
+        "orgao_cnpj": "83102830000157",
+        "n": 134,
+        "valor_sum": 674953.78
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE PONTE ALTA DO NORTE",
+        "orgao_cnpj": "95991287000175",
+        "n": 131,
+        "valor_sum": 64218.92
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE CURITIBANOS",
+        "orgao_cnpj": "83754044000134",
+        "n": 131,
+        "valor_sum": 1408309.36
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE SANTA CECÍLIA",
+        "orgao_cnpj": "85997237000141",
+        "n": 131,
+        "valor_sum": 398540.77
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE MARAVILHA",
+        "orgao_cnpj": "82821190000172",
+        "n": 129,
+        "valor_sum": 3281412.54
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE LUZERNA",
+        "orgao_cnpj": "01613428000172",
+        "n": 126,
+        "valor_sum": 552031.45
+      }
+    ],
+    "winning_suppliers_sc": [
+      {
+        "fornecedor_nome": "ALTERMED MATERIAL MEDICO HOSPITALAR LTDA",
+        "fornecedor_cnpj": "00802002000102",
+        "n": 741,
+        "valor_sum": 1551557.01
+      },
+      {
+        "fornecedor_nome": "JLM DISTRIBUIDORA BR LTDA",
+        "fornecedor_cnpj": "13965228000168",
+        "n": 703,
+        "valor_sum": 783437.77
+      },
+      {
+        "fornecedor_nome": "MEDILAR IMPORTACAO E DISTRIBUICAO DE PRODUTOS MEDICO HOSPITALARES S/A",
+        "fornecedor_cnpj": "07752236000123",
+        "n": 660,
+        "valor_sum": 2349559.66
+      },
+      {
+        "fornecedor_nome": "SEBOLD INDÚSTRIA DE COSMÉTICOS LTDA",
+        "fornecedor_cnpj": "39655478000195",
+        "n": 601,
+        "valor_sum": 323189.84
+      },
+      {
+        "fornecedor_nome": "CENTERMEDI-COMERCIO DE PRODUTOS HOSPITALARES LTDA",
+        "fornecedor_cnpj": "03652030000332",
+        "n": 594,
+        "valor_sum": 2047512.31
+      },
+      {
+        "fornecedor_nome": "OTHALA COMERCIO LTDA",
+        "fornecedor_cnpj": "45747626000102",
+        "n": 521,
+        "valor_sum": 283504.06
+      },
+      {
+        "fornecedor_nome": "SK MATERIAIS PARA ESCRITORIO LTDA",
+        "fornecedor_cnpj": "29222667000110",
+        "n": 413,
+        "valor_sum": 191996.07
+      },
+      {
+        "fornecedor_nome": "SOMA SC PRODUTOS HOSPITALARES LTDA",
+        "fornecedor_cnpj": "05531725000120",
+        "n": 404,
+        "valor_sum": 1185181.65
+      },
+      {
+        "fornecedor_nome": "PRINTSUL COMERCIO ATACADISTA LTDA",
+        "fornecedor_cnpj": "19032430000113",
+        "n": 343,
+        "valor_sum": 170663.09
+      },
+      {
+        "fornecedor_nome": "SOMA ATACADO LTDA",
+        "fornecedor_cnpj": "26044069000100",
+        "n": 322,
+        "valor_sum": 236324.58
+      },
+      {
+        "fornecedor_nome": "GOEDERT LTDA",
+        "fornecedor_cnpj": "79846465000118",
+        "n": 317,
+        "valor_sum": 216778.02
+      },
+      {
+        "fornecedor_nome": "SPOTECH INFORMATICA CORAL LTDA",
+        "fornecedor_cnpj": "11118645000140",
+        "n": 305,
+        "valor_sum": 131336.16
+      },
+      {
+        "fornecedor_nome": "L A DALLA PORTA JUNIOR LTDA",
+        "fornecedor_cnpj": "11145401000156",
+        "n": 296,
+        "valor_sum": 626189.53
+      },
+      {
+        "fornecedor_nome": "PROMEFARMA MEDICAMENTOS E PRODUTOS HOSPITALARES LTDA",
+        "fornecedor_cnpj": "81706251000198",
+        "n": 287,
+        "valor_sum": 1154376.32
+      },
+      {
+        "fornecedor_nome": "MC COMÉRCIO DE ALIMENTOS E TRANSPORTES LTDA",
+        "fornecedor_cnpj": "39649812000106",
+        "n": 258,
+        "valor_sum": 226440.62
+      }
+    ],
+    "similar_contracts_sc": [
+      {
+        "orgao_nome": "PREFEITURA MUNICIPAL DE PONTE SERRADA - SC",
+        "fornecedor_nome": "R3 PRESTAÇÃO DE SERVIÇOS LTDA",
+        "objeto_contrato": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM TRECHO DA RUA ADÃO TOBIAS, LOCALIZADA NA VILA POUSO DOS TROPEIROS, NO PERÍMETRO URBANO DO MUNICÍPIO DE PONTE SERRADA/SC, CONFORME PROJETO EXECUTIVO ANE…",
+        "valor_total": 392879.69,
+        "data_publicacao": "2026-07-16",
+        "contrato_id": "82777236000101-2-000601/2026",
+        "uf": "SC",
+        "municipio": "Ponte Serrada",
+        "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM TRECHO DA RUA ADÃO TOBIAS, LOCALIZADA NA VILA POUSO DOS TROPEIROS, NO PERÍMETRO URBANO DO MUNICÍPIO DE PONTE SERRADA/SC, CONFORME PROJETO EXECUTIVO ANE…"
+      },
+      {
+        "orgao_nome": "Secretaria Municipal de Infraestrutura Estratégica",
+        "fornecedor_nome": "LIDER TERRAPLANAGENS E ARTEFATOS DE CIMENTO LTDA",
+        "objeto_contrato": "CONTRATAÇÃO DE EMPRESA PARA A EXECUÇÃO DE OBRA DE ESTRUTURA DE CONTENÇÃO DE ENCOSTA.",
+        "valor_total": 2552000.0,
+        "data_publicacao": "2026-07-16",
+        "contrato_id": "83102343000194-2-002362/2026",
+        "uf": "SC",
+        "municipio": "Brusque",
+        "objeto": "CONTRATAÇÃO DE EMPRESA PARA A EXECUÇÃO DE OBRA DE ESTRUTURA DE CONTENÇÃO DE ENCOSTA."
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE XANXERÊ",
+        "fornecedor_nome": "TERRAMAXX CONSTRUÇÕES LTDA",
+        "objeto_contrato": "Contratação de empresa especializada para execução de pavimentação asfáltica em vias urbanas do Município de Xanxerê/SC, com fornecimento de materiais, mão de obra e equipamentos necessários, contemplando as seguintes ruas: Rua Flávio Osca…",
+        "valor_total": 720100.0,
+        "data_publicacao": "2026-07-16",
+        "contrato_id": "83009860000113-2-000613/2026",
+        "uf": "SC",
+        "municipio": "Xanxerê",
+        "objeto": "Contratação de empresa especializada para execução de pavimentação asfáltica em vias urbanas do Município de Xanxerê/SC, com fornecimento de materiais, mão de obra e equipamentos necessários, contemplando as seguintes ruas: Rua Flávio Osca…"
+      },
+      {
+        "orgao_nome": "Fundação Cultural de Balneário Camboriú",
+        "fornecedor_nome": "PAFFE ENGENHARIA E CONSTRUCAO LTDA",
+        "objeto_contrato": "Contratação de empresa para reforma do telhado da Biblioteca Municipal e Arquivo Histórico. SOLICITAÇÃO 255/2026.",
+        "valor_total": 37500.0,
+        "data_publicacao": "2026-07-16",
+        "contrato_id": "07349637000137-2-000006/2026",
+        "uf": "SC",
+        "municipio": "Balneário Camboriú",
+        "objeto": "Contratação de empresa para reforma do telhado da Biblioteca Municipal e Arquivo Histórico. SOLICITAÇÃO 255/2026."
+      },
+      {
+        "orgao_nome": "3 COMPANHIA DO 63 BATALHAO DE INFANTARIA",
+        "fornecedor_nome": "RETRASA RECUPERADORA DE TRATORES LTDA",
+        "objeto_contrato": "EVENTUAL CONTRATAÇÃO DE SERVIÇO COM APLICAÇÃO DE PEÇAS PARA MANUTENÇÃO DE EQUIPAMENTOS DA 14ª COMPANHIA DE ENGENHARIA DE COMBATE",
+        "valor_total": 241639.0,
+        "data_publicacao": "2026-07-16",
+        "contrato_id": "00394452000103-2-005255/2026",
+        "uf": "SC",
+        "municipio": "Tubarão",
+        "objeto": "EVENTUAL CONTRATAÇÃO DE SERVIÇO COM APLICAÇÃO DE PEÇAS PARA MANUTENÇÃO DE EQUIPAMENTOS DA 14ª COMPANHIA DE ENGENHARIA DE COMBATE"
+      },
+      {
+        "orgao_nome": "GABINETE DO PREFEITO",
+        "fornecedor_nome": "COMPACTA CONSTRUTORA LTDA",
+        "objeto_contrato": "EXECUÇÃO DE OBRAS, PELO SISTEMA DE EMPREITADA GLOBAL, DE REFORMA DO GINÁSIO DE ESPORTES JOSÉ BRUSKY JUNIOR - BRISKÃO, COM FORNECIMENTO DE MATERIAIS, EQUIPAMENTOS E MÃO DE OBRA, CONFORME CONDIÇÕES E ESPECIFICAÇÕES TÉCNICAS CONSTANTES DO TER…",
+        "valor_total": 1107747.36,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "83102756000179-2-000883/2026",
+        "uf": "SC",
+        "municipio": "Rio Negrinho",
+        "objeto": "EXECUÇÃO DE OBRAS, PELO SISTEMA DE EMPREITADA GLOBAL, DE REFORMA DO GINÁSIO DE ESPORTES JOSÉ BRUSKY JUNIOR - BRISKÃO, COM FORNECIMENTO DE MATERIAIS, EQUIPAMENTOS E MÃO DE OBRA, CONFORME CONDIÇÕES E ESPECIFICAÇÕES TÉCNICAS CONSTANTES DO TER…"
+      },
+      {
+        "orgao_nome": "PREFEITURA MUNICIPAL DE JOAÇABA",
+        "fornecedor_nome": "VIGA - PAVIMENTACAO E OBRAS LTDA.",
+        "objeto_contrato": "Contratação de empresa(s) especializada(s) para a execução de pavimentação asfáltica nas Ruas Etore Pedrini, Caramuru e Ângelo Sganzerla no Município de Joaçaba/SC, conforme projetos, memoriais descritivos, especificações técnicas e demais…",
+        "valor_total": 558935.78,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "82939380000199-2-000555/2026",
+        "uf": "SC",
+        "municipio": "Joaçaba",
+        "objeto": "Contratação de empresa(s) especializada(s) para a execução de pavimentação asfáltica nas Ruas Etore Pedrini, Caramuru e Ângelo Sganzerla no Município de Joaçaba/SC, conforme projetos, memoriais descritivos, especificações técnicas e demais…"
+      },
+      {
+        "orgao_nome": "Prefeitura Municipal de Chapecó",
+        "fornecedor_nome": "SCW CONSTRUCOES E SERVICOS LTDA",
+        "objeto_contrato": "CONSTRUÇÃO DE CANIL PARA O ABRIGO DOS CÃES QUE SERVEM AO GRUPAMENTO OPERACIONAL COM CÃES - GOC DA GUARDA MUNICIPAL DE CHAPECÓ-SC.",
+        "valor_total": 531599.92,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "83021808000182-2-000177/2026",
+        "uf": "SC",
+        "municipio": "Chapecó",
+        "objeto": "CONSTRUÇÃO DE CANIL PARA O ABRIGO DOS CÃES QUE SERVEM AO GRUPAMENTO OPERACIONAL COM CÃES - GOC DA GUARDA MUNICIPAL DE CHAPECÓ-SC."
+      },
+      {
+        "orgao_nome": "Secretaria Municipal de Urbanismo e Obras - SEMURB",
+        "fornecedor_nome": "PAIM RÁDIO LTDA ME",
+        "objeto_contrato": "elaboração de projeto executivo, fornecimento, instalação, comissionamento, calibração e homologação do sistema PAPI (04 caixas, em um sentido), incluindo obras civis, infraestrutura elétrica, testes operacionais, documentação técnica e ap…",
+        "valor_total": 697500.0,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "83024257000100-2-000927/2026",
+        "uf": "SC",
+        "municipio": "Concórdia",
+        "objeto": "elaboração de projeto executivo, fornecimento, instalação, comissionamento, calibração e homologação do sistema PAPI (04 caixas, em um sentido), incluindo obras civis, infraestrutura elétrica, testes operacionais, documentação técnica e ap…"
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE SCHROEDER",
+        "fornecedor_nome": "CONSTRUTORA SCHROEDER E SCHMIDT LTDA",
+        "objeto_contrato": "Contratação de empresa especializada para execução (com fornecimento de mão de obra, materiais e equipamentos necessários) mais serviços preliminares, drenagem, terraplanagem, passeio em paver, sinalização viária para pavimentação asfáltic…",
+        "valor_total": 220000.0,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "83102491000109-2-001364/2026",
+        "uf": "SC",
+        "municipio": "Schroeder",
+        "objeto": "Contratação de empresa especializada para execução (com fornecimento de mão de obra, materiais e equipamentos necessários) mais serviços preliminares, drenagem, terraplanagem, passeio em paver, sinalização viária para pavimentação asfáltic…"
+      },
+      {
+        "orgao_nome": "Divisão de Obras e Serviços Urbanos",
+        "fornecedor_nome": "VALENTIM COMANDOLLI",
+        "objeto_contrato": "Locação de imóvel (terreno sem benfeitorias), localizado na Rodovia SC-486, Bairro Lageado Baixo (Fora), Município de Botuverá/SC, com área aproximada de 2.000 m², matriculado sob nº 69.167 do Registro de Imóveis da Comarca de Brusque/SC, …",
+        "valor_total": 9876.0,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "83102350000196-2-000893/2026",
+        "uf": "SC",
+        "municipio": "Botuverá",
+        "objeto": "Locação de imóvel (terreno sem benfeitorias), localizado na Rodovia SC-486, Bairro Lageado Baixo (Fora), Município de Botuverá/SC, com área aproximada de 2.000 m², matriculado sob nº 69.167 do Registro de Imóveis da Comarca de Brusque/SC, …"
+      },
+      {
+        "orgao_nome": "SECRETARIA DE ADMINISTRACAO",
+        "fornecedor_nome": "PEDREIRA PALMA SOLA LTDA",
+        "objeto_contrato": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE PAVIMENTAÇÃO COM PEDRAS IRREGULARES NA ESTRADA GERAL DE ACESSO AO DISTRITO DE CERRO AZUL, EM ZONA RURAL DO MUNICÍPIO DE PALMA SOLA/SC, COM EXTENSÃO APROXIMADA DE 750,00 M E LARGURA DE P…",
+        "valor_total": 350412.29,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "83028639000102-2-000713/2026",
+        "uf": "SC",
+        "municipio": "Palma Sola",
+        "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE PAVIMENTAÇÃO COM PEDRAS IRREGULARES NA ESTRADA GERAL DE ACESSO AO DISTRITO DE CERRO AZUL, EM ZONA RURAL DO MUNICÍPIO DE PALMA SOLA/SC, COM EXTENSÃO APROXIMADA DE 750,00 M E LARGURA DE P…"
+      },
+      {
+        "orgao_nome": "Fundo Municipal de Saúde - Investimento",
+        "fornecedor_nome": "MAZZI CONSTRUÇÕES LTDA",
+        "objeto_contrato": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA O FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA A EXECUÇÃO DE REFORMA DO IMÓVEL DO CENTRO DE VIGILÂNCIA EM SAÚDE DO MUNICÍPIO DE SÃO BENTO DO SUL/SC, CONFORME CONDIÇÕE…",
+        "valor_total": 185000.0,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "08281643000162-2-000829/2026",
+        "uf": "SC",
+        "municipio": "São Bento do Sul",
+        "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA O FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA A EXECUÇÃO DE REFORMA DO IMÓVEL DO CENTRO DE VIGILÂNCIA EM SAÚDE DO MUNICÍPIO DE SÃO BENTO DO SUL/SC, CONFORME CONDIÇÕE…"
+      },
+      {
+        "orgao_nome": "FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL JOAÇABA",
+        "fornecedor_nome": "CONSTRUTORA SANTA TEREZA LTDA",
+        "objeto_contrato": "Contratação de empresa especializada para a execução de pavimentação, drenagem pluvial e sinalização viária da Rua Vicente Amalcabúrio, localizada no Bairro Santa Tereza, no Município de Joaçaba/SC",
+        "valor_total": 544000.0,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "02247113000111-2-000120/2026",
+        "uf": "SC",
+        "municipio": "Joaçaba",
+        "objeto": "Contratação de empresa especializada para a execução de pavimentação, drenagem pluvial e sinalização viária da Rua Vicente Amalcabúrio, localizada no Bairro Santa Tereza, no Município de Joaçaba/SC"
+      },
+      {
+        "orgao_nome": "MUNICÍPIO DE SCHROEDER",
+        "fornecedor_nome": "MARANT CONSTRUCOES LTDA",
+        "objeto_contrato": "Construção de Parque Municipal na Avenida dos Imigrantes, s/nº, Bairro Centro, no Município de Schroeder/SC, com 17.414,82 m²",
+        "valor_total": 2600000.0,
+        "data_publicacao": "2026-07-15",
+        "contrato_id": "83102491000109-2-001365/2026",
+        "uf": "SC",
+        "municipio": "Schroeder",
+        "objeto": "Construção de Parque Municipal na Avenida dos Imigrantes, s/nº, Bairro Centro, no Município de Schroeder/SC, com 17.414,82 m²"
+      }
+    ],
+    "raw_bids_sc": 2948
+  },
+  "opportunities_open": [
+    {
+      "source_id": "sc-60847",
+      "status": "Em Recebimento de Proposta",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Saúde - SES",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Dispensa com Cotação Eletrônica (Serviços)",
+      "objeto": "Contratação de serviço de acolhimento/internação em residencial terapêutico, no território de Santa Catarina, em atendimento aosautos nº5027796-55.2026.8.24.0023/SC, em favor do paciente E. G. P., conforme condições, quantidades e exigências estabelecidas neste instrumento, para…",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-07-24",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60847",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60848",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Kit de Transposição de Obstáculos pré-fabricadas de concreto para reconstrução e restabelecimento de acessos para a Secretaria de Estado da Proteção e Defesa Civil",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60848",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60849",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Registro de preços para futura e eventual aquisição de alimentos para lanches e refeições oferecidos aos educandos atendidos no campus para a Fundação Catarinense de Educação Especial.",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60849",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60850",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Aquisição de Retinógrafos portáteis digitais para a Secretaria de Estado da Saúde",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60850",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60851",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Aquisição de licença de softwares para o Corpo de Bombeiros Militar de Santa Catarina.",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60851",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60852",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Aquisição de testes psicométricos e instrumentos psicológicos para psicólogos para a Polícia Civil de Santa Catarina.",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-04",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60852",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60853",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Aquisição de testes psicológicos para a Polícia Militar de Santa Catarina",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-04",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60853",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60854",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Serviços)",
+      "objeto": "Contratação semi-integrada de empresa qualificada em serviços de engenharia para elaboração de projetos (projeto Sistema Proteção contra Descargas Atmosféricas - SPDA e projeto do bloco de coroamento da base do reservatório); fornecimento e execução da instalação de Reservatório…",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60854",
+      "documentos_count": 0
+    }
+  ],
+  "opportunities_recent": [
+    {
+      "source_id": "sc-60847",
+      "status": "Em Recebimento de Proposta",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Saúde - SES",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Dispensa com Cotação Eletrônica (Serviços)",
+      "objeto": "Contratação de serviço de acolhimento/internação em residencial terapêutico, no território de Santa Catarina, em atendimento aosautos nº5027796-55.2026.8.24.0023/SC, em favor do paciente E. G. P., conforme condições, quantidades e exigências estabelecidas neste instrumento, para…",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-07-24",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60847",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60848",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Kit de Transposição de Obstáculos pré-fabricadas de concreto para reconstrução e restabelecimento de acessos para a Secretaria de Estado da Proteção e Defesa Civil",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60848",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60849",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Registro de preços para futura e eventual aquisição de alimentos para lanches e refeições oferecidos aos educandos atendidos no campus para a Fundação Catarinense de Educação Especial.",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60849",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60850",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Aquisição de Retinógrafos portáteis digitais para a Secretaria de Estado da Saúde",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60850",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60851",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Aquisição de licença de softwares para o Corpo de Bombeiros Militar de Santa Catarina.",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60851",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60852",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Aquisição de testes psicométricos e instrumentos psicológicos para psicólogos para a Polícia Civil de Santa Catarina.",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-04",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60852",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60853",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Materiais)",
+      "objeto": "Aquisição de testes psicológicos para a Polícia Militar de Santa Catarina",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-04",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60853",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60854",
+      "status": "Aguardando Abertura da Sessão",
+      "status_bucket": "open",
+      "orgao": "Secretaria de Estado da Administração - SEA",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Pregão Eletrônico (Serviços)",
+      "objeto": "Contratação semi-integrada de empresa qualificada em serviços de engenharia para elaboração de projetos (projeto Sistema Proteção contra Descargas Atmosféricas - SPDA e projeto do bloco de coroamento da base do reservatório); fornecimento e execução da instalação de Reservatório…",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": "2026-08-03",
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60854",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60855",
+      "status": "Aguardando Homologação",
+      "status_bucket": "semi_open",
+      "orgao": "Polícia Civil - PC",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Dispensa de Licitação (Serviços)",
+      "objeto": "Contratação de concessionária autorizada para realização de revisão preventiva, em razão da garantia de fábrica, em 1 (uma) viatura da frota da Polícia Civil de Santa Catarina.",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": null,
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60855",
+      "documentos_count": 0
+    },
+    {
+      "source_id": "sc-60856",
+      "status": "Aguardando Homologação",
+      "status_bucket": "semi_open",
+      "orgao": "Fundação Universidade do Estado de Santa Catarina - UDESC",
+      "orgao_cnpj": null,
+      "municipio": null,
+      "uf": "SC",
+      "modalidade": "Inexigência de Licitação (Serviços)",
+      "objeto": "Contratação de estande Cota OURO para participação da UDESC no Startup Summit 2026, a ser realizado entre os dias 26 a 28 de agosto de 2026 no Centro de Eventos CentroSul em Florianópolis/SC.",
+      "valor_total_estimado": null,
+      "data_publicacao": "2026-07-16",
+      "data_abertura": null,
+      "data_encerramento": null,
+      "link_oficial": "https://compras.sc.gov.br/editais/60856",
+      "documentos_count": 0
+    }
+  ],
+  "claims_allowed": [
+    "Amostra Compras SC com live_fetch e status de portal (abertas/semi/fechadas) da sessão.",
+    "Atos DOM/CIGA classificados (act_category) em modo smoke com confidence labels.",
+    "Amostra DOE (Dados SC) com contagem de act_categories do resource processado.",
+    "Cobertura bruta e gaps expostos sem inflar para 95%.",
+    "Ranking de órgãos e fornecedores vencedores quando DB ou artefato disponível.",
+    "Path proof de contratos PNCP (1d) documentado — não equivale a 90d nacional."
+  ],
+  "claims_forbidden": [
+    "Universo completo de editais SC coberto",
+    "Piloto nacional 90d de contratos concluído",
+    "GO para backfill 3 anos não supervisionado",
+    "VPS operacional",
+    "CONTRATOS_95 / editais 95%",
+    "DOM/CIGA ou DOE smoke como cobertura estadual completa",
+    "Valores de contratos como estimado de editais abertos (semântica diferente)"
+  ],
+  "disclaimers": [
+    "Cobertura bruta de editais ~4.76% — amostra incompleta; não use como universo exaustivo de SC.",
+    "Monitoring coverage no coverage-truth está unverified/nulo — evidence ledger vazio para várias fontes.",
+    "Fontes críticas sem prova de freshness: pncp, contracts",
+    "Piloto de contratos PNCP status=partial; backfill nacional 90d/3y NÃO autorizado.",
+    "Compras SC: documentos do edital ausentes na listagem (10/10 na amostra) — fetch_detail=false / partial execution.",
+    "Compras SC: 100.0% da amostra sem valor_total_estimado.",
+    "Compras SC: 100.0% da amostra sem município (órgãos estaduais ou campo não preenchido na API de listagem).",
+    "Compras SC: API reportou 2602 elementos no ano; amostra normalizada=10 (mode=incremental) — execução parcial por page limit.",
+    "DOM/CIGA mode=smoke (package=domsc-publicacoes-de-07-2026); records_loaded=2454 — não cobre todos os municípios SC.",
+    "DOM/CIGA: gap_count municípios no universo=157 (observed=223, universe=295).",
+    "DOE (Dados SC): execução smoke — act_categories e samples não representam todo o Diário Oficial do Estado.",
+    "Datas em pncp_supplier_contracts.data_publicacao podem refletir dataAssinatura histórica (semântica legada) — não interpretar MIN/MAX como cobertura da janela de coleta.",
+    "VPS/infra remota não deve ser tratada como operacional sem evidência.",
+    "live_fetch=true indica chamada HTTP real naquele run; ausência de live_fetch ou artefato de atestação não deve ser apresentado como coleta completa."
+  ],
+  "key_findings": [
+    "Compras SC (incremental): 8 abertas, 2 semi-abertas, 10 na amostra (live_fetch=True).",
+    "API Compras SC reportou 2602 editais no filtro ano da sessão.",
+    "DOM/CIGA: 2454 publicações; procurement-like=1833; top act=[('ata_registro_precos', 1226), ('outros', 517), ('homologacao', 135)].",
+    "DOE smoke act_categories top: [('outros', 144), ('outros_atos_contratacao', 92), ('suspensao', 57), ('extrato_contrato', 46), ('termo_aditivo', 33)].",
+    "Cobertura bruta editais=4.76% (52/1093 200km).",
+    "DB: contracts_total=63574, contracts_sc=21467, winning_suppliers_sample=15.",
+    "Freshness gate falhando: ['pncp', 'contracts']."
+  ]
+}

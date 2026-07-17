@@ -173,9 +173,9 @@ class RetryConfig:
         else:
             delay = min(self.base_delay * (self.multiplier ** attempt), self.max_delay)
 
-        # Apply jitter
+        # Apply jitter (non-crypto backoff; intentional for retry spreading)
         jitter = delay * self.jitter_factor
-        return delay + random.uniform(-jitter, jitter)
+        return delay + random.uniform(-jitter, jitter)  # noqa: S311
 
     @staticmethod
     def parse_retry_after(response: httpx.Response) -> float | None:
@@ -646,7 +646,7 @@ class BaseHTTPError(Exception):
     """Base exception for HTTP client errors."""
 
 
-class CircuitBreakerOpen(BaseHTTPError):
+class CircuitBreakerOpen(BaseHTTPError):  # noqa: N818 — public exception API; rename would break callers
     """Raised when the circuit breaker rejects a request."""
 
 

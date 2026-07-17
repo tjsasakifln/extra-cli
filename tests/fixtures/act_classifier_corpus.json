@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "description": "Sanitized real-like DOM/DOE act titles for act_classifier regression. No personal data.",
+  "cases": [
+    {
+      "id": "homolog-001",
+      "expected": "homologacao",
+      "title": "Homologação do Pregão Eletrônico nº 12/2026",
+      "text": "Homologa o resultado do Pregão Eletrônico nº 12/2026, Processo 4500/2026, objeto aquisição de material de expediente."
+    },
+    {
+      "id": "adjudic-001",
+      "expected": "adjudicacao",
+      "title": "Adjudicação — Pregão Eletrônico nº 08/2025",
+      "subject": "Adjudica o objeto à empresa vencedora do certame"
+    },
+    {
+      "id": "resultado-001",
+      "expected": "resultado",
+      "title": "Resultado da licitação — Concorrência Pública nº 03/2026",
+      "text": "Publica o resultado final do certame e a classificação das propostas."
+    },
+    {
+      "id": "edital-001",
+      "expected": "edital",
+      "title": "Edital de Licitação — Pregão Eletrônico nº 21/2026",
+      "official_type": "Edital",
+      "text": "Torna público o edital de licitação para aquisição de medicamentos."
+    },
+    {
+      "id": "aviso-001",
+      "expected": "aviso_licitacao",
+      "title": "Aviso de Licitação — Pregão Eletrônico nº 15/2026",
+      "text": "Abertura de sessão pública em 20/08/2026. Objeto: serviços de limpeza."
+    },
+    {
+      "id": "aviso-002",
+      "expected": "aviso_licitacao",
+      "title": "Pregão Eletrônico nº 44/2025 — Abertura",
+      "subject": "Aquisição de combustíveis para a frota municipal"
+    },
+    {
+      "id": "retific-001",
+      "expected": "retificacao",
+      "title": "Retificação do Edital do Pregão Eletrônico nº 09/2026",
+      "text": "Retifica o item 5.2 do edital quanto ao prazo de entrega."
+    },
+    {
+      "id": "errata-001",
+      "expected": "errata",
+      "title": "Errata ao Edital de Concorrência nº 02/2026",
+      "text": "Errata: onde se lê R$ 100.000,00 leia-se R$ 110.000,00."
+    },
+    {
+      "id": "suspensao-001",
+      "expected": "suspensao",
+      "title": "Suspensão do Pregão Eletrônico nº 18/2026",
+      "text": "Fica suspensa a licitação por determinação da autoridade competente."
+    },
+    {
+      "id": "reabertura-001",
+      "expected": "reabertura",
+      "title": "Reabertura de prazo — Pregão Eletrônico nº 07/2026",
+      "text": "Reabertura do prazo de envio de propostas do certame."
+    },
+    {
+      "id": "revogacao-001",
+      "expected": "revogacao",
+      "title": "Revogação da Licitação — Tomada de Preços nº 01/2025",
+      "text": "Revoga o certame por razões de interesse público."
+    },
+    {
+      "id": "anulacao-001",
+      "expected": "anulacao",
+      "title": "Anulação do Pregão Eletrônico nº 33/2025",
+      "text": "Anula a licitação por vício insanável no edital."
+    },
+    {
+      "id": "extrato-001",
+      "expected": "extrato_contrato",
+      "title": "Extrato de Contrato nº 45/2026",
+      "text": "Contrato nº 45/2026 firmado com fornecedor para fornecimento de gêneros alimentícios. Vigência 12 meses. Valor R$ 250.000,00."
+    },
+    {
+      "id": "aditivo-001",
+      "expected": "termo_aditivo",
+      "title": "Extrato de Termo Aditivo ao Contrato 45/2025",
+      "text": "1º Termo Aditivo — prorrogação de vigência por 12 meses."
+    },
+    {
+      "id": "aditivo-002",
+      "expected": "termo_aditivo",
+      "title": "Termo Aditivo nº 02/2026 — Contrato 12/2024",
+      "subject": "Aditamento de valor e prazo"
+    },
+    {
+      "id": "apostila-001",
+      "expected": "apostilamento",
+      "title": "Apostilamento ao Contrato nº 08/2025",
+      "text": "Termo de apostila para reajuste de preços conforme índice IPCA."
+    },
+    {
+      "id": "rescisao-001",
+      "expected": "rescisao",
+      "title": "Rescisão do Contrato nº 22/2024",
+      "text": "Rescisão unilateral do contrato administrativo por descumprimento de cláusulas."
+    },
+    {
+      "id": "arp-001",
+      "expected": "ata_registro_precos",
+      "title": "Ata de Registro de Preços nº 3/2026 — material de construção",
+      "text": "Publica a ARP decorrente do Pregão Eletrônico nº 50/2025."
+    },
+    {
+      "id": "irp-001",
+      "expected": "intencao_registro_precos",
+      "title": "Intenção de Registro de Preços — IRP nº 05/2026",
+      "text": "Divulga intenção de registro de preços para adesão de órgãos participantes."
+    },
+    {
+      "id": "dispensa-001",
+      "expected": "dispensa",
+      "title": "Aviso de dispensa de licitação por valor",
+      "text": "Dispensa de licitação nº 14/2026, art. 75, II, Lei 14.133/2021."
+    },
+    {
+      "id": "dispensa-002",
+      "expected": "dispensa",
+      "title": "Dispensa Eletrônica nº 09/2026",
+      "official_type": "Dispensa de Licitação",
+      "subject": "Contratação de serviços gráficos"
+    },
+    {
+      "id": "inexig-001",
+      "expected": "inexigibilidade",
+      "title": "Inexigibilidade de Licitação nº 04/2026",
+      "text": "Contratação direta por inexigibilidade — serviços técnicos especializados."
+    },
+    {
+      "id": "credenc-001",
+      "expected": "credenciamento",
+      "title": "Aviso de Credenciamento nº 02/2026",
+      "text": "Abre credenciamento de clínicas para prestação de serviços de saúde."
+    },
+    {
+      "id": "chamamento-001",
+      "expected": "chamamento_publico",
+      "title": "Chamamento Público nº 01/2026 — Organizações da Sociedade Civil",
+      "text": "Seleção de OSC para parceria em projeto social."
+    },
+    {
+      "id": "consulta-001",
+      "expected": "consulta_publica",
+      "title": "Consulta Pública — minuta de edital de concorrência",
+      "text": "Abre consulta pública sobre a minuta do edital de licitação de obras."
+    },
+    {
+      "id": "outros-atos-001",
+      "expected": "outros_atos_contratacao",
+      "title": "Designação de pregoeiro e equipe de apoio",
+      "text": "Designa pregoeiro e equipe de apoio para o Pregão Eletrônico nº 11/2026."
+    },
+    {
+      "id": "outros-atos-002",
+      "expected": "outros_atos_contratacao",
+      "title": "Prorrogação de vigência do Contrato nº 19/2024",
+      "text": "Prorrogação de prazo de vigência por igual período."
+    },
+    {
+      "id": "neg-001",
+      "expected": "nao_relacionado",
+      "title": "Nomeação de servidor para cargo em comissão",
+      "text": "Nomeia fulano de tal para o cargo de diretor de departamento."
+    },
+    {
+      "id": "neg-002",
+      "expected": "nao_relacionado",
+      "title": "Exoneração a pedido — cargo comissionado",
+      "text": "Exonera servidora do cargo de assessora técnica."
+    },
+    {
+      "id": "neg-003",
+      "expected": "nao_relacionado",
+      "title": "Comunicado interno de férias coletivas",
+      "text": "Informamos o recesso administrativo e férias coletivas do quadro."
+    },
+    {
+      "id": "neg-004",
+      "expected": "nao_relacionado",
+      "title": "Edital de Concurso Público nº 01/2026",
+      "text": "Abre inscrições para concurso público de provimento de cargos efetivos."
+    },
+    {
+      "id": "neg-005",
+      "expected": "nao_relacionado",
+      "title": "Portaria de designação de servidor",
+      "text": "Designa servidor para compor comissão de sindicância."
+    },
+    {
+      "id": "neg-006",
+      "expected": "nao_relacionado",
+      "title": "Declaração de vacância de cargo efetivo",
+      "text": "Declara vago o cargo de analista administrativo."
+    },
+    {
+      "id": "multi-001",
+      "expected": "termo_aditivo",
+      "title": "Extrato do 3º Termo Aditivo ao Contrato nº 10/2023",
+      "official_type": "Termo Aditivo",
+      "text": "Aditamento contratual com acréscimo de 15% do valor."
+    },
+    {
+      "id": "multi-002",
+      "expected": "homologacao",
+      "title": "Homologação e Adjudicação do Pregão nº 05/2026",
+      "text": "Homologa e adjudica o objeto do certame à proposta vencedora."
+    }
+  ]
+}

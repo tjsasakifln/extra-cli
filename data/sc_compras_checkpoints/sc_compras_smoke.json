@@ -1,0 +1,39 @@
+{
+  "source": "sc_compras",
+  "mode": "smoke",
+  "last_max_id": 58132,
+  "last_seen_ids": [
+    41624,
+    57612,
+    58075,
+    58109,
+    58110,
+    58111,
+    58112,
+    58115,
+    58117,
+    58118,
+    58119,
+    58120,
+    58125,
+    58126,
+    58127,
+    58128,
+    58129,
+    58130,
+    58131,
+    58132
+  ],
+  "last_year": 2026,
+  "pages_completed": 2,
+  "total_fetched": 20,
+  "last_error": null,
+  "updated_at": "2026-07-17T02:15:19Z",
+  "meta": {
+    "run_id": "sc_compras-smoke-20260717T021517Z-29e6bf8f10",
+    "run_ids": [
+      "sc_compras-smoke-20260717T021517Z-29e6bf8f10"
+    ],
+    "previous_run_ids": []
+  }
+}

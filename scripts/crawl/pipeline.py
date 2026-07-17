@@ -176,7 +176,7 @@ class PipelineError(Exception):
     """Base error for pipeline failures."""
 
 
-class PipelineFailClosed(PipelineError):
+class PipelineFailClosed(PipelineError):  # noqa: N818 — public exception API; rename would break callers
     """Unhandled exception — pipeline aborted, no partial commit."""
 
     def __init__(self, stage: PipelineStage, message: str, original: Exception | None = None):

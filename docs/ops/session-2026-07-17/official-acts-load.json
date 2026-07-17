@@ -1,0 +1,102 @@
+{
+  "run_id": "official-acts-load-20260717T022207Z-c6eae16bda",
+  "attestation": false,
+  "live_fetch": false,
+  "loader": "load_official_acts_session",
+  "started_at": "2026-07-17T02:22:07.899338+00:00",
+  "completed_at": "2026-07-17T02:22:07.993055+00:00",
+  "sources": [
+    {
+      "source": "sc_compras",
+      "inserted": 0,
+      "updated": 10,
+      "errors": 0,
+      "path": "/mnt/d/extra consultoria/output/sc_compras/sc_compras-incremental-20260717T021544Z-4d70d47986/licitacoes.jsonl",
+      "records_read": 10
+    }
+  ],
+  "validation": {
+    "by_source": [
+      {
+        "source": "ciga_dom",
+        "count": 2454,
+        "municipios": 223,
+        "orgaos": 274
+      },
+      {
+        "source": "dados_abertos_sc",
+        "count": 500,
+        "municipios": 0,
+        "orgaos": 60
+      },
+      {
+        "source": "sc_compras",
+        "count": 10,
+        "municipios": 0,
+        "orgaos": 0
+      }
+    ],
+    "total_acts": 2964,
+    "duplicate_source_hash_groups": 0
+  },
+  "status": "ok",
+  "evidence": {
+    "run_id": "official-acts-load-20260717T022207Z-c6eae16bda",
+    "git_sha": "0a2806f8dcaf56377680c640390f73e27cd1d393",
+    "git_branch": "main",
+    "started_at": "2026-07-17T02:22:07.899338+00:00",
+    "completed_at": "2026-07-17T02:22:07.993055+00:00",
+    "host_id": "72aa0c75ebd3",
+    "command": "python3 -m scripts.ingestion.load_official_acts_session",
+    "args": {},
+    "env_non_secret": {},
+    "checkpoint_path": null,
+    "checkpoint_hash": null,
+    "output_path": null,
+    "output_hash": null,
+    "log_path": null,
+    "log_hash": null,
+    "migration_head": null,
+    "counts_before": {},
+    "counts_after": {
+      "sources": {
+        "sc_compras": 10
+      },
+      "validation": {
+        "by_source": [
+          {
+            "source": "ciga_dom",
+            "count": 2454,
+            "municipios": 223,
+            "orgaos": 274
+          },
+          {
+            "source": "dados_abertos_sc",
+            "count": 500,
+            "municipios": 0,
+            "orgaos": 60
+          },
+          {
+            "source": "sc_compras",
+            "count": 10,
+            "municipios": 0,
+            "orgaos": 0
+          }
+        ],
+        "total_acts": 2964,
+        "duplicate_source_hash_groups": 0
+      }
+    },
+    "status": "ok",
+    "errors": [],
+    "criteria": {},
+    "claims_allowed": [
+      "session artifacts loaded into official_acts with idempotent upsert"
+    ],
+    "claims_forbidden": [
+      "full historical DOE/DOM coverage",
+      "LOCAL_READY",
+      "PROJECT_DONE"
+    ]
+  }
+}

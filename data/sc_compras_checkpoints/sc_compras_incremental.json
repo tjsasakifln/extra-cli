@@ -1,0 +1,29 @@
+{
+  "source": "sc_compras",
+  "mode": "incremental",
+  "last_max_id": 60856,
+  "last_seen_ids": [
+    60847,
+    60848,
+    60849,
+    60850,
+    60851,
+    60852,
+    60853,
+    60854,
+    60855,
+    60856
+  ],
+  "last_year": 2026,
+  "pages_completed": 1,
+  "total_fetched": 10,
+  "last_error": null,
+  "updated_at": "2026-07-17T02:15:45Z",
+  "meta": {
+    "run_id": "sc_compras-incremental-20260717T021544Z-4d70d47986",
+    "run_ids": [
+      "sc_compras-incremental-20260717T021544Z-4d70d47986"
+    ],
+    "previous_run_ids": []
+  }
+}

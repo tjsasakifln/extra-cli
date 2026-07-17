@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "source": "ciga_dom",
+    "run_id": "ciga-dom-20260717T021436Z-08120b3f8f",
+    "updated_at": "2026-07-17T02:14:43.227771+00:00",
+    "run_ids": [
+      "ciga-dom-20260717T021436Z-08120b3f8f"
+    ]
+  },
+  "completed_resources": {
+    "96bffd66-95af-4dd7-93d5-0f65f60d4e8b": {
+      "status": "completed",
+      "files": {
+        "publicacoes_de_2026_07_16_0000_1159.json": {
+          "status": "completed",
+          "records": 1832,
+          "sha256": "27b028bc7a7a1f2ed657ee66041006f151b634b798b55ccc978a7679ab2a07db"
+        }
+      },
+      "records": 1832,
+      "sha256": "d4b74d07eb9b6278bf7fb2341e415938888a68821c771ad25df54ef422faceb3",
+      "error": null,
+      "completed_at": "2026-07-17T02:14:40.272183+00:00"
+    },
+    "99e331a3-d58a-4934-9b2c-86df3ad4e179": {
+      "status": "completed",
+      "files": {
+        "publicacoes_de_2026_07_16_1200_1559.json": {
+          "status": "completed",
+          "records": 622,
+          "sha256": "81112a2e3e012d10699f8232df04665ca12e1d19bc52423d0a4f3f539fa7ecef"
+        }
+      },
+      "records": 622,
+      "sha256": "6decb4cf6fad1db6ae3e0321a039cae418c51c09e48c96c333307b44823ed5c4",
+      "error": null,
+      "completed_at": "2026-07-17T02:14:42.408274+00:00"
+    }
+  },
+  "completed_files": {
+    "96bffd66-95af-4dd7-93d5-0f65f60d4e8b::publicacoes_de_2026_07_16_0000_1159.json": {
+      "status": "completed",
+      "records": 1832,
+      "sha256": "27b028bc7a7a1f2ed657ee66041006f151b634b798b55ccc978a7679ab2a07db",
+      "completed_at": "2026-07-17T02:14:40.272161+00:00"
+    },
+    "99e331a3-d58a-4934-9b2c-86df3ad4e179::publicacoes_de_2026_07_16_1200_1559.json": {
+      "status": "completed",
+      "records": 622,
+      "sha256": "81112a2e3e012d10699f8232df04665ca12e1d19bc52423d0a4f3f539fa7ecef",
+      "completed_at": "2026-07-17T02:14:42.408244+00:00"
+    }
+  },
+  "packages_seen": [
+    "domsc-publicacoes-de-07-2026"
+  ]
+}

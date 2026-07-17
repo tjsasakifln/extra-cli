@@ -1,0 +1,73 @@
+{
+  "run_id": "reconcile-20260717T022055Z-49332bbb54",
+  "git_sha": "0a2806f8dcaf56377680c640390f73e27cd1d393",
+  "git_branch": "main",
+  "started_at": "2026-07-17T02:20:55.304780+00:00",
+  "completed_at": "2026-07-17T02:20:55.870832+00:00",
+  "host_id": "72aa0c75ebd3",
+  "command": "scripts.matching.official_acts_reconcile",
+  "args": {
+    "mode": "smoke"
+  },
+  "env_non_secret": {},
+  "checkpoint_path": null,
+  "checkpoint_hash": null,
+  "output_path": "/mnt/d/extra consultoria/output/reconciliation/reconcile-20260717T022055Z-49332bbb54/report.json",
+  "output_hash": "282c346390052a795b7951362186c1d7b920d3bb3e4b4e39066038c127a5a7cb",
+  "log_path": null,
+  "log_hash": null,
+  "migration_head": null,
+  "counts_before": {},
+  "counts_after": {
+    "reconciled_count": 0,
+    "pncp_only": 400,
+    "doe_only": 200,
+    "dom_only": 200,
+    "compras_sc_only": 10,
+    "matches": 0,
+    "sources_loaded": {
+      "pncp": 400,
+      "doe": 200,
+      "dom": 200,
+      "compras_sc": 10
+    }
+  },
+  "status": "ok",
+  "errors": [],
+  "criteria": {
+    "deterministic_rules_only": true,
+    "rules": [
+      "pncp_number_exact",
+      "process_number_orgao_cnpj",
+      "process_number_year_modalidade",
+      "contract_number_orgao_cnpj",
+      "edital_number_year_orgao_cnpj",
+      "edital_number_year_orgao_name",
+      "compras_sc_id_crosswalk",
+      "deterministic_hash"
+    ],
+    "no_fuzzy_text_linking": true
+  },
+  "claims_allowed": [
+    "initial_deterministic_reconciliation_smoke_or_sample",
+    "match_rows_reversible_file_backed",
+    "rules_used=none",
+    "sources_attempted=pncp,doe,dom,compras_sc"
+  ],
+  "claims_forbidden": [
+    "90_day_pilot_success",
+    "3_year_backfill_complete",
+    "full_coverage_claimed",
+    "fuzzy_text_similarity_linking",
+    "production_sync_complete",
+    "official_acts_table_fully_populated"
+  ],
+  "mode": "smoke",
+  "rules_applied": {},
+  "divergences": {
+    "status": 0,
+    "date": 0,
+    "value": 0,
+    "missing_documents": 0
+  }
+}
