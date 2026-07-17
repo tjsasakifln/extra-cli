@@ -2393,6 +2393,7 @@ Mesmo com cobertura de editais baixa no raio:
 
 > **Branch:** `epic/coverage-200km-operational`  
 > **HEAD inicial:** `84249471a3c0b53ea51d038207bfe4ffc4b4e966`  
+> **Commit técnico+docs desta sessão:** `32851a1dd4da73b386cb6cbe83bf3c2d3dae4fa7`  
 > **Missão:** aumentar o numerador canônico de entidades cobertas no raio 200 km (denominador fixo **1.093**), com dados reais e claims honestos.  
 > **Evidência:** `output/session-2026-07-17/` · `coverage_canonical.json` · `COVERAGE_REPORT.md` · `session_summary.json`
 
