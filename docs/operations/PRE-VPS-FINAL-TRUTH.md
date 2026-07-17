@@ -12,8 +12,8 @@
 NOT_READY
 ```
 
-**Por quê:** gates offline (lint, type, unit, chaos, fixture isolation, systemd, migration applier) passam localmente.  
-**Bloqueio residual:** canary live com PostgreSQL real + evidência operacional recente por fonte **não** foi executada neste ambiente (`DATABASE_URL` ausente). CI `resilience-gate` deve revalidar migrations (fresh + upgrade) no PR #12.
+**Por quê:** gates offline + CI `resilience-gate` estão verdes (run `29614326278`, PR #12).  
+**Bloqueio residual:** canary **live** (internet + fontes reais PNCP/CIGA/SC) **não** foi executada — sem fabricar evidência. `PRE_VPS_FINAL_READY` exige canary documentada.
 
 Correções pós-skeptic (commit `825b643`):
 - migration runner sem `CREATE INDEX CONCURRENTLY` em transaction
