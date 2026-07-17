@@ -2,7 +2,7 @@
 
 **Story ID:** `ROI-cand-coverage-scale-m2-more-entities`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** InReview  
+**Status:** Done  
 **Risk level:** **STANDARD**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-17T232427Z`)  
 **Candidate ID:** `cand-coverage-scale-m2-more-entities`  
@@ -132,11 +132,52 @@ Revert feature branch commits; never update DoD on failure; no merge.
 
 ---
 
+## QA Results
+
+**Reviewer:** adversarial-qa-auditor (Quinn) — independent of implementer `delivery-engineer`  
+**Date:** 2026-07-17T23:29:17Z  
+**Reviewed commit:** `ec407c9ee69a3d9cf6a9d38b1786274b986ce8d3`  
+**Cycle:** `cyc-2026-07-17T232427Z`  
+**Verdict:** **PASS**
+
+### Independent re-verification
+
+| Check | Result |
+|-------|--------|
+| `pytest -o addopts='' -q tests/unit/source_registry/test_promote_from_evidence.py` | **6 passed** |
+| `load_registry()` + `is_strict_operational` | **81 / 1093** (expect ~81) |
+| Session pack (MANIFEST + scale-result + contract-report) | **M2 5→81 (+76); pct=7.41; claims_95=false** |
+| Contract commercial vs coverage | **commercial kind=commercial_signal (116); M2 kind=coverage (81); headline_is_coverage=false** |
+| `claims_95_reached` / MANIFEST 95% | **false / NO** |
+| Forbidden seals (LOCAL_RESILIENCE / PRE_VPS / 95%) | **not claimed** |
+| DOD.md flip | **none** in commit |
+
+### AC
+
+| AC | Verdict |
+|----|---------|
+| AC1 M2 numerator increases by N>0 vs previous (5) | **PASS** — 5 → 81 (+76); independent recount 81 |
+| AC2 No 95% claim | **PASS** — 7.41% << 95; explicit non-claim |
+| AC3 commercial_signal separate | **PASS** — kind=commercial_signal; not coverage |
+
+### Residual (non-blocking)
+
+- Duplicate pncp source entries on some entities (prior promote path)
+- M2 still far from 95% (7.41%) — progress only; SLA decay risk
+- Offline synthetic reconcile inherited; not full PG proof
+
+**Gate file:** `squads/extra-dod-roi/state/qa/cyc-2026-07-17T232427Z-qa.json`  
+**Status:** remains **InReview** until @po close (QA does not set Done / publication).  
+**Next:** `PO_CLOSE`
+
+---
+
 ## Change Log
 
 | Date | Agent | Change |
 |------|-------|--------|
 | 2026-07-17 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
+| 2026-07-17 | @qa / adversarial-qa-auditor | Independent QA PASS on `ec407c9`; cycle IN_REVIEW→QA; gate file written |
 
 ---
 
