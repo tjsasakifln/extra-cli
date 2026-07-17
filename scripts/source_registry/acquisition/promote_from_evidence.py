@@ -471,8 +471,6 @@ def promote_from_crawl_artifacts(
 
     Does **not** claim 95%. Only advances entities with unique CNPJ root match.
     """
-    from scripts.source_registry.builder import persist_registry
-
     art = load_latest_crawl_evidence(source)
     if not art:
         return {
@@ -582,7 +580,7 @@ def promote_from_crawl_artifacts(
         if limit and len(fake_rows) >= limit:
             break
 
-    with _patch_fetch(fake_rows):
+    with _PatchFetch(fake_rows):
         summary = promote_from_pipeline_evidence(
             records,
             dsn=None,
@@ -605,14 +603,14 @@ def promote_from_crawl_artifacts(
     return summary
 
 
-class _patch_fetch:
+class _PatchFetch:
     """Context manager to inject offline evidence rows into promote_from_pipeline_evidence."""
 
     def __init__(self, rows: list[dict[str, Any]]) -> None:
         self.rows = rows
         self._orig = None
 
-    def __enter__(self) -> "_patch_fetch":
+    def __enter__(self) -> _PatchFetch:
         import scripts.source_registry.acquisition.promote_from_evidence as mod
 
         self._orig = mod.fetch_pipeline_evidence
