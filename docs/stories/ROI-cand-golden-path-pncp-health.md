@@ -2,7 +2,7 @@
 
 **Story ID:** `ROI-cand-golden-path-pncp-health`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** InReview  
+**Status:** Done  
 **Risk level:** **STANDARD**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-17T231812Z`)  
 **Candidate ID:** `cand-golden-path-pncp-health`  
@@ -131,11 +131,50 @@ Revert feature branch commits; never update DoD on failure; no merge.
 
 ---
 
+## QA Results
+
+**Reviewer:** adversarial-qa-auditor (Quinn) — independent of implementer `delivery-engineer`  
+**Date:** 2026-07-17T23:22:30Z  
+**Reviewed commit:** `7231be774515426c980ce1061863e03f0a74db59`  
+**Cycle:** `cyc-2026-07-17T231812Z`  
+**Verdict:** **PASS**
+
+### Independent re-verification
+
+| Check | Result |
+|-------|--------|
+| Session `MANIFEST.md` + `02-run.exit` | **GOLDEN_EXIT=1**; honest degraded documented |
+| `python3 scripts/golden_path.py --skip-freshness --skip-reports` | **exit 1** (PG unavailable; `fe_sendauth` / NAO respondeu) |
+| Latest ledger status | **failed** (`gp-20260717-202044`, `db_connectivity=fail`) |
+| `slice-result.json` | `claim_success=false`, `FAIL_CLOSED_DB_UNAVAILABLE` |
+| `pytest -o addopts='' -q tests/ -k golden_path` | **14 passed** |
+| Full green / PRE_VPS / live PNCP OK claims | **none** |
+
+### AC
+
+| AC | Verdict |
+|----|---------|
+| AC1 Reproducible golden path (pass or honest degraded) | **PASS** — exit 1 + ledger failed reproducible without PG |
+| AC2 No success claim on timeout/DB fail | **PASS** — fail-closed return 1; no success claim in canonical evidence |
+
+### Residual concerns
+
+1. **low** — `01-run.exit` has `GOLDEN_EXIT=0` while log shows DB fail; superseded by `02-run.exit=1` + independent re-run.
+2. **low** — Commit is evidence-pack only (no `scripts/golden_path.py` delta); behavior already present.
+3. **medium** — Live PNCP source health still not proven (needs PG + network); do not rebrand as operational green.
+
+### Gate
+
+**PASS** → next `@po` close (cycle phase QA → PO_CLOSE). Honest fail-closed is a valid AC outcome.
+
+---
+
 ## Change Log
 
 | Date | Agent | Change |
 |------|-------|--------|
 | 2026-07-17 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
+| 2026-07-17 | adversarial-qa-auditor (@qa) | Independent QA PASS; reviewed_commit 7231be7; InReview→Done |
 
 ---
 

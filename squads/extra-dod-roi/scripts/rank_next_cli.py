@@ -87,6 +87,11 @@ def apply_completion_filters(
             ["ROI-cand-post-merge-truth-gate-honesty"],
             "ROI-cand-post-merge-truth-gate-honesty Done with QA/PO",
         ),
+        (
+            "cand-golden-path-pncp-health",
+            ["ROI-cand-golden-path-pncp-health"],
+            "ROI-cand-golden-path-pncp-health Done with QA PASS + PO close",
+        ),
     ]
     by_id = {c["id"]: c for c in candidates}
     for cand_id, story_ids, reason in rules:
