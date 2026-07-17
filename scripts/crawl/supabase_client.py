@@ -56,7 +56,8 @@ async def sb_execute(query: Any) -> Any:
     Returns:
         Query result with .data attribute.
     """
-    sb = get_supabase()
+    # Ensure client is initialized (query object may depend on global client).
+    get_supabase()
     try:
         response = query.execute()
         return response

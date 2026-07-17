@@ -13,8 +13,8 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from scripts.crawl.metrics import POOL_ACTIVE_CONNECTIONS, POOL_WAITING_REQUESTS
 
@@ -82,11 +82,11 @@ class ConnectionPool:
             POOL_WAITING_REQUESTS.labels(pool_name=self.source_name).set(self._waiting)
 
         try:
-            acquired = await asyncio.wait_for(
+            await asyncio.wait_for(
                 self._semaphore.acquire(),
                 timeout=self.timeout,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             async with self._lock:
                 self._waiting -= 1
                 POOL_WAITING_REQUESTS.labels(pool_name=self.source_name).set(self._waiting)

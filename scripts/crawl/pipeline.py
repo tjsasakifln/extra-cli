@@ -14,9 +14,10 @@ from __future__ import annotations
 import asyncio
 import logging
 import traceback
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum, auto
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 logger = logging.getLogger(__name__)
 
@@ -293,7 +294,6 @@ class Pipeline:
         except StageError:
             raise  # Already a DLQ-routable error
         except Exception as exc:
-            tb = traceback.format_exc()
             logger.error("Pipeline [%s] FETCH unhandled: %s", self.source, exc)
             raise PipelineFailClosed(PipelineStage.FETCH, f"Fetch failed: {exc}", original=exc) from exc
 
@@ -487,7 +487,6 @@ class Pipeline:
         except PipelineFailClosed:
             raise
         except Exception as exc:
-            tb = traceback.format_exc()
             raise PipelineFailClosed(
                 PipelineStage.FETCH,
                 f"Pipeline unhandled error: {exc}",

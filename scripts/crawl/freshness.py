@@ -12,11 +12,10 @@ SLA thresholds defined in ``scripts.crawl.provenance.SOURCE_SLA``.
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
-from config.settings import DEFAULT_DSN
-from scripts.crawl.provenance import SOURCE_SLA, DEFAULT_SLA_HOURS
+from scripts.crawl.provenance import DEFAULT_SLA_HOURS, SOURCE_SLA
 
 logger = logging.getLogger(__name__)
 
@@ -83,8 +82,7 @@ def evaluate_freshness(conn: Any, source: str | None = None) -> dict[str, Source
         Dict mapping source name to SourceFreshness.
     """
     cur = conn.cursor()
-    sla = _get_sla(source) if source else DEFAULT_SLA_HOURS
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if source:
         cur.execute(
@@ -114,7 +112,7 @@ def evaluate_freshness(conn: Any, source: str | None = None) -> dict[str, Source
         level: FreshnessLevel = "unknown"
 
         if last_seen:
-            hours_since = (now - last_seen.replace(tzinfo=timezone.utc)).total_seconds() / 3600
+            hours_since = (now - last_seen.replace(tzinfo=UTC)).total_seconds() / 3600
             level = "fresh" if hours_since < sla_h else "stale"
         else:
             level = "never_crawled"

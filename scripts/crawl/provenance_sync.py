@@ -38,11 +38,10 @@ def _get_tracker() -> ProvenanceTracker:
 def _run_async(coro):
     """Execute a coroutine synchronously."""
     try:
-        loop = asyncio.get_running_loop()
+        asyncio.get_running_loop()
     except RuntimeError:
         return asyncio.run(coro)
 
-    import concurrent.futures
     import threading
 
     result: list[Any] = []
