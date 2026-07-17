@@ -2,14 +2,14 @@
   "results": [
     {
       "source": "sc_compras",
-      "status": "failed",
+      "status": "success",
       "fetched": 2602,
       "transformed": 2602,
-      "inserted": 0,
+      "inserted": 2602,
       "updated": 0,
       "duplicates": 0,
-      "matched": 0,
-      "unmatched": 0,
+      "matched": 2272,
+      "unmatched": 330,
       "ambiguous": 0,
       "new_entities_covered": 0,
       "classified_engineering": 0,
@@ -22,11 +22,11 @@
       "location_unconfirmed": 0,
       "opportunities_persisted": 0,
       "external_failures": 0,
-      "started_at": "2026-07-17T00:08:28.129268+00:00",
-      "completed_at": "2026-07-17T00:14:59.911491+00:00",
-      "duration_seconds": 0.0,
+      "started_at": "2026-07-17T00:09:07.964982+00:00",
+      "completed_at": "2026-07-17T00:09:15.662059+00:00",
+      "duration_seconds": 7.697101,
       "error_code": null,
-      "error_message": "Upsert failed: new row for relation \"pncp_raw_bids\" violates check constraint \"chk_pncp_raw_bids_esfera_id\"\nDETAIL:  Failing row contains (sc-41624, Contratação  de  empresa  especializada  para prestação    d..., null, 7, Dispensa de Licitação, E, SC, null, null, Secretaria de Estado da Educação - SED, null, 2023-12-13 00:00:00+00, null, 2023-12-12 00:00:00+00, https://compras.sc.gov.br/editais/41624, 002b18404593bdc57f2cc7197f48013f, null, sc_compras, sc-41624, null, 2026-07-17 00:14:59.790848+00, 2026-07-17 00:14:59.790848+00, t, null, null, null, null, null, null, null, sc-41624, null, null, null, f, null, null, null).\nCONTEXT:  SQL statement \"WITH src AS (\n        SELECT DISTINCT ON (rec->>'pncp_id')\n            rec->>'pncp_id' AS pncp_id,\n            COALESCE(rec->>'numero_controle_pncp', rec->>'pncp_id') AS numero_controle_pncp,\n            rec->>'objeto_compra' AS objeto_compra,\n            rec->>'informacao_complementar' AS informacao_complementar,\n            NULLIF(rec->>'valor_total_estimado', '')::NUMERIC AS valor_total_estimado,\n            NULLIF(rec->>'modalidade_id', '')::INTEGER AS modalidade_id,\n            rec->>'modalidade_nome' AS modalidade_nome,\n            rec->>'situacao_compra' AS situacao_compra,\n            rec->>'esfera_id' AS esfera_id,\n            rec->>'uf' AS uf,\n            rec->>'municipio' AS municipio,\n            rec->>'codigo_municipio_ibge' AS codigo_municipio_ibge,\n            rec->>'orgao_razao_social' AS orgao_razao_social,\n            rec->>'orgao_cnpj' AS orgao_cnpj,\n            rec->>'unidade_nome' AS unidade_nome,\n            NULLIF(rec->>'data_publicacao', '')::TIMESTAMPTZ AS data_publicacao,\n            NULLIF(rec->>'data_abertura', '')::TIMESTAMPTZ AS data_abertura,\n            NULLIF(rec->>'data_encerramento', '')::TIMESTAMPTZ AS data_encerramento,\n            rec->>'link_sistema_origem' AS link_sistema_origem,\n            rec->>'link_pncp' AS link_pncp,\n            rec->>'content_hash' AS content_hash,\n            COALESCE(rec->>'source', 'pncp') AS source,\n            rec->>'source_id' AS source_id,\n            rec->>'crawl_batch_id' AS crawl_batch_id,\n            NULLIF(rec->>'ano_compra', '')::INTEGER AS ano_compra,\n            NULLIF(rec->>'sequencial_compra', '')::INTEGER AS sequencial_compra,\n            COALESCE(NULLIF(rec->>'synthetic_id', '')::BOOLEAN, FALSE) AS synthetic_id,\n            rec->>'synthetic_id_reason' AS synthetic_id_reason,\n            rec->'raw_payload' AS raw_payload\n        FROM jsonb_array_elements(p_records) WITH ORDINALITY AS item(rec, ordinal)\n        WHERE NULLIF(rec->>'pncp_id', '') IS NOT NULL\n        ORDER BY rec->>'pncp_id', ordinal DESC\n    ),\n    changed AS (\n        INSERT INTO public.pncp_raw_bids (\n            pncp_id, numero_controle_pncp, objeto_compra, informacao_complementar,\n            valor_total_estimado, modalidade_id, modalidade_nome, situacao_compra,\n            esfera_id, uf, municipio, codigo_municipio_ibge, orgao_razao_social,\n            orgao_cnpj, unidade_nome, data_publicacao, data_abertura, data_encerramento,\n            link_sistema_origem, link_pncp, content_hash, source, source_id,\n            crawl_batch_id, ano_compra, sequencial_compra, synthetic_id,\n            synthetic_id_reason, raw_payload\n        )\n        SELECT\n            pncp_id, numero_controle_pncp, objeto_compra, informacao_complementar,\n            valor_total_estimado, modalidade_id, modalidade_nome, situacao_compra,\n            esfera_id, uf, municipio, codigo_municipio_ibge, orgao_razao_social,\n            orgao_cnpj, unidade_nome, data_publicacao, data_abertura, data_encerramento,\n            link_sistema_origem, link_pncp, content_hash, source, source_id,\n            crawl_batch_id, ano_compra, sequencial_compra, synthetic_id,\n            synthetic_id_reason, raw_payload\n        FROM src\n        ON CONFLICT (pncp_id) DO UPDATE SET\n            numero_controle_pncp = EXCLUDED.numero_controle_pncp,\n            objeto_compra = EXCLUDED.objeto_compra,\n            informacao_complementar = EXCLUDED.informacao_complementar,\n            valor_total_estimado = EXCLUDED.valor_total_estimado,\n            modalidade_id = EXCLUDED.modalidade_id,\n            modalidade_nome = EXCLUDED.modalidade_nome,\n            situacao_compra = EXCLUDED.situacao_compra,\n            esfera_id = EXCLUDED.esfera_id,\n            uf = EXCLUDED.uf,\n            municipio = EXCLUDED.municipio,\n            codigo_municipio_ibge = EXCLUDED.codigo_municipio_ibge,\n            orgao_razao_social = EXCLUDED.orgao_razao_social,\n            orgao_cnpj = EXCLUDED.orgao_cnpj,\n            unidade_nome = EXCLUDED.unidade_nome,\n            data_publicacao = EXCLUDED.data_publicacao,\n            data_abertura = EXCLUDED.data_abertura,\n            data_encerramento = EXCLUDED.data_encerramento,\n            link_sistema_origem = EXCLUDED.link_sistema_origem,\n            link_pncp = EXCLUDED.link_pncp,\n            content_hash = EXCLUDED.content_hash,\n            source = EXCLUDED.source,\n            source_id = EXCLUDED.source_id,\n            crawl_batch_id = EXCLUDED.crawl_batch_id,\n            ano_compra = EXCLUDED.ano_compra,\n            sequencial_compra = EXCLUDED.sequencial_compra,\n            synthetic_id = EXCLUDED.synthetic_id,\n            synthetic_id_reason = EXCLUDED.synthetic_id_reason,\n            raw_payload = EXCLUDED.raw_payload\n        WHERE public.pncp_raw_bids.content_hash IS DISTINCT FROM EXCLUDED.content_hash\n        RETURNING (xmax = 0) AS was_inserted\n    )\n    SELECT\n        COUNT(*) FILTER (WHERE was_inserted)::INTEGER,\n        COUNT(*) FILTER (WHERE NOT was_inserted)::INTEGER\n                                   FROM changed\"\nPL/pgSQL function upsert_pncp_raw_bids(jsonb) line 20 at SQL statement\n",
+      "error_message": null,
       "dependencies_missing": [],
       "warnings": [],
       "metadata": {}
@@ -35,9 +35,9 @@
   "summary": {
     "total_fetched": 2602,
     "total_transformed": 2602,
-    "total_inserted": 0,
+    "total_inserted": 2602,
     "total_updated": 0,
-    "total_matched": 0,
+    "total_matched": 2272,
     "total_classified_engineering": 0,
     "total_engineering_confirmed": 0,
     "total_engineering_probable": 0,
@@ -47,11 +47,11 @@
     "total_false_positive": 0,
     "total_persisted_opportunities": 0,
     "total_external_failures": 0,
-    "sources_success": 0,
+    "sources_success": 1,
     "sources_degraded": 0,
     "sources_empty": 0,
     "sources_skipped": 0,
-    "sources_failed": 1,
-    "generated_at": "2026-07-16T21:14:59.946483"
+    "sources_failed": 0,
+    "generated_at": "2026-07-16T21:09:15.696435"
   }
 }

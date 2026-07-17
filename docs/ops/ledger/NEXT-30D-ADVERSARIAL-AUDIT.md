@@ -30,7 +30,7 @@ checkpoint.total_windows_failed = 0
 | Baseline/workplan | **DONE** | `docs/ops/ledger/NEXT-30D-BASELINE.md`, `NEXT-30D-WORKPLAN.md` |
 | Golden fail-closed | **DONE** | `scripts/golden_path.py` + tests importing real code |
 | Schema audit | **DONE** | exit 0, `missing_required=[]` |
-| sc_compras | **DONE** | `output/sc_compras/runtime-next30d.json` fetched=2602 |
+| sc_compras | **DONE** | on-disk `runtime-next30d.json` **status=success**, fetched=inserted=2602 (re-restored from `ea78064` after concurrent failed re-run left status=failed); DB `pncp_raw_bids` where source=sc_compras = 2602 |
 | DOE-SC | **BLOCKED_EXTERNAL** | no creds; owner Tiago |
 | Contracts pilot terminal | **DONE** | on-disk JSON **status=success** (not running); checkpoint completed_windows≥1 |
 | Partial-window fix | **DONE** | `evaluate_window_completion` shipped + unit tests import it |
