@@ -1,0 +1,28 @@
+test:
+	@echo '==> [$(ENV)] Rodando testes (exceto slow) com cobertura'
+	pytest -m "not slow" --cov=$(SCRIPTS_DIR) --cov-report=term-missing
+
+.PHONY: test-all
+test-all:
+	@echo '==> [$(ENV)] Rodando todos os testes (inclui slow) com cobertura'
+	pytest --cov=$(SCRIPTS_DIR) --cov-report=term-missing
+
+.PHONY: resilient-smoke
+resilient-smoke:
+	python3 -m scripts.ops.validate_systemd
+	python3 -m pytest -o addopts='' -q \
+		tests/test_local_resilience.py \
+		tests/test_resilience_vertical_slice.py \
+		tests/test_fetch_result.py \
+		tests/test_crawler_pncp.py \
+		tests/test_sc_compras_crawler.py \
+		tests/test_ciga_dom_publications.py \
+		tests/test_dlq.py \
+		tests/test_watermark.py \
+		-m "not database and not slow"
+
+.PHONY: resilient-local-cycle
+resilient-local-cycle:
+	RESILIENCE_ENV=fixture RESILIENCE_REQUIRE_DB=0 RESILIENCE_PAGE_SIZE=1 RESILIENCE_REQUEST_DELAY=0 \
+		python3 -m scripts.ops.resilient_cycle --env fixture
+	# Fixture health may be green; live health must stay blocked without live evidence.
