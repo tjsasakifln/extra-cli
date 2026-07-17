@@ -2611,9 +2611,9 @@ Somente após aceite de QA/PO e publicação: checklist de provisionamento em
 
 | Campo | Valor |
 |---|---|
-| Gate local | `make resilience-gate` → 181 passed / 24 skipped |
-| Estado | `LOCAL_RESILIENCE_READY` (não VPS_OPERATIONAL) |
-| Branch de origem | `feat/local-resilience-ready-20260717` |
+| Gate local | `make pre-vps-final-gate-offline` + CI `resilience-gate` verde |
+| Estado | `NOT_READY` para `PRE_VPS_FINAL_READY` (selo antigo destruído) |
+| Branch de origem | `fix/pre-vps-final-truth-gate-20260717` |
 | HTML executivo | `extra-consultoria-plano-executivo.html` (gráficos real vs planejado) |
 | Documento de readiness | `docs/operations/PRE-VPS-READINESS.md` |
 
