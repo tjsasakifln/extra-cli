@@ -1,0 +1,31 @@
+{
+  "baseline": "52/1093 (4.76%)",
+  "final_db_covered": 138,
+  "final_pct": 12.63,
+  "delta_abs": 86,
+  "delta_pct_points": 7.87,
+  "radar_total": 2820,
+  "open_opportunities": 784,
+  "open_engineering": 95,
+  "open_with_url": 618,
+  "open_by_source": {
+    "sc_compras": 520,
+    "pncp_sc": 264
+  },
+  "source_entity_attribution": {
+    "db:dom_sc": 62,
+    "session:ciga_dom": 62,
+    "db:pcp": 14,
+    "db:pncp": 65,
+    "session:pncp_sc": 65,
+    "db:sc_compras": 37,
+    "db:compras_gov": 1,
+    "session:sc_compras": 9
+  },
+  "official_acts_total": 15738,
+  "artifacts": {
+    "ciga_dom": "/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T104504Z-a04e1e294b/publications.jsonl",
+    "sc_compras": "/mnt/d/extra consultoria/output/sc_compras/sc_compras-full-20260717T104504Z-17e01aabbe/licitacoes.jsonl",
+    "pncp_sc": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T105219Z-720727ae08/contratacoes.jsonl"
+  }
+}

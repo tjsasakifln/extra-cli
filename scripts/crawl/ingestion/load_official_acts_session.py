@@ -227,8 +227,14 @@ def map_sc_compras(rec: dict[str, Any], run_id: str) -> dict[str, Any]:
 
 
 def _latest_path(glob_pat: str) -> Path | None:
-    paths = sorted(_PROJECT_ROOT.glob(glob_pat), key=lambda p: p.stat().st_mtime)
-    return paths[-1] if paths else None
+    """Prefer largest non-empty artifact, then newest mtime (avoids empty incremental)."""
+    paths = [p for p in _PROJECT_ROOT.glob(glob_pat) if p.is_file()]
+    if not paths:
+        return None
+    non_empty = [p for p in paths if p.stat().st_size > 0]
+    pool = non_empty or paths
+    pool.sort(key=lambda p: (p.stat().st_size, p.stat().st_mtime), reverse=True)
+    return pool[0]
 
 
 def load_source(

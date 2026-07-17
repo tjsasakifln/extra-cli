@@ -1,0 +1,136 @@
+{
+  "session_date": "2026-07-17",
+  "generated_at": "2026-07-17T10:44:41.931080+00:00",
+  "head_sha": "84249471a3c0b53ea51d038207bfe4ffc4b4e966",
+  "branch": "epic/coverage-200km-operational",
+  "database_url_host": "127.0.0.1:5433",
+  "database_name": "pncp_datalake",
+  "counts": {
+    "official_acts": 2964,
+    "official_acts_by_source": {
+      "ciga_dom": 2454,
+      "dados_abertos_sc": 500,
+      "sc_compras": 10
+    },
+    "duplicate_groups": 0,
+    "entities_200km": 1093,
+    "entities_covered_200km": 52,
+    "has_opportunities": 0,
+    "entity_coverage_200km_with_bids": 52,
+    "entity_coverage_200km_total": 9837,
+    "entity_coverage_sum_bids": 2281
+  },
+  "errors": [],
+  "db_was_restarted": true,
+  "db_restart_note": "extraconsultoria-test-db-1 was Exited; started for session",
+  "tables_present": [
+    "_migrations",
+    "entity_coverage",
+    "official_acts",
+    "pipeline_runs",
+    "sc_public_entities"
+  ],
+  "migrations": [
+    {
+      "version": "051",
+      "status": "applied",
+      "applied_at": "2026-07-17 02:13:06.473959+00:00"
+    },
+    {
+      "version": "052",
+      "status": "applied",
+      "applied_at": "2026-07-17 02:33:49.409344+00:00"
+    }
+  ],
+  "related_tables": [
+    "capability_coverage",
+    "coverage_evidence",
+    "coverage_snapshots",
+    "engineering_opportunities",
+    "entity_aliases",
+    "entity_coverage",
+    "entity_hierarchy",
+    "official_act_classifications",
+    "official_act_links",
+    "official_act_matches",
+    "official_act_resources",
+    "official_act_source_links",
+    "official_acts",
+    "opportunity_checkpoints",
+    "opportunity_intel",
+    "opportunity_runs",
+    "pncp_raw_bids",
+    "v_capability_coverage_summary",
+    "v_coverage_evidence_expanded",
+    "v_coverage_gaps",
+    "v_coverage_gaps_by_municipio",
+    "v_coverage_health",
+    "v_coverage_manifest",
+    "v_coverage_summary",
+    "v_coverage_trend",
+    "v_entity_match_summary",
+    "v_hierarchical_coverage",
+    "v_official_acts_active",
+    "v_open_opportunities_canonical",
+    "v_opportunity_coverage_summary",
+    "v_opportunity_open",
+    "v_unmatched_bids"
+  ],
+  "entity_coverage_schema": [
+    {
+      "entity_id": "integer"
+    },
+    {
+      "source": "text"
+    },
+    {
+      "last_seen_at": "timestamp with time zone"
+    },
+    {
+      "total_bids": "integer"
+    },
+    {
+      "is_covered": "boolean"
+    },
+    {
+      "within_200km": "boolean"
+    },
+    {
+      "match_method": "text"
+    }
+  ],
+  "artifacts_exist": {
+    "dod": true,
+    "html": true,
+    "multi_source_latest": true,
+    "ciga_latest_summary": true,
+    "official_acts_load": true
+  },
+  "historical_coverage": {
+    "name": "historical_editais_raw_coverage",
+    "numerator": 52,
+    "denominator": 1093,
+    "formula": "entities_with_bids / total_entities_within_200km * 100",
+    "period": "snapshot as of 2026-07-17 (entity_coverage, radius 200 km FLN)",
+    "sources": [
+      "/mnt/d/extra consultoria/output/coverage/next30d-metrics-final.json",
+      "output/coverage/next30d-metrics-final.json",
+      "output/sc_compras/coverage-truth/coverage-truth-2026-07-16.json"
+    ],
+    "limitations": [
+      "PRESERVED historical metric. Denominator = target_universe entities within 200 km of Florianópolis (1093). Numerator = entities with ≥1 persisted bid in entity_coverage (52). This is NOT municipal publication coverage and must not be conflated with municipalities_with_publication_30d or multi-source artifact metrics produced by this module.",
+      "New multi-source metrics use different denominators (295 IBGE municipios, artifact-local org sets, API totals). Comparing them to 4.76% is invalid.",
+      "Evidence ledger was empty at truth generation; bid presence uses entity_coverage only."
+    ],
+    "calc_date": "2026-07-17",
+    "run_id": "20260717T023429Z-6e25d3f381",
+    "result": 4.76,
+    "result_unit": "pct",
+    "confidence": "high",
+    "preserved": true,
+    "canonical_result_pct": 4.76,
+    "do_not_overwrite": true,
+    "denominator_definition": "1093 = public entities in target universe within 200 km of Florianópolis",
+    "numerator_definition": "52 = entities with ≥1 persisted bid (entity_coverage.total_bids)"
+  }
+}

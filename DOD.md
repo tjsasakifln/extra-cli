@@ -2387,3 +2387,102 @@ Mesmo com cobertura de editais baixa no raio:
 - HTML: `extra-consultoria-plano-executivo.html` (painel “Trabalho financiado”)  
 - Repositório: https://github.com/tjsasakifln/extra-consultoria (`main`)
 
+---
+
+## 43. Sessão operacional — cobertura 200 km (2026-07-17)
+
+> **Branch:** `epic/coverage-200km-operational`  
+> **HEAD inicial:** `84249471a3c0b53ea51d038207bfe4ffc4b4e966`  
+> **Missão:** aumentar o numerador canônico de entidades cobertas no raio 200 km (denominador fixo **1.093**), com dados reais e claims honestos.  
+> **Evidência:** `output/session-2026-07-17/` · `coverage_canonical.json` · `COVERAGE_REPORT.md` · `session_summary.json`
+
+### 43.1 Resultado de cobertura (denominador inalterado)
+
+| Métrica | Valor | Notas |
+|---------|-------|-------|
+| Baseline histórico (pré-sessão) | **52 / 1.093 (4,76%)** | Preservado; metodologia anterior |
+| Cobertura pós-sessão (`entity_coverage.is_covered`) | **138 / 1.093 (12,63%)** | SQL live no PG local |
+| Delta absoluto | **+86 entidades** | +7,87 p.p. |
+| Listas nominais | cobertas + descobertas | `entities_covered.jsonl` / `entities_uncovered.jsonl` |
+
+**Fórmula canônica desta sessão:**  
+`COUNT(DISTINCT entity_id WHERE is_covered AND raio_200km) / 1093`.
+
+Fontes que entraram no numerador (atribução por `entity_coverage.source`):
+
+| Fonte | Entidades com is_covered | Evidência de sessão |
+|-------|--------------------------|---------------------|
+| `pncp` | 65 | PNCP SC focado (mod. 6) + resolução CNPJ/município |
+| `dom_sc` | 62 | CIGA DOM full jul/2026 → match prefeitura/município |
+| `sc_compras` | 37 | Ano 2026 integral 2.602 (órgãos estaduais) |
+| `pcp` / `compras_gov` | 14 / 1 | pré-existentes |
+
+### 43.2 Volume coletado e persistido
+
+| Fonte | Modo | Período | Registros | Persistidos `official_acts` | Erros / limitações | Run ID |
+|-------|------|---------|-----------|-----------------------------|--------------------|--------|
+| CIGA DOM-SC | full + incremental | pacote `domsc-publicacoes-de-07-2026` | **10.269** (full 15 ZIPs) / 2ª onda +10k mid-month | **12.636** (acumulado) | 0 falhas de resource | `ciga-dom-20260717T104504Z-a04e1e294b` |
+| Portal Compras SC | full list-only | ano 2026 | **2.602 / 2.602** API | **2.602** | sem CNPJ/município na listagem; detail não fan-out | `sc_compras-full-20260717T104504Z-17e01aabbe` |
+| Compras SC | incremental 2ª | checkpoint | **0 novos** | — | prova de não-duplicação (empty new) | `sc_compras-incremental-20260717T105219Z-41a1f57d62` |
+| PNCP SC focado | full + retry | 14d, UF=SC, mod 6 | **330** | via coverage match (não full upsert bids) | HTTP **429** em janelas finais | `pncp-sc-20260717T105219Z-720727ae08` |
+| DOE-SC | (prévio) | 2025 sample | 500 | 500 | sem expansão bulk 2026 no CKAN | pré-sessão |
+
+**Banco `official_acts`:** **15.738** atos · dups `(source, record_hash)` = **0** · migrations 051/052 aplicadas.
+
+### 43.3 Oportunidades comerciais (radar)
+
+Artefato: `output/session-2026-07-17/radar_opportunities.jsonl` (**2.820** linhas)
+
+| Status canônico | Qtd |
+|-----------------|-----|
+| OPEN_OPPORTUNITY | **784** |
+| UPCOMING_OPPORTUNITY | 8 |
+| RECENT_NOTICE | 1.931 |
+| OTHER_PROCUREMENT_ACT | 97 |
+
+| Filtro engenharia | Qtd |
+|-------------------|-----|
+| OPEN + setor engenharia/construção | **95** |
+| OPEN com URL/documento | **618** |
+| Setores (amostra): obras_civis, pavimentação, saneamento, manutenção predial, infra urbana | ver radar |
+
+Classificadores: `scripts/coverage/commercial_status.py`, `scripts/coverage/sector_engineering.py` · testes `tests/test_commercial_status.py` (8 PASS no subset).
+
+### 43.4 Reconciliação
+
+- Sample 200: regra dominante ainda `compras_sc_id_crosswalk` (local) — **não** é número de controle PNCP oficial.  
+- **0** claim de match PNCP oficial por número de controle nesta sessão.  
+- Divergências de data na amostra: presentes; documentos frequentemente ausentes na listagem Compras SC.
+
+### 43.5 Claims permitidos
+
+1. Cobertura canônica no raio **subiu de 52 para 138 / 1.093 (12,63%)** com listas nominais.  
+2. CIGA processou **ordem de grandeza superior ao smoke** (10k+ pubs; 12.636 atos CIGA no banco).  
+3. Compras SC **2.602/2.602** do totalElementos 2026 em list-only.  
+4. Radar com **784** oportunidades abertas classificadas; **95** abertas + engenharia.  
+5. Upsert de atos idempotente (0 grupos duplicados).  
+6. Classificador comercial + filtro setorial determinísticos com testes.
+
+### 43.6 Claims proibidos
+
+1. **95%** de cobertura editais/contratos.  
+2. **LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE**.  
+3. Piloto nacional PNCP 90d completo.  
+4. PNCP SC “completo” nos 14 dias (429 parcial).  
+5. Match por número PNCP oficial massivo.  
+6. Operação diária autônoma em VPS.  
+7. Que todo ato CIGA seja edital aberto (muitos são atas/homologações — filtrados no radar).
+
+### 43.7 Gargalo único residual
+
+**Ainda há 955 entidades do universo 1.093 sem oportunidade/edital matchado** (87,37% descobertas). Próximo alívio: (1) enriquecer Compras SC com detail/CNPJ; (2) retomar PNCP SC com backoff após 429; (3) expandir resolução de órgãos CIGA além de prefeituras (câmaras, autarquias); (4) VPS para rotina.
+
+### 43.8 Código e pipeline entregues nesta sessão
+
+- `scripts/coverage/commercial_status.py`
+- `scripts/coverage/sector_engineering.py`
+- `scripts/coverage/session_coverage_pipeline.py`
+- `scripts/crawl/pncp_sc_focused.py`
+- `scripts/ingestion/load_official_acts_session.py` (preferência de artefato não-vazio)
+- `tests/test_commercial_status.py`
+

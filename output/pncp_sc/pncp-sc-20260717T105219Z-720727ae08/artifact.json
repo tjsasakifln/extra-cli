@@ -1,0 +1,43 @@
+{
+  "run_id": "pncp-sc-20260717T105219Z-720727ae08",
+  "source": "pncp_sc",
+  "mode": "full",
+  "status": "ok",
+  "period": {
+    "start": "2026-07-03",
+    "end": "2026-07-17",
+    "days": 14
+  },
+  "records_written": 330,
+  "stats": {
+    "windows": 8,
+    "pages": 13,
+    "fetched": 330,
+    "new": 330,
+    "skipped_dup": 0,
+    "http_errors": 6,
+    "by_modalidade": {
+      "6": 330
+    }
+  },
+  "errors_sample": [
+    "2026-07-07_2026-07-08_m6:p4:HTTP 429",
+    "2026-07-09_2026-07-10_m6:p1:HTTP 429",
+    "2026-07-11_2026-07-12_m6:p1:HTTP 429",
+    "2026-07-13_2026-07-14_m6:p1:HTTP 429",
+    "2026-07-15_2026-07-16_m6:p1:HTTP 429",
+    "2026-07-17_2026-07-17_m6:p1:HTTP 429"
+  ],
+  "jsonl_path": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T105219Z-720727ae08/contratacoes.jsonl",
+  "evidence_path": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T105219Z-720727ae08/evidence.json",
+  "output_sha256": "93addc966c9c0ee549e8ce874307ee1f5431097d0926156a9e61e61e359a5372",
+  "claims_allowed": [
+    "sc_uf_filter_live_fetch",
+    "records_written_this_run",
+    "checkpoint_window_resume"
+  ],
+  "claims_forbidden": [
+    "national_90d_complete",
+    "full_pncp_historical_sc"
+  ]
+}
