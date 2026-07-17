@@ -720,7 +720,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Data da última verificação.
 - [ ] Valor estimado quando disponível.
 - [ ] Município ou abrangência.
-- [x] Classificação AEC.
+- [ ] Classificação AEC.
 - [ ] Justificativa do score.
 - [ ] Indicador de dados incompletos.
 - [ ] Completude dos campos essenciais >= 95%.
@@ -980,7 +980,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Classificação AEC.
 - [x] Regras de score.
 - [ ] Semântica de valores.
-- [x] Encadeamento edital-contrato.
+- [ ] Encadeamento edital-contrato. `PARTIAL` — unit match rules only; not live edital→contrato chain.
 - [x] Geração de manifest.
 - [x] Geração de relatórios.
 
@@ -1097,7 +1097,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ---
 
-> **Evidence pack (2026-07-17):** unit-test evidence `docs/ops/session-2026-07-17-dod-unit-evidence/` — 20 §13/§3 checkboxes closed after independent QA PASS (ROI-cand-dod-unit-test-evidence-pack). pytest 511 passed. No 95% ops claim.
+> **Evidence pack (2026-07-17, adversarial-corrected):** unit-test evidence `docs/ops/session-2026-07-17-dod-unit-evidence/` — **18** §13.1/§3 checkboxes closed after independent QA PASS + adversarial review (ROI-cand-dod-unit-test-evidence-pack). pytest 511 passed. **Partial evidence kept open (no `[x]`):** Classificação AEC; Encadeamento edital-contrato. §8.3 Classificação AEC remains open (not unit-test scope). Unit tests do **not** prove live ops or e2e. No 95% / LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY / VPS_OPERATIONAL / PROJECT_DONE claim.
 # ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS
 
 > Este rol começa após a contratação e disponibilização da VPS.

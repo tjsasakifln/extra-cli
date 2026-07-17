@@ -11,9 +11,7 @@ Checkpoint.
 Resume.
 Deduplicação.
 Classificação de status.
-Classificação AEC.
 Regras de score.
-Encadeamento edital-contrato.
 Geração de manifest.
 Geração de relatórios.
 O baseline atual de 1.093 entes é confirmado para a versão corrente da planilha.

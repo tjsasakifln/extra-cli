@@ -7,7 +7,7 @@
 
 ## Rule
 
-Only mark DoD `[x]` when (1) mapping below says HIGH confidence, (2) pack re-run exit 0, (3) independent QA PASS. No 95% ops claims.
+Only mark DoD `[x]` when (1) mapping below says HIGH confidence (**not** PARTIAL), (2) pack re-run exit 0, (3) independent QA PASS. PARTIAL stays `[ ]` per DOD § process rules. Unit tests ≠ live/e2e. No 95% / READY ops claims.
 
 ## Mapping (checkbox → proof)
 
@@ -26,9 +26,9 @@ Only mark DoD `[x]` when (1) mapping below says HIGH confidence, (2) pack re-run
 | Resume | test_local_resilience checkpoint resume + 429 resume |
 | Deduplicação | test_opportunity_dedup |
 | Classificação de status | test_opportunity_status, test_commercial_status |
-| Classificação AEC (parcial) | test_pncp_contract engineering class, test_commercial_status sector |
+| Classificação AEC (parcial) — **kept `[ ]`** | test_pncp_contract engineering class, test_commercial_status sector |
 | Regras de score | test_opportunity_ranking, test_qw01 score dimensions |
-| Encadeamento edital-contrato (parcial) | test_official_acts_reconcile match rules |
+| Encadeamento edital-contrato (parcial) — **kept `[ ]`** | test_official_acts_reconcile match rules |
 | Geração de manifest | test_coverage_manifest |
 | Geração de relatórios | test_commercial_sample_sc build_report, test_coverage_calculator print |
 | Baseline 1093 / CSV seed | test_universe constant, test_builder 1093 records, test_coverage_contract denominator |
@@ -64,3 +64,10 @@ pytest -o addopts='' -q \
   tests/test_entity_resolver.py
 # → 511 passed, 12 skipped, exit 0
 ```
+
+## Authorized closed count (adversarial review 2026-07-17)
+
+- **18** checkboxes marked `[x]` (16 × §13.1 + 2 × §3).
+- **2** partial items remain open: Classificação AEC; Encadeamento edital-contrato.
+- Accidental §8.3 Classificação AEC flip **reverted** (out of unit-test scope; §8–12 live).
+- See `proposed-flips.txt` (18 lines).
