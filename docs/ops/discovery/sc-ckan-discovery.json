@@ -1,0 +1,1986 @@
+{
+  "timestamp": "2026-07-17T01:19:44.699501+00:00",
+  "mission": "SC public CKAN discovery (Dados Abertos SC + CIGA + DOM portals)",
+  "method": "GET-only urllib, User-Agent Extra-Consultoria/1.0, no credentials, no captcha bypass",
+  "summary": {
+    "dados_sc_action_api_public": true,
+    "ciga_action_api_public": true,
+    "dom_portal_html_reachable": true,
+    "doe_portal_html_reachable": true,
+    "doe_authenticated_api_still_required_for_live_search": true,
+    "doe_ckan_bulk_publications_public": true,
+    "working_count": 55,
+    "failing_count": 0,
+    "key_packages": {
+      "dados.sc.gov.br": [
+        "diario-oficial-sc-publicacoes",
+        "diario-oficial-sc-edicoes",
+        "licitacoes-pregao-eletronico",
+        "licitacoes-editais",
+        "plano_contratacoes",
+        "contratos",
+        "covid19-contratos-emergenciais"
+      ],
+      "dados.ciga.sc.gov.br": [
+        "domsc-publicacoes-de-07-2026",
+        "domsc-publicacoes-de-06-2026",
+        "domsc-publicacoes-de-05-2026"
+      ]
+    },
+    "notes": [
+      "Action API /api/3/action/* is fully public on both portals (no token).",
+      "Package diario-oficial-sc-publicacoes has 28 resources (CSV/XLSX 2012-2025) hosted at portal.doe.sea.sc.gov.br/repositorio/dadosabertos/.",
+      "datastore_search not available for DOE bulk resources (datastore_active=null); use direct file download URLs.",
+      "q=licita returns count=0; prefer q=compras, q=licitacoes, q=contratos, q=diario.",
+      "CIGA hosts monthly DOM-SC packages (ZIP with autopublicacoes JSON); crawler scripts/crawl/ciga_ckan_crawler.py already covers this.",
+      "DOE-SC authenticated REST (portal.doe.sea.sc.gov.br/apis/doe-api with Bearer) remains useful for near-real-time search; CKAN bulk is complement for historical/open reuse.",
+      "Write/admin CKAN endpoints would need tokens — NOT probed; public read Action API works without auth (do NOT mark BLOCKED_EXTERNAL)."
+    ]
+  },
+  "working_endpoints": [
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_show",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=diario-oficial-sc-publicacoes",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 28,
+      "notes": "title=Diário Oficial SC - Publicações; org=sea"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_show",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=diario-oficial-sc-edicoes",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-edicoes"
+      ],
+      "resource_count": 2,
+      "notes": "title=Diário Oficial SC - Edições; org=sea"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_show",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=licitacoes-pregao-eletronico",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "licitacoes-pregao-eletronico"
+      ],
+      "resource_count": 1,
+      "notes": "title=Licitações - Pregão Eletrônico; org=sea"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_show",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=licitacoes-editais",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "licitacoes-editais"
+      ],
+      "resource_count": 1,
+      "notes": "title=Licitações - Editais; org=sea"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_show",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=plano_contratacoes",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "plano_contratacoes"
+      ],
+      "resource_count": 13,
+      "notes": "title=Plano de Contratações Anual; org=sea"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_show",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=covid19-contratos-emergenciais",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "covid19-contratos-emergenciais"
+      ],
+      "resource_count": 6,
+      "notes": "title=COVID19 - Contratos Emergenciais; org=sea"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=4474ed90-b639-4e77-8fba-c439b30643f8",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2012.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=b010ca8d-bcaa-4b48-87a8-5874a181a0ac",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2012.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=b1b0e007-4f86-40a1-aaaf-5b37a9d628d8",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2013.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=97893be4-480a-49b0-a381-4b1387bb5d1b",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2013.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=18143158-d867-4eaa-b228-8324f70d1f5d",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2014.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=fff4f370-f657-4e3f-9995-22fcf99376ff",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2014.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=2234c223-572a-485e-8276-cf13d8be1d2e",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2015.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=3e901433-6f29-4ae6-bdf5-a1411769147f",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2015.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=6cab360d-4e29-41e5-bf6e-15a32da01209",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2016.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=a9919442-c9be-49b4-a655-b08475b2a5db",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2016.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=eddae1ac-bb15-42b9-a883-26b19967b38f",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2017.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=22e9e4e6-83e0-43f8-95c3-67660e1e6b42",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2017.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=21ee28c1-d127-44ea-85a7-9738faa99591",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2018.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=b8ac7246-72af-41f6-bf2f-866a52645b2c",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2018.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=b37f5713-0008-4366-98d3-e5ba7b8f206f",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2019.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=288ac4be-6673-4b12-9a9b-43d415d6055f",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2019.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=a27b4999-1c3f-4d3f-92c1-76aec2daa43c",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2020.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=7426c5d4-e14d-4344-9b9d-2f0f4e3d8bb6",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2020.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=0f574a05-5bf5-4af7-bffd-01200ac25ed7",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2021.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=fe84d755-cde9-473d-a83e-25f0225bfae4",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2021.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=21eef73f-417a-4e69-95ff-70d631b2cede",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2022.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=c6dd24aa-1d75-4963-ae36-b1b7180c59b1",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2022.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=5ed1ade4-f34c-4dda-8120-631209d0cd8b",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2023.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=c6073cd0-7df1-4845-820b-fe92a1e24953",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2023.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=3d0df042-bd80-4c16-ae4f-cfb1951a8a8f",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2024.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=1d0c99e8-56e2-4364-a211-67bd7c5805f0",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2024.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=c160b993-f754-45e9-8a3f-c19e4dfcc200",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2025.xlsx; format=XLSX; datastore_active=None"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "resource_show",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=0f2223f5-df6c-4860-96d6-f25636107379",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "notes": "name=publicacoes_2025.csv; format=CSV; datastore_active=None"
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "endpoint": "package_search",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_search?q=domsc-publicacoes&rows=3&sort=metadata_modified+desc",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "domsc-publicacoes-de-07-2026",
+        "domsc-publicacoes-de-06-2026",
+        "domsc-publicacoes-de-05-2026"
+      ],
+      "resource_count": 44,
+      "notes": "sorted by metadata_modified desc"
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "endpoint": "package_show",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_show?id=domsc-publicacoes-de-07-2026",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "domsc-publicacoes-de-07-2026"
+      ],
+      "resource_count": 44,
+      "notes": "sample recent DOM-SC month package"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_search_q=licitações",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=licita%C3%A7%C3%B5es&rows=5",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "licitacoes-deinfra",
+        "licitacoes-editais",
+        "licitacoes-pregao-eletronico",
+        "empresas-inidoneas-e-suspensas",
+        "covid-19-orientacoes-para-dispensa-de-licitacao"
+      ],
+      "resource_count": null,
+      "notes": "count=9"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_search_q=licitacao",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=licitacao&rows=5",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "covid-19-orientacoes-para-dispensa-de-licitacao",
+        "licitacoes-editais",
+        "covid-19-contratos-emergenciais-saude1",
+        "covid19-contratos-emergenciais",
+        "acesso-a-informacao-banco-de-decisoes-cge-oge"
+      ],
+      "resource_count": null,
+      "notes": "count=6"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_search_q=contratos",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=contratos&rows=5",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "contratos",
+        "covid-19-contratos-sigef",
+        "covid19-contratos-emergenciais",
+        "covid-19-contratos-emergenciais-saude1",
+        "licitacoes-deinfra"
+      ],
+      "resource_count": null,
+      "notes": "count=20"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_search_q=pregao",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=pregao&rows=5",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "licitacoes-pregao-eletronico",
+        "acesso-a-informacao-banco-de-decisoes-cge-oge"
+      ],
+      "resource_count": null,
+      "notes": "count=2"
+    },
+    {
+      "source": "dom_or_doe_portal",
+      "endpoint": "html_page",
+      "url": "https://www.diariomunicipal.sc.gov.br/",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "notes": "DOM-SC portal home; content_type=text/html; charset=UTF-8; bytes=2000; title_hint=b'<!DOCTYPE html>\\n<html>\\n\\n<head>\\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\\n    <meta name=\"language\" content=\"'"
+    },
+    {
+      "source": "dom_or_doe_portal",
+      "endpoint": "html_page",
+      "url": "https://diariomunicipal.sc.gov.br/",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "notes": "DOM-SC alt host; content_type=text/html; charset=UTF-8; bytes=2000; title_hint=b'<!DOCTYPE html>\\n<html>\\n\\n<head>\\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\\n    <meta name=\"language\" content=\"'"
+    },
+    {
+      "source": "dom_or_doe_portal",
+      "endpoint": "html_page",
+      "url": "https://portal.doe.sea.sc.gov.br/",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "notes": "DOE-SC portal home; content_type=text/html; bytes=2000; title_hint=b'<!DOCTYPE html>\\r\\n<html lang=\"en\">\\r\\n<head>\\r\\n    <meta charset=\"UTF-8\">\\r\\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\\r\\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1'"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_search_diario",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=diario&rows=10",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-edicoes",
+        "diario-oficial-sc-publicacoes",
+        "covid-19-boletim",
+        "politica-de-transparencia-e-dados-abertos",
+        "covid-19-leis-estaduais"
+      ],
+      "resource_count": 2,
+      "notes": "{\"ckan_success\": true, \"count\": 7, \"sample_ids\": [\"diario-oficial-sc-edicoes\", \"diario-oficial-sc-publicacoes\", \"covid-19-boletim\", \"politica-de-transparencia-e-dados-abertos\", \"covid-19-leis-estaduais\"], \"sample_titles\": [\"Diário Oficial SC - Edições\", \"Diário Oficial SC - Publicações\", \"COVID-19 -"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_search_compras",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=compras&rows=10",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "licitacoes-pregao-eletronico",
+        "licitacoes-editais",
+        "plano_contratacoes",
+        "programa-sc-governo-aberto",
+        "covid19-contratos-emergenciais"
+      ],
+      "resource_count": 1,
+      "notes": "{\"ckan_success\": true, \"count\": 8, \"sample_ids\": [\"licitacoes-pregao-eletronico\", \"licitacoes-editais\", \"plano_contratacoes\", \"programa-sc-governo-aberto\", \"covid19-contratos-emergenciais\"], \"sample_titles\": [\"Licitações - Pregão Eletrônico\", \"Licitações - Editais\", \"Plano de Contratações Anual\"], \""
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_search_licita",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=licita&rows=10",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "notes": "{\"ckan_success\": true, \"count\": 0, \"sample_ids\": [], \"sample_titles\": []}"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "status_show",
+      "url": "https://dados.sc.gov.br/api/3/action/status_show",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "notes": "{\"ckan_success\": true, \"sample_ids\": [], \"sample_titles\": []}"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "site_read",
+      "url": "https://dados.sc.gov.br/api/3/action/site_read",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "notes": "{\"ckan_success\": true, \"result_type\": \"bool\"}"
+    },
+    {
+      "source": "www.dados.sc.gov.br",
+      "endpoint": "package_search_diario",
+      "url": "https://www.dados.sc.gov.br/api/3/action/package_search?q=diario&rows=5",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "diario-oficial-sc-edicoes",
+        "diario-oficial-sc-publicacoes",
+        "covid-19-boletim",
+        "politica-de-transparencia-e-dados-abertos",
+        "covid-19-leis-estaduais"
+      ],
+      "resource_count": 2,
+      "notes": "{\"ckan_success\": true, \"count\": 7, \"sample_ids\": [\"diario-oficial-sc-edicoes\", \"diario-oficial-sc-publicacoes\", \"covid-19-boletim\", \"politica-de-transparencia-e-dados-abertos\", \"covid-19-leis-estaduais\"], \"sample_titles\": [\"Diário Oficial SC - Edições\", \"Diário Oficial SC - Publicações\", \"COVID-19 -"
+    },
+    {
+      "source": "www.dados.sc.gov.br",
+      "endpoint": "status_show",
+      "url": "https://www.dados.sc.gov.br/api/3/action/status_show",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "notes": "{\"ckan_success\": true, \"sample_ids\": [], \"sample_titles\": []}"
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "endpoint": "package_search_domsc",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_search?q=domsc&rows=5",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "domsc-autopublicacoes-de-05-2022",
+        "domsc-autopublicacoes-de-02-2022",
+        "domsc-publicacoes-de-02-2022",
+        "domsc-edicoes-de-02-2024",
+        "domsc-edicoes-de-02-2022"
+      ],
+      "resource_count": 1,
+      "notes": "{\"ckan_success\": true, \"count\": 428, \"sample_ids\": [\"domsc-autopublicacoes-de-05-2022\", \"domsc-autopublicacoes-de-02-2022\", \"domsc-publicacoes-de-02-2022\", \"domsc-edicoes-de-02-2024\", \"domsc-edicoes-de-02-2022\"], \"sample_titles\": [\"Autopublicações de 05/2022\", \"Autopublicações de 02/2022\", \"Publicaç"
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "endpoint": "status_show",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/status_show",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "notes": "{\"ckan_success\": true, \"sample_ids\": [], \"sample_titles\": []}"
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "endpoint": "package_search_diario",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_search?q=diario&rows=5",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "domsc-autopublicacoes-de-05-2022",
+        "autopublicacoes-de-12-2020",
+        "domsc-autopublicacoes-de-02-2022",
+        "domsc-publicacoes-de-02-2022",
+        "domsc-edicoes-de-02-2024"
+      ],
+      "resource_count": 1,
+      "notes": "{\"ckan_success\": true, \"count\": 519, \"sample_ids\": [\"domsc-autopublicacoes-de-05-2022\", \"autopublicacoes-de-12-2020\", \"domsc-autopublicacoes-de-02-2022\", \"domsc-publicacoes-de-02-2022\", \"domsc-edicoes-de-02-2024\"], \"sample_titles\": [\"Autopublicações de 05/2022\", \"Autopublicações de 12/2020\", \"Autopu"
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "endpoint": "package_list",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_list?limit=20",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "autopublicacoes-de-01-2021",
+        "autopublicacoes-de-01-2022",
+        "autopublicacoes-de-02-2021",
+        "autopublicacoes-de-02-2022",
+        "autopublicacoes-de-03-2021",
+        "autopublicacoes-de-04-2021",
+        "autopublicacoes-de-05-2021",
+        "autopublicacoes-de-06-2021"
+      ],
+      "resource_count": null,
+      "notes": "{\"ckan_success\": true, \"list_len\": 20, \"sample\": [\"autopublicacoes-de-01-2021\", \"autopublicacoes-de-01-2022\", \"autopublicacoes-de-02-2021\", \"autopublicacoes-de-02-2022\", \"autopublicacoes-de-03-2021\", \"autopublicacoes-de-04-2021\", \"autopublicacoes-de-05-2021\", \"autopublicacoes-de-06-2021\", \"autopubli"
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "endpoint": "package_list",
+      "url": "https://dados.sc.gov.br/api/3/action/package_list?limit=20",
+      "http_status": 200,
+      "auth_required": false,
+      "sample_dataset_ids": [
+        "acesso-a-informacao-banco-de-decisoes-cge-oge",
+        "acesso-a-informacao-decisoes-cmai",
+        "acesso-a-informacao-decisoes-recursais-cge-sc",
+        "arrecadacao-municipios",
+        "arrecadacao-setor-economico",
+        "avaliacao-educacional",
+        "balanco-geral-do-estado",
+        "bensimoveis"
+      ],
+      "resource_count": null,
+      "notes": "{\"ckan_success\": true, \"list_len\": 20, \"sample\": [\"acesso-a-informacao-banco-de-decisoes-cge-oge\", \"acesso-a-informacao-decisoes-cmai\", \"acesso-a-informacao-decisoes-recursais-cge-sc\", \"arrecadacao-municipios\", \"arrecadacao-setor-economico\", \"avaliacao-educacional\", \"balanco-geral-do-estado\", \"bensi"
+    }
+  ],
+  "failing_endpoints": [],
+  "probes": [
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=diario-oficial-sc-publicacoes",
+      "endpoint": "package_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "title=Diário Oficial SC - Publicações; org=sea",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 28,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=diario-oficial-sc-edicoes",
+      "endpoint": "package_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "title=Diário Oficial SC - Edições; org=sea",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-edicoes"
+      ],
+      "resource_count": 2,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=licitacoes-pregao-eletronico",
+      "endpoint": "package_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "title=Licitações - Pregão Eletrônico; org=sea",
+      "sample_dataset_ids": [
+        "licitacoes-pregao-eletronico"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=licitacoes-editais",
+      "endpoint": "package_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "title=Licitações - Editais; org=sea",
+      "sample_dataset_ids": [
+        "licitacoes-editais"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=plano_contratacoes",
+      "endpoint": "package_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "title=Plano de Contratações Anual; org=sea",
+      "sample_dataset_ids": [
+        "plano_contratacoes"
+      ],
+      "resource_count": 13,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_show?id=covid19-contratos-emergenciais",
+      "endpoint": "package_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "title=COVID19 - Contratos Emergenciais; org=sea",
+      "sample_dataset_ids": [
+        "covid19-contratos-emergenciais"
+      ],
+      "resource_count": 6,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=4474ed90-b639-4e77-8fba-c439b30643f8",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2012.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=b010ca8d-bcaa-4b48-87a8-5874a181a0ac",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2012.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=b1b0e007-4f86-40a1-aaaf-5b37a9d628d8",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2013.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=97893be4-480a-49b0-a381-4b1387bb5d1b",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2013.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=18143158-d867-4eaa-b228-8324f70d1f5d",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2014.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=fff4f370-f657-4e3f-9995-22fcf99376ff",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2014.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=2234c223-572a-485e-8276-cf13d8be1d2e",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2015.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=3e901433-6f29-4ae6-bdf5-a1411769147f",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2015.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=6cab360d-4e29-41e5-bf6e-15a32da01209",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2016.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=a9919442-c9be-49b4-a655-b08475b2a5db",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2016.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=eddae1ac-bb15-42b9-a883-26b19967b38f",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2017.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=22e9e4e6-83e0-43f8-95c3-67660e1e6b42",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2017.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=21ee28c1-d127-44ea-85a7-9738faa99591",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2018.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=b8ac7246-72af-41f6-bf2f-866a52645b2c",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2018.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=b37f5713-0008-4366-98d3-e5ba7b8f206f",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2019.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=288ac4be-6673-4b12-9a9b-43d415d6055f",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2019.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=a27b4999-1c3f-4d3f-92c1-76aec2daa43c",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2020.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=7426c5d4-e14d-4344-9b9d-2f0f4e3d8bb6",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2020.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=0f574a05-5bf5-4af7-bffd-01200ac25ed7",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2021.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=fe84d755-cde9-473d-a83e-25f0225bfae4",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2021.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=21eef73f-417a-4e69-95ff-70d631b2cede",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2022.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=c6dd24aa-1d75-4963-ae36-b1b7180c59b1",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2022.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=5ed1ade4-f34c-4dda-8120-631209d0cd8b",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2023.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=c6073cd0-7df1-4845-820b-fe92a1e24953",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2023.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=3d0df042-bd80-4c16-ae4f-cfb1951a8a8f",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2024.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=1d0c99e8-56e2-4364-a211-67bd7c5805f0",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2024.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=c160b993-f754-45e9-8a3f-c19e4dfcc200",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2025.xlsx; format=XLSX; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/resource_show?id=0f2223f5-df6c-4860-96d6-f25636107379",
+      "endpoint": "resource_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "name=publicacoes_2025.csv; format=CSV; datastore_active=None",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-publicacoes"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_search?q=domsc-publicacoes&rows=3&sort=metadata_modified+desc",
+      "endpoint": "package_search",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "sorted by metadata_modified desc",
+      "sample_dataset_ids": [
+        "domsc-publicacoes-de-07-2026",
+        "domsc-publicacoes-de-06-2026",
+        "domsc-publicacoes-de-05-2026"
+      ],
+      "resource_count": 44,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_show?id=domsc-publicacoes-de-07-2026",
+      "endpoint": "package_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "sample recent DOM-SC month package",
+      "sample_dataset_ids": [
+        "domsc-publicacoes-de-07-2026"
+      ],
+      "resource_count": 44,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=licita%C3%A7%C3%B5es&rows=5",
+      "endpoint": "package_search_q=licitações",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "count=9",
+      "sample_dataset_ids": [
+        "licitacoes-deinfra",
+        "licitacoes-editais",
+        "licitacoes-pregao-eletronico",
+        "empresas-inidoneas-e-suspensas",
+        "covid-19-orientacoes-para-dispensa-de-licitacao"
+      ],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=licitacao&rows=5",
+      "endpoint": "package_search_q=licitacao",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "count=6",
+      "sample_dataset_ids": [
+        "covid-19-orientacoes-para-dispensa-de-licitacao",
+        "licitacoes-editais",
+        "covid-19-contratos-emergenciais-saude1",
+        "covid19-contratos-emergenciais",
+        "acesso-a-informacao-banco-de-decisoes-cge-oge"
+      ],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=contratos&rows=5",
+      "endpoint": "package_search_q=contratos",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "count=20",
+      "sample_dataset_ids": [
+        "contratos",
+        "covid-19-contratos-sigef",
+        "covid19-contratos-emergenciais",
+        "covid-19-contratos-emergenciais-saude1",
+        "licitacoes-deinfra"
+      ],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=pregao&rows=5",
+      "endpoint": "package_search_q=pregao",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "count=2",
+      "sample_dataset_ids": [
+        "licitacoes-pregao-eletronico",
+        "acesso-a-informacao-banco-de-decisoes-cge-oge"
+      ],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": null
+    },
+    {
+      "source": "dom_or_doe_portal",
+      "url": "https://www.diariomunicipal.sc.gov.br/",
+      "endpoint": "html_page",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "html",
+      "notes": "DOM-SC portal home; content_type=text/html; charset=UTF-8; bytes=2000; title_hint=b'<!DOCTYPE html>\\n<html>\\n\\n<head>\\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\\n    <meta name=\"language\" content=\"'",
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": null,
+      "elapsed_s": null
+    },
+    {
+      "source": "dom_or_doe_portal",
+      "url": "https://diariomunicipal.sc.gov.br/",
+      "endpoint": "html_page",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "html",
+      "notes": "DOM-SC alt host; content_type=text/html; charset=UTF-8; bytes=2000; title_hint=b'<!DOCTYPE html>\\n<html>\\n\\n<head>\\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\\n    <meta name=\"language\" content=\"'",
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": null,
+      "elapsed_s": null
+    },
+    {
+      "source": "dom_or_doe_portal",
+      "url": "https://portal.doe.sea.sc.gov.br/",
+      "endpoint": "html_page",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "html",
+      "notes": "DOE-SC portal home; content_type=text/html; bytes=2000; title_hint=b'<!DOCTYPE html>\\r\\n<html lang=\"en\">\\r\\n<head>\\r\\n    <meta charset=\"UTF-8\">\\r\\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\\r\\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1'",
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": null,
+      "elapsed_s": null
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=diario&rows=10",
+      "endpoint": "package_search_diario",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"count\": 7, \"sample_ids\": [\"diario-oficial-sc-edicoes\", \"diario-oficial-sc-publicacoes\", \"covid-19-boletim\", \"politica-de-transparencia-e-dados-abertos\", \"covid-19-leis-estaduais\"], \"sample_titles\": [\"Diário Oficial SC - Edições\", \"Diário Oficial SC - Publicações\", \"COVID-19 - Boletim Informativo Diário\"], \"first_pkg_resources\": 2, \"first_resource\": {\"id\": \"60c0258a-b351-4129-b6ab-508631fca975\", \"format\": \"XLSX\", \"name\": \"edicoes_2011_2025.xlsx\", \"url\": \"https://portal.doe",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-edicoes",
+        "diario-oficial-sc-publicacoes",
+        "covid-19-boletim",
+        "politica-de-transparencia-e-dados-abertos",
+        "covid-19-leis-estaduais"
+      ],
+      "resource_count": 2,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.41
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=compras&rows=10",
+      "endpoint": "package_search_compras",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"count\": 8, \"sample_ids\": [\"licitacoes-pregao-eletronico\", \"licitacoes-editais\", \"plano_contratacoes\", \"programa-sc-governo-aberto\", \"covid19-contratos-emergenciais\"], \"sample_titles\": [\"Licitações - Pregão Eletrônico\", \"Licitações - Editais\", \"Plano de Contratações Anual\"], \"first_pkg_resources\": 1, \"first_resource\": {\"id\": \"3dc41b11-5666-430a-a2b6-57461ff0e753\", \"format\": \"HTML\", \"name\": \"Consulta - Pregão Eletrônico\", \"url\": \"https://e-lic.sc.gov.br/Default.aspx\"}}",
+      "sample_dataset_ids": [
+        "licitacoes-pregao-eletronico",
+        "licitacoes-editais",
+        "plano_contratacoes",
+        "programa-sc-governo-aberto",
+        "covid19-contratos-emergenciais"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.401
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_search?q=licita&rows=10",
+      "endpoint": "package_search_licita",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"count\": 0, \"sample_ids\": [], \"sample_titles\": []}",
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.196
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/status_show",
+      "endpoint": "status_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"sample_ids\": [], \"sample_titles\": []}",
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.198
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/site_read",
+      "endpoint": "site_read",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"result_type\": \"bool\"}",
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.175
+    },
+    {
+      "source": "www.dados.sc.gov.br",
+      "url": "https://www.dados.sc.gov.br/api/3/action/package_search?q=diario&rows=5",
+      "endpoint": "package_search_diario",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"count\": 7, \"sample_ids\": [\"diario-oficial-sc-edicoes\", \"diario-oficial-sc-publicacoes\", \"covid-19-boletim\", \"politica-de-transparencia-e-dados-abertos\", \"covid-19-leis-estaduais\"], \"sample_titles\": [\"Diário Oficial SC - Edições\", \"Diário Oficial SC - Publicações\", \"COVID-19 - Boletim Informativo Diário\"], \"first_pkg_resources\": 2, \"first_resource\": {\"id\": \"60c0258a-b351-4129-b6ab-508631fca975\", \"format\": \"XLSX\", \"name\": \"edicoes_2011_2025.xlsx\", \"url\": \"https://portal.doe",
+      "sample_dataset_ids": [
+        "diario-oficial-sc-edicoes",
+        "diario-oficial-sc-publicacoes",
+        "covid-19-boletim",
+        "politica-de-transparencia-e-dados-abertos",
+        "covid-19-leis-estaduais"
+      ],
+      "resource_count": 2,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.279
+    },
+    {
+      "source": "www.dados.sc.gov.br",
+      "url": "https://www.dados.sc.gov.br/api/3/action/status_show",
+      "endpoint": "status_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"sample_ids\": [], \"sample_titles\": []}",
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.193
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_search?q=domsc&rows=5",
+      "endpoint": "package_search_domsc",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"count\": 428, \"sample_ids\": [\"domsc-autopublicacoes-de-05-2022\", \"domsc-autopublicacoes-de-02-2022\", \"domsc-publicacoes-de-02-2022\", \"domsc-edicoes-de-02-2024\", \"domsc-edicoes-de-02-2022\"], \"sample_titles\": [\"Autopublicações de 05/2022\", \"Autopublicações de 02/2022\", \"Publicações de 02/2022\"], \"first_pkg_resources\": 1, \"first_resource\": {\"id\": \"07fb3908-4d98-4b81-b244-1ece782b0111\", \"format\": \"ZIP\", \"name\": \"Autopublicações de 06/05/2022 (1021)\", \"url\": \"https://dados.ciga",
+      "sample_dataset_ids": [
+        "domsc-autopublicacoes-de-05-2022",
+        "domsc-autopublicacoes-de-02-2022",
+        "domsc-publicacoes-de-02-2022",
+        "domsc-edicoes-de-02-2024",
+        "domsc-edicoes-de-02-2022"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.103
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/status_show",
+      "endpoint": "status_show",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"sample_ids\": [], \"sample_titles\": []}",
+      "sample_dataset_ids": [],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.206
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_search?q=diario&rows=5",
+      "endpoint": "package_search_diario",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"count\": 519, \"sample_ids\": [\"domsc-autopublicacoes-de-05-2022\", \"autopublicacoes-de-12-2020\", \"domsc-autopublicacoes-de-02-2022\", \"domsc-publicacoes-de-02-2022\", \"domsc-edicoes-de-02-2024\"], \"sample_titles\": [\"Autopublicações de 05/2022\", \"Autopublicações de 12/2020\", \"Autopublicações de 02/2022\"], \"first_pkg_resources\": 1, \"first_resource\": {\"id\": \"07fb3908-4d98-4b81-b244-1ece782b0111\", \"format\": \"ZIP\", \"name\": \"Autopublicações de 06/05/2022 (1021)\", \"url\": \"https://dado",
+      "sample_dataset_ids": [
+        "domsc-autopublicacoes-de-05-2022",
+        "autopublicacoes-de-12-2020",
+        "domsc-autopublicacoes-de-02-2022",
+        "domsc-publicacoes-de-02-2022",
+        "domsc-edicoes-de-02-2024"
+      ],
+      "resource_count": 1,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.127
+    },
+    {
+      "source": "dados.ciga.sc.gov.br",
+      "url": "https://dados.ciga.sc.gov.br/api/3/action/package_list?limit=20",
+      "endpoint": "package_list",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"list_len\": 20, \"sample\": [\"autopublicacoes-de-01-2021\", \"autopublicacoes-de-01-2022\", \"autopublicacoes-de-02-2021\", \"autopublicacoes-de-02-2022\", \"autopublicacoes-de-03-2021\", \"autopublicacoes-de-04-2021\", \"autopublicacoes-de-05-2021\", \"autopublicacoes-de-06-2021\", \"autopublicacoes-de-07-2021\", \"autopublicacoes-de-08-2021\"]}",
+      "sample_dataset_ids": [
+        "autopublicacoes-de-01-2021",
+        "autopublicacoes-de-01-2022",
+        "autopublicacoes-de-02-2021",
+        "autopublicacoes-de-02-2022",
+        "autopublicacoes-de-03-2021",
+        "autopublicacoes-de-04-2021",
+        "autopublicacoes-de-05-2021",
+        "autopublicacoes-de-06-2021",
+        "autopublicacoes-de-07-2021",
+        "autopublicacoes-de-08-2021"
+      ],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.087
+    },
+    {
+      "source": "dados.sc.gov.br",
+      "url": "https://dados.sc.gov.br/api/3/action/package_list?limit=20",
+      "endpoint": "package_list",
+      "http_status": 200,
+      "auth_required": false,
+      "format": "json",
+      "notes": "{\"ckan_success\": true, \"list_len\": 20, \"sample\": [\"acesso-a-informacao-banco-de-decisoes-cge-oge\", \"acesso-a-informacao-decisoes-cmai\", \"acesso-a-informacao-decisoes-recursais-cge-sc\", \"arrecadacao-municipios\", \"arrecadacao-setor-economico\", \"avaliacao-educacional\", \"balanco-geral-do-estado\", \"bensimoveis\", \"bensmoveis\", \"boletins-informativos-dgpa-getra-2019\"]}",
+      "sample_dataset_ids": [
+        "acesso-a-informacao-banco-de-decisoes-cge-oge",
+        "acesso-a-informacao-decisoes-cmai",
+        "acesso-a-informacao-decisoes-recursais-cge-sc",
+        "arrecadacao-municipios",
+        "arrecadacao-setor-economico",
+        "avaliacao-educacional",
+        "balanco-geral-do-estado",
+        "bensimoveis",
+        "bensmoveis",
+        "boletins-informativos-dgpa-getra-2019"
+      ],
+      "resource_count": null,
+      "error": null,
+      "ckan_success": true,
+      "elapsed_s": 0.171
+    }
+  ],
+  "packages_detail": {
+    "diario_oficial_sc_publicacoes": {
+      "id": "984555cc-7637-4d5b-8b84-775817e253da",
+      "name": "diario-oficial-sc-publicacoes",
+      "title": "Diário Oficial SC - Publicações",
+      "notes": "Este conjunto de dados reúne as publicações oficiais veiculadas no Diário Oficial do Estado de Santa Catarina, conforme editado pela Gerência do Diário Oficial.\r\nAs informações abrangem atos normativos, administrativos e legislativos publicados pelos órgãos e entidades do Poder Executivo Estadual, bem como por outros poderes, quando aplicável.\r\nO conjunto contempla dados estruturados como número da publicação, número da edição, data de publicação, órgão responsável, categoria, assunto,  tipo de ato (portaria, decreto, edital, extrato de contrato, entre outros),  link extrato digital para download, link edição do Diário Oficial para download.\r\nO objetivo é promover a transparência, facilitar o acesso à informação pública e permitir o reuso dos dados por cidadãos, pesquisadores e sistemas de governo eletrônico.\r\nAcessado em:\r\nhttps://portal.doe.sea.sc.gov.br/",
+      "metadata_modified": "2025-07-21T02:03:27.788040",
+      "resources": [
+        {
+          "id": "4474ed90-b639-4e77-8fba-c439b30643f8",
+          "name": "publicacoes_2012.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2012.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "b010ca8d-bcaa-4b48-87a8-5874a181a0ac",
+          "name": "publicacoes_2012.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2012.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "b1b0e007-4f86-40a1-aaaf-5b37a9d628d8",
+          "name": "publicacoes_2013.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2013.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "97893be4-480a-49b0-a381-4b1387bb5d1b",
+          "name": "publicacoes_2013.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2013.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "18143158-d867-4eaa-b228-8324f70d1f5d",
+          "name": "publicacoes_2014.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2014.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "fff4f370-f657-4e3f-9995-22fcf99376ff",
+          "name": "publicacoes_2014.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2014.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "2234c223-572a-485e-8276-cf13d8be1d2e",
+          "name": "publicacoes_2015.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2015.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "3e901433-6f29-4ae6-bdf5-a1411769147f",
+          "name": "publicacoes_2015.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2015.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "6cab360d-4e29-41e5-bf6e-15a32da01209",
+          "name": "publicacoes_2016.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2016.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "a9919442-c9be-49b4-a655-b08475b2a5db",
+          "name": "publicacoes_2016.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2016.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "eddae1ac-bb15-42b9-a883-26b19967b38f",
+          "name": "publicacoes_2017.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2017.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "22e9e4e6-83e0-43f8-95c3-67660e1e6b42",
+          "name": "publicacoes_2017.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2017.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "21ee28c1-d127-44ea-85a7-9738faa99591",
+          "name": "publicacoes_2018.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2018.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "b8ac7246-72af-41f6-bf2f-866a52645b2c",
+          "name": "publicacoes_2018.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2018.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "b37f5713-0008-4366-98d3-e5ba7b8f206f",
+          "name": "publicacoes_2019.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2019.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "288ac4be-6673-4b12-9a9b-43d415d6055f",
+          "name": "publicacoes_2019.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2019.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "a27b4999-1c3f-4d3f-92c1-76aec2daa43c",
+          "name": "publicacoes_2020.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2020.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "7426c5d4-e14d-4344-9b9d-2f0f4e3d8bb6",
+          "name": "publicacoes_2020.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2020.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "0f574a05-5bf5-4af7-bffd-01200ac25ed7",
+          "name": "publicacoes_2021.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2021.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "fe84d755-cde9-473d-a83e-25f0225bfae4",
+          "name": "publicacoes_2021.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2021.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "21eef73f-417a-4e69-95ff-70d631b2cede",
+          "name": "publicacoes_2022.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2022.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "c6dd24aa-1d75-4963-ae36-b1b7180c59b1",
+          "name": "publicacoes_2022.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2022.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "5ed1ade4-f34c-4dda-8120-631209d0cd8b",
+          "name": "publicacoes_2023.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2023.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "c6073cd0-7df1-4845-820b-fe92a1e24953",
+          "name": "publicacoes_2023.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2023.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "3d0df042-bd80-4c16-ae4f-cfb1951a8a8f",
+          "name": "publicacoes_2024.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2024.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "1d0c99e8-56e2-4364-a211-67bd7c5805f0",
+          "name": "publicacoes_2024.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2024.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        },
+        {
+          "id": "c160b993-f754-45e9-8a3f-c19e4dfcc200",
+          "name": "publicacoes_2025.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2025.xlsx",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        {
+          "id": "0f2223f5-df6c-4860-96d6-f25636107379",
+          "name": "publicacoes_2025.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2025.csv",
+          "size": null,
+          "datastore_active": null,
+          "mimetype": "text/csv"
+        }
+      ]
+    },
+    "diario_oficial_sc_edicoes": {
+      "id": "1fdcbb55-d25a-461a-998a-ef9d065abb3b",
+      "name": "diario-oficial-sc-edicoes",
+      "title": "Diário Oficial SC - Edições",
+      "metadata_modified": "2025-07-21T12:48:16.763101",
+      "resources": [
+        {
+          "id": "60c0258a-b351-4129-b6ab-508631fca975",
+          "name": "edicoes_2011_2025.xlsx",
+          "format": "XLSX",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/edicoes_2011_2025.xlsx",
+          "size": null,
+          "datastore_active": null
+        },
+        {
+          "id": "742fb476-97a5-494a-b4de-3e1a473afa9b",
+          "name": "edicoes_2011_2025.csv",
+          "format": "CSV",
+          "last_modified": null,
+          "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/edicoes_2011_2025.csv",
+          "size": null,
+          "datastore_active": null
+        }
+      ]
+    }
+  },
+  "existing_crawlers": {
+    "ciga_ckan_crawler.py": "DOM-SC via CIGA CKAN public (canonical municipal path)",
+    "doe_sc_crawler.py": "DOE-SC authenticated REST API (Bearer login)",
+    "dom_sc_crawler.py": "DOM-SC legacy authenticated path (prefer ciga_ckan)",
+    "dados_abertos_sc_crawler.py": "NEW — dados.sc.gov.br CKAN catalog (DOE bulk publications)"
+  },
+  "smoke_run": {
+    "module": "scripts.crawl.dados_abertos_sc_crawler",
+    "mode": "smoke",
+    "resources_listed": 28,
+    "primary_package": "diario-oficial-sc-publicacoes",
+    "checkpoint": "data/dados_sc_checkpoints/last_smoke.json",
+    "pytest": "12 passed tests/test_dados_abertos_sc_crawler.py"
+  }
+}

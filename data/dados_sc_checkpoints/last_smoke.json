@@ -1,0 +1,208 @@
+{
+  "source": "dados_abertos_sc",
+  "mode": "smoke",
+  "dry_run": true,
+  "packages": [
+    "diario-oficial-sc-publicacoes"
+  ],
+  "resource_count": 28,
+  "resources": [
+    {
+      "id": "4474ed90-b639-4e77-8fba-c439b30643f8",
+      "name": "publicacoes_2012.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2012.xlsx"
+    },
+    {
+      "id": "b010ca8d-bcaa-4b48-87a8-5874a181a0ac",
+      "name": "publicacoes_2012.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2012.csv"
+    },
+    {
+      "id": "b1b0e007-4f86-40a1-aaaf-5b37a9d628d8",
+      "name": "publicacoes_2013.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2013.xlsx"
+    },
+    {
+      "id": "97893be4-480a-49b0-a381-4b1387bb5d1b",
+      "name": "publicacoes_2013.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2013.csv"
+    },
+    {
+      "id": "18143158-d867-4eaa-b228-8324f70d1f5d",
+      "name": "publicacoes_2014.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2014.xlsx"
+    },
+    {
+      "id": "fff4f370-f657-4e3f-9995-22fcf99376ff",
+      "name": "publicacoes_2014.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2014.csv"
+    },
+    {
+      "id": "2234c223-572a-485e-8276-cf13d8be1d2e",
+      "name": "publicacoes_2015.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2015.xlsx"
+    },
+    {
+      "id": "3e901433-6f29-4ae6-bdf5-a1411769147f",
+      "name": "publicacoes_2015.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2015.csv"
+    },
+    {
+      "id": "6cab360d-4e29-41e5-bf6e-15a32da01209",
+      "name": "publicacoes_2016.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2016.xlsx"
+    },
+    {
+      "id": "a9919442-c9be-49b4-a655-b08475b2a5db",
+      "name": "publicacoes_2016.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2016.csv"
+    },
+    {
+      "id": "eddae1ac-bb15-42b9-a883-26b19967b38f",
+      "name": "publicacoes_2017.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2017.xlsx"
+    },
+    {
+      "id": "22e9e4e6-83e0-43f8-95c3-67660e1e6b42",
+      "name": "publicacoes_2017.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2017.csv"
+    },
+    {
+      "id": "21ee28c1-d127-44ea-85a7-9738faa99591",
+      "name": "publicacoes_2018.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2018.xlsx"
+    },
+    {
+      "id": "b8ac7246-72af-41f6-bf2f-866a52645b2c",
+      "name": "publicacoes_2018.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2018.csv"
+    },
+    {
+      "id": "b37f5713-0008-4366-98d3-e5ba7b8f206f",
+      "name": "publicacoes_2019.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2019.xlsx"
+    },
+    {
+      "id": "288ac4be-6673-4b12-9a9b-43d415d6055f",
+      "name": "publicacoes_2019.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2019.csv"
+    },
+    {
+      "id": "a27b4999-1c3f-4d3f-92c1-76aec2daa43c",
+      "name": "publicacoes_2020.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2020.xlsx"
+    },
+    {
+      "id": "7426c5d4-e14d-4344-9b9d-2f0f4e3d8bb6",
+      "name": "publicacoes_2020.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2020.csv"
+    },
+    {
+      "id": "0f574a05-5bf5-4af7-bffd-01200ac25ed7",
+      "name": "publicacoes_2021.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2021.xlsx"
+    },
+    {
+      "id": "fe84d755-cde9-473d-a83e-25f0225bfae4",
+      "name": "publicacoes_2021.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2021.csv"
+    },
+    {
+      "id": "21eef73f-417a-4e69-95ff-70d631b2cede",
+      "name": "publicacoes_2022.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2022.xlsx"
+    },
+    {
+      "id": "c6dd24aa-1d75-4963-ae36-b1b7180c59b1",
+      "name": "publicacoes_2022.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2022.csv"
+    },
+    {
+      "id": "5ed1ade4-f34c-4dda-8120-631209d0cd8b",
+      "name": "publicacoes_2023.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2023.xlsx"
+    },
+    {
+      "id": "c6073cd0-7df1-4845-820b-fe92a1e24953",
+      "name": "publicacoes_2023.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2023.csv"
+    },
+    {
+      "id": "3d0df042-bd80-4c16-ae4f-cfb1951a8a8f",
+      "name": "publicacoes_2024.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2024.xlsx"
+    },
+    {
+      "id": "1d0c99e8-56e2-4364-a211-67bd7c5805f0",
+      "name": "publicacoes_2024.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2024.csv"
+    },
+    {
+      "id": "c160b993-f754-45e9-8a3f-c19e4dfcc200",
+      "name": "publicacoes_2025.xlsx",
+      "format": "XLSX",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2025.xlsx"
+    },
+    {
+      "id": "0f2223f5-df6c-4860-96d6-f25636107379",
+      "name": "publicacoes_2025.csv",
+      "format": "CSV",
+      "last_modified": null,
+      "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2025.csv"
+    }
+  ],
+  "saved_at": "2026-07-17T01:26:03.662843+00:00"
+}

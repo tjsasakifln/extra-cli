@@ -1,0 +1,42 @@
+{
+  "success": true,
+  "result": {
+    "count": 428,
+    "results": [
+      {
+        "id": "1ff07ce6-a0c1-4820-a093-4a03927aa8fb",
+        "name": "domsc-autopublicacoes-de-05-2022",
+        "title": "Autopublicações de 05/2022",
+        "num_resources": 1,
+        "resources": [
+          {
+            "id": "07fb3908-4d98-4b81-b244-1ece782b0111",
+            "name": "Autopublicações de 06/05/2022 (1021)",
+            "format": "ZIP",
+            "url": "https://dados.ciga.sc.gov.br/dataset/1ff07ce6-a0c1-4820-a093-4a03927aa8fb/resource/07fb3908-4d98-4b81-b244-1ece782b0111/download/cigadados_autopublicacoes_2022_05_06.zip"
+          }
+        ]
+      },
+      {
+        "id": "a19d52b4-6754-442a-b337-247c8606cdd8",
+        "name": "domsc-autopublicacoes-de-02-2022",
+        "title": "Autopublicações de 02/2022",
+        "num_resources": 6,
+        "resources": [
+          {
+            "id": "1d03f28b-7b9c-4116-a28c-ecbc11af6e41",
+            "name": "Autopublicações de 21/02/2022 (225)",
+            "format": "ZIP",
+            "url": "https://dados.ciga.sc.gov.br/dataset/a19d52b4-6754-442a-b337-247c8606cdd8/resource/1d03f28b-7b9c-4116-a28c-ecbc11af6e41/download/cigadados_autopublicacoes_2022_02_21.zip"
+          },
+          {
+            "id": "486420cb-3627-49f8-861f-1470c0e63275",
+            "name": "Autopublicações de 22/02/2022 (254)",
+            "format": "ZIP",
+            "url": "https://dados.ciga.sc.gov.br/dataset/a19d52b4-6754-442a-b337-247c8606cdd8/resource/486420cb-3627-49f8-861f-1470c0e63275/download/cigadados_autopublicacoes_2022_02_22.zip"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "success": true,
+  "result": {
+    "count": 7,
+    "results": [
+      {
+        "id": "1fdcbb55-d25a-461a-998a-ef9d065abb3b",
+        "name": "diario-oficial-sc-edicoes",
+        "title": "Diário Oficial SC - Edições",
+        "notes": "Este conjunto de dados reúne as edições digitais oficiais veiculadas no Diário Oficial do Estado de Santa Catarina, conforme editado pela Gerência do Diário Oficial. As informações abrangem atos normativos, administrativos e legislativos publicados pelos órgãos e entidades do Poder Executivo Estadua",
+        "metadata_modified": "2025-07-21T12:48:16.763101",
+        "num_resources": 2,
+        "resources": [
+          {
+            "id": "60c0258a-b351-4129-b6ab-508631fca975",
+            "name": "edicoes_2011_2025.xlsx",
+            "format": "XLSX",
+            "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/edicoes_2011_2025.xlsx",
+            "last_modified": null,
+            "size": null,
+            "datastore_active": null
+          },
+          {
+            "id": "742fb476-97a5-494a-b4de-3e1a473afa9b",
+            "name": "edicoes_2011_2025.csv",
+            "format": "CSV",
+            "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/edicoes_2011_2025.csv",
+            "last_modified": null,
+            "size": null,
+            "datastore_active": null
+          }
+        ],
+        "organization": {
+          "name": "sea",
+          "title": "Secretaria de Estado da Administração"
+        }
+      },
+      {
+        "id": "984555cc-7637-4d5b-8b84-775817e253da",
+        "name": "diario-oficial-sc-publicacoes",
+        "title": "Diário Oficial SC - Publicações",
+        "notes": "Este conjunto de dados reúne as publicações oficiais veiculadas no Diário Oficial do Estado de Santa Catarina, conforme editado pela Gerência do Diário Oficial.\r\nAs informações abrangem atos normativos, administrativos e legislativos publicados pelos órgãos e entidades do Poder Executivo Estadual, b",
+        "metadata_modified": "2025-07-21T02:03:27.788040",
+        "num_resources": 28,
+        "resources": [
+          {
+            "id": "4474ed90-b639-4e77-8fba-c439b30643f8",
+            "name": "publicacoes_2012.xlsx",
+            "format": "XLSX",
+            "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2012.xlsx",
+            "last_modified": null,
+            "size": null,
+            "datastore_active": null
+          },
+          {
+            "id": "b010ca8d-bcaa-4b48-87a8-5874a181a0ac",
+            "name": "publicacoes_2012.csv",
+            "format": "CSV",
+            "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2012.csv",
+            "last_modified": null,
+            "size": null,
+            "datastore_active": null
+          },
+          {
+            "id": "b1b0e007-4f86-40a1-aaaf-5b37a9d628d8",
+            "name": "publicacoes_2013.xlsx",
+            "format": "XLSX",
+            "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2013.xlsx",
+            "last_modified": null,
+            "size": null,
+            "datastore_active": null
+          },
+          {
+            "id": "97893be4-480a-49b0-a381-4b1387bb5d1b",
+            "name": "publicacoes_2013.csv",
+            "format": "CSV",
+            "url": "https://portal.doe.sea.sc.gov.br/repositorio/dadosabertos/publicacoes_2013.csv",
+            "last_modified": null,
+            "size": null,
+            "datastore_active": null
+          }
+        ],
+        "organization": {
+          "name": "sea",
+          "title": "Secretaria de Estado da Administração"
+        }
+      },
+      {
+        "id": "7d81c890-ac23-46aa-9f9f-5ce1b693410a",
+        "name": "covid-19-boletim",
+        "title": "COVID-19 - Boletim Informativo Diário",
+        "notes": "Apresenta num formato de boletim (seguindo parâmetros da Open Knowledge Brasil (OKBR)), informações relacionadas aos casos e aos óbitos da COVID-19, com evolução temporal e segmentação por macro-região de saúde, município, faixa etária e sexo.",
+        "metadata_modified": "2020-06-01T18:30:00.899767",
+        "num_resources": 1,
+        "resources": [
+          {
+            "id": "ea6ab1eb-797d-460c-aebf-a7641f33e2f1",
+            "name": "Boletim COVID-19",
+            "format": "HTML",
+            "url": "http://www.coronavirus.sc.gov.br/boletins/",
+            "last_modified": null,
+            "size": null,
+            "datastore_active": null
+          }
+        ],
+        "organization": {
+          "name": "secretaria-executiva-de-comunicacao",
+          "title": "Secretaria Executiva de Comunicação"
+        }
+      }
+    ]
+  }
+}

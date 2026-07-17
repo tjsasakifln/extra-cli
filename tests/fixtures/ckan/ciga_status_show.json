@@ -1,0 +1,18 @@
+{
+  "help": "https://dados.ciga.sc.gov.br/api/3/action/help_show?name=status_show",
+  "success": true,
+  "result": {
+    "ckan_version": "2.9.2",
+    "site_url": "https://dados.ciga.sc.gov.br",
+    "site_description": "Dados Abertos",
+    "site_title": "Ciga Dados",
+    "error_emails_to": null,
+    "locale_default": "pt_BR",
+    "extensions": [
+      "stats",
+      "text_view",
+      "image_view",
+      "recline_view"
+    ]
+  }
+}
