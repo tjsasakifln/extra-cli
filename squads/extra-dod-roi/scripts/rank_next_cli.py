@@ -25,11 +25,87 @@ from graph_build import build_default_graph  # noqa: E402
 from score_roi import load_weights, rank_candidates  # noqa: E402
 
 
-def build_candidates(snapshot: dict[str, Any], matrix: dict[str, Any], graph: dict[str, Any]) -> tuple[list[dict], list[dict], list[str]]:
+def _load_story_state(root: Path, story_id: str) -> dict[str, Any] | None:
+    p = root / ".aiox" / "state" / "stories" / f"{story_id}.json"
+    if not p.is_file():
+        return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _story_done(root: Path, story_id: str) -> bool:
+    """True when AIOX story is Done with po_closed and non-FAIL QA."""
+    st = _load_story_state(root, story_id)
+    if not st:
+        return False
+    if st.get("status") != "Done" or not st.get("po_closed"):
+        return False
+    verdict = (st.get("qa_verdict") or "").upper()
+    return verdict in {"PASS", "CONCERNS", "WAIVED"}
+
+
+def _mark_completed(c: dict[str, Any], reason: str) -> None:
+    c["status"] = "COMPLETED"
+    c["why_unlocked"] = f"COMPLETED — {reason}"
+    c["completion_reason"] = reason
+
+
+def apply_completion_filters(
+    root: Path,
+    candidates: list[dict[str, Any]],
+    divergences: list[str],
+) -> list[dict[str, Any]]:
+    """Demote candidates whose underlying AIOX work is already Done+po_closed.
+
+    Prevents thrashing force-next on finished ranking[0] items.
+    """
+    rules: list[tuple[str, list[str], str]] = [
+        (
+            "cand-qa-po-e3-stories",
+            ["B2G-E3.S1", "B2G-E3.S2"],
+            "B2G-E3.S1/S2 Done with independent QA/PO (do not re-bind)",
+        ),
+        (
+            "cand-full-suite-schema-debt",
+            ["ROI-cand-full-suite-schema-debt"],
+            "ROI-cand-full-suite-schema-debt Done with QA PASS + PO close",
+        ),
+        (
+            "cand-workspace-daily-evidence-pack",
+            ["ROI-cand-workspace-daily-evidence-pack"],
+            "ROI-cand-workspace-daily-evidence-pack Done with QA/PO",
+        ),
+        (
+            "cand-post-merge-truth-gate-honesty",
+            ["ROI-cand-post-merge-truth-gate-honesty"],
+            "ROI-cand-post-merge-truth-gate-honesty Done with QA/PO",
+        ),
+    ]
+    by_id = {c["id"]: c for c in candidates}
+    for cand_id, story_ids, reason in rules:
+        c = by_id.get(cand_id)
+        if not c:
+            continue
+        if all(_story_done(root, sid) for sid in story_ids):
+            _mark_completed(c, reason)
+            divergences.append(f"Candidate {cand_id} marked COMPLETED: {reason}")
+    # Also: open draft PR for same head branch is not enough alone; story Done is authority
+    return [c for c in candidates if c.get("status") == "UNLOCKED"]
+
+
+def build_candidates(
+    snapshot: dict[str, Any],
+    matrix: dict[str, Any],
+    graph: dict[str, Any],
+    root: Path | None = None,
+) -> tuple[list[dict], list[dict], list[str]]:
     """Heuristic but grounded candidates from real brownfield state (2026-07-17)."""
     divergences: list[str] = []
     blockers: list[dict] = []
     candidates: list[dict] = []
+    root = root or repo_root_from(Path.cwd())
 
     git = snapshot.get("git") or {}
     open_prs = snapshot.get("open_prs") or {}
@@ -406,8 +482,8 @@ def build_candidates(snapshot: dict[str, Any], matrix: dict[str, Any], graph: di
         }
     )
 
-    # Filter: only UNLOCKED enter ranking set
-    unlocked = [c for c in candidates if c["status"] == "UNLOCKED"]
+    # Demote finished ROI slices, then only UNLOCKED enter ranking set
+    unlocked = apply_completion_filters(root, candidates, divergences)
     return unlocked, blockers, divergences
 
 
@@ -492,7 +568,7 @@ def run_rank_next(
         "superseded_claims": [], "veto": {}, "dod_sha256": None,
     }
     graph = build_default_graph({"notes": ["default domain graph for Extra B2G"]})
-    unlocked, blockers, divergences = build_candidates(snapshot, matrix, graph)
+    unlocked, blockers, divergences = build_candidates(snapshot, matrix, graph, root=root)
     weights = load_weights(SQUAD_DIR / "data" / "roi-weights.yaml")
     ranked = rank_candidates(unlocked, weights)
     top = ranked[:top_n]

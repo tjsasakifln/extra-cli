@@ -1,0 +1,230 @@
+{
+  "story_id": "ROI-cand-workspace-daily-evidence-pack",
+  "title": "Pacote de evidência reproduzível do workspace cotidiano (today/opportunities/dossier/coverage)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "STANDARD",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-workspace-daily-evidence-pack.md",
+  "created_at": "2026-07-17T22:32:27Z",
+  "updated_at": "2026-07-17T22:48:44Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "scope_files": [
+    "docs/ops/session-2026-07-17-workspace-evidence/",
+    "output/workspace-evidence-20260717/",
+    "docs/stories/ROI-cand-workspace-daily-evidence-pack.md",
+    ".aiox/state/stories/ROI-cand-workspace-daily-evidence-pack.json",
+    "squads/extra-dod-roi/scripts/rank_next_cli.py",
+    "squads/extra-dod-roi/tests/test_squad_smoke.py",
+    "docs/ops/session-2026-07-17-workspace-evidence/handoff-dev-to-qa.yaml",
+    "squads/extra-dod-roi/state/qa/cyc-2026-07-17T223227Z-qa.json",
+    "squads/extra-dod-roi/state/cycles/cyc-2026-07-17T223227Z.json"
+  ],
+  "reviewed_commit": "03dca738c0709438d65b4c2c2d779f8e1eb9e6ee",
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": "docs/ops/session-2026-07-17-workspace-evidence/MANIFEST.md",
+  "maintenance_mode": false,
+  "po_validation": {
+    "validated_by": "Pax (@po)",
+    "validated_at": "2026-07-17T22:34:00Z",
+    "verdict": "GO",
+    "score": 9,
+    "checklist": {
+      "1_title": "PASS",
+      "2_description": "PASS",
+      "3_acceptance_criteria": "PASS",
+      "4_scope": "PASS",
+      "5_dependencies": "PASS",
+      "6_complexity": "PASS",
+      "7_business_value": "PASS",
+      "8_risks": "PASS",
+      "9_definition_of_done": "PASS",
+      "10_epic_alignment": "PASS"
+    },
+    "cli_precheck": {
+      "command": "python3 -m scripts.workspace --help",
+      "result": "OK",
+      "subcommands_present": [
+        "today",
+        "opportunities",
+        "dossier",
+        "coverage"
+      ]
+    },
+    "notes": [
+      "ACs refined for implementability (4 commands + evidence pack + no READY seals/VPS)",
+      "Cycle cyc-2026-07-17T223227Z restored as current before STORY_READY advance"
+    ]
+  },
+  "dev_implementation": {
+    "implemented_by": "Dex (@dev)",
+    "implemented_at": "2026-07-17T22:40:00Z",
+    "branch": "extra-roi/cand-workspace-daily-evidence-pack",
+    "evidence_pack": "docs/ops/session-2026-07-17-workspace-evidence/MANIFEST.md",
+    "evidence_mirror": "output/workspace-evidence-20260717/",
+    "handoff": "docs/ops/session-2026-07-17-workspace-evidence/handoff-dev-to-qa.yaml",
+    "command_results": {
+      "workspace_help": {
+        "exit": 0,
+        "verdict": "PASS"
+      },
+      "today_help": {
+        "exit": 0,
+        "verdict": "PASS"
+      },
+      "today_json": {
+        "exit": 0,
+        "verdict": "PASS",
+        "pg_available": false,
+        "mode": "degraded_offline"
+      },
+      "opportunities_help": {
+        "exit": 0,
+        "verdict": "PASS"
+      },
+      "opportunities_limit5": {
+        "exit": 0,
+        "verdict": "PASS",
+        "status": "DEGRADED",
+        "count": 5
+      },
+      "coverage_help": {
+        "exit": 0,
+        "verdict": "PASS"
+      },
+      "coverage_json": {
+        "exit": 0,
+        "verdict": "PASS",
+        "commercial_opportunity_any_pct": 10.61,
+        "claimed_95_pct": false
+      },
+      "dossier_help": {
+        "exit": 0,
+        "verdict": "PASS"
+      },
+      "dossier_bogus_id": {
+        "exit": 1,
+        "verdict": "EXPECTED_FAIL",
+        "status": "NOT_FOUND"
+      },
+      "dossier_8504275": {
+        "exit": 0,
+        "verdict": "PASS",
+        "status": "OK",
+        "mode": "offline_session"
+      },
+      "pytest_squad_smoke": {
+        "exit": 0,
+        "verdict": "PASS",
+        "passed": 10
+      }
+    },
+    "forbidden_claims_respected": [
+      "LOCAL_RESILIENCE_READY",
+      "PRE_VPS_FINAL_READY",
+      "operational_coverage_95",
+      "VPS_provision"
+    ],
+    "notes": [
+      "Local PG timeout on 127.0.0.1:5433 — graceful offline degradation recorded",
+      "Ranker fix included so completed E3/post-merge candidates are not re-bound"
+    ]
+  },
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-17T223227Z",
+    "candidate_id": "cand-workspace-daily-evidence-pack",
+    "roi": 2.2805,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  },
+  "qa_review": {
+    "reviewed_by": "Quinn (@qa / adversarial-qa-auditor)",
+    "reviewed_at": "2026-07-17T22:45:27Z",
+    "independent": true,
+    "verdict": "PASS",
+    "aiox_verdict": "PASS",
+    "reviewed_commit": "7d39b895c625122a19a2b7395ad8ca872e2db396",
+    "gate_file": "squads/extra-dod-roi/state/qa/cyc-2026-07-17T223227Z-qa.json",
+    "evidence_pack": "docs/ops/session-2026-07-17-workspace-evidence/MANIFEST.md",
+    "acceptance_criteria": {
+      "1": "PASS",
+      "2": "PASS",
+      "3": "PASS"
+    },
+    "pytest_squad_smoke": {
+      "exit": 0,
+      "passed": 10
+    },
+    "enforce_qa": {
+      "ok": true
+    },
+    "next_phase_required": "PO_CLOSE",
+    "notes": [
+      "Independent QA PASS — evidence pack honest, degraded PG documented, no READY seals",
+      "Story not closed by QA; @po owns close",
+      "current.json restored from cyc-2026-07-17T223227Z before enforce (aborted INIT noise)"
+    ],
+    "residual_observations": [
+      "cycle current.json clobber by aborted INIT (low)",
+      "metric status=READY is schema readiness not DoD seal (low)"
+    ]
+  },
+  "po_close": {
+    "closed_by": "Pax (@po)",
+    "closed_at": "2026-07-17T22:47:00Z",
+    "closure_key": "ROI-cand-workspace-daily-evidence-pack:commit:7d39b895c625122a19a2b7395ad8ca872e2db396",
+    "qa_verdict": "PASS",
+    "reviewed_commit": "7d39b895c625122a19a2b7395ad8ca872e2db396",
+    "gates_at_close": {
+      "lint": "PASS",
+      "typecheck": "NA",
+      "tests": "PASS",
+      "build": "NA"
+    },
+    "publication_authorized": true,
+    "dod_seals_elevated": false,
+    "dod_md_modified": false,
+    "forbidden_claims_intact": [
+      "LOCAL_RESILIENCE_READY=NOT_READY",
+      "PRE_VPS_FINAL_READY=NOT_READY",
+      "no operational 95% claim",
+      "no VPS claim"
+    ],
+    "follow_ups": [
+      "cycle current.json clobber by aborted INIT tests (process)",
+      "coverage metric status=READY is schema readiness not DoD seal"
+    ],
+    "next_agent": "@devops",
+    "next_action": "draft PR / publish path (no auto-merge, no push by po)",
+    "notes": "PO close after independent QA PASS; evidence pack honest; no READY seals"
+  },
+  "snapshot_evidence_meta": {},
+  "publish_alignment": {
+    "previous_qa_reviewed_commit": "7d39b895c625122a19a2b7395ad8ca872e2db396",
+    "aligned_to_head": "03dca738c0709438d65b4c2c2d779f8e1eb9e6ee",
+    "reason": "Post-QA delta is PO-close docs/state only (story md + state json). No product code after QA PASS.",
+    "diff_stat": "2 files: state json + story md",
+    "aligned_by": "@devops (Gage / evidence-release-steward)",
+    "aligned_at": "2026-07-17T22:48:44Z",
+    "honest_note": "reviewed_commit advanced 7d39b89 → 03dca73; evidence pack + ranker already in QA tip; no READY seals."
+  }
+}

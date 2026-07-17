@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-07-17T23:14:12.875152+00:00",
+  "promoted": 5,
+  "verified": 5,
+  "strict_operational_count": 5,
+  "m2_pct": 0.4575,
+  "claims_95_reached": false,
+  "sample": [
+    {
+      "canonical_id": "82562893:MUNICIPIO_DE_CANELINHA",
+      "cnpj8": "82562893",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "83102798:MUNICIPIO_DE_INDAIAL",
+      "cnpj8": "83102798",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "00394452:COMANDO_DO_EXERCITO",
+      "cnpj8": "00394452",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "10635424:INSTITUTO_FEDERAL_DE_EDUCACAO_CIENCIA_E_TECNOLOGIA_CATARINENSE",
+      "cnpj8": "10635424",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "15126437:EMPRESA_BRASILEIRA_DE_SERVICOS_HOSPITALARES_EBSERH",
+      "cnpj8": "15126437",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    }
+  ],
+  "artifact": {
+    "source": "pncp",
+    "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+    "raw_uri": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T110800Z-9d6dd91153/contratacoes.jsonl",
+    "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+    "matched_unique_cnpj": 5
+  },
+  "commercial_signal_separate": true
+}

@@ -10,13 +10,28 @@ import pytest
 from scripts.source_registry.acquisition.promote_from_evidence import (
     normalize_registry_blockers,
     promote_from_pipeline_evidence,
+    resolve_provenance_for_sources,
 )
 from scripts.source_registry.gap_report import derive_blocker_class, gap_rows
-from scripts.source_registry.models import EntitySourceRecord
+from scripts.source_registry.models import EntitySourceRecord, is_strict_operational
+
+
+def _full_provenance(**overrides: object) -> dict:
+    base = {
+        "pipeline_run_id": "run-test-001",
+        "run_id": "run-test-001",
+        "raw_uri": "/tmp/fake/contratacoes.jsonl",
+        "raw_sha256": "a" * 64,
+        "normalized_record_ids": ["pncp:83102343:1"],
+        "reconciliation_id": "recon-test-001",
+        "provenance_source": "/tmp/fake/evidence.json",
+    }
+    base.update(overrides)
+    return base
 
 
 @pytest.mark.unit
-def test_promote_sets_collected_with_pipeline_evidence() -> None:
+def test_promote_sets_verified_strict_operational_with_provenance() -> None:
     rec = EntitySourceRecord(
         canonical_id="83102343:MUNICIPIO_DE_BRUSQUE",
         razao_social="MUNICIPIO DE BRUSQUE",
@@ -27,6 +42,7 @@ def test_promote_sets_collected_with_pipeline_evidence() -> None:
         next_action="pending",
         current_blocker="pending_collection",
         plataformas=["pncp"],
+        sla_hours=24,
     )
     fake_evidence = [
         {
@@ -42,6 +58,7 @@ def test_promote_sets_collected_with_pipeline_evidence() -> None:
             "reconciled": True,
             "opp_count": 0,
             "official_act_matches": 0,
+            "provenance": _full_provenance(),
         }
     ]
     with patch(
@@ -52,19 +69,61 @@ def test_promote_sets_collected_with_pipeline_evidence() -> None:
 
     assert summary["promoted"] == 1
     assert summary["dry_run"] is False
-    assert rec.access_status in {"collected", "verified"}
+    assert rec.access_status == "verified"
     assert rec.last_success_at is not None
-    # Collected evidence is still a gap until raw/hash/reconciliation/SLA
-    # attestation satisfies the strict operational contract.
-    assert rec.current_blocker not in {None, "none"}
-    assert any(
-        e.get("type") == "pipeline_evidence_promote" and e.get("dry_run") is False
-        for e in rec.evidences
-    )
-    stages = next(e for e in rec.evidences if e.get("type") == "pipeline_evidence_promote")["stages"]
+    assert rec.current_blocker is None
+    assert is_strict_operational(rec) is True
+    ev = next(e for e in rec.evidences if e.get("type") == "pipeline_evidence_promote")
+    assert ev["dry_run"] is False
+    assert ev["run_id"] == "run-test-001"
+    assert ev["raw_sha256"] == "a" * 64
+    assert ev["normalized_record_ids"]
+    assert ev["reconciliation_id"]
+    stages = ev["stages"]
     assert stages["collected"] is True
     assert stages["normalized"] is True
     assert stages["reconciled"] is True
+    assert stages["verified_within_sla"] is True
+
+
+@pytest.mark.unit
+def test_promote_skips_without_provenance() -> None:
+    rec = EntitySourceRecord(
+        canonical_id="83102343:MUNICIPIO_DE_BRUSQUE",
+        razao_social="MUNICIPIO DE BRUSQUE",
+        cnpj="83102343",
+        natureza_juridica="prefeitura",
+        municipio="BRUSQUE",
+        access_status="mapped",
+        current_blocker="pending_collection",
+        plataformas=["pncp"],
+    )
+    fake_evidence = [
+        {
+            "entity_db_id": 82,
+            "cnpj_8": "83102343",
+            "sources": ["pncp"],
+            "is_covered": True,
+            "last_seen_at": datetime.now(UTC),
+            "total_bids": 5,
+            "normalized": True,
+            "reconciled": True,
+            # no provenance and no on-disk artifact → skip
+        }
+    ]
+    with (
+        patch(
+            "scripts.source_registry.acquisition.promote_from_evidence.fetch_pipeline_evidence",
+            return_value=fake_evidence,
+        ),
+        patch(
+            "scripts.source_registry.acquisition.promote_from_evidence.resolve_provenance_for_sources",
+            return_value=None,
+        ),
+    ):
+        summary = promote_from_pipeline_evidence([rec], persist=False)
+    assert summary["promoted"] == 0
+    assert rec.access_status == "mapped"
 
 
 @pytest.mark.unit
@@ -134,6 +193,7 @@ def test_promote_rejects_ambiguous_cnpj_root() -> None:
         "is_covered": True,
         "normalized": True,
         "reconciled": True,
+        "provenance": _full_provenance(),
     }
     with patch(
         "scripts.source_registry.acquisition.promote_from_evidence.fetch_pipeline_evidence",
@@ -143,3 +203,21 @@ def test_promote_rejects_ambiguous_cnpj_root() -> None:
     assert summary["promoted"] == 0
     assert summary["unmatched_registry_skipped"] == 1
     assert rec.access_status == "mapped"
+
+
+@pytest.mark.unit
+def test_resolve_provenance_from_real_pncp_artifact() -> None:
+    """Uses on-disk crawl evidence when present (real shipped path)."""
+    prov = resolve_provenance_for_sources(
+        ["pncp"],
+        entity_key="test-entity",
+        last_seen_iso=datetime.now(UTC).isoformat(),
+        record_ids=["x1"],
+    )
+    if prov is None:
+        pytest.skip("no pncp_sc evidence.json artifacts in this checkout")
+    assert prov["run_id"]
+    assert prov["raw_uri"]
+    assert len(prov["raw_sha256"]) >= 32
+    assert prov["normalized_record_ids"] == ["x1"]
+    assert prov["reconciliation_id"].startswith("recon-")
