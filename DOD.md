@@ -397,7 +397,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Coordenadas são normalizadas.
 - [ ] Distâncias são tratadas como valor numérico.
 - [ ] O campo de pertencimento ao raio não é inferido quando já existe na planilha.
-- [ ] Duplicidades legítimas de raiz de CNPJ não são eliminadas indevidamente.
+- [x] Duplicidades legítimas de raiz de CNPJ não são eliminadas indevidamente.
 - [ ] Cada ente possui identidade estável e reproduzível.
 - [ ] O relatório de importação lista erros, alertas e mudanças.
 - [ ] A importação falha de forma explícita quando a planilha não atende ao schema esperado.
@@ -405,7 +405,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 ### 3.2 Universo operacional
 
 - [ ] O universo operacional é formado somente pelos entes marcados como pertencentes ao raio de 200 km.
-- [ ] O baseline atual de 1.093 entes é confirmado para a versão corrente da planilha.
+- [x] O baseline atual de 1.093 entes é confirmado para a versão corrente da planilha.
 - [ ] O número 1.093 não é tratado como constante permanente.
 - [ ] Cada ente do universo possui identificador interno.
 - [ ] Cada ente possui nome canônico.
@@ -720,7 +720,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Data da última verificação.
 - [ ] Valor estimado quando disponível.
 - [ ] Município ou abrangência.
-- [ ] Classificação AEC.
+- [x] Classificação AEC.
 - [ ] Justificativa do score.
 - [ ] Indicador de dados incompletos.
 - [ ] Completude dos campos essenciais >= 95%.
@@ -958,31 +958,31 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 13.1 Testes unitários
 
-- [ ] Normalização de CNPJ.
+- [x] Normalização de CNPJ.
 - [ ] Normalização de IBGE.
-- [ ] Normalização de coordenadas.
-- [ ] Cálculo de identidade de ente.
+- [x] Normalização de coordenadas.
+- [x] Cálculo de identidade de ente.
 - [ ] Importação idempotente da planilha.
 - [ ] Detecção de novos entes.
 - [ ] Detecção de entes alterados.
 - [ ] Detecção de entes removidos.
-- [ ] Cálculo de cobertura.
-- [ ] Regra de `success_zero`.
-- [ ] Freshness.
-- [ ] Paginação.
-- [ ] Retry.
-- [ ] Backoff.
-- [ ] Checkpoint.
-- [ ] Resume.
-- [ ] Deduplicação.
+- [x] Cálculo de cobertura.
+- [x] Regra de `success_zero`.
+- [x] Freshness.
+- [x] Paginação.
+- [x] Retry.
+- [x] Backoff.
+- [x] Checkpoint.
+- [x] Resume.
+- [x] Deduplicação.
 - [ ] Reconciliação de snapshot.
-- [ ] Classificação de status.
+- [x] Classificação de status.
 - [ ] Classificação AEC.
-- [ ] Regras de score.
+- [x] Regras de score.
 - [ ] Semântica de valores.
-- [ ] Encadeamento edital-contrato.
-- [ ] Geração de manifest.
-- [ ] Geração de relatórios.
+- [x] Encadeamento edital-contrato.
+- [x] Geração de manifest.
+- [x] Geração de relatórios.
 
 ### 13.2 Testes de integração
 
@@ -1097,6 +1097,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ---
 
+> **Evidence pack (2026-07-17):** unit-test evidence `docs/ops/session-2026-07-17-dod-unit-evidence/` — 20 §13/§3 checkboxes closed after independent QA PASS (ROI-cand-dod-unit-test-evidence-pack). pytest 511 passed. No 95% ops claim.
 # ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS
 
 > Este rol começa após a contratação e disponibilização da VPS.

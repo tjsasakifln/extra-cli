@@ -2,7 +2,7 @@
 
 **Story ID:** `ROI-cand-dod-unit-test-evidence-pack`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** InReview  
+**Status:** Done  
 **Risk level:** **STANDARD**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-17T233021Z`)  
 **Candidate ID:** `cand-dod-unit-test-evidence-pack`  
@@ -132,11 +132,59 @@ Revert feature branch commits; never update DoD on failure; no merge.
 
 ---
 
+## QA Results
+
+**Reviewer:** adversarial-qa-auditor (Quinn) — independent of implementer `delivery-engineer`  
+**Date:** 2026-07-17T23:36:00Z  
+**Reviewed commit:** `7876e838e81b6d59c255f7635c6743cbaddd7ff9`  
+**Cycle:** `cyc-2026-07-17T233021Z`  
+**Verdict:** **PASS**
+
+### Independent re-verification
+
+| Check | Result |
+|-------|--------|
+| Pack `MANIFEST.md` + `proposed-flips.txt` | **20** proposed items mapped to pytest proof |
+| Pack `pytest-pack.exit` / `.log` | **EXIT:0** · **511 passed, 12 skipped** |
+| Spot-check `pytest -o addopts='' -q tests/test_universe.py tests/test_coverage_states.py tests/unit/test_dod_unit_evidence_pack.py` | **58 passed** |
+| DOD.md proposed items still `[ ]` | **all 20 unchecked** (no premature flip) |
+| 95% / LOCAL_RESILIENCE / PRE_VPS claims | **none** |
+| Explicit NOT-marked list | present (IBGE, import idempotent, 95%, live §8–12) |
+
+### AC
+
+| AC | Verdict |
+|----|---------|
+| AC1 Evidence pack lists each DoD checkbox with pytest proof | **PASS** — MANIFEST mapping + 20 flips |
+| AC2 Only HIGH-confidence mapped; pack re-run exit 0 (511) | **PASS** — artifact + independent spot-check |
+| AC3 DoD.md only after independent QA | **PASS** — still `[ ]` pre-steward; flip authorized post-PASS |
+
+### Steward authorization (post-PASS)
+
+**Evidence steward MAY flip ONLY the 20 lines in**  
+`docs/ops/session-2026-07-17-dod-unit-evidence/proposed-flips.txt`  
+(§13.1 unit-test items + baseline 1.093 + dups CNPJ8).  
+
+**MUST NOT flip:** IBGE, import idempotent, detect new/changed/removed, semântica de valores, snapshot reconcile, `capability_monitoring_coverage >= 95%`, “Entes sem coords…” (MANIFEST-only, not in proposed-flips), any live operational §8–12.
+
+### Residual (non-blocking)
+
+- Classificação AEC / Encadeamento labeled **(parcial)** in MANIFEST — unit-stage only
+- Mapping is file-level (not exhaustive nodeids)
+
+**Gate file:** `squads/extra-dod-roi/state/qa/cyc-2026-07-17T233021Z-qa.json`  
+**Also:** `docs/qa/gates/ROI-cand-dod-unit-test-evidence-pack.yml`  
+**Status:** remains **InReview** until @po close (QA does not set Done / publication).  
+**Next:** `PO_CLOSE`
+
+---
+
 ## Change Log
 
 | Date | Agent | Change |
 |------|-------|--------|
 | 2026-07-17 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
+| 2026-07-17 | @qa / adversarial-qa-auditor | Independent QA PASS on `7876e83`; cycle IN_REVIEW→QA; steward may flip proposed-flips only |
 
 ---
 
