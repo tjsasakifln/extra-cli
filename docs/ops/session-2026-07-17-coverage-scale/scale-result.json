@@ -1,0 +1,150 @@
+{
+  "generated_at": "2026-07-17T23:25:39.520102+00:00",
+  "m2_before": 5,
+  "m2_after": 81,
+  "delta": 76,
+  "denominator": 1093,
+  "m2_pct": 7.4108,
+  "claims_95_reached": false,
+  "promoted": 81,
+  "artifact": {
+    "source": "pncp",
+    "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+    "raw_uri": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T110800Z-9d6dd91153/contratacoes.jsonl",
+    "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+    "matched_unique_cnpj": 81
+  },
+  "sample": [
+    {
+      "canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+      "cnpj8": "82577636",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "82562893:MUNICIPIO_DE_CANELINHA",
+      "cnpj8": "82562893",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "82892365:MUNICIPIO_DE_PAULO_LOPES",
+      "cnpj8": "82892365",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "82575812:MUNICIPIO_DE_PORTO_BELO",
+      "cnpj8": "82575812",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "82572207:MUNICIPIO_DE_ITAPEMA",
+      "cnpj8": "82572207",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "82985003:SERVICO_AUTONOMO_MUNICIPAL_DE_AGUA_E_ESGOTO",
+      "cnpj8": "82985003",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "83102343:MUNICIPIO_DE_BRUSQUE",
+      "cnpj8": "83102343",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "82909409:MUNICIPIO_DE_IMBITUBA",
+      "cnpj8": "82909409",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "82926593:MUNICIPIO_DE_SANTA_ROSA_DE_LIMA",
+      "cnpj8": "82926593",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "83102855:MUNICIPIO_DE_NAVEGANTES",
+      "cnpj8": "83102855",
+      "status": "verified",
+      "last_seen_at": "2026-07-17T11:08:49.526058+00:00",
+      "sources": [
+        "pncp",
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    }
+  ],
+  "commercial_signal_separate": true
+}
