@@ -42,7 +42,7 @@
 | editais crude % (52/1093) | ~3.1% | **4.76%** |
 | golden fail-closed tests | 0 | **9** |
 | schema audit missing_required | — | **[]** exit 0 |
-| pilot status | none | **success** |
+| pilot status | none | **partial** (path_proof 1d success; full 90d NO-GO) |
 
 ## Gates
 

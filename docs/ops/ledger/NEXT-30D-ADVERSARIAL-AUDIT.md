@@ -13,15 +13,19 @@
 ## On-disk verification (this re-audit)
 
 ```text
-pilot status     = success
-days             = 1
-windows_ok       = 1
-page_errors      = 0
+pilot status (overall) = partial
+go_no_go_3y            = NO-GO
+path_proof.status      = success
+path_proof.days        = 1
+path_proof.window      = 20260715_20260715
+windows_ok (path)      = 1
+page_errors (path)     = 0
+full_90d_session       = not_completed
 checkpoint.completed_windows = ["20260715_20260715"]
 checkpoint.total_windows_failed = 0
 ```
 
-**Prior dirty tree** (status=running, days=90, windows_ok=0) was an interrupted concurrent 90d run overwriting the terminal artifact — **restored from HEAD** and re-asserted by `test_terminal_pilot_artifact_is_success`.
+**Prior dirty tree** (status=running, days=90, windows_ok=0) was an interrupted concurrent 90d run overwriting the terminal artifact. Terminal artifact is **partial** (not full-90d success); regression: `test_terminal_pilot_artifact_is_not_running` + `test_evidence_artifact_consistency`.
 
 ## Classifications
 
@@ -46,9 +50,10 @@ checkpoint.total_windows_failed = 0
 ## Commands reproduced
 
 ```text
-pytest tests/test_contracts_pilot_completion.py … → 25 passed (imports evaluate_* from shipped pilot)
+pytest tests/test_contracts_pilot_completion.py … → passed (imports evaluate_* from shipped pilot)
+pytest tests/test_evidence_artifact_consistency.py → fail-closed doc/artifact
 python3 scripts/ops/schema_audit.py → exit 0
-python3 -c "…pilot status…" → success
+# overall pilot JSON status = partial; path_proof = success; go_no_go_3y = NO-GO
 ```
 
 ## Verdict

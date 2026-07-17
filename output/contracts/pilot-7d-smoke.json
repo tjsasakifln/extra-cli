@@ -1,0 +1,89 @@
+{
+  "pilot": "k3.2-pncp-90d",
+  "campaign": "NEXT-30D",
+  "mode": "full",
+  "days": 7,
+  "window_days": 30,
+  "range_start": "2026-07-09",
+  "range_end": "2026-07-16",
+  "started_at": "2026-07-17T00:39:42.740860+00:00",
+  "checkpoint_path": "data/contracts_checkpoints/a5_next30d/contracts_full.json",
+  "windows": [
+    {
+      "window_key": "20260709_20260716",
+      "status": "completed",
+      "pages": 85,
+      "transformed": 42074,
+      "inserted": 29357,
+      "skipped": 12717,
+      "errors": [],
+      "elapsed_seconds": 966.1
+    }
+  ],
+  "totals": {
+    "fetched": 42077,
+    "transformed": 42074,
+    "inserted": 29357,
+    "skipped": 12717,
+    "pages": 85,
+    "page_errors": 0,
+    "windows_ok": 1,
+    "windows_failed": 0,
+    "windows_skipped_resume": 0
+  },
+  "status": "success",
+  "status_note": "Success only for this 7-day span (1 planned window). NOT equivalent to full 90d national pilot.",
+  "errors": [],
+  "completed_at": "2026-07-17T00:55:48.845102+00:00",
+  "duration_seconds": 966.1,
+  "db": {
+    "pncp_supplier_contracts_count": 63574,
+    "min_data_publicacao": "2021-08-26",
+    "max_data_publicacao": "2026-12-16",
+    "data_publicacao_note": "LEGACY/MIXED: historically held dataAssinatura; future max dates are semantic smell until migration 051 backfill+re-ingest",
+    "monthly": [
+      {"mes": "2026-04-01", "n": 14497},
+      {"mes": "2026-05-01", "n": 1818},
+      {"mes": "2026-06-01", "n": 8706},
+      {"mes": "2026-07-01", "n": 31160},
+      {"mes": "2026-08-01", "n": 2},
+      {"mes": "2026-10-01", "n": 3},
+      {"mes": "2026-12-01", "n": 1}
+    ],
+    "sample_populated_n20": 20
+  },
+  "checkpoint": {
+    "source": "pncp_contracts",
+    "mode": "full",
+    "completed_windows": ["20260709_20260716"],
+    "current_window_start": "20260709",
+    "total_contracts_fetched": 42074,
+    "total_windows_completed": 1,
+    "total_windows_failed": 0,
+    "last_error": null,
+    "updated_at": "2026-07-17T00:55:48Z"
+  },
+  "criteria": {
+    "P1_run_status": true,
+    "P2_date_span": true,
+    "P3_monthly": true,
+    "P5_no_residual_page_errors": true,
+    "P6_checkpoint_coherent": true,
+    "P7_sample_fields": true,
+    "P8_full_window_coverage": true
+  },
+  "go_no_go_3y": "NO-GO",
+  "go_no_go_reason": "Pilot span days=7 < 90; short/path pilots cannot authorize unsupervised 3y expansion. Reconciled 2026-07-17.",
+  "go_no_go_path": "GO",
+  "claims_allowed": [
+    "7-day national contracts window completed with 0 page errors",
+    "Tens of thousands of contracts upserted in this run"
+  ],
+  "claims_forbidden": [
+    "Full 90-day national pilot completed",
+    "GO for unsupervised 3-year backfill",
+    "CONTRATOS_95"
+  ],
+  "annotated_at": "2026-07-17T01:30:00+00:00",
+  "annotation_note": "Original machine output incorrectly set go_no_go_3y=GO for a 7d span. Reconciled to NO-GO per evaluate_go_no_go(days) floor."
+}

@@ -10,7 +10,7 @@
 | Commits integrated | **PASS** — branch `epic/next-30d-multiagent-execution` |
 | Adversarial audit | **PASS** — updated, zero FAKE_PATH |
 | DoD §39 evidence | **PASS** — no LOCAL_READY/95% claims |
-| Terminal pilot artifact | **PASS** — status success |
+| Terminal pilot artifact | **PASS** — status **partial** (path_proof 1d success; full 90d national incomplete; go_no_go_3y **NO-GO**) |
 
 ## Explicit non-claims
 

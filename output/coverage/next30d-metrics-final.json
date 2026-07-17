@@ -1,10 +1,21 @@
 {
-  "pncp_supplier_contracts": 31219,
+  "pncp_supplier_contracts": 63574,
   "pncp_raw_bids": 2948,
   "dedup_cross_source": 5,
   "covered_200km": 52,
   "editais_denominator": 1093,
   "editais_crude_pct": 4.76,
-  "pilot_status": "success",
-  "timestamp": "2026-07-17T00:34:16.029300+00:00"
+  "pilot_status": "partial",
+  "pilot_90d_status": "partial",
+  "pilot_path_proof_status": "success",
+  "pilot_path_proof_days": 1,
+  "go_no_go_3y": "NO-GO",
+  "go_no_go_path": "GO",
+  "full_90d_national": "not_completed",
+  "note": "Reconciled 2026-07-17: path_proof 1d only; full 90d national incomplete; contracts count cumulative from partial runs. Do NOT treat pilot_status as full 90d success.",
+  "timestamp": "2026-07-17T01:20:00+00:00",
+  "source_artifacts": [
+    "output/contracts/pilot-90d-next30d.json",
+    "docs/ops/ledger/EVIDENCE-INCONSISTENCY-MATRIX.md"
+  ]
 }
