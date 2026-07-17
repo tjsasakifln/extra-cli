@@ -2496,5 +2496,5 @@ Após auditoria independente (`docs/ops/session-2026-07-17/ADVERSARIAL-AUDIT.md`
 2. Classificador: `Publicado Resultado da Licitação` → RESULT (nunca OPEN).
 3. Radar: ranking + GO/REVIEW/NO_GO + CSV; 757 OPEN, 438 com prazo, 68 eng., 14 GO.
 4. Baseline com quality gates (ruff/mypy/pytest/pip-audit).
-5. CI remota: claim só após Actions verde no PR.
+5. CI remota: **PASS** PR #9 Actions run 29576072258 (lint/mypy/tests/bandit/pip-audit).
 

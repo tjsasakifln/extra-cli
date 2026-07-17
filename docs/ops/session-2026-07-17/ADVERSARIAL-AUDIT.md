@@ -95,7 +95,7 @@ Tentativa de **destruir** claims da sessão. Cada item: PASS / FAIL / CONCERNS c
 | mypy commercial/sector | Success |
 | pip-audit | No known vulnerabilities |
 | Bandit | B310 medium urllib HTTPS (documentado nosec) |
-| PR + GitHub Actions | **a ser aberto no push** — sem claim verde até log remoto |
+| PR + GitHub Actions | **PASS** PR #9 run 29576072258 — lint/mypy/tests/bandit/pip-audit SUCCESS |
 
 ## 11. Segunda execução incremental
 
@@ -132,13 +132,21 @@ Tentativa de **destruir** claims da sessão. Cada item: PASS / FAIL / CONCERNS c
 | C3 radar sem ranking/CSV | MED | **FECHADO** |
 | C4 baseline sem gates | MED | **FECHADO** |
 | C5 ADVERSARIAL-AUDIT missing | HIGH | **FECHADO** (este doc) |
-| C6 CI remota | HIGH | **ABERTO** até PR verde |
+| C6 CI remota | HIGH | **FECHADO** — PR #9 Actions SUCCESS |
 | C7 PNCP 14d incompleto | MED | **ACEITO** com claim proibido |
 | C8 Compras deadline partial | MED | **ACEITO** com claim qualificado |
 
 **Gate documental local:** PASS com ressalvas C6–C8.  
-**Gate publicação remota:** bloqueado até CI Actions verde.
+**Gate publicação remota:** PASS (PR #9, Actions run 29576072258).
 
 ---
 
 *Fim da auditoria adversarial.*
+
+
+## 15. CI remota (atualização)
+
+- PR: https://github.com/tjsasakifln/extra-consultoria/pull/9
+- Run: https://github.com/tjsasakifln/extra-consultoria/actions/runs/29576072258
+- Jobs obrigatórios: Lint, mypy, Test critical, bandit, pip-audit = **SUCCESS**
+- Test All (full suite): SKIPPED (workflow policy)
