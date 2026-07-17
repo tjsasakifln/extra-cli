@@ -2182,7 +2182,8 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 > **HEAD inicial:** `0a2806f8dcaf56377680c640390f73e27cd1d393`  
 > **SHA técnico (código/evidência):** `8b8138aa05fff521f329b8c00221acd0bb147e24`  
 > **SHA correção adversarial (recon/metrics/052):** `3bf1a3ba877defe43fcf3c6623af70b4c3a91475`  
-> **HEAD de publicação desta rodada (pré-briefing):** `aca44086d84de3148d2295ce9ab20d42a8c14c73`  
+> **HEAD pré-briefing:** `aca44086d84de3148d2295ce9ab20d42a8c14c73`  
+> **HEAD deste briefing (§42 / HTML diretoria):** `e2fdc6331c9888e7d504c4b7bd70805b6cb2e02d`  
 > **Branch:** `main`  
 > **Natureza:** execução real (live_fetch) + persistência local + testes. **Não** declara LOCAL_READY, 95%, 90d pilot success, VPS ou PROJECT_DONE.
 
