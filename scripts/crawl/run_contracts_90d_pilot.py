@@ -10,6 +10,11 @@ Why not only ``monitor.py --source contracts --mode full``?
   3. Marks windows complete ONLY when no page errors (partial-window fix)
   4. Writes evidence JSON for go/no-go
 
+Semantics:
+  - Pilot ``status=success`` requires FULL planned window coverage (not path proof).
+  - A clean 1-day window is ``path_proof`` only; never upgrades partial → success.
+  - ``partial`` / ``failed`` always force go_no_go_3y=NO-GO.
+
 Usage:
   PYTHONPATH=. python3 scripts/crawl/run_contracts_90d_pilot.py \\
     --dsn "$DATABASE_URL" \\
@@ -22,9 +27,10 @@ import argparse
 import json
 import logging
 import os
+import random
 import sys
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -43,9 +49,17 @@ from scripts.crawl.contracts_crawler import (  # noqa: E402
     CONTRACTS_REQUEST_DELAY,
     CONTRACTS_WINDOW_DAYS,
     CrawlCheckpoint,
+    FetchStatus,
     _fetch_page,
     _fmt,
     transform,
+)
+from scripts.crawl.run_evidence import (  # noqa: E402
+    assert_checkpoint_run_id,
+    bind_checkpoint_run_id,
+    build_run_evidence,
+    new_run_id,
+    sha256_file,
 )
 
 logger = logging.getLogger("contracts_90d_pilot")
@@ -53,6 +67,31 @@ logger = logging.getLogger("contracts_90d_pilot")
 UPSERT_BATCH = int(os.getenv("CONTRACTS_UPSERT_BATCH", "500"))
 # Isolate pilot checkpoints from concurrent short runs that share mode=full.
 DEFAULT_PILOT_CKPT_DIR = str(_PROJECT_ROOT / "data" / "contracts_checkpoints" / "a5_next30d")
+
+# Pilot-level page retries (on top of contracts_crawler internal retries).
+_PAGE_RETRY_MAX = 3
+_PAGE_RETRYABLE = frozenset(
+    {
+        FetchStatus.HTTP_RATE_LIMIT,
+        FetchStatus.HTTP_SERVER_ERROR,
+        FetchStatus.CONNECTION_FAILED,
+    }
+)
+
+
+def count_planned_windows(
+    start: date, end: date, window_days: int = CONTRACTS_WINDOW_DAYS
+) -> int:
+    """Number of date windows the pilot will attempt between start and end."""
+    if window_days < 1 or start >= end:
+        return 0
+    n = 0
+    cur = start
+    while cur < end:
+        window_end = min(cur + timedelta(days=window_days - 1), end)
+        n += 1
+        cur = window_end + timedelta(days=1)
+    return n
 
 
 def evaluate_window_completion(
@@ -87,15 +126,139 @@ def evaluate_window_completion(
     return fully_ok, errors
 
 
-def evaluate_pilot_status(totals: dict[str, Any]) -> str:
-    """Map pilot window counters to terminal status string."""
+def evaluate_pilot_status(
+    totals: dict[str, Any],
+    *,
+    planned_windows: int | None = None,
+    require_full_coverage: bool = False,
+) -> str:
+    """Map pilot window counters to terminal status string.
+
+    Path-level (default, ``require_full_coverage=False``):
+      - success if windows_failed==0 and windows_ok>0 (legacy path proof)
+      - partial if windows_ok>0 with failures
+      - failed otherwise
+
+    Full pilot (``require_full_coverage=True``, used by ``run_pilot``):
+      - success ONLY when windows_failed==0, page_errors==0, planned_windows>0,
+        and (windows_ok + windows_skipped_resume) >= planned_windows
+      - all-skipped_resume that covers planned counts as success
+      - windows_ok>0 but incomplete coverage → partial
+      - nothing ok → failed
+
+    Note: path_proof existence must NEVER alone imply pilot success.
+    """
     windows_ok = int(totals.get("windows_ok") or 0)
     windows_failed = int(totals.get("windows_failed") or 0)
+    windows_skipped = int(totals.get("windows_skipped_resume") or 0)
+    page_errors = int(totals.get("page_errors") or 0)
+    covered = windows_ok + windows_skipped
+
+    if require_full_coverage:
+        planned = int(planned_windows or 0)
+        if (
+            windows_failed == 0
+            and page_errors == 0
+            and planned > 0
+            and covered >= planned
+        ):
+            return "success"
+        # Progress without full clean coverage (incl. skipped_resume short of planned)
+        if windows_ok > 0 or windows_skipped > 0:
+            return "partial"
+        return "failed"
+
+    # Path-level / backward-compatible (no full-coverage requirement)
     if windows_failed == 0 and windows_ok > 0:
         return "success"
     if windows_ok > 0:
         return "partial"
     return "failed"
+
+
+def evaluate_go_no_go(
+    status: str,
+    criteria: dict[str, Any],
+    *,
+    days: int | None = None,
+    min_days_for_3y: int = 90,
+) -> tuple[str, str]:
+    """Map terminal status + criteria to (go_no_go_3y, reason).
+
+    Rules:
+    - partial / failed / running always force NO-GO
+    - short pilots (days < min_days_for_3y) never authorize 3y expansion
+    - success alone is insufficient without required criteria and day span
+    """
+    if status in {"partial", "failed", "running"}:
+        return (
+            "NO-GO",
+            "Pilot incomplete, partial windows, or residual errors — "
+            "fix before 3y expansion. path_proof alone is not full-pilot success.",
+        )
+    if status != "success":
+        return ("NO-GO", f"Unknown or non-success status={status!r}")
+
+    if days is not None and int(days) < int(min_days_for_3y):
+        return (
+            "NO-GO",
+            f"Pilot span days={days} < {min_days_for_3y}; "
+            "short/path pilots cannot authorize unsupervised 3y expansion.",
+        )
+
+    required = (
+        "P1_run_status",
+        "P2_date_span",
+        "P5_no_residual_page_errors",
+        "P7_sample_fields",
+        "P8_full_window_coverage",
+    )
+    missing = [k for k in required if not criteria.get(k)]
+    if missing:
+        return (
+            "NO-GO",
+            f"Success status but criteria failed: {', '.join(missing)}",
+        )
+    return (
+        "GO",
+        "Pilot completed all planned windows without page errors; "
+        "schema upsert OK; sample fields populated; span meets 90d floor.",
+    )
+
+
+def _fetch_page_with_retry(
+    data_ini: str,
+    data_fim: str,
+    page: int,
+    *,
+    max_retries: int = _PAGE_RETRY_MAX,
+) -> Any:
+    """Fetch one page with exponential backoff + jitter on 429/5xx/timeout.
+
+    Wraps ``_fetch_page`` (which has its own internal retries). Pilot-level
+    retries cover residual transient failures after the inner loop gives up.
+    """
+    last = None
+    for attempt in range(max_retries + 1):
+        last = _fetch_page(data_ini, data_fim, page)
+        if not last.is_failure:
+            return last
+        if last.status not in _PAGE_RETRYABLE or attempt >= max_retries:
+            return last
+        # exponential backoff with full jitter: base 1s → 2 → 4 ...
+        base = 2**attempt
+        delay = base + random.uniform(0, base)  # noqa: S311 — retry jitter, not crypto
+        logger.warning(
+            "Retryable page error %s page=%d attempt=%d/%d sleep=%.2fs: %s",
+            last.status.value,
+            page,
+            attempt + 1,
+            max_retries,
+            delay,
+            last.error_message,
+        )
+        time.sleep(delay)
+    return last
 
 
 def _configure_checkpoint_dir(ckpt_dir: str | None) -> str:
@@ -115,6 +278,27 @@ def save_checkpoint(cp: CrawlCheckpoint) -> None:
     _cc.save_checkpoint(cp)
 
 
+def _apply_run_id_to_checkpoint(checkpoint: CrawlCheckpoint, run_id: str) -> list[str]:
+    """Bind run_id into checkpoint.meta; optionally enforce same-run resume.
+
+    Returns previous_run_ids list for the report.
+    """
+    cp_dict = checkpoint.to_dict()
+    existing_meta = cp_dict.get("meta") or {}
+    existing_run = existing_meta.get("run_id")
+
+    if (
+        os.getenv("CONTRACTS_REQUIRE_SAME_RUN_ID", "0") == "1"
+        and existing_run
+        and existing_run != run_id
+    ):
+        assert_checkpoint_run_id(cp_dict, run_id)
+
+    bound = bind_checkpoint_run_id(cp_dict, run_id)
+    checkpoint.meta = bound.get("meta") or {}
+    return list((checkpoint.meta or {}).get("previous_run_ids") or [])
+
+
 def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
     """Upsert a batch; returns (inserted, skipped)."""
     if not rows:
@@ -125,7 +309,18 @@ def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
         item = dict(r)
         item.setdefault("source", "pncp_contracts")
         # dates may be date objects
-        for k in ("data_inicio", "data_fim", "data_publicacao"):
+        for k in (
+            "data_inicio",
+            "data_fim",
+            "data_publicacao",
+            "data_assinatura",
+            "data_publicacao_fonte",
+            "data_atualizacao_fonte",
+            "source_event_date",
+            "query_window_start",
+            "query_window_end",
+            "source_updated_at",
+        ):
             if item.get(k) is not None and not isinstance(item[k], str):
                 item[k] = item[k].isoformat()
         payload.append(item)
@@ -149,6 +344,73 @@ def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
     return inserted, skipped
 
 
+def _build_path_proof(
+    *,
+    days: int,
+    planned_windows: int,
+    status: str,
+    totals: dict[str, Any],
+    windows: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """Optional path_proof block — never upgrades pilot status to success."""
+    windows_ok = int(totals.get("windows_ok") or 0)
+    windows_failed = int(totals.get("windows_failed") or 0)
+    page_errors = int(totals.get("page_errors") or 0)
+
+    completed = [w for w in windows if w.get("status") == "completed"]
+    single_clean = (
+        windows_ok >= 1
+        and windows_failed == 0
+        and page_errors == 0
+        and len(completed) >= 1
+    )
+
+    if days <= 1:
+        return {
+            "status": status if status in {"success", "partial", "failed"} else "partial",
+            "days": days,
+            "planned_windows": planned_windows,
+            "totals": {
+                k: totals.get(k)
+                for k in (
+                    "fetched",
+                    "transformed",
+                    "inserted",
+                    "skipped",
+                    "pages",
+                    "page_errors",
+                    "windows_ok",
+                    "windows_failed",
+                    "windows_skipped_resume",
+                )
+            },
+            "note": "days<=1 run is path-level evidence only unless planned_windows fully covered",
+        }
+
+    if single_clean and status != "success":
+        first = completed[0]
+        return {
+            "status": "success",
+            "days": CONTRACTS_WINDOW_DAYS if CONTRACTS_WINDOW_DAYS <= days else days,
+            "window": first.get("window_key"),
+            "totals": {
+                "fetched": totals.get("fetched"),
+                "transformed": totals.get("transformed"),
+                "inserted": totals.get("inserted"),
+                "skipped": totals.get("skipped"),
+                "pages": totals.get("pages"),
+                "page_errors": totals.get("page_errors"),
+                "windows_ok": windows_ok,
+                "windows_failed": windows_failed,
+            },
+            "note": (
+                "At least one clean window completed; this is path_proof only — "
+                "full pilot status remains partial until planned coverage is met"
+            ),
+        }
+    return None
+
+
 def run_pilot(
     dsn: str,
     *,
@@ -156,25 +418,35 @@ def run_pilot(
     output_json: str | None = None,
     dry_run: bool = False,
     checkpoint_dir: str | None = None,
+    run_id: str | None = None,
 ) -> dict[str, Any]:
-    started = datetime.now(timezone.utc)
+    started = datetime.now(UTC)
     mode = "full"
     today = date.today()
     start = today - timedelta(days=days)
+    planned_windows = count_planned_windows(start, today, CONTRACTS_WINDOW_DAYS)
+    run_id = run_id or new_run_id(prefix="contracts-90d")
 
     ckpt_dir = _configure_checkpoint_dir(checkpoint_dir)
+    checkpoint_path = str(Path(ckpt_dir) / f"contracts_{mode}.json")
     checkpoint = load_checkpoint(mode)
+    previous_run_ids = _apply_run_id_to_checkpoint(checkpoint, run_id)
+    save_checkpoint(checkpoint)
+
     # Reset counters for this pilot run report but KEEP completed_windows for resume
     report: dict[str, Any] = {
         "pilot": "k3.2-pncp-90d",
         "campaign": "NEXT-30D",
+        "run_id": run_id,
+        "previous_run_ids": previous_run_ids,
         "mode": mode,
         "days": days,
         "window_days": CONTRACTS_WINDOW_DAYS,
+        "planned_windows": planned_windows,
         "range_start": start.isoformat(),
         "range_end": today.isoformat(),
         "started_at": started.isoformat(),
-        "checkpoint_path": str(Path(ckpt_dir) / f"contracts_{mode}.json"),
+        "checkpoint_path": checkpoint_path,
         "windows": [],
         "totals": {
             "fetched": 0,
@@ -231,7 +503,7 @@ def run_pilot(
             last_total_pages = 0
             print(f"WINDOW_START {window_key}", flush=True)
             while page <= CONTRACTS_MAX_PAGES:
-                result = _fetch_page(data_ini, data_fim, page)
+                result = _fetch_page_with_retry(data_ini, data_fim, page)
                 if result.is_failure:
                     msg = f"Page {page}: [{result.status.value}] {result.error_message}"
                     window_errors.append(msg)
@@ -340,6 +612,8 @@ def run_pilot(
                     len(window_errors),
                     window_transformed,
                 )
+            # Keep run_id binding fresh on every save
+            _apply_run_id_to_checkpoint(checkpoint, run_id)
             save_checkpoint(checkpoint)
 
             report["windows"].append(
@@ -378,7 +652,7 @@ def run_pilot(
             if cur_date < today:
                 time.sleep(CONTRACTS_JANELA_DELAY)
 
-        completed = datetime.now(timezone.utc)
+        completed = datetime.now(UTC)
         report["completed_at"] = completed.isoformat()
         report["duration_seconds"] = round((completed - started).total_seconds(), 1)
 
@@ -420,11 +694,51 @@ def run_pilot(
                 """
             )
             sample_ok = (cur.fetchone() or {}).get("n_sample", 0)
+
+            # Optional semantic date columns (migration 051). Soft-fail if missing.
+            min_assin = max_assin = None
+            has_assinatura_col = False
+            try:
+                cur.execute(
+                    """
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                      AND table_name = 'pncp_supplier_contracts'
+                      AND column_name = 'data_assinatura'
+                    LIMIT 1
+                    """
+                )
+                has_assinatura_col = cur.fetchone() is not None
+                if has_assinatura_col:
+                    cur.execute(
+                        """
+                        SELECT MIN(data_assinatura) AS min_a,
+                               MAX(data_assinatura) AS max_a
+                        FROM pncp_supplier_contracts
+                        WHERE data_assinatura IS NOT NULL
+                        """
+                    )
+                    arow = cur.fetchone() or {}
+                    min_assin = arow.get("min_a")
+                    max_assin = arow.get("max_a")
+            except Exception as e:  # noqa: BLE001 — soft-fail for older DBs
+                logger.warning("Could not report data_assinatura min/max: %s", e)
+
             cur.close()
             report["db"] = {
                 "pncp_supplier_contracts_count": row.get("n"),
                 "min_data_publicacao": row["min_pub"].isoformat() if row.get("min_pub") else None,
                 "max_data_publicacao": row["max_pub"].isoformat() if row.get("max_pub") else None,
+                # LEGACY: data_publicacao historically held dataAssinatura (mixed semantics).
+                # Prefer data_assinatura / data_publicacao_fonte after migration 051.
+                "data_publicacao_note": (
+                    "legacy/mixed semantics — historically stored dataAssinatura; "
+                    "prefer data_assinatura / data_publicacao_fonte (migration 051)"
+                ),
+                "min_data_assinatura": min_assin.isoformat() if min_assin else None,
+                "max_data_assinatura": max_assin.isoformat() if max_assin else None,
+                "has_data_assinatura_column": has_assinatura_col,
                 "monthly": monthly,
                 "sample_populated_n20": int(sample_ok),
             }
@@ -432,50 +746,123 @@ def run_pilot(
         # Final checkpoint snapshot
         report["checkpoint"] = checkpoint.to_dict()
 
-        report["status"] = evaluate_pilot_status(report["totals"])
+        # Full-coverage pilot status (never path-level alone)
+        report["status"] = evaluate_pilot_status(
+            report["totals"],
+            planned_windows=planned_windows,
+            require_full_coverage=True,
+        )
+
+        # Optional path_proof (does NOT override pilot status)
+        path_proof = _build_path_proof(
+            days=days,
+            planned_windows=planned_windows,
+            status=report["status"],
+            totals=report["totals"],
+            windows=report["windows"],
+        )
+        if path_proof is not None:
+            report["path_proof"] = path_proof
 
         # Go/no-go heuristics (P1-P5, P7 simplified)
         p = report["totals"]
         db = report.get("db") or {}
         criteria = {
-            "P1_run_status": report["status"] in {"success", "partial"},
+            "P1_run_status": report["status"] == "success",
             "P2_date_span": bool(db.get("min_data_publicacao") and db.get("max_data_publicacao")),
             "P3_monthly": bool(db.get("monthly")),
             "P5_no_residual_page_errors": p["page_errors"] == 0 and p["windows_failed"] == 0,
-            "P6_checkpoint_coherent": len(checkpoint.completed_windows) == p["windows_ok"]
-            + report["totals"]["windows_skipped_resume"]
+            "P6_checkpoint_coherent": len(checkpoint.completed_windows)
+            >= (p["windows_ok"] + p["windows_skipped_resume"])
             or len(checkpoint.completed_windows) >= p["windows_ok"],
             "P7_sample_fields": int(db.get("sample_populated_n20") or 0) >= 20
             or int(db.get("pncp_supplier_contracts_count") or 0) >= 20,
+            "P8_full_window_coverage": (
+                planned_windows > 0
+                and (p["windows_ok"] + p["windows_skipped_resume"]) >= planned_windows
+                and p["windows_failed"] == 0
+            ),
         }
         report["criteria"] = criteria
-        go = all(
-            [
-                criteria["P1_run_status"],
-                criteria["P2_date_span"],
-                criteria["P5_no_residual_page_errors"],
-                criteria["P7_sample_fields"],
-            ]
+        go_label, go_reason = evaluate_go_no_go(
+            report["status"],
+            criteria,
+            days=days,
+            min_days_for_3y=CONTRACTS_FULL_DAYS,
         )
-        # Partial success with remaining errors → NO-GO for 3y until clean resume
-        if report["status"] != "success":
-            go = False
-        report["go_no_go_3y"] = "GO" if go else "NO-GO"
-        report["go_no_go_reason"] = (
-            "Pilot completed all windows without page errors; schema upsert OK; sample fields populated."
-            if go
-            else "Pilot incomplete, partial windows, or residual errors — fix before 3y expansion."
-        )
+        report["go_no_go_3y"] = go_label
+        report["go_no_go_reason"] = go_reason
+
+        # Claims discipline
+        report["claims_allowed"] = [
+            "Resumable pilot runner exists; partial windows are not marked complete on page errors",
+        ]
+        if int(p.get("windows_ok") or 0) >= 1 or (
+            path_proof and path_proof.get("status") == "success"
+        ):
+            report["claims_allowed"].append(
+                "At least one full day/window completed with 0 page errors (path_proof)"
+            )
+        if int((db or {}).get("pncp_supplier_contracts_count") or 0) >= 1000:
+            report["claims_allowed"].append(
+                "Contracts persisted in pncp_supplier_contracts (see db counts)"
+            )
+        report["claims_forbidden"] = [
+            "Full 90-day national pilot completed"
+            if report["status"] != "success"
+            else "Unsupervised 3y without re-validation",
+            "GO for unsupervised 3-year backfill"
+            if go_label != "GO"
+            else "Skip re-check after schema changes",
+            "CONTRATOS_95",
+        ]
 
     finally:
         if conn is not None:
             conn.close()
 
+    # Attach evidence block, write final JSON once, then stamp output_hash of that write.
+    evidence = build_run_evidence(
+        run_id=run_id,
+        started_at=report.get("started_at"),
+        completed_at=report.get("completed_at"),
+        command="scripts/crawl/run_contracts_90d_pilot.py",
+        args={
+            "days": days,
+            "mode": mode,
+            "dry_run": dry_run,
+            "planned_windows": planned_windows,
+            "checkpoint_dir": ckpt_dir,
+        },
+        checkpoint_path=checkpoint_path,
+        checkpoint_hash=sha256_file(checkpoint_path),
+        output_path=str(output_json) if output_json else None,
+        output_hash=None,
+        status=report.get("status"),
+        errors=report.get("errors") or [],
+        criteria=report.get("criteria") or {},
+        claims_allowed=report.get("claims_allowed") or [],
+        claims_forbidden=report.get("claims_forbidden") or [],
+        counts_after={
+            "inserted": report["totals"].get("inserted"),
+            "transformed": report["totals"].get("transformed"),
+            "windows_ok": report["totals"].get("windows_ok"),
+            "windows_failed": report["totals"].get("windows_failed"),
+            "windows_skipped_resume": report["totals"].get("windows_skipped_resume"),
+            "planned_windows": planned_windows,
+        },
+        previous_run_ids=previous_run_ids,
+    )
+    report["evidence"] = evidence
+
     if output_json:
         out = Path(output_json)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
-        logger.info("Wrote evidence %s", out)
+        # Hash of the written artifact (pre self-hash); re-write once with hash set.
+        report["evidence"]["output_hash"] = sha256_file(out)
+        out.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+        logger.info("Wrote evidence %s run_id=%s", out, run_id)
 
     return report
 
@@ -522,6 +909,7 @@ def main() -> int:
         cp.total_windows_failed = 0
         cp.total_contracts_fetched = 0
         cp.last_error = None
+        # Preserve meta.run_ids history when resetting windows
         save_checkpoint(cp)
         logging.getLogger("contracts_90d_pilot").info("Checkpoint reset for mode=full")
 
@@ -532,7 +920,23 @@ def main() -> int:
         dry_run=args.dry_run,
         checkpoint_dir=args.checkpoint_dir,
     )
-    print(json.dumps({k: report[k] for k in ("status", "totals", "go_no_go_3y", "duration_seconds", "db") if k in report}, indent=2, default=str))
+    summary_keys = (
+        "run_id",
+        "status",
+        "totals",
+        "planned_windows",
+        "go_no_go_3y",
+        "duration_seconds",
+        "db",
+        "path_proof",
+    )
+    print(
+        json.dumps(
+            {k: report[k] for k in summary_keys if k in report},
+            indent=2,
+            default=str,
+        )
+    )
     if report["status"] == "success":
         return 0
     if report["status"] == "partial":
