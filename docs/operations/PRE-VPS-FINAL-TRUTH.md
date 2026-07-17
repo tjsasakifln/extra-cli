@@ -12,8 +12,17 @@
 NOT_READY
 ```
 
-**Por quê:** gates offline (lint, type, unit, chaos, fixture isolation, systemd) passam.  
-**Bloqueio residual:** canary live com PostgreSQL real + evidência operacional recente por fonte **não** foi executada neste ambiente (`DATABASE_URL` ausente). Sem isso, declarar `PRE_VPS_FINAL_READY` seria mentira.
+**Por quê:** gates offline (lint, type, unit, chaos, fixture isolation, systemd, migration applier) passam localmente.  
+**Bloqueio residual:** canary live com PostgreSQL real + evidência operacional recente por fonte **não** foi executada neste ambiente (`DATABASE_URL` ausente). CI `resilience-gate` deve revalidar migrations (fresh + upgrade) no PR #12.
+
+Correções pós-skeptic (commit `825b643`):
+- migration runner sem `CREATE INDEX CONCURRENTLY` em transaction
+- upgrade path 001–40 → 41–54 no CI
+- `monitor.py` prioriza `OperationalPipeline` para PNCP/CIGA/SC
+- CIGA → `upsert_official_acts`
+- promote de checkpoint sem `except: pass`
+- docs com selo destruído (README/DOD/PRE-VPS/architecture)
+- vertical PG strict when DSN set
 
 O selo `LOCAL_RESILIENCE_READY` **não é mais válido**.
 
