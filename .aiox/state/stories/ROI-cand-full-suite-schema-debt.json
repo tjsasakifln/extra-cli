@@ -6,7 +6,7 @@
   "status": "Done",
   "story_file": "docs/stories/ROI-cand-full-suite-schema-debt.md",
   "created_at": "2026-07-17T22:49:49Z",
-  "updated_at": "2026-07-17T23:06:02Z",
+  "updated_at": "2026-07-17T23:07:13Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
   "qa_verdict": "PASS",
@@ -100,5 +100,9 @@
       "DoD checkboxes only if evidence steward authorizes post-publish",
       "No READY seals; residual schema/sc_compras debt for re-rank"
     ]
+  },
+  "publication_commits": {
+    "qa_reviewed": "b18e6b84eae65c5768e76cd4dbfa04e7f9a5773b",
+    "po_close_docs": "8aacfd75c8956c8c7139992d943171662ccdeb3f"
   }
 }
