@@ -32,7 +32,7 @@ checkpoint.total_windows_failed = 0
 | Schema audit | **DONE** | exit 0, `missing_required=[]` |
 | sc_compras | **DONE** | on-disk `runtime-next30d.json` **status=success**, fetched=inserted=2602 (re-restored from `ea78064` after concurrent failed re-run left status=failed); DB `pncp_raw_bids` where source=sc_compras = 2602 |
 | DOE-SC | **BLOCKED_EXTERNAL** | no creds; owner Tiago |
-| Contracts pilot terminal | **DONE** | on-disk JSON **status=success** (not running); checkpoint completed_windows≥1 |
+| Contracts pilot terminal | **DONE_PARTIAL** | status=**partial**; path_proof success 1d; full 90d national incomplete; go_no_go_3y=**NO-GO**; checkpoint path_proof window present |
 | Partial-window fix | **DONE** | `evaluate_window_completion` shipped + unit tests import it |
 | Dedup wired | **DONE** | CLI + rows≥5 |
 | Coverage audit | **DONE** | 4.76% measured (not 95%) |

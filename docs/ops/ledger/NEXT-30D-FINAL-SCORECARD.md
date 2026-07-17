@@ -17,7 +17,7 @@
 | C2.7 | **DONE** + **BLOCKED_EXTERNAL residual** | sc_compras 2602 DONE; DOE-SC blocked | DOE_SC_* creds (Tiago) |
 | C2.8 | **DONE** | dedup CLI + rows | — |
 | C2.9 | **DONE** | active_snapshot_integrity=1.0 | — |
-| K3.2 | **DONE** | on-disk `pilot-90d-next30d.json` **status=success** (days=1 full window); checkpoint `completed_windows=["20260715_20260715"]`; DB 31k+ | Full 90d multi-window resume optional overnight; do not leave status=running on disk |
+| K3.2 | **DONE_PARTIAL** | path_proof success + volume; full 90d NO-GO 3y until supervised run; DB ~42k |
 | K3.3 | **BLOCKED_EXTERNAL** / deferred | needs alt contract sources prioritization | product priority |
 | K3.4 | **DONE** (prep) | incremental path exists post-pilot; not full aditivos pipeline | follow-up |
 | C2.10 | **DONE** | coverage audit 4.76% measured | — |

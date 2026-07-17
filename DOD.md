@@ -1971,7 +1971,7 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 | SHA inicial | `77ff8a8` |
 | Branch | `epic/next-30d-multiagent-execution` |
 | sc_compras | **2602** fetched/inserted (**DONE**) |
-| Contracts pilot | terminal **success**; DB **31219** (era 0); path GO / 3y CONDITIONAL |
+| Contracts pilot | **partial**: path_proof 1d **success**; full 90d national **NO-GO** 3y sem run supervisionado; DB ~42k+ |
 | Dedup cross-source | CLI wired; rows ≥ 5 (**DONE**) |
 | Editais crude coverage | **4,76%** (52/1093) measured — not 95% |
 | Snapshot integrity | **1.0** |
@@ -2013,7 +2013,7 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 | SHA final | `839e73f5e226621f85e8c9cf7aa9d5a4c9e77234` (`839e73f`) |
 | PR | [#8](https://github.com/tjsasakifln/extra-consultoria/pull/8) |
 | sc_compras evidence | `output/sc_compras/runtime-next30d.json` **status=success**, inserted=**2602** |
-| Pilot contracts | `output/contracts/pilot-90d-next30d.json` **status=success** |
+| Pilot contracts | `output/contracts/pilot-90d-next30d.json` **status=partial** (path GO · 3y NO-GO) |
 | Checkpoint | `completed_windows=["20260715_20260715"]` |
 | Contratos no DB | **34217** (baseline 0) |
 | Editais crude | **4.76%** (52/1093) |
