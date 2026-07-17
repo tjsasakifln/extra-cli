@@ -277,11 +277,134 @@ Gate verifica `MAX(last_run_at) ≥ NOW() - SLA` para cada critical source. Exit
 
 ---
 
-## Lacunas 🔴
+## Lacunas 🔴 (baseline 2026-07-13 — parcialmente superadas em 2026-07-17)
 
-1. **LACUNA** — Não há documentação explícita do modelo de negócio da Extra Consultoria (quem são os clientes, como o serviço é vendido, ticket médio). O sistema sabe gerar propostas mas o contexto comercial está implícito.
-2. **LACUNA** — Transição `monitor.py` → `orchestrator.py` não tem decisão documentada. Dois orquestradores coexistem sem critério claro de qual usar.
-3. **LACUNA** — Schema real do banco diverge das migrations em 5 pontos críticos. Não há plano de reconciliação documentado.
-4. **LACUNA** — Win rate de fornecedores permanece `NOT_READY`. Métricas alternativas (market share, HHI, supplier ranking) implementadas mas win rate requer dados de resultado de licitação que não estão disponíveis nas fontes atuais.
-5. **LACUNA** — ComprasGov e TCE/SC estão documentados no mapeamento semântico (`SOURCE_VALUE_TYPES`) mas NÃO ingeridos. Bloqueio: ComprasGov requer API key não disponível, TCE/SC requer parsing de empenhos.
-6. **LACUNA** — 7 fontes em `SOURCE_BLOCKERS` sem plano de ativação. Apenas PNCP e Contracts estão ativos. DOM-SC, DOE-SC, PCP, SC-Compras, Transparência bloqueados por Selenium/CAPTCHA/API não documentada.
+1. **LACUNA** — Modelo comercial humano (ticket, pricing de serviço consultoria) ainda implícito — parcialmente endereçado por ADR-022 Client Profile, mas proposta comercial de serviço da Extra permanece fora do código.
+2. ~~Orquestradores duplicados~~ → **RESOLVIDO 🟢**: `orchestrator.py` marcado DEPRECATED; `monitor.py` + registry + resilient_cycle são o caminho vivo.
+3. **LACUNA** — Divergência residual schema vs migrations ainda monitorada por `scripts/schema/audit_sql_references.py` e `verify-schema-divergence.sh`.
+4. **LACUNA** — Win rate de fornecedores permanece `NOT_READY` (sem resultados oficiais de vencedor em todas as fontes).
+5. **PARCIAL** — DOE/DOM/SC Compras com ingestão real de atos; ComprasGov homologado e TCE empenhos ainda limitados.
+6. **PARCIAL** — Blockers por fonte migraram para ESR + gap_report; M2 operacional strict ainda 0/1093 na sessão carimbada 2026-07-17.
+
+---
+
+# Escopo almejado (binding 2026-07-17)
+
+> 🟢 **`DOD.md` (raiz do repositório) é a definição de escopo almejado do projeto.**  
+> Este `domain.md` descreve regras e glossário **as-is** extraídos do código.  
+> Metas de pronto, exclusões de obra física, 95% operacional, gates `LOCAL_READY` / `VPS_OPERATIONAL` / `PROJECT_DONE` e claims permitidos vêm do **DOD**, não deste arquivo.  
+> Mapa completo: `_reversa_sdd/target-scope-dod.md`.
+
+---
+
+# Re-extração Detective — 2026-07-17
+
+> HEAD `d3e82ba` | 131 commits | Plataforma B2G operacional + local resilience  
+> Fontes: código, migrations 052–054, ADRs 017–022 em `docs/architecture/adr/` + **DOD.md como alvo**
+
+## Glossário adicional
+
+| Termo | Definição | Evidência |
+|-------|-----------|-----------|
+| **Coverage Contract** | Contrato multi-métrica (M1–M5) com denominador fixo 1093 e dual-headline comercial×operacional | ADR-018, `coverage_contract.py` |
+| **M1 Commercial Signal** | Entidades com oportunidade OPEN/UPCOMING/RECENT matched — **não** é meta 95% | ADR-018 |
+| **M2 Operational Source Coverage** | Entidades com fonte aplicável + estágios comprovados + proveniência — meta ≥95% proposta | ADR-018 |
+| **Entity Source Registry (ESR)** | Binding entidade→fonte→método→status para o universo 1093 | ADR-019, mig 053 |
+| **Strict Operational** | Critério falível de “operacional”; proxies de volume no banco **não** contam | `is_strict_operational` |
+| **Workspace Facade** | CLI única do consultor (`python -m scripts.workspace`) | ADR-017 |
+| **Official Act** | Publicação DOE/DOM/CKAN normalizada com hash e proveniência | mig 052, `schema/official_acts.py` |
+| **Deterministic Reconcile** | Match atos×PNCP só por identificadores explícitos (sem fuzzy livre) | `official_acts_reconcile.py` |
+| **Adapter Contract** | `FetchResult` tipado: success/empty_confirmed/partial/rate_limited/auth_blocked/error | ADR-021 |
+| **Local Resilience** | Checkpoints/raw/DLQ/evidence em filesystem pré-VPS; projeção SQL em mig 054 | `crawl/resilience/`, ADR-021 |
+| **Class A–E artifacts** | Código/specs/evidência carimbada vs raw operacional vs segredos | ADR-020 |
+| **Client Profile Law** | Perfil YAML é única lei comercial de ranking/triagem | ADR-022 |
+| **List Identity** | \|covered\|+\|uncovered\|=denominator e \|covered\|=numerator | ADR-018, testes coverage |
+| **Buyer Intel AEC** | Ranking de órgãos por keywords de engenharia/construção | `buyer_intel/ranking.py` |
+
+## Regras de negócio novas / reforçadas
+
+### R27: Dual-metric obrigatória (Coverage Contract)
+**Regra:** Todo relatório/CLI de cobertura deve expor **M1 e M2 lado a lado**. Proibido reportar M3/M4 como “cobertura 95% da proposta”. Denominador **fixo 1093**.  
+🟢 CONFIRMADO — ADR-018, `coverage_contract.py`, testes de list identity.
+
+### R28: Denominador imutável do universo
+**Regra:** 1.093 = entidades ativas raio 200km. Proibido encolher denominador para inflar %.  
+🟢 CONFIRMADO — ADR-018, `lib/universe.py`, seed CSV.
+
+### R29: M2 exige evidência completa de estágios
+**Regra:** Status `accessible/collected/verified` sem proveniência (`run_id`, raw hash/URI, IDs normalizados) **não** entra em M2.  
+🟢 CONFIRMADO — ADR-018, mig 054 `satisfactory` CHECK.
+
+### R30: ESR é SoT entidade→fonte
+**Regra:** Cobertura operacional por entidade só é honesta via Entity Source Registry (não só crawl global).  
+🟢 CONFIRMADO — ADR-019, `source_registry/*`, mig 053.
+
+### R31: Fail-closed em 429 e bulk incompleto
+**Regra:** HTTP 429 → `rate_limited` (não success/empty). `pages_fetched < pages_expected` → `partial`. SC bulk incompleto não promove coverage satisfactory.  
+🟢 CONFIRMADO — ADR-021, `resilience/adapters.py`, chaos tests.
+
+### R32: empty_confirmed é o único zero-ok
+**Regra:** Zero registros só é sucesso se `empty_confirmed` credível (`supports_zero_proof`).  
+🟢 CONFIRMADO — ADR-021, registry `supports_zero_proof`.
+
+### R33: Raw operacional fora do git
+**Regra:** JSONL raw, checkpoints quentes e dumps **não** entram no git. Só evidência carimbada mínima em `docs/ops/session-*`.  
+🟢 CONFIRMADO — ADR-020.
+
+### R34: Workspace é facade, não reimplementação
+**Regra:** `scripts/workspace` orquestra módulos existentes; não reescreve ranking/crawl. Offline → seções UNAVAILABLE com reason.  
+🟢 CONFIRMADO — ADR-017, `workspace/queue.py`.
+
+### R35: Client Profile é lei comercial única
+**Regra:** Ranking/triagem/filtros default do workspace derivam do Client Profile versionado; labels humanos sobrescrevem modelo.  
+🟢 CONFIRMADO — ADR-022 (código parcialmente alinhado via `opportunity_intel/profile.py`).
+
+### R36: Edital/proposta default REVIEW
+**Regra:** Scaffolds de edital/proposta **nunca** inventam GO sem evidência; default REVIEW.  
+🟢 CONFIRMADO — ADR-017, `workspace/actions.py`.
+
+### R37: Reconciliação de atos só determinística
+**Regra:** Match DOE/DOM/Compras SC × PNCP usa RULE_PRIORITY de identificadores; sem fuzzy de texto livre.  
+🟢 CONFIRMADO — `matching/official_acts_reconcile.py`.
+
+### R38: valor_global ≠ preço praticado
+**Regra:** (reforço de R-value) PNCP contracts = CONTRATADO; proibido tratar GLOBAL como preço pago.  
+🟢 CONFIRMADO — `lib/value_semantics.py`, ADR-015.
+
+### R39: List identity de cobertura
+**Regra:** Em qualquer lista covered/uncovered, cardinalidades devem fechar com denominador e numerador.  
+🟢 CONFIRMADO — testes `tests/unit/coverage`, ADR-018.
+
+### R40: Buyer AEC keyword gate
+**Regra:** Contratos classificados AEC se objeto contém keywords de engenharia/construção (lista fixa).  
+🟢 CONFIRMADO — `buyer_intel/ranking.py:is_aec`.
+
+## Constantes adicionais (2026-07-17)
+
+| Constante | Valor | Fonte |
+|-----------|-------|-------|
+| DENOMINADOR_UNIVERSO | 1093 | ADR-018 / seed |
+| M1 sessão 2026-07-17 | 116/1093 (10,61%) | ADR-018 verification |
+| M2 strict sessão | 0/1093 | ADR-018 verification |
+| Sources registry | 11 | `crawl.registry.iter_sources` |
+| RULE_PRIORITY acts | 8 regras | official_acts_reconcile |
+| systemd services/timers | 25 / 24 | deploy/systemd |
+
+## Fontes de evidência (atualizado)
+
+| Fonte | Tipo | Artefatos |
+|-------|------|-----------|
+| Código Python | 🟢 | 435 arquivos rastreados, ~179K LOC |
+| Migrations SQL | 🟢 | 59 em db/migrations (001–054) |
+| Git log | 🟢 | 131 commits desde 2026-07-13 |
+| ADRs projeto | 🟢 | ADR-017…022 + legados |
+| Testes | 🟢 | 126 arquivos, chaos + unit coverage/registry/workspace |
+| DoD sessions | 🟢 | docs/ops/session-* §40–§44 |
+
+## Lacunas 🔴 remanescentes (2026-07-17)
+
+1. M2 operacional strict ainda 0/1093 — meta 95% não atingida (honesto).  
+2. M3/M5 completos no backlog do coverage contract.  
+3. Win rate / resultados de licitação ainda NOT_READY.  
+4. Client Profile como “sole law” documentado; 🟡 aderência 100% de todos os scorers legados a validar.  
+5. ComprasGov homologado e TCE PAGO ainda não plenamente ingeridos.

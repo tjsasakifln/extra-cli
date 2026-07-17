@@ -1,0 +1,122 @@
+name: extra-dod-roi
+version: 1.0.0
+short-title: Extra DoD ROI Evergreen
+description: 'Evergreen cycle: reconstruct real codebase state, reconcile with DOD.md, rank unlocked work by ROI, implement
+  the smallest high-ROI slice, adversarial QA, evidence, draft PR — no false greens.'
+author: Tiago Jun Sasaki
+license: UNLICENSED
+slashPrefix: extra-roi
+aiox:
+  minVersion: 5.3.0
+  type: squad
+requires:
+  node: '>=18.0.0'
+  aiox: '>=5.3.0'
+tags:
+- dod
+- roi
+- evergreen
+- governance
+- delivery
+- truth-audit
+- local
+- private
+- extra-consultoria
+components:
+  tasks:
+  - adversarial-qa-auditor-run-adversarial-verification.md
+  - codebase-cartographer-snapshot-project-state.md
+  - critical-path-roi-planner-build-dependency-graph.md
+  - critical-path-roi-planner-explain-next-best-action.md
+  - critical-path-roi-planner-generate-candidate-work.md
+  - critical-path-roi-planner-materialize-execution-card.md
+  - critical-path-roi-planner-rank-unlocked-work-by-roi.md
+  - delivery-engineer-implement-selected-slice.md
+  - dod-truth-auditor-reconcile-dod-truth.md
+  - evidence-release-steward-publish-evidence-and-handoff.md
+  - roi-orchestrator-resume-cycle.md
+  - roi-orchestrator-run-evergreen-roi-cycle.md
+  - roi-orchestrator-show-blockers.md
+  - roi-orchestrator-show-status.md
+  agents:
+  - roi-orchestrator.md
+  - codebase-cartographer.md
+  - dod-truth-auditor.md
+  - critical-path-roi-planner.md
+  - delivery-engineer.md
+  - adversarial-qa-auditor.md
+  - evidence-release-steward.md
+  workflows:
+  - evergreen-roi-cycle.yaml
+  checklists:
+  - truth-audit-checklist.md
+  - readiness-checklist.md
+  - adversarial-qa-checklist.md
+  - evidence-checklist.md
+  templates:
+  - execution-card.md
+  - cycle-report.md
+  - handoff.md
+  tools:
+  - roi-score-tool.md
+  scripts:
+  - cli.py
+  - cycle_lock.py
+  - graph_build.py
+  - parse_dod.py
+  - rank_next_cli.py
+  - score_roi.py
+  - snapshot_state.py
+  - stale_detect.py
+  - validate_state.py
+config:
+  extends: extend
+  coding-standards: config/coding-standards.md
+  tech-stack: config/tech-stack.md
+  source-tree: config/source-tree.md
+dependencies:
+  node: []
+  python: []
+  squads: []
+distribution:
+  level: local
+  path: ./squads/extra-dod-roi/
+  publish: false
+  marketplace: false
+commands:
+  status:
+    task: roi-orchestrator-show-status.md
+    mode: read-only
+  scan-state:
+    task: codebase-cartographer-snapshot-project-state.md
+    mode: read-only
+  audit-dod:
+    task: dod-truth-auditor-reconcile-dod-truth.md
+    mode: read-only
+  rank-next:
+    task: critical-path-roi-planner-rank-unlocked-work-by-roi.md
+    mode: read-only
+  explain-next:
+    task: critical-path-roi-planner-explain-next-best-action.md
+    mode: read-only
+  plan-next:
+    task: critical-path-roi-planner-materialize-execution-card.md
+    mode: read-only
+  execute-next:
+    task: delivery-engineer-implement-selected-slice.md
+    mode: write
+    permission: required
+  run-cycle:
+    task: roi-orchestrator-run-evergreen-roi-cycle.md
+    mode: write
+    permission: required
+  verify-current:
+    task: adversarial-qa-auditor-run-adversarial-verification.md
+    mode: read-only
+  resume-cycle:
+    task: roi-orchestrator-resume-cycle.md
+    mode: write
+    permission: required
+  show-blockers:
+    task: roi-orchestrator-show-blockers.md
+    mode: read-only

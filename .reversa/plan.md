@@ -1,72 +1,77 @@
 # Plano de Exploração — extra consultoria
 
-> Reexecução completa iniciada pelo Reversa em 2026-07-13
-> Motivo: 30 novos commits (591 arquivos, +252K/-24K LOC) após última execução em 2026-07-11
-> `doc_level`: completo | Organização: por módulo
+> Reexecução completa e profunda iniciada em **2026-07-17**  
+> Motivo: 131 commits desde 2026-07-13 (754 arquivos, +160K/−11K LOC) — plataforma B2G operacional, source_registry, workspace, resilience, official_acts, DoD §40–§44  
+> HEAD: `d3e82ba` | `doc_level`: completo | Organização: por módulo  
 > Marque cada tarefa com ✅ quando concluída.
 
 ---
 
 ## Fase 1: Reconhecimento 🔍
 
-- [x] **Scout** — Mapeamento de estrutura de pastas e tecnologias ✅
-- [x] **Scout** — Análise de dependências e gerenciadores de pacotes ✅
-- [x] **Scout** — Identificação de entry points, CI/CD e configurações ✅
+- [x] **Scout** — Mapeamento de estrutura de pastas e tecnologias ✅ 2026-07-17
+- [x] **Scout** — Análise de dependências e gerenciadores de pacotes ✅ 2026-07-17
+- [x] **Scout** — Identificação de entry points, CI/CD e configurações ✅ 2026-07-17
 
 ## Decisão de organização das specs 🗂️
 
-> Organização mantida: **por módulo** (persistido em `.reversa/config.toml`).
+> Organização mantida: **por módulo** (persistido em `.reversa/config.toml`).  
+> `doc_level` mantido: **completo** (escolha prévia do projeto).
 
 ## Fase 2: Escavação 🏗️
 
-> Módulos identificados pelo Scout em 2026-07-13 (17 módulos).
+> Módulos identificados pelo Scout em 2026-07-17 (**25 módulos**).
 
-- [ ] **Archaeologist** — Análise do módulo `crawl` (51 .py, ~65K LOC, 10+ crawlers, ingestion pipeline)
-- [ ] **Archaeologist** — Análise do módulo `opportunity_intel` (16 .py, ~15K LOC, QW-01 Radar, ranking, scoring)
-- [ ] **Archaeologist** — Análise do módulo `contract_intel` (3 .py, ~60K LOC, universo-alvo, CLI contratos)
-- [ ] **Archaeologist** — Análise do módulo `lib` (15 .py, ~12K LOC, universe, geocode, name normalizer, victory profile)
-- [ ] **Archaeologist** — Análise do módulo `matching` (3 .py, ~28K LOC, entity matcher cascade 3 níveis)
-- [ ] **Archaeologist** — Análise do módulo `coverage` (4 .py, ~44K LOC, validate, calculator, measure expansion)
-- [ ] **Archaeologist** — Análise do módulo `reports` (4 .py, ~64K LOC, PDF/Excel executivo, cobertura semanal)
-- [ ] **Archaeologist** — Análise do módulo `fix` (7 .py, ~165K LOC, scrape residual, repair scripts)
-- [ ] **Archaeologist** — Análise do módulo `pipeline` (2 .py, ~34K LOC, backfill multi-fonte)
-- [ ] **Archaeologist** — Análise do módulo `diagnose` (1 .py, ~25K LOC, DOM-SC diagnostics)
-- [ ] **Archaeologist** — Análise do módulo `transparencia` (1 .py, ~14K LOC, detecção automática de portais)
-- [ ] **Archaeologist** — Análise do módulo `config` (config/, 3 .py + YAMLs, settings, 13 setores B2G)
-- [ ] **Archaeologist** — Análise do módulo `db` (33 + 8 migrations, schema completo, seed)
-- [ ] **Archaeologist** — Análise do módulo `deploy` (20 systemd timers, provisionamento, hardening)
-- [ ] **Archaeologist** — Análise do módulo `root_scripts` (~40 scripts CLI top-level, entry points principais)
-- [ ] **Archaeologist** — Análise do módulo `tests` (64 testes, fixtures, smoke)
-- [ ] **Archaeologist** — Análise do módulo `docs` (590 arquivos, 7 epics, ADRs, PRDs, runbooks)
+- [x] **Archaeologist** — Análise do módulo `crawl` (102 .py, ~40K LOC, resilience, official_acts, multi-fonte SC)
+- [x] **Archaeologist** — Análise do módulo `source_registry` (12 .py, ~2.6K LOC) ✨ NOVO
+- [x] **Archaeologist** — Análise do módulo `workspace` (6 .py, ~2.7K LOC) ✨ NOVO
+- [x] **Archaeologist** — Análise do módulo `coverage` (16 .py, ~8.4K LOC, coverage contract multi-source)
+- [x] **Archaeologist** — Análise do módulo `opportunity_intel` (18 .py, ~6.9K LOC)
+- [x] **Archaeologist** — Análise do módulo `reports` (12 .py, ~7.9K LOC)
+- [x] **Archaeologist** — Análise do módulo `lib` (19 .py, ~4.1K LOC)
+- [x] **Archaeologist** — Análise do módulo `matching` (4 .py, ~2.7K LOC)
+- [x] **Archaeologist** — Análise do módulo `schema` (3 .py, ~1.8K LOC) ✨ NOVO
+- [x] **Archaeologist** — Análise do módulo `ops` (6 .py, ~0.5K LOC) ✨ NOVO
+- [x] **Archaeologist** — Análise do módulo `buyer_intel` (2 .py, ~0.7K LOC) ✨ NOVO
+- [x] **Archaeologist** — Análise do módulo `extra_ledger` (1 .py, ~0.5K LOC) ✨ NOVO
+- [x] **Archaeologist** — Análise do módulo `contract_intel` (3 .py, ~1.7K LOC)
+- [x] **Archaeologist** — Análise do módulo `fix` (7 .py, ~4.2K LOC)
+- [x] **Archaeologist** — Análise do módulo `pipeline` (2 .py, ~0.9K LOC)
+- [x] **Archaeologist** — Análise do módulo `clients` (8 .py, ~1.0K LOC)
+- [x] **Archaeologist** — Análise do módulo `ingestion` (9 .py, ~1.1K LOC)
+- [x] **Archaeologist** — Análise do módulo `diagnose` (1 .py, ~0.7K LOC)
+- [x] **Archaeologist** — Análise do módulo `transparencia` (1 .py, ~0.4K LOC)
+- [x] **Archaeologist** — Análise do módulo `config` (config/ + YAMLs + CSV universo)
+- [x] **Archaeologist** — Análise do módulo `db` (59 migrations + supabase)
+- [x] **Archaeologist** — Análise do módulo `deploy` (25 services / 24 timers)
+- [x] **Archaeologist** — Análise do módulo `root_scripts` (~50 scripts CLI top-level / gates)
+- [x] **Archaeologist** — Análise do módulo `tests` (126 testes, chaos, unit coverage/workspace/registry)
+- [x] **Archaeologist** — Análise do módulo `docs` (ops sessions, audits, baseline, stories, ADRs)
+
+> **Archaeologist concluído 2026-07-17.** 25 módulos; code-analysis, data-dictionary, 9 flowcharts, modules.json.
 
 ## Fase 3: Interpretação 🧠
 
-- [ ] **Detetive** — Arqueologia Git (30 commits desde última execução) ✅
-- [ ] **Detetive** — Regras de negócio implícitas (R18-R26: deságio, competitive intel, QW-01, gates, evidence ledger) ✅
-- [ ] **Detetive** — Máquinas de estado (MS7-MS10: evidence_state, QW-01 Radar, Readiness Gate, Freshness Gate) ✅
-- [ ] **Detetive** — ADRs retroativos (012-016: QW-01, Coverage Truth, Fail-Closed CI, Semantic Values, Competitive Intel) ✅
-- [ ] **Arquiteto** — Diagramas C4 (Contexto +2 sistemas, Containers +4, Componentes +3 diagramas) ✅
-- [ ] **Arquiteto** — ERD completo (+2 tabelas: coverage_evidence, opportunity_intel; +1 enum: evidence_state) ✅
-- [ ] **Arquiteto** — Spec Impact Matrix (+8 módulos, +9 regras, +5 ADRs, +1 cross-cutting concern) ✅
+- [x] **Detetive** — Arqueologia Git (131 commits desde última execução)
+- [x] **Detetive** — Regras de negócio implícitas (coverage contract, fail-closed resilience, source registry, official_acts, honest commercial coverage)
+- [x] **Detetive** — Máquinas de estado (evidence ledger, resilience states, coverage commercial status, workspace queue)
+- [x] **Detetive** — ADRs retroativos (novos desde 012–016 + decisões B2G/ops 2026-07-17)
+- [x] **Arquiteto** — Diagramas C4 (contexto, containers, componentes atualizados)
+- [x] **Arquiteto** — ERD completo (official_acts, source_registry, resilience, watermarks/DLQ)
+- [x] **Arquiteto** — Spec Impact Matrix (25 módulos)
 
 ## Fase 4: Geração 📝
 
-- [x] **Redator** — Specs SDD por componente (17 módulos) ✅
-- [x] **Redator** — Code/Spec Matrix (147 entradas, 92% cobertura) ✅
-
-> **Concluído em 2026-07-13.** 32 arquivos gerados: 9 novos módulos + 2 parciais completados + 2 contracts.md + code-spec-matrix atualizada.
-> **Fontes brownfield integradas:** plano-mestre (9 EPICs P0, DoD §22), epic-technical-debt (5 stories), 35 lacunas documentadas.
+- [x] **Redator** — Specs SDD por componente (25 módulos)
+- [x] **Redator** — Code/Spec Matrix atualizada
+- [x] **Redator** — Contracts para módulos de interface CLI/gates
 
 ## Fase 5: Revisão ✅
 
-- [x] **Revisor** — Revisão cruzada de specs (5 agentes QA paralelos) ✅
-- [x] **Revisor** — Perguntas para validação humana (5 questões, todas respondidas) ✅
-- [x] **Revisor** — Relatório de confiança final (78% geral, 17 módulos) ✅
-
-> **Concluído em 2026-07-13.** 24 lacunas consolidadas (8 críticas, 7 altas, 5 médias, 4 baixas).
-> 4 correções in-place: reports/design.md expandido, docs/tasks.md expandido, diagnose e transparencia aprofundados.
-> 4 sub-specs lib geradas. Code-spec-matrix expandida para 263 entradas (100%).
-> Intel/ migrado para root_scripts/. Confiança: 78% 🟡 (escopo 2× maior que extração anterior).
+- [x] **Revisor** — Revisão cruzada de specs
+- [x] **Revisor** — Perguntas para validação humana
+- [x] **Revisor** — Relatório de confiança final
+- [x] **Regression check** — step-04 vs `_reversa_forward/001-modulos-alta-confianca/regression-watch.md`
 
 ---
 
@@ -81,6 +86,12 @@
 
 ## Próximo passo
 
-Fase de Geração — Redator produz specs SDD por módulo. Em seguida, Revisor faz revisão cruzada.
+**Archaeologist** — escavação profunda módulo a módulo, priorizando delta: crawl/resilience, source_registry, workspace, coverage, schema, ops.
 
-Após o Time de Descoberta concluir, disparar `/reversa-migrate` ou `/reversa-reconstructor`.
+
+---
+
+## Re-extração 2026-07-17 CONCLUÍDA
+
+Scout → Archaeologist → Detective → Architect → Writer → Reviewer → step-04 regression.
+Confiança 82%. Watch: 1 vermelho (W006 docker-compose.local).

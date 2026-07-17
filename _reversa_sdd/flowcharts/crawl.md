@@ -1,121 +1,69 @@
-# Fluxograma — Módulo Crawl
+# Flowcharts — módulo `crawl`
 
-> Gerado pelo Archaeologist em 2026-07-13
+> 🟢 CONFIRMADO — 2026-07-17
 
-## Orquestrador Central (`monitor.py`)
+## 1. Monitor multi-source
 
 ```mermaid
 flowchart TD
-    A[main] --> B[parse_args]
-    B --> C{mode}
-    C -->|full| D[crawl_source ALL sources]
-    C -->|incremental| E[crawl_source incremental]
-    C -->|report-coverage| F[report_coverage]
-
-    D --> G[Para cada source]
-    E --> G
-
-    G --> H[_load_crawler]
-    H --> I{Crawler carregado?}
-    I -->|No| J[SKIP + log error]
-    I -->|Yes| K[_load_entities within_200km]
-
-    K --> L[_start_ingestion_run]
-    L --> M[_match_entities_cascade]
-
-    M --> N[Para cada entidade]
-    N --> O{crawl_source}
-    O --> P[Fetch da API/Scraping]
-    P --> Q[Transform + Validate]
-    Q --> R[_upsert_raw_records]
-    R --> S[_project_entity_evidence]
-    S --> T[_record_evidence]
-
-    T --> U{Próxima entidade?}
-    U -->|Yes| N
-    U -->|No| V[_finish_ingestion_run]
-    V --> W[Fim]
-
-    F --> X[Query entity_coverage]
-    X --> Y[print_coverage_report]
+    A[CLI monitor.py] --> B{source / mode}
+    B -->|all| C[iter_sources registry]
+    B -->|one| D[lookup source]
+    C --> E[Para cada SourceInfo]
+    D --> E
+    E --> F[Import module crawler]
+    F --> G[crawl mode full/incremental]
+    G --> H[transform records]
+    H --> I[entity match]
+    I --> J[upsert DB]
+    J --> K[coverage update]
+    K --> L{mais sources?}
+    L -->|sim| E
+    L -->|não| M[report / exit]
+    G -->|erro| N[log + DLQ/evidence]
+    N --> L
 ```
 
-## Pipeline de Crawl por Fonte
+## 2. Registry resolve
 
 ```mermaid
 flowchart LR
-    A[CrawlRequest] --> B{Protocolo}
-    B -->|REST| C[sync_client / async_client]
-    B -->|Selenium| D[selenium_crawler]
-    B -->|CKAN| E[ciga_ckan_crawler]
-
-    C --> F{Retry?}
-    F -->|Sim| G[Exponential Backoff + Jitter]
-    G --> C
-    F -->|Não| H[Circuit Breaker]
-
-    H --> I{Estado}
-    I -->|CLOSED| J[Executa]
-    I -->|OPEN| K[Skip + CircuitBreakerOpenError]
-    I -->|HALF_OPEN| L[Testa 1 request]
-
-    J --> M[FetchResult]
-    L --> M
+    A[alias ou name] --> B[resolve_name]
+    B --> C[lookup SourceInfo]
+    C --> D[module / purpose / SLA / capabilities]
 ```
 
-## Entity Matching Cascade
+## 3. Resilience adapter cycle (pré-VPS)
 
 ```mermaid
 flowchart TD
-    A[CNPJ do órgão] --> B[Nível 1: CNPJ8 Exact]
-    B --> C{Match?}
-    C -->|Sim| D[✅ Entity Matched - HIGH]
-    C -->|Não| E[Nível 2: Name + Município]
-
-    E --> F[Normalize name]
-    F --> G[Match com sc_public_entities]
-    G --> H{Match?}
-    H -->|Sim| I[✅ Entity Matched - HIGH]
-    H -->|Não| J[Nível 2b: Alias Matching]
-
-    J --> K[Expand abbreviations]
-    K --> L[Siglas e padrões]
-    L --> M{Match?}
-    M -->|Sim| N[✅ Entity Matched - HIGH]
-    M -->|Não| O[Nível 3: Fuzzy]
-
-    O --> P[rapidfuzz / difflib]
-    P --> Q{Score}
-    Q -->|>0.90| R[✅ Matched - HIGH]
-    Q -->|0.85-0.90| S[⚠️ Matched - MEDIUM]
-    Q -->|0.75-0.85| T[⚠️ Matched - LOW]
-    Q -->|<0.75| U[❌ No Match]
+    A[run_cycle live|fixture] --> B[ResilienceConfig.from_env]
+    B --> C[mkdir checkpoint raw dlq evidence]
+    C --> D[Adapters PNCP CIGA SC]
+    D --> E{budget OK?}
+    E -->|não| F[stop partial]
+    E -->|sim| G[load checkpoint]
+    G --> H[fetch page/scope]
+    H --> I[persist RawStore]
+    I --> J[save CanonicalCheckpoint]
+    J --> K{status}
+    K -->|success_with_data / success_zero| L[EvidenceLedger write]
+    K -->|partial / error / rate_limited| M[FileDLQ push]
+    L --> N{more pages?}
+    M --> N
+    N -->|sim| E
+    N -->|não| O[aggregate report]
 ```
 
-## Ingestion Pipeline
+## 4. Fail-closed SC bulk
 
 ```mermaid
 flowchart TD
-    A[Records brutos] --> B[Dedup por content_hash]
-    B --> C[Validate schema]
-    C --> D{Validation}
-    D -->|OK| E[Transform to canonical]
-    D -->|FAIL| F[Log + Skip]
-    E --> G[Enrich: IBGE geocode]
-    G --> H[Enrich: Entity match]
-    H --> I[Upsert no PostgreSQL]
-    I --> J[Update checkpoint]
-    J --> K[Project evidence]
-    K --> L[Finish]
-```
-
-## Circuit Breaker
-
-```mermaid
-stateDiagram-v2
-    [*] --> CLOSED
-    CLOSED --> OPEN: N falhas consecutivas
-    OPEN --> HALF_OPEN: Timeout expirado
-    HALF_OPEN --> CLOSED: Request OK
-    HALF_OPEN --> OPEN: Request falhou
+    A[SC Compras fetch year] --> B{total_elementos conhecido?}
+    B -->|sim| C{len items == expected?}
+    B -->|não| D[status partial/error]
+    C -->|sim| E[success_with_data]
+    C -->|não| D
+    D --> F[NÃO promover coverage satisfactory]
+    E --> G[evidence + provenance]
 ```

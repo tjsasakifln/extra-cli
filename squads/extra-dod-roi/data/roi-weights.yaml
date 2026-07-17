@@ -1,0 +1,54 @@
+version: 1.0.0
+formula: ROI = value_sum / cost_sum
+value_dimensions:
+  gate_value:
+    weight: 1.5
+    scale: 0-5
+    description: Fecha gate atual do DoD
+  unlock_power:
+    weight: 1.3
+    scale: 0-5
+    description: Desbloqueia trabalhos posteriores
+  operational_impact:
+    weight: 1.2
+    scale: 0-5
+    description: Utilidade diária para Tiago / cobertura operacional
+  risk_reduction:
+    weight: 1.4
+    scale: 0-5
+    description: Reduz falso verde, risco comercial ou operacional
+  evidence_gain:
+    weight: 1.1
+    scale: 0-5
+    description: Gera evidência exigida pelo DoD
+cost_dimensions:
+  effort:
+    weight: 1.2
+    scale: 0-5
+    description: Esforço de implementação
+  uncertainty:
+    weight: 1.1
+    scale: 0-5
+    description: Incerteza técnica
+  external_dependency:
+    weight: 1.3
+    scale: 0-5
+    description: Credenciais, VPS, terceiros, decisão humana
+  change_surface:
+    weight: 1.0
+    scale: 0-5
+    description: Superfície de mudança / risco de regressão
+filters_before_rank:
+- deps_satisfied
+- resources_available
+- no_open_scope_decision
+- no_duplicate_pr_or_branch
+- secrets_available_or_not_required
+- verifiable_acceptance_criteria
+- material_dod_progress
+- reversible_or_isolated
+- fits_reviewable_slice
+notes:
+- Não confiar cegamente no número final — justificativa causal obrigatória.
+- 'Sensibilidade: re-rank com ±1 nas dimensões top e bottom.'
+- Fixtures/mocks nunca elevam gate_value ou evidence_gain para READY live.

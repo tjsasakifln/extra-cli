@@ -1,0 +1,95 @@
+engine_state:
+  workflow_id: brownfield-discovery
+  workflow_name: Brownfield Discovery - Complete Technical Debt Assessment
+  instance_id: brownfield-discovery-engine-20260717
+  target_context: core
+  mode: engine
+  started_at: "2026-07-17T18:00:00-03:00"
+  completed_at: "2026-07-17T18:10:00-03:00"
+  status: completed
+  execution_policy: full-autonomous
+  rationale: "User requested full workflow execution updating artifacts from last version"
+  baseline: "2026-07-13 v2 artifacts (79 debts); 131 commits since"
+  branch: fix/pre-vps-final-truth-gate-20260717
+  current_step_index: 11
+  current_phase: "COMPLETE"
+  qa_gate: APPROVED_WITH_CONDITIONS
+  conditions_closed: [C1, C2, C3, C4, C5, C6]
+  step_results:
+    system_documentation:
+      status: completed
+      agent: architect
+      artifact: docs/architecture/system-architecture.md
+      version: "3.0"
+    database_documentation:
+      status: completed
+      agent: data-engineer
+      artifacts:
+        - supabase/docs/SCHEMA.md
+        - supabase/docs/DB-AUDIT.md
+      version: "3.0"
+    frontend_documentation:
+      status: completed
+      agent: ux-design-expert
+      artifact: docs/frontend/frontend-spec.md
+      version: "3.0"
+    initial_consolidation:
+      status: completed
+      agent: architect
+      artifact: docs/prd/technical-debt-DRAFT.md
+      version: "3.0 DRAFT"
+    database_specialist_review:
+      status: completed
+      agent: data-engineer
+      artifact: docs/reviews/db-specialist-review.md
+      version: "3.0"
+    ux_specialist_review:
+      status: completed
+      agent: ux-design-expert
+      artifact: docs/reviews/ux-specialist-review.md
+      version: "3.0"
+    qa_general_review:
+      status: completed
+      agent: qa
+      artifact: docs/reviews/qa-review.md
+      version: "3.0"
+      gate: APPROVED_WITH_CONDITIONS
+    final_assessment:
+      status: completed
+      agent: architect
+      artifact: docs/prd/technical-debt-assessment.md
+      version: "3.0 FINAL"
+    executive_awareness_report:
+      status: completed
+      agent: analyst
+      artifact: docs/reports/TECHNICAL-DEBT-REPORT.md
+      version: "3.0"
+    epic_creation:
+      status: completed
+      agent: pm
+      artifacts:
+        - docs/stories/epic-technical-debt.md
+        - docs/stories/epics/epic-pre-vps-truth.md
+    story_creation:
+      status: completed
+      agent: pm
+      artifacts:
+        - docs/stories/story-2.1-remove-sa-json-secret.md
+        - docs/stories/story-2.2-single-runtime-writer.md
+        - docs/stories/story-2.3-honest-health-failclosed.md
+        - docs/stories/story-2.4-migration-single-track.md
+        - docs/stories/story-2.5-cli-ops-ux-pre-vps.md
+  summary:
+    active_debts: 118
+    resolved_since_v2: 22
+    pre_vps_hours: "72-80"
+    pre_vps_cost_brl_mid: 11400
+    LOCAL_RESILIENCE_READY: true
+    VPS_OPERATIONAL: false
+    m2_coverage: "0/1093"
+    m1_signal: "116/1093"
+  next_steps:
+    - "@po validate story-2.1 (HIGH-RISK secrets) first"
+    - "@dev implement Wave 1: 2.1 ∥ 2.4"
+    - "Freeze official timers until 2.1-2.4 + TQ-07 green"
+    - "No VPS_OPERATIONAL claim until SYS-001/002 closed"

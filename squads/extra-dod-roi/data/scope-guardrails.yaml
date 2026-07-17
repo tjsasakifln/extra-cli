@@ -1,0 +1,35 @@
+project_nature: single-user personal tool for Tiago Sasaki / Extra Construtora B2G consulting
+in_scope:
+- edital intelligence
+- contracts
+- competitors
+- prices
+- monitoring
+- document analysis
+- proposal support
+- administrative contract tracking
+out_of_scope_unless_formal_change:
+- public portal
+- multi-tenant
+- billing
+- complex auth
+- aesthetic-only web dashboard
+- Kubernetes/Kafka/Redis/Elasticsearch without demonstrated need
+- physical works tracking
+- site diary
+- field measurement
+- on-site inspection
+- physical-financial schedule
+- crew/photo management
+- auto protocol or auto-sign without explicit human action
+truth_rules:
+- implementation+executable evidence > narrative
+- open PR is not main
+- latest record without evidence does not win
+- conservative interpretation when ambiguous
+- READY contested by adversarial audit → NOT_READY
+- fixtures/mocks/local JSON ≠ live health
+- DB row presence ≠ coverage
+- code without proven execution ≠ done
+- never flip DOD checkbox only because similar code exists
+- every conclusion must be traceable to commit/command/test/report/query/run/human validation

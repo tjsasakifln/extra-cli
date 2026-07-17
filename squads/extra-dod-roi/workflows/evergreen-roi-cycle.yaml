@@ -1,0 +1,250 @@
+# evergreen-roi-cycle — full DoD→ROI→delivery cycle
+id: evergreen-roi-cycle
+name: evergreen-roi-cycle
+type: orchestration
+version: "1.0.0"
+description: >
+  Acquire lock, snapshot, reconcile DoD truth, build graph, rank by ROI,
+  implement smallest high-ROI slice, adversarial QA, evidence, draft PR,
+  release lock, point next ROI. Never auto-merge. Never false green.
+squad: extra-dod-roi
+owner: "@roi-orchestrator"
+permission: write
+outcomes:
+  - PASS
+  - FAIL_REWORK
+  - BLOCKED_EXTERNAL
+  - BLOCKED_HUMAN_DECISION
+  - CONFLICT_WITH_ACTIVE_WORK
+  - NO_UNLOCKED_WORK
+  - ABORTED_UNSAFE_STATE
+
+handoff_prompts:
+  codebase-cartographer_to_dod-truth-auditor: |
+    Pass snapshot path and git identity. Do not claim DoD DONE.
+  dod-truth-auditor_to_critical-path-roi-planner: |
+    Pass requirements matrix, superseded claims, veto, allowed/forbidden claims.
+  critical-path-roi-planner_to_delivery-engineer: |
+    Pass execution card only if UNLOCKED and readiness checklist green.
+  delivery-engineer_to_adversarial-qa-auditor: |
+    Pass branch, commits, implementer test results. Do not update DoD.
+  adversarial-qa-auditor_to_evidence-release-steward: |
+    Pass verdict PASS|FAIL|BLOCKED with evidence bundle. DoD edits only on PASS.
+  evidence-release-steward_to_roi-orchestrator: |
+    Pass draft PR URL, cycle report, residual risks, next ROI pointer.
+  roi-orchestrator_to_critical-path-roi-planner: |
+    After cycle, re-rank or explain next best unlocked work.
+  any_to_roi-orchestrator_on_veto: |
+    On veto or unsafe state, stop with named outcome; release lock; no silent continue.
+
+sequence:
+  - id: acquire-lock
+    step: 1
+    agent: roi-orchestrator
+    action: "Acquire cycle lock via scripts/cycle_lock.py"
+    script: scripts/cycle_lock.py
+    on_fail: ABORTED_UNSAFE_STATE
+
+  - id: verify-working-tree
+    step: 2
+    agent: roi-orchestrator
+    action: "Verify working tree and refuse unsafe product mutations on main"
+    validates: working_tree_safe
+    on_unsafe: ABORTED_UNSAFE_STATE
+
+  - id: fetch-remote-refs
+    step: 3
+    agent: codebase-cartographer
+    action: "git fetch --prune without modifying main working tree"
+
+  - id: snapshot-codebase
+    step: 4
+    agent: codebase-cartographer
+    task: codebase-cartographer-snapshot-project-state.md
+    action: "Create structured codebase/git/PR snapshot"
+    creates: state/snapshots/
+
+  - id: inspect-prs-branches-ci
+    step: 5
+    agent: codebase-cartographer
+    task: codebase-cartographer-snapshot-project-state.md
+    action: "Inspect open PRs, branches, CI and concurrent work"
+    validates: concurrent_work_inventory
+
+  - id: reconcile-dod
+    step: 6
+    agent: dod-truth-auditor
+    task: dod-truth-auditor-reconcile-dod-truth.md
+    action: "Reconcile DOD.md truth conservatively"
+    creates: state/requirements/
+    veto: true
+
+  - id: detect-superseded-divergences
+    step: 7
+    agent: dod-truth-auditor
+    task: dod-truth-auditor-reconcile-dod-truth.md
+    action: "Detect superseded claims and main/PR/doc divergences"
+    validates: superseded_claims
+
+  - id: build-graph
+    step: 8
+    agent: critical-path-roi-planner
+    task: critical-path-roi-planner-build-dependency-graph.md
+    action: "Build or update dependency graph and critical path"
+    creates: state/graphs/
+
+  - id: generate-candidates
+    step: 9
+    agent: critical-path-roi-planner
+    task: critical-path-roi-planner-generate-candidate-work.md
+    action: "Generate candidate work items from graph and matrix"
+    creates: state/blockers/
+
+  - id: filter-blocked
+    step: 10
+    agent: critical-path-roi-planner
+    task: critical-path-roi-planner-generate-candidate-work.md
+    action: "Filter blocked candidates; keep only UNLOCKED"
+    validates: unlock_filters
+    on_empty_unlocked: NO_UNLOCKED_WORK
+
+  - id: rank-roi
+    step: 11
+    agent: critical-path-roi-planner
+    task: critical-path-roi-planner-rank-unlocked-work-by-roi.md
+    action: "Score and rank unlocked work by ROI matrix"
+    creates: state/rankings/
+
+  - id: select-slice
+    step: 12
+    agent: critical-path-roi-planner
+    action: "Select single high-ROI slice or small independent batch"
+    validates: selected_candidate
+    on_conflict_active_work: CONFLICT_WITH_ACTIVE_WORK
+
+  - id: execution-card
+    step: 13
+    agent: critical-path-roi-planner
+    task: critical-path-roi-planner-materialize-execution-card.md
+    action: "Materialize execution card from selected candidate"
+    creates: state/execution-cards/
+
+  - id: validate-preconditions
+    step: 14
+    agent: roi-orchestrator
+    action: "Validate readiness checklist before implement"
+    validates: readiness-checklist.md
+    checklist: readiness-checklist.md
+    on_external: BLOCKED_EXTERNAL
+    on_human: BLOCKED_HUMAN_DECISION
+
+  - id: create-isolated-branch
+    step: 15
+    agent: delivery-engineer
+    action: "Create isolated branch or worktree (never main)"
+    creates: git_branch
+    guard: never_main
+
+  - id: implement
+    step: 16
+    agent: delivery-engineer
+    task: delivery-engineer-implement-selected-slice.md
+    action: "Implement selected slice only"
+    updates: product_files_authorized_by_card
+
+  - id: implementer-tests
+    step: 17
+    agent: delivery-engineer
+    task: delivery-engineer-implement-selected-slice.md
+    action: "Run implementer local tests and gates"
+    validates: implementer_tests
+    creates: state/evidence/
+
+  - id: handoff-qa
+    step: 18
+    agent: delivery-engineer
+    action: "Write handoff package for adversarial QA"
+    creates: state/handoffs/
+
+  - id: adversarial-qa
+    step: 19
+    agent: adversarial-qa-auditor
+    task: adversarial-qa-auditor-run-adversarial-verification.md
+    action: "Independent adversarial verification"
+    validates: adversarial-qa-checklist.md
+    creates: state/qa/
+    independent: true
+
+  - id: rework-loop
+    step: 20
+    agent: roi-orchestrator
+    action: "On FAIL return to implement; cap rework iterations"
+    on_fail: FAIL_REWORK
+    max_iterations: 3
+    return_to: implement
+
+  - id: consolidate-evidence
+    step: 21
+    agent: evidence-release-steward
+    task: evidence-release-steward-publish-evidence-and-handoff.md
+    action: "Consolidate evidence pack after PASS"
+    creates: state/evidence/
+    require_verdict: PASS
+
+  - id: update-docs-dod
+    step: 22
+    agent: evidence-release-steward
+    action: "Update docs/DoD only when authorized by PASS evidence"
+    updates: DOD.md
+    validates: evidence-checklist.md
+    guard: only_after_pass
+
+  - id: atomic-commits
+    step: 23
+    agent: evidence-release-steward
+    action: "Create final atomic commits for release artifacts"
+    creates: git_commits
+
+  - id: open-draft-pr
+    step: 24
+    agent: evidence-release-steward
+    action: "Open draft PR without merge"
+    creates: draft_pr
+    guard: draft_only_never_merge
+
+  - id: cycle-report
+    step: 25
+    agent: roi-orchestrator
+    action: "Write cycle report from template"
+    creates: state/cycles/
+    template: templates/cycle-report.md
+
+  - id: release-lock
+    step: 26
+    agent: roi-orchestrator
+    action: "Release cycle lock"
+    script: scripts/cycle_lock.py
+
+  - id: point-next-roi
+    step: 27
+    agent: critical-path-roi-planner
+    task: critical-path-roi-planner-explain-next-best-action.md
+    action: "Explain next best unlocked ROI work"
+    creates: next_roi_pointer
+    outcome: PASS
+
+paths:
+  PASS:
+    description: QA PASS, evidence published, draft PR opened, next ROI pointed
+  FAIL_REWORK:
+    description: Adversarial QA FAIL — return to delivery-engineer with findings
+  BLOCKED_EXTERNAL:
+    description: External resource/credential/infra missing — register blocker
+  BLOCKED_HUMAN_DECISION:
+    description: Scope/irreversible/cost decision required from Tiago
+  CONFLICT_WITH_ACTIVE_WORK:
+    description: Candidate duplicates open PR/branch work
+  NO_UNLOCKED_WORK:
+    description: No candidate passes unlock filters — show blockers
+  ABORTED_UNSAFE_STATE:
+    description: Lock, dirty tree risk, or precondition veto — stop without product mutation

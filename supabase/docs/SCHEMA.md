@@ -1,564 +1,546 @@
 # Database Schema — Extra Consultoria
 
-## Overview
+**Versão:** 3.0  
+**Data:** 2026-07-17  
+**Agente:** Dara (@data-engineer) — Brownfield Discovery Phase 2  
+**Fonte de verdade desta revisão:**
 
-- **Tecnologia:** PostgreSQL 18.4 (Ubuntu 18.4-1.pgdg24.04+1)
-- **Database:** `pncp_datalake`
-- **Propósito:** DataLake de licitacoes publicas focado em Santa Catarina. Agrega dados de multiplas fontes (PNCP, DOM-SC, PCP, ComprasGov, SC Compras, TCE-SC, Transparencia) com matching de entidades publicas catarinenses e inteligencia de oportunidades.
-- **Extensoes instaladas:** `pg_trgm` (text similarity, trigram indexing), `uuid-ossp` (UUID generation)
-- **Migration tracks:** 3 tracks identificadas — v1 (archived/diverged), v2 (baseline real), v3 (unified consolidation, pending/partial)
-- **Snapshot de referencia:** `supabase/current-schema.sql` — extraido via `pg_dump --schema-only` em 2026-07-11
+| Fonte | Conteúdo | Data / escopo |
+|-------|----------|---------------|
+| `db/migrations/` (001–054) | Trilha **operacional** canônica | HEAD do repositório |
+| `db/current-schema.sql` | Dump `pg_dump --schema-only` (PG 16.14) | 2026-07-14 — cobre ~001–042 |
+| `db/current-schema.sha256` | Fingerprint SHA-256 | `85de867c…c7c6328` |
+| `supabase/migrations/` (v2/v3) | Baseline consolidado histórico + 006-v3 | 001-v2…006-v3 |
+| Código (`scripts/schema/*`, CLIs) | Contrato esperado pelos consumers | 2026-07-17 |
+
+> **Schema derivado de migrations + dump + código.**  
+> Em 2026-07-17 **não houve conexão ao banco ao vivo** (timeout em `127.0.0.1:54399` e `:5433`). Contagens de linhas **não** são inventadas.
 
 ---
 
-## Migration Tracks
+## 1. Overview
 
-O projeto passou por tres tracks de migracao devido a divergencias historicas entre o schema real e as migrations versionadas:
+| Aspecto | Valor |
+|---------|-------|
+| **Tecnologia** | PostgreSQL 16.x (dump 16.14 Debian; setup_db.sh aponta 16 como alvo Ubuntu 24.04) |
+| **Database típico** | `pncp_datalake` (local Docker / planejado VPS) |
+| **Propósito** | DataLake de licitações e contratos públicos (foco SC, raio 200 km de Florianópolis), matching de entes, coverage auditável, opportunity/contract intel |
+| **Extensões** | `pg_trgm`, `uuid-ossp`, `vector` (pgvector — presente no dump; uso de embedding opcional) |
+| **PostGIS** | **Não** presente no dump atual (histórico apenas) |
+| **RLS** | Desligado (`row_security = off`); zero policies — single-user / service role |
+| **Acesso** | `psycopg2` via `LOCAL_DATALAKE_DSN` / `DATABASE_URL` (`config/settings.py`) |
+| **Pasta `supabase/`** | Guarda SQL docs/migrations de baseline; **não** implica produto Supabase Cloud obrigatório |
 
-| Track | Periodo | Arquivos | Status |
-|-------|---------|----------|--------|
-| **v1** | Original | `db/migrations/001-014.sql` | ARCHIVED — totalmente divergente do schema real |
-| **v2** | Baseline | `supabase/migrations/001-v2` a `005-v2` | Baseline do schema real, idempotente |
-| **v3** | Consolidacao | `supabase/migrations/006-v3` | Consolidacao de tabelas faltantes (10 novas tabelas) |
+### Domínios de dados
 
-### Tabela de tracking
+| Domínio | Tabelas-chave | Views canônicas |
+|---------|---------------|-----------------|
+| **Entities / universo** | `sc_public_entities`, `enriched_entities`, `entity_hierarchy`, `entity_aliases`, `entity_source_registry`, `target_universe_*` | `v_entities_canonical`, `v_target_universe_active` |
+| **Tenders / bids** | `pncp_raw_bids`, `pncp_enrichment_cache`, `pncp_backfill_*` | `v_open_opportunities_canonical`, `v_unmatched_bids` |
+| **Contracts / suppliers** | `pncp_supplier_contracts`, `contract_version_history`, `official_acts*` | `v_contracts_canonical`, `v_suppliers_canonical`, `v_contract_*` |
+| **Coverage / evidence** | `entity_coverage`, `coverage_evidence`, `coverage_snapshots`, `capability_coverage`, `source_applicability_rules` | `v_coverage_*`, `v_latest_evidence`, `v_source_health`, `v_coverage_manifest` |
+| **Opportunity intel** | `opportunity_intel`, `opportunity_runs`, `opportunity_coverage`, `opportunity_checkpoints`, `source_snapshot_membership` | `v_opportunity_*` |
+| **Ops / pipeline** | `ingestion_*`, `dlq_entries`, `pipeline_*`, `record_hashes`, `_migrations`, `retention_policy` | `v_migration_status`, `v_schema_integrity` |
+
+---
+
+## 2. Migration Tracks
+
+O projeto mantém **duas trilhas** de SQL (dívida estrutural documentada em DT-18):
+
+| Track | Diretório | Arquivos | Runner | Status 2026-07-17 |
+|-------|-----------|----------|--------|-------------------|
+| **Operacional (canônica)** | `db/migrations/` | 001…054 (59 arquivos) | `db/setup_db.sh` | **HEAD** — stories 1.2–1.5 + data-foundation + official acts |
+| **Baseline v2/v3** | `supabase/migrations/` | `_migrations.sql`, `001-v2`…`006-v3` | `scripts/apply-migrations.sh` | Consolidação histórica; **não** substitui 030–054 |
+| **v1 archived** | docs / `ARCHIVED.md` | antigas 001–014 | — | Arquivada (divergente) |
+
+### Ledger
 
 ```sql
-public._migrations
+public._migrations (
+  version TEXT PRIMARY KEY,
+  name TEXT,
+  applied_at TIMESTAMPTZ,
+  checksum TEXT,
+  rollback_sql TEXT  -- presente no track supabase; setup_db pode variar colunas
+)
 ```
 
-Criada por `_migrations.sql` para rastrear migrations aplicadas. Colunas: `version` (PK), `name`, `applied_at`, `checksum`, `rollback_sql`.
+### Cadeia operacional resumida (db/migrations)
+
+| Faixa | Tema | Stories / épicos |
+|-------|------|------------------|
+| 001–012 | Core: bids, contracts, entities, coverage, FTS, upserts | baseline |
+| 013–022 | Índices, TTL, hierarchy, match_method | TD / coverage |
+| 023–028 | Engineering ops, coverage_evidence, contract intel, opportunity_intel | intel |
+| **029–036** | Views canônicas, capability_coverage, versioning, retention, reporting | **Story 1.2** |
+| **037–038** | Target universe snapshot + views ativas | **Story 1.3** |
+| **039–041b** | Snapshot membership + reconcile open tenders + FK cnpj_8 | **Story 1.4 / 1.2 fix** |
+| **040, 042** | Coverage model expansion + validate FKs | **Story 1.5** |
+| 043–044 | entity_aliases, dedup_cross_source, upsert dedup | CM-13 |
+| 045–048 | DLQ, watermarks, pipeline_runs, record_hashes | DF-1B |
+| 049–051 | PNCP backfill resumível, contracts upsert FK, date semantics | ops / pilot |
+| 052–054 | official_acts, entity_source_registry, local resilience columns | ADR-021+ |
+
+### supabase/migrations (v2/v3)
+
+| Arquivo | Papel |
+|---------|-------|
+| `_migrations.sql` | Cria ledger |
+| `001-v2_initial_schema.sql` | Baseline completo (dump 2026-07-11 era) |
+| `002–005-v2` | entity_coverage, views, snapshots, match_logging |
+| `006-v3-unified-schema.sql` | 10 tabelas + colunas + views opportunity/evidence (subset do que 021–028 fizeram em `db/`) |
+
+**Nota:** Stories 1.2+ **escreveram em `db/migrations/`**, não em `supabase/migrations/`. Ambientes novos devem preferir `db/setup_db.sh`.
+
+### Dump vs HEAD
+
+| Camada | Tabelas | Views | Funções (aprox.) |
+|--------|---------|-------|------------------|
+| Dump `db/current-schema.sql` (2026-07-14) | **26** | **32** | **24** |
+| Migrations 043–054 (somente SQL, pós-dump) | **+~16** | **+~2** (`v_official_acts_active`, `v_resolve_publishing_cnpj`) | +várias |
+| **Total teórico HEAD** | **~42** | **~34** | **~30+** |
+
+Objetos **no dump** (confirmados em 2026-07-14): ver §3.  
+Objetos **apenas em migrations 043–054** (aplicação no ambiente local **não verificada** sem DB): ver §3.2.
 
 ---
 
-## Entity Relationship Diagram (Textual)
+## 3. Inventário de tabelas
 
-```
-┌─────────────────────────────────────────┐
-│           sc_public_entities            │
-│         (entes publicos SC)             │
-├─────────────────────────────────────────┤
-│ id (PK, INTEGER, SEQUENCE)              │
-│ cnpj_8 (TEXT, NOT NULL)                 │
-│ razao_social (TEXT, NOT NULL)           │
-│ municipio (TEXT)                        │
-│ codigo_ibge (TEXT, 7-digit)             │
-│ natureza_juridica (TEXT)                │
-│ cod_natureza (TEXT)                     │
-│ latitude (DOUBLE PRECISION)             │
-│ longitude (DOUBLE PRECISION)            │
-│ distancia_fk (DOUBLE PRECISION)         │
-│ raio_200km (BOOLEAN, DEFAULT false)     │
-│ is_active (BOOLEAN, DEFAULT true)       │
-│ created_at (TIMESTAMPTZ, DEFAULT now()) │
-└──────────────────┬──────────────────────┘
-                   │
-         ┌─────────┴───────────┐
-         │                     │
-         ▼                     ▼
-┌─────────────────┐  ┌──────────────────────────────────────┐
-│ entity_coverage  │  │ pncp_raw_bids                        │
-├─────────────────┤  ├──────────────────────────────────────┤
-│ entity_id (PK)  │  │ matched_entity_id (FK → id, SET NULL)│
-│ source (PK)     │  │ pncp_id (PK, TEXT)                   │
-│ last_seen_at    │  │ content_hash (UNIQUE, TEXT)           │
-│ total_bids      │  │ orgao_cnpj (TEXT)                    │
-│ is_covered      │  │ orgao_razao_social (TEXT)            │
-│ within_200km    │  │ objeto_compra (TEXT)                  │
-│ match_method*   │  │ tsv (TSVECTOR, auto-trigger)         │
-└─────────────────┘  │ source (TEXT, DEFAULT 'pncp')        │
-                      │ ingested_at, updated_at (TIMESTAMPTZ)│
-                      │ is_active (BOOLEAN, DEFAULT true)    │
-                      │ [v3: +11 colunas novas]              │
-                      └──────────────────┬───────────────────┘
-                                         │
-                                         │ content_hash (dedup)
-                                         ▼
-                              ┌──────────────────────────┐
-                              │ pncp_enrichment_cache*   │
-                              │ (v3, ON DELETE CASCADE)  │
-                              └──────────────────────────┘
+### 3.1 Presentes no dump 2026-07-14 (26)
 
-┌───────────────────────────────────────┐
-│      pncp_supplier_contracts           │
-├───────────────────────────────────────┤
-│ id (PK, INTEGER, SEQUENCE)            │
-│ contrato_id (UNIQUE, TEXT)            │
-│ fornecedor_cnpj, fornecedor_nome      │
-│ orgao_cnpj, orgao_nome                │
-│ objeto_contrato (TEXT)                │
-│ valor_total (NUMERIC 18,2)            │
-│ data_inicio, data_fim, data_publicacao│
-│ uf, municipio                        │
-│ source (TEXT, DEFAULT 'pncp')         │
-│ ingested_at (TIMESTAMPTZ)             │
-│ [v3: +2 colunas]                     │
-└───────────────────────────────────────┘
+#### Domínio Entities
 
-┌─────────────────────────┐  ┌─────────────────────────┐
-│   enriched_entities     │  │  coverage_snapshots     │
-├─────────────────────────┤  ├─────────────────────────┤
-│ cnpj (PK, TEXT)         │  │ id (PK, INTEGER, SEQ)   │
-│ razao_social (TEXT)     │  │ snapshot_date (DATE)    │
-│ ... (endereco, dados)   │  │ source (TEXT)           │
-│ enriched_at (TIMESTAMPTZ)│  │ total/covered_entities  │
-│ enriched_source (TEXT)  │  │ pct_covered (NUMERIC)   │
-└─────────────────────────┘  └─────────────────────────┘
+##### `sc_public_entities` — cadastro de entes públicos SC
 
-┌─────────────────────────┐  ┌──────────────────────────┐
-│   ingestion_runs        │  │  ingestion_checkpoints    │
-├─────────────────────────┤  ├──────────────────────────┤
-│ id (PK, INTEGER, SEQ)  │  │ source (PK, TEXT)         │
-│ source (TEXT)           │  │ scope_key (PK, TEXT)     │
-│ started_at / finished_at│  │ last_page, last_date     │
-│ records_fetched/upserted│  │ last_id, records_fetched │
-│ status + error_message  │  │ updated_at               │
-│ metadata (JSONB)        │  └──────────────────────────┘
-└─────────────────────────┘
+| Coluna | Tipo | Constraints |
+|--------|------|-------------|
+| `id` | INTEGER | PK, sequence |
+| `razao_social` | TEXT | NOT NULL |
+| `cnpj_8` | TEXT | NOT NULL, **UNIQUE `uq_spe_cnpj_8`** (Story 1.2 / DT-06) |
+| `municipio`, `codigo_ibge`, `natureza_juridica`, `cod_natureza` | TEXT | |
+| `latitude`, `longitude`, `distancia_fk` | DOUBLE PRECISION | |
+| `raio_200km` | BOOLEAN | NOT NULL DEFAULT FALSE |
+| `is_active` | BOOLEAN | NOT NULL DEFAULT TRUE |
+| `created_at` | TIMESTAMPTZ | NOT NULL DEFAULT now() |
 
-=== V3 Tables (consolidacao pendente) ===
+Índices: `idx_spe_cnpj`, `idx_spe_ibge`, `idx_spe_municipio`, `idx_spe_natureza`, `idx_spe_raio`.
 
-┌─────────────────────┐    ┌──────────────────────┐
-│ entity_hierarchy    │    │ sc_municipalities     │
-│ entity_id (PK, FK)  │    │ codigo_ibge (PK)      │
-│ parent_entity_id(FK)│    │ municipio (NOT NULL)  │
-│ relationship (ENUM) │    │ latitude, longitude   │
-│ match_confidence    │    └──────────────────────┘
-└─────────────────────┘
+##### `enriched_entities` — cache BrasilAPI/etc.
 
-┌─────────────────────────┐  ┌──────────────────────────┐
-│ coverage_evidence       │  │ opportunity_intel        │
-│ (evidence_state enum)   │  │ (core opportunity recs)  │
-│ id (BIGSERIAL PK)       │  │ id (BIGSERIAL PK)        │
-│ entity_id, source       │  │ content_hash (UNIQUE)    │
-│ state (evidence_state)  │  │ 30+ colunas de metadados │
-│ run_id, contadores      │  │ ranking, qualidade       │
-│ partial unique indexes  │  │ status_canonico (ENUM)   │
-└─────────────────────────┘  └──────────────────────────┘
+PK `cnpj`; campos de CNAE, endereço, `enriched_at`, `enriched_source`.  
+CHECKs (NOT VALID no dump): `chk_ee_cnpj_not_empty`, `chk_ee_enriched_at_not_future`, `chk_ee_enriched_source_not_empty`.
 
-┌─────────────────────┐    ┌───────────────────────────┐
-│ engineering_ops     │    │ opportunity_runs           │
-│ (derived layer)     │    ├───────────────────────────┤
-│ pncp_id (UNIQUE,FK) │    │ id (BIGSERIAL PK)         │
-│ classificacao civil │    │ source, scope_key         │
-│ geografia SC        │    │ status (ENUM)             │
-│ within_200km        │    │ records_new/updated       │
-│ content_hash        │    │ metadata (JSONB)          │
-└─────────────────────┘    └──────────────────────────┘
+##### `entity_hierarchy` — hierarquia municipal
 
-┌──────────────────────────┐  ┌─────────────────────────────┐
-│ opportunity_coverage     │  │ opportunity_checkpoints      │
-│ entity_id, source (PK)  │  │ source, scope_key (PK)       │
-│ freshness, count_open   │  │ last_page, last_date, last_id│
-│ result (ENUM)           │  │ records_fetched              │
-│ FK → sc_public_entities │  └─────────────────────────────┘
-└──────────────────────────┘
+PK `entity_id` → `sc_public_entities`; `parent_entity_id` FK;  
+`relationship` CHECK (`prefeitura|camara|autarquia|fundacao|fundo|conselho|outros`);  
+`match_confidence` CHECK (`direct|hierarchical|inferred`).
 
-┌────────────────────────────────┐
-│ sc_dados_abertos_backfill_log  │
-│ id (SERIAL PK)                 │
-│ orgao_cnpj (NOT NULL)          │
-│ match_method, motivo           │
-│ executed_at (TIMESTAMPTZ)      │
-└────────────────────────────────┘
-```
+##### `entity_coverage` — cobertura por ente × fonte
+
+PK (`entity_id`, `source`); FK CASCADE → entities;  
+`last_seen_at`, `total_bids`, `is_covered`, `within_200km`, `match_method`.
+
+##### `target_universe_runs` / `target_universe_entities` — **autoridade do universo (Story 1.3)**
+
+- **runs:** snapshot imutável (`seed_sha256`, `radius_km` default 200, contagens, `git_sha`).
+- **entities:** PK (`universe_run_id`, `canonical_entity_key`); `radius_decision` ∈ included|excluded|unresolved; `duplicate_root`; `db_entity_id` opcional.
+
+Queries analíticas devem usar `v_target_universe_active` (último run), **não** apenas `raio_200km`.
+
+##### `source_applicability_rules` — matriz de aplicabilidade (Story 1.5)
+
+Regras materializadas fonte × tipo de ente / esfera / capacidade.
+
+##### `capability_coverage` — cobertura por capacidade de negócio (Story 1.2)
+
+Rastreio granular por capacidade (ex.: open tenders, contracts, radar).
 
 ---
 
-## Table Inventory
+#### Domínio Tenders
 
-### 1. `public.sc_public_entities`
+##### `pncp_raw_bids` — licitações unificadas (multi-fonte)
 
-Cadastro de entes publicos catarinenses.
+| Coluna | Tipo | Notas |
+|--------|------|-------|
+| `pncp_id` | TEXT PK | ID canônico |
+| `objeto_compra`, `valor_total_estimado` | TEXT / NUMERIC(18,2) | |
+| `modalidade_id/nome`, `esfera_id` | INT/TEXT | `esfera_id` CHECK 1–4 ou NULL |
+| `uf`, `municipio`, `codigo_municipio_ibge` | TEXT | |
+| `orgao_razao_social`, `orgao_cnpj` | TEXT | CNPJ 14 dig |
+| **`orgao_cnpj_8`** | TEXT GENERATED | `left(orgao_cnpj,8)` STORED — alvo FK |
+| `data_publicacao/abertura/encerramento` | **DATE** | |
+| `link_pncp`, `content_hash` (UNIQUE), `tsv` | | FTS |
+| `source` DEFAULT `'pncp'`, `source_id` | | |
+| `matched_entity_id` | INT FK SET NULL | |
+| **`match_method`, `match_score`, `match_confidence`** | | Story match logging (DT-01) |
+| `situacao_compra`, `unidade_nome`, `link_sistema_origem`, `crawl_batch_id` | | v3/eng |
+| `numero_controle_pncp`, `ano_compra`, `sequencial_compra`, `informacao_complementar` | | |
+| `synthetic_id`, `synthetic_id_reason` | | IDs sintéticos |
+| `ingested_at`, `updated_at`, `is_active` | | soft-delete |
 
-| Column | Type | Constraints | Default | Description |
-|--------|------|-------------|---------|-------------|
-| `id` | INTEGER | PK, SEQUENCE | `nextval(...)` | ID interno auto-incremento |
-| `razao_social` | TEXT | NOT NULL | | Razao social do ente publico |
-| `cnpj_8` | TEXT | NOT NULL | | CNPJ 8-digit (raiz, sem filiais) |
-| `municipio` | TEXT | | | Municipio sede |
-| `codigo_ibge` | TEXT | | | Codigo IBGE 7-digit do municipio |
-| `natureza_juridica` | TEXT | | | Natureza juridica (ex: MUNICIPIO, AUTARQUIA) |
-| `cod_natureza` | TEXT | | | Codigo da natureza juridica |
-| `latitude` | DOUBLE PRECISION | | | Latitude da sede |
-| `longitude` | DOUBLE PRECISION | | | Longitude da sede |
-| `distancia_fk` | DOUBLE PRECISION | | | Distancia de Florianopolis em km |
-| `raio_200km` | BOOLEAN | NOT NULL | `FALSE` | TRUE se dentro do raio de 200km de Florianopolis |
-| `is_active` | BOOLEAN | NOT NULL | `TRUE` | Soft-delete |
-| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` | Timestamp de criacao |
+**FKs (dump):**  
+- `fk_bids_matched_entity` → entities(id) ON DELETE SET NULL  
+- `fk_bids_orgao_entity_v2` → entities(**cnpj_8**) via `orgao_cnpj_8` (041a)
 
-**Indexes:**
-| Name | Type | Columns | Notes |
-|------|------|---------|-------|
-| `sc_public_entities_pkey` | BTREE | `id` | PK |
-| `idx_spe_cnpj` | BTREE | `cnpj_8` | Lookup por CNPJ raiz |
-| `idx_spe_ibge` | BTREE | `codigo_ibge` | Lookup por codigo IBGE |
-| `idx_spe_municipio` | BTREE | `municipio` | Filtro por municipio |
-| `idx_spe_natureza` | BTREE | `cod_natureza` | Filtro por natureza juridica |
-| `idx_spe_raio` | BTREE | `raio_200km, is_active` | Filtro geografico + ativos |
+**Triggers:** `trg_bids_updated_at`, `trg_bids_coverage`, `trg_bids_coverage_update`.
 
-**Nota:** Nao ha UNIQUE constraint em `cnpj_8`, apenas index BTREE simples. Isso permite duplicatas de CNPJ (nao desejavel).
+**Índices relevantes:** GIN `tsv`, GIN trigram `idx_bids_objeto_compra_gin` (partial `is_active`), UF+data, matched_entity partial, match_method, numero_controle, etc. (~15+).
 
----
+##### `pncp_enrichment_cache`
 
-### 2. `public.pncp_raw_bids`
+PK/FK `pncp_id` → bids CASCADE; payloads JSONB detail/items/documents.
 
-Tabela central de licitacoes/unified bids. Registros de compras publicas de multiplas fontes normalizados em schema unico.
+##### `engineering_opportunities`
 
-| Column | Type | Constraints | Default | Description |
-|--------|------|-------------|---------|-------------|
-| `pncp_id` | TEXT | PK NOT NULL | | Identificador unico (ex: `13714142000162-1-000014/2026`) |
-| `objeto_compra` | TEXT | | | Descricao do objeto da licitacao |
-| `valor_total_estimado` | NUMERIC(18,2) | | | Valor total estimado |
-| `modalidade_id` | INTEGER | | | 1=Leilao, 2=Concurso, 3=Convite, 4=Concorrencia, 5=Pregao, 6=RDC, 7=Dialogo, 8=Inexigibilidade |
-| `modalidade_nome` | TEXT | | | Nome descritivo da modalidade |
-| `esfera_id` | INTEGER | | | Esfera: 1=Federal, 2=Estadual, 3=Municipal, 4=Distrital |
-| `uf` | TEXT | | | UF (ex: SC) |
-| `municipio` | TEXT | | | Municipio |
-| `codigo_municipio_ibge` | TEXT | | | Codigo IBGE 7-digit |
-| `orgao_razao_social` | TEXT | | | Nome do orgao publicador |
-| `orgao_cnpj` | TEXT | | | CNPJ do orgao (14 digitos) |
-| `data_publicacao` | DATE | | | Data de publicacao |
-| `data_abertura` | DATE | | | Data de abertura da sessao |
-| `data_encerramento` | DATE | | | Data de encerramento |
-| `link_pncp` | TEXT | | | URL oficial PNCP para a licitacao |
-| `content_hash` | TEXT | UNIQUE NOT NULL | | SHA256 do payload para dedup |
-| `tsv` | TSVECTOR | | | Pre-computed full-text search vector (portugues) |
-| `source` | TEXT | NOT NULL | `'pncp'` | Fonte: `pncp`, `dom_sc`, `pcp`, `compras_gov`, `sc_compras` |
-| `source_id` | TEXT | | | ID na fonte de origem |
-| `matched_entity_id` | INTEGER | FK → sc_public_entities(id) ON DELETE SET NULL | | Ente publico matched |
-| `ingested_at` | TIMESTAMPTZ | NOT NULL | `now()` | Timestamp de ingestao |
-| `updated_at` | TIMESTAMPTZ | NOT NULL | `now()` | Timestamp de atualizacao |
-| `is_active` | BOOLEAN | NOT NULL | `TRUE` | Soft-delete |
-
-**Indexes:**
-| Name | Type | Columns | Condition | Notes |
-|------|------|---------|-----------|-------|
-| `pncp_raw_bids_pkey` | BTREE | `pncp_id` | — | PK |
-| `pncp_raw_bids_content_hash_key` | BTREE | `content_hash` | — | UNIQUE dedup |
-| `idx_bids_active` | BTREE | `is_active, data_publicacao DESC` | `is_active = true` | Filtro ativos recentes |
-| `idx_bids_encerramento` | BTREE | `data_encerramento` | `data_encerramento IS NOT NULL` | Licitacoes encerrando |
-| `idx_bids_esfera` | BTREE | `esfera_id` | — | Filtro por esfera |
-| `idx_bids_ingested` | BTREE | `ingested_at DESC` | — | Auditoria recente |
-| `idx_bids_matched_entity` | BTREE | `matched_entity_id` | `matched_entity_id IS NOT NULL` | Partial: joins coverage |
-| `idx_bids_modalidade` | BTREE | `modalidade_id, data_publicacao DESC` | — | Filtro modalidade |
-| `idx_bids_orgao_cnpj` | BTREE | `orgao_cnpj` | — | Lookup por orgao |
-| `idx_bids_orgao_hash` | BTREE | `orgao_cnpj, content_hash` | — | Dedup por orgao |
-| `idx_bids_source` | BTREE | `source` | — | Filtro por fonte |
-| `idx_bids_tsv` | GIN | `tsv` | — | Full-text search (portugues) |
-| `idx_bids_uf_data` | BTREE | `uf, data_publicacao DESC` | — | Filtro UF + data |
-| `idx_bids_uf_source` | BTREE | `uf, source, data_publicacao DESC` | — | Filtro UF + fonte |
-| `idx_bids_valor` | BTREE | `valor_total_estimado` | — | Filtro por valor |
-
-**Triggers:**
-| Trigger | Event | Function | Description |
-|---------|-------|----------|-------------|
-| `trg_bids_coverage` | AFTER INSERT | `update_entity_coverage()` | Atualiza `entity_coverage` ao inserir bid |
-| `trg_bids_coverage_update` | AFTER UPDATE | `update_entity_coverage_on_update()` | Atualiza `entity_coverage` ao mudar match |
-| `trg_bids_updated_at` | BEFORE UPDATE | `set_updated_at()` | Auto-atualiza `updated_at` |
+Camada derivada (classificação engenharia + geo SC); UNIQUE `pncp_id` FK CASCADE.
 
 ---
 
-### 3. `public.pncp_supplier_contracts`
+#### Domínio Contracts / Suppliers
 
-Contratos de fornecedores vinculados a licitacoes.
+##### `pncp_supplier_contracts`
 
-| Column | Type | Constraints | Default | Description |
-|--------|------|-------------|---------|-------------|
-| `id` | INTEGER | PK, SEQUENCE | `nextval(...)` | ID interno |
-| `contrato_id` | TEXT | UNIQUE | | Identificador do contrato na fonte |
-| `orgao_cnpj` | TEXT | | | CNPJ do orgao contratante |
-| `orgao_nome` | TEXT | | | Nome do orgao contratante |
-| `fornecedor_cnpj` | TEXT | | | CNPJ do fornecedor |
-| `fornecedor_nome` | TEXT | | | Nome do fornecedor |
-| `objeto_contrato` | TEXT | | | Objeto do contrato |
-| `valor_total` | NUMERIC(18,2) | | | Valor total do contrato |
-| `data_inicio` | DATE | | | Data de inicio da vigencia |
-| `data_fim` | DATE | | | Data de fim da vigencia |
-| `data_publicacao` | DATE | | | Data de publicacao |
-| `uf` | TEXT | | | UF |
-| `municipio` | TEXT | | | Municipio |
-| `source` | TEXT | NOT NULL | `'pncp'` | Fonte dos dados |
-| `source_id` | TEXT | | | ID na fonte de origem |
-| `ingested_at` | TIMESTAMPTZ | NOT NULL | `now()` | Timestamp de ingestao |
+| Coluna | Tipo | Notas |
+|--------|------|-------|
+| `id` | SERIAL PK | |
+| `contrato_id` | TEXT UNIQUE | |
+| `orgao_*`, `fornecedor_*`, `objeto_contrato`, `valor_total` | | |
+| `data_inicio`, `data_fim`, `data_publicacao` | DATE | 051 adiciona semântica `data_assinatura` etc. (pós-dump) |
+| `orgao_cnpj_8`, `fornecedor_cnpj_8` | GENERATED | |
+| `is_active` | BOOLEAN DEFAULT TRUE | soft-delete |
+| `codigo_municipio_ibge`, `municipio_inferido` | | |
 
-**Indexes:**
-| Name | Type | Columns | Notes |
-|------|------|---------|-------|
-| `pncp_supplier_contracts_pkey` | BTREE | `id` | PK |
-| `pncp_supplier_contracts_contrato_id_key` | BTREE | `contrato_id` | UNIQUE (dedup) |
-| `idx_psc_data` | BTREE | `data_publicacao DESC` | Ordenacao por data |
-| `idx_psc_fornecedor` | BTREE | `fornecedor_cnpj, data_publicacao DESC` | Lookup fornecedor |
-| `idx_psc_objeto_trgm` | GIN | `objeto_contrato gin_trgm_ops` | Trigram fuzzy search |
-| `idx_psc_orgao` | BTREE | `orgao_cnpj` | Lookup orgao |
-| `idx_psc_uf` | BTREE | `uf, data_publicacao DESC` | Filtro UF |
-| `idx_psc_valor` | BTREE | `valor_total` | Filtro valor |
+**FKs no dump 07-14:** `fk_contracts_orgao_entity_v2`, `fk_contracts_supplier_entity_v2` → `cnpj_8`.  
+**Migration 050 (HEAD):** **DROP** dessas FKs de contracts — pilot nacional PNCP (~0% hit-rate no universo SC). Documentar estado real com `diagnostics.py` quando DB estiver up.
+
+**Trigger:** `trg_contract_versioning` → `fn_capture_contract_snapshot()`.
+
+##### `contract_version_history`
+
+Histórico de mudanças em contracts (033).
+
+##### `sc_municipalities` / `sc_dados_abertos_backfill_log`
+
+Referência IBGE municipal + log de backfill de município.
 
 ---
 
-### 4. `public.enriched_entities`
+#### Domínio Coverage / Evidence
 
-Cache de enriquecimento de entidades via BrasilAPI/IBGE.
+##### `coverage_evidence` — ledger de evidência (024 + 040 Story 1.5)
 
-| Column | Type | Constraints | Default | Description |
-|--------|------|-------------|---------|-------------|
-| `cnpj` | TEXT | PK NOT NULL | | CNPJ completo (14 digitos) |
-| `razao_social` | TEXT | | | Razao social |
-| `nome_fantasia` | TEXT | | | Nome fantasia |
-| `cnae_principal` | TEXT | | | CNAE principal (7-digit) |
-| `cnae_secundarios` | TEXT[] | | | CNAEs secundarios (array) |
-| `municipio` | TEXT | | | Municipio |
-| `uf` | TEXT | | | UF |
-| `codigo_ibge` | TEXT | | | Codigo IBGE 7-digit |
-| `natureza_juridica` | TEXT | | | Natureza juridica |
-| `logradouro` | TEXT | | | Endereco |
-| `bairro` | TEXT | | | Bairro |
-| `cep` | TEXT | | | CEP |
-| `telefone` | TEXT | | | Telefone |
-| `email` | TEXT | | | Email |
-| `situacao` | TEXT | | | Situacao cadastral RFB |
-| `enriched_at` | TIMESTAMPTZ | NOT NULL | `now()` | Timestamp do enriquecimento |
-| `enriched_source` | TEXT | NOT NULL | `'brasilapi'` | Fonte do enriquecimento |
+| Coluna | Tipo | Notas |
+|--------|------|-------|
+| `id` | BIGSERIAL PK | |
+| `entity_id` | INT NULL | NULL = agregado fonte |
+| `source`, `data_type` DEFAULT `'bids'` | TEXT | |
+| `queried_start/end` | DATE | janela consultada |
+| `run_id` | TEXT NOT NULL | |
+| `started_at`, `completed_at` | TIMESTAMPTZ | |
+| `count_obtained/transformed/persisted` | INT | |
+| `state` | **`evidence_state` enum** | ver §5 |
+| `error_message`, `error_code`, `metadata` | | |
+| **Story 1.5:** `canonical_entity_key`, `capability`, `applicability`, `applicability_reason`, `scope_key` | | |
+| `pages_expected/processed`, `records_expected`, `records_fetched`, `open_records` | | |
+| `freshness_status`, `checked_at`, `next_due_at`, `evidence_metadata` | | |
+| **054 (pós-dump):** `request_scope`, `pages_fetched`, `provenance`, `satisfactory` | | se 054 aplicada |
 
-**Indexes:**
-| Name | Type | Columns | Notes |
-|------|------|---------|-------|
-| `enriched_entities_pkey` | BTREE | `cnpj` | PK |
-| `idx_ee_enriched_at` | BTREE | `enriched_at` | Ordenacao/cleanup TTL |
-| `idx_ee_uf` | BTREE | `uf` | Filtro geografico |
+Partial UNIQUE: `uq_ce_entity_run`, `uq_ce_source_aggregate_run`.  
+CHECKs: `ck_ce_applicability`, `ck_ce_freshness_status`, `ck_ce_success_zero_scope` (NOT VALID no dump).
+
+##### `coverage_snapshots`
+
+Snapshots semanais (`generate_coverage_snapshot`).
 
 ---
 
-### 5. `public.entity_coverage`
+#### Domínio Opportunity Intel
 
-Controle de cobertura: qual ente publico tem bids recentes de qual fonte.
+##### `opportunity_intel`
 
-| Column | Type | Constraints | Default | Description |
-|--------|------|-------------|---------|-------------|
-| `entity_id` | INTEGER | PK, FK → sc_public_entities(id) ON DELETE CASCADE NOT NULL | | ID do ente publico |
-| `source` | TEXT | PK NOT NULL | | Fonte (pncp, dom_sc, etc.) |
-| `last_seen_at` | TIMESTAMPTZ | | | Ultima vez que foi visto |
-| `total_bids` | INTEGER | NOT NULL | `0` | Total de bids desta fonte |
-| `is_covered` | BOOLEAN | NOT NULL | `FALSE` | TRUE se visto nos ultimos 90 dias |
-| `within_200km` | BOOLEAN | NOT NULL | `FALSE` | TRUE se dentro do raio 200km |
+Oportunidade normalizada multi-fonte; UNIQUE `content_hash`; status/ranking CHECKs;  
+**Story 1.4:** `source_active`, `source_inactive_at/reason`, `last_seen_source_run_id`, `last_status_verified_*`, `source_active_changes`.
 
-**Indexes:**
-| Name | Type | Columns | Notes |
-|------|------|---------|-------|
-| `entity_coverage_pkey` | BTREE | `entity_id, source` | PK composta |
-| `idx_cov_covered` | BTREE | `is_covered, within_200km` | Cobertura geografica |
-| `idx_cov_last_seen` | BTREE | `last_seen_at` | Staleness tracking |
-| `idx_cov_source` | BTREE | `source, is_covered` | Cobertura por fonte |
+##### `opportunity_runs` / `opportunity_checkpoints` / `opportunity_coverage`
+
+Runs de coleta, checkpoints de crawler, cobertura por entidade×fonte.
+
+##### `source_snapshot_membership`
+
+Membership de registros em runs (reconcile Story 1.4); funções `fn_record_snapshot_membership`, `fn_reconcile_source_snapshot` (corrigidas em 041b).
 
 ---
 
-### 6. `public.coverage_snapshots`
+#### Domínio Ops
 
-Snapshots semanais de cobertura para analise de tendencia.
-
-| Column | Type | Constraints | Default | Description |
-|--------|------|-------------|---------|-------------|
-| `id` | INTEGER | PK, SEQUENCE | `nextval(...)` | ID interno |
-| `snapshot_date` | DATE | NOT NULL | `CURRENT_DATE` | Data do snapshot |
-| `source` | TEXT | NOT NULL | | Fonte |
-| `total_entities` | INTEGER | NOT NULL | | Total de entes ativos |
-| `covered_entities` | INTEGER | NOT NULL | | Entes cobertos |
-| `pct_covered` | NUMERIC(5,2) | NOT NULL | | Percentual de cobertura |
-| `created_at` | TIMESTAMPTZ | NOT NULL | `now()` | Timestamp de geracao |
-
-**Indexes:**
-| Name | Type | Columns | Notes |
-|------|------|---------|-------|
-| `coverage_snapshots_pkey` | BTREE | `id` | PK |
-| `idx_cov_snap_date` | BTREE | `snapshot_date` | Filtro por data |
-| `idx_cov_snap_source` | BTREE | `source, snapshot_date` | Serie temporal por fonte |
+| Tabela | Papel |
+|--------|-------|
+| `ingestion_runs` | Runs de ingestão genéricos |
+| `ingestion_checkpoints` | Checkpoint crawler (pode estar pouco usado) |
+| `retention_policy` | Políticas de retenção (035) |
+| `_migrations` | Ledger |
 
 ---
 
-### 7. `public.ingestion_runs`
+### 3.2 Definidas em migrations 043–054 (pós-dump — status de aplicação **não verificado**)
 
-Audit trail de execucoes de ingestao (crawlers).
+| Migration | Tabelas |
+|-----------|---------|
+| 043 | `entity_aliases`, `dedup_cross_source` |
+| 045 | `dlq_entries` (+ cols 054) |
+| 046 | `pipeline_watermarks` |
+| 047 | `pipeline_runs` |
+| 048 | `record_hashes` |
+| 049 | `pncp_backfill_runs`, `pncp_backfill_pages`, `pncp_backfill_records` |
+| 052 | `official_act_resources`, `official_acts`, `official_act_classifications`, `official_act_links`, `official_act_source_links`, `official_act_matches` |
+| 053 | `entity_source_registry` |
+| 054 | ALTER em `dlq_entries` / `coverage_evidence` (não cria tabela nova) |
 
-| Column | Type | Constraints | Default | Description |
-|--------|------|-------------|---------|-------------|
-| `id` | INTEGER | PK, SEQUENCE | `nextval(...)` | ID interno |
-| `source` | TEXT | NOT NULL | | Fonte processada |
-| `started_at` | TIMESTAMPTZ | NOT NULL | `now()` | Inicio da execucao |
-| `finished_at` | TIMESTAMPTZ | | | Fim da execucao |
-| `records_fetched` | INTEGER | NOT NULL | `0` | Registros obtidos |
-| `records_upserted` | INTEGER | NOT NULL | `0` | Registros inseridos/atualizados |
-| `entities_covered` | INTEGER | NOT NULL | `0` | Entidades cobertas |
-| `status` | TEXT | NOT NULL | `'running'` | running / completed / failed |
-| `error_message` | TEXT | | | Mensagem de erro |
-| `metadata` | JSONB | | | Metadados adicionais |
-
-**Indexes:**
-| Name | Type | Columns | Notes |
-|------|------|---------|-------|
-| `ingestion_runs_pkey` | BTREE | `id` | PK |
-| `idx_ir_source_status` | BTREE | `source, status` | Runs por fonte |
-| `idx_ir_started` | BTREE | `started_at DESC` | Mais recentes primeiro |
+Detalhe de colunas: ler o SQL correspondente em `db/migrations/`.
 
 ---
 
-### 8. `public.ingestion_checkpoints`
+## 4. Views — contrato canônico e operacionais
 
-Checkpoints de ingestao para crawlers resumeveis.
+### 4.1 Views canônicas (Story 1.2 — migration 030) — **contrato estável**
 
-| Column | Type | Constraints | Default | Description |
-|--------|------|-------------|---------|-------------|
-| `source` | TEXT | PK NOT NULL | `'pncp'` | Fonte |
-| `scope_key` | TEXT | PK NOT NULL | | Chave de escopo (ex: `SC-4`) |
-| `last_page` | INTEGER | NOT NULL | `0` | Ultima pagina processada |
-| `last_date` | DATE | | | Ultima data processada |
-| `last_id` | TEXT | | | Ultimo ID processado |
-| `records_fetched` | INTEGER | NOT NULL | `0` | Total de registros obtidos |
-| `updated_at` | TIMESTAMPTZ | NOT NULL | `now()` | Timestamp de atualizacao |
+Consumers Python devem preferir estas views a tabelas físicas quando possível.
 
-**Indexes:**
-| Name | Type | Columns | Notes |
-|------|------|---------|-------|
-| `ingestion_checkpoints_pkey` | BTREE | `source, scope_key` | PK composta |
+| View | Propósito | Fontes principais |
+|------|-----------|-------------------|
+| `v_entities_canonical` | Entes SC + coverage PNCP | `sc_public_entities` ⟕ `entity_coverage` |
+| `v_open_opportunities_canonical` | Licitações abertas/recentes + match | `pncp_raw_bids` ⟕ entities (filtro encerramento/publicação) |
+| `v_contracts_canonical` | Contratos + entidade/enriched | `pncp_supplier_contracts` |
+| `v_suppliers_canonical` | Fornecedores agregados | `enriched_entities` + contracts |
+| `v_value_observations_canonical` | Observações de valor (bids+contracts) | bids ∪ contracts |
 
----
+Contrato detalhado: `docs/stories/story-1.2-canonical-views-contract.md`.  
+**049** recria `v_open_opportunities_canonical` após ALTER de tipos em bids.
 
-## Views
+### 4.2 Universe (Story 1.3)
 
-### V2 baseline (presentes no schema real)
-
-| View | Descricao | Definicao |
-|------|-----------|-----------|
-| `v_coverage_gaps` | Entes publicos com gap TOTAL de cobertura (is_covered = FALSE em todas as fontes). Ordenado por municipio, razao_social. | `FROM sc_public_entities e WHERE is_active AND NOT EXISTS (SELECT 1 FROM entity_coverage ec WHERE ec.entity_id = e.id AND ec.is_covered)` |
-| `v_coverage_gaps_by_municipio` | Agregacao de gaps de cobertura por municipio. Mostra total_entes, entes_descobertos, pct_gap, pct_coberto. | `FROM sc_public_entities e WHERE is_active GROUP BY municipio` |
-| `v_coverage_summary` | Resumo de cobertura por fonte + raio_200km + is_covered. Exibe entity_count e pct. | `FROM entity_coverage ec JOIN sc_public_entities e ON e.id = ec.entity_id AND e.is_active` |
-| `v_coverage_trend` | Evolucao semanal da cobertura com variacao percentual (LAG). Row number por fonte (rn_desc). | `FROM coverage_snapshots ORDER BY snapshot_date DESC, source` |
-
-### V3 (consolidacao pendente, migration 006)
-
-| View | Descricao |
+| View | Propósito |
 |------|-----------|
-| `v_latest_evidence` | Ultimo estado de evidencia por (entity_id, source, data_type) — DISTINCT ON + ORDER BY completed_at DESC |
-| `v_source_health` | Health summary por fonte: total_entity_rows, success_with_data, success_zero, partial, failed states |
-| `v_hierarchical_coverage` | Cobertura hierarquica: entidade + parent + cobertura direta vs parent |
-| `v_opportunity_open` | Oportunidades abertas/upcoming com dados da entidade (razao_social, municipio, distancia) |
-| `v_opportunity_by_source` | Contagem de oportunidades por (source, status_canonico) com ranking GO/REVIEW/NO_GO |
-| `v_opportunity_coverage_summary` | Dashboard de cobertura por fonte: entities_attempted, entities_covered, total_records, pct_covered |
+| `v_target_universe_active` | Entes do **último** snapshot com `radius_decision = included` |
+| `v_target_universe_all` | Todos os entes do último snapshot |
+
+### 4.3 Coverage / evidence
+
+| View | Propósito |
+|------|-----------|
+| `v_coverage_gaps` | Entes sem cobertura |
+| `v_coverage_gaps_by_municipio` | Gaps por município |
+| `v_coverage_summary` | Sumário por fonte |
+| `v_coverage_trend` | Evolução semanal |
+| `v_coverage_health` | Dashboard health (036) |
+| `v_coverage_manifest` | Manifest por capacidade (1.5) |
+| `v_coverage_evidence_expanded` | Evidence expandida |
+| `v_latest_evidence` | Último estado por (entity, source, data_type) |
+| `v_source_health` | Saúde agregada por fonte |
+| `v_hierarchical_coverage` | Cobertura herdada via hierarchy |
+| `v_unmatched_bids` | Bids sem `matched_entity_id` |
+| `v_entity_match_summary` | Sumário de matching |
+| `v_capability_coverage_summary` | Capability coverage |
+
+### 4.4 Opportunity
+
+| View | Propósito |
+|------|-----------|
+| `v_opportunity_open` | Oportunidades open/upcoming |
+| `v_opportunity_by_source` | Agregado source × status |
+| `v_opportunity_coverage_summary` | Dashboard coverage opportunity |
+
+### 4.5 Contract intel
+
+| View | Propósito |
+|------|-----------|
+| `v_contract_historical` | Histórico 3 anos / raio |
+| `v_supplier_winners` | Ranking vencedores |
+| `v_expiring_contracts` | Expirando 90–180d |
+| `v_contract_intel_*` | historico, fornecedores, ativos, percentis |
+
+### 4.6 Meta / schema
+
+| View | Propósito |
+|------|-----------|
+| `v_schema_integrity` | Checa objetos críticos (FKs, UNIQUE) |
+| `v_migration_status` | Status do ledger |
+
+### 4.7 Pós-dump (052+)
+
+| View | Migration |
+|------|-----------|
+| `v_official_acts_active` | 052 |
+| `v_resolve_publishing_cnpj` | 043/aliases |
+
+**Total documentado:** 32 no dump + ~2 pós-dump ≈ **34 views**.
 
 ---
 
-## Functions & Stored Procedures
+## 5. Enums e tipos
 
-### V2 baseline (presentes no schema real)
+### `evidence_state` (enum)
 
-| Name | Type | Parameters | Description |
-|------|------|-----------|-------------|
-| `generate_coverage_snapshot` | plpgsql | `snap_date DATE DEFAULT CURRENT_DATE` | Gera snapshot de cobertura para todas as fontes. Chamado por timer semanal. Retorna count de snapshots inseridos. |
-| `purge_old_bids` | plpgsql | `p_retention_days INTEGER DEFAULT 400` | Soft-delete (is_active=FALSE) de bids com data_publicacao anterior ao cutoff. Retorna purged_count, remaining_count. |
-| `search_datalake` | plpgsql, STABLE | 11 params: `p_ufs TEXT[]`, `p_date_start/end DATE`, `p_tsquery TEXT`, `p_modalidades INT[]`, `p_valor_min/max NUMERIC`, `p_esferas INT[]`, `p_sources TEXT[]`, `p_limit INT DEFAULT 100` | Full-text search multi-filtro. Usa `ts_rank(b.tsv, to_tsquery('portuguese', ...))` + fallback ILIKE. Ordena por rank DESC, data_publicacao DESC. |
-| `set_updated_at` | plpgsql, TRIGGER | — | Trigger function: `NEW.updated_at = NOW()` |
-| `update_entity_coverage` | plpgsql, TRIGGER | — | AFTER INSERT em pncp_raw_bids: upserts entity_coverage row para o matched_entity_id |
-| `update_entity_coverage_on_update` | plpgsql, TRIGGER | — | AFTER UPDATE de matched_entity_id em pncp_raw_bids: upserts entity_coverage |
-| `upsert_pncp_raw_bids` | plpgsql | `p_records JSONB` | Batch upsert row-by-row com `ON CONFLICT (content_hash) DO NOTHING`. Gera tsv do objeto_compra. Retorna action (inserted/skipped), pncp_id, content_hash. |
-| `upsert_pncp_supplier_contracts` | plpgsql | `p_records JSONB` | Batch upsert row-by-row com `ON CONFLICT (contrato_id) DO NOTHING`. Retorna result (inserted/skipped), id. |
+Valores no dump 2026-07-14 (ordem real do catálogo pode variar por `ADD VALUE`):
 
-### V3 (consolidacao pendente, migration 006)
+```
+running, success_with_data, success_zero, partial,
+connection_failed, auth_failed, parse_failed, transform_failed, persist_failed,
+not_applicable, not_investigated, success, error, pending, stale, blocked
+```
 
-| Name | Type | Description |
-|------|------|-------------|
-| `update_entity_hierarchy_timestamp` | plpgsql, TRIGGER | Auto-atualiza `updated_at` em entity_hierarchy |
-| `trg_oi_updated_at_fn` | plpgsql, TRIGGER | Auto-atualiza `updated_at` em opportunity_intel |
-| `trg_oi_last_seen_fn` | plpgsql, TRIGGER | Auto-atualiza `last_seen_at` em opportunity_intel |
-| `upsert_opportunity_intel` | plpgsql | Batch upsert para opportunity_intel com content_hash dedup. ON CONFLICT DO UPDATE com COALESCE para preservar dados existentes. |
+- Base (024/v3): success_*, partial, *_failed, not_applicable, not_investigated  
+- Story 1.5 (040): `pending`, `running`, `blocked`, `stale`  
+- Aliases legados: `success`, `error`
 
 ---
 
-## RLS Policy Inventory
+## 6. Funções e triggers
 
-**NENHUMA** politica de Row-Level Security configurada em qualquer tabela.
+### Funções (dump — 24)
 
-O banco opera como single-user (role `postgres`, superuser). Nao ha RLS porque nao ha multi-tenancy ou separacao de roles de aplicacao. RLS sera necessario se o banco for exposto via Supabase ou API publica no futuro.
+| Função | Papel |
+|--------|-------|
+| `upsert_pncp_raw_bids(jsonb)` | **Set-based** CTE + INSERT ON CONFLICT (`pncp_id`) — retorna inserted/updated/unchanged |
+| `upsert_pncp_supplier_contracts(jsonb)` | Set-based; 044/050: DISTINCT ON + fix ambiguidade OUT; FKs contracts removidas em 050 |
+| `search_datalake(...)` | FTS + filtros; assinatura estendida (incl. `p_embedding vector` opcional) |
+| `update_entity_coverage` / `_on_update` | Triggers coverage |
+| `generate_coverage_snapshot` | Snapshot semanal |
+| `purge_old_bids` / `purge_old_bids_hard` / `fn_purge_old_data` | Retenção |
+| `ttl_cleanup_enriched_entities` | TTL cache |
+| `upsert_opportunity_intel` | Batch opportunity |
+| `upsert_qw01_pncp_opportunities` | Radar QW-01 |
+| `fn_record_snapshot_membership` / `fn_reconcile_source_snapshot` / `fn_reconciliation_summary` | Story 1.4 |
+| `fn_capture_contract_snapshot` | Versioning contracts |
+| `fn_validate_coverage_evidence` | Validação evidence |
+| `fn_value_statistics` | Stats valores |
+| `fn_*_updated_at` / `set_updated_at` / `trg_oi_*` | Triggers de timestamp |
 
----
+Pós-dump: `upsert_official_acts`, `upsert_official_act_resource`, `commit_watermark`, `get_last_watermark`, `resolve_publishing_cnpj_sql`, etc.
 
-## Extensions
+### Triggers (dump — 9)
 
-| Extension | Schema | Description |
-|-----------|--------|-------------|
-| `pg_trgm` | public | Text similarity measurement e trigram indexing (GIN/GiST operators) |
-| `uuid-ossp` | public | UUID generation functions |
-
----
-
-## Sequences
-
-| Name | Table | Column | Type |
-|------|-------|--------|------|
-| `sc_public_entities_id_seq` | `sc_public_entities` | `id` | INTEGER (owned) |
-| `pncp_supplier_contracts_id_seq` | `pncp_supplier_contracts` | `id` | INTEGER (owned) |
-| `coverage_snapshots_id_seq` | `coverage_snapshots` | `id` | INTEGER (owned) |
-| `ingestion_runs_id_seq` | `ingestion_runs` | `id` | INTEGER (owned) |
-
----
-
-## V3 Tables (consolidacao pendente)
-
-A migration `006-v3-unified-schema.sql` adiciona as seguintes tabelas ao schema. Estas tabelas podem ou nao estar presentes no banco real dependendo se a migration foi aplicada.
-
-### 9. `entity_hierarchy`
-Mapeamento hierarquico de entidades municipais (entidade filha -> prefeitura parente). Story COVERAGE-1.8.
-
-### 10. `sc_dados_abertos_backfill_log`
-Audit log para backfill de municipio em contracts. Story COVERAGE-1.9.
-
-### 11. `sc_municipalities`
-Referencia municipal para geolocalizacao do pipeline PNCP.
-
-### 12. `pncp_enrichment_cache`
-Cache de enriquecimento de detalhes PNCP (detail_payload, items_payload, documents_payload). FK ON DELETE CASCADE para pncp_raw_bids.
-
-### 13. `engineering_opportunities`
-Camada derivada com classificacao de engenharia civil, geografia SC e links PNCP. UNIQUE(pncp_id).
-
-### 14. `coverage_evidence`
-Tabela canonica de evidencia de cobertura com enum `evidence_state` (success_with_data, success_zero, partial, connection_failed, auth_failed, parse_failed, transform_failed, persist_failed, not_applicable, not_investigated). Partial unique indexes para rows com/sem entity_id.
-
-### 15. `opportunity_intel`
-Core opportunity records: 30+ colunas cobrindo metadata do orgao, dados da licitacao, qualidade, ranking, proveniencia. UNIQUE(content_hash). CHECK constraints para status_canonico, ranking, ranking_confianca, scores.
-
-### 16. `opportunity_checkpoints`
-Pagination checkpoints por source/scope_key para crawl de oportunidades.
-
-### 17. `opportunity_runs`
-Audit trail de execucao de crawl de oportunidades. CHECK para status (running, completed, completed_zero, failed, partial).
-
-### 18. `opportunity_coverage`
-Cobertura por entidade/fonte para fontes de oportunidade. FK para sc_public_entities.
+| Trigger | Tabela | Evento |
+|---------|--------|--------|
+| `trg_bids_updated_at` | pncp_raw_bids | BEFORE UPDATE |
+| `trg_bids_coverage` | pncp_raw_bids | AFTER INSERT |
+| `trg_bids_coverage_update` | pncp_raw_bids | AFTER UPDATE OF matched_entity_id |
+| `trg_entity_hierarchy_timestamp` | entity_hierarchy | BEFORE UPDATE |
+| `trg_opportunity_intel_*` | opportunity_intel | BEFORE UPDATE |
+| `trg_contract_versioning` | pncp_supplier_contracts | AFTER I/U/D |
+| `trg_cap_coverage_updated_at` | capability_coverage | BEFORE UPDATE |
+| `trg_applicability_updated_at` | source_applicability_rules | BEFORE UPDATE |
 
 ---
 
-## Foreign Key Summary
+## 7. Foreign keys (dump)
 
-| FK Name | From | To | Type | On Delete |
-|---------|------|----|------|-----------|
-| `entity_coverage_entity_id_fkey` | `entity_coverage(entity_id)` | `sc_public_entities(id)` | RESTRICT | CASCADE |
-| `fk_bids_matched_entity` | `pncp_raw_bids(matched_entity_id)` | `sc_public_entities(id)` | RESTRICT | SET NULL |
-| `pncp_enrichment_cache_pncp_id_fkey` (v3) | `pncp_enrichment_cache(pncp_id)` | `pncp_raw_bids(pncp_id)` | RESTRICT | CASCADE |
-| `entity_hierarchy_entity_id_fkey` (v3) | `entity_hierarchy(entity_id)` | `sc_public_entities(id)` | RESTRICT | NO ACTION |
-| `entity_hierarchy_parent_entity_id_fkey` (v3) | `entity_hierarchy(parent_entity_id)` | `sc_public_entities(id)` | RESTRICT | NO ACTION |
-| `engineering_opportunities_pncp_id_fkey` (v3) | `engineering_opportunities(pncp_id)` | `pncp_raw_bids(pncp_id)` | RESTRICT | CASCADE |
-| `fk_oi_run_id` (v3) | `opportunity_intel(run_id)` | `opportunity_runs(id)` | RESTRICT | SET NULL |
-| `opportunity_coverage_entity_id_fkey` (v3) | `opportunity_coverage(entity_id)` | `sc_public_entities(id)` | RESTRICT | NO ACTION |
+| Constraint | De → Para | ON DELETE |
+|------------|-----------|-----------|
+| `entity_coverage_entity_id_fkey` | entity_coverage → entities | CASCADE |
+| `fk_bids_matched_entity` | bids.matched_entity_id → entities | SET NULL |
+| `fk_bids_orgao_entity_v2` | bids.orgao_cnpj_8 → entities.cnpj_8 | — |
+| `fk_contracts_orgao_entity_v2` | contracts.orgao_cnpj_8 → entities | — (**DROP em 050**) |
+| `fk_contracts_supplier_entity_v2` | contracts.fornecedor_cnpj_8 → entities | — (**DROP em 050**) |
+| `entity_hierarchy_*_fkey` | hierarchy → entities | — |
+| `pncp_enrichment_cache_pncp_id_fkey` | cache → bids | CASCADE |
+| `engineering_opportunities_pncp_id_fkey` | eng → bids | CASCADE |
+| `fk_oi_run_id` | opportunity_intel → runs | SET NULL |
+| `opportunity_coverage_entity_id_fkey` | opp_coverage → entities | — |
+| `fk_universe_run` | universe_entities → runs | CASCADE |
+| `source_snapshot_membership_source_run_id_fkey` | membership → opportunity_runs | CASCADE |
+
+Alguns CHECKs em `enriched_entities` / `coverage_evidence` permanecem **NOT VALID** no dump (validar com 042+).
 
 ---
 
-## Technical Notes
+## 8. Índices (resumo)
 
-1. **Naming convention:** Prefixos de indice seguem o padrao `idx_{tabela}_{coluna}` para v2. V3 usa `idx_{abreviacao}_{coluna}` (ex: `idx_ce_state`, `idx_oi_source`).
+- **~122** índices no dump (CREATE INDEX / UNIQUE INDEX).
+- Destaques de performance:
+  - GIN FTS `idx_bids_tsv`
+  - GIN trigram `idx_bids_objeto_compra_gin` (partial active) — resolve DT-11/TD-DB-06
+  - GIN trigram contracts (`idx_psc_objeto_trgm` + partial `idx_psc_objeto_contrato_gin`)
+  - Partial unique coverage_evidence
+  - Partial unique opportunity_intel (pncp / processo+edital ativos)
+  - Universe: `(universe_run_id)` + partial included
 
-2. **Soft-delete padrao:** Todas as tabelas principais usam `is_active BOOLEAN DEFAULT TRUE` para soft-delete, exceto `enriched_entities` e tabelas de tracking.
+---
 
-3. **Coverage triggers:** `trg_bids_coverage` e `trg_bids_coverage_update` mantem `entity_coverage` sincronizada automaticamente a cada INSERT/UPDATE em `pncp_raw_bids`.
+## 9. Scripts e tooling de schema
 
-4. **Full-text search:** `tsv` e populado via funcao `to_tsvector('portuguese', COALESCE(objeto_compra, ''))` durante o upsert, nao via trigger BEFORE INSERT/UPDATE.
+| Artefato | Função |
+|----------|--------|
+| `db/setup_db.sh` | Aplica **todas** `db/migrations/*.sql` com advisory lock + ledger |
+| `scripts/apply-migrations.sh` | Aplica apenas `supabase/migrations/` (v2/v3) |
+| `scripts/verify-schema-divergence.sh` | Diff schema esperado vs real |
+| `scripts/schema/diagnostics.py` | Expected tables/views/functions vs live DB |
+| `scripts/schema/audit_sql_references.py` | Extrai SQL embutido em Python vs KNOWN_* |
+| `scripts/schema/official_acts.py` | Modelo official acts |
+| `db/current-schema.sql` + `.sha256` | Baseline reproduzível (regenerar após 043–054) |
 
-5. **Data types:** Datas de publicacao/abertura/encerramento em `pncp_raw_bids` sao DATE (nao TIMESTAMPTZ). `updated_at` e `ingested_at` sao TIMESTAMPTZ.
+---
+
+## 10. ERD textual (núcleo)
+
+```
+sc_public_entities (uq cnpj_8)
+    │
+    ├── entity_coverage (entity_id, source)
+    ├── entity_hierarchy (entity_id → parent)
+    ├── opportunity_coverage
+    ├── pncp_raw_bids.matched_entity_id
+    ├── pncp_raw_bids.orgao_cnpj_8 ──FK──► cnpj_8
+    │         └── pncp_enrichment_cache
+    │         └── engineering_opportunities
+    │
+target_universe_runs
+    └── target_universe_entities (canonical_entity_key)
+              ▲
+              │ (lógico)
+        coverage_evidence.canonical_entity_key
+
+opportunity_runs
+    ├── opportunity_intel (run_id, source_active…)
+    └── source_snapshot_membership
+
+pncp_supplier_contracts ──trigger──► contract_version_history
+```
+
+---
+
+## 11. SQLite / fixtures
+
+- `contract_intel` pode usar SQLite local com tabela `target_universe` simplificada.
+- **Não** é fonte da verdade; PostgreSQL + seed snapshot (`target_universe_*`) é autoritativo (Story 1.3).
+
+---
+
+## 12. Path para VPS / Supabase self-hosted
+
+1. Subir PostgreSQL 16 + extensões `pg_trgm`, `uuid-ossp`, `vector`.  
+2. `LOCAL_DATALAKE_DSN=... bash db/setup_db.sh`  
+3. Regenerar `db/current-schema.sql` + SHA-256.  
+4. `python scripts/schema/diagnostics.py --dsn ...`  
+5. RLS: só necessário se houver multi-tenant / API pública; hoje N/A.  
+6. **Não** usar apenas `supabase/migrations/` — incompleto vs 030–054.
+
+---
+
+## 13. Como regenerar este documento
+
+```bash
+# Com DB disponível (somente leitura):
+pg_dump --schema-only "$LOCAL_DATALAKE_DSN" > db/current-schema.sql
+sha256sum db/current-schema.sql > db/current-schema.sha256
+python scripts/schema/diagnostics.py --json
+bash scripts/verify-schema-divergence.sh --dsn "$LOCAL_DATALAKE_DSN"
+```
+
+---
+
+*SCHEMA.md v3.0 — 2026-07-17. Schema derived from migrations + `db/current-schema.sql` + code. Live row counts not available.*

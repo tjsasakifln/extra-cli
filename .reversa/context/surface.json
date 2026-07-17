@@ -1,127 +1,637 @@
 {
-  "generated_at": "2026-07-13T14:00:00Z",
+  "generated_at": "2026-07-17T20:40:00Z",
   "project_root": "/mnt/d/extra consultoria",
-  "re_run_reason": "Atualização completa pós 30 commits (591 arquivos, +252K/-24K LOC). QW-01 Radar, Competitive Intel, Readiness Gates, Freshness Gates, Opportunity/Contract Intel Truth, novas regras #8/#9.",
+  "re_run": true,
+  "re_run_reason": "Atualização completa e profunda pós 131 commits desde 2026-07-13 (754 arquivos, +159888/-11442 LOC). Plataforma B2G operacional: source_registry, workspace, coverage contract, official_acts, local resilience fail-closed, evidence ledger, multi-source SC, DoD §40–§44.",
+  "last_extraction": "2026-07-13",
+  "head_commit": "d3e82ba",
   "languages": [
-    { "name": "Python", "extensions": [".py"], "file_count": 277 },
-    { "name": "SQL", "extensions": [".sql"], "file_count": 58 },
-    { "name": "YAML", "extensions": [".yaml", ".yml"], "file_count": 88 },
-    { "name": "Shell", "extensions": [".sh"], "file_count": 21 },
-    { "name": "Markdown", "extensions": [".md"], "file_count": 289 }
+    {
+      "name": "Python",
+      "extensions": [
+        ".py"
+      ],
+      "file_count": 435,
+      "loc": 178915
+    },
+    {
+      "name": "Markdown",
+      "extensions": [
+        ".md"
+      ],
+      "file_count": 1524
+    },
+    {
+      "name": "JavaScript",
+      "extensions": [
+        ".js"
+      ],
+      "file_count": 579
+    },
+    {
+      "name": "JSON",
+      "extensions": [
+        ".json"
+      ],
+      "file_count": 253
+    },
+    {
+      "name": "YAML",
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ],
+      "file_count": 173
+    },
+    {
+      "name": "SQL",
+      "extensions": [
+        ".sql"
+      ],
+      "file_count": 87
+    },
+    {
+      "name": "Shell",
+      "extensions": [
+        ".sh"
+      ],
+      "file_count": 23
+    },
+    {
+      "name": "TOML",
+      "extensions": [
+        ".toml"
+      ],
+      "file_count": 16
+    },
+    {
+      "name": "CSS",
+      "extensions": [
+        ".css"
+      ],
+      "file_count": 14
+    },
+    {
+      "name": "HTML",
+      "extensions": [
+        ".html"
+      ],
+      "file_count": 6
+    }
   ],
   "primary_language": "Python",
   "python_version": "3.12",
-  "total_loc_python": 137346,
+  "total_loc_python": 178915,
+  "total_files_tracked": 3352,
   "frameworks": [
-    { "name": "httpx", "version": "0.28.1", "source": "requirements.txt" },
-    { "name": "requests", "version": "2.32.0", "source": "requirements.txt" },
-    { "name": "openai", "version": "1.55.0", "source": "requirements.txt" },
-    { "name": "psycopg2", "version": "2.9.9", "source": "requirements.txt" },
-    { "name": "reportlab", "version": "4.5.1", "source": "requirements.txt" },
-    { "name": "openpyxl", "version": "3.1.5", "source": "requirements.txt" },
-    { "name": "rich", "version": "13.0.0", "source": "requirements.txt" },
-    { "name": "beautifulsoup4", "version": "4.12.0", "source": "requirements.txt" },
-    { "name": "lxml", "version": "5.0.0", "source": "requirements.txt" },
-    { "name": "rapidfuzz", "version": "3.0.0", "source": "requirements.txt" },
-    { "name": "playwright", "version": "1.40.0", "source": "requirements.txt (comentado)" },
-    { "name": "selenium", "version": "4.15.0", "source": "requirements.txt (comentado)" }
+    {
+      "name": "httpx",
+      "version": ">=0.28.1",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "requests",
+      "version": ">=2.32.0",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "openai",
+      "version": ">=1.55.0",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "psycopg2",
+      "version": ">=2.9.9",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "reportlab",
+      "version": ">=4.5.1",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "openpyxl",
+      "version": ">=3.1.5",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "rich",
+      "version": ">=13.0.0",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "beautifulsoup4",
+      "version": ">=4.12.0",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "lxml",
+      "version": ">=5.0.0",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "rapidfuzz",
+      "version": ">=3.0.0",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "python-dotenv",
+      "version": ">=1.0.0",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "pyyaml",
+      "version": ">=6.0",
+      "source": "requirements.txt"
+    },
+    {
+      "name": "playwright",
+      "version": ">=1.40.0",
+      "source": "requirements.txt (comentado/opcional)"
+    },
+    {
+      "name": "selenium",
+      "version": ">=4.15.0",
+      "source": "requirements.txt (comentado/opcional)"
+    },
+    {
+      "name": "PostgreSQL+PostGIS+pgvector",
+      "version": "pg16",
+      "source": "docker-compose.yml"
+    }
   ],
   "dev_tools": [
-    { "name": "ruff", "version": "0.15.12", "config": "pyproject.toml" },
-    { "name": "mypy", "version": null, "config": "pyproject.toml (strict)" },
-    { "name": "bandit", "version": null, "config": "pyproject.toml" },
-    { "name": "pytest", "version": null, "config": "conftest.py" }
+    {
+      "name": "ruff",
+      "version": null,
+      "config": "pyproject.toml"
+    },
+    {
+      "name": "mypy",
+      "version": null,
+      "config": "pyproject.toml (strict boundary)"
+    },
+    {
+      "name": "bandit",
+      "version": null,
+      "config": "CI + pyproject"
+    },
+    {
+      "name": "pytest",
+      "version": null,
+      "config": "tests/, markers unit/integration/smoke/chaos"
+    },
+    {
+      "name": "pip-audit",
+      "version": null,
+      "config": "CI fail-closed"
+    }
   ],
   "package_manager": "pip",
   "entry_points": [
-    { "path": "scripts/crawl/monitor.py", "type": "crawl_orchestrator" },
-    { "path": "scripts/opportunity_intel/cli.py", "type": "cli" },
-    { "path": "scripts/opportunity_intel/radar.py", "type": "radar" },
-    { "path": "scripts/contract_intel/cli.py", "type": "cli" },
-    { "path": "scripts/intel_pipeline.py", "type": "pipeline" },
-    { "path": "scripts/local_datalake.py", "type": "cli" },
-    { "path": "scripts/coverage_truth.py", "type": "analysis" },
-    { "path": "scripts/consulting_readiness.py", "type": "gate" },
-    { "path": "scripts/freshness_gate.py", "type": "gate" },
-    { "path": "scripts/reports/panorama.py", "type": "report" },
-    { "path": "scripts/reports/coverage_weekly.py", "type": "report" },
-    { "path": "scripts/pipeline/backfill_multi_source.py", "type": "pipeline" }
+    {
+      "path": "scripts/crawl/monitor.py",
+      "type": "crawl_orchestrator"
+    },
+    {
+      "path": "scripts/crawl/orchestrator.py",
+      "type": "crawl_orchestrator"
+    },
+    {
+      "path": "scripts/opportunity_intel/cli.py",
+      "type": "cli"
+    },
+    {
+      "path": "scripts/opportunity_intel/radar.py",
+      "type": "radar"
+    },
+    {
+      "path": "scripts/contract_intel/cli.py",
+      "type": "cli"
+    },
+    {
+      "path": "scripts/source_registry/cli.py",
+      "type": "cli"
+    },
+    {
+      "path": "scripts/workspace/cli.py",
+      "type": "cli"
+    },
+    {
+      "path": "scripts/buyer_intel/cli.py",
+      "type": "cli"
+    },
+    {
+      "path": "scripts/extra_ledger/cli.py",
+      "type": "cli"
+    },
+    {
+      "path": "scripts/coverage/coverage_contract_cli.py",
+      "type": "cli"
+    },
+    {
+      "path": "scripts/intel_pipeline.py",
+      "type": "pipeline"
+    },
+    {
+      "path": "scripts/local_datalake.py",
+      "type": "cli"
+    },
+    {
+      "path": "scripts/coverage_truth.py",
+      "type": "analysis"
+    },
+    {
+      "path": "scripts/coverage_gate.py",
+      "type": "gate"
+    },
+    {
+      "path": "scripts/consulting_readiness.py",
+      "type": "gate"
+    },
+    {
+      "path": "scripts/freshness_gate.py",
+      "type": "gate"
+    },
+    {
+      "path": "scripts/golden_path.py",
+      "type": "gate"
+    },
+    {
+      "path": "scripts/ci_gate.sh",
+      "type": "ci_gate"
+    },
+    {
+      "path": "scripts/reports/panorama.py",
+      "type": "report"
+    },
+    {
+      "path": "scripts/reports/coverage_weekly.py",
+      "type": "report"
+    },
+    {
+      "path": "scripts/reports/commercial_sample_sc.py",
+      "type": "report"
+    },
+    {
+      "path": "scripts/pipeline/backfill_multi_source.py",
+      "type": "pipeline"
+    },
+    {
+      "path": "scripts/ops/resilient_cycle.py",
+      "type": "ops"
+    },
+    {
+      "path": "scripts/ops/health.py",
+      "type": "ops"
+    }
   ],
   "config_files": [
     ".env.example",
     "config/settings.py",
     "config/constants.py",
+    "config/logging_config.py",
     "config/sectors_config.yaml",
     "config/sectors_data.yaml",
     "config/transparencia_config.yaml",
+    "config/coverage_slas.yaml",
+    "config/source_applicability.yaml",
+    "config/target_entities_200km.csv",
+    "config/abbreviations.yaml",
+    "config/municipio_population.yaml",
     "pyproject.toml",
-    "requirements.txt"
+    "requirements.txt",
+    "docker-compose.yml"
   ],
   "ci_cd": [
     ".github/workflows/ci.yml"
   ],
   "docker": {
-    "compose": "docker-compose.yml"
+    "compose": "docker-compose.yml",
+    "services": [
+      "test-db (pgvector/pgvector:pg16)"
+    ]
   },
   "database_hints": [
-    { "path": "db/migrations/", "type": "migrations_dir", "count": 33 },
-    { "path": "supabase/migrations/", "type": "supabase_migrations", "count": 8 },
-    { "path": "supabase/current-schema.sql", "type": "full_schema_dump" },
-    { "path": "scripts/opportunity_intel/models.py", "type": "sqlalchemy_models" },
-    { "path": "scripts/opportunity_intel/schema.py", "type": "ddl_scripts" }
+    {
+      "path": "db/migrations/",
+      "type": "migrations_dir",
+      "count": 59
+    },
+    {
+      "path": "supabase/migrations/",
+      "type": "supabase_migrations",
+      "count": 8
+    },
+    {
+      "path": "supabase/current-schema.sql",
+      "type": "full_schema_dump"
+    },
+    {
+      "path": "scripts/opportunity_intel/models.py",
+      "type": "sqlalchemy_models"
+    },
+    {
+      "path": "scripts/opportunity_intel/schema.py",
+      "type": "ddl_scripts"
+    },
+    {
+      "path": "scripts/schema/official_acts.py",
+      "type": "schema_helpers"
+    },
+    {
+      "path": "db/migrations/052_official_acts.sql",
+      "type": "migration_new"
+    },
+    {
+      "path": "db/migrations/053_entity_source_registry.sql",
+      "type": "migration_new"
+    },
+    {
+      "path": "db/migrations/054_local_resilience_contract.sql",
+      "type": "migration_new"
+    }
   ],
   "test_framework": "pytest",
-  "test_file_count": 64,
-  "test_markers": ["unit", "integration", "smoke", "external"],
+  "test_file_count": 126,
+  "test_loc": 32473,
+  "test_markers": [
+    "unit",
+    "integration",
+    "smoke",
+    "external",
+    "chaos"
+  ],
+  "test_layout": [
+    "tests/unit/",
+    "tests/integration/",
+    "tests/smoke/",
+    "tests/chaos/",
+    "tests/fixtures/",
+    "tests/scripts/"
+  ],
   "modules": [
     "crawl",
     "opportunity_intel",
     "contract_intel",
+    "source_registry",
+    "workspace",
+    "buyer_intel",
+    "coverage",
     "lib",
     "matching",
-    "coverage",
     "reports",
+    "schema",
+    "ops",
+    "extra_ledger",
     "fix",
     "pipeline",
     "diagnose",
     "transparencia",
+    "clients",
+    "ingestion",
     "config",
     "db",
     "deploy",
+    "root_scripts",
     "tests",
-    "docs",
-    "root_scripts"
+    "docs"
   ],
-  "total_files": 7474,
+  "module_stats": {
+    "crawl": {
+      "py_files": 102,
+      "loc": 39830
+    },
+    "opportunity_intel": {
+      "py_files": 18,
+      "loc": 6864
+    },
+    "contract_intel": {
+      "py_files": 3,
+      "loc": 1660
+    },
+    "source_registry": {
+      "py_files": 12,
+      "loc": 2601
+    },
+    "workspace": {
+      "py_files": 6,
+      "loc": 2707
+    },
+    "buyer_intel": {
+      "py_files": 2,
+      "loc": 695
+    },
+    "coverage": {
+      "py_files": 16,
+      "loc": 8421
+    },
+    "lib": {
+      "py_files": 19,
+      "loc": 4110
+    },
+    "matching": {
+      "py_files": 4,
+      "loc": 2700
+    },
+    "reports": {
+      "py_files": 12,
+      "loc": 7938
+    },
+    "schema": {
+      "py_files": 3,
+      "loc": 1774
+    },
+    "ops": {
+      "py_files": 6,
+      "loc": 546
+    },
+    "extra_ledger": {
+      "py_files": 1,
+      "loc": 470
+    },
+    "fix": {
+      "py_files": 7,
+      "loc": 4236
+    },
+    "pipeline": {
+      "py_files": 2,
+      "loc": 876
+    },
+    "diagnose": {
+      "py_files": 1,
+      "loc": 651
+    },
+    "transparencia": {
+      "py_files": 1,
+      "loc": 406
+    },
+    "clients": {
+      "py_files": 8,
+      "loc": 1022
+    },
+    "ingestion": {
+      "py_files": 9,
+      "loc": 1137
+    },
+    "root_scripts": {
+      "py_files": 50,
+      "loc": 52870
+    },
+    "config": {
+      "py_files": 4,
+      "loc": 553
+    },
+    "tests": {
+      "py_files": 126,
+      "loc": 32473
+    }
+  },
+  "total_files": 3352,
   "external_integrations": [
-    { "name": "PNCP (gov.br)", "type": "REST API", "crawlers": 4 },
-    { "name": "Compras.gov", "type": "REST API", "crawlers": 1 },
-    { "name": "TCE-SC", "type": "Web scraping", "crawlers": 1 },
-    { "name": "DOE-SC", "type": "Web scraping", "crawlers": 2 },
-    { "name": "DOM-SC", "type": "Web scraping", "crawlers": 1 },
-    { "name": "CIGA/CKAN", "type": "CKAN API", "crawlers": 1 },
-    { "name": "SC Compras", "type": "Web scraping", "crawlers": 1 },
-    { "name": "MIDES/BigQuery", "type": "BigQuery API", "crawlers": 1 },
-    { "name": "Portais de Transparência", "type": "Web scraping", "crawlers": 1 },
-    { "name": "IBGE", "type": "API + cache local", "crawlers": 0 },
-    { "name": "OpenAI GPT-4.1 Nano", "type": "API LLM", "crawlers": 0 },
-    { "name": "Supabase", "type": "REST API", "crawlers": 0 }
+    {
+      "name": "PNCP (gov.br)",
+      "type": "REST API",
+      "crawlers": [
+        "pncp_crawler_adapter",
+        "pncp_sc_focused",
+        "pncp_arp",
+        "pncp_pca",
+        "pncp_backfill",
+        "bids_crawler",
+        "contracts_crawler"
+      ]
+    },
+    {
+      "name": "Compras.gov",
+      "type": "REST API",
+      "crawlers": [
+        "compras_gov_crawler"
+      ]
+    },
+    {
+      "name": "SC Compras",
+      "type": "Web scraping",
+      "crawlers": [
+        "sc_compras_crawler"
+      ]
+    },
+    {
+      "name": "TCE-SC",
+      "type": "Web scraping",
+      "crawlers": [
+        "tce_sc_crawler"
+      ]
+    },
+    {
+      "name": "DOE-SC",
+      "type": "Web scraping + Selenium",
+      "crawlers": [
+        "doe_sc_crawler",
+        "doe_sc_selenium_crawler",
+        "doe_sc_publications"
+      ]
+    },
+    {
+      "name": "DOM-SC",
+      "type": "Web scraping",
+      "crawlers": [
+        "dom_sc_crawler",
+        "ciga_dom_publications"
+      ]
+    },
+    {
+      "name": "CIGA/CKAN",
+      "type": "CKAN API",
+      "crawlers": [
+        "ciga_ckan_crawler",
+        "discover_ciga_packages"
+      ]
+    },
+    {
+      "name": "Dados Abertos SC",
+      "type": "Open data",
+      "crawlers": [
+        "dados_abertos_sc_crawler"
+      ]
+    },
+    {
+      "name": "MIDES/BigQuery",
+      "type": "BigQuery API",
+      "crawlers": [
+        "mides_bigquery_crawler"
+      ]
+    },
+    {
+      "name": "Portais de Transparência",
+      "type": "Web scraping multi-template",
+      "crawlers": [
+        "transparencia_crawler",
+        "templates betha/egov/ipam/generico"
+      ]
+    },
+    {
+      "name": "PCP",
+      "type": "Web scraping",
+      "crawlers": [
+        "pcp_crawler"
+      ]
+    },
+    {
+      "name": "E-Lic SC",
+      "type": "Stub",
+      "crawlers": [
+        "elic_sc_stub"
+      ]
+    },
+    {
+      "name": "IBGE",
+      "type": "API + cache local",
+      "crawlers": []
+    },
+    {
+      "name": "OpenAI GPT",
+      "type": "API LLM",
+      "crawlers": []
+    },
+    {
+      "name": "Supabase",
+      "type": "REST API / Postgres",
+      "crawlers": []
+    },
+    {
+      "name": "PostgreSQL local/VPS",
+      "type": "Database",
+      "crawlers": []
+    }
   ],
+  "infra": {
+    "systemd_services": 25,
+    "systemd_timers": 24,
+    "deploy_scripts": [
+      "deploy/install.sh",
+      "deploy/provision-vps.sh",
+      "deploy/hardening/"
+    ]
+  },
   "new_since_last_run": [
-    "opportunity_intel/radar.py (QW-01 Auditable Radar, 33K LOC)",
-    "opportunity_intel/ranking.py (Competitive Intelligence, 14K LOC)",
-    "consulting_readiness.py (Consulting Readiness Gate, 88K LOC)",
-    "freshness_gate.py (Freshness Gate SLA, 10K LOC)",
-    "contract_intel/ (Contract Intelligence V1, 3 files)",
-    "coverage_truth.py (Coverage Truth, 39K LOC)",
-    "scripts/coverage/ (Coverage validation module, 4 files)",
-    "db/migrations/023-029 (7 new migrations)",
-    "scripts/fix/rebuild_evidence_ledger.py",
-    "scripts/fix/resolve_unresolved_entities.py"
+    "scripts/source_registry/ (12 py — discovery, gap report, promote_from_evidence, acquisition)",
+    "scripts/workspace/ (6 py — operator workspace CLI, queue, actions)",
+    "scripts/buyer_intel/ (2 py — ranking de compradores)",
+    "scripts/extra_ledger/ (CLI ledger operacional)",
+    "scripts/ops/ (health, resilient_cycle, schema_audit, validate_systemd)",
+    "scripts/schema/ (official_acts, diagnostics, audit_sql_references)",
+    "scripts/crawl/resilience/ (fail-closed local collection adapters)",
+    "scripts/crawl/act_classifier.py, official acts pipeline, DOE/DOM/Compras real ingestion",
+    "scripts/coverage/coverage_contract.py + multi_source + commercial_status + session pipeline",
+    "db/migrations/030–054 (25+ migrations: reconciliation, DLQ, watermarks, official_acts, source_registry, local_resilience)",
+    "tests/chaos/ + tests/unit/source_registry + tests/unit/workspace + tests/unit/coverage",
+    "docs/ops/session-* DoD §40–§44, evidence ledger, B2G operational platform",
+    "CI fail-closed expanded (critical readiness, coverage gates, no continue-on-error)"
   ],
   "organization_suggestion": {
     "granularity": "module",
-    "rationale": "Estrutura de diretórios top-level em scripts/ organizada por domínio: crawl/, lib/, matching/, opportunity_intel/, contract_intel/, reports/, coverage/, fix/, pipeline/, diagnose/, transparencia/. Cada diretório representa um módulo funcional independente.",
+    "rationale": "Pastas top-level em scripts/ continuam organizadas por domínio funcional (crawl, opportunity_intel, source_registry, workspace, coverage, etc.). Organização por módulo permanece dominante.",
     "signals": [
       {
         "type": "top_level_domain_folders",
@@ -129,17 +639,35 @@
           "scripts/crawl/",
           "scripts/opportunity_intel/",
           "scripts/contract_intel/",
+          "scripts/source_registry/",
+          "scripts/workspace/",
+          "scripts/buyer_intel/",
+          "scripts/coverage/",
           "scripts/lib/",
           "scripts/matching/",
           "scripts/reports/",
-          "scripts/coverage/",
+          "scripts/ops/",
+          "scripts/schema/",
+          "scripts/extra_ledger/",
           "scripts/fix/",
-          "scripts/pipeline/",
-          "scripts/diagnose/",
-          "scripts/transparencia/"
+          "scripts/pipeline/"
         ]
       }
     ],
     "features": []
+  },
+  "target_scope": {
+    "canonical_document": "DOD.md",
+    "aliases": [
+      "DoD.md"
+    ],
+    "role": "definição de escopo almejado do projeto (metas, exclusões, gates de pronto, claims)",
+    "binding_artifact": "_reversa_sdd/target-scope-dod.md",
+    "decided_at": "2026-07-17",
+    "notes": [
+      "DOD vence em conflito com stories/extração as-is",
+      "LOCAL_RESILIENCE_READY não implica LOCAL_READY",
+      "Meta operacional 95% editais e 95% contratos sobre universo 200km"
+    ]
   }
 }

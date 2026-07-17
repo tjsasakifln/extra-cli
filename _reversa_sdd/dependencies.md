@@ -1,160 +1,157 @@
 # Dependências — Extra Consultoria
 
-> Gerado pelo Scout em 2026-07-13
+> 🟢 **CONFIRMADO** — re-extração Scout 2026-07-17  
+> Fontes: `requirements.txt`, `pyproject.toml`, `docker-compose.yml`, `.github/workflows/ci.yml`
 
 ---
 
-## 1. Linguagem e Runtime
+## 1. Runtime (requirements.txt)
 
-| Componente | Versão | Fonte |
-|------------|--------|-------|
-| **Python** | 3.12 | `pyproject.toml` (target-version), `ruff` config |
-| **pip** | — | `requirements.txt` |
+### Core HTTP / API
+
+| Pacote | Versão | Uso |
+|--------|--------|-----|
+| httpx | >=0.28.1 | Cliente HTTP moderno (crawlers async/sync) |
+| requests | >=2.32.0 | Cliente HTTP legado / integrações |
+| openai | >=1.55.0 | LLM (intel pipeline, gates) |
+
+### Dados / banco
+
+| Pacote | Versão | Uso |
+|--------|--------|-----|
+| psycopg2 | >=2.9.9 | PostgreSQL (produção; binary só em dev/test) |
+| python-dotenv | >=1.0.0 | Carregamento de `.env` |
+| pyyaml | >=6.0 | Configs YAML (setores, SLA, transparência) |
+
+### Processamento e matching
+
+| Pacote | Versão | Uso |
+|--------|--------|-----|
+| lxml | >=5.0.0 | Parse HTML/XML |
+| beautifulsoup4 | >=4.12.0 | Scraping HTML |
+| rapidfuzz | >=3.0.0 | Fuzzy match de nomes (fallback difflib) |
+
+### Relatórios e CLI
+
+| Pacote | Versão | Uso |
+|--------|--------|-----|
+| reportlab | >=4.5.1 | PDF executivo |
+| openpyxl | >=3.1.5 | Excel |
+| rich | >=13.0.0 | Terminal / CLI |
+
+### Opcionais (comentados)
+
+| Pacote | Versão | Quando |
+|--------|--------|--------|
+| playwright | >=1.40.0 | SICAF / automação browser |
+| selenium | >=4.15.0 | Portais JS / DOE Selenium |
+| webdriver-manager | >=4.0.0 | ChromeDriver automático |
+| psycopg2-binary | >=2.9.9 | **Apenas** dev/test — não produção |
 
 ---
 
-## 2. Dependências Principais (requirements.txt)
+## 2. Infraestrutura de dados
 
-### Core
+| Componente | Versão / imagem | Fonte |
+|------------|-----------------|-------|
+| PostgreSQL + pgvector | `pgvector/pgvector:pg16` | docker-compose.yml |
+| PostGIS-compatible stack | incluído na imagem | migrations (extensões) |
+| Supabase | schema dump + migrations | `supabase/` |
 
-| Pacote | Versão | Função |
-|--------|--------|--------|
-| `httpx` | >=0.28.1 | HTTP client async para crawlers |
-| `requests` | >=2.32.0 | HTTP client síncrono |
-| `openai` | >=1.55.0 | Integração GPT-4.1 Nano (classificação) |
-| `psycopg2` | >=2.9.9 | Driver PostgreSQL |
-| `python-dotenv` | >=1.0.0 | Variáveis de ambiente |
-| `pyyaml` | >=6.0 | Parsing de configurações YAML |
+**Variáveis críticas (`.env.example`):**
 
-### Geração de Documentos
-
-| Pacote | Versão | Função |
-|--------|--------|--------|
-| `reportlab` | >=4.5.1 | Geração de PDFs (Big Four: consultoria, proposta, B2G, panorama) |
-| `openpyxl` | >=3.1.5 | Geração de Excel |
-
-### CLI
-
-| Pacote | Versão | Função |
-|--------|--------|--------|
-| `rich` | >=13.0.0 | Formatação rica de terminal (tabelas, progress bars, cores) |
-
-### Processamento de Dados
-
-| Pacote | Versão | Função |
-|--------|--------|--------|
-| `lxml` | >=5.0.0 | Parsing XML/HTML rápido |
-| `beautifulsoup4` | >=4.12.0 | Parsing HTML (crawlers) |
-| `rapidfuzz` | >=3.0.0 | Fuzzy string matching (entity resolution) |
-
-### Opcionais
-
-| Pacote | Versão | Função | Status |
-|--------|--------|--------|--------|
-| `playwright` | >=1.40.0 | Automação browser (SICAF) | Comentado |
-| `selenium` | >=4.15.0 | Automação browser (portais JS) | Comentado |
-| `webdriver-manager` | >=4.0.0 | Gerenciamento ChromeDriver | Comentado |
+- `DATABASE_URL` / `LOCAL_DATALAKE_DSN`
+- `DATALAKE_BACKEND`, `DATALAKE_QUERY_ENABLED`
+- `PNCP_BASE`, `PNCP_MAX_PAGES`, `PNCP_PAGE_SIZE`, timeouts/retries
+- `INGESTION_UFS`, `INGESTION_MODALIDADES`, ranges e delays
 
 ---
 
-## 3. Ferramentas de Desenvolvimento
+## 3. Ferramentas de desenvolvimento e CI
 
-| Ferramenta | Versão | Config | Função |
-|------------|--------|--------|--------|
-| **ruff** | 0.15.12 | `pyproject.toml` | Linter + formatter |
-| **mypy** | — | `pyproject.toml` | Type checking (strict config) |
-| **bandit** | — | `pyproject.toml` | Security scanning |
-| **pytest** | — | `conftest.py` | Test framework |
-| **pytest-cov** | — | — | Coverage |
+| Ferramenta | Config | Papel no CI |
+|------------|--------|-------------|
+| **ruff** | `pyproject.toml` | Lint fail-closed em `scripts/` |
+| **mypy** | boundary crítica listada no workflow | Type check fail-closed |
+| **pytest** | `tests/` + markers | Critical readiness suite |
+| **bandit** | ruleset S no ruff + job dedicado | Segurança |
+| **pip-audit** | job CI | Vulnerabilidades de deps |
 
-### Regras Ruff Ativas
+### Ruff (resumo)
 
-- `E` — pycodestyle errors
-- `F` — pyflakes (logic errors)
-- `I` — isort (import ordering)
-- `N` — pep8-naming
-- `W` — pycodestyle warnings
-- `UP` — pyupgrade (modern Python idioms)
+- target: Python 3.12  
+- line-length: 120  
+- selects: E, F, I, N, S, W, UP  
+- ignores notáveis: E501; per-file ignores em testes e scripts legados com N/F/E402
 
-### Config mypy (Strict)
+---
 
-```toml
-check_untyped_defs = true
-warn_return_any = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-no_implicit_optional = true
-strict_equality = true
+## 4. Gerenciador de pacotes
+
+| Item | Valor |
+|------|-------|
+| Gerenciador | **pip** |
+| Lockfile | 🔴 não há `requirements.lock` / poetry.lock (lacuna operacional) |
+| Python | 3.12 (CI `PYTHON_VERSION: "3.12"`) |
+
+---
+
+## 5. Integrações externas (dependências de rede)
+
+| Sistema | Protocolo | Credencial / config |
+|---------|-----------|---------------------|
+| PNCP | HTTPS REST | público + rate limits env |
+| Compras.gov | HTTPS | público |
+| Portais SC (DOE/DOM/Compras/TCE/CIGA) | HTTPS scrape/API | cookies/headers/templates |
+| BigQuery MIDES | API Google | `config/mides-bigquery-sa.json` (SA) |
+| OpenAI | HTTPS | API key env |
+| Supabase | HTTPS / Postgres | URL + keys env |
+| IBGE | HTTPS | cache local |
+
+---
+
+## 6. Dependências operacionais (não-Python)
+
+| Item | Uso |
+|------|-----|
+| systemd | 25 services / 24 timers de crawl e manutenção |
+| Docker Engine | DB local de teste/prod data |
+| GitHub Actions | CI em push/PR para `main` |
+| SSH / VPS | deploy (`ec-prod` em runbooks) |
+
+---
+
+## 7. Grafo de dependência lógica (alto nível)
+
+```
+config ──► crawl / clients / ingestion ──► db (Postgres)
+                │
+                ├──► matching / lib / schema
+                │         │
+                ├──► source_registry / coverage / opportunity_intel
+                │         │
+                ├──► workspace / buyer_intel / contract_intel
+                │         │
+                └──► reports / root_scripts (gates, intel_pipeline)
+                              │
+                              └──► ops / deploy (systemd) / CI
 ```
 
 ---
 
-## 4. Infraestrutura
+## 8. Riscos de dependência 🟡/🔴
 
-| Componente | Versão | Uso |
-|------------|--------|-----|
-| **PostgreSQL** | 16 | Banco de dados principal |
-| **PostGIS** | 3.4 | Extensão geoespacial |
-| **Docker** | — | PostgreSQL para testes (`docker-compose.yml`) |
-| **systemd** | — | Orquestração de crawlers/timers na VPS |
-| **GitHub Actions** | — | CI/CD pipeline |
-
----
-
-## 5. Integrações Externas
-
-| Sistema | Tipo | Crawlers |
-|---------|------|----------|
-| **PNCP** (gov.br) | API REST | `pncp_crawler_adapter.py`, `pncp_contract.py`, `pncp_arp_crawler.py`, `pncp_pca_crawler.py` |
-| **Compras.gov** | API REST | `compras_gov_crawler.py` |
-| **TCE-SC** | Web scraping | `tce_sc_crawler.py` |
-| **DOE-SC** | Web scraping | `doe_sc_crawler.py`, `doe_sc_selenium_crawler.py` |
-| **DOM-SC** | Web scraping | `dom_sc_crawler.py` |
-| **CIGA/CKAN** | API CKAN | `ciga_ckan_crawler.py` |
-| **SC Compras** | Web scraping | `sc_compras_crawler.py` |
-| **MIDES/BigQuery** | BigQuery API | `mides_bigquery_crawler.py` |
-| **Portais de Transparência** | Web scraping | `transparencia_crawler.py` + templates |
-| **IBGE** | API + cache local | `enricher.py` (geocodificação) |
-| **OpenAI GPT-4.1 Nano** | API | `intel_llm_gate.py` (classificação) |
-| **Supabase** | API REST | `supabase_client.py` |
+| Risco | Severidade | Nota |
+|-------|------------|------|
+| Sem lockfile de pip | 🟡 INFERIDO | builds CI podem driftar entre runs |
+| Selenium/Playwright opcionais | 🟢 | crawlers JS degradam sem deps instaladas |
+| SA BigQuery em `config/` | 🟡 | arquivo listado no inventário — validar se é placeholder/gitignored em prod |
+| psycopg2 vs binary | 🟢 | documentado: binary só dev/test |
 
 ---
 
-## 6. Árvore de Dependências (Simplificada)
+## 9. Artefatos relacionados
 
-```
-scripts/
-├── crawl/          → httpx, requests, lxml, bs4, psycopg2, yaml, rapidfuzz
-│   + clients/      → httpx (APIs tipadas)
-│   + ingestion/    → psycopg2 (escrita no banco)
-├── opportunity_intel/ → psycopg2, rich, yaml, httpx
-├── contract_intel/ → psycopg2, rich, yaml
-├── lib/            → rapidfuzz, psycopg2, httpx (puro Python, sem I/O pesado)
-├── matching/       → rapidfuzz, psycopg2
-├── reports/        → reportlab, openpyxl, psycopg2
-├── fix/            → psycopg2, httpx, bs4
-├── coverage/       → psycopg2
-├── diagnose/       → psycopg2, httpx
-└── intel_pipeline  → openai, psycopg2, rich, reportlab, openpyxl
-```
-
----
-
-## 7. Versionamento de Dependências
-
-Todas as dependências têm versão mínima (`>=`) sem upper bound. Apenas `psycopg2` (não `psycopg2-binary`) é usado em produção.
-
----
-
-## 8. Scripts de Setup
-
-| Script | Função |
-|--------|--------|
-| `db/setup_db.sh` | Criação do banco local |
-| `scripts/apply-migrations.sh` | Aplicação de migrations |
-| `deploy/install.sh` | Instalação na VPS |
-| `deploy/provision-vps.sh` | Provisionamento completo da VPS |
-| `scripts/ci-check.sh` | Verificação pré-CI |
-| `scripts/backup-database.sh` | Backup do PostgreSQL |
-| `scripts/restore-database.sh` | Restore do PostgreSQL |
-| `scripts/verify-schema-divergence.sh` | Verificação de divergência schema |
+- Inventário: `_reversa_sdd/inventory.md`  
+- Superfície: `.reversa/context/surface.json`  
+- Schema detalhado: fase Data Master / Architect (ERD)

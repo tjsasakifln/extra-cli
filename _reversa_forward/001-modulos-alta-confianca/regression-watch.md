@@ -30,8 +30,21 @@ Itens sem peso de regressão (regras originalmente 🟡 ou 🔴, ou artefatos no
 
 ## Histórico de re-extrações
 
+### Re-extração 2026-07-17 21:30
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟡 amarelo | `reconciliation.py` + metadata `reconciliation` existem; **não** confirmado como etapa 12 embutida em `run_radar()` (0 refs a reconcil no radar). Essência parcial. |
+| W002 | 🟢 verde | `scoring.py`: `require_official_url` → blocker; PRIORITARIA exige thresholds; sem URL com hard block não sobe a PRIORITARIA (triage DESCARTAR/REVISAR). |
+| W003 | 🟢 verde | `scripts/ci_gate.sh` fail-closed (exit 2 agregado); coverage_gate invocado após pytest. |
+| W004 | 🟡 amarelo | Reconciliação grava summary no metadata do run; **não** encontrado `event_type='snapshot_reconciled'` em `coverage_evidence` no código atual. |
+| W005 | 🟢 verde | `bootstrap_local.sh` presente com pistas de idempotência (skip/already/IF NOT EXISTS). |
+| W006 | 🔴 vermelho | `docker-compose.local.yml` **diverge** de `docker-compose.yml` no serviço `test-db`: image `postgis/postgis:16-3.4` + tmpfs vs `pgvector/pgvector:pg16` + volume `pgdata`. Porta 5433 igual. |
+| W007 | 🟢 verde | Ordem em `ci_gate.sh`: ruff → pyright → bandit → pytest → coverage_gate. |
+
 | Data | Extração | Resultado | Watch items violados |
 |------|----------|-----------|---------------------|
+| 2026-07-17 | re-extração completa HEAD d3e82ba | 4🟢 2🟡 1🔴 | W006 |
 | — | — | — | — |
 
 ## Histórico de alterações

@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "extra-dod-roi/ranking.schema.json",
+  "title": "ROI Ranking",
+  "type": "object",
+  "required": ["generated_at", "candidates"],
+  "properties": {
+    "generated_at": {"type": "string"},
+    "repo_head": {"type": "string"},
+    "main_head": {"type": "string"},
+    "dod_hash": {"type": "string"},
+    "weights_version": {"type": "string"},
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "status", "roi"],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "status": {"type": "string", "enum": ["UNLOCKED", "BLOCKED", "CONFLICT"]},
+          "dod_refs": {"type": "array", "items": {"type": "string"}},
+          "roi": {"type": "number"},
+          "value": {"type": "object"},
+          "cost": {"type": "object"},
+          "justification": {"type": "string"},
+          "risks": {"type": "array", "items": {"type": "string"}},
+          "dependencies": {"type": "array", "items": {"type": "string"}},
+          "conflicts": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "selected_id": {"type": ["string", "null"]},
+    "divergences": {"type": "array", "items": {"type": "string"}},
+    "blockers": {"type": "array"}
+  }
+}

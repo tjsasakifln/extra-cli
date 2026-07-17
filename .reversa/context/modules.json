@@ -1,241 +1,1137 @@
 {
-  "generated_at": "2026-07-13T15:00:00Z",
-  "total_modules": 17,
+  "generated_at": "2026-07-17T21:00:00Z",
   "re_run": true,
-  "re_run_reason": "Atualização completa pós 30 commits. +8 módulos desde 2026-07-11.",
+  "head_commit": "d3e82ba",
+  "doc_level": "completo",
+  "modules_count": 25,
+  "algorithms_documented": 15,
+  "entities_documented": 18,
+  "flowcharts": [
+    "crawl",
+    "source_registry",
+    "coverage",
+    "matching",
+    "workspace",
+    "opportunity_intel",
+    "lib",
+    "db",
+    "reports"
+  ],
   "modules": [
     {
       "name": "crawl",
-      "path": "scripts/crawl/",
-      "purpose": "Crawlers web, pipeline de ingestão, orquestração e monitoramento de fontes de licitações B2G",
-      "primary_files": ["monitor.py", "transparencia_crawler.py", "contracts_crawler.py", "ciga_ckan_crawler.py", "tce_sc_crawler.py", "doe_sc_crawler.py", "selenium_crawler.py", "enricher.py", "sync_client.py", "async_client.py", "circuit_breaker.py", "checkpoint.py"],
+      "path": "scripts/crawl",
+      "purpose": "Coleta multi-fonte (11 sources), transform, match, upsert, coverage; resilience fail-closed pré-VPS",
+      "primary_files": [
+        "scripts/crawl/monitor.py",
+        "scripts/crawl/registry.py",
+        "scripts/crawl/resilience/adapters.py",
+        "scripts/crawl/resilience/state.py",
+        "scripts/crawl/resilience/config.py",
+        "scripts/crawl/act_classifier.py",
+        "scripts/crawl/run_evidence.py"
+      ],
       "functions": [
-        {"name": "crawl_source", "file": "monitor.py", "params": ["conn", "source", "entities", "mode"], "returns": "dict", "confidence": "confirmed"},
-        {"name": "_match_entities_cascade", "file": "monitor.py", "params": ["conn", "source", "entities", "pncp_ids"], "returns": "dict", "confidence": "confirmed"},
-        {"name": "_project_entity_evidence", "file": "monitor.py", "params": ["conn", "source", "entity_id", "run_id", "state", "records_fetched"], "returns": "None", "confidence": "confirmed"}
+        {
+          "name": "lookup",
+          "file": "scripts/crawl/registry.py",
+          "params": [
+            "key"
+          ],
+          "returns": "SourceInfo|None",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "iter_sources",
+          "file": "scripts/crawl/registry.py",
+          "params": [
+            "purpose?",
+            "active_only?"
+          ],
+          "returns": "Iterable[SourceInfo]",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "run_cycle",
+          "file": "scripts/ops/resilient_cycle.py",
+          "params": [
+            "live",
+            "source?",
+            "fixture_dir?"
+          ],
+          "returns": "tuple[int, dict]",
+          "confidence": "confirmed"
+        }
       ],
       "entities": [
-        {"name": "CrawlRequest", "fields": [{"name": "source", "type": "str", "required": true}, {"name": "params", "type": "dict", "required": false}], "confidence": "confirmed"},
-        {"name": "FetchResult", "fields": [{"name": "records", "type": "list[dict]", "required": true}, {"name": "total_fetched", "type": "int", "required": true}], "confidence": "confirmed"}
+        {
+          "name": "SourceInfo",
+          "fields": [
+            {
+              "name": "name",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "purpose",
+              "type": "SourcePurpose",
+              "required": true
+            },
+            {
+              "name": "module",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "capabilities",
+              "type": "list",
+              "required": false
+            },
+            {
+              "name": "supports_zero_proof",
+              "type": "bool",
+              "required": false
+            }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "CanonicalCheckpoint",
+          "fields": [
+            {
+              "name": "source_id",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "completed",
+              "type": "bool",
+              "required": true
+            }
+          ],
+          "confidence": "confirmed"
+        }
       ],
       "business_rules": [
-        {"description": "Circuit breaker: CLOSED → OPEN após N falhas consecutivas → HALF_OPEN após timeout", "location": "circuit_breaker.py", "confidence": "confirmed"},
-        {"description": "Retry com exponential backoff + jitter, max 3 tentativas", "location": "retry.py", "confidence": "confirmed"},
-        {"description": "Checkpoint por data: salva último cursor, retoma de onde parou", "location": "checkpoint.py", "confidence": "confirmed"}
+        {
+          "description": "Registry é single source of truth para fontes; orchestrator está deprecated",
+          "location": "scripts/crawl/registry.py",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Bulk SC incompleto não promove sucesso/satisfactory",
+          "location": "scripts/crawl/resilience/adapters.py",
+          "confidence": "confirmed"
+        }
       ],
-      "dependencies": ["lib", "matching", "config", "db"],
-      "algorithms": ["entity_matching_cascade", "circuit_breaker", "exponential_backoff_retry", "content_hash_dedup"],
-      "complexity": "very_high"
+      "dependencies": [
+        "config",
+        "matching",
+        "schema",
+        "db",
+        "ops"
+      ],
+      "algorithms": [
+        "A01 multi-source pipeline",
+        "A02 registry resolve",
+        "A03 resilience cycle",
+        "A15 evidence run_id"
+      ],
+      "complexity": "high",
+      "py_files": 102,
+      "loc": 39830
     },
     {
-      "name": "opportunity_intel",
-      "path": "scripts/opportunity_intel/",
-      "purpose": "Inteligência de licitações abertas, QW-01 Radar operacional, ranking competitivo, scoring para triagem humana",
-      "primary_files": ["cli.py", "radar.py", "crawler_base.py", "transformer.py", "status.py", "pncp_audit.py", "ranking.py", "scoring.py", "models.py", "schema.py", "dedup.py", "manifest.py", "profile.py"],
+      "name": "source_registry",
+      "path": "scripts/source_registry",
+      "purpose": "Mapear 1093 entidades 200km para portais/plataformas/status/blockers e gaps operacionais",
+      "primary_files": [
+        "scripts/source_registry/builder.py",
+        "scripts/source_registry/models.py",
+        "scripts/source_registry/discovery.py",
+        "scripts/source_registry/gap_report.py",
+        "scripts/source_registry/cli.py",
+        "scripts/source_registry/persistence.py"
+      ],
       "functions": [
-        {"name": "score_opportunity", "file": "scoring.py", "params": ["row", "entity", "profile", "status_evidence", "now", "freshness_window_days"], "returns": "RadarScores", "confidence": "confirmed"},
-        {"name": "calculate_canonical_status", "file": "status.py", "params": ["source", "source_status", "data_encerramento", "modalidade", "now"], "returns": "str", "confidence": "confirmed"},
-        {"name": "cmd_radar", "file": "cli.py", "params": ["args"], "returns": "int (exit code)", "confidence": "confirmed"}
+        {
+          "name": "build_registry_from_csv",
+          "file": "scripts/source_registry/builder.py",
+          "params": [
+            "csv_path"
+          ],
+          "returns": "list[EntitySourceRecord]",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "is_strict_operational",
+          "file": "scripts/source_registry/models.py",
+          "params": [
+            "record"
+          ],
+          "returns": "bool",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "generate_gap_report",
+          "file": "scripts/source_registry/gap_report.py",
+          "params": [
+            "records",
+            "output_dir"
+          ],
+          "returns": "dict",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "sync_registry_to_postgres",
+          "file": "scripts/source_registry/persistence.py",
+          "params": [
+            "records"
+          ],
+          "returns": "None",
+          "confidence": "confirmed"
+        }
       ],
       "entities": [
-        {"name": "OpportunityRecord", "fields": [{"name": "source", "type": "str", "required": true}, {"name": "source_id", "type": "str", "required": true}, {"name": "status_canonico", "type": "str", "required": true}, {"name": "ranking", "type": "str", "required": true}, {"name": "ranking_score", "type": "int", "required": true}], "confidence": "confirmed"},
-        {"name": "RadarExecution", "fields": [{"name": "run_id", "type": "str", "required": true}, {"name": "exit_code", "type": "int", "required": true}, {"name": "readiness", "type": "str", "required": true}, {"name": "monitoring_coverage_percent", "type": "float", "required": true}], "confidence": "confirmed"},
-        {"name": "RadarScores", "fields": [{"name": "data_confidence_score", "type": "int", "required": true}, {"name": "client_fit_score", "type": "int", "required": true}, {"name": "triage_recommendation", "type": "str", "required": true}], "confidence": "confirmed"}
+        {
+          "name": "EntitySourceRecord",
+          "fields": [
+            {
+              "name": "canonical_id",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "cnpj",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "access_status",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "integration_type",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "mapping_confidence",
+              "type": "float",
+              "required": true
+            }
+          ],
+          "confidence": "confirmed"
+        }
       ],
       "business_rules": [
-        {"description": "Regra #9: market share, HHI, supplier ranking — apenas com dados contratuais confirmados", "location": "ranking.py", "confidence": "confirmed"},
-        {"description": "QW-01: monitoring threshold 95%, exit code 2 abaixo disso", "location": "radar.py", "confidence": "confirmed"},
-        {"description": "Status: source_map → temporal → heuristic com janela 90/365 dias", "location": "status.py", "confidence": "confirmed"},
-        {"description": "Ranking determinístico: HARD_BLOCKS (6) + POSITIVE (9) + NEGATIVE (9)", "location": "ranking.py", "confidence": "confirmed"},
-        {"description": "Nunca emitir veredito definitivo de participação — sempre triagem para humano", "location": "scoring.py", "confidence": "confirmed"}
+        {
+          "description": "Operacional strict ≠ apenas mapped; is_strict_operational define numerador honesto",
+          "location": "scripts/source_registry/models.py",
+          "confidence": "confirmed"
+        }
       ],
-      "dependencies": ["lib", "crawl", "db"],
-      "algorithms": ["qw01_radar_pipeline", "canonical_status_3level", "deterministic_ranking", "dual_scoring_triage"],
-      "complexity": "high"
+      "dependencies": [
+        "config",
+        "db",
+        "coverage"
+      ],
+      "algorithms": [
+        "A11 registry build/gap"
+      ],
+      "complexity": "medium-high",
+      "py_files": 12,
+      "loc": 2601
     },
     {
-      "name": "contract_intel",
-      "path": "scripts/contract_intel/",
-      "purpose": "Contract Intelligence — consulta de contratos históricos, ranking de fornecedores, contratos expirando, readiness manifest",
-      "primary_files": ["cli.py", "target_universe.py"],
+      "name": "workspace",
+      "path": "scripts/workspace",
+      "purpose": "Fila operacional do consultor (today), seções e actions de decisão/scaffold",
+      "primary_files": [
+        "scripts/workspace/queue.py",
+        "scripts/workspace/actions.py",
+        "scripts/workspace/cli.py",
+        "scripts/workspace/common.py"
+      ],
       "functions": [
-        {"name": "cmd_historical", "file": "cli.py", "params": ["args"], "returns": "None", "confidence": "confirmed"},
-        {"name": "cmd_suppliers", "file": "cli.py", "params": ["args"], "returns": "None", "confidence": "confirmed"},
-        {"name": "load_target_universe", "file": "target_universe.py", "params": ["seed_path", "radius_km"], "returns": "TargetUniverse", "confidence": "confirmed"}
+        {
+          "name": "build_today",
+          "file": "scripts/workspace/queue.py",
+          "params": [
+            "dsn",
+            "hours_new"
+          ],
+          "returns": "sections",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "decide_opportunity",
+          "file": "scripts/workspace/actions.py",
+          "params": [
+            "..."
+          ],
+          "returns": "decision",
+          "confidence": "confirmed"
+        }
       ],
       "entities": [
-        {"name": "TargetEntity", "fields": [{"name": "razao_social", "type": "str", "required": true}, {"name": "cnpj8", "type": "str", "required": true}, {"name": "distancia_km", "type": "float", "required": true}, {"name": "within_200km", "type": "bool", "required": true}], "confidence": "confirmed"},
-        {"name": "TargetUniverse", "fields": [{"name": "entities", "type": "list[TargetEntity]", "required": true}, {"name": "inclusion_rule", "type": "str", "required": true}], "confidence": "confirmed"}
+        {
+          "name": "SectionResult",
+          "fields": [
+            {
+              "name": "section",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "rows",
+              "type": "list",
+              "required": true
+            }
+          ],
+          "confidence": "confirmed"
+        }
       ],
       "business_rules": [
-        {"description": "valor_global NÃO é 'preço praticado' — é valor contratual (CONTRATADO, não PAGO)", "location": "cli.py", "confidence": "confirmed"},
-        {"description": "Readiness threshold: 95% — exit code 2 abaixo", "location": "cli.py", "confidence": "confirmed"},
-        {"description": "Denominador conservador: entidades sem contrato contam no denominador", "location": "cli.py", "confidence": "confirmed"}
+        {
+          "description": "Offline-first: se PG falhar, seções usam session JSON",
+          "location": "scripts/workspace/queue.py",
+          "confidence": "confirmed"
+        }
       ],
-      "dependencies": ["lib", "db"],
-      "algorithms": ["target_universe_haversine", "supplier_hhi_ranking", "expiring_contract_window"],
-      "complexity": "high"
-    },
-    {
-      "name": "lib",
-      "path": "scripts/lib/",
-      "purpose": "Biblioteca compartilhada — universo canônico, geocodificação, normalização de nomes, semântica de valores",
-      "primary_files": ["universe.py", "doc_templates.py", "entity_hierarchy.py", "geocode.py", "name_normalizer.py", "value_semantics.py", "victory_profile.py", "bid_simulator.py", "cost_estimator.py"],
-      "functions": [
-        {"name": "load_canonical_universe", "file": "universe.py", "params": ["seed_path", "radius_km"], "returns": "CanonicalUniverse", "confidence": "confirmed"},
-        {"name": "normalize_name", "file": "name_normalizer.py", "params": ["name"], "returns": "str", "confidence": "confirmed"},
-        {"name": "haversine", "file": "geocode.py", "params": ["lat1", "lon1", "lat2", "lon2"], "returns": "float", "confidence": "confirmed"},
-        {"name": "calculate_desagio", "file": "value_semantics.py", "params": ["valor1", "valor2", "semantica1", "semantica2"], "returns": "dict", "confidence": "confirmed"}
+      "dependencies": [
+        "opportunity_intel",
+        "coverage",
+        "config",
+        "extra_ledger"
       ],
-      "entities": [
-        {"name": "CanonicalEntity", "fields": [{"name": "entity_id", "type": "str", "required": true}, {"name": "cnpj8", "type": "str", "required": true}, {"name": "within_radius", "type": "bool|null", "required": true}], "confidence": "confirmed"},
-        {"name": "CanonicalUniverse", "fields": [{"name": "entities", "type": "list[CanonicalEntity]", "required": true}, {"name": "seed_sha256", "type": "str", "required": true}], "confidence": "confirmed"}
+      "algorithms": [
+        "A12 workspace today queue"
       ],
-      "business_rules": [
-        {"description": "Regra #8: deságio = (estimado - homologado) / estimado. NUNCA entre global e outro estágio", "location": "value_semantics.py", "confidence": "confirmed"},
-        {"description": "CANONICAL_UNIVERSE = 1093 entidades (spreadsheet seed)", "location": "universe.py", "confidence": "confirmed"},
-        {"description": "Raio 200km: Haversine, Earth radius 6371 km, centro Florianópolis (-27.5954, -48.5480)", "location": "geocode.py", "confidence": "confirmed"}
-      ],
-      "dependencies": ["config"],
-      "algorithms": ["haversine_distance", "name_normalizer_pipeline", "value_semantics_5stage", "canonical_universe_resolution"],
-      "complexity": "medium"
-    },
-    {
-      "name": "matching",
-      "path": "scripts/matching/",
-      "purpose": "Entity matching cascade de 3 níveis — CNPJ exato → nome+município → fuzzy matching com threshold ajustável",
-      "primary_files": ["entity_matcher.py", "measure_baseline.py"],
-      "functions": [
-        {"name": "match_entity", "file": "entity_matcher.py", "params": ["cnpj", "nome", "municipio", "codigo_ibge"], "returns": "dict|null", "confidence": "confirmed"}
-      ],
-      "business_rules": [
-        {"description": "Threshold fuzzy padrão: 0.85; cidades pequenas (<5000 hab): 0.75", "location": "entity_matcher.py", "confidence": "confirmed"},
-        {"description": "Cascade: CNPJ8 → normalized_name+municipio → alias → fuzzy", "location": "entity_matcher.py", "confidence": "confirmed"}
-      ],
-      "dependencies": ["lib", "config"],
-      "algorithms": ["entity_matching_cascade_3level", "population_adjusted_fuzzy_threshold"],
-      "complexity": "low"
+      "complexity": "medium",
+      "py_files": 6,
+      "loc": 2707
     },
     {
       "name": "coverage",
-      "path": "scripts/coverage/",
-      "purpose": "Cálculo, validação e projeção de cobertura de entidades por fonte",
-      "primary_files": ["validate_coverage.py", "calculator.py", "measure_pncp_expansion.py", "run_matching.py"],
-      "business_rules": [
-        {"description": "24 naturezas jurídicas mapeadas para 8 causas raiz de não-cobertura", "location": "validate_coverage.py", "confidence": "confirmed"},
-        {"description": "Coverage = entidades com evidência / total entidades no raio", "location": "calculator.py", "confidence": "confirmed"}
+      "path": "scripts/coverage",
+      "purpose": "Contrato de cobertura honesto, multi-source metrics, states e commercial status",
+      "primary_files": [
+        "scripts/coverage/coverage_contract.py",
+        "scripts/coverage/multi_source_coverage.py",
+        "scripts/coverage/states.py",
+        "scripts/coverage/commercial_status.py",
+        "scripts/coverage/validate_coverage.py"
       ],
-      "dependencies": ["lib", "db", "matching"],
-      "complexity": "medium"
+      "functions": [
+        {
+          "name": "build_contract_report",
+          "file": "scripts/coverage/coverage_contract.py",
+          "params": [
+            "..."
+          ],
+          "returns": "CoverageContractReport",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "compute_operational_source_coverage",
+          "file": "scripts/coverage/coverage_contract.py",
+          "params": [
+            "denominator",
+            "slas"
+          ],
+          "returns": "MetricResult",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "is_valid_transition",
+          "file": "scripts/coverage/states.py",
+          "params": [
+            "from_state",
+            "to_state"
+          ],
+          "returns": "bool",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "classify_commercial",
+          "file": "scripts/coverage/commercial_status.py",
+          "params": [
+            "..."
+          ],
+          "returns": "CommercialClassification",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "CoverageContractReport",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "CoverageEvidence",
+          "fields": [
+            {
+              "name": "state",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "satisfactory",
+              "type": "bool",
+              "required": true
+            },
+            {
+              "name": "provenance",
+              "type": "dict",
+              "required": true
+            }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Sem evidência → not_ready/0; nunca inventar cobertura",
+          "location": "scripts/coverage/coverage_contract.py",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "satisfactory exige success_* + scope + provenance + pages + sem error",
+          "location": "db/migrations/054_local_resilience_contract.sql",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [
+        "source_registry",
+        "lib",
+        "db",
+        "crawl"
+      ],
+      "algorithms": [
+        "A06 coverage contract",
+        "A07 coverage state machine",
+        "A14 commercial classification"
+      ],
+      "complexity": "high",
+      "py_files": 16,
+      "loc": 8421
+    },
+    {
+      "name": "opportunity_intel",
+      "path": "scripts/opportunity_intel",
+      "purpose": "Radar QW-01, scoring, ranking competitivo, status canônico de oportunidades",
+      "primary_files": [
+        "scripts/opportunity_intel/radar.py",
+        "scripts/opportunity_intel/scoring.py",
+        "scripts/opportunity_intel/ranking.py",
+        "scripts/opportunity_intel/status.py",
+        "scripts/opportunity_intel/cli.py"
+      ],
+      "functions": [
+        {
+          "name": "score_opportunity",
+          "file": "scripts/opportunity_intel/scoring.py",
+          "params": [
+            "row",
+            "entity",
+            "profile",
+            "status_evidence"
+          ],
+          "returns": "RadarScores",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "compute_canonical_status",
+          "file": "scripts/opportunity_intel/status.py",
+          "params": [
+            "status_fonte",
+            "source",
+            "dates..."
+          ],
+          "returns": "str",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "RadarScores",
+          "fields": [],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Status canônico deriva de datas+fonte; active/terminal/needs_review",
+          "location": "scripts/opportunity_intel/status.py",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [
+        "lib",
+        "crawl",
+        "db"
+      ],
+      "algorithms": [
+        "A10 opportunity scoring/status"
+      ],
+      "complexity": "high",
+      "py_files": 18,
+      "loc": 6864
+    },
+    {
+      "name": "matching",
+      "path": "scripts/matching",
+      "purpose": "Entity matcher cascade + reconciliação determinística de atos oficiais",
+      "primary_files": [
+        "scripts/matching/entity_matcher.py",
+        "scripts/matching/official_acts_reconcile.py"
+      ],
+      "functions": [
+        {
+          "name": "match_entities_cascade",
+          "file": "scripts/matching/entity_matcher.py",
+          "params": [
+            "conn",
+            "source",
+            "entities"
+          ],
+          "returns": "stats",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "match_entity",
+          "file": "scripts/matching/entity_matcher.py",
+          "params": [
+            "orgao_cnpj",
+            "entities",
+            "resolver"
+          ],
+          "returns": "match",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "Official acts: só regras de identificadores explícitos, sem fuzzy de texto livre",
+          "location": "scripts/matching/official_acts_reconcile.py",
+          "confidence": "confirmed"
+        },
+        {
+          "description": "Ordem de avaliação = RULE_PRIORITY, não score-sorted",
+          "location": "scripts/matching/official_acts_reconcile.py",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [
+        "lib",
+        "schema",
+        "crawl"
+      ],
+      "algorithms": [
+        "A04 entity cascade",
+        "A05 official acts reconcile"
+      ],
+      "complexity": "high",
+      "py_files": 4,
+      "loc": 2700
+    },
+    {
+      "name": "lib",
+      "path": "scripts/lib",
+      "purpose": "Universo canônico, semântica de valores, normalização, geocode, victory profile",
+      "primary_files": [
+        "scripts/lib/universe.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/lib/name_normalizer.py",
+        "scripts/lib/entity_resolver.py",
+        "scripts/lib/geocode.py"
+      ],
+      "functions": [
+        {
+          "name": "load_canonical_universe",
+          "file": "scripts/lib/universe.py",
+          "params": [
+            "seed_path",
+            "radius_km",
+            "conn"
+          ],
+          "returns": "CanonicalUniverse",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "calculate_desagio",
+          "file": "scripts/lib/value_semantics.py",
+          "params": [
+            "estimado",
+            "homologado"
+          ],
+          "returns": "dict",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "CanonicalUniverse",
+          "fields": [
+            {
+              "name": "included",
+              "type": "list",
+              "required": true
+            },
+            {
+              "name": "excluded",
+              "type": "list",
+              "required": true
+            },
+            {
+              "name": "unresolved",
+              "type": "list",
+              "required": true
+            }
+          ],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "ValorSemantica",
+          "fields": [
+            {
+              "name": "ESTIMADO",
+              "type": "enum",
+              "required": true
+            },
+            {
+              "name": "HOMOLOGADO",
+              "type": "enum",
+              "required": true
+            },
+            {
+              "name": "CONTRATADO",
+              "type": "enum",
+              "required": true
+            },
+            {
+              "name": "PAGO",
+              "type": "enum",
+              "required": true
+            },
+            {
+              "name": "GLOBAL",
+              "type": "enum",
+              "required": true
+            }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "valor_global PNCP não é preço praticado",
+          "location": "scripts/lib/value_semantics.py",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [
+        "config",
+        "db"
+      ],
+      "algorithms": [
+        "A08 universe",
+        "A09 value semantics"
+      ],
+      "complexity": "medium",
+      "py_files": 19,
+      "loc": 4110
+    },
+    {
+      "name": "schema",
+      "path": "scripts/schema",
+      "purpose": "Helpers de official_acts, diagnostics e auditoria de refs SQL",
+      "primary_files": [
+        "scripts/schema/official_acts.py",
+        "scripts/schema/diagnostics.py",
+        "scripts/schema/audit_sql_references.py"
+      ],
+      "functions": [
+        {
+          "name": "OfficialActsStore.upsert_acts",
+          "file": "scripts/schema/official_acts.py",
+          "params": [
+            "records"
+          ],
+          "returns": "counts",
+          "confidence": "confirmed"
+        },
+        {
+          "name": "compute_record_hash",
+          "file": "scripts/schema/official_acts.py",
+          "params": [
+            "source",
+            "external_id",
+            "..."
+          ],
+          "returns": "str",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "OfficialActsStore",
+          "fields": [],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Idempotência via (source, record_hash) / external_id",
+          "location": "db/migrations/052_official_acts.sql",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [
+        "db",
+        "crawl"
+      ],
+      "algorithms": [],
+      "complexity": "medium",
+      "py_files": 3,
+      "loc": 1774
+    },
+    {
+      "name": "ops",
+      "path": "scripts/ops",
+      "purpose": "Ciclo resiliente, health, schema audit, validação systemd",
+      "primary_files": [
+        "scripts/ops/resilient_cycle.py",
+        "scripts/ops/health.py",
+        "scripts/ops/schema_audit.py",
+        "scripts/ops/validate_systemd.py"
+      ],
+      "functions": [
+        {
+          "name": "run_cycle",
+          "file": "scripts/ops/resilient_cycle.py",
+          "params": [
+            "live",
+            "source?"
+          ],
+          "returns": "exit_code, report",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "crawl",
+        "deploy"
+      ],
+      "algorithms": [
+        "A03"
+      ],
+      "complexity": "low-medium",
+      "py_files": 6,
+      "loc": 546
+    },
+    {
+      "name": "buyer_intel",
+      "path": "scripts/buyer_intel",
+      "purpose": "Ranking/perfil de órgãos compradores AEC 200km",
+      "primary_files": [
+        "scripts/buyer_intel/ranking.py",
+        "scripts/buyer_intel/cli.py"
+      ],
+      "functions": [
+        {
+          "name": "is_aec",
+          "file": "scripts/buyer_intel/ranking.py",
+          "params": [
+            "objeto"
+          ],
+          "returns": "bool",
+          "confidence": "confirmed"
+        }
+      ],
+      "entities": [
+        {
+          "name": "BuyerProfile",
+          "fields": [
+            {
+              "name": "cnpj_8",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "hhi_concentracao",
+              "type": "float",
+              "required": false
+            },
+            {
+              "name": "contratos_vincendo_90d",
+              "type": "int",
+              "required": false
+            }
+          ],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [
+        {
+          "description": "Classificação AEC por keywords no objeto do contrato",
+          "location": "scripts/buyer_intel/ranking.py",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [
+        "db",
+        "lib"
+      ],
+      "algorithms": [
+        "A13 buyer AEC ranking"
+      ],
+      "complexity": "low-medium",
+      "py_files": 2,
+      "loc": 695
+    },
+    {
+      "name": "extra_ledger",
+      "path": "scripts/extra_ledger",
+      "purpose": "CLI de ledger operacional de evidências/sessões",
+      "primary_files": [
+        "scripts/extra_ledger/cli.py"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "workspace",
+        "docs"
+      ],
+      "algorithms": [],
+      "complexity": "low",
+      "py_files": 1,
+      "loc": 470
+    },
+    {
+      "name": "contract_intel",
+      "path": "scripts/contract_intel",
+      "purpose": "Universo-alvo e CLI de inteligência de contratos",
+      "primary_files": [
+        "scripts/contract_intel/target_universe.py",
+        "scripts/contract_intel/cli.py"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "lib",
+        "db"
+      ],
+      "algorithms": [],
+      "complexity": "medium",
+      "py_files": 3,
+      "loc": 1660
     },
     {
       "name": "reports",
-      "path": "scripts/reports/",
-      "purpose": "Relatórios PDF/Excel executivos — cobertura semanal, panorama setorial, gaps",
-      "primary_files": ["coverage_weekly.py", "panorama.py", "coverage_gaps.py"],
-      "dependencies": ["lib", "db"],
-      "complexity": "medium"
+      "path": "scripts/reports",
+      "purpose": "PDF/Excel executivo, cobertura, amostra comercial, rankings",
+      "primary_files": [
+        "scripts/reports/panorama.py",
+        "scripts/reports/executive_report.py",
+        "scripts/reports/commercial_sample_sc.py",
+        "scripts/reports/coverage_weekly.py"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "Amostra comercial deve carimbar evidência real de sessão",
+          "location": "scripts/reports/commercial_sample_sc.py",
+          "confidence": "inferred"
+        }
+      ],
+      "dependencies": [
+        "db",
+        "coverage",
+        "lib"
+      ],
+      "algorithms": [],
+      "complexity": "medium",
+      "py_files": 12,
+      "loc": 7938
     },
     {
       "name": "fix",
-      "path": "scripts/fix/",
-      "purpose": "Scripts de reparo, backfill e ativação de fontes dormentes",
-      "primary_files": ["scrape_residual_portals.py", "activate_dormant_sources.py", "resolve_unresolved_entities.py", "rebuild_evidence_ledger.py", "sc_dados_abertos_backfill.py", "geocode_missing_entities.py"],
-      "dependencies": ["crawl", "lib", "db", "matching"],
-      "complexity": "high"
+      "path": "scripts/fix",
+      "purpose": "Scripts de reparo: residual portals, evidence ledger, resolve entities, geocode",
+      "primary_files": [
+        "scripts/fix/rebuild_evidence_ledger.py",
+        "scripts/fix/resolve_unresolved_entities.py",
+        "scripts/fix/scrape_residual_portals.py"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "crawl",
+        "matching",
+        "lib"
+      ],
+      "algorithms": [],
+      "complexity": "medium",
+      "py_files": 7,
+      "loc": 4236
     },
     {
       "name": "pipeline",
-      "path": "scripts/pipeline/",
-      "purpose": "Pipeline de backfill multi-fonte com checkpoint",
-      "primary_files": ["backfill_multi_source.py"],
-      "dependencies": ["crawl", "lib", "db"],
-      "complexity": "low"
+      "path": "scripts/pipeline",
+      "purpose": "Backfill multi-fonte",
+      "primary_files": [
+        "scripts/pipeline/backfill_multi_source.py"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "crawl",
+        "db"
+      ],
+      "algorithms": [],
+      "complexity": "medium",
+      "py_files": 2,
+      "loc": 876
+    },
+    {
+      "name": "clients",
+      "path": "scripts/clients",
+      "purpose": "Clientes HTTP compartilhados top-level",
+      "primary_files": [],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "crawl"
+      ],
+      "algorithms": [],
+      "complexity": "low",
+      "py_files": 8,
+      "loc": 1022
+    },
+    {
+      "name": "ingestion",
+      "path": "scripts/ingestion",
+      "purpose": "Camada de ingestão top-level",
+      "primary_files": [],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "crawl",
+        "db"
+      ],
+      "algorithms": [],
+      "complexity": "low-medium",
+      "py_files": 9,
+      "loc": 1137
     },
     {
       "name": "diagnose",
-      "path": "scripts/diagnose/",
-      "purpose": "Diagnóstico detalhado de crawlers específicos",
-      "primary_files": ["dom_sc_diagnostic.py"],
-      "dependencies": ["crawl", "db"],
-      "complexity": "low"
+      "path": "scripts/diagnose",
+      "purpose": "Diagnóstico de portais/DOM-SC",
+      "primary_files": [],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "crawl",
+        "transparencia"
+      ],
+      "algorithms": [],
+      "complexity": "low",
+      "py_files": 1,
+      "loc": 651
     },
     {
       "name": "transparencia",
-      "path": "scripts/transparencia/",
-      "purpose": "Detecção automática de plataformas de portais de transparência municipais",
-      "primary_files": ["run_detect_all.py"],
-      "dependencies": ["crawl", "config"],
-      "complexity": "low"
+      "path": "scripts/transparencia",
+      "purpose": "Utilitários de portais de transparência",
+      "primary_files": [],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "config",
+        "crawl"
+      ],
+      "algorithms": [],
+      "complexity": "low",
+      "py_files": 1,
+      "loc": 406
     },
     {
       "name": "config",
-      "path": "config/",
-      "purpose": "Configuração centralizada — settings, constantes, setores B2G, portais, população",
-      "primary_files": ["settings.py", "constants.py", "sectors_config.yaml", "sectors_data.yaml", "transparencia_config.yaml", "municipio_population.yaml", "abbreviations.yaml", "logging_config.py"],
+      "path": "config",
+      "purpose": "Settings, constants, YAMLs de setores/SLA/applicability, seed 200km",
+      "primary_files": [
+        "config/settings.py",
+        "config/constants.py",
+        "config/coverage_slas.yaml",
+        "config/source_applicability.yaml",
+        "config/target_entities_200km.csv"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "DEFAULT_DSN é single source of truth para conexão",
+          "location": "config/settings.py",
+          "confidence": "confirmed"
+        }
+      ],
       "dependencies": [],
-      "complexity": "low"
+      "algorithms": [],
+      "complexity": "low",
+      "py_files": 4,
+      "loc": 553
     },
     {
       "name": "db",
-      "path": "db/ + supabase/",
-      "purpose": "Schema PostgreSQL + PostGIS — 41 migrations, 8 tabelas core, 4 views analíticas, 5+ RPCs",
-      "primary_files": ["migrations/001-029", "supabase/migrations/001-006", "supabase/current-schema.sql"],
-      "entities": [
-        {"name": "pncp_raw_bids", "fields": [{"name": "pncp_id", "type": "text", "required": true}, {"name": "valor_total_estimado", "type": "numeric", "required": false}], "confidence": "confirmed"},
-        {"name": "pncp_supplier_contracts", "fields": [{"name": "numero_controle_pncp", "type": "text", "required": true}, {"name": "valor_global", "type": "numeric", "required": false}], "confidence": "confirmed"},
-        {"name": "sc_public_entities", "fields": [{"name": "cnpj_8", "type": "text", "required": true}, {"name": "raio_200km", "type": "boolean", "required": false}], "confidence": "confirmed"},
-        {"name": "opportunity_intel", "fields": [{"name": "source", "type": "text", "required": true}, {"name": "status_canonico", "type": "text", "required": true}], "confidence": "confirmed"},
-        {"name": "coverage_evidence", "fields": [{"name": "state", "type": "evidence_state", "required": true}, {"name": "applicability", "type": "text", "required": true}], "confidence": "confirmed"}
+      "path": "db",
+      "purpose": "59 migrations DataLake + projeções resilience/official_acts/registry",
+      "primary_files": [
+        "db/migrations/052_official_acts.sql",
+        "db/migrations/053_entity_source_registry.sql",
+        "db/migrations/054_local_resilience_contract.sql",
+        "db/migrations/045_dlq_entries.sql",
+        "db/migrations/046_pipeline_watermarks.sql"
       ],
+      "functions": [],
+      "entities": [
+        {
+          "name": "entity_source_registry",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "official_acts",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "dlq_entries",
+          "fields": [],
+          "confidence": "confirmed"
+        },
+        {
+          "name": "pipeline_watermarks",
+          "fields": [],
+          "confidence": "confirmed"
+        }
+      ],
+      "business_rules": [],
       "dependencies": [],
-      "complexity": "high"
+      "algorithms": [],
+      "complexity": "high",
+      "py_files": 0,
+      "loc": 0,
+      "sql_migrations": 59
     },
     {
       "name": "deploy",
-      "path": "deploy/",
-      "purpose": "Orquestração de crawlers na VPS via systemd — 20 pares service+timer, provisionamento, hardening",
-      "primary_files": ["provision-vps.sh", "install.sh", "systemd/*.service", "systemd/*.timer"],
-      "dependencies": ["db"],
-      "complexity": "low"
+      "path": "deploy",
+      "purpose": "systemd 25 services/24 timers, install, provision, hardening VPS",
+      "primary_files": [
+        "deploy/install.sh",
+        "deploy/provision-vps.sh",
+        "deploy/systemd/"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [
+        "crawl",
+        "ops"
+      ],
+      "algorithms": [],
+      "complexity": "medium",
+      "py_files": 0,
+      "loc": 0
     },
     {
       "name": "root_scripts",
-      "path": "scripts/*.py",
-      "purpose": "Entry points CLI de alto nível — pipelines, gates, PDFs, dashboards",
-      "primary_files": ["intel_pipeline.py", "consulting_readiness.py", "coverage_truth.py", "freshness_gate.py", "generate_consultoria_pdf.py", "generate_report_b2g.py", "local_datalake.py"],
-      "business_rules": [
-        {"description": "Consulting Readiness Gate: exit 0 se coverage >= 95%, exit 2 caso contrário", "location": "consulting_readiness.py", "confidence": "confirmed"},
-        {"description": "Freshness Gate: SLA configurável por env var (PNCP: 24h, Contracts: 24d)", "location": "freshness_gate.py", "confidence": "confirmed"},
-        {"description": "SOURCE_BLOCKERS: 7 fontes bloqueadas documentadas com justificativa", "location": "consulting_readiness.py", "confidence": "confirmed"}
+      "path": "scripts",
+      "purpose": "CLIs top-level: gates, intel pipeline, datalake, health, B2G collectors",
+      "primary_files": [
+        "scripts/consulting_readiness.py",
+        "scripts/freshness_gate.py",
+        "scripts/coverage_truth.py",
+        "scripts/coverage_gate.py",
+        "scripts/golden_path.py",
+        "scripts/intel_pipeline.py",
+        "scripts/local_datalake.py",
+        "scripts/ci_gate.sh"
       ],
-      "dependencies": ["crawl", "lib", "matching", "coverage", "reports", "db"],
-      "algorithms": ["readiness_gate", "freshness_gate_sla", "coverage_truth_assessment"],
-      "complexity": "very_high"
+      "functions": [],
+      "entities": [],
+      "business_rules": [
+        {
+          "description": "Gates fail-closed alinhados à CI Regra #10",
+          "location": "scripts/ci_gate.sh / consulting_readiness.py",
+          "confidence": "confirmed"
+        }
+      ],
+      "dependencies": [
+        "lib",
+        "coverage",
+        "opportunity_intel",
+        "db"
+      ],
+      "algorithms": [],
+      "complexity": "high",
+      "py_files": 50,
+      "loc": 52870
     },
     {
       "name": "tests",
-      "path": "tests/",
-      "purpose": "Testes automatizados — 64 arquivos, unitários + integração + smoke + E2E",
-      "primary_files": ["conftest.py", "conftest_db.py"],
-      "dependencies": ["crawl", "opportunity_intel", "contract_intel", "coverage", "lib", "matching"],
-      "complexity": "medium"
+      "path": "tests",
+      "purpose": "unit/integration/smoke/chaos — registry, workspace, coverage, resilience",
+      "primary_files": [
+        "tests/unit/",
+        "tests/chaos/",
+        "tests/integration/",
+        "tests/smoke/"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
+      "dependencies": [],
+      "algorithms": [],
+      "complexity": "medium",
+      "py_files": 126,
+      "loc": 32473
     },
     {
       "name": "docs",
-      "path": "docs/",
-      "purpose": "Documentação — 590 arquivos, 7 epics, ADRs, PRDs, runbooks, architecture",
-      "primary_files": ["architecture/", "stories/epics/", "decisions/", "ops/", "qa/"],
+      "path": "docs",
+      "purpose": "DoD/ops sessions §40-44, audits, baseline, stories, architecture ADRs",
+      "primary_files": [
+        "docs/ops/",
+        "docs/audits/",
+        "docs/baseline/",
+        "docs/architecture/",
+        "docs/stories/"
+      ],
+      "functions": [],
+      "entities": [],
+      "business_rules": [],
       "dependencies": [],
-      "complexity": "medium"
+      "algorithms": [],
+      "complexity": "low",
+      "py_files": 0,
+      "loc": 0
     }
-  ],
-  "cross_cutting_concerns": [
-    {"name": "Fail-closed pattern", "description": "Nunca marcar como 'aberto' por default. Status desconhecido → unknown.", "modules": ["opportunity_intel", "coverage", "crawl"]},
-    {"name": "CNPJ8 matching", "description": "Toda resolução de entidade usa CNPJ raiz de 8 dígitos.", "modules": ["matching", "lib", "crawl", "opportunity_intel"]},
-    {"name": "Deterministic first", "description": "Ranking/scoring determinístico. LLM opcional, nunca requisito.", "modules": ["opportunity_intel", "root_scripts"]},
-    {"name": "Evidência auditável", "description": "Toda cobertura registrada no coverage_evidence ledger.", "modules": ["crawl", "coverage", "db"]},
-    {"name": "Conservative denominator", "description": "População = incluídos + não resolvidos (nunca subestima).", "modules": ["lib", "opportunity_intel", "contract_intel"]},
-    {"name": "Value semantics awareness", "description": "Nunca chamar valor_global de 'preço praticado'. 5 estágios semânticos.", "modules": ["lib", "contract_intel", "reports"]}
   ]
 }

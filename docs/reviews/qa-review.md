@@ -1,188 +1,417 @@
-# QA Review — Technical Debt Assessment
+# QA Review - Technical Debt Assessment
 
-**Revisor:** Quinn (@qa)
-**Data:** 2026-07-13
-**Documentos de Referencia:**
-- `docs/prd/technical-debt-DRAFT.md` (v2.0) — Consolidacao de debitos (60 originais)
-- `docs/reviews/db-specialist-review.md` — Dara: 21 debitos de database (17 validados + 4 liquidos apos fusao/adicione)
-- `docs/reviews/ux-specialist-review.md` — Uma: 17 debitos de frontend/UX (12 validados + 5 adicionados)
+**Versão:** 3.0  
+**Data:** 2026-07-17  
+**Revisor:** Quinn (@qa)  
+**Documentos de referência:**
+- `docs/prd/technical-debt-DRAFT.md` v3.0 DRAFT (Aria)
+- `docs/reviews/db-specialist-review.md` v3.0 (Dara)
+- `docs/reviews/ux-specialist-review.md` v3.0 (Uma)
+- `docs/reviews/qa-review.md` v2.0 (2026-07-13) — continuidade
+- Fontes cruzadas: `system-architecture.md` v3 · `DB-AUDIT.md` v3 · `frontend-spec.md` v3 · Stories 1.1–1.5
 
----
-
-## Gate Status: NEEDS WORK
-
-**Veredicto:** NEEDS WORK com 2 gaps CRITICAL e 3 riscos cruzados nao mitigados. O assessment e robusto nas areas cobertas, mas possui lacunas estruturais que precisam ser enderecadas antes da aprovacao final.
-
----
-
-### Gaps Identificados
-
-| # | Gap | Area Afetada | Severidade | Recomendacao |
-|---|-----|-------------|------------|--------------|
-| GAP-001 | **Ausencia de categoria "Seguranca" no assessment** — debitos de seguranca estao espalhados como TD-016 (SQL injection), TD-029 (SA JSON no repo), DT-07 (senha hardcoded) sem visao consolidada de postura de seguranca. Nao ha analise de OWASP Top 10, vulnerabilidades de dependencias (bibliotecas desatualizadas), nem auditoria de permissoes do service account. | Transversal (Todas as areas) | **CRITICAL** | Criar secao dedicada a seguranca com inventario de: (1) credenciais versionadas, (2) dependencias com CVEs conhecidas, (3) exposicao de endpoints internos, (4) permissoes de service accounts GCP/Supabase, (5) OWASP Top 10 aplicavel ao stack. |
-| GAP-002 | **Ausencia de categoria "Testes/QA" como debito autonomo** — TD-026 (coverage minima), TD-030 (schema.py sem testes), TD-024 (migrations falham silenciosamente) estao classificados como "Sistema". Nao ha analise de: qual a cobertura atual, quais modulos sao criticos sem testes, qualidade dos testes existentes (nao apenas quantidade), nem estrategia de test doubles (mocks vs integracao). | Testes / QA | **CRITICAL** | Criar secao dedicada a qualidade de testes com: (1) cobertura atual por modulo (pytest --cov), (2) inventario de modulos sem testes, (3) qualidade dos asserts (nao apenas "testes passam"), (4) velocidade do test suite, (5) presenca de testes de integracao vs unitarios. |
-| GAP-003 | **Documentacao nao avaliada como debito** — o projeto tem documentacao espalhada (frontend-spec.md, SCHEMA.md, DB-AUDIT.md, system-architecture.md) mas sem avaliacao de: documentacao desatualizada, docstrings ausentes, READMEs inconsistentes, ADRs faltando. | Documentacao | HIGH | Adicionar auditoria de documentacao: (1) docstrings em modulos publicos, (2) README por diretorio, (3) documentacao de endpoints/CLIs, (4) runbooks de operacao, (5) ADRs para decisoes arquiteturais. |
-| GAP-004 | **Performance e observabilidade nao avaliadas** — TD-015 (healthcheck unificado) cobre apenas um aspecto. Nao ha analise de: latencia de queries, uso de memoria dos crawlers, contencao de conexoes com banco, logging estruturado para debugging, tracing de pipelines. | Observabilidade / Performance | HIGH | Adicionar secao de observabilidade: (1) latencia P50/P95/P99 dos crawlers, (2) metricas de uso de memoria/CPU, (3) logging estruturado (JSON structured logs), (4) tracing de pipeline de inteligencia. |
-| GAP-005 | **Nao ha analise de dependencias externas e riscos de terceiros** — o projeto depende de: PNCP API (governo federal, sem SLA), BEC/ComprasGov, TCE-SC, CIGA, IBGE, BrasilAPI, BigQuery (planejado). Nenhuma dessas dependencias tem avaliacao de: risco de breaking change, rate limits, disponibilidade historica, custos de API. | Dependencias Externas | HIGH | Adicionar matriz de dependencias externas com: (1) SLA/disponibilidade historica, (2) rate limits conhecidos, (3) risco de breaking change, (4) planos de fallback, (5) custos. |
-| GAP-006 | **Sem debito de configuracao de ambientes** — nao ha distincao entre dev/staging/producao no assessment. TD-021 (BASE_URL divergente) e TD-002 (DEFAULT_DSN duplicado) tocam no assunto mas nao ha visao consolidada de: ambientes existentes, configuracao por ambiente, segredo por ambiente, strategy de feature flags. | Infra / DevOps | MEDIUM | Adicionar secao de ambientes: (1) quantos ambientes existem, (2) como a configuracao difere entre eles, (3) secrets management por ambiente, (4) estrategia de promocao entre ambientes. |
-| GAP-007 | **Monitoramento pos-resolucao nao planejado** — o assessment lista debitos e resolucoes, mas nao define metricas para verificar se a resolucao foi eficaz. Exemplo: refatorar monitor.py (TD-010) — como saber se melhorou? Reducao de linhas? Reducao de bugs? Melhoria de velocidade de execucao? | Qualidade / Metricas | MEDIUM | Para cada debito P0/P1, definir metrica de sucesso pos-resolucao (ex: "TD-010: reducao de 1756 para <800 linhas + 0 regressao em testes de crawl"). |
-| GAP-008 | **Risco de regressao do TD-010 (monitor.py) subestimado** — o DRAFT estima 8h para refatorar 1756 linhas. Isso e extremamente agressivo. Um arquivo com 1756 linhas que acopla orquestracao + entity matching + coverage tipicamente leva 20-40h para refatorar com seguranca (testes primeiro, extracao incremental, validacao). | Sistema | MEDIUM | Revisar estimativa de TD-010 para 20-30h, ou dividir em sub-debitos: (1) extracao de entity matching (TD-010a, 8h), (2) extracao de coverage (TD-010b, 6h), (3) extracao de database helpers (TD-010c, 4h), (4) cleanup e type hints (TD-010d, 4h). |
-| GAP-009 | **TD-025 (ORM) sem estimativa realista ou justificativa** — "20h+" para implementar ORM em todo o projeto. ORM e uma decisao arquitetural de alto impacto, com trade-offs (performance, complexidade de queries, overhead de aprendizado). Nao ha analise de alternativas (SQLAlchemy Core vs ORM, query builder vs ORM completo). | Sistema | MEDIUM | Substituir "20h+" por analise de: (1) quais modulos se beneficiariam de ORM, (2) quais queries sao complexas demais para ORM, (3) recomendacao concreta (SQLAlchemy? Psycopg3 raw com dataclasses?), (4) estimativa por fase. |
+**Postura:** adversarial independente — não rubber-stamp. Débitos abertos **não** impedem aprovação se a estrutura permite planejamento.
 
 ---
 
-### Riscos Cruzados
+## Gate Status: APPROVED WITH CONDITIONS
 
-| Risco | Areas Afetadas | Severidade | Mitigacao |
-|-------|---------------|------------|-----------|
-| CR-001 | **Refatoracao do monitor.py (TD-010) quebrar crawlers em producao** — 1756 linhas com SRP violado, entity matching duplicado (TD-027), imports quebrados (TD-001), state global mutavel (TD-004). Qualquer extracao pode quebrar o crawl de producao, que roda em timer systemd. | Sistema, Database (coverage triggers) | **CRITICAL** | (1) Nao refatorar antes de ter test suite de integracao para os crawlers. (2) Criar branch separada. (3) Testar com snapshot de dados reais antes de fazer merge. (4) Ter rollback plan documentado. (5) Executar em paralelo (crawler antigo + novo) por 1 semana para comparar resultados. |
-| CR-002 | **Senha no git (DT-07) + Service Account JSON (TD-029) + Configuracoes divergentes (TD-021) = exposicao composta de credenciais** — senha do banco no git, SA da BigQuery no repo, BASE_URL da API PNCP configurado incorretamente. Um unico acesso malicioso ao repo compromete banco, GCP e dados de API. | Database, Sistema, Seguranca | **CRITICAL** | (1) Priorizar DT-07 e TD-029 como P0 (nao P1/P2). (2) BFG cleanup do git history. (3) Rotacionar todas as senhas expostas. (4) Auditoria de acessos ao repo. (5) Adicionar .env.example sem valores reais + .gitignore. |
-| CR-003 | **DT-02 (v3 migration) sem rollback testado** — o DRAFT e Dara concordam que a migration e segura (apenas CREATEs), mas 10 tabelas novas + 6 views + 4 funcoes e uma mudanca significativa. Qualquer erro na migration pode contaminar o schema de producao com objetos parciais. | Database, Sistema (opportunity_intel) | HIGH | (1) Dry-run em copia do banco de producao (nao apenas staging limpo). (2) Rollback script testado. (3) Feature flag no opportunity_intel para operar com/sem v3. (4) Validar opportunity_intel/cli.py apos migration antes de marcar DT-02 como resolvido. |
-| CR-004 | **Dependencia UX-01 (Web UI) em cadeia TD-025 -> TD-028** — Web UI depende de ORM (TD-025, P2, 20h+) e CI/CD (TD-028, P1, 6h). Se ambos forem tratados como P2/P1 sem cronograma vinculado, UX-01 fica bloqueado indefinidamente. Planejamento estrategico precisa disso mapeado. | Frontend/UX, Sistema | MEDIUM | Definir marco "Web UI desbloqueada" com datas estimadas. Se ORM for muito caro (20h+), considerar alternativa (SQL raw com dataclasses) para desbloquear Web UI mais cedo. |
-| CR-005 | **Sprint 0 com P0 em 3 areas diferentes sem coordenacao** — TD-010 (Sistema, 8h), DT-02 (Database, 4h), UX-02 (UX, 8h) sao P0 em areas diferentes, mas o time de desenvolvimento provavelmente e o mesmo (ou compartilha dependencias como o banco de producao). Tentar fazer os 3 em paralelo no Sprint 0 pode causar conflito de recursos. | Gestao, Todas as areas | MEDIUM | Sequenciar Sprint 0 como: Semana 1 = UX-02 (8h, independente, impacto imediato) + DT-07 (1h, seguranca) + TD-029 (1h, seguranca). Semana 2 = DT-02 (4h, migration). Semana 3 = TD-010 (8-20h, refatoracao maior). |
+**Veredicto:** **APPROVED WITH CONDITIONS**
 
----
+O DRAFT v3.0 **fecha os gaps estruturais CRITICAL** que bloquearam a v2 (GAP-001 Segurança, GAP-002 Testes/QA) e adiciona categorias que a v2 pediu (OBS, DEP, DOC/ENV). Pre-VPS blockers estão **explícitos** (SYS-001…006 + SEC-02 + schema truth + TQ-07). Especialistas DB e UX validaram o inventário com ajustes rastreáveis. Muitos débitos permanecem abertos — isso é o **propósito** do assessment, não falha de gate.
 
-### Dependencias Validadas
+**Condições obrigatórias para o assessment FINAL (Phase 8 @architect):**
 
-A matriz de dependencias da Secao 6 do DRAFT foi validada contra as revisoes dos especialistas. Resultado:
+| # | Condição | Owner | Severidade |
+|---|----------|-------|------------|
+| C1 | Incorporar ajustes de horas/fusões DB (DT-24+33, DT-23→6h, DT-21 reintro, DT-35 residual secrets deploy, DT-28+34) | @architect + @data-engineer | **MUST** |
+| C2 | Incorporar re-elevações UX (UX-02 CRITICAL *ops*, UX-04 HIGH) + IDs UX-19…22 | @architect + @ux | **MUST** |
+| C3 | Manter SEC-02 / TD-029 como **P0 STILL OPEN** até arquivo ausente + gitignore + rotação se exposto (Story 1.1 Done **não** fecha residual) | @architect / @dev story | **MUST** |
+| C4 | Registrar **dívida residual de verificação live**: DB offline 2026-07-17 → nenhum RESOLVED de integridade de *dados* é claim de produção | @architect | **MUST** |
+| C5 | Responder formalmente as 6 perguntas @qa (§11 DRAFT) no FINAL (respostas desta review §“Respostas QA”) | @architect | **SHOULD** |
+| C6 | Não habilitar claim `VPS_OPERATIONAL` / timers oficiais enquanto SYS-001/002 + TQ-07 abertos | @devops / @pm | **MUST** (processo) |
 
-**Correto:**
-- Grupo 1 (Monitor.py Refactor): TD-010 desbloqueia TD-027, TD-003, TD-016, TD-007, TD-012 -- **CONFIRMADO**
-- Grupo 2 (Entity Matching): TD-027 -> DT-01, DT-17 -- **CONFIRMADO** (DT-17 removido como duplicata de DT-01)
-- Grupo 3 (Database v3): DT-02 -> UX-09, TD-030 -- **CONFIRMADO**
-- Grupo 4 (CI/CD): TD-028 -> TD-024, TD-026, TD-029 -- **CONFIRMADO**
-- Grupo 6 (UX CLI): UX-03 -> UX-04, UX-05, UX-06, UX-08, UX-11, UX-12 -- **CONFIRMADO e FORTALECIDO** pela analise de Uma (UX-03 desbloqueia 7 debitos)
-- Grupo 7 (Longo Prazo): UX-01 depende de TD-025 + TD-028 -- **CONFIRMADO**
-
-**Ajustes necessarios:**
-
-| Relacao Original | Ajuste | Fonte |
-|-----------------|--------|-------|
-| Grupo 2: DT-06 -> DT-01, TD-027 | DT-06 e desejavel antes de DT-01 (UNIQUE em cnpj_8 garante matched_entity_id unico), mas NAO e blocker absoluto. DT-06 e DT-01 podem ser resolvidos em paralelo. | Dara (db-specialist-review) |
-| Grupo 5: DT-04 -> TD-011, TD-020 | DT-05 (contracts, 3.7M) que tem impacto real, nao DT-04 (bids, 200K). Corrigir a matriz para apontar DT-05 como impacto principal em TD-011. | Dara (db-specialist-review) |
-| Grupo 3: DT-02 -> UX-09 | Confirmado. Adicionar tambem: DT-02 depende de DT-03 (ordem de migrations) -> DT-16 (atualizar baseline). A chain fica: DT-03 -> DT-16 -> DT-02 -> UX-09. | Dara (db-specialist-review) |
-| TD-010 -> TD-027 | Confirmado. Adicionar: TD-010 tambem pode impactar TD-004 (estado global, cache IBGE) durante refatoracao. | Analise propria (QA) |
-
-**Potenciais bloqueios nao mapeados:**
-
-1. **DT-07 (senha) antes de qualquer deploy:** Se a senha for de producao, o deploy de QUALQUER mudanca no sistema expoe a senha. DT-07 deveria ser P0, nao P1.
-2. **Nao ha dependencia entre DT-05 (contracts) e TD-011 (dual crawlers):** O crawl de contracts PNCP e feito tanto pelo sync adapter quanto pelo async BidsCrawler. Refatorar DT-05 sem decidir qual implementacao de crawler manter (TD-011) pode gerar retrabalho.
-3. **UX-17 (radar summary) nao depende de nada, mas DEVERIA:** O radar e implementado em opportunity_intel, que depende de DT-02 (v3) para algumas metricas. Se UX-17 for implementado antes de DT-02, pode ficar incompleto.
-
-**Ciclos:** Nenhum ciclo de dependencia identificado. A ordem topologica e viavel.
+**NEEDS WORK seria exigido se:** faltassem categorias SEC/TQ, pre-VPS implícitos, contradições irreconciliáveis de prioridade, ou claims CRITICAL sem evidência. **Nada disso permanece.**
 
 ---
 
-### Cobertura do Assessment
+## 1. Critérios de gate (checklist)
 
-| Area | Cobertura | Notas |
+| Critério | Status | Evidência |
+|----------|--------|-----------|
+| Categoria **Segurança** presente | ✅ | DRAFT §4 SEC-01…08 |
+| Categoria **Testes/QA** presente | ✅ | DRAFT §5 TQ-01…07 |
+| Cross-risks identificados | ✅ | DRAFT §12 + esta review §3 |
+| Dependências entre débitos fazem sentido | ✅ | DRAFT §10 grupos; Dara/Uma validam; ajustes menores abaixo |
+| Pre-VPS blockers explícitos | ✅ | DRAFT §1.1 + §9.1 (SYS-001…006, SEC-02, DT-23/24/33, TQ-02/07, UX ops) |
+| Inputs de especialistas incorporados ou pending claros | ✅ | Reviews v3 completas; pending = merge no FINAL (C1/C2) |
+| Gaps v2 CRITICAL (GAP-001/002) endereçados | ✅ | Ver §5 Coverage of previous v2 QA gaps |
+| Métricas honestas (M1 ≠ M2) | ✅ | SYS-008 M2=0%; UX-14; OBS-03; honesty principle |
+| Dual runtime / split-brain como risco de sistema | ✅ | SYS-001/002 P0 CRITICAL |
+| SEC-02 residual trackeado | ✅ | STILL OPEN ⚠ + verificação 2026-07-17: arquivo **presente** |
+| Live DB offline → residual verification | ✅ | Dara disclaimer + DT-25/33 + ENV-01 |
+
+---
+
+## 2. Gaps Identificados
+
+Lacunas **não estruturais** (não bloqueiam APPROVED; devem constar no FINAL ou backlog).
+
+| # | Gap | Área | Severidade | Recomendação |
+|---|-----|------|------------|--------------|
+| **GAP-v3-001** | Especialistas ainda **não mesclados** no DRAFT (marcadores ⚠️ PENDENTE nas §2 e §3) | Processo | **HIGH** (processo) | Phase 8: assessment FINAL absorve Dara/Uma; remover “PENDENTE” |
+| **GAP-v3-002** | Contagem de IDs ~133 com **cross-refs** (OBS≈SYS, TQ-06≈DT-28, DOC≈DT) — risco de double-count em roadmap de horas | Gestão | MEDIUM | FINAL: tabela “IDs canônicos vs aliases” + esforço **sem** somar aliases |
+| **GAP-v3-003** | Métricas de sucesso pós-resolução **por débito P0** ainda implícitas (ondas sim; DoD mensurável parcial) | Qualidade | MEDIUM | Para cada P0 da §9.1: 1 métrica binária de “fechado” (ex.: SYS-001 = 0 writers FS-only em path oficial) |
+| **GAP-v3-004** | Threat model (SEC-06) e secrets strategy (SEC-05) abertos — aceitável pré-VPS, mas **SEC-02 aberto + defaults deploy** (DT-35) eleva risco composto | Segurança | HIGH (item), não gap estrutural | Onda 0: SEC-02 + DT-35 antes de qualquer provisionamento |
+| **GAP-v3-005** | Baseline de cobertura real (`pytest --cov`) **não impressa** no DRAFT — só threshold 10% | Testes | MEDIUM | FINAL: 1 tabela com % atual por pacote crítico (`crawl/`, `opportunity_intel/`, `ops/`, `schema/`) se medível offline |
+| **GAP-v3-006** | TQ-02 “P0 pré-VPS” vs esforço 2h: subir threshold **sem** testes novos pode falhar CI de forma cega | Testes | MEDIUM | Progressivo 10→30→45→60 **com** allowlist de pacotes; ver respostas QA |
+| **GAP-v3-007** | DT-07 marcado RESOLVED* no DRAFT enquanto residual **ativo** em deploy/seed (Dara DT-35) | Database / Sec | MEDIUM | FINAL: DT-07 = PARTIAL; DT-35 explícito |
+| **GAP-v3-008** | Sem inventário de **falsos verdes F1–F7** como checklist versionado no assessment (existe no audit pré-VPS) | Ops / QA | LOW→MED | Anexar ou linkar F1–F7 no FINAL + TQ-07 |
+
+**Nenhum gap CRITICAL estrutural novo** no sentido v2 (categoria ausente / planning impossível).
+
+---
+
+## 3. Riscos Cruzados
+
+| Risco | Áreas Afetadas | Severidade | Mitigação |
+|-------|----------------|------------|-----------|
+| **CR-v3-001** Split-brain FS vs PostgreSQL (SYS-001) + dual systemd (SYS-002) | Sistema, DB, Obs, Deploy | **CRITICAL** | Onda 0: writer único (preferência Dara **B** — monitor único writer); freeze timers `extra-crawl-*` até fechamento; TQ-07 fail-closed |
+| **CR-v3-002** Health “healthy” com fixtures (SYS-003) + SLA hardcoded (SYS-004) + UX-17 humano cego | Sistema, Obs, UX | **CRITICAL** | OBS-01/02 + claim/mode/environment; fixture **nunca** pinta live; UX-17 `--human` com mesmos exit codes |
+| **CR-v3-003** Credenciais compostas: SEC-02 SA JSON **presente** + DT-35/`smartlic_local` em deploy + residual git | Segurança, Deploy, DB | **CRITICAL** | SEC-02 P0 imediato (não FAST); DT-35 fail-closed `${PG_PASSWORD:?}`; re-scan `git grep` / history |
+| **CR-v3-004** Schema dump 07-14 ≠ HEAD 043–054 (DT-24/33) + dual track (DT-23) + diagnostics mentirosos (DT-28) | Database, Docs, CI | **HIGH** | Story P0 única: verify `_migrations` + regen dump/SHA + política `db/setup_db.sh` only |
+| **CR-v3-005** M1 (sinal comercial) lido como M2 (cobertura) ou como GO | Produto, UX, Comercial | **HIGH** | UX-14 P0 ops + OBS-03; M2=0% honesto (SYS-008); disclaimer fixo no workspace |
+| **CR-v3-006** Refactor TD-010/monitor sem TQ-04 | Sistema, Crawl prod | **HIGH** | Integração mínima por fonte **antes** de fatiar monitor; SYS-001 primeiro |
+| **CR-v3-007** Interpretar `LOCAL_RESILIENCE_READY` = VPS operacional / 95% coverage | Gestão, Ops | **HIGH** | TQ-07 + docs honesty; claim separado no health |
+| **CR-v3-008** Onda 0 multi-área sem sequenciamento (SEC + SYS + DT + TQ) | Gestão | MEDIUM | Sequência DRAFT §10: secrets/checkpoint → health → writer único → schema → gates; UX Onda 1 em paralelo seguro (UX-02) |
+| **CR-v3-009** Live DB offline → RESOLVED de dados superestimados | Database, QA | MEDIUM | Dívida residual explícita; smoke obrigatório ao subir Postgres (DT-25/33) |
+
+### Continuidade riscos v2
+
+| Risco v2 | Estado em v3 |
+|----------|--------------|
+| CR-001 monitor.py quebra crawlers | **Mitigado em prioridade** (TD-010 após SYS-001; estimativa 20h); risco residual = CR-v3-006 |
+| CR-002 credenciais compostas | **Ainda ativo** como CR-v3-003 (SEC-02 **confirmado presente** nesta sessão) |
+| CR-003 DT-02 migration v3 sem rollback | **Resolvido no eixo** (DT-02 RESOLVED); residual vira DT-32 rollback 043–054 (P2) |
+| CR-004 UX-01 bloqueado por ORM/CI | **CI resolvido (TD-028)**; UX-01 DEFERRED pós-VPS — risco rebaixado |
+| CR-005 Sprint 0 sem coordenação | Substituído por **Ondas 0–4** — melhor; ainda exige disciplina de freeze VPS |
+
+---
+
+## 4. Dependências Validadas
+
+### 4.1 Grupos do DRAFT §10 — veredito QA
+
+| Grupo | Cadeia | Veredito | Notas |
+|-------|--------|----------|-------|
+| Pre-VPS Truth | SYS-005/006 → SYS-003/004 → SYS-001/002 → TQ-07 → ENV-02 | ✅ **CONFIRMADO** | Ordem correta: não unificar runtime com checkpoint/success mentirosos |
+| Schema | DT-33 → DT-24 → DT-23/DOC-01 → DT-28/29 → DT-25 | ✅ **CONFIRMADO** | Dara: fundir DT-24+33 em **uma** story; DT-23 **6h** |
+| Segurança | SEC-02 → SEC-05 → SEC-06; SEC-01 ∥ SEC-04 | ✅ **CONFIRMADO** | SEC-02 **não** depende de schema; pode ser #1 absoluto |
+| Runtime unificado | SYS-001/002 → TD-010 → TD-011/001 → SYS-008 | ✅ **CONFIRMADO** | Alinha preferência Dara (B) writer único |
+| UX ops | UX-02 ∥ UX-17 ∥ UX-14 → UX-04 → UX-03/15 → UX-01 | ✅ **CONFIRMADO** + **fortalecido** por Uma | UX-17 depende de honesty health (SYS-003/004) para não greenwash; UX-02 **independente** |
+
+### 4.2 Ajustes exigidos no FINAL
+
+| Relação | Ajuste | Fonte |
+|---------|--------|-------|
+| DT-24 + DT-33 | **Uma story** “verify HEAD + regen dump” (2–2.5h), não 1+1 isolados | Dara |
+| DT-28 + DT-29 + DT-34 | Um PR tooling schema (4–5h) | Dara |
+| DT-07 residual + DT-35 | Uma story higiene DSN defaults deploy/seed | Dara |
+| SYS-001 desenho | Target **(B)** monitor único writer; (C) dual-write só ≤1 sprint | Dara |
+| UX-02 | Prioridade execução P0 ops #1 UX; tag CRITICAL ops vs HIGH inventário — documentar dual-label se necessário | Uma |
+| UX-17 | **Depende** de claims honestos (SYS-003/004); implementação UI pode paralelizar, mas DoD inclui “sem verde de fixture” | Uma + QA |
+| TQ-06 = DT-28 | Alias explícito — **não** somar horas duas vezes | QA |
+| OBS-01/02 ≈ SYS-003/004 | Alias ou “work package” único health honesty | QA |
+
+### 4.3 Ciclos
+
+**Nenhum ciclo de dependência** identificado. Topologia das Ondas 0–4 é viável.
+
+### 4.4 Bloqueios não mapeados (leves)
+
+1. **DT-35** deve entrar na Onda 0 ao lado de SEC-02 (DRAFT lista SEC-02 mas subestima defaults de **deploy/**).  
+2. **UX-21** (sumário pós-comando, add Uma) não está no DRAFT §9.1 — incluir Onda 1.  
+3. **TQ-04 antes de TD-010** está no risco, mas não como aresta formal na matriz — formalizar.
+
+---
+
+## 5. Coverage of previous v2 QA gaps (GAP-001…)
+
+| Gap v2 | Severidade v2 | Status em v3 | Evidência | Residual |
+|--------|---------------|--------------|-----------|----------|
+| **GAP-001** Segurança como categoria | CRITICAL | ✅ **FECHADO** | DRAFT §4 SEC-01…08; CI bandit+pip-audit (SEC-04 PARTIAL) | SEC-02 STILL OPEN; SEC-05/06 OPEN; DT-35 residual |
+| **GAP-002** Testes/QA como categoria | CRITICAL | ✅ **FECHADO** | DRAFT §5 TQ-01…07; TQ-07 truth gate | Baseline % real não impressa (GAP-v3-005); threshold 10% |
+| **GAP-003** Documentação | HIGH | ✅ **FECHADO** (estrutura) | DRAFT §8 DOC-01…05 | Conteúdo ainda OPEN — esperado |
+| **GAP-004** Performance / observabilidade | HIGH | ✅ **FECHADO** (estrutura) | DRAFT §6 OBS-01…07 | Perf live N/A (DB offline) |
+| **GAP-005** Dependências externas | HIGH | ✅ **FECHADO** | DRAFT §7 DEP-01…07 | BLOCKED DEP-02 ICP-Brasil documentado |
+| **GAP-006** Ambientes | MEDIUM | ✅ **FECHADO** | ENV-01…04 + SYS-002/009 | VPS não provisionada (ENV-02) |
+| **GAP-007** Métricas pós-resolução | MEDIUM | ⚠️ **PARCIAL** | Ondas + critérios Uma/Dara; não 1:1 por P0 | GAP-v3-003 |
+| **GAP-008** TD-010 8h subestimado | MEDIUM | ✅ **FECHADO** | TD-010 = **20h**; após unificar runtime | — |
+| **GAP-009** TD-025 ORM sem análise | MEDIUM | ⚠️ **ACEITO como P3** | 20h+ P3; “só se multi-app/web” | Suficiente para planning; não reabrir como CRITICAL |
+
+**Conclusão de continuidade:** os **2 CRITICAL** que geraram NEEDS WORK na v2 estão **estruturalmente resolvidos**. Gate v2 → v3 evolui de **NEEDS WORK** para **APPROVED WITH CONDITIONS**.
+
+---
+
+## 6. Validações específicas da missão
+
+### 6.1 Residual SEC-02 / SA JSON apesar de Story 1.1 Done
+
+| Check | Resultado |
+|-------|-----------|
+| Tracked no DRAFT? | ✅ **SEC-02 / TD-029 STILL OPEN ⚠ P0** |
+| Story 1.1 Done implica fechado? | ❌ **Não** — regressão de claim vs working tree |
+| Verificação 2026-07-17 | ✅ `config/mides-bigquery-sa.json` **PRESENTE** (2370 bytes) |
+| Ação recomendada | **Nova story HIGH-RISK** (ou reabrir 1.1 residual): remove arquivo + `.gitignore` + rotação se chave foi commitada + prova `git grep` limpo. **Proibido FAST** (secrets). |
+
+### 6.2 Live DB offline → residual verification debt
+
+| Check | Resultado |
+|-------|-----------|
+| Declarado por Dara? | ✅ Disclaimer forte no review DB |
+| Tracked? | ✅ DT-25, DT-33, ENV-01, OBS-05 (perf live N/A) |
+| Impacto em RESOLVED DT-* | RESOLVED de **DDL/dump/código** OK com confiança alta; integridade de **dados** e `_migrations` real = **hipótese HIGH** até smoke |
+| Condição de gate | C4 — FINAL deve dizer explicitamente: “verify when DB up” |
+
+### 6.3 Dual runtime / split-brain como system risk
+
+| Check | Resultado |
+|-------|-----------|
+| Inventário | ✅ SYS-001, SYS-002 **P0 CRITICAL NEW** |
+| Cross-risk | ✅ CR-v3-001 |
+| Preferência de desenho | Dara: **(B)** writer único via monitor |
+| Bloqueio VPS | ✅ ENV-02 / timers oficiais **após** Onda 0 |
+
+### 6.4 Métricas honestas (M1 vs M2)
+
+| Métrica | Claim v3 | Honesty |
+|---------|----------|---------|
+| M1 sinal comercial | 116/1.093 (10,61%) | ✅ número de ranking, não “coverage” |
+| M2 cobertura operacional estrita | **0/1.093 (0%)** | ✅ **honesto** — meta 95% é alvo, não claim |
+| LOCAL_RESILIENCE_READY | READY mecânica local | ✅ separado de VPS e de 95% |
+| UX-14 / OBS-03 | PARTIAL — docs sim, CLI fraco | ✅ tracked P0 ops |
+
+**Veredito:** inventário **não** infla cobertura. Isso é progresso metodológico vs v2.
+
+---
+
+## 7. Testes Requeridos (pós-resolução de débitos P0)
+
+| Débito P0 | Tipo de teste | Critério de aceite (binário) |
+|-----------|---------------|------------------------------|
+| **SYS-001** | Integração path de persistência | Path oficial grava evidência em PostgreSQL (não só FS); 0 “success” sem row/evidence esperada |
+| **SYS-002** | Inventário systemd + smoke | Uma família de units “oficial”; legados disabled ou documentados non-prod; health reporta runtime |
+| **SYS-003 / OBS-01** | Unit + CLI health | Fixture mode **nunca** overall=healthy com `claim=operational_live`; campos mode/environment/fixture presentes |
+| **SYS-004 / OBS-02** | Unit SLA | Freshness thresholds lidos de registry/`coverage_slas.yaml`; divergência hardcoded removida ou fail-closed |
+| **SYS-005** | Unit checkpoint | Schema inválido → erro (não `pass`); TypeError não engolido |
+| **SYS-006** | Unit adapter CIGA | Adapter **não** marca success de pipeline; só orquestrador/writer |
+| **SEC-02 / TD-029** | Security grep + CI | `test ! -f config/mides-bigquery-sa.json`; pattern SA JSON em `.gitignore`; pipeline limpa |
+| **DT-23** | Fresh-install doc test | Apply **somente** via `db/setup_db.sh`; legacy script fail-closed sem `ALLOW_LEGACY` |
+| **DT-24 + DT-33** | Schema smoke | `_migrations` max version == HEAD; dump contém objetos 043–054; diagnostics exit 0 |
+| **TQ-02** | CI gate | Threshold progressivo documentado; CI vermelho se abaixo do patamar da branch policy |
+| **TQ-07** | Gate Makefile/CI | `pre-vps-final-gate` **FAIL** (não warn) se SYS-001/002 abertos **quando** claim VPS/timers |
+| **UX-02** | CLI manual + smoke | update/radar/crawl/PDF exibem progresso; overhead &lt; 1s perceptível |
+| **UX-14** | CLI snapshot | Seções M1 e M2 distintas; disclaimer; GO color ≠ coverage % |
+| **UX-17** | CLI | `--human` tabela + exit codes idênticos ao JSON |
+
+### 7.1 Cobertura mínima antes de TD-010 (resposta TQ-04)
+
+| Fonte | Mínimo de integração | Notas |
+|-------|----------------------|-------|
+| PNCP | 1 happy path insert/upsert + 1 failure mode | Caminho canônico pós-SYS-001 |
+| CIGA | 1 adapter contract test (sem success prematuro) | Cobre SYS-006 |
+| SC Compras | 1 snapshot/hash ou skip explícito se SYS-007 aberto | Não bloquear se fora do writer unificado |
+| Regressão monitor | Suite existente 100% verde + snapshot contagens se DB up | CR-v3-006 |
+
+---
+
+## 8. Respostas QA às perguntas do Architect (§11)
+
+### Q1 — TQ-02: threshold progressivo e denominator
+
+**Resposta:** progressivo **10% → 30% → 45% → 60%** em PRs separados (não big-bang).
+
+| Etapa | Threshold | Denominator | Pré-condição |
+|-------|-----------|-------------|--------------|
+| Agora | 10% | status quo CI | — |
+| +1 | **30%** | preferencialmente `scripts/` (omitir testes de fixtures pesados se necessário) | baseline medido |
+| +2 | **45%** | `scripts/` | TQ-03 gaps buyer/contract parcialmente fechados |
+| Alvo | **≥60%** | `scripts/` crítico (`crawl`, `opportunity_intel`, `ops`, `schema`, `coverage`) | pós Onda 2 |
+
+**Não** incluir monólitos legados top-level `generate-report-b2g.py` no denominator inicial (distorce). Documentar omit list.
+
+### Q2 — TQ-07: fail vs warn se SYS-001/002 abertos
+
+**Resposta: FAIL** quando o gate é usado para autorizar **claim VPS / enable de timers oficiais**.  
+**WARN** apenas em modo `offline developer convenience` se explicitamente `ALLOW_PRE_VPS_WARN=1` (fail-open **nunca** default).
+
+`LOCAL_RESILIENCE_READY` pode permanecer true com dual runtime **somente** se o claim name **não** for `VPS_OPERATIONAL`.
+
+### Q3 — SEC-02: Story 1.1 Done vs arquivo presente
+
+**Resposta: nova story HIGH-RISK** (ou “1.1 residual security”) — **não FAST**, **não** só doc.  
+Story 1.1 Done com residual é **débito de processo**; o inventário já marca STILL OPEN corretamente. DoD: arquivo ausente + gitignore + evidência de não-uso em CI + rotação se aplicável.
+
+### Q4 — TQ-04 antes de TD-010
+
+**Resposta: sim** — ver §7.1. Mínimo: PNCP + CIGA contract + suite verde. Sem isso, TD-010 = **FAIL gate** se tentado.
+
+### Q5 — Falsos verdes F1–F7
+
+**Resposta:** checklist adversarial F1–F7 vira **gate de release pré-VPS** (subset CRITICAL = SYS-001…006), não só doc.  
+Modo: job/make target que falha em regressão de falso verde; LOW items (F7 etc.) podem ser warn.
+
+### Q6 — Re-extração Reversa após SYS-001/002
+
+**Resposta: SIM, recomendar** re-extração `_reversa_sdd` de crawl/resilience/ops **após Done** da unificação de runtime — não automático; follow-up de story (protocolo AIOX-Reversa §9). Motivo: contratos de persistência e C4 containers mudam de verdade.
+
+---
+
+## 9. Cobertura do Assessment (v3)
+
+| Área | Cobertura | Notas |
 |------|-----------|-------|
-| Sistema/Infra | 80% | 30 debitos originais cobrem arquivos especificos, mas faltam: (1) dependencias externas (APIs governamentais), (2) ambientes (dev/staging/prod), (3) observabilidade, (4) documentacao. Ver GAP-003, GAP-004, GAP-005. |
-| Database | 90% | Dara fez revisao exemplar: 17 originais + 6 novos + 1 fusao = 21 debitos. SCHEMA.md, DB-AUDIT.md, current-schema.sql usados como fontes. Faltou: auditoria de permissoes de roles do banco, analise de conexoes simultaneas. |
-| Frontend/UX | 90% | Uma fez revisao completa com metodologia de priorizacao UX propria. 7 journeys analisadas. 5 novos debitos adicionados. Web UI (UX-01) com estimativa revisada para baixo (40h MVP). |
-| Seguranca | **15%** | **GAP CRITICO.** Os debitos de seguranca existem (DT-07, TD-016, TD-029) mas estao fragmentados. Nao ha: analise de dependencias com CVE, OWASP Top 10, revisao de permissoes, threat modeling. Ver GAP-001. |
-| Testes | **20%** | **GAP CRITICO.** TD-026 e TD-030 sao os unicos debitos relacionados a testes. Nao ha: cobertura atual, qualidade dos testes existentes, testes de integracao vs unitarios, test doubles strategy. Ver GAP-002. |
-| DevOps/CI-CD | 40% | Apenas TD-028 (sem CI/CD). Nao ha: deployment strategy, infra as code, backup strategy, monitoring/alerting, secrets management no pipeline. |
+| Sistema / Pre-VPS | **95%** | SYS-001…015 + TD legado; honestidade pré-VPS excelente |
+| Database | **90%** | Dara valida; +DT-21/35; live offline residual |
+| Frontend/UX | **95%** | Uma completa; CLI-first correto; UX-19…22 adds |
+| Segurança | **80%** | Categoria existe; SEC-02 ainda aberto; threat model futuro |
+| Testes/QA | **75%** | Categoria existe; falta baseline % impresso |
+| Observabilidade | **80%** | OBS cobrem health/SLA/M1M2; perf live N/A |
+| Dependências externas | **85%** | DEP + gotchas alinhados |
+| Docs / Ambientes | **80%** | DOC/ENV presentes e linkados a DT/SYS |
+| DevOps/CI | **70%** | TD-028 RESOLVED; freeze timers e secrets VPS ainda perguntas @devops |
 
-**Nota metodologica:** As areas com cobertura baixa (Seguranca 15%, Testes 20%) nao invalidam o assessment existente, mas significam que o assessment esta INCOMPLETO para tomada de decisao de investimento. Recomenda-se completar as lacunas antes de aprovar o plano de execucao.
-
----
-
-### Testes Requeridos Pos-Resolucao
-
-| Debito | Tipo de Teste | Criterio de Aceite |
-|--------|---------------|-------------------|
-| TD-010 (Refatorar monitor.py) | Testes de integracao dos crawlers + Testes comparativos (antes/depois) | (1) Testes de integracao com snapshot de dados reais passam. (2) Output do crawl (quantidade de registros inseridos) e identico antes e depois. (3) Zero regressao em testes existentes. |
-| TD-027 (Unificar entity matching) | Testes de matching + Validacao com dados rotulados | (1) Suite de matching tests com casos conhecidos (matches verdadeiros, falsos positivos conhecidos, matches fuzzy). (2) Precisao e recall >= 95% em dataset de validacao. (3) Zero duplicacao de implementacao (monitor.py nao tem mais funcao de matching). |
-| DT-02 (Migration v3) | Testes de schema + Testes de integracao pos-migration | (1) Validacao automatica: todas as 10 tabelas, 6 views, 4 funcoes existem no schema. (2) opportunity_intel/cli.py funciona contra as novas tabelas. (3) Nenhuma tabela existente foi alterada (check de colunas + tipos). |
-| DT-05 (Refatorar upsert contracts) | Testes de performance + Testes de equivalencia de dados | (1) Set-based upsert leva <= 30% do tempo do row-by-row para mesmo batch. (2) Quantidade de registros inseridos/atualizados e identica. (3) Gatilhos (triggers de coverage) continuam funcionando. |
-| DT-01 (Match logging columns) | Testes de colunas + Testes de migracao | (1) Colunas match_method, match_score, match_confidence existem e aceitam NULL (backwards compatible). (2) Migration pode ser executada multiplas vezes (idempotente). (3) Selects existentes continuam funcionando (compatibilidade de schema). |
-| UX-02 (Progress indicators) | Testes de CLI + Testes visuais (screenshot) | (1) --progress flag ou comportamento automatico nos 3 comandos (update, radar, generate-report). (2) Screenshot mostra barra de progresso visivel. (3) Nao ha degradacao de performance (progress no terminal nao adiciona > 1s de overhead). |
-| TD-028 (CI/CD) | Testes de pipeline + Testes de quality gate | (1) GitHub Actions com ruff, mypy, pytest rodam em < 5 min. (2) PR com fail em quality gate e bloqueado. (3) Testes de banco rodam com REQUIRE_TEST_DB=1. (4) Cache de dependencias otimizado (< 1min restore). |
-| DT-07 (Senha para .env) | Testes de seguranca + Testes de conexao | (1) Nenhuma senha em texto puro no repo (grep -r "postgres:" repo retorna 0 resultados fora de .env.example). (2) BFG cleanup removeu senha do git history. (3) Conexao ao banco funciona com DATABASE_URL de environment variable. (4) .env no .gitignore. |
-| TD-029 (SA JSON cleanup) | Testes de seguranca + Validacao de acesso | (1) SA JSON removido do repo. (2) Novo mecanismo (Workload Identity Federation ou Vault) configurado. (3) Crawler de BigQuery (se ativado) funciona sem JSON no filesystem. |
-| Debitos novos (DT-18 a DT-23, UX-13 a UX-17) | Testes especificos por debito | Cada debito novo precisa de pelo menos 1 teste automatizado validando a resolucao (ex: DT-19 FK orgao_cnpj -> testar que INSERT com orgao_cnpj invalido e rejeitado). |
+**vs v2:** Segurança 15%→**80%**; Testes 20%→**75%**. Mudança **estrutural** suficiente para gate.
 
 ---
 
-### Metricas de Qualidade Recomendadas
+## 10. Incorporação dos especialistas (resumo QA)
 
-**Metricas Pre-Resolucao (baseline):**
+### Dara (DB) — aceitar no FINAL
 
-| Metrica | Alvo | Ferramenta | Frequencia |
-|---------|------|-----------|------------|
-| Cobertura de codigo (total) | >= 60% (pre), >= 75% (pos) | pytest --cov | Semanal |
-| Cobertura por modulo: scripts/crawl/ | >= 50% | pytest --cov=crawl | Semanal |
-| Cobertura por modulo: scripts/opportunity_intel/ | >= 50% | pytest --cov=opportunity_intel | Semanal |
-| Cobertura por modulo: scripts/coverage/ | >= 40% | pytest --cov=coverage | Semanal |
-| Erros de lint (ruff) | 0 (zero) | ruff check | Pre-commit |
-| Erros de type check (mypy) | 0 (zero) | mypy | CI |
-| Debitos P0/P1 abertos | Decrescente | Planilha/Issue tracker | Semanal |
-| Testes de integracao passando | 100% | pytest -m integration | CI |
-| Linhas do monitor.py | < 800 (de 1756) | wc -l | Por release |
-| Duplicacao de implementacoes de matching | 0 (zero) | grep -r "match" scripts/ | Por release |
-| Senhas no git history | 0 (zero) | trufflehog ou git leaks | Por commit |
+- Horas abertas DB ≈ **46h** (não 30–35h)  
+- Must-fix pré-VPS DB ≈ **12–14h**  
+- Fusão DT-24+33; DT-23=6h; DT-21 reintro; DT-35  
+- Writer único **(B)**  
+- Veredito Dara: **APROVADO COM AJUSTES** → alinhado a este gate
 
-**Metricas de Qualidade de UX Pos-Resolucao:**
+### Uma (UX) — aceitar no FINAL
 
-| Metrica | Alvo | Metodo |
-|---------|------|--------|
-| Tempo medio de comando sem feedback | < 2s (qualquer comando) | --time output |
-| Truncamento de colunas | Nenhuma coluna < 60 chars | Revisao de codigo |
-| Mensagens de erro amigaveis | 100% dos erros tem [ERROR] + sugestao | grep -r "print.*Error" scripts/ |
-| Comandos com progress indicator | 3/3 (update, radar, report) | Checklist |
-| Radars com summary pos-execucao | 100% dos radars | Checklist |
+- UX-02 **CRITICAL ops** / UX-04 **HIGH**  
+- UX-01 **DEFERRED** confirmado  
+- UX-19…22 adds (~13h)  
+- Pack pré-VPS UX ~**20h**  
+- Honesty / M1≠M2 como design law  
+- Veredito Uma: inventário validado → alinhado
 
-**Metricas de Qualidade de Database Pos-Resolucao:**
+### Conflitos especialistas × DRAFT
 
-| Metrica | Alvo | Metodo |
-|---------|------|--------|
-| UNIQUE constraints adicionadas | 2 (DT-06, DT-15) | SQL: SELECT COUNT(*) |
-| CHECK constraints adicionadas | 3 (DT-08, DT-09, DT-10) | SQL: SELECT COUNT(*) |
-| Migrations com ordem correta | 0 dependencias ciclicas | Revisao manual |
-| upsert set-based implementados | 2/2 (DT-04, DT-05) | Revisao de codigo |
-| FKs adicionadas | 2 (DT-19, DT-20) | SQL: SELECT COUNT(*) |
-| Coverage reconciliation job ativo | 1 job semanal rodando | systemctl list-timers |
+| Tema | DRAFT | Especialista | Decisão QA |
+|------|-------|--------------|------------|
+| UX-02 sev | HIGH | CRITICAL | **Dual-label OK**: inventário HIGH classe UI; **prioridade P0 ops CRITICAL** no roadmap |
+| DT-07 | RESOLVED* | residual deploy | **PARTIAL** + DT-35 |
+| DT-23 hours | 4h | 6h | **6h** |
+| Live RESOLVED | forte | residual | Manter RESOLVED DDL; disclaimer dados |
 
 ---
 
-### Parecer Final
+## 11. Parecer Final
 
-**O technical debt assessment e EXCELENTE nas areas que cobre** — 60 debitos originais, expandidos para 72+ apos revisoes dos especialistas (Dara e Uma). A metodologia de Brownfield Discovery foi bem aplicada, as fontes (system-architecture.md, DB-AUDIT.md, frontend-spec.md) sao verificaveis, e as revisoes dos especialistas adicionaram profundidade significativa.
+### O que está sólido
 
-**Porem, 2 lacunas estruturais impedem a aprovacao total:**
+1. **Audit trail honesto** — resoluções Stories 1.1–1.5, matching unificado, CI, schema v3, set-based upserts **não** apagados; residual explícito.  
+2. **Pre-VPS como eixo de verdade** — SYS-001…006 elevam o problema certo (falso verde) acima de polish.  
+3. **Categorias que a v2 exigiu** — SEC, TQ, OBS, DEP, DOC/ENV.  
+4. **M2 = 0%** declarado — anti-greenwash de produto.  
+5. **Especialistas adversarial** — Dara e Uma não carimbaram; ajustaram horas e severidades.  
+6. **SEC-02 não silenciado** apesar de Story Done — postura correta de inventário.
 
-1. **Seguranca (GAP-001):** O assessment trata seguranca como tema transversal sem secao dedicada. Credenciais no git (DT-07, TD-029), SQL injection potencial (TD-016), e dependencias sem auditoria de CVE representam risco real de incidente. Sem avaliacao consolidada, o plano de execucao pode subpriorizar seguranca.
+### O que permanece como risco residual (aceitável no assessment)
 
-2. **Testes/QA (GAP-002):** O assessment nao avalia a qualidade e cobertura dos testes existentes antes de comecar a refatoracao. Refatorar 1756 linhas de monitor.py (TD-010) ou unificar entity matching (TD-027) sem baseline de testes e risco alto de quebrar funcionalidade existente sem deteccao.
+- Centenas de horas de backlog ativo (~280–350h ordem de grandeza).  
+- SEC-02 **arquivo ainda no tree** (débito real, não de documentação).  
+- DB offline na data da review.  
+- Merge FINAL ainda pendente (condições C1–C2).
 
-**Alem disso, 3 riscos cruzados nao mitigados requerem atencao imediata:**
+### O que **não** é NEEDS WORK
 
-- CR-001 (Refatoracao de monitor.py quebrando crawlers)
-- CR-002 (Exposicao composta de credenciais — DT-07 + TD-029)
-- CR-003 (DT-02 sem rollback testado)
+- Quantidade de débitos abertos.  
+- Estimativas ainda a calibrar em ±20%.  
+- UX-01 deferred.  
+- M2 zero.  
+- Preferências de desenho SYS-001 ainda a implementar (estão **trackeadas**).
 
-**Pontos fortes do assessment:**
-- Cobertura detalhada de database (21 debitos) com analise de volume real de dados
-- Priorizacao UX baseada em journeys reais, nao apenas opiniao tecnica
-- Matriz de dependencias validada e majoritariamente correta
-- Estimativas de esforco calibradas (excecao: TD-010)
-- Revisoes dos especialistas acrescentaram 11 novos debitos (DT-18 a DT-23, UX-13 a UX-17)
+### Decisão
 
-**Recomendacoes para atingir APPROVED:**
+```text
+Gate Phase 7 (Brownfield Discovery): APPROVED WITH CONDITIONS
+Próximo: @architect → docs/prd/technical-debt-assessment.md v3 FINAL
+          incorporando C1–C6 + reviews Dara/Uma + este parecer
+Depois:  @analyst relatório executivo → @pm/@sm epics pre-VPS wave
+```
 
-1. **Criar secao de seguranca** com threat modeling leve e inventario de credenciais (2-4h de trabalho do @architect com @analyst)
-2. **Criar secao de testes** com cobertura atual por modulo e inventario de modulos criticos sem testes (2h de trabalho do @qa)
-3. **Revisar estimativa do TD-010** de 8h para 20-30h ou decompor em sub-debitos
-4. **Elevar DT-07 e TD-029 para P0** (risco de seguranca real)
-5. **Adicionar metricas de sucesso pos-resolucao** para todos os debitos P0/P1
-6. **Documentar plano de rollback** para DT-02 (migration v3) antes da execucao
-
-**Veredicto final: NEEDS WORK** — o assessment e 85% completo (excelente nas areas cobertas), mas as lacunas de seguranca e testes sao estruturais demais para aprovacao total neste estado. Apos enderecar os 2 gaps CRITICAL (GAP-001, GAP-002) e revisar 3 estimativas (GAP-008, TD-025, UX-01), o assessment estara pronto para aprovacao.
+**Bloqueio explícito de processo:** nenhum enable de timers oficiais / claim VPS até Onda 0 (SYS-001…006 + SEC-02 + schema truth + TQ-07) com evidência.
 
 ---
 
-*Revisao gerada por Quinn (@qa) em 2026-07-13.*
-*Documentos de referencia: technical-debt-DRAFT.md (v2.0, Aria), db-specialist-review.md (Dara), ux-specialist-review.md (Uma).*
-*Status: NEEDS WORK — 2 gaps CRITICAL + 3 riscos nao mitigados + 4 recomendacoes de melhoria.*
+## 12. YAML Gate (machine-readable)
+
+```yaml
+qa_gate:
+  document: docs/reviews/qa-review.md
+  version: "3.0"
+  date: "2026-07-17"
+  reviewer: "Quinn (@qa)"
+  phase: "Brownfield Discovery Phase 7"
+  subject: "docs/prd/technical-debt-DRAFT.md v3.0"
+  specialist_reviews:
+    db: "docs/reviews/db-specialist-review.md v3.0"
+    ux: "docs/reviews/ux-specialist-review.md v3.0"
+  previous_gate:
+    version: "2.0"
+    date: "2026-07-13"
+    status: "NEEDS WORK"
+  gate_status: "APPROVED WITH CONDITIONS"
+  gate_status_enum: APPROVED_WITH_CONDITIONS
+  structural_gaps_v2_closed:
+    GAP-001_security_category: true
+    GAP-002_tests_qa_category: true
+  conditions:
+    - id: C1
+      must: true
+      summary: "Merge DB specialist adjustments (hours, DT-21/35, fusions)"
+    - id: C2
+      must: true
+      summary: "Merge UX re-elevations and UX-19..22"
+    - id: C3
+      must: true
+      summary: "SEC-02 remains P0 until SA JSON gone + gitignore + rotate"
+    - id: C4
+      must: true
+      summary: "Live DB offline residual verification debt explicit in FINAL"
+    - id: C5
+      must: false
+      summary: "Publish QA answers to architect questions in FINAL"
+    - id: C6
+      must: true
+      summary: "No VPS_OPERATIONAL / official timers until SYS-001/002 + TQ-07 closed"
+  validations:
+    sec_02_sa_json_tracked: true
+    sec_02_file_present_2026_07_17: true
+    live_db_offline_residual: true
+    dual_runtime_split_brain_tracked: true
+    m1_m2_honest_metrics: true
+  cross_risks_critical:
+    - CR-v3-001
+    - CR-v3-002
+    - CR-v3-003
+  dependency_cycles: 0
+  recommendation_next: "architect-final-assessment-v3"
+  blocked_for_planning: false
+```
+
+---
+
+*Revisão gerada por Quinn (@qa) em 2026-07-17 — Brownfield Discovery Phase 7.*  
+*Postura adversarial; APPROVED WITH CONDITIONS porque v3 eliminou gaps estruturais da v2, não porque o backlog está limpo.*  
+*Próxima etapa: @architect → `technical-debt-assessment.md` v3 FINAL.*
