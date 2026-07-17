@@ -161,12 +161,17 @@ class TestTransformRecord:
         assert result["valor_total"] == 150000.00
         assert result["data_inicio"] == "2025-07-01"
         assert result["data_fim"] == "2026-06-30"
+        # LEGACY data_publicacao falls back to assinatura when no true pub date
         assert result["data_publicacao"] == "2025-06-15"
+        assert result["data_assinatura"] == "2025-06-15"
+        assert result["data_publicacao_fonte"] is None
+        assert result["source_event_date"] == "2025-06-15"
+        assert result["source_date_semantics"] == "dataAssinatura_as_event"
         assert result["uf"] == "SC"
         assert result["municipio"] == "Florianopolis"
         assert result["source_id"] == "12345678901234567890"
 
-        # Count total fields (12 campos)
+        # Core + date-semantics fields (migration 051)
         expected_fields = {
             "contrato_id",
             "orgao_cnpj",
@@ -178,6 +183,13 @@ class TestTransformRecord:
             "data_inicio",
             "data_fim",
             "data_publicacao",
+            "data_assinatura",
+            "data_publicacao_fonte",
+            "data_atualizacao_fonte",
+            "source_event_date",
+            "source_date_semantics",
+            "query_window_start",
+            "query_window_end",
             "uf",
             "municipio",
             "source_id",

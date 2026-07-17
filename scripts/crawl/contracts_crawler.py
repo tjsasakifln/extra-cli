@@ -170,6 +170,8 @@ class CrawlCheckpoint:
     total_windows_failed: int = 0
     last_error: str | None = None
     updated_at: str | None = None
+    # Provenance: run_id history (resume across runs is allowed by default)
+    meta: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -182,6 +184,7 @@ class CrawlCheckpoint:
             "total_windows_failed": self.total_windows_failed,
             "last_error": self.last_error,
             "updated_at": self.updated_at,
+            "meta": self.meta or {},
         }
 
     @classmethod
@@ -196,6 +199,7 @@ class CrawlCheckpoint:
             total_windows_failed=d.get("total_windows_failed", 0),
             last_error=d.get("last_error"),
             updated_at=d.get("updated_at"),
+            meta=d.get("meta") or {},
         )
 
 
@@ -289,6 +293,24 @@ def _uf_from_cnpj(cnpj: str) -> str | None:
     if not cnpj or len(cnpj) < 6:
         return None
     return _CNPJ_ROOT_UF.get(cnpj[:6])
+
+
+def uf_from_unidade(rec: dict) -> str | None:
+    """Extract UF from a raw PNCP /contratos item via ``unidadeOrgao.ufSigla``.
+
+    Never defaults to ``"SC"``. Returns ``None`` when absent/blank.
+
+    Args:
+        rec: Raw API item (or any dict with optional ``unidadeOrgao``).
+
+    Returns:
+        Two-letter UF or ``None``.
+    """
+    unidade = rec.get("unidadeOrgao") or {}
+    if not isinstance(unidade, dict):
+        return None
+    uf = (unidade.get("ufSigla") or "").strip().upper()
+    return uf[:2] if len(uf) >= 2 else (uf or None)
 
 
 def _generate_content_hash(record: dict) -> str:
@@ -508,13 +530,40 @@ def _transform_record(rec: dict) -> dict | None:
         # Orgao name — unidade first, then orgao
         orgao_nome = (unidade.get("nomeUnidade") or orgao.get("razaoSocial") or "")[:300] or None
 
-        # Dates
-        data_publicacao = _safe_date(rec.get("dataAssinatura"))
+        # Dates — keep fields semantically distinct (migration 051).
+        # BUGFIX: do NOT map dataAssinatura → data_publicacao as publication.
+        data_assinatura = _safe_date(rec.get("dataAssinatura"))
+        data_publicacao_fonte = _safe_date(
+            rec.get("dataPublicacaoPncp")
+            or rec.get("dataPublicacao")
+            or rec.get("dataPublicacaoContrato")
+        )
+        data_atualizacao_fonte = _safe_date(
+            rec.get("dataAtualizacao") or rec.get("dataAtualizacaoGlobal")
+        )
+        # Best event date for the contract act
+        source_event_date = data_assinatura or data_publicacao_fonte
+        # LEGACY: keep data_publicacao for backward compat; prefer true pub then assinatura
+        data_publicacao = data_publicacao_fonte or data_assinatura
+
+        if data_publicacao_fonte and rec.get("dataPublicacaoPncp"):
+            source_date_semantics = "dataPublicacaoPncp"
+        elif data_publicacao_fonte:
+            source_date_semantics = "dataPublicacao"
+        elif data_assinatura:
+            source_date_semantics = "dataAssinatura_as_event"
+        else:
+            source_date_semantics = "unknown"
+
         data_inicio = _safe_date(rec.get("dataVigenciaInicio"))
         data_fim = _safe_date(rec.get("dataVigenciaFim"))
 
+        # Optional crawl window metadata (may be attached by callers)
+        query_window_start = _safe_date(rec.get("query_window_start") or rec.get("_query_window_start"))
+        query_window_end = _safe_date(rec.get("query_window_end") or rec.get("_query_window_end"))
+
         # UF — unidade first, CNPJ lookup second, NEVER default to "SC"
-        uf = (unidade.get("ufSigla") or "")[:2].strip() or None
+        uf = uf_from_unidade(rec)
         if not uf:
             uf = _uf_from_cnpj(orgao_cnpj)
         # GOAL CRITERION 2: No fallback to "SC".  If UF is genuinely
@@ -533,6 +582,13 @@ def _transform_record(rec: dict) -> dict | None:
             "data_inicio": data_inicio,
             "data_fim": data_fim,
             "data_publicacao": data_publicacao,
+            "data_assinatura": data_assinatura,
+            "data_publicacao_fonte": data_publicacao_fonte,
+            "data_atualizacao_fonte": data_atualizacao_fonte,
+            "source_event_date": source_event_date,
+            "source_date_semantics": source_date_semantics,
+            "query_window_start": query_window_start,
+            "query_window_end": query_window_end,
             "uf": uf or None,
             "municipio": municipio,
             "source_id": contrato_id,
@@ -870,3 +926,12 @@ def transform_with_uf_filter(records: list[dict], uf: str | None = None) -> list
         uf_upper = uf.upper().strip()
         transformed = [r for r in transformed if (r.get("uf") or "").upper() == uf_upper]
     return transformed
+
+
+def filter_raw_by_uf(records: list[dict], uf: str) -> list[dict]:
+    """Filter raw /contratos items by ``unidadeOrgao.ufSigla`` (client-side).
+
+    Prefer this before transform when only one UF is needed (e.g. SC).
+    """
+    uf_upper = uf.upper().strip()
+    return [r for r in records if (uf_from_unidade(r) or "") == uf_upper]
