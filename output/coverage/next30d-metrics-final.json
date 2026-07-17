@@ -1,0 +1,10 @@
+{
+  "pncp_supplier_contracts": 31219,
+  "pncp_raw_bids": 2948,
+  "dedup_cross_source": 5,
+  "covered_200km": 52,
+  "editais_denominator": 1093,
+  "editais_crude_pct": 4.76,
+  "pilot_status": "success",
+  "timestamp": "2026-07-17T00:34:16.029300+00:00"
+}

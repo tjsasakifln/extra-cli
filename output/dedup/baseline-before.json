@@ -1,0 +1,32 @@
+{
+  "run_id": "dedup-20260717-000812",
+  "timestamp": "2026-07-17T00:08:12.071153+00:00",
+  "dry_run": false,
+  "dsn_host": "127.0.0.1:5433/pncp_datalake",
+  "before": {
+    "dedup_rows": 0,
+    "dedup_groups": 0,
+    "active_opportunities": 5,
+    "opportunities_by_source": {
+      "test_batch": 5
+    }
+  },
+  "engine_stats": {
+    "total_ops": 5,
+    "groups_found": 0,
+    "duplicates": 0,
+    "inserted": 0
+  },
+  "after": {
+    "dedup_rows": 0,
+    "dedup_groups": 0,
+    "active_opportunities": 5,
+    "opportunities_by_source": {
+      "test_batch": 5
+    }
+  },
+  "delta_dedup_rows": 0,
+  "delta_dedup_groups": 0,
+  "outcome": "partial",
+  "note": "Only single-source opportunities; cannot prove cross-source dedup"
+}

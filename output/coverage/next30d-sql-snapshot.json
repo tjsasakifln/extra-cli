@@ -1,0 +1,54 @@
+{
+  "timestamp": "2026-07-17T00:23:12.618842+00:00",
+  "editais_covered_200km": 52,
+  "editais_denominator_200km": 1093,
+  "editais_crude_pct": 4.76,
+  "contracts": 13550,
+  "pncp_raw_bids": 2948,
+  "dedup_cross_source": 5,
+  "coverage_by_source_200km": {
+    "sc_compras": {
+      "covered": 37,
+      "rows": 1093
+    },
+    "pcp": {
+      "covered": 14,
+      "rows": 1093
+    },
+    "compras_gov": {
+      "covered": 1,
+      "rows": 1093
+    },
+    "ciga_ckan": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "transparencia": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "mides_bigquery": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "pncp": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "doe_sc": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "dom_sc": {
+      "covered": 0,
+      "rows": 1093
+    }
+  },
+  "snapshot_integrity": {
+    "active_ops": 10,
+    "active_but_source_inactive": 0,
+    "inactive_but_source_active": 0,
+    "active_snapshot_integrity": 1.0
+  },
+  "run_id_reports": null
+}

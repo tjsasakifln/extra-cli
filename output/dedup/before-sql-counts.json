@@ -1,0 +1,11 @@
+{
+  "dedup_rows": 3,
+  "dedup_groups": 1,
+  "active_opportunities": 8,
+  "opportunities_by_source": {
+    "test_batch": 5,
+    "pcp": 1,
+    "pncp": 1,
+    "sc_compras": 1
+  }
+}

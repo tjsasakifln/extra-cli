@@ -24,13 +24,12 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from datetime import datetime, timezone
 from typing import Any
 
 import psycopg2
 import psycopg2.extras
 
-from scripts.crawl.pipeline import DLQHandler, DLQRecord, PipelineStage
+from scripts.crawl.pipeline import DLQRecord, PipelineStage
 
 logger = logging.getLogger(__name__)
 

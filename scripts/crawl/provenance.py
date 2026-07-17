@@ -11,13 +11,11 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import psycopg2
 import psycopg2.extras
-
-from scripts.crawl.metrics import CRAWL_RECORDS_TOTAL, CRAWL_ERRORS_TOTAL, CRAWL_DURATION
 
 logger = logging.getLogger(__name__)
 
@@ -344,7 +342,7 @@ class FreshnessChecker:
         if completed_at is None:
             return False, latest
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         age_hours = (now - completed_at).total_seconds() / 3600
         return age_hours <= sla_hours, latest
 

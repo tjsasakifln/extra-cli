@@ -43,7 +43,7 @@ from scripts.crawl.common import (
 from scripts.crawl.dlq_sync import dlq_write
 from scripts.crawl.provenance_sync import provenance_complete, provenance_fail, provenance_start
 from scripts.crawl.security import USER_AGENT, sanitize_url_param, validate_url_scheme
-from scripts.crawl.watermark_sync import watermark_commit, watermark_read
+from scripts.crawl.watermark_sync import watermark_commit
 
 # Add project root
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent

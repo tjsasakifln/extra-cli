@@ -145,6 +145,26 @@ METADADOS_LABELS = [
     "pncp_raw_bids (total registros)",
     "Data da Ultima Atualizacao no DB",
     "Proxima Atualizacao Recomendada",
+    # Run metadata (shared with PDF via scripts/reports/run_metadata.py)
+    "Run ID",
+    "Generated At (UTC)",
+    "Git SHA",
+    "Profile ID",
+    "Filter UF",
+    "Filter is_active",
+    "Filter table_primary",
+    "Filter vincendos_horizon_days",
+    "Cutoff as_of_date",
+    "Cutoff data_window",
+    "Cutoff ultima_atualizacao_db",
+    "Sample label",
+    "Sample opportunity_intel_active",
+    "Sample ranking_go",
+    "Sample ranking_review",
+    "Sample ranking_no_go",
+    "Sample orgaos_sc",
+    "Sample vincendos_180d",
+    "Sample pncp_raw_bids_active",
 ]
 
 # ============================================================
@@ -558,13 +578,16 @@ def _build_concorrentes(wb: Workbook, items: list[dict], st: dict):
         ws.append(row)
 
 
-def _build_metadados(wb: Workbook, stats: dict, st: dict):
+def _build_metadados(wb: Workbook, stats: dict, st: dict, run_meta: dict | None = None):
     ws = wb.create_sheet("Metadados")
 
     ws.column_dimensions["A"].width = 38
     ws.column_dimensions["B"].width = 60
 
     now = datetime.now(UTC)
+    filters = (run_meta or {}).get("filters") or {}
+    cutoff = (run_meta or {}).get("cutoff") or {}
+    sample = (run_meta or {}).get("sample_size") or {}
 
     valores = [
         DSN,
@@ -586,6 +609,25 @@ def _build_metadados(wb: Workbook, stats: dict, st: dict):
         str(stats.get("raw_bids_count", 0)),
         str(stats.get("ultima_atualizacao", "N/I")),
         f"+7 dias ({datetime.now(UTC).date().isoformat()})",
+        str((run_meta or {}).get("run_id", "")),
+        str((run_meta or {}).get("generated_at", now.isoformat().replace("+00:00", "Z"))),
+        str((run_meta or {}).get("git_sha", "unknown")),
+        str((run_meta or {}).get("profile_id", "extra")),
+        str(filters.get("uf", "SC")),
+        str(filters.get("is_active", True)),
+        str(filters.get("table_primary", "opportunity_intel")),
+        str(filters.get("vincendos_horizon_days", 180)),
+        str(cutoff.get("as_of_date", now.date().isoformat())),
+        str(cutoff.get("data_window", "all_active")),
+        str(cutoff.get("ultima_atualizacao_db", stats.get("ultima_atualizacao", "N/I"))),
+        str(sample.get("label", "")),
+        str(sample.get("opportunity_intel_active", stats.get("total", 0))),
+        str(sample.get("ranking_go", stats.get("go_count", 0))),
+        str(sample.get("ranking_review", stats.get("review_count", 0))),
+        str(sample.get("ranking_no_go", stats.get("no_go_count", 0))),
+        str(sample.get("orgaos_sc", stats.get("orgaos_ativos", 0))),
+        str(sample.get("vincendos_180d", stats.get("vincendos_count", 0))),
+        str(sample.get("pncp_raw_bids_active", stats.get("raw_bids_count", 0))),
     ]
 
     for label, value in zip(METADADOS_LABELS, valores):
@@ -651,7 +693,9 @@ def _build_legenda(wb: Workbook, st: dict):
 # ============================================================
 
 
-def generate_executive_excel(output_path: str):
+def generate_executive_excel(output_path: str, run_id: str | None = None, uf: str = "SC"):
+    from scripts.reports.run_metadata import build_run_metadata, write_sidecar
+
     conn = get_conn()
     st = _make_styles()
 
@@ -703,17 +747,29 @@ def generate_executive_excel(output_path: str):
             "ultima_atualizacao": ultima_atualizacao,
         }
 
+        run_meta = build_run_metadata(
+            run_id=run_id,
+            artifact_kind="excel",
+            script="scripts/reports/executive_excel.py",
+            uf=uf,
+            stats=stats,
+        )
+        stats["run_id"] = run_meta["run_id"]
+        stats["sample_label"] = run_meta["sample_size"]["label"]
+        stats["run_meta"] = run_meta
+
         # Build workbook
         wb = Workbook(write_only=True)
 
         _build_editais(wb, editais, st)
         _build_orgaos(wb, orgaos, st)
         _build_concorrentes(wb, concorrentes, st)
-        _build_metadados(wb, stats, st)
+        _build_metadados(wb, stats, st, run_meta=run_meta)
         _build_legenda(wb, st)
 
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         wb.save(output_path)
+        write_sidecar(output_path, run_meta)
 
         return output_path, stats
 
@@ -735,12 +791,17 @@ def main():
         "-o",
         help="Caminho do .xlsx de saida (default: output/reports/executivo-extra-YYYY-MM-DD.xlsx)",
     )
+    parser.add_argument(
+        "--run-id",
+        help="Run ID compartilhado com o PDF (reconcile_pdf_excel). Se omitido, gera um novo.",
+    )
+    parser.add_argument("--uf", default="SC", help="UF de referencia no metadata (default SC)")
     args = parser.parse_args()
 
     today_str = datetime.now(UTC).strftime("%Y-%m-%d")
     output_path = args.output or f"output/reports/executivo-extra-{today_str}.xlsx"
 
-    result, stats = generate_executive_excel(output_path)
+    result, stats = generate_executive_excel(output_path, run_id=args.run_id, uf=args.uf)
     size_kb = os.path.getsize(result) / 1024
     print(f"Excel gerado: {result} ({size_kb:.0f}KB)")
     print("  Sheets: Editais, Orgaos, Concorrentes, Metadados, Legenda")
@@ -750,6 +811,8 @@ def main():
     )
     print(f"  Orgaos ativos SC: {stats['orgaos_ativos']}")
     print(f"  Score medio GO: {stats['score_medio_go']:.0f}/100")
+    print(f"  Run ID: {stats.get('run_id')} sample={stats.get('sample_label')}")
+    print(f"  Sidecar: {result}.meta.json")
 
 
 if __name__ == "__main__":

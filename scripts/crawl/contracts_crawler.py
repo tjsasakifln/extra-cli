@@ -80,6 +80,11 @@ _ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
 # Contracts use a different schema (pncp_supplier_contracts) than bids.
 # monitor.py reads this attribute to dispatch to the correct upsert RPC.
 UPSERT_FUNCTION = "upsert_pncp_supplier_contracts"
+SOURCE_PURPOSE = "contracts"
+
+# Modes that persist reentrant window checkpoints (JSON under CONTRACTS_CHECKPOINT_DIR).
+# full (90d pilot) and backfill_3y both need resume; incremental stays ephemeral.
+_CHECKPOINT_MODES = frozenset({"full", "backfill_3y"})
 
 
 # ---------------------------------------------------------------------------
@@ -623,10 +628,10 @@ def _crawl_date_range(
 ) -> list[dict]:
     """Crawl contracts in a date range with windowing and checkpoint.
 
-    Returns raw records.  Uses checkpoint for 'backfill_3y' mode.
+    Returns raw records.  Uses checkpoint for 'full' and 'backfill_3y' modes.
     """
     all_records: list[dict] = []
-    checkpoint = load_checkpoint(mode) if mode == "backfill_3y" else None
+    checkpoint = load_checkpoint(mode) if mode in _CHECKPOINT_MODES else None
 
     cur = start
     while cur < end:
@@ -697,16 +702,24 @@ def _crawl_date_range(
                 window_pages,
             )
 
-        # Mark window as completed
+        # Mark window as completed ONLY when fully successful.
+        # Partial data after page errors must NOT be treated as complete —
+        # otherwise resume skips the window and silently under-covers K3.2.
         if checkpoint:
-            if not window_errors or window_records > 0:
-                # Window completed (possibly with partial data)
+            fully_ok = not window_errors
+            if fully_ok:
                 checkpoint.completed_windows.append(window_key)
                 checkpoint.total_windows_completed += 1
                 checkpoint.total_contracts_fetched += window_records
             else:
                 checkpoint.total_windows_failed += 1
                 checkpoint.last_error = "; ".join(window_errors[:3])
+                logger.warning(
+                    "Window %s NOT marked complete (errors=%d, records=%d)",
+                    window_key,
+                    len(window_errors),
+                    window_records,
+                )
             save_checkpoint(checkpoint)
 
         cur = window_end + timedelta(days=1)
@@ -733,7 +746,7 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
         start = today - timedelta(days=days)
 
     result = CrawlResult(mode=mode)
-    checkpoint = load_checkpoint(mode) if mode == "backfill_3y" else None
+    checkpoint = load_checkpoint(mode) if mode in _CHECKPOINT_MODES else None
     result.checkpoint = checkpoint
 
     cur = start

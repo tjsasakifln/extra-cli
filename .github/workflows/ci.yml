@@ -119,11 +119,16 @@ jobs:
           tests/test_consulting_readiness.py
           tests/test_coverage_truth.py
           tests/test_resolve_unresolved_entities.py
+          tests/test_golden_path_fail_closed.py
+          tests/test_golden_path_ledger.py
+          tests/test_contracts_window_complete.py
+          tests/test_cross_source_hash.py
           -o addopts=''
           --cov=scripts.freshness_gate
           --cov=scripts.lib.universe
           --cov=scripts.consulting_readiness
           --cov=scripts.coverage_truth
+          --cov=scripts.golden_path
           --cov-report=term-missing
           --cov-report=html:docs/td-001/coverage-reports/
           --cov-fail-under=10

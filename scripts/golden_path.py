@@ -9,22 +9,30 @@ Executa a sequencia completa e idempotente:
   4. Gera relatorios (PDF executivo + Excel rastreavel)
 
 Cada etapa e registrada em um ledger JSON para rastreabilidade.
-Falha em fonte nao essencial vira warning (nao aborta).
-Falha em todas as fontes -> exit 1.
 
-O Makefile invoca este script apos garantir db-up + bootstrap.
+Modo canônico (default: strict fail-closed):
+  - Fonte essencial falhou ou vazia sem success_zero → exit != 0
+  - Freshness gate FAIL (se não skip) → exit != 0
+  - Relatório Excel/PDF FAIL (se não skip) → exit != 0
+  - Zero fontes com dados e zero success_zero → exit != 0
+
+Statuses de run: success | success_zero | partial | degraded | empty | failed
 
 Usage:
     python scripts/golden_path.py
     python scripts/golden_path.py --sources pncp,pcp
-    python scripts/golden_path.py --skip-bootstrap --skip-reports
+    python scripts/golden_path.py --skip-reports
+    python scripts/golden_path.py --no-strict   # legado permissivo (não canônico)
     python scripts/golden_path.py --verbose
     python scripts/golden_path.py --ledger-output custom_ledger.json
 
 Exit codes:
-    0 — Tudo ok
-    1 — Todas as fontes falharam (sem dados novos)
-    2 — Falha parcial (fontes essenciais falharam, reports podem ter sido gerados)
+    0 — success ou success_zero (todos gates obrigatórios OK)
+    1 — failed / empty (sem dados utilizáveis)
+    2 — partial (fontes essenciais falharam)
+    3 — freshness gate reprovado (strict)
+    4 — relatório obrigatório falhou (strict)
+    5 — degraded (gates mistos / não essencial)
 """
 
 from __future__ import annotations
@@ -125,7 +133,7 @@ class StepRecord:
 @dataclass
 class SourceRecord:
     name: str
-    status: str  # success | fail | skipped
+    status: str  # success | success_zero | fail | skipped
     duration_ms: float
     attempts: int
     metrics: dict[str, int] | None = None
@@ -151,12 +159,103 @@ class FreshnessRecord:
 class RunRecord:
     run_id: str
     timestamp: str
-    status: str  # success | partial | failed
+    status: str  # success | success_zero | partial | degraded | empty | failed
     wall_clock_ms: float
     steps: list[StepRecord] = field(default_factory=list)
     sources: list[SourceRecord] = field(default_factory=list)
     reports: list[ReportRecord] = field(default_factory=list)
     freshness: FreshnessRecord | None = None
+
+
+def evaluate_run_outcome(
+    source_records: list[SourceRecord],
+    essential_names: set[str],
+    freshness: FreshnessRecord | None,
+    reports: list[ReportRecord],
+    *,
+    strict: bool = True,
+    skip_freshness: bool = False,
+    skip_reports: bool = False,
+    allow_zero: bool = False,
+) -> tuple[str, int]:
+    """Classify overall status and exit code (pure; unit-testable).
+
+    Fail-closed when ``strict=True`` (canonical path):
+    - essential source fail → partial / exit 2
+    - essential source success_zero without allow_zero → empty / exit 1
+    - no success and no success_zero → failed / exit 1
+    - freshness fail (not skipped) → exit 3
+    - mandatory report fail (not skipped) → exit 4
+    """
+    if not source_records:
+        return "failed", 1
+
+    by_status: dict[str, list[SourceRecord]] = {}
+    for rec in source_records:
+        by_status.setdefault(rec.status, []).append(rec)
+
+    successes = by_status.get("success", [])
+    zeros = by_status.get("success_zero", [])
+    fails = by_status.get("fail", [])
+
+    essential_fail = [r for r in fails if r.name in essential_names]
+    essential_zero = [r for r in zeros if r.name in essential_names]
+    essential_ok = [r for r in successes if r.name in essential_names]
+    non_essential_fail = [r for r in fails if r.name not in essential_names]
+
+    freshness_status = (freshness.status if freshness else "skipped")
+    if skip_freshness:
+        freshness_status = "skipped"
+    report_fails = [
+        r for r in reports if r.status == "fail" and not skip_reports
+    ]
+
+    # --- non-strict legacy path (explicit opt-out only) ---
+    if not strict:
+        if not successes and not zeros:
+            return "failed", 1
+        if essential_fail:
+            return "partial", 2
+        if non_essential_fail:
+            return "degraded", 0
+        if successes:
+            return "success", 0
+        return "success_zero", 0
+
+    # --- strict fail-closed ---
+    if essential_fail:
+        return "partial", 2
+
+    if not successes and not zeros:
+        return "failed", 1
+
+    if essential_zero and not essential_ok and not allow_zero:
+        # Empty essential sources are not global success in strict mode
+        if freshness_status == "fail":
+            return "empty", 3
+        if report_fails:
+            return "empty", 4
+        return "empty", 1
+
+    if not successes and zeros:
+        overall = "success_zero"
+    elif non_essential_fail:
+        overall = "degraded"
+    else:
+        overall = "success"
+
+    if freshness_status == "fail":
+        return overall if overall == "empty" else "failed", 3
+
+    if report_fails:
+        return "failed", 4
+
+    if overall == "degraded":
+        # Non-essential failure with all mandatory gates green → still non-zero
+        # so operators cannot treat degraded as full success.
+        return "degraded", 5
+
+    return overall, 0
 
 
 # ---------------------------------------------------------------------------
@@ -345,16 +444,20 @@ def crawl_source(
                     except (json.JSONDecodeError, KeyError):
                         pass
 
+                fetched = int(metrics.get("fetched", 0) or 0)
+                # Exit 0 with zero records is success_zero, never silent "success".
+                src_status = "success_zero" if fetched == 0 else "success"
+                label = "ZERO" if src_status == "success_zero" else "OK"
                 _echo(
-                    f"  OK {source.name}: "
-                    f"fetched={metrics.get('fetched', 0)}, "
+                    f"  {label} {source.name}: "
+                    f"fetched={fetched}, "
                     f"inserted={metrics.get('inserted', 0)}, "
                     f"persisted={metrics.get('persisted', 0)}",
-                    "ok",
+                    "ok" if src_status == "success" else "warn",
                 )
                 return SourceRecord(
                     name=source.name,
-                    status="success",
+                    status=src_status,
                     duration_ms=dur,
                     attempts=attempts,
                     metrics=metrics,
@@ -599,6 +702,17 @@ def parse_args() -> argparse.Namespace:
         help="Skip report generation (Excel + PDF)",
     )
     p.add_argument(
+        "--strict",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Fail-closed on empty essential sources, freshness fail, report fail (default: true)",
+    )
+    p.add_argument(
+        "--allow-zero",
+        action="store_true",
+        help="In strict mode, accept essential success_zero as valid global success_zero",
+    )
+    p.add_argument(
         "--verbose",
         "-v",
         action="store_true",
@@ -710,9 +824,18 @@ def main() -> int:
 
     # Classify
     sources_success = [r for r in source_records if r.status == "success"]
+    sources_zero = [r for r in source_records if r.status == "success_zero"]
     sources_fail = [r for r in source_records if r.status == "fail"]
     essential_names = {s.name for s in selected_sources if s.essential}
     essential_fail = [r for r in sources_fail if r.name in essential_names]
+
+    def _src_label(status: str) -> str:
+        return {
+            "success": "OK",
+            "success_zero": "ZERO",
+            "fail": "FAIL",
+            "skipped": "SKIP",
+        }.get(status, status.upper())
 
     _echo("")
     _print_table(
@@ -721,7 +844,7 @@ def main() -> int:
         [
             [
                 r.name,
-                "OK" if r.status == "success" else "FAIL",
+                _src_label(r.status),
                 f"{r.duration_ms:.0f}ms",
                 str(r.attempts),
                 str((r.metrics or {}).get("fetched", "-")),
@@ -732,10 +855,16 @@ def main() -> int:
         ],
     )
 
-    if sources_fail:
-        _echo(f"\n  {len(sources_success)} sucesso, {len(sources_fail)} falha(s)", "warn")
+    if sources_fail or sources_zero:
+        _echo(
+            f"\n  {len(sources_success)} com dados, "
+            f"{len(sources_zero)} zero, {len(sources_fail)} falha(s)",
+            "warn",
+        )
         for r in sources_fail:
             _echo(f"    {r.name}: {r.error or 'erro desconhecido'}", "warn")
+        for r in sources_zero:
+            _echo(f"    {r.name}: success_zero (fetched=0)", "warn")
     else:
         _echo(f"\n  {len(sources_success)}/{len(selected_sources)} fontes OK", "ok")
 
@@ -767,23 +896,30 @@ def main() -> int:
     # =========================================================================
     wall_dur = (time.monotonic() - wall_start) * 1000
 
-    # Determine overall status
-    if not sources_success:
-        overall = "failed"
-    elif essential_fail:
-        overall = "partial"
-    else:
-        overall = "success"
+    overall, exit_code = evaluate_run_outcome(
+        source_records,
+        essential_names,
+        freshness_record,
+        report_records,
+        strict=bool(args.strict),
+        skip_freshness=bool(args.skip_freshness),
+        skip_reports=bool(args.skip_reports),
+        allow_zero=bool(args.allow_zero),
+    )
 
     freshness_str = freshness_record.status if freshness_record else "N/A"
     excel_status = report_records[0].status if report_records else "N/A"
     pdf_status = report_records[1].status if len(report_records) > 1 else "N/A"
+    mode_str = "strict" if args.strict else "no-strict"
 
     summary_text = (
         f"[bold]GOLDEN PATH — RESUMO[/bold]\n\n"
         f"Run ID:          {run_id}\n"
+        f"Mode:            {mode_str}\n"
         f"Status:          {overall.upper()}\n"
-        f"Fontes OK:       {len(sources_success)}/{len(selected_sources)}\n"
+        f"Exit code:       {exit_code}\n"
+        f"Fontes c/ dados: {len(sources_success)}/{len(selected_sources)}\n"
+        f"Fontes zero:     {len(sources_zero)}\n"
         f"Fontes essenciais com falha: {len(essential_fail)}\n"
         f"Freshness gate:  {freshness_str}\n"
         f"Excel:           {excel_status}\n"
@@ -797,7 +933,9 @@ def main() -> int:
     else:
         _echo(f"\n{'=' * 60}")
         _echo("  GOLDEN PATH — RESUMO")
+        _echo(f"  Mode: {mode_str}")
         _echo(f"  Status: {overall.upper()}")
+        _echo(f"  Exit: {exit_code}")
         _echo(f"  Wall clock: {wall_dur:.0f}ms ({wall_dur / 1000:.1f}s)")
         _echo(f"{'=' * 60}")
 
@@ -815,15 +953,22 @@ def main() -> int:
     )
 
     # ── Exit ──
-    if not sources_success:
-        _echo("\nFALHA: Nenhuma fonte retornou dados", "error")
-        return 1
-    if essential_fail:
-        _echo("\nPARCIAL: Fontes essenciais falharam. Verifique o ledger.", "warn")
-        return 2
+    if exit_code == 0:
+        if overall == "success_zero":
+            _echo("\nGolden Path: success_zero (sem registros, gates OK).", "warn")
+        else:
+            _echo("\nGolden Path concluido com sucesso!", "ok")
+        return 0
 
-    _echo("\nGolden Path concluido com sucesso!", "ok")
-    return 0
+    messages = {
+        1: "FALHA/EMPTY: sem dados utilizáveis ou essential zero sem --allow-zero",
+        2: "PARCIAL: fontes essenciais falharam",
+        3: "FRESHNESS FAIL: gate de freshness reprovado (strict)",
+        4: "REPORT FAIL: Excel/PDF obrigatório falhou (strict)",
+        5: "DEGRADED: fontes não essenciais falharam (strict)",
+    }
+    _echo(f"\n{messages.get(exit_code, f'Exit {exit_code}')}. Verifique o ledger.", "error")
+    return exit_code
 
 
 if __name__ == "__main__":

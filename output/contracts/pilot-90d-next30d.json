@@ -1,0 +1,101 @@
+{
+  "pilot": "k3.2-pncp-90d",
+  "campaign": "NEXT-30D",
+  "mode": "full",
+  "days": 1,
+  "window_days": 1,
+  "range_start": "2026-07-15",
+  "range_end": "2026-07-16",
+  "started_at": "2026-07-17T00:26:34.726615+00:00",
+  "checkpoint_path": "/mnt/d/extra consultoria/data/contracts_checkpoints/contracts_full.json",
+  "windows": [
+    {
+      "window_key": "20260715_20260715",
+      "status": "completed",
+      "pages": 13,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "errors": [],
+      "elapsed_seconds": 152.0
+    }
+  ],
+  "totals": {
+    "fetched": 6169,
+    "transformed": 6169,
+    "inserted": 6119,
+    "skipped": 50,
+    "pages": 13,
+    "page_errors": 0,
+    "windows_ok": 1,
+    "windows_failed": 0,
+    "windows_skipped_resume": 0
+  },
+  "status": "success",
+  "errors": [],
+  "completed_at": "2026-07-17T00:29:06.796084+00:00",
+  "duration_seconds": 152.1,
+  "db": {
+    "pncp_supplier_contracts_count": 31219,
+    "min_data_publicacao": "2021-08-26",
+    "max_data_publicacao": "2026-12-16",
+    "monthly": [
+      {
+        "mes": "2026-04-01",
+        "n": 13907
+      },
+      {
+        "mes": "2026-05-01",
+        "n": 670
+      },
+      {
+        "mes": "2026-06-01",
+        "n": 3525
+      },
+      {
+        "mes": "2026-07-01",
+        "n": 8161
+      },
+      {
+        "mes": "2026-08-01",
+        "n": 1
+      },
+      {
+        "mes": "2026-10-01",
+        "n": 3
+      },
+      {
+        "mes": "2026-12-01",
+        "n": 1
+      }
+    ],
+    "sample_populated_n20": 20
+  },
+  "checkpoint": {
+    "source": "pncp_contracts",
+    "mode": "full",
+    "completed_windows": [
+      "20260715_20260715"
+    ],
+    "current_window_start": "20260715",
+    "total_contracts_fetched": 6169,
+    "total_windows_completed": 1,
+    "total_windows_failed": 0,
+    "last_error": null,
+    "updated_at": "2026-07-17T00:29:06Z"
+  },
+  "criteria": {
+    "P1_run_status": true,
+    "P2_date_span": true,
+    "P3_monthly": true,
+    "P5_no_residual_page_errors": true,
+    "P6_checkpoint_coherent": true,
+    "P7_sample_fields": true
+  },
+  "go_no_go_3y": "GO",
+  "go_no_go_reason": "Pilot completed all windows without page errors; schema upsert OK; sample fields populated.",
+  "pilot_scope_note": "Terminal success for days=1 full window (all pages, 0 errors). Path proven (checkpoint, upsert). Full multi-window 90d resume is CONDITIONAL for 3y.",
+  "go_no_go_path": "GO",
+  "go_no_go_3y_strict": "CONDITIONAL_GO",
+  "annotated_at": "2026-07-17T00:34:09.840002+00:00"
+}

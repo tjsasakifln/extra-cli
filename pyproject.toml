@@ -42,6 +42,7 @@ lint.ignore = [
 "tests/integration/test_all_sql_references.py" = ["S101", "E402"]
 "tests/integration/test_migration_fresh_install.py" = ["S101", "S110"]
 "tests/test_snapshot_reconciliation.py" = ["S101"]
+"tests/test_dedup_engine_pipeline.py" = ["S101"]
 "scripts/intel-analyze.py" = ["E402"]
 "scripts/intel_llm_gate.py" = ["E402"]
 "scripts/check-alerts.py" = ["E402"]

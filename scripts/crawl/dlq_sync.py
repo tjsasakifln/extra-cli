@@ -40,12 +40,11 @@ def _get_dlq() -> DurableDLQ:
 def _run_async(coro):
     """Execute a coroutine synchronously using the running or new event loop."""
     try:
-        loop = asyncio.get_running_loop()
+        asyncio.get_running_loop()
     except RuntimeError:
         return asyncio.run(coro)
 
     # Already in an async context — use a new loop in a separate thread
-    import concurrent.futures
     import threading
 
     result: list[Any] = []

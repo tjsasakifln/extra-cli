@@ -1,0 +1,13 @@
+{
+  "source": "pncp_contracts",
+  "mode": "full",
+  "completed_windows": [
+    "20260715_20260715"
+  ],
+  "current_window_start": "20260715",
+  "total_contracts_fetched": 6169,
+  "total_windows_completed": 1,
+  "total_windows_failed": 0,
+  "last_error": null,
+  "updated_at": "2026-07-17T00:29:06Z"
+}

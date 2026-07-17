@@ -16,19 +16,18 @@ import random
 import time
 from datetime import datetime
 from enum import StrEnum
-from typing import Any, Callable
-from urllib.parse import urlparse
+from typing import Any
 
 import httpx
 
 from scripts.crawl.metrics import (
-    CBStateEnum,
     CB_OPEN_DURATION,
     CB_STATE_GAUGE,
+    CRAWL_BYTES_TOTAL,
     HTTP_REQUEST_DURATION,
     HTTP_REQUESTS_TOTAL,
     HTTP_RETRIES_TOTAL,
-    CRAWL_BYTES_TOTAL,
+    CBStateEnum,
 )
 
 logger = logging.getLogger(__name__)
