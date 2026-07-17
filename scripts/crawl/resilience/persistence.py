@@ -213,23 +213,14 @@ class PostgresPersistence:
             db_run_id = _start_ingestion_run(conn, source, mode="incremental")
             result.ingestion_run_id = db_run_id
 
-            upsert_fn = {
-                "pncp": "upsert_pncp_raw_bids",
-                "sc_compras": "upsert_pncp_raw_bids",
-                "ciga_dom": None,  # coverage / official acts path
-            }.get(source, "upsert_pncp_raw_bids")
-
-            if upsert_fn and records:
+            if source in {"ciga_dom", "ciga_ckan"} and records:
                 try:
-                    tagged = [{**r, "source": r.get("source") or source} for r in records]
-                    inserted, updated, unchanged = _upsert_raw_records(conn, tagged, upsert_fn)
-                    result.inserted = inserted
-                    result.updated = updated
-                    result.unchanged = unchanged
-                    result.db_records_committed = inserted + updated + unchanged
+                    committed = self._persist_official_acts(conn, source=source, records=records, run_id=str(db_run_id), provenance=provenance)
+                    result.inserted = committed
+                    result.db_records_committed = committed
                 except Exception as exc:
                     conn.rollback()
-                    result.errors.append(f"upsert_failed:{exc}")
+                    result.errors.append(f"official_acts_upsert_failed:{exc}")
                     _finish_ingestion_run(conn, db_run_id, len(records), 0, 0, "failed", str(exc))
                     _record_evidence(
                         conn,
@@ -243,6 +234,35 @@ class PostgresPersistence:
                     )
                     conn.commit()
                     return result
+            else:
+                upsert_fn = {
+                    "pncp": "upsert_pncp_raw_bids",
+                    "sc_compras": "upsert_pncp_raw_bids",
+                }.get(source, "upsert_pncp_raw_bids")
+                if upsert_fn and records:
+                    try:
+                        tagged = [{**r, "source": r.get("source") or source} for r in records]
+                        inserted, updated, unchanged = _upsert_raw_records(conn, tagged, upsert_fn)
+                        result.inserted = inserted
+                        result.updated = updated
+                        result.unchanged = unchanged
+                        result.db_records_committed = inserted + updated + unchanged
+                    except Exception as exc:
+                        conn.rollback()
+                        result.errors.append(f"upsert_failed:{exc}")
+                        _finish_ingestion_run(conn, db_run_id, len(records), 0, 0, "failed", str(exc))
+                        _record_evidence(
+                            conn,
+                            db_run_id,
+                            source,
+                            "failed",
+                            fetched=len(records),
+                            error_message=str(exc),
+                            error_code="persist_failed",
+                            metadata={"request_scope": request_scope, "provenance": provenance},
+                        )
+                        conn.commit()
+                        return result
 
             entities = _load_entities(conn, within_200km_only=False)
             pncp_ids = [r.get("pncp_id") for r in records if r.get("pncp_id")]
@@ -304,6 +324,60 @@ class PostgresPersistence:
                 conn.close()
             except Exception as close_exc:
                 _logger.debug("conn close ignored: %s", close_exc)
+
+    def _persist_official_acts(
+        self,
+        conn: Any,
+        *,
+        source: str,
+        records: list[dict[str, Any]],
+        run_id: str,
+        provenance: dict[str, Any],
+    ) -> int:
+        """Persist CIGA/DOM publications into official_acts (migration 052)."""
+        import json as _json
+
+        from scripts.schema.official_acts import compute_record_hash
+
+        payload: list[dict[str, Any]] = []
+        for row in records:
+            body = dict(row)
+            external_id = str(
+                body.get("external_id")
+                or body.get("id")
+                or body.get("resource_id")
+                or body.get("url")
+                or "unknown"
+            )
+            title = body.get("title") or body.get("titulo") or body.get("assunto")
+            pub = body.get("data_publicacao") or body.get("dataPublicacao") or body.get("publication_date")
+            payload.append(
+                {
+                    "source": source,
+                    "external_id": external_id,
+                    "title": title,
+                    "raw_json": body,
+                    "publication_date": pub,
+                    "source_url": body.get("url") or body.get("source_url") or provenance.get("endpoint"),
+                    "run_id": run_id,
+                    "record_hash": compute_record_hash(source, external_id, title=str(title) if title else None, publication_date=pub),
+                }
+            )
+        if not payload:
+            return 0
+        cur = conn.cursor()
+        try:
+            cur.execute(
+                """
+                SELECT action, act_id, record_hash, source
+                FROM public.upsert_official_acts(%s::jsonb)
+                """,
+                (_json.dumps(payload, default=str),),
+            )
+            rows = cur.fetchall()
+            return len(rows)
+        finally:
+            cur.close()
 
     def _project_resilience_evidence(
         self,

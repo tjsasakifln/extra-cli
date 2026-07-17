@@ -259,33 +259,19 @@ jobs:
         run: python -m scripts.ops.validate_systemd
 
       - name: Fresh-install migrations 001-054
-        run: |
-          python - <<'PY'
-          import os, pathlib, psycopg2
-          dsn = os.environ["DATABASE_URL"]
-          root = pathlib.Path("db/migrations")
-          files = sorted(root.glob("*.sql"))
-          assert files, "no migrations found"
-          # Apply in numeric order for 001..054 when present
-          selected = [p for p in files if p.name[:3].isdigit() and int(p.name[:3]) <= 54]
-          conn = psycopg2.connect(dsn)
-          conn.autocommit = True
-          cur = conn.cursor()
-          for path in selected:
-              sql = path.read_text(encoding="utf-8")
-              try:
-                  cur.execute(sql)
-                  print("applied", path.name)
-              except Exception as exc:
-                  # Some migrations may depend on optional objects; fail hard on syntax.
-                  print("migration_error", path.name, exc)
-                  raise
-          cur.close()
-          conn.close()
-          print("migrations_ok", len(selected))
-          PY
+        run: python -m scripts.ops.apply_migrations --mode fresh --min 1 --max 54
 
-      - name: Resilience unit + chaos + vertical (offline)
+      - name: Upgrade-path migrations (snapshot mid-schema → 054)
+        run: |
+          # Second database simulates upgrade from an older applied point.
+          PGPASSWORD=test psql -h localhost -U test -d postgres -c "DROP DATABASE IF EXISTS pncp_upgrade;"
+          PGPASSWORD=test psql -h localhost -U test -d postgres -c "CREATE DATABASE pncp_upgrade;"
+          DATABASE_URL=postgresql://test:test@localhost:5432/pncp_upgrade \
+            python -m scripts.ops.apply_migrations --mode fresh --min 1 --max 40
+          DATABASE_URL=postgresql://test:test@localhost:5432/pncp_upgrade \
+            python -m scripts.ops.apply_migrations --mode upgrade --min 41 --max 54
+
+      - name: Resilience unit + chaos + vertical (offline + PG when available)
         run: >
           pytest -o addopts='' -q
           tests/test_local_resilience.py
@@ -295,6 +281,10 @@ jobs:
           tests/test_dlq.py
           -m "not slow and not e2e"
           --tb=short
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/pncp_datalake
+          RESILIENCE_REQUIRE_DB: "1"
+          RESILIENCE_ENV: test
 
       - name: Controlled fixture cycle + live health blocked
         run: |

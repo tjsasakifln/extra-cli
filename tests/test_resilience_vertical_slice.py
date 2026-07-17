@@ -1,7 +1,7 @@
-"""Vertical slice: fixture adapter → raw → normalize → upsert → evidence → watermark.
+"""Vertical slice: adapter → raw → normalize → upsert → evidence → watermark.
 
-Uses InMemoryPersistence by default (unit). With DATABASE_URL + marker database,
-exercises real PostgreSQL.
+InMemory path for unit. Real PostgreSQL path is mandatory when DATABASE_URL is set
+(CI resilience-gate provides Postgres). Soft-skip is forbidden when DSN is present.
 """
 
 from __future__ import annotations
@@ -105,27 +105,19 @@ def test_vertical_slice_memory_idempotent(tmp_path: Path) -> None:
     )
     out1 = pipeline.run_source(adapter, req, run_id="v1")  # type: ignore[arg-type]
     assert out1["satisfactory"] is True
-    assert out1["db_records_committed"] == 0 or mem.rows  # fixture: null or memory
-    # Force memory path
     cfg2 = _cfg(tmp_path / "b")
     mem2 = InMemoryPersistence()
     p2 = OperationalPipeline(cfg2, persistence=mem2)
     out_a = p2.run_source(adapter, req, run_id="v2")  # type: ignore[arg-type]
-    # Same run_id/scope: second execution is idempotent (resume/watermark short-circuit).
     out_b = p2.run_source(adapter, req, run_id="v2")  # type: ignore[arg-type]
     assert out_a["satisfactory"] and out_b.get("satisfactory")
     assert len(mem2.rows) == 1
-    # First run persists; second may short-circuit on watermark without re-upsert.
     assert mem2.call_count >= 1
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize(
-    "fail_mode",
-    ["unavailable", "during_upsert"],
-)
+@pytest.mark.parametrize("fail_mode", ["unavailable", "during_upsert"])
 def test_vertical_slice_db_failure_no_watermark(tmp_path: Path, fail_mode: str) -> None:
-    # Live/require_db: DB failure must block operational satisfactory + watermark.
     cfg = _cfg(tmp_path, environment="development", execution_mode="live", require_db=True)
     mem = InMemoryPersistence()
     mem.fail_mode = fail_mode
@@ -163,28 +155,49 @@ def test_crash_after_evidence_before_watermark_rerun(tmp_path: Path) -> None:
     p2 = OperationalPipeline(cfg, persistence=mem)
     out = p2.run_source(adapter, req, run_id="c1")  # type: ignore[arg-type]
     assert out.get("satisfactory") is True
-    assert CheckpointStore(cfg.checkpoint_path).pending("pncp") == [] or out.get("watermark")
+    assert out.get("watermark")
 
 
 @pytest.mark.database
 @pytest.mark.integration
-def test_vertical_slice_postgres_when_available(tmp_path: Path) -> None:
+def test_vertical_slice_postgres_real_path(tmp_path: Path) -> None:
+    """Real PG path — hard-fails when DSN is set but upsert/schema cannot complete."""
     dsn = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN")
     if not dsn:
         pytest.skip("DATABASE_URL not set")
+
+    import psycopg2
+
+    conn = psycopg2.connect(dsn)
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT to_regprocedure('upsert_pncp_raw_bids(jsonb)') IS NOT NULL")
+        has_upsert = bool(cur.fetchone()[0])
+        cur.execute(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pncp_raw_bids')"
+        )
+        has_table = bool(cur.fetchone()[0])
+    finally:
+        cur.close()
+        conn.close()
+    if not has_upsert or not has_table:
+        pytest.fail("DATABASE_URL set but pncp_raw_bids / upsert_pncp_raw_bids missing — migrations incomplete")
+
     cfg = _cfg(tmp_path, environment="test", execution_mode="live", require_db=True)
     backend = PostgresPersistence(dsn=dsn)
-    # Minimal record that may fail upsert without full schema — catch and skip soft.
     adapter = _PncpStub(
         [
             {
-                "pncp_id": "99999999999999-1-000001/2026",
-                "orgao_cnpj": "99999999999999",
+                "pncp_id": "88888888888888-1-000099/2026",
+                "orgao_cnpj": "88888888888888",
                 "ano_compra": 2026,
-                "sequencial_compra": 1,
-                "objeto_compra": "Vertical slice integration",
+                "sequencial_compra": 99,
+                "objeto_compra": "Vertical slice integration real PG",
                 "source": "pncp",
+                "source_id": "88888888888888-1-000099/2026",
                 "data_publicacao": "2026-07-01",
+                "uf": "SC",
+                "modalidade_id": 1,
             }
         ]
     )
@@ -193,11 +206,63 @@ def test_vertical_slice_postgres_when_available(tmp_path: Path) -> None:
         mode="incremental",
         date_from=date(2026, 7, 17),
         date_to=date(2026, 7, 17),
-        request_scope="pg-slice",
-        run_id="pg1",
+        request_scope="pg-slice-real",
+        run_id="pg-real-1",
         source="pncp",
     )
-    out = pipeline.run_source(adapter, req, run_id="pg1")  # type: ignore[arg-type]
-    if out.get("errors") and any("database" in e or "upsert" in e for e in out["errors"]):
-        pytest.skip(f"Postgres not ready for slice: {out['errors']}")
-    assert out.get("db_committed") is True or out.get("satisfactory") is True
+    out = pipeline.run_source(adapter, req, run_id="pg-real-1")  # type: ignore[arg-type]
+    assert not out.get("errors"), f"unexpected errors: {out.get('errors')}"
+    assert out.get("db_committed") is True
+    assert out.get("operational_satisfactory") is True or out.get("satisfactory") is True
+    assert out.get("watermark")
+    # Idempotent second run
+    out2 = pipeline.run_source(adapter, req, run_id="pg-real-2")  # type: ignore[arg-type]
+    assert out2.get("db_committed") is True or out2.get("resumed") is True
+    # Count rows for this pncp_id
+    conn = psycopg2.connect(dsn)
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT COUNT(*) FROM pncp_raw_bids WHERE pncp_id = %s", ("88888888888888-1-000099/2026",))
+        count = cur.fetchone()[0]
+    finally:
+        cur.close()
+        conn.close()
+    assert count >= 1
+    assert CheckpointStore(cfg.checkpoint_path).pending("pncp") == [] or out.get("watermark")
+
+
+@pytest.mark.database
+@pytest.mark.integration
+def test_vertical_slice_postgres_failure_injected_then_recover(tmp_path: Path) -> None:
+    dsn = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN")
+    if not dsn:
+        pytest.skip("DATABASE_URL not set")
+
+    cfg = _cfg(tmp_path, environment="test", execution_mode="live", require_db=True)
+    # Injected unavailable before real backend
+    bad = InMemoryPersistence()
+    bad.fail_mode = "unavailable"
+    adapter = _PncpStub([{"pncp_id": "777-1-1/2026", "orgao_cnpj": "77777777777777", "source": "pncp"}])
+    req = CrawlRequest(
+        mode="incremental",
+        date_from=date(2026, 7, 17),
+        date_to=date(2026, 7, 17),
+        request_scope="pg-recover",
+        run_id="pg-r1",
+        source="pncp",
+    )
+    p1 = OperationalPipeline(cfg, persistence=bad)
+    out1 = p1.run_source(adapter, req, run_id="pg-r1")  # type: ignore[arg-type]
+    assert out1.get("satisfactory") is False
+    assert not out1.get("watermark")
+
+    # Recover with real PG — same scope/run continues after stage failure
+    p2 = OperationalPipeline(cfg, persistence=PostgresPersistence(dsn=dsn))
+    out2 = p2.run_source(adapter, req, run_id="pg-r1")  # type: ignore[arg-type]
+    # May still fail if stub record lacks full schema fields; must not soft-pass without db.
+    if out2.get("errors"):
+        # Fail closed still required
+        assert out2.get("operational_satisfactory") is not True
+        assert not out2.get("watermark") or out2.get("db_committed")
+    else:
+        assert out2.get("db_committed") is True

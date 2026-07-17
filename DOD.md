@@ -2521,15 +2521,18 @@ Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução C
 
 ---
 
-## 44. LOCAL_RESILIENCE_READY — preparação pré-VPS (2026-07-17)
+## 44. LOCAL_RESILIENCE_READY — SUPERSEDED (2026-07-17 truth gate)
 
-**Decisão:** `LOCAL_RESILIENCE_READY`  
-**Não implica:** `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95% ou freshness externa garantida.  
-**Branch:** `feat/local-resilience-ready-20260717`  
-**Commit:** `3ebd5b4` (chain feat/local-resilience)
-**Smoke gate:** 181 passed, 24 skipped  
-**Documento canônico:** `docs/operations/PRE-VPS-READINESS.md`  
-**Diagnóstico pré-código:** `docs/operations/LOCAL-RESILIENCE-DIAGNOSIS.md`
+**Decisão original (histórica):** `LOCAL_RESILIENCE_READY`  
+**Decisão atual:** **`NOT_READY`** — selo destruído pela auditoria adversarial final.  
+**Não implica:** `PRE_VPS_FINAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95%.  
+**Branch truth gate:** `fix/pre-vps-final-truth-gate-20260717`  
+**Auditoria:** `docs/operations/PRE-VPS-FINAL-ADVERSARIAL-AUDIT.md`  
+**Truth report:** `docs/operations/PRE-VPS-FINAL-TRUTH.md`  
+**Documento pré-VPS:** `docs/operations/PRE-VPS-READINESS.md` (atualizado)
+
+> Qualquer claim de READY baseado apenas em fixtures, JSON local ou health sem
+> evidência live deve ser tratado como **falso verde**.
 
 ### 44.1 Entrega
 

@@ -300,24 +300,14 @@ class OperationalPipeline:
 
             watermark_path = None
             if evidence.get("satisfactory"):
-                # Promote to success only when evidence says so.
+                # Promote only via validated state machine — never silent swallow.
+                terminal = fetched.status if fetched.status in {"success", "empty_confirmed"} else "success"
                 if run_cp.status == "evidence_committed":
-                    try:
-                        self.checkpoints.promote(run_cp, fetched.status if fetched.status in {"success", "empty_confirmed"} else "success")
-                    except Exception:
-                        run_cp.status = fetched.status or "success"
-                        self.checkpoints.save(run_cp)
-                self._promote_page_checkpoints(
-                    adapter,
-                    fetched,
-                    to_status=fetched.status if fetched.status in {"success", "empty_confirmed"} else "success",
-                )
+                    self.checkpoints.promote(run_cp, terminal)
+                self._promote_page_checkpoints(adapter, fetched, to_status=terminal)
                 watermark_path = self.watermarks.commit(run_cp, evidence_path, evidence)
-                try:
+                if run_cp.status != "watermark_committed":
                     self.checkpoints.promote(run_cp, "watermark_committed")
-                except Exception:
-                    run_cp.status = "watermark_committed"
-                    self.checkpoints.save(run_cp)
                 self.stages.advance(
                     source=source,
                     run_id=run_id,
@@ -417,23 +407,19 @@ class OperationalPipeline:
                 continue
             if cp.status in {"success", "empty_confirmed", "watermark_committed"}:
                 continue
-            try:
-                if to_status in {"success", "empty_confirmed"} and fetched.status in {"success", "empty_confirmed"}:
-                    self.checkpoints.promote(cp, fetched.status)
-                elif to_status in {"normalized", "db_committed", "evidence_committed"}:
-                    if cp.status in {"raw_persisted", "pending", "partial"}:
-                        try:
-                            self.checkpoints.promote(cp, to_status if to_status != "evidence_committed" else "db_committed")
-                        except Exception:
-                            cp.status = to_status
-                            self.checkpoints.save(cp)
-                else:
-                    cp.status = to_status
-                    self.checkpoints.save(cp)
-            except Exception:
-                # Last resort: direct write with validated enum
-                from scripts.crawl.resilience.stages import parse_checkpoint_status
+            from scripts.crawl.resilience.stages import InvalidCheckpointTransitionError, validate_transition
 
-                parse_checkpoint_status(to_status)
-                cp.status = to_status
-                self.checkpoints.save(cp)
+            target = to_status
+            if to_status in {"success", "empty_confirmed"} and fetched.status in {"success", "empty_confirmed"}:
+                target = fetched.status
+            elif to_status == "evidence_committed":
+                target = "db_committed" if cp.status in {"raw_persisted", "normalized", "pending"} else to_status
+            try:
+                validate_transition(cp.status, target)
+            except InvalidCheckpointTransitionError:
+                # Already at/after target is fine; other illegal jumps surface.
+                if cp.status == target or cp.completed:
+                    continue
+                raise
+            if cp.status != target:
+                self.checkpoints.promote(cp, target)

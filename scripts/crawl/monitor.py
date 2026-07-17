@@ -637,6 +637,86 @@ def _persist_engineering_opportunities(conn: Any, opportunities: list[dict[str, 
 # ---------------------------------------------------------------------------
 
 
+def _crawl_source_via_resilient_pipeline(
+    *,
+    source: str,
+    mode: str = "full",
+    date_from: str | None = None,
+    date_to: str | None = None,
+    target: str | None = None,
+    limit: int | None = None,
+) -> Any:
+    """Facade: priority sources share OperationalPipeline with resilient_cycle."""
+    from datetime import date as _date
+    from datetime import datetime
+
+    from scripts.crawl.ingestion._base.crawler import CrawlerResult, CrawlRequest
+    from scripts.crawl.resilience.adapters import PRIORITY_ADAPTERS
+    from scripts.crawl.resilience.config import ResilienceConfig
+    from scripts.crawl.resilience.persistence import PostgresPersistence
+    from scripts.crawl.resilience.pipeline import OperationalPipeline
+    from scripts.crawl.run_evidence import new_run_id
+
+    started_at = datetime.now(UTC)
+    result = CrawlerResult(source=source)
+    wanted = "ciga_dom" if source == "ciga_ckan" else source
+    adapter_cls = PRIORITY_ADAPTERS.get(wanted)
+    if adapter_cls is None:
+        result.status = "failed"
+        result.error_code = "crawler_not_implemented"
+        result.error_message = f"No resilient adapter for {source}"
+        result.started_at = started_at.isoformat()
+        result.completed_at = datetime.now(UTC).isoformat()
+        return result
+
+    cfg = ResilienceConfig.from_env(execution_mode="live")
+    cfg = cfg.with_execution_mode("live")
+    pipeline = OperationalPipeline(cfg, persistence=PostgresPersistence())
+    run_id = new_run_id(f"monitor-{wanted}")
+    d_from = _date.fromisoformat(date_from) if date_from else _date.today()
+    d_to = _date.fromisoformat(date_to) if date_to else d_from
+    scope = f"mode={mode}|date={d_from.isoformat()}"
+    if target:
+        scope = f"{scope}|target={target}"
+    request = CrawlRequest(
+        mode=mode if mode in {"incremental", "full", "smoke"} else "incremental",
+        date_from=d_from,
+        date_to=d_to,
+        target=target,
+        limit=limit,
+        source=wanted,
+        request_scope=scope,
+        run_id=run_id,
+    )
+    adapter = adapter_cls(cfg)
+    out = pipeline.run_source(adapter, request, run_id=run_id)
+    result.fetched = int(out.get("records_fetched") or 0)
+    result.transformed = int(out.get("records_persisted") or 0)
+    result.inserted = int(out.get("db_records_committed") or 0)
+    result.matched = 0
+    status = str(out.get("status") or "error")
+    if out.get("operational_satisfactory") or (out.get("satisfactory") and out.get("db_committed")):
+        result.status = "success" if status in {"success", "empty_confirmed"} else status
+    elif status in {"partial", "rate_limited", "auth_blocked", "error"}:
+        result.status = status  # type: ignore[assignment]
+    else:
+        result.status = "failed" if not out.get("satisfactory") else status  # type: ignore[assignment]
+    result.error_message = "; ".join(out.get("errors") or []) or None
+    result.error_code = None if out.get("satisfactory") else (status if status != "success" else "not_operational")
+    result.metadata = {
+        "pipeline": "OperationalPipeline",
+        "db_committed": out.get("db_committed"),
+        "operational_satisfactory": out.get("operational_satisfactory"),
+        "evidence": out.get("evidence"),
+        "watermark": out.get("watermark"),
+        "environment": out.get("environment"),
+        "execution_mode": out.get("execution_mode"),
+    }
+    result.started_at = started_at.isoformat()
+    result.completed_at = datetime.now(UTC).isoformat()
+    return result
+
+
 def crawl_source(
     source: str,
     entities: list[dict],
@@ -650,13 +730,10 @@ def crawl_source(
 ) -> Any:
     """Run crawl for a specific source, match entities, return CrawlerResult.
 
-    Each source module is expected to provide:
-        crawl(mode) -> list[dict]  # raw records from source
-        transform(records) -> list[dict]  # normalized to canonical schema
-
-    Sources may optionally declare:
-        UPSERT_FUNCTION: str  # RPC name (default: upsert_pncp_raw_bids)
-        SOURCE_PURPOSE: str   # "bids" | "coverage_only" | "hybrid"
+    Priority sources (pncp, ciga_dom, sc_compras) use the canonical
+    ``OperationalPipeline`` (same path as ``scripts.ops.resilient_cycle``).
+    Other sources keep the legacy module crawl/transform path but share
+    the same upsert / match / evidence helpers.
 
     Returns:
         CrawlerResult with all counters and status populated.
@@ -669,6 +746,18 @@ def crawl_source(
         CrawlRequest,
         determine_status,
     )
+
+    # Canonical path for priority sources — no second success semantics.
+    priority = {"pncp", "ciga_dom", "ciga_ckan", "sc_compras"}
+    if source in priority:
+        return _crawl_source_via_resilient_pipeline(
+            source=source,
+            mode=mode,
+            date_from=date_from,
+            date_to=date_to,
+            target=target,
+            limit=limit,
+        )
 
     started_at = datetime.now(UTC)
     result = CrawlerResult(source=source)
