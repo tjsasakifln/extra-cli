@@ -419,13 +419,14 @@ def test_terminal_pilot_artifact_is_not_running():
         )
         assert windows_ok >= 1
     if data["status"] == "partial":
-        assert data.get("go_no_go_3y") == "NO-GO" or data.get("go_no_go_3y") in {
-            "NO-GO",
-            "CONDITIONAL_GO",
-            "GO",
-        }
-        # Preferred: partial must be NO-GO for 3y
-        assert data.get("go_no_go_3y") in {"NO-GO", "CONDITIONAL_GO", "GO"}
+        # Fail-closed: partial MUST be NO-GO (never GO / CONDITIONAL_GO)
+        assert data.get("go_no_go_3y") == "NO-GO"
+    # Provenance chain required on sealed/terminal pilot artifacts
+    assert data.get("run_id"), "pilot artifact must have run_id"
+    evidence = data.get("evidence") or {}
+    assert evidence.get("run_id") == data.get("run_id")
+    assert evidence.get("checkpoint_hash"), "evidence.checkpoint_hash required"
+    assert data.get("git_sha") or evidence.get("git_sha")
 
 
 def test_partial_artifact_go_no_go_is_no_go():
@@ -477,3 +478,130 @@ def test_checkpoint_has_completed_window_when_path_ok():
         return
     cp = json.loads(found.read_text())
     assert len(cp.get("completed_windows") or []) >= 1
+
+
+# ---------------------------------------------------------------------------
+# Fail-closed proof / exit codes / foreign run / tamper
+# ---------------------------------------------------------------------------
+
+
+def test_foreign_run_blocked_by_default():
+    """Same-run requirement blocks rebinding without allow_cross_run_resume."""
+    from scripts.crawl.contracts_crawler import CrawlCheckpoint
+    from scripts.crawl.run_contracts_90d_pilot import _apply_run_id_to_checkpoint
+
+    cp = CrawlCheckpoint(mode="full")
+    cp.meta = {"run_id": "run-old", "run_ids": ["run-old"]}
+    cp.completed_windows = ["20260715_20260715"]
+    with pytest.raises(ValueError, match="run_id mismatch"):
+        _apply_run_id_to_checkpoint(cp, "run-new", allow_cross_run_resume=False)
+
+
+def test_foreign_resume_allowed_when_explicit():
+    from scripts.crawl.contracts_crawler import CrawlCheckpoint
+    from scripts.crawl.run_contracts_90d_pilot import _apply_run_id_to_checkpoint
+
+    cp = CrawlCheckpoint(mode="full")
+    cp.meta = {"run_id": "run-old", "run_ids": ["run-old"]}
+    prev = _apply_run_id_to_checkpoint(cp, "run-new", allow_cross_run_resume=True)
+    assert "run-old" in prev
+    assert cp.meta.get("run_id") == "run-new"
+    assert cp.meta.get("foreign_resume") is True
+
+
+def test_path_proof_rejected_when_only_skipped_resume():
+    from scripts.crawl.run_evidence import assert_proof_run_coherence
+
+    report = {
+        "run_id": "r1",
+        "status": "partial",
+        "totals": {"windows_ok": 0, "windows_skipped_resume": 3},
+        "path_proof": {"status": "success", "run_id": "r1"},
+        "evidence": {"run_id": "r1", "checkpoint_hash": "abc"},
+    }
+    with pytest.raises(ValueError, match="skipped_resume"):
+        assert_proof_run_coherence(report)
+
+
+def test_tampered_checkpoint_hash_detected(tmp_path):
+    from scripts.crawl.run_evidence import sha256_file, verify_checkpoint_hash
+
+    p = tmp_path / "cp.json"
+    p.write_text('{"ok": true}', encoding="utf-8")
+    good = sha256_file(p)
+    verify_checkpoint_hash(p, good)
+    with pytest.raises(ValueError, match="hash mismatch"):
+        verify_checkpoint_hash(p, "0" * 64)
+
+
+def test_running_status_rejected_by_proof_coherence():
+    from scripts.crawl.run_evidence import assert_proof_run_coherence
+
+    with pytest.raises(ValueError, match="running"):
+        assert_proof_run_coherence(
+            {
+                "run_id": "r1",
+                "status": "running",
+                "evidence": {"run_id": "r1", "checkpoint_hash": "x"},
+            }
+        )
+
+
+def test_http_500_window_incomplete():
+    fully_ok, errors = evaluate_window_completion(
+        ["Page 3: [HTTP_SERVER_ERROR] 500"],
+        pages_exhausted=False,
+        last_total_pages=10,
+        page=3,
+        max_pages=200,
+    )
+    assert fully_ok is False
+    assert any("500" in e for e in errors)
+
+
+def test_main_exit_codes_config_error(monkeypatch):
+    """main() returns 2 when DSN missing and not dry-run/seal."""
+    import sys
+
+    from scripts.crawl import run_contracts_90d_pilot as mod
+
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    old = sys.argv
+    try:
+        sys.argv = ["run_contracts_90d_pilot.py", "--days", "1"]
+        code = mod.main()
+        assert code == 2
+    finally:
+        sys.argv = old
+
+
+def test_main_exit_code_partial_via_evaluate():
+    """Exit code mapping: success=0, partial=3, failed=1."""
+    # Mirrors main() terminal mapping without network
+    status_to_code = {"success": 0, "partial": 3, "failed": 1}
+    assert status_to_code[evaluate_pilot_status({"windows_ok": 1, "windows_failed": 0}, planned_windows=3, require_full_coverage=True)] == 3
+    assert status_to_code[evaluate_pilot_status({"windows_ok": 3, "windows_failed": 0, "page_errors": 0, "windows_skipped_resume": 0}, planned_windows=3, require_full_coverage=True)] == 0
+    assert status_to_code[evaluate_pilot_status({"windows_ok": 0, "windows_failed": 1}, planned_windows=3, require_full_coverage=True)] == 1
+
+
+def test_sealed_7d_has_run_id_and_no_go():
+    p = Path("output/contracts/pilot-7d-smoke.json")
+    assert p.is_file()
+    data = json.loads(p.read_text(encoding="utf-8"))
+    assert data.get("run_id")
+    assert data["evidence"]["run_id"] == data["run_id"]
+    assert data["evidence"].get("checkpoint_hash")
+    assert data.get("go_no_go_3y") == "NO-GO"
+    assert data.get("status") in {"success", "partial", "failed"}
+    assert "annotation_note" not in data
+
+
+def test_sealed_90d_partial_proof_coherence():
+    from scripts.crawl.run_evidence import assert_proof_run_coherence
+
+    p = Path("output/contracts/pilot-90d-next30d.json")
+    data = json.loads(p.read_text(encoding="utf-8"))
+    assert data["status"] == "partial"
+    assert data["go_no_go_3y"] == "NO-GO"
+    assert_proof_run_coherence(data)

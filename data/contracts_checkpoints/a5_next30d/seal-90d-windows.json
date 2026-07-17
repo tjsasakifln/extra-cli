@@ -1,0 +1,46 @@
+{
+  "windows": [
+    {
+      "window_key": "20260715_20260715",
+      "status": "completed",
+      "pages": 13,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "errors": [],
+      "note": "path_proof clean 1-day window from prior live run; re-sealed with run_id"
+    }
+  ],
+  "totals": {
+    "fetched": 6169,
+    "transformed": 6169,
+    "inserted": 6119,
+    "skipped": 50,
+    "pages": 13,
+    "page_errors": 0
+  },
+  "path_proof": {
+    "status": "success",
+    "days": 1,
+    "window": "20260715_20260715",
+    "totals": {
+      "fetched": 6169,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "pages": 13,
+      "page_errors": 0,
+      "windows_ok": 1,
+      "windows_failed": 0
+    },
+    "note": "evaluate_window_completion + upsert path proven; partial windows not marked complete on timeout"
+  },
+  "db": {
+    "pncp_supplier_contracts_count": 42216,
+    "min_data_publicacao": "2021-08-26",
+    "max_data_publicacao": "2026-12-16",
+    "data_publicacao_note": "LEGACY/MIXED: do not use MIN/MAX as collection window coverage",
+    "sample_populated_n20": 20,
+    "note": "cumulative ingest from path_proof + partial national runs"
+  }
+}

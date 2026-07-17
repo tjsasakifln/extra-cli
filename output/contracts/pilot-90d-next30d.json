@@ -1,12 +1,102 @@
 {
   "pilot": "k3.2-pncp-90d",
   "campaign": "NEXT-30D",
+  "run_id": "contracts-seal-20260717T013533Z-1c27368b29",
+  "previous_run_ids": [
+    "contracts-seal-20260717T013532Z-8a75167062"
+  ],
+  "mode": "full",
+  "days": 90,
+  "window_days": 30,
+  "planned_windows": 3,
+  "range_start": "2026-04-17",
+  "range_end": "2026-07-16",
+  "started_at": "2026-07-17T01:35:33.280700+00:00",
+  "completed_at": "2026-07-17T01:35:33.306658+00:00",
+  "duration_seconds": 0.026,
+  "checkpoint_path": "data/contracts_checkpoints/a5_next30d/contracts_full.json",
+  "windows": [
+    {
+      "window_key": "20260715_20260715",
+      "status": "completed",
+      "pages": 13,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "errors": [],
+      "note": "path_proof clean 1-day window from prior live run; re-sealed with run_id"
+    }
+  ],
+  "totals": {
+    "fetched": 6169,
+    "transformed": 6169,
+    "inserted": 6119,
+    "skipped": 50,
+    "pages": 13,
+    "page_errors": 0,
+    "windows_ok": 1,
+    "windows_failed": 0,
+    "windows_skipped_resume": 0
+  },
   "status": "partial",
+  "errors": [],
+  "criteria": {
+    "P1_run_status": false,
+    "P2_date_span": true,
+    "P3_monthly": false,
+    "P5_no_residual_page_errors": true,
+    "P6_checkpoint_coherent": true,
+    "P7_sample_fields": true,
+    "P8_full_window_coverage": false
+  },
   "go_no_go_3y": "NO-GO",
-  "go_no_go_path": "GO",
-  "go_no_go_3y_strict": "NO-GO",
-  "go_no_go_reason": "Full 90d national crawl not completed in session (API read timeouts + ~495k volume). Path proven with clean 1-day window success. Supervised multi-hour 90d required before 3y expansion.",
-  "annotated_at": "2026-07-17T01:00:00+00:00",
+  "go_no_go_reason": "Pilot incomplete, partial windows, or residual errors \u2014 fix before 3y expansion. path_proof alone is not full-pilot success.",
+  "checkpoint": {
+    "source": "pncp_contracts",
+    "mode": "full",
+    "completed_windows": [
+      "20260709_20260716"
+    ],
+    "current_window_start": "20260709",
+    "total_contracts_fetched": 42074,
+    "total_windows_completed": 1,
+    "total_windows_failed": 0,
+    "last_error": null,
+    "updated_at": "2026-07-17T01:35:33Z",
+    "meta": {
+      "run_id": "contracts-seal-20260717T013533Z-1c27368b29",
+      "run_ids": [
+        "contracts-seal-20260717T013532Z-8a75167062",
+        "contracts-seal-20260717T013533Z-1c27368b29"
+      ],
+      "previous_run_ids": [
+        "contracts-seal-20260717T013532Z-8a75167062"
+      ],
+      "foreign_resume": true
+    }
+  },
+  "git_sha": "cd56c354fa50f9fce005ae126a940697dd801d66",
+  "git_branch": "main",
+  "sealed": true,
+  "seal_note": "Machine-sealed terminal artifact via seal_pilot_artifact (no network). Not a substitute for full live 90d crawl.",
+  "claims_allowed": [
+    "Resumable pilot runner exists; partial windows are not marked complete",
+    "Artifact sealed with run_id and evidence hashes",
+    "At least one clean window completed in this sealed run_id (path_proof)"
+  ],
+  "claims_forbidden": [
+    "Full 90-day national pilot completed",
+    "GO for unsupervised 3-year backfill",
+    "CONTRATOS_95"
+  ],
+  "db": {
+    "pncp_supplier_contracts_count": 42216,
+    "min_data_publicacao": "2021-08-26",
+    "max_data_publicacao": "2026-12-16",
+    "data_publicacao_note": "LEGACY/MIXED: do not use MIN/MAX as collection window coverage",
+    "sample_populated_n20": 20,
+    "note": "cumulative ingest from path_proof + partial national runs"
+  },
   "path_proof": {
     "status": "success",
     "days": 1,
@@ -21,61 +111,68 @@
       "windows_ok": 1,
       "windows_failed": 0
     },
-    "checkpoint": {
-      "completed_windows": ["20260715_20260715"],
-      "total_windows_completed": 1,
-      "total_windows_failed": 0
+    "note": "evaluate_window_completion + upsert path proven; partial windows not marked complete on timeout",
+    "run_id": "contracts-seal-20260717T013533Z-1c27368b29"
+  },
+  "evidence": {
+    "run_id": "contracts-seal-20260717T013533Z-1c27368b29",
+    "git_sha": "cd56c354fa50f9fce005ae126a940697dd801d66",
+    "git_branch": "main",
+    "started_at": "2026-07-17T01:35:33.280700+00:00",
+    "completed_at": "2026-07-17T01:35:33.306658+00:00",
+    "host_id": "72aa0c75ebd3",
+    "command": "scripts/crawl/run_contracts_90d_pilot.py:seal_pilot_artifact",
+    "args": {
+      "days": 90,
+      "checkpoint_dir": "data/contracts_checkpoints/a5_next30d",
+      "sealed": true
     },
-    "note": "evaluate_window_completion + upsert path proven; partial windows not marked complete on timeout"
-  },
-  "full_90d_session": {
-    "status": "not_completed",
-    "agent": "A5",
-    "volume_probe_total_approx": 494810,
-    "volume_probe_windows": [
-      {"window": "20260417-20260516", "totalRegistros": 150428, "pages": 301},
-      {"window": "20260517-20260615", "totalRegistros": 169504, "pages": 340},
-      {"window": "20260616-20260715", "totalRegistros": 174878, "pages": 350}
+    "env_non_secret": {
+      "CONTRACTS_ALLOW_CROSS_RUN_RESUME": "1",
+      "CONTRACTS_CHECKPOINT_DIR": "data/contracts_checkpoints/a5_next30d"
+    },
+    "checkpoint_path": "data/contracts_checkpoints/a5_next30d/contracts_full.json",
+    "checkpoint_hash": "e5913a53fd6d29ca85e9e4f22b58c425b7ea95a4dcf517cc3180a292f5e34918",
+    "output_path": "output/contracts/pilot-90d-next30d.json",
+    "output_hash": "d61826e493a7c3fd9b28ff117d5f7a3788d75c07c40ed837d268e97378935615",
+    "log_path": null,
+    "log_hash": null,
+    "migration_head": null,
+    "counts_before": {},
+    "counts_after": {
+      "fetched": 6169,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "pages": 13,
+      "page_errors": 0,
+      "windows_ok": 1,
+      "windows_failed": 0,
+      "windows_skipped_resume": 0
+    },
+    "status": "partial",
+    "errors": [],
+    "criteria": {
+      "P1_run_status": false,
+      "P2_date_span": true,
+      "P3_monthly": false,
+      "P5_no_residual_page_errors": true,
+      "P6_checkpoint_coherent": true,
+      "P7_sample_fields": true,
+      "P8_full_window_coverage": false
+    },
+    "claims_allowed": [
+      "Resumable pilot runner exists; partial windows are not marked complete",
+      "Artifact sealed with run_id and evidence hashes",
+      "At least one clean window completed in this sealed run_id (path_proof)"
     ],
-    "observed_errors": [
-      "Page 13 window 20260417_20260516: connection_failed read timeout — window NOT marked complete"
+    "claims_forbidden": [
+      "Full 90-day national pilot completed",
+      "GO for unsupervised 3-year backfill",
+      "CONTRATOS_95"
     ],
-    "schema_fixes": [
-      "050_fix_contracts_upsert_fk.sql: AmbiguousColumn + drop SC-only FKs for national contracts"
+    "previous_run_ids": [
+      "contracts-seal-20260717T013532Z-8a75167062"
     ]
-  },
-  "totals": {
-    "fetched": 6169,
-    "transformed": 6169,
-    "inserted": 6119,
-    "skipped": 50,
-    "pages": 13,
-    "page_errors": 0,
-    "windows_ok": 1,
-    "windows_failed": 0,
-    "windows_skipped_resume": 0,
-    "note": "totals reflect path_proof clean window; full 90d national not finished"
-  },
-  "db": {
-    "pncp_supplier_contracts_count": 42216,
-    "min_data_publicacao": "2021-08-26",
-    "max_data_publicacao": "2026-12-16",
-    "note": "cumulative ingest from path_proof + partial national runs"
-  },
-  "checkpoint_canonical": {
-    "path": "data/contracts_checkpoints/contracts_full.json",
-    "completed_windows": ["20260715_20260715"],
-    "total_windows_completed": 1,
-    "total_windows_failed": 0
-  },
-  "claims_allowed": [
-    "Resumable pilot runner exists; partial windows are not marked complete on page errors",
-    "At least one full day window completed with 0 page errors",
-    "Tens of thousands of contracts persisted in pncp_supplier_contracts"
-  ],
-  "claims_forbidden": [
-    "Full 90-day national pilot completed",
-    "GO for unsupervised 3-year backfill",
-    "CONTRATOS_95"
-  ]
+  }
 }

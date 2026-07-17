@@ -154,3 +154,21 @@ def test_bind_preserves_completed_windows():
     out = bind_checkpoint_run_id(cp, "new")
     assert out["completed_windows"] == ["a", "b"]
     assert out["meta"]["previous_run_ids"] == ["old"]
+
+
+def test_assert_proof_run_coherence_ok():
+    from scripts.crawl.run_evidence import assert_proof_run_coherence
+    assert_proof_run_coherence({
+        "run_id": "r1",
+        "status": "partial",
+        "totals": {"windows_ok": 1, "windows_skipped_resume": 0},
+        "path_proof": {"status": "success", "run_id": "r1"},
+        "evidence": {"run_id": "r1", "checkpoint_hash": "deadbeef"},
+    })
+
+
+def test_assert_proof_missing_run_id():
+    from scripts.crawl.run_evidence import assert_proof_run_coherence
+    import pytest
+    with pytest.raises(ValueError, match="run_id"):
+        assert_proof_run_coherence({"status": "partial", "evidence": {}})

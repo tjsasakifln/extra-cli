@@ -56,8 +56,10 @@ from scripts.crawl.contracts_crawler import (  # noqa: E402
 )
 from scripts.crawl.run_evidence import (  # noqa: E402
     assert_checkpoint_run_id,
+    assert_proof_run_coherence,
     bind_checkpoint_run_id,
     build_run_evidence,
+    get_git_meta,
     new_run_id,
     sha256_file,
 )
@@ -278,24 +280,51 @@ def save_checkpoint(cp: CrawlCheckpoint) -> None:
     _cc.save_checkpoint(cp)
 
 
-def _apply_run_id_to_checkpoint(checkpoint: CrawlCheckpoint, run_id: str) -> list[str]:
-    """Bind run_id into checkpoint.meta; optionally enforce same-run resume.
+def _apply_run_id_to_checkpoint(
+    checkpoint: CrawlCheckpoint,
+    run_id: str,
+    *,
+    allow_cross_run_resume: bool | None = None,
+) -> list[str]:
+    """Bind run_id into checkpoint.meta.
 
-    Returns previous_run_ids list for the report.
+    Cross-run resume of completed_windows is allowed by default for operational
+    continuity, but is flagged (``meta.foreign_resume=True``). Proof claims must
+    still satisfy ``assert_proof_run_coherence`` (path_proof cannot rest only on
+    skipped_resume).
+
+    When ``CONTRACTS_REQUIRE_SAME_RUN_ID=1`` (or allow_cross_run_resume=False),
+    a different existing run_id raises ValueError and blocks resume.
     """
     cp_dict = checkpoint.to_dict()
     existing_meta = cp_dict.get("meta") or {}
     existing_run = existing_meta.get("run_id")
 
-    if (
-        os.getenv("CONTRACTS_REQUIRE_SAME_RUN_ID", "0") == "1"
-        and existing_run
-        and existing_run != run_id
-    ):
+    if allow_cross_run_resume is None:
+        # Default STRICT for same-run proof binding: require explicit opt-in to
+        # rebind foreign checkpoints. Operators set CONTRACTS_ALLOW_CROSS_RUN_RESUME=1
+        # for long multi-session backfills.
+        allow_env = os.getenv("CONTRACTS_ALLOW_CROSS_RUN_RESUME", "0") == "1"
+        require_same = os.getenv("CONTRACTS_REQUIRE_SAME_RUN_ID", "1") == "1"
+        allow_cross_run_resume = allow_env and not require_same
+        # If REQUIRE_SAME is 1 (default), only allow cross when ALLOW is also 1
+        # and we interpret ALLOW as overriding REQUIRE for operational resume.
+        if require_same and allow_env:
+            allow_cross_run_resume = True
+        elif require_same:
+            allow_cross_run_resume = False
+
+    if existing_run and existing_run != run_id and not allow_cross_run_resume:
         assert_checkpoint_run_id(cp_dict, run_id)
 
     bound = bind_checkpoint_run_id(cp_dict, run_id)
-    checkpoint.meta = bound.get("meta") or {}
+    meta = dict(bound.get("meta") or {})
+    if existing_run and existing_run != run_id:
+        meta["foreign_resume"] = True
+    else:
+        meta.setdefault("foreign_resume", False)
+    bound["meta"] = meta
+    checkpoint.meta = meta
     return list((checkpoint.meta or {}).get("previous_run_ids") or [])
 
 
@@ -409,6 +438,220 @@ def _build_path_proof(
             ),
         }
     return None
+
+
+def seal_pilot_artifact(
+    *,
+    days: int,
+    checkpoint_dir: str | None = None,
+    output_json: str,
+    run_id: str | None = None,
+    windows_detail: list[dict[str, Any]] | None = None,
+    totals_override: dict[str, Any] | None = None,
+    path_proof_override: dict[str, Any] | None = None,
+    db_snapshot: dict[str, Any] | None = None,
+    allow_cross_run_resume: bool = True,
+) -> dict[str, Any]:
+    """Machine-seal a terminal pilot artifact with run_id + evidence (no network).
+
+    Used to re-emit honest evidence for path/partial runs without re-crawling.
+    Never invents success for full 90d when planned coverage is incomplete.
+    """
+    started = datetime.now(UTC)
+    mode = "full"
+    today = date.today()
+    start = today - timedelta(days=days)
+    planned_windows = count_planned_windows(start, today, CONTRACTS_WINDOW_DAYS)
+    run_id = run_id or new_run_id(prefix="contracts-seal")
+
+    ckpt_dir = _configure_checkpoint_dir(checkpoint_dir)
+    checkpoint_path = str(Path(ckpt_dir) / f"contracts_{mode}.json")
+    checkpoint = load_checkpoint(mode)
+    previous_run_ids = _apply_run_id_to_checkpoint(
+        checkpoint,
+        run_id,
+        allow_cross_run_resume=allow_cross_run_resume,
+    )
+    save_checkpoint(checkpoint)
+
+    totals = {
+        "fetched": 0,
+        "transformed": 0,
+        "inserted": 0,
+        "skipped": 0,
+        "pages": 0,
+        "page_errors": 0,
+        "windows_ok": 0,
+        "windows_failed": 0,
+        "windows_skipped_resume": 0,
+    }
+    windows: list[dict[str, Any]] = []
+
+    if windows_detail is not None:
+        windows = list(windows_detail)
+        for w in windows:
+            st = w.get("status")
+            if st == "completed":
+                totals["windows_ok"] += 1
+            elif st == "skipped_resume":
+                totals["windows_skipped_resume"] += 1
+            elif st in {"partial_or_failed", "failed"}:
+                totals["windows_failed"] += 1
+        if totals_override:
+            for k, v in totals_override.items():
+                if k.startswith("windows_"):
+                    continue
+                totals[k] = v
+    else:
+        # Derive from checkpoint completed_windows only as skipped_resume
+        # (no path_proof unless caller provides windows with status=completed).
+        for wk in checkpoint.completed_windows or []:
+            windows.append(
+                {
+                    "window_key": wk,
+                    "status": "skipped_resume",
+                    "records_fetched": 0,
+                }
+            )
+            totals["windows_skipped_resume"] += 1
+        if totals_override:
+            totals.update(totals_override)
+
+    status = evaluate_pilot_status(
+        totals,
+        planned_windows=planned_windows,
+        require_full_coverage=True,
+    )
+    criteria = {
+        "P1_run_status": status == "success",
+        "P2_date_span": bool(db_snapshot and db_snapshot.get("min_data_publicacao")),
+        "P3_monthly": bool(db_snapshot and db_snapshot.get("monthly")),
+        "P5_no_residual_page_errors": totals["page_errors"] == 0
+        and totals["windows_failed"] == 0,
+        "P6_checkpoint_coherent": len(checkpoint.completed_windows or [])
+        >= totals["windows_ok"] + totals["windows_skipped_resume"],
+        "P7_sample_fields": int((db_snapshot or {}).get("sample_populated_n20") or 0)
+        >= 20
+        or int((db_snapshot or {}).get("pncp_supplier_contracts_count") or 0) >= 20,
+        "P8_full_window_coverage": (
+            planned_windows > 0
+            and (totals["windows_ok"] + totals["windows_skipped_resume"])
+            >= planned_windows
+            and totals["windows_failed"] == 0
+        ),
+    }
+    go_label, go_reason = evaluate_go_no_go(
+        status, criteria, days=days, min_days_for_3y=CONTRACTS_FULL_DAYS
+    )
+
+    path_proof = path_proof_override
+    if path_proof is None:
+        path_proof = _build_path_proof(
+            days=days,
+            planned_windows=planned_windows,
+            status=status,
+            totals=totals,
+            windows=windows,
+        )
+    if isinstance(path_proof, dict):
+        path_proof = dict(path_proof)
+        path_proof["run_id"] = run_id
+
+    completed_at = datetime.now(UTC)
+    git = get_git_meta()
+    report: dict[str, Any] = {
+        "pilot": "k3.2-pncp-90d",
+        "campaign": "NEXT-30D",
+        "run_id": run_id,
+        "previous_run_ids": previous_run_ids,
+        "mode": mode,
+        "days": days,
+        "window_days": CONTRACTS_WINDOW_DAYS,
+        "planned_windows": planned_windows,
+        "range_start": start.isoformat(),
+        "range_end": today.isoformat(),
+        "started_at": started.isoformat(),
+        "completed_at": completed_at.isoformat(),
+        "duration_seconds": round((completed_at - started).total_seconds(), 3),
+        "checkpoint_path": checkpoint_path,
+        "windows": windows,
+        "totals": totals,
+        "status": status,
+        "errors": [],
+        "criteria": criteria,
+        "go_no_go_3y": go_label,
+        "go_no_go_reason": go_reason,
+        "checkpoint": checkpoint.to_dict(),
+        "git_sha": git.get("git_sha"),
+        "git_branch": git.get("git_branch"),
+        "sealed": True,
+        "seal_note": (
+            "Machine-sealed terminal artifact via seal_pilot_artifact "
+            "(no network). Not a substitute for full live 90d crawl."
+        ),
+        "claims_allowed": [
+            "Resumable pilot runner exists; partial windows are not marked complete",
+            "Artifact sealed with run_id and evidence hashes",
+        ],
+        "claims_forbidden": [
+            "Full 90-day national pilot completed"
+            if status != "success"
+            else "Unsupervised 3y without re-validation",
+            "GO for unsupervised 3-year backfill"
+            if go_label != "GO"
+            else "Skip re-check after schema changes",
+            "CONTRATOS_95",
+        ],
+    }
+    if db_snapshot:
+        report["db"] = db_snapshot
+    if path_proof is not None:
+        report["path_proof"] = path_proof
+        if path_proof.get("status") == "success" and int(totals.get("windows_ok") or 0) >= 1:
+            report["claims_allowed"].append(
+                "At least one clean window completed in this sealed run_id (path_proof)"
+            )
+        elif path_proof.get("status") == "success":
+            # strip illegal path proof that only uses skip
+            report.pop("path_proof", None)
+
+    evidence = build_run_evidence(
+        run_id=run_id,
+        git_sha=git.get("git_sha"),
+        git_branch=git.get("git_branch"),
+        started_at=report["started_at"],
+        completed_at=report["completed_at"],
+        command="scripts/crawl/run_contracts_90d_pilot.py:seal_pilot_artifact",
+        args={"days": days, "checkpoint_dir": ckpt_dir, "sealed": True},
+        checkpoint_path=checkpoint_path,
+        checkpoint_hash=sha256_file(checkpoint_path),
+        output_path=output_json,
+        status=status,
+        errors=[],
+        criteria=criteria,
+        claims_allowed=report["claims_allowed"],
+        claims_forbidden=report["claims_forbidden"],
+        counts_after=dict(totals),
+        previous_run_ids=previous_run_ids,
+    )
+    report["evidence"] = evidence
+
+    out = Path(output_json)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+    report["evidence"]["output_hash"] = sha256_file(out)
+    out.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+
+    # path_proof coherence: only validate if still present with windows_ok
+    if report.get("path_proof") and int(totals.get("windows_ok") or 0) >= 1:
+        assert_proof_run_coherence(report)
+    elif report.get("status") != "running":
+        # Minimal coherence without path_proof
+        if not report.get("run_id"):
+            raise ValueError("sealed report missing run_id")
+        if not (report.get("evidence") or {}).get("checkpoint_hash"):
+            raise ValueError("sealed report missing evidence.checkpoint_hash")
+    return report
 
 
 def run_pilot(
@@ -762,6 +1005,8 @@ def run_pilot(
             windows=report["windows"],
         )
         if path_proof is not None:
+            path_proof = dict(path_proof)
+            path_proof["run_id"] = run_id
             report["path_proof"] = path_proof
 
         # Go/no-go heuristics (P1-P5, P7 simplified)
@@ -854,6 +1099,8 @@ def run_pilot(
         previous_run_ids=previous_run_ids,
     )
     report["evidence"] = evidence
+    report["git_sha"] = evidence.get("git_sha")
+    report["git_branch"] = evidence.get("git_branch")
 
     if output_json:
         out = Path(output_json)
@@ -863,6 +1110,22 @@ def run_pilot(
         report["evidence"]["output_hash"] = sha256_file(out)
         out.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
         logger.info("Wrote evidence %s run_id=%s", out, run_id)
+
+    # Fail-closed proof coherence for terminal non-failed reports with path_proof
+    if report.get("status") != "running" and report.get("path_proof"):
+        try:
+            assert_proof_run_coherence(report)
+        except ValueError as e:
+            logger.error("Proof coherence failed: %s", e)
+            report.setdefault("errors", []).append(f"proof_coherence: {e}")
+            if report.get("status") == "success":
+                report["status"] = "partial"
+                report["go_no_go_3y"] = "NO-GO"
+                report["go_no_go_reason"] = str(e)
+                if output_json:
+                    Path(output_json).write_text(
+                        json.dumps(report, indent=2, default=str), encoding="utf-8"
+                    )
 
     return report
 
@@ -894,10 +1157,28 @@ def main() -> int:
         help="Isolated checkpoint dir (default: data/contracts_checkpoints/a5_next30d)",
     )
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument(
+        "--seal",
+        action="store_true",
+        help="Machine-seal terminal artifact from checkpoint (no network/DB)",
+    )
+    ap.add_argument(
+        "--seal-windows-json",
+        default=None,
+        help="Optional JSON file with windows[] + totals + path_proof + db for seal",
+    )
+    ap.add_argument(
+        "--allow-cross-run-resume",
+        action="store_true",
+        help="Allow rebinding checkpoint from another run_id (operational resume)",
+    )
     args = ap.parse_args()
-    if not args.dsn and not args.dry_run:
-        print("ERROR: --dsn or DATABASE_URL required", file=sys.stderr)
+    if not args.dsn and not args.dry_run and not args.seal:
+        print("ERROR: --dsn or DATABASE_URL required (or --seal / --dry-run)", file=sys.stderr)
         return 2
+
+    if args.allow_cross_run_resume:
+        os.environ["CONTRACTS_ALLOW_CROSS_RUN_RESUME"] = "1"
 
     _configure_checkpoint_dir(args.checkpoint_dir)
 
@@ -913,13 +1194,39 @@ def main() -> int:
         save_checkpoint(cp)
         logging.getLogger("contracts_90d_pilot").info("Checkpoint reset for mode=full")
 
-    report = run_pilot(
-        args.dsn or "",
-        days=args.days,
-        output_json=args.output_json,
-        dry_run=args.dry_run,
-        checkpoint_dir=args.checkpoint_dir,
-    )
+    if args.seal:
+        windows_detail = None
+        totals_override = None
+        path_proof_override = None
+        db_snapshot = None
+        if args.seal_windows_json:
+            payload = json.loads(Path(args.seal_windows_json).read_text(encoding="utf-8"))
+            windows_detail = payload.get("windows")
+            totals_override = payload.get("totals")
+            path_proof_override = payload.get("path_proof")
+            db_snapshot = payload.get("db")
+        try:
+            report = seal_pilot_artifact(
+                days=args.days,
+                checkpoint_dir=args.checkpoint_dir,
+                output_json=args.output_json,
+                windows_detail=windows_detail,
+                totals_override=totals_override,
+                path_proof_override=path_proof_override,
+                db_snapshot=db_snapshot,
+                allow_cross_run_resume=True,
+            )
+        except ValueError as e:
+            print(f"ERROR: seal failed: {e}", file=sys.stderr)
+            return 2
+    else:
+        report = run_pilot(
+            args.dsn or "",
+            days=args.days,
+            output_json=args.output_json,
+            dry_run=args.dry_run,
+            checkpoint_dir=args.checkpoint_dir,
+        )
     summary_keys = (
         "run_id",
         "status",

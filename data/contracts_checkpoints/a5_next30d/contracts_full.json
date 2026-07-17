@@ -9,5 +9,16 @@
   "total_windows_completed": 1,
   "total_windows_failed": 0,
   "last_error": null,
-  "updated_at": "2026-07-17T00:55:48Z"
+  "updated_at": "2026-07-17T01:35:33Z",
+  "meta": {
+    "run_id": "contracts-seal-20260717T013533Z-1c27368b29",
+    "run_ids": [
+      "contracts-seal-20260717T013532Z-8a75167062",
+      "contracts-seal-20260717T013533Z-1c27368b29"
+    ],
+    "previous_run_ids": [
+      "contracts-seal-20260717T013532Z-8a75167062"
+    ],
+    "foreign_resume": true
+  }
 }

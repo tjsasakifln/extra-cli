@@ -226,6 +226,64 @@ def assert_checkpoint_run_id(checkpoint_dict: dict[str, Any], run_id: str) -> No
         )
 
 
+def verify_checkpoint_hash(path: str | Path, expected_hash: str | None) -> None:
+    """Raise ValueError if file hash does not match expected (tamper detection)."""
+    if not expected_hash:
+        raise ValueError("expected checkpoint_hash is required for proof validation")
+    actual = sha256_file(path)
+    if actual is None:
+        raise ValueError(f"checkpoint missing or unreadable: {path}")
+    if actual != expected_hash:
+        raise ValueError(
+            f"checkpoint hash mismatch (tampered or stale): "
+            f"expected={expected_hash[:16]}… actual={actual[:16]}…"
+        )
+
+
+def assert_proof_run_coherence(report: dict[str, Any]) -> None:
+    """Fail-closed: path/success proof must share run_id across report/evidence/checkpoint.
+
+    Rules:
+    - report.run_id required
+    - evidence.run_id must equal report.run_id
+    - evidence must include checkpoint_hash and git_sha (or explicit null git soft-fail only if documented)
+    - path_proof, if present with status=success, must carry same run_id
+    - skipped_resume alone cannot be path_proof for a foreign checkpoint without
+      windows completed in this run
+    """
+    if not isinstance(report, dict):
+        raise ValueError("report must be a dict")
+    run_id = report.get("run_id")
+    if not run_id:
+        raise ValueError("report missing run_id — cannot claim path/pilot proof")
+    evidence = report.get("evidence")
+    if not isinstance(evidence, dict):
+        raise ValueError("report missing evidence block — cannot claim proof")
+    if evidence.get("run_id") != run_id:
+        raise ValueError(
+            f"evidence.run_id {evidence.get('run_id')!r} != report.run_id {run_id!r}"
+        )
+    if not evidence.get("checkpoint_hash"):
+        raise ValueError("evidence.checkpoint_hash required for proof")
+    if report.get("status") == "running":
+        raise ValueError("status=running is not a terminal proof artifact")
+    path = report.get("path_proof")
+    if isinstance(path, dict) and path.get("status") == "success":
+        path_rid = path.get("run_id")
+        if path_rid is not None and path_rid != run_id:
+            raise ValueError(
+                f"path_proof.run_id {path_rid!r} != report.run_id {run_id!r}"
+            )
+        # Foreign resume: only skipped windows, no completed in this run → invalid path proof
+        totals = report.get("totals") or {}
+        windows_ok = int(totals.get("windows_ok") or 0)
+        if windows_ok < 1 and int(totals.get("windows_skipped_resume") or 0) >= 1:
+            raise ValueError(
+                "path_proof success cannot rest only on skipped_resume "
+                "(foreign or prior run windows) — need a clean window in this run_id"
+            )
+
+
 def bind_checkpoint_run_id(
     checkpoint_dict: dict[str, Any], run_id: str
 ) -> dict[str, Any]:

@@ -1,0 +1,35 @@
+{
+  "windows": [
+    {
+      "window_key": "20260709_20260716",
+      "status": "completed",
+      "pages": 85,
+      "transformed": 42074,
+      "inserted": 29357,
+      "skipped": 12717,
+      "errors": [],
+      "elapsed_seconds": 966.1
+    }
+  ],
+  "totals": {
+    "fetched": 42077,
+    "transformed": 42074,
+    "inserted": 29357,
+    "skipped": 12717,
+    "pages": 85,
+    "page_errors": 0
+  },
+  "db": {
+    "pncp_supplier_contracts_count": 63574,
+    "min_data_publicacao": "2021-08-26",
+    "max_data_publicacao": "2026-12-16",
+    "data_publicacao_note": "LEGACY/MIXED semantics until migration 051 re-ingest",
+    "sample_populated_n20": 20,
+    "monthly": [
+      {"mes": "2026-04-01", "n": 14497},
+      {"mes": "2026-05-01", "n": 1818},
+      {"mes": "2026-06-01", "n": 8706},
+      {"mes": "2026-07-01", "n": 31160}
+    ]
+  }
+}
