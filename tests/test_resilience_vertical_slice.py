@@ -203,6 +203,15 @@ def test_vertical_slice_postgres_real_path(tmp_path: Path) -> None:
                 "DATABASE_URL set but pncp_raw_bids / upsert_pncp_raw_bids missing — "
                 f"migrations incomplete (dsn={dsn!r} identity={identity} tables={tables[:10]} procs={procs})"
             )
+        # Seed FK parent for orgao_cnpj_8 (first 8 digits of CNPJ).
+        cur.execute(
+            """
+            INSERT INTO sc_public_entities (cnpj_8, razao_social, is_active, municipio)
+            SELECT '88888888', 'Vertical Slice Orgao Test', TRUE, 'Florianopolis'
+            WHERE NOT EXISTS (SELECT 1 FROM sc_public_entities WHERE cnpj_8 = '88888888')
+            """
+        )
+        conn.commit()
     finally:
         cur.close()
         conn.close()
