@@ -1,17 +1,25 @@
 {
   "pilot": "k3.2-pncp-90d",
   "campaign": "NEXT-30D",
-  "run_id": "contracts-seal-20260717T013532Z-8a75167062",
-  "previous_run_ids": [],
+  "run_id": "contracts-seal-20260717T013904Z-93128c0ada",
+  "previous_run_ids": [
+    "contracts-seal-20260717T013532Z-8a75167062",
+    "contracts-seal-20260717T013533Z-1c27368b29",
+    "contracts-seal-20260717T013812Z-5b72beda3b",
+    "contracts-seal-20260717T013821Z-9dc1af450d",
+    "contracts-seal-20260717T013822Z-b6c6f7dca9",
+    "contracts-seal-20260717T013822Z-8cb529557f",
+    "contracts-seal-20260717T013845Z-f0c8202f5e"
+  ],
   "mode": "full",
   "days": 7,
   "window_days": 30,
   "planned_windows": 1,
   "range_start": "2026-07-09",
   "range_end": "2026-07-16",
-  "started_at": "2026-07-17T01:35:32.707080+00:00",
-  "completed_at": "2026-07-17T01:35:32.731376+00:00",
-  "duration_seconds": 0.024,
+  "started_at": "2026-07-17T01:39:04.776013+00:00",
+  "completed_at": "2026-07-17T01:39:04.799336+00:00",
+  "duration_seconds": 0.023,
   "checkpoint_path": "data/contracts_checkpoints/a5_next30d/contracts_full.json",
   "windows": [
     {
@@ -60,17 +68,32 @@
     "total_windows_completed": 1,
     "total_windows_failed": 0,
     "last_error": null,
-    "updated_at": "2026-07-17T01:35:32Z",
+    "updated_at": "2026-07-17T01:39:04Z",
     "meta": {
-      "run_id": "contracts-seal-20260717T013532Z-8a75167062",
+      "run_id": "contracts-seal-20260717T013904Z-93128c0ada",
       "run_ids": [
-        "contracts-seal-20260717T013532Z-8a75167062"
+        "contracts-seal-20260717T013532Z-8a75167062",
+        "contracts-seal-20260717T013533Z-1c27368b29",
+        "contracts-seal-20260717T013812Z-5b72beda3b",
+        "contracts-seal-20260717T013821Z-9dc1af450d",
+        "contracts-seal-20260717T013822Z-b6c6f7dca9",
+        "contracts-seal-20260717T013822Z-8cb529557f",
+        "contracts-seal-20260717T013845Z-f0c8202f5e",
+        "contracts-seal-20260717T013904Z-93128c0ada"
       ],
-      "previous_run_ids": [],
-      "foreign_resume": false
+      "previous_run_ids": [
+        "contracts-seal-20260717T013532Z-8a75167062",
+        "contracts-seal-20260717T013533Z-1c27368b29",
+        "contracts-seal-20260717T013812Z-5b72beda3b",
+        "contracts-seal-20260717T013821Z-9dc1af450d",
+        "contracts-seal-20260717T013822Z-b6c6f7dca9",
+        "contracts-seal-20260717T013822Z-8cb529557f",
+        "contracts-seal-20260717T013845Z-f0c8202f5e"
+      ],
+      "foreign_resume": true
     }
   },
-  "git_sha": "cd56c354fa50f9fce005ae126a940697dd801d66",
+  "git_sha": "1da86191d0697b9a7348866bd2621030f3cb7052",
   "git_branch": "main",
   "sealed": true,
   "seal_note": "Machine-sealed terminal artifact via seal_pilot_artifact (no network). Not a substitute for full live 90d crawl.",
@@ -109,11 +132,11 @@
     ]
   },
   "evidence": {
-    "run_id": "contracts-seal-20260717T013532Z-8a75167062",
-    "git_sha": "cd56c354fa50f9fce005ae126a940697dd801d66",
+    "run_id": "contracts-seal-20260717T013904Z-93128c0ada",
+    "git_sha": "1da86191d0697b9a7348866bd2621030f3cb7052",
     "git_branch": "main",
-    "started_at": "2026-07-17T01:35:32.707080+00:00",
-    "completed_at": "2026-07-17T01:35:32.731376+00:00",
+    "started_at": "2026-07-17T01:39:04.776013+00:00",
+    "completed_at": "2026-07-17T01:39:04.799336+00:00",
     "host_id": "72aa0c75ebd3",
     "command": "scripts/crawl/run_contracts_90d_pilot.py:seal_pilot_artifact",
     "args": {
@@ -126,9 +149,9 @@
       "CONTRACTS_CHECKPOINT_DIR": "data/contracts_checkpoints/a5_next30d"
     },
     "checkpoint_path": "data/contracts_checkpoints/a5_next30d/contracts_full.json",
-    "checkpoint_hash": "c266e6ec1704e938d03d3e828663fcfaa3b39d0c817bc7560940fddc760fd3c3",
+    "checkpoint_hash": "28877c1f9ef1909c73ac749df7bbbc6f1b9699536d782d129eaf267216eb8dbd",
     "output_path": "output/contracts/pilot-7d-smoke.json",
-    "output_hash": "de8d80dd6590ac65e0d7f53ccc22fad3295ff4f032fbbebaba91b56a5e2cf008",
+    "output_hash": "f83c3f750045134101a88e9366d636b668e3d58c7ee10d3dfdab54f1bda592fa",
     "log_path": null,
     "log_hash": null,
     "migration_head": null,
@@ -164,6 +187,15 @@
       "GO for unsupervised 3-year backfill",
       "CONTRATOS_95"
     ],
-    "previous_run_ids": []
+    "previous_run_ids": [
+      "contracts-seal-20260717T013532Z-8a75167062",
+      "contracts-seal-20260717T013533Z-1c27368b29",
+      "contracts-seal-20260717T013812Z-5b72beda3b",
+      "contracts-seal-20260717T013821Z-9dc1af450d",
+      "contracts-seal-20260717T013822Z-b6c6f7dca9",
+      "contracts-seal-20260717T013822Z-8cb529557f",
+      "contracts-seal-20260717T013845Z-f0c8202f5e"
+    ],
+    "checkpoint_content_sha256": "4a3e1fa646b4445b59bf4dd234d48fd36b76a57458eff9dbeec48aa0c4896e41"
   }
 }

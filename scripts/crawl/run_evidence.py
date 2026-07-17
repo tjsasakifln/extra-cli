@@ -9,6 +9,7 @@ Never embeds secrets (DSN, passwords, tokens) in env snapshots.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import socket
 import subprocess
@@ -112,6 +113,12 @@ def sha256_file(path: str | Path) -> str | None:
         return h.hexdigest()
     except OSError:
         return None
+
+
+def sha256_json(obj: Any) -> str:
+    """Stable SHA-256 of a JSON-serializable object (sorted keys)."""
+    payload = json.dumps(obj, sort_keys=True, default=str, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def host_id() -> str:
@@ -263,8 +270,21 @@ def assert_proof_run_coherence(report: dict[str, Any]) -> None:
         raise ValueError(
             f"evidence.run_id {evidence.get('run_id')!r} != report.run_id {run_id!r}"
         )
-    if not evidence.get("checkpoint_hash"):
-        raise ValueError("evidence.checkpoint_hash required for proof")
+    if not evidence.get("checkpoint_hash") and not evidence.get(
+        "checkpoint_content_sha256"
+    ):
+        raise ValueError(
+            "evidence.checkpoint_hash or checkpoint_content_sha256 required for proof"
+        )
+    # Embedded checkpoint content must match declared content hash when both present
+    embedded = report.get("checkpoint")
+    content_hash = evidence.get("checkpoint_content_sha256")
+    if embedded is not None and content_hash:
+        actual = sha256_json(embedded)
+        if actual != content_hash:
+            raise ValueError(
+                "embedded checkpoint content hash mismatch (artifact tampered)"
+            )
     if report.get("status") == "running":
         raise ValueError("status=running is not a terminal proof artifact")
     path = report.get("path_proof")

@@ -615,6 +615,9 @@ def seal_pilot_artifact(
             # strip illegal path proof that only uses skip
             report.pop("path_proof", None)
 
+    from scripts.crawl.run_evidence import sha256_json
+
+    ckpt_dict = checkpoint.to_dict()
     evidence = build_run_evidence(
         run_id=run_id,
         git_sha=git.get("git_sha"),
@@ -633,8 +636,10 @@ def seal_pilot_artifact(
         claims_forbidden=report["claims_forbidden"],
         counts_after=dict(totals),
         previous_run_ids=previous_run_ids,
+        checkpoint_content_sha256=sha256_json(ckpt_dict),
     )
     report["evidence"] = evidence
+    report["checkpoint"] = ckpt_dict
 
     out = Path(output_json)
     out.parent.mkdir(parents=True, exist_ok=True)

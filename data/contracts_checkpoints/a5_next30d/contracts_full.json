@@ -9,15 +9,29 @@
   "total_windows_completed": 1,
   "total_windows_failed": 0,
   "last_error": null,
-  "updated_at": "2026-07-17T01:35:33Z",
+  "updated_at": "2026-07-17T01:39:05Z",
   "meta": {
-    "run_id": "contracts-seal-20260717T013533Z-1c27368b29",
+    "run_id": "contracts-seal-20260717T013905Z-9850dcc489",
     "run_ids": [
       "contracts-seal-20260717T013532Z-8a75167062",
-      "contracts-seal-20260717T013533Z-1c27368b29"
+      "contracts-seal-20260717T013533Z-1c27368b29",
+      "contracts-seal-20260717T013812Z-5b72beda3b",
+      "contracts-seal-20260717T013821Z-9dc1af450d",
+      "contracts-seal-20260717T013822Z-b6c6f7dca9",
+      "contracts-seal-20260717T013822Z-8cb529557f",
+      "contracts-seal-20260717T013845Z-f0c8202f5e",
+      "contracts-seal-20260717T013904Z-93128c0ada",
+      "contracts-seal-20260717T013905Z-9850dcc489"
     ],
     "previous_run_ids": [
-      "contracts-seal-20260717T013532Z-8a75167062"
+      "contracts-seal-20260717T013532Z-8a75167062",
+      "contracts-seal-20260717T013533Z-1c27368b29",
+      "contracts-seal-20260717T013812Z-5b72beda3b",
+      "contracts-seal-20260717T013821Z-9dc1af450d",
+      "contracts-seal-20260717T013822Z-b6c6f7dca9",
+      "contracts-seal-20260717T013822Z-8cb529557f",
+      "contracts-seal-20260717T013845Z-f0c8202f5e",
+      "contracts-seal-20260717T013904Z-93128c0ada"
     ],
     "foreign_resume": true
   }
