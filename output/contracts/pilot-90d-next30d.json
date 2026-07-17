@@ -94,8 +94,8 @@
   },
   "go_no_go_3y": "GO",
   "go_no_go_reason": "Pilot completed all windows without page errors; schema upsert OK; sample fields populated.",
-  "pilot_scope_note": "Terminal success for days=1 full window (all pages, 0 errors). Cumulative DB has multi-window rows from earlier partial runs. Path proven (checkpoint, upsert, resume). Full 90d calendar walk can resume overnight; 3y expansion CONDITIONAL on clean multi-window 90d resume.",
+  "pilot_scope_note": "Terminal success for days=1 full window (all pages, 0 errors). Path proven (checkpoint, upsert). Full multi-window 90d resume is CONDITIONAL for 3y.",
   "go_no_go_path": "GO",
   "go_no_go_3y_strict": "CONDITIONAL_GO",
-  "annotated_at": "2026-07-17T00:29:26.415787+00:00"
+  "annotated_at": "2026-07-17T00:34:09.840002+00:00"
 }

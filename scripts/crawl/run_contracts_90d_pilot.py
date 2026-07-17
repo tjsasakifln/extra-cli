@@ -35,22 +35,84 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.crawl import contracts_crawler as _cc  # noqa: E402
 from scripts.crawl.contracts_crawler import (  # noqa: E402
     CONTRACTS_FULL_DAYS,
     CONTRACTS_JANELA_DELAY,
     CONTRACTS_MAX_PAGES,
     CONTRACTS_REQUEST_DELAY,
     CONTRACTS_WINDOW_DAYS,
+    CrawlCheckpoint,
     _fetch_page,
     _fmt,
-    load_checkpoint,
-    save_checkpoint,
     transform,
 )
 
 logger = logging.getLogger("contracts_90d_pilot")
 
 UPSERT_BATCH = int(os.getenv("CONTRACTS_UPSERT_BATCH", "500"))
+# Isolate pilot checkpoints from concurrent short runs that share mode=full.
+DEFAULT_PILOT_CKPT_DIR = str(_PROJECT_ROOT / "data" / "contracts_checkpoints" / "a5_next30d")
+
+
+def evaluate_window_completion(
+    window_errors: list[str],
+    *,
+    pages_exhausted: bool,
+    last_total_pages: int,
+    page: int,
+    max_pages: int,
+) -> tuple[bool, list[str]]:
+    """Decide whether a date window may be marked complete (shipped predicate).
+
+    A window is complete only when there are no errors AND pages were fully
+    exhausted (or the API returned a legitimate zero on the first page path).
+    Hitting ``max_pages`` without exhausting ``total_pages`` is incomplete.
+
+    Returns:
+        (fully_ok, errors) — errors may be extended with a max-pages message.
+    """
+    errors = list(window_errors)
+    if (
+        not pages_exhausted
+        and last_total_pages
+        and page <= last_total_pages
+        and page > max_pages
+    ):
+        errors.append(
+            f"Hit CONTRACTS_MAX_PAGES={max_pages} before "
+            f"total_pages={last_total_pages}; window incomplete"
+        )
+    fully_ok = not errors
+    return fully_ok, errors
+
+
+def evaluate_pilot_status(totals: dict[str, Any]) -> str:
+    """Map pilot window counters to terminal status string."""
+    windows_ok = int(totals.get("windows_ok") or 0)
+    windows_failed = int(totals.get("windows_failed") or 0)
+    if windows_failed == 0 and windows_ok > 0:
+        return "success"
+    if windows_ok > 0:
+        return "partial"
+    return "failed"
+
+
+def _configure_checkpoint_dir(ckpt_dir: str | None) -> str:
+    """Point contracts_crawler checkpoint I/O at an isolated directory."""
+    path = ckpt_dir or os.getenv("CONTRACTS_CHECKPOINT_DIR") or DEFAULT_PILOT_CKPT_DIR
+    os.makedirs(path, exist_ok=True)
+    os.environ["CONTRACTS_CHECKPOINT_DIR"] = path
+    _cc.CONTRACTS_CHECKPOINT_DIR = path
+    return path
+
+
+def load_checkpoint(mode: str) -> CrawlCheckpoint:
+    return _cc.load_checkpoint(mode)
+
+
+def save_checkpoint(cp: CrawlCheckpoint) -> None:
+    _cc.save_checkpoint(cp)
 
 
 def _upsert_batch(conn: Any, rows: list[dict]) -> tuple[int, int]:
@@ -93,12 +155,14 @@ def run_pilot(
     days: int = CONTRACTS_FULL_DAYS,
     output_json: str | None = None,
     dry_run: bool = False,
+    checkpoint_dir: str | None = None,
 ) -> dict[str, Any]:
     started = datetime.now(timezone.utc)
     mode = "full"
     today = date.today()
     start = today - timedelta(days=days)
 
+    ckpt_dir = _configure_checkpoint_dir(checkpoint_dir)
     checkpoint = load_checkpoint(mode)
     # Reset counters for this pilot run report but KEEP completed_windows for resume
     report: dict[str, Any] = {
@@ -110,10 +174,7 @@ def run_pilot(
         "range_start": start.isoformat(),
         "range_end": today.isoformat(),
         "started_at": started.isoformat(),
-        "checkpoint_path": str(
-            Path(os.getenv("CONTRACTS_CHECKPOINT_DIR", str(_PROJECT_ROOT / "data" / "contracts_checkpoints")))
-            / f"contracts_{mode}.json"
-        ),
+        "checkpoint_path": str(Path(ckpt_dir) / f"contracts_{mode}.json"),
         "windows": [],
         "totals": {
             "fetched": 0,
@@ -227,12 +288,8 @@ def run_pilot(
                 time.sleep(CONTRACTS_REQUEST_DELAY)
             else:
                 # while-else: loop ended because page > MAX without exhausting pages
-                if not pages_exhausted and last_total_pages and page <= last_total_pages:
-                    window_errors.append(
-                        f"Hit CONTRACTS_MAX_PAGES={CONTRACTS_MAX_PAGES} before "
-                        f"total_pages={last_total_pages}; window incomplete"
-                    )
-                    report["totals"]["page_errors"] += 1
+                # (predicate applied below via evaluate_window_completion)
+                pass
 
             # Flush any remainder not yet upserted (e.g. last partial batch)
             if window_records_raw and not window_errors:
@@ -257,7 +314,15 @@ def run_pilot(
                             break
                 window_records_raw = []
 
-            fully_ok = not window_errors
+            fully_ok, window_errors = evaluate_window_completion(
+                window_errors,
+                pages_exhausted=pages_exhausted,
+                last_total_pages=last_total_pages,
+                page=page,
+                max_pages=CONTRACTS_MAX_PAGES,
+            )
+            if not fully_ok and any("Hit CONTRACTS_MAX_PAGES" in e for e in window_errors):
+                report["totals"]["page_errors"] += 1
             elapsed = round(time.time() - w_started, 1)
             w_status = "completed" if fully_ok else "partial_or_failed"
             if fully_ok:
@@ -367,12 +432,7 @@ def run_pilot(
         # Final checkpoint snapshot
         report["checkpoint"] = checkpoint.to_dict()
 
-        if report["totals"]["windows_failed"] == 0 and report["totals"]["windows_ok"] > 0:
-            report["status"] = "success"
-        elif report["totals"]["windows_ok"] > 0:
-            report["status"] = "partial"
-        else:
-            report["status"] = "failed"
+        report["status"] = evaluate_pilot_status(report["totals"])
 
         # Go/no-go heuristics (P1-P5, P7 simplified)
         p = report["totals"]
@@ -441,11 +501,18 @@ def main() -> int:
         action="store_true",
         help="Clear completed_windows for a fresh pilot range (keeps file path)",
     )
+    ap.add_argument(
+        "--checkpoint-dir",
+        default=None,
+        help="Isolated checkpoint dir (default: data/contracts_checkpoints/a5_next30d)",
+    )
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     if not args.dsn and not args.dry_run:
         print("ERROR: --dsn or DATABASE_URL required", file=sys.stderr)
         return 2
+
+    _configure_checkpoint_dir(args.checkpoint_dir)
 
     if args.reset_checkpoint:
         cp = load_checkpoint("full")
@@ -456,14 +523,14 @@ def main() -> int:
         cp.total_contracts_fetched = 0
         cp.last_error = None
         save_checkpoint(cp)
-        logger = logging.getLogger("contracts_90d_pilot")
-        logger.info("Checkpoint reset for mode=full")
+        logging.getLogger("contracts_90d_pilot").info("Checkpoint reset for mode=full")
 
     report = run_pilot(
         args.dsn or "",
         days=args.days,
         output_json=args.output_json,
         dry_run=args.dry_run,
+        checkpoint_dir=args.checkpoint_dir,
     )
     print(json.dumps({k: report[k] for k in ("status", "totals", "go_no_go_3y", "duration_seconds", "db") if k in report}, indent=2, default=str))
     if report["status"] == "success":

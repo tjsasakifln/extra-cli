@@ -3,19 +3,8 @@
   "pncp_raw_bids": 2948,
   "dedup_cross_source": 5,
   "covered_200km": 52,
-  "aliases_active": 459,
   "editais_denominator": 1093,
   "editais_crude_pct": 4.76,
-  "head_base": "77ff8a8",
-  "timestamp": "2026-07-17T00:29:26.677933+00:00",
   "pilot_status": "success",
-  "pilot_go": "GO",
-  "snapshot_integrity": 1.0,
-  "before": {
-    "pncp_supplier_contracts": 0,
-    "pncp_raw_bids": 346,
-    "dedup_cross_source": 0,
-    "covered_200km": "~low/unknown",
-    "editais_crude_pct": "~3.1 handoff"
-  }
+  "timestamp": "2026-07-17T00:34:16.029300+00:00"
 }
