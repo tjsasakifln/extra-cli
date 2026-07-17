@@ -2525,6 +2525,8 @@ Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução C
 **Decisão:** `LOCAL_RESILIENCE_READY`  
 **Não implica:** `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95% ou freshness externa garantida.  
 **Branch:** `feat/local-resilience-ready-20260717`  
+**Commit:** `debad71`  
+**Smoke gate:** 180 passed, 24 skipped  
 **Documento canônico:** `docs/operations/PRE-VPS-READINESS.md`  
 **Diagnóstico pré-código:** `docs/operations/LOCAL-RESILIENCE-DIAGNOSIS.md`
 
@@ -2551,7 +2553,7 @@ make resilience-gate
   ruff: pass
   mypy (7 módulos críticos): pass
   validate_systemd: pass
-  resilient-smoke: 179 passed, 24 skipped (~12s)
+  resilient-smoke: 180 passed, 24 skipped (~16s)
   tests/test_local_resilience.py: 31 passed (~8s)
   resilient-local-cycle (fixtures): exit 0 healthy
   python3 -m scripts.ops.health: exit 0
