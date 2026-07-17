@@ -124,7 +124,17 @@ def apply_file(conn: Any, path: Path, *, allow_concurrent: bool = False) -> None
                 finally:
                     conn.autocommit = prev
             else:
-                cur.execute(stmt)
+                try:
+                    cur.execute(stmt)
+                except Exception as exc:
+                    # Optional extensions (e.g. vector) may be absent on minimal images.
+                    msg = str(exc).lower()
+                    if "extension" in msg and ("is not available" in msg or "does not exist" in msg):
+                        print(f"skip_optional_extension in {path.name}: {exc}", flush=True)
+                        if not conn.autocommit:
+                            conn.rollback()
+                        continue
+                    raise
         if not conn.autocommit:
             conn.commit()
     except Exception:
