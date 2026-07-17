@@ -605,3 +605,66 @@ def test_sealed_90d_partial_proof_coherence():
     assert data["status"] == "partial"
     assert data["go_no_go_3y"] == "NO-GO"
     assert_proof_run_coherence(data)
+
+
+
+def test_path_proof_window_must_be_in_checkpoint():
+    from scripts.crawl.run_evidence import assert_proof_run_coherence
+    import pytest
+
+    report = {
+        "run_id": "r1",
+        "status": "partial",
+        "totals": {"windows_ok": 1, "windows_skipped_resume": 0},
+        "windows": [{"window_key": "20260715_20260715", "status": "completed"}],
+        "path_proof": {
+            "status": "success",
+            "run_id": "r1",
+            "window": "20260715_20260715",
+        },
+        "checkpoint": {
+            "completed_windows": ["20260709_20260716"],  # mismatch
+            "meta": {"run_id": "r1"},
+        },
+        "evidence": {
+            "run_id": "r1",
+            "checkpoint_hash": "abc",
+            "checkpoint_content_sha256": None,
+            "checkpoint_path": "does-not-matter",
+        },
+    }
+    with pytest.raises(ValueError, match="completed_windows|path_proof.window"):
+        assert_proof_run_coherence(report, verify_live_checkpoint_file=False)
+
+
+def test_p6_requires_set_subset():
+    from scripts.crawl.run_contracts_90d_pilot import _p6_checkpoint_coherent
+
+    assert _p6_checkpoint_coherent(
+        [{"window_key": "A", "status": "completed"}],
+        ["A", "B"],
+    )
+    assert not _p6_checkpoint_coherent(
+        [{"window_key": "A", "status": "completed"}],
+        ["B"],
+    )
+
+
+def test_sealed_artifacts_window_in_checkpoint():
+    """On-disk sealed pilots: path/window keys ⊆ checkpoint.completed_windows."""
+    for name in ("pilot-90d-next30d.json", "pilot-7d-smoke.json"):
+        p = Path("output/contracts") / name
+        data = json.loads(p.read_text(encoding="utf-8"))
+        ckpt = set((data.get("checkpoint") or {}).get("completed_windows") or [])
+        claimed = {
+            w["window_key"]
+            for w in data.get("windows") or []
+            if w.get("status") == "completed"
+        }
+        assert claimed.issubset(ckpt), (name, claimed, ckpt)
+        path = data.get("path_proof") or {}
+        if path.get("status") == "success" and path.get("window"):
+            assert path["window"] in ckpt
+            # must not claim live completion during seal
+            joined = " ".join(data.get("claims_allowed") or [])
+            assert "completed in this sealed run_id" not in joined

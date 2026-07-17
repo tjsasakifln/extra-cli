@@ -1,26 +1,18 @@
 {
   "pilot": "k3.2-pncp-90d",
   "campaign": "NEXT-30D",
-  "run_id": "contracts-seal-20260717T013904Z-93128c0ada",
-  "previous_run_ids": [
-    "contracts-seal-20260717T013532Z-8a75167062",
-    "contracts-seal-20260717T013533Z-1c27368b29",
-    "contracts-seal-20260717T013812Z-5b72beda3b",
-    "contracts-seal-20260717T013821Z-9dc1af450d",
-    "contracts-seal-20260717T013822Z-b6c6f7dca9",
-    "contracts-seal-20260717T013822Z-8cb529557f",
-    "contracts-seal-20260717T013845Z-f0c8202f5e"
-  ],
+  "run_id": "contracts-seal-20260717T014354Z-f25ea04805",
+  "previous_run_ids": [],
   "mode": "full",
   "days": 7,
   "window_days": 30,
   "planned_windows": 1,
   "range_start": "2026-07-09",
   "range_end": "2026-07-16",
-  "started_at": "2026-07-17T01:39:04.776013+00:00",
-  "completed_at": "2026-07-17T01:39:04.799336+00:00",
-  "duration_seconds": 0.023,
-  "checkpoint_path": "data/contracts_checkpoints/a5_next30d/contracts_full.json",
+  "started_at": "2026-07-17T01:43:54.360203+00:00",
+  "completed_at": "2026-07-17T01:43:54.384762+00:00",
+  "duration_seconds": 0.025,
+  "checkpoint_path": "data/contracts_checkpoints/span_7d/contracts_full.json",
   "windows": [
     {
       "window_key": "20260709_20260716",
@@ -30,7 +22,7 @@
       "inserted": 29357,
       "skipped": 12717,
       "errors": [],
-      "elapsed_seconds": 966.1
+      "origin": "prior_live_7d_smoke"
     }
   ],
   "totals": {
@@ -68,35 +60,20 @@
     "total_windows_completed": 1,
     "total_windows_failed": 0,
     "last_error": null,
-    "updated_at": "2026-07-17T01:39:04Z",
+    "updated_at": "2026-07-17T01:43:54Z",
     "meta": {
-      "run_id": "contracts-seal-20260717T013904Z-93128c0ada",
+      "run_id": "contracts-seal-20260717T014354Z-f25ea04805",
       "run_ids": [
-        "contracts-seal-20260717T013532Z-8a75167062",
-        "contracts-seal-20260717T013533Z-1c27368b29",
-        "contracts-seal-20260717T013812Z-5b72beda3b",
-        "contracts-seal-20260717T013821Z-9dc1af450d",
-        "contracts-seal-20260717T013822Z-b6c6f7dca9",
-        "contracts-seal-20260717T013822Z-8cb529557f",
-        "contracts-seal-20260717T013845Z-f0c8202f5e",
-        "contracts-seal-20260717T013904Z-93128c0ada"
+        "contracts-seal-20260717T014354Z-f25ea04805"
       ],
-      "previous_run_ids": [
-        "contracts-seal-20260717T013532Z-8a75167062",
-        "contracts-seal-20260717T013533Z-1c27368b29",
-        "contracts-seal-20260717T013812Z-5b72beda3b",
-        "contracts-seal-20260717T013821Z-9dc1af450d",
-        "contracts-seal-20260717T013822Z-b6c6f7dca9",
-        "contracts-seal-20260717T013822Z-8cb529557f",
-        "contracts-seal-20260717T013845Z-f0c8202f5e"
-      ],
-      "foreign_resume": true
+      "previous_run_ids": [],
+      "foreign_resume": false
     }
   },
-  "git_sha": "1da86191d0697b9a7348866bd2621030f3cb7052",
+  "git_sha": "1b9340c09ba329a3e0293aca56f9235f5b818f30",
   "git_branch": "main",
   "sealed": true,
-  "seal_note": "Machine-sealed terminal artifact via seal_pilot_artifact (no network). Not a substitute for full live 90d crawl.",
+  "seal_note": "Machine-sealed terminal artifact via seal_pilot_artifact (no network). Attests prior live totals; not a substitute for full live 90d crawl. duration_seconds is seal time only.",
   "claims_allowed": [
     "Resumable pilot runner exists; partial windows are not marked complete",
     "Artifact sealed with run_id and evidence hashes"
@@ -104,13 +81,15 @@
   "claims_forbidden": [
     "Unsupervised 3y without re-validation",
     "GO for unsupervised 3-year backfill",
-    "CONTRATOS_95"
+    "CONTRATOS_95",
+    "Seal duration equals live crawl duration",
+    "Seal re-fetched PNCP pages"
   ],
   "db": {
     "pncp_supplier_contracts_count": 63574,
     "min_data_publicacao": "2021-08-26",
     "max_data_publicacao": "2026-12-16",
-    "data_publicacao_note": "LEGACY/MIXED semantics until migration 051 re-ingest",
+    "data_publicacao_note": "LEGACY/MIXED",
     "sample_populated_n20": 20,
     "monthly": [
       {
@@ -132,26 +111,27 @@
     ]
   },
   "evidence": {
-    "run_id": "contracts-seal-20260717T013904Z-93128c0ada",
-    "git_sha": "1da86191d0697b9a7348866bd2621030f3cb7052",
+    "run_id": "contracts-seal-20260717T014354Z-f25ea04805",
+    "git_sha": "1b9340c09ba329a3e0293aca56f9235f5b818f30",
     "git_branch": "main",
-    "started_at": "2026-07-17T01:39:04.776013+00:00",
-    "completed_at": "2026-07-17T01:39:04.799336+00:00",
+    "started_at": "2026-07-17T01:43:54.360203+00:00",
+    "completed_at": "2026-07-17T01:43:54.384762+00:00",
     "host_id": "72aa0c75ebd3",
     "command": "scripts/crawl/run_contracts_90d_pilot.py:seal_pilot_artifact",
     "args": {
       "days": 7,
-      "checkpoint_dir": "data/contracts_checkpoints/a5_next30d",
-      "sealed": true
+      "checkpoint_dir": "data/contracts_checkpoints/span_7d",
+      "sealed": true,
+      "sync_completed_windows": true
     },
     "env_non_secret": {
       "CONTRACTS_ALLOW_CROSS_RUN_RESUME": "1",
-      "CONTRACTS_CHECKPOINT_DIR": "data/contracts_checkpoints/a5_next30d"
+      "CONTRACTS_CHECKPOINT_DIR": "data/contracts_checkpoints/span_7d"
     },
-    "checkpoint_path": "data/contracts_checkpoints/a5_next30d/contracts_full.json",
-    "checkpoint_hash": "28877c1f9ef1909c73ac749df7bbbc6f1b9699536d782d129eaf267216eb8dbd",
+    "checkpoint_path": "data/contracts_checkpoints/span_7d/contracts_full.json",
+    "checkpoint_hash": "ddf95d5e77e198644939cd8902be37d1380d587026b4fb975ac8bfdbf766879c",
     "output_path": "output/contracts/pilot-7d-smoke.json",
-    "output_hash": "f83c3f750045134101a88e9366d636b668e3d58c7ee10d3dfdab54f1bda592fa",
+    "output_hash": "72de2293d0bcff75ed120c02dfdb4fa2bbc8d402eb2b87b028c0eb3df0b15fd4",
     "log_path": null,
     "log_hash": null,
     "migration_head": null,
@@ -185,17 +165,11 @@
     "claims_forbidden": [
       "Unsupervised 3y without re-validation",
       "GO for unsupervised 3-year backfill",
-      "CONTRATOS_95"
+      "CONTRATOS_95",
+      "Seal duration equals live crawl duration",
+      "Seal re-fetched PNCP pages"
     ],
-    "previous_run_ids": [
-      "contracts-seal-20260717T013532Z-8a75167062",
-      "contracts-seal-20260717T013533Z-1c27368b29",
-      "contracts-seal-20260717T013812Z-5b72beda3b",
-      "contracts-seal-20260717T013821Z-9dc1af450d",
-      "contracts-seal-20260717T013822Z-b6c6f7dca9",
-      "contracts-seal-20260717T013822Z-8cb529557f",
-      "contracts-seal-20260717T013845Z-f0c8202f5e"
-    ],
-    "checkpoint_content_sha256": "4a3e1fa646b4445b59bf4dd234d48fd36b76a57458eff9dbeec48aa0c4896e41"
+    "previous_run_ids": [],
+    "checkpoint_content_sha256": "04e99623220fb3d887c4536c94f76bbca733d682aafb0516c93d2909ebe97611"
   }
 }

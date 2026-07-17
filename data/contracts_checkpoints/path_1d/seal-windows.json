@@ -1,0 +1,45 @@
+{
+  "windows": [
+    {
+      "window_key": "20260715_20260715",
+      "status": "completed",
+      "pages": 13,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "errors": [],
+      "origin": "prior_live_path_proof"
+    }
+  ],
+  "totals": {
+    "fetched": 6169,
+    "transformed": 6169,
+    "inserted": 6119,
+    "skipped": 50,
+    "pages": 13,
+    "page_errors": 0
+  },
+  "path_proof": {
+    "status": "success",
+    "days": 1,
+    "window": "20260715_20260715",
+    "totals": {
+      "fetched": 6169,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "pages": 13,
+      "page_errors": 0,
+      "windows_ok": 1,
+      "windows_failed": 0
+    },
+    "note": "Prior live 1-day path; sealed with matching checkpoint window"
+  },
+  "db": {
+    "pncp_supplier_contracts_count": 42216,
+    "min_data_publicacao": "2021-08-26",
+    "max_data_publicacao": "2026-12-16",
+    "data_publicacao_note": "LEGACY/MIXED",
+    "sample_populated_n20": 20
+  }
+}

@@ -247,16 +247,24 @@ def verify_checkpoint_hash(path: str | Path, expected_hash: str | None) -> None:
         )
 
 
-def assert_proof_run_coherence(report: dict[str, Any]) -> None:
-    """Fail-closed: path/success proof must share run_id across report/evidence/checkpoint.
+def assert_proof_run_coherence(
+    report: dict[str, Any],
+    *,
+    verify_live_checkpoint_file: bool = True,
+) -> None:
+    """Fail-closed: path/success proof must share run_id and checkpoint window set.
 
     Rules:
-    - report.run_id required
-    - evidence.run_id must equal report.run_id
-    - evidence must include checkpoint_hash and git_sha (or explicit null git soft-fail only if documented)
-    - path_proof, if present with status=success, must carry same run_id
-    - skipped_resume alone cannot be path_proof for a foreign checkpoint without
-      windows completed in this run
+    - report.run_id required; evidence.run_id must match
+    - checkpoint_hash and/or checkpoint_content_sha256 required
+    - embedded checkpoint content hash must match when both present
+    - path_proof success requires:
+        * same run_id (when set)
+        * path_proof.window ∈ checkpoint.completed_windows
+        * every windows[].status==completed key ⊆ checkpoint.completed_windows
+        * not only skipped_resume
+    - when checkpoint.meta.run_id == report.run_id and verify_live_checkpoint_file,
+      re-hash live checkpoint file against evidence.checkpoint_hash
     """
     if not isinstance(report, dict):
         raise ValueError("report must be a dict")
@@ -276,7 +284,6 @@ def assert_proof_run_coherence(report: dict[str, Any]) -> None:
         raise ValueError(
             "evidence.checkpoint_hash or checkpoint_content_sha256 required for proof"
         )
-    # Embedded checkpoint content must match declared content hash when both present
     embedded = report.get("checkpoint")
     content_hash = evidence.get("checkpoint_content_sha256")
     if embedded is not None and content_hash:
@@ -287,6 +294,23 @@ def assert_proof_run_coherence(report: dict[str, Any]) -> None:
             )
     if report.get("status") == "running":
         raise ValueError("status=running is not a terminal proof artifact")
+
+    ckpt_completed: set[str] = set()
+    if isinstance(embedded, dict):
+        ckpt_completed = {str(x) for x in (embedded.get("completed_windows") or [])}
+
+    report_completed = {
+        str(w.get("window_key"))
+        for w in (report.get("windows") or [])
+        if isinstance(w, dict) and w.get("status") == "completed" and w.get("window_key")
+    }
+    if report_completed and not report_completed.issubset(ckpt_completed):
+        missing = sorted(report_completed - ckpt_completed)
+        raise ValueError(
+            "windows marked completed not present in checkpoint.completed_windows: "
+            + ", ".join(missing)
+        )
+
     path = report.get("path_proof")
     if isinstance(path, dict) and path.get("status") == "success":
         path_rid = path.get("run_id")
@@ -294,7 +318,6 @@ def assert_proof_run_coherence(report: dict[str, Any]) -> None:
             raise ValueError(
                 f"path_proof.run_id {path_rid!r} != report.run_id {run_id!r}"
             )
-        # Foreign resume: only skipped windows, no completed in this run → invalid path proof
         totals = report.get("totals") or {}
         windows_ok = int(totals.get("windows_ok") or 0)
         if windows_ok < 1 and int(totals.get("windows_skipped_resume") or 0) >= 1:
@@ -302,6 +325,21 @@ def assert_proof_run_coherence(report: dict[str, Any]) -> None:
                 "path_proof success cannot rest only on skipped_resume "
                 "(foreign or prior run windows) — need a clean window in this run_id"
             )
+        window_key = path.get("window")
+        if window_key:
+            if str(window_key) not in ckpt_completed:
+                raise ValueError(
+                    f"path_proof.window {window_key!r} not in "
+                    f"checkpoint.completed_windows={sorted(ckpt_completed)}"
+                )
+
+    # Live file re-hash when this run owns the checkpoint file
+    if verify_live_checkpoint_file and isinstance(embedded, dict):
+        meta = embedded.get("meta") or {}
+        if meta.get("run_id") == run_id and evidence.get("checkpoint_hash"):
+            cp_path = evidence.get("checkpoint_path") or report.get("checkpoint_path")
+            if cp_path:
+                verify_checkpoint_hash(cp_path, evidence["checkpoint_hash"])
 
 
 def bind_checkpoint_run_id(

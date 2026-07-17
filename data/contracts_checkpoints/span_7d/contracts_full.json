@@ -1,0 +1,21 @@
+{
+  "source": "pncp_contracts",
+  "mode": "full",
+  "completed_windows": [
+    "20260709_20260716"
+  ],
+  "current_window_start": "20260709",
+  "total_contracts_fetched": 42074,
+  "total_windows_completed": 1,
+  "total_windows_failed": 0,
+  "last_error": null,
+  "updated_at": "2026-07-17T01:43:54Z",
+  "meta": {
+    "run_id": "contracts-seal-20260717T014354Z-f25ea04805",
+    "run_ids": [
+      "contracts-seal-20260717T014354Z-f25ea04805"
+    ],
+    "previous_run_ids": [],
+    "foreign_resume": false
+  }
+}

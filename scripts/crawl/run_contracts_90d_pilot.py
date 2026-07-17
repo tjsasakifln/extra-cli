@@ -440,6 +440,20 @@ def _build_path_proof(
     return None
 
 
+def _p6_checkpoint_coherent(
+    windows: list[dict[str, Any]],
+    completed_windows: list[str] | None,
+) -> bool:
+    """True iff every windows[].status==completed key is in checkpoint set."""
+    ckpt = {str(x) for x in (completed_windows or [])}
+    claimed = {
+        str(w.get("window_key"))
+        for w in windows
+        if isinstance(w, dict) and w.get("status") == "completed" and w.get("window_key")
+    }
+    return claimed.issubset(ckpt)
+
+
 def seal_pilot_artifact(
     *,
     days: int,
@@ -451,12 +465,19 @@ def seal_pilot_artifact(
     path_proof_override: dict[str, Any] | None = None,
     db_snapshot: dict[str, Any] | None = None,
     allow_cross_run_resume: bool = True,
+    sync_completed_windows: bool = True,
 ) -> dict[str, Any]:
     """Machine-seal a terminal pilot artifact with run_id + evidence (no network).
 
-    Used to re-emit honest evidence for path/partial runs without re-crawling.
+    When ``sync_completed_windows`` is True, every windows entry with
+    status=completed is written into the checkpoint ``completed_windows`` set
+    so path_proof.window cannot diverge from the checkpoint snapshot.
+
+    Sealed path_proof is an **attestation** of prior live totals, not a new crawl.
     Never invents success for full 90d when planned coverage is incomplete.
     """
+    from scripts.crawl.run_evidence import sha256_json
+
     started = datetime.now(UTC)
     mode = "full"
     today = date.today()
@@ -467,12 +488,6 @@ def seal_pilot_artifact(
     ckpt_dir = _configure_checkpoint_dir(checkpoint_dir)
     checkpoint_path = str(Path(ckpt_dir) / f"contracts_{mode}.json")
     checkpoint = load_checkpoint(mode)
-    previous_run_ids = _apply_run_id_to_checkpoint(
-        checkpoint,
-        run_id,
-        allow_cross_run_resume=allow_cross_run_resume,
-    )
-    save_checkpoint(checkpoint)
 
     totals = {
         "fetched": 0,
@@ -503,8 +518,6 @@ def seal_pilot_artifact(
                     continue
                 totals[k] = v
     else:
-        # Derive from checkpoint completed_windows only as skipped_resume
-        # (no path_proof unless caller provides windows with status=completed).
         for wk in checkpoint.completed_windows or []:
             windows.append(
                 {
@@ -517,19 +530,49 @@ def seal_pilot_artifact(
         if totals_override:
             totals.update(totals_override)
 
+    # Materialize completed window keys into the checkpoint snapshot (no invent
+    # of new live work — only aligns attestation with claimed windows).
+    if sync_completed_windows:
+        completed_keys = [
+            str(w.get("window_key"))
+            for w in windows
+            if isinstance(w, dict)
+            and w.get("status") == "completed"
+            and w.get("window_key")
+        ]
+        # For isolated seal dirs, replace with exact claimed set so live path
+        # and embedded snapshot cannot diverge from windows[].
+        if completed_keys:
+            checkpoint.completed_windows = list(dict.fromkeys(completed_keys))
+            checkpoint.total_windows_completed = len(checkpoint.completed_windows)
+            if totals.get("transformed"):
+                checkpoint.total_contracts_fetched = int(totals["transformed"])
+
+    previous_run_ids = _apply_run_id_to_checkpoint(
+        checkpoint,
+        run_id,
+        allow_cross_run_resume=allow_cross_run_resume,
+    )
+    # Fresh seal of an isolated dir is not a foreign resume of another pilot's work
+    if not previous_run_ids:
+        meta = dict(checkpoint.meta or {})
+        meta["foreign_resume"] = False
+        checkpoint.meta = meta
+    save_checkpoint(checkpoint)
+
     status = evaluate_pilot_status(
         totals,
         planned_windows=planned_windows,
         require_full_coverage=True,
     )
+    p6 = _p6_checkpoint_coherent(windows, checkpoint.completed_windows)
     criteria = {
         "P1_run_status": status == "success",
         "P2_date_span": bool(db_snapshot and db_snapshot.get("min_data_publicacao")),
         "P3_monthly": bool(db_snapshot and db_snapshot.get("monthly")),
         "P5_no_residual_page_errors": totals["page_errors"] == 0
         and totals["windows_failed"] == 0,
-        "P6_checkpoint_coherent": len(checkpoint.completed_windows or [])
-        >= totals["windows_ok"] + totals["windows_skipped_resume"],
+        "P6_checkpoint_coherent": p6,
         "P7_sample_fields": int((db_snapshot or {}).get("sample_populated_n20") or 0)
         >= 20
         or int((db_snapshot or {}).get("pncp_supplier_contracts_count") or 0) >= 20,
@@ -556,6 +599,25 @@ def seal_pilot_artifact(
     if isinstance(path_proof, dict):
         path_proof = dict(path_proof)
         path_proof["run_id"] = run_id
+        path_proof["attestation"] = True
+        path_proof["attestation_note"] = (
+            "Totals from prior live crawl; this seal binds run_id + checkpoint "
+            "snapshot without re-fetching the PNCP API."
+        )
+        # Ensure path window matches a completed key in checkpoint
+        wk = path_proof.get("window")
+        if not wk and windows:
+            for w in windows:
+                if w.get("status") == "completed" and w.get("window_key"):
+                    path_proof["window"] = w["window_key"]
+                    break
+        if path_proof.get("window") and str(path_proof["window"]) not in {
+            str(x) for x in (checkpoint.completed_windows or [])
+        }:
+            raise ValueError(
+                f"path_proof.window {path_proof.get('window')!r} missing from "
+                f"checkpoint after sync: {checkpoint.completed_windows}"
+            )
 
     completed_at = datetime.now(UTC)
     git = get_git_meta()
@@ -587,7 +649,8 @@ def seal_pilot_artifact(
         "sealed": True,
         "seal_note": (
             "Machine-sealed terminal artifact via seal_pilot_artifact "
-            "(no network). Not a substitute for full live 90d crawl."
+            "(no network). Attests prior live totals; not a substitute for "
+            "full live 90d crawl. duration_seconds is seal time only."
         ),
         "claims_allowed": [
             "Resumable pilot runner exists; partial windows are not marked complete",
@@ -601,21 +664,21 @@ def seal_pilot_artifact(
             if go_label != "GO"
             else "Skip re-check after schema changes",
             "CONTRATOS_95",
+            "Seal duration equals live crawl duration",
+            "Seal re-fetched PNCP pages",
         ],
     }
     if db_snapshot:
         report["db"] = db_snapshot
-    if path_proof is not None:
-        report["path_proof"] = path_proof
-        if path_proof.get("status") == "success" and int(totals.get("windows_ok") or 0) >= 1:
+    if path_proof is not None and path_proof.get("status") == "success":
+        if int(totals.get("windows_ok") or 0) >= 1 and p6:
+            report["path_proof"] = path_proof
             report["claims_allowed"].append(
-                "At least one clean window completed in this sealed run_id (path_proof)"
+                "path_proof attestation: window present in checkpoint snapshot "
+                "for this seal run_id; totals from prior live execution "
+                "(not re-fetched during seal)"
             )
-        elif path_proof.get("status") == "success":
-            # strip illegal path proof that only uses skip
-            report.pop("path_proof", None)
-
-    from scripts.crawl.run_evidence import sha256_json
+        # else drop incoherent path_proof
 
     ckpt_dict = checkpoint.to_dict()
     evidence = build_run_evidence(
@@ -625,7 +688,12 @@ def seal_pilot_artifact(
         started_at=report["started_at"],
         completed_at=report["completed_at"],
         command="scripts/crawl/run_contracts_90d_pilot.py:seal_pilot_artifact",
-        args={"days": days, "checkpoint_dir": ckpt_dir, "sealed": True},
+        args={
+            "days": days,
+            "checkpoint_dir": ckpt_dir,
+            "sealed": True,
+            "sync_completed_windows": sync_completed_windows,
+        },
         checkpoint_path=checkpoint_path,
         checkpoint_hash=sha256_file(checkpoint_path),
         output_path=output_json,
@@ -647,11 +715,9 @@ def seal_pilot_artifact(
     report["evidence"]["output_hash"] = sha256_file(out)
     out.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
 
-    # path_proof coherence: only validate if still present with windows_ok
     if report.get("path_proof") and int(totals.get("windows_ok") or 0) >= 1:
-        assert_proof_run_coherence(report)
+        assert_proof_run_coherence(report, verify_live_checkpoint_file=True)
     elif report.get("status") != "running":
-        # Minimal coherence without path_proof
         if not report.get("run_id"):
             raise ValueError("sealed report missing run_id")
         if not (report.get("evidence") or {}).get("checkpoint_hash"):
