@@ -2176,7 +2176,8 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 ## 41. Sessão multiagente — ingestão real DOE/DOM/Compras + reconciliação (2026-07-17)
 
 > **HEAD inicial:** `0a2806f8dcaf56377680c640390f73e27cd1d393`  
-> **SHA técnico (código/evidência):** `8b8138aa05fff521f329b8c00221acd0bb147e24`
+> **SHA técnico (código/evidência):** `8b8138aa05fff521f329b8c00221acd0bb147e24`  
+> **SHA correção adversarial (recon/metrics/052):** `3bf1a3ba877defe43fcf3c6623af70b4c3a91475`
 > **SHA documental final (HEAD da publicação):** ver último commit em `main` após este fechamento; SHA técnico estável abaixo.  
 > **Branch:** `main`  
 > **Natureza:** execução real (live_fetch) + persistência local + testes. **Não** declara LOCAL_READY, 95%, 90d pilot success, VPS ou PROJECT_DONE.
