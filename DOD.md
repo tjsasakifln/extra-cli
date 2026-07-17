@@ -2525,7 +2525,7 @@ Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução C
 **Decisão:** `LOCAL_RESILIENCE_READY`  
 **Não implica:** `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95% ou freshness externa garantida.  
 **Branch:** `feat/local-resilience-ready-20260717`  
-**Commit:** `a4f8549` (+ chain feat/local-resilience)  
+**Commit:** `3ebd5b4` (chain feat/local-resilience)
 **Smoke gate:** 181 passed, 24 skipped  
 **Documento canônico:** `docs/operations/PRE-VPS-READINESS.md`  
 **Diagnóstico pré-código:** `docs/operations/LOCAL-RESILIENCE-DIAGNOSIS.md`
