@@ -28,7 +28,8 @@
 - [x] O workspace cotidiano executa `today`, `opportunities`, `dossier`, `coverage`, `competitors`, `expiring-contracts`, `prices`, `edital analyze`, `proposal support`, `contracts`, `decide` e relatórios; `GO` legado é rebaixado a `REVIEW` quando o perfil da Extra está incompleto.
 - [x] O benchmark preliminar contém quatro publicações oficiais CIGA com ID, URL e hash. Resultado observado 4/4, mas estado **PARTIAL/NOT_READY** por estratos ausentes e limitação de independência; não é claim de recall de 100%.
 - [x] Testes críticos deste ciclo: **74 passed**; golden path estrito PCP: `gp-20260717-102949`, exit code 0, 184 fetched, 7 inserted. O golden path PNCP falhou por timeout e permanece evidência de source health degradado.
-- [ ] Suíte global/CI verde. Execução local ampla encontrou dívida de ambiente/schema em views canônicas e testes dependentes de banco; o item permanece aberto até o check remoto concluir sem falhas.
+- [x] CI obrigatório da PR #10 verde: ruff, mypy, testes críticos, bandit e pip-audit. Evidência: GitHub Actions run `29585067851`, merge commit `d2d66d725849ab5be3a534aa085775be50cbd702`.
+- [ ] Suíte global completa verde. O workflow marcou `Test All (full suite)` como `skipped`; a execução local ampla encontrou dívida de ambiente/schema em views canônicas e testes dependentes de banco.
 - [ ] Freshness coverage mensurável por entidade dentro dos SLAs.
 - [ ] Recall independente e estratificado ≥95%.
 - [ ] Cobertura operacional ≥95% (mínimo **1.039/1.093** entidades).
