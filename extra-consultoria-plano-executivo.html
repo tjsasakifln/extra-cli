@@ -774,27 +774,48 @@ svg {
     @media(max-width:700px){#extra-plano .ep-shell{padding:10px}#extra-plano .ep-top{display:grid}#extra-plano .ep-actions{justify-content:flex-start}#extra-plano .ep-span-3,#extra-plano .ep-span-4,#extra-plano .ep-span-5,#extra-plano .ep-span-6,#extra-plano .ep-span-7,#extra-plano .ep-span-8,#extra-plano .ep-span-12{grid-column:span 12}#extra-plano .ep-phases{grid-template-columns:1fr}#extra-plano .ep-gantt-head,#extra-plano .ep-gantt-row{grid-template-columns:1fr}#extra-plano .ep-gantt-head .ep-weeks{display:none}#extra-plano .ep-selected{grid-template-columns:1fr 1fr}#extra-plano .ep-selected > div:first-child{grid-column:1/-1}#extra-plano .ep-dod-item{grid-template-columns:58px 1fr}#extra-plano .ep-dod-item>:last-child{grid-column:2}#extra-plano .ep-kpi-row{grid-template-columns:1fr 1fr}#extra-plano .ep-network{min-height:590px}}
 
 
-    #extra-plano .ep-rvp{display:grid;gap:14px;margin-top:10px}
-    #extra-plano .ep-rvp-metric{display:grid;gap:4px}
-    #extra-plano .ep-rvp-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:12px}
+
+    /* Real vs planned charts — full-width, responsive, no JS */
+    #extra-plano .ep-rvp-wrap{grid-column:1 / -1;display:grid;gap:12px;width:100%;min-width:0}
+    #extra-plano .ep-rvp-card{background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:14px;padding:16px;min-width:0;overflow:hidden}
+    #extra-plano .ep-rvp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%}
+    #extra-plano .ep-rvp{display:grid;gap:14px;margin-top:10px;width:100%}
+    #extra-plano .ep-rvp-metric{display:grid;gap:6px;width:100%}
+    #extra-plano .ep-rvp-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:12px;flex-wrap:wrap}
     #extra-plano .ep-rvp-head span{color:var(--muted-foreground);font-weight:600}
-    #extra-plano .ep-rvp-head strong{font-size:11px;font-weight:700;white-space:nowrap}
-    #extra-plano .ep-rvp-pair{display:grid;gap:4px}
-    #extra-plano .ep-rvp-line{display:grid;grid-template-columns:72px 1fr;gap:8px;align-items:center;font-size:10px;color:var(--muted-foreground)}
-    #extra-plano .ep-rvp-track{height:14px;background:rgba(128,128,128,.18);border:1px solid var(--border);border-radius:999px;overflow:hidden}
-    #extra-plano .ep-rvp-bar{display:block;height:100%;min-width:3px;border-radius:999px}
-    #extra-plano .ep-rvp-bar.planned{background:#94a3b8}
+    #extra-plano .ep-rvp-head strong{font-size:11px;font-weight:700}
+    #extra-plano .ep-rvp-pair{display:grid;gap:6px;width:100%}
+    #extra-plano .ep-rvp-line{display:grid;grid-template-columns:78px minmax(0,1fr) 48px;gap:8px;align-items:center;font-size:11px;color:var(--muted-foreground);width:100%}
+    #extra-plano .ep-rvp-line > span:first-child{white-space:nowrap}
+    #extra-plano .ep-rvp-line > span:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:var(--foreground)}
+    #extra-plano .ep-rvp-track{height:16px;width:100%;min-width:0;background:#e2e8f0;border:1px solid #cbd5e1;border-radius:999px;overflow:hidden}
+    #extra-plano .ep-rvp-bar{display:block;height:100%;min-width:4px;border-radius:999px;max-width:100%}
+    #extra-plano .ep-rvp-bar.planned{background:#64748b}
     #extra-plano .ep-rvp-bar.actual{background:#0f766e}
     #extra-plano .ep-rvp-bar.actual.ok{background:#16a34a}
     #extra-plano .ep-rvp-bar.actual.warn{background:#dc2626}
     #extra-plano .ep-rvp-bar.actual.mid{background:#d97706}
-    #extra-plano .ep-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted-foreground);margin-top:8px}
+    #extra-plano .ep-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted-foreground);margin-top:10px}
     #extra-plano .ep-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:middle}
-    #extra-plano .ep-legend .l-planned{background:#94a3b8}
+    #extra-plano .ep-legend .l-planned{background:#64748b}
     #extra-plano .ep-legend .l-actual{background:#0f766e}
     #extra-plano .ep-legend .l-warn{background:#dc2626}
     #extra-plano .ep-legend .l-ok{background:#16a34a}
-    #extra-plano .ep-rvp-svg{width:100%;height:auto;display:block;margin-top:8px;background:rgba(128,128,128,.06);border:1px solid var(--border);border-radius:12px}
+    #extra-plano .ep-rvp-svg{width:100% !important;max-width:100%;height:auto !important;min-height:240px;aspect-ratio:560 / 240;display:block;margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px}
+    @media (max-width:900px){
+      #extra-plano .ep-rvp-grid{grid-template-columns:1fr}
+      #extra-plano .ep-rvp-line{grid-template-columns:64px minmax(0,1fr) 42px;font-size:10px}
+      #extra-plano .ep-rvp-svg{min-height:200px}
+    }
+    @media (max-width:520px){
+      #extra-plano .ep-rvp-line{grid-template-columns:1fr;gap:3px}
+      #extra-plano .ep-rvp-line > span:last-child{text-align:left}
+      #extra-plano .ep-rvp-track{height:18px}
+    }
+    @media (prefers-color-scheme: dark){
+      #extra-plano .ep-rvp-track{background:#1e293b;border-color:#334155}
+      #extra-plano .ep-rvp-svg{background:#0f172a;border-color:#334155}
+    }
     @media print{#extra-plano .ep-actions,#extra-plano .ep-nav,#extra-plano .ep-controls,#extra-plano .ep-pager{display:none!important}#extra-plano .ep-panel{display:block!important;break-before:page}#extra-plano .ep-panel:first-of-type{break-before:auto}#extra-plano .ep-card,#extra-plano .ep-phase{break-inside:avoid}#extra-plano .ep-shell{max-width:none;padding:0}}
   </style>
   <div class="ep-shell">
@@ -862,151 +883,167 @@ svg {
           <div class="ep-card ep-span-4"><div class="ep-kicker">Não pode afirmar ainda</div><p class="ep-meta">95% de cobertura; piloto 90d = success; 3 anos backfill; LOCAL_READY/VPS/PROJECT_DONE; PNCP SC 14d completo (429); match massivo por nº PNCP oficial; operação diária autônoma.</p></div>
           <div class="ep-card ep-span-4"><div class="ep-kicker">Decisão pedida</div><p class="ep-meta"><strong>Recomendado (A):</strong> continuar cobertura (10,61%→95%) — detail CNPJ Compras + PNCP backoff + órgãos CIGA. <strong>Paralelo (C):</strong> VPS <em>após</em> LOCAL_RESILIENCE_READY (já atingido). DoD §43.7 / §44.</p></div>
 
+        
+
+        </div>
+
         <div class="ep-section-head"><div><div class="ep-kicker">DoD §44 · Pré-VPS</div><div class="ep-section-title">Resiliência local pronta — gráficos real vs planejado</div></div><div class="ep-section-note">Gate <code>make resilience-gate</code> · 181 passed / 24 skipped · sem VPS_OPERATIONAL · sem 95%</div></div>
         <div class="ep-grid">
           <div class="ep-card ep-span-4"><div class="ep-kicker">Estado técnico</div><div class="ep-value">LOCAL_RESILIENCE_READY</div><div class="ep-meta">PNCP + CIGA + SC Compras no contrato ADR-021 fail-closed. Checkpoint/resume, DLQ, watermark, health e systemd preparados (não habilitados).</div></div>
           <div class="ep-card ep-span-4"><div class="ep-kicker">Gate de resiliência</div><div class="ep-value">181</div><div class="ep-meta">passed · 24 skipped · ruff/mypy/systemd OK · ciclo local idempotente exit 0 · health exit 0</div></div>
           <div class="ep-card ep-span-4"><div class="ep-kicker">VPS</div><div class="ep-value">0%</div><div class="ep-meta">Não contratada · não provisionada · não operacional. Próximo: checklist PRE-VPS-READINESS.</div></div>
-          <div class="ep-card ep-span-6">
-            <div class="ep-kicker">Avanço real vs planejado — cobertura</div>
-            <div class="ep-rvp">
-            <div class="ep-rvp-metric">
-              <div class="ep-rvp-head"><span>Registry de fontes</span><strong>100% real · 100% meta</strong></div>
-              <div class="ep-rvp-pair">
-                <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100.0%"></div></div></div>
-                <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual ok" style="width:100.0%"></div></div></div>
-              </div>
-            </div>
-            <div class="ep-rvp-metric">
-              <div class="ep-rvp-head"><span>Sinal comercial (≠ cobertura)</span><strong>10,61% real · 95% meta</strong></div>
-              <div class="ep-rvp-pair">
-                <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:95.0%"></div></div></div>
-                <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual warn" style="width:10.61%"></div></div></div>
-              </div>
-            </div>
-            <div class="ep-rvp-metric">
-              <div class="ep-rvp-head"><span>Cobertura operacional estrita</span><strong>0% real · 95% meta</strong></div>
-              <div class="ep-rvp-pair">
-                <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:95.0%"></div></div></div>
-                <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual warn" style="width:0%"></div></div></div>
-              </div>
-            </div>
-            </div>
 
-            <svg class="ep-rvp-svg" viewBox="0 0 560 220" role="img" aria-label="Gráfico real vs planejado de cobertura">
-              <text x="16" y="22" font-size="12" font-family="system-ui,sans-serif" fill="currentColor" font-weight="700">Cobertura — real vs planejado (%)</text>
-              <!-- y grid -->
-              <g stroke="currentColor" stroke-opacity="0.12" stroke-width="1">
-                <line x1="70" y1="40" x2="540" y2="40"/><line x1="70" y1="80" x2="540" y2="80"/>
-                <line x1="70" y1="120" x2="540" y2="120"/><line x1="70" y1="160" x2="540" y2="160"/>
-                <line x1="70" y1="200" x2="540" y2="200"/>
-              </g>
-              <g font-size="10" font-family="system-ui,sans-serif" fill="currentColor" fill-opacity="0.55">
-                <text x="48" y="44" text-anchor="end">100</text>
-                <text x="48" y="84" text-anchor="end">75</text>
-                <text x="48" y="124" text-anchor="end">50</text>
-                <text x="48" y="164" text-anchor="end">25</text>
-                <text x="48" y="204" text-anchor="end">0</text>
-              </g>
-              <!-- groups: Registry, Comercial, Ops  -->
-              <!-- Registry planned 100, actual 100 -->
-              <rect x="110" y="40" width="28" height="160" fill="#94a3b8" rx="3"/>
-              <rect x="142" y="40" width="28" height="160" fill="#16a34a" rx="3"/>
-              <text x="140" y="214" font-size="10" text-anchor="middle" fill="currentColor">Registry</text>
-              <!-- Comercial planned 95, actual 10.61 -->
-              <rect x="250" y="48" width="28" height="152" fill="#94a3b8" rx="3"/>
-              <rect x="282" y="183" width="28" height="17" fill="#dc2626" rx="3"/>
-              <text x="280" y="214" font-size="10" text-anchor="middle" fill="currentColor">Comercial</text>
-              <!-- Ops planned 95, actual 0 -->
-              <rect x="390" y="48" width="28" height="152" fill="#94a3b8" rx="3"/>
-              <rect x="422" y="198" width="28" height="2" fill="#dc2626" rx="1"/>
-              <text x="420" y="214" font-size="10" text-anchor="middle" fill="currentColor">Ops estrita</text>
-              <g font-size="10" font-family="system-ui,sans-serif">
-                <rect x="430" y="12" width="10" height="10" fill="#94a3b8" rx="2"/><text x="444" y="21" fill="currentColor">Planejado</text>
-                <rect x="500" y="12" width="10" height="10" fill="#0f766e" rx="2"/><text x="514" y="21" fill="currentColor">Real</text>
-              </g>
-            </svg>
+          <div class="ep-rvp-wrap">
+            <div class="ep-rvp-grid">
+              <div class="ep-rvp-card">
+                <div class="ep-kicker">Avanço real vs planejado — cobertura</div>
+                <div class="ep-rvp-metric">
+                  <div class="ep-rvp-head"><span>Registry de fontes</span><strong>100% real · 100% meta</strong></div>
+                  <div class="ep-rvp-pair">
+                    <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100%"></div></div><span>100%</span></div>
+                    <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual ok" style="width:100%"></div></div><span>100% real</span></div>
+                  </div>
+                </div>
 
-            <div class="ep-legend"><span><i class="l-planned"></i>Planejado (meta)</span><span><i class="l-ok"></i>Real OK</span><span><i class="l-warn"></i>Real abaixo da meta</span></div>
-            <p class="ep-meta" style="margin-top:8px">Sinal comercial 116/1.093 <strong>não</strong> é cobertura operacional. Meta formal DoD: ≥95% editais e contratos no raio.</p>
+                <div class="ep-rvp-metric">
+                  <div class="ep-rvp-head"><span>Sinal comercial (≠ cobertura)</span><strong>10,61% real · 95% meta</strong></div>
+                  <div class="ep-rvp-pair">
+                    <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:95%"></div></div><span>95%</span></div>
+                    <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual warn" style="width:10.61%"></div></div><span>10,61% real</span></div>
+                  </div>
+                </div>
+
+                <div class="ep-rvp-metric">
+                  <div class="ep-rvp-head"><span>Cobertura operacional estrita</span><strong>0% real · 95% meta</strong></div>
+                  <div class="ep-rvp-pair">
+                    <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:95%"></div></div><span>95%</span></div>
+                    <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual warn" style="width:0;min-width:0"></div></div><span>0% real</span></div>
+                  </div>
+                </div>
+
+
+                <svg class="ep-rvp-svg" viewBox="0 0 560 240" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gráfico real vs planejado de cobertura">
+                  <rect x="0" y="0" width="560" height="240" fill="transparent"/>
+                  <text x="16" y="24" font-size="13" font-family="system-ui,sans-serif" fill="#0f172a" font-weight="700">Cobertura — real vs planejado (%)</text>
+                  <g stroke="#94a3b8" stroke-opacity="0.35" stroke-width="1">
+                    <line x1="70" y1="50" x2="540" y2="50"/><line x1="70" y1="90" x2="540" y2="90"/>
+                    <line x1="70" y1="130" x2="540" y2="130"/><line x1="70" y1="170" x2="540" y2="170"/>
+                    <line x1="70" y1="210" x2="540" y2="210"/>
+                  </g>
+                  <g font-size="11" font-family="system-ui,sans-serif" fill="#64748b">
+                    <text x="60" y="54" text-anchor="end">100</text>
+                    <text x="60" y="94" text-anchor="end">75</text>
+                    <text x="60" y="134" text-anchor="end">50</text>
+                    <text x="60" y="174" text-anchor="end">25</text>
+                    <text x="60" y="214" text-anchor="end">0</text>
+                  </g>
+                  <!-- scale: 160px = 100% from y=210 up -->
+                  <rect x="115" y="50" width="30" height="160" fill="#64748b" rx="4"/>
+                  <rect x="149" y="50" width="30" height="160" fill="#16a34a" rx="4"/>
+                  <text x="147" y="228" font-size="11" text-anchor="middle" fill="#0f172a">Registry</text>
+                  <text x="130" y="44" font-size="10" text-anchor="middle" fill="#64748b">100</text>
+                  <text x="164" y="44" font-size="10" text-anchor="middle" fill="#16a34a">100</text>
+
+                  <rect x="255" y="58" width="30" height="152" fill="#64748b" rx="4"/>
+                  <rect x="289" y="193" width="30" height="17" fill="#dc2626" rx="4"/>
+                  <text x="287" y="228" font-size="11" text-anchor="middle" fill="#0f172a">Comercial</text>
+                  <text x="270" y="52" font-size="10" text-anchor="middle" fill="#64748b">95</text>
+                  <text x="304" y="188" font-size="10" text-anchor="middle" fill="#dc2626">10,6</text>
+
+                  <rect x="395" y="58" width="30" height="152" fill="#64748b" rx="4"/>
+                  <rect x="429" y="206" width="30" height="4" fill="#dc2626" rx="2"/>
+                  <text x="427" y="228" font-size="11" text-anchor="middle" fill="#0f172a">Ops estrita</text>
+                  <text x="410" y="52" font-size="10" text-anchor="middle" fill="#64748b">95</text>
+                  <text x="444" y="200" font-size="10" text-anchor="middle" fill="#dc2626">0</text>
+
+                  <rect x="430" y="14" width="12" height="12" fill="#64748b" rx="2"/><text x="446" y="24" font-size="11" fill="#0f172a">Planejado</text>
+                  <rect x="510" y="14" width="12" height="12" fill="#16a34a" rx="2"/><text x="526" y="24" font-size="11" fill="#0f172a">Real</text>
+                </svg>
+
+                <div class="ep-legend"><span><i class="l-planned"></i>Planejado</span><span><i class="l-ok"></i>Real OK</span><span><i class="l-warn"></i>Abaixo da meta</span></div>
+                <p class="ep-meta" style="margin-top:8px">Sinal comercial 116/1.093 <strong>não</strong> é cobertura operacional. Meta formal DoD: ≥95% editais e contratos no raio.</p>
+              </div>
+              <div class="ep-rvp-card">
+                <div class="ep-kicker">Avanço real vs planejado — plataforma / ops</div>
+                <div class="ep-rvp-metric">
+                  <div class="ep-rvp-head"><span>Resiliência local pré-VPS</span><strong>100% real · 100% meta</strong></div>
+                  <div class="ep-rvp-pair">
+                    <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100%"></div></div><span>100%</span></div>
+                    <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual ok" style="width:100%"></div></div><span>100% real</span></div>
+                  </div>
+                </div>
+
+                <div class="ep-rvp-metric">
+                  <div class="ep-rvp-head"><span>E3.S1 / E3.S2 (QA/PO)</span><strong>InReview · ~70%</strong></div>
+                  <div class="ep-rvp-pair">
+                    <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100%"></div></div><span>100%</span></div>
+                    <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual mid" style="width:70%"></div></div><span>InReview</span></div>
+                  </div>
+                </div>
+
+                <div class="ep-rvp-metric">
+                  <div class="ep-rvp-head"><span>VPS operacional</span><strong>0% · não provisionada</strong></div>
+                  <div class="ep-rvp-pair">
+                    <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100%"></div></div><span>100%</span></div>
+                    <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual warn" style="width:0;min-width:0"></div></div><span>0%</span></div>
+                  </div>
+                </div>
+
+                <div class="ep-rvp-metric">
+                  <div class="ep-rvp-head"><span>PROJECT_DONE</span><strong>~0,1% aceite formal</strong></div>
+                  <div class="ep-rvp-pair">
+                    <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100%"></div></div><span>100%</span></div>
+                    <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual warn" style="width:0.15%"></div></div><span>~0,1% aceite formal</span></div>
+                  </div>
+                </div>
+
+
+                <svg class="ep-rvp-svg" viewBox="0 0 560 240" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gráfico real vs planejado de plataforma">
+                  <rect x="0" y="0" width="560" height="240" fill="transparent"/>
+                  <text x="16" y="24" font-size="13" font-family="system-ui,sans-serif" fill="#0f172a" font-weight="700">Plataforma / ops — real vs planejado (%)</text>
+                  <g stroke="#94a3b8" stroke-opacity="0.35" stroke-width="1">
+                    <line x1="70" y1="50" x2="540" y2="50"/><line x1="70" y1="90" x2="540" y2="90"/>
+                    <line x1="70" y1="130" x2="540" y2="130"/><line x1="70" y1="170" x2="540" y2="170"/>
+                    <line x1="70" y1="210" x2="540" y2="210"/>
+                  </g>
+                  <g font-size="11" font-family="system-ui,sans-serif" fill="#64748b">
+                    <text x="60" y="54" text-anchor="end">100</text>
+                    <text x="60" y="94" text-anchor="end">75</text>
+                    <text x="60" y="134" text-anchor="end">50</text>
+                    <text x="60" y="174" text-anchor="end">25</text>
+                    <text x="60" y="214" text-anchor="end">0</text>
+                  </g>
+                  <rect x="100" y="50" width="28" height="160" fill="#64748b" rx="4"/>
+                  <rect x="132" y="50" width="28" height="160" fill="#16a34a" rx="4"/>
+                  <text x="130" y="228" font-size="10" text-anchor="middle" fill="#0f172a">Resiliência</text>
+
+                  <rect x="220" y="50" width="28" height="160" fill="#64748b" rx="4"/>
+                  <rect x="252" y="98" width="28" height="112" fill="#d97706" rx="4"/>
+                  <text x="250" y="228" font-size="10" text-anchor="middle" fill="#0f172a">E3 S1/S2</text>
+                  <text x="266" y="92" font-size="10" text-anchor="middle" fill="#d97706">70</text>
+
+                  <rect x="340" y="50" width="28" height="160" fill="#64748b" rx="4"/>
+                  <rect x="372" y="206" width="28" height="4" fill="#dc2626" rx="2"/>
+                  <text x="370" y="228" font-size="10" text-anchor="middle" fill="#0f172a">VPS</text>
+
+                  <rect x="460" y="50" width="28" height="160" fill="#64748b" rx="4"/>
+                  <rect x="492" y="206" width="28" height="4" fill="#dc2626" rx="2"/>
+                  <text x="490" y="228" font-size="10" text-anchor="middle" fill="#0f172a">PROJECT</text>
+
+                  <rect x="430" y="14" width="12" height="12" fill="#64748b" rx="2"/><text x="446" y="24" font-size="11" fill="#0f172a">Planejado</text>
+                  <rect x="510" y="14" width="12" height="12" fill="#16a34a" rx="2"/><text x="526" y="24" font-size="11" fill="#0f172a">Real</text>
+                </svg>
+
+                <div class="ep-legend"><span><i class="l-planned"></i>Planejado</span><span><i class="l-ok"></i>Real OK</span><span><i class="l-warn"></i>Aberto / bloqueado</span></div>
+                <p class="ep-meta" style="margin-top:8px">Mecânica de coleta resiliente fechada localmente. Aceite formal DoD e VPS continuam abertos.</p>
+              </div>
+            </div>
           </div>
-          <div class="ep-card ep-span-6">
-            <div class="ep-kicker">Avanço real vs planejado — plataforma / ops</div>
-            <div class="ep-rvp">
-            <div class="ep-rvp-metric">
-              <div class="ep-rvp-head"><span>Resiliência local pré-VPS</span><strong>100% real · 100% meta</strong></div>
-              <div class="ep-rvp-pair">
-                <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100.0%"></div></div></div>
-                <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual ok" style="width:100.0%"></div></div></div>
-              </div>
-            </div>
-            <div class="ep-rvp-metric">
-              <div class="ep-rvp-head"><span>E3.S1 / E3.S2 (QA/PO)</span><strong>InReview · ~70%</strong></div>
-              <div class="ep-rvp-pair">
-                <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100.0%"></div></div></div>
-                <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual mid" style="width:70.0%"></div></div></div>
-              </div>
-            </div>
-            <div class="ep-rvp-metric">
-              <div class="ep-rvp-head"><span>VPS operacional</span><strong>0% · não provisionada</strong></div>
-              <div class="ep-rvp-pair">
-                <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100.0%"></div></div></div>
-                <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual warn" style="width:0%"></div></div></div>
-              </div>
-            </div>
-            <div class="ep-rvp-metric">
-              <div class="ep-rvp-head"><span>PROJECT_DONE</span><strong>~0,1% aceite formal</strong></div>
-              <div class="ep-rvp-pair">
-                <div class="ep-rvp-line"><span>Planejado</span><div class="ep-rvp-track"><div class="ep-rvp-bar planned" style="width:100.0%"></div></div></div>
-                <div class="ep-rvp-line"><span>Real</span><div class="ep-rvp-track"><div class="ep-rvp-bar actual warn" style="width:0.5%"></div></div></div>
-              </div>
-            </div>
-            </div>
 
-            <svg class="ep-rvp-svg" viewBox="0 0 560 220" role="img" aria-label="Gráfico real vs planejado de plataforma">
-              <text x="16" y="22" font-size="12" font-family="system-ui,sans-serif" fill="currentColor" font-weight="700">Plataforma / ops — real vs planejado (%)</text>
-              <g stroke="currentColor" stroke-opacity="0.12" stroke-width="1">
-                <line x1="70" y1="40" x2="540" y2="40"/><line x1="70" y1="80" x2="540" y2="80"/>
-                <line x1="70" y1="120" x2="540" y2="120"/><line x1="70" y1="160" x2="540" y2="160"/>
-                <line x1="70" y1="200" x2="540" y2="200"/>
-              </g>
-              <g font-size="10" font-family="system-ui,sans-serif" fill="currentColor" fill-opacity="0.55">
-                <text x="48" y="44" text-anchor="end">100</text>
-                <text x="48" y="84" text-anchor="end">75</text>
-                <text x="48" y="124" text-anchor="end">50</text>
-                <text x="48" y="164" text-anchor="end">25</text>
-                <text x="48" y="204" text-anchor="end">0</text>
-              </g>
-              <!-- Resilience 100/100 -->
-              <rect x="95" y="40" width="24" height="160" fill="#94a3b8" rx="3"/>
-              <rect x="123" y="40" width="24" height="160" fill="#16a34a" rx="3"/>
-              <text x="121" y="214" font-size="9" text-anchor="middle" fill="currentColor">Resiliência</text>
-              <!-- E3 InReview 100/70 -->
-              <rect x="210" y="40" width="24" height="160" fill="#94a3b8" rx="3"/>
-              <rect x="238" y="88" width="24" height="112" fill="#d97706" rx="3"/>
-              <text x="236" y="214" font-size="9" text-anchor="middle" fill="currentColor">E3 S1/S2</text>
-              <!-- VPS 100/0 -->
-              <rect x="325" y="40" width="24" height="160" fill="#94a3b8" rx="3"/>
-              <rect x="353" y="198" width="24" height="2" fill="#dc2626" rx="1"/>
-              <text x="351" y="214" font-size="9" text-anchor="middle" fill="currentColor">VPS</text>
-              <!-- Project done 100/0.1 -->
-              <rect x="440" y="40" width="24" height="160" fill="#94a3b8" rx="3"/>
-              <rect x="468" y="198" width="24" height="2" fill="#dc2626" rx="1"/>
-              <text x="466" y="214" font-size="9" text-anchor="middle" fill="currentColor">PROJECT</text>
-              <g font-size="10" font-family="system-ui,sans-serif">
-                <rect x="430" y="12" width="10" height="10" fill="#94a3b8" rx="2"/><text x="444" y="21" fill="currentColor">Planejado</text>
-                <rect x="500" y="12" width="10" height="10" fill="#16a34a" rx="2"/><text x="514" y="21" fill="currentColor">Real</text>
-              </g>
-            </svg>
-
-            <div class="ep-legend"><span><i class="l-planned"></i>Planejado</span><span><i class="l-ok"></i>Real OK</span><span><i class="l-warn"></i>Aberto / bloqueado</span></div>
-            <p class="ep-meta" style="margin-top:8px">Mecânica de coleta resiliente fechada localmente. Aceite formal DoD e VPS continuam abertos.</p>
-          </div>
           <div class="ep-card ep-span-12"><div class="ep-alert"><strong>§44 — o que mudou nesta entrega</strong><span>Contrato canônico ADR-021; 429/partial/zero ambíguo fail-closed; checkpoint atômico + resume; watermark só com evidence satisfatória; DLQ; raw antes de normalize; health consolidado; <code>make resilient-smoke|local-cycle|resilience-gate</code>; units systemd prioritárias preparadas. SC Compras não inventa success com bulk incompleto. Docs: PRE-VPS-READINESS, LOCAL-RESILIENCE-DIAGNOSIS, DoD §44.</span></div></div>
           <div class="ep-card ep-span-4"><div class="ep-kicker">Pode afirmar agora</div><p class="ep-meta">LOCAL_RESILIENCE_READY · 181 testes de smoke resiliente · ciclo local idempotente · health 0/1/2 · PNCP/CIGA/SC no contrato canônico · false success bloqueado em partial/429.</p></div>
           <div class="ep-card ep-span-4"><div class="ep-kicker">Não pode afirmar</div><p class="ep-meta">VPS_OPERATIONAL · LOCAL_READY · PROJECT_DONE · 95% cobertura · freshness live garantida · stories E3 Done (ainda InReview) · operação autônoma 24h.</p></div>
           <div class="ep-card ep-span-4"><div class="ep-kicker">Decisão pedida</div><p class="ep-meta"><strong>A:</strong> cobertura 10,61%→95%. <strong>B:</strong> checklist PRE-VPS e só então contratar host. <strong>C:</strong> QA/PO fecham E3.S1/S2. Não misturar B com cobertura.</p></div>
-        </div>
         </div>
       </section>
 
