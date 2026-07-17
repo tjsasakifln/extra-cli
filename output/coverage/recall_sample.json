@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "purpose": "Independent stratified recall sample — fill portal_items then run evaluate",
+  "window": {
+    "start": "2026-07-01",
+    "end": "2026-07-17",
+    "notes": "Fill with items observed on official portals during window"
+  },
+  "methodology": {
+    "rule": "For each portal_item, check if system captured it (by official id/url/hash)",
+    "forbidden": "Do not use COUNT(*) from database as recall proxy",
+    "required_strata": [
+      "municipio_grande",
+      "municipio_medio",
+      "municipio_pequeno",
+      "admin_direta",
+      "admin_indireta",
+      "autarquia",
+      "fundacao",
+      "camara",
+      "consorcio",
+      "source_api",
+      "source_html",
+      "source_pdf",
+      "source_js",
+      "platform_pncp",
+      "platform_sc_compras",
+      "platform_ciga"
+    ]
+  },
+  "portal_items": [
+    {
+      "sample_id": "EXAMPLE-001",
+      "strata": [
+        "municipio_medio",
+        "admin_direta",
+        "source_api",
+        "platform_pncp"
+      ],
+      "orgao_nome": "MUNICIPIO EXEMPLO",
+      "cnpj": null,
+      "objeto": "Reforma de prédio público — PREENCHER",
+      "portal_url": "https://example.invalid/edital/1",
+      "published_at": "2026-07-10",
+      "source_platform": "pncp",
+      "external_id": null,
+      "captured_by_system": null,
+      "capture_evidence": null,
+      "notes": "Replace with real portal observation"
+    }
+  ],
+  "status": "SCAFFOLD"
+}

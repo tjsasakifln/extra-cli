@@ -20,8 +20,8 @@
 # Referencia: Secao 9 do Plano Mestre, P0-05
 # =============================================================================
 
-version: "1.0"
-updated_at: "2026-07-13"
+version: "1.1"
+updated_at: "2026-07-17"
 status: draft  # Valores: draft | active | superseded
 
 # Regras de aplicabilidade por fonte
@@ -175,7 +175,9 @@ sources:
         priority: 10
         reason: "DOE-SC nao cobre entes federais"
     notes:
-      - "Requer credenciais de acesso"
+      - "Leitura pública: Dados Abertos SC/CKAN, datasets Diário Oficial SC - Publicações e Edições"
+      - "API autenticada do portal é apenas um caminho alternativo; coleta pública não requer credenciais"
+      - "Recursos públicos anuais podem ficar defasados; freshness falha fechado quando fora do SLA"
 
   # --------------------------------------------------------------------------
   # CIGA CKAN

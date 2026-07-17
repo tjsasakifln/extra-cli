@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-07-17",
+  "credentials_required": false,
+  "ciga_dom": {
+    "run_id": "ciga-dom-20260717T125842Z-cf9890803b",
+    "status": "success",
+    "resources_processed": 15,
+    "records_normalized": 15793,
+    "municipalities_observed": 282,
+    "municipalities_in_sc_universe": 280,
+    "publication_window": ["2026-07-06", "2026-07-11"],
+    "fresh_within_24h": false,
+    "claim_limit": "Acquisition proof only; does not establish strict operational entity coverage."
+  },
+  "doe_sc_public_ckan": {
+    "run_id": "doe-public-20260717T125621Z-45de2aa780",
+    "status": "success",
+    "package_id": "984555cc-7637-4d5b-8b84-775817e253da",
+    "resource_id": "0f2223f5-df6c-4860-96d6-f25636107379",
+    "raw_sha256": "45de2aa780cc603495ddf1ff180359bc799e828b5d61f59bc9c7d6912d60f310",
+    "records_read": 41080,
+    "records_normalized": 19139,
+    "latest_publication_date": "2025-07-14",
+    "fresh_within_24h": false,
+    "claim_limit": "Public no-credential adapter and historical acquisition proof; source resource is stale."
+  },
+  "database_vertical_slice": {
+    "run_id": "official-acts-load-20260717T130955Z-5628dd168c",
+    "status": "ok",
+    "registry_rows": 1093,
+    "official_acts_total": 300,
+    "by_source": {
+      "ciga_dom": 100,
+      "doe_sc_public_ckan": 100,
+      "sc_compras": 100
+    },
+    "duplicate_source_hash_groups": 0,
+    "snapshot_before_migrations": "/tmp/extra-consultoria-pre-052-053-20260717.sql",
+    "claim_limit": "Local vertical-slice proof; not production deployment and not operational coverage."
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "purpose": "Preliminary portal-item recall observation; intentionally PARTIAL until every mandatory stratum has an independent observation.",
+  "window": {
+    "start": "2026-07-06",
+    "end": "2026-07-06",
+    "observed_at": "2026-07-17",
+    "notes": "Official CIGA DOM public CKAN resource and official linked PDFs. This is not accepted as the final 95% benchmark because required strata remain absent."
+  },
+  "methodology": {
+    "rule": "Each publication observed in the official bulk resource is checked by native code and content hash in the acquired artifact.",
+    "forbidden": "Database row count is not used as a recall proxy.",
+    "independence_limitation": "Observation and capture use the same public CIGA distribution; a second reviewer/source path is still required for a final benchmark.",
+    "required_strata": [
+      "municipio_grande", "municipio_medio", "municipio_pequeno",
+      "admin_direta", "admin_indireta", "autarquia", "fundacao",
+      "camara", "consorcio", "source_api", "source_html", "source_pdf",
+      "source_js", "platform_pncp", "platform_sc_compras", "platform_ciga"
+    ]
+  },
+  "portal_items": [
+    {
+      "sample_id": "CIGA-8482717",
+      "strata": ["municipio_pequeno", "admin_direta", "source_api", "source_pdf", "platform_ciga"],
+      "orgao_nome": "Prefeitura municipal de Cordilheira Alta",
+      "objeto": "Aviso de licitação — processo 74/2026, dispensa 36/2026",
+      "portal_url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1783351154_extrato_extrato.pdf",
+      "published_at": "2026-07-06",
+      "source_platform": "ciga_dom",
+      "external_id": "8482717",
+      "captured_by_system": true,
+      "capture_evidence": "run ciga-dom-20260717T125842Z-cf9890803b; content_hash 60e1e0e3b9fd1f72e5eb159c1b5088346c28ac2bf61092f5af76f45805dea503"
+    },
+    {
+      "sample_id": "CIGA-8482782",
+      "strata": ["municipio_medio", "admin_direta", "source_api", "source_pdf", "platform_ciga"],
+      "orgao_nome": "Prefeitura municipal de Rio dos Cedros",
+      "objeto": "Concorrência eletrônica 88/2026 — pavimentação asfáltica",
+      "portal_url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1783360744_9._aviso_de_licitao_ce_88_2026_extrato.pdf",
+      "published_at": "2026-07-06",
+      "source_platform": "ciga_dom",
+      "external_id": "8482782",
+      "captured_by_system": true,
+      "capture_evidence": "run ciga-dom-20260717T125842Z-cf9890803b; content_hash e0ff51bc0b51324745ad8d3535f8a2f1c414d13b6df9ab5ebaa756d975198df8"
+    },
+    {
+      "sample_id": "CIGA-8482809",
+      "strata": ["municipio_grande", "admin_direta", "source_api", "source_pdf", "platform_ciga"],
+      "orgao_nome": "Prefeitura municipal de Navegantes",
+      "objeto": "Aviso de leilão 74/2026",
+      "portal_url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1783355054_aviso__leilo_n_742026_pmn_extrato.pdf",
+      "published_at": "2026-07-06",
+      "source_platform": "ciga_dom",
+      "external_id": "8482809",
+      "captured_by_system": true,
+      "capture_evidence": "run ciga-dom-20260717T125842Z-cf9890803b; content_hash e06a0e54a417120e06be0335956cf135d6d2b3dc7ee4e34844e337efdd1fa823"
+    },
+    {
+      "sample_id": "CIGA-8483269",
+      "strata": ["consorcio", "admin_indireta", "source_api", "source_pdf", "platform_ciga"],
+      "orgao_nome": "CIMVI - Consórcio Intermunicipal do Médio Vale do Itajaí",
+      "objeto": "Pregão 105/2026 — terraplenagem, drenagem e contenção",
+      "portal_url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1783360049_02__edital_prego_eletrnico_extrato.pdf",
+      "published_at": "2026-07-06",
+      "source_platform": "ciga_dom",
+      "external_id": "8483269",
+      "captured_by_system": true,
+      "capture_evidence": "run ciga-dom-20260717T125842Z-cf9890803b; content_hash 8f0bd66ec6f39ebcf3579b068606999d8e763e3ab2dd5577e5f8874d560b7b79"
+    }
+  ],
+  "status": "PARTIAL"
+}
