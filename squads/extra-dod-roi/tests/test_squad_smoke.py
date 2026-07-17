@@ -203,5 +203,27 @@ class FoolproofEnforcement(unittest.TestCase):
         self.assertNotEqual(proc2.returncode, 0)
 
 
+
+
+    def test_story_is_done_helper_and_e3_not_unlocked_when_done(self):
+        """Completed E3.S1/S2 must not re-enter UNLOCKED ranking as cand-qa-po-e3-stories."""
+        import sys
+        sys.path.insert(0, str(SCRIPTS))
+        from rank_next_cli import _story_is_done, run_rank_next
+
+        # Live repo may or may not have Done states; helper must be boolean-safe.
+        self.assertIsInstance(_story_is_done(ROOT, "B2G-E3.S1"), bool)
+        self.assertIsInstance(_story_is_done(ROOT, "does-not-exist-xyz"), bool)
+        self.assertFalse(_story_is_done(ROOT, "does-not-exist-xyz"))
+
+        result = run_rank_next(ROOT, top_n=5, write_state=False, fetch=False)
+        if _story_is_done(ROOT, "B2G-E3.S1") and _story_is_done(ROOT, "B2G-E3.S2"):
+            ids = result.get("full_ranking_ids") or []
+            self.assertNotIn("cand-qa-po-e3-stories", ids)
+            disc = " ".join(result.get("discarded_attractive") or [])
+            self.assertIn("cand-qa-po-e3-stories", disc)
+            self.assertIn("COMPLETED", disc)
+
+
 if __name__ == "__main__":
     unittest.main()

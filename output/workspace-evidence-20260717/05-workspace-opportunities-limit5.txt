@@ -1,0 +1,80 @@
+=== BEGIN 05-workspace-opportunities-limit5 @ 2026-07-17T22:37:40Z ===
+CMD: python3 -m scripts.workspace opportunities --status open --limit 5 --json
+{
+  "status": "DEGRADED",
+  "reason": "PostgreSQL unavailable: OperationalError: connection to server at \"127.0.0.1\", port 5433 failed: timeout expired\n",
+  "count": 5,
+  "items": [
+    {
+      "id": "8504275",
+      "orgao_nome": "Prefeitura municipal de Guatambú",
+      "municipio": "Guatambú",
+      "objeto": "TERMO DE DISPENSA DE LICITAÇÃO Nº 058/2026",
+      "valor_estimado": null,
+      "status_canonico": "RECENT_NOTICE",
+      "source": "ciga_dom",
+      "data_publicacao": "2026-07-11",
+      "data_abertura": null,
+      "data_encerramento": null,
+      "ranking": "REVIEW",
+      "link": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1783790912_006._termo_de_dispensa__sebrae_extrato.pdf"
+    },
+    {
+      "id": "8504278",
+      "orgao_nome": "Balneário Rincão",
+      "municipio": "Balneário Rincão",
+      "objeto": "EDITAL DE NOTIFICACAO DE PENALIDADE POR INFRACAO DE TRANSITO N. 1351/2026 - 8.804",
+      "valor_estimado": null,
+      "status_canonico": "RECENT_NOTICE",
+      "source": "ciga_dom",
+      "data_publicacao": "2026-07-12",
+      "data_abertura": null,
+      "data_encerramento": null,
+      "ranking": "REVIEW",
+      "link": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/DOM.BALRINCAO8804M0013512026_extrato.pdf"
+    },
+    {
+      "id": "8504279",
+      "orgao_nome": "Balneário Rincão",
+      "municipio": "Balneário Rincão",
+      "objeto": "EDITAL DE NOTIFICACAO DA AUTUACAO POR INFRACAO DE TRANSITO N. 1350/2026 - 8.804",
+      "valor_estimado": null,
+      "status_canonico": "RECENT_NOTICE",
+      "source": "ciga_dom",
+      "data_publicacao": "2026-07-12",
+      "data_abertura": null,
+      "data_encerramento": null,
+      "ranking": "REVIEW",
+      "link": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/DOM.BALRINCAO8804A0013502026_extrato.pdf"
+    },
+    {
+      "id": "8504280",
+      "orgao_nome": "Blumenau",
+      "municipio": "Blumenau",
+      "objeto": "EDITAL DE NOTIFICACAO DE PENALIDADE POR INFRACAO DE TRANSITO N. 898/2026 - 8.801",
+      "valor_estimado": null,
+      "status_canonico": "RECENT_NOTICE",
+      "source": "ciga_dom",
+      "data_publicacao": "2026-07-12",
+      "data_abertura": null,
+      "data_encerramento": null,
+      "ranking": "REVIEW",
+      "link": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/DOM.BLUMENAU8801M0008982026_extrato.pdf"
+    },
+    {
+      "id": "8504281",
+      "orgao_nome": "Blumenau",
+      "municipio": "Blumenau",
+      "objeto": "EDITAL DE NOTIFICACAO DA AUTUACAO POR INFRACAO DE TRANSITO N. 897/2026 - 8.801",
+      "valor_estimado": null,
+      "status_canonico": "RECENT_NOTICE",
+      "source": "ciga_dom",
+      "data_publicacao": "2026-07-12",
+      "data_abertura": null,
+      "data_encerramento": null,
+      "ranking": "REVIEW",
+      "link": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/DOM.BLUMENAU8801A0008972026_extrato.pdf"
+    }
+  ]
+}
+=== END 05-workspace-opportunities-limit5 exit=0 @ 2026-07-17T22:37:43Z ===

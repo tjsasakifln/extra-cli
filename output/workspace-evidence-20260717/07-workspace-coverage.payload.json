@@ -1,0 +1,2376 @@
+{
+  "command": "coverage",
+  "generated_at": "2026-07-17T19:37:47",
+  "metrics": [
+    {
+      "name": "coverage_contract",
+      "result": {
+        "generated_at": "2026-07-17T22:37:44.637121+00:00",
+        "as_of": "2026-07-17",
+        "denominator": {
+          "value": 1093,
+          "source": "load_canonical_universe",
+          "fixed_canonical": true,
+          "notes": "seed=/mnt/d/extra consultoria/Extra - alvos de licitação. R-0.xlsx; sha256=d65f272812cf…; included=1093"
+        },
+        "slas": {
+          "open_opportunities_hours": 24,
+          "official_diaries_hours": 24,
+          "contracts_amendments_hours": 72,
+          "historical_consolidated_days": 7,
+          "cadastral_data_days": 30
+        },
+        "headline_metric": "entities_with_recent_commercial_signal",
+        "headline_is_coverage": false,
+        "metrics": {
+          "entities_with_recent_commercial_signal": {
+            "metric_id": "entities_with_recent_commercial_signal",
+            "kind": "commercial_signal",
+            "label": "Entities with recent commercial signal",
+            "status": "READY",
+            "numerator": 116,
+            "denominator": 1093,
+            "pct": 10.61,
+            "formula": "entities with ≥1 OPEN/UPCOMING/RECENT matched opportunity / 1093",
+            "target_pct": null,
+            "reason": "session_coverage_canonical.commercial_entity_ids",
+            "limitations": [
+              "source=session_artifact:/mnt/d/extra consultoria/docs/ops/session-2026-07-17/coverage_canonical.json"
+            ],
+            "sample_size": null,
+            "field_breakdown": null,
+            "legacy_aliases": [
+              "commercial_opportunity_any"
+            ],
+            "is_coverage_metric": false
+          },
+          "source_mapping_coverage": {
+            "metric_id": "source_mapping_coverage",
+            "kind": "coverage",
+            "label": "Source mapping coverage",
+            "status": "READY",
+            "numerator": 1093,
+            "denominator": 1093,
+            "pct": 100.0,
+            "formula": "entities with explicit source registry record (including status=source_not_identified) / denominator",
+            "target_pct": 100.0,
+            "reason": "entity_source_registry.jsonl",
+            "limitations": [
+              "registry=/mnt/d/extra consultoria/data/entity_source_registry.jsonl",
+              "records=1093"
+            ],
+            "sample_size": null,
+            "field_breakdown": null,
+            "legacy_aliases": [],
+            "is_coverage_metric": true
+          },
+          "operational_source_coverage": {
+            "metric_id": "operational_source_coverage",
+            "kind": "coverage",
+            "label": "Operational source coverage",
+            "status": "READY",
+            "numerator": 0,
+            "denominator": 1093,
+            "pct": 0.0,
+            "formula": "entities with ≥1 official source: mapped + accessible + collected + normalized + reconciled + verified within SLA + recent evidence / denominator",
+            "target_pct": 95.0,
+            "reason": "entity_source_registry_strict_operational",
+            "limitations": [
+              "Operational = verified/operational with seven stages true, per-source SLA, run/raw/hash/normalized/reconciliation provenance. accessible_only_excluded=0; dry_run_rejected=16; registry_rows=1093. Mapped/accessible ≠ §3.2 pipeline."
+            ],
+            "sample_size": null,
+            "field_breakdown": null,
+            "legacy_aliases": [],
+            "is_coverage_metric": true
+          },
+          "freshness_coverage": {
+            "metric_id": "freshness_coverage",
+            "kind": "coverage",
+            "label": "Freshness coverage",
+            "status": "NOT_READY",
+            "numerator": null,
+            "denominator": 1093,
+            "pct": null,
+            "formula": "entities verified within applicable SLA / denominator",
+            "target_pct": null,
+            "reason": "freshness_manifest.json is source-level, not entity-level. Entity freshness requires entity_coverage.last_seen_at or coverage_evidence.observed_at.",
+            "limitations": [
+              "session freshness_manifest at /mnt/d/extra consultoria/docs/ops/session-2026-07-17; not entity-level SLA rollup"
+            ],
+            "sample_size": null,
+            "field_breakdown": null,
+            "legacy_aliases": [],
+            "is_coverage_metric": true
+          },
+          "opportunity_recall": {
+            "metric_id": "opportunity_recall",
+            "kind": "recall",
+            "label": "Opportunity recall",
+            "status": "NOT_READY",
+            "numerator": null,
+            "denominator": null,
+            "pct": null,
+            "formula": "true positives in stratified benchmark sample / sample positives",
+            "target_pct": null,
+            "reason": "Recall sample is incomplete: unlabeled=0, captured_without_evidence=0, missing_strata=['autarquia', 'camara', 'fundacao', 'platform_pncp', 'platform_sc_compras', 'source_html', 'source_js']",
+            "limitations": [
+              "sample=/mnt/d/extra consultoria/docs/qa/recall-sample-2026-07-17.json",
+              "stratified_sample_incomplete"
+            ],
+            "sample_size": null,
+            "field_breakdown": null,
+            "legacy_aliases": [],
+            "is_coverage_metric": false
+          },
+          "required_field_completeness": {
+            "metric_id": "required_field_completeness",
+            "kind": "completeness",
+            "label": "Required field completeness",
+            "status": "READY",
+            "numerator": 3.0005,
+            "denominator": 17,
+            "pct": 17.65,
+            "formula": "mean over opportunities of (present decision fields / 17 decision fields); absence is explicit",
+            "target_pct": null,
+            "reason": "mean_decision_field_completeness",
+            "limitations": [
+              "absence_is_explicit",
+              "decision_fields=17",
+              "records_scored=116"
+            ],
+            "sample_size": 116,
+            "field_breakdown": {
+              "mean_completeness_pct": 17.65,
+              "records": 116,
+              "fields": [
+                "entity",
+                "cnpj",
+                "process",
+                "edital",
+                "objeto",
+                "modalidade",
+                "situacao",
+                "datas",
+                "valor",
+                "local",
+                "url",
+                "docs",
+                "fonte",
+                "collected_at",
+                "commercial_class",
+                "sector_class",
+                "ranking_evidence"
+              ],
+              "field_count": 17,
+              "per_field": {
+                "entity": {
+                  "present": 116,
+                  "absent": 0,
+                  "rate_pct": 100.0,
+                  "absence_explicit": true
+                },
+                "cnpj": {
+                  "present": 116,
+                  "absent": 0,
+                  "rate_pct": 100.0,
+                  "absence_explicit": true
+                },
+                "process": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "edital": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "objeto": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "modalidade": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "situacao": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "datas": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "valor": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "local": {
+                  "present": 116,
+                  "absent": 0,
+                  "rate_pct": 100.0,
+                  "absence_explicit": true
+                },
+                "url": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "docs": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "fonte": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "collected_at": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "commercial_class": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "sector_class": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                },
+                "ranking_evidence": {
+                  "present": 0,
+                  "absent": 116,
+                  "rate_pct": 0.0,
+                  "absence_explicit": true
+                }
+              },
+              "per_record_ratios": [
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413,
+                0.17647058823529413
+              ]
+            },
+            "legacy_aliases": [],
+            "is_coverage_metric": false
+          },
+          "commercial_opportunity_any": {
+            "metric_id": "commercial_opportunity_any",
+            "kind": "commercial_signal",
+            "label": "Legacy alias for entities_with_recent_commercial_signal (NOT coverage)",
+            "status": "READY",
+            "numerator": 116,
+            "denominator": 1093,
+            "pct": 10.61,
+            "formula": "entities with ≥1 OPEN/UPCOMING/RECENT matched opportunity / 1093",
+            "target_pct": null,
+            "reason": "session_coverage_canonical.commercial_entity_ids",
+            "limitations": [
+              "source=session_artifact:/mnt/d/extra consultoria/docs/ops/session-2026-07-17/coverage_canonical.json"
+            ],
+            "sample_size": null,
+            "field_breakdown": null,
+            "legacy_aliases": [
+              "commercial_opportunity_any"
+            ],
+            "is_coverage_metric": false,
+            "alias_of": "entities_with_recent_commercial_signal",
+            "notes": "Backward compatibility only. Do not call this coverage."
+          }
+        },
+        "metric_order": [
+          "entities_with_recent_commercial_signal",
+          "source_mapping_coverage",
+          "operational_source_coverage",
+          "freshness_coverage",
+          "opportunity_recall",
+          "required_field_completeness"
+        ],
+        "notes": [
+          "Commercial signal metric is NOT labeled coverage.",
+          "Headline metric: entities_with_recent_commercial_signal (kind=commercial_signal).",
+          "Legacy alias: commercial_opportunity_any → entities_with_recent_commercial_signal.",
+          "Denominator is never reduced to improve percentages.",
+          "Denominator notes: seed=/mnt/d/extra consultoria/Extra - alvos de licitação. R-0.xlsx; sha256=d65f272812cf…; included=1093",
+          "Session artifacts: /mnt/d/extra consultoria/docs/ops/session-2026-07-17"
+        ],
+        "legacy_aliases": {
+          "commercial_opportunity_any": "entities_with_recent_commercial_signal"
+        }
+      }
+    },
+    {
+      "name": "commercial_opportunity_any",
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "open_opportunities": 757,
+      "open_engineering": 68,
+      "go_recommendations": 14,
+      "note": "SINAL COMERCIAL — NÃO é cobertura operacional 100% DoD."
+    },
+    {
+      "name": "historical_editais_raw_coverage_baseline",
+      "numerator": 0,
+      "denominator": 1093,
+      "pct": 0.0,
+      "formula": "baseline preserved 52/1093"
+    },
+    {
+      "name": "historical_editais_raw_coverage_baseline",
+      "numerator": 52,
+      "denominator": 1093,
+      "pct": 4.76,
+      "formula": "entities_with_bids / total_entities_within_200km * 100 (pre-session)"
+    },
+    {
+      "name": "entity_coverage_db_is_covered",
+      "numerator": 124,
+      "denominator": 1093,
+      "pct": 11.34,
+      "formula": "COUNT DISTINCT entity_id WHERE is_covered on raio_200km / 1093"
+    },
+    {
+      "name": "session_matched_any_procurement",
+      "numerator": 125,
+      "denominator": 1093,
+      "pct": 11.44,
+      "formula": "entities matched from session artifacts with procurement evidence / 1093"
+    },
+    {
+      "name": "canonical_combined_post_session",
+      "numerator": 133,
+      "denominator": 1093,
+      "pct": 12.17,
+      "formula": "union(db is_covered, session matched procurement) / 1093"
+    },
+    {
+      "name": "commercial_opportunity_any",
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "formula": "entities with commercial opportunity status / 1093"
+    },
+    {
+      "name": "opportunity_published_30d",
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "formula": "entities with opportunity published last 30d / 1093"
+    },
+    {
+      "name": "opportunity_published_90d",
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "formula": "entities with opportunity published last 90d / 1093"
+    },
+    {
+      "name": "open_opportunity",
+      "numerator": 75,
+      "denominator": 1093,
+      "pct": 6.86,
+      "formula": "entities with OPEN_OPPORTUNITY / 1093"
+    },
+    {
+      "name": "engineering_relevant",
+      "numerator": 47,
+      "denominator": 1093,
+      "pct": 4.3,
+      "formula": "entities with sector_match engineering / 1093"
+    },
+    {
+      "name": "open_engineering",
+      "numerator": 13,
+      "denominator": 1093,
+      "pct": 1.19,
+      "formula": "entities with open engineering opportunity / 1093"
+    },
+    {
+      "name": "with_document_url",
+      "numerator": 111,
+      "denominator": 1093,
+      "pct": 10.16,
+      "formula": "covered entities that have at least one source URL / 1093"
+    },
+    {
+      "name": "source:ciga_dom",
+      "records": 10269,
+      "matched": 2245,
+      "coverage_eligible": 570
+    },
+    {
+      "name": "source:sc_compras",
+      "records": 2602,
+      "matched": 289,
+      "coverage_eligible": 34
+    },
+    {
+      "name": "source:pncp_sc",
+      "records": 541,
+      "matched": 220,
+      "coverage_eligible": 197
+    }
+  ],
+  "gaps_sample": [
+    {
+      "canonical_id": "62761279:SECRETARIA_MUNICIPAL_DE_EDUCACAO",
+      "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "cnpj": "62761279",
+      "natureza_juridica": "secretaria_municipal",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4215703",
+      "lat": -27.6852,
+      "lon": -48.7813,
+      "distance_km": 25.1,
+      "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "62761279",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4215703",
+        "ciga_municipio_key": "4215703",
+        "ciga_anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://santoamarodaimperatriz.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.santoamarodaimperatriz.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4215703",
+          "anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+          "anchor_name": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "80674252:SANTO_AMARO_DA_IMPERATRIZ_CAMARA_DE_VEREADORES",
+      "razao_social": "SANTO AMARO DA IMPERATRIZ CAMARA DE VEREADORES",
+      "cnpj": "80674252",
+      "natureza_juridica": "camara_municipal",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4215703",
+      "lat": -27.6852,
+      "lon": -48.7813,
+      "distance_km": 25.1,
+      "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "80674252",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4215703",
+        "ciga_municipio_key": "4215703",
+        "ciga_anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://santoamarodaimperatriz.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.santoamarodaimperatriz.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 1,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4215703",
+          "anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+          "anchor_name": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+      "razao_social": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+      "cnpj": "82892324",
+      "natureza_juridica": "prefeitura",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4215703",
+      "lat": -27.6852,
+      "lon": -48.7813,
+      "distance_km": 25.1,
+      "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "82892324",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4215703",
+        "ciga_municipio_key": "4215703",
+        "ciga_anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br",
+        "entity_db_id": 3,
+        "pipeline_sources": [
+          "dom_sc"
+        ],
+        "total_bids_coverage": 9
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://santoamarodaimperatriz.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.santoamarodaimperatriz.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "collected",
+      "last_success_at": "2026-07-16T00:00:00+00:00",
+      "last_attempt_at": "2026-07-17T12:37:03.938011+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "pipeline_evidence_promote",
+      "current_blocker": "pending_live_verification",
+      "next_action": "maintain_incremental_crawl_and_freshness_sla",
+      "priority": 1,
+      "mapping_confidence": 0.9,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4215703",
+          "anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+          "anchor_name": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:36:54.178610+00:00",
+          "last_seen_at": "2026-07-16T00:00:00+00:00",
+          "sources": [
+            "dom_sc"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 3,
+          "total_bids": 9,
+          "opp_count": 5,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:37:03.938011+00:00",
+          "last_seen_at": "2026-07-16T00:00:00+00:00",
+          "sources": [
+            "dom_sc"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 3,
+          "total_bids": 9,
+          "opp_count": 5,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        }
+      ]
+    },
+    {
+      "canonical_id": "02179215:FUNDO_MUNICIPAL_DE_ASSISTENCIA_SOCIAL",
+      "razao_social": "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL",
+      "cnpj": "02179215",
+      "natureza_juridica": "fundacao_municipal",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4215703",
+      "lat": -27.6852,
+      "lon": -48.7813,
+      "distance_km": 25.1,
+      "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "02179215",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4215703",
+        "ciga_municipio_key": "4215703",
+        "ciga_anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://santoamarodaimperatriz.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.santoamarodaimperatriz.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4215703",
+          "anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+          "anchor_name": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "02305652:FUNDO_MUNICIPAL_DE_TURISMO",
+      "razao_social": "FUNDO MUNICIPAL DE TURISMO",
+      "cnpj": "02305652",
+      "natureza_juridica": "fundacao_municipal",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4215703",
+      "lat": -27.6852,
+      "lon": -48.7813,
+      "distance_km": 25.1,
+      "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "02305652",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4215703",
+        "ciga_municipio_key": "4215703",
+        "ciga_anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://santoamarodaimperatriz.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.santoamarodaimperatriz.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4215703",
+          "anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+          "anchor_name": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "02307870:FUNDO_MUNICIPAL_DE_DESENVOLVIMENTO_AGROPECUARIO",
+      "razao_social": "FUNDO MUNICIPAL DE DESENVOLVIMENTO AGROPECUARIO",
+      "cnpj": "02307870",
+      "natureza_juridica": "fundacao_municipal",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4215703",
+      "lat": -27.6852,
+      "lon": -48.7813,
+      "distance_km": 25.1,
+      "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "02307870",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4215703",
+        "ciga_municipio_key": "4215703",
+        "ciga_anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://santoamarodaimperatriz.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.santoamarodaimperatriz.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4215703",
+          "anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+          "anchor_name": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "03752747:INSTITUTO_DE_PREVIDENCIA_SOCIAL_DOS_SERVIDORES_PUBLICOS_DO_M",
+      "razao_social": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO M",
+      "cnpj": "03752747",
+      "natureza_juridica": "autarquia_municipal",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4215703",
+      "lat": -27.6852,
+      "lon": -48.7813,
+      "distance_km": 25.1,
+      "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "03752747",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4215703",
+        "ciga_municipio_key": "4215703",
+        "ciga_anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://santoamarodaimperatriz.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.santoamarodaimperatriz.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4215703",
+          "anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+          "anchor_name": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "15715814:DIRETORIA_DE_DEFESA_CIVIL_DE_SANTO_AMARO_DA_IMPERATRIZ",
+      "razao_social": "DIRETORIA DE DEFESA CIVIL DE SANTO AMARO DA IMPERATRIZ",
+      "cnpj": "15715814",
+      "natureza_juridica": "secretaria_municipal",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4215703",
+      "lat": -27.6852,
+      "lon": -48.7813,
+      "distance_km": 25.1,
+      "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "15715814",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4215703",
+        "ciga_municipio_key": "4215703",
+        "ciga_anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://santoamarodaimperatriz.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.santoamarodaimperatriz.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://santo-amaro-da-imperatriz.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4215703",
+          "anchor_canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+          "anchor_name": "MUNICIPIO DE SANTO AMARO DA IMPERATRIZ",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "66233173:SECRETARIA_MUNICIPAL_DE_EDUCACAO",
+      "razao_social": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "cnpj": "66233173",
+      "natureza_juridica": "secretaria_municipal",
+      "municipio": "GOVERNADOR CELSO RAMOS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4206009",
+      "lat": -27.3172,
+      "lon": -48.5576,
+      "distance_km": 30.9,
+      "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "66233173",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4206009",
+        "ciga_municipio_key": "4206009",
+        "ciga_anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://governadorcelsoramos.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.governadorcelsoramos.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4206009",
+          "anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+          "anchor_name": "MUNICIPIO DE GOVERNADOR CELSO RAMOS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "74047341:SERVICO_AUTONOMO_MUNICIPAL_DE_AGUA_E_ESGOTO",
+      "razao_social": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO",
+      "cnpj": "74047341",
+      "natureza_juridica": "autarquia_municipal",
+      "municipio": "GOVERNADOR CELSO RAMOS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4206009",
+      "lat": -27.3172,
+      "lon": -48.5576,
+      "distance_km": 30.9,
+      "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "74047341",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4206009",
+        "ciga_municipio_key": "4206009",
+        "ciga_anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://governadorcelsoramos.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.governadorcelsoramos.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4206009",
+          "anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+          "anchor_name": "MUNICIPIO DE GOVERNADOR CELSO RAMOS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "82703018:GOVERNADOR_CELSO_RAMOS_CAMARA_MUNICIPAL",
+      "razao_social": "GOVERNADOR CELSO RAMOS CAMARA MUNICIPAL",
+      "cnpj": "82703018",
+      "natureza_juridica": "camara_municipal",
+      "municipio": "GOVERNADOR CELSO RAMOS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4206009",
+      "lat": -27.3172,
+      "lon": -48.5576,
+      "distance_km": 30.9,
+      "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "82703018",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4206009",
+        "ciga_municipio_key": "4206009",
+        "ciga_anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://governadorcelsoramos.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.governadorcelsoramos.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 1,
+      "mapping_confidence": 0.6,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4206009",
+          "anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+          "anchor_name": "MUNICIPIO DE GOVERNADOR CELSO RAMOS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+      "razao_social": "MUNICIPIO DE GOVERNADOR CELSO RAMOS",
+      "cnpj": "82892373",
+      "natureza_juridica": "prefeitura",
+      "municipio": "GOVERNADOR CELSO RAMOS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4206009",
+      "lat": -27.3172,
+      "lon": -48.5576,
+      "distance_km": 30.9,
+      "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "82892373",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4206009",
+        "ciga_municipio_key": "4206009",
+        "ciga_anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br",
+        "entity_db_id": 12,
+        "pipeline_sources": [
+          "dom_sc"
+        ],
+        "total_bids_coverage": 8
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://governadorcelsoramos.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.governadorcelsoramos.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "collected",
+      "last_success_at": "2026-07-16T00:00:00+00:00",
+      "last_attempt_at": "2026-07-17T12:37:03.938011+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "pipeline_evidence_promote",
+      "current_blocker": "pending_live_verification",
+      "next_action": "maintain_incremental_crawl_and_freshness_sla",
+      "priority": 1,
+      "mapping_confidence": 0.9,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4206009",
+          "anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+          "anchor_name": "MUNICIPIO DE GOVERNADOR CELSO RAMOS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:36:54.178610+00:00",
+          "last_seen_at": "2026-07-16T00:00:00+00:00",
+          "sources": [
+            "dom_sc"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 12,
+          "total_bids": 8,
+          "opp_count": 0,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:37:03.938011+00:00",
+          "last_seen_at": "2026-07-16T00:00:00+00:00",
+          "sources": [
+            "dom_sc"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 12,
+          "total_bids": 8,
+          "opp_count": 0,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        }
+      ]
+    },
+    {
+      "canonical_id": "32579624:FUNDACAO_DO_MEIO_AMBIENTE_DE_GOVERNADOR_CELSO_RAMOS_FAMGOV",
+      "razao_social": "FUNDACAO DO MEIO AMBIENTE DE GOVERNADOR CELSO RAMOS - FAMGOV",
+      "cnpj": "32579624",
+      "natureza_juridica": "fundacao_municipal",
+      "municipio": "GOVERNADOR CELSO RAMOS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4206009",
+      "lat": -27.3172,
+      "lon": -48.5576,
+      "distance_km": 30.9,
+      "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "32579624",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4206009",
+        "ciga_municipio_key": "4206009",
+        "ciga_anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br",
+        "entity_db_id": 13,
+        "pipeline_sources": [
+          "dom_sc"
+        ],
+        "total_bids_coverage": 2
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://governadorcelsoramos.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.governadorcelsoramos.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "collected",
+      "last_success_at": "2026-07-15T00:00:00+00:00",
+      "last_attempt_at": "2026-07-17T12:37:03.938011+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "pipeline_evidence_promote",
+      "current_blocker": "pending_live_verification",
+      "next_action": "maintain_incremental_crawl_and_freshness_sla",
+      "priority": 2,
+      "mapping_confidence": 0.9,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://governador-celso-ramos.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4206009",
+          "anchor_canonical_id": "82892373:MUNICIPIO_DE_GOVERNADOR_CELSO_RAMOS",
+          "anchor_name": "MUNICIPIO DE GOVERNADOR CELSO RAMOS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:36:54.178610+00:00",
+          "last_seen_at": "2026-07-15T00:00:00+00:00",
+          "sources": [
+            "dom_sc"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 13,
+          "total_bids": 2,
+          "opp_count": 0,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:37:03.938011+00:00",
+          "last_seen_at": "2026-07-15T00:00:00+00:00",
+          "sources": [
+            "dom_sc"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 13,
+          "total_bids": 2,
+          "opp_count": 0,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        }
+      ]
+    },
+    {
+      "canonical_id": "72254576:FUNDACAO_MUNICIPAL_DE_ESPORTES",
+      "razao_social": "FUNDACAO MUNICIPAL DE ESPORTES",
+      "cnpj": "72254576",
+      "natureza_juridica": "fundacao_municipal",
+      "municipio": "TIJUCAS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4218004",
+      "lat": -27.2354,
+      "lon": -48.6322,
+      "distance_km": 40.9,
+      "portal_institucional": null,
+      "portal_transparencia": "https://tijucas.atende.net/transparencia",
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "72254576",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4218004",
+        "transparencia_slug": "tijucas",
+        "transparencia_template": "portal_transparencia_net",
+        "ciga_municipio_key": "4218004",
+        "ciga_anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://tijucas.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.tijucas.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "js",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.8,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": "https://tijucas.atende.net/transparencia",
+          "portal_institucional": null,
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "platform_detection",
+          "matched": true
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4218004",
+          "anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+          "anchor_name": "MUNICIPIO DE TIJUCAS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "80669864:CAMARA_MUNICIPAL_DE_VEREADORES_DE_TIJUCAS",
+      "razao_social": "CAMARA MUNICIPAL DE VEREADORES DE TIJUCAS",
+      "cnpj": "80669864",
+      "natureza_juridica": "camara_municipal",
+      "municipio": "TIJUCAS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4218004",
+      "lat": -27.2354,
+      "lon": -48.6322,
+      "distance_km": 40.9,
+      "portal_institucional": null,
+      "portal_transparencia": "https://tijucas.atende.net/transparencia",
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "80669864",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4218004",
+        "transparencia_slug": "tijucas",
+        "transparencia_template": "portal_transparencia_net",
+        "ciga_municipio_key": "4218004",
+        "ciga_anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br",
+        "cnpj14": "80669864000130",
+        "pncp_local_sample_count": 2
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://tijucas.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.tijucas.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "api_json",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:49.383169+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "pncp_monitor_by_cnpj",
+      "current_blocker": "pending_live_verification",
+      "next_action": "run_live_pncp_orgao_probe_with_network; then schedule_incremental; do_not_count_offline_index_as_operational",
+      "priority": 1,
+      "mapping_confidence": 0.8,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": "https://tijucas.atende.net/transparencia",
+          "portal_institucional": null,
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "platform_detection",
+          "matched": true
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4218004",
+          "anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+          "anchor_name": "MUNICIPIO DE TIJUCAS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        },
+        {
+          "type": "pncp_orgao_probe",
+          "outcome": "local_hit_index_only",
+          "attempted_at": "2026-07-17T12:30:49.383169+00:00",
+          "local_match": {
+            "cnpj14": "80669864000130",
+            "razao_social": "CAMARA MUNICIPAL DE VEREADORES DE TIJUCAS",
+            "sample_count": 2,
+            "sources": [
+              "output/pncp_sc/pncp-sc-20260717T105219Z-720727ae08/contratacoes.jsonl"
+            ]
+          },
+          "api": null,
+          "dry_run": true,
+          "use_network": false
+        }
+      ]
+    },
+    {
+      "canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+      "razao_social": "MUNICIPIO DE TIJUCAS",
+      "cnpj": "82577636",
+      "natureza_juridica": "prefeitura",
+      "municipio": "TIJUCAS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4218004",
+      "lat": -27.2354,
+      "lon": -48.6322,
+      "distance_km": 40.9,
+      "portal_institucional": null,
+      "portal_transparencia": "https://tijucas.atende.net/transparencia",
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "transparencia"
+      ],
+      "external_ids": {
+        "cnpj8": "82577636",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4218004",
+        "transparencia_slug": "tijucas",
+        "transparencia_template": "portal_transparencia_net",
+        "ciga_municipio_key": "4218004",
+        "ciga_anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br",
+        "cnpj14": "82577636000165",
+        "pncp_local_sample_count": 3,
+        "entity_db_id": 16,
+        "pipeline_sources": [
+          "dom_sc",
+          "pncp"
+        ],
+        "total_bids_coverage": 13
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://tijucas.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.tijucas.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "api_json",
+      "access_status": "collected",
+      "last_success_at": "2026-07-16T00:00:00+00:00",
+      "last_attempt_at": "2026-07-17T12:37:03.938011+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "pipeline_evidence_promote",
+      "current_blocker": "pending_live_verification",
+      "next_action": "maintain_incremental_crawl_and_freshness_sla",
+      "priority": 1,
+      "mapping_confidence": 0.9,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": "https://tijucas.atende.net/transparencia",
+          "portal_institucional": null,
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "platform_detection",
+          "matched": true
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc",
+            "transparencia"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4218004",
+          "anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+          "anchor_name": "MUNICIPIO DE TIJUCAS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        },
+        {
+          "type": "pncp_orgao_probe",
+          "outcome": "local_hit_index_only",
+          "attempted_at": "2026-07-17T12:30:49.383488+00:00",
+          "local_match": {
+            "cnpj14": "82577636000165",
+            "razao_social": "MUNICIPIO DE TIJUCAS",
+            "sample_count": 3,
+            "sources": [
+              "output/pncp_sc/pncp-sc-20260717T105219Z-720727ae08/contratacoes.jsonl"
+            ]
+          },
+          "api": null,
+          "dry_run": true,
+          "use_network": false
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:36:54.178610+00:00",
+          "last_seen_at": "2026-07-16T00:00:00+00:00",
+          "sources": [
+            "dom_sc",
+            "pncp"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 16,
+          "total_bids": 13,
+          "opp_count": 0,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:37:03.938011+00:00",
+          "last_seen_at": "2026-07-16T00:00:00+00:00",
+          "sources": [
+            "dom_sc",
+            "pncp"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 16,
+          "total_bids": 13,
+          "opp_count": 0,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        }
+      ]
+    },
+    {
+      "canonical_id": "02396675:SAMAE_SERVICO_AUTONOMO_MUNICIPAL_DE_AGUA_E_ESGOTO",
+      "razao_social": "SAMAE - SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO",
+      "cnpj": "02396675",
+      "natureza_juridica": "autarquia_municipal",
+      "municipio": "TIJUCAS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4218004",
+      "lat": -27.2354,
+      "lon": -48.6322,
+      "distance_km": 40.9,
+      "portal_institucional": null,
+      "portal_transparencia": "https://tijucas.atende.net/transparencia",
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "02396675",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4218004",
+        "transparencia_slug": "tijucas",
+        "transparencia_template": "portal_transparencia_net",
+        "ciga_municipio_key": "4218004",
+        "ciga_anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://tijucas.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.tijucas.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "js",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.8,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": "https://tijucas.atende.net/transparencia",
+          "portal_institucional": null,
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "platform_detection",
+          "matched": true
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4218004",
+          "anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+          "anchor_name": "MUNICIPIO DE TIJUCAS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "05048537:INSTITUTO_DE_PREVIDENCIA_DOS_SERVIDORES_PUBLICOS_DO_MUNICIPIO_DE_TIJUCAS",
+      "razao_social": "INSTITUTO DE PREVIDENCIA DOS SERVIDORES PUBLICOS DO MUNICIPIO DE TIJUCAS",
+      "cnpj": "05048537",
+      "natureza_juridica": "fundacao_municipal",
+      "municipio": "TIJUCAS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4218004",
+      "lat": -27.2354,
+      "lon": -48.6322,
+      "distance_km": 40.9,
+      "portal_institucional": null,
+      "portal_transparencia": "https://tijucas.atende.net/transparencia",
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "05048537",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4218004",
+        "transparencia_slug": "tijucas",
+        "transparencia_template": "portal_transparencia_net",
+        "ciga_municipio_key": "4218004",
+        "ciga_anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://tijucas.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.tijucas.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "js",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.8,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": "https://tijucas.atende.net/transparencia",
+          "portal_institucional": null,
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "platform_detection",
+          "matched": true
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4218004",
+          "anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+          "anchor_name": "MUNICIPIO DE TIJUCAS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "07790808:FUNDACAO_CULTURAL_TRADICAO_DE_TIJUCAS",
+      "razao_social": "FUNDACAO CULTURAL TRADICAO DE TIJUCAS",
+      "cnpj": "07790808",
+      "natureza_juridica": "fundacao_municipal",
+      "municipio": "TIJUCAS",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4218004",
+      "lat": -27.2354,
+      "lon": -48.6322,
+      "distance_km": 40.9,
+      "portal_institucional": null,
+      "portal_transparencia": "https://tijucas.atende.net/transparencia",
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc"
+      ],
+      "external_ids": {
+        "cnpj8": "07790808",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4218004",
+        "transparencia_slug": "tijucas",
+        "transparencia_template": "portal_transparencia_net",
+        "ciga_municipio_key": "4218004",
+        "ciga_anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br"
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://tijucas.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.tijucas.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "js",
+      "access_status": "mapped",
+      "last_success_at": null,
+      "last_attempt_at": "2026-07-17T12:30:48.548658+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "ciga_ckan_shared_municipio",
+      "current_blocker": "pending_collection",
+      "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile",
+      "priority": 2,
+      "mapping_confidence": 0.8,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": "https://tijucas.atende.net/transparencia",
+          "portal_institucional": null,
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "platform_detection",
+          "matched": true
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4218004",
+          "anchor_canonical_id": "82577636:MUNICIPIO_DE_TIJUCAS",
+          "anchor_name": "MUNICIPIO DE TIJUCAS",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        }
+      ]
+    },
+    {
+      "canonical_id": "81286254:FUNDACAO_HOSPITALAR_MUNICIPAL_DE_CANELINHA",
+      "razao_social": "FUNDACAO HOSPITALAR MUNICIPAL DE CANELINHA",
+      "cnpj": "81286254",
+      "natureza_juridica": "fundacao_municipal",
+      "municipio": "CANELINHA",
+      "uf": "SC",
+      "nome_fantasia": null,
+      "ibge_code": "4203709",
+      "lat": -27.2616,
+      "lon": -48.7658,
+      "distance_km": 42.9,
+      "portal_institucional": "https://canelinha.sc.gov.br",
+      "portal_transparencia": null,
+      "portal_licitacoes": null,
+      "diario_oficial": "https://dados.ciga.sc.gov.br",
+      "plataformas": [
+        "pncp",
+        "ciga_ckan",
+        "dom_sc",
+        "pcp"
+      ],
+      "external_ids": {
+        "cnpj8": "81286254",
+        "seed_sources": "seed:R-0",
+        "zone": "DENTRO",
+        "sphere": "municipal",
+        "ibge_code": "4203709",
+        "ciga_municipio_key": "4203709",
+        "ciga_anchor_canonical_id": "82562893:MUNICIPIO_DE_CANELINHA",
+        "ciga_shared_portal": "https://dados.ciga.sc.gov.br",
+        "entity_db_id": 20,
+        "pipeline_sources": [
+          "pcp"
+        ],
+        "total_bids_coverage": 3
+      },
+      "url_patterns": {
+        "prefeitura_candidate": "https://canelinha.sc.gov.br",
+        "prefeitura_alt_candidate": "https://prefeitura.canelinha.sc.gov.br",
+        "pncp_orgao_pattern": "https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj14}"
+      },
+      "integration_type": "html",
+      "access_status": "collected",
+      "last_success_at": "2026-06-29T00:00:00+00:00",
+      "last_attempt_at": "2026-07-17T12:37:03.938011+00:00",
+      "sla_hours": 4,
+      "collection_strategy": "pipeline_evidence_promote",
+      "current_blocker": "pending_live_verification",
+      "next_action": "maintain_incremental_crawl_and_freshness_sla",
+      "priority": 2,
+      "mapping_confidence": 0.9,
+      "evidences": [
+        {
+          "type": "portal_config",
+          "portal_transparencia": null,
+          "portal_institucional": "https://canelinha.sc.gov.br",
+          "diario_oficial": "https://dados.ciga.sc.gov.br"
+        },
+        {
+          "type": "heuristic_platforms",
+          "platforms": [
+            "pncp",
+            "ciga_ckan",
+            "dom_sc"
+          ],
+          "sphere": "municipal"
+        },
+        {
+          "type": "ciga_municipio_expand",
+          "municipio_key": "4203709",
+          "anchor_canonical_id": "82562893:MUNICIPIO_DE_CANELINHA",
+          "anchor_name": "MUNICIPIO DE CANELINHA",
+          "shared_portal": "https://dados.ciga.sc.gov.br",
+          "attempted_at": "2026-07-17T12:30:48.548658+00:00",
+          "note": "Municipal diary covers all municipal entities in the city"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:36:54.178610+00:00",
+          "last_seen_at": "2026-06-29T00:00:00+00:00",
+          "sources": [
+            "pcp"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 20,
+          "total_bids": 3,
+          "opp_count": 0,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        },
+        {
+          "type": "pipeline_evidence_promote",
+          "dry_run": false,
+          "use_network": true,
+          "outcome": "promoted_collected",
+          "attempted_at": "2026-07-17T12:37:03.938011+00:00",
+          "last_seen_at": "2026-06-29T00:00:00+00:00",
+          "sources": [
+            "pcp"
+          ],
+          "stages": {
+            "mapped": true,
+            "accessible": true,
+            "collected": true,
+            "normalized": true,
+            "reconciled": true,
+            "verified_within_sla": false
+          },
+          "entity_db_id": 20,
+          "total_bids": 3,
+          "opp_count": 0,
+          "official_act_matches": 0,
+          "proof": "entity_coverage.is_covered + last_seen_at within window; entity matched to sc_public_entities (reconciled); bids stored via crawl normalize path"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "coverage_contract: OK (multi-metric operational contract).",
+    "Sinal comercial (entities with ≥1 open opportunity) ≠ cobertura operacional multi-fonte.",
+    "PostgreSQL unavailable: OperationalError: connection to server at \"127.0.0.1\", port 5433 failed: timeout expired\n"
+  ],
+  "disclaimer": "Métrica comercial (open opportunity any) NÃO substitui cobertura operacional multi-dimensional do contrato de cobertura."
+}

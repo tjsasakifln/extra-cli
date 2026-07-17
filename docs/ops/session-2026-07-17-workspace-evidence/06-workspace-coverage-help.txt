@@ -1,0 +1,9 @@
+=== BEGIN 06-workspace-coverage-help @ 2026-07-17T22:37:43Z ===
+CMD: python3 -m scripts.workspace coverage --help
+usage: workspace coverage [-h] [--json] [--dsn DSN]
+
+options:
+  -h, --help  show this help message and exit
+  --json
+  --dsn DSN
+=== END 06-workspace-coverage-help exit=0 @ 2026-07-17T22:37:43Z ===

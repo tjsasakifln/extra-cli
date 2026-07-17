@@ -1,0 +1,10 @@
+=== BEGIN 02-workspace-today-help @ 2026-07-17T22:37:36Z ===
+CMD: python3 -m scripts.workspace today --help
+usage: workspace today [-h] [--hours HOURS] [--json] [--dsn DSN]
+
+options:
+  -h, --help     show this help message and exit
+  --hours HOURS  Janela de novidades (default 48h)
+  --json
+  --dsn DSN
+=== END 02-workspace-today-help exit=0 @ 2026-07-17T22:37:36Z ===

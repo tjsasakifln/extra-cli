@@ -1,0 +1,47 @@
+=== BEGIN 01-workspace-help @ 2026-07-17T22:37:36Z ===
+CMD: python3 -m scripts.workspace --help
+usage: workspace [-h] [--dsn DSN] [--json]
+                 {today,opportunities,dossier,coverage,competitors,expiring-contracts,prices,edital,proposal,contracts,decide,briefing,report}
+                 ...
+
+Workspace operacional unificado — Extra Construtora (facade CLI)
+
+positional arguments:
+  {today,opportunities,dossier,coverage,competitors,expiring-contracts,prices,edital,proposal,contracts,decide,briefing,report}
+                        Comando
+    today               Fila diária priorizada
+    opportunities       Listar oportunidades com filtros
+    dossier             Dossiê completo de oportunidade
+    coverage            Métricas de cobertura multi-dimensional
+    competitors         Top fornecedores / dossiê CNPJ
+    expiring-contracts  Contratos por bucket 30/60/90/180/365
+    prices              Painel de preços P25/mediana/P75
+    edital              Análise de edital
+    proposal            Apoio à proposta
+    contracts           Monitoramento administrativo de contratos
+    decide              Registrar decisão (ledger + overrides)
+    briefing            Briefing diário (delega opportunity_intel)
+    report              Relatórios daily|weekly
+
+options:
+  -h, --help            show this help message and exit
+  --dsn DSN             PostgreSQL DSN (default: LOCAL_DATALAKE_DSN)
+  --json                Output JSON
+
+Examples:
+  python -m scripts.workspace today
+  python -m scripts.workspace today --json
+  python -m scripts.workspace opportunities --status open --ranking GO,REVIEW
+  python -m scripts.workspace dossier 42
+  python -m scripts.workspace coverage
+  python -m scripts.workspace competitors --limit 20
+  python -m scripts.workspace competitors --cnpj 12345678000199
+  python -m scripts.workspace expiring-contracts
+  python -m scripts.workspace prices --keywords reforma,predial
+  python -m scripts.workspace edital analyze ./edital.pdf
+  python -m scripts.workspace proposal support 42
+  python -m scripts.workspace decide --id 42 --decision approve --reason "fit AEC"
+  python -m scripts.workspace briefing
+  python -m scripts.workspace report weekly
+        
+=== END 01-workspace-help exit=0 @ 2026-07-17T22:37:36Z ===

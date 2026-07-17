@@ -1,0 +1,78 @@
+{
+  "id": "8504275",
+  "status": "OK",
+  "pg_error": "PostgreSQL unavailable: OperationalError: connection to server at \"127.0.0.1\", port 5433 failed: timeout expired\n",
+  "opportunity": {
+    "source": "ciga_dom",
+    "source_id": "8504275",
+    "title": "TERMO DE DISPENSA DE LICITAÇÃO Nº 058/2026",
+    "orgao_nome": "Prefeitura municipal de Guatambú",
+    "municipio": "Guatambú",
+    "publication_date": "2026-07-11",
+    "act_category": "dispensa",
+    "url": "https://diariomunicipal.sc.gov.br/arquivosbd/atos/2026/07/1783790912_006._termo_de_dispensa__sebrae_extrato.pdf",
+    "commercial": {
+      "status": "RECENT_NOTICE",
+      "reason": "Opportunity-like act published 6d ago (2026-07-11)",
+      "rules_fired": [
+        "opportunity_signal:cat=dispensa",
+        "publication_age_days:6"
+      ],
+      "confidence": 0.75,
+      "needs_human_review": true,
+      "evaluated_at": "2026-07-17T10:55:12.741671Z",
+      "as_of": "2026-07-17"
+    },
+    "sector": {
+      "sector_match": false,
+      "sector": "nao_engenharia",
+      "score": 0.25,
+      "terms": [
+        "infraestrutura"
+      ],
+      "rules": [
+        "+infraestrutura:0.25"
+      ],
+      "justification": "score=0.25 threshold=0.35 positives=['infraestrutura'] negatives=[]",
+      "negative_hits": []
+    },
+    "entity_match": {
+      "status": "unresolved",
+      "rule": "no_conservative_match",
+      "score": 0.0,
+      "canonical_entity_id": null,
+      "canonical_name": null,
+      "municipio": "GUATAMBU",
+      "reversible": true
+    },
+    "counts_for_coverage": false,
+    "artifact": "/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T104504Z-a04e1e294b/publications.jsonl"
+  },
+  "explain": null,
+  "persisted_recommendation": null,
+  "effective_recommendation": null,
+  "profile_fit_notes": [
+    "UF primária: SC raio 200km",
+    "Objetos desejados: reforma_predial, manutencao_predial, construcao_edificios_publicos, infraestrutura_urbana",
+    "Perfil incompleto: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel"
+  ],
+  "missing_profile_fields": [
+    "capital_giro",
+    "capacidade_simultanea",
+    "cats_atestados",
+    "equipe",
+    "equipamentos",
+    "certidoes",
+    "margem_minima",
+    "risco_aceitavel",
+    "contratos_atuais",
+    "apetite_consorcios",
+    "capacidade_garantia"
+  ],
+  "human_overrides": [],
+  "next_steps": [
+    "Ler edital oficial e preencher checklist (workspace edital analyze)",
+    "Validar ranking com explain / evidências",
+    "Registrar decisão: workspace decide --id ... --decision approve|reject --reason '...'"
+  ]
+}

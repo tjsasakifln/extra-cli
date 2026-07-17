@@ -1,0 +1,36 @@
+=== BEGIN 09-workspace-dossier-offline @ 2026-07-17T22:37:47Z ===
+CMD: python3 -m scripts.workspace dossier offline-no-id-probe --json
+{
+  "id": "offline-no-id-probe",
+  "status": "NOT_FOUND",
+  "pg_error": "PostgreSQL unavailable: OperationalError: connection to server at \"127.0.0.1\", port 5433 failed: timeout expired\n",
+  "opportunity": null,
+  "explain": null,
+  "persisted_recommendation": null,
+  "effective_recommendation": null,
+  "profile_fit_notes": [
+    "UF primária: SC raio 200km",
+    "Objetos desejados: reforma_predial, manutencao_predial, construcao_edificios_publicos, infraestrutura_urbana",
+    "Perfil incompleto: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel"
+  ],
+  "missing_profile_fields": [
+    "capital_giro",
+    "capacidade_simultanea",
+    "cats_atestados",
+    "equipe",
+    "equipamentos",
+    "certidoes",
+    "margem_minima",
+    "risco_aceitavel",
+    "contratos_atuais",
+    "apetite_consorcios",
+    "capacidade_garantia"
+  ],
+  "human_overrides": [],
+  "next_steps": [
+    "Ler edital oficial e preencher checklist (workspace edital analyze)",
+    "Validar ranking com explain / evidências",
+    "Registrar decisão: workspace decide --id ... --decision approve|reject --reason '...'"
+  ]
+}
+=== END 09-workspace-dossier-offline exit=1 @ 2026-07-17T22:37:51Z ===

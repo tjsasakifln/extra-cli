@@ -1,0 +1,12 @@
+command|exit_code|started_utc|ended_utc|argv
+01-workspace-help|0|2026-07-17T22:37:36Z|2026-07-17T22:37:36Z|python3 -m scripts.workspace --help
+02-workspace-today-help|0|2026-07-17T22:37:36Z|2026-07-17T22:37:36Z|python3 -m scripts.workspace today --help
+03-workspace-today-json|0|2026-07-17T22:37:36Z|2026-07-17T22:37:40Z|python3 -m scripts.workspace today --json
+04-workspace-opportunities-help|0|2026-07-17T22:37:40Z|2026-07-17T22:37:40Z|python3 -m scripts.workspace opportunities --help
+05-workspace-opportunities-limit5|0|2026-07-17T22:37:40Z|2026-07-17T22:37:43Z|python3 -m scripts.workspace opportunities --status open --limit 5 --json
+06-workspace-coverage-help|0|2026-07-17T22:37:43Z|2026-07-17T22:37:43Z|python3 -m scripts.workspace coverage --help
+07-workspace-coverage|0|2026-07-17T22:37:43Z|2026-07-17T22:37:47Z|python3 -m scripts.workspace coverage --json
+08-workspace-dossier-help|0|2026-07-17T22:37:47Z|2026-07-17T22:37:47Z|python3 -m scripts.workspace dossier --help
+09-workspace-dossier-offline|1|2026-07-17T22:37:47Z|2026-07-17T22:37:51Z|python3 -m scripts.workspace dossier offline-no-id-probe --json
+10-workspace-dossier-id|0|2026-07-17T22:37:51Z|2026-07-17T22:37:54Z|python3 -m scripts.workspace dossier 8504275 --json
+pytest-squad-smoke|0|2026-07-17T22:38:59Z|2026-07-17T22:38:59Z|pytest squads/extra-dod-roi/tests/test_squad_smoke.py -v

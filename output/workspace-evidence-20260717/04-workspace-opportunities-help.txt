@@ -1,0 +1,30 @@
+=== BEGIN 04-workspace-opportunities-help @ 2026-07-17T22:37:40Z ===
+CMD: python3 -m scripts.workspace opportunities --help
+usage: workspace opportunities [-h] [--orgao ORGAO] [--municipio MUNICIPIO]
+                               [--distance DISTANCE] [--modalidade MODALIDADE]
+                               [--valor VALOR] [--valor-max VALOR_MAX]
+                               [--prazo PRAZO] [--status STATUS]
+                               [--score SCORE] [--ranking RANKING]
+                               [--fonte FONTE] [--source SOURCE]
+                               [--search SEARCH] [--limit LIMIT] [--json]
+                               [--dsn DSN]
+
+options:
+  -h, --help            show this help message and exit
+  --orgao ORGAO
+  --municipio MUNICIPIO
+  --distance DISTANCE   Distância máx. km
+  --modalidade MODALIDADE
+  --valor VALOR         Valor mínimo
+  --valor-max VALOR_MAX
+  --prazo PRAZO         Dias até prazo
+  --status STATUS
+  --score SCORE
+  --ranking RANKING
+  --fonte FONTE
+  --source SOURCE
+  --search SEARCH
+  --limit LIMIT
+  --json
+  --dsn DSN
+=== END 04-workspace-opportunities-help exit=0 @ 2026-07-17T22:37:40Z ===

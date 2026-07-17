@@ -1,0 +1,44 @@
+handoff:
+  from_agent: dev
+  to_agent: qa
+  at: "2026-07-17T22:40:00Z"
+  cycle_id: cyc-2026-07-17T223227Z
+  story_context:
+    story_id: ROI-cand-workspace-daily-evidence-pack
+    story_path: docs/stories/ROI-cand-workspace-daily-evidence-pack.md
+    story_status: InReview
+    candidate_id: cand-workspace-daily-evidence-pack
+    current_task: "Evidence pack complete; await independent QA gate"
+    branch: extra-roi/cand-workspace-daily-evidence-pack
+  decisions:
+    - "Branched clean from origin/main; only this cycle + ranker honesty fix"
+    - "Recorded honest PG timeout / DEGRADED offline paths — no false green"
+    - "dossier bogus id exit=1 documented; real session id 8504275 exit=0 offline"
+    - "Never claimed LOCAL_RESILIENCE_READY, PRE_VPS_FINAL_READY, or 95% coverage"
+    - "Included rank_next_cli _story_is_done so re-rank skips completed E3/post-merge"
+  files_modified:
+    - docs/ops/session-2026-07-17-workspace-evidence/
+    - output/workspace-evidence-20260717/
+    - docs/stories/ROI-cand-workspace-daily-evidence-pack.md
+    - .aiox/state/stories/ROI-cand-workspace-daily-evidence-pack.json
+    - squads/extra-dod-roi/scripts/rank_next_cli.py
+    - squads/extra-dod-roi/tests/test_squad_smoke.py
+    - docs/ops/session-2026-07-17-workspace-evidence/handoff-dev-to-qa.yaml
+  evidence:
+    manifest: docs/ops/session-2026-07-17-workspace-evidence/MANIFEST.md
+    exit_codes: docs/ops/session-2026-07-17-workspace-evidence/exit_codes.tsv
+    test_log: /tmp/grok-goal-00184141f517/implementer/extra-roi-tests-cand-workspace-daily-evidence-pack.log
+  command_results_summary:
+    workspace_help: PASS exit=0
+    today_help: PASS exit=0
+    today_json: PASS exit=0 degraded_pg
+    opportunities_help: PASS exit=0
+    opportunities_limit5: PASS exit=0 degraded_status
+    coverage_help: PASS exit=0
+    coverage_json: PASS exit=0 commercial_pct_approx_10_61
+    dossier_help: PASS exit=0
+    dossier_bogus: FAIL exit=1 expected_NOT_FOUND
+    dossier_8504275: PASS exit=0 offline_OK
+    pytest_squad_smoke: PASS exit=0 (10 tests)
+  blockers: []
+  next_action: "@qa *qa-gate ROI-cand-workspace-daily-evidence-pack — independent verdict; do not promote READY seals"

@@ -1,0 +1,12 @@
+=== BEGIN 08-workspace-dossier-help @ 2026-07-17T22:37:47Z ===
+CMD: python3 -m scripts.workspace dossier --help
+usage: workspace dossier [-h] [--json] [--dsn DSN] id
+
+positional arguments:
+  id          ID numérico ou PNCP/source id
+
+options:
+  -h, --help  show this help message and exit
+  --json
+  --dsn DSN
+=== END 08-workspace-dossier-help exit=0 @ 2026-07-17T22:37:47Z ===

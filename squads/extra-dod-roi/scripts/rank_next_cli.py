@@ -25,12 +25,42 @@ from graph_build import build_default_graph  # noqa: E402
 from score_roi import load_weights, rank_candidates  # noqa: E402
 
 
-def build_candidates(snapshot: dict[str, Any], matrix: dict[str, Any], graph: dict[str, Any]) -> tuple[list[dict], list[dict], list[str]]:
-    """Heuristic but grounded candidates from real brownfield state (2026-07-17)."""
+def _aiox_story_state(root: Path, story_id: str) -> dict[str, Any] | None:
+    """Load `.aiox/state/stories/{story_id}.json` if present."""
+    path = root / ".aiox" / "state" / "stories" / f"{story_id}.json"
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _story_is_done(root: Path, story_id: str) -> bool:
+    """True when AIOX state says Done with po_closed (independent close evidence)."""
+    st = _aiox_story_state(root, story_id)
+    if not st:
+        return False
+    status = str(st.get("status") or "").strip().lower()
+    po_closed = bool(st.get("po_closed"))
+    qa = str(st.get("qa_verdict") or "").upper()
+    return status == "done" and po_closed and qa in {"PASS", "CONCERNS", "WAIVED"}
+
+
+def build_candidates(
+    snapshot: dict[str, Any], matrix: dict[str, Any], graph: dict[str, Any]
+) -> tuple[list[dict], list[dict], list[str], list[str]]:
+    """Heuristic but grounded candidates from real brownfield state (2026-07-17).
+
+    Returns: (unlocked_candidates, blockers, divergences, discarded_completed)
+    """
     divergences: list[str] = []
     blockers: list[dict] = []
     candidates: list[dict] = []
+    discarded: list[str] = []
 
+    root = Path(snapshot.get("repo_root") or str(SQUAD_DIR.parent.parent))
     git = snapshot.get("git") or {}
     open_prs = snapshot.get("open_prs") or {}
     if isinstance(open_prs, dict):
@@ -159,77 +189,99 @@ def build_candidates(snapshot: dict[str, Any], matrix: dict[str, Any], graph: di
             }
         )
     elif pr12_merged_on_main:
+        if _story_is_done(root, "ROI-cand-post-merge-truth-gate-honesty"):
+            discarded.append(
+                "cand-post-merge-truth-gate-honesty: COMPLETED — ROI story Done with independent QA/PO; "
+                "offline honesty already revalidated; do not re-bind"
+            )
+            divergences.append(
+                "Post-merge truth-gate honesty already Done — cand-post-merge-truth-gate-honesty not UNLOCKED"
+            )
+        else:
+            candidates.append(
+                {
+                    "id": "cand-post-merge-truth-gate-honesty",
+                    "title": "Pós-merge PR #12: revalidar offline gate na main e impedir restauração de selos READY sem live proof",
+                    "status": "UNLOCKED",
+                    "dod_refs": ["§44 NOT_READY", "PRE_VPS_FINAL_READY still blocked", "no false green"],
+                    "why_unlocked": "PR #12 merged; residual work is verify main still honest and offline gate green",
+                    "value": {
+                        "gate_value": 4,
+                        "unlock_power": 3,
+                        "operational_impact": 2,
+                        "risk_reduction": 5,
+                        "evidence_gain": 4,
+                    },
+                    "cost": {
+                        "effort": 1,
+                        "uncertainty": 1,
+                        "external_dependency": 1,
+                        "change_surface": 1,
+                    },
+                    "justification": "Barato e crítico após merge: garantir que main não promoveu PRE_VPS_FINAL_READY; base limpa para live canary humano.",
+                    "risks": ["Narrativa de merge confundida com readiness live"],
+                    "dependencies": ["main contains truth-gate commits"],
+                    "conflicts": [],
+                    "acceptance_criteria": [
+                        "make pre-vps-final-gate-offline green on main",
+                        "DOD/docs still forbid LOCAL_RESILIENCE_READY and PRE_VPS_FINAL_READY without live proof",
+                        "No new false-green health path introduced",
+                    ],
+                    "test_commands": [
+                        "make pre-vps-final-gate-offline",
+                        "python3 -m scripts.ops.health --env development; test exit != 0 without live evidence",
+                    ],
+                    "planned_files": ["docs/operations/* only if residual drift", "no product rewrite"],
+                }
+            )
+
+    # 2. Independent QA/PO close for E3 stories (skip if already closed honestly)
+    e3_s1_done = _story_is_done(root, "B2G-E3.S1")
+    e3_s2_done = _story_is_done(root, "B2G-E3.S2")
+    if e3_s1_done and e3_s2_done:
+        discarded.append(
+            "cand-qa-po-e3-stories: COMPLETED — B2G-E3.S1/S2 Done with po_closed + independent QA "
+            f"(S1 qa={(_aiox_story_state(root, 'B2G-E3.S1') or {}).get('qa_verdict')}, "
+            f"S2 qa={(_aiox_story_state(root, 'B2G-E3.S2') or {}).get('qa_verdict')}); "
+            "do not re-bind or re-implement"
+        )
+        divergences.append(
+            "E3.S1 and E3.S2 already Done with independent QA/PO — cand-qa-po-e3-stories not UNLOCKED"
+        )
+    else:
         candidates.append(
             {
-                "id": "cand-post-merge-truth-gate-honesty",
-                "title": "Pós-merge PR #12: revalidar offline gate na main e impedir restauração de selos READY sem live proof",
+                "id": "cand-qa-po-e3-stories",
+                "title": "QA/PO independentes fecham E3.S1/E3.S2 (InReview → Done) sem inflar selos",
                 "status": "UNLOCKED",
-                "dod_refs": ["§44 NOT_READY", "PRE_VPS_FINAL_READY still blocked", "no false green"],
-                "why_unlocked": "PR #12 merged; residual work is verify main still honest and offline gate green",
+                "dod_refs": ["§44.4 claim 5 stories InReview", "story lifecycle"],
+                "why_unlocked": "Não depende de VPS; processo local AIOX; stories existem",
                 "value": {
                     "gate_value": 4,
                     "unlock_power": 3,
                     "operational_impact": 2,
-                    "risk_reduction": 5,
+                    "risk_reduction": 4,
                     "evidence_gain": 4,
                 },
                 "cost": {
-                    "effort": 1,
+                    "effort": 2,
                     "uncertainty": 1,
                     "external_dependency": 1,
                     "change_surface": 1,
                 },
-                "justification": "Barato e crítico após merge: garantir que main não promoveu PRE_VPS_FINAL_READY; base limpa para live canary humano.",
-                "risks": ["Narrativa de merge confundida com readiness live"],
-                "dependencies": ["main contains truth-gate commits"],
+                "justification": "Barato, reduz risco de story Done sem prova, e é pré-condição citada para PRE_VPS_FINAL_READY.",
+                "risks": ["Self-approval se implementador atuar como único QA"],
+                "dependencies": ["story files for E3.S1/S2 or epic-pre-vps-truth"],
                 "conflicts": [],
                 "acceptance_criteria": [
-                    "make pre-vps-final-gate-offline green on main",
-                    "DOD/docs still forbid LOCAL_RESILIENCE_READY and PRE_VPS_FINAL_READY without live proof",
-                    "No new false-green health path introduced",
+                    "QA gate file with PASS/CONCERNS/FAIL",
+                    "PO close only after acceptable verdict",
+                    "No READY seal changes beyond authorized claims",
                 ],
-                "test_commands": [
-                    "make pre-vps-final-gate-offline",
-                    "python3 -m scripts.ops.health --env development; test exit != 0 without live evidence",
-                ],
-                "planned_files": ["docs/operations/* only if residual drift", "no product rewrite"],
+                "test_commands": ["review story gates", "pytest resilience subset if code claimed"],
+                "planned_files": ["docs/stories/*", ".aiox/state/stories/*"],
             }
         )
-
-    # 2. Independent QA/PO close for E3 stories
-    candidates.append(
-        {
-            "id": "cand-qa-po-e3-stories",
-            "title": "QA/PO independentes fecham E3.S1/E3.S2 (InReview → Done) sem inflar selos",
-            "status": "UNLOCKED",
-            "dod_refs": ["§44.4 claim 5 stories InReview", "story lifecycle"],
-            "why_unlocked": "Não depende de VPS; processo local AIOX; stories existem",
-            "value": {
-                "gate_value": 4,
-                "unlock_power": 3,
-                "operational_impact": 2,
-                "risk_reduction": 4,
-                "evidence_gain": 4,
-            },
-            "cost": {
-                "effort": 2,
-                "uncertainty": 1,
-                "external_dependency": 1,
-                "change_surface": 1,
-            },
-            "justification": "Barato, reduz risco de story Done sem prova, e é pré-condição citada para PRE_VPS_FINAL_READY.",
-            "risks": ["Self-approval se implementador atuar como único QA"],
-            "dependencies": ["story files for E3.S1/S2 or epic-pre-vps-truth"],
-            "conflicts": [],
-            "acceptance_criteria": [
-                "QA gate file with PASS/CONCERNS/FAIL",
-                "PO close only after acceptable verdict",
-                "No READY seal changes beyond authorized claims",
-            ],
-            "test_commands": ["review story gates", "pytest resilience subset if code claimed"],
-            "planned_files": ["docs/stories/*", ".aiox/state/stories/*"],
-        }
-    )
 
     # 3. Operational coverage slice — pending_collection entities
     candidates.append(
@@ -408,7 +460,9 @@ def build_candidates(snapshot: dict[str, Any], matrix: dict[str, Any], graph: di
 
     # Filter: only UNLOCKED enter ranking set
     unlocked = [c for c in candidates if c["status"] == "UNLOCKED"]
-    return unlocked, blockers, divergences
+    # Stash completed/conflict discards on blockers list? Keep as side-channel via divergences;
+    # discarded strings are returned via a 4th element for run_rank_next.
+    return unlocked, blockers, divergences, discarded
 
 
 def format_report(result: dict[str, Any], top_n: int) -> str:
@@ -492,13 +546,15 @@ def run_rank_next(
         "superseded_claims": [], "veto": {}, "dod_sha256": None,
     }
     graph = build_default_graph({"notes": ["default domain graph for Extra B2G"]})
-    unlocked, blockers, divergences = build_candidates(snapshot, matrix, graph)
+    unlocked, blockers, divergences, completed_discards = build_candidates(
+        snapshot, matrix, graph
+    )
     weights = load_weights(SQUAD_DIR / "data" / "roi-weights.yaml")
     ranked = rank_candidates(unlocked, weights)
     top = ranked[:top_n]
     selected = top[0] if top else None
 
-    discarded = []
+    discarded: list[str] = list(completed_discards)
     if len(ranked) > 1:
         for c in ranked[1:6]:
             discarded.append(
