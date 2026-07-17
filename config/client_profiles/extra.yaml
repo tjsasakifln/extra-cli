@@ -142,3 +142,140 @@ preferred_sources:
     - pncp
     - contracts
     - tce_sc
+
+# ---------------------------------------------------------------------------
+# Capacidade operacional — PENDING elicitation (NÃO inventar valores)
+# Preencher com Tiago Sasaki em sessão de calibração de perfil.
+# status: PENDING | SET | N/A
+# ---------------------------------------------------------------------------
+elicitation:
+  capital_giro:
+    status: PENDING
+    value: null
+    unit: BRL
+    note: "Capital de giro disponível para propostas/garantias — elicitar com Tiago"
+  capacidade_simultanea:
+    status: PENDING
+    value: null
+    unit: contratos_simultaneos
+    note: "Quantos contratos ativos a Extra sustenta em paralelo"
+  cats_atestados:
+    status: PENDING
+    value: []
+    note: "Lista de CATs/atestados vigentes (objeto, valor, órgão, validade)"
+  equipe:
+    status: PENDING
+    value: null
+    note: "Equipe técnica disponível (engenharia, orçamentista, administrativo)"
+  equipamentos:
+    status: PENDING
+    value: []
+    note: "Equipamentos próprios relevantes para obras/serviços"
+  certidoes:
+    status: PENDING
+    value: null
+    note: "Status consolidado de certidões (federal/estadual/municipal/trabalhista/FGTS)"
+  margem_minima:
+    status: PENDING
+    value: null
+    unit: pct
+    note: "Margem mínima aceitável por tipo de objeto"
+  risco_aceitavel:
+    status: PENDING
+    value: null
+    note: "Apetite a risco (garantias, prazos curtos, órgãos com histórico ruim)"
+  contratos_atuais:
+    status: PENDING
+    value: []
+    note: "Contratos ativos da Extra (espelhar extra_ledger quando houver)"
+  apetite_consorcios:
+    status: PENDING
+    value: null
+    note: "Aceita consórcio? em quais condições?"
+  capacidade_garantia:
+    status: PENDING
+    value: null
+    unit: BRL
+    note: "Capacidade de emitir garantias de proposta/contrato"
+
+# Espelhos top-level (null) para consumidores que leem chaves planas
+capital_giro: null
+capacidade_simultanea: null
+cats_atestados: []
+equipe: null
+equipamentos: []
+certidoes: null
+margem_minima: null
+risco_aceitavel: null
+contratos_atuais: []
+apetite_consorcios: null
+capacidade_garantia: null
+
+# ---------------------------------------------------------------------------
+# Capacidade operacional — elicitação (B2G platform 2026-07-17)
+# Valores null / [] / status PENDING = Tiago preenche; NÃO inventar.
+# ranking GO/REVIEW/NO_GO deve degradar client_fit quando campos críticos PENDING.
+# ---------------------------------------------------------------------------
+identity:
+  cnpj: "24515063000149"
+  legal_name: Extra Empreiteira e Construtora
+  trade_name: Extra Construtora
+  headquarters_municipio: São José
+  headquarters_uf: SC
+  cnae_principal: "4120-4/00"  # construção de edifícios
+  cnae_principal_label: construção de edifícios
+
+capacity:
+  status: PENDING_ELICITATION
+  simultaneous_works: null  # quantas obras/contratos em paralelo
+  working_capital_brl: null
+  guarantee_capacity_brl: null
+  team_available: null  # descrição ou contagem
+  equipment: []  # lista de equipamentos relevantes
+  consortium_appetite: null  # true|false|conditional
+  current_contracts: []  # contratos ativos (objeto, órgão, vigência)
+
+qualifications:
+  status: PENDING_ELICITATION
+  technical_qualifications: []  # atestados / CATs resumidos
+  cats_atestados: []
+  certificates: []  # certidões (INSS, FGTS, débitos, etc.) status e validade
+  restrictions: []  # impedimentos conhecidos
+
+commercial_preferences:
+  status: PENDING_ELICITATION
+  minimum_margin_pct: null
+  acceptable_risk: null  # low|medium|high — preferência declarada
+  preferred_modalities: []  # se vazio, usa priority_modalities acima
+  municipalities_of_interest: []  # se vazio, usa raio 200km
+  max_distance_km: 200
+  work_types_focus:
+    - reforma_predial
+    - manutencao_predial
+    - construcao_edificios_publicos
+
+elicitation_queue:
+  - field: capacity.simultaneous_works
+    question: "Quantas obras/contratos a Extra consegue executar em paralelo?"
+    priority: 1
+  - field: capacity.working_capital_brl
+    question: "Capital de giro disponível para garantias e capital de obra (R$)?"
+    priority: 1
+  - field: capacity.guarantee_capacity_brl
+    question: "Capacidade máxima de garantia contratual (R$)?"
+    priority: 1
+  - field: qualifications.cats_atestados
+    question: "Listar CATs/atestados técnicos principais (objeto, valor, ano, órgão)."
+    priority: 1
+  - field: commercial_preferences.minimum_margin_pct
+    question: "Margem mínima aceitável (%) para GO automático?"
+    priority: 2
+  - field: commercial_preferences.acceptable_risk
+    question: "Apetite de risco (low|medium|high)?"
+    priority: 2
+  - field: known_competitors
+    question: "Principais concorrentes (razão social e CNPJ se conhecido)?"
+    priority: 2
+  - field: priority_organs
+    question: "Órgãos prioritários comerciais (nome/CNPJ)?"
+    priority: 3

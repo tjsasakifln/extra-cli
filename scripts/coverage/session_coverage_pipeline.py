@@ -34,6 +34,11 @@ from scripts.coverage.commercial_status import (  # noqa: E402
     STRICT_OPPORTUNITY_STATUSES,
     classify_commercial,
 )
+from scripts.coverage.coverage_contract import (  # noqa: E402
+    HEADLINE_METRIC,
+    LEGACY_ALIAS_COMMERCIAL_OPPORTUNITY_ANY,
+    METRIC_ENTITIES_WITH_RECENT_COMMERCIAL_SIGNAL,
+)
 from scripts.coverage.sector_engineering import classify_sector  # noqa: E402
 from scripts.lib.name_normalizer import normalize_name  # noqa: E402
 from scripts.matching.entity_matcher import generate_name_aliases  # noqa: E402
@@ -41,6 +46,11 @@ from scripts.matching.entity_matcher import generate_name_aliases  # noqa: E402
 SESSION_DATE = date.today().isoformat()
 OUT_DIR = _PROJECT_ROOT / "output" / f"session-{SESSION_DATE}"
 DENOMINATOR = 1093
+
+# Headline is a commercial SIGNAL metric, never labeled "coverage".
+# Legacy alias commercial_opportunity_any retained for backward compatibility.
+HEADLINE_METRIC_NAME = HEADLINE_METRIC  # entities_with_recent_commercial_signal
+HEADLINE_LEGACY_ALIAS = LEGACY_ALIAS_COMMERCIAL_OPPORTUNITY_ANY
 
 # Categories that count as commercial opportunity evidence for coverage
 COVERAGE_ACT_CATEGORIES = OPPORTUNITY_ACT_CATEGORIES | {
@@ -803,10 +813,22 @@ def compute_coverage(
             "union(db is_covered, session matched procurement) / 1093",
         ),
         metric(
-            "commercial_opportunity_any",
+            METRIC_ENTITIES_WITH_RECENT_COMMERCIAL_SIGNAL,
             entities_any_commercial,
-            "entities with commercial opportunity status / 1093",
+            "entities with ≥1 OPEN/UPCOMING/RECENT matched opportunity / 1093 "
+            "(commercial signal — NOT coverage)",
         ),
+        # Backward-compat alias (same numerator; never call this "coverage")
+        {
+            **metric(
+                LEGACY_ALIAS_COMMERCIAL_OPPORTUNITY_ANY,
+                entities_any_commercial,
+                "LEGACY ALIAS of entities_with_recent_commercial_signal — NOT coverage",
+            ),
+            "alias_of": METRIC_ENTITIES_WITH_RECENT_COMMERCIAL_SIGNAL,
+            "is_coverage_metric": False,
+            "kind": "commercial_signal",
+        },
         metric(
             "opportunity_published_30d",
             entities_30d,
@@ -947,26 +969,31 @@ def write_outputs(
     paths: dict[str, str] = {}
     entity_distance = entity_distance or {}
 
-    # Headline = commercial opportunity coverage (not loose is_covered).
+    # Headline = commercial signal (NOT coverage, not loose is_covered).
     # Use the exact entity-id set from compute_coverage (single source of truth).
+    _commercial_metric_names = {
+        METRIC_ENTITIES_WITH_RECENT_COMMERCIAL_SIGNAL,
+        LEGACY_ALIAS_COMMERCIAL_OPPORTUNITY_ANY,
+        "commercial_opportunity_any",  # hard-coded legacy string for old artifacts
+    }
     commercial_ids: set[int] = set(int(x) for x in (coverage.get("commercial_entity_ids") or []))
     if not commercial_ids:
         for met in coverage["metrics"]:
-            if met.get("name") == "commercial_opportunity_any":
+            if met.get("name") in _commercial_metric_names:
                 # fallback sample only — prefer full list
                 commercial_ids = set(int(x) for x in (met.get("entity_ids_sample") or []))
                 break
     commercial_num = len(commercial_ids)
     # Prefer metric numerator when full id list present
     for met in coverage["metrics"]:
-        if met.get("name") == "commercial_opportunity_any":
+        if met.get("name") in _commercial_metric_names:
             commercial_num = int(met.get("numerator") or commercial_num)
             break
     # Enforce identity: numerator must equal len(commercial_ids) when ids are complete
     if coverage.get("commercial_entity_ids") is not None:
         commercial_num = len(commercial_ids)
         for met in coverage["metrics"]:
-            if met.get("name") == "commercial_opportunity_any":
+            if met.get("name") in _commercial_metric_names:
                 met["numerator"] = commercial_num
                 met["result_pct"] = (
                     round(commercial_num / coverage["denominator"] * 100, 2)
@@ -988,10 +1015,14 @@ def write_outputs(
             "do_not_change_denominator": True,
             "baseline_numerator": 52,
             "baseline_pct": 4.76,
-            "headline_metric": "commercial_opportunity_any",
+            "headline_metric": HEADLINE_METRIC_NAME,
+            "headline_metric_legacy_alias": HEADLINE_LEGACY_ALIAS,
+            "headline_is_coverage": False,
             "headline_definition": (
-                "entities with ≥1 OPEN/UPCOMING/RECENT opportunity matched "
-                "to universe — not RESULT/CONTRACT/generic acts"
+                "entities_with_recent_commercial_signal: entities with ≥1 "
+                "OPEN/UPCOMING/RECENT opportunity matched to universe — "
+                "NOT a coverage metric; not RESULT/CONTRACT/generic acts. "
+                f"Legacy alias: {HEADLINE_LEGACY_ALIAS}."
             ),
         },
         "coverage_update": coverage_update,
@@ -1169,7 +1200,8 @@ def write_outputs(
     lines = [
         f"# Cobertura canônica 200 km — {as_of.isoformat()}",
         "",
-        f"- **Headline (commercial_opportunity_any):** {commercial_num} / 1093 ({commercial_pct}%)",
+        f"- **Headline ({HEADLINE_METRIC_NAME}):** {commercial_num} / 1093 ({commercial_pct}%)",
+        f"- **Legacy alias:** `{HEADLINE_LEGACY_ALIAS}` (same numerator; NOT coverage)",
         "- **Baseline histórico:** 52 / 1093 (4,76%)",
         f"- **Delta comercial vs baseline:** {commercial_num - 52}",
         f"- **Loose combined (DB is_covered union):** {coverage['combined_numerator']} "

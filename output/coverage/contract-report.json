@@ -1,0 +1,428 @@
+{
+  "generated_at": "2026-07-17T12:24:53.704164+00:00",
+  "as_of": "2026-07-17",
+  "denominator": {
+    "value": 1093,
+    "source": "load_canonical_universe",
+    "fixed_canonical": true,
+    "notes": "seed=/mnt/d/extra consultoria/Extra - alvos de licitação. R-0.xlsx; sha256=d65f272812cf…; included=1093"
+  },
+  "slas": {
+    "open_opportunities_hours": 24,
+    "official_diaries_hours": 24,
+    "contracts_amendments_hours": 72,
+    "historical_consolidated_days": 7,
+    "cadastral_data_days": 30
+  },
+  "headline_metric": "entities_with_recent_commercial_signal",
+  "headline_is_coverage": false,
+  "metrics": {
+    "entities_with_recent_commercial_signal": {
+      "metric_id": "entities_with_recent_commercial_signal",
+      "kind": "commercial_signal",
+      "label": "Entities with recent commercial signal",
+      "status": "READY",
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "formula": "entities with ≥1 OPEN/UPCOMING/RECENT matched opportunity / 1093",
+      "target_pct": null,
+      "reason": "session_coverage_canonical.commercial_entity_ids",
+      "limitations": [
+        "source=session_artifact:/mnt/d/extra consultoria/docs/ops/session-2026-07-17/coverage_canonical.json"
+      ],
+      "sample_size": null,
+      "field_breakdown": null,
+      "legacy_aliases": [
+        "commercial_opportunity_any"
+      ],
+      "is_coverage_metric": false
+    },
+    "source_mapping_coverage": {
+      "metric_id": "source_mapping_coverage",
+      "kind": "coverage",
+      "label": "Source mapping coverage",
+      "status": "READY",
+      "numerator": 1093,
+      "denominator": 1093,
+      "pct": 100.0,
+      "formula": "entities with explicit source registry record (including status=source_not_identified) / denominator",
+      "target_pct": 100.0,
+      "reason": "entity_source_registry.jsonl",
+      "limitations": [
+        "registry=/mnt/d/extra consultoria/data/entity_source_registry.jsonl",
+        "records=1093"
+      ],
+      "sample_size": null,
+      "field_breakdown": null,
+      "legacy_aliases": [],
+      "is_coverage_metric": true
+    },
+    "operational_source_coverage": {
+      "metric_id": "operational_source_coverage",
+      "kind": "coverage",
+      "label": "Operational source coverage",
+      "status": "READY",
+      "numerator": 105,
+      "denominator": 1093,
+      "pct": 9.61,
+      "formula": "entities with ≥1 official source: mapped + accessible + collected + normalized + reconciled + verified within SLA + recent evidence / denominator",
+      "target_pct": 95.0,
+      "reason": "entity_source_registry_operational_statuses",
+      "limitations": [
+        "From entity_source_registry access_status in {accessible,collected,operational,fresh,verified}; registry_rows=1093. Mapped-only does NOT count. Full SLA chain (normalized+reconciled+verified within SLA) still partial."
+      ],
+      "sample_size": null,
+      "field_breakdown": null,
+      "legacy_aliases": [],
+      "is_coverage_metric": true
+    },
+    "freshness_coverage": {
+      "metric_id": "freshness_coverage",
+      "kind": "coverage",
+      "label": "Freshness coverage",
+      "status": "READY",
+      "numerator": 35,
+      "denominator": 1093,
+      "pct": 3.2,
+      "formula": "entities verified within applicable SLA / denominator",
+      "target_pct": null,
+      "reason": "entity_coverage.last_seen_at_within_sla",
+      "limitations": [
+        "SLA window = open_opportunities_hours (24h)"
+      ],
+      "sample_size": null,
+      "field_breakdown": null,
+      "legacy_aliases": [],
+      "is_coverage_metric": true
+    },
+    "opportunity_recall": {
+      "metric_id": "opportunity_recall",
+      "kind": "recall",
+      "label": "Opportunity recall",
+      "status": "NOT_READY",
+      "numerator": null,
+      "denominator": null,
+      "pct": null,
+      "formula": "true positives in stratified benchmark sample / sample positives",
+      "target_pct": null,
+      "reason": "No stratified benchmark sample found. opportunity_recall MUST NOT be computed from database opportunity counts. Provide data/benchmarks/opportunity_recall_sample.json with fields: relevant (bool), retrieved (bool) per sample item.",
+      "limitations": [
+        "benchmark_sample_missing",
+        "never_use_db_counts_for_recall"
+      ],
+      "sample_size": null,
+      "field_breakdown": null,
+      "legacy_aliases": [],
+      "is_coverage_metric": false
+    },
+    "required_field_completeness": {
+      "metric_id": "required_field_completeness",
+      "kind": "completeness",
+      "label": "Required field completeness",
+      "status": "READY",
+      "numerator": 3.0005,
+      "denominator": 17,
+      "pct": 17.65,
+      "formula": "mean over opportunities of (present decision fields / 17 decision fields); absence is explicit",
+      "target_pct": null,
+      "reason": "mean_decision_field_completeness",
+      "limitations": [
+        "absence_is_explicit",
+        "decision_fields=17",
+        "records_scored=116"
+      ],
+      "sample_size": 116,
+      "field_breakdown": {
+        "mean_completeness_pct": 17.65,
+        "records": 116,
+        "fields": [
+          "entity",
+          "cnpj",
+          "process",
+          "edital",
+          "objeto",
+          "modalidade",
+          "situacao",
+          "datas",
+          "valor",
+          "local",
+          "url",
+          "docs",
+          "fonte",
+          "collected_at",
+          "commercial_class",
+          "sector_class",
+          "ranking_evidence"
+        ],
+        "field_count": 17,
+        "per_field": {
+          "entity": {
+            "present": 116,
+            "absent": 0,
+            "rate_pct": 100.0,
+            "absence_explicit": true
+          },
+          "cnpj": {
+            "present": 116,
+            "absent": 0,
+            "rate_pct": 100.0,
+            "absence_explicit": true
+          },
+          "process": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "edital": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "objeto": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "modalidade": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "situacao": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "datas": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "valor": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "local": {
+            "present": 116,
+            "absent": 0,
+            "rate_pct": 100.0,
+            "absence_explicit": true
+          },
+          "url": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "docs": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "fonte": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "collected_at": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "commercial_class": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "sector_class": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          },
+          "ranking_evidence": {
+            "present": 0,
+            "absent": 116,
+            "rate_pct": 0.0,
+            "absence_explicit": true
+          }
+        },
+        "per_record_ratios": [
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413,
+          0.17647058823529413
+        ]
+      },
+      "legacy_aliases": [],
+      "is_coverage_metric": false
+    },
+    "commercial_opportunity_any": {
+      "metric_id": "commercial_opportunity_any",
+      "kind": "commercial_signal",
+      "label": "Legacy alias for entities_with_recent_commercial_signal (NOT coverage)",
+      "status": "READY",
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "formula": "entities with ≥1 OPEN/UPCOMING/RECENT matched opportunity / 1093",
+      "target_pct": null,
+      "reason": "session_coverage_canonical.commercial_entity_ids",
+      "limitations": [
+        "source=session_artifact:/mnt/d/extra consultoria/docs/ops/session-2026-07-17/coverage_canonical.json"
+      ],
+      "sample_size": null,
+      "field_breakdown": null,
+      "legacy_aliases": [
+        "commercial_opportunity_any"
+      ],
+      "is_coverage_metric": false,
+      "alias_of": "entities_with_recent_commercial_signal",
+      "notes": "Backward compatibility only. Do not call this coverage."
+    }
+  },
+  "metric_order": [
+    "entities_with_recent_commercial_signal",
+    "source_mapping_coverage",
+    "operational_source_coverage",
+    "freshness_coverage",
+    "opportunity_recall",
+    "required_field_completeness"
+  ],
+  "notes": [
+    "Commercial signal metric is NOT labeled coverage.",
+    "Headline metric: entities_with_recent_commercial_signal (kind=commercial_signal).",
+    "Legacy alias: commercial_opportunity_any → entities_with_recent_commercial_signal.",
+    "Denominator is never reduced to improve percentages.",
+    "Denominator notes: seed=/mnt/d/extra consultoria/Extra - alvos de licitação. R-0.xlsx; sha256=d65f272812cf…; included=1093",
+    "Session artifacts: /mnt/d/extra consultoria/docs/ops/session-2026-07-17"
+  ],
+  "legacy_aliases": {
+    "commercial_opportunity_any": "entities_with_recent_commercial_signal"
+  }
+}

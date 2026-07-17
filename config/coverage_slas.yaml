@@ -1,0 +1,13 @@
+# Coverage contract SLA windows — configurable per evidence class.
+# Used by scripts/coverage/coverage_contract.py for freshness and
+# operational_source_coverage. Do NOT hardcode these values in callers.
+#
+# Keys:
+#   *_hours  — rolling window in hours from as_of
+#   *_days   — rolling window in days from as_of
+
+open_opportunities_hours: 24
+official_diaries_hours: 24
+contracts_amendments_hours: 72
+historical_consolidated_days: 7
+cadastral_data_days: 30
