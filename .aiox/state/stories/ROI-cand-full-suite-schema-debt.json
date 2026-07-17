@@ -1,0 +1,84 @@
+{
+  "story_id": "ROI-cand-full-suite-schema-debt",
+  "title": "Reduzir dívida que faz Test All (full suite) skipped / schema views falharem",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "InReview",
+  "story_file": "docs/stories/ROI-cand-full-suite-schema-debt.md",
+  "created_at": "2026-07-17T22:49:49Z",
+  "updated_at": "2026-07-17T23:02:21Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "scope_files": [
+    "docs/ops/session-2026-07-17-full-suite-debt/",
+    "docs/stories/ROI-cand-full-suite-schema-debt.md",
+    ".aiox/state/stories/ROI-cand-full-suite-schema-debt.json",
+    "squads/extra-dod-roi/tests/test_full_suite_debt_manifest.py",
+    "squads/extra-dod-roi/tests/test_squad_smoke.py"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-17T224949Z",
+    "candidate_id": "cand-full-suite-schema-debt",
+    "roi": 1.8571,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  },
+  "po_validation": {
+    "validated_by": "Pax (@po)",
+    "validated_at": "2026-07-17T22:51:23Z",
+    "verdict": "GO",
+    "score": 8,
+    "checklist": {
+      "1_title": "PASS",
+      "2_description": "PASS",
+      "3_acceptance_criteria": "PASS — document critical full-suite path green OR remaining skips justified; no hiding skips",
+      "4_scope": "PASS — IN/OUT clear; no READY seals",
+      "5_dependencies": "PASS — local db-up optional",
+      "6_complexity": "PASS — HIGH-RISK but slice is docs/evidence + optional small fix",
+      "7_business_value": "PASS — reduces false green from unrun tests",
+      "8_risks": "PASS — wide surface / env-specific documented",
+      "9_definition_of_done": "PASS — AIOX DoD checklist present",
+      "10_epic_alignment": "PASS — EPIC-EXTRA-DOD-ROI ranking[0]"
+    },
+    "notes": [
+      "AC1 refined interpretation: MANIFEST documenting what runs green vs what skips and WHY is the deliverable for this minimal slice",
+      "AC2: skips must remain visible in CI/logs (test-all if: workflow_dispatch is intentional and must not be hidden)",
+      "Do NOT boil ocean on schema views in this cycle; document debt honestly",
+      "No claim of full-suite green or READY seals"
+    ]
+  },
+  "dev_implementation": {
+    "implemented_by": "Dex (@dev / delivery-engineer)",
+    "started_at": "2026-07-17T22:51:50Z",
+    "branch": "extra-roi/cand-full-suite-schema-debt",
+    "completed_at": "2026-07-17T23:02:21Z",
+    "summary": "MANIFEST + critical path evidence + suite debt structural tests; no DoD checkbox flips",
+    "test_results": {
+      "critical_path": "197 passed, 24 skipped, exit 0",
+      "squad_tests": "16 passed (test_full_suite_debt_manifest + test_squad_smoke)"
+    }
+  }
+}

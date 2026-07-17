@@ -1,0 +1,36 @@
+--- default (not slow) collect ---
+  /mnt/d/extra consultoria/tests/test_orchestrator.py:35: DeprecationWarning: scripts.crawl.orchestrator is deprecated, use scripts.crawl.monitor
+    from scripts.crawl.orchestrator import (  # noqa: E402
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1997/2007 tests collected (10 deselected) in 10.56s
+--- only slow collect ---
+  /mnt/d/extra consultoria/tests/test_orchestrator.py:35: DeprecationWarning: scripts.crawl.orchestrator is deprecated, use scripts.crawl.monitor
+    from scripts.crawl.orchestrator import (  # noqa: E402
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+10/2007 tests collected (1997 deselected) in 11.03s
+--- only database collect ---
+  /mnt/d/extra consultoria/tests/test_orchestrator.py:35: DeprecationWarning: scripts.crawl.orchestrator is deprecated, use scripts.crawl.monitor
+    from scripts.crawl.orchestrator import (  # noqa: E402
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+64/2007 tests collected (1943 deselected) in 10.61s
+--- only integration collect ---
+  /mnt/d/extra consultoria/tests/test_orchestrator.py:35: DeprecationWarning: scripts.crawl.orchestrator is deprecated, use scripts.crawl.monitor
+    from scripts.crawl.orchestrator import (  # noqa: E402
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+106/2007 tests collected (1901 deselected) in 10.90s
+--- only e2e collect ---
+  /mnt/d/extra consultoria/tests/test_orchestrator.py:35: DeprecationWarning: scripts.crawl.orchestrator is deprecated, use scripts.crawl.monitor
+    from scripts.crawl.orchestrator import (  # noqa: E402
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1/2007 tests collected (2006 deselected) in 10.74s
+--- only smoke collect ---
+  /mnt/d/extra consultoria/tests/test_orchestrator.py:35: DeprecationWarning: scripts.crawl.orchestrator is deprecated, use scripts.crawl.monitor
+    from scripts.crawl.orchestrator import (  # noqa: E402
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+37/2007 tests collected (1970 deselected) in 11.21s

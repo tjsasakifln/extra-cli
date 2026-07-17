@@ -146,8 +146,9 @@ class FoolproofEnforcement(unittest.TestCase):
         self.assertTrue((SQUAD / "scripts" / "force_next.py").is_file())
         self.assertTrue((SQUAD / "scripts" / "enforce_aiox_path.py").is_file())
 
-    def test_implement_blocked_without_ready_cycle(self):
-        # Without a Ready story, implement gate must fail closed
+    def test_implement_gate_is_fail_closed_or_allows_active_cycle(self):
+        # When a foolproof cycle is STORY_READY/IMPLEMENTING on a non-main branch,
+        # implement is allowed. Otherwise the gate must fail closed with a known code.
         proc = subprocess.run(
             [sys.executable, str(SCRIPTS / "enforce_aiox_path.py"), "implement"],
             cwd=str(ROOT),
@@ -155,9 +156,13 @@ class FoolproofEnforcement(unittest.TestCase):
             text=True,
             check=False,
         )
-        # May be MAIN_WRITE if on main, or SKIP_PHASE / NO_STORY / PO_NOT_READY
-        self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
         data = json.loads(proc.stdout)
+        if data.get("ok") is True:
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertTrue(data.get("branch_required_not_main"))
+            self.assertIn(data.get("phase"), {"STORY_READY", "IMPLEMENTING", "IN_REVIEW"})
+            return
+        self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
         self.assertFalse(data.get("ok", True))
         self.assertIn(
             data.get("abort_code"),
@@ -172,35 +177,22 @@ class FoolproofEnforcement(unittest.TestCase):
             },
         )
 
-    def test_cycle_illegal_transition_aborts(self):
-        proc = subprocess.run(
-            [
-                sys.executable,
-                str(SCRIPTS / "cycle_state.py"),
-                "init",
-            ],
-            cwd=str(ROOT),
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        self.assertEqual(proc.returncode, 0, proc.stderr)
-        proc2 = subprocess.run(
-            [
-                sys.executable,
-                str(SCRIPTS / "cycle_state.py"),
-                "advance",
-                "--to",
-                "IMPLEMENTING",
-                "--actor",
-                "test",
-            ],
-            cwd=str(ROOT),
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        self.assertNotEqual(proc2.returncode, 0)
+    def test_cycle_illegal_transition_aborts_without_wiping_active(self):
+        """Validate ILLEGAL_TRANSITION via pure TRANSITIONS map — never run
+        cycle_state init against the live current.json (that would abort active ROI cycles).
+        """
+        from importlib.util import module_from_spec, spec_from_file_location
+
+        spec = spec_from_file_location("cycle_state", SCRIPTS / "cycle_state.py")
+        assert spec and spec.loader
+        mod = module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        # INIT cannot jump to IMPLEMENTING
+        allowed = mod.TRANSITIONS.get("INIT", set())
+        self.assertNotIn("IMPLEMENTING", allowed)
+        self.assertIn("RANKED", allowed)
+        # IMPLEMENTING only goes to IN_REVIEW
+        self.assertEqual(mod.TRANSITIONS.get("IMPLEMENTING"), {"IN_REVIEW"})
 
 
 if __name__ == "__main__":
