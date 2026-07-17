@@ -2517,3 +2517,80 @@ Próximo: detail/CNPJ Compras em escala, PNCP SC resiliente a 429, resolução C
 - PR #9: https://github.com/tjsasakifln/extra-consultoria/pull/9  
 - Run: https://github.com/tjsasakifln/extra-consultoria/actions/runs/29576072258  
 - Lint, mypy, Test critical, bandit, pip-audit = **SUCCESS**
+
+---
+
+## 44. LOCAL_RESILIENCE_READY — preparação pré-VPS (2026-07-17)
+
+**Decisão:** `LOCAL_RESILIENCE_READY`  
+**Não implica:** `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95% ou freshness externa garantida.  
+**Branch:** `feat/local-resilience-ready-20260717`  
+**Documento canônico:** `docs/operations/PRE-VPS-READINESS.md`  
+**Diagnóstico pré-código:** `docs/operations/LOCAL-RESILIENCE-DIAGNOSIS.md`
+
+### 44.1 Entrega
+
+Núcleo de coleta resiliente local para PNCP, CIGA/DOM-SC público e SC Compras:
+
+1. Contrato ADR-021 (`FetchResult` semântico + `SourceAdapter`)
+2. Fail-closed: 429/partial/auth/error nunca viram success/empty
+3. Checkpoint canônico atômico + resume idempotente
+4. Watermark só após evidence satisfatória
+5. DLQ com dedup e replay manual
+6. Raw/proveniência antes de normalize
+7. Evidence ledger com predicate de completude
+8. Health consolidado (`python3 -m scripts.ops.health`)
+9. Orquestração canônica (`make resilient-*`)
+10. Units systemd prioritárias **preparadas**, **não habilitadas**
+11. Migration aditiva `054_local_resilience_contract.sql` (projeção futura)
+
+### 44.2 Validação registrada
+
+```text
+make resilience-gate
+  ruff: pass
+  mypy (7 módulos críticos): pass
+  validate_systemd: pass
+  resilient-smoke: 179 passed, 24 skipped (~12s)
+  tests/test_local_resilience.py: 31 passed (~8s)
+  resilient-local-cycle (fixtures): exit 0 healthy
+  python3 -m scripts.ops.health: exit 0
+```
+
+Comandos de smoke/gate:
+
+```bash
+make resilient-smoke
+make resilient-local-cycle
+make resilience-gate
+python3 -m scripts.ops.health
+```
+
+### 44.3 Claims permitidos
+
+1. Mecânica de resiliência local das 3 fontes prioritárias é reproduzível sem internet.
+2. 429/partial/zero ambíguo não produzem evidence satisfatória nem avançam watermark.
+3. Resume não reprocessa fatias `success`/`raw_persisted` com raw disponível.
+4. Systemd futuro validado estaticamente; **não** ativado.
+
+### 44.4 Claims proibidos
+
+1. VPS provisionada/operacional.
+2. 95% cobertura ou cobertura operacional real inflada por fixtures.
+3. Freshness live de fontes externas garantida.
+4. Demais adapters (PCP, compras.gov, TCE, etc.) validados neste gate.
+5. Stories E3.S1/S2 **Done** (permanecem **InReview** até QA/PO independentes).
+6. Scheduler em produção ou soak 24h.
+
+### 44.5 Riscos residuais
+
+- Adapters legados fora do trio prioritário.
+- Comportamento real de rate limit/schema das APIs externas.
+- Persistência/backup/retenção no host futuro.
+- Alertas externos e E3.S3 (VPS).
+
+### 44.6 Próximo passo
+
+Somente após aceite de QA/PO e publicação: checklist de provisionamento em
+`docs/operations/PRE-VPS-READINESS.md` §Checklist.
+

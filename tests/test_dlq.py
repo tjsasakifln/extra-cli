@@ -6,12 +6,12 @@ Integration tests requiring database are in ``test_dlq_integration.py``
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from scripts.crawl.dlq import BACKOFF_SCHEDULE, _next_backoff, DLQWorker, DurableDLQ
-from scripts.crawl.pipeline import DLQRecord, PipelineStage, InMemoryDLQ
+from scripts.crawl.dlq import BACKOFF_SCHEDULE, DLQWorker, DurableDLQ, _next_backoff
+from scripts.crawl.pipeline import DLQRecord, InMemoryDLQ, PipelineStage
 
 # ===========================================================================
 # Backoff schedule (pure unit tests)
@@ -156,8 +156,6 @@ class TestDurableDLQ:
 @pytest.mark.asyncio
 async def test_worker_with_in_memory_dlq():
     """Given InMemoryDLQ with pending entries, worker processes them."""
-    im_dlq = InMemoryDLQ()
-
     # Push records to InMemoryDLQ (not DurableDLQ)
     from scripts.crawl.pipeline import InMemoryDLQ as RealInMemoryDLQ
     dlq = RealInMemoryDLQ()

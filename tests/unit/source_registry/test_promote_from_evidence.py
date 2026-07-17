@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
@@ -36,7 +36,7 @@ def test_promote_sets_collected_with_pipeline_evidence() -> None:
             "municipio": "BRUSQUE",
             "sources": ["pncp"],
             "is_covered": True,
-            "last_seen_at": datetime.now(timezone.utc),
+            "last_seen_at": datetime.now(UTC),
             "total_bids": 5,
             "normalized": True,
             "reconciled": True,
@@ -129,7 +129,7 @@ def test_promote_rejects_ambiguous_cnpj_root() -> None:
     )
     base = {
         "cnpj_8": "00394494",
-        "last_seen_at": datetime.now(timezone.utc),
+        "last_seen_at": datetime.now(UTC),
         "sources": ["pncp"],
         "is_covered": True,
         "normalized": True,

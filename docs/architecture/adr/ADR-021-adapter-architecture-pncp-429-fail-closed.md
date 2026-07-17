@@ -88,10 +88,14 @@ Adapters preferem **target set** de entidades/bindings quando o modo é coverage
 
 ## Critérios de aceite
 
-- [ ] Enum de status documentado e usado nos adapters prioritários (PNCP, SC Compras, CIGA)
-- [ ] Teste: 429 → não emite evidence success para a fatia
-- [ ] Checkpoint retoma após rate_limited
-- [ ] Dual content_hash eliminado ou justificado com um canônico
+- [x] Enum de status documentado e usado nos adapters prioritários (PNCP, SC Compras, CIGA)
+- [x] Teste: 429 → não emite evidence success para a fatia
+- [x] Checkpoint retoma após rate_limited
+- [x] SHA-256 do JSON canônico é a identidade do caminho ADR-021; hashes legados ficam explicitamente fora desse contrato
+
+Implementação de referência: `scripts/crawl/resilience/`; evidência e limites em
+`docs/operations/PRE-VPS-READINESS.md`. O aceite é local e não implica ativação
+de scheduler ou VPS.
 
 ## Referências
 

@@ -732,23 +732,33 @@ def crawl_source(
             fetch_result = raw_response
             raw_records = fetch_result.records
             result.metadata["fetch_result"] = fetch_result.metadata
-            if fetch_result.errors:
+            result.metadata["fetch_status"] = fetch_result.status
+            result.metadata["pages_fetched"] = fetch_result.pages_fetched
+            result.metadata["pages_expected"] = fetch_result.pages_expected
+            result.metadata["provenance"] = fetch_result.provenance
+            if fetch_result.status in {"partial", "rate_limited", "auth_blocked", "error"}:
                 result.external_failures = 1
-                error = "; ".join(fetch_result.errors)
-                _finish_ingestion_run(conn, run_id, len(raw_records), 0, 0, "failed", error)
+                error = "; ".join(fetch_result.errors) or str(fetch_result.status)
+                semantic_status = str(fetch_result.status)
+                _finish_ingestion_run(conn, run_id, len(raw_records), 0, 0, semantic_status, error)
                 _record_evidence(
                     conn,
                     run_id,
                     source,
-                    "failed",
+                    semantic_status,
                     fetched=len(raw_records),
                     error_message=error,
-                    error_code="fetch_incomplete",
+                    error_code=semantic_status,
+                    metadata={
+                        "pages_fetched": fetch_result.pages_fetched,
+                        "pages_expected": fetch_result.pages_expected,
+                        "provenance": fetch_result.provenance,
+                    },
                 )
                 conn.close()
                 result.fetched = len(raw_records)
-                result.status = "failed"
-                result.error_code = "fetch_incomplete"
+                result.status = semantic_status  # type: ignore[assignment]
+                result.error_code = semantic_status
                 result.error_message = error
                 result.started_at = started_at.isoformat()
                 result.completed_at = datetime.now(UTC).isoformat()
@@ -760,12 +770,21 @@ def crawl_source(
         print(f"     Fetched: {result.fetched} records")
 
         if not raw_records:
-            status = "empty"
-            if fetch_result and (not fetch_result.request_completed or fetch_result.errors):
-                status = "failed"
+            # Legacy [] cannot prove absence. Only the canonical adapter may
+            # emit empty_confirmed after complete pagination and provenance.
+            status = "partial"
+            if fetch_result is not None:
+                status = "empty_confirmed" if fetch_result.coverage_satisfactory and fetch_result.empty_confirmed else str(fetch_result.status)
             _finish_ingestion_run(conn, run_id, 0, 0, 0, status)
-            error_code = "empty_result" if status == "empty" else "fetch_failed"
-            _record_evidence(conn, run_id, source, status, error_code=error_code)
+            error_code = None if status == "empty_confirmed" else "zero_ambiguous"
+            _record_evidence(
+                conn, run_id, source, status, error_code=error_code,
+                metadata={
+                    "pages_fetched": fetch_result.pages_fetched if fetch_result else None,
+                    "pages_expected": fetch_result.pages_expected if fetch_result else None,
+                    "provenance": fetch_result.provenance if fetch_result else {},
+                },
+            )
             conn.close()
             result.status = status  # type: ignore[assignment]
             result.error_code = error_code
@@ -928,7 +947,7 @@ def crawl_source(
             # without matches are truly absent → must be conservative.
             # Success_zero is legitimate ONLY when fetch_complete=True.
             if fetch_result is not None:
-                fetch_complete = fetch_result.request_completed and len(fetch_result.errors) == 0
+                fetch_complete = fetch_result.coverage_satisfactory
             else:
                 fetch_complete = False
             entity_evidence_stats = _project_entity_evidence(
@@ -1259,6 +1278,11 @@ def _map_evidence_state(monitor_status: str, error_code: str, fetched: int) -> s
             "fetch_failed": "connection_failed",
             "persist_failed": "persist_failed",
             "runtime_error": "connection_failed",  # conservative default
+            "partial": "partial",
+            "rate_limited": "partial",
+            "auth_blocked": "auth_failed",
+            "error": "connection_failed",
+            "zero_ambiguous": "partial",
         }
         if error_code in error_mapping:
             return error_mapping[error_code]
@@ -1266,9 +1290,14 @@ def _map_evidence_state(monitor_status: str, error_code: str, fetched: int) -> s
     # Monitor status → evidence state
     status_mapping = {
         "success": "success_with_data" if fetched > 0 else "success_zero",
+        "empty_confirmed": "success_zero",
+        "partial": "partial",
+        "rate_limited": "partial",
+        "auth_blocked": "auth_failed",
+        "error": "connection_failed",
         "degraded": "partial",
         "failed": "connection_failed",
-        "empty": "success_zero",
+        "empty": "partial",
         "skipped": "not_investigated",
     }
     return status_mapping.get(monitor_status, "not_investigated")

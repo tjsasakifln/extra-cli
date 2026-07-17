@@ -145,6 +145,15 @@ class SourceInfo:
     is_public: bool = True
     """Whether this source requires no credentials."""
 
+    adapter_contract: Literal["adr021", "legacy"] = "legacy"
+    """Contract used by the operational path. Legacy sources never inflate its coverage."""
+
+    operational_validated: bool = False
+    """True only after contract, fail-closed, resume and evidence tests pass."""
+
+    resilience_adapter: str | None = None
+    """Import path for the explicit ADR-021 adapter, when validated."""
+
     def __post_init__(self) -> None:
         if not self.is_public and not self.credentials:
             self.is_public = False
@@ -178,6 +187,9 @@ _RAW: list[SourceInfo] = [
         supports_zero_proof=True,
         reconciliation_strategy="key_based",
         order=1,
+        adapter_contract="adr021",
+        operational_validated=True,
+        resilience_adapter="scripts.crawl.resilience.adapters.PNCPAdapter",
         description="PNCP API (federal + adesao voluntaria) — primary open tenders source",
     ),
     SourceInfo(
@@ -245,6 +257,9 @@ _RAW: list[SourceInfo] = [
         supports_zero_proof=False,
         reconciliation_strategy="key_based",
         order=5,
+        adapter_contract="adr021",
+        operational_validated=True,
+        resilience_adapter="scripts.crawl.resilience.adapters.ScComprasAdapter",
         description="SC Compras",
     ),
     # ------------------------------------------------------------------
@@ -331,6 +346,9 @@ _RAW: list[SourceInfo] = [
         freshness_sla_hours=48,
         supports_pagination=True,
         supports_zero_proof=False,
+        adapter_contract="adr021",
+        operational_validated=True,
+        resilience_adapter="scripts.crawl.resilience.adapters.CigaDomAdapter",
         reconciliation_strategy="key_based",
         order=2,  # prefer over authenticated dom_sc for municipal SC
         description=(

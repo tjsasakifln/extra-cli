@@ -9,12 +9,12 @@ import pytest
 
 from scripts.matching.official_acts_reconcile import (
     RULE_SCORES,
-    MatchIndex,
-    Record,
     SOURCE_COMPRAS_SC,
     SOURCE_DOE,
     SOURCE_DOM,
     SOURCE_PNCP,
+    MatchIndex,
+    Record,
     build_report,
     detect_conflicts,
     deterministic_entity_hash,
@@ -33,7 +33,6 @@ from scripts.matching.official_acts_reconcile import (
     record_from_pncp_contract,
     write_outputs,
 )
-
 
 # ---------------------------------------------------------------------------
 # Normalization

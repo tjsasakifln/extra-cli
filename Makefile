@@ -40,6 +40,9 @@ help:
 	@echo '── Testes ─────────────────────────────────────────────────────────'
 	@echo '  test           Roda testes (exceto slow) com cobertura'
 	@echo '  test-all       Roda todos os testes (inclui slow) com cobertura'
+	@echo '  resilient-smoke       Contrato/fail-closed/checkpoint/DLQ/chaos controlado'
+	@echo '  resilient-local-cycle Ciclo canônico local com fixtures (sem VPS/internet)'
+	@echo '  resilience-gate       Gate completo de prontidão técnica pré-VPS'
 	@echo ''
 	@echo '── Lint ───────────────────────────────────────────────────────────'
 	@echo '  lint           Verifica lint + formatação (read-only)'
@@ -110,6 +113,23 @@ test:
 test-all:
 	@echo '==> [$(ENV)] Rodando todos os testes (inclui slow) com cobertura'
 	pytest --cov=$(SCRIPTS_DIR) --cov-report=term-missing
+
+.PHONY: resilient-smoke
+resilient-smoke:
+	python3 -m scripts.ops.validate_systemd
+	python3 -m pytest -o addopts='' -q tests/test_local_resilience.py tests/test_fetch_result.py tests/test_crawler_pncp.py tests/test_sc_compras_crawler.py tests/test_ciga_dom_publications.py tests/test_dlq.py tests/test_watermark.py
+
+.PHONY: resilient-local-cycle
+resilient-local-cycle:
+	RESILIENCE_PAGE_SIZE=1 RESILIENCE_REQUEST_DELAY=0 python3 -m scripts.ops.resilient_cycle
+	python3 -m scripts.ops.health
+
+.PHONY: resilience-gate
+resilience-gate:
+	ruff check scripts/crawl/ingestion/_base/crawler.py scripts/crawl/resilience scripts/ops tests/test_local_resilience.py
+	mypy --follow-imports=skip scripts/crawl/ingestion/_base/crawler.py scripts/crawl/resilience scripts/ops/resilient_cycle.py scripts/ops/health.py
+	$(MAKE) resilient-smoke
+	$(MAKE) resilient-local-cycle
 
 # ── Lint ────────────────────────────────────────────────────────────────────
 

@@ -20,6 +20,7 @@ Classification:
 from __future__ import annotations
 
 import importlib
+import os
 
 import pytest
 
@@ -142,6 +143,8 @@ class TestPublicSourcesRealData:
         Hard rule: fetched > 0 AND transformed == 0 → FAIL (not warning).
         Applies only to non-coverage-only sources.
         """
+        if os.getenv("RUN_EXTERNAL_SMOKE") != "1":
+            pytest.skip("Set RUN_EXTERNAL_SMOKE=1 to call real public sources")
         _init_from_registry()
         mod = _get_module(source)
         try:

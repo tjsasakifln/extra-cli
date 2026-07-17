@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-import os
 from pathlib import Path
 
 import pytest
@@ -168,7 +166,8 @@ def test_assert_proof_run_coherence_ok():
 
 
 def test_assert_proof_missing_run_id():
-    from scripts.crawl.run_evidence import assert_proof_run_coherence
     import pytest
+
+    from scripts.crawl.run_evidence import assert_proof_run_coherence
     with pytest.raises(ValueError, match="run_id"):
         assert_proof_run_coherence({"status": "partial", "evidence": {}})

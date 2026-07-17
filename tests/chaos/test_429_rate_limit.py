@@ -1,8 +1,6 @@
 """Chaos test: HTTP 429 rate limiting scenarios."""
 from __future__ import annotations
 
-from unittest.mock import patch, MagicMock
-
 import pytest
 
 

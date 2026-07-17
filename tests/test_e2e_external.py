@@ -34,6 +34,8 @@ class TestPNCPLivePipeline:
     """Real PNCP -> FetchResult -> transform -> DB -> engineering pipeline."""
 
     def test_monitor_crawl_source_persists_engineering_pipeline(self):
+        if os.getenv("RUN_EXTERNAL_E2E") != "1":
+            pytest.skip("Set RUN_EXTERNAL_E2E=1 to call PNCP and mutate an isolated test DB")
         _require_db()
 
         started_window = date(2026, 5, 14).isoformat()

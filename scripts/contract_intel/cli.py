@@ -177,7 +177,7 @@ def _get_connection(db_path: str | None = None) -> tuple[Any, str]:
     When LOCAL_DATALAKE_DSN is set: fail closed on PG connection failure.
     """
     dsn = os.getenv("LOCAL_DATALAKE_DSN", "")
-    if dsn:
+    if dsn and db_path is None:
         try:
             import psycopg2  # noqa: F811
 

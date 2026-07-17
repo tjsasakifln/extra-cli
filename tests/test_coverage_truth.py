@@ -160,10 +160,10 @@ class TestMapEvidenceState:
 
         assert _map_evidence_state("success", "", 0) == "success_zero"
 
-    def test_empty_is_success_zero(self):
+    def test_legacy_empty_is_partial_without_canonical_proof(self):
         from scripts.crawl.monitor import _map_evidence_state
 
-        assert _map_evidence_state("empty", "", 0) == "success_zero"
+        assert _map_evidence_state("empty", "", 0) == "partial"
 
     def test_degraded_is_partial(self):
         from scripts.crawl.monitor import _map_evidence_state

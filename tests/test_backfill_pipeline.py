@@ -155,7 +155,7 @@ class TestStabilizationLoop:
         """Nao excede MAX_ITERATIONS mesmo se sempre encontrar matches."""
         with (
             patch.object(pipeline, "_run_source") as mock_source,
-            patch.object(pipeline, "_run_entity_matching") as mock_matching,
+            patch.object(pipeline, "_run_entity_matching"),
             patch.object(pipeline, "_count_covered", return_value=0),
             patch.object(pipeline, "_generate_report"),
         ):

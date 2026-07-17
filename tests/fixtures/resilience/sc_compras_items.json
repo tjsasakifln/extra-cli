@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "processo": "0001/2026",
+    "tipo": "Concorrência",
+    "orgaoSigla": "SIE",
+    "orgaoNome": "Secretaria de Infraestrutura",
+    "objeto": "Obra fixture de resiliência",
+    "entregaProposta": null,
+    "abertura": null,
+    "situacao": "Aberto"
+  }
+]

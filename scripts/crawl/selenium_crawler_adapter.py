@@ -59,7 +59,7 @@ def load_portals(portals_file: str = "") -> list[dict]:
         List of portal dicts with keys: ``slug``, ``nome``, ``ibge``,
         ``url``, ``platform``, ``requires_js``.
     """
-    filepath = Path(portals_file or SELENIUM_PORTALS_FILE)
+    filepath = Path(portals_file or os.getenv("SELENIUM_PORTALS_FILE", SELENIUM_PORTALS_FILE))
     if not filepath.exists():
         _logger.warning("Portals file not found: %s", filepath)
         return []

@@ -48,3 +48,4 @@ python scripts/opportunity_intel/cli.py source-health
 | Data | Autor | Nota |
 |------|-------|------|
 | 2026-07-17 | Morgan (PM) | Draft |
+| 2026-07-17 | Dex (Dev) | Units e timers futuros validados estaticamente; story permanece Draft/BLOCKED até host, ativação, reboot e prova de 24 h. |

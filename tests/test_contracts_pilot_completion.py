@@ -18,7 +18,6 @@ from scripts.crawl.run_contracts_90d_pilot import (
 )
 from scripts.crawl.run_evidence import bind_checkpoint_run_id
 
-
 # ---------------------------------------------------------------------------
 # evaluate_window_completion
 # ---------------------------------------------------------------------------
@@ -609,8 +608,9 @@ def test_sealed_90d_partial_proof_coherence():
 
 
 def test_path_proof_window_must_be_in_checkpoint():
-    from scripts.crawl.run_evidence import assert_proof_run_coherence
     import pytest
+
+    from scripts.crawl.run_evidence import assert_proof_run_coherence
 
     report = {
         "run_id": "r1",

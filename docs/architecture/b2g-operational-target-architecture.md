@@ -186,3 +186,17 @@ Tiago: workspace opportunities → label GO|NO-GO|WATCH
 - `docs/architecture/source-acquisition-strategy.md`
 - `docs/architecture/system-architecture.md`
 - `docs/prd/capability-matrix-b2g-proposta.md`
+
+---
+
+## 12. Estado implementado pré-VPS (2026-07-17)
+
+O trecho adapters → raw → canonical → evidence está implementado localmente
+para PNCP, CIGA/DOM-SC público e SC Compras em `scripts/crawl/resilience/`.
+Checkpoint filesystem é a source of truth pré-VPS; a migration 054 adiciona a
+projeção fail-closed ao PostgreSQL. `scripts.ops.resilient_cycle` é o único
+caminho oficial; orquestradores anteriores ficam como compatibilidade legada.
+
+As units systemd estão preparadas, mas não habilitadas. Portanto a arquitetura
+permanece `Target (to-be)` para runtime remoto e `LOCAL_RESILIENCE_READY` apenas
+para a mecânica local testada.

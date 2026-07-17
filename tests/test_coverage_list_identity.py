@@ -17,7 +17,7 @@ def test_commercial_list_identity_when_artifacts_present():
     cov = json.loads(cov_path.read_text(encoding="utf-8"))
     num = int(cov.get("commercial_numerator") or 0)
     ids = [int(x) for x in (cov.get("commercial_entity_ids") or [])]
-    lines = [json.loads(l) for l in list_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    lines = [json.loads(line) for line in list_path.read_text(encoding="utf-8").splitlines() if line.strip()]
     line_ids = {int(e["entity_id"]) for e in lines}
     assert num > 0
     assert len(lines) == num, f"covered lines {len(lines)} != commercial_numerator {num}"
