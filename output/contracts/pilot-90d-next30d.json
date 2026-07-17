@@ -1,60 +1,49 @@
 {
   "pilot": "k3.2-pncp-90d",
   "campaign": "NEXT-30D",
-  "mode": "full",
-  "days": 1,
-  "window_days": 1,
-  "range_start": "2026-07-15",
-  "range_end": "2026-07-16",
-  "started_at": "2026-07-17T00:26:34.726615+00:00",
-  "checkpoint_path": "/mnt/d/extra consultoria/data/contracts_checkpoints/contracts_full.json",
-  "windows": [
+  "agent": "A5",
+  "generated_at": "2026-07-17T00:51:46.356051+00:00",
+  "status": "partial_blocked_by_api_timeouts_and_volume",
+  "go_no_go_3y": "NO-GO",
+  "go_no_go_reason": "Full 90d national crawl not completed in session. API read timeouts observed; volume probe ~494810 contracts/90d (~991 pages @500). Schema upsert+FK blockers fixed. Partial-window honesty verified on live timeout. Supervised multi-hour run required before 3y.",
+  "volume_probe_windows": [
     {
-      "window_key": "20260715_20260715",
-      "status": "completed",
-      "pages": 13,
-      "transformed": 6169,
-      "inserted": 6119,
-      "skipped": 50,
-      "errors": [],
-      "elapsed_seconds": 152.0
+      "window": "20260417-20260516",
+      "totalRegistros": 150428,
+      "pages": 301
+    },
+    {
+      "window": "20260517-20260615",
+      "totalRegistros": 169504,
+      "pages": 340
+    },
+    {
+      "window": "20260616-20260715",
+      "totalRegistros": 174878,
+      "pages": 350
     }
   ],
-  "totals": {
-    "fetched": 6169,
-    "transformed": 6169,
-    "inserted": 6119,
-    "skipped": 50,
-    "pages": 13,
-    "page_errors": 0,
-    "windows_ok": 1,
-    "windows_failed": 0,
-    "windows_skipped_resume": 0
-  },
-  "status": "success",
-  "errors": [],
-  "completed_at": "2026-07-17T00:29:06.796084+00:00",
-  "duration_seconds": 152.1,
+  "volume_probe_total_approx": 494810,
   "db": {
-    "pncp_supplier_contracts_count": 31219,
+    "pncp_supplier_contracts_count": 42216,
     "min_data_publicacao": "2021-08-26",
     "max_data_publicacao": "2026-12-16",
-    "monthly": [
+    "monthly_100d": [
       {
         "mes": "2026-04-01",
-        "n": 13907
+        "n": 14044
       },
       {
         "mes": "2026-05-01",
-        "n": 670
+        "n": 1063
       },
       {
         "mes": "2026-06-01",
-        "n": 3525
+        "n": 5568
       },
       {
         "mes": "2026-07-01",
-        "n": 8161
+        "n": 15481
       },
       {
         "mes": "2026-08-01",
@@ -69,33 +58,58 @@
         "n": 1
       }
     ],
-    "sample_populated_n20": 20
+    "field_population": {
+      "n": 41716,
+      "contrato_id": 41716,
+      "orgao_cnpj": 41716,
+      "fornecedor_cnpj": 41716,
+      "valor_total": 41716,
+      "data_publicacao": 41716,
+      "uf": 41716
+    }
   },
-  "checkpoint": {
+  "checkpoint_a5": {
     "source": "pncp_contracts",
     "mode": "full",
-    "completed_windows": [
-      "20260715_20260715"
-    ],
-    "current_window_start": "20260715",
-    "total_contracts_fetched": 6169,
-    "total_windows_completed": 1,
+    "completed_windows": [],
+    "current_window_start": "20260709",
+    "total_contracts_fetched": 0,
+    "total_windows_completed": 0,
     "total_windows_failed": 0,
     "last_error": null,
-    "updated_at": "2026-07-17T00:29:06Z"
+    "updated_at": "2026-07-17T00:39:42Z"
   },
+  "observed_errors": [
+    "Page 13 window 20260417_20260516: connection_failed Network error after 3 retries: The read operation timed out \u2014 window NOT marked complete (fix verified)"
+  ],
+  "schema_fixes": [
+    "050_fix_contracts_upsert_fk.sql: AmbiguousColumn contrato_id fixed; FKs to sc_public_entities dropped (0% hit-rate national)"
+  ],
+  "code_fixes": [
+    "contracts_crawler: partial windows not marked complete (fully_ok=not window_errors)",
+    "contracts_crawler: checkpoint enabled for mode=full",
+    "contracts_crawler: SOURCE_PURPOSE=contracts",
+    "run_contracts_90d_pilot.py: windowed batch upsert + isolated checkpoint dir a5_next30d"
+  ],
   "criteria": {
-    "P1_run_status": true,
-    "P2_date_span": true,
-    "P3_monthly": true,
-    "P5_no_residual_page_errors": true,
-    "P6_checkpoint_coherent": true,
+    "P1_run_status": false,
+    "P2_date_span_partial": true,
+    "P3_monthly_partial": true,
+    "P5_no_residual_page_errors": false,
+    "P6_checkpoint_mechanism": true,
     "P7_sample_fields": true
   },
-  "go_no_go_3y": "GO",
-  "go_no_go_reason": "Pilot completed all windows without page errors; schema upsert OK; sample fields populated.",
-  "pilot_scope_note": "Terminal success for days=1 full window (all pages, 0 errors). Path proven (checkpoint, upsert). Full multi-window 90d resume is CONDITIONAL for 3y.",
-  "go_no_go_path": "GO",
-  "go_no_go_3y_strict": "CONDITIONAL_GO",
-  "annotated_at": "2026-07-17T00:34:09.840002+00:00"
+  "exit_codes": {
+    "full_90d_pilot": "not_completed_session",
+    "unit_tests_window_complete": 0
+  },
+  "7d_pilot_in_progress": {
+    "pid_file": "logs/contracts-7d.pid",
+    "log_tail": "2026-07-16 21:39:42,740 INFO contracts_90d_pilot: Checkpoint reset for mode=full\nWINDOW_START 20260709_20260716\nPAGE 20260709_20260716 p=1/85 batch=500 ins_total=0\nPAGE 20260709_20260716 p=10/85 batch=500 ins_total=1500\nPAGE 20260709_20260716 p=20/85 batch=500 ins_total=6500\n"
+  },
+  "monitor_path": {
+    "cli": "python3 scripts/crawl/monitor.py --source contracts --mode full --dsn $DATABASE_URL --output-json ...",
+    "note": "Monitor holds all raw rows then one JSON upsert; unsuitable for ~495k national volume on 8GB hosts. Pilot runner uses windowed batch upsert."
+  },
+  "commit_note": "evidence snapshot; code fixes already on branch (050, partial window, pilot runner)"
 }
