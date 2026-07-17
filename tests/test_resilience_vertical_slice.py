@@ -171,6 +171,8 @@ def test_vertical_slice_postgres_real_path(tmp_path: Path) -> None:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     try:
+        cur.execute("SELECT current_database(), current_user, current_schema()")
+        identity = cur.fetchone()
         cur.execute(
             """
             SELECT EXISTS (
@@ -199,7 +201,7 @@ def test_vertical_slice_postgres_real_path(tmp_path: Path) -> None:
             procs = [r[0] for r in cur.fetchall()]
             pytest.fail(
                 "DATABASE_URL set but pncp_raw_bids / upsert_pncp_raw_bids missing — "
-                f"migrations incomplete (tables={tables[:10]} procs={procs})"
+                f"migrations incomplete (dsn={dsn!r} identity={identity} tables={tables[:10]} procs={procs})"
             )
     finally:
         cur.close()

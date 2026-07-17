@@ -299,8 +299,25 @@ jobs:
             tests/test_dlq.py \
             -m "not slow and not e2e and not database" \
             --tb=short
-          # Real PG vertical slice against the still-live migrated datalake
-          RESILIENCE_REQUIRE_DB=1 pytest -o addopts='' -q \
+          # Real PG vertical slice — re-assert schema immediately before tests
+          python - <<'PY'
+          import os, psycopg2, sys
+          dsn = os.environ["DATABASE_URL"]
+          print("vertical_dsn", dsn)
+          conn = psycopg2.connect(dsn)
+          cur = conn.cursor()
+          cur.execute("SELECT current_database(), current_user")
+          print("vertical_conn", cur.fetchone())
+          cur.execute("SELECT count(*) FROM pg_tables WHERE schemaname='public'")
+          n = cur.fetchone()[0]
+          print("vertical_public_tables", n)
+          cur.close(); conn.close()
+          if n < 1:
+              # Re-apply if service volume was wiped
+              import subprocess
+              subprocess.check_call([sys.executable, "-m", "scripts.ops.apply_migrations", "--mode", "fresh", "--min", "1", "--max", "54"])
+          PY
+          RESILIENCE_REQUIRE_DB=1 DATABASE_URL="$DATABASE_URL" pytest -o addopts='' -q \
             tests/test_resilience_vertical_slice.py \
             -m "database and not slow" \
             --tb=short
