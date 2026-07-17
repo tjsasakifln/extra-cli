@@ -6,7 +6,7 @@
   "status": "Done",
   "story_file": "docs/stories/ROI-cand-workspace-daily-evidence-pack.md",
   "created_at": "2026-07-17T22:32:27Z",
-  "updated_at": "2026-07-17T22:47:00Z",
+  "updated_at": "2026-07-17T22:48:44Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
   "qa_verdict": "PASS",
@@ -23,7 +23,7 @@
     "squads/extra-dod-roi/state/qa/cyc-2026-07-17T223227Z-qa.json",
     "squads/extra-dod-roi/state/cycles/cyc-2026-07-17T223227Z.json"
   ],
-  "reviewed_commit": "7d39b895c625122a19a2b7395ad8ca872e2db396",
+  "reviewed_commit": "03dca738c0709438d65b4c2c2d779f8e1eb9e6ee",
   "gates": {
     "lint": "PASS",
     "typecheck": "NA",
@@ -216,5 +216,15 @@
     "next_agent": "@devops",
     "next_action": "draft PR / publish path (no auto-merge, no push by po)",
     "notes": "PO close after independent QA PASS; evidence pack honest; no READY seals"
+  },
+  "snapshot_evidence_meta": {},
+  "publish_alignment": {
+    "previous_qa_reviewed_commit": "7d39b895c625122a19a2b7395ad8ca872e2db396",
+    "aligned_to_head": "03dca738c0709438d65b4c2c2d779f8e1eb9e6ee",
+    "reason": "Post-QA delta is PO-close docs/state only (story md + state json). No product code after QA PASS.",
+    "diff_stat": "2 files: state json + story md",
+    "aligned_by": "@devops (Gage / evidence-release-steward)",
+    "aligned_at": "2026-07-17T22:48:44Z",
+    "honest_note": "reviewed_commit advanced 7d39b89 → 03dca73; evidence pack + ranker already in QA tip; no READY seals."
   }
 }
