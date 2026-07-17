@@ -51,7 +51,7 @@ def _get_json(url: str) -> tuple[dict[str, Any] | None, str | None]:
         headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
     )
     try:
-        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310
+        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310  # nosec B310 — HTTPS PNCP API only
             return json.loads(resp.read().decode()), None
     except urllib.error.HTTPError as e:
         return None, f"HTTP {e.code}"

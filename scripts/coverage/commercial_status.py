@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 STATUSES: tuple[str, ...] = (
@@ -75,13 +75,24 @@ SUSPEND_ACT_CATEGORIES = frozenset(
     }
 )
 
+# Explicit open bidding phases only. Bare "publicado" is NOT open —
+# "Publicado Resultado da Licitação" must never count as OPEN_OPPORTUNITY.
 _OPEN_STATUS = re.compile(
     r"\b("
     r"em\s+recebimento\s+de\s+proposta|recebendo\s+proposta|"
-    r"aguardando\s+abertura|em\s+sess[aã]o|aberto|publicad[oa]|"
-    r"divulga[cç][aã]o|em\s+andamento|fase\s+de\s+lance|"
+    r"aguardando\s+abertura(?:\s+da\s+sess[aã]o)?|"
     r"aguardando\s+abertura\s+da\s+habilita[cç][aã]o|"
-    r"aguardando\s+abertura\s+de\s+pre[cç]o"
+    r"aguardando\s+abertura\s+de\s+pre[cç]o|"
+    r"em\s+sess[aã]o|fase\s+de\s+lance|"
+    r"em\s+andamento\s+(?:de\s+)?(?:proposta|lance|sess[aã]o)"
+    r")\b",
+    re.I,
+)
+
+_RESULT_STATUS = re.compile(
+    r"\b("
+    r"resultado|publicad[oa]\s+resultado|divulga[cç][aã]o\s+do\s+resultado|"
+    r"homologad[oa]|adjudicad[oa]|aguardando\s+homologa"
     r")\b",
     re.I,
 )
@@ -90,7 +101,8 @@ _CLOSED_STATUS = re.compile(
     r"\b("
     r"homologad[oa]|finalizad[oa]|encerrad[oa]|conclu[ií]d[oa]|"
     r"adjudicad[oa]|fracassad[oa]|deserto|revogad[oa]|anulad[oa]|"
-    r"cancelad[oa]|licita[cç][aã]o\s+finalizada|aguardando\s+homologa"
+    r"cancelad[oa]|licita[cç][aã]o\s+finalizada|aguardando\s+homologa|"
+    r"resultado\s+da\s+licita|publicad[oa]\s+resultado"
     r")\b",
     re.I,
 )
@@ -167,7 +179,7 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.95,
             needs_human_review=False,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
 
@@ -184,7 +196,7 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.9,
             needs_human_review=False,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
 
@@ -197,7 +209,7 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.92,
             needs_human_review=False,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
     if cat in AMENDMENT_ACT_CATEGORIES:
@@ -208,7 +220,7 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.92,
             needs_human_review=False,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
     if cat in RESULT_ACT_CATEGORIES:
@@ -219,15 +231,25 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.9,
             needs_human_review=False,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
 
-    # 4) Official status closed
+    # 4) Official status result / closed — ALWAYS before open-status matching
+    if status_s and _RESULT_STATUS.search(status_s):
+        rules.append(f"official_status_result:{status_s}")
+        return CommercialClassification(
+            status="RESULT",
+            reason=f"Official status indicates result publication: {status_s}",
+            rules_fired=rules,
+            confidence=0.9,
+            needs_human_review=False,
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            as_of=today.isoformat(),
+        )
     if status_s and _CLOSED_STATUS.search(status_s) and not _OPEN_STATUS.search(status_s):
         rules.append(f"official_status_closed:{status_s}")
-        # Homologado / finalizado → RESULT; Fracassado/Deserto → CLOSED
-        if re.search(r"homolog|adjudic|finaliz|conclu", status_s, re.I):
+        if re.search(r"homolog|adjudic|finaliz|conclu|resultado", status_s, re.I):
             st = "RESULT"
         else:
             st = "CLOSED"
@@ -237,7 +259,7 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.88,
             needs_human_review=False,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
 
@@ -251,7 +273,7 @@ def classify_commercial(
                 rules_fired=rules + ["deadline_passed"],
                 confidence=0.93,
                 needs_human_review=False,
-                evaluated_at=datetime.utcnow().isoformat() + "Z",
+                evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                 as_of=today.isoformat(),
             )
         if abertura is not None and abertura > today:
@@ -262,7 +284,7 @@ def classify_commercial(
                 rules_fired=rules + ["opens_in_future"],
                 confidence=0.9,
                 needs_human_review=False,
-                evaluated_at=datetime.utcnow().isoformat() + "Z",
+                evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                 as_of=today.isoformat(),
             )
         return CommercialClassification(
@@ -271,7 +293,7 @@ def classify_commercial(
             rules_fired=rules + ["deadline_open"],
             confidence=0.92,
             needs_human_review=False,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
 
@@ -284,7 +306,7 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.85,
             needs_human_review=encerramento is None,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
 
@@ -305,7 +327,7 @@ def classify_commercial(
                     rules_fired=rules,
                     confidence=0.75,
                     needs_human_review=True,
-                    evaluated_at=datetime.utcnow().isoformat() + "Z",
+                    evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                     as_of=today.isoformat(),
                 )
         return CommercialClassification(
@@ -314,7 +336,7 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.65,
             needs_human_review=True,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
 
@@ -326,7 +348,7 @@ def classify_commercial(
             rules_fired=rules,
             confidence=0.7,
             needs_human_review=False,
-            evaluated_at=datetime.utcnow().isoformat() + "Z",
+            evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             as_of=today.isoformat(),
         )
 
@@ -340,7 +362,7 @@ def classify_commercial(
         rules_fired=rules,
         confidence=conf,
         needs_human_review=True,
-        evaluated_at=datetime.utcnow().isoformat() + "Z",
+        evaluated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         as_of=today.isoformat(),
     )
 

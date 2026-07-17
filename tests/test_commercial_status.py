@@ -41,6 +41,26 @@ def test_homologado_is_result_not_open():
     assert r.status != "OPEN_OPPORTUNITY"
 
 
+def test_publicado_resultado_is_not_open():
+    """Regression: bare 'publicado' must not open-classify result publications."""
+    r = classify_commercial(
+        title="Pavimentação asfáltica",
+        official_status="Publicado Resultado da Licitação",
+        as_of=date(2026, 7, 17),
+    )
+    assert r.status == "RESULT"
+    assert r.status != "OPEN_OPPORTUNITY"
+
+
+def test_bare_publicado_is_not_open():
+    r = classify_commercial(
+        title="Contratação de serviços",
+        official_status="Publicado",
+        as_of=date(2026, 7, 17),
+    )
+    assert r.status != "OPEN_OPPORTUNITY"
+
+
 def test_ciga_edital_recent_notice():
     today = date(2026, 7, 17)
     r = classify_commercial(

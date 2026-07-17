@@ -1,0 +1,38 @@
+{
+  "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+  "source": "pncp_sc",
+  "mode": "incremental",
+  "status": "ok",
+  "period": {
+    "start": "2026-07-10",
+    "end": "2026-07-17",
+    "days": 7
+  },
+  "records_written": 541,
+  "stats": {
+    "windows": 8,
+    "pages": 16,
+    "fetched": 541,
+    "new": 541,
+    "skipped_dup": 0,
+    "http_errors": 1,
+    "by_modalidade": {
+      "6": 541
+    }
+  },
+  "errors_sample": [
+    "2026-07-12_2026-07-12_m6:p1:JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+  ],
+  "jsonl_path": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T110800Z-9d6dd91153/contratacoes.jsonl",
+  "evidence_path": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T110800Z-9d6dd91153/evidence.json",
+  "output_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+  "claims_allowed": [
+    "sc_uf_filter_live_fetch",
+    "records_written_this_run",
+    "checkpoint_window_resume"
+  ],
+  "claims_forbidden": [
+    "national_90d_complete",
+    "full_pncp_historical_sc"
+  ]
+}

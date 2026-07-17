@@ -2402,8 +2402,9 @@ Mesmo com cobertura de editais baixa no raio:
 | Métrica | Valor | Notas |
 |---------|-------|-------|
 | Baseline histórico (pré-sessão) | **52 / 1.093 (4,76%)** | Preservado; metodologia anterior |
-| Cobertura pós-sessão (`entity_coverage.is_covered`) | **138 / 1.093 (12,63%)** | SQL live no PG local |
-| Delta absoluto | **+86 entidades** | +7,87 p.p. |
+| Cobertura comercial headline (`commercial_opportunity_any`) | **116 / 1.093 (10,61%)** | OPEN/UPCOMING/RECENT matched |
+| Delta absoluto vs baseline | **+64 entidades** | +5,85 p.p. |
+| Loose is_covered (não-claim) | ≤125 | não usar como headline |
 | Listas nominais | cobertas + descobertas | `entities_covered.jsonl` / `entities_uncovered.jsonl` |
 
 **Fórmula canônica desta sessão:**  
@@ -2486,4 +2487,14 @@ Classificadores: `scripts/coverage/commercial_status.py`, `scripts/coverage/sect
 - `scripts/crawl/pncp_sc_focused.py`
 - `scripts/ingestion/load_official_acts_session.py` (preferência de artefato não-vazio)
 - `tests/test_commercial_status.py`
+
+### 43.10 Correção adversarial (pós-auditoria)
+
+Após auditoria independente (`docs/ops/session-2026-07-17/ADVERSARIAL-AUDIT.md`):
+
+1. **Headline comercial = 116/1.093 (10,61%)**, não 138 (is_covered loose).
+2. Classificador: `Publicado Resultado da Licitação` → RESULT (nunca OPEN).
+3. Radar: ranking + GO/REVIEW/NO_GO + CSV; 757 OPEN, 438 com prazo, 68 eng., 14 GO.
+4. Baseline com quality gates (ruff/mypy/pytest/pip-audit).
+5. CI remota: claim só após Actions verde no PR.
 

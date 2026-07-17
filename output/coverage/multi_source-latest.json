@@ -2,7 +2,7 @@
   "schema_version": 1,
   "run_id": "multi-source-20260717T105750Z-71d018674f",
   "calc_date": "2026-07-17",
-  "generated_at": "2026-07-17T10:57:50.111673+00:00",
+  "generated_at": "2026-07-17T11:10:21.896838+00:00",
   "window_days": 30,
   "as_of": "2026-07-17",
   "project_root": "/mnt/d/extra consultoria",
@@ -1036,30 +1036,6 @@
       "method": "freshness-gate critical_sources[pncp]"
     },
     {
-      "name": "canonical_combined_post_session",
-      "numerator": 138,
-      "denominator": 1093,
-      "result": 12.63,
-      "result_unit": "pct",
-      "formula": "union(db is_covered after session entity resolution) / 1093",
-      "period": "snapshot 2026-07-17 post session epic/coverage-200km-operational",
-      "calc_date": "2026-07-17",
-      "run_id": "multi-source-20260717T105750Z-71d018674f",
-      "confidence": "high",
-      "baseline_numerator": 52,
-      "baseline_pct": 4.76,
-      "delta_absolute": 86,
-      "sources": [
-        "output/session-2026-07-17/coverage_canonical.json",
-        "entity_coverage table (dom_sc, pncp, sc_compras)"
-      ],
-      "limitations": [
-        "Counts entities with is_covered after resolving CIGA/DOM, PNCP SC and SC Compras opportunity-like records.",
-        "Does not claim 95% coverage or VPS operational.",
-        "PNCP SC collection partial due to HTTP 429 on later windows (330 records retained)."
-      ]
-    },
-    {
       "name": "open_opportunities_radar_count",
       "numerator": 784,
       "denominator": null,
@@ -1074,6 +1050,23 @@
         "sc_compras": 520,
         "pncp_sc": 264
       }
+    },
+    {
+      "name": "commercial_opportunity_any",
+      "numerator": 116,
+      "denominator": 1093,
+      "result": 10.61,
+      "result_unit": "pct",
+      "formula": "entities with OPEN|UPCOMING|RECENT matched to 1093 universe",
+      "calc_date": "2026-07-17",
+      "baseline_numerator": 52,
+      "delta_absolute": 64,
+      "confidence": "high",
+      "limitations": [
+        "Not loose is_covered",
+        "Not 95%",
+        "PNCP SC partial 429"
+      ]
     }
   ],
   "metrics_index": {
@@ -1102,11 +1095,13 @@
     "freshness_hours_pncp": null
   },
   "session_2026_07_17": {
-    "coverage_pct": 12.63,
-    "covered": 138,
+    "coverage_pct": 10.61,
+    "covered": 116,
     "baseline": 52,
-    "delta": 86,
+    "delta": 64,
+    "metric": "commercial_opportunity_any",
     "official_acts": 15738,
-    "report": "output/session-2026-07-17/COVERAGE_REPORT.md"
+    "report": "docs/ops/session-2026-07-17/COVERAGE_REPORT.md",
+    "adversarial_audit": "docs/ops/session-2026-07-17/ADVERSARIAL-AUDIT.md"
   }
 }

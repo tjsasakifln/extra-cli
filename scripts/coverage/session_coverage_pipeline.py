@@ -369,12 +369,19 @@ def process_sources(indexes: dict[str, Any], as_of: date) -> dict[str, Any]:
                 indexes=indexes,
             )
             is_opp_act = (cat or "") in COVERAGE_ACT_CATEGORIES
-            counts_for_coverage = is_opp_act and match.get("canonical_entity_id") and comm.status in (
-                STRICT_OPPORTUNITY_STATUSES | {"OTHER_PROCUREMENT_ACT", "RECENT_NOTICE"}
+            # Commercial coverage: only opportunity-class acts with entity match.
+            # Homologação/contrato/ata never count (comm.status filters that).
+            counts_for_coverage = bool(
+                match.get("canonical_entity_id")
+                and is_opp_act
+                and comm.status in STRICT_OPPORTUNITY_STATUSES | {"RECENT_NOTICE"}
             )
-            # For CIGA without deadline, opportunity acts count as RECENT_NOTICE/OTHER
-            if is_opp_act and match.get("canonical_entity_id"):
-                counts_for_coverage = True
+            counts_for_historical_bid = bool(
+                match.get("canonical_entity_id")
+                and is_opp_act
+                and comm.status
+                not in {"NOT_RELEVANT", "CONTRACT", "AMENDMENT", "RESULT"}
+            )
 
             row = {
                 "source": "ciga_dom",
@@ -388,7 +395,8 @@ def process_sources(indexes: dict[str, Any], as_of: date) -> dict[str, Any]:
                 "commercial": comm.to_dict(),
                 "sector": sector.to_dict(),
                 "entity_match": match,
-                "counts_for_coverage": bool(counts_for_coverage),
+                "counts_for_coverage": counts_for_coverage,
+                "counts_for_historical_bid": counts_for_historical_bid,
                 "artifact": str(ciga_path),
             }
             records.append(row)
@@ -439,14 +447,15 @@ def process_sources(indexes: dict[str, Any], as_of: date) -> dict[str, Any]:
                 orgao_cnpj=rec.get("orgao_cnpj"),
                 indexes=indexes,
             )
+            # Commercial coverage: open/upcoming/recent only — not Homologado/Fracassado.
             counts = bool(
                 match.get("canonical_entity_id")
-                and comm.status
-                in STRICT_OPPORTUNITY_STATUSES
-                | {"OTHER_PROCUREMENT_ACT", "RESULT", "CLOSED", "RECENT_NOTICE"}
+                and comm.status in STRICT_OPPORTUNITY_STATUSES
             )
-            # For historical-style bid coverage, any procurement row matched counts
-            # Commercial metric uses STRICT + RECENT only
+            hist = bool(
+                match.get("canonical_entity_id")
+                and comm.status not in {"NOT_RELEVANT"}
+            )
             row = {
                 "source": "sc_compras",
                 "source_id": rec.get("source_id") or rec.get("api_id") or rec.get("pncp_id"),
@@ -454,6 +463,8 @@ def process_sources(indexes: dict[str, Any], as_of: date) -> dict[str, Any]:
                 "orgao_nome": rec.get("orgao_razao_social"),
                 "municipio": rec.get("municipio"),
                 "publication_date": rec.get("data_publicacao"),
+                "data_encerramento": rec.get("data_encerramento"),
+                "data_abertura": rec.get("data_abertura"),
                 "status_official": rec.get("status"),
                 "modalidade": rec.get("modalidade_nome"),
                 "url": rec.get("link_pncp"),
@@ -461,7 +472,8 @@ def process_sources(indexes: dict[str, Any], as_of: date) -> dict[str, Any]:
                 "sector": sector.to_dict(),
                 "entity_match": match,
                 "counts_for_coverage": counts,
-                "counts_for_historical_bid": bool(match.get("canonical_entity_id")),
+                "counts_for_historical_bid": hist,
+                "deadline_known": bool(rec.get("data_encerramento")),
                 "artifact": str(sc_path),
             }
             records.append(row)
@@ -513,7 +525,11 @@ def process_sources(indexes: dict[str, Any], as_of: date) -> dict[str, Any]:
                 orgao_cnpj=cnpj,
                 indexes=indexes,
             )
-            counts = bool(match.get("canonical_entity_id"))
+            matched = bool(match.get("canonical_entity_id"))
+            counts = bool(
+                matched and comm.status in STRICT_OPPORTUNITY_STATUSES | {"RECENT_NOTICE"}
+            )
+            hist = bool(matched and comm.status not in {"NOT_RELEVANT"})
             row = {
                 "source": "pncp_sc",
                 "source_id": rec.get("numeroControlePNCP"),
@@ -522,14 +538,16 @@ def process_sources(indexes: dict[str, Any], as_of: date) -> dict[str, Any]:
                 "orgao_cnpj": cnpj,
                 "municipio": muni,
                 "publication_date": rec.get("dataPublicacaoPncp"),
+                "data_encerramento": rec.get("dataEncerramentoProposta"),
+                "data_abertura": rec.get("dataAberturaProposta"),
                 "numero_controle_pncp": rec.get("numeroControlePNCP"),
                 "url": rec.get("linkSistemaOrigem"),
                 "commercial": comm.to_dict(),
                 "sector": sector.to_dict(),
                 "entity_match": match,
-                "counts_for_coverage": counts
-                and comm.status in STRICT_OPPORTUNITY_STATUSES | {"RECENT_NOTICE", "OTHER_PROCUREMENT_ACT", "CLOSED", "RESULT"},
-                "counts_for_historical_bid": counts,
+                "counts_for_coverage": counts,
+                "counts_for_historical_bid": hist,
+                "deadline_known": bool(rec.get("dataEncerramentoProposta")),
                 "artifact": str(pncp_path),
             }
             records.append(row)
@@ -564,15 +582,12 @@ def update_entity_coverage(
         mid = r.get("entity_match", {}).get("canonical_entity_id")
         if not mid:
             continue
-        # Historical bid presence: any matched procurement record
-        hist = r.get("counts_for_historical_bid")
+        # Commercial coverage only — never mark is_covered from RESULT/CLOSED alone.
         cov = r.get("counts_for_coverage")
-        if not hist and not cov:
-            # still allow opportunity acts from ciga
-            if not r.get("counts_for_coverage"):
-                continue
+        hist = r.get("counts_for_historical_bid")
+        if not cov and not hist:
+            continue
         source = r["source"]
-        # Map sources onto entity_coverage source keys used historically
         src_key = {
             "ciga_dom": "dom_sc",
             "sc_compras": "sc_compras",
@@ -581,10 +596,18 @@ def update_entity_coverage(
         key = (int(mid), src_key)
         slot = agg.setdefault(
             key,
-            {"bids": 0, "last_seen": None, "methods": Counter(), "eligible": 0},
+            {
+                "bids": 0,
+                "commercial_bids": 0,
+                "last_seen": None,
+                "methods": Counter(),
+                "eligible": 0,
+            },
         )
-        slot["bids"] += 1
+        if hist:
+            slot["bids"] += 1
         if cov:
+            slot["commercial_bids"] += 1
             slot["eligible"] += 1
         pub = r.get("publication_date")
         if pub and (slot["last_seen"] is None or str(pub) > str(slot["last_seen"])):
@@ -599,8 +622,9 @@ def update_entity_coverage(
     for (entity_id, source), slot in agg.items():
         method = slot["methods"].most_common(1)[0][0] if slot["methods"] else "session_resolve"
         last_seen = slot["last_seen"]
-        # is_covered true if any bid-like evidence
-        is_covered = slot["bids"] > 0
+        # is_covered ONLY when commercial opportunity evidence exists
+        is_covered = slot["commercial_bids"] > 0
+        bids = max(slot["commercial_bids"], slot["bids"])
         if dry_run:
             updated += 1
             continue
@@ -615,11 +639,14 @@ def update_entity_coverage(
                     COALESCE(EXCLUDED.last_seen_at, '-infinity'::timestamptz)
                 ),
                 total_bids = GREATEST(entity_coverage.total_bids, EXCLUDED.total_bids),
-                is_covered = entity_coverage.is_covered OR EXCLUDED.is_covered,
+                is_covered = CASE
+                    WHEN EXCLUDED.is_covered THEN TRUE
+                    ELSE entity_coverage.is_covered
+                END,
                 within_200km = TRUE,
                 match_method = COALESCE(EXCLUDED.match_method, entity_coverage.match_method)
             """,
-            (entity_id, source, last_seen, slot["bids"], is_covered, method),
+            (entity_id, source, last_seen, bids, is_covered, method),
         )
         if cur.rowcount:
             updated += 1
@@ -861,15 +888,68 @@ def compute_coverage(
     }
 
 
+def _recommendation(r: dict[str, Any]) -> str:
+    st = r.get("commercial", {}).get("status")
+    eng = bool(r.get("sector", {}).get("sector_match"))
+    matched = bool(r.get("entity_match", {}).get("canonical_entity_id"))
+    conf = float(r.get("commercial", {}).get("confidence") or 0)
+    deadline = r.get("deadline_known") or r.get("data_encerramento")
+    if st == "OPEN_OPPORTUNITY" and eng and matched and conf >= 0.8:
+        return "GO" if deadline else "REVIEW"
+    if st in STRICT_OPPORTUNITY_STATUSES and eng:
+        return "REVIEW"
+    if st in STRICT_OPPORTUNITY_STATUSES:
+        return "REVIEW"
+    if st == "RECENT_NOTICE" and eng:
+        return "REVIEW"
+    return "NO_GO"
+
+
+def _radar_score(r: dict[str, Any]) -> float:
+    st = r.get("commercial", {}).get("status")
+    score = 0.0
+    if st == "OPEN_OPPORTUNITY":
+        score += 50
+    elif st == "UPCOMING_OPPORTUNITY":
+        score += 40
+    elif st == "RECENT_NOTICE":
+        score += 20
+    if r.get("sector", {}).get("sector_match"):
+        score += 25 + 10 * float(r.get("sector", {}).get("score") or 0)
+    if r.get("entity_match", {}).get("canonical_entity_id"):
+        score += 15
+    if r.get("url"):
+        score += 5
+    if r.get("deadline_known") or r.get("data_encerramento"):
+        score += 10
+    conf = float(r.get("commercial", {}).get("confidence") or 0)
+    score += 10 * conf
+    dist = r.get("distance_km")
+    if isinstance(dist, (int, float)) and dist <= 200:
+        score += max(0, 10 - dist / 20)
+    return round(score, 2)
+
+
 def write_outputs(
     *,
     coverage: dict[str, Any],
     processed: dict[str, Any],
     coverage_update: dict[str, int],
     as_of: date,
+    entity_distance: dict[int, float] | None = None,
 ) -> dict[str, str]:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    paths = {}
+    paths: dict[str, str] = {}
+    entity_distance = entity_distance or {}
+
+    # Headline = commercial opportunity coverage (not loose is_covered)
+    commercial_num = 0
+    for met in coverage["metrics"]:
+        if met.get("name") == "commercial_opportunity_any":
+            commercial_num = int(met.get("numerator") or 0)
+            break
+    denom = coverage["denominator"]
+    commercial_pct = round(commercial_num / denom * 100, 2) if denom else 0.0
 
     cov_path = OUT_DIR / "coverage_canonical.json"
     payload = {
@@ -882,6 +962,11 @@ def write_outputs(
             "do_not_change_denominator": True,
             "baseline_numerator": 52,
             "baseline_pct": 4.76,
+            "headline_metric": "commercial_opportunity_any",
+            "headline_definition": (
+                "entities with ≥1 OPEN/UPCOMING/RECENT opportunity matched "
+                "to universe — not RESULT/CONTRACT/generic acts"
+            ),
         },
         "coverage_update": coverage_update,
         "source_stats": processed["source_stats"],
@@ -889,30 +974,50 @@ def write_outputs(
         "metrics": coverage["metrics"],
         "new_entities_vs_db": coverage["new_entities_vs_db"],
         "combined_numerator": coverage["combined_numerator"],
-        "denominator": coverage["denominator"],
-        "result_pct": round(coverage["combined_numerator"] / coverage["denominator"] * 100, 2),
-        "covered_count": len(coverage["covered_entities"]),
-        "uncovered_count": len(coverage["uncovered_entities"]),
+        "commercial_numerator": commercial_num,
+        "denominator": denom,
+        "result_pct": commercial_pct,
+        "loose_combined_pct": round(
+            coverage["combined_numerator"] / denom * 100, 2
+        )
+        if denom
+        else 0.0,
+        "covered_count": commercial_num,
+        "uncovered_count": denom - commercial_num,
     }
     cov_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
     paths["coverage_canonical"] = str(cov_path)
 
-    # entity lists
-    cov_list = OUT_DIR / "entities_covered.jsonl"
-    with cov_list.open("w", encoding="utf-8") as fh:
-        for e in coverage["covered_entities"]:
-            fh.write(json.dumps(e, ensure_ascii=False, default=str) + "\n")
-    paths["entities_covered"] = str(cov_list)
+    # Commercial-covered entity list (from metrics sample + records)
+    commercial_ids: set[int] = set()
+    for r in processed["records"]:
+        if r.get("counts_for_coverage") and r.get("entity_match", {}).get("canonical_entity_id"):
+            commercial_ids.add(int(r["entity_match"]["canonical_entity_id"]))
 
+    cov_list = OUT_DIR / "entities_covered.jsonl"
     unc_list = OUT_DIR / "entities_uncovered.jsonl"
-    with unc_list.open("w", encoding="utf-8") as fh:
-        for e in coverage["uncovered_entities"]:
-            fh.write(json.dumps(e, ensure_ascii=False, default=str) + "\n")
+    n_cov = n_unc = 0
+    with cov_list.open("w", encoding="utf-8") as fhc, unc_list.open("w", encoding="utf-8") as fhu:
+        for e in coverage["covered_entities"] + coverage["uncovered_entities"]:
+            eid = int(e["entity_id"])
+            row = dict(e)
+            row["commercial_covered"] = eid in commercial_ids
+            row["is_covered"] = eid in commercial_ids
+            row["coverage_status"] = "covered" if eid in commercial_ids else "uncovered"
+            if eid in commercial_ids:
+                fhc.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
+                n_cov += 1
+            else:
+                row["absence_reason"] = row.get("absence_reason") or (
+                    "no_commercial_opportunity_matched"
+                )
+                fhu.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
+                n_unc += 1
+    paths["entities_covered"] = str(cov_list)
     paths["entities_uncovered"] = str(unc_list)
 
-    # crosswalk unique by source_name
     cw_path = OUT_DIR / "entity_crosswalk.jsonl"
-    seen = set()
+    seen: set[Any] = set()
     with cw_path.open("w", encoding="utf-8") as fh:
         for row in processed["crosswalk"]:
             key = (row.get("source"), row.get("source_name"), row.get("canonical_entity_id"))
@@ -922,53 +1027,130 @@ def write_outputs(
             fh.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
     paths["entity_crosswalk"] = str(cw_path)
 
-    # radar
-    radar_path = OUT_DIR / "radar_opportunities.jsonl"
-    n_radar = 0
-    with radar_path.open("w", encoding="utf-8") as fh:
-        for r in processed["records"]:
-            st = r.get("commercial", {}).get("status")
-            if st not in STRICT_OPPORTUNITY_STATUSES and not (
-                r.get("sector", {}).get("sector_match") and st in {"RECENT_NOTICE", "OTHER_PROCUREMENT_ACT", "OPEN_OPPORTUNITY"}
-            ):
-                if st not in {"OPEN_OPPORTUNITY", "UPCOMING_OPPORTUNITY", "RECENT_NOTICE"}:
-                    continue
-            fh.write(json.dumps(r, ensure_ascii=False, default=str) + "\n")
-            n_radar += 1
-    paths["radar_opportunities"] = str(radar_path)
-    paths["radar_count"] = str(n_radar)
+    # Radar product
+    radar_rows: list[dict[str, Any]] = []
+    for r in processed["records"]:
+        st = r.get("commercial", {}).get("status")
+        if st not in STRICT_OPPORTUNITY_STATUSES | {"RECENT_NOTICE"}:
+            continue
+        mid = r.get("entity_match", {}).get("canonical_entity_id")
+        dist = entity_distance.get(int(mid)) if mid else None
+        if dist is None and mid is None:
+            # try muni-level unknown
+            dist = None
+        out = {
+            "ranking": 0,
+            "recommendation": _recommendation(r),
+            "score": 0.0,
+            "source": r.get("source"),
+            "source_id": r.get("source_id"),
+            "orgao_nome": r.get("orgao_nome"),
+            "municipio": r.get("municipio") or r.get("entity_match", {}).get("municipio"),
+            "distance_km": dist,
+            "within_200km": (dist is not None and dist <= 200) or bool(mid),
+            "title": r.get("title"),
+            "modalidade": r.get("modalidade"),
+            "status_official": r.get("status_official"),
+            "commercial_status": st,
+            "commercial_confidence": r.get("commercial", {}).get("confidence"),
+            "commercial_reason": r.get("commercial", {}).get("reason"),
+            "sector_match": r.get("sector", {}).get("sector_match"),
+            "sector": r.get("sector", {}).get("sector"),
+            "sector_score": r.get("sector", {}).get("score"),
+            "publication_date": r.get("publication_date"),
+            "data_abertura": r.get("data_abertura"),
+            "data_encerramento": r.get("data_encerramento"),
+            "deadline_known": bool(r.get("deadline_known") or r.get("data_encerramento")),
+            "numero_controle_pncp": r.get("numero_controle_pncp"),
+            "url": r.get("url"),
+            "entity_match_status": r.get("entity_match", {}).get("status"),
+            "canonical_entity_id": mid,
+            "canonical_name": r.get("entity_match", {}).get("canonical_name"),
+            "match_rule": r.get("entity_match", {}).get("rule"),
+            "needs_human_review": r.get("commercial", {}).get("needs_human_review"),
+        }
+        out["distance_km"] = dist
+        out["score"] = _radar_score({**r, "distance_km": dist})
+        radar_rows.append(out)
 
-    # summary md
+    radar_rows.sort(
+        key=lambda x: (
+            0 if x["recommendation"] == "GO" else 1 if x["recommendation"] == "REVIEW" else 2,
+            -x["score"],
+        )
+    )
+    for i, row in enumerate(radar_rows, 1):
+        row["ranking"] = i
+
+    radar_path = OUT_DIR / "radar_opportunities.jsonl"
+    with radar_path.open("w", encoding="utf-8") as fh:
+        for row in radar_rows:
+            fh.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
+    paths["radar_opportunities"] = str(radar_path)
+    paths["radar_count"] = str(len(radar_rows))
+
+    # CSV
+    import csv
+
+    csv_path = OUT_DIR / "radar_opportunities.csv"
+    if radar_rows:
+        fields = list(radar_rows[0].keys())
+        with csv_path.open("w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=fields)
+            w.writeheader()
+            w.writerows(radar_rows)
+    else:
+        csv_path.write_text("ranking\n", encoding="utf-8")
+    paths["radar_csv"] = str(csv_path)
+
+    open_n = sum(1 for r in radar_rows if r["commercial_status"] == "OPEN_OPPORTUNITY")
+    open_eng = sum(
+        1
+        for r in radar_rows
+        if r["commercial_status"] == "OPEN_OPPORTUNITY" and r["sector_match"]
+    )
+    open_deadline = sum(
+        1
+        for r in radar_rows
+        if r["commercial_status"] == "OPEN_OPPORTUNITY" and r["deadline_known"]
+    )
+    go_n = sum(1 for r in radar_rows if r["recommendation"] == "GO")
+
     md = OUT_DIR / "COVERAGE_REPORT.md"
-    m = payload
     lines = [
         f"# Cobertura canônica 200 km — {as_of.isoformat()}",
         "",
-        "- **Baseline:** 52 / 1093 (4,76%)",
-        f"- **Pós-sessão (combined):** {m['combined_numerator']} / 1093 ({m['result_pct']}%)",
-        f"- **Delta absoluto:** {m['combined_numerator'] - 52}",
-        f"- **Entidades novas vs DB:** {m['new_entities_vs_db']['count']}",
-        f"- **Cobertas listadas:** {m['covered_count']}",
-        f"- **Descobertas listadas:** {m['uncovered_count']}",
+        f"- **Headline (commercial_opportunity_any):** {commercial_num} / 1093 ({commercial_pct}%)",
+        "- **Baseline histórico:** 52 / 1093 (4,76%)",
+        f"- **Delta comercial vs baseline:** {commercial_num - 52}",
+        f"- **Loose combined (DB is_covered union):** {coverage['combined_numerator']} "
+        f"(não usar como claim comercial)",
+        f"- **Radar:** {len(radar_rows)} · OPEN={open_n} · OPEN+eng={open_eng} · "
+        f"OPEN+deadline={open_deadline} · GO={go_n}",
         "",
         "## Métricas",
         "",
     ]
-    for met in m["metrics"]:
+    for met in payload["metrics"]:
         if met.get("name") == "historical_editais_raw_coverage_baseline" and met.get("numerator") == 0:
             continue
         lines.append(
             f"- `{met['name']}`: **{met.get('numerator')}** / {met.get('denominator')} "
             f"= {met.get('result_pct')}%"
         )
-    lines += ["", "## Fontes (artefatos)", ""]
-    for k, v in (m.get("artifacts") or {}).items():
+    lines += ["", "## Fontes", ""]
+    for k, v in (payload.get("artifacts") or {}).items():
         lines.append(f"- {k}: `{v}`")
-    lines += ["", "## Stats por fonte", ""]
-    for k, v in (m.get("source_stats") or {}).items():
+    lines += ["", "## Stats", ""]
+    for k, v in (payload.get("source_stats") or {}).items():
         lines.append(f"- {k}: {v}")
     md.write_text("\n".join(lines) + "\n", encoding="utf-8")
     paths["report_md"] = str(md)
+    paths["commercial_numerator"] = str(commercial_num)
+    paths["open_n"] = str(open_n)
+    paths["open_eng"] = str(open_eng)
+    paths["open_deadline"] = str(open_deadline)
+    paths["go_n"] = str(go_n)
     return paths
 
 
@@ -988,9 +1170,46 @@ def main(argv: list[str] | None = None) -> int:
         universe = load_universe(conn)
         print(f"Universe loaded: {len(universe)} (expected {DENOMINATOR})")
         indexes = build_entity_indexes(universe)
+        # distances for radar
+        entity_distance: dict[int, float] = {}
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT id, distancia_fk FROM sc_public_entities
+            WHERE is_active AND raio_200km AND distancia_fk IS NOT NULL
+            """
+        )
+        for eid, dist in cur.fetchall():
+            try:
+                entity_distance[int(eid)] = float(dist)
+            except (TypeError, ValueError):
+                pass
+        cur.close()
+
         processed = process_sources(indexes, as_of)
         print(f"Records processed: {len(processed['records'])}")
         print(f"Source stats: {processed['source_stats']}")
+
+        if not args.skip_db_update and not args.dry_run:
+            # Reset session sources so commercial-only recompute is honest
+            cur = conn.cursor()
+            cur.execute(
+                """
+                UPDATE entity_coverage
+                SET is_covered = FALSE, total_bids = 0, match_method = 'reset_commercial_session'
+                WHERE source IN ('dom_sc', 'pncp')
+                """
+            )
+            # sc_compras: recompute from commercial flags only
+            cur.execute(
+                """
+                UPDATE entity_coverage
+                SET is_covered = FALSE
+                WHERE source = 'sc_compras'
+                """
+            )
+            conn.commit()
+            cur.close()
 
         if args.skip_db_update or args.dry_run:
             cov_upd = update_entity_coverage(conn, processed["records"], dry_run=True)
@@ -1005,14 +1224,24 @@ def main(argv: list[str] | None = None) -> int:
             processed=processed,
             coverage_update=cov_upd,
             as_of=as_of,
+            entity_distance=entity_distance,
         )
-        print(json.dumps({
-            "combined_numerator": coverage["combined_numerator"],
-            "denominator": coverage["denominator"],
-            "pct": round(coverage["combined_numerator"] / coverage["denominator"] * 100, 2),
-            "new_vs_db": coverage["new_entities_vs_db"]["count"],
-            "paths": paths,
-        }, indent=2, ensure_ascii=False))
+        print(
+            json.dumps(
+                {
+                    "commercial_numerator": paths.get("commercial_numerator"),
+                    "combined_loose": coverage["combined_numerator"],
+                    "denominator": coverage["denominator"],
+                    "open_n": paths.get("open_n"),
+                    "open_eng": paths.get("open_eng"),
+                    "open_deadline": paths.get("open_deadline"),
+                    "go_n": paths.get("go_n"),
+                    "paths": {k: v for k, v in paths.items() if k.startswith("/") or k.endswith((".json", ".jsonl", ".csv", ".md")) or "/" in str(v)},
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
         return 0
     finally:
         conn.close()
