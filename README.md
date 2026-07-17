@@ -25,6 +25,25 @@ Importante:
 - base local legada **não deve ser presumida fresca**
 - qualquer decisão de uso consultivo deve verificar `source-health`, manifests e `last_seen` antes de confiar nos dados
 
+### Estado de resiliência pré-VPS
+
+O núcleo local das fontes prioritárias está em `LOCAL_RESILIENCE_READY`: PNCP,
+CIGA/DOM-SC público e SC Compras usam o contrato ADR-021, com fail-closed,
+checkpoint/resume, raw/proveniência, evidence, watermark, DLQ e health
+consolidado. Isso **não** significa `LOCAL_READY`, `VPS_OPERATIONAL`, 95% de
+cobertura ou freshness externa comprovada.
+
+```bash
+make resilient-smoke
+make resilient-local-cycle
+make resilience-gate
+python3 -m scripts.ops.health
+```
+
+O padrão usa fixtures controladas; acesso live exige `--live`. Veja
+`docs/operations/PRE-VPS-READINESS.md` e
+`docs/operations/LOCAL-RESILIENCE-RUNBOOK.md`.
+
 ## Stack
 
 - **Python 3.12** — scripts de coleta, análise, PDF

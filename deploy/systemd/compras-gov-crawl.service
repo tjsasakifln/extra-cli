@@ -5,7 +5,7 @@
 Description=ComprasGov Crawler — Extra Consultoria
 After=network-online.target
 Wants=network-online.target
-OnFailure=onfailure@%n.service
+OnFailure=extra-onfailure@%n.service
 
 [Service]
 Type=oneshot

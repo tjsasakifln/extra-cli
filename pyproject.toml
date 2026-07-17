@@ -22,6 +22,9 @@ lint.ignore = [
 # Allow unused imports in __init__.py
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+# Testes usam asserts, credenciais/paths fictícios, subprocessos controlados e
+# imports após ajuste de sys.path. As mesmas regras seguem ativas em produção.
+"tests/**/*.py" = ["E402", "N801", "N806", "S101", "S105", "S108", "S110", "S310", "S603", "S607", "S608"]
 "scripts/collect_report_data.py" = ["N806", "F841"]
 "scripts/collect-report-data.py" = ["N806", "F841"]
 "scripts/intel_report.py" = ["N806", "F841", "E402"]

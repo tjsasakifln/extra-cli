@@ -1,0 +1,22 @@
+[Unit]
+Description=Extra Consultoria resilient public CIGA DOM-SC collection
+After=network-online.target postgresql.service
+Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+ExecStart=/usr/bin/flock --nonblock /run/lock/extra-crawl-ciga-dom.lock /opt/extra-consultoria/.venv/bin/python -m scripts.ops.resilient_cycle --live --source ciga_dom
+TimeoutStartSec=60min
+Restart=no
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-crawl-ciga-dom
+
+[Install]
+WantedBy=multi-user.target

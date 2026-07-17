@@ -1,8 +1,10 @@
-"""Base crawler contract — Protocol, CrawlerResult, and purpose markers.
+"""Canonical source-adapter contract and legacy crawler compatibility.
 
-All crawler modules MUST implement:
-    crawl(mode: str) -> list[dict]
-    transform(records: list[dict]) -> list[dict]
+The operational path implements ADR-021::
+
+    SourceAdapter.fetch(request) -> FetchResult
+    SourceAdapter.normalize(raw) -> list[CanonicalRecord]
+    SourceAdapter.health() -> SourceHealth
 
 The CrawlerResult dataclass is the canonical structured result used by
 monitor.py and backfill_multi_source.py for integration.
@@ -11,8 +13,18 @@ monitor.py and backfill_multi_source.py for integration.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import UTC, date, datetime
 from typing import Any, Literal, Protocol, runtime_checkable
+
+type FetchStatus = Literal[
+    "success",
+    "empty_confirmed",
+    "partial",
+    "rate_limited",
+    "auth_blocked",
+    "error",
+]
+type CanonicalRecord = dict[str, Any]
 
 # ---------------------------------------------------------------------------
 # Source purpose markers
@@ -102,6 +114,12 @@ class CrawlRequest:
     limit: int | None = None
     """Maximum number of records/pages/portals to process."""
 
+    source: str | None = None
+    request_scope: str = "default"
+    page: int | None = None
+    cursor: str | None = None
+    run_id: str | None = None
+
 
 # ---------------------------------------------------------------------------
 # Structured fetch result
@@ -117,7 +135,10 @@ class FetchResult:
     and returning ``[]``.
     """
 
-    records: list[dict] = field(default_factory=list)
+    status: FetchStatus | None = None
+    """Terminal semantic status. Inferred only for legacy constructors."""
+
+    records: list[dict[str, Any]] = field(default_factory=list)
     """Raw records returned by the fetch (empty if failed or no data)."""
 
     request_completed: bool = False
@@ -126,14 +147,135 @@ class FetchResult:
     http_status: int | None = None
     """HTTP status code if applicable (None for non-HTTP sources)."""
 
+    http_statuses: list[int] = field(default_factory=list)
+    """Every observed terminal HTTP status across pages/attempts."""
+
     empty_confirmed: bool = False
     """True only when the source responded correctly AND confirmed no records."""
+
+    pages_fetched: int = 0
+    pages_expected: int | None = None
+    resume_token: str | None = None
+    checkpoint: dict[str, Any] | None = None
 
     errors: list[str] = field(default_factory=list)
     """Non-empty when the fetch encountered errors (connectivity, HTTP, JSON)."""
 
-    metadata: dict = field(default_factory=dict)
-    """Additional context (URL called, retry count, etc.)."""
+    warnings: list[str] = field(default_factory=list)
+    provenance: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Enforce fail-closed invariants while adapting legacy callers."""
+        if self.http_status is not None and self.http_status not in self.http_statuses:
+            self.http_statuses.append(self.http_status)
+        if not self.pages_fetched:
+            value = self.metadata.get("pages_fetched")
+            if isinstance(value, int) and value >= 0:
+                self.pages_fetched = value
+        if self.pages_expected is None:
+            value = self.metadata.get("pages_expected")
+            if isinstance(value, int) and value >= 0:
+                self.pages_expected = value
+        if not self.provenance and isinstance(self.metadata.get("provenance"), dict):
+            self.provenance = dict(self.metadata["provenance"])
+
+        if self.status is None:
+            self.status = self._infer_legacy_status()
+
+        if self.errors and self.status in {"success", "empty_confirmed"}:
+            if self.http_status == 429:
+                self.status = "rate_limited"
+            elif self.http_status in {401, 403}:
+                self.status = "auth_blocked"
+            else:
+                self.status = "partial" if self.records else "error"
+
+        if self.status == "success" and not self.records:
+            self.status = "partial"
+            self.warnings.append("zero_ambiguous")
+
+        if self.pages_expected is not None and self.pages_fetched < self.pages_expected:
+            if self.status in {"success", "empty_confirmed"}:
+                self.status = "partial"
+                self.empty_confirmed = False
+                self.warnings.append("pages_fetched_lt_pages_expected")
+
+        if self.empty_confirmed:
+            valid_empty = (
+                self.status == "empty_confirmed"
+                and self.request_completed
+                and not self.records
+                and not self.errors
+                and (self.pages_expected is None or self.pages_fetched >= self.pages_expected)
+            )
+            if not valid_empty:
+                raise ValueError("empty_confirmed exige request e paginacao completas, zero records e zero errors")
+
+        if self.status in {"partial", "rate_limited", "auth_blocked", "error"}:
+            self.empty_confirmed = False
+
+    def _infer_legacy_status(self) -> FetchStatus:
+        if self.http_status == 429:
+            return "rate_limited"
+        if self.http_status in {401, 403}:
+            return "auth_blocked"
+        if self.errors:
+            return "partial" if self.records else "error"
+        if not self.request_completed:
+            return "error"
+        if self.empty_confirmed and not self.records:
+            return "empty_confirmed"
+        if self.records:
+            return "success"
+        return "partial" if self.request_completed else "error"
+
+    @property
+    def coverage_satisfactory(self) -> bool:
+        """True only when this result can support operational evidence."""
+        complete = self.pages_expected is None or self.pages_fetched >= self.pages_expected
+        return bool(
+            self.status in {"success", "empty_confirmed"}
+            and self.request_completed
+            and complete
+            and not self.errors
+            and self.provenance
+            and (self.status != "success" or bool(self.records))
+            and (self.status != "empty_confirmed" or self.empty_confirmed)
+        )
+
+
+@dataclass
+class SourceHealth:
+    """Health returned by a source adapter without mutating crawl state."""
+
+    source: str
+    status: Literal["healthy", "degraded", "blocked", "unknown"] = "unknown"
+    checked_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
+    last_attempt: str | None = None
+    last_success: str | None = None
+    freshness_hours: float | None = None
+    message: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@runtime_checkable
+class SourceAdapter(Protocol):
+    """ADR-021 source adapter used by the resilient operational path."""
+
+    source_id: str
+
+    def fetch(self, request: CrawlRequest) -> FetchResult:
+        """Fetch raw data only and return a semantic result."""
+        ...
+
+    def normalize(self, raw: list[dict[str, Any]]) -> list[CanonicalRecord]:
+        """Pure normalization. Network I/O is forbidden."""
+        ...
+
+    def health(self) -> SourceHealth:
+        """Return current locally-observable health."""
+        ...
 
 
 # ---------------------------------------------------------------------------
@@ -152,7 +294,10 @@ class CrawlerResult:
     source: str = ""
     """Normalised source key (e.g. ``"pncp"``, ``"transparencia"``)."""
 
-    status: Literal["success", "degraded", "failed", "skipped", "empty"] = "success"
+    status: Literal[
+        "success", "empty_confirmed", "partial", "rate_limited", "auth_blocked", "error",
+        "degraded", "failed", "skipped", "empty",
+    ] = "success"
     """Execution status with strict semantics (see :func:`_determine_status`)."""
 
     # Counters
@@ -326,9 +471,14 @@ BaseCrawler = CrawlerProtocol
 
 __all__ = [
     "BaseCrawler",
+    "CanonicalRecord",
     "CrawlRequest",
     "CrawlerProtocol",
     "CrawlerResult",
+    "FetchResult",
+    "FetchStatus",
+    "SourceAdapter",
+    "SourceHealth",
     "SourcePurpose",
     "accumulate_stats",
     "chunk_list",

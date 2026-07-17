@@ -1,0 +1,20 @@
+{
+  "data": [
+    {
+      "numeroControlePNCP": "00000000000100-1-000001/2026",
+      "orgaoEntidade": {"cnpj": "00000000000100", "razaoSocial": "Orgao Fixture"},
+      "unidadeOrgao": {"siglaUf": "SC", "nomeMunicipio": "Florianopolis"},
+      "anoCompra": 2026,
+      "sequencialCompra": 1,
+      "objetoCompra": "Obra fixture de resiliência",
+      "modalidadeId": 4,
+      "modalidadeNome": "Concorrencia",
+      "dataPublicacaoPncp": "2026-07-17T00:00:00Z"
+    }
+  ],
+  "totalRegistros": 1,
+  "totalPaginas": 1,
+  "numeroPagina": 1,
+  "paginasRestantes": 0,
+  "empty": false
+}

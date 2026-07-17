@@ -15,8 +15,6 @@ import pytest
 from scripts.lib.entity_resolver import (
     EntityResolver,
     _normalize_cnpj,
-    _reset_global_resolver,
-    resolve_publishing_cnpj,
 )
 
 ACTUAL_DSN = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN") or "postgresql://test:test@127.0.0.1:5433/pncp_datalake"

@@ -5,7 +5,7 @@ Uses mocked DB connection for unit tests.
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -16,7 +16,6 @@ from scripts.crawl.provenance import (
     FreshnessChecker,
     ProvenanceTracker,
 )
-
 
 # ===========================================================================
 # Fixtures

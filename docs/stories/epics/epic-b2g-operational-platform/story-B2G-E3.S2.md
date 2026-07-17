@@ -1,7 +1,7 @@
 ---
 story_id: B2G-E3.S2
 title: "Checkpoint/resume unificado + DLQ smoke"
-status: Draft
+status: InReview
 priority: P0
 risk_level: STANDARD
 effort: M
@@ -27,7 +27,7 @@ Checkpoints por fonte heterogêneos; resume nem sempre testado; falhas sem DLQ c
 
 ## DoD
 
-- [ ] Smoke resume documentado; testes unitários checkpoint
+- [x] Smoke resume documentado; testes unitários checkpoint
 
 ## Comandos de validação
 
@@ -40,3 +40,10 @@ pytest tests/ -k "checkpoint or resume or dlq" -v
 | Data | Autor | Nota |
 |------|-------|------|
 | 2026-07-17 | Morgan (PM) | Draft |
+| 2026-07-17 | Dex (Dev) | Checkpoint canônico atômico, resume idempotente, watermark fail-closed e DLQ com replay/smoke; Draft → InReview. |
+
+## Dev Agent Record
+
+- Source of truth: `scripts/crawl/resilience/state.py`.
+- Smoke/runbook: `make resilient-smoke` e `docs/operations/LOCAL-RESILIENCE-RUNBOOK.md`.
+- Limite: DLQ local é filesystem; projeção PostgreSQL aditiva está na migration 054.

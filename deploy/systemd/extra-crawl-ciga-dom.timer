@@ -1,0 +1,11 @@
+[Unit]
+Description=Extra Consultoria CIGA DOM-SC resilient timer
+
+[Timer]
+OnCalendar=*-*-* 02,10,18:20:00 UTC
+RandomizedDelaySec=300
+Persistent=true
+Unit=extra-crawl-ciga-dom.service
+
+[Install]
+WantedBy=timers.target

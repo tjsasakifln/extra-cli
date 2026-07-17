@@ -1,7 +1,7 @@
 ---
 story_id: B2G-E3.S1
 title: "Adapter contract + PNCP 429 fail-closed"
-status: Draft
+status: InReview
 priority: P0
 risk_level: HIGH-RISK
 effort: L
@@ -50,7 +50,7 @@ Unit mocks 429/partial/empty; contract tests adapter.
 
 ## DoD
 
-- [ ] AC1–4; pytest; nota ADR-021 no módulo
+- [x] AC1–4; pytest; nota ADR-021 no módulo
 
 ## Comandos de validação
 
@@ -63,3 +63,10 @@ pytest tests/ -k "pncp and (429 or rate_limit or fail_closed or FetchResult)" -v
 | Data | Autor | Nota |
 |------|-------|------|
 | 2026-07-17 | Morgan (PM) | Draft |
+| 2026-07-17 | Dex (Dev) | Contrato canônico nos três adapters prioritários, fail-closed, raw/hash/evidence e testes; Draft → InReview. |
+
+## Dev Agent Record
+
+- Implementação: `scripts/crawl/ingestion/_base/crawler.py`, `scripts/crawl/resilience/`, `scripts/crawl/monitor.py`.
+- Testes: `tests/test_fetch_result.py`, `tests/test_local_resilience.py`, `tests/test_crawler_pncp.py`.
+- Limite: validação local; nenhuma VPS ou cobertura de 95% declarada.

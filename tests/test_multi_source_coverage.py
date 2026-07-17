@@ -10,7 +10,6 @@ import pytest
 
 from scripts.coverage import multi_source_coverage as msc
 
-
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
 # ---------------------------------------------------------------------------

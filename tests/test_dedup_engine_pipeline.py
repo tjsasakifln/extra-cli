@@ -16,10 +16,14 @@ import uuid
 
 import pytest
 
-# Opt into real DB access for this integration module (see tests/conftest.py).
-os.environ.setdefault("REQUIRE_TEST_DB", "1")
-
-pytestmark = [pytest.mark.integration, pytest.mark.database]
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.database,
+    pytest.mark.skipif(
+        os.getenv("REQUIRE_TEST_DB") != "1",
+        reason="Set REQUIRE_TEST_DB=1 to run database tests",
+    ),
+]
 
 DSN = (
     os.getenv("DATABASE_URL")

@@ -22,16 +22,15 @@ from scripts.crawl.clients.base.base import (
     CircuitBreakerOpen,
     HTTPClientError,
     HTTPRetryableError,
-    RetryConfig,
     InProcessCircuitBreaker,
+    RetryConfig,
 )
 from scripts.crawl.metrics import (
-    CBStateEnum,
     CB_STATE_GAUGE,
     HTTP_REQUESTS_TOTAL,
     HTTP_RETRIES_TOTAL,
+    CBStateEnum,
 )
-
 
 # ===========================================================================
 # RetryConfig — fully deterministic, no HTTP needed

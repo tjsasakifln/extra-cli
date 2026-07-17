@@ -732,6 +732,46 @@ class SeleniumCrawler:
         self.close()
 
 
+class SeleniumBatchCrawler:
+    """Small batch facade retained for the legacy adapter.
+
+    It owns one browser instance, preserves per-portal failures in the result
+    list and never turns a failed portal into a successful empty batch.
+    """
+
+    def __init__(self, *, headless: bool = True, timeout: int = 300, debug_dir: str = "") -> None:
+        self.debug_dir = debug_dir
+        self.crawler = SeleniumCrawler(headless=headless, timeout=timeout)
+
+    def run_batch(self, portals: list[dict[str, Any]]) -> dict[str, Any]:
+        results: list[dict[str, Any]] = []
+        extracted = failed = 0
+        try:
+            for portal in portals:
+                result = self.crawler.scrape(
+                    slug=str(portal.get("slug", "")),
+                    portal_url=str(portal.get("url", "")),
+                    selectors=portal.get("selectors"),
+                    municipio_nome=str(portal.get("nome", "")),
+                    ibge=str(portal.get("ibge", "")),
+                )
+                bids = list(result.get("records") or [])
+                row = {
+                    **result,
+                    "url": result.get("portal_url"),
+                    "bids": bids,
+                    "bid_count": len(bids),
+                    "framework": result.get("source_subtype", portal.get("framework", "unknown")),
+                }
+                extracted += len(bids)
+                if result.get("status") not in {"ok", "no_content"}:
+                    failed += 1
+                results.append(row)
+        finally:
+            self.crawler.close()
+        return {"extracted": extracted, "failed": failed, "portal_count": len(portals), "results": results}
+
+
 # ---------------------------------------------------------------------------
 # Convenience function: render with Selenium, return BeautifulSoup
 # ---------------------------------------------------------------------------

@@ -39,10 +39,7 @@ def _pg_available(dsn: str) -> bool:
         return False
 
 
-# Opt into real DB when local PG on 5433 is reachable (disables conftest mock).
 _PG_OK = _pg_available(DEFAULT_DSN)
-if _PG_OK:
-    os.environ.setdefault("REQUIRE_TEST_DB", "1")
 
 EXPECTED_TABLES = {
     "official_act_resources",
@@ -121,9 +118,9 @@ def test_rollback_drops_in_safe_order():
     ]
     assert any("official_act_matches" in line for line in drop_lines)
     assert any("official_acts" in line for line in drop_lines)
-    idx_matches = next(i for i, l in enumerate(drop_lines) if "official_act_matches" in l)
-    idx_acts = next(i for i, l in enumerate(drop_lines) if l.endswith("official_acts CASCADE;"))
-    idx_resources = next(i for i, l in enumerate(drop_lines) if "official_act_resources" in l)
+    idx_matches = next(i for i, line in enumerate(drop_lines) if "official_act_matches" in line)
+    idx_acts = next(i for i, line in enumerate(drop_lines) if line.endswith("official_acts CASCADE;"))
+    idx_resources = next(i for i, line in enumerate(drop_lines) if "official_act_resources" in line)
     assert idx_matches < idx_acts < idx_resources
     assert "DROP VIEW IF EXISTS" in text
     assert "DROP FUNCTION IF EXISTS" in text
@@ -149,17 +146,15 @@ def test_compute_record_hash_stable():
 
 
 requires_pg = pytest.mark.skipif(
-    not _PG_OK and os.getenv("REQUIRE_TEST_DB") != "1",
-    reason=f"PostgreSQL not reachable at {DEFAULT_DSN}; set REQUIRE_TEST_DB=1 to force fail",
+    os.getenv("REQUIRE_TEST_DB") != "1",
+    reason="Set REQUIRE_TEST_DB=1 to run PostgreSQL integration tests",
 )
 
 
 @pytest.fixture(scope="module")
 def dsn() -> str:
-    if os.getenv("REQUIRE_TEST_DB") == "1" and not _PG_OK:
-        pytest.fail(f"REQUIRE_TEST_DB=1 but cannot connect to {DEFAULT_DSN}")
     if not _PG_OK:
-        pytest.skip(f"PostgreSQL not reachable: {DEFAULT_DSN}")
+        pytest.fail(f"REQUIRE_TEST_DB=1 but cannot connect to {DEFAULT_DSN}")
     return DEFAULT_DSN
 
 

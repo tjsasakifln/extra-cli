@@ -6,11 +6,11 @@ Integration tests (with real DB) require the database marker.
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
-from scripts.crawl.watermark import WatermarkManager, STALLED_THRESHOLD_SECONDS
+from scripts.crawl.watermark import STALLED_THRESHOLD_SECONDS, WatermarkManager
 
 
 @pytest.fixture

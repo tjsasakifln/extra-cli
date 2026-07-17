@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from scripts.source_registry.acquisition.ciga_municipio_expand import expand_ciga_by_municipio
+from scripts.source_registry.acquisition.pncp_orgao_probe import probe_pncp_orgaos
 from scripts.source_registry.builder import (
     EXPECTED_ENTITY_COUNT,
     build_registry_from_csv,
@@ -15,8 +17,6 @@ from scripts.source_registry.builder import (
 )
 from scripts.source_registry.gap_report import gap_rows, generate_gap_report
 from scripts.source_registry.models import OPERATIONAL_STATUSES, EntitySourceRecord
-from scripts.source_registry.acquisition.ciga_municipio_expand import expand_ciga_by_municipio
-from scripts.source_registry.acquisition.pncp_orgao_probe import probe_pncp_orgaos
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SEED_CSV = PROJECT_ROOT / "config" / "target_entities_200km.csv"

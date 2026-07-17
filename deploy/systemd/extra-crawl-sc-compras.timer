@@ -1,0 +1,11 @@
+[Unit]
+Description=Extra Consultoria SC Compras resilient timer
+
+[Timer]
+OnCalendar=*-*-* 03,11,19:35:00 UTC
+RandomizedDelaySec=240
+Persistent=true
+Unit=extra-crawl-sc-compras.service
+
+[Install]
+WantedBy=timers.target

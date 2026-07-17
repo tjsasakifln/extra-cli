@@ -35,6 +35,7 @@ output/golden-path/
 output/bootstrap/
 output/readiness/
 output/runs/
+output/resilience/
 
 # Agent memories (runtime)
 .claude/agent-memory/

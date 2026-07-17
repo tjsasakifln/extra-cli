@@ -11,9 +11,17 @@ Run manually: pytest tests/test_tce_sc_live.py -v -m slow
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
-pytestmark = pytest.mark.slow
+pytestmark = [
+    pytest.mark.slow,
+    pytest.mark.skipif(
+        os.getenv("RUN_EXTERNAL_SMOKE") != "1",
+        reason="Set RUN_EXTERNAL_SMOKE=1 to call the real TCE-SC endpoint",
+    ),
+]
 
 
 class TestTCESCLive:

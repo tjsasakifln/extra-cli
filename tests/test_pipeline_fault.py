@@ -7,9 +7,6 @@ FAIL_CLOSED, and graceful continuation.
 
 from __future__ import annotations
 
-import asyncio
-from unittest.mock import AsyncMock
-
 import pytest
 
 from scripts.crawl.pipeline import (
@@ -20,7 +17,6 @@ from scripts.crawl.pipeline import (
     PipelineStage,
     StageError,
 )
-
 
 # ===========================================================================
 # Helpers

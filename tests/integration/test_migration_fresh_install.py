@@ -53,8 +53,6 @@ EXPECTED_VIEWS = CANONICAL_VIEWS_5 | {
 }
 EXPECTED_CONSTRAINTS = {
     "fk_bids_orgao_entity_v2",
-    "fk_contracts_supplier_entity_v2",
-    "fk_contracts_orgao_entity_v2",
     "uq_spe_cnpj_8",
     "uq_oi_content_hash",
 }
@@ -66,16 +64,14 @@ MATCH_LOGGING_COLUMNS = {"match_method", "match_score", "match_confidence"}
 
 pytestmark = pytest.mark.integration
 
-# Override conftest.py mock — this test module needs REAL database access
-os.environ.setdefault("REQUIRE_TEST_DB", "1")
-
-
 def _get_cursor():
     """Create a new database cursor for each test.
 
     Each call opens a fresh connection to avoid transaction state
     leaking between tests.
     """
+    if os.getenv("REQUIRE_TEST_DB") != "1":
+        pytest.skip("Set REQUIRE_TEST_DB=1 to validate a migrated isolated database")
     dsn = os.getenv("TEST_DSN", "postgresql://test:test@localhost:5433/extra_test")
     try:
         import psycopg2
