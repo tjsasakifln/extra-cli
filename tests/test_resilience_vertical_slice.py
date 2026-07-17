@@ -171,17 +171,39 @@ def test_vertical_slice_postgres_real_path(tmp_path: Path) -> None:
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     try:
-        cur.execute("SELECT to_regprocedure('upsert_pncp_raw_bids(jsonb)') IS NOT NULL")
+        cur.execute(
+            """
+            SELECT EXISTS (
+                SELECT 1 FROM pg_proc p
+                JOIN pg_namespace n ON n.oid = p.pronamespace
+                WHERE p.proname = 'upsert_pncp_raw_bids'
+            )
+            """
+        )
         has_upsert = bool(cur.fetchone()[0])
         cur.execute(
-            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pncp_raw_bids')"
+            """
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = 'public' AND table_name = 'pncp_raw_bids'
+            )
+            """
         )
         has_table = bool(cur.fetchone()[0])
+        if not has_upsert or not has_table:
+            cur.execute(
+                "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY 1 LIMIT 20"
+            )
+            tables = [r[0] for r in cur.fetchall()]
+            cur.execute("SELECT proname FROM pg_proc WHERE proname LIKE 'upsert%' LIMIT 20")
+            procs = [r[0] for r in cur.fetchall()]
+            pytest.fail(
+                "DATABASE_URL set but pncp_raw_bids / upsert_pncp_raw_bids missing — "
+                f"migrations incomplete (tables={tables[:10]} procs={procs})"
+            )
     finally:
         cur.close()
         conn.close()
-    if not has_upsert or not has_table:
-        pytest.fail("DATABASE_URL set but pncp_raw_bids / upsert_pncp_raw_bids missing — migrations incomplete")
 
     cfg = _cfg(tmp_path, environment="test", execution_mode="live", require_db=True)
     backend = PostgresPersistence(dsn=dsn)
