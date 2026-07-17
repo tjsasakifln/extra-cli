@@ -2,7 +2,7 @@
 
 **Story ID:** `ROI-cand-workspace-daily-evidence-pack`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** InReview  
+**Status:** Done  
 **Risk level:** **STANDARD**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-17T223227Z`)  
 **Candidate ID:** `cand-workspace-daily-evidence-pack`  
@@ -182,10 +182,44 @@ Revert feature branch commits; never update DoD on failure; no merge.
 - [x] @po validated (Ready)
 - [x] @dev implemented on non-main branch
 - [x] Tests/lint per risk level (pytest squad smoke PASS; evidence commands recorded)
-- [ ] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer)
-- [ ] @po closed
+- [x] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer) — **PASS** 2026-07-17
+- [x] @po closed — **2026-07-17** (no READY seals; publication authorized for @devops draft PR)
 - [ ] @devops draft PR / publish path (no auto-merge)
-- [ ] DoD.md checkboxes only if evidence authorizes
+- [x] DoD.md checkboxes only if evidence authorizes — **no DoD READY elevation authorized**
+
+---
+
+## QA Results
+
+**Reviewer:** Quinn (@qa / adversarial-qa-auditor)  
+**Date:** 2026-07-17T22:45:00Z  
+**Independent:** yes (≠ implementer Dex/@dev)  
+**Reviewed commit:** `7d39b895c625122a19a2b7395ad8ca872e2db396`  
+**Gate file:** `squads/extra-dod-roi/state/qa/cyc-2026-07-17T223227Z-qa.json`  
+**Verdict:** **PASS**
+
+### AC traceability
+
+| AC | Result | Evidence |
+|----|--------|----------|
+| 1 Commands + exit codes recorded | **PASS** | `exit_codes.tsv` + captures; today/opportunities/coverage exit 0 degraded; dossier bogus exit 1 NOT_FOUND; dossier 8504275 exit 0 offline |
+| 2 Pack under docs/ops and/or output | **PASS** | `docs/ops/session-2026-07-17-workspace-evidence/` + `output/workspace-evidence-20260717/` |
+| 3 No READY seals / no VPS | **PASS** | No `DOD.md` in branch diff; MANIFEST forbids LOCAL_RESILIENCE_READY, PRE_VPS_FINAL_READY, 95%, VPS |
+
+### Reproduction (QA)
+
+- `pytest squads/extra-dod-roi/tests/test_squad_smoke.py -q` → **10 passed** (~60s)
+- `enforce_aiox_path.py qa` → ok (after restoring `current.json` to cycle `cyc-2026-07-17T223227Z` IN_REVIEW)
+- Spot-check payloads: `pg_available=false`, opportunities `DEGRADED` count=5 id `8504275`, coverage commercial **10.61%** (not 95%), disclaimer present
+
+### Residual (non-blocking)
+
+1. **LOW/process:** aborted INIT cycles had overwritten `state/cycles/current.json` while this cycle was still IN_REVIEW — restored before enforce.
+2. **LOW/docs:** coverage metric objects use `status=READY` as schema readiness (e.g. commercial 10.61%, operational_source_coverage 0%) — **not** DoD seals.
+
+### Gate decision
+
+**PASS** → next phase **PO_CLOSE** (@po only). QA did **not** set `po_closed`, did **not** push, did **not** promote READY seals. Story remains **InReview** until @po closes.
 
 ---
 
@@ -196,6 +230,24 @@ Revert feature branch commits; never update DoD on failure; no merge.
 | 2026-07-17 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
 | 2026-07-17 | 1.0.0 | Validated GO (9/10) — Status: Draft → Ready; ACs/tasks sharpened for workspace evidence pack | @po |
 | 2026-07-17 | @dev (Dex) | Status: Ready → InProgress → InReview. Evidence pack under docs/ops/session-2026-07-17-workspace-evidence + output mirror. Ranker `_story_is_done` fix + smoke test. Handoff to @qa. |
+| 2026-07-17 | @qa (Quinn) | Independent QA **PASS**. Gate `squads/extra-dod-roi/state/qa/cyc-2026-07-17T223227Z-qa.json`. Cycle advanced IN_REVIEW → QA; next=PO_CLOSE. Story left open (not closed by QA). No READY seals. |
+| 2026-07-17 | 1.0.1 | PO close after QA PASS — Status: InReview → Done; po_closed=true; publication_authorized=true. [closure-key: ROI-cand-workspace-daily-evidence-pack:commit:7d39b895c625122a19a2b7395ad8ca872e2db396] No READY seals / no VPS / no DoD.md promotion. | @po |
+
+---
+
+## PO Close
+
+**Closed by:** Pax (@po)  
+**Closed at:** 2026-07-17T22:47:00Z  
+**Closure key:** `ROI-cand-workspace-daily-evidence-pack:commit:7d39b895c625122a19a2b7395ad8ca872e2db396`  
+**QA verdict:** PASS (Quinn, independent)  
+**Reviewed commit:** `7d39b895c625122a19a2b7395ad8ca872e2db396`  
+**Gates:** lint=PASS, tests=PASS, typecheck=NA, build=NA  
+**publication_authorized:** true (draft PR path for @devops only; no auto-merge; no push by @po)  
+**DoD seals:** LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY remain NOT_READY — not elevated  
+**Follow-ups (non-blocking):** cycle `current.json` clobber by aborted INIT tests; metric `status=READY` is schema readiness not DoD seal  
+
+**Next:** @devops draft PR / publish path for cycle PUBLISH (no force-push, no auto-merge).
 
 ---
 
