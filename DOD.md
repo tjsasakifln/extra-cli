@@ -1819,6 +1819,7 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 
 | Data | Commit | Alteração | Motivo | Responsável |
 |---|---|---|---|---|
+| 2026-07-17 | fix/pre-vps-final-truth-gate → main | §45 truth gate: selo LOCAL_RESILIENCE_READY destruído; pipeline único + PG; CI resilience-gate verde; HTML atualizado | Auditoria adversarial pré-VPS | Truth gate session |
 | 2026-07-17 | aca4408→HEAD · main | §42 briefing executivo trabalho financiado + HTML diretoria; consolida §40–§41 com claims honestos | Apresentação à Extra Construtora | Diretoria / Principal Eng |
 | 2026-07-17 | 3bf1a3b · main | fix adversarial: sc-* ≠ pncp_number; 052 em `_migrations`; CIGA 221/295 + live_fetch | Auditoria independente | Multiagent §41 fix |
 | 2026-07-17 | 8b8138a · main | §41 ingestão real DOE/DOM/Compras, official_acts 2964, recon, métricas, CI | Execução multiagente live | Multiagent §41 |
@@ -2630,4 +2631,87 @@ Somente após aceite de QA/PO e publicação: checklist de provisionamento em
 | Project Done | 100% | ~0,1% aceite formal DoD | bloqueado |
 
 Próximo investimento: (A) cobertura comercial → 95%; (B) provisionar VPS só após checklist PRE-VPS; (C) QA/PO fecham E3.S1/S2.
+
+---
+
+## 45. PRE-VPS FINAL TRUTH GATE — sessão 2026-07-17 (PR #12)
+
+**Veredito da sessão:** `NOT_READY` para `PRE_VPS_FINAL_READY`  
+**Selo destruído:** `LOCAL_RESILIENCE_READY` (hipótese falsa: fixture ≠ live; JSON ≠ PostgreSQL)  
+**Branch:** `fix/pre-vps-final-truth-gate-20260717`  
+**PR:** https://github.com/tjsasakifln/extra-consultoria/pull/12  
+**CI resilience-gate:** SUCCESS (ex.: runs `29614326278`, `29614544628`)  
+**Não implica:** `PRE_VPS_FINAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, canary live, 95% cobertura.
+
+### 45.1 O que a sessão entregou
+
+| # | Entrega | Evidência |
+|---|---------|-----------|
+| 1 | Auditoria adversarial pré-código | `docs/operations/PRE-VPS-FINAL-ADVERSARIAL-AUDIT.md` |
+| 2 | Truth report + estados honestos | `docs/operations/PRE-VPS-FINAL-TRUTH.md` |
+| 3 | Pipeline único `OperationalPipeline` | `scripts/crawl/resilience/pipeline.py` |
+| 4 | Persistência canônica PG (upsert/match/opportunities/acts) | `scripts/crawl/resilience/persistence.py` |
+| 5 | `monitor.py` prioriza o mesmo pipeline (pncp/ciga/sc) | `_crawl_source_via_resilient_pipeline` |
+| 6 | Isolamento fixture vs live (`RESILIENCE_ENV`) | `config.py` + `health.py` |
+| 7 | Freshness tripla + SLA do registry (PNCP 4h) | `health.py` |
+| 8 | Circuit breaker persistente em FS | `circuit_breaker.py` |
+| 9 | HttpResiliencePolicy unificada (RESILIENCE_* > PNCP_*) | `http_policy.py` + PNCP adapter |
+| 10 | SC Compras snapshot imutável + `snapshot_hash` | `adapters.py` |
+| 11 | Checkpoint state machine (sem `TypeError: pass`) | `stages.py` |
+| 12 | CI job `resilience-gate` (migrations fresh+upgrade, PG vertical) | `.github/workflows/ci.yml` |
+| 13 | `make pre-vps-final-gate-offline|live-canary|final-gate` | `Makefile` |
+| 14 | Docs de selo destruído | README, PRE-VPS-READINESS, DOD §44/§45, architecture |
+
+### 45.2 Validação registrada (sessão)
+
+```text
+Local offline:
+  pytest resilience unit/chaos: 48 passed
+  fixture cycle: TEST_HEALTHY exit 0
+  health --env fixture: TEST_HEALTHY exit 0
+  health --env development (sem live): no_live_evidence exit 2
+  ruff + mypy resilience/ops: pass
+
+CI (PR #12):
+  Resilience Gate (pre-VPS): SUCCESS
+  Lint / Mypy / Test critical / Bandit / pip-audit: SUCCESS
+  Migrations 001–054 fresh + upgrade 001–40→41–54: SUCCESS
+  Vertical slice PostgreSQL real: SUCCESS
+```
+
+### 45.3 Claims permitidos (pós truth gate)
+
+1. Offline + CI de resiliência estão verdes e fail-closed.
+2. Fixture não contamina health live (`no_live_evidence` sem watermark live).
+3. Path canônico de prioridade inclui PostgreSQL (não só JSON).
+4. Selo `LOCAL_RESILIENCE_READY` **não** é válido como “pronto para VPS”.
+
+### 45.4 Claims proibidos
+
+1. `PRE_VPS_FINAL_READY` / `VPS_OPERATIONAL` / `PROJECT_DONE`.
+2. Canary live das 3 fontes concluída (não executada nesta sessão).
+3. 95% cobertura operacional ou comercial.
+4. Timers systemd habilitados ou host provisionado.
+5. Stories E3.S1/S2 Done (ainda dependem QA/PO independentes + canary).
+
+### 45.5 Próximo passo (ordem)
+
+1. `make pre-vps-live-canary` com `DATABASE_URL` e rede (mínimo por fonte).  
+2. `make pre-vps-final-gate` → só então considerar `PRE_VPS_FINAL_READY`.  
+3. Revisão adversarial humana + merge controlado.  
+4. Checklist VPS em `PRE-VPS-READINESS.md` (sem timers até go-live).
+
+### 45.6 Prestação de contas (diretoria)
+
+| Campo | Valor |
+|---|---|
+| Veredito | `NOT_READY` (truth gate) |
+| Offline/CI | Verde |
+| Live canary | Pendente |
+| Cobertura ops estrita | 0/1.093 (0%) |
+| Sinal comercial | 116/1.093 (10,61%) — não é cobertura |
+| HTML | `extra-consultoria-plano-executivo.html` (§45) |
+| PR | #12 |
+
+---
 
