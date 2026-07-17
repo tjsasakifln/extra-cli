@@ -66,10 +66,30 @@ COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
 # ---------------------------------------------------------------------------
 
 
-def _get_conn() -> Any:
+def _resolve_dsn(explicit: str | None = None) -> str:
+    """Resolve DSN from CLI override, module global, or environment.
+
+    Avoids silent fallback to Unix socket when DEFAULT_DSN is empty/None.
+    """
+    candidates = [
+        explicit,
+        DEFAULT_DSN,
+        os.getenv("DATABASE_URL"),
+        os.getenv("LOCAL_DATALAKE_DSN"),
+        "postgresql://test:test@127.0.0.1:5433/pncp_datalake",
+    ]
+    for c in candidates:
+        if c and str(c).strip():
+            return str(c).strip()
+    raise RuntimeError(
+        "No PostgreSQL DSN: pass --dsn or set DATABASE_URL / LOCAL_DATALAKE_DSN"
+    )
+
+
+def _get_conn(dsn: str | None = None) -> Any:
     import psycopg2
 
-    return psycopg2.connect(DEFAULT_DSN)
+    return psycopg2.connect(_resolve_dsn(dsn))
 
 
 def _load_entities(conn: Any, within_200km_only: bool = False) -> list[dict[str, Any]]:
@@ -1354,11 +1374,14 @@ def main() -> int:
     args = parse_args()
 
     global DEFAULT_DSN
-    DEFAULT_DSN = args.dsn
+    # Prefer explicit --dsn; never assign empty/None over a good default
+    resolved = _resolve_dsn(args.dsn if getattr(args, "dsn", None) else None)
+    DEFAULT_DSN = resolved
+    args.dsn = resolved
 
     # Coverage report only
     if args.report_coverage:
-        conn = _get_conn()
+        conn = _get_conn(resolved)
         try:
             result = report_coverage(conn)
             print_coverage_report(result)
@@ -1367,7 +1390,7 @@ def main() -> int:
             conn.close()
 
     # Load entities
-    conn = _get_conn()
+    conn = _get_conn(resolved)
     try:
         entities = _load_entities(conn, within_200km_only=False)
     finally:

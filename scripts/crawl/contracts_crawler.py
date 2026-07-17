@@ -80,6 +80,11 @@ _ESFERA_MAP = {"F": 1, "E": 2, "M": 3, "D": 4}
 # Contracts use a different schema (pncp_supplier_contracts) than bids.
 # monitor.py reads this attribute to dispatch to the correct upsert RPC.
 UPSERT_FUNCTION = "upsert_pncp_supplier_contracts"
+SOURCE_PURPOSE = "contracts"
+
+# Modes that persist reentrant window checkpoints (JSON under CONTRACTS_CHECKPOINT_DIR).
+# full (90d pilot) and backfill_3y both need resume; incremental stays ephemeral.
+_CHECKPOINT_MODES = frozenset({"full", "backfill_3y"})
 
 
 # ---------------------------------------------------------------------------
@@ -623,10 +628,10 @@ def _crawl_date_range(
 ) -> list[dict]:
     """Crawl contracts in a date range with windowing and checkpoint.
 
-    Returns raw records.  Uses checkpoint for 'backfill_3y' mode.
+    Returns raw records.  Uses checkpoint for 'full' and 'backfill_3y' modes.
     """
     all_records: list[dict] = []
-    checkpoint = load_checkpoint(mode) if mode == "backfill_3y" else None
+    checkpoint = load_checkpoint(mode) if mode in _CHECKPOINT_MODES else None
 
     cur = start
     while cur < end:
@@ -741,7 +746,7 @@ def crawl_with_evidence(mode: str = "backfill_3y") -> CrawlResult:
         start = today - timedelta(days=days)
 
     result = CrawlResult(mode=mode)
-    checkpoint = load_checkpoint(mode) if mode == "backfill_3y" else None
+    checkpoint = load_checkpoint(mode) if mode in _CHECKPOINT_MODES else None
     result.checkpoint = checkpoint
 
     cur = start

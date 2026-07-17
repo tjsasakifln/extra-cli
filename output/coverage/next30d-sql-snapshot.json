@@ -1,0 +1,111 @@
+{
+  "captured_at": "2026-07-17T00:11:29.305758+00:00",
+  "campaign": "NEXT-30D-MULTIAGENT",
+  "universe_cols": [
+    "canonical_entity_key",
+    "cnpj8",
+    "db_entity_id",
+    "distance_km",
+    "duplicate_root",
+    "ibge_code",
+    "latitude",
+    "legal_name",
+    "legal_nature",
+    "longitude",
+    "match_method",
+    "municipality",
+    "radius_decision",
+    "seed_row",
+    "universe_run_id"
+  ],
+  "universe_total": 2085,
+  "universe_included": "N/A:column \"included\" does not exist\nLINE 1: ...LECT count(*) FROM target_universe_entities WHERE included I...\n                                                             ^\n",
+  "universe_within_200km": "N/A:column \"within_200km\" does not exist\nLINE 1: ...LECT count(*) FROM target_universe_entities WHERE within_200...\n                                                             ^\n",
+  "universe_raio_200km": "N/A:column \"raio_200km\" does not exist\nLINE 1: ...LECT count(*) FROM target_universe_entities WHERE raio_200km...\n                                                             ^\n",
+  "universe_in_scope": "N/A:column \"in_scope\" does not exist\nLINE 1: ...LECT count(*) FROM target_universe_entities WHERE in_scope I...\n                                                             ^\n",
+  "covered_entities_200km": 52,
+  "covered_sc_compras_200km": 37,
+  "coverage_by_source_200km": {
+    "sc_compras": {
+      "covered": 37,
+      "rows": 1093
+    },
+    "pcp": {
+      "covered": 14,
+      "rows": 1093
+    },
+    "compras_gov": {
+      "covered": 1,
+      "rows": 1093
+    },
+    "ciga_ckan": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "transparencia": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "mides_bigquery": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "pncp": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "doe_sc": {
+      "covered": 0,
+      "rows": 1093
+    },
+    "dom_sc": {
+      "covered": 0,
+      "rows": 1093
+    }
+  },
+  "contracts": 0,
+  "pncp_raw_bids": 2948,
+  "dedup": 5,
+  "v_coverage_summary": [
+    {
+      "source": "ciga_ckan",
+      "within_200km": false,
+      "is_covered": false,
+      "match_method": null,
+      "entity_count": 992,
+      "pct": "11.1"
+    },
+    {
+      "source": "ciga_ckan",
+      "within_200km": true,
+      "is_covered": false,
+      "match_method": null,
+      "entity_count": 1093,
+      "pct": "11.1"
+    },
+    {
+      "source": "compras_gov",
+      "within_200km": false,
+      "is_covered": false,
+      "match_method": null,
+      "entity_count": 992,
+      "pct": "11.1"
+    },
+    {
+      "source": "compras_gov",
+      "within_200km": true,
+      "is_covered": false,
+      "match_method": null,
+      "entity_count": 1092,
+      "pct": "11.1"
+    },
+    {
+      "source": "compras_gov",
+      "within_200km": true,
+      "is_covered": true,
+      "match_method": "cnpj",
+      "entity_count": 1,
+      "pct": "0.0"
+    }
+  ]
+}

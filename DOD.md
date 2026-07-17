@@ -1797,6 +1797,7 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 
 | Data | Commit | Alteração | Motivo | Responsável |
 |---|---|---|---|---|
+| 2026-07-17 | epic/next-30d-multiagent-execution | §39 NEXT-30D-MULTIAGENT: fail-closed golden path; sc_compras 2602; contracts pilot multi-k; dedup CLI; schema audit; coverage ~4.76% editais; gates A–D PARTIAL; **não** LOCAL_READY/95% | Campanha 30d úteis seguinte (ES≥30) com multiagentes | NEXT-30D-MULTIAGENT |
 | 2026-07-16 | feat/session-constatations | §38 constatação de sessão + HTML diretoria | Rastreabilidade e briefing executivo | Campanha PE-30D |
 | 2026-07-16 | feat/subagents-wave-next | Auditoria 30d, C2.7/K3.2/C2.8/Q5 (82 testes), Q5.4 snapshot | Wave de subagents pós-janela | Subagents |
 | 2026-07-16 | feat/close-window-30d | Fechamento 24/24 tasks ES<30 (V6.1/I4.1/L1.5+C2/Q5; V6.2 só BLOCKED_EXTERNAL compra) | Exigência: 100% janela 30d úteis | Campanha PE-30D |
@@ -1955,3 +1956,45 @@ Manifesto de fechamento: `docs/ops/ledger/WINDOW-30D-COMPLETE.md`.
 | Perfil Extra | `config/client_profiles/extra.yaml` |
 | ADR VPS | `docs/architecture/adr/ADR-007-v6.1-provider-decision.md` |
 | Pack compra VPS | `docs/ops/v6.2-procurement-credentials-package.md` |
+
+---
+
+# 39. Campanha NEXT-30D-MULTIAGENT (2026-07-17)
+
+> **Não declara** `LOCAL_READY`, cobertura ≥95%, `VPS_OPERATIONAL` nem `PROJECT_DONE`.  
+> **Fontes:** `docs/ops/ledger/NEXT-30D-*`, `docs/baseline/*-next30d.md`, branch `epic/next-30d-multiagent-execution`.
+
+## 39.1 Resultado executivo
+
+| Campo | Valor |
+|-------|-------|
+| SHA inicial | `77ff8a8` |
+| Branch | `epic/next-30d-multiagent-execution` |
+| sc_compras | **2602** fetched/inserted (DONE) |
+| Contracts pilot (mid/late) | **milhares** em `pncp_supplier_contracts` (era 0) — DONE_PARTIAL até JSON final |
+| Dedup cross-source | CLI wired; rows &gt; 0 (DONE com fixtures + engine) |
+| Editais crude coverage | ~**4,76%** (52/1093 is_covered within_200km) |
+| Golden path | fail-closed strict default + testes |
+| V6.2 / DOE-SC | **BLOCKED_EXTERNAL** |
+
+## 39.2 Gates da campanha
+
+| Gate | Veredito |
+|------|----------|
+| NEXT30-GATE-A FOUNDATION_TRUTH | PASS WITH CONCERNS |
+| NEXT30-GATE-B DATA_EXPANSION | PASS WITH PARTIALS |
+| NEXT30-GATE-C INTELLIGENCE_OUTPUT | PASS PARTIAL |
+| NEXT30-GATE-D CAMPAIGN_ACCEPTANCE | PARTIAL (CP ~20/30 PERT; não fake-close) |
+
+## 39.3 Evidências-chave
+
+- `docs/ops/ledger/NEXT-30D-BASELINE.md`, `NEXT-30D-WORKPLAN.md`, `NEXT-30D-ADVERSARIAL-AUDIT.md`
+- `docs/ops/ledger/NEXT30-GATE-A.md` … `D.md`
+- `docs/baseline/c2.7-sc-compras-runtime-next30d.md`
+- `docs/baseline/c2.8-dedup-wired-next30d.md`
+- `docs/baseline/k3.2-pncp-90d-pilot-next30d.md`
+- `docs/baseline/c2.10-coverage-audit-next30d.md`
+- `docs/baseline/q5.4-remediation-next30d.md`
+- `docs/baseline/i4-reports-next30d.md`
+- `output/sc_compras/runtime-next30d.json`
+- `tests/test_golden_path_fail_closed.py`
