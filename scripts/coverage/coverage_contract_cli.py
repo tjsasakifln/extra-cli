@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from contextlib import suppress
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -27,7 +28,6 @@ if str(_PROJECT_ROOT) not in sys.path:
 
 from scripts.coverage.coverage_contract import (  # noqa: E402
     ALL_METRIC_IDS,
-    HEADLINE_METRIC,
     LEGACY_ALIAS_COMMERCIAL_OPPORTUNITY_ANY,
     METRIC_ENTITIES_WITH_RECENT_COMMERCIAL_SIGNAL,
     build_contract_report,
@@ -62,10 +62,8 @@ def _cmd_report(args: argparse.Namespace) -> int:
         )
     finally:
         if conn is not None:
-            try:
+            with suppress(Exception):
                 conn.close()
-            except Exception:
-                pass
 
     payload = report.to_dict()
     if db_note:

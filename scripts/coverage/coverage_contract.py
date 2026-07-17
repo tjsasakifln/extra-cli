@@ -18,9 +18,10 @@ from __future__ import annotations
 import csv
 import json
 import os
+from contextlib import suppress
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, date, datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -111,7 +112,7 @@ OPERATIONAL_STAGES: tuple[str, ...] = (
 )
 
 
-class MetricStatus(str, Enum):
+class MetricStatus(StrEnum):
     """Readiness of a metric computation."""
 
     READY = "READY"
@@ -120,7 +121,7 @@ class MetricStatus(str, Enum):
     ERROR = "ERROR"
 
 
-class MetricKind(str, Enum):
+class MetricKind(StrEnum):
     """Semantic kind — commercial signal is never kind=coverage."""
 
     COMMERCIAL_SIGNAL = "commercial_signal"
@@ -1096,13 +1097,13 @@ def compute_operational_source_coverage(
                     limitations=limitations,
                     reason="coverage_evidence_success_within_sla",
                 )
-            except Exception:
+            except Exception as evidence_exc:
                 # Fall back to entity_coverage.is_covered + last_seen within SLA
-                cur.execute("ROLLBACK") if hasattr(conn, "rollback") else None
-                try:
+                limitations.append(
+                    f"coverage_evidence query unavailable: {type(evidence_exc).__name__}"
+                )
+                with suppress(Exception):
                     conn.rollback()
-                except Exception:
-                    pass
                 cur = conn.cursor()
                 cur.execute(
                     """
