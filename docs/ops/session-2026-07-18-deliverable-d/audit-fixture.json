@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-18T18:37:19Z",
+  "summary": {
+    "total": 12,
+    "pass": 12,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "item_id": "comparable_groups_only",
+      "dod_text": "O sistema produz referências apenas para grupos tecnicamente comparáveis.",
+      "status": "PASS",
+      "evidence": [
+        "group_dimensions=['tipo_obra_servico', 'unidade', 'lote', 'porte', 'regiao']",
+        "panels=3"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "rule_documented",
+      "dod_text": "A regra de comparabilidade por tipo de obra, serviço, unidade, lote, porte, região e período está documentada.",
+      "status": "PASS",
+      "evidence": [
+        "Comparável se iguais em group_dimensions tipo_obra_servico, unidade, lote, porte, regiao; periodo documentado para evolução temporal; n>=5 senão INSUFFICIENT_SAMPLE; outliers flagged by IQR (not hidden as 'preço real')"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "n_obs",
+      "dod_text": "O painel informa quantidade de observações.",
+      "status": "PASS",
+      "evidence": [
+        "n_observations"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "median",
+      "dod_text": "O painel informa mediana.",
+      "status": "PASS",
+      "evidence": [
+        "median"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "p25",
+      "dod_text": "O painel informa percentil 25.",
+      "status": "PASS",
+      "evidence": [
+        "p25"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "p75",
+      "dod_text": "O painel informa percentil 75.",
+      "status": "PASS",
+      "evidence": [
+        "p75"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "minmax_outliers",
+      "dod_text": "O painel informa mínimo e máximo apenas quando úteis e sem ocultar outliers.",
+      "status": "PASS",
+      "evidence": [
+        "min_value, max_value, outliers_flagged always recorded"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "temporal",
+      "dod_text": "O painel informa evolução temporal quando a amostra permitir.",
+      "status": "PASS",
+      "evidence": [
+        "temporal_evolution list (empty when single period)"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "value_semantics",
+      "dod_text": "O painel identifica se cada valor é estimado, homologado, contratado ou pago.",
+      "status": "PASS",
+      "evidence": [
+        "allowed=['contratado', 'estimado', 'homologado', 'pago']"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "no_preco_real_heterogeneous",
+      "dod_text": "O painel não denomina valores globais heterogêneos como “preço real praticado”.",
+      "status": "PASS",
+      "evidence": [
+        "labels_forbidden_used empty; claims_forbidden documents ban"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "insufficient_sample",
+      "dod_text": "Categorias com amostra insuficiente são marcadas como `INSUFFICIENT_SAMPLE`.",
+      "status": "PASS",
+      "evidence": [
+        "status INSUFFICIENT_SAMPLE when n < min_sample"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "outlier_reproducible",
+      "dod_text": "Critérios de exclusão e tratamento de outliers são reproduzíveis.",
+      "status": "PASS",
+      "evidence": [
+        "iqr_outlier_k=1.5",
+        "drop_outliers flag"
+      ],
+      "notes": ""
+    }
+  ],
+  "report_status": "OK",
+  "panel_count": 3
+}
