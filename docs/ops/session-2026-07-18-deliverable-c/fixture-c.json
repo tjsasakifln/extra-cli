@@ -1,0 +1,145 @@
+{
+  "status": "OK",
+  "deliverable": "C",
+  "title": "Contratos vincendos (janela configurável)",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "window": {
+    "min_days": 90,
+    "max_days": 180,
+    "as_of": "2026-07-18",
+    "description": "vigencia_fim in [as_of+90d, as_of+180d]"
+  },
+  "rows": [
+    {
+      "orgao": "Prefeitura Demo A",
+      "objeto": "Reforma predial",
+      "contratado": "Fornecedor X",
+      "contratado_cnpj": "11222333000181",
+      "valor": 500000.0,
+      "valor_semantica": "CONTRATADO",
+      "inicio": "2024-01-01",
+      "termino_efetivo": "2026-11-15",
+      "termino_tipo": "CONTRATUAL",
+      "termino_fonte": "pncp_supplier_contracts.vigencia_fim",
+      "termino_verificado_em": "2026-07-18",
+      "aditivos_aplicados": [],
+      "relicitacao": {
+        "mode": "EVIDENCE_CLASS",
+        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
+        "signals": [
+          "orgao_historico_relicitacao",
+          "objeto_recorrente"
+        ],
+        "probability_pct": null,
+        "confidence": "MEDIA",
+        "limitations": [
+          "Sem modelo validado retrospectivamente",
+          "Sinais não são probabilidade"
+        ],
+        "fabricated_percent_forbidden": true
+      },
+      "confianca": "MEDIA",
+      "limitacoes": [
+        "Sem modelo validado retrospectivamente",
+        "Sinais não são probabilidade"
+      ],
+      "in_window": true
+    },
+    {
+      "orgao": "Autarquia C",
+      "objeto": "Obra",
+      "contratado": "Fornecedor Z",
+      "contratado_cnpj": "33444555000163",
+      "valor": 900000.0,
+      "valor_semantica": "CONTRATADO",
+      "inicio": "2022-01-01",
+      "termino_efetivo": "2026-12-15",
+      "termino_tipo": "CONTRATUAL",
+      "termino_fonte": "pncp_supplier_contracts+aditivo",
+      "termino_verificado_em": "2026-07-18",
+      "aditivos_aplicados": [
+        {
+          "tipo": "prorrogacao",
+          "nova_data_fim": "2026-12-15",
+          "fonte": "pncp_aditivo"
+        }
+      ],
+      "relicitacao": {
+        "mode": "EVIDENCE_CLASS",
+        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
+        "signals": [],
+        "probability_pct": null,
+        "confidence": "BAIXA",
+        "limitations": [
+          "Sem modelo validado retrospectivamente",
+          "Sinais não são probabilidade"
+        ],
+        "fabricated_percent_forbidden": true
+      },
+      "confianca": "BAIXA",
+      "limitacoes": [
+        "Sem modelo validado retrospectivamente",
+        "Sinais não são probabilidade"
+      ],
+      "in_window": true
+    },
+    {
+      "orgao": "Estimado only",
+      "objeto": "Serviço",
+      "contratado": "W",
+      "contratado_cnpj": "44555666000154",
+      "valor": 100000.0,
+      "valor_semantica": "CONTRATADO",
+      "inicio": "2025-01-01",
+      "termino_efetivo": "2026-11-05",
+      "termino_tipo": "ESTIMADO",
+      "termino_fonte": "estimativa_interna",
+      "termino_verificado_em": "2026-07-18",
+      "aditivos_aplicados": [],
+      "relicitacao": {
+        "mode": "EVIDENCE_CLASS",
+        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
+        "signals": [],
+        "probability_pct": null,
+        "confidence": "BAIXA",
+        "limitations": [
+          "Sem modelo validado retrospectivamente",
+          "Sinais não são probabilidade"
+        ],
+        "fabricated_percent_forbidden": true
+      },
+      "confianca": "BAIXA",
+      "limitacoes": [
+        "Sem modelo validado retrospectivamente",
+        "Sinais não são probabilidade",
+        "término ESTIMADO — não confundir com vencimento contratual"
+      ],
+      "in_window": true
+    }
+  ],
+  "excluded_no_vigencia": 1,
+  "relicitacao_method": {
+    "default_mode": "EVIDENCE_CLASS",
+    "fabricated_percent_forbidden": true,
+    "requires_retrospective_validation_for_probability": true
+  },
+  "claims_allowed": [
+    "Listed 3 contracts in window 90-180d",
+    "Excluded 1 without vigencia/source/verification (not silent include)",
+    "Relicitação as evidence class unless validated model"
+  ],
+  "claims_forbidden": [
+    "Include contracts without vigencia silently",
+    "Fabricated relicitation probability %",
+    "Treat ESTIMADO end as contractual vencimento without label",
+    "Claim active market coverage from empty DSN"
+  ],
+  "generated_at": "2026-07-18T18:30:37Z"
+}

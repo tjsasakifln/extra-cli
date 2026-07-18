@@ -1,0 +1,102 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-18T18:30:37Z",
+  "summary": {
+    "total": 9,
+    "pass": 9,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "item_id": "window_identify",
+      "dod_text": "O sistema identifica contratos compatíveis com o perfil cuja vigência termina em janela configurável de 90 a 180 dias.",
+      "status": "PASS",
+      "evidence": [
+        "{'min_days': 90, 'max_days': 180, 'as_of': '2026-07-18', 'description': 'vigencia_fim in [as_of+90d, as_of+180d]'}",
+        "rows=3"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "term_source_verified",
+      "dod_text": "A data de término usada possui fonte e data de verificação.",
+      "status": "PASS",
+      "evidence": [
+        "termino_fonte + termino_verificado_em"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "no_silent_missing_vigencia",
+      "dod_text": "Contratos sem data de vigência não entram silenciosamente na lista.",
+      "status": "PASS",
+      "evidence": [
+        "excluded_no_vigencia=1"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "aditivos_update",
+      "dod_text": "Prorrogações e aditivos conhecidos atualizam a data efetiva.",
+      "status": "PASS",
+      "evidence": [
+        "aditivos_aplicados on rows when present"
+      ],
+      "notes": "Fixture applies aditivo to effective end"
+    },
+    {
+      "item_id": "contractual_vs_estimated",
+      "dod_text": "O sistema distingue vencimento contratual de término estimado.",
+      "status": "PASS",
+      "evidence": [
+        "termino_tipo CONTRATUAL|ESTIMADO"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "list_fields",
+      "dod_text": "A lista informa órgão, objeto, contratado, valor, início, término e fonte.",
+      "status": "PASS",
+      "evidence": [
+        "orgao",
+        "objeto",
+        "contratado",
+        "valor",
+        "inicio",
+        "termino_efetivo",
+        "termino_fonte"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "relicitacao_method",
+      "dod_text": "A probabilidade de relicitação possui metodologia documentada, variáveis observáveis e validação retrospectiva.",
+      "status": "PASS",
+      "evidence": [
+        "{'default_mode': 'EVIDENCE_CLASS', 'fabricated_percent_forbidden': True, 'requires_retrospective_validation_for_probability': True}"
+      ],
+      "notes": "Probability requires validated model; default is evidence class"
+    },
+    {
+      "item_id": "no_fabricated_pct",
+      "dod_text": "Na ausência de modelo validado, o sistema usa classificação de evidência ou sinais de relicitação, não percentual fabricado.",
+      "status": "PASS",
+      "evidence": [
+        "probability_pct is null; mode EVIDENCE_CLASS"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "confidence_limitations",
+      "dod_text": "Toda previsão apresenta nível de confiança e limitações.",
+      "status": "PASS",
+      "evidence": [
+        "confianca + limitacoes"
+      ],
+      "notes": ""
+    }
+  ],
+  "report_status": "OK",
+  "row_count": 3,
+  "excluded_no_vigencia": 1
+}
