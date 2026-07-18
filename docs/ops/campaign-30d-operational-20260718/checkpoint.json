@@ -2,9 +2,9 @@
   "campaign": "advance-30d-operational-20260718",
   "main_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "epic_branch": "epic/advance-30d-local-ready-20260718",
-  "epic_sha": "e33c87d8e5b5383d9012fc0bedc0afccbf73884f",
-  "current_story": "",
-  "phase": "FORCE_NEXT",
+  "epic_sha": "583d8c235a65381938633272e8bc246125473e64",
+  "current_story": "ROI-cand-dyn-slice-79cd98a48651",
+  "phase": "IMPLEMENTING_WIP",
   "last_completed_story": "ROI-cand-dyn-slice-ec525563e7db",
   "last_qa_verdict": "PASS",
   "open_worktrees": [],
@@ -17,22 +17,13 @@
     "blk-coverage-95",
     "empty_local_pg",
     "tiago_package_accept",
-    "pdf_pages_binary_residual"
+    "pdf_pages_binary_residual",
+    "monthly_monitor_qa_pending"
   ],
-  "next_command": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
-  "updated_at": "2026-07-18T18:51:46.844074+00:00",
+  "next_command": "python3 squads/extra-dod-roi/scripts/cli.py force-next  # after QA close monthly WIP or continue",
+  "updated_at": "2026-07-18T19:01:29.909855+00:00",
   "dod_checked": 437,
   "dod_total": 1354,
-  "stories_closed_session": [
-    "b8d41f",
-    "b3ea2a",
-    "dd7b",
-    "8d8c(A)",
-    "f7e09f(B)",
-    "f07132(C)",
-    "b9dd47(D)",
-    "9fada5(E)",
-    "ec5255(package)"
-  ],
-  "deliverables": "A-E + package final mechanism; live data residual"
+  "session_close": "docs/ops/campaign-30d-operational-20260718/SESSION-CLOSE-20260718.md",
+  "html_rebaseline": "extra-consultoria-plano-executivo.html v1.1 2026-07-18"
 }

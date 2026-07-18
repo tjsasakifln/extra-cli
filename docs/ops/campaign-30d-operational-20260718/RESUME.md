@@ -1,14 +1,19 @@
-# RESUME
+# RESUME — session closed 2026-07-18
 
-**Updated:** 2026-07-18T18:51:46.853067+00:00
-**SHA:** `e33c87d8e5b5383d9012fc0bedc0afccbf73884f`
-**DoD:** 437/1354
+**SHA epic:** `583d8c235a65381938633272e8bc246125473e64`
+**DoD epic:** 437/1354 (32.3%)
 **PR:** https://github.com/tjsasakifln/extra-consultoria/pull/28
+**HTML:** rebaseline 18/07/2026 (437/1354 embed)
 
-## Recovery + 9 stories (A–E + package final)
-## Residual: empty local PG, VPS, Tiago accept, real multi-page PDF volume
+## Closed this campaign wave
+A–E + package final mechanisms; recovery; foundations.
 
+## WIP
+Monthly monitor code on epic — **no DoD flip** until independent QA.
+
+## Next
 ```bash
 git switch epic/advance-30d-local-ready-20260718 && git pull --ff-only
+# finish QA on ROI-cand-dyn-slice-79cd98a48651 OR
 python3 squads/extra-dod-roi/scripts/cli.py force-next
 ```

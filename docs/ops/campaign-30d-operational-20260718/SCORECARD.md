@@ -2,10 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| Epic SHA | `e33c87d8e5b5383d9012fc0bedc0afccbf73884f` |
-| DoD | **437/1354** (baseline 92) |
-| Session stories | 9 closed |
-| A–E + package | mechanisms PASS (fixture); live residual |
+| Epic SHA | `583d8c235a65381938633272e8bc246125473e64` |
+| DoD epic | **437/1354** |
+| Main | `fbc58685` (not merged) |
 | PR | https://github.com/tjsasakifln/extra-consultoria/pull/28 |
+| HTML | v1.1 · 18/07/2026 · 437/1354 embed |
+| A–E + package | mechanisms PASS (fixture) |
+| Monthly monitor | WIP code only |
 | Forbidden | LOCAL_READY, 95%, PRE_VPS, PROJECT_DONE |
-
