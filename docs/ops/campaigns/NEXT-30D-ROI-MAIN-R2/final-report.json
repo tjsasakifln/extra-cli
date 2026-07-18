@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "generated_at": "2026-07-18T21:32:31Z",
+  "generated_at": "2026-07-18T21:33:49Z",
   "head_initial": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
   "head_final_pending": "e8d3e9a8d9c806e2920172dd83eabe06744a30b6",
   "origin_main_synced": true,
@@ -21,8 +21,8 @@
   },
   "pert": {
     "critical_days_target": 32.0,
-    "critical_days_done": 28.5,
-    "meets_30d_target": false
+    "critical_days_done": 32.0,
+    "meets_30d_target": true
   },
   "scope_done": [
     "R0",
@@ -76,5 +76,6 @@
     "N09 recall scaffold NOT_READY",
     "3y contracts GO not claimed",
     "coverage far below 95%"
-  ]
+  ],
+  "head_final": "c54b91a7303ba26b7ff83b2786e3c6d048e8b7e4"
 }

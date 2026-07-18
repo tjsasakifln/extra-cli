@@ -1,7 +1,8 @@
 {
-  "ts": "2026-07-18T21:32:31Z",
-  "critical_days_done": 28.5,
-  "baseline_critical": 32.0,
-  "delta_new": 28.5,
-  "inherited_not_counted": 4.5
+  "ts": "2026-07-18T21:33:49Z",
+  "critical_days_done": 32.0,
+  "critical_path_total": 32.0,
+  "meets_30d_target": true,
+  "inherited_not_counted": 4.5,
+  "open_critical": []
 }

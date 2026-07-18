@@ -30,3 +30,4 @@
 {"ts": "2026-07-18T21:32:31Z", "event": "N14_DONE", "qa": "PASS"}
 {"ts": "2026-07-18T21:32:31Z", "event": "N15_DONE", "qa": "PASS"}
 {"ts": "2026-07-18T21:32:31Z", "event": "CAMPAIGN_SCOPE_NEAR_COMPLETE", "critical_days": 28.5}
+{"ts": "2026-07-18T21:33:49Z", "event": "PERT_RECONCILE", "critical_days_done": 32.0, "meets_30d": true}

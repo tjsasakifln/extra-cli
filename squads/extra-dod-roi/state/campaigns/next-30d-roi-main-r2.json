@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "status": "EXECUTING",
+  "status": "CLOSEABLE",
   "created_at": "2026-07-18T20:39:42Z",
-  "updated_at": "2026-07-18T21:32:31Z",
+  "updated_at": "2026-07-18T21:33:49Z",
   "integration_mode": "main-direct",
   "baseline_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
   "baseline_dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
@@ -125,8 +125,8 @@
     "N11 delivered live operational package without waiting full N06c entity wave",
     "N06c remains open for large coverage collection wave"
   ],
-  "current_head": "e8d3e9a8d9c806e2920172dd83eabe06744a30b6",
+  "current_head": "c54b91a7303ba26b7ff83b2786e3c6d048e8b7e4",
   "current_head_pending": true,
-  "pert_critical_days_done": 28.5,
+  "pert_critical_days_done": 32.0,
   "pert_critical_days_remaining_approx": 22.5
 }
