@@ -729,9 +729,57 @@ def run_snapshot_reconciliation(dsn: str) -> StepRecord:
 # ---------------------------------------------------------------------------
 
 
-def run_reports(dsn: str) -> list[ReportRecord]:
-    """Generate panorama reports (Excel + PDF)."""
+def run_commercial_pack(dsn: str, run_id: str) -> list[ReportRecord]:
+    """Editais/contratos/concorrentes/referências + real PDF file."""
     reports: list[ReportRecord] = []
+    try:
+        from scripts.reports.golden_path_pack import build_pack
+
+        out_dir = _GOLDEN_PATH_DIR / "reports"
+        man = build_pack(dsn=dsn, output_dir=out_dir, run_id=run_id)
+        paths = man.get("paths") or {}
+        for kind in ("editais", "contratos", "concorrentes", "referencias_valores"):
+            p = paths.get(kind)
+            ok = bool(p and Path(p).is_file())
+            reports.append(
+                ReportRecord(
+                    type=kind,
+                    status="generated" if ok else "fail",
+                    path=p if ok else None,
+                    error=None if ok else "missing csv",
+                )
+            )
+            _echo(f"  {kind}: {p if ok else 'FAIL'}", "ok" if ok else "warn")
+        pdf = paths.get("pdf")
+        pdf_ok = bool(pdf and Path(pdf).is_file() and Path(pdf).stat().st_size > 0)
+        reports.append(
+            ReportRecord(
+                type="pdf",
+                status="generated" if pdf_ok else "fail",
+                path=pdf if pdf_ok else None,
+                error=None if pdf_ok else "pdf missing or empty",
+            )
+        )
+        _echo(f"  PDF pack: {pdf if pdf_ok else 'FAIL'}", "ok" if pdf_ok else "warn")
+        for lim in man.get("limitations") or []:
+            _echo(f"  limitation: {lim}", "warn")
+    except Exception as exc:  # noqa: BLE001
+        _echo(f"  commercial pack error: {exc}", "warn")
+        for kind in (
+            "editais",
+            "contratos",
+            "concorrentes",
+            "referencias_valores",
+            "pdf",
+        ):
+            reports.append(ReportRecord(type=kind, status="fail", error=str(exc)))
+    return reports
+
+
+def run_reports(dsn: str, run_id: str | None = None) -> list[ReportRecord]:
+    """Generate panorama Excel + commercial pack (editais/contratos/PDF real)."""
+    reports: list[ReportRecord] = []
+    rid = run_id or f"gp-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
     # --- Excel ---
     _echo("\n>>> Gerando relatorio Excel...", "info")
@@ -765,37 +813,9 @@ def run_reports(dsn: str) -> list[ReportRecord]:
         _echo(f"  Excel report error: {exc}", "warn")
         reports.append(ReportRecord(type="excel", status="fail", error=str(exc)))
 
-    # --- PDF ---
-    _echo("\n>>> Gerando relatorio PDF...", "info")
-    try:
-        result = subprocess.run(  # noqa: S603
-            [
-                sys.executable,
-                str(_SCRIPTS_DIR / "reports" / "panorama.py"),
-                "--output-pdf",
-                "--dsn",
-                dsn,
-            ],
-            cwd=str(_PROJECT_ROOT),
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-        if result.returncode == 0:
-            pdf_files = sorted(
-                (_OUTPUT_DIR / "pdfs").glob("panorama-*.pdf"),
-                key=lambda p: p.stat().st_mtime,
-            )
-            path = str(pdf_files[-1]) if pdf_files else None
-            _echo(f"  PDF: {path or 'generated'}", "ok")
-            reports.append(ReportRecord(type="pdf", status="generated", path=path))
-        else:
-            err = (result.stderr or result.stdout or "")[-300:]
-            _echo(f"  PDF report failed: {err}", "warn")
-            reports.append(ReportRecord(type="pdf", status="fail", error=err))
-    except Exception as exc:
-        _echo(f"  PDF report error: {exc}", "warn")
-        reports.append(ReportRecord(type="pdf", status="fail", error=str(exc)))
+    # --- Commercial pack (editais/contratos/concorrentes/valores + real PDF) ---
+    _echo("\n>>> Gerando pacote comercial (CSV + PDF real)...", "info")
+    reports.extend(run_commercial_pack(dsn, rid))
 
     return reports
 
@@ -1299,7 +1319,7 @@ def main() -> int:
             ReportRecord(type="pdf", status="skipped"),
         ]
     else:
-        report_records = run_reports(dsn)
+        report_records = run_reports(dsn, run_id=run_id)
 
     # =========================================================================
     # Summary

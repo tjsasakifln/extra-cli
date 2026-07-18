@@ -346,9 +346,22 @@ def main():
         filepath = output_dir / f"panorama-{args.uf}-{date.today().isoformat()}.xlsx"
         export_excel(sections, str(filepath))
 
-    # PDF export
+    # PDF export — real file via golden_path_pack (no stub)
     if args.output_pdf:
-        print("⚠️  PDF export via reportlab — integração com generate_report_b2g.py pendente")
+        try:
+            from scripts.reports.golden_path_pack import build_pack
+
+            pdf_dir = _PROJECT_ROOT / "output" / "pdfs"
+            man = build_pack(dsn=DSN, output_dir=pdf_dir)
+            pdf_path = man.get("paths", {}).get("pdf")
+            if pdf_path and Path(pdf_path).is_file() and Path(pdf_path).stat().st_size > 0:
+                print(f"PDF: {pdf_path}")
+            else:
+                print("ERROR: PDF pack did not produce a file", file=sys.stderr)
+                return 1
+        except Exception as exc:  # noqa: BLE001
+            print(f"ERROR: PDF generation failed: {exc}", file=sys.stderr)
+            return 1
 
     return 0
 

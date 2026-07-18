@@ -1,0 +1,31 @@
+{
+  "run_id": "evidence-pack",
+  "status": "ok",
+  "generated_at": "2026-07-18T15:21:54.206957Z",
+  "counts": {
+    "editais": 8,
+    "contratos": 0,
+    "concorrentes": 6,
+    "referencias_valores": 4
+  },
+  "paths": {
+    "editais": "docs/ops/session-2026-07-18-golden-reports/pack/evidence-pack/editais.csv",
+    "contratos": "docs/ops/session-2026-07-18-golden-reports/pack/evidence-pack/contratos.csv",
+    "concorrentes": "docs/ops/session-2026-07-18-golden-reports/pack/evidence-pack/concorrentes.csv",
+    "referencias_valores": "docs/ops/session-2026-07-18-golden-reports/pack/evidence-pack/referencias_valores.csv",
+    "pdf": "docs/ops/session-2026-07-18-golden-reports/pack/evidence-pack/golden-path-pack-2026-07-18.pdf"
+  },
+  "limitations": [
+    "pncp_supplier_contracts vazio ou ausente — relatório de contratos sem linhas.",
+    "Concorrentes derivados de órgãos (fallback) — não são vencedores/fornecedores.",
+    "Não afirmar cobertura operacional 95% nem mercado completo a partir deste pack."
+  ],
+  "git_sha": "c55c905",
+  "claims": {
+    "forbidden": [
+      "PDF gerado sem arquivo no disco",
+      "Cobertura 95% a partir do pack",
+      "Concorrentes = mercado completo"
+    ]
+  }
+}
