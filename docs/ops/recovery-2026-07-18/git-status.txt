@@ -1,0 +1,9 @@
+## epic/advance-30d-local-ready-20260718...origin/epic/advance-30d-local-ready-20260718 [ahead 12]
+ M squads/extra-dod-roi/state/cycles/current.json
+?? .aiox/state/stories/ROI-cand-dyn-slice-b8d41f43fbfc.json
+?? backups/local-proof/proof-extra_test-20260718T134234Z.dump
+?? backups/local-proof/proof-extra_test-20260718T134243Z.dump
+?? docs/ops/recovery-2026-07-18/
+?? docs/stories/ROI-cand-dyn-slice-b8d41f43fbfc.md
+?? output/applicability-matrix/
+?? output/pdfs/

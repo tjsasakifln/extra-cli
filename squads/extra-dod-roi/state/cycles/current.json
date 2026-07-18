@@ -1,38 +1,38 @@
 {
   "version": "1.0.0",
-  "cycle_id": "cyc-2026-07-18T171940Z",
+  "cycle_id": "cyc-2026-07-18T172517Z",
   "mode": "strict",
   "foolproof": true,
   "status": "running",
-  "phase": "PUBLISH",
-  "created_at": "2026-07-18T17:19:40Z",
-  "updated_at": "2026-07-18T17:23:02Z",
-  "selected_id": "cand-dyn-slice:5e47929809f6",
+  "phase": "STORY_DRAFT",
+  "created_at": "2026-07-18T17:25:17Z",
+  "updated_at": "2026-07-18T17:25:17Z",
+  "selected_id": "cand-dyn-slice:b8d41f43fbfc",
   "selected_roi": 1.2261,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
-  "story_id": "ROI-cand-dyn-slice-5e47929809f6",
-  "story_file": "docs/stories/ROI-cand-dyn-slice-5e47929809f6.md",
-  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-5e47929809f6.json",
+  "story_id": "ROI-cand-dyn-slice-b8d41f43fbfc",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-b8d41f43fbfc.md",
+  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-b8d41f43fbfc.json",
   "implementer_agent": "delivery-engineer",
   "qa_agent": "adversarial-qa-auditor",
-  "qa_verdict": "PASS",
+  "qa_verdict": null,
   "aiox_sequence_log": [
     {
-      "at": "2026-07-18T17:19:40Z",
+      "at": "2026-07-18T17:25:17Z",
       "event": "ADVANCE",
       "phase": "RANKED",
       "detail": {
         "to": "RANKED",
         "actor": "force-next",
         "evidence": {
-          "selected_id": "cand-dyn-slice:5e47929809f6",
+          "selected_id": "cand-dyn-slice:b8d41f43fbfc",
           "selected_roi": 1.2261,
           "outcome": null
         }
       }
     },
     {
-      "at": "2026-07-18T17:19:40Z",
+      "at": "2026-07-18T17:25:17Z",
       "event": "ADVANCE",
       "phase": "CARD",
       "detail": {
@@ -44,99 +44,25 @@
       }
     },
     {
-      "at": "2026-07-18T17:19:41Z",
+      "at": "2026-07-18T17:25:17Z",
       "event": "ADVANCE",
       "phase": "STORY_DRAFT",
       "detail": {
         "to": "STORY_DRAFT",
         "actor": "force-next/@sm-materializer",
         "evidence": {
-          "story_id": "ROI-cand-dyn-slice-5e47929809f6",
-          "story_file": "docs/stories/ROI-cand-dyn-slice-5e47929809f6.md",
-          "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-5e47929809f6.json",
+          "story_id": "ROI-cand-dyn-slice-b8d41f43fbfc",
+          "story_file": "docs/stories/ROI-cand-dyn-slice-b8d41f43fbfc.md",
+          "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-b8d41f43fbfc.json",
           "implementer_agent": "delivery-engineer",
           "qa_agent": "adversarial-qa-auditor"
-        }
-      }
-    },
-    {
-      "at": "2026-07-18T17:20:18Z",
-      "event": "ADVANCE",
-      "phase": "STORY_READY",
-      "detail": {
-        "to": "STORY_READY",
-        "actor": "po",
-        "evidence": {
-          "po_validated": true,
-          "verdict": "GO"
-        }
-      }
-    },
-    {
-      "at": "2026-07-18T17:20:19Z",
-      "event": "ADVANCE",
-      "phase": "IMPLEMENTING",
-      "detail": {
-        "to": "IMPLEMENTING",
-        "actor": "delivery-engineer",
-        "evidence": {
-          "branch": "extra-roi/cand-dyn-slice-5e47929809f6"
-        }
-      }
-    },
-    {
-      "at": "2026-07-18T17:22:11Z",
-      "event": "ADVANCE",
-      "phase": "IN_REVIEW",
-      "detail": {
-        "to": "IN_REVIEW",
-        "actor": "delivery-engineer",
-        "evidence": {
-          "commit": "199a2e8"
-        }
-      }
-    },
-    {
-      "at": "2026-07-18T17:22:11Z",
-      "event": "ADVANCE",
-      "phase": "QA",
-      "detail": {
-        "to": "QA",
-        "actor": "delivery-engineer",
-        "evidence": {
-          "handoff": true
-        }
-      }
-    },
-    {
-      "at": "2026-07-18T17:23:01Z",
-      "event": "ADVANCE",
-      "phase": "PO_CLOSE",
-      "detail": {
-        "to": "PO_CLOSE",
-        "actor": "adversarial-qa-auditor",
-        "evidence": {
-          "qa_verdict": "PASS"
-        }
-      }
-    },
-    {
-      "at": "2026-07-18T17:23:02Z",
-      "event": "ADVANCE",
-      "phase": "PUBLISH",
-      "detail": {
-        "to": "PUBLISH",
-        "actor": "po",
-        "evidence": {
-          "po_closed": true,
-          "dod_flipped": []
         }
       }
     }
   ],
   "abort": null,
   "outcome": null,
-  "next_phase_required": "RERANK",
+  "next_phase_required": "STORY_READY",
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",
     "binding": "data/aiox-binding.yaml",

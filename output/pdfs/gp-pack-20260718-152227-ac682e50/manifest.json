@@ -1,0 +1,31 @@
+{
+  "run_id": "gp-pack-20260718-152227-ac682e50",
+  "status": "ok",
+  "generated_at": "2026-07-18T15:22:28.010912Z",
+  "counts": {
+    "editais": 8,
+    "contratos": 0,
+    "concorrentes": 6,
+    "referencias_valores": 4
+  },
+  "paths": {
+    "editais": "/mnt/d/extra consultoria/output/pdfs/gp-pack-20260718-152227-ac682e50/editais.csv",
+    "contratos": "/mnt/d/extra consultoria/output/pdfs/gp-pack-20260718-152227-ac682e50/contratos.csv",
+    "concorrentes": "/mnt/d/extra consultoria/output/pdfs/gp-pack-20260718-152227-ac682e50/concorrentes.csv",
+    "referencias_valores": "/mnt/d/extra consultoria/output/pdfs/gp-pack-20260718-152227-ac682e50/referencias_valores.csv",
+    "pdf": "/mnt/d/extra consultoria/output/pdfs/gp-pack-20260718-152227-ac682e50/golden-path-pack-2026-07-18.pdf"
+  },
+  "limitations": [
+    "pncp_supplier_contracts vazio ou ausente — relatório de contratos sem linhas.",
+    "Concorrentes derivados de órgãos (fallback) — não são vencedores/fornecedores.",
+    "Não afirmar cobertura operacional 95% nem mercado completo a partir deste pack."
+  ],
+  "git_sha": "c55c905",
+  "claims": {
+    "forbidden": [
+      "PDF gerado sem arquivo no disco",
+      "Cobertura 95% a partir do pack",
+      "Concorrentes = mercado completo"
+    ]
+  }
+}

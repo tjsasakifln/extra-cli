@@ -1,0 +1,20 @@
+# Next safe commands (in order)
+
+# 1) Publish unpushed epic work (highest priority)
+git push -u origin epic/advance-30d-local-ready-20260718
+
+# 2) Publish rescue pointer branch
+git push -u origin rescue/interrupted-session-20260718-20260718T174132Z
+
+# 3) After recovery commit of WIP story/state:
+# git push origin epic/advance-30d-local-ready-20260718
+
+# 4) Resume AIOX on ranking[0] incomplete cycle (do NOT force-next if cycle is STORY_DRAFT)
+# Continue: @po STORY_READY for ROI-cand-dyn-slice-b8d41f43fbfc
+# Then enforce implement → @dev → independent @qa → @po close → publish → force-next
+
+python3 squads/extra-dod-roi/scripts/cli.py status
+python3 squads/extra-dod-roi/scripts/cli.py scan-state
+
+# Only when current cycle is CLOSED or no active STORY_DRAFT:
+# python3 squads/extra-dod-roi/scripts/cli.py force-next

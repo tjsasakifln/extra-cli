@@ -1,0 +1,4 @@
+pwd: /mnt/d/extra consultoria
+date_utc: 2026-07-18T17:41:32+00:00
+user: tjsasakifln
+hostname: CMTESASAKI
