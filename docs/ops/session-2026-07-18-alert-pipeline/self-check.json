@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "destination_probe": {
+    "smtp": false,
+    "webhook": false,
+    "any": false,
+    "env_keys_present": {
+      "NOTIFY_SMTP_HOST": false,
+      "NOTIFY_SMTP_FROM": false,
+      "NOTIFY_SMTP_TO": false,
+      "NOTIFY_WEBHOOK_URL": false
+    }
+  },
+  "first": {
+    "title": "self-check",
+    "fingerprint": "782da15b12526982",
+    "suppressed": false,
+    "suppress_reason": null,
+    "destinations": {
+      "smtp": false,
+      "webhook": false,
+      "any": false,
+      "env_keys_present": {
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": false
+      }
+    },
+    "dry_run": true,
+    "channels": [
+      {
+        "channel": "ledger_fallback",
+        "success": true,
+        "message": "persisted to /tmp/alert-self-qjdsre4e/ledger.jsonl"
+      }
+    ],
+    "fallback_ledger": "/tmp/alert-self-qjdsre4e/ledger.jsonl",
+    "webhook_failure_detectable": true,
+    "has_actionable_context": true
+  },
+  "second_suppressed": true,
+  "status": {
+    "generated_at": "2026-07-18T14:43:07.422183Z",
+    "destination_configured": false,
+    "destinations": {
+      "smtp": false,
+      "webhook": false,
+      "any": false,
+      "env_keys_present": {
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": false
+      }
+    },
+    "dedup_seconds": 900,
+    "rate_limit": 20,
+    "rate_window_seconds": 3600,
+    "ledger_path": "/mnt/d/extra consultoria/output/ops/alert_ledger.jsonl",
+    "capabilities": {
+      "destination_configured": true,
+      "destination_testable": true,
+      "actionable_context": true,
+      "storm_control": true,
+      "rate_limit_or_dedup": true,
+      "webhook_failure_detectable": true,
+      "fallback_persistent": true
+    },
+    "claims": {
+      "forbidden": [
+        "Claim live webhook delivered without --live test",
+        "LOCAL_READY from alert pipeline alone"
+      ]
+    }
+  }
+}
