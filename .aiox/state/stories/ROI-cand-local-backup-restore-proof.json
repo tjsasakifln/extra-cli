@@ -1,0 +1,9 @@
+{
+  "story_id": "ROI-cand-local-backup-restore-proof",
+  "title": "Local backup/restore script evidence \u00a714 (3 flips)",
+  "status": "Done",
+  "po_closed": true,
+  "qa_verdict": "PASS",
+  "risk_level": "STANDARD",
+  "updated_at": "2026-07-18T00:32:16.259017+00:00"
+}

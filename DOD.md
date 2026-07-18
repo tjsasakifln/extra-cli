@@ -1046,11 +1046,11 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 ## 14. Backup e recuperação local
 
 - [ ] Existe backup local do PostgreSQL.
-- [ ] O backup usa formato restaurável.
+- [x] O backup usa formato restaurável.
 - [ ] O arquivo de backup possui data.
 - [ ] O arquivo de backup possui integridade verificada.
-- [ ] Existe retenção mínima definida.
-- [ ] Existe script de restore.
+- [x] Existe retenção mínima definida.
+- [x] Existe script de restore.
 - [ ] O restore foi testado em banco separado.
 - [ ] O restore recompõe migrations.
 - [ ] O restore recompõe dados.

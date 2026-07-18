@@ -1,0 +1,4 @@
+Backup: pg_dump --format=custom --compress=9 | gzip -c > *.dump.gz
+Restore: gzip -dc *.dump.gz | pg_restore --dbname=$DSN
+Pair is compatible (custom format inside gzip).
+Retention: BACKUP_RETENTION_DAILY default 7, BACKUP_RETENTION_WEEKLY default 4 — applied by prune loop in backup script.

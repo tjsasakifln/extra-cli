@@ -1,0 +1,2 @@
+-rwxrwxrwx 1 tjsasakifln tjsasakifln 14917 Jul 11 12:20 scripts/backup-database.sh
+-rwxrwxrwx 1 tjsasakifln tjsasakifln  8459 Jul 11 12:20 scripts/restore-database.sh
