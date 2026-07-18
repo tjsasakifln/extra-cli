@@ -1,8 +1,8 @@
 {
   "version": "1.2.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "updated_at": "2026-07-18T22:03:55Z",
-  "reference_head": "509abdedc1439632f1eb5f04607e47fa3f1f4e12",
+  "updated_at": "2026-07-18T22:04:32Z",
+  "reference_head": "9f8d8500b6a09bdf4aed0830f836b776f3fc5c08",
   "reference_branch": "main",
   "dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
   "layers": {

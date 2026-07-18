@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-07-18T22:03:55Z",
-  "head": "509abdedc1439632f1eb5f04607e47fa3f1f4e12",
+  "head": "9f8d8500b6a09bdf4aed0830f836b776f3fc5c08",
   "ranked": [
     {
       "id": "NB-02",
@@ -40,5 +40,6 @@
       "pert_days": 3.0
     }
   ],
-  "note": "NB-01 single-process golden_path closed by N01 SUCCESS"
+  "note": "NB-01 single-process golden_path closed by N01 SUCCESS",
+  "updated_at": "2026-07-18T22:04:32Z"
 }
