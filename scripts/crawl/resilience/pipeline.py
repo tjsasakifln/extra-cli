@@ -161,7 +161,7 @@ class OperationalPipeline:
 
             # Stage: persist canonical to PostgreSQL (or null/memory backend)
             db_committed = False
-            if last not in {"evidence_committed", "watermark_committed"}:
+            if last not in {"evidence_committed", "watermark_committed", "db_committed"}:
                 if fetched.status in {"success", "empty_confirmed"}:
                     if self.config.require_db or self.config.execution_mode in {"live", "canary"}:
                         persist_result = self.persistence.persist_canonical(
@@ -194,11 +194,16 @@ class OperationalPipeline:
                             pages_expected=fetched.pages_expected,
                         )
                         db_committed = False  # never operational without require_db
+                    next_stage = "db_committed" if db_committed else "normalized"
+                    # Never regress stage machine (db_committed -> normalized is illegal).
+                    if last == "db_committed" and next_stage == "normalized":
+                        next_stage = "db_committed"
+                        db_committed = True
                     self.stages.advance(
                         source=source,
                         run_id=run_id,
                         request_scope=scope,
-                        stage="db_committed" if db_committed else "normalized",
+                        stage=next_stage,
                         meta={
                             "db_records_committed": persist_result.db_records_committed,
                             "backend": persist_result.backend,
@@ -211,7 +216,8 @@ class OperationalPipeline:
                 else:
                     persist_result = PersistResult(errors=[f"skip_db_due_to_status:{fetched.status}"])
             else:
-                db_committed = prior_db_committed
+                # Resume after DB commit: do not re-persist or regress stage.
+                db_committed = True if last == "db_committed" else prior_db_committed
 
             # Stage: evidence
             if fetched is None:
@@ -420,6 +426,14 @@ class OperationalPipeline:
                 # Already at/after target is fine; other illegal jumps surface.
                 if cp.status == target or cp.completed:
                     continue
+                # Never regress page checkpoints (e.g. db_committed -> normalized).
+                try:
+                    from scripts.crawl.resilience.stages import stage_rank
+
+                    if stage_rank(cp.status) >= stage_rank(target):
+                        continue
+                except Exception:
+                    pass
                 raise
             if cp.status != target:
                 self.checkpoints.promote(cp, target)

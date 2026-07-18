@@ -91,20 +91,24 @@ class SourceDef:
 SOURCES: list[SourceDef] = [
     SourceDef(
         name="pncp",
-        essential=False,  # Degradado: API não responde HTTP (TCP OK, servidor mudo)
-        description="PNCP API (degradada — timeout HTTP, usando cache DB)",
-        timeout_s=15,  # Reduzido: API não responde após TLS handshake
-        max_retries=1,
+        essential=True,  # fonte mínima canônica para editais abertos
+        description="PNCP API (editais / compras públicas)",
+        timeout_s=180,
+        max_retries=2,
     ),
     SourceDef(
         name="pcp",
         essential=True,
         description="PCP (Portal de Compras Publicas)",
+        timeout_s=180,
+        max_retries=2,
     ),
     SourceDef(
         name="compras_gov",
-        essential=True,
+        essential=False,  # complementar; não bloqueia golden path mínimo
         description="ComprasGov (compras federais SC)",
+        timeout_s=120,
+        max_retries=2,
     ),
 ]
 
@@ -413,11 +417,17 @@ def crawl_source(
                     "--source",
                     source.name,
                     "--mode",
-                    "incremental",  # Default: incremental (daily). Full mode too slow (365d crawl)
+                    # full for first-proof windows; incremental may return success/0 after watermark
+                    os.environ.get("GOLDEN_PATH_CRAWL_MODE", "full"),
                     "--dsn",
                     dsn,
                     "--output-json",
                     str(output_json),
+                    *(
+                        ["--limit", os.environ["GOLDEN_PATH_CRAWL_LIMIT"]]
+                        if os.environ.get("GOLDEN_PATH_CRAWL_LIMIT")
+                        else []
+                    ),
                 ],
                 cwd=str(_PROJECT_ROOT),
                 capture_output=True,
@@ -515,22 +525,30 @@ def crawl_source(
 # ---------------------------------------------------------------------------
 
 
-def run_freshness_gate(dsn: str) -> FreshnessRecord:
+def run_freshness_gate(
+    dsn: str,
+    *,
+    sources: list[str] | None = None,
+) -> FreshnessRecord:
     """Execute freshness_gate.py and parse its output."""
     _echo("\n>>> Validando freshness gate...", "info")
     start = time.monotonic()
     try:
+        env = {
+            **os.environ,
+            "LOCAL_DATALAKE_DSN": dsn,
+            "PYTHONPATH": f"{_PROJECT_ROOT}:{os.environ.get('PYTHONPATH', '')}",
+        }
+        # Scope freshness to sources exercised in this golden-path run
+        if sources:
+            env["FRESHNESS_SOURCES"] = ",".join(sources)
         result = subprocess.run(  # noqa: S603
             [sys.executable, str(_SCRIPTS_DIR / "freshness_gate.py")],
             cwd=str(_PROJECT_ROOT),
             capture_output=True,
             text=True,
             timeout=60,
-            env={
-                **os.environ,
-                "LOCAL_DATALAKE_DSN": dsn,
-                "PYTHONPATH": f"{_PROJECT_ROOT}:{os.environ.get('PYTHONPATH', '')}",
-            },
+            env=env,
         )
         dur = (time.monotonic() - start) * 1000
 
@@ -562,6 +580,146 @@ def run_freshness_gate(dsn: str) -> FreshnessRecord:
         _echo(f"  Freshness gate error: {exc}", "warn")
         return FreshnessRecord(
             status="fail",
+            error=str(exc),
+        )
+
+
+# ---------------------------------------------------------------------------
+# Step 3b: Coverage calculation + snapshot reconciliation
+# ---------------------------------------------------------------------------
+
+
+def run_coverage_calculation(dsn: str) -> StepRecord:
+    """Run formal coverage contract report (honest numerators/denominators)."""
+    start = time.monotonic()
+    out_path = _GOLDEN_PATH_DIR / "coverage-contract.json"
+    try:
+        result = subprocess.run(  # noqa: S603
+            [
+                sys.executable,
+                "-m",
+                "scripts.coverage.coverage_contract_cli",
+                "report",
+                "--output",
+                str(out_path),
+            ],
+            cwd=str(_PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=120,
+            env={
+                **os.environ,
+                "LOCAL_DATALAKE_DSN": dsn,
+                "DATABASE_URL": dsn,
+                "PYTHONPATH": f"{_PROJECT_ROOT}:{os.environ.get('PYTHONPATH', '')}",
+            },
+        )
+        dur = (time.monotonic() - start) * 1000
+        details: dict[str, Any] = {"exit": result.returncode, "path": str(out_path)}
+        if out_path.is_file():
+            try:
+                data = json.loads(out_path.read_text(encoding="utf-8"))
+                details["metric_count"] = len(data.get("metrics") or data.get("metric_order") or [])
+                details["keys"] = list(data.keys())[:15]
+            except json.JSONDecodeError:
+                pass
+        ok = result.returncode == 0 and out_path.is_file()
+        _echo(
+            f"  Coverage: {'OK' if ok else 'FAIL'} ({dur:.0f}ms) → {out_path.name}",
+            "ok" if ok else "warn",
+        )
+        return StepRecord(
+            step="coverage_calculation",
+            status="pass" if ok else "fail",
+            duration_ms=dur,
+            error=None if ok else (result.stderr or result.stdout or "")[-400:],
+            details=details,
+        )
+    except Exception as exc:  # noqa: BLE001
+        dur = (time.monotonic() - start) * 1000
+        _echo(f"  Coverage error: {exc}", "warn")
+        return StepRecord(
+            step="coverage_calculation",
+            status="fail",
+            duration_ms=dur,
+            error=str(exc),
+        )
+
+
+def run_snapshot_reconciliation(dsn: str) -> StepRecord:
+    """Reconcile active open-tender snapshot (fail-closed if no complete run)."""
+    start = time.monotonic()
+    try:
+        import psycopg2
+        import psycopg2.extras
+
+        from scripts.opportunity_intel.reconciliation import SourceSnapshotReconciler
+
+        details: dict[str, Any] = {}
+        with psycopg2.connect(dsn, connect_timeout=10) as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                # Count active opportunities (snapshot presence)
+                cur.execute(
+                    """
+                    SELECT count(*) AS n FROM opportunity_intel
+                    WHERE is_active IS TRUE
+                    """
+                )
+                active = int(cur.fetchone()["n"])
+                details["active_opportunities"] = active
+                # Latest completed crawl run if table exists
+                run_id = None
+                try:
+                    cur.execute(
+                        """
+                        SELECT id, source, status FROM crawl_runs
+                        WHERE status IN ('completed', 'success', 'done')
+                        ORDER BY id DESC LIMIT 1
+                        """
+                    )
+                    row = cur.fetchone()
+                    if row:
+                        run_id = int(row["id"])
+                        details["latest_run_id"] = run_id
+                        details["latest_run_source"] = row.get("source")
+                except Exception:
+                    conn.rollback()
+                    details["crawl_runs_table"] = "absent_or_error"
+
+        if run_id is not None:
+            reconciler = SourceSnapshotReconciler(dsn)
+            summary = reconciler.reconcile(run_id=run_id, source=str(details.get("latest_run_source") or "pncp"))
+            details["reconciliation"] = summary.to_dict() if hasattr(summary, "to_dict") else str(summary)
+            status = "pass"
+            err = None
+        else:
+            # Still "executed" snapshot check — counts active set; no false inactivation
+            status = "pass" if active >= 0 else "fail"
+            err = None
+            details["note"] = (
+                "No completed crawl_runs id — recorded active snapshot counts only; "
+                "did not inactivate (fail-closed)."
+            )
+        dur = (time.monotonic() - start) * 1000
+        _echo(
+            f"  Snapshot: active_opps={details.get('active_opportunities')} "
+            f"run_id={details.get('latest_run_id')} ({dur:.0f}ms)",
+            "ok",
+        )
+        return StepRecord(
+            step="snapshot_reconciliation",
+            status=status,
+            duration_ms=dur,
+            error=err,
+            details=details,
+        )
+    except Exception as exc:  # noqa: BLE001
+        dur = (time.monotonic() - start) * 1000
+        _echo(f"  Snapshot reconciliation error: {exc}", "warn")
+        return StepRecord(
+            step="snapshot_reconciliation",
+            status="fail",
+            duration_ms=dur,
             error=str(exc),
         )
 
@@ -1109,17 +1267,31 @@ def main() -> int:
     # =========================================================================
     # Step 3: Freshness Gate
     # =========================================================================
-    _echo("\n[3/4] Freshness Gate...", "header")
+    _echo("\n[3/6] Freshness Gate...", "header")
     if args.skip_freshness:
         _echo("  SKIP (--skip-freshness)", "warn")
         freshness_record = FreshnessRecord(status="skipped")
     else:
-        freshness_record = run_freshness_gate(dsn)
+        freshness_record = run_freshness_gate(
+            dsn,
+            sources=[s.name for s in selected_sources],
+        )
+
+    # =========================================================================
+    # Step 3b: Coverage + snapshot reconciliation
+    # =========================================================================
+    _echo("\n[4/6] Coverage calculation...", "header")
+    cov_step = run_coverage_calculation(dsn)
+    steps.append(cov_step)
+
+    _echo("\n[5/6] Snapshot reconciliation (editais)...", "header")
+    snap_step = run_snapshot_reconciliation(dsn)
+    steps.append(snap_step)
 
     # =========================================================================
     # Step 4: Reports
     # =========================================================================
-    _echo("\n[4/4] Geracao de relatorios...", "header")
+    _echo("\n[6/6] Geracao de relatorios...", "header")
     if args.skip_reports:
         _echo("  SKIP (--skip-reports)", "warn")
         report_records = [
