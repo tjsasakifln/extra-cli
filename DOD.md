@@ -1404,15 +1404,15 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Código existente não é chamado de capacidade pronta. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] Dado antigo não é chamado de dado atual. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `scripts/freshness_gate.py`
 - [x] Presença de dados não é chamada de cobertura. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
-- [ ] Ausência de dados não é chamada de ausência de licitação sem consulta válida.
+- [x] Ausência de dados não é chamada de ausência de licitação sem consulta válida. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
 - [x] Valor contratado não é chamado de preço praticado. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
-- [ ] Vencedor conhecido não é chamado de conjunto completo de concorrentes.
-- [ ] Participante não identificado não é tratado como inexistente.
-- [ ] Win rate não é calculado sem propostas enviadas.
+- [x] Vencedor conhecido não é chamado de conjunto completo de concorrentes. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
+- [x] Participante não identificado não é tratado como inexistente. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
+- [x] Win rate não é calculado sem propostas enviadas. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
 - [x] Deságio não é calculado sem grandezas comparáveis. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
-- [ ] Score não é chamado de probabilidade sem calibração.
-- [ ] Relatórios exibem limitações relevantes.
-- [ ] Nenhum documento afirma que o projeto acompanha obras.
+- [x] Score não é chamado de probabilidade sem calibração. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
+- [x] Relatórios exibem limitações relevantes. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
+- [x] Nenhum documento afirma que o projeto acompanha obras. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
 - [ ] Nenhum documento promete capacidade fora do escopo.
 - [ ] README, PRD, DOD, manifests e relatórios usam as mesmas definições.
 - [ ] Números conflitantes são eliminados ou contextualizados historicamente.

@@ -1,0 +1,163 @@
+{
+  "cycle_id": "cyc-2026-07-18T125719Z",
+  "story_id": "ROI-cand-dyn-slice-d7ab09cdef56",
+  "candidate_id": "cand-dyn-slice:d7ab09cdef56",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:01:17Z",
+  "branch": "extra-roi/cand-claim-language",
+  "reviewed_commit_note": "uncommitted delivery on feature branch (claim_language.py + tests + run_metadata CLAIMS_FORBIDDEN + evidence pack); HEAD base d54ecd8",
+  "self_qa": false,
+  "independence": true,
+  "evidence_pack": "docs/ops/session-2026-07-18-claim-language/",
+  "commands_rerun": [
+    {
+      "cmd": "python3 -m pytest tests/test_claim_language.py -q -o addopts=",
+      "exit": 0,
+      "notes": "9 passed (independent re-run, 1.20s)"
+    },
+    {
+      "cmd": "python3 adversarial falsification harness against scripts.lib.claim_language",
+      "exit": 0,
+      "notes": "Core bad paths blocked; synonym/bypass residuals documented; CLAIMS_FORBIDDEN overlap 7/7 with LANGUAGE_CLAIMS_FORBIDDEN; tests import shipped APIs"
+    }
+  ],
+  "falsification_attempts": [
+    "Empty orphan L1401 text='': implementer did not claim flip; still open. Fail to falsify process honesty — cannot authorize flip.",
+    "absence_is_not_no_tender(has_valid_query=False, text='sem licitação…'): ok=False. Fail to falsify main path.",
+    "absence synonym 'zero editais encontrados' with has_valid_query=False: ok=True (pattern miss). Residual synonym gap — does not break primary rule API.",
+    "absence without text + no valid query: ok=True with recommended_status NOT_CONSULTED (advisory). Acceptable design for non-claiming path.",
+    "winners claim_complete=True: ok=False. Fail to falsify flag path. COMPLETE_MARKET_PATTERNS defined but unused by winners API (text not scanned) — residual.",
+    "unidentified participant_id=None treated_as_nonexistent=True: ok=False; empty string also blocked. Fail to falsify.",
+    "win_rate proposals None/0/-1: ok=False. Fail to falsify denominator guard. Residual: wins>proposals still ok=True (rate>1 allowed).",
+    "score label probabilidade_vitoria uncalibrated: ok=False; ranking_score OK; calibrated probabilidade OK. Residual: 'chance_de_vitoria' and 'prob_vitoria' not blocked.",
+    "report_has_limitations([]) and whitespace-only: ok=False. Fail to falsify.",
+    "text_forbids_works_tracking positive claim: ok=False. Fail to falsify core pattern. Soft synonyms (acompanhamento de obras without 'físico', medicao sem acento) miss — residual. 'exceto …' can false-positive.",
+    "Tests reimplement guards instead of calling shipped code?: Fail to falsify — imports and invokes all 7 public guards + LANGUAGE_CLAIMS_FORBIDDEN.",
+    "run_metadata CLAIMS_FORBIDDEN missing §25 rules?: Fail to falsify — 7/7 LANGUAGE_CLAIMS_FORBIDDEN present in CLAIMS_FORBIDDEN.",
+    "Guards wired into every report CLI?: Successfully note gap — only tests + CLAIMS_FORBIDDEN string list; no runtime import of claim_language in report generators. Same bar as value_semantics library slice; bound claim to executable library rules, not full corpus enforcement."
+  ],
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "claim_language is library + unit-proof only; no production report/CLI path imports and enforces ClaimCheckResult at generation time (only CLAIMS_FORBIDDEN strings extended in run_metadata).",
+      "recommendation": "Follow-up story: wire report_has_limitations / text_forbids_works_tracking / absence guards into canonical report builders and CI scan of docs."
+    },
+    {
+      "severity": "low",
+      "description": "COMPLETE_MARKET_PATTERNS is defined but never used by winners_are_not_complete_competitors (flag-only API).",
+      "recommendation": "Either scan claim text with COMPLETE_MARKET_PATTERNS or drop unused patterns to avoid theater constants."
+    },
+    {
+      "severity": "low",
+      "description": "Pattern synonym gaps: absence ('zero editais'), score ('chance_*', 'prob_*'), works (without 'físico', unaccented medicao).",
+      "recommendation": "Expand pattern lists in a dedicated hardening story if corpus false-greens appear."
+    },
+    {
+      "severity": "low",
+      "description": "win_rate allows wins > proposals_submitted (rate > 1.0) when denominator > 0.",
+      "recommendation": "Optional assert wins <= proposals_submitted or flag details['anomaly']."
+    },
+    {
+      "severity": "low",
+      "description": "Delivery uncommitted on feature branch (claim_language.py, tests, run_metadata, evidence pack).",
+      "recommendation": "@dev commit before @po flip + @devops publish; QA did not commit."
+    }
+  ],
+  "allowed_claims": [
+    "Executable §25 claim-language guards exist in scripts/lib/claim_language.py for absence≠no-tender, winners≠complete market, unidentified≠nonexistent, win_rate needs proposals, score≠probability without calibration, reports need limitations, no physical works-tracking claim.",
+    "Unit tests (9 passed) call shipped guards; independent re-run exit 0.",
+    "CLAIMS_FORBIDDEN in run_metadata extended with 7 LANGUAGE_CLAIMS_FORBIDDEN entries.",
+    "Empty orphan checkbox at DOD.md:1401 remains open (no false green)."
+  ],
+  "forbidden_claims": [
+    "Every historical report CLI path enforces claim_language at runtime.",
+    "Full monorepo document corpus proven free of works-tracking product claims via exhaustive scan.",
+    "Pattern coverage is synonym-complete (zero editais / chance / unaccented forms).",
+    "VPS operational / coverage ≥95% / LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY.",
+    "Empty DoD orphan line is DONE.",
+    "Story Done without PO close / DoD flipped without this independent verdict."
+  ],
+  "dod_flip_authorized": [
+    {
+      "id": "dod:c70748809b8a",
+      "line": 1401,
+      "text": "",
+      "authorized": false,
+      "rationale": "Empty orphan checkbox — no claimable requirement. Leave open. Do not flip."
+    },
+    {
+      "id": "dod:dd7bce70edd5",
+      "line": 1407,
+      "text": "Ausência de dados não é chamada de ausência de licitação sem consulta válida.",
+      "authorized": true,
+      "rationale": "absence_is_not_no_tender blocks labeling absence as 'sem licitação' without valid query; unit tests + LANGUAGE_CLAIMS_FORBIDDEN entry."
+    },
+    {
+      "id": "dod:6efd0042cdf6",
+      "line": 1409,
+      "text": "Vencedor conhecido não é chamado de conjunto completo de concorrentes.",
+      "authorized": true,
+      "rationale": "winners_are_not_complete_competitors(claim_complete=True) → ok=False; tests prove; residual unused text patterns non-blocking for flag API."
+    },
+    {
+      "id": "dod:80d14e0fde46",
+      "line": 1410,
+      "text": "Participante não identificado não é tratado como inexistente.",
+      "authorized": true,
+      "rationale": "unidentified_participant_not_nonexistent blocks treated_as_nonexistent without id; tests prove."
+    },
+    {
+      "id": "dod:77cc81ba0228",
+      "line": 1411,
+      "text": "Win rate não é calculado sem propostas enviadas.",
+      "authorized": true,
+      "rationale": "win_rate requires proposals_submitted > 0; None/0 fail closed; good path returns rate details."
+    },
+    {
+      "id": "dod:82fac986effe",
+      "line": 1413,
+      "text": "Score não é chamado de probabilidade sem calibração.",
+      "authorized": true,
+      "rationale": "score_is_not_probability blocks probabilidade/probability/p(win) without calibrated=True; ranking_score allowed."
+    },
+    {
+      "id": "dod:1dcb8d557280",
+      "line": 1414,
+      "text": "Relatórios exibem limitações relevantes.",
+      "authorized": true,
+      "rationale": "report_has_limitations fails closed on empty/whitespace; bound to executable report-check API (library bar, same class as value_semantics)."
+    },
+    {
+      "id": "dod:6fc839cde908",
+      "line": 1415,
+      "text": "Nenhum documento afirma que o projeto acompanha obras.",
+      "authorized": true,
+      "rationale": "text_forbids_works_tracking + WORKS_TRACKING_PATTERNS block physical works-tracking claims; unit tests + CLAIMS_FORBIDDEN; corpus-wide CI wiring residual medium, not slice blocker under library-proof bar."
+    }
+  ],
+  "dod_items_summary": {
+    "proven_flip_yes": 7,
+    "left_open_flip_no": 1,
+    "total_slice": 8
+  },
+  "ac_trace": [
+    {
+      "ac": "Each of 8 dod_item_ids proven with evidence or left open",
+      "result": "PASS",
+      "evidence": "7 proven with claim_language guards+tests+pack+CLAIMS_FORBIDDEN; 1 empty orphan left open intentionally."
+    },
+    {
+      "ac": "No NOT_APPLICABLE used to hit campaign meta",
+      "result": "PASS",
+      "evidence": "No N/A; orphan left open without false completion."
+    },
+    {
+      "ac": "Independent QA PASS before any [x] flip",
+      "result": "PASS",
+      "evidence": "DOD.md claim-language items still [ ]; this review is independent of delivery-engineer; flip authorization listed per item; DOD.md not modified by QA."
+    }
+  ],
+  "decision_summary": "PASS — 7/8 DoD items proven against shipped claim_language APIs and tests that call them; empty orphan L1401 must stay open. Medium residual: guards not yet wired into all report generators (documented, non-blocking at library bar)."
+}

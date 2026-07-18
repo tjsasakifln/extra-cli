@@ -101,6 +101,14 @@ CLAIMS_FORBIDDEN = [
     "Misturar PDF e Excel de runs diferentes sem reconciliação PASS.",
     "Inferir contratos vincendos a partir de pncp_raw_bids.",
     "Publicar ranking de órgãos como 'mercado completo SC' com N < 20 editais.",
+    # DoD §25 language (scripts.lib.claim_language)
+    "Ausência de dados como ausência de licitação sem consulta válida",
+    "Vencedores observados como conjunto completo de concorrentes",
+    "Participante não identificado tratado como inexistente",
+    "Win rate sem propostas enviadas no denominador",
+    "Score rotulado como probabilidade sem calibração",
+    "Relatório sem limitações relevantes",
+    "Afirmar que o projeto acompanha obras fisicamente",
 ]
 
 
