@@ -102,61 +102,61 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 2.2 Escopo incluído
 
-- [ ] Monitoramento de editais abertos.
-- [ ] Reconciliação de status de editais.
-- [ ] Histórico de editais encerrados quando necessário para análise.
-- [ ] Coleta de contratos dos últimos três anos, no mínimo.
-- [ ] Atualização incremental de contratos após o backfill inicial.
-- [ ] Mapeamento de fornecedores vencedores.
-- [ ] Mapeamento de órgãos contratantes.
-- [ ] Identificação de recorrência de contratação.
-- [ ] Identificação de concentração de vencedores.
-- [ ] Referências de valor estimado.
-- [ ] Referências de valor homologado quando a fonte disponibilizar.
-- [ ] Referências de valor contratado.
-- [ ] Referências de valor pago quando a fonte disponibilizar.
-- [ ] Diferenciação explícita entre os quatro tipos de valor.
-- [ ] Exportação de dados para revisão manual.
-- [ ] Geração de relatórios em PDF e Excel.
-- [ ] Operação por CLI, scripts e arquivos.
-- [ ] Uso local durante o estágio atual.
-- [ ] Operação contínua em VPS no estágio posterior.
-- [ ] Monitoramento recorrente de novas oportunidades e alterações relevantes.
-- [ ] Triagem inicial de edital.
-- [ ] Análise técnica aprofundada de edital quando solicitada.
-- [ ] Análise de planilha orçamentária, composições e BDI quando os documentos estiverem disponíveis.
-- [ ] Comparação de orçamento com referências oficiais e dados de mercado defensáveis.
-- [ ] Apoio à decisão `GO`, `REVIEW` ou `NO_GO`.
-- [ ] Apoio à organização e revisão de proposta, sem assumir assinatura ou responsabilidade da empresa.
-- [ ] Acompanhamento administrativo de contratos: prazos, publicações, aditivos, vigência, renovação e sinais de relicitação.
+- [ ] Monitoramento de editais abertos. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Reconciliação de status de editais. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Histórico de editais encerrados quando necessário para análise. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Coleta de contratos dos últimos três anos, no mínimo. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Atualização incremental de contratos após o backfill inicial. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Mapeamento de fornecedores vencedores. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Mapeamento de órgãos contratantes. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Identificação de recorrência de contratação. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Identificação de concentração de vencedores. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Referências de valor estimado. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Referências de valor homologado quando a fonte disponibilizar. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Referências de valor contratado. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Referências de valor pago quando a fonte disponibilizar. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Diferenciação explícita entre os quatro tipos de valor. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Exportação de dados para revisão manual. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Geração de relatórios em PDF e Excel. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Operação por CLI, scripts e arquivos. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Uso local durante o estágio atual. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Operação contínua em VPS no estágio posterior. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Monitoramento recorrente de novas oportunidades e alterações relevantes. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Triagem inicial de edital. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Análise técnica aprofundada de edital quando solicitada. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Análise de planilha orçamentária, composições e BDI quando os documentos estiverem disponíveis. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Comparação de orçamento com referências oficiais e dados de mercado defensáveis. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Apoio à decisão `GO`, `REVIEW` ou `NO_GO`. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Apoio à organização e revisão de proposta, sem assumir assinatura ou responsabilidade da empresa. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] Acompanhamento administrativo de contratos: prazos, publicações, aditivos, vigência, renovação e sinais de relicitação. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
 
 ### 2.3 Escopo excluído
 
-- [ ] O projeto não contém módulo de diário de obra.
-- [ ] O projeto não contém módulo de medição de obra.
-- [ ] O projeto não contém acompanhamento de avanço físico.
-- [ ] O projeto não contém acompanhamento financeiro da execução da obra.
-- [ ] O projeto não contém gestão de fotos de obra.
-- [ ] O projeto não contém fiscalização de campo.
-- [ ] O projeto não contém gestão de aditivos de execução.
-- [ ] O projeto não contém gestão de riscos de obra.
-- [ ] O projeto não contém gestão de equipes de obra.
-- [ ] O projeto não contém gestão de cronograma físico-financeiro.
-- [ ] O projeto não contém portal para a contratada.
-- [ ] O projeto não contém interface pública.
-- [ ] O projeto não contém multi-tenant.
-- [ ] O projeto não contém cobrança, assinatura ou Stripe.
-- [ ] O projeto não contém autenticação complexa desnecessária.
-- [ ] O projeto não contém dashboard web apenas por conveniência estética.
-- [ ] O projeto não contém Kubernetes, Kafka, Redis ou Elasticsearch sem necessidade comprovada.
-- [ ] O projeto não assina documentos em nome da Extra.
-- [ ] O projeto não protocola propostas ou documentos automaticamente sem ação humana explícita.
-- [ ] O projeto não assume responsabilidade técnica, jurídica, contábil ou comercial pela proposta apresentada pela empresa.
-- [ ] O projeto não substitui advogado em impugnações, recursos ou pareceres jurídicos.
-- [ ] O projeto não representa a empresa presencialmente em sessões de licitação.
-- [ ] O projeto não fornece garantias financeiras, seguros ou crédito.
-- [ ] O projeto não promete habilitação, adjudicação, vitória ou contratação.
-- [ ] O projeto não executa o objeto contratado.
+- [ ] O projeto não contém módulo de diário de obra. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém módulo de medição de obra. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém acompanhamento de avanço físico. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém acompanhamento financeiro da execução da obra. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém gestão de fotos de obra. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém fiscalização de campo. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém gestão de aditivos de execução. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém gestão de riscos de obra. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém gestão de equipes de obra. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém gestão de cronograma físico-financeiro. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém portal para a contratada. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém interface pública. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém multi-tenant. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém cobrança, assinatura ou Stripe. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém autenticação complexa desnecessária. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém dashboard web apenas por conveniência estética. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não contém Kubernetes, Kafka, Redis ou Elasticsearch sem necessidade comprovada. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não assina documentos em nome da Extra. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não protocola propostas ou documentos automaticamente sem ação humana explícita. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não assume responsabilidade técnica, jurídica, contábil ou comercial pela proposta apresentada pela empresa. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não substitui advogado em impugnações, recursos ou pareceres jurídicos. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não representa a empresa presencialmente em sessões de licitação. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não fornece garantias financeiras, seguros ou crédito. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não promete habilitação, adjudicação, vitória ou contratação. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
+- [ ] O projeto não executa o objeto contratado. PARTIAL — capability/path may exist; live operational proof pending (coverage ~0%).
 
 ### 2.4 Usuário e forma de uso
 
