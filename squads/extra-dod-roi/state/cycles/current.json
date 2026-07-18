@@ -4,9 +4,9 @@
   "mode": "strict",
   "foolproof": true,
   "status": "running",
-  "phase": "IMPLEMENTING",
+  "phase": "PO_CLOSE",
   "created_at": "2026-07-18T16:42:26Z",
-  "updated_at": "2026-07-18T17:07:03Z",
+  "updated_at": "2026-07-18T17:17:48Z",
   "selected_id": "cand-dyn-slice:a53bdc0173af",
   "selected_roi": 1.2261,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
@@ -15,7 +15,7 @@
   "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-a53bdc0173af.json",
   "implementer_agent": "delivery-engineer",
   "qa_agent": "adversarial-qa-auditor",
-  "qa_verdict": null,
+  "qa_verdict": "CONCERNS",
   "aiox_sequence_log": [
     {
       "at": "2026-07-18T16:42:26Z",
@@ -85,11 +85,51 @@
           "branch": "extra-roi/cand-dyn-slice-a53bdc0173af"
         }
       }
+    },
+    {
+      "at": "2026-07-18T17:15:15Z",
+      "event": "ADVANCE",
+      "phase": "IN_REVIEW",
+      "detail": {
+        "to": "IN_REVIEW",
+        "actor": "delivery-engineer",
+        "evidence": {
+          "handoff": "squads/extra-dod-roi/state/handoffs/cyc-2026-07-18T164226Z-dev-to-qa.md",
+          "tests": "PASS"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:15:16Z",
+      "event": "ADVANCE",
+      "phase": "QA",
+      "detail": {
+        "to": "QA",
+        "actor": "delivery-engineer",
+        "evidence": {
+          "handoff_ready": true
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:17:48Z",
+      "event": "ADVANCE",
+      "phase": "PO_CLOSE",
+      "detail": {
+        "to": "PO_CLOSE",
+        "actor": "adversarial-qa-auditor",
+        "evidence": {
+          "qa_verdict": "CONCERNS",
+          "qa_file": "squads/extra-dod-roi/state/qa/cyc-2026-07-18T164226Z-qa.json",
+          "reviewed_commit": "1c8e988f084010584e31ac6fa33d3e1be46e17f4",
+          "independence": true
+        }
+      }
     }
   ],
   "abort": null,
   "outcome": null,
-  "next_phase_required": "IN_REVIEW",
+  "next_phase_required": "PUBLISH",
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",
     "binding": "data/aiox-binding.yaml",

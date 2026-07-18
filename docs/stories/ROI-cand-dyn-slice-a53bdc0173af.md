@@ -153,7 +153,7 @@ Revert feature branch commits; never update DoD on failure; no merge.
 - [x] @po validated (Ready)
 - [x] @dev implemented on non-main branch
 - [x] Tests/lint per risk level
-- [ ] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer)
+- [x] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer)
 - [ ] @po closed
 - [ ] @devops draft PR / publish path (no auto-merge)
 - [ ] DoD.md checkboxes only if evidence authorizes
@@ -167,6 +167,63 @@ Revert feature branch commits; never update DoD on failure; no merge.
 | 2026-07-18 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
 | 2026-07-18 | @po (Pax) | GO → Ready; sharpened AC for suite inventory + entity-level freshness; forbid false full-suite green |
 | 2026-07-18 | delivery-engineer | entity_freshness CLI + tests + evidence pack; suite inventory leave-open; handoff to QA |
+
+
+---
+
+## QA Results
+
+**Reviewer:** adversarial-qa-auditor / Quinn (@qa)  
+**Date:** 2026-07-18  
+**Reviewed commit:** `1c8e988f084010584e31ac6fa33d3e1be46e17f4`  
+**Independence:** implementer=`delivery-engineer` ≠ QA (self-QA forbidden)  
+**Verdict:** **CONCERNS**
+
+### Independent re-runs
+
+| Check | Exit | Notes |
+|-------|------|-------|
+| `pytest tests/test_entity_freshness.py -o addopts=''` | 0 | 6 passed |
+| `scripts.coverage.entity_freshness` measure (live DSN) | 0 | num=0 den=1093 pct=0.0 sla=24h READY |
+| same + `--gate --min-pct 95` | 2 | fail-closed correct |
+| SQL `is_active ∧ raio_200km` | 0 | den=1093 authentic; entity_coverage rows=0 |
+| `git show 1c8e988` | 0 | DOD.md not in commit |
+
+### AC traceability
+
+| AC | Result |
+|----|--------|
+| AC1 suite inventory | PASS — leave open honestly (197p/24s critical; 2174 collect; not full-suite green) |
+| AC2 entity freshness | PASS — entity-level JSON/CSV/gaps with entity_id; measure exit 0; gate exit 2 |
+| AC3 process | PASS — independent QA; no DoD flip by implementer; no NOT_APPLICABLE |
+
+### Adversarial falsification
+
+- Measurement is **real on PG**, not fixtures-only.
+- Full suite green **not** falsely claimed.
+- Freshness SLA **not** claimed met at pct=0.
+- Denominator **not** gamed (full 1093, pct honest 0.0).
+
+### Concerns (non-blocking for close)
+
+1. **Claim hygiene (medium):** L33 flip = *measurable* capability only — operational freshness remains 0% (`entity_coverage` empty).
+2. **Operational debt (low):** pipeline must populate `entity_coverage.last_seen_at` before any SLA-met claim.
+3. **Suite debt (low):** `dod:b06848ca7f90` stays open.
+
+### Recommended DoD actions (PO / evidence steward only)
+
+| Item | Action |
+|------|--------|
+| `dod:b06848ca7f90` (L32 suíte global) | **LEAVE OPEN** |
+| `dod:925f2c0e059a` (L33 freshness mensurável) | **FLIP** after PO close, with residual note pct=0 |
+
+### Artifact
+
+- `squads/extra-dod-roi/state/qa/cyc-2026-07-18T164226Z-qa.json`
+- `docs/ops/session-2026-07-18-suite-freshness/QA-VERDICT.md`
+
+**Story status:** remains **InReview** until @po close.
+
 
 ---
 
