@@ -203,19 +203,19 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Entregável B — mapeamento de 15 concorrentes observáveis
 
-- [ ] O sistema consegue selecionar e justificar pelo menos 15 fornecedores vencedores relevantes, quando existirem dados suficientes no recorte.
-- [ ] A seleção dos 15 possui regra reproduzível e configurável.
-- [ ] Cada fornecedor possui CNPJ ou identidade canônica.
-- [ ] Cada fornecedor possui quantidade de contratos identificados.
-- [ ] Cada fornecedor possui valor contratado total.
-- [ ] Cada fornecedor possui ticket contratado médio.
-- [ ] Cada fornecedor possui órgãos em que venceu.
-- [ ] Cada fornecedor possui distribuição geográfica.
-- [ ] Cada fornecedor possui tipos de objeto em que venceu.
-- [ ] Deságio só é apresentado quando valor estimado e valor homologado comparáveis estiverem ligados ao mesmo certame, lote ou item.
-- [ ] Contrato só é chamado de ativo quando houver vigência e status atual suficientes para sustentar a afirmação.
-- [ ] Capacidade operacional disponível de concorrente nunca é afirmada como fato sem evidência; inferências são rotuladas como hipótese.
-- [ ] Quando não houver 15 concorrentes defensáveis, o relatório declara a insuficiência e apresenta todos os casos válidos, sem completar a lista com ruído.
+- [x] O sistema consegue selecionar e justificar pelo menos 15 fornecedores vencedores relevantes, quando existirem dados suficientes no recorte. Evidência: `scripts/ops/deliverable_b_competitors.py` fixture 15/15 + insufficient path; audit 13/13; QA PASS @ `bd23854`. Residual: live DSN empty — not a live market claim.
+- [x] A seleção dos 15 possui regra reproduzível e configurável. Evidência: `SelectionRule` (target_n, sort_keys, min_contracts, uf_filter, require_cnpj).
+- [x] Cada fornecedor possui CNPJ ou identidade canônica. Evidência: normalize_cnpj + require_cnpj filter + tests.
+- [x] Cada fornecedor possui quantidade de contratos identificados. Evidência: campo `n_contratos`.
+- [x] Cada fornecedor possui valor contratado total. Evidência: `valor_contratado_total` + `valor_semantica=CONTRATADO`.
+- [x] Cada fornecedor possui ticket contratado médio. Evidência: `ticket_contratado_medio` + formula.
+- [x] Cada fornecedor possui órgãos em que venceu. Evidência: `orgaos_em_que_venceu`.
+- [x] Cada fornecedor possui distribuição geográfica. Evidência: `distribuicao_geografica`.
+- [x] Cada fornecedor possui tipos de objeto em que venceu. Evidência: `tipos_objeto`.
+- [x] Deságio só é apresentado quando valor estimado e valor homologado comparáveis estiverem ligados ao mesmo certame, lote ou item. Evidência: `desagio_from_pair` fail-closed + tests.
+- [x] Contrato só é chamado de ativo quando houver vigência e status atual suficientes para sustentar a afirmação. Evidência: `active_contract_record` + tests.
+- [x] Capacidade operacional disponível de concorrente nunca é afirmada como fato sem evidência; inferências são rotuladas como hipótese. Evidência: `capacidade_operacional.label=HYPOTHESIS`.
+- [x] Quando não houver 15 concorrentes defensáveis, o relatório declara a insuficiência e apresenta todos os casos válidos, sem completar a lista com ruído. Evidência: insufficient-demo 3/15 + `presented_all_valid`.
 
 #### Entregável C — contratos vincendos em 90 a 180 dias
 

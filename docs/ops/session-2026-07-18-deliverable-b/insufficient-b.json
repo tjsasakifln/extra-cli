@@ -1,0 +1,179 @@
+{
+  "status": "INSUFFICIENT",
+  "deliverable": "B",
+  "title": "Mapeamento de até 15 concorrentes observáveis",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "selection_rule": {
+    "target_n": 15,
+    "min_contracts": 1,
+    "sort_keys": [
+      "n_contratos",
+      "valor_contratado_total"
+    ],
+    "require_cnpj": true,
+    "uf_filter": "SC",
+    "allow_desagio_without_pair": false,
+    "description": "Top 15 by n_contratos,valor_contratado_total with min_contracts>=1; require CNPJ"
+  },
+  "target_n": 15,
+  "valid_count": 3,
+  "rows": [
+    {
+      "rank": 1,
+      "cnpj": "00000001000113",
+      "nome": "Fornecedor Demo 1",
+      "identidade_canonica": "00000001000113",
+      "n_contratos": 19,
+      "valor_contratado_total": 4900000.0,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 257894.74,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Orgao 1",
+        "Orgao 2"
+      ],
+      "distribuicao_geografica": {
+        "SC": 4,
+        "PR": 1
+      },
+      "tipos_objeto": [
+        "reforma_predial",
+        "manutencao_predial"
+      ],
+      "desagio": 10.0,
+      "desagio_status": "PRESENTED",
+      "desagio_evidence": "pair on same certame/lote/item",
+      "contratos_ativos": [
+        {
+          "is_active_claim_allowed": true,
+          "vigencia_inicio": "2025-01-01",
+          "vigencia_fim": "2026-12-31",
+          "status": "ATIVO",
+          "status_as_of": "2026-07-18",
+          "rule": "active requires vigencia_fim + status + status_as_of"
+        }
+      ],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 23900000.0,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=19, valor=4900000.0; min_contracts>=1"
+    },
+    {
+      "rank": 2,
+      "cnpj": "00000002000126",
+      "nome": "Fornecedor Demo 2",
+      "identidade_canonica": "00000002000126",
+      "n_contratos": 18,
+      "valor_contratado_total": 4800000.0,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 266666.67,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Orgao 2",
+        "Orgao 3"
+      ],
+      "distribuicao_geografica": {
+        "SC": 3,
+        "PR": 2
+      },
+      "tipos_objeto": [
+        "reforma_predial"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [
+        {
+          "is_active_claim_allowed": true,
+          "vigencia_inicio": "2025-01-01",
+          "vigencia_fim": "2026-12-31",
+          "status": "ATIVO",
+          "status_as_of": "2026-07-18",
+          "rule": "active requires vigencia_fim + status + status_as_of"
+        }
+      ],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 22800000.0,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=18, valor=4800000.0; min_contracts>=1"
+    },
+    {
+      "rank": 3,
+      "cnpj": "00000003000139",
+      "nome": "Fornecedor Demo 3",
+      "identidade_canonica": "00000003000139",
+      "n_contratos": 17,
+      "valor_contratado_total": 4700000.0,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 276470.59,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Orgao 3",
+        "Orgao 4"
+      ],
+      "distribuicao_geografica": {
+        "SC": 2,
+        "PR": 0
+      },
+      "tipos_objeto": [
+        "reforma_predial",
+        "manutencao_predial"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [
+        {
+          "is_active_claim_allowed": true,
+          "vigencia_inicio": "2025-01-01",
+          "vigencia_fim": "2026-12-31",
+          "status": "ATIVO",
+          "status_as_of": "2026-07-18",
+          "rule": "active requires vigencia_fim + status + status_as_of"
+        }
+      ],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 21700000.0,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=17, valor=4700000.0; min_contracts>=1"
+    }
+  ],
+  "insufficiency": {
+    "insufficient": true,
+    "target_n": 15,
+    "valid_count": 3,
+    "message": "Apenas 3 concorrentes defensáveis no recorte (target 15); lista não completada com ruído",
+    "presented_all_valid": true
+  },
+  "claims_allowed": [
+    "Selected 3 of target 15 with rule Top 15 by n_contratos,valor_contratado_total with min_contracts>=1; require CNPJ",
+    "No padding when insufficient",
+    "Deságio only with comparable pair",
+    "Active claim only with vigencia+status evidence",
+    "Capacity labeled HYPOTHESIS without evidence"
+  ],
+  "claims_forbidden": [
+    "Pad list to 15 with noise",
+    "Deságio without same certame/lote/item pair",
+    "Call contract active without vigencia+status",
+    "State competitor capacity as fact without evidence",
+    "ESTIMADO labeled as CONTRATADO total"
+  ],
+  "generated_at": "2026-07-18T18:23:40Z"
+}
