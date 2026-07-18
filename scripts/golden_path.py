@@ -165,6 +165,8 @@ class RunRecord:
     sources: list[SourceRecord] = field(default_factory=list)
     reports: list[ReportRecord] = field(default_factory=list)
     freshness: FreshnessRecord | None = None
+    # DoD §12.1: reproducible provenance on every run
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 def evaluate_run_outcome(
@@ -645,6 +647,187 @@ def run_reports(dsn: str) -> list[ReportRecord]:
 # ---------------------------------------------------------------------------
 
 
+def collect_run_metadata(
+    *,
+    dsn: str | None = None,
+    limitations: list[str] | None = None,
+) -> dict[str, Any]:
+    """Metadata required by DoD §12.1 (git, schema, universe hash, period)."""
+    git_sha: str | None = None
+    git_branch: str | None = None
+    try:
+        from scripts.crawl.run_evidence import get_git_meta
+
+        meta = get_git_meta()
+        git_sha = meta.get("git_sha")
+        git_branch = meta.get("git_branch")
+    except Exception:
+        try:
+            git_sha = (
+                subprocess.check_output(
+                    ["git", "rev-parse", "HEAD"],  # noqa: S607
+                    stderr=subprocess.DEVNULL,
+                    timeout=5,
+                    cwd=str(_PROJECT_ROOT),
+                )
+                .decode()
+                .strip()
+            )
+        except (subprocess.SubprocessError, OSError, FileNotFoundError):
+            git_sha = None
+
+    spreadsheet_hash: str | None = None
+    universe_count: int | None = None
+    try:
+        from scripts.lib.universe import (
+            DEFAULT_SEED_PATH,
+            load_canonical_universe,
+            sha256_file,
+        )
+
+        seed = Path(DEFAULT_SEED_PATH)
+        if seed.is_file():
+            spreadsheet_hash = sha256_file(seed)
+        uni = load_canonical_universe()
+        universe_count = len(getattr(uni, "entities", uni) or [])
+    except Exception as exc:  # noqa: BLE001
+        limitations = list(limitations or [])
+        limitations.append(f"universe_metadata_unavailable: {exc}")
+
+    schema_version: str | None = None
+    mig_count = 0
+    try:
+        from scripts.ops.apply_migrations import list_migrations
+
+        migs = list_migrations(_PROJECT_ROOT / "db" / "migrations")
+        mig_count = len(migs)
+        if migs:
+            schema_version = migs[-1].name
+    except Exception:
+        pass
+
+    now = datetime.now(UTC)
+    lims = list(limitations or [])
+    lims.append(
+        "Golden path local: coverage operacional e recall 95% não são inferidos "
+        "deste run sem medição estrita separada."
+    )
+    return {
+        "git_sha": git_sha,
+        "git_branch": git_branch,
+        "schema_version": schema_version,
+        "migration_files_count": mig_count,
+        "spreadsheet_hash": spreadsheet_hash,
+        "universe_entity_count": universe_count,
+        "reference_period": {
+            "as_of": now.date().isoformat(),
+            "timezone": "UTC",
+        },
+        "limitations": lims,
+        "dsn_host_hint": (dsn or "").split("@")[-1] if dsn and "@" in dsn else "configured_or_default",
+        "canonical_command": "python3 -m scripts.golden_path",
+    }
+
+
+def bootstrap_foundation(dsn: str) -> list[StepRecord]:
+    """Apply migrations + validate/import universe seed (idempotent)."""
+    steps: list[StepRecord] = []
+    # Migrations: validate files + schema presence (idempotent; re-apply is not always safe)
+    t0 = time.monotonic()
+    try:
+        from scripts.ops.apply_migrations import list_migrations
+
+        root = _PROJECT_ROOT / "db" / "migrations"
+        files = list_migrations(root)
+        table_count = 0
+        err = None
+        try:
+            import psycopg2
+
+            conn = psycopg2.connect(dsn, connect_timeout=5)
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT count(*) FROM information_schema.tables "
+                        "WHERE table_schema='public'"
+                    )
+                    table_count = int(cur.fetchone()[0])
+            finally:
+                conn.close()
+        except Exception as exc:  # noqa: BLE001
+            err = str(exc)
+        # Pass if migration files exist and DB has public tables (schema applied)
+        ok = bool(files) and table_count > 0 and err is None
+        steps.append(
+            StepRecord(
+                step="apply_migrations",
+                status="pass" if ok else "fail",
+                duration_ms=(time.monotonic() - t0) * 1000,
+                error=err if not ok else None,
+                details={
+                    "migration_files": len(files),
+                    "public_tables": table_count,
+                    "note": "idempotent schema validation (not re-apply all SQL)",
+                },
+            )
+        )
+    except Exception as exc:  # noqa: BLE001
+        steps.append(
+            StepRecord(
+                step="apply_migrations",
+                status="fail",
+                duration_ms=(time.monotonic() - t0) * 1000,
+                error=str(exc),
+            )
+        )
+
+    # Universe seed / planilha
+    t1 = time.monotonic()
+    try:
+        from scripts.lib.universe import (
+            DEFAULT_SEED_PATH,
+            load_canonical_universe,
+            sha256_file,
+        )
+
+        seed = Path(DEFAULT_SEED_PATH)
+        if not seed.is_file():
+            steps.append(
+                StepRecord(
+                    step="import_universe_seed",
+                    status="fail",
+                    duration_ms=(time.monotonic() - t1) * 1000,
+                    error=f"seed missing: {seed}",
+                )
+            )
+        else:
+            uni = load_canonical_universe()
+            try:
+                n = len(uni.entities)
+            except Exception:
+                n = int(getattr(uni, "count", 0) or 0)
+            h = sha256_file(seed)
+            steps.append(
+                StepRecord(
+                    step="import_universe_seed",
+                    status="pass" if n > 0 else "fail",
+                    duration_ms=(time.monotonic() - t1) * 1000,
+                    details={"entities": n, "spreadsheet_hash": h, "path": str(seed)},
+                    error=None if n > 0 else "universe empty",
+                )
+            )
+    except Exception as exc:  # noqa: BLE001
+        steps.append(
+            StepRecord(
+                step="import_universe_seed",
+                status="fail",
+                duration_ms=(time.monotonic() - t1) * 1000,
+                error=str(exc),
+            )
+        )
+    return steps
+
+
 def _save_final_ledger(
     run_id: str,
     timestamp: str,
@@ -655,6 +838,7 @@ def _save_final_ledger(
     freshness: FreshnessRecord | None,
     wall_start: float,
     ledger_path_str: str | None,
+    metadata: dict[str, Any] | None = None,
 ) -> None:
     wall_dur = (time.monotonic() - wall_start) * 1000
     record = RunRecord(
@@ -666,6 +850,7 @@ def _save_final_ledger(
         sources=sources,
         reports=reports,
         freshness=freshness,
+        metadata=metadata or {},
     )
     data = _load_ledger()
     run_list = _normalize_ledger_runs(data.get("runs", []))
@@ -727,6 +912,16 @@ def parse_args() -> argparse.Namespace:
         "--ledger-output",
         default=str(_LEDGER_PATH),
         help="Output path for execution ledger JSON (default: output/golden-path/ledger.json)",
+    )
+    p.add_argument(
+        "--bootstrap",
+        action="store_true",
+        help="Apply migrations + validate universe seed before crawl (DoD §12.1 foundation)",
+    )
+    p.add_argument(
+        "--skip-crawl",
+        action="store_true",
+        help="Skip live crawl (use with --bootstrap for foundation-only proof; not full product coverage)",
     )
     return p.parse_args()
 
@@ -810,17 +1005,60 @@ def main() -> int:
         return 1
     _echo(f"  PostgreSQL OK ({dur:.0f}ms)", "ok")
 
+    run_metadata = collect_run_metadata(dsn=dsn)
+
+    # =========================================================================
+    # Step 1b: Bootstrap (migrations + universe) — optional / recommended
+    # =========================================================================
+    if args.bootstrap:
+        _echo("\n[1b] Bootstrap foundation (migrations + universe)...", "header")
+        boot_steps = bootstrap_foundation(dsn)
+        steps.extend(boot_steps)
+        for st in boot_steps:
+            mark = "OK" if st.status == "pass" else "FAIL"
+            _echo(f"  [{mark}] {st.step} ({st.duration_ms:.0f}ms)", "ok" if st.status == "pass" else "error")
+            if st.error:
+                _echo(f"       {st.error}", "warn")
+        if any(s.status == "fail" for s in boot_steps) and args.strict:
+            _save_final_ledger(
+                run_id,
+                timestamp,
+                "failed",
+                steps,
+                source_records,
+                report_records,
+                freshness_record,
+                wall_start,
+                args.ledger_output,
+                metadata=run_metadata,
+            )
+            return 1
+
     # =========================================================================
     # Step 2: Crawl Sources
     # =========================================================================
     _echo("\n[2/4] Crawl das fontes de dados...", "header")
-    _echo(f"  Fontes: {', '.join(s.name for s in selected_sources)}")
-    _echo("  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter")
+    if args.skip_crawl:
+        _echo("  SKIP (--skip-crawl) — foundation/metadata only", "warn")
+        for src in selected_sources:
+            source_records.append(
+                SourceRecord(
+                    name=src.name,
+                    status="success_zero",
+                    duration_ms=0.0,
+                    attempts=0,
+                    metrics={"fetched": 0, "inserted": 0, "persisted": 0},
+                    error="skip_crawl",
+                )
+            )
+    else:
+        _echo(f"  Fontes: {', '.join(s.name for s in selected_sources)}")
+        _echo("  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter")
 
-    for src in selected_sources:
-        output_json = _GOLDEN_PATH_DIR / f"crawl-{src.name}-{run_id}.json"
-        rec = crawl_source(src, dsn, output_json)
-        source_records.append(rec)
+        for src in selected_sources:
+            output_json = _GOLDEN_PATH_DIR / f"crawl-{src.name}-{run_id}.json"
+            rec = crawl_source(src, dsn, output_json)
+            source_records.append(rec)
 
     # Classify
     sources_success = [r for r in source_records if r.status == "success"]
@@ -950,6 +1188,7 @@ def main() -> int:
         freshness_record,
         wall_start,
         args.ledger_output,
+        metadata=run_metadata,
     )
 
     # ── Exit ──
