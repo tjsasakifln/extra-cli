@@ -1,0 +1,37 @@
+[
+  {
+    "script": "scripts/golden_path.py",
+    "mutable_or_destructive": true,
+    "dry_run_applicable": true,
+    "has_dry_run": false,
+    "ok": false
+  },
+  {
+    "script": "scripts/local_datalake.py",
+    "mutable_or_destructive": true,
+    "dry_run_applicable": true,
+    "has_dry_run": false,
+    "ok": false
+  },
+  {
+    "script": "scripts/crawl/monitor.py",
+    "mutable_or_destructive": true,
+    "dry_run_applicable": true,
+    "has_dry_run": true,
+    "ok": true
+  },
+  {
+    "script": "scripts/backup-database.sh",
+    "mutable_or_destructive": true,
+    "dry_run_applicable": true,
+    "has_dry_run": true,
+    "ok": true
+  },
+  {
+    "script": "scripts/restore-database.sh",
+    "mutable_or_destructive": true,
+    "dry_run_applicable": true,
+    "has_dry_run": false,
+    "ok": false
+  }
+]

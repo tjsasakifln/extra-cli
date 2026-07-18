@@ -1,0 +1,112 @@
+{
+  "version": "1.0.0",
+  "cycle_id": "cyc-2026-07-17T221240Z",
+  "story_id": "ROI-cand-qa-po-e3-stories",
+  "candidate_id": "cand-qa-po-e3-stories",
+  "branch": "extra-roi/cand-qa-po-e3-stories",
+  "reviewer": "Quinn (@qa / adversarial-qa-auditor)",
+  "implementer": "delivery-engineer / @dev (Dex)",
+  "independent": true,
+  "reviewed_at": "2026-07-17T22:35:00Z",
+  "reviewed_commit": "a12190c8fca1af0c564de682d1dbc0f9d755e116",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "checklist": {
+    "auditor_not_implementer": "PASS",
+    "independent_e3_s1_gate_file": "PASS",
+    "independent_e3_s2_gate_file": "PASS",
+    "no_ready_seal_changes": "PASS",
+    "no_self_approval": "PASS",
+    "e3_qa_verdicts_set_by_qa_only": "PASS",
+    "po_closed_not_set": "PASS",
+    "status_done_not_set_by_qa": "PASS",
+    "focused_evidence_reproduced": "PASS"
+  },
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "QA gate file with PASS/CONCERNS/FAIL",
+      "result": "PASS",
+      "evidence": [
+        "squads/extra-dod-roi/state/qa/B2G-E3.S1-qa.json verdict=CONCERNS independent=true",
+        "squads/extra-dod-roi/state/qa/B2G-E3.S2-qa.json verdict=CONCERNS independent=true",
+        "this file cyc-2026-07-17T221240Z-qa.json verdict=PASS (process)"
+      ]
+    },
+    {
+      "id": 2,
+      "text": "PO close only after acceptable verdict",
+      "result": "PASS",
+      "evidence": [
+        "E3.S1/S2/ROI po_closed remain false",
+        "next_phase_required=PO_CLOSE; @po owns close",
+        "CONCERNS is acceptable for PO close (not FAIL)"
+      ]
+    },
+    {
+      "id": 3,
+      "text": "No READY seal changes beyond authorized claims",
+      "result": "PASS",
+      "evidence": [
+        "git diff origin/main --stat: no DOD.md changes in branch",
+        "DOD §44 LOCAL_RESILIENCE_READY SUPERSEDED/NOT_READY intact",
+        "DOD §45 PRE_VPS_FINAL_READY NOT_READY intact"
+      ]
+    }
+  ],
+  "product_story_verdicts": {
+    "B2G-E3.S1": {
+      "verdict": "CONCERNS",
+      "gate": "squads/extra-dod-roi/state/qa/B2G-E3.S1-qa.json",
+      "reason": "ACs PASS via focused 24 tests; residual chaos ResilienceConfig fixture drift non-blocking"
+    },
+    "B2G-E3.S2": {
+      "verdict": "CONCERNS",
+      "gate": "squads/extra-dod-roi/state/qa/B2G-E3.S2-qa.json",
+      "reason": "ACs PASS via focused 49 tests; residual chaos+opportunity DB noise non-blocking"
+    }
+  },
+  "diff_scope": {
+    "commits": [
+      "a12190c chore(aiox): evidence pack for independent QA of E3.S1/S2 [ROI-cand-qa-po-e3-stories]"
+    ],
+    "product_code_changed_this_cycle": false,
+    "dod_md_changed": false,
+    "note": "Product E3 implementation already on origin/main@4da296e; this cycle is evidence + independent QA/PO process only"
+  },
+  "issues": [],
+  "residual_observations": [
+    {
+      "severity": "medium",
+      "category": "tests",
+      "description": "Chaos fixture drift + opportunity DB integration failures remain on main broad -k. Documented on E3 gates as CONCERNS residual; follow-up debt, not seal promotion.",
+      "blocks_verdict": false
+    }
+  ],
+  "forbidden_claims_intact": [
+    "LOCAL_RESILIENCE_READY still NOT_READY / destroyed",
+    "PRE_VPS_FINAL_READY still blocked without live canary + PG",
+    "No VPS operational claim",
+    "No self-QA by implementer",
+    "No DoD READY checkbox promotion",
+    "E3 Status not Done (PO only)"
+  ],
+  "commands_reproduced": [
+    {
+      "cmd": "pytest tests/test_fetch_result.py tests/test_crawler_pncp.py tests/test_local_resilience.py -k \"pncp or 429 or rate_limit or fail_closed or FetchResult or status\" -q --no-cov",
+      "exit": 0,
+      "result": "24 passed",
+      "by": "qa",
+      "at": "2026-07-17T22:34:00Z"
+    },
+    {
+      "cmd": "pytest tests/test_checkpoint.py tests/test_dlq.py tests/test_dlq_sync.py tests/test_local_resilience.py tests/test_pipeline_fault.py -k \"checkpoint or resume or dlq\" -q --no-cov",
+      "exit": 0,
+      "result": "49 passed",
+      "by": "qa",
+      "at": "2026-07-17T22:34:30Z"
+    }
+  ],
+  "next_phase_required": "PO_CLOSE",
+  "notes": "ROI process PASS: independent gates written for both E3 stories; implementer left qa_verdict PENDING; no READY seals touched; self-approval risk avoided. Product stories CONCERNS (acceptable) for residual test fixture debt."
+}

@@ -1,0 +1,3 @@
+scripts/golden_path.py:True
+scripts/local_datalake.py:True
+scripts/backup-database.sh:True

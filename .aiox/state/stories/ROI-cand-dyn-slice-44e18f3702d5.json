@@ -1,0 +1,36 @@
+{
+  "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+  "status": "Done",
+  "po_validated": true,
+  "po_closed": true,
+  "qa_verdict": "PASS",
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer",
+  "publication_authorized": true,
+  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "qa_head_sha": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS",
+    "typecheck": "PASS",
+    "build": "NA"
+  },
+  "snapshot_evidence": {
+    "canonical_count": 50,
+    "story_count": 8,
+    "final_head": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+    "at": "2026-07-18T02:43:29Z"
+  },
+  "accepted_item_ids": [
+    "dod:6c7ec05aad2e",
+    "dod:359e8069a6e2",
+    "dod:53b1c23c8206",
+    "dod:fae6b36d1d01",
+    "dod:1427f84c9645",
+    "dod:6509d40fdcc8",
+    "dod:fb39af4bce5e",
+    "dod:0b41faf57890"
+  ],
+  "final_review_note": "Final independent QA recorded at post-canonical commit; meta paths only after content.",
+  "updated_at": "2026-07-18T02:43:29Z"
+}

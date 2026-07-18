@@ -27,7 +27,7 @@ class CompletionFilter(unittest.TestCase):
     def test_coverage_slice_done(self) -> None:
         self.assertTrue(_story_done(ROOT, "ROI-cand-coverage-slice-pending-collection"))
 
-    def test_filter_removes_completed_keeps_scale_candidate(self) -> None:
+    def test_filter_removes_completed_keeps_fresh_dynamic(self) -> None:
         cands = [
             {"id": "cand-qa-po-e3-stories", "status": "UNLOCKED", "title": "e3"},
             {"id": "cand-full-suite-schema-debt", "status": "UNLOCKED", "title": "fs"},
@@ -35,6 +35,12 @@ class CompletionFilter(unittest.TestCase):
             {"id": "cand-coverage-slice-pending-collection", "status": "UNLOCKED", "title": "cov"},
             {"id": "cand-golden-path-pncp-health", "status": "UNLOCKED", "title": "gp"},
             {"id": "cand-coverage-scale-m2-more-entities", "status": "UNLOCKED", "title": "scale"},
+            {
+                "id": "cand-dyn-fresh",
+                "status": "UNLOCKED",
+                "title": "fresh",
+                "dod_item_ids": ["dod:never-accepted-xyz"],
+            },
         ]
         div: list[str] = []
         out = apply_completion_filters(ROOT, cands, div)
@@ -44,7 +50,8 @@ class CompletionFilter(unittest.TestCase):
         self.assertNotIn("cand-workspace-daily-evidence-pack", ids)
         self.assertNotIn("cand-coverage-slice-pending-collection", ids)
         self.assertNotIn("cand-golden-path-pncp-health", ids)
-        self.assertIn("cand-coverage-scale-m2-more-entities", ids)
+        self.assertNotIn("cand-coverage-scale-m2-more-entities", ids)
+        self.assertIn("cand-dyn-fresh", ids)
         self.assertTrue(any("COMPLETED" in d for d in div))
 
 if __name__ == "__main__":

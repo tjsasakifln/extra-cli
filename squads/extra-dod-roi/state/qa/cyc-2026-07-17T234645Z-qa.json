@@ -1,0 +1,137 @@
+{
+  "story_id": "ROI-cand-local-backup-restore-proof",
+  "cycle_id": "cyc-2026-07-17T234645Z",
+  "candidate_id": "cand-local-backup-restore-proof",
+  "branch": "HEAD",
+  "reviewer": "adversarial-qa-auditor (independent)",
+  "implementer": "delivery-engineer",
+  "independence": true,
+  "independent": true,
+  "reviewed_commit": "2ccde42b6f6ec7c02985b5d2eba17f78da5720ad",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "at": "2026-07-17T23:50:00Z",
+  "reviewed_at": "2026-07-17T23:50:00Z",
+  "evidence_pack": "docs/ops/session-2026-07-17-backup-proof/",
+  "checks": [
+    {
+      "id": "auditor_not_implementer",
+      "result": "pass",
+      "notes": "qa-agent=adversarial-qa-auditor != implementer delivery-engineer"
+    },
+    {
+      "id": "scripts_present",
+      "result": "pass",
+      "notes": "scripts/backup-database.sh and scripts/restore-database.sh exist, executable; scripts-present.txt matches"
+    },
+    {
+      "id": "format_fc_custom",
+      "result": "pass",
+      "notes": "backup-database.sh uses pg_dump --format=custom --compress=9; format-notes.txt cites Fc/custom + retention defaults"
+    },
+    {
+      "id": "retention_defined",
+      "result": "pass",
+      "notes": "RETENTION_DAILY default 7, RETENTION_WEEKLY default 4 in backup-database.sh"
+    },
+    {
+      "id": "pg_probe_no_local_pg",
+      "result": "pass",
+      "notes": "Independent probe: both DSNs OperationalError; pack pg-probe.log fail; pg-dump.exit=blocked_no_pg"
+    },
+    {
+      "id": "restore_not_claimed_without_pg",
+      "result": "pass",
+      "notes": "MANIFEST Not proven: Restore testado em DB separado = BLOCKED_EXTERNAL (no local PG); not in proposed-flips"
+    },
+    {
+      "id": "proposed_flips_only_proven",
+      "result": "pass",
+      "notes": "proposed-flips.txt has exactly 3 lines: script restore, formato restaurável (Fc), retenção mínima — matches proven rows only"
+    },
+    {
+      "id": "no_vps_claim",
+      "result": "pass",
+      "notes": "MANIFEST: No VPS backup claims; no LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY"
+    },
+    {
+      "id": "dry_run_evidence",
+      "result": "concerns",
+      "notes": "backup-dry-run.exit claims DRY_EXIT=0 but independent re-run exits 1 (sshfs missing or /var/log permission). Dry-run is NOT in proposed-flips; residual only."
+    },
+    {
+      "id": "dod_premature_flips",
+      "result": "pass",
+      "notes": "DOD.md §14 all items still [ ]; no premature flip"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "Backup file with date recorded",
+      "verdict": "PASS",
+      "evidence": "Honest path: no dump file produced (no PG); MANIFEST marks backup-with-date/integrity NOT proven; not authorized for flip. Scripts + Fc format proven instead."
+    },
+    {
+      "id": 2,
+      "text": "Restore tested or honest BLOCKED_EXTERNAL if no PG",
+      "verdict": "PASS",
+      "evidence": "BLOCKED_EXTERNAL documented in MANIFEST; independent PG probe fails; restore script exists but restore drill not claimed"
+    },
+    {
+      "id": 3,
+      "text": "No claim of VPS backup",
+      "verdict": "PASS",
+      "evidence": "MANIFEST explicit No VPS backup claims; pack is local-only evidence"
+    }
+  ],
+  "residual_concerns": [
+    {
+      "severity": "medium",
+      "description": "backup-dry-run.exit claims DRY_EXIT=0 while dry-run fails (log permission denied; sshfs absent). MANIFEST 'Dry-run executável' overstates success.",
+      "recommendation": "Re-run dry-run with BACKUP_LOG_FILE writable and optional local-only path without sshfs; record true exit. Do not flip dry-run-related DoD items."
+    },
+    {
+      "severity": "low",
+      "description": "Full restore drill, dump-with-date, integrity, migrations/dados/universo recompose remain unproven until local PG available",
+      "recommendation": "When docker compose db is up: pg_dump -Fc → pg_restore to throwaway DB; append evidence before flipping remaining §14 items"
+    }
+  ],
+  "forbidden_claims_check": {
+    "vps_backup": false,
+    "local_resilience_ready": false,
+    "pre_vps_final_ready": false,
+    "restore_tested_without_pg": false,
+    "backup_file_with_date_claimed": false
+  },
+  "steward_authorization": {
+    "may_flip": [
+      "Existe script de restore.",
+      "O backup usa formato restaurável.",
+      "Existe retenção mínima definida."
+    ],
+    "must_not_flip": [
+      "Existe backup local do PostgreSQL.",
+      "O arquivo de backup possui data.",
+      "O arquivo de backup possui integridade verificada.",
+      "O restore foi testado em banco separado.",
+      "O restore recompõe migrations/dados/universo/provenance.",
+      "Um teste de restauração real está registrado...",
+      "LOCAL_RESILIENCE_READY",
+      "PRE_VPS_FINAL_READY",
+      "Any VPS backup claim"
+    ],
+    "source": "docs/ops/session-2026-07-17-backup-proof/proposed-flips.txt",
+    "count": 3
+  },
+  "top_issues": [
+    {
+      "severity": "medium",
+      "category": "evidence-honesty",
+      "description": "DRY_EXIT=0 overclaims; independent dry-run exits 1",
+      "recommendation": "Treat dry-run as attempted-not-clean; not a DoD flip blocker for the 3 authorized items"
+    }
+  ],
+  "waiver": { "active": false },
+  "next": "PO_CLOSE"
+}

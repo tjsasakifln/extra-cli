@@ -11,6 +11,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+from dod_ids import normalize_text, stable_dod_id  # noqa: E402
+
 
 def sha256_file(path: Path) -> str:
     h = hashlib.sha256()
@@ -23,7 +27,7 @@ def parse_dod(path: Path) -> dict[str, Any]:
     lines = text.splitlines()
     items: list[dict[str, Any]] = []
     section = ""
-    section_re = re.compile(r"^(#{1,4})\s+(.*)")
+    section_re = re.compile(r"^(#{1,6})\s+(.*)")
     check_re = re.compile(r"^(\s*)[-*]\s+\[([ xX])\]\s+(.*)$")
 
     for i, line in enumerate(lines, start=1):
@@ -46,12 +50,15 @@ def parse_dod(path: Path) -> dict[str, Any]:
                 classification = "PARTIAL"
             elif "not applicable" in low or "N/A" in body:
                 classification = "NOT_APPLICABLE"
+        sid = stable_dod_id(section, body)
         items.append(
             {
-                "id": f"dod-L{i}",
+                "id": sid,
+                "legacy_line_id": f"dod-L{i}",
                 "line": i,
                 "section": section,
                 "text": body[:500],
+                "text_normalized": normalize_text(body),
                 "checkbox": checked,
                 "classification": classification,
                 "evidence_mentioned": bool(

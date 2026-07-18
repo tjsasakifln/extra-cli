@@ -1,0 +1,69 @@
+{
+  "generated_at": "2026-07-18T02:41:17Z",
+  "proven": [
+    {
+      "section": "19. Deploy reproduzível",
+      "text": "Existe runbook de deploy.",
+      "proven": true,
+      "evidence": "docs/ops/cloud-deployment-plan.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:118ada2e1718",
+      "notes": "regenerated batch4 survivors only"
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Scripts operacionais possuem exit codes consistentes.",
+      "proven": true,
+      "evidence": "docs/ops/session-2026-07-18-campaign-final/ops-universe.json",
+      "command": "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops",
+      "exit_code": 0,
+      "dod_item_id": "dod:0875517557ee",
+      "notes": "regenerated batch4 survivors only"
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve o fora de escopo.",
+      "proven": true,
+      "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:56846a8f3d31",
+      "notes": "regenerated batch4 survivors only"
+    }
+  ],
+  "all": [
+    {
+      "section": "19. Deploy reproduzível",
+      "text": "Existe runbook de deploy.",
+      "proven": true,
+      "evidence": "docs/ops/cloud-deployment-plan.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:118ada2e1718",
+      "notes": "regenerated batch4 survivors only"
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Scripts operacionais possuem exit codes consistentes.",
+      "proven": true,
+      "evidence": "docs/ops/session-2026-07-18-campaign-final/ops-universe.json",
+      "command": "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops",
+      "exit_code": 0,
+      "dod_item_id": "dod:0875517557ee",
+      "notes": "regenerated batch4 survivors only"
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve o fora de escopo.",
+      "proven": true,
+      "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:56846a8f3d31",
+      "notes": "regenerated batch4 survivors only"
+    }
+  ],
+  "audit_matrix_rewritten_at": "2026-07-18T02:41:17Z",
+  "note": "Survivors only; revoked URL/win_rate/score/destructive excluded"
+}

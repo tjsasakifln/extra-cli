@@ -1,0 +1,128 @@
+{
+  "version": "1.0.0",
+  "cycle_id": "cyc-2026-07-17T223227Z",
+  "story_id": "ROI-cand-workspace-daily-evidence-pack",
+  "candidate_id": "cand-workspace-daily-evidence-pack",
+  "branch": "extra-roi/cand-workspace-daily-evidence-pack",
+  "reviewer": "Quinn (@qa / adversarial-qa-auditor)",
+  "implementer": "delivery-engineer / @dev (Dex)",
+  "independent": true,
+  "reviewed_at": "2026-07-17T22:45:00Z",
+  "reviewed_commit": "7d39b895c625122a19a2b7395ad8ca872e2db396",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "checklist": {
+    "auditor_not_implementer": "PASS",
+    "ac1_commands_exit_codes_recorded": "PASS",
+    "ac2_artifacts_under_docs_ops_or_output": "PASS",
+    "ac3_no_false_ready_seals": "PASS",
+    "manifest_honesty_pg_offline": "PASS",
+    "degraded_modes_documented": "PASS",
+    "non_silent_dossier_not_found": "PASS",
+    "ranker_smoke_tests": "PASS",
+    "no_dod_md_changes": "PASS",
+    "po_closed_not_set": "PASS",
+    "status_done_not_set_by_qa": "PASS",
+    "publication_not_authorized": "PASS"
+  },
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "Workspace CLI today/opportunities/dossier/coverage run with exit codes and stdout/stderr recorded (no silent failures)",
+      "result": "PASS",
+      "evidence": [
+        "docs/ops/session-2026-07-17-workspace-evidence/exit_codes.tsv — 10 workspace cmds + pytest",
+        "03 today --json exit=0 pg_available=false",
+        "05 opportunities --status open --limit 5 --json exit=0 status=DEGRADED count=5",
+        "07 coverage --json exit=0 commercial ~10.61% (not 95%)",
+        "09 dossier offline-no-id-probe --json exit=1 status=NOT_FOUND (expected non-silent)",
+        "10 dossier 8504275 --json exit=0 status=OK offline with pg_error present"
+      ]
+    },
+    {
+      "id": 2,
+      "text": "Reproducible evidence pack under docs/ops/session-* and/or output/* with inventory, timestamps, exit codes, key outputs",
+      "result": "PASS",
+      "evidence": [
+        "docs/ops/session-2026-07-17-workspace-evidence/MANIFEST.md",
+        "docs/ops/session-2026-07-17-workspace-evidence/*.{txt,payload.json,tsv}",
+        "output/workspace-evidence-20260717/ mirror + honesty pointer"
+      ]
+    },
+    {
+      "id": 3,
+      "text": "No READY seal elevation; no VPS provision/ops work",
+      "result": "PASS",
+      "evidence": [
+        "git diff origin/main --name-only: no DOD.md",
+        "MANIFEST claims still forbidden: LOCAL_RESILIENCE_READY, PRE_VPS_FINAL_READY, 95% operational coverage, VPS",
+        "Branch scope: evidence pack + ranker honesty only"
+      ]
+    }
+  ],
+  "manifest_spot_check": {
+    "pg_local": "UNAVAILABLE timeout 127.0.0.1:5433 — matches payload pg_error",
+    "today_pg_available": false,
+    "opportunities_status": "DEGRADED",
+    "opportunities_first_id": "8504275",
+    "coverage_commercial_pct": 10.61,
+    "coverage_operational_source_coverage_pct": 0.0,
+    "coverage_disclaimer_present": true,
+    "claimed_operational_95": false,
+    "dossier_bogus": "NOT_FOUND exit=1",
+    "dossier_session_id": "OK offline with pg_error",
+    "ready_seals_claimed": false
+  },
+  "diff_scope": {
+    "commits": [
+      "7d39b89 feat(roi): workspace daily evidence pack + ranker skip completed E3 [ROI-cand-workspace-daily-evidence-pack]"
+    ],
+    "product_workspace_cli_changed": false,
+    "dod_md_changed": false,
+    "ranker_honesty_fix": true,
+    "note": "Evidence pack + squad ranker _story_is_done skip for completed E3/post-merge; workspace CLI itself not modified this cycle"
+  },
+  "issues": [],
+  "residual_observations": [
+    {
+      "severity": "low",
+      "category": "process",
+      "description": "state/cycles/current.json was clobbered by aborted INIT cycles (cyc-2026-07-17T223813Z, T224259Z) while IN_REVIEW cycle cyc-2026-07-17T223227Z remained the real work. QA restored current.json from archive before enforce/advance. Recommend force-next/init not overwrite running cycles.",
+      "blocks_verdict": false
+    },
+    {
+      "severity": "low",
+      "category": "docs",
+      "description": "Coverage payload metric objects use status=READY (schema readiness for computed metrics, e.g. commercial_opportunity_any READY at 10.61%, operational_source_coverage READY at 0%). This is NOT a DoD seal; MANIFEST correctly forbids LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY.",
+      "blocks_verdict": false
+    }
+  ],
+  "forbidden_claims_intact": [
+    "LOCAL_RESILIENCE_READY still NOT_READY / not claimed",
+    "PRE_VPS_FINAL_READY still NOT_READY / not claimed",
+    "No operational coverage ≥95% claim (commercial ~10.61%; operational_source_coverage 0%)",
+    "No VPS operational claim",
+    "No self-QA by implementer",
+    "No DoD READY checkbox promotion",
+    "Story not closed by QA (PO owns close)"
+  ],
+  "commands_reproduced": [
+    {
+      "cmd": "pytest squads/extra-dod-roi/tests/test_squad_smoke.py -q",
+      "exit": 0,
+      "result": "10 passed in ~60s",
+      "by": "qa",
+      "at": "2026-07-17T22:43:00Z"
+    },
+    {
+      "cmd": "python3 squads/extra-dod-roi/scripts/enforce_aiox_path.py qa",
+      "exit": 0,
+      "result": "ok=true qa allowed (after restoring current.json to IN_REVIEW cycle)",
+      "by": "qa",
+      "at": "2026-07-17T22:44:57Z"
+    }
+  ],
+  "evidence_pack": "docs/ops/session-2026-07-17-workspace-evidence/MANIFEST.md",
+  "next_phase_required": "PO_CLOSE",
+  "notes": "Independent QA PASS. All three ACs met with honest offline/degraded captures. Ranker smoke green. No READY seals. Story left open for @po close; no push."
+}

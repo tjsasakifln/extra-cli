@@ -1,0 +1,3 @@
+markers present: unit, slow, integration, e2e, database
+default addopts excludes slow
+on-demand: pytest -m integration OR pytest -m e2e

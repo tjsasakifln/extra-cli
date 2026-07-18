@@ -1,0 +1,117 @@
+{
+  "version": "1.0.0",
+  "cycle_id": "cyc-2026-07-17T220059Z",
+  "story_id": "ROI-cand-post-merge-truth-gate-honesty",
+  "candidate_id": "cand-post-merge-truth-gate-honesty",
+  "branch": "extra-roi/cand-post-merge-truth-gate-honesty",
+  "reviewer": "Quinn (@qa / adversarial-qa-auditor)",
+  "implementer": "delivery-engineer / @dev (Dex)",
+  "independent": true,
+  "reviewed_at": "2026-07-17T22:07:30Z",
+  "reviewed_commit": "001cb2d4e354410f90b7f7fa1c30b4385f76dca5",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "checklist": {
+    "auditor_not_implementer": "PASS",
+    "diff_matches_execution_card_scope": "PASS",
+    "happy_path_tested": "PASS",
+    "failure_path_tested": "PASS",
+    "false_green_hunt": "PASS",
+    "claims_vs_evidence": "PASS",
+    "no_product_rewrite_outside_scope": "PASS",
+    "no_self_qa": "PASS",
+    "no_premature_dod_ready": "PASS",
+    "no_false_ready_seals": "PASS"
+  },
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "make pre-vps-final-gate-offline green on main",
+      "result": "PASS",
+      "evidence": [
+        "implementer log: make pre-vps-final-gate-offline EXIT 0",
+        "resilience offline: 48 passed, 2 deselected",
+        "fixture cycle TEST_HEALTHY exit 0; claim mechanics-only",
+        "ruff + mypy resilience/ops pass via gate",
+        "QA fixture health re-check: EXIT 0 claim=fixture/test mechanics only"
+      ]
+    },
+    {
+      "id": 2,
+      "text": "DOD/docs still forbid LOCAL_RESILIENCE_READY and PRE_VPS_FINAL_READY without live proof",
+      "result": "PASS",
+      "evidence": [
+        "DOD.md §44 SUPERSEDED → NOT_READY; §45 residual PRE_VPS_FINAL_READY NOT_READY",
+        "README.md: NOT_READY for PRE_VPS_FINAL_READY; LOCAL_RESILIENCE_READY destroyed",
+        "docs/operations/PRE-VPS-FINAL-TRUTH.md §1 NOT_READY + §12 honesty audit",
+        "docs/operations/PRE-VPS-READINESS.md / PRE-VPS-FINAL-ADVERSARIAL-AUDIT.md seals destroyed",
+        "Story branch diff only appends §12 non-claims; no seal restore"
+      ]
+    },
+    {
+      "id": 3,
+      "text": "No new false-green health path introduced",
+      "result": "PASS",
+      "evidence": [
+        "QA re-run: python3 -m scripts.ops.health --env development → EXIT 2",
+        "status=no_live_evidence; claim=no live operational evidence",
+        "No scripts/ product changes in main...HEAD story commits"
+      ]
+    }
+  ],
+  "diff_scope": {
+    "commits": [
+      "b35091f docs(ops): post-merge offline gate revalidation note",
+      "001cb2d chore(aiox): story InReview + dev→qa handoff"
+    ],
+    "files": [
+      "docs/operations/PRE-VPS-FINAL-TRUTH.md",
+      "docs/stories/ROI-cand-post-merge-truth-gate-honesty.md",
+      ".aiox/state/stories/ROI-cand-post-merge-truth-gate-honesty.json",
+      "squads/extra-dod-roi/state/handoffs/cyc-2026-07-17T220059Z-dev-to-qa.md"
+    ],
+    "product_code_changed": false,
+    "dod_md_changed": false
+  },
+  "issues": [],
+  "residual_observations": [
+    {
+      "severity": "low",
+      "category": "docs",
+      "description": "Historical brownfield narratives (docs/prd/technical-debt-assessment.md, docs/reports/TECHNICAL-DEBT-REPORT.md) still use old LOCAL_RESILIENCE_READY wording. Authoritative seals remain NOT_READY in DOD §44/§45 + docs/operations/PRE-VPS-*.",
+      "recommendation": "Optional separate ROI candidate for doc reconcile; out of planned_files for this card.",
+      "blocks_verdict": false
+    }
+  ],
+  "forbidden_claims_intact": [
+    "LOCAL_RESILIENCE_READY still NOT_READY / destroyed",
+    "PRE_VPS_FINAL_READY still blocked without live canary + PG",
+    "No VPS operational claim",
+    "No self-QA by implementer",
+    "No DoD READY checkbox promotion"
+  ],
+  "commands_reproduced": [
+    {
+      "cmd": "python3 -m scripts.ops.health --env development",
+      "exit": 2,
+      "by": "qa",
+      "at": "2026-07-17T22:06:26Z"
+    },
+    {
+      "cmd": "python3 -m scripts.ops.health --env fixture",
+      "exit": 0,
+      "by": "qa",
+      "at": "2026-07-17T22:06:52Z",
+      "claim": "fixture/test mechanics only"
+    },
+    {
+      "cmd": "make pre-vps-final-gate-offline",
+      "exit": 0,
+      "by": "implementer",
+      "log": "/tmp/grok-goal-00184141f517/implementer/extra-roi-tests-cand-post-merge-truth-gate-honesty.log",
+      "trusted_with_spot_check": true
+    }
+  ],
+  "next_phase_required": "PO_CLOSE",
+  "notes": "Verification-only story; residual honesty note §12 is appropriate. Independent QA confirms offline green + live fail-closed + no false READY seals."
+}

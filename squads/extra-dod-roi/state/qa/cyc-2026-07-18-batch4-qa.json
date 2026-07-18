@@ -1,0 +1,45 @@
+{
+  "verdict": "PASS",
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer",
+  "self_qa": false,
+  "story_id": "ROI-campaign-batch4-ops-docs",
+  "reviewed_commit": "",
+  "summary": {
+    "PASS": 3,
+    "FAIL": 0,
+    "CONCERNS": 0,
+    "total": 3
+  },
+  "items": [
+    {
+      "dod_item_id": "dod:118ada2e1718",
+      "text": "Existe runbook de deploy.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/cloud-deployment-plan.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback"
+    },
+    {
+      "dod_item_id": "dod:0875517557ee",
+      "text": "Scripts operacionais possuem exit codes consistentes.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/session-2026-07-18-campaign-final/ops-universe.json",
+      "command": "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops"
+    },
+    {
+      "dod_item_id": "dod:56846a8f3d31",
+      "text": "README descreve o fora de escopo.",
+      "verdict": "PASS",
+      "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\""
+    }
+  ],
+  "not_claimed": [
+    "URLs de fontes são centralizadas",
+    "Win rate sem propostas",
+    "Score como probabilidade",
+    "Scripts destrutivos exigem confirmação"
+  ],
+  "updated_at": "2026-07-18T02:41:17Z",
+  "regenerated": true
+}

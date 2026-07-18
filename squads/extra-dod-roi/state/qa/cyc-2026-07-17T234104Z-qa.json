@@ -1,0 +1,122 @@
+{
+  "story_id": "ROI-cand-coverage-m2-multisource-artifacts",
+  "cycle_id": "cyc-2026-07-17T234104Z",
+  "candidate_id": "cand-coverage-m2-multisource-artifacts",
+  "branch": "extra-roi/cand-coverage-m2-multisource-artifacts",
+  "reviewer": "adversarial-qa-auditor (independent)",
+  "implementer": "delivery-engineer",
+  "independence": true,
+  "independent": true,
+  "reviewed_commit": "3fd96b6050985d8875f687f9ea4fd0f6d5f319c2",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "at": "2026-07-17T23:45:34Z",
+  "reviewed_at": "2026-07-17T23:45:34Z",
+  "evidence_pack": "docs/ops/session-2026-07-17-coverage-multisource/",
+  "checks": [
+    {
+      "id": "auditor_not_implementer",
+      "result": "pass",
+      "notes": "qa-agent=adversarial-qa-auditor != implementer delivery-engineer"
+    },
+    {
+      "id": "ac1_m2_numerator_increases",
+      "result": "pass",
+      "notes": "Baseline M2=81; after multi-source M2=93; delta=+12 (N>0). Independent EntitySourceRecord+is_strict_operational count=93/1093. multi-result.json m2_before=81 m2_after=93 delta=12."
+    },
+    {
+      "id": "ac2_no_95_claim",
+      "result": "pass",
+      "notes": "operational_source_coverage 93/1093 pct=8.51 << 95; multi-result claims_95=false; MANIFEST Claims 95%?=NO; no invented 95% achievement."
+    },
+    {
+      "id": "ac3_commercial_signal_separate",
+      "result": "pass",
+      "notes": "entities_with_recent_commercial_signal kind=commercial_signal is_coverage_metric=false numerator=116; operational_source_coverage remains separate coverage metric (kind=coverage, 93)."
+    },
+    {
+      "id": "unit_tests_promote_from_evidence",
+      "result": "pass",
+      "notes": "pytest -o addopts='' -q tests/unit/source_registry/test_promote_from_evidence.py → 6 passed"
+    },
+    {
+      "id": "session_artifacts",
+      "result": "pass",
+      "notes": "docs/ops/session-2026-07-17-coverage-multisource/{MANIFEST.md,multi-result.json,contract-report.json} consistent: m2_before=81 m2_after=93 delta=12 pct=8.5087; per_source ciga_dom+2 sc_compras+6 pncp+4"
+    },
+    {
+      "id": "strict_operational_recount",
+      "result": "pass",
+      "notes": "Independent load of data/entity_source_registry.jsonl via EntitySourceRecord + is_strict_operational → 93/1093 (errors=0); matches contract-report operational_source_coverage numerator=93"
+    },
+    {
+      "id": "false_green_hunt",
+      "result": "pass",
+      "notes": "No 95% claim; commercial not rebranded as coverage; denominator fixed 1093; not LOCAL_RESILIENCE/PRE_VPS seals; DOD.md untouched in commit"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "M2 increases vs previous pack (81/1093) OR honest blocker if no new unique matches",
+      "verdict": "PASS",
+      "evidence": "81→93 (+12); is_strict_operational independent recount=93"
+    },
+    {
+      "id": 2,
+      "text": "No 95% claim unless measured",
+      "verdict": "PASS",
+      "evidence": "pct=8.51; claims_95=false; MANIFEST NO"
+    },
+    {
+      "id": 3,
+      "text": "commercial_signal remains separate",
+      "verdict": "PASS",
+      "evidence": "kind=commercial_signal; is_coverage_metric=false; M1=116 vs M2=93"
+    }
+  ],
+  "residual_concerns": [
+    {
+      "severity": "medium",
+      "description": "M2 still 8.51% vs target 95% — multi-source progress only; SLA decay will drop numerator without refresh",
+      "recommendation": "Continue multi-source/scale slices; document SLA refresh cadence"
+    },
+    {
+      "severity": "low",
+      "description": "Org-name unique match path for DOM-style records without CNPJ is weaker identity than CNPJ root; false-positive risk if universe has name collisions",
+      "recommendation": "Keep unique-name guard; prefer CNPJ when present"
+    },
+    {
+      "severity": "low",
+      "description": "Offline multi-source artifacts may be stale vs SLA; provenance honest but freshness_coverage remains NOT_READY",
+      "recommendation": "When live crawl available, re-verify SLA window"
+    }
+  ],
+  "forbidden_claims_check": {
+    "claims_95_operational": false,
+    "local_resilience_ready": false,
+    "pre_vps_final_ready": false,
+    "commercial_as_coverage": false
+  },
+  "metrics_observed": {
+    "operational_source_coverage": {
+      "numerator": 93,
+      "denominator": 1093,
+      "pct": 8.51,
+      "kind": "coverage"
+    },
+    "entities_with_recent_commercial_signal": {
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "kind": "commercial_signal"
+    },
+    "m2_before": 81,
+    "m2_after": 93,
+    "delta": 12,
+    "claims_95": false
+  },
+  "top_issues": [],
+  "waiver": { "active": false },
+  "next": "PO_CLOSE"
+}

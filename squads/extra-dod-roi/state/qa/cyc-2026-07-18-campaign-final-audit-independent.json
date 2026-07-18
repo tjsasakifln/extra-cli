@@ -1,0 +1,37 @@
+{
+  "verdict": "PASS",
+  "qa_agent": "independent-adversarial-qa",
+  "implementer_agent": "delivery-engineer",
+  "self_qa": false,
+  "pass_matrix_count": 50,
+  "count_from_diff": 50,
+  "count_from_matrix": 50,
+  "count_from_ledger": 50,
+  "count_from_report": 50,
+  "count_from_story_breakdown": 50,
+  "counts_equal": true,
+  "by_story": {
+    "ROI-campaign-batch2-docs-truth": 25,
+    "ROI-cand-dyn-slice-44e18f3702d5": 8,
+    "ROI-campaign-batch3-ops-config": 13,
+    "ROI-campaign-batch4-ops-docs": 4
+  },
+  "command_reexec_failures": [],
+  "only_pass_counted": true,
+  "remediation": [
+    "dod:d607d46bf66e anchors use corrompido not corrup",
+    "dod:1427f84c9645 pip-audit scoped to requirements.txt"
+  ],
+  "residual_risks": [
+    "Some STATIC proofs are existence+content-pattern, not runtime E2E",
+    "Backup artifact lives under /tmp (meta proof versioned only)",
+    "Full suite skipped on pull_request (workflow_dispatch only)",
+    "dry-run universal claim left open (exceptions in ops universe)",
+    "Local PG backup item remains open; date/integrity proven via test DB dump"
+  ],
+  "full_suite_status": "skipped_on_pr_workflow_dispatch_only",
+  "final_head": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "audited_at": "2026-07-18T02:43:29Z",
+  "notes": "Post-remediation re-audit after independent FAIL on 2 items",
+  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f"
+}

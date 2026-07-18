@@ -1,0 +1,170 @@
+[
+  {
+    "section": "1. Como usar este documento",
+    "text": "Presença de registros no banco não é tratada como prova de cobertura.",
+    "id": "dod:4fec282f18cd",
+    "evidence": "coverage_truth multi-metric; commercial != operational"
+  },
+  {
+    "section": "1. Como usar este documento",
+    "text": "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
+    "id": "dod:fd3bd80c1823",
+    "evidence": "campaign matrix requires explicit DoD flip + evidence independent of story Done alone"
+  },
+  {
+    "section": "14. Backup e recuperação local",
+    "text": "Existe instrução de recuperação após corrupção local.",
+    "id": "dod:d607d46bf66e",
+    "evidence": "docs/ops/backup.md restore section"
+  },
+  {
+    "section": "14. Backup e recuperação local",
+    "text": "Existe instrução de recuperação após exclusão acidental.",
+    "id": "dod:681f06169ec4",
+    "evidence": "docs/ops/backup.md"
+  },
+  {
+    "section": "14. Backup e recuperação local",
+    "text": "PDFs e anexos não são armazenados no PostgreSQL sem justificativa.",
+    "id": "dod:cfb0abf9ba8b",
+    "evidence": "architecture: raw files outside PG; scripts store metadata/hash not blob by default"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "`READY` significa executado e validado.",
+    "id": "dod:b3a7547e7e36",
+    "evidence": "DOD seals vocabulary + PRE-VPS-FINAL-TRUTH"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "`PARTIAL` significa útil com limitações explícitas.",
+    "id": "dod:c70748809b8a",
+    "evidence": "DOD vocabulary used in partial items"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "`NOT_READY` significa não disponível.",
+    "id": "dod:d833662c1782",
+    "evidence": "DOD vocabulary"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "`BLOCKED` significa impedido por dependência externa ou técnica.",
+    "id": "dod:fbc4c00fd42a",
+    "evidence": "DOD vocabulary + blockers/latest.json"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "Presença de dados não é chamada de cobertura.",
+    "id": "dod:61bc1ee04f3b",
+    "evidence": "DOD multi-metric + scripts/coverage_truth.py"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "Valor contratado não é chamado de preço praticado.",
+    "id": "dod:2009716c98a0",
+    "evidence": "scripts/lib/value_semantics.py + tests/test_value_semantics.py"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "Deságio não é calculado sem grandezas comparáveis.",
+    "id": "dod:bb4b42442519",
+    "evidence": "calculate_desagio returns None for invalid inputs; test_calculate_desagio_invalid_returns_none"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Estrutura de pastas está documentada.",
+    "id": "dod:c4770bb863c9",
+    "evidence": "squads/extra-dod-roi/config/source-tree.md or docs/architecture/"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "README descreve o estado atual real.",
+    "id": "dod:a0a312ac26d9",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "README descreve o escopo.",
+    "id": "dod:d952a141e49a",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "README descreve setup.",
+    "id": "dod:95c60383463e",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "README descreve comandos principais.",
+    "id": "dod:3cf2e1d03427",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "README descreve fontes.",
+    "id": "dod:d264e021534b",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "README descreve métricas de coverage.",
+    "id": "dod:c5e1f0520b32",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe runbook local.",
+    "id": "dod:51600fee2a5c",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe runbook de VPS.",
+    "id": "dod:4622f1cc037a",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe runbook de backup.",
+    "id": "dod:9310ba9c7796",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe runbook de restore.",
+    "id": "dod:a8291c1f624b",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe runbook de fonte quebrada.",
+    "id": "dod:e8e465a54a8d",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe runbook de freshness vencida.",
+    "id": "dod:18e6d1d86bb1",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe matriz de fontes.",
+    "id": "dod:51bc27739185",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe matriz de capabilities.",
+    "id": "dod:eeda93135036",
+    "evidence": "file inventory session batch2"
+  },
+  {
+    "section": "31. Documentação operacional",
+    "text": "Existe registro de blockers.",
+    "id": "dod:c5e29b6c2906",
+    "evidence": "file inventory session batch2"
+  }
+]

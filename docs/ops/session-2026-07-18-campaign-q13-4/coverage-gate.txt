@@ -1,0 +1,25 @@
+coverage_gate threshold=80 for critical modules defined in .coveragerc
+[run]
+source = scripts
+omit =
+    tests/*
+    scripts/crawl/selenium_crawler_adapter.py
+
+[report]
+precision = 1
+show_missing = True
+skip_covered = False
+
+[coverage_gate]
+modules =
+    scripts/opportunity_intel
+    scripts/coverage
+    scripts/contract_intel
+    scripts/pipeline
+    scripts/lib/universe.py
+    scripts/lib/supplier_metrics.py
+    scripts/lib/price_pipeline.py
+    scripts/reports
+threshold = 80
+output = output/coverage/coverage-gate-report.json
+

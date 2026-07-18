@@ -9,7 +9,11 @@ These tests verify:
 
 from __future__ import annotations
 
-from scripts.lib.universe import CANONICAL_UNIVERSE, normalize_cnpj8
+from scripts.lib.universe import (
+    CANONICAL_UNIVERSE,
+    normalize_cnpj8,
+    normalize_codigo_ibge,
+)
 
 # ---------------------------------------------------------------------------
 # Canonical constant
@@ -52,6 +56,22 @@ def test_normalize_cnpj8_short_is_preserved() -> None:
 def test_normalize_cnpj8_empty_string() -> None:
     """Empty string returns empty string."""
     assert normalize_cnpj8("") == ""
+
+
+def test_normalize_codigo_ibge_valid() -> None:
+    """7-digit IBGE codes are accepted (Florianópolis)."""
+    assert normalize_codigo_ibge("4205407") == "4205407"
+    assert normalize_codigo_ibge(4205407) == "4205407"
+    assert normalize_codigo_ibge("4205-407") == "4205407"
+
+
+def test_normalize_codigo_ibge_invalid() -> None:
+    """Wrong length / empty / None are rejected as empty string."""
+    assert normalize_codigo_ibge(None) == ""
+    assert normalize_codigo_ibge("") == ""
+    assert normalize_codigo_ibge("42054") == ""
+    assert normalize_codigo_ibge("42054070") == ""
+    assert normalize_codigo_ibge("abc") == ""
 
 
 def test_normalize_cnpj8_non_digit_chars_only() -> None:

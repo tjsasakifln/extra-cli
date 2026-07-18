@@ -1,0 +1,10 @@
+01-critical-readiness.exit
+01-critical-readiness.txt
+02-critical-skip-reasons.txt
+03-full-suite-collect.txt
+04-marker-breakdown.txt
+05-squad-smoke.txt
+MANIFEST.md
+ci-test-all-snippet.yml
+makefile-test-targets.txt
+pytest.ini.snapshot

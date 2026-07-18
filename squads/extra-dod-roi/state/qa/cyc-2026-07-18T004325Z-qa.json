@@ -1,0 +1,174 @@
+{
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+  "cycle_id": "cyc-2026-07-18T004325Z",
+  "implementer_agent": "delivery-engineer",
+  "qa_agent": "adversarial-qa-auditor",
+  "self_qa": false,
+  "independence": true,
+  "branch": "extra-roi/campaign-dod-50-20260718T003950Z",
+  "evidence_pack": "docs/ops/session-2026-07-18-campaign-q13-4/",
+  "reviewed_at": "2026-07-18T00:50:00Z",
+  "items": [
+    {
+      "dod_text": "§13.4 ruff on altered code",
+      "verdict": "PASS",
+      "evidence": "Independent: `python3 -m ruff check scripts/lib/universe.py scripts/lib/value_semantics.py` → exit 0, 'All checks passed!'. Pack: ruff.exit=EXIT:0, ruff.log matches.",
+      "notes": "Scoped to altered modules only; not full-repo ruff (CI does full scripts/ separately)."
+    },
+    {
+      "dod_text": "§13.4 mypy critical path defined and green",
+      "verdict": "PASS",
+      "evidence": "Path defined in mypy-critical-path.txt (universe.py, value_semantics.py, states.py). Independent project mypy exit 0; pack mypy-critical.exit=EXIT:0. Adversarial strict config (disallow_untyped_defs, no scripts.lib ignore_errors) also exit 0 on the same 3 files.",
+      "notes": "CONCERNS residual: pyproject.toml sets ignore_errors=true for scripts.lib.* — project-config green for 2/3 path files is structurally soft. states.py is NOT ignored and is green. MANIFEST correctly disclaims full-repo mypy (mypy.log shows 76 errors / 14 files). Do NOT flip any full-repo mypy claim."
+    },
+    {
+      "dod_text": "§13.4 pip-audit no untreated known vulns",
+      "verdict": "PASS",
+      "evidence": "Independent: `python3 -m pip_audit --strict -r requirements.txt` → exit 0, 'No known vulnerabilities found'. Pack: pip-audit.exit=EXIT:0, pip-audit.log matches message.",
+      "notes": "CI uses pip-audit --strict; independent re-run with --strict also green."
+    },
+    {
+      "dod_text": "§13.4 no || true in required CI gates",
+      "verdict": "PASS",
+      "evidence": "Scan of .github/workflows/ci.yml: soft_fail_code_hits=0 for `|| true`; continue-on-error only in comments. Pack gate-patterns.txt: hits [] count 0.",
+      "notes": "set +e appears once (lines 332-336) to capture expected health --env development exit 2, then `test \"$code\" -eq 2` fail-closes if not 2. Not a soft-fail of a required gate."
+    },
+    {
+      "dod_text": "§13.4 real-source tests runnable on demand",
+      "verdict": "PASS",
+      "evidence": "pytest.ini markers: integration, e2e, database, slow. Independent: `pytest -m \"integration or e2e\" --collect-only -q -o addopts=` → 106/2020 collected, exit 0. Pack external-markers.txt documents on-demand invocation.",
+      "notes": "Claim is runnable on demand, not that live suite is green without DB/network. test_e2e_external.py marked e2e+integration+slow; default addopts excludes slow — intentional on-demand path."
+    },
+    {
+      "dod_text": "§13.4 coverage minimum defined for critical paths",
+      "verdict": "PASS",
+      "evidence": ".coveragerc [coverage_gate] modules=8 paths (opportunity_intel, coverage, contract_intel, pipeline, universe.py, supplier_metrics.py, price_pipeline.py, reports), threshold=80, output path set. scripts/coverage_gate.py enforces fail-closed (exit 2 below threshold, exit 3 missing .coverage). Pack coverage-gate.txt mirrors config.",
+      "notes": "DEFINED only — not ACHIEVED. Independent coverage_gate run reports .coverage missing (exit path for unmeasured). MANIFEST non-claim accepted. CI cov-fail-under=10 is a separate weaker gate, not the 80% module gate."
+    },
+    {
+      "dod_text": "§13.4 critical code without tests has justification registered",
+      "verdict": "PASS",
+      "evidence": "docs/ops/session-2026-07-17-full-suite-debt/MANIFEST.md + 02-critical-skip-reasons.txt (copied into campaign pack): 24 skips on critical path all attributed to sc_compras API refactoring removal; open debts listed (load_target_universe, schema views needing REQUIRE_TEST_DB, test-all workflow_dispatch only).",
+      "notes": "Registry is skip/debt documentation, not a formal inventory of every untested critical module. Altered modules in this slice (universe, value_semantics) DO have unit tests. Acceptable for DoD wording as justification registered."
+    },
+    {
+      "dod_text": "§13.1 IBGE normalization",
+      "verdict": "PASS",
+      "evidence": "scripts/lib/universe.py:normalize_codigo_ibge (7-digit IBGE). tests/test_universe.py: test_normalize_codigo_ibge_valid + test_normalize_codigo_ibge_invalid. Independent pytest pack: 20 passed exit 0 (includes these).",
+      "notes": "Unit coverage of happy path, punctuation strip, None/empty/wrong-length/non-digit. Not a live IBGE API integration claim."
+    },
+    {
+      "dod_text": "§13.1 value semantics",
+      "verdict": "PASS",
+      "evidence": "scripts/lib/value_semantics.py (ValorSemantica, SOURCE_VALUE_TYPES, calculate_desagio, compute_bid_contract_desagio, aggregate_contract_values). tests/test_value_semantics.py: 7 tests all passing in independent re-run.",
+      "notes": "Asserts PNCP bids=ESTIMADO / contracts=CONTRATADO (not PAGO/GLOBAL), deságio math, aggregation. Fixture/unit only — not live edital→contrato chain (MANIFEST non-claim respected)."
+    }
+  ],
+  "reproduced_commands": [
+    {
+      "cmd": "python3 -m ruff check scripts/lib/universe.py scripts/lib/value_semantics.py",
+      "exit_code": 0
+    },
+    {
+      "cmd": "python3 -m mypy scripts/lib/universe.py scripts/lib/value_semantics.py scripts/coverage/states.py",
+      "exit_code": 0
+    },
+    {
+      "cmd": "python3 -m mypy --config-file=/tmp/mypy-strict-qa.ini scripts/lib/universe.py scripts/lib/value_semantics.py scripts/coverage/states.py",
+      "exit_code": 0,
+      "notes": "Adversarial strict config without scripts.lib ignore_errors"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_value_semantics.py tests/test_universe.py -q -o addopts=",
+      "exit_code": 0,
+      "notes": "20 passed"
+    },
+    {
+      "cmd": "python3 -m pip_audit --strict -r requirements.txt",
+      "exit_code": 0
+    },
+    {
+      "cmd": "python3 -m pytest -m 'integration or e2e' --collect-only -q -o addopts=",
+      "exit_code": 0,
+      "notes": "106 tests collected"
+    },
+    {
+      "cmd": "python3 -m scripts.coverage_gate (no args / help path)",
+      "exit_code": null,
+      "notes": "Tool loads threshold=80 / 8 modules; fails closed without .coverage (not run as measured gate)"
+    }
+  ],
+  "risks": [
+    {
+      "severity": "medium",
+      "description": "pyproject.toml [[tool.mypy.overrides]] ignore_errors=true for scripts.lib.* makes project-config mypy green on universe/value_semantics partially vacuous. Adversarial probe: intentionally untyped scripts/lib module still exits 0 under project config; fails under strict config.",
+      "recommendation": "Remove scripts.lib.* from ignore_errors (or narrow to ignore_missing_imports only) before treating mypy as a hard type gate for lib modules. Keep critical-path command as regression after that."
+    },
+    {
+      "severity": "medium",
+      "description": "Evidence hygiene: docs/ops/session-2026-07-18-campaign-q13-4/mypy.exit claims EXIT:0 while mypy.log ends with 'Found 76 errors in 14 files'. Critical-path artifacts (mypy-critical.*) are consistent; the full-path exit file is not.",
+      "recommendation": "Rewrite mypy.exit to match mypy.log (non-zero) or delete mypy.exit/mypy.log if unused. Steward must not treat mypy.exit as proof of full-repo green."
+    },
+    {
+      "severity": "low",
+      "description": "Coverage minimum is defined (80%) but not measured in this pack; CI still uses --cov-fail-under=10 on a narrower suite.",
+      "recommendation": "Optional follow-up: run pytest --cov + scripts/coverage_gate.py and store report — do not flip any 'coverage achieved' DoD without that."
+    },
+    {
+      "severity": "low",
+      "description": "Real-source/e2e tests are collectable on demand but not executed green in this cycle; many require DB/network.",
+      "recommendation": "Keep claim limited to runnable-on-demand; do not imply live suite green."
+    }
+  ],
+  "falsification_attempts": [
+    {
+      "attempt": "Full-repo mypy green",
+      "result": "FALSIFIED if claimed — mypy.log has 76 errors; MANIFEST correctly non-claims"
+    },
+    {
+      "attempt": "|| true soft-fail in CI required gates",
+      "result": "NOT FALSIFIED — 0 code hits; set +e only asserts expected exit 2"
+    },
+    {
+      "attempt": "mypy critical green only via ignore_errors",
+      "result": "PARTIALLY — ignore_errors applies to scripts.lib, but strict independent check of the 3 files still exit 0"
+    },
+    {
+      "attempt": "Fixture-as-live for IBGE/value semantics",
+      "result": "NOT over-claimed — unit tests only; MANIFEST disclaims live chains"
+    },
+    {
+      "attempt": "Coverage 80% achieved",
+      "result": "NOT claimed — only defined; gate tool lacks .coverage in this session"
+    },
+    {
+      "attempt": "mypy.exit integrity",
+      "result": "FALSIFIED as reliable full-repo signal — exit 0 vs 76 errors in log"
+    }
+  ],
+  "authorized_flips": [
+    "§13.4 ruff no código alterado",
+    "§13.4 mypy caminho crítico definido e verde (scoped path only)",
+    "§13.4 pip-audit sem vulns conhecidas não tratadas",
+    "§13.4 nenhum gate obrigatório com || true",
+    "§13.4 testes fonte real executáveis sob demanda",
+    "§13.4 coverage mínimo definido para caminhos críticos",
+    "§13.4 código crítico sem teste com justificativa registrada",
+    "§13.1 normalização de IBGE",
+    "§13.1 semântica de valores"
+  ],
+  "must_not_flip": [
+    "mypy full-repo green",
+    "coverage 80% achieved / measured",
+    "live e2e/integration suite green without env",
+    "LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY",
+    "live edital→contrato / AEC classification"
+  ],
+  "residual_risks": [
+    "mypy project ignore_errors on scripts.lib; critical path also rechecked green",
+    "stale mypy.log must not claim full-repo green"
+  ],
+  "counting_note": "All 9 item-level PASS; overall PASS for campaign count."
+}

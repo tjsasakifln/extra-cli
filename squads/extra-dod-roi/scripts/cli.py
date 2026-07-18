@@ -10,6 +10,7 @@ Examples:
   python squads/extra-dod-roi/scripts/cli.py show-blockers
   python squads/extra-dod-roi/scripts/cli.py enforce implement
   python squads/extra-dod-roi/scripts/cli.py advance --to STORY_READY --actor po
+  python squads/extra-dod-roi/scripts/cli.py campaign --target-dod-items 50 --resume --fetch
 """
 from __future__ import annotations
 
@@ -39,9 +40,14 @@ def cmd_status(_: argparse.Namespace) -> int:
             "read_only": [
                 "status", "scan-state", "audit-dod", "rank-next",
                 "explain-next", "plan-next", "verify-current", "show-blockers",
+                "campaign", "cycle",
             ],
-            "write_require_permission": ["force-next", "execute-next", "run-cycle", "resume-cycle"],
+            "write_require_permission": [
+                "force-next", "execute-next", "run-cycle", "resume-cycle",
+                "advance", "lock", "enforce",
+            ],
             "foolproof_entry": "force-next",
+            "campaign_entry": "campaign --target-dod-items 50 --resume --fetch",
         },
     }
     if latest_rank.is_file():
@@ -116,6 +122,31 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("cycle", help="Show current cycle state")
 
+    p_camp = sub.add_parser("campaign", help="Resumable DoD campaign (ledger + rank)")
+    p_camp.add_argument("--target-dod-items", type=int, default=50)
+    p_camp.add_argument("--resume", action="store_true")
+    p_camp.add_argument("--fetch", action="store_true")
+    p_camp.add_argument("--status", action="store_true")
+    p_camp.add_argument("--sync-count", action="store_true")
+    p_camp.add_argument(
+        "campaign_action",
+        nargs="?",
+        default=None,
+        choices=["audit-matrix"],
+        help="Optional campaign sub-action (audit-matrix)",
+    )
+    p_camp.add_argument(
+        "--write",
+        action="store_true",
+        help="For audit-matrix: uncheck failures and rewrite packs",
+    )
+    p_camp.add_argument(
+        "--json",
+        action="store_true",
+        dest="campaign_json",
+        help="JSON output for campaign sub-actions",
+    )
+
     args = p.parse_args(argv)
 
     if args.cmd == "status":
@@ -168,6 +199,27 @@ def main(argv: list[str] | None = None) -> int:
         return run_py("cycle_state.py", a)
     if args.cmd == "cycle":
         return run_py("cycle_state.py", ["show"])
+    if args.cmd == "campaign":
+        if getattr(args, "campaign_action", None) == "audit-matrix":
+            a_am = []
+            if args.write:
+                a_am.append("--write")
+            if getattr(args, "campaign_json", False) or True:
+                a_am.append("--json")
+            return run_py("audit_matrix.py", a_am)
+        a = [f"--target-dod-items={args.target_dod_items}"]
+        if args.resume:
+            a.append("--resume")
+        if args.fetch:
+            a.append("--fetch")
+        if args.status:
+            a.append("--status")
+        if args.sync_count:
+            a.append("--sync-count")
+        # default: resume semantics when neither status nor sync-count
+        if not args.status and not args.sync_count and not args.resume:
+            a.append("--resume")
+        return run_py("campaign.py", a)
     return 2
 
 

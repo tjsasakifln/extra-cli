@@ -1,0 +1,141 @@
+{
+  "story_id": "ROI-cand-quality-gates-evidence",
+  "cycle_id": "cyc-2026-07-17T233745Z",
+  "candidate_id": "cand-quality-gates-evidence",
+  "branch": "extra-roi/cand-quality-gates-evidence",
+  "reviewer": "adversarial-qa-auditor (independent)",
+  "implementer": "delivery-engineer",
+  "independence": true,
+  "independent": true,
+  "reviewed_commit": "546f69961dbdb01aa1eda04ec4c7a000ba643d17",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "at": "2026-07-17T23:40:00Z",
+  "reviewed_at": "2026-07-17T23:40:00Z",
+  "evidence_pack": "docs/ops/session-2026-07-17-quality-gates/",
+  "checks": [
+    {
+      "id": "auditor_not_implementer",
+      "result": "pass",
+      "notes": "qa-agent=adversarial-qa-auditor != implementer delivery-engineer"
+    },
+    {
+      "id": "ac1_status_recorded",
+      "result": "pass",
+      "notes": "Pack records ruff/ruff-format/mypy/bandit/pre-commit/pytest with exit files + logs; MANIFEST policy forbids false greens"
+    },
+    {
+      "id": "ac2_ci_fail_closed",
+      "result": "pass",
+      "notes": "Independent: .github/workflows/ci.yml has zero continue-on-error:true (grep count 0); comments assert fail-closed; ci-failclosed.txt matches"
+    },
+    {
+      "id": "ac3_only_real_evidence_flips",
+      "result": "pass",
+      "notes": "proposed-flips.txt (8) omits ruff/mypy/format clean claims; residual debt visible in logs; DoD §13.4 still all [ ] pre-steward"
+    },
+    {
+      "id": "pytest_critical_spotcheck",
+      "result": "pass",
+      "notes": "Artifact 28 passed exit 0; independent re-run pytest -o addopts='' -q tests/test_universe.py tests/unit/coverage/test_coverage_contract.py → 28 passed exit 0"
+    },
+    {
+      "id": "bandit_no_high",
+      "result": "pass",
+      "notes": "bandit.log High:0 (Medium/Low only on scoped paths); BANDIT_EXIT=0 consistent with -ll HIGH filter"
+    },
+    {
+      "id": "precommit_config",
+      "result": "pass",
+      "notes": ".pre-commit-config.yaml present with ruff/mypy hooks; PRECOMMIT_CONFIG=yes"
+    },
+    {
+      "id": "exit_vs_log_honesty",
+      "result": "pass_with_residual",
+      "notes": "RUFF_FORMAT_EXIT=0 / MYPY_EXIT=0 / RUFF_EXIT=0 contradict logs (70 files would reformat; mypy 7 errors; ruff F401/N801/UP037). Pack narrative honest: MANIFEST forbids claiming clean; proposed-flips exclude those. Logs are source of truth for non-authorization."
+    },
+    {
+      "id": "false_green_hunt",
+      "result": "pass",
+      "notes": "No claim of ruff/mypy clean; no LOCAL_RESILIENCE_READY / PRE_VPS / 95% ops; no premature DoD flip"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "ruff/bandit/pre-commit status recorded with exit codes",
+      "verdict": "PASS",
+      "evidence": "docs/ops/session-2026-07-17-quality-gates/{ruff,bandit,precommit}.*"
+    },
+    {
+      "id": 2,
+      "text": "CI fail-closed (no continue-on-error) re-verified",
+      "verdict": "PASS",
+      "evidence": "ci-failclosed.txt + independent grep on .github/workflows/ci.yml"
+    },
+    {
+      "id": 3,
+      "text": "Only mark DoD items with real command evidence",
+      "verdict": "PASS",
+      "evidence": "proposed-flips.txt conservative 8 items; ruff/mypy clean NOT proposed"
+    }
+  ],
+  "proposed_flips_authorized": {
+    "count": 8,
+    "source": "docs/ops/session-2026-07-17-quality-gates/proposed-flips.txt",
+    "items": [
+      "Pre-commit está configurado.",
+      "CI falha de modo fechado.",
+      "Nenhum gate obrigatório usa `continue-on-error`.",
+      "Testes lentos possuem marcação.",
+      "A suíte crítica não depende de serviço externo instável sem mock ou marcação adequada.",
+      "QA não depende exclusivamente do implementador.",
+      "`pytest` passa na suíte obrigatória.",
+      "`bandit` não aponta vulnerabilidade HIGH no código de produção."
+    ],
+    "not_authorized": [
+      "`ruff` passa no código alterado. (ruff.log shows F401/N801/UP037; exit file unreliable)",
+      "`mypy` passa no caminho crítico definido. (mypy.log: Found 7 errors)",
+      "ruff format clean (70 files would be reformatted)",
+      "`pip-audit` sem tratamento (not in pack)",
+      "Nenhum gate obrigatório usa `|| true`. (not in proposed-flips; not re-verified as flip)",
+      "coverage mínimo / código crítico sem teste (not in pack)",
+      "Testes que exigem fonte real sob demanda (not in pack)",
+      "Any 95% ops / LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY"
+    ]
+  },
+  "residual_concerns": [
+    {
+      "severity": "medium",
+      "description": "Exit files for ruff / ruff-format / mypy claim EXIT=0 while logs show failures (format 70 files, mypy 7 errors, ruff lint hits). summary.json mirrors the false-zero exits.",
+      "recommendation": "Treat logs as source of truth. Steward must NOT flip ruff/mypy clean. Future packs: capture real $? after each tool without hardcoded zeros."
+    },
+    {
+      "severity": "low",
+      "description": "bandit scoped to coverage+registry paths (MANIFEST), not full scripts/ tree; Medium findings remain (urlopen, SQL f-string allow-list).",
+      "recommendation": "HIGH-filter claim still valid for scoped scan; full-tree bandit is residual debt."
+    }
+  ],
+  "forbidden_claims_check": {
+    "claims_95_operational": false,
+    "local_resilience_ready": false,
+    "pre_vps_final_ready": false,
+    "ruff_clean": false,
+    "mypy_clean": false,
+    "ruff_format_clean": false,
+    "dod_premature_flip": false
+  },
+  "metrics_observed": {
+    "pytest_critical_passed": 28,
+    "pytest_critical_exit": 0,
+    "independent_spotcheck_passed": 28,
+    "independent_spotcheck_exit": 0,
+    "bandit_high": 0,
+    "continue_on_error_true_present": false,
+    "precommit_config": true,
+    "proposed_flips": 8
+  },
+  "gate_decision": "PASS",
+  "steward_authorization": "Evidence steward MAY flip ONLY the 8 items in docs/ops/session-2026-07-17-quality-gates/proposed-flips.txt after this PASS. MUST NOT flip ruff/mypy/format clean or any item outside that list.",
+  "next": "PO_CLOSE"
+}

@@ -29,6 +29,22 @@ def normalize_cnpj8(cnpj: str) -> str:
     return "".join(char for char in str(cnpj) if char.isdigit())[:8]
 
 
+def normalize_codigo_ibge(value: str | int | None) -> str:
+    """Normalize a município IBGE code to exactly 7 digits.
+
+    Accepts int or digit strings with optional punctuation/spaces.
+    Returns ``""`` for empty/None/non-digit or wrong-length values after
+    digit extraction (IBGE municipality codes are always 7 digits).
+    """
+    if value is None:
+        return ""
+    digits = "".join(char for char in str(value) if char.isdigit())
+    if len(digits) == 7:
+        return digits
+    # common zero-padded form for legacy 6-digit inputs is rejected (ambiguous)
+    return ""
+
+
 def normalize_identity_text(value: str | None) -> str:
     """Normalize human identity text without erasing word boundaries."""
     decomposed = unicodedata.normalize("NFKD", value or "")

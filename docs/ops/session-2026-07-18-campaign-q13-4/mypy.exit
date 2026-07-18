@@ -1,0 +1,3 @@
+SUPERSEDED_DO_NOT_USE
+Full multi-file mypy path FAILED with 76 errors — see mypy-fullpath-FAILED-76-errors.txt
+Critical-path claim uses mypy-critical.exit + mypy-critical.txt (EXIT:0)
