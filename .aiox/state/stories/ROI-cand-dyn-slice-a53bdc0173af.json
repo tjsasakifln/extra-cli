@@ -1,0 +1,58 @@
+{
+  "story_id": "ROI-cand-dyn-slice-a53bdc0173af",
+  "title": "[Atualiza\u00e7\u00e3o comprovada] Su\u00edte global + Freshness coverage por entidade/SLAs",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "InReview",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-a53bdc0173af.md",
+  "created_at": "2026-07-18T16:42:26Z",
+  "updated_at": "2026-07-18T17:15:08Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "po_validated_at": "2026-07-18T17:08:00Z",
+  "po_validator": "po / Pax",
+  "po_notes": "GO with sharpened ACs: suite green only if truly green; entity-level freshness reporter required with nominal gaps; no NOT_APPLICABLE abuse",
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "scope_files": [
+    "scripts/",
+    "tests/",
+    "docs/ops/session-2026-07-18-suite-freshness/",
+    "docs/stories/ROI-cand-dyn-slice-a53bdc0173af.md",
+    ".aiox/state/stories/ROI-cand-dyn-slice-a53bdc0173af.json",
+    "DOD.md"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": "docs/ops/session-2026-07-18-suite-freshness/",
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T164226Z",
+    "candidate_id": "cand-dyn-slice:a53bdc0173af",
+    "roi": 1.2261,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "dod_item_ids": [
+      "dod:b06848ca7f90",
+      "dod:925f2c0e059a"
+    ],
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  },
+  "implementer": "delivery-engineer"
+}
