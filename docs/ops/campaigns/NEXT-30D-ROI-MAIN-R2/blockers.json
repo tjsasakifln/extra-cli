@@ -1,41 +1,78 @@
 {
-  "version": "1.0.0",
-  "updated_at": "2026-07-18T20:34:29Z",
+  "version": "1.1.0",
+  "updated_at": "2026-07-18T22:03:55Z",
   "blockers": [
     {
       "id": "B-R2-001",
       "class": "BLOCKED_SOURCE",
       "description": "Full national 90d pilot / 3y contract backfill GO remain constrained by source volume and runtime",
-      "impact": "N06c/N07 long tails may partial",
-      "task": "N06c,N07",
+      "evidence": [
+        "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N06c-wave/contracts-14d.json"
+      ],
+      "impact": "3y GO not claimed",
+      "task": "NB-04",
+      "requirement": "3y contracts GO",
       "attempts": [
-        "R1 T05 partial PNCP 1883 bids"
+        "R2 N07 3d",
+        "R2 N06c 14d 72923 contracts"
       ],
       "alternatives": [
-        "scoped universe 200km slices",
-        "SmartLic snapshot bridge for historical contracts"
+        "continue multi-window pilots",
+        "SmartLic snapshot with export"
       ],
       "owner": "roi-orchestrator",
-      "min_solution": "incremental scoped coverage with provenance",
+      "min_solution": "multi-window 90d+ with checkpoints until GO criteria",
       "decision_needed": null,
-      "next_review": "after N02+N05"
+      "next_review": "next campaign wave"
     },
     {
       "id": "B-R2-002",
       "class": "CONFLICT_WITH_ACTIVE_WORK",
       "description": "PR #28 still OPEN on epic branch; must not be used as delivery or double-count",
+      "evidence": [
+        "https://github.com/tjsasakifln/extra-consultoria/pull/28"
+      ],
       "impact": "metric confusion if panel reads epic",
       "task": "metric-lineage",
+      "requirement": "main-only metrics",
       "attempts": [
-        "R1 LEGACY-BRANCH-RECONCILIATION"
+        "R1 LEGACY-BRANCH-RECONCILIATION",
+        "R2 recovery inventory"
       ],
       "alternatives": [
-        "main-only metrics"
+        "main-only metrics",
+        "close PR without merge"
       ],
       "owner": "evidence-release-steward",
       "min_solution": "panel shows main + lineage layers only",
       "decision_needed": "human may close PR #28 later without merge",
       "next_review": "campaign close"
+    },
+    {
+      "id": "B-R2-N09",
+      "class": "BLOCKED_SOURCE",
+      "description": "Stratified recall gold sample requires independent portal observation with human-validated captured_by_system labels. Scaffold sample only yields NOT_READY.",
+      "evidence": [
+        "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N09-recall/recall_benchmark.json",
+        "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N09-recall/run.log",
+        "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N09-recall/qa-verdict.json"
+      ],
+      "impact": "Cannot claim stratified recall ≥95%; N09 terminal as BLOCKED_SOURCE",
+      "task": "N09",
+      "requirement": "DoD recall stratified ≥95% with gold sample",
+      "attempts": [
+        "recall_benchmark run --auto-match → NOT_READY scaffold-only",
+        "searched docs/qa for executable gold sample — not available"
+      ],
+      "alternatives": [
+        "human/portal labeling session for stratified sample",
+        "import labeled corpus after independent QA"
+      ],
+      "owner": "adversarial-qa-auditor + human operator",
+      "min_solution": "Populate portal_items with real observations + captured_by_system + re-run evaluate",
+      "decision_needed": "schedule portal sampling session or authorize external labeled set",
+      "next_review": "next campaign after gold sample exists",
+      "scope_status": "BLOCKED_SOURCE"
     }
   ]
 }

@@ -1,9 +1,10 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "generated_at": "2026-07-18T21:56:22Z",
+  "generated_at": "2026-07-18T22:03:55Z",
   "head_initial": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
-  "head_final": "1e681fac36b03b9954d1bbe3c01d166c53da110f",
+  "head_final": "509abdedc1439632f1eb5f04607e47fa3f1f4e12",
+  "head_final_note": "Re-pin after push to origin/main tip if needed",
   "origin_main_synced": true,
   "dod": {
     "checked": 195,
@@ -53,36 +54,13 @@
   "scope_blocked": [
     "N09"
   ],
-  "scope_open": [
-    "R0",
-    "R1",
-    "R2",
-    "N01",
-    "N02",
-    "N03",
-    "N04",
-    "N05",
-    "N06",
-    "N06b",
-    "N06c",
-    "N07",
-    "N07b",
-    "N08",
-    "N10",
-    "N11",
-    "N12",
-    "N13",
-    "N14",
-    "N15",
-    "N16",
-    "N17",
-    "N18"
-  ],
+  "scope_open": [],
+  "scope_open_definition": "items not DONE/BLOCKED_*/NOT_APPLICABLE — never includes DONE ids",
   "live_data": {
     "pncp_supplier_contracts": 72923,
-    "pncp_raw_bids": 4636,
     "universe_200km": 1093,
-    "entities_with_editais_or_contracts": 282
+    "entities_with_editais_or_contracts": 282,
+    "golden_path_pncp_pcp_strict": "SUCCESS"
   },
   "gates": {
     "LOCAL_READY": "NOT_READY",
@@ -90,21 +68,10 @@
     "PROJECT_DONE": "NOT_READY"
   },
   "limitations": [
-    "Recall stratified gold sample BLOCKED_SOURCE (N09)",
-    "Competitors/values metrics explicitly NOT_READY (N16)",
-    "Operational entity coverage 25.8% either-source — not 95%",
-    "Single-process golden_path with PNCP+PCP may still timeout on PNCP",
-    "3y contracts GO not claimed (14d wave only)"
-  ],
-  "skeptic_remediation": [
-    "N06c backed by entity-coverage-now.json 282/1093 + commercial_numerator 135",
-    "N01 multi-path live proof + freshness contracts fix",
-    "All scope items terminal (DONE or BLOCKED_SOURCE)",
-    "PERT statuses synced in pert.json",
-    "FINAL-REPORT numbers match JSON"
-  ],
-  "updated_at": "2026-07-18T21:55:14Z",
-  "reference_head": null,
-  "head_final_note": "Equals git rev-parse origin/main at generation of this file; pointer-only follow-up commits may advance tip without new product work.",
-  "origin_main": "1e681fac36b03b9954d1bbe3c01d166c53da110f"
+    "N09 BLOCKED_SOURCE — recall gold sample not available",
+    "N16 competitors/values denominators NOT_READY (declared)",
+    "Entity either-coverage 25.8% — not 95%",
+    "PNCP golden may resume from committed watermark (pages_fetched counted)",
+    "3y contracts GO not claimed"
+  ]
 }

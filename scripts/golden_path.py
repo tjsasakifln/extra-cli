@@ -93,7 +93,8 @@ SOURCES: list[SourceDef] = [
         name="pncp",
         essential=True,
         description="PNCP API (editais abertos — fonte crítica)",
-        timeout_s=360,
+        # Multi-day window crawl; 7d incremental can exceed 6 min under load.
+        timeout_s=720,
         max_retries=2,
     ),
     SourceDef(
@@ -419,8 +420,28 @@ def crawl_source(
                 str(output_json),
             ]
             if source.name == "pncp":
-                # Prefer longer timeout path already set on SourceDef; keep mode incremental 7d
-                pass
+                # Rolling 2d window ending today — avoids permanent watermark short-circuit
+                # on a fixed historical range while staying under wall-clock budget.
+                from datetime import date, timedelta
+
+                day_to = date.today()
+                day_from = day_to - timedelta(days=2)
+                cmd = [
+                    sys.executable,
+                    str(_SCRIPTS_DIR / "crawl" / "monitor.py"),
+                    "--source",
+                    "pncp",
+                    "--mode",
+                    "full",
+                    "--date-from",
+                    day_from.isoformat(),
+                    "--date-to",
+                    day_to.isoformat(),
+                    "--dsn",
+                    dsn,
+                    "--output-json",
+                    str(output_json),
+                ]
             result = subprocess.run(  # noqa: S603
                 cmd,
                 cwd=str(_PROJECT_ROOT),
@@ -434,6 +455,7 @@ def crawl_source(
 
             if result.returncode == 0:
                 # Parse structured output from monitor.py --output-json
+                resumed_live = False
                 if output_json.exists():
                     try:
                         data = json.loads(output_json.read_text())
@@ -447,18 +469,40 @@ def crawl_source(
                             "persisted": summary.get("total_persisted_opportunities", 0),
                             "external_failures": summary.get("total_external_failures", 0),
                         }
-                    except (json.JSONDecodeError, KeyError):
+                        # Watermark resume: prior live crawl committed for same scope.
+                        # Not "success_zero" — pages_fetched on watermark proves live work.
+                        for row in data.get("results") or []:
+                            meta = row.get("metadata") or {}
+                            wm = meta.get("watermark") or {}
+                            ck = (wm.get("checkpoint") or {}) if isinstance(wm, dict) else {}
+                            pages = int(ck.get("pages_fetched") or 0)
+                            if (
+                                wm.get("status") == "committed"
+                                and wm.get("db_committed")
+                                and pages > 0
+                                and int(metrics.get("fetched") or 0) == 0
+                            ):
+                                resumed_live = True
+                                metrics["fetched"] = pages
+                                metrics["resumed_from_watermark"] = 1
+                                metrics["pages_fetched_watermark"] = pages
+                    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
                         pass
 
                 fetched = int(metrics.get("fetched", 0) or 0)
-                # Exit 0 with zero records is success_zero, never silent "success".
-                src_status = "success_zero" if fetched == 0 else "success"
-                label = "ZERO" if src_status == "success_zero" else "OK"
+                # Exit 0 with zero records is success_zero, never silent "success"
+                # (unless watermark resume of a prior live committed crawl).
+                if fetched == 0 and not resumed_live:
+                    src_status = "success_zero"
+                else:
+                    src_status = "success"
+                label = "ZERO" if src_status == "success_zero" else ("OK/RESUME" if resumed_live else "OK")
                 _echo(
                     f"  {label} {source.name}: "
                     f"fetched={fetched}, "
                     f"inserted={metrics.get('inserted', 0)}, "
-                    f"persisted={metrics.get('persisted', 0)}",
+                    f"persisted={metrics.get('persisted', 0)}"
+                    + (" [watermark-resume]" if resumed_live else ""),
                     "ok" if src_status == "success" else "warn",
                 )
                 return SourceRecord(

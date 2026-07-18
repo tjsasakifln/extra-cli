@@ -5,17 +5,16 @@
 ```bash
 cd "$(git rev-parse --show-toplevel)"
 git checkout main && git fetch origin main
-git status -sb   # prefer clean + synced
+git status -sb
 test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
 cat docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/STATUS.md
 cat docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/FINAL-REPORT.md
 python3 squads/extra-dod-roi/scripts/cli.py status
-python3 squads/extra-dod-roi/scripts/main_writer_lock.py status
 ```
 
 ## Latest HEAD
 
-`1e681fac36b03b9954d1bbe3c01d166c53da110f` @ 2026-07-18T21:55:14Z
+`509abdedc1439632f1eb5f04607e47fa3f1f4e12` @ 2026-07-18T22:03:55Z
 
 ## Rules
 
@@ -23,16 +22,14 @@ python3 squads/extra-dod-roi/scripts/main_writer_lock.py status
 2. One writer (`main-writer.lock`)
 3. Independent QA before DONE
 4. Do not re-count R1 inherited flips
-5. PERT days from critical DONE with evidence only
-6. PARTIAL is not DONE
+5. PARTIAL is not DONE
+6. N01 requires single-process `golden_path --sources pncp,pcp --strict` SUCCESS
 
 ## State files
 
 | File | Role |
 |------|------|
-| baseline.json | R2 start |
-| scope.json | Frozen contract (all terminal) |
-| ledger.jsonl | Append-only events |
-| metric-lineage.json | Separated metrics |
-| FINAL-REPORT.md | Close report |
-| next-ranked-backlog.json | Next work |
+| scope.json | all terminal |
+| final-report.json | **scope_open must be []** |
+| blockers.json | includes **B-R2-N09** |
+| ledger.jsonl | events |

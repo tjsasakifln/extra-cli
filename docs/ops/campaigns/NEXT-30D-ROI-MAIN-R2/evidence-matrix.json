@@ -1,143 +1,120 @@
 {
-  "ts": "2026-07-18T21:53:40Z",
+  "ts": "2026-07-18T22:03:55Z",
   "items": [
     {
       "path": "evidence/N01-golden/qa-verdict.json",
       "task": "N01",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:53:40Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N02-universe/qa-verdict.json",
       "task": "N02",
-      "verdict": "PASS",
-      "ts": "2026-07-18T20:44:49Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N03-schema/qa-verdict.json",
       "task": "N03",
-      "verdict": "PASS",
-      "ts": "2026-07-18T20:44:49Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N04-registry/qa-verdict.json",
       "task": "N04",
-      "verdict": "PASS",
-      "ts": "2026-07-18T20:46:23Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N05-coverage/qa-verdict.json",
       "task": "N05",
-      "verdict": "PASS",
-      "ts": "2026-07-18T20:59:25Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N06-scale/qa-verdict.json",
       "task": "N06",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:12:33Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N06b-multi/qa-verdict.json",
       "task": "N06b",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:17:16Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N06c-wave/qa-verdict.json",
       "task": "N06c",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:53:40Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N07-contracts/qa-verdict.json",
       "task": "N07",
-      "verdict": "PASS",
-      "ts": "2026-07-18T20:56:34Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N07b-contracts-metric/qa-verdict.json",
       "task": "N07b",
-      "verdict": "PASS",
-      "ts": "2026-07-18T20:59:25Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N08-snapshot/qa-verdict.json",
       "task": "N08",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:32:31Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N09-recall/qa-verdict.json",
       "task": "N09",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:53:40Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N10-backup/qa-verdict.json",
       "task": "N10",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:12:33Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N11-ops-pack/qa-verdict.json",
       "task": "N11",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:17:16Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N12-reconcile/qa-verdict.json",
       "task": "N12",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:17:16Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N13-freshness/qa-verdict.json",
       "task": "N13",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:17:16Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N14-residual/qa-verdict.json",
       "task": "N14",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:53:40Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N15-close/qa-verdict.json",
       "task": "N15",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:53:40Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N16-denominators/qa-verdict.json",
       "task": "N16",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:53:40Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N17-resume/qa-verdict.json",
       "task": "N17",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:32:31Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/N18-checkpoint/qa-verdict.json",
       "task": "N18",
-      "verdict": "PASS",
-      "ts": "2026-07-18T21:53:40Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/R0-bootstrap/qa-verdict.json",
       "task": "R0",
-      "verdict": "PASS",
-      "ts": "2026-07-18T20:39:42Z"
+      "verdict": "PASS"
     },
     {
       "path": "evidence/R2-smartlic/qa-verdict.json",
       "task": "R2-smartlic-bridge",
-      "verdict": "PASS",
-      "ts": "2026-07-18T20:42:28Z"
+      "verdict": "PASS"
     }
   ]
 }

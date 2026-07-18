@@ -1,15 +1,9 @@
 {
-  "ts": "2026-07-18T21:53:40Z",
+  "ts": "2026-07-18T22:03:55Z",
   "critical_days_done": 32.0,
   "critical_path_total": 32.0,
   "meets_30d_target": true,
   "inherited_not_counted": 4.5,
   "open_critical": [],
-  "entity_coverage_either": {
-    "n": 282,
-    "den": 1093,
-    "pct": 25.8
-  },
-  "contracts_rows": 72923,
-  "updated_at": "2026-07-18T21:55:14Z"
+  "reference_head": "509abdedc1439632f1eb5f04607e47fa3f1f4e12"
 }

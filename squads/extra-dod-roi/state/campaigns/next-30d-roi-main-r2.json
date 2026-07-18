@@ -1,22 +1,13 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
   "status": "CLOSEABLE",
-  "updated_at": "2026-07-18T21:56:22Z",
-  "integration_mode": "main-direct",
+  "updated_at": "2026-07-18T22:03:55Z",
+  "current_head": "509abdedc1439632f1eb5f04607e47fa3f1f4e12",
   "baseline_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
-  "current_head": "1e681fac36b03b9954d1bbe3c01d166c53da110f",
-  "baseline_done_count": 195,
   "pert_critical_days_done": 32.0,
   "pert_critical_path_days": 32.0,
-  "scope_frozen": true,
   "scope_all_terminal": true,
-  "inherited_not_recounted": true,
-  "paths": {
-    "baseline": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/baseline.json",
-    "ledger": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/ledger.jsonl",
-    "resume": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/resume.md",
-    "scope": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/scope.json",
-    "final": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/FINAL-REPORT.md"
-  }
+  "scope_open": [],
+  "integration_mode": "main-direct"
 }

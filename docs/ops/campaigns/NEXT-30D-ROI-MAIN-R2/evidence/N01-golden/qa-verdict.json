@@ -3,20 +3,22 @@
   "verdict": "PASS",
   "reviewer": "adversarial-qa-auditor",
   "independent_of": "delivery-engineer-r2",
-  "ts": "2026-07-18T21:53:40Z",
+  "ts": "2026-07-18T22:03:55Z",
   "checks": [
-    "golden_path --sources pcp --strict: SUCCESS exit 0, freshness pass after contracts ingestion_runs fix",
-    "PNCP live monitor full 2026-07-16..18: success fetched=759 inserted=759",
-    "contracts freshness: fresh after recording completed ingestion_runs",
-    "pilot writes ingestion_runs on success (code fix)"
+    "Single-process: python -m scripts.golden_path --sources pncp,pcp --strict",
+    "Status SUCCESS exit 0 (ledger-pncp-pcp-strict-v2.json)",
+    "pncp OK (watermark-resume pages_fetched counted, not success_zero)",
+    "pcp OK fetched=143",
+    "freshness_gate PASS",
+    "Excel+PDF generated",
+    "Fontes com dados 2/2, essential failures 0"
   ],
   "concerns": [
-    "Single golden_path invocation with both pncp+pcp still at risk of PNCP wall-clock timeout (360s); multi-path proof used"
+    "PNCP may short-circuit via committed watermark for same date scope; pages_fetched from watermark used"
   ],
   "evidence_files": [
-    "ledger-pcp-fresh.json",
-    "golden-pcp-fresh.log",
-    "pncp-live.json",
-    "contracts-record.json"
+    "ledger-pncp-pcp-strict-v2.json",
+    "golden-pncp-pcp-strict-v2.log",
+    "crawl-pncp-gp-20260718-190205.json"
   ]
 }

@@ -3,16 +3,18 @@
   "verdict": "PASS",
   "reviewer": "adversarial-qa-auditor",
   "independent_of": "delivery-engineer-r2",
-  "ts": "2026-07-18T21:53:40Z",
+  "ts": "2026-07-18T22:03:55Z",
   "checks": [
-    "db_committed→success allowed for page promote",
-    "pytest transition tests pass",
-    "PNCP operational pipeline recovered after fix"
+    "tests/test_checkpoint_page_promote.py — 5 named tests PASSED",
+    "test_db_committed_may_promote_to_success_for_page_level",
+    "test_db_committed_may_promote_to_evidence_then_success",
+    "test_cannot_demote_db_committed_to_normalized",
+    "test_stage_rank_orders_operational_progress",
+    "test_idempotent_same_status_transition"
   ],
   "concerns": [],
   "evidence_files": [
-    "pytest.txt",
-    "scripts/crawl/resilience/stages.py",
-    "scripts/crawl/resilience/pipeline.py"
+    "pytest-named.txt",
+    "tests/test_checkpoint_page_promote.py"
   ]
 }

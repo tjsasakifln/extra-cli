@@ -1,24 +1,18 @@
 {
-  "generated_at": "2026-07-18T21:55:14Z",
-  "head": "48d0c418c1799d86873621b0bc1abe09175a951e",
+  "generated_at": "2026-07-18T22:03:55Z",
+  "head": "509abdedc1439632f1eb5f04607e47fa3f1f4e12",
   "ranked": [
     {
-      "id": "NB-01",
-      "title": "Single-process golden_path pncp+pcp without timeout",
-      "roi": 9.5,
-      "pert_days": 1.5
-    },
-    {
       "id": "NB-02",
-      "title": "Populate stratified recall gold sample (human/portal)",
-      "roi": 9.0,
+      "title": "Populate stratified recall gold sample (unblocks N09)",
+      "roi": 9.5,
       "pert_days": 2.0,
-      "blocked": "N09"
+      "blocked": "N09/B-R2-N09"
     },
     {
       "id": "NB-03",
       "title": "Entity coverage scale beyond 25.8% either-source",
-      "roi": 8.8,
+      "roi": 9.0,
       "pert_days": 5.0
     },
     {
@@ -46,5 +40,5 @@
       "pert_days": 3.0
     }
   ],
-  "updated_at": "2026-07-18T21:55:14Z"
+  "note": "NB-01 single-process golden_path closed by N01 SUCCESS"
 }

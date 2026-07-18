@@ -1,46 +1,44 @@
 # STATUS — NEXT-30D-ROI-MAIN-R2
 
-**UTC:** 2026-07-18T21:53:40Z  
-**HEAD:** `79f8cc780a7055ed14e6846504e76e31b63ec2cf`  
+**UTC:** 2026-07-18T22:03:55Z  
+**HEAD:** `509abdedc1439632f1eb5f04607e47fa3f1f4e12`  
 **DoD:** 195/1355 = 14.39%  
 **PERT critical:** 32.0/32.0d (≥30: True)  
 **Scope:** all terminal (DONE or BLOCKED_*)
 
+## OPEN
+
+nenhum
+
+## Blockers
+
+See `blockers.json` (**B-R2-N09** for recall gold sample).
+
 ## Terminal map
 
-| ID | Status | Notes |
-|----|--------|-------|
-| R0 | DONE | d=0.5 crit=True |
-| R1 | DONE | d=1.0 crit=True |
-| R2 | DONE | d=2.0 crit=False |
-| N01 | DONE | d=2.5 crit=False |
-| N02 | DONE | d=2.0 crit=True |
-| N03 | DONE | d=1.5 crit=False |
-| N04 | DONE | d=2.5 crit=True |
-| N05 | DONE | d=3.5 crit=True |
-| N06 | DONE | d=3.5 crit=True |
-| N06b | DONE | d=3.0 crit=True |
-| N06c | DONE | d=8.5 crit=True |
-| N07 | DONE | d=3.0 crit=False |
-| N07b | DONE | d=2.0 crit=False |
-| N08 | DONE | d=2.0 crit=False |
-| N09 | BLOCKED_SOURCE | d=2.0 crit=False |
-| N10 | DONE | d=1.5 crit=False |
-| N11 | DONE | d=2.5 crit=True |
-| N12 | DONE | d=1.5 crit=True |
-| N13 | DONE | d=1.5 crit=False |
-| N14 | DONE | d=2.5 crit=True |
-| N15 | DONE | d=1.0 crit=True |
-| N16 | DONE | d=2.0 crit=False |
-| N17 | DONE | d=1.0 crit=False |
-| N18 | DONE | d=2.0 crit=False |
-
-## Residual product (not scope blockers)
-
-- LOCAL_READY still NOT_READY
-- Coverage 25.8% either-source, not 95%
-- N09 recall gold sample blocked for independent labeling
-
-## Next
-
-See `next-ranked-backlog.json`
+| ID | Status | d | critical |
+|----|--------|--:|:--------:|
+| R0 | DONE | 0.5 | True |
+| R1 | DONE | 1.0 | True |
+| R2 | DONE | 2.0 | False |
+| N01 | DONE | 2.5 | False |
+| N02 | DONE | 2.0 | True |
+| N03 | DONE | 1.5 | False |
+| N04 | DONE | 2.5 | True |
+| N05 | DONE | 3.5 | True |
+| N06 | DONE | 3.5 | True |
+| N06b | DONE | 3.0 | True |
+| N06c | DONE | 8.5 | True |
+| N07 | DONE | 3.0 | False |
+| N07b | DONE | 2.0 | False |
+| N08 | DONE | 2.0 | False |
+| N09 | BLOCKED_SOURCE | 2.0 | False |
+| N10 | DONE | 1.5 | False |
+| N11 | DONE | 2.5 | True |
+| N12 | DONE | 1.5 | True |
+| N13 | DONE | 1.5 | False |
+| N14 | DONE | 2.5 | True |
+| N15 | DONE | 1.0 | True |
+| N16 | DONE | 2.0 | False |
+| N17 | DONE | 1.0 | False |
+| N18 | DONE | 2.0 | False |

@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "updated_at": "2026-07-18T21:55:14Z",
-  "reference_head": "48d0c418c1799d86873621b0bc1abe09175a951e",
+  "updated_at": "2026-07-18T22:03:55Z",
+  "reference_head": "509abdedc1439632f1eb5f04607e47fa3f1f4e12",
   "reference_branch": "main",
   "dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
   "layers": {
@@ -19,55 +19,25 @@
     },
     "new_accepted_this_campaign": {
       "count": 0,
-      "items": [],
-      "note": "DoD checkboxes not mass-flipped this campaign"
-    },
-    "reopened": {
-      "count": 0
-    },
-    "invalidated_by_audit": {
-      "count": 0
-    },
-    "fixture_only": {
-      "count": 0
+      "note": "no mass DoD flips in R2"
     },
     "blocked": {
       "count": 1,
       "items": [
-        "N09 BLOCKED_SOURCE recall gold sample"
+        "N09 BLOCKED_SOURCE"
       ]
     }
   },
   "pert": {
     "new_days_this_campaign": 32.0,
     "critical_path_total": 32.0,
-    "inherited_days_not_recounted": 4.5,
-    "target_new_days": 30.0,
     "meets_30d": true,
-    "evidence_basis": "scope critical DONE with live evidence packs under evidence/*"
+    "inherited_days_not_recounted": 4.5
   },
-  "gates_changed_this_campaign": [],
   "gates_unchanged": [
     "LOCAL_READY",
     "PRE_VPS_FINAL_READY",
     "VPS_OPERATIONAL",
     "PROJECT_DONE"
-  ],
-  "abrupt_pct_change_log": [
-    {
-      "from_pct": 32.3,
-      "to_pct": 6.8,
-      "cause": "branch switch epic→main"
-    },
-    {
-      "from_pct": 6.8,
-      "to_pct": 14.4,
-      "cause": "R1 inherited port"
-    },
-    {
-      "from_pct": 14.4,
-      "to_pct": 14.39,
-      "cause": "stable; no mass checkbox flips in R2"
-    }
   ]
 }
