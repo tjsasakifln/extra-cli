@@ -91,13 +91,13 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 2.1 Objetivo
 
-- [ ] O sistema ajuda a localizar editais relevantes para a Extra Construtora.
-- [ ] O sistema ajuda a verificar contratos históricos dos entes monitorados.
-- [ ] O sistema ajuda a identificar vencedores e concorrentes observáveis.
-- [ ] O sistema ajuda a formar referências de valores com semântica explícita.
-- [ ] O sistema ajuda Tiago a decidir quais oportunidades merecem análise humana.
-- [ ] O sistema reduz o risco de perda de oportunidades por monitoramento incompleto.
-- [ ] O sistema produz evidências e relatórios utilizáveis na consultoria.
+- [ ] O sistema ajuda a localizar editais relevantes para a Extra Construtora. PARTIAL — CLI/path exists; operational coverage ~0% (see capability_inventory). Not DONE.
+- [ ] O sistema ajuda a verificar contratos históricos dos entes monitorados. PARTIAL — CLI/path exists; operational coverage ~0% (see capability_inventory). Not DONE.
+- [ ] O sistema ajuda a identificar vencedores e concorrentes observáveis. PARTIAL — CLI/path exists; operational coverage ~0% (see capability_inventory). Not DONE.
+- [ ] O sistema ajuda a formar referências de valores com semântica explícita. PARTIAL — CLI/path exists; operational coverage ~0% (see capability_inventory). Not DONE.
+- [ ] O sistema ajuda Tiago a decidir quais oportunidades merecem análise humana. PARTIAL — CLI/path exists; operational coverage ~0% (see capability_inventory). Not DONE.
+- [ ] O sistema reduz o risco de perda de oportunidades por monitoramento incompleto. PARTIAL — CLI/path exists; operational coverage ~0% (see capability_inventory). Not DONE.
+- [ ] O sistema produz evidências e relatórios utilizáveis na consultoria. PARTIAL — CLI/path exists; operational coverage ~0% (see capability_inventory). Not DONE.
 - [x] O sistema continua sendo uma ferramenta pessoal, sem necessidade de produto SaaS. Evidência: README single-user CLI + PRD single-client + `capability_inventory` + architecture (sem SaaS multi-tenant).
 
 ### 2.2 Escopo incluído
