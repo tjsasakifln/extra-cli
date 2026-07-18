@@ -168,9 +168,16 @@ def check_postgres_growth(dsn: str | None = None) -> CheckResult:
             "no DSN (LOCAL_DATALAKE_DSN/DATABASE_URL) — skip PG growth",
         )
     try:
-        import psycopg
+        try:
+            import psycopg2 as _pg  # project standard
 
-        with psycopg.connect(dsn, connect_timeout=5) as conn:
+            conn = _pg.connect(dsn, connect_timeout=5)
+        except ImportError:
+            import psycopg as _pg  # optional v3
+
+            conn = _pg.connect(dsn, connect_timeout=5)
+
+        try:
             with conn.cursor() as cur:
                 cur.execute("SELECT pg_database_size(current_database())")
                 size = cur.fetchone()[0]
@@ -188,6 +195,8 @@ def check_postgres_growth(dsn: str | None = None) -> CheckResult:
                     """
                 )
                 auto_n = cur.fetchone()[0]
+        finally:
+            conn.close()
         metrics = {
             "db_size_bytes": int(size),
             "dead_tuples": int(dead),

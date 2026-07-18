@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-07-18T14:21:35.145415Z",
+  "overall": "ok",
+  "checks": [
+    {
+      "name": "journald_retention",
+      "status": "configured",
+      "message": "project journald retention config present (not yet installed under /etc — local stage source of truth)",
+      "metrics": {
+        "path": "/mnt/d/extra consultoria/config/journald/00-extra-consultoria.conf",
+        "applied_on_host": false,
+        "required_keys_present": true
+      }
+    },
+    {
+      "name": "disk",
+      "status": "ok",
+      "message": "disk 10.1% used",
+      "metrics": {
+        "path": "/",
+        "total_bytes": 1081101176832,
+        "used_bytes": 109134483456,
+        "free_bytes": 916974338048,
+        "used_pct": 10.09
+      }
+    },
+    {
+      "name": "memory",
+      "status": "ok",
+      "message": "memory 29.2% used",
+      "metrics": {
+        "total_kb": 8133872,
+        "available_kb": 5755952,
+        "used_kb": 2377920,
+        "used_pct": 29.23
+      }
+    },
+    {
+      "name": "load",
+      "status": "ok",
+      "message": "load1=1.17 cpus=4",
+      "metrics": {
+        "load1": 1.1728515625,
+        "load5": 1.58349609375,
+        "load15": 1.79931640625,
+        "cpus": 4,
+        "warn_threshold": 8.0
+      }
+    },
+    {
+      "name": "postgres",
+      "status": "ok",
+      "message": "db_size=19550691 dead_tuples=0 autovacuum_tables=4",
+      "metrics": {
+        "db_size_bytes": 19550691,
+        "dead_tuples": 0,
+        "live_tuples": 17386,
+        "tables_with_autovacuum": 4
+      }
+    }
+  ],
+  "claims": {
+    "allowed": [
+      "Report disk/memory/load from live host stats",
+      "Journald retention configured in-repo; applied_on_host may be false locally"
+    ],
+    "forbidden": [
+      "Claim VPS timers healthy from host_monitor alone",
+      "Treat unknown postgres as green"
+    ]
+  }
+}
