@@ -1,0 +1,9 @@
+{
+  "generated_at": "2026-07-17T23:19:51.925219+00:00",
+  "exit_code": 1,
+  "outcome": "FAIL_CLOSED_DB_UNAVAILABLE",
+  "claim_success": false,
+  "honored_no_success_on_failure": true,
+  "ledger": "output/golden-path/ledger-slice2.json",
+  "unit_tests_golden_path": "14 passed"
+}

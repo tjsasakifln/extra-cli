@@ -73,6 +73,11 @@ def apply_completion_filters(
             "ROI-cand-full-suite-schema-debt Done with QA PASS + PO close",
         ),
         (
+            "cand-coverage-slice-pending-collection",
+            ["ROI-cand-coverage-slice-pending-collection"],
+            "ROI-cand-coverage-slice-pending-collection Done with QA PASS + PO close (M2 N>0 provenance)",
+        ),
+        (
             "cand-workspace-daily-evidence-pack",
             ["ROI-cand-workspace-daily-evidence-pack"],
             "ROI-cand-workspace-daily-evidence-pack Done with QA/PO",
@@ -81,6 +86,11 @@ def apply_completion_filters(
             "cand-post-merge-truth-gate-honesty",
             ["ROI-cand-post-merge-truth-gate-honesty"],
             "ROI-cand-post-merge-truth-gate-honesty Done with QA/PO",
+        ),
+        (
+            "cand-golden-path-pncp-health",
+            ["ROI-cand-golden-path-pncp-health"],
+            "ROI-cand-golden-path-pncp-health Done with QA PASS + PO close",
         ),
     ]
     by_id = {c["id"]: c for c in candidates}
@@ -379,6 +389,48 @@ def build_candidates(
             ],
             "test_commands": ["make test", "make test-all (documented)"],
             "planned_files": ["tests/*", "supabase/* views", "CI workflow if needed"],
+        }
+    )
+
+    # 5b. Scale operational coverage beyond first provenance slice
+    candidates.append(
+        {
+            "id": "cand-coverage-scale-m2-more-entities",
+            "title": "Escalar M2 operacional: promover mais entidades com proveniência (sem claim 95%)",
+            "status": "UNLOCKED",
+            "dod_refs": ["operational_source_coverage < 95%", "pending_collection residual"],
+            "why_unlocked": "First N-slice landed; still far from 95%; offline+PG paths exist",
+            "value": {
+                "gate_value": 4,
+                "unlock_power": 5,
+                "operational_impact": 5,
+                "risk_reduction": 3,
+                "evidence_gain": 4,
+            },
+            "cost": {
+                "effort": 4,
+                "uncertainty": 3,
+                "external_dependency": 3,
+                "change_surface": 3,
+            },
+            "justification": "Material path from 5/1093 toward gate 95% without false green.",
+            "risks": ["Rate limits", "SLA decay on old artifacts"],
+            "dependencies": ["cand-coverage-slice provenance machinery"],
+            "conflicts": [],
+            "acceptance_criteria": [
+                "M2 numerator increases by N>0 vs previous evidence pack",
+                "No 95% claim unless measured >=95%",
+                "commercial_signal remains separate",
+            ],
+            "test_commands": [
+                "pytest tests/unit/source_registry/test_promote_from_evidence.py -q",
+                "python -m scripts.coverage.coverage_contract_cli report --offline",
+            ],
+            "planned_files": [
+                "scripts/source_registry/acquisition/*",
+                "data/entity_source_registry.jsonl",
+                "docs/ops/session-*/",
+            ],
         }
     )
 

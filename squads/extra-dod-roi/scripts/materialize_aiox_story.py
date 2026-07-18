@@ -363,6 +363,41 @@ def main(argv: list[str] | None = None) -> int:
     state_path = REPO / state_rel
     story_path.parent.mkdir(parents=True, exist_ok=True)
     state_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Never destroy a completed AIOX story (Done + po_closed + acceptable QA).
+    if state_path.is_file():
+        try:
+            existing = json.loads(state_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            existing = {}
+        existing_status = existing.get("status")
+        existing_verdict = (existing.get("qa_verdict") or "").upper()
+        if (
+            existing_status == "Done"
+            and existing.get("po_closed") is True
+            and existing_verdict in {"PASS", "CONCERNS", "WAIVED"}
+        ):
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "error": "STORY_ALREADY_DONE",
+                        "story_id": story_id,
+                        "story_file": story_rel,
+                        "story_state_file": state_rel,
+                        "status": existing_status,
+                        "qa_verdict": existing.get("qa_verdict"),
+                        "message": (
+                            "Refusing to overwrite completed story. "
+                            "Ranker must demote this candidate as COMPLETED."
+                        ),
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 2
+
     story_path.write_text(md, encoding="utf-8")
     state_path.write_text(
         json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

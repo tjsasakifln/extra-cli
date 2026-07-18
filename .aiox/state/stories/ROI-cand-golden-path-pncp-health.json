@@ -1,0 +1,60 @@
+{
+  "story_id": "ROI-cand-golden-path-pncp-health",
+  "title": "Estabilizar golden path PNCP (timeout) e source health observável",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "STANDARD",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-golden-path-pncp-health.md",
+  "created_at": "2026-07-17T23:18:12Z",
+  "updated_at": "2026-07-17T23:22:44Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "scope_files": [
+    "scripts/golden_path.py",
+    "docs/ops/session-2026-07-17-golden-path/",
+    "docs/stories/ROI-cand-golden-path-pncp-health.md"
+  ],
+  "reviewed_commit": "7231be774515426c980ce1061863e03f0a74db59",
+  "gates": {
+    "tests": "PASS",
+    "lint": "NA",
+    "typecheck": "NA",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-17T231812Z",
+    "candidate_id": "cand-golden-path-pncp-health",
+    "roi": 1.3617,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  },
+  "po_validation": {
+    "validated_by": "Pax (@po)",
+    "validated_at": "2026-07-17T23:18:28Z",
+    "verdict": "GO",
+    "score": 8,
+    "notes": [
+      "AC: reproducible golden path result pass or honest degraded health; no success on timeout"
+    ]
+  },
+  "po_close": {
+    "closed_by": "Pax (@po)",
+    "closed_at": "2026-07-17T23:22:44Z"
+  }
+}
