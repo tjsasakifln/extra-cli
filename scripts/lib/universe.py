@@ -258,6 +258,37 @@ def assert_import_idempotent(
     return diff
 
 
+def reconcile_active_ids(
+    *,
+    previously_active: set[str],
+    seen_in_snapshot: set[str],
+    run_complete: bool,
+) -> dict[str, Any]:
+    """Pure snapshot reconciliation (fail-closed).
+
+    Partial runs never inactivate. Complete runs mark absent IDs inactive.
+    """
+    if not run_complete:
+        return {
+            "skipped": True,
+            "skip_reason": "run_not_complete",
+            "inactivate": [],
+            "reactivate": [],
+            "remain_active": sorted(previously_active),
+        }
+    inactivate = sorted(previously_active - seen_in_snapshot)
+    reactivate = sorted(seen_in_snapshot - previously_active)
+    remain = sorted(previously_active & seen_in_snapshot)
+    return {
+        "skipped": False,
+        "skip_reason": None,
+        "inactivate": inactivate,
+        "reactivate": reactivate,
+        "remain_active": remain,
+        "active_after": sorted(seen_in_snapshot),
+    }
+
+
 def load_canonical_universe(
     seed_path: str | Path = DEFAULT_SEED_PATH,
     radius_km: float = DEFAULT_RADIUS_KM,

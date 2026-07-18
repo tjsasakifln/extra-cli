@@ -1,7 +1,7 @@
 {
   "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
-  "updated_at": "2026-07-18T13:38:01.442691+00:00",
-  "slices_completed": 13,
+  "updated_at": "2026-07-18T13:39:56.087218+00:00",
+  "slices_completed": 14,
   "pert_days_claimed": 3.25,
   "metrics_before": {
     "source": "/mnt/d/extra consultoria/output/coverage/contract-report.json",
@@ -88,6 +88,11 @@
       "id": "ROI-cand-dyn-slice-a94b7d79e0a0",
       "qa": "PASS",
       "dod_flips": 4
+    },
+    {
+      "id": "ROI-cand-dyn-slice-3212c1109a81",
+      "qa": "PASS",
+      "dod_flips": 2
     }
   ],
   "dod_flips": {
@@ -116,7 +121,8 @@
     "cyc-2026-07-18T132805Z",
     "cyc-2026-07-18T133025Z",
     "cyc-2026-07-18T133227Z",
-    "cyc-2026-07-18T133547Z"
+    "cyc-2026-07-18T133547Z",
+    "cyc-2026-07-18T133837Z"
   ],
   "current_sha": "a2a97fc153f3aee5338a28e387457c377695f73d",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
