@@ -1,38 +1,38 @@
 {
   "version": "1.0.0",
-  "cycle_id": "cyc-2026-07-18T152722Z",
+  "cycle_id": "cyc-2026-07-18T153340Z",
   "mode": "strict",
   "foolproof": true,
   "status": "completed",
   "phase": "DONE",
-  "created_at": "2026-07-18T15:27:22Z",
-  "updated_at": "2026-07-18T15:32:27Z",
-  "selected_id": "cand-dyn-slice:16eac35a037b",
-  "selected_roi": 1.968,
+  "created_at": "2026-07-18T15:33:40Z",
+  "updated_at": "2026-07-18T15:41:52Z",
+  "selected_id": "cand-dyn-slice:b50513eeb753",
+  "selected_roi": 1.9615,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
-  "story_id": "ROI-cand-dyn-slice-16eac35a037b",
-  "story_file": "docs/stories/ROI-cand-dyn-slice-16eac35a037b.md",
-  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-16eac35a037b.json",
+  "story_id": "ROI-cand-dyn-slice-b50513eeb753",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-b50513eeb753.md",
+  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-b50513eeb753.json",
   "implementer_agent": "delivery-engineer",
   "qa_agent": "adversarial-qa-auditor",
   "qa_verdict": "PASS",
   "aiox_sequence_log": [
     {
-      "at": "2026-07-18T15:27:22Z",
+      "at": "2026-07-18T15:33:40Z",
       "event": "ADVANCE",
       "phase": "RANKED",
       "detail": {
         "to": "RANKED",
         "actor": "force-next",
         "evidence": {
-          "selected_id": "cand-dyn-slice:16eac35a037b",
-          "selected_roi": 1.968,
+          "selected_id": "cand-dyn-slice:b50513eeb753",
+          "selected_roi": 1.9615,
           "outcome": null
         }
       }
     },
     {
-      "at": "2026-07-18T15:27:22Z",
+      "at": "2026-07-18T15:33:40Z",
       "event": "ADVANCE",
       "phase": "CARD",
       "detail": {
@@ -44,123 +44,120 @@
       }
     },
     {
-      "at": "2026-07-18T15:27:22Z",
+      "at": "2026-07-18T15:33:40Z",
       "event": "ADVANCE",
       "phase": "STORY_DRAFT",
       "detail": {
         "to": "STORY_DRAFT",
         "actor": "force-next/@sm-materializer",
         "evidence": {
-          "story_id": "ROI-cand-dyn-slice-16eac35a037b",
-          "story_file": "docs/stories/ROI-cand-dyn-slice-16eac35a037b.md",
-          "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-16eac35a037b.json",
+          "story_id": "ROI-cand-dyn-slice-b50513eeb753",
+          "story_file": "docs/stories/ROI-cand-dyn-slice-b50513eeb753.md",
+          "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-b50513eeb753.json",
           "implementer_agent": "delivery-engineer",
           "qa_agent": "adversarial-qa-auditor"
         }
       }
     },
     {
-      "at": "2026-07-18T15:27:31Z",
+      "at": "2026-07-18T15:37:15Z",
       "event": "ADVANCE",
       "phase": "STORY_READY",
       "detail": {
         "to": "STORY_READY",
         "actor": "po",
-        "evidence": {
-          "po_validated": true
-        }
+        "evidence": {}
       }
     },
     {
-      "at": "2026-07-18T15:27:32Z",
+      "at": "2026-07-18T15:38:16Z",
       "event": "ADVANCE",
       "phase": "IMPLEMENTING",
       "detail": {
         "to": "IMPLEMENTING",
-        "actor": "delivery-engineer",
-        "evidence": {
-          "branch": "extra-roi/cand-golden-clean-env"
-        }
+        "actor": "dev",
+        "evidence": {}
       }
     },
     {
-      "at": "2026-07-18T15:29:02Z",
+      "at": "2026-07-18T15:41:09Z",
       "event": "ADVANCE",
       "phase": "IN_REVIEW",
       "detail": {
         "to": "IN_REVIEW",
-        "actor": "delivery-engineer",
-        "evidence": {
-          "ok": true,
-          "tables": 76
-        }
+        "actor": "dev",
+        "evidence": {}
       }
     },
     {
-      "at": "2026-07-18T15:31:39Z",
+      "at": "2026-07-18T15:41:09Z",
       "event": "ADVANCE",
       "phase": "QA",
       "detail": {
         "to": "QA",
-        "actor": "adversarial-qa-auditor",
-        "evidence": {
-          "qa_verdict": "PASS",
-          "qa_artifact": "squads/extra-dod-roi/state/qa/cyc-2026-07-18T152722Z-qa.json",
-          "reviewed_commit": "a25ee64ffc7a088809571cdc2c6b6c685855ae78",
-          "flip_authorized": [
-            "L919 O golden path pode ser executado em ambiente limpo."
-          ],
-          "story_id": "ROI-cand-dyn-slice-16eac35a037b"
-        }
-      }
-    },
-    {
-      "at": "2026-07-18T15:32:06Z",
-      "event": "ADVANCE",
-      "phase": "PO_CLOSE",
-      "detail": {
-        "to": "PO_CLOSE",
-        "actor": "po",
+        "actor": "qa",
         "evidence": {
           "qa_verdict": "PASS"
         }
       }
     },
     {
-      "at": "2026-07-18T15:32:06Z",
+      "at": "2026-07-18T15:41:26Z",
+      "event": "ADVANCE",
+      "phase": "PO_CLOSE",
+      "detail": {
+        "to": "PO_CLOSE",
+        "actor": "po",
+        "evidence": {}
+      }
+    },
+    {
+      "at": "2026-07-18T15:41:26Z",
       "event": "ADVANCE",
       "phase": "PUBLISH",
       "detail": {
         "to": "PUBLISH",
-        "actor": "evidence-release-steward",
+        "actor": "devops",
         "evidence": {}
       }
     },
     {
-      "at": "2026-07-18T15:32:26Z",
+      "at": "2026-07-18T15:41:27Z",
+      "event": "ABORT_ILLEGAL_TRANSITION",
+      "phase": "PUBLISH",
+      "detail": {
+        "code": "ILLEGAL_TRANSITION",
+        "from": "PUBLISH",
+        "to": "DONE",
+        "allowed": [
+          "RERANK"
+        ],
+        "actor": "devops"
+      }
+    },
+    {
+      "at": "2026-07-18T15:41:35Z",
       "event": "ADVANCE",
       "phase": "RERANK",
       "detail": {
         "to": "RERANK",
-        "actor": "roi-orchestrator",
+        "actor": "devops",
         "evidence": {}
       }
     },
     {
-      "at": "2026-07-18T15:32:27Z",
+      "at": "2026-07-18T15:41:35Z",
       "event": "ADVANCE",
       "phase": "DONE",
       "detail": {
         "to": "DONE",
-        "actor": "force-next",
-        "evidence": {
-          "story": "ROI-cand-dyn-slice-16eac35a037b"
-        }
+        "actor": "devops",
+        "evidence": {}
       }
     }
   ],
   "abort": null,
-  "outcome": null,
+  "outcome": "COMPLETED",
   "next_phase_required": null,
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",

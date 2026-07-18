@@ -1,0 +1,46 @@
+{
+  "story_id": "ROI-cand-dyn-slice-b50513eeb753",
+  "title": "[12.2 Saídas operacionais] Lista de editais acionáveis. · Lista de editais para revisão. · Lista de editais descartados com motivo. (+5 more)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-b50513eeb753.md",
+  "created_at": "2026-07-18T15:33:40Z",
+  "updated_at": "2026-07-18T15:42:00Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "po_validated_at": "2026-07-18T15:40:00Z",
+  "po_validated_by": "po",
+  "qa_verdict": "PASS",
+  "qa_verdict_at": "2026-07-18T15:41:04Z",
+  "qa_agent": "adversarial-qa-auditor",
+  "qa_subagent_id": "019f75e1-1953-7ed3-b11a-d6b050af51a4",
+  "po_closed": true,
+  "po_closed_at": "2026-07-18T15:42:00Z",
+  "publication_authorized": true,
+  "scope_files": [
+    "scripts/reports/operational_outputs.py",
+    "tests/test_operational_outputs.py",
+    "docs/ops/session-2026-07-18-operational-outputs/",
+    "DOD.md",
+    "docs/stories/ROI-cand-dyn-slice-b50513eeb753.md"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": "docs/ops/session-2026-07-18-operational-outputs/",
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T153340Z",
+    "candidate_id": "cand-dyn-slice:b50513eeb753",
+    "roi": 1.9615,
+    "foolproof": true,
+    "dod_items_flipped": 8,
+    "qa_file": "docs/ops/session-2026-07-18-operational-outputs/QA-VERDICT.md"
+  }
+}

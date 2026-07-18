@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "run_id": "ops-lists-20260718-153810-a7f246ca",
+  "generated_at": "2026-07-18T15:38:10.862458+00:00",
+  "git_sha": "c043458",
+  "section": "12.2",
+  "lists": {
+    "editais_acionaveis": {
+      "path": "docs/ops/session-2026-07-18-operational-outputs/lists-stale-demo/editais_acionaveis.csv",
+      "rows": 6,
+      "bytes": 3398
+    },
+    "editais_revisao": {
+      "path": "docs/ops/session-2026-07-18-operational-outputs/lists-stale-demo/editais_revisao.csv",
+      "rows": 1,
+      "bytes": 625
+    },
+    "editais_descartados": {
+      "path": "docs/ops/session-2026-07-18-operational-outputs/lists-stale-demo/editais_descartados.csv",
+      "rows": 1,
+      "bytes": 221
+    },
+    "oportunidades_removidas_snapshot": {
+      "path": "docs/ops/session-2026-07-18-operational-outputs/lists-stale-demo/oportunidades_removidas_snapshot.csv",
+      "rows": 0,
+      "bytes": 97
+    },
+    "entes_sem_cobertura_editais": {
+      "path": "docs/ops/session-2026-07-18-operational-outputs/lists-stale-demo/entes_sem_cobertura_editais.csv",
+      "rows": 0,
+      "bytes": 63
+    },
+    "entes_sem_cobertura_contratos": {
+      "path": "docs/ops/session-2026-07-18-operational-outputs/lists-stale-demo/entes_sem_cobertura_contratos.csv",
+      "rows": 0,
+      "bytes": 52
+    },
+    "blockers_por_fonte": {
+      "path": "docs/ops/session-2026-07-18-operational-outputs/lists-stale-demo/blockers_por_fonte.csv",
+      "rows": 1,
+      "bytes": 406
+    },
+    "runs_stale": {
+      "path": "docs/ops/session-2026-07-18-operational-outputs/lists-stale-demo/runs_stale.csv",
+      "rows": 2,
+      "bytes": 234
+    }
+  },
+  "counts": {
+    "GO": 6,
+    "REVIEW": 1,
+    "NO_GO": 1,
+    "removed": 0,
+    "gap_editais": 0,
+    "gap_contratos": 0,
+    "blockers": 1,
+    "stale_runs": 2
+  },
+  "ranking_source": "pncp_raw_bids+compute_ranking",
+  "limitations": [
+    "sc_public_entities empty — gap lists cannot enumerate universe entities"
+  ],
+  "reliability": "DEGRADED",
+  "claims": {
+    "allowed": [
+      "Eight operational list CSVs generated from PostgreSQL",
+      "Active bids classified into GO/REVIEW/NO_GO when data present",
+      "Empty gap lists documented when universe not seeded"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "operational coverage 95%",
+      "PRE_VPS_FINAL_READY",
+      "PROJECT_DONE"
+    ]
+  }
+}

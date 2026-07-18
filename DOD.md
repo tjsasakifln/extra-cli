@@ -926,14 +926,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 12.2 Saídas operacionais
 
-- [ ] Lista de editais acionáveis.
-- [ ] Lista de editais para revisão.
-- [ ] Lista de editais descartados com motivo.
-- [ ] Lista de oportunidades removidas do snapshot.
-- [ ] Lista de entes sem cobertura de editais.
-- [ ] Lista de entes sem cobertura de contratos.
-- [ ] Lista de blockers por fonte.
-- [ ] Lista de runs stale.
+- [x] Lista de editais acionáveis. Evidência: `python3 -m scripts.reports.operational_outputs` + `lists/editais_acionaveis.csv` GO=6 (session-2026-07-18-operational-outputs) + QA PASS ROI-cand-dyn-slice-b50513eeb753.
+- [x] Lista de editais para revisão. Evidência: `lists/editais_revisao.csv` REVIEW=1 + compute_ranking + QA PASS.
+- [x] Lista de editais descartados com motivo. Evidência: `lists/editais_descartados.csv` NO_GO=1 coluna `motivo` + QA PASS.
+- [x] Lista de oportunidades removidas do snapshot. Evidência: query `is_active=false` + CSV header estável N=0 honest + QA PASS.
+- [x] Lista de entes sem cobertura de editais. Evidência: gerador + CSV + limitation `sc_public_entities empty` (DEGRADED) + QA PASS.
+- [x] Lista de entes sem cobertura de contratos. Evidência: gerador + CSV + mesma limitation + QA PASS.
+- [x] Lista de blockers por fonte. Evidência: `lists/blockers_por_fonte.csv` N=1 ingestion_failed + QA PASS.
+- [x] Lista de runs stale. Evidência: gerador + demo stuck_running_hours=0 → 2 runs + QA PASS.
 - [ ] Relatório de contratos por ente.
 - [ ] Relatório de contratos por fornecedor.
 - [ ] Relatório de concorrentes.

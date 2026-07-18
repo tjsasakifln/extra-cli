@@ -1,0 +1,9 @@
+source,blocker_type,n,last_started,detail
+pncp,ingestion_failed,1,2026-07-18 15:02:38.923636+00:00,"column reference ""pncp_id"" is ambiguous
+LINE 48:         RETURNING pncp_id, content_hash
+                           ^
+DETAIL:  It could refer to either a PL/pgSQL variable or a table column.
+QUERY:  WITH input AS (
+        SELECT
+            rec->>'pncp_id' AS pncp_id,
+            rec->>'objeto_comp"
