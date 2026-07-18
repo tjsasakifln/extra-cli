@@ -1,14 +1,14 @@
 {
-  "at": "2026-07-18T14:15:11.933920+00:00",
+  "at": "2026-07-18T14:24:17.605540+00:00",
   "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
   "status": "IN_PROGRESS",
   "epic": "epic/advance-30d-local-ready-20260718",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "current_sha": "5efa914d8be9a193f37f86a8d0c7a9590d96ef6d",
-  "slices_completed": 23,
+  "current_sha": "2fb324b35ee27b8152747ca327a41b6d647889e0",
+  "slices_completed": 24,
   "dod": {
-    "checked": 188,
-    "open": 1166,
+    "checked": 196,
+    "open": 1158,
     "baseline_checked": 92
   },
   "metrics": {
@@ -18,7 +18,8 @@
     "local_ready": false,
     "backup_restore_live": true,
     "data_reliability_module": true,
-    "structured_logging": true
+    "structured_logging": true,
+    "host_monitor": true
   },
   "resume": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
   "forbidden_claims": [
