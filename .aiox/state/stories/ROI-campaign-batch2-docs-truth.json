@@ -7,8 +7,8 @@
   "qa_agent": "adversarial-qa-auditor",
   "implementer_agent": "delivery-engineer",
   "publication_authorized": true,
-  "reviewed_commit": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
-  "qa_head_sha": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
+  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "qa_head_sha": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
   "gates": {
     "lint": "PASS",
     "tests": "PASS",
@@ -18,8 +18,8 @@
   "snapshot_evidence": {
     "canonical_count": 50,
     "story_count": 25,
-    "final_head": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
-    "at": "2026-07-18T02:41:17Z"
+    "final_head": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+    "at": "2026-07-18T02:43:29Z"
   },
   "accepted_item_ids": [
     "dod:79d7b006aedb",
@@ -48,6 +48,6 @@
     "dod:eeda93135036",
     "dod:c5e29b6c2906"
   ],
-  "final_review_note": "Final independent QA at HEAD after canonical rebuild; not backdated.",
-  "updated_at": "2026-07-18T02:41:17Z"
+  "final_review_note": "Final independent QA recorded at post-canonical commit; meta paths only after content.",
+  "updated_at": "2026-07-18T02:43:29Z"
 }

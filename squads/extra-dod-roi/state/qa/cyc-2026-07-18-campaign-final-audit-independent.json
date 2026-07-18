@@ -30,7 +30,8 @@
     "Local PG backup item remains open; date/integrity proven via test DB dump"
   ],
   "full_suite_status": "skipped_on_pr_workflow_dispatch_only",
-  "final_head": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
-  "audited_at": "2026-07-18T02:42:27Z",
-  "notes": "Post-remediation re-audit after independent FAIL on 2 items"
+  "final_head": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "audited_at": "2026-07-18T02:43:29Z",
+  "notes": "Post-remediation re-audit after independent FAIL on 2 items",
+  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f"
 }

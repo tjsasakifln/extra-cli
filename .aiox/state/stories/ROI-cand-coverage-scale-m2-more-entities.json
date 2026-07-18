@@ -6,7 +6,7 @@
   "status": "Done",
   "story_file": "docs/stories/ROI-cand-coverage-scale-m2-more-entities.md",
   "created_at": "2026-07-17T23:24:27Z",
-  "updated_at": "2026-07-17T23:30:05Z",
+  "updated_at": "2026-07-18T02:43:29Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
   "qa_verdict": "PASS",
@@ -20,7 +20,7 @@
     "docs/stories/ROI-cand-coverage-scale-m2-more-entities.md",
     ".aiox/state/stories/ROI-cand-coverage-scale-m2-more-entities.json"
   ],
-  "reviewed_commit": "ec407c9ee69a3d9cf6a9d38b1786274b986ce8d3",
+  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
   "gates": {
     "lint": "PENDING",
     "typecheck": "NA",
@@ -76,5 +76,7 @@
   "po_close": {
     "closed_by": "Pax (@po)",
     "closed_at": "2026-07-17T23:30:05Z"
-  }
+  },
+  "qa_head_sha": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "final_review_note": "Final independent QA recorded at post-canonical commit; meta paths only after content."
 }

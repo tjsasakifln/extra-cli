@@ -1,12 +1,12 @@
 {
   "story_id": "ROI-cand-quality-gates-evidence",
-  "title": "Quality gates evidence \u00a713.4 (8 ROL1 flips)",
+  "title": "Quality gates evidence §13.4 (8 ROL1 flips)",
   "epic_id": "EPIC-EXTRA-DOD-ROI",
   "risk_level": "STANDARD",
   "status": "Done",
   "story_file": "docs/stories/ROI-cand-quality-gates-evidence.md",
   "created_at": "2026-07-17T23:37:45Z",
-  "updated_at": "2026-07-18T00:31:13.541836+00:00",
+  "updated_at": "2026-07-18T02:43:29Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
   "qa_verdict": "PASS",
@@ -16,7 +16,7 @@
     "docs/ops/session-*/quality-gates/",
     "DOD.md"
   ],
-  "reviewed_commit": null,
+  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
   "gates": {
     "lint": "PENDING",
     "typecheck": "PENDING",
@@ -48,5 +48,7 @@
     "validated_at": "2026-07-17T23:38:03Z",
     "verdict": "GO",
     "score": 8
-  }
+  },
+  "qa_head_sha": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "final_review_note": "Final independent QA recorded at post-canonical commit; meta paths only after content."
 }
