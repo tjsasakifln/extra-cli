@@ -89,8 +89,8 @@ Tornar a plataforma **operacionalmente confiável** para a proposta comercial B2
 
 | Story | Título | Status |
 |-------|--------|--------|
-| B2G-E3.S1 | Adapter contract + PNCP 429 fail-closed | Draft |
-| B2G-E3.S2 | Checkpoint/resume unificado + DLQ smoke | Draft |
+| B2G-E3.S1 | Adapter contract + PNCP 429 fail-closed | **Done** (QA CONCERNS accepted @po 2026-07-17; no READY seals) |
+| B2G-E3.S2 | Checkpoint/resume unificado + DLQ smoke | **Done** (QA CONCERNS accepted @po 2026-07-17; no READY seals) |
 | B2G-E3.S3 | Scheduler permanente + prova journalctl/last_success | Draft |
 | B2G-E3.S4 | Operational data paths + gitignore policy (ADR-020) | Draft |
 
