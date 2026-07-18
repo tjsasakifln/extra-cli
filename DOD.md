@@ -623,17 +623,17 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Cada fonte informa necessidade de credenciais. Evidência: `needs_credentials` + credential_names.
 - [x] Cada fonte informa limites de paginação conhecidos. Evidência: `pagination_limits` (primárias não-unknown).
 - [x] Cada fonte informa rate limits conhecidos. Evidência: `rate_limits` (primárias não-unknown).
-- [ ] Cada fonte informa estratégia de retry.
-- [ ] Cada fonte informa estratégia de backoff.
-- [ ] Cada fonte informa status operacional.
-- [ ] Cada fonte informa data da última validação.
-- [ ] Cada fonte informa bloqueadores conhecidos.
-- [ ] Cada fonte informa se é primária, complementar ou gap-fill.
-- [ ] Código existente sem validação real é marcado como `implemented_not_proven`.
-- [ ] Fonte sem acesso é marcada como `blocked`.
-- [ ] Fonte não aplicável é marcada como `not_applicable`.
-- [ ] Fonte aplicável e testada é marcada como `active`.
-- [ ] Fonte não é chamada de ativa apenas porque existe crawler.
+- [x] Cada fonte informa estratégia de retry. Evidência: `retry_strategy` em to_dod_record + tests §7.1b.
+- [x] Cada fonte informa estratégia de backoff. Evidência: `backoff_strategy` + tests.
+- [x] Cada fonte informa status operacional. Evidência: `operational_status` active|implemented_not_proven|blocked|not_applicable.
+- [x] Cada fonte informa data da última validação. Evidência: campo `last_validation_at` (null se não validada).
+- [x] Cada fonte informa bloqueadores conhecidos. Evidência: `known_blockers` list.
+- [x] Cada fonte informa se é primária, complementar ou gap-fill. Evidência: `role`.
+- [x] Código existente sem validação real é marcado como `implemented_not_proven`. Evidência: 8 fontes + unit test.
+- [x] Fonte sem acesso é marcada como `blocked`. Evidência: status machine test `known_blockers=["blocked:…"]`.
+- [x] Fonte não aplicável é marcada como `not_applicable`. Evidência: `is_active=False` → not_applicable test.
+- [x] Fonte aplicável e testada é marcada como `active`. Evidência: pncp/ciga_ckan/sc_compras active.
+- [x] Fonte não é chamada de ativa apenas porque existe crawler. Evidência: test_crawler_exists_not_auto_active.
 
 ### 7.2 Matriz ente × fonte × capability
 

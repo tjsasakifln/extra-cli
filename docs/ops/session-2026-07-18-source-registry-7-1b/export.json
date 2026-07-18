@@ -1,0 +1,338 @@
+{
+  "sources": [
+    {
+      "id": "pncp",
+      "aliases": [],
+      "canonical_url": "https://pncp.gov.br/api/consulta",
+      "capabilities": [
+        "open_tenders",
+        "historical_contracts",
+        "entity_matching"
+      ],
+      "geo_coverage": "BR (federal + adesão voluntária SC)",
+      "needs_credentials": false,
+      "credential_names": [],
+      "pagination_limits": "pageSize<=50 default; full pagination required",
+      "rate_limits": "polite 1-2 rps; 429 backoff",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "active",
+      "operational_validated": true,
+      "last_validation_at": "2026-07-18",
+      "known_blockers": [],
+      "role": "primary",
+      "authority_level": "federal",
+      "module": "pncp_crawler_adapter",
+      "is_active": true,
+      "description": "PNCP API (federal + adesao voluntaria) — primary open tenders source"
+    },
+    {
+      "id": "ciga_ckan",
+      "aliases": [
+        "ciga-ckan",
+        "dom-ciga",
+        "dom_sc_public"
+      ],
+      "canonical_url": "https://dados.ciga.sc.gov.br/api/3/action",
+      "capabilities": [
+        "open_tenders",
+        "coverage_truth"
+      ],
+      "geo_coverage": "SC municipal (DOM/CIGA)",
+      "needs_credentials": false,
+      "credential_names": [],
+      "pagination_limits": "CKAN default limit 100",
+      "rate_limits": "public polite 1 rps",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "active",
+      "operational_validated": true,
+      "last_validation_at": "2026-07-17",
+      "known_blockers": [],
+      "role": "primary",
+      "authority_level": "municipal",
+      "module": "ciga_ckan_crawler",
+      "is_active": true,
+      "description": "CIGA Dados CKAN (dados.ciga.sc.gov.br) — caminho canônico DOM/SC. API pública, sem chave. Extrai publicações de compras + coverage."
+    },
+    {
+      "id": "pcp",
+      "aliases": [],
+      "canonical_url": "https://www.portaldecompraspublicas.com.br/",
+      "capabilities": [
+        "open_tenders"
+      ],
+      "geo_coverage": "multi (portal shared)",
+      "needs_credentials": false,
+      "credential_names": [],
+      "pagination_limits": "unknown",
+      "rate_limits": "unknown",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "implemented_not_proven",
+      "operational_validated": false,
+      "last_validation_at": null,
+      "known_blockers": [
+        "implemented_not_proven_live"
+      ],
+      "role": "complementary",
+      "authority_level": "multi",
+      "module": "pcp_crawler",
+      "is_active": true,
+      "description": "PCP (Portal de Compras Publicas)"
+    },
+    {
+      "id": "compras_gov",
+      "aliases": [
+        "compras-gov"
+      ],
+      "canonical_url": "https://www.gov.br/compras/",
+      "capabilities": [
+        "open_tenders"
+      ],
+      "geo_coverage": "BR federal",
+      "needs_credentials": false,
+      "credential_names": [],
+      "pagination_limits": "unknown",
+      "rate_limits": "unknown",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "implemented_not_proven",
+      "operational_validated": false,
+      "last_validation_at": null,
+      "known_blockers": [
+        "implemented_not_proven_live"
+      ],
+      "role": "complementary",
+      "authority_level": "federal",
+      "module": "compras_gov_crawler",
+      "is_active": true,
+      "description": "ComprasGov (compras federais)"
+    },
+    {
+      "id": "sc_compras",
+      "aliases": [
+        "sc-compras"
+      ],
+      "canonical_url": "https://www.compras.sc.gov.br/",
+      "capabilities": [
+        "open_tenders"
+      ],
+      "geo_coverage": "SC estadual",
+      "needs_credentials": false,
+      "credential_names": [],
+      "pagination_limits": "portal-specific; adapter handles pages",
+      "rate_limits": "polite 1 rps",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "active",
+      "operational_validated": true,
+      "last_validation_at": "2026-07-17",
+      "known_blockers": [],
+      "role": "primary",
+      "authority_level": "estadual",
+      "module": "sc_compras_crawler",
+      "is_active": true,
+      "description": "SC Compras"
+    },
+    {
+      "id": "contracts",
+      "aliases": [],
+      "canonical_url": "https://pncp.gov.br/api/consulta/v1/contratos",
+      "capabilities": [
+        "historical_contracts",
+        "competitors"
+      ],
+      "geo_coverage": "BR (PNCP contracts)",
+      "needs_credentials": false,
+      "credential_names": [],
+      "pagination_limits": "pageSize<=50",
+      "rate_limits": "polite 1-2 rps; 429 backoff",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "implemented_not_proven",
+      "operational_validated": false,
+      "last_validation_at": null,
+      "known_blockers": [
+        "backfill_3y_incomplete"
+      ],
+      "role": "primary",
+      "authority_level": "federal",
+      "module": "contracts_crawler",
+      "is_active": true,
+      "description": "PNCP supplier contracts (NOT bids — contracts capability)"
+    },
+    {
+      "id": "transparencia",
+      "aliases": [],
+      "canonical_url": "per-entity:portal_transparencia (batch_detect_platforms; no single national endpoint)",
+      "capabilities": [
+        "open_tenders"
+      ],
+      "geo_coverage": "SC municipal (per-entity portals)",
+      "needs_credentials": false,
+      "credential_names": [],
+      "pagination_limits": "varies by portal",
+      "rate_limits": "varies",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "implemented_not_proven",
+      "operational_validated": false,
+      "last_validation_at": null,
+      "known_blockers": [
+        "heterogeneous_portals",
+        "no_single_canonical_http_endpoint"
+      ],
+      "role": "gap_fill",
+      "authority_level": "municipal",
+      "module": "transparencia_crawler",
+      "is_active": true,
+      "description": "Transparencia portals (batch detect + crawl)"
+    },
+    {
+      "id": "tce_sc",
+      "aliases": [
+        "tce-sc"
+      ],
+      "canonical_url": "https://servicos.tce.sc.gov.br/",
+      "capabilities": [
+        "open_tenders",
+        "historical_contracts"
+      ],
+      "geo_coverage": "SC",
+      "needs_credentials": false,
+      "credential_names": [],
+      "pagination_limits": "SCMWeb-specific",
+      "rate_limits": "unknown",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "implemented_not_proven",
+      "operational_validated": false,
+      "last_validation_at": null,
+      "known_blockers": [
+        "implemented_not_proven_live"
+      ],
+      "role": "complementary",
+      "authority_level": "estadual",
+      "module": "tce_sc_crawler",
+      "is_active": true,
+      "description": "TCE-SC SCMWeb (Tribunal de Contas de SC)"
+    },
+    {
+      "id": "doe_sc",
+      "aliases": [
+        "doe-sc"
+      ],
+      "canonical_url": "https://www.doe.sc.gov.br/",
+      "capabilities": [
+        "open_tenders"
+      ],
+      "geo_coverage": "SC estadual",
+      "needs_credentials": true,
+      "credential_names": [
+        "DOE_SC_LOGIN",
+        "DOE_SC_PASSWORD"
+      ],
+      "pagination_limits": "unknown",
+      "rate_limits": "auth required",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "implemented_not_proven",
+      "operational_validated": false,
+      "last_validation_at": null,
+      "known_blockers": [
+        "credentials_required"
+      ],
+      "role": "complementary",
+      "authority_level": "estadual",
+      "module": "doe_sc_crawler",
+      "is_active": true,
+      "description": "DOE-SC (Diario Oficial Estadual de SC)"
+    },
+    {
+      "id": "mides_bigquery",
+      "aliases": [
+        "mides-bigquery"
+      ],
+      "canonical_url": "bigquery://mides (GOOGLE_APPLICATION_CREDENTIALS)",
+      "capabilities": [
+        "open_tenders"
+      ],
+      "geo_coverage": "SC estadual",
+      "needs_credentials": true,
+      "credential_names": [
+        "GOOGLE_APPLICATION_CREDENTIALS"
+      ],
+      "pagination_limits": "BigQuery job limits; supports_pagination=False",
+      "rate_limits": "GCP quotas",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "implemented_not_proven",
+      "operational_validated": false,
+      "last_validation_at": null,
+      "known_blockers": [
+        "credentials_required",
+        "no_pagination_zero_proof"
+      ],
+      "role": "gap_fill",
+      "authority_level": "estadual",
+      "module": "mides_bigquery_crawler",
+      "is_active": true,
+      "description": "MIDES BigQuery (dados de compras estaduais)"
+    },
+    {
+      "id": "dom_sc",
+      "aliases": [],
+      "canonical_url": "https://www.diariomunicipal.sc.gov.br/",
+      "capabilities": [
+        "open_tenders"
+      ],
+      "geo_coverage": "SC municipal",
+      "needs_credentials": true,
+      "credential_names": [
+        "DOM_SC_CPF",
+        "DOM_SC_CNPJ",
+        "DOM_SC_API_KEY"
+      ],
+      "pagination_limits": "remote/list pages",
+      "rate_limits": "auth required; unknown official limit",
+      "retry_strategy": "exponential_backoff",
+      "backoff_strategy": "exp_jitter",
+      "operational_status": "implemented_not_proven",
+      "operational_validated": false,
+      "last_validation_at": null,
+      "known_blockers": [
+        "credentials_required",
+        "prefer_ciga_ckan"
+      ],
+      "role": "gap_fill",
+      "authority_level": "municipal",
+      "module": "dom_sc_crawler",
+      "is_active": true,
+      "description": "DOM-SC path legado (diariomunicipal.sc.gov.br remote/list) — requer CPF/CNPJ/API key. Preferir ciga_ckan (CIGA Dados público)."
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "n_sources": 11,
+    "statuses": {
+      "active": 3,
+      "implemented_not_proven": 8
+    },
+    "missing_required": [],
+    "required_fields": [
+      "id",
+      "canonical_url",
+      "capabilities",
+      "geo_coverage",
+      "needs_credentials",
+      "pagination_limits",
+      "rate_limits",
+      "retry_strategy",
+      "backoff_strategy",
+      "operational_status",
+      "role"
+    ],
+    "registry_module": "scripts.crawl.registry"
+  }
+}

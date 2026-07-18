@@ -1,0 +1,15 @@
+{
+  "story_id": "ROI-cand-dyn-slice-d8deaa518e86",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "po_closed_at": "2026-07-18T16:01:32Z",
+  "publication_authorized": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-source-registry-7-1b",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:d8deaa518e86",
+    "dod_items_flipped": 11
+  },
+  "qa_notes": "Independent QA: residual last_validation optional on active; blocked/N/A synthetic only"
+}
