@@ -1,0 +1,367 @@
+{
+  "ok": true,
+  "out_of_scope_promises": [],
+  "shared_definitions": {
+    "present": {
+      "universe_1093": [
+        "DOD.md",
+        "docs/prd/PRD-consultoria-extra.md",
+        "docs/architecture/coverage-contract.md"
+      ],
+      "commercial_not_coverage": [
+        "DOD.md",
+        "docs/architecture/coverage-contract.md"
+      ],
+      "coverage_95_target": [
+        "README.md",
+        "DOD.md",
+        "docs/prd/PRD-consultoria-extra.md",
+        "docs/architecture/coverage-contract.md"
+      ]
+    },
+    "missing_files": [],
+    "gaps": [],
+    "ok": true
+  },
+  "conflicting_numbers": {
+    "mentions": [
+      {
+        "path": "DOD.md",
+        "line": 13,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "> **Meta mínima:** cobertura operacional auditável de **95% para editais** e **95% para contratos**, calculadas separadamente sobre os entes marcados na planilh"
+      },
+      {
+        "path": "DOD.md",
+        "line": 19,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "> Este ciclo **não** declara `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE` nem cobertura de 95%. Ele corrige o contrato de medição e entrega fatias operacion"
+      },
+      {
+        "path": "DOD.md",
+        "line": 35,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "- [ ] Cobertura operacional ≥95% (mínimo **1.039/1.093** entidades)."
+      },
+      {
+        "path": "DOD.md",
+        "line": 458,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "- [ ] `capability_monitoring_coverage(open_tenders) >= 95%`."
+      },
+      {
+        "path": "DOD.md",
+        "line": 459,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "- [ ] `capability_monitoring_coverage(historical_contracts) >= 95%`."
+      },
+      {
+        "path": "DOD.md",
+        "line": 792,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "- [ ] A cobertura de contratos >= 95% é provada por ente aplicável."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1091,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "- [ ] A cobertura auditável de editais é >= 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1092,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "- [ ] A cobertura auditável de contratos é >= 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1374,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "- [ ] Durante os sete dias, cobertura de editais permaneceu >= 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1375,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "- [ ] Durante os sete dias, cobertura de contratos permaneceu >= 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1579,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "- [ ] Existe runbook de cobertura abaixo de 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1722,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "- [ ] A cobertura de editais é >= 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1723,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "- [ ] A cobertura de contratos é >= 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1754,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "- [ ] A cobertura de editais permaneceu >= 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1755,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "- [ ] A cobertura de contratos permaneceu >= 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1829,
+        "pct": 4.76,
+        "historical_context": true,
+        "text": "| 2026-07-17 | 839e73f · PR #8 | §39 NEXT-30D-MULTIAGENT close-out board + HTML:  fail-closed golden path; sc_compras 2602; contracts pilot multi-k; dedup CLI; "
+      },
+      {
+        "path": "DOD.md",
+        "line": 1845,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "> **Não declara** `LOCAL_READY`, cobertura ≥95% nem `PROJECT_DONE`."
+      },
+      {
+        "path": "DOD.md",
+        "line": 1855,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "| C-04 | Meta de cobertura do DoD: **≥95% editais e ≥95% contratos, separados**. Meta legada &gt;80% (épicos antigos) fica **subordinada** (R-02 resolvido em fa"
+      },
+      {
+        "path": "DOD.md",
+        "line": 1993,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "> **Não declara** `LOCAL_READY`, cobertura ≥95%, `VPS_OPERATIONAL` nem `PROJECT_DONE`."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2005,
+        "pct": 4.76,
+        "historical_context": false,
+        "text": "| Editais crude coverage | **4,76%** (52/1093) measured — not 95% |"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2058,
+        "pct": 4.8,
+        "historical_context": false,
+        "text": "5. **Cobertura medida com honestidade** — ~4,8% editais no raio (não 95%)."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2071,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "- Cobertura **≥95%** de editais ou contratos."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2102,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "> **Não declara** `LOCAL_READY`, cobertura ≥95%, `VPS_OPERATIONAL`, piloto nacional 90d **success**, nem GO para backfill 3 anos."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2230,
+        "pct": 4.76,
+        "historical_context": true,
+        "text": "| Coverage | Métricas separadas; histórico **4,76%** preservado; municípios 30d **74,92%** (221/295) em amostra CIGA | `docs/ops/session-2026-07-17/multi_source"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2246,
+        "pct": 4.76,
+        "historical_context": true,
+        "text": "| `historical_editais_raw_coverage` | **4,76%** | 52/1093 entes raio 200 km | high (não sobrescrita) |"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2248,
+        "pct": 0.38,
+        "historical_context": true,
+        "text": "| `source_coverage_sc_compras` | 0,38% | 10/2602 (meta API ano) | medium (amostra page-limited) |"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2249,
+        "pct": 1.22,
+        "historical_context": false,
+        "text": "| `source_coverage_dados_abertos_sc` | 1,22% | 500/~41080 linhas CSV 2025 | low (smoke) |"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2259,
+        "pct": 4.76,
+        "historical_context": true,
+        "text": "5. Cobertura bruta de editais no raio permanece **~4,76%** (metodologia histórica intacta)."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2260,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "6. Municípios com publicação na amostra CIGA: **221/295 = 74,92%** (resumo resselado, chaves accent-normalized) — **não** é cobertura de editais DoD 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2268,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "3. Cobertura de editais ≥95% ou \"operação autônoma diária confiável\"."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2277,
+        "pct": 4.76,
+        "historical_context": false,
+        "text": "**Cobertura de editais no universo 200 km (~4,76%)** — o ganho municipal via CIGA melhora sinais de publicação, mas **não** substitui backfill multi-fonte de ed"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2344,
+        "pct": 4.76,
+        "historical_context": true,
+        "text": "| 9 | **Métricas de cobertura com denominador** | 4,76% histórico preservado + métricas multi-fonte | `multi_source_coverage` |"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2375,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "1. **Cobertura ≥95%** de editais ou contratos no raio 200 km."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2405,
+        "pct": 4.76,
+        "historical_context": false,
+        "text": "**Cobertura de editais no universo 200 km (~4,76%).**"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2530,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "**Não implica:** `PRE_VPS_FINAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95%."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2627,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "| Sinal comercial (não cobertura) | trajetória → 95% | 116/1.093 (10,61%) | −84,4 p.p. |"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2628,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "| Cobertura operacional estrita | ≥1.039/1.093 (95%) | 0/1.093 (0%) | −95 p.p. |"
+      },
+      {
+        "path": "DOD.md",
+        "line": 2634,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "Próximo investimento: (A) cobertura comercial → 95%; (B) provisionar VPS só após checklist PRE-VPS; (C) QA/PO fecham E3.S1/S2."
+      },
+      {
+        "path": "DOD.md",
+        "line": 2712,
+        "pct": 0.0,
+        "historical_context": false,
+        "text": "| Cobertura ops estrita | 0/1.093 (0%) |"
+      },
+      {
+        "path": "docs/prd/PRD-consultoria-extra.md",
+        "line": 6,
+        "pct": 64.4,
+        "historical_context": false,
+        "text": "> **Revisão:** 2026-07-12 — Coverage manifest real (64.4%), 604 unresolved, métricas comerciais ALL not_ready, consolidação epics"
+      },
+      {
+        "path": "docs/prd/PRD-consultoria-extra.md",
+        "line": 146,
+        "pct": 64.4,
+        "historical_context": true,
+        "text": "| Cobertura de entidades | 64.4% (1.093/1.697 denominador confirmado) | >=95% | `entity_coverage.is_covered = TRUE` |"
+      },
+      {
+        "path": "docs/prd/PRD-consultoria-extra.md",
+        "line": 161,
+        "pct": 95.0,
+        "historical_context": true,
+        "text": "> **Nota:** O denominador conservativo (1.697) inclui apenas entes com coordenadas confirmadas dentro ou fora do raio de 200km. Os 604 unresolved estão em um \"u"
+      },
+      {
+        "path": "docs/prd/PRD-consultoria-extra.md",
+        "line": 175,
+        "pct": 64.4,
+        "historical_context": false,
+        "text": "| **Cobertura real** | **64.4%** | `coverage_manifest.coverage.percent` (threshold 95% — NAO PASSOU) |"
+      },
+      {
+        "path": "docs/prd/PRD-consultoria-extra.md",
+        "line": 175,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "| **Cobertura real** | **64.4%** | `coverage_manifest.coverage.percent` (threshold 95% — NAO PASSOU) |"
+      },
+      {
+        "path": "docs/prd/PRD-consultoria-extra.md",
+        "line": 239,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "| 604 entidades sem coordenadas nunca resolvidas | Cobertura nunca atinge 95% | Alta | Geocode via IBGE API + nome do município (Story B2G-1) |"
+      },
+      {
+        "path": "docs/prd/PRD-consultoria-extra.md",
+        "line": 284,
+        "pct": 95.0,
+        "historical_context": false,
+        "text": "- [ ] Cobertura >=95% dos entes no raio 200km verificada via `coverage_manifest`"
+      },
+      {
+        "path": "docs/prd/PRD-consultoria-extra.md",
+        "line": 360,
+        "pct": 60.0,
+        "historical_context": false,
+        "text": "- [ ] Expansão de cobertura de testes (>=60% modulos core)"
+      }
+    ],
+    "conflicts": [],
+    "ok": true
+  },
+  "canonical_docs": [
+    "README.md",
+    "DOD.md",
+    "docs/prd/PRD-consultoria-extra.md",
+    "docs/architecture/coverage-contract.md"
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "cycle_id": "cyc-2026-07-18T130315Z",
+  "story_id": "ROI-cand-dyn-slice-a41d7a2033b7",
+  "candidate_id": "cand-dyn-slice:a41d7a2033b7",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:07:19Z",
+  "branch": "extra-roi/cand-docs-definitions",
+  "reviewed_commit_note": "uncommitted delivery on feature branch (scan_docs_definition_consistency.py + tests + evidence pack); HEAD base af87dd6",
+  "self_qa": false,
+  "independence": true,
+  "dod_md_modified_by_qa": false,
+  "evidence_pack": "docs/ops/session-2026-07-18-docs-definitions/",
+  "commands_rerun": [
+    {
+      "cmd": "python3 -m scripts.ops.scan_docs_definition_consistency --json",
+      "exit": 0,
+      "notes": "ok=true; out_of_scope_promises=[]; shared_definitions.gaps=[]; conflicting_numbers.conflicts=[]; independent re-run matches evidence scan-report.json"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_docs_definition_consistency.py -q -o addopts=",
+      "exit": 0,
+      "notes": "5 passed in ~1.78s; tests import and call shipped scan_* APIs (do not reimplement)"
+    },
+    {
+      "cmd": "adversarial falsification harness (temp fixtures) against scan_docs_definition_consistency",
+      "exit": 0,
+      "notes": "Affirmative out-of-scope promises detected; exclusion language not flagged; shared-def gaps when DOD missing anchors; achieved-95 conflicts detected; target/meta 95% benign; historical low % OK. Residuals: English/K8s pattern misses; soft 97% without achieved verbs; README lacks 1093/commercial anchors; scanner not in CI."
+    }
+  ],
+  "falsification_attempts": [
+    "Re-ran shipped scanner CLI on real repo — ok=true, 0 scope hits, 0 def gaps, 0 number conflicts (matches evidence pack).",
+    "Re-ran pytest — 5/5 pass; tests import scan_repo/scan_shared_definitions/scan_out_of_scope_promises/scan_conflicting_numbers/main.",
+    "Temp fixture: affirmative multi-tenant/SaaS/API pública/dashboard/acompanhamento físico promises → findings >=1. Fail to falsify detection path.",
+    "Temp fixture: exclusion language ('Fora de escopo', 'Não inclui') with same keywords → 0 findings. Fail to falsify allow path.",
+    "Temp fixture: canonical docs without universe/commercial anchors → shared_definitions.ok=False with gaps for DOD. Fail to falsify gap path.",
+    "Temp fixture: 'Cobertura operacional é 95% comprovada atualmente' → conflicts non-empty. Fail to falsify achieved-high path.",
+    "Temp fixture: open checkbox meta '>= 95%' → conflicts empty (benign). Fail to falsify target allow path.",
+    "Temp fixture: historical 4,76% with baseline markers → ok. Fail to falsify historical allow path.",
+    "Bypass residual: English 'multi-tenant SaaS ready' → 0 hits (pattern Portuguese-biased).",
+    "Bypass residual: 'Kubernetes e Kafka prontos e disponíveis' → 0 hits (not in OUT_OF_SCOPE_PROMISE_PATTERNS).",
+    "Bypass residual: soft claim 'cobertura operacional … 97%' without achieved verbs → not conflict (pct>=90 but no _achieved match).",
+    "README missing universe_1093 and commercial_not_coverage anchors — required_pairs only enforce DOD; item wording lists README/manifests/relatórios broader than scanner surface (4 CANONICAL_DOCS).",
+    "Scanner not wired into CI / ci_gate / ci-check / Makefile — point-in-time proof only (same class as other §25 library scanners).",
+    "Empty orphan L1401 still '- [ ] ' with no requirement text — implementer did not claim flip. Fail to falsify process honesty.",
+    "DoD.md L1416-1418 still open [ ] — AC3 honored (no flip without independent QA).",
+    "Slice includes empty string in dod_refs (orphan) + 3 non-empty items = 4 ids; no NOT_APPLICABLE theater."
+  ],
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "Shared-definitions bar is weaker than item wording: required_pairs only demand universe_1093 + commercial_not_coverage on DOD.md. README lacks both anchors; manifests and report artifacts are not in CANONICAL_DOCS.",
+      "recommendation": "Follow-up: extend CANONICAL_DOCS and/or require universe_1093 on README+PRD; optionally scan selected manifests/report templates. Non-blocking under current executable-scanner bar (DOD as source of truth + cross-doc 95% target presence)."
+    },
+    {
+      "severity": "medium",
+      "description": "conflicting_numbers only flags pct>=90 with _achieved verbs. Soft present-tense claims like 'cobertura operacional está em 97%' without those verbs are not conflicts.",
+      "recommendation": "Tighten _achieved or add present-tense operational-coverage patterns if false greens appear in prose."
+    },
+    {
+      "severity": "low",
+      "description": "OUT_OF_SCOPE_PROMISE_PATTERNS miss English phrasing and out-of-list products (K8s/Kafka/Redis/billing) even with 'pronto/disponível'.",
+      "recommendation": "Expand pattern set if product marketing docs start claiming those capabilities."
+    },
+    {
+      "severity": "low",
+      "description": "Scanner not continuous-enforced in CI — proof is point-in-time evidence pack + unit suite.",
+      "recommendation": "Wire `python3 -m scripts.ops.scan_docs_definition_consistency` into fail-closed CI after PO flip (follow-up OK)."
+    },
+    {
+      "severity": "low",
+      "description": "Delivery still uncommitted on feature branch (scanner, tests, evidence pack).",
+      "recommendation": "@dev commit before @po flip + @devops publish; QA did not commit."
+    }
+  ],
+  "allowed_claims": [
+    "Executable scanner scripts/ops/scan_docs_definition_consistency.py proves: (1) no affirmative out-of-scope capacity promises on the 4 canonical docs, (2) shared definition anchors (universe 1093 + commercial≠coverage on DOD; 95% target present across canonical set) with zero required gaps, (3) no uncontextualized achieved-high operational coverage conflicts on that surface.",
+    "Unit tests (5 passed) call shipped APIs; independent re-run exit 0; evidence pack docs/ops/session-2026-07-18-docs-definitions/ matches.",
+    "Empty orphan checkbox at DOD.md:1401 remains open (no false green).",
+    "Three §25 residual language items (L1416–1418) have flip authorization under the canonical-docs scanner bar."
+  ],
+  "forbidden_claims": [
+    "Every markdown/manifest/report in the monorepo is free of out-of-scope capacity promises (only CANONICAL_DOCS scanned).",
+    "README restates universe 1093 and commercial≠coverage verbatim (it does not; only DOD required).",
+    "Conflict detector is synonym-complete for soft high-coverage claims.",
+    "Scanner is CI-enforced continuously.",
+    "VPS operational / coverage ≥95% achieved / LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY.",
+    "Empty DoD orphan line is DONE.",
+    "Story Done without PO close / DoD flipped without this independent verdict."
+  ],
+  "dod_flip_authorized": [
+    {
+      "id": "dod:c70748809b8a",
+      "line": 1401,
+      "text": "",
+      "authorized": false,
+      "rationale": "Empty orphan checkbox — no claimable requirement. Leave open. Do not flip."
+    },
+    {
+      "id": "dod:3f22a458ffc8",
+      "line": 1416,
+      "text": "Nenhum documento promete capacidade fora do escopo.",
+      "authorized": true,
+      "rationale": "scan_out_of_scope_promises returns [] on CANONICAL_DOCS; affirmative fixtures fail closed; exclusion language allowed; unit tests + independent CLI ok=true. Residual pattern gaps documented, non-blocking at scanner bar."
+    },
+    {
+      "id": "dod:ca0ff3ff3d0d",
+      "line": 1417,
+      "text": "README, PRD, DOD, manifests e relatórios usam as mesmas definições.",
+      "authorized": true,
+      "rationale": "scan_shared_definitions ok=true: universe_1093 + commercial_not_coverage present in DOD (required); coverage_95_target across all 4 canonical docs; no gaps/missing_files. Bound claim to executable shared-anchor consistency on canonical surface (not exhaustive every manifest/report file)."
+    },
+    {
+      "id": "dod:c4b393476092",
+      "line": 1418,
+      "text": "Números conflitantes são eliminados ou contextualizados historicamente.",
+      "authorized": true,
+      "rationale": "scan_conflicting_numbers ok=true with conflicts=[]; high % mentions are targets/open checkboxes/historical/negations; achieved-95 fixture conflicts correctly. Soft-claim residual non-blocking at current detector bar."
+    }
+  ],
+  "dod_items_summary": {
+    "proven_flip_yes": 3,
+    "left_open_flip_no": 1,
+    "total_slice": 4
+  },
+  "ac_trace": [
+    {
+      "ac": "Each of 4 dod_item_ids proven with evidence or left open",
+      "result": "PASS",
+      "evidence": "3 proven via scanner+tests+evidence pack; 1 empty orphan left open intentionally (authorized=false)."
+    },
+    {
+      "ac": "No NOT_APPLICABLE used to hit campaign meta",
+      "result": "PASS",
+      "evidence": "No N/A; orphan left open without false completion."
+    },
+    {
+      "ac": "Independent QA PASS before any [x] flip",
+      "result": "PASS",
+      "evidence": "DOD.md L1416-1418 still [ ]; this review is independent of delivery-engineer; per-item flip authorization listed; DOD.md not modified by QA."
+    }
+  ],
+  "decision_summary": "PASS — 3/4 DoD items proven against shipped docs-definition scanner and tests that call it; empty orphan L1401 must stay open. Medium residuals: shared-def required_pairs DOD-centric (README lacks 1093/commercial); soft high-% claims without achieved verbs; scanner not CI-wired. Non-blocking under established §25 library/scanner proof bar."
+}

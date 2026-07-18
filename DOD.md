@@ -1413,9 +1413,9 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Score não é chamado de probabilidade sem calibração. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
 - [x] Relatórios exibem limitações relevantes. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
 - [x] Nenhum documento afirma que o projeto acompanha obras. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z.
-- [ ] Nenhum documento promete capacidade fora do escopo.
-- [ ] README, PRD, DOD, manifests e relatórios usam as mesmas definições.
-- [ ] Números conflitantes são eliminados ou contextualizados historicamente.
+- [x] Nenhum documento promete capacidade fora do escopo. Evidência: `scripts/ops/scan_docs_definition_consistency.py` + `tests/test_docs_definition_consistency.py` (5 passed) + `docs/ops/session-2026-07-18-docs-definitions/` + QA PASS cyc-2026-07-18T130315Z.
+- [x] README, PRD, DOD, manifests e relatórios usam as mesmas definições. Evidência: `scripts/ops/scan_docs_definition_consistency.py` + `tests/test_docs_definition_consistency.py` (5 passed) + `docs/ops/session-2026-07-18-docs-definitions/` + QA PASS cyc-2026-07-18T130315Z.
+- [x] Números conflitantes são eliminados ou contextualizados historicamente. Evidência: `scripts/ops/scan_docs_definition_consistency.py` + `tests/test_docs_definition_consistency.py` (5 passed) + `docs/ops/session-2026-07-18-docs-definitions/` + QA PASS cyc-2026-07-18T130315Z.
 
 ---
 
