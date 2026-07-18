@@ -1,27 +1,32 @@
 # RESUME
 
-**Updated:** 2026-07-18T18:14:40.473963+00:00
+**Updated:** 2026-07-18T18:21:42.397575+00:00
 
-## Recovery
-SUCCESS — 12+ commits published; rescue branch; docs/ops/recovery-2026-07-18/
+## Recovery (FASE 0) — DONE
+Published unpushed epic commits + rescue branch + recovery inventory.
 
-## Closed this session
-1. b8d41f requirement_states — QA PASS
-2. b3ea2a evidence_convention — QA PASS  
-3. dd7b diagnostic_profile — QA CONCERNS (8/10 DoD; 2 PARTIAL open)
+## Closed stories (this campaign session)
+| Story | QA | Focus |
+|-------|-----|-------|
+| b8d41f | PASS | requirement states |
+| b3ea2a | PASS | evidence convention |
+| dd7b | CONCERNS | diagnostic profile (8/10 DoD; 2 PARTIAL open) |
+| 8d8c | PASS | Entregável A org ranking schema |
+
+## Metrics (honest)
+- DoD: **386/1354** (remote baseline was 92)
+- Operational coverage: empty local DSN / stale 0/1093 — **not 95%**
+- Gates LOCAL_READY / PRE_VPS / VPS / PROJECT_DONE: **not claimed**
 
 ## Current
-- Epic `d1ce4a2252b5afe4d4de3fef637291a79c6cbb91`
-- DoD **376/1354**
-- Next: `# Story: [Entregável A — ranking dos órgãos públicos] O sistema gera ranking dos entes do universo que contratam o · O r`
+- Epic `e27153d85333c0bcd8ffbd0b1a50b4b3887e8c47`
+- Next: `# Story: [Entregável B — mapeamento de 15 concorrentes obser] O sistema consegue selecionar e justificar pelo menos 15 for · A seleção dos 1`
 - PR: https://github.com/tjsasakifln/extra-consultoria/pull/28
 
 ## Next command
 ```bash
+cd "/mnt/d/extra consultoria"
 git switch epic/advance-30d-local-ready-20260718 && git pull --ff-only
 python3 squads/extra-dod-roi/scripts/cli.py status
-# PO Ready ROI-cand-dyn-slice-8d8c11884fa6 → implement → independent QA → PO → merge → force-next
+# continue ranking[0] ROI-cand-dyn-slice-f7e09f20fb21
 ```
-
-## Forbidden
-LOCAL_READY, 95%, PRE_VPS_FINAL_READY, PROJECT_DONE
