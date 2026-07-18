@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN",
-  "status": "EXECUTING",
+  "status": "EXECUTING_POST_INHERIT",
   "created_at": "2026-07-18T19:19:39Z",
-  "updated_at": "2026-07-18T20:11:41Z",
+  "updated_at": "2026-07-18T20:12:35Z",
   "integration_mode": "main-direct",
   "baseline_head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "baseline_dod_sha256": "54bbbc0a0eec4576989722d9a1167860e1322c5cd509804d3677638e8c657228",
@@ -39,8 +39,8 @@
     "Inherited DoD flips counted separately from new PERT advance.",
     "Gates LOCAL_READY/VPS/PROJECT_DONE remain NOT_READY."
   ],
-  "plan_head": "7768f057e37a287e738a37ea18bb302848228b19",
-  "pert_critical_path_days": 30.5,
+  "plan_head": "83b1b042ff2a1ec110f36e35af5c955ff31ce744",
+  "pert_critical_path_days": 19.5,
   "pause_new_features": false,
   "inherited_baseline": {
     "frozen_at": "2026-07-18T20:11:41Z",

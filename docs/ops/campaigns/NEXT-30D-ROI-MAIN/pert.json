@@ -1,412 +1,330 @@
 {
-  "version": "1.1.0",
+  "version": "2.1.0",
   "campaign_id": "NEXT-30D-ROI-MAIN",
-  "generated_at": "2026-07-18T19:26:01Z",
-  "baseline_head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "plan_head": "7768f057e37a287e738a37ea18bb302848228b19",
-  "calendar_note": "business-day equivalents on PERT/CPM, not wall clock",
-  "project_ef": 26.0,
+  "generated_at": "2026-07-18T20:13:10Z",
+  "kind": "post_inherited_delta",
+  "inherited_baseline_head": "83b1b042ff2a1ec110f36e35af5c955ff31ce744",
+  "project_ef": 30.5,
   "critical_path_length_days": 30.5,
   "tasks": [
     {
-      "id": "T00",
-      "name": "Baseline + main-direct mode",
-      "duration": 1.0,
+      "id": "H0",
+      "name": "Inherited recon freeze",
+      "duration": 0,
       "preds": [],
       "status": "DONE",
       "es": 0.0,
-      "ef": 1.0,
-      "lf": 1.0,
+      "ef": 0.0,
+      "lf": 0.0,
       "ls": 0.0,
       "slack": 0.0,
       "critical": true
     },
     {
-      "id": "T01",
-      "name": "Fresh rank + campaign freeze (PLAN/PERT/scope)",
-      "duration": 0.5,
+      "id": "N01",
+      "name": "Golden path strict green live PNCP+PCP+freshness",
+      "duration": 2.5,
       "preds": [
-        "T00"
-      ],
-      "status": "DONE",
-      "es": 1.0,
-      "ef": 1.5,
-      "lf": 1.5,
-      "ls": 1.0,
-      "slack": 0.0,
-      "critical": true
-    },
-    {
-      "id": "T02",
-      "name": "Fail-closed mandatory gates: no || true in CI/Makefile gates",
-      "duration": 1.0,
-      "preds": [
-        "T01"
+        "H0"
       ],
       "status": "PLANNED",
-      "es": 1.5,
+      "es": 0.0,
       "ef": 2.5,
-      "lf": 26.0,
-      "ls": 25.0,
-      "slack": 23.5,
+      "lf": 4.5,
+      "ls": 2.0,
+      "slack": 2.0,
       "critical": false
     },
     {
-      "id": "T03",
-      "name": "Clean bootstrap + migrations + schema audit proof on PG",
+      "id": "N02",
+      "name": "Universe reimport hash+zero-dup on main PG",
       "duration": 2.0,
       "preds": [
-        "T01"
+        "H0"
       ],
       "status": "PLANNED",
-      "es": 1.5,
-      "ef": 3.5,
-      "lf": 3.5,
-      "ls": 1.5,
+      "es": 0.0,
+      "ef": 2.0,
+      "lf": 2.0,
+      "ls": 0.0,
       "slack": 0.0,
       "critical": true
     },
     {
-      "id": "T04",
-      "name": "Global/critical pytest green with real PostgreSQL",
+      "id": "N03",
+      "name": "Schema audit + migrations green clean path",
+      "duration": 1.5,
+      "preds": [
+        "H0"
+      ],
+      "status": "PLANNED",
+      "es": 0.0,
+      "ef": 1.5,
+      "lf": 25.5,
+      "ls": 24.0,
+      "slack": 24.0,
+      "critical": false
+    },
+    {
+      "id": "N04",
+      "name": "Source registry applicability zero necessary unknown",
       "duration": 2.5,
       "preds": [
-        "T03"
+        "N02"
       ],
       "status": "PLANNED",
-      "es": 3.5,
-      "ef": 6.0,
-      "lf": 6.0,
-      "ls": 3.5,
+      "es": 2.0,
+      "ef": 4.5,
+      "lf": 4.5,
+      "ls": 2.0,
       "slack": 0.0,
       "critical": true
     },
     {
-      "id": "T05",
-      "name": "Golden path local end-to-end executable + evidence",
-      "duration": 2.0,
+      "id": "N05",
+      "name": "Coverage ops stages provenance M2 slice",
+      "duration": 3.5,
       "preds": [
-        "T04"
+        "N01",
+        "N04"
       ],
       "status": "PLANNED",
-      "es": 6.0,
+      "es": 4.5,
       "ef": 8.0,
       "lf": 8.0,
-      "ls": 6.0,
+      "ls": 4.5,
       "slack": 0.0,
       "critical": true
     },
     {
-      "id": "T06",
-      "name": "Universe canonical import: hash, zero-dup, change detection",
-      "duration": 2.0,
+      "id": "N06",
+      "name": "Coverage scale M3 expand entities",
+      "duration": 3.5,
       "preds": [
-        "T03"
-      ],
-      "status": "PLANNED",
-      "es": 3.5,
-      "ef": 5.5,
-      "lf": 5.5,
-      "ls": 3.5,
-      "slack": 0.0,
-      "critical": true
-    },
-    {
-      "id": "T07",
-      "name": "Source registry + applicability matrix complete for editais/contratos",
-      "duration": 2.5,
-      "preds": [
-        "T06"
-      ],
-      "status": "PLANNED",
-      "es": 5.5,
-      "ef": 8.0,
-      "lf": 8.0,
-      "ls": 5.5,
-      "slack": 0.0,
-      "critical": true
-    },
-    {
-      "id": "T08",
-      "name": "Editais crawl: checkpoint/resume/raw-zone/provenance priority sources",
-      "duration": 3.0,
-      "preds": [
-        "T07",
-        "T05"
+        "N05"
       ],
       "status": "PLANNED",
       "es": 8.0,
-      "ef": 11.0,
-      "lf": 11.0,
+      "ef": 11.5,
+      "lf": 11.5,
       "ls": 8.0,
       "slack": 0.0,
       "critical": true
     },
     {
-      "id": "T09",
-      "name": "Coverage operational machinery: stages, denominators, entity progress",
+      "id": "N06b",
+      "name": "Coverage scale M4 multi-source operational",
       "duration": 3.0,
       "preds": [
-        "T08"
+        "N06"
       ],
       "status": "PLANNED",
-      "es": 11.0,
-      "ef": 14.0,
-      "lf": 14.0,
-      "ls": 11.0,
+      "es": 11.5,
+      "ef": 14.5,
+      "lf": 14.5,
+      "ls": 11.5,
       "slack": 0.0,
       "critical": true
     },
     {
-      "id": "T10",
-      "name": "Coverage scale M2: multi-entity collection with provenance",
+      "id": "N07",
+      "name": "Contracts incremental upsert + 3y window machinery",
       "duration": 3.0,
       "preds": [
-        "T09"
+        "N04"
       ],
       "status": "PLANNED",
-      "es": 14.0,
-      "ef": 17.0,
-      "lf": 17.0,
-      "ls": 14.0,
-      "slack": 0.0,
-      "critical": true
+      "es": 4.5,
+      "ef": 7.5,
+      "lf": 25.0,
+      "ls": 22.0,
+      "slack": 17.5,
+      "critical": false
     },
     {
-      "id": "T10b",
-      "name": "Coverage scale M3: expand operational coverage toward gate trajectory",
-      "duration": 3.0,
+      "id": "N07b",
+      "name": "Contracts coverage metric separate from editais",
+      "duration": 2.0,
       "preds": [
-        "T10"
+        "N07"
       ],
       "status": "PLANNED",
-      "es": 17.0,
-      "ef": 20.0,
-      "lf": 20.0,
-      "ls": 17.0,
-      "slack": 0.0,
-      "critical": true
+      "es": 7.5,
+      "ef": 9.5,
+      "lf": 27.0,
+      "ls": 25.0,
+      "slack": 17.5,
+      "critical": false
     },
     {
-      "id": "T11",
-      "name": "Contracts historical backfill windows + incremental upsert",
-      "duration": 3.0,
+      "id": "N08",
+      "name": "Snapshot integrity 100% reconcile",
+      "duration": 2.0,
       "preds": [
-        "T07"
+        "N05"
       ],
       "status": "PLANNED",
       "es": 8.0,
-      "ef": 11.0,
-      "lf": 24.0,
+      "ef": 10.0,
+      "lf": 23.0,
       "ls": 21.0,
       "slack": 13.0,
       "critical": false
     },
     {
-      "id": "T12",
-      "name": "Snapshot integrity 100% + conflict/reconcile reports",
+      "id": "N09",
+      "name": "Recall stratified expand gold sample",
       "duration": 2.0,
       "preds": [
-        "T09"
+        "N01"
       ],
       "status": "PLANNED",
-      "es": 14.0,
-      "ef": 16.0,
-      "lf": 20.0,
-      "ls": 18.0,
-      "slack": 4.0,
+      "es": 2.5,
+      "ef": 4.5,
+      "lf": 30.5,
+      "ls": 28.5,
+      "slack": 26.0,
       "critical": false
     },
     {
-      "id": "T13",
-      "name": "Recall stratified sample expansion + independent gold set",
-      "duration": 2.0,
-      "preds": [
-        "T08"
-      ],
-      "status": "PLANNED",
-      "es": 11.0,
-      "ef": 13.0,
-      "lf": 26.0,
-      "ls": 24.0,
-      "slack": 13.0,
-      "critical": false
-    },
-    {
-      "id": "T14",
-      "name": "Competitors/winners/values: denominators + NOT_READY when insufficient",
-      "duration": 2.0,
-      "preds": [
-        "T11",
-        "T10"
-      ],
-      "status": "PLANNED",
-      "es": 17.0,
-      "ef": 19.0,
-      "lf": 26.0,
-      "ls": 24.0,
-      "slack": 7.0,
-      "critical": false
-    },
-    {
-      "id": "T15",
-      "name": "Operational outputs: opportunities, triage, dossier, weekly/monthly",
-      "duration": 2.5,
-      "preds": [
-        "T10b",
-        "T12"
-      ],
-      "status": "PLANNED",
-      "es": 20.0,
-      "ef": 22.5,
-      "lf": 22.5,
-      "ls": 20.0,
-      "slack": 0.0,
-      "critical": true
-    },
-    {
-      "id": "T16",
-      "name": "PDF+Excel generation + reconciliation proof",
+      "id": "N10",
+      "name": "Backup/restore local re-proof",
       "duration": 1.5,
       "preds": [
-        "T15"
+        "N02",
+        "N03"
       ],
       "status": "PLANNED",
-      "es": 22.5,
-      "ef": 24.0,
-      "lf": 24.0,
-      "ls": 22.5,
-      "slack": 0.0,
-      "critical": true
-    },
-    {
-      "id": "T17",
-      "name": "Backup/restore local re-proof with provenance+universe",
-      "duration": 1.5,
-      "preds": [
-        "T05",
-        "T06"
-      ],
-      "status": "PLANNED",
-      "es": 8.0,
-      "ef": 9.5,
-      "lf": 24.0,
-      "ls": 22.5,
-      "slack": 14.5,
-      "critical": false
-    },
-    {
-      "id": "T18",
-      "name": "DoD reconciliation: flip only evidence-backed items from this window",
-      "duration": 1.0,
-      "preds": [
-        "T16",
-        "T17"
-      ],
-      "status": "PLANNED",
-      "es": 24.0,
-      "ef": 25.0,
-      "lf": 25.0,
-      "ls": 24.0,
-      "slack": 0.0,
-      "critical": true
-    },
-    {
-      "id": "T19",
-      "name": "Campaign close: final report, skeptic audit, next backlog",
-      "duration": 1.0,
-      "preds": [
-        "T18"
-      ],
-      "status": "PLANNED",
-      "es": 25.0,
-      "ef": 26.0,
-      "lf": 26.0,
-      "ls": 25.0,
-      "slack": 0.0,
-      "critical": true
-    },
-    {
-      "id": "T20",
-      "name": "Claim-language / indicator catalog honesty residual",
-      "duration": 1.0,
-      "preds": [
-        "T01"
-      ],
-      "status": "PLANNED",
-      "es": 1.5,
-      "ef": 2.5,
-      "lf": 26.0,
-      "ls": 25.0,
+      "es": 2.0,
+      "ef": 3.5,
+      "lf": 27.0,
+      "ls": 25.5,
       "slack": 23.5,
       "critical": false
     },
     {
-      "id": "T21",
-      "name": "Crawler metrics + structured logs operational proof",
-      "duration": 1.5,
+      "id": "N11",
+      "name": "Operational daily/weekly package live",
+      "duration": 2.5,
       "preds": [
-        "T08"
+        "N06b",
+        "N08",
+        "N06c"
       ],
       "status": "PLANNED",
-      "es": 11.0,
-      "ef": 12.5,
-      "lf": 26.0,
-      "ls": 24.5,
-      "slack": 13.5,
+      "es": 23.0,
+      "ef": 25.5,
+      "lf": 25.5,
+      "ls": 23.0,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N12",
+      "name": "PDF+Excel reconcile live package",
+      "duration": 1.5,
+      "preds": [
+        "N11"
+      ],
+      "status": "PLANNED",
+      "es": 25.5,
+      "ef": 27.0,
+      "lf": 27.0,
+      "ls": 25.5,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N13",
+      "name": "Freshness monitors + alerts residual",
+      "duration": 1.5,
+      "preds": [
+        "N05"
+      ],
+      "status": "PLANNED",
+      "es": 8.0,
+      "ef": 9.5,
+      "lf": 30.5,
+      "ls": 29.0,
+      "slack": 21.0,
       "critical": false
     },
     {
-      "id": "T22",
-      "name": "Alert pipeline residual + freshness monitors",
-      "duration": 1.5,
+      "id": "N14",
+      "name": "DoD residual REVALIDATE batch evidence",
+      "duration": 2.5,
       "preds": [
-        "T09"
+        "N12",
+        "N10",
+        "N07b"
       ],
       "status": "PLANNED",
-      "es": 14.0,
-      "ef": 15.5,
-      "lf": 26.0,
-      "ls": 24.5,
-      "slack": 10.5,
-      "critical": false
+      "es": 27.0,
+      "ef": 29.5,
+      "lf": 29.5,
+      "ls": 27.0,
+      "slack": 0.0,
+      "critical": true
     },
     {
-      "id": "T23",
-      "name": "Freshness/data-presence reports automated on golden path",
-      "duration": 1.5,
-      "preds": [
-        "T05",
-        "T09"
-      ],
-      "status": "PLANNED",
-      "es": 14.0,
-      "ef": 15.5,
-      "lf": 26.0,
-      "ls": 24.5,
-      "slack": 10.5,
-      "critical": false
-    },
-    {
-      "id": "T24",
-      "name": "Resume-after-interrupt protocol tested for crawlers and campaign",
+      "id": "N15",
+      "name": "Campaign close skeptic audit next backlog",
       "duration": 1.0,
       "preds": [
-        "T08",
-        "T00"
+        "N14"
       ],
       "status": "PLANNED",
-      "es": 11.0,
-      "ef": 12.0,
-      "lf": 26.0,
-      "ls": 25.0,
-      "slack": 14.0,
+      "es": 29.5,
+      "ef": 30.5,
+      "lf": 30.5,
+      "ls": 29.5,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N16",
+      "name": "Competitors/values NOT_READY denominators",
+      "duration": 2.0,
+      "preds": [
+        "N07"
+      ],
+      "status": "PLANNED",
+      "es": 7.5,
+      "ef": 9.5,
+      "lf": 30.5,
+      "ls": 28.5,
+      "slack": 21.0,
       "critical": false
+    },
+    {
+      "id": "N17",
+      "name": "Resume-interrupt crawler campaign protocol test",
+      "duration": 1.0,
+      "preds": [
+        "N01"
+      ],
+      "status": "PLANNED",
+      "es": 2.5,
+      "ef": 3.5,
+      "lf": 30.5,
+      "ls": 29.5,
+      "slack": 27.0,
+      "critical": false
+    },
+    {
+      "id": "N06c",
+      "name": "Coverage scale M5 entity collection wave",
+      "duration": 8.5,
+      "preds": [
+        "N06b"
+      ],
+      "status": "PLANNED",
+      "es": 14.5,
+      "ef": 23.0,
+      "lf": 23.0,
+      "ls": 14.5,
+      "slack": 0.0,
+      "critical": true
     }
-  ],
-  "prior_windows_excluded": [
-    "dod-50-current",
-    "NEXT-30D-MULTIAGENT/PE-30D",
-    "epic/advance-30d not on main"
   ]
 }

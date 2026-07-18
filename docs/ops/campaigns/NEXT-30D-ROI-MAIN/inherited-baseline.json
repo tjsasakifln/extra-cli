@@ -9,7 +9,8 @@
     "checked": 195,
     "open": 1160,
     "total": 1355,
-    "sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1"
+    "sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
+    "pct": 14.4
   },
   "lineage": {
     "epic_acceptance_pct": 32.3,
@@ -19,5 +20,6 @@
   },
   "s5_sessions_ported": true,
   "selective_flips": 102,
-  "pytest_reproof": "136 passed nodeids"
+  "pytest_reproof": "136 passed nodeids",
+  "post_commit_head": "83b1b042ff2a1ec110f36e35af5c955ff31ce744"
 }
