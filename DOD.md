@@ -1564,7 +1564,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] README descreve fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] README descreve métricas de coverage. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] README não confunde alvo futuro com realidade atual. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
-- [ ] PRD está alinhado ao DOD.
+- [x] PRD está alinhado ao DOD. Evidência: PRD v2.1 + CHANGELOG.md + docs/ops/NEXT-DEV-STEP.md + scan_ops_docs_honesty ok + QA PASS cyc-2026-07-18T132050Z.
 - [x] ADRs vigentes estão identificadas. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
 - [x] ADRs revogadas estão identificadas. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
 - [x] Existe runbook local. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/runbook.md`
@@ -1581,8 +1581,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Existe matriz de fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/research/source-runtime-matrix-2026-07-16.md`
 - [x] Existe matriz de capabilities. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/baseline/l1-source-capability-registry.md`
 - [x] Existe registro de blockers. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `squads/extra-dod-roi/state/blockers/latest.json`
-- [ ] Existe changelog ou histórico equivalente.
-- [ ] O próximo passo de desenvolvimento pode ser identificado sem reconstruir todo o contexto.
+- [x] Existe changelog ou histórico equivalente. Evidência: PRD v2.1 + CHANGELOG.md + docs/ops/NEXT-DEV-STEP.md + scan_ops_docs_honesty ok + QA PASS cyc-2026-07-18T132050Z.
+- [x] O próximo passo de desenvolvimento pode ser identificado sem reconstruir todo o contexto. Evidência: PRD v2.1 + CHANGELOG.md + docs/ops/NEXT-DEV-STEP.md + scan_ops_docs_honesty ok + QA PASS cyc-2026-07-18T132050Z.
 
 ---
 

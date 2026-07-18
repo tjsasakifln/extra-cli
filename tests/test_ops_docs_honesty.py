@@ -16,6 +16,9 @@ def test_ops_docs_honesty_scan_ok() -> None:
     assert report["checks"]["adr_index_active"] is True
     assert report["checks"]["adr_index_revoked_section"] is True
     assert report["checks"]["glossary_universe_1093"] is True
+    assert report["checks"]["prd_aligned_language"] is True
+    assert report["checks"]["changelog_exists"] is True
+    assert report["checks"]["next_dev_step_exists"] is True
     assert report["ok"] is True
 
 

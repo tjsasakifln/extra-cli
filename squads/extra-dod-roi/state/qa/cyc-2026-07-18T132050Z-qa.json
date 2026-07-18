@@ -1,0 +1,24 @@
+{
+  "cycle_id": "cyc-2026-07-18T132050Z",
+  "story_id": "ROI-cand-dyn-slice-bb77e543c324",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:22:35Z",
+  "dod_flip_authorized": {
+    "PRD est\u00e1 alinhado ao DOD.": true,
+    "Existe runbook de rollback.": "already_flipped_or_true",
+    "Existe changelog ou hist\u00f3rico equivalente.": true,
+    "O pr\u00f3ximo passo de desenvolvimento pode ser identificado sem reconstruir todo o contexto.": true
+  },
+  "commands_rerun": [
+    {
+      "cmd": "scan",
+      "exit": 0
+    },
+    {
+      "cmd": "pytest",
+      "exit": 0
+    }
+  ]
+}
