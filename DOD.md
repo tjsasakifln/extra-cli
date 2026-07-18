@@ -977,7 +977,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Deduplicação.
 - [x] Reconciliação de snapshot. Evidência: `is_aec` + `reconcile_active_ids` + `tests/test_aec_and_snapshot_reconcile.py` (4 passed) + QA PASS cyc-2026-07-18T133837Z.
 - [x] Classificação de status.
-- [ ] Classificação AEC.
+- [x] Classificação AEC. Evidência: `scripts/buyer_intel/ranking.py` `is_aec` + `tests/test_aec_and_snapshot_reconcile.py` + QA prior cyc-2026-07-18T133837Z / dedupe cyc-2026-07-18T134034Z.
 - [x] Regras de score.
 - [x] Semântica de valores. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
 - [ ] Encadeamento edital-contrato. `PARTIAL` — unit match rules only; not live edital→contrato chain.
