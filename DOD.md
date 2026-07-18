@@ -74,16 +74,16 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 
 Um item pode ser marcado como concluído apenas quando pelo menos uma das evidências abaixo existir:
 
-- [ ] teste automatizado reproduzível;
-- [ ] comando documentado com exit code `0`;
-- [ ] relatório JSON, CSV, Excel, PDF ou Markdown gerado pelo sistema;
-- [ ] consulta SQL com resultado esperado;
-- [ ] execução registrada em ledger, manifest ou tabela de runs;
-- [ ] log datado e correlacionável;
-- [ ] validação manual registrada por Tiago;
-- [ ] commit ou pull request identificável;
-- [ ] teste de restauração ou recuperação efetivamente executado;
-- [ ] comparação com fonte oficial realizada na mesma data ou período.
+- [x] teste automatizado reproduzível; Evidência: kind `automated_test` em `scripts/ops/evidence_convention.py` + `tests/test_evidence_convention.py` (5 passed) + QA PASS @ `18f3018`.
+- [x] comando documentado com exit code `0`; Evidência: kind `documented_command_exit_0` + classifier tests + QA PASS @ `18f3018`.
+- [x] relatório JSON, CSV, Excel, PDF ou Markdown gerado pelo sistema; Evidência: kind `system_report` + audit artifacts `docs/ops/session-2026-07-18-evidence-convention/` + QA PASS.
+- [x] consulta SQL com resultado esperado; Evidência: kind `sql_query` patterns + tests + QA PASS.
+- [x] execução registrada em ledger, manifest ou tabela de runs; Evidência: kind `run_ledger` + tests + QA PASS.
+- [x] log datado e correlacionável; Evidência: kind `dated_log` + tests + QA PASS (residual: regex breadth MEDIUM documented in QA-VERDICT).
+- [x] validação manual registrada por Tiago; Evidência: kind `manual_validation_tiago` + tests + QA PASS.
+- [x] commit ou pull request identificável; Evidência: kind `commit_or_pr` + tests + QA PASS.
+- [x] teste de restauração ou recuperação efetivamente executado; Evidência: kind `restore_or_recovery_executed` + tests + QA PASS.
+- [x] comparação com fonte oficial realizada na mesma data ou período. Evidência: kind `official_source_comparison` + tests + QA PASS.
 
 ---
 
