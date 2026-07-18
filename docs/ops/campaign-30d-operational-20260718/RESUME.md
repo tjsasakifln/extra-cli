@@ -1,23 +1,24 @@
 # RESUME
 
-**Updated:** 2026-07-18T18:28:01.996016+00:00
-**Epic:** `ac6c4be094bb40002dd8203fb81af909d8d457f0`
-**DoD:** 399/1354 (baseline remoto 92)
+**Updated:** 2026-07-18T18:34:31.641613+00:00
+**SHA:** `98d1cab7f8cb53bf3c96816576ce87bd45a3121c`
+**DoD:** 408/1354 (was 92 on remote baseline)
 **PR:** https://github.com/tjsasakifln/extra-consultoria/pull/28
 
-## Closed (session)
-1. b8d41f requirement_states PASS
-2. b3ea2a evidence_convention PASS
-3. dd7b diagnostic_profile CONCERNS (8/10)
-4. 8d8c deliverable A PASS
-5. f7e09f deliverable B PASS
+## Closed this session
+| ID | QA | Topic |
+|----|-----|-------|
+| b8d41f | PASS | requirement states |
+| b3ea2a | PASS | evidence convention |
+| dd7b | CONCERNS | diagnostic profile |
+| 8d8c | PASS | deliverable A orgs |
+| f7e09f | PASS | deliverable B competitors |
+| f07132 | PASS | deliverable C expiring |
 
 ## Next
-`# Story: [Entregável C — contratos vincendos em 90 a 180 dia] O sistema identifica contratos compatíveis com o perfil cuja · A data de térmi`
+# Story: [Entregável D — painel de referências de preços] O sistema produz referências apenas para grupos tecnicamente · A regra de comparabilidade por tipo de 
 
 ```bash
 git switch epic/advance-30d-local-ready-20260718 && git pull --ff-only
 python3 squads/extra-dod-roi/scripts/cli.py status
 ```
-
-Forbidden: LOCAL_READY, 95%, PRE_VPS, PROJECT_DONE
