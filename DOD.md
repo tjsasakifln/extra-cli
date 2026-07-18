@@ -1213,7 +1213,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O deploy não depende de sessão SSH artesanal.
 - [ ] O deploy pode ser iniciado do ambiente local de Tiago.
 - [x] Existe runbook de deploy. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/cloud-deployment-plan.md`
-- [ ] Existe runbook de rollback.
+- [x] Existe runbook de rollback. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
 - [ ] Existe runbook de recuperação após deploy incompleto.
 
 ---
@@ -1563,10 +1563,10 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] README descreve comandos principais. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] README descreve fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] README descreve métricas de coverage. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
-- [ ] README não confunde alvo futuro com realidade atual.
+- [x] README não confunde alvo futuro com realidade atual. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
 - [ ] PRD está alinhado ao DOD.
-- [ ] ADRs vigentes estão identificadas.
-- [ ] ADRs revogadas estão identificadas.
+- [x] ADRs vigentes estão identificadas. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
+- [x] ADRs revogadas estão identificadas. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
 - [x] Existe runbook local. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/runbook.md`
 - [x] Existe runbook de VPS. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `docs/ops/vps-provisioning.md`
 - [x] Existe runbook de backup. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/backup.md`
@@ -1574,10 +1574,10 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Existe runbook de deploy. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/cloud-deployment-plan.md`
 - [ ] Existe runbook de rollback.
 - [x] Existe runbook de fonte quebrada. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/troubleshooting.md`
-- [ ] Existe runbook de schema drift.
-- [ ] Existe runbook de cobertura abaixo de 95%.
+- [x] Existe runbook de schema drift. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
+- [x] Existe runbook de cobertura abaixo de 95%. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
 - [x] Existe runbook de freshness vencida. Evidência: skeptic-r2 runbook.md freshness Critico fresh/stale/SLA
-- [ ] Existe glossário.
+- [x] Existe glossário. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open).
 - [x] Existe matriz de fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/research/source-runtime-matrix-2026-07-16.md`
 - [x] Existe matriz de capabilities. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/baseline/l1-source-capability-registry.md`
 - [x] Existe registro de blockers. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `squads/extra-dod-roi/state/blockers/latest.json`

@@ -1,0 +1,192 @@
+{
+  "cycle_id": "cyc-2026-07-18T131425Z",
+  "story_id": "ROI-cand-dyn-slice-cfa643fd416d",
+  "candidate_id": "cand-dyn-slice:cfa643fd416d",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:19:06Z",
+  "branch": "extra-roi/cand-ops-docs-honesty",
+  "reviewed_commit_note": "uncommitted delivery on feature branch (GLOSSARY.md + adr/INDEX.md + runbook §rollback/drift/coverage95 + scan_ops_docs_honesty.py + tests + evidence pack); HEAD base aa05fa6; DOD.md not modified",
+  "self_qa": false,
+  "independence": true,
+  "dod_md_modified_by_qa": false,
+  "evidence_pack": "docs/ops/session-2026-07-18-ops-docs-honesty/",
+  "prior_qa_artifact_note": "Replaced thin rubber-stamp artifact (dod_flip_authorized:true boolean, no per-item list) with full independent adversarial review.",
+  "commands_rerun": [
+    {
+      "cmd": "python3 scripts/ops/scan_ops_docs_honesty.py",
+      "exit": 0,
+      "notes": "ops_docs_honesty: ok=True missing=[]; all 6 checks True (independent re-run)"
+    },
+    {
+      "cmd": "python3 scripts/ops/scan_ops_docs_honesty.py --json",
+      "exit": 0,
+      "notes": "matches docs/ops/session-2026-07-18-ops-docs-honesty/scan.json structure; present paths all exist"
+    },
+    {
+      "cmd": "python3 -m pytest -q -o addopts= --tb=short tests/test_ops_docs_honesty.py",
+      "exit": 0,
+      "notes": "2 passed (test_ops_docs_honesty_scan_ok + test_cli_exit_zero); tests import shipped scan/main"
+    },
+    {
+      "cmd": "git diff -- DOD.md; git status --short DOD.md",
+      "exit": 0,
+      "notes": "no DOD.md diff; zero [x] flips by implementer in this slice"
+    },
+    {
+      "cmd": "adversarial content review of README/GLOSSARY/ADR INDEX/runbook/PRD + script existence",
+      "exit": 0,
+      "notes": "See falsification_attempts; restore/backup/schema_audit/apply-migrations scripts exist on disk"
+    }
+  ],
+  "falsification_attempts": [
+    "Re-ran scan_ops_docs_honesty CLI — ok=True, missing=[], 6/6 checks true. Fail to falsify scanner green on current tree.",
+    "Re-ran pytest tests/test_ops_docs_honesty.py — 2/2 pass; tests call shipped scan() and main(). Fail to falsify unit proof.",
+    "DOD.md silent [x] flip of §31 items: git status/diff show DOD.md clean; L1566-1580 still open [ ]. Fail to falsify process (AC3).",
+    "NOT_APPLICABLE theater: no N/A classification used; open items either proven or left open. Fail to falsify.",
+    "Runbook sections empty theater: sections have multi-step procedures + commands; scripts/restore-database.sh, backup-database.sh, ops/schema_audit.py, apply-migrations.sh, verify-schema-divergence.sh exist. Fail to falsify existence bar for rollback/drift/coverage95 runbooks.",
+    "Glossary missing 1093: docs/GLOSSARY.md defines universo canônico 1.093 and distinguishes ~2.085 as non-denominator. Fail to falsify glossary item.",
+    "ADR index missing vigente/revogada: INDEX.md lists ADRs with **Vigente** and section 'ADRs revogadas / supersedidas' (empty set documented). Fail to falsify identification items.",
+    "README future/current confusion (VPS): L20-33 mark VPS as alvo futuro not baseline; NOT_READY for PRE_VPS_FINAL_READY; datalake local. Fail to falsify primary future-vs-current honesty.",
+    "README residual universe confusion: L197 still states '2.085 órgãos públicos SC no universo-alvo' without local 1093 qualifier (glossary/runbook fixed; README metrics line residual). Partial residual — does not defeat VPS future/current item; documented as debt.",
+    "PRD 'aligned to DOD' via weak regex: scanner only requires mention of DOD|Definition of Done|cobertura. PRD still claims entity coverage 64.4% (1.093/1.697), M4 '2.085 órgãos', and different ADR set (docs/decisions ADR-001..003) vs architecture ADR index — contradicts current DOD operational coverage 0/1093 + commercial 116/1093. SUCCESSFUL FALSIFICATION of full PRD↔DOD alignment → leave dod:283c426714f0 open (authorized=false).",
+    "ADR file status vs INDEX: ADR-007/008 body Status=Proposed while INDEX marks Vigente; other ADRs Accepted. Residual taxonomy mismatch (Proposed≠revoked); identification still present. Non-blocking for 'identificadas'.",
+    "Scanner shallowness: boolean substring checks only — no structural PRD reconciliation, no absence-of-confusion proof for 2085, not CI-wired. Residual defense-in-depth debt, same class as other §25 library scanners.",
+    "Self-QA: this review is independent adversarial-qa-auditor; re-ran scan+pytest; did not implement delivery; did not flip DOD.md. Fail to falsify independence.",
+    "Prior QA artifact (13:16:42Z) claimed dod_flip_authorized:true as boolean without per-item list — inadequate; superseded by this review."
+  ],
+  "issues": [
+    {
+      "severity": "high",
+      "description": "PRD (docs/prd/PRD-consultoria-extra.md) is NOT content-aligned with current DOD truth: stale coverage 64.4%/1.697 denominator, 2.085 M4 claim, alternate ADR catalog. Scanner check prd_aligned_language is a weak mention-only proxy.",
+      "recommendation": "Leave dod:283c426714f0 open. Follow-up story: reconcile PRD metrics with DOD/GLOSSARY (historical footnote vs current operational 0/1093 + commercial 116/1093) and point ADRs to docs/architecture/adr/INDEX.md."
+    },
+    {
+      "severity": "medium",
+      "description": "README.md L197 still presents 2.085 as 'universo-alvo' without the 1.093 radius-denominator qualifier that GLOSSARY/runbook now use.",
+      "recommendation": "Optional follow-up: reword metrics bullet to match GLOSSARY (1.093 coverage denominator; ~2.085 legacy SC-wide reference)."
+    },
+    {
+      "severity": "low",
+      "description": "ADR INDEX uses 'Vigente' while some ADR bodies still say Status: Proposed (007/008).",
+      "recommendation": "Align vocabulary (Vigente/Accepted/Proposed) or footnote that Vigente means not-revoked."
+    },
+    {
+      "severity": "low",
+      "description": "scan_ops_docs_honesty is regex-shallow and not CI-wired; point-in-time proof only.",
+      "recommendation": "Wire into fail-closed CI after PO flip if §31 docs honesty is to be continuous."
+    },
+    {
+      "severity": "low",
+      "description": "Delivery still uncommitted on feature branch (new docs, scanner, tests, evidence, runbook edits).",
+      "recommendation": "@dev commit before @po close + @devops publish; QA did not commit."
+    }
+  ],
+  "allowed_claims": [
+    "Executable scanner scripts/ops/scan_ops_docs_honesty.py exit 0 with ok=true on required doc set (README, PRD path present, DOD, GLOSSARY, ADR INDEX, runbook).",
+    "Unit tests tests/test_ops_docs_honesty.py (2 passed) call shipped scan/main APIs; independent re-run green.",
+    "docs/GLOSSARY.md exists with universo canônico 1.093 and commercial≠coverage / READY|NOT_READY|BLOCKED semantics.",
+    "docs/architecture/adr/INDEX.md identifies vigentes and documents revogadas section (currently empty set).",
+    "docs/ops/runbook.md gained Runbook de Rollback, Schema Drift, and Cobertura Abaixo de 95% sections with steps referencing real scripts.",
+    "README states VPS/cloud as future target not baseline and PRE_VPS_FINAL_READY as NOT_READY (future≠current honesty).",
+    "Seven of eight §31 slice items have flip authorization; PRD alignment left open; no DOD.md [x] flips performed in this delivery."
+  ],
+  "forbidden_claims": [
+    "PRD is fully reconciled/aligned with current DOD operational metrics (it is not; leave open).",
+    "Operational coverage ≥95% achieved / LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY / VPS operational.",
+    "Scanner proves deep semantic PRD↔DOD consistency or absence of all README number confusion.",
+    "All eight slice items authorized for [x] (only seven).",
+    "Story Done without PO close / DoD flipped without this independent per-item list.",
+    "Prior thin QA boolean flip_authorized:true remains authoritative (superseded)."
+  ],
+  "dod_flip_authorized": [
+    {
+      "id": "dod:20a692206141",
+      "line": 1566,
+      "section": "31. Documentação operacional",
+      "text": "README não confunde alvo futuro com realidade atual.",
+      "authorized": true,
+      "rationale": "README Fase Atual marks VPS/cloud as alvo futuro not baseline; datalake local; PRE_VPS_FINAL_READY = NOT_READY with adversarial destruction of LOCAL_RESILIENCE_READY. Scanner readme_honesty_markers true. Residual L197 2.085 metrics bullet is universe-size debt, not future-vs-current VPS confusion — non-blocking for this wording."
+    },
+    {
+      "id": "dod:283c426714f0",
+      "line": 1567,
+      "section": "31. Documentação operacional",
+      "text": "PRD está alinhado ao DOD.",
+      "authorized": false,
+      "rationale": "LEAVE OPEN. No PRD content update in this delivery. PRD still asserts 64.4% entity coverage (1.093/1.697), M4 2.085 órgãos, and ADRs under docs/decisions — contradicts current DOD operational coverage 0/1093 + commercial signal 116/1093 + architecture ADR index. Scanner only checks mention of DOD/cobertura (false-green proxy). Do not flip."
+    },
+    {
+      "id": "dod:4c2a20317ccb",
+      "line": 1568,
+      "section": "31. Documentação operacional",
+      "text": "ADRs vigentes estão identificadas.",
+      "authorized": true,
+      "rationale": "docs/architecture/adr/INDEX.md lists ADR-007..022 with explicit **Vigente** status; files present under docs/architecture/adr/. Residual Proposed vs Vigente taxonomy on 007/008 bodies non-blocking for identification."
+    },
+    {
+      "id": "dod:bf9cb91d880c",
+      "line": 1569,
+      "section": "31. Documentação operacional",
+      "text": "ADRs revogadas estão identificadas.",
+      "authorized": true,
+      "rationale": "INDEX.md has section 'ADRs revogadas / supersedidas' stating none currently Revogada, with update rule for future supersessions. Empty-set identification is valid proof of the item."
+    },
+    {
+      "id": "dod:eb624ea4f6ae",
+      "line": 1575,
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de rollback.",
+      "authorized": true,
+      "rationale": "runbook.md §Runbook de Rollback with stop-writers → restore-on-separate-db → reconcile → git revert → DoD uncheck; references scripts/backup-database.sh and restore-database.sh (both exist). Matches DOCUMENT_CONTENT_PROOF bar used for peer runbook items."
+    },
+    {
+      "id": "dod:da38db47c713",
+      "line": 1577,
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de schema drift.",
+      "authorized": true,
+      "rationale": "runbook.md §Runbook de Schema Drift with schema_audit / verify-schema-divergence / apply-migrations / fail-closed missing_required; scripts exist on disk."
+    },
+    {
+      "id": "dod:c2eaa5c5aad5",
+      "line": 1578,
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de cobertura abaixo de 95%.",
+      "authorized": true,
+      "rationale": "runbook.md §Runbook de Cobertura Abaixo de 95% distinguishes operational vs commercial, keeps denominator 1.093, gap classification, honesty command via coverage_contract_cli. Aligned with DOD truth language."
+    },
+    {
+      "id": "dod:c57881381540",
+      "line": 1580,
+      "section": "31. Documentação operacional",
+      "text": "Existe glossário.",
+      "authorized": true,
+      "rationale": "docs/GLOSSARY.md shipped with canonical terms (universo 1.093, cobertura operacional, sinal comercial, freshness, recall, READY/NOT_READY/BLOCKED, PRE_VPS gates). Scanner glossary_universe_1093 true."
+    }
+  ],
+  "dod_items_summary": {
+    "proven_flip_yes": 7,
+    "left_open_flip_no": 1,
+    "total_slice": 8
+  },
+  "ac_trace": [
+    {
+      "ac": "Each of 8 dod_item_ids proven with evidence or left open",
+      "result": "PASS",
+      "evidence": "7 proven (README honesty, ADR vigente/revogada index, 3 runbooks, glossary) via docs + scanner + tests + script existence; 1 PRD alignment left open with authorized=false."
+    },
+    {
+      "ac": "No NOT_APPLICABLE used to hit campaign meta",
+      "result": "PASS",
+      "evidence": "No N/A; PRD item left open without false completion."
+    },
+    {
+      "ac": "Independent QA PASS before any [x] flip",
+      "result": "PASS",
+      "evidence": "DOD.md unchanged (all 8 still [ ]); this independent per-item authorization list is the gate; implementer must not flip PRD item."
+    }
+  ],
+  "decision_summary": "PASS — 7/8 §31 ops-docs honesty items proven (glossary, ADR index vigente+revogada, rollback/drift/coverage95 runbooks, README future≠current). PRD alignment left OPEN (stale metrics contradict DOD; weak scanner must not greenwash). No DOD.md flips. Medium/high residual: PRD reconciliation follow-up; README L197 2.085; shallow scanner not CI-wired. Supersedes prior thin boolean QA artifact."
+}

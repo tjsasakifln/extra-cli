@@ -18,12 +18,15 @@
 - [Como Verificar Cobertura](#como-verificar-cobertura)
 - [Como Verificar Freshness Critico](#como-verificar-freshness-critico)
 - [Monitoramento de Logs](#monitoramento-de-logs)
+- [Runbook de Rollback](#runbook-de-rollback)
+- [Runbook de Schema Drift](#runbook-de-schema-drift)
+- [Runbook de Cobertura Abaixo de 95%](#runbook-de-cobertura-abaixo-de-95)
 
 ---
 
 ## Visao Geral do Sistema
 
-O sistema Extra Consultoria e uma plataforma CLI de inteligencia em licitacoes publicas que monitora 2.085 orgaos publicos de Santa Catarina em 5+ fontes de dados abertos.
+O sistema Extra Consultoria e uma plataforma CLI de inteligencia em licitacoes publicas que monitora o universo canônico de **1.093 entes** (raio 200 km; ver glossário — 2.085 é referência estadual legada, não denominador de cobertura) em 5+ fontes de dados abertos.
 
 Nota operacional desta fase:
 
@@ -652,3 +655,50 @@ psql $LOCAL_DATALAKE_DSN -c "
 
 > **Ultima atualizacao:** 2026-07-11
 > **Story:** TD-6.1 -- Documentacao Operacional
+
+## Runbook de Rollback
+
+Quando uma migration, crawl ou deploy local corrompe dados:
+
+1. **Parar writers** — não rodar `monitor.py` / golden path em paralelo.
+2. **Identificar artefato** — commit, `run_id`, dump em `backups/` ou `output/`.
+3. **Restore** — `bash scripts/restore-database.sh <dump>` em **banco separado** antes de substituir.
+4. **Reconciliação** — reexecutar schema audit + contagens chave (entities, contracts, opportunities).
+5. **Git** — reverter commits da fatia na branch de feature (`git revert`); nunca force-push em `main`.
+6. **DoD** — desmarcar `[x]` se a prova não se sustenta mais.
+
+Comandos:
+```bash
+bash scripts/backup-database.sh
+bash scripts/restore-database.sh backups/postgresql/daily/<latest>.dump.gz
+python3 -m scripts.ops.schema_audit  # se disponível
+```
+
+## Runbook de Schema Drift
+
+Sintoma: views/tabelas canônicas ausentes, migrations à frente/atrás do código.
+
+1. `python3 -m scripts.ops.schema_audit` (ou `bash scripts/verify-schema-divergence.sh`).
+2. Listar migrations aplicadas vs `db/migrations/`.
+3. Aplicar apenas migrations pendentes: `bash scripts/apply-migrations.sh` (ou fluxo canônico do projeto).
+4. Reexecutar queries críticas; se falhar, rollback do schema (dump pré-migration).
+5. Registrar gap em `docs/ops/ledger/` se objects required estiverem ausentes.
+
+Fail-closed: não marcar schema audit verde com `missing_required` não vazio.
+
+## Runbook de Cobertura Abaixo de 95%
+
+A meta DoD é **95% operacional** (não sinal comercial).
+
+1. Gerar relatório: `python3 -m scripts.coverage.coverage_contract_cli` (ou pipeline session).
+2. Confirmar denominador = 1.093 (ou valor canônico da seed).
+3. Exportar gaps nominais (`entity-source-gaps.jsonl`).
+4. Classificar blockers: `pending_collection`, `pending_live_verification`, `fragmented`, `blocked_external`.
+5. **Não** reduzir denominador; **não** promover sinal comercial a cobertura.
+6. Priorizar coleta multi-fonte nos gaps com ROI (PNCP, SC Compras, CIGA/DOM públicos).
+7. Re-medir após fatia; se <95%, item DoD permanece aberto.
+
+Comando de honestidade:
+```bash
+python3 -m scripts.coverage.coverage_contract_cli --json | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('metrics',{}).get('operational_source_coverage',{}))"
+```
