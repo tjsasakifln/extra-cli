@@ -2,7 +2,7 @@
 
 **Story ID:** `ROI-cand-dyn-slice-a53bdc0173af`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** InReview  
+**Status:** Done  
 **Risk level:** **HIGH-RISK**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-18T164226Z`)  
 **Candidate ID:** `cand-dyn-slice:a53bdc0173af`  
@@ -154,9 +154,9 @@ Revert feature branch commits; never update DoD on failure; no merge.
 - [x] @dev implemented on non-main branch
 - [x] Tests/lint per risk level
 - [x] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer)
-- [ ] @po closed
+- [x] @po closed
 - [ ] @devops draft PR / publish path (no auto-merge)
-- [ ] DoD.md checkboxes only if evidence authorizes
+- [x] DoD.md checkboxes only if evidence authorizes (L33 only; L32 left open)
 
 ---
 
@@ -167,6 +167,8 @@ Revert feature branch commits; never update DoD on failure; no merge.
 | 2026-07-18 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
 | 2026-07-18 | @po (Pax) | GO → Ready; sharpened AC for suite inventory + entity-level freshness; forbid false full-suite green |
 | 2026-07-18 | delivery-engineer | entity_freshness CLI + tests + evidence pack; suite inventory leave-open; handoff to QA |
+| 2026-07-18 | @qa Quinn | CONCERNS — measurable entity freshness proven; suite leave-open |
+| 2026-07-18 | @po (Pax) | Close CONCERNS; authorize L33 flip only; residual: empty entity_coverage + suite debt |
 
 
 ---
