@@ -2,7 +2,7 @@
 
 **Story ID:** `ROI-cand-dyn-slice-5e47929809f6`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** InReview  
+**Status:** Done  
 **Risk level:** **HIGH-RISK**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-18T171940Z`)  
 **Candidate ID:** `cand-dyn-slice:5e47929809f6`  
@@ -131,8 +131,8 @@ Revert feature branch commits; never update DoD on failure; no merge.
 - [x] @po validated (Ready)
 - [x] @dev implemented on non-main branch
 - [x] Tests/lint per risk level
-- [ ] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer)
-- [ ] @po closed
+- [x] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer)
+- [x] @po closed
 - [ ] @devops draft PR / publish path (no auto-merge)
 - [ ] DoD.md checkboxes only if evidence authorizes
 
@@ -145,6 +145,8 @@ Revert feature branch commits; never update DoD on failure; no merge.
 | 2026-07-18 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
 | 2026-07-18 | @po (Pax) | GO → Ready; AC: remove obsolete sc_compras skips; leave full-suite open unless green |
 | 2026-07-18 | delivery-engineer | Removed 24 obsolete sc_compras skips; critical path re-run; leave full suite open |
+| 2026-07-18 | @qa Quinn | PASS — skip debt removed; full suite leave-open confirmed |
+| 2026-07-18 | @po Pax | Close PASS; 0 DoD flips; residual full suite debt |
 
 ---
 

@@ -4,9 +4,9 @@
   "mode": "strict",
   "foolproof": true,
   "status": "running",
-  "phase": "IMPLEMENTING",
+  "phase": "QA",
   "created_at": "2026-07-18T17:19:40Z",
-  "updated_at": "2026-07-18T17:20:19Z",
+  "updated_at": "2026-07-18T17:22:11Z",
   "selected_id": "cand-dyn-slice:5e47929809f6",
   "selected_roi": 1.2261,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
@@ -83,11 +83,35 @@
           "branch": "extra-roi/cand-dyn-slice-5e47929809f6"
         }
       }
+    },
+    {
+      "at": "2026-07-18T17:22:11Z",
+      "event": "ADVANCE",
+      "phase": "IN_REVIEW",
+      "detail": {
+        "to": "IN_REVIEW",
+        "actor": "delivery-engineer",
+        "evidence": {
+          "commit": "199a2e8"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:22:11Z",
+      "event": "ADVANCE",
+      "phase": "QA",
+      "detail": {
+        "to": "QA",
+        "actor": "delivery-engineer",
+        "evidence": {
+          "handoff": true
+        }
+      }
     }
   ],
   "abort": null,
   "outcome": null,
-  "next_phase_required": "IN_REVIEW",
+  "next_phase_required": "PO_CLOSE",
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",
     "binding": "data/aiox-binding.yaml",
