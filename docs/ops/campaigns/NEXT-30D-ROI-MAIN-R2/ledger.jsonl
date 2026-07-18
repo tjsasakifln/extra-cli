@@ -20,3 +20,7 @@
 {"ts": "2026-07-18T21:12:33Z", "event": "N06_DONE", "pncp_fetched": 1131, "qa": "PASS"}
 {"ts": "2026-07-18T21:12:33Z", "event": "N09_CONCERNS", "recall": "NOT_READY"}
 {"ts": "2026-07-18T21:12:33Z", "event": "BUGFIX_CHECKPOINT_TRANSITION", "files": ["stages.py", "pipeline.py"]}
+{"ts": "2026-07-18T21:17:16Z", "event": "N06b_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:17:16Z", "event": "N11_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:17:16Z", "event": "N12_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:17:16Z", "event": "N13_DONE", "qa": "PASS"}

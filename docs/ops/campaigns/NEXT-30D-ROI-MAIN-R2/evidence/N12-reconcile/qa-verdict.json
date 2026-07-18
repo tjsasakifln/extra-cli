@@ -1,0 +1,15 @@
+{
+  "task": "N12",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:17:16Z",
+  "checks": [
+    "reconcile_pdf_excel ran on live N11 export",
+    "pdf_exists excel_exists consistent=True",
+    "METADATA_ABSENT noted honestly \u2014 not forced green metadata"
+  ],
+  "concerns": [
+    "regenerate with run_metadata sidecars for full filter parity"
+  ]
+}

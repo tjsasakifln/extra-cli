@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-07-18T21:16:28.415285+00:00",
+  "run_id": "ops-export-20260718-211628-9711f0d6",
+  "universe_version": "sc_public_entities:n=2085",
+  "source": "postgresql+ingestion_runs",
+  "reliability": "DEGRADED",
+  "git_sha": "db06863",
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "cobertura operacional de 95%",
+    "recall de 95%",
+    "PRE_VPS_FINAL_READY",
+    "PROJECT_DONE",
+    "garantia de vitória"
+  ],
+  "limitations": []
+}

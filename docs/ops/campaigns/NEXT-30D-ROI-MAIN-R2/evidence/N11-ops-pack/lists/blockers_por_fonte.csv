@@ -1,0 +1,10 @@
+source,blocker_type,n,last_started,detail
+ciga_dom,ingestion_failed,1,2026-07-18 21:15:35.953343+00:00,"total size of jsonb array elements exceeds the maximum of 268435455 bytes
+LINE 3:                 FROM public.upsert_official_acts('[{""source""...
+                                                         ^
+"
+contracts,ingestion_failed,1,2026-07-18 20:20:56.869786+00:00,"Upsert failed: insert or update on table ""pncp_supplier_contracts"" violates foreign key constraint ""fk_contracts_supplier_entity_v2""
+DETAIL:  Key (fornecedor_cnpj_8)=(03229363) is not present in table ""sc_public_entities"".
+CONTEXT:  SQL statement ""WITH input AS (
+        SELECT DISTINCT ON ((rec->>'"
+pncp,ingestion_completed,5,2026-07-18 20:16:56.836669+00:00,reconciled after interrupted crawl; data present

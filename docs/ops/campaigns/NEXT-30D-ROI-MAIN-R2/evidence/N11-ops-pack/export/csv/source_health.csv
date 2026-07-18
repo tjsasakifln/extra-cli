@@ -1,0 +1,7 @@
+source,n_runs,n_ok,n_fail,n_running,last_started,last_status,success_rate_pct,reliability
+ciga_dom,1,0,1,0,2026-07-18 21:15:35.953343+00:00,failed,0.0,UNTRUSTED
+compras_gov,2,2,0,0,2026-07-18 20:20:07.835498+00:00,completed,100.0,TRUSTED
+contracts,3,0,1,2,2026-07-18 20:24:52.372539+00:00,running,0.0,UNTRUSTED
+pcp,4,4,0,0,2026-07-18 21:04:44.321938+00:00,completed,100.0,TRUSTED
+pncp,9,8,0,1,2026-07-18 21:12:07.845784+00:00,completed,88.89,TRUSTED
+sc_compras,1,1,0,0,2026-07-18 21:13:15.443624+00:00,completed,100.0,TRUSTED

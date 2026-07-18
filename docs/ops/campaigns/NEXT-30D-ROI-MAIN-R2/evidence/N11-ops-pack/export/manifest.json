@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-07-18T21:16:28.415285+00:00",
+  "run_id": "ops-export-20260718-211628-9711f0d6",
+  "universe_version": "sc_public_entities:n=2085",
+  "source": "postgresql+ingestion_runs",
+  "reliability": "DEGRADED",
+  "git_sha": "db06863",
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "cobertura operacional de 95%",
+    "recall de 95%",
+    "PRE_VPS_FINAL_READY",
+    "PROJECT_DONE",
+    "garantia de vitória"
+  ],
+  "limitations": [],
+  "section": "12.2-export",
+  "artifacts": {
+    "source_health_csv": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/export/csv/source_health.csv",
+      "rows": 6
+    },
+    "editais_csv": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/export/csv/editais_sample.csv",
+      "rows": 100
+    },
+    "excel": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/export/export-ops-export-20260718-211628-9711f0d6.xlsx",
+      "bytes": 22144
+    },
+    "pdf": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/export/export-ops-export-20260718-211628-9711f0d6.pdf",
+      "bytes": 2366
+    }
+  },
+  "metadata_fields_present": [
+    "generated_at",
+    "universe_version",
+    "source",
+    "reliability"
+  ],
+  "claims": {
+    "allowed": [
+      "Source health report generated from ingestion_runs",
+      "CSV + Excel + PDF exports with shared metadata",
+      "Unsupported seal claims listed as forbidden"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "cobertura operacional de 95%",
+      "recall de 95%",
+      "PRE_VPS_FINAL_READY",
+      "PROJECT_DONE",
+      "garantia de vitória"
+    ]
+  },
+  "forbidden_phrase_hits_in_manifest": []
+}

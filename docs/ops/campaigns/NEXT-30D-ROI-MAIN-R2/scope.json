@@ -154,7 +154,7 @@
     {
       "id": "N06b",
       "name": "Coverage scale M4 multi-source operational",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 3.0,
       "predecessors": [
         "N06"
@@ -269,7 +269,7 @@
     {
       "id": "N11",
       "name": "Operational daily/weekly package live",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.5,
       "predecessors": [
         "N06c",
@@ -286,7 +286,7 @@
     {
       "id": "N12",
       "name": "PDF+Excel reconcile live package",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 1.5,
       "predecessors": [
         "N11"
@@ -302,7 +302,7 @@
     {
       "id": "N13",
       "name": "Freshness monitors + alerts residual",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 1.5,
       "predecessors": [
         "N05"
@@ -411,5 +411,5 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T21:12:33Z"
+  "updated_at": "2026-07-18T21:17:16Z"
 }

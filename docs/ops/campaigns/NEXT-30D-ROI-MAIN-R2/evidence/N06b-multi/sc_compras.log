@@ -1,0 +1,96 @@
+{"timestamp": "2026-07-18T21:13:15.886383+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Starting cascade matching for source=sc_compras with 2085 entities (pncp_ids=2610 ids)"}
+{"timestamp": "2026-07-18T21:13:15.896979+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Matching 2610 bids for source=sc_compras"}
+{"timestamp": "2026-07-18T21:13:20.893836+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Unknown abbreviations detected (60 unique): ['AMPARO', 'ARESC', 'CASA', 'CBM', 'CC', 'CENTRO', 'CIASC', 'CIDASC', 'CIVIL', 'CONTAS', 'CORPO', 'DC', 'DEFESA', 'DESENV', 'DETRAN', 'DPE', 'ENA', 'EPAGRI', 'ESCOLA', 'ESTADO', 'FAPESC', 'FCC', 'FCE', 'FCEE', 'FUNDO', 'GERAL', 'GVG', 'IMA', 'IMETRO', 'IPREV', 'JUCESC', 'JUNTA', 'MEIO', 'MULHER', 'PC', 'PESCA', 'PGE', 'PORTO', 'PORTOS', 'RURAL', 'SAI', 'SANTA', 'SAPE', 'SC', 'SCPAR', 'SEA', 'SECOM', 'SED', 'SEF', 'SEJURI', 'SES', 'SETUR', 'SIE', 'SOCIAL', 'SSP', 'SUL', 'TCE', 'UDESC', 'VERDE', 'VICE']"}
+{"timestamp": "2026-07-18T21:13:20.893959+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Cascade matching done for source=sc_compras — CNPJ=0, cnpj_alias=0, name=303, alias=0, fuzzy=1977, unmatched=330, total=2610"}
+
+📋 2085 entidades carregadas (1093 no raio 200km)
+
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+📍 Source: SC_COMPRAS | Mode: incremental
+────────────────────────────────────────────────────────────
+  ✅ success: fetched=2610, transformed=2610, inserted=2610, updated=0, matched=0
+
+============================================================
+  RESUMO
+============================================================
+  Success:   1 sources
+  Degraded:  0 sources
+  Empty:     0 sources
+  Skipped:   0 sources
+  Fetched:   2610
+  Transformed: 2610
+  Inserted:  2610
+  Updated:   0
+  Matched:   0
+  Classificados engenharia: 0
+  Engenharia confirmada: 0
+  Engenharia provavel: 0
+  Dentro de 200km: 0
+  Restante de SC: 0
+  Localizacao nao confirmada: 0
+  Descartados por falso positivo: 0
+  Persistidos: 0
+  Falhas externas: 0
+
+  📊 Coverage: 10.6% (222/2085)
+
+  📄 Result JSON: docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N06b-multi/sc_compras.json

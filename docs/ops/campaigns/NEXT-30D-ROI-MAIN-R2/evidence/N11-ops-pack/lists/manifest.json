@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "run_id": "ops-lists-20260718-211628-6bf16cd5",
+  "generated_at": "2026-07-18T21:16:28.101151+00:00",
+  "git_sha": "db06863",
+  "section": "12.2",
+  "lists": {
+    "editais_acionaveis": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/lists/editais_acionaveis.csv",
+      "rows": 6,
+      "bytes": 4184
+    },
+    "editais_revisao": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/lists/editais_revisao.csv",
+      "rows": 0,
+      "bytes": 149
+    },
+    "editais_descartados": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/lists/editais_descartados.csv",
+      "rows": 1994,
+      "bytes": 662348
+    },
+    "oportunidades_removidas_snapshot": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/lists/oportunidades_removidas_snapshot.csv",
+      "rows": 0,
+      "bytes": 97
+    },
+    "entes_sem_cobertura_editais": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/lists/entes_sem_cobertura_editais.csv",
+      "rows": 1630,
+      "bytes": 164542
+    },
+    "entes_sem_cobertura_contratos": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/lists/entes_sem_cobertura_contratos.csv",
+      "rows": 1636,
+      "bytes": 173954
+    },
+    "blockers_por_fonte": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/lists/blockers_por_fonte.csv",
+      "rows": 3,
+      "bytes": 798
+    },
+    "runs_stale": {
+      "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/lists/runs_stale.csv",
+      "rows": 0,
+      "bytes": 88
+    }
+  },
+  "counts": {
+    "GO": 6,
+    "REVIEW": 0,
+    "NO_GO": 1994,
+    "removed": 0,
+    "gap_editais": 1630,
+    "gap_contratos": 1636,
+    "blockers": 3,
+    "stale_runs": 0
+  },
+  "ranking_source": "pncp_raw_bids+compute_ranking",
+  "limitations": [],
+  "reliability": "TRUSTED",
+  "claims": {
+    "allowed": [
+      "Eight operational list CSVs generated from PostgreSQL",
+      "Active bids classified into GO/REVIEW/NO_GO when data present",
+      "Empty gap lists documented when universe not seeded"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "operational coverage 95%",
+      "PRE_VPS_FINAL_READY",
+      "PROJECT_DONE"
+    ]
+  }
+}

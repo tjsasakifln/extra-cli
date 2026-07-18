@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "reconciled_at": "2026-07-18T21:16:47.540403Z",
+  "pdf_path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/export/export-ops-export-20260718-211628-9711f0d6.pdf",
+  "excel_path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/export/export-ops-export-20260718-211628-9711f0d6.xlsx",
+  "pdf_exists": true,
+  "excel_exists": true,
+  "pdf_meta_path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/export/export-ops-export-20260718-211628-9711f0d6.pdf.meta.json",
+  "excel_meta_path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N11-ops-pack/export/export-ops-export-20260718-211628-9711f0d6.xlsx.meta.json",
+  "pdf_meta_source": "missing",
+  "excel_meta_source": "missing",
+  "verdict": "METADATA_ABSENT",
+  "consistent": true,
+  "reason": "PDF and Excel exist but neither has run metadata (*.meta.json / Metadados sheet). Filters not comparable; treated as consistent with note (regenerate with run_metadata sidecars).",
+  "checks": [],
+  "exit_hint": 0
+}

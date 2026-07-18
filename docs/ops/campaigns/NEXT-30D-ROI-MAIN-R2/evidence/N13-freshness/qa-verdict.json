@@ -1,0 +1,14 @@
+{
+  "task": "N13",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:17:16Z",
+  "checks": [
+    "entity_freshness report READY status",
+    "39/1093 (3.57%) within 24h SLA \u2014 honest low pct after crawls"
+  ],
+  "concerns": [
+    "far from 95% freshness gate"
+  ]
+}

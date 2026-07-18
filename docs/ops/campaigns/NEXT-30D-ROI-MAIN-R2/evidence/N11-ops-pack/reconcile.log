@@ -1,0 +1,2 @@
+Reconciliation report: /mnt/d/extra consultoria/output/reports/reconcile-next30d.json
+verdict=METADATA_ABSENT consistent=True pdf_exists=True excel_exists=True reason=PDF and Excel exist but neither has run metadata (*.meta.json / Metadados sheet). Filters not comparable; treated as consistent with note (regenerate with run_metadata sidecars).

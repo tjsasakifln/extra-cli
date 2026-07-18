@@ -3,7 +3,7 @@
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
   "status": "EXECUTING",
   "created_at": "2026-07-18T20:39:42Z",
-  "updated_at": "2026-07-18T21:12:33Z",
+  "updated_at": "2026-07-18T21:17:16Z",
   "integration_mode": "main-direct",
   "baseline_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
   "baseline_dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
@@ -11,7 +11,7 @@
   "baseline_open_count": 1160,
   "baseline_pct": 14.39,
   "pert_days_target": 30,
-  "pert_days_advanced_new": 23.0,
+  "pert_days_advanced_new": 31.5,
   "pert_critical_path_days": 32.0,
   "scope_frozen": true,
   "prior_campaign": "NEXT-30D-ROI-MAIN",
@@ -71,6 +71,27 @@
       "id": "N10",
       "at": "2026-07-18T21:12:33Z",
       "qa": "PASS"
+    },
+    {
+      "id": "N06b",
+      "at": "2026-07-18T21:17:16Z",
+      "qa": "PASS"
+    },
+    {
+      "id": "N11",
+      "at": "2026-07-18T21:17:16Z",
+      "qa": "PASS",
+      "note": "live package on current data; N06c scale residual"
+    },
+    {
+      "id": "N12",
+      "at": "2026-07-18T21:17:16Z",
+      "qa": "PASS"
+    },
+    {
+      "id": "N13",
+      "at": "2026-07-18T21:17:16Z",
+      "qa": "PASS"
     }
   ],
   "paths": {
@@ -84,10 +105,12 @@
   "notes": [
     "R2 new session — reconstructed from repo only",
     "R1 inherited flips/PERT not re-counted",
-    "Gates remain NOT_READY"
+    "Gates remain NOT_READY",
+    "N11 delivered live operational package without waiting full N06c entity wave",
+    "N06c remains open for large coverage collection wave"
   ],
   "current_head": "pending",
   "current_head_pending": true,
-  "pert_critical_days_done": 13.0,
+  "pert_critical_days_done": 20.0,
   "pert_critical_days_remaining_approx": 22.5
 }
