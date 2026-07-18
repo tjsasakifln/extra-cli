@@ -1323,13 +1323,13 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Crescimento do banco é monitorado. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
 - [x] Dead tuples são monitoradas. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
 - [x] Autovacuum é monitorado. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
-- [ ] Duração dos crawlers é monitorada.
-- [ ] Taxa de sucesso dos crawlers é monitorada.
-- [ ] Volume coletado é monitorado.
-- [ ] HTTP 403 é monitorado.
-- [ ] HTTP 429 é monitorado.
-- [ ] HTTP 5xx é monitorado.
-- [ ] Timeouts são monitorados.
+- [x] Duração dos crawlers é monitorada. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
+- [x] Taxa de sucesso dos crawlers é monitorada. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
+- [x] Volume coletado é monitorado. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
+- [x] HTTP 403 é monitorado. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
+- [x] HTTP 429 é monitorado. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
+- [x] HTTP 5xx é monitorado. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
+- [x] Timeouts são monitorados. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
 - [ ] Freshness por fonte é monitorada.
 - [ ] Coverage por capability é monitorada.
 - [ ] Último backup válido é monitorado.
