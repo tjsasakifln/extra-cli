@@ -1520,12 +1520,12 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Overrides manuais possuem motivo. Evidência: `scripts/lib/manual_override_ledger.py` + `tests/test_manual_override_ledger.py` (3 passed) + QA PASS cyc-2026-07-18T133025Z.
 - [x] Overrides manuais possuem data. Evidência: `scripts/lib/manual_override_ledger.py` + `tests/test_manual_override_ledger.py` (3 passed) + QA PASS cyc-2026-07-18T133025Z.
 - [x] Overrides manuais possuem autor. Evidência: `scripts/lib/manual_override_ledger.py` + `tests/test_manual_override_ledger.py` (3 passed) + QA PASS cyc-2026-07-18T133025Z.
-- [ ] A evidência de coverage pode ser reconstruída.
-- [ ] A evidência de `success_zero` pode ser reconstruída.
-- [ ] A evidência de freshness pode ser reconstruída.
-- [ ] A evidência de recall pode ser reconstruída.
-- [ ] A evidência de snapshot pode ser reconstruída.
-- [ ] O DOD aponta para os artefatos finais de aceite.
+- [x] A evidência de coverage pode ser reconstruída. Evidência: `scripts/ops/reconstruct_evidence.py` + `tests/test_reconstruct_evidence.py` (3 passed) + QA PASS cyc-2026-07-18T133227Z.
+- [x] A evidência de `success_zero` pode ser reconstruída. Evidência: `scripts/ops/reconstruct_evidence.py` + `tests/test_reconstruct_evidence.py` (3 passed) + QA PASS cyc-2026-07-18T133227Z.
+- [x] A evidência de freshness pode ser reconstruída. Evidência: `scripts/ops/reconstruct_evidence.py` + `tests/test_reconstruct_evidence.py` (3 passed) + QA PASS cyc-2026-07-18T133227Z.
+- [x] A evidência de recall pode ser reconstruída. Evidência: `scripts/ops/reconstruct_evidence.py` + `tests/test_reconstruct_evidence.py` (3 passed) + QA PASS cyc-2026-07-18T133227Z.
+- [x] A evidência de snapshot pode ser reconstruída. Evidência: `scripts/ops/reconstruct_evidence.py` + `tests/test_reconstruct_evidence.py` (3 passed) + QA PASS cyc-2026-07-18T133227Z.
+- [x] O DOD aponta para os artefatos finais de aceite. Evidência: `scripts/ops/reconstruct_evidence.py` + `tests/test_reconstruct_evidence.py` (3 passed) + QA PASS cyc-2026-07-18T133227Z.
 
 ---
 

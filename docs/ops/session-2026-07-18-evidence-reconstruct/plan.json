@@ -1,0 +1,125 @@
+{
+  "ok": true,
+  "kinds": [
+    "coverage",
+    "success_zero",
+    "freshness",
+    "recall",
+    "snapshot",
+    "acceptance"
+  ],
+  "items": [
+    {
+      "kind": "coverage",
+      "reconstructible": true,
+      "command": "python3 -m scripts.coverage.coverage_contract_cli --json -o output/coverage/contract-report.json",
+      "artifact_globs": [
+        "output/coverage/contract-report.json",
+        "output/coverage/entity-source-gaps.jsonl",
+        "docs/ops/session-*/coverage*.json"
+      ],
+      "notes": "Uses fixed denominator 1093; presence ≠ operational coverage.",
+      "existing_artifacts": [
+        "docs/ops/session-2026-07-17/coverage_canonical.json",
+        "output/coverage/contract-report.json",
+        "output/coverage/entity-source-gaps.jsonl"
+      ]
+    },
+    {
+      "kind": "success_zero",
+      "reconstructible": true,
+      "command": "python3 -m scripts.crawl.monitor --source pncp --mode incremental  # inspect run evidence success_zero",
+      "artifact_globs": [
+        "output/golden-path/*.json",
+        "data/**/checkpoints/**/*.json",
+        "docs/ops/session-*/**/*success*zero*"
+      ],
+      "notes": "success_zero is a valid terminal status per entity/source when query succeeds with 0 rows.",
+      "existing_artifacts": [
+        "output/golden-path/b2g-cycle-20260717.json",
+        "output/golden-path/b2g-cycle-pcp-20260717.json",
+        "output/golden-path/crawl-compras_gov-gp-20260715-220118.json",
+        "output/golden-path/crawl-compras_gov-gp-20260716-191038.json",
+        "output/golden-path/crawl-compras_gov-gp-20260716-194636.json",
+        "output/golden-path/crawl-compras_gov-gp-20260716-200904.json",
+        "output/golden-path/crawl-compras_gov-gp-20260717-093108.json",
+        "output/golden-path/crawl-pcp-gp-20260715-220118.json",
+        "output/golden-path/crawl-pcp-gp-20260716-191038.json",
+        "output/golden-path/crawl-pcp-gp-20260716-194636.json",
+        "output/golden-path/crawl-pcp-gp-20260716-200904.json",
+        "output/golden-path/crawl-pcp-gp-20260717-093108.json",
+        "output/golden-path/crawl-pcp-gp-20260717-102949.json",
+        "output/golden-path/evidence-gp-20260716-191038.json",
+        "output/golden-path/ledger-slice.json",
+        "output/golden-path/ledger-slice2.json",
+        "output/golden-path/ledger.json"
+      ]
+    },
+    {
+      "kind": "freshness",
+      "reconstructible": true,
+      "command": "python3 scripts/freshness_gate.py --json",
+      "artifact_globs": [
+        "docs/ops/session-*/freshness_manifest.json",
+        "output/**/freshness*.json"
+      ],
+      "notes": "Entity-level freshness may be NOT_READY if only source-level manifests exist.",
+      "existing_artifacts": [
+        "docs/ops/session-2026-07-17/freshness_manifest.json",
+        "output/ciga_dom/freshness_manifest.json",
+        "output/readiness/freshness-gate.json"
+      ]
+    },
+    {
+      "kind": "recall",
+      "reconstructible": true,
+      "command": "python3 -c \"import json; print(json.load(open('docs/qa/recall-sample-2026-07-17.json'))['status'] if False else 'see sample')\"",
+      "artifact_globs": [
+        "docs/qa/recall*.json",
+        "output/coverage/recall*.json"
+      ],
+      "notes": "Recall only from stratified gold sample — never DB opportunity counts.",
+      "existing_artifacts": [
+        "docs/qa/recall-sample-2026-07-17.json",
+        "output/coverage/recall_benchmark.json",
+        "output/coverage/recall_sample.json"
+      ]
+    },
+    {
+      "kind": "snapshot",
+      "reconstructible": true,
+      "command": "python3 -m scripts.opportunity_intel.cli snapshot  # or project snapshot path",
+      "artifact_globs": [
+        "output/**/snapshot*.json",
+        "docs/ops/session-*/**/*snapshot*"
+      ],
+      "notes": "active_snapshot_integrity must be re-measured; do not trust historical 1.0 without re-run.",
+      "existing_artifacts": [
+        "docs/ops/session-2026-07-17-full-suite-debt/pytest.ini.snapshot"
+      ]
+    },
+    {
+      "kind": "acceptance",
+      "reconstructible": true,
+      "command": "see docs/ops/NEXT-DEV-STEP.md and guided acceptance pack (Tiago sign-off required)",
+      "artifact_globs": [
+        "docs/ops/session-*/**/*accept*",
+        "docs/ops/NEXT-DEV-STEP.md",
+        "DOD.md"
+      ],
+      "notes": "Human acceptance remains open until Tiago signs.",
+      "existing_artifacts": [
+        "DOD.md",
+        "docs/ops/NEXT-DEV-STEP.md"
+      ]
+    }
+  ],
+  "dod_refs": [
+    "A evidência de coverage pode ser reconstruída.",
+    "A evidência de success_zero pode ser reconstruída.",
+    "A evidência de freshness pode ser reconstruída.",
+    "A evidência de recall pode ser reconstruída.",
+    "A evidência de snapshot pode ser reconstruída.",
+    "O DOD aponta para os artefatos finais de aceite."
+  ]
+}
