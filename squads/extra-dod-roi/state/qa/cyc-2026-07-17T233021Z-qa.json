@@ -1,0 +1,133 @@
+{
+  "story_id": "ROI-cand-dod-unit-test-evidence-pack",
+  "cycle_id": "cyc-2026-07-17T233021Z",
+  "candidate_id": "cand-dod-unit-test-evidence-pack",
+  "branch": "extra-roi/cand-dod-unit-test-evidence-pack",
+  "reviewer": "adversarial-qa-auditor (independent)",
+  "implementer": "delivery-engineer",
+  "independence": true,
+  "independent": true,
+  "reviewed_commit": "7876e838e81b6d59c255f7635c6743cbaddd7ff9",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "at": "2026-07-17T23:36:00Z",
+  "reviewed_at": "2026-07-17T23:36:00Z",
+  "checks": [
+    {
+      "id": "auditor_not_implementer",
+      "result": "pass",
+      "notes": "qa-agent=adversarial-qa-auditor != implementer delivery-engineer"
+    },
+    {
+      "id": "ac1_mapping_pytest_proof",
+      "result": "pass",
+      "notes": "MANIFEST.md maps each proposed DoD checkbox to pytest files/proof; proposed-flips.txt has 20 items; pack artifact pytest-pack.exit EXIT:0 and log 511 passed, 12 skipped"
+    },
+    {
+      "id": "ac2_pack_rerun_exit_0",
+      "result": "pass",
+      "notes": "Artifact: 511 passed, 12 skipped, exit 0. Independent spot-check: pytest -o addopts='' -q tests/test_universe.py tests/test_coverage_states.py tests/unit/test_dod_unit_evidence_pack.py → 58 passed exit 0"
+    },
+    {
+      "id": "ac3_dod_not_prematurely_flipped",
+      "result": "pass",
+      "notes": "All 20 proposed-flips.txt items still [ ] in DOD.md (incl. §13.1 unit block + §3 baseline/dups). No DOD.md change in feature commits 69c5aef/7876e83. Flips authorized only after this PASS, steward-only, proposed-flips list only."
+    },
+    {
+      "id": "ac4_no_95_ops_claims",
+      "result": "pass",
+      "notes": "MANIFEST rule: No 95% ops claims; Explicitly NOT marked includes capability_monitoring_coverage >= 95% and §8–12 live. No LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY seals."
+    },
+    {
+      "id": "false_green_hunt",
+      "result": "pass",
+      "notes": "Partial items (Classificação AEC, Encadeamento edital-contrato) labeled (parcial) in MANIFEST — still unit-test stage proof. Items NOT marked (IBGE, idempotent import, snapshot reconcile, 95%) correctly excluded from proposed-flips. Mapping row 'Entes sem coords' in MANIFEST is NOT in proposed-flips (steward must not flip it)."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "Evidence pack lists each DoD checkbox with pytest proof mapping",
+      "verdict": "PASS",
+      "evidence": "MANIFEST mapping table + proposed-flips.txt (20) + pytest-pack.log/exit"
+    },
+    {
+      "id": 2,
+      "text": "Pack re-run exit 0 (511 passed); only HIGH-confidence mapped items",
+      "verdict": "PASS",
+      "evidence": "511 passed, 12 skipped, exit 0; independent spot-check 58 passed; NOT-marked list present"
+    },
+    {
+      "id": 3,
+      "text": "DoD.md updated only for proven items after independent QA",
+      "verdict": "PASS",
+      "evidence": "DoD still all [ ] for proposed set pre-QA; steward MAY flip proposed-flips.txt items only post-PASS"
+    }
+  ],
+  "proposed_flips_authorized": {
+    "count": 20,
+    "source": "docs/ops/session-2026-07-17-dod-unit-evidence/proposed-flips.txt",
+    "items": [
+      "Normalização de CNPJ.",
+      "Normalização de coordenadas.",
+      "Cálculo de identidade de ente.",
+      "Cálculo de cobertura.",
+      "Regra de `success_zero`.",
+      "Freshness.",
+      "Paginação.",
+      "Retry.",
+      "Backoff.",
+      "Checkpoint.",
+      "Resume.",
+      "Deduplicação.",
+      "Classificação de status.",
+      "Classificação AEC.",
+      "Regras de score.",
+      "Encadeamento edital-contrato.",
+      "Geração de manifest.",
+      "Geração de relatórios.",
+      "O baseline atual de 1.093 entes é confirmado para a versão corrente da planilha.",
+      "Duplicidades legítimas de raiz de CNPJ não são eliminadas indevidamente."
+    ],
+    "not_authorized": [
+      "Normalização de IBGE",
+      "Importação idempotente planilha",
+      "Detecção novos/alterados/removidos",
+      "Semântica de valores",
+      "Hash planilha",
+      "Reconciliação snapshot",
+      "capability_monitoring_coverage >= 95%",
+      "Entes sem coords excluídos do raio (in MANIFEST mapping but NOT in proposed-flips.txt)",
+      "Any §8–12 operational live item"
+    ]
+  },
+  "residual_concerns": [
+    {
+      "severity": "low",
+      "description": "Classificação AEC and Encadeamento edital-contrato are marked (parcial) in MANIFEST — unit-stage proof only, not full domain completeness.",
+      "recommendation": "Steward may flip §13.1 unit-test checkboxes; do not interpret as full product/AEC readiness."
+    },
+    {
+      "severity": "low",
+      "description": "Proof mapping is file-level (not exhaustive pytest nodeid list).",
+      "recommendation": "Acceptable for this pack; optional future: pin exact nodeids if audit demands."
+    }
+  ],
+  "forbidden_claims_check": {
+    "claims_95_operational": false,
+    "local_resilience_ready": false,
+    "pre_vps_final_ready": false,
+    "dod_premature_flip": false
+  },
+  "metrics_observed": {
+    "pytest_pack_passed": 511,
+    "pytest_pack_skipped": 12,
+    "pytest_pack_exit": 0,
+    "proposed_flips": 20,
+    "independent_spotcheck_passed": 58,
+    "independent_spotcheck_exit": 0
+  },
+  "gate_decision": "PASS",
+  "steward_authorization": "Evidence steward MAY flip ONLY the 20 items listed in proposed-flips.txt after this PASS. Do not flip anything else. Do not claim 95% operational coverage.",
+  "next": "PO_CLOSE"
+}

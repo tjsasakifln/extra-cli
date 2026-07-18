@@ -17,6 +17,7 @@ from campaign import (  # noqa: E402
     ensure_baseline,
     reconstruct_accepted_from_diff,
     register_acceptance,
+    validate_evidence_quality,
     validate_guards,
     parse_items,
 )
@@ -47,6 +48,32 @@ class DynamicCandidates(unittest.TestCase):
 
 
 class CampaignGuards(unittest.TestCase):
+    def test_evidence_quality_rejects_code_only_pass(self) -> None:
+        with self.assertRaises(ValueError):
+            validate_evidence_quality(
+                evidence="code exists only",
+                command="",
+                exit_code=0,
+                qa_verdict="PASS",
+            )
+
+    def test_evidence_quality_rejects_unit_as_e2e(self) -> None:
+        with self.assertRaises(ValueError):
+            validate_evidence_quality(
+                evidence="full e2e ponta a ponta path",
+                command="pytest tests/unit/test_x.py",
+                exit_code=0,
+                qa_verdict="PASS",
+            )
+
+    def test_evidence_quality_accepts_real_command(self) -> None:
+        validate_evidence_quality(
+            evidence="docs/ops/session/MANIFEST.md",
+            command="pytest tests/test_universe.py -o addopts=",
+            exit_code=0,
+            qa_verdict="PASS",
+        )
+
     def test_no_count_preexisting(self) -> None:
         dod_text = (
             "# Sec\n"

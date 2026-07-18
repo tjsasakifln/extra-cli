@@ -42,3 +42,9 @@ python3 -m pytest tests/test_value_semantics.py tests/test_universe.py -q -o add
 
 - Implementer: delivery-engineer (campaign orchestrator implement path)
 - QA: adversarial-qa-auditor (separate agent / verdict file)
+
+
+## mypy artifact honesty (remediation)
+
+- `mypy-critical.exit` EXIT:0 is the **only** claim for §13.4 critical path.
+- `mypy.exit` / old `mypy.log` superseded: full multi-file path had **76 errors** → `mypy-fullpath-FAILED-76-errors.log`.

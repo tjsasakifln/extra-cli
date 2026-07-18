@@ -1,0 +1,11 @@
+{
+  "story_id": "ROI-campaign-batch4-ops-docs",
+  "status": "Done",
+  "po_closed": true,
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer",
+  "reviewed_commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+  "risk_level": "STANDARD"
+}

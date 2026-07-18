@@ -1,0 +1,123 @@
+{
+  "story_id": "ROI-cand-coverage-slice-pending-collection",
+  "cycle_id": "cyc-2026-07-17T230924Z",
+  "candidate_id": "cand-coverage-slice-pending-collection",
+  "branch": "extra-roi/cand-coverage-slice-pending-collection",
+  "reviewer": "adversarial-qa-auditor (independent)",
+  "implementer": "delivery-engineer",
+  "independence": true,
+  "independent": true,
+  "reviewed_commit": "451ba028fe4fcb3469bc0fc10772177afd043741",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "at": "2026-07-17T23:20:00Z",
+  "reviewed_at": "2026-07-17T23:20:00Z",
+  "checks": [
+    {
+      "id": "auditor_not_implementer",
+      "result": "pass",
+      "notes": "qa-agent=adversarial-qa-auditor != implementer delivery-engineer"
+    },
+    {
+      "id": "ac1_n_entities_with_provenance",
+      "result": "pass",
+      "notes": "load_registry() → is_strict_operational count=5 (>=5). Each of 5 has dry_run=false, run_id=pncp-sc-20260717T110800Z-9d6dd91153, raw_uri on disk, raw_sha256 matches recomputed SHA, normalized_record_ids present in contratacoes.jsonl, reconciliation_id set."
+    },
+    {
+      "id": "ac2_no_95_claim",
+      "result": "pass",
+      "notes": "M2 operational_source_coverage 5/1093 pct=0.46; slice-result claims_95_reached=false; MANIFEST Claims 95% operational?=NO; no invented 95% achievement claim."
+    },
+    {
+      "id": "ac3_commercial_signal_separate",
+      "result": "pass",
+      "notes": "entities_with_recent_commercial_signal kind=commercial_signal is_coverage_metric=false numerator=116; headline_is_coverage=false; operational_source_coverage is separate coverage metric."
+    },
+    {
+      "id": "unit_tests_promote_from_evidence",
+      "result": "pass",
+      "notes": "pytest -o addopts='' -q tests/unit/source_registry/test_promote_from_evidence.py → 6 passed"
+    },
+    {
+      "id": "contract_report_offline_regen",
+      "result": "pass",
+      "notes": "python3 -m scripts.coverage.coverage_contract_cli report --offline → M2 5/1093 0.46%; commercial 116 separate; matches docs/ops session pack"
+    },
+    {
+      "id": "provenance_sha_real",
+      "result": "pass",
+      "notes": "sha256(output/pncp_sc/.../contratacoes.jsonl)=2b737ff8d5a9b166... matches evidence.json output_hash and registry evidence raw_sha256; evidence live_fetch=true status=ok"
+    },
+    {
+      "id": "fail_closed_without_provenance",
+      "result": "pass",
+      "notes": "test_promote_skips_without_provenance asserts promoted=0 when resolve_provenance returns None; code path unmatched_registry_skipped"
+    },
+    {
+      "id": "false_green_hunt",
+      "result": "pass",
+      "notes": "No 95% claim; dry_run false on promoting evidence; commercial not rebranded as coverage; summary operational=5 matches M2; not LOCAL_RESILIENCE/PRE_VPS seals"
+    },
+    {
+      "id": "no_dod_checkbox_flip",
+      "result": "pass",
+      "notes": "git show 451ba02 does not touch DOD.md"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "N>0 entities advanced in operational stages with run_id/raw/sha",
+      "verdict": "PASS",
+      "evidence": "strict_operational=5; sample CNPJs hit in raw jsonl; full stage checklist true on promoting evidence"
+    },
+    {
+      "id": 2,
+      "text": "Report does not claim 95%",
+      "verdict": "PASS",
+      "evidence": "M2=0.46%; claims_95_reached=false; target_pct=95 is goal only"
+    },
+    {
+      "id": 3,
+      "text": "commercial_signal remains separate metric",
+      "verdict": "PASS",
+      "evidence": "kind=commercial_signal; headline_is_coverage=false; M1=116 vs M2=5"
+    }
+  ],
+  "residual_concerns": [
+    {
+      "severity": "low",
+      "description": "Each of 5 entities has duplicate pipeline_evidence_promote evidence (good_evidence_count=2) — promote likely run twice; non-blocking",
+      "recommendation": "Idempotent promote should replace or skip duplicate evidence of same run_id"
+    },
+    {
+      "severity": "low",
+      "description": "use_network=True hardcoded on promote evidence even for offline promote_from_crawl_artifacts path; crawl artifact itself was live_fetch=true so not a false green",
+      "recommendation": "Set use_network from provenance/crawl evidence when offline path used"
+    },
+    {
+      "severity": "medium",
+      "description": "Offline path sets reconciled=True with synthetic reconciliation_id (hash of canonical|source|last_seen), not PG entity_coverage reconcile. Acceptable for N-slice AC; not full production reconcile proof.",
+      "recommendation": "When PG available, prefer promote_from_pipeline_evidence with real entity_coverage rows"
+    },
+    {
+      "severity": "low",
+      "description": "SLA window 24h from last_success 2026-07-17T11:08:49Z — M2 will drop when SLA expires unless refresh",
+      "recommendation": "Document SLA fragility; re-promote/refresh before claiming sustained operational coverage"
+    }
+  ],
+  "forbidden_claims_check": {
+    "claims_95_operational": false,
+    "local_resilience_ready": false,
+    "pre_vps_final_ready": false,
+    "commercial_as_coverage": false
+  },
+  "metrics_observed": {
+    "operational_source_coverage": {"numerator": 5, "denominator": 1093, "pct": 0.46},
+    "entities_with_recent_commercial_signal": {"numerator": 116, "denominator": 1093, "pct": 10.61, "kind": "commercial_signal"},
+    "is_strict_operational_count": 5,
+    "claims_95_reached": false
+  },
+  "gate_decision": "PASS",
+  "next": "PO_CLOSE"
+}

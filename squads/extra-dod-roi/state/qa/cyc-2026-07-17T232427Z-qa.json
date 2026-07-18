@@ -1,0 +1,116 @@
+{
+  "story_id": "ROI-cand-coverage-scale-m2-more-entities",
+  "cycle_id": "cyc-2026-07-17T232427Z",
+  "candidate_id": "cand-coverage-scale-m2-more-entities",
+  "branch": "extra-roi/cand-coverage-scale-m2-more-entities",
+  "reviewer": "adversarial-qa-auditor (independent)",
+  "implementer": "delivery-engineer",
+  "independence": true,
+  "independent": true,
+  "reviewed_commit": "ec407c9ee69a3d9cf6a9d38b1786274b986ce8d3",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "at": "2026-07-17T23:29:17Z",
+  "reviewed_at": "2026-07-17T23:29:17Z",
+  "checks": [
+    {
+      "id": "auditor_not_implementer",
+      "result": "pass",
+      "notes": "qa-agent=adversarial-qa-auditor != implementer delivery-engineer"
+    },
+    {
+      "id": "ac1_m2_numerator_increases",
+      "result": "pass",
+      "notes": "Baseline M2=5; after scale M2=81; delta=+76 (N>0). Independent load_registry()+is_strict_operational count=81/1093."
+    },
+    {
+      "id": "ac2_no_95_claim",
+      "result": "pass",
+      "notes": "operational_source_coverage 81/1093 pct=7.41 << 95; scale-result claims_95_reached=false; MANIFEST Claims 95%?=NO; commit message 'No 95% claim'; no invented 95% achievement."
+    },
+    {
+      "id": "ac3_commercial_signal_separate",
+      "result": "pass",
+      "notes": "entities_with_recent_commercial_signal kind=commercial_signal is_coverage_metric=false numerator=116; headline_is_coverage=false; operational_source_coverage remains separate coverage metric (kind=coverage)."
+    },
+    {
+      "id": "unit_tests_promote_from_evidence",
+      "result": "pass",
+      "notes": "pytest -o addopts='' -q tests/unit/source_registry/test_promote_from_evidence.py → 6 passed"
+    },
+    {
+      "id": "session_artifacts",
+      "result": "pass",
+      "notes": "docs/ops/session-2026-07-17-coverage-scale/{MANIFEST.md,scale-result.json,contract-report.json} consistent: m2_before=5 m2_after=81 delta=76 m2_pct=7.4108"
+    },
+    {
+      "id": "false_green_hunt",
+      "result": "pass",
+      "notes": "No 95% claim; commercial not rebranded as coverage; denominator fixed 1093; not LOCAL_RESILIENCE/PRE_VPS seals; DOD.md untouched in commit"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "M2 numerator increases by N>0 vs previous (5)",
+      "verdict": "PASS",
+      "evidence": "5→81 (+76); is_strict_operational independent recount=81"
+    },
+    {
+      "id": 2,
+      "text": "No 95% claim unless measured >=95%",
+      "verdict": "PASS",
+      "evidence": "pct=7.41; claims_95_reached=false; MANIFEST NO"
+    },
+    {
+      "id": 3,
+      "text": "commercial_signal remains separate",
+      "verdict": "PASS",
+      "evidence": "kind=commercial_signal; is_coverage_metric=false; headline_is_coverage=false; M1=116 vs M2=81"
+    }
+  ],
+  "residual_concerns": [
+    {
+      "severity": "low",
+      "description": "Sample entities still show duplicate sources entries (pncp twice) from prior promote path; non-blocking for N-scale AC",
+      "recommendation": "Idempotent promote should dedupe same run_id evidence"
+    },
+    {
+      "severity": "medium",
+      "description": "M2 still 7.41% vs target 95% — material progress only; SLA decay will drop numerator without refresh",
+      "recommendation": "Continue scale slices; document SLA refresh cadence"
+    },
+    {
+      "severity": "low",
+      "description": "Offline reconcile path still synthetic (inherited from prior slice machinery); not full PG entity_coverage proof",
+      "recommendation": "When PG available, prefer live reconcile provenance"
+    }
+  ],
+  "forbidden_claims_check": {
+    "claims_95_operational": false,
+    "local_resilience_ready": false,
+    "pre_vps_final_ready": false,
+    "commercial_as_coverage": false
+  },
+  "metrics_observed": {
+    "operational_source_coverage": {
+      "numerator": 81,
+      "denominator": 1093,
+      "pct": 7.41,
+      "kind": "coverage"
+    },
+    "entities_with_recent_commercial_signal": {
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "kind": "commercial_signal"
+    },
+    "is_strict_operational_count": 81,
+    "m2_before": 5,
+    "m2_after": 81,
+    "delta": 76,
+    "claims_95_reached": false
+  },
+  "gate_decision": "PASS",
+  "next": "PO_CLOSE"
+}

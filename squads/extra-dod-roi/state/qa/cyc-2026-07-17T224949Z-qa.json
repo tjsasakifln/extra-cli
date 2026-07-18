@@ -1,0 +1,155 @@
+{
+  "story_id": "ROI-cand-full-suite-schema-debt",
+  "cycle_id": "cyc-2026-07-17T224949Z",
+  "candidate_id": "cand-full-suite-schema-debt",
+  "branch": "extra-roi/cand-full-suite-schema-debt",
+  "reviewer": "adversarial-qa-auditor (independent)",
+  "implementer": "delivery-engineer",
+  "independence": true,
+  "independent": true,
+  "reviewed_commit": "b18e6b84eae65c5768e76cd4dbfa04e7f9a5773b",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "at": "2026-07-17T23:06:00Z",
+  "reviewed_at": "2026-07-17T23:06:00Z",
+  "checks": [
+    {
+      "id": "auditor_not_implementer",
+      "result": "pass",
+      "notes": "qa-agent=adversarial-qa-auditor != implementer delivery-engineer"
+    },
+    {
+      "id": "ac1_critical_path_green_or_skips_justified",
+      "result": "pass",
+      "notes": "Independent re-run: 197 passed, 24 skipped, exit 0. MANIFEST + 01-critical-readiness.exit CRITICAL_EXIT=0. Skips justified (sc_compras API refactoring)."
+    },
+    {
+      "id": "ac2_no_hiding_skipped_critical_tests",
+      "result": "pass",
+      "notes": "24x @pytest.mark.skip with reasons in tests/test_sc_compras_crawler.py; remain SKIPPED not pass. CI test-all if: workflow_dispatch still visible; no continue-on-error: true on job."
+    },
+    {
+      "id": "critical_exit_artifact",
+      "result": "pass",
+      "notes": "docs/ops/session-2026-07-17-full-suite-debt/01-critical-readiness.exit contains CRITICAL_EXIT=0"
+    },
+    {
+      "id": "ci_test_all_workflow_dispatch_gate",
+      "result": "pass",
+      "notes": ".github/workflows/ci.yml test-all job: if: github.event_name == 'workflow_dispatch'; no continue-on-error: true; no || true"
+    },
+    {
+      "id": "skips_disclosed_not_converted_to_pass",
+      "result": "pass",
+      "notes": "pytest -rs shows SKIPPED with reasons matching MANIFEST §3 (7+8+5+4=24). Independent run reproduces same counts."
+    },
+    {
+      "id": "forbidden_claims_honored",
+      "result": "pass",
+      "notes": "No LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY / 95% / full-suite-green-on-PR claims. MANIFEST Do NOT claim section present."
+    },
+    {
+      "id": "no_dod_checkbox_flip",
+      "result": "pass",
+      "notes": "git diff 4da296e..b18e6b8 does not touch DOD.md"
+    },
+    {
+      "id": "scope_creep",
+      "result": "pass",
+      "notes": "14 files: evidence pack + story/state + structural tests + smoke fix only. No product crawlers/schema/migrations."
+    },
+    {
+      "id": "squad_structural_tests",
+      "result": "pass",
+      "notes": "python3 -m pytest -o addopts='' -q squads/extra-dod-roi/tests/ → 16 passed"
+    },
+    {
+      "id": "schema_debt_honesty",
+      "result": "pass",
+      "notes": "Schema/views still open debt (REQUIRE_TEST_DB); documented, not claimed fixed. Matches PO GO notes."
+    },
+    {
+      "id": "false_green_hunt",
+      "result": "pass",
+      "notes": "No skip→pass conversion; CI gate not removed; READY seals not claimed; critical path re-verified live by QA"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "Critical full-suite path documented green OR remaining skips justified (honest MANIFEST)",
+      "result": "PASS",
+      "evidence": [
+        "MANIFEST.md §2/§3/§7",
+        "Independent critical path: 197 passed, 24 skipped, exit 0",
+        "01-critical-readiness.exit CRITICAL_EXIT=0"
+      ]
+    },
+    {
+      "id": 2,
+      "text": "No hiding skipped critical tests; CI test-all workflow_dispatch gate remains visible",
+      "result": "PASS",
+      "evidence": [
+        "tests/test_sc_compras_crawler.py 24x pytest.mark.skip",
+        ".github/workflows/ci.yml:171-176 if workflow_dispatch",
+        "ci-test-all-snippet.yml in pack"
+      ]
+    }
+  ],
+  "issues": [],
+  "residual_observations": [
+    {
+      "severity": "low",
+      "category": "docs",
+      "description": "MANIFEST §2 artifact table says 'short test summary of the 5 skips' but there are 24 skipped tests (4 reason groups). Counts in executive summary (197/24) are correct and re-verified.",
+      "blocks_verdict": false
+    },
+    {
+      "severity": "low",
+      "category": "tests",
+      "description": "Structural tests assert on-disk artifacts; they do not re-execute the critical path. Mitigated by independent QA re-run of the same file set.",
+      "blocks_verdict": false
+    },
+    {
+      "severity": "medium",
+      "category": "debt",
+      "description": "Schema/view integration debt (REQUIRE_TEST_DB) and obsolete sc_compras skipped tests remain open — intentionally not fixed this slice (PO GO). Follow-up must re-rank; do not claim schema views validated on live PG.",
+      "blocks_verdict": false
+    },
+    {
+      "severity": "low",
+      "category": "process",
+      "description": "Story state gates.lint still PENDING; slice is docs/tests only (no product modules). Not blocking for this AC set.",
+      "blocks_verdict": false
+    }
+  ],
+  "evidence_commands": [
+    "python3 -m pytest -o addopts='' -q squads/extra-dod-roi/tests/  # 16 passed",
+    "python3 -m pytest -o addopts='' -q tests/test_local_resilience.py tests/test_resilience_vertical_slice.py tests/test_fetch_result.py tests/test_crawler_pncp.py tests/test_sc_compras_crawler.py tests/test_ciga_dom_publications.py tests/test_dlq.py tests/test_watermark.py -m 'not database and not slow'  # 197 passed, 24 skipped, 2 deselected",
+    "cat docs/ops/session-2026-07-17-full-suite-debt/01-critical-readiness.exit  # CRITICAL_EXIT=0",
+    "python3 inspection of .github/workflows/ci.yml test-all block"
+  ],
+  "diff_scope": {
+    "base": "4da296e",
+    "head": "b18e6b84eae65c5768e76cd4dbfa04e7f9a5773b",
+    "files_changed": 14,
+    "dod_md_changed": false,
+    "product_code_changed": false,
+    "note": "Evidence pack + MANIFEST + structural tests + test_squad_smoke fail-closed/active-cycle tolerance only"
+  },
+  "claims_allowed": [
+    "Critical resilience/crawler path (not database and not slow) exited 0 with 197 passed and 24 visible skips",
+    "CI Test All remains workflow_dispatch-only (documented intentional debt)",
+    "Skips on critical path are disclosed with pytest reasons"
+  ],
+  "claims_forbidden_honored": true,
+  "forbidden_claims_intact": [
+    "No full suite green on every PR",
+    "No LOCAL_RESILIENCE_READY",
+    "No PRE_VPS_FINAL_READY",
+    "No 95% operational coverage",
+    "No schema views validated on live PG without REQUIRE_TEST_DB",
+    "Story not closed by QA (PO owns close)",
+    "No DoD READY checkbox promotion"
+  ]
+}

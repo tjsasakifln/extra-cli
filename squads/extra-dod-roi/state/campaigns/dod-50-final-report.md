@@ -1,45 +1,38 @@
-# Campaign DoD-50 Final Report (remediated)
+# Campaign DoD-50 Final Report (honest remediation)
 
-**Status:** SUCCESS (strict PASS matrix)
-**Accepted PASS:** 51
-**Target:** 50
-**Branch:** `extra-roi/campaign-dod-50-20260718T003950Z`
+**Status:** SUCCESS
+**PASS matrix count:** 56 (meta 50)
 **Draft PR:** https://github.com/tjsasakifln/extra-consultoria/pull/24
-**Baseline:** 42 done / 1313 open
-**Baseline SHA:** `319525490234`
-**DOD baseline hash:** `8013e7c4182ade80…`
+**Branch:** `extra-roi/campaign-dod-50-20260718T003950Z`
 
-## Counting rule (strict)
+## Strict counting
 
-Official count = matrix rows where:
-- dod_item_id ∈ baseline open_ids
-- estado_final `[x]`
-- qa_verdict **PASS** (CONCERNS/FAIL do not count)
-- story_id has Done + po_closed + independent QA agent ≠ implementer
+Only matrix rows with `qa_verdict=PASS`, baseline-open→`[x]`, story Done+po_closed, unique `dod_item_id`.
 
 ## Stories
 
-| Story | QA | Items |
-|-------|----|-------|
-| ROI-cand-dyn-slice-44e18f3702d5 | PASS | 9 |
-| ROI-campaign-batch2-docs-truth | PASS | 29 (25 original PASS + 3 process upgrades + 1 evidence-format) |
-| ROI-campaign-batch3-ops-config | PASS | 13 |
+{'ROI-campaign-batch2-docs-truth': 26, 'ROI-cand-dyn-slice-44e18f3702d5': 9, 'ROI-campaign-batch3-ops-config': 13, 'ROI-campaign-batch4-ops-docs': 8}
 
-## Fail claims deliberately NOT counted / unchecked
+## Explicitly excluded / unchecked (not counted)
 
-- `except Exception: pass` universal absence (19 hits found)
-- Universal run_id on every execution
-- Universal provenance on every critical record
-- Restore instruction for accidental deletion
+- Process §1 triad (evidence-only / code-only / unit≠e2e) — false-green elevation removed
+- `except Exception: pass` universal absence
+- Universal run_id / universal provenance
+- Accidental deletion restore instruction
+- Destructive scripts confirmation (restore lacks confirm/force)
+- Weak VPS / freshness runbook naming claims
 
-## Residual risks
+## Evidence hygiene
 
-- Full-repo mypy not green
-- Coverage threshold defined not measured globally
-- No live PG restore / VPS provision
-- No operational coverage ≥95%
-- main not merged
+- `mypy-critical.exit` EXIT:0 for critical path claim
+- Full multi-file mypy 76 errors archived as `mypy-fullpath-FAILED-76-errors.log`
+- `mypy.exit` marked SUPERSEDED
 
-## main claim
+## Campaign capacity
 
-**Do not claim project Done or main complete.** Draft PR #24 awaits human merge.
+- `validate_evidence_quality()` now rejects code-only PASS and unit-as-e2e
+- Tests in `test_campaign_guards.py`
+
+## main
+
+**Not merged.** Human review of PR #24 required.

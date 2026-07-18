@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "campaign_id": "dod-50-current",
   "created_at": "2026-07-18T00:39:51Z",
-  "updated_at": "2026-07-18T01:07:04Z",
+  "updated_at": "2026-07-18T01:14:42Z",
   "status": "SUCCESS",
   "repo": "tjsasakifln/extra-consultoria",
   "target_dod_items": 50,
@@ -1380,68 +1380,20 @@
   "draft_pr": "https://github.com/tjsasakifln/extra-consultoria/pull/24",
   "accepted": [
     {
-      "dod_item_id": "dod:ecfdc798b7e6",
-      "seção": "1. Como usar este documento",
-      "texto": "Cada item só é marcado como concluído quando existir evidência verificável. Evidência: batch2 `campaign ledger register_acceptance requires [x]+evidence+QA`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
-    },
-    {
       "dod_item_id": "dod:79d7b006aedb",
       "seção": "1. Como usar este documento",
       "texto": "Sempre que possível, a evidência é registrada ao lado do item no formato: `Evidência: <arquivo, comando, commit, relatório ou data>`. Evidência: batch1+2 DoD flips use `Evidência:` suffix; campaign re",
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
-    },
-    {
-      "dod_item_id": "dod:f5e5902b539e",
-      "seção": "1. Como usar este documento",
-      "texto": "Código existente sem execução comprovada não é considerado concluído. Evidência: batch2 `truth auditor + campaign guards refuse code-only claims`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
-    },
-    {
-      "dod_item_id": "dod:1162bd54c73b",
-      "seção": "1. Como usar este documento",
-      "texto": "Teste unitário isolado não substitui execução ponta a ponta. Evidência: batch2 `DoD unit pack explicitly refused e2e substitution; campaign notes`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:4fec282f18cd",
@@ -1450,14 +1402,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:fd3bd80c1823",
@@ -1466,14 +1418,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:6c7ec05aad2e",
@@ -1482,14 +1434,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:359e8069a6e2",
@@ -1498,14 +1450,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:53b1c23c8206",
@@ -1514,14 +1466,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:fae6b36d1d01",
@@ -1530,14 +1482,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:1427f84c9645",
@@ -1546,14 +1498,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:790b058ccddb",
@@ -1562,14 +1514,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:6509d40fdcc8",
@@ -1578,14 +1530,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:fb39af4bce5e",
@@ -1594,14 +1546,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:0b41faf57890",
@@ -1610,14 +1562,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:8407b8273772",
@@ -1626,14 +1578,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:93300093fc1d",
@@ -1642,14 +1594,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d607d46bf66e",
@@ -1658,14 +1610,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:db687778617c",
@@ -1674,14 +1626,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:cfb0abf9ba8b",
@@ -1690,14 +1642,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:118ada2e1718",
+      "seção": "19. Deploy reproduzível",
+      "texto": "Existe runbook de deploy. Evidência: batch4 `docs/ops/cloud-deployment-plan.md`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:b3a7547e7e36",
@@ -1706,14 +1674,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:c70748809b8a",
@@ -1722,14 +1690,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d833662c1782",
@@ -1738,14 +1706,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:fbc4c00fd42a",
@@ -1754,14 +1722,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:aa6eefd8681f",
@@ -1770,14 +1738,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:f8b7abd8915c",
@@ -1786,14 +1754,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:61bc1ee04f3b",
@@ -1802,14 +1770,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:2009716c98a0",
@@ -1818,14 +1786,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:77cc81ba0228",
+      "seção": "25. Verdade, linguagem e claims permitidos",
+      "texto": "Win rate não é calculado sem propostas enviadas. Evidência: batch4 `scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:bb4b42442519",
@@ -1834,14 +1818,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:82fac986effe",
+      "seção": "25. Verdade, linguagem e claims permitidos",
+      "texto": "Score não é chamado de probabilidade sem calibração. Evidência: batch4 `scoring.py labels score not probability`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:c4770bb863c9",
@@ -1850,14 +1850,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:566ccfc2fcbb",
@@ -1866,14 +1866,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:27fe1c254fd2",
@@ -1882,14 +1882,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:26a9c16cb7bd",
+      "seção": "27. Organização e manutenção do código",
+      "texto": "URLs de fontes são centralizadas. Evidência: batch4 `url-centralization.txt`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:70eb67c5e239",
@@ -1898,14 +1914,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:6395ce31d45e",
@@ -1914,14 +1930,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d3480d1c7102",
@@ -1930,14 +1946,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:ffa99a6d742e",
@@ -1946,14 +1962,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:86813be14b95",
@@ -1962,14 +1978,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:0c9593cc0c72",
@@ -1978,14 +1994,46 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:0875517557ee",
+      "seção": "27. Organização e manutenção do código",
+      "texto": "Scripts operacionais possuem exit codes consistentes. Evidência: batch4 `exit-codes.txt sample golden_path/local_datalake/backup`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:c6d6e02e8494",
+      "seção": "27. Organização e manutenção do código",
+      "texto": "Scripts operacionais suportam `--dry-run` quando aplicável. Evidência: batch4 `backup/restore/golden_path dry-run patterns`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:a0a312ac26d9",
@@ -1994,14 +2042,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d952a141e49a",
@@ -2010,14 +2058,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:56846a8f3d31",
+      "seção": "31. Documentação operacional",
+      "texto": "README descreve o fora de escopo. Evidência: batch4 `README.md scope/limitations language`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:95c60383463e",
@@ -2026,14 +2090,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:3cf2e1d03427",
@@ -2042,14 +2106,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d264e021534b",
@@ -2058,14 +2122,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:c5e1f0520b32",
@@ -2074,14 +2138,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:51600fee2a5c",
@@ -2090,14 +2154,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:9310ba9c7796",
@@ -2106,14 +2170,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:a8291c1f624b",
@@ -2122,14 +2186,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:10fac2c709ae",
+      "seção": "31. Documentação operacional",
+      "texto": "Existe runbook de deploy. Evidência: batch4 `docs/ops/cloud-deployment-plan.md`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:e8e465a54a8d",
@@ -2138,14 +2218,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:51bc27739185",
@@ -2154,14 +2234,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:eeda93135036",
@@ -2170,14 +2250,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:c5e29b6c2906",
@@ -2186,14 +2266,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     }
   ],
   "blocked": [],
@@ -2217,30 +2297,38 @@
       "n": 13
     }
   ],
-  "exclusions": [],
+  "exclusions": [
+    {
+      "at": "2026-07-18T01:13:58Z",
+      "dod_item_ids": [
+        "dod:1162bd54c73b",
+        "dod:ecfdc798b7e6",
+        "dod:f5e5902b539e"
+      ],
+      "reason": "false-green process items: QA reasons contradicted PASS; invented code-only guard claims; removed from count and unchecked"
+    },
+    {
+      "at": "2026-07-18T01:14:42Z",
+      "ids": [
+        "dod:f5e5902b539e",
+        "dod:1162bd54c73b",
+        "dod:ecfdc798b7e6"
+      ],
+      "reason": "process false-green removed"
+    },
+    {
+      "at": "2026-07-18T01:14:42Z",
+      "text": "Scripts destrutivos exigem confirmação",
+      "reason": "restore has no confirm/force flag"
+    }
+  ],
   "counts": {
-    "accepted": 51,
+    "accepted": 56,
     "blocked": 0,
     "in_qa": 0,
     "implementing": 0
   },
   "matrix": [
-    {
-      "dod_item_id": "dod:ecfdc798b7e6",
-      "seção": "1. Como usar este documento",
-      "texto": "Cada item só é marcado como concluído quando existir evidência verificável. Evidência: batch2 `campaign ledger register_acceptance requires [x]+evidence+QA`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
-    },
     {
       "dod_item_id": "dod:79d7b006aedb",
       "seção": "1. Como usar este documento",
@@ -2248,46 +2336,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
-    },
-    {
-      "dod_item_id": "dod:f5e5902b539e",
-      "seção": "1. Como usar este documento",
-      "texto": "Código existente sem execução comprovada não é considerado concluído. Evidência: batch2 `truth auditor + campaign guards refuse code-only claims`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
-    },
-    {
-      "dod_item_id": "dod:1162bd54c73b",
-      "seção": "1. Como usar este documento",
-      "texto": "Teste unitário isolado não substitui execução ponta a ponta. Evidência: batch2 `DoD unit pack explicitly refused e2e substitution; campaign notes`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:4fec282f18cd",
@@ -2296,14 +2352,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:fd3bd80c1823",
@@ -2312,14 +2368,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:6c7ec05aad2e",
@@ -2328,14 +2384,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:359e8069a6e2",
@@ -2344,14 +2400,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:53b1c23c8206",
@@ -2360,14 +2416,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:fae6b36d1d01",
@@ -2376,14 +2432,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:1427f84c9645",
@@ -2392,14 +2448,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:790b058ccddb",
@@ -2408,14 +2464,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:6509d40fdcc8",
@@ -2424,14 +2480,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:fb39af4bce5e",
@@ -2440,14 +2496,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:0b41faf57890",
@@ -2456,14 +2512,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/MANIFEST.md",
-      "comando": "pytest/ruff/mypy/pip-audit",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit + MANIFEST",
+      "comando": "pytest -o addopts= tests/test_value_semantics.py tests/test_universe.py; ruff; mypy critical; pip-audit",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:8407b8273772",
@@ -2472,14 +2528,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:93300093fc1d",
@@ -2488,14 +2544,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d607d46bf66e",
@@ -2504,14 +2560,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:db687778617c",
@@ -2520,14 +2576,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:cfb0abf9ba8b",
@@ -2536,14 +2592,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:118ada2e1718",
+      "seção": "19. Deploy reproduzível",
+      "texto": "Existe runbook de deploy. Evidência: batch4 `docs/ops/cloud-deployment-plan.md`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:b3a7547e7e36",
@@ -2552,14 +2624,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:c70748809b8a",
@@ -2568,14 +2640,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d833662c1782",
@@ -2584,14 +2656,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:fbc4c00fd42a",
@@ -2600,14 +2672,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:aa6eefd8681f",
@@ -2616,14 +2688,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:f8b7abd8915c",
@@ -2632,14 +2704,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:61bc1ee04f3b",
@@ -2648,14 +2720,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:2009716c98a0",
@@ -2664,14 +2736,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:77cc81ba0228",
+      "seção": "25. Verdade, linguagem e claims permitidos",
+      "texto": "Win rate não é calculado sem propostas enviadas. Evidência: batch4 `scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:bb4b42442519",
@@ -2680,14 +2768,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:82fac986effe",
+      "seção": "25. Verdade, linguagem e claims permitidos",
+      "texto": "Score não é chamado de probabilidade sem calibração. Evidência: batch4 `scoring.py labels score not probability`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:c4770bb863c9",
@@ -2696,14 +2800,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:566ccfc2fcbb",
@@ -2712,14 +2816,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:27fe1c254fd2",
@@ -2728,14 +2832,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:26a9c16cb7bd",
+      "seção": "27. Organização e manutenção do código",
+      "texto": "URLs de fontes são centralizadas. Evidência: batch4 `url-centralization.txt`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:70eb67c5e239",
@@ -2744,14 +2864,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:6395ce31d45e",
@@ -2760,14 +2880,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d3480d1c7102",
@@ -2776,14 +2896,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:ffa99a6d742e",
@@ -2792,14 +2912,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:86813be14b95",
@@ -2808,14 +2928,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:0c9593cc0c72",
@@ -2824,14 +2944,46 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch3-ops-config",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
-      "comando": "ops --help + static",
+      "comando": "ops --help suite",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:0875517557ee",
+      "seção": "27. Organização e manutenção do código",
+      "texto": "Scripts operacionais possuem exit codes consistentes. Evidência: batch4 `exit-codes.txt sample golden_path/local_datalake/backup`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:c6d6e02e8494",
+      "seção": "27. Organização e manutenção do código",
+      "texto": "Scripts operacionais suportam `--dry-run` quando aplicável. Evidência: batch4 `backup/restore/golden_path dry-run patterns`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:a0a312ac26d9",
@@ -2840,14 +2992,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d952a141e49a",
@@ -2856,14 +3008,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:56846a8f3d31",
+      "seção": "31. Documentação operacional",
+      "texto": "README descreve o fora de escopo. Evidência: batch4 `README.md scope/limitations language`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:95c60383463e",
@@ -2872,14 +3040,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:3cf2e1d03427",
@@ -2888,14 +3056,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:d264e021534b",
@@ -2904,14 +3072,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:c5e1f0520b32",
@@ -2920,14 +3088,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:51600fee2a5c",
@@ -2936,14 +3104,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:9310ba9c7796",
@@ -2952,14 +3120,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:a8291c1f624b",
@@ -2968,14 +3136,30 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
+    },
+    {
+      "dod_item_id": "dod:10fac2c709ae",
+      "seção": "31. Documentação operacional",
+      "texto": "Existe runbook de deploy. Evidência: batch4 `docs/ops/cloud-deployment-plan.md`.",
+      "estado_baseline": "[ ]",
+      "estado_final": "[x]",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
+      "comando": "batch4 file+code verification",
+      "exit_code": 0,
+      "qa_verdict": "PASS",
+      "qa_agent": "adversarial-qa-auditor",
+      "implementer": "delivery-engineer",
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:e8e465a54a8d",
@@ -2984,14 +3168,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:51bc27739185",
@@ -3000,14 +3184,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:eeda93135036",
@@ -3016,14 +3200,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
       "dod_item_id": "dod:c5e29b6c2906",
@@ -3032,14 +3216,14 @@
       "estado_baseline": "[ ]",
       "estado_final": "[x]",
       "story_id": "ROI-campaign-batch2-docs-truth",
-      "commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + campaign.py guards",
-      "comando": "batch2+enforcement",
+      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
+      "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
+      "comando": "batch2 adversarial",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
       "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:07:04Z"
+      "accepted_at": "2026-07-18T01:14:42Z"
     }
   ],
   "notes": [
@@ -3049,7 +3233,8 @@
     "Baseline IDs rehashed with core_requirement_text (strip Evidência: suffix) for flip stability.",
     "SUCCESS: 53 unique baseline-open→[x] accepts with matrix+QA. main not merged; draft PR pending human review.",
     "2026-07-18T01:06:16Z: Remediation — matrix rebuilt PASS-only; batch1 qa→PASS item-level; process CONCERNS elevated with campaign enforcement; weak runbooks reverted; stories formalized.",
-    "2026-07-18T01:07:04Z: PASS-only matrix rebuilt with Portuguese cores; elevated 3 process items via campaign enforcement."
+    "2026-07-18T01:07:04Z: PASS-only matrix rebuilt with Portuguese cores; elevated 3 process items via campaign enforcement.",
+    "2026-07-18T01:13:58Z: Removed 3 false process PASS; fixed mypy.exit hygiene; batch4 +9 honest items; matrix rebuild."
   ],
   "truth_snapshot": {
     "lock_held": false,

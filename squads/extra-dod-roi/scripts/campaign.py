@@ -220,6 +220,71 @@ def validate_guards(ledger: dict[str, Any], current_items: list[dict[str, Any]])
     return errs
 
 
+def validate_evidence_quality(
+    *,
+    evidence: str,
+    command: str,
+    exit_code: int,
+    qa_verdict: str,
+) -> None:
+    """Fail-closed evidence gates — no code-only / empty / unit-as-e2e claims.
+
+    Enforces process principles from DOD §1 without allowing silent false green:
+    - evidence must be non-empty and verifiable path/command oriented
+    - pure "code exists" / "file inventory" without execution is rejected for PASS
+    - evidence claiming e2e/ponta-a-ponta cannot be only unit pytest without e2e marker
+    """
+    ev = (evidence or "").strip()
+    cmd = (command or "").strip()
+    if not ev:
+        raise ValueError("evidence required — empty evidence refused")
+    low = ev.lower()
+    cmd_low = cmd.lower()
+    # Code-only / inventory-only without a real command execution is not enough for PASS
+    code_only_markers = (
+        "code exists",
+        "código existente",
+        "codigo existente",
+        "file inventory",
+        "module exists only",
+        "exists on disk only",
+        "truth auditor + campaign refuse code-only",  # invented claim marker
+        "campaign guards refuse code-only",
+    )
+    if qa_verdict.upper() == "PASS":
+        if any(m in low for m in code_only_markers) and (
+            not cmd or "inventory" in cmd_low or exit_code not in (0,)
+        ):
+            raise ValueError(
+                "code-only/inventory evidence without successful execution command refused for PASS"
+            )
+        if not cmd:
+            raise ValueError("command required for PASS acceptance")
+        if exit_code != 0:
+            raise ValueError(f"exit_code {exit_code} != 0 refused for PASS")
+        # unit must not stand in for e2e when claim language asserts e2e
+        e2e_claim = any(
+            x in low
+            for x in (
+                "e2e",
+                "ponta a ponta",
+                "ponta-a-ponta",
+                "end-to-end",
+                "end to end",
+            )
+        )
+        unit_only = (
+            "pytest" in cmd_low
+            and "e2e" not in cmd_low
+            and "integration" not in cmd_low
+            and "-m e2e" not in cmd_low
+        )
+        if e2e_claim and unit_only:
+            raise ValueError(
+                "unit pytest cannot satisfy e2e/ponta-a-ponta claim — refused"
+            )
+
+
 def register_acceptance(
     root: Path,
     *,
@@ -241,6 +306,12 @@ def register_acceptance(
         raise ValueError("QA verdict not acceptable — refusing acceptance")
     if implementer and qa_agent and implementer == qa_agent:
         raise ValueError("SELF_QA forbidden")
+    validate_evidence_quality(
+        evidence=evidence,
+        command=command,
+        exit_code=exit_code,
+        qa_verdict=qa_verdict,
+    )
     dod = root / "DOD.md"
     items = parse_items(dod.read_text(encoding="utf-8"))
     by_id = {i["id"]: i for i in items}

@@ -1,1 +1,3 @@
-EXIT:0
+SUPERSEDED_DO_NOT_USE
+EXIT:non-zero for full multi-file path (see mypy-fullpath-FAILED-76-errors.log)
+Use mypy-critical.exit for §13.4 critical-path claim (EXIT:0)

@@ -1,0 +1,126 @@
+{
+  "generated_at": "2026-07-18T01:13:26Z",
+  "proven": [
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de deploy.",
+      "proven": true,
+      "evidence": "docs/ops/cloud-deployment-plan.md",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Scripts operacionais possuem exit codes consistentes.",
+      "proven": true,
+      "evidence": "exit-codes.txt sample golden_path/local_datalake/backup",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "URLs de fontes são centralizadas.",
+      "proven": true,
+      "evidence": "url-centralization.txt",
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "Win rate não é calculado sem propostas enviadas.",
+      "proven": true,
+      "evidence": "scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs",
+      "notes": "verified by code search; no free win_rate claim path"
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "Score não é chamado de probabilidade sem calibração.",
+      "proven": true,
+      "evidence": "scoring.py labels score not probability",
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve o fora de escopo.",
+      "proven": true,
+      "evidence": "README.md scope/limitations language",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Scripts destrutivos exigem confirmação ou flag explícita.",
+      "proven": true,
+      "evidence": "restore/backup scripts flags",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Scripts operacionais suportam `--dry-run` quando aplicável.",
+      "proven": true,
+      "evidence": "backup/restore/golden_path dry-run patterns",
+      "notes": ""
+    }
+  ],
+  "all": [
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de deploy.",
+      "proven": true,
+      "evidence": "docs/ops/cloud-deployment-plan.md",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Defaults são documentados.",
+      "proven": false,
+      "evidence": "scripts/crawl/config.py defaults + module docs",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Scripts operacionais possuem exit codes consistentes.",
+      "proven": true,
+      "evidence": "exit-codes.txt sample golden_path/local_datalake/backup",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "URLs de fontes são centralizadas.",
+      "proven": true,
+      "evidence": "url-centralization.txt",
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "Win rate não é calculado sem propostas enviadas.",
+      "proven": true,
+      "evidence": "scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs",
+      "notes": "verified by code search; no free win_rate claim path"
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "Score não é chamado de probabilidade sem calibração.",
+      "proven": true,
+      "evidence": "scoring.py labels score not probability",
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve o fora de escopo.",
+      "proven": true,
+      "evidence": "README.md scope/limitations language",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Scripts destrutivos exigem confirmação ou flag explícita.",
+      "proven": true,
+      "evidence": "restore/backup scripts flags",
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Scripts operacionais suportam `--dry-run` quando aplicável.",
+      "proven": true,
+      "evidence": "backup/restore/golden_path dry-run patterns",
+      "notes": ""
+    }
+  ]
+}

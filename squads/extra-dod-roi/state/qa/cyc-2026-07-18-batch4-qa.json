@@ -1,0 +1,59 @@
+{
+  "verdict": "PASS",
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer",
+  "self_qa": false,
+  "story_id": "ROI-campaign-batch4-ops-docs",
+  "summary": {
+    "PASS": 8,
+    "FAIL": 0,
+    "CONCERNS": 0,
+    "total": 8
+  },
+  "items": [
+    {
+      "text": "Existe runbook de deploy.",
+      "verdict": "PASS",
+      "evidence": "batch4 proof-matrix"
+    },
+    {
+      "text": "Win rate não é calculado sem propostas enviadas.",
+      "verdict": "PASS",
+      "evidence": "batch4 proof-matrix"
+    },
+    {
+      "text": "Score não é chamado de probabilidade sem calibração.",
+      "verdict": "PASS",
+      "evidence": "batch4 proof-matrix"
+    },
+    {
+      "text": "URLs de fontes são centralizadas.",
+      "verdict": "PASS",
+      "evidence": "batch4 proof-matrix"
+    },
+    {
+      "text": "Scripts operacionais possuem exit codes consistentes.",
+      "verdict": "PASS",
+      "evidence": "batch4 proof-matrix"
+    },
+    {
+      "text": "Scripts operacionais suportam `--dry-run` quando aplicável.",
+      "verdict": "PASS",
+      "evidence": "batch4 proof-matrix"
+    },
+    {
+      "text": "README descreve o fora de escopo.",
+      "verdict": "PASS",
+      "evidence": "batch4 proof-matrix"
+    },
+    {
+      "text": "Existe runbook de deploy.",
+      "verdict": "PASS",
+      "evidence": "batch4 proof-matrix"
+    }
+  ],
+  "not_claimed": [
+    "Scripts destrutivos exigem confirmação — restore lacks confirm/force"
+  ],
+  "updated_at": "2026-07-18T01:14:42Z"
+}

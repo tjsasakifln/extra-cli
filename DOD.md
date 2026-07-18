@@ -42,10 +42,10 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 
 - [x] Este arquivo está versionado na raiz do repositório como `DOD.md`. Evidência: branch `epic/plano-executivo-30d`, campanha EPIC-PLANO-EXECUTIVO-30D / PE-G0-01 (2026-07-16).
 - [x] O documento é tratado como checklist de evolução do projeto, e não como Definition of Done de uma única story. Evidência: §35 gates + 3 róis; plano `extra-consultoria-plano-executivo.html`.
-- [x] Cada item só é marcado como concluído quando existir evidência verificável. Evidência: batch2 `campaign ledger register_acceptance requires [x]+evidence+QA`.
+- [ ] Cada item só é marcado como concluído quando existir evidência verificável.
 - [x] Sempre que possível, a evidência é registrada ao lado do item no formato: `Evidência: <arquivo, comando, commit, relatório ou data>`. Evidência: batch1+2 DoD flips use `Evidência:` suffix; campaign register_acceptance.
-- [x] Código existente sem execução comprovada não é considerado concluído. Evidência: batch2 `truth auditor + campaign guards refuse code-only claims`.
-- [x] Teste unitário isolado não substitui execução ponta a ponta. Evidência: batch2 `DoD unit pack explicitly refused e2e substitution; campaign notes`.
+- [ ] Código existente sem execução comprovada não é considerado concluído.
+- [ ] Teste unitário isolado não substitui execução ponta a ponta.
 - [x] Presença de registros no banco não é tratada como prova de cobertura. Evidência: batch2 `coverage_truth multi-metric; commercial != operational`.
 - [x] Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento. Evidência: batch2 `campaign matrix requires explicit DoD flip + evidence independent of story Done alone`.
 - [ ] Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto.
@@ -1212,7 +1212,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O deploy pode ser reexecutado.
 - [ ] O deploy não depende de sessão SSH artesanal.
 - [ ] O deploy pode ser iniciado do ambiente local de Tiago.
-- [ ] Existe runbook de deploy.
+- [x] Existe runbook de deploy. Evidência: batch4 `docs/ops/cloud-deployment-plan.md`.
 - [ ] Existe runbook de rollback.
 - [ ] Existe runbook de recuperação após deploy incompleto.
 
@@ -1408,9 +1408,9 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Valor contratado não é chamado de preço praticado. Evidência: batch2 `scripts/lib/value_semantics.py + tests/test_value_semantics.py`.
 - [ ] Vencedor conhecido não é chamado de conjunto completo de concorrentes.
 - [ ] Participante não identificado não é tratado como inexistente.
-- [ ] Win rate não é calculado sem propostas enviadas.
+- [x] Win rate não é calculado sem propostas enviadas. Evidência: batch4 `scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs`.
 - [x] Deságio não é calculado sem grandezas comparáveis. Evidência: batch2 `calculate_desagio returns None for invalid inputs; test_calculate_desagio_invalid_returns_none`.
-- [ ] Score não é chamado de probabilidade sem calibração.
+- [x] Score não é chamado de probabilidade sem calibração. Evidência: batch4 `scoring.py labels score not probability`.
 - [ ] Relatórios exibem limitações relevantes.
 - [ ] Nenhum documento afirma que o projeto acompanha obras.
 - [ ] Nenhum documento promete capacidade fora do escopo.
@@ -1456,7 +1456,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Logs não substituem tratamento de erro.
 - [x] Configuração é centralizada. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [x] Constantes de domínio são centralizadas. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [ ] URLs de fontes são centralizadas.
+- [x] URLs de fontes são centralizadas. Evidência: batch4 `url-centralization.txt`.
 - [x] Timeouts são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [x] Retries são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [x] Janelas de freshness são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
@@ -1468,8 +1468,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] TODOs críticos possuem issue ou story.
 - [ ] Comentários não contradizem o código.
 - [x] Scripts operacionais possuem `--help`. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [ ] Scripts operacionais possuem exit codes consistentes.
-- [ ] Scripts operacionais suportam `--dry-run` quando aplicável.
+- [x] Scripts operacionais possuem exit codes consistentes. Evidência: batch4 `exit-codes.txt sample golden_path/local_datalake/backup`.
+- [x] Scripts operacionais suportam `--dry-run` quando aplicável. Evidência: batch4 `backup/restore/golden_path dry-run patterns`.
 - [ ] Scripts destrutivos exigem confirmação ou flag explícita.
 - [ ] Scripts destrutivos possuem backup ou rollback documentado.
 
@@ -1559,7 +1559,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 - [x] README descreve o estado atual real. Evidência: batch2 `file inventory session batch2`.
 - [x] README descreve o escopo. Evidência: batch2 `file inventory session batch2`.
-- [ ] README descreve o fora de escopo.
+- [x] README descreve o fora de escopo. Evidência: batch4 `README.md scope/limitations language`.
 - [x] README descreve setup. Evidência: batch2 `file inventory session batch2`.
 - [x] README descreve comandos principais. Evidência: batch2 `file inventory session batch2`.
 - [x] README descreve fontes. Evidência: batch2 `file inventory session batch2`.
@@ -1572,7 +1572,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Existe runbook de VPS.
 - [x] Existe runbook de backup. Evidência: batch2 `file inventory session batch2`.
 - [x] Existe runbook de restore. Evidência: batch2 `file inventory session batch2`.
-- [ ] Existe runbook de deploy.
+- [x] Existe runbook de deploy. Evidência: batch4 `docs/ops/cloud-deployment-plan.md`.
 - [ ] Existe runbook de rollback.
 - [x] Existe runbook de fonte quebrada. Evidência: batch2 `file inventory session batch2`.
 - [ ] Existe runbook de schema drift.

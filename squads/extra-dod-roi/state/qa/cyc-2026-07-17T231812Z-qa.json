@@ -1,0 +1,100 @@
+{
+  "story_id": "ROI-cand-golden-path-pncp-health",
+  "cycle_id": "cyc-2026-07-17T231812Z",
+  "candidate_id": "cand-golden-path-pncp-health",
+  "branch": "extra-roi/cand-golden-path-pncp-health",
+  "reviewer": "adversarial-qa-auditor (independent)",
+  "implementer": "delivery-engineer",
+  "independence": true,
+  "independent": true,
+  "reviewed_commit": "7231be774515426c980ce1061863e03f0a74db59",
+  "verdict": "PASS",
+  "aiox_verdict": "PASS",
+  "at": "2026-07-17T23:22:30Z",
+  "reviewed_at": "2026-07-17T23:22:30Z",
+  "checks": [
+    {
+      "id": "auditor_not_implementer",
+      "result": "pass",
+      "notes": "qa-agent=adversarial-qa-auditor != implementer delivery-engineer; independent re-run of golden_path + pytest"
+    },
+    {
+      "id": "session_manifest_and_02_exit",
+      "result": "pass",
+      "notes": "docs/ops/session-2026-07-17-golden-path/MANIFEST.md documents exit 1 + ledger failed; 02-run.exit has GOLDEN_EXIT=1; Non-claims: NOT full green, NOT PNCP live OK, NOT PRE_VPS_FINAL_READY"
+    },
+    {
+      "id": "ac1_reproducible_honest_degraded",
+      "result": "pass",
+      "notes": "Independent re-run: python3 scripts/golden_path.py --skip-freshness --skip-reports → EXIT_CODE=1 without PG (fe_sendauth / PostgreSQL NAO respondeu). Latest ledger run gp-20260717-202044 status=failed, step db_connectivity=fail. slice-result outcome=FAIL_CLOSED_DB_UNAVAILABLE claim_success=false."
+    },
+    {
+      "id": "ac2_no_success_on_timeout_or_db_fail",
+      "result": "pass",
+      "notes": "Code path scripts/golden_path.py: on check_db fail → _save_final_ledger(status=failed) + return 1. Re-run exit != 0. slice-result.claim_success=false; honored_no_success_on_failure=true. MANIFEST does not claim operational green."
+    },
+    {
+      "id": "unit_tests_golden_path",
+      "result": "pass",
+      "notes": "pytest -o addopts='' -q tests/ -k golden_path → 14 passed, 1995 deselected"
+    },
+    {
+      "id": "false_green_hunt",
+      "result": "pass",
+      "notes": "No full-green claim in MANIFEST/slice-result; no PRE_VPS_FINAL_READY/LOCAL_RESILIENCE_READY seal flip; commit 7231be7 does not touch DOD.md. Residual: 01-run.exit has GOLDEN_EXIT=0 while 01 log shows DB fail (capture inconsistency) — superseded by 02-run.exit=1 and independent re-run exit=1."
+    },
+    {
+      "id": "no_dod_checkbox_flip",
+      "result": "pass",
+      "notes": "git show 7231be7 touches only story/state/session pack — no DOD.md"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "Reproducible golden path result (pass or honest degraded health)",
+      "verdict": "PASS",
+      "evidence": "Session pack + independent re-run exit 1 + ledger status=failed when PG unavailable (honest degraded / fail-closed)"
+    },
+    {
+      "id": 2,
+      "text": "No success claim on timeout/DB fail",
+      "verdict": "PASS",
+      "evidence": "exit!=0; claim_success=false; code returns 1 on DB fail; MANIFEST non-claims explicit"
+    }
+  ],
+  "residual_concerns": [
+    {
+      "severity": "low",
+      "description": "Session artifact 01-run.exit records GOLDEN_EXIT=0 while 01-run-skip-reports.log shows PostgreSQL NAO respondeu / ledger-slice status failed — exit capture bug for first attempt only. Canonical 02-run.exit=1 and QA re-run exit=1 override.",
+      "recommendation": "Prefer single canonical exit file; capture via `echo GOLDEN_EXIT=$?` immediately after python process in same shell without intervening commands that reset $?"
+    },
+    {
+      "severity": "low",
+      "description": "Commit 7231be7 is evidence-only (no scripts/golden_path.py delta); fail-closed behavior was already present. Story AC is satisfied by reproducible honest degraded signal, not by new code change.",
+      "recommendation": "If live PNCP health still required for DoD gate, schedule follow-up with make db-up + network; do not rebrand this slice as live green"
+    },
+    {
+      "severity": "medium",
+      "description": "Live crawl / source health for PNCP not proven (PG down, external_dependency). Slice correctly records health signal as fail-closed, not operational green.",
+      "recommendation": "Keep candidate/DoD from claiming PRE_VPS or full golden path until live canary with PG succeeds"
+    }
+  ],
+  "forbidden_claims_check": {
+    "full_golden_path_green": false,
+    "pncp_live_health_ok": false,
+    "local_resilience_ready": false,
+    "pre_vps_final_ready": false,
+    "success_on_db_fail": false
+  },
+  "metrics_observed": {
+    "independent_golden_path_exit": 1,
+    "session_02_GOLDEN_EXIT": 1,
+    "latest_ledger_status": "failed",
+    "latest_run_id": "gp-20260717-202044",
+    "pytest_golden_path_passed": 14,
+    "claim_success": false
+  },
+  "gate_decision": "PASS",
+  "next": "PO_CLOSE"
+}

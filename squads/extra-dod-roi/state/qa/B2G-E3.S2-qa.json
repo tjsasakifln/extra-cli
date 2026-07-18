@@ -1,0 +1,107 @@
+{
+  "version": "1.0.0",
+  "storyId": "B2G-E3.S2",
+  "story_id": "B2G-E3.S2",
+  "title": "Checkpoint/resume unificado + DLQ smoke",
+  "epic_id": "EPIC-B2G-OPERATIONAL-PLATFORM",
+  "risk_level": "STANDARD",
+  "cycle_id": "cyc-2026-07-17T221240Z",
+  "roi_story": "ROI-cand-qa-po-e3-stories",
+  "branch": "extra-roi/cand-qa-po-e3-stories",
+  "reviewer": "Quinn (@qa / adversarial-qa-auditor)",
+  "implementer": "delivery-engineer / @dev (Dex)",
+  "independent": true,
+  "reviewed_at": "2026-07-17T22:35:00Z",
+  "reviewed_commit": "a12190c8fca1af0c564de682d1dbc0f9d755e116",
+  "product_base_commit": "4da296eb",
+  "verdict": "CONCERNS",
+  "aiox_verdict": "CONCERNS",
+  "checklist": {
+    "auditor_not_implementer": "PASS",
+    "ac_traceability": "PASS",
+    "focused_tests_green": "PASS",
+    "checkpoint_resume_idempotent": "PASS",
+    "rate_limited_resume": "PASS",
+    "dlq_poison_no_hang": "PASS",
+    "smoke_runbook_present": "PASS",
+    "no_self_qa": "PASS",
+    "no_premature_dod_ready": "PASS",
+    "no_false_ready_seals": "PASS",
+    "broad_suite_noise": "CONCERNS"
+  },
+  "acceptance_criteria": [
+    {
+      "id": 1,
+      "text": "Job interrompido após N páginas → resume não reprocessa fatias success já checkpointadas",
+      "result": "PASS",
+      "evidence": [
+        "scripts/crawl/resilience/state.py CanonicalCheckpoint + atomic persist",
+        "tests/test_checkpoint.py unit coverage",
+        "tests/test_local_resilience.py resume/idempotent paths (success slices retained)",
+        "Focused suite re-run by @qa: 49 passed"
+      ]
+    },
+    {
+      "id": 2,
+      "text": "rate_limited → resume posterior retoma fatia pendente",
+      "result": "PASS",
+      "evidence": [
+        "tests/test_local_resilience.py rate_limited + resume sequences",
+        "tests/test_pipeline_fault.py fault/resume paths",
+        "adapters leave pending checkpoints on rate_limited (not watermark advance)"
+      ]
+    },
+    {
+      "id": 3,
+      "text": "Registro poison → DLQ; job principal não trava; smoke documentado",
+      "result": "PASS",
+      "evidence": [
+        "tests/test_dlq.py (17) + tests/test_dlq_sync.py (3)",
+        "docs/operations/LOCAL-RESILIENCE-RUNBOOK.md present",
+        "make resilient-smoke referenced in Dev Agent Record / handoff",
+        "DLQ local filesystem; migration 054 additive PG projection (documented limit)"
+      ]
+    }
+  ],
+  "tests": {
+    "focused_command": "pytest tests/test_checkpoint.py tests/test_dlq.py tests/test_dlq_sync.py tests/test_local_resilience.py tests/test_pipeline_fault.py -k \"checkpoint or resume or dlq\" -q --no-cov",
+    "focused_result": "49 passed",
+    "focused_exit": 0,
+    "focused_reproducer": "qa",
+    "broad_story_command": "pytest tests/ -k \"checkpoint or resume or dlq\" -q --no-cov",
+    "broad_result": "97 passed, 5 skipped, 2 failed (chaos fixture + opportunity DB tables)",
+    "implementer_log": "/tmp/grok-goal-00184141f517/implementer/extra-roi-tests-cand-qa-po-e3-stories.log"
+  },
+  "issues": [
+    {
+      "severity": "medium",
+      "category": "tests",
+      "description": "Broad -k selects tests/chaos/test_429_rate_limit.py (ResilienceConfig fixture drift TypeError) and tests/test_opportunity_integration.py (needs opportunity_checkpoints DB table). Outside story AC surface and no-DATABASE evidence policy.",
+      "recommendation": "Fix chaos _cfg; mark opportunity integration as requires_db / exclude from default -k smoke. Non-blocking for AC close.",
+      "blocks_verdict": false
+    }
+  ],
+  "residual_observations": [
+    {
+      "severity": "low",
+      "category": "ops",
+      "description": "DLQ is filesystem-local; PG projection via migration 054 is additive — not claimed as live PG operational readiness.",
+      "blocks_verdict": false
+    },
+    {
+      "severity": "low",
+      "category": "ops",
+      "description": "No claim of LOCAL_RESILIENCE_READY or PRE_VPS_FINAL_READY from this story close path.",
+      "blocks_verdict": false
+    }
+  ],
+  "forbidden_claims_intact": [
+    "LOCAL_RESILIENCE_READY still NOT_READY / destroyed",
+    "PRE_VPS_FINAL_READY still NOT_READY",
+    "No live canary/PG operational claim",
+    "No self-QA by implementer",
+    "Status remains InReview — Done reserved for @po"
+  ],
+  "next_phase_required": "PO_CLOSE",
+  "notes": "Independent adversarial QA. AC1–3 met on focused no-DB suites (49 passed). CONCERNS for broad residual (chaos fixture + DB integration noise) only — not AC failure."
+}

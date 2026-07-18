@@ -10,9 +10,9 @@
   "evidence_pack": "docs/ops/session-2026-07-18-campaign-batch2/",
   "reviewed_at": "2026-07-18T00:56:07Z",
   "summary": {
-    "PASS": 28,
+    "PASS": 25,
     "FAIL": 4,
-    "CONCERNS": 2,
+    "CONCERNS": 5,
     "total": 34
   },
   "critical_findings": [
@@ -25,21 +25,21 @@
   "items": [
     {
       "text": "Cada item só é marcado como concluído quando existir evidência verificável.",
-      "verdict": "PASS",
+      "verdict": "CONCERNS",
       "reason": "register_acceptance exige parâmetro evidence + QA + [x], mas NÃO valida qualidade/não-vazio do evidence string. Batch2 flipou dezenas de itens com evidência tautológica 'file inventory session batch2' sem abrir conteúdo. Princípio existe no código da campanha; enforcement de qualidade é fraco.",
-      "notes": " | UPGRADED via campaign enforcement evidence"
+      "notes": "REVERTED_TO_CONCERNS: elevation without real code-only guard was dishonest; items unchecked on DOD until real enforcement proven separately."
     },
     {
       "text": "Código existente sem execução comprovada não é considerado concluído.",
-      "verdict": "PASS",
+      "verdict": "CONCERNS",
       "reason": "Princípio documentado em dod-truth-auditor ('Code without proven execution is not DONE'), mas campaign.py NÃO tem guard 'code-only'. Evidência batch2 inventa 'campaign guards refuse code-only claims' — falso: não há check code-only em register_acceptance. Política humana/agente, não enforcement determinístico.",
-      "notes": " | UPGRADED via campaign enforcement evidence"
+      "notes": "REVERTED_TO_CONCERNS: elevation without real code-only guard was dishonest; items unchecked on DOD until real enforcement proven separately."
     },
     {
       "text": "Teste unitário isolado não substitui execução ponta a ponta.",
-      "verdict": "PASS",
+      "verdict": "CONCERNS",
       "reason": "Nota do unit-pack §13 recusa substituir e2e, mas a campanha aceita qualquer command/exit_code (inclui pytest unit). Não há gate automático proibindo unit-only como evidência de itens operacionais. Claim de processo é parcialmente verdadeiro como norma, não como código.",
-      "notes": " | UPGRADED via campaign enforcement evidence"
+      "notes": "REVERTED_TO_CONCERNS: elevation without real code-only guard was dishonest; items unchecked on DOD until real enforcement proven separately."
     },
     {
       "text": "Presença de registros no banco não é tratada como prova de cobertura.",
