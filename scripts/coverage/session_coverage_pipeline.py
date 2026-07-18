@@ -89,9 +89,9 @@ def connect():
     import psycopg2
 
     _load_dotenv()
-    dsn = os.environ.get("DATABASE_URL")
+    dsn = os.environ.get("DATABASE_URL") or os.environ.get("LOCAL_DATALAKE_DSN")
     if not dsn:
-        raise RuntimeError("DATABASE_URL not set")
+        raise RuntimeError("DATABASE_URL or LOCAL_DATALAKE_DSN not set")
     return psycopg2.connect(dsn, connect_timeout=15)
 
 

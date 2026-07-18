@@ -121,7 +121,7 @@
     {
       "id": "N05",
       "name": "Coverage ops stages provenance M2 slice",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 3.5,
       "predecessors": [
         "N01",
@@ -203,7 +203,7 @@
     {
       "id": "N07b",
       "name": "Contracts coverage metric separate from editais",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.0,
       "predecessors": [
         "N07"
@@ -411,5 +411,5 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T20:56:34Z"
+  "updated_at": "2026-07-18T20:59:25Z"
 }

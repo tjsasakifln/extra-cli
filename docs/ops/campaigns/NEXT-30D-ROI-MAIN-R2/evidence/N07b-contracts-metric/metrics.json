@@ -1,0 +1,27 @@
+{
+  "ts": "2026-07-18T20:57:21Z",
+  "head": "867db0e",
+  "denominators": {
+    "universe_200km_entities": 1093,
+    "note": "editais and contracts use same universe denominator but separate numerators"
+  },
+  "editais_entity_coverage": {
+    "covered_entities": 174,
+    "denominator": 1093,
+    "pct": 15.92,
+    "raw_rows": 2026,
+    "not_contracts": true
+  },
+  "contracts_entity_coverage": {
+    "covered_entities": 186,
+    "denominator": 1093,
+    "pct": 17.02,
+    "raw_rows": 20894,
+    "not_editais": true,
+    "window_note": "pilot 3d national insert; entity match via orgao cnpj8"
+  },
+  "claims_forbidden": [
+    "mixing contracts rows into editais coverage",
+    "treating national contracts dump as 200km operational coverage without provenance stages"
+  ]
+}

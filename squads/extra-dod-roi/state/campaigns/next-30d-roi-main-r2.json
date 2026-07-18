@@ -3,7 +3,7 @@
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
   "status": "EXECUTING",
   "created_at": "2026-07-18T20:39:42Z",
-  "updated_at": "2026-07-18T20:56:34Z",
+  "updated_at": "2026-07-18T20:59:25Z",
   "integration_mode": "main-direct",
   "baseline_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
   "baseline_dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
@@ -11,7 +11,7 @@
   "baseline_open_count": 1160,
   "baseline_pct": 14.39,
   "pert_days_target": 30,
-  "pert_days_advanced_new": 12.5,
+  "pert_days_advanced_new": 18.0,
   "pert_critical_path_days": 32.0,
   "scope_frozen": true,
   "prior_campaign": "NEXT-30D-ROI-MAIN",
@@ -51,6 +51,16 @@
       "id": "N07",
       "at": "2026-07-18T20:56:34Z",
       "qa": "PASS"
+    },
+    {
+      "id": "N05",
+      "at": "2026-07-18T20:59:25Z",
+      "qa": "PASS"
+    },
+    {
+      "id": "N07b",
+      "at": "2026-07-18T20:59:25Z",
+      "qa": "PASS"
     }
   ],
   "paths": {
@@ -67,5 +77,7 @@
     "Gates remain NOT_READY"
   ],
   "current_head": "5dc70009a9d27e42bee229302e163249ade07735",
-  "current_head_pending": true
+  "current_head_pending": true,
+  "pert_critical_days_done": 9.5,
+  "pert_critical_days_remaining_approx": 22.5
 }

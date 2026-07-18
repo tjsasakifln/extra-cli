@@ -1,0 +1,28 @@
+{
+  "task": "N05",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T20:59:25Z",
+  "slice": "M2 provenance + multi-source metrics + session pipeline on main PG",
+  "checks": [
+    "session_coverage_pipeline exit 0 with LOCAL_DATALAKE_DSN fallback fix",
+    "universe 1093 loaded",
+    "multi_source-r2-n05 metrics written with explicit denominators",
+    "entity_freshness report READY status (low pct honest)",
+    "coverage_canonical commercial_numerator recorded without inventing 95%"
+  ],
+  "metrics_honest": {
+    "commercial_numerator": 123,
+    "denominator": 1093,
+    "pncp_raw_entityish": "52/1093 (4.76%) from multi_source historical_editais_raw",
+    "forbidden": [
+      "LOCAL_READY",
+      "95% operational"
+    ]
+  },
+  "concerns": [
+    "Operational coverage still far below target \u2014 scale slices N06+ remain",
+    "entity freshness 0.18% under 24h SLA \u2014 expected until continuous crawl"
+  ]
+}
