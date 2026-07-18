@@ -1,0 +1,15 @@
+{
+  "story_id": "ROI-cand-coverage-m2-multisource-artifacts",
+  "title": "Multi-source M2 81\u219290/1093 (fan-out fixed)",
+  "status": "Done",
+  "po_closed": true,
+  "qa_verdict": "PASS",
+  "risk_level": "STANDARD",
+  "updated_at": "2026-07-18T00:32:04.083725+00:00",
+  "snapshot_evidence": {
+    "m2_before": 81,
+    "m2_after": 90,
+    "denominator": 1093,
+    "claims_95": false
+  }
+}
