@@ -101,3 +101,7 @@ scripts/output/
 .env.dev
 .env.production
 .env.staging
+
+# Local crawler checkpoints (runtime)
+data/contracts_checkpoints/
+output/session-*/
