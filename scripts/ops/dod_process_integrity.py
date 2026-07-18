@@ -30,6 +30,32 @@ POLICY = {
     "unit_test_is_not_e2e": True,
 }
 
+# DoD §1 — three mandatory rolls for PROJECT_DONE (not LOCAL_READY alone).
+PROJECT_DONE_ROLLS: tuple[str, ...] = (
+    "current_stage_requirements",  # requisitos do estágio atual
+    "post_vps_requirements",  # requisitos posteriores ao provisionamento da VPS
+    "infra_independent_requirements",  # requisitos independentes de infraestrutura
+)
+
+
+def project_done_allowed(
+    *,
+    current_stage_complete: bool,
+    post_vps_complete: bool,
+    infra_independent_complete: bool,
+) -> dict[str, Any]:
+    """PROJECT_DONE only when all three rolls are complete."""
+    rolls = {
+        "current_stage_requirements": current_stage_complete,
+        "post_vps_requirements": post_vps_complete,
+        "infra_independent_requirements": infra_independent_complete,
+    }
+    return {
+        "allowed": all(rolls.values()),
+        "rolls": rolls,
+        "missing": [k for k, v in rolls.items() if not v],
+    }
+
 
 def parse_completed_without_evidence(dod_text: str) -> list[dict[str, Any]]:
     """Return checked items whose text lacks an evidence marker (heuristic)."""
