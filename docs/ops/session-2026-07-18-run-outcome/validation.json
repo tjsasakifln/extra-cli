@@ -1,0 +1,24 @@
+{
+  "ok": false,
+  "issues": [
+    "empty:parameters"
+  ],
+  "required_fields": [
+    "run_id",
+    "code_version",
+    "schema_version",
+    "spreadsheet_hash",
+    "source",
+    "capability",
+    "parameters",
+    "period",
+    "started_at",
+    "completed_at",
+    "status",
+    "counts_before",
+    "counts_after",
+    "errors",
+    "checkpoint_path",
+    "provenance"
+  ]
+}

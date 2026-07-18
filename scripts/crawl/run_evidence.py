@@ -163,6 +163,18 @@ EXECUTION_AUDIT_REQUIRED_FIELDS: tuple[str, ...] = (
     "period",
 )
 
+# DoD §29 continuation — operational outcome fields on every audited run.
+EXECUTION_OUTCOME_REQUIRED_FIELDS: tuple[str, ...] = (
+    "started_at",
+    "completed_at",
+    "status",
+    "counts_before",
+    "counts_after",
+    "errors",
+    "checkpoint_path",
+    "provenance",
+)
+
 
 def resolve_spreadsheet_hash(path: str | Path | None = None) -> str | None:
     """Hash of the canonical Extra targets spreadsheet when present."""
@@ -229,6 +241,28 @@ def build_execution_audit_record(
     record["capability"] = capability
     record["parameters"] = parameters if parameters is not None else (evidence.get("args") or {})
     record["period"] = period if period is not None else {"label": "unspecified"}
+    # Outcome / audit trail defaults
+    if not record.get("started_at"):
+        record["started_at"] = datetime.now(UTC).isoformat()
+    if not record.get("completed_at"):
+        record["completed_at"] = datetime.now(UTC).isoformat()
+    if not record.get("status") or record.get("status") is None:
+        record["status"] = kwargs.get("status") or "unknown"
+    record.setdefault("counts_before", kwargs.get("counts_before") or {})
+    record.setdefault("counts_after", kwargs.get("counts_after") or {})
+    record.setdefault("errors", list(kwargs.get("errors") or []))
+    record.setdefault(
+        "checkpoint_path",
+        kwargs.get("checkpoint_path") or record.get("checkpoint_path"),
+    )
+    record["provenance"] = kwargs.get("provenance") or {
+        "run_id": record["run_id"],
+        "code_version": record["code_version"],
+        "schema_version": record["schema_version"],
+        "source": source,
+        "capability": capability,
+        "spreadsheet_hash": record.get("spreadsheet_hash"),
+    }
     # Self-check required fields
     missing = [f for f in EXECUTION_AUDIT_REQUIRED_FIELDS if f not in record]
     if missing:
@@ -236,24 +270,46 @@ def build_execution_audit_record(
     return record
 
 
-def validate_execution_audit_record(record: dict[str, Any]) -> dict[str, Any]:
+def attach_report_source_runs(
+    report: dict[str, Any],
+    source_runs: list[str],
+) -> dict[str, Any]:
+    """Stamp a report artifact with originating run_ids (DoD: report refs runs)."""
+    out = dict(report)
+    out["source_run_ids"] = list(source_runs)
+    if not source_runs:
+        raise ValueError("report must reference at least one source run_id")
+    return out
+
+
+def validate_execution_audit_record(
+    record: dict[str, Any],
+    *,
+    require_outcome: bool = False,
+) -> dict[str, Any]:
     """Return ok/issues for a record against DoD §29 required fields."""
     issues: list[str] = []
-    for field in EXECUTION_AUDIT_REQUIRED_FIELDS:
+    fields = list(EXECUTION_AUDIT_REQUIRED_FIELDS)
+    if require_outcome:
+        fields.extend(EXECUTION_OUTCOME_REQUIRED_FIELDS)
+    for field in fields:
         if field not in record:
             issues.append(f"missing:{field}")
-        elif record[field] in (None, "", {}, []):
-            # spreadsheet_hash may be None if seed file absent in CI checkout
-            if field == "spreadsheet_hash" and record[field] is None:
-                continue
+        elif record[field] in (None, "", {}, []) and field not in {
+            "spreadsheet_hash",
+            "checkpoint_path",
+            "errors",
+            "counts_before",
+            "counts_after",
+        }:
             if field == "period" and record[field] in ({}, None):
                 issues.append(f"empty:{field}")
-            elif field not in {"spreadsheet_hash"}:
+            elif field not in {"spreadsheet_hash", "checkpoint_path"}:
                 issues.append(f"empty:{field}")
     return {
         "ok": len(issues) == 0,
         "issues": issues,
-        "required_fields": list(EXECUTION_AUDIT_REQUIRED_FIELDS),
+        "required_fields": fields,
     }
 
 

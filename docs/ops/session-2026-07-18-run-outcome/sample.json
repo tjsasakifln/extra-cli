@@ -1,0 +1,42 @@
+{
+  "run_id": "run-20260718T132943Z-7c9ec6bc4e",
+  "git_sha": "2e228c132d69db5454901c0f035da0ad56b2c9ee",
+  "git_branch": "extra-roi/cand-run-status-counts",
+  "started_at": "2026-07-18T13:29:43.388452+00:00",
+  "completed_at": "2026-07-18T13:29:43.407288+00:00",
+  "host_id": "72aa0c75ebd3",
+  "command": null,
+  "args": {},
+  "env_non_secret": {},
+  "checkpoint_path": null,
+  "checkpoint_hash": null,
+  "output_path": null,
+  "output_hash": null,
+  "log_path": null,
+  "log_hash": null,
+  "migration_head": null,
+  "counts_before": {},
+  "counts_after": {
+    "n": 1
+  },
+  "status": "success",
+  "errors": [],
+  "criteria": {},
+  "claims_allowed": [],
+  "claims_forbidden": [],
+  "code_version": "2e228c132d69db5454901c0f035da0ad56b2c9ee",
+  "schema_version": "054_local_resilience_contract.sql",
+  "spreadsheet_hash": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+  "source": "pncp",
+  "capability": "open_tenders",
+  "parameters": {},
+  "period": "p",
+  "provenance": {
+    "run_id": "run-20260718T132943Z-7c9ec6bc4e",
+    "code_version": "2e228c132d69db5454901c0f035da0ad56b2c9ee",
+    "schema_version": "054_local_resilience_contract.sql",
+    "source": "pncp",
+    "capability": "open_tenders",
+    "spreadsheet_hash": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486"
+  }
+}

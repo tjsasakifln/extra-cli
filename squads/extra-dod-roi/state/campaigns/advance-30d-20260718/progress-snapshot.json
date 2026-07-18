@@ -1,44 +1,17 @@
 {
-  "updated_at": "2026-07-18T13:14:36.834146+00:00",
-  "epic_branch": "epic/advance-30d-local-ready-20260718",
+  "at": "2026-07-18T13:27:59.579065+00:00",
+  "epic": "epic/advance-30d-local-ready-20260718",
+  "sha": "2e228c132d69db5454901c0f035da0ad56b2c9ee",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "current_sha": "aa05fa629db56279f8ec2836787f3743b2d98f05",
-  "slices_completed": 5,
-  "stories": [
-    {
-      "id": "ROI-cand-dyn-slice-1e78666e2a21",
-      "title": "no || true mandatory gates",
-      "qa": "CONCERNS",
-      "dod_flips": 1,
-      "branch": "extra-roi/cand-no-or-true-gates"
-    },
-    {
-      "id": "ROI-cand-dyn-slice-cad02f320cc4",
-      "qa": "PASS",
-      "dod_flips": 7
-    },
-    {
-      "id": "ROI-cand-dyn-slice-d7ab09cdef56",
-      "qa": "PASS",
-      "dod_flips": 7
-    },
-    {
-      "id": "ROI-cand-dyn-slice-a41d7a2033b7",
-      "qa": "PASS",
-      "dod_flips": 3
-    },
-    {
-      "id": "ROI-cand-dyn-slice-ac8b6e76a7b2",
-      "qa": "PASS",
-      "dod_flips": 0,
-      "note": "empty orphan removed"
-    }
+  "dod_checked": 129,
+  "dod_open": 1225,
+  "slices_completed": 9,
+  "local_ready": false,
+  "operational_coverage_pct": 0.0,
+  "forbidden_claims": [
+    "LOCAL_READY",
+    "95% operational",
+    "PRE_VPS_FINAL_READY"
   ],
-  "dod_baseline": {
-    "checked": 92,
-    "open": 1263
-  },
-  "dod_now_note": "regenerate via regex",
-  "not_local_ready": true,
-  "operational_coverage_pct_stale": 0.0
+  "next": "force-next loop continues"
 }
