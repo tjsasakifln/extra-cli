@@ -177,16 +177,16 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Configuração do diagnóstico
 
-- [ ] Existe configuração canônica do perfil da Extra Construtora ou mecanismo equivalente versionado.
-- [ ] A configuração registra região e universo monitorado.
-- [ ] A configuração registra tipos de obra e serviços de engenharia relevantes.
-- [ ] A configuração registra faixas de valor relevantes, quando definidas no alinhamento.
-- [ ] A configuração registra modalidades aceitas ou priorizadas.
-- [ ] A configuração registra restrições operacionais conhecidas da empresa.
-- [ ] A configuração registra órgãos prioritários definidos no alinhamento.
-- [ ] A configuração registra concorrentes indicados pelo cliente.
-- [ ] A alteração do perfil não exige modificar regras espalhadas pelo código.
-- [ ] Todo relatório identifica a versão do perfil utilizada.
+- [x] Existe configuração canônica do perfil da Extra Construtora ou mecanismo equivalente versionado. Evidência: `config/client_profiles/extra.yaml` v2 + `scripts/ops/diagnostic_profile.py` audit PASS + tests (5 passed) + QA CONCERNS @ `d32e213`.
+- [x] A configuração registra região e universo monitorado. Evidência: `region.uf_primary=SC`, `radius_km=200`, `universe_seed` + audit region_universe PASS.
+- [x] A configuração registra tipos de obra e serviços de engenharia relevantes. Evidência: 4 `desired_object_types` + `engineering_categories` + audit PASS.
+- [x] A configuração registra faixas de valor relevantes, quando definidas no alinhamento. Evidência: hard null + `value_band_soft` 50k–50M + audit PASS.
+- [x] A configuração registra modalidades aceitas ou priorizadas. Evidência: `priority_modalities` + `allowed_modalities=null` + audit PASS.
+- [x] A configuração registra restrições operacionais conhecidas da empresa. Evidência: 3 `operational_constraints` + audit PASS.
+- [x] A configuração registra órgãos prioritários definidos no alinhamento. Evidência: campo `priority_organs: []` versionado (vazio até alinhamento comercial) + audit PASS.
+- [x] A configuração registra concorrentes indicados pelo cliente. Evidência: campo `known_competitors: []` + elicitation_queue + audit PASS.
+- [ ] A alteração do perfil não exige modificar regras espalhadas pelo código. PARTIAL — residual hardcodes 200km/raio_200km em scripts; audit yaml_centralized PARTIAL (QA CONCERNS residual).
+- [ ] Todo relatório identifica a versão do perfil utilizada. PARTIAL — `run_metadata`/`profile_stamp` existem; não todos os geradores (audit report_profile_version PARTIAL).
 
 #### Entregável A — ranking dos órgãos públicos
 

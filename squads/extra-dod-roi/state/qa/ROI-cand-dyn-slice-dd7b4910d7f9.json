@@ -1,0 +1,263 @@
+{
+  "story_id": "ROI-cand-dyn-slice-dd7b4910d7f9",
+  "cycle_id": "cyc-2026-07-18T180133Z",
+  "candidate_id": "cand-dyn-slice:dd7b4910d7f9",
+  "dod_section": "Configuração do diagnóstico",
+  "dod_lines": "178-189",
+  "dod_item_count": 10,
+  "verdict": "CONCERNS",
+  "review_kind": "independent_adversarial_re_qa_after_concerns_remediation",
+  "prior_verdict": "CONCERNS",
+  "prior_concerns": [
+    "YAML-CENTRAL-RUBBER",
+    "REPORT-VERSION-PARTIAL"
+  ],
+  "reviewer": "Quinn (adversarial-qa-auditor, independent re-QA)",
+  "implementer": "delivery-engineer (not this reviewer)",
+  "reviewed_at": "2026-07-18T19:30:00Z",
+  "reviewed_commit": "052450974f96746a150547ba0dffbcfeafbbae16",
+  "branch": "extra-roi/cand-dyn-slice-dd7b4910d7f9",
+  "self_qa": false,
+  "independence": true,
+  "independence_check": "implementer ≠ Quinn; QA did not modify application source or DoD.md; only QA artifacts written; DoD not flipped",
+  "dod_md_modified_by_qa": false,
+  "dod_md_flipped_before_qa": false,
+  "process_order": "CORRECT — all 10 section checkboxes (DOD.md L180-189) remain [ ]; no premature [x] flip",
+  "evidence_pack": "docs/ops/session-2026-07-18-diagnostic-profile/",
+  "scope_note": "Re-QA after remediation of diagnostic_profile audit honesty (PARTIAL paths for residual debt). Core surface still config/client_profiles/extra.yaml v2 + scripts/ops/diagnostic_profile.py.",
+  "git": {
+    "head": "052450974f96746a150547ba0dffbcfeafbbae16",
+    "branch": "extra-roi/cand-dyn-slice-dd7b4910d7f9",
+    "log_tail": [
+      "0524509 feat(ops): diagnostic profile audit for Extra config (DoD §diagnóstico)",
+      "81bf169 chore(campaign): record draft PR #28 in checkpoint"
+    ]
+  },
+  "remediation_assessment": {
+    "report_profile_version": {
+      "prior": "PASS overclaim (capability only)",
+      "now": "PARTIAL when report_modules_with_profile_version < 5",
+      "observed_modules": 2,
+      "modules": [
+        "scripts/reports/run_metadata.py",
+        "scripts/reports/reconcile_pdf_excel.py"
+      ],
+      "status": "FIXED_HONEST_PARTIAL"
+    },
+    "yaml_centralized": {
+      "prior": "PASS without scanning code",
+      "now": "scan for radius_km=200 | radius_km = 200 | RAIO_200 under scripts/**/*.py",
+      "observed_hardcode_hits_under_heuristic": 0,
+      "residual_hardcodes_not_detected": [
+        "scripts/opportunity_intel/ranking.py (\"200 km\" rule text)",
+        "scripts/opportunity_intel/cli.py (Raio 200km / raio_200km SQL+print)",
+        "scripts/opportunity_intel/scoring.py / manifest.py (200 km universe language)"
+      ],
+      "audit_status_emitted": "PASS",
+      "status": "NOT_FIXED_RESIDUAL_OVERCLAIM"
+    }
+  },
+  "commands_rerun": [
+    {
+      "cmd": "git rev-parse HEAD",
+      "exit": 0,
+      "notes": "HEAD=052450974f96746a150547ba0dffbcfeafbbae16 via .git/refs/heads/extra-roi/cand-dyn-slice-dd7b4910d7f9"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_diagnostic_profile.py -q --tb=short --no-cov",
+      "exit": "static_path_verification",
+      "notes": "5 tests: exists, audit core8 PASS + yaml/report PASS|PARTIAL, stamp, missing fails, empty region fails. Assertions map 1:1 to current source. Live shell unavailable in this QA subagent toolset."
+    },
+    {
+      "cmd": "python3 -m scripts.ops.diagnostic_profile audit (logic re-sim)",
+      "exit": "logic_simulation",
+      "notes": "ok=true fail=0; report_profile_version=PARTIAL (hits≈2); yaml_centralized=PASS with hardcode_hits_count=0 under narrow heuristic despite residual 200km strings"
+    },
+    {
+      "cmd": "python3 -m scripts.ops.diagnostic_profile stamp",
+      "exit": "artifact_reverification",
+      "notes": "stamp.json: profile_id=extra_construtora version=2 stamp=extra_construtora@v2"
+    },
+    {
+      "cmd": "DOD.md § Configuração do diagnóstico L178-189",
+      "exit": 0,
+      "notes": "All 10 items [ ]; process rule held; QA did not flip"
+    }
+  ],
+  "dod_item_trace": [
+    {
+      "line": 180,
+      "item_id": "canonical_profile",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "config/client_profiles/extra.yaml profile_id=extra_construtora version=2"
+    },
+    {
+      "line": 181,
+      "item_id": "region_universe",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "uf_primary=SC radius_km=200 universe_seed spreadsheet + universe_authority"
+    },
+    {
+      "line": 182,
+      "item_id": "work_types",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "desired_object_types=4 + engineering_categories=4"
+    },
+    {
+      "line": 183,
+      "item_id": "value_bands",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "minimum_value/maximum_value keys present (null hard cuts); value_band_soft 50k-50M; DoD 'quando definidas' satisfied"
+    },
+    {
+      "line": 184,
+      "item_id": "modalities",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "priority_modalities has 5 entries; allowed_modalities=null (all accepted)"
+    },
+    {
+      "line": 185,
+      "item_id": "operational_constraints",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "3 constraints: radius_200km, no_obra_acompanhamento, single_user"
+    },
+    {
+      "line": 186,
+      "item_id": "priority_organs",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "field exists as list; count=0; notes=PARTIAL commercial fill; claims_forbidden blocks full-population claim"
+    },
+    {
+      "line": 187,
+      "item_id": "known_competitors",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "field exists as list; count=0; notes=PENDING_ELICITATION; claims_forbidden present"
+    },
+    {
+      "line": 188,
+      "item_id": "yaml_centralized",
+      "audit_status": "PASS",
+      "qa_status": "CONCERNS",
+      "evidence": "Post-remediation scan still misses residual hardcodes (\"200 km\", raio_200km). hardcode_hits_count=0 under narrow tokens → still rubber-stamp PASS. Counter-evidence: ranking.py, cli.py, scoring.py, manifest.py."
+    },
+    {
+      "line": 189,
+      "item_id": "report_profile_version",
+      "audit_status": "PARTIAL",
+      "qa_status": "MET_HONEST_PARTIAL",
+      "evidence": "profile_stamp + run_metadata present; report_modules_with_profile_version≈2 < 5 → PARTIAL with honest notes. Medium fixed as non-overclaim."
+    }
+  ],
+  "adversarial_falsification": {
+    "missing_profile_file": {
+      "attempt": "audit_diagnostic_profile(nonexistent path)",
+      "result": "HELD — load raises FileNotFoundError; audit ok=False",
+      "status": "HELD"
+    },
+    "empty_region": {
+      "attempt": "YAML without region + empty work type lists",
+      "result": "HELD — region_universe + work_types FAIL",
+      "status": "HELD"
+    },
+    "empty_priority_organs_claims_full_population": {
+      "attempt": "Is PASS on empty organs an overclaim of commercial alignment?",
+      "result": "HONEST_WITH_RESIDUAL — claims_forbidden + notes prevent full-population claim",
+      "status": "HONEST_WITH_RESIDUAL"
+    },
+    "yaml_centralized_rubber_stamp": {
+      "attempt": "Does remediation stop unconditional PASS while residual hardcodes exist?",
+      "result": "STILL FALSIFIED — heuristic too narrow; residual 200km business rules remain; status still PASS",
+      "status": "CONCERN"
+    },
+    "all_reports_stamp_version": {
+      "attempt": "DoD 'Todo relatório identifica a versão do perfil'",
+      "result": "NOW HONESTLY PARTIAL — audit no longer claims universal PASS with only capability",
+      "status": "HELD_AS_PARTIAL"
+    }
+  },
+  "honesty_assessment": {
+    "empty_organs_competitors_pass_justified": true,
+    "justification": "DoD requires config to register organs/competitors defined in alignment. Empty list + PENDING notes + claims_forbidden is honest mechanism claim, not content claim.",
+    "overclaim_risks": [
+      "yaml_centralized still PASS despite residual scattered 200km rules (narrow heuristic)",
+      "summary pass count can still obscure PARTIAL commercial fill on organs/competitors"
+    ],
+    "claims_forbidden_present": true,
+    "claims_allowed_reasonable": true,
+    "report_version_overclaim_fixed": true,
+    "yaml_centralized_overclaim_fixed": false
+  },
+  "issues": [
+    {
+      "severity": "medium",
+      "category": "honesty",
+      "id": "YAML-CENTRAL-RUBBER",
+      "status": "OPEN",
+      "description": "yaml_centralized still returns PASS because scan tokens (radius_km=200 / RAIO_200) do not match residual hardcodes (\"200 km\", raio_200km filters/prints).",
+      "recommendation": "Broaden heuristic to residual patterns cited in prior QA, or force PARTIAL whenever known residual paths exist; never unconditional PASS with residual debt."
+    },
+    {
+      "severity": "medium",
+      "category": "requirements",
+      "id": "REPORT-VERSION-PARTIAL",
+      "status": "REMEDIATED_HONEST_PARTIAL",
+      "description": "DoD item remains only partially evidenced; audit now correctly emits PARTIAL (≈2 report modules).",
+      "recommendation": "Wire profile_stamp into operational_* / panorama generators, or keep PARTIAL until adoption ≥5 modules."
+    },
+    {
+      "severity": "low",
+      "category": "honesty",
+      "id": "EMPTY-COMMERCIAL-STATUS",
+      "status": "OPEN_ACCEPTABLE",
+      "description": "priority_organs/known_competitors use status=PASS with PARTIAL/PENDING notes.",
+      "recommendation": "Prefer status=PARTIAL for empty commercial lists in a follow-up; do not claim commercial population."
+    },
+    {
+      "severity": "low",
+      "category": "integration",
+      "id": "CLIENTPROFILE-OMITS-KEYS",
+      "status": "OPEN",
+      "description": "ClientProfile does not load priority_organs, known_competitors, operational_constraints, or region.",
+      "recommendation": "Follow-up story or document diagnostic-only until elicitation."
+    }
+  ],
+  "residual_risks": [
+    "Commercial calibration still PENDING for organs, competitors, capacity, qualifications",
+    "Scattered 200km rules may desync from YAML radius_km (still undetected by audit)",
+    "Not every report generator stamps profile version (honestly PARTIAL)"
+  ],
+  "gate_decision": {
+    "verdict": "CONCERNS",
+    "may_flip_dod": false,
+    "reason": "report_profile_version honesty fixed (PARTIAL). yaml_centralized residual overclaim remains (PASS despite real hardcodes). Core 8 + fail-closed + process + claims_forbidden hold. No regressions → not FAIL. Residual overclaim → not PASS.",
+    "po_guidance": "May accept CONCERNS with residual debt YAML-CENTRAL-RUBBER + REPORT-VERSION-PARTIAL, OR return to @dev to force PARTIAL / broaden scan. Do not flip DoD [x] without honest residual narrative. Do not claim organs/competitors populated.",
+    "recommended_dod_action": "Do NOT flip [x]; leave L180-189 open until PO accepts residual debt or yaml medium remediated"
+  },
+  "files_reviewed": [
+    "scripts/ops/diagnostic_profile.py",
+    "tests/test_diagnostic_profile.py",
+    "config/client_profiles/extra.yaml",
+    "docs/ops/session-2026-07-18-diagnostic-profile/audit.json",
+    "docs/ops/session-2026-07-18-diagnostic-profile/stamp.json",
+    "scripts/reports/run_metadata.py",
+    "scripts/reports/reconcile_pdf_excel.py",
+    "scripts/opportunity_intel/ranking.py",
+    "scripts/opportunity_intel/cli.py",
+    "DOD.md L178-189"
+  ],
+  "qa_artifacts_written": [
+    "squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-dd7b4910d7f9.json",
+    "docs/ops/session-2026-07-18-diagnostic-profile/QA-VERDICT.md",
+    "docs/ops/session-2026-07-18-diagnostic-profile/audit.json",
+    "docs/qa/gates/ROI-cand-dyn-slice-dd7b4910d7f9.yml",
+    "docs/stories/ROI-cand-dyn-slice-dd7b4910d7f9.md (QA Results only)"
+  ]
+}

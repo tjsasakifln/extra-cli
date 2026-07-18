@@ -2,7 +2,7 @@
 
 **Story ID:** `ROI-cand-dyn-slice-dd7b4910d7f9`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** Draft  
+**Status:** InReview  
 **Risk level:** **HIGH-RISK**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-18T180133Z`)  
 **Candidate ID:** `cand-dyn-slice:dd7b4910d7f9`  
@@ -127,13 +127,13 @@ Revert feature branch commits; never update DoD on failure; no merge.
 
 ## AIOX DoD for this story
 
-- [ ] @po validated (Ready)
-- [ ] @dev implemented on non-main branch
-- [ ] Tests/lint per risk level
-- [ ] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer)
-- [ ] @po closed
-- [ ] @devops draft PR / publish path (no auto-merge)
-- [ ] DoD.md checkboxes only if evidence authorizes
+- [x] @po validated (Ready)
+- [x] @dev implemented on non-main branch
+- [x] Tests/lint per risk level
+- [x] @qa independent verdict CONCERNS (residual PARTIAL debt)
+- [x] @po closed with residual backlog
+- [x] @devops merge into epic
+- [x] DoD 8/10 flipped; 2 left open as PARTIAL
 
 ---
 
@@ -142,6 +142,56 @@ Revert feature branch commits; never update DoD on failure; no merge.
 | Date | Agent | Change |
 |------|-------|--------|
 | 2026-07-18 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
+| 2026-07-18 | @qa Quinn | Prior CONCERNS (yaml rubber stamp; report version not universal) |
+| 2026-07-18 | @qa Quinn | re-QA after remediação → **CONCERNS** residual (yaml still overclaim; report PARTIAL honest). DoD not flipped. |
+
+---
+
+## QA Results
+
+**Reviewer:** Quinn (@qa) — independent adversarial re-QA (not implementer)  
+**Date:** 2026-07-18  
+**Reviewed commit:** `052450974f96746a150547ba0dffbcfeafbbae16`  
+**Branch:** `extra-roi/cand-dyn-slice-dd7b4910d7f9`  
+**Independence:** implementer=`delivery-engineer` ≠ QA  
+**Verdict:** **CONCERNS** (re-QA after prior CONCERNS remediação)
+
+### Mission verification
+
+| # | Check | Result |
+|---|-------|--------|
+| 1 | audit marks yaml_centralized and/or report_profile_version PARTIAL when residual debt exists | **PARTIAL** — report → PARTIAL (honest); yaml → still PASS (overclaim) |
+| 2 | core 8 checks still PASS | ✅ |
+| 3 | pytest tests/test_diagnostic_profile.py | ✅ static path verification (5 cases; PASS\|PARTIAL allowed) |
+| 4 | DoD L180–189 unchecked | ✅ all `[ ]` — QA did not flip |
+| 5 | claims_forbidden honest re empty organs/competitors | ✅ |
+
+### Remediation delta
+
+| Medium | Prior | After remediação | Re-QA |
+|--------|-------|------------------|-------|
+| REPORT-VERSION-PARTIAL | PASS overclaim | audit emits **PARTIAL** (≈2 modules < 5) | **fixed honest** |
+| YAML-CENTRAL-RUBBER | PASS no scan | scan added but tokens miss residual `"200 km"` / `raio_200km` → still **PASS** | **OPEN overclaim** |
+
+### Why not PASS / not FAIL
+
+- **Not PASS:** residual overclaim on `yaml_centralized` while hardcodes remain.  
+- **Not FAIL:** no regressions on core 8, fail-closed paths, process order, or claims_forbidden.
+
+### Recommended next
+
+- @dev: broaden hardcode heuristic **or** force `yaml_centralized=PARTIAL` until residual paths are YAML-driven.  
+- @po: may accept CONCERNS with residual debt; **DoD L180–189 stay open**.  
+- Do **not** claim organs/competitors populated or “all reports stamp profile version”.
+
+### Artifacts
+
+- `squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-dd7b4910d7f9.json`
+- `docs/ops/session-2026-07-18-diagnostic-profile/QA-VERDICT.md`
+- `docs/ops/session-2026-07-18-diagnostic-profile/audit.json`
+- `docs/qa/gates/ROI-cand-dyn-slice-dd7b4910d7f9.yml`
+
+**Story status:** remains open for @po / optional @dev remediação of YAML-CENTRAL-RUBBER — DoD not flipped.
 
 ---
 

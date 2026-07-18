@@ -61,6 +61,12 @@ PROFILE_VERSION: int | str | None = None
 def _load_profile_version() -> int | str | None:
     """Best-effort read of config/client_profiles/extra.yaml version."""
     try:
+        from scripts.ops.diagnostic_profile import profile_stamp
+
+        return profile_stamp().get("version")
+    except Exception:  # noqa: BLE001 — metadata must still emit
+        pass
+    try:
         import yaml  # type: ignore
     except ImportError:
         yaml = None  # type: ignore

@@ -1,0 +1,13 @@
+{
+  "story_id": "ROI-cand-dyn-slice-dd7b4910d7f9",
+  "verdict": "CONCERNS",
+  "reviewer": "adversarial-qa-auditor-round3",
+  "reviewed_commit": "d32e213ddb9d29ecc6320a3ffee84909d97d8437",
+  "summary": "Core 8 PASS; yaml_centralized+report_profile_version honest PARTIAL residual debt",
+  "residual": [
+    "yaml_centralized PARTIAL until radius hardcodes removed from scripts",
+    "report_profile_version PARTIAL until all report modules stamp version"
+  ],
+  "dod_flip_authorization": "PO may flip the 8 PASS items only; leave 2 PARTIAL open",
+  "ac_process": "DoD not flipped before this re-review"
+}

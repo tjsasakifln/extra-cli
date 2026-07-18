@@ -1,0 +1,75 @@
+# Quality Gate — ROI-cand-dyn-slice-dd7b4910d7f9 (re-QA after CONCERNS remediação)
+schema: 1
+storyId: ROI-cand-dyn-slice-dd7b4910d7f9
+story_file: docs/stories/ROI-cand-dyn-slice-dd7b4910d7f9.md
+cycle_id: cyc-2026-07-18T180133Z
+candidate_id: "cand-dyn-slice:dd7b4910d7f9"
+verdict: CONCERNS
+review_kind: independent_adversarial_re_qa_after_concerns_remediation
+prior_verdict: CONCERNS
+reviewer: "Quinn (@qa) / independent adversarial re-QA"
+implementer: delivery-engineer
+reviewed_at: "2026-07-18T19:30:00Z"
+reviewed_commit: "052450974f96746a150547ba0dffbcfeafbbae16"
+branch: extra-roi/cand-dyn-slice-dd7b4910d7f9
+self_qa: false
+evidence_pack: docs/ops/session-2026-07-18-diagnostic-profile/
+qa_verdict_md: docs/ops/session-2026-07-18-diagnostic-profile/QA-VERDICT.md
+qa_artifact: squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-dd7b4910d7f9.json
+
+gates:
+  tests: PASS
+  lint: PENDING
+  typecheck: PENDING
+  build: NA
+
+checks:
+  - id: core-8-structural
+    result: PASS
+    evidence: "canonical_profile, region_universe, work_types, value_bands, modalities, operational_constraints, priority_organs, known_competitors all PASS"
+  - id: report-profile-version-honesty
+    result: PASS
+    evidence: "report_profile_version now PARTIAL (≈2 modules < 5); no universal overclaim"
+  - id: yaml-centralized-honesty
+    result: CONCERNS
+    evidence: "scan present but tokens miss residual '200 km'/raio_200km hardcodes; status still PASS (rubber stamp residual)"
+  - id: pytest-diagnostic-profile
+    result: PASS
+    evidence: "tests/test_diagnostic_profile.py — 5 cases; core8 PASS; yaml/report PASS|PARTIAL; fail-closed held (static path verification)"
+  - id: dod-l180-189-unchecked
+    result: PASS
+    evidence: "All 10 DoD items still [ ]; QA did not flip"
+  - id: claims-forbidden-empty-commercial
+    result: PASS
+    evidence: "claims_forbidden blocks full organs/competitors population without elicitation"
+
+remediation_status:
+  REPORT-VERSION-PARTIAL: REMEDIATED_HONEST_PARTIAL
+  YAML-CENTRAL-RUBBER: OPEN
+
+issues:
+  - severity: medium
+    id: YAML-CENTRAL-RUBBER
+    description: "yaml_centralized still PASS under narrow heuristic while residual hardcodes exist"
+    recommendation: "Broaden scan tokens or force PARTIAL until hardcodes are YAML-driven"
+  - severity: medium
+    id: REPORT-VERSION-PARTIAL
+    description: "Honest PARTIAL until operational reports stamp profile_version widely"
+    recommendation: "Wire stamp into operational_* generators or keep PARTIAL"
+
+dod_flip_authorized: []
+exact_flip_list: []
+must_stay_open:
+  - "L180 Existe configuração canônica do perfil da Extra Construtora ou mecanismo equivalente versionado."
+  - "L181 A configuração registra região e universo monitorado."
+  - "L182 A configuração registra tipos de obra e serviços de engenharia relevantes."
+  - "L183 A configuração registra faixas de valor relevantes, quando definidas no alinhamento."
+  - "L184 A configuração registra modalidades aceitas ou priorizadas."
+  - "L185 A configuração registra restrições operacionais conhecidas da empresa."
+  - "L186 A configuração registra órgãos prioritários definidos no alinhamento."
+  - "L187 A configuração registra concorrentes indicados pelo cliente."
+  - "L188 A alteração do perfil não exige modificar regras espalhadas pelo código."
+  - "L189 Todo relatório identifica a versão do perfil utilizada."
+
+decision: CONCERNS
+next: "@dev broaden yaml hardcode scan / force PARTIAL OR @po accept CONCERNS with residual debt; DoD stays open; no false green"
