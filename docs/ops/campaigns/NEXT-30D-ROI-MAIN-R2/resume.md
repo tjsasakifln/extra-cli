@@ -15,7 +15,7 @@ python3 squads/extra-dod-roi/scripts/main_writer_lock.py status
 
 ## Latest HEAD
 
-`48d0c418c1799d86873621b0bc1abe09175a951e` @ 2026-07-18T21:55:14Z
+`6e4bc5575c3b4217bfc71456397b16c2d3b3288b` @ 2026-07-18T21:55:14Z
 
 ## Rules
 

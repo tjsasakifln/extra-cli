@@ -5,7 +5,7 @@
   "updated_at": "2026-07-18T21:55:14Z",
   "integration_mode": "main-direct",
   "baseline_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
-  "current_head": "48d0c418c1799d86873621b0bc1abe09175a951e",
+  "current_head": "6e4bc5575c3b4217bfc71456397b16c2d3b3288b",
   "baseline_done_count": 195,
   "pert_critical_days_done": 32.0,
   "pert_critical_path_days": 32.0,
