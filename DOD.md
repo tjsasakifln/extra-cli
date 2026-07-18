@@ -246,15 +246,15 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Entregável E — editais abertos e recomendação individual
 
-- [ ] O relatório inclui editais comprovadamente abertos na data de corte ou semana de conclusão.
-- [ ] Cada edital foi visto no snapshot completo mais recente ou reconfirmado individualmente.
-- [ ] Cada edital é avaliado contra o perfil versionado da Extra.
-- [ ] Cada edital recebe `GO`, `REVIEW` ou `NO_GO`.
-- [ ] A apresentação ao cliente traduz `GO` e `NO_GO` como recomendação fundamentada de `PARTICIPAR` ou `NÃO PARTICIPAR`, preservando `REVIEW` quando depender de análise humana adicional.
-- [ ] Cada recomendação mostra fatores favoráveis.
-- [ ] Cada recomendação mostra fatores impeditivos ou riscos.
-- [ ] Cada recomendação referencia dados e documentos oficiais disponíveis.
-- [ ] Nenhuma recomendação promete vitória ou substitui análise jurídica, contábil ou técnica final.
+- [x] O relatório inclui editais comprovadamente abertos na data de corte ou semana de conclusão. Evidência: `deliverable_e_editais` prove_open + excluded_not_open; QA PASS @ `03765ea`. Residual: live DSN empty.
+- [x] Cada edital foi visto no snapshot completo mais recente ou reconfirmado individualmente. Evidência: proof_mode SNAPSHOT|INDIVIDUAL_RECONFIRM com id/timestamp.
+- [x] Cada edital é avaliado contra o perfil versionado da Extra. Evidência: profile_id + profile_version em cada recomendação.
+- [x] Cada edital recebe `GO`, `REVIEW` ou `NO_GO`. Evidência: ranking enum fechado + tests.
+- [x] A apresentação ao cliente traduz `GO` e `NO_GO` como recomendação fundamentada de `PARTICIPAR` ou `NÃO PARTICIPAR`, preservando `REVIEW` quando depender de análise humana adicional. Evidência: CLIENT_LABEL map.
+- [x] Cada recomendação mostra fatores favoráveis. Evidência: fatores_favoraveis list.
+- [x] Cada recomendação mostra fatores impeditivos ou riscos. Evidência: fatores_impeditivos_ou_riscos list.
+- [x] Cada recomendação referencia dados e documentos oficiais disponíveis. Evidência: referencias_oficiais.
+- [x] Nenhuma recomendação promete vitória ou substitui análise jurídica, contábil ou técnica final. Evidência: DISCLAIMER obrigatório.
 
 #### Pacote final da consultoria
 

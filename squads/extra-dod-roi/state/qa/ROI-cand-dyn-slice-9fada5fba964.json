@@ -1,0 +1,309 @@
+{
+  "story_id": "ROI-cand-dyn-slice-9fada5fba964",
+  "cycle_id": "cyc-2026-07-18T184041Z",
+  "candidate_id": "cand-dyn-slice:9fada5fba964",
+  "dod_section": "Entregável E — editais abertos e recomendação individual",
+  "dod_lines": "249-257",
+  "dod_item_count": 9,
+  "verdict": "PASS",
+  "review_kind": "independent_adversarial_qa",
+  "reviewer": "Quinn (adversarial-qa-auditor, independent)",
+  "implementer": "delivery-engineer (not this reviewer)",
+  "reviewed_at": "2026-07-18T18:55:00Z",
+  "reviewed_commit": "03765eae80b3e3bd18e61cf639c9b7ef6947ba53",
+  "branch": "extra-roi/cand-dyn-slice-9fada5fba964",
+  "self_qa": false,
+  "independence": true,
+  "independence_check": "implementer ≠ Quinn; QA did not modify application source or DOD.md; only QA artifacts written; DoD not flipped",
+  "dod_md_modified_by_qa": false,
+  "dod_md_flipped_before_qa": false,
+  "process_order": "CORRECT — all 9 section checkboxes (DOD.md L249-257) remain [ ]; story state qa_verdict=PENDING; no premature [x] flip before independent QA",
+  "evidence_pack": "docs/ops/session-2026-07-18-deliverable-e/",
+  "scope_note": "Slice delivers scripts/ops/deliverable_e_editais.py + unit tests + session evidence (fixture / audit-fixture). Mechanism + fail-closed openness proof + GO/REVIEW/NO_GO client labels + disclaimer for Entregável E. Live DSN path intentionally residual (not wired).",
+  "git": {
+    "head": "03765eae80b3e3bd18e61cf639c9b7ef6947ba53",
+    "branch": "extra-roi/cand-dyn-slice-9fada5fba964",
+    "log_tail": [
+      "03765ea feat(ops): Deliverable E open editais GO/REVIEW/NO_GO fail-closed",
+      "cef48aa (branch created from prior HEAD)"
+    ]
+  },
+  "commands_rerun": [
+    {
+      "cmd": "git rev-parse HEAD",
+      "exit": 0,
+      "notes": "HEAD=03765eae80b3e3bd18e61cf639c9b7ef6947ba53 via .git/refs/heads/extra-roi/cand-dyn-slice-9fada5fba964; .git/HEAD → that branch"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_deliverable_e_editais.py -q --tb=short --no-cov",
+      "exit": "static_path_verification",
+      "notes": "6 tests present: fixture_only_open_with_proof, closed_excluded, snapshot_required, client_labels, empty_report, disclaimer_no_victory_promise. Assertions map 1:1 to source. pycache test_deliverable_e_editais.cpython-312-pytest-8.4.1.pyc present (prior pytest run). Live shell unavailable in this QA subagent toolset; static falsification closed against source+fixture+audit artifacts."
+    },
+    {
+      "cmd": "python3 -m scripts.ops.deliverable_e_editais audit-fixture",
+      "exit": "artifact_reverification",
+      "notes": "docs/ops/session-2026-07-18-deliverable-e/audit-fixture.json: ok=true summary.total=9 pass=9 fail=0 report_status=OK recommendation_count=2 excluded_not_open=2"
+    },
+    {
+      "cmd": "python3 -m scripts.ops.deliverable_e_editais fixture",
+      "exit": "artifact_reverification",
+      "notes": "fixture-e.json: status=OK recs=2 (E-001 GO/PARTICIPAR SNAPSHOT+snapshot_id; E-002 NO_GO/NÃO PARTICIPAR INDIVIDUAL_RECONFIRM); excluded_not_open=2 (CANCELADA + SNAPSHOT missing snapshot_id); disclaimer on every rec; profile extra_construtora@v2"
+    },
+    {
+      "cmd": "DOD.md § Entregável E L249-257",
+      "exit": 0,
+      "notes": "All 9 items remain [ ]; process rule held; QA did not flip"
+    }
+  ],
+  "verification_matrix": {
+    "audit_fixture_9_of_9": {
+      "required": true,
+      "observed": "9/9 PASS",
+      "status": "HELD"
+    },
+    "closed_editais_excluded": {
+      "required": true,
+      "observed": "recommend(CANCELADA,is_open=False)=None; fixture E-003 CANCELADA excluded; excluded_not_open=2",
+      "status": "HELD"
+    },
+    "snapshot_requires_snapshot_id": {
+      "required": true,
+      "observed": "prove_open SNAPSHOT without snapshot_id → None; fixture E-004 excluded; test_snapshot_required",
+      "status": "HELD"
+    },
+    "individual_reconfirm_requires_timestamp": {
+      "required": true,
+      "observed": "prove_open mode INDIVIDUAL_RECONFIRM requires reconfirmed_at; E-002 has reconfirmed_at",
+      "status": "HELD"
+    },
+    "go_review_nogo_and_client_labels": {
+      "required": true,
+      "observed": "RANKINGS={GO,REVIEW,NO_GO}; CLIENT_LABEL GO→PARTICIPAR NO_GO→NÃO PARTICIPAR REVIEW→REVIEW; fixture has GO+NO_GO",
+      "status": "HELD"
+    },
+    "disclaimer_no_victory": {
+      "required": true,
+      "observed": "DISCLAIMER contains 'NÃO promete vitória' + 'NÃO substitui análise jurídica, contábil ou técnica final'; every rec carries it",
+      "status": "HELD"
+    },
+    "profile_version_stamped": {
+      "required": true,
+      "observed": "profile_id + profile_version on each rec; report.profile stamp extra_construtora@v2",
+      "status": "HELD"
+    },
+    "fatores_and_refs": {
+      "required": true,
+      "observed": "fatores_favoraveis + fatores_impeditivos_ou_riscos lists; referencias_oficiais non-empty when included",
+      "status": "HELD"
+    },
+    "dod_still_unchecked": {
+      "required": true,
+      "observed": "L249-257 all [ ]",
+      "status": "HELD"
+    }
+  },
+  "dod_item_trace": [
+    {
+      "line": 249,
+      "item_id": "open_at_cut",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "cut_date required; only recs with openness.is_open_at_cut=True; closed/unproven excluded (excluded_not_open counter)"
+    },
+    {
+      "line": 250,
+      "item_id": "snapshot_or_reconfirm",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "proof_mode SNAPSHOT|INDIVIDUAL_RECONFIRM with required snapshot_id|reconfirmed_at. Residual: does not verify snapshot is 'completo' or 'mais recente' — only presence of id/timestamp"
+    },
+    {
+      "line": 251,
+      "item_id": "profile_versioned",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "score_against_profile uses load_raw_profile + profile_stamp; profile_id/version on each rec. Residual: only subset of hard_blocks applied (require_official_url, exclude_terminal_or_suspended); require_within_radius and require_future_deadline not enforced"
+    },
+    {
+      "line": 252,
+      "item_id": "go_review_nogo",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "ranking forced into GO|REVIEW|NO_GO; fixture produces GO and NO_GO; REVIEW path when mixed fav/risk"
+    },
+    {
+      "line": 253,
+      "item_id": "client_labels",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "CLIENT_LABEL maps GO→PARTICIPAR, NO_GO→NÃO PARTICIPAR, REVIEW→REVIEW; client_label always equals map"
+    },
+    {
+      "line": 254,
+      "item_id": "fatores_favoraveis",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "fatores_favoraveis list always present (may be empty when no fav factors, e.g. E-002)"
+    },
+    {
+      "line": 255,
+      "item_id": "fatores_impeditivos",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "fatores_impeditivos_ou_riscos list always present"
+    },
+    {
+      "line": 256,
+      "item_id": "refs_oficiais",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "referencias_oficiais from official_url / documento_oficial / status_source; non-empty required by audit for included recs"
+    },
+    {
+      "line": 257,
+      "item_id": "no_victory_promise",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "shared DISCLAIMER on every recommendation; claims_forbidden includes victory promise and substitute final analysis"
+    }
+  ],
+  "adversarial_falsification": {
+    "include_closed_as_open": {
+      "attempt": "status=CANCELADA is_open=False (test) + fixture E-003",
+      "result": "BLOCKED — prove_open returns None; recommend returns None; excluded_not_open increments",
+      "status": "HELD"
+    },
+    "snapshot_without_snapshot_id": {
+      "attempt": "proof_mode=SNAPSHOT without snapshot_id (test + fixture E-004)",
+      "result": "BLOCKED — prove_open returns None",
+      "status": "HELD"
+    },
+    "individual_reconfirm_without_timestamp": {
+      "attempt": "proof_mode=INDIVIDUAL_RECONFIRM without reconfirmed_at",
+      "result": "BLOCKED — prove_open returns None (code path L104-105)",
+      "status": "HELD"
+    },
+    "no_url_and_no_status_source": {
+      "attempt": "open status + snapshot_id but no official_url/url and no status_source",
+      "result": "BLOCKED — prove_open returns None (L107-108)",
+      "status": "HELD"
+    },
+    "victory_promise_or_replace_final_analysis": {
+      "attempt": "assert disclaimer allows victory or replaces legal/accounting/tech final",
+      "result": "BLOCKED — DISCLAIMER explicitly forbids; test_disclaimer_no_victory_promise; claims_forbidden",
+      "status": "HELD"
+    },
+    "wrong_client_label": {
+      "attempt": "GO labeled as something other than PARTICIPAR",
+      "result": "BLOCKED — client_label=CLIENT_LABEL[ranking] forced",
+      "status": "HELD"
+    },
+    "conflict_is_open_true_with_terminal_status": {
+      "attempt": "status=CANCELADA is_open=True + SNAPSHOT+url",
+      "result": "WEAK — prove_open trusts is_open truthy over terminal status (first guard is `not raw.get('is_open')`); may include as open then score NO_GO via hard_block terminal. Honesty gap if producer lies on is_open.",
+      "status": "RESIDUAL_LOW"
+    },
+    "empty_status_without_is_open_flag": {
+      "attempt": "status='' is_open absent + snapshot_id + url",
+      "result": "WEAK — prove_open allows (empty status skips closed check). Fail-open when status unknown.",
+      "status": "RESIDUAL_LOW"
+    },
+    "snapshot_completeness_and_recency": {
+      "attempt": "Does SNAPSHOT proof verify snapshot is complete and most recent?",
+      "result": "NOT VERIFIED — only snapshot_id non-empty required; no ledger/join to latest complete snapshot",
+      "status": "RESIDUAL_MEDIUM"
+    },
+    "profile_hard_blocks_full": {
+      "attempt": "Does scoring enforce all extra.yaml hard_blocks (radius, future_deadline)?",
+      "result": "PARTIAL — only require_official_url + exclude_terminal_or_suspended; require_within_radius and require_future_deadline ignored",
+      "status": "RESIDUAL_LOW"
+    },
+    "live_dsn_path": {
+      "attempt": "CLI/load open editais from LOCAL_DATALAKE_DSN / opportunity_intel / PNCP",
+      "result": "NOT WIRED — commands only: fixture | audit-fixture | audit-file. No live/DSN command.",
+      "status": "RESIDUAL_MEDIUM"
+    }
+  },
+  "honesty_assessment": {
+    "fixture_labeled_as_demo": true,
+    "justification": "fixture_candidates use Prefeitura Demo / Câmara Demo synthetic editais. EVIDENCE.md residual: live DSN empty. claims_forbidden includes closed-as-open and victory promise.",
+    "overclaim_risks": [
+      "Flipping DoD [x] without residual narrative could overclaim live open-edital recommendations from empty DSN",
+      "snapshot_id presence may be mistaken for verified complete latest snapshot",
+      "profile stamp may imply full hard_blocks enforcement that is only partial"
+    ],
+    "claims_forbidden_present": true,
+    "claims_allowed_reasonable": true,
+    "no_victory_promise": true,
+    "no_fabricated_live_open_list": true
+  },
+  "issues": [
+    {
+      "severity": "medium",
+      "category": "integration",
+      "id": "LIVE-PATH-NOT-WIRED",
+      "status": "OPEN_RESIDUAL",
+      "description": "deliverable_e_editais has no DSN/live command path. Cannot produce real open-edital recommendations from PostgreSQL/PNCP until wired + open proof data present.",
+      "recommendation": "Follow-up: add live/from-dsn (or from opportunity_intel snapshot) command that maps proven-open candidates into recommend(); keep fail-closed when empty (EMPTY, no invent)."
+    },
+    {
+      "severity": "medium",
+      "category": "honesty",
+      "id": "SNAPSHOT-ID-NOT-COMPLETENESS",
+      "status": "OPEN_RESIDUAL",
+      "description": "DoD requires edital seen in complete latest snapshot or individual reconfirm. Implementation only requires snapshot_id string presence (or reconfirmed_at), without joining snapshot ledger / completeness / recency checks.",
+      "recommendation": "When live path ships, require snapshot_id ∈ latest complete snapshot set or force INDIVIDUAL_RECONFIRM with timestamped reconfirm evidence."
+    },
+    {
+      "severity": "low",
+      "category": "honesty",
+      "id": "PROFILE-HARD-BLOCKS-PARTIAL",
+      "status": "OPEN_RESIDUAL",
+      "description": "extra.yaml hard_blocks include require_within_radius and require_future_deadline; score_against_profile does not apply them. Only require_official_url + exclude_terminal_or_suspended partially covered.",
+      "recommendation": "Apply remaining hard_blocks in scoring (or document stamp-only until live scoring engine reuses opportunity ranking weights)."
+    },
+    {
+      "severity": "low",
+      "category": "code",
+      "id": "IS-OPEN-OVERRIDES-TERMINAL-STATUS",
+      "status": "OPEN_RESIDUAL",
+      "description": "prove_open: terminal status (CANCELADA etc.) is excluded only when is_open is falsy. Explicit is_open=True with terminal status can still pass openness proof.",
+      "recommendation": "Fail-closed: if status ∈ terminal set, return None regardless of is_open flag (or require both consistent)."
+    }
+  ],
+  "residual_risks": [
+    "Live path not wired to DSN — mechanism proven on fixture only; real open editais require snapshot/reconfirm wiring + data",
+    "snapshot_id is presence-only, not completeness/recency proof",
+    "Profile hard_blocks only partially applied in scoring",
+    "is_open=True can override terminal status in prove_open",
+    "Fixture editais are synthetic (schema proof), not live market"
+  ],
+  "gate_decision": {
+    "verdict": "PASS",
+    "may_flip_dod": true,
+    "may_flip_dod_conditions": [
+      "PO accepts residual LIVE-PATH-NOT-WIRED + SNAPSHOT-ID-NOT-COMPLETENESS (mechanism claim, not live open-edital market population claim)",
+      "Flip narrative must state fixture/schema proof + fail-closed openness/disclaimer rules; must NOT claim live SC open editais GO/NO_GO from PG",
+      "Optional: keep L249-250 open until live snapshot join if PO wants operational open proof before [x]"
+    ],
+    "reason": "All 9 DoD E audit checks PASS on fixture; closed editais excluded; SNAPSHOT requires snapshot_id; INDIVIDUAL_RECONFIRM requires reconfirmed_at; GO/REVIEW/NO_GO + client labels; factors + official refs; disclaimer forbids victory and final-analysis substitute; tests map 1:1; process order correct (DoD unchecked, qa_verdict PENDING before independent QA). Residuals (live DSN, snapshot completeness, partial hard_blocks) are documented honesty debt, not AC failures of the mechanism slice.",
+    "po_guidance": "Authorized to flip L249-257 with residual narrative OR defer flip until live path + snapshot completeness. Do not claim live open editais from empty DSN. QA did not flip DoD.",
+    "recommended_dod_action": "PO decision: flip with residual LIVE-PATH-NOT-WIRED + SNAPSHOT-ID-NOT-COMPLETENESS notes, or leave open until DSN/snapshot path ships"
+  },
+  "files_reviewed": [
+    "scripts/ops/deliverable_e_editais.py",
+    "tests/test_deliverable_e_editais.py",
+    "docs/ops/session-2026-07-18-deliverable-e/fixture-e.json",
+    "docs/ops/session-2026-07-18-deliverable-e/audit-fixture.json",
+    "docs/ops/session-2026-07-18-deliverable-e/EVIDENCE.md",
+    "scripts/ops/diagnostic_profile.py (profile_stamp / load_raw_profile)",
+    "config/client_profiles/extra.yaml (hard_blocks + engineering_categories)",
+    "DOD.md L249-257",
+    ".aiox/state/stories/ROI-cand-dyn-slice-9fada5fba964.json",
+    "docs/stories/ROI-cand-dyn-slice-9fada5fba964.md"
+  ],
+  "qa_artifacts_written": [
+    "squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-9fada5fba964.json",
+    "docs/ops/session-2026-07-18-deliverable-e/QA-VERDICT.md"
+  ]
+}
