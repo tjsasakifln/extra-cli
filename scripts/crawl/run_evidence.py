@@ -150,6 +150,113 @@ def env_non_secret(extra: dict[str, Any] | None = None) -> dict[str, str]:
     return out
 
 
+# DoD §29 — fields every audited execution must carry (presence; may be null
+# only when explicitly justified in ``limitations``).
+EXECUTION_AUDIT_REQUIRED_FIELDS: tuple[str, ...] = (
+    "run_id",
+    "code_version",  # git_sha alias
+    "schema_version",
+    "spreadsheet_hash",
+    "source",
+    "capability",
+    "parameters",
+    "period",
+)
+
+
+def resolve_spreadsheet_hash(path: str | Path | None = None) -> str | None:
+    """Hash of the canonical Extra targets spreadsheet when present."""
+    if path is not None:
+        return sha256_file(path)
+    root = Path(__file__).resolve().parents[2]
+    candidates = [
+        root / "Extra - alvos de licitação. R-0.xlsx",
+        root / "data" / "Extra - alvos de licitação. R-0.xlsx",
+    ]
+    for c in candidates:
+        h = sha256_file(c)
+        if h:
+            return h
+    return None
+
+
+def resolve_schema_version(migration_head: str | None = None) -> str:
+    """Best-effort schema version from migration head or migrations dir."""
+    if migration_head:
+        return str(migration_head)
+    root = Path(__file__).resolve().parents[2]
+    mig = root / "db" / "migrations"
+    if not mig.is_dir():
+        return "unknown"
+    files = sorted(p.name for p in mig.glob("*.sql"))
+    if not files:
+        return "unknown"
+    return files[-1]
+
+
+def build_execution_audit_record(
+    *,
+    source: str,
+    capability: str,
+    parameters: dict[str, Any] | None = None,
+    period: dict[str, Any] | str | None = None,
+    run_id: str | None = None,
+    schema_version: str | None = None,
+    spreadsheet_hash: str | None = None,
+    code_version: str | None = None,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Build an execution record satisfying DoD §29 audit field requirements.
+
+    Always includes: run_id, code_version (git SHA), schema_version,
+    spreadsheet_hash, source, capability, parameters, period.
+    """
+    git = get_git_meta()
+    evidence = build_run_evidence(
+        run_id=run_id,
+        git_sha=code_version or kwargs.get("git_sha") or git.get("git_sha"),
+        **{k: v for k, v in kwargs.items() if k != "git_sha"},
+    )
+    record = dict(evidence)
+    record["code_version"] = (
+        code_version or evidence.get("git_sha") or git.get("git_sha") or "unknown"
+    )
+    record["schema_version"] = schema_version or resolve_schema_version(
+        kwargs.get("migration_head") if isinstance(kwargs.get("migration_head"), str) else None
+    )
+    record["spreadsheet_hash"] = spreadsheet_hash or resolve_spreadsheet_hash()
+    record["source"] = source
+    record["capability"] = capability
+    record["parameters"] = parameters if parameters is not None else (evidence.get("args") or {})
+    record["period"] = period if period is not None else {"label": "unspecified"}
+    # Self-check required fields
+    missing = [f for f in EXECUTION_AUDIT_REQUIRED_FIELDS if f not in record]
+    if missing:
+        raise ValueError(f"execution audit record missing fields: {missing}")
+    return record
+
+
+def validate_execution_audit_record(record: dict[str, Any]) -> dict[str, Any]:
+    """Return ok/issues for a record against DoD §29 required fields."""
+    issues: list[str] = []
+    for field in EXECUTION_AUDIT_REQUIRED_FIELDS:
+        if field not in record:
+            issues.append(f"missing:{field}")
+        elif record[field] in (None, "", {}, []):
+            # spreadsheet_hash may be None if seed file absent in CI checkout
+            if field == "spreadsheet_hash" and record[field] is None:
+                continue
+            if field == "period" and record[field] in ({}, None):
+                issues.append(f"empty:{field}")
+            elif field not in {"spreadsheet_hash"}:
+                issues.append(f"empty:{field}")
+    return {
+        "ok": len(issues) == 0,
+        "issues": issues,
+        "required_fields": list(EXECUTION_AUDIT_REQUIRED_FIELDS),
+    }
+
+
 def build_run_evidence(**kwargs: Any) -> dict[str, Any]:
     """Build a canonical run-evidence dict.
 

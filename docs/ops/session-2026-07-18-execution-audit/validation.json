@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "issues": [],
+  "required_fields": [
+    "run_id",
+    "code_version",
+    "schema_version",
+    "spreadsheet_hash",
+    "source",
+    "capability",
+    "parameters",
+    "period"
+  ]
+}

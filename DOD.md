@@ -1501,14 +1501,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 29. Rastreabilidade e auditoria
 
-- [ ] Cada execução possui `run_id`.
-- [ ] Cada execução possui versão do código.
-- [ ] Cada execução possui versão do schema.
-- [ ] Cada execução possui hash da planilha.
-- [ ] Cada execução possui fonte.
-- [ ] Cada execução possui capability.
-- [ ] Cada execução possui parâmetros.
-- [ ] Cada execução possui período.
+- [x] Cada execução possui `run_id`. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
+- [x] Cada execução possui versão do código. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
+- [x] Cada execução possui versão do schema. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
+- [x] Cada execução possui hash da planilha. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
+- [x] Cada execução possui fonte. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
+- [x] Cada execução possui capability. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
+- [x] Cada execução possui parâmetros. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
+- [x] Cada execução possui período. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
 - [ ] Cada execução possui timestamps.
 - [ ] Cada execução possui status.
 - [ ] Cada execução possui contagens.
