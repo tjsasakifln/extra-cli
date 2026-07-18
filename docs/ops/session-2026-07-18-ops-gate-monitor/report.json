@@ -1,0 +1,263 @@
+{
+  "generated_at": "2026-07-18T14:35:19.144833Z",
+  "overall": "degraded",
+  "checks": [
+    {
+      "name": "freshness_by_source",
+      "status": "unknown",
+      "message": "freshness partially unknown — not claimed current",
+      "metrics": {
+        "sources": [
+          {
+            "source": "pncp",
+            "operational_freshness": "unknown",
+            "collection_freshness": "unknown",
+            "sla_hours": 4.0,
+            "last_success": null
+          },
+          {
+            "source": "ciga_dom",
+            "operational_freshness": "unknown",
+            "collection_freshness": "unknown",
+            "sla_hours": 48.0,
+            "last_success": null
+          },
+          {
+            "source": "sc_compras",
+            "operational_freshness": "unknown",
+            "collection_freshness": "unknown",
+            "sla_hours": 24.0,
+            "last_success": null
+          }
+        ],
+        "health_exit": 2,
+        "monitored": true
+      }
+    },
+    {
+      "name": "coverage_by_capability",
+      "status": "ok",
+      "message": "coverage contract artifact loaded (contract-report.json)",
+      "metrics": {
+        "monitored": true,
+        "capabilities": [
+          {
+            "id": "entities_with_recent_commercial_signal",
+            "pct": 10.61,
+            "numerator": 116,
+            "denominator": 1093
+          },
+          {
+            "id": "source_mapping_coverage",
+            "pct": 100.0,
+            "numerator": 1093,
+            "denominator": 1093
+          },
+          {
+            "id": "operational_source_coverage",
+            "pct": 0.0,
+            "numerator": 0,
+            "denominator": 1093
+          },
+          {
+            "id": "freshness_coverage",
+            "pct": null,
+            "numerator": null,
+            "denominator": 1093
+          },
+          {
+            "id": "opportunity_recall",
+            "pct": null,
+            "numerator": null,
+            "denominator": null
+          },
+          {
+            "id": "required_field_completeness",
+            "pct": 17.65,
+            "numerator": 3.0005,
+            "denominator": 17
+          },
+          {
+            "id": "commercial_opportunity_any",
+            "pct": 10.61,
+            "numerator": 116,
+            "denominator": 1093
+          }
+        ],
+        "artifact": "/mnt/d/extra consultoria/output/coverage/contract-report.json",
+        "artifact_keys": [
+          "generated_at",
+          "as_of",
+          "denominator",
+          "slas",
+          "headline_metric",
+          "headline_is_coverage",
+          "metrics",
+          "metric_order",
+          "notes",
+          "legacy_aliases"
+        ]
+      }
+    },
+    {
+      "name": "last_valid_backup",
+      "status": "ok",
+      "message": "last backup proof-extra_test-20260718T134243Z.dump size=7727 age_h=0.9",
+      "metrics": {
+        "monitored": true,
+        "path": "/mnt/d/extra consultoria/backups/local-proof/proof-extra_test-20260718T134243Z.dump",
+        "size_bytes": 7727,
+        "age_hours": 0.88,
+        "candidates": 8
+      }
+    },
+    {
+      "name": "migration_failures",
+      "status": "ok",
+      "message": "migration surface monitored; no recorded failures in ledger",
+      "metrics": {
+        "monitored": true,
+        "migration_files": 59,
+        "migration_sample": [
+          "db/migrations/001_pncp_raw_bids.sql",
+          "db/migrations/002_pncp_supplier_contracts.sql",
+          "db/migrations/003_enriched_entities.sql",
+          "db/migrations/004_ingestion_tables.sql",
+          "db/migrations/005_search_datalake_rpc.sql",
+          "db/migrations/006_upsert_rpcs.sql",
+          "db/migrations/007_sc_public_entities.sql",
+          "db/migrations/008_purge_rpc.sql",
+          "db/migrations/009_indexes_and_coverage.sql",
+          "db/migrations/010_match_logging.sql"
+        ]
+      }
+    },
+    {
+      "name": "delayed_timers",
+      "status": "configured",
+      "message": "24 timer units in repo; systemctl not available or no extra units on host",
+      "metrics": {
+        "monitored": true,
+        "timers_in_repo": [
+          {
+            "unit": "compras-gov-crawl.timer",
+            "on_calendar": "*-*-* 07:00:00"
+          },
+          {
+            "unit": "coverage-report-weekly.timer",
+            "on_calendar": "Mon *-*-* 08:00:00"
+          },
+          {
+            "unit": "coverage-report.timer",
+            "on_calendar": "*-*-* 09:00:00"
+          },
+          {
+            "unit": "dom-sc-crawl.timer",
+            "on_calendar": "*-*-* 06:00:00"
+          },
+          {
+            "unit": "extra-check-alerts.timer",
+            "on_calendar": "*:0/15:00"
+          },
+          {
+            "unit": "extra-collect-metrics.timer",
+            "on_calendar": "*:0/60:00"
+          },
+          {
+            "unit": "extra-crawl-ciga-ckan.timer",
+            "on_calendar": "Sun *-*-* 02:00:00"
+          },
+          {
+            "unit": "extra-crawl-ciga-dom.timer",
+            "on_calendar": "*-*-* 02,10,18:20:00 UTC"
+          },
+          {
+            "unit": "extra-crawl-doe-sc.timer",
+            "on_calendar": "Sun *-*-* 03:00:00"
+          },
+          {
+            "unit": "extra-crawl-pncp.timer",
+            "on_calendar": "*-*-* 01,05,09,13,17,21:05:00 UTC"
+          },
+          {
+            "unit": "extra-crawl-sc-compras.timer",
+            "on_calendar": "*-*-* 03,11,19:35:00 UTC"
+          },
+          {
+            "unit": "extra-crawl-selenium.timer",
+            "on_calendar": "Sat *-*-* 04:00:00"
+          },
+          {
+            "unit": "extra-db-backup.timer",
+            "on_calendar": "*-*-* 06:00:00"
+          },
+          {
+            "unit": "extra-health-check.timer",
+            "on_calendar": "*:0/30:00"
+          },
+          {
+            "unit": "pcp-crawl.timer",
+            "on_calendar": "*-*-* 06:30:00"
+          },
+          {
+            "unit": "pncp-contracts.timer",
+            "on_calendar": "Mon,Wed,Fri *-*-* 06:00:00"
+          },
+          {
+            "unit": "pncp-crawl-full.timer",
+            "on_calendar": "*-*-* 05:00:00"
+          },
+          {
+            "unit": "pncp-crawl-inc.timer",
+            "on_calendar": "*-*-* 11:00:00"
+          },
+          {
+            "unit": "pncp-enrich.timer",
+            "on_calendar": "*-*-* 08:00:00"
+          },
+          {
+            "unit": "pncp-purge.timer",
+            "on_calendar": "*-*-* 07:00:00"
+          },
+          {
+            "unit": "pncp-report-weekly.timer",
+            "on_calendar": "Mon *-*-* 07:00:00"
+          },
+          {
+            "unit": "sc-compras-crawl.timer",
+            "on_calendar": "Sun *-*-* 09:00:00"
+          },
+          {
+            "unit": "tce-sc-crawl.timer",
+            "on_calendar": "*-*-* 05:30:00"
+          },
+          {
+            "unit": "transparencia-crawl.timer",
+            "on_calendar": "Sun *-*-* 06:00:00"
+          }
+        ],
+        "timer_count": 24,
+        "host_systemctl": false,
+        "delayed": []
+      }
+    }
+  ],
+  "monitored": {
+    "freshness_by_source": true,
+    "coverage_by_capability": true,
+    "last_valid_backup": true,
+    "migration_failures": true,
+    "delayed_timers": true
+  },
+  "claims": {
+    "allowed": [
+      "Reportar freshness/coverage/backup/migrations/timers com status honesto",
+      "overall=degraded/unknown quando evidência incompleta"
+    ],
+    "forbidden": [
+      "Cobertura operacional 95% a partir deste monitor",
+      "Timers VPS saudáveis só porque arquivos existem no repo",
+      "LOCAL_READY"
+    ]
+  }
+}
