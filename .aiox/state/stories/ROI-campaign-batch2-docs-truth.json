@@ -7,8 +7,8 @@
   "qa_agent": "adversarial-qa-auditor",
   "implementer_agent": "delivery-engineer",
   "publication_authorized": true,
-  "reviewed_commit": "c0c2ae45d655866db5aedf0da175cdd35446345b",
-  "qa_head_sha": "c0c2ae45d655866db5aedf0da175cdd35446345b",
+  "reviewed_commit": "eec54c9912b8f48f32907bd37967a8994464b8a5",
+  "qa_head_sha": "eec54c9912b8f48f32907bd37967a8994464b8a5",
   "gates": {
     "lint": "PASS",
     "tests": "PASS",
@@ -51,5 +51,5 @@
     "dod:c9597309a08a"
   ],
   "final_review_note": "Skeptic remediation re-QA at HEAD",
-  "updated_at": "2026-07-18T03:09:17Z"
+  "updated_at": "2026-07-18T03:10:14Z"
 }
