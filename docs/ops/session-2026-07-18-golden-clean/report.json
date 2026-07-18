@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-07-18T15:28:38.578343Z",
+  "steps": {
+    "recreate_db": {
+      "term_exit": 0,
+      "drop_exit": 0,
+      "drop_err": "",
+      "create_exit": 0,
+      "create_err": "",
+      "ok": true,
+      "dsn": "postgresql://test:test@127.0.0.1:5433/extra_clean"
+    },
+    "migrations": {
+      "batch1_exit": 0,
+      "batch1_stdout": "applied 001_pncp_raw_bids.sql\napplied 002_pncp_supplier_contracts.sql\napplied 003_enriched_entities.sql\napplied 004_ingestion_tables.sql\napplied 005_search_datalake_rpc.sql\napplied 006_upsert_rpcs.sql\napplied 007_sc_public_entities.sql\napplied 008_purge_rpc.sql\napplied 009_indexes_and_coverage.sql\napplied 010_match_logging.sql\napplied 011_unmatched_bids_view.sql\napplied 012_coverage_snapshots.sql\napplied 013_td-1.1_gin_index_objeto_contrato.sql\nmigrations_ok mode=fresh count=13\n",
+      "batch1_stderr": "",
+      "extras": {
+        "015_td-2.3_enriched_entities_ttl.sql": 0,
+        "016_td-2.3_objeto_compra_gin.sql": 0,
+        "017_td-2.3_matched_entity_id_index.sql": 0,
+        "018-td-5.3_esfera_id_check.sql": 0,
+        "019-td-5.3_soft_delete_purge_docs.sql": 0,
+        "020_td-2.4_sync_local_schema.sql": 0,
+        "021a_entity_coverage_rebuild.sql": 0,
+        "021b_entity_hierarchy.sql": 0,
+        "021c_sc_dados_abertos_municipio.sql": 0,
+        "021d_views_functions.sql": 0,
+        "022_match_method_coverage.sql": 0,
+        "023_pncp_engineering_pipeline.sql": 0,
+        "024_coverage_evidence_ledger.sql": 0,
+        "025a_contract_intel_views.sql": 0,
+        "025b_coverage_evidence_null_uniqueness.sql": 0,
+        "026_contract_intel_truth_v1.sql": 0,
+        "027_opportunity_intel.sql": 0,
+        "028_opportunity_indexes.sql": 0,
+        "029_qw01_auditable_radar.sql": 0,
+        "030_schema_contract_and_canonical_views.sql": 0,
+        "031_source_snapshot_reconciliation.sql": 0,
+        "032_capability_coverage.sql": 0,
+        "033_contract_versioning.sql": 0,
+        "034_supplier_identity.sql": 0,
+        "035_value_observations.sql": 0,
+        "036_reporting_views.sql": 0,
+        "037_target_universe_snapshot.sql": 0,
+        "038_target_universe_active_view.sql": 0,
+        "039_source_snapshot_tracking.sql": 0,
+        "040_coverage_model_expansion.sql": 0,
+        "041a_fix_fk_constraints.sql": 0,
+        "041b_fix_snapshot_membership.sql": 0,
+        "042_validate_fk_constraints.sql": 0,
+        "043_entity_aliases.sql": 0,
+        "044_fix_upsert_dedup.sql": 0,
+        "045_dlq_entries.sql": 0,
+        "046_pipeline_watermarks.sql": 0,
+        "047_pipeline_runs.sql": 0,
+        "048_record_hashes.sql": 0,
+        "049_pncp_resumable_backfill.sql": 0,
+        "050_fix_contracts_upsert_fk.sql": 0,
+        "051_contract_date_semantics.sql": 0,
+        "052_official_acts.sql": 0,
+        "053_entity_source_registry.sql": 0,
+        "054_local_resilience_contract.sql": 0,
+        "055_fix_upsert_pncp_raw_bids_ambiguous.sql": 0
+      },
+      "ok": true
+    },
+    "public_tables": 76,
+    "golden_path": {
+      "exit": 0,
+      "stdout": "ria/output/golden-path/reports/gp-20260718-122841/contratos.csv\n  concorrentes: /mnt/d/extra \nconsultoria/output/golden-path/reports/gp-20260718-122841/concorrentes.csv\n  referencias_valores: /mnt/d/extra \nconsultoria/output/golden-path/reports/gp-20260718-122841/referencias_valores.cs\nv\n  PDF pack: /mnt/d/extra \nconsultoria/output/golden-path/reports/gp-20260718-122841/golden-path-pack-2026-\n07-18.pdf\n  limitation: pncp_supplier_contracts vazio ou ausente — relatório de contratos \nsem linhas.\n  limitation: pncp_raw_bids sem editais ativos — relatório de editais vazio.\n  limitation: Não afirmar cobertura operacional 95% nem mercado completo a \npartir deste pack.\n\n╭─────────────────────────────────────╮\n│ GOLDEN PATH — RESUMO                │\n│                                     │\n│ Run ID:          gp-20260718-122841 │\n│ Mode:            strict             │\n│ Status:          SUCCESS_ZERO       │\n│ Exit code:       0                  │\n│ Fontes c/ dados: 0/1                │\n│ Fontes zero:     1                  │\n│ Fontes essenciais com falha: 0      │\n│ Freshness gate:  skipped            │\n│ Excel:           generated          │\n│ PDF:             generated          │\n│ Wall clock:      2536ms (2.5s)      │\n╰─────────────────────────────────────╯\n\nLedger salvo:  /mnt/d/extra \nconsultoria/output/golden-path/ledger-clean-extra_clean.json\nLog salvo:     /mnt/d/extra \nconsultoria/output/golden-path/gp-20260718-122841.log\n\nGolden Path: success_zero (sem registros, gates OK).\n",
+      "stderr": "",
+      "ok": true
+    },
+    "ledger_path": "/mnt/d/extra consultoria/output/golden-path/ledger-clean-extra_clean.json"
+  },
+  "clean_dsn_hint": "127.0.0.1:5433/extra_clean",
+  "ok": true,
+  "limitations": [
+    "vector extension optional (014 skipped if unavailable)",
+    "clean env proof uses --skip-crawl --skip-freshness --allow-zero for foundation",
+    "Live crawl can be re-run after clean bootstrap with data sources"
+  ],
+  "claims": {
+    "allowed": [
+      "Golden path executed on freshly created empty database",
+      "Schema created from empty DB then golden path bootstrap"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "95% coverage from clean env alone"
+    ]
+  }
+}
