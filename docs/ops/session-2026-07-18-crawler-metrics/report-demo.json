@@ -1,0 +1,94 @@
+{
+  "generated_at": "2026-07-18T14:28:28.308545Z",
+  "overall": "ok",
+  "history_roots": [
+    "/mnt/d/extra consultoria/output/resilience/fixture/ops/run_history",
+    "/mnt/d/extra consultoria/output/resilience/live/ops/run_history",
+    "/mnt/d/extra consultoria/output/ops/run_history",
+    "/mnt/d/extra consultoria/data/ops/run_history"
+  ],
+  "sources": [
+    {
+      "source": "ciga_dom",
+      "runs": 3,
+      "successes": 1,
+      "failures": 2,
+      "duration_seconds_total": 65.0,
+      "duration_seconds_max": 60.0,
+      "records_total": 0,
+      "http_403": 1,
+      "http_429": 0,
+      "http_5xx": 1,
+      "timeouts": 1,
+      "last_run_at": "2026-07-18T12:07:00Z",
+      "success_rate": 0.3333333333333333,
+      "avg_duration_seconds": 21.666666666666668
+    },
+    {
+      "source": "pncp",
+      "runs": 3,
+      "successes": 2,
+      "failures": 1,
+      "duration_seconds_total": 42.5,
+      "duration_seconds_max": 30.0,
+      "records_total": 40,
+      "http_403": 0,
+      "http_429": 1,
+      "http_5xx": 0,
+      "timeouts": 0,
+      "last_run_at": "2026-07-18T12:05:00Z",
+      "success_rate": 0.6666666666666666,
+      "avg_duration_seconds": 14.166666666666666
+    },
+    {
+      "source": "sc_compras",
+      "runs": 1,
+      "successes": 1,
+      "failures": 0,
+      "duration_seconds_total": 0.0,
+      "duration_seconds_max": 0.0,
+      "records_total": 0,
+      "http_403": 0,
+      "http_429": 0,
+      "http_5xx": 0,
+      "timeouts": 0,
+      "last_run_at": "2026-07-17T20:48:21.844568+00:00",
+      "success_rate": 1.0,
+      "avg_duration_seconds": 0.0
+    }
+  ],
+  "totals": {
+    "runs": 7,
+    "successes": 4,
+    "failures": 3,
+    "records_total": 40,
+    "duration_seconds_total": 107.5,
+    "http_403": 1,
+    "http_429": 1,
+    "http_5xx": 1,
+    "timeouts": 1,
+    "success_rate": 0.5714285714285714
+  },
+  "monitored": {
+    "duration": true,
+    "success_rate": true,
+    "volume": true,
+    "http_403": true,
+    "http_429": true,
+    "http_5xx": true,
+    "timeouts": true
+  },
+  "limitations": [
+    "Métricas derivadas de RunHistory JSONL; ausência de histórico ≠ crawler saudável."
+  ],
+  "claims": {
+    "allowed": [
+      "Reportar duração/taxa/volume/HTTP a partir de histórico real",
+      "overall=unknown quando N=0 runs"
+    ],
+    "forbidden": [
+      "Cobertura operacional 95% a partir de crawler_monitor",
+      "Crawler saudável sem runs registrados"
+    ]
+  }
+}
