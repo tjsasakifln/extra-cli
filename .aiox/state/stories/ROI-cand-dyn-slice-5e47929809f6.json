@@ -1,0 +1,55 @@
+{
+  "story_id": "ROI-cand-dyn-slice-5e47929809f6",
+  "title": "[Atualiza\u00e7\u00e3o comprovada \u2014 ciclo B2G operacional de ] Su\u00edte global completa verde. O workflow marcou `Test All (fu",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "InReview",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-5e47929809f6.md",
+  "created_at": "2026-07-18T17:19:41Z",
+  "updated_at": "2026-07-18T17:21:56Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "scope_files": [
+    "tests/test_sc_compras_crawler.py",
+    "docs/ops/session-2026-07-18-full-suite/",
+    "docs/stories/ROI-cand-dyn-slice-5e47929809f6.md",
+    "DOD.md"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": "docs/ops/session-2026-07-18-full-suite/",
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T171940Z",
+    "candidate_id": "cand-dyn-slice:5e47929809f6",
+    "roi": 1.2261,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ],
+    "dod_item_ids": [
+      "dod:b06848ca7f90"
+    ]
+  },
+  "po_validated_at": "2026-07-18T17:20:18Z",
+  "po_validator": "po / Pax",
+  "po_notes": "GO: reduce sc_compras obsolete skip debt; flip full suite only if truly green",
+  "implementer": "delivery-engineer"
+}

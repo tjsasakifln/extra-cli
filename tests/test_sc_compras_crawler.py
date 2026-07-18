@@ -323,89 +323,6 @@ class TestContentHash:
         int(h, 16)  # should not raise
 
 
-# ---------------------------------------------------------------------------
-# _extract_table_rows()
-# ---------------------------------------------------------------------------
-
-
-class TestExtractTableRows:
-    """_extract_table_rows() removed in API refactoring (JSON API replaces HTML scraping)."""
-
-    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
-    def test_extracts_rows_from_table(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
-    def test_extracts_numero_processo(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
-    def test_extracts_modalidade(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
-    def test_extracts_objeto(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
-    def test_extracts_url_detalhe(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
-    def test_returns_empty_for_no_table(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_table_rows() removed in API refactoring")
-    def test_handles_empty_tbody(self):
-        pass
-
-
-# ---------------------------------------------------------------------------
-# _extract_detail_fields()
-# ---------------------------------------------------------------------------
-
-
-class TestExtractDetailFields:
-    """_extract_detail_fields() removed in API refactoring (JSON API replaces HTML scraping)."""
-
-    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
-    def test_extracts_dl_fields(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
-    def test_extracts_date_fields(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
-    def test_extracts_valor(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
-    def test_extracts_municipio(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
-    def test_returns_empty_for_no_data(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
-    def test_handles_empty_html(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
-    def test_extracts_label_span_patterns(self):
-        pass
-
-    @pytest.mark.skip(reason="_extract_detail_fields() removed in API refactoring")
-    def test_extracts_strong_span_patterns(self):
-        pass
-
-
-# ---------------------------------------------------------------------------
-# transform()
-# ---------------------------------------------------------------------------
-
-
 class TestTransform:
     """Tests for transform()."""
 
@@ -924,49 +841,7 @@ class TestCheckpointAndRun:
 
 
 # ---------------------------------------------------------------------------
-# Obsolete test classes (functions removed in API refactoring)
+# Obsolete HTML scraper tests removed (ROI-cand-dyn-slice-5e47929809f6).
+# Do not reintroduce skips for _extract_table_rows/_extract_detail_fields/diagnostic/_check_url.
 # ---------------------------------------------------------------------------
 
-
-class TestDiagnostic:
-    """Diagnostic removed in API refactoring (no longer an HTML-scraping crawler)."""
-
-    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
-    def test_diagnostic_returns_expected_structure(self):
-        pass
-
-    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
-    def test_diagnostic_reachable_summary(self):
-        pass
-
-    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
-    def test_diagnostic_cloudflare_summary(self):
-        pass
-
-    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
-    def test_diagnostic_unreachable_summary(self):
-        pass
-
-    @pytest.mark.skip(reason="sc_compras_crawler.diagnostic() removed in API refactoring")
-    def test_diagnostic_e_lic_fallback(self):
-        pass
-
-
-class TestCheckUrl:
-    """_check_url() removed in API refactoring (no longer needs URL checks)."""
-
-    @pytest.mark.skip(reason="sc_compras_crawler._check_url() removed in API refactoring")
-    def test_check_url_success(self):
-        pass
-
-    @pytest.mark.skip(reason="sc_compras_crawler._check_url() removed in API refactoring")
-    def test_check_url_cloudflare_detected(self):
-        pass
-
-    @pytest.mark.skip(reason="sc_compras_crawler._check_url() removed in API refactoring")
-    def test_check_url_captcha_detected(self):
-        pass
-
-    @pytest.mark.skip(reason="sc_compras_crawler._check_url() removed in API refactoring")
-    def test_check_url_timeout(self):
-        pass
