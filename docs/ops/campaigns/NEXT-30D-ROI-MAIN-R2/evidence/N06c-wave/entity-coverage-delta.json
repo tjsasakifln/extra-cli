@@ -1,0 +1,38 @@
+{
+  "ts": "2026-07-18T22:21:37Z",
+  "editais_delta": 0,
+  "either_delta": 0,
+  "bids_delta": 0,
+  "contracts_delta": 0,
+  "before": {
+    "ts": "2026-07-18T22:13:34Z",
+    "phase": "before",
+    "den": 1093,
+    "editais": 174,
+    "contracts_entities": 247,
+    "either": 282,
+    "pct_editais": 15.92,
+    "pct_either": 25.8,
+    "rows": {
+      "bids": 4636,
+      "contracts": 72923
+    },
+    "source": "Extra PostgreSQL only \u2014 no SmartLic"
+  },
+  "after": {
+    "ts": "2026-07-18T22:21:37Z",
+    "phase": "after",
+    "den": 1093,
+    "editais": 174,
+    "contracts_entities": 247,
+    "either": 282,
+    "pct_editais": 15.92,
+    "pct_either": 25.8,
+    "rows": {
+      "bids": 4636,
+      "contracts": 72923
+    },
+    "source": "Extra PostgreSQL only \u2014 no SmartLic"
+  },
+  "smartlic_used": false
+}

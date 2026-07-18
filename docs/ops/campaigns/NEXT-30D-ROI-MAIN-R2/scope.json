@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
   "frozen_at": "2026-07-18T20:34:29Z",
   "frozen_head": "cd193c1b9a9ea254f7bc4050b11310f261448ea6",
@@ -40,7 +40,7 @@
     },
     {
       "id": "R2",
-      "name": "SmartLic reuse matrix + snapshot bridge scaffold",
+      "name": "SmartLic reuse matrix + optional bridge scaffold (dataset DEFERRED_STALE)",
       "status": "DONE",
       "duration_days": 2.0,
       "predecessors": [
@@ -52,7 +52,8 @@
         "BLOCKED_EXTERNAL",
         "BLOCKED_HUMAN",
         "NOT_APPLICABLE"
-      ]
+      ],
+      "note": "Scaffold/tests only; dataset import off critical path (DEFERRED_STALE_SOURCE)"
     },
     {
       "id": "N01",
@@ -169,8 +170,8 @@
     },
     {
       "id": "N06c",
-      "name": "Coverage scale M5 entity collection wave",
-      "status": "DONE",
+      "name": "Coverage scale M5 Extra-owned entity collection wave (residual)",
+      "status": "IN_PROGRESS",
       "duration_days": 8.5,
       "predecessors": [
         "N06b"
@@ -180,8 +181,26 @@
         "DONE",
         "BLOCKED_EXTERNAL",
         "BLOCKED_HUMAN",
+        "BLOCKED_SOURCE",
         "NOT_APPLICABLE"
-      ]
+      ],
+      "scope_reopen": {
+        "at": "2026-07-18T22:13:10Z",
+        "previous_status": "DONE",
+        "reason": "Prior N06c closed on contracts volume + partial entity match; SmartLic cannot fill gap; residual Extra crawl expansion required for real entity coverage",
+        "acceptance_delta": "Increase universe entities with editais and/or contracts via Extra crawls only; measure before/after; no SmartLic data"
+      },
+      "progress": {
+        "at": "2026-07-18T23:06:26Z",
+        "wave": "wave2-extra-owned",
+        "smartlic_used": false,
+        "editais_delta": 84,
+        "contracts_entities_delta": 61,
+        "either_delta": 68,
+        "pct_either_after": 33.76,
+        "evidence": "evidence/N06c-wave/entity-coverage-delta-wave2.json",
+        "note": "PNCP full 30d + contracts 180d Extra-owned; crawls still finishing; short 5d window was re-upsert only"
+      }
     },
     {
       "id": "N07",
@@ -189,8 +208,7 @@
       "status": "DONE",
       "duration_days": 3.0,
       "predecessors": [
-        "N04",
-        "R2"
+        "N04"
       ],
       "critical": false,
       "terminal_states_allowed": [
@@ -198,7 +216,8 @@
         "BLOCKED_EXTERNAL",
         "BLOCKED_HUMAN",
         "NOT_APPLICABLE"
-      ]
+      ],
+      "note": "Own Extra contracts crawl/backfill only; no SmartLic snapshots"
     },
     {
       "id": "N07b",
@@ -417,5 +436,25 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T22:03:55Z"
+  "updated_at": "2026-07-18T23:06:26Z",
+  "scope_changes": [
+    {
+      "at": "2026-07-18T22:13:10Z",
+      "motive": "SmartLic operational dataset confirmed stale (months without crawls)",
+      "evidence": "User directive 2026-07-18: DEFERRED_STALE_SOURCE; no export; no data integration cycles",
+      "impact": "Remove SmartLic data path from critical path and Extra-ROI; reopen N06c for Extra-owned entity coverage expansion",
+      "new_dependency": null,
+      "risk": "None — reduces false acceleration risk",
+      "source_change": "SmartLic dataset disqualified for live ops metrics"
+    }
+  ],
+  "extra_roi_priority": [
+    "N06c",
+    "N01",
+    "N09",
+    "N07/N18",
+    "N14",
+    "N15"
+  ],
+  "smartlic_dataset": "DEFERRED_STALE_SOURCE"
 }

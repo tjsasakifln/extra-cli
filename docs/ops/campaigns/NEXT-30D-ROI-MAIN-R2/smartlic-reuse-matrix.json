@@ -1,87 +1,146 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "generated_at": "2026-07-18T20:41:29Z",
+  "updated_at": "2026-07-18T22:13:10Z",
   "smartlic_repo": "https://github.com/tjsasakifln/SmartLic",
   "smartlic_commit": "93ea19630d745d5b90d3b1657261ee88e99bc065",
-  "mode": "read-only asset source — no submodule, no runtime dependency",
+  "mode": "read-only patterns/fixtures only — NO operational dataset import",
+  "dataset_policy": {
+    "class": "DEFERRED_STALE_SOURCE",
+    "blocking": false,
+    "on_critical_path": false,
+    "in_extra_roi_ranking": false,
+    "reason": "SmartLic operational dataset is stale (months without crawls). Must not accelerate coverage, freshness, open tenders, current contracts, operational metrics, or campaign gates.",
+    "forbidden_uses": [
+      "coverage claims",
+      "freshness claims",
+      "scale claims",
+      "live recall claims",
+      "readiness/LOCAL_READY claims",
+      "open editais acceleration",
+      "current contracts acceleration",
+      "awaiting SmartLic DB export",
+      "new integration cycles Extra↔SmartLic data"
+    ],
+    "allowed_uses": [
+      "offline fixtures for transform/idempotency/schema tests only",
+      "labeled corpus for classifier unit benchmarks (not live recall)",
+      "resilience patterns (PATTERN_ONLY)",
+      "report structure patterns (not data)"
+    ],
+    "code_policy": {
+      "scripts/integrations/smartlic_snapshot_import.py": "KEEP as optional tested asset — no expansion; no critical-path dependency",
+      "tests/fixtures/smartlic/*": "OK for unit tests only",
+      "tests/test_smartlic_snapshot_import.py": "OK unit/dry-run only"
+    }
+  },
   "assets": [
     {
       "id": "SL-A01",
       "path": "backend/ingestion/contracts_crawler.py",
       "class": "EXTRA_VERSION_SUPERIOR",
-      "rationale": "Extra scripts/crawl/contracts_crawler.py has typed FetchResult fail-closed + file checkpoints; SmartLic uses Redis best-effort fail-open",
-      "action": "DO_NOT_PORT"
+      "action": "DO_NOT_PORT",
+      "rationale": "Extra typed FetchResult fail-closed + file checkpoints superior to Redis best-effort"
     },
     {
       "id": "SL-A02",
       "path": "backend/ingestion/checkpoint.py",
       "class": "PATTERN_ONLY",
-      "rationale": "Extra already has dual sync/async checkpoint; adopt page-level resume patterns only if missing",
-      "action": "AUDIT_PAGE_CHECKPOINT"
+      "action": "OPTIONAL_PATTERN",
+      "rationale": "Page-promote patterns already in Extra resilience; no SmartLic data required"
     },
     {
       "id": "SL-A03",
       "path": "supabase tables pncp_raw_bids / pncp_supplier_contracts",
-      "class": "DATA_BRIDGE",
-      "rationale": "Historical snapshots can accelerate 3y contracts if exported; never treat as live/coverage/freshness",
-      "action": "IMPLEMENT smartlic_snapshot_import.py"
+      "class": "DEFERRED_STALE_SOURCE",
+      "action": "DEFER_NO_IMPORT",
+      "rationale": "Operational snapshots stale; do not import for coverage/freshness/scale. Bridge code frozen optional.",
+      "previous_class": "DATA_BRIDGE",
+      "previous_action": "IMPLEMENT smartlic_snapshot_import.py"
     },
     {
       "id": "SL-A04",
       "path": "backend/tests/contracts/snapshots/pncp/*",
       "class": "PORT_FIXTURE",
-      "rationale": "Useful offline fixtures for contract tests",
-      "action": "SELECTIVE_COPY_FIXTURES"
+      "action": "FIXTURE_ONLY",
+      "rationale": "Offline fixtures for transform/schema tests only — not operational data"
     },
     {
       "id": "SL-A05",
       "path": "backend/llm_arbiter/classification.py + engineering samples",
       "class": "PORT_FIXTURE",
-      "rationale": "Labeled corpus for Extra AEC classifier benchmark — not runtime LLM",
-      "action": "BENCHMARK_CORPUS"
+      "action": "CORPUS_OPTIONAL",
+      "rationale": "Labeled corpus for offline classifier metrics; does not depend on freshness"
     },
     {
       "id": "SL-A06",
       "path": "frontend Next.js / auth / billing / Stripe",
       "class": "REJECT_COMPLEXITY",
-      "rationale": "SaaS multi-tenant surface out of LOCAL_READY scope",
       "action": "REJECT"
     },
     {
       "id": "SL-A07",
-      "path": "Redis / ARQ / multi-tenant / Sentry full / Prometheus full",
+      "path": "Redis / ARQ / multi-tenant / observability SaaS",
       "class": "INCOMPATIBLE",
-      "rationale": "Architecture requirements Extra does not want as hard deps",
       "action": "REJECT"
     },
     {
       "id": "SL-A08",
       "path": "pagination 1000-trunc + binary window split",
       "class": "PATTERN_ONLY",
-      "rationale": "Compare with Extra fail-closed pagination; port ideas not code",
-      "action": "EVALUATE_IN_N18"
+      "action": "OPTIONAL_PATTERN",
+      "rationale": "Ideas only; Extra fail-closed pagination preferred"
     },
     {
       "id": "SL-A09",
       "path": "Excel/PDF report helpers",
       "class": "PATTERN_ONLY",
-      "rationale": "Extra already has reconcile_pdf_excel and golden_path_pack",
       "action": "ALREADY_PRESENT_OR_SUPERIOR"
     },
     {
       "id": "SL-A10",
       "path": "pncp_raw_bids schema origin",
       "class": "ALREADY_PRESENT",
-      "rationale": "Extra migration 001 notes based on smartlic schema",
       "action": "NONE"
     }
   ],
-  "priority_implementation": [
-    "SL-A03",
-    "SL-A04",
-    "SL-A05",
-    "SL-A02",
-    "SL-A08"
+  "priority_implementation": [],
+  "priority_note": "No SmartLic implementation work on critical path. Extra owns all live collection.",
+  "extra_roi_ranking_after_deferral": [
+    {
+      "rank": 1,
+      "id": "N06c",
+      "title": "Real entity collection + coverage expansion (Extra-owned crawls only)"
+    },
+    {
+      "rank": 2,
+      "id": "N01",
+      "title": "Golden path live without timeout (Extra sources)"
+    },
+    {
+      "rank": 3,
+      "id": "N09",
+      "title": "Stratified sample + real recall benchmark"
+    },
+    {
+      "rank": 4,
+      "id": "N07/N18",
+      "title": "Own contracts history expansion + safe backfill"
+    },
+    {
+      "rank": 5,
+      "id": "N14",
+      "title": "DoD residual revalidation"
+    },
+    {
+      "rank": 6,
+      "id": "N15",
+      "title": "Skeptic audit + campaign close"
+    },
+    {
+      "rank": 7,
+      "id": "OPS",
+      "title": "Operational outputs only on current defensible Extra data"
+    }
   ]
 }

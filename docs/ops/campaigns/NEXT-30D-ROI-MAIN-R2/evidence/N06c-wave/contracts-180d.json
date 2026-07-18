@@ -1,0 +1,60 @@
+{
+  "pilot": "k3.2-pncp-90d",
+  "campaign": "NEXT-30D",
+  "run_id": "contracts-90d-20260718T222533Z-fa311143a0",
+  "previous_run_ids": [],
+  "mode": "full",
+  "days": 180,
+  "window_days": 30,
+  "planned_windows": 6,
+  "range_start": "2026-01-19",
+  "range_end": "2026-07-18",
+  "started_at": "2026-07-18T22:25:33.803376+00:00",
+  "checkpoint_path": "data/contracts_checkpoints/n06c_wave2/contracts_full.json",
+  "windows": [
+    {
+      "window_key": "20260119_20260217",
+      "status": "completed",
+      "pages": 382,
+      "transformed": 190941,
+      "inserted": 190941,
+      "skipped": 0,
+      "errors": [],
+      "elapsed_seconds": 1790.5
+    }
+  ],
+  "totals": {
+    "fetched": 190950,
+    "transformed": 190941,
+    "inserted": 190941,
+    "skipped": 0,
+    "pages": 382,
+    "page_errors": 0,
+    "windows_ok": 1,
+    "windows_failed": 0,
+    "windows_skipped_resume": 0
+  },
+  "status": "running",
+  "errors": [],
+  "checkpoint": {
+    "source": "pncp_contracts",
+    "mode": "full",
+    "completed_windows": [
+      "20260119_20260217"
+    ],
+    "current_window_start": "20260119",
+    "total_contracts_fetched": 190941,
+    "total_windows_completed": 1,
+    "total_windows_failed": 0,
+    "last_error": null,
+    "updated_at": "2026-07-18T22:55:24Z",
+    "meta": {
+      "run_id": "contracts-90d-20260718T222533Z-fa311143a0",
+      "run_ids": [
+        "contracts-90d-20260718T222533Z-fa311143a0"
+      ],
+      "previous_run_ids": [],
+      "foreign_resume": false
+    }
+  }
+}

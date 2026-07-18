@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "generated_at": "2026-07-18T22:03:55Z",
-  "kind": "r2_recalculated_from_main",
+  "generated_at": "2026-07-18T22:13:10Z",
+  "kind": "post_smartlic_deferral_recalc",
   "baseline_head": "509abdedc1439632f1eb5f04607e47fa3f1f4e12",
   "project_ef": 32.0,
   "critical_path_length_days": 32.0,
@@ -51,7 +51,7 @@
     },
     {
       "id": "R2",
-      "name": "SmartLic reuse matrix + snapshot bridge scaffold",
+      "name": "SmartLic matrix + optional bridge (dataset DEFERRED)",
       "duration": 2.0,
       "preds": [
         "R0"
@@ -172,26 +172,26 @@
     },
     {
       "id": "N06c",
-      "name": "Coverage scale M5 entity collection wave",
+      "name": "Coverage M5 Extra-owned entity collection residual",
       "duration": 8.5,
       "preds": [
         "N06b"
       ],
-      "status": "DONE",
+      "status": "IN_PROGRESS",
       "es": 16.0,
       "ef": 24.5,
       "ls": 16.0,
       "lf": 24.5,
       "slack": 0.0,
-      "critical": true
+      "critical": true,
+      "note": "Extra-owned expansion wave2 measurable gain; SmartLic deferred"
     },
     {
       "id": "N07",
       "name": "Contracts incremental + SmartLic bridge 3y machinery",
       "duration": 3.0,
       "preds": [
-        "N04",
-        "R2"
+        "N04"
       ],
       "status": "DONE",
       "es": 6.0,
@@ -388,5 +388,18 @@
       "critical": false
     }
   ],
-  "critical_days_done": 32.0
+  "critical_days_done": 23.5,
+  "critical_open": [
+    "N06c"
+  ],
+  "smartlic_dataset": "DEFERRED_STALE_SOURCE",
+  "updated_at": "2026-07-18T23:06:32Z",
+  "extra_roi_priority": [
+    "N06c",
+    "N01",
+    "N09",
+    "N07/N18",
+    "N14",
+    "N15"
+  ]
 }

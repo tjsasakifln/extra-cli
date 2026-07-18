@@ -1,0 +1,49 @@
+{
+  "ts": "2026-07-18T23:06:07Z",
+  "phase": "after_wave2_mid_crawls",
+  "source": "Extra PostgreSQL only — no SmartLic",
+  "smartlic_used": false,
+  "den": 1093,
+  "editais_cnpj8": 268,
+  "editais_matched_entity": 285,
+  "editais": 285,
+  "contracts_entities": 308,
+  "either": 369,
+  "pct_editais": 26.08,
+  "pct_either": 33.76,
+  "legacy_cnpj_only": {
+    "editais_legacy": 268,
+    "contracts_legacy": 308,
+    "either_legacy": 354
+  },
+  "rows": {
+    "bids": 10974,
+    "contracts": 315359
+  },
+  "freshness": {
+    "bids_ingested_2h": 8948,
+    "bids_max_ingested": "2026-07-18 22:53:45.945257+00",
+    "bids_max_updated": "2026-07-18 22:53:48.434391+00"
+  },
+  "by_source": [
+    {
+      "source": "pncp",
+      "n": 8221,
+      "has_cnpj": 8221,
+      "matched": 7423
+    },
+    {
+      "source": "sc_compras",
+      "n": 2610,
+      "has_cnpj": 0,
+      "matched": 2280
+    },
+    {
+      "source": "pcp",
+      "n": 143,
+      "has_cnpj": 0,
+      "matched": 107
+    }
+  ],
+  "metric_note": "editais=union(cnpj8, matched_entity_id); either includes contracts; Extra-owned only"
+}

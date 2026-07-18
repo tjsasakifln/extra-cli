@@ -1,0 +1,15 @@
+{
+  "ts": "2026-07-18T22:13:34Z",
+  "phase": "before",
+  "den": 1093,
+  "editais": 174,
+  "contracts_entities": 247,
+  "either": 282,
+  "pct_editais": 15.92,
+  "pct_either": 25.8,
+  "rows": {
+    "bids": 4636,
+    "contracts": 72923
+  },
+  "source": "Extra PostgreSQL only \u2014 no SmartLic"
+}

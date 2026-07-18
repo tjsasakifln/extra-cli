@@ -1,0 +1,45 @@
+{
+  "ts": "2026-07-18T22:25:01Z",
+  "phase": "before_wave2",
+  "source": "Extra PostgreSQL only — no SmartLic",
+  "smartlic_used": false,
+  "den": 1093,
+  "editais_cnpj8": 174,
+  "editais_matched_entity": 201,
+  "editais": 201,
+  "contracts_entities": 247,
+  "either": 301,
+  "pct_editais": 18.39,
+  "pct_either": 27.54,
+  "rows": {
+    "bids": 4636,
+    "contracts": 72923
+  },
+  "freshness": {
+    "bids_ingested_1d": 4636,
+    "bids_updated_1d": 4636,
+    "bids_max_ingested": "2026-07-18 21:13:15.472246+00",
+    "bids_max_updated": "2026-07-18 22:17:30.86115+00"
+  },
+  "by_source": [
+    {
+      "source": "sc_compras",
+      "n": 2610,
+      "has_cnpj": 0,
+      "matched": 2280
+    },
+    {
+      "source": "pncp",
+      "n": 1883,
+      "has_cnpj": 1883,
+      "matched": 1708
+    },
+    {
+      "source": "pcp",
+      "n": 143,
+      "has_cnpj": 0,
+      "matched": 107
+    }
+  ],
+  "metric_note": "editais = union(cnpj8 join, matched_entity_id in universe); either includes contracts"
+}

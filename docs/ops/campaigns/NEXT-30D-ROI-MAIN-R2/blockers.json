@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "updated_at": "2026-07-18T22:03:55Z",
+  "updated_at": "2026-07-18T22:13:10Z",
   "blockers": [
     {
       "id": "B-R2-001",
@@ -73,6 +73,14 @@
       "decision_needed": "schedule portal sampling session or authorize external labeled set",
       "next_review": "next campaign after gold sample exists",
       "scope_status": "BLOCKED_SOURCE"
+    }
+  ],
+  "deferred_non_blocking": [
+    {
+      "id": "DEF-SMARTLIC-DATASET",
+      "class": "DEFERRED_STALE_SOURCE",
+      "description": "SmartLic operational dataset stale — deferred, non-blocking",
+      "on_critical_path": false
     }
   ]
 }

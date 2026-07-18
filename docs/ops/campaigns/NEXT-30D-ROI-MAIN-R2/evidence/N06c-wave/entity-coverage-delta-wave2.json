@@ -1,0 +1,118 @@
+{
+  "ts": "2026-07-18T23:06:07Z",
+  "smartlic_used": false,
+  "wave": "N06c-wave2-extra-owned",
+  "status": "IN_PROGRESS_MEASURABLE_GAIN",
+  "crawls": {
+    "pncp_full_30d": "running_or_finishing (bids already +6338)",
+    "contracts_180d": "running window2+ (entities already +60)",
+    "note": "5d short window earlier was re-upsert only (inserted metric lied; updated_at moved, row count flat)"
+  },
+  "before": {
+    "ts": "2026-07-18T22:25:01Z",
+    "phase": "before_wave2",
+    "source": "Extra PostgreSQL only — no SmartLic",
+    "smartlic_used": false,
+    "den": 1093,
+    "editais_cnpj8": 174,
+    "editais_matched_entity": 201,
+    "editais": 201,
+    "contracts_entities": 247,
+    "either": 301,
+    "pct_editais": 18.39,
+    "pct_either": 27.54,
+    "rows": {
+      "bids": 4636,
+      "contracts": 72923
+    },
+    "freshness": {
+      "bids_ingested_1d": 4636,
+      "bids_updated_1d": 4636,
+      "bids_max_ingested": "2026-07-18 21:13:15.472246+00",
+      "bids_max_updated": "2026-07-18 22:17:30.86115+00"
+    },
+    "by_source": [
+      {
+        "source": "sc_compras",
+        "n": 2610,
+        "has_cnpj": 0,
+        "matched": 2280
+      },
+      {
+        "source": "pncp",
+        "n": 1883,
+        "has_cnpj": 1883,
+        "matched": 1708
+      },
+      {
+        "source": "pcp",
+        "n": 143,
+        "has_cnpj": 0,
+        "matched": 107
+      }
+    ],
+    "metric_note": "editais = union(cnpj8 join, matched_entity_id in universe); either includes contracts"
+  },
+  "after": {
+    "ts": "2026-07-18T23:06:07Z",
+    "phase": "after_wave2_mid_crawls",
+    "source": "Extra PostgreSQL only — no SmartLic",
+    "smartlic_used": false,
+    "den": 1093,
+    "editais_cnpj8": 268,
+    "editais_matched_entity": 285,
+    "editais": 285,
+    "contracts_entities": 308,
+    "either": 369,
+    "pct_editais": 26.08,
+    "pct_either": 33.76,
+    "legacy_cnpj_only": {
+      "editais_legacy": 268,
+      "contracts_legacy": 308,
+      "either_legacy": 354
+    },
+    "rows": {
+      "bids": 10974,
+      "contracts": 315359
+    },
+    "freshness": {
+      "bids_ingested_2h": 8948,
+      "bids_max_ingested": "2026-07-18 22:53:45.945257+00",
+      "bids_max_updated": "2026-07-18 22:53:48.434391+00"
+    },
+    "by_source": [
+      {
+        "source": "pncp",
+        "n": 8221,
+        "has_cnpj": 8221,
+        "matched": 7423
+      },
+      {
+        "source": "sc_compras",
+        "n": 2610,
+        "has_cnpj": 0,
+        "matched": 2280
+      },
+      {
+        "source": "pcp",
+        "n": 143,
+        "has_cnpj": 0,
+        "matched": 107
+      }
+    ],
+    "metric_note": "editais=union(cnpj8, matched_entity_id); either includes contracts; Extra-owned only"
+  },
+  "deltas": {
+    "editais": 84,
+    "contracts_entities": 61,
+    "either": 68,
+    "bids_rows": 6338,
+    "contracts_rows": 242436,
+    "pct_either_pp": 6.22
+  },
+  "legacy_wave1_compare": {
+    "wave1_either_cnpj_only": 282,
+    "wave2_either_cnpj_only": 354,
+    "legacy_delta": 72
+  }
+}
