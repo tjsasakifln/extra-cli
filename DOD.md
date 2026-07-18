@@ -637,14 +637,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 7.2 Matriz ente × fonte × capability
 
-- [ ] Cada ente possui decisão de aplicabilidade para editais.
-- [ ] Cada ente possui decisão de aplicabilidade para contratos.
-- [ ] A aplicabilidade pode variar por capability.
-- [ ] A aplicabilidade possui justificativa.
-- [ ] A aplicabilidade possui data de validação.
-- [ ] A aplicabilidade possui fonte da decisão.
-- [ ] Entes com múltiplas fontes obrigatórias possuem combinação definida.
-- [ ] A combinação mínima de fontes é explícita.
+- [x] Cada ente possui decisão de aplicabilidade para editais. Evidência: matrix open_tenders + session-2026-07-18-applicability-matrix.
+- [x] Cada ente possui decisão de aplicabilidade para contratos. Evidência: matrix historical_contracts.
+- [x] A aplicabilidade pode variar por capability. Evidência: per (entity,source,capability) decisions.
+- [x] A aplicabilidade possui justificativa. Evidência: justification field required.
+- [x] A aplicabilidade possui data de validação. Evidência: validated_at.
+- [x] A aplicabilidade possui fonte da decisão. Evidência: decision_source.
+- [x] Entes com múltiplas fontes obrigatórias possuem combinação definida. Evidência: MIN_SOURCE_COMBINATION + MANDATORY_SOURCES.
+- [x] A combinação mínima de fontes é explícita. Evidência: min_source_combination in matrix JSON.
 - [ ] Fontes complementares não substituem silenciosamente fontes obrigatórias.
 - [ ] Bloqueadores por ente são registrados.
 - [ ] Bloqueadores por fonte são registrados.

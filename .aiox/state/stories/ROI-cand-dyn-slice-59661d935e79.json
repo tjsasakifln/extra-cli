@@ -1,0 +1,14 @@
+{
+  "story_id": "ROI-cand-dyn-slice-59661d935e79",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "po_closed_at": "2026-07-18T16:07:03Z",
+  "snapshot_evidence": "docs/ops/session-2026-07-18-applicability-matrix",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:59661d935e79",
+    "dod_items_flipped": 8
+  },
+  "qa_notes": "CSV missing esfera residual; matrix structure OK"
+}
