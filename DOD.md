@@ -720,7 +720,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Data da última verificação.
 - [ ] Valor estimado quando disponível.
 - [ ] Município ou abrangência.
-- [ ] Classificação AEC.
+- [x] Classificação AEC. Evidência: `is_aec` + `reconcile_active_ids` + `tests/test_aec_and_snapshot_reconcile.py` (4 passed) + QA PASS cyc-2026-07-18T133837Z.
 - [ ] Justificativa do score.
 - [ ] Indicador de dados incompletos.
 - [ ] Completude dos campos essenciais >= 95%.
@@ -975,7 +975,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Checkpoint.
 - [x] Resume.
 - [x] Deduplicação.
-- [ ] Reconciliação de snapshot.
+- [x] Reconciliação de snapshot. Evidência: `is_aec` + `reconcile_active_ids` + `tests/test_aec_and_snapshot_reconcile.py` (4 passed) + QA PASS cyc-2026-07-18T133837Z.
 - [x] Classificação de status.
 - [ ] Classificação AEC.
 - [x] Regras de score.
