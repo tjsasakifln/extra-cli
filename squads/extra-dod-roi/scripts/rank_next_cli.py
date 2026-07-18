@@ -142,6 +142,23 @@ def apply_completion_filters(
         if ids and all(i in accepted for i in ids):
             _mark_completed(c, "all dod_item_ids already accepted in campaign ledger or baseline done")
             divergences.append(f"Candidate {c['id']} marked COMPLETED: campaign ledger accepted")
+    # Demote dynamic slices already closed by AIOX story (even if DoD left open honestly).
+    # Prevents force-next thrashing on the same cand-dyn-slice:* after leave-open PASS/CONCERNS.
+    for c in candidates:
+        if c.get("status") != "UNLOCKED":
+            continue
+        cid = str(c.get("id") or "")
+        if not cid.startswith("cand-dyn-slice:"):
+            continue
+        suffix = cid.split(":", 1)[-1]
+        story_id = f"ROI-cand-dyn-slice-{suffix}"
+        if _story_done(root, story_id):
+            reason = (
+                f"{story_id} Done with independent QA/PO "
+                "(leave-open or partial DoD does not re-bind same dyn slice)"
+            )
+            _mark_completed(c, reason)
+            divergences.append(f"Candidate {cid} marked COMPLETED: {reason}")
     # Also: open draft PR for same head branch is not enough alone; story Done is authority
     return [c for c in candidates if c.get("status") == "UNLOCKED"]
 
