@@ -14,7 +14,7 @@ python3 squads/extra-dod-roi/scripts/cli.py status
 
 ## Latest HEAD
 
-`509abdedc1439632f1eb5f04607e47fa3f1f4e12` @ 2026-07-18T22:03:55Z
+`62b6f49c0d74683acf139fdf51e6e45099a7838d` @ 2026-07-18T22:03:55Z
 
 ## Rules
 
