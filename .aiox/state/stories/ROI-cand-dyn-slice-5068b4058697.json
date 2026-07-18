@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-5068b4058697",
+  "title": "[1. Como usar este documento] Cada item s\u00f3 \u00e9 marcado como conclu\u00eddo quando existir evid\u00eanc \u00b7 C\u00f3digo existente sem execu\u00e7\u00e3o comprovada n\u00e3o \u00e9 considerado c \u00b7 Teste unit\u00e1rio isolado n\u00e3o substitui execu\u00e7\u00e3",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-5068b4058697.md",
+  "created_at": "2026-07-18T13:46:22Z",
+  "updated_at": "2026-07-18T13:47:33Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T134622Z",
+    "candidate_id": "cand-dyn-slice:5068b4058697",
+    "roi": 2.4928,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}

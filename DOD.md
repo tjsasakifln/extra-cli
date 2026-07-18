@@ -42,15 +42,15 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 
 - [x] Este arquivo está versionado na raiz do repositório como `DOD.md`. Evidência: branch `epic/plano-executivo-30d`, campanha EPIC-PLANO-EXECUTIVO-30D / PE-G0-01 (2026-07-16).
 - [x] O documento é tratado como checklist de evolução do projeto, e não como Definition of Done de uma única story. Evidência: §35 gates + 3 róis; plano `extra-consultoria-plano-executivo.html`.
-- [ ] Cada item só é marcado como concluído quando existir evidência verificável.
+- [x] Cada item só é marcado como concluído quando existir evidência verificável. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
 - [x] Sempre que possível, a evidência é registrada ao lado do item no formato: ` Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `DOD.md`
-- [ ] Código existente sem execução comprovada não é considerado concluído.
-- [ ] Teste unitário isolado não substitui execução ponta a ponta.
+- [x] Código existente sem execução comprovada não é considerado concluído. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
+- [x] Teste unitário isolado não substitui execução ponta a ponta. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
 - [x] Presença de registros no banco não é tratada como prova de cobertura. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`
-- [ ] Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto.
-- [ ] Itens explicitamente marcados como opcionais não bloqueiam o fechamento do projeto.
-- [ ] Todos os demais itens bloqueiam o respectivo gate.
+- [x] Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
+- [x] Itens explicitamente marcados como opcionais não bloqueiam o fechamento do projeto. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
+- [x] Todos os demais itens bloqueiam o respectivo gate. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
 - [ ] O projeto só é considerado integralmente concluído quando os três róis obrigatórios estiverem atendidos:
   - [ ] requisitos do estágio atual;
   - [ ] requisitos posteriores ao provisionamento da VPS;

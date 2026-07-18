@@ -1,28 +1,40 @@
 {
-  "at": "2026-07-18T13:44:22.258177+00:00",
+  "at": "2026-07-18T13:46:16.471589+00:00",
   "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
   "epic": "epic/advance-30d-local-ready-20260718",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "current_sha": "6a06d5b71363582a3eae110496bbf7928d499dd4",
-  "slices_completed": 16,
+  "current_sha": "0c44a357aed62b8bdead46a3f7369ea905f6e0e5",
+  "slices_completed": 17,
+  "stories": [
+    "ROI-cand-dyn-slice-1e78666e2a21",
+    "ROI-cand-dyn-slice-cad02f320cc4",
+    "ROI-cand-dyn-slice-d7ab09cdef56",
+    "ROI-cand-dyn-slice-a41d7a2033b7",
+    "ROI-cand-dyn-slice-ac8b6e76a7b2",
+    "ROI-cand-dyn-slice-cfa643fd416d",
+    "ROI-cand-dyn-slice-bb77e543c324",
+    "ROI-cand-dyn-slice-b363a4f2f011",
+    "ROI-cand-dyn-slice-4e288f5e4645",
+    "ROI-cand-dyn-slice-2f2ad5a53d57",
+    "ROI-cand-dyn-slice-67bcb452c07d",
+    "ROI-cand-dyn-slice-71f21901a039",
+    "ROI-cand-dyn-slice-a94b7d79e0a0",
+    "ROI-cand-dyn-slice-3212c1109a81",
+    "ROI-cand-dyn-slice-b145bef1a4f6",
+    "ROI-cand-dyn-slice-e09964d21645",
+    "ROI-cand-dyn-slice-b1b7c0dfcf61"
+  ],
   "dod": {
-    "checked": 160,
-    "open": 1194,
+    "checked": 164,
+    "open": 1190,
     "baseline_checked": 92
   },
-  "local_ready": false,
-  "operational_coverage_pct": 0.0,
-  "highlights": [
-    "fail-closed || true scanner",
-    "indicator catalog + claim language",
-    "docs honesty + PRD v2.1",
-    "execution audit records",
-    "manual override ledger",
-    "evidence reconstruct recipes",
-    "universe snapshot diff",
-    "AEC + snapshot reconcile unit tests",
-    "LIVE local pg_dump/pg_restore proof"
-  ],
+  "metrics": {
+    "universe_within_radius": 1093,
+    "universe_resolution_pct": 100.0,
+    "operational_coverage_pct": 0.0,
+    "local_ready": false
+  },
   "resume": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
   "forbidden_claims": [
     "LOCAL_READY",
