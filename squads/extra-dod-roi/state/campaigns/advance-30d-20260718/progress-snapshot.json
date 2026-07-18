@@ -1,11 +1,11 @@
 {
-  "at": "2026-07-18T16:42:13Z",
+  "at": "2026-07-18T17:23:33Z",
   "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
   "status": "IN_PROGRESS",
   "epic": "epic/advance-30d-local-ready-20260718",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "current_sha": "7386de180d476058ba9b28bf3476f1d00884d994",
-  "slices_completed": 46,
+  "current_sha": "7bdc23c5d07a99904e945fb51a6c952ca397d54c",
+  "slices_completed": 48,
   "dod": {
     "checked": 345,
     "open": 1006,
@@ -32,7 +32,22 @@
     "LOCAL_READY",
     "95% operational",
     "PRE_VPS_FINAL_READY",
-    "PROJECT_DONE"
+    "PROJECT_DONE",
+    "full suite green"
   ],
-  "last_slice": "ROI-cand-dyn-slice-e845e4e64aba \u00a727 hygiene"
+  "last_slice": "ROI-cand-dyn-slice-5e47929809f6 sc_compras skip debt PASS leave-open",
+  "recent_closed": [
+    {
+      "id": "ROI-cand-dyn-slice-a53bdc0173af",
+      "qa": "CONCERNS",
+      "dod_flips": 1,
+      "note": "entity freshness measurable"
+    },
+    {
+      "id": "ROI-cand-dyn-slice-5e47929809f6",
+      "qa": "PASS",
+      "dod_flips": 0,
+      "note": "sc_compras obsolete skips removed; full suite leave-open"
+    }
+  ]
 }
