@@ -1,0 +1,107 @@
+{
+  "ok": true,
+  "indicator_count": 6,
+  "definitions": 6,
+  "ready_semantics": "READY means the metric was executed against current inputs and validated (numerator/denominator/pct computed or explicitly unavailable fields set). Code existence alone never yields READY.",
+  "not_ready_semantics": "NOT_READY means the metric could not be computed from available inputs (missing session, incomplete sample, entity-level gap, etc.).",
+  "blocked_semantics": "BLOCKED means computation is impeded by an external or technical dependency (credentials, network, missing source access).",
+  "required_fields": [
+    "definition",
+    "formula",
+    "denominator_policy",
+    "as_of_policy",
+    "source_policy",
+    "readiness_status_on_result"
+  ],
+  "issues": [],
+  "metric_ids": [
+    "entities_with_recent_commercial_signal",
+    "source_mapping_coverage",
+    "operational_source_coverage",
+    "freshness_coverage",
+    "opportunity_recall",
+    "required_field_completeness"
+  ],
+  "items": [
+    {
+      "metric_id": "entities_with_recent_commercial_signal",
+      "kind": "commercial_signal",
+      "label": "Entities with recent commercial signal",
+      "definition": "Count of universe entities that have ≥1 matched opportunity in OPEN/UPCOMING/RECENT commercial statuses. Commercial signal only — never labeled coverage.",
+      "formula": "entities with ≥1 OPEN/UPCOMING/RECENT matched opportunity / canonical_universe_denominator",
+      "denominator_policy": "Fixed canonical universe size from load_canonical_universe / seed / FIXED_CANONICAL_DENOMINATOR (1093); never reduced to inflate percentages.",
+      "as_of_policy": "Report-level `as_of` (ISO date) on CoverageContractReport; metric values are interpreted at that cut date.",
+      "source_policy": "session coverage_canonical commercial_entity_ids and/or PostgreSQL opportunity matches reconciled to universe entities.",
+      "target_pct": null,
+      "notes": "NOT a coverage metric. Renamed from commercial_opportunity_any. Do not label this as 'coverage'.",
+      "legacy_aliases": [
+        "commercial_opportunity_any"
+      ]
+    },
+    {
+      "metric_id": "source_mapping_coverage",
+      "kind": "coverage",
+      "label": "Source mapping coverage",
+      "definition": "Share of universe entities with an explicit entity_source_registry record (including status=source_not_identified).",
+      "formula": "entities with explicit source registry record (including status=source_not_identified) / denominator",
+      "denominator_policy": "Fixed canonical universe size from load_canonical_universe / seed / FIXED_CANONICAL_DENOMINATOR (1093); never reduced to inflate percentages.",
+      "as_of_policy": "Report-level `as_of` (ISO date) on CoverageContractReport; metric values are interpreted at that cut date.",
+      "source_policy": "data/entity_source_registry.jsonl (+ optional DB sync).",
+      "target_pct": 100.0,
+      "notes": "Target 100%. Registry may mark source_not_identified — that still counts as mapped.",
+      "legacy_aliases": []
+    },
+    {
+      "metric_id": "operational_source_coverage",
+      "kind": "coverage",
+      "label": "Operational source coverage",
+      "definition": "Share of universe entities with ≥1 official source that completed all operational pipeline stages (mapped→recent_evidence) within SLA.",
+      "formula": "entities with ≥1 official source: mapped + accessible + collected + normalized + reconciled + verified within SLA + recent evidence / denominator",
+      "denominator_policy": "Fixed canonical universe size from load_canonical_universe / seed / FIXED_CANONICAL_DENOMINATOR (1093); never reduced to inflate percentages.",
+      "as_of_policy": "Report-level `as_of` (ISO date) on CoverageContractReport; metric values are interpreted at that cut date.",
+      "source_policy": "entity_source_registry operational stages + provenance (run_id, raw, hash, normalized, reconciliation).",
+      "target_pct": 95.0,
+      "notes": "Target 95%. Requires full operational pipeline stages.",
+      "legacy_aliases": []
+    },
+    {
+      "metric_id": "freshness_coverage",
+      "kind": "coverage",
+      "label": "Freshness coverage",
+      "definition": "Share of universe entities whose last verification is within the applicable SLA window from config/coverage_slas.yaml.",
+      "formula": "entities verified within applicable SLA / denominator",
+      "denominator_policy": "Fixed canonical universe size from load_canonical_universe / seed / FIXED_CANONICAL_DENOMINATOR (1093); never reduced to inflate percentages.",
+      "as_of_policy": "Report-level `as_of` (ISO date) on CoverageContractReport; metric values are interpreted at that cut date.",
+      "source_policy": "entity-level last_seen_at / coverage_evidence.observed_at; source-level freshness_manifest alone is insufficient.",
+      "target_pct": null,
+      "notes": "SLA windows from config/coverage_slas.yaml.",
+      "legacy_aliases": []
+    },
+    {
+      "metric_id": "opportunity_recall",
+      "kind": "recall",
+      "label": "Opportunity recall",
+      "definition": "Recall of relevant opportunities against an independent stratified gold sample — never inferred from raw DB opportunity counts.",
+      "formula": "true positives in stratified benchmark sample / sample positives",
+      "denominator_policy": "Sample positives in the stratified gold benchmark (not universe size).",
+      "as_of_policy": "Report-level `as_of` (ISO date) on CoverageContractReport; metric values are interpreted at that cut date. Sample version/date must be recorded in limitations.",
+      "source_policy": "docs/qa/recall sample + independent labeling strata.",
+      "target_pct": null,
+      "notes": "Computed from stratified benchmark sample ONLY. Never derived from database opportunity counts.",
+      "legacy_aliases": []
+    },
+    {
+      "metric_id": "required_field_completeness",
+      "kind": "completeness",
+      "label": "Required field completeness",
+      "definition": "Mean completeness of decision fields across scored opportunity records; absence is explicit (missing ≠ invented zero).",
+      "formula": "mean over opportunities of (present decision fields / 17 decision fields); absence is explicit",
+      "denominator_policy": "17 decision fields per opportunity record (field-level); report also records universe context separately.",
+      "as_of_policy": "Report-level `as_of` (ISO date) on CoverageContractReport; metric values are interpreted at that cut date.",
+      "source_policy": "scored opportunity records from commercial/session pipeline.",
+      "target_pct": null,
+      "notes": "Decision fields listed in DECISION_FIELDS. Missing fields are explicit absences.",
+      "legacy_aliases": []
+    }
+  ]
+}

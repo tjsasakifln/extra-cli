@@ -1,0 +1,153 @@
+{
+  "cycle_id": "cyc-2026-07-18T125038Z",
+  "story_id": "ROI-cand-dyn-slice-cad02f320cc4",
+  "candidate_id": "cand-dyn-slice:cad02f320cc4",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T12:55:20Z",
+  "branch": "extra-roi/cand-indicator-catalog",
+  "reviewed_commit_note": "uncommitted delivery on feature branch (MetricDefinition catalog fields + validate/export + tests + evidence pack); HEAD base 8833aac",
+  "self_qa": false,
+  "independence": true,
+  "evidence_pack": "docs/ops/session-2026-07-18-indicator-catalog/",
+  "commands_rerun": [
+    {
+      "cmd": "python3 -m pytest tests/test_indicator_catalog.py -q -o addopts=",
+      "exit": 0,
+      "notes": "6 passed (independent re-run)"
+    },
+    {
+      "cmd": "python3 -c validate_indicator_catalog + export_indicator_catalog + required_fields_present checks",
+      "exit": 0,
+      "notes": "ok=true, indicator_count=6, definitions=6, issues=[], all required_fields_present=True, ALL_METRIC_IDS==METRIC_DEFINITIONS keys"
+    },
+    {
+      "cmd": "python3 -m pytest tests/ -q -o addopts= -k 'coverage_contract or indicator or metric_definition'",
+      "exit": 0,
+      "notes": "28 passed, 2005 deselected — no regression on related suite"
+    }
+  ],
+  "falsification_attempts": [
+    "Empty definitions: MetricDefinition with blank formula/whitespace definition → required_fields_present() False; validate would issue required_fields_blank. Fail to falsify protection.",
+    "Missing fields: pre-change MetricDefinition lacked definition/denominator_policy/as_of_policy/source_policy; post-change all 6 metrics populate them non-empty. Fail to falsify completeness of catalog fields.",
+    "READY without execution: MetricStatus.READY is only assigned inside _ready(); requires numerator+denominator; code existence of METRIC_DEFINITIONS never stamps READY. String READY_SEMANTICS explicitly forbids 'code existence alone'. Residual: _ready can be unit-called with synthetic nums (by design for tests).",
+    "Tests that don't call shipped code: tests import and invoke validate_indicator_catalog, export_indicator_catalog, METRIC_DEFINITIONS, READY_SEMANTICS, _ready, _not_ready — no reimplementation. Fail to falsify.",
+    "Empty orphan DoD line 1401: text='' — implementer correctly did not claim flip; left open. Fail to falsify process honesty.",
+    "Export missing status on catalog items: status is runtime on MetricResult (proven via _ready/_not_ready tests), not static catalog — acceptable design for 'status de prontidão'.",
+    "as_of only report-level: MetricResult has no as_of field; as_of_policy on every definition + CoverageContractReport.as_of. Acceptable for 'data de corte' catalog claim.",
+    "Scope 'todo indicador': catalog is authoritative ALL_METRIC_IDS (6) in coverage_contract — not every ad-hoc KPI elsewhere. Bound claim to formal contract indicators (PO intent: metric catalog schema)."
+  ],
+  "issues": [
+    {
+      "severity": "low",
+      "description": "test_ready_semantics_document_execution_not_code_existence only asserts substrings of READY_SEMANTICS; does not assert that compute_* paths refuse READY when inputs missing (that behavior exists but is covered elsewhere / by design of _not_ready).",
+      "recommendation": "Optional follow-up: one integration test that a compute_* with empty session returns NOT_READY, not READY."
+    },
+    {
+      "severity": "low",
+      "description": "MetricStatus has READY/NOT_READY/PARTIAL/ERROR but not BLOCKED, while BLOCKED_SEMANTICS constant exists. Adjacent DoD item L1403 (`BLOCKED` significa…) is OUT of this 8-item slice.",
+      "recommendation": "Separate story for BLOCKED enum + semantics enforcement if/when flipping L1403."
+    },
+    {
+      "severity": "low",
+      "description": "Delivery is uncommitted on feature branch (working tree dirty for coverage_contract.py + new tests/evidence).",
+      "recommendation": "@dev commit before @po flip + @devops publish; QA did not commit."
+    }
+  ],
+  "allowed_claims": [
+    "All 6 formal coverage-contract indicators expose non-empty definition, formula, denominator_policy, as_of_policy, source_policy (validate_indicator_catalog ok=true).",
+    "MetricResult carries status (READY/NOT_READY) + denominator + formula via _ready/_not_ready helpers.",
+    "READY_SEMANTICS documents that READY means executed and validated; code existence alone never yields READY.",
+    "Executable proof: tests/test_indicator_catalog.py (6 passed) call shipped validate/export/catalog APIs.",
+    "Empty orphan checkbox at DOD.md:1401 remains open (no false green)."
+  ],
+  "forbidden_claims": [
+    "Every numeric KPI in the entire monorepo has formal catalog fields (only coverage_contract ALL_METRIC_IDS).",
+    "Operational coverage ≥95% / freshness live READY / VPS operational / LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY.",
+    "Empty DoD orphan line is DONE.",
+    "BLOCKED status fully implemented as MetricStatus member (semantics string only).",
+    "Story Done without PO close / DoD flipped without this independent verdict."
+  ],
+  "dod_flip_authorized": [
+    {
+      "id": "dod:8e60c38d0990",
+      "line": 1394,
+      "text": "Todo indicador possui definição.",
+      "authorized": true,
+      "rationale": "MetricDefinition.definition non-empty for all 6 ALL_METRIC_IDS; validate_indicator_catalog + export + tests prove."
+    },
+    {
+      "id": "dod:96f3715844d6",
+      "line": 1395,
+      "text": "Todo indicador possui fórmula.",
+      "authorized": true,
+      "rationale": "MetricDefinition.formula + MetricResult.formula populated; catalog validation required field."
+    },
+    {
+      "id": "dod:b0a84f2617f9",
+      "line": 1396,
+      "text": "Todo indicador possui denominador.",
+      "authorized": true,
+      "rationale": "denominator_policy on every definition; MetricResult.denominator on ready/not_ready results; fixed-universe policy documented."
+    },
+    {
+      "id": "dod:5e52975afc4e",
+      "line": 1397,
+      "text": "Todo indicador possui data de corte.",
+      "authorized": true,
+      "rationale": "as_of_policy on every MetricDefinition; CoverageContractReport.as_of is the report cut date (documented policy)."
+    },
+    {
+      "id": "dod:1e6afe3503a1",
+      "line": 1398,
+      "text": "Todo indicador possui fonte.",
+      "authorized": true,
+      "rationale": "source_policy non-empty for all 6 metrics in METRIC_DEFINITIONS/export."
+    },
+    {
+      "id": "dod:bad43a3382d3",
+      "line": 1399,
+      "text": "Todo indicador possui status de prontidão.",
+      "authorized": true,
+      "rationale": "MetricStatus enum + MetricResult.status via _ready/_not_ready; tests assert READY and NOT_READY statuses."
+    },
+    {
+      "id": "dod:b3a7547e7e36",
+      "line": 1400,
+      "text": "`READY` significa executado e validado.",
+      "authorized": true,
+      "rationale": "READY_SEMANTICS constant + test asserts executed/validated/code-existence-alone language; READY only set in _ready after num/denom provided."
+    },
+    {
+      "id": "dod:c70748809b8a",
+      "line": 1401,
+      "text": "",
+      "authorized": false,
+      "rationale": "Empty orphan checkbox — no claimable requirement. Leave open. Do not flip."
+    }
+  ],
+  "dod_items_summary": {
+    "proven_flip_yes": 7,
+    "left_open_flip_no": 1,
+    "total_slice": 8
+  },
+  "ac_trace": [
+    {
+      "ac": "Each of 8 dod_item_ids proven with evidence or left open",
+      "result": "PASS",
+      "evidence": "7 proven with catalog+tests+pack; 1 empty orphan left open intentionally."
+    },
+    {
+      "ac": "No NOT_APPLICABLE used to hit campaign meta",
+      "result": "PASS",
+      "evidence": "No N/A; orphan left open without false completion."
+    },
+    {
+      "ac": "Independent QA PASS before any [x] flip",
+      "result": "PASS",
+      "evidence": "DOD.md items still [ ]; this review is independent of delivery-engineer; flip authorization listed per item."
+    }
+  ],
+  "decision_summary": "PASS — 7/8 DoD items proven against shipped coverage_contract catalog APIs and tests that call them; empty orphan L1401 must stay open. Low residual debt only."
+}

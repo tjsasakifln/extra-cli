@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "indicator_count": 6,
+  "definitions": 6,
+  "ready_semantics": "READY means the metric was executed against current inputs and validated (numerator/denominator/pct computed or explicitly unavailable fields set). Code existence alone never yields READY.",
+  "not_ready_semantics": "NOT_READY means the metric could not be computed from available inputs (missing session, incomplete sample, entity-level gap, etc.).",
+  "blocked_semantics": "BLOCKED means computation is impeded by an external or technical dependency (credentials, network, missing source access).",
+  "required_fields": [
+    "definition",
+    "formula",
+    "denominator_policy",
+    "as_of_policy",
+    "source_policy",
+    "readiness_status_on_result"
+  ],
+  "issues": [],
+  "metric_ids": [
+    "entities_with_recent_commercial_signal",
+    "source_mapping_coverage",
+    "operational_source_coverage",
+    "freshness_coverage",
+    "opportunity_recall",
+    "required_field_completeness"
+  ]
+}
