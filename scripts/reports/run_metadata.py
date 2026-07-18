@@ -64,8 +64,8 @@ def _load_profile_version() -> int | str | None:
         from scripts.ops.diagnostic_profile import profile_stamp
 
         return profile_stamp().get("version")
-    except Exception:  # noqa: BLE001 — metadata must still emit
-        pass
+    except Exception:  # noqa: BLE001,S110 — metadata must still emit without hard fail
+        return None
     try:
         import yaml  # type: ignore
     except ImportError:

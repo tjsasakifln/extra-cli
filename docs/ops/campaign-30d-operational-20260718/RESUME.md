@@ -1,39 +1,27 @@
 # RESUME
 
-**Updated:** 2026-07-18T18:02:29.640732+00:00
+**Updated:** 2026-07-18T18:14:40.473963+00:00
 
-## Recovery (FASE 0) — DONE
+## Recovery
+SUCCESS — 12+ commits published; rescue branch; docs/ops/recovery-2026-07-18/
 
-- 12 unpushed commits on `epic/advance-30d-local-ready-20260718` published
-- Rescue branch: `rescue/interrupted-session-20260718-20260718T174132Z`
-- Inventory: `docs/ops/recovery-2026-07-18/`
-- Decision: continue existing epic (do not discard progress)
-
-## Session progress
-
-| Story | QA | DoD |
-|-------|----|-----|
-| ROI-cand-dyn-slice-b8d41f43fbfc (estados/aplicabilidade) | PASS (after FAIL remediação) | +9 |
-| ROI-cand-dyn-slice-b3ea2a2669e1 (convenção evidência) | PASS | +10 |
+## Closed this session
+1. b8d41f requirement_states — QA PASS
+2. b3ea2a evidence_convention — QA PASS  
+3. dd7b diagnostic_profile — QA CONCERNS (8/10 DoD; 2 PARTIAL open)
 
 ## Current
-
-- Epic: `epic/advance-30d-local-ready-20260718` @ `bf8042cf932b5bb4f04ef45fa67886ffe25a94d9`
-- DoD: **368/1354** (remote-known baseline was 92)
-- Next: ranking[0] `cand-dyn-slice:dd7b4910d7f9` STORY_DRAFT
-- Metrics coverage operational: **0/1093 stale snapshot** (not 95%)
-- Gates LOCAL_READY / PRE_VPS / VPS / PROJECT_DONE: **not claimed**
+- Epic `d1ce4a2252b5afe4d4de3fef637291a79c6cbb91`
+- DoD **376/1354**
+- Next: `# Story: [Entregável A — ranking dos órgãos públicos] O sistema gera ranking dos entes do universo que contratam o · O r`
+- PR: https://github.com/tjsasakifln/extra-consultoria/pull/28
 
 ## Next command
-
 ```bash
-cd "/mnt/d/extra consultoria"
-git switch epic/advance-30d-local-ready-20260718
+git switch epic/advance-30d-local-ready-20260718 && git pull --ff-only
 python3 squads/extra-dod-roi/scripts/cli.py status
-# continue: PO Ready for ROI-cand-dyn-slice-dd7b4910d7f9 then implement
-python3 squads/extra-dod-roi/scripts/cli.py force-next  # only if cycle DONE
+# PO Ready ROI-cand-dyn-slice-8d8c11884fa6 → implement → independent QA → PO → merge → force-next
 ```
 
-## Forbidden claims
-
-LOCAL_READY, 95% operational, PRE_VPS_FINAL_READY, PROJECT_DONE, full suite green
+## Forbidden
+LOCAL_READY, 95%, PRE_VPS_FINAL_READY, PROJECT_DONE
