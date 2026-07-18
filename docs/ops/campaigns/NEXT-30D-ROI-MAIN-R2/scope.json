@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
   "frozen_at": "2026-07-18T20:34:29Z",
-  "frozen_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+  "frozen_head": "5dc70009a9d27e42bee229302e163249ade07735",
   "status": "FROZEN_SEED",
   "pert_critical_path_days": 32.0,
   "target_new_business_days": 30.0,
@@ -25,7 +25,7 @@
     {
       "id": "R1",
       "name": "Legacy reconcile delta + commit mig056 WIP",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "duration_days": 1.0,
       "predecessors": [
         "R0"
@@ -41,7 +41,7 @@
     {
       "id": "R2",
       "name": "SmartLic reuse matrix + snapshot bridge scaffold",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "duration_days": 2.0,
       "predecessors": [
         "R0"
@@ -73,7 +73,7 @@
     {
       "id": "N02",
       "name": "Universe reimport hash+zero-dup on main PG",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.0,
       "predecessors": [
         "R1"
@@ -89,7 +89,7 @@
     {
       "id": "N03",
       "name": "Schema audit + migrations green (incl 056)",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 1.5,
       "predecessors": [
         "R1"
@@ -411,5 +411,5 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T20:42:28Z"
+  "updated_at": "2026-07-18T20:44:49Z"
 }

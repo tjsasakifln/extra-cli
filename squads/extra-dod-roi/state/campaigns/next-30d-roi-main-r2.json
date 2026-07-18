@@ -3,7 +3,7 @@
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
   "status": "EXECUTING",
   "created_at": "2026-07-18T20:39:42Z",
-  "updated_at": "2026-07-18T20:39:42Z",
+  "updated_at": "2026-07-18T20:44:49Z",
   "integration_mode": "main-direct",
   "baseline_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
   "baseline_dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
@@ -11,12 +11,38 @@
   "baseline_open_count": 1160,
   "baseline_pct": 14.39,
   "pert_days_target": 30,
-  "pert_days_advanced_new": 0.5,
+  "pert_days_advanced_new": 7.0,
   "pert_critical_path_days": 32.0,
   "scope_frozen": true,
   "prior_campaign": "NEXT-30D-ROI-MAIN",
   "inherited_not_recounted": true,
-  "accepted_increments": [],
+  "accepted_increments": [
+    {
+      "id": "R0",
+      "at": "2026-07-18T20:44:49Z",
+      "qa": "PASS"
+    },
+    {
+      "id": "R1",
+      "at": "2026-07-18T20:44:49Z",
+      "qa": "PASS"
+    },
+    {
+      "id": "R2",
+      "at": "2026-07-18T20:44:49Z",
+      "qa": "PASS"
+    },
+    {
+      "id": "N02",
+      "at": "2026-07-18T20:44:49Z",
+      "qa": "PASS"
+    },
+    {
+      "id": "N03",
+      "at": "2026-07-18T20:44:49Z",
+      "qa": "PASS"
+    }
+  ],
   "paths": {
     "baseline": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/baseline.json",
     "ledger": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/ledger.jsonl",
@@ -29,5 +55,6 @@
     "R2 new session — reconstructed from repo only",
     "R1 inherited flips/PERT not re-counted",
     "Gates remain NOT_READY"
-  ]
+  ],
+  "current_head": "5dc70009a9d27e42bee229302e163249ade07735"
 }

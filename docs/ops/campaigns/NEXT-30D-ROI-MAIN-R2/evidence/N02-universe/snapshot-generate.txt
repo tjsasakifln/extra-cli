@@ -1,0 +1,10 @@
+{
+  "status": "created",
+  "run_id": 1,
+  "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+  "total_rows": 2085,
+  "included_rows": 1093,
+  "excluded_rows": 992,
+  "unresolved_rows": 0,
+  "git_sha": "5dc70009a9d27e42bee229302e163249ade07735"
+}
