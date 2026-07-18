@@ -1285,7 +1285,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Backup possui retenção semanal.
 - [ ] Backup possui integridade verificada.
 - [ ] Falha de backup gera alerta.
-- [ ] Último backup válido é monitorado.
+- [x] Último backup válido é monitorado. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
 - [ ] O backup não é substituído por snapshot do provedor.
 - [ ] O restore foi testado em banco separado.
 - [ ] O restore completo foi testado.
@@ -1330,11 +1330,11 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] HTTP 429 é monitorado. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
 - [x] HTTP 5xx é monitorado. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
 - [x] Timeouts são monitorados. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
-- [ ] Freshness por fonte é monitorada.
-- [ ] Coverage por capability é monitorada.
+- [x] Freshness por fonte é monitorada. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
+- [x] Coverage por capability é monitorada. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
 - [ ] Último backup válido é monitorado.
-- [ ] Falhas de migration são monitoradas.
-- [ ] Timers atrasados são monitorados.
+- [x] Falhas de migration são monitoradas. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
+- [x] Timers atrasados são monitorados. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
 - [ ] Alertas possuem destino configurado.
 - [ ] O destino de alerta foi testado.
 - [ ] O alerta possui contexto suficiente para ação.
