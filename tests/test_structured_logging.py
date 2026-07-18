@@ -52,9 +52,16 @@ def test_log_line_redacts_secrets() -> None:
     )
     logger.info("auth token=sk-abcdefghijklmnopqrstuvwxyz password=hunter2")
     logger.error("DATABASE_URL=postgres://u:p@localhost/extra")
+    jwt = (
+        "Authorization: Bearer "
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+        "eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturepart"
+    )
+    logger.warning(jwt)
     raw = buf.getvalue()
     assert "hunter2" not in raw
     assert "u:p@" not in raw
+    assert "eyJhbGci" not in raw
     assert not contains_secret_leak(raw)
     for line in raw.strip().splitlines():
         rec = json.loads(line)

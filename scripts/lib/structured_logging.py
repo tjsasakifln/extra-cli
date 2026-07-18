@@ -17,13 +17,20 @@ from datetime import UTC, datetime
 from typing import Any
 
 # Patterns that must never appear in cleartext in logs.
+# Order matters: broader Authorization/Bearer headers before shorter token keys.
 _SECRET_PATTERNS: tuple[re.Pattern[str], ...] = (
-    re.compile(r"(?i)(password|passwd|pwd)\s*[:=]\s*\S+"),
-    re.compile(r"(?i)(api[_-]?key|token|secret|authorization)\s*[:=]\s*\S+"),
+    re.compile(
+        r"(?i)(authorization)\s*[:=]\s*bearer\s+[a-z0-9\-._~+/]+=*",
+    ),
     re.compile(r"(?i)bearer\s+[a-z0-9\-._~+/]+=*"),
+    re.compile(r"(?i)(password|passwd|pwd)\s*[:=]\s*\S+"),
+    re.compile(r"(?i)(api[_-]?key|token|secret)\s*[:=]\s*\S+"),
+    re.compile(r"(?i)(authorization)\s*[:=]\s*\S+"),
     re.compile(r"(?i)(postgres|postgresql|mysql|mongodb)://[^\s]+"),
     re.compile(r"(?i)(aws_secret_access_key|private_key)\s*[:=]\s*\S+"),
     re.compile(r"(?i)sk-[a-zA-Z0-9]{20,}"),
+    # Compact JWT (header.payload.sig) — residual after partial Bearer redaction
+    re.compile(r"\beyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\b"),
 )
 
 
