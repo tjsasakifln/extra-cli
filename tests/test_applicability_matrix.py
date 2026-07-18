@@ -57,3 +57,43 @@ def test_write_matrix(tmp_path):
     path = write_matrix(tmp_path, m)
     assert path.is_file()
     assert (tmp_path / "unknown-gaps.json").is_file()
+
+
+def test_complementary_does_not_replace_mandatory():
+    """Guardrail: complementary role never listed as sole mandatory source."""
+    for cap, mandatory in MANDATORY_SOURCES.items():
+        for src in mandatory:
+            from scripts.crawl.registry import lookup
+
+            info = lookup(src)
+            assert info is not None
+            # mandatory sources must be primary role in registry enrichment
+            assert info.role == "primary", (src, info.role)
+        # min combination always includes all mandatory
+        for src in mandatory:
+            assert src in MIN_SOURCE_COMBINATION[cap]
+
+
+def test_blockers_and_unknown_gap_report():
+    entities = [{"cnpj": "1", "esfera": "municipal", "natureza": "pref"}]
+    # force unknown via source with no cfg and no registry capability path
+    m = build_matrix(
+        entities=entities,
+        sources=["pncp", "ciga_ckan"],
+        limit_entities=None,
+        cfg={"version": "test", "sources": {}},
+    )
+    # all unknown when config empty
+    assert m["gate"]["n_unknown_total"] >= 1
+    assert "unknown_gaps" in m
+    assert isinstance(m["blockers"]["by_source"], dict)
+    assert isinstance(m["blockers"]["by_capability"], dict)
+    # necessary unknowns fail gate
+    assert m["gate"]["zero_necessary_unknowns"] is False
+
+
+def test_gate_zero_necessary_unknown_with_pncp_rules():
+    entities = [{"cnpj": "1", "esfera": "municipal", "natureza": "pref"}]
+    m = build_matrix(entities=entities, sources=["pncp", "contracts"], limit_entities=None)
+    assert m["gate"]["zero_necessary_unknowns"] is True
+    assert m["substitution_guard"]["enforced"] is True

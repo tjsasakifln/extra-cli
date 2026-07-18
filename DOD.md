@@ -645,12 +645,12 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] A aplicabilidade possui fonte da decisão. Evidência: decision_source.
 - [x] Entes com múltiplas fontes obrigatórias possuem combinação definida. Evidência: MIN_SOURCE_COMBINATION + MANDATORY_SOURCES.
 - [x] A combinação mínima de fontes é explícita. Evidência: min_source_combination in matrix JSON.
-- [ ] Fontes complementares não substituem silenciosamente fontes obrigatórias.
-- [ ] Bloqueadores por ente são registrados.
-- [ ] Bloqueadores por fonte são registrados.
-- [ ] Bloqueadores por capability são registrados.
-- [ ] Pares `unknown` aparecem em relatório de gaps.
-- [ ] O gate final exige zero pares `unknown` necessários.
+- [x] Fontes complementares não substituem silenciosamente fontes obrigatórias. Evidência: substitution_guard + mandatory role=primary tests.
+- [x] Bloqueadores por ente são registrados. Evidência: blockers.by_entity_sample in matrix.
+- [x] Bloqueadores por fonte são registrados. Evidência: blockers.by_source.
+- [x] Bloqueadores por capability são registrados. Evidência: blockers.by_capability.
+- [x] Pares `unknown` aparecem em relatório de gaps. Evidência: unknown-gaps.json + test empty-cfg.
+- [x] O gate final exige zero pares `unknown` necessários. Evidência: gate.zero_necessary_unknowns + exit code.
 
 ---
 

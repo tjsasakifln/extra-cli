@@ -1,0 +1,12 @@
+{
+  "story_id": "ROI-cand-dyn-slice-9e9b0e165ec5",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-applicability-matrix-b",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:9e9b0e165ec5",
+    "dod_items_flipped": 6
+  }
+}
