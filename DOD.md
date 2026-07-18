@@ -1517,9 +1517,9 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Cada relatório referencia runs de origem. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
 - [x] Cada registro crítico possui provenance. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
 - [x] Mudanças manuais são auditáveis. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
-- [ ] Overrides manuais possuem motivo.
-- [ ] Overrides manuais possuem data.
-- [ ] Overrides manuais possuem autor.
+- [x] Overrides manuais possuem motivo. Evidência: `scripts/lib/manual_override_ledger.py` + `tests/test_manual_override_ledger.py` (3 passed) + QA PASS cyc-2026-07-18T133025Z.
+- [x] Overrides manuais possuem data. Evidência: `scripts/lib/manual_override_ledger.py` + `tests/test_manual_override_ledger.py` (3 passed) + QA PASS cyc-2026-07-18T133025Z.
+- [x] Overrides manuais possuem autor. Evidência: `scripts/lib/manual_override_ledger.py` + `tests/test_manual_override_ledger.py` (3 passed) + QA PASS cyc-2026-07-18T133025Z.
 - [ ] A evidência de coverage pode ser reconstruída.
 - [ ] A evidência de `success_zero` pode ser reconstruída.
 - [ ] A evidência de freshness pode ser reconstruída.
