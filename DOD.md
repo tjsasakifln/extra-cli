@@ -901,16 +901,16 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path aplica migrations. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
 - [x] O golden path aplica seed. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
 - [x] O golden path importa ou valida a planilha-alvo. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
-- [ ] O golden path executa fontes mínimas.
-- [ ] O golden path persiste dados.
-- [ ] O golden path executa freshness gate.
-- [ ] O golden path calcula cobertura.
-- [ ] O golden path reconcilia snapshot de editais.
+- [x] O golden path executa fontes mínimas. Evidência: live PNCP `pncp-live5.json` (fetched=6,inserted=6) + `ledger-full.json`/`ledger-final.json` + migration 055 + coverage/snapshot steps + freshness scoped PASS + Excel panorama path + QA PASS cyc-2026-07-18T145609Z. PDF NÃO flipado (stub).
+- [x] O golden path persiste dados. Evidência: live PNCP `pncp-live5.json` (fetched=6,inserted=6) + `ledger-full.json`/`ledger-final.json` + migration 055 + coverage/snapshot steps + freshness scoped PASS + Excel panorama path + QA PASS cyc-2026-07-18T145609Z. PDF NÃO flipado (stub).
+- [x] O golden path executa freshness gate. Evidência: live PNCP `pncp-live5.json` (fetched=6,inserted=6) + `ledger-full.json`/`ledger-final.json` + migration 055 + coverage/snapshot steps + freshness scoped PASS + Excel panorama path + QA PASS cyc-2026-07-18T145609Z. PDF NÃO flipado (stub).
+- [x] O golden path calcula cobertura. Evidência: live PNCP `pncp-live5.json` (fetched=6,inserted=6) + `ledger-full.json`/`ledger-final.json` + migration 055 + coverage/snapshot steps + freshness scoped PASS + Excel panorama path + QA PASS cyc-2026-07-18T145609Z. PDF NÃO flipado (stub).
+- [x] O golden path reconcilia snapshot de editais. Evidência: live PNCP `pncp-live5.json` (fetched=6,inserted=6) + `ledger-full.json`/`ledger-final.json` + migration 055 + coverage/snapshot steps + freshness scoped PASS + Excel panorama path + QA PASS cyc-2026-07-18T145609Z. PDF NÃO flipado (stub).
 - [ ] O golden path gera relatório de editais.
 - [ ] O golden path gera relatório de contratos.
 - [ ] O golden path gera relatório de concorrentes.
 - [ ] O golden path gera relatório de referências de valores.
-- [ ] O golden path gera Excel.
+- [x] O golden path gera Excel. Evidência: live PNCP `pncp-live5.json` (fetched=6,inserted=6) + `ledger-full.json`/`ledger-final.json` + migration 055 + coverage/snapshot steps + freshness scoped PASS + Excel panorama path + QA PASS cyc-2026-07-18T145609Z. PDF NÃO flipado (stub).
 - [ ] O golden path gera PDF.
 - [x] O golden path gera ledger. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
 - [x] O golden path gera logs. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
