@@ -1,0 +1,13 @@
+{
+  "task": "T05-partial-atomic-close",
+  "status": "DONE_PARTIAL",
+  "note": "Date-window fix + migration 055 (drop hard orgao FK) + live PNCP ingest 1883 bids. Golden path full green deferred for legacy reconciliation pause.",
+  "tests": [
+    "tests/test_crawl_date_window.py 4 passed"
+  ],
+  "db": {
+    "pncp_bids": 1883,
+    "fk_bids_orgao_entity_v2": "dropped"
+  },
+  "at": "2026-07-18T19:56:23Z"
+}

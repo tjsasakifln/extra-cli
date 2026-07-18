@@ -91,10 +91,10 @@ class SourceDef:
 SOURCES: list[SourceDef] = [
     SourceDef(
         name="pncp",
-        essential=False,  # Degradado: API não responde HTTP (TCP OK, servidor mudo)
-        description="PNCP API (degradada — timeout HTTP, usando cache DB)",
-        timeout_s=15,  # Reduzido: API não responde após TLS handshake
-        max_retries=1,
+        essential=True,
+        description="PNCP API (editais abertos — fonte crítica)",
+        timeout_s=180,
+        max_retries=2,
     ),
     SourceDef(
         name="pcp",
@@ -404,19 +404,25 @@ def crawl_source(
             root = str(_PROJECT_ROOT)
             existing = child_env.get("PYTHONPATH", "")
             child_env["PYTHONPATH"] = root if not existing else f"{root}{os.pathsep}{existing}"
+            # PNCP needs a multi-day window (API is sparse per single day).
+            # monitor.py defaults: incremental=7d, full=30d when dates omitted.
+            cmd = [
+                sys.executable,
+                str(_SCRIPTS_DIR / "crawl" / "monitor.py"),
+                "--source",
+                source.name,
+                "--mode",
+                "incremental",  # 7d default window after monitor date-window fix
+                "--dsn",
+                dsn,
+                "--output-json",
+                str(output_json),
+            ]
+            if source.name == "pncp":
+                # Prefer longer timeout path already set on SourceDef; keep mode incremental 7d
+                pass
             result = subprocess.run(  # noqa: S603
-                [
-                    sys.executable,
-                    str(_SCRIPTS_DIR / "crawl" / "monitor.py"),
-                    "--source",
-                    source.name,
-                    "--mode",
-                    "incremental",  # Default: incremental (daily). Full mode too slow (365d crawl)
-                    "--dsn",
-                    dsn,
-                    "--output-json",
-                    str(output_json),
-                ],
+                cmd,
                 cwd=str(_PROJECT_ROOT),
                 capture_output=True,
                 text=True,

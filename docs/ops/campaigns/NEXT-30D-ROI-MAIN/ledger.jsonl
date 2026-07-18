@@ -5,3 +5,4 @@
 {"ts": "2026-07-18T19:27:48Z", "event": "INCREMENT_DONE", "task": "T02", "candidate": "cand-dyn-slice:1e78666e2a21", "qa": "PASS"}
 {"ts": "2026-07-18T19:30:35Z", "event": "QA_CONCERNS", "task": "T02", "ci_wireup": true}
 {"ts": "2026-07-18T19:37:19Z", "event": "INCREMENT_DONE", "task": "T03", "qa": "PASS"}
+{"ts": "2026-07-18T19:56:23Z", "event": "ATOMIC_SLICE_CLOSED", "task": "T05-partial", "pncp_bids": 1883, "next": "LEGACY_RECONCILIATION_PAUSE"}

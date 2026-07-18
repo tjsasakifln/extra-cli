@@ -637,6 +637,41 @@ def _persist_engineering_opportunities(conn: Any, opportunities: list[dict[str, 
 # ---------------------------------------------------------------------------
 
 
+def resolve_crawl_date_window(
+    mode: str,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    *,
+    today: Any | None = None,
+) -> tuple[Any, Any]:
+    """Resolve crawl date window.
+
+    Defaults (when dates omitted):
+    - incremental: last 7 days through today
+    - full: last 30 days through today
+    - smoke: today only
+
+    Explicit date_from/date_to always win. Never collapses full/incremental to a
+    single implicit "today" window (PNCP publication density is day-sparse).
+    """
+    from datetime import date as _date
+    from datetime import timedelta as _timedelta
+
+    today_d = today if today is not None else _date.today()
+    d_to = _date.fromisoformat(date_to) if date_to else today_d
+    if date_from:
+        d_from = _date.fromisoformat(date_from)
+    elif mode == "full":
+        d_from = d_to - _timedelta(days=30)
+    elif mode == "smoke":
+        d_from = d_to
+    else:
+        d_from = d_to - _timedelta(days=7)
+    if d_from > d_to:
+        d_from, d_to = d_to, d_from
+    return d_from, d_to
+
+
 def _crawl_source_via_resilient_pipeline(
     *,
     source: str,
@@ -673,9 +708,8 @@ def _crawl_source_via_resilient_pipeline(
     cfg = cfg.with_execution_mode("live")
     pipeline = OperationalPipeline(cfg, persistence=PostgresPersistence())
     run_id = new_run_id(f"monitor-{wanted}")
-    d_from = _date.fromisoformat(date_from) if date_from else _date.today()
-    d_to = _date.fromisoformat(date_to) if date_to else d_from
-    scope = f"mode={mode}|date={d_from.isoformat()}"
+    d_from, d_to = resolve_crawl_date_window(mode, date_from, date_to)
+    scope = f"mode={mode}|date={d_from.isoformat()}..{d_to.isoformat()}"
     if target:
         scope = f"{scope}|target={target}"
     request = CrawlRequest(
