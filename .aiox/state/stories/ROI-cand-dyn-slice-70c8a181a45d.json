@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-70c8a181a45d",
+  "title": "[23. Observabilidade e alertas] Último backup válido é monitorado. · Alertas possuem destino configurado. · O destino de alerta foi testado. (+5 more)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "STANDARD",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-70c8a181a45d.md",
+  "created_at": "2026-07-18T14:40:59Z",
+  "updated_at": "2026-07-18T14:45:48Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": "1f9660b",
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T144059Z",
+    "candidate_id": "cand-dyn-slice:70c8a181a45d",
+    "roi": 2.0962,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}
