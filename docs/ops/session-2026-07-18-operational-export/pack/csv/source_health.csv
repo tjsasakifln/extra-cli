@@ -1,0 +1,2 @@
+source,n_runs,n_ok,n_fail,n_running,last_started,last_status,success_rate_pct,reliability
+pncp,6,3,1,2,2026-07-18 15:08:40.037768+00:00,completed,50.0,DEGRADED

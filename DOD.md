@@ -942,15 +942,15 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Relatório de completude. Evidência: per-field % + QA.
 - [x] Relatório de coverage. Evidência: presence/signal + operational_strict=0% honest + QA.
 - [x] Relatório de recall. Evidência: status NOT_READY sem gold sample (não 95%) + QA.
-- [ ] Relatório de source health.
-- [ ] Exportação CSV.
-- [ ] Exportação Excel.
-- [ ] Relatório PDF.
-- [ ] Todos os relatórios incluem data de geração.
-- [ ] Todos os relatórios incluem versão do universo.
-- [ ] Todos os relatórios incluem fonte.
-- [ ] Todos os relatórios incluem status de confiabilidade.
-- [ ] Todos os relatórios evitam afirmações não suportadas.
+- [x] Relatório de source health. Evidência: `operational_export_pack` + `source_health.csv` + QA PASS d58f00f868f0.
+- [x] Exportação CSV. Evidência: `pack/csv/*.csv` + metadata.json + QA PASS.
+- [x] Exportação Excel. Evidência: `export-*.xlsx` bytes>0 openpyxl + QA PASS.
+- [x] Relatório PDF. Evidência: `export-*.pdf` reportlab bytes>0 + QA PASS.
+- [x] Todos os relatórios incluem data de geração. Evidência: `generated_at` manifest/excel/pdf + QA PASS.
+- [x] Todos os relatórios incluem versão do universo. Evidência: `universe_version` + QA PASS.
+- [x] Todos os relatórios incluem fonte. Evidência: `source` field + QA PASS.
+- [x] Todos os relatórios incluem status de confiabilidade. Evidência: `reliability` TRUSTED/DEGRADED/UNTRUSTED + QA PASS.
+- [x] Todos os relatórios evitam afirmações não suportadas. Evidência: `claims.forbidden` + PDF “NÃO afirmar” seals + forbidden_phrase_hits=[] + QA PASS d58f00f868f0.
 
 ---
 

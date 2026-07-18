@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-07-18T15:51:14.187579+00:00",
+  "run_id": "ops-export-20260718-155114-a799418e",
+  "universe_version": "sc_public_entities:n=0",
+  "source": "postgresql+ingestion_runs",
+  "reliability": "DEGRADED",
+  "git_sha": "381f9e1",
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "cobertura operacional de 95%",
+    "recall de 95%",
+    "PRE_VPS_FINAL_READY",
+    "PROJECT_DONE",
+    "garantia de vitória"
+  ],
+  "limitations": [],
+  "section": "12.2-export",
+  "artifacts": {
+    "source_health_csv": {
+      "path": "docs/ops/session-2026-07-18-operational-export/pack/csv/source_health.csv",
+      "rows": 1
+    },
+    "editais_csv": {
+      "path": "docs/ops/session-2026-07-18-operational-export/pack/csv/editais_sample.csv",
+      "rows": 8
+    },
+    "excel": {
+      "path": "docs/ops/session-2026-07-18-operational-export/pack/export-ops-export-20260718-155114-a799418e.xlsx",
+      "bytes": 7908
+    },
+    "pdf": {
+      "path": "docs/ops/session-2026-07-18-operational-export/pack/export-ops-export-20260718-155114-a799418e.pdf",
+      "bytes": 2247
+    }
+  },
+  "metadata_fields_present": [
+    "generated_at",
+    "universe_version",
+    "source",
+    "reliability"
+  ],
+  "claims": {
+    "allowed": [
+      "Source health report generated from ingestion_runs",
+      "CSV + Excel + PDF exports with shared metadata",
+      "Unsupported seal claims listed as forbidden"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "cobertura operacional de 95%",
+      "recall de 95%",
+      "PRE_VPS_FINAL_READY",
+      "PROJECT_DONE",
+      "garantia de vitória"
+    ]
+  },
+  "forbidden_phrase_hits_in_manifest": [],
+  "manifest_path": "docs/ops/session-2026-07-18-operational-export/pack/manifest.json"
+}

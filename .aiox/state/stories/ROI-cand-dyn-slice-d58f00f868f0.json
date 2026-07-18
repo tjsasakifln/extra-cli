@@ -1,0 +1,14 @@
+{
+  "story_id": "ROI-cand-dyn-slice-d58f00f868f0",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "po_closed_at": "2026-07-18T15:53:39Z",
+  "publication_authorized": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-operational-export/",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:d58f00f868f0",
+    "dod_items_flipped": 9
+  }
+}

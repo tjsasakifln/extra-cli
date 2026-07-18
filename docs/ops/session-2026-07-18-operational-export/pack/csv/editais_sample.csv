@@ -1,0 +1,15 @@
+pncp_id,objeto_compra,orgao_cnpj,uf,valor_total_estimado,is_active
+TEST-1,obra teste,,SC,,True
+TEST-LIVE-2,pavimentacao,123,SC,1000.00,True
+01599409000139-1-000012/2026,"Contratação de pessoa jurídica especializada para a confecção, personalização e fornecimento, de forma parcelada, de camisetas, camisas e moletons personalizados, destinados ao atendimento das necessidades da Prefeitura Municipal de Capão Alto, suas Secretarias Municipais, escolas da Rede Municipal de Ensino, Fundo Municipal de Saúde e Fundo Municipal de Desenvolvimento Social e Habitação. Os itens deverão ser confeccionados conforme as especificações definidas pela Administração, incluindo personalização com logotipos, brasão do Município e demais elementos institucionais, visando atender às demandas de identificação, campanhas, eventos, projetos e demais ações promovidas pelo Município.",01599409000139,SC,149738.90,True
+10635424000186-1-000149/2026,"Contratação de empresa especializada na prestação de serviços de Outsourcing de Impressão com franquia de cópias mensais, fornecimento de insumos e papel, sistema de bilhetagem, e atendimento especializado em manutenção preventiva e corretiva para o IFC Campus Brusque.",10635424000186,SC,62540.88,True
+82939455000131-1-000113/2026,"Concessão de espaço para exploração remunerada espaço público, destinada praça de alimentação para comercialização de produtos alimentícios, e bebidas durante o FIMUSI 2026, conforme termo de referência e estudo técnico preliminar em anexo.",82939455000131,SC,11700.00,True
+83021808000182-1-000392/2026,"O presente Termo de Referência tem por objeto a aquisição ‘sacochilas’, para atendimento dos atletas no 19º PARAJASC 2026 (Jogos Abertos Paradesportivos de Santa Catarina)",83021808000182,SC,31750.00,True
+83021808000182-1-000393/2026,"Contratação de empresa especializada para prestação de serviços de locação de 
+infraestrutura temporária destinada à realização dos Jogos Abertos Paradesportivos de 
+Santa Catarina – PARAJASC 2026, compreendendo o fornecimento de tendas, mobiliário, 
+gradis, divisórias, arquibancadas, torres de aquecimento e demais estruturas, incluindo 
+transporte, carga e descarga, montagem, instalação, manutenção preventiva e corretiva 
+durante toda a execução, desmontagem e retirada das estruturas, bem como toda a mão 
+de obra, equipamentos e materiais necessários à perfeita execução dos serviços",83021808000182,SC,226208.60,True
+95996187000131-1-000042/2026,"[Portal de Compras Públicas] - Construção de 20 Habitações de Interesse Social (FNHIS Sub 50), programa Minha Casa Minha Vida, conforme projeto, memorial descritivo, termo de referência e planilha orçamentária anexas ao presente edital.",95996187000131,SC,3619814.28,True
