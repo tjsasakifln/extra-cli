@@ -23,6 +23,10 @@ from snapshot_state import collect_snapshot, repo_root_from  # noqa: E402
 from parse_dod import parse_dod  # noqa: E402
 from graph_build import build_default_graph  # noqa: E402
 from score_roi import load_weights, rank_candidates  # noqa: E402
+from generate_candidates import (  # noqa: E402
+    generate_dynamic_candidates,
+    load_campaign_accepted_ids,
+)
 
 
 def _load_story_state(root: Path, story_id: str) -> dict[str, Any] | None:
@@ -103,6 +107,21 @@ def apply_completion_filters(
             ["ROI-cand-golden-path-pncp-health"],
             "ROI-cand-golden-path-pncp-health Done with QA PASS + PO close",
         ),
+        (
+            "cand-quality-gates-evidence",
+            ["ROI-cand-quality-gates-evidence"],
+            "ROI-cand-quality-gates-evidence Done with QA PASS + PO close",
+        ),
+        (
+            "cand-local-backup-restore-proof",
+            ["ROI-cand-local-backup-restore-proof"],
+            "ROI-cand-local-backup-restore-proof Done with QA PASS + PO close",
+        ),
+        (
+            "cand-coverage-m2-multisource-artifacts",
+            ["ROI-cand-coverage-m2-multisource-artifacts"],
+            "ROI-cand-coverage-m2-multisource-artifacts Done with QA PASS + PO close",
+        ),
     ]
     by_id = {c["id"]: c for c in candidates}
     for cand_id, story_ids, reason in rules:
@@ -112,6 +131,17 @@ def apply_completion_filters(
         if all(_story_done(root, sid) for sid in story_ids):
             _mark_completed(c, reason)
             divergences.append(f"Candidate {cand_id} marked COMPLETED: {reason}")
+    # Demote dynamic slices whose dod_item_ids are all already accepted/checked
+    accepted = load_campaign_accepted_ids(root)
+    matrix_done: set[str] = set()
+    # Also demote if every item is already checkbox=true in live matrix (caller may pass)
+    for c in candidates:
+        if c.get("status") != "UNLOCKED":
+            continue
+        ids = c.get("dod_item_ids") or []
+        if ids and all(i in accepted for i in ids):
+            _mark_completed(c, "all dod_item_ids already accepted in campaign ledger or baseline done")
+            divergences.append(f"Candidate {c['id']} marked COMPLETED: campaign ledger accepted")
     # Also: open draft PR for same head branch is not enough alone; story Done is authority
     return [c for c in candidates if c.get("status") == "UNLOCKED"]
 
@@ -586,6 +616,24 @@ def build_candidates(
             "planned_files": [],
         }
     )
+
+    # 7. Dynamic candidates from ALL open DOD checkboxes (section slices)
+    accepted_ids = load_campaign_accepted_ids(root)
+    dyn, dyn_blockers = generate_dynamic_candidates(
+        matrix, root=root, completed_dod_ids=accepted_ids
+    )
+    # Avoid ID collisions with hardcoded candidates
+    existing_ids = {c["id"] for c in candidates}
+    for d in dyn:
+        if d["id"] not in existing_ids:
+            candidates.append(d)
+            existing_ids.add(d["id"])
+    blockers.extend(dyn_blockers[:50])  # cap blocker noise in ranking payload
+    if dyn:
+        divergences.append(
+            f"Dynamic DOD generation produced {len(dyn)} section slices "
+            f"({sum(len(d.get('dod_item_ids') or []) for d in dyn)} open items covered)"
+        )
 
     # Demote finished ROI slices, then only UNLOCKED enter ranking set
     unlocked = apply_completion_filters(root, candidates, divergences)
