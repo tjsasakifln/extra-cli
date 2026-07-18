@@ -1,0 +1,16 @@
+{
+  "cycle_id": "cyc-2026-07-18T133025Z",
+  "story_id": "ROI-cand-dyn-slice-67bcb452c07d",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:31:39Z",
+  "dod_flip_authorized": [
+    "motivo",
+    "data",
+    "autor"
+  ],
+  "left_open": [
+    "reconstruct evidence items"
+  ]
+}
