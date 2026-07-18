@@ -160,14 +160,14 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 2.4 Usuário e forma de uso
 
-- [ ] Tiago é o único usuário obrigatório do sistema.
-- [ ] O fluxo principal pode ser executado sem interface web.
-- [ ] Os comandos principais são claros e documentados.
-- [ ] O sistema não exige conhecimento do código interno para tarefas operacionais recorrentes.
-- [ ] A saída é legível para revisão humana.
-- [ ] Erros são apresentados com causa provável e próximo passo.
-- [ ] O sistema permite repetir uma execução sem criar inconsistência.
-- [ ] O sistema permite retomar uma execução interrompida.
+- [x] Tiago é o único usuário obrigatório do sistema. Evidência: README single-user + `python -m scripts.workspace --help` + `tests/test_cli_main_entrypoints.py` (3 passed) + capability_inventory.
+- [x] O fluxo principal pode ser executado sem interface web. Evidência: README single-user + `python -m scripts.workspace --help` + `tests/test_cli_main_entrypoints.py` (3 passed) + capability_inventory.
+- [x] Os comandos principais são claros e documentados. Evidência: README single-user + `python -m scripts.workspace --help` + `tests/test_cli_main_entrypoints.py` (3 passed) + capability_inventory.
+- [x] O sistema não exige conhecimento do código interno para tarefas operacionais recorrentes. Evidência: README single-user + `python -m scripts.workspace --help` + `tests/test_cli_main_entrypoints.py` (3 passed) + capability_inventory.
+- [ ] A saída é legível para revisão humana. PARTIAL — partially supported by CLI/checkpoints; full ops proof pending.
+- [ ] Erros são apresentados com causa provável e próximo passo. PARTIAL — partially supported by CLI/checkpoints; full ops proof pending.
+- [ ] O sistema permite repetir uma execução sem criar inconsistência. PARTIAL — partially supported by CLI/checkpoints; full ops proof pending.
+- [ ] O sistema permite retomar uma execução interrompida. PARTIAL — partially supported by CLI/checkpoints; full ops proof pending.
 - [ ] O sistema permite identificar quando um dado não é confiável.
 - [ ] O sistema não esconde limitações atrás de scores ou percentuais genéricos.
 
