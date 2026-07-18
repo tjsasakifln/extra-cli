@@ -6,7 +6,7 @@
   "status": "Done",
   "story_file": "docs/stories/ROI-cand-full-suite-schema-debt.md",
   "created_at": "2026-07-17T22:49:49Z",
-  "updated_at": "2026-07-18T02:43:29Z",
+  "updated_at": "2026-07-17T23:07:13Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
   "qa_verdict": "PASS",
@@ -19,7 +19,7 @@
     "squads/extra-dod-roi/tests/test_full_suite_debt_manifest.py",
     "squads/extra-dod-roi/tests/test_squad_smoke.py"
   ],
-  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "reviewed_commit": "b18e6b84eae65c5768e76cd4dbfa04e7f9a5773b",
   "gates": {
     "lint": "NA",
     "typecheck": "NA",
@@ -104,7 +104,5 @@
   "publication_commits": {
     "qa_reviewed": "b18e6b84eae65c5768e76cd4dbfa04e7f9a5773b",
     "po_close_docs": "8aacfd75c8956c8c7139992d943171662ccdeb3f"
-  },
-  "qa_head_sha": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
-  "final_review_note": "Final independent QA recorded at post-canonical commit; meta paths only after content."
+  }
 }

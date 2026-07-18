@@ -6,7 +6,7 @@
   "status": "Done",
   "story_file": "docs/stories/ROI-cand-qa-po-e3-stories.md",
   "created_at": "2026-07-17T22:12:41Z",
-  "updated_at": "2026-07-18T02:43:29Z",
+  "updated_at": "2026-07-17T22:28:02Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
   "qa_verdict": "PASS",
@@ -24,7 +24,7 @@
     "squads/extra-dod-roi/state/qa/B2G-E3.S2-qa.json",
     "squads/extra-dod-roi/state/qa/cyc-2026-07-17T221240Z-qa.json"
   ],
-  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "reviewed_commit": "8e3cee9884b8d5479665bf3020499871ebd37c9f",
   "gates": {
     "lint": "NA",
     "typecheck": "NA",
@@ -61,9 +61,7 @@
       "aligned_by": "@devops (Gage / evidence-release-steward)",
       "aligned_at": "2026-07-17T22:28:02Z",
       "honest_note": "reviewed_commit advanced from QA tip a12190c to PO-close 8e3cee9; product CONCERNS on E3.S1/S2 preserved; no READY seals elevated."
-    },
-    "final_head": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
-    "at": "2026-07-18T02:43:29Z"
+    }
   },
   "qa_review": {
     "reviewer": "Quinn (@qa / adversarial-qa-auditor)",
@@ -131,7 +129,5 @@
     "validated_at": "2026-07-17T22:20:00Z",
     "validator": "@po",
     "notes": "Targets B2G-E3.S1 and B2G-E3.S2 confirmed InReview; must not inflate LOCAL_RESILIENCE_READY or PRE_VPS_FINAL_READY"
-  },
-  "qa_head_sha": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
-  "final_review_note": "Final independent QA recorded at post-canonical commit; meta paths only after content."
+  }
 }
