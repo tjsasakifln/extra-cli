@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-a94b7d79e0a0",
+  "title": "[13.1 Testes unit\u00e1rios] Importa\u00e7\u00e3o idempotente da planilha. \u00b7 Detec\u00e7\u00e3o de novos entes. \u00b7 Detec\u00e7\u00e3o de entes alterados. (+3 more)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-a94b7d79e0a0.md",
+  "created_at": "2026-07-18T13:35:47Z",
+  "updated_at": "2026-07-18T13:38:01Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T133547Z",
+    "candidate_id": "cand-dyn-slice:a94b7d79e0a0",
+    "roi": 2.7848,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}

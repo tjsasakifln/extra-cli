@@ -1,7 +1,7 @@
 {
   "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
-  "updated_at": "2026-07-18T13:35:08.462369+00:00",
-  "slices_completed": 12,
+  "updated_at": "2026-07-18T13:38:01.442691+00:00",
+  "slices_completed": 13,
   "pert_days_claimed": 3.25,
   "metrics_before": {
     "source": "/mnt/d/extra consultoria/output/coverage/contract-report.json",
@@ -83,6 +83,11 @@
       "id": "ROI-cand-dyn-slice-71f21901a039",
       "qa": "PASS",
       "dod_flips": 6
+    },
+    {
+      "id": "ROI-cand-dyn-slice-a94b7d79e0a0",
+      "qa": "PASS",
+      "dod_flips": 4
     }
   ],
   "dod_flips": {
@@ -110,9 +115,10 @@
     "cyc-2026-07-18T132549Z",
     "cyc-2026-07-18T132805Z",
     "cyc-2026-07-18T133025Z",
-    "cyc-2026-07-18T133227Z"
+    "cyc-2026-07-18T133227Z",
+    "cyc-2026-07-18T133547Z"
   ],
-  "current_sha": "8ea2a5fc21b2d1791f0232d3e3572303794c50ca",
+  "current_sha": "a2a97fc153f3aee5338a28e387457c377695f73d",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "dod_after_approx": {
     "checked": 120,
@@ -123,5 +129,9 @@
     "operational coverage still ~0%",
     "7 slices integrated on epic",
     "continue force-next for ranking[0]"
-  ]
+  ],
+  "dod_after": {
+    "checked": 146,
+    "open": 1208
+  }
 }

@@ -1,17 +1,18 @@
 {
-  "at": "2026-07-18T13:27:59.579065+00:00",
+  "at": "2026-07-18T13:35:42.198775+00:00",
   "epic": "epic/advance-30d-local-ready-20260718",
-  "sha": "2e228c132d69db5454901c0f035da0ad56b2c9ee",
+  "sha": "a2a97fc153f3aee5338a28e387457c377695f73d",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "dod_checked": 129,
-  "dod_open": 1225,
-  "slices_completed": 9,
+  "dod_checked": 146,
+  "dod_open": 1208,
+  "slices_completed": 12,
   "local_ready": false,
   "operational_coverage_pct": 0.0,
-  "forbidden_claims": [
+  "claims_forbidden": [
     "LOCAL_READY",
-    "95% operational",
-    "PRE_VPS_FINAL_READY"
+    "95% operational coverage",
+    "PRE_VPS_FINAL_READY",
+    "PROJECT_DONE"
   ],
-  "next": "force-next loop continues"
+  "resume": "python3 squads/extra-dod-roi/scripts/cli.py force-next"
 }

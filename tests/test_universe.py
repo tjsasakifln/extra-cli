@@ -121,3 +121,83 @@ def test_no_negative_metrics() -> None:
     """No coverage metric is negative."""
     assert CANONICAL_UNIVERSE > 0, "CANONICAL_UNIVERSE must be positive"
     assert normalize_cnpj8("") == "", "normalize_cnpj8 of empty must be empty (not negative)"
+
+
+def test_diff_universe_snapshots_detects_new_changed_removed() -> None:
+    from scripts.lib.universe import diff_universe_snapshots
+
+    prev = {
+        "entities": [
+            {
+                "entity_id": "e1",
+                "razao_social": "A",
+                "cnpj8": "12345678",
+                "municipio": "X",
+                "codigo_ibge": "1",
+                "radius_decision": "SIM",
+                "within_radius": True,
+                "identity_key": "k1",
+            },
+            {
+                "entity_id": "e2",
+                "razao_social": "B",
+                "cnpj8": "87654321",
+                "municipio": "Y",
+                "codigo_ibge": "2",
+                "radius_decision": "SIM",
+                "within_radius": True,
+                "identity_key": "k2",
+            },
+        ]
+    }
+    curr = {
+        "entities": [
+            {
+                "entity_id": "e1",
+                "razao_social": "A changed",
+                "cnpj8": "12345678",
+                "municipio": "X",
+                "codigo_ibge": "1",
+                "radius_decision": "SIM",
+                "within_radius": True,
+                "identity_key": "k1",
+            },
+            {
+                "entity_id": "e3",
+                "razao_social": "C",
+                "cnpj8": "11111111",
+                "municipio": "Z",
+                "codigo_ibge": "3",
+                "radius_decision": "SIM",
+                "within_radius": True,
+                "identity_key": "k3",
+            },
+        ]
+    }
+    diff = diff_universe_snapshots(prev, curr)
+    assert diff["new_entity_ids"] == ["e3"]
+    assert diff["removed_entity_ids"] == ["e2"]
+    assert len(diff["changed"]) == 1
+    assert diff["changed"][0]["entity_id"] == "e1"
+    assert diff["idempotent"] is False
+
+
+def test_assert_import_idempotent_same_snapshot() -> None:
+    from scripts.lib.universe import assert_import_idempotent
+
+    snap = {
+        "entities": [
+            {
+                "entity_id": "e1",
+                "razao_social": "A",
+                "cnpj8": "12345678",
+                "municipio": "X",
+                "codigo_ibge": "1",
+                "radius_decision": "SIM",
+                "within_radius": True,
+                "identity_key": "k1",
+            }
+        ]
+    }
+    diff = assert_import_idempotent(snap, snap)
+    assert diff["idempotent"] is True
