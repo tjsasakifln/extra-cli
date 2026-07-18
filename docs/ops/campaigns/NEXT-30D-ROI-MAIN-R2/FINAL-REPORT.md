@@ -2,7 +2,8 @@
 
 **UTC:** 2026-07-18T21:53:40Z  
 **HEAD inicial:** `dc7cea0`  
-**HEAD final:** `79f8cc780a7055ed14e6846504e76e31b63ec2cf`  
+**HEAD final:** `1e681fac36b03b9954d1bbe3c01d166c53da110f`  
+**Nota:** tip de `origin/main` na geração deste relatório (commits só de ponteiro podem avançar o tip).  
 **origin/main:** synced
 
 ## Métricas (linhagem separada)
