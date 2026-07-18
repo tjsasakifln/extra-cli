@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "run_id": "pkg-final-20260718-184742-557ce529",
+  "generated_at": "2026-07-18T18:47:42.062618Z",
+  "artifact_kind": "package_final",
+  "script": "scripts/ops/deliverable_package_final.py",
+  "filters": {
+    "uf": "SC",
+    "is_active": true,
+    "table_primary": "opportunity_intel",
+    "vincendos_horizon_days": 180,
+    "orgao_ranking_uf": "SC",
+    "profile_version": 2,
+    "cut_date": "2026-07-18"
+  },
+  "cutoff": {
+    "as_of_date": "2026-07-18",
+    "data_window": "all_active",
+    "ultima_atualizacao_db": "N/I"
+  },
+  "sample_size": {
+    "opportunity_intel_active": 0,
+    "ranking_go": 0,
+    "ranking_review": 0,
+    "ranking_no_go": 0,
+    "orgaos_sc": 0,
+    "pncp_raw_bids_active": 0,
+    "vincendos_180d": 0,
+    "label": "INSUFFICIENT"
+  },
+  "git_sha": "a4f5e10",
+  "profile_id": "extra_construtora",
+  "profile_version": 2,
+  "dsn_host": "default",
+  "claims": {
+    "allowed": [
+      "Contagens derivadas de opportunity_intel.is_active=true no DSN local.",
+      "Ranking GO/REVIEW/NO_GO conforme coluna ranking (pode ser stub/fixture).",
+      "Ranking de órgãos por volume de editais ativos (UF filtrada quando aplicável).",
+      "Contratos vincendos apenas se pncp_supplier_contracts tiver linhas no horizonte.",
+      "Amostra rotulada INSUFFICIENT/MINIMAL/ADEQUATE — não inventar cobertura %.",
+      "Exibir trust_level TRUSTED|DEGRADED|UNTRUSTED|UNKNOWN",
+      "Percentuais apenas com N e limitações"
+    ],
+    "forbidden": [
+      "Afirmar cobertura 95% ou readiness comercial sem evidence ledger.",
+      "Tratar REVIEW como GO ou esconder sample_size=0.",
+      "Misturar PDF e Excel de runs diferentes sem reconciliação PASS.",
+      "Inferir contratos vincendos a partir de pncp_raw_bids.",
+      "Publicar ranking de órgãos como 'mercado completo SC' com N < 20 editais.",
+      "Ausência de dados como ausência de licitação sem consulta válida",
+      "Vencedores observados como conjunto completo de concorrentes",
+      "Participante não identificado tratado como inexistente",
+      "Win rate sem propostas enviadas no denominador",
+      "Score rotulado como probabilidade sem calibração",
+      "Relatório sem limitações relevantes",
+      "Afirmar que o projeto acompanha obras fisicamente",
+      "Percentual sem denominador N",
+      "Score/percentual sem limitações explícitas",
+      "Dado UNTRUSTED apresentado como pronto para decisão"
+    ]
+  },
+  "data_reliability": {
+    "trust_level": "UNTRUSTED",
+    "reasons": [
+      "sample_n=0 < min=20"
+    ],
+    "limitations": [
+      "sample_size_label=INSUFFICIENT",
+      "Percentuais de cobertura comercial só com N e limitações.",
+      "Amostra insuficiente (N=0); não generalizar percentuais."
+    ],
+    "field_flags": {},
+    "metrics": {
+      "age_hours": null,
+      "freshness_sla_hours": 24.0,
+      "sample_n": 0,
+      "source_health": null,
+      "provenance_ok": null,
+      "query_valid": true,
+      "positive_signals": 1
+    },
+    "is_decision_safe": false
+  },
+  "universe": {
+    "denominator": 1093,
+    "source": "canonical_spreadsheet"
+  },
+  "artifact_path": "pkg-final-20260718-184742-557ce529.xlsx"
+}
