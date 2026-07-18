@@ -1,0 +1,114 @@
+{
+  "status": "OK",
+  "deliverable": "A",
+  "title": "Ranking dos órgãos públicos",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "period": {
+    "inicio": "2025-01-01",
+    "fim": "2025-12-31",
+    "as_of": "2026-07-18"
+  },
+  "sources": [
+    "fixture",
+    "pncp_supplier_contracts"
+  ],
+  "coverage_notes": [
+    "Cobertura operacional do universo NÃO é inferida deste ranking.",
+    "Empty ranking with status=INSUFFICIENT means no contracts/bids in DSN for filters."
+  ],
+  "rows": [
+    {
+      "rank": 1,
+      "orgao": "Prefeitura Demo A",
+      "orgao_cnpj": "00000000000191",
+      "uf": "SC",
+      "qtd_contratacoes": 4,
+      "valor_total": 1200000.0,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 300000.0,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "4 eventos no período (2025-01-01..2025-12-31)",
+      "modalidades": {
+        "pregao_eletronico": 3,
+        "dispensa": 1
+      },
+      "periodo_inicio": "2025-01-01",
+      "periodo_fim": "2025-12-31",
+      "fontes": [
+        "pncp_supplier_contracts"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 0.85,
+      "data_quality_limitation": "data_quality_score=0.85 < 1.0 — ranking may over-represent entes with richer source data; not a pure market measure"
+    },
+    {
+      "rank": 2,
+      "orgao": "Prefeitura Demo B",
+      "orgao_cnpj": "00000000000272",
+      "uf": "SC",
+      "qtd_contratacoes": 0,
+      "valor_total": 0.0,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 0.0,
+      "ticket_medio_formula": "undefined_when_qtd_zero",
+      "frequencia_temporal": "0 eventos no período (2025-01-01..2025-12-31)",
+      "modalidades": {},
+      "periodo_inicio": "2025-01-01",
+      "periodo_fim": "2025-12-31",
+      "fontes": [
+        "pncp_supplier_contracts"
+      ],
+      "consultado": true,
+      "resultado_zero": true,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": ""
+    },
+    {
+      "rank": 3,
+      "orgao": "Autarquia Não Consultada",
+      "orgao_cnpj": "00000000000353",
+      "uf": "SC",
+      "qtd_contratacoes": 0,
+      "valor_total": 0.0,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 0.0,
+      "ticket_medio_formula": "undefined_when_qtd_zero",
+      "frequencia_temporal": "0 eventos no período (2025-01-01..2025-12-31)",
+      "modalidades": {},
+      "periodo_inicio": "2025-01-01",
+      "periodo_fim": "2025-12-31",
+      "fontes": [],
+      "consultado": false,
+      "resultado_zero": false,
+      "data_quality_score": null,
+      "data_quality_limitation": "ente not consulted this run"
+    }
+  ],
+  "zero_vs_not_consulted": {
+    "consulted_with_data": 1,
+    "consulted_zero": 1,
+    "not_consulted": 1,
+    "rule": "resultado_zero only when consultado=true and qtd=0; not_consulted is separate"
+  },
+  "ranking_bias_warning": "Ranking pode favorecer entes com melhor qualidade de dados; data_quality_limitation é obrigatório por linha quando score < 1.0.",
+  "claims_allowed": [
+    "Ranking rows=3 status=OK",
+    "ticket_medio uses explicit formula on same value semantic",
+    "zero vs not_consulted distinguished",
+    "data_quality_limitation when score incomplete"
+  ],
+  "claims_forbidden": [
+    "ESTIMADO presented as CONTRATADO",
+    "Sample N=0 as complete SC market",
+    "Not consulted equals no licitation"
+  ],
+  "generated_at": "2026-07-18T18:16:08Z"
+}
