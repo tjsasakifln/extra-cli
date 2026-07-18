@@ -1,0 +1,153 @@
+{
+  "cycle_id": "cyc-2026-07-18T164226Z",
+  "story_id": "ROI-cand-dyn-slice-a53bdc0173af",
+  "candidate_id": "cand-dyn-slice:a53bdc0173af",
+  "verdict": "CONCERNS",
+  "reviewer": "adversarial-qa-auditor / Quinn (@qa)",
+  "implementer": "delivery-engineer",
+  "reviewed_at": "2026-07-18T17:25:00Z",
+  "reviewed_commit": "1c8e988f084010584e31ac6fa33d3e1be46e17f4",
+  "branch": "extra-roi/cand-dyn-slice-a53bdc0173af",
+  "self_qa": false,
+  "independence": true,
+  "independence_check": "implementer=delivery-engineer ≠ qa=adversarial-qa-auditor; all measure/gate/pytest re-run by QA on live DSN",
+  "dod_md_modified_by_qa": false,
+  "dod_md_flipped_before_qa": false,
+  "process_order": "CORRECT — implementer deferred DoD [x] until independent QA; commit 1c8e988 does not touch DOD.md; L32 and L33 still [ ]",
+  "evidence_pack": "docs/ops/session-2026-07-18-suite-freshness/",
+  "scope_note": "Slice binds 2 DoD items: (1) full suite green LEAVE OPEN; (2) entity-level freshness coverage measurable vs SLA FLIP after QA. Measurement proven on real PostgreSQL (num=0 den=1093 pct=0.0). Does NOT prove operational freshness green, coverage ≥95%, full suite green, LOCAL_READY, or PRE_VPS_FINAL_READY.",
+  "commands_rerun": [
+    {
+      "cmd": "python3 -m pytest tests/test_entity_freshness.py -o addopts='' -q --tb=line",
+      "exit": 0,
+      "notes": "6 passed in 1.31s"
+    },
+    {
+      "cmd": "python3 -m scripts.coverage.entity_freshness --dsn $LOCAL_DATALAKE_DSN --output /tmp/qa-entity-freshness-rerun/",
+      "exit": 0,
+      "notes": "num=0 den=1093 pct=0.0 sla_h=24 status=READY; by_entity/gaps length=1093 with entity_id"
+    },
+    {
+      "cmd": "python3 -m scripts.coverage.entity_freshness --dsn $LOCAL_DATALAKE_DSN --output /tmp/qa-entity-freshness-gate/ --gate --min-pct 95",
+      "exit": 2,
+      "notes": "fail-closed GATE FAIL pct 0.0 < 95.0 — correct"
+    },
+    {
+      "cmd": "psycopg2 SQL: count active raio_200km + entity_coverage",
+      "exit": 0,
+      "notes": "sc_public_entities_total=2085; active_raio_200km=1093; entity_coverage_rows=0; join_universe=1093 — denominator authentic, not gamed"
+    },
+    {
+      "cmd": "git show 1c8e988 --name-only",
+      "exit": 0,
+      "notes": "product: entity_freshness.py + tests + evidence pack + story/state; DOD.md NOT in commit"
+    },
+    {
+      "cmd": "sed -n '32,33p' DOD.md",
+      "exit": 0,
+      "notes": "both items still '- [ ]' (suite + freshness measurable)"
+    }
+  ],
+  "adversarial_falsification": {
+    "measurement_fixture_only": {
+      "attempt": "Claim reporter only uses unit fixtures, not live PG",
+      "result": "FALSIFIED — re-ran CLI against postgresql://…@127.0.0.1:5433/extra_test; den matches live SQL count of is_active∧raio_200km"
+    },
+    "full_suite_green_false_claim": {
+      "attempt": "Claim full suite green to flip dod:b06848ca7f90",
+      "result": "NOT CLAIMED — MANIFEST/proof-matrix LEAVE_OPEN; critical 197 pass/24 skip; collect 2174 only; item stays open"
+    },
+    "sla_met_when_pct_zero": {
+      "attempt": "Claim freshness within SLA when pct=0",
+      "result": "NOT CLAIMED — within_sla_overall=false; by_status never=1093; gate exit 2; claims_forbidden present"
+    },
+    "denominator_gaming": {
+      "attempt": "Shrink denominator to inflate pct",
+      "result": "FALSIFIED — den=1093 full active raio; num=0; pct=0.0 honest worst case; entity_coverage empty not hidden"
+    }
+  },
+  "ac_traceability": {
+    "AC1_suite": {
+      "result": "PASS_LEAVE_OPEN",
+      "evidence": [
+        "docs/ops/session-2026-07-18-suite-freshness/01-critical-readiness.txt",
+        "docs/ops/session-2026-07-18-suite-freshness/collect.txt",
+        "docs/ops/session-2026-07-18-suite-freshness/MANIFEST.md"
+      ],
+      "notes": "Honest inventory; skips not converted to pass; residual full-suite debt remains"
+    },
+    "AC2_entity_freshness": {
+      "result": "PASS_MEASURABLE",
+      "evidence": [
+        "/tmp/qa-entity-freshness-rerun/entity-freshness-report.json",
+        "docs/ops/session-2026-07-18-suite-freshness/entity-freshness-report.json",
+        "tests/test_entity_freshness.py"
+      ],
+      "metric": {
+        "numerator": 0,
+        "denominator": 1093,
+        "pct": 0.0,
+        "sla_hours": 24,
+        "gaps_count": 1093,
+        "entity_level": true
+      },
+      "notes": "Entity-level rollup with entity_id in by_entity/gaps; not source-only freshness_gate"
+    },
+    "AC3_process": {
+      "result": "PASS",
+      "notes": "Independent QA; no NOT_APPLICABLE; DoD checkboxes untouched by implementer"
+    }
+  },
+  "concerns": [
+    {
+      "severity": "medium",
+      "category": "claims_hygiene",
+      "description": "DoD L33 text 'dentro dos SLAs' can be misread as operational freshness green. Measurement is proven; operational pct remains 0.0 (entity_coverage empty).",
+      "recommendation": "When flipping L33, cite evidence pack and explicitly note operational freshness still NOT_READY (pct=0); do not claim coverage ≥95% or freshness SLA met."
+    },
+    {
+      "severity": "low",
+      "category": "operational_debt",
+      "description": "entity_coverage has 0 rows — pipeline does not yet populate last_seen_at for the 1093-entity universe.",
+      "recommendation": "Follow-up story: crawl/coverage writers feeding entity_coverage, then re-measure for operational green."
+    },
+    {
+      "severity": "low",
+      "category": "suite_debt",
+      "description": "Full suite still not green (critical path 24 honest skips; CI Test All skipped historically).",
+      "recommendation": "Keep dod:b06848ca7f90 open until full suite exit 0 with zero unjustified skips."
+    }
+  ],
+  "recommended_dod_actions": [
+    {
+      "id": "dod:b06848ca7f90",
+      "dod_line": 32,
+      "text": "Suíte global completa verde…",
+      "action": "LEAVE_OPEN",
+      "reason": "Full suite not green; critical 197p/24s only; AC1 requires honest leave-open"
+    },
+    {
+      "id": "dod:925f2c0e059a",
+      "dod_line": 33,
+      "text": "Freshness coverage mensurável por entidade dentro dos SLAs.",
+      "action": "FLIP",
+      "reason": "Entity-level measurement on live PG with num/den/pct/SLA/nominal gaps proven (AC2). Flip = measurable capability, NOT operational SLA met.",
+      "evidence": [
+        "docs/ops/session-2026-07-18-suite-freshness/entity-freshness-report.json",
+        "docs/ops/session-2026-07-18-suite-freshness/MANIFEST.md",
+        "squads/extra-dod-roi/state/qa/cyc-2026-07-18T164226Z-qa.json"
+      ]
+    }
+  ],
+  "forbidden_claims_after_close": [
+    "Full suite green",
+    "Operational freshness within SLA / pct≥95",
+    "Cobertura operacional ≥95%",
+    "LOCAL_READY / LOCAL_RESILIENCE_READY",
+    "PRE_VPS_FINAL_READY"
+  ],
+  "gate_decision": "CONCERNS",
+  "story_status_after_qa": "InReview",
+  "next_actor": "po / Pax (PO_CLOSE)",
+  "notes": "CONCERNS not FAIL: all ACs satisfied for measurement + honest suite inventory; residual risk is claim hygiene on DoD flip wording and empty entity_coverage. PO may close and authorize L33 flip with residual notes."
+}
