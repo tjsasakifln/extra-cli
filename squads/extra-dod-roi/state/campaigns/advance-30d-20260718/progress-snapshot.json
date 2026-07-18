@@ -1,14 +1,14 @@
 {
-  "at": "2026-07-18T16:34:45Z",
+  "at": "2026-07-18T16:42:13Z",
   "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
   "status": "IN_PROGRESS",
   "epic": "epic/advance-30d-local-ready-20260718",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "current_sha": "89cf65583167ed7a35211c9618aea3a3e256a4bf",
-  "slices_completed": 45,
+  "current_sha": "7386de180d476058ba9b28bf3476f1d00884d994",
+  "slices_completed": 46,
   "dod": {
-    "checked": 338,
-    "open": 1013,
+    "checked": 345,
+    "open": 1006,
     "baseline_checked": 92
   },
   "metrics": {
@@ -34,5 +34,5 @@
     "PRE_VPS_FINAL_READY",
     "PROJECT_DONE"
   ],
-  "last_slice": "ROI-cand-dyn-slice-639a1d23f738 central config"
+  "last_slice": "ROI-cand-dyn-slice-e845e4e64aba \u00a727 hygiene"
 }

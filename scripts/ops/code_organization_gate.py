@@ -271,10 +271,17 @@ def run_gate(root: Path | None = None) -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="DoD §27 code organization gate")
     p.add_argument("--json", action="store_true")
+    p.add_argument("--dry-run", action="store_true", help="Scan only; skip writing --out")
     p.add_argument("--out", type=Path, default=None)
     args = p.parse_args(argv)
     result = run_gate()
     text = json.dumps(result, indent=2, ensure_ascii=False)
+    if args.dry_run:
+        if args.json:
+            print(text)
+        else:
+            print(f"dry_run ok={result['summary']['ok']}")
+        return 0 if result["summary"]["ok"] else 1
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(text + "\n", encoding="utf-8")

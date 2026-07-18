@@ -1,0 +1,169 @@
+{
+  "generated_at": "2026-07-18T16:39:00.415592+00:00",
+  "metric_definitions": {
+    "n_metrics": 6,
+    "all_required_fields": true,
+    "missing_required": [],
+    "catalog_valid": true,
+    "policy_doc": "docs/ops/METRIC-DEFINITION-POLICY.md",
+    "policy_exists": true,
+    "ok": true
+  },
+  "todos": {
+    "n_todo_like": 4,
+    "n_tracked": 4,
+    "n_fixme_untracked": 0,
+    "n_todo_untracked": 0,
+    "fixme_untracked": [],
+    "todo_untracked_sample": [],
+    "ok": true,
+    "policy": "FIXME/XXX/HACK must reference story/issue; bare TODO inventoried"
+  },
+  "dry_run": {
+    "expected": [
+      "scripts/reports/operational_outputs.py",
+      "scripts/reports/operational_reports.py",
+      "scripts/reports/operational_export_pack.py",
+      "scripts/coverage/applicability_matrix.py",
+      "scripts/ops/alert_pipeline.py",
+      "scripts/ops/centralized_config_audit.py",
+      "scripts/ops/code_organization_gate.py",
+      "scripts/ops/code_hygiene_gate.py"
+    ],
+    "results": [
+      {
+        "path": "scripts/reports/operational_outputs.py",
+        "exists": true,
+        "has_dry_run": true
+      },
+      {
+        "path": "scripts/reports/operational_reports.py",
+        "exists": true,
+        "has_dry_run": true
+      },
+      {
+        "path": "scripts/reports/operational_export_pack.py",
+        "exists": true,
+        "has_dry_run": true
+      },
+      {
+        "path": "scripts/coverage/applicability_matrix.py",
+        "exists": true,
+        "has_dry_run": true
+      },
+      {
+        "path": "scripts/ops/alert_pipeline.py",
+        "exists": true,
+        "has_dry_run": true
+      },
+      {
+        "path": "scripts/ops/centralized_config_audit.py",
+        "exists": true,
+        "has_dry_run": true
+      },
+      {
+        "path": "scripts/ops/code_organization_gate.py",
+        "exists": true,
+        "has_dry_run": true
+      },
+      {
+        "path": "scripts/ops/code_hygiene_gate.py",
+        "exists": true,
+        "has_dry_run": true
+      }
+    ],
+    "missing_dry_run": [],
+    "ok": true
+  },
+  "destructive_safety": {
+    "scripts": [
+      {
+        "path": "scripts/ops/golden_clean_env.py",
+        "risk": "DROP/CREATE database",
+        "require_flag": "--confirm-drop",
+        "rollback": "Restore from backups/local-proof/*.dump or re-run seed",
+        "exists": true,
+        "has_require_flag": true,
+        "rollback_documented": true,
+        "ok": true
+      },
+      {
+        "path": "scripts/backup-database.sh",
+        "risk": "overwrite dump paths",
+        "require_flag": "documented in script / --help",
+        "rollback": "Keep prior dump; do not overwrite without versioned name",
+        "exists": true,
+        "has_require_flag": true,
+        "rollback_documented": true,
+        "ok": true
+      },
+      {
+        "path": "scripts/ops/local_backup_restore_proof.py",
+        "risk": "restore into separate DB",
+        "require_flag": "explicit DSN args",
+        "rollback": "Drop proof DB only; never target production without confirm",
+        "exists": true,
+        "has_require_flag": true,
+        "rollback_documented": true,
+        "ok": true
+      }
+    ],
+    "legacy_plan": {
+      "path": "docs/ops/LEGACY-REMOVAL-PLAN.md",
+      "exists": true,
+      "ok": true
+    },
+    "ok": true
+  },
+  "comments": {
+    "n_hits": 0,
+    "hits": [],
+    "ok": true,
+    "note": "Heuristic only — empty hits does not prove all comments accurate"
+  },
+  "logs_vs_errors": {
+    "policy": "Fail-closed gates (golden_path, coverage_gate, freshness_gate, enforce_aiox_path) must return non-zero exit on failure; logging alone is not success. Former silent excepts now log with exc_info but still do not claim full rethrow.",
+    "fail_closed_scripts": [
+      {
+        "path": "scripts/golden_path.py",
+        "exists": true
+      },
+      {
+        "path": "scripts/coverage_gate.py",
+        "exists": true
+      },
+      {
+        "path": "scripts/freshness_gate.py",
+        "exists": true
+      },
+      {
+        "path": "squads/extra-dod-roi/scripts/enforce_aiox_path.py",
+        "exists": true
+      }
+    ],
+    "ok": true,
+    "status": "PARTIAL_capability_documented"
+  },
+  "legacy_removal_plan": {
+    "path": "docs/ops/LEGACY-REMOVAL-PLAN.md",
+    "exists": true,
+    "ok": true
+  },
+  "summary": {
+    "ok": true
+  },
+  "claims": {
+    "allowed": [
+      "Metric definitions complete in METRIC_DEFINITIONS",
+      "FIXME/XXX/HACK untracked count is zero",
+      "Operational CLIs expose --dry-run",
+      "Destructive scripts require confirm flag + rollback doc",
+      "Legacy removal plan exists"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "all TODOs eliminated",
+      "comments proven globally consistent"
+    ]
+  }
+}

@@ -569,10 +569,29 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dsn", default=os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL"))
     p.add_argument("--out", type=Path, default=Path("output/operational-reports"))
     p.add_argument("--json", action="store_true")
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Build reports in memory; do not write CSV files",
+    )
     args = p.parse_args(argv)
     if not args.dsn:
         print("ERROR: --dsn required", file=sys.stderr)
         return 2
+    if args.dry_run:
+        conn = _conn(args.dsn)
+        try:
+            payload = build_reports(conn)
+        finally:
+            conn.close()
+        summary = {
+            "dry_run": True,
+            "counts": (payload.get("meta") or {}).get("counts"),
+            "limitations": (payload.get("meta") or {}).get("limitations"),
+            "would_write": str(args.out),
+        }
+        print(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
+        return 0
     man = run(args.dsn, args.out)
     if args.json:
         print(json.dumps(man, indent=2, ensure_ascii=False, default=str))

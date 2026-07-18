@@ -320,9 +320,20 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit-entities", type=int, default=50)
     p.add_argument("--json", action="store_true")
     p.add_argument("--full-universe", action="store_true", help="Use all CSV entities (slow)")
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Build matrix in memory; do not write output files",
+    )
     args = p.parse_args(argv)
     limit = None if args.full_universe else args.limit_entities
     matrix = build_matrix(limit_entities=limit)
+    if args.dry_run:
+        slim = {k: matrix[k] for k in matrix if k not in ("decisions",)}
+        slim["dry_run"] = True
+        slim["would_write"] = str(args.out)
+        print(json.dumps(slim, indent=2, ensure_ascii=False, default=str)[:8000])
+        return 0 if matrix["gate"]["zero_necessary_unknowns"] else 1
     path = write_matrix(args.out, matrix)
     slim = {k: matrix[k] for k in matrix if k not in ("decisions",)}
     if args.json:

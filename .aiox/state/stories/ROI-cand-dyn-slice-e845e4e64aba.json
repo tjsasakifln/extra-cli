@@ -1,0 +1,16 @@
+{
+  "story_id": "ROI-cand-dyn-slice-e845e4e64aba",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "qa_notes": "C1 soft destructive on backup/restore; logs_vs_errors PARTIAL left open",
+  "qa_agent": "019f7618-ab78-7462-bc8f-7650c60f1627",
+  "po_closed": true,
+  "po_closed_at": "2026-07-18T16:42:13Z",
+  "publication_authorized": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-code-hygiene/",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:e845e4e64aba",
+    "dod_items_flipped": 7
+  }
+}

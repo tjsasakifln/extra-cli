@@ -1462,15 +1462,15 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Thresholds de coverage são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `.github/workflows/ci.yml`
 - [x] Defaults são documentados. Evidência: constants.py docstrings + coverage_slas + DEVELOPMENT.md commands.
 - [x] Mudanças de schema exigem migration. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `supabase/migrations/001-v2_initial_schema.sql`
-- [ ] Mudanças de métrica exigem atualização da definição.
-- [ ] Código legado possui plano de remoção.
-- [ ] TODOs críticos possuem issue ou story.
-- [ ] Comentários não contradizem o código.
+- [x] Mudanças de métrica exigem atualização da definição. Evidência: `METRIC-DEFINITION-POLICY.md` + `METRIC_DEFINITIONS.required_fields` + hygiene gate + QA CONCERNS e845e4e64aba.
+- [x] Código legado possui plano de remoção. Evidência: `docs/ops/LEGACY-REMOVAL-PLAN.md` (L1–L6) + hygiene gate.
+- [x] TODOs críticos possuem issue ou story. Evidência: hygiene gate FIXME/XXX/HACK untracked=0; bare TODOs tracked com story id.
+- [x] Comentários não contradizem o código. Evidência: heuristic gate n_hits=0 (TODO+DONE same line) + QA.
 - [x] Scripts operacionais possuem `--help`. Evidência: canonical `EXECUTED_PROOF` + `docs/ops/session-2026-07-18-campaign-batch3/ops-help.txt`
 - [x] Scripts operacionais possuem exit codes consistentes. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `docs/ops/session-2026-07-18-campaign-final/ops-universe.json`
-- [ ] Scripts operacionais suportam `--dry-run` quando aplicável.
-- [ ] Scripts destrutivos exigem confirmação ou flag explícita.
-- [ ] Scripts destrutivos possuem backup ou rollback documentado.
+- [x] Scripts operacionais suportam `--dry-run` quando aplicável. Evidência: 8 CLIs inventariados com --dry-run; golden_clean_env --dry-run.
+- [x] Scripts destrutivos exigem confirmação ou flag explícita. Evidência: golden_clean_env --confirm-drop (refuse exit 3) + QA.
+- [x] Scripts destrutivos possuem backup ou rollback documentado. Evidência: LEGACY/DESTRUCTIVE rollback notes in hygiene gate + backup dumps path.
 
 ---
 

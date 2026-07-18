@@ -1502,7 +1502,7 @@ def compute_readiness(
     # statement_timeout via _safe_metric_query() so that a timeout on one
     # metric query does not cascade to the others (transaction isolation).
     #
-    # TODO: Add index on pncp_supplier_contracts(orgao_cnpj) to prevent
+    # TODO(story:ROI-cand-dyn-slice-e845e4e64aba): Add index on pncp_supplier_contracts(orgao_cnpj) to prevent
     # full table scans (3.7M rows). The LIKE e.cnpj_8 || '%' join pattern
     # causes seq scans that trigger statement_timeout.
     import os as _os

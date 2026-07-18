@@ -367,10 +367,35 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dsn", default=os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL"))
     p.add_argument("--out", type=Path, default=Path("output/operational-export"))
     p.add_argument("--json", action="store_true")
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Probe DSN/source health only; skip writing CSV/Excel/PDF",
+    )
     args = p.parse_args(argv)
     if not args.dsn:
         print("ERROR: --dsn required", file=sys.stderr)
         return 2
+    if args.dry_run:
+        conn = _conn(args.dsn)
+        try:
+            health = source_health(conn)
+            uver = universe_version(conn)
+        finally:
+            conn.close()
+        print(
+            json.dumps(
+                {
+                    "dry_run": True,
+                    "universe_version": uver,
+                    "source_health_rows": len(health),
+                    "would_write": str(args.out),
+                },
+                indent=2,
+                default=str,
+            )
+        )
+        return 0
     man = build_pack(args.dsn, args.out)
     if args.json:
         print(json.dumps(man, indent=2, ensure_ascii=False, default=str))

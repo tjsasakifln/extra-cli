@@ -399,7 +399,7 @@ def detect_platform(slug: str, municipio: str = "") -> dict:
                     )
                     return result
 
-        # TODO: Google fallback search
+        # TODO(story:ROI-cand-dyn-slice-e845e4e64aba): Google fallback search
         # spec mentions: site:{municipio}.gov.br transparencia licitacoes
         # Requires external search API — deferred to Phase 2.
 

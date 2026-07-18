@@ -728,10 +728,35 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--stale-hours", type=int, default=DEFAULT_STALE_HOURS)
     p.add_argument("--stuck-running-hours", type=int, default=DEFAULT_STUCK_RUNNING_HOURS)
     p.add_argument("--json", action="store_true")
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Connect and classify only; write nothing under --out",
+    )
     args = p.parse_args(argv)
     if not args.dsn:
         print("ERROR: --dsn or LOCAL_DATALAKE_DSN required", file=sys.stderr)
         return 2
+    if args.dry_run:
+        conn = _conn(args.dsn)
+        try:
+            payload = build_operational_lists(
+                conn,
+                stale_hours=args.stale_hours,
+                stuck_running_hours=args.stuck_running_hours,
+            )
+        finally:
+            conn.close()
+        meta = payload.get("meta") or {}
+        summary = {
+            "dry_run": True,
+            "counts": meta.get("counts"),
+            "ranking_source": meta.get("ranking_source"),
+            "limitations": meta.get("limitations"),
+            "would_write": str(args.out),
+        }
+        print(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
+        return 0
     manifest = run(
         args.dsn,
         args.out,

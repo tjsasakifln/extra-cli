@@ -232,12 +232,42 @@ def main(argv: list[str] | None = None) -> int:
         "--report",
         default=str(REPO / "output" / "golden-path" / "clean-env-report.json"),
     )
+    p.add_argument(
+        "--confirm-drop",
+        action="store_true",
+        help="Required to DROP/CREATE the clean database (destructive).",
+    )
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print plan only; do not drop/create DB or run migrations.",
+    )
     args = p.parse_args(argv)
 
     report: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "steps": {},
+        "dry_run": bool(args.dry_run),
     }
+    if args.dry_run:
+        report["plan"] = {
+            "would_drop_create": args.db_name,
+            "admin_dsn_host": _parts(args.admin_dsn).get("host"),
+            "next": "Re-run with --confirm-drop to execute",
+        }
+        report["ok"] = True
+        Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.report).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps(report, indent=2, default=str)[:2000])
+        return 0
+    if not args.confirm_drop:
+        print(
+            "REFUSING destructive DROP/CREATE without --confirm-drop "
+            f"(db={args.db_name}). Use --dry-run to preview.",
+            file=sys.stderr,
+        )
+        return 3
+
     rec = recreate_db(args.admin_dsn, args.db_name)
     report["steps"]["recreate_db"] = rec
     if not rec["ok"]:
