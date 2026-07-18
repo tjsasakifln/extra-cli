@@ -1,0 +1,18 @@
+Normalização de CNPJ.
+Normalização de coordenadas.
+Cálculo de identidade de ente.
+Cálculo de cobertura.
+Regra de `success_zero`.
+Freshness.
+Paginação.
+Retry.
+Backoff.
+Checkpoint.
+Resume.
+Deduplicação.
+Classificação de status.
+Regras de score.
+Geração de manifest.
+Geração de relatórios.
+O baseline atual de 1.093 entes é confirmado para a versão corrente da planilha.
+Duplicidades legítimas de raiz de CNPJ não são eliminadas indevidamente.

@@ -1,0 +1,85 @@
+{
+  "story_id": "ROI-cand-dod-unit-test-evidence-pack",
+  "title": "Pacote de evidência: reexecutar testes unitários que provam itens DoD §13/§3 (sem falso verde)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "STANDARD",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dod-unit-test-evidence-pack.md",
+  "created_at": "2026-07-17T23:30:21Z",
+  "updated_at": "2026-07-17T23:36:42Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "scope_files": [
+    "docs/ops/session-2026-07-17-dod-unit-evidence/",
+    "DOD.md",
+    "docs/stories/ROI-cand-dod-unit-test-evidence-pack.md",
+    ".aiox/state/stories/ROI-cand-dod-unit-test-evidence-pack.json",
+    "tests/unit/test_dod_unit_evidence_pack.py"
+  ],
+  "reviewed_commit": "7876e838e81b6d59c255f7635c6743cbaddd7ff9",
+  "gates": {
+    "lint": "NA",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "qa_review": {
+    "reviewer": "adversarial-qa-auditor (independent)",
+    "implementer": "delivery-engineer",
+    "independence": true,
+    "reviewed_at": "2026-07-17T23:36:00Z",
+    "reviewed_commit": "7876e838e81b6d59c255f7635c6743cbaddd7ff9",
+    "verdict": "PASS",
+    "gate_file": "squads/extra-dod-roi/state/qa/cyc-2026-07-17T233021Z-qa.json",
+    "gate_yml": "docs/qa/gates/ROI-cand-dod-unit-test-evidence-pack.yml",
+    "summary": "AC1–3 met; pack 511 passed exit 0; spot-check 58 passed; DoD not premature; no 95% claims; steward may flip proposed-flips.txt (20) only",
+    "proposed_flips_authorized": 20,
+    "claims_95": false
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-17T233021Z",
+    "candidate_id": "cand-dod-unit-test-evidence-pack",
+    "roi": 4.5172,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ],
+    "sequence_step": "QA"
+  },
+  "po_validation": {
+    "validated_by": "Pax (@po)",
+    "validated_at": "2026-07-17T23:30:35Z",
+    "verdict": "GO",
+    "score": 9,
+    "notes": [
+      "Map DoD §13/§3 checkboxes to pytest nodeids; re-run offline; mark only proven after independent QA"
+    ]
+  },
+  "dev_implementation": {
+    "pytest": "511 passed, 12 skipped",
+    "proposed_flips": 20,
+    "commits": [
+      "69c5aef feat(roi): DoD unit-test evidence pack 511 passed",
+      "7876e83 fix(test): accept EXIT:0 artifact format in dod unit evidence pack"
+    ]
+  },
+  "po_close": {
+    "closed_by": "Pax (@po)",
+    "closed_at": "2026-07-17T23:36:42Z",
+    "dod_flips": 20
+  }
+}
