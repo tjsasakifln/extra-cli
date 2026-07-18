@@ -182,3 +182,46 @@ Enquanto `NOT_READY`:
 5. Só então: checklist VPS (sem timers até go-live).
 
 **Não** declarar `VPS_OPERATIONAL` nem `PROJECT_DONE`.
+
+---
+
+## 12. Pós-merge revalidação (2026-07-17) — story `ROI-cand-post-merge-truth-gate-honesty`
+
+**Branch:** `extra-roi/cand-post-merge-truth-gate-honesty`  
+**Base:** `main` after PR #12 truth-gate; revalidated 2026-07-18 against main `b2fe1f2` (post #16–#20) (`88b1616` Merge branch `fix/pre-vps-final-truth-gate-20260717` / PR #12 lineage)  
+**Cycle:** `cyc-2026-07-17T220059Z` · candidate `cand-post-merge-truth-gate-honesty`
+
+### 12.1 Offline gate re-run (this session)
+
+| Check | Result |
+|-------|--------|
+| `make pre-vps-final-gate-offline` | **GREEN** (exit 0) |
+| resilience unit/chaos offline | 48 passed, 2 deselected |
+| fixture cycle | `TEST_HEALTHY` exit 0 · claim mechanics-only |
+| `python3 -m scripts.ops.health --env fixture` | exit 0 · `TEST_HEALTHY` |
+| `python3 -m scripts.ops.health --env development` | exit **2** · `no_live_evidence` |
+| ruff + mypy resilience/ops (via gate) | pass |
+
+Log: session scratch `extra-roi-tests-cand-post-merge-truth-gate-honesty.log` (implementer).
+
+### 12.2 Honesty audit (operational + DoD)
+
+| Claim | Status on main |
+|-------|----------------|
+| `LOCAL_RESILIENCE_READY` | **NOT_READY / destroyed** — DOD §44 SUPERSEDED, §45, README, PRE-VPS-* |
+| `PRE_VPS_FINAL_READY` | **NOT_READY** — blocked until live canary + PG evidence |
+| New false-green health path | **Not introduced** — live health still fail-closed without live evidence |
+
+### 12.3 Explicit non-claims (unchanged)
+
+- **No** `LOCAL_RESILIENCE_READY`
+- **No** `PRE_VPS_FINAL_READY`
+- **No** live canary executed this session
+- **No** VPS provision
+- Merge of PR #12 offline/CI truth ≠ operational readiness
+
+### 12.4 Residual note (out of story scope)
+
+Older brownfield narratives (`docs/prd/technical-debt-assessment.md`, `docs/reports/TECHNICAL-DEBT-REPORT.md`, epic-pre-vps-truth) still describe the historical `LOCAL_RESILIENCE_READY` label. Authoritative operational seals remain DOD §44/§45 + `docs/operations/PRE-VPS-*` (**NOT_READY**). Follow-up doc reconcile is a separate ROI candidate if ranked later.
+
+**Veredito pós-merge:** offline gate honest and green; seals remain **NOT_READY**.
