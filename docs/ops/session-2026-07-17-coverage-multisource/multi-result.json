@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-07-18T00:31:42.863619+00:00",
+  "m2_before": 81,
+  "m2_after": 90,
+  "delta": 9,
+  "pct": 8.2342,
+  "claims_95": false,
+  "fan_out_fix": "entity_db_id preferred; registry CNPJ-8 uniqueness required for c8 fallback",
+  "per_source": [
+    {
+      "source": "ciga_dom",
+      "promoted": 2,
+      "error": null,
+      "verified": 2
+    },
+    {
+      "source": "sc_compras",
+      "promoted": 6,
+      "error": null,
+      "verified": 6
+    },
+    {
+      "source": "pncp",
+      "promoted": 1,
+      "error": null,
+      "verified": 1
+    }
+  ],
+  "notes": "org-name + cnpj matching; no sibling fan-out; does not claim 95%"
+}

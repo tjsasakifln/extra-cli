@@ -70,15 +70,20 @@ def _stable_reconciliation_id(
 
 
 def load_latest_crawl_evidence(source: str) -> dict[str, Any] | None:
-    """Load the newest ``evidence.json`` for a crawl source under ``output/``.
+    """Load the newest crawl evidence artifact under ``output/``.
 
+    Accepts ``evidence.json`` or ``artifact.json`` (sc_compras style).
     Returns dict with at least run_id, raw_uri, raw_sha256 when present.
     """
     sub = _SOURCE_OUTPUT_DIRS.get(source) or source
     base = OUTPUT_ROOT / sub
     if not base.is_dir():
         return None
-    candidates = sorted(base.glob("**/evidence.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    candidates = sorted(
+        list(base.glob("**/evidence.json")) + list(base.glob("**/artifact.json")),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
     for path in candidates:
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
@@ -86,13 +91,37 @@ def load_latest_crawl_evidence(source: str) -> dict[str, Any] | None:
             continue
         if not isinstance(data, dict):
             continue
-        run_id = data.get("run_id") or data.get("pipeline_run_id")
-        raw_uri = data.get("output_path") or data.get("raw_uri")
-        raw_sha = data.get("output_hash") or data.get("raw_sha256")
+        run_id = data.get("run_id") or data.get("pipeline_run_id") or data.get("id")
+        raw_uri = (
+            data.get("output_path")
+            or data.get("raw_uri")
+            or data.get("records_path")
+            or data.get("licitacoes_path")
+        )
+        # sibling jsonl next to evidence/artifact
+        if not raw_uri:
+            for name in ("publications.jsonl", "licitacoes.jsonl", "contratacoes.jsonl", "records.jsonl"):
+                sib = path.parent / name
+                if sib.is_file():
+                    raw_uri = str(sib)
+                    break
+        raw_sha = data.get("output_hash") or data.get("raw_sha256") or data.get("records_hash")
+        if not raw_sha and raw_uri:
+            rp = Path(str(raw_uri))
+            if not rp.is_file():
+                rp = PROJECT_ROOT / str(raw_uri)
+            if rp.is_file():
+                h = hashlib.sha256()
+                with rp.open("rb") as fh:
+                    for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+                        h.update(chunk)
+                raw_sha = h.hexdigest()
+        if not run_id:
+            run_id = path.parent.name
         if not run_id or not raw_uri or not raw_sha:
             continue
         # Prefer non-empty outputs
-        counts = data.get("counts_after") or {}
+        counts = data.get("counts_after") or data.get("counts") or {}
         if isinstance(counts, dict) and counts.get("records_written") == 0:
             continue
         return {
@@ -101,7 +130,7 @@ def load_latest_crawl_evidence(source: str) -> dict[str, Any] | None:
             "raw_uri": str(raw_uri),
             "raw_sha256": str(raw_sha),
             "evidence_path": str(path),
-            "completed_at": data.get("completed_at") or data.get("finished_at"),
+            "completed_at": data.get("completed_at") or data.get("finished_at") or data.get("ended_at"),
             "source": source,
             "status": data.get("status"),
             "counts_after": counts,
@@ -256,18 +285,40 @@ def promote_from_pipeline_evidence(
     unmatched = 0
     attempts: list[dict[str, Any]] = []
 
+    # Registry-side uniqueness for CNPJ-8 fallback (prevents sibling fan-out).
+    registry_c8_counts: dict[str, int] = {}
     for rec in records:
         c8 = (rec.cnpj or "")[:8]
-        if not c8 or c8 not in by_cnpj8:
-            continue
-        candidates = by_cnpj8[c8]
-        # CNPJ raiz is not a safe identity when several entities share it.
-        # Ambiguous roots remain in the review queue instead of receiving the
-        # same evidence silently.
-        if len(candidates) != 1:
+        if c8:
+            registry_c8_counts[c8] = registry_c8_counts.get(c8, 0) + 1
+
+    # Index evidence by explicit entity_db_id when present.
+    by_entity_id: dict[str, list[dict[str, Any]]] = {}
+    for er in evidence_rows:
+        eid = er.get("entity_db_id")
+        if eid:
+            by_entity_id.setdefault(str(eid), []).append(er)
+
+    for rec in records:
+        c8 = (rec.cnpj or "")[:8]
+        ev = None
+        # Prefer exact entity_db_id match (offline promote attaches canonical_id).
+        id_hits = by_entity_id.get(rec.canonical_id) or []
+        if len(id_hits) == 1:
+            ev = id_hits[0]
+        elif len(id_hits) > 1:
             unmatched += 1
             continue
-        ev = candidates[0]
+        else:
+            if not c8 or c8 not in by_cnpj8:
+                continue
+            candidates = by_cnpj8[c8]
+            # CNPJ raiz is not a safe identity when several entities OR several
+            # evidence rows share it. Ambiguous roots stay in the review queue.
+            if len(candidates) != 1 or registry_c8_counts.get(c8, 0) != 1:
+                unmatched += 1
+                continue
+            ev = candidates[0]
         last_seen = ev.get("last_seen_at")
         if last_seen is None:
             continue
@@ -493,8 +544,17 @@ def promote_from_crawl_artifacts(
             "dry_run": False,
         }
 
-    # Index jsonl by CNPJ-8; skip ambiguous roots
+    # Index jsonl by CNPJ-8 and by org name (DOM-style without CNPJ)
     by_cnpj: dict[str, list[str]] = {}
+    by_org_name: dict[str, list[str]] = {}
+
+    def _norm_name(s: str) -> str:
+        import unicodedata
+
+        s = unicodedata.normalize("NFKD", s)
+        s = "".join(ch for ch in s if not unicodedata.combining(ch))
+        return " ".join(s.upper().split())
+
     with raw_path.open(encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
@@ -506,22 +566,35 @@ def promote_from_crawl_artifacts(
                 continue
             orgao = row.get("orgaoEntidade") or row.get("orgao") or {}
             cnpj = ""
+            org_name = ""
             if isinstance(orgao, dict):
                 cnpj = str(orgao.get("cnpj") or "")
+                org_name = str(orgao.get("razaoSocial") or orgao.get("nome") or "")
+            elif isinstance(orgao, str):
+                org_name = orgao
             cnpj = cnpj or str(row.get("orgao_cnpj") or row.get("cnpj") or "")
+            org_name = org_name or str(
+                row.get("orgao_razao_social") or row.get("entidade") or row.get("razao_social") or ""
+            )
             digits = "".join(ch for ch in cnpj if ch.isdigit())
             c8 = digits[:8]
-            if len(c8) < 8:
-                continue
             rec_id = (
-                str(row.get("numeroControlePNCP") or row.get("id") or row.get("numero_controle") or "")
+                str(
+                    row.get("numeroControlePNCP")
+                    or row.get("id")
+                    or row.get("codigo")
+                    or row.get("content_hash")
+                    or row.get("pncp_id")
+                    or row.get("numero_controle")
+                    or ""
+                )
                 or f"{c8}:{row.get('anoCompra')}:{row.get('sequencialCompra')}"
             )
-            by_cnpj.setdefault(c8, []).append(rec_id)
-
-    unique_cnpj = {c8: ids for c8, ids in by_cnpj.items() if len(set(ids)) >= 1 and len(by_cnpj[c8]) >= 1}
-    # Ambiguous: multiple distinct orgs share root — still OK if one root maps to many records of same org
-    # We only reject when multiple registry entities share the root (handled below).
+            if len(c8) >= 8:
+                by_cnpj.setdefault(c8, []).append(rec_id)
+            if org_name.strip():
+                by_org_name.setdefault(_norm_name(org_name), []).append(rec_id)
+    unique_cnpj = {c8: ids for c8, ids in by_cnpj.items() if len(ids) >= 1}
 
     completed = art.get("completed_at")
     if isinstance(completed, str):
@@ -536,24 +609,34 @@ def promote_from_crawl_artifacts(
 
     # Build synthetic pipeline evidence rows for unique registry matches
     registry_by_c8: dict[str, list[EntitySourceRecord]] = {}
+    registry_by_name: dict[str, list[EntitySourceRecord]] = {}
     for rec in records:
         c8 = (rec.cnpj or "")[:8]
         if c8:
             registry_by_c8.setdefault(c8, []).append(rec)
+        nm = _norm_name(rec.razao_social or "")
+        if nm:
+            registry_by_name.setdefault(nm, []).append(rec)
 
     fake_rows: list[dict[str, Any]] = []
-    for c8, ids in unique_cnpj.items():
-        regs = registry_by_c8.get(c8) or []
-        if len(regs) != 1:
-            continue  # ambiguous registry root
-        rec = regs[0]
+    seen_canonical: set[str] = set()
+
+    def _append_row(rec: EntitySourceRecord, ids: list[str], match_key: str) -> None:
+        if rec.canonical_id in seen_canonical:
+            return
+        if is_strict_operational(rec):
+            return  # already counted
+        seen_canonical.add(rec.canonical_id)
+        src_list = [source if source != "pncp_sc" else "pncp"]
+        if source == "pncp":
+            src_list = ["pncp"]
         fake_rows.append(
             {
                 "entity_db_id": rec.canonical_id,
-                "cnpj_8": c8,
+                "cnpj_8": (rec.cnpj or "")[:8],
                 "razao_social": rec.razao_social,
                 "municipio": rec.municipio,
-                "sources": [source if source != "pncp_sc" else "pncp", "pncp"],
+                "sources": src_list,
                 "is_covered": True,
                 "last_seen_at": last_seen,
                 "total_bids": len(ids),
@@ -562,6 +645,7 @@ def promote_from_crawl_artifacts(
                 "opp_count": len(ids),
                 "official_act_matches": 0,
                 "normalized_record_ids": ids[:20],
+                "match_key": match_key,
                 "provenance": {
                     "pipeline_run_id": art["pipeline_run_id"],
                     "run_id": art["run_id"],
@@ -577,8 +661,24 @@ def promote_from_crawl_artifacts(
                 },
             }
         )
+
+    for c8, ids in unique_cnpj.items():
+        regs = registry_by_c8.get(c8) or []
+        if len(regs) != 1:
+            continue  # ambiguous registry root
+        _append_row(regs[0], ids, f"cnpj8:{c8}")
         if limit and len(fake_rows) >= limit:
             break
+
+    # Org-name match when CNPJ sparse (ciga_dom / sc_compras) — unique name only
+    if (not limit or len(fake_rows) < limit) and by_org_name:
+        for name_key, ids in by_org_name.items():
+            regs = registry_by_name.get(name_key) or []
+            if len(regs) != 1:
+                continue
+            _append_row(regs[0], ids, f"org_name:{name_key[:40]}")
+            if limit and len(fake_rows) >= limit:
+                break
 
     with _PatchFetch(fake_rows):
         summary = promote_from_pipeline_evidence(
