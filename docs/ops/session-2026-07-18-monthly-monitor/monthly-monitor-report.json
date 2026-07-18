@@ -1,0 +1,412 @@
+{
+  "as_of": "2026-07-18",
+  "cycle_1": {
+    "status": "OK",
+    "deliverable": "STRATEGIC_MONTHLY_MONITOR",
+    "title": "Monitoramento mensal estratégico",
+    "profile": {
+      "profile_path": "config/client_profiles/extra.yaml",
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 2,
+      "version_date": "2026-07-16",
+      "stamp": "extra_construtora@v2"
+    },
+    "cycle": {
+      "cycle_id": "mon-2026-07-w1",
+      "as_of": "2026-07-18",
+      "reused_previous_state": false,
+      "manual_diagnostic_rebuild_required": false,
+      "previous_run_at": null,
+      "window_days": {
+        "min": 90,
+        "max": 180
+      }
+    },
+    "new_editais": [
+      {
+        "edital_id": "ED-001",
+        "titulo": "Reforma escola",
+        "orgao": "Pref. X",
+        "status": "ABERTA",
+        "seen_at": "2026-07-18T18:59:25Z"
+      },
+      {
+        "edital_id": "ED-002",
+        "titulo": "Pavimentação",
+        "orgao": "Pref. Y",
+        "status": "ABERTA",
+        "seen_at": "2026-07-18T18:59:25Z"
+      }
+    ],
+    "status_deltas": [],
+    "expiring_contracts": [
+      {
+        "contract_id": "CT-001",
+        "orgao": "Pref. X",
+        "contratado": "Construtora A",
+        "vigencia_fim": "2026-11-15",
+        "days_to_end": 120,
+        "window": "90-180d"
+      }
+    ],
+    "panorama": {
+      "organs": {
+        "Pref. X": 2,
+        "Pref. Y": 1,
+        "Pref. Z": 1
+      },
+      "winners": {
+        "Construtora A": 1,
+        "Construtora B": 1
+      },
+      "organs_count": 3,
+      "winners_count": 2
+    },
+    "weekly_report": {
+      "periodicity": "weekly",
+      "period_start": "2026-07-13",
+      "period_end": "2026-07-18",
+      "opportunities_new": 2,
+      "status_events": 0,
+      "contracts_entering_window": 1,
+      "items": [
+        {
+          "edital_id": "ED-001",
+          "titulo": "Reforma escola",
+          "orgao": "Pref. X",
+          "status": "ABERTA",
+          "seen_at": "2026-07-18T18:59:25Z"
+        },
+        {
+          "edital_id": "ED-002",
+          "titulo": "Pavimentação",
+          "orgao": "Pref. Y",
+          "status": "ABERTA",
+          "seen_at": "2026-07-18T18:59:25Z"
+        }
+      ],
+      "note": "Relatório de oportunidades com periodicidade formal weekly; não substitui alertas urgentes."
+    },
+    "monthly_report": {
+      "periodicity": "monthly",
+      "period_start": "2026-07-01",
+      "period_end": "2026-07-18",
+      "summary": {
+        "new_editais": 2,
+        "status_deltas": 0,
+        "expiring_contracts": 1,
+        "organs_tracked": 3,
+        "winners_tracked": 2
+      },
+      "metrics": {
+        "editais_total": 2,
+        "contracts_total": 2,
+        "new_editais": 2,
+        "status_deltas": 0,
+        "expiring_in_window": 1,
+        "organs_count": 3,
+        "winners_count": 2
+      },
+      "panorama": {
+        "organs": {
+          "Pref. X": 2,
+          "Pref. Y": 1,
+          "Pref. Z": 1
+        },
+        "winners": {
+          "Construtora A": 1,
+          "Construtora B": 1
+        },
+        "organs_count": 3,
+        "winners_count": 2
+      },
+      "note": "Relatório mensal consolidado; não substitui alertas urgentes."
+    },
+    "variation": {
+      "has_previous": false,
+      "fields": {
+        "contracts_total": {
+          "previous": null,
+          "current": 2,
+          "delta": null
+        },
+        "editais_total": {
+          "previous": null,
+          "current": 2,
+          "delta": null
+        },
+        "expiring_in_window": {
+          "previous": null,
+          "current": 1,
+          "delta": null
+        },
+        "new_editais": {
+          "previous": null,
+          "current": 2,
+          "delta": null
+        },
+        "organs_count": {
+          "previous": null,
+          "current": 3,
+          "delta": null
+        },
+        "status_deltas": {
+          "previous": null,
+          "current": 0,
+          "delta": null
+        },
+        "winners_count": {
+          "previous": null,
+          "current": 2,
+          "delta": null
+        }
+      },
+      "note": "Sem período anterior — primeira execução do ciclo"
+    },
+    "claims_allowed": [
+      "Recurring monitoring cycle reuses watermark/state (no manual rebuild)",
+      "New editais, status deltas, expiring window, panorama from cycle data",
+      "Weekly + monthly reports with period-over-period variation when state exists"
+    ],
+    "claims_forbidden": [
+      "Operational coverage 95%",
+      "LOCAL_READY / PRE_VPS_FINAL_READY / VPS_OPERATIONAL / PROJECT_DONE",
+      "Live freshness guaranteed by fixture-only runs"
+    ],
+    "generated_at": "2026-07-18T18:59:25Z"
+  },
+  "cycle_2": {
+    "status": "OK",
+    "deliverable": "STRATEGIC_MONTHLY_MONITOR",
+    "title": "Monitoramento mensal estratégico",
+    "profile": {
+      "profile_path": "config/client_profiles/extra.yaml",
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 2,
+      "version_date": "2026-07-16",
+      "stamp": "extra_construtora@v2"
+    },
+    "cycle": {
+      "cycle_id": "mon-2026-07-w2",
+      "as_of": "2026-07-18",
+      "reused_previous_state": true,
+      "manual_diagnostic_rebuild_required": false,
+      "previous_run_at": "2026-07-18T18:59:25Z",
+      "window_days": {
+        "min": 90,
+        "max": 180
+      }
+    },
+    "new_editais": [
+      {
+        "edital_id": "ED-003",
+        "titulo": "Drenagem urbana",
+        "orgao": "Pref. W",
+        "status": "ABERTA",
+        "seen_at": "2026-07-18T18:59:25Z"
+      },
+      {
+        "edital_id": "ED-004",
+        "titulo": "Obra cancelada",
+        "orgao": "Pref. Y",
+        "status": "REVOGADA",
+        "seen_at": "2026-07-18T18:59:25Z"
+      }
+    ],
+    "status_deltas": [
+      {
+        "edital_id": "ED-001",
+        "event_type": "SUSPENSAO",
+        "from_status": "ABERTA",
+        "to_status": "SUSPENSA",
+        "prazo_novo": null,
+        "source": "pncp"
+      },
+      {
+        "edital_id": "ED-002",
+        "event_type": "ALTERACAO_PRAZO",
+        "from_status": "ABERTA",
+        "to_status": "ABERTA",
+        "prazo_novo": "2026-09-01",
+        "source": "ciga"
+      },
+      {
+        "edital_id": "ED-004",
+        "event_type": "REVOGACAO",
+        "from_status": null,
+        "to_status": "REVOGADA",
+        "prazo_novo": null,
+        "source": "pncp"
+      }
+    ],
+    "expiring_contracts": [
+      {
+        "contract_id": "CT-001",
+        "orgao": "Pref. X",
+        "contratado": "Construtora A",
+        "vigencia_fim": "2026-11-15",
+        "days_to_end": 120,
+        "window": "90-180d"
+      },
+      {
+        "contract_id": "CT-003",
+        "orgao": "Pref. W",
+        "contratado": "Construtora A",
+        "vigencia_fim": "2026-12-15",
+        "days_to_end": 150,
+        "window": "90-180d"
+      }
+    ],
+    "panorama": {
+      "organs": {
+        "Pref. W": 2,
+        "Pref. X": 2,
+        "Pref. Y": 2,
+        "Pref. Z": 1
+      },
+      "winners": {
+        "Construtora A": 2,
+        "Construtora B": 1
+      },
+      "organs_count": 4,
+      "winners_count": 2
+    },
+    "weekly_report": {
+      "periodicity": "weekly",
+      "period_start": "2026-07-13",
+      "period_end": "2026-07-18",
+      "opportunities_new": 2,
+      "status_events": 3,
+      "contracts_entering_window": 2,
+      "items": [
+        {
+          "edital_id": "ED-003",
+          "titulo": "Drenagem urbana",
+          "orgao": "Pref. W",
+          "status": "ABERTA",
+          "seen_at": "2026-07-18T18:59:25Z"
+        },
+        {
+          "edital_id": "ED-004",
+          "titulo": "Obra cancelada",
+          "orgao": "Pref. Y",
+          "status": "REVOGADA",
+          "seen_at": "2026-07-18T18:59:25Z"
+        }
+      ],
+      "note": "Relatório de oportunidades com periodicidade formal weekly; não substitui alertas urgentes."
+    },
+    "monthly_report": {
+      "periodicity": "monthly",
+      "period_start": "2026-07-01",
+      "period_end": "2026-07-18",
+      "summary": {
+        "new_editais": 2,
+        "status_deltas": 3,
+        "expiring_contracts": 2,
+        "organs_tracked": 4,
+        "winners_tracked": 2
+      },
+      "metrics": {
+        "editais_total": 4,
+        "contracts_total": 3,
+        "new_editais": 2,
+        "status_deltas": 3,
+        "expiring_in_window": 2,
+        "organs_count": 4,
+        "winners_count": 2
+      },
+      "panorama": {
+        "organs": {
+          "Pref. W": 2,
+          "Pref. X": 2,
+          "Pref. Y": 2,
+          "Pref. Z": 1
+        },
+        "winners": {
+          "Construtora A": 2,
+          "Construtora B": 1
+        },
+        "organs_count": 4,
+        "winners_count": 2
+      },
+      "note": "Relatório mensal consolidado; não substitui alertas urgentes."
+    },
+    "variation": {
+      "has_previous": true,
+      "fields": {
+        "contracts_total": {
+          "previous": 2,
+          "current": 3,
+          "delta": 1,
+          "delta_pct": 50.0
+        },
+        "editais_total": {
+          "previous": 2,
+          "current": 4,
+          "delta": 2,
+          "delta_pct": 100.0
+        },
+        "expiring_in_window": {
+          "previous": 1,
+          "current": 2,
+          "delta": 1,
+          "delta_pct": 100.0
+        },
+        "new_editais": {
+          "previous": 2,
+          "current": 2,
+          "delta": 0,
+          "delta_pct": 0.0
+        },
+        "organs_count": {
+          "previous": 3,
+          "current": 4,
+          "delta": 1,
+          "delta_pct": 33.33
+        },
+        "status_deltas": {
+          "previous": 0,
+          "current": 3,
+          "delta": 3,
+          "delta_pct": null
+        },
+        "winners_count": {
+          "previous": 2,
+          "current": 2,
+          "delta": 0,
+          "delta_pct": 0.0
+        }
+      },
+      "note": "Variação vs período anterior a partir do state persistido"
+    },
+    "claims_allowed": [
+      "Recurring monitoring cycle reuses watermark/state (no manual rebuild)",
+      "New editais, status deltas, expiring window, panorama from cycle data",
+      "Weekly + monthly reports with period-over-period variation when state exists"
+    ],
+    "claims_forbidden": [
+      "Operational coverage 95%",
+      "LOCAL_READY / PRE_VPS_FINAL_READY / VPS_OPERATIONAL / PROJECT_DONE",
+      "Live freshness guaranteed by fixture-only runs"
+    ],
+    "generated_at": "2026-07-18T18:59:25Z"
+  },
+  "state_path": "docs/ops/session-2026-07-18-monthly-monitor/cycle-state.json",
+  "proofs": {
+    "no_manual_rebuild": true,
+    "new_editais_detected": true,
+    "status_events": [
+      "ALTERACAO_PRAZO",
+      "REVOGACAO",
+      "SUSPENSAO"
+    ],
+    "expiring_window_count": 2,
+    "panorama_updated": true,
+    "weekly_present": true,
+    "monthly_present": true,
+    "variation_has_previous": true
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "cycle_id": "mon-2026-07-w2",
+  "last_run_at": "2026-07-18T18:59:25Z",
+  "last_edital_ids": [
+    "ED-001",
+    "ED-002",
+    "ED-003",
+    "ED-004"
+  ],
+  "last_contract_ids": [
+    "CT-001",
+    "CT-002",
+    "CT-003"
+  ],
+  "last_status_by_edital": {
+    "ED-001": "SUSPENSA",
+    "ED-002": "ABERTA",
+    "ED-003": "ABERTA",
+    "ED-004": "REVOGADA"
+  },
+  "panorama_organs": {
+    "Pref. W": 2,
+    "Pref. X": 2,
+    "Pref. Y": 2,
+    "Pref. Z": 1
+  },
+  "panorama_winners": {
+    "Construtora A": 2,
+    "Construtora B": 1
+  },
+  "period_metrics": {
+    "editais_total": 4,
+    "contracts_total": 3,
+    "new_editais": 2,
+    "status_deltas": 3,
+    "expiring_in_window": 2,
+    "organs_count": 4,
+    "winners_count": 2
+  }
+}
