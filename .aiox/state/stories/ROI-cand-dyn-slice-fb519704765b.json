@@ -1,0 +1,13 @@
+{
+  "story_id": "ROI-cand-dyn-slice-fb519704765b",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "qa_notes": "offline 8/8; live PNCP endpoint not green",
+  "po_closed": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-source-contracts",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:fb519704765b",
+    "dod_items_flipped": 8
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-07-18T16:16:56.010369+00:00",
+  "live": false,
+  "checks": {
+    "pncp_schema_fixture": {
+      "ok": true,
+      "missing_envelope_keys": [],
+      "items_is_list": true,
+      "missing_item_keys_sample": [],
+      "n_items": 1,
+      "totalPaginas": 1,
+      "numeroPagina": 1,
+      "pagination_ok": true
+    },
+    "pncp_pagination_fixture": {
+      "ok": true,
+      "totalPaginas": 1,
+      "numeroPagina": 1
+    },
+    "pncp_endpoint_offline": {
+      "ok": true,
+      "canonical_url": "https://pncp.gov.br/api/consulta",
+      "note": "offline: registry URL present; use --live for network"
+    },
+    "pcp_endpoint_registry": {
+      "ok": true,
+      "url": "https://www.portaldecompraspublicas.com.br/",
+      "status": "implemented_not_proven"
+    },
+    "pcp_schema_expected": {
+      "ok": true,
+      "note": "PCP is HTML portal; schema = registry capabilities + HTML page presence",
+      "capabilities": [
+        "open_tenders"
+      ]
+    },
+    "compras_gov_endpoint_registry": {
+      "ok": true,
+      "url": "https://www.gov.br/compras/",
+      "status": "implemented_not_proven"
+    },
+    "compras_gov_schema_expected": {
+      "ok": true,
+      "note": "ComprasGov portal/HTML; schema = registry metadata",
+      "capabilities": [
+        "open_tenders"
+      ]
+    },
+    "active_sources_endpoints": {
+      "ok": true,
+      "n_active": 3,
+      "sources": [
+        {
+          "id": "pncp",
+          "url": "https://pncp.gov.br/api/consulta",
+          "ok": true,
+          "role": "primary"
+        },
+        {
+          "id": "ciga_ckan",
+          "url": "https://dados.ciga.sc.gov.br/api/3/action",
+          "ok": true,
+          "role": "primary"
+        },
+        {
+          "id": "sc_compras",
+          "url": "https://www.compras.sc.gov.br/",
+          "ok": true,
+          "role": "primary"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "n_checks": 8,
+    "n_ok": 8,
+    "all_ok": true
+  },
+  "claims": {
+    "allowed": [
+      "Contract suite exercises PNCP schema/pagination fixtures",
+      "Active sources have canonical URLs registered"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "all sources live-validated without --live"
+    ]
+  }
+}

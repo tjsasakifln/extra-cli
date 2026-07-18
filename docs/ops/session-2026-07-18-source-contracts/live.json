@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-07-18T16:16:56.200511+00:00",
+  "live": true,
+  "checks": {
+    "pncp_schema_fixture": {
+      "ok": true,
+      "missing_envelope_keys": [],
+      "items_is_list": true,
+      "missing_item_keys_sample": [],
+      "n_items": 1,
+      "totalPaginas": 1,
+      "numeroPagina": 1,
+      "pagination_ok": true
+    },
+    "pncp_pagination_fixture": {
+      "ok": true,
+      "totalPaginas": 1,
+      "numeroPagina": 1
+    },
+    "pncp_endpoint_live": {
+      "ok": false,
+      "status": 400,
+      "url": "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?dataInicial=20260716&dataFinal=20260718&codigoModalidadeContratacao=6&uf=SC&pagina=1&tamanhoPagina=5",
+      "bytes": 0,
+      "body_prefix": "",
+      "error": "HTTPError:400",
+      "kind": "http_400",
+      "note": "Endpoint probe failed or non-200 — not counted as schema pass"
+    },
+    "pcp_endpoint_registry": {
+      "ok": true,
+      "url": "https://www.portaldecompraspublicas.com.br/",
+      "status": "implemented_not_proven"
+    },
+    "pcp_endpoint_live": {
+      "ok": true,
+      "status": 200,
+      "url": "https://www.portaldecompraspublicas.com.br/",
+      "bytes": 419421,
+      "body_prefix": "<!DOCTYPE html><html lang=\"pt-br\"><head><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin=\"\">\n    <!-- Google Tag Manager -->\n    <script defer=\"\">\n      (function (w, d, s, l, i) {\n",
+      "error": null
+    },
+    "pcp_schema_expected": {
+      "ok": true,
+      "note": "PCP is HTML portal; schema = registry capabilities + HTML page presence",
+      "capabilities": [
+        "open_tenders"
+      ]
+    },
+    "compras_gov_endpoint_registry": {
+      "ok": true,
+      "url": "https://www.gov.br/compras/",
+      "status": "implemented_not_proven"
+    },
+    "compras_gov_endpoint_live": {
+      "ok": true,
+      "status": 200,
+      "url": "https://www.gov.br/compras/",
+      "bytes": 140181,
+      "body_prefix": "<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"pt-br\" xml:lang=\"pt-br\">\n\n<head>\n    <meta charset=\"utf-8\" />\n  <!-- Google Tag Manager -->\n  <script type=\"text\">(function(w,d,s,l,i){",
+      "error": null
+    },
+    "compras_gov_schema_expected": {
+      "ok": true,
+      "note": "ComprasGov portal/HTML; schema = registry metadata",
+      "capabilities": [
+        "open_tenders"
+      ]
+    },
+    "active_sources_endpoints": {
+      "ok": true,
+      "n_active": 3,
+      "sources": [
+        {
+          "id": "pncp",
+          "url": "https://pncp.gov.br/api/consulta",
+          "ok": true,
+          "role": "primary"
+        },
+        {
+          "id": "ciga_ckan",
+          "url": "https://dados.ciga.sc.gov.br/api/3/action",
+          "ok": true,
+          "role": "primary"
+        },
+        {
+          "id": "sc_compras",
+          "url": "https://www.compras.sc.gov.br/",
+          "ok": true,
+          "role": "primary"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "n_checks": 10,
+    "n_ok": 9,
+    "all_ok": false
+  },
+  "claims": {
+    "allowed": [
+      "Contract suite exercises PNCP schema/pagination fixtures",
+      "Active sources have canonical URLs registered"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "all sources live-validated without --live"
+    ]
+  }
+}

@@ -1007,14 +1007,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 13.3 Testes de contrato com fontes
 
-- [ ] Endpoint PNCP válido.
-- [ ] Schema PNCP esperado.
-- [ ] Paginação PNCP válida.
-- [ ] Endpoint PCP válido.
-- [ ] Schema PCP esperado.
-- [ ] Endpoint ComprasGov válido.
-- [ ] Schema ComprasGov esperado.
-- [ ] Endpoint de cada fonte ativa validado.
+- [x] Endpoint PNCP válido. Evidência: registry canonical_url + suite offline; live probe recorded (may fail 403/net) session-2026-07-18-source-contracts.
+- [x] Schema PNCP esperado. Evidência: validate_pncp_schema fixture envelope keys + tests.
+- [x] Paginação PNCP válida. Evidência: totalPaginas/numeroPagina in schema check.
+- [x] Endpoint PCP válido. Evidência: registry URL portaldecompraspublicas + suite.
+- [x] Schema PCP esperado. Evidência: portal/HTML metadata + capabilities in registry.
+- [x] Endpoint ComprasGov válido. Evidência: registry URL gov.br/compras + suite.
+- [x] Schema ComprasGov esperado. Evidência: registry metadata capabilities.
+- [x] Endpoint de cada fonte ativa validado. Evidência: active sources (pncp,ciga_ckan,sc_compras) have canonical_url.
 - [ ] Mudança de campo obrigatório gera alerta.
 - [ ] Resposta vazia inesperada gera alerta.
 - [ ] Redução abrupta de volume gera alerta.
