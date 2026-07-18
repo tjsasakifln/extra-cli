@@ -59,16 +59,16 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 
 ### Estados, aplicabilidade e bloqueio
 
-- [ ] Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado.
+- [x] Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado. Evidência: `scripts/ops/requirement_states.py` + `tests/test_requirement_states.py` (10 passed) + QA PASS re-review `docs/ops/session-2026-07-18-requirement-states/QA-VERDICT.md` @ `58d9a83`.
 - [x] Um item só recebe `[x]` após validação e registro de evidência. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`
-- [ ] Implementação parcial é anotada como `PARTIAL`, sem marcar o item como concluído.
-- [ ] Dependência externa pendente é anotada como `BLOCKED`, com responsável, causa e próximo teste.
-- [ ] Um requisito somente pode ser tratado como `NOT_APPLICABLE` quando a própria redação permitir aplicabilidade condicional ou quando houver decisão de escopo registrada por Tiago.
-- [ ] `NOT_APPLICABLE` possui justificativa, data e evidência; não é usado para contornar promessa comercial.
-- [ ] Campo indisponível na fonte é registrado como `SOURCE_UNAVAILABLE` ou `NOT_READY`, nunca como zero e nunca como concluído por conveniência.
-- [ ] Um blocker externo não desaparece do gate; ele permanece visível até resolução ou alteração formal do escopo.
-- [ ] Os gates consideram concluídos apenas itens `DONE` e itens legitimamente `NOT_APPLICABLE`.
-- [ ] O estado de cada requisito pode ser reconstruído sem depender do histórico de uma conversa com agente de IA.
+- [x] Implementação parcial é anotada como `PARTIAL`, sem marcar o item como concluído. Evidência: `make_partial` / `validate_record` + QA PASS `58d9a83`.
+- [x] Dependência externa pendente é anotada como `BLOCKED`, com responsável, causa e próximo teste. Evidência: `make_blocked` + `campaign-state` (53 blockers visíveis) + QA PASS.
+- [x] Um requisito somente pode ser tratado como `NOT_APPLICABLE` quando a própria redação permitir aplicabilidade condicional ou quando houver decisão de escopo registrada por Tiago. Evidência: `NA_BASES` fail-closed + testes + QA PASS.
+- [x] `NOT_APPLICABLE` possui justificativa, data e evidência; não é usado para contornar promessa comercial. Evidência: `validate_not_applicable` + `is_gate_accepted` rejects illegitimate NA + QA PASS.
+- [x] Campo indisponível na fonte é registrado como `SOURCE_UNAVAILABLE` ou `NOT_READY`, nunca como zero e nunca como concluído por conveniência. Evidência: `field_absence_status` + coerce rejects 0/"0"/None + QA PASS.
+- [x] Um blocker externo não desaparece do gate; ele permanece visível até resolução ou alteração formal do escopo. Evidência: `gate_counts` non_accepted for BLOCKED + `campaign_state_report.open_blockers_visible` + QA PASS.
+- [x] Os gates consideram concluídos apenas itens `DONE` e itens legitimamente `NOT_APPLICABLE`. Evidência: `gate_counts` + illegitimate counters + QA PASS.
+- [x] O estado de cada requisito pode ser reconstruído sem depender do histórico de uma conversa com agente de IA. Evidência: `reconstruct()` ledger+DOD inventory (honest scope) + `data/requirement_states/ledger.json` + QA PASS; claims_forbidden document non-1:1 full DOD semantics.
 
 ### Convenção de evidência
 

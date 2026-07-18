@@ -4,9 +4,9 @@
   "mode": "strict",
   "foolproof": true,
   "status": "running",
-  "phase": "STORY_DRAFT",
+  "phase": "PUBLISH",
   "created_at": "2026-07-18T17:25:17Z",
-  "updated_at": "2026-07-18T17:25:17Z",
+  "updated_at": "2026-07-18T17:55:41Z",
   "selected_id": "cand-dyn-slice:b8d41f43fbfc",
   "selected_roi": 1.2261,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
@@ -15,7 +15,7 @@
   "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-b8d41f43fbfc.json",
   "implementer_agent": "delivery-engineer",
   "qa_agent": "adversarial-qa-auditor",
-  "qa_verdict": null,
+  "qa_verdict": "PASS",
   "aiox_sequence_log": [
     {
       "at": "2026-07-18T17:25:17Z",
@@ -58,11 +58,87 @@
           "qa_agent": "adversarial-qa-auditor"
         }
       }
+    },
+    {
+      "at": "2026-07-18T17:47:23Z",
+      "event": "ADVANCE",
+      "phase": "STORY_READY",
+      "detail": {
+        "to": "STORY_READY",
+        "actor": "po-validate",
+        "evidence": {
+          "story_id": "ROI-cand-dyn-slice-b8d41f43fbfc",
+          "po_validated": true,
+          "score": 9
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:47:24Z",
+      "event": "ADVANCE",
+      "phase": "IMPLEMENTING",
+      "detail": {
+        "to": "IMPLEMENTING",
+        "actor": "delivery-engineer",
+        "evidence": {
+          "branch": "extra-roi/cand-dyn-slice-b8d41f43fbfc"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:47:24Z",
+      "event": "ADVANCE",
+      "phase": "IN_REVIEW",
+      "detail": {
+        "to": "IN_REVIEW",
+        "actor": "delivery-engineer",
+        "evidence": {
+          "tests": "12 passed"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:55:41Z",
+      "event": "ADVANCE",
+      "phase": "QA",
+      "detail": {
+        "to": "QA",
+        "actor": "adversarial-qa-auditor",
+        "evidence": {
+          "verdict": "PASS",
+          "reviewed_commit": "58d9a83a5cac663cc8f70c169b5dead85f6eada5"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:55:41Z",
+      "event": "ADVANCE",
+      "phase": "PO_CLOSE",
+      "detail": {
+        "to": "PO_CLOSE",
+        "actor": "po",
+        "evidence": {
+          "po_closed": true,
+          "qa_verdict": "PASS"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:55:41Z",
+      "event": "ADVANCE",
+      "phase": "PUBLISH",
+      "detail": {
+        "to": "PUBLISH",
+        "actor": "devops-evidence",
+        "evidence": {
+          "branch": "extra-roi/cand-dyn-slice-b8d41f43fbfc"
+        }
+      }
     }
   ],
   "abort": null,
   "outcome": null,
-  "next_phase_required": "STORY_READY",
+  "next_phase_required": "RERANK",
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",
     "binding": "data/aiox-binding.yaml",

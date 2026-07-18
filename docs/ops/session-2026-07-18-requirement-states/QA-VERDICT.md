@@ -1,10 +1,12 @@
-# QA Verdict — ROI-cand-dyn-slice-b8d41f43fbfc
+# QA Verdict (re-review) — ROI-cand-dyn-slice-b8d41f43fbfc
 
 | Field | Value |
 |-------|-------|
-| **Verdict** | **FAIL** |
-| **Reviewer** | adversarial-qa-auditor (independent) |
-| **Reviewed commit** | `cb0be3b8304a4b8d6732c3e95c9678d5ac1cec45` |
+| **Verdict** | **PASS** |
+| **Review kind** | Re-review after FAIL remediation |
+| **Previous verdict** | FAIL @ `cb0be3b` |
+| **Reviewer** | Quinn — adversarial-qa-auditor (independent) |
+| **Reviewed commit** | `58d9a83a5cac663cc8f70c169b5dead85f6eada5` |
 | **Branch** | `extra-roi/cand-dyn-slice-b8d41f43fbfc` |
 | **Cycle** | `cyc-2026-07-18T172517Z` |
 | **Candidate** | `cand-dyn-slice:b8d41f43fbfc` |
@@ -17,9 +19,21 @@ Artifact JSON: [`squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-b8d41f43fbfc.j
 
 ## Summary
 
-A biblioteca `scripts/ops/requirement_states.py` implementa uma máquina de estados útil (PARTIAL/BLOCKED/NA/SOURCE_UNAVAILABLE/NOT_READY/DONE) com factories fail-closed e testes unitários alinhados. **Não basta para PASS**: (1) DoD já foi marcado `[x]` antes do QA independente (AC3), (2) `is_gate_accepted()` aceita NA ilegítimo, (3) o ledger é demo (5 registros) — o claim de reconstrução de *cada* requisito é overclaim, (4) a lib **não** está ligada ao gate da campanha.
+Remediação `58d9a83` corrige os HIGH do FAIL anterior. `is_gate_accepted()` e `gate_counts()` passam por `validate_record`; reconstruct declara escopo honesto (ledger + inventário de checkboxes, sem 1:1 semântico com todo o DoD); `campaign-state` mantém 53 blockers visíveis; checkboxes prematuros da seção foram reabertos (`[ ]`), com itens da seção no ledger como **PARTIAL** até QA+PO.
 
-QA **não** alterou código de aplicação nem flipou DoD.
+QA **não** alterou código de aplicação e **não** flipou DoD.
+
+---
+
+## Prior HIGH disposition
+
+| # | Prior issue | Status |
+|---|-------------|--------|
+| 1 | AC3 — flip DoD antes de QA | **FIXED** — seção reaberta (exceto L63 pré-existente) |
+| 2 | `is_gate_accepted()` aceita NA ilegítimo | **FIXED** — usa `validate_record` |
+| 3 | Reconstruct overclaim “cada requisito” | **FIXED** — `claims_forbidden` + coverage note |
+| — | `gate_counts` DONE unchecked (MEDIUM) | **FIXED** |
+| — | coerce `"0"` / `None` (LOW) | **FIXED** |
 
 ---
 
@@ -27,68 +41,55 @@ QA **não** alterou código de aplicação nem flipou DoD.
 
 | AC | Result | Notes |
 |----|--------|-------|
-| AC1 — 7 dod items com evidência ou abertos | **PARTIAL** | Código+testes reais para a política da seção; overclaim em reconstruct-all e enforcement operacional |
-| AC2 — sem NA para meta de campanha | **PASS** | Único NA no ledger é demo multi-tenant fora de escopo §2.3 |
-| AC3 — QA independente PASS antes de qualquer `[x]` | **FAIL** | Seção DOD L62–L71 já `[x]`; story ainda Draft; sem QA prévio |
+| AC1 — 7 dod items com evidência ou abertos | **PASS** | Evidência real (lib+testes+ledger); itens da seção abertos / PARTIAL no ledger (fail-closed correto) |
+| AC2 — sem NA para meta de campanha | **PASS** | Único NA = demo multi-tenant fora de escopo §2.3 |
+| AC3 — QA independente PASS antes de qualquer `[x]` | **PASS** | Flip prematuro revertido; este re-review emite PASS sem `[x]` novo |
 
 ---
 
-## Adversarial falsification
+## Adversarial falsification (required)
 
 | Attack | Outcome |
 |--------|---------|
-| PARTIAL vira aceito? | Bloqueado no path principal (`make_partial` + `gate_counts`) |
-| NA sem justificativa via `is_gate_accepted()`? | **Bug** — retorna `True` |
-| NA sem justificativa via `gate_counts()`? | Bloqueado (illegitimate counter) |
-| Ausência → zero? | Bloqueado para `0`/`0.0`; fraco para `None`/`"0"` |
-| DONE unchecked em `gate_counts`? | **Bug** — conta como accepted |
-| Reconstruct de cada requisito? | **Overclaim** — 5 seeds, sem join 1:1 com 1354 checkboxes |
-| Gates de campanha usam a lib? | **Não integrado** |
-| Flip DoD antes do QA? | **Violado (AC3)** |
+| illegitimate NA → `is_gate_accepted` | **False** (BLOCKED) |
+| unchecked DONE → `gate_counts` accepted | **Not accepted** (`illegitimate_done`) |
+| PARTIAL accepted | **False** / non_accepted |
+| coerce `"0"` / `None` | **Raises** `RequirementStateError` |
+| campaign-state blockers | **53** `open_blockers_visible` |
+| DoD premature `[x]` | **Reverted** — L62, L64–L71 open |
 
 ---
 
-## Issues (ordered)
+## Residual issues (non-blocking)
 
-1. **HIGH / process** — Flip DoD antes de QA independente (AC3).
-2. **HIGH / code** — `is_gate_accepted()` não valida NA legítimo.
-3. **HIGH / requirements** — “estado de cada requisito reconstruível” superestimado.
-4. **MEDIUM / architecture** — lib isolada; campanha não consome.
-5. **MEDIUM / code** — `gate_counts` aceita DONE sem `validate_record`.
-6. **LOW / code** — `is_unchecked_non_accepted` e `coerce_absence_to_zero_forbidden` com buracos.
-7. **LOW / process** — Story ainda Draft no fluxo AIOX.
+1. **MEDIUM / architecture** — lib ainda não é o path principal de `campaign.py` / `dod_process_integrity`; `campaign-state` é superfície fina. Mitigado por `claims_forbidden`. Follow-up opcional.
+2. **LOW / process** — story markdown ainda `Draft` no fluxo AIOX formal.
+3. **LOW / code** — nome `is_unchecked_non_accepted` com semântica dual (funciona; naming confuso).
 
 ---
 
 ## Residual risks
 
-- Callers de `is_gate_accepted()` podem aceitar NA podre.
-- Meta de campanha pode divergir da política da lib.
-- Seção DoD “verde” com enforcement só em unit/demo.
-- Ausência ainda codificável como zero por caminhos não cobertos.
+- Meta operacional da campanha pode divergir da política da lib até wiring futuro (claim proibido documentado).
+- 1354 checkboxes DoD sem estado semântico no ledger — reconstruct **não** alega o contrário.
+- Fechamento AIOX (@po) ainda pendente.
 
 ---
 
 ## Claims
 
-**Allowed:** política unitária PARTIAL≠DONE, BLOCKED visível em `gate_counts`, NA com campos obrigatórios nas factories, ausência tipada SOURCE_UNAVAILABLE/NOT_READY; sem abuso de NA comercial neste seed.
+**Allowed:** política unitária fail-closed (PARTIAL≠DONE, NA validado, DONE validado, ausência≠zero tipada); reconstruct honesto ledger+checkbox inventory; blockers visíveis via `campaign-state`; sem abuso de NA comercial; QA PASS independente pós-remediação.
 
-**Forbidden:** QA PASS pré-flip; gate operacional baseado em `requirement_states`; reconstruct completo de todos os requisitos; LOCAL_READY / PRE_VPS / 95% / PROJECT_DONE.
+**Forbidden:** gate operacional 100% dirigido por este módulo; estado semântico de *cada* checkbox DoD no ledger; LOCAL_READY / PRE_VPS / 95% / VPS / PROJECT_DONE; QA flipou DoD.
 
 ---
 
 ## Decision
 
-**FAIL** — retornar ao @dev.
+**PASS** — prior HIGH fechados; AC3 satisfeito (sem `[x]` prematuro desta slice).
 
-Remediação mínima:
-
-1. Corrigir `is_gate_accepted()` e `gate_counts` (DONE/NA só se `validate_record` limpo).
-2. Reverter ou reabrir checkboxes DoD da seção até re-QA.
-3. Estreitar claim de reconstruct **ou** materializar ledger real.
-4. Integrar na campanha **ou** não alegar enforcement de gate operacional.
-5. Re-submeter a QA independente **antes** de qualquer `[x]`.
+**Next:** @po fecha story; `[x]` DoD só com autorização do PO. Integração campanha = follow-up (não bloqueia este slice).
 
 ---
 
-*Independent adversarial review. Implementer did not author this verdict.*
+*Independent adversarial re-review. Implementer did not author this verdict. QA did not flip DoD.*
