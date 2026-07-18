@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "title": "Ranking de órgãos (next-30d)",
+  "generated_at": "2026-07-18T18:15:11.913496Z",
+  "dsn_host": "127.0.0.1:5433/extra_test",
+  "ranking": {
+    "status": "INSUFFICIENT",
+    "source_table": "pncp_raw_bids",
+    "valor_semantica": "ESTIMADO",
+    "uf_filter": "SC",
+    "limit": 20,
+    "count": 0,
+    "rows": [],
+    "notes": [
+      "pncp_supplier_contracts vazia (0 linhas ativas) — fallback para opportunity_intel / pncp_raw_bids com rótulo ESTIMADO.",
+      "opportunity_intel sem linhas para o filtro — tentando pncp_raw_bids.",
+      "Fonte: pncp_raw_bids.valor_total_estimado (ESTIMADO). NÃO confundir com valor contratado / homologado."
+    ],
+    "claims": {
+      "allowed": [
+        "Ranking de órgãos por contagem/valor com semântica explícita (ESTIMADO).",
+        "Tabela-fonte: pncp_raw_bids."
+      ],
+      "forbidden": [
+        "Afirmar 'mercado completo SC' com amostra pequena.",
+        "Tratar ESTIMADO como CONTRATADO.",
+        "Inferir contratos vincendos a partir de pncp_raw_bids."
+      ]
+    }
+  }
+}

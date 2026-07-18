@@ -1,0 +1,522 @@
+{
+  "at": "2026-07-18T20:10:51Z",
+  "policy": "conservative: PORT_VALIDATED matrix + deliverable/docs unit packs only",
+  "flips": 102,
+  "checked_after": 195,
+  "open_after": 1160,
+  "total": 1355,
+  "pct": 14.4,
+  "items": [
+    {
+      "section": "Estados, aplicabilidade e bloqueio",
+      "core": "um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado.",
+      "line": 62
+    },
+    {
+      "section": "Convenção de evidência",
+      "core": "relatório json, csv, excel, pdf ou markdown gerado pelo sistema;",
+      "line": 79
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o sistema gera ranking dos entes do universo que contratam obras e serviços compatíveis com o perfil",
+      "line": 193
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o ranking informa quantidade de contratações no período.",
+      "line": 194
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o ranking informa valor contratado total.",
+      "line": 195
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o ranking informa ticket médio com semântica explícita.",
+      "line": 196
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o ranking informa frequência temporal de contratação.",
+      "line": 197
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o ranking informa distribuição por modalidade.",
+      "line": 198
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o ranking informa período de análise.",
+      "line": 199
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o ranking informa fontes e cobertura aplicáveis.",
+      "line": 200
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "entes consultados com resultado zero permanecem distinguíveis de entes não consultados.",
+      "line": 201
+    },
+    {
+      "section": "Entregável A — ranking dos órgãos públicos",
+      "core": "o ranking não favorece artificialmente entes com maior qualidade de dados sem alertar essa limitação",
+      "line": 202
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "o sistema consegue selecionar e justificar pelo menos 15 fornecedores vencedores relevantes, quando ",
+      "line": 206
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "a seleção dos 15 possui regra reproduzível e configurável.",
+      "line": 207
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "cada fornecedor possui cnpj ou identidade canônica.",
+      "line": 208
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "cada fornecedor possui quantidade de contratos identificados.",
+      "line": 209
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "cada fornecedor possui valor contratado total.",
+      "line": 210
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "cada fornecedor possui ticket contratado médio.",
+      "line": 211
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "cada fornecedor possui órgãos em que venceu.",
+      "line": 212
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "cada fornecedor possui distribuição geográfica.",
+      "line": 213
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "cada fornecedor possui tipos de objeto em que venceu.",
+      "line": 214
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "deságio só é apresentado quando valor estimado e valor homologado comparáveis estiverem ligados ao m",
+      "line": 215
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "contrato só é chamado de ativo quando houver vigência e status atual suficientes para sustentar a af",
+      "line": 216
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "capacidade operacional disponível de concorrente nunca é afirmada como fato sem evidência; inferênci",
+      "line": 217
+    },
+    {
+      "section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+      "core": "quando não houver 15 concorrentes defensáveis, o relatório declara a insuficiência e apresenta todos",
+      "line": 218
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "o sistema identifica contratos compatíveis com o perfil cuja vigência termina em janela configurável",
+      "line": 222
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "a data de término usada possui fonte e data de verificação.",
+      "line": 223
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "contratos sem data de vigência não entram silenciosamente na lista.",
+      "line": 224
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "prorrogações e aditivos conhecidos atualizam a data efetiva.",
+      "line": 225
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "o sistema distingue vencimento contratual de término estimado.",
+      "line": 226
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "a lista informa órgão, objeto, contratado, valor, início, término e fonte.",
+      "line": 227
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "a probabilidade de relicitação possui metodologia documentada, variáveis observáveis e validação ret",
+      "line": 228
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "na ausência de modelo validado, o sistema usa classificação de evidência ou sinais de relicitação, n",
+      "line": 229
+    },
+    {
+      "section": "Entregável C — contratos vincendos em 90 a 180 dias",
+      "core": "toda previsão apresenta nível de confiança e limitações.",
+      "line": 230
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o sistema produz referências apenas para grupos tecnicamente comparáveis.",
+      "line": 234
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "a regra de comparabilidade por tipo de obra, serviço, unidade, lote, porte, região e período está do",
+      "line": 235
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o painel informa quantidade de observações.",
+      "line": 236
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o painel informa mediana.",
+      "line": 237
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o painel informa percentil 25.",
+      "line": 238
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o painel informa percentil 75.",
+      "line": 239
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o painel informa mínimo e máximo apenas quando úteis e sem ocultar outliers.",
+      "line": 240
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o painel informa evolução temporal quando a amostra permitir.",
+      "line": 241
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o painel identifica se cada valor é estimado, homologado, contratado ou pago.",
+      "line": 242
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "o painel não denomina valores globais heterogêneos como “preço real praticado”.",
+      "line": 243
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "categorias com amostra insuficiente são marcadas como `insufficient_sample`.",
+      "line": 244
+    },
+    {
+      "section": "Entregável D — painel de referências de preços",
+      "core": "critérios de exclusão e tratamento de outliers são reproduzíveis.",
+      "line": 245
+    },
+    {
+      "section": "Pacote final da consultoria",
+      "core": "o sistema gera pdf executivo e planilhas excel a partir do mesmo conjunto de runs.",
+      "line": 261
+    },
+    {
+      "section": "Pacote final da consultoria",
+      "core": "pdf e excel usam a mesma data de corte, universo, filtros e versão do perfil.",
+      "line": 262
+    },
+    {
+      "section": "Pacote final da consultoria",
+      "core": "divergências entre pdf e excel são detectadas automaticamente.",
+      "line": 263
+    },
+    {
+      "section": "Pacote final da consultoria",
+      "core": "o excel contém dados rastreáveis, filtros e abas necessárias à revisão.",
+      "line": 265
+    },
+    {
+      "section": "Pacote final da consultoria",
+      "core": "o pacote inclui sumário executivo, metodologia, universo, cobertura, limitações e anexos de evidênci",
+      "line": 266
+    },
+    {
+      "section": "Pacote final da consultoria",
+      "core": "o pacote inclui material de apoio para reunião de apresentação.",
+      "line": 267
+    },
+    {
+      "section": "Pacote final da consultoria",
+      "core": "afirmações quantitativas no pdf podem ser reconciliadas com linhas ou agregações do excel.",
+      "line": 268
+    },
+    {
+      "section": "Pacote final da consultoria",
+      "core": "o pacote final passa por aceite manual de tiago antes de ser apresentado ao cliente.",
+      "line": 269
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "todo indicador possui definição.",
+      "line": 1394
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "todo indicador possui fórmula.",
+      "line": 1395
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "todo indicador possui denominador.",
+      "line": 1396
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "todo indicador possui data de corte.",
+      "line": 1397
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "todo indicador possui fonte.",
+      "line": 1398
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "todo indicador possui status de prontidão.",
+      "line": 1399
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "`ready` significa executado e validado.",
+      "line": 1400
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "ausência de dados não é chamada de ausência de licitação sem consulta válida.",
+      "line": 1407
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "vencedor conhecido não é chamado de conjunto completo de concorrentes.",
+      "line": 1409
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "participante não identificado não é tratado como inexistente.",
+      "line": 1410
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "win rate não é calculado sem propostas enviadas.",
+      "line": 1411
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "score não é chamado de probabilidade sem calibração.",
+      "line": 1413
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "relatórios exibem limitações relevantes.",
+      "line": 1414
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "nenhum documento afirma que o projeto acompanha obras.",
+      "line": 1415
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "nenhum documento promete capacidade fora do escopo.",
+      "line": 1416
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "readme, prd, dod, manifests e relatórios usam as mesmas definições.",
+      "line": 1417
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "core": "números conflitantes são eliminados ou contextualizados historicamente.",
+      "line": 1418
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "core": "cada execução possui `run_id`.",
+      "line": 1505
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "core": "cada execução possui versão do código.",
+      "line": 1506
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "core": "cada execução possui versão do schema.",
+      "line": 1507
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "core": "cada execução possui hash da planilha.",
+      "line": 1508
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "core": "cada execução possui fonte.",
+      "line": 1509
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "core": "cada execução possui capability.",
+      "line": 1510
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "core": "cada execução possui parâmetros.",
+      "line": 1511
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "core": "cada execução possui período.",
+      "line": 1512
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "readme não confunde alvo futuro com realidade atual.",
+      "line": 1567
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "prd está alinhado ao dod.",
+      "line": 1568
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "adrs vigentes estão identificadas.",
+      "line": 1569
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "adrs revogadas estão identificadas.",
+      "line": 1570
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "existe runbook de rollback.",
+      "line": 1576
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "existe runbook de schema drift.",
+      "line": 1578
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "existe runbook de cobertura abaixo de 95%.",
+      "line": 1579
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "existe glossário.",
+      "line": 1581
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "existe changelog ou histórico equivalente.",
+      "line": 1585
+    },
+    {
+      "section": "31. Documentação operacional",
+      "core": "o próximo passo de desenvolvimento pode ser identificado sem reconstruir todo o contexto.",
+      "line": 1586
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "`dod.md`, readme, prd, adrs, runbooks, código, migrations, testes e artefatos versionados são a font",
+      "line": 1594
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "nenhuma decisão obrigatória existe apenas em histórico de chat, memória de agente, prompt oculto ou ",
+      "line": 1595
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "instruções específicas de ferramenta apenas apontam para documentos canônicos; não criam requisitos ",
+      "line": 1596
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "`claude.md`, `agents.md`, regras do cursor e arquivos equivalentes não se contradizem.",
+      "line": 1597
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "existe um guia canônico de desenvolvimento, como `docs/development.md`, compartilhado por todas as f",
+      "line": 1598
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "`claude.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao claude code.",
+      "line": 1599
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "`agents.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao codex ou agentes",
+      "line": 1600
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "as regras do cursor referenciam o guia canônico e contêm apenas adaptações indispensáveis ao editor.",
+      "line": 1601
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "os três pontos de entrada indicam o mesmo comando de setup, validação e golden path.",
+      "line": 1602
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "os três pontos de entrada indicam os mesmos documentos de escopo, arquitetura e operação.",
+      "line": 1603
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "quando existirem instruções específicas para uma ferramenta, elas funcionam como adaptadores finos e",
+      "line": 1604
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "a remoção de qualquer arquivo específico de claude code, codex ou cursor não elimina requisitos de p",
+      "line": 1605
+    },
+    {
+      "section": "32.1 Fonte canônica de verdade",
+      "core": "em caso de conflito, prevalecem dod, adr vigente, código testado e evidência reproduzível, nessa ord",
+      "line": 1606
+    }
+  ],
+  "classification": "inherited_validated_not_new_pert"
+}

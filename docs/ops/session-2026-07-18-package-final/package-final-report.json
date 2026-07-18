@@ -1,0 +1,183 @@
+{
+  "status": "OK",
+  "deliverable": "PACKAGE_FINAL",
+  "title": "Pacote final da consultoria",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "package": {
+    "run_id": "pkg-final-20260718-184742-7be42155",
+    "pdf_path": "docs/ops/session-2026-07-18-package-final/pack2/pkg-final-20260718-184742-7be42155.pdf",
+    "excel_path": "docs/ops/session-2026-07-18-package-final/pack2/pkg-final-20260718-184742-7be42155.xlsx",
+    "meta": {
+      "schema_version": 1,
+      "run_id": "pkg-final-20260718-184742-7be42155",
+      "generated_at": "2026-07-18T18:47:42.674177Z",
+      "artifact_kind": "package_final",
+      "script": "scripts/ops/deliverable_package_final.py",
+      "filters": {
+        "uf": "SC",
+        "is_active": true,
+        "table_primary": "opportunity_intel",
+        "vincendos_horizon_days": 180,
+        "orgao_ranking_uf": "SC",
+        "profile_version": 2,
+        "cut_date": "2026-07-18"
+      },
+      "cutoff": {
+        "as_of_date": "2026-07-18",
+        "data_window": "all_active",
+        "ultima_atualizacao_db": "N/I"
+      },
+      "sample_size": {
+        "opportunity_intel_active": 0,
+        "ranking_go": 0,
+        "ranking_review": 0,
+        "ranking_no_go": 0,
+        "orgaos_sc": 0,
+        "pncp_raw_bids_active": 0,
+        "vincendos_180d": 0,
+        "label": "INSUFFICIENT"
+      },
+      "git_sha": "a4f5e10",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "dsn_host": "default",
+      "claims": {
+        "allowed": [
+          "Contagens derivadas de opportunity_intel.is_active=true no DSN local.",
+          "Ranking GO/REVIEW/NO_GO conforme coluna ranking (pode ser stub/fixture).",
+          "Ranking de órgãos por volume de editais ativos (UF filtrada quando aplicável).",
+          "Contratos vincendos apenas se pncp_supplier_contracts tiver linhas no horizonte.",
+          "Amostra rotulada INSUFFICIENT/MINIMAL/ADEQUATE — não inventar cobertura %.",
+          "Exibir trust_level TRUSTED|DEGRADED|UNTRUSTED|UNKNOWN",
+          "Percentuais apenas com N e limitações"
+        ],
+        "forbidden": [
+          "Afirmar cobertura 95% ou readiness comercial sem evidence ledger.",
+          "Tratar REVIEW como GO ou esconder sample_size=0.",
+          "Misturar PDF e Excel de runs diferentes sem reconciliação PASS.",
+          "Inferir contratos vincendos a partir de pncp_raw_bids.",
+          "Publicar ranking de órgãos como 'mercado completo SC' com N < 20 editais.",
+          "Ausência de dados como ausência de licitação sem consulta válida",
+          "Vencedores observados como conjunto completo de concorrentes",
+          "Participante não identificado tratado como inexistente",
+          "Win rate sem propostas enviadas no denominador",
+          "Score rotulado como probabilidade sem calibração",
+          "Relatório sem limitações relevantes",
+          "Afirmar que o projeto acompanha obras fisicamente",
+          "Percentual sem denominador N",
+          "Score/percentual sem limitações explícitas",
+          "Dado UNTRUSTED apresentado como pronto para decisão"
+        ]
+      },
+      "data_reliability": {
+        "trust_level": "UNTRUSTED",
+        "reasons": [
+          "sample_n=0 < min=20"
+        ],
+        "limitations": [
+          "sample_size_label=INSUFFICIENT",
+          "Percentuais de cobertura comercial só com N e limitações.",
+          "Amostra insuficiente (N=0); não generalizar percentuais."
+        ],
+        "field_flags": {},
+        "metrics": {
+          "age_hours": null,
+          "freshness_sla_hours": 24.0,
+          "sample_n": 0,
+          "source_health": null,
+          "provenance_ok": null,
+          "query_valid": true,
+          "positive_signals": 1
+        },
+        "is_decision_safe": false
+      },
+      "universe": {
+        "denominator": 1093,
+        "source": "canonical_spreadsheet"
+      }
+    },
+    "pdf_sections": [
+      "sumario_executivo",
+      "metodologia",
+      "universo",
+      "cobertura",
+      "limitacoes",
+      "anexos_evidencia",
+      "apoio_reuniao"
+    ],
+    "excel_sheets": [
+      "Metadados",
+      "Dados",
+      "Filtros",
+      "Cobertura",
+      "Limitacoes"
+    ],
+    "page_estimate": 36,
+    "quantitative_claims": [
+      {
+        "claim": "n_orgaos=2",
+        "excel_ref": "Dados!A:A count-1",
+        "pdf_ref": "sumario_executivo",
+        "reconciled": true
+      },
+      {
+        "claim": "valor_total=3000",
+        "excel_ref": "Dados!B:B sum",
+        "pdf_ref": "sumario_executivo",
+        "reconciled": true
+      }
+    ],
+    "meeting_support": [
+      "agenda_apresentacao.md",
+      "faq_limitacoes.md",
+      "glossario_metricas.md"
+    ]
+  },
+  "reconcile": {
+    "status": "PASS",
+    "same_run_id": true,
+    "same_cut": true,
+    "same_profile": true,
+    "same_filters": true,
+    "divergences": [],
+    "claims_reconciled": [
+      {
+        "claim": "n_orgaos=2",
+        "excel_ref": "Dados!A:A count-1",
+        "pdf_ref": "sumario_executivo",
+        "reconciled": true
+      },
+      {
+        "claim": "valor_total=3000",
+        "excel_ref": "Dados!B:B sum",
+        "pdf_ref": "sumario_executivo",
+        "reconciled": true
+      }
+    ]
+  },
+  "tiago_accept": {
+    "required": true,
+    "status": "PENDING_HUMAN",
+    "owner": "Tiago",
+    "note": "Aceite manual obrigatório antes de apresentação ao cliente — não auto-PASS"
+  },
+  "claims_allowed": [
+    "Same run_id PDF+Excel with shared meta",
+    "Automatic divergence detection",
+    "Package inventory sections + sheets",
+    "Quantitative claims linked to Excel refs"
+  ],
+  "claims_forbidden": [
+    "Present package to client without Tiago accept",
+    "Mismatched run_id/cut/profile between PDF and Excel",
+    "Claim 30-50 pages without evidence volume justification"
+  ],
+  "generated_at": "2026-07-18T18:47:42Z"
+}

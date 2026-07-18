@@ -1,0 +1,22 @@
+{
+  "story_id": "ROI-cand-dyn-slice-5e47929809f6",
+  "generated_at": "2026-07-18T17:21:56.223214+00:00",
+  "acs": [
+    {
+      "id": "AC1-remove-obsolete-skips",
+      "result": "PASS",
+      "notes": "24 obsolete skips deleted; sc_compras 80 passed"
+    },
+    {
+      "id": "AC2-full-suite-green",
+      "result": "LEAVE_OPEN",
+      "notes": "Not claimed"
+    }
+  ],
+  "dod_recommendations": [
+    {
+      "id": "dod:b06848ca7f90",
+      "action": "LEAVE_OPEN"
+    }
+  ]
+}

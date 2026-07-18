@@ -1,0 +1,143 @@
+{
+  "deliverable": "A+E (+C status)",
+  "title": "Ranking de órgãos + stubs GO/REVIEW/NO_GO",
+  "run_metadata": {
+    "schema_version": 1,
+    "run_id": "deliv-ae-20260718-181512-36308f42",
+    "generated_at": "2026-07-18T18:15:12.209385Z",
+    "artifact_kind": "deliverable_a_e",
+    "script": "scripts/reports/deliverable_orgaos_ranking.py",
+    "filters": {
+      "uf": "SC",
+      "is_active": true,
+      "table_primary": "opportunity_intel",
+      "vincendos_horizon_days": 180,
+      "orgao_ranking_uf": "SC"
+    },
+    "cutoff": {
+      "as_of_date": "2026-07-18",
+      "data_window": "all_active",
+      "ultima_atualizacao_db": "N/I"
+    },
+    "sample_size": {
+      "opportunity_intel_active": 0,
+      "ranking_go": 0,
+      "ranking_review": 0,
+      "ranking_no_go": 0,
+      "orgaos_sc": 0,
+      "pncp_raw_bids_active": 0,
+      "vincendos_180d": 0,
+      "label": "INSUFFICIENT"
+    },
+    "git_sha": "1a9f19b",
+    "profile_id": "extra",
+    "profile_version": 2,
+    "dsn_host": "127.0.0.1:5433/extra_test",
+    "claims": {
+      "allowed": [
+        "Contagens derivadas de opportunity_intel.is_active=true no DSN local.",
+        "Ranking GO/REVIEW/NO_GO conforme coluna ranking (pode ser stub/fixture).",
+        "Ranking de órgãos por volume de editais ativos (UF filtrada quando aplicável).",
+        "Contratos vincendos apenas se pncp_supplier_contracts tiver linhas no horizonte.",
+        "Amostra rotulada INSUFFICIENT/MINIMAL/ADEQUATE — não inventar cobertura %.",
+        "Exibir trust_level TRUSTED|DEGRADED|UNTRUSTED|UNKNOWN",
+        "Percentuais apenas com N e limitações"
+      ],
+      "forbidden": [
+        "Afirmar cobertura 95% ou readiness comercial sem evidence ledger.",
+        "Tratar REVIEW como GO ou esconder sample_size=0.",
+        "Misturar PDF e Excel de runs diferentes sem reconciliação PASS.",
+        "Inferir contratos vincendos a partir de pncp_raw_bids.",
+        "Publicar ranking de órgãos como 'mercado completo SC' com N < 20 editais.",
+        "Ausência de dados como ausência de licitação sem consulta válida",
+        "Vencedores observados como conjunto completo de concorrentes",
+        "Participante não identificado tratado como inexistente",
+        "Win rate sem propostas enviadas no denominador",
+        "Score rotulado como probabilidade sem calibração",
+        "Relatório sem limitações relevantes",
+        "Afirmar que o projeto acompanha obras fisicamente",
+        "Percentual sem denominador N",
+        "Score/percentual sem limitações explícitas",
+        "Dado UNTRUSTED apresentado como pronto para decisão"
+      ]
+    },
+    "data_reliability": {
+      "trust_level": "UNTRUSTED",
+      "reasons": [
+        "sample_n=0 < min=20"
+      ],
+      "limitations": [
+        "sample_size_label=INSUFFICIENT",
+        "Percentuais de cobertura comercial só com N e limitações.",
+        "Amostra insuficiente (N=0); não generalizar percentuais."
+      ],
+      "field_flags": {},
+      "metrics": {
+        "age_hours": null,
+        "freshness_sla_hours": 24.0,
+        "sample_n": 0,
+        "source_health": null,
+        "provenance_ok": null,
+        "query_valid": true,
+        "positive_signals": 1
+      },
+      "is_decision_safe": false
+    }
+  },
+  "deliverable_a_orgaos_ranking": {
+    "status": "INSUFFICIENT",
+    "uf_filter": "SC",
+    "count": 0,
+    "rows": [],
+    "note": "Ranking por volume de editais ativos em opportunity_intel. Sample label=INSUFFICIENT."
+  },
+  "deliverable_e_go_review_no_go": {
+    "status": "INSUFFICIENT",
+    "counts": {
+      "GO": 0,
+      "REVIEW": 0,
+      "NO_GO": 0,
+      "OTHER": 0
+    },
+    "rows": {
+      "GO": [],
+      "REVIEW": [],
+      "NO_GO": [],
+      "OTHER": []
+    },
+    "note": "Classificação lida da coluna ranking; com fixtures pode ser 100% REVIEW. Não relabelar como GO sem motor de ranking reexecutado."
+  },
+  "deliverable_c_contratos_vincendos": {
+    "status": "INSUFFICIENT",
+    "count": 0,
+    "rows": [],
+    "claim": "pncp_supplier_contracts sem linhas no horizonte 180d — Deliverable C bloqueado honestamente; não derivar de pncp_raw_bids."
+  },
+  "claims": {
+    "allowed": [
+      "Contagens derivadas de opportunity_intel.is_active=true no DSN local.",
+      "Ranking GO/REVIEW/NO_GO conforme coluna ranking (pode ser stub/fixture).",
+      "Ranking de órgãos por volume de editais ativos (UF filtrada quando aplicável).",
+      "Contratos vincendos apenas se pncp_supplier_contracts tiver linhas no horizonte.",
+      "Amostra rotulada INSUFFICIENT/MINIMAL/ADEQUATE — não inventar cobertura %."
+    ],
+    "forbidden": [
+      "Afirmar cobertura 95% ou readiness comercial sem evidence ledger.",
+      "Tratar REVIEW como GO ou esconder sample_size=0.",
+      "Misturar PDF e Excel de runs diferentes sem reconciliação PASS.",
+      "Inferir contratos vincendos a partir de pncp_raw_bids.",
+      "Publicar ranking de órgãos como 'mercado completo SC' com N < 20 editais.",
+      "Ausência de dados como ausência de licitação sem consulta válida",
+      "Vencedores observados como conjunto completo de concorrentes",
+      "Participante não identificado tratado como inexistente",
+      "Win rate sem propostas enviadas no denominador",
+      "Score rotulado como probabilidade sem calibração",
+      "Relatório sem limitações relevantes",
+      "Afirmar que o projeto acompanha obras fisicamente",
+      "Percentual sem denominador N",
+      "Score/percentual sem limitações explícitas",
+      "Dado UNTRUSTED apresentado como pronto para decisão"
+    ]
+  },
+  "generated_at": "2026-07-18T18:15:12.377700Z"
+}

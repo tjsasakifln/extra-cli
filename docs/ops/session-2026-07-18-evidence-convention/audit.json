@@ -1,0 +1,218 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-18T17:58:26Z",
+  "dod_path": "/mnt/d/extra consultoria/DOD.md",
+  "kinds_catalog": [
+    {
+      "id": "automated_test",
+      "label": "teste automatizado reproduzível"
+    },
+    {
+      "id": "documented_command_exit_0",
+      "label": "comando documentado com exit code 0"
+    },
+    {
+      "id": "system_report",
+      "label": "relatório JSON/CSV/Excel/PDF/Markdown gerado pelo sistema"
+    },
+    {
+      "id": "sql_query",
+      "label": "consulta SQL com resultado esperado"
+    },
+    {
+      "id": "run_ledger",
+      "label": "execução registrada em ledger/manifest/runs"
+    },
+    {
+      "id": "dated_log",
+      "label": "log datado e correlacionável"
+    },
+    {
+      "id": "manual_validation_tiago",
+      "label": "validação manual registrada por Tiago"
+    },
+    {
+      "id": "commit_or_pr",
+      "label": "commit ou pull request identificável"
+    },
+    {
+      "id": "restore_or_recovery_executed",
+      "label": "teste de restauração ou recuperação efetivamente executado"
+    },
+    {
+      "id": "official_source_comparison",
+      "label": "comparação com fonte oficial na mesma data/período"
+    }
+  ],
+  "checked_total": 358,
+  "checked_with_kind": 255,
+  "checked_without_kind": 103,
+  "sample_without_kind": [
+    {
+      "line": 22,
+      "text": "`commercial_opportunity_any` foi reclassificada como sinal comercial `entities_with_recent_commercial_signal`: **116/1.093 (10,61%)**, explicitamente não cobertura.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 25,
+      "text": "Existe relatório nominal para os **1.093 gaps**, cada um com blocker e próxima ação. Distribuição: `pending_collection=714`, `pending_live_verification=226`, `fragmented=153`.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 28,
+      "text": "O workspace cotidiano executa `today`, `opportunities`, `dossier`, `coverage`, `competitors`, `expiring-contracts`, `prices`, `edital analyze`, `proposal support`, `contracts`, `decide` e relatórios; `GO` legado é rebaixado a `REVIEW` quand",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 29,
+      "text": "O benchmark preliminar contém quatro publicações oficiais CIGA com ID, URL e hash. Resultado observado 4/4, mas estado **PARTIAL/NOT_READY** por estratos ausentes e limitação de independência; não é claim de recall de 100%.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 44,
+      "text": "O documento é tratado como checklist de evolução do projeto, e não como Definition of Done de uma única story. Evidência: §35 gates + 3 róis; plano `extra-consultoria-plano-executivo.html`.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 50,
+      "text": "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 63,
+      "text": "Um item só recebe `[x]` após validação e registro de evidência. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 101,
+      "text": "O sistema continua sendo uma ferramenta pessoal, sem necessidade de produto SaaS. Evidência: README single-user CLI + PRD single-client + `capability_inventory` + architecture (sem SaaS multi-tenant).",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 400,
+      "text": "Duplicidades legítimas de raiz de CNPJ não são eliminadas indevidamente.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 408,
+      "text": "O baseline atual de 1.093 entes é confirmado para a versão corrente da planilha.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 619,
+      "text": "Cada fonte possui identificador estável. Evidência: `SourceInfo.name` único + export id.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 620,
+      "text": "Cada fonte possui URL ou endpoint canônico. Evidência: `canonical_url` em todas as 11 fontes.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 621,
+      "text": "Cada fonte informa capacidades suportadas. Evidência: `capabilities` non-empty.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 622,
+      "text": "Cada fonte informa cobertura geográfica. Evidência: `geo_coverage`.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 623,
+      "text": "Cada fonte informa necessidade de credenciais. Evidência: `needs_credentials` + credential_names.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 624,
+      "text": "Cada fonte informa limites de paginação conhecidos. Evidência: `pagination_limits` (primárias não-unknown).",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 625,
+      "text": "Cada fonte informa rate limits conhecidos. Evidência: `rate_limits` (primárias não-unknown).",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 626,
+      "text": "Cada fonte informa estratégia de retry. Evidência: `retry_strategy` em to_dod_record + tests §7.1b.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 627,
+      "text": "Cada fonte informa estratégia de backoff. Evidência: `backoff_strategy` + tests.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 628,
+      "text": "Cada fonte informa status operacional. Evidência: `operational_status` active|implemented_not_proven|blocked|not_applicable.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 629,
+      "text": "Cada fonte informa data da última validação. Evidência: campo `last_validation_at` (null se não validada).",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 630,
+      "text": "Cada fonte informa bloqueadores conhecidos. Evidência: `known_blockers` list.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 631,
+      "text": "Cada fonte informa se é primária, complementar ou gap-fill. Evidência: `role`.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 632,
+      "text": "Código existente sem validação real é marcado como `implemented_not_proven`. Evidência: 8 fontes + unit test.",
+      "kinds": [],
+      "has_evidence_kind": false
+    },
+    {
+      "line": 633,
+      "text": "Fonte sem acesso é marcada como `blocked`. Evidência: status machine test `known_blockers=[\"blocked:…\"]`.",
+      "kinds": [],
+      "has_evidence_kind": false
+    }
+  ],
+  "policy": {
+    "complete_requires_at_least_one_kind": true,
+    "kinds_count": 10,
+    "kinds": [
+      "automated_test",
+      "documented_command_exit_0",
+      "system_report",
+      "sql_query",
+      "run_ledger",
+      "dated_log",
+      "manual_validation_tiago",
+      "commit_or_pr",
+      "restore_or_recovery_executed",
+      "official_source_comparison"
+    ]
+  }
+}

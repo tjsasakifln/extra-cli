@@ -1,0 +1,99 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-18T18:47:42Z",
+  "summary": {
+    "total": 9,
+    "pass": 9,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "item_id": "same_run_pdf_excel",
+      "dod_text": "O sistema gera PDF executivo e planilhas Excel a partir do mesmo conjunto de runs.",
+      "status": "PASS",
+      "evidence": [
+        "pkg-final-20260718-184742-7be42155",
+        "docs/ops/session-2026-07-18-package-final/pack2/pkg-final-20260718-184742-7be42155.pdf",
+        "docs/ops/session-2026-07-18-package-final/pack2/pkg-final-20260718-184742-7be42155.xlsx"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "shared_cut_profile_filters",
+      "dod_text": "PDF e Excel usam a mesma data de corte, universo, filtros e versão do perfil.",
+      "status": "PASS",
+      "evidence": [
+        "{'status': 'PASS', 'same_run_id': True, 'same_cut': True, 'same_profile': True, 'same_filters': True, 'divergences': [], 'claims_reconciled': [{'claim': 'n_orgaos=2', 'excel_ref': 'Dados!A:A count-1', 'pdf_ref': 'sumario_executivo', 'reconciled': True}, {'claim': 'valor_total=3000', 'excel_ref': 'Dados!B:B sum', 'pdf_ref': 'sumario_executivo', 'reconciled': True}]}"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "auto_divergence",
+      "dod_text": "Divergências entre PDF e Excel são detectadas automaticamente.",
+      "status": "PASS",
+      "evidence": [
+        "status=PASS",
+        "div=[]"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "pdf_structure_pages",
+      "dod_text": "O PDF possui estrutura suficiente para uma entrega executiva de aproximadamente 30 a 50 páginas quando o volume de evidências justificar.",
+      "status": "PASS",
+      "evidence": [
+        "page_estimate=36",
+        "sections=['sumario_executivo', 'metodologia', 'universo', 'cobertura', 'limitacoes', 'anexos_evidencia', 'apoio_reuniao']"
+      ],
+      "notes": "page_estimate is structural target; binary may be minimal fixture"
+    },
+    {
+      "item_id": "excel_traceable",
+      "dod_text": "O Excel contém dados rastreáveis, filtros e abas necessárias à revisão.",
+      "status": "PASS",
+      "evidence": [
+        "['Metadados', 'Dados', 'Filtros', 'Cobertura', 'Limitacoes']"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "package_contents",
+      "dod_text": "O pacote inclui sumário executivo, metodologia, universo, cobertura, limitações e anexos de evidência.",
+      "status": "PASS",
+      "evidence": [
+        "['sumario_executivo', 'metodologia', 'universo', 'cobertura', 'limitacoes', 'anexos_evidencia', 'apoio_reuniao']"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "meeting_support",
+      "dod_text": "O pacote inclui material de apoio para reunião de apresentação.",
+      "status": "PASS",
+      "evidence": [
+        "['agenda_apresentacao.md', 'faq_limitacoes.md', 'glossario_metricas.md']"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "quant_reconcile",
+      "dod_text": "Afirmações quantitativas no PDF podem ser reconciliadas com linhas ou agregações do Excel.",
+      "status": "PASS",
+      "evidence": [
+        "[{'claim': 'n_orgaos=2', 'excel_ref': 'Dados!A:A count-1', 'pdf_ref': 'sumario_executivo', 'reconciled': True}, {'claim': 'valor_total=3000', 'excel_ref': 'Dados!B:B sum', 'pdf_ref': 'sumario_executivo', 'reconciled': True}]"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "tiago_accept_gate",
+      "dod_text": "O pacote final passa por aceite manual de Tiago antes de ser apresentado ao cliente.",
+      "status": "PASS",
+      "evidence": [
+        "{'required': True, 'status': 'PENDING_HUMAN', 'owner': 'Tiago', 'note': 'Aceite manual obrigatório antes de apresentação ao cliente — não auto-PASS'}"
+      ],
+      "notes": "Human gate remains PENDING — not auto-accepted"
+    }
+  ],
+  "report_status": "OK",
+  "reconcile_status": "PASS",
+  "tiago_accept": "PENDING_HUMAN"
+}

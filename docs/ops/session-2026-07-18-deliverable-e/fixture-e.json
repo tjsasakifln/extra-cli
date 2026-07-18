@@ -1,0 +1,85 @@
+{
+  "status": "OK",
+  "deliverable": "E",
+  "title": "Editais abertos e recomendação individual",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "cut_date": "2026-07-18",
+  "recommendations": [
+    {
+      "edital_id": "E-001",
+      "titulo": "Reforma predial prédio público",
+      "orgao": "Prefeitura Demo",
+      "ranking": "GO",
+      "client_label": "PARTICIPAR",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-18",
+        "proof_mode": "SNAPSHOT",
+        "snapshot_id": "snap-2026-07-18",
+        "reconfirmed_at": null,
+        "official_url": "https://pncp.gov.br/editais/demo/E-001",
+        "status_source": "pncp"
+      },
+      "fatores_favoraveis": [
+        "UF alinhada ao perfil (SC)",
+        "objeto compatível com engineering_categories do perfil"
+      ],
+      "fatores_impeditivos_ou_riscos": [],
+      "referencias_oficiais": [
+        "https://pncp.gov.br/editais/demo/E-001"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": ""
+    },
+    {
+      "edital_id": "E-002",
+      "titulo": "Serviço de limpeza",
+      "orgao": "Câmara Demo",
+      "ranking": "NO_GO",
+      "client_label": "NÃO PARTICIPAR",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-18",
+        "proof_mode": "INDIVIDUAL_RECONFIRM",
+        "snapshot_id": null,
+        "reconfirmed_at": "2026-07-18T12:00:00Z",
+        "official_url": "https://example.org/edital/E-002",
+        "status_source": "portal_orgao"
+      },
+      "fatores_favoraveis": [],
+      "fatores_impeditivos_ou_riscos": [
+        "UF PR fora de uf_primary=SC",
+        "objeto sem match claro em engineering_categories"
+      ],
+      "referencias_oficiais": [
+        "https://example.org/edital/E-002"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": "REVIEW por ambiguidade de objeto"
+    }
+  ],
+  "excluded_not_open": 2,
+  "claims_allowed": [
+    "2 open editais with GO/REVIEW/NO_GO at cut=2026-07-18",
+    "Client labels PARTICIPAR/NÃO PARTICIPAR/REVIEW",
+    "Disclaimer: no victory promise; no substitute for final legal/accounting/tech analysis"
+  ],
+  "claims_forbidden": [
+    "Promise vitória",
+    "Substitute análise jurídica/contábil/técnica final",
+    "Include closed editais as open without proof",
+    "Recommend without official data/doc reference when available path exists"
+  ],
+  "generated_at": "2026-07-18T18:42:14Z"
+}

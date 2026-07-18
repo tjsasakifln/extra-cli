@@ -1,0 +1,133 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-18T18:23:40Z",
+  "summary": {
+    "total": 13,
+    "pass": 13,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "item_id": "select_15_when_enough",
+      "dod_text": "O sistema consegue selecionar e justificar pelo menos 15 fornecedores vencedores relevantes, quando existirem dados suficientes no recorte.",
+      "status": "PASS",
+      "evidence": [
+        "status=OK",
+        "rows=15",
+        "target=15"
+      ],
+      "notes": "INSUFFICIENT allowed when valid_count < target"
+    },
+    {
+      "item_id": "reproducible_rule",
+      "dod_text": "A seleção dos 15 possui regra reproduzível e configurável.",
+      "status": "PASS",
+      "evidence": [
+        "{'target_n': 15, 'min_contracts': 1, 'sort_keys': ['n_contratos', 'valor_contratado_total'], 'require_cnpj': True, 'uf_filter': 'SC', 'allow_desagio_without_pair': False, 'description': 'Top 15 by n_contratos,valor_contratado_total with min_contracts>=1; require CNPJ'}"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "cnpj_identity",
+      "dod_text": "Cada fornecedor possui CNPJ ou identidade canônica.",
+      "status": "PASS",
+      "evidence": [
+        "cnpj/identidade_canonica"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "n_contratos",
+      "dod_text": "Cada fornecedor possui quantidade de contratos identificados.",
+      "status": "PASS",
+      "evidence": [
+        "n_contratos"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "valor_total",
+      "dod_text": "Cada fornecedor possui valor contratado total.",
+      "status": "PASS",
+      "evidence": [
+        "valor_contratado_total + valor_semantica=CONTRATADO"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "ticket_medio",
+      "dod_text": "Cada fornecedor possui ticket contratado médio.",
+      "status": "PASS",
+      "evidence": [
+        "ticket_contratado_medio + ticket_formula"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "orgaos",
+      "dod_text": "Cada fornecedor possui órgãos em que venceu.",
+      "status": "PASS",
+      "evidence": [
+        "orgaos_em_que_venceu"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "geo",
+      "dod_text": "Cada fornecedor possui distribuição geográfica.",
+      "status": "PASS",
+      "evidence": [
+        "distribuicao_geografica"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "tipos",
+      "dod_text": "Cada fornecedor possui tipos de objeto em que venceu.",
+      "status": "PASS",
+      "evidence": [
+        "tipos_objeto"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "desagio_pair",
+      "dod_text": "Deságio só é apresentado quando valor estimado e valor homologado comparáveis estiverem ligados ao mesmo certame, lote ou item.",
+      "status": "PASS",
+      "evidence": [
+        "desagio_status PRESENTED only with evidence"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "active_requires_vigencia",
+      "dod_text": "Contrato só é chamado de ativo quando houver vigência e status atual suficientes para sustentar a afirmação.",
+      "status": "PASS",
+      "evidence": [
+        "is_active_claim_allowed requires vigencia_fim+status+status_as_of"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "capacity_hypothesis",
+      "dod_text": "Capacidade operacional disponível de concorrente nunca é afirmada como fato sem evidência; inferências são rotuladas como hipótese.",
+      "status": "PASS",
+      "evidence": [
+        "capacidade_operacional.label=HYPOTHESIS"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "no_noise_padding",
+      "dod_text": "Quando não houver 15 concorrentes defensáveis, o relatório declara a insuficiência e apresenta todos os casos válidos, sem completar a lista com ruído.",
+      "status": "PASS",
+      "evidence": [
+        "{'insufficient': False, 'target_n': 15, 'valid_count': 15, 'message': '15 defensáveis >= target 15'}"
+      ],
+      "notes": ""
+    }
+  ],
+  "report_status": "OK",
+  "valid_count": 15,
+  "target_n": 15
+}

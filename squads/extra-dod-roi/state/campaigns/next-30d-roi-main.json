@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN",
-  "status": "LEGACY_RECONCILIATION_WAVE1_PORTED",
+  "status": "EXECUTING",
   "created_at": "2026-07-18T19:19:39Z",
-  "updated_at": "2026-07-18T20:05:18Z",
+  "updated_at": "2026-07-18T20:11:41Z",
   "integration_mode": "main-direct",
   "baseline_head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "baseline_dod_sha256": "54bbbc0a0eec4576989722d9a1167860e1322c5cd509804d3677638e8c657228",
@@ -35,12 +35,33 @@
     "scope": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/scope.json"
   },
   "notes": [
-    "Legacy forensic reconciliation complete (JSON+MD).",
-    "Wave 1: product code/tests from epic 0bd5074 ported; 184 unit tests pass.",
-    "DoD not bulk-flipped. S5 evidence + selective flips next.",
-    "Pause new PERT feature cycles until inherited baseline re-frozen post DoD revalidation."
+    "Reconciliation complete wave1+S5; campaign EXECUTING again.",
+    "Inherited DoD flips counted separately from new PERT advance.",
+    "Gates LOCAL_READY/VPS/PROJECT_DONE remain NOT_READY."
   ],
   "plan_head": "7768f057e37a287e738a37ea18bb302848228b19",
   "pert_critical_path_days": 30.5,
-  "pause_new_features": true
+  "pause_new_features": false,
+  "inherited_baseline": {
+    "frozen_at": "2026-07-18T20:11:41Z",
+    "note": "After recon wave1 code port + S5 evidence + conservative DoD flips (inherited_validated)",
+    "pre_port_checked": 93,
+    "post_inherited_flips_checked": 195,
+    "inherited_flips_this_wave": 102,
+    "new_campaign_only_flips": 1,
+    "dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
+    "source_epic": "0bd5074",
+    "classification": "inherited_validated_not_new_pert"
+  },
+  "metrics_separated": {
+    "canonical_acceptance_main": {
+      "checked": 195,
+      "total": 1355,
+      "pct": 14.4
+    },
+    "inherited_validated_checkboxes": 102,
+    "new_campaign_acceptances": 1,
+    "new_pert_days_approx": 4.5,
+    "reopened_or_invalidated_class": 17
+  }
 }

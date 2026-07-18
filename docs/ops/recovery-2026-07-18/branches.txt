@@ -1,0 +1,64 @@
+  docs/finalize-b2g-dod                            8d27be1 [origin/main: behind 62] docs(ops): record green CI and main merge evidence
+  docs/plano-executivo-dod50-20260718              433a7d4 [origin/docs/plano-executivo-dod50-20260718] docs(exec): sync plano executivo HTML with DoD-50 campaign on main
+  epic-coverage-max-200km                          eca7629 chore: detailed handoff NEXT-SESSION.md — GO_WITH_CONDITIONS
+* epic/advance-30d-local-ready-20260718            67a87b1 [origin/epic/advance-30d-local-ready-20260718: ahead 12] fix(roi): demote closed dyn slices so force-next does not thrash
+  epic/b2g-operational-platform-2026-07-17         86a0412 [origin/epic/b2g-operational-platform-2026-07-17] fix(ci): satisfy coverage lint gate
+  epic/coverage-200km-operational                  6afd368 [origin/epic/coverage-200km-operational] fix(coverage): list identity 116=116 + DOD/HTML live numbers
+  epic/data-foundation-wave0                       1f7aa7c feat: publish data foundation pipeline changes
+  epic/next-30d-multiagent-execution               9ebe151 [origin/epic/next-30d-multiagent-execution] docs(dod,html): NEXT-30D board session for director evaluation
+  epic/plano-executivo-30d                         9871c42 [origin/epic/plano-executivo-30d] chore: set reviewed_commit on PE-30D story states
+  extra-roi/campaign-dod-50-20260718T003950Z       69c05fe [origin/extra-roi/campaign-dod-50-20260718T003950Z] chore(roi): restore non-campaign story reviewed_commit fields
+  extra-roi/cand-aec-dedupe                        23f4f3b docs(dod): flip remaining Classificação AEC checkbox with unit-test evidence
+  extra-roi/cand-alert-pipeline                    b5c0353 docs(dod): flip 8 alert stack + backup dupe after QA PASS [ROI-70c8a181a45d]
+  extra-roi/cand-backup-restore-live               6fb0c3f feat(ops): live local pg_dump/pg_restore proof for DoD §14
+  extra-roi/cand-backup-universe-pdf               4574a04 feat(ops): universe reimport path + file metadata policy for DoD §14 residual
+  extra-roi/cand-claim-language                    849e57b feat(claims): DoD §25 claim-language guards and report forbidden list
+  extra-roi/cand-coverage-scale-m2-more-entities   deb828f [origin/extra-roi/cand-coverage-scale-m2-more-entities] chore(aiox): PO close coverage scale M2 81/1093 + ranker unit-evidence candidate
+  extra-roi/cand-coverage-slice-pending-collection 3371c43 [origin/extra-roi/cand-coverage-slice-pending-collection] fix(lint): ruff clean promote_from_evidence (F401/N801/UP037)
+  extra-roi/cand-crawler-metrics                   e066e95 docs(dod): flip 7 crawler-metric items after QA PASS [ROI-268ae33837e7]
+  extra-roi/cand-data-reliability                  715ee47 docs(roi): QA PASS + PO close ROI-cand-dyn-slice-49022ba84875
+  extra-roi/cand-docs-definitions                  8307ef6 feat(docs): definition consistency scanner for DoD §25 residual
+  extra-roi/cand-dod-process-integrity             0631496 feat(dod): process integrity policy and audit for evidence-only checkboxes
+  extra-roi/cand-dod-unit-test-evidence-pack       c413a13 [origin/extra-roi/cand-dod-unit-test-evidence-pack] fix(dod): honesty — 18 unit flips; revert partial and §8.3 AEC
+  extra-roi/cand-dyn-slice-5e47929809f6            3f9bbad chore(roi): close cycle cyc-2026-07-18T171940Z
+  extra-roi/cand-dyn-slice-a53bdc0173af            6fa3d0f chore(roi): advance cycle cyc-2026-07-18T164226Z to PUBLISH/RERANK
+  extra-roi/cand-empty-dod-orphan                  53cf860 fix(roi): drop empty DoD orphan and skip blank ranking candidates
+  extra-roi/cand-evidence-reconstruct              0a2ef6f feat(ops): reconstruct_evidence recipes for coverage/freshness/recall/snapshot
+  extra-roi/cand-full-suite-schema-debt            e11a167 [origin/extra-roi/cand-full-suite-schema-debt: ahead 1] fix(roi): demote completed candidates so force-next cannot thrash [ROI-cand-full-suite-schema-debt]
+  extra-roi/cand-golden-clean-env                  1b75e8a docs(dod): flip clean-env golden path item after QA PASS [ROI-16eac35a037b]
+  extra-roi/cand-golden-path-live                  0f38dec docs(dod): flip 6 golden-path live items after QA PASS [ROI-b904c9d40e3a]
+  extra-roi/cand-golden-path-meta                  37b278a docs(dod): flip 15 golden-path foundation items after QA PASS [ROI-f7cf8ac7399c]
+  extra-roi/cand-golden-path-pncp-health           e42c6a3 [origin/extra-roi/cand-golden-path-pncp-health] fix(roi): keep evergreen ranking unlocked via M2 scale candidate
+  extra-roi/cand-golden-reports-pdf                8ee3384 docs(dod): flip 5 golden-path report/PDF items after QA PASS [ROI-4f08e0461629]
+  extra-roi/cand-host-monitor                      dd32ef8 docs(dod): flip 8 host-monitor items after QA PASS [ROI-eb87220940fd]
+  extra-roi/cand-indicator-catalog                 f7d3271 feat(coverage): formal indicator catalog fields for DoD §25
+  extra-roi/cand-manual-overrides                  0ec37dd feat(ops): manual override ledger requires motivo, data, autor
+  extra-roi/cand-no-or-true-gates                  a339cb8 feat(roi): fail-closed scan — no || true in mandatory gates
+  extra-roi/cand-objective-capability              c8843ee feat(ops): capability inventory for DoD §2.1 — honest PARTIAL/NOT_READY status
+  extra-roi/cand-ops-docs-honesty                  f4491ec docs(ops): glossary, ADR index, honesty runbooks for DoD §31
+  extra-roi/cand-ops-gate-monitor                  043ec63 docs(dod): flip 5 ops-gate monitor items after QA PASS [ROI-3a89d28fa518]
+  extra-roi/cand-partial-objectives                081e6ec docs(dod): mark §2.1 objectives PARTIAL — unlock ranking for coverage work
+  extra-roi/cand-partial-scope                     5431be9 docs(dod): PARTIAL annotate §2.2/2.3 scope items — unlock ranking toward coverage
+  extra-roi/cand-partial-scope-fix                 31a4253 docs(dod): PARTIAL annotate §2.2/2.3 (### headers) to unlock coverage ranking
+  extra-roi/cand-prd-align-changelog               451eb85 docs(prd): align PRD v2.1 with DOD coverage truth; add CHANGELOG
+  extra-roi/cand-rollback-runbook-dedupe           839bd03 docs(dod): flip duplicate rollback runbook checkbox with evidence
+  extra-roi/cand-run-execution-record              05fb882 feat(crawl): execution audit record for DoD §29 run provenance
+  extra-roi/cand-run-status-counts                 242c463 feat(crawl): execution outcome fields — timestamps, status, counts, provenance
+  extra-roi/cand-section15-testsprite-cli          4264fcb docs(dod): annotate §15 TestSprite acceptance pack (PARTIAL)
+  extra-roi/cand-snapshot-aec                      ff7a95d feat(intel): unit tests for AEC classification and fail-closed snapshot reconcile
+  extra-roi/cand-structured-logs                   9bf8588 docs(dod): flip 7 structured-log items after QA PASS [ROI-43acf5cce633]
+  extra-roi/cand-three-rolls                       6a15f3f feat(dod): PROJECT_DONE requires three rolls — stage, post-VPS, infra-independent
+  extra-roi/cand-universe-import-tests             0b2fdd8 feat(universe): snapshot diff for idempotent import and entity change detection
+  extra-roi/cand-user-cli-usage                    530f6da feat(cli): prove main workspace/opportunity CLIs documented without web UI
+  extra-roi/cand-workspace-daily-evidence-pack     3724f33 [origin/extra-roi/cand-workspace-daily-evidence-pack] chore(aiox): align reviewed_commit after PO-close docs-only [ROI-cand-workspace-daily-evidence-pack]
+  feat/close-window-30d                            a95311e [origin/feat/close-window-30d] feat: fechar 100% da janela 30d úteis (23/24 eng + V6.2 pack)
+  feat/dod-session-constatations                   3d05ec3 [origin/feat/dod-session-constatations] docs: DoD §38 constatação de sessão + HTML briefing diretoria
+  feat/local-resilience-ready-20260717             6bddcb7 [origin/feat/local-resilience-ready-20260717] docs(dod): stamp HEAD SHA for section 44 publication
+  feat/mission-validate-gate1                      665f9e6 [origin/feat/mission-validate-gate1] fix: re-prove mission claims + GATE-1 residuals (049, universe, backup)
+  feat/pe-c2-05-ciga-dados-dom                     75913b8 [origin/feat/pe-c2-05-ciga-dados-dom] chore: PE-C2-05 reviewed_commit stamp
+  feat/subagents-wave-next                         2df7644 [origin/feat/subagents-wave-next] docs: subagents wave — audit 30d, C2.7/K3.2/C2.8/Q5 next
+  fix/dod-50-skeptic-remediation-20260718          027c199 [origin/fix/dod-50-skeptic-remediation-20260718] chore(roi): include batch2/3 proof packs after remediation
+  fix/dod-50-skeptic-round2-freshness-report       0b89b4b [origin/fix/dod-50-skeptic-round2-freshness-report] chore(roi): final report/panel HEAD for skeptic r2 branch tip
+  fix/html-board-restore                           e7ead5b [origin/fix/html-board-restore] fix: restaurar HTML executivo e reaplicar briefing da diretoria
+  fix/pre-vps-final-truth-gate-20260717            f001842 [origin/fix/pre-vps-final-truth-gate-20260717] docs(dod): §45 truth-gate session advances + executive HTML update
+  main                                             fbc5868 [origin/main] Merge pull request #27 from tjsasakifln/docs/plano-executivo-dod50-20260718

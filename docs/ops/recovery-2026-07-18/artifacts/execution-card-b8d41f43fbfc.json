@@ -1,0 +1,114 @@
+{
+  "version": "1.0.0",
+  "card_id": "card-cand-dyn-slice:b8d41f43fbfc-cyc-2026-07-18T172517Z",
+  "cycle_id": "cyc-2026-07-18T172517Z",
+  "created_at": "2026-07-18T17:25:17Z",
+  "candidate_id": "cand-dyn-slice:b8d41f43fbfc",
+  "title": "[Estados, aplicabilidade e bloqueio] Um item desmarcado permanece não aceito, mesmo que esteja pa · Um requisito somente pode ser tratado como `NOT_APPLICABLE`  · `NOT_APPLICABLE` possui justificativa",
+  "status": "READY_FOR_STORY",
+  "foolproof": true,
+  "selection_rule": "ranking[0] only — non-negotiable",
+  "roi": 1.2261,
+  "roi_dimensions": {
+    "value": {
+      "gate_value": 2,
+      "unlock_power": 2,
+      "operational_impact": 2,
+      "risk_reduction": 2,
+      "evidence_gain": 3
+    },
+    "cost": {
+      "effort": 3,
+      "uncertainty": 3,
+      "external_dependency": 2,
+      "change_surface": 2
+    }
+  },
+  "roi_justification": "Dynamic slice of 7 open DoD items; ROI biased by section heuristics",
+  "dod_refs": [
+    "Estados, aplicabilidade e bloqueio",
+    "Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implement",
+    "Um requisito somente pode ser tratado como `NOT_APPLICABLE` quando a própria red",
+    "`NOT_APPLICABLE` possui justificativa, data e evidência; não é usado para contor",
+    "Campo indisponível na fonte é registrado como `SOURCE_UNAVAILABLE` ou `NOT_READY",
+    "Um blocker externo não desaparece do gate; ele permanece visível até resolução o"
+  ],
+  "problem": "Dynamic slice of 7 open DoD items; ROI biased by section heuristics",
+  "evidence": [
+    "Current HEAD 67a87b1d differs from origin/main fbc58685 (ahead=119, behind=0).",
+    "DoD veto active: Adversarial truth gate destroyed LOCAL_RESILIENCE_READY; remains NOT_READY until new proof",
+    "Superseded claim: LOCAL_RESILIENCE_READY → NOT_READY (DOD.md §44)",
+    "Superseded claim: PRE_VPS_FINAL_READY → NOT_READY (DOD.md residual / PR truth gate)",
+    "Dynamic DOD generation produced 40 section slices (234 open items covered)",
+    "Candidate cand-qa-po-e3-stories marked COMPLETED: B2G-E3.S1/S2 Done with independent QA/PO (do not re-bind)",
+    "Candidate cand-full-suite-schema-debt marked COMPLETED: ROI-cand-full-suite-schema-debt Done with QA PASS + PO close",
+    "Candidate cand-coverage-slice-pending-collection marked COMPLETED: ROI-cand-coverage-slice-pending-collection Done with QA PASS + PO close (M2 N>0 provenance)",
+    "Candidate cand-coverage-scale-m2-more-entities marked COMPLETED: ROI-cand-coverage-scale-m2-more-entities Done with QA PASS + PO close",
+    "Candidate cand-dod-unit-test-evidence-pack marked COMPLETED: ROI-cand-dod-unit-test-evidence-pack Done with QA PASS + PO close",
+    "Candidate cand-workspace-daily-evidence-pack marked COMPLETED: ROI-cand-workspace-daily-evidence-pack Done with QA/PO",
+    "Candidate cand-golden-path-pncp-health marked COMPLETED: ROI-cand-golden-path-pncp-health Done with QA PASS + PO close",
+    "Candidate cand-dyn-slice:5e47929809f6 marked COMPLETED: ROI-cand-dyn-slice-5e47929809f6 Done with independent QA/PO (leave-open or partial DoD does not re-bind same dyn slice)"
+  ],
+  "why_unlocked": "Open local-stage items in section 'Estados, aplicabilidade e bloqueio' without VPS/live/human-accept blocker patterns",
+  "alternatives_discarded": [
+    "cand-dyn-slice:b3ea2a2669e1 ROI=1.2261 preterido vs #1: menor combinação gate+risco+evidência ou maior custo/dependência externa",
+    "cand-dyn-slice:2b83aa82a369 ROI=1.2261 preterido vs #1: menor combinação gate+risco+evidência ou maior custo/dependência externa",
+    "cand-dyn-slice:dd7b4910d7f9 ROI=1.2261 preterido vs #1: menor combinação gate+risco+evidência ou maior custo/dependência externa",
+    "cand-dyn-slice:a6cf12911b22 ROI=1.2261 preterido vs #1: menor combinação gate+risco+evidência ou maior custo/dependência externa",
+    "cand-dyn-slice:8d8c11884fa6 ROI=1.2261 preterido vs #1: menor combinação gate+risco+evidência ou maior custo/dependência externa",
+    "cand-do-not-rebuild-resilience-core: CONFLICT com PR #12 — duplicação proibida",
+    "blk-live-canary-pg: BLOCKED por dependência externa (live DB/network) — não desbloqueado artificialmente",
+    "VPS provision: BLOCKED até PRE_VPS_FINAL_READY e decisão humana"
+  ],
+  "planned_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "risks": [
+    "Over-marking without real evidence",
+    "Partial implementation mistaken for done"
+  ],
+  "dependencies": [],
+  "acceptance_criteria": [
+    "Each of 7 dod_item_ids proven with evidence or left open",
+    "No NOT_APPLICABLE used to hit campaign meta",
+    "Independent QA PASS before any [x] flip"
+  ],
+  "test_commands": [
+    "python3 -m pytest -q --tb=no -x  # scope to slice tests"
+  ],
+  "rollback": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "allowed_claims": [],
+  "forbidden_claims": [
+    "VPS provisionada/operacional sem evidência live",
+    "Cobertura operacional 95% sem medição estrita",
+    "Freshness live garantida por fixtures",
+    "LOCAL_RESILIENCE_READY (superseded → NOT_READY)",
+    "PRE_VPS_FINAL_READY sem live canary + PG evidence",
+    "Stories Done sem QA/PO independentes"
+  ],
+  "agents": {
+    "orchestrator": "roi-orchestrator",
+    "implementer": "delivery-engineer / @dev",
+    "qa": "adversarial-qa-auditor / @qa",
+    "po": "@po",
+    "sm": "@sm (draft materialized)",
+    "devops": "evidence-release-steward / @devops"
+  },
+  "aiox_sequence": [
+    "STORY_DRAFT (done by force-next)",
+    "STORY_READY (@po validate — MANDATORY)",
+    "IMPLEMENTING (@dev on non-main branch — only this candidate)",
+    "IN_REVIEW (@dev handoff)",
+    "QA (@qa independent — MANDATORY)",
+    "PO_CLOSE (@po — MANDATORY)",
+    "PUBLISH (@devops draft PR — no auto-merge)",
+    "RERANK (force-next again)"
+  ],
+  "handoff_plan": "After story Draft: stop for @po. After Ready: @dev only. After InReview: @qa only. Never self-QA.",
+  "story_id": "ROI-cand-dyn-slice-b8d41f43fbfc",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-b8d41f43fbfc.md",
+  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-b8d41f43fbfc.json"
+}

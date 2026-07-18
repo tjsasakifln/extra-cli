@@ -1,0 +1,10 @@
+{
+  "verdict": "PASS",
+  "scope": "S5 evidence port + conservative inherited DoD flips",
+  "implementer": "delivery-engineer",
+  "gates_still_not_ready": true,
+  "pytest_nodeids_passed": 136,
+  "inherited_flips": 102,
+  "forbidden_claims_intact": true,
+  "at": "2026-07-18T20:11:41Z"
+}

@@ -1,0 +1,18 @@
+{
+  "story_id": "ROI-cand-dyn-slice-ec525563e7db",
+  "candidate_id": "cand-dyn-slice:ec525563e7db",
+  "dod_section": "Pacote final da consultoria",
+  "dod_lines": "261-269",
+  "verdict": "PASS",
+  "reviewer": "Quinn (adversarial-qa-auditor, independent)",
+  "reviewed_at": "2026-07-18T18:55:00Z",
+  "reviewed_commit": "898d396dc23cd3c8490cac69d955647a86a1ca3a",
+  "branch": "extra-roi/cand-dyn-slice-ec525563e7db",
+  "dod_md_flipped_by_qa": false,
+  "dod_still_unchecked": true,
+  "audit_fixture": "9/9 PASS",
+  "tiago_accept": "PENDING_HUMAN",
+  "same_run_id": "pkg-final-20260718-184742-7be42155",
+  "primary_residual": "page_estimate=36 structural vs minimal PDF binary placeholder",
+  "detail_path": "squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-ec525563e7db.json"
+}

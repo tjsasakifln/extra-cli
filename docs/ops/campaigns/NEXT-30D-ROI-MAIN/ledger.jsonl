@@ -7,3 +7,4 @@
 {"ts": "2026-07-18T19:37:19Z", "event": "INCREMENT_DONE", "task": "T03", "qa": "PASS"}
 {"ts": "2026-07-18T19:56:23Z", "event": "ATOMIC_SLICE_CLOSED", "task": "T05-partial", "pncp_bids": 1883, "next": "LEGACY_RECONCILIATION_PAUSE"}
 {"ts": "2026-07-18T20:05:18Z", "event": "LEGACY_PORT_WAVE1", "pytest": "184 passed, 1 skipped", "dod_flips": 0, "source": "0bd5074", "main_acceptance_pct": 6.9}
+{"ts": "2026-07-18T20:11:41Z", "event": "S5_AND_SELECTIVE_FLIPS", "inherited_flips": 102, "checked": 195, "pct": 14.4, "pause_released": true}

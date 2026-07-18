@@ -1,0 +1,36 @@
+=== MODIFIED ===
+M	squads/extra-dod-roi/state/cycles/current.json
+=== CACHED ===
+=== UNTRACKED ===
+.aiox/state/stories/ROI-cand-dyn-slice-b8d41f43fbfc.json
+backups/local-proof/proof-extra_test-20260718T134234Z.dump
+backups/local-proof/proof-extra_test-20260718T134243Z.dump
+docs/ops/recovery-2026-07-18/branches.txt
+docs/ops/recovery-2026-07-18/changed-files.txt
+docs/ops/recovery-2026-07-18/env-meta.txt
+docs/ops/recovery-2026-07-18/git-status.txt
+docs/ops/recovery-2026-07-18/reflog.txt
+docs/ops/recovery-2026-07-18/worktrees.txt
+docs/stories/ROI-cand-dyn-slice-b8d41f43fbfc.md
+output/applicability-matrix/applicability-decisions-sample.csv
+output/applicability-matrix/applicability-matrix.json
+output/applicability-matrix/unknown-gaps.json
+output/pdfs/gp-pack-20260718-152227-ac682e50/concorrentes.csv
+output/pdfs/gp-pack-20260718-152227-ac682e50/contratos.csv
+output/pdfs/gp-pack-20260718-152227-ac682e50/editais.csv
+output/pdfs/gp-pack-20260718-152227-ac682e50/golden-path-pack-2026-07-18.pdf
+output/pdfs/gp-pack-20260718-152227-ac682e50/manifest.json
+output/pdfs/gp-pack-20260718-152227-ac682e50/referencias_valores.csv
+=== AHEAD COMMITS (epic) ===
+67a87b1 fix(roi): demote closed dyn slices so force-next does not thrash
+c9d4081 chore(campaign): progress snapshot after slices a53bdc + 5e4792
+7bdc23c merge: ROI-cand-dyn-slice-5e47929809f6 sc_compras skip debt (QA PASS leave-open)
+3f9bbad chore(roi): close cycle cyc-2026-07-18T171940Z
+f4e2a53 qa+po: PASS ROI-cand-dyn-slice-5e47929809f6 leave full suite open
+199a2e8 test: remove obsolete sc_compras skip debt (full suite leave-open)
+6bbce91 merge: ROI-cand-dyn-slice-a53bdc0173af entity freshness (QA CONCERNS)
+6fa3d0f chore(roi): advance cycle cyc-2026-07-18T164226Z to PUBLISH/RERANK
+36d8b03 docs(dod): flip entity freshness measurable after QA CONCERNS
+541f846 qa: track independent gate artifact for cycle cyc-2026-07-18T164226Z
+f248e3e qa: CONCERNS for ROI-cand-dyn-slice-a53bdc0173af entity freshness
+1c8e988 feat: entity-level freshness coverage reporter for DoD slice a53bdc

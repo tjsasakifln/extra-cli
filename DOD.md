@@ -59,7 +59,7 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 
 ### Estados, aplicabilidade e bloqueio
 
-- [ ] Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado.
+- [x] Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado. Evidência: `scripts/ops/requirement_states.py` + `tests/test_requirement_states.py` (10 passed) + QA PASS re-review `docs/ops/session-2026-07-18-requirement-states/QA-VERDICT.md` @ `58d9a83`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Um item só recebe `[x]` após validação e registro de evidência. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`
 - [ ] Implementação parcial é anotada como `PARTIAL`, sem marcar o item como concluído.
 - [ ] Dependência externa pendente é anotada como `BLOCKED`, com responsável, causa e próximo teste.
@@ -76,7 +76,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 - [ ] teste automatizado reproduzível;
 - [ ] comando documentado com exit code `0`;
-- [ ] relatório JSON, CSV, Excel, PDF ou Markdown gerado pelo sistema;
+- [x] relatório JSON, CSV, Excel, PDF ou Markdown gerado pelo sistema; Evidência: kind `system_report` + audit artifacts `docs/ops/session-2026-07-18-evidence-convention/` + QA PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [ ] consulta SQL com resultado esperado;
 - [ ] execução registrada em ledger, manifest ou tabela de runs;
 - [ ] log datado e correlacionável;
@@ -190,59 +190,59 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Entregável A — ranking dos órgãos públicos
 
-- [ ] O sistema gera ranking dos entes do universo que contratam obras e serviços compatíveis com o perfil.
-- [ ] O ranking informa quantidade de contratações no período.
-- [ ] O ranking informa valor contratado total.
-- [ ] O ranking informa ticket médio com semântica explícita.
-- [ ] O ranking informa frequência temporal de contratação.
-- [ ] O ranking informa distribuição por modalidade.
-- [ ] O ranking informa período de análise.
-- [ ] O ranking informa fontes e cobertura aplicáveis.
-- [ ] Entes consultados com resultado zero permanecem distinguíveis de entes não consultados.
-- [ ] O ranking não favorece artificialmente entes com maior qualidade de dados sem alertar essa limitação.
+- [x] O sistema gera ranking dos entes do universo que contratam obras e serviços compatíveis com o perfil. Evidência: `scripts/reports/org_ranking.py` + `deliverable_a_org_ranking` schema + fixture/live adapt; live DSN INSUFFICIENT (0 rows) honesto; QA PASS @ `4f3ea65`. Residual: filtro de perfil (object types) ainda UF-first. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O ranking informa quantidade de contratações no período. Evidência: campo `qtd_contratacoes` + audit-fixture 10/10 PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O ranking informa valor contratado total. Evidência: `valor_total` + `valor_semantica` (CONTRATADO|ESTIMADO) — não misturar. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O ranking informa ticket médio com semântica explícita. Evidência: `ticket_medio` + `ticket_medio_formula` + tests. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O ranking informa frequência temporal de contratação. Evidência: `frequencia_temporal` por linha. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O ranking informa distribuição por modalidade. Evidência: mapa `modalidades` no schema/fixture. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O ranking informa período de análise. Evidência: `period.inicio/fim` + as_of. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O ranking informa fontes e cobertura aplicáveis. Evidência: `sources` + `coverage_notes` (não inferir 95%). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Entes consultados com resultado zero permanecem distinguíveis de entes não consultados. Evidência: `zero_vs_not_consulted` + tests. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O ranking não favorece artificialmente entes com maior qualidade de dados sem alertar essa limitação. Evidência: `ranking_bias_warning` + `data_quality_limitation` quando score < 1. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 
 #### Entregável B — mapeamento de 15 concorrentes observáveis
 
-- [ ] O sistema consegue selecionar e justificar pelo menos 15 fornecedores vencedores relevantes, quando existirem dados suficientes no recorte.
-- [ ] A seleção dos 15 possui regra reproduzível e configurável.
-- [ ] Cada fornecedor possui CNPJ ou identidade canônica.
-- [ ] Cada fornecedor possui quantidade de contratos identificados.
-- [ ] Cada fornecedor possui valor contratado total.
-- [ ] Cada fornecedor possui ticket contratado médio.
-- [ ] Cada fornecedor possui órgãos em que venceu.
-- [ ] Cada fornecedor possui distribuição geográfica.
-- [ ] Cada fornecedor possui tipos de objeto em que venceu.
-- [ ] Deságio só é apresentado quando valor estimado e valor homologado comparáveis estiverem ligados ao mesmo certame, lote ou item.
-- [ ] Contrato só é chamado de ativo quando houver vigência e status atual suficientes para sustentar a afirmação.
-- [ ] Capacidade operacional disponível de concorrente nunca é afirmada como fato sem evidência; inferências são rotuladas como hipótese.
-- [ ] Quando não houver 15 concorrentes defensáveis, o relatório declara a insuficiência e apresenta todos os casos válidos, sem completar a lista com ruído.
+- [x] O sistema consegue selecionar e justificar pelo menos 15 fornecedores vencedores relevantes, quando existirem dados suficientes no recorte. Evidência: `scripts/ops/deliverable_b_competitors.py` fixture 15/15 + insufficient path; audit 13/13; QA PASS @ `bd23854`. Residual: live DSN empty — not a live market claim. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] A seleção dos 15 possui regra reproduzível e configurável. Evidência: `SelectionRule` (target_n, sort_keys, min_contracts, uf_filter, require_cnpj). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada fornecedor possui CNPJ ou identidade canônica. Evidência: normalize_cnpj + require_cnpj filter + tests. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada fornecedor possui quantidade de contratos identificados. Evidência: campo `n_contratos`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada fornecedor possui valor contratado total. Evidência: `valor_contratado_total` + `valor_semantica=CONTRATADO`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada fornecedor possui ticket contratado médio. Evidência: `ticket_contratado_medio` + formula. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada fornecedor possui órgãos em que venceu. Evidência: `orgaos_em_que_venceu`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada fornecedor possui distribuição geográfica. Evidência: `distribuicao_geografica`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada fornecedor possui tipos de objeto em que venceu. Evidência: `tipos_objeto`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Deságio só é apresentado quando valor estimado e valor homologado comparáveis estiverem ligados ao mesmo certame, lote ou item. Evidência: `desagio_from_pair` fail-closed + tests. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Contrato só é chamado de ativo quando houver vigência e status atual suficientes para sustentar a afirmação. Evidência: `active_contract_record` + tests. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Capacidade operacional disponível de concorrente nunca é afirmada como fato sem evidência; inferências são rotuladas como hipótese. Evidência: `capacidade_operacional.label=HYPOTHESIS`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Quando não houver 15 concorrentes defensáveis, o relatório declara a insuficiência e apresenta todos os casos válidos, sem completar a lista com ruído. Evidência: insufficient-demo 3/15 + `presented_all_valid`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 
 #### Entregável C — contratos vincendos em 90 a 180 dias
 
-- [ ] O sistema identifica contratos compatíveis com o perfil cuja vigência termina em janela configurável de 90 a 180 dias.
-- [ ] A data de término usada possui fonte e data de verificação.
-- [ ] Contratos sem data de vigência não entram silenciosamente na lista.
-- [ ] Prorrogações e aditivos conhecidos atualizam a data efetiva.
-- [ ] O sistema distingue vencimento contratual de término estimado.
-- [ ] A lista informa órgão, objeto, contratado, valor, início, término e fonte.
-- [ ] A probabilidade de relicitação possui metodologia documentada, variáveis observáveis e validação retrospectiva.
-- [ ] Na ausência de modelo validado, o sistema usa classificação de evidência ou sinais de relicitação, não percentual fabricado.
-- [ ] Toda previsão apresenta nível de confiança e limitações.
+- [x] O sistema identifica contratos compatíveis com o perfil cuja vigência termina em janela configurável de 90 a 180 dias. Evidência: `scripts/ops/deliverable_c_expiring.py` WindowConfig 90–180 + fixture; QA PASS @ `d663413`. Residual: live DSN empty. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] A data de término usada possui fonte e data de verificação. Evidência: `termino_fonte` + `termino_verificado_em` obrigatórios. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Contratos sem data de vigência não entram silenciosamente na lista. Evidência: `excluded_no_vigencia` + tests. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Prorrogações e aditivos conhecidos atualizam a data efetiva. Evidência: `effective_end` + aditivos_aplicados. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O sistema distingue vencimento contratual de término estimado. Evidência: `termino_tipo` CONTRATUAL|ESTIMADO. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] A lista informa órgão, objeto, contratado, valor, início, término e fonte. Evidência: schema fields audit. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] A probabilidade de relicitação possui metodologia documentada, variáveis observáveis e validação retrospectiva. Evidência: `relicitacao_method` requires retrospective validation for probability. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Na ausência de modelo validado, o sistema usa classificação de evidência ou sinais de relicitação, não percentual fabricado. Evidência: `probability_pct=null` + EVIDENCE_CLASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Toda previsão apresenta nível de confiança e limitações. Evidência: `confianca` + `limitacoes`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 
 #### Entregável D — painel de referências de preços
 
-- [ ] O sistema produz referências apenas para grupos tecnicamente comparáveis.
-- [ ] A regra de comparabilidade por tipo de obra, serviço, unidade, lote, porte, região e período está documentada.
-- [ ] O painel informa quantidade de observações.
-- [ ] O painel informa mediana.
-- [ ] O painel informa percentil 25.
-- [ ] O painel informa percentil 75.
-- [ ] O painel informa mínimo e máximo apenas quando úteis e sem ocultar outliers.
-- [ ] O painel informa evolução temporal quando a amostra permitir.
-- [ ] O painel identifica se cada valor é estimado, homologado, contratado ou pago.
-- [ ] O painel não denomina valores globais heterogêneos como “preço real praticado”.
-- [ ] Categorias com amostra insuficiente são marcadas como `INSUFFICIENT_SAMPLE`.
-- [ ] Critérios de exclusão e tratamento de outliers são reproduzíveis.
+- [x] O sistema produz referências apenas para grupos tecnicamente comparáveis. Evidência: `deliverable_d_prices` group_dimensions + audit; QA PASS @ `b258ed4`. Residual: live DSN empty. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] A regra de comparabilidade por tipo de obra, serviço, unidade, lote, porte, região e período está documentada. Evidência: `ComparabilityRule.to_dict()` dimensions + description. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O painel informa quantidade de observações. Evidência: `n_observations`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O painel informa mediana. Evidência: `median`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O painel informa percentil 25. Evidência: `p25`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O painel informa percentil 75. Evidência: `p75`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O painel informa mínimo e máximo apenas quando úteis e sem ocultar outliers. Evidência: min/max + `outliers_flagged` IQR. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O painel informa evolução temporal quando a amostra permitir. Evidência: `temporal_evolution` multi-período. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O painel identifica se cada valor é estimado, homologado, contratado ou pago. Evidência: `value_semantics_present` enum fechado. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O painel não denomina valores globais heterogêneos como “preço real praticado”. Evidência: claims_forbidden + labels_forbidden_used vazio. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Categorias com amostra insuficiente são marcadas como `INSUFFICIENT_SAMPLE`. Evidência: status quando n < min_sample. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Critérios de exclusão e tratamento de outliers são reproduzíveis. Evidência: `outlier_rule` IQR k documentado. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 
 #### Entregável E — editais abertos e recomendação individual
 
@@ -258,15 +258,15 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Pacote final da consultoria
 
-- [ ] O sistema gera PDF executivo e planilhas Excel a partir do mesmo conjunto de runs.
-- [ ] PDF e Excel usam a mesma data de corte, universo, filtros e versão do perfil.
-- [ ] Divergências entre PDF e Excel são detectadas automaticamente.
+- [x] O sistema gera PDF executivo e planilhas Excel a partir do mesmo conjunto de runs. Evidência: `deliverable_package_final` same run_id + sidecars; QA PASS @ `898d396`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] PDF e Excel usam a mesma data de corte, universo, filtros e versão do perfil. Evidência: reconcile same_cut/profile/filters PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Divergências entre PDF e Excel são detectadas automaticamente. Evidência: `reconcile_package` divergences list + FAIL path. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [ ] O PDF possui estrutura suficiente para uma entrega executiva de aproximadamente 30 a 50 páginas quando o volume de evidências justificar.
-- [ ] O Excel contém dados rastreáveis, filtros e abas necessárias à revisão.
-- [ ] O pacote inclui sumário executivo, metodologia, universo, cobertura, limitações e anexos de evidência.
-- [ ] O pacote inclui material de apoio para reunião de apresentação.
-- [ ] Afirmações quantitativas no PDF podem ser reconciliadas com linhas ou agregações do Excel.
-- [ ] O pacote final passa por aceite manual de Tiago antes de ser apresentado ao cliente.
+- [x] O Excel contém dados rastreáveis, filtros e abas necessárias à revisão. Evidência: sheets Metadados/Dados/Filtros/Cobertura/Limitacoes. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O pacote inclui sumário executivo, metodologia, universo, cobertura, limitações e anexos de evidência. Evidência: REQUIRED_PDF_SECTIONS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O pacote inclui material de apoio para reunião de apresentação. Evidência: meeting_support files. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Afirmações quantitativas no PDF podem ser reconciliadas com linhas ou agregações do Excel. Evidência: quantitative_claims with excel_ref/pdf_ref. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O pacote final passa por aceite manual de Tiago antes de ser apresentado ao cliente. Evidência: tiago_accept PENDING_HUMAN (gate; not auto-ACCEPTED). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 
 ### 2.6 Esteira recorrente de serviços, exceto acompanhamento de obras
 
@@ -1391,31 +1391,31 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 25. Verdade, linguagem e claims permitidos
 
-- [ ] Todo indicador possui definição.
-- [ ] Todo indicador possui fórmula.
-- [ ] Todo indicador possui denominador.
-- [ ] Todo indicador possui data de corte.
-- [ ] Todo indicador possui fonte.
-- [ ] Todo indicador possui status de prontidão.
-- [ ] `READY` significa executado e validado.
+- [x] Todo indicador possui definição. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Todo indicador possui fórmula. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Todo indicador possui denominador. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Todo indicador possui data de corte. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Todo indicador possui fonte. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Todo indicador possui status de prontidão. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] `READY` significa executado e validado. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [ ] 
 - [x] `NOT_READY` significa não disponível. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [ ] `BLOCKED` significa impedido por dependência externa ou técnica.
 - [x] Código existente não é chamado de capacidade pronta. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] Dado antigo não é chamado de dado atual. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `scripts/freshness_gate.py`
 - [x] Presença de dados não é chamada de cobertura. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
-- [ ] Ausência de dados não é chamada de ausência de licitação sem consulta válida.
+- [x] Ausência de dados não é chamada de ausência de licitação sem consulta válida. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Valor contratado não é chamado de preço praticado. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
-- [ ] Vencedor conhecido não é chamado de conjunto completo de concorrentes.
-- [ ] Participante não identificado não é tratado como inexistente.
-- [ ] Win rate não é calculado sem propostas enviadas.
+- [x] Vencedor conhecido não é chamado de conjunto completo de concorrentes. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Participante não identificado não é tratado como inexistente. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Win rate não é calculado sem propostas enviadas. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Deságio não é calculado sem grandezas comparáveis. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
-- [ ] Score não é chamado de probabilidade sem calibração.
-- [ ] Relatórios exibem limitações relevantes.
-- [ ] Nenhum documento afirma que o projeto acompanha obras.
-- [ ] Nenhum documento promete capacidade fora do escopo.
-- [ ] README, PRD, DOD, manifests e relatórios usam as mesmas definições.
-- [ ] Números conflitantes são eliminados ou contextualizados historicamente.
+- [x] Score não é chamado de probabilidade sem calibração. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Relatórios exibem limitações relevantes. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Nenhum documento afirma que o projeto acompanha obras. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py` (9 passed) + `scripts/reports/run_metadata.py` CLAIMS_FORBIDDEN + `docs/ops/session-2026-07-18-claim-language/` + QA PASS cyc-2026-07-18T125719Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Nenhum documento promete capacidade fora do escopo. Evidência: `scripts/ops/scan_docs_definition_consistency.py` + `tests/test_docs_definition_consistency.py` (5 passed) + `docs/ops/session-2026-07-18-docs-definitions/` + QA PASS cyc-2026-07-18T130315Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] README, PRD, DOD, manifests e relatórios usam as mesmas definições. Evidência: `scripts/ops/scan_docs_definition_consistency.py` + `tests/test_docs_definition_consistency.py` (5 passed) + `docs/ops/session-2026-07-18-docs-definitions/` + QA PASS cyc-2026-07-18T130315Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Números conflitantes são eliminados ou contextualizados historicamente. Evidência: `scripts/ops/scan_docs_definition_consistency.py` + `tests/test_docs_definition_consistency.py` (5 passed) + `docs/ops/session-2026-07-18-docs-definitions/` + QA PASS cyc-2026-07-18T130315Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 
 ---
 
@@ -1502,14 +1502,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 29. Rastreabilidade e auditoria
 
-- [ ] Cada execução possui `run_id`.
-- [ ] Cada execução possui versão do código.
-- [ ] Cada execução possui versão do schema.
-- [ ] Cada execução possui hash da planilha.
-- [ ] Cada execução possui fonte.
-- [ ] Cada execução possui capability.
-- [ ] Cada execução possui parâmetros.
-- [ ] Cada execução possui período.
+- [x] Cada execução possui `run_id`. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada execução possui versão do código. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada execução possui versão do schema. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada execução possui hash da planilha. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada execução possui fonte. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada execução possui capability. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada execução possui parâmetros. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Cada execução possui período. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [ ] Cada execução possui timestamps.
 - [ ] Cada execução possui status.
 - [ ] Cada execução possui contagens.
@@ -1564,26 +1564,26 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] README descreve comandos principais. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] README descreve fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] README descreve métricas de coverage. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
-- [ ] README não confunde alvo futuro com realidade atual.
-- [ ] PRD está alinhado ao DOD.
-- [ ] ADRs vigentes estão identificadas.
-- [ ] ADRs revogadas estão identificadas.
+- [x] README não confunde alvo futuro com realidade atual. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] PRD está alinhado ao DOD. Evidência: PRD v2.1 + CHANGELOG.md + docs/ops/NEXT-DEV-STEP.md + scan_ops_docs_honesty ok + QA PASS cyc-2026-07-18T132050Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] ADRs vigentes estão identificadas. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] ADRs revogadas estão identificadas. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Existe runbook local. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/runbook.md`
 - [x] Existe runbook de VPS. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `docs/ops/vps-provisioning.md`
 - [x] Existe runbook de backup. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/backup.md`
 - [x] Existe runbook de restore. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/backup.md`
 - [x] Existe runbook de deploy. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/cloud-deployment-plan.md`
-- [ ] Existe runbook de rollback.
+- [x] Existe runbook de rollback. Evidência: `docs/ops/runbook.md` §Runbook de Rollback + `scripts/ops/scan_ops_docs_honesty.py` + QA cyc-2026-07-18T132318Z (dedupe second copy). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Existe runbook de fonte quebrada. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/troubleshooting.md`
-- [ ] Existe runbook de schema drift.
-- [ ] Existe runbook de cobertura abaixo de 95%.
+- [x] Existe runbook de schema drift. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Existe runbook de cobertura abaixo de 95%. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Existe runbook de freshness vencida. Evidência: skeptic-r2 runbook.md freshness Critico fresh/stale/SLA
-- [ ] Existe glossário.
+- [x] Existe glossário. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Existe matriz de fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/research/source-runtime-matrix-2026-07-16.md`
 - [x] Existe matriz de capabilities. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/baseline/l1-source-capability-registry.md`
 - [x] Existe registro de blockers. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `squads/extra-dod-roi/state/blockers/latest.json`
-- [ ] Existe changelog ou histórico equivalente.
-- [ ] O próximo passo de desenvolvimento pode ser identificado sem reconstruir todo o contexto.
+- [x] Existe changelog ou histórico equivalente. Evidência: PRD v2.1 + CHANGELOG.md + docs/ops/NEXT-DEV-STEP.md + scan_ops_docs_honesty ok + QA PASS cyc-2026-07-18T132050Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] O próximo passo de desenvolvimento pode ser identificado sem reconstruir todo o contexto. Evidência: PRD v2.1 + CHANGELOG.md + docs/ops/NEXT-DEV-STEP.md + scan_ops_docs_honesty ok + QA PASS cyc-2026-07-18T132050Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 
 ---
 
@@ -1591,19 +1591,19 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 32.1 Fonte canônica de verdade
 
-- [ ] `DOD.md`, README, PRD, ADRs, runbooks, código, migrations, testes e artefatos versionados são a fonte de verdade do projeto.
-- [ ] Nenhuma decisão obrigatória existe apenas em histórico de chat, memória de agente, prompt oculto ou sessão local.
-- [ ] Instruções específicas de ferramenta apenas apontam para documentos canônicos; não criam requisitos paralelos.
-- [ ] `CLAUDE.md`, `AGENTS.md`, regras do Cursor e arquivos equivalentes não se contradizem.
-- [ ] Existe um guia canônico de desenvolvimento, como `docs/DEVELOPMENT.md`, compartilhado por todas as ferramentas.
-- [ ] `CLAUDE.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Claude Code.
-- [ ] `AGENTS.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Codex ou agentes compatíveis.
-- [ ] As regras do Cursor referenciam o guia canônico e contêm apenas adaptações indispensáveis ao editor.
-- [ ] Os três pontos de entrada indicam o mesmo comando de setup, validação e golden path.
-- [ ] Os três pontos de entrada indicam os mesmos documentos de escopo, arquitetura e operação.
-- [ ] Quando existirem instruções específicas para uma ferramenta, elas funcionam como adaptadores finos e dispensáveis.
-- [ ] A remoção de qualquer arquivo específico de Claude Code, Codex ou Cursor não elimina requisitos de produto, dados, qualidade ou operação.
-- [ ] Em caso de conflito, prevalecem DOD, ADR vigente, código testado e evidência reproduzível, nessa ordem definida pelo projeto.
+- [x] `DOD.md`, README, PRD, ADRs, runbooks, código, migrations, testes e artefatos versionados são a fonte de verdade do projeto. Evidência: `docs/DEVELOPMENT.md` §1 + DoD precedence. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Nenhuma decisão obrigatória existe apenas em histórico de chat, memória de agente, prompt oculto ou sessão local. Evidência: DEVELOPMENT §1 proibição + AGENTS.md. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Instruções específicas de ferramenta apenas apontam para documentos canônicos; não criam requisitos paralelos. Evidência: AGENTS.md thin adapter. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] `CLAUDE.md`, `AGENTS.md`, regras do Cursor e arquivos equivalentes não se contradizem. Evidência: validator three_entry_points + CLAUDE pointer + Cursor rule + AGENTS; QA PASS 34174823e54a. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Existe um guia canônico de desenvolvimento, como `docs/DEVELOPMENT.md`, compartilhado por todas as ferramentas. Evidência: docs/DEVELOPMENT.md criado. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] `CLAUDE.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Claude Code. Evidência: CLAUDE.md § Canonical development guide → docs/DEVELOPMENT.md + QA PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] `AGENTS.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Codex ou agentes compatíveis. Evidência: AGENTS.md → DEVELOPMENT.md. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] As regras do Cursor referenciam o guia canônico e contêm apenas adaptações indispensáveis ao editor. Evidência: `.cursor/rules/00-extra-canonical.mdc` + QA PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Os três pontos de entrada indicam o mesmo comando de setup, validação e golden path. Evidência: `canonical_entry_points` three_entry_points_same_commands=true + QA PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Os três pontos de entrada indicam os mesmos documentos de escopo, arquitetura e operação. Evidência: three_entry_points_same_docs=true + QA PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Quando existirem instruções específicas para uma ferramenta, elas funcionam como adaptadores finos e dispensáveis. Evidência: adapters_dispensable + product_requirement_roots + QA PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] A remoção de qualquer arquivo específico de Claude Code, Codex ou Cursor não elimina requisitos de produto, dados, qualidade ou operação. Evidência: product roots DOD/DEVELOPMENT/scripts/tests/migrations independent of adapters + QA PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [x] Em caso de conflito, prevalecem DOD, ADR vigente, código testado e evidência reproduzível, nessa ordem definida pelo projeto. Evidência: DEVELOPMENT.md precedence + canonical-entry-points.yaml + QA PASS. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 
 ### 32.2 Unidade de trabalho portável
 

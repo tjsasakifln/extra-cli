@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN",
+  "kind": "inherited_baseline_freeze",
+  "frozen_at": "2026-07-18T20:11:41Z",
+  "pre_commit_head": "634fb541baa68565f4b88b8a40ee8d416155e84d",
+  "epic_checkpoint": "0bd5074",
+  "dod": {
+    "checked": 195,
+    "open": 1160,
+    "total": 1355,
+    "sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1"
+  },
+  "lineage": {
+    "epic_acceptance_pct": 32.3,
+    "main_pre_recon_pct": 6.8,
+    "main_after_inherited_port_pct": 14.4,
+    "explanation": "Increase from ~6.9% to ~14.4% is inherited validated checkbox integration, not new critical-path invention."
+  },
+  "s5_sessions_ported": true,
+  "selective_flips": 102,
+  "pytest_reproof": "136 passed nodeids"
+}

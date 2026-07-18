@@ -141,3 +141,15 @@ Machine-readable: `legacy-branch-reconciliation.json`
 | Code capability restored from epic | yes (184 unit tests) |
 
 **Still paused for new PERT cycles until S5 evidence port + selective DoD revalidation.**
+
+
+## 11. Inherited baseline freeze (2026-07-18T20:11:41Z)
+
+| Metric | Value |
+|--------|------:|
+| Canonical acceptance on main | **195/1355 (14.4%)** |
+| Inherited validated flips (this wave) | **102** |
+| New campaign-only flips | 1 (§13.4) |
+| Epic historical (reference only) | 437/1354 (32.3%) — not main |
+
+**Policy:** inherited flips are NOT new PERT advance. Campaign EXECUTING resumed after freeze.

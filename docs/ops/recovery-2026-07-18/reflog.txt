@@ -1,0 +1,50 @@
+67a87b1 HEAD@{0}: commit: fix(roi): demote closed dyn slices so force-next does not thrash
+c9d4081 HEAD@{1}: commit: chore(campaign): progress snapshot after slices a53bdc + 5e4792
+7bdc23c HEAD@{2}: merge extra-roi/cand-dyn-slice-5e47929809f6: Merge made by the 'ort' strategy.
+6bbce91 HEAD@{3}: checkout: moving from extra-roi/cand-dyn-slice-5e47929809f6 to epic/advance-30d-local-ready-20260718
+3f9bbad HEAD@{4}: commit: chore(roi): close cycle cyc-2026-07-18T171940Z
+f4e2a53 HEAD@{5}: commit: qa+po: PASS ROI-cand-dyn-slice-5e47929809f6 leave full suite open
+199a2e8 HEAD@{6}: commit: test: remove obsolete sc_compras skip debt (full suite leave-open)
+6bbce91 HEAD@{7}: checkout: moving from epic/advance-30d-local-ready-20260718 to extra-roi/cand-dyn-slice-5e47929809f6
+6bbce91 HEAD@{8}: merge extra-roi/cand-dyn-slice-a53bdc0173af: Merge made by the 'ort' strategy.
+311e8ea HEAD@{9}: checkout: moving from extra-roi/cand-dyn-slice-a53bdc0173af to epic/advance-30d-local-ready-20260718
+6fa3d0f HEAD@{10}: commit: chore(roi): advance cycle cyc-2026-07-18T164226Z to PUBLISH/RERANK
+36d8b03 HEAD@{11}: commit: docs(dod): flip entity freshness measurable after QA CONCERNS
+541f846 HEAD@{12}: commit: qa: track independent gate artifact for cycle cyc-2026-07-18T164226Z
+f248e3e HEAD@{13}: commit: qa: CONCERNS for ROI-cand-dyn-slice-a53bdc0173af entity freshness
+1c8e988 HEAD@{14}: commit: feat: entity-level freshness coverage reporter for DoD slice a53bdc
+311e8ea HEAD@{15}: checkout: moving from epic/advance-30d-local-ready-20260718 to extra-roi/cand-dyn-slice-a53bdc0173af
+311e8ea HEAD@{16}: checkout: moving from epic/advance-30d-local-ready-20260718 to epic/advance-30d-local-ready-20260718
+311e8ea HEAD@{17}: commit: feat(ops): DoD §27 hygiene — metrics policy, legacy plan, dry-run, confirm-drop
+7386de1 HEAD@{18}: commit: feat(ops): audit centralized domain constants and source URLs (DoD §27)
+89cf655 HEAD@{19}: commit: fix(ops): eliminate silent except Exception: pass under scripts/ (DoD §27)
+9c619e8 HEAD@{20}: commit: feat(ops): DoD §27 code organization gate (names, sys.path policy, bare except)
+59dbb29 HEAD@{21}: commit: feat(docs): complete DoD §32.1 entry-point alignment (Claude/Agents/Cursor)
+1af5657 HEAD@{22}: commit: docs: canonical DEVELOPMENT.md + AGENTS.md adapter (DoD §32.1)
+150106d HEAD@{23}: commit: feat(ops): complete DoD §13.3 HTTP error vs zero and contract alerts
+6d446ca HEAD@{24}: commit: feat(ops): DoD §13.3 source contract suite (PNCP/PCP/ComprasGov)
+c044cae HEAD@{25}: commit: feat(coverage): complete DoD §7.2 substitution guard and blocker reports
+415a001 HEAD@{26}: commit: feat(coverage): DoD §7.2 entity×source×capability applicability matrix
+bf0d115 HEAD@{27}: commit: feat(registry): complete DoD §7.1 operational status machine
+a10c273 HEAD@{28}: commit: feat(registry): DoD §7.1 canonical source fields (URL, geo, limits, status)
+e82f5f2 HEAD@{29}: commit: feat(reports): §12.2 source health + CSV/Excel/PDF export with metadata
+381f9e1 HEAD@{30}: commit: feat(reports): §12.2 analytical reports (contracts, coverage, recall NOT_READY)
+c704840 HEAD@{31}: commit: feat(ops): §12.2 eight operational lists with live PG evidence
+c043458 HEAD@{32}: commit: chore(campaign): progress after clean-env slice
+8f34d08 HEAD@{33}: merge extra-roi/cand-golden-clean-env: Merge made by the 'ort' strategy.
+7e13818 HEAD@{34}: checkout: moving from extra-roi/cand-golden-clean-env to epic/advance-30d-local-ready-20260718
+1b75e8a HEAD@{35}: commit: docs(dod): flip clean-env golden path item after QA PASS [ROI-16eac35a037b]
+a25ee64 HEAD@{36}: commit: feat(ops): golden path clean-environment bootstrap proof [ROI-16eac35a037b]
+7e13818 HEAD@{37}: checkout: moving from epic/advance-30d-local-ready-20260718 to extra-roi/cand-golden-clean-env
+7e13818 HEAD@{38}: commit: chore(campaign): progress after golden-reports-pdf slice
+d0c3aee HEAD@{39}: merge extra-roi/cand-golden-reports-pdf: Merge made by the 'ort' strategy.
+c55c905 HEAD@{40}: checkout: moving from extra-roi/cand-golden-reports-pdf to epic/advance-30d-local-ready-20260718
+8ee3384 HEAD@{41}: commit: docs(dod): flip 5 golden-path report/PDF items after QA PASS [ROI-4f08e0461629]
+95a266e HEAD@{42}: commit: feat(reports): golden path pack with real PDF and commercial CSVs [ROI-4f08e0461629]
+c55c905 HEAD@{43}: checkout: moving from epic/advance-30d-local-ready-20260718 to extra-roi/cand-golden-reports-pdf
+c55c905 HEAD@{44}: commit: chore(campaign): progress after golden-path-live slice
+ec5226e HEAD@{45}: merge extra-roi/cand-golden-path-live: Merge made by the 'ort' strategy.
+546b548 HEAD@{46}: checkout: moving from extra-roi/cand-golden-path-live to epic/advance-30d-local-ready-20260718
+0f38dec HEAD@{47}: commit: docs(dod): flip 6 golden-path live items after QA PASS [ROI-b904c9d40e3a]
+377b66e HEAD@{48}: commit: feat(golden-path): live PNCP path, upsert fix, coverage+snapshot gates [ROI-b904c9d40e3a]
+546b548 HEAD@{49}: checkout: moving from epic/advance-30d-local-ready-20260718 to extra-roi/cand-golden-path-live

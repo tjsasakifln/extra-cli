@@ -1,0 +1,9 @@
+ops_docs_honesty: ok=True missing=[]
+  readme_honesty_markers=True
+  runbook_rollback_drift_coverage=True
+  adr_index_active=True
+  adr_index_revoked_section=True
+  glossary_universe_1093=True
+  prd_aligned_language=True
+  changelog_exists=True
+  next_dev_step_exists=True

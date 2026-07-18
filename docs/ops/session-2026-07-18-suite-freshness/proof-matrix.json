@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-a53bdc0173af",
+  "cycle_id": "cyc-2026-07-18T164226Z",
+  "generated_at": "2026-07-18T17:14:56.838949+00:00",
+  "acs": [
+    {
+      "id": "AC1-suite",
+      "result": "LEAVE_OPEN",
+      "evidence": [
+        "01-critical-readiness.txt",
+        "collect.txt",
+        "MANIFEST.md"
+      ],
+      "notes": "197 passed 24 skipped; full suite not green"
+    },
+    {
+      "id": "AC2-entity-freshness",
+      "result": "PROVEN_MEASURABLE",
+      "evidence": [
+        "entity-freshness-report.json",
+        "entity-freshness-gaps.csv",
+        "unit-entity-freshness.txt"
+      ],
+      "metric": {
+        "num": 0,
+        "den": 1093,
+        "pct": 0.0,
+        "sla_hours": 24
+      }
+    },
+    {
+      "id": "AC3-process",
+      "result": "PENDING_QA",
+      "evidence": [],
+      "notes": "DoD flip only after independent QA"
+    }
+  ],
+  "dod_recommendations": [
+    {
+      "id": "dod:b06848ca7f90",
+      "action": "LEAVE_OPEN"
+    },
+    {
+      "id": "dod:925f2c0e059a",
+      "action": "FLIP_AFTER_QA"
+    }
+  ]
+}
