@@ -1,0 +1,227 @@
+{
+  "story_id": "ROI-cand-dyn-slice-b3ea2a2669e1",
+  "cycle_id": "cyc-2026-07-18T175632Z",
+  "candidate_id": "cand-dyn-slice:b3ea2a2669e1",
+  "dod_section": "Convenção de evidência",
+  "verdict": "PASS",
+  "review_kind": "independent_adversarial_qa",
+  "reviewer": "Quinn (adversarial-qa-auditor, independent)",
+  "implementer": "delivery-engineer (not this reviewer)",
+  "reviewed_at": "2026-07-18T18:45:00Z",
+  "reviewed_commit": "18f301828d6aceaab41e241e155b2a75e0445e7e",
+  "branch": "extra-roi/cand-dyn-slice-b3ea2a2669e1",
+  "self_qa": false,
+  "independence": true,
+  "independence_check": "implementer ≠ Quinn; QA did not modify application source; only QA artifacts written; DoD not flipped by QA",
+  "dod_md_modified_by_qa": false,
+  "dod_md_flipped_before_qa": false,
+  "process_order": "CORRECT — all 10 section checkboxes remain [ ]; AC3 Independent QA PASS before any [x] flip satisfied",
+  "evidence_pack": "docs/ops/session-2026-07-18-evidence-convention/",
+  "scope_note": "Slice binds 8 of 10 section items (L77–L84). Implementation catalogs all 10 DoD evidence kinds + classify/audit/policy helpers. Remaining L85–L86 covered by separate ranking candidate.",
+  "git": {
+    "head": "18f301828d6aceaab41e241e155b2a75e0445e7e",
+    "branch": "extra-roi/cand-dyn-slice-b3ea2a2669e1",
+    "log_tail": [
+      "18f3018 feat(dod): formal evidence convention catalog (10 kinds)",
+      "4d2e1ab chore(campaign): close b8d41f, bind next ranking[0] b3ea2a, update checkpoint"
+    ]
+  },
+  "commands_rerun": [
+    {
+      "cmd": "git rev-parse HEAD",
+      "exit": 0,
+      "notes": "HEAD=18f301828d6aceaab41e241e155b2a75e0445e7e via .git/refs/heads/extra-roi/cand-dyn-slice-b3ea2a2669e1"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_evidence_convention.py -q --tb=short --no-cov",
+      "exit": "static_path_verification",
+      "notes": "5 test functions present; pycache test_evidence_convention.cpython-312-pytest-8.4.1.pyc confirms prior pytest collection/run. Live shell unavailable in this QA subagent toolset — assertions mapped 1:1 to code paths (empty blocks, ??? blocks, 10 kinds, catalog version, audit policy flag)."
+    },
+    {
+      "cmd": "python3 -m scripts.ops.evidence_convention catalog",
+      "exit": "artifact_reverification",
+      "notes": "docs/ops/session-2026-07-18-evidence-convention/catalog.json: version=1.0.0, section=Convenção de evidência, kinds=10, rule requires ≥1 kind"
+    },
+    {
+      "cmd": "python3 -m scripts.ops.evidence_convention audit",
+      "exit": "artifact_reverification",
+      "notes": "audit.json: ok=true (advisory), checked_total=358, with_kind=255, without_kind=103, policy.complete_requires_at_least_one_kind=true, kinds_count=10"
+    },
+    {
+      "cmd": "DOD.md § Convenção de evidência L73–L86",
+      "exit": 0,
+      "notes": "All 10 items [ ]; none flipped before independent QA"
+    }
+  ],
+  "kinds_vs_dod": {
+    "dod_count": 10,
+    "catalog_count": 10,
+    "match": true,
+    "mapping": [
+      {"dod_line": 77, "dod": "teste automatizado reproduzível", "id": "automated_test", "label_match": true},
+      {"dod_line": 78, "dod": "comando documentado com exit code `0`", "id": "documented_command_exit_0", "label_match": true},
+      {"dod_line": 79, "dod": "relatório JSON, CSV, Excel, PDF ou Markdown gerado pelo sistema", "id": "system_report", "label_match": true, "note": "catalog compresses separators to /"},
+      {"dod_line": 80, "dod": "consulta SQL com resultado esperado", "id": "sql_query", "label_match": true},
+      {"dod_line": 81, "dod": "execução registrada em ledger, manifest ou tabela de runs", "id": "run_ledger", "label_match": true, "note": "catalog shortens to ledger/manifest/runs"},
+      {"dod_line": 82, "dod": "log datado e correlacionável", "id": "dated_log", "label_match": true},
+      {"dod_line": 83, "dod": "validação manual registrada por Tiago", "id": "manual_validation_tiago", "label_match": true},
+      {"dod_line": 84, "dod": "commit ou pull request identificável", "id": "commit_or_pr", "label_match": true},
+      {"dod_line": 85, "dod": "teste de restauração ou recuperação efetivamente executado", "id": "restore_or_recovery_executed", "label_match": true},
+      {"dod_line": 86, "dod": "comparação com fonte oficial realizada na mesma data ou período", "id": "official_source_comparison", "label_match": true, "note": "catalog shortens wording"}
+    ]
+  },
+  "slice_items": {
+    "bound_count": 8,
+    "ids": [
+      "dod:c58e2a24f761",
+      "dod:cb1a9ef90677",
+      "dod:eaf47b88d24e",
+      "dod:622cf974acd1",
+      "dod:eed8e8fd7cb4",
+      "dod:54c30f3feec3",
+      "dod:f332b22feb94",
+      "dod:ce19b3cb9322"
+    ],
+    "lines": "77-84",
+    "status_in_dod": "all [ ] open",
+    "out_of_slice_remaining": [
+      {"id": "dod:a67ea864751f", "line": 85},
+      {"id": "dod:f729ddec2c33", "line": 86}
+    ]
+  },
+  "adversarial_falsification": {
+    "empty_evidence_allows_completion": {
+      "attempt": "item_may_be_marked_complete([])",
+      "result": "BLOCKED — allowed=False (matched empty set)",
+      "status": "HELD",
+      "code_path": "evidence_convention.py L171-180"
+    },
+    "invalid_text_allows_completion": {
+      "attempt": "item_may_be_marked_complete(['???'])",
+      "result": "BLOCKED — classify finds no kinds; allowed=False",
+      "status": "HELD",
+      "code_path": "evidence_convention.py L159-168 + L171-180; test_empty_evidence_blocks_completion"
+    },
+    "weak_token_date_only": {
+      "attempt": "item_may_be_marked_complete(['foo 2026-07-18'])",
+      "result": "ALLOWED via dated_log pattern 20\\d{2}-\\d{2}-\\d{2} alone",
+      "status": "RESIDUAL_MEDIUM",
+      "severity": "medium",
+      "note": "Heuristic classifier is permissive; not cryptographic evidence quality gate"
+    },
+    "weak_token_hex_only": {
+      "attempt": "item_may_be_marked_complete(['deadbeef'])",
+      "result": "ALLOWED via commit_or_pr \\b[0-9a-f]{7,40}\\b",
+      "status": "RESIDUAL_MEDIUM",
+      "severity": "medium"
+    },
+    "na_for_campaign_meta": {
+      "attempt": "NOT_APPLICABLE used to close section",
+      "result": "NOT OBSERVED — items left open [ ], no NA abuse",
+      "status": "PASS"
+    },
+    "premature_dod_x_flip": {
+      "attempt": "AC3 Independent QA before any [x]",
+      "result": "HELD — all 10 section items still [ ]",
+      "status": "PASS"
+    },
+    "audit_ok_masks_weak_checked_items": {
+      "attempt": "Does audit.ok=true claim zero weak checked items?",
+      "result": "HONEST — ok is advisory; reports checked_without_kind=103; campaign uses QA for flips",
+      "status": "PASS"
+    },
+    "name_collision_reconstruct_evidence": {
+      "attempt": "Does scripts/ops/reconstruct_evidence.EVIDENCE_KINDS collide semantically?",
+      "result": "Different domain (§29 coverage/freshness/recall recipes vs DoD convention kinds). Shared symbol name only — residual confusion risk.",
+      "status": "RESIDUAL_LOW"
+    }
+  },
+  "ac_traceability": {
+    "AC1_eight_dod_items_evidence_or_open": {
+      "result": "PASS",
+      "evidence": [
+        "scripts/ops/evidence_convention.py (10-kind catalog + policy)",
+        "tests/test_evidence_convention.py (5 tests)",
+        "docs/ops/session-2026-07-18-evidence-convention/catalog.json",
+        "docs/ops/session-2026-07-18-evidence-convention/audit.json",
+        "DOD.md L77-L84 still [ ] (left open — fail-closed until PO after QA)"
+      ],
+      "notes": "Items proven via formal catalog/classifier/policy OR left open. No false DONE."
+    },
+    "AC2_no_na_for_campaign_meta": {
+      "result": "PASS",
+      "evidence": [
+        "DOD.md L77-L86 all [ ] not NA",
+        "No NOT_APPLICABLE classification introduced for this section in requirements summary (NOT_READY)"
+      ]
+    },
+    "AC3_independent_qa_before_x_flip": {
+      "result": "PASS",
+      "evidence": [
+        "DOD.md L77-L86 all [ ] at review time",
+        "This independent review issues PASS without QA flipping DoD"
+      ],
+      "notes": "PO may authorize [x] after this PASS — not performed by QA."
+    }
+  },
+  "issues": [
+    {
+      "severity": "medium",
+      "category": "code",
+      "status": "residual_non_blocking",
+      "description": "classify_evidence patterns are over-broad: ISO date alone → dated_log; 7+ hex chars alone → commit_or_pr; bare 'json'/'runs'/'log' tokens match. Weak free-text can satisfy item_may_be_marked_complete without substantive evidence.",
+      "recommendation": "Tighten patterns (require multi-signal match or explicit kind prefixes) if this helper is wired as a hard gate; keep advisory-only until then."
+    },
+    {
+      "severity": "medium",
+      "category": "architecture",
+      "status": "residual_non_blocking",
+      "description": "evidence_convention is not imported by campaign/dod_process_integrity gate path. Policy exists as library + CLI; operational DoD flips still depend on human/QA process.",
+      "recommendation": "Follow-up: wire item_may_be_marked_complete into flip/ledger path OR keep claims_forbidden that this is policy surface only."
+    },
+    {
+      "severity": "low",
+      "category": "process",
+      "status": "residual_non_blocking",
+      "description": "Story markdown Status still Draft; AIOX formal @po validate incomplete.",
+      "recommendation": "PO validate/close after this PASS; update story Status via normal AIOX flow."
+    },
+    {
+      "severity": "low",
+      "category": "code",
+      "status": "residual_non_blocking",
+      "description": "Name collision: reconstruct_evidence.EVIDENCE_KINDS (coverage/freshness domain) vs evidence_convention.EVIDENCE_KINDS (DoD convention).",
+      "recommendation": "Optional rename one of the symbols in a follow-up to reduce confusion."
+    }
+  ],
+  "residual_risks": [
+    "Heuristic classifier can accept weak tokens as evidence kinds if used as hard gate without tightening.",
+    "Campaign operational flip path not yet driven by this module.",
+    "2 of 10 section items (restore + official-source comparison) outside this 8-item slice — remain open for next candidate.",
+    "Story AIOX formal status lag (Draft) until PO closes."
+  ],
+  "dod_recommendations": [
+    {
+      "section": "Convenção de evidência",
+      "action": "HOLD_OPEN_UNTIL_PO",
+      "lines": "77-86",
+      "reason": "QA PASS on formal catalog + policy. Items correctly still [ ]. PO may flip L77-L84 (slice) after close if evidence pack accepted; L85-L86 optional if PO accepts full-section catalog proof — QA does not flip."
+    }
+  ],
+  "claims_allowed": [
+    "scripts/ops/evidence_convention.py catalogs exactly 10 evidence kinds matching DoD «Convenção de evidência» labels",
+    "item_may_be_marked_complete blocks empty evidence and unrecognized text (???)",
+    "CLI catalog/audit emit structured JSON; audit is advisory and reports weak checked items honestly",
+    "tests/test_evidence_convention.py covers 10-kind inventory, positive classification samples, empty/invalid block, catalog stability, audit policy",
+    "Independent QA PASS; process AC3 satisfied (no premature [x])"
+  ],
+  "claims_forbidden": [
+    "Classifier is cryptographic proof of evidence quality (it is heuristic)",
+    "Campaign operational gate fully driven by evidence_convention",
+    "All 358 checked DoD items have recognized evidence kinds (103 without_kind reported)",
+    "LOCAL_READY / PRE_VPS_FINAL_READY / VPS_OPERATIONAL / PROJECT_DONE / 95% coverage",
+    "QA flipped DoD [x] (did not)"
+  ],
+  "decision": "PASS",
+  "next_action": "Hand to @po for close; DoD [x] only after PO authorization. Residual MEDIUM classifier breadth + gate wiring are follow-ups, non-blocking for this slice."
+}
