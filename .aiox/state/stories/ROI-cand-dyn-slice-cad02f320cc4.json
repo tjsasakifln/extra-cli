@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-cad02f320cc4",
+  "title": "[25. Verdade, linguagem e claims permitidos] Todo indicador possui defini\u00e7\u00e3o. \u00b7 Todo indicador possui f\u00f3rmula. \u00b7 Todo indicador possui denominador. (+5 more)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-cad02f320cc4.md",
+  "created_at": "2026-07-18T12:50:38Z",
+  "updated_at": "2026-07-18T12:56:36Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T125038Z",
+    "candidate_id": "cand-dyn-slice:cad02f320cc4",
+    "roi": 4.3448,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}

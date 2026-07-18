@@ -135,17 +135,66 @@ class MetricKind(StrEnum):
 # ---------------------------------------------------------------------------
 
 
+# Semantic contract for readiness labels (DoD §25).
+READY_SEMANTICS = (
+    "READY means the metric was executed against current inputs and validated "
+    "(numerator/denominator/pct computed or explicitly unavailable fields set). "
+    "Code existence alone never yields READY."
+)
+NOT_READY_SEMANTICS = (
+    "NOT_READY means the metric could not be computed from available inputs "
+    "(missing session, incomplete sample, entity-level gap, etc.)."
+)
+BLOCKED_SEMANTICS = (
+    "BLOCKED means computation is impeded by an external or technical dependency "
+    "(credentials, network, missing source access)."
+)
+
+
 @dataclass(frozen=True)
 class MetricDefinition:
-    """Immutable definition of one contract metric."""
+    """Immutable definition of one contract metric.
+
+    Every catalog indicator MUST expose:
+    definition, formula, denominator_policy, as_of_policy, source_policy,
+    and readiness semantics (via status on MetricResult).
+    """
 
     metric_id: str
     kind: MetricKind
     label: str
+    definition: str
     formula: str
+    denominator_policy: str
+    as_of_policy: str
+    source_policy: str
     target_pct: float | None
     notes: str = ""
     legacy_aliases: tuple[str, ...] = ()
+
+    def required_fields_present(self) -> bool:
+        return all(
+            [
+                bool(self.metric_id.strip()),
+                bool(self.label.strip()),
+                bool(self.definition.strip()),
+                bool(self.formula.strip()),
+                bool(self.denominator_policy.strip()),
+                bool(self.as_of_policy.strip()),
+                bool(self.source_policy.strip()),
+            ]
+        )
+
+
+_AS_OF_POLICY = (
+    "Report-level `as_of` (ISO date) on CoverageContractReport; "
+    "metric values are interpreted at that cut date."
+)
+_DENOM_UNIVERSE = (
+    "Fixed canonical universe size from load_canonical_universe / seed / "
+    f"FIXED_CANONICAL_DENOMINATOR ({FIXED_CANONICAL_DENOMINATOR}); never reduced "
+    "to inflate percentages."
+)
 
 
 METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
@@ -153,9 +202,20 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         metric_id=METRIC_ENTITIES_WITH_RECENT_COMMERCIAL_SIGNAL,
         kind=MetricKind.COMMERCIAL_SIGNAL,
         label="Entities with recent commercial signal",
+        definition=(
+            "Count of universe entities that have ≥1 matched opportunity in "
+            "OPEN/UPCOMING/RECENT commercial statuses. Commercial signal only — "
+            "never labeled coverage."
+        ),
         formula=(
             "entities with ≥1 OPEN/UPCOMING/RECENT matched opportunity / "
-            f"{FIXED_CANONICAL_DENOMINATOR}"
+            "canonical_universe_denominator"
+        ),
+        denominator_policy=_DENOM_UNIVERSE,
+        as_of_policy=_AS_OF_POLICY,
+        source_policy=(
+            "session coverage_canonical commercial_entity_ids and/or PostgreSQL "
+            "opportunity matches reconciled to universe entities."
         ),
         target_pct=None,
         notes=(
@@ -168,10 +228,17 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         metric_id=METRIC_SOURCE_MAPPING_COVERAGE,
         kind=MetricKind.COVERAGE,
         label="Source mapping coverage",
+        definition=(
+            "Share of universe entities with an explicit entity_source_registry "
+            "record (including status=source_not_identified)."
+        ),
         formula=(
             "entities with explicit source registry record "
             "(including status=source_not_identified) / denominator"
         ),
+        denominator_policy=_DENOM_UNIVERSE,
+        as_of_policy=_AS_OF_POLICY,
+        source_policy="data/entity_source_registry.jsonl (+ optional DB sync).",
         target_pct=100.0,
         notes="Target 100%. Registry may mark source_not_identified — that still counts as mapped.",
     ),
@@ -179,9 +246,19 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         metric_id=METRIC_OPERATIONAL_SOURCE_COVERAGE,
         kind=MetricKind.COVERAGE,
         label="Operational source coverage",
+        definition=(
+            "Share of universe entities with ≥1 official source that completed "
+            "all operational pipeline stages (mapped→recent_evidence) within SLA."
+        ),
         formula=(
             "entities with ≥1 official source: mapped + accessible + collected + "
             "normalized + reconciled + verified within SLA + recent evidence / denominator"
+        ),
+        denominator_policy=_DENOM_UNIVERSE,
+        as_of_policy=_AS_OF_POLICY,
+        source_policy=(
+            "entity_source_registry operational stages + provenance "
+            "(run_id, raw, hash, normalized, reconciliation)."
         ),
         target_pct=95.0,
         notes="Target 95%. Requires full operational pipeline stages.",
@@ -190,7 +267,17 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         metric_id=METRIC_FRESHNESS_COVERAGE,
         kind=MetricKind.COVERAGE,
         label="Freshness coverage",
+        definition=(
+            "Share of universe entities whose last verification is within the "
+            "applicable SLA window from config/coverage_slas.yaml."
+        ),
         formula="entities verified within applicable SLA / denominator",
+        denominator_policy=_DENOM_UNIVERSE,
+        as_of_policy=_AS_OF_POLICY,
+        source_policy=(
+            "entity-level last_seen_at / coverage_evidence.observed_at; "
+            "source-level freshness_manifest alone is insufficient."
+        ),
         target_pct=None,
         notes="SLA windows from config/coverage_slas.yaml.",
     ),
@@ -198,7 +285,16 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         metric_id=METRIC_OPPORTUNITY_RECALL,
         kind=MetricKind.RECALL,
         label="Opportunity recall",
+        definition=(
+            "Recall of relevant opportunities against an independent stratified "
+            "gold sample — never inferred from raw DB opportunity counts."
+        ),
         formula="true positives in stratified benchmark sample / sample positives",
+        denominator_policy=(
+            "Sample positives in the stratified gold benchmark (not universe size)."
+        ),
+        as_of_policy=_AS_OF_POLICY + " Sample version/date must be recorded in limitations.",
+        source_policy="docs/qa/recall sample + independent labeling strata.",
         target_pct=None,
         notes=(
             "Computed from stratified benchmark sample ONLY. "
@@ -209,14 +305,93 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         metric_id=METRIC_REQUIRED_FIELD_COMPLETENESS,
         kind=MetricKind.COMPLETENESS,
         label="Required field completeness",
+        definition=(
+            "Mean completeness of decision fields across scored opportunity "
+            "records; absence is explicit (missing ≠ invented zero)."
+        ),
         formula=(
             "mean over opportunities of (present decision fields / "
             f"{len(DECISION_FIELDS)} decision fields); absence is explicit"
         ),
+        denominator_policy=(
+            f"{len(DECISION_FIELDS)} decision fields per opportunity record "
+            "(field-level); report also records universe context separately."
+        ),
+        as_of_policy=_AS_OF_POLICY,
+        source_policy="scored opportunity records from commercial/session pipeline.",
         target_pct=None,
         notes="Decision fields listed in DECISION_FIELDS. Missing fields are explicit absences.",
     ),
 }
+
+
+def validate_indicator_catalog() -> dict[str, Any]:
+    """Return structural proof that every catalog indicator has required fields."""
+    issues: list[dict[str, str]] = []
+    for metric_id in ALL_METRIC_IDS:
+        if metric_id not in METRIC_DEFINITIONS:
+            issues.append(
+                {"metric_id": metric_id, "issue": "missing_from_METRIC_DEFINITIONS"}
+            )
+            continue
+        definition = METRIC_DEFINITIONS[metric_id]
+        if not definition.required_fields_present():
+            issues.append(
+                {
+                    "metric_id": metric_id,
+                    "issue": "required_fields_blank",
+                }
+            )
+        if definition.metric_id != metric_id:
+            issues.append(
+                {
+                    "metric_id": metric_id,
+                    "issue": "metric_id_mismatch",
+                }
+            )
+    return {
+        "ok": len(issues) == 0,
+        "indicator_count": len(ALL_METRIC_IDS),
+        "definitions": len(METRIC_DEFINITIONS),
+        "ready_semantics": READY_SEMANTICS,
+        "not_ready_semantics": NOT_READY_SEMANTICS,
+        "blocked_semantics": BLOCKED_SEMANTICS,
+        "required_fields": [
+            "definition",
+            "formula",
+            "denominator_policy",
+            "as_of_policy",
+            "source_policy",
+            "readiness_status_on_result",
+        ],
+        "issues": issues,
+        "metric_ids": list(ALL_METRIC_IDS),
+    }
+
+
+def export_indicator_catalog() -> dict[str, Any]:
+    """Machine-readable catalog for reports and DoD evidence."""
+    catalog = validate_indicator_catalog()
+    items = []
+    for metric_id in ALL_METRIC_IDS:
+        d = METRIC_DEFINITIONS[metric_id]
+        items.append(
+            {
+                "metric_id": d.metric_id,
+                "kind": d.kind.value,
+                "label": d.label,
+                "definition": d.definition,
+                "formula": d.formula,
+                "denominator_policy": d.denominator_policy,
+                "as_of_policy": d.as_of_policy,
+                "source_policy": d.source_policy,
+                "target_pct": d.target_pct,
+                "notes": d.notes,
+                "legacy_aliases": list(d.legacy_aliases),
+            }
+        )
+    catalog["items"] = items
+    return catalog
 
 
 @dataclass
