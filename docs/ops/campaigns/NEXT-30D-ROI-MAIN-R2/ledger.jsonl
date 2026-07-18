@@ -37,3 +37,4 @@
 {"ts": "2026-07-18T21:53:40Z", "event": "N16_DONE", "qa": "PASS"}
 {"ts": "2026-07-18T21:53:40Z", "event": "N18_DONE", "qa": "PASS"}
 {"ts": "2026-07-18T21:53:40Z", "event": "CONTRACTS_INGESTION_RUNS_FIX"}
+{"ts": "2026-07-18T21:55:14Z", "event": "HEAD_SYNC", "head": "48d0c418c1799d86873621b0bc1abe09175a951e"}

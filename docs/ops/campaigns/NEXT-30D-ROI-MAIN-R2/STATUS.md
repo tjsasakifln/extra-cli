@@ -1,7 +1,7 @@
 # STATUS — NEXT-30D-ROI-MAIN-R2
 
 **UTC:** 2026-07-18T21:53:40Z  
-**HEAD:** `cd193c1b9a9ea254f7bc4050b11310f261448ea6`  
+**HEAD:** `48d0c418c1799d86873621b0bc1abe09175a951e`  
 **DoD:** 195/1355 = 14.39%  
 **PERT critical:** 32.0/32.0d (≥30: True)  
 **Scope:** all terminal (DONE or BLOCKED_*)
