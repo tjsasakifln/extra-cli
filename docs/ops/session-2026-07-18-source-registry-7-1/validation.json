@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "n_sources": 11,
+  "statuses": {
+    "active": 3,
+    "implemented_not_proven": 8
+  },
+  "missing_required": [],
+  "required_fields": [
+    "id",
+    "canonical_url",
+    "capabilities",
+    "geo_coverage",
+    "needs_credentials",
+    "pagination_limits",
+    "rate_limits",
+    "retry_strategy",
+    "backoff_strategy",
+    "operational_status",
+    "role"
+  ],
+  "registry_module": "scripts.crawl.registry"
+}

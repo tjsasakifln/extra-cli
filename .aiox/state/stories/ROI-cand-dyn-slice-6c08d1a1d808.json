@@ -1,0 +1,29 @@
+{
+  "story_id": "ROI-cand-dyn-slice-6c08d1a1d808",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "qa_notes": "Independent QA: item3 transparencia pseudo-URL residual; 7/8 DONE + 1 PARTIAL documented",
+  "qa_reviewed_at": "2026-07-18T16:30:00Z",
+  "reviewed_commit": "e82f5f2e2106568bb355a1fef29b3f47d6d1b27f",
+  "reviewed_note": "Working tree also has uncommitted registry.py / DOD.md / tests / session evidence for this slice",
+  "po_closed": true,
+  "po_closed_at": "2026-07-18T15:56:35Z",
+  "publication_authorized": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-source-registry-7-1",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:6c08d1a1d808",
+    "dod_items_flipped": 8,
+    "dod_items_scope": "7.1 first 8",
+    "item_status": {
+      "registry_canonical": "DONE",
+      "stable_id": "DONE",
+      "canonical_url": "PARTIAL",
+      "capabilities": "DONE",
+      "geo_coverage": "DONE",
+      "needs_credentials": "DONE",
+      "pagination_limits": "DONE",
+      "rate_limits": "DONE"
+    }
+  }
+}

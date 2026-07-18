@@ -615,14 +615,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 7.1 Registry de fontes
 
-- [ ] Existe registry canônico de fontes.
-- [ ] Cada fonte possui identificador estável.
-- [ ] Cada fonte possui URL ou endpoint canônico.
-- [ ] Cada fonte informa capacidades suportadas.
-- [ ] Cada fonte informa cobertura geográfica.
-- [ ] Cada fonte informa necessidade de credenciais.
-- [ ] Cada fonte informa limites de paginação conhecidos.
-- [ ] Cada fonte informa rate limits conhecidos.
+- [x] Existe registry canônico de fontes. Evidência: `scripts/crawl/registry.py` + `--validate` ok + session-2026-07-18-source-registry-7-1.
+- [x] Cada fonte possui identificador estável. Evidência: `SourceInfo.name` único + export id.
+- [x] Cada fonte possui URL ou endpoint canônico. Evidência: `canonical_url` em todas as 11 fontes.
+- [x] Cada fonte informa capacidades suportadas. Evidência: `capabilities` non-empty.
+- [x] Cada fonte informa cobertura geográfica. Evidência: `geo_coverage`.
+- [x] Cada fonte informa necessidade de credenciais. Evidência: `needs_credentials` + credential_names.
+- [x] Cada fonte informa limites de paginação conhecidos. Evidência: `pagination_limits` (primárias não-unknown).
+- [x] Cada fonte informa rate limits conhecidos. Evidência: `rate_limits` (primárias não-unknown).
 - [ ] Cada fonte informa estratégia de retry.
 - [ ] Cada fonte informa estratégia de backoff.
 - [ ] Cada fonte informa status operacional.

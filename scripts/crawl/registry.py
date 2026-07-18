@@ -24,7 +24,7 @@ Usage::
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
 # ---------------------------------------------------------------------------
 # Types (Secao 9 expanded)
@@ -154,6 +154,35 @@ class SourceInfo:
     resilience_adapter: str | None = None
     """Import path for the explicit ADR-021 adapter, when validated."""
 
+    # -- DoD §7.1 registry fields --------------------------------------------
+
+    canonical_url: str = ""
+    """Canonical URL or API endpoint for this source."""
+
+    geo_coverage: str = "SC"
+    """Geographic coverage statement (e.g. BR, SC, municipal SC)."""
+
+    pagination_limits: str = "unknown"
+    """Known pagination limits (page size / max pages)."""
+
+    rate_limits: str = "unknown"
+    """Known rate limits (requests per minute / polite defaults)."""
+
+    retry_strategy: str = "exponential_backoff"
+    """Retry strategy name used by crawler/resilience layer."""
+
+    backoff_strategy: str = "exp_jitter"
+    """Backoff strategy (e.g. exp_jitter, fixed)."""
+
+    role: Literal["primary", "complementary", "gap_fill"] = "complementary"
+    """Whether source is primary, complementary, or gap-fill for Extra."""
+
+    last_validation_at: str | None = None
+    """ISO date of last operational validation evidence (if any)."""
+
+    known_blockers: list[str] = field(default_factory=list)
+    """Known operational blockers (rate limit, auth, etc.)."""
+
     def __post_init__(self) -> None:
         if not self.is_public and not self.credentials:
             self.is_public = False
@@ -165,6 +194,48 @@ class SourceInfo:
         # Legacy: map credential_names if only credentials is set
         if self.credentials and not self.credential_names:
             self.credential_names = self.credentials[:]
+
+    @property
+    def needs_credentials(self) -> bool:
+        return bool(self.credentials) or not self.is_public
+
+    @property
+    def operational_status(self) -> str:
+        """DoD status: active | implemented_not_proven | blocked | not_applicable."""
+        if not self.is_active:
+            return "not_applicable"
+        if self.known_blockers and any("blocked" in b.lower() for b in self.known_blockers):
+            return "blocked"
+        if self.operational_validated and self.canonical_url:
+            return "active"
+        if self.module:
+            return "implemented_not_proven"
+        return "blocked"
+
+    def to_dod_record(self) -> dict[str, Any]:
+        """Serialize DoD §7.1 fields for export/audit."""
+        return {
+            "id": self.name,
+            "aliases": list(self.aliases),
+            "canonical_url": self.canonical_url,
+            "capabilities": list(self.capabilities),
+            "geo_coverage": self.geo_coverage,
+            "needs_credentials": self.needs_credentials,
+            "credential_names": list(self.credential_names),
+            "pagination_limits": self.pagination_limits,
+            "rate_limits": self.rate_limits,
+            "retry_strategy": self.retry_strategy,
+            "backoff_strategy": self.backoff_strategy,
+            "operational_status": self.operational_status,
+            "operational_validated": self.operational_validated,
+            "last_validation_at": self.last_validation_at,
+            "known_blockers": list(self.known_blockers),
+            "role": self.role,
+            "authority_level": self.authority_level,
+            "module": self.module,
+            "is_active": self.is_active,
+            "description": self.description,
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -379,6 +450,108 @@ _RAW: list[SourceInfo] = [
     # Fontes que usam selenium declararam o modo "selenium" em seus modos suportados.
 ]
 
+# DoD §7.1 enrichment (URL, geo, limits, role) — applied onto _RAW entries
+_ENRICHMENT: dict[str, dict[str, Any]] = {
+    "pncp": {
+        "canonical_url": "https://pncp.gov.br/api/consulta",
+        "geo_coverage": "BR (federal + adesão voluntária SC)",
+        "pagination_limits": "pageSize<=50 default; full pagination required",
+        "rate_limits": "polite 1-2 rps; 429 backoff",
+        "role": "primary",
+        "last_validation_at": "2026-07-18",
+        "known_blockers": [],
+        "retry_strategy": "exponential_backoff",
+        "backoff_strategy": "exp_jitter",
+    },
+    "ciga_ckan": {
+        "canonical_url": "https://dados.ciga.sc.gov.br/api/3/action",
+        "geo_coverage": "SC municipal (DOM/CIGA)",
+        "pagination_limits": "CKAN default limit 100",
+        "rate_limits": "public polite 1 rps",
+        "role": "primary",
+        "last_validation_at": "2026-07-17",
+        "known_blockers": [],
+    },
+    "sc_compras": {
+        "canonical_url": "https://www.compras.sc.gov.br/",
+        "geo_coverage": "SC estadual",
+        "pagination_limits": "portal-specific; adapter handles pages",
+        "rate_limits": "polite 1 rps",
+        "role": "primary",
+        "last_validation_at": "2026-07-17",
+    },
+    "dom_sc": {
+        "canonical_url": "https://www.diariomunicipal.sc.gov.br/",
+        "geo_coverage": "SC municipal",
+        "pagination_limits": "remote/list pages",
+        "rate_limits": "auth required; unknown official limit",
+        "role": "gap_fill",
+        "known_blockers": ["credentials_required", "prefer_ciga_ckan"],
+    },
+    "pcp": {
+        "canonical_url": "https://www.portaldecompraspublicas.com.br/",
+        "geo_coverage": "multi (portal shared)",
+        "pagination_limits": "unknown",
+        "rate_limits": "unknown",
+        "role": "complementary",
+        "known_blockers": ["implemented_not_proven_live"],
+    },
+    "compras_gov": {
+        "canonical_url": "https://www.gov.br/compras/",
+        "geo_coverage": "BR federal",
+        "pagination_limits": "unknown",
+        "rate_limits": "unknown",
+        "role": "complementary",
+        "known_blockers": ["implemented_not_proven_live"],
+    },
+    "contracts": {
+        "canonical_url": "https://pncp.gov.br/api/consulta/v1/contratos",
+        "geo_coverage": "BR (PNCP contracts)",
+        "pagination_limits": "pageSize<=50",
+        "rate_limits": "polite 1-2 rps; 429 backoff",
+        "role": "primary",
+        "known_blockers": ["backfill_3y_incomplete"],
+    },
+    "transparencia": {
+        "canonical_url": "per-entity:portal_transparencia (batch_detect_platforms; no single national endpoint)",
+        "geo_coverage": "SC municipal (per-entity portals)",
+        "pagination_limits": "varies by portal",
+        "rate_limits": "varies",
+        "role": "gap_fill",
+        "known_blockers": ["heterogeneous_portals", "no_single_canonical_http_endpoint"],
+    },
+    "tce_sc": {
+        "canonical_url": "https://servicos.tce.sc.gov.br/",
+        "geo_coverage": "SC",
+        "pagination_limits": "SCMWeb-specific",
+        "rate_limits": "unknown",
+        "role": "complementary",
+        "known_blockers": ["implemented_not_proven_live"],
+    },
+    "doe_sc": {
+        "canonical_url": "https://www.doe.sc.gov.br/",
+        "geo_coverage": "SC estadual",
+        "pagination_limits": "unknown",
+        "rate_limits": "auth required",
+        "role": "complementary",
+        "known_blockers": ["credentials_required"],
+    },
+    "mides_bigquery": {
+        "canonical_url": "bigquery://mides (GOOGLE_APPLICATION_CREDENTIALS)",
+        "geo_coverage": "SC estadual",
+        "pagination_limits": "BigQuery job limits; supports_pagination=False",
+        "rate_limits": "GCP quotas",
+        "role": "gap_fill",
+        "known_blockers": ["credentials_required", "no_pagination_zero_proof"],
+    },
+}
+
+for info in _RAW:
+    extra = _ENRICHMENT.get(info.name, {})
+    for k, v in extra.items():
+        if hasattr(info, k):
+            setattr(info, k, v)
+
 # Build registry + alias index
 _ALIAS_MAP: dict[str, str] = {}
 for info in _RAW:
@@ -499,6 +672,102 @@ def iter_choices() -> list[str]:
     return sorted(choices)
 
 
+REQUIRED_DOD_71_FIELDS = (
+    "id",
+    "canonical_url",
+    "capabilities",
+    "geo_coverage",
+    "needs_credentials",
+    "pagination_limits",
+    "rate_limits",
+    "retry_strategy",
+    "backoff_strategy",
+    "operational_status",
+    "role",
+)
+
+
+def export_registry(*, active_only: bool = False) -> list[dict[str, Any]]:
+    """Export all sources as DoD §7.1 records."""
+    return [s.to_dod_record() for s in iter_sources(active_only=active_only)]
+
+
+def validate_registry() -> dict[str, Any]:
+    """Validate canonical registry against DoD §7.1 first-wave requirements.
+
+    Returns ok=True when every active source has stable id, URL, capabilities,
+    geo, credential flag, pagination, rate limits, retry/backoff.
+    """
+    records = export_registry(active_only=False)
+    missing: list[dict[str, Any]] = []
+    for rec in records:
+        gaps = []
+        if not rec.get("id"):
+            gaps.append("id")
+        if not rec.get("canonical_url") or rec.get("canonical_url") == "unknown":
+            gaps.append("canonical_url")
+        if not rec.get("capabilities"):
+            gaps.append("capabilities")
+        if not rec.get("geo_coverage"):
+            gaps.append("geo_coverage")
+        if rec.get("needs_credentials") is None:
+            gaps.append("needs_credentials")
+        if not rec.get("pagination_limits") or rec.get("pagination_limits") == "unknown":
+            # allow unknown but flag as warning not gap for non-primary
+            if rec.get("role") == "primary":
+                gaps.append("pagination_limits")
+        if not rec.get("rate_limits") or rec.get("rate_limits") == "unknown":
+            if rec.get("role") == "primary":
+                gaps.append("rate_limits")
+        if not rec.get("retry_strategy"):
+            gaps.append("retry_strategy")
+        if not rec.get("backoff_strategy"):
+            gaps.append("backoff_strategy")
+        if gaps:
+            missing.append({"id": rec.get("id"), "gaps": gaps, "status": rec.get("operational_status")})
+    statuses = {}
+    for rec in records:
+        st = rec.get("operational_status") or "unknown"
+        statuses[st] = statuses.get(st, 0) + 1
+    return {
+        "ok": len(missing) == 0,
+        "n_sources": len(records),
+        "statuses": statuses,
+        "missing_required": missing,
+        "required_fields": list(REQUIRED_DOD_71_FIELDS),
+        "registry_module": "scripts.crawl.registry",
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+    import json
+    import sys
+
+    p = argparse.ArgumentParser(description="Canonical crawl source registry (DoD §7.1)")
+    p.add_argument("--export", action="store_true", help="Export registry JSON")
+    p.add_argument("--validate", action="store_true", help="Validate DoD §7.1 fields")
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--out", type=str, default="")
+    args = p.parse_args(argv)
+    if args.validate or not args.export:
+        result = validate_registry()
+        if args.export:
+            payload = {"validation": result, "sources": export_registry()}
+        else:
+            payload = result
+    else:
+        payload = {"sources": export_registry()}
+    text = json.dumps(payload, indent=2, ensure_ascii=False, default=str)
+    if args.out:
+        Path = __import__("pathlib").Path
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(text + "\n", encoding="utf-8")
+    if args.json or args.export or args.validate:
+        print(text)
+    return 0 if (not args.validate or payload.get("ok") or payload.get("validation", {}).get("ok")) else 1
+
+
 # ---------------------------------------------------------------------------
 # Re-export SourcePurpose markers for convenience
 # ---------------------------------------------------------------------------
@@ -518,6 +787,7 @@ __all__ = [
     "SourceCapability",
     "SourceInfo",
     "SourcePurpose",
+    "export_registry",
     "get_bids_sources",
     "get_capability_sources",
     "get_contract_sources",
@@ -528,4 +798,9 @@ __all__ = [
     "iter_sources",
     "lookup",
     "resolve_name",
+    "validate_registry",
 ]
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
