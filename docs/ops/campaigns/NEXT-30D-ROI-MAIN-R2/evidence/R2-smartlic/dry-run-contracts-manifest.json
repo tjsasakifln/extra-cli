@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "import_run_id": "r2-dry-bootstrap",
+  "ts": "2026-07-18T20:42:14Z",
+  "extra_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+  "source_repo": "https://github.com/tjsasakifln/SmartLic",
+  "source_commit": "93ea19630d745d5b90d3b1657261ee88e99bc065",
+  "source_table": "pncp_supplier_contracts",
+  "snapshot_path": "tests/fixtures/smartlic/pncp_supplier_contracts_sample.json",
+  "snapshot_hash": "86fc4f44da22e82d291dc6b25b8e3c23973a311331a6782173795395fc886ffe",
+  "extraction_ts": "2026-07-18T20:42:14Z",
+  "period": {
+    "from": "2024-01-01",
+    "to": "2025-12-31"
+  },
+  "universe_filtered": false,
+  "stats": {
+    "inserted": 0,
+    "updated": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errors": 0,
+    "read": 2,
+    "mapped": 1,
+    "universe_rejected": 0,
+    "period_rejected": 1,
+    "error_samples": []
+  },
+  "disclaimers": [
+    "snapshot_not_live",
+    "presence_not_coverage",
+    "history_not_freshness",
+    "extra_incremental_required_after_import"
+  ],
+  "dry_run": true,
+  "sample_mapped": [
+    {
+      "contrato_id": "SL-CONTRACT-001",
+      "fornecedor_cnpj": "12345678000199",
+      "fornecedor_nome": "Fornecedor Demo LTDA",
+      "orgao_cnpj": "83102373000126",
+      "orgao_nome": "Prefeitura Demo",
+      "uf": "SC",
+      "municipio": "Florianopolis",
+      "valor_total": 150000.5,
+      "data_publicacao": "2024-06-15",
+      "objeto_contrato": "Manutencao predial e engenharia",
+      "source": "smartlic_snapshot",
+      "content_hash": "3e1dfbd691e9fe54617f9db0760d428e23d17260ae8194275071c1982c84c439"
+    }
+  ]
+}

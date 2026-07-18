@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-07-18T20:34:29Z",
+  "blockers": [
+    {
+      "id": "B-R2-001",
+      "class": "BLOCKED_SOURCE",
+      "description": "Full national 90d pilot / 3y contract backfill GO remain constrained by source volume and runtime",
+      "impact": "N06c/N07 long tails may partial",
+      "task": "N06c,N07",
+      "attempts": [
+        "R1 T05 partial PNCP 1883 bids"
+      ],
+      "alternatives": [
+        "scoped universe 200km slices",
+        "SmartLic snapshot bridge for historical contracts"
+      ],
+      "owner": "roi-orchestrator",
+      "min_solution": "incremental scoped coverage with provenance",
+      "decision_needed": null,
+      "next_review": "after N02+N05"
+    },
+    {
+      "id": "B-R2-002",
+      "class": "CONFLICT_WITH_ACTIVE_WORK",
+      "description": "PR #28 still OPEN on epic branch; must not be used as delivery or double-count",
+      "impact": "metric confusion if panel reads epic",
+      "task": "metric-lineage",
+      "attempts": [
+        "R1 LEGACY-BRANCH-RECONCILIATION"
+      ],
+      "alternatives": [
+        "main-only metrics"
+      ],
+      "owner": "evidence-release-steward",
+      "min_solution": "panel shows main + lineage layers only",
+      "decision_needed": "human may close PR #28 later without merge",
+      "next_review": "campaign close"
+    }
+  ]
+}

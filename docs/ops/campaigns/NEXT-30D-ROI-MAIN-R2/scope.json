@@ -1,0 +1,415 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
+  "frozen_at": "2026-07-18T20:34:29Z",
+  "frozen_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+  "status": "FROZEN_SEED",
+  "pert_critical_path_days": 32.0,
+  "target_new_business_days": 30.0,
+  "inherited_not_counted_days": 4.5,
+  "items": [
+    {
+      "id": "R0",
+      "name": "R2 bootstrap recovery + lineage freeze",
+      "status": "DONE",
+      "duration_days": 0.5,
+      "predecessors": [],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "R1",
+      "name": "Legacy reconcile delta + commit mig056 WIP",
+      "status": "IN_PROGRESS",
+      "duration_days": 1.0,
+      "predecessors": [
+        "R0"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "R2",
+      "name": "SmartLic reuse matrix + snapshot bridge scaffold",
+      "status": "IN_PROGRESS",
+      "duration_days": 2.0,
+      "predecessors": [
+        "R0"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N01",
+      "name": "Golden path strict green live PNCP+PCP+freshness",
+      "status": "PLANNED",
+      "duration_days": 2.5,
+      "predecessors": [
+        "R1"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N02",
+      "name": "Universe reimport hash+zero-dup on main PG",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "R1"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N03",
+      "name": "Schema audit + migrations green (incl 056)",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "R1"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N04",
+      "name": "Source registry applicability zero necessary unknown",
+      "status": "PLANNED",
+      "duration_days": 2.5,
+      "predecessors": [
+        "N02"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N05",
+      "name": "Coverage ops stages provenance M2 slice",
+      "status": "PLANNED",
+      "duration_days": 3.5,
+      "predecessors": [
+        "N01",
+        "N04"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N06",
+      "name": "Coverage scale M3 expand entities",
+      "status": "PLANNED",
+      "duration_days": 3.5,
+      "predecessors": [
+        "N05"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N06b",
+      "name": "Coverage scale M4 multi-source operational",
+      "status": "PLANNED",
+      "duration_days": 3.0,
+      "predecessors": [
+        "N06"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N06c",
+      "name": "Coverage scale M5 entity collection wave",
+      "status": "PLANNED",
+      "duration_days": 8.5,
+      "predecessors": [
+        "N06b"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N07",
+      "name": "Contracts incremental + SmartLic bridge 3y machinery",
+      "status": "PLANNED",
+      "duration_days": 3.0,
+      "predecessors": [
+        "N04",
+        "R2"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N07b",
+      "name": "Contracts coverage metric separate from editais",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "N07"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N08",
+      "name": "Snapshot integrity 100% reconcile",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "N05"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N09",
+      "name": "Recall stratified expand gold + SmartLic corpus",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "N01",
+        "R2"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N10",
+      "name": "Backup/restore local re-proof",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "N02",
+        "N03"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N11",
+      "name": "Operational daily/weekly package live",
+      "status": "PLANNED",
+      "duration_days": 2.5,
+      "predecessors": [
+        "N06c",
+        "N08"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N12",
+      "name": "PDF+Excel reconcile live package",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "N11"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N13",
+      "name": "Freshness monitors + alerts residual",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "N05"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N14",
+      "name": "DoD residual REVALIDATE batch evidence",
+      "status": "PLANNED",
+      "duration_days": 2.5,
+      "predecessors": [
+        "N12",
+        "N10",
+        "N07b"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N15",
+      "name": "Campaign close skeptic audit next backlog",
+      "status": "PLANNED",
+      "duration_days": 1.0,
+      "predecessors": [
+        "N14"
+      ],
+      "critical": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N16",
+      "name": "Competitors/values NOT_READY denominators",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "N07"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N17",
+      "name": "Resume-interrupt crawler protocol test",
+      "status": "PLANNED",
+      "duration_days": 1.0,
+      "predecessors": [
+        "N01"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "N18",
+      "name": "Contracts crawler checkpoint parity (SmartLic patterns)",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "R2",
+        "N07"
+      ],
+      "critical": false,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "diario de obra",
+    "medicao fisica",
+    "portal publico",
+    "billing",
+    "multi-tenant",
+    "k8s",
+    "kafka",
+    "auth complex",
+    "SmartLic SaaS import"
+  ],
+  "change_control": "scope changes require motive+evidence+impact+new dep/risk",
+  "updated_at": "2026-07-18T20:42:28Z"
+}

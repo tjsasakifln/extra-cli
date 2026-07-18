@@ -1,0 +1,73 @@
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ GOLDEN PATH — Pipeline de Validacao do DataLake                              │
+│ Run: gp-20260718-171349  |  Fontes: pncp, pcp, compras_gov  |  DSN:          │
+│ postgresql://test:test@127.0.0.1:5433/extra_test...                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+[1/4] Verificando conectividade PostgreSQL...
+  PostgreSQL OK (23ms)
+
+[2/4] Crawl das fontes de dados...
+  Fontes: pncp, pcp, compras_gov
+  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter
+
+>>> Iniciando crawl: pncp — PNCP API (editais abertos — fonte crítica)
+  Attempt 1/2 timed out (180s)
+  Retrying in 4.1s... (backoff+jitter)
+  Attempt 2/2 timed out (180s)
+
+>>> Iniciando crawl: pcp — PCP (Portal de Compras Publicas)
+  OK pcp: fetched=143, inserted=13, persisted=0
+
+>>> Iniciando crawl: compras_gov — ComprasGov (compras federais SC)
+  ZERO compras_gov: fetched=0, inserted=0, persisted=0
+
+                              Resultados por Fonte                              
+┏━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Fonte      ┃ Status ┃ Tempo    ┃ Tentativas ┃ Fetched ┃ Inserted ┃ Persisti… ┃
+┡━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━┩
+│ pncp       │ FAIL   │ 180038ms │ 2          │ -       │ -        │ -         │
+│ pcp        │ OK     │ 13543ms  │ 1          │ 143     │ 13       │ 0         │
+│ compras_g… │ ZERO   │ 862ms    │ 1          │ 0       │ 0        │ 0         │
+└────────────┴────────┴──────────┴────────────┴─────────┴──────────┴───────────┘
+
+  1 com dados, 1 zero, 1 falha(s)
+    pncp: timeout after 180s
+    compras_gov: success_zero (fetched=0)
+
+[3/4] Freshness Gate...
+
+>>> Validando freshness gate...
+  Freshness gate: FAIL (stale sources) (224ms)
+    Sources stale: pncp, contracts
+
+[4/4] Geracao de relatorios...
+
+>>> Gerando relatorio Excel...
+  Excel: /mnt/d/extra consultoria/output/excels/panorama-SC-2026-07-18.xlsx
+
+>>> Gerando relatorio PDF...
+  PDF: generated
+
+╭─────────────────────────────────────╮
+│ GOLDEN PATH — RESUMO                │
+│                                     │
+│ Run ID:          gp-20260718-171349 │
+│ Mode:            strict             │
+│ Status:          PARTIAL            │
+│ Exit code:       2                  │
+│ Fontes c/ dados: 1/3                │
+│ Fontes zero:     1                  │
+│ Fontes essenciais com falha: 1      │
+│ Freshness gate:  fail               │
+│ Excel:           generated          │
+│ PDF:             generated          │
+│ Wall clock:      379620ms (379.6s)  │
+╰─────────────────────────────────────╯
+
+Ledger salvo:  /mnt/d/extra consultoria/output/golden-path/ledger.json
+Log salvo:     /mnt/d/extra 
+consultoria/output/golden-path/gp-20260718-171349.log
+
+PARCIAL: fontes essenciais falharam. Verifique o ledger.

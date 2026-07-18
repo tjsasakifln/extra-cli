@@ -1,0 +1,91 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
+  "generated_at": "2026-07-18T20:34:59Z",
+  "main_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+  "epic_head": "0bd5074a0c4e4bf21cca66bfc2446262308fb41b",
+  "merge_base": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+  "pr_28": "OPEN — not delivery",
+  "r1_reference": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/LEGACY-BRANCH-RECONCILIATION.md",
+  "file_classification_counts": {
+    "REVALIDATE": 399,
+    "ALREADY_IN_MAIN": 207,
+    "DOCUMENTATION_ONLY": 10,
+    "PORT_VALIDATED": 1
+  },
+  "files_total_epic_delta": 617,
+  "still_missing_or_diverged_productish": [
+    "db/migrations/055_fix_upsert_pncp_raw_bids_ambiguous.sql",
+    "scripts/collect_report_data.py",
+    "scripts/consulting_readiness.py",
+    "scripts/contract_intel/cli.py",
+    "scripts/coverage/entity_freshness.py",
+    "scripts/coverage_truth.py",
+    "scripts/crawl/orchestrator.py",
+    "scripts/crawl/playwright_fallback.py",
+    "scripts/crawl/resilience/pipeline.py",
+    "scripts/crawl/resilience/stages.py",
+    "scripts/crawl/transparencia_crawler.py",
+    "scripts/crawl/transparencia_templates/base.py",
+    "scripts/datalake-sc-200km.py",
+    "scripts/freshness_gate.py",
+    "scripts/golden_path.py",
+    "scripts/intel_extract_docs.py",
+    "scripts/intel_pipeline.py",
+    "scripts/lib/universe.py",
+    "scripts/reports/panorama.py",
+    "scripts/reports/run_metadata.py",
+    "scripts/workspace/queue.py",
+    "tests/test_sc_compras_crawler.py",
+    "tests/test_universe.py"
+  ],
+  "decisions": [
+    {
+      "item": "blind cherry-pick 169 commits",
+      "class": "INVALID_FALSE_GREEN",
+      "decision": "REJECT"
+    },
+    {
+      "item": "restore 32.3% artificially",
+      "class": "INVALID_FALSE_GREEN",
+      "decision": "REJECT"
+    },
+    {
+      "item": "R1 wave1 scripts/tests already on main",
+      "class": "ALREADY_IN_MAIN",
+      "decision": "KEEP"
+    },
+    {
+      "item": "mig 056 dirty WIP",
+      "class": "REVALIDATE",
+      "decision": "COMMIT_AFTER_QA"
+    },
+    {
+      "item": "epic session evidence packs",
+      "class": "DOCUMENTATION_ONLY",
+      "decision": "REFERENCE_ONLY"
+    },
+    {
+      "item": "S5 selective flips R1",
+      "class": "PORT_VALIDATED",
+      "decision": "ALREADY_ON_MAIN_DO_NOT_RECOUNT"
+    }
+  ],
+  "dirty_wip": [
+    {
+      "path": "db/migrations/056_drop_supplier_entity_fk_contracts.sql",
+      "class": "REVALIDATE",
+      "decision": "COMMIT"
+    },
+    {
+      "path": "scripts/ops/apply_migrations.py",
+      "class": "REVALIDATE",
+      "decision": "COMMIT_max56_min1"
+    },
+    {
+      "path": "scripts/golden_path.py",
+      "class": "REVALIDATE",
+      "decision": "COMMIT_timeout360"
+    }
+  ]
+}

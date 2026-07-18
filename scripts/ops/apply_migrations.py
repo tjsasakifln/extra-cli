@@ -252,7 +252,7 @@ def apply_range(
     dsn: str,
     root: Path,
     *,
-    max_num: int | None = 55,
+    max_num: int | None = 56,
     min_num: int = 1,
     allow_concurrent: bool = False,
     mode: str = "upgrade",
@@ -313,7 +313,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Apply datalake SQL migrations for gates")
     parser.add_argument("--dsn", default=os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN"))
     parser.add_argument("--root", type=Path, default=Path("db/migrations"))
-    parser.add_argument("--max", type=int, default=55)
+    parser.add_argument("--max", type=int, default=56)
     parser.add_argument("--min", type=int, default=1)
     parser.add_argument("--allow-concurrent", action="store_true")
     parser.add_argument(

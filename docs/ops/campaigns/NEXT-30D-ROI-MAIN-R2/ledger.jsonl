@@ -1,0 +1,9 @@
+{"ts": "2026-07-18T20:34:29Z", "event": "R2_BOOTSTRAP", "head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca", "dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1", "done": 195, "open": 1160, "pct": 14.39, "actor": "roi-orchestrator-r2"}
+{"ts": "2026-07-18T20:34:29Z", "event": "RESCUE_BRANCH", "ref": "rescue/r2-dirty-pre-bootstrap-20260718", "head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca"}
+{"ts": "2026-07-18T20:34:29Z", "event": "STALE_LOCK_FORCE_RELEASED", "previous_task": "post-inherit-plan-and-N01"}
+{"ts": "2026-07-18T20:34:29Z", "event": "PRIOR_CAMPAIGN_REFERENCED", "id": "NEXT-30D-ROI-MAIN", "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/"}
+{"ts": "2026-07-18T20:39:42Z", "event": "MIG056_LEDGER_SKIP_OK", "dsn": "local:5433"}
+{"ts": "2026-07-18T20:39:42Z", "event": "SQUAD_TESTS_PASS", "tests": "13 passed main_direct+smoke"}
+{"ts": "2026-07-18T20:39:42Z", "event": "SMARTLIC_CLONED_READONLY", "path": "/tmp/SmartLic-readonly"}
+{"ts": "2026-07-18T20:42:28Z", "event": "SMARTLIC_BRIDGE_IMPLEMENTED", "tests": 5, "qa": "PASS"}
+{"ts": "2026-07-18T20:42:28Z", "event": "SMARTLIC_MATRIX_WRITTEN", "assets": 10}

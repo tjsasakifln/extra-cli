@@ -1,0 +1,92 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
+  "recorded_at": "2026-07-18T20:34:29Z",
+  "repo": "tjsasakifln/extra-consultoria",
+  "git": {
+    "branch": "main",
+    "head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+    "origin_main": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+    "synced_with_origin_main": true,
+    "dirty_workspace": true,
+    "dirty_note": "WIP from interrupted R1 post-inherit; will be reconciled then committed or discarded"
+  },
+  "dod": {
+    "path": "DOD.md",
+    "sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
+    "item_count": 1355,
+    "done_count": 195,
+    "open_count": 1160,
+    "pct": 14.39,
+    "checkboxes_not_modified_during_baseline": true
+  },
+  "gates": {
+    "LOCAL_READY": {
+      "status": "NOT_READY",
+      "classification": "nao_comprovado"
+    },
+    "PRE_VPS_FINAL_READY": {
+      "status": "NOT_READY",
+      "classification": "nao_comprovado"
+    },
+    "VPS_OPERATIONAL": {
+      "status": "NOT_READY",
+      "classification": "nao_comprovado"
+    },
+    "PROJECT_DONE": {
+      "status": "NOT_READY",
+      "classification": "nao_comprovado"
+    },
+    "LOCAL_RESILIENCE_READY": {
+      "status": "NOT_READY",
+      "classification": "parcialmente_comprovado"
+    }
+  },
+  "inherited_from_r1": {
+    "not_counted_as_new": true,
+    "checked_at_r1_end": 195,
+    "pct_at_r1_end": 14.4,
+    "new_pert_days_r1": 4.5,
+    "increments": [
+      "T02",
+      "T03"
+    ]
+  },
+  "metric_lineage": {
+    "epic_historical_not_main": {
+      "checked": 437,
+      "total": 1354,
+      "pct": 32.3,
+      "ref": "0bd5074"
+    },
+    "main_campaign_baseline_r1": {
+      "checked": 92,
+      "total": 1355,
+      "pct": 6.8,
+      "ref": "fbc5868"
+    },
+    "main_after_inherited_r1": {
+      "checked": 195,
+      "total": 1355,
+      "pct": 14.4,
+      "ref": "83b1b04"
+    },
+    "main_canonical_now": {
+      "checked": 195,
+      "total": 1355,
+      "pct": 14.39,
+      "ref": "dc7cea0efb3f"
+    },
+    "explanation": "32.3% was epic-branch acceptance, not main. 6.8% was main pre-recon. 14.4% is honest main after selective inherited port (not forced restore of 32.3%). R2 starts from current main counts; inherited not re-counted as new PERT."
+  },
+  "prior_campaign_path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/",
+  "quality": {
+    "postgresql_local": {
+      "status": "reachable",
+      "port": 5433
+    },
+    "suite_full": {
+      "status": "not_run_at_r2_baseline"
+    }
+  }
+}

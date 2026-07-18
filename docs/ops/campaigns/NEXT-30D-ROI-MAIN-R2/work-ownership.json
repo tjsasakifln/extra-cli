@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
+  "updated_at": "2026-07-18T20:34:29Z",
+  "orchestrator": "roi-orchestrator",
+  "writer_lock": "squads/extra-dod-roi/state/locks/main-writer.lock",
+  "roles": {
+    "codebase-cartographer": "read-only inventory",
+    "dod-truth-auditor": "checkbox truth + false green",
+    "critical-path-roi-planner": "PERT + ranking",
+    "delivery-engineer": "implementation (writer)",
+    "adversarial-qa-auditor": "independent QA",
+    "evidence-release-steward": "evidence + main push confirm"
+  },
+  "serial_write": true,
+  "parallel_readonly": true
+}

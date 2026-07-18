@@ -1,0 +1,13 @@
+[
+  {
+    "numero_controle_pncp": "SL-BID-001",
+    "objeto_compra": "Obra de pavimentacao asfaltica",
+    "valor_total_estimado": 999999.99,
+    "uf": "SC",
+    "municipio": "Joinville",
+    "orgao_cnpj": "83102373000126",
+    "orgao_razao_social": "Prefeitura Demo",
+    "data_publicacao": "2025-01-10",
+    "data_encerramento": "2025-02-10"
+  }
+]

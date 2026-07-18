@@ -93,8 +93,8 @@ SOURCES: list[SourceDef] = [
         name="pncp",
         essential=True,
         description="PNCP API (editais abertos — fonte crítica)",
-        timeout_s=180,
-        max_retries=2,
+        timeout_s=360,
+        max_retries=1,
     ),
     SourceDef(
         name="pcp",

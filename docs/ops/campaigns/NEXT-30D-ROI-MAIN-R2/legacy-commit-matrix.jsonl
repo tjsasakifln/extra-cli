@@ -1,0 +1,169 @@
+{"sha": "0bd5074", "msg": "chore(campaign): session close checkpoint + HTML rebaseline on epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "583d8c2", "msg": "merge: monthly monitor WIP + HTML rebaseline 18/07 (no DoD flip pending QA)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a0962ac", "msg": "feat(ops): strategic monthly monitor WIP + HTML rebaseline 18/07", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "260a4f2", "msg": "chore(campaign): checkpoint after package final — commercial pack mechanisms done", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "e33c87d", "msg": "merge: ROI-cand-dyn-slice-ec525563e7db package final (QA PASS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "9b38cef", "msg": "docs(dod): flip package final after QA PASS (L264 residual)", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "898d396", "msg": "feat(ops): final consultancy package PDF+Excel same-run reconcile", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a4f5e10", "msg": "chore(campaign): bind next ranking[0] after A-E complete", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "7466783", "msg": "chore(campaign): checkpoint after deliverable E — A-E mechanisms complete", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ea560f8", "msg": "merge: ROI-cand-dyn-slice-9fada5fba964 deliverable E (QA PASS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "2f431c9", "msg": "docs(dod): flip Entregável E after independent QA PASS", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "03765ea", "msg": "feat(ops): Deliverable E open editais GO/REVIEW/NO_GO fail-closed", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "cef48aa", "msg": "chore(campaign): bind next ranking[0] after deliverable D", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "36d76f7", "msg": "chore(campaign): checkpoint after deliverable D close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "7035471", "msg": "merge: ROI-cand-dyn-slice-b9dd47d02782 deliverable D (QA PASS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "6cef421", "msg": "docs(dod): flip Entregável D after independent QA PASS", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "b258ed4", "msg": "feat(ops): Deliverable D price reference panel fail-closed", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c4b71dd", "msg": "chore(campaign): bind next ranking[0] after deliverable C", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "98d1cab", "msg": "chore(campaign): checkpoint after deliverable C close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a6b3044", "msg": "merge: ROI-cand-dyn-slice-f07132d1a059 deliverable C (QA PASS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "d1f24a0", "msg": "docs(dod): flip Entregável C after independent QA PASS", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "d663413", "msg": "feat(ops): Deliverable C expiring contracts 90-180d fail-closed", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c3f0069", "msg": "chore(campaign): bind next ranking[0] f07132d1a059 after deliverable B", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ac6c4be", "msg": "chore(campaign): checkpoint after deliverable B close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c07a4ed", "msg": "merge: ROI-cand-dyn-slice-f7e09f20fb21 deliverable B (QA PASS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a68c4ba", "msg": "docs(dod): flip Entregável B after independent QA PASS", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "bd23854", "msg": "feat(ops): Deliverable B top-15 competitors mapping with fail-closed rules", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "57e04bc", "msg": "chore(campaign): bind next ranking[0] f7e09f20fb21 after deliverable A", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "e27153d", "msg": "chore(campaign): checkpoint after deliverable A close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ca6968d", "msg": "merge: ROI-cand-dyn-slice-8d8c11884fa6 deliverable A (QA PASS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c086868", "msg": "docs(dod): flip Entregável A after QA PASS + live adapt path", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "4f3ea65", "msg": "feat(reports): Deliverable A org ranking schema audit + fixture proof", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "1a9f19b", "msg": "chore(campaign): bind next ranking[0] 8d8c11884fa6 after dd7b close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "d1ce4a2", "msg": "chore(campaign): checkpoint after dd7b diagnostic profile close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0ce781c", "msg": "merge: ROI-cand-dyn-slice-dd7b4910d7f9 diagnostic profile (QA CONCERNS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "f4a8204", "msg": "docs(dod): flip 8/10 diagnostic profile items after QA CONCERNS", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "d32e213", "msg": "fix(ops): widen hardcode scan so yaml_centralized is honest PARTIAL", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0524509", "msg": "feat(ops): diagnostic profile audit for Extra config (DoD §diagnóstico)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "81bf169", "msg": "chore(campaign): record draft PR #28 in checkpoint", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "d2883b2", "msg": "chore(campaign): bind next ranking[0] dd7b4910d7f9 after b3ea2a close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "bf8042c", "msg": "chore(campaign): checkpoint after b3ea2a evidence convention close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "88e6c93", "msg": "merge: ROI-cand-dyn-slice-b3ea2a2669e1 evidence convention (QA PASS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "3d69ab8", "msg": "docs(dod): flip convenção de evidência after independent QA PASS", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "18f3018", "msg": "feat(dod): formal evidence convention catalog (10 kinds)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "4d2e1ab", "msg": "chore(campaign): close b8d41f, bind next ranking[0] b3ea2a, update checkpoint", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "de89e89", "msg": "chore(campaign): baseline/resume checkpoint after recovery + b8d41f close", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "e5663e8", "msg": "merge: ROI-cand-dyn-slice-b8d41f43fbfc requirement states (QA PASS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "66a8efd", "msg": "docs(dod): flip estados/aplicabilidade after independent QA PASS", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "58d9a83", "msg": "fix(dod): requirement states ledger after independent QA FAIL", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "cb0be3b", "msg": "chore(recovery): preserve interrupted session state", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "67a87b1", "msg": "fix(roi): demote closed dyn slices so force-next does not thrash", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c9d4081", "msg": "chore(campaign): progress snapshot after slices a53bdc + 5e4792", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "7bdc23c", "msg": "merge: ROI-cand-dyn-slice-5e47929809f6 sc_compras skip debt (QA PASS leave-open)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "3f9bbad", "msg": "chore(roi): close cycle cyc-2026-07-18T171940Z", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "f4e2a53", "msg": "qa+po: PASS ROI-cand-dyn-slice-5e47929809f6 leave full suite open", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "199a2e8", "msg": "test: remove obsolete sc_compras skip debt (full suite leave-open)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "6bbce91", "msg": "merge: ROI-cand-dyn-slice-a53bdc0173af entity freshness (QA CONCERNS)", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "6fa3d0f", "msg": "chore(roi): advance cycle cyc-2026-07-18T164226Z to PUBLISH/RERANK", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "36d8b03", "msg": "docs(dod): flip entity freshness measurable after QA CONCERNS", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "541f846", "msg": "qa: track independent gate artifact for cycle cyc-2026-07-18T164226Z", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "f248e3e", "msg": "qa: CONCERNS for ROI-cand-dyn-slice-a53bdc0173af entity freshness", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "1c8e988", "msg": "feat: entity-level freshness coverage reporter for DoD slice a53bdc", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "311e8ea", "msg": "feat(ops): DoD §27 hygiene — metrics policy, legacy plan, dry-run, confirm-drop", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "7386de1", "msg": "feat(ops): audit centralized domain constants and source URLs (DoD §27)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "89cf655", "msg": "fix(ops): eliminate silent except Exception: pass under scripts/ (DoD §27)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "9c619e8", "msg": "feat(ops): DoD §27 code organization gate (names, sys.path policy, bare except)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "59dbb29", "msg": "feat(docs): complete DoD §32.1 entry-point alignment (Claude/Agents/Cursor)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "1af5657", "msg": "docs: canonical DEVELOPMENT.md + AGENTS.md adapter (DoD §32.1)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "150106d", "msg": "feat(ops): complete DoD §13.3 HTTP error vs zero and contract alerts", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "6d446ca", "msg": "feat(ops): DoD §13.3 source contract suite (PNCP/PCP/ComprasGov)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c044cae", "msg": "feat(coverage): complete DoD §7.2 substitution guard and blocker reports", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "415a001", "msg": "feat(coverage): DoD §7.2 entity×source×capability applicability matrix", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "bf0d115", "msg": "feat(registry): complete DoD §7.1 operational status machine", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a10c273", "msg": "feat(registry): DoD §7.1 canonical source fields (URL, geo, limits, status)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "e82f5f2", "msg": "feat(reports): §12.2 source health + CSV/Excel/PDF export with metadata", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "381f9e1", "msg": "feat(reports): §12.2 analytical reports (contracts, coverage, recall NOT_READY)", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c704840", "msg": "feat(ops): §12.2 eight operational lists with live PG evidence", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c043458", "msg": "chore(campaign): progress after clean-env slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "8f34d08", "msg": "merge: ROI-cand-dyn-slice-16eac35a037b clean env into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "1b75e8a", "msg": "docs(dod): flip clean-env golden path item after QA PASS [ROI-16eac35a037b]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a25ee64", "msg": "feat(ops): golden path clean-environment bootstrap proof [ROI-16eac35a037b]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "7e13818", "msg": "chore(campaign): progress after golden-reports-pdf slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "d0c3aee", "msg": "merge: ROI-cand-dyn-slice-4f08e0461629 golden reports PDF into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "8ee3384", "msg": "docs(dod): flip 5 golden-path report/PDF items after QA PASS [ROI-4f08e0461629]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "95a266e", "msg": "feat(reports): golden path pack with real PDF and commercial CSVs [ROI-4f08e0461629]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c55c905", "msg": "chore(campaign): progress after golden-path-live slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ec5226e", "msg": "merge: ROI-cand-dyn-slice-b904c9d40e3a golden path live into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0f38dec", "msg": "docs(dod): flip 6 golden-path live items after QA PASS [ROI-b904c9d40e3a]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "377b66e", "msg": "feat(golden-path): live PNCP path, upsert fix, coverage+snapshot gates [ROI-b904c9d40e3a]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "546b548", "msg": "chore(campaign): progress after golden-path-meta slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ba6f009", "msg": "merge: ROI-cand-dyn-slice-f7cf8ac7399c golden path meta into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "37b278a", "msg": "docs(dod): flip 15 golden-path foundation items after QA PASS [ROI-f7cf8ac7399c]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "78aabe3", "msg": "feat(golden-path): bootstrap foundation + run metadata for DoD §12.1 [ROI-f7cf8ac7399c]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ff5daca", "msg": "chore(campaign): progress after alert-pipeline slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "35b8310", "msg": "merge: ROI-cand-dyn-slice-70c8a181a45d alert pipeline into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "b5c0353", "msg": "docs(dod): flip 8 alert stack + backup dupe after QA PASS [ROI-70c8a181a45d]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "1f9660b", "msg": "feat(ops): alert pipeline with dedup, context, fallback ledger [ROI-70c8a181a45d]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "2154b60", "msg": "chore(campaign): progress after ops-gate-monitor slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "966d583", "msg": "merge: ROI-cand-dyn-slice-3a89d28fa518 ops gate monitor into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "043ec63", "msg": "docs(dod): flip 5 ops-gate monitor items after QA PASS [ROI-3a89d28fa518]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "96fa896", "msg": "feat(ops): ops_gate_monitor for freshness/coverage/backup/migrations/timers [ROI-3a89d28fa518]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "e1f618c", "msg": "chore(campaign): progress after crawler-metrics slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "6aa52a6", "msg": "merge: ROI-cand-dyn-slice-268ae33837e7 crawler metrics into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "e066e95", "msg": "docs(dod): flip 7 crawler-metric items after QA PASS [ROI-268ae33837e7]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "64ce9b4", "msg": "feat(ops): crawler metrics monitor duration/success/volume/HTTP [ROI-268ae33837e7]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "22ac4a8", "msg": "chore(campaign): progress after host-monitor slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "2fb324b", "msg": "merge: ROI-cand-dyn-slice-eb87220940fd host monitor into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "dd32ef8", "msg": "docs(dod): flip 8 host-monitor items after QA PASS [ROI-eb87220940fd]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "53508bd", "msg": "fix(ops): host_monitor use psycopg2 for PG growth checks [ROI-eb87220940fd]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "1e4196e", "msg": "feat(ops): host monitor disk/mem/load + journald retention config [ROI-eb87220940fd]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "031e99f", "msg": "chore(campaign): progress after structured-logs slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "5efa914", "msg": "merge: ROI-cand-dyn-slice-43acf5cce633 structured logs into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "9bf8588", "msg": "docs(dod): flip 7 structured-log items after QA PASS [ROI-43acf5cce633]", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "94fb8f6", "msg": "fix(observability): redact Authorization Bearer JWT fully [ROI-43acf5cce633]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "b45f24b", "msg": "feat(observability): structured JSON logs with run_id and secret redaction [ROI-43acf5cce633]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ed228db", "msg": "chore(campaign): progress after data-reliability slice", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "23cc6ca", "msg": "merge: ROI-cand-dyn-slice-49022ba84875 data reliability into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "715ee47", "msg": "docs(roi): QA PASS + PO close ROI-cand-dyn-slice-49022ba84875", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "39ece43", "msg": "fix(reliability): require ≥3 positive signals for TRUSTED [ROI-49022ba84875]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ebe980f", "msg": "feat(reliability): trust_level + bare percentage fail-closed [ROI-49022ba84875]", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "4c3297e", "msg": "merge: ROI-cand-dyn-slice-bc3d6ceca149 CLI usage into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "530f6da", "msg": "feat(cli): prove main workspace/opportunity CLIs documented without web UI", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "45ba87a", "msg": "merge: PARTIAL 2.2/2.3 fix into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "31a4253", "msg": "docs(dod): PARTIAL annotate §2.2/2.3 (### headers) to unlock coverage ranking", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "089add4", "msg": "merge: PARTIAL scope annotations into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "5431be9", "msg": "docs(dod): PARTIAL annotate §2.2/2.3 scope items — unlock ranking toward coverage", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c85c5c4", "msg": "merge: ROI-cand-dyn-slice-f9ff8b8f2173 PARTIAL objectives into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "081e6ec", "msg": "docs(dod): mark §2.1 objectives PARTIAL — unlock ranking for coverage work", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "aa8d8d1", "msg": "docs(campaign): ADVANCE-30D progress snapshot after 20 slices", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "dd8fd10", "msg": "merge: ROI-cand-dyn-slice-8e8eb18e2c5f capability inventory into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "c8843ee", "msg": "feat(ops): capability inventory for DoD §2.1 — honest PARTIAL/NOT_READY status", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "d480062", "msg": "merge: ROI-cand-dyn-slice-62aa81b40ef5 three rolls into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "6a15f3f", "msg": "feat(dod): PROJECT_DONE requires three rolls — stage, post-VPS, infra-independent", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "10d9587", "msg": "merge: ROI-cand-dyn-slice-5068b4058697 process integrity into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0631496", "msg": "feat(dod): process integrity policy and audit for evidence-only checkboxes", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0c44a35", "msg": "merge: ROI-cand-dyn-slice-b1b7c0dfcf61 universe pdf into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "4574a04", "msg": "feat(ops): universe reimport path + file metadata policy for DoD §14 residual", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "6a06d5b", "msg": "merge: ROI-cand-dyn-slice-e09964d21645 backup restore into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "6fb0c3f", "msg": "feat(ops): live local pg_dump/pg_restore proof for DoD §14", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "8b388d0", "msg": "merge: ROI-cand-dyn-slice-b145bef1a4f6 AEC dedupe into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "23f4f3b", "msg": "docs(dod): flip remaining Classificação AEC checkbox with unit-test evidence", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "32e7ae1", "msg": "merge: ROI-cand-dyn-slice-3212c1109a81 AEC snapshot into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "ff7a95d", "msg": "feat(intel): unit tests for AEC classification and fail-closed snapshot reconcile", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "30571a2", "msg": "merge: ROI-cand-dyn-slice-a94b7d79e0a0 universe import into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0b2fdd8", "msg": "feat(universe): snapshot diff for idempotent import and entity change detection", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a2a97fc", "msg": "merge: ROI-cand-dyn-slice-71f21901a039 evidence reconstruct into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0a2ef6f", "msg": "feat(ops): reconstruct_evidence recipes for coverage/freshness/recall/snapshot", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "59bc052", "msg": "merge: ROI-cand-dyn-slice-67bcb452c07d manual overrides into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0ec37dd", "msg": "feat(ops): manual override ledger requires motivo, data, autor", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a34cf7f", "msg": "merge: ROI-cand-dyn-slice-2f2ad5a53d57 run outcome into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "242c463", "msg": "feat(crawl): execution outcome fields — timestamps, status, counts, provenance", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "2e228c1", "msg": "merge: ROI-cand-dyn-slice-4e288f5e4645 execution audit into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "05fb882", "msg": "feat(crawl): execution audit record for DoD §29 run provenance", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "0fce2ee", "msg": "merge: ROI-cand-dyn-slice-b363a4f2f011 rollback dedupe into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "839bd03", "msg": "docs(dod): flip duplicate rollback runbook checkbox with evidence", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "8ea2a5f", "msg": "merge: ROI-cand-dyn-slice-bb77e543c324 PRD align into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "451eb85", "msg": "docs(prd): align PRD v2.1 with DOD coverage truth; add CHANGELOG", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "920abb4", "msg": "merge: ROI-cand-dyn-slice-cfa643fd416d ops docs honesty into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "f4491ec", "msg": "docs(ops): glossary, ADR index, honesty runbooks for DoD §31", "classification": "DOCUMENTATION_ONLY", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "aa05fa6", "msg": "merge: ROI-cand-dyn-slice-ac8b6e76a7b2 empty DoD orphan into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "53cf860", "msg": "fix(roi): drop empty DoD orphan and skip blank ranking candidates", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "7f48288", "msg": "merge: ROI-cand-dyn-slice-a41d7a2033b7 docs definitions into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "8307ef6", "msg": "feat(docs): definition consistency scanner for DoD §25 residual", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "af87dd6", "msg": "merge: ROI-cand-dyn-slice-d7ab09cdef56 claim language into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "849e57b", "msg": "feat(claims): DoD §25 claim-language guards and report forbidden list", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "d54ecd8", "msg": "merge: ROI-cand-dyn-slice-cad02f320cc4 indicator catalog into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "f7d3271", "msg": "feat(coverage): formal indicator catalog fields for DoD §25", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "8833aac", "msg": "merge: ROI-cand-dyn-slice-1e78666e2a21 no-or-true gates into epic", "classification": "OBSOLETE", "decision": "AUDIT_BEFORE_PORT"}
+{"sha": "a339cb8", "msg": "feat(roi): fail-closed scan — no || true in mandatory gates", "classification": "REVALIDATE", "decision": "AUDIT_BEFORE_PORT"}

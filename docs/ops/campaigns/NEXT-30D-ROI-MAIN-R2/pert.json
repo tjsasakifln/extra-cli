@@ -1,0 +1,391 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
+  "generated_at": "2026-07-18T20:34:29Z",
+  "kind": "r2_recalculated_from_main",
+  "baseline_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+  "project_ef": 32.0,
+  "critical_path_length_days": 32.0,
+  "critical_path": [
+    "R0",
+    "R1",
+    "N02",
+    "N04",
+    "N05",
+    "N06",
+    "N06b",
+    "N06c",
+    "N11",
+    "N12",
+    "N14",
+    "N15"
+  ],
+  "tasks": [
+    {
+      "id": "R0",
+      "name": "R2 bootstrap recovery + lineage freeze",
+      "duration": 0.5,
+      "preds": [],
+      "status": "IN_PROGRESS",
+      "es": 0.0,
+      "ef": 0.5,
+      "ls": 0.0,
+      "lf": 0.5,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "R1",
+      "name": "Legacy reconcile delta + commit mig056 WIP",
+      "duration": 1.0,
+      "preds": [
+        "R0"
+      ],
+      "status": "PLANNED",
+      "es": 0.5,
+      "ef": 1.5,
+      "ls": 0.5,
+      "lf": 1.5,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "R2",
+      "name": "SmartLic reuse matrix + snapshot bridge scaffold",
+      "duration": 2.0,
+      "preds": [
+        "R0"
+      ],
+      "status": "PLANNED",
+      "es": 0.5,
+      "ef": 2.5,
+      "ls": 21.5,
+      "lf": 23.5,
+      "slack": 21.0,
+      "critical": false
+    },
+    {
+      "id": "N01",
+      "name": "Golden path strict green live PNCP+PCP+freshness",
+      "duration": 2.5,
+      "preds": [
+        "R1"
+      ],
+      "status": "PLANNED",
+      "es": 1.5,
+      "ef": 4.0,
+      "ls": 3.5,
+      "lf": 6.0,
+      "slack": 2.0,
+      "critical": false
+    },
+    {
+      "id": "N02",
+      "name": "Universe reimport hash+zero-dup on main PG",
+      "duration": 2.0,
+      "preds": [
+        "R1"
+      ],
+      "status": "PLANNED",
+      "es": 1.5,
+      "ef": 3.5,
+      "ls": 1.5,
+      "lf": 3.5,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N03",
+      "name": "Schema audit + migrations green (incl 056)",
+      "duration": 1.5,
+      "preds": [
+        "R1"
+      ],
+      "status": "PLANNED",
+      "es": 1.5,
+      "ef": 3.0,
+      "ls": 25.5,
+      "lf": 27.0,
+      "slack": 24.0,
+      "critical": false
+    },
+    {
+      "id": "N04",
+      "name": "Source registry applicability zero necessary unknown",
+      "duration": 2.5,
+      "preds": [
+        "N02"
+      ],
+      "status": "PLANNED",
+      "es": 3.5,
+      "ef": 6.0,
+      "ls": 3.5,
+      "lf": 6.0,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N05",
+      "name": "Coverage ops stages provenance M2 slice",
+      "duration": 3.5,
+      "preds": [
+        "N01",
+        "N04"
+      ],
+      "status": "PLANNED",
+      "es": 6.0,
+      "ef": 9.5,
+      "ls": 6.0,
+      "lf": 9.5,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N06",
+      "name": "Coverage scale M3 expand entities",
+      "duration": 3.5,
+      "preds": [
+        "N05"
+      ],
+      "status": "PLANNED",
+      "es": 9.5,
+      "ef": 13.0,
+      "ls": 9.5,
+      "lf": 13.0,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N06b",
+      "name": "Coverage scale M4 multi-source operational",
+      "duration": 3.0,
+      "preds": [
+        "N06"
+      ],
+      "status": "PLANNED",
+      "es": 13.0,
+      "ef": 16.0,
+      "ls": 13.0,
+      "lf": 16.0,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N06c",
+      "name": "Coverage scale M5 entity collection wave",
+      "duration": 8.5,
+      "preds": [
+        "N06b"
+      ],
+      "status": "PLANNED",
+      "es": 16.0,
+      "ef": 24.5,
+      "ls": 16.0,
+      "lf": 24.5,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N07",
+      "name": "Contracts incremental + SmartLic bridge 3y machinery",
+      "duration": 3.0,
+      "preds": [
+        "N04",
+        "R2"
+      ],
+      "status": "PLANNED",
+      "es": 6.0,
+      "ef": 9.0,
+      "ls": 23.5,
+      "lf": 26.5,
+      "slack": 17.5,
+      "critical": false
+    },
+    {
+      "id": "N07b",
+      "name": "Contracts coverage metric separate from editais",
+      "duration": 2.0,
+      "preds": [
+        "N07"
+      ],
+      "status": "PLANNED",
+      "es": 9.0,
+      "ef": 11.0,
+      "ls": 26.5,
+      "lf": 28.5,
+      "slack": 17.5,
+      "critical": false
+    },
+    {
+      "id": "N08",
+      "name": "Snapshot integrity 100% reconcile",
+      "duration": 2.0,
+      "preds": [
+        "N05"
+      ],
+      "status": "PLANNED",
+      "es": 9.5,
+      "ef": 11.5,
+      "ls": 22.5,
+      "lf": 24.5,
+      "slack": 13.0,
+      "critical": false
+    },
+    {
+      "id": "N09",
+      "name": "Recall stratified expand gold + SmartLic corpus",
+      "duration": 2.0,
+      "preds": [
+        "N01",
+        "R2"
+      ],
+      "status": "PLANNED",
+      "es": 4.0,
+      "ef": 6.0,
+      "ls": 30.0,
+      "lf": 32.0,
+      "slack": 26.0,
+      "critical": false
+    },
+    {
+      "id": "N10",
+      "name": "Backup/restore local re-proof",
+      "duration": 1.5,
+      "preds": [
+        "N02",
+        "N03"
+      ],
+      "status": "PLANNED",
+      "es": 3.5,
+      "ef": 5.0,
+      "ls": 27.0,
+      "lf": 28.5,
+      "slack": 23.5,
+      "critical": false
+    },
+    {
+      "id": "N11",
+      "name": "Operational daily/weekly package live",
+      "duration": 2.5,
+      "preds": [
+        "N06c",
+        "N08"
+      ],
+      "status": "PLANNED",
+      "es": 24.5,
+      "ef": 27.0,
+      "ls": 24.5,
+      "lf": 27.0,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N12",
+      "name": "PDF+Excel reconcile live package",
+      "duration": 1.5,
+      "preds": [
+        "N11"
+      ],
+      "status": "PLANNED",
+      "es": 27.0,
+      "ef": 28.5,
+      "ls": 27.0,
+      "lf": 28.5,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N13",
+      "name": "Freshness monitors + alerts residual",
+      "duration": 1.5,
+      "preds": [
+        "N05"
+      ],
+      "status": "PLANNED",
+      "es": 9.5,
+      "ef": 11.0,
+      "ls": 30.5,
+      "lf": 32.0,
+      "slack": 21.0,
+      "critical": false
+    },
+    {
+      "id": "N14",
+      "name": "DoD residual REVALIDATE batch evidence",
+      "duration": 2.5,
+      "preds": [
+        "N12",
+        "N10",
+        "N07b"
+      ],
+      "status": "PLANNED",
+      "es": 28.5,
+      "ef": 31.0,
+      "ls": 28.5,
+      "lf": 31.0,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N15",
+      "name": "Campaign close skeptic audit next backlog",
+      "duration": 1.0,
+      "preds": [
+        "N14"
+      ],
+      "status": "PLANNED",
+      "es": 31.0,
+      "ef": 32.0,
+      "ls": 31.0,
+      "lf": 32.0,
+      "slack": 0.0,
+      "critical": true
+    },
+    {
+      "id": "N16",
+      "name": "Competitors/values NOT_READY denominators",
+      "duration": 2.0,
+      "preds": [
+        "N07"
+      ],
+      "status": "PLANNED",
+      "es": 9.0,
+      "ef": 11.0,
+      "ls": 30.0,
+      "lf": 32.0,
+      "slack": 21.0,
+      "critical": false
+    },
+    {
+      "id": "N17",
+      "name": "Resume-interrupt crawler protocol test",
+      "duration": 1.0,
+      "preds": [
+        "N01"
+      ],
+      "status": "PLANNED",
+      "es": 4.0,
+      "ef": 5.0,
+      "ls": 31.0,
+      "lf": 32.0,
+      "slack": 27.0,
+      "critical": false
+    },
+    {
+      "id": "N18",
+      "name": "Contracts crawler checkpoint parity (SmartLic patterns)",
+      "duration": 2.0,
+      "preds": [
+        "R2",
+        "N07"
+      ],
+      "status": "PLANNED",
+      "es": 9.0,
+      "ef": 11.0,
+      "ls": 30.0,
+      "lf": 32.0,
+      "slack": 21.0,
+      "critical": false
+    }
+  ]
+}

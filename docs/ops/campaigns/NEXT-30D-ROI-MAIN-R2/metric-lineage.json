@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
+  "updated_at": "2026-07-18T20:34:29Z",
+  "reference_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+  "reference_branch": "main",
+  "dod_sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
+  "layers": {
+    "canonical_acceptance_main": {
+      "checked": 195,
+      "open": 1160,
+      "total": 1355,
+      "pct": 14.39,
+      "criterion": "checkbox [x] on DOD.md at origin/main HEAD"
+    },
+    "inherited_validated_prior_campaigns": {
+      "r1_inherited_flips": 102,
+      "r1_note": "counted in 195 total; not new R2 PERT",
+      "do_not_recount": true
+    },
+    "new_accepted_this_campaign": {
+      "count": 0,
+      "items": []
+    },
+    "reopened": {
+      "count": 0
+    },
+    "invalidated_by_audit": {
+      "count": 0,
+      "historical_false_green_class": 17
+    },
+    "fixture_only": {
+      "count": 0,
+      "policy": "never counts as DONE"
+    },
+    "blocked": {
+      "count": 0
+    }
+  },
+  "pert": {
+    "new_days_this_campaign": 0.0,
+    "inherited_days_not_recounted": 4.5,
+    "target_new_days": 30.0
+  },
+  "gates_changed_this_campaign": [],
+  "gates_unchanged": [
+    "LOCAL_READY",
+    "PRE_VPS_FINAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE"
+  ],
+  "abrupt_pct_change_log": [
+    {
+      "from_pct": 32.3,
+      "to_pct": 6.8,
+      "cause": "branch switch epic→main + denominator 1354→1355",
+      "not": "simple regression"
+    },
+    {
+      "from_pct": 6.8,
+      "to_pct": 14.4,
+      "cause": "selective inherited port + S5 evidence (R1)",
+      "not": "new critical path invention"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
+  "recorded_at": "2026-07-18T20:34:29Z",
+  "principle": "recover_reconcile_then_advance",
+  "session_note": "New session — no conversational state from prior agent; truth from repo only",
+  "git": {
+    "branch": "main",
+    "head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+    "origin_main": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+    "synced_with_origin_main": true,
+    "dirty_at_bootstrap": true,
+    "rescue_branch": "rescue/r2-dirty-pre-bootstrap-20260718",
+    "stash_preserve_attempted": true,
+    "epic": {
+      "branch": "epic/advance-30d-local-ready-20260718",
+      "head": "0bd5074a0c4e4bf21cca66bfc2446262308fb41b",
+      "checkpoint_0bd5074_accessible": true,
+      "merge_base_with_main": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+      "commits_main_not_in_epic": 8,
+      "commits_epic_not_in_main": 169
+    },
+    "pr_28": {
+      "url": "https://github.com/tjsasakifln/extra-consultoria/pull/28",
+      "state": "OPEN",
+      "head": "epic/advance-30d-local-ready-20260718",
+      "not_used_as_delivery": true
+    },
+    "worktrees": [
+      "/mnt/d/extra consultoria  dc7cea0 [main]"
+    ],
+    "stash_count": 12,
+    "stashes_head5": [
+      "stash@{0}: On extra-roi/cand-dyn-slice-a53bdc0173af: wip non-slice",
+      "stash@{1}: On extra-roi/cand-coverage-scale-m2-more-entities: tmp-makefile",
+      "stash@{2}: On extra-roi/cand-coverage-slice-pending-collection: adversarial-review-wip",
+      "stash@{3}: On extra-roi/cand-workspace-daily-evidence-pack: roi-full-suite-wip",
+      "stash@{4}: On extra-roi/cand-qa-po-e3-stories: wip-before-workspace-evidence-pack"
+    ],
+    "extra_roi_cand_branches": 53,
+    "rescue_branches": [
+      "rescue/interrupted-session-20260718-20260718T174132Z",
+      "rescue/r2-dirty-pre-bootstrap-20260718"
+    ],
+    "tags_recent": []
+  },
+  "dod_current": {
+    "sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1",
+    "checked": 195,
+    "open": 1160,
+    "total": 1355,
+    "pct": 14.39
+  },
+  "metric_lineage_seed": {
+    "epic_historical_not_main": {
+      "checked": 437,
+      "total": 1354,
+      "pct": 32.3,
+      "ref": "0bd5074"
+    },
+    "main_campaign_baseline_r1": {
+      "checked": 92,
+      "total": 1355,
+      "pct": 6.8,
+      "ref": "fbc5868"
+    },
+    "main_after_inherited_r1": {
+      "checked": 195,
+      "total": 1355,
+      "pct": 14.4,
+      "ref": "83b1b04"
+    },
+    "main_canonical_now": {
+      "checked": 195,
+      "total": 1355,
+      "pct": 14.39,
+      "ref": "dc7cea0efb3f"
+    },
+    "explanation": "32.3% was epic-branch acceptance, not main. 6.8% was main pre-recon. 14.4% is honest main after selective inherited port (not forced restore of 32.3%). R2 starts from current main counts; inherited not re-counted as new PERT."
+  },
+  "prior_campaign": {
+    "campaign_id": "NEXT-30D-ROI-MAIN",
+    "path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/",
+    "baseline_head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+    "baseline_checked": 92,
+    "baseline_pct": 6.8,
+    "after_inherited_checked": 195,
+    "after_inherited_pct": 14.4,
+    "epic_historical_pct": 32.3,
+    "epic_checkpoint": "0bd5074",
+    "new_pert_days_approx": 4.5,
+    "accepted_increments": [
+      "T02",
+      "T03"
+    ],
+    "status_at_handoff": "EXECUTING_POST_INHERIT",
+    "dirty_wip_recovered": [
+      "scripts/golden_path.py (pncp timeout 360s)",
+      "scripts/ops/apply_migrations.py (max 56 — min will be fixed to 1)",
+      "db/migrations/056_drop_supplier_entity_fk_contracts.sql",
+      "docs/ops/campaigns/NEXT-30D-ROI-MAIN/evidence/N01-N03 partial"
+    ]
+  },
+  "locks": {
+    "main_writer_at_bootstrap": "HELD_BY_STALE_SESSION → force-released for R2",
+    "path": "squads/extra-dod-roi/state/locks/main-writer.lock"
+  },
+  "db": {
+    "pg_5433": "accepting connections",
+    "default_dsn": "postgresql://test:test@127.0.0.1:5433/extra_test"
+  },
+  "processes_note": "Docker postgres/uvicorn containers running; no extra-consultoria crawl jobs detected as host processes",
+  "smartlic": {
+    "repo": "https://github.com/tjsasakifln/SmartLic",
+    "local_path_found": false,
+    "clone_planned": "/tmp/SmartLic-readonly",
+    "mode": "read-only asset source"
+  },
+  "classification_buckets": [
+    "PORT_VALIDATED",
+    "ALREADY_IN_MAIN",
+    "ALREADY_REIMPLEMENTED",
+    "REVALIDATE",
+    "FIXTURE_ONLY",
+    "DOCUMENTATION_ONLY",
+    "INVALID_FALSE_GREEN",
+    "CONFLICT",
+    "OBSOLETE",
+    "BLOCKED_EXTERNAL",
+    "NOT_APPLICABLE"
+  ],
+  "no_destructive_cleanup": true
+}

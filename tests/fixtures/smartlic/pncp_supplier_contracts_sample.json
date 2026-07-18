@@ -1,0 +1,26 @@
+[
+  {
+    "numero_controle_pncp": "SL-CONTRACT-001",
+    "ni_fornecedor": "12.345.678/0001-99",
+    "nome_fornecedor": "Fornecedor Demo LTDA",
+    "orgao_cnpj": "83102373000126",
+    "orgao_nome": "Prefeitura Demo",
+    "uf": "SC",
+    "municipio": "Florianopolis",
+    "valor_global": 150000.50,
+    "data_assinatura": "2024-06-15",
+    "objeto_contrato": "Manutencao predial e engenharia"
+  },
+  {
+    "numero_controle_pncp": "SL-CONTRACT-002",
+    "ni_fornecedor": "98765432000111",
+    "nome_fornecedor": "Outro Fornecedor",
+    "orgao_cnpj": "00000000000191",
+    "orgao_nome": "Orgao Fora Universo",
+    "uf": "SP",
+    "municipio": "Sao Paulo",
+    "valor_global": 10.0,
+    "data_assinatura": "2020-01-01",
+    "objeto_contrato": "Material de escritorio"
+  }
+]
