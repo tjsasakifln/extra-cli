@@ -236,11 +236,15 @@ def main(argv: list[str] | None = None) -> int:
         },
         "limitations": [
             "Storage Box / external backup path not exercised in this local proof.",
-            "Universe seed re-import not automatic in this proof — dump only.",
+            "Universe seed re-import is a separate step after restore (see universe_reimport_cmd).",
         ],
         "recovery_instruction": (
             "pg_restore -d <target_db> backups/local-proof/<dump>; "
             "or bash scripts/restore-database.sh when available."
+        ),
+        "universe_reimport_cmd": (
+            "python3 -c \"from scripts.lib.universe import load_canonical_universe; "
+            "u=load_canonical_universe(); print(u.summary())\""
         ),
     }
     report["ok"] = (

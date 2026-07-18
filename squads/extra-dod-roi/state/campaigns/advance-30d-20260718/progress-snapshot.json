@@ -1,18 +1,33 @@
 {
-  "at": "2026-07-18T13:35:42.198775+00:00",
+  "at": "2026-07-18T13:44:22.258177+00:00",
+  "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
   "epic": "epic/advance-30d-local-ready-20260718",
-  "sha": "a2a97fc153f3aee5338a28e387457c377695f73d",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "dod_checked": 146,
-  "dod_open": 1208,
-  "slices_completed": 12,
+  "current_sha": "6a06d5b71363582a3eae110496bbf7928d499dd4",
+  "slices_completed": 16,
+  "dod": {
+    "checked": 160,
+    "open": 1194,
+    "baseline_checked": 92
+  },
   "local_ready": false,
   "operational_coverage_pct": 0.0,
-  "claims_forbidden": [
+  "highlights": [
+    "fail-closed || true scanner",
+    "indicator catalog + claim language",
+    "docs honesty + PRD v2.1",
+    "execution audit records",
+    "manual override ledger",
+    "evidence reconstruct recipes",
+    "universe snapshot diff",
+    "AEC + snapshot reconcile unit tests",
+    "LIVE local pg_dump/pg_restore proof"
+  ],
+  "resume": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
+  "forbidden_claims": [
     "LOCAL_READY",
-    "95% operational coverage",
+    "95% operational",
     "PRE_VPS_FINAL_READY",
     "PROJECT_DONE"
-  ],
-  "resume": "python3 squads/extra-dod-roi/scripts/cli.py force-next"
+  ]
 }
