@@ -374,20 +374,153 @@ class SkepticRemediationGuards(unittest.TestCase):
         self.assertEqual(pass_n, data["pass_matrix_count"])
 
     def test_len_gt_100_rejected_for_semantic_claim(self) -> None:
+        """validate_row_chain must reject len(t)>100 as sole proof of semantic claim."""
+        from canonical_count import validate_row_chain  # noqa: WPS433
+        from campaign import load_ledger  # noqa: WPS433
+
+        ledger = load_ledger(ROOT)
+        baseline_open = set((ledger.get("baseline") or {}).get("open_ids") or [])
+        # use a baseline-open id that is NOT currently accepted, or synthetic with force
+        # Inject synthetic open id into baseline set for unit test only
+        did = "dod:deadbeef0001"
+        baseline_open.add(did)
+        # Fake current checked item by patching DOD parse via direct current_by_id
+        current_by_id = {
+            did: {
+                "id": did,
+                "checked": True,
+                "section": "27. Organização e manutenção do código",
+                "text": "Constantes de domínio são centralizadas.",
+            }
+        }
+        stories = {
+            "ROI-campaign-batch3-ops-config": {
+                "status": "Done",
+                "po_closed": True,
+                "po_validated": True,
+                "qa_verdict": "PASS",
+                "implementer_agent": "delivery-engineer",
+                "qa_agent": "adversarial-qa-auditor",
+                "reviewed_commit": "abc",
+                "gates": {"lint": "PASS", "tests": "PASS"},
+            }
+        }
         row = {
-            "dod_item_id": "dod:test-len",
+            "dod_item_id": did,
+            "seção": "27. Organização e manutenção do código",
             "texto": "Constantes de domínio são centralizadas.",
             "evidência": "scripts/lib/constants.py",
-            "comando": "python3 -c \"from pathlib import Path; t=Path('scripts/lib/constants.py').read_text(); assert len(t)>100\"",
+            "comando": (
+                "python3 -c \"from pathlib import Path; "
+                "t=Path('scripts/lib/constants.py').read_text(); assert len(t)>100\""
+            ),
+            "exact_commands": [
+                "python3 -c \"from pathlib import Path; "
+                "t=Path('scripts/lib/constants.py').read_text(); assert len(t)>100\""
+            ],
             "exit_code": 0,
+            "exit_codes": [0],
             "qa_verdict": "PASS",
+            "qa_agent": "adversarial-qa-auditor",
+            "implementer": "delivery-engineer",
+            "story_id": "ROI-campaign-batch3-ops-config",
             "evidence_type": "STATIC_REPO_WIDE_PROOF",
+            "artifact_paths": ["scripts/lib/constants.py"],
+            "scope_or_universe": "scripts/lib/constants.py domain constants",
+            "files_or_cases_checked": ["scripts/lib/constants.py"],
+            "require_final_head_review": False,
         }
-        r = falsify_theater_evidence(ROOT, row)
-        # theater may pass on command shape; canonical rebuild rejects
-        from canonical_count import validate_row_chain, parse_items as _  # type: ignore
-        # direct unit: is_generic false but semantic gate in validate via rebuild sample
-        self.assertIn("len(t)>100", row["comando"])
+        item = validate_row_chain(
+            ROOT,
+            row,
+            baseline_open=baseline_open,
+            current_by_id=current_by_id,
+            stories=stories,
+            qa_index={did: {"verdict": "PASS", "qa_agent": "adversarial-qa-auditor", "implementer_agent": "delivery-engineer"}},
+            proof_index={},
+            final_head="abc",
+            revoked_norms=set(),
+        )
+        self.assertTrue(
+            any("len(t)>100" in r or "FILE_EXISTENCE theater" in r for r in item.reject_reasons),
+            item.reject_reasons,
+        )
+
+    def test_freshness_vacuous_troubleshooting_rejected(self) -> None:
+        """Freshness runbook must not pass with troubleshooting timeout-only proof."""
+        from canonical_count import validate_row_chain  # noqa: WPS433
+
+        did = "dod:deadbeef0002"
+        baseline_open = {did}
+        current_by_id = {
+            did: {
+                "id": did,
+                "checked": True,
+                "section": "31. Documentação operacional",
+                "text": "Existe runbook de freshness vencida.",
+            }
+        }
+        stories = {
+            "s": {
+                "status": "Done",
+                "po_closed": True,
+                "po_validated": True,
+                "qa_verdict": "PASS",
+                "implementer_agent": "delivery-engineer",
+                "qa_agent": "adversarial-qa-auditor",
+                "reviewed_commit": "abc",
+                "gates": {"lint": "PASS"},
+            }
+        }
+        row = {
+            "dod_item_id": did,
+            "seção": "31. Documentação operacional",
+            "texto": "Existe runbook de freshness vencida.",
+            "evidência": "docs/ops/troubleshooting.md",
+            "comando": (
+                "python3 -c \"from pathlib import Path; import re; "
+                "t=Path('docs/ops/troubleshooting.md').read_text(); "
+                "assert all(re.search(p,t,re.I) for p in ['fresh|atualid|stale|vencid|timeout'])\""
+            ),
+            "exact_commands": [
+                "python3 -c \"from pathlib import Path; import re; "
+                "t=Path('docs/ops/troubleshooting.md').read_text(); "
+                "assert all(re.search(p,t,re.I) for p in ['fresh|atualid|stale|vencid|timeout'])\""
+            ],
+            "exit_code": 0,
+            "exit_codes": [0],
+            "qa_verdict": "PASS",
+            "qa_agent": "adversarial-qa-auditor",
+            "implementer": "delivery-engineer",
+            "story_id": "s",
+            "evidence_type": "DOCUMENT_CONTENT_PROOF",
+            "artifact_paths": ["docs/ops/troubleshooting.md"],
+            "content_anchors": [
+                "docs/ops/troubleshooting.md:10:- [Crawler Timeout](#crawler-timeout)"
+            ],
+            "require_final_head_review": False,
+        }
+        item = validate_row_chain(
+            ROOT,
+            row,
+            baseline_open=baseline_open,
+            current_by_id=current_by_id,
+            stories=stories,
+            qa_index={did: {"verdict": "PASS", "qa_agent": "a", "implementer_agent": "b"}},
+            proof_index={},
+            final_head="abc",
+            revoked_norms=set(),
+        )
+        self.assertTrue(
+            item.reject_reasons,
+            "expected reject for vacuous freshness/troubleshooting proof",
+        )
+        blob = " ".join(item.reject_reasons).lower()
+        self.assertTrue(
+            "freshness" in blob or "vacuous" in blob or "troubleshooting" in blob,
+            item.reject_reasons,
+        )
+
 
     def test_no_generic_or_len_theater_in_live_matrix_commands(self) -> None:
         ledger = json.loads(

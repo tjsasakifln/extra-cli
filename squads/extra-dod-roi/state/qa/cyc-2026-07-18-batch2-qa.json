@@ -216,8 +216,8 @@
       "dod_item_id": "dod:18e6d1d86bb1",
       "text": "Existe runbook de freshness vencida.",
       "verdict": "PASS",
-      "evidence": "docs/ops/troubleshooting.md",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['fresh|atualid|stale|vencid|timeout'])\"",
+      "evidence": "docs/ops/runbook.md",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/runbook.md').read_text(); assert 'Como Verificar Freshness Critico' in t; assert 'freshness_gate' in t; assert re.search(r'fresh', t) and re.search(r'stale', t); assert 'SLA'",
       "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {

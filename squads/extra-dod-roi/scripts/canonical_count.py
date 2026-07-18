@@ -489,6 +489,50 @@ def validate_row_chain(
     if doc_claim and (is_theater_evidence(ev) or "file inventory" in ev.lower()):
         reasons.append("documentary claim backed only by file inventory")
 
+    # Vacuous regex alternation: assert all(re.search(p) for p in ['a|b|c'])
+    # matches if ANY alternative hits — insufficient for specific documentary claims.
+    for cmd in cmds:
+        if re.search(r"assert\s+all\(\s*re\.search", cmd) and "|" in cmd:
+            # Extract patterns list if possible
+            mpat = re.search(r"for p in (\[.*?\])", cmd)
+            if mpat and "|" in mpat.group(1):
+                # require content_anchors to mention a keyword from the claim
+                claim_keys = [
+                    w
+                    for w in re.findall(r"[a-zà-ú]{4,}", norm)
+                    if w
+                    not in {
+                        "existe",
+                        "runbook",
+                        "descreve",
+                        "readme",
+                        "quando",
+                        "possuem",
+                        "scripts",
+                        "operacionais",
+                    }
+                ]
+                anchors_blob = " ".join(item.content_anchors).lower()
+                if claim_keys and not any(k in anchors_blob for k in claim_keys[:6]):
+                    reasons.append(
+                        "vacuous alternation regex without claim-keyword content_anchors"
+                    )
+                # Freshness runbook must not be proved via timeout-only troubleshooting
+                if "freshness" in norm:
+                    if "troubleshooting" in cmd.lower() or any(
+                        "troubleshooting" in a for a in item.artifact_paths
+                    ):
+                        if "freshness" not in anchors_blob and "stale" not in anchors_blob:
+                            reasons.append(
+                                "freshness runbook claim proved via troubleshooting without freshness/stale anchors"
+                            )
+        # Single alternation pattern string used as sole proof
+        if re.search(r"re\.search\(\s*['\"][^'\"]*\|[^'\"]*['\"]", cmd) and "freshness" in norm:
+            if "runbook.md" not in cmd.lower() and not any(
+                "runbook.md" in a for a in item.artifact_paths
+            ):
+                reasons.append("freshness claim must cite runbook.md freshness section")
+
     # Backup file claims need executed artifact proof
     if "arquivo de backup possui" in norm:
         has_exec = any(
