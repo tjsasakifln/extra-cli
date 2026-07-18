@@ -91,6 +91,10 @@ ALLOWED_TRANSITIONS: dict[CheckpointStatus, frozenset[CheckpointStatus]] = {
             CheckpointStatus.EVIDENCE_COMMITTED,
             CheckpointStatus.ERROR,
             CheckpointStatus.PARTIAL,
+            # Page-level promote after full pipeline may jump to terminal
+            # (run-level still goes evidence_committed → watermark first).
+            CheckpointStatus.SUCCESS,
+            CheckpointStatus.EMPTY_CONFIRMED,
         }
     ),
     CheckpointStatus.EVIDENCE_COMMITTED: frozenset(

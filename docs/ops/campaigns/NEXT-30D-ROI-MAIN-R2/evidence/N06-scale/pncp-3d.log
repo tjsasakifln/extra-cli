@@ -1,0 +1,97 @@
+{"timestamp": "2026-07-18T21:10:04.156988+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Starting cascade matching for source=pncp with 2085 entities (pncp_ids=1131 ids)"}
+{"timestamp": "2026-07-18T21:10:04.163602+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Matching 1131 bids for source=pncp"}
+{"timestamp": "2026-07-18T21:10:05.316080+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Unknown abbreviations detected (199 unique): ['ABDON', 'AGUA', 'AGUAS', 'ALEGRE', 'ALTA', 'ALTO', 'ALVES', 'AMB', 'AMEOSC', 'AMESC', 'AMPARO', 'AMREC', 'AMURES', 'ANITA', 'ANTAS', 'APIS', 'APIUNA', 'ARROIO', 'AURORA', 'BAIXO', 'BARRA', 'BARRAS', 'BASICO', 'BELA', 'BELO', 'BENTO', 'BOA', 'BOM', 'BONITA', 'BRACO', 'BRANCO', 'BRASIL', 'CAIBI', 'CAMPO', 'CAMPOS', 'CAPAO', 'CARLO', 'CARLOS', 'CASAN', 'CEDROS', 'CELSO', 'CENTRO', 'CERRO', 'CIASC', 'CIDADE', 'CIDIR', 'CIS', 'CIVIL', 'COLON', 'CONTAS', 'CORPO', 'CORUPA', 'COSTA', 'CUNHA', 'CVC', 'DESENV', 'DOCE', 'DONA', 'DOUTOR', 'DR', 'EBSERH', 'ECON', 'EMMA', 'ENTRE', 'ERE', 'ESGOTO', 'ESTADO', 'FCT', 'FOZ', 'FRIAS', 'FUMACA', 'FUMPOF', 'FUNDO', 'FUPESC', 'FURB', 'GARUVA', 'GAS', 'GERAL', 'GESTAO', 'GRANDE', 'GUEDES', 'HELENA', 'HERVAL', 'IBIAM', 'ICARA', 'ICIPAL', 'IDOSO', 'ILHOTA', 'INCRA', 'INDIO', 'INFRA', 'INTERM', 'IPIRA', 'IRANI', 'IRATI', 'ITA', 'ITAJAI', 'ITAPOA', 'JABORA', 'JARDIM', 'JESUS', 'JLLE', 'JOAO', 'JOSE', 'LAGES', 'LAGUNA', 'LAURO', 'LIMA', 'LOPES', 'LUIS', 'LUIZ', 'MAFRA', 'MAIA', 'MAIO', 'MAJOR', 'MAREMA', 'MATOS', 'MEDIO', 'MEIO', 'MIGUEL', 'MIRIM', 'MODELO', 'MONDAI', 'MONTE', 'MORNAS', 'MORRO', 'MULLER', 'MUNIC', 'NAC', 'NEGRO', 'NORTE', 'NOVA', 'NOVO', 'NOVOS', 'OESTE', 'OS', 'OURO', 'PAIAL', 'PAINEL', 'PALMA', 'PASSOS', 'PAULO', 'PEDRAS', 'PENHA', 'PINTO', 'PONTE', 'PORA', 'PORTO', 'PREVID', 'PUBL', 'RAMOS', 'RANCHO', 'REGIAO', 'RETIRO', 'RINCAO', 'RIO', 'RIOS', 'ROSA', 'RUFINO', 'RURAL', 'SA', 'SALTO', 'SAMAE', 'SAMASA', 'SANGAO', 'SANTA', 'SAO', 'SAUDE', 'SC', 'SCPREV', 'SEARA', 'SERRA', 'SERV', 'SILVA', 'SOCIAL', 'SOLA', 'SUL', 'TAIO', 'TILIAS', 'TIMBE', 'TIMBO', 'TOLDO', 'TRENTO', 'TRES', 'TREZE', 'TURVO', 'UDESC', 'UFFS', 'UNIAO', 'VALE', 'VARGEM', 'VELHA', 'VELHO', 'VELOSO', 'VENEZA', 'VERDE', 'VISTA', 'VITOR', 'XAXIM']"}
+{"timestamp": "2026-07-18T21:10:05.316224+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Cascade matching done for source=pncp — CNPJ=992, cnpj_alias=0, name=17, alias=0, fuzzy=11, unmatched=111, total=1131"}
+
+📋 2085 entidades carregadas (1093 no raio 200km)
+
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+📍 Source: PNCP | Mode: full
+────────────────────────────────────────────────────────────
+  ❓ error: fetched=0, transformed=0, inserted=0, updated=0, matched=0
+     engenharia=0/0/0 within_200km=0 restante_sc=0 loc_nao_confirmada=0 persisted=0
+
+============================================================
+  RESUMO
+============================================================
+  Success:   0 sources
+  Degraded:  0 sources
+  Empty:     0 sources
+  Skipped:   0 sources
+  Fetched:   0
+  Transformed: 0
+  Inserted:  0
+  Updated:   0
+  Matched:   0
+  Classificados engenharia: 0
+  Engenharia confirmada: 0
+  Engenharia provavel: 0
+  Dentro de 200km: 0
+  Restante de SC: 0
+  Localizacao nao confirmada: 0
+  Descartados por falso positivo: 0
+  Persistidos: 0
+  Falhas externas: 0
+
+  📊 Coverage: 9.1% (190/2085)
+
+  📄 Result JSON: docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N06-scale/pncp-3d.json

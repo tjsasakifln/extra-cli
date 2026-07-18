@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/mnt/d/extra consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 1326, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/mnt/d/extra consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 1294, in main
+    report = run_pilot(
+             ^^^^^^^^^^
+  File "/mnt/d/extra consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 747, in run_pilot
+    previous_run_ids = _apply_run_id_to_checkpoint(checkpoint, run_id)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/extra consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 318, in _apply_run_id_to_checkpoint
+    assert_checkpoint_run_id(cp_dict, run_id)
+  File "/mnt/d/extra consultoria/scripts/crawl/run_evidence.py", line 394, in assert_checkpoint_run_id
+    raise ValueError(
+ValueError: checkpoint run_id mismatch: existing='contracts-90d-20260718T204643Z-55e2f14974' current='contracts-90d-20260718T204957Z-66232bbb7b'

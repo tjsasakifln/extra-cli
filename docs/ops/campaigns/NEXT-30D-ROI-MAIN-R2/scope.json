@@ -138,7 +138,7 @@
     {
       "id": "N06",
       "name": "Coverage scale M3 expand entities",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 3.5,
       "predecessors": [
         "N05"
@@ -235,7 +235,7 @@
     {
       "id": "N09",
       "name": "Recall stratified expand gold + SmartLic corpus",
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "duration_days": 2.0,
       "predecessors": [
         "N01",
@@ -252,7 +252,7 @@
     {
       "id": "N10",
       "name": "Backup/restore local re-proof",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 1.5,
       "predecessors": [
         "N02",
@@ -411,5 +411,5 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T20:59:25Z"
+  "updated_at": "2026-07-18T21:12:33Z"
 }

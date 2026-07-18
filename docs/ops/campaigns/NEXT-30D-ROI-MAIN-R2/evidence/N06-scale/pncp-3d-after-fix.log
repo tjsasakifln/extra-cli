@@ -1,0 +1,93 @@
+
+📋 2085 entidades carregadas (1093 no raio 200km)
+
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+📍 Source: PNCP | Mode: full
+────────────────────────────────────────────────────────────
+  ❓ error: fetched=0, transformed=0, inserted=0, updated=0, matched=0
+     engenharia=0/0/0 within_200km=0 restante_sc=0 loc_nao_confirmada=0 persisted=0
+
+============================================================
+  RESUMO
+============================================================
+  Success:   0 sources
+  Degraded:  0 sources
+  Empty:     0 sources
+  Skipped:   0 sources
+  Fetched:   0
+  Transformed: 0
+  Inserted:  0
+  Updated:   0
+  Matched:   0
+  Classificados engenharia: 0
+  Engenharia confirmada: 0
+  Engenharia provavel: 0
+  Dentro de 200km: 0
+  Restante de SC: 0
+  Localizacao nao confirmada: 0
+  Descartados por falso positivo: 0
+  Persistidos: 0
+  Falhas externas: 0
+
+  📊 Coverage: 9.1% (190/2085)
+
+  📄 Result JSON: docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N06-scale/pncp-3d-after-fix.json

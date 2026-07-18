@@ -1,0 +1,67 @@
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ GOLDEN PATH — Pipeline de Validacao do DataLake                              │
+│ Run: gp-20260718-174957  |  Fontes: pncp, pcp  |  DSN:                       │
+│ postgresql://test:test@127.0.0.1:5433/extra_test...                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+[1/4] Verificando conectividade PostgreSQL...
+  PostgreSQL OK (33ms)
+
+[2/4] Crawl das fontes de dados...
+  Fontes: pncp, pcp
+  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter
+
+>>> Iniciando crawl: pncp — PNCP API (editais abertos — fonte crítica)
+  Attempt 1/1 timed out (360s)
+
+>>> Iniciando crawl: pcp — PCP (Portal de Compras Publicas)
+  OK pcp: fetched=143, inserted=0, persisted=0
+
+                            Resultados por Fonte                             
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Fonte ┃ Status ┃ Tempo    ┃ Tentativas ┃ Fetched ┃ Inserted ┃ Persistidas ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ pncp  │ FAIL   │ 360112ms │ 1          │ -       │ -        │ -           │
+│ pcp   │ OK     │ 13497ms  │ 1          │ 143     │ 0        │ 0           │
+└───────┴────────┴──────────┴────────────┴─────────┴──────────┴─────────────┘
+
+  1 com dados, 0 zero, 1 falha(s)
+    pncp: timeout after 360s
+
+[3/4] Freshness Gate...
+
+>>> Validando freshness gate...
+  Freshness gate: FAIL (stale sources) (216ms)
+    Sources stale: contracts
+
+[4/4] Geracao de relatorios...
+
+>>> Gerando relatorio Excel...
+  Excel: /mnt/d/extra consultoria/output/excels/panorama-SC-2026-07-18.xlsx
+
+>>> Gerando relatorio PDF...
+  PDF: generated
+
+╭─────────────────────────────────────╮
+│ GOLDEN PATH — RESUMO                │
+│                                     │
+│ Run ID:          gp-20260718-174957 │
+│ Mode:            strict             │
+│ Status:          PARTIAL            │
+│ Exit code:       2                  │
+│ Fontes c/ dados: 1/2                │
+│ Fontes zero:     0                  │
+│ Fontes essenciais com falha: 1      │
+│ Freshness gate:  fail               │
+│ Excel:           generated          │
+│ PDF:             generated          │
+│ Wall clock:      374490ms (374.5s)  │
+╰─────────────────────────────────────╯
+
+Ledger salvo:  
+docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N01-golden/ledger.json
+Log salvo:     /mnt/d/extra 
+consultoria/output/golden-path/gp-20260718-174957.log
+
+PARCIAL: fontes essenciais falharam. Verifique o ledger.

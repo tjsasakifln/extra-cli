@@ -1,0 +1,4 @@
+entity_freshness: num=2 den=1093 pct=0.183 sla_h=24 status=READY
+wrote docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N05-coverage/freshness/entity-freshness-report.json
+wrote docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N05-coverage/freshness/entity-freshness-report.csv
+wrote docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N05-coverage/freshness/entity-freshness-gaps.csv

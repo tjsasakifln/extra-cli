@@ -1,0 +1,27 @@
+run_id=r2-n05
+json=/mnt/d/extra consultoria/docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N05-coverage/multi_source-r2-n05.json
+md=/mnt/d/extra consultoria/docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N05-coverage/multi_source-r2-n05.md
+metrics:
+  - historical_editais_raw_coverage: result=4.76 (52/1093) conf=high
+  - municipalities_with_publication_30d: result=94.58 (279/295) conf=medium
+  - orgs_with_recent_licitacao: result=43.09 (471/1093) conf=medium
+  - pncp_sc_reconciled: result=28.27 (309/1093) conf=low
+  - source_coverage_dados_abertos_sc: result=1.22 (500/41080) conf=low
+  - source_coverage_ciga_dom: result=94.58 (279/295) conf=medium
+  - source_coverage_sc_compras: result=0.0 (0/2602) conf=medium
+  - source_coverage_pncp: result=4.76 (52/1093) conf=medium
+  - temporal_coverage_ciga_dom: result=19.35 (6/31) conf=medium
+  - temporal_coverage_sc_compras: result=0.0 (0/31) conf=none
+  - temporal_coverage_dados_abertos_sc: result=0.0 (0/31) conf=medium
+  - act_category_distribution_ciga_dom: result=100.0 (19/19) conf=medium
+  - act_category_distribution_dados_abertos_sc: result=94.74 (18/19) conf=medium
+  - field_completeness_ciga_dom: result=94.58 (67414/71274) conf=high
+  - field_completeness_sc_compras: result=None (0/0) conf=none
+  - field_completeness_dados_abertos_sc: result=75.0 (3000/4000) conf=high
+  - document_coverage_ciga_dom: result=100.0 (10182/10182) conf=high
+  - document_coverage_sc_compras: result=None (0/None) conf=none
+  - document_coverage_dados_abertos_sc: result=0.0 (0/500) conf=high
+  - freshness_hours_ciga_dom: result=34.07 (34.07/1) conf=high
+  - freshness_hours_sc_compras: result=34.08 (34.08/1) conf=high
+  - freshness_hours_dados_abertos_sc: result=42.72 (42.72/1) conf=high
+  - freshness_hours_pncp: result=0.61 (0.61/1) conf=high

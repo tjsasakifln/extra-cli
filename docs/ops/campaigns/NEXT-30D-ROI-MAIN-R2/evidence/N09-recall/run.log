@@ -1,0 +1,12 @@
+{
+  "status": "NOT_READY",
+  "captured": null,
+  "published_in_sample": null,
+  "pct": null,
+  "as_of": "2026-07-18",
+  "formula": "captured / published_in_sample",
+  "notes": "Sample still scaffold-only (EXAMPLE items). Populate portal_items from independent portal observation, set captured_by_system true/false with evidence, re-run evaluate.",
+  "strata_coverage": {},
+  "forbidden_proxy_used": false
+}
+Wrote docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N09-recall/recall_benchmark.json

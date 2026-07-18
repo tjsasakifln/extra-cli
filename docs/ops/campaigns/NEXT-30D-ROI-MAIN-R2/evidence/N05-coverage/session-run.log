@@ -1,0 +1,22 @@
+Universe loaded: 1093 (expected 1093)
+Records processed: 18936
+Source stats: {'ciga_dom': {'records': 15793, 'matched': 2810, 'coverage_eligible': 553}, 'sc_compras': {'records': 2602, 'matched': 289, 'coverage_eligible': 34}, 'pncp_sc': {'records': 541, 'coverage_eligible': 197, 'matched': 220}}
+Coverage update applied: {'upserts': 176, 'entities_sources': 176, 'inserted_hint': 0}
+{
+  "commercial_numerator": "123",
+  "combined_loose": 136,
+  "denominator": 1093,
+  "open_n": "757",
+  "open_eng": "68",
+  "open_deadline": "438",
+  "go_n": "14",
+  "paths": {
+    "coverage_canonical": "/mnt/d/extra consultoria/output/session-2026-07-18/coverage_canonical.json",
+    "entities_covered": "/mnt/d/extra consultoria/output/session-2026-07-18/entities_covered.jsonl",
+    "entities_uncovered": "/mnt/d/extra consultoria/output/session-2026-07-18/entities_uncovered.jsonl",
+    "entity_crosswalk": "/mnt/d/extra consultoria/output/session-2026-07-18/entity_crosswalk.jsonl",
+    "radar_opportunities": "/mnt/d/extra consultoria/output/session-2026-07-18/radar_opportunities.jsonl",
+    "radar_csv": "/mnt/d/extra consultoria/output/session-2026-07-18/radar_opportunities.csv",
+    "report_md": "/mnt/d/extra consultoria/output/session-2026-07-18/COVERAGE_REPORT.md"
+  }
+}

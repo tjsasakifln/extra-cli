@@ -1,0 +1,17 @@
+{
+  "task": "N06",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:12:33Z",
+  "checks": [
+    "fixed InvalidCheckpointTransition db_committed->success/normalized demotion",
+    "PNCP live full 2026-07-15..18 success fetched=1131 inserted=1131",
+    "PCP incremental success fetched=143",
+    "resilience unit tests 2 passed for transition"
+  ],
+  "concerns": [
+    "entity coverage still 174/1093 \u2014 scale continues in N06b/N06c",
+    "monitor coverage % uses 2085 denom not 1093 universe \u2014 separate honesty issue"
+  ]
+}

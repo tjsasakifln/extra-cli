@@ -1,0 +1,14 @@
+{
+  "task": "N09",
+  "verdict": "CONCERNS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:12:33Z",
+  "checks": [
+    "recall_benchmark evaluate runs fail-closed NOT_READY",
+    "scaffold sample only \u2014 no false 95% claim"
+  ],
+  "concerns": [
+    "need labeled stratified portal sample for true recall"
+  ]
+}

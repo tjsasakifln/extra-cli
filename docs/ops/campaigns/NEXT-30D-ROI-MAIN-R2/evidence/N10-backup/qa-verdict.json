@@ -1,0 +1,16 @@
+{
+  "task": "N10",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:12:33Z",
+  "checks": [
+    "pg_dump ok 3.6MB",
+    "restore separate db extra_restore_proof",
+    "79 public tables both sides",
+    "ok=true"
+  ],
+  "concerns": [
+    "pg_restore warned transaction_timeout unrecognized (PG version drift) \u2014 non-fatal"
+  ]
+}

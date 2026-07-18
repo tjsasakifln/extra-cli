@@ -396,6 +396,12 @@ class OperationalPipeline:
         raw_refs = (fetched.metadata or {}).get("raw") or (fetched.provenance or {}).get("raw") or []
         if not isinstance(raw_refs, list):
             return
+        from scripts.crawl.resilience.stages import (
+            InvalidCheckpointTransitionError,
+            stage_rank,
+            validate_transition,
+        )
+
         for raw_ref in raw_refs:
             if not isinstance(raw_ref, dict):
                 continue
@@ -407,19 +413,33 @@ class OperationalPipeline:
                 continue
             if cp.status in {"success", "empty_confirmed", "watermark_committed"}:
                 continue
-            from scripts.crawl.resilience.stages import InvalidCheckpointTransitionError, validate_transition
-
             target = to_status
             if to_status in {"success", "empty_confirmed"} and fetched.status in {"success", "empty_confirmed"}:
                 target = fetched.status
             elif to_status == "evidence_committed":
                 target = "db_committed" if cp.status in {"raw_persisted", "normalized", "pending"} else to_status
+            # Never demote: page already past target from a prior partial run.
+            try:
+                if stage_rank(cp.status) >= stage_rank(target) and cp.status != target:
+                    continue
+            except Exception:
+                pass
             try:
                 validate_transition(cp.status, target)
             except InvalidCheckpointTransitionError:
-                # Already at/after target is fine; other illegal jumps surface.
-                if cp.status == target or cp.completed:
+                if cp.status == target or getattr(cp, "completed", False):
                     continue
-                raise
+                # Bridge mid-pipeline → terminal via evidence_committed when needed.
+                if cp.status == "db_committed" and target in {"success", "empty_confirmed"}:
+                    self.checkpoints.promote(cp, "evidence_committed")
+                    validate_transition(cp.status, target)
+                else:
+                    # Backward or illegal jump after resume: skip demotion.
+                    try:
+                        if stage_rank(cp.status) > stage_rank(target):
+                            continue
+                    except Exception:
+                        pass
+                    raise
             if cp.status != target:
                 self.checkpoints.promote(cp, target)

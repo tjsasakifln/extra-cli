@@ -1,0 +1,43 @@
+2026-07-18 17:46:43,900 INFO contracts_90d_pilot: Checkpoint reset for mode=full
+WINDOW_START 20260715_20260718
+PAGE 20260715_20260718 p=1/42 batch=500 ins_total=0
+PAGE 20260715_20260718 p=10/42 batch=500 ins_total=4500
+PAGE 20260715_20260718 p=20/42 batch=500 ins_total=9500
+PAGE 20260715_20260718 p=30/42 batch=500 ins_total=14500
+PAGE 20260715_20260718 p=40/42 batch=500 ins_total=19500
+2026-07-18 17:49:49,857 INFO contracts_90d_pilot: Window 20260715_20260718 completed pages=42 transformed=20894 ins=20894 skip=0 t=185.9s
+2026-07-18 17:49:50,065 INFO contracts_90d_pilot: Wrote evidence docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N07-contracts/pilot-3d.json run_id=contracts-90d-20260718T204643Z-55e2f14974
+{
+  "run_id": "contracts-90d-20260718T204643Z-55e2f14974",
+  "status": "success",
+  "totals": {
+    "fetched": 20894,
+    "transformed": 20894,
+    "inserted": 20894,
+    "skipped": 0,
+    "pages": 42,
+    "page_errors": 0,
+    "windows_ok": 1,
+    "windows_failed": 0,
+    "windows_skipped_resume": 0
+  },
+  "planned_windows": 1,
+  "go_no_go_3y": "NO-GO",
+  "duration_seconds": 186.0,
+  "db": {
+    "pncp_supplier_contracts_count": 20894,
+    "min_data_publicacao": "2026-07-15",
+    "max_data_publicacao": "2026-07-18",
+    "data_publicacao_note": "legacy/mixed semantics \u2014 historically stored dataAssinatura; prefer data_assinatura / data_publicacao_fonte (migration 051)",
+    "min_data_assinatura": "2021-08-26",
+    "max_data_assinatura": "2027-07-01",
+    "has_data_assinatura_column": true,
+    "monthly": [
+      {
+        "mes": "2026-07-01",
+        "n": 20894
+      }
+    ],
+    "sample_populated_n20": 20
+  }
+}

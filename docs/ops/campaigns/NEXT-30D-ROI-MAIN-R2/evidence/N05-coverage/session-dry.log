@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/mnt/d/extra consultoria/scripts/coverage/session_coverage_pipeline.py", line 1332, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/mnt/d/extra consultoria/scripts/coverage/session_coverage_pipeline.py", line 1249, in main
+    conn = connect()
+           ^^^^^^^^^
+  File "/mnt/d/extra consultoria/scripts/coverage/session_coverage_pipeline.py", line 95, in connect
+    return psycopg2.connect(dsn, connect_timeout=15)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tjsasakifln/.local/lib/python3.12/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "127.0.0.1", port 5433 failed: FATAL:  database "pncp_datalake" does not exist
+

@@ -1,0 +1,108 @@
+Failed to complete run pcp-1784408684: invalid input syntax for type integer: "pcp"
+LINE 5:                         records_fetched = 'pcp',
+                                                  ^
+
+provenance_complete failed for run=pcp-1784408684: invalid input syntax for type integer: "pcp"
+LINE 5:                         records_fetched = 'pcp',
+                                                  ^
+
+{"timestamp": "2026-07-18T21:04:57.185767+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Starting cascade matching for source=pcp with 2085 entities (pncp_ids=143 ids)"}
+{"timestamp": "2026-07-18T21:04:57.187800+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Matching 136 bids for source=pcp"}
+{"timestamp": "2026-07-18T21:04:57.491822+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Unknown abbreviations detected (46 unique): ['AGUA', 'ALTA', 'ALTO', 'AMARO', 'BARRAS', 'BELA', 'BELO', 'BENTO', 'BRANCO', 'CARLOS', 'CEDRO', 'CELSO', 'CERRO', 'ERVAL', 'ESGOTO', 'FMAS', 'FRIAS', 'FUNDO', 'HERVAL', 'IBIAM', 'IPIRA', 'LAGES', 'MIGUEL', 'MONDAI', 'NEGRO', 'NOVA', 'OESTE', 'PARQUE', 'PORTO', 'RAMOS', 'SANTA', 'SANTO', 'SAUDE', 'SC', 'SEMAIS', 'SERRA', 'SETOR', 'SOCIAL', 'SUL', 'TILIAS', 'TREZE', 'UNIAO', 'VELHO', 'VISAN', 'VISTA', 'XAXIM']"}
+{"timestamp": "2026-07-18T21:04:57.491955+00:00", "level": "INFO", "module": "scripts.matching.entity_matcher", "correlation_id": "", "message": "Cascade matching done for source=pcp — CNPJ=0, cnpj_alias=0, name=17, alias=66, fuzzy=18, unmatched=35, total=136"}
+
+📋 2085 entidades carregadas (1093 no raio 200km)
+
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+─
+📍 Source: PCP | Mode: incremental
+────────────────────────────────────────────────────────────
+  🔍 Crawling pcp (incremental)...
+     Fetched: 143 records
+     Upserted: 0 new, 0 updated, 136 duplicates
+     Matched: 35 (CNPJ: 0, name: 17, fuzzy: 18, unmatched: 35)
+  ✅ success: fetched=143, transformed=143, inserted=0, updated=0, matched=35
+
+============================================================
+  RESUMO
+============================================================
+  Success:   1 sources
+  Degraded:  0 sources
+  Empty:     0 sources
+  Skipped:   0 sources
+  Fetched:   143
+  Transformed: 143
+  Inserted:  0
+  Updated:   0
+  Matched:   35
+  Classificados engenharia: 0
+  Engenharia confirmada: 0
+  Engenharia provavel: 0
+  Dentro de 200km: 0
+  Restante de SC: 0
+  Localizacao nao confirmada: 0
+  Descartados por falso positivo: 0
+  Persistidos: 0
+  Falhas externas: 0
+
+  📊 Coverage: 9.1% (190/2085)
+
+  📄 Result JSON: docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N06-scale/pcp-inc.json
