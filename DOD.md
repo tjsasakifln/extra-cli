@@ -962,10 +962,10 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Normalização de IBGE. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/universe.py`
 - [x] Normalização de coordenadas.
 - [x] Cálculo de identidade de ente.
-- [ ] Importação idempotente da planilha.
-- [ ] Detecção de novos entes.
-- [ ] Detecção de entes alterados.
-- [ ] Detecção de entes removidos.
+- [x] Importação idempotente da planilha. Evidência: `diff_universe_snapshots`/`assert_import_idempotent` em `scripts/lib/universe.py` + `tests/test_universe.py` (2 new) + QA PASS cyc-2026-07-18T133547Z.
+- [x] Detecção de novos entes. Evidência: `diff_universe_snapshots`/`assert_import_idempotent` em `scripts/lib/universe.py` + `tests/test_universe.py` (2 new) + QA PASS cyc-2026-07-18T133547Z.
+- [x] Detecção de entes alterados. Evidência: `diff_universe_snapshots`/`assert_import_idempotent` em `scripts/lib/universe.py` + `tests/test_universe.py` (2 new) + QA PASS cyc-2026-07-18T133547Z.
+- [x] Detecção de entes removidos. Evidência: `diff_universe_snapshots`/`assert_import_idempotent` em `scripts/lib/universe.py` + `tests/test_universe.py` (2 new) + QA PASS cyc-2026-07-18T133547Z.
 - [x] Cálculo de cobertura.
 - [x] Regra de `success_zero`.
 - [x] Freshness.

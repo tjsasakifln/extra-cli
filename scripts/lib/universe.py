@@ -189,6 +189,75 @@ class CanonicalUniverse:
         return {"summary": self.summary(), "entities": [asdict(entity) for entity in self.entities]}
 
 
+def diff_universe_snapshots(
+    previous: dict[str, Any],
+    current: dict[str, Any],
+) -> dict[str, Any]:
+    """Diff two universe snapshots (from ``CanonicalUniverse.to_snapshot``).
+
+    Detects new, changed, and removed entities by stable ``entity_id``.
+    Used for idempotent import tests and reconciliation reporting.
+    """
+    prev_map = {
+        e["entity_id"]: e
+        for e in (previous.get("entities") or [])
+        if e.get("entity_id")
+    }
+    curr_map = {
+        e["entity_id"]: e
+        for e in (current.get("entities") or [])
+        if e.get("entity_id")
+    }
+    prev_ids = set(prev_map)
+    curr_ids = set(curr_map)
+    new_ids = sorted(curr_ids - prev_ids)
+    removed_ids = sorted(prev_ids - curr_ids)
+    changed: list[dict[str, Any]] = []
+    for eid in sorted(prev_ids & curr_ids):
+        a, b = prev_map[eid], curr_map[eid]
+        # Compare business fields (ignore db match which is environment-specific)
+        keys = (
+            "razao_social",
+            "cnpj8",
+            "municipio",
+            "codigo_ibge",
+            "radius_decision",
+            "within_radius",
+            "identity_key",
+        )
+        deltas = {k: {"before": a.get(k), "after": b.get(k)} for k in keys if a.get(k) != b.get(k)}
+        if deltas:
+            changed.append({"entity_id": eid, "deltas": deltas})
+    return {
+        "new_entity_ids": new_ids,
+        "removed_entity_ids": removed_ids,
+        "changed": changed,
+        "counts": {
+            "previous": len(prev_ids),
+            "current": len(curr_ids),
+            "new": len(new_ids),
+            "removed": len(removed_ids),
+            "changed": len(changed),
+        },
+        "idempotent": len(new_ids) == 0 and len(removed_ids) == 0 and len(changed) == 0,
+    }
+
+
+def assert_import_idempotent(
+    first_snapshot: dict[str, Any],
+    second_snapshot: dict[str, Any],
+) -> dict[str, Any]:
+    """Second load of the same seed must produce an empty diff (idempotent import)."""
+    diff = diff_universe_snapshots(first_snapshot, second_snapshot)
+    if not diff["idempotent"]:
+        raise ValueError(
+            "universe import not idempotent: "
+            f"new={diff['counts']['new']} removed={diff['counts']['removed']} "
+            f"changed={diff['counts']['changed']}"
+        )
+    return diff
+
+
 def load_canonical_universe(
     seed_path: str | Path = DEFAULT_SEED_PATH,
     radius_km: float = DEFAULT_RADIUS_KM,
