@@ -1309,13 +1309,13 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 23. Observabilidade e alertas
 
-- [ ] Logs estruturados estão ativos.
-- [ ] Logs possuem timestamp.
-- [ ] Logs possuem nível.
-- [ ] Logs possuem serviço.
-- [ ] Logs possuem fonte.
-- [ ] Logs possuem `run_id` ou correlation id.
-- [ ] Logs não expõem segredos.
+- [x] Logs estruturados estão ativos. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
+- [x] Logs possuem timestamp. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
+- [x] Logs possuem nível. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
+- [x] Logs possuem serviço. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
+- [x] Logs possuem fonte. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
+- [x] Logs possuem `run_id` ou correlation id. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
+- [x] Logs não expõem segredos. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
 - [ ] Retenção de journald está configurada.
 - [ ] Uso de disco é monitorado.
 - [ ] Uso de memória é monitorado.
