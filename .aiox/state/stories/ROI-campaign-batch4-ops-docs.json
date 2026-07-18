@@ -1,11 +1,32 @@
 {
   "story_id": "ROI-campaign-batch4-ops-docs",
   "status": "Done",
-  "po_closed": true,
   "po_validated": true,
+  "po_closed": true,
   "qa_verdict": "PASS",
   "qa_agent": "adversarial-qa-auditor",
   "implementer_agent": "delivery-engineer",
-  "reviewed_commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
-  "risk_level": "STANDARD"
+  "publication_authorized": true,
+  "reviewed_commit": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
+  "qa_head_sha": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS",
+    "typecheck": "PASS",
+    "build": "NA"
+  },
+  "snapshot_evidence": {
+    "canonical_count": 50,
+    "story_count": 4,
+    "final_head": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
+    "at": "2026-07-18T02:41:17Z"
+  },
+  "accepted_item_ids": [
+    "dod:118ada2e1718",
+    "dod:0875517557ee",
+    "dod:56846a8f3d31",
+    "dod:10fac2c709ae"
+  ],
+  "final_review_note": "Final independent QA at HEAD after canonical rebuild; not backdated.",
+  "updated_at": "2026-07-18T02:41:17Z"
 }

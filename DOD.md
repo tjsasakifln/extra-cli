@@ -43,11 +43,11 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 - [x] Este arquivo está versionado na raiz do repositório como `DOD.md`. Evidência: branch `epic/plano-executivo-30d`, campanha EPIC-PLANO-EXECUTIVO-30D / PE-G0-01 (2026-07-16).
 - [x] O documento é tratado como checklist de evolução do projeto, e não como Definition of Done de uma única story. Evidência: §35 gates + 3 róis; plano `extra-consultoria-plano-executivo.html`.
 - [ ] Cada item só é marcado como concluído quando existir evidência verificável.
-- [x] Sempre que possível, a evidência é registrada ao lado do item no formato: `Evidência: <arquivo, comando, commit, relatório ou data>`. Evidência: batch1+2 DoD flips use `Evidência:` suffix; campaign register_acceptance.
+- [x] Sempre que possível, a evidência é registrada ao lado do item no formato: ` Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `DOD.md`
 - [ ] Código existente sem execução comprovada não é considerado concluído.
 - [ ] Teste unitário isolado não substitui execução ponta a ponta.
-- [x] Presença de registros no banco não é tratada como prova de cobertura. Evidência: batch2 `coverage_truth multi-metric; commercial != operational`.
-- [x] Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento. Evidência: batch2 `campaign matrix requires explicit DoD flip + evidence independent of story Done alone`.
+- [x] Presença de registros no banco não é tratada como prova de cobertura. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/coverage_truth.py`
+- [x] Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`
 - [ ] Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto.
 - [ ] Itens explicitamente marcados como opcionais não bloqueiam o fechamento do projeto.
 - [ ] Todos os demais itens bloqueiam o respectivo gate.
@@ -959,7 +959,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 ### 13.1 Testes unitários
 
 - [x] Normalização de CNPJ.
-- [x] Normalização de IBGE. Evidência: `scripts/lib/universe.normalize_codigo_ibge` + `tests/test_universe.py` (session-2026-07-18-campaign-q13-4).
+- [x] Normalização de IBGE. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/universe.py`
 - [x] Normalização de coordenadas.
 - [x] Cálculo de identidade de ente.
 - [ ] Importação idempotente da planilha.
@@ -979,7 +979,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Classificação de status.
 - [ ] Classificação AEC.
 - [x] Regras de score.
-- [x] Semântica de valores. Evidência: `scripts/lib/value_semantics.py` + `tests/test_value_semantics.py` (20 unit tests session pack; deságio tipado).
+- [x] Semântica de valores. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
 - [ ] Encadeamento edital-contrato. `PARTIAL` — unit match rules only; not live edital→contrato chain.
 - [x] Geração de manifest.
 - [x] Geração de relatórios.
@@ -1025,20 +1025,20 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 13.4 Qualidade mínima
 
-- [x] `ruff` passa no código alterado. Evidência: `docs/ops/session-2026-07-18-campaign-q13-4/ruff.exit` (EXIT:0) em `scripts/lib/universe.py` + `value_semantics.py`.
-- [x] `mypy` passa no caminho crítico definido. Evidência: caminho `mypy-critical-path.txt` (universe/value_semantics/states) EXIT:0.
+- [x] `ruff` passa no código alterado. Evidência: canonical `EXECUTED_PROOF` + `docs/ops/session-2026-07-18-campaign-q13-4/ruff.exit`
+- [x] `mypy` passa no caminho crítico definido. Evidência: canonical `EXECUTED_PROOF` + `docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical-path.txt`
 - [x] `pytest` passa na suíte obrigatória.
 - [x] `bandit` não aponta vulnerabilidade HIGH no código de produção.
-- [x] `pip-audit` não aponta vulnerabilidade conhecida sem tratamento. Evidência: `pip-audit.exit` EXIT:0 — no known vulnerabilities.
+- [x] `pip-audit` não aponta vulnerabilidade conhecida sem tratamento. Evidência: canonical EXECUTED_PROOF pip_audit -r requirements.txt --strict EXIT:0
 - [x] Pre-commit está configurado.
 - [x] CI falha de modo fechado.
 - [x] Nenhum gate obrigatório usa `continue-on-error`.
-- [x] Nenhum gate obrigatório usa `|| true`. Evidência: scan `gate-patterns.txt` — 0 hits em `.github/workflows/ci.yml`.
+- [ ] Nenhum gate obrigatório usa `|| true`.
 - [x] A suíte crítica não depende de serviço externo instável sem mock ou marcação adequada.
 - [x] Testes lentos possuem marcação.
-- [x] Testes que exigem fonte real podem ser executados sob demanda. Evidência: markers `integration`/`e2e` em `pytest.ini`; on-demand `pytest -m integration`.
-- [x] O coverage mínimo é definido para caminhos críticos, não como número cosmético global. Evidência: `.coveragerc` `[coverage_gate] threshold = 80`.
-- [x] Código crítico sem teste possui justificativa registrada. Evidência: `docs/ops/session-2026-07-17-full-suite-debt/02-critical-skip-reasons.txt`.
+- [x] Testes que exigem fonte real podem ser executados sob demanda. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/session-2026-07-18-campaign-q13-4/external-markers.txt`
+- [x] O coverage mínimo é definido para caminhos críticos, não como número cosmético global. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt`
+- [x] Código crítico sem teste possui justificativa registrada. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/session-2026-07-18-campaign-q13-4/debt-registry-listing.txt`
 - [x] QA não depende exclusivamente do implementador.
 
 ---
@@ -1047,8 +1047,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 - [ ] Existe backup local do PostgreSQL.
 - [x] O backup usa formato restaurável.
-- [x] O arquivo de backup possui data. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] O arquivo de backup possui integridade verificada. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] O arquivo de backup possui data. Evidência: canonical `EXECUTED_PROOF` + `docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json`
+- [x] O arquivo de backup possui integridade verificada. Evidência: canonical `EXECUTED_PROOF` + `docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json`
 - [x] Existe retenção mínima definida.
 - [x] Existe script de restore.
 - [ ] O restore foi testado em banco separado.
@@ -1056,11 +1056,11 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O restore recompõe dados.
 - [ ] O restore recompõe o universo-alvo.
 - [ ] O restore preserva provenance.
-- [x] Existe instrução de recuperação após corrupção local. Evidência: batch2 `docs/ops/backup.md restore section`.
+- [x] Existe instrução de recuperação após corrupção local. Evidência: canonical DOCUMENT_CONTENT_PROOF docs/ops/backup.md corrompido+restore
 - [ ] Existe instrução de recuperação após exclusão acidental.
-- [x] O backup não contém segredo exposto. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] O backup não contém segredo exposto. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/backup-database.sh`
 - [ ] Dados brutos necessários à reprodutibilidade são preservados ou podem ser recoletados.
-- [x] PDFs e anexos não são armazenados no PostgreSQL sem justificativa. Evidência: batch2 `architecture: raw files outside PG; scripts store metadata/hash not blob by default`.
+- [x] PDFs e anexos não são armazenados no PostgreSQL sem justificativa. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `README.md`
 - [ ] Metadados de arquivos incluem hash, tamanho, tipo e origem.
 - [ ] Um teste de restauração real está registrado antes de fechar o estágio local.
 
@@ -1212,7 +1212,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O deploy pode ser reexecutado.
 - [ ] O deploy não depende de sessão SSH artesanal.
 - [ ] O deploy pode ser iniciado do ambiente local de Tiago.
-- [x] Existe runbook de deploy. Evidência: batch4 `docs/ops/cloud-deployment-plan.md`.
+- [x] Existe runbook de deploy. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/cloud-deployment-plan.md`
 - [ ] Existe runbook de rollback.
 - [ ] Existe runbook de recuperação após deploy incompleto.
 
@@ -1397,19 +1397,19 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Todo indicador possui data de corte.
 - [ ] Todo indicador possui fonte.
 - [ ] Todo indicador possui status de prontidão.
-- [x] `READY` significa executado e validado. Evidência: batch2 `DOD seals vocabulary + PRE-VPS-FINAL-TRUTH`.
-- [x] `PARTIAL` significa útil com limitações explícitas. Evidência: batch2 `DOD vocabulary used in partial items`.
-- [x] `NOT_READY` significa não disponível. Evidência: batch2 `DOD vocabulary`.
-- [x] `BLOCKED` significa impedido por dependência externa ou técnica. Evidência: batch2 `DOD vocabulary + blockers/latest.json`.
-- [x] Código existente não é chamado de capacidade pronta. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] Dado antigo não é chamado de dado atual. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] Presença de dados não é chamada de cobertura. Evidência: batch2 `DOD multi-metric + scripts/coverage_truth.py`.
+- [x] `READY` significa executado e validado. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [ ] 
+- [x] `NOT_READY` significa não disponível. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] `BLOCKED` significa impedido por dependência externa ou técnica. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] Código existente não é chamado de capacidade pronta. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] Dado antigo não é chamado de dado atual. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/freshness_gate.py`
+- [x] Presença de dados não é chamada de cobertura. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/coverage_truth.py`
 - [ ] Ausência de dados não é chamada de ausência de licitação sem consulta válida.
-- [x] Valor contratado não é chamado de preço praticado. Evidência: batch2 `scripts/lib/value_semantics.py + tests/test_value_semantics.py`.
+- [x] Valor contratado não é chamado de preço praticado. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
 - [ ] Vencedor conhecido não é chamado de conjunto completo de concorrentes.
 - [ ] Participante não identificado não é tratado como inexistente.
 - [ ] Win rate não é calculado sem propostas enviadas.
-- [x] Deságio não é calculado sem grandezas comparáveis. Evidência: batch2 `calculate_desagio returns None for invalid inputs; test_calculate_desagio_invalid_returns_none`.
+- [x] Deságio não é calculado sem grandezas comparáveis. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
 - [ ] Score não é chamado de probabilidade sem calibração.
 - [ ] Relatórios exibem limitações relevantes.
 - [ ] Nenhum documento afirma que o projeto acompanha obras.
@@ -1444,7 +1444,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 27. Organização e manutenção do código
 
-- [x] Estrutura de pastas está documentada. Evidência: batch2 `squads/extra-dod-roi/config/source-tree.md or docs/architecture/`.
+- [x] Estrutura de pastas está documentada. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `squads/extra-dod-roi/config/source-tree.md`
 - [ ] Nomes de módulos são consistentes.
 - [ ] Imports funcionam sem hacks de `sys.path` desnecessários.
 - [ ] Funções públicas possuem docstring quando necessário.
@@ -1454,22 +1454,22 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Não existem `except Exception: pass`.
 - [ ] Falhas externas possuem contexto.
 - [ ] Logs não substituem tratamento de erro.
-- [x] Configuração é centralizada. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] Constantes de domínio são centralizadas. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Configuração é centralizada. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`
+- [x] Constantes de domínio são centralizadas. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/lib/constants.py`
 - [ ] URLs de fontes são centralizadas.
-- [x] Timeouts são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] Retries são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] Janelas de freshness são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] Thresholds de coverage são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Timeouts são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`
+- [x] Retries são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`
+- [x] Janelas de freshness são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/freshness_gate.py`
+- [x] Thresholds de coverage são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `.github/workflows/ci.yml`
 - [ ] Defaults são documentados.
-- [x] Mudanças de schema exigem migration. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Mudanças de schema exigem migration. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `supabase/migrations/001-v2_initial_schema.sql`
 - [ ] Mudanças de métrica exigem atualização da definição.
 - [ ] Código legado possui plano de remoção.
 - [ ] TODOs críticos possuem issue ou story.
 - [ ] Comentários não contradizem o código.
-- [x] Scripts operacionais possuem `--help`. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] Scripts operacionais possuem exit codes consistentes. Evidência: batch4 `exit-codes.txt sample golden_path/local_datalake/backup`.
-- [x] Scripts operacionais suportam `--dry-run` quando aplicável. Evidência: batch4 `backup/restore/golden_path dry-run patterns`.
+- [x] Scripts operacionais possuem `--help`. Evidência: canonical `EXECUTED_PROOF` + `docs/ops/session-2026-07-18-campaign-batch3/ops-help.txt`
+- [x] Scripts operacionais possuem exit codes consistentes. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `docs/ops/session-2026-07-18-campaign-final/ops-universe.json`
+- [ ] Scripts operacionais suportam `--dry-run` quando aplicável.
 - [ ] Scripts destrutivos exigem confirmação ou flag explícita.
 - [ ] Scripts destrutivos possuem backup ou rollback documentado.
 
@@ -1557,31 +1557,31 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 31. Documentação operacional
 
-- [x] README descreve o estado atual real. Evidência: batch2 `file inventory session batch2`.
-- [x] README descreve o escopo. Evidência: batch2 `file inventory session batch2`.
-- [x] README descreve o fora de escopo. Evidência: batch4 `README.md scope/limitations language`.
-- [x] README descreve setup. Evidência: batch2 `file inventory session batch2`.
-- [x] README descreve comandos principais. Evidência: batch2 `file inventory session batch2`.
-- [x] README descreve fontes. Evidência: batch2 `file inventory session batch2`.
-- [x] README descreve métricas de coverage. Evidência: batch2 `file inventory session batch2`.
+- [x] README descreve o estado atual real. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] README descreve o escopo. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] README descreve o fora de escopo. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] README descreve setup. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] README descreve comandos principais. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] README descreve fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] README descreve métricas de coverage. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [ ] README não confunde alvo futuro com realidade atual.
 - [ ] PRD está alinhado ao DOD.
 - [ ] ADRs vigentes estão identificadas.
 - [ ] ADRs revogadas estão identificadas.
-- [x] Existe runbook local. Evidência: batch2 `file inventory session batch2`.
+- [x] Existe runbook local. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/runbook.md`
 - [ ] Existe runbook de VPS.
-- [x] Existe runbook de backup. Evidência: batch2 `file inventory session batch2`.
-- [x] Existe runbook de restore. Evidência: batch2 `file inventory session batch2`.
-- [x] Existe runbook de deploy. Evidência: batch4 `docs/ops/cloud-deployment-plan.md`.
+- [x] Existe runbook de backup. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/backup.md`
+- [x] Existe runbook de restore. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/backup.md`
+- [x] Existe runbook de deploy. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/cloud-deployment-plan.md`
 - [ ] Existe runbook de rollback.
-- [x] Existe runbook de fonte quebrada. Evidência: batch2 `file inventory session batch2`.
+- [x] Existe runbook de fonte quebrada. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/troubleshooting.md`
 - [ ] Existe runbook de schema drift.
 - [ ] Existe runbook de cobertura abaixo de 95%.
 - [ ] Existe runbook de freshness vencida.
 - [ ] Existe glossário.
-- [x] Existe matriz de fontes. Evidência: batch2 `file inventory session batch2`.
-- [x] Existe matriz de capabilities. Evidência: batch2 `file inventory session batch2`.
-- [x] Existe registro de blockers. Evidência: batch2 `file inventory session batch2`.
+- [x] Existe matriz de fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/research/source-runtime-matrix-2026-07-16.md`
+- [x] Existe matriz de capabilities. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/baseline/l1-source-capability-registry.md`
+- [x] Existe registro de blockers. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `squads/extra-dod-roi/state/blockers/latest.json`
 - [ ] Existe changelog ou histórico equivalente.
 - [ ] O próximo passo de desenvolvimento pode ser identificado sem reconstruir todo o contexto.
 

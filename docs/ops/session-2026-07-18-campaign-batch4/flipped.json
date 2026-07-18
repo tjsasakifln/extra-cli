@@ -1,32 +1,22 @@
 [
   {
-    "section": "19. Deploy reproduzível",
+    "dod_item_id": "dod:118ada2e1718",
     "text": "Existe runbook de deploy.",
-    "id": "dod:118ada2e1718",
-    "evidence": "docs/ops/cloud-deployment-plan.md"
+    "section": "19. Deploy reproduzível"
   },
   {
-    "section": "27. Organização e manutenção do código",
+    "dod_item_id": "dod:0875517557ee",
     "text": "Scripts operacionais possuem exit codes consistentes.",
-    "id": "dod:0875517557ee",
-    "evidence": "exit-codes.txt sample golden_path/local_datalake/backup"
+    "section": "27. Organização e manutenção do código"
   },
   {
-    "section": "27. Organização e manutenção do código",
-    "text": "Scripts operacionais suportam `--dry-run` quando aplicável.",
-    "id": "dod:c6d6e02e8494",
-    "evidence": "backup/restore/golden_path dry-run patterns"
-  },
-  {
-    "section": "31. Documentação operacional",
+    "dod_item_id": "dod:56846a8f3d31",
     "text": "README descreve o fora de escopo.",
-    "id": "dod:56846a8f3d31",
-    "evidence": "README.md scope/limitations language"
+    "section": "31. Documentação operacional"
   },
   {
-    "section": "31. Documentação operacional",
+    "dod_item_id": "dod:10fac2c709ae",
     "text": "Existe runbook de deploy.",
-    "id": "dod:10fac2c709ae",
-    "evidence": "docs/ops/cloud-deployment-plan.md"
+    "section": "31. Documentação operacional"
   }
 ]

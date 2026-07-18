@@ -4,56 +4,42 @@
   "implementer_agent": "delivery-engineer",
   "self_qa": false,
   "story_id": "ROI-campaign-batch4-ops-docs",
+  "reviewed_commit": "",
   "summary": {
-    "PASS": 8,
+    "PASS": 3,
     "FAIL": 0,
     "CONCERNS": 0,
-    "total": 8
+    "total": 3
   },
   "items": [
     {
+      "dod_item_id": "dod:118ada2e1718",
       "text": "Existe runbook de deploy.",
       "verdict": "PASS",
-      "evidence": "batch4 proof-matrix"
+      "evidence": "docs/ops/cloud-deployment-plan.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback"
     },
     {
-      "text": "Win rate não é calculado sem propostas enviadas.",
-      "verdict": "PASS",
-      "evidence": "batch4 proof-matrix"
-    },
-    {
-      "text": "Score não é chamado de probabilidade sem calibração.",
-      "verdict": "PASS",
-      "evidence": "batch4 proof-matrix"
-    },
-    {
-      "text": "URLs de fontes são centralizadas.",
-      "verdict": "PASS",
-      "evidence": "batch4 proof-matrix"
-    },
-    {
+      "dod_item_id": "dod:0875517557ee",
       "text": "Scripts operacionais possuem exit codes consistentes.",
       "verdict": "PASS",
-      "evidence": "batch4 proof-matrix"
+      "evidence": "docs/ops/session-2026-07-18-campaign-final/ops-universe.json",
+      "command": "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops"
     },
     {
-      "text": "Scripts operacionais suportam `--dry-run` quando aplicável.",
-      "verdict": "PASS",
-      "evidence": "batch4 proof-matrix"
-    },
-    {
+      "dod_item_id": "dod:56846a8f3d31",
       "text": "README descreve o fora de escopo.",
       "verdict": "PASS",
-      "evidence": "batch4 proof-matrix"
-    },
-    {
-      "text": "Existe runbook de deploy.",
-      "verdict": "PASS",
-      "evidence": "batch4 proof-matrix"
+      "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\""
     }
   ],
   "not_claimed": [
-    "Scripts destrutivos exigem confirmação — restore lacks confirm/force"
+    "URLs de fontes são centralizadas",
+    "Win rate sem propostas",
+    "Score como probabilidade",
+    "Scripts destrutivos exigem confirmação"
   ],
-  "updated_at": "2026-07-18T01:14:42Z"
+  "updated_at": "2026-07-18T02:41:17Z",
+  "regenerated": true
 }

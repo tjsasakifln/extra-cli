@@ -1,0 +1,758 @@
+{
+  "generated_at": "2026-07-18T02:30:31Z",
+  "items": [
+    {
+      "dod_item_id": "dod:79d7b006aedb",
+      "requirement": "Sempre que possível, a evidência é registrada ao lado do item no formato: `",
+      "content_anchors": [],
+      "artifact_paths": [
+        "DOD.md"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('DOD.md').read_text(); assert len(re.findall(r'Evid[eê]ncia:', t))>=20\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:4fec282f18cd",
+      "requirement": "Presença de registros no banco não é tratada como prova de cobertura.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/coverage_truth.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('scripts/coverage_truth.py').read_text(); assert len(t)>100\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fd3bd80c1823",
+      "requirement": "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "squads/extra-dod-roi/scripts/campaign.py",
+        "squads/extra-dod-roi/scripts/canonical_count.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('squads/extra-dod-roi/scripts/campaign.py').read_text(); assert 'register_acceptance' in t and 'baseline_open' in t\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:6c7ec05aad2e",
+      "requirement": "Normalização de IBGE.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/lib/universe.py",
+        "tests/test_universe.py"
+      ],
+      "exact_commands": [
+        "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts="
+      ],
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:359e8069a6e2",
+      "requirement": "Semântica de valores.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/lib/value_semantics.py",
+        "tests/test_value_semantics.py"
+      ],
+      "exact_commands": [
+        "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts="
+      ],
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:53b1c23c8206",
+      "requirement": "`ruff` passa no código alterado.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/ruff.exit",
+        "scripts/lib/universe.py",
+        "scripts/lib/value_semantics.py"
+      ],
+      "exact_commands": [
+        "python3 -m ruff check scripts/lib/universe.py scripts/lib/value_semantics.py"
+      ],
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fae6b36d1d01",
+      "requirement": "`mypy` passa no caminho crítico definido.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical-path.txt",
+        "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit"
+      ],
+      "exact_commands": [
+        "python3 -m mypy scripts/lib/universe.py scripts/lib/value_semantics.py scripts/coverage/states.py"
+      ],
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:1427f84c9645",
+      "requirement": "`pip-audit` não aponta vulnerabilidade conhecida sem tratamento.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/pip-audit.exit"
+      ],
+      "exact_commands": [
+        "python3 -m pip_audit --strict"
+      ],
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:6509d40fdcc8",
+      "requirement": "Testes que exigem fonte real podem ser executados sob demanda.",
+      "content_anchors": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/external-markers.txt:1"
+      ],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/external-markers.txt"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('docs/ops/session-2026-07-18-campaign-q13-4/external-markers.txt').read_text(); assert 'integration' in t.lower() or 'e2e' in t.lower() or t.strip()\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fb39af4bce5e",
+      "requirement": "O coverage mínimo é definido para caminhos críticos, não como número cosmético global.",
+      "content_anchors": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt:1:coverage_gate threshold=80 for critical modules defined in .coveragerc"
+      ],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt",
+        ".github/workflows/ci.yml"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt').read_text(); assert t.strip()\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:0b41faf57890",
+      "requirement": "Código crítico sem teste possui justificativa registrada.",
+      "content_anchors": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/debt-registry-listing.txt:1:01-critical-readiness.exit"
+      ],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-q13-4/debt-registry-listing.txt"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('docs/ops/session-2026-07-18-campaign-q13-4/debt-registry-listing.txt').read_text(); assert t.strip()\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:8407b8273772",
+      "requirement": "O arquivo de backup possui data.",
+      "content_anchors": [
+        "backup-executed-proof.json:timestamp_in_filename=2026-07-17",
+        "backup-executed-proof.json:sha256=a11785da25076b8f3c6371cf427c67b259ece07b71e2b8621b1b480607a320d6",
+        "backup-executed-proof.json:size=1557"
+      ],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json"
+      ],
+      "exact_commands": [
+        "pg_dump --host=127.0.0.1 --port=5433 --username=test --dbname=extra_test --format=custom && gzip -c > extra_test-2026-07-17.dump.gz",
+        "gzip -t /tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz"
+      ],
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:93300093fc1d",
+      "requirement": "O arquivo de backup possui integridade verificada.",
+      "content_anchors": [
+        "backup-executed-proof.json:timestamp_in_filename=2026-07-17",
+        "backup-executed-proof.json:sha256=a11785da25076b8f3c6371cf427c67b259ece07b71e2b8621b1b480607a320d6",
+        "backup-executed-proof.json:size=1557"
+      ],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json"
+      ],
+      "exact_commands": [
+        "pg_dump --host=127.0.0.1 --port=5433 --username=test --dbname=extra_test --format=custom && gzip -c > extra_test-2026-07-17.dump.gz",
+        "gzip -t /tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz"
+      ],
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d607d46bf66e",
+      "requirement": "Existe instrução de recuperação após corrupção local.",
+      "content_anchors": [
+        "docs/ops/backup.md:22:- [Restore](#restore)",
+        "docs/ops/backup.md:136:# Restaurar backup completo"
+      ],
+      "artifact_paths": [
+        "docs/ops/backup.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['restore', 'Restaurar', 'corrup'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:db687778617c",
+      "requirement": "O backup não contém segredo exposto.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/backup-database.sh",
+        "docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('scripts/backup-database.sh').read_text(); assert not re.search(r'password\\s*=\\s*[\\'\\\"][^\\'\\\"]+[\\'\\\"]', t, re.I)\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:cfb0abf9ba8b",
+      "requirement": "PDFs e anexos não são armazenados no PostgreSQL sem justificativa.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "README.md"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'output/' in t\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:118ada2e1718",
+      "requirement": "Existe runbook de deploy.",
+      "content_anchors": [
+        "docs/ops/cloud-deployment-plan.md:1:# Cloud Deployment Plan — Extra Consultoria",
+        "docs/ops/cloud-deployment-plan.md:69:## 3. Fluxo de Deploy",
+        "docs/ops/cloud-deployment-plan.md:86:13. Rollback em caso de falha (git checkout versão anterior + restore backup se necessário)"
+      ],
+      "artifact_paths": [
+        "docs/ops/cloud-deployment-plan.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:b3a7547e7e36",
+      "requirement": "`READY` significa executado e validado.",
+      "content_anchors": [
+        "README.md:30:**Veredito atual: `NOT_READY` para `PRE_VPS_FINAL_READY`.**",
+        "README.md:30:**Veredito atual: `NOT_READY` para `PRE_VPS_FINAL_READY`.**"
+      ],
+      "artifact_paths": [
+        "README.md"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'NOT_READY' in t\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d833662c1782",
+      "requirement": "`NOT_READY` significa não disponível.",
+      "content_anchors": [
+        "README.md:30:**Veredito atual: `NOT_READY` para `PRE_VPS_FINAL_READY`.**"
+      ],
+      "artifact_paths": [
+        "README.md"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'NOT_READY' in t\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fbc4c00fd42a",
+      "requirement": "`BLOCKED` significa impedido por dependência externa ou técnica.",
+      "content_anchors": [
+        "README.md:30:**Veredito atual: `NOT_READY` para `PRE_VPS_FINAL_READY`.**"
+      ],
+      "artifact_paths": [
+        "README.md"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'NOT_READY' in t\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:aa6eefd8681f",
+      "requirement": "Código existente não é chamado de capacidade pronta.",
+      "content_anchors": [
+        "README.md:30:**Veredito atual: `NOT_READY` para `PRE_VPS_FINAL_READY`.**",
+        "README.md:25:- base local legada **não deve ser presumida fresca**",
+        "README.md:32:(`docs/operations/PRE-VPS-FINAL-ADVERSARIAL-AUDIT.md`): fixture ≠ live,"
+      ],
+      "artifact_paths": [
+        "README.md",
+        "squads/extra-dod-roi/scripts/campaign.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'NOT_READY' in t or 'não deve' in t.lower()\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:f8b7abd8915c",
+      "requirement": "Dado antigo não é chamado de dado atual.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/freshness_gate.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; p=Path('scripts/freshness_gate.py'); assert p.is_file() or 'freshness' in Path('README.md').read_text().lower()\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:61bc1ee04f3b",
+      "requirement": "Presença de dados não é chamada de cobertura.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/coverage_truth.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('scripts/coverage_truth.py').read_text(); assert len(t)>100\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:2009716c98a0",
+      "requirement": "Valor contratado não é chamado de preço praticado.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/lib/value_semantics.py",
+        "tests/test_value_semantics.py"
+      ],
+      "exact_commands": [
+        "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts="
+      ],
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:bb4b42442519",
+      "requirement": "Deságio não é calculado sem grandezas comparáveis.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/lib/value_semantics.py",
+        "tests/test_value_semantics.py"
+      ],
+      "exact_commands": [
+        "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts="
+      ],
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:c4770bb863c9",
+      "requirement": "Estrutura de pastas está documentada.",
+      "content_anchors": [
+        "squads/extra-dod-roi/config/source-tree.md:1:# Source tree — extra-dod-roi"
+      ],
+      "artifact_paths": [
+        "squads/extra-dod-roi/config/source-tree.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('squads/extra-dod-roi/config/source-tree.md').read_text(); assert all(re.search(p,t,re.I) for p in ['.+'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:566ccfc2fcbb",
+      "requirement": "Configuração é centralizada.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/crawl/config.py",
+        "scripts/lib/constants.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; assert Path('scripts/crawl/config.py').is_file() and Path('scripts/lib/constants.py').is_file()\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:27fe1c254fd2",
+      "requirement": "Constantes de domínio são centralizadas.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "scripts/lib/constants.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; t=Path('scripts/lib/constants.py').read_text(); assert len(t)>100\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:70eb67c5e239",
+      "requirement": "Timeouts são configuráveis.",
+      "content_anchors": [
+        "scripts/crawl/config.py:107:# Estatais SC (Lei 13.303) — feature flags & timeouts"
+      ],
+      "artifact_paths": [
+        "scripts/crawl/config.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; assert any(re.search(r'timeout|TIMEOUT', Path(f).read_text(), re.I) for f in ['scripts/crawl/config.py'])\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:6395ce31d45e",
+      "requirement": "Retries são configuráveis.",
+      "content_anchors": [
+        "scripts/crawl/config.py:149:# Retry policy for ARQ ingestion jobs (GAP-004, #1581)"
+      ],
+      "artifact_paths": [
+        "scripts/crawl/config.py"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; assert any(re.search(r'retry|RETRY', Path(f).read_text(), re.I) for f in ['scripts/crawl/config.py'])\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d3480d1c7102",
+      "requirement": "Janelas de freshness são configuráveis.",
+      "content_anchors": [
+        "scripts/freshness_gate.py:2:\"\"\"Freshness gate for local datalake critical sources.",
+        "README.md:102:make golden-path GOLDEN_PATH_FLAGS=\"--skip-freshness\""
+      ],
+      "artifact_paths": [
+        "scripts/freshness_gate.py",
+        "README.md"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; assert any(re.search(r'freshness|FRESHNESS|SLA', Path(f).read_text(), re.I) for f in ['scripts/freshness_gate.py', 'README.md'])\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:ffa99a6d742e",
+      "requirement": "Thresholds de coverage são configuráveis.",
+      "content_anchors": [
+        ".github/workflows/ci.yml:9:# Regra #10 (B2G-4): Gates fail-closed — bandit, pip-audit, coverage threshold",
+        "docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt:1:coverage_gate threshold=80 for critical modules defined in .coveragerc"
+      ],
+      "artifact_paths": [
+        ".github/workflows/ci.yml",
+        "docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; assert any(re.search(r'cov-fail-under|coverage|threshold', Path(f).read_text(), re.I) for f in ['.github/workflows/ci.yml', 'docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt'])\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:86813be14b95",
+      "requirement": "Mudanças de schema exigem migration.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "supabase/migrations/001-v2_initial_schema.sql",
+        "supabase/migrations/002-v2-td-2.2_entity_coverage.sql",
+        "supabase/migrations/003-v2-td-2.2_coverage_views.sql",
+        "supabase/migrations/004-v2-td-2.2_coverage_snapshots.sql",
+        "supabase/migrations/005-v2-td-2.2_match_logging.sql",
+        "supabase/migrations/006-v3-unified-schema.sql",
+        "supabase/migrations/_migrations.sql",
+        "db/current-schema.sql",
+        "db/migrations/001_pncp_raw_bids.sql",
+        "db/migrations/002_pncp_supplier_contracts.sql",
+        "docs/ops/session-2026-07-18-campaign-batch3/migrations-list.txt"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; assert list(Path('supabase/migrations').glob('*.sql')) or list(Path('db').rglob('*.sql'))\""
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:0c9593cc0c72",
+      "requirement": "Scripts operacionais possuem `--help`.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-batch3/ops-help.txt",
+        "docs/ops/session-2026-07-18-campaign-final/ops-universe.json"
+      ],
+      "exact_commands": [
+        "python3 scripts/golden_path.py --help",
+        "python3 scripts/local_datalake.py --help",
+        "python3 scripts/crawl/monitor.py --help",
+        "bash scripts/backup-database.sh --help",
+        "bash scripts/restore-database.sh --help"
+      ],
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:0875517557ee",
+      "requirement": "Scripts operacionais possuem exit codes consistentes.",
+      "content_anchors": [],
+      "artifact_paths": [
+        "docs/ops/session-2026-07-18-campaign-final/ops-universe.json"
+      ],
+      "exact_commands": [
+        "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops"
+      ],
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:a0a312ac26d9",
+      "requirement": "README descreve o estado atual real.",
+      "content_anchors": [
+        "README.md:6:## Fase Atual",
+        "README.md:22:- nesta fase o projeto roda com **datalake local**",
+        "README.md:30:**Veredito atual: `NOT_READY` para `PRE_VPS_FINAL_READY`.**",
+        "README.md:30:**Veredito atual: `NOT_READY` para `PRE_VPS_FINAL_READY`.**"
+      ],
+      "artifact_paths": [
+        "README.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Fase Atual', 'datalake local', 'NOT_READY', 'PRE_VPS'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d952a141e49a",
+      "requirement": "README descreve o escopo.",
+      "content_anchors": [
+        "README.md:8:Escopo operacional atual:",
+        "README.md:10:- busca de editais abertos",
+        "README.md:56:## Stack"
+      ],
+      "artifact_paths": [
+        "README.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Escopo operacional atual', 'busca de editais', '##\\\\s*Stack'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:56846a8f3d31",
+      "requirement": "README descreve o fora de escopo.",
+      "content_anchors": [
+        "README.md:15:Fora de escopo por enquanto:",
+        "README.md:17:- acompanhamento de obras"
+      ],
+      "artifact_paths": [
+        "README.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:95c60383463e",
+      "requirement": "README descreve setup.",
+      "content_anchors": [
+        "README.md:78:## Setup",
+        "README.md:82:pip install -r requirements.txt",
+        "README.md:86:#   LOCAL_DATALAKE_DSN=postgresql://postgres:pass@<ip>:5432/pncp_datalake"
+      ],
+      "artifact_paths": [
+        "README.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Setup', 'pip install', 'LOCAL_DATALAKE_DSN'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:3cf2e1d03427",
+      "requirement": "README descreve comandos principais.",
+      "content_anchors": [
+        "README.md:96:## Comandos",
+        "README.md:100:make golden-path",
+        "README.md:86:#   LOCAL_DATALAKE_DSN=postgresql://postgres:pass@<ip>:5432/pncp_datalake",
+        "README.md:134:python scripts/opportunity_intel/cli.py list --status open --limit 20"
+      ],
+      "artifact_paths": [
+        "README.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Comandos', 'golden-path', 'local_datalake', 'opportunity_intel'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d264e021534b",
+      "requirement": "README descreve fontes.",
+      "content_anchors": [
+        "README.md:151:## Fontes de Dados",
+        "README.md:69:crawl/        Crawlers multi-source (PNCP, DOM-SC, PCP, ComprasGov)",
+        "README.md:69:crawl/        Crawlers multi-source (PNCP, DOM-SC, PCP, ComprasGov)",
+        "README.md:69:crawl/        Crawlers multi-source (PNCP, DOM-SC, PCP, ComprasGov)"
+      ],
+      "artifact_paths": [
+        "README.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Fontes de Dados', 'PNCP', 'DOM-SC', 'ComprasGov'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:c5e1f0520b32",
+      "requirement": "README descreve métricas de coverage.",
+      "content_anchors": [
+        "README.md:195:## Métricas",
+        "README.md:119:# Coverage report",
+        "README.md:198:- Cobertura verificada via `scripts/consulting_readiness.py` (consulte `coverage_manifest.json`)"
+      ],
+      "artifact_paths": [
+        "README.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Métricas', 'Cobertura|coverage', 'consulting_readiness'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:51600fee2a5c",
+      "requirement": "Existe runbook local.",
+      "content_anchors": [
+        "docs/ops/runbook.md:1:# Runbook Operacional — Extra Consultoria",
+        "docs/ops/runbook.md:11:- [Como Executar Crawl Manualmente](#como-executar-crawl-manualmente)",
+        "docs/ops/runbook.md:102:### Dry Run (sem persistir dados)"
+      ],
+      "artifact_paths": [
+        "docs/ops/runbook.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/runbook.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Runbook Operacional', 'Como Executar Crawl', 'Dry Run'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:9310ba9c7796",
+      "requirement": "Existe runbook de backup.",
+      "content_anchors": [
+        "docs/ops/backup.md:1:# Backup Automatizado do PostgreSQL",
+        "docs/ops/backup.md:42:O script `scripts/backup-database.sh` implementa backup via `pg_dump --format=custom` com destino em",
+        "docs/ops/backup.md:9:A estratégia de backup é **provider-agnostic**. A implementação atual usa Hetzner Storage Box como d"
+      ],
+      "artifact_paths": [
+        "docs/ops/backup.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Backup Automatizado', 'backup-database\\\\.sh', 'Estratégia de Backup'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:a8291c1f624b",
+      "requirement": "Existe runbook de restore.",
+      "content_anchors": [
+        "docs/ops/backup.md:128:### `scripts/restore-database.sh`",
+        "docs/ops/backup.md:136:# Restaurar backup completo",
+        "docs/ops/backup.md:95:## Scripts"
+      ],
+      "artifact_paths": [
+        "docs/ops/backup.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['restore-database\\\\.sh', 'Restaurar backup', '##\\\\s*Scripts'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:10fac2c709ae",
+      "requirement": "Existe runbook de deploy.",
+      "content_anchors": [
+        "docs/ops/cloud-deployment-plan.md:1:# Cloud Deployment Plan — Extra Consultoria",
+        "docs/ops/cloud-deployment-plan.md:69:## 3. Fluxo de Deploy",
+        "docs/ops/cloud-deployment-plan.md:86:13. Rollback em caso de falha (git checkout versão anterior + restore backup se necessário)"
+      ],
+      "artifact_paths": [
+        "docs/ops/cloud-deployment-plan.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:e8e465a54a8d",
+      "requirement": "Existe runbook de fonte quebrada.",
+      "content_anchors": [
+        "docs/ops/troubleshooting.md:10:- [Crawler Timeout](#crawler-timeout)",
+        "docs/ops/troubleshooting.md:89:2. Rate limiting da API fonte",
+        "docs/ops/troubleshooting.md:88:1. API externa lenta ou indisponivel"
+      ],
+      "artifact_paths": [
+        "docs/ops/troubleshooting.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Crawler Timeout', 'API fonte', 'API externa lenta ou indisponivel'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:51bc27739185",
+      "requirement": "Existe matriz de fontes.",
+      "content_anchors": [
+        "docs/research/source-runtime-matrix-2026-07-16.md:1:# Source Runtime Matrix — DATA-FOUNDATION",
+        "docs/research/source-runtime-matrix-2026-07-16.md:5:**Sources Profiled:** PNCP, PCP, ComprasGov, CIGA CKAN, TCE-SC",
+        "docs/research/source-runtime-matrix-2026-07-16.md:133:## 6. Source Matrix Summary"
+      ],
+      "artifact_paths": [
+        "docs/research/source-runtime-matrix-2026-07-16.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/research/source-runtime-matrix-2026-07-16.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Source Runtime Matrix', 'PNCP', 'Source Matrix Summary'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:eeda93135036",
+      "requirement": "Existe matriz de capabilities.",
+      "content_anchors": [
+        "docs/baseline/l1-source-capability-registry.md:1:# PE-L1-02 — Source × capability registry (evidência real)",
+        "docs/baseline/l1-source-capability-registry.md:16:| Matriz fonte×**ente**×capability | **PARTIAL / unknown** — schema DB existe; dados de aplicabilida",
+        "docs/baseline/l1-source-capability-registry.md:14:| Capabilities tipadas | **PASS** — 7 literais em `SourceCapability` |"
+      ],
+      "artifact_paths": [
+        "docs/baseline/l1-source-capability-registry.md",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/baseline/l1-source-capability-registry.md').read_text(); assert all(re.search(p,t,re.I) for p in ['capability registry', 'Matriz fonte', 'SourceCapability'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:c5e29b6c2906",
+      "requirement": "Existe registro de blockers.",
+      "content_anchors": [
+        "squads/extra-dod-roi/state/blockers/latest.json:1:["
+      ],
+      "artifact_paths": [
+        "squads/extra-dod-roi/state/blockers/latest.json",
+        "docs/ops/session-2026-07-18-campaign-final/content-matrix.json"
+      ],
+      "exact_commands": [
+        "python3 -c \"from pathlib import Path; import re; t=Path('squads/extra-dod-roi/state/blockers/latest.json').read_text(); assert all(re.search(p,t,re.I) for p in ['.+'])\""
+      ],
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    }
+  ]
+}

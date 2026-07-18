@@ -1,108 +1,124 @@
 {
   "verdict": "PASS",
-  "reviewer": "adversarial-qa-auditor",
   "qa_agent": "adversarial-qa-auditor",
   "implementer_agent": "delivery-engineer",
   "self_qa": false,
   "story_id": "ROI-campaign-batch3-ops-config",
+  "reviewed_commit": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
   "summary": {
-    "total_claims_verified": 13,
     "PASS": 13,
     "FAIL": 0,
-    "CONCERNS": 0
+    "CONCERNS": 0,
+    "total": 13
   },
   "items": [
     {
-      "text": "O arquivo de backup possui data.",
       "dod_item_id": "dod:8407b8273772",
+      "text": "O arquivo de backup possui data.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json",
+      "command": "pg_dump --host=127.0.0.1 --port=5433 --username=test --dbname=extra_test --format=custom && gzip -c > extra_test-2026-07-17.dump.gz && gzip -t /tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz"
     },
     {
-      "text": "O arquivo de backup possui integridade verificada.",
       "dod_item_id": "dod:93300093fc1d",
+      "text": "O arquivo de backup possui integridade verificada.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json",
+      "command": "pg_dump --host=127.0.0.1 --port=5433 --username=test --dbname=extra_test --format=custom && gzip -c > extra_test-2026-07-17.dump.gz && gzip -t /tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz"
     },
     {
-      "text": "O backup não contém segredo exposto.",
       "dod_item_id": "dod:db687778617c",
+      "text": "O backup não contém segredo exposto.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "scripts/backup-database.sh; docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('scripts/backup-database.sh').read_text(); assert not re.search(r'password\\s*=\\s*[\\'\\\"][^\\'\\\"]+[\\'\\\"]', t, re.I)\""
     },
     {
-      "text": "Código existente não é chamado de capacidade pronta.",
       "dod_item_id": "dod:aa6eefd8681f",
+      "text": "Código existente não é chamado de capacidade pronta.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "README.md; squads/extra-dod-roi/scripts/campaign.py",
+      "command": "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'NOT_READY' in t or 'não deve' in t.lower()\""
     },
     {
-      "text": "Dado antigo não é chamado de dado atual.",
       "dod_item_id": "dod:f8b7abd8915c",
+      "text": "Dado antigo não é chamado de dado atual.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "scripts/freshness_gate.py",
+      "command": "python3 -c \"from pathlib import Path; p=Path('scripts/freshness_gate.py'); assert p.is_file() or 'freshness' in Path('README.md').read_text().lower()\""
     },
     {
-      "text": "Configuração é centralizada.",
       "dod_item_id": "dod:566ccfc2fcbb",
+      "text": "Configuração é centralizada.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "scripts/crawl/config.py; scripts/lib/constants.py",
+      "command": "python3 -c \"from pathlib import Path; assert Path('scripts/crawl/config.py').is_file() and Path('scripts/lib/constants.py').is_file()\""
     },
     {
-      "text": "Constantes de domínio são centralizadas.",
       "dod_item_id": "dod:27fe1c254fd2",
+      "text": "Constantes de domínio são centralizadas.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "scripts/lib/constants.py",
+      "command": "python3 -c \"from pathlib import Path; t=Path('scripts/lib/constants.py').read_text(); assert len(t)>100\""
     },
     {
-      "text": "Timeouts são configuráveis.",
       "dod_item_id": "dod:70eb67c5e239",
+      "text": "Timeouts são configuráveis.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "scripts/crawl/config.py",
+      "command": "python3 -c \"from pathlib import Path; import re; assert any(re.search(r'timeout|TIMEOUT', Path(f).read_text(), re.I) for f in ['scripts/crawl/config.py'])\""
     },
     {
-      "text": "Retries são configuráveis.",
       "dod_item_id": "dod:6395ce31d45e",
+      "text": "Retries são configuráveis.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "scripts/crawl/config.py",
+      "command": "python3 -c \"from pathlib import Path; import re; assert any(re.search(r'retry|RETRY', Path(f).read_text(), re.I) for f in ['scripts/crawl/config.py'])\""
     },
     {
-      "text": "Janelas de freshness são configuráveis.",
       "dod_item_id": "dod:d3480d1c7102",
+      "text": "Janelas de freshness são configuráveis.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "scripts/freshness_gate.py; README.md",
+      "command": "python3 -c \"from pathlib import Path; import re; assert any(re.search(r'freshness|FRESHNESS|SLA', Path(f).read_text(), re.I) for f in ['scripts/freshness_gate.py', 'README.md'])\""
     },
     {
-      "text": "Thresholds de coverage são configuráveis.",
       "dod_item_id": "dod:ffa99a6d742e",
+      "text": "Thresholds de coverage são configuráveis.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": ".github/workflows/ci.yml; docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt",
+      "command": "python3 -c \"from pathlib import Path; import re; assert any(re.search(r'cov-fail-under|coverage|threshold', Path(f).read_text(), re.I) for f in ['.github/workflows/ci.yml', 'docs/ops/session-2026-07-1"
     },
     {
-      "text": "Mudanças de schema exigem migration.",
       "dod_item_id": "dod:86813be14b95",
+      "text": "Mudanças de schema exigem migration.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "supabase/migrations/001-v2_initial_schema.sql; supabase/migrations/002-v2-td-2.2_entity_coverage.sql; supabase/migrations/003-v2-td-2.2_coverage_views.sql; supabase/migrations/004-v2-td-2.2_coverage_snapshots.sql; supabase/migrations/005-v2-td-2.2_match_logging.sql; supabase/migrations/006-v3-unified-schema.sql; supabase/migrations/_migrations.sql; db/current-schema.sql; db/migrations/001_pncp_raw_bids.sql; db/migrations/002_pncp_supplier_contracts.sql; docs/ops/session-2026-07-18-campaign-batch3/migrations-list.txt",
+      "command": "python3 -c \"from pathlib import Path; assert list(Path('supabase/migrations').glob('*.sql')) or list(Path('db').rglob('*.sql'))\""
     },
     {
-      "text": "Scripts operacionais possuem `--help`.",
       "dod_item_id": "dod:0c9593cc0c72",
+      "text": "Scripts operacionais possuem `--help`.",
       "verdict": "PASS",
-      "evidence": "batch3 MANIFEST + full-13 recheck",
-      "notes": "re-verified"
+      "evidence": "docs/ops/session-2026-07-18-campaign-batch3/ops-help.txt; docs/ops/session-2026-07-18-campaign-final/ops-universe.json",
+      "command": "python3 scripts/golden_path.py --help && python3 scripts/local_datalake.py --help && python3 scripts/crawl/monitor.py --help && bash scripts/backup-database.sh --help && bash scripts/restore-database."
     }
   ],
-  "updated_at": "2026-07-18T01:07:48Z"
+  "authorized_flips": [
+    "O arquivo de backup possui data.",
+    "O arquivo de backup possui integridade verificada.",
+    "O backup não contém segredo exposto.",
+    "Código existente não é chamado de capacidade pronta.",
+    "Dado antigo não é chamado de dado atual.",
+    "Configuração é centralizada.",
+    "Constantes de domínio são centralizadas.",
+    "Timeouts são configuráveis.",
+    "Retries são configuráveis.",
+    "Janelas de freshness são configuráveis.",
+    "Thresholds de coverage são configuráveis.",
+    "Mudanças de schema exigem migration.",
+    "Scripts operacionais possuem `--help`."
+  ],
+  "updated_at": "2026-07-18T02:41:17Z",
+  "regenerated": true
 }

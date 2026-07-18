@@ -1,0 +1,21 @@
+{
+  "command": "pg_dump --host=127.0.0.1 --port=5433 --username=test --dbname=extra_test --format=custom && gzip -c > extra_test-2026-07-17.dump.gz",
+  "exit_code": 0,
+  "file": "/tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz",
+  "custom_dump": "/tmp/campaign-backup-proof/extra_test-2026-07-17.dump",
+  "filename": "extra_test-2026-07-17.dump.gz",
+  "timestamp_in_filename": "2026-07-17",
+  "timestamp_iso": "2026-07-18T02:26:21Z",
+  "size_bytes_gz": 1557,
+  "size_bytes_custom": 5688,
+  "sha256_gz": "a11785da25076b8f3c6371cf427c67b259ece07b71e2b8621b1b480607a320d6",
+  "integrity_command": "gzip -t /tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz",
+  "integrity_result": "OK",
+  "pg_restore_list_exit": 0,
+  "pg_restore_list_entries": 20,
+  "environment": "docker extra-test-db 127.0.0.1:5433/extra_test (safe non-prod test database)",
+  "versioned_in_git": false,
+  "secrets_in_artifact": false,
+  "secrets_in_repo_proof": false,
+  "note": "Dump artifact remains outside git under /tmp/campaign-backup-proof; only this meta proof is versioned."
+}

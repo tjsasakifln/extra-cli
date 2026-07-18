@@ -1,0 +1,36 @@
+{
+  "universe": [
+    "scripts/golden_path.py",
+    "scripts/local_datalake.py",
+    "scripts/crawl/monitor.py",
+    "scripts/backup-database.sh",
+    "scripts/restore-database.sh"
+  ],
+  "help": [
+    {
+      "script": "scripts/golden_path.py",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "script": "scripts/local_datalake.py",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "script": "scripts/crawl/monitor.py",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "script": "scripts/backup-database.sh",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "script": "scripts/restore-database.sh",
+      "exit": 0,
+      "ok": true
+    }
+  ]
+}

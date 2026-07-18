@@ -18,24 +18,20 @@ import argparse
 import json
 import re
 import sys
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from dod_ids import normalize_text, stable_dod_id  # noqa: E402
 from campaign import (  # noqa: E402
     DEFAULT_TARGET,
-    ledger_path,
     load_ledger,
-    parse_items,
-    reconstruct_accepted_from_diff,
     save_ledger,
     utcnow,
 )
+from dod_ids import normalize_text, stable_dod_id  # noqa: E402
 from snapshot_state import repo_root_from  # noqa: E402
 
 
@@ -271,30 +267,77 @@ def falsify_process_evidence_triad(root: Path, row: dict[str, Any]) -> FalsifyRe
 
 
 def falsify_theater_evidence(root: Path, row: dict[str, Any]) -> FalsifyResult:
-    """Generic: PASS requires non-empty command and exit_code 0; refuse inventory theater."""
-    ev = (row.get("evidência") or row.get("evidence") or "").lower()
-    cmd = (row.get("comando") or row.get("command") or "").strip()
+    """PASS requires reproducible commands and non-theater evidence.
+
+    Rejects ledger rows that only carry narrative labels such as
+    ``batch2 adversarial`` / ``file inventory`` while proof packs may
+    still hold the weak original evidence.
+    """
+    from canonical_count import is_generic_command, is_theater_evidence
+
+    ev = (row.get("evidência") or row.get("evidence") or "")
+    cmds = list(row.get("exact_commands") or [])
+    if not cmds:
+        single = (row.get("comando") or row.get("command") or "").strip()
+        if single:
+            cmds = [single]
     try:
-        ex = int(row.get("exit_code"))
+        ex = int(row.get("exit_code")) if row.get("exit_code") is not None else -1
     except (TypeError, ValueError):
         ex = -1
-    theater = any(
-        x in ev
-        for x in (
-            "file inventory",
-            "code exists",
-            "module exists only",
-            "truth auditor + campaign refuse",
-            "campaign guards refuse code-only",
+    theater = is_theater_evidence(ev)
+    generic = (not cmds) or all(is_generic_command(c) for c in cmds)
+    et = (row.get("evidence_type") or "").upper()
+    bad_type = et in {
+        "FILE_EXISTENCE_ONLY",
+        "DIRECTORY_EXISTENCE_ONLY",
+        "SAMPLE_ONLY",
+        "GENERIC_CODE_REVIEW",
+        "TAUTOLOGICAL",
+        "PLACEHOLDER_COMMAND",
+        "INHERITED_QA_PASS",
+        "CONTRADICTED",
+    }
+    # Documentary claims need content anchors when typed as DOCUMENT_CONTENT_PROOF
+    text = (row.get("texto") or row.get("text") or "").lower()
+    doc_claim = any(
+        k in text
+        for k in ("readme descreve", "existe runbook", "existe matriz", "existe registro de blockers")
+    )
+    missing_anchors = doc_claim and et == "DOCUMENT_CONTENT_PROOF" and not (
+        row.get("content_anchors") or []
+    )
+    # Backup file claims need executed proof path
+    backup_file = "arquivo de backup possui" in text
+    has_backup_exec = any(
+        "backup-executed-proof" in str(x) or "pg_dump" in str(x)
+        for x in (row.get("artifact_paths") or []) + cmds + [ev]
+    )
+    backup_fail = backup_file and not has_backup_exec
+
+    ok = (
+        bool(cmds)
+        and not generic
+        and ex == 0
+        and not theater
+        and not bad_type
+        and not missing_anchors
+        and not backup_fail
+    )
+    reason = (
+        "command+exit0 non-theater"
+        if ok
+        else (
+            f"cmd={bool(cmds)} generic={generic} exit={ex} theater={theater} "
+            f"bad_type={bad_type} missing_anchors={missing_anchors} backup_fail={backup_fail}"
         )
     )
-    ok = bool(cmd) and ex == 0 and not theater
     return FalsifyResult(
         row.get("dod_item_id") or "",
         (row.get("texto") or "")[:120],
         ok,
-        "command+exit0 and non-theater evidence" if ok else f"cmd={bool(cmd)} exit={ex} theater={theater}",
-        "row evidence hygiene",
+        reason,
+        "row evidence hygiene + full chain",
     )
 
 
@@ -457,6 +500,161 @@ def rewrite_batch_packs(root: Path, purged_norms: set[str]) -> list[str]:
     return notes
 
 
+def _surface_consistency_failures(root: Path, ledger: dict[str, Any]) -> list[dict[str, Any]]:
+    """Fail when report/QA/panel/matrix/story counts diverge."""
+    from canonical_count import assert_surfaces_consistent, rebuild_canonical_set
+
+    fails: list[dict[str, Any]] = []
+    matrix = list(ledger.get("matrix") or [])
+    accepted = ledger.get("accepted") or []
+    mids = [r.get("dod_item_id") for r in matrix]
+    aids = [(a.get("dod_item_id") if isinstance(a, dict) else a) for a in accepted]
+    if len(mids) != len(set(mids)):
+        fails.append(
+            {
+                "dod_item_id": "surface",
+                "reason": "duplicate stable ids in matrix",
+                "probe": "unique_ids",
+            }
+        )
+    if set(mids) != set(aids):
+        fails.append(
+            {
+                "dod_item_id": "surface",
+                "reason": "matrix ids != accepted ids",
+                "probe": "ledger_matrix_sync",
+            }
+        )
+    panel_n = (ledger.get("final_panel") or {}).get("Aceitos_PASS")
+    count_n = (ledger.get("counts") or {}).get("accepted")
+    if panel_n is not None and count_n is not None and int(panel_n) != int(count_n):
+        fails.append(
+            {
+                "dod_item_id": "surface",
+                "reason": f"panel Aceitos_PASS={panel_n} != counts.accepted={count_n}",
+                "probe": "panel_vs_counts",
+            }
+        )
+    if count_n is not None and int(count_n) != len(matrix):
+        fails.append(
+            {
+                "dod_item_id": "surface",
+                "reason": f"counts.accepted={count_n} != len(matrix)={len(matrix)}",
+                "probe": "counts_vs_matrix",
+            }
+        )
+
+    report = root / "squads/extra-dod-roi/state/campaigns/dod-50-final-report.md"
+    report_n = None
+    if report.is_file():
+        m = re.search(r"PASS matrix[^\d]*(\d+)", report.read_text(encoding="utf-8"), re.I)
+        if m:
+            report_n = int(m.group(1))
+    qa_final = root / "squads/extra-dod-roi/state/qa/cyc-2026-07-18-campaign-final-audit.json"
+    qa_n = None
+    if qa_final.is_file():
+        q = json.loads(qa_final.read_text(encoding="utf-8"))
+        qa_n = q.get("pass_matrix_count")
+    story_sum = None
+    by_story: dict[str, int] = {}
+    for r in matrix:
+        sid = r.get("story_id") or "?"
+        by_story[sid] = by_story.get(sid, 0) + 1
+    if by_story:
+        story_sum = sum(by_story.values())
+    for err in assert_surfaces_consistent(
+        canonical_count=len(matrix),
+        report_count=report_n,
+        qa_pass_count=int(qa_n) if qa_n is not None else None,
+        panel_count=int(panel_n) if panel_n is not None else None,
+        story_breakdown_sum=story_sum,
+    ):
+        fails.append({"dod_item_id": "surface", "reason": err, "probe": "surface_consistency"})
+
+    # batch4 QA must not list revoked claims or duplicates
+    qa4 = root / "squads/extra-dod-roi/state/qa/cyc-2026-07-18-batch4-qa.json"
+    if qa4.is_file():
+        q4 = json.loads(qa4.read_text(encoding="utf-8"))
+        texts = [normalize_text(i.get("text") or "") for i in (q4.get("items") or [])]
+        if len(texts) != len(set(texts)):
+            fails.append(
+                {
+                    "dod_item_id": "surface",
+                    "reason": "batch4 QA has duplicate items",
+                    "probe": "batch4_dup",
+                }
+            )
+        revoked = {
+            normalize_text(x)
+            for x in (
+                "URLs de fontes são centralizadas.",
+                "Win rate não é calculado sem propostas enviadas.",
+                "Score não é chamado de probabilidade sem calibração.",
+            )
+        }
+        for t in texts:
+            if t in revoked:
+                fails.append(
+                    {
+                        "dod_item_id": "surface",
+                        "reason": f"batch4 QA still contains revoked claim: {t[:60]}",
+                        "probe": "batch4_revoked",
+                    }
+                )
+        # proof matrix proven count should match batch4 survivors in matrix
+        pm = root / "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json"
+        if pm.is_file():
+            pdata = json.loads(pm.read_text(encoding="utf-8"))
+            proven_n = len([x for x in (pdata.get("proven") or []) if x.get("proven")])
+            b4_matrix_n = sum(
+                1 for r in matrix if r.get("story_id") == "ROI-campaign-batch4-ops-docs"
+            )
+            # unique norms in batch4 matrix
+            b4_norms = {
+                normalize_text(r.get("texto") or "")
+                for r in matrix
+                if r.get("story_id") == "ROI-campaign-batch4-ops-docs"
+            }
+            if proven_n != len(b4_norms) and proven_n != b4_matrix_n:
+                # allow unique-text QA count == proven
+                if proven_n != len(set(texts)):
+                    fails.append(
+                        {
+                            "dod_item_id": "surface",
+                            "reason": (
+                                f"batch4 proof proven={proven_n} qa_unique={len(set(texts))} "
+                                f"matrix={b4_matrix_n}"
+                            ),
+                            "probe": "batch4_matrix_qa",
+                        }
+                    )
+
+    # full chain via canonical rebuild (require final head)
+    try:
+        canon = rebuild_canonical_set(root, ledger=ledger, require_final_head_review=True)
+        if (canon.get("counts") or {}).get("accepted", 0) != len(matrix):
+            fails.append(
+                {
+                    "dod_item_id": "surface",
+                    "reason": (
+                        f"canonical accepted={(canon.get('counts') or {}).get('accepted')} "
+                        f"!= matrix={len(matrix)}; rejected={len(canon.get('rejected') or [])}"
+                    ),
+                    "probe": "canonical_count",
+                    "rejected_sample": (canon.get("rejected") or [])[:5],
+                }
+            )
+    except Exception as exc:  # noqa: BLE001 — surface as audit failure
+        fails.append(
+            {
+                "dod_item_id": "surface",
+                "reason": f"canonical_count error: {exc}",
+                "probe": "canonical_count",
+            }
+        )
+    return fails
+
+
 def audit_matrix(root: Path, *, write: bool = False) -> dict[str, Any]:
     ledger = load_ledger(root)
     if not ledger:
@@ -482,13 +680,18 @@ def audit_matrix(root: Path, *, write: bool = False) -> dict[str, Any]:
             for r in results:
                 if not r.ok:
                     failures.append(asdict(r))
+    # surface-level consistency always checked
+    failures.extend(_surface_consistency_failures(root, ledger))
     purged_ids: list[str] = []
     pack_notes: list[str] = []
     if write and failures:
-        # unique ids to purge
-        to_purge = {f.get("dod_item_id") for f in failures if f.get("dod_item_id")}
+        # unique ids to purge (ignore surface-level consistency rows)
+        to_purge = {
+            f.get("dod_item_id")
+            for f in failures
+            if f.get("dod_item_id") and f.get("dod_item_id") != "surface"
+        }
         purged_norms: set[str] = set()
-        by_id = {r.get("dod_item_id"): r for r in matrix}
         new_matrix = []
         for row in matrix:
             did = row.get("dod_item_id")
@@ -520,23 +723,11 @@ def audit_matrix(root: Path, *, write: bool = False) -> dict[str, Any]:
         ]
         ledger["counts"]["accepted"] = len(new_matrix)
         pack_notes = rewrite_batch_packs(root, purged_norms)
-        # SUCCESS gate
-        baseline_open = set((ledger.get("baseline") or {}).get("open_ids") or [])
-        items = parse_items((root / "DOD.md").read_text(encoding="utf-8"))
-        live = reconstruct_accepted_from_diff(baseline_open, items)
-        live_pass_ids = {r["dod_item_id"] for r in new_matrix}
-        # consistency: matrix must match live checked ∩ baseline open for counted set
-        # (live may have unchecked after purge)
-        if ledger["counts"]["accepted"] >= int(
-            ledger.get("target_dod_items") or DEFAULT_TARGET
-        ):
-            # only SUCCESS if re-audit would pass — mark pending re-audit
-            ledger["status"] = "IN_PROGRESS"
-            ledger["post_audit_note"] = (
-                "Purged falsified rows; re-run audit-matrix without --write to confirm SUCCESS"
-            )
-        else:
-            ledger["status"] = "IN_PROGRESS"
+        # After purge, require re-audit before SUCCESS
+        ledger["status"] = "IN_PROGRESS"
+        ledger["post_audit_note"] = (
+            "Purged falsified rows; re-run audit-matrix without --write to confirm SUCCESS"
+        )
         ledger["updated_at"] = utcnow()
         save_ledger(root, ledger)
 

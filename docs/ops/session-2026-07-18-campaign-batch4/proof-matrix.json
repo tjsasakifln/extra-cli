@@ -1,99 +1,69 @@
 {
-  "generated_at": "2026-07-18T01:13:26Z",
+  "generated_at": "2026-07-18T02:41:17Z",
   "proven": [
     {
-      "section": "31. Documentação operacional",
+      "section": "19. Deploy reproduzível",
       "text": "Existe runbook de deploy.",
       "proven": true,
-      "evidence": "docs/ops/cloud-deployment-plan.md",
-      "notes": ""
+      "evidence": "docs/ops/cloud-deployment-plan.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:118ada2e1718",
+      "notes": "regenerated batch4 survivors only"
     },
     {
       "section": "27. Organização e manutenção do código",
       "text": "Scripts operacionais possuem exit codes consistentes.",
       "proven": true,
-      "evidence": "exit-codes.txt sample golden_path/local_datalake/backup",
-      "notes": ""
+      "evidence": "docs/ops/session-2026-07-18-campaign-final/ops-universe.json",
+      "command": "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops",
+      "exit_code": 0,
+      "dod_item_id": "dod:0875517557ee",
+      "notes": "regenerated batch4 survivors only"
     },
     {
       "section": "31. Documentação operacional",
       "text": "README descreve o fora de escopo.",
       "proven": true,
-      "evidence": "README.md scope/limitations language",
-      "notes": ""
-    },
-    {
-      "section": "27. Organização e manutenção do código",
-      "text": "Scripts operacionais suportam `--dry-run` quando aplicável.",
-      "proven": true,
-      "evidence": "backup/restore/golden_path dry-run patterns",
-      "notes": ""
+      "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:56846a8f3d31",
+      "notes": "regenerated batch4 survivors only"
     }
   ],
   "all": [
     {
-      "section": "31. Documentação operacional",
+      "section": "19. Deploy reproduzível",
       "text": "Existe runbook de deploy.",
       "proven": true,
-      "evidence": "docs/ops/cloud-deployment-plan.md",
-      "notes": ""
-    },
-    {
-      "section": "27. Organização e manutenção do código",
-      "text": "Defaults são documentados.",
-      "proven": false,
-      "evidence": "scripts/crawl/config.py defaults + module docs",
-      "notes": ""
+      "evidence": "docs/ops/cloud-deployment-plan.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:118ada2e1718",
+      "notes": "regenerated batch4 survivors only"
     },
     {
       "section": "27. Organização e manutenção do código",
       "text": "Scripts operacionais possuem exit codes consistentes.",
       "proven": true,
-      "evidence": "exit-codes.txt sample golden_path/local_datalake/backup",
-      "notes": ""
-    },
-    {
-      "section": "27. Organização e manutenção do código",
-      "text": "URLs de fontes são centralizadas.",
-      "proven": false,
-      "evidence": "url-centralization.txt",
-      "notes": "REVOKED by audit-matrix falsifier"
-    },
-    {
-      "section": "25. Verdade, linguagem e claims permitidos",
-      "text": "Win rate não é calculado sem propostas enviadas.",
-      "proven": false,
-      "evidence": "scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs",
-      "notes": "verified by code search; no free win_rate claim path | REVOKED by audit-matrix falsifier"
-    },
-    {
-      "section": "25. Verdade, linguagem e claims permitidos",
-      "text": "Score não é chamado de probabilidade sem calibração.",
-      "proven": false,
-      "evidence": "scoring.py labels score not probability",
-      "notes": "REVOKED by audit-matrix falsifier"
+      "evidence": "docs/ops/session-2026-07-18-campaign-final/ops-universe.json",
+      "command": "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops",
+      "exit_code": 0,
+      "dod_item_id": "dod:0875517557ee",
+      "notes": "regenerated batch4 survivors only"
     },
     {
       "section": "31. Documentação operacional",
       "text": "README descreve o fora de escopo.",
       "proven": true,
-      "evidence": "README.md scope/limitations language",
-      "notes": ""
-    },
-    {
-      "section": "27. Organização e manutenção do código",
-      "text": "Scripts destrutivos exigem confirmação ou flag explícita.",
-      "proven": false,
-      "evidence": "restore/backup scripts flags",
-      "notes": "REVOKED by audit-matrix falsifier"
-    },
-    {
-      "section": "27. Organização e manutenção do código",
-      "text": "Scripts operacionais suportam `--dry-run` quando aplicável.",
-      "proven": true,
-      "evidence": "backup/restore/golden_path dry-run patterns",
-      "notes": ""
+      "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:56846a8f3d31",
+      "notes": "regenerated batch4 survivors only"
     }
   ],
-  "audit_matrix_rewritten_at": "2026-07-18T01:29:34Z"
+  "audit_matrix_rewritten_at": "2026-07-18T02:41:17Z",
+  "note": "Survivors only; revoked URL/win_rate/score/destructive excluded"
 }

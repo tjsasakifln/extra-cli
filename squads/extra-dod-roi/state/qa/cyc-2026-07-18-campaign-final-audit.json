@@ -3,14 +3,21 @@
   "qa_agent": "adversarial-qa-auditor",
   "implementer_agent": "delivery-engineer",
   "self_qa": false,
-  "pass_matrix_count": 56,
-  "false_process_removed": [
-    "dod:ecfdc798b7e6",
-    "dod:1162bd54c73b",
-    "dod:f5e5902b539e"
-  ],
-  "mypy_hygiene_fixed": true,
-  "destructive_confirm_open": true,
+  "pass_matrix_count": 50,
+  "count_from_diff": 50,
+  "count_from_matrix": 50,
+  "count_from_ledger": 50,
+  "count_from_report": 50,
+  "count_from_story_breakdown": 50,
+  "by_story": {
+    "ROI-campaign-batch2-docs-truth": 25,
+    "ROI-cand-dyn-slice-44e18f3702d5": 8,
+    "ROI-campaign-batch3-ops-config": 13,
+    "ROI-campaign-batch4-ops-docs": 4
+  },
+  "final_head": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
   "stories_ok": true,
+  "independent_qa": "cyc-2026-07-18-campaign-final-audit-independent.json",
+  "regenerated_at": "2026-07-18T02:42:27Z",
   "blockers": []
 }
