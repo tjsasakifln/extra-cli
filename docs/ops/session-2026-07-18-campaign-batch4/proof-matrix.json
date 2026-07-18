@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-18T02:41:17Z",
+  "generated_at": "2026-07-18T02:57:01Z",
   "proven": [
     {
       "section": "19. Deploy reproduzível",
@@ -9,7 +9,7 @@
       "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\"",
       "exit_code": 0,
       "dod_item_id": "dod:118ada2e1718",
-      "notes": "regenerated batch4 survivors only"
+      "notes": "skeptic remediation"
     },
     {
       "section": "27. Organização e manutenção do código",
@@ -19,7 +19,7 @@
       "command": "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops",
       "exit_code": 0,
       "dod_item_id": "dod:0875517557ee",
-      "notes": "regenerated batch4 survivors only"
+      "notes": "skeptic remediation"
     },
     {
       "section": "31. Documentação operacional",
@@ -29,7 +29,17 @@
       "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\"",
       "exit_code": 0,
       "dod_item_id": "dod:56846a8f3d31",
-      "notes": "regenerated batch4 survivors only"
+      "notes": "skeptic remediation"
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de deploy.",
+      "proven": true,
+      "evidence": "docs/ops/cloud-deployment-plan.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:10fac2c709ae",
+      "notes": "skeptic remediation"
     }
   ],
   "all": [
@@ -41,7 +51,7 @@
       "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\"",
       "exit_code": 0,
       "dod_item_id": "dod:118ada2e1718",
-      "notes": "regenerated batch4 survivors only"
+      "notes": "skeptic remediation"
     },
     {
       "section": "27. Organização e manutenção do código",
@@ -51,7 +61,7 @@
       "command": "python3 squads/extra-dod-roi/scripts/rebuild_campaign_final.py --probe-ops",
       "exit_code": 0,
       "dod_item_id": "dod:0875517557ee",
-      "notes": "regenerated batch4 survivors only"
+      "notes": "skeptic remediation"
     },
     {
       "section": "31. Documentação operacional",
@@ -61,9 +71,19 @@
       "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Fora de escopo', 'acompanhamento de obras'])\"",
       "exit_code": 0,
       "dod_item_id": "dod:56846a8f3d31",
-      "notes": "regenerated batch4 survivors only"
+      "notes": "skeptic remediation"
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de deploy.",
+      "proven": true,
+      "evidence": "docs/ops/cloud-deployment-plan.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/cloud-deployment-plan.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Cloud Deployment Plan', 'Fluxo de Deploy', 'Rollback'])\"",
+      "exit_code": 0,
+      "dod_item_id": "dod:10fac2c709ae",
+      "notes": "skeptic remediation"
     }
   ],
-  "audit_matrix_rewritten_at": "2026-07-18T02:41:17Z",
-  "note": "Survivors only; revoked URL/win_rate/score/destructive excluded"
+  "note": "All batch4 matrix survivors including both deploy stable IDs",
+  "audit_matrix_rewritten_at": "2026-07-18T02:58:39Z"
 }

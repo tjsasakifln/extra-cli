@@ -5,7 +5,7 @@
 **Target:** 50
 **Draft PR:** https://github.com/tjsasakifln/extra-consultoria/pull/24
 **Branch:** `extra-roi/campaign-dod-50-20260718T003950Z`
-**Final HEAD:** `6c67e63ab9ce1329d12e9083460a8dad3077e469`
+**Final HEAD:** `405e0cb295ab96e3e7af657694b0ec998175e279`
 
 ## Structural gate
 
@@ -20,7 +20,7 @@ all surfaces equal (ledger/matrix/panel/report/QA/stories).
 
 ## Stories (derived from matrix)
 
-{'ROI-campaign-batch2-docs-truth': 25, 'ROI-cand-dyn-slice-44e18f3702d5': 8, 'ROI-campaign-batch3-ops-config': 13, 'ROI-campaign-batch4-ops-docs': 4}
+{'ROI-campaign-batch2-docs-truth': 27, 'ROI-cand-dyn-slice-44e18f3702d5': 8, 'ROI-campaign-batch3-ops-config': 11, 'ROI-campaign-batch4-ops-docs': 4}
 
 ## Explicit non-claims
 

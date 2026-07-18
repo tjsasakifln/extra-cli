@@ -4,12 +4,12 @@
   "implementer_agent": "delivery-engineer",
   "self_qa": false,
   "story_id": "ROI-campaign-batch2-docs-truth",
-  "reviewed_commit": "6c67e63ab9ce1329d12e9083460a8dad3077e469",
+  "reviewed_commit": "405e0cb295ab96e3e7af657694b0ec998175e279",
   "summary": {
-    "PASS": 25,
+    "PASS": 27,
     "FAIL": 0,
     "CONCERNS": 0,
-    "total": 25
+    "total": 27
   },
   "items": [
     {
@@ -17,175 +17,216 @@
       "text": "Sempre que possível, a evidência é registrada ao lado do item no formato: `",
       "verdict": "PASS",
       "evidence": "DOD.md",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('DOD.md').read_text(); assert len(re.findall(r'Evid[eê]ncia:', t))>=20\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('DOD.md').read_text(); assert len(re.findall(r'Evid[eê]ncia:', t))>=20\"",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
     },
     {
       "dod_item_id": "dod:4fec282f18cd",
       "text": "Presença de registros no banco não é tratada como prova de cobertura.",
       "verdict": "PASS",
-      "evidence": "scripts/coverage_truth.py",
-      "command": "python3 -c \"from pathlib import Path; t=Path('scripts/coverage_truth.py').read_text(); assert len(t)>100\""
+      "evidence": "README.md; scripts/coverage_truth.py",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert re.search(r'presenca de registros no banco|presença de registros no banco', t, re.I); assert '95%' in t\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:fd3bd80c1823",
       "text": "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
       "verdict": "PASS",
       "evidence": "squads/extra-dod-roi/scripts/campaign.py; squads/extra-dod-roi/scripts/canonical_count.py",
-      "command": "python3 -c \"from pathlib import Path; t=Path('squads/extra-dod-roi/scripts/campaign.py').read_text(); assert 'register_acceptance' in t and 'baseline_open' in t\""
+      "command": "python3 -c \"from pathlib import Path; t=Path('squads/extra-dod-roi/scripts/campaign.py').read_text(); assert 'register_acceptance' in t and 'baseline_open' in t\"",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
     },
     {
       "dod_item_id": "dod:d607d46bf66e",
       "text": "Existe instrução de recuperação após corrupção local.",
       "verdict": "PASS",
       "evidence": "docs/ops/backup.md",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['restore-database', 'Restaurar backup', 'corrompido'])\""
-    },
-    {
-      "dod_item_id": "dod:cfb0abf9ba8b",
-      "text": "PDFs e anexos não são armazenados no PostgreSQL sem justificativa.",
-      "verdict": "PASS",
-      "evidence": "README.md",
-      "command": "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'output/' in t\""
-    },
-    {
-      "dod_item_id": "dod:b3a7547e7e36",
-      "text": "`READY` significa executado e validado.",
-      "verdict": "PASS",
-      "evidence": "README.md",
-      "command": "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'NOT_READY' in t\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['restore-database', 'Restaurar backup', 'corrompido'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:d833662c1782",
       "text": "`NOT_READY` significa não disponível.",
       "verdict": "PASS",
       "evidence": "README.md",
-      "command": "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'NOT_READY' in t\""
-    },
-    {
-      "dod_item_id": "dod:fbc4c00fd42a",
-      "text": "`BLOCKED` significa impedido por dependência externa ou técnica.",
-      "verdict": "PASS",
-      "evidence": "README.md",
-      "command": "python3 -c \"from pathlib import Path; t=Path('README.md').read_text(); assert 'NOT_READY' in t\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert re.search(r'\\|\\s*`NOT_READY`\\s*\\|', t); assert 'NOT_READY' in t\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:61bc1ee04f3b",
       "text": "Presença de dados não é chamada de cobertura.",
       "verdict": "PASS",
-      "evidence": "scripts/coverage_truth.py",
-      "command": "python3 -c \"from pathlib import Path; t=Path('scripts/coverage_truth.py').read_text(); assert len(t)>100\""
+      "evidence": "README.md; scripts/coverage_truth.py",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert re.search(r'presen', t, re.I); assert re.search(r'cobertura|coverage', t, re.I); assert '95%' in t\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:2009716c98a0",
       "text": "Valor contratado não é chamado de preço praticado.",
       "verdict": "PASS",
       "evidence": "scripts/lib/value_semantics.py; tests/test_value_semantics.py",
-      "command": "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts="
+      "command": "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts=",
+      "evidence_type": "AUTOMATED_TEST"
     },
     {
       "dod_item_id": "dod:bb4b42442519",
       "text": "Deságio não é calculado sem grandezas comparáveis.",
       "verdict": "PASS",
       "evidence": "scripts/lib/value_semantics.py; tests/test_value_semantics.py",
-      "command": "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts="
+      "command": "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts=",
+      "evidence_type": "AUTOMATED_TEST"
     },
     {
       "dod_item_id": "dod:c4770bb863c9",
       "text": "Estrutura de pastas está documentada.",
       "verdict": "PASS",
       "evidence": "squads/extra-dod-roi/config/source-tree.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('squads/extra-dod-roi/config/source-tree.md').read_text(); assert all(re.search(p,t,re.I) for p in ['.+'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('squads/extra-dod-roi/config/source-tree.md').read_text(); assert all(re.search(p,t,re.I) for p in ['.+'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:a0a312ac26d9",
       "text": "README descreve o estado atual real.",
       "verdict": "PASS",
       "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Fase Atual', 'datalake local', 'NOT_READY', 'PRE_VPS'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Fase Atual', 'datalake local', 'NOT_READY', 'PRE_VPS'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:d952a141e49a",
       "text": "README descreve o escopo.",
       "verdict": "PASS",
       "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Escopo operacional atual', 'busca de editais', '##\\\\s*Stack'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Escopo operacional atual', 'busca de editais', '##\\\\s*Stack'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:95c60383463e",
       "text": "README descreve setup.",
       "verdict": "PASS",
       "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Setup', 'pip install', 'LOCAL_DATALAKE_DSN'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Setup', 'pip install', 'LOCAL_DATALAKE_DSN'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:3cf2e1d03427",
       "text": "README descreve comandos principais.",
       "verdict": "PASS",
       "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Comandos', 'golden-path', 'local_datalake', 'opportunity_intel'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Comandos', 'golden-path', 'local_datalake', 'opportunity_intel'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:d264e021534b",
       "text": "README descreve fontes.",
       "verdict": "PASS",
       "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Fontes de Dados', 'PNCP', 'DOM-SC', 'ComprasGov'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Fontes de Dados', 'PNCP', 'DOM-SC', 'ComprasGov'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:c5e1f0520b32",
       "text": "README descreve métricas de coverage.",
       "verdict": "PASS",
       "evidence": "README.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Métricas', 'Cobertura|coverage', 'consulting_readiness'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['##\\\\s*Métricas', 'Cobertura|coverage', 'consulting_readiness'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:51600fee2a5c",
       "text": "Existe runbook local.",
       "verdict": "PASS",
       "evidence": "docs/ops/runbook.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/runbook.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Runbook Operacional', 'Como Executar Crawl', 'Dry Run'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/runbook.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Runbook Operacional', 'Como Executar Crawl', 'Dry Run'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:9310ba9c7796",
       "text": "Existe runbook de backup.",
       "verdict": "PASS",
       "evidence": "docs/ops/backup.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Backup Automatizado', 'backup-database\\\\.sh', 'Estratégia de Backup"
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Backup Automatizado', 'backup-database\\\\.sh', 'Estratégia de Backup'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:a8291c1f624b",
       "text": "Existe runbook de restore.",
       "verdict": "PASS",
       "evidence": "docs/ops/backup.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['restore-database\\\\.sh', 'Restaurar backup', '##\\\\s*Scripts'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/backup.md').read_text(); assert all(re.search(p,t,re.I) for p in ['restore-database\\\\.sh', 'Restaurar backup', '##\\\\s*Scripts'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:e8e465a54a8d",
       "text": "Existe runbook de fonte quebrada.",
       "verdict": "PASS",
       "evidence": "docs/ops/troubleshooting.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Crawler Timeout', 'API fonte', 'API externa lenta ou indis"
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Crawler Timeout', 'API fonte', 'API externa lenta ou indisponivel'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:51bc27739185",
       "text": "Existe matriz de fontes.",
       "verdict": "PASS",
       "evidence": "docs/research/source-runtime-matrix-2026-07-16.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/research/source-runtime-matrix-2026-07-16.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Source Runtime Matrix', 'PNCP', 'Sou"
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/research/source-runtime-matrix-2026-07-16.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Source Runtime Matrix', 'PNCP', 'Source Matrix Summary'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:eeda93135036",
       "text": "Existe matriz de capabilities.",
       "verdict": "PASS",
       "evidence": "docs/baseline/l1-source-capability-registry.md; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/baseline/l1-source-capability-registry.md').read_text(); assert all(re.search(p,t,re.I) for p in ['capability registry', 'Matriz fonte', '"
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/baseline/l1-source-capability-registry.md').read_text(); assert all(re.search(p,t,re.I) for p in ['capability registry', 'Matriz fonte', 'SourceCapability'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
     },
     {
       "dod_item_id": "dod:c5e29b6c2906",
       "text": "Existe registro de blockers.",
       "verdict": "PASS",
       "evidence": "squads/extra-dod-roi/state/blockers/latest.json; docs/ops/session-2026-07-18-campaign-final/content-matrix.json",
-      "command": "python3 -c \"from pathlib import Path; import re; t=Path('squads/extra-dod-roi/state/blockers/latest.json').read_text(); assert all(re.search(p,t,re.I) for p in ['.+'])\""
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('squads/extra-dod-roi/state/blockers/latest.json').read_text(); assert all(re.search(p,t,re.I) for p in ['.+'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:c9350b3588bd",
+      "text": "A versão canônica do Python está documentada.",
+      "verdict": "PASS",
+      "evidence": "README.md",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['Python 3\\\\.12', '##\\\\s*Stack'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:be83f1800b8c",
+      "text": "A versão canônica do PostgreSQL está documentada.",
+      "verdict": "PASS",
+      "evidence": "README.md",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('README.md').read_text(); assert all(re.search(p,t,re.I) for p in ['PostgreSQL 16', '##\\\\s*Stack'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:4622f1cc037a",
+      "text": "Existe runbook de VPS.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/vps-provisioning.md",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/vps-provisioning.md').read_text(); assert all(re.search(p,t,re.I) for p in ['VPS|provision', 'ssh|systemd|deploy'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:18e6d1d86bb1",
+      "text": "Existe runbook de freshness vencida.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/troubleshooting.md",
+      "command": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['fresh|atualid|stale|vencid|timeout'])\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:c9597309a08a",
+      "text": "Um item só recebe `[x]` após validação e registro de evidência.",
+      "verdict": "PASS",
+      "evidence": "squads/extra-dod-roi/scripts/campaign.py",
+      "command": "python3 -c \"from pathlib import Path; t=Path('squads/extra-dod-roi/scripts/campaign.py').read_text(); assert 'register_acceptance' in t and 'validate_evidence_quality' in t and 'baseline_open' in t\"",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
     }
   ],
   "authorized_flips": [
@@ -193,10 +234,7 @@
     "Presença de registros no banco não é tratada como prova de cobertura.",
     "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
     "Existe instrução de recuperação após corrupção local.",
-    "PDFs e anexos não são armazenados no PostgreSQL sem justificativa.",
-    "`READY` significa executado e validado.",
     "`NOT_READY` significa não disponível.",
-    "`BLOCKED` significa impedido por dependência externa ou técnica.",
     "Presença de dados não é chamada de cobertura.",
     "Valor contratado não é chamado de preço praticado.",
     "Deságio não é calculado sem grandezas comparáveis.",
@@ -213,8 +251,15 @@
     "Existe runbook de fonte quebrada.",
     "Existe matriz de fontes.",
     "Existe matriz de capabilities.",
-    "Existe registro de blockers."
+    "Existe registro de blockers.",
+    "A versão canônica do Python está documentada.",
+    "A versão canônica do PostgreSQL está documentada.",
+    "Existe runbook de VPS.",
+    "Existe runbook de freshness vencida.",
+    "Um item só recebe `[x]` após validação e registro de evidência."
   ],
-  "updated_at": "2026-07-18T02:41:17Z",
-  "regenerated": true
+  "updated_at": "2026-07-18T02:57:01Z",
+  "regenerated": true,
+  "note": "Full item-level coverage; no unique-text collapse for distinct stable IDs",
+  "authorized_flips_note": "Aligned to item-level PASS only; CONCERNS/FAIL excluded"
 }

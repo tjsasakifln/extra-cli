@@ -8,18 +8,17 @@
   "count_from_matrix": 50,
   "count_from_ledger": 50,
   "count_from_report": 50,
+  "count_from_pr_body": 50,
   "count_from_story_breakdown": 50,
   "by_story": {
-    "ROI-campaign-batch2-docs-truth": 25,
+    "ROI-campaign-batch2-docs-truth": 27,
     "ROI-cand-dyn-slice-44e18f3702d5": 8,
-    "ROI-campaign-batch3-ops-config": 13,
+    "ROI-campaign-batch3-ops-config": 11,
     "ROI-campaign-batch4-ops-docs": 4
   },
-  "final_head": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
+  "final_head": "405e0cb295ab96e3e7af657694b0ec998175e279",
   "stories_ok": true,
   "independent_qa": "cyc-2026-07-18-campaign-final-audit-independent.json",
-  "regenerated_at": "2026-07-18T02:42:27Z",
-  "blockers": [],
-  "audited_at": "2026-07-18T02:43:29Z",
-  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f"
+  "regenerated_at": "2026-07-18T02:57:39Z",
+  "blockers": []
 }

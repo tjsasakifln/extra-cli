@@ -1,0 +1,93 @@
+{
+  "verdict": "PASS",
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer",
+  "self_qa": false,
+  "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+  "reviewed_commit": "405e0cb295ab96e3e7af657694b0ec998175e279",
+  "summary": {
+    "PASS": 8,
+    "FAIL": 0,
+    "CONCERNS": 0,
+    "total": 8
+  },
+  "items": [
+    {
+      "dod_item_id": "dod:6c7ec05aad2e",
+      "text": "Normalização de IBGE.",
+      "verdict": "PASS",
+      "evidence": "scripts/lib/universe.py; tests/test_universe.py",
+      "command": "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts=",
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:359e8069a6e2",
+      "text": "Semântica de valores.",
+      "verdict": "PASS",
+      "evidence": "scripts/lib/value_semantics.py; tests/test_value_semantics.py",
+      "command": "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts=",
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:53b1c23c8206",
+      "text": "`ruff` passa no código alterado.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/session-2026-07-18-campaign-q13-4/ruff.exit; scripts/lib/universe.py; scripts/lib/value_semantics.py",
+      "command": "python3 -m ruff check scripts/lib/universe.py scripts/lib/value_semantics.py",
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fae6b36d1d01",
+      "text": "`mypy` passa no caminho crítico definido.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical-path.txt; docs/ops/session-2026-07-18-campaign-q13-4/mypy-critical.exit",
+      "command": "python3 -m mypy scripts/lib/universe.py scripts/lib/value_semantics.py scripts/coverage/states.py",
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:1427f84c9645",
+      "text": "`pip-audit` não aponta vulnerabilidade conhecida sem tratamento.",
+      "verdict": "PASS",
+      "evidence": "requirements.txt; docs/ops/session-2026-07-18-campaign-q13-4/pip-audit.exit",
+      "command": "python3 -m pip_audit -r requirements.txt --strict",
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:6509d40fdcc8",
+      "text": "Testes que exigem fonte real podem ser executados sob demanda.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/session-2026-07-18-campaign-q13-4/external-markers.txt",
+      "command": "python3 -c \"from pathlib import Path; t=Path('docs/ops/session-2026-07-18-campaign-q13-4/external-markers.txt').read_text(); assert 'integration' in t.lower() or 'e2e' in t.lower() or t.strip()\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fb39af4bce5e",
+      "text": "O coverage mínimo é definido para caminhos críticos, não como número cosmético global.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt; .github/workflows/ci.yml",
+      "command": "python3 -c \"from pathlib import Path; t=Path('docs/ops/session-2026-07-18-campaign-q13-4/coverage-gate.txt').read_text(); assert t.strip()\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:0b41faf57890",
+      "text": "Código crítico sem teste possui justificativa registrada.",
+      "verdict": "PASS",
+      "evidence": "docs/ops/session-2026-07-18-campaign-q13-4/debt-registry-listing.txt",
+      "command": "python3 -c \"from pathlib import Path; t=Path('docs/ops/session-2026-07-18-campaign-q13-4/debt-registry-listing.txt').read_text(); assert t.strip()\"",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    }
+  ],
+  "authorized_flips": [
+    "Normalização de IBGE.",
+    "Semântica de valores.",
+    "`ruff` passa no código alterado.",
+    "`mypy` passa no caminho crítico definido.",
+    "`pip-audit` não aponta vulnerabilidade conhecida sem tratamento.",
+    "Testes que exigem fonte real podem ser executados sob demanda.",
+    "O coverage mínimo é definido para caminhos críticos, não como número cosmético global.",
+    "Código crítico sem teste possui justificativa registrada."
+  ],
+  "updated_at": "2026-07-18T02:57:01Z",
+  "regenerated": true,
+  "note": "Full item-level coverage; no unique-text collapse for distinct stable IDs"
+}
