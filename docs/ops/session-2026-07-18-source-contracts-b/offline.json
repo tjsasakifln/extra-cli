@@ -1,0 +1,143 @@
+{
+  "generated_at": "2026-07-18T16:18:41.848377+00:00",
+  "live": false,
+  "checks": {
+    "pncp_schema_fixture": {
+      "ok": true,
+      "missing_envelope_keys": [],
+      "items_is_list": true,
+      "missing_item_keys_sample": [],
+      "n_items": 1,
+      "totalPaginas": 1,
+      "numeroPagina": 1,
+      "pagination_ok": true
+    },
+    "pncp_pagination_fixture": {
+      "ok": true,
+      "totalPaginas": 1,
+      "numeroPagina": 1
+    },
+    "pncp_endpoint_offline": {
+      "ok": true,
+      "canonical_url": "https://pncp.gov.br/api/consulta",
+      "note": "offline: registry URL present; use --live for network"
+    },
+    "pcp_endpoint_registry": {
+      "ok": true,
+      "url": "https://www.portaldecompraspublicas.com.br/",
+      "status": "implemented_not_proven"
+    },
+    "pcp_schema_expected": {
+      "ok": true,
+      "note": "PCP is HTML portal; schema = registry capabilities + HTML page presence",
+      "capabilities": [
+        "open_tenders"
+      ]
+    },
+    "compras_gov_endpoint_registry": {
+      "ok": true,
+      "url": "https://www.gov.br/compras/",
+      "status": "implemented_not_proven"
+    },
+    "compras_gov_schema_expected": {
+      "ok": true,
+      "note": "ComprasGov portal/HTML; schema = registry metadata",
+      "capabilities": [
+        "open_tenders"
+      ]
+    },
+    "active_sources_endpoints": {
+      "ok": true,
+      "n_active": 3,
+      "sources": [
+        {
+          "id": "pncp",
+          "url": "https://pncp.gov.br/api/consulta",
+          "ok": true,
+          "role": "primary"
+        },
+        {
+          "id": "ciga_ckan",
+          "url": "https://dados.ciga.sc.gov.br/api/3/action",
+          "ok": true,
+          "role": "primary"
+        },
+        {
+          "id": "sc_compras",
+          "url": "https://www.compras.sc.gov.br/",
+          "ok": true,
+          "role": "primary"
+        }
+      ]
+    },
+    "alert_required_field_change": {
+      "ok": true,
+      "alerts": [
+        {
+          "code": "required_field_missing",
+          "severity": "HIGH",
+          "message": "missing keys: numeroPagina,totalPaginas,totalRegistros"
+        },
+        {
+          "code": "empty_list",
+          "severity": "INFO",
+          "message": "data=[] (may be success_zero)"
+        }
+      ]
+    },
+    "alert_empty_unexpected": {
+      "ok": true,
+      "alerts": [
+        {
+          "code": "empty_unexpected",
+          "severity": "HIGH",
+          "message": "null payload"
+        }
+      ]
+    },
+    "alert_volume_drop": {
+      "ok": true,
+      "alerts": [
+        {
+          "code": "abrupt_volume_drop",
+          "severity": "HIGH",
+          "message": "volume 1 < 20% of previous 100"
+        }
+      ]
+    },
+    "http_403_vs_zero": {
+      "ok": true,
+      "forbidden": "http_403_forbidden",
+      "zero": "success_zero_records"
+    },
+    "http_429_vs_zero": {
+      "ok": true,
+      "rate_limited": "http_429_rate_limited",
+      "zero": "success_zero_records"
+    },
+    "http_5xx_vs_zero": {
+      "ok": true,
+      "outcome": "http_5xx_server_error"
+    },
+    "timeout_vs_zero": {
+      "ok": true,
+      "timeout": "transport_error",
+      "zero": "success_zero_records"
+    }
+  },
+  "summary": {
+    "n_checks": 15,
+    "n_ok": 15,
+    "all_ok": true
+  },
+  "claims": {
+    "allowed": [
+      "Contract suite exercises PNCP schema/pagination fixtures",
+      "Active sources have canonical URLs registered"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "all sources live-validated without --live"
+    ]
+  }
+}

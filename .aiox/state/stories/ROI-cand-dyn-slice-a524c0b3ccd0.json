@@ -1,0 +1,12 @@
+{
+  "story_id": "ROI-cand-dyn-slice-a524c0b3ccd0",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-source-contracts-b",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:a524c0b3ccd0",
+    "dod_items_flipped": 7
+  }
+}

@@ -28,3 +28,23 @@ def test_offline_suite_passes():
     assert result["checks"]["active_sources_endpoints"]["ok"] is True
     assert result["checks"]["pcp_endpoint_registry"]["ok"] is True
     assert result["checks"]["compras_gov_endpoint_registry"]["ok"] is True
+
+
+def test_http_error_not_confused_with_zero():
+    from scripts.ops.source_contract_tests import classify_http_outcome
+
+    assert classify_http_outcome(403, "http_403") != "success_zero_records"
+    assert classify_http_outcome(429, "http_429") != "success_zero_records"
+    assert classify_http_outcome(500, "http_5xx") != "success_zero_records"
+    assert classify_http_outcome(None, "timeout") != "success_zero_records"
+    assert classify_http_outcome(200, None, 0) == "success_zero_records"
+
+
+def test_contract_alerts():
+    from scripts.ops.source_contract_tests import detect_contract_alerts
+
+    alerts = detect_contract_alerts(payload={"data": []})
+    codes = {a["code"] for a in alerts}
+    assert "required_field_missing" in codes
+    drop = detect_contract_alerts(payload={"data": [{"x": 1}], "totalRegistros": 1, "totalPaginas": 1, "numeroPagina": 1}, previous_volume=100)
+    assert any(a["code"] == "abrupt_volume_drop" for a in drop)

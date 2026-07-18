@@ -1015,13 +1015,13 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Endpoint ComprasGov válido. Evidência: registry URL gov.br/compras + suite.
 - [x] Schema ComprasGov esperado. Evidência: registry metadata capabilities.
 - [x] Endpoint de cada fonte ativa validado. Evidência: active sources (pncp,ciga_ckan,sc_compras) have canonical_url.
-- [ ] Mudança de campo obrigatório gera alerta.
-- [ ] Resposta vazia inesperada gera alerta.
-- [ ] Redução abrupta de volume gera alerta.
-- [ ] HTTP 403 é distinguido de zero registros.
-- [ ] HTTP 429 é distinguido de zero registros.
-- [ ] HTTP 5xx é distinguido de zero registros.
-- [ ] Timeout é distinguido de zero registros.
+- [x] Mudança de campo obrigatório gera alerta. Evidência: `detect_contract_alerts` required_field_missing + tests.
+- [x] Resposta vazia inesperada gera alerta. Evidência: empty_unexpected on null payload.
+- [x] Redução abrupta de volume gera alerta. Evidência: abrupt_volume_drop when n<20% previous.
+- [x] HTTP 403 é distinguido de zero registros. Evidência: classify_http_outcome 403 vs success_zero.
+- [x] HTTP 429 é distinguido de zero registros. Evidência: classify_http_outcome 429 vs zero.
+- [x] HTTP 5xx é distinguido de zero registros. Evidência: classify_http_outcome 5xx.
+- [x] Timeout é distinguido de zero registros. Evidência: classify_http_outcome timeout=transport_error.
 
 ### 13.4 Qualidade mínima
 

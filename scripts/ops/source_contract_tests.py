@@ -119,6 +119,79 @@ def fixture_pncp_payload() -> dict[str, Any]:
     }
 
 
+def classify_http_outcome(status: int | None, kind: str | None, n_records: int | None = None) -> str:
+    """Distinguish transport/errors from legitimate zero-result responses."""
+    if kind == "timeout" or kind == "network":
+        return "transport_error"
+    if status == 403:
+        return "http_403_forbidden"
+    if status == 429:
+        return "http_429_rate_limited"
+    if status is not None and status >= 500:
+        return "http_5xx_server_error"
+    if status is not None and status >= 400:
+        return f"http_{status}_client_error"
+    if status in (200, 201, 204) or status is None:
+        if n_records == 0:
+            return "success_zero_records"
+        if n_records is not None and n_records > 0:
+            return "success_with_records"
+        return "success_unknown_count"
+    return "unknown"
+
+
+def detect_contract_alerts(
+    *,
+    payload: dict[str, Any] | None,
+    previous_volume: int | None = None,
+    required_fields: set[str] | None = None,
+) -> list[dict[str, str]]:
+    """Generate alerts for schema/empty/volume anomalies (DoD §13.3)."""
+    alerts: list[dict[str, str]] = []
+    required_fields = required_fields or PNCP_ENVELOPE_KEYS
+    if payload is None:
+        alerts.append({"code": "empty_unexpected", "severity": "HIGH", "message": "null payload"})
+        return alerts
+    missing = sorted(required_fields - set(payload.keys()))
+    if missing:
+        alerts.append(
+            {
+                "code": "required_field_missing",
+                "severity": "HIGH",
+                "message": f"missing keys: {','.join(missing)}",
+            }
+        )
+    data = payload.get("data")
+    if data is None:
+        alerts.append(
+            {
+                "code": "empty_unexpected",
+                "severity": "HIGH",
+                "message": "data key absent",
+            }
+        )
+    elif isinstance(data, list) and len(data) == 0:
+        # empty list can be legitimate success_zero — flag as INFO unless volume drop
+        alerts.append(
+            {
+                "code": "empty_list",
+                "severity": "INFO",
+                "message": "data=[] (may be success_zero)",
+            }
+        )
+    n = len(data) if isinstance(data, list) else None
+    if previous_volume is not None and n is not None and previous_volume > 0:
+        if n < previous_volume * 0.2:
+            alerts.append(
+                {
+                    "code": "abrupt_volume_drop",
+                    "severity": "HIGH",
+                    "message": f"volume {n} < 20% of previous {previous_volume}",
+                }
+            )
+    return alerts
+
+
 def run_contract_suite(*, live: bool = False) -> dict[str, Any]:
     results: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat(),
@@ -218,6 +291,52 @@ def run_contract_suite(*, live: bool = False) -> dict[str, Any]:
         "ok": all(c["ok"] for c in active_checks) and len(active_checks) >= 1,
         "n_active": len(active_checks),
         "sources": active_checks,
+    }
+
+    # Alerts + HTTP distinction (DoD §13.3 remainder)
+    results["checks"]["alert_required_field_change"] = {
+        "ok": True,
+        "alerts": detect_contract_alerts(payload={"data": []}),  # missing envelope → alert
+    }
+    # force required field alert
+    bad_payload = {"data": []}
+    field_alerts = detect_contract_alerts(payload=bad_payload)
+    results["checks"]["alert_required_field_change"] = {
+        "ok": any(a["code"] == "required_field_missing" for a in field_alerts),
+        "alerts": field_alerts,
+    }
+    results["checks"]["alert_empty_unexpected"] = {
+        "ok": any(a["code"] == "empty_unexpected" for a in detect_contract_alerts(payload=None)),
+        "alerts": detect_contract_alerts(payload=None),
+    }
+    results["checks"]["alert_volume_drop"] = {
+        "ok": any(
+            a["code"] == "abrupt_volume_drop"
+            for a in detect_contract_alerts(payload=fixture_pncp_payload(), previous_volume=100)
+        ),
+        "alerts": detect_contract_alerts(payload=fixture_pncp_payload(), previous_volume=100),
+    }
+    results["checks"]["http_403_vs_zero"] = {
+        "ok": classify_http_outcome(403, "http_403") == "http_403_forbidden"
+        and classify_http_outcome(200, None, 0) == "success_zero_records",
+        "forbidden": classify_http_outcome(403, "http_403"),
+        "zero": classify_http_outcome(200, None, 0),
+    }
+    results["checks"]["http_429_vs_zero"] = {
+        "ok": classify_http_outcome(429, "http_429") == "http_429_rate_limited"
+        and classify_http_outcome(200, None, 0) == "success_zero_records",
+        "rate_limited": classify_http_outcome(429, "http_429"),
+        "zero": classify_http_outcome(200, None, 0),
+    }
+    results["checks"]["http_5xx_vs_zero"] = {
+        "ok": classify_http_outcome(503, "http_5xx") == "http_5xx_server_error",
+        "outcome": classify_http_outcome(503, "http_5xx"),
+    }
+    results["checks"]["timeout_vs_zero"] = {
+        "ok": classify_http_outcome(None, "timeout") == "transport_error"
+        and classify_http_outcome(200, None, 0) == "success_zero_records",
+        "timeout": classify_http_outcome(None, "timeout"),
+        "zero": classify_http_outcome(200, None, 0),
     }
 
     # summary
