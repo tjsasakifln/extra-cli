@@ -430,11 +430,12 @@ def audit_report(report: dict[str, Any] | DeliverableDReport) -> dict[str, Any]:
         p.get("status") != "INSUFFICIENT_SAMPLE" or p.get("n_observations", 0) < int(rule.get("min_sample") or DEFAULT_MIN_SAMPLE)
         for p in panels
     ) if panels else True
-    has_insuff_mark = any(p.get("status") == "INSUFFICIENT_SAMPLE" for p in panels) or True
+    # Capability: status field exists and is set correctly for small n
+    has_status_field = all("status" in p for p in panels) if panels else True
     add(
         "insufficient_sample",
         "Categorias com amostra insuficiente são marcadas como `INSUFFICIENT_SAMPLE`.",
-        has_insuff_mark and insuff_ok,
+        has_status_field and insuff_ok,
         ["status INSUFFICIENT_SAMPLE when n < min_sample"],
     )
     has_outlier_rule = all(p.get("outlier_rule") for p in panels) if panels else bool(rule.get("iqr_outlier_k"))

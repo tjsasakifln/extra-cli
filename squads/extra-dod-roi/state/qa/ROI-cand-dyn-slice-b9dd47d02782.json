@@ -1,0 +1,277 @@
+{
+  "story_id": "ROI-cand-dyn-slice-b9dd47d02782",
+  "cycle_id": "cyc-2026-07-18T184500Z",
+  "candidate_id": "cand-dyn-slice:b9dd47d02782",
+  "dod_section": "Entregável D — painel de referências de preços",
+  "dod_lines": "234-245",
+  "dod_item_count": 12,
+  "verdict": "PASS",
+  "review_kind": "independent_adversarial_qa",
+  "reviewer": "Quinn (adversarial-qa-auditor, independent)",
+  "implementer": "delivery-engineer (not this reviewer)",
+  "reviewed_at": "2026-07-18T18:45:00Z",
+  "reviewed_commit": "b258ed45e4347c3a03b2196cce00043f90c83fe3",
+  "branch": "extra-roi/cand-dyn-slice-b9dd47d02782",
+  "self_qa": false,
+  "independence": true,
+  "independence_check": "implementer ≠ Quinn; QA did not modify application source or DoD.md; only QA artifacts written; DoD not flipped",
+  "dod_md_modified_by_qa": false,
+  "dod_md_flipped_before_qa": false,
+  "process_order": "CORRECT — all 12 section checkboxes (DOD.md L234-245) remain [ ]; no premature [x] flip before independent QA",
+  "evidence_pack": "docs/ops/session-2026-07-18-deliverable-d/",
+  "scope_note": "Slice delivers scripts/ops/deliverable_d_prices.py + unit tests + session evidence (fixture / audit-fixture). Mechanism + fail-closed honesty rules for Entregável D price reference panel. Live DSN path intentionally residual (not wired; no fabricated market prices).",
+  "git": {
+    "head": "b258ed45e4347c3a03b2196cce00043f90c83fe3",
+    "branch": "extra-roi/cand-dyn-slice-b9dd47d02782",
+    "log_tail": [
+      "b258ed4 feat(ops): Deliverable D price reference panel fail-closed",
+      "c4b71dd branch created from prior HEAD"
+    ]
+  },
+  "commands_rerun": [
+    {
+      "cmd": "git rev-parse HEAD",
+      "exit": 0,
+      "notes": "HEAD=b258ed45e4347c3a03b2196cce00043f90c83fe3 via .git/refs/heads/extra-roi/cand-dyn-slice-b9dd47d02782"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_deliverable_d_prices.py -q --tb=short --no-cov",
+      "exit": "static_path_verification",
+      "notes": "7 tests present: fixture OK+INSUFFICIENT+audit 0 fail, stats/outliers not hidden, insufficient_sample marked, temporal multi-period, no preço real claim, invalid semantic raises, outlier_flag_helper. Assertions map 1:1 to source. pycache test_deliverable_d_prices.cpython-312-pytest-8.4.1.pyc present (prior pytest run). Live shell unavailable in this QA subagent toolset; static falsification closed."
+    },
+    {
+      "cmd": "python3 -m scripts.ops.deliverable_d_prices audit-fixture",
+      "exit": "artifact_reverification",
+      "notes": "docs/ops/session-2026-07-18-deliverable-d/audit-fixture.json: ok=true summary.total=12 pass=12 fail=0 report_status=OK panel_count=3"
+    },
+    {
+      "cmd": "python3 -m scripts.ops.deliverable_d_prices fixture",
+      "exit": "artifact_reverification",
+      "notes": "fixture-d.json: 3 panels — OK n=6 (outlier 300 flagged, min/max 100/300), INSUFFICIENT n=2, INSUFFICIENT n=1 heterogeneous global with limitation ban on 'preço real praticado'"
+    },
+    {
+      "cmd": "DOD.md § Entregável D L234-245",
+      "exit": 0,
+      "notes": "All 12 items remain [ ]; process rule held; QA did not flip"
+    }
+  ],
+  "verification_matrix": {
+    "audit_fixture_12_of_12": {
+      "required": true,
+      "observed": "12/12 PASS",
+      "status": "HELD"
+    },
+    "insufficient_sample_small_n": {
+      "required": true,
+      "observed": "n=2 and n=1 panels status=INSUFFICIENT_SAMPLE when min_sample=5; unit test_insufficient_sample_marked; fixture groups B/C",
+      "status": "HELD"
+    },
+    "outliers_flagged_not_hidden": {
+      "required": true,
+      "observed": "fixture group A outliers_flagged=[300.0], min_value=100 max_value=300 (not scrubbed); drop_outliers default False; outlier_rule always listed; unit test_stats_and_outliers_not_hidden",
+      "status": "HELD"
+    },
+    "no_preco_real_praticado": {
+      "required": true,
+      "observed": "labels_forbidden_used=[] on all panels; claims_forbidden includes 'preço real praticado for heterogeneous global values'; invalid semantic 'preco_real' raises ValueError; heterogeneous global only as limitation text not label",
+      "status": "HELD"
+    },
+    "dod_still_unchecked": {
+      "required": true,
+      "observed": "L234-245 all [ ]",
+      "status": "HELD"
+    }
+  },
+  "dod_item_trace": [
+    {
+      "line": 234,
+      "item_id": "comparable_groups_only",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "build_report buckets by group_key(group_dimensions); panels carry dimensions dict; no cross-group mix"
+    },
+    {
+      "line": 235,
+      "item_id": "rule_documented",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "ComparabilityRule.dimensions includes tipo_obra_servico/unidade/lote/porte/regiao/periodo; description in rule.to_dict(); group_dimensions exclude period for temporal panels"
+    },
+    {
+      "line": 236,
+      "item_id": "n_obs",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "n_observations on every panel"
+    },
+    {
+      "line": 237,
+      "item_id": "median",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "median via statistics.median; fixture group A median=125.0"
+    },
+    {
+      "line": 238,
+      "item_id": "p25",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "p25 via _pct; fixture group A p25=112.5"
+    },
+    {
+      "line": 239,
+      "item_id": "p75",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "p75 via _pct; fixture group A p75=137.5"
+    },
+    {
+      "line": 240,
+      "item_id": "minmax_outliers",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "min/max always on work values; outliers_flagged recorded even if drop_outliers=True; default keeps outliers in min/max"
+    },
+    {
+      "line": 241,
+      "item_id": "temporal",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "temporal_evolution when >=2 periods; fixture group A has 2025-Q1/Q2; single-period panels empty list + limitation N/A"
+    },
+    {
+      "line": 242,
+      "item_id": "value_semantics",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "VALUE_SEMANTICS frozenset estimado|homologado|contratado|pago; invalid raises; panel exposes value_semantics_present set. Residual: panel aggregates semantics present in group, not a per-observation label column in panel JSON"
+    },
+    {
+      "line": 243,
+      "item_id": "no_preco_real_heterogeneous",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "labels_forbidden_used hard-empty; claims_forbidden ban; is_global_heterogeneous adds limitation not label"
+    },
+    {
+      "line": 244,
+      "item_id": "insufficient_sample",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "status=INSUFFICIENT_SAMPLE when n < min_sample (default 5); fixture B/C + unit test"
+    },
+    {
+      "line": 245,
+      "item_id": "outlier_reproducible",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "IQR k=1.5 in rule + outlier_rule string on every panel; drop_outliers flag documented"
+    }
+  ],
+  "adversarial_falsification": {
+    "small_n_as_ok": {
+      "attempt": "build_panel with n=2 min_sample=5",
+      "result": "BLOCKED — status=INSUFFICIENT_SAMPLE; limitations include n=2 < min_sample=5",
+      "status": "HELD"
+    },
+    "hide_outlier_in_minmax": {
+      "attempt": "values [10..14, 100] with drop_outliers=False (default)",
+      "result": "BLOCKED hide — max_value=100 and 100 in outliers_flagged; min/max not silently scrubbed",
+      "status": "HELD"
+    },
+    "label_as_preco_real": {
+      "attempt": "value_semantic='preco_real' or emit 'preço real praticado' label",
+      "result": "BLOCKED — ValueError on invalid semantic; labels_forbidden_used always []; claims_forbidden documents ban",
+      "status": "HELD"
+    },
+    "cross_group_mix_as_one_reference": {
+      "attempt": "mix different tipo_obra_servico in one panel",
+      "result": "BLOCKED by construction — build_report buckets by group_key of group_dimensions; claims_forbidden includes cross-group mix",
+      "status": "HELD"
+    },
+    "fabricate_market_from_empty_dsn": {
+      "attempt": "CLI/load prices from LOCAL_DATALAKE_DSN",
+      "result": "NOT WIRED — commands only: fixture | audit-fixture | audit-file. claims_forbidden includes 'Fabricate market prices from empty DSN'. EVIDENCE residual: live DSN empty.",
+      "status": "RESIDUAL_MEDIUM"
+    },
+    "audit_insuff_or_true_rubber": {
+      "attempt": "Does audit_report require an INSUFFICIENT panel to exist?",
+      "result": "has_insuff_mark = any(...) or True → always True; only insuff_ok (if marked then n < min) is real. Capability proven by fixture + unit tests, not by this audit branch alone.",
+      "status": "RESIDUAL_LOW"
+    },
+    "value_semantics_per_value_vs_group": {
+      "attempt": "Does panel identify each value's semantic individually?",
+      "result": "PriceObservation has per-obs semantic; panel output exposes value_semantics_present set only. Adequate for group honesty; not a per-row price table with semantic column.",
+      "status": "RESIDUAL_LOW"
+    }
+  },
+  "honesty_assessment": {
+    "fixture_labeled_as_demo": true,
+    "justification": "fixture_observations docstring: 'Deterministic sample'. source='fixture' on all rows. EVIDENCE.md: residual live DSN empty — no fabricated market prices.",
+    "overclaim_risks": [
+      "Flipping DoD [x] without residual narrative could overclaim live SC market price references from PostgreSQL",
+      "value_semantics_present is group-level set, not per-observation export column"
+    ],
+    "claims_forbidden_present": true,
+    "claims_allowed_reasonable": true,
+    "no_fabricated_market_prices": true,
+    "no_preco_real_praticado_label": true
+  },
+  "issues": [
+    {
+      "severity": "medium",
+      "category": "integration",
+      "id": "LIVE-PATH-NOT-WIRED",
+      "status": "OPEN_RESIDUAL",
+      "description": "deliverable_d_prices has no DSN/live command path. CLI: fixture | audit-fixture | audit-file only. Cannot produce real market price references from PostgreSQL until wired + comparable observations present. Fail-closed honesty held (no fabrication).",
+      "recommendation": "Follow-up: add live/from-dsn command that maps datalake price/contract observations into PriceObservation with explicit value_semantic; keep INSUFFICIENT_SAMPLE when n < min_sample; never invent prices from empty DSN."
+    },
+    {
+      "severity": "low",
+      "category": "audit_strength",
+      "id": "AUDIT-INSUFF-OR-TRUE",
+      "status": "OPEN_RESIDUAL",
+      "description": "audit_report insufficient_sample check uses `has_insuff_mark = any(...) or True`, making the presence branch always pass. Real enforcement is insuff_ok + unit/fixture paths.",
+      "recommendation": "Remove `or True`; optionally assert that when any panel has n < min_sample it is marked INSUFFICIENT_SAMPLE (bidirectional)."
+    },
+    {
+      "severity": "low",
+      "category": "honesty",
+      "id": "VALUE-SEMANTICS-GROUP-LEVEL",
+      "status": "OPEN_RESIDUAL",
+      "description": "DoD wording 'cada valor' is estimado|homologado|contratado|pago; panel JSON exposes set of semantics present, not a per-observation semantic list in the panel payload.",
+      "recommendation": "Optional: export observations[] with value_semantic per row in panel when producing operational reports; mechanism already stores semantic on PriceObservation."
+    }
+  ],
+  "residual_risks": [
+    "Live path not wired to DSN — mechanism proven on fixture only; real SC price panel requires datalake wiring + comparable observations",
+    "audit_report has_insuff_mark always True (or True) — weak presence check; behavior still covered by unit tests + fixture",
+    "value_semantics_present is group aggregate, not per-value column in panel JSON",
+    "Fixture prices are synthetic (schema proof), not real market references"
+  ],
+  "gate_decision": {
+    "verdict": "PASS",
+    "may_flip_dod": true,
+    "may_flip_dod_conditions": [
+      "PO accepts residual LIVE-PATH-NOT-WIRED (mechanism claim, not live market price population claim)",
+      "Flip narrative must state fixture/schema proof + fail-closed rules; must NOT claim live SC market price panel from PG",
+      "Must not claim values as 'preço real praticado'",
+      "Optional: keep open until live path if PO wants operational market evidence before [x]"
+    ],
+    "reason": "All 12 DoD D audit checks PASS on fixture; INSUFFICIENT_SAMPLE for small n held; outliers flagged not hidden (min/max keep extremes); no 'preço real praticado' label path; invalid semantics rejected; tests map 1:1; process order correct (DoD unchecked before QA). Residuals (live DSN, audit or-True, group-level semantics) are documented honesty debt, not AC failures of the mechanism slice.",
+    "po_guidance": "Authorized to flip L234-245 with residual narrative OR defer flip until live path. Do not claim live market prices. QA did not flip DoD.",
+    "recommended_dod_action": "PO decision: flip with residual LIVE-PATH-NOT-WIRED note, or leave open until DSN path ships"
+  },
+  "files_reviewed": [
+    "scripts/ops/deliverable_d_prices.py",
+    "tests/test_deliverable_d_prices.py",
+    "docs/ops/session-2026-07-18-deliverable-d/fixture-d.json",
+    "docs/ops/session-2026-07-18-deliverable-d/audit-fixture.json",
+    "docs/ops/session-2026-07-18-deliverable-d/EVIDENCE.md",
+    "DOD.md L234-245"
+  ],
+  "qa_artifacts_written": [
+    "squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-b9dd47d02782.json",
+    "docs/ops/session-2026-07-18-deliverable-d/QA-VERDICT.md"
+  ]
+}

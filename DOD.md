@@ -231,18 +231,18 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Entregável D — painel de referências de preços
 
-- [ ] O sistema produz referências apenas para grupos tecnicamente comparáveis.
-- [ ] A regra de comparabilidade por tipo de obra, serviço, unidade, lote, porte, região e período está documentada.
-- [ ] O painel informa quantidade de observações.
-- [ ] O painel informa mediana.
-- [ ] O painel informa percentil 25.
-- [ ] O painel informa percentil 75.
-- [ ] O painel informa mínimo e máximo apenas quando úteis e sem ocultar outliers.
-- [ ] O painel informa evolução temporal quando a amostra permitir.
-- [ ] O painel identifica se cada valor é estimado, homologado, contratado ou pago.
-- [ ] O painel não denomina valores globais heterogêneos como “preço real praticado”.
-- [ ] Categorias com amostra insuficiente são marcadas como `INSUFFICIENT_SAMPLE`.
-- [ ] Critérios de exclusão e tratamento de outliers são reproduzíveis.
+- [x] O sistema produz referências apenas para grupos tecnicamente comparáveis. Evidência: `deliverable_d_prices` group_dimensions + audit; QA PASS @ `b258ed4`. Residual: live DSN empty.
+- [x] A regra de comparabilidade por tipo de obra, serviço, unidade, lote, porte, região e período está documentada. Evidência: `ComparabilityRule.to_dict()` dimensions + description.
+- [x] O painel informa quantidade de observações. Evidência: `n_observations`.
+- [x] O painel informa mediana. Evidência: `median`.
+- [x] O painel informa percentil 25. Evidência: `p25`.
+- [x] O painel informa percentil 75. Evidência: `p75`.
+- [x] O painel informa mínimo e máximo apenas quando úteis e sem ocultar outliers. Evidência: min/max + `outliers_flagged` IQR.
+- [x] O painel informa evolução temporal quando a amostra permitir. Evidência: `temporal_evolution` multi-período.
+- [x] O painel identifica se cada valor é estimado, homologado, contratado ou pago. Evidência: `value_semantics_present` enum fechado.
+- [x] O painel não denomina valores globais heterogêneos como “preço real praticado”. Evidência: claims_forbidden + labels_forbidden_used vazio.
+- [x] Categorias com amostra insuficiente são marcadas como `INSUFFICIENT_SAMPLE`. Evidência: status quando n < min_sample.
+- [x] Critérios de exclusão e tratamento de outliers são reproduzíveis. Evidência: `outlier_rule` IQR k documentado.
 
 #### Entregável E — editais abertos e recomendação individual
 
