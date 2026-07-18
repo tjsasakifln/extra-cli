@@ -1,0 +1,148 @@
+{
+  "ok": true,
+  "objectives": [
+    {
+      "id": "locate_relevant_tenders",
+      "dod": "O sistema ajuda a localizar editais relevantes para a Extra Construtora.",
+      "commands": [
+        "python3 -m scripts.opportunity_intel.cli list --status open",
+        "python3 -m scripts.workspace today"
+      ],
+      "modules": [
+        "scripts/opportunity_intel/cli.py",
+        "scripts/workspace/cli.py"
+      ],
+      "status": "PARTIAL",
+      "reason": "CLI exists; operational coverage of universe still ~0% live.",
+      "modules_present": [
+        "scripts/opportunity_intel/cli.py",
+        "scripts/workspace/cli.py"
+      ],
+      "modules_missing": [],
+      "code_present": true
+    },
+    {
+      "id": "verify_historical_contracts",
+      "dod": "O sistema ajuda a verificar contratos históricos dos entes monitorados.",
+      "commands": [
+        "python3 -m scripts.contract_intel.cli --help",
+        "python3 scripts/local_datalake.py supplier --cnpj <CNPJ>"
+      ],
+      "modules": [
+        "scripts/contract_intel/cli.py",
+        "scripts/local_datalake.py"
+      ],
+      "status": "PARTIAL",
+      "reason": "Paths exist; 3y backfill not fully complete for all entities.",
+      "modules_present": [
+        "scripts/contract_intel/cli.py",
+        "scripts/local_datalake.py"
+      ],
+      "modules_missing": [],
+      "code_present": true
+    },
+    {
+      "id": "identify_winners_competitors",
+      "dod": "O sistema ajuda a identificar vencedores e concorrentes observáveis.",
+      "commands": [
+        "python3 -m scripts.buyer_intel.cli --help",
+        "python3 -m scripts.contract_intel.cli fornecedores"
+      ],
+      "modules": [
+        "scripts/buyer_intel/cli.py",
+        "scripts/contract_intel/cli.py"
+      ],
+      "status": "PARTIAL",
+      "reason": "Observáveis only; not complete competitor set (claim_language).",
+      "modules_present": [
+        "scripts/buyer_intel/cli.py",
+        "scripts/contract_intel/cli.py"
+      ],
+      "modules_missing": [],
+      "code_present": true
+    },
+    {
+      "id": "value_references",
+      "dod": "O sistema ajuda a formar referências de valores com semântica explícita.",
+      "commands": [
+        "python3 -c \"from scripts.lib.value_semantics import ValorSemantica; print(list(ValorSemantica))\""
+      ],
+      "modules": [
+        "scripts/lib/value_semantics.py"
+      ],
+      "status": "PARTIAL",
+      "reason": "Semantics module ready; commercial price panel may be data-limited.",
+      "modules_present": [
+        "scripts/lib/value_semantics.py"
+      ],
+      "modules_missing": [],
+      "code_present": true
+    },
+    {
+      "id": "decision_support",
+      "dod": "O sistema ajuda Tiago a decidir quais oportunidades merecem análise humana.",
+      "commands": [
+        "python3 -m scripts.workspace decide --help",
+        "python3 -m scripts.opportunity_intel.cli explain 1"
+      ],
+      "modules": [
+        "scripts/workspace/cli.py",
+        "scripts/opportunity_intel/cli.py"
+      ],
+      "status": "PARTIAL",
+      "reason": "GO/REVIEW/NO_GO path exists; profile incompleteness rebaixado a REVIEW.",
+      "modules_present": [
+        "scripts/workspace/cli.py",
+        "scripts/opportunity_intel/cli.py"
+      ],
+      "modules_missing": [],
+      "code_present": true
+    },
+    {
+      "id": "reduce_missed_opportunities",
+      "dod": "O sistema reduz o risco de perda de oportunidades por monitoramento incompleto.",
+      "commands": [
+        "python3 -m scripts.coverage.coverage_contract_cli --json"
+      ],
+      "modules": [
+        "scripts/coverage/coverage_contract.py",
+        "scripts/crawl/monitor.py"
+      ],
+      "status": "NOT_READY",
+      "reason": "Operational coverage ~0% — monitoring incomplete by definition.",
+      "modules_present": [
+        "scripts/coverage/coverage_contract.py",
+        "scripts/crawl/monitor.py"
+      ],
+      "modules_missing": [],
+      "code_present": true
+    },
+    {
+      "id": "evidence_reports",
+      "dod": "O sistema produz evidências e relatórios utilizáveis na consultoria.",
+      "commands": [
+        "python3 -m scripts.reports.executive_report --help",
+        "python3 -m scripts.reports.run_metadata"
+      ],
+      "modules": [
+        "scripts/reports/",
+        "scripts/generate_consultoria_pdf.py"
+      ],
+      "status": "PARTIAL",
+      "reason": "Report generators exist; need same run_id PDF×Excel with live data.",
+      "modules_present": [
+        "scripts/reports/",
+        "scripts/generate_consultoria_pdf.py"
+      ],
+      "modules_missing": [],
+      "code_present": true
+    }
+  ],
+  "counts": {
+    "total": 7,
+    "partial": 6,
+    "not_ready": 1,
+    "ready": 0
+  },
+  "forbidden_claim": "Do not claim all objectives READY while operational coverage <95%."
+}

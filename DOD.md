@@ -98,7 +98,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O sistema ajuda Tiago a decidir quais oportunidades merecem análise humana.
 - [ ] O sistema reduz o risco de perda de oportunidades por monitoramento incompleto.
 - [ ] O sistema produz evidências e relatórios utilizáveis na consultoria.
-- [ ] O sistema continua sendo uma ferramenta pessoal, sem necessidade de produto SaaS.
+- [x] O sistema continua sendo uma ferramenta pessoal, sem necessidade de produto SaaS. Evidência: README single-user CLI + PRD single-client + `capability_inventory` + architecture (sem SaaS multi-tenant).
 
 ### 2.2 Escopo incluído
 

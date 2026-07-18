@@ -1,0 +1,10 @@
+{
+  "cycle_id": "cyc-2026-07-18T135012Z",
+  "story_id": "ROI-cand-dyn-slice-8e8eb18e2c5f",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:51:26Z",
+  "dod_flip_authorized": false,
+  "note": "honest PARTIAL inventory"
+}
