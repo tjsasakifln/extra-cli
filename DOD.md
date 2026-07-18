@@ -1453,14 +1453,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Não existem `except Exception: pass`. Evidência: code_organization_gate n_total=0 under scripts/ + QA.
 - [x] Falhas externas possuem contexto. Evidência: swallowed paths now log with exc_info; HTTP classify in source_contract_tests.
 - [ ] Logs não substituem tratamento de erro. PARTIAL — logging added on former silent paths; full rethrow policy not universal.
-- [ ] Configuração é centralizada. PARTIAL — scripts/crawl/config.py + coverage_slas exist; not fully audited this slice.
-- [ ] Constantes de domínio são centralizadas.
-- [ ] URLs de fontes são centralizadas.
+- [x] Configuração é centralizada. Evidência: settings/constants/crawl config/registry layers + centralized_config_audit.
+- [x] Constantes de domínio são centralizadas. Evidência: config/constants.py RetryConfig + audit.
+- [x] URLs de fontes são centralizadas. Evidência: scripts.crawl.registry canonical_url for all sources.
 - [x] Timeouts são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`
 - [x] Retries são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`
 - [x] Janelas de freshness são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/freshness_gate.py`
 - [x] Thresholds de coverage são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `.github/workflows/ci.yml`
-- [ ] Defaults são documentados.
+- [x] Defaults são documentados. Evidência: constants.py docstrings + coverage_slas + DEVELOPMENT.md commands.
 - [x] Mudanças de schema exigem migration. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `supabase/migrations/001-v2_initial_schema.sql`
 - [ ] Mudanças de métrica exigem atualização da definição.
 - [ ] Código legado possui plano de remoção.

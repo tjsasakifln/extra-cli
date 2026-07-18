@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-07-18T16:34:45.868703+00:00",
+  "central_paths": {
+    "domain_constants": {
+      "path": "config/constants.py",
+      "exists": true,
+      "bytes": 5198
+    },
+    "env_settings": {
+      "path": "config/settings.py",
+      "exists": true,
+      "bytes": 7182
+    },
+    "crawl_config": {
+      "path": "scripts/crawl/config.py",
+      "exists": true,
+      "bytes": 10920
+    },
+    "coverage_slas": {
+      "path": "config/coverage_slas.yaml",
+      "exists": true,
+      "bytes": 464
+    },
+    "source_applicability": {
+      "path": "config/source_applicability.yaml",
+      "exists": true,
+      "bytes": 9558
+    },
+    "source_registry": {
+      "path": "scripts/crawl/registry.py",
+      "exists": true,
+      "bytes": 29477
+    },
+    "client_profile": {
+      "path": "config/client_profiles/extra.yaml",
+      "exists": true,
+      "bytes": 8655
+    },
+    "entry_points": {
+      "path": "docs/canonical-entry-points.yaml",
+      "exists": true,
+      "bytes": 1694
+    },
+    "development_guide": {
+      "path": "docs/DEVELOPMENT.md",
+      "exists": true,
+      "bytes": 3697
+    }
+  },
+  "all_central_paths_exist": true,
+  "source_urls_centralized": {
+    "module": "scripts.crawl.registry",
+    "n_sources": 11,
+    "missing_url": [],
+    "ok": true,
+    "sample": {
+      "pncp": "https://pncp.gov.br/api/consulta",
+      "ciga_ckan": "https://dados.ciga.sc.gov.br/api/3/action",
+      "pcp": "https://www.portaldecompraspublicas.com.br/",
+      "compras_gov": "https://www.gov.br/compras/",
+      "sc_compras": "https://www.compras.sc.gov.br/",
+      "contracts": "https://pncp.gov.br/api/consulta/v1/contratos"
+    }
+  },
+  "domain_constants_centralized": {
+    "path": "config/constants.py",
+    "ok": true,
+    "notes": "RetryConfig and crawler timing constants"
+  },
+  "configuration_centralized": {
+    "ok": true,
+    "layers": [
+      "config/settings.py (env)",
+      "config/constants.py (static)",
+      "scripts/crawl/config.py (crawl)",
+      "scripts/crawl/registry.py (sources)"
+    ]
+  },
+  "defaults_documented": {
+    "ok": true,
+    "locations": [
+      "config/constants.py documents RetryConfig defaults (base_delay, max_delay, jitter)",
+      "scripts/crawl/config.py holds crawler timeouts/retries",
+      "config/coverage_slas.yaml holds coverage SLAs"
+    ]
+  },
+  "summary": {
+    "ok": true
+  },
+  "claims": {
+    "allowed": [
+      "Source URLs live in scripts.crawl.registry",
+      "Domain constants live in config/constants.py"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "zero config drift proven"
+    ]
+  }
+}

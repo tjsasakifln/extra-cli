@@ -1,14 +1,14 @@
 {
-  "at": "2026-07-18T16:33:19Z",
+  "at": "2026-07-18T16:34:45Z",
   "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
   "status": "IN_PROGRESS",
   "epic": "epic/advance-30d-local-ready-20260718",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "current_sha": "9c619e85e7f1d4d6382ad78d1244bc98be1f130c",
-  "slices_completed": 44,
+  "current_sha": "89cf65583167ed7a35211c9618aea3a3e256a4bf",
+  "slices_completed": 45,
   "dod": {
-    "checked": 334,
-    "open": 1017,
+    "checked": 338,
+    "open": 1013,
     "baseline_checked": 92
   },
   "metrics": {
@@ -24,7 +24,8 @@
     "section_7_1_complete": true,
     "section_7_2_complete": true,
     "section_13_3_complete": true,
-    "section_32_1_complete": true
+    "section_32_1_complete": true,
+    "silent_except_pass_scripts": 0
   },
   "resume": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
   "forbidden_claims": [
@@ -33,5 +34,5 @@
     "PRE_VPS_FINAL_READY",
     "PROJECT_DONE"
   ],
-  "last_slice": "ROI-cand-dyn-slice-73ed151d3946 no silent except"
+  "last_slice": "ROI-cand-dyn-slice-639a1d23f738 central config"
 }
