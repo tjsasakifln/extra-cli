@@ -2,8 +2,8 @@
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
   "frozen_at": "2026-07-18T20:34:29Z",
-  "frozen_head": "5dc70009a9d27e42bee229302e163249ade07735",
-  "status": "FROZEN_SEED",
+  "frozen_head": "cd193c1b9a9ea254f7bc4050b11310f261448ea6",
+  "status": "FROZEN",
   "pert_critical_path_days": 32.0,
   "target_new_business_days": 30.0,
   "inherited_not_counted_days": 4.5,
@@ -57,7 +57,7 @@
     {
       "id": "N01",
       "name": "Golden path strict green live PNCP+PCP+freshness",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "duration_days": 2.5,
       "predecessors": [
         "R1"
@@ -235,7 +235,7 @@
     {
       "id": "N09",
       "name": "Recall stratified expand gold + SmartLic corpus",
-      "status": "IN_PROGRESS",
+      "status": "BLOCKED_SOURCE",
       "duration_days": 2.0,
       "predecessors": [
         "N01",
@@ -243,11 +243,17 @@
       ],
       "critical": false,
       "terminal_states_allowed": [
-        "DONE",
         "BLOCKED_EXTERNAL",
+        "DONE",
+        "BLOCKED_SOURCE",
         "BLOCKED_HUMAN",
         "NOT_APPLICABLE"
-      ]
+      ],
+      "blocker": {
+        "class": "BLOCKED_SOURCE",
+        "description": "Stratified recall gold sample requires independent portal observation not available as fixture",
+        "evidence": "evidence/N09-recall/recall_benchmark.json status NOT_READY scaffold-only"
+      }
     },
     {
       "id": "N10",
@@ -352,7 +358,7 @@
     {
       "id": "N16",
       "name": "Competitors/values NOT_READY denominators",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.0,
       "predecessors": [
         "N07"
@@ -384,7 +390,7 @@
     {
       "id": "N18",
       "name": "Contracts crawler checkpoint parity (SmartLic patterns)",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.0,
       "predecessors": [
         "R2",
@@ -411,5 +417,5 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T21:32:31Z"
+  "updated_at": "2026-07-18T21:53:40Z"
 }

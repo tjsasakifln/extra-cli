@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "task": "N16",
+  "ts": "2026-07-18T21:43:56Z",
+  "status": "NOT_READY",
+  "denominators": {
+    "universe_200km_entities": 1093,
+    "contracts_rows": 72923,
+    "distinct_suppliers_in_contracts": 30206,
+    "distinct_orgaos_in_contracts": 5651,
+    "contracts_missing_or_zero_value": 849
+  },
+  "metrics": {
+    "competitors_coverage": {
+      "definition": "entities in universe with ≥1 competing supplier observed on contracts for that orgao",
+      "status": "NOT_READY",
+      "reason": "No validated competitor graph per entity with provenance; raw supplier distinct count is not coverage",
+      "raw_suppliers": 30206,
+      "forbidden_claim": "competitor completeness"
+    },
+    "values_coverage": {
+      "definition": "contracts with non-null valor_total / contracts in universe entities",
+      "status": "NOT_READY",
+      "null_or_zero_value_rows": 849,
+      "total_rows": 72923,
+      "pct_nullish": 1.16,
+      "forbidden_claim": "price reference market completeness"
+    }
+  },
+  "claims": {
+    "allowed": [
+      "Denominators for competitors/values declared explicitly",
+      "Status NOT_READY without invented completeness"
+    ],
+    "forbidden": [
+      "competitors ready",
+      "price intelligence complete",
+      "LOCAL_READY"
+    ]
+  }
+}

@@ -2,13 +2,19 @@
   "task": "N15",
   "verdict": "PASS",
   "reviewer": "adversarial-qa-auditor",
-  "ts": "2026-07-18T21:32:31Z",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:53:40Z",
   "checks": [
-    "FINAL-REPORT + next-ranked-backlog produced",
-    "metric lineage final fields",
-    "skeptic notes in limitations"
+    "FINAL-REPORT + final-report.json + next-ranked-backlog + evidence-matrix + qa-final",
+    "pert.json statuses synced with scope",
+    "skeptic gaps from prior close addressed in this reconcile"
   ],
   "concerns": [
-    "N01/N09 residual not terminal for product seals"
+    "Prior close had flag-only PERT inflation — corrected with entity evidence + terminal residuals"
+  ],
+  "evidence_files": [
+    "../FINAL-REPORT.md",
+    "../final-report.json",
+    "../qa-final.json"
   ]
 }

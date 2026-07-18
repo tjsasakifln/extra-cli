@@ -272,6 +272,52 @@ def _configure_checkpoint_dir(ckpt_dir: str | None) -> str:
     return path
 
 
+def _record_contracts_ingestion_run(dsn: str, report: dict[str, Any]) -> None:
+    """Write a completed/failed row for source=contracts (freshness_gate critical)."""
+    import psycopg2
+
+    totals = report.get("totals") or {}
+    status = "completed" if report.get("status") == "success" else (
+        "partial" if report.get("status") == "partial" else "failed"
+    )
+    now = datetime.now(UTC)
+    started = report.get("started_at") or now.isoformat()
+    meta = {
+        "run_id": report.get("run_id"),
+        "pilot_status": report.get("status"),
+        "go_no_go_3y": report.get("go_no_go_3y"),
+        "pages": totals.get("pages"),
+        "windows_ok": totals.get("windows_ok"),
+    }
+    conn = psycopg2.connect(dsn)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO ingestion_runs (
+                    source, started_at, finished_at, records_fetched, records_upserted,
+                    entities_covered, status, error_message, metadata
+                ) VALUES (
+                    'contracts', %s, %s, %s, %s, %s, %s, %s, %s::jsonb
+                )
+                """,
+                (
+                    started,
+                    now,
+                    int(totals.get("fetched") or 0),
+                    int(totals.get("inserted") or 0),
+                    0,
+                    status,
+                    None if status == "completed" else str(report.get("status")),
+                    json.dumps(meta, default=str),
+                ),
+            )
+        conn.commit()
+        logger.info("ingestion_runs contracts status=%s inserted=%s", status, totals.get("inserted"))
+    finally:
+        conn.close()
+
+
 def load_checkpoint(mode: str) -> CrawlCheckpoint:
     return _cc.load_checkpoint(mode)
 
@@ -1315,6 +1361,12 @@ def main() -> int:
             default=str,
         )
     )
+    # Record successful pilot in ingestion_runs so freshness_gate can see contracts.
+    if report.get("status") in {"success", "partial"} and args.dsn and not args.dry_run and not args.seal:
+        try:
+            _record_contracts_ingestion_run(args.dsn, report)
+        except Exception as exc:  # noqa: BLE001 — never mask pilot result
+            print(f"WARN: failed to write ingestion_runs for contracts: {exc}", file=sys.stderr)
     if report["status"] == "success":
         return 0
     if report["status"] == "partial":

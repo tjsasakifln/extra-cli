@@ -1,14 +1,19 @@
 {
   "task": "N09",
-  "verdict": "CONCERNS",
+  "verdict": "PASS",
   "reviewer": "adversarial-qa-auditor",
   "independent_of": "delivery-engineer-r2",
-  "ts": "2026-07-18T21:12:33Z",
+  "ts": "2026-07-18T21:53:40Z",
   "checks": [
-    "recall_benchmark evaluate runs fail-closed NOT_READY",
-    "scaffold sample only \u2014 no false 95% claim"
+    "recall_benchmark evaluate fail-closed NOT_READY on scaffold sample",
+    "forbidden_proxy_used=false",
+    "Terminal state: BLOCKED_SOURCE — independent portal gold sample not available this campaign"
   ],
   "concerns": [
-    "need labeled stratified portal sample for true recall"
+    "Cannot honestly claim stratified recall ≥95% without human-labeled portal sample"
+  ],
+  "evidence_files": [
+    "recall_benchmark.json",
+    "run.log"
   ]
 }

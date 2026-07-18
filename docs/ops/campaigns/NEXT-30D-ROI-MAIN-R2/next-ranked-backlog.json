@@ -1,46 +1,47 @@
 {
-  "generated_at": "2026-07-18T21:32:31Z",
-  "head": "e8d3e9a8d9c806e2920172dd83eabe06744a30b6",
+  "generated_at": "2026-07-18T21:53:40Z",
+  "head": "cd193c1b9a9ea254f7bc4050b11310f261448ea6",
   "ranked": [
     {
       "id": "NB-01",
-      "title": "N01 golden path full green (PNCP retries)",
+      "title": "Single-process golden_path pncp+pcp without timeout",
       "roi": 9.5,
-      "pert_days": 2.0
+      "pert_days": 1.5
     },
     {
       "id": "NB-02",
-      "title": "N06c residual multi-source entity wave to raise 200km coverage",
+      "title": "Populate stratified recall gold sample (human/portal)",
       "roi": 9.0,
-      "pert_days": 5.0
+      "pert_days": 2.0,
+      "blocked": "N09"
     },
     {
       "id": "NB-03",
-      "title": "3y contracts backfill GO path",
-      "roi": 8.5,
+      "title": "Entity coverage scale beyond 25.8% either-source",
+      "roi": 8.8,
       "pert_days": 5.0
     },
     {
       "id": "NB-04",
-      "title": "N09 stratified recall gold sample populate",
-      "roi": 8.0,
-      "pert_days": 2.0
+      "title": "3y contracts GO with multi-window checkpoints",
+      "roi": 8.5,
+      "pert_days": 5.0
     },
     {
       "id": "NB-05",
-      "title": "ciga_ckan operational fix",
+      "title": "Competitor graph per entity with provenance",
       "roi": 7.5,
-      "pert_days": 2.0
+      "pert_days": 3.0
     },
     {
       "id": "NB-06",
-      "title": "SmartLic live snapshot import with real export",
+      "title": "ciga_ckan operational fix",
       "roi": 7.0,
-      "pert_days": 1.5
+      "pert_days": 2.0
     },
     {
       "id": "NB-07",
-      "title": "LOCAL_READY evidence pack only after criteria",
+      "title": "LOCAL_READY evidence pack after criteria only",
       "roi": 6.5,
       "pert_days": 3.0
     }

@@ -1,0 +1,18 @@
+{
+  "task": "N18",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:53:40Z",
+  "checks": [
+    "db_committed→success allowed for page promote",
+    "pytest transition tests pass",
+    "PNCP operational pipeline recovered after fix"
+  ],
+  "concerns": [],
+  "evidence_files": [
+    "pytest.txt",
+    "scripts/crawl/resilience/stages.py",
+    "scripts/crawl/resilience/pipeline.py"
+  ]
+}

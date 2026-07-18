@@ -1,0 +1,21 @@
+{
+  "source": "pncp_contracts",
+  "mode": "full",
+  "completed_windows": [
+    "20260717_20260718"
+  ],
+  "current_window_start": "20260717",
+  "total_contracts_fetched": 6277,
+  "total_windows_completed": 1,
+  "total_windows_failed": 0,
+  "last_error": null,
+  "updated_at": "2026-07-18T21:47:42Z",
+  "meta": {
+    "run_id": "contracts-90d-20260718T214655Z-af8cfc7eaa",
+    "run_ids": [
+      "contracts-90d-20260718T214655Z-af8cfc7eaa"
+    ],
+    "previous_run_ids": [],
+    "foreign_resume": false
+  }
+}

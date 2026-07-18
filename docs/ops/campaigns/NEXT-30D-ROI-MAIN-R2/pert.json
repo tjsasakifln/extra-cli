@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "generated_at": "2026-07-18T20:34:29Z",
+  "generated_at": "2026-07-18T21:53:40Z",
   "kind": "r2_recalculated_from_main",
-  "baseline_head": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+  "baseline_head": "cd193c1b9a9ea254f7bc4050b11310f261448ea6",
   "project_ef": 32.0,
   "critical_path_length_days": 32.0,
   "critical_path": [
@@ -26,7 +26,7 @@
       "name": "R2 bootstrap recovery + lineage freeze",
       "duration": 0.5,
       "preds": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "es": 0.0,
       "ef": 0.5,
       "ls": 0.0,
@@ -41,7 +41,7 @@
       "preds": [
         "R0"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 0.5,
       "ef": 1.5,
       "ls": 0.5,
@@ -56,7 +56,7 @@
       "preds": [
         "R0"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 0.5,
       "ef": 2.5,
       "ls": 21.5,
@@ -71,7 +71,7 @@
       "preds": [
         "R1"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 1.5,
       "ef": 4.0,
       "ls": 3.5,
@@ -86,7 +86,7 @@
       "preds": [
         "R1"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 1.5,
       "ef": 3.5,
       "ls": 1.5,
@@ -101,7 +101,7 @@
       "preds": [
         "R1"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 1.5,
       "ef": 3.0,
       "ls": 25.5,
@@ -116,7 +116,7 @@
       "preds": [
         "N02"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 3.5,
       "ef": 6.0,
       "ls": 3.5,
@@ -132,7 +132,7 @@
         "N01",
         "N04"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 6.0,
       "ef": 9.5,
       "ls": 6.0,
@@ -147,7 +147,7 @@
       "preds": [
         "N05"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 9.5,
       "ef": 13.0,
       "ls": 9.5,
@@ -162,7 +162,7 @@
       "preds": [
         "N06"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 13.0,
       "ef": 16.0,
       "ls": 13.0,
@@ -177,7 +177,7 @@
       "preds": [
         "N06b"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 16.0,
       "ef": 24.5,
       "ls": 16.0,
@@ -193,7 +193,7 @@
         "N04",
         "R2"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 6.0,
       "ef": 9.0,
       "ls": 23.5,
@@ -208,7 +208,7 @@
       "preds": [
         "N07"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 9.0,
       "ef": 11.0,
       "ls": 26.5,
@@ -223,7 +223,7 @@
       "preds": [
         "N05"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 9.5,
       "ef": 11.5,
       "ls": 22.5,
@@ -239,7 +239,7 @@
         "N01",
         "R2"
       ],
-      "status": "PLANNED",
+      "status": "BLOCKED_SOURCE",
       "es": 4.0,
       "ef": 6.0,
       "ls": 30.0,
@@ -255,7 +255,7 @@
         "N02",
         "N03"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 3.5,
       "ef": 5.0,
       "ls": 27.0,
@@ -271,7 +271,7 @@
         "N06c",
         "N08"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 24.5,
       "ef": 27.0,
       "ls": 24.5,
@@ -286,7 +286,7 @@
       "preds": [
         "N11"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 27.0,
       "ef": 28.5,
       "ls": 27.0,
@@ -301,7 +301,7 @@
       "preds": [
         "N05"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 9.5,
       "ef": 11.0,
       "ls": 30.5,
@@ -318,7 +318,7 @@
         "N10",
         "N07b"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 28.5,
       "ef": 31.0,
       "ls": 28.5,
@@ -333,7 +333,7 @@
       "preds": [
         "N14"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 31.0,
       "ef": 32.0,
       "ls": 31.0,
@@ -348,7 +348,7 @@
       "preds": [
         "N07"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 9.0,
       "ef": 11.0,
       "ls": 30.0,
@@ -363,7 +363,7 @@
       "preds": [
         "N01"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 4.0,
       "ef": 5.0,
       "ls": 31.0,
@@ -379,7 +379,7 @@
         "R2",
         "N07"
       ],
-      "status": "PLANNED",
+      "status": "DONE",
       "es": 9.0,
       "ef": 11.0,
       "ls": 30.0,
@@ -387,5 +387,6 @@
       "slack": 21.0,
       "critical": false
     }
-  ]
+  ],
+  "critical_days_done": 32.0
 }

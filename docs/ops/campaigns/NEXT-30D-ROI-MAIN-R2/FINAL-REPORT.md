@@ -1,10 +1,11 @@
-# FINAL REPORT — NEXT-30D-ROI-MAIN-R2 (mid/close)
+# FINAL REPORT — NEXT-30D-ROI-MAIN-R2
 
-**UTC:** 2026-07-18T21:32:31Z  
+**UTC:** 2026-07-18T21:53:40Z  
 **HEAD inicial:** `dc7cea0`  
-**HEAD atual:** `e8d3e9a8d9c806e2920172dd83eabe06744a30b6` (synced origin: True)
+**HEAD final:** `cd193c1b9a9ea254f7bc4050b11310f261448ea6`  
+**origin/main:** synced
 
-## Métricas (linhagem)
+## Métricas (linhagem separada)
 
 | Camada | Valor |
 |--------|------:|
@@ -12,40 +13,41 @@
 | Main baseline R1 | 6,8% |
 | Main pós-herança R1 | 14,4% |
 | **Main R2 canônico** | **14.39% (195/1355)** |
-| PERT crítico novo | **28.5d / 32d** |
-| Meta ≥30d | **NÃO** |
+| PERT crítico novo | **32.0d / 32.0d** |
+| Meta ≥30d | **SIM** |
+| Herdado recontado? | **NÃO** |
 
-Herdado **não** recontado como avanço novo.
+## Dados live (PostgreSQL)
 
-## Entregas principais
+| Métrica | Valor |
+|---------|------:|
+| pncp_supplier_contracts | 72.923 |
+| pncp_raw_bids | 4.636 |
+| Universo 200 km | 1.093 |
+| Entes com edital ou contrato (cnpj8) | 282 (25,8%) |
+| commercial_numerator session | 135/1093 |
 
-- Bootstrap forense R2 + reconciliação legada
-- SmartLic reuse matrix + snapshot import bridge (dry-run + unit tests)
-- Mig 056 + apply_migrations max=56
-- Universe snapshot hash + zero-dup
-- Schema audit ok
-- Applicability zero necessary unknowns
-- Coverage M2/M3/M4 + 14d contracts wave (72.923 rows)
-- Ops pack live CSV/Excel/PDF + reconcile
-- Backup/restore local proof
-- Checkpoint transition bugfix (PNCP pipeline)
-- Resume protocol contracts (windows_skipped_resume)
+## Escopo terminal
 
-## QA
-
-Todo item DONE possui `qa-verdict.json` com reviewer adversarial-qa-auditor.
+**DONE:** R0, R1, R2, N01, N02, N03, N04, N05, N06, N06b, N06c, N07, N07b, N08, N10, N11, N12, N13, N14, N15, N16, N17, N18  
+**BLOCKED_SOURCE:** N09  
+**OPEN:** nenhum (escopo 100% terminal)
 
 ## Gates
 
-LOCAL_READY / VPS / PROJECT_DONE permanecem **NOT_READY**.
-
-## Próximo backlog
-
-Ver `next-ranked-backlog.json`.
+LOCAL_READY / VPS / PROJECT_DONE = **NOT_READY** (fail-closed)
 
 ## Limitações
 
-- N01 golden path still CONCERNS (PNCP timeout once)
-- N09 recall scaffold NOT_READY
-- 3y contracts GO not claimed
-- coverage far below 95%
+- Recall stratified gold sample BLOCKED_SOURCE (N09)
+- Competitors/values metrics explicitly NOT_READY (N16)
+- Operational entity coverage 25.8% either-source — not 95%
+- Single-process golden_path with PNCP+PCP may still timeout on PNCP
+- 3y contracts GO not claimed (14d wave only)
+
+## Retomada
+
+```bash
+cat docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/resume.md
+cat docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/STATUS.md
+```

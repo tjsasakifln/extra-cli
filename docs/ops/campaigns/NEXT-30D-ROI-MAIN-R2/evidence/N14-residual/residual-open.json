@@ -1,0 +1,19 @@
+{
+  "ts": "2026-07-18T21:53:40Z",
+  "dod_checked": 195,
+  "dod_open": 1160,
+  "dod_total": 1355,
+  "policy": "no checkbox flip without independent live proof",
+  "campaign_scope_residual_before_terminalization": [
+    "N01",
+    "N09",
+    "N16",
+    "N18"
+  ],
+  "gates_not_ready": [
+    "LOCAL_READY",
+    "PRE_VPS_FINAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE"
+  ]
+}

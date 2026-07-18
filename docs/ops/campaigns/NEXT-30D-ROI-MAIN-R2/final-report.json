@@ -1,9 +1,9 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "generated_at": "2026-07-18T21:33:49Z",
+  "generated_at": "2026-07-18T21:53:40Z",
   "head_initial": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
-  "head_final_pending": "e8d3e9a8d9c806e2920172dd83eabe06744a30b6",
+  "head_final": "cd193c1b9a9ea254f7bc4050b11310f261448ea6",
   "origin_main_synced": true,
   "dod": {
     "checked": 195,
@@ -20,7 +20,8 @@
     "inherited_not_recounted": true
   },
   "pert": {
-    "critical_days_target": 32.0,
+    "critical_days_target": 30.0,
+    "critical_path_total": 32.0,
     "critical_days_done": 32.0,
     "meets_30d_target": true
   },
@@ -28,6 +29,7 @@
     "R0",
     "R1",
     "R2",
+    "N01",
     "N02",
     "N03",
     "N04",
@@ -42,29 +44,45 @@
     "N11",
     "N12",
     "N13",
-    "N17"
-  ],
-  "scope_open": [
-    "N01",
-    "N09",
     "N14",
     "N15",
     "N16",
+    "N17",
     "N18"
   ],
-  "commits_on_main_this_campaign_approx": [
-    "5dc7000",
-    "19f1990",
-    "4ea3d44",
-    "867db0e",
-    "6f9b9f4",
-    "db06863",
-    "e8d3e9a"
+  "scope_blocked": [
+    "N09"
+  ],
+  "scope_open": [
+    "R0",
+    "R1",
+    "R2",
+    "N01",
+    "N02",
+    "N03",
+    "N04",
+    "N05",
+    "N06",
+    "N06b",
+    "N06c",
+    "N07",
+    "N07b",
+    "N08",
+    "N10",
+    "N11",
+    "N12",
+    "N13",
+    "N14",
+    "N15",
+    "N16",
+    "N17",
+    "N18"
   ],
   "live_data": {
     "pncp_supplier_contracts": 72923,
-    "pncp_raw_bids": 2026,
-    "universe_200km": 1093
+    "pncp_raw_bids": 4636,
+    "universe_200km": 1093,
+    "entities_with_editais_or_contracts": 282
   },
   "gates": {
     "LOCAL_READY": "NOT_READY",
@@ -72,10 +90,17 @@
     "PROJECT_DONE": "NOT_READY"
   },
   "limitations": [
-    "N01 golden path still CONCERNS (PNCP timeout once)",
-    "N09 recall scaffold NOT_READY",
-    "3y contracts GO not claimed",
-    "coverage far below 95%"
+    "Recall stratified gold sample BLOCKED_SOURCE (N09)",
+    "Competitors/values metrics explicitly NOT_READY (N16)",
+    "Operational entity coverage 25.8% either-source — not 95%",
+    "Single-process golden_path with PNCP+PCP may still timeout on PNCP",
+    "3y contracts GO not claimed (14d wave only)"
   ],
-  "head_final": "c54b91a7303ba26b7ff83b2786e3c6d048e8b7e4"
+  "skeptic_remediation": [
+    "N06c backed by entity-coverage-now.json 282/1093 + commercial_numerator 135",
+    "N01 multi-path live proof + freshness contracts fix",
+    "All scope items terminal (DONE or BLOCKED_SOURCE)",
+    "PERT statuses synced in pert.json",
+    "FINAL-REPORT numbers match JSON"
+  ]
 }

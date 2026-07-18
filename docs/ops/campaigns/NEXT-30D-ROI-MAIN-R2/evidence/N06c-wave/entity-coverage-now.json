@@ -1,0 +1,13 @@
+{
+  "ts": "2026-07-18T21:39:12Z",
+  "universe_200km": 1093,
+  "entities_with_editais": 174,
+  "entities_with_contracts": 247,
+  "entities_with_either": 282,
+  "pct_either": 25.8,
+  "rows": {
+    "bids": 4636,
+    "contracts": 72923,
+    "engineering_opportunities": 1883
+  }
+}

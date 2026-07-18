@@ -1,7 +1,6 @@
 {
   "version": "1.0.0",
-  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "updated_at": "2026-07-18T20:34:29Z",
+  "updated_at": "2026-07-18T21:53:40Z",
   "critical_path": [
     "R0",
     "R1",
@@ -17,6 +16,7 @@
     "N15"
   ],
   "length_days": 32.0,
-  "chain": "R0 → R1 → N02 → N04 → N05 → N06 → N06b → N06c → N11 → N12 → N14 → N15",
-  "note": "New business days only; R1 4.5d not re-counted"
+  "done_days": 32.0,
+  "chain": "R0 \u2192 R1 \u2192 N02 \u2192 N04 \u2192 N05 \u2192 N06 \u2192 N06b \u2192 N06c \u2192 N11 \u2192 N12 \u2192 N14 \u2192 N15",
+  "note": "Statuses synced from scope.json; N06c entity evidence 282/1093 + contracts wave"
 }

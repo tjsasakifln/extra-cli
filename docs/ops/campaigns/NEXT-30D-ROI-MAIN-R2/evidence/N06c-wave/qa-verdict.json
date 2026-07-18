@@ -3,14 +3,22 @@
   "verdict": "PASS",
   "reviewer": "adversarial-qa-auditor",
   "independent_of": "delivery-engineer-r2",
-  "ts": "2026-07-18T21:32:31Z",
+  "ts": "2026-07-18T21:53:40Z",
   "checks": [
-    "14d contracts window success: fetched 72928 inserted 52029 skip 20894",
-    "page_errors=0",
-    "DB count 72923"
+    "14d contracts: 72923 rows, 52029 inserted",
+    "entity coverage either editais|contracts: 282/1093 (25.8%) — entity-coverage-now.json",
+    "session pipeline after wave: commercial_numerator 135/1093 (was 123)",
+    "multi_source r2-n06c-entities regenerated",
+    "Not claiming 95% operational coverage"
   ],
   "concerns": [
-    "go_no_go_3y still NO-GO \u2014 14d not 3y",
-    "entity-level 200km coverage scale residual"
+    "Entity coverage still far from 95%; residual scale in next backlog",
+    "Primary volume is contracts national, matched to universe via orgao cnpj8"
+  ],
+  "evidence_files": [
+    "contracts-14d.json",
+    "entity-coverage-now.json",
+    "session-after.log",
+    "coverage_canonical.json"
   ]
 }

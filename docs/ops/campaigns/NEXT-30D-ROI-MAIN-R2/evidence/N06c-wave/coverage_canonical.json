@@ -1,0 +1,1323 @@
+{
+  "generated_at": "2026-07-18T21:43:46.423451+00:00",
+  "as_of": "2026-07-18",
+  "git_branch": "epic/coverage-200km-operational",
+  "methodology": {
+    "denominator": 1093,
+    "denominator_definition": "sc_public_entities is_active AND raio_200km",
+    "do_not_change_denominator": true,
+    "baseline_numerator": 52,
+    "baseline_pct": 4.76,
+    "headline_metric": "entities_with_recent_commercial_signal",
+    "headline_metric_legacy_alias": "commercial_opportunity_any",
+    "headline_is_coverage": false,
+    "headline_definition": "entities_with_recent_commercial_signal: entities with ≥1 OPEN/UPCOMING/RECENT opportunity matched to universe — NOT a coverage metric; not RESULT/CONTRACT/generic acts. Legacy alias: commercial_opportunity_any."
+  },
+  "coverage_update": {
+    "upserts": 193,
+    "entities_sources": 193,
+    "inserted_hint": 0
+  },
+  "source_stats": {
+    "ciga_dom": {
+      "records": 37621,
+      "matched": 7062,
+      "coverage_eligible": 1559
+    },
+    "sc_compras": {
+      "records": 2602,
+      "matched": 289,
+      "coverage_eligible": 34
+    },
+    "pncp_sc": {
+      "records": 541,
+      "coverage_eligible": 197,
+      "matched": 220
+    }
+  },
+  "artifacts": {
+    "ciga_dom": "/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260718T211324Z-2c05d7be3f/publications.jsonl",
+    "sc_compras": "/mnt/d/extra consultoria/output/sc_compras/sc_compras-full-enriched-20260717/licitacoes.jsonl",
+    "pncp_sc": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T110800Z-9d6dd91153/contratacoes.jsonl"
+  },
+  "metrics": [
+    {
+      "name": "historical_editais_raw_coverage_baseline",
+      "numerator": 0,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 0.0,
+      "formula": "baseline preserved 52/1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": []
+    },
+    {
+      "name": "historical_editais_raw_coverage_baseline",
+      "numerator": 52,
+      "denominator": 1093,
+      "result_pct": 4.76,
+      "formula": "entities_with_bids / total_entities_within_200km * 100 (pre-session)",
+      "as_of": "2026-07-18",
+      "preserved": true
+    },
+    {
+      "name": "entity_coverage_db_is_covered",
+      "numerator": 139,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 12.72,
+      "formula": "COUNT DISTINCT entity_id WHERE is_covered on raio_200km / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        3,
+        12,
+        13,
+        16,
+        21,
+        24,
+        27,
+        29,
+        34,
+        37,
+        43,
+        48,
+        56,
+        60,
+        65,
+        71,
+        80,
+        81,
+        82,
+        96,
+        100,
+        106,
+        110,
+        115,
+        119,
+        120,
+        127,
+        129,
+        132,
+        133,
+        139,
+        145,
+        151,
+        154,
+        168,
+        171,
+        176,
+        179,
+        187,
+        193,
+        200,
+        204,
+        206,
+        210,
+        220,
+        225,
+        229,
+        231,
+        233,
+        237
+      ]
+    },
+    {
+      "name": "session_matched_any_procurement",
+      "numerator": 144,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 13.17,
+      "formula": "entities matched from session artifacts with procurement evidence / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        3,
+        12,
+        13,
+        16,
+        21,
+        27,
+        29,
+        34,
+        37,
+        43,
+        48,
+        56,
+        60,
+        65,
+        71,
+        81,
+        82,
+        96,
+        100,
+        106,
+        110,
+        115,
+        119,
+        120,
+        127,
+        129,
+        132,
+        133,
+        139,
+        145,
+        151,
+        154,
+        168,
+        171,
+        179,
+        187,
+        193,
+        200,
+        204,
+        206,
+        210,
+        220,
+        225,
+        229,
+        231,
+        233,
+        237,
+        238,
+        248,
+        252
+      ]
+    },
+    {
+      "name": "canonical_combined_post_session",
+      "numerator": 148,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 13.54,
+      "formula": "union(db is_covered, session matched procurement) / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        3,
+        12,
+        13,
+        16,
+        21,
+        24,
+        27,
+        29,
+        34,
+        37,
+        43,
+        48,
+        56,
+        60,
+        65,
+        71,
+        80,
+        81,
+        82,
+        96,
+        100,
+        106,
+        110,
+        115,
+        119,
+        120,
+        127,
+        129,
+        132,
+        133,
+        139,
+        145,
+        151,
+        154,
+        168,
+        171,
+        176,
+        179,
+        187,
+        193,
+        200,
+        204,
+        206,
+        210,
+        220,
+        225,
+        229,
+        231,
+        233,
+        237
+      ]
+    },
+    {
+      "name": "entities_with_recent_commercial_signal",
+      "numerator": 135,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 12.35,
+      "formula": "entities with ≥1 OPEN/UPCOMING/RECENT matched opportunity / 1093 (commercial signal — NOT coverage)",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        3,
+        12,
+        13,
+        16,
+        21,
+        27,
+        29,
+        34,
+        37,
+        43,
+        48,
+        56,
+        60,
+        65,
+        71,
+        81,
+        82,
+        96,
+        100,
+        106,
+        110,
+        115,
+        119,
+        120,
+        127,
+        129,
+        132,
+        133,
+        139,
+        145,
+        151,
+        154,
+        168,
+        171,
+        179,
+        187,
+        193,
+        200,
+        204,
+        206,
+        210,
+        220,
+        225,
+        229,
+        231,
+        233,
+        237,
+        238,
+        248,
+        252
+      ],
+      "entity_ids_full_count": 135
+    },
+    {
+      "name": "commercial_opportunity_any",
+      "numerator": 135,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 12.35,
+      "formula": "LEGACY ALIAS of entities_with_recent_commercial_signal — NOT coverage",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        3,
+        12,
+        13,
+        16,
+        21,
+        27,
+        29,
+        34,
+        37,
+        43,
+        48,
+        56,
+        60,
+        65,
+        71,
+        81,
+        82,
+        96,
+        100,
+        106,
+        110,
+        115,
+        119,
+        120,
+        127,
+        129,
+        132,
+        133,
+        139,
+        145,
+        151,
+        154,
+        168,
+        171,
+        179,
+        187,
+        193,
+        200,
+        204,
+        206,
+        210,
+        220,
+        225,
+        229,
+        231,
+        233,
+        237,
+        238,
+        248,
+        252
+      ],
+      "alias_of": "entities_with_recent_commercial_signal",
+      "is_coverage_metric": false,
+      "kind": "commercial_signal",
+      "entity_ids_full_count": 135
+    },
+    {
+      "name": "opportunity_published_30d",
+      "numerator": 135,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 12.35,
+      "formula": "entities with opportunity published last 30d / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        3,
+        12,
+        13,
+        16,
+        21,
+        27,
+        29,
+        34,
+        37,
+        43,
+        48,
+        56,
+        60,
+        65,
+        71,
+        81,
+        82,
+        96,
+        100,
+        106,
+        110,
+        115,
+        119,
+        120,
+        127,
+        129,
+        132,
+        133,
+        139,
+        145,
+        151,
+        154,
+        168,
+        171,
+        179,
+        187,
+        193,
+        200,
+        204,
+        206,
+        210,
+        220,
+        225,
+        229,
+        231,
+        233,
+        237,
+        238,
+        248,
+        252
+      ]
+    },
+    {
+      "name": "opportunity_published_90d",
+      "numerator": 135,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 12.35,
+      "formula": "entities with opportunity published last 90d / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        3,
+        12,
+        13,
+        16,
+        21,
+        27,
+        29,
+        34,
+        37,
+        43,
+        48,
+        56,
+        60,
+        65,
+        71,
+        81,
+        82,
+        96,
+        100,
+        106,
+        110,
+        115,
+        119,
+        120,
+        127,
+        129,
+        132,
+        133,
+        139,
+        145,
+        151,
+        154,
+        168,
+        171,
+        179,
+        187,
+        193,
+        200,
+        204,
+        206,
+        210,
+        220,
+        225,
+        229,
+        231,
+        233,
+        237,
+        238,
+        248,
+        252
+      ]
+    },
+    {
+      "name": "open_opportunity",
+      "numerator": 75,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 6.86,
+      "formula": "entities with OPEN_OPPORTUNITY / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        16,
+        43,
+        48,
+        71,
+        81,
+        82,
+        100,
+        110,
+        119,
+        132,
+        139,
+        145,
+        168,
+        171,
+        179,
+        187,
+        193,
+        204,
+        206,
+        210,
+        220,
+        225,
+        233,
+        237,
+        261,
+        269,
+        275,
+        281,
+        294,
+        303,
+        311,
+        318,
+        329,
+        347,
+        352,
+        362,
+        369,
+        383,
+        407,
+        410,
+        417,
+        424,
+        452,
+        454,
+        465,
+        480,
+        492,
+        507,
+        514,
+        534
+      ]
+    },
+    {
+      "name": "engineering_relevant",
+      "numerator": 72,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 6.59,
+      "formula": "entities with sector_match engineering / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        12,
+        13,
+        16,
+        21,
+        27,
+        29,
+        34,
+        37,
+        43,
+        56,
+        60,
+        82,
+        96,
+        100,
+        110,
+        115,
+        119,
+        132,
+        139,
+        151,
+        154,
+        171,
+        187,
+        204,
+        210,
+        220,
+        225,
+        233,
+        237,
+        248,
+        269,
+        275,
+        287,
+        294,
+        306,
+        311,
+        318,
+        329,
+        334,
+        342,
+        347,
+        352,
+        358,
+        362,
+        369,
+        372,
+        383,
+        393,
+        410,
+        411
+      ]
+    },
+    {
+      "name": "open_engineering",
+      "numerator": 13,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 1.19,
+      "formula": "entities with open engineering opportunity / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        100,
+        210,
+        225,
+        233,
+        275,
+        352,
+        465,
+        492,
+        534,
+        812,
+        854,
+        888,
+        915
+      ]
+    },
+    {
+      "name": "with_document_url",
+      "numerator": 132,
+      "denominator": 1093,
+      "denominator_live": 1093,
+      "result_pct": 12.08,
+      "formula": "covered entities that have at least one source URL / 1093",
+      "as_of": "2026-07-18",
+      "entity_ids_sample": [
+        3,
+        12,
+        13,
+        16,
+        21,
+        27,
+        29,
+        34,
+        37,
+        43,
+        56,
+        60,
+        65,
+        71,
+        81,
+        82,
+        96,
+        100,
+        106,
+        110,
+        115,
+        119,
+        120,
+        127,
+        129,
+        132,
+        133,
+        139,
+        145,
+        151,
+        154,
+        168,
+        171,
+        179,
+        187,
+        193,
+        200,
+        204,
+        206,
+        210,
+        220,
+        225,
+        229,
+        231,
+        233,
+        237,
+        238,
+        248,
+        252,
+        256
+      ]
+    }
+  ],
+  "new_entities_vs_db": {
+    "count": 9,
+    "entity_ids": [
+      446,
+      515,
+      516,
+      570,
+      574,
+      657,
+      737,
+      831,
+      841
+    ],
+    "by_source": {
+      "sc_compras": 5,
+      "pncp_sc": 4
+    }
+  },
+  "combined_numerator": 148,
+  "commercial_numerator": 135,
+  "commercial_entity_ids": [
+    3,
+    12,
+    13,
+    16,
+    21,
+    27,
+    29,
+    34,
+    37,
+    43,
+    48,
+    56,
+    60,
+    65,
+    71,
+    81,
+    82,
+    96,
+    100,
+    106,
+    110,
+    115,
+    119,
+    120,
+    127,
+    129,
+    132,
+    133,
+    139,
+    145,
+    151,
+    154,
+    168,
+    171,
+    179,
+    187,
+    193,
+    200,
+    204,
+    206,
+    210,
+    220,
+    225,
+    229,
+    231,
+    233,
+    237,
+    238,
+    248,
+    252,
+    256,
+    261,
+    269,
+    275,
+    279,
+    281,
+    282,
+    287,
+    294,
+    299,
+    303,
+    306,
+    311,
+    315,
+    318,
+    325,
+    329,
+    334,
+    342,
+    347,
+    352,
+    358,
+    362,
+    369,
+    372,
+    376,
+    378,
+    383,
+    388,
+    393,
+    404,
+    407,
+    408,
+    410,
+    411,
+    413,
+    417,
+    424,
+    452,
+    454,
+    458,
+    461,
+    465,
+    470,
+    472,
+    475,
+    480,
+    484,
+    492,
+    498,
+    507,
+    514,
+    523,
+    524,
+    530,
+    534,
+    538,
+    543,
+    546,
+    549,
+    556,
+    571,
+    584,
+    620,
+    636,
+    802,
+    812,
+    854,
+    861,
+    862,
+    873,
+    878,
+    888,
+    903,
+    906,
+    914,
+    915,
+    916,
+    981,
+    984,
+    985,
+    990,
+    991,
+    1008,
+    1085
+  ],
+  "commercial_source_contribution": {
+    "556": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "233": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "383": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "139": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "294": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "82": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "129": [
+      "ciga_dom"
+    ],
+    "145": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "16": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "132": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "362": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "465": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "347": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "220": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "352": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "372": [
+      "ciga_dom"
+    ],
+    "311": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "393": [
+      "ciga_dom"
+    ],
+    "100": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "410": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "369": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "318": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "115": [
+      "ciga_dom"
+    ],
+    "523": [
+      "ciga_dom"
+    ],
+    "43": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "56": [
+      "ciga_dom"
+    ],
+    "204": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "119": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "315": [
+      "ciga_dom"
+    ],
+    "110": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "538": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "29": [
+      "ciga_dom"
+    ],
+    "27": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "71": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "248": [
+      "ciga_dom"
+    ],
+    "269": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "281": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "358": [
+      "ciga_dom"
+    ],
+    "34": [
+      "ciga_dom"
+    ],
+    "238": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "342": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "256": [
+      "ciga_dom"
+    ],
+    "306": [
+      "ciga_dom"
+    ],
+    "376": [
+      "ciga_dom"
+    ],
+    "171": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "3": [
+      "ciga_dom"
+    ],
+    "475": [
+      "ciga_dom"
+    ],
+    "492": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "413": [
+      "ciga_dom"
+    ],
+    "549": [
+      "ciga_dom"
+    ],
+    "120": [
+      "ciga_dom"
+    ],
+    "461": [
+      "ciga_dom"
+    ],
+    "231": [
+      "ciga_dom"
+    ],
+    "12": [
+      "ciga_dom"
+    ],
+    "530": [
+      "ciga_dom"
+    ],
+    "334": [
+      "ciga_dom"
+    ],
+    "154": [
+      "ciga_dom"
+    ],
+    "96": [
+      "ciga_dom"
+    ],
+    "252": [
+      "ciga_dom"
+    ],
+    "210": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "329": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "65": [
+      "ciga_dom"
+    ],
+    "287": [
+      "ciga_dom"
+    ],
+    "37": [
+      "ciga_dom"
+    ],
+    "193": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "187": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "237": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "200": [
+      "ciga_dom"
+    ],
+    "299": [
+      "ciga_dom"
+    ],
+    "546": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "261": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "225": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "325": [
+      "ciga_dom"
+    ],
+    "21": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "275": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "408": [
+      "ciga_dom"
+    ],
+    "106": [
+      "ciga_dom"
+    ],
+    "279": [
+      "ciga_dom"
+    ],
+    "60": [
+      "ciga_dom"
+    ],
+    "454": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "411": [
+      "ciga_dom"
+    ],
+    "378": [
+      "ciga_dom"
+    ],
+    "470": [
+      "ciga_dom"
+    ],
+    "229": [
+      "ciga_dom"
+    ],
+    "133": [
+      "ciga_dom"
+    ],
+    "404": [
+      "ciga_dom"
+    ],
+    "388": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "543": [
+      "ciga_dom"
+    ],
+    "407": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "151": [
+      "ciga_dom"
+    ],
+    "484": [
+      "ciga_dom"
+    ],
+    "458": [
+      "ciga_dom"
+    ],
+    "507": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "524": [
+      "ciga_dom"
+    ],
+    "498": [
+      "ciga_dom"
+    ],
+    "480": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "282": [
+      "ciga_dom"
+    ],
+    "127": [
+      "ciga_dom"
+    ],
+    "206": [
+      "ciga_dom",
+      "pncp_sc"
+    ],
+    "13": [
+      "ciga_dom"
+    ],
+    "472": [
+      "ciga_dom"
+    ],
+    "812": [
+      "sc_compras"
+    ],
+    "802": [
+      "sc_compras"
+    ],
+    "888": [
+      "pncp_sc",
+      "sc_compras"
+    ],
+    "571": [
+      "sc_compras"
+    ],
+    "991": [
+      "pncp_sc"
+    ],
+    "903": [
+      "pncp_sc"
+    ],
+    "981": [
+      "pncp_sc"
+    ],
+    "452": [
+      "pncp_sc"
+    ],
+    "620": [
+      "pncp_sc"
+    ],
+    "636": [
+      "pncp_sc"
+    ],
+    "514": [
+      "pncp_sc"
+    ],
+    "584": [
+      "pncp_sc"
+    ],
+    "854": [
+      "pncp_sc"
+    ],
+    "984": [
+      "pncp_sc"
+    ],
+    "534": [
+      "pncp_sc"
+    ],
+    "417": [
+      "pncp_sc"
+    ],
+    "179": [
+      "pncp_sc"
+    ],
+    "1008": [
+      "pncp_sc"
+    ],
+    "916": [
+      "pncp_sc"
+    ],
+    "1085": [
+      "pncp_sc"
+    ],
+    "906": [
+      "pncp_sc"
+    ],
+    "424": [
+      "pncp_sc"
+    ],
+    "168": [
+      "pncp_sc"
+    ],
+    "48": [
+      "pncp_sc"
+    ],
+    "990": [
+      "pncp_sc"
+    ],
+    "873": [
+      "pncp_sc"
+    ],
+    "914": [
+      "pncp_sc"
+    ],
+    "915": [
+      "pncp_sc"
+    ],
+    "861": [
+      "pncp_sc"
+    ],
+    "81": [
+      "pncp_sc"
+    ],
+    "985": [
+      "pncp_sc"
+    ],
+    "303": [
+      "pncp_sc"
+    ],
+    "862": [
+      "pncp_sc"
+    ],
+    "878": [
+      "pncp_sc"
+    ]
+  },
+  "entities_covered_file_count": 135,
+  "denominator": 1093,
+  "result_pct": 12.35,
+  "loose_combined_pct": 13.54,
+  "covered_count": 135,
+  "uncovered_count": 958,
+  "list_identity_ok": true
+}

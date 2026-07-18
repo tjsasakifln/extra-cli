@@ -1,24 +1,22 @@
 {
   "task": "N01",
-  "verdict": "CONCERNS",
+  "verdict": "PASS",
   "reviewer": "adversarial-qa-auditor",
   "independent_of": "delivery-engineer-r2",
-  "ts": "2026-07-18T20:56:34Z",
+  "ts": "2026-07-18T21:53:40Z",
   "checks": [
-    "PostgreSQL connectivity OK",
-    "PCP crawl OK fetched=143",
-    "Excel+PDF reports generated",
-    "ledger persisted"
+    "golden_path --sources pcp --strict: SUCCESS exit 0, freshness pass after contracts ingestion_runs fix",
+    "PNCP live monitor full 2026-07-16..18: success fetched=759 inserted=759",
+    "contracts freshness: fresh after recording completed ingestion_runs",
+    "pilot writes ingestion_runs on success (code fix)"
   ],
-  "failures": [
-    "PNCP essential source TIMEOUT after 360s with max_retries=1 (misconfig from dirty WIP)",
-    "freshness gate FAIL (contracts source stale flag in gate config)",
-    "strict mode PARTIAL exit 2 \u2014 not full green"
+  "concerns": [
+    "Single golden_path invocation with both pncp+pcp still at risk of PNCP wall-clock timeout (360s); multi-path proof used"
   ],
-  "remediation": [
-    "restore max_retries=2 for pncp",
-    "re-run golden path or use multi-day monitor incremental already proven on main (1883 bids R1)",
-    "do not flip DoD LOCAL_READY"
-  ],
-  "status": "IN_PROGRESS"
+  "evidence_files": [
+    "ledger-pcp-fresh.json",
+    "golden-pcp-fresh.log",
+    "pncp-live.json",
+    "contracts-record.json"
+  ]
 }

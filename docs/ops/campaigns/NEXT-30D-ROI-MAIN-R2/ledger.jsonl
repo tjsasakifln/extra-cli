@@ -31,3 +31,9 @@
 {"ts": "2026-07-18T21:32:31Z", "event": "N15_DONE", "qa": "PASS"}
 {"ts": "2026-07-18T21:32:31Z", "event": "CAMPAIGN_SCOPE_NEAR_COMPLETE", "critical_days": 28.5}
 {"ts": "2026-07-18T21:33:49Z", "event": "PERT_RECONCILE", "critical_days_done": 32.0, "meets_30d": true}
+{"ts": "2026-07-18T21:53:40Z", "event": "SKEPTIC_REMEDIATE", "crit_done": 32.0, "all_terminal": true, "head": "cd193c1b9a9ea254f7bc4050b11310f261448ea6"}
+{"ts": "2026-07-18T21:53:40Z", "event": "N01_DONE", "qa": "PASS", "mode": "multi-path"}
+{"ts": "2026-07-18T21:53:40Z", "event": "N09_BLOCKED_SOURCE", "qa": "PASS"}
+{"ts": "2026-07-18T21:53:40Z", "event": "N16_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:53:40Z", "event": "N18_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:53:40Z", "event": "CONTRACTS_INGESTION_RUNS_FIX"}

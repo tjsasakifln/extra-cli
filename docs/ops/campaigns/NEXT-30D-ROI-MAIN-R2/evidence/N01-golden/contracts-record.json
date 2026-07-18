@@ -1,0 +1,176 @@
+{
+  "pilot": "k3.2-pncp-90d",
+  "campaign": "NEXT-30D",
+  "run_id": "contracts-90d-20260718T214655Z-af8cfc7eaa",
+  "previous_run_ids": [],
+  "mode": "full",
+  "days": 1,
+  "window_days": 30,
+  "planned_windows": 1,
+  "range_start": "2026-07-17",
+  "range_end": "2026-07-18",
+  "started_at": "2026-07-18T21:46:55.460325+00:00",
+  "checkpoint_path": "data/contracts_checkpoints/r2-n01-fresh2/contracts_full.json",
+  "windows": [
+    {
+      "window_key": "20260717_20260718",
+      "status": "completed",
+      "pages": 13,
+      "transformed": 6277,
+      "inserted": 0,
+      "skipped": 6277,
+      "errors": [],
+      "elapsed_seconds": 46.5
+    }
+  ],
+  "totals": {
+    "fetched": 6277,
+    "transformed": 6277,
+    "inserted": 0,
+    "skipped": 6277,
+    "pages": 13,
+    "page_errors": 0,
+    "windows_ok": 1,
+    "windows_failed": 0,
+    "windows_skipped_resume": 0
+  },
+  "status": "success",
+  "errors": [],
+  "completed_at": "2026-07-18T21:47:42.039394+00:00",
+  "duration_seconds": 46.6,
+  "db": {
+    "pncp_supplier_contracts_count": 72923,
+    "min_data_publicacao": "2026-07-04",
+    "max_data_publicacao": "2026-07-18",
+    "data_publicacao_note": "legacy/mixed semantics \u2014 historically stored dataAssinatura; prefer data_assinatura / data_publicacao_fonte (migration 051)",
+    "min_data_assinatura": "2021-08-26",
+    "max_data_assinatura": "2027-07-01",
+    "has_data_assinatura_column": true,
+    "monthly": [
+      {
+        "mes": "2026-07-01",
+        "n": 72923
+      }
+    ],
+    "sample_populated_n20": 20
+  },
+  "checkpoint": {
+    "source": "pncp_contracts",
+    "mode": "full",
+    "completed_windows": [
+      "20260717_20260718"
+    ],
+    "current_window_start": "20260717",
+    "total_contracts_fetched": 6277,
+    "total_windows_completed": 1,
+    "total_windows_failed": 0,
+    "last_error": null,
+    "updated_at": "2026-07-18T21:47:42Z",
+    "meta": {
+      "run_id": "contracts-90d-20260718T214655Z-af8cfc7eaa",
+      "run_ids": [
+        "contracts-90d-20260718T214655Z-af8cfc7eaa"
+      ],
+      "previous_run_ids": [],
+      "foreign_resume": false
+    }
+  },
+  "path_proof": {
+    "status": "success",
+    "days": 1,
+    "planned_windows": 1,
+    "totals": {
+      "fetched": 6277,
+      "transformed": 6277,
+      "inserted": 0,
+      "skipped": 6277,
+      "pages": 13,
+      "page_errors": 0,
+      "windows_ok": 1,
+      "windows_failed": 0,
+      "windows_skipped_resume": 0
+    },
+    "note": "days<=1 run is path-level evidence only unless planned_windows fully covered",
+    "run_id": "contracts-90d-20260718T214655Z-af8cfc7eaa"
+  },
+  "criteria": {
+    "P1_run_status": true,
+    "P2_date_span": true,
+    "P3_monthly": true,
+    "P5_no_residual_page_errors": true,
+    "P6_checkpoint_coherent": true,
+    "P7_sample_fields": true,
+    "P8_full_window_coverage": true
+  },
+  "go_no_go_3y": "NO-GO",
+  "go_no_go_reason": "Pilot span days=1 < 90; short/path pilots cannot authorize unsupervised 3y expansion.",
+  "claims_allowed": [
+    "Resumable pilot runner exists; partial windows are not marked complete on page errors",
+    "At least one full day/window completed with 0 page errors (path_proof)",
+    "Contracts persisted in pncp_supplier_contracts (see db counts)"
+  ],
+  "claims_forbidden": [
+    "Unsupervised 3y without re-validation",
+    "GO for unsupervised 3-year backfill",
+    "CONTRATOS_95"
+  ],
+  "evidence": {
+    "run_id": "contracts-90d-20260718T214655Z-af8cfc7eaa",
+    "git_sha": "cd193c1b9a9ea254f7bc4050b11310f261448ea6",
+    "git_branch": "main",
+    "started_at": "2026-07-18T21:46:55.460325+00:00",
+    "completed_at": "2026-07-18T21:47:42.039394+00:00",
+    "host_id": "72aa0c75ebd3",
+    "command": "scripts/crawl/run_contracts_90d_pilot.py",
+    "args": {
+      "days": 1,
+      "mode": "full",
+      "dry_run": false,
+      "planned_windows": 1,
+      "checkpoint_dir": "data/contracts_checkpoints/r2-n01-fresh2"
+    },
+    "env_non_secret": {
+      "CONTRACTS_CHECKPOINT_DIR": "data/contracts_checkpoints/r2-n01-fresh2"
+    },
+    "checkpoint_path": "data/contracts_checkpoints/r2-n01-fresh2/contracts_full.json",
+    "checkpoint_hash": "fb9fcc25d67124d7c9ab84f3f3f89d2417b39dabd541d360911e8f88a8f7d2f3",
+    "output_path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N01-golden/contracts-record.json",
+    "output_hash": "21988d8b9eee7e0be25ec94c1d6d9fc28c64696390ad3a2906260785f4373853",
+    "log_path": null,
+    "log_hash": null,
+    "migration_head": null,
+    "counts_before": {},
+    "counts_after": {
+      "inserted": 0,
+      "transformed": 6277,
+      "windows_ok": 1,
+      "windows_failed": 0,
+      "windows_skipped_resume": 0,
+      "planned_windows": 1
+    },
+    "status": "success",
+    "errors": [],
+    "criteria": {
+      "P1_run_status": true,
+      "P2_date_span": true,
+      "P3_monthly": true,
+      "P5_no_residual_page_errors": true,
+      "P6_checkpoint_coherent": true,
+      "P7_sample_fields": true,
+      "P8_full_window_coverage": true
+    },
+    "claims_allowed": [
+      "Resumable pilot runner exists; partial windows are not marked complete on page errors",
+      "At least one full day/window completed with 0 page errors (path_proof)",
+      "Contracts persisted in pncp_supplier_contracts (see db counts)"
+    ],
+    "claims_forbidden": [
+      "Unsupervised 3y without re-validation",
+      "GO for unsupervised 3-year backfill",
+      "CONTRATOS_95"
+    ],
+    "previous_run_ids": []
+  },
+  "git_sha": "cd193c1b9a9ea254f7bc4050b11310f261448ea6",
+  "git_branch": "main"
+}
