@@ -1,0 +1,15 @@
+{
+  "status": "partial_success_db_committed",
+  "note": "Killed during post-match opportunity phase (HTTPS CLOSE-WAIT). pncp_raw_bids + matching committed.",
+  "bids_rows_after": 10974,
+  "matching": {
+    "cnpj": 7177,
+    "name": 143,
+    "alias": 2,
+    "fuzzy": 101,
+    "unmatched": 798,
+    "total": 8221
+  },
+  "smartlic_used": false,
+  "ts": "2026-07-18T23:18:24Z"
+}
