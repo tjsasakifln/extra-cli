@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-07-18T16:20:09.066789+00:00",
+  "checks": {
+    "dod_exists": true,
+    "readme_exists": true,
+    "development_guide": true,
+    "agents_md": true,
+    "agents_points_to_dev": true,
+    "claude_exists": true,
+    "claude_points_to_dev": false,
+    "same_golden_path": true,
+    "same_force_next": true,
+    "precedence_stated": true
+  },
+  "ok": true,
+  "residual": [
+    "CLAUDE.md protocol-protected: pointer to DEVELOPMENT.md pending maintenance session"
+  ]
+}

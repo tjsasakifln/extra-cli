@@ -1590,14 +1590,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 32.1 Fonte canônica de verdade
 
-- [ ] `DOD.md`, README, PRD, ADRs, runbooks, código, migrations, testes e artefatos versionados são a fonte de verdade do projeto.
-- [ ] Nenhuma decisão obrigatória existe apenas em histórico de chat, memória de agente, prompt oculto ou sessão local.
-- [ ] Instruções específicas de ferramenta apenas apontam para documentos canônicos; não criam requisitos paralelos.
-- [ ] `CLAUDE.md`, `AGENTS.md`, regras do Cursor e arquivos equivalentes não se contradizem.
-- [ ] Existe um guia canônico de desenvolvimento, como `docs/DEVELOPMENT.md`, compartilhado por todas as ferramentas.
-- [ ] `CLAUDE.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Claude Code.
-- [ ] `AGENTS.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Codex ou agentes compatíveis.
-- [ ] As regras do Cursor referenciam o guia canônico e contêm apenas adaptações indispensáveis ao editor.
+- [x] `DOD.md`, README, PRD, ADRs, runbooks, código, migrations, testes e artefatos versionados são a fonte de verdade do projeto. Evidência: `docs/DEVELOPMENT.md` §1 + DoD precedence.
+- [x] Nenhuma decisão obrigatória existe apenas em histórico de chat, memória de agente, prompt oculto ou sessão local. Evidência: DEVELOPMENT §1 proibição + AGENTS.md.
+- [x] Instruções específicas de ferramenta apenas apontam para documentos canônicos; não criam requisitos paralelos. Evidência: AGENTS.md thin adapter.
+- [ ] `CLAUDE.md`, `AGENTS.md`, regras do Cursor e arquivos equivalentes não se contradizem. PARTIAL — AGENTS+DEVELOPMENT aligned; CLAUDE pointer residual (protocol-protected).
+- [x] Existe um guia canônico de desenvolvimento, como `docs/DEVELOPMENT.md`, compartilhado por todas as ferramentas. Evidência: docs/DEVELOPMENT.md criado.
+- [ ] `CLAUDE.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Claude Code. BLOCKED/PARTIAL — CLAUDE.md protocol-protected; maintenance session needed.
+- [x] `AGENTS.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Codex ou agentes compatíveis. Evidência: AGENTS.md → DEVELOPMENT.md.
+- [ ] As regras do Cursor referenciam o guia canônico e contêm apenas adaptações indispensáveis ao editor. PARTIAL — Cursor rules not updated this slice.
 - [ ] Os três pontos de entrada indicam o mesmo comando de setup, validação e golden path.
 - [ ] Os três pontos de entrada indicam os mesmos documentos de escopo, arquitetura e operação.
 - [ ] Quando existirem instruções específicas para uma ferramenta, elas funcionam como adaptadores finos e dispensáveis.

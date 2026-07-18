@@ -1,0 +1,14 @@
+{
+  "story_id": "ROI-cand-dyn-slice-a04da1ab4a07",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "qa_notes": "CLAUDE.md protocol-protected residual; Cursor rules residual",
+  "po_closed": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-canonical-truth-32-1",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:a04da1ab4a07",
+    "dod_items_flipped": 5,
+    "left_open": 3
+  }
+}
