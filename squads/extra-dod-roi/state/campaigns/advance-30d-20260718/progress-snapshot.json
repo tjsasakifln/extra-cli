@@ -1,14 +1,14 @@
 {
-  "at": "2026-07-18T15:27:03.402583+00:00",
+  "at": "2026-07-18T15:32:27.126611+00:00",
   "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
   "status": "IN_PROGRESS",
   "epic": "epic/advance-30d-local-ready-20260718",
   "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
-  "current_sha": "d0c3aee49ff3301c5907c2791fd5ca327c4ae6a1",
-  "slices_completed": 30,
+  "current_sha": "8f34d08d7704fd615bd89dca33a3074c74d2b695",
+  "slices_completed": 31,
   "dod": {
-    "checked": 242,
-    "open": 1112,
+    "checked": 243,
+    "open": 1111,
     "baseline_checked": 92
   },
   "metrics": {
@@ -16,6 +16,7 @@
     "universe_resolution_pct": 100.0,
     "operational_coverage_pct": 0.0,
     "local_ready": false,
+    "golden_path_clean_env": true,
     "golden_path_pdf_real": true,
     "pncp_live_inserted": 6
   },
