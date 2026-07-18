@@ -1,0 +1,16 @@
+{
+  "story_id": "ROI-cand-dyn-slice-55dc8958c51c",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "reviewed_commit": "59dbb29",
+  "snapshot_evidence": "docs/ops/session-2026-07-18-code-org",
+  "qa_verdict_path": "docs/ops/session-2026-07-18-code-org/QA-VERDICT.md",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:55dc8958c51c",
+    "dod_items_flipped": 5,
+    "notes": "Independent QA CONCERNS: residual sys.path debt (86/18), soft summary, process pre-mark corrected; false zero-sys.path claim rejected"
+  },
+  "qa_notes": "sys.path 18 disallowed residual; critical path clean"
+}

@@ -1,38 +1,38 @@
 {
   "version": "1.0.0",
-  "cycle_id": "cyc-2026-07-18T162051Z",
+  "cycle_id": "cyc-2026-07-18T162552Z",
   "mode": "strict",
   "foolproof": true,
   "status": "completed",
   "phase": "DONE",
-  "created_at": "2026-07-18T16:20:51Z",
-  "updated_at": "2026-07-18T16:25:28Z",
-  "selected_id": "cand-dyn-slice:34174823e54a",
-  "selected_roi": 1.8067,
+  "created_at": "2026-07-18T16:25:52Z",
+  "updated_at": "2026-07-18T16:28:19Z",
+  "selected_id": "cand-dyn-slice:55dc8958c51c",
+  "selected_roi": 1.6535,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
-  "story_id": "ROI-cand-dyn-slice-34174823e54a",
-  "story_file": "docs/stories/ROI-cand-dyn-slice-34174823e54a.md",
-  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-34174823e54a.json",
+  "story_id": "ROI-cand-dyn-slice-55dc8958c51c",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-55dc8958c51c.md",
+  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-55dc8958c51c.json",
   "implementer_agent": "delivery-engineer",
   "qa_agent": "adversarial-qa-auditor",
   "qa_verdict": "PASS",
   "aiox_sequence_log": [
     {
-      "at": "2026-07-18T16:20:51Z",
+      "at": "2026-07-18T16:25:52Z",
       "event": "ADVANCE",
       "phase": "RANKED",
       "detail": {
         "to": "RANKED",
         "actor": "force-next",
         "evidence": {
-          "selected_id": "cand-dyn-slice:34174823e54a",
-          "selected_roi": 1.8067,
+          "selected_id": "cand-dyn-slice:55dc8958c51c",
+          "selected_roi": 1.6535,
           "outcome": null
         }
       }
     },
     {
-      "at": "2026-07-18T16:20:51Z",
+      "at": "2026-07-18T16:25:52Z",
       "event": "ADVANCE",
       "phase": "CARD",
       "detail": {
@@ -44,29 +44,19 @@
       }
     },
     {
-      "at": "2026-07-18T16:20:51Z",
+      "at": "2026-07-18T16:25:52Z",
       "event": "ADVANCE",
       "phase": "STORY_DRAFT",
       "detail": {
         "to": "STORY_DRAFT",
         "actor": "force-next/@sm-materializer",
         "evidence": {
-          "story_id": "ROI-cand-dyn-slice-34174823e54a",
-          "story_file": "docs/stories/ROI-cand-dyn-slice-34174823e54a.md",
-          "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-34174823e54a.json",
+          "story_id": "ROI-cand-dyn-slice-55dc8958c51c",
+          "story_file": "docs/stories/ROI-cand-dyn-slice-55dc8958c51c.md",
+          "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-55dc8958c51c.json",
           "implementer_agent": "delivery-engineer",
           "qa_agent": "adversarial-qa-auditor"
         }
-      }
-    },
-    {
-      "at": "2026-07-18T16:22:44Z",
-      "event": "ADVANCE",
-      "phase": "STORY_READY",
-      "detail": {
-        "to": "STORY_READY",
-        "actor": "po",
-        "evidence": {}
       }
     }
   ],

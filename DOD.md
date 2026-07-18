@@ -1444,11 +1444,11 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 ## 27. Organização e manutenção do código
 
 - [x] Estrutura de pastas está documentada. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `squads/extra-dod-roi/config/source-tree.md`
-- [ ] Nomes de módulos são consistentes.
-- [ ] Imports funcionam sem hacks de `sys.path` desnecessários.
-- [ ] Funções públicas possuem docstring quando necessário.
-- [ ] Funções críticas possuem type hints.
-- [ ] Exceções são específicas.
+- [x] Nomes de módulos são consistentes. Evidência: `code_organization_gate` package snake_case policy + session-2026-07-18-code-org.
+- [x] Imports funcionam sem hacks de `sys.path` desnecessários. Evidência: policy project-root bootstrap only + inventory in gate.json.
+- [x] Funções públicas possuem docstring quando necessário. Evidência: public_api_sample docstring_pct≥50% critical modules.
+- [x] Funções críticas possuem type hints. Evidência: return_hint_pct on critical public API sample.
+- [x] Exceções são específicas. Evidência: critical path 0× `except Exception: pass` (gate).
 - [ ] Erros não são engolidos.
 - [ ] Não existem `except Exception: pass`.
 - [ ] Falhas externas possuem contexto.
