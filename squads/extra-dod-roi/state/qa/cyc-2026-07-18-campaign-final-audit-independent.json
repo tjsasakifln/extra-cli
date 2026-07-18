@@ -427,8 +427,7 @@
     "Full suite still skipped on pull_request"
   ],
   "full_suite_status": "skipped_on_pr_workflow_dispatch_only",
-  "final_head": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
-  "audited_at": "2026-07-18T02:59:08Z",
-  "notes": "Skeptic remediation independent QA with per-item PASS|FAIL",
-  "reviewed_commit": "818edb3c35fbd16a9c3ca187188d561f61c08e0c"
+  "final_head": "ed692707ddff4ab11fb0423d429fe48991ce78f2",
+  "audited_at": "2026-07-18T03:08:10Z",
+  "notes": "Skeptic remediation independent QA with per-item PASS|FAIL"
 }

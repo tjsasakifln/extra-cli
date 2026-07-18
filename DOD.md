@@ -1577,7 +1577,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Existe runbook de fonte quebrada. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/troubleshooting.md`
 - [ ] Existe runbook de schema drift.
 - [ ] Existe runbook de cobertura abaixo de 95%.
-- [x] Existe runbook de freshness vencida. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `docs/ops/troubleshooting.md`
+- [x] Existe runbook de freshness vencida. Evidência: skeptic-r2 runbook.md freshness Critico fresh/stale/SLA
 - [ ] Existe glossário.
 - [x] Existe matriz de fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/research/source-runtime-matrix-2026-07-16.md`
 - [x] Existe matriz de capabilities. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/baseline/l1-source-capability-registry.md`

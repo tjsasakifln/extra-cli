@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "campaign_id": "dod-50-current",
   "created_at": "2026-07-18T00:39:51Z",
-  "updated_at": "2026-07-18T02:59:08Z",
+  "updated_at": "2026-07-18T03:07:09Z",
   "status": "SUCCESS",
   "repo": "tjsasakifln/extra-consultoria",
   "target_dod_items": 50,
@@ -1377,7 +1377,7 @@
     ]
   },
   "campaign_branch": "extra-roi/campaign-dod-50-20260718T003950Z",
-  "draft_pr": "https://github.com/tjsasakifln/extra-consultoria/pull/24",
+  "draft_pr": "https://github.com/tjsasakifln/extra-consultoria/pull/25",
   "accepted": [
     {
       "dod_item_id": "dod:79d7b006aedb",
@@ -3208,8 +3208,8 @@
       "commit": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
       "implementation_commit": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
       "qa_head_sha": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
-      "evidência": "docs/ops/troubleshooting.md",
-      "comando": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['fresh|atualid|stale|vencid|timeout'])\"",
+      "evidência": "docs/ops/runbook.md",
+      "comando": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/runbook.md').read_text(); assert 'Como Verificar Freshness Critico' in t; assert 'freshness_gate' in t; assert re.search(r'fresh', t) and re.search(r'stale', t); assert 'SLA' in t or 'FRESHNESS_SLA' in t\"",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
@@ -3217,21 +3217,25 @@
       "implementer_agent": "delivery-engineer",
       "evidence_type": "DOCUMENT_CONTENT_PROOF",
       "artifact_paths": [
-        "docs/ops/troubleshooting.md"
+        "docs/ops/runbook.md"
       ],
       "exact_commands": [
-        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['fresh|atualid|stale|vencid|timeout'])\""
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/runbook.md').read_text(); assert 'Como Verificar Freshness Critico' in t; assert 'freshness_gate' in t; assert re.search(r'fresh', t) and re.search(r'stale', t); assert 'SLA' in t or 'FRESHNESS_SLA' in t\""
       ],
       "exit_codes": [
         0
       ],
-      "scope_or_universe": "document/code: docs/ops/troubleshooting.md",
+      "scope_or_universe": "docs/ops/runbook.md § Como Verificar Freshness Critico",
       "files_or_cases_checked": [
-        "docs/ops/troubleshooting.md"
+        "docs/ops/runbook.md"
       ],
       "exceptions_found": [],
       "content_anchors": [
-        "docs/ops/troubleshooting.md:10:- [Crawler Timeout](#crawler-timeout)"
+        "docs/ops/runbook.md:19:- [Como Verificar Freshness Critico](#como-verificar-freshness-critico)",
+        "docs/ops/runbook.md:535:python scripts/freshness_gate.py",
+        "docs/ops/runbook.md:19:- [Como Verificar Freshness Critico](#como-verificar-freshness-critico)",
+        "docs/ops/runbook.md:546:- `stale`: houve execucao ou dados, mas fora do SLA",
+        "docs/ops/runbook.md:545:- `fresh`: fonte critica provou execucao recente e persistencia dentro do SLA"
       ],
       "require_final_head_review": true,
       "evidence_hash": "7d51af519a0e4dd5",
@@ -5305,8 +5309,8 @@
       "commit": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
       "implementation_commit": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
       "qa_head_sha": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
-      "evidência": "docs/ops/troubleshooting.md",
-      "comando": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['fresh|atualid|stale|vencid|timeout'])\"",
+      "evidência": "docs/ops/runbook.md",
+      "comando": "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/runbook.md').read_text(); assert 'Como Verificar Freshness Critico' in t; assert 'freshness_gate' in t; assert re.search(r'fresh', t) and re.search(r'stale', t); assert 'SLA' in t or 'FRESHNESS_SLA' in t\"",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
@@ -5314,21 +5318,25 @@
       "implementer_agent": "delivery-engineer",
       "evidence_type": "DOCUMENT_CONTENT_PROOF",
       "artifact_paths": [
-        "docs/ops/troubleshooting.md"
+        "docs/ops/runbook.md"
       ],
       "exact_commands": [
-        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/troubleshooting.md').read_text(); assert all(re.search(p,t,re.I) for p in ['fresh|atualid|stale|vencid|timeout'])\""
+        "python3 -c \"from pathlib import Path; import re; t=Path('docs/ops/runbook.md').read_text(); assert 'Como Verificar Freshness Critico' in t; assert 'freshness_gate' in t; assert re.search(r'fresh', t) and re.search(r'stale', t); assert 'SLA' in t or 'FRESHNESS_SLA' in t\""
       ],
       "exit_codes": [
         0
       ],
-      "scope_or_universe": "document/code: docs/ops/troubleshooting.md",
+      "scope_or_universe": "docs/ops/runbook.md § Como Verificar Freshness Critico",
       "files_or_cases_checked": [
-        "docs/ops/troubleshooting.md"
+        "docs/ops/runbook.md"
       ],
       "exceptions_found": [],
       "content_anchors": [
-        "docs/ops/troubleshooting.md:10:- [Crawler Timeout](#crawler-timeout)"
+        "docs/ops/runbook.md:19:- [Como Verificar Freshness Critico](#como-verificar-freshness-critico)",
+        "docs/ops/runbook.md:535:python scripts/freshness_gate.py",
+        "docs/ops/runbook.md:19:- [Como Verificar Freshness Critico](#como-verificar-freshness-critico)",
+        "docs/ops/runbook.md:546:- `stale`: houve execucao ou dados, mas fora do SLA",
+        "docs/ops/runbook.md:545:- `fresh`: fonte critica provou execucao recente e persistencia dentro do SLA"
       ],
       "require_final_head_review": true,
       "evidence_hash": "7d51af519a0e4dd5",
@@ -5476,7 +5484,8 @@
     "2026-07-18T02:30:31Z: canonical rebuild — generic evidence purged; content/exec proofs only; count=50",
     "2026-07-18T02:41:17Z: independent QA remediation — corruption anchors (corrompido) + pip-audit scoped to requirements.txt",
     "2026-07-18T02:55:08Z: skeptic remediation — purged false greens; strengthened anchors; replacements; N=50",
-    "2026-07-18T02:57:00Z: re-added backup date/integrity with qa_reexec_commands; N=50"
+    "2026-07-18T02:57:00Z: re-added backup date/integrity with qa_reexec_commands; N=50",
+    "2026-07-18T03:06:53Z: skeptic r2 — freshness→runbook.md; report/panel to main HEAD; documentary vacuous-alternation reject"
   ],
   "truth_snapshot": {
     "lock_held": false,
@@ -5487,11 +5496,12 @@
   "final_panel": {
     "Meta": 50,
     "Aceitos_PASS": 50,
-    "PR draft": "#fix",
-    "status": "SUCCESS"
+    "PR draft": "#25",
+    "status": "SUCCESS",
+    "main_after_remediation": "ed692707ddff4ab11fb0423d429fe48991ce78f2"
   },
   "post_audit_note": "Purged falsified rows; re-run audit-matrix without --write to confirm SUCCESS",
   "audit_matrix_pass_at": "2026-07-18T02:58:39Z",
-  "canonical_head": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
+  "canonical_head": "ed692707ddff4ab11fb0423d429fe48991ce78f2",
   "canonical_count_at": "2026-07-18T02:30:32Z"
 }
