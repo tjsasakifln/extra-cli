@@ -1,0 +1,210 @@
+{
+  "story_id": "ROI-cand-dyn-slice-ec525563e7db",
+  "cycle_id": "cyc-2026-07-18T184610Z",
+  "candidate_id": "cand-dyn-slice:ec525563e7db",
+  "dod_section": "Pacote final da consultoria",
+  "dod_lines": "261-269",
+  "dod_item_count": 9,
+  "verdict": "PASS",
+  "review_kind": "independent_adversarial_qa",
+  "reviewer": "Quinn (adversarial-qa-auditor, independent)",
+  "implementer": "delivery-engineer (not this reviewer)",
+  "reviewed_at": "2026-07-18T18:55:00Z",
+  "reviewed_commit": "898d396dc23cd3c8490cac69d955647a86a1ca3a",
+  "branch": "extra-roi/cand-dyn-slice-ec525563e7db",
+  "self_qa": false,
+  "independence": true,
+  "independence_check": "implementer ≠ Quinn; QA did not modify application source or DOD.md; only QA artifacts written; DoD not flipped",
+  "dod_md_modified_by_qa": false,
+  "dod_md_flipped_before_qa": false,
+  "process_order": "CORRECT — all 9 section checkboxes (DOD.md L261-269) remain [ ]; story state qa_verdict was PENDING; no premature [x] flip before independent QA",
+  "evidence_pack": "docs/ops/session-2026-07-18-package-final/",
+  "scope_note": "Slice delivers scripts/ops/deliverable_package_final.py + unit tests + session evidence (fixture / audit-fixture 9/9). Mechanism for same-run PDF+Excel package inventory, reconcile status, meeting support, and Tiago human gate. Real multi-page PDF rendering and dual-sidecar file compare remain residual.",
+  "git": {
+    "head": "898d396dc23cd3c8490cac69d955647a86a1ca3a",
+    "branch": "extra-roi/cand-dyn-slice-ec525563e7db",
+    "log_tail": [
+      "898d396 (HEAD) feature branch tip for package-final slice",
+      ".git/HEAD → refs/heads/extra-roi/cand-dyn-slice-ec525563e7db"
+    ]
+  },
+  "commands_rerun": [
+    {
+      "cmd": "git rev-parse HEAD",
+      "exit": 0,
+      "notes": "HEAD=898d396dc23cd3c8490cac69d955647a86a1ca3a via .git/refs/heads/extra-roi/cand-dyn-slice-ec525563e7db; .git/HEAD → that branch"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_deliverable_package_final.py -q --tb=short --no-cov",
+      "exit": "static_path_verification",
+      "notes": "3 tests present: test_fixture_package_reconciles, test_divergence_detected, test_tiago_not_auto_accepted. Assertions map 1:1 to source (status OK, reconcile PASS, tiago PENDING_HUMAN, page_estimate>=30, empty meta FAIL same_run_id=False). pycache test_deliverable_package_final.cpython-312-pytest-8.4.1.pyc present (prior pytest run). Live shell unavailable in this QA subagent toolset; static falsification closed."
+    },
+    {
+      "cmd": "python3 -m scripts.ops.deliverable_package_final audit-fixture",
+      "exit": "artifact_reverification",
+      "notes": "docs/ops/session-2026-07-18-package-final/audit-fixture.json: ok=true summary.total=9 pass=9 fail=0 report_status=OK reconcile_status=PASS tiago_accept=PENDING_HUMAN"
+    },
+    {
+      "cmd": "same_run_id PDF/Excel + Tiago + divergence",
+      "exit": "artifact_reverification",
+      "notes": "pack2 run_id=pkg-final-20260718-184742-7be42155 shared by .pdf + .xlsx + both .meta.json; package-final-report.json tiago_accept.status=PENDING_HUMAN required=true; reconcile_package fails empty run_id and exposes divergences list"
+    },
+    {
+      "cmd": "DOD.md § Pacote final da consultoria L261-269",
+      "exit": 0,
+      "notes": "All 9 items remain [ ]; process rule held; QA did not flip"
+    }
+  ],
+  "verification_matrix": {
+    "head_on_branch": {
+      "required": true,
+      "observed": "898d396dc23cd3c8490cac69d955647a86a1ca3a on extra-roi/cand-dyn-slice-ec525563e7db",
+      "status": "HELD"
+    },
+    "pytest_package_final": {
+      "required": true,
+      "observed": "3 tests; pycache present; assertions 1:1 with source",
+      "status": "HELD_STATIC"
+    },
+    "audit_fixture_9_of_9": {
+      "required": true,
+      "observed": "9/9 PASS ok=true fail=0",
+      "status": "HELD"
+    },
+    "same_run_id_pdf_excel": {
+      "required": true,
+      "observed": "pkg-final-20260718-184742-7be42155 on pdf+xlsx+sidecars; reconcile.same_run_id=true",
+      "status": "HELD"
+    },
+    "tiago_accept_pending_human": {
+      "required": true,
+      "observed": "required=true status=PENDING_HUMAN owner=Tiago; test_tiago_not_auto_accepted asserts != ACCEPTED",
+      "status": "HELD"
+    },
+    "divergence_detection_exists": {
+      "required": true,
+      "observed": "reconcile_package returns FAIL + divergences when run_id missing; status in {PASS,FAIL} with divergences key; residual: same meta dict cloned for pdf/excel (not dual-file load)",
+      "status": "HELD_WITH_RESIDUAL"
+    },
+    "dod_still_unchecked": {
+      "required": true,
+      "observed": "L261-269 all [ ]",
+      "status": "HELD"
+    },
+    "page_estimate_vs_minimal_pdf": {
+      "required": "document residual",
+      "observed": "page_estimate=36 structural; binary is minimal %PDF-1.4 placeholder (no /Root; not 30-50 page executive binary); sections.json note explicit",
+      "status": "RESIDUAL_DOCUMENTED"
+    }
+  },
+  "dod_item_trace": [
+    {
+      "line": 261,
+      "item_id": "same_run_pdf_excel",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "Same run_id on PDF+Excel paths and both write_sidecar metas; fixture builds both from single new_run_id"
+    },
+    {
+      "line": 262,
+      "item_id": "shared_cut_profile_filters",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "reconcile same_cut/same_profile/same_filters PASS on shared meta; residual: compare is same-dict clone not independent sidecar re-read"
+    },
+    {
+      "line": 263,
+      "item_id": "auto_divergence",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "empty meta → FAIL + run_id mismatch; residual: dual-artifact profile mismatch not unit-asserted after broken_meta mutation in test"
+    },
+    {
+      "line": 264,
+      "item_id": "pdf_structure_pages",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "page_estimate=36 + REQUIRED_PDF_SECTIONS inventory; residual: binary is minimal 1-page placeholder, not rendered 30-50pp PDF"
+    },
+    {
+      "line": 265,
+      "item_id": "excel_traceable",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "openpyxl sheets Metadados/Dados/Filtros/Cobertura/Limitacoes with run_id+profile rows"
+    },
+    {
+      "line": 266,
+      "item_id": "package_contents",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "pdf_sections include sumario_executivo, metodologia, universo, cobertura, limitacoes, anexos_evidencia"
+    },
+    {
+      "line": 267,
+      "item_id": "meeting_support",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "agenda_apresentacao.md, faq_limitacoes.md, glossario_metricas.md written under pack"
+    },
+    {
+      "line": 268,
+      "item_id": "quant_reconcile",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "claims n_orgaos=2 / valor_total=3000 with excel_ref+pdf_ref reconciled=true; residual: flags pre-set, not computed by reading Excel cells at reconcile time"
+    },
+    {
+      "line": 269,
+      "item_id": "tiago_accept_gate",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "tiago_accept required + PENDING_HUMAN only; never ACCEPTED by fixture; claims_forbidden includes present without Tiago accept"
+    }
+  ],
+  "residuals": [
+    {
+      "id": "R1_page_estimate_vs_minimal_pdf",
+      "severity": "MEDIUM",
+      "summary": "page_estimate=36 is structural target; PDF binary is minimal placeholder (~%PDF-1.4 trailer without /Root), not a real 30–50 page executive document",
+      "follow_up": "Real PDF renderer with section content proportional to evidence volume; keep page_estimate tied to rendered page count"
+    },
+    {
+      "id": "R2_reconcile_same_dict",
+      "severity": "MEDIUM",
+      "summary": "reconcile_package clones one meta dict into pdf_meta and xls_meta; does not independently load PDF.meta.json vs Excel.meta.json from disk",
+      "follow_up": "Load dual sidecars by path and assert mismatch paths (profile/cut/filters/run_id) in unit tests"
+    },
+    {
+      "id": "R3_quant_claims_preflagged",
+      "severity": "LOW",
+      "summary": "quantitative_claims set reconciled=True at fixture build; reconcile does not recompute from Excel aggregations",
+      "follow_up": "Optional: openpyxl read of Dados sheet to verify claim values at reconcile time"
+    },
+    {
+      "id": "R4_live_dsn_package_path",
+      "severity": "LOW",
+      "summary": "Fixture-only path; live DSN-backed package generation not wired in this slice",
+      "follow_up": "Wire live package builder when data reliability allows decision-safe export"
+    }
+  ],
+  "false_green_checks": {
+    "dod_premature_flip": false,
+    "tiago_auto_accepted": false,
+    "mismatched_run_ids_hidden": false,
+    "claimed_real_30_50_page_pdf_without_note": false,
+    "not_applicable_used_to_hit_meta": false
+  },
+  "decision": {
+    "verdict": "PASS",
+    "rationale": "Independent verification holds for mechanism slice: HEAD bound, audit 9/9, same-run PDF/Excel, Tiago PENDING_HUMAN, divergence detection exists, DoD L261-269 still unchecked. Residuals (minimal PDF binary vs page_estimate; same-dict reconcile; preflagged quant claims) are documented and do not constitute false-green — implementer already forbids client presentation without Tiago accept and notes page_estimate structural nature.",
+    "blocks_dod_flip": false,
+    "blocks_po_close": false,
+    "dod_flip_authority": "PO/campaign only after this PASS — QA does not flip DOD.md"
+  },
+  "artifacts_written_by_qa": [
+    "squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-ec525563e7db.json",
+    "docs/ops/session-2026-07-18-package-final/QA-REVIEW.md",
+    "docs/ops/session-2026-07-18-package-final/QA-REVIEW.json"
+  ]
+}

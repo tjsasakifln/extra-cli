@@ -4,9 +4,9 @@
   "mode": "strict",
   "foolproof": true,
   "status": "running",
-  "phase": "STORY_DRAFT",
+  "phase": "PUBLISH",
   "created_at": "2026-07-18T18:46:10Z",
-  "updated_at": "2026-07-18T18:46:11Z",
+  "updated_at": "2026-07-18T18:51:21Z",
   "selected_id": "cand-dyn-slice:ec525563e7db",
   "selected_roi": 1.2261,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
@@ -58,11 +58,83 @@
           "qa_agent": "adversarial-qa-auditor"
         }
       }
+    },
+    {
+      "at": "2026-07-18T18:46:39Z",
+      "event": "ADVANCE",
+      "phase": "STORY_READY",
+      "detail": {
+        "to": "STORY_READY",
+        "actor": "po",
+        "evidence": {
+          "po_validated": true
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T18:46:39Z",
+      "event": "ADVANCE",
+      "phase": "IMPLEMENTING",
+      "detail": {
+        "to": "IMPLEMENTING",
+        "actor": "dev",
+        "evidence": {
+          "branch": "extra-roi/cand-dyn-slice-ec525563e7db"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T18:48:28Z",
+      "event": "ADVANCE",
+      "phase": "IN_REVIEW",
+      "detail": {
+        "to": "IN_REVIEW",
+        "actor": "dev",
+        "evidence": {
+          "tests": "3 passed"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T18:51:21Z",
+      "event": "ADVANCE",
+      "phase": "QA",
+      "detail": {
+        "to": "QA",
+        "actor": "qa",
+        "evidence": {
+          "verdict": "PASS"
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T18:51:21Z",
+      "event": "ADVANCE",
+      "phase": "PO_CLOSE",
+      "detail": {
+        "to": "PO_CLOSE",
+        "actor": "po",
+        "evidence": {
+          "po_closed": true
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T18:51:21Z",
+      "event": "ADVANCE",
+      "phase": "PUBLISH",
+      "detail": {
+        "to": "PUBLISH",
+        "actor": "devops",
+        "evidence": {
+          "branch": "extra-roi/cand-dyn-slice-ec525563e7db"
+        }
+      }
     }
   ],
   "abort": null,
   "outcome": null,
-  "next_phase_required": "STORY_READY",
+  "next_phase_required": "RERANK",
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",
     "binding": "data/aiox-binding.yaml",
