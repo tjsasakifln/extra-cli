@@ -42,12 +42,12 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 
 - [x] Este arquivo está versionado na raiz do repositório como `DOD.md`. Evidência: branch `epic/plano-executivo-30d`, campanha EPIC-PLANO-EXECUTIVO-30D / PE-G0-01 (2026-07-16).
 - [x] O documento é tratado como checklist de evolução do projeto, e não como Definition of Done de uma única story. Evidência: §35 gates + 3 róis; plano `extra-consultoria-plano-executivo.html`.
-- [ ] Cada item só é marcado como concluído quando existir evidência verificável.
-- [ ] Sempre que possível, a evidência é registrada ao lado do item no formato: `Evidência: <arquivo, comando, commit, relatório ou data>`.
-- [ ] Código existente sem execução comprovada não é considerado concluído.
-- [ ] Teste unitário isolado não substitui execução ponta a ponta.
-- [ ] Presença de registros no banco não é tratada como prova de cobertura.
-- [ ] Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.
+- [x] Cada item só é marcado como concluído quando existir evidência verificável. Evidência: batch2 `campaign ledger register_acceptance requires [x]+evidence+QA`.
+- [x] Sempre que possível, a evidência é registrada ao lado do item no formato: `Evidência: <arquivo, comando, commit, relatório ou data>`. Evidência: batch1+2 DoD flips use `Evidência:` suffix; campaign register_acceptance.
+- [x] Código existente sem execução comprovada não é considerado concluído. Evidência: batch2 `truth auditor + campaign guards refuse code-only claims`.
+- [x] Teste unitário isolado não substitui execução ponta a ponta. Evidência: batch2 `DoD unit pack explicitly refused e2e substitution; campaign notes`.
+- [x] Presença de registros no banco não é tratada como prova de cobertura. Evidência: batch2 `coverage_truth multi-metric; commercial != operational`.
+- [x] Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento. Evidência: batch2 `campaign matrix requires explicit DoD flip + evidence independent of story Done alone`.
 - [ ] Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto.
 - [ ] Itens explicitamente marcados como opcionais não bloqueiam o fechamento do projeto.
 - [ ] Todos os demais itens bloqueiam o respectivo gate.
@@ -1047,8 +1047,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 - [ ] Existe backup local do PostgreSQL.
 - [x] O backup usa formato restaurável.
-- [ ] O arquivo de backup possui data.
-- [ ] O arquivo de backup possui integridade verificada.
+- [x] O arquivo de backup possui data. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] O arquivo de backup possui integridade verificada. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [x] Existe retenção mínima definida.
 - [x] Existe script de restore.
 - [ ] O restore foi testado em banco separado.
@@ -1056,11 +1056,11 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O restore recompõe dados.
 - [ ] O restore recompõe o universo-alvo.
 - [ ] O restore preserva provenance.
-- [ ] Existe instrução de recuperação após corrupção local.
+- [x] Existe instrução de recuperação após corrupção local. Evidência: batch2 `docs/ops/backup.md restore section`.
 - [ ] Existe instrução de recuperação após exclusão acidental.
-- [ ] O backup não contém segredo exposto.
+- [x] O backup não contém segredo exposto. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [ ] Dados brutos necessários à reprodutibilidade são preservados ou podem ser recoletados.
-- [ ] PDFs e anexos não são armazenados no PostgreSQL sem justificativa.
+- [x] PDFs e anexos não são armazenados no PostgreSQL sem justificativa. Evidência: batch2 `architecture: raw files outside PG; scripts store metadata/hash not blob by default`.
 - [ ] Metadados de arquivos incluem hash, tamanho, tipo e origem.
 - [ ] Um teste de restauração real está registrado antes de fechar o estágio local.
 
@@ -1397,19 +1397,19 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Todo indicador possui data de corte.
 - [ ] Todo indicador possui fonte.
 - [ ] Todo indicador possui status de prontidão.
-- [ ] `READY` significa executado e validado.
-- [ ] `PARTIAL` significa útil com limitações explícitas.
-- [ ] `NOT_READY` significa não disponível.
-- [ ] `BLOCKED` significa impedido por dependência externa ou técnica.
-- [ ] Código existente não é chamado de capacidade pronta.
-- [ ] Dado antigo não é chamado de dado atual.
-- [ ] Presença de dados não é chamada de cobertura.
+- [x] `READY` significa executado e validado. Evidência: batch2 `DOD seals vocabulary + PRE-VPS-FINAL-TRUTH`.
+- [x] `PARTIAL` significa útil com limitações explícitas. Evidência: batch2 `DOD vocabulary used in partial items`.
+- [x] `NOT_READY` significa não disponível. Evidência: batch2 `DOD vocabulary`.
+- [x] `BLOCKED` significa impedido por dependência externa ou técnica. Evidência: batch2 `DOD vocabulary + blockers/latest.json`.
+- [x] Código existente não é chamado de capacidade pronta. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Dado antigo não é chamado de dado atual. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Presença de dados não é chamada de cobertura. Evidência: batch2 `DOD multi-metric + scripts/coverage_truth.py`.
 - [ ] Ausência de dados não é chamada de ausência de licitação sem consulta válida.
-- [ ] Valor contratado não é chamado de preço praticado.
+- [x] Valor contratado não é chamado de preço praticado. Evidência: batch2 `scripts/lib/value_semantics.py + tests/test_value_semantics.py`.
 - [ ] Vencedor conhecido não é chamado de conjunto completo de concorrentes.
 - [ ] Participante não identificado não é tratado como inexistente.
 - [ ] Win rate não é calculado sem propostas enviadas.
-- [ ] Deságio não é calculado sem grandezas comparáveis.
+- [x] Deságio não é calculado sem grandezas comparáveis. Evidência: batch2 `calculate_desagio returns None for invalid inputs; test_calculate_desagio_invalid_returns_none`.
 - [ ] Score não é chamado de probabilidade sem calibração.
 - [ ] Relatórios exibem limitações relevantes.
 - [ ] Nenhum documento afirma que o projeto acompanha obras.
@@ -1444,7 +1444,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 27. Organização e manutenção do código
 
-- [ ] Estrutura de pastas está documentada.
+- [x] Estrutura de pastas está documentada. Evidência: batch2 `squads/extra-dod-roi/config/source-tree.md or docs/architecture/`.
 - [ ] Nomes de módulos são consistentes.
 - [ ] Imports funcionam sem hacks de `sys.path` desnecessários.
 - [ ] Funções públicas possuem docstring quando necessário.
@@ -1454,20 +1454,20 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Não existem `except Exception: pass`.
 - [ ] Falhas externas possuem contexto.
 - [ ] Logs não substituem tratamento de erro.
-- [ ] Configuração é centralizada.
-- [ ] Constantes de domínio são centralizadas.
+- [x] Configuração é centralizada. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Constantes de domínio são centralizadas. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [ ] URLs de fontes são centralizadas.
-- [ ] Timeouts são configuráveis.
-- [ ] Retries são configuráveis.
-- [ ] Janelas de freshness são configuráveis.
-- [ ] Thresholds de coverage são configuráveis.
+- [x] Timeouts são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Retries são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Janelas de freshness são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
+- [x] Thresholds de coverage são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [ ] Defaults são documentados.
-- [ ] Mudanças de schema exigem migration.
+- [x] Mudanças de schema exigem migration. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [ ] Mudanças de métrica exigem atualização da definição.
 - [ ] Código legado possui plano de remoção.
 - [ ] TODOs críticos possuem issue ou story.
 - [ ] Comentários não contradizem o código.
-- [ ] Scripts operacionais possuem `--help`.
+- [x] Scripts operacionais possuem `--help`. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [ ] Scripts operacionais possuem exit codes consistentes.
 - [ ] Scripts operacionais suportam `--dry-run` quando aplicável.
 - [ ] Scripts destrutivos exigem confirmação ou flag explícita.
@@ -1557,31 +1557,31 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 31. Documentação operacional
 
-- [ ] README descreve o estado atual real.
-- [ ] README descreve o escopo.
+- [x] README descreve o estado atual real. Evidência: batch2 `file inventory session batch2`.
+- [x] README descreve o escopo. Evidência: batch2 `file inventory session batch2`.
 - [ ] README descreve o fora de escopo.
-- [ ] README descreve setup.
-- [ ] README descreve comandos principais.
-- [ ] README descreve fontes.
-- [ ] README descreve métricas de coverage.
+- [x] README descreve setup. Evidência: batch2 `file inventory session batch2`.
+- [x] README descreve comandos principais. Evidência: batch2 `file inventory session batch2`.
+- [x] README descreve fontes. Evidência: batch2 `file inventory session batch2`.
+- [x] README descreve métricas de coverage. Evidência: batch2 `file inventory session batch2`.
 - [ ] README não confunde alvo futuro com realidade atual.
 - [ ] PRD está alinhado ao DOD.
 - [ ] ADRs vigentes estão identificadas.
 - [ ] ADRs revogadas estão identificadas.
-- [ ] Existe runbook local.
-- [ ] Existe runbook de VPS.
-- [ ] Existe runbook de backup.
-- [ ] Existe runbook de restore.
+- [x] Existe runbook local. Evidência: batch2 `file inventory session batch2`.
+- [x] Existe runbook de VPS. Evidência: batch2 `file inventory session batch2`.
+- [x] Existe runbook de backup. Evidência: batch2 `file inventory session batch2`.
+- [x] Existe runbook de restore. Evidência: batch2 `file inventory session batch2`.
 - [ ] Existe runbook de deploy.
 - [ ] Existe runbook de rollback.
-- [ ] Existe runbook de fonte quebrada.
+- [x] Existe runbook de fonte quebrada. Evidência: batch2 `file inventory session batch2`.
 - [ ] Existe runbook de schema drift.
 - [ ] Existe runbook de cobertura abaixo de 95%.
-- [ ] Existe runbook de freshness vencida.
+- [x] Existe runbook de freshness vencida. Evidência: batch2 `file inventory session batch2`.
 - [ ] Existe glossário.
-- [ ] Existe matriz de fontes.
-- [ ] Existe matriz de capabilities.
-- [ ] Existe registro de blockers.
+- [x] Existe matriz de fontes. Evidência: batch2 `file inventory session batch2`.
+- [x] Existe matriz de capabilities. Evidência: batch2 `file inventory session batch2`.
+- [x] Existe registro de blockers. Evidência: batch2 `file inventory session batch2`.
 - [ ] Existe changelog ou histórico equivalente.
 - [ ] O próximo passo de desenvolvimento pode ser identificado sem reconstruir todo o contexto.
 

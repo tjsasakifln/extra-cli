@@ -1,0 +1,5 @@
+scripts/golden_path.py exit=0 ok=True
+scripts/local_datalake.py exit=0 ok=True
+scripts/crawl/monitor.py exit=0 ok=True
+scripts/backup-database.sh exit=0 ok=True
+scripts/restore-database.sh exit=0 ok=True

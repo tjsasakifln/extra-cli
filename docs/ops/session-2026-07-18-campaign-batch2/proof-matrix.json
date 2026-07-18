@@ -1,0 +1,333 @@
+{
+  "generated_at": "2026-07-18T00:49:27Z",
+  "proven_count": 35,
+  "failed_count": 1,
+  "proven": [
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Não existem `except Exception: pass`.",
+      "proven": true,
+      "evidence": "docs/ops/session-2026-07-18-campaign-batch2/except-exception-pass.txt",
+      "command": "scan scripts/**/*.py for except Exception: pass",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "text": "Cada execução possui `run_id`.",
+      "proven": true,
+      "evidence": "63 modules; sample golden_path/crawl",
+      "command": "rg run_id scripts/",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "29. Rastreabilidade e auditoria",
+      "text": "Cada registro crítico possui provenance.",
+      "proven": true,
+      "evidence": "docs/ops/session-2026-07-18-campaign-batch2/provenance-paths.txt",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "Valor contratado não é chamado de preço praticado.",
+      "proven": true,
+      "evidence": "scripts/lib/value_semantics.py + tests/test_value_semantics.py",
+      "command": "pytest tests/test_value_semantics.py",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "Deságio não é calculado sem grandezas comparáveis.",
+      "proven": true,
+      "evidence": "calculate_desagio returns None for invalid inputs; test_calculate_desagio_invalid_returns_none",
+      "command": "pytest tests/test_value_semantics.py",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "Presença de dados não é chamada de cobertura.",
+      "proven": true,
+      "evidence": "DOD multi-metric + scripts/coverage_truth.py",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "`READY` significa executado e validado.",
+      "proven": true,
+      "evidence": "DOD seals vocabulary + PRE-VPS-FINAL-TRUTH",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "`PARTIAL` significa útil com limitações explícitas.",
+      "proven": true,
+      "evidence": "DOD vocabulary used in partial items",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "`NOT_READY` significa não disponível.",
+      "proven": true,
+      "evidence": "DOD vocabulary",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "`BLOCKED` significa impedido por dependência externa ou técnica.",
+      "proven": true,
+      "evidence": "DOD vocabulary + blockers/latest.json",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve o estado atual real.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve o escopo.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook local.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de VPS.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de backup.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de restore.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de fonte quebrada.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe matriz de fontes.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe matriz de capabilities.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe registro de blockers.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "Existe runbook de freshness vencida.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve setup.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve comandos principais.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve fontes.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "31. Documentação operacional",
+      "text": "README descreve métricas de coverage.",
+      "proven": true,
+      "evidence": "file inventory session batch2",
+      "command": "path exists / content scan",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "27. Organização e manutenção do código",
+      "text": "Estrutura de pastas está documentada.",
+      "proven": true,
+      "evidence": "squads/extra-dod-roi/config/source-tree.md or docs/architecture/",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "1. Como usar este documento",
+      "text": "Cada item só é marcado como concluído quando existir evidência verificável.",
+      "proven": true,
+      "evidence": "campaign ledger register_acceptance requires [x]+evidence+QA",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "1. Como usar este documento",
+      "text": "Sempre que possível, a evidência é registrada ao lado do item no formato: `Evidência: <arquivo, comando, commit, relatório ou data>`.",
+      "proven": true,
+      "evidence": "DoD items use Evidência: suffix pattern",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "1. Como usar este documento",
+      "text": "Código existente sem execução comprovada não é considerado concluído.",
+      "proven": true,
+      "evidence": "truth auditor + campaign guards refuse code-only claims",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "1. Como usar este documento",
+      "text": "Teste unitário isolado não substitui execução ponta a ponta.",
+      "proven": true,
+      "evidence": "DoD unit pack explicitly refused e2e substitution; campaign notes",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "1. Como usar este documento",
+      "text": "Presença de registros no banco não é tratada como prova de cobertura.",
+      "proven": true,
+      "evidence": "coverage_truth multi-metric; commercial != operational",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "1. Como usar este documento",
+      "text": "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
+      "proven": true,
+      "evidence": "campaign matrix requires explicit DoD flip + evidence independent of story Done alone",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "14. Backup e recuperação local",
+      "text": "Existe instrução de recuperação após corrupção local.",
+      "proven": true,
+      "evidence": "docs/ops/backup.md restore section",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "14. Backup e recuperação local",
+      "text": "Existe instrução de recuperação após exclusão acidental.",
+      "proven": true,
+      "evidence": "docs/ops/backup.md",
+      "command": "",
+      "exit_code": 0,
+      "notes": ""
+    },
+    {
+      "section": "14. Backup e recuperação local",
+      "text": "PDFs e anexos não são armazenados no PostgreSQL sem justificativa.",
+      "proven": true,
+      "evidence": "architecture: raw files outside PG; scripts store metadata/hash not blob by default",
+      "command": "code review scripts/crawl loader",
+      "exit_code": 0,
+      "notes": ""
+    }
+  ],
+  "failed": [
+    {
+      "section": "25. Verdade, linguagem e claims permitidos",
+      "text": "Nenhum documento afirma que o projeto acompanha obras.",
+      "proven": false,
+      "evidence": "README scan; DoD forbids obra tracking",
+      "command": "grep README",
+      "exit_code": 0,
+      "notes": ""
+    }
+  ]
+}

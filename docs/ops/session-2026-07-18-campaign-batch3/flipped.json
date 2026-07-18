@@ -1,0 +1,67 @@
+[
+  {
+    "section": "14. Backup e recuperação local",
+    "text": "O arquivo de backup possui data.",
+    "id": "dod:8407b8273772"
+  },
+  {
+    "section": "14. Backup e recuperação local",
+    "text": "O arquivo de backup possui integridade verificada.",
+    "id": "dod:93300093fc1d"
+  },
+  {
+    "section": "14. Backup e recuperação local",
+    "text": "O backup não contém segredo exposto.",
+    "id": "dod:db687778617c"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "Código existente não é chamado de capacidade pronta.",
+    "id": "dod:aa6eefd8681f"
+  },
+  {
+    "section": "25. Verdade, linguagem e claims permitidos",
+    "text": "Dado antigo não é chamado de dado atual.",
+    "id": "dod:f8b7abd8915c"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Configuração é centralizada.",
+    "id": "dod:566ccfc2fcbb"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Constantes de domínio são centralizadas.",
+    "id": "dod:27fe1c254fd2"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Timeouts são configuráveis.",
+    "id": "dod:70eb67c5e239"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Retries são configuráveis.",
+    "id": "dod:6395ce31d45e"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Janelas de freshness são configuráveis.",
+    "id": "dod:d3480d1c7102"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Thresholds de coverage são configuráveis.",
+    "id": "dod:ffa99a6d742e"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Mudanças de schema exigem migration.",
+    "id": "dod:86813be14b95"
+  },
+  {
+    "section": "27. Organização e manutenção do código",
+    "text": "Scripts operacionais possuem `--help`.",
+    "id": "dod:0c9593cc0c72"
+  }
+]
