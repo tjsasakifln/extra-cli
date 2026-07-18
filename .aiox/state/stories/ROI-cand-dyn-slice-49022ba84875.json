@@ -3,14 +3,14 @@
   "title": "[2.4 Usuário e forma de uso] O sistema permite identificar quando um dado não é confiável · O sistema não esconde limitações atrás de scores ou percentu",
   "epic_id": "EPIC-EXTRA-DOD-ROI",
   "risk_level": "STANDARD",
-  "status": "InReview",
+  "status": "Done",
   "story_file": "docs/stories/ROI-cand-dyn-slice-49022ba84875.md",
   "created_at": "2026-07-18T13:59:08Z",
-  "updated_at": "2026-07-18T14:02:09Z",
+  "updated_at": "2026-07-18T14:07:34Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
-  "qa_verdict": "PENDING",
-  "po_closed": false,
+  "qa_verdict": "PASS",
+  "po_closed": true,
   "publication_authorized": false,
   "scope_files": [
     "DOD.md",
@@ -18,7 +18,7 @@
     "tests/*",
     "scripts/*"
   ],
-  "reviewed_commit": null,
+  "reviewed_commit": "39ece43",
   "gates": {
     "lint": "PENDING",
     "typecheck": "PENDING",
@@ -44,5 +44,6 @@
       "PUBLISH",
       "RERANK"
     ]
-  }
+  },
+  "qa_artifact": "squads/extra-dod-roi/state/qa/cyc-2026-07-18T135908Z-qa.json"
 }
