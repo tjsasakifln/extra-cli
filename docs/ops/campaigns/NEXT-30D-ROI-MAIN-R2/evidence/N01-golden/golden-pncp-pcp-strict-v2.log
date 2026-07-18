@@ -1,0 +1,66 @@
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ GOLDEN PATH — Pipeline de Validacao do DataLake                              │
+│ Run: gp-20260718-190205  |  Fontes: pncp, pcp  |  DSN:                       │
+│ postgresql://test:test@127.0.0.1:5433/extra_test...                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+[1/4] Verificando conectividade PostgreSQL...
+  PostgreSQL OK (24ms)
+
+[2/4] Crawl das fontes de dados...
+  Fontes: pncp, pcp
+  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter
+
+>>> Iniciando crawl: pncp — PNCP API (editais abertos — fonte crítica)
+  OK/RESUME pncp: fetched=31, inserted=0, persisted=0 
+
+>>> Iniciando crawl: pcp — PCP (Portal de Compras Publicas)
+  OK pcp: fetched=143, inserted=0, persisted=0
+
+                            Resultados por Fonte                            
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Fonte ┃ Status ┃ Tempo   ┃ Tentativas ┃ Fetched ┃ Inserted ┃ Persistidas ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ pncp  │ OK     │ 959ms   │ 1          │ 31      │ 0        │ 0           │
+│ pcp   │ OK     │ 13676ms │ 1          │ 143     │ 0        │ 0           │
+└───────┴────────┴─────────┴────────────┴─────────┴──────────┴─────────────┘
+
+  2/2 fontes OK
+
+[3/4] Freshness Gate...
+
+>>> Validando freshness gate...
+  Freshness gate: PASS (214ms)
+
+[4/4] Geracao de relatorios...
+
+>>> Gerando relatorio Excel...
+  Excel: /mnt/d/extra consultoria/output/excels/panorama-SC-2026-07-18.xlsx
+
+>>> Gerando relatorio PDF...
+  PDF: generated
+
+╭─────────────────────────────────────╮
+│ GOLDEN PATH — RESUMO                │
+│                                     │
+│ Run ID:          gp-20260718-190205 │
+│ Mode:            strict             │
+│ Status:          SUCCESS            │
+│ Exit code:       0                  │
+│ Fontes c/ dados: 2/2                │
+│ Fontes zero:     0                  │
+│ Fontes essenciais com falha: 0      │
+│ Freshness gate:  pass               │
+│ Excel:           generated          │
+│ PDF:             generated          │
+│ Wall clock:      15535ms (15.5s)    │
+╰─────────────────────────────────────╯
+
+Ledger salvo:  
+docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N01-golden/ledger-pncp-pcp-stri
+ct-v2.json
+Log salvo:     /mnt/d/extra 
+consultoria/output/golden-path/gp-20260718-190205.log
+
+Golden Path concluido com sucesso!
