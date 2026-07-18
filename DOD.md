@@ -1509,14 +1509,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Cada execução possui capability. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
 - [x] Cada execução possui parâmetros. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
 - [x] Cada execução possui período. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z.
-- [ ] Cada execução possui timestamps.
-- [ ] Cada execução possui status.
-- [ ] Cada execução possui contagens.
-- [ ] Cada execução possui erros.
-- [ ] Cada execução possui checkpoint.
-- [ ] Cada relatório referencia runs de origem.
-- [ ] Cada registro crítico possui provenance.
-- [ ] Mudanças manuais são auditáveis.
+- [x] Cada execução possui timestamps. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
+- [x] Cada execução possui status. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
+- [x] Cada execução possui contagens. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
+- [x] Cada execução possui erros. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
+- [x] Cada execução possui checkpoint. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
+- [x] Cada relatório referencia runs de origem. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
+- [x] Cada registro crítico possui provenance. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
+- [x] Mudanças manuais são auditáveis. Evidência: `build_execution_audit_record` outcome fields + `attach_report_source_runs` + `tests/test_execution_audit_record.py` (5 passed) + QA PASS cyc-2026-07-18T132805Z.
 - [ ] Overrides manuais possuem motivo.
 - [ ] Overrides manuais possuem data.
 - [ ] Overrides manuais possuem autor.
