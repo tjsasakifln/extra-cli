@@ -148,7 +148,23 @@ def assess_data_reliability(
                 f"Freshness acima do SLA ({freshness_sla_hours:.0f}h) — marcar DEGRADED."
             )
 
-    # Trust level resolution (worst signal wins)
+    # Count affirmative evidence (TRUSTED requires a minimum bundle — no sparse greens).
+    positive_signals = 0
+    if age_hours is not None and age_hours <= freshness_sla_hours:
+        positive_signals += 1
+    if provenance_ok is True:
+        positive_signals += 1
+    if query_valid is True:
+        positive_signals += 1
+    if health in {"ok", "healthy", "up", "green"}:
+        positive_signals += 1
+    if req and not missing:
+        positive_signals += 1
+    if sample_n is not None and sample_n >= sample_min:
+        positive_signals += 1
+    metrics["positive_signals"] = positive_signals
+
+    # Trust level resolution (worst signal wins; TRUSTED needs ≥3 positives).
     if (
         query_valid is False
         or provenance_ok is False
@@ -165,23 +181,26 @@ def assess_data_reliability(
         or (sample_n is not None and sample_n < sample_min)
     ):
         level = TrustLevel.DEGRADED
-    elif (
-        age_hours is None
-        and provenance_ok is None
-        and query_valid is None
-        and not health
-        and sample_n is None
-        and not req
-    ):
+    elif positive_signals >= 3 and not reasons:
+        level = TrustLevel.TRUSTED
+        reasons.append(
+            f"≥3 sinais afirmativos ({positive_signals}) dentro dos SLAs"
+        )
+    elif positive_signals > 0:
+        level = TrustLevel.DEGRADED
+        reasons.append(
+            f"sinais parciais ({positive_signals}/3 mínimos para TRUSTED)"
+        )
+        limitations.append(
+            "Evidência parcial — não trate como pronto para decisão sem mais sinais "
+            "(freshness, provenance, consulta, health, campos, N)."
+        )
+    else:
         level = TrustLevel.UNKNOWN
         reasons.append("sinais insuficientes para classificar")
         limitations.append(
             "Sem sinais de freshness/provenance/consulta — trate como UNKNOWN."
         )
-    else:
-        level = TrustLevel.TRUSTED
-        if not reasons:
-            reasons.append("sinais dentro dos SLAs e campos presentes")
 
     return ReliabilityAssessment(
         trust_level=level,

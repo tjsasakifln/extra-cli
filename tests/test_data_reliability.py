@@ -66,6 +66,14 @@ def test_unknown_without_signals() -> None:
     assert a.limitations
 
 
+def test_sparse_signals_not_trusted() -> None:
+    """QA CONCERN: sample_n alone must not yield TRUSTED."""
+    only_n = assess_data_reliability(sample_n=100)
+    assert only_n.trust_level != TrustLevel.TRUSTED
+    only_health = assess_data_reliability(source_health="ok")
+    assert only_health.trust_level != TrustLevel.TRUSTED
+
+
 def test_bare_percentage_rejected() -> None:
     bad = bare_percentage_is_forbidden(
         percentage=95.0, denominator_n=None, limitations=None
