@@ -3,19 +3,24 @@
   "campaign_id": "NEXT-30D-ROI-MAIN",
   "status": "EXECUTING",
   "created_at": "2026-07-18T19:19:39Z",
-  "updated_at": "2026-07-18T19:27:48Z",
+  "updated_at": "2026-07-18T19:37:19Z",
   "integration_mode": "main-direct",
   "baseline_head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "baseline_dod_sha256": "54bbbc0a0eec4576989722d9a1167860e1322c5cd509804d3677638e8c657228",
   "baseline_done_count": 92,
   "baseline_open_count": 1263,
   "pert_days_target": 30,
-  "pert_days_advanced": 2.5,
+  "pert_days_advanced": 4.5,
   "scope_frozen": true,
   "accepted_increments": [
     {
       "id": "T02",
       "at": "2026-07-18T19:27:48Z",
+      "qa": "PASS"
+    },
+    {
+      "id": "T03",
+      "at": "2026-07-18T19:37:19Z",
       "qa": "PASS"
     }
   ],
