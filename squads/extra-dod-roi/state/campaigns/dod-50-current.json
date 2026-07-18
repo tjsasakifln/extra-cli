@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "campaign_id": "dod-50-current",
   "created_at": "2026-07-18T00:39:51Z",
-  "updated_at": "2026-07-18T00:58:15Z",
+  "updated_at": "2026-07-18T01:00:05Z",
   "status": "SUCCESS",
   "repo": "tjsasakifln/extra-consultoria",
   "target_dod_items": 50,
@@ -1377,7 +1377,7 @@
     ]
   },
   "campaign_branch": "extra-roi/campaign-dod-50-20260718T003950Z",
-  "draft_pr": null,
+  "draft_pr": "https://github.com/tjsasakifln/extra-consultoria/pull/24",
   "accepted": [
     {
       "dod_item_id": "dod:6c7ec05aad2e",
@@ -3318,6 +3318,6 @@
     "Em QA": 0,
     "Em implementação": 0,
     "Bloqueados": 0,
-    "PR draft": null
+    "PR draft": "#24"
   }
 }
