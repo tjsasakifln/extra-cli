@@ -1,0 +1,3 @@
+O backup usa formato restaurável.
+Existe retenção mínima definida.
+Existe script de restore.
