@@ -212,36 +212,9 @@
     },
     {
       "section": "1. Como usar este documento",
-      "text": "Cada item só é marcado como concluído quando existir evidência verificável.",
-      "proven": true,
-      "evidence": "campaign ledger register_acceptance requires [x]+evidence+QA",
-      "command": "",
-      "exit_code": 0,
-      "notes": ""
-    },
-    {
-      "section": "1. Como usar este documento",
       "text": "Sempre que possível, a evidência é registrada ao lado do item no formato: `Evidência: <arquivo, comando, commit, relatório ou data>`.",
       "proven": true,
       "evidence": "DoD items use Evidência: suffix pattern",
-      "command": "",
-      "exit_code": 0,
-      "notes": ""
-    },
-    {
-      "section": "1. Como usar este documento",
-      "text": "Código existente sem execução comprovada não é considerado concluído.",
-      "proven": true,
-      "evidence": "truth auditor + campaign guards refuse code-only claims",
-      "command": "",
-      "exit_code": 0,
-      "notes": ""
-    },
-    {
-      "section": "1. Como usar este documento",
-      "text": "Teste unitário isolado não substitui execução ponta a ponta.",
-      "proven": true,
-      "evidence": "DoD unit pack explicitly refused e2e substitution; campaign notes",
       "command": "",
       "exit_code": 0,
       "notes": ""
@@ -368,5 +341,6 @@
       "notes": "REVOKED by adversarial QA FAIL — false green"
     }
   ],
-  "honest_note": "Do not treat revoked absolute claims as proven; DOD checkboxes reverted."
+  "honest_note": "Do not treat revoked absolute claims as proven; DOD checkboxes reverted.",
+  "audit_matrix_rewritten_at": "2026-07-18T01:29:34Z"
 }

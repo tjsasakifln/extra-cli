@@ -6,24 +6,6 @@
     "evidence": "docs/ops/cloud-deployment-plan.md"
   },
   {
-    "section": "25. Verdade, linguagem e claims permitidos",
-    "text": "Win rate não é calculado sem propostas enviadas.",
-    "id": "dod:77cc81ba0228",
-    "evidence": "scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs"
-  },
-  {
-    "section": "25. Verdade, linguagem e claims permitidos",
-    "text": "Score não é chamado de probabilidade sem calibração.",
-    "id": "dod:82fac986effe",
-    "evidence": "scoring.py labels score not probability"
-  },
-  {
-    "section": "27. Organização e manutenção do código",
-    "text": "URLs de fontes são centralizadas.",
-    "id": "dod:26a9c16cb7bd",
-    "evidence": "url-centralization.txt"
-  },
-  {
     "section": "27. Organização e manutenção do código",
     "text": "Scripts operacionais possuem exit codes consistentes.",
     "id": "dod:0875517557ee",
@@ -34,12 +16,6 @@
     "text": "Scripts operacionais suportam `--dry-run` quando aplicável.",
     "id": "dod:c6d6e02e8494",
     "evidence": "backup/restore/golden_path dry-run patterns"
-  },
-  {
-    "section": "27. Organização e manutenção do código",
-    "text": "Scripts destrutivos exigem confirmação ou flag explícita.",
-    "id": "dod:27a5884577be",
-    "evidence": "restore/backup scripts flags"
   },
   {
     "section": "31. Documentação operacional",

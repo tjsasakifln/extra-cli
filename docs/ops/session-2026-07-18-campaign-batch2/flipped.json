@@ -1,24 +1,6 @@
 [
   {
     "section": "1. Como usar este documento",
-    "text": "Cada item só é marcado como concluído quando existir evidência verificável.",
-    "id": "dod:ecfdc798b7e6",
-    "evidence": "campaign ledger register_acceptance requires [x]+evidence+QA"
-  },
-  {
-    "section": "1. Como usar este documento",
-    "text": "Código existente sem execução comprovada não é considerado concluído.",
-    "id": "dod:f5e5902b539e",
-    "evidence": "truth auditor + campaign guards refuse code-only claims"
-  },
-  {
-    "section": "1. Como usar este documento",
-    "text": "Teste unitário isolado não substitui execução ponta a ponta.",
-    "id": "dod:1162bd54c73b",
-    "evidence": "DoD unit pack explicitly refused e2e substitution; campaign notes"
-  },
-  {
-    "section": "1. Como usar este documento",
     "text": "Presença de registros no banco não é tratada como prova de cobertura.",
     "id": "dod:4fec282f18cd",
     "evidence": "coverage_truth multi-metric; commercial != operational"
@@ -94,24 +76,6 @@
     "text": "Estrutura de pastas está documentada.",
     "id": "dod:c4770bb863c9",
     "evidence": "squads/extra-dod-roi/config/source-tree.md or docs/architecture/"
-  },
-  {
-    "section": "27. Organização e manutenção do código",
-    "text": "Não existem `except Exception: pass`.",
-    "id": "dod:8b8b1ab218b1",
-    "evidence": "docs/ops/session-2026-07-18-campaign-batch2/except-exception-pass.txt"
-  },
-  {
-    "section": "29. Rastreabilidade e auditoria",
-    "text": "Cada execução possui `run_id`.",
-    "id": "dod:c0a0b488ff85",
-    "evidence": "63 modules; sample golden_path/crawl"
-  },
-  {
-    "section": "29. Rastreabilidade e auditoria",
-    "text": "Cada registro crítico possui provenance.",
-    "id": "dod:dfb5f473affc",
-    "evidence": "docs/ops/session-2026-07-18-campaign-batch2/provenance-paths.txt"
   },
   {
     "section": "31. Documentação operacional",

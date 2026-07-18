@@ -1408,9 +1408,9 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Valor contratado não é chamado de preço praticado. Evidência: batch2 `scripts/lib/value_semantics.py + tests/test_value_semantics.py`.
 - [ ] Vencedor conhecido não é chamado de conjunto completo de concorrentes.
 - [ ] Participante não identificado não é tratado como inexistente.
-- [x] Win rate não é calculado sem propostas enviadas. Evidência: batch4 `scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs`.
+- [ ] Win rate não é calculado sem propostas enviadas.
 - [x] Deságio não é calculado sem grandezas comparáveis. Evidência: batch2 `calculate_desagio returns None for invalid inputs; test_calculate_desagio_invalid_returns_none`.
-- [x] Score não é chamado de probabilidade sem calibração. Evidência: batch4 `scoring.py labels score not probability`.
+- [ ] Score não é chamado de probabilidade sem calibração.
 - [ ] Relatórios exibem limitações relevantes.
 - [ ] Nenhum documento afirma que o projeto acompanha obras.
 - [ ] Nenhum documento promete capacidade fora do escopo.
@@ -1456,7 +1456,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Logs não substituem tratamento de erro.
 - [x] Configuração é centralizada. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [x] Constantes de domínio são centralizadas. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
-- [x] URLs de fontes são centralizadas. Evidência: batch4 `url-centralization.txt`.
+- [ ] URLs de fontes são centralizadas.
 - [x] Timeouts são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [x] Retries são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.
 - [x] Janelas de freshness são configuráveis. Evidência: batch3 `docs/ops/session-2026-07-18-campaign-batch3/`.

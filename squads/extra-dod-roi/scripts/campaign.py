@@ -357,10 +357,10 @@ def register_acceptance(
         existing.add(did)
     ledger["counts"]["accepted"] = len(existing)
     target = int(ledger.get("target_dod_items") or DEFAULT_TARGET)
+    # Never auto-SUCCESS here — requires audit-matrix exit 0 after accepts
+    ledger["status"] = "IN_PROGRESS"
     if ledger["counts"]["accepted"] >= target:
-        ledger["status"] = "SUCCESS"
-    else:
-        ledger["status"] = "IN_PROGRESS"
+        ledger["ready_for_audit_matrix"] = True
     errs = validate_guards(ledger, items)
     if errs:
         raise ValueError("guard violations: " + "; ".join(errs))

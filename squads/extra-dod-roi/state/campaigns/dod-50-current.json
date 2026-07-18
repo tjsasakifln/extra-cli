@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "campaign_id": "dod-50-current",
   "created_at": "2026-07-18T00:39:51Z",
-  "updated_at": "2026-07-18T01:14:42Z",
+  "updated_at": "2026-07-18T01:29:58Z",
   "status": "SUCCESS",
   "repo": "tjsasakifln/extra-consultoria",
   "target_dod_items": 50,
@@ -1796,22 +1796,6 @@
       "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
-      "dod_item_id": "dod:77cc81ba0228",
-      "seção": "25. Verdade, linguagem e claims permitidos",
-      "texto": "Win rate não é calculado sem propostas enviadas. Evidência: batch4 `scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch4-ops-docs",
-      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
-      "comando": "batch4 file+code verification",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:14:42Z"
-    },
-    {
       "dod_item_id": "dod:bb4b42442519",
       "seção": "25. Verdade, linguagem e claims permitidos",
       "texto": "Deságio não é calculado sem grandezas comparáveis. Evidência: batch2 `calculate_desagio returns None for invalid inputs; test_calculate_desagio_invalid_returns_none`.",
@@ -1821,22 +1805,6 @@
       "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
       "comando": "batch2 adversarial",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:14:42Z"
-    },
-    {
-      "dod_item_id": "dod:82fac986effe",
-      "seção": "25. Verdade, linguagem e claims permitidos",
-      "texto": "Score não é chamado de probabilidade sem calibração. Evidência: batch4 `scoring.py labels score not probability`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch4-ops-docs",
-      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
-      "comando": "batch4 file+code verification",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
@@ -1885,22 +1853,6 @@
       "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
       "comando": "ops --help suite",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:14:42Z"
-    },
-    {
-      "dod_item_id": "dod:26a9c16cb7bd",
-      "seção": "27. Organização e manutenção do código",
-      "texto": "URLs de fontes são centralizadas. Evidência: batch4 `url-centralization.txt`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch4-ops-docs",
-      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
-      "comando": "batch4 file+code verification",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
@@ -2320,10 +2272,55 @@
       "at": "2026-07-18T01:14:42Z",
       "text": "Scripts destrutivos exigem confirmação",
       "reason": "restore has no confirm/force flag"
+    },
+    {
+      "at": "2026-07-18T01:28:33Z",
+      "dod_item_id": "dod:82fac986effe",
+      "text": "Score não é chamado de probabilidade sem calibração. Evidência: batch4 `scoring.py labels score not probability`.",
+      "reason": "audit-matrix falsifier failed",
+      "details": [
+        {
+          "dod_item_id": "dod:82fac986effe",
+          "text": "Score não é chamado de probabilidade sem calibração. Evidência: batch4 `scoring.py labels score not probability`.",
+          "ok": false,
+          "reason": "hits=['scripts/collect_report_data.py:6727:\"probabilidade_vitoria\": 0.0,', 'scripts/collect_report_data.py:6778:\"probabilidade_vitoria\": round(probability, 4),', 'scripts/generate-report-b2g.py:2673:\"<b>COMPETITIVIDADE ESTIMADA (%):</b> Estima a probabilidade de vencer com base ', 'scripts/generate-report-b2g.py:5514:\"<b>COMPETITIVIDADE ESTIMADA (%):</b> Estima a probabilidade de vencer com base ', 'scripts/intel_analyze.py:330:# D4: Probabilidade de Vitoria', 'scripts/intel_report.py:2092:p_vitoria = bid_sim.get(\"probabilidade_vitoria\")']",
+          "probe": "scripts/** probabilidade_vitoria / probabilidade de vencer"
+        }
+      ]
+    },
+    {
+      "at": "2026-07-18T01:28:34Z",
+      "dod_item_id": "dod:26a9c16cb7bd",
+      "text": "URLs de fontes são centralizadas. Evidência: batch4 `url-centralization.txt`.",
+      "reason": "audit-matrix falsifier failed",
+      "details": [
+        {
+          "dod_item_id": "dod:26a9c16cb7bd",
+          "text": "URLs de fontes são centralizadas. Evidência: batch4 `url-centralization.txt`.",
+          "ok": false,
+          "reason": "source host hardcodes in 29 files (scattered=28): ['scripts/collect_report_data.py:5', 'scripts/datalake-sc-200km.py:1', 'scripts/generate-report-b2g.py:2', 'scripts/intel_collect.py:3', 'scripts/intel_report.py:1', 'scripts/pricing-b2g-collect.py:1', 'scripts/radar-b2g-collect.py:1', 'scripts/validate-report-data.py:1']",
+          "probe": "repo-wide source host URL count under scripts/"
+        }
+      ]
+    },
+    {
+      "at": "2026-07-18T01:29:34Z",
+      "dod_item_id": "dod:77cc81ba0228",
+      "text": "Win rate não é calculado sem propostas enviadas. Evidência: batch4 `scripts/opportunity_intel/scoring.py — no unguarded ",
+      "reason": "audit-matrix falsifier failed",
+      "details": [
+        {
+          "dod_item_id": "dod:77cc81ba0228",
+          "text": "Win rate não é calculado sem propostas enviadas. Evidência: batch4 `scripts/opportunity_intel/scoring.py — no unguarded ",
+          "ok": false,
+          "reason": "base_defaults=['scripts/collect_report_data.py', 'scripts/intel_sector_loader.py'] unguarded=[] vacuous_ev=False files_with_win=5",
+          "probe": "scripts/** win_rate/base_win_rate + proposal guard"
+        }
+      ]
     }
   ],
   "counts": {
-    "accepted": 56,
+    "accepted": 53,
     "blocked": 0,
     "in_qa": 0,
     "implementing": 0
@@ -2746,22 +2743,6 @@
       "accepted_at": "2026-07-18T01:14:42Z"
     },
     {
-      "dod_item_id": "dod:77cc81ba0228",
-      "seção": "25. Verdade, linguagem e claims permitidos",
-      "texto": "Win rate não é calculado sem propostas enviadas. Evidência: batch4 `scripts/opportunity_intel/scoring.py — no unguarded win_rate without proposal inputs`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch4-ops-docs",
-      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
-      "comando": "batch4 file+code verification",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:14:42Z"
-    },
-    {
       "dod_item_id": "dod:bb4b42442519",
       "seção": "25. Verdade, linguagem e claims permitidos",
       "texto": "Deságio não é calculado sem grandezas comparáveis. Evidência: batch2 `calculate_desagio returns None for invalid inputs; test_calculate_desagio_invalid_returns_none`.",
@@ -2771,22 +2752,6 @@
       "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch2/ + QA PASS",
       "comando": "batch2 adversarial",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:14:42Z"
-    },
-    {
-      "dod_item_id": "dod:82fac986effe",
-      "seção": "25. Verdade, linguagem e claims permitidos",
-      "texto": "Score não é chamado de probabilidade sem calibração. Evidência: batch4 `scoring.py labels score not probability`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch4-ops-docs",
-      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
-      "comando": "batch4 file+code verification",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
@@ -2835,22 +2800,6 @@
       "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
       "evidência": "docs/ops/session-2026-07-18-campaign-batch3/MANIFEST.md",
       "comando": "ops --help suite",
-      "exit_code": 0,
-      "qa_verdict": "PASS",
-      "qa_agent": "adversarial-qa-auditor",
-      "implementer": "delivery-engineer",
-      "accepted_at": "2026-07-18T01:14:42Z"
-    },
-    {
-      "dod_item_id": "dod:26a9c16cb7bd",
-      "seção": "27. Organização e manutenção do código",
-      "texto": "URLs de fontes são centralizadas. Evidência: batch4 `url-centralization.txt`.",
-      "estado_baseline": "[ ]",
-      "estado_final": "[x]",
-      "story_id": "ROI-campaign-batch4-ops-docs",
-      "commit": "87a51ddabc1d3981d5f0f1e57e96bbfcb72e94bd",
-      "evidência": "docs/ops/session-2026-07-18-campaign-batch4/proof-matrix.json",
-      "comando": "batch4 file+code verification",
       "exit_code": 0,
       "qa_verdict": "PASS",
       "qa_agent": "adversarial-qa-auditor",
@@ -3247,5 +3196,7 @@
     "Aceitos_PASS": 51,
     "PR draft": "#24",
     "status": "SUCCESS"
-  }
+  },
+  "post_audit_note": "Purged falsified rows; re-run audit-matrix without --write to confirm SUCCESS",
+  "audit_matrix_pass_at": "2026-07-18T01:29:58Z"
 }

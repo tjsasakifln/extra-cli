@@ -128,6 +128,24 @@ def main(argv: list[str] | None = None) -> int:
     p_camp.add_argument("--fetch", action="store_true")
     p_camp.add_argument("--status", action="store_true")
     p_camp.add_argument("--sync-count", action="store_true")
+    p_camp.add_argument(
+        "campaign_action",
+        nargs="?",
+        default=None,
+        choices=["audit-matrix"],
+        help="Optional campaign sub-action (audit-matrix)",
+    )
+    p_camp.add_argument(
+        "--write",
+        action="store_true",
+        help="For audit-matrix: uncheck failures and rewrite packs",
+    )
+    p_camp.add_argument(
+        "--json",
+        action="store_true",
+        dest="campaign_json",
+        help="JSON output for campaign sub-actions",
+    )
 
     args = p.parse_args(argv)
 
@@ -182,7 +200,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "cycle":
         return run_py("cycle_state.py", ["show"])
     if args.cmd == "campaign":
-        a: list[str] = [f"--target-dod-items={args.target_dod_items}"]
+        if getattr(args, "campaign_action", None) == "audit-matrix":
+            a_am = []
+            if args.write:
+                a_am.append("--write")
+            if getattr(args, "campaign_json", False) or True:
+                a_am.append("--json")
+            return run_py("audit_matrix.py", a_am)
+        a = [f"--target-dod-items={args.target_dod_items}"]
         if args.resume:
             a.append("--resume")
         if args.fetch:

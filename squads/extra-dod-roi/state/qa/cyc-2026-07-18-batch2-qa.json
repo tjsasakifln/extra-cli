@@ -198,9 +198,6 @@
     }
   ],
   "authorized_flips": [
-    "Cada item só é marcado como concluído quando existir evidência verificável.",
-    "Código existente sem execução comprovada não é considerado concluído.",
-    "Teste unitário isolado não substitui execução ponta a ponta.",
     "Presença de registros no banco não é tratada como prova de cobertura.",
     "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
     "Existe instrução de recuperação após corrupção local.",
@@ -220,11 +217,9 @@
     "README descreve fontes.",
     "README descreve métricas de coverage.",
     "Existe runbook local.",
-    "Existe runbook de VPS.",
     "Existe runbook de backup.",
     "Existe runbook de restore.",
     "Existe runbook de fonte quebrada.",
-    "Existe runbook de freshness vencida.",
     "Existe matriz de fontes.",
     "Existe matriz de capabilities.",
     "Existe registro de blockers."
@@ -235,5 +230,6 @@
     "Cada execução possui `run_id`.",
     "Cada registro crítico possui provenance."
   ],
-  "must_revert_applied": true
+  "must_revert_applied": true,
+  "authorized_flips_note": "Aligned to item-level PASS only; CONCERNS/FAIL excluded"
 }

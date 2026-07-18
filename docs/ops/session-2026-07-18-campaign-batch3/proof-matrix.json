@@ -65,13 +65,6 @@
       "notes": ""
     },
     {
-      "section": "25. Verdade, linguagem e claims permitidos",
-      "text": "Score não é chamado de probabilidade sem calibração.",
-      "proven": true,
-      "evidence": "DoD + opportunity scoring labels score not probability; no calibration claim in README",
-      "notes": "conservative: no code labels score as probability"
-    },
-    {
       "section": "31. Documentação operacional",
       "text": "README não confunde alvo futuro com realidade atual.",
       "proven": true,
@@ -181,9 +174,9 @@
     {
       "section": "25. Verdade, linguagem e claims permitidos",
       "text": "Score não é chamado de probabilidade sem calibração.",
-      "proven": true,
+      "proven": false,
       "evidence": "DoD + opportunity scoring labels score not probability; no calibration claim in README",
-      "notes": "conservative: no code labels score as probability"
+      "notes": "conservative: no code labels score as probability | REVOKED by audit-matrix falsifier"
     },
     {
       "section": "31. Documentação operacional",
@@ -227,5 +220,6 @@
       "evidence": ".coveragerc coverage_gate threshold",
       "notes": ""
     }
-  ]
+  ],
+  "audit_matrix_rewritten_at": "2026-07-18T01:29:34Z"
 }
