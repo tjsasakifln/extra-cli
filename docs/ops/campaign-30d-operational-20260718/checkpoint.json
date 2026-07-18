@@ -2,10 +2,10 @@
   "campaign": "advance-30d-operational-20260718",
   "main_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "epic_branch": "epic/advance-30d-local-ready-20260718",
-  "epic_sha": "e27153d85333c0bcd8ffbd0b1a50b4b3887e8c47",
-  "current_story": "ROI-cand-dyn-slice-f7e09f20fb21",
-  "phase": "STORY_DRAFT",
-  "last_completed_story": "ROI-cand-dyn-slice-8d8c11884fa6",
+  "epic_sha": "c07a4ed120d72ae9d16e4ef7be7cf14e26e072b0",
+  "current_story": "",
+  "phase": "FORCE_NEXT",
+  "last_completed_story": "ROI-cand-dyn-slice-f7e09f20fb21",
   "last_qa_verdict": "PASS",
   "open_worktrees": [],
   "open_prs": [
@@ -15,17 +15,17 @@
     "blk-live-canary-pg",
     "blk-vps-provision",
     "blk-coverage-95",
-    "empty_local_pg_for_market_metrics"
+    "empty_local_pg"
   ],
-  "next_command": "PO Ready + implement ROI-cand-dyn-slice-f7e09f20fb21",
-  "updated_at": "2026-07-18T18:21:42.393741+00:00",
-  "dod_checked": 386,
+  "next_command": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
+  "updated_at": "2026-07-18T18:27:29.692230+00:00",
+  "dod_checked": 399,
   "dod_total": 1354,
   "stories_closed_session": [
     "ROI-cand-dyn-slice-b8d41f43fbfc",
     "ROI-cand-dyn-slice-b3ea2a2669e1",
     "ROI-cand-dyn-slice-dd7b4910d7f9",
-    "ROI-cand-dyn-slice-8d8c11884fa6"
-  ],
-  "recovery_docs": "docs/ops/recovery-2026-07-18/"
+    "ROI-cand-dyn-slice-8d8c11884fa6",
+    "ROI-cand-dyn-slice-f7e09f20fb21"
+  ]
 }
