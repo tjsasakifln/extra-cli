@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-bc3d6ceca149",
+  "title": "[2.4 Usu\u00e1rio e forma de uso] Tiago \u00e9 o \u00fanico usu\u00e1rio obrigat\u00f3rio do sistema. \u00b7 O fluxo principal pode ser executado sem interface web. \u00b7 Os comandos principais s\u00e3o claros e documentados. (+5 more)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-bc3d6ceca149.md",
+  "created_at": "2026-07-18T13:56:42Z",
+  "updated_at": "2026-07-18T13:57:42Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T135641Z",
+    "candidate_id": "cand-dyn-slice:bc3d6ceca149",
+    "roi": 2.4928,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}
