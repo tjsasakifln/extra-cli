@@ -30,3 +30,22 @@ def test_audit_dod_runs_on_repo() -> None:
     assert report["checked"] > 0
     assert report["open"] > 0
     assert "rules" in report
+
+
+def test_project_done_requires_three_rolls() -> None:
+    from scripts.ops.dod_process_integrity import PROJECT_DONE_ROLLS, project_done_allowed
+
+    assert len(PROJECT_DONE_ROLLS) == 3
+    blocked = project_done_allowed(
+        current_stage_complete=True,
+        post_vps_complete=False,
+        infra_independent_complete=True,
+    )
+    assert blocked["allowed"] is False
+    assert "post_vps_requirements" in blocked["missing"]
+    ok = project_done_allowed(
+        current_stage_complete=True,
+        post_vps_complete=True,
+        infra_independent_complete=True,
+    )
+    assert ok["allowed"] is True

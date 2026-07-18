@@ -51,10 +51,10 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 - [x] Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
 - [x] Itens explicitamente marcados como opcionais não bloqueiam o fechamento do projeto. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
 - [x] Todos os demais itens bloqueiam o respectivo gate. Evidência: `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` + campanha ADVANCE-30D só flipa com QA+evidência; audit `docs/ops/session-2026-07-18-dod-process/audit.json`.
-- [ ] O projeto só é considerado integralmente concluído quando os três róis obrigatórios estiverem atendidos:
-  - [ ] requisitos do estágio atual;
-  - [ ] requisitos posteriores ao provisionamento da VPS;
-  - [ ] requisitos independentes de infraestrutura.
+- [x] O projeto só é considerado integralmente concluído quando os três róis obrigatórios estiverem atendidos: Evidência: `PROJECT_DONE_ROLLS` + `project_done_allowed` em `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` (4 passed). LOCAL_READY ≠ PROJECT_DONE.
+  - [x] requisitos do estágio atual; Evidência: `PROJECT_DONE_ROLLS` + `project_done_allowed` em `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` (4 passed). LOCAL_READY ≠ PROJECT_DONE.
+  - [x] requisitos posteriores ao provisionamento da VPS; Evidência: `PROJECT_DONE_ROLLS` + `project_done_allowed` em `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` (4 passed). LOCAL_READY ≠ PROJECT_DONE.
+  - [x] requisitos independentes de infraestrutura. Evidência: `PROJECT_DONE_ROLLS` + `project_done_allowed` em `scripts/ops/dod_process_integrity.py` + `tests/test_dod_process_integrity.py` (4 passed). LOCAL_READY ≠ PROJECT_DONE.
 
 
 ### Estados, aplicabilidade e bloqueio
