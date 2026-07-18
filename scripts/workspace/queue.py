@@ -2,8 +2,8 @@
 
 Graceful degradation: each section is OK / EMPTY / UNAVAILABLE independently.
 """
-
 from __future__ import annotations
+import logging
 
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -56,7 +56,9 @@ def build_today(dsn: str | None = None, hours_new: int = 48) -> dict[str, Any]:
         try:
             conn.close()
         except Exception:  # noqa: BLE001, S110 — close is best-effort on degrade path
-            pass
+            logging.getLogger(__name__).warning(
+                "swallowed exception in %s", __name__, exc_info=True
+            )
 
     return {
         "command": "today",
@@ -284,7 +286,9 @@ def _section_source_health(conn: Any | None, pg_err: str | None) -> SectionResul
                         }
                     )
             except Exception:  # noqa: BLE001, S110 — runs table optional
-                pass
+                logging.getLogger(__name__).warning(
+                    "swallowed exception in %s", __name__, exc_info=True
+                )
 
             if stale:
                 return SectionResult(name=name, status="OK", items=stale, meta={"source": "opportunity_intel"})

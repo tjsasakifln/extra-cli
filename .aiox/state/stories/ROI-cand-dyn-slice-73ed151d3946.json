@@ -1,0 +1,13 @@
+{
+  "story_id": "ROI-cand-dyn-slice-73ed151d3946",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "qa_notes": "bare pass zero under scripts; logs-not-substitute and config centralization left PARTIAL",
+  "po_closed": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-no-silent-except",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:73ed151d3946",
+    "dod_items_flipped": 3
+  }
+}

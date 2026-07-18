@@ -19,8 +19,8 @@ Usage:
 Requires:
     pip install httpx pyyaml
 """
-
 from __future__ import annotations
+import logging
 
 import argparse
 import concurrent.futures
@@ -10045,7 +10045,9 @@ def collect_sicaf(cnpj14: str, verbose: bool = True) -> dict:
         try:
             Path(tmp_path).unlink(missing_ok=True)
         except Exception:  # noqa: S110  # Best-effort temp file cleanup in finally block
-            pass
+            logging.getLogger(__name__).warning(
+                "swallowed exception in %s", __name__, exc_info=True
+            )
 
 
 # ============================================================

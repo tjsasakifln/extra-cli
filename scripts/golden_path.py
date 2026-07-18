@@ -34,8 +34,8 @@ Exit codes:
     4 — relatório obrigatório falhou (strict)
     5 — degraded (gates mistos / não essencial)
 """
-
 from __future__ import annotations
+import logging
 
 import argparse
 import json
@@ -882,7 +882,9 @@ def collect_run_metadata(
         if migs:
             schema_version = migs[-1].name
     except Exception:
-        pass
+        logging.getLogger(__name__).warning(
+            "swallowed exception in %s", __name__, exc_info=True
+        )
 
     now = datetime.now(UTC)
     lims = list(limitations or [])

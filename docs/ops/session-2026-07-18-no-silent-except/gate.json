@@ -1,0 +1,577 @@
+{
+  "generated_at": "2026-07-18T16:33:23.133657+00:00",
+  "n_py_files": 296,
+  "module_names": {
+    "n_non_snake": 0,
+    "findings": [],
+    "ok": true
+  },
+  "sys_path": {
+    "n_inserts": 86,
+    "n_disallowed": 18,
+    "inventory_sample": [
+      {
+        "path": "scripts/check-alerts.py",
+        "line": 44,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/check_imports.py",
+        "line": 28,
+        "snippet": "sys.path.insert(0, str(p))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/collect-metrics.py",
+        "line": 32,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/contract_intel/cli.py",
+        "line": 32,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/contract_intel/target_universe.py",
+        "line": 26,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/coverage/applicability_matrix.py",
+        "line": 21,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/coverage/coverage_contract_cli.py",
+        "line": 27,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/coverage/measure_pncp_expansion.py",
+        "line": 26,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/coverage/run_matching.py",
+        "line": 16,
+        "snippet": "sys.path.insert(0, _PROJECT_ROOT)",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/coverage/session_coverage_pipeline.py",
+        "line": 30,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/batch_detect_platforms.py",
+        "line": 23,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/batch_detect_platforms_pass2.py",
+        "line": 26,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/bids_crawler.py",
+        "line": 67,
+        "snippet": "sys.path.insert(0, str(_p))",
+        "allowed_bootstrap": false
+      },
+      {
+        "path": "scripts/crawl/ciga_ckan_crawler.py",
+        "line": 41,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/ciga_dom_publications.py",
+        "line": 40,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/compras_gov_crawler.py",
+        "line": 50,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/contracts_crawler.py",
+        "line": 54,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/dados_abertos_sc_crawler.py",
+        "line": 52,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/discover_ciga_packages.py",
+        "line": 24,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/doe_sc_crawler.py",
+        "line": 44,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/doe_sc_selenium_crawler.py",
+        "line": 38,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/dom_sc_crawler.py",
+        "line": 51,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/generate_transparencia_config.py",
+        "line": 17,
+        "snippet": "sys.path.insert(0, str(PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/ingestion/load_official_acts_session.py",
+        "line": 31,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/mides_bigquery_crawler.py",
+        "line": 46,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/monitor.py",
+        "line": 43,
+        "snippet": "sys.path.insert(0, _root)",
+        "allowed_bootstrap": false
+      },
+      {
+        "path": "scripts/crawl/pcp_crawler.py",
+        "line": 45,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/pncp_sc_focused.py",
+        "line": 28,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/run_contracts_90d_pilot.py",
+        "line": 42,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/run_dedup.py",
+        "line": 27,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/sc_compras_crawler.py",
+        "line": 47,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/selenium_crawler_adapter.py",
+        "line": 28,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/selenium_smoke_test.py",
+        "line": 25,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/smoke_pncp_public.py",
+        "line": 27,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/tce_sc_crawler.py",
+        "line": 40,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/crawl/transparencia_crawler.py",
+        "line": 43,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/demo_b2g_setorial.py",
+        "line": 45,
+        "snippet": "sys.path.insert(0, str(_SCRIPT_DIR))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/demo_b2g_setorial.py",
+        "line": 47,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT / \"backend\"))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/diagnose/dom_sc_diagnostic.py",
+        "line": 28,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      },
+      {
+        "path": "scripts/fix/activate_dormant_sources.py",
+        "line": 35,
+        "snippet": "sys.path.insert(0, str(_PROJECT_ROOT))",
+        "allowed_bootstrap": true
+      }
+    ],
+    "disallowed": [
+      {
+        "path": "scripts/crawl/bids_crawler.py",
+        "kind": "sys_path_hack",
+        "detail": "L67: sys.path.insert(0, str(_p))",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/crawl/monitor.py",
+        "kind": "sys_path_hack",
+        "detail": "L43: sys.path.insert(0, _root)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/generate-report-b2g.py",
+        "kind": "sys_path_hack",
+        "detail": "L7365: sys.path.insert(0, str(Path(__file__).resolve().parent))",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/generate_consultoria_pdf.py",
+        "kind": "sys_path_hack",
+        "detail": "L33: sys.path.insert(0, _scripts_dir)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_collect.py",
+        "kind": "sys_path_hack",
+        "detail": "L65: sys.path.insert(0, _scripts_dir)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_enrich.py",
+        "kind": "sys_path_hack",
+        "detail": "L51: sys.path.insert(0, _scripts_dir)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_enrich.py",
+        "kind": "sys_path_hack",
+        "detail": "L53: from lib.intel_logging import setup_intel_logging  # noqa: E402 — import after s",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_enrich.py",
+        "kind": "sys_path_hack",
+        "detail": "L85: sys.path.insert(0, _lib_dir)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_enrich.py",
+        "kind": "sys_path_hack",
+        "detail": "L86: from cost_estimator import (  # noqa: E402 — import after sys.path.insert for li",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_excel.py",
+        "kind": "sys_path_hack",
+        "detail": "L37: sys.path.insert(0, _scripts_dir)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_llm_gate.py",
+        "kind": "sys_path_hack",
+        "detail": "L21: sys.path.insert(0, _scripts_dir)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_pipeline.py",
+        "kind": "sys_path_hack",
+        "detail": "L41: sys.path.insert(0, str(_scripts_dir))",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_report.py",
+        "kind": "sys_path_hack",
+        "detail": "L40: sys.path.insert(0, _scripts_dir)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/intel_validate.py",
+        "kind": "sys_path_hack",
+        "detail": "L45: sys.path.insert(0, _scripts_dir)",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/pricing-b2g-collect.py",
+        "kind": "sys_path_hack",
+        "detail": "L50: sys.path.insert(0, str(Path(__file__).parent))",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/radar-b2g-collect.py",
+        "kind": "sys_path_hack",
+        "detail": "L54: sys.path.insert(0, str(Path(__file__).parent))",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/retention-b2g-collect.py",
+        "kind": "sys_path_hack",
+        "detail": "L43: sys.path.insert(0, str(Path(__file__).parent))",
+        "severity": "MEDIUM"
+      },
+      {
+        "path": "scripts/war-room-b2g-collect.py",
+        "kind": "sys_path_hack",
+        "detail": "L48: sys.path.insert(0, str(Path(__file__).parent))",
+        "severity": "MEDIUM"
+      }
+    ],
+    "policy": "Only project-root bootstrap via _PROJECT_ROOT/parents[N] allowed",
+    "ok": true
+  },
+  "except_exception_pass": {
+    "n_total": 0,
+    "n_critical_path": 0,
+    "critical": [],
+    "ok": true
+  },
+  "public_api_sample": {
+    "n_public_funcs": 52,
+    "with_docstring": 27,
+    "with_return_hint": 52,
+    "samples": [
+      {
+        "file": "scripts/golden_path.py",
+        "func": "evaluate_run_outcome",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "check_db",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "crawl_source",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "run_freshness_gate",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "run_coverage_calculation",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "run_snapshot_reconciliation",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "run_commercial_pack",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "run_reports",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "collect_run_metadata",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "bootstrap_foundation",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "parse_args",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/golden_path.py",
+        "func": "main",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/canonical_entry_points.py",
+        "func": "validate_entry_points",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/canonical_entry_points.py",
+        "func": "main",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/source_contract_tests.py",
+        "func": "http_probe",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/source_contract_tests.py",
+        "func": "validate_pncp_schema",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/source_contract_tests.py",
+        "func": "fixture_pncp_payload",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/source_contract_tests.py",
+        "func": "classify_http_outcome",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/source_contract_tests.py",
+        "func": "detect_contract_alerts",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/source_contract_tests.py",
+        "func": "run_contract_suite",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/ops/source_contract_tests.py",
+        "func": "main",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/coverage/applicability_matrix.py",
+        "func": "load_applicability_config",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/coverage/applicability_matrix.py",
+        "func": "load_universe_entities",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/coverage/applicability_matrix.py",
+        "func": "decide_for_entity_source",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/coverage/applicability_matrix.py",
+        "func": "build_matrix",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/coverage/applicability_matrix.py",
+        "func": "write_matrix",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/coverage/applicability_matrix.py",
+        "func": "main",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/reports/operational_outputs.py",
+        "func": "classify_bids",
+        "docstring": true,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/reports/operational_outputs.py",
+        "func": "fetch_active_bids",
+        "docstring": false,
+        "return_hint": true
+      },
+      {
+        "file": "scripts/reports/operational_outputs.py",
+        "func": "fetch_from_opportunity_intel",
+        "docstring": false,
+        "return_hint": true
+      }
+    ],
+    "docstring_pct": 51.9,
+    "return_hint_pct": 100.0
+  },
+  "public_api_ok": true,
+  "claims": {
+    "allowed": [
+      "Module naming audited under scripts/",
+      "sys.path policy documented with inventory",
+      "Critical path free of except Exception: pass"
+    ],
+    "forbidden": [
+      "Entire codebase free of sys.path (brownfield false claim)",
+      "LOCAL_READY"
+    ]
+  },
+  "summary": {
+    "ok": true
+  }
+}

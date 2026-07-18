@@ -17,8 +17,8 @@ Usage:
     python scripts/intel-pipeline.py --cnpj 01721078000168 --ufs SC --from-step 6
     python scripts/intel-pipeline.py --cnpj 01721078000168 --ufs SC --no-cache
 """
-
 from __future__ import annotations
+import logging
 
 import argparse
 import io
@@ -1280,7 +1280,9 @@ def main() -> int:
             data.setdefault("_metadata", {})["pipeline_steps_completed"] = 7
             _save_json(json_path, data)
         except Exception:
-            pass
+            logging.getLogger(__name__).warning(
+                "swallowed exception in %s", __name__, exc_info=True
+            )
 
     # ── FINAL SUMMARY ────────────────────────────────────────────
     total_elapsed = time.time() - pipeline_t0
@@ -1335,7 +1337,9 @@ def main() -> int:
             _empresa_hint = _load_json(json_path).get("empresa", {})
             _cnpj_hint = _empresa_hint.get("cnpj") or cnpj14
         except Exception:
-            pass
+            logging.getLogger(__name__).warning(
+                "swallowed exception in %s", __name__, exc_info=True
+            )
     print(f"\n  {_info('CALIBRACAO')}: Apos resultado da licitacao, registre:")
     print(f"    python scripts/intel-feedback.py --cnpj {_cnpj_hint} --edital <ID> --outcome win|loss")
 

@@ -23,9 +23,7 @@ Design:
     - Timeout configravel por porta
     - Anti-bot measures: stealth mode, viewport aleatorio, UA realista
 """
-
 from __future__ import annotations
-
 import logging
 import os
 import random
@@ -313,28 +311,36 @@ class PlaywrightFallback:
             try:
                 self._page.close()
             except Exception:  # noqa: S110  # Best-effort cleanup in close()
-                pass
+                logging.getLogger(__name__).warning(
+                    "swallowed exception in %s", __name__, exc_info=True
+                )
             self._page = None
 
         if self._context is not None:
             try:
                 self._context.close()
             except Exception:  # noqa: S110  # Best-effort cleanup in close()
-                pass
+                logging.getLogger(__name__).warning(
+                    "swallowed exception in %s", __name__, exc_info=True
+                )
             self._context = None
 
         if self._browser is not None:
             try:
                 self._browser.close()
             except Exception:  # noqa: S110  # Best-effort cleanup in close()
-                pass
+                logging.getLogger(__name__).warning(
+                    "swallowed exception in %s", __name__, exc_info=True
+                )
             self._browser = None
 
         if hasattr(self, "_playwright") and self._playwright is not None:
             try:
                 self._playwright.stop()
             except Exception:  # noqa: S110  # Best-effort cleanup in close()
-                pass
+                logging.getLogger(__name__).warning(
+                    "swallowed exception in %s", __name__, exc_info=True
+                )
 
         _logger.debug("PlaywrightFallback closed")
 

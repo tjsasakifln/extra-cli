@@ -1449,11 +1449,11 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Funções públicas possuem docstring quando necessário. Evidência: public_api_sample docstring_pct≥50% critical modules.
 - [x] Funções críticas possuem type hints. Evidência: return_hint_pct on critical public API sample.
 - [x] Exceções são específicas. Evidência: critical path 0× `except Exception: pass` (gate).
-- [ ] Erros não são engolidos.
-- [ ] Não existem `except Exception: pass`.
-- [ ] Falhas externas possuem contexto.
-- [ ] Logs não substituem tratamento de erro.
-- [ ] Configuração é centralizada.
+- [x] Erros não são engolidos. Evidência: 25 silent `except Exception: pass` → `logging.warning(..., exc_info=True)`; gate bare=0 session-2026-07-18-no-silent-except.
+- [x] Não existem `except Exception: pass`. Evidência: code_organization_gate n_total=0 under scripts/ + QA.
+- [x] Falhas externas possuem contexto. Evidência: swallowed paths now log with exc_info; HTTP classify in source_contract_tests.
+- [ ] Logs não substituem tratamento de erro. PARTIAL — logging added on former silent paths; full rethrow policy not universal.
+- [ ] Configuração é centralizada. PARTIAL — scripts/crawl/config.py + coverage_slas exist; not fully audited this slice.
 - [ ] Constantes de domínio são centralizadas.
 - [ ] URLs de fontes são centralizadas.
 - [x] Timeouts são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`

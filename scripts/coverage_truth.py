@@ -10,9 +10,7 @@ Usage::
     python scripts/coverage_truth.py report --radius-km 200
     python scripts/coverage_truth.py report --radius-km 200 --output-dir docs/coverage-truth/
 """
-
 from __future__ import annotations
-
 import argparse
 import json
 import logging
@@ -838,7 +836,9 @@ def cmd_report(args: argparse.Namespace) -> int:
         try:
             conn.close()
         except Exception:  # noqa: S110  # Best-effort connection cleanup in error handler
-            pass
+            logging.getLogger(__name__).warning(
+                "swallowed exception in %s", __name__, exc_info=True
+            )
         return 1
 
     # ── Compute metrics ──────────────────────────────────────────────────

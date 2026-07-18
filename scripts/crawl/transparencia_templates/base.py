@@ -2,9 +2,7 @@
 
 Shared parsing helpers used by all platform-specific templates.
 """
-
 from __future__ import annotations
-
 import hashlib
 import logging
 from typing import Any
@@ -43,7 +41,9 @@ def extract_link(element: Any, selector: str, base_url: str) -> str:
                 return f"{parsed.scheme}://{parsed.netloc}{href}"
             return href
     except Exception:  # noqa: S110
-        pass  # Best-effort URL resolution — return empty on any parse failure
+        logging.getLogger(__name__).warning(
+            "swallowed exception in %s", __name__, exc_info=True
+        )
     return ""
 
 

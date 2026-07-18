@@ -15,8 +15,8 @@ Design constraints (per goal criteria):
   - Readiness manifest is per-capability, with conservative denominators.
   - Exit code non-zero below 95% readiness or with unresolved uncertainty.
 """
-
 from __future__ import annotations
+import logging
 
 import argparse
 import csv
@@ -206,7 +206,9 @@ def _ensure_views_pg(cur: Any) -> None:
     try:
         cur.execute(migration_path.read_text())
     except Exception:  # noqa: S110
-        pass  # Views may already exist or migration already applied
+        logging.getLogger(__name__).warning(
+            "swallowed exception in %s", __name__, exc_info=True
+        )
 
 
 def _ensure_tables(conn: Any, backend: str) -> None:

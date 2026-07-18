@@ -16,7 +16,10 @@ Original docstring:
 """
 
 # NOTE: from __future__ must be first per PEP 563
-from __future__ import annotations  # noqa: E402
+from __future__ import annotations
+
+import logging
+  # noqa: E402
 
 import warnings
 
@@ -316,9 +319,13 @@ def crawl_source(
         try:
             _finish_ingestion_run(conn, run_id, fetched, upserted, matched, "failed", error)
         except Exception:  # noqa: S110  # Best-effort: ingestion run reporting in error handler
-            pass
+            logging.getLogger(__name__).warning(
+                "swallowed exception in %s", __name__, exc_info=True
+            )
         try:
             conn.close()
         except Exception:  # noqa: S110  # Best-effort: connection cleanup in error handler
-            pass
+            logging.getLogger(__name__).warning(
+                "swallowed exception in %s", __name__, exc_info=True
+            )
         return {"source": source, "status": "failed", "error": error}

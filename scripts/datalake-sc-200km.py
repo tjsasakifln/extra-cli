@@ -12,8 +12,8 @@ Usage:
     python scripts/datalake-sc-200km.py
     python scripts/datalake-sc-200km.py --radius 150
 """
-
 from __future__ import annotations
+import logging
 
 import argparse
 import json
@@ -118,7 +118,9 @@ def enrich_coordinates(municipalities: dict[str, dict], delay: float = 0.1):
 
                     fetched += 1
             except Exception:  # noqa: S110
-                pass  # Per-row fetch — single failure shouldn't abort batch
+                logging.getLogger(__name__).warning(
+                    "swallowed exception in %s", __name__, exc_info=True
+                )
 
             time.sleep(delay)
             if fetched % 50 == 0:

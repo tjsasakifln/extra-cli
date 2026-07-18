@@ -9,8 +9,8 @@ Usage:
     python scripts/intel_extract_docs.py --input data.json --top 10
     python scripts/intel_extract_docs.py --input data.json --top 5 --output enriched.json
 """
-
 from __future__ import annotations
+import logging
 
 import argparse
 import io
@@ -399,7 +399,9 @@ def _detect_format(content_type: str, url: str, local_path: str) -> str:
         # XLSX is also a ZIP with specific internal structure
         # If PK magic and xlsx suffix → xlsx already handled above
     except Exception:  # noqa: S110
-        pass  # Best-effort file type detection — return "unknown" on any failure
+        logging.getLogger(__name__).warning(
+            "swallowed exception in %s", __name__, exc_info=True
+        )
 
     return "unknown"
 

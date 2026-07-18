@@ -1,6 +1,6 @@
 """Single operational pipeline: fetch → raw → normalize → DB → evidence → watermark."""
-
 from __future__ import annotations
+import logging
 
 import json
 import os
@@ -433,7 +433,9 @@ class OperationalPipeline:
                     if stage_rank(cp.status) >= stage_rank(target):
                         continue
                 except Exception:
-                    pass
+                    logging.getLogger(__name__).warning(
+                        "swallowed exception in %s", __name__, exc_info=True
+                    )
                 raise
             if cp.status != target:
                 self.checkpoints.promote(cp, target)
