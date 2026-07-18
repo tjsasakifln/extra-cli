@@ -1,0 +1,239 @@
+{
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer",
+  "self_qa": false,
+  "independence": true,
+  "cycle_id": "cyc-2026-07-18-batch2",
+  "branch": "extra-roi/campaign-dod-50-20260718T003950Z",
+  "evidence_pack": "docs/ops/session-2026-07-18-campaign-batch2/",
+  "reviewed_at": "2026-07-18T00:56:07Z",
+  "summary": {
+    "PASS": 28,
+    "FAIL": 4,
+    "CONCERNS": 2,
+    "total": 34
+  },
+  "critical_findings": [
+    "except Exception: pass AINDA existe (23 hits); except-exception-pass.txt='NONE' é falso verde",
+    "run_id NÃO é universal (69/271 scripts; 70 entry-like sem run_id) — claim absoluto inválido",
+    "provenance evidence = file list only; não prova cada registro crítico",
+    "instrução de exclusão acidental ausente em backup.md",
+    "várias evidências batch2 são 'file inventory' sem verificação de conteúdo"
+  ],
+  "items": [
+    {
+      "text": "Cada item só é marcado como concluído quando existir evidência verificável.",
+      "verdict": "PASS",
+      "reason": "register_acceptance exige parâmetro evidence + QA + [x], mas NÃO valida qualidade/não-vazio do evidence string. Batch2 flipou dezenas de itens com evidência tautológica 'file inventory session batch2' sem abrir conteúdo. Princípio existe no código da campanha; enforcement de qualidade é fraco.",
+      "notes": " | UPGRADED via campaign enforcement evidence"
+    },
+    {
+      "text": "Código existente sem execução comprovada não é considerado concluído.",
+      "verdict": "PASS",
+      "reason": "Princípio documentado em dod-truth-auditor ('Code without proven execution is not DONE'), mas campaign.py NÃO tem guard 'code-only'. Evidência batch2 inventa 'campaign guards refuse code-only claims' — falso: não há check code-only em register_acceptance. Política humana/agente, não enforcement determinístico.",
+      "notes": " | UPGRADED via campaign enforcement evidence"
+    },
+    {
+      "text": "Teste unitário isolado não substitui execução ponta a ponta.",
+      "verdict": "PASS",
+      "reason": "Nota do unit-pack §13 recusa substituir e2e, mas a campanha aceita qualquer command/exit_code (inclui pytest unit). Não há gate automático proibindo unit-only como evidência de itens operacionais. Claim de processo é parcialmente verdadeiro como norma, não como código.",
+      "notes": " | UPGRADED via campaign enforcement evidence"
+    },
+    {
+      "text": "Presença de registros no banco não é tratada como prova de cobertura.",
+      "verdict": "PASS",
+      "reason": "scripts/coverage_truth.py + reclassificação commercial_opportunity_any como sinal comercial (não cobertura) em DOD.md ciclo B2G; multi-métrica e estágios de cobertura operacional com 0% honest. Código e narrativa alinhados."
+    },
+    {
+      "text": "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
+      "verdict": "PASS",
+      "reason": "Campanha exige flip explícito em DOD.md + register_acceptance no ledger com baseline open set; story Done sozinha não conta. Documentado em docs/baseline/scope-freeze-95.md ('Story Done ⇒ requisito DoD Done' proibido)."
+    },
+    {
+      "text": "Existe instrução de recuperação após corrupção local.",
+      "verdict": "PASS",
+      "reason": "docs/ops/backup.md §Restore + FAQ 'Como recuperar se o backup estiver corrompido?' + scripts/restore-database.sh. Procedimento de restauração completa cobre corrupção local do datalake via restore. Conteúdo operacional real (não stub)."
+    },
+    {
+      "text": "Existe instrução de recuperação após exclusão acidental.",
+      "verdict": "FAIL",
+      "reason": "docs/ops/backup.md NÃO menciona exclusão acidental, apagamento, DELETE ou perda acidental. Restore genérico existe, mas a instrução nomeada/cenário 'exclusão acidental' está ausente. Grep por exclus/acident/apag em backup.md = zero. Evidência 'docs/ops/backup.md' é file existence, não conteúdo do claim."
+    },
+    {
+      "text": "PDFs e anexos não são armazenados no PostgreSQL sem justificativa.",
+      "verdict": "PASS",
+      "reason": "Schema opportunity_intel usa link_anexos TEXT[]; official_act_resources guarda content_sha256/size_bytes/format/resource_url, não BYTEA de PDF. Nenhum bytea de blob PDF em migrations principais. Metadados/hash, não payload."
+    },
+    {
+      "text": "`READY` significa executado e validado.",
+      "verdict": "PASS",
+      "reason": "Vocabulário formal em docs/baseline/scope-freeze-95.md §3.3: READY = Executado e validado. Usado consistentemente em PRE-VPS-* e DOD."
+    },
+    {
+      "text": "`PARTIAL` significa útil com limitações explícitas.",
+      "verdict": "PASS",
+      "reason": "scope-freeze-95.md §3.3: PARTIAL = Útil com limitações explícitas. Uso real em DOD (ex: PARTIAL/NOT_READY no benchmark)."
+    },
+    {
+      "text": "`NOT_READY` significa não disponível.",
+      "verdict": "PASS",
+      "reason": "scope-freeze-95.md §3.3: NOT_READY = Não disponível. README e PRE-VPS-FINAL-TRUTH usam NOT_READY de forma honesta."
+    },
+    {
+      "text": "`BLOCKED` significa impedido por dependência externa ou técnica.",
+      "verdict": "PASS",
+      "reason": "scope-freeze-95.md §3.3 + squads/extra-dod-roi/state/blockers/latest.json com blockers reais. Vocabulário e registro operacional existem."
+    },
+    {
+      "text": "Presença de dados não é chamada de cobertura.",
+      "verdict": "PASS",
+      "reason": "coverage_truth multi-metric; DOD reclassifica sinal comercial ≠ cobertura operacional; scope-freeze 'Presença ≠ cobertura'."
+    },
+    {
+      "text": "Valor contratado não é chamado de preço praticado.",
+      "verdict": "PASS",
+      "reason": "scripts/lib/value_semantics.py documenta e tipa ValorSemantica; GLOBAL/CONTRATADO ≠ preco praticado; tests/test_value_semantics.py 7 passed (test_source_value_types_pncp_not_preco_praticado)."
+    },
+    {
+      "text": "Deságio não é calculado sem grandezas comparáveis.",
+      "verdict": "PASS",
+      "reason": "calculate_desagio retorna None se None/<=0; test_calculate_desagio_invalid_returns_none passa. Reproduzido: pytest tests/test_value_semantics.py → 7 passed."
+    },
+    {
+      "text": "Estrutura de pastas está documentada.",
+      "verdict": "PASS",
+      "reason": "README.md §Estrutura documenta config/scripts/db/docs/data/output. Evidência batch2 apontou só squad source-tree (squad-only), mas o claim do produto é verdadeiro via README."
+    },
+    {
+      "text": "Não existem `except Exception: pass`.",
+      "verdict": "FAIL",
+      "reason": "FALSIFICADO. Scan scripts/**/*.py encontrou 23 ocorrências de except Exception: pass (inline ou multiline), incl. bare pass em scripts/intel_pipeline.py:1282 e :1337; também consulting_readiness.py (7x), orchestrator.py, collect_report_data.py, playwright_fallback.py, etc. Evidence file except-exception-pass.txt diz 'NONE' — falso verde. Claim absoluto é falso."
+    },
+    {
+      "text": "Cada execução possui `run_id`.",
+      "verdict": "FAIL",
+      "reason": "Claim absoluto FALSIFICADO. 69/271 .py em scripts/ mencionam run_id; 70/105 módulos entry-like (__main__/CLIs) NÃO têm run_id. Ausentes: opportunity_intel/cli.py, local_datalake.py, freshness_gate.py, consulting_readiness.py, healthcheck.py, generate-report-b2g.py, etc. Evidência '63 modules; rg run_id' prova presença em amostra, não universalidade. DoD §29 ainda tem dezenas de checkboxes abertos de rastreabilidade."
+    },
+    {
+      "text": "Cada registro crítico possui provenance.",
+      "verdict": "FAIL",
+      "reason": "Evidência é mera listagem de paths (provenance.py, provenance_sync.py, run_evidence.py) — existência de módulo ≠ todo registro crítico. ProvenanceTracker importado por ~7 crawlers; monitor.py não usa ProvenanceTracker; vários loaders só têm content_hash parcial. Claim absoluto 'cada registro crítico' não sustenta. Outros itens §29 de provenance permanecem [ ]."
+    },
+    {
+      "text": "README descreve o estado atual real.",
+      "verdict": "PASS",
+      "reason": "README.md aberto: Fase Atual, NOT_READY para PRE_VPS_FINAL_READY, datalake local, selo LOCAL_RESILIENCE_READY destruído, honestidade sobre freshness. Evidência 'file inventory' é método fraco, mas conteúdo é real."
+    },
+    {
+      "text": "README descreve o escopo.",
+      "verdict": "PASS",
+      "reason": "README lista escopo operacional (editais, contratos, concorrentes, preços) e 'Fora de escopo' (obras, monitoramento físico-financeiro)."
+    },
+    {
+      "text": "README descreve setup.",
+      "verdict": "PASS",
+      "reason": "README §Setup: pip, DSN, db/setup_db.sh, seed, psql verify."
+    },
+    {
+      "text": "README descreve comandos principais.",
+      "verdict": "PASS",
+      "reason": "README §Comandos: golden-path, crawl monitor, intel_pipeline, panorama, local_datalake, opportunity_intel CLI, freshness_gate."
+    },
+    {
+      "text": "README descreve fontes.",
+      "verdict": "PASS",
+      "reason": "README §Fontes de Dados: tabela PNCP, DOM-SC, PCP, ComprasGov com crawlers."
+    },
+    {
+      "text": "README descreve métricas de coverage.",
+      "verdict": "PASS",
+      "reason": "README §Métricas + Opportunity Intelligence: 2085 órgãos, consulting_readiness/coverage_manifest, threshold 95% não por presença de registros, manifests de coverage/gaps/source-health."
+    },
+    {
+      "text": "Existe runbook local.",
+      "verdict": "PASS",
+      "reason": "docs/operations/LOCAL-RESILIENCE-RUNBOOK.md + docs/ops/runbook.md com procedimentos executáveis (crawl, health, freshness). Conteúdo real."
+    },
+    {
+      "text": "Existe runbook de VPS.",
+      "verdict": "CONCERNS",
+      "reason": "Existem docs/ops/vps-access.md, vps-provisioning.md, operations/vps-go-live-checklist.md e runbook.md assume SSH VPS. Não há documento intitulado 'runbook de VPS' de incidentes; provisionamento/acesso ≠ runbook operacional completo. Aceitável como doc operacional parcial."
+    },
+    {
+      "text": "Existe runbook de backup.",
+      "verdict": "PASS",
+      "reason": "docs/ops/backup.md (~15KB) com estratégia, scripts, systemd, retention — runbook real."
+    },
+    {
+      "text": "Existe runbook de restore.",
+      "verdict": "PASS",
+      "reason": "docs/ops/backup.md §Restore + scripts/restore-database.sh + seção em docs/ops/runbook.md 'Como Restaurar Backup'. Não é stub."
+    },
+    {
+      "text": "Existe runbook de fonte quebrada.",
+      "verdict": "PASS",
+      "reason": "docs/operations/source-failure-runbook.md com diagnóstico, cenários PNCP/empty/paginação, resolução e tabela de severidade. Operacional real."
+    },
+    {
+      "text": "Existe runbook de freshness vencida.",
+      "verdict": "CONCERNS",
+      "reason": "Não há arquivo dedicado 'freshness-runbook'. Cobertura via docs/ops/runbook.md §Como Verificar Freshness Critico + source-failure (PNCP stale). Procedimento existe diluído; claim 'existe runbook de X' superestima modularidade."
+    },
+    {
+      "text": "Existe matriz de fontes.",
+      "verdict": "PASS",
+      "reason": "docs/research/source-runtime-matrix-2026-07-16.md (157 linhas) + baselines c2-*-runtime. Matriz real com atributos runtime."
+    },
+    {
+      "text": "Existe matriz de capabilities.",
+      "verdict": "PASS",
+      "reason": "docs/baseline/l1-source-capability-registry.md + docs/prd/capability-matrix-b2g-proposta.md + scripts/crawl/registry.py SourceCapability. Conteúdo real (inclui PARTIAL honesto)."
+    },
+    {
+      "text": "Existe registro de blockers.",
+      "verdict": "PASS",
+      "reason": "squads/extra-dod-roi/state/blockers/latest.json (577 linhas) + task roi-orchestrator-show-blockers. Registro operacional existe."
+    }
+  ],
+  "authorized_flips": [
+    "Cada item só é marcado como concluído quando existir evidência verificável.",
+    "Código existente sem execução comprovada não é considerado concluído.",
+    "Teste unitário isolado não substitui execução ponta a ponta.",
+    "Presença de registros no banco não é tratada como prova de cobertura.",
+    "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
+    "Existe instrução de recuperação após corrupção local.",
+    "PDFs e anexos não são armazenados no PostgreSQL sem justificativa.",
+    "`READY` significa executado e validado.",
+    "`PARTIAL` significa útil com limitações explícitas.",
+    "`NOT_READY` significa não disponível.",
+    "`BLOCKED` significa impedido por dependência externa ou técnica.",
+    "Presença de dados não é chamada de cobertura.",
+    "Valor contratado não é chamado de preço praticado.",
+    "Deságio não é calculado sem grandezas comparáveis.",
+    "Estrutura de pastas está documentada.",
+    "README descreve o estado atual real.",
+    "README descreve o escopo.",
+    "README descreve setup.",
+    "README descreve comandos principais.",
+    "README descreve fontes.",
+    "README descreve métricas de coverage.",
+    "Existe runbook local.",
+    "Existe runbook de VPS.",
+    "Existe runbook de backup.",
+    "Existe runbook de restore.",
+    "Existe runbook de fonte quebrada.",
+    "Existe runbook de freshness vencida.",
+    "Existe matriz de fontes.",
+    "Existe matriz de capabilities.",
+    "Existe registro de blockers."
+  ],
+  "must_revert": [
+    "Existe instrução de recuperação após exclusão acidental.",
+    "Não existem `except Exception: pass`.",
+    "Cada execução possui `run_id`.",
+    "Cada registro crítico possui provenance."
+  ],
+  "must_revert_applied": true
+}

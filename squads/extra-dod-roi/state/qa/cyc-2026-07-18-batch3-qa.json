@@ -1,0 +1,108 @@
+{
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer",
+  "self_qa": false,
+  "story_id": "ROI-campaign-batch3-ops-config",
+  "summary": {
+    "total_claims_verified": 13,
+    "PASS": 13,
+    "FAIL": 0,
+    "CONCERNS": 0
+  },
+  "items": [
+    {
+      "text": "O arquivo de backup possui data.",
+      "dod_item_id": "dod:8407b8273772",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "O arquivo de backup possui integridade verificada.",
+      "dod_item_id": "dod:93300093fc1d",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "O backup não contém segredo exposto.",
+      "dod_item_id": "dod:db687778617c",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Código existente não é chamado de capacidade pronta.",
+      "dod_item_id": "dod:aa6eefd8681f",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Dado antigo não é chamado de dado atual.",
+      "dod_item_id": "dod:f8b7abd8915c",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Configuração é centralizada.",
+      "dod_item_id": "dod:566ccfc2fcbb",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Constantes de domínio são centralizadas.",
+      "dod_item_id": "dod:27fe1c254fd2",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Timeouts são configuráveis.",
+      "dod_item_id": "dod:70eb67c5e239",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Retries são configuráveis.",
+      "dod_item_id": "dod:6395ce31d45e",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Janelas de freshness são configuráveis.",
+      "dod_item_id": "dod:d3480d1c7102",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Thresholds de coverage são configuráveis.",
+      "dod_item_id": "dod:ffa99a6d742e",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Mudanças de schema exigem migration.",
+      "dod_item_id": "dod:86813be14b95",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    },
+    {
+      "text": "Scripts operacionais possuem `--help`.",
+      "dod_item_id": "dod:0c9593cc0c72",
+      "verdict": "PASS",
+      "evidence": "batch3 MANIFEST + full-13 recheck",
+      "notes": "re-verified"
+    }
+  ],
+  "updated_at": "2026-07-18T01:07:48Z"
+}

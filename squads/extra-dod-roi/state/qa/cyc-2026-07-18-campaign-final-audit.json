@@ -1,0 +1,90 @@
+{
+  "verdict": "PASS",
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer",
+  "self_qa": false,
+  "pass_matrix_count": 51,
+  "stories_ok": true,
+  "reproduced": [
+    {
+      "cmd": "pytest squads/extra-dod-roi/tests/ -o addopts=",
+      "exit_code": 0
+    },
+    {
+      "cmd": "pytest tests/test_value_semantics.py tests/test_universe.py -o addopts=",
+      "exit_code": 0
+    },
+    {
+      "cmd": "python3 scripts/golden_path.py --help",
+      "exit_code": 0
+    },
+    {
+      "cmd": "python3 scripts/local_datalake.py --help",
+      "exit_code": 0
+    },
+    {
+      "cmd": "python3 scripts/crawl/monitor.py --help",
+      "exit_code": 0
+    },
+    {
+      "cmd": "bash scripts/backup-database.sh --help",
+      "exit_code": 0
+    },
+    {
+      "cmd": "bash scripts/restore-database.sh --help",
+      "exit_code": 0
+    }
+  ],
+  "fail_claims_still_unchecked": true,
+  "proof_matrix_honest": true,
+  "blockers": [],
+  "audit_notes": {
+    "campaign": "dod-50-current",
+    "matrix_rows": 51,
+    "unique_dod_item_ids": 51,
+    "all_qa_verdict_pass": true,
+    "stories": {
+      "ROI-cand-dyn-slice-44e18f3702d5": {
+        "status": "Done",
+        "po_closed": true,
+        "qa_verdict": "PASS"
+      },
+      "ROI-campaign-batch2-docs-truth": {
+        "status": "Done",
+        "po_closed": true,
+        "qa_verdict": "PASS"
+      },
+      "ROI-campaign-batch3-ops-config": {
+        "status": "Done",
+        "po_closed": true,
+        "qa_verdict": "PASS"
+      }
+    },
+    "fail_claims_dod_lines": {
+      "except Exception: pass": {
+        "line": 1454,
+        "checked": false
+      },
+      "Cada execução possui run_id": {
+        "line": 1505,
+        "checked": false
+      },
+      "Cada registro crítico possui provenance": {
+        "line": 1519,
+        "checked": false
+      },
+      "exclusão acidental": {
+        "line": 1060,
+        "checked": false
+      }
+    },
+    "proof_matrix_batch2": {
+      "path": "docs/ops/session-2026-07-18-campaign-batch2/proof-matrix.json",
+      "four_fail_claims_proven_true": false,
+      "four_fail_claims_in_failed_with_proven_false": true,
+      "revoked_by_qa_count": 4
+    },
+    "note_backup_restore_extension": "User asked backup-database/restore-database --help; scripts are .sh not .py; both exit 0.",
+    "audited_at": "2026-07-18T01:08:52Z"
+  }
+}
