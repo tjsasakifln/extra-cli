@@ -2,10 +2,10 @@
   "campaign": "advance-30d-operational-20260718",
   "main_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "epic_branch": "epic/advance-30d-local-ready-20260718",
-  "epic_sha": "36d76f7a31fd45286d0a5fff91b6639880ecf42d",
-  "current_story": "ROI-cand-dyn-slice-9fada5fba964",
-  "phase": "STORY_DRAFT",
-  "last_completed_story": "ROI-cand-dyn-slice-b9dd47d02782",
+  "epic_sha": "ea560f8422bea49aac5562c82b0c3b7fad6efc65",
+  "current_story": "",
+  "phase": "FORCE_NEXT",
+  "last_completed_story": "ROI-cand-dyn-slice-9fada5fba964",
   "last_qa_verdict": "PASS",
   "open_worktrees": [],
   "open_prs": [
@@ -17,17 +17,19 @@
     "blk-coverage-95",
     "empty_local_pg"
   ],
-  "next_command": "PO Ready + implement ROI-cand-dyn-slice-9fada5fba964",
-  "updated_at": "2026-07-18T18:41:07.298533+00:00",
-  "dod_checked": 420,
+  "next_command": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
+  "updated_at": "2026-07-18T18:45:58.433954+00:00",
+  "dod_checked": 429,
   "dod_total": 1354,
   "stories_closed_session": [
     "b8d41f",
     "b3ea2a",
     "dd7b",
-    "8d8c",
-    "f7e09f",
-    "f07132",
-    "b9dd47"
-  ]
+    "8d8c(A)",
+    "f7e09f(B)",
+    "f07132(C)",
+    "b9dd47(D)",
+    "9fada5(E)"
+  ],
+  "deliverables_abcde": "mechanism complete (fixture+audit); live market residual"
 }
