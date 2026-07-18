@@ -1316,13 +1316,13 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Logs possuem fonte. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
 - [x] Logs possuem `run_id` ou correlation id. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
 - [x] Logs não expõem segredos. Evidência: `scripts/lib/structured_logging.py` + `python -m scripts.lib.structured_logging --self-check` (ok=true) + `tests/test_structured_logging.py` (5 passed) + session-2026-07-18-structured-logs + QA PASS cyc-2026-07-18T140817Z.
-- [ ] Retenção de journald está configurada.
-- [ ] Uso de disco é monitorado.
-- [ ] Uso de memória é monitorado.
-- [ ] Load average é monitorado.
-- [ ] Crescimento do banco é monitorado.
-- [ ] Dead tuples são monitoradas.
-- [ ] Autovacuum é monitorado.
+- [x] Retenção de journald está configurada. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
+- [x] Uso de disco é monitorado. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
+- [x] Uso de memória é monitorado. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
+- [x] Load average é monitorado. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
+- [x] Crescimento do banco é monitorado. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
+- [x] Dead tuples são monitoradas. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
+- [x] Autovacuum é monitorado. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
 - [ ] Duração dos crawlers é monitorada.
 - [ ] Taxa de sucesso dos crawlers é monitorada.
 - [ ] Volume coletado é monitorado.
@@ -1342,7 +1342,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Existe rate limiting ou deduplicação de alertas.
 - [ ] Falha no webhook é detectável.
 - [ ] Existe fallback de notificação ou registro persistente.
-- [ ] Tiago consegue consultar saúde geral com um comando.
+- [x] Tiago consegue consultar saúde geral com um comando. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
 
 ---
 
