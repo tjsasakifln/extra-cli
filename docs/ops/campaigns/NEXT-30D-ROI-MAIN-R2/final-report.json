@@ -1,0 +1,80 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN-R2",
+  "generated_at": "2026-07-18T21:32:31Z",
+  "head_initial": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
+  "head_final_pending": "e8d3e9a8d9c806e2920172dd83eabe06744a30b6",
+  "origin_main_synced": true,
+  "dod": {
+    "checked": 195,
+    "open": 1160,
+    "total": 1355,
+    "pct": 14.39,
+    "sha256": "facf55424bc2fe86db57d37f1d85b2925d394c7cbe329817aede0f2189155dd1"
+  },
+  "metric_lineage": {
+    "epic_historical_pct": 32.3,
+    "main_r1_baseline_pct": 6.8,
+    "main_after_inherited_pct": 14.4,
+    "main_r2_pct": 14.39,
+    "inherited_not_recounted": true
+  },
+  "pert": {
+    "critical_days_target": 32.0,
+    "critical_days_done": 28.5,
+    "meets_30d_target": false
+  },
+  "scope_done": [
+    "R0",
+    "R1",
+    "R2",
+    "N02",
+    "N03",
+    "N04",
+    "N05",
+    "N06",
+    "N06b",
+    "N06c",
+    "N07",
+    "N07b",
+    "N08",
+    "N10",
+    "N11",
+    "N12",
+    "N13",
+    "N17"
+  ],
+  "scope_open": [
+    "N01",
+    "N09",
+    "N14",
+    "N15",
+    "N16",
+    "N18"
+  ],
+  "commits_on_main_this_campaign_approx": [
+    "5dc7000",
+    "19f1990",
+    "4ea3d44",
+    "867db0e",
+    "6f9b9f4",
+    "db06863",
+    "e8d3e9a"
+  ],
+  "live_data": {
+    "pncp_supplier_contracts": 72923,
+    "pncp_raw_bids": 2026,
+    "universe_200km": 1093
+  },
+  "gates": {
+    "LOCAL_READY": "NOT_READY",
+    "VPS_OPERATIONAL": "NOT_READY",
+    "PROJECT_DONE": "NOT_READY"
+  },
+  "limitations": [
+    "N01 golden path still CONCERNS (PNCP timeout once)",
+    "N09 recall scaffold NOT_READY",
+    "3y contracts GO not claimed",
+    "coverage far below 95%"
+  ]
+}

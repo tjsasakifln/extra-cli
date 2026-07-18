@@ -1,0 +1,23 @@
+{
+  "task": "N14",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "ts": "2026-07-18T21:32:31Z",
+  "checks": [
+    "Did not flip DoD checkboxes without new independent evidence",
+    "metric lineage stable at 195/1355",
+    "gates remain NOT_READY",
+    "residual open items listed in next backlog"
+  ],
+  "residual_open_scope": [
+    "N01",
+    "N09",
+    "N14",
+    "N15",
+    "N16",
+    "N18"
+  ],
+  "concerns": [
+    "Many DoD open items remain \u2014 correct, not false green"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "task": "N08",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:32:31Z",
+  "checks": [
+    "check-seed OK vs snapshot #1",
+    "divergence ledger written",
+    "in_seed_only=0 from prior"
+  ],
+  "concerns": [
+    "995 in_db_only entities beyond seed included set"
+  ]
+}

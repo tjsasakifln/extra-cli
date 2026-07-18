@@ -1,0 +1,13 @@
+{
+  "task": "N17",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "independent_of": "delivery-engineer-r2",
+  "ts": "2026-07-18T21:32:31Z",
+  "checks": [
+    "run1 days=1 success",
+    "run2 allow-cross-run-resume windows_skipped_resume=1",
+    "fail-closed run_id without flag previously proven"
+  ],
+  "concerns": []
+}

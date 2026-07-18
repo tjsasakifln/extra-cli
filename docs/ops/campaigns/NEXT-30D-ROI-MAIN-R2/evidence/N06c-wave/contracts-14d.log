@@ -1,0 +1,53 @@
+2026-07-18 18:19:16,441 INFO contracts_90d_pilot: Checkpoint reset for mode=full
+WINDOW_START 20260704_20260718
+PAGE 20260704_20260718 p=1/146 batch=500 ins_total=0
+PAGE 20260704_20260718 p=10/146 batch=500 ins_total=4499
+PAGE 20260704_20260718 p=20/146 batch=500 ins_total=9499
+PAGE 20260704_20260718 p=30/146 batch=500 ins_total=14499
+PAGE 20260704_20260718 p=40/146 batch=500 ins_total=19499
+PAGE 20260704_20260718 p=50/146 batch=500 ins_total=24498
+PAGE 20260704_20260718 p=60/146 batch=500 ins_total=29496
+PAGE 20260704_20260718 p=70/146 batch=500 ins_total=34496
+PAGE 20260704_20260718 p=80/146 batch=500 ins_total=39495
+PAGE 20260704_20260718 p=90/146 batch=500 ins_total=44495
+PAGE 20260704_20260718 p=100/146 batch=500 ins_total=49495
+PAGE 20260704_20260718 p=110/146 batch=500 ins_total=52029
+PAGE 20260704_20260718 p=120/146 batch=500 ins_total=52029
+PAGE 20260704_20260718 p=130/146 batch=500 ins_total=52029
+PAGE 20260704_20260718 p=140/146 batch=500 ins_total=52029
+2026-07-18 18:31:46,870 INFO contracts_90d_pilot: Window 20260704_20260718 completed pages=146 transformed=72923 ins=52029 skip=20894 t=750.4s
+2026-07-18 18:31:47,034 INFO contracts_90d_pilot: Wrote evidence docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N06c-wave/contracts-14d.json run_id=contracts-90d-20260718T211916Z-963e9e1f63
+{
+  "run_id": "contracts-90d-20260718T211916Z-963e9e1f63",
+  "status": "success",
+  "totals": {
+    "fetched": 72928,
+    "transformed": 72923,
+    "inserted": 52029,
+    "skipped": 20894,
+    "pages": 146,
+    "page_errors": 0,
+    "windows_ok": 1,
+    "windows_failed": 0,
+    "windows_skipped_resume": 0
+  },
+  "planned_windows": 1,
+  "go_no_go_3y": "NO-GO",
+  "duration_seconds": 750.4,
+  "db": {
+    "pncp_supplier_contracts_count": 72923,
+    "min_data_publicacao": "2026-07-04",
+    "max_data_publicacao": "2026-07-18",
+    "data_publicacao_note": "legacy/mixed semantics \u2014 historically stored dataAssinatura; prefer data_assinatura / data_publicacao_fonte (migration 051)",
+    "min_data_assinatura": "2021-08-26",
+    "max_data_assinatura": "2027-07-01",
+    "has_data_assinatura_column": true,
+    "monthly": [
+      {
+        "mes": "2026-07-01",
+        "n": 72923
+      }
+    ],
+    "sample_populated_n20": 20
+  }
+}

@@ -24,3 +24,9 @@
 {"ts": "2026-07-18T21:17:16Z", "event": "N11_DONE", "qa": "PASS"}
 {"ts": "2026-07-18T21:17:16Z", "event": "N12_DONE", "qa": "PASS"}
 {"ts": "2026-07-18T21:17:16Z", "event": "N13_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:32:31Z", "event": "N17_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:32:31Z", "event": "N08_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:32:31Z", "event": "N06c_DONE", "contracts": 72923, "days": 14, "qa": "PASS"}
+{"ts": "2026-07-18T21:32:31Z", "event": "N14_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:32:31Z", "event": "N15_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T21:32:31Z", "event": "CAMPAIGN_SCOPE_NEAR_COMPLETE", "critical_days": 28.5}

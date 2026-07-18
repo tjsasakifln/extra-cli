@@ -1,0 +1,58 @@
+2026-07-18 18:17:46,145 INFO contracts_90d_pilot: Checkpoint reset for mode=full
+WINDOW_START 20260717_20260718
+PAGE 20260717_20260718 p=1/13 batch=500 ins_total=0
+PAGE 20260717_20260718 p=10/13 batch=500 ins_total=0
+2026-07-18 18:19:14,612 INFO contracts_90d_pilot: Window 20260717_20260718 completed pages=13 transformed=6277 ins=0 skip=6277 t=88.4s
+2026-07-18 18:19:14,771 INFO contracts_90d_pilot: Wrote evidence docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N17-resume/run1.json run_id=contracts-90d-20260718T211746Z-6be4e31908
+{
+  "run_id": "contracts-90d-20260718T211746Z-6be4e31908",
+  "status": "success",
+  "totals": {
+    "fetched": 6277,
+    "transformed": 6277,
+    "inserted": 0,
+    "skipped": 6277,
+    "pages": 13,
+    "page_errors": 0,
+    "windows_ok": 1,
+    "windows_failed": 0,
+    "windows_skipped_resume": 0
+  },
+  "planned_windows": 1,
+  "go_no_go_3y": "NO-GO",
+  "duration_seconds": 88.5,
+  "db": {
+    "pncp_supplier_contracts_count": 20894,
+    "min_data_publicacao": "2026-07-15",
+    "max_data_publicacao": "2026-07-18",
+    "data_publicacao_note": "legacy/mixed semantics \u2014 historically stored dataAssinatura; prefer data_assinatura / data_publicacao_fonte (migration 051)",
+    "min_data_assinatura": "2021-08-26",
+    "max_data_assinatura": "2027-07-01",
+    "has_data_assinatura_column": true,
+    "monthly": [
+      {
+        "mes": "2026-07-01",
+        "n": 20894
+      }
+    ],
+    "sample_populated_n20": 20
+  },
+  "path_proof": {
+    "status": "success",
+    "days": 1,
+    "planned_windows": 1,
+    "totals": {
+      "fetched": 6277,
+      "transformed": 6277,
+      "inserted": 0,
+      "skipped": 6277,
+      "pages": 13,
+      "page_errors": 0,
+      "windows_ok": 1,
+      "windows_failed": 0,
+      "windows_skipped_resume": 0
+    },
+    "note": "days<=1 run is path-level evidence only unless planned_windows fully covered",
+    "run_id": "contracts-90d-20260718T211746Z-6be4e31908"
+  }
+}

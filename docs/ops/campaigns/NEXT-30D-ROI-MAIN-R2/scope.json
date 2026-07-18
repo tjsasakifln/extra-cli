@@ -170,7 +170,7 @@
     {
       "id": "N06c",
       "name": "Coverage scale M5 entity collection wave",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 8.5,
       "predecessors": [
         "N06b"
@@ -219,7 +219,7 @@
     {
       "id": "N08",
       "name": "Snapshot integrity 100% reconcile",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.0,
       "predecessors": [
         "N05"
@@ -318,7 +318,7 @@
     {
       "id": "N14",
       "name": "DoD residual REVALIDATE batch evidence",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.5,
       "predecessors": [
         "N12",
@@ -336,7 +336,7 @@
     {
       "id": "N15",
       "name": "Campaign close skeptic audit next backlog",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 1.0,
       "predecessors": [
         "N14"
@@ -368,7 +368,7 @@
     {
       "id": "N17",
       "name": "Resume-interrupt crawler protocol test",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 1.0,
       "predecessors": [
         "N01"
@@ -411,5 +411,5 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T21:17:16Z"
+  "updated_at": "2026-07-18T21:32:31Z"
 }
