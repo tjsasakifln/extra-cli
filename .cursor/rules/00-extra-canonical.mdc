@@ -1,0 +1,35 @@
+---
+description: Extra Consultoria — thin Cursor adapter to canonical development guide (DoD §32.1)
+globs:
+alwaysApply: true
+---
+
+# Extra Consultoria — Cursor adapter
+
+**Canonical guide (source of truth for setup/validate/ops):** `docs/DEVELOPMENT.md`  
+**Entry-point contract:** `docs/canonical-entry-points.yaml`  
+**DoD:** `DOD.md`
+
+This rule is a **dispensable thin adapter**. Product requirements live in `DOD.md`, code, tests, migrations, and ADRs — not here.
+
+## Same commands as other entry points
+
+```bash
+export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
+python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
+python3 -m pytest tests/ -q --tb=no -x
+python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
+python3 squads/extra-dod-roi/scripts/cli.py force-next
+```
+
+## Same documents
+
+- Scope: `DOD.md`, `docs/prd/`
+- Architecture: `docs/architecture/`
+- Operations: `docs/ops/`, `docs/DEVELOPMENT.md`
+
+## Precedence on conflict
+
+`DOD.md` → ADR vigente → código testado → evidência reproduzível.
+
+Never invent LOCAL_READY / 95% coverage / VPS seals without HEAD evidence.

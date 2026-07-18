@@ -1,0 +1,86 @@
+{
+  "campaign": "advance-30d-operational-20260718",
+  "generated_at": "2026-07-18T17:52:58.485692+00:00",
+  "recovery": {
+    "result": "local_work_recovered_and_published",
+    "unpushed_commits_at_start": 12,
+    "rescue_branch": "rescue/interrupted-session-20260718-20260718T174132Z",
+    "recovery_commit": "cb0be3b8304a4b8d6732c3e95c9678d5ac1cec45",
+    "docs": "docs/ops/recovery-2026-07-18/"
+  },
+  "main_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+  "epic_branch": "epic/advance-30d-local-ready-20260718",
+  "decision": "continue_existing_epic_not_discard_progress",
+  "current_feature_branch": "extra-roi/cand-dyn-slice-b8d41f43fbfc",
+  "current_sha": "58d9a83a5cac663cc8f70c169b5dead85f6eada5",
+  "dod": {
+    "checked": 349,
+    "total": 1354,
+    "open": 1005,
+    "remote_known_baseline_checked": 92
+  },
+  "metrics": {
+    "operational_source_coverage": {
+      "status": "READY",
+      "numerator": 0,
+      "denominator": 1093,
+      "pct": 0.0,
+      "stale_source": "2026-07-17T13:33:54.866794+00:00"
+    },
+    "entities_with_recent_commercial_signal": {
+      "status": "READY",
+      "numerator": 116,
+      "denominator": 1093,
+      "pct": 10.61,
+      "stale_source": "2026-07-17T13:33:54.866794+00:00"
+    },
+    "source_mapping_coverage": {
+      "status": "READY",
+      "numerator": 1093,
+      "denominator": 1093,
+      "pct": 100.0,
+      "stale_source": "2026-07-17T13:33:54.866794+00:00"
+    },
+    "freshness_coverage": {
+      "status": "NOT_READY",
+      "numerator": null,
+      "denominator": 1093,
+      "pct": null,
+      "stale_source": "2026-07-17T13:33:54.866794+00:00"
+    },
+    "opportunity_recall": {
+      "status": "NOT_READY",
+      "numerator": null,
+      "denominator": null,
+      "pct": null,
+      "stale_source": "2026-07-17T13:33:54.866794+00:00"
+    },
+    "required_field_completeness": {
+      "status": "READY",
+      "numerator": 3.0005,
+      "denominator": 17,
+      "pct": 17.65,
+      "stale_source": "2026-07-17T13:33:54.866794+00:00"
+    },
+    "classification": {
+      "operational_coverage": "stale_snapshot_0pct_until_rerun",
+      "commercial_signal": "stale_snapshot_10_61pct_116_of_1093",
+      "freshness": "NOT_READY",
+      "recall": "NOT_READY"
+    }
+  },
+  "gates": {
+    "LOCAL_READY": "NOT_READY",
+    "PRE_VPS_FINAL_READY": "NOT_READY",
+    "VPS_OPERATIONAL": "BLOCKED_EXTERNAL",
+    "PROJECT_DONE": "NOT_READY",
+    "LOCAL_RESILIENCE_READY": "NOT_READY"
+  },
+  "forbidden_claims": [
+    "LOCAL_READY",
+    "95% operational",
+    "PRE_VPS_FINAL_READY",
+    "PROJECT_DONE",
+    "full suite green"
+  ]
+}

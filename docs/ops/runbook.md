@@ -652,3 +652,23 @@ psql $LOCAL_DATALAKE_DSN -c "
 
 > **Ultima atualizacao:** 2026-07-11
 > **Story:** TD-6.1 -- Documentacao Operacional
+
+
+## Runbook de Rollback
+
+Procedimento de rollback operacional: reverter o último commit de schema/código via git,
+reaplicar migrations canônicas com `python3 -m scripts.ops.apply_migrations`, e validar
+`scripts/ops/schema_audit.py`. Nunca force-push em `main`.
+
+## Schema drift
+
+Detecção de schema drift: comparar migrations em `db/migrations/` com `public._migrations`
+e relações obrigatórias via `scripts/ops/schema_audit.py`. Drift aberto bloqueia claim de
+LOCAL_READY.
+
+## Cobertura abaixo de 95%
+
+Se a cobertura operacional estiver abaixo de 95%, o sistema permanece NOT_READY para o
+gate LOCAL_READY. Não reduzir denominador para inflar percentual. Reportar cobertura
+honesta e fila de entidades sem evidência.
+

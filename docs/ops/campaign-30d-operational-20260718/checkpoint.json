@@ -1,0 +1,29 @@
+{
+  "campaign": "advance-30d-operational-20260718",
+  "main_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+  "epic_branch": "epic/advance-30d-local-ready-20260718",
+  "epic_sha": "583d8c235a65381938633272e8bc246125473e64",
+  "current_story": "ROI-cand-dyn-slice-79cd98a48651",
+  "phase": "IMPLEMENTING_WIP",
+  "last_completed_story": "ROI-cand-dyn-slice-ec525563e7db",
+  "last_qa_verdict": "PASS",
+  "open_worktrees": [],
+  "open_prs": [
+    "https://github.com/tjsasakifln/extra-consultoria/pull/28"
+  ],
+  "blockers": [
+    "blk-live-canary-pg",
+    "blk-vps-provision",
+    "blk-coverage-95",
+    "empty_local_pg",
+    "tiago_package_accept",
+    "pdf_pages_binary_residual",
+    "monthly_monitor_qa_pending"
+  ],
+  "next_command": "python3 squads/extra-dod-roi/scripts/cli.py force-next  # after QA close monthly WIP or continue",
+  "updated_at": "2026-07-18T19:01:29.909855+00:00",
+  "dod_checked": 437,
+  "dod_total": 1354,
+  "session_close": "docs/ops/campaign-30d-operational-20260718/SESSION-CLOSE-20260718.md",
+  "html_rebaseline": "extra-consultoria-plano-executivo.html v1.1 2026-07-18"
+}

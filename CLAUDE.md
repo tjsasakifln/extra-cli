@@ -142,3 +142,8 @@ Origem: [affaan-m/ecc](https://github.com/affaan-m/ecc) — adaptado para stack 
 ```
 Editar código → /quality-gate → Corrigir → /code-review → Commit → Push
 ```
+
+
+## Canonical development guide
+
+**Guia canônico:** [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)

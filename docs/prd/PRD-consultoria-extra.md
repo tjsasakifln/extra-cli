@@ -1,12 +1,19 @@
 # PRD: Plataforma de Inteligência em Licitações — Extra Construtora
 
-> **Versão:** 2.0
+> **Versão:** 2.1
 > **Autor:** Morgan (PM Agent) — Synkra AIOX
 > **Data:** 2026-07-12
-> **Revisão:** 2026-07-12 — Coverage manifest real (64.4%), 604 unresolved, métricas comerciais ALL not_ready, consolidação epics
+> **Revisão:** 2026-07-18 — Alinhamento ao `DOD.md` canônico (universo 1.093; cobertura operacional ≠ presença/sinal comercial). Baseline 2026-07-12 (64,4% / 1.697) reclassificado como **histórico** e **não** como cobertura operacional atual.
 > **Status:** Aprovado (living document)
 
 > **Nota de fase:** este PRD mistura alvo futuro e capacidade atual. Na fase corrente, o baseline operacional e `local-first`, com datalake local e prioridade absoluta em freshness auditável de editais e contratos históricos. Acompanhamento de obras permanece fora de escopo.
+>
+> **Verdade de medição (alinhada ao DOD, 2026-07-18):**
+>
+> - Denominador canônico de cobertura = **1.093** entes no raio 200 km (planilha R-0). Nunca reduzir o denominador para inflar %.
+> - **Cobertura operacional** (estágios mapped→recent_evidence + SLA + proveniência) reportada honestamente como **0/1.093 (0%)** no snapshot de medição vigente até nova prova live.
+> - **Sinal comercial** (oportunidades OPEN/UPCOMING/RECENT) ≈ **116/1.093 (10,61%)** — **não** é cobertura.
+> - A cifra **64,4% (1.093/1.697)** da revisão 2026-07-12 é **baseline histórica** de um contrato de medição antigo (`is_covered` / denominador conservativo) e **não** autoriza claim de cobertura operacional ≥95% nem `LOCAL_READY`.
 
 ---
 
@@ -141,43 +148,39 @@ Para distinguir corretamente os 4 momentos de valor em uma licitação:
 
 ## Métricas de Sucesso
 
-| Métrica | Baseline (2026-07-12) | Target | Medição |
-|---------|----------------------|--------|---------|
-| Cobertura de entidades | 64.4% (1.093/1.697 denominador confirmado) | >=95% | `entity_coverage.is_covered = TRUE` |
-| Entidades nao resolvidas | 604 (sem coordenadas) | 0 | `coverage_manifest.unresolved` |
-| Falsos negativos | Nao medido | 0 | Cross-check manual periódico |
-| Pipeline intel completo | Funcional (tempo nao medido) | < 120s (top 20) | Log de execução |
-| Relatório PDF | < 30s (não medido) | < 30s | Log de execução |
-| DataLake growth | Nao medido | < 1GB/mês | `pg_total_relation_size` |
-| Uptime crawler | 100% PNCP (health_check), timers pendentes | > 99% | `ingestion_runs.status` |
-| Freshness dos dados | 479 fresh, 9 stale, 605 unknown | < 24h | `MAX(ingested_at) - NOW()` |
-| Entes com contratos | 404 (37%) | >=80% | `v_contract_readiness` |
-| Entes com editais abertos | 220 (20.1%) | >=80% | `coverage_manifest.open_tenders` |
-| Systemd timers ativos | 3/11 | 11/11 | systemctl list-timers |
-| Comercial: desagio | NOT_READY | DISPONIVEL | `coverage_manifest.commercial_metrics.desagio` |
-| Comercial: preço praticado | NOT_READY | DISPONIVEL | `coverage_manifest.commercial_metrics.contract_total_value` |
-| Comercial: win rate | NOT_READY | DISPONIVEL | `coverage_manifest.commercial_metrics.win_rate` |
+| Métrica | Baseline atual (DOD / contract 2026-07-17→18) | Target | Medição canônica |
+|---------|-----------------------------------------------|--------|------------------|
+| Universo / denominador | **1.093** (raio 200 km, seed R-0) | fixo | `load_canonical_universe` / `coverage_contract` |
+| Cobertura **operacional** | **0/1.093 (0%)** — NOT ≥95% | >=95% | `operational_source_coverage` (7 estágios + SLA + proveniência) |
+| Sinal comercial (≠ cobertura) | **116/1.093 (10,61%)** | n/a | `entities_with_recent_commercial_signal` |
+| Freshness entity-level | NOT_READY | SLA por capability | `freshness_coverage` |
+| Recall estratificado | NOT_READY | >=95% | amostra-ouro independente |
+| Completude campos decisão | ~17,65% (amostra 116) | >=95% quando suportado | `required_field_completeness` |
+| LOCAL_READY / PRE_VPS_FINAL | NOT_READY | gates DoD §35 | evidência live + QA |
+| Comercial: desagio / win rate | NOT_READY sem cadeia semântica / propostas | DISPONIVEL | `value_semantics` + `claim_language` |
 
-> **Nota:** O denominador conservativo (1.697) inclui apenas entes com coordenadas confirmadas dentro ou fora do raio de 200km. Os 604 unresolved estão em um "unresolved block": sem coordenadas, não é possível confirmar cobertura >=95% nem excluí-los do denominador.
+> **Baseline histórica (2026-07-12) — não usar como verdade atual:**  
+> cobertura `is_covered` 64,4% com denominador conservativo 1.697 e seed 2.085 linhas. Esse contrato de medição foi **substituído** pelo coverage contract multi-métrica (ADR-018 / `scripts/coverage/coverage_contract.py`). Manter apenas para auditoria histórica.
 
-## Baselines e Métricas (v2.0 — dados reais)
+## Baselines e Métricas
 
-### Cobertura
+### Cobertura (canônico atual)
 
 | Métrica | Valor | Fonte |
 |---------|-------|-------|
-| Total entes na planilha seed | 2.085 | `coverage_manifest.universe.total_seed_rows` |
-| Universo confirmado | 1.481 | `coverage_manifest.universe.confirmed_universe` |
-| Universo potencial | 2.085 | `coverage_manifest.universe.potential_universe` |
-| Nao resolvidos (sem coordenadas) | 604 | `coverage_manifest.universe.unresolved` |
-| Dentro do raio 200km | 1.093 | `coverage_manifest.universe.within_radius` |
-| Fora do raio 200km | 388 | `coverage_manifest.universe.outside_radius` |
-| **Cobertura real** | **64.4%** | `coverage_manifest.coverage.percent` (threshold 95% — NAO PASSOU) |
-| Numerador (cobertos) | 1.093 | `coverage_manifest.coverage.numerator` |
-| Denominador conservativo | 1.697 | `coverage_manifest.coverage.denominator_conservative` |
-| Denominador confirmado | 1.093 | `coverage_manifest.coverage.denominator_confirmed` |
-| Entes monitorados | 1.093 | `coverage_manifest.coverage.entities_monitored` |
-| Entes stale | 9 | `coverage_manifest.coverage.stale` |
+| Denominador canônico (raio 200 km) | **1.093** | planilha R-0 / `FIXED_CANONICAL_DENOMINATOR` |
+| Cobertura operacional | **0%** (0/1.093) até nova prova | `operational_source_coverage` |
+| Source mapping (registro explícito) | 100% (1.093/1.093) | `entity_source_registry` — **não** implica operacional |
+| Sinal comercial | 10,61% (116/1.093) | session coverage canonical — **não** é cobertura |
+| Meta DoD editais/contratos | 95% cada | `DOD.md` |
+
+### Baseline histórica 2026-07-12 (supersedida para claims de cobertura)
+
+| Métrica | Valor histórico | Nota |
+|---------|-----------------|------|
+| Seed rows / SC amplo | 2.085 | não é denominador de cobertura operacional |
+| Dentro do raio 200 km | 1.093 | alinhado ao canônico atual |
+| “Cobertura real” legada | 64,4% (1.093/1.697) | contrato antigo `is_covered`; **não** usar em claims 2026-07-18+ |
 
 ### Editais Abertos
 

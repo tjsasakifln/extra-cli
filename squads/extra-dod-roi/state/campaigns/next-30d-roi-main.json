@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN",
-  "status": "EXECUTING",
+  "status": "LEGACY_RECONCILIATION_WAVE1_PORTED",
   "created_at": "2026-07-18T19:19:39Z",
-  "updated_at": "2026-07-18T19:37:19Z",
+  "updated_at": "2026-07-18T20:05:18Z",
   "integration_mode": "main-direct",
   "baseline_head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "baseline_dod_sha256": "54bbbc0a0eec4576989722d9a1167860e1322c5cd509804d3677638e8c657228",
@@ -35,8 +35,12 @@
     "scope": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/scope.json"
   },
   "notes": [
-    "Scope frozen. Execute T02+ by ROI under main-direct."
+    "Legacy forensic reconciliation complete (JSON+MD).",
+    "Wave 1: product code/tests from epic 0bd5074 ported; 184 unit tests pass.",
+    "DoD not bulk-flipped. S5 evidence + selective flips next.",
+    "Pause new PERT feature cycles until inherited baseline re-frozen post DoD revalidation."
   ],
   "plan_head": "7768f057e37a287e738a37ea18bb302848228b19",
-  "pert_critical_path_days": 30.5
+  "pert_critical_path_days": 30.5,
+  "pause_new_features": true
 }

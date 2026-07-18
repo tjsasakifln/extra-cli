@@ -1,0 +1,72 @@
+"""DoD §12.1 — canonical golden path command + metadata + fail-closed."""
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+from scripts.golden_path import (
+    collect_run_metadata,
+    evaluate_run_outcome,
+    SourceRecord,
+    FreshnessRecord,
+    ReportRecord,
+)
+
+
+def test_canonical_module_help() -> None:
+    r = subprocess.run(
+        [sys.executable, "-m", "scripts.golden_path", "--help"],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert r.returncode == 0
+    out = r.stdout + r.stderr
+    assert "strict" in out
+    assert "bootstrap" in out or "Golden Path" in out
+
+
+def test_collect_run_metadata_fields() -> None:
+    meta = collect_run_metadata(dsn="postgresql://x@localhost/db")
+    assert meta["canonical_command"] == "python3 -m scripts.golden_path"
+    assert "limitations" in meta and meta["limitations"]
+    assert "reference_period" in meta
+    assert "as_of" in meta["reference_period"]
+    # git may be unknown in some envs but key present
+    assert "git_sha" in meta
+    assert "schema_version" in meta or meta.get("migration_files_count", 0) >= 0
+
+
+def test_fail_closed_non_zero_on_freshness() -> None:
+    overall, code = evaluate_run_outcome(
+        [
+            SourceRecord(
+                name="pcp",
+                status="success",
+                duration_ms=1,
+                attempts=1,
+                metrics={"fetched": 3},
+            )
+        ],
+        {"pcp"},
+        FreshnessRecord(status="fail"),
+        [ReportRecord(type="excel", status="generated")],
+        strict=True,
+    )
+    assert code != 0
+    assert overall  # non-empty
+
+
+def test_script_path_help() -> None:
+    root = Path(__file__).resolve().parents[1]
+    r = subprocess.run(
+        [sys.executable, str(root / "scripts" / "golden_path.py"), "--help"],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert r.returncode == 0

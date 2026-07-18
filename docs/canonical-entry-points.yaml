@@ -1,0 +1,66 @@
+# Canonical entry-point contract (DoD §32.1)
+# All tool adapters (CLAUDE.md, AGENTS.md, Cursor rules) MUST reference
+# docs/DEVELOPMENT.md and MUST NOT invent parallel product requirements.
+version: "1.0"
+updated_at: "2026-07-18"
+canonical_guide: docs/DEVELOPMENT.md
+precedence:
+  - DOD.md
+  - ADR vigente
+  - codigo testado
+  - evidencia reproduzivel
+
+commands:
+  setup: |
+    export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
+    pip install -r requirements.txt
+    python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
+  validate: |
+    python3 -m pytest tests/ -q --tb=no -x
+    ruff check scripts/
+    python3 -m scripts.ops.source_contract_tests --json
+  golden_path: |
+    python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
+  campaign: |
+    python3 squads/extra-dod-roi/scripts/cli.py force-next
+
+# Substrings that every entry-point adapter must mention (or point to DEVELOPMENT.md)
+required_command_tokens:
+  - scripts.golden_path
+  - scripts.ops.apply_migrations
+  - force-next
+  - LOCAL_DATALAKE_DSN
+
+required_doc_tokens:
+  - DOD.md
+  - docs/DEVELOPMENT.md
+
+documents:
+  scope:
+    - DOD.md
+    - docs/prd/
+  architecture:
+    - docs/architecture/
+  operations:
+    - docs/ops/
+    - docs/DEVELOPMENT.md
+
+adapters:
+  claude:
+    path: CLAUDE.md
+    role: thin_adapter
+  agents:
+    path: AGENTS.md
+    role: thin_adapter
+  cursor:
+    path: .cursor/rules/00-extra-canonical.mdc
+    role: thin_adapter
+
+# Product requirements live OUTSIDE adapters — removing adapters must not remove these
+product_requirement_roots:
+  - DOD.md
+  - docs/DEVELOPMENT.md
+  - docs/prd/
+  - scripts/
+  - tests/
+  - db/migrations/
