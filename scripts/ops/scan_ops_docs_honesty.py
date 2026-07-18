@@ -57,6 +57,24 @@ def scan(repo: Path | None = None) -> dict:
 
     prd = (root / "docs/prd/PRD-consultoria-extra.md").read_text(encoding="utf-8", errors="replace") if (root / "docs/prd/PRD-consultoria-extra.md").is_file() else ""
     prd_mentions_dod = bool(re.search(r"\bDOD\b|Definition of Done|cobertura", prd, re.I))
+    # Alignment with current measurement contract (post-2026-07-18).
+    prd_canonical_denom = bool(re.search(r"1[.\s]?093", prd))
+    prd_marks_legacy_644 = bool(
+        re.search(r"hist[oó]ric|supersed|n[aã]o\s+usar\s+como\s+verdade", prd, re.I)
+    ) and bool(re.search(r"64[.,]4", prd))
+    prd_operational_honest = bool(
+        re.search(r"cobertura\s+\*?\*?operacional\*?\*?", prd, re.I)
+    ) and bool(re.search(r"0\s*/\s*1[.\s]?093|0%", prd))
+
+    prd_aligned = (
+        prd_mentions_dod
+        and prd_canonical_denom
+        and prd_marks_legacy_644
+        and prd_operational_honest
+    )
+
+    changelog_ok = (root / "CHANGELOG.md").is_file()
+    next_step_ok = (root / "docs/ops/NEXT-DEV-STEP.md").is_file()
 
     ok = (
         not missing
@@ -65,7 +83,9 @@ def scan(repo: Path | None = None) -> dict:
         and adr_active
         and adr_revoked_section
         and glossary_has_1093
-        and prd_mentions_dod
+        and prd_aligned
+        and changelog_ok
+        and next_step_ok
     )
     return {
         "ok": ok,
@@ -77,7 +97,9 @@ def scan(repo: Path | None = None) -> dict:
             "adr_index_active": adr_active,
             "adr_index_revoked_section": adr_revoked_section,
             "glossary_universe_1093": glossary_has_1093,
-            "prd_aligned_language": prd_mentions_dod,
+            "prd_aligned_language": prd_aligned,
+            "changelog_exists": changelog_ok,
+            "next_dev_step_exists": next_step_ok,
         },
     }
 
