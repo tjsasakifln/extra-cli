@@ -1,0 +1,160 @@
+{
+  "status": "OK",
+  "deliverable": "D",
+  "title": "Painel de referências de preços",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "comparability_rule": {
+    "dimensions": [
+      "tipo_obra_servico",
+      "unidade",
+      "lote",
+      "porte",
+      "regiao",
+      "periodo"
+    ],
+    "group_dimensions": [
+      "tipo_obra_servico",
+      "unidade",
+      "lote",
+      "porte",
+      "regiao"
+    ],
+    "min_sample": 5,
+    "iqr_outlier_k": 1.5,
+    "drop_outliers": false,
+    "description": "Comparável se iguais em group_dimensions tipo_obra_servico, unidade, lote, porte, regiao; periodo documentado para evolução temporal; n>=5 senão INSUFFICIENT_SAMPLE; outliers flagged by IQR (not hidden as 'preço real')",
+    "forbidden_label": "preço real praticado for heterogeneous global values"
+  },
+  "panels": [
+    {
+      "group_key": "tipo_obra_servico=reforma_predial|unidade=m2|lote=unico|porte=medio|regiao=SC-200km",
+      "dimensions": {
+        "tipo_obra_servico": "reforma_predial",
+        "unidade": "m2",
+        "lote": "unico",
+        "porte": "medio",
+        "regiao": "SC-200km"
+      },
+      "n_observations": 6,
+      "status": "OK",
+      "median": 125.0,
+      "p25": 112.5,
+      "p75": 137.5,
+      "min_value": 100.0,
+      "max_value": 300.0,
+      "outliers_flagged": [
+        300.0
+      ],
+      "outlier_rule": "IQR k=1.5; drop=False; always listed",
+      "value_semantics_present": [
+        "contratado"
+      ],
+      "temporal_evolution": [
+        {
+          "periodo": "2025-Q1",
+          "n": 3,
+          "median": 110.0,
+          "status": "INSUFFICIENT_SAMPLE"
+        },
+        {
+          "periodo": "2025-Q2",
+          "n": 3,
+          "median": 140.0,
+          "status": "INSUFFICIENT_SAMPLE"
+        }
+      ],
+      "labels_forbidden_used": [],
+      "claims": [
+        "stats over n=6 with semantics=['contratado']",
+        "min/max shown with outliers_flagged (not hidden)",
+        "temporal_evolution available"
+      ],
+      "limitations": []
+    },
+    {
+      "group_key": "tipo_obra_servico=manutencao_predial|unidade=m2|lote=unico|porte=pequeno|regiao=SC-200km",
+      "dimensions": {
+        "tipo_obra_servico": "manutencao_predial",
+        "unidade": "m2",
+        "lote": "unico",
+        "porte": "pequeno",
+        "regiao": "SC-200km"
+      },
+      "n_observations": 2,
+      "status": "INSUFFICIENT_SAMPLE",
+      "median": 52.5,
+      "p25": 51.25,
+      "p75": 53.75,
+      "min_value": 50.0,
+      "max_value": 55.0,
+      "outliers_flagged": [],
+      "outlier_rule": "IQR k=1.5; drop=False; always listed",
+      "value_semantics_present": [
+        "estimado"
+      ],
+      "temporal_evolution": [],
+      "labels_forbidden_used": [],
+      "claims": [
+        "stats over n=2 with semantics=['estimado']",
+        "min/max shown with outliers_flagged (not hidden)"
+      ],
+      "limitations": [
+        "n=2 < min_sample=5",
+        "amostra sem múltiplos períodos — evolução temporal N/A"
+      ]
+    },
+    {
+      "group_key": "tipo_obra_servico=infraestrutura_urbana|unidade=global|lote=lote1|porte=grande|regiao=SC-200km",
+      "dimensions": {
+        "tipo_obra_servico": "infraestrutura_urbana",
+        "unidade": "global",
+        "lote": "lote1",
+        "porte": "grande",
+        "regiao": "SC-200km"
+      },
+      "n_observations": 1,
+      "status": "INSUFFICIENT_SAMPLE",
+      "median": 1000000.0,
+      "p25": 1000000.0,
+      "p75": 1000000.0,
+      "min_value": 1000000.0,
+      "max_value": 1000000.0,
+      "outliers_flagged": [],
+      "outlier_rule": "IQR k=1.5; drop=False; always listed",
+      "value_semantics_present": [
+        "homologado"
+      ],
+      "temporal_evolution": [],
+      "labels_forbidden_used": [],
+      "claims": [
+        "stats over n=1 with semantics=['homologado']",
+        "min/max shown with outliers_flagged (not hidden)"
+      ],
+      "limitations": [
+        "n=1 < min_sample=5",
+        "grupo contém valores globais heterogêneos — não rotular como preço real praticado",
+        "amostra sem múltiplos períodos — evolução temporal N/A"
+      ]
+    }
+  ],
+  "claims_allowed": [
+    "References only within documented comparability dimensions",
+    "INSUFFICIENT_SAMPLE when n < min_sample",
+    "Value semantics explicit (estimado|homologado|contratado|pago)",
+    "Outliers flagged; min/max not silently scrubbed"
+  ],
+  "claims_forbidden": [
+    "preço real praticado for heterogeneous global values",
+    "Cross-group mix of tipo/unidade/região/período as one reference",
+    "Hide outliers without recording exclusion rule",
+    "Fabricate market prices from empty DSN"
+  ],
+  "generated_at": "2026-07-18T18:37:18Z"
+}
