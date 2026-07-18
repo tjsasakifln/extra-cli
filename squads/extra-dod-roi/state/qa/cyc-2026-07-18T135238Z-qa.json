@@ -1,0 +1,9 @@
+{
+  "cycle_id": "cyc-2026-07-18T135238Z",
+  "story_id": "ROI-cand-dyn-slice-f9ff8b8f2173",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:53:24Z",
+  "note": "PARTIAL markers unlock ranking"
+}
