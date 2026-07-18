@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "run_id": "extra-cli-20260718T140949Z-4dd94f88",
+  "records": 3,
+  "missing_fields": [],
+  "secret_leaks": 0,
+  "redacted_ok": true,
+  "sample": {
+    "ts": "2026-07-18T14:09:49.767933Z",
+    "level": "INFO",
+    "service": "extra-cli",
+    "source": "local",
+    "run_id": "extra-cli-20260718T140949Z-4dd94f88",
+    "logger": "extra.extra-cli",
+    "msg": "structured logging active",
+    "event": "boot"
+  }
+}
