@@ -1,15 +1,14 @@
 # RESUME
 
-**Updated:** 2026-07-18T18:46:26.554058+00:00
-**SHA:** `74667830ea820a55a5e41fffcdbb3b1ce3413aca` | **DoD:** 429/1354 | **PR:** https://github.com/tjsasakifln/extra-consultoria/pull/28
+**Updated:** 2026-07-18T18:51:46.853067+00:00
+**SHA:** `e33c87d8e5b5383d9012fc0bedc0afccbf73884f`
+**DoD:** 437/1354
+**PR:** https://github.com/tjsasakifln/extra-consultoria/pull/28
 
-## Deliverables A–E: mechanism complete (fixture+audit, QA independent)
-## Residual: live DSN empty; coverage 0/1093 not 95%; VPS blocked
-
-## Next
-# Story: [Pacote final da consultoria] O sistema gera PDF executivo e planilhas Excel a partir do m · PDF e Excel usam a mesma data de corte
+## Recovery + 9 stories (A–E + package final)
+## Residual: empty local PG, VPS, Tiago accept, real multi-page PDF volume
 
 ```bash
 git switch epic/advance-30d-local-ready-20260718 && git pull --ff-only
-python3 squads/extra-dod-roi/scripts/cli.py status
+python3 squads/extra-dod-roi/scripts/cli.py force-next
 ```

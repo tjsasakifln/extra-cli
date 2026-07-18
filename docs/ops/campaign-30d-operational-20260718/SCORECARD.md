@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|-------|
-| Epic SHA | `ea560f8422bea49aac5562c82b0c3b7fad6efc65` |
-| DoD | **429/1354** (baseline remoto 92) |
-| Stories session | 8 closed (7 PASS + 1 CONCERNS) |
-| Deliverables A–E | mechanism PASS (fixture); live DSN residual |
+| Epic SHA | `e33c87d8e5b5383d9012fc0bedc0afccbf73884f` |
+| DoD | **437/1354** (baseline 92) |
+| Session stories | 9 closed |
+| A–E + package | mechanisms PASS (fixture); live residual |
 | PR | https://github.com/tjsasakifln/extra-consultoria/pull/28 |
 | Forbidden | LOCAL_READY, 95%, PRE_VPS, PROJECT_DONE |
 
