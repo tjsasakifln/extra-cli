@@ -4,9 +4,9 @@
   "mode": "strict",
   "foolproof": true,
   "status": "running",
-  "phase": "PO_CLOSE",
+  "phase": "RERANK",
   "created_at": "2026-07-18T16:42:26Z",
-  "updated_at": "2026-07-18T17:17:48Z",
+  "updated_at": "2026-07-18T17:18:52Z",
   "selected_id": "cand-dyn-slice:a53bdc0173af",
   "selected_roi": 1.2261,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
@@ -125,11 +125,40 @@
           "independence": true
         }
       }
+    },
+    {
+      "at": "2026-07-18T17:18:49Z",
+      "event": "ADVANCE",
+      "phase": "PUBLISH",
+      "detail": {
+        "to": "PUBLISH",
+        "actor": "po",
+        "evidence": {
+          "po_closed": true,
+          "qa_verdict": "CONCERNS",
+          "dod_flipped": [
+            "dod:925f2c0e059a"
+          ]
+        }
+      }
+    },
+    {
+      "at": "2026-07-18T17:18:52Z",
+      "event": "ADVANCE",
+      "phase": "RERANK",
+      "detail": {
+        "to": "RERANK",
+        "actor": "evidence-release-steward",
+        "evidence": {
+          "merged_to_epic": true,
+          "branch": "epic/advance-30d-local-ready-20260718"
+        }
+      }
     }
   ],
   "abort": null,
   "outcome": null,
-  "next_phase_required": "PUBLISH",
+  "next_phase_required": "DONE",
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",
     "binding": "data/aiox-binding.yaml",
