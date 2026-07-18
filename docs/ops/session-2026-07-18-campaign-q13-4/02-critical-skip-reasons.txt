@@ -1,0 +1,30 @@
+........................................................................ [ 32%]
+...............................................sssssssssssssss.......... [ 65%]
+.................sssssssss.............................................. [ 97%]
+.....                                                                    [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_sc_compras_crawler.py:334: _extract_table_rows() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:338: _extract_table_rows() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:342: _extract_table_rows() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:346: _extract_table_rows() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:350: _extract_table_rows() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:354: _extract_table_rows() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:358: _extract_table_rows() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:371: _extract_detail_fields() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:375: _extract_detail_fields() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:379: _extract_detail_fields() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:383: _extract_detail_fields() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:387: _extract_detail_fields() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:391: _extract_detail_fields() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:395: _extract_detail_fields() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:399: _extract_detail_fields() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:934: sc_compras_crawler.diagnostic() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:938: sc_compras_crawler.diagnostic() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:942: sc_compras_crawler.diagnostic() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:946: sc_compras_crawler.diagnostic() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:950: sc_compras_crawler.diagnostic() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:958: sc_compras_crawler._check_url() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:962: sc_compras_crawler._check_url() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:966: sc_compras_crawler._check_url() removed in API refactoring
+SKIPPED [1] tests/test_sc_compras_crawler.py:970: sc_compras_crawler._check_url() removed in API refactoring
+197 passed, 24 skipped, 2 deselected in 13.90s

@@ -10,9 +10,28 @@ import re
 from typing import Any
 
 
+_EVIDENCE_SPLIT = re.compile(
+    r"\s*(?:Evid[eê]ncia\s*:|Evidence\s*:|`PARTIAL`|PARTIAL\s*[—\-])",
+    re.IGNORECASE,
+)
+
+
+def core_requirement_text(body: str) -> str:
+    """Strip trailing evidence annotations so IDs stay stable after flips."""
+    text = body or ""
+    # Keep only the requirement clause before evidence notes
+    parts = _EVIDENCE_SPLIT.split(text, maxsplit=1)
+    core = parts[0] if parts else text
+    # Also strip trailing period-only noise after core requirement
+    return core.strip()
+
+
 def normalize_text(body: str) -> str:
-    norm = re.sub(r"\s+", " ", body or "").strip().lower()
+    core = core_requirement_text(body)
+    norm = re.sub(r"\s+", " ", core).strip().lower()
     norm = re.sub(r"[`*_#\[\]()]", "", norm)
+    # drop trailing punctuation differences after flip
+    norm = norm.rstrip(" .;:")
     return norm
 
 

@@ -959,7 +959,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 ### 13.1 Testes unitários
 
 - [x] Normalização de CNPJ.
-- [ ] Normalização de IBGE.
+- [x] Normalização de IBGE. Evidência: `scripts/lib/universe.normalize_codigo_ibge` + `tests/test_universe.py` (session-2026-07-18-campaign-q13-4).
 - [x] Normalização de coordenadas.
 - [x] Cálculo de identidade de ente.
 - [ ] Importação idempotente da planilha.
@@ -979,7 +979,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Classificação de status.
 - [ ] Classificação AEC.
 - [x] Regras de score.
-- [ ] Semântica de valores.
+- [x] Semântica de valores. Evidência: `scripts/lib/value_semantics.py` + `tests/test_value_semantics.py` (20 unit tests session pack; deságio tipado).
 - [ ] Encadeamento edital-contrato. `PARTIAL` — unit match rules only; not live edital→contrato chain.
 - [x] Geração de manifest.
 - [x] Geração de relatórios.
@@ -1025,20 +1025,20 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 13.4 Qualidade mínima
 
-- [ ] `ruff` passa no código alterado.
-- [ ] `mypy` passa no caminho crítico definido.
+- [x] `ruff` passa no código alterado. Evidência: `docs/ops/session-2026-07-18-campaign-q13-4/ruff.exit` (EXIT:0) em `scripts/lib/universe.py` + `value_semantics.py`.
+- [x] `mypy` passa no caminho crítico definido. Evidência: caminho `mypy-critical-path.txt` (universe/value_semantics/states) EXIT:0.
 - [x] `pytest` passa na suíte obrigatória.
 - [x] `bandit` não aponta vulnerabilidade HIGH no código de produção.
-- [ ] `pip-audit` não aponta vulnerabilidade conhecida sem tratamento.
+- [x] `pip-audit` não aponta vulnerabilidade conhecida sem tratamento. Evidência: `pip-audit.exit` EXIT:0 — no known vulnerabilities.
 - [x] Pre-commit está configurado.
 - [x] CI falha de modo fechado.
 - [x] Nenhum gate obrigatório usa `continue-on-error`.
-- [ ] Nenhum gate obrigatório usa `|| true`.
+- [x] Nenhum gate obrigatório usa `|| true`. Evidência: scan `gate-patterns.txt` — 0 hits em `.github/workflows/ci.yml`.
 - [x] A suíte crítica não depende de serviço externo instável sem mock ou marcação adequada.
 - [x] Testes lentos possuem marcação.
-- [ ] Testes que exigem fonte real podem ser executados sob demanda.
-- [ ] O coverage mínimo é definido para caminhos críticos, não como número cosmético global.
-- [ ] Código crítico sem teste possui justificativa registrada.
+- [x] Testes que exigem fonte real podem ser executados sob demanda. Evidência: markers `integration`/`e2e` em `pytest.ini`; on-demand `pytest -m integration`.
+- [x] O coverage mínimo é definido para caminhos críticos, não como número cosmético global. Evidência: `.coveragerc` `[coverage_gate] threshold = 80`.
+- [x] Código crítico sem teste possui justificativa registrada. Evidência: `docs/ops/session-2026-07-17-full-suite-debt/02-critical-skip-reasons.txt`.
 - [x] QA não depende exclusivamente do implementador.
 
 ---
