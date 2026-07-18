@@ -1,0 +1,47 @@
+{
+  "version": "1.0.0",
+  "section": "Convenção de evidência",
+  "kinds": [
+    {
+      "id": "automated_test",
+      "label": "teste automatizado reproduzível"
+    },
+    {
+      "id": "documented_command_exit_0",
+      "label": "comando documentado com exit code 0"
+    },
+    {
+      "id": "system_report",
+      "label": "relatório JSON/CSV/Excel/PDF/Markdown gerado pelo sistema"
+    },
+    {
+      "id": "sql_query",
+      "label": "consulta SQL com resultado esperado"
+    },
+    {
+      "id": "run_ledger",
+      "label": "execução registrada em ledger/manifest/runs"
+    },
+    {
+      "id": "dated_log",
+      "label": "log datado e correlacionável"
+    },
+    {
+      "id": "manual_validation_tiago",
+      "label": "validação manual registrada por Tiago"
+    },
+    {
+      "id": "commit_or_pr",
+      "label": "commit ou pull request identificável"
+    },
+    {
+      "id": "restore_or_recovery_executed",
+      "label": "teste de restauração ou recuperação efetivamente executado"
+    },
+    {
+      "id": "official_source_comparison",
+      "label": "comparação com fonte oficial na mesma data/período"
+    }
+  ],
+  "rule": "Um item pode ser marcado como concluído apenas quando pelo menos uma das evidências existir"
+}
