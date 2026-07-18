@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "generated_at": "2026-07-18T18:05:16Z",
+  "generated_at": "2026-07-18T18:12:58Z",
   "profile_path": "config/client_profiles/extra.yaml",
   "stamp": {
     "profile_path": "config/client_profiles/extra.yaml",
@@ -101,30 +101,33 @@
     {
       "item_id": "yaml_centralized",
       "dod_text": "A alteração do perfil não exige modificar regras espalhadas pelo código.",
-      "status": "PASS",
+      "status": "PARTIAL",
       "evidence": [
         "config/client_profiles/extra.yaml",
         "scripts/opportunity_intel/profile.py:load_client_profile",
         "scripts/ops/diagnostic_profile.py",
-        "Comment in extra.yaml: alterações só neste arquivo"
+        "hardcode_hits_sample=['scripts/check_imports.py', 'scripts/consulting_readiness.py', 'scripts/coverage_truth.py', 'scripts/datalake-sc-200km.py', 'scripts/export-sc-200km-final.py', 'scripts/universe_tools.py', 'scripts/buyer_intel/cli.py', 'scripts/buyer_intel/ranking.py']",
+        "hardcode_hits_count=55"
       ],
-      "notes": "Business parameters live in YAML; code only loads/validates"
+      "notes": "PARTIAL: residual hardcodes (e.g. 200km) remain outside YAML"
     },
     {
       "item_id": "report_profile_version",
       "dod_text": "Todo relatório identifica a versão do perfil utilizada.",
-      "status": "PASS",
+      "status": "PARTIAL",
       "evidence": [
         "stamp=extra_construtora@v2",
         "scripts/reports/run_metadata.py:_load_profile_version + profile_id/version fields",
+        "report_modules_with_profile_version=2",
         "profile_stamp() for report generators"
       ],
-      "notes": ""
+      "notes": "PARTIAL: executive/run_metadata path stamps version; not every operational report yet"
     }
   ],
   "summary": {
     "total": 10,
-    "pass": 10,
+    "pass": 8,
+    "partial": 2,
     "fail": 0,
     "partial_fill_notes": 2
   },

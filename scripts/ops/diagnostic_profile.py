@@ -232,40 +232,104 @@ def audit_diagnostic_profile(path: Path | str | None = None) -> dict[str, Any]:
         )
     )
 
-    # 9. Profile change without scattered code rules — single YAML + loader
+    # 9. Profile change without scattered code rules — honest PARTIAL if hardcodes remain
+    hardcode_hits: list[str] = []
+    scripts_root = PROJECT_ROOT / "scripts"
+    hardcode_patterns = (
+        "radius_km=200",
+        "radius_km = 200",
+        "RAIO_200",
+        "raio_200km",
+        "200 km",
+        "200km",
+        "priority_distance_km=200",
+        "priority_distance_km = 200",
+        "radius_km: 200",
+    )
+    if scripts_root.is_dir():
+        for py in scripts_root.rglob("*.py"):
+            rel = str(py)
+            if "diagnostic_profile" in rel or "test_diagnostic_profile" in rel:
+                continue
+            try:
+                text = py.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            if any(pat in text for pat in hardcode_patterns):
+                try:
+                    hardcode_hits.append(str(py.relative_to(PROJECT_ROOT)))
+                except ValueError:
+                    hardcode_hits.append(str(py))
+    # Always PARTIAL while residual radius hardcodes exist outside YAML
+    yaml_status = "PARTIAL" if hardcode_hits else "PASS"
     checks.append(
         CheckResult(
             item_id="yaml_centralized",
             dod_text="A alteração do perfil não exige modificar regras espalhadas pelo código.",
-            status="PASS",
+            status=yaml_status,
             evidence=[
                 CANONICAL_REL,
                 "scripts/opportunity_intel/profile.py:load_client_profile",
                 "scripts/ops/diagnostic_profile.py",
-                "Comment in extra.yaml: alterações só neste arquivo",
+                f"hardcode_hits_sample={hardcode_hits[:8]}",
+                f"hardcode_hits_count={len(hardcode_hits)}",
             ],
-            notes="Business parameters live in YAML; code only loads/validates",
+            notes=(
+                "PARTIAL: residual hardcodes (e.g. 200km) remain outside YAML"
+                if hardcode_hits
+                else "Business parameters live in YAML; code only loads/validates"
+            ),
         )
     )
 
-    # 10. Reports identify profile version
+    # 10. Reports identify profile version — capability via run_metadata; not every report yet
     stamp = profile_stamp(raw)
+    run_meta = PROJECT_ROOT / "scripts" / "reports" / "run_metadata.py"
+    has_run_meta_version = False
+    if run_meta.is_file():
+        rm_text = run_meta.read_text(encoding="utf-8", errors="ignore")
+        has_run_meta_version = "profile_version" in rm_text and "_load_profile_version" in rm_text
+    # Scan how many report modules mention profile_version
+    report_hits = 0
+    reports_dir = PROJECT_ROOT / "scripts" / "reports"
+    if reports_dir.is_dir():
+        for py in reports_dir.glob("*.py"):
+            try:
+                if "profile_version" in py.read_text(encoding="utf-8", errors="ignore"):
+                    report_hits += 1
+            except OSError:
+                pass
+    # PARTIAL until all generators use stamp; PASS only if widely adopted (>=5 modules)
+    report_status = (
+        "PASS"
+        if has_run_meta_version and report_hits >= 5 and stamp.get("version") is not None
+        else "PARTIAL"
+        if has_run_meta_version and stamp.get("version") is not None
+        else "FAIL"
+    )
     checks.append(
         CheckResult(
             item_id="report_profile_version",
             dod_text="Todo relatório identifica a versão do perfil utilizada.",
-            status="PASS" if stamp.get("version") is not None and stamp.get("profile_id") else "FAIL",
+            status=report_status,
             evidence=[
                 f"stamp={stamp.get('stamp')}",
                 "scripts/reports/run_metadata.py:_load_profile_version + profile_id/version fields",
+                f"report_modules_with_profile_version={report_hits}",
                 "profile_stamp() for report generators",
             ],
+            notes=(
+                "PARTIAL: executive/run_metadata path stamps version; not every operational report yet"
+                if report_status == "PARTIAL"
+                else ""
+            ),
         )
     )
 
     fail = sum(1 for c in checks if c.status == "FAIL")
-    partial = sum(1 for c in checks if c.status == "PARTIAL" or c.notes.startswith("PARTIAL") or "PENDING" in c.notes)
+    partial = sum(1 for c in checks if c.status == "PARTIAL")
     return {
+        # ok when no FAIL — PARTIAL residual is allowed (honest debt)
         "ok": fail == 0,
         "generated_at": utc_now(),
         "profile_path": _path_label(p),
@@ -274,8 +338,13 @@ def audit_diagnostic_profile(path: Path | str | None = None) -> dict[str, Any]:
         "summary": {
             "total": len(checks),
             "pass": sum(1 for c in checks if c.status == "PASS"),
+            "partial": partial,
             "fail": fail,
-            "partial_fill_notes": partial,
+            "partial_fill_notes": sum(
+                1
+                for c in checks
+                if "PENDING" in (c.notes or "") or "PARTIAL commercial" in (c.notes or "")
+            ),
         },
         "claims_allowed": [
             "Canonical Extra profile YAML is versioned and loadable",
