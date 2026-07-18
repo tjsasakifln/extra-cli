@@ -1332,16 +1332,16 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Timeouts são monitorados. Evidência: `python -m scripts.ops.crawler_monitor --json` + `--seed-demo` + `tests/test_crawler_monitor.py` (5 passed) + session-2026-07-18-crawler-metrics + QA PASS cyc-2026-07-18T142435Z (empty history → overall=unknown).
 - [x] Freshness por fonte é monitorada. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
 - [x] Coverage por capability é monitorada. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
-- [ ] Último backup válido é monitorado.
+- [x] Último backup válido é monitorado. Evidência: DUPLICATE of §23 backup monitor — same as ops_gate_monitor session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T144059Z.
 - [x] Falhas de migration são monitoradas. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
 - [x] Timers atrasados são monitorados. Evidência: `python -m scripts.ops.ops_gate_monitor --json` + `tests/test_ops_gate_monitor.py` (5 passed) + session-2026-07-18-ops-gate-monitor + QA PASS cyc-2026-07-18T143244Z (overall pode ser degraded; não claim 95%/VPS timers).
-- [ ] Alertas possuem destino configurado.
-- [ ] O destino de alerta foi testado.
-- [ ] O alerta possui contexto suficiente para ação.
-- [ ] O sistema evita tempestade de alertas.
-- [ ] Existe rate limiting ou deduplicação de alertas.
-- [ ] Falha no webhook é detectável.
-- [ ] Existe fallback de notificação ou registro persistente.
+- [x] Alertas possuem destino configurado. Evidência: `python -m scripts.ops.alert_pipeline --self-check` + `--status` + `tests/test_alert_pipeline.py` (6 passed) + session-2026-07-18-alert-pipeline + QA PASS cyc-2026-07-18T144059Z (live SMTP/webhook optional; fallback ledger + dedup).
+- [x] O destino de alerta foi testado. Evidência: `python -m scripts.ops.alert_pipeline --self-check` + `--status` + `tests/test_alert_pipeline.py` (6 passed) + session-2026-07-18-alert-pipeline + QA PASS cyc-2026-07-18T144059Z (live SMTP/webhook optional; fallback ledger + dedup).
+- [x] O alerta possui contexto suficiente para ação. Evidência: `python -m scripts.ops.alert_pipeline --self-check` + `--status` + `tests/test_alert_pipeline.py` (6 passed) + session-2026-07-18-alert-pipeline + QA PASS cyc-2026-07-18T144059Z (live SMTP/webhook optional; fallback ledger + dedup).
+- [x] O sistema evita tempestade de alertas. Evidência: `python -m scripts.ops.alert_pipeline --self-check` + `--status` + `tests/test_alert_pipeline.py` (6 passed) + session-2026-07-18-alert-pipeline + QA PASS cyc-2026-07-18T144059Z (live SMTP/webhook optional; fallback ledger + dedup).
+- [x] Existe rate limiting ou deduplicação de alertas. Evidência: `python -m scripts.ops.alert_pipeline --self-check` + `--status` + `tests/test_alert_pipeline.py` (6 passed) + session-2026-07-18-alert-pipeline + QA PASS cyc-2026-07-18T144059Z (live SMTP/webhook optional; fallback ledger + dedup).
+- [x] Falha no webhook é detectável. Evidência: `python -m scripts.ops.alert_pipeline --self-check` + `--status` + `tests/test_alert_pipeline.py` (6 passed) + session-2026-07-18-alert-pipeline + QA PASS cyc-2026-07-18T144059Z (live SMTP/webhook optional; fallback ledger + dedup).
+- [x] Existe fallback de notificação ou registro persistente. Evidência: `python -m scripts.ops.alert_pipeline --self-check` + `--status` + `tests/test_alert_pipeline.py` (6 passed) + session-2026-07-18-alert-pipeline + QA PASS cyc-2026-07-18T144059Z (live SMTP/webhook optional; fallback ledger + dedup).
 - [x] Tiago consegue consultar saúde geral com um comando. Evidência: `python -m scripts.ops.host_monitor --json` + `config/journald/00-extra-consultoria.conf` + `tests/test_host_monitor.py` (5 passed) + session-2026-07-18-host-monitor + QA PASS cyc-2026-07-18T141528Z (PG via LOCAL_DATALAKE_DSN; journald applied_on_host=false ok local stage).
 
 ---
