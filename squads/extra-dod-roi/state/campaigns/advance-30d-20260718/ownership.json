@@ -1,0 +1,13 @@
+{
+  "updated_at": "2026-07-18T12:42:30.202348+00:00",
+  "serialized_files": [
+    "DOD.md",
+    "scripts/crawl/monitor.py",
+    "scripts/golden_path.py",
+    "db/migrations/**",
+    "extra-consultoria-plano-executivo.html",
+    "scripts/coverage_truth.py"
+  ],
+  "current_locks": {},
+  "rule": "Only one agent may write serialized files"
+}

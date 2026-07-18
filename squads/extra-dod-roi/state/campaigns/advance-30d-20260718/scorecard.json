@@ -1,0 +1,38 @@
+{
+  "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
+  "updated_at": "2026-07-18T12:49:46.831289+00:00",
+  "slices_completed": 1,
+  "pert_days_claimed": 0.5,
+  "metrics_before": {
+    "source": "/mnt/d/extra consultoria/output/coverage/contract-report.json",
+    "as_of": "2026-07-17",
+    "generated_at": "2026-07-17T13:33:54.866794+00:00",
+    "denominator": 1093,
+    "operational_source_coverage_pct": 0.0,
+    "operational_numerator": 0,
+    "commercial_signal_pct": 10.61,
+    "source_mapping_pct": 100.0,
+    "freshness_status": "NOT_READY",
+    "recall_status": "NOT_READY",
+    "completeness_pct": 17.65
+  },
+  "metrics_after": null,
+  "stories": [
+    {
+      "id": "ROI-cand-dyn-slice-1e78666e2a21",
+      "title": "no || true mandatory gates",
+      "qa": "CONCERNS",
+      "dod_flips": 1,
+      "branch": "extra-roi/cand-no-or-true-gates"
+    }
+  ],
+  "dod_flips": {
+    "checked": [
+      "Nenhum gate obrigat\u00f3rio usa || true"
+    ],
+    "unchecked": []
+  },
+  "cycles": [
+    "cyc-2026-07-18T124230Z"
+  ]
+}

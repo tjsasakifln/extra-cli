@@ -1,0 +1,7 @@
+{
+  "generated_at": "2026-07-18T12:41:45.086228+00:00",
+  "pg": {
+    "status": "ERROR",
+    "error": "OperationalError: connection to server at \"127.0.0.1\", port 5433 failed: timeout expired\n"
+  }
+}
