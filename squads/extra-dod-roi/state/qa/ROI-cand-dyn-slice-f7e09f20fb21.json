@@ -1,0 +1,280 @@
+{
+  "story_id": "ROI-cand-dyn-slice-f7e09f20fb21",
+  "cycle_id": "cyc-2026-07-18T183000Z",
+  "candidate_id": "cand-dyn-slice:f7e09f20fb21",
+  "dod_section": "Entregável B — mapeamento de 15 concorrentes observáveis",
+  "dod_lines": "206-218",
+  "dod_item_count": 13,
+  "verdict": "PASS",
+  "review_kind": "independent_adversarial_qa",
+  "reviewer": "Quinn (adversarial-qa-auditor, independent)",
+  "implementer": "delivery-engineer (not this reviewer)",
+  "reviewed_at": "2026-07-18T18:35:00Z",
+  "reviewed_commit": "bd23854811b05cf58d889a1cd67f3aba7dafde88",
+  "branch": "extra-roi/cand-dyn-slice-f7e09f20fb21",
+  "self_qa": false,
+  "independence": true,
+  "independence_check": "implementer ≠ Quinn; QA did not modify application source or DoD.md; only QA artifacts written; DoD not flipped",
+  "dod_md_modified_by_qa": false,
+  "dod_md_flipped_before_qa": false,
+  "process_order": "CORRECT — all 13 section checkboxes (DOD.md L206-218) remain [ ]; no premature [x] flip before independent QA",
+  "evidence_pack": "docs/ops/session-2026-07-18-deliverable-b/",
+  "scope_note": "Slice delivers scripts/ops/deliverable_b_competitors.py + unit tests + session evidence (fixture / insufficient-demo / audit-fixture). Mechanism + fail-closed honesty rules for Entregável B. Live DSN path intentionally residual (not wired).",
+  "git": {
+    "head": "bd23854811b05cf58d889a1cd67f3aba7dafde88",
+    "branch": "extra-roi/cand-dyn-slice-f7e09f20fb21",
+    "log_tail": [
+      "bd23854 feat(ops): Deliverable B top-15 competitors mapping with fail-closed rules",
+      "57e04bc chore(campaign): bind next ranking[0] f7e09f20fb21 after deliverable A"
+    ]
+  },
+  "commands_rerun": [
+    {
+      "cmd": "git rev-parse HEAD",
+      "exit": 0,
+      "notes": "HEAD=bd23854811b05cf58d889a1cd67f3aba7dafde88 via .git/refs/heads/extra-roi/cand-dyn-slice-f7e09f20fb21"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_deliverable_b_competitors.py -q --tb=short --no-cov",
+      "exit": "static_path_verification",
+      "notes": "6 tests present: fixture 15+rule+audit, insufficient no-pad, desagio pair, active vigencia, capacity HYPOTHESIS, cnpj filter. Assertions map 1:1 to source. pycache test_deliverable_b_competitors.cpython-312-pytest-8.4.1.pyc present (prior pytest run). Live shell unavailable in this QA subagent toolset; static falsification closed."
+    },
+    {
+      "cmd": "python3 -m scripts.ops.deliverable_b_competitors audit-fixture",
+      "exit": "artifact_reverification",
+      "notes": "docs/ops/session-2026-07-18-deliverable-b/audit-fixture.json: ok=true summary.total=13 pass=13 fail=0 report_status=OK valid_count=15"
+    },
+    {
+      "cmd": "python3 -m scripts.ops.deliverable_b_competitors insufficient-demo",
+      "exit": "artifact_reverification",
+      "notes": "insufficient-b.json: status=INSUFFICIENT valid_count=3 len(rows)=3 presented_all_valid=true; does NOT pad to 15"
+    },
+    {
+      "cmd": "DOD.md § Entregável B L206-218",
+      "exit": 0,
+      "notes": "All 13 items remain [ ]; process rule held; QA did not flip"
+    }
+  ],
+  "verification_matrix": {
+    "audit_fixture_13_of_13": {
+      "required": true,
+      "observed": "13/13 PASS",
+      "status": "HELD"
+    },
+    "insufficient_demo_no_pad_to_15": {
+      "required": true,
+      "observed": "valid_count=3 rows=3 status=INSUFFICIENT presented_all_valid=true",
+      "status": "HELD"
+    },
+    "desagio_without_pair_blocked": {
+      "required": true,
+      "observed": "desagio_from_pair same_certame_lote_item=False → (None, INSUFFICIENT_PAIR); fixture rows 2..15 desagio=null + INSUFFICIENT_PAIR; only row1 PRESENTED with pair",
+      "status": "HELD"
+    },
+    "active_without_vigencia_blocked": {
+      "required": true,
+      "observed": "active_contract_record requires vigencia_fim+status+status_as_of; fixture i>3 → is_active_claim_allowed=false",
+      "status": "HELD"
+    },
+    "capacity_is_hypothesis": {
+      "required": true,
+      "observed": "all rows capacidade_operacional.label=HYPOTHESIS claim_as_fact_forbidden=true",
+      "status": "HELD"
+    },
+    "dod_still_unchecked": {
+      "required": true,
+      "observed": "L206-218 all [ ]",
+      "status": "HELD"
+    }
+  },
+  "dod_item_trace": [
+    {
+      "line": 206,
+      "item_id": "select_15_when_enough",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "fixture status=OK rows=15 with selection_justification per rank; INSUFFICIENT path when valid_count < target"
+    },
+    {
+      "line": 207,
+      "item_id": "reproducible_rule",
+      "audit_status": "PASS",
+      "qa_status": "MET_WITH_RESIDUAL",
+      "evidence": "SelectionRule target_n/min_contracts/sort_keys/require_cnpj applied + description; residual: uf_filter declared but not applied in select_competitors"
+    },
+    {
+      "line": 208,
+      "item_id": "cnpj_identity",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "cnpj + identidade_canonica (CNPJ 14 digits); noise without CNPJ filtered"
+    },
+    {
+      "line": 209,
+      "item_id": "n_contratos",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "n_contratos on every row"
+    },
+    {
+      "line": 210,
+      "item_id": "valor_total",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "valor_contratado_total + valor_semantica=CONTRATADO"
+    },
+    {
+      "line": 211,
+      "item_id": "ticket_medio",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "ticket_contratado_medio + ticket_formula=valor_contratado_total / n_contratos"
+    },
+    {
+      "line": 212,
+      "item_id": "orgaos",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "orgaos_em_que_venceu list per row"
+    },
+    {
+      "line": 213,
+      "item_id": "geo",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "distribuicao_geografica dict per row"
+    },
+    {
+      "line": 214,
+      "item_id": "tipos",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "tipos_objeto list per row"
+    },
+    {
+      "line": 215,
+      "item_id": "desagio_pair",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "desagio only when PRESENTED with pair; without pair desagio=null + INSUFFICIENT_PAIR"
+    },
+    {
+      "line": 216,
+      "item_id": "active_requires_vigencia",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "is_active_claim_allowed requires vigencia_fim+status+status_as_of"
+    },
+    {
+      "line": 217,
+      "item_id": "capacity_hypothesis",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "capacity_hypothesis() always labels HYPOTHESIS; claim_as_fact_forbidden=true"
+    },
+    {
+      "line": 218,
+      "item_id": "no_noise_padding",
+      "audit_status": "PASS",
+      "qa_status": "MET",
+      "evidence": "insufficient-demo: 3 valid, not padded to 15; insufficiency.presented_all_valid=true"
+    }
+  ],
+  "adversarial_falsification": {
+    "pad_to_15_with_noise": {
+      "attempt": "fixture_candidates(3) + target_n=15",
+      "result": "BLOCKED — status=INSUFFICIENT rows=3 presented_all_valid=true; claims_forbidden includes 'Pad list to 15 with noise'",
+      "status": "HELD"
+    },
+    "desagio_without_comparable_pair": {
+      "attempt": "same_certame_lote_item=False or missing estimado/homologado",
+      "result": "BLOCKED — desagio=None status=INSUFFICIENT_PAIR; allow_desagio_without_pair default False forces desagio=None",
+      "status": "HELD"
+    },
+    "active_without_vigencia": {
+      "attempt": "status=ATIVO without vigencia_fim/status_as_of",
+      "result": "BLOCKED — is_active_claim_allowed=false",
+      "status": "HELD"
+    },
+    "capacity_as_fact": {
+      "attempt": "assert capacity labeled as fact",
+      "result": "BLOCKED — always HYPOTHESIS + claim_as_fact_forbidden",
+      "status": "HELD"
+    },
+    "empty_cnpj_noise": {
+      "attempt": "candidate with cnpj='' and high n_contratos",
+      "result": "BLOCKED when require_cnpj=True (default)",
+      "status": "HELD"
+    },
+    "uf_filter_enforced": {
+      "attempt": "Does SelectionRule.uf_filter=SC actually filter candidates?",
+      "result": "NOT ENFORCED — field present in rule.to_dict() but select_competitors never reads uf_filter",
+      "status": "RESIDUAL_LOW"
+    },
+    "live_dsn_path": {
+      "attempt": "CLI/load candidates from LOCAL_DATALAKE_DSN or datalake_helper.top_competitors",
+      "result": "NOT WIRED — commands only: fixture | audit-fixture | insufficient-demo | audit-file. No live/DSN command.",
+      "status": "RESIDUAL_MEDIUM"
+    }
+  },
+  "honesty_assessment": {
+    "fixture_labeled_as_demo": true,
+    "justification": "fixture_candidates docstring: 'Deterministic synthetic winners for schema proof (not live market)'. EVIDENCE.md: live DSN 0 supplier contracts — market list not fabricated.",
+    "overclaim_risks": [
+      "uf_filter in selection_rule may imply geographic filtering that is not applied",
+      "Flipping DoD [x] without residual narrative could overclaim live SC market mapping"
+    ],
+    "claims_forbidden_present": true,
+    "claims_allowed_reasonable": true,
+    "no_fabricated_market_list": true
+  },
+  "issues": [
+    {
+      "severity": "medium",
+      "category": "integration",
+      "id": "LIVE-PATH-NOT-WIRED",
+      "status": "OPEN_RESIDUAL",
+      "description": "deliverable_b_competitors has no DSN/live command path. datalake_helper.top_competitors exists elsewhere but is not consumed here. Cannot produce real market competitor list from PostgreSQL until wired + data present.",
+      "recommendation": "Follow-up: add live/from-dsn command that maps DatalakeClient.top_competitors (or supplier_contracts aggregation) into select_competitors candidates; keep fail-closed when empty (INSUFFICIENT, no pad)."
+    },
+    {
+      "severity": "low",
+      "category": "honesty",
+      "id": "UF-FILTER-DECLARED-NOT-APPLIED",
+      "status": "OPEN_RESIDUAL",
+      "description": "SelectionRule.uf_filter defaults to 'SC' and appears in selection_rule JSON, but select_competitors never filters by UF.",
+      "recommendation": "Either apply uf_filter on candidate UFs/geo, or remove/null the field until implemented to avoid rubber-stamp configurability claim."
+    }
+  ],
+  "residual_risks": [
+    "Live path not wired to DSN — mechanism proven on fixture only; real SC market list requires datalake wiring + contracts data",
+    "uf_filter declared but not applied in selection",
+    "Fixture CNPJs are synthetic (schema proof), not real market winners"
+  ],
+  "gate_decision": {
+    "verdict": "PASS",
+    "may_flip_dod": true,
+    "may_flip_dod_conditions": [
+      "PO accepts residual LIVE-PATH-NOT-WIRED (mechanism claim, not live market population claim)",
+      "Flip narrative must state fixture/schema proof + fail-closed rules; must NOT claim 15 real SC competitors from live PG",
+      "Optional: keep L206 open until live path if PO wants operational market evidence before [x]"
+    ],
+    "reason": "All 13 DoD B audit checks PASS on fixture; insufficient-demo does not pad; deságio/active/capacity fail-closed rules held under adversarial review; tests map 1:1; process order correct (DoD unchecked before QA). Residuals (live DSN, uf_filter) are documented honesty debt, not AC failures of the mechanism slice.",
+    "po_guidance": "Authorized to flip L206-218 with residual narrative OR defer flip until live path. Do not claim live market 15. QA did not flip DoD.",
+    "recommended_dod_action": "PO decision: flip with residual LIVE-PATH-NOT-WIRED note, or leave open until DSN path ships"
+  },
+  "files_reviewed": [
+    "scripts/ops/deliverable_b_competitors.py",
+    "tests/test_deliverable_b_competitors.py",
+    "docs/ops/session-2026-07-18-deliverable-b/fixture-b.json",
+    "docs/ops/session-2026-07-18-deliverable-b/insufficient-b.json",
+    "docs/ops/session-2026-07-18-deliverable-b/audit-fixture.json",
+    "docs/ops/session-2026-07-18-deliverable-b/EVIDENCE.md",
+    "scripts/datalake_helper.py (top_competitors reference only)",
+    "DOD.md L206-218"
+  ],
+  "qa_artifacts_written": [
+    "squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-f7e09f20fb21.json",
+    "docs/ops/session-2026-07-18-deliverable-b/QA-VERDICT.md"
+  ]
+}

@@ -167,6 +167,10 @@ def select_competitors(
             continue
         if n < rule.min_contracts:
             continue
+        if rule.uf_filter:
+            ufs = c.get("ufs") or list((c.get("distribuicao_geografica") or {}).keys())
+            if ufs and rule.uf_filter not in {str(u) for u in ufs}:
+                continue
         valid.append({**c, "cnpj": cnpj, "n_contratos": n})
 
     def sort_key(item: dict[str, Any]) -> tuple[Any, ...]:
