@@ -16,9 +16,11 @@
     "ROI-campaign-batch3-ops-config": 11,
     "ROI-campaign-batch4-ops-docs": 4
   },
-  "final_head": "405e0cb295ab96e3e7af657694b0ec998175e279",
+  "final_head": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
   "stories_ok": true,
   "independent_qa": "cyc-2026-07-18-campaign-final-audit-independent.json",
   "regenerated_at": "2026-07-18T02:57:39Z",
-  "blockers": []
+  "blockers": [],
+  "reviewed_commit": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
+  "audited_at": "2026-07-18T02:59:08Z"
 }

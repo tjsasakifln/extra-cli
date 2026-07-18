@@ -7,8 +7,8 @@
   "qa_agent": "adversarial-qa-auditor",
   "implementer_agent": "delivery-engineer",
   "publication_authorized": true,
-  "reviewed_commit": "405e0cb295ab96e3e7af657694b0ec998175e279",
-  "qa_head_sha": "405e0cb295ab96e3e7af657694b0ec998175e279",
+  "reviewed_commit": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
+  "qa_head_sha": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
   "gates": {
     "lint": "PASS",
     "tests": "PASS",
@@ -18,8 +18,8 @@
   "snapshot_evidence": {
     "canonical_count": 50,
     "story_count": 11,
-    "final_head": "405e0cb295ab96e3e7af657694b0ec998175e279",
-    "at": "2026-07-18T02:57:01Z"
+    "final_head": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
+    "at": "2026-07-18T02:59:08Z"
   },
   "accepted_item_ids": [
     "dod:db687778617c",
@@ -35,5 +35,5 @@
     "dod:93300093fc1d"
   ],
   "final_review_note": "Skeptic remediation re-QA at HEAD",
-  "updated_at": "2026-07-18T02:57:01Z"
+  "updated_at": "2026-07-18T02:59:08Z"
 }
