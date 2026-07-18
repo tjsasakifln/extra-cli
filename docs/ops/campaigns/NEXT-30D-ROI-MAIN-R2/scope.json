@@ -57,7 +57,7 @@
     {
       "id": "N01",
       "name": "Golden path strict green live PNCP+PCP+freshness",
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "duration_days": 2.5,
       "predecessors": [
         "R1"
@@ -186,7 +186,7 @@
     {
       "id": "N07",
       "name": "Contracts incremental + SmartLic bridge 3y machinery",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 3.0,
       "predecessors": [
         "N04",
@@ -411,5 +411,5 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T20:46:23Z"
+  "updated_at": "2026-07-18T20:56:34Z"
 }

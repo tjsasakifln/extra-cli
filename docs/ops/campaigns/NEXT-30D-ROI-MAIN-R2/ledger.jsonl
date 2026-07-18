@@ -12,3 +12,5 @@
 {"ts": "2026-07-18T20:44:49Z", "event": "N03_DONE", "schema_ok": true, "qa": "PASS"}
 {"ts": "2026-07-18T20:44:49Z", "event": "R2_SMARTLIC_SCAFFOLD_DONE", "qa": "PASS"}
 {"ts": "2026-07-18T20:46:23Z", "event": "N04_DONE", "gate": {"zero_necessary_unknowns": true, "n_necessary_unknowns": 0, "n_unknown_total": 0}, "qa": "PASS"}
+{"ts": "2026-07-18T20:56:34Z", "event": "N07_DONE", "contracts": 20894, "days": 3, "qa": "PASS"}
+{"ts": "2026-07-18T20:56:34Z", "event": "N01_CONCERNS", "pncp": "timeout", "qa": "CONCERNS"}
