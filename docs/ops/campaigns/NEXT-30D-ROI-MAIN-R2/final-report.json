@@ -1,9 +1,9 @@
 {
   "version": "1.1.0",
   "campaign_id": "NEXT-30D-ROI-MAIN-R2",
-  "generated_at": "2026-07-18T21:55:14Z",
+  "generated_at": "2026-07-18T21:55:53Z",
   "head_initial": "dc7cea0efb3f19b36a5133aabb235d89baf09cca",
-  "head_final": "6e4bc5575c3b4217bfc71456397b16c2d3b3288b",
+  "head_final": "79f8cc780a7055ed14e6846504e76e31b63ec2cf",
   "origin_main_synced": true,
   "dod": {
     "checked": 195,
@@ -104,5 +104,6 @@
     "FINAL-REPORT numbers match JSON"
   ],
   "updated_at": "2026-07-18T21:55:14Z",
-  "reference_head": null
+  "reference_head": null,
+  "head_final_note": "Tip of origin/main at closeout; verify with git rev-parse origin/main"
 }
