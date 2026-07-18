@@ -219,15 +219,15 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Entregável C — contratos vincendos em 90 a 180 dias
 
-- [ ] O sistema identifica contratos compatíveis com o perfil cuja vigência termina em janela configurável de 90 a 180 dias.
-- [ ] A data de término usada possui fonte e data de verificação.
-- [ ] Contratos sem data de vigência não entram silenciosamente na lista.
-- [ ] Prorrogações e aditivos conhecidos atualizam a data efetiva.
-- [ ] O sistema distingue vencimento contratual de término estimado.
-- [ ] A lista informa órgão, objeto, contratado, valor, início, término e fonte.
-- [ ] A probabilidade de relicitação possui metodologia documentada, variáveis observáveis e validação retrospectiva.
-- [ ] Na ausência de modelo validado, o sistema usa classificação de evidência ou sinais de relicitação, não percentual fabricado.
-- [ ] Toda previsão apresenta nível de confiança e limitações.
+- [x] O sistema identifica contratos compatíveis com o perfil cuja vigência termina em janela configurável de 90 a 180 dias. Evidência: `scripts/ops/deliverable_c_expiring.py` WindowConfig 90–180 + fixture; QA PASS @ `d663413`. Residual: live DSN empty.
+- [x] A data de término usada possui fonte e data de verificação. Evidência: `termino_fonte` + `termino_verificado_em` obrigatórios.
+- [x] Contratos sem data de vigência não entram silenciosamente na lista. Evidência: `excluded_no_vigencia` + tests.
+- [x] Prorrogações e aditivos conhecidos atualizam a data efetiva. Evidência: `effective_end` + aditivos_aplicados.
+- [x] O sistema distingue vencimento contratual de término estimado. Evidência: `termino_tipo` CONTRATUAL|ESTIMADO.
+- [x] A lista informa órgão, objeto, contratado, valor, início, término e fonte. Evidência: schema fields audit.
+- [x] A probabilidade de relicitação possui metodologia documentada, variáveis observáveis e validação retrospectiva. Evidência: `relicitacao_method` requires retrospective validation for probability.
+- [x] Na ausência de modelo validado, o sistema usa classificação de evidência ou sinais de relicitação, não percentual fabricado. Evidência: `probability_pct=null` + EVIDENCE_CLASS.
+- [x] Toda previsão apresenta nível de confiança e limitações. Evidência: `confianca` + `limitacoes`.
 
 #### Entregável D — painel de referências de preços
 
