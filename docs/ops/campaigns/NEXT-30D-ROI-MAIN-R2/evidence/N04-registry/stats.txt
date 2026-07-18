@@ -1,0 +1,77 @@
+{
+  "total_entities": 1093,
+  "expected_entities": 1093,
+  "mapped_or_better": 522,
+  "mapped_pct": 47.76,
+  "operational": 6,
+  "operational_pct": 0.55,
+  "by_status": {
+    "unknown": 481,
+    "mapped": 480,
+    "verified": 90,
+    "collected": 42
+  },
+  "by_blocker": {
+    "pending_collection": 707,
+    "pending_live_verification": 159,
+    "fragmented": 137,
+    "none": 90
+  },
+  "by_strategy": {
+    "ciga_ckan_shared_municipio": 449,
+    "sc_compras_and_doe_sc": 257,
+    "pncp_cnpj_lookup": 224,
+    "pipeline_evidence_promote": 132,
+    "multi_source_probe": 16,
+    "pncp_monitor_by_cnpj": 14,
+    "ciga_ckan_municipio_expand": 1
+  },
+  "by_priority": {
+    "1": 193,
+    "2": 402,
+    "3": 189,
+    "4": 281,
+    "5": 28
+  },
+  "by_entity_type": {
+    "secretaria_municipal": 179,
+    "fundacao_municipal": 123,
+    "orgao_estadual": 99,
+    "camara_municipal": 98,
+    "prefeitura": 95,
+    "poder_judiciario_estadual": 78,
+    "fundo_estadual": 63,
+    "autarquia_municipal": 61,
+    "sociedade_economia_mista": 59,
+    "autarquia_federal": 57,
+    "orgao_federal": 44,
+    "consorcio_publico": 39,
+    "empresa_publica": 34,
+    "autarquia_estadual": 15,
+    "servico_social_autonomo": 15,
+    "fundacao_estadual": 10,
+    "fundacao_federal": 9,
+    "poder_judiciario_federal": 7,
+    "orgao_autonomo": 4,
+    "governo_estadual": 1,
+    "assembleia_legislativa": 1,
+    "camara_federal": 1,
+    "fundo_federal": 1
+  },
+  "platform_mentions": {
+    "pncp": 1093,
+    "dom_sc": 557,
+    "ciga_ckan": 556,
+    "sc_compras": 399,
+    "transparencia": 372,
+    "tce_sc": 267,
+    "doe_sc": 267,
+    "pcp": 146,
+    "compras_gov": 119,
+    "ciga_dom": 2
+  },
+  "with_portal_transparencia": 269,
+  "with_portal_institucional": 398,
+  "with_diario_oficial": 556,
+  "avg_mapping_confidence": 0.5219
+}

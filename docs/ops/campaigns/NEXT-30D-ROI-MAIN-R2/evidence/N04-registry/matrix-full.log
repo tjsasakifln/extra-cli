@@ -1,0 +1,1172 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-18T20:46:09.129182+00:00",
+  "config_version": "1.1",
+  "n_entities": 1093,
+  "n_sources": 11,
+  "n_decisions": 24046,
+  "min_source_combination": {
+    "open_tenders": [
+      "pncp",
+      "ciga_ckan"
+    ],
+    "historical_contracts": [
+      "pncp",
+      "contracts"
+    ]
+  },
+  "mandatory_sources": {
+    "open_tenders": [
+      "pncp"
+    ],
+    "historical_contracts": [
+      "pncp"
+    ]
+  },
+  "substitution_guard": {
+    "rule": "complementary_sources_do_not_replace_mandatory",
+    "mandatory": {
+      "open_tenders": [
+        "pncp"
+      ],
+      "historical_contracts": [
+        "pncp"
+      ]
+    },
+    "min_combination": {
+      "open_tenders": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "historical_contracts": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    "enforced": true
+  },
+  "gate": {
+    "zero_necessary_unknowns": true,
+    "n_necessary_unknowns": 0,
+    "n_unknown_total": 0
+  },
+  "blockers": {
+    "by_entity_sample": {},
+    "by_source": {},
+    "by_capability": {}
+  },
+  "unknown_gaps": [],
+  "decisions_sample": [
+    {
+      "entity_id": "62761279",
+      "source": "pncp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "pncp",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "CIGA Dados — publicações DOM/SC municipais (CKAN público)",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "ciga_ckan",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source ciga_ckan does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "pcp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma multiestadual com ampla cobertura",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "pcp",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source pcp does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "compras_gov",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Compras federais com adesao multiesfera",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "compras_gov",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source compras_gov does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "sc_compras",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma estadual de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "sc_compras",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source sc_compras does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "contracts",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Source contracts does not declare capability open_tenders",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "contracts",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "transparencia",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Aplicavel apenas quando o portal de transparencia e verificavel",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "transparencia",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source transparencia does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "tce_sc",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Tribunal de Contas de SC — todas as esferas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "tce_sc",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Tribunal de Contas de SC — todas as esferas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "doe_sc",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "DOE-SC nao cobre entes municipais diretamente",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "doe_sc",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source doe_sc does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "mides_bigquery",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "MIDES BigQuery nao cobre entes municipais",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "mides_bigquery",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source mides_bigquery does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "dom_sc",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Diario oficial dos municipios de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "62761279",
+      "source": "dom_sc",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source dom_sc does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "pncp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "pncp",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "CIGA Dados — publicações DOM/SC municipais (CKAN público)",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "ciga_ckan",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source ciga_ckan does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "pcp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma multiestadual com ampla cobertura",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "pcp",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source pcp does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "compras_gov",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Compras federais com adesao multiesfera",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "compras_gov",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source compras_gov does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "sc_compras",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma estadual de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "sc_compras",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source sc_compras does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "contracts",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Source contracts does not declare capability open_tenders",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "contracts",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "transparencia",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Aplicavel apenas quando o portal de transparencia e verificavel",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "transparencia",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source transparencia does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "tce_sc",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Tribunal de Contas de SC — todas as esferas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "tce_sc",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Tribunal de Contas de SC — todas as esferas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "doe_sc",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "DOE-SC nao cobre entes municipais diretamente",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "doe_sc",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source doe_sc does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "mides_bigquery",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "MIDES BigQuery nao cobre entes municipais",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "mides_bigquery",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source mides_bigquery does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "dom_sc",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Diario oficial dos municipios de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "80674252",
+      "source": "dom_sc",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source dom_sc does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "pncp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "pncp",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "CIGA Dados — publicações DOM/SC municipais (CKAN público)",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "ciga_ckan",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source ciga_ckan does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "pcp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma multiestadual com ampla cobertura",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "pcp",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source pcp does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "compras_gov",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Compras federais com adesao multiesfera",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "compras_gov",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source compras_gov does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "sc_compras",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma estadual de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "sc_compras",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source sc_compras does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "contracts",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Source contracts does not declare capability open_tenders",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "contracts",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "transparencia",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Aplicavel apenas quando o portal de transparencia e verificavel",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "transparencia",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source transparencia does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "tce_sc",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Tribunal de Contas de SC — todas as esferas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "tce_sc",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Tribunal de Contas de SC — todas as esferas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "doe_sc",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "DOE-SC nao cobre entes municipais diretamente",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "doe_sc",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source doe_sc does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "mides_bigquery",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "MIDES BigQuery nao cobre entes municipais",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "mides_bigquery",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source mides_bigquery does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "dom_sc",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Diario oficial dos municipios de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "82892324",
+      "source": "dom_sc",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source dom_sc does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "pncp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "pncp",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "CIGA Dados — publicações DOM/SC municipais (CKAN público)",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "ciga_ckan",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source ciga_ckan does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "pcp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma multiestadual com ampla cobertura",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "pcp",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source pcp does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "compras_gov",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Compras federais com adesao multiesfera",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "compras_gov",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source compras_gov does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "sc_compras",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma estadual de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "sc_compras",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source sc_compras does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "contracts",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Source contracts does not declare capability open_tenders",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "contracts",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "transparencia",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Aplicavel apenas quando o portal de transparencia e verificavel",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "transparencia",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source transparencia does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "tce_sc",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Tribunal de Contas de SC — todas as esferas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "tce_sc",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Tribunal de Contas de SC — todas as esferas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "doe_sc",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "DOE-SC nao cobre entes municipais diretamente",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "doe_sc",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source doe_sc does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "mides_bigquery",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "MIDES BigQuery nao cobre entes municipais",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "mides_bigquery",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source mides_bigquery does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "dom_sc",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Diario oficial dos municipios de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "02179215",
+      "source": "dom_sc",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source dom_sc does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "gap_fill",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "pncp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "pncp",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "CIGA Dados — publicações DOM/SC municipais (CKAN público)",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "ciga_ckan",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source ciga_ckan does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "pcp",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma multiestadual com ampla cobertura",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "pcp",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source pcp does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "compras_gov",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Compras federais com adesao multiesfera",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "compras_gov",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source compras_gov does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "complementary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "sc_compras",
+      "capability": "open_tenders",
+      "decision": "applicable",
+      "justification": "Plataforma estadual de SC",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "sc_compras",
+      "capability": "historical_contracts",
+      "decision": "not_applicable",
+      "justification": "Source sc_compras does not declare capability historical_contracts",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "contracts",
+      "capability": "open_tenders",
+      "decision": "not_applicable",
+      "justification": "Source contracts does not declare capability open_tenders",
+      "validated_at": "2026-07-18",
+      "decision_source": "scripts.crawl.registry.capabilities",
+      "role": "primary",
+      "blockers": []
+    },
+    {
+      "entity_id": "02305652",
+      "source": "contracts",
+      "capability": "historical_contracts",
+      "decision": "applicable",
+      "justification": "Fonte federal com adesao voluntaria de todas as esferas e naturezas",
+      "validated_at": "2026-07-18",
+      "decision_source": "config/source_applicability.yaml:rule",
+      "role": "primary",
+      "blockers": []
+    }
+  ],
+  "claims": {
+    "allowed": [
+      "Applicability matrix generated with justification and decision_source",
+      "Minimum source combination is explicit"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "operational coverage 95%",
+      "zero unknown universe-wide without full run"
+    ]
+  }
+}

@@ -11,3 +11,4 @@
 {"ts": "2026-07-18T20:44:49Z", "event": "N02_DONE", "seed_sha": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486", "zero_dup": true, "qa": "PASS"}
 {"ts": "2026-07-18T20:44:49Z", "event": "N03_DONE", "schema_ok": true, "qa": "PASS"}
 {"ts": "2026-07-18T20:44:49Z", "event": "R2_SMARTLIC_SCAFFOLD_DONE", "qa": "PASS"}
+{"ts": "2026-07-18T20:46:23Z", "event": "N04_DONE", "gate": {"zero_necessary_unknowns": true, "n_necessary_unknowns": 0, "n_unknown_total": 0}, "qa": "PASS"}

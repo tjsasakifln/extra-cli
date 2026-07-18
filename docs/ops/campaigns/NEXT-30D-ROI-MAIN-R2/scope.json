@@ -105,7 +105,7 @@
     {
       "id": "N04",
       "name": "Source registry applicability zero necessary unknown",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.5,
       "predecessors": [
         "N02"
@@ -411,5 +411,5 @@
     "SmartLic SaaS import"
   ],
   "change_control": "scope changes require motive+evidence+impact+new dep/risk",
-  "updated_at": "2026-07-18T20:44:49Z"
+  "updated_at": "2026-07-18T20:46:23Z"
 }
