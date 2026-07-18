@@ -1,0 +1,115 @@
+{
+  "version": "1.1.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN",
+  "generated_at": "2026-07-18T19:26:01Z",
+  "length_business_days": 30.5,
+  "target_min_days": 30,
+  "meets_target": true,
+  "path": [
+    {
+      "id": "T00",
+      "name": "Baseline + main-direct mode",
+      "duration": 1.0,
+      "es": 0.0,
+      "ef": 1.0
+    },
+    {
+      "id": "T01",
+      "name": "Fresh rank + campaign freeze (PLAN/PERT/scope)",
+      "duration": 0.5,
+      "es": 1.0,
+      "ef": 1.5
+    },
+    {
+      "id": "T03",
+      "name": "Clean bootstrap + migrations + schema audit proof on PG",
+      "duration": 2.0,
+      "es": 1.5,
+      "ef": 3.5
+    },
+    {
+      "id": "T04",
+      "name": "Global/critical pytest green with real PostgreSQL",
+      "duration": 2.5,
+      "es": 3.5,
+      "ef": 6.0
+    },
+    {
+      "id": "T06",
+      "name": "Universe canonical import: hash, zero-dup, change detection",
+      "duration": 2.0,
+      "es": 3.5,
+      "ef": 5.5
+    },
+    {
+      "id": "T07",
+      "name": "Source registry + applicability matrix complete for editais/contratos",
+      "duration": 2.5,
+      "es": 5.5,
+      "ef": 8.0
+    },
+    {
+      "id": "T05",
+      "name": "Golden path local end-to-end executable + evidence",
+      "duration": 2.0,
+      "es": 6.0,
+      "ef": 8.0
+    },
+    {
+      "id": "T08",
+      "name": "Editais crawl: checkpoint/resume/raw-zone/provenance priority sources",
+      "duration": 3.0,
+      "es": 8.0,
+      "ef": 11.0
+    },
+    {
+      "id": "T09",
+      "name": "Coverage operational machinery: stages, denominators, entity progress",
+      "duration": 3.0,
+      "es": 11.0,
+      "ef": 14.0
+    },
+    {
+      "id": "T10",
+      "name": "Coverage scale M2: multi-entity collection with provenance",
+      "duration": 3.0,
+      "es": 14.0,
+      "ef": 17.0
+    },
+    {
+      "id": "T10b",
+      "name": "Coverage scale M3: expand operational coverage toward gate trajectory",
+      "duration": 3.0,
+      "es": 17.0,
+      "ef": 20.0
+    },
+    {
+      "id": "T15",
+      "name": "Operational outputs: opportunities, triage, dossier, weekly/monthly",
+      "duration": 2.5,
+      "es": 20.0,
+      "ef": 22.5
+    },
+    {
+      "id": "T16",
+      "name": "PDF+Excel generation + reconciliation proof",
+      "duration": 1.5,
+      "es": 22.5,
+      "ef": 24.0
+    },
+    {
+      "id": "T18",
+      "name": "DoD reconciliation: flip only evidence-backed items from this window",
+      "duration": 1.0,
+      "es": 24.0,
+      "ef": 25.0
+    },
+    {
+      "id": "T19",
+      "name": "Campaign close: final report, skeptic audit, next backlog",
+      "duration": 1.0,
+      "es": 25.0,
+      "ef": 26.0
+    }
+  ]
+}

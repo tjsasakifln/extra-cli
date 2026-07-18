@@ -138,6 +138,7 @@ jobs:
           tests/test_smoke_pncp_public.py
           tests/test_sc_compras_smoke.py
           tests/test_contracts_uf_filter.py
+          tests/test_mandatory_gates_no_or_true.py
           -o addopts=''
           --cov=scripts.freshness_gate
           --cov=scripts.lib.universe

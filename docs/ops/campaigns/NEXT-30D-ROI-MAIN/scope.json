@@ -1,0 +1,628 @@
+{
+  "version": "1.1.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN",
+  "frozen_at": "2026-07-18T19:26:01Z",
+  "frozen_head": "7768f057e37a287e738a37ea18bb302848228b19",
+  "contract": "Canonical close-out. Scope changes only for invisible deps, false green, external source change, formal scope change, demonstrated technical risk.",
+  "strategic_goal": "Maximize advance toward LOCAL_READY",
+  "pert_critical_path_days": 30.5,
+  "items": [
+    {
+      "id": "T00",
+      "name": "Baseline + main-direct mode",
+      "status": "DONE",
+      "duration_days": 1.0,
+      "predecessors": [],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ],
+      "done_at": "2026-07-18T19:27:48Z"
+    },
+    {
+      "id": "T01",
+      "name": "Fresh rank + campaign freeze (PLAN/PERT/scope)",
+      "status": "DONE",
+      "duration_days": 0.5,
+      "predecessors": [
+        "T00"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ],
+      "done_at": "2026-07-18T19:27:48Z"
+    },
+    {
+      "id": "T02",
+      "name": "Fail-closed mandatory gates: no || true in CI/Makefile gates",
+      "status": "DONE",
+      "duration_days": 1.0,
+      "predecessors": [
+        "T01"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ],
+      "done_at": "2026-07-18T19:27:48Z"
+    },
+    {
+      "id": "T03",
+      "name": "Clean bootstrap + migrations + schema audit proof on PG",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "T01"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T04",
+      "name": "Global/critical pytest green with real PostgreSQL",
+      "status": "PLANNED",
+      "duration_days": 2.5,
+      "predecessors": [
+        "T03"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T05",
+      "name": "Golden path local end-to-end executable + evidence",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "T04"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T06",
+      "name": "Universe canonical import: hash, zero-dup, change detection",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "T03"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T07",
+      "name": "Source registry + applicability matrix complete for editais/contratos",
+      "status": "PLANNED",
+      "duration_days": 2.5,
+      "predecessors": [
+        "T06"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T08",
+      "name": "Editais crawl: checkpoint/resume/raw-zone/provenance priority sources",
+      "status": "PLANNED",
+      "duration_days": 3.0,
+      "predecessors": [
+        "T07",
+        "T05"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T09",
+      "name": "Coverage operational machinery: stages, denominators, entity progress",
+      "status": "PLANNED",
+      "duration_days": 3.0,
+      "predecessors": [
+        "T08"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T10",
+      "name": "Coverage scale M2: multi-entity collection with provenance",
+      "status": "PLANNED",
+      "duration_days": 3.0,
+      "predecessors": [
+        "T09"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T10b",
+      "name": "Coverage scale M3: expand operational coverage toward gate trajectory",
+      "status": "PLANNED",
+      "duration_days": 3.0,
+      "predecessors": [
+        "T10"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T11",
+      "name": "Contracts historical backfill windows + incremental upsert",
+      "status": "PLANNED",
+      "duration_days": 3.0,
+      "predecessors": [
+        "T07"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T12",
+      "name": "Snapshot integrity 100% + conflict/reconcile reports",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "T09"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T13",
+      "name": "Recall stratified sample expansion + independent gold set",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "T08"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T14",
+      "name": "Competitors/winners/values: denominators + NOT_READY when insufficient",
+      "status": "PLANNED",
+      "duration_days": 2.0,
+      "predecessors": [
+        "T11",
+        "T10"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T15",
+      "name": "Operational outputs: opportunities, triage, dossier, weekly/monthly",
+      "status": "PLANNED",
+      "duration_days": 2.5,
+      "predecessors": [
+        "T10b",
+        "T12"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T16",
+      "name": "PDF+Excel generation + reconciliation proof",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "T15"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T17",
+      "name": "Backup/restore local re-proof with provenance+universe",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "T05",
+        "T06"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T18",
+      "name": "DoD reconciliation: flip only evidence-backed items from this window",
+      "status": "PLANNED",
+      "duration_days": 1.0,
+      "predecessors": [
+        "T16",
+        "T17"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T19",
+      "name": "Campaign close: final report, skeptic audit, next backlog",
+      "status": "PLANNED",
+      "duration_days": 1.0,
+      "predecessors": [
+        "T18"
+      ],
+      "critical": true,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T20",
+      "name": "Claim-language / indicator catalog honesty residual",
+      "status": "PLANNED",
+      "duration_days": 1.0,
+      "predecessors": [
+        "T01"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T21",
+      "name": "Crawler metrics + structured logs operational proof",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "T08"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T22",
+      "name": "Alert pipeline residual + freshness monitors",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "T09"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T23",
+      "name": "Freshness/data-presence reports automated on golden path",
+      "status": "PLANNED",
+      "duration_days": 1.5,
+      "predecessors": [
+        "T05",
+        "T09"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    },
+    {
+      "id": "T24",
+      "name": "Resume-after-interrupt protocol tested for crawlers and campaign",
+      "status": "PLANNED",
+      "duration_days": 1.0,
+      "predecessors": [
+        "T08",
+        "T00"
+      ],
+      "critical": false,
+      "acceptance": [
+        "Independent QA PASS or BLOCKED dossier",
+        "Evidence path recorded",
+        "No false gate seal",
+        "origin/main when DONE"
+      ],
+      "evidence_required": true,
+      "terminal_states_allowed": [
+        "DONE",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_HUMAN",
+        "NOT_APPLICABLE"
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "diário de obra",
+    "portal público",
+    "multi-tenant",
+    "billing",
+    "k8s",
+    "kafka",
+    "redis",
+    "elasticsearch"
+  ],
+  "completion_rule": "All items terminal; no PLANNED/IN_PROGRESS/REWORK/UNKNOWN"
+}

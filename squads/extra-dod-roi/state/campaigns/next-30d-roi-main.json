@@ -1,18 +1,24 @@
 {
   "version": "1.0.0",
   "campaign_id": "NEXT-30D-ROI-MAIN",
-  "status": "MAIN_DIRECT_READY",
+  "status": "EXECUTING",
   "created_at": "2026-07-18T19:19:39Z",
-  "updated_at": "2026-07-18T19:23:38Z",
+  "updated_at": "2026-07-18T19:27:48Z",
   "integration_mode": "main-direct",
   "baseline_head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "baseline_dod_sha256": "54bbbc0a0eec4576989722d9a1167860e1322c5cd509804d3677638e8c657228",
   "baseline_done_count": 92,
   "baseline_open_count": 1263,
   "pert_days_target": 30,
-  "pert_days_advanced": 0.0,
-  "scope_frozen": false,
-  "accepted_increments": [],
+  "pert_days_advanced": 2.5,
+  "scope_frozen": true,
+  "accepted_increments": [
+    {
+      "id": "T02",
+      "at": "2026-07-18T19:27:48Z",
+      "qa": "PASS"
+    }
+  ],
   "current_cycle": null,
   "writer_lock": "squads/extra-dod-roi/state/locks/main-writer.lock",
   "paths": {
@@ -24,8 +30,8 @@
     "scope": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/scope.json"
   },
   "notes": [
-    "Baseline recorded from main HEAD.",
-    "main-direct implemented and unit-tested.",
-    "Next: freeze PLAN-30D/PERT/scope, re-rank, execute cycles."
-  ]
+    "Scope frozen. Execute T02+ by ROI under main-direct."
+  ],
+  "plan_head": "7768f057e37a287e738a37ea18bb302848228b19",
+  "pert_critical_path_days": 30.5
 }

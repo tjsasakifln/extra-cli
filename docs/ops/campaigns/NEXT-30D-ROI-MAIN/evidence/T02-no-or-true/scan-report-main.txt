@@ -1,0 +1,1 @@
+mandatory_gates_failclosed: scanned=7 findings=0 missing=0

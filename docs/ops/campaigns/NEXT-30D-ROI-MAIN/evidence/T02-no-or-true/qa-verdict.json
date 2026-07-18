@@ -1,0 +1,28 @@
+{
+  "story_id": "NEXT30D-T02-no-or-true",
+  "candidate_id": "cand-dyn-slice:1e78666e2a21",
+  "verdict": "CONCERNS",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "reviewed_at": "2026-07-18T19:28:00Z",
+  "checks": {
+    "scanner_exists": true,
+    "mandatory_paths_scanned": 7,
+    "findings": 0,
+    "pytest_passed": 7,
+    "adversarial_ban_marker_mask": "covered by unit test",
+    "false_green_risk": "low — only mandatory gate paths, not all scripts with || true for cleanup"
+  },
+  "residual_risks": [
+    "Non-mandatory scripts still use || true for cleanup (bootstrap/backup) — out of DoD item scope",
+    "CI workflow must remain free of continue-on-error:true"
+  ],
+  "evidence": [
+    "docs/ops/session-2026-07-18-no-or-true-gates/scan-report-main.txt",
+    "docs/ops/session-2026-07-18-no-or-true-gates/pytest-main.log"
+  ],
+  "independent_auditor": "aiox-qa-019f76b3",
+  "dod_flip_justified": true,
+  "ci_wireup": "tests/test_mandatory_gates_no_or_true.py added to ci.yml critical suite",
+  "updated_at": "2026-07-18T19:30:35Z"
+}

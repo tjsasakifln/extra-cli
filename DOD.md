@@ -1033,7 +1033,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Pre-commit está configurado.
 - [x] CI falha de modo fechado.
 - [x] Nenhum gate obrigatório usa `continue-on-error`.
-- [ ] Nenhum gate obrigatório usa `|| true`.
+- [x] Nenhum gate obrigatório usa `|| true`. Evidência: `scripts/ops/scan_mandatory_gates_failclosed.py` + `tests/test_mandatory_gates_no_or_true.py` (7 passed) + scan findings=0 em `docs/ops/session-2026-07-18-no-or-true-gates/` (main HEAD re-proof 2026-07-18).
 - [x] A suíte crítica não depende de serviço externo instável sem mock ou marcação adequada.
 - [x] Testes lentos possuem marcação.
 - [x] Testes que exigem fonte real podem ser executados sob demanda. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/session-2026-07-18-campaign-q13-4/external-markers.txt`
