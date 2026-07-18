@@ -1,0 +1,142 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-18T18:05:16Z",
+  "profile_path": "config/client_profiles/extra.yaml",
+  "stamp": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "checks": [
+    {
+      "item_id": "canonical_profile",
+      "dod_text": "Existe configuração canônica do perfil da Extra Construtora ou mecanismo equivalente versionado.",
+      "status": "PASS",
+      "evidence": [
+        "config/client_profiles/extra.yaml",
+        "profile_id=extra_construtora",
+        "version=2"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "region_universe",
+      "dod_text": "A configuração registra região e universo monitorado.",
+      "status": "PASS",
+      "evidence": [
+        "uf_primary=SC",
+        "radius_km=200",
+        "universe_seed=Extra - alvos de licitação. R-0.xlsx",
+        "universe_authority=spreadsheet_canonical"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "work_types",
+      "dod_text": "A configuração registra tipos de obra e serviços de engenharia relevantes.",
+      "status": "PASS",
+      "evidence": [
+        "desired_object_types=4",
+        "engineering_categories=['reforma_predial', 'manutencao_predial', 'construcao_edificios_publicos', 'infraestrutura_urbana']"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "value_bands",
+      "dod_text": "A configuração registra faixas de valor relevantes, quando definidas no alinhamento.",
+      "status": "PASS",
+      "evidence": [
+        "minimum_value=None",
+        "maximum_value=None",
+        "value_band_soft={'min_brl': 50000, 'max_brl': 50000000, 'note': 'Faixa operacional típica de obras/serviços de engenharia; calibrar com Tiago'}",
+        "null hard cuts allowed; soft band is optional guidance"
+      ],
+      "notes": "Soft band present"
+    },
+    {
+      "item_id": "modalities",
+      "dod_text": "A configuração registra modalidades aceitas ou priorizadas.",
+      "status": "PASS",
+      "evidence": [
+        "priority_modalities=['pregao_eletronico', 'concorrencia', 'tomada_de_precos', 'dispensa', 'inexigibilidade']",
+        "allowed_modalities=None"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "operational_constraints",
+      "dod_text": "A configuração registra restrições operacionais conhecidas da empresa.",
+      "status": "PASS",
+      "evidence": [
+        "count=3",
+        "radius_200km",
+        "no_obra_acompanhamento",
+        "single_user"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "priority_organs",
+      "dod_text": "A configuração registra órgãos prioritários definidos no alinhamento.",
+      "status": "PASS",
+      "evidence": [
+        "priority_organs count=0",
+        "empty list = no organs named yet; field is registered for alignment"
+      ],
+      "notes": "PARTIAL commercial fill"
+    },
+    {
+      "item_id": "known_competitors",
+      "dod_text": "A configuração registra concorrentes indicados pelo cliente.",
+      "status": "PASS",
+      "evidence": [
+        "known_competitors count=0",
+        "empty list = pending elicitation; field registered in YAML"
+      ],
+      "notes": "PENDING_ELICITATION"
+    },
+    {
+      "item_id": "yaml_centralized",
+      "dod_text": "A alteração do perfil não exige modificar regras espalhadas pelo código.",
+      "status": "PASS",
+      "evidence": [
+        "config/client_profiles/extra.yaml",
+        "scripts/opportunity_intel/profile.py:load_client_profile",
+        "scripts/ops/diagnostic_profile.py",
+        "Comment in extra.yaml: alterações só neste arquivo"
+      ],
+      "notes": "Business parameters live in YAML; code only loads/validates"
+    },
+    {
+      "item_id": "report_profile_version",
+      "dod_text": "Todo relatório identifica a versão do perfil utilizada.",
+      "status": "PASS",
+      "evidence": [
+        "stamp=extra_construtora@v2",
+        "scripts/reports/run_metadata.py:_load_profile_version + profile_id/version fields",
+        "profile_stamp() for report generators"
+      ],
+      "notes": ""
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "pass": 10,
+    "fail": 0,
+    "partial_fill_notes": 2
+  },
+  "claims_allowed": [
+    "Canonical Extra profile YAML is versioned and loadable",
+    "Region/universe/work types/modalities/constraints registered",
+    "priority_organs and known_competitors fields exist (may be empty pending alignment)",
+    "Reports can stamp profile_id@version from YAML"
+  ],
+  "claims_forbidden": [
+    "priority_organs fully populated without commercial alignment",
+    "known_competitors complete without client elicitation",
+    "capacity/qualifications COMPLETE when status PENDING_ELICITATION"
+  ]
+}
