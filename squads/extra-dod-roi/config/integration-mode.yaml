@@ -1,0 +1,35 @@
+# Integration mode for extra-dod-roi
+# Campaign NEXT-30D-ROI-MAIN requires main-direct (no PR, serial commits on main).
+#
+# Modes:
+#   branch-pr   — legacy: isolated branch + draft PR (never auto-merge)
+#   main-direct — campaign: work on main with global writer lock + independent QA + push
+
+version: "1.0.0"
+mode: main-direct
+
+main_direct:
+  require_branch: main
+  allow_master_alias: false
+  writer_lock_path: state/locks/main-writer.lock
+  writer_lock_ttl_minutes: 120
+  require_writer_lock_for_implement: true
+  require_independent_qa: true
+  forbid_force_push: true
+  forbid_open_pr: true
+  forbid_draft_pr: true
+  publish_action: "git push origin main after QA PASS and clean tree"
+  rerank_after_accept: true
+  preserve:
+    - roi_ranking
+    - dependency_graph
+    - aiox_stories
+    - adversarial_qa
+    - evidence_ledger
+    - fail_closed_gates
+
+branch_pr:
+  # retained for rollback / non-campaign use; not active while mode=main-direct
+  require_isolated_branch: true
+  forbid_main_write: true
+  publish_action: draft_pr

@@ -75,7 +75,8 @@ def build_card(
         "acceptance_criteria": selected.get("acceptance_criteria"),
         "test_commands": selected.get("test_commands"),
         "rollback": (
-            "Revert feature branch commits; never update DoD on failure; no merge."
+            "Revert last main commit(s) with reverse commit if needed; "
+            "never force-push; never update DoD on failure."
         ),
         "allowed_claims": (rank.get("dod_summary") or {}).get("allowed_claims") or [],
         "forbidden_claims": (rank.get("dod_summary") or {}).get("forbidden_claims")
@@ -88,15 +89,17 @@ def build_card(
             "sm": "@sm (draft materialized)",
             "devops": "evidence-release-steward / @devops",
         },
+        "integration_mode": "main-direct",
         "aiox_sequence": [
             "STORY_DRAFT (done by force-next)",
             "STORY_READY (@po validate — MANDATORY)",
-            "IMPLEMENTING (@dev on non-main branch — only this candidate)",
+            "WRITER_LOCK (main-writer.lock — single writer)",
+            "IMPLEMENTING (@dev on main with lock — only this candidate)",
             "IN_REVIEW (@dev handoff)",
             "QA (@qa independent — MANDATORY)",
             "PO_CLOSE (@po — MANDATORY)",
-            "PUBLISH (@devops draft PR — no auto-merge)",
-            "RERANK (force-next again)",
+            "PUBLISH (validated commit + push origin/main — no PR)",
+            "RELEASE_LOCK + RERANK (force-next again)",
         ],
         "handoff_plan": (
             "After story Draft: stop for @po. After Ready: @dev only. "

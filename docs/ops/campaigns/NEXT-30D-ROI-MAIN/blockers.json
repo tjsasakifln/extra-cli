@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN",
+  "updated_at": "2026-07-18T19:23:38Z",
+  "blockers": [
+    {
+      "id": "blk-main-direct-mode",
+      "type": "technical",
+      "status": "RESOLVED",
+      "title": "extra-dod-roi requires isolated branch + draft PR",
+      "impact": "Blocks campaign rule main-direct until adapted",
+      "owner": "roi-orchestrator",
+      "first_delivery": true,
+      "resolved_at": "2026-07-18T19:23:38Z",
+      "resolution": "main-direct mode + main-writer.lock + enforce_aiox_path WRITER_LOCK_REQUIRED"
+    },
+    {
+      "id": "blk-coverage-95",
+      "type": "technical_long_path",
+      "status": "OPEN",
+      "title": "Operational coverage << 95% (editais ~4.76% crude metric)",
+      "classification": "nao_comprovado"
+    },
+    {
+      "id": "blk-live-canary-pg",
+      "type": "external_env",
+      "status": "OPEN",
+      "title": "Live canary + PRE_VPS_FINAL_READY needs live env evidence",
+      "classification": "bloqueado"
+    },
+    {
+      "id": "blk-vps-provision",
+      "type": "human_financial",
+      "status": "OPEN",
+      "title": "VPS provision requires human/financial decision",
+      "classification": "bloqueado"
+    },
+    {
+      "id": "blk-recall-95",
+      "type": "technical",
+      "status": "OPEN",
+      "title": "Recall estratificado >=95% not proven (PARTIAL sample)",
+      "classification": "parcialmente_comprovado"
+    },
+    {
+      "id": "blk-stale-rankings",
+      "type": "technical",
+      "status": "OPEN",
+      "title": "Rankings/requirements summary hash != current main DOD",
+      "classification": "stale"
+    }
+  ]
+}

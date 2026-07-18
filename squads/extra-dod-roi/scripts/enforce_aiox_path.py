@@ -19,6 +19,9 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SQUAD_DIR = SCRIPT_DIR.parent
 REPO = SQUAD_DIR.parent.parent  # squads/extra-dod-roi -> repo root
 
+sys.path.insert(0, str(SCRIPT_DIR))
+from integration_mode import is_main_direct, load_integration_mode  # noqa: E402
+
 
 def utcnow() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -38,7 +41,7 @@ def ok(message: str, **extra: Any) -> int:
 def git(*args: str) -> str:
     try:
         return subprocess.check_output(["git", *args], cwd=str(REPO), text=True).strip()
-    except Exception as e:
+    except Exception:
         return ""
 
 
@@ -52,6 +55,32 @@ def sha256_file(path: Path) -> str | None:
     if not path.is_file():
         return None
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def writer_lock_valid() -> tuple[bool, dict[str, Any] | None, str]:
+    """Return (ok, lock_payload, reason)."""
+    lp = SQUAD_DIR / "state" / "locks" / "main-writer.lock"
+    if not lp.is_file():
+        return False, None, "main-writer.lock missing"
+    try:
+        data = json.loads(lp.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return False, None, "main-writer.lock corrupt"
+    if data.get("state") not in (None, "HELD", "held"):
+        # None allowed for minimal locks that omit state
+        if data.get("state") not in ("HELD", "held", None) and data.get("agent"):
+            pass
+    exp = data.get("expires_at")
+    if exp:
+        try:
+            dt = datetime.strptime(exp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) > dt:
+                return False, data, "main-writer.lock expired"
+        except ValueError:
+            return False, data, "main-writer.lock expires_at invalid"
+    if not data.get("agent") or not data.get("task"):
+        return False, data, "main-writer.lock requires agent and task"
+    return True, data, "ok"
 
 
 def check_stale_rank(rank: dict[str, Any]) -> list[str]:
@@ -85,13 +114,35 @@ def check_phase(action: str) -> int:
     card = load_json(SQUAD_DIR / "state" / "execution-cards" / "current.json")
 
     branch = git("rev-parse", "--abbrev-ref", "HEAD")
+    main_direct = is_main_direct()
+    mode_cfg = load_integration_mode()
 
     if action in ("implement", "execute-next", "story-ready-to-implement"):
         if branch in ("main", "master"):
-            return fail("MAIN_WRITE", "Product implementation forbidden on main; create isolated branch", branch=branch)
+            if not main_direct:
+                return fail(
+                    "MAIN_WRITE",
+                    "Product implementation forbidden on main; create isolated branch",
+                    branch=branch,
+                    integration_mode=mode_cfg.get("mode"),
+                )
+            # main-direct: require valid writer lock
+            ok_lock, lock_data, reason = writer_lock_valid()
+            if not ok_lock:
+                return fail(
+                    "WRITER_LOCK_REQUIRED",
+                    f"main-direct implement requires valid main-writer.lock: {reason}",
+                    branch=branch,
+                    lock=lock_data,
+                )
+            # continue into implement phase checks below (do not return early)
 
     if action in ("force-next", "run-cycle", "rank"):
-        return ok("rank/force-next entry allowed", branch=branch)
+        return ok(
+            "rank/force-next entry allowed",
+            branch=branch,
+            integration_mode=mode_cfg.get("mode"),
+        )
 
     if action == "card":
         if not rank:
@@ -151,11 +202,17 @@ def check_phase(action: str) -> int:
                     cycle_selected=cycle.get("selected_id"),
                     rank_selected=rank.get("selected_id"),
                 )
+        lock_ok, lock_data, _ = writer_lock_valid() if main_direct else (True, None, "n/a")
         return ok(
             "implement allowed",
             story_id=cycle.get("story_id"),
             phase=cycle.get("phase"),
-            branch_required_not_main=True,
+            branch=branch,
+            integration_mode=mode_cfg.get("mode"),
+            branch_required_not_main=not main_direct,
+            main_direct=main_direct,
+            writer_lock_held=bool(lock_ok and main_direct),
+            writer_agent=(lock_data or {}).get("agent") if lock_data else None,
         )
 
     if action == "qa":
@@ -167,7 +224,7 @@ def check_phase(action: str) -> int:
         qa = cycle.get("qa_agent") or "adversarial-qa-auditor"
         if impl == qa:
             return fail("SELF_QA", "Implementer and QA must differ", implementer=impl, qa=qa)
-        return ok("qa allowed", implementer=impl, qa=qa)
+        return ok("qa allowed", implementer=impl, qa=qa, integration_mode=mode_cfg.get("mode"))
 
     if action == "po-close":
         if not cycle:
@@ -188,6 +245,20 @@ def check_phase(action: str) -> int:
             st = load_json(REPO / st_file)
             if st and not st.get("po_closed"):
                 return fail("PO_NOT_READY", "po_closed must be true before publish path")
+        if main_direct:
+            if branch not in ("main", "master"):
+                return fail(
+                    "MAIN_DIRECT_BRANCH",
+                    "main-direct publish requires main branch",
+                    branch=branch,
+                )
+            # draft PR forbidden; push validated commit to origin/main
+            return ok(
+                "publish path allowed (main-direct: validated commit + push origin/main; no PR)",
+                integration_mode="main-direct",
+                forbid_draft_pr=True,
+                forbid_force_push=True,
+            )
         return ok("publish path allowed (draft PR; @devops only for push)")
 
     if action == "dod-update":

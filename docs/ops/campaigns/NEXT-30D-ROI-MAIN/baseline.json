@@ -1,0 +1,225 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN",
+  "recorded_at": "2026-07-18T19:19:39Z",
+  "repo": "tjsasakifln/extra-consultoria",
+  "git": {
+    "branch": "main",
+    "head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+    "origin_main": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+    "synced_with_origin_main": true,
+    "dirty_workspace": false,
+    "unpushed_commits": [],
+    "unpulled_commits": []
+  },
+  "dod": {
+    "path": "DOD.md",
+    "sha256": "54bbbc0a0eec4576989722d9a1167860e1322c5cd509804d3677638e8c657228",
+    "item_count": 1355,
+    "done_count": 92,
+    "open_count": 1263,
+    "checkboxes_not_modified_during_baseline": true,
+    "contradictions_or_weak_evidence_notes": [
+      "Many [x] items may rest on unit-only evidence; gates still NOT_READY",
+      "requirements/latest-summary.json reports different done/open counts and DOD hash than live parse — STALE",
+      "Do not treat checkbox count as operational readiness"
+    ]
+  },
+  "gates": {
+    "LOCAL_READY": {
+      "status": "NOT_READY",
+      "classification": "nao_comprovado",
+      "source": "DOD.md §35.1"
+    },
+    "PRE_VPS_FINAL_READY": {
+      "status": "NOT_READY",
+      "classification": "nao_comprovado",
+      "source": "DOD.md residual / truth gate"
+    },
+    "VPS_OPERATIONAL": {
+      "status": "NOT_READY",
+      "classification": "nao_comprovado",
+      "source": "DOD.md §35.2"
+    },
+    "PROJECT_DONE": {
+      "status": "NOT_READY",
+      "classification": "nao_comprovado",
+      "source": "DOD.md §35.3"
+    },
+    "LOCAL_RESILIENCE_READY": {
+      "status": "NOT_READY",
+      "classification": "parcialmente_comprovado",
+      "note": "Offline resilience mechanics exist; seal not granted"
+    }
+  },
+  "quality": {
+    "suite_critica": {
+      "status": "not_run_full_at_baseline",
+      "classification": "nao_comprovado"
+    },
+    "suite_global": {
+      "status": "not_run_full_at_baseline",
+      "classification": "nao_comprovado"
+    },
+    "squad_extra_dod_roi_tests": {
+      "status": "1_failed_58_passed",
+      "failed": "test_canonical_count_matches_ledger",
+      "classification": "parcialmente_comprovado"
+    },
+    "lint_ruff_squad_scripts": {
+      "status": "64_errors_reported",
+      "classification": "nao_comprovado"
+    },
+    "mypy": {
+      "status": "not_run_at_baseline",
+      "classification": "nao_comprovado"
+    },
+    "bandit": {
+      "status": "not_run_at_baseline",
+      "classification": "nao_comprovado"
+    },
+    "pip_audit": {
+      "status": "not_run_at_baseline",
+      "classification": "nao_comprovado"
+    },
+    "postgresql_local": {
+      "status": "reachable",
+      "dsn_default": "postgresql://test:test@127.0.0.1:5433/extra_test",
+      "driver": "psycopg2",
+      "classification": "executado"
+    },
+    "bootstrap_limpo": {
+      "status": "not_reproved_this_session",
+      "classification": "nao_comprovado"
+    },
+    "migrations": {
+      "status": "present_in_repo",
+      "classification": "implementado"
+    },
+    "schema_audit": {
+      "status": "not_reproved_this_session",
+      "classification": "nao_comprovado"
+    },
+    "backup_restore": {
+      "status": "historical_session_evidence_exists",
+      "classification": "parcialmente_comprovado"
+    },
+    "env_example": {
+      "exists": true,
+      "lines": 200,
+      "classification": "implementado"
+    }
+  },
+  "coverage": {
+    "editais_crude_pct": 4.76,
+    "editais_denominator": 1093,
+    "covered_200km_entities_metric": 52,
+    "pilot_90d_status": "partial",
+    "go_no_go_3y": "NO-GO",
+    "recall_benchmark": {
+      "status": "PARTIAL",
+      "captured": 4,
+      "pct": 100.0,
+      "missing_strata": true,
+      "target_pct": 95.0
+    },
+    "coverage_gate_report": {
+      "result": "fail",
+      "as_of": "2026-07-14"
+    },
+    "evidence_status": "stale_or_partial",
+    "classification": "parcialmente_comprovado"
+  },
+  "universe": {
+    "status": "implementado_com_migrations_e_tools",
+    "classification": "parcialmente_comprovado",
+    "note": "Universe tools/migrations present; canonical spreadsheet hash and entity count not re-proved at baseline session"
+  },
+  "sources": {
+    "live": [],
+    "stale": [
+      "multi_source-latest (2026-07-17)",
+      "next30d-metrics-final (2026-07-17)"
+    ],
+    "unknown": [],
+    "blocked": [
+      "full national 90d pilot",
+      "3y contract backfill GO"
+    ],
+    "not_applicable": [],
+    "classification": "stale"
+  },
+  "prior_campaigns_not_reusable": [
+    {
+      "id": "dod-50-current",
+      "status": "SUCCESS",
+      "accepted": 50,
+      "baseline_done": 42,
+      "note": "Checkbox flips already on main (PR path). NOT reusable as new 30d advance.",
+      "draft_pr": "https://github.com/tjsasakifln/extra-consultoria/pull/25"
+    },
+    {
+      "id": "NEXT-30D-MULTIAGENT / PE-30D / various ROI branches",
+      "status": "historical_on_main_partially",
+      "note": "Earlier 30d window and ROI candidate branches. Work already merged or residual on non-main branches must not be double-counted."
+    },
+    {
+      "id": "epic/advance-30d-local-ready-20260718",
+      "status": "NOT_ON_MAIN",
+      "head_note": "Local epic branch held more DoD progress/state not present on main. Campaign baseline is main-only.",
+      "not_reusable_as_advance": true
+    }
+  ],
+  "extra_dod_roi": {
+    "lock_held": false,
+    "integration_mode_current": "branch_and_draft_pr",
+    "conflict_with_campaign": true,
+    "conflict_details": [
+      "enforce_aiox_path MAIN_WRITE aborts implement on main",
+      "workflow create-isolated-branch + open-draft-pr",
+      "force_next aiox_sequence requires non-main branch and draft PR",
+      "campaign ledger fields campaign_branch/draft_pr"
+    ],
+    "current_cycle": "cyc-2026-07-18T004325Z DONE",
+    "rankings_stale": true,
+    "rank_meta": {
+      "generated_at": "2026-07-18T18:51:59Z",
+      "selected_id": "cand-dyn-slice:79cd98a48651",
+      "dod_hash": "ce1f891cbe87c416dd152028a4fe263a2895da2e3a846edd7fbb9d8ba0cee465",
+      "repo_head": "260a4f2bb7a919e4e9704c8afc0b70be34a47431",
+      "n_ranking": 5
+    },
+    "requirements_summary": {
+      "generated_at": "2026-07-18T18:51:59Z",
+      "dod_sha256": "ce1f891cbe87c416dd152028a4fe263a2895da2e3a846edd7fbb9d8ba0cee465",
+      "done_count": 437,
+      "open_count": 917,
+      "stale_vs_main_dod": true
+    }
+  },
+  "open_stories_note": "51 aiox state files; CM-06 InProgress; most Done. Epic branch stories may not match main code.",
+  "tech_debt": [
+    "squad test_canonical_count_matches_ledger failing",
+    "ruff errors on squad scripts",
+    "stale rankings/requirements",
+    "coverage operational far from 95%",
+    "schema full-suite debt historically documented"
+  ],
+  "evidence_classes_used": [
+    "implementado",
+    "testado",
+    "executado",
+    "comprovado_live",
+    "parcialmente_comprovado",
+    "nao_comprovado",
+    "stale",
+    "bloqueado",
+    "nao_aplicavel",
+    "concluido"
+  ],
+  "notes": [
+    "Baseline frozen from main HEAD only.",
+    "Epic branch progress is explicitly excluded from advance accounting.",
+    "First delivery after baseline: implement main-direct integration mode."
+  ]
+}

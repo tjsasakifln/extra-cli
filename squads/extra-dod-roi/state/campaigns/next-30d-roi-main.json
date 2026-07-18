@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "campaign_id": "NEXT-30D-ROI-MAIN",
+  "status": "MAIN_DIRECT_READY",
+  "created_at": "2026-07-18T19:19:39Z",
+  "updated_at": "2026-07-18T19:23:38Z",
+  "integration_mode": "main-direct",
+  "baseline_head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+  "baseline_dod_sha256": "54bbbc0a0eec4576989722d9a1167860e1322c5cd509804d3677638e8c657228",
+  "baseline_done_count": 92,
+  "baseline_open_count": 1263,
+  "pert_days_target": 30,
+  "pert_days_advanced": 0.0,
+  "scope_frozen": false,
+  "accepted_increments": [],
+  "current_cycle": null,
+  "writer_lock": "squads/extra-dod-roi/state/locks/main-writer.lock",
+  "paths": {
+    "baseline": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/baseline.json",
+    "ledger": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/ledger.jsonl",
+    "resume": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/resume.md",
+    "blockers": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/blockers.json",
+    "plan": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/PLAN-30D.md",
+    "scope": "docs/ops/campaigns/NEXT-30D-ROI-MAIN/scope.json"
+  },
+  "notes": [
+    "Baseline recorded from main HEAD.",
+    "main-direct implemented and unit-tested.",
+    "Next: freeze PLAN-30D/PERT/scope, re-rank, execute cycles."
+  ]
+}

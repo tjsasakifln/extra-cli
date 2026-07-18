@@ -161,7 +161,7 @@ This squad operates in **strict** enforcement mode (`data/enforcement-policy.yam
    `@sm(materialize) -> @po(Ready) -> @dev -> @qa(independent) -> @po(close) -> @devops(draft PR) -> force-next`.
 4. **Stop after STORY_DRAFT** until @po validates — do not implement.
 5. **Self-QA is abort** (`SELF_QA`).
-6. **Main branch product writes are abort** (`MAIN_WRITE`).
+6. **Integration mode:** when `config/integration-mode.yaml` is `main-direct`, product writes on `main` are allowed **only** with a valid `main-writer.lock` (single writer). Otherwise `MAIN_WRITE` / `WRITER_LOCK_REQUIRED` abort. **No draft PR** — publish is validated commit + `git push origin main` (never force-push).
 7. **DoD updates before QA PASS/CONCERNS/WAIVED are abort** (`DOD_PREMATURE`).
 8. **No flag exists to skip AIOX phases.**
 9. If `NO_UNLOCKED_WORK`, publish blockers and stop — do not invent work.

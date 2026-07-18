@@ -159,7 +159,12 @@ class FoolproofEnforcement(unittest.TestCase):
         data = json.loads(proc.stdout)
         if data.get("ok") is True:
             self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
-            self.assertTrue(data.get("branch_required_not_main"))
+            # main-direct: implement on main is allowed only with writer lock
+            if data.get("main_direct"):
+                self.assertTrue(data.get("writer_lock_held"))
+                self.assertFalse(data.get("branch_required_not_main"))
+            else:
+                self.assertTrue(data.get("branch_required_not_main"))
             self.assertIn(data.get("phase"), {"STORY_READY", "IMPLEMENTING", "IN_REVIEW"})
             return
         self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
@@ -168,6 +173,8 @@ class FoolproofEnforcement(unittest.TestCase):
             data.get("abort_code"),
             {
                 "MAIN_WRITE",
+                "WRITER_LOCK_REQUIRED",
+                "MAIN_DIRECT_BRANCH",
                 "SKIP_PHASE",
                 "NO_STORY",
                 "PO_NOT_READY",

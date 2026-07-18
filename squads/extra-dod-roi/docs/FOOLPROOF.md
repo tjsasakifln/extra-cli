@@ -53,7 +53,9 @@ force-next
 | `SELF_QA` | Implementer == QA |
 | `QA_NOT_PASS` | PO close without verdict |
 | `DOD_PREMATURE` | DoD edit before QA |
-| `MAIN_WRITE` | Product write on main |
+| `MAIN_WRITE` | Product write on main when mode≠main-direct |
+| `WRITER_LOCK_REQUIRED` | main-direct implement without valid main-writer.lock |
+| `MAIN_DIRECT_BRANCH` | main-direct publish attempted off main |
 | `NO_UNLOCKED` | Nothing unlocked — stop honestly |
 
 ```bash

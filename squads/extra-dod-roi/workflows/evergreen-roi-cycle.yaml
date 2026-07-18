@@ -164,21 +164,24 @@ sequence:
     on_human: BLOCKED_HUMAN_DECISION
     on_fail: ABORTED_UNSAFE_STATE
 
-  - id: create-isolated-branch
+  - id: acquire-main-writer-lock
     step: 15
     agent: delivery-engineer
-    action: "Create isolated branch or worktree (never main) — AIOX @dev"
-    creates: git_branch
-    guard: never_main
+    action: "main-direct: acquire main-writer.lock (single writer on main) — AIOX @dev"
+    creates: state/locks/main-writer.lock
+    guard: single_writer
+    script: scripts/main_writer_lock.py
     aiox_map: "@dev"
+    note: "Replaces create-isolated-branch when config/integration-mode.yaml mode=main-direct"
 
   - id: implement
     step: 16
     agent: delivery-engineer
     task: delivery-engineer-implement-selected-slice.md
-    action: "Implement ranking[0] slice only — AIOX @dev"
+    action: "Implement ranking[0] slice only on main under writer lock — AIOX @dev"
     updates: product_files_authorized_by_card
     aiox_map: "@dev"
+    guard: writer_lock_held
 
   - id: implementer-tests
     step: 17
@@ -246,13 +249,14 @@ sequence:
     action: "Create final atomic commits for release artifacts"
     creates: git_commits
 
-  - id: open-draft-pr
+  - id: publish-main-direct
     step: 24
     agent: evidence-release-steward
-    action: "Open draft PR without merge — AIOX @devops only for remote"
-    creates: draft_pr
-    guard: draft_only_never_merge
+    action: "main-direct: push validated commit to origin/main (no PR, no force-push) — AIOX @devops"
+    creates: origin_main_commit
+    guard: no_force_push_no_pr
     aiox_map: "@devops"
+    note: "Replaces open-draft-pr when mode=main-direct; independent QA still mandatory"
 
   - id: cycle-report
     step: 25
