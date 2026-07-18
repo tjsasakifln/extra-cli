@@ -1,0 +1,2 @@
+ente_id,ente_nome,n_contratos,valor_total,valor_semantica
+123,Pref,1,1000.00,valor_total (schema pncp_supplier_contracts)

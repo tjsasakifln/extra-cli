@@ -934,14 +934,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Lista de entes sem cobertura de contratos. Evidência: gerador + CSV + mesma limitation + QA PASS.
 - [x] Lista de blockers por fonte. Evidência: `lists/blockers_por_fonte.csv` N=1 ingestion_failed + QA PASS.
 - [x] Lista de runs stale. Evidência: gerador + demo stuck_running_hours=0 → 2 runs + QA PASS.
-- [ ] Relatório de contratos por ente.
-- [ ] Relatório de contratos por fornecedor.
-- [ ] Relatório de concorrentes.
-- [ ] Relatório de concentração.
-- [ ] Relatório de referências de valores.
-- [ ] Relatório de completude.
-- [ ] Relatório de coverage.
-- [ ] Relatório de recall.
+- [x] Relatório de contratos por ente. Evidência: `operational_reports` + schema `valor_total` + QA CONCERNS C1 fixed + session-2026-07-18-operational-reports.
+- [x] Relatório de contratos por fornecedor. Evidência: CSV + ticket_medio semântico + QA.
+- [x] Relatório de concorrentes. Evidência: contracts or orgao-fallback rotulado + QA.
+- [x] Relatório de concentração. Evidência: HHI com caveats defensability LOW/MEDIUM + QA.
+- [x] Relatório de referências de valores. Evidência: valor_total_estimado labeled + QA.
+- [x] Relatório de completude. Evidência: per-field % + QA.
+- [x] Relatório de coverage. Evidência: presence/signal + operational_strict=0% honest + QA.
+- [x] Relatório de recall. Evidência: status NOT_READY sem gold sample (não 95%) + QA.
 - [ ] Relatório de source health.
 - [ ] Exportação CSV.
 - [ ] Exportação Excel.

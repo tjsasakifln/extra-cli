@@ -1,0 +1,10 @@
+field,n_active,filled,completeness_pct,status
+pncp_id,8,8,100.0,OK
+objeto_compra,8,8,100.0,OK
+orgao_cnpj,8,7,87.5,BELOW_95
+uf,8,8,100.0,OK
+municipio,8,7,87.5,BELOW_95
+data_encerramento,8,6,75.0,BELOW_95
+link_pncp,8,7,87.5,BELOW_95
+valor_total_estimado,8,7,87.5,BELOW_95
+_overall_core,8,7,87.5,BELOW_95

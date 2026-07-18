@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "run_id": "ops-reports-20260718-154924-1385f45b",
+  "generated_at": "2026-07-18T15:49:24.047757+00:00",
+  "git_sha": "c704840",
+  "section": "12.2-reports",
+  "reports": {
+    "contratos_por_ente": {
+      "path": "docs/ops/session-2026-07-18-operational-reports/reports/relatorio_contratos_por_ente.csv",
+      "rows": 1,
+      "bytes": 124
+    },
+    "contratos_por_fornecedor": {
+      "path": "docs/ops/session-2026-07-18-operational-reports/reports/relatorio_contratos_por_fornecedor.csv",
+      "rows": 1,
+      "bytes": 188
+    },
+    "concorrentes": {
+      "path": "docs/ops/session-2026-07-18-operational-reports/reports/relatorio_concorrentes.csv",
+      "rows": 1,
+      "bytes": 105
+    },
+    "concentracao": {
+      "path": "docs/ops/session-2026-07-18-operational-reports/reports/relatorio_concentracao.csv",
+      "rows": 2,
+      "bytes": 153
+    },
+    "referencias_valores": {
+      "path": "docs/ops/session-2026-07-18-operational-reports/reports/relatorio_referencias_valores.csv",
+      "rows": 4,
+      "bytes": 532
+    },
+    "completude": {
+      "path": "docs/ops/session-2026-07-18-operational-reports/reports/relatorio_completude.csv",
+      "rows": 9,
+      "bytes": 312
+    },
+    "coverage": {
+      "path": "docs/ops/session-2026-07-18-operational-reports/reports/relatorio_coverage.csv",
+      "rows": 5,
+      "bytes": 401
+    },
+    "recall": {
+      "path": "docs/ops/session-2026-07-18-operational-reports/reports/relatorio_recall.csv",
+      "rows": 1,
+      "bytes": 159
+    }
+  },
+  "counts": {
+    "contratos_por_ente": 1,
+    "contratos_por_fornecedor": 1,
+    "concorrentes": 1,
+    "concentracao": 2,
+    "referencias_valores": 4,
+    "completude": 9,
+    "coverage": 5,
+    "recall": 1
+  },
+  "limitations": [
+    "n_players < 3 — HHI not defensable as market concentration",
+    "No stratified gold sample loaded in this DB — recall NOT_READY",
+    "Do not treat presence of bids as recall ≥95%"
+  ],
+  "reliability": "DEGRADED",
+  "claims": {
+    "allowed": [
+      "Eight analytical report CSVs generated from PostgreSQL",
+      "Value semantics labeled (estimado vs homologado)",
+      "Recall explicitly NOT_READY without gold sample"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "operational coverage 95%",
+      "recall 95%",
+      "PRE_VPS_FINAL_READY",
+      "PROJECT_DONE"
+    ]
+  }
+}

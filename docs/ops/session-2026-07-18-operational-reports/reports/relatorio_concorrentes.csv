@@ -1,0 +1,2 @@
+concorrente_id,nome,n_contratos,valor_total,provenance
+456,Forn,1,1000.00,from_pncp_supplier_contracts

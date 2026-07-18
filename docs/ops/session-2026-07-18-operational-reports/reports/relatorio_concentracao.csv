@@ -1,0 +1,3 @@
+player_id,nome,mass,market_share_pct,metric,defensability
+456,Forn,1.0,100.0,n_contratos,LOW
+_HHI,Herfindahl-Hirschman Index,,10000.0,HHI_0_10000,LOW

@@ -1,0 +1,2 @@
+metric,status,tp,fn,recall_pct,gold_sample_size,system_active_bids,note
+recall_relevant_tenders,NOT_READY,,,,0,8,Gold sample required for recall calculation

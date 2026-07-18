@@ -1,0 +1,6 @@
+metric,numerator,denominator,pct,kind,claim
+entities_in_sc_public_entities,0,0,,presence,NOT operational coverage
+active_bids_presence,8,,,signal,NOT operational coverage
+bids_matched_to_entity,0,8,0.0,signal,NOT operational coverage
+contracts_rows,1,,,presence,NOT operational coverage
+operational_coverage_strict,0,1093,0.0,operational,campaign_truth: remains ~0% until entity stages complete

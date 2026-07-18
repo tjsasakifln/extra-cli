@@ -1,0 +1,18 @@
+{
+  "story_id": "ROI-cand-dyn-slice-19ce6ecf8869",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "qa_notes": "C1 schema fixed post-QA; residual C2-C4 acceptable",
+  "po_closed": true,
+  "po_closed_at": "2026-07-18T15:49:29Z",
+  "publication_authorized": true,
+  "risk_level": "HIGH-RISK",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-19ce6ecf8869.md",
+  "snapshot_evidence": "docs/ops/session-2026-07-18-operational-reports/",
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T154209Z",
+    "candidate_id": "cand-dyn-slice:19ce6ecf8869",
+    "dod_items_flipped": 8
+  }
+}

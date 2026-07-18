@@ -1,0 +1,2 @@
+fornecedor_id,nome_fornecedor,n_contratos,valor_total,ticket_medio,valor_semantica
+456,Forn,1,1000.00,1000.0000000000000000,ticket_medio = valor_total / n_contratos (schema valor_total)
