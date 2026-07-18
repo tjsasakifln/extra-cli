@@ -1,0 +1,93 @@
+{
+  "demo": [
+    {
+      "trust_level": "TRUSTED",
+      "reasons": [
+        "sinais dentro dos SLAs e campos presentes"
+      ],
+      "limitations": [],
+      "field_flags": {},
+      "metrics": {
+        "age_hours": 2.0,
+        "freshness_sla_hours": 24.0,
+        "sample_n": 50,
+        "source_health": "ok",
+        "provenance_ok": true,
+        "query_valid": true
+      },
+      "is_decision_safe": true
+    },
+    {
+      "trust_level": "DEGRADED",
+      "reasons": [
+        "campos obrigatórios ausentes: prazo",
+        "source_health=degraded",
+        "age_hours=48.0 > SLA 24h"
+      ],
+      "limitations": [
+        "Amostra de smoke apenas",
+        "Campos essenciais ausentes — não trate o registro como completo.",
+        "Fonte degradada — cobertura/freshness comprometidas.",
+        "Freshness acima do SLA (24h) — marcar DEGRADED."
+      ],
+      "field_flags": {
+        "prazo": "MISSING"
+      },
+      "metrics": {
+        "age_hours": 48.0,
+        "freshness_sla_hours": 24.0,
+        "sample_n": 3,
+        "source_health": "degraded",
+        "provenance_ok": true,
+        "query_valid": true
+      },
+      "is_decision_safe": false
+    },
+    {
+      "trust_level": "UNTRUSTED",
+      "reasons": [
+        "consulta inválida ou não executada",
+        "provenance ausente ou inválida",
+        "source_health=down",
+        "sample_n=0 < min=1",
+        "age_hours=200.0 > hard SLA 168h"
+      ],
+      "limitations": [
+        "Sem consulta válida — ausência de linhas não prova inexistência.",
+        "Sem provenance por campo/fonte — dado não auditável.",
+        "Fonte em falha — resultados podem estar incompletos.",
+        "Amostra insuficiente (N=0); não generalizar percentuais.",
+        "Dado stale (>168h) — não usar como oportunidade atual."
+      ],
+      "field_flags": {},
+      "metrics": {
+        "age_hours": 200.0,
+        "freshness_sla_hours": 24.0,
+        "sample_n": 0,
+        "source_health": "down",
+        "provenance_ok": false,
+        "query_valid": false
+      },
+      "is_decision_safe": false
+    },
+    {
+      "trust_level": "UNKNOWN",
+      "reasons": [
+        "sinais insuficientes para classificar"
+      ],
+      "limitations": [
+        "Sem sinais de freshness/provenance/consulta — trate como UNKNOWN."
+      ],
+      "field_flags": {},
+      "metrics": {
+        "age_hours": null,
+        "freshness_sla_hours": 24.0,
+        "sample_n": null,
+        "source_health": null,
+        "provenance_ok": null,
+        "query_valid": null
+      },
+      "is_decision_safe": false
+    }
+  ]
+}

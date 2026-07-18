@@ -240,6 +240,9 @@ LANGUAGE_CLAIMS_FORBIDDEN: tuple[str, ...] = (
     "Score rotulado como probabilidade sem calibração",
     "Relatório sem limitações relevantes",
     "Afirmar que o projeto acompanha obras fisicamente",
+    "Percentual sem denominador N",
+    "Score/percentual sem limitações explícitas",
+    "Dado UNTRUSTED apresentado como pronto para decisão",
 )
 
 LANGUAGE_CLAIMS_ALLOWED: tuple[str, ...] = (
@@ -248,4 +251,6 @@ LANGUAGE_CLAIMS_ALLOWED: tuple[str, ...] = (
     "Usar score/ranking como ordenação, não probabilidade, sem calibração",
     "Exibir limitações, cobertura, freshness e blockers nos relatórios",
     "Acompanhamento administrativo de contratos (não físico de obra)",
+    "Exibir trust_level TRUSTED|DEGRADED|UNTRUSTED|UNKNOWN",
+    "Percentuais apenas com N e limitações",
 )

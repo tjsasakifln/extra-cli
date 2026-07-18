@@ -168,8 +168,8 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Erros são apresentados com causa provável e próximo passo. PARTIAL — partially supported by CLI/checkpoints; full ops proof pending.
 - [ ] O sistema permite repetir uma execução sem criar inconsistência. PARTIAL — partially supported by CLI/checkpoints; full ops proof pending.
 - [ ] O sistema permite retomar uma execução interrompida. PARTIAL — partially supported by CLI/checkpoints; full ops proof pending.
-- [ ] O sistema permite identificar quando um dado não é confiável.
-- [ ] O sistema não esconde limitações atrás de scores ou percentuais genéricos.
+- [x] O sistema permite identificar quando um dado não é confiável. Evidência: `scripts/lib/data_reliability.py` (trust_level TRUSTED|DEGRADED|UNTRUSTED|UNKNOWN) + `python -m scripts.lib.data_reliability --demo` + bare % fail-closed (exit 2 sem N) + `tests/test_data_reliability.py` (9 passed) + claim_language/run_metadata claims forbidden + session-2026-07-18-data-reliability.
+- [x] O sistema não esconde limitações atrás de scores ou percentuais genéricos. Evidência: `scripts/lib/data_reliability.py` (trust_level TRUSTED|DEGRADED|UNTRUSTED|UNKNOWN) + `python -m scripts.lib.data_reliability --demo` + bare % fail-closed (exit 2 sem N) + `tests/test_data_reliability.py` (9 passed) + claim_language/run_metadata claims forbidden + session-2026-07-18-data-reliability.
 
 ### 2.5 Correspondência obrigatória com a proposta comercial
 
