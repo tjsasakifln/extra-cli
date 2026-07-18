@@ -1,0 +1,8 @@
+`pytest` passa na suíte obrigatória.
+`bandit` não aponta vulnerabilidade HIGH no código de produção.
+Pre-commit está configurado.
+CI falha de modo fechado.
+Nenhum gate obrigatório usa `continue-on-error`.
+A suíte crítica não depende de serviço externo instável sem mock ou marcação adequada.
+Testes lentos possuem marcação.
+QA não depende exclusivamente do implementador.
