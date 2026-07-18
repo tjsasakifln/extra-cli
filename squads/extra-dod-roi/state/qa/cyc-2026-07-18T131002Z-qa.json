@@ -1,0 +1,110 @@
+{
+  "cycle_id": "cyc-2026-07-18T131002Z",
+  "story_id": "ROI-cand-dyn-slice-ac8b6e76a7b2",
+  "candidate_id": "cand-dyn-slice:ac8b6e76a7b2",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:13:11Z",
+  "branch": "extra-roi/cand-empty-dod-orphan",
+  "reviewed_commit_note": "uncommitted delivery on feature branch (DOD.md delete empty L1401 + generate_candidates skip blank text + unit test + evidence pack); HEAD base 7f48288",
+  "self_qa": false,
+  "independence": true,
+  "evidence_pack": "docs/ops/session-2026-07-18-empty-dod-orphan/",
+  "commands_rerun": [
+    {
+      "cmd": "python3 empty-checkbox regex scan on DOD.md (current vs HEAD)",
+      "exit": 0,
+      "notes": "CURRENT empty matching ^\\s*-\\s*\\[[ xX]\\]\\s*$ = 0; HEAD empty = 1 at L1401 ('- [ ] ')"
+    },
+    {
+      "cmd": "python3 -m pytest -q -o addopts= --tb=short squads/extra-dod-roi/tests/test_generate_candidates_skip_empty.py",
+      "exit": 0,
+      "notes": "1 passed (independent re-run)"
+    },
+    {
+      "cmd": "python3 adversarial harness generate_dynamic_candidates('', None, whitespace, real)",
+      "exit": 0,
+      "notes": "empty/None/whitespace skipped; only real text id retained in candidates"
+    },
+    {
+      "cmd": "git diff DOD.md (no [x] flip proof)",
+      "exit": 0,
+      "notes": "single deleted line '-- [ ] '; zero added [x] lines"
+    }
+  ],
+  "falsification_attempts": [
+    "Empty checkbox still present after fix: regex scan CURRENT=0. Fail to falsify cleanup.",
+    "Deletion hides a real requirement: HEAD L1401 text was empty string; ranking payload dod_items[0].text=''; prior QA cycles (cyc-…125038Z, …130315Z) already authorized:false for dod:c70748809b8a. Neighbor semantics READY/NOT_READY/BLOCKED remain. Fail to falsify honesty of delete.",
+    "generate_candidates still ranks blank text: unit test + harness (''/None/'   ') never emit those ids. Fail to falsify filter.",
+    "Silent [x] flip of other §25 items: git diff only removes empty open line; OPEN L1402 BLOCKED semantics still unchecked. Fail to falsify process.",
+    "NOT_APPLICABLE used for campaign meta: not used; orphan deleted as invalid markup, not N/A-closed. Fail to falsify.",
+    "Self-QA by implementer: this review is independent adversarial-qa-auditor / Quinn; re-ran tests and scans. Fail to falsify independence.",
+    "Residual: parse_dod can still emit empty items if reintroduced to DOD — mitigated at generate_dynamic_candidates only (defense-in-depth residual, non-blocking)."
+  ],
+  "issues": [
+    {
+      "severity": "low",
+      "description": "Defense against empty markup is only in generate_dynamic_candidates; parse_dod still accepts empty checkbox lines if reintroduced.",
+      "recommendation": "Optional: reject/warn empty checkbox lines at parse_dod or audit_matrix time so noise never enters the matrix."
+    },
+    {
+      "severity": "low",
+      "description": "Delivery still uncommitted on feature branch (DOD.md, generate_candidates.py, new test, evidence pack).",
+      "recommendation": "@dev commit before @po close + @devops publish; QA did not commit."
+    },
+    {
+      "severity": "low",
+      "description": "Unit test covers whitespace-only text; None/empty-string paths verified by QA harness but not asserted in the committed test file.",
+      "recommendation": "Optional parametrize test for '', None, '\\t' — already behavior-covered by strip()."
+    }
+  ],
+  "allowed_claims": [
+    "DOD.md has zero empty checkbox lines matching ^\\s*-\\s*\\[[ xX]\\]\\s*$ after this slice.",
+    "generate_dynamic_candidates skips blank/whitespace item text so empty markup cannot become ranking[0].",
+    "Deleted line was orphan markup (dod:c70748809b8a text='') — not a claimable requirement; prior independent QA forbade flip.",
+    "No DoD [x] flips in this delivery; real open §25 item (`BLOCKED` significa…) remains open.",
+    "Executable proof: squads/extra-dod-roi/tests/test_generate_candidates_skip_empty.py (1 passed, independent re-run)."
+  ],
+  "forbidden_claims": [
+    "Any substantive §25 requirement completed via this delete.",
+    "BLOCKED semantics / MetricStatus.BLOCKED implemented.",
+    "LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY / operational coverage ≥95% / VPS operational.",
+    "Empty orphan marked DONE via [x].",
+    "Story Done without PO close / publish without independent QA artifact."
+  ],
+  "dod_flip_authorized": [
+    {
+      "id": "dod:c70748809b8a",
+      "line": 1401,
+      "text": "",
+      "authorized": false,
+      "action": "DELETE_EMPTY_MARKUP",
+      "rationale": "Not a flip. Empty orphan checkbox removed as invalid markup; no requirement text to prove. Generator hardened to skip future blanks. Prior QA cycles already refused [x] for this id."
+    }
+  ],
+  "dod_items_summary": {
+    "proven_flip_yes": 0,
+    "deleted_empty_markup": 1,
+    "left_open_flip_no": 0,
+    "total_slice": 1
+  },
+  "ac_trace": [
+    {
+      "ac": "Each of 1 dod_item_ids proven with evidence or left open",
+      "result": "PASS",
+      "evidence": "dod:c70748809b8a was empty markup; deleted with evidence pack + generator filter + test. Not falsely greened."
+    },
+    {
+      "ac": "No NOT_APPLICABLE used to hit campaign meta",
+      "result": "PASS",
+      "evidence": "No N/A classification; orphan deleted as non-requirement."
+    },
+    {
+      "ac": "Independent QA PASS before any [x] flip",
+      "result": "PASS",
+      "evidence": "Zero [x] flips in git diff; this independent review is the gate; flip_authorized false for the orphan."
+    }
+  ],
+  "decision_summary": "PASS — empty DoD orphan L1401 correctly deleted (not flipped); generate_candidates skips blank text with independent pytest proof; no [x] flips; residual debt low only."
+}

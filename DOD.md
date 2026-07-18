@@ -1398,7 +1398,6 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Todo indicador possui fonte. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z.
 - [x] Todo indicador possui status de prontidão. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z.
 - [x] `READY` significa executado e validado. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z.
-- [ ] 
 - [x] `NOT_READY` significa não disponível. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [ ] `BLOCKED` significa impedido por dependência externa ou técnica.
 - [x] Código existente não é chamado de capacidade pronta. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`

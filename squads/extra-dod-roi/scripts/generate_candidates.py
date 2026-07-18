@@ -173,7 +173,10 @@ def generate_dynamic_candidates(
         if sid in completed_dod_ids:
             continue
         section = it.get("section") or "(no-section)"
-        text = it.get("text") or ""
+        text = (it.get("text") or "").strip()
+        # Empty checkbox lines are markup noise, not unlockable work.
+        if not text:
+            continue
         if _section_blocked(section) or _item_blocked(text):
             blocked.append(
                 {
