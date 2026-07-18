@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-07-18T14:16:56.512661Z",
+  "overall": "ok",
+  "checks": [
+    {
+      "name": "journald_retention",
+      "status": "configured",
+      "message": "project journald retention config present (not yet installed under /etc — local stage source of truth)",
+      "metrics": {
+        "path": "/mnt/d/extra consultoria/config/journald/00-extra-consultoria.conf",
+        "applied_on_host": false,
+        "required_keys_present": true
+      }
+    },
+    {
+      "name": "disk",
+      "status": "ok",
+      "message": "disk 10.1% used",
+      "metrics": {
+        "path": "/",
+        "total_bytes": 1081101176832,
+        "used_bytes": 109131755520,
+        "free_bytes": 916977065984,
+        "used_pct": 10.09
+      }
+    },
+    {
+      "name": "memory",
+      "status": "ok",
+      "message": "memory 29.1% used",
+      "metrics": {
+        "total_kb": 8133872,
+        "available_kb": 5770236,
+        "used_kb": 2363636,
+        "used_pct": 29.06
+      }
+    },
+    {
+      "name": "load",
+      "status": "ok",
+      "message": "load1=1.81 cpus=4",
+      "metrics": {
+        "load1": 1.80712890625,
+        "load5": 1.83935546875,
+        "load15": 1.9150390625,
+        "cpus": 4,
+        "warn_threshold": 8.0
+      }
+    }
+  ],
+  "claims": {
+    "allowed": [
+      "Report disk/memory/load from live host stats",
+      "Journald retention configured in-repo; applied_on_host may be false locally"
+    ],
+    "forbidden": [
+      "Claim VPS timers healthy from host_monitor alone",
+      "Treat unknown postgres as green"
+    ]
+  }
+}
