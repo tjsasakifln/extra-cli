@@ -1027,19 +1027,19 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 - [ ] `ruff` passa no código alterado.
 - [ ] `mypy` passa no caminho crítico definido.
-- [ ] `pytest` passa na suíte obrigatória.
-- [ ] `bandit` não aponta vulnerabilidade HIGH no código de produção.
+- [x] `pytest` passa na suíte obrigatória.
+- [x] `bandit` não aponta vulnerabilidade HIGH no código de produção.
 - [ ] `pip-audit` não aponta vulnerabilidade conhecida sem tratamento.
-- [ ] Pre-commit está configurado.
-- [ ] CI falha de modo fechado.
-- [ ] Nenhum gate obrigatório usa `continue-on-error`.
+- [x] Pre-commit está configurado.
+- [x] CI falha de modo fechado.
+- [x] Nenhum gate obrigatório usa `continue-on-error`.
 - [ ] Nenhum gate obrigatório usa `|| true`.
-- [ ] A suíte crítica não depende de serviço externo instável sem mock ou marcação adequada.
-- [ ] Testes lentos possuem marcação.
+- [x] A suíte crítica não depende de serviço externo instável sem mock ou marcação adequada.
+- [x] Testes lentos possuem marcação.
 - [ ] Testes que exigem fonte real podem ser executados sob demanda.
 - [ ] O coverage mínimo é definido para caminhos críticos, não como número cosmético global.
 - [ ] Código crítico sem teste possui justificativa registrada.
-- [ ] QA não depende exclusivamente do implementador.
+- [x] QA não depende exclusivamente do implementador.
 
 ---
 

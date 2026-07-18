@@ -1,0 +1,3 @@
+continue-on-error:true as YAML key: False
+|| true in non-comment lines: False
+set +e only for expected exit 2 assert: True
