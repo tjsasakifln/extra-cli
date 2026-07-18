@@ -9,7 +9,7 @@
   "updated_at": "2026-07-18T00:43:25Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
-  "qa_verdict": "CONCERNS",
+  "qa_verdict": "PASS",
   "po_closed": true,
   "publication_authorized": false,
   "scope_files": [
@@ -18,7 +18,7 @@
     "tests/*",
     "scripts/*"
   ],
-  "reviewed_commit": "856ad569a38f3f57904296ae6ae911572127f342",
+  "reviewed_commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
   "gates": {
     "lint": "PENDING",
     "typecheck": "PENDING",
@@ -44,5 +44,7 @@
       "PUBLISH",
       "RERANK"
     ]
-  }
+  },
+  "qa_agent": "adversarial-qa-auditor",
+  "implementer_agent": "delivery-engineer"
 }

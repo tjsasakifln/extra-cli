@@ -1569,7 +1569,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] ADRs vigentes estão identificadas.
 - [ ] ADRs revogadas estão identificadas.
 - [x] Existe runbook local. Evidência: batch2 `file inventory session batch2`.
-- [x] Existe runbook de VPS. Evidência: batch2 `file inventory session batch2`.
+- [ ] Existe runbook de VPS.
 - [x] Existe runbook de backup. Evidência: batch2 `file inventory session batch2`.
 - [x] Existe runbook de restore. Evidência: batch2 `file inventory session batch2`.
 - [ ] Existe runbook de deploy.
@@ -1577,7 +1577,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Existe runbook de fonte quebrada. Evidência: batch2 `file inventory session batch2`.
 - [ ] Existe runbook de schema drift.
 - [ ] Existe runbook de cobertura abaixo de 95%.
-- [x] Existe runbook de freshness vencida. Evidência: batch2 `file inventory session batch2`.
+- [ ] Existe runbook de freshness vencida.
 - [ ] Existe glossário.
 - [x] Existe matriz de fontes. Evidência: batch2 `file inventory session batch2`.
 - [x] Existe matriz de capabilities. Evidência: batch2 `file inventory session batch2`.

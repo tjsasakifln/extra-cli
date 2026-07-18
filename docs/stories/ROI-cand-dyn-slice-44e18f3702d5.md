@@ -2,7 +2,9 @@
 
 **Story ID:** `ROI-cand-dyn-slice-44e18f3702d5`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** Draft  
+**Status:** Done
+**PO Closed:** yes
+**QA Verdict:** PASS  
 **Risk level:** **HIGH-RISK**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-18T004325Z`)  
 **Candidate ID:** `cand-dyn-slice:44e18f3702d5`  

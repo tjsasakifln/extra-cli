@@ -1,0 +1,18 @@
+{
+  "story_id": "ROI-campaign-batch2-docs-truth",
+  "status": "Done",
+  "po_validated": true,
+  "po_closed": true,
+  "qa_verdict": "PASS",
+  "reviewed_commit": "e42b372e8233e07663977dbcc722fb783d1d090b",
+  "implementer_agent": "delivery-engineer",
+  "qa_agent": "adversarial-qa-auditor",
+  "risk_level": "STANDARD",
+  "gates": {
+    "lint": "PASS",
+    "tests": "PASS"
+  },
+  "closed_at": "2026-07-18T01:05:08Z",
+  "publication_authorized": false,
+  "notes": "Campaign DoD-50 compliance story (retroactive formalization of evidence-backed flips)."
+}
