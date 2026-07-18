@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-ec525563e7db",
+  "title": "[Pacote final da consultoria] O sistema gera PDF executivo e planilhas Excel a partir do m · PDF e Excel usam a mesma data de corte, universo, filtros e  · Divergências entre PDF e Excel são detectada",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "Draft",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-ec525563e7db.md",
+  "created_at": "2026-07-18T18:46:11Z",
+  "updated_at": "2026-07-18T18:46:11Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": false,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T184610Z",
+    "candidate_id": "cand-dyn-slice:ec525563e7db",
+    "roi": 1.2261,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}

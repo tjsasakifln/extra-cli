@@ -2,9 +2,9 @@
   "campaign": "advance-30d-operational-20260718",
   "main_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "epic_branch": "epic/advance-30d-local-ready-20260718",
-  "epic_sha": "ea560f8422bea49aac5562c82b0c3b7fad6efc65",
-  "current_story": "",
-  "phase": "FORCE_NEXT",
+  "epic_sha": "74667830ea820a55a5e41fffcdbb3b1ce3413aca",
+  "current_story": "ROI-cand-dyn-slice-ec525563e7db",
+  "phase": "STORY_DRAFT",
   "last_completed_story": "ROI-cand-dyn-slice-9fada5fba964",
   "last_qa_verdict": "PASS",
   "open_worktrees": [],
@@ -17,8 +17,8 @@
     "blk-coverage-95",
     "empty_local_pg"
   ],
-  "next_command": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
-  "updated_at": "2026-07-18T18:45:58.433954+00:00",
+  "next_command": "PO Ready + implement ROI-cand-dyn-slice-ec525563e7db",
+  "updated_at": "2026-07-18T18:46:26.550394+00:00",
   "dod_checked": 429,
   "dod_total": 1354,
   "stories_closed_session": [
