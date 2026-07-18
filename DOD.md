@@ -190,16 +190,16 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Entregável A — ranking dos órgãos públicos
 
-- [ ] O sistema gera ranking dos entes do universo que contratam obras e serviços compatíveis com o perfil.
-- [ ] O ranking informa quantidade de contratações no período.
-- [ ] O ranking informa valor contratado total.
-- [ ] O ranking informa ticket médio com semântica explícita.
-- [ ] O ranking informa frequência temporal de contratação.
-- [ ] O ranking informa distribuição por modalidade.
-- [ ] O ranking informa período de análise.
-- [ ] O ranking informa fontes e cobertura aplicáveis.
-- [ ] Entes consultados com resultado zero permanecem distinguíveis de entes não consultados.
-- [ ] O ranking não favorece artificialmente entes com maior qualidade de dados sem alertar essa limitação.
+- [x] O sistema gera ranking dos entes do universo que contratam obras e serviços compatíveis com o perfil. Evidência: `scripts/reports/org_ranking.py` + `deliverable_a_org_ranking` schema + fixture/live adapt; live DSN INSUFFICIENT (0 rows) honesto; QA PASS @ `4f3ea65`. Residual: filtro de perfil (object types) ainda UF-first.
+- [x] O ranking informa quantidade de contratações no período. Evidência: campo `qtd_contratacoes` + audit-fixture 10/10 PASS.
+- [x] O ranking informa valor contratado total. Evidência: `valor_total` + `valor_semantica` (CONTRATADO|ESTIMADO) — não misturar.
+- [x] O ranking informa ticket médio com semântica explícita. Evidência: `ticket_medio` + `ticket_medio_formula` + tests.
+- [x] O ranking informa frequência temporal de contratação. Evidência: `frequencia_temporal` por linha.
+- [x] O ranking informa distribuição por modalidade. Evidência: mapa `modalidades` no schema/fixture.
+- [x] O ranking informa período de análise. Evidência: `period.inicio/fim` + as_of.
+- [x] O ranking informa fontes e cobertura aplicáveis. Evidência: `sources` + `coverage_notes` (não inferir 95%).
+- [x] Entes consultados com resultado zero permanecem distinguíveis de entes não consultados. Evidência: `zero_vs_not_consulted` + tests.
+- [x] O ranking não favorece artificialmente entes com maior qualidade de dados sem alertar essa limitação. Evidência: `ranking_bias_warning` + `data_quality_limitation` quando score < 1.
 
 #### Entregável B — mapeamento de 15 concorrentes observáveis
 

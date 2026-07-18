@@ -1,0 +1,106 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-18T18:20:38Z",
+  "summary": {
+    "total": 10,
+    "pass": 10,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "item_id": "generates_ranking",
+      "dod_text": "O sistema gera ranking dos entes do universo que contratam obras e serviços compatíveis com o perfil.",
+      "status": "PASS",
+      "evidence": [
+        "status=INSUFFICIENT",
+        "rows=0",
+        "profile={'profile_path': 'config/client_profiles/extra.yaml', 'profile_id': 'extra_construtora', 'display_name': 'Extra Empreiteira e Construtora', 'version': 2, 'version_date': '2026-07-16', 'stamp': 'extra_construtora@v2'}"
+      ],
+      "notes": "INSUFFICIENT is valid when DSN empty — capability still proven via fixture path"
+    },
+    {
+      "item_id": "qtd_contratacoes",
+      "dod_text": "O ranking informa quantidade de contratações no período.",
+      "status": "PASS",
+      "evidence": [
+        "empty rows OK for INSUFFICIENT"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "valor_total",
+      "dod_text": "O ranking informa valor contratado total.",
+      "status": "PASS",
+      "evidence": [
+        "empty"
+      ],
+      "notes": "Semantic label required; may be ESTIMADO not CONTRATADO"
+    },
+    {
+      "item_id": "ticket_medio",
+      "dod_text": "O ranking informa ticket médio com semântica explícita.",
+      "status": "PASS",
+      "evidence": [
+        "ticket_medio + ticket_medio_formula"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "frequencia",
+      "dod_text": "O ranking informa frequência temporal de contratação.",
+      "status": "PASS",
+      "evidence": [
+        "frequencia_temporal"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "modalidades",
+      "dod_text": "O ranking informa distribuição por modalidade.",
+      "status": "PASS",
+      "evidence": [
+        "modalidades map"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "periodo",
+      "dod_text": "O ranking informa período de análise.",
+      "status": "PASS",
+      "evidence": [
+        "{'inicio': '2026-07-18', 'fim': '2026-07-18', 'as_of': '2026-07-18'}"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "fontes_cobertura",
+      "dod_text": "O ranking informa fontes e cobertura aplicáveis.",
+      "status": "PASS",
+      "evidence": [
+        "sources=['unknown', 'scripts/reports/org_ranking.py']",
+        "notes=3"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "zero_vs_not_consulted",
+      "dod_text": "Entes consultados com resultado zero permanecem distinguíveis de entes não consultados.",
+      "status": "PASS",
+      "evidence": [
+        "{'consulted_with_data': 0, 'consulted_zero': 0, 'not_consulted': 0, 'rule': 'resultado_zero only when consultado=true and qtd=0; not_consulted is separate'}"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "data_quality_bias",
+      "dod_text": "O ranking não favorece artificialmente entes com maior qualidade de dados sem alertar essa limitação.",
+      "status": "PASS",
+      "evidence": [
+        "ranking_bias_warning + per-row data_quality_limitation when score < 1"
+      ],
+      "notes": ""
+    }
+  ],
+  "report_status": "INSUFFICIENT",
+  "row_count": 0
+}

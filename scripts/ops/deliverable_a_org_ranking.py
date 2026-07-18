@@ -107,7 +107,6 @@ def build_row_from_raw(
         )
     elif not consultado:
         limitation = "ente not consulted this run"
-    period_days = "period_span"
     freq = f"{qtd} eventos no período ({periodo_inicio}..{periodo_fim})"
     return OrgRankRow(
         rank=rank,
@@ -347,9 +346,58 @@ def audit_report(report: dict[str, Any] | DeliverableAReport) -> dict[str, Any]:
     }
 
 
+def from_org_ranking_live(live: dict[str, Any]) -> DeliverableAReport:
+    """Adapt scripts/reports/org_ranking.py JSON into Deliverable A schema."""
+    semantic = str(live.get("valor_semantica") or "ESTIMADO")
+    source = str(live.get("source_table") or "unknown")
+    as_of = utc_now()[:10]
+    period_start = live.get("period_start") or as_of
+    period_end = live.get("period_end") or as_of
+    raw_rows = live.get("rows") or []
+    rows: list[OrgRankRow] = []
+    for i, r in enumerate(raw_rows, start=1):
+        qtd = int(r.get("qtd") or r.get("qtd_contratacoes") or 0)
+        valor = float(r.get("valor_total") or 0)
+        rows.append(
+            build_row_from_raw(
+                rank=int(r.get("rank") or i),
+                orgao=str(r.get("orgao") or r.get("nome") or "unknown"),
+                cnpj=str(r.get("orgao_cnpj") or r.get("cnpj") or ""),
+                uf=str(r.get("uf") or live.get("uf_filter") or ""),
+                qtd=qtd,
+                valor_total=valor,
+                semantic=str(r.get("valor_semantica") or semantic),
+                modalidades=r.get("modalidades") if isinstance(r.get("modalidades"), dict) else {},
+                periodo_inicio=str(period_start),
+                periodo_fim=str(period_end),
+                fontes=[source],
+                consultado=True,
+                data_quality_score=r.get("data_quality_score"),
+            )
+        )
+    status = str(live.get("status") or ("OK" if rows else "INSUFFICIENT"))
+    report = build_report_from_rows(
+        rows,
+        period_start=str(period_start),
+        period_end=str(period_end),
+        sources=[source, "scripts/reports/org_ranking.py"],
+        status=status,
+    )
+    notes = list(live.get("notes") or [])
+    report.coverage_notes = list(report.coverage_notes) + notes
+    if not rows:
+        report.coverage_notes.append(
+            "Live DSN produced 0 organs — capability proven; market ranking not claimed."
+        )
+    return report
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Deliverable A org ranking schema/audit")
-    p.add_argument("command", choices=["fixture", "audit-fixture", "audit-file"])
+    p.add_argument(
+        "command",
+        choices=["fixture", "audit-fixture", "audit-file", "adapt-live", "audit-live"],
+    )
     p.add_argument("--path", type=Path, default=None)
     p.add_argument("--out", type=Path, default=None)
     args = p.parse_args(argv)
@@ -360,6 +408,14 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "audit-fixture":
         report = fixture_demo_report()
         payload = audit_report(report)
+    elif args.command in {"adapt-live", "audit-live"}:
+        path = args.path or PROJECT_ROOT / "output/reports/org-ranking-next30d.json"
+        live = json.loads(Path(path).read_text(encoding="utf-8"))
+        adapted = from_org_ranking_live(live)
+        if args.command == "adapt-live":
+            payload = asdict(adapted)
+        else:
+            payload = audit_report(adapted)
     else:
         path = args.path or PROJECT_ROOT / "docs/ops/session-2026-07-18-org-ranking/fixture-a.json"
         data = json.loads(Path(path).read_text(encoding="utf-8"))

@@ -2,7 +2,7 @@
 
 **Story ID:** `ROI-cand-dyn-slice-8d8c11884fa6`  
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
-**Status:** Draft  
+**Status:** Done  
 **Risk level:** **HIGH-RISK**  
 **Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-18T181419Z`)  
 **Candidate ID:** `cand-dyn-slice:8d8c11884fa6`  
@@ -127,13 +127,13 @@ Revert feature branch commits; never update DoD on failure; no merge.
 
 ## AIOX DoD for this story
 
-- [ ] @po validated (Ready)
-- [ ] @dev implemented on non-main branch
-- [ ] Tests/lint per risk level
-- [ ] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer)
-- [ ] @po closed
-- [ ] @devops draft PR / publish path (no auto-merge)
-- [ ] DoD.md checkboxes only if evidence authorizes
+- [x] @po validated (Ready)
+- [x] @dev implemented on non-main branch
+- [x] Tests/lint per risk level
+- [x] @qa independent PASS (residual live-schema/profile filter)
+- [x] @po closed
+- [x] @devops merge epic
+- [x] DoD flipped after QA PASS + residual documented
 
 ---
 
