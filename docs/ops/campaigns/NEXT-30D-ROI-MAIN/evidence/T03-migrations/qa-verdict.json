@@ -1,0 +1,17 @@
+{
+  "task": "T03",
+  "verdict": "PASS",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "checks": {
+    "migrations_idempotent_second_run_applied_0": true,
+    "schema_audit_ok": true,
+    "unit_tests_passed": 5,
+    "esfera_id_text_fix": true,
+    "version_key_letter_suffix": true
+  },
+  "evidence": [
+    "docs/ops/campaigns/NEXT-30D-ROI-MAIN/evidence/T03-migrations/"
+  ],
+  "at": "2026-07-18T19:37:19Z"
+}

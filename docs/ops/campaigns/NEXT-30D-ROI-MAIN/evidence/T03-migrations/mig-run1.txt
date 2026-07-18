@@ -1,0 +1,69 @@
+skip 001_pncp_raw_bids.sql (ledger)
+skip 002_pncp_supplier_contracts.sql (ledger)
+skip 003_enriched_entities.sql (ledger)
+skip 004_ingestion_tables.sql (ledger)
+skip 005_search_datalake_rpc.sql (ledger)
+skip 006_upsert_rpcs.sql (ledger)
+skip 007_sc_public_entities.sql (ledger)
+skip 008_purge_rpc.sql (ledger)
+skip 009_indexes_and_coverage.sql (ledger)
+skip 010_match_logging.sql (ledger)
+skip 011_unmatched_bids_view.sql (ledger)
+skip 012_coverage_snapshots.sql (ledger)
+skip 013_td-1.1_gin_index_objeto_contrato.sql (ledger)
+skip 014_td-1.1_fix_hnsw_expression.sql (ledger)
+skip 015_td-2.3_enriched_entities_ttl.sql (ledger)
+skip 016_td-2.3_objeto_compra_gin.sql (ledger)
+skip 017_td-2.3_matched_entity_id_index.sql (ledger)
+skip 018-td-5.3_esfera_id_check.sql (ledger)
+skip 019-td-5.3_soft_delete_purge_docs.sql (ledger)
+skip 020_td-2.4_sync_local_schema.sql (ledger)
+migration_error 021a_entity_coverage_rebuild.sql: cannot drop columns from view
+
+repair_mark 021a_entity_coverage_rebuild.sql (cannot drop columns from view
+)
+migration_error 021b_entity_hierarchy.sql: trigger "trg_entity_hierarchy_timestamp" for relation "entity_hierarchy" already exists
+
+repair_mark 021b_entity_hierarchy.sql (trigger "trg_entity_hierarchy_timestamp" for relation "entity_hierarchy" already exists
+)
+applied 021c_sc_dados_abertos_municipio.sql
+migration_error 021d_views_functions.sql: cannot drop columns from view
+
+repair_mark 021d_views_functions.sql (cannot drop columns from view
+)
+skip 022_match_method_coverage.sql (ledger)
+skip 023_pncp_engineering_pipeline.sql (ledger)
+skip 024_coverage_evidence_ledger.sql (ledger)
+applied 025a_contract_intel_views.sql
+applied 025b_coverage_evidence_null_uniqueness.sql
+skip 026_contract_intel_truth_v1.sql (ledger)
+skip 027_opportunity_intel.sql (ledger)
+skip 028_opportunity_indexes.sql (ledger)
+skip 029_qw01_auditable_radar.sql (ledger)
+skip 030_schema_contract_and_canonical_views.sql (ledger)
+skip 031_source_snapshot_reconciliation.sql (ledger)
+skip 032_capability_coverage.sql (ledger)
+skip 033_contract_versioning.sql (ledger)
+skip 034_supplier_identity.sql (ledger)
+skip 035_value_observations.sql (ledger)
+skip 036_reporting_views.sql (ledger)
+skip 037_target_universe_snapshot.sql (ledger)
+skip 038_target_universe_active_view.sql (ledger)
+skip 039_source_snapshot_tracking.sql (ledger)
+skip 040_coverage_model_expansion.sql (ledger)
+applied 041a_fix_fk_constraints.sql
+applied 041b_fix_snapshot_membership.sql
+skip 042_validate_fk_constraints.sql (ledger)
+skip 043_entity_aliases.sql (ledger)
+skip 044_fix_upsert_dedup.sql (ledger)
+skip 045_dlq_entries.sql (ledger)
+skip 046_pipeline_watermarks.sql (ledger)
+skip 047_pipeline_runs.sql (ledger)
+skip 048_record_hashes.sql (ledger)
+skip 049_pncp_resumable_backfill.sql (ledger)
+skip 050_fix_contracts_upsert_fk.sql (ledger)
+skip 051_contract_date_semantics.sql (ledger)
+skip 052_official_acts.sql (ledger)
+skip 053_entity_source_registry.sql (ledger)
+skip 054_local_resilience_contract.sql (ledger)
+migrations_ok mode=upgrade applied=5 skipped=51 repaired=3

@@ -80,7 +80,7 @@
     {
       "id": "T03",
       "name": "Clean bootstrap + migrations + schema audit proof on PG",
-      "status": "PLANNED",
+      "status": "DONE",
       "duration_days": 2.0,
       "predecessors": [
         "T01"
@@ -98,7 +98,8 @@
         "BLOCKED_EXTERNAL",
         "BLOCKED_HUMAN",
         "NOT_APPLICABLE"
-      ]
+      ],
+      "done_at": "2026-07-18T19:37:19Z"
     },
     {
       "id": "T04",
