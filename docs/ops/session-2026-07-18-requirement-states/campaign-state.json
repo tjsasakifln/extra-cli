@@ -1,0 +1,389 @@
+{
+  "reconstructed_at": "2026-07-18T17:52:10Z",
+  "ledger_path": "/mnt/d/extra consultoria/data/requirement_states/ledger.json",
+  "dod_path": "/mnt/d/extra consultoria/DOD.md",
+  "dod_item_count": 1354,
+  "dod_checked": 349,
+  "dod_open": 1005,
+  "ledger_records": 15,
+  "ledger_coverage_of_dod": {
+    "tracked": 15,
+    "dod_total": 1354,
+    "note": "Semantic states only for ledger-tracked items; DOD inventory is checkbox-level"
+  },
+  "gate": {
+    "by_state": {
+      "PARTIAL": 10,
+      "BLOCKED": 2,
+      "NOT_APPLICABLE": 1,
+      "SOURCE_UNAVAILABLE": 1,
+      "NOT_READY": 1
+    },
+    "gate_accepted": 1,
+    "gate_non_accepted": 14,
+    "illegitimate_not_applicable": 0,
+    "illegitimate_done": 0,
+    "rule": "only DONE and legitimate NOT_APPLICABLE count as gate-complete"
+  },
+  "validation_errors": {},
+  "sample_records": [
+    {
+      "item_id": "dod-state:unchecked-partial-demo",
+      "title": "Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation started; checkbox stays open until QA+PO evidence.",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:45:18Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod-state:blocked-external-demo",
+      "title": "Dependência externa pendente é anotada como BLOCKED.",
+      "state": "BLOCKED",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "",
+      "owner": "Tiago / ops",
+      "cause": "VPS credentials and contracting not available",
+      "next_test": "re-check after human infra decision",
+      "evidence": [
+        "squads/extra-dod-roi/state/blockers/latest.json"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:45:18Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod-state:na-scope-demo",
+      "title": "Exemplo de requisito fora de escopo com decisão registrada.",
+      "state": "NOT_APPLICABLE",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "DOD.md §2.3 escopo excluído",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "scope_decision_tiago",
+      "na_justification": "Illustrative NA for multi-tenant billing (explicit out of scope §2.3).",
+      "na_date": "2026-07-18",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:45:18Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod-state:field-source-unavailable",
+      "title": "Campo indisponível na fonte → SOURCE_UNAVAILABLE",
+      "state": "SOURCE_UNAVAILABLE",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "source consulted; field absent in payload; not coerced to 0"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "valor_homologado",
+      "updated_at": "2026-07-18T17:45:18Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod-state:field-not-ready",
+      "title": "Fonte ainda não consultada → NOT_READY",
+      "state": "NOT_READY",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "source not yet fetched this run"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "data_abertura",
+      "updated_at": "2026-07-18T17:45:18Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-unchecked-partial",
+      "title": "Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-partial-annotate",
+      "title": "Implementação parcial é anotada como `PARTIAL`, sem marcar o item como concluído.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-blocked-external",
+      "title": "Dependência externa pendente é anotada como `BLOCKED`, com responsável, causa e próximo teste.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-na-conditional",
+      "title": "Um requisito somente pode ser tratado como `NOT_APPLICABLE` quando a própria redação permitir aplicabilidade condicional ou quando houver decisão de escopo registrada por Tiago.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-na-justification",
+      "title": "`NOT_APPLICABLE` possui justificativa, data e evidência; não é usado para contornar promessa comercial.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-field-absence",
+      "title": "Campo indisponível na fonte é registrado como `SOURCE_UNAVAILABLE` ou `NOT_READY`, nunca como zero e nunca como concluído por conveniência.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-blocker-visible",
+      "title": "Um blocker externo não desaparece do gate; ele permanece visível até resolução ou alteração formal do escopo.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-gates-done-na",
+      "title": "Os gates consideram concluídos apenas itens `DONE` e itens legitimamente `NOT_APPLICABLE`.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-reconstruct",
+      "title": "O estado de cada requisito pode ser reconstruído sem depender do histórico de uma conversa com agente de IA.",
+      "state": "PARTIAL",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "Implementation present; awaiting independent QA PASS + PO close before DONE/[x].",
+      "owner": "",
+      "cause": "",
+      "next_test": "",
+      "evidence": [
+        "scripts/ops/requirement_states.py",
+        "tests/test_requirement_states.py",
+        "docs/ops/session-2026-07-18-requirement-states/"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    },
+    {
+      "item_id": "dod:estados-live-blocker-link",
+      "title": "Dependência externa VPS/canary permanece BLOCKED no gate de campanha.",
+      "state": "BLOCKED",
+      "dod_checkbox": "[ ]",
+      "section": "Estados, aplicabilidade e bloqueio",
+      "partial_note": "",
+      "owner": "Tiago / ops",
+      "cause": "PRE_VPS_FINAL_READY and VPS credentials not available",
+      "next_test": "make pre-vps-live-canary with live env",
+      "evidence": [
+        "squads/extra-dod-roi/state/blockers/latest.json"
+      ],
+      "na_basis": "",
+      "na_justification": "",
+      "na_date": "",
+      "field_name": "",
+      "updated_at": "2026-07-18T17:51:57Z",
+      "updated_by": "requirement_states"
+    }
+  ],
+  "policy": {
+    "unchecked_remains_non_accepted": true,
+    "partial_is_not_done": true,
+    "blocked_stays_visible": true,
+    "not_applicable_requires_justification_date_evidence": true,
+    "field_absence_not_zero": true,
+    "gates_only_done_and_legitimate_na": true,
+    "reconstructable_without_chat": true,
+    "reconstruct_scope": "ledger_records_plus_dod_checkbox_inventory"
+  },
+  "ok": true,
+  "claims_allowed": [
+    "Ledger-tracked requirement states reconstruct from JSON without chat",
+    "DOD checkbox inventory reconstructs from DOD.md without chat",
+    "Gate counts use only validated DONE + legitimate NOT_APPLICABLE"
+  ],
+  "claims_forbidden": [
+    "Every DOD checkbox has a semantic ledger state",
+    "Campaign operational gate is fully driven by this module unless integrated"
+  ],
+  "campaign_integration": {
+    "module": "scripts.ops.requirement_states",
+    "blockers_path": "/mnt/d/extra consultoria/squads/extra-dod-roi/state/blockers/latest.json",
+    "open_blockers_visible": 53,
+    "sample_blocker_ids": [
+      "blk-live-canary-pg",
+      "blk-vps-provision",
+      "blk-coverage-95",
+      "blk-dyn-dod:2695343b0c7e",
+      "blk-dyn-dod:133508c62dd5",
+      "blk-dyn-dod:31d90193777a",
+      "blk-dyn-dod:78b78a67fd55",
+      "blk-dyn-dod:aaf55470de26",
+      "blk-dyn-dod:cbf01daf47a9",
+      "blk-dyn-dod:14ae495ef5fc"
+    ],
+    "note": "External blockers remain visible; module does not hide them from gates"
+  }
+}
