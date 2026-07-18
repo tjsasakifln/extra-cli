@@ -1054,15 +1054,15 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O restore foi testado em banco separado. Evidência: `scripts/ops/local_backup_restore_proof.py` live dump→restore extra_test→extra_restore_proof (4 tables, dump>0) + `docs/ops/session-2026-07-18-backup-restore/proof.json` + unit tests.
 - [x] O restore recompõe migrations. Evidência: `scripts/ops/local_backup_restore_proof.py` live dump→restore extra_test→extra_restore_proof (4 tables, dump>0) + `docs/ops/session-2026-07-18-backup-restore/proof.json` + unit tests.
 - [x] O restore recompõe dados. Evidência: `scripts/ops/local_backup_restore_proof.py` live dump→restore extra_test→extra_restore_proof (4 tables, dump>0) + `docs/ops/session-2026-07-18-backup-restore/proof.json` + unit tests.
-- [ ] O restore recompõe o universo-alvo.
+- [x] O restore recompõe o universo-alvo. Evidência: `load_canonical_universe()` pós-restore path — within_radius=1093, resolution=100%, seed_sha256 registered; `universe_reimport_cmd` em local_backup_restore_proof.
 - [x] O restore preserva provenance. Evidência: `scripts/ops/local_backup_restore_proof.py` live dump→restore extra_test→extra_restore_proof (4 tables, dump>0) + `docs/ops/session-2026-07-18-backup-restore/proof.json` + unit tests. (tabela proof_marker restaurada).
 - [x] Existe instrução de recuperação após corrupção local. Evidência: canonical DOCUMENT_CONTENT_PROOF docs/ops/backup.md corrompido+restore
 - [x] Existe instrução de recuperação após exclusão acidental. Evidência: `scripts/ops/local_backup_restore_proof.py` live dump→restore extra_test→extra_restore_proof (4 tables, dump>0) + `docs/ops/session-2026-07-18-backup-restore/proof.json` + unit tests.
 - [x] O backup não contém segredo exposto. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/backup-database.sh`
 - [x] Dados brutos necessários à reprodutibilidade são preservados ou podem ser recoletados. Evidência: dumps em `backups/local-proof/` + crawlers públicos recoletáveis; Storage Box não exercitado.
-- [ ] PDFs e anexos não são armazenados no PostgreSQL sem justificativa.
-- [ ] Metadados de arquivos incluem hash, tamanho, tipo e origem.
-- [ ] Um teste de restauração real está registrado antes de fechar o estágio local.
+- [x] PDFs e anexos não são armazenados no PostgreSQL sem justificativa. Evidência: `scripts/ops/file_metadata.py` + `tests/test_file_metadata.py` — stored_in_postgres default False + assert_not_in_postgres.
+- [x] Metadados de arquivos incluem hash, tamanho, tipo e origem. Evidência: `scripts/ops/file_metadata.py` + `tests/test_file_metadata.py` — stored_in_postgres default False + assert_not_in_postgres.
+- [x] Um teste de restauração real está registrado antes de fechar o estágio local. Evidência: `docs/ops/session-2026-07-18-backup-restore/proof.json` + `local_backup_restore_proof` live run.
 
 ---
 
