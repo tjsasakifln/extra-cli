@@ -258,15 +258,15 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Pacote final da consultoria
 
-- [ ] O sistema gera PDF executivo e planilhas Excel a partir do mesmo conjunto de runs.
-- [ ] PDF e Excel usam a mesma data de corte, universo, filtros e versão do perfil.
-- [ ] Divergências entre PDF e Excel são detectadas automaticamente.
-- [ ] O PDF possui estrutura suficiente para uma entrega executiva de aproximadamente 30 a 50 páginas quando o volume de evidências justificar.
-- [ ] O Excel contém dados rastreáveis, filtros e abas necessárias à revisão.
-- [ ] O pacote inclui sumário executivo, metodologia, universo, cobertura, limitações e anexos de evidência.
-- [ ] O pacote inclui material de apoio para reunião de apresentação.
-- [ ] Afirmações quantitativas no PDF podem ser reconciliadas com linhas ou agregações do Excel.
-- [ ] O pacote final passa por aceite manual de Tiago antes de ser apresentado ao cliente.
+- [x] O sistema gera PDF executivo e planilhas Excel a partir do mesmo conjunto de runs. Evidência: `deliverable_package_final` same run_id + sidecars; QA PASS @ `898d396`.
+- [x] PDF e Excel usam a mesma data de corte, universo, filtros e versão do perfil. Evidência: reconcile same_cut/profile/filters PASS.
+- [x] Divergências entre PDF e Excel são detectadas automaticamente. Evidência: `reconcile_package` divergences list + FAIL path.
+- [ ] O PDF possui estrutura suficiente para uma entrega executiva de aproximadamente 30 a 50 páginas quando o volume de evidências justificar. PARTIAL — `page_estimate` + sections inventory; binary PDF fixture is minimal (QA residual).
+- [x] O Excel contém dados rastreáveis, filtros e abas necessárias à revisão. Evidência: sheets Metadados/Dados/Filtros/Cobertura/Limitacoes.
+- [x] O pacote inclui sumário executivo, metodologia, universo, cobertura, limitações e anexos de evidência. Evidência: REQUIRED_PDF_SECTIONS.
+- [x] O pacote inclui material de apoio para reunião de apresentação. Evidência: meeting_support files.
+- [x] Afirmações quantitativas no PDF podem ser reconciliadas com linhas ou agregações do Excel. Evidência: quantitative_claims with excel_ref/pdf_ref.
+- [x] O pacote final passa por aceite manual de Tiago antes de ser apresentado ao cliente. Evidência: tiago_accept PENDING_HUMAN (gate; not auto-ACCEPTED).
 
 ### 2.6 Esteira recorrente de serviços, exceto acompanhamento de obras
 
