@@ -521,6 +521,40 @@ def validate_row_chain(
             reasons.append("universal claim with sample-only evidence")
         if "sample" in ev.lower() and len(item.files_or_cases_checked) < 3:
             reasons.append("SAMPLE_ONLY for universal claim")
+        # Partial sample for "all scripts" style claims
+        if item.files_or_cases_checked and len(item.files_or_cases_checked) < 3:
+            if any(k in norm for k in ("scripts operacionais", "são centralizadas", "é centralizada")):
+                if "sample" in (ev + " ".join(item.artifact_paths) + item.scope_or_universe).lower():
+                    reasons.append("universal claim with partial sample universe")
+
+    # Command must substantiate the requirement (not just exit 0)
+    cmd_blob = " ".join(cmds).lower()
+    if "len(t)>100" in cmd_blob or "len(t) > 100" in cmd_blob:
+        if any(
+            k in norm
+            for k in (
+                "significa",
+                "centraliz",
+                "não é chamado",
+                "nao e chamado",
+                "pdf",
+                "anexo",
+            )
+        ):
+            reasons.append("FILE_EXISTENCE theater: len(t)>100 does not prove semantic claim")
+    if "blocked" in norm and "readme" in cmd_blob:
+        # README must actually contain BLOCKED if claim is about README vocab
+        readme = root / "README.md"
+        if readme.is_file() and "BLOCKED" not in readme.read_text(encoding="utf-8", errors="ignore"):
+            reasons.append("BLOCKED claim points at README which has no BLOCKED")
+    if ("pdf" in norm or "anexo" in norm) and "output/" in cmd_blob and "readme" in cmd_blob:
+        reasons.append("PDF/storage claim proved only via README output/ path mention")
+    # Semantic coverage claims need multi-signal proof, not mere file existence
+    if "presença" in norm or "presenca" in norm:
+        if "is_file()" in cmd_blob or (
+            "len(t)>100" in cmd_blob and "presen" not in cmd_blob
+        ):
+            reasons.append("presence≠coverage claim without presence/coverage language check")
 
     item.reject_reasons = reasons
     item.evidence_hash = evidence_hash_for(item)

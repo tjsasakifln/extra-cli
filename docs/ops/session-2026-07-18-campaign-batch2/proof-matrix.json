@@ -431,7 +431,7 @@
     }
   ],
   "honest_note": "Do not treat revoked absolute claims as proven; DOD checkboxes reverted.",
-  "audit_matrix_rewritten_at": "2026-07-18T02:41:17Z",
+  "audit_matrix_rewritten_at": "2026-07-18T02:58:39Z",
   "all": [
     {
       "section": "25. Verdade, linguagem e claims permitidos",

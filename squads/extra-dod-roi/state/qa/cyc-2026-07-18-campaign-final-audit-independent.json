@@ -8,30 +8,427 @@
   "count_from_matrix": 50,
   "count_from_ledger": 50,
   "count_from_report": 50,
+  "count_from_pr_body": 50,
   "count_from_story_breakdown": 50,
   "counts_equal": true,
+  "item_results": [
+    {
+      "dod_item_id": "dod:79d7b006aedb",
+      "text": "Sempre que possível, a evidência é registrada ao lado do item no formato: `",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:4fec282f18cd",
+      "text": "Presença de registros no banco não é tratada como prova de cobertura.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fd3bd80c1823",
+      "text": "Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:6c7ec05aad2e",
+      "text": "Normalização de IBGE.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:359e8069a6e2",
+      "text": "Semântica de valores.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:53b1c23c8206",
+      "text": "`ruff` passa no código alterado.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fae6b36d1d01",
+      "text": "`mypy` passa no caminho crítico definido.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:1427f84c9645",
+      "text": "`pip-audit` não aponta vulnerabilidade conhecida sem tratamento.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:6509d40fdcc8",
+      "text": "Testes que exigem fonte real podem ser executados sob demanda.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:fb39af4bce5e",
+      "text": "O coverage mínimo é definido para caminhos críticos, não como número cosmético global.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:0b41faf57890",
+      "text": "Código crítico sem teste possui justificativa registrada.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-cand-dyn-slice-44e18f3702d5",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d607d46bf66e",
+      "text": "Existe instrução de recuperação após corrupção local.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:db687778617c",
+      "text": "O backup não contém segredo exposto.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:118ada2e1718",
+      "text": "Existe runbook de deploy.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d833662c1782",
+      "text": "`NOT_READY` significa não disponível.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:aa6eefd8681f",
+      "text": "Código existente não é chamado de capacidade pronta.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:f8b7abd8915c",
+      "text": "Dado antigo não é chamado de dado atual.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:61bc1ee04f3b",
+      "text": "Presença de dados não é chamada de cobertura.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:2009716c98a0",
+      "text": "Valor contratado não é chamado de preço praticado.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:bb4b42442519",
+      "text": "Deságio não é calculado sem grandezas comparáveis.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "AUTOMATED_TEST"
+    },
+    {
+      "dod_item_id": "dod:c4770bb863c9",
+      "text": "Estrutura de pastas está documentada.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:70eb67c5e239",
+      "text": "Timeouts são configuráveis.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:6395ce31d45e",
+      "text": "Retries são configuráveis.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d3480d1c7102",
+      "text": "Janelas de freshness são configuráveis.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:ffa99a6d742e",
+      "text": "Thresholds de coverage são configuráveis.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:86813be14b95",
+      "text": "Mudanças de schema exigem migration.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:0c9593cc0c72",
+      "text": "Scripts operacionais possuem `--help`.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:0875517557ee",
+      "text": "Scripts operacionais possuem exit codes consistentes.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:a0a312ac26d9",
+      "text": "README descreve o estado atual real.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d952a141e49a",
+      "text": "README descreve o escopo.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:56846a8f3d31",
+      "text": "README descreve o fora de escopo.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:95c60383463e",
+      "text": "README descreve setup.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:3cf2e1d03427",
+      "text": "README descreve comandos principais.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:d264e021534b",
+      "text": "README descreve fontes.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:c5e1f0520b32",
+      "text": "README descreve métricas de coverage.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:51600fee2a5c",
+      "text": "Existe runbook local.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:9310ba9c7796",
+      "text": "Existe runbook de backup.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:a8291c1f624b",
+      "text": "Existe runbook de restore.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:10fac2c709ae",
+      "text": "Existe runbook de deploy.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch4-ops-docs",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:e8e465a54a8d",
+      "text": "Existe runbook de fonte quebrada.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:51bc27739185",
+      "text": "Existe matriz de fontes.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:eeda93135036",
+      "text": "Existe matriz de capabilities.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:c5e29b6c2906",
+      "text": "Existe registro de blockers.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:c9350b3588bd",
+      "text": "A versão canônica do Python está documentada.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:be83f1800b8c",
+      "text": "A versão canônica do PostgreSQL está documentada.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:4622f1cc037a",
+      "text": "Existe runbook de VPS.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:18e6d1d86bb1",
+      "text": "Existe runbook de freshness vencida.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "DOCUMENT_CONTENT_PROOF"
+    },
+    {
+      "dod_item_id": "dod:c9597309a08a",
+      "text": "Um item só recebe `[x]` após validação e registro de evidência.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch2-docs-truth",
+      "evidence_type": "STATIC_REPO_WIDE_PROOF"
+    },
+    {
+      "dod_item_id": "dod:8407b8273772",
+      "text": "O arquivo de backup possui data.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "EXECUTED_PROOF"
+    },
+    {
+      "dod_item_id": "dod:93300093fc1d",
+      "text": "O arquivo de backup possui integridade verificada.",
+      "verdict": "PASS",
+      "reason": "re-exec ok + non-theater",
+      "story_id": "ROI-campaign-batch3-ops-config",
+      "evidence_type": "EXECUTED_PROOF"
+    }
+  ],
+  "only_pass_counted": true,
+  "failures": [],
   "by_story": {
-    "ROI-campaign-batch2-docs-truth": 25,
+    "ROI-campaign-batch2-docs-truth": 27,
     "ROI-cand-dyn-slice-44e18f3702d5": 8,
-    "ROI-campaign-batch3-ops-config": 13,
+    "ROI-campaign-batch3-ops-config": 11,
     "ROI-campaign-batch4-ops-docs": 4
   },
-  "command_reexec_failures": [],
-  "only_pass_counted": true,
-  "remediation": [
-    "dod:d607d46bf66e anchors use corrompido not corrup",
-    "dod:1427f84c9645 pip-audit scoped to requirements.txt"
-  ],
   "residual_risks": [
-    "Some STATIC proofs are existence+content-pattern, not runtime E2E",
-    "Backup artifact lives under /tmp (meta proof versioned only)",
-    "Full suite skipped on pull_request (workflow_dispatch only)",
-    "dry-run universal claim left open (exceptions in ops universe)",
-    "Local PG backup item remains open; date/integrity proven via test DB dump"
+    "DOCUMENT_CONTENT proofs are content anchors, not live ops E2E",
+    "Backup artifact remains outside git under /tmp",
+    "Full suite still skipped on pull_request"
   ],
   "full_suite_status": "skipped_on_pr_workflow_dispatch_only",
-  "final_head": "a32eea01698992e4cb18c7050bfc828cd7dd134f",
-  "audited_at": "2026-07-18T02:43:29Z",
-  "notes": "Post-remediation re-audit after independent FAIL on 2 items",
-  "reviewed_commit": "a32eea01698992e4cb18c7050bfc828cd7dd134f"
+  "final_head": "818edb3c35fbd16a9c3ca187188d561f61c08e0c",
+  "audited_at": "2026-07-18T02:59:08Z",
+  "notes": "Skeptic remediation independent QA with per-item PASS|FAIL",
+  "reviewed_commit": "818edb3c35fbd16a9c3ca187188d561f61c08e0c"
 }

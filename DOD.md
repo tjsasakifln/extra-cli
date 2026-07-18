@@ -46,7 +46,7 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 - [x] Sempre que possível, a evidência é registrada ao lado do item no formato: ` Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `DOD.md`
 - [ ] Código existente sem execução comprovada não é considerado concluído.
 - [ ] Teste unitário isolado não substitui execução ponta a ponta.
-- [x] Presença de registros no banco não é tratada como prova de cobertura. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/coverage_truth.py`
+- [x] Presença de registros no banco não é tratada como prova de cobertura. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`
 - [ ] Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto.
 - [ ] Itens explicitamente marcados como opcionais não bloqueiam o fechamento do projeto.
@@ -60,7 +60,7 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 ### Estados, aplicabilidade e bloqueio
 
 - [ ] Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado.
-- [ ] Um item só recebe `[x]` após validação e registro de evidência.
+- [x] Um item só recebe `[x]` após validação e registro de evidência. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`
 - [ ] Implementação parcial é anotada como `PARTIAL`, sem marcar o item como concluído.
 - [ ] Dependência externa pendente é anotada como `BLOCKED`, com responsável, causa e próximo teste.
 - [ ] Um requisito somente pode ser tratado como `NOT_APPLICABLE` quando a própria redação permitir aplicabilidade condicional ou quando houver decisão de escopo registrada por Tiago.
@@ -530,8 +530,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 5.1 Pré-requisitos
 
-- [ ] A versão canônica do Python está documentada.
-- [ ] A versão canônica do PostgreSQL está documentada.
+- [x] A versão canônica do Python está documentada. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] A versão canônica do PostgreSQL está documentada. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [ ] As dependências Python estão declaradas.
 - [ ] O projeto pode ser instalado em ambiente limpo.
 - [ ] O `.env.example` contém todas as variáveis obrigatórias.
@@ -1047,8 +1047,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 - [ ] Existe backup local do PostgreSQL.
 - [x] O backup usa formato restaurável.
-- [x] O arquivo de backup possui data. Evidência: canonical `EXECUTED_PROOF` + `docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json`
-- [x] O arquivo de backup possui integridade verificada. Evidência: canonical `EXECUTED_PROOF` + `docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json`
+- [x] O arquivo de backup possui data. Evidência: skeptic-remediation EXECUTED_PROOF + docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json
+- [x] O arquivo de backup possui integridade verificada. Evidência: skeptic-remediation EXECUTED_PROOF + docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json
 - [x] Existe retenção mínima definida.
 - [x] Existe script de restore.
 - [ ] O restore foi testado em banco separado.
@@ -1060,7 +1060,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Existe instrução de recuperação após exclusão acidental.
 - [x] O backup não contém segredo exposto. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/backup-database.sh`
 - [ ] Dados brutos necessários à reprodutibilidade são preservados ou podem ser recoletados.
-- [x] PDFs e anexos não são armazenados no PostgreSQL sem justificativa. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `README.md`
+- [ ] PDFs e anexos não são armazenados no PostgreSQL sem justificativa.
 - [ ] Metadados de arquivos incluem hash, tamanho, tipo e origem.
 - [ ] Um teste de restauração real está registrado antes de fechar o estágio local.
 
@@ -1397,13 +1397,13 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Todo indicador possui data de corte.
 - [ ] Todo indicador possui fonte.
 - [ ] Todo indicador possui status de prontidão.
-- [x] `READY` significa executado e validado. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [ ] `READY` significa executado e validado.
 - [ ] 
-- [x] `NOT_READY` significa não disponível. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
-- [x] `BLOCKED` significa impedido por dependência externa ou técnica. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
-- [x] Código existente não é chamado de capacidade pronta. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
-- [x] Dado antigo não é chamado de dado atual. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/freshness_gate.py`
-- [x] Presença de dados não é chamada de cobertura. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/coverage_truth.py`
+- [x] `NOT_READY` significa não disponível. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [ ] `BLOCKED` significa impedido por dependência externa ou técnica.
+- [x] Código existente não é chamado de capacidade pronta. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
+- [x] Dado antigo não é chamado de dado atual. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `scripts/freshness_gate.py`
+- [x] Presença de dados não é chamada de cobertura. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [ ] Ausência de dados não é chamada de ausência de licitação sem consulta válida.
 - [x] Valor contratado não é chamado de preço praticado. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`
 - [ ] Vencedor conhecido não é chamado de conjunto completo de concorrentes.
@@ -1454,8 +1454,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Não existem `except Exception: pass`.
 - [ ] Falhas externas possuem contexto.
 - [ ] Logs não substituem tratamento de erro.
-- [x] Configuração é centralizada. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`
-- [x] Constantes de domínio são centralizadas. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/lib/constants.py`
+- [ ] Configuração é centralizada.
+- [ ] Constantes de domínio são centralizadas.
 - [ ] URLs de fontes são centralizadas.
 - [x] Timeouts são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`
 - [x] Retries são configuráveis. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `scripts/crawl/config.py`
@@ -1569,7 +1569,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] ADRs vigentes estão identificadas.
 - [ ] ADRs revogadas estão identificadas.
 - [x] Existe runbook local. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/runbook.md`
-- [ ] Existe runbook de VPS.
+- [x] Existe runbook de VPS. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `docs/ops/vps-provisioning.md`
 - [x] Existe runbook de backup. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/backup.md`
 - [x] Existe runbook de restore. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/backup.md`
 - [x] Existe runbook de deploy. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/cloud-deployment-plan.md`
@@ -1577,7 +1577,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Existe runbook de fonte quebrada. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/troubleshooting.md`
 - [ ] Existe runbook de schema drift.
 - [ ] Existe runbook de cobertura abaixo de 95%.
-- [ ] Existe runbook de freshness vencida.
+- [x] Existe runbook de freshness vencida. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `docs/ops/troubleshooting.md`
 - [ ] Existe glossário.
 - [x] Existe matriz de fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/research/source-runtime-matrix-2026-07-16.md`
 - [x] Existe matriz de capabilities. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/baseline/l1-source-capability-registry.md`

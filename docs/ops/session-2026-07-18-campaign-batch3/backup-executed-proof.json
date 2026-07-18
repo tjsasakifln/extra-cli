@@ -1,21 +1,19 @@
 {
-  "command": "pg_dump --host=127.0.0.1 --port=5433 --username=test --dbname=extra_test --format=custom && gzip -c > extra_test-2026-07-17.dump.gz",
+  "command": "pg_dump --host=127.0.0.1 --port=5433 --username=test --dbname=extra_test --format=custom && gzip",
   "exit_code": 0,
   "file": "/tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz",
-  "custom_dump": "/tmp/campaign-backup-proof/extra_test-2026-07-17.dump",
   "filename": "extra_test-2026-07-17.dump.gz",
   "timestamp_in_filename": "2026-07-17",
-  "timestamp_iso": "2026-07-18T02:26:21Z",
+  "timestamp_iso": "2026-07-18T02:56:46Z",
   "size_bytes_gz": 1557,
-  "size_bytes_custom": 5688,
-  "sha256_gz": "a11785da25076b8f3c6371cf427c67b259ece07b71e2b8621b1b480607a320d6",
+  "sha256_gz": "8ec589df7972aadfcda7a5c8c43d7e11dc93966f572531b5329c7e3de0ce0a56",
   "integrity_command": "gzip -t /tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz",
   "integrity_result": "OK",
-  "pg_restore_list_exit": 0,
-  "pg_restore_list_entries": 20,
-  "environment": "docker extra-test-db 127.0.0.1:5433/extra_test (safe non-prod test database)",
+  "environment": "docker extra-test-db 127.0.0.1:5433/extra_test",
   "versioned_in_git": false,
   "secrets_in_artifact": false,
-  "secrets_in_repo_proof": false,
-  "note": "Dump artifact remains outside git under /tmp/campaign-backup-proof; only this meta proof is versioned."
+  "qa_reexec_commands": [
+    "python3 -c \"import json;from pathlib import Path; m=json.loads(Path('docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json').read_text()); assert m['integrity_result']=='OK'; assert m['timestamp_in_filename']; assert m['sha256_gz']; assert m['size_bytes_gz']>0\"",
+    "gzip -t /tmp/campaign-backup-proof/extra_test-2026-07-17.dump.gz"
+  ]
 }
