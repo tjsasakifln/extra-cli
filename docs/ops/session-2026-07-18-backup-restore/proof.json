@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-18T13:42:44.325704+00:00",
+  "source_db": "extra_test",
+  "restore_db": "extra_restore_proof",
+  "dump_path": "backups/local-proof/proof-extra_test-20260718T134243Z.dump",
+  "dump_bytes": 7727,
+  "source_public_tables": 4,
+  "restore_public_tables": 4,
+  "pg_restore_exit": 1,
+  "pg_restore_stderr_tail": "pg_restore: error: could not execute query: ERROR:  unrecognized configuration parameter \"transaction_timeout\"\nCommand was: SET transaction_timeout = 0;\npg_restore: warning: errors ignored on restore: 1\n",
+  "claims": {
+    "backup_exists": true,
+    "restore_separate_db": true,
+    "tables_restored": true
+  },
+  "limitations": [
+    "Storage Box / external backup path not exercised in this local proof.",
+    "Universe seed re-import not automatic in this proof \u2014 dump only."
+  ],
+  "recovery_instruction": "pg_restore -d <target_db> backups/local-proof/<dump>; or bash scripts/restore-database.sh when available."
+}

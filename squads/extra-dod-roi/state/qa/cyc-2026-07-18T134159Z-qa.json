@@ -1,0 +1,12 @@
+{
+  "cycle_id": "cyc-2026-07-18T134159Z",
+  "story_id": "ROI-cand-dyn-slice-e09964d21645",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "PASS",
+  "reviewed_at": "2026-07-18T13:43:33Z",
+  "dod_flip_authorized": true,
+  "left_open": [
+    "universo-alvo reimport"
+  ]
+}
