@@ -1,38 +1,38 @@
 {
   "version": "1.0.0",
-  "cycle_id": "cyc-2026-07-18T145609Z",
+  "cycle_id": "cyc-2026-07-18T151824Z",
   "mode": "strict",
   "foolproof": true,
-  "status": "completed",
-  "phase": "DONE",
-  "created_at": "2026-07-18T14:56:09Z",
-  "updated_at": "2026-07-18T15:17:55Z",
-  "selected_id": "cand-dyn-slice:b904c9d40e3a",
+  "status": "running",
+  "phase": "PUBLISH",
+  "created_at": "2026-07-18T15:18:24Z",
+  "updated_at": "2026-07-18T15:26:42Z",
+  "selected_id": "cand-dyn-slice:4f08e0461629",
   "selected_roi": 1.968,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
-  "story_id": "ROI-cand-dyn-slice-b904c9d40e3a",
-  "story_file": "docs/stories/ROI-cand-dyn-slice-b904c9d40e3a.md",
-  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-b904c9d40e3a.json",
+  "story_id": "ROI-cand-dyn-slice-4f08e0461629",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-4f08e0461629.md",
+  "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-4f08e0461629.json",
   "implementer_agent": "delivery-engineer",
   "qa_agent": "adversarial-qa-auditor",
   "qa_verdict": "PASS",
   "aiox_sequence_log": [
     {
-      "at": "2026-07-18T14:56:09Z",
+      "at": "2026-07-18T15:18:24Z",
       "event": "ADVANCE",
       "phase": "RANKED",
       "detail": {
         "to": "RANKED",
         "actor": "force-next",
         "evidence": {
-          "selected_id": "cand-dyn-slice:b904c9d40e3a",
+          "selected_id": "cand-dyn-slice:4f08e0461629",
           "selected_roi": 1.968,
           "outcome": null
         }
       }
     },
     {
-      "at": "2026-07-18T14:56:09Z",
+      "at": "2026-07-18T15:18:24Z",
       "event": "ADVANCE",
       "phase": "CARD",
       "detail": {
@@ -44,23 +44,23 @@
       }
     },
     {
-      "at": "2026-07-18T14:56:09Z",
+      "at": "2026-07-18T15:18:25Z",
       "event": "ADVANCE",
       "phase": "STORY_DRAFT",
       "detail": {
         "to": "STORY_DRAFT",
         "actor": "force-next/@sm-materializer",
         "evidence": {
-          "story_id": "ROI-cand-dyn-slice-b904c9d40e3a",
-          "story_file": "docs/stories/ROI-cand-dyn-slice-b904c9d40e3a.md",
-          "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-b904c9d40e3a.json",
+          "story_id": "ROI-cand-dyn-slice-4f08e0461629",
+          "story_file": "docs/stories/ROI-cand-dyn-slice-4f08e0461629.md",
+          "story_state_file": ".aiox/state/stories/ROI-cand-dyn-slice-4f08e0461629.json",
           "implementer_agent": "delivery-engineer",
           "qa_agent": "adversarial-qa-auditor"
         }
       }
     },
     {
-      "at": "2026-07-18T14:57:28Z",
+      "at": "2026-07-18T15:20:41Z",
       "event": "ADVANCE",
       "phase": "STORY_READY",
       "detail": {
@@ -72,53 +72,49 @@
       }
     },
     {
-      "at": "2026-07-18T14:57:29Z",
+      "at": "2026-07-18T15:20:41Z",
       "event": "ADVANCE",
       "phase": "IMPLEMENTING",
       "detail": {
         "to": "IMPLEMENTING",
         "actor": "delivery-engineer",
         "evidence": {
-          "branch": "extra-roi/cand-golden-path-live"
+          "branch": "extra-roi/cand-golden-reports-pdf"
         }
       }
     },
     {
-      "at": "2026-07-18T15:10:53Z",
+      "at": "2026-07-18T15:22:28Z",
       "event": "ADVANCE",
       "phase": "IN_REVIEW",
       "detail": {
         "to": "IN_REVIEW",
         "actor": "delivery-engineer",
         "evidence": {
-          "live": "pncp-6-inserted",
-          "gates": "freshness+coverage+snapshot+excel+pdf"
+          "pdf_bytes": 2338,
+          "editais": 8
         }
       }
     },
     {
-      "at": "2026-07-18T15:16:09Z",
+      "at": "2026-07-18T15:25:30Z",
       "event": "ADVANCE",
       "phase": "QA",
       "detail": {
         "to": "QA",
         "actor": "adversarial-qa-auditor",
         "evidence": {
-          "qa_verdict": "PASS",
           "verdict": "PASS",
-          "reviewed_commit": "377b66e46fc1d8a26cd079316ead1f483a1b506e",
-          "qa_artifact": "squads/extra-dod-roi/state/qa/cyc-2026-07-18T145609Z-qa.json",
-          "authorized_flip_count": 6,
-          "in_slice_authorized": 5,
-          "in_slice_open": 3,
-          "adjacent_excel": true,
-          "pdf_denied_stub": true,
-          "tests": "7 passed golden_path live_steps+canonical"
+          "artifact": "squads/extra-dod-roi/state/qa/cyc-2026-07-18T151824Z-qa.json",
+          "reviewed_commit": "95a266e",
+          "flip_yes": 5,
+          "flip_no": 1,
+          "pytest": "2 passed"
         }
       }
     },
     {
-      "at": "2026-07-18T15:17:33Z",
+      "at": "2026-07-18T15:26:41Z",
       "event": "ADVANCE",
       "phase": "PO_CLOSE",
       "detail": {
@@ -130,7 +126,7 @@
       }
     },
     {
-      "at": "2026-07-18T15:17:34Z",
+      "at": "2026-07-18T15:26:42Z",
       "event": "ADVANCE",
       "phase": "PUBLISH",
       "detail": {
@@ -138,33 +134,11 @@
         "actor": "evidence-release-steward",
         "evidence": {}
       }
-    },
-    {
-      "at": "2026-07-18T15:17:55Z",
-      "event": "ADVANCE",
-      "phase": "RERANK",
-      "detail": {
-        "to": "RERANK",
-        "actor": "roi-orchestrator",
-        "evidence": {}
-      }
-    },
-    {
-      "at": "2026-07-18T15:17:55Z",
-      "event": "ADVANCE",
-      "phase": "DONE",
-      "detail": {
-        "to": "DONE",
-        "actor": "force-next",
-        "evidence": {
-          "story": "ROI-cand-dyn-slice-b904c9d40e3a"
-        }
-      }
     }
   ],
   "abort": null,
   "outcome": null,
-  "next_phase_required": null,
+  "next_phase_required": "RERANK",
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",
     "binding": "data/aiox-binding.yaml",

@@ -1,0 +1,7 @@
+fornecedor_id,nome_fornecedor,n_editais,valor_estimado_total,note
+83021808000182,MUNICIPIO DE CHAPECO,2,257958.60,fallback_orgao_not_supplier
+10635424000186,INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE,1,62540.88,fallback_orgao_not_supplier
+95996187000131,MUNICIPIO DE VARGEM BONITA,1,3619814.28,fallback_orgao_not_supplier
+82939455000131,MUNICIPIO DE IRANI,1,11700.00,fallback_orgao_not_supplier
+01599409000139,MUNICIPIO DE CAPAO ALTO,1,149738.90,fallback_orgao_not_supplier
+123,Pref,1,1000.00,fallback_orgao_not_supplier
