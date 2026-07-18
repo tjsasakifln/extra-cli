@@ -1,0 +1,35 @@
+{
+  "story_id": "ROI-cand-dyn-slice-8d8c11884fa6",
+  "candidate_id": "cand-dyn-slice:8d8c11884fa6",
+  "cycle_id": "cyc-2026-07-18T181419Z",
+  "dod_section": "Entregável A — ranking dos órgãos públicos",
+  "dod_lines": "193-202",
+  "verdict": "PASS",
+  "reviewer": "Quinn (adversarial-qa-auditor, independent)",
+  "reviewed_at": "2026-07-18T19:45:00Z",
+  "reviewed_commit": "4f3ea65f66e9c30d71439a4ff4ee3c9de197ff68",
+  "branch": "extra-roi/cand-dyn-slice-8d8c11884fa6",
+  "dod_md_flipped_by_qa": false,
+  "dod_flip_authorized": false,
+  "independence": true,
+  "canonical_state_path": "squads/extra-dod-roi/state/qa/ROI-cand-dyn-slice-8d8c11884fa6.json",
+  "mission_checks": {
+    "git_head": "PASS",
+    "pytest": "PASS",
+    "audit_fixture": "PASS",
+    "live_empty_insufficient": "PASS",
+    "dod_unchecked": "PASS",
+    "zero_ticket_bias": "PASS"
+  },
+  "residual_ids": [
+    "LIVE_SCHEMA_GAP",
+    "PROFILE_FILTER_ABSENT",
+    "SEMANTIC_ENUM_NOT_AUDITED",
+    "UNUSED_PERIOD_DAYS"
+  ],
+  "next": [
+    "@po close with residual; no full DoD [x]",
+    "@dev follow-up live schema + profile filter",
+    "@devops after PO close"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "status": "INSUFFICIENT",
+  "deliverable": "A",
+  "title": "Ranking dos órgãos públicos",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "period": {
+    "inicio": "2026-07-18",
+    "fim": "2026-07-18",
+    "as_of": "2026-07-18"
+  },
+  "sources": [
+    "unknown",
+    "scripts/reports/org_ranking.py"
+  ],
+  "coverage_notes": [
+    "Cobertura operacional do universo NÃO é inferida deste ranking.",
+    "Empty ranking with status=INSUFFICIENT means no contracts/bids in DSN for filters.",
+    "Live DSN produced 0 organs — capability proven; market ranking not claimed."
+  ],
+  "rows": [],
+  "zero_vs_not_consulted": {
+    "consulted_with_data": 0,
+    "consulted_zero": 0,
+    "not_consulted": 0,
+    "rule": "resultado_zero only when consultado=true and qtd=0; not_consulted is separate"
+  },
+  "ranking_bias_warning": "Ranking pode favorecer entes com melhor qualidade de dados; data_quality_limitation é obrigatório por linha quando score < 1.0.",
+  "claims_allowed": [
+    "Ranking rows=0 status=INSUFFICIENT",
+    "ticket_medio uses explicit formula on same value semantic",
+    "zero vs not_consulted distinguished",
+    "data_quality_limitation when score incomplete"
+  ],
+  "claims_forbidden": [
+    "ESTIMADO presented as CONTRATADO",
+    "Sample N=0 as complete SC market",
+    "Not consulted equals no licitation"
+  ],
+  "generated_at": "2026-07-18T18:20:38Z"
+}
