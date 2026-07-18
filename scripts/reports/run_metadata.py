@@ -109,6 +109,10 @@ CLAIMS_FORBIDDEN = [
     "Score rotulado como probabilidade sem calibração",
     "Relatório sem limitações relevantes",
     "Afirmar que o projeto acompanha obras fisicamente",
+    # DoD §2.4 data reliability
+    "Percentual sem denominador N",
+    "Score/percentual sem limitações explícitas",
+    "Dado UNTRUSTED apresentado como pronto para decisão",
 ]
 
 
@@ -177,7 +181,26 @@ def build_run_metadata(
 
     label = sample_size_label(n_opps, n_vinc, n_bids)
 
-    return {
+    # DoD §2.4: surface reliability so operators see untrusted / thin samples.
+    try:
+        from scripts.lib.data_reliability import (
+            assess_data_reliability,
+            attach_reliability_to_run_metadata,
+        )
+
+        reliability = assess_data_reliability(
+            sample_n=n_opps,
+            sample_min=20,
+            query_valid=True,
+            explicit_limitations=[
+                f"sample_size_label={label}",
+                "Percentuais de cobertura comercial só com N e limitações.",
+            ],
+        )
+    except Exception:  # noqa: BLE001 — metadata must still emit
+        reliability = None
+
+    meta = {
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id or new_run_id(),
         "generated_at": now.isoformat().replace("+00:00", "Z"),
@@ -214,6 +237,9 @@ def build_run_metadata(
             "forbidden": list(CLAIMS_FORBIDDEN),
         },
     }
+    if reliability is not None:
+        meta = attach_reliability_to_run_metadata(meta, reliability)
+    return meta
 
 
 def _dsn_host_hint() -> str:

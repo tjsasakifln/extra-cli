@@ -1,0 +1,30 @@
+{
+  "assessment": {
+    "trust_level": "UNKNOWN",
+    "reasons": [
+      "sinais insuficientes para classificar"
+    ],
+    "limitations": [
+      "Sem sinais de freshness/provenance/consulta — trate como UNKNOWN."
+    ],
+    "field_flags": {},
+    "metrics": {
+      "age_hours": null,
+      "freshness_sla_hours": 24.0,
+      "sample_n": null,
+      "source_health": null,
+      "provenance_ok": null,
+      "query_valid": null
+    },
+    "is_decision_safe": false
+  },
+  "percentage_check": {
+    "ok": false,
+    "rule_id": "no_bare_percentage",
+    "message": "coverage=95.0% sem denominador N — percentual genérico proibido.",
+    "metric_name": "coverage",
+    "percentage": 95.0,
+    "denominator_n": null,
+    "limitations_count": 1
+  }
+}
