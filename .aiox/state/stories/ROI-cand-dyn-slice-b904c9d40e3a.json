@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-b904c9d40e3a",
+  "title": "[12.1 Golden path local] O golden path executa fontes mínimas. · O golden path persiste dados. · O golden path executa freshness gate. (+5 more)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "InReview",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-b904c9d40e3a.md",
+  "created_at": "2026-07-18T14:56:09Z",
+  "updated_at": "2026-07-18T15:10:53Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T145609Z",
+    "candidate_id": "cand-dyn-slice:b904c9d40e3a",
+    "roi": 1.968,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}

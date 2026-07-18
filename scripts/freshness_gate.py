@@ -228,11 +228,22 @@ def evaluate_source(
     }
 
 
+def _selected_critical_sources() -> tuple[CriticalSourceSpec, ...]:
+    """Optional FRESHNESS_SOURCES=pncp,contracts filter (comma-separated)."""
+    raw = (os.getenv("FRESHNESS_SOURCES") or "").strip()
+    if not raw:
+        return CRITICAL_SOURCES
+    names = {s.strip() for s in raw.split(",") if s.strip()}
+    selected = tuple(s for s in CRITICAL_SOURCES if s.source_name in names)
+    return selected or CRITICAL_SOURCES
+
+
 def generate(dsn: str | None = None) -> dict[str, Any]:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     conn = _get_conn(dsn)
     try:
-        rows = [evaluate_source(conn, spec) for spec in CRITICAL_SOURCES]
+        specs = _selected_critical_sources()
+        rows = [evaluate_source(conn, spec) for spec in specs]
     finally:
         conn.close()
 

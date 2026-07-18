@@ -89,6 +89,11 @@ ALLOWED_TRANSITIONS: dict[CheckpointStatus, frozenset[CheckpointStatus]] = {
     CheckpointStatus.DB_COMMITTED: frozenset(
         {
             CheckpointStatus.EVIDENCE_COMMITTED,
+            # Allow direct success when evidence+watermark are folded into one
+            # handoff (observed in OperationalPipeline terminal promotion).
+            CheckpointStatus.WATERMARK_COMMITTED,
+            CheckpointStatus.SUCCESS,
+            CheckpointStatus.EMPTY_CONFIRMED,
             CheckpointStatus.ERROR,
             CheckpointStatus.PARTIAL,
         }
