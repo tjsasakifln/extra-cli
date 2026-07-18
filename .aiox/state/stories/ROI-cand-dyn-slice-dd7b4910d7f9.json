@@ -1,0 +1,48 @@
+{
+  "story_id": "ROI-cand-dyn-slice-dd7b4910d7f9",
+  "title": "[Configuração do diagnóstico] Existe configuração canônica do perfil da Extra Construtora  · A configuração registra região e universo monitorado. · A configuração registra tipos de obra e serviços de",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "Draft",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-dd7b4910d7f9.md",
+  "created_at": "2026-07-18T18:01:33Z",
+  "updated_at": "2026-07-18T18:01:33Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": false,
+  "qa_verdict": "PENDING",
+  "po_closed": false,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": null,
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PENDING",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T180133Z",
+    "candidate_id": "cand-dyn-slice:dd7b4910d7f9",
+    "roi": 1.2261,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}
