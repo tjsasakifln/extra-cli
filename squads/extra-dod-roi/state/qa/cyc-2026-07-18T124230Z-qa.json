@@ -1,0 +1,105 @@
+{
+  "cycle_id": "cyc-2026-07-18T124230Z",
+  "story_id": "ROI-cand-dyn-slice-1e78666e2a21",
+  "reviewer": "adversarial-qa-auditor",
+  "implementer": "delivery-engineer",
+  "verdict": "CONCERNS",
+  "reviewed_at": "2026-07-18T12:47:50Z",
+  "branch": "extra-roi/cand-no-or-true-gates",
+  "reviewed_commit_note": "uncommitted delivery on feature branch (scanner + tests + evidence pack); HEAD base fbc5868",
+  "self_qa": false,
+  "independence": true,
+  "evidence_pack": "docs/ops/session-2026-07-18-no-or-true-gates/",
+  "commands_rerun": [
+    {
+      "cmd": "python3 -m scripts.ops.scan_mandatory_gates_failclosed --json",
+      "exit": 0,
+      "notes": "ok=true, scanned=7, findings=0, missing=0"
+    },
+    {
+      "cmd": "python3 -m pytest tests/test_mandatory_gates_no_or_true.py -q -o addopts=",
+      "exit": 0,
+      "notes": "6 passed"
+    },
+    {
+      "cmd": "manual line-scan of MANDATORY_GATE_PATHS for non-comment || true / continue-on-error:true",
+      "exit": 0,
+      "notes": "only hits are ban-documenting comments in .github/workflows/ci.yml lines 10/200/350"
+    },
+    {
+      "cmd": "repo-wide non-comment || true enumeration (scripts/, .github/, squads/, Makefile)",
+      "exit": 0,
+      "notes": "22 hits; all outside mandatory gate surface (backup/bootstrap/verify-schema/Makefile cleanup/docs/strings) or scanner docstring prose"
+    }
+  ],
+  "falsification_attempts": [
+    "Re-ran shipped scanner CLI — clean (exit 0, 0 findings).",
+    "Re-ran pytest suite — 6/6 pass; tests import scan_repo/scan_text/main (do NOT re-implement scanner).",
+    "Manual inspection of all 7 mandatory paths for || true and continue-on-error — only comment ban-docs in ci.yml.",
+    "Checked path-list narrowness: out-of-list || true are backup notify, bootstrap cleanup, schema-diff display, Makefile pycache wipe — not quality gates wired into CI.",
+    "Checked CI wiring of scanner itself — NOT in ci.yml / ci_gate.sh / ci-check.sh (point-in-time proof only).",
+    "Edge-case evasion: line `pytest -q || true  # no || true` yields 0 findings via _DOC_BAN_MARKERS co-occurrence (false negative).",
+    "Edge-case detection: ||true, ||  true, continue-on-error:true, Continue-On-Error: True all detected when not ban-marked.",
+    "DoD.md item still [ ] open — not flipped without independent QA (AC3 honored).",
+    "State drift: story markdown Status=InReview but .aiox state status=Ready and qa_verdict=PENDING (process hygiene, not claim falsification)."
+  ],
+  "issues": [
+    {
+      "severity": "medium",
+      "description": "Scanner false-negative: _is_comment_or_doc returns True for any line containing a ban-doc marker, even when the line also executes `|| true` (e.g. `cmd || true  # no || true`). Confirmed independently: scan_text returns [].",
+      "recommendation": "Classify comment-only lines strictly (startswith # / // / pure docstring) BEFORE applying ban-marker allowlist; never let ban prose on a code line suppress a real suppressor match."
+    },
+    {
+      "severity": "low",
+      "description": "Mandatory path list is static and curated. Future gate scripts added to CI but not to MANDATORY_GATE_PATHS will not be scanned (false green by omission).",
+      "recommendation": "Either derive mandatory paths from jobs/steps in .github/workflows/ci.yml + scripts it invokes, or add a unit test that fails if ci.yml references a new scripts/* path outside the list."
+    },
+    {
+      "severity": "low",
+      "description": "Scanner is not wired into CI / ci_gate / ci-check — DoD proof is point-in-time evidence, not continuous enforcement.",
+      "recommendation": "Add `python3 -m scripts.ops.scan_mandatory_gates_failclosed` as a fail-closed CI step after this DoD item is flipped (follow-up story OK)."
+    },
+    {
+      "severity": "low",
+      "description": "AIOX state file still status=Ready / qa_verdict=PENDING / gates PENDING while story markdown says InReview — operational state lag.",
+      "recommendation": "PO/orchestrator reconcile state after this QA artifact is accepted."
+    }
+  ],
+  "allowed_claims": [
+    "On the explicit mandatory gate surface (7 paths), there are zero non-comment `|| true` and zero non-comment `continue-on-error: true` (independent re-run 2026-07-18T12:47:50Z).",
+    "Shipped scanner + 6 tests provide executable, non-reimplemented proof for DoD §13.4 item 'Nenhum gate obrigatório usa `|| true`.'.",
+    "DoD.md checkbox for this item remains open pending this independent verdict and PO close (correct process)."
+  ],
+  "forbidden_claims": [
+    "Full repository is free of `|| true` (false — ops/bootstrap/backup/Makefile still use it intentionally).",
+    "Scanner is evasion-proof / continuous CI enforcement (not wired; ban-marker false-negative exists).",
+    "LOCAL_RESILIENCE_READY / PRE_VPS_FINAL_READY / 95% coverage / VPS operational.",
+    "Story Done without PO close."
+  ],
+  "dod_flip_authorized": true,
+  "dod_items": [
+    {
+      "text": "Nenhum gate obrigatório usa `|| true`.",
+      "authorized": true,
+      "rationale": "Factual claim independently verified by (1) re-run scanner, (2) re-run tests, (3) manual line inspection of all mandatory paths. Residual scanner defects do not invent suppressors in current gates."
+    }
+  ],
+  "ac_trace": [
+    {
+      "ac": "Each of 1 dod_item_ids proven with evidence or left open",
+      "result": "PASS",
+      "evidence": "Evidence pack + independent re-runs prove item; checkbox still open until flip authorized by QA+PO."
+    },
+    {
+      "ac": "No NOT_APPLICABLE used to hit campaign meta",
+      "result": "PASS",
+      "evidence": "No N/A; item treated as prove-or-leave-open."
+    },
+    {
+      "ac": "Independent QA PASS before any [x] flip",
+      "result": "PASS",
+      "evidence": "DOD.md still [ ]; this review is independent of delivery-engineer."
+    }
+  ],
+  "decision_summary": "CONCERNS — claim true and DoD flip authorized; fix scanner ban-marker evasion and consider CI wiring as residual debt before treating scanner as sole continuous control."
+}

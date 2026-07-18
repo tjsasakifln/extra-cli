@@ -1,0 +1,37 @@
+{
+  "updated_at": "2026-07-18T12:42:30.202348+00:00",
+  "items": [
+    {
+      "id": "BLK-DOE-SC",
+      "status": "BLOCKED_EXTERNAL",
+      "owner": "Tiago",
+      "reason": "DOE-SC credentials",
+      "why_not_automatable": "account/credential",
+      "next_test_after_unblock": "python3 -m scripts.crawl.monitor --source doe_sc --mode incremental"
+    },
+    {
+      "id": "BLK-VPS-PAY",
+      "status": "BLOCKED_EXTERNAL",
+      "owner": "Tiago",
+      "reason": "VPS procurement/payment",
+      "why_not_automatable": "payment",
+      "next_test_after_unblock": "docs/ops/PRE-VPS-FINAL-TRUTH.md canary"
+    },
+    {
+      "id": "BLK-HUMAN-ACCEPT",
+      "status": "BLOCKED_HUMAN_DECISION",
+      "owner": "Tiago",
+      "reason": "Manual acceptance requires Tiago",
+      "why_not_automatable": "human reserved",
+      "next_test_after_unblock": "guided acceptance pack"
+    },
+    {
+      "id": "BLK-PG-DSN",
+      "status": "INVESTIGATING",
+      "owner": "orchestrator",
+      "reason": "DATABASE_URL points to 5433 timeout; need working local PG",
+      "why_not_automatable": "local env config",
+      "next_test_after_unblock": "psycopg2 connect + schema audit"
+    }
+  ]
+}

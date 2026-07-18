@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "scanned": [
+    ".github/workflows/ci.yml",
+    "scripts/ci_gate.sh",
+    "scripts/ci-check.sh",
+    "scripts/coverage_gate.py",
+    "scripts/freshness_gate.py",
+    "scripts/golden_path.py",
+    "squads/extra-dod-roi/scripts/enforce_aiox_path.py"
+  ],
+  "missing": [],
+  "findings": [],
+  "counts": {
+    "scanned": 7,
+    "missing": 0,
+    "findings": 0,
+    "or_true": 0,
+    "continue_on_error_true": 0
+  },
+  "mandatory_paths": [
+    ".github/workflows/ci.yml",
+    "scripts/ci_gate.sh",
+    "scripts/ci-check.sh",
+    "scripts/coverage_gate.py",
+    "scripts/freshness_gate.py",
+    "scripts/golden_path.py",
+    "squads/extra-dod-roi/scripts/enforce_aiox_path.py"
+  ]
+}

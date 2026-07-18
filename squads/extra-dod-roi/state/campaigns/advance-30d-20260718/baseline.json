@@ -1,0 +1,42 @@
+{
+  "campaign_id": "ADVANCE-30D-LOCAL-READY-20260718",
+  "generated_at": "2026-07-18T12:42:30.202348+00:00",
+  "initial_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+  "epic_branch": "epic/advance-30d-local-ready-20260718",
+  "main_sha_at_start": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+  "dod": {
+    "checked": 92,
+    "unchecked": 1263,
+    "total": 1355,
+    "sha256": "54bbbc0a0eec4576989722d9a1167860e1322c5cd509804d3677638e8c657228"
+  },
+  "metrics_snapshot": {
+    "source": "/mnt/d/extra consultoria/output/coverage/contract-report.json",
+    "as_of": "2026-07-17",
+    "generated_at": "2026-07-17T13:33:54.866794+00:00",
+    "denominator": 1093,
+    "operational_source_coverage_pct": 0.0,
+    "operational_numerator": 0,
+    "commercial_signal_pct": 10.61,
+    "source_mapping_pct": 100.0,
+    "freshness_status": "NOT_READY",
+    "recall_status": "NOT_READY",
+    "completeness_pct": 17.65
+  },
+  "gates_forbidden_until_proven": [
+    "LOCAL_READY",
+    "PRE_VPS_FINAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "LOCAL_RESILIENCE_READY"
+  ],
+  "historical_claims_destroyed": [
+    "coverage 95% (actual operational ~0%)",
+    "NEXT-30D 95% escalate as DONE for coverage",
+    "LOCAL_RESILIENCE_READY without live proof"
+  ],
+  "notes": [
+    "Numbers regenerated from HEAD; historical scorecards are NOT trusted as current truth.",
+    "coverage contract-report is dated 2026-07-17 — treat as stale until re-run."
+  ]
+}

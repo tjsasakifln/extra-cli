@@ -1,0 +1,61 @@
+{
+  "story_id": "ROI-cand-dyn-slice-1e78666e2a21",
+  "title": "[13.4 Qualidade m\u00ednima] Nenhum gate obrigat\u00f3rio usa `|| true`.",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "HIGH-RISK",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-1e78666e2a21.md",
+  "created_at": "2026-07-18T12:42:30Z",
+  "updated_at": "2026-07-18T12:49:27Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "CONCERNS",
+  "po_closed": true,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": "ccda6be971155733f95d79fe64258deab0e211d2",
+  "gates": {
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T124230Z",
+    "candidate_id": "cand-dyn-slice:1e78666e2a21",
+    "roi": 4.7241,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  },
+  "po_validation": {
+    "verdict": "GO",
+    "score": "9/10",
+    "at": "2026-07-18T12:43:46Z",
+    "notes": "Scope is single DoD item: no mandatory gate uses || true. AC testable via static scan + pytest."
+  },
+  "qa": {
+    "verdict": "CONCERNS",
+    "reviewer": "adversarial-qa-auditor",
+    "file": "squads/extra-dod-roi/state/qa/cyc-2026-07-18T124230Z-qa.json",
+    "dod_flip_authorized": true,
+    "medium_fixed_post_qa": "ban-marker no longer masks code || true"
+  }
+}

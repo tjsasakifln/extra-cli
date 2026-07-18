@@ -1,0 +1,89 @@
+{
+  "updated_at": "2026-07-18T12:42:30.202348+00:00",
+  "rows": [
+    {
+      "req": "universe_resolution=100%",
+      "impl": null,
+      "test": null,
+      "evidence": null,
+      "status": "NOT_READY"
+    },
+    {
+      "req": "capability_monitoring_coverage(open_tenders)>=95%",
+      "impl": null,
+      "test": null,
+      "evidence": "stale 0%",
+      "status": "NOT_READY"
+    },
+    {
+      "req": "capability_monitoring_coverage(historical_contracts)>=95%",
+      "impl": null,
+      "test": null,
+      "evidence": null,
+      "status": "NOT_READY"
+    },
+    {
+      "req": "active_snapshot_integrity=100%",
+      "impl": null,
+      "test": null,
+      "evidence": "prior claim needs re-proof",
+      "status": "NOT_READY"
+    },
+    {
+      "req": "recall>=95%",
+      "impl": null,
+      "test": null,
+      "evidence": "NOT_READY incomplete strata",
+      "status": "NOT_READY"
+    },
+    {
+      "req": "freshness editais<=24h",
+      "impl": null,
+      "test": null,
+      "evidence": "entity-level NOT_READY",
+      "status": "NOT_READY"
+    },
+    {
+      "req": "backfill contracts >=3y",
+      "impl": null,
+      "test": null,
+      "evidence": "pilot partial only",
+      "status": "PARTIAL"
+    },
+    {
+      "req": "5 commercial deliverables",
+      "impl": null,
+      "test": null,
+      "evidence": null,
+      "status": "NOT_READY"
+    },
+    {
+      "req": "PDF+Excel same run_id",
+      "impl": null,
+      "test": null,
+      "evidence": "prior claim needs re-proof",
+      "status": "NOT_READY"
+    },
+    {
+      "req": "backup+restore real",
+      "impl": null,
+      "test": null,
+      "evidence": "scripts exist; real restore TBD",
+      "status": "NOT_READY"
+    },
+    {
+      "req": "full suite green",
+      "impl": null,
+      "test": null,
+      "evidence": "CI Test All skipped on PR",
+      "status": "NOT_READY"
+    },
+    {
+      "req": "LOCAL_READY",
+      "impl": null,
+      "test": null,
+      "evidence": null,
+      "status": "NOT_READY"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-07-18T12:39:59.857993Z",
+  "head": "fbc586856332db11ecb21ae4524dfdf29dd90857",
+  "branch": "epic/advance-30d-local-ready-20260718",
+  "dod": {
+    "checked": 92,
+    "unchecked": 1263,
+    "total": 1355
+  }
+}
