@@ -3,14 +3,14 @@
   "title": "[12.1 Golden path local] O golden path gera relatório de editais. · O golden path gera relatório de contratos. · O golden path gera relatório de concorrentes. (+3 more)",
   "epic_id": "EPIC-EXTRA-DOD-ROI",
   "risk_level": "STANDARD",
-  "status": "InReview",
+  "status": "Done",
   "story_file": "docs/stories/ROI-cand-dyn-slice-4f08e0461629.md",
   "created_at": "2026-07-18T15:18:25Z",
-  "updated_at": "2026-07-18T15:22:28Z",
+  "updated_at": "2026-07-18T15:26:41Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": true,
-  "qa_verdict": "PENDING",
-  "po_closed": false,
+  "qa_verdict": "PASS",
+  "po_closed": true,
   "publication_authorized": false,
   "scope_files": [
     "DOD.md",
@@ -18,11 +18,11 @@
     "tests/*",
     "scripts/*"
   ],
-  "reviewed_commit": null,
+  "reviewed_commit": "95a266e",
   "gates": {
     "lint": "PENDING",
     "typecheck": "PENDING",
-    "tests": "PENDING",
+    "tests": "PASS",
     "build": "NA"
   },
   "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
