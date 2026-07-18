@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "missing": [],
+  "present": {
+    "readme": "README.md",
+    "prd": "docs/prd/PRD-consultoria-extra.md",
+    "dod": "DOD.md",
+    "glossary": "docs/GLOSSARY.md",
+    "adr_index": "docs/architecture/adr/INDEX.md",
+    "runbook": "docs/ops/runbook.md"
+  },
+  "checks": {
+    "readme_honesty_markers": true,
+    "runbook_rollback_drift_coverage": true,
+    "adr_index_active": true,
+    "adr_index_revoked_section": true,
+    "glossary_universe_1093": true,
+    "prd_aligned_language": true
+  }
+}
