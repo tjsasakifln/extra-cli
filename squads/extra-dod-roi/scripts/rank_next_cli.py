@@ -78,6 +78,17 @@ def apply_completion_filters(
             "ROI-cand-coverage-slice-pending-collection Done with QA PASS + PO close (M2 N>0 provenance)",
         ),
         (
+            "cand-coverage-scale-m2-more-entities",
+            ["ROI-cand-coverage-scale-m2-more-entities"],
+            "ROI-cand-coverage-scale-m2-more-entities Done with QA PASS + PO close",
+        ),
+        (
+            "cand-dod-unit-test-evidence-pack",
+            ["ROI-cand-dod-unit-test-evidence-pack"],
+            "ROI-cand-dod-unit-test-evidence-pack Done with QA PASS + PO close",
+        ),
+
+        (
             "cand-workspace-daily-evidence-pack",
             ["ROI-cand-workspace-daily-evidence-pack"],
             "ROI-cand-workspace-daily-evidence-pack Done with QA/PO",
@@ -389,6 +400,48 @@ def build_candidates(
             ],
             "test_commands": ["make test", "make test-all (documented)"],
             "planned_files": ["tests/*", "supabase/* views", "CI workflow if needed"],
+        }
+    )
+
+    # 5c. Prove existing unit tests against DoD §13 checkboxes (evidence pack)
+    candidates.append(
+        {
+            "id": "cand-dod-unit-test-evidence-pack",
+            "title": "Pacote de evidência: reexecutar testes unitários que provam itens DoD §13/§3 (sem falso verde)",
+            "status": "UNLOCKED",
+            "dod_refs": ["§13.1 unit tests", "§3 universe baseline 1093"],
+            "why_unlocked": "Tests already exist; needs independent re-run + DoD checkbox evidence mapping",
+            "value": {
+                "gate_value": 5,
+                "unlock_power": 4,
+                "operational_impact": 2,
+                "risk_reduction": 4,
+                "evidence_gain": 5,
+            },
+            "cost": {
+                "effort": 2,
+                "uncertainty": 1,
+                "external_dependency": 1,
+                "change_surface": 1,
+            },
+            "justification": "Cheap high evidence_gain: close many DoD unit-test checkboxes with real pytest of shipped code.",
+            "risks": ["Over-marking without mapping", "DB-only tests skipped"],
+            "dependencies": [],
+            "conflicts": [],
+            "acceptance_criteria": [
+                "Evidence pack lists each DoD checkbox with pytest nodeid + exit 0",
+                "Only HIGH-confidence mapped items; no mark without re-run",
+                "DoD.md updated only for proven items after independent QA",
+            ],
+            "test_commands": [
+                "pytest tests/test_universe.py tests/test_common.py tests/test_geocode.py -q",
+                "pytest tests/test_coverage_states.py tests/test_freshness_gate.py -q",
+            ],
+            "planned_files": [
+                "docs/ops/session-*/dod-unit-evidence/",
+                "DOD.md",
+                "docs/stories/*",
+            ],
         }
     )
 

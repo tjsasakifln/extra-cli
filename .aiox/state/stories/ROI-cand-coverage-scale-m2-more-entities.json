@@ -1,0 +1,80 @@
+{
+  "story_id": "ROI-cand-coverage-scale-m2-more-entities",
+  "title": "Escalar M2 operacional: promover mais entidades com proveniência (sem claim 95%)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "STANDARD",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-coverage-scale-m2-more-entities.md",
+  "created_at": "2026-07-17T23:24:27Z",
+  "updated_at": "2026-07-17T23:30:05Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": true,
+  "scope_files": [
+    "scripts/source_registry/acquisition/promote_from_evidence.py",
+    "tests/unit/source_registry/test_promote_from_evidence.py",
+    "docs/ops/session-2026-07-17-coverage-scale/",
+    "data/entity_source_registry.jsonl",
+    "docs/stories/ROI-cand-coverage-scale-m2-more-entities.md",
+    ".aiox/state/stories/ROI-cand-coverage-scale-m2-more-entities.json"
+  ],
+  "reviewed_commit": "ec407c9ee69a3d9cf6a9d38b1786274b986ce8d3",
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "NA",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "qa_review": {
+    "reviewer": "adversarial-qa-auditor",
+    "reviewed_at": "2026-07-17T23:29:17Z",
+    "verdict": "PASS",
+    "gate_file": "squads/extra-dod-roi/state/qa/cyc-2026-07-17T232427Z-qa.json",
+    "m2": "81/1093",
+    "m2_before": 5,
+    "delta": 76,
+    "pct": 7.41,
+    "claims_95": false,
+    "commercial_signal_separate": true
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": null,
+  "maintenance_mode": false,
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-17T232427Z",
+    "candidate_id": "cand-coverage-scale-m2-more-entities",
+    "roi": 1.8067,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  },
+  "po_validation": {
+    "validated_by": "Pax (@po)",
+    "validated_at": "2026-07-17T23:25:37Z",
+    "verdict": "GO",
+    "score": 8,
+    "notes": [
+      "Increase M2 numerator N>0 vs 5; no 95% claim; commercial separate"
+    ]
+  },
+  "dev_implementation": {
+    "m2_before": 5,
+    "m2_after": 81,
+    "delta": 76
+  },
+  "po_close": {
+    "closed_by": "Pax (@po)",
+    "closed_at": "2026-07-17T23:30:05Z"
+  }
+}
