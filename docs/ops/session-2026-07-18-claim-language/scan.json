@@ -1,0 +1,26 @@
+{
+  "works_tracking_hits_in_readme_header": [
+    {
+      "path": "DOD.md_header",
+      "msg": "Documento afirma acompanhamento físico de obras (fora de escopo).",
+      "details": {
+        "patterns": [
+          "\\bacompanhamento\\s+f[ií]sico\\s+de\\s+obras?\\b",
+          "\\bdi[aá]rio\\s+de\\s+obra\\b",
+          "\\bmedição\\s+em\\s+campo\\b",
+          "\\bfiscalização\\s+f[ií]sica\\b"
+        ]
+      }
+    }
+  ],
+  "forbidden_rules": [
+    "Ausência de dados como ausência de licitação sem consulta válida",
+    "Vencedores observados como conjunto completo de concorrentes",
+    "Participante não identificado tratado como inexistente",
+    "Win rate sem propostas enviadas no denominador",
+    "Score rotulado como probabilidade sem calibração",
+    "Relatório sem limitações relevantes",
+    "Afirmar que o projeto acompanha obras fisicamente"
+  ],
+  "pytest": "9 passed"
+}
