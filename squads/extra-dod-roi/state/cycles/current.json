@@ -3,10 +3,10 @@
   "cycle_id": "cyc-2026-07-18T140817Z",
   "mode": "strict",
   "foolproof": true,
-  "status": "running",
-  "phase": "PUBLISH",
+  "status": "completed",
+  "phase": "DONE",
   "created_at": "2026-07-18T14:08:17Z",
-  "updated_at": "2026-07-18T14:14:50Z",
+  "updated_at": "2026-07-18T14:15:11Z",
   "selected_id": "cand-dyn-slice:43acf5cce633",
   "selected_roi": 2.0962,
   "execution_card_path": "squads/extra-dod-roi/state/execution-cards/current.json",
@@ -136,11 +136,33 @@
         "actor": "evidence-release-steward",
         "evidence": {}
       }
+    },
+    {
+      "at": "2026-07-18T14:15:11Z",
+      "event": "ADVANCE",
+      "phase": "RERANK",
+      "detail": {
+        "to": "RERANK",
+        "actor": "roi-orchestrator",
+        "evidence": {}
+      }
+    },
+    {
+      "at": "2026-07-18T14:15:11Z",
+      "event": "ADVANCE",
+      "phase": "DONE",
+      "detail": {
+        "to": "DONE",
+        "actor": "force-next",
+        "evidence": {
+          "story": "ROI-cand-dyn-slice-43acf5cce633"
+        }
+      }
     }
   ],
   "abort": null,
   "outcome": null,
-  "next_phase_required": "RERANK",
+  "next_phase_required": null,
   "enforcement": {
     "policy": "data/enforcement-policy.yaml",
     "binding": "data/aiox-binding.yaml",
