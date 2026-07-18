@@ -1,0 +1,15 @@
+{
+  "story_id": "ROI-cand-dyn-slice-34174823e54a",
+  "status": "Done",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "qa_agent": "019f7609-86f8-7111-aceb-fde321ebfd5f",
+  "po_closed": true,
+  "po_closed_at": "2026-07-18T16:25:28Z",
+  "publication_authorized": true,
+  "snapshot_evidence": "docs/ops/session-2026-07-18-canonical-entry-points",
+  "extra_dod_roi": {
+    "candidate_id": "cand-dyn-slice:34174823e54a",
+    "dod_items_flipped": 8
+  }
+}

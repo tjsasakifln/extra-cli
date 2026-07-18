@@ -1593,16 +1593,16 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] `DOD.md`, README, PRD, ADRs, runbooks, código, migrations, testes e artefatos versionados são a fonte de verdade do projeto. Evidência: `docs/DEVELOPMENT.md` §1 + DoD precedence.
 - [x] Nenhuma decisão obrigatória existe apenas em histórico de chat, memória de agente, prompt oculto ou sessão local. Evidência: DEVELOPMENT §1 proibição + AGENTS.md.
 - [x] Instruções específicas de ferramenta apenas apontam para documentos canônicos; não criam requisitos paralelos. Evidência: AGENTS.md thin adapter.
-- [ ] `CLAUDE.md`, `AGENTS.md`, regras do Cursor e arquivos equivalentes não se contradizem. PARTIAL — AGENTS+DEVELOPMENT aligned; CLAUDE pointer residual (protocol-protected).
+- [x] `CLAUDE.md`, `AGENTS.md`, regras do Cursor e arquivos equivalentes não se contradizem. Evidência: validator three_entry_points + CLAUDE pointer + Cursor rule + AGENTS; QA PASS 34174823e54a.
 - [x] Existe um guia canônico de desenvolvimento, como `docs/DEVELOPMENT.md`, compartilhado por todas as ferramentas. Evidência: docs/DEVELOPMENT.md criado.
-- [ ] `CLAUDE.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Claude Code. BLOCKED/PARTIAL — CLAUDE.md protocol-protected; maintenance session needed.
+- [x] `CLAUDE.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Claude Code. Evidência: CLAUDE.md § Canonical development guide → docs/DEVELOPMENT.md + QA PASS.
 - [x] `AGENTS.md` referencia o guia canônico e contém apenas adaptações indispensáveis ao Codex ou agentes compatíveis. Evidência: AGENTS.md → DEVELOPMENT.md.
-- [ ] As regras do Cursor referenciam o guia canônico e contêm apenas adaptações indispensáveis ao editor. PARTIAL — Cursor rules not updated this slice.
-- [ ] Os três pontos de entrada indicam o mesmo comando de setup, validação e golden path.
-- [ ] Os três pontos de entrada indicam os mesmos documentos de escopo, arquitetura e operação.
-- [ ] Quando existirem instruções específicas para uma ferramenta, elas funcionam como adaptadores finos e dispensáveis.
-- [ ] A remoção de qualquer arquivo específico de Claude Code, Codex ou Cursor não elimina requisitos de produto, dados, qualidade ou operação.
-- [ ] Em caso de conflito, prevalecem DOD, ADR vigente, código testado e evidência reproduzível, nessa ordem definida pelo projeto.
+- [x] As regras do Cursor referenciam o guia canônico e contêm apenas adaptações indispensáveis ao editor. Evidência: `.cursor/rules/00-extra-canonical.mdc` + QA PASS.
+- [x] Os três pontos de entrada indicam o mesmo comando de setup, validação e golden path. Evidência: `canonical_entry_points` three_entry_points_same_commands=true + QA PASS.
+- [x] Os três pontos de entrada indicam os mesmos documentos de escopo, arquitetura e operação. Evidência: three_entry_points_same_docs=true + QA PASS.
+- [x] Quando existirem instruções específicas para uma ferramenta, elas funcionam como adaptadores finos e dispensáveis. Evidência: adapters_dispensable + product_requirement_roots + QA PASS.
+- [x] A remoção de qualquer arquivo específico de Claude Code, Codex ou Cursor não elimina requisitos de produto, dados, qualidade ou operação. Evidência: product roots DOD/DEVELOPMENT/scripts/tests/migrations independent of adapters + QA PASS.
+- [x] Em caso de conflito, prevalecem DOD, ADR vigente, código testado e evidência reproduzível, nessa ordem definida pelo projeto. Evidência: DEVELOPMENT.md precedence + canonical-entry-points.yaml + QA PASS.
 
 ### 32.2 Unidade de trabalho portável
 

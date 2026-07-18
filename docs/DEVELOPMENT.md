@@ -1,7 +1,9 @@
 # Extra Consultoria — Guia canônico de desenvolvimento
 
+**Path canônico:** `docs/DEVELOPMENT.md`  
 **Status:** canônico (DoD §32.1)  
-**Precedência em conflito:** `DOD.md` → ADR vigente → código testado → evidência reproduzível.
+**Precedência em conflito:** `DOD.md` → ADR vigente → código testado → evidência reproduzível.  
+**Contrato de entry-points:** `docs/canonical-entry-points.yaml`
 
 Este documento é a **fonte compartilhada** de setup, validação e operação local.  
 Arquivos de ferramenta (`CLAUDE.md`, `AGENTS.md`, regras de editor) são **adaptadores finos** e devem apontar para cá — não inventar requisitos paralelos.

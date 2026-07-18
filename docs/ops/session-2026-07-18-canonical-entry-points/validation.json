@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-07-18T16:22:49.876440+00:00",
+  "contract": "/mnt/d/extra consultoria/docs/canonical-entry-points.yaml",
+  "development_complete": true,
+  "dev_missing_tokens": [],
+  "command_alignment": {
+    "development": {
+      "path": "/mnt/d/extra consultoria/docs/DEVELOPMENT.md",
+      "exists": true,
+      "missing_tokens": [],
+      "ok": true
+    },
+    "agents": {
+      "path": "/mnt/d/extra consultoria/AGENTS.md",
+      "exists": true,
+      "missing_tokens": [],
+      "ok": true
+    },
+    "cursor": {
+      "path": "/mnt/d/extra consultoria/.cursor/rules/00-extra-canonical.mdc",
+      "exists": true,
+      "missing_tokens": [],
+      "ok": true
+    },
+    "claude": {
+      "path": "/mnt/d/extra consultoria/CLAUDE.md",
+      "exists": true,
+      "missing_tokens": [],
+      "ok": true,
+      "mode": "pointer_to_canonical_guide"
+    }
+  },
+  "document_alignment": {
+    "development": {
+      "missing": [],
+      "ok": true
+    },
+    "agents": {
+      "missing": [],
+      "ok": true
+    },
+    "cursor": {
+      "missing": [],
+      "ok": true
+    }
+  },
+  "claude_pointer": {
+    "path": "/mnt/d/extra consultoria/CLAUDE.md",
+    "exists": true,
+    "missing_tokens": [],
+    "ok": true,
+    "mode": "pointer_to_canonical_guide"
+  },
+  "adapters_dispensable": {
+    "rule": "product_requirements_outside_adapters",
+    "ok": true,
+    "product_roots": [
+      {
+        "path": "DOD.md",
+        "ok": true
+      },
+      {
+        "path": "docs/DEVELOPMENT.md",
+        "ok": true
+      },
+      {
+        "path": "docs/prd/",
+        "ok": true
+      },
+      {
+        "path": "scripts/",
+        "ok": true
+      },
+      {
+        "path": "tests/",
+        "ok": true
+      },
+      {
+        "path": "db/migrations/",
+        "ok": true
+      }
+    ],
+    "adapters": [
+      "/mnt/d/extra consultoria/CLAUDE.md",
+      "/mnt/d/extra consultoria/AGENTS.md",
+      "/mnt/d/extra consultoria/.cursor/rules/00-extra-canonical.mdc"
+    ]
+  },
+  "precedence_documented": true,
+  "false_claim_hits": [],
+  "three_entry_points_same_commands": true,
+  "three_entry_points_same_docs": true,
+  "summary": {
+    "ok": true
+  },
+  "claims": {
+    "allowed": [
+      "Entry-point adapters share setup/validate/golden-path tokens via DEVELOPMENT.md",
+      "Product requirements live outside CLAUDE/AGENTS/Cursor adapters"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "95% operational",
+      "PROJECT_DONE"
+    ]
+  }
+}

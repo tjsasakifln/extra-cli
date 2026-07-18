@@ -142,3 +142,23 @@ Origem: [affaan-m/ecc](https://github.com/affaan-m/ecc) — adaptado para stack 
 ```
 Editar código → /quality-gate → Corrigir → /code-review → Commit → Push
 ```
+
+
+---
+
+## Canonical development guide (DoD §32.1)
+
+**Guia canônico compartilhado:** [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)  
+**Contrato de entry-points:** [`docs/canonical-entry-points.yaml`](docs/canonical-entry-points.yaml)
+
+Este arquivo é um **adaptador fino** do Claude Code. Setup, validação e golden path canônicos:
+
+```bash
+export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
+python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
+python3 -m pytest tests/ -q --tb=no -x
+python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
+python3 squads/extra-dod-roi/scripts/cli.py force-next
+```
+
+Em conflito: `DOD.md` → ADR → código testado → evidência. Não inventar `LOCAL_READY` / 95% / VPS sem prova.
