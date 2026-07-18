@@ -2,11 +2,11 @@
   "campaign": "advance-30d-operational-20260718",
   "main_sha": "fbc586856332db11ecb21ae4524dfdf29dd90857",
   "epic_branch": "epic/advance-30d-local-ready-20260718",
-  "epic_sha": "d2883b22b6a49eb6212ae1249acc14968292f3d5",
-  "current_story": "ROI-cand-dyn-slice-dd7b4910d7f9",
-  "phase": "STORY_DRAFT",
-  "last_completed_story": "ROI-cand-dyn-slice-b3ea2a2669e1",
-  "last_qa_verdict": "PASS",
+  "epic_sha": "0ce781c0719979c057db3c4bed777ea9261b0f6f",
+  "current_story": "",
+  "phase": "FORCE_NEXT",
+  "last_completed_story": "ROI-cand-dyn-slice-dd7b4910d7f9",
+  "last_qa_verdict": "CONCERNS",
   "open_worktrees": [],
   "open_prs": [
     "https://github.com/tjsasakifln/extra-consultoria/pull/28"
@@ -16,12 +16,17 @@
     "blk-vps-provision",
     "blk-coverage-95"
   ],
-  "next_command": "PO Ready + implement ROI-cand-dyn-slice-dd7b4910d7f9 (perfil diagn\u00f3stico Extra)",
-  "updated_at": "2026-07-18T18:02:55.724581+00:00",
-  "dod_checked": 368,
+  "next_command": "python3 squads/extra-dod-roi/scripts/cli.py force-next",
+  "updated_at": "2026-07-18T18:14:07.862521+00:00",
+  "dod_checked": 376,
   "dod_total": 1354,
   "stories_closed_session": [
     "ROI-cand-dyn-slice-b8d41f43fbfc",
-    "ROI-cand-dyn-slice-b3ea2a2669e1"
+    "ROI-cand-dyn-slice-b3ea2a2669e1",
+    "ROI-cand-dyn-slice-dd7b4910d7f9"
+  ],
+  "residual_debt": [
+    "yaml_centralized PARTIAL \u2014 radius hardcodes",
+    "report_profile_version PARTIAL \u2014 not all reports stamp version"
   ]
 }

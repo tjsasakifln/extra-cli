@@ -2,13 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| Campaign | advance-30d-operational-20260718 |
-| Recovery | SUCCESS |
-| Epic SHA | `88e6c93cfa667d995b94f0d5774a33d3aec24f73` |
-| DoD | **368/1354** (baseline remoto 92) |
-| Closed this session | b8d41f (estados) + b3ea2a (evidência) |
-| DoD flips session | ~19 |
-| PERT session | ~2.0 |
-| Blockers | VPS, live canary, coverage 95% |
+| Epic SHA | `0ce781c0719979c057db3c4bed777ea9261b0f6f` |
+| DoD | **376/1354** (baseline remoto 92) |
+| Closed session | b8d41f PASS, b3ea2a PASS, dd7b CONCERNS |
+| DoD flips session | ~27 |
+| PR | https://github.com/tjsasakifln/extra-consultoria/pull/28 |
+| Residual | 2 PARTIAL diagnostic profile items open |
 | Forbidden | LOCAL_READY, 95%, PRE_VPS, PROJECT_DONE |
 
