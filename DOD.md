@@ -896,11 +896,11 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 12.1 Golden path local
 
-- [ ] Existe um comando canônico de golden path.
-- [ ] O golden path sobe ou valida o banco.
-- [ ] O golden path aplica migrations.
-- [ ] O golden path aplica seed.
-- [ ] O golden path importa ou valida a planilha-alvo.
+- [x] Existe um comando canônico de golden path. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] O golden path sobe ou valida o banco. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] O golden path aplica migrations. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] O golden path aplica seed. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] O golden path importa ou valida a planilha-alvo. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
 - [ ] O golden path executa fontes mínimas.
 - [ ] O golden path persiste dados.
 - [ ] O golden path executa freshness gate.
@@ -912,17 +912,17 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O golden path gera relatório de referências de valores.
 - [ ] O golden path gera Excel.
 - [ ] O golden path gera PDF.
-- [ ] O golden path gera ledger.
-- [ ] O golden path gera logs.
-- [ ] O golden path retorna exit code não zero em qualquer gate obrigatório.
-- [ ] O golden path pode ser reexecutado sem duplicação.
+- [x] O golden path gera ledger. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] O golden path gera logs. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] O golden path retorna exit code não zero em qualquer gate obrigatório. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] O golden path pode ser reexecutado sem duplicação. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
 - [ ] O golden path pode ser executado em ambiente limpo.
-- [ ] O tempo total de execução é registrado.
-- [ ] A versão do código é registrada.
-- [ ] O hash da planilha é registrado.
-- [ ] A versão do schema é registrada.
-- [ ] Os relatórios apontam o período de referência.
-- [ ] Os relatórios apontam limitações conhecidas.
+- [x] O tempo total de execução é registrado. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] A versão do código é registrada. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] O hash da planilha é registrado. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] A versão do schema é registrada. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] Os relatórios apontam o período de referência. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
+- [x] Os relatórios apontam limitações conhecidas. Evidência: `python3 -m scripts.golden_path` + `--bootstrap` + `tests/test_golden_path_canonical.py` + fail-closed suite + session-2026-07-18-golden-path/ledger-ok.json (metadata git/schema/hash/limitations/period) + QA PASS cyc-2026-07-18T144628Z.
 
 ### 12.2 Saídas operacionais
 

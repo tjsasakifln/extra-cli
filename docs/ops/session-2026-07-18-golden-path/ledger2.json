@@ -1,0 +1,609 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "run_id": "gp-20260715-220118",
+      "timestamp": "2026-07-16T01:01:18.024517+00:00",
+      "status": "success",
+      "wall_clock_ms": 30354.041223999957,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 27.353899999070563,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [
+        {
+          "name": "pncp",
+          "status": "fail",
+          "duration_ms": 15009.08605999939,
+          "attempts": 1,
+          "metrics": null,
+          "error": "timeout after 15s"
+        },
+        {
+          "name": "pcp",
+          "status": "success",
+          "duration_ms": 13680.834267999671,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 134,
+            "transformed": 134,
+            "inserted": 0,
+            "updated": 122,
+            "matched": 32,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        },
+        {
+          "name": "compras_gov",
+          "status": "success",
+          "duration_ms": 773.3213979990978,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 0,
+            "transformed": 0,
+            "inserted": 0,
+            "updated": 0,
+            "matched": 0,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        }
+      ],
+      "reports": [
+        {
+          "type": "excel",
+          "status": "generated",
+          "path": "/mnt/d/extra consultoria/output/excels/panorama-SC-2026-07-15.xlsx",
+          "error": null
+        },
+        {
+          "type": "pdf",
+          "status": "generated",
+          "path": null,
+          "error": null
+        }
+      ],
+      "freshness": {
+        "status": "fail",
+        "details": {
+          "generated_at": "2026-07-16T01:01:47.721723+00:00",
+          "mode": "local-first",
+          "critical_sources": [
+            {
+              "source": "pncp",
+              "purpose": "editais_abertos",
+              "critical": true,
+              "run_source": "pncp",
+              "data_table": "pncp_raw_bids",
+              "data_source": "pncp",
+              "freshness_sla_hours": 24,
+              "recent_window_hours": 24,
+              "last_success_at": null,
+              "last_ingested_at": null,
+              "latest_business_date": null,
+              "recent_records": 0,
+              "total_records": 0,
+              "successful_runs": 0,
+              "total_runs": 6,
+              "freshness_status": "never",
+              "failure_reason": "No successful ingestion run found for critical source"
+            },
+            {
+              "source": "contracts",
+              "purpose": "historical_contracts",
+              "critical": true,
+              "run_source": "contracts",
+              "data_table": "pncp_supplier_contracts",
+              "data_source": "pncp_contracts",
+              "freshness_sla_hours": 576,
+              "recent_window_hours": 168,
+              "last_success_at": null,
+              "last_ingested_at": null,
+              "latest_business_date": null,
+              "recent_records": 0,
+              "total_records": 0,
+              "successful_runs": 0,
+              "total_runs": 0,
+              "freshness_status": "never",
+              "failure_reason": "No successful ingestion run found for critical source"
+            }
+          ],
+          "overall": {
+            "all_critical_sources_fresh": false,
+            "failing_sources": [
+              "pncp",
+              "contracts"
+            ],
+            "exit_code": 2
+          }
+        },
+        "error": null
+      }
+    },
+    {
+      "run_id": "gp-20260716-194636",
+      "timestamp": "2026-07-16T22:46:36.465135+00:00",
+      "status": "success",
+      "wall_clock_ms": 19687.441239000236,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 28.18490000026941,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [
+        {
+          "name": "pcp",
+          "status": "success",
+          "duration_ms": 18293.635828999868,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 181,
+            "transformed": 181,
+            "inserted": 3,
+            "updated": 170,
+            "matched": 44,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        },
+        {
+          "name": "compras_gov",
+          "status": "success",
+          "duration_ms": 1346.7755100000431,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 2,
+            "transformed": 2,
+            "inserted": 0,
+            "updated": 2,
+            "matched": 2,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        }
+      ],
+      "reports": [
+        {
+          "type": "excel",
+          "status": "skipped",
+          "path": null,
+          "error": null
+        },
+        {
+          "type": "pdf",
+          "status": "skipped",
+          "path": null,
+          "error": null
+        }
+      ],
+      "freshness": {
+        "status": "skipped",
+        "details": null,
+        "error": null
+      }
+    },
+    {
+      "run_id": "gp-20260716-200312",
+      "timestamp": "2026-07-16T23:03:12.981788+00:00",
+      "status": "failed",
+      "wall_clock_ms": 28268.727836999915,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 28.68929999976899,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [
+        {
+          "name": "pcp",
+          "status": "fail",
+          "duration_ms": 321.8355019998853,
+          "attempts": 3,
+          "metrics": null,
+          "error": "nt call last):\n  File \"/mnt/d/extra consultoria/scripts/crawl/monitor.py\", line 54, in <module>\n    from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'config.settings'; 'config' is not a package"
+        },
+        {
+          "name": "compras_gov",
+          "status": "fail",
+          "duration_ms": 329.37970100010716,
+          "attempts": 3,
+          "metrics": null,
+          "error": "nt call last):\n  File \"/mnt/d/extra consultoria/scripts/crawl/monitor.py\", line 54, in <module>\n    from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'config.settings'; 'config' is not a package"
+        }
+      ],
+      "reports": [
+        {
+          "type": "excel",
+          "status": "generated",
+          "path": "/mnt/d/extra consultoria/output/excels/panorama-SC-2026-07-16.xlsx",
+          "error": null
+        },
+        {
+          "type": "pdf",
+          "status": "generated",
+          "path": null,
+          "error": null
+        }
+      ],
+      "freshness": {
+        "status": "skipped",
+        "details": null,
+        "error": null
+      }
+    },
+    {
+      "run_id": "gp-20260716-200747",
+      "timestamp": "2026-07-16T23:07:47.391496+00:00",
+      "status": "failed",
+      "wall_clock_ms": 28840.030147000107,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 31.504700000368757,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [
+        {
+          "name": "pcp",
+          "status": "fail",
+          "duration_ms": 334.9938999999722,
+          "attempts": 3,
+          "metrics": null,
+          "error": "nt call last):\n  File \"/mnt/d/extra consultoria/scripts/crawl/monitor.py\", line 54, in <module>\n    from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'config.settings'; 'config' is not a package"
+        },
+        {
+          "name": "compras_gov",
+          "status": "fail",
+          "duration_ms": 326.9441000002189,
+          "attempts": 3,
+          "metrics": null,
+          "error": "nt call last):\n  File \"/mnt/d/extra consultoria/scripts/crawl/monitor.py\", line 54, in <module>\n    from config.settings import DEFAULT_DSN  # single source of truth (TD-3.2)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'config.settings'; 'config' is not a package"
+        }
+      ],
+      "reports": [
+        {
+          "type": "excel",
+          "status": "generated",
+          "path": "/mnt/d/extra consultoria/output/excels/panorama-SC-2026-07-16.xlsx",
+          "error": null
+        },
+        {
+          "type": "pdf",
+          "status": "generated",
+          "path": null,
+          "error": null
+        }
+      ],
+      "freshness": {
+        "status": "skipped",
+        "details": null,
+        "error": null
+      }
+    },
+    {
+      "run_id": "gp-20260716-200904",
+      "timestamp": "2026-07-16T23:09:04.579195+00:00",
+      "status": "success",
+      "wall_clock_ms": 19319.24024900036,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 30.082999999649473,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [
+        {
+          "name": "pcp",
+          "status": "success",
+          "duration_ms": 17407.419845999357,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 181,
+            "transformed": 181,
+            "inserted": 0,
+            "updated": 0,
+            "matched": 46,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        },
+        {
+          "name": "compras_gov",
+          "status": "success",
+          "duration_ms": 1276.5964019999956,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 2,
+            "transformed": 2,
+            "inserted": 0,
+            "updated": 0,
+            "matched": 2,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        }
+      ],
+      "reports": [
+        {
+          "type": "excel",
+          "status": "generated",
+          "path": "/mnt/d/extra consultoria/output/excels/panorama-SC-2026-07-16.xlsx",
+          "error": null
+        },
+        {
+          "type": "pdf",
+          "status": "generated",
+          "path": null,
+          "error": null
+        }
+      ],
+      "freshness": {
+        "status": "skipped",
+        "details": null,
+        "error": null
+      }
+    },
+    {
+      "run_id": "gp-20260717-092718",
+      "timestamp": "2026-07-17T12:27:18.988766+00:00",
+      "status": "failed",
+      "wall_clock_ms": 38.48050000033254,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "fail",
+          "duration_ms": 30.55060000042431,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-20260717-092719",
+      "timestamp": "2026-07-17T12:27:19.237639+00:00",
+      "status": "failed",
+      "wall_clock_ms": 60.54390000008425,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "fail",
+          "duration_ms": 18.912600000476232,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-20260717-093108",
+      "timestamp": "2026-07-17T12:31:08.544415+00:00",
+      "status": "failed",
+      "wall_clock_ms": 41106.068621000304,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 28.457000000344124,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [
+        {
+          "name": "pncp",
+          "status": "fail",
+          "duration_ms": 15016.965417000392,
+          "attempts": 1,
+          "metrics": null,
+          "error": "timeout after 15s"
+        },
+        {
+          "name": "pcp",
+          "status": "success",
+          "duration_ms": 23414.2999149999,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 184,
+            "transformed": 184,
+            "inserted": 46,
+            "updated": 0,
+            "matched": 41,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        },
+        {
+          "name": "compras_gov",
+          "status": "success_zero",
+          "duration_ms": 1703.9905930005261,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 0,
+            "transformed": 0,
+            "inserted": 0,
+            "updated": 0,
+            "matched": 0,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        }
+      ],
+      "reports": [
+        {
+          "type": "excel",
+          "status": "generated",
+          "path": "/mnt/d/extra consultoria/output/excels/panorama-SC-2026-07-17.xlsx",
+          "error": null
+        },
+        {
+          "type": "pdf",
+          "status": "generated",
+          "path": null,
+          "error": null
+        }
+      ],
+      "freshness": {
+        "status": "fail",
+        "details": {
+          "generated_at": "2026-07-17T12:31:48.983216+00:00",
+          "mode": "local-first",
+          "critical_sources": [
+            {
+              "source": "pncp",
+              "purpose": "editais_abertos",
+              "critical": true,
+              "run_source": "pncp",
+              "data_table": "pncp_raw_bids",
+              "data_source": "pncp",
+              "freshness_sla_hours": 24,
+              "recent_window_hours": 24,
+              "last_success_at": null,
+              "last_ingested_at": null,
+              "latest_business_date": null,
+              "recent_records": 0,
+              "total_records": 0,
+              "successful_runs": 0,
+              "total_runs": 8,
+              "freshness_status": "never",
+              "failure_reason": "No successful ingestion run found for critical source"
+            },
+            {
+              "source": "contracts",
+              "purpose": "historical_contracts",
+              "critical": true,
+              "run_source": "contracts",
+              "data_table": "pncp_supplier_contracts",
+              "data_source": "pncp_contracts",
+              "freshness_sla_hours": 576,
+              "recent_window_hours": 168,
+              "last_success_at": null,
+              "last_ingested_at": "2026-07-17 00:55:48.814074+00:00",
+              "latest_business_date": "2026-12-16",
+              "recent_records": 63574,
+              "total_records": 63574,
+              "successful_runs": 0,
+              "total_runs": 0,
+              "freshness_status": "never",
+              "failure_reason": "No successful ingestion run found for critical source"
+            }
+          ],
+          "overall": {
+            "all_critical_sources_fresh": false,
+            "failing_sources": [
+              "pncp",
+              "contracts"
+            ],
+            "exit_code": 2
+          }
+        },
+        "error": null
+      }
+    },
+    {
+      "run_id": "gp-20260717-202044",
+      "timestamp": "2026-07-17T23:20:44.639888+00:00",
+      "status": "failed",
+      "wall_clock_ms": 33.00730000046315,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "fail",
+          "duration_ms": 27.11289999933797,
+          "error": null,
+          "details": null
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-20260718-115007",
+      "timestamp": "2026-07-18T14:50:07.298567+00:00",
+      "status": "failed",
+      "wall_clock_ms": 1158.493589999125,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 24.391700000705896,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "apply_migrations",
+          "status": "fail",
+          "duration_ms": 309.27399699976377,
+          "error": "Traceback (most recent call last):\n  File \"/mnt/d/extra consultoria/scripts/ops/apply_migrations.py\", line 191, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/mnt/d/extra consultoria/scripts/ops/apply_migrations.py\", line 179, in main\n    applied = apply_range(\n              ^^^^^^^^^^^^\n  File \"/mnt/d/extra consultoria/scripts/ops/apply_migrations.py\", line 159, in apply_range\n    apply_file(conn, path, allow_concurrent=allow_concurrent)\n  File \"/mnt/d/extra consultoria/scripts/o",
+          "details": {
+            "migration_files": 59,
+            "exit": 1
+          }
+        },
+        {
+          "step": "import_universe_seed",
+          "status": "pass",
+          "duration_ms": 226.21769799843605,
+          "error": null,
+          "details": {
+            "entities": 2085,
+            "spreadsheet_hash": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "path": "Extra - alvos de licitação. R-0.xlsx"
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null,
+      "metadata": {
+        "git_sha": "ff5dacaadd6b92db8287d6d9f68695e42cc57f93",
+        "git_branch": "extra-roi/cand-golden-path-meta",
+        "schema_version": "054_local_resilience_contract.sql",
+        "migration_files_count": 59,
+        "spreadsheet_hash": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+        "universe_entity_count": 2085,
+        "reference_period": {
+          "as_of": "2026-07-18",
+          "timezone": "UTC"
+        },
+        "limitations": [
+          "Golden path local: coverage operacional e recall 95% não são inferidos deste run sem medição estrita separada."
+        ],
+        "dsn_host_hint": "127.0.0.1:5433/extra_test",
+        "canonical_command": "python3 -m scripts.golden_path"
+      }
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "story_id": "ROI-cand-dyn-slice-f7cf8ac7399c",
+  "title": "[12.1 Golden path local] Existe um comando canônico de golden path. · O golden path sobe ou valida o banco. · O golden path aplica migrations. (+5 more)",
+  "epic_id": "EPIC-EXTRA-DOD-ROI",
+  "risk_level": "STANDARD",
+  "status": "Done",
+  "story_file": "docs/stories/ROI-cand-dyn-slice-f7cf8ac7399c.md",
+  "created_at": "2026-07-18T14:46:28Z",
+  "updated_at": "2026-07-18T14:55:30Z",
+  "created_by": "extra-dod-roi-force-next",
+  "po_validated": true,
+  "qa_verdict": "PASS",
+  "po_closed": true,
+  "publication_authorized": false,
+  "scope_files": [
+    "DOD.md",
+    "docs/ops/session-*/",
+    "tests/*",
+    "scripts/*"
+  ],
+  "reviewed_commit": "78aabe3",
+  "gates": {
+    "lint": "PENDING",
+    "typecheck": "PENDING",
+    "tests": "PASS",
+    "build": "NA"
+  },
+  "rollback_plan": "Revert feature branch commits; never update DoD on failure; no merge.",
+  "snapshot_evidence": "docs/ops/session-2026-07-18-golden-path/",
+  "maintenance_mode": false,
+  "qa_artifact": "squads/extra-dod-roi/state/qa/cyc-2026-07-18T144628Z-qa.json",
+  "authorized_dod_flip_lines": [
+    899,
+    900,
+    901,
+    902,
+    903,
+    915,
+    916,
+    917,
+    918,
+    920,
+    921,
+    922,
+    923,
+    924,
+    925
+  ],
+  "must_stay_open_dod_lines": [
+    904,
+    905,
+    906,
+    907,
+    908,
+    909,
+    910,
+    911,
+    912,
+    913,
+    914,
+    919
+  ],
+  "extra_dod_roi": {
+    "cycle_id": "cyc-2026-07-18T144628Z",
+    "candidate_id": "cand-dyn-slice:f7cf8ac7399c",
+    "roi": 1.968,
+    "foolproof": true,
+    "selection_rule": "ranking[0] only",
+    "aiox_sequence_required": [
+      "STORY_DRAFT",
+      "STORY_READY",
+      "IMPLEMENTING",
+      "IN_REVIEW",
+      "QA",
+      "PO_CLOSE",
+      "PUBLISH",
+      "RERANK"
+    ]
+  }
+}
