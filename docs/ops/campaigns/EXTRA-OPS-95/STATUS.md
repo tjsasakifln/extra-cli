@@ -1,7 +1,7 @@
 # EXTRA-OPS-95-FOUNDATION — Status operacional
 
 **Atualizado:** 2026-07-19T16:21:16Z  
-**HEAD:** `1a18dd3` · branch `campaign/extra-ops-95-20260719`  
+**HEAD:** `569087e` · branch `campaign/extra-ops-95-20260719`  
 **Status global:** **PARTIAL**
 
 ## Métricas honestas (closeout recovery)

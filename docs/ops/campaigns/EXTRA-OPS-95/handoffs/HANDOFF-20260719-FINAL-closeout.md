@@ -2,8 +2,8 @@
 
 **UTC:** 2026-07-19T16:21:16Z  
 **Branch:** `campaign/extra-ops-95-20260719`  
-**HEAD:** `1a18dd3566997fe3bbb1b1a153ed7283865ea1fb`  
-**Remote:** `origin/campaign/extra-ops-95-20260719` (SHA local == remoto no push)  
+**HEAD:** `569087e7a3395ee294b1c9717240a630fe7f9a89`  
+**Remote:** `origin/campaign/extra-ops-95-20260719` @ `569087e` (SHA local == remoto)
 **Status global:** **PARTIAL** (não DONE)
 
 ## Primeiros comandos
