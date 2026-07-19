@@ -1,0 +1,162 @@
+{
+  "measured_at": "2026-07-19T04:02:53.781629+00:00",
+  "probed": 15,
+  "orgao_exists_no_lake_presence": 15,
+  "results": [
+    {
+      "cnpj8": "16670395",
+      "cnpj14": "16670395000170",
+      "razao": "AGENCIA MUNICIPAL DE REGULACAO, CONTROLE E FISCALIZACAO DO MUNICIPIO DE ITAPEMA",
+      "http": 200,
+      "sha256": "c5e751e976a2c0b600029066aab35a276e4c5e4af25ec5002c8af6e9bed46ce1",
+      "orgao_nome": "AGENCIA MUNICIPAL DE REGULACAO, CONTROLE E FISCALIZACAO DO MUNICIPIO DE ITAPEMA",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "83102236",
+      "cnpj14": "83102236000166",
+      "razao": "BLUMENAU PREFEITURA",
+      "http": 200,
+      "sha256": "3c38b6aa6e28e9d7e63f28846bdf0faed55dcecadb3b7b4a9ae69e19420c80c8",
+      "orgao_nome": "BLUMENAU PREFEITURA",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "79372488",
+      "cnpj14": "79372488000138",
+      "razao": "BLUMENAU PREFEITURA",
+      "http": 200,
+      "sha256": "259104aef90f51bd61e961ee2e6bcf5fd4b59f9665519fde35121a3bda3dedf8",
+      "orgao_nome": "BLUMENAU PREFEITURA",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "79372462",
+      "cnpj14": "79372462000190",
+      "razao": "BLUMENAU PROCURADORIA GERAL DO MUNICIPIO",
+      "http": 200,
+      "sha256": "46d76a141836b5da6f6afd76a44d6b4fb303979a1e22f0b2b5e6956cfe7c0413",
+      "orgao_nome": "BLUMENAU PROCURADORIA GERAL DO MUNICIPIO",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "10721533",
+      "cnpj14": "10721533000116",
+      "razao": "CAMARA DE VEREADORES DO MUNICIPIO DE ALFREDO WAGNER",
+      "http": 200,
+      "sha256": "79b4bd3e6659f776c4d17fe83a47d62ff4c67ac32213f6183f56af679304ef24",
+      "orgao_nome": "CAMARA DE VEREADORES DO MUNICIPIO DE ALFREDO WAGNER",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "16537849",
+      "cnpj14": "16537849000139",
+      "razao": "CAMARA DE VEREADORES DO MUNICIPIO DE VIDAL RAMOS",
+      "http": 200,
+      "sha256": "a2cef0260d37edefa4b7e1b7bf808c930ff524e0bf93c2bfe74d4361824edcc6",
+      "orgao_nome": "CAMARA DE VEREADORES DO MUNICIPIO DE VIDAL RAMOS",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "82562935",
+      "cnpj14": "82562935000126",
+      "razao": "CANELINHA PREFEITURA",
+      "http": 200,
+      "sha256": "26df1081177b92d32a476f73bef0f637e5ffe07eff9ef5efa35a972131b94249",
+      "orgao_nome": "CANELINHA PREFEITURA",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "18956022",
+      "cnpj14": "18956022000195",
+      "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE AURORA",
+      "http": 200,
+      "sha256": "cb8b09f701ef0f7370521b4ab3168aae75af4eb2d1a1d81ea24310dec113fce1",
+      "orgao_nome": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE AURORA",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "20556993",
+      "cnpj14": "20556993000190",
+      "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE SALETE -SC",
+      "http": 200,
+      "sha256": "1cdb30f03ba4282f8f4ea188f45beeb9de7a3b99cb54ade8ed2fdd123130be09",
+      "orgao_nome": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE SALETE -SC",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "16757142",
+      "cnpj14": "16757142000138",
+      "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE RODEIO",
+      "http": 200,
+      "sha256": "c9a3a56fb186877cbac0e31032797edf971585d45b46e549223afc8f0b14a81b",
+      "orgao_nome": "COMISSAO MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE RODEIO",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "14695989",
+      "cnpj14": "14695989000100",
+      "razao": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DOS MUNICIPIOS DA AMAVI - CIM-AMAVI",
+      "http": 200,
+      "sha256": "c84c0814a284dcc71bc2b86391b7a24f73da6979f5fe8ac3f1f9c1b7e51ac5ff",
+      "orgao_nome": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DOS MUNICIPIOS DA AMAVI - CIM-AMAVI",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "15528194",
+      "cnpj14": "15528194000170",
+      "razao": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE ALFREDO WAGNER",
+      "http": 200,
+      "sha256": "a1218c8ca7399026211bfd8461ff785147157a5c932fb1dd6defbdc0a9713d96",
+      "orgao_nome": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE ALFREDO WAGNER",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "18600048",
+      "cnpj14": "18600048000104",
+      "razao": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE PORTO BELO - COMDEC",
+      "http": 200,
+      "sha256": "cc30c5671e29fe308eb307eed4074518c87b4b5e1f9441494f57dbceeb60e827",
+      "orgao_nome": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE PORTO BELO - COMDEC",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "80168446",
+      "cnpj14": "80168446000169",
+      "razao": "FUNDACAO HOSPITALAR DO MUNICIPIO DE BOM JARDIM DA SERRA",
+      "http": 200,
+      "sha256": "78b5ce4e468130c4b35de26ae0bb45ad7b96f1d156e71c565856f37325fcb6d4",
+      "orgao_nome": "FUNDACAO HOSPITALAR DO MUNICIPIO DE BOM JARDIM DA SERRA",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    },
+    {
+      "cnpj8": "83711580",
+      "cnpj14": "83711580000152",
+      "razao": "FUNDACAO MEDICO HOSPITALAR DO MUNICIPIO DE LAGUNA",
+      "http": 200,
+      "sha256": "109a28c502b30ce1df036e39e2f348823223ae42e7602ac0ca41156487ec6465",
+      "orgao_nome": "FUNDACAO MEDICO HOSPITALAR DO MUNICIPIO DE LAGUNA",
+      "outcome": "ORGAO_EXISTS_NO_PRESENCE_IN_LAKE",
+      "note": "Entity registered on PNCP; no bids/contracts rows in lake for capability windows collected so far — NOT yet success_zero (needs entity-scoped complete pagination query)"
+    }
+  ],
+  "verdict": "PARTIAL_IDENTITY_PROGRESS — CNPJ-14 resolved; success_zero still requires entity-scoped tenders/contracts pagination API path (rate-limit constrained)",
+  "claims_forbidden": [
+    "success_zero in coverage numerator from orgao existence alone",
+    "95% coverage"
+  ]
+}
