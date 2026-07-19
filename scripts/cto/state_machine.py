@@ -34,7 +34,8 @@ STATES = frozenset(
 
 # Allowed transitions (from -> set of to)
 TRANSITIONS: dict[str, set[str]] = {
-    "IDLE": {"OBSERVING", "PAUSED", "DONE", "BLOCKED"},
+    # PREPARING allowed from IDLE for canary-live / resume with planted decision
+    "IDLE": {"OBSERVING", "PAUSED", "DONE", "BLOCKED", "PREPARING"},
     # IDLE allowed: standalone `observe` CLI returns to idle without deciding
     "OBSERVING": {"DECIDING", "IDLE", "BLOCKED", "FAILED", "PAUSED"},
     "DECIDING": {
