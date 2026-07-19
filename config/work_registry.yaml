@@ -1,5 +1,5 @@
 schema_version: '1.0'
-updated_at: '2026-07-19T19:49:48Z'
+updated_at: '2026-07-19T19:53:19Z'
 work_items:
 - work_id: cto-autopilot-infra
   title: CTO Autopilot infrastructure (observe/decide/verify)
@@ -27,7 +27,7 @@ work_items:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:36:32Z'
+  last_synced_at: '2026-07-19T19:52:12Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
@@ -87,7 +87,7 @@ work_items:
   origin: audit-prs
   issue_number: 31
   evidence: []
-  last_synced_at: '2026-07-19T19:36:36Z'
+  last_synced_at: '2026-07-19T19:52:16Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: readiness_gate
@@ -117,7 +117,7 @@ work_items:
   origin: audit-prs
   issue_number: 32
   evidence: []
-  last_synced_at: '2026-07-19T19:36:40Z'
+  last_synced_at: '2026-07-19T19:52:20Z'
   execution_history:
   - ts: '2026-07-19T19:45:00Z'
     phase: readiness_repair
@@ -143,7 +143,7 @@ work_items:
   origin: dod-open
   issue_number: 33
   evidence: []
-  last_synced_at: '2026-07-19T19:36:44Z'
+  last_synced_at: '2026-07-19T19:52:23Z'
 - work_id: freshness-coverage-sla
   title: Freshness coverage measurable per entity within SLA
   objective: Instrument and report per-entity freshness vs SLA without claiming 95%
@@ -165,7 +165,7 @@ work_items:
   origin: dod-open
   issue_number: 34
   evidence: []
-  last_synced_at: '2026-07-19T19:36:47Z'
+  last_synced_at: '2026-07-19T19:52:27Z'
 - work_id: recall-stratified-95
   title: Independent stratified recall measurement path
   objective: Build recall sample pipeline with honest NOT_READY until ≥95%
@@ -187,7 +187,7 @@ work_items:
   origin: dod-open
   issue_number: 35
   evidence: []
-  last_synced_at: '2026-07-19T19:36:51Z'
+  last_synced_at: '2026-07-19T19:52:31Z'
 - work_id: opportunities-open-pipeline
   title: Open opportunities pipeline reliability
   objective: Ensure opportunity_intel list/show/export works with evidence
@@ -210,7 +210,7 @@ work_items:
   origin: product
   issue_number: 36
   evidence: []
-  last_synced_at: '2026-07-19T19:36:55Z'
+  last_synced_at: '2026-07-19T19:52:35Z'
 - work_id: executive-html-cto-panel
   title: Executive HTML CTO panel (derived projection)
   objective: Refresh HTML with DoD counts, PRs, Issues, last CTO decision — no secrets
@@ -236,7 +236,7 @@ work_items:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:36:59Z'
+  last_synced_at: '2026-07-19T19:52:39Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
@@ -299,7 +299,7 @@ work_items:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:37:04Z'
+  last_synced_at: '2026-07-19T19:52:43Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
@@ -361,7 +361,7 @@ work_items:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:37:08Z'
+  last_synced_at: '2026-07-19T19:52:47Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
@@ -420,7 +420,7 @@ work_items:
   origin: dod-open
   issue_number: 40
   evidence: []
-  last_synced_at: '2026-07-19T19:37:12Z'
+  last_synced_at: '2026-07-19T19:52:51Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: readiness_gate
@@ -449,7 +449,7 @@ work_items:
   origin: product
   issue_number: 41
   evidence: []
-  last_synced_at: '2026-07-19T19:37:16Z'
+  last_synced_at: '2026-07-19T19:52:55Z'
 - work_id: reports-pdf-excel-stable
   title: PDF/Excel report generation stability
   objective: Ensure panorama/export paths exit 0 on sample data
@@ -470,7 +470,7 @@ work_items:
   origin: dod-open
   issue_number: 42
   evidence: []
-  last_synced_at: '2026-07-19T19:37:20Z'
+  last_synced_at: '2026-07-19T19:52:58Z'
 - work_id: ranker-advisory-bridge
   title: Ranker advisory bridge into CTO decide
   objective: Feed top ranker candidates into observation for DeepSeek veto/accept
@@ -496,7 +496,7 @@ work_items:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:37:25Z'
+  last_synced_at: '2026-07-19T19:53:02Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
@@ -558,7 +558,7 @@ work_items:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:37:29Z'
+  last_synced_at: '2026-07-19T19:53:06Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
@@ -617,7 +617,7 @@ work_items:
   origin: dod-open
   issue_number: 45
   evidence: []
-  last_synced_at: '2026-07-19T19:37:33Z'
+  last_synced_at: '2026-07-19T19:53:10Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: readiness_gate
@@ -649,7 +649,7 @@ work_items:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:37:37Z'
+  last_synced_at: '2026-07-19T19:53:14Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
@@ -712,7 +712,7 @@ work_items:
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - commit:78c692e3a2ff3ea9c3f55ad479a0d8c0d975dcd3
   - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:37:42Z'
+  last_synced_at: '2026-07-19T19:53:19Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
