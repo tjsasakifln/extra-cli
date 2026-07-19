@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-07-19T07:53:51.589651+00:00",
+  "measured_at": "2026-07-19T07:56:00+00:00",
   "denominator_200km": 1093,
   "presence_editais": 285,
   "presence_editais_pct": 26.075,
@@ -12,9 +12,9 @@
   "gap_to_95pct_presence_editais": 754,
   "bids_rows": 11550,
   "contracts_rows": 217574,
-  "dod_checked": 224,
+  "dod_checked": 245,
   "dod_total": 1352,
-  "dod_pct": 16.568,
+  "dod_pct": 18.1213,
   "note": "HONEST post-purge; editais +6 from SC jsonl ingest; publicacao ignores cnpjOrgao",
   "claims_forbidden": [
     "editais entity SZ via publicacao",

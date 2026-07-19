@@ -1,0 +1,12 @@
+{
+  "measured_at": "2026-07-19T07:55:35.898442+00:00",
+  "flipped": 21,
+  "checked": 245,
+  "total": 1352,
+  "pct": 18.1213,
+  "claims_forbidden": [
+    "DOD 55%",
+    "coverage 95%",
+    "VPS operational"
+  ]
+}

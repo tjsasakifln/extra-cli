@@ -693,17 +693,19 @@ svg {
 
 <!-- EXTRA-OPS-95-FOUNDATION injected 2026-07-19T03:21Z — supersedes stale R2 panel numbers when PG rebuilt -->
 <div id="metric-lineage-ops95" style="font-family:system-ui,sans-serif;padding:12px;margin:12px 0;border:1px solid #0e7490;background:#0b1220;color:#e8eefc;border-radius:8px">
-  <strong>EXTRA-OPS-95-FOUNDATION · status <span style="color:#fbbf24">PARTIAL</span> · 2026-07-19</strong>
+  <strong>EXTRA-OPS-95-FOUNDATION · status <span style="color:#fbbf24">PARTIAL</span> · 2026-07-19T07:56Z · HEAD <code>9082b9d+</code></strong>
   <ul style="margin:8px 0 0 18px;line-height:1.45">
-    <li>Aceitação DOD canônica: <b>213/1355 (15,72%)</b> — meta DONE campanha ≥55% (746) · sem inflação</li>
-    <li>Universo: <b>1093</b> no raio · radar <b>universe_resolution=100%</b> · planilha SHA256 <code>d65f2728…</code></li>
-    <li>Presença (rebuild+re-coleta, <em>não</em> cobertura 7 estágios): editais <b>279 (25,5%)</b> · contratos <b>293 (26,8%)</b></li>
-    <li>Registry operational: <b>139 (12,7%)</b> · bids 10.831 · contracts rows 217k+ (persist por janela) (janela ~14d; 90d em curso)</li>
-    <li>Oportunidades live: <b>401</b> · GO=<b>0</b> · REVIEW=<b>397</b> · NO_GO=<b>4</b> (perfil Extra incompleto demote)</li>
-    <li>N01 <b>DONE</b> (não reabrir) · N09 <b>BLOCKED_SOURCE</b> · SmartLic <b>DEFERRED_STALE</b> · either <b>proibido</b> como meta</li>
-    <li>OSS: 0 ADOPT sem benchmark · OCDS thin ADAPT · Pandera DEFER · Kingfisher REJECT full</li>
-    <li>Backup/restore local: <b>ok</b> (dump ~9,9MB · 79 tabelas · DB separado) · Gates LOCAL_READY/VPS/PROJECT_DONE = <b>NOT_READY</b></li>
-    <li>Fontes: <code>docs/ops/campaigns/EXTRA-OPS-95/</code> · handoff <code>handoffs/HANDOFF-20260719-session.md</code> · commit <code>97549a5</code></li>
+    <li>Aceitação DOD canônica: <b>245/1352 (18,12%)</b> — meta DONE ≥55% (746) · flips só com evidência · sem inflação</li>
+    <li>Universo: <b>1093</b> raio · universe_resolution <b>100%</b> · 2ª import 0 inserts · SHA256 <code>d65f2728…</code></li>
+    <li>Presença (<em>não</em> cobertura 7 estágios): editais <b>285 (26,1%)</b> · contratos <b>368 (33,7%)</b></li>
+    <li>Ops proxy contratos (presença∪success_zero): <b>991/1093 (90,67%)</b> · SZ ents <b>623</b> · gap 95% = <b>48</b> · <span style="color:#f87171">pós-purge identidade</span></li>
+    <li>Bids 11.559 · contracts ~217k · opps <b>401</b> (GO=0 REVIEW≈397 NO_GO=4)</li>
+    <li>Identidade: pick_match <b>exige cnpj8 root</b> · purge 48 cache + 39 SZ falsos · matriz CNPJ-14 0001+DV</li>
+    <li>Editais: API publicacao <b>ignora cnpjOrgao</b> → proibido SZ entity-scoped por esse path</li>
+    <li>N01 DONE · N09 BLOCKED_SOURCE · SmartLic DEFERRED_STALE · either proibido · LOCAL_READY/VPS/PROJECT_DONE = NOT_READY</li>
+    <li>OSS: 0 ADOPT sem benchmark · OCDS thin ADAPT · Pandera DEFER · Kingfisher REJECT</li>
+    <li>Backup/restore local ok (dump ~9,9MB · 79 tabelas) · PDF+Excel package fixture · resume checkpoint ok</li>
+    <li>Fontes: <code>docs/ops/campaigns/EXTRA-OPS-95/</code> · session-metrics.json · commits <code>ab3f77c</code> <code>25cfc33</code> <code>9082b9d</code></li>
   </ul>
 </div>
 
