@@ -11,14 +11,15 @@
     "20260709_20260715",
     "20260716_20260719",
     "20260420_20260519",
-    "20260520_20260618"
+    "20260520_20260618",
+    "20260619_20260718"
   ],
   "current_window_start": "20260619",
-  "total_contracts_fetched": 651395,
-  "total_windows_completed": 10,
+  "total_contracts_fetched": 813648,
+  "total_windows_completed": 11,
   "total_windows_failed": 3,
   "last_error": "Page 1: [http_rate_limit] 429 Rate limit exceeded after 3 retries",
-  "updated_at": "2026-07-19T16:07:19Z",
+  "updated_at": "2026-07-19T16:36:52Z",
   "meta": {
     "campaign": "EXTRA-OPS-95",
     "days": 14
