@@ -82,10 +82,13 @@ def http_get(
     url: str,
     timeout: int = 30,
     *,
-    max_retries: int = 5,
-    base_backoff: float = 12.0,
+    max_retries: int = 3,
+    base_backoff: float = 8.0,
 ) -> tuple[int, bytes]:
-    """GET with exponential backoff on HTTP 429 / transient 5xx."""
+    """GET with exponential backoff on HTTP 429 / transient 5xx.
+
+    Caps total wait so a single entity cannot stall the batch for minutes.
+    """
     last_status, last_body = 0, b""
     for attempt in range(max_retries + 1):
         req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
@@ -96,15 +99,14 @@ def http_get(
             body = e.read() if e.fp else b""
             last_status, last_body = int(e.code), body
             if e.code in (429, 502, 503, 504) and attempt < max_retries:
-                sleep_s = base_backoff * (2**attempt) + (0.3 * attempt)
-                # Cap single wait to avoid multi-hour stalls
-                sleep_s = min(sleep_s, 120.0)
+                # 8, 16, 32 — max ~56s per entity before recording BLOCKED_API
+                sleep_s = min(base_backoff * (2**attempt), 40.0)
                 time.sleep(sleep_s)
                 continue
             return last_status, last_body
         except TimeoutError:
             if attempt < max_retries:
-                time.sleep(base_backoff * (attempt + 1))
+                time.sleep(min(base_backoff * (attempt + 1), 20.0))
                 continue
             raise
     return last_status, last_body

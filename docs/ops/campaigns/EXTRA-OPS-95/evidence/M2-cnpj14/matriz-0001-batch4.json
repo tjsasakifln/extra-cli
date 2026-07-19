@@ -1,0 +1,1086 @@
+{
+  "measured_at": "2026-07-19T06:51:56.234851+00:00",
+  "branch": "0001",
+  "probed": 114,
+  "resolved": 13,
+  "not_found": 98,
+  "rejected_name": 3,
+  "errors": 0,
+  "cache_total": 644,
+  "write": true,
+  "results": [
+    {
+      "cnpj8": "48865663",
+      "cnpj14": "48865663000103",
+      "razao": "ABRIGO INSTITUCIONAL ANA ANTONINA ANTONIO",
+      "municipio": "LAGUNA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/48865663000103",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83876003",
+      "cnpj14": "83876003000110",
+      "razao": "BANCO DO ESTADO DE SANTA CATARINA SA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83876003000110",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33633686",
+      "cnpj14": "33633686000107",
+      "razao": "BANCO NACIONAL DA HABITACAO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33633686000107",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33618810",
+      "cnpj14": "33618810000165",
+      "razao": "BANCO NACIONAL DE CREDITO COOPERATIVO SA EM LIQUIDACAO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33618810000165",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83880427",
+      "cnpj14": "83880427000159",
+      "razao": "BESC FINANCEIRA SA CREDITO FINANC E INVESTIMENTOS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83880427000159",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "00510570",
+      "cnpj14": "00510570000121",
+      "razao": "BESC S/A ARRENDAMENTO MERCANTIL",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00510570000121",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "82514472",
+      "cnpj14": "82514472000127",
+      "razao": "BESC S/A CORRETORA DE SEGUROS E ADMINISTRADORA DE BENS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/82514472000127",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83725150",
+      "cnpj14": "83725150000190",
+      "razao": "BESC SA CREDITO IMOBILIARIO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83725150000190",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83900159",
+      "cnpj14": "83900159000190",
+      "razao": "CAIXA ECONOMICA DO ESTADO DE SANTA CATARINA S A",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83900159000190",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "08336783",
+      "cnpj14": "08336783000190",
+      "razao": "CELESC DISTRIBUICAO S.A",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/08336783000190",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "08336804",
+      "cnpj14": "08336804000178",
+      "razao": "CELESC GERACAO S.A",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/08336804000178",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "82717349",
+      "cnpj14": "82717349000103",
+      "razao": "CIA DE DESENVOLVIMENTO E URBANIZACAO DE ITAJAI",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/82717349000103",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "82840422",
+      "cnpj14": "82840422000130",
+      "razao": "CIA DE URBANIZACAO E DESENVOLVIMENTO DE CRICIUMA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/82840422000130",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "00513208",
+      "cnpj14": "00513208000104",
+      "razao": "CODEJAS - COMPANHIA DE DESENVOLVIMENTO DE JARAGUA DO SUL S.A",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00513208000104",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "45087300",
+      "cnpj14": "45087300000198",
+      "razao": "COLEGIADO SUPERIOR DE SEGURANCA PUBLICA E PERICIA OFICIAL",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/45087300000198",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33050022",
+      "cnpj14": "33050022000115",
+      "razao": "COMPANHIA AUXILIAR DE EMPRESAS ELETRICAS BRASILEIRAS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33050022000115",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33469602",
+      "cnpj14": "33469602000141",
+      "razao": "COMPANHIA BRASILEIRA DE ALIMENTOS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33469602000141",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33121088",
+      "cnpj14": "33121088000159",
+      "razao": "COMPANHIA BRASILEIRA DE ARMAZENAMENTO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33121088000159",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33653841",
+      "cnpj14": "33653841000157",
+      "razao": "COMPANHIA BRASILEIRA DE DRAGAGEM",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33653841000157",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "82951021",
+      "cnpj14": "82951021000157",
+      "razao": "COMPANHIA CATARINENSE DE ARMAZENAMENTO COCAR",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/82951021000157",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "26634715",
+      "cnpj14": "26634715000190",
+      "razao": "COMPANHIA CATARINENSE DE SAUDE - CCS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/26634715000190",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83422014",
+      "cnpj14": "83422014000120",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE CHAPECO CODEC",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83422014000120",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "02939316",
+      "cnpj14": "02939316000179",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE ITAPOA S. A.",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/02939316000179",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "74064585",
+      "cnpj14": "74064585000140",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE PORTO UNIAO -CDPU",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/74064585000140",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83262535",
+      "cnpj14": "83262535000168",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DO ESTADO DE SANTA CATARIN",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83262535000168",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83596445",
+      "cnpj14": "83596445000103",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO ECONOMICO E PLANEJAMENTO URBANO DE CRICIUMA-CODEPLA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83596445000103",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "78271251",
+      "cnpj14": "78271251000106",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DA PENHA",
+      "municipio": "PENHA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/78271251000106",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "75294264",
+      "cnpj14": "75294264000102",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DE BRUSQUE",
+      "municipio": "BRUSQUE",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/75294264000102",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83042325",
+      "cnpj14": "83042325000164",
+      "razao": "COMPANHIA DE DISTRITOS INDUSTRIAIS DE SANTA CATARINA - CODISC -",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83042325000164",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33506437",
+      "cnpj14": "33506437000150",
+      "razao": "COMPANHIA DE FINANCIAMENTO DA PRODUCAO-CFP",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33506437000150",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "82134917",
+      "cnpj14": "82134917000143",
+      "razao": "COMPANHIA DE HABITACAO DE JARAGUA DO SUL",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/82134917000143",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "79655619",
+      "cnpj14": "79655619000194",
+      "razao": "COMPANHIA DE HABITACAO POPULAR COHAB LAGES",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/79655619000194",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "75553446",
+      "cnpj14": "75553446000142",
+      "razao": "COMPANHIA DE MELHORAMENTOS DE XAXIM COMEX",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/75553446000142",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "82669037",
+      "cnpj14": "82669037000171",
+      "razao": "COMPANHIA DE URBANIZACAO DE BLUMENAU - URB EM LIQUIDACAO",
+      "municipio": "BLUMENAU",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/82669037000171",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83467480",
+      "cnpj14": "83467480000122",
+      "razao": "COMPANHIA DE URBANIZACAO E DESENVOLVIMENTO DE TUBARAO - EM LIQUIDACAO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83467480000122",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "17155730",
+      "cnpj14": "17155730000164",
+      "razao": "COMPANHIA ENERGETICA DE MINAS GERAIS-CEMIG",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/17155730000164",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83470716",
+      "cnpj14": "83470716000180",
+      "razao": "COMPANHIA HIDROMINERAL CALDAS DA IMPERATRIZ",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83470716000180",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83675512",
+      "cnpj14": "83675512000185",
+      "razao": "COMPANHIA HIDROMINERAL DO OESTE CATARINENSE-HIDROESTE",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83675512000185",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "05848142",
+      "cnpj14": "05848142000127",
+      "razao": "COMPANHIA URBANIZADORA DE ICARA - URBI",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/05848142000127",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "82532235",
+      "cnpj14": "82532235000199",
+      "razao": "CONSELHO REGIONAL DOS MUSICOS DE SANTA CATARINA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/82532235000199",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83899997",
+      "cnpj14": "83899997000190",
+      "razao": "ELETRIFICACAO RURAL DE SANTA CATARINA S A",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83899997000190",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "00073957",
+      "cnpj14": "00073957000168",
+      "razao": "ELETROSUL CENTRAIS ELETRICAS S/A",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00073957000168",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "00608364",
+      "cnpj14": "00608364000159",
+      "razao": "EMPRESA BRASILEIRA DE NOTICIAS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00608364000159",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "00446583",
+      "cnpj14": "00446583000189",
+      "razao": "EMPRESA BRASILEIRA DE TRANSPORTES URBANOS EM LIQUIDACAO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00446583000189",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "75352302",
+      "cnpj14": "75352302000128",
+      "razao": "EMPRESA CATARINENSE DE TRANSPORTES E TERMINAIS SA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/75352302000128",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "75507053",
+      "cnpj14": "75507053000100",
+      "razao": "EMPRESA DE APIO A AGROPECUARIA DE VIDEIRA SA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/75507053000100",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83813873",
+      "cnpj14": "83813873000140",
+      "razao": "EMPRESA DE ASSISTENCIA TECNICA E EXTENSAO RURAL DE SC",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83813873000140",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83682419",
+      "cnpj14": "83682419000106",
+      "razao": "EMPRESA DE DESENVOLVIMENTO DE JOACABA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83682419000106",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "83842922",
+      "cnpj14": "83842922000173",
+      "razao": "EMPRESA DE DESENVOLVIMENTO DE XANXERE S/A",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/83842922000173",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "82563271",
+      "cnpj14": "82563271000110",
+      "razao": "EMPRESA DE ELETRECIDADE LUZ E FORCA DE ARARANGUA SA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/82563271000110",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33884008",
+      "cnpj14": "33884008000117",
+      "razao": "EMPRESA DE ENG E CONSTR DE OBRAS ESPECIAIS S A ECEX",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33884008000117",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "05455291",
+      "cnpj14": "05455291000126",
+      "razao": "EMPRESA PUBLICA DE TRANSITO E TRANSPORTE DE CRICIUMA SA - EPTC",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/05455291000126",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "75533364",
+      "cnpj14": "75533364000136",
+      "razao": "EMPRESA URBANIZADORA DE VIDEIRA SOCIEDADE ANONIMA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/75533364000136",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "19660975",
+      "cnpj14": "19660975000174",
+      "razao": "EOLICA COXILHA SECA S.A.",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/19660975000174",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "42585831",
+      "cnpj14": "42585831000112",
+      "razao": "FUNDACAO HOSPITALAR MUNICIPAL DE CORREIA PINTO",
+      "municipio": "CORREIA PINTO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/42585831000112",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "46595918",
+      "cnpj14": "46595918000121",
+      "razao": "FUNDACAO MUNICIPAL DO MEIO AMBIENTE DE PEDRAS GRANDES - FUMPEG",
+      "municipio": "PEDRAS GRANDES",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/46595918000121",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "44880930",
+      "cnpj14": "44880930000152",
+      "razao": "FUNDO ESTADUAL DE PROMOCAO SOCIAL E ERRADICACAO DA POBREZA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/44880930000152",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "51545652",
+      "cnpj14": "51545652000142",
+      "razao": "FUNDO ESTADUAL DE SEGURANCA ALIMENTAR E NUTRICIONAL",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/51545652000142",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "51851812",
+      "cnpj14": "51851812000181",
+      "razao": "FUNDO ESTADUAL DE TRANSICAO ENERGETICA JUSTA - FETEJ-SC",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/51851812000181",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "59142465",
+      "cnpj14": "59142465000120",
+      "razao": "FUNDO ESTRATEGICO DA ADMINISTRACAO TRIBUTARIA (FEAT)",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/59142465000120",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "50367875",
+      "cnpj14": "50367875000102",
+      "razao": "FUNDO ROTATIVO REGIONAL DO PLANALTO NORTE (FR-08)",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/50367875000102",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "57108846",
+      "cnpj14": "57108846000167",
+      "razao": "GUARDA MUNICIPAL DE ARAQUARI-SC",
+      "municipio": "ARAQUARI",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/57108846000167",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "51364585",
+      "cnpj14": "51364585000160",
+      "razao": "GUARDA MUNICIPAL DE ITAPEMA",
+      "municipio": "ITAPEMA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/51364585000160",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "63874924",
+      "cnpj14": "63874924000137",
+      "razao": "GUARDA MUNICIPAL DE PORTO BELO",
+      "municipio": "PORTO BELO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/63874924000137",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "00124055",
+      "cnpj14": "00124055000103",
+      "razao": "IAZPE-IMBITUBA ADM DA ZONA DE PROCES DE EXPORTACAO SA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00124055000103",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "65613013",
+      "cnpj14": "65613013000181",
+      "razao": "MUSEU HISTORICO MUNICIPAL WOGECK KUBIACK DE ATALANTA",
+      "municipio": "ATALANTA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/65613013000181",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "33000167",
+      "cnpj14": "33000167000101",
+      "razao": "PETROLEO BRASILEIRO S A PETROBRAS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/33000167000101",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "55428072",
+      "cnpj14": "55428072000126",
+      "razao": "PROGRESSO E HABITACAO DE SAO CARLOS S.A. - PROHAB/SAO CARLOS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/55428072000126",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "53623436",
+      "cnpj14": "53623436000101",
+      "razao": "SC FUTURO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/53623436000101",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "11332700",
+      "cnpj14": "11332700000108",
+      "razao": "SC PARCERIAS - AMBIENTAL S.A.",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/11332700000108",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "54203745",
+      "cnpj14": "54203745000187",
+      "razao": "SECRETARIA DE EDUCACAO",
+      "municipio": "RIO NEGRINHO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/54203745000187",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "55758397",
+      "cnpj14": "55758397000177",
+      "razao": "SECRETARIA DE EDUCACAO",
+      "municipio": "JOINVILLE",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/55758397000177",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "64434850",
+      "cnpj14": "64434850000180",
+      "razao": "SECRETARIA DE EDUCACAO, CULTURA E DESPORTO DE RANCHO QUEIMADO",
+      "municipio": "RANCHO QUEIMADO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/64434850000180",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "63760835",
+      "cnpj14": "63760835000160",
+      "razao": "SECRETARIA DE EDUCACAO E CULTURA DE BENEDITO NOVO",
+      "municipio": "BENEDITO NOVO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/63760835000160",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "60231435",
+      "cnpj14": "60231435000179",
+      "razao": "SECRETARIA DE EDUCACAO, ESPORTES E CULTURA",
+      "municipio": "LAURENTINO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/60231435000179",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "62194318",
+      "cnpj14": "62194318000108",
+      "razao": "SECRETARIA DE PLANEJAMENTO, HABITACAO E MEIO AMBIENTE (SEPLAHMA)",
+      "municipio": "RIO DOS CEDROS",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/62194318000108",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "63866918",
+      "cnpj14": "63866918000138",
+      "razao": "SECRETARIA MUNICIPAL DA EDUCACAO, CULTURA E DESPORTO DE LEOBERTO LEAL SC",
+      "municipio": "LEOBERTO LEAL",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/63866918000138",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "61454242",
+      "cnpj14": "61454242000140",
+      "razao": "SECRETARIA MUNICIPAL DA EDUCACAO E DESPORTO",
+      "municipio": "ALFREDO WAGNER",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/61454242000140",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "64719336",
+      "cnpj14": "64719336000191",
+      "razao": "SECRETARIA MUNICIPAL DA EDUCACAO - FUNDEB",
+      "municipio": "URUBICI",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/64719336000191",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "64053787",
+      "cnpj14": "64053787000132",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "NOVA TRENTO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/64053787000132",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "64490497",
+      "cnpj14": "64490497000156",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "MAJOR GERCINO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/64490497000156",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "64502443",
+      "cnpj14": "64502443000163",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "COCAL DO SUL",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/64502443000163",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "55509615",
+      "cnpj14": "55509615000130",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "CAMPO ALEGRE",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/55509615000130",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "62761279",
+      "cnpj14": "62761279000183",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "SANTO AMARO DA IMPERATRIZ",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/62761279000183",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "61157385",
+      "cnpj14": "61157385000190",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "ORLEANS",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/61157385000190",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "66233173",
+      "cnpj14": "66233173000168",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "GOVERNADOR CELSO RAMOS",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/66233173000168",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "53335860",
+      "cnpj14": "53335860000142",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "FLORIANOPOLIS",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/53335860000142",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "63756533",
+      "cnpj14": "63756533000118",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "TREZE DE MAIO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/63756533000118",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "62800397",
+      "cnpj14": "62800397000153",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "PAULO LOPES",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/62800397000153",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "63650342",
+      "cnpj14": "63650342000177",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO DE LUIZ ALVES",
+      "municipio": "LUIZ ALVES",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/63650342000177",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "63641306",
+      "cnpj14": "63641306000147",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO DE PORTO BELO",
+      "municipio": "PORTO BELO",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/63641306000147",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "56992840",
+      "cnpj14": "56992840000132",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO E CULTURA DE GAROPABA SC",
+      "municipio": "GAROPABA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/56992840000132",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "07020327",
+      "cnpj14": "07020327000174",
+      "razao": "SERVICO NACIONAL DE APRENDIZAGEM DO COOPERATIVISMO NO ESTADO DE SANTA CATARINA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/07020327000174",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "03774688",
+      "cnpj14": "03774688000155",
+      "razao": "SERVICO NACIONAL DE APRENDIZAGEM INDUSTRIAL",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/03774688000155",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "03603595",
+      "cnpj14": "03603595000168",
+      "razao": "SERVICO SOCIAL DO COMERCIO - SESC AR/SC",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/03603595000168",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "00394494000309",
+      "cnpj14": "00394494000136",
+      "razao": "SUPERINTENDENCIA REGIONAL DO DPF EM SANTA CATARINA",
+      "municipio": "FLORIANOPOLIS",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00394494000136",
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "CNPJ8_MISMATCH"
+    },
+    {
+      "cnpj8": "00394494012061",
+      "cnpj14": "00394494000136",
+      "razao": "SUPERINTENDENCIA REG.POL.RODOV.FED. EM SANTA CATARINA",
+      "municipio": "FLORIANOPOLIS",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00394494000136",
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "CNPJ8_MISMATCH"
+    },
+    {
+      "cnpj8": "10681899",
+      "cnpj14": "10681899000109",
+      "razao": "THERMAS CASTELLO S/A",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/10681899000109",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "14820905",
+      "cnpj14": "14820905000112",
+      "razao": "TRANSMISSORA SUL BRASILEIRA DE ENERGIA S.A.",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/14820905000112",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "16383969",
+      "cnpj14": "16383969000129",
+      "razao": "TRANSMISSORA SUL LITORANEA DE ENERGIA S.A. - TSLE",
+      "municipio": "SANTA CATARINA",
+      "http_status": 404,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/16383969000129",
+      "verdict": "NOT_FOUND"
+    },
+    {
+      "cnpj8": "01355599",
+      "cnpj14": "01355599000149",
+      "razao": "TRIBUNAL DE JUSTICA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/01355599000149",
+      "api_razao": "TRIBUNAL DE JUSTICA",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "01355600",
+      "cnpj14": "01355600000135",
+      "razao": "TRIBUNAL DE JUSTICA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/01355600000135",
+      "api_razao": "TRIBUNAL DE JUSTICA",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "02482005",
+      "cnpj14": "02482005000123",
+      "razao": "TRIBUNAL REGIONAL DO TRABALHO DA 12A REGIAO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/02482005000123",
+      "api_razao": "TRIBUNAL REGIONAL DO TRABALHO DA 12A REGIAO",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "05858851",
+      "cnpj14": "05858851000193",
+      "razao": "TRIBUNAL REGIONAL ELEITORAL DE SANTA CATARINA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/05858851000193",
+      "api_razao": "TRIBUNAL REGIONAL ELEITORAL DE SANTA CATARINA",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "01218587",
+      "cnpj14": "01218587000172",
+      "razao": "UNIDADE JURISDICIONAL DE EXCECAO - FORO DA UNISUL",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/01218587000172",
+      "api_razao": "UNIDADE JURISDICIONAL DE EXCECAO - FORO DA UNISUL",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "00394494015320",
+      "cnpj14": "00394494000136",
+      "razao": "UNIVERSIDADE CORPORATIVA DA POLICIA RODOVIARIA FEDERAL",
+      "municipio": "FLORIANOPOLIS",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00394494000136",
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "CNPJ8_MISMATCH"
+    },
+    {
+      "cnpj8": "05628039",
+      "cnpj14": "05628039000171",
+      "razao": "V AGENCIA DE DESENVOLVIMENTO REGIONAL - XANXERE",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/05628039000171",
+      "api_razao": "V AGENCIA DE DESENVOLVIMENTO REGIONAL - XANXERE",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "03664403",
+      "cnpj14": "03664403000123",
+      "razao": "VARA CRIMINAL E DA INFANCIA E JUVENTUDE",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/03664403000123",
+      "api_razao": "VARA CRIMINAL E DA INFANCIA E JUVENTUDE",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "04672953",
+      "cnpj14": "04672953000157",
+      "razao": "VARA DA FAMILIA, ORFAOS E SUCESSOES, INFANCIA E JUVENTUDE",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/04672953000157",
+      "api_razao": "VARA DA FAMILIA, ORFAOS E SUCESSOES, INFANCIA E JUVENTUDE",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "04672947",
+      "cnpj14": "04672947000108",
+      "razao": "VARA DA FAZENDA PUBLICA, EXECUCOES FISCAIS, ACIDENTES DO TRABALHO E REGISTROS PUBLICOS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/04672947000108",
+      "api_razao": "VARA DA FAZENDA PUBLICA, EXECUCOES FISCAIS, ACIDENTES DO TRABALHO E REGISTROS PUBLICOS",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "01910242",
+      "cnpj14": "01910242000185",
+      "razao": "VARA DE FAMILIA,INFANCIA E JUVENTUDE DA COMARCA DE CHAPECO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/01910242000185",
+      "api_razao": "VARA DE FAMILIA,INFANCIA E JUVENTUDE DA COMARCA DE CHAPECO",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "73647265",
+      "cnpj14": "73647265000150",
+      "razao": "VARA DE PRECATORIAS E PRECATORIOS",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/73647265000150",
+      "api_razao": "VARA DE PRECATORIAS E PRECATORIOS",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "03573080",
+      "cnpj14": "03573080000162",
+      "razao": "VARA FAZENDA PUPLICA, EXECUTIVOS FISCAIS, ACIDENTES DO TRABALHO E REGISTRO PUBLICO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/03573080000162",
+      "api_razao": "VARA FAZENDA PUPLICA, EXECUTIVOS FISCAIS, ACIDENTES DO TRABALHO E REGISTRO PUBLICO",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "78472826",
+      "cnpj14": "78472826000140",
+      "razao": "XANXERE CARTORIO DO CIVEL E CRIME",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/78472826000140",
+      "api_razao": "XANXERE CARTORIO DO CIVEL E CRIME",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    }
+  ],
+  "claims_forbidden": [
+    "invented CNPJ without verification",
+    "operational coverage from resolve alone"
+  ],
+  "note": "CNPJ-14 = cnpj8+branch+DV verified via PNCP orgaos API HTTP 200"
+}

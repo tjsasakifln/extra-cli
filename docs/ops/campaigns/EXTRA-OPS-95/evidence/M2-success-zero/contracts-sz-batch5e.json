@@ -1,0 +1,102 @@
+{
+  "measured_at": "2026-07-19T06:49:03.433235+00:00",
+  "run_id": "sz-contracts-20260719T064821Z",
+  "data_type": "contracts",
+  "probed": 6,
+  "success_zero_written": 0,
+  "verdicts": {
+    "HAS_DATA": 6
+  },
+  "metrics": {
+    "denominator": 1093,
+    "presence_contracts": 334,
+    "success_zero_entities": 577,
+    "ops_proxy_presence_or_sz": 911,
+    "ops_proxy_pct": 83.3486
+  },
+  "results": [
+    {
+      "entity_id": 527,
+      "cnpj8": "03838193",
+      "cnpj14": "03838193000142",
+      "razao": "INSTITUTO DE PREV.SOCIAL DOS SERV.PUBLICOS MUN.RIO NEGRINHO - IPRERIO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=03838193000142",
+      "verdict": "HAS_DATA",
+      "http_status": 200,
+      "total": 9,
+      "n_items": 9,
+      "content_hash": "5617fa2aeb2fda0a9612153bf29cbe305118d60565382ce1819dfb637a0a6c0f",
+      "completion_rule": null
+    },
+    {
+      "entity_id": 97,
+      "cnpj8": "06078939",
+      "cnpj14": "06078939000155",
+      "razao": "SECRETARIA MUNICIPAL DA EDUCACAO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=06078939000155",
+      "verdict": "HAS_DATA",
+      "http_status": 200,
+      "total": 2,
+      "n_items": 2,
+      "content_hash": "7b27250e2d3b407ae743fe11541dd876d62c6a4680e99dfd00e3f2c02d4a1548",
+      "completion_rule": null
+    },
+    {
+      "entity_id": 344,
+      "cnpj8": "19699009",
+      "cnpj14": "19699009000160",
+      "razao": "SERVICO AUTONOMO DE SANEAMENTO BASICO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=19699009000160",
+      "verdict": "HAS_DATA",
+      "http_status": 200,
+      "total": 1,
+      "n_items": 1,
+      "content_hash": "c658b88453aa01f8c5676af7b440b3b0327970ed11c8d511ff4b3b2b2533adc1",
+      "completion_rule": null
+    },
+    {
+      "entity_id": 499,
+      "cnpj8": "10676399",
+      "cnpj14": "10676399000189",
+      "razao": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOSTO - SAMAE",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=10676399000189",
+      "verdict": "HAS_DATA",
+      "http_status": 200,
+      "total": 1,
+      "n_items": 1,
+      "content_hash": "4101cecf9caa85b116cee2fd0a85aff65ddd109ab368d5c08be106f9dc3054ae",
+      "completion_rule": null
+    },
+    {
+      "entity_id": 508,
+      "cnpj8": "00652007",
+      "cnpj14": "00652007000198",
+      "razao": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=00652007000198",
+      "verdict": "HAS_DATA",
+      "http_status": 200,
+      "total": 1,
+      "n_items": 1,
+      "content_hash": "0f32a93ef1578f6aa517f3921132e099883d0ec3e731ea9a510ae37bd380b149",
+      "completion_rule": null
+    },
+    {
+      "entity_id": 550,
+      "cnpj8": "83871277",
+      "cnpj14": "83871277000117",
+      "razao": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO - SAMAE",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=83871277000117",
+      "verdict": "HAS_DATA",
+      "http_status": 200,
+      "total": 2,
+      "n_items": 2,
+      "content_hash": "250d522d17c58593d53dc43394d21c60ba101fa5cb2059c76561838c6f20dd7c",
+      "completion_rule": null
+    }
+  ],
+  "claims_forbidden": [
+    "operational 7-stage coverage",
+    "95% coverage",
+    "either union as operational"
+  ]
+}

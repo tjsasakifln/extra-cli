@@ -1,8 +1,8 @@
 # EXTRA-OPS-95-FOUNDATION — Status operacional
 
 **HEAD start (main):** `dbc5adb2ab62898cd3fd005c83c90dcef36c1cde`  
-**Atualizado:** 2026-07-19T04:58Z (UTC)  
-**HEAD trabalho:** `d16f70e`+ (working tree dirty — commit pending)  
+**Atualizado:** 2026-07-19T06:55Z (UTC)  
+**HEAD trabalho:** ver `git log -1`  
 **Status global da campanha:** **PARTIAL**
 
 ## Objetivo vinculante
@@ -13,75 +13,51 @@ Operação local consultiva B2G com cobertura editais/contratos ≥95% **separad
 
 | Fase | Status | Evidência |
 |------|--------|-----------|
-| M0 Recuperação + baseline | **DONE** | `baseline/foundation-baseline.json`, `BASELINE.md`, `RECOVERY-INVENTORY.md` |
-| M0.5 OSS harvest | **DONE** (decisões) | `oss/oss-decisions.json` — 0 ADOPT sem piloto |
-| M1 Universo | **DONE** parcial operacional | Seed 1093; radar universe_resolution **100%** |
-| M2 Cobertura | **IN_PROGRESS** | Editais presença **279 (25,5%)**; contratos presença **300 (27,4%)**; ops proxy presença∪SZ **422 (38,6%)** |
-| M3 Intel/decisão | **PARTIAL** | **401** opps; GO=0 REVIEW≈397 NO_GO=4 |
-| M4 Concorrentes/valores | **PARTIAL** | packages live + fixture PDF/Excel |
-| M5 Automação/3 ciclos | **PARTIAL** | 3 ciclos controlados + backup/resume proof |
-| M6 Recall | **BLOCKED_SOURCE** | N09 sem amostra-ouro independente |
-| M7 HTML/DOD/handoff | **PARTIAL** | handoff sessão; HTML final não |
-| B1 OCDS | **PARTIAL** | thin mapping + tests |
-| B2 Data contracts | **PARTIAL** | Pydantic; Pandera DEFER |
+| M0 Recuperação + baseline | **DONE** | `baseline/foundation-baseline.json` |
+| M0.5 OSS harvest | **DONE** (decisões) | `oss/oss-decisions.json` |
+| M1 Universo | **DONE** parcial | Seed 1093; universe_resolution **100%** |
+| M2 Cobertura | **IN_PROGRESS** | Contratos ops proxy **85,1%**; editais presença **25,5%** |
+| M3 Intel/decisão | **PARTIAL** | 401 opps; GO=0 REVIEW≈397 |
+| M4 Packages | **PARTIAL** | live + fixture |
+| M5 Automação | **PARTIAL** | 3 ciclos + backup/resume |
+| M6 Recall | **BLOCKED_SOURCE** | N09 |
+| M7 HTML/DOD/handoff | **PARTIAL** | — |
 
-## Métricas live (2026-07-19T04:51Z)
+## Métricas live (2026-07-19T06:55Z)
 
 | Métrica | Valor | Meta |
 |---------|------:|-----:|
-| DOD checked | **213/1355 (15,72%)** | ≥746 (55%) |
+| DOD checked | **~213/1355 (15,7%)** | ≥746 (55%) |
 | Denominador 200 km | **1093** | fixo |
-| Universe resolution | **100%** | 100% |
-| Bids rows | **10831** | — |
-| Contracts rows | **217184** | — |
-| Presença editais (cnpj8) | **279 (25,53%)** | ≥1039 operacional |
-| Presença contratos (cnpj8) | **300 (27,45%)** | ≥1039 operacional |
-| success_zero contracts ents | **122** | — |
-| Ops proxy contratos (presença∪SZ) | **422 (38,61%)** | proxy — **não** = 7 estágios |
-| CNPJ-14 cache único | **187** | residual need ≈558 |
-| Oportunidades | **401** (0 GO / ~397 REVIEW / 4 NO_GO) | fluxo útil |
+| Presença editais | **279 (25,53%)** | ≥1039 |
+| Presença contratos | **340 (31,11%)** | ≥1039 |
+| success_zero contratos | **590** entidades | — |
+| **Ops proxy contratos** (presença∪SZ) | **930 (85,09%)** | proxy ≠ 7 estágios; meta 95% = 1039 (**gap 109**) |
+| CNPJ-14 cache | **644** únicos | residual hard ~100 not on matriz 0001 |
+| Bids / contracts rows | 10831 / 217359 | — |
+| Oportunidades | 401 | — |
 
 Fonte: `evidence/session-metrics.json`
 
-## Avanço M2 nesta continuação
+## Breakthrough desta sessão
 
-1. **CLI estável success_zero:** `scripts/ops/probe_entity_success_zero.py` (HTTP 204/empty + backoff 429)
-2. **CLI estável CNPJ-14:** `scripts/ops/resolve_cnpj14_batch.py`
-3. **SZ batch3:** +93 success_zero escritos (total 122 entidades)
-4. **HAS_DATA:** 7 entidades com dados → upsert via transform oficial → presença 293→**300**
-5. Cache CNPJ deduplicado (havia 95 dups de writers concorrentes)
-6. Rate limit PNCP (429) mitigado serializando resolve vs SZ vs crawl nacional
+1. **`resolve_cnpj14_matriz`**: CNPJ-14 = `cnpj8 + 0001 + DV` verificado em `GET /api/pncp/v1/orgaos/{cnpj}` → **+457** resoluções (187→644)
+2. Waves SZ entity-scoped com `http_204_complete` → **22 → 590** entidades success_zero
+3. Ops proxy contratos: **~29% → 85%**
+4. Branch `0002` testada: 0 hits nos 80 residual (não é atalho geral)
+5. Testes unitários: `tests/unit/ops/test_resolve_cnpj14_matriz.py` (4 passed)
 
-## Decisões
+## Claims proibidos (permanecem)
 
-1. ROI override **COV-EDIT-CONTRACT-OPS** (DECISION-001)
-2. N01 DONE — não reabrir
-3. PR #28 — não mergear
-4. SmartLic dataset DEFER/REJECT path crítico
-5. Pandera DEFER; Pydantic ADAPT baseline
-6. OCDS ADAPT thin; Kingfisher REJECT full
-7. GO sem perfil Extra → REVIEW (score cap 69)
-8. Ops proxy ≠ cobertura operacional de 7 estágios (claim proibida)
-9. Editais entity-scoped via `cnpjOrgao` na API publicacao: **não confiável** (400 / filtro incerto) — não gravar SZ de editais sem prova
+- 95% cobertura operacional (ainda gap 109 no proxy e editais em 25%)
+- ops_proxy como cobertura de 7 estágios
+- campanha DONE / DOD 55% / LOCAL_READY
+- either / união como meta
 
 ## Próximos passos
 
-1. Continuar resolve CNPJ-14 residual (~558) com delay ≥1s
-2. Rodar SZ em wave após cada lote de CNPJ novos
-3. Crawl nacional contratos com checkpoint (1 processo; respeitar 429)
-4. Multi-source residual (CIGA/DOM) para editais
-5. Gold sample N09 ou BLOCKED_SOURCE honesto
-6. Packages daily/weekly + 3 ciclos calendário
-7. HTML + DOD reconciliados sem inflação
-
-## Claims proibidos
-
-95% cobertura · either · LOCAL_READY · recall 95% · DOD 55% · campanha DONE · SmartLic operacional · ops_proxy como cobertura 7-estágios
-
-
-## Delta batch4
-
-- SZ entidades: **164**
-- Presença contratos: **309 (28,3%)**
-- Ops proxy presença∪SZ: **473/1093 (43,28%)**
-- Commit anterior: `470999b`; batch4 pending commit
+1. Residual ~109: OpenCNPJ/Receita por razão social, ou fontes multi-org (TCE/sc_compras) para presença
+2. **Editais** (279): crawls multi-source + matching; API publicacao+cnpjOrgao não confiável
+3. Fechar HAS_DATA residual + national contracts crawl controlado
+4. N09 gold sample ou BLOCKED_SOURCE formal
+5. DOD flips só com evidência; HTML executivo
