@@ -29,6 +29,14 @@ python3 -m pytest tests/cto -q -o addopts=''
 # 111 passed
 ```
 
+| Check | Resultado |
+|-------|-----------|
+| Ruff `scripts/cto` + `tests/cto` | limpo no HEAD |
+| `pytest tests/cto` | **111 passed** |
+| `run-once --dry-run --mock --skip-tests` | verify PASS → review ACCEPT → publish dry → **`ACCEPTED_DRY_RUN`** / `queue_mutated=false` / terminal **DONE** / exit **0** (não polui fila; WAITING_HUMAN só com draft PR real) |
+| live + `--skip-tests` | **BLOCKED_UNVERIFIED** / exit 11 |
+| sealed canary-live | ver seção abaixo |
+
 ## Dívida residual
 
 | Item | Status |
