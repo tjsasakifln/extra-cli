@@ -71,7 +71,7 @@ Cobertura inclui: allowlist env (ausência de `MY_TOKEN`/`DATABASE_URL`/…), HO
 | terminal | `WAITING_HUMAN` |
 | always_approve | **true** nesta execução via `CTO_GROK_ALWAYS_APPROVE=1` + containment funcional OK (default continua false) |
 | Grok | **live** (não mock); HOME isolado; **sem** cópia de host auth.json no código atual (exige `XAI_API_KEY`) |
-| decision↔verify | **coerente** — `test_commands=grep -qi canary …`; `required_evidence=canary-proof.md`; verify PASS; review ACCEPT; PR #50 |
+| decision↔execute↔verify | **coerente** — `execute_prompt.md` regenerado da mesma decision: `test_commands=grep -qi canary …`; `required_evidence=canary-proof.md`; verify PASS; review ACCEPT; PR #50 |
 | main mutada | **não** (`origin/main` = `d6d9e19`) |
 | merge | **não** (proibido; autoridade Tiago) |
 | diff hash | verification includes only canary-proof.md |
