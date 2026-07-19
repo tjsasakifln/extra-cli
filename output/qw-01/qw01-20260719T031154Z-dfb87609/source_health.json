@@ -1,0 +1,20 @@
+{
+  "source": "pncp",
+  "applicability": "applicable",
+  "operational_status": "never",
+  "scope": "uf=SC;modalidades=1-19",
+  "window_days": 45,
+  "freshness": "never",
+  "scope_complete": false,
+  "success_zero_evidence": false,
+  "blocker": "No auditable source run",
+  "metadata": {
+    "run_id": "qw01-20260719T031154Z-dfb87609",
+    "generated_at": "2026-07-19T03:11:54.792035+00:00",
+    "git_sha": "eef1413e64480c369f82d756b10988dc1474e236",
+    "branch": "campaign/extra-ops-95-20260719",
+    "seed_path": "/mnt/d/extra consultoria/Extra - alvos de licitação. R-0.xlsx",
+    "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+    "schema_fingerprint": "5efce6b446a18051b8906ceae02be29a206a2b5176a9f727f58cf4ccf5419285"
+  }
+}

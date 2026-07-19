@@ -141,6 +141,11 @@ READY_SEMANTICS = (
     "(numerator/denominator/pct computed or explicitly unavailable fields set). "
     "Code existence alone never yields READY."
 )
+PARTIAL_SEMANTICS = (
+    "PARTIAL means the metric was computed with explicit limitations "
+    "(incomplete sample, single-source strata, reduced confidence). "
+    "PARTIAL is never equivalent to READY and never counts as campaign DONE."
+)
 NOT_READY_SEMANTICS = (
     "NOT_READY means the metric could not be computed from available inputs "
     "(missing session, incomplete sample, entity-level gap, etc.)."
@@ -354,6 +359,7 @@ def validate_indicator_catalog() -> dict[str, Any]:
         "indicator_count": len(ALL_METRIC_IDS),
         "definitions": len(METRIC_DEFINITIONS),
         "ready_semantics": READY_SEMANTICS,
+        "partial_semantics": PARTIAL_SEMANTICS,
         "not_ready_semantics": NOT_READY_SEMANTICS,
         "blocked_semantics": BLOCKED_SEMANTICS,
         "required_fields": [

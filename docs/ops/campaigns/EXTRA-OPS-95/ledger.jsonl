@@ -29,3 +29,4 @@
 {"ts":"2026-07-19T07:59:00Z","event":"RESIDUAL_IDENTITY_404","residual":102,"probed":60,"pncp_404":60,"dod":"270/1352"}
 {"ts":"2026-07-19T08:15:00Z","event":"CONTRACTS_OPS_PROXY_GE95","ops":1090,"den":1093,"pct":99.7255,"sz":722,"method":"brasilapi_matriz_sz","residual":3}
 {"ts":"2026-07-19T08:17:00Z","event":"EDITAIS_SC_INGEST","presence_editais":287,"bids":12459,"dod":"272/1352"}
+{"ts": "2026-07-19T08:27:06.900670+00:00", "event": "session_continue_partial_blocked_semantics", "dod": "313/1352", "ops_proxy": "1093/1093", "editais_presence": 299, "story": "ROI-cand-dyn-slice-ac8b6e76a7b2", "status": "PARTIAL"}

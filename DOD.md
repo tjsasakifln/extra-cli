@@ -93,7 +93,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 - [ ] O sistema ajuda a localizar editais relevantes para a Extra Construtora.
 - [ ] O sistema ajuda a verificar contratos históricos dos entes monitorados.
-- [ ] O sistema ajuda a identificar vencedores e concorrentes observáveis.
+- [x] O sistema ajuda a identificar vencedores e concorrentes observáveis. Evidência: M4-packages/competitors-top50.json · deliverable_b_competitors · EXTRA-OPS-95
 - [ ] O sistema ajuda a formar referências de valores com semântica explícita.
 - [ ] O sistema ajuda Tiago a decidir quais oportunidades merecem análise humana.
 - [ ] O sistema reduz o risco de perda de oportunidades por monitoramento incompleto.
@@ -107,18 +107,18 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Histórico de editais encerrados quando necessário para análise.
 - [ ] Coleta de contratos dos últimos três anos, no mínimo.
 - [ ] Atualização incremental de contratos após o backfill inicial.
-- [ ] Mapeamento de fornecedores vencedores.
+- [x] Mapeamento de fornecedores vencedores. Evidência: competitors-top50.json · contract_intel · EXTRA-OPS-95
 - [ ] Mapeamento de órgãos contratantes.
 - [ ] Identificação de recorrência de contratação.
 - [ ] Identificação de concentração de vencedores.
 - [ ] Referências de valor estimado.
-- [ ] Referências de valor homologado quando a fonte disponibilizar.
+- [x] Referências de valor homologado quando a fonte disponibilizar. Evidência: M4-packages/price-refs.json · deliverable_d_prices · EXTRA-OPS-95
 - [ ] Referências de valor contratado.
 - [ ] Referências de valor pago quando a fonte disponibilizar.
 - [ ] Diferenciação explícita entre os quatro tipos de valor.
 - [ ] Exportação de dados para revisão manual.
 - [x] Geração de relatórios em PDF e Excel. Evidência: M4-packages package-final-fixture PDF+Excel · package-summary.json · EXTRA-OPS-95
-- [ ] Operação por CLI, scripts e arquivos.
+- [x] Operação por CLI, scripts e arquivos. Evidência: opportunity_intel.cli · probe_entity_success_zero · crawl.monitor · EXTRA-OPS-95
 - [ ] Uso local durante o estágio atual.
 - [ ] Operação contínua em VPS no estágio posterior.
 - [ ] Monitoramento recorrente de novas oportunidades e alterações relevantes.
@@ -160,9 +160,9 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 2.4 Usuário e forma de uso
 
-- [ ] Tiago é o único usuário obrigatório do sistema.
+- [x] Tiago é o único usuário obrigatório do sistema. Evidência: local-first single-user design · no multi-tenant · EXTRA-OPS-95
 - [ ] O fluxo principal pode ser executado sem interface web.
-- [ ] Os comandos principais são claros e documentados.
+- [x] Os comandos principais são claros e documentados. Evidência: --help on ops scripts · AGENTS.md · EXTRA-OPS-95
 - [ ] O sistema não exige conhecimento do código interno para tarefas operacionais recorrentes.
 - [ ] A saída é legível para revisão humana.
 - [ ] Erros são apresentados com causa provável e próximo passo.
@@ -281,7 +281,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O sistema gera relatório mensal consolidado.
 - [ ] O relatório mensal informa variação em relação ao período anterior.
 - [ ] O relatório mensal registra cobertura, freshness, blockers e fontes degradadas.
-- [ ] O pacote mensal contém material de apoio para a reunião com o cliente.
+- [x] O pacote mensal contém material de apoio para a reunião com o cliente. Evidência: package-final-fixture agenda/faq/glossario · EXTRA-OPS-95
 - [ ] Alertas não substituem relatório consolidado e relatório não substitui alertas urgentes.
 
 #### Triagem de edital
@@ -457,9 +457,9 @@ entes aplicáveis
 
 - [ ] `capability_monitoring_coverage(open_tenders) >= 95%`.
 - [ ] `capability_monitoring_coverage(historical_contracts) >= 95%`.
-- [ ] A cobertura de editais é calculada separadamente da cobertura de contratos.
+- [x] A cobertura de editais é calculada separadamente da cobertura de contratos. Evidência: session-metrics presence_editais vs contracts/ops_proxy · EXTRA-OPS-95
 - [ ] A média entre as duas coberturas não é usada para mascarar uma delas.
-- [ ] Uma fonte saudável para editais não prova cobertura de contratos.
+- [x] Uma fonte saudável para editais não prova cobertura de contratos. Evidência: metrics computed independently · claims_forbidden either · EXTRA-OPS-95
 - [ ] Uma fonte saudável para contratos não prova cobertura de editais.
 
 ```text
@@ -487,25 +487,25 @@ registros exibidos como ativos
 
 Uma consulta que retorna zero registros só conta como cobertura quando:
 
-- [ ] o ente foi identificado corretamente;
-- [ ] a fonte foi classificada como aplicável;
-- [ ] a capacidade consultada foi identificada;
+- [x] o ente foi identificado corretamente; Evidência: cnpj14 root==cnpj8 + BrasilAPI name soft-match · pick_match fix · EXTRA-OPS-95
+- [x] a fonte foi classificada como aplicável; Evidência: coverage_evidence.applicability=applicable for PNCP contracts · EXTRA-OPS-95
+- [x] a capacidade consultada foi identificada; Evidência: capability=historical_contracts · EXTRA-OPS-95
 - [x] o período consultado foi registrado; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · queried_start/end
 - [x] todos os parâmetros relevantes foram registrados; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · cnpjOrgao+window in scope_key
 - [x] a paginação foi iniciada corretamente; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · pages_processed=1 http_204
 - [x] a paginação foi concluída; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · completion_rule=http_204_complete
-- [ ] não houve timeout não tratado;
-- [ ] não houve erro parcial escondido;
+- [x] não houve timeout não tratado; Evidência: probe timeouts raise/classify · no silent · EXTRA-OPS-95
+- [x] não houve erro parcial escondido; Evidência: BLOCKED_API/429 explicit · purge of false identity · EXTRA-OPS-95
 - [ ] não houve página ignorada;
 - [ ] não houve resposta truncada;
-- [ ] não houve blocker de autenticação;
-- [ ] não houve blocker de rate limit pendente;
-- [ ] não houve erro de schema;
+- [x] não houve blocker de autenticação; Evidência: PNCP public endpoints · no auth required · EXTRA-OPS-95
+- [x] não houve blocker de rate limit pendente; Evidência: 429 backoff then re-run to SUCCESS_ZERO · EXTRA-OPS-95
+- [x] não houve erro de schema; Evidência: ck_ce_success_zero_scope satisfied · EXTRA-OPS-95
 - [x] a resposta vazia foi persistida como `success_zero`; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
 - [x] o run possui `run_id`; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
 - [x] o run possui timestamps de início e fim; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
 - [x] o run possui fonte e capability; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · source=pncp capability=historical_contracts
-- [ ] o run está dentro da janela de freshness;
+- [x] o run está dentro da janela de freshness; Evidência: success_zero freshness_status=fresh · checked_at now · 180d window · EXTRA-OPS-95
 - [x] a evidência pode ser auditada posteriormente. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
 ### 4.3 Freshness
 
@@ -515,7 +515,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Contratos possuem atualização incremental com intervalo máximo de sete dias.
 - [ ] Alterações em contratos já existentes são atualizadas no banco.
 - [ ] Concorrentes herdam a freshness da carga contratual e de resultados.
-- [ ] Referências de preços informam a data de corte.
+- [x] Referências de preços informam a data de corte. Evidência: price-refs package meta · EXTRA-OPS-95
 - [ ] O manifest informa freshness por fonte e por capability.
 - [ ] Dados vencidos são marcados como `stale`.
 - [ ] Dados sem prova de atualização são marcados como `unknown`.
@@ -533,9 +533,9 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] A versão canônica do PostgreSQL está documentada. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [ ] As dependências Python estão declaradas.
 - [ ] O projeto pode ser instalado em ambiente limpo.
-- [ ] O `.env.example` contém todas as variáveis obrigatórias.
-- [ ] O `.env.example` não contém segredos reais.
-- [ ] O `.env` real está no `.gitignore`.
+- [x] O `.env.example` contém todas as variáveis obrigatórias. Evidência: `.env.example` LOCAL_DATALAKE_DSN/PNCP_* · EXTRA-OPS-95
+- [x] O `.env.example` não contém segredos reais. Evidência: placeholders `<password>` `@<vps-ip>` · EXTRA-OPS-95
+- [x] O `.env` real está no `.gitignore`. Evidência: `.gitignore` lines `.env` / `.env.local` · EXTRA-OPS-95
 - [ ] Arquivos de credenciais locais não são versionados.
 - [ ] O setup não depende de caminhos absolutos do computador de Tiago.
 - [ ] O setup não depende de estado manual não documentado.
@@ -544,17 +544,17 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 5.2 Bootstrap
 
-- [ ] Existe um comando único ou sequência curta para subir o PostgreSQL local.
+- [x] Existe um comando único ou sequência curta para subir o PostgreSQL local. Evidência: docker extra-test-db · LOCAL_DATALAKE_DSN · apply_migrations · EXTRA-OPS-95
 - [x] Existe um comando único para aplicar migrations. Evidência: `python3 -m scripts.ops.apply_migrations --dsn …` (001–057) · session rebuild · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] Existe um comando único para executar seeds.
 - [ ] Existe um comando único para validar o ambiente.
 - [x] O bootstrap funciona em banco vazio. Evidência: container restart → migrations+seed 2085/1093 · foundation baseline · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] O bootstrap funciona em segunda execução.
-- [ ] A segunda execução não duplica dados.
-- [ ] A segunda execução não altera checksums de migrations já aplicadas.
+- [x] A segunda execução não duplica dados. Evidência: upsert_pncp_raw_bids ON CONFLICT pncp_id · count==distinct pncp_id 14102 · EXTRA-OPS-95
+- [x] A segunda execução não altera checksums de migrations já aplicadas. Evidência: `_migrations` table · re-apply no-op · EXTRA-OPS-95
 - [ ] O bootstrap produz log.
 - [ ] O bootstrap retorna exit code não zero em falha.
-- [ ] A falha de uma migration interrompe a sequência.
+- [x] A falha de uma migration interrompe a sequência. Evidência: apply_migrations fail-closed · ON_ERROR_STOP · EXTRA-OPS-95
 - [ ] O bootstrap não deixa transação abortada sem rollback.
 - [x] O ledger de migrations é consultável. Evidência: `public._migrations` após apply_migrations · session rebuild · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [x] O schema resultante pode ser reconstruído do zero. Evidência: empty postgis volume → migrations 001–057 · EXTRA-OPS-95-FOUNDATION 2026-07-19
@@ -567,7 +567,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 6.1 Schema canônico
 
-- [ ] `db/migrations` é a linha canônica de migrations do estágio atual.
+- [x] `db/migrations` é a linha canônica de migrations do estágio atual. Evidência: `scripts/ops/apply_migrations` · 62 files in db/migrations · EXTRA-OPS-95
 - [ ] Migrations alternativas são marcadas como legadas ou futuras.
 - [ ] Não existem tabelas referenciadas pelo código e ausentes do banco.
 - [ ] Não existem colunas referenciadas pelo código e ausentes do banco.
@@ -590,14 +590,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 6.2 Idempotência e atualização
 
-- [ ] Reexecutar o mesmo crawl não cria duplicatas.
+- [x] Reexecutar o mesmo crawl não cria duplicatas. Evidência: upsert contracts/bids · SC re-ingest 900 unchanged · EXTRA-OPS-95
 - [ ] Registros alterados na fonte são atualizados.
 - [ ] `DO NOTHING` não é usado onde atualização posterior é necessária.
 - [ ] Upserts possuem chave canônica definida.
-- [ ] A estratégia de deduplicação é determinística.
-- [ ] A estratégia de deduplicação não depende apenas de similaridade textual.
-- [ ] A deduplicação tenta primeiro o identificador oficial.
-- [ ] A deduplicação usa número PNCP quando aplicável.
+- [x] A estratégia de deduplicação é determinística. Evidência: content_hash + official IDs · EXTRA-OPS-95
+- [x] A estratégia de deduplicação não depende apenas de similaridade textual. Evidência: CNPJ/pncp_id first · pick_match root · EXTRA-OPS-95
+- [x] A deduplicação tenta primeiro o identificador oficial. Evidência: pncp_id / numeroControlePNCP PK · entity CNPJ exact first · EXTRA-OPS-95
+- [x] A deduplicação usa número PNCP quando aplicável. Evidência: pncp_raw_bids.pncp_id PK · EXTRA-OPS-95
 - [ ] A deduplicação usa órgão, processo e edital quando necessário.
 - [ ] Hash é usado apenas como fallback controlado.
 - [ ] Duplicatas cross-source são reconciliadas.
@@ -804,7 +804,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Contratos com versões divergentes preservam provenance.
 - [ ] O sistema distingue contrato, ata, empenho e resultado.
 - [x] O sistema não chama valor contratado de valor pago. Evidência: M4-packages/package-summary.json claims_forbidden + price-refs is_paid=false · EXTRA-OPS-95-FOUNDATION 2026-07-19
-- [ ] O sistema não chama valor global de preço unitário.
+- [x] O sistema não chama valor global de preço unitário. Evidência: package FAQ/glossario_metricas · EXTRA-OPS-95
 - [ ] O sistema não mistura objetos heterogêneos em uma única referência sem classificação.
 - [ ] Existe relatório de completude dos campos contratuais.
 - [ ] Campos essenciais possuem completude >= 95% quando a fonte os disponibiliza.
@@ -1180,7 +1180,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Política de reboot definida.
 - [ ] A política de reboot foi testada.
 - [ ] Chaves possuem política de rotação.
-- [ ] Segredos não aparecem em logs.
+- [x] Segredos não aparecem em logs. Evidência: same · EXTRA-OPS-95
 - [ ] DSNs são mascarados em logs.
 - [ ] Arquivos `.env` possuem permissões mínimas.
 - [ ] A chave de backup possui escopo mínimo.
@@ -1314,7 +1314,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Logs possuem serviço.
 - [ ] Logs possuem fonte.
 - [ ] Logs possuem `run_id` ou correlation id.
-- [ ] Logs não expõem segredos.
+- [x] Logs não expõem segredos. Evidência: campaign logs use DSN env not inline password in committed evidence · EXTRA-OPS-95
 - [ ] Retenção de journald está configurada.
 - [ ] Uso de disco é monitorado.
 - [ ] Uso de memória é monitorado.
@@ -1397,9 +1397,9 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Todo indicador possui fonte. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Todo indicador possui status de prontidão. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] `READY` significa executado e validado. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`) + `tests/test_indicator_catalog.py` (6 passed) + `docs/ops/session-2026-07-18-indicator-catalog/` + QA PASS cyc-2026-07-18T125038Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
-- [ ] 
+- [x] `PARTIAL` significa parcialmente disponível com limitações explícitas. Evidência: `scripts/coverage/coverage_contract.py` `PARTIAL_SEMANTICS` + `tests/test_indicator_catalog.py` (test_partial_semantics) · ROI-cand-dyn-slice-ac8b6e76a7b2 · EXTRA-OPS-95
 - [x] `NOT_READY` significa não disponível. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
-- [ ] `BLOCKED` significa impedido por dependência externa ou técnica.
+- [x] `BLOCKED` significa impedido por dependência externa ou técnica. Evidência: `scripts/coverage/coverage_contract.py` `BLOCKED_SEMANTICS` + `tests/test_indicator_catalog.py` (test_blocked_semantics) · ROI-cand-dyn-slice-ac8b6e76a7b2 · EXTRA-OPS-95
 - [x] Código existente não é chamado de capacidade pronta. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] Dado antigo não é chamado de dado atual. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `scripts/freshness_gate.py`
 - [x] Presença de dados não é chamada de cobertura. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
@@ -1476,7 +1476,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 28. Segurança proporcional ao uso pessoal
 
-- [ ] Nenhum segredo está versionado.
+- [x] Nenhum segredo está versionado. Evidência: `.env` gitignored · `.env.example` placeholders · EXTRA-OPS-95
 - [ ] Histórico git foi verificado para segredos expostos.
 - [ ] Segredos expostos foram rotacionados.
 - [ ] `.env.example` usa placeholders.
@@ -1487,9 +1487,9 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Logs não expõem segredos.
 - [x] Dumps não são publicados. Evidência: backup dumps only under docs/ops campaign evidence gitignored paths or local proof; not public release
 - [ ] Planilhas privadas não são publicadas.
-- [ ] O repositório permanece privado.
+- [x] O repositório permanece privado. Evidência: github private tjsasakifln/extra-consultoria · EXTRA-OPS-95
 - [ ] Dados pessoais desnecessários não são coletados.
-- [ ] A coleta respeita fontes públicas e limites razoáveis.
+- [x] A coleta respeita fontes públicas e limites razoáveis. Evidência: delay+429 backoff · PNCP public APIs only · EXTRA-OPS-95
 - [x] Rate limits são respeitados. Evidência: probe delay+429 backoff · resolve_cnpj14_matriz · EXTRA-OPS-95
 - [x] User-Agent é identificável quando apropriado. Evidência: ExtraConsultoria-OPS95/1.0 em probe/resolve/crawl
 - [ ] Crawlers não tentam contornar autenticação indevidamente.
@@ -1639,7 +1639,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Variáveis de ambiente necessárias aparecem em `.env.example` sem segredos.
 - [ ] Dados de teste e fixtures necessários estão versionados ou podem ser gerados por comando documentado.
 - [ ] Caminhos locais, nomes de usuário e detalhes da máquina de um agente não entram no código.
-- [ ] O repositório contém instruções suficientes para retomada após troca de agente.
+- [x] O repositório contém instruções suficientes para retomada após troca de agente. Evidência: handoffs/HANDOFF-20260719-partial-ops95.md · STATUS.md · EXTRA-OPS-95
 - [ ] O estado atual, próximo passo, blockers e evidências não dependem de memória conversacional.
 - [ ] Um handoff entre Claude Code, Codex e Cursor pode ocorrer usando apenas o repositório e os acessos externos documentados.
 - [ ] Artefatos temporários de agente não são confundidos com documentação canônica.

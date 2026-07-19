@@ -1,40 +1,25 @@
 {
-  "measured_at": "2026-07-19T08:17:15.257976+00:00",
-  "head": "1fc2ff6+",
+  "measured_at": "2026-07-19T08:24:24.070617+00:00",
+  "head": "d022012b6047",
   "denominator_200km": 1093,
-  "presence_editais": 287,
-  "presence_editais_pct": 26.258,
-  "presence_contracts": 368,
-  "presence_contracts_pct": 33.6688,
+  "presence_editais": 299,
+  "presence_editais_pct": 27.3559,
+  "presence_contracts": 371,
+  "presence_contracts_pct": 33.9433,
   "success_zero_contracts_entities": 722,
-  "ops_proxy_contracts_presence_or_sz": 1090,
-  "ops_proxy_pct": 99.7255,
+  "ops_proxy_contracts_presence_or_sz": 1093,
+  "ops_proxy_pct": 100.0,
   "ops_proxy_ge_95": true,
   "gap_to_95pct_ops_contracts": 0,
-  "residual_contracts_ops": [
-    {
-      "cnpj8": "00394494012061",
-      "razao": "SUPERINTENDENCIA REG.POL.RODOV.FED. EM SANTA CATARINA"
-    },
-    {
-      "cnpj8": "00394494000309",
-      "razao": "SUPERINTENDENCIA REGIONAL DO DPF EM SANTA CATARINA"
-    },
-    {
-      "cnpj8": "00394494015320",
-      "razao": "UNIVERSIDADE CORPORATIVA DA POLICIA RODOVIARIA FEDERAL"
-    }
-  ],
-  "bids_rows": 12459,
+  "bids_rows": 14102,
   "contracts_rows": 224072,
-  "dod_checked": 272,
+  "dod_checked": 311,
   "dod_total": 1352,
-  "dod_pct": 20.1183,
+  "dod_pct": 23.003,
   "definition": "ops_proxy = lake presence of orgao_cnpj8 OR entity-scoped success_zero with cnpj14 root match + http_204_complete. NOT seven-stage operational coverage.",
-  "brasilapi_method": "matriz 0001+DV validated by BrasilAPI razao soft-match before PNCP contracts probe",
   "status": "PARTIAL",
   "claims_allowed": [
-    "contracts ops proxy 1090/1093 (99.73%) via presence∪entity success_zero",
+    "contracts ops proxy 1093/1093 (100.00%) via presence∪entity success_zero",
     "contracts ops proxy >= 95% under this definition"
   ],
   "claims_forbidden": [

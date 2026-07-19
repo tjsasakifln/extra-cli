@@ -1,5 +1,5 @@
 {
-  "run_id": "ciga-dom-20260717T105219Z-9f86448a90",
+  "run_id": "ciga-dom-20260719T032627Z-a0c1b58be8",
   "source": "ciga_dom",
   "mode": "incremental",
   "package_id": "domsc-publicacoes-de-07-2026",
@@ -7,41 +7,35 @@
   "live_fetch": true,
   "attestation": false,
   "counts": {
-    "resources_available": 45,
-    "zips_available": 45,
-    "selected": 15,
-    "completed_resources_prior": 15,
-    "resources_processed_ok": 15,
+    "resources_available": 50,
+    "zips_available": 50,
+    "selected": 29,
+    "completed_resources_prior": 21,
+    "resources_processed_ok": 29,
     "resources_failed": 0,
     "resources_skipped_checkpoint": 0,
-    "files_processed": 15,
+    "files_processed": 29,
     "files_skipped_checkpoint": 0,
-    "records_normalized": 10182,
-    "municipalities_observed": 281
+    "records_normalized": 23733,
+    "municipalities_observed": 287
   },
   "municipalities": {
     "universe_source": "static_sc_list",
     "universe_count": 295,
-    "observed_count": 281,
-    "covered_in_universe": 279,
-    "gap_count": 16,
+    "observed_count": 287,
+    "covered_in_universe": 285,
+    "gap_count": 10,
     "gaps_sample": [
       "araquari",
+      "bela vista do toldo",
       "bocaina do sul",
-      "brunopolis",
       "campo ere",
-      "celso ramos",
-      "criciuma",
-      "erval velho",
       "graopara",
       "herval doeste",
       "laurentino",
-      "meleiro",
-      "novo horizonte",
       "palma sola",
       "peritiba",
-      "ponte alta",
-      "treviso"
+      "ponte alta"
     ],
     "observed_sample": [
       "abdon batista",
@@ -77,7 +71,6 @@
       "bandeirante",
       "barra bonita",
       "barra velha",
-      "bela vista do toldo",
       "belmonte",
       "benedito novo",
       "biguacu",
@@ -90,6 +83,7 @@
       "botuvera",
       "braco do norte",
       "braco do trombudo",
+      "brunopolis",
       "brusque",
       "cacador",
       "caibi",
@@ -97,147 +91,273 @@
     ]
   },
   "selected_resource_ids": [
-    "2281ac28-18bf-4ea0-a0b4-085d5d63133d",
-    "ea2959bb-c395-41dc-aff4-b2ac3d1bc8d2",
-    "08887bb3-3692-4673-84a3-b2345e607efb",
-    "9203b53e-62b4-45a4-970c-74ca0abdc842",
-    "72509ff3-2d63-44d8-8740-57f4e69d1615",
-    "820c7562-6f56-4e5d-ad5b-76e5881781f6",
-    "46bb99dc-856e-46c8-9531-9282624087fa",
-    "3a95e789-8f19-4c64-bbb6-a0ca3c900c27",
-    "ebc67427-f8a1-47c1-a60e-e4c410ce3390",
-    "4e1051bf-d5da-4d5a-9e75-9a55acddf0a9",
-    "7a7193ca-aec6-449b-98f8-ab9a1f3ae95b",
-    "5ce28cbe-5080-4702-9a34-1ede9844d716",
-    "96d91d56-35ab-4d26-8fd8-18696a639ce2",
-    "06f4b4aa-d66c-4e95-9f4b-9b65f8ad90ce",
-    "b543952e-25aa-4bc5-9729-1795b210b587"
+    "b7b93a79-5054-401c-8959-049ddadb9c13",
+    "6adb13f9-a473-4802-a1ee-fa6014a01754",
+    "78652c24-a8ec-435e-b184-06fcd2fbd615",
+    "1ecb78bb-3695-4853-8b04-3980a2734fed",
+    "7b94b3f6-8cf8-456e-b96e-9e0be49f68f9",
+    "fae62e4d-43e2-450d-95dc-4226678958a8",
+    "fd5850b7-04ec-4968-ab97-1cc568ab3a41",
+    "8067efde-7235-44ed-addd-92658bd47375",
+    "95ade2e1-24a8-4c2c-8e39-cbdd1a720c49",
+    "be4d363a-8194-4d51-a781-29a8fe071db1",
+    "1723afc4-7f06-4a37-adbd-f8c289978b94",
+    "c2836c8c-9b3f-40db-bcc4-c1c38cf8daa9",
+    "2572c212-aede-4035-a7f5-15d53d3e00aa",
+    "8d9c6e4f-c7f6-4048-a492-8ad0e7838e71",
+    "e1732fe1-fded-4406-a270-08b08e896205",
+    "f6864420-5400-4bcb-bcf8-55db1c5f9600",
+    "cc820817-be16-4957-b259-b6628bdc6f92",
+    "0778eef6-22fc-4f2c-90dc-d158d10965e8",
+    "48da9689-e65c-4f05-9101-9f143c8ea25b",
+    "f1a08510-a245-4d75-b4c4-667122ebdfeb",
+    "b7210eca-ed93-482b-a093-dde096e9eda7",
+    "7efe956a-57db-4ef2-9f04-68f6e68e83d6",
+    "150972c0-06fd-46aa-ad72-0c89e3377d36",
+    "63bc0981-1ec9-4850-a2e5-d234ae38b1cc",
+    "98287f7c-109e-472a-a708-a44215f8476c",
+    "0c6aaeb7-5aa9-4410-bb45-ebcd19fae060",
+    "36ada8cb-a2db-4922-abf7-f29ecb1ea52d",
+    "f4f102a1-b909-4a22-8928-de9df8c3789b",
+    "c3373b42-f00d-44da-b46e-464b66b50f69"
   ],
   "resource_stats": [
     {
-      "resource_id": "2281ac28-18bf-4ea0-a0b4-085d5d63133d",
+      "resource_id": "b7b93a79-5054-401c-8959-049ddadb9c13",
       "status": "ok",
-      "records": 1861,
+      "records": 524,
       "files": 1,
-      "sha256": "c48967ccdfc950098139fbb2196ecf9aaf1dcafb3733ef48335011c05cbda6d4",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/2281ac28-18bf-4ea0-a0b4-085d5d63133d/cigadados_publicacoes_2026_07_01_0000_1159.zip"
+      "sha256": "a7800dddfe0fb849ea84cde28e31c56c37d9997aaea5dc56de47091d61a66e16",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/b7b93a79-5054-401c-8959-049ddadb9c13/cigadados_publicacoes_2026_07_07_1600_2359.zip"
     },
     {
-      "resource_id": "ea2959bb-c395-41dc-aff4-b2ac3d1bc8d2",
+      "resource_id": "6adb13f9-a473-4802-a1ee-fa6014a01754",
       "status": "ok",
-      "records": 797,
+      "records": 2639,
       "files": 1,
-      "sha256": "eee0517bc53dabe0987ed327cbba2fcfc192c466e82c07c8671420551b0c87f2",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/ea2959bb-c395-41dc-aff4-b2ac3d1bc8d2/cigadados_publicacoes_2026_07_01_1200_1559.zip"
+      "sha256": "a2d581b6920c945fd17b5d94e1330dc51805fe2588fbfb7c0e8ffb1dc00b2141",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/6adb13f9-a473-4802-a1ee-fa6014a01754/cigadados_publicacoes_2026_07_08_0000_1159.zip"
     },
     {
-      "resource_id": "08887bb3-3692-4673-84a3-b2345e607efb",
+      "resource_id": "78652c24-a8ec-435e-b184-06fcd2fbd615",
       "status": "ok",
-      "records": 634,
+      "records": 585,
       "files": 1,
-      "sha256": "523f57a14992811659acb56cc1decf6b6fa0925058d40b9c5d1acb41a87e6726",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/08887bb3-3692-4673-84a3-b2345e607efb/cigadados_publicacoes_2026_07_01_1600_2359.zip"
+      "sha256": "e38e48decc26044b7a724c123e61a785871664c94cf64340c252822121c776f0",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/78652c24-a8ec-435e-b184-06fcd2fbd615/cigadados_publicacoes_2026_07_08_1200_1559.zip"
     },
     {
-      "resource_id": "9203b53e-62b4-45a4-970c-74ca0abdc842",
+      "resource_id": "1ecb78bb-3695-4853-8b04-3980a2734fed",
       "status": "ok",
-      "records": 1813,
+      "records": 445,
       "files": 1,
-      "sha256": "fa3ead0d03d2b8b950ad1c7817e802d01c212ddf28a4c57527416f3228a171f2",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/9203b53e-62b4-45a4-970c-74ca0abdc842/cigadados_publicacoes_2026_07_02_0000_1159.zip"
+      "sha256": "7fa01f3b3e3578d9860ff3be904d56e1e626fe4291d112ef276396533027b01c",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/1ecb78bb-3695-4853-8b04-3980a2734fed/cigadados_publicacoes_2026_07_08_1600_2359.zip"
     },
     {
-      "resource_id": "72509ff3-2d63-44d8-8740-57f4e69d1615",
+      "resource_id": "7b94b3f6-8cf8-456e-b96e-9e0be49f68f9",
       "status": "ok",
-      "records": 624,
+      "records": 2694,
       "files": 1,
-      "sha256": "41fa710421589ec671f73b2c73c0d13cb4889b6e87c9fb73581f9b2833887c6b",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/72509ff3-2d63-44d8-8740-57f4e69d1615/cigadados_publicacoes_2026_07_02_1200_1559.zip"
+      "sha256": "e0efe53163b358a07a8233871884f07a3aedf90779c02753a08f25f16d86eec3",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/7b94b3f6-8cf8-456e-b96e-9e0be49f68f9/cigadados_publicacoes_2026_07_09_0000_1159.zip"
     },
     {
-      "resource_id": "820c7562-6f56-4e5d-ad5b-76e5881781f6",
+      "resource_id": "fae62e4d-43e2-450d-95dc-4226678958a8",
       "status": "ok",
-      "records": 450,
+      "records": 652,
       "files": 1,
-      "sha256": "833305360b9bba611f32817c04c3d13264e75967eb1061637ec8bbd122072847",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/820c7562-6f56-4e5d-ad5b-76e5881781f6/cigadados_publicacoes_2026_07_02_1600_2359.zip"
+      "sha256": "605e3543011f809a5a208fdd15346f545d40826ebd759b313889d9e7e17de02e",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/fae62e4d-43e2-450d-95dc-4226678958a8/cigadados_publicacoes_2026_07_09_1200_1559.zip"
     },
     {
-      "resource_id": "46bb99dc-856e-46c8-9531-9282624087fa",
+      "resource_id": "fd5850b7-04ec-4968-ab97-1cc568ab3a41",
       "status": "ok",
-      "records": 1395,
+      "records": 466,
       "files": 1,
-      "sha256": "edea1306d976d03ab1018f6895fc916c7e4f4edac714d469c037e3cefaa521e0",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/46bb99dc-856e-46c8-9531-9282624087fa/cigadados_publicacoes_2026_07_03_0000_1159.zip"
+      "sha256": "6da0f2f87b360253f369dc30de90920f05b88ba231edf6eee3acb0cf89eb3620",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/fd5850b7-04ec-4968-ab97-1cc568ab3a41/cigadados_publicacoes_2026_07_09_1600_2359.zip"
     },
     {
-      "resource_id": "3a95e789-8f19-4c64-bbb6-a0ca3c900c27",
+      "resource_id": "8067efde-7235-44ed-addd-92658bd47375",
       "status": "ok",
-      "records": 615,
+      "records": 2247,
       "files": 1,
-      "sha256": "63c751e96790b9e1498330f9f674db71b66ca8d2d0c24dee2fb68b02e96d71bd",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/3a95e789-8f19-4c64-bbb6-a0ca3c900c27/cigadados_publicacoes_2026_07_03_1200_1559.zip"
+      "sha256": "acad496a85d00b0b1a9da7ad2a0559cfce957bb16ff1d2bcdcecfc9c4f5fb752",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/8067efde-7235-44ed-addd-92658bd47375/cigadados_publicacoes_2026_07_10_0000_1159.zip"
     },
     {
-      "resource_id": "ebc67427-f8a1-47c1-a60e-e4c410ce3390",
+      "resource_id": "95ade2e1-24a8-4c2c-8e39-cbdd1a720c49",
       "status": "ok",
-      "records": 470,
+      "records": 618,
       "files": 1,
-      "sha256": "f0264b4f68fd9b5e67d63c053bb305e09f40ed0fa4b0b583944a6d29f81820dc",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/ebc67427-f8a1-47c1-a60e-e4c410ce3390/cigadados_publicacoes_2026_07_03_1600_2359.zip"
+      "sha256": "3a8046184e138907faec8eacc1a891a127be0e91a1f8cfcaf9cad9c6d1c35b0c",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/95ade2e1-24a8-4c2c-8e39-cbdd1a720c49/cigadados_publicacoes_2026_07_10_1200_1559.zip"
     },
     {
-      "resource_id": "4e1051bf-d5da-4d5a-9e75-9a55acddf0a9",
+      "resource_id": "be4d363a-8194-4d51-a781-29a8fe071db1",
       "status": "ok",
-      "records": 605,
+      "records": 480,
       "files": 1,
-      "sha256": "b8828bc817c173fbf1921bc7feb32cef4a0ccfbde38114b4d79b8c9e5aea571c",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/4e1051bf-d5da-4d5a-9e75-9a55acddf0a9/cigadados_publicacoes_2026_07_04_0000_1159.zip"
+      "sha256": "e37d0ce6e2957c1b591a5dd2c3d32d9a87b2c03fdb3d20a439014dd770f6c2fc",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/be4d363a-8194-4d51-a781-29a8fe071db1/cigadados_publicacoes_2026_07_10_1600_2359.zip"
     },
     {
-      "resource_id": "7a7193ca-aec6-449b-98f8-ab9a1f3ae95b",
+      "resource_id": "1723afc4-7f06-4a37-adbd-f8c289978b94",
       "status": "ok",
-      "records": 2,
+      "records": 737,
       "files": 1,
-      "sha256": "20acb6ab9d1eae495062894d7e9422910042aa57f20eb8ff5ff0f294d45c78ef",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/7a7193ca-aec6-449b-98f8-ab9a1f3ae95b/cigadados_publicacoes_2026_07_04_1200_1559.zip"
+      "sha256": "5bdec826d16a54016f5cbf353ec2a723b856a39c4d4584219e81e124b7b72d46",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/1723afc4-7f06-4a37-adbd-f8c289978b94/cigadados_publicacoes_2026_07_11_0000_1159.zip"
     },
     {
-      "resource_id": "5ce28cbe-5080-4702-9a34-1ede9844d716",
-      "status": "ok",
-      "records": 3,
-      "files": 1,
-      "sha256": "ed520e6b989ab92ad75bec5a72a89d4c573c3052385503ec42544323bea22722",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/5ce28cbe-5080-4702-9a34-1ede9844d716/cigadados_publicacoes_2026_07_04_1600_2359.zip"
-    },
-    {
-      "resource_id": "96d91d56-35ab-4d26-8fd8-18696a639ce2",
-      "status": "ok",
-      "records": 202,
-      "files": 1,
-      "sha256": "c74e52368f2ae8f82631929cabcf2f5ec0a936c67cee8a558cda7591b6701fcd",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/96d91d56-35ab-4d26-8fd8-18696a639ce2/cigadados_publicacoes_2026_07_05_0000_1159.zip"
-    },
-    {
-      "resource_id": "06f4b4aa-d66c-4e95-9f4b-9b65f8ad90ce",
+      "resource_id": "c2836c8c-9b3f-40db-bcc4-c1c38cf8daa9",
       "status": "ok",
       "records": 1,
       "files": 1,
-      "sha256": "96ef176c1210b98e019741084e95d5f1c2d1c08933a7a91ecd5e6dba905333b2",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/06f4b4aa-d66c-4e95-9f4b-9b65f8ad90ce/cigadados_publicacoes_2026_07_05_1200_1559.zip"
+      "sha256": "f44ecd3b4dfadb80cd5a6090a13bd9f9961a9dc572adee940ae6847dedc8dde2",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/c2836c8c-9b3f-40db-bcc4-c1c38cf8daa9/cigadados_publicacoes_2026_07_11_1200_1559.zip"
     },
     {
-      "resource_id": "b543952e-25aa-4bc5-9729-1795b210b587",
+      "resource_id": "2572c212-aede-4035-a7f5-15d53d3e00aa",
       "status": "ok",
-      "records": 710,
+      "records": 1,
       "files": 1,
-      "sha256": "1748f423a450dd2c9e4baa066e896fcea8f9e24eb9b8735a70b96026833a293c",
-      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/b543952e-25aa-4bc5-9729-1795b210b587/cigadados_publicacoes_2026_07_06_0000_1159.zip"
+      "sha256": "4b02d29d8302d2b8d7b71d2b361302ce958680f2fa4e27274797bdb687155d22",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/2572c212-aede-4035-a7f5-15d53d3e00aa/cigadados_publicacoes_2026_07_11_1600_2359.zip"
+    },
+    {
+      "resource_id": "8d9c6e4f-c7f6-4048-a492-8ad0e7838e71",
+      "status": "ok",
+      "records": 218,
+      "files": 1,
+      "sha256": "b56f189b2e5f7c5f4395ba8b89aabc43b7af4e4ef7600661b861e7610b3ba8c4",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/8d9c6e4f-c7f6-4048-a492-8ad0e7838e71/cigadados_publicacoes_2026_07_12_0000_1159.zip"
+    },
+    {
+      "resource_id": "e1732fe1-fded-4406-a270-08b08e896205",
+      "status": "ok",
+      "records": 685,
+      "files": 1,
+      "sha256": "ce9ed8ba45f1db01a0cb0b2f24a29e366881d4ace0633c72849ff7bdc83e63b4",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/e1732fe1-fded-4406-a270-08b08e896205/cigadados_publicacoes_2026_07_13_0000_1159.zip"
+    },
+    {
+      "resource_id": "f6864420-5400-4bcb-bcf8-55db1c5f9600",
+      "status": "ok",
+      "records": 693,
+      "files": 1,
+      "sha256": "29bde2ed62022187d691be9f71210fe21c08fff12b154b5cb9b4691b93007ed0",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/f6864420-5400-4bcb-bcf8-55db1c5f9600/cigadados_publicacoes_2026_07_13_1200_1559.zip"
+    },
+    {
+      "resource_id": "cc820817-be16-4957-b259-b6628bdc6f92",
+      "status": "ok",
+      "records": 452,
+      "files": 1,
+      "sha256": "a70d3ea1249f904bbda6297894df5d3209388a6daf361755904df16681a5471f",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/cc820817-be16-4957-b259-b6628bdc6f92/cigadados_publicacoes_2026_07_13_1600_2359.zip"
+    },
+    {
+      "resource_id": "0778eef6-22fc-4f2c-90dc-d158d10965e8",
+      "status": "ok",
+      "records": 1467,
+      "files": 1,
+      "sha256": "00aecef44e3164204d3fa7a2949f81ce9e42681789386f7dc2656e6105839d5f",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/0778eef6-22fc-4f2c-90dc-d158d10965e8/cigadados_publicacoes_2026_07_14_0000_1159.zip"
+    },
+    {
+      "resource_id": "48da9689-e65c-4f05-9101-9f143c8ea25b",
+      "status": "ok",
+      "records": 788,
+      "files": 1,
+      "sha256": "d041fe9429ea3cee7f66a5135842ec2bef2d77d536b13d4a9eb0b5bdde2b622b",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/48da9689-e65c-4f05-9101-9f143c8ea25b/cigadados_publicacoes_2026_07_14_1200_1559.zip"
+    },
+    {
+      "resource_id": "f1a08510-a245-4d75-b4c4-667122ebdfeb",
+      "status": "ok",
+      "records": 402,
+      "files": 1,
+      "sha256": "955f3e433b55ee856ef629d4672d50409d62540a17e8f9713255bff8934afb53",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/f1a08510-a245-4d75-b4c4-667122ebdfeb/cigadados_publicacoes_2026_07_14_1600_2359.zip"
+    },
+    {
+      "resource_id": "b7210eca-ed93-482b-a093-dde096e9eda7",
+      "status": "ok",
+      "records": 1570,
+      "files": 1,
+      "sha256": "66cd51ec9b6a5c4fadbc7373979f45dc5334c71ea5a1bfebb61639a9e3d09908",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/b7210eca-ed93-482b-a093-dde096e9eda7/cigadados_publicacoes_2026_07_15_0000_1159.zip"
+    },
+    {
+      "resource_id": "7efe956a-57db-4ef2-9f04-68f6e68e83d6",
+      "status": "ok",
+      "records": 635,
+      "files": 1,
+      "sha256": "e18f3906d16725ec1fd1dc986ff65a605cb102b6a4493276e11c2ffdf89367a2",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/7efe956a-57db-4ef2-9f04-68f6e68e83d6/cigadados_publicacoes_2026_07_15_1200_1559.zip"
+    },
+    {
+      "resource_id": "150972c0-06fd-46aa-ad72-0c89e3377d36",
+      "status": "ok",
+      "records": 408,
+      "files": 1,
+      "sha256": "80e02b208922d460bc5d509683d5a411f6d2ded48cd96b67feca23c36d6987a9",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/150972c0-06fd-46aa-ad72-0c89e3377d36/cigadados_publicacoes_2026_07_15_1600_2359.zip"
+    },
+    {
+      "resource_id": "63bc0981-1ec9-4850-a2e5-d234ae38b1cc",
+      "status": "ok",
+      "records": 495,
+      "files": 1,
+      "sha256": "4d3d845be67eb9817eb04bc0cd3cdb46a2d699183a766dd4d43adb5007e957d4",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/63bc0981-1ec9-4850-a2e5-d234ae38b1cc/cigadados_publicacoes_2026_07_16_1600_2359.zip"
+    },
+    {
+      "resource_id": "98287f7c-109e-472a-a708-a44215f8476c",
+      "status": "ok",
+      "records": 1392,
+      "files": 1,
+      "sha256": "6e4a50b65e219d963a9928e4f170c92457eb18d8f115f9b8b6942dbb06dfefca",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/98287f7c-109e-472a-a708-a44215f8476c/cigadados_publicacoes_2026_07_17_0000_1159.zip"
+    },
+    {
+      "resource_id": "0c6aaeb7-5aa9-4410-bb45-ebcd19fae060",
+      "status": "ok",
+      "records": 649,
+      "files": 1,
+      "sha256": "4828e6c9cc84c0862d450c074bed3728bb082156770bb795677d729fd167d828",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/0c6aaeb7-5aa9-4410-bb45-ebcd19fae060/cigadados_publicacoes_2026_07_17_1200_1559.zip"
+    },
+    {
+      "resource_id": "36ada8cb-a2db-4922-abf7-f29ecb1ea52d",
+      "status": "ok",
+      "records": 404,
+      "files": 1,
+      "sha256": "ee4e10d7275041e2cb5316397b4d6c073d20724a23597fe19fdaf2ca0ac70619",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/36ada8cb-a2db-4922-abf7-f29ecb1ea52d/cigadados_publicacoes_2026_07_17_1600_2359.zip"
+    },
+    {
+      "resource_id": "f4f102a1-b909-4a22-8928-de9df8c3789b",
+      "status": "ok",
+      "records": 1385,
+      "files": 1,
+      "sha256": "8cf2c66a6131d5d2887f80ab1f88605d626be5fa160e5b545b3b1ab56d4f0be1",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/f4f102a1-b909-4a22-8928-de9df8c3789b/cigadados_publicacoes_2026_07_18_0000_1159.zip"
+    },
+    {
+      "resource_id": "c3373b42-f00d-44da-b46e-464b66b50f69",
+      "status": "ok",
+      "records": 1,
+      "files": 1,
+      "sha256": "bb74a9ca1f3ceafa8c2dd29819859ed7dc4fc6b811cd25b7f4f15487e3268365",
+      "raw_path": "/mnt/d/extra consultoria/data/raw/ciga_dom/domsc-publicacoes-de-07-2026/c3373b42-f00d-44da-b46e-464b66b50f69/cigadados_publicacoes_2026_07_18_1200_1559.zip"
     }
   ],
   "errors": [],
-  "jsonl_path": "/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260717T105219Z-9f86448a90/publications.jsonl",
+  "jsonl_path": "/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260719T032627Z-a0c1b58be8/publications.jsonl",
   "freshness_manifest": "/mnt/d/extra consultoria/output/ciga_dom/freshness_manifest.json",
-  "started_at": "2026-07-17T10:52:19.271143+00:00",
-  "completed_at": "2026-07-17T10:52:51.544402+00:00"
+  "started_at": "2026-07-19T03:26:27.332031+00:00",
+  "completed_at": "2026-07-19T03:27:41.180697+00:00"
 }
