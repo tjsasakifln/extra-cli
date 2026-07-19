@@ -1,0 +1,123 @@
+schema_version: "1.0"
+
+human_only_actions:
+  - merge
+  - deploy
+  - force_push
+  - paid_provision
+  - destructive_migration
+  - irreversible_delete
+  - change_dod_meaning
+  - reduce_dod
+  - architecture_material_change
+  - contractual_scope_change
+  - client_claim
+  - external_publication
+  - confidential_out_of_scope_access
+  - third_repair_attempt
+  - product_decision_without_prd
+
+forbidden_claims:
+  - LOCAL_READY
+  - PRE_VPS_FINAL_READY
+  - VPS_OPERATIONAL
+  - PROJECT_DONE
+  - "95% coverage"
+  - "cobertura operacional 95%"
+  - "recall 100%"
+
+forbidden_paths:
+  - .env
+  - .env.*
+  - "**/.ssh/**"
+  - "**/credentials*"
+  - "**/*secret*"
+  - .git/config
+  - .cto/CHARTER.md  # charter edits require human review path
+
+deny_commands:
+  - git push
+  - git push --force
+  - git push -f
+  - git merge
+  - git rebase
+  - git reset --hard
+  - gh pr merge
+  - gh release
+  - rm -rf /
+  - sudo
+  - shutdown
+  - reboot
+
+executor:
+  max_repair_attempts: 2
+  max_turns: 30
+  require_worktree: true
+  forbid_main_branch: true
+  sandbox: workspace
+  always_approve_only_if_sandboxed: true
+
+budgets:
+  max_cycles_per_run: 1
+  max_repair_attempts: 2
+  max_daily_api_calls: 100
+  max_daily_tokens: 500000
+  min_confidence: 0.55
+
+labels:
+  states:
+    - state:ready
+    - state:in-progress
+    - state:review
+    - state:blocked
+    - state:human
+  types:
+    - type:feature
+    - type:bug
+    - type:ops
+    - type:debt
+    - type:research
+  priorities:
+    - priority:p0
+    - priority:p1
+    - priority:p2
+    - priority:p3
+  risks:
+    - risk:high
+    - risk:normal
+  areas:
+    - area:data
+    - area:opportunities
+    - area:reports
+    - area:platform
+    - area:quality
+    - area:cto
+
+milestones:
+  - LOCAL_READY
+  - PRE_VPS_FINAL_READY
+  - VPS_OPERATIONAL
+  - PROJECT_DONE
+  - CTO_AUTOPILOT
+
+issue_limits:
+  max_open_without_justification: 40
+  initial_migration_target_min: 15
+  initial_migration_target_max: 35
+
+publication_policy:
+  autonomous_merge: false
+  autonomous_deploy: false
+  draft_pr_only: true
+  sequence:
+    - worktree
+    - branch_per_work_item
+    - local_commits
+    - independent_verify
+    - draft_pr
+    - ci
+    - review
+    - human_merge_authorization
+    - merge
+    - final_sync
+    - rerank

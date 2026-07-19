@@ -209,3 +209,37 @@ db-up:
 db-down:
 	@echo '==> [$(ENV)] Derrubando banco PostgreSQL'
 	docker compose -f docker-compose.local.yml down
+
+# ── CTO Autopilot ───────────────────────────────────────────────────────────
+
+.PHONY: cto-doctor cto-bootstrap cto-observe cto-decide cto-run-once cto-status cto-audit issues-plan issues-sync executive-refresh
+
+cto-doctor:
+	python3 -m scripts.cto.cli doctor
+
+cto-bootstrap:
+	python3 -m scripts.cto.cli bootstrap
+
+cto-observe:
+	python3 -m scripts.cto.cli observe
+
+cto-decide:
+	python3 -m scripts.cto.cli decide --dry-run
+
+cto-run-once:
+	python3 -m scripts.cto.cli run-once --dry-run
+
+cto-status:
+	python3 -m scripts.cto.cli status
+
+cto-audit:
+	python3 -m scripts.cto.cli audit
+
+issues-plan:
+	python3 -m scripts.cto.cli issues-plan
+
+issues-sync:
+	python3 -m scripts.cto.cli issues-sync --dry-run
+
+executive-refresh:
+	python3 -m scripts.cto.cli refresh-executive

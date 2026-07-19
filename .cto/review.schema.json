@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra-consultoria.local/cto/review.schema.json",
+  "title": "CTOReview",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "review_id",
+    "cycle_id",
+    "decision_id",
+    "verdict",
+    "summary",
+    "failed_criteria",
+    "repair_instructions",
+    "confidence",
+    "human_gate"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "review_id": { "type": "string", "minLength": 1 },
+    "cycle_id": { "type": "string", "minLength": 1 },
+    "decision_id": { "type": "string", "minLength": 1 },
+    "verdict": {
+      "type": "string",
+      "enum": ["ACCEPT", "REPAIR", "ROLLBACK", "BLOCK", "ESCALATE"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "failed_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "repair_instructions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "human_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "reason"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "reason": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

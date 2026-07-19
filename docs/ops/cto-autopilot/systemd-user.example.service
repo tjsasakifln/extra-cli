@@ -1,0 +1,16 @@
+# Opcional — NÃO habilitar sem ação explícita de Tiago.
+# copiar para ~/.config/systemd/user/cto-autopilot.service
+#
+# [Unit]
+# Description=CTO Autopilot run-once (Extra Consultoria)
+#
+# [Service]
+# Type=oneshot
+# WorkingDirectory=/path/to/extra-consultoria
+# EnvironmentFile=/path/to/extra-consultoria/.env
+# ExecStart=/usr/bin/python3 -m scripts.cto.cli run-once --dry-run
+#
+# [Install]
+# WantedBy=default.target
+#
+# Timer separado (ex.: a cada 4h) só após dry-run validado.

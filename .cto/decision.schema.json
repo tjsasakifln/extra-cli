@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra-consultoria.local/cto/decision.schema.json",
+  "title": "CTODecision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "decision_id",
+    "cycle_id",
+    "decision",
+    "objective",
+    "strategic_reason",
+    "acceptance_criteria",
+    "required_evidence",
+    "allowed_paths",
+    "forbidden_paths",
+    "test_commands",
+    "forbidden_actions",
+    "allowed_claims",
+    "forbidden_claims",
+    "max_repair_attempts",
+    "estimated_risk",
+    "confidence",
+    "human_gate"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "decision_id": { "type": "string", "minLength": 1 },
+    "cycle_id": { "type": "string", "minLength": 1 },
+    "decision": {
+      "type": "string",
+      "enum": ["EXECUTE", "REPAIR", "ACCEPT", "BLOCK", "ESCALATE", "NOOP"]
+    },
+    "objective": { "type": "string", "minLength": 1 },
+    "issue_number": { "type": ["integer", "null"], "minimum": 1 },
+    "work_id": { "type": ["string", "null"] },
+    "candidate_id": { "type": ["string", "null"] },
+    "strategic_reason": { "type": "string", "minLength": 1 },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "required_evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "allowed_paths": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "test_commands": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "forbidden_actions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "allowed_claims": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "forbidden_claims": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "max_repair_attempts": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2
+    },
+    "estimated_risk": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "human_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "reason"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+    "ranking_veto": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "vetoed_candidate_id": { "type": "string" },
+        "reason": { "type": "string", "minLength": 1 }
+      },
+      "required": ["vetoed_candidate_id", "reason"]
+    }
+  }
+}

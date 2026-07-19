@@ -99,3 +99,9 @@ Remover um adaptador **não** remove requisitos de produto: eles vivem em `DOD.m
 - Trabalho de produto: branch de feature / épica — **nunca** commitar produto direto na `main` durante campanha.  
 - Push/PR: autoridade `@devops` / gates AIOX.  
 - Campanha atual: `epic/advance-30d-local-ready-20260718`.
+
+## 7. CTO Autopilot
+
+Fila operacional e ciclos autônomos: `docs/ops/cto-autopilot/README.md`.
+CLI: `python3 -m scripts.cto.cli doctor|observe|decide|run-once`.
+DoD permanece canônico; Issues são fila derivada.
