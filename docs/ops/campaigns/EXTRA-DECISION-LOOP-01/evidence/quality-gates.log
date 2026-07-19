@@ -1,0 +1,8 @@
+=== ruff ===
+All checks passed!
+=== mypy (new modules only via exclude weekly) ===
+pyproject.toml: note: unused section(s): module = ['argparse', 'difflib', 'httpx.*', 'psycopg2.*', 'rapidfuzz.*', 'requests.*', 'rich.*', 'scripts.lib.*', 'scripts.reports.*', 'supabase.*', 'tests.*', 'urllib3.*']
+Success: no issues found in 4 source files
+=== pytest ===
+...........................                                              [100%]
+27 passed in 2.29s

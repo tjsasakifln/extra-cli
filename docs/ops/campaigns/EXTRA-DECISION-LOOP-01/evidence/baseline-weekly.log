@@ -1,0 +1,29 @@
+{
+  "cycle_id": "weekly-20260719T215618Z-f343d51600",
+  "collection_id": "col-extra-weekly-20260719T215618Z-e8a5593c",
+  "exit_code": 0,
+  "duration_seconds": 1.13,
+  "products": {
+    "executive_md": "/mnt/d/extra consultoria/output/weekly/weekly-20260719T215618Z-f343d51600/executive_summary.md",
+    "excel": "/mnt/d/extra consultoria/output/weekly/weekly-20260719T215618Z-f343d51600/extra_weekly_pack.xlsx",
+    "manifest": "/mnt/d/extra consultoria/output/weekly/weekly-20260719T215618Z-f343d51600/manifest.json",
+    "pdf_status": "RESIDUAL_NOT_GENERATED"
+  },
+  "intelligence_counts": {
+    "opportunities": 50,
+    "contracts": 50,
+    "competitors": 50,
+    "orgaos": 50
+  },
+  "runs": [
+    {
+      "source": "pncp_opportunities",
+      "terminal_status": "reused_fresh"
+    },
+    {
+      "source": "pncp_contracts",
+      "terminal_status": "reused_fresh"
+    }
+  ],
+  "human_accept": "PENDING_HUMAN"
+}

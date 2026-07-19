@@ -1,0 +1,32 @@
+{
+  "schema": "extra-review-export/1.0",
+  "exported_at": "2026-07-19T21:57:14Z",
+  "n_sample": 40,
+  "n_universe": 100,
+  "target": 40,
+  "insufficient_sample": false,
+  "note": "Amostra estratificada pronta para rotulagem humana.",
+  "path": "/tmp/grok-goal-0e0945b1aced/implementer/review/queue.csv",
+  "strata": {
+    "incomplete_data": 40
+  }
+}
+labeled_rows 3 total 40
+{
+  "status": "ok",
+  "imported_rows": 3,
+  "updates": 0,
+  "skipped_empty_human": 37,
+  "n_labels_total": 3,
+  "labels_path": "/mnt/d/extra consultoria/data/human_reviews/labels.json"
+}
+{
+  "status": "PENDING_HUMAN",
+  "n_labels": 3,
+  "min_required": 10,
+  "metrics": {},
+  "notes": [
+    "Apenas 3 labels humanos; mínimo 10 para métricas.",
+    "Nenhuma precisão/recall inventada."
+  ]
+}

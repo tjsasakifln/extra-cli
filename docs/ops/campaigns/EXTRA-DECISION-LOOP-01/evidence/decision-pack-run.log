@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "status": "OK",
+  "run_id": "decision-20260719T215322Z-2a79c2846a",
+  "out_dir": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack",
+  "counts": {
+    "participar": 0,
+    "review": 200,
+    "nao_participar": 0,
+    "total": 200,
+    "reconfirm_targets": 25,
+    "reconfirm_ok": 0
+  },
+  "human_acceptance": "PENDING_HUMAN",
+  "reconcile": "PASS"
+}
