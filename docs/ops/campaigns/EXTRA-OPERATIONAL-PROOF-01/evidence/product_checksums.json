@@ -1,0 +1,42 @@
+{
+  "claims_provenance.csv": {
+    "sha256": "4f48e01ff0fac52838efda4f189624db000d933566fad647c694f6cbd3d71560",
+    "bytes": 13972
+  },
+  "competitors.csv": {
+    "sha256": "8eeffc8bdb32b23f464387d8a64cf3cb585c98649b83f64a24238b0737a9e02c",
+    "bytes": 5457
+  },
+  "contracts.csv": {
+    "sha256": "2454cecc6018ce6eb59a2c1d1130e4a0d3833d1f6c3f0eac04e65c6970f95e77",
+    "bytes": 29382
+  },
+  "executive_summary.md": {
+    "sha256": "b91c439d5551272c8db09612fe76e341394d1c9174f1ecdd27a28384af5af75e",
+    "bytes": 6580
+  },
+  "extra_weekly_pack.xlsx": {
+    "sha256": "3ada52239685f8ee5ff17905aa69dd23d5556e4190632207016164953b79eafc",
+    "bytes": 39617
+  },
+  "gaps.csv": {
+    "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+    "bytes": 350
+  },
+  "manifest.json": {
+    "sha256": "446938f79fc4294446d5ff5e6bd5b0bc875e46436c1f54d835db38cbc8667f8f",
+    "bytes": 197368
+  },
+  "opportunities.csv": {
+    "sha256": "f2633d751fe50e37cbe52a2c2bb89846f9ad0fe651e829f4ebd3171436a2f398",
+    "bytes": 42068
+  },
+  "orgaos.csv": {
+    "sha256": "2e4e2e2d09e5f08a60089148101e910726b8aaee474cb3aabca6c3a4e4c49310",
+    "bytes": 3101
+  },
+  "source_health.csv": {
+    "sha256": "3de034855628d142dc88a96f8059b725126ae30cfcf244ec0a2b1608d1cbc366",
+    "bytes": 294
+  }
+}

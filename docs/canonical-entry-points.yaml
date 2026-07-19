@@ -21,12 +21,17 @@ commands:
     python3 -m scripts.ops.source_contract_tests --json
   golden_path: |
     python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
+  weekly: |
+    # CANONICAL weekly operational cycle for Extra Construtora
+    make extra-weekly
+    # equivalent: python3 -m scripts.ops.weekly_cycle --strict
   campaign: |
     python3 squads/extra-dod-roi/scripts/cli.py force-next
 
 # Substrings that every entry-point adapter must mention (or point to DEVELOPMENT.md)
 required_command_tokens:
   - scripts.golden_path
+  - scripts.ops.weekly_cycle
   - scripts.ops.apply_migrations
   - force-next
   - LOCAL_DATALAKE_DSN
