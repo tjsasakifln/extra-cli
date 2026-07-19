@@ -1,0 +1,278 @@
+{
+  "measured_at": "2026-07-19T03:34:01.857149+00:00",
+  "run_id": "sz-pilot-20260719T033401Z",
+  "uncovered_sample_blocked": [
+    {
+      "cnpj8": "05653835",
+      "nome": "13 AGENCIA DE DESENVOLVIMENTO REGIONAL DE ITUPORANGA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05668667",
+      "nome": "14 AGENCIA DE DESENVOLVIMENTO REGIONAL DE IBIRAMA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "09597930",
+      "nome": "14 COMPANHIA DE ENGENHARIA DE COMBATE",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "09543440",
+      "nome": "14 REGIMENTO DE CAVALARIA MECANIZADO",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05650634",
+      "nome": "18- AGENCIA DE DESENVOLVIMENTO REGIONAL - LAGUNA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05651544",
+      "nome": "19 - AGENCIA DE DESENVOLVIMENTO REGIONAL - TUBARAO",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "07517504",
+      "nome": "1 BATALHAO FERROVIARIO",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "01355598",
+      "nome": "1 VARA CIVEL DO FORO DISTRITAL DO CONTINENTE",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05664192",
+      "nome": "21 AGENCIA DO DESENVOLVIMENTO REGIONAL DE ARARANGUA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "09634813",
+      "nome": "23 BATALHAO DE INFANTARIA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05628764",
+      "nome": "27 AGENCIA DE DESENVOLVIMENTO REGIONAL DE SAO JOAQUIM",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "09579771",
+      "nome": "28 GRUPO DE ARTILHARIA DE CAMPANHA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "09586718",
+      "nome": "5 BATALHAO DE ENGENHARIA DE COMBATE BLINDADO",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "09560096",
+      "nome": "62 BATALHAO DE INFANTARIA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "09586988",
+      "nome": "63 BATALHAO DE INFANTARIA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "48865663",
+      "nome": "ABRIGO INSTITUCIONAL ANA ANTONINA ANTONIO",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "83131268",
+      "nome": "ADMINISTRACAO DO PORTO DE SAO FRANCISCO DO SUL",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "01175497",
+      "nome": "AGENCIA BRASILEIRA DE INTELIGENCIA-ABIN/GSI/PR",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "34014413",
+      "nome": "AGENCIA DE DESENVOLVIMENTO DO TURISMO DO ESTADO DE SANTA CATARINA - SANTUR",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "08857225",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL - BRACO DO NORTE",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05541159",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL - CHAPECO",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05585919",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL - CONCORDIA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05684888",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL - CRICIUMA",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05640154",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL - CURITIBANOS",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05656080",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL DE BLUMENAU",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05684274",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL DE BRUSQUE",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05630479",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL DE CACADOR",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05629618",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL DE CAMPOS NOVOS",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05688796",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL DE CANOINHAS",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    },
+    {
+      "cnpj8": "05647957",
+      "nome": "AGENCIA DE DESENVOLVIMENTO REGIONAL DE ITAJAI",
+      "outcome": "BLOCKED_MISSING_FULL_CNPJ",
+      "reason": "PNCP orgao API requires 14-digit CNPJ; universe stores cnpj8 only; no full CNPJ in lake for this entity",
+      "next_action": "resolve full CNPJ via Receita/OpenCNPJ or official act before success_zero probe"
+    }
+  ],
+  "live_orgao_probes": [
+    {
+      "cnpj8": "00000000",
+      "cnpj14": "00000000000191",
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00000000000191",
+      "http": 200,
+      "sha256": "0c25986be9ffcc6384b69304bdcb720f1e03b5c93aafae59e9e334cec9d36230",
+      "orgao_nome": "BANCO DO BRASIL SA",
+      "outcome": "ORGAO_EXISTS",
+      "note": "orgao exists; not a tenders success_zero — need contratacoes/publicacao by orgao if available"
+    },
+    {
+      "cnpj8": "00059311",
+      "cnpj14": "00059311000126",
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00059311000126",
+      "http": 200,
+      "sha256": "afa22e2576476ff6102dd042b7ac441e43d3ceaa9d5a673f14fd916fa78f62c8",
+      "orgao_nome": "FUNDACAO NACIONAL DO INDIO",
+      "outcome": "ORGAO_EXISTS",
+      "note": "orgao exists; not a tenders success_zero — need contratacoes/publicacao by orgao if available"
+    },
+    {
+      "cnpj8": "00348003",
+      "cnpj14": "00348003000110",
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00348003000110",
+      "http": 200,
+      "sha256": "dfa4d4c615f701fee1877aa3647840cb34c0ddd1339fc8ff617bf94440eac9f7",
+      "orgao_nome": "EMPRESA BRASILEIRA DE PESQUISA AGROPECUARIA",
+      "outcome": "ORGAO_EXISTS",
+      "note": "orgao exists; not a tenders success_zero — need contratacoes/publicacao by orgao if available"
+    },
+    {
+      "cnpj8": "00348003",
+      "cnpj14": "00348003002245",
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00348003002245",
+      "http": 200,
+      "sha256": "859d5a8cadd98104453d7e434bb1565712403367e2066992884e9446bcb8a788",
+      "orgao_nome": "EMPRESA BRASILEIRA DE PESQUISA AGROPECUARIA",
+      "outcome": "ORGAO_EXISTS",
+      "note": "orgao exists; not a tenders success_zero — need contratacoes/publicacao by orgao if available"
+    },
+    {
+      "cnpj8": "00394429",
+      "cnpj14": "00394429000100",
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00394429000100",
+      "http": 200,
+      "sha256": "42b7beaba4cc73fff26de3e95ab05b4924f77cd792a24d84ec2cb4dbfe2f5340",
+      "orgao_nome": "COMANDO DA AERONAUTICA",
+      "outcome": "ORGAO_EXISTS",
+      "note": "orgao exists; not a tenders success_zero — need contratacoes/publicacao by orgao if available"
+    }
+  ],
+  "verdict": "success_zero NOT_READY for bulk — missing full CNPJ for residual universe; orgao probe proves entity existence only",
+  "claims_forbidden": [
+    "success_zero coverage numerator from this pilot",
+    "95% via success_zero without pagination proof on tenders endpoint"
+  ],
+  "next_steps": [
+    "resolve full CNPJ for residual 200km entities (Receita/OpenCNPJ batch)",
+    "implement PNCP contratacoes/publicacao filter by orgao CNPJ with complete pagination",
+    "only then write success_zero coverage_evidence rows"
+  ]
+}

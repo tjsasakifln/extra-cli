@@ -32,12 +32,14 @@ Operação local consultiva B2G com cobertura editais/contratos ≥95% **separad
 | DOD checked | **195/1355 (14,39%)** | ≥746 (55%) |
 | Denominador 200 km | **1093** | fixo |
 | Universe resolution | **100%** | 100% |
-| Bids rows | **8221** | — |
-| Contracts rows | **72925** (+90d crawl se em curso) | — |
-| Presença editais | **268 (24,52%)** | ≥1039 operacional |
+| Bids rows | **10831** (pncp+sc_compras) | — |
+| Contracts rows | **72925** (14d; 90d nacional abortado por lentidão) | — |
+| Presença editais | **279 (25,53%)** | ≥1039 operacional |
 | Presença contratos | **247 (22,60%)** | ≥1039 operacional |
 | Registry operational | **139 (12,72%)** | ≥1039 |
 | Oportunidades | **401** (0 GO / 397 REVIEW / 4 NO_GO) | fluxo útil |
+| M4 packages | competitors/expiring/prices + PDF+Excel fixture | contratado≠pago |
+| success_zero bulk | **NOT_READY** | residual sem CNPJ-14 |
 
 ## Decisões
 
@@ -56,12 +58,13 @@ Operação local consultiva B2G com cobertura editais/contratos ≥95% **separad
 - `db/migrations/018_*` — cast esfera_id TEXT em fresh install
 - `scripts/data_contracts/*` — contratos fail-closed
 - `scripts/ocds_bridge/*` — mapping OCDS thin
+- `scripts/ops/enrich_sc_compras_cnpj.py` — match nome→CNPJ em sc_compras
 - (herdado) GO demote ranking
 
 ## Próximos passos
 
-1. Concluir/retomar contracts 90d→365d com checkpoint
-2. success_zero nominal por ente aplicável
+1. Resolver CNPJ-14 dos ~800 entes residual (OpenCNPJ/Receita) para success_zero
+2. Contratos com janelas menores + checkpoint (evitar 30d nacional monólito)
 3. Multi-source residual (CIGA/sc_compras)
 4. Promote strict operational com proveniência completa
 5. Packages daily/weekly + 3 ciclos
