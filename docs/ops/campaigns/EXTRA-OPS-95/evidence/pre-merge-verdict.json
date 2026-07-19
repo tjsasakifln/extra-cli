@@ -1,6 +1,6 @@
 {
   "verdict": "READY_WITH_EXPLICIT_ACCEPTED_RISK",
-  "head": null,
+  "head": "7cee143bd2ca4203e8c7dc42b382230aed8314c1",
   "main_base": "dbc5adb2ab62898cd3fd005c83c90dcef36c1cde",
   "merge_method": "squash merge",
   "accepted_risks": [
@@ -26,5 +26,7 @@
       "campaign DONE",
       "PDF/Excel real via fixture only"
     ]
-  }
+  },
+  "previous_expected_head": "e4626fd94fc35f92abb21d76c183270ca3befb9d",
+  "note": "HEAD moved after pre-merge validation commits; re-run CI on 7cee143"
 }
