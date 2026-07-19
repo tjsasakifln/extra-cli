@@ -1,7 +1,8 @@
 # STATUS — EXTRA-OPERATIONAL-PROOF-01
 
 **Atualizado:** 2026-07-19  
-**Veredito de campanha:** `PARTIAL` (bloqueado apenas por aceite humano AC10 + full suite residual)
+**Commit campanha:** `54f6fe1`  
+**Veredito de campanha:** `PARTIAL` (bloqueado por aceite humano AC10 + full suite residual)
 
 ## Checklist de fases
 

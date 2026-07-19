@@ -4,6 +4,9 @@
 
 **`PARTIAL`**
 
+**Commit:** `54f6fe1d377a0c938a09713245da32309ff70c32`  
+**Branch:** `campaign/extra-operational-proof-01`
+
 Motivo: ciclo semanal real e produtos consultivos existem e foram executados com exit code 0, mas o aceite humano de Tiago permanece `PENDING_HUMAN` (AC10). Full suite CI continua fora do gate automático de PR (dívida residual honesta).
 
 Não se declara `DONE`, `LOCAL_READY`, `PROJECT_DONE` nem cobertura 95%.
