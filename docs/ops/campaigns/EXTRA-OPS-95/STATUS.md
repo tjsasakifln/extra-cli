@@ -1,7 +1,7 @@
 # EXTRA-OPS-95-FOUNDATION — Status operacional
 
 **HEAD start (main):** `dbc5adb2ab62898cd3fd005c83c90dcef36c1cde`  
-**Atualizado:** 2026-07-19T04:51Z (UTC)  
+**Atualizado:** 2026-07-19T04:58Z (UTC)  
 **HEAD trabalho:** `d16f70e`+ (working tree dirty — commit pending)  
 **Status global da campanha:** **PARTIAL**
 
@@ -77,3 +77,11 @@ Fonte: `evidence/session-metrics.json`
 ## Claims proibidos
 
 95% cobertura · either · LOCAL_READY · recall 95% · DOD 55% · campanha DONE · SmartLic operacional · ops_proxy como cobertura 7-estágios
+
+
+## Delta batch4
+
+- SZ entidades: **164**
+- Presença contratos: **309 (28,3%)**
+- Ops proxy presença∪SZ: **473/1093 (43,28%)**
+- Commit anterior: `470999b`; batch4 pending commit

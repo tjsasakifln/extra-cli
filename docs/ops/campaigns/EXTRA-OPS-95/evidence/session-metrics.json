@@ -1,25 +1,14 @@
 {
-  "measured_at": "2026-07-19T04:51:01.591722+00:00",
+  "measured_at": "2026-07-19T04:58:31.221860+00:00",
   "denominator_200km": 1093,
-  "presence_editais": 279,
-  "presence_editais_pct": 25.5261,
-  "presence_contracts": 300,
-  "presence_contracts_pct": 27.4474,
-  "success_zero_contracts_entities": 122,
-  "ops_proxy_contracts_presence_or_sz": 422,
-  "ops_proxy_pct": 38.6093,
-  "bids_rows": 10831,
-  "contracts_rows": 217184,
-  "opportunities": 401,
-  "success_zero_rows": 122,
-  "cnpj14_cache_unique": 187,
-  "residual_no_lake_presence": 731,
-  "residual_needing_cnpj14": 558,
+  "presence_contracts": 309,
+  "success_zero_contracts_entities": 164,
+  "ops_proxy_contracts_presence_or_sz": 473,
+  "ops_proxy_pct": 43.2754,
+  "note": "ops_proxy = presence\u222aSZ \u2014 NOT 7-stage operational",
   "claims_forbidden": [
     "95% coverage",
-    "either as operational",
     "campaign DONE",
     "DOD 55%"
-  ],
-  "note": "ops_proxy = presence\u222aSZ entity-scoped \u2014 NOT 7-stage operational coverage"
+  ]
 }

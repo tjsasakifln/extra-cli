@@ -21,3 +21,4 @@
 {"ts": "2026-07-19T04:48:41Z", "event": "M2_SZ_BATCH3", "written": 93, "has_data": 7, "sz_entities": 122, "ops_proxy": 415, "pct": 37.97}
 {"ts": "2026-07-19T04:50:43Z", "event": "M2_HAS_DATA_PERSIST", "raw": 67, "presence_contracts": 300, "ops_proxy": 422, "pct": 38.61}
 {"ts": "2026-07-19T04:51:00Z", "event": "M2_TOOLING", "scripts": ["scripts/ops/probe_entity_success_zero.py", "scripts/ops/resolve_cnpj14_batch.py"], "cnpj14_unique": 187}
+{"ts":"2026-07-19T04:58:31Z","event":"M2_SZ_BATCH4","written":42,"has_data":9,"sz_entities":164,"presence":309,"ops_proxy":473,"pct":43.28}
