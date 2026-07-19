@@ -188,12 +188,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pyyaml
+          pip install pytest pytest-asyncio pytest-cov pyyaml
 
       - name: Run CTO Autopilot tests
         # Fail-closed: no continue-on-error, no || true, no skip.
-        # Prints collected/passed count in pytest summary line.
-        run: python3 -m pytest tests/cto -q --no-cov
+        # Clear pytest.ini addopts (--cov*) so the job stays independent of
+        # coverage thresholds; still prints collected/passed count.
+        run: python3 -m pytest tests/cto -q -o addopts=''
         env:
           CI: true
 
