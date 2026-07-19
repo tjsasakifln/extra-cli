@@ -1,21 +1,21 @@
 {
   "total_entities": 1093,
   "expected_entities": 1093,
-  "mapped_or_better": 583,
-  "mapped_pct": 53.34,
-  "operational": 139,
-  "operational_pct": 12.72,
+  "mapped_or_better": 559,
+  "mapped_pct": 51.14,
+  "operational": 163,
+  "operational_pct": 14.91,
   "by_status": {
     "unknown": 371,
     "mapped": 311,
-    "collected": 269,
-    "verified": 139,
+    "collected": 245,
+    "verified": 163,
     "accessible": 3
   },
   "by_blocker": {
     "pending_collection": 512,
-    "pending_live_verification": 321,
-    "none": 139,
+    "pending_live_verification": 297,
+    "none": 163,
     "fragmented": 121
   },
   "by_strategy": {
@@ -64,7 +64,7 @@
     "pncp": 1093,
     "dom_sc": 557,
     "ciga_ckan": 556,
-    "sc_compras": 399,
+    "sc_compras": 400,
     "transparencia": 372,
     "pncp_contracts": 365,
     "tce_sc": 267,

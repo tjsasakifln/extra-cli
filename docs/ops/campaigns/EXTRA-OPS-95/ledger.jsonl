@@ -12,3 +12,8 @@
 {"ts": "2026-07-19T03:18:53Z", "event": "M3_OPPORTUNITY_UPSERT_FIXED", "inserted": 401, "GO": 0, "REVIEW": 397, "NO_GO": 4, "migration": "057"}
 {"ts": "2026-07-19T03:19:18Z", "event": "SESSION_METRICS", "presence_editais_pct": 24.52, "presence_contracts_pct": 22.6, "ops_registry_pct": 12.72, "dod": "195/1355", "status": "PARTIAL"}
 {"ts": "2026-07-19T03:20:00Z", "event": "HANDOFF_WRITTEN", "path": "handoffs/HANDOFF-20260719-session.md"}
+{"ts": "2026-07-19T03:26:00Z", "event": "M2_SC_COMPRAS", "inserted": 2610, "presence_editais_before_enrich": 268}
+{"ts": "2026-07-19T03:28:00Z", "event": "M2_CIGA_CKAN", "fetched": 23733, "inserted": 29}
+{"ts": "2026-07-19T03:28:34Z", "event": "M4_PACKAGES_LIVE", "competitors": 50, "expiring": 100, "price_buckets": 5, "opps": 100}
+{"ts": "2026-07-19T03:31:56Z", "event": "M2_SC_COMPRAS_CNPJ_ENRICH", "matched": 2454, "presence_editais": 279, "pct": 25.53}
+{"ts": "2026-07-19T03:33:00Z", "event": "M2_CONTRACTS_90D_ABORTED", "reason": "national window pagination too slow without UF filter; keep 14d 72925 rows"}

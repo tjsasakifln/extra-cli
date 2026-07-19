@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "run_id": "pkg-final-20260719-033318-c675bb3b",
+  "generated_at": "2026-07-19T03:33:18.037379Z",
+  "artifact_kind": "package_final",
+  "script": "scripts/ops/deliverable_package_final.py",
+  "filters": {
+    "uf": "SC",
+    "is_active": true,
+    "table_primary": "opportunity_intel",
+    "vincendos_horizon_days": 180,
+    "orgao_ranking_uf": "SC",
+    "profile_version": 2,
+    "cut_date": "2026-07-19"
+  },
+  "cutoff": {
+    "as_of_date": "2026-07-19",
+    "data_window": "all_active",
+    "ultima_atualizacao_db": "N/I"
+  },
+  "sample_size": {
+    "opportunity_intel_active": 0,
+    "ranking_go": 0,
+    "ranking_review": 0,
+    "ranking_no_go": 0,
+    "orgaos_sc": 0,
+    "pncp_raw_bids_active": 0,
+    "vincendos_180d": 0,
+    "label": "INSUFFICIENT"
+  },
+  "git_sha": "1c2f608",
+  "profile_id": "extra_construtora",
+  "profile_version": 2,
+  "dsn_host": "127.0.0.1:5433/extra_test",
+  "claims": {
+    "allowed": [
+      "Contagens derivadas de opportunity_intel.is_active=true no DSN local.",
+      "Ranking GO/REVIEW/NO_GO conforme coluna ranking (pode ser stub/fixture).",
+      "Ranking de órgãos por volume de editais ativos (UF filtrada quando aplicável).",
+      "Contratos vincendos apenas se pncp_supplier_contracts tiver linhas no horizonte.",
+      "Amostra rotulada INSUFFICIENT/MINIMAL/ADEQUATE — não inventar cobertura %."
+    ],
+    "forbidden": [
+      "Afirmar cobertura 95% ou readiness comercial sem evidence ledger.",
+      "Tratar REVIEW como GO ou esconder sample_size=0.",
+      "Misturar PDF e Excel de runs diferentes sem reconciliação PASS.",
+      "Inferir contratos vincendos a partir de pncp_raw_bids.",
+      "Publicar ranking de órgãos como 'mercado completo SC' com N < 20 editais."
+    ]
+  },
+  "universe": {
+    "denominator": 1093,
+    "source": "canonical_spreadsheet"
+  },
+  "artifact_path": "pkg-final-20260719-033318-c675bb3b.pdf"
+}

@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-07-19T03:28:34.123535+00:00",
+  "competitors_n": 50,
+  "expiring_n": 100,
+  "price_buckets": 5,
+  "opportunities_exported": 100,
+  "claims_allowed": [
+    "contracted values labeled not paid",
+    "competitors limited to 200km-linked orgaos"
+  ],
+  "claims_forbidden": [
+    "win rate without denominator",
+    "paid amounts from valor_total"
+  ]
+}

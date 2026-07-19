@@ -1,0 +1,14 @@
+{
+  "run_id": "pkg-final-20260719-033318-c675bb3b",
+  "sections": [
+    "sumario_executivo",
+    "metodologia",
+    "universo",
+    "cobertura",
+    "limitacoes",
+    "anexos_evidencia",
+    "apoio_reuniao"
+  ],
+  "page_estimate": 36,
+  "note": "page_estimate is structural target; binary fixture is minimal PDF"
+}

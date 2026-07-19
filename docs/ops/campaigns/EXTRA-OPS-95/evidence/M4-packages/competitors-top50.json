@@ -1,0 +1,458 @@
+{
+  "meta": {
+    "generated_at": "2026-07-19T03:28:34.123535+00:00",
+    "value_semantics": "valor_total is contracted amount, NOT paid"
+  },
+  "items": [
+    {
+      "fornecedor_cnpj": "13965228000168",
+      "nome": "JLM DISTRIBUIDORA BR LTDA",
+      "n_contracts": 181,
+      "n_orgaos_200km": 66,
+      "valor_contratado_sum": 262036.22,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "39655478000195",
+      "nome": "SEBOLD INDÚSTRIA DE COSMÉTICOS LTDA",
+      "n_contracts": 153,
+      "n_orgaos_200km": 62,
+      "valor_contratado_sum": 116136.5,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "45747626000102",
+      "nome": "OTHALA COMERCIO LTDA",
+      "n_contracts": 149,
+      "n_orgaos_200km": 66,
+      "valor_contratado_sum": 69928.26,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "29222667000110",
+      "nome": "SK MATERIAIS PARA ESCRITORIO LTDA",
+      "n_contracts": 141,
+      "n_orgaos_200km": 68,
+      "valor_contratado_sum": 91495.59,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "00802002000102",
+      "nome": "ALTERMED MATERIAL MEDICO HOSPITALAR LTDA",
+      "n_contracts": 133,
+      "n_orgaos_200km": 50,
+      "valor_contratado_sum": 208643.99,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "03652030000332",
+      "nome": "CENTERMEDI-COMERCIO DE PRODUTOS HOSPITALARES LTDA",
+      "n_contracts": 115,
+      "n_orgaos_200km": 46,
+      "valor_contratado_sum": 701029.68,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "07752236000123",
+      "nome": "MEDILAR IMPORTACAO E DISTRIBUICAO DE PRODUTOS MEDICO HOSPITALARES S/A",
+      "n_contracts": 113,
+      "n_orgaos_200km": 47,
+      "valor_contratado_sum": 478071.79,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "39649812000106",
+      "nome": "MC COMÉRCIO DE ALIMENTOS E TRANSPORTES LTDA",
+      "n_contracts": 108,
+      "n_orgaos_200km": 36,
+      "valor_contratado_sum": 126042.09,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "19032430000113",
+      "nome": "PRINTSUL COMERCIO ATACADISTA LTDA",
+      "n_contracts": 100,
+      "n_orgaos_200km": 44,
+      "valor_contratado_sum": 55122.86,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "26044069000100",
+      "nome": "SOMA ATACADO LTDA",
+      "n_contracts": 86,
+      "n_orgaos_200km": 52,
+      "valor_contratado_sum": 70454.58,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "11145401000156",
+      "nome": "L A DALLA PORTA JUNIOR LTDA",
+      "n_contracts": 79,
+      "n_orgaos_200km": 41,
+      "valor_contratado_sum": 231076.59,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "79846465000118",
+      "nome": "GOEDERT LTDA",
+      "n_contracts": 77,
+      "n_orgaos_200km": 39,
+      "valor_contratado_sum": 192467.73,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "05531725000120",
+      "nome": "SOMA/SC PRODUTOS HOSPITALARES LTDA",
+      "n_contracts": 72,
+      "n_orgaos_200km": 38,
+      "valor_contratado_sum": 160789.46,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "40738368000176",
+      "nome": "GAMBA CONEXOES COMERCIO ATACADISTA DE ALIMENTOS LTDA",
+      "n_contracts": 71,
+      "n_orgaos_200km": 35,
+      "valor_contratado_sum": 224761.64,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "83413591000318",
+      "nome": "DICAPEL PAPEIS E EMBALAGENS LTDA",
+      "n_contracts": 70,
+      "n_orgaos_200km": 43,
+      "valor_contratado_sum": 294178.2,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "11118645000140",
+      "nome": "SPOTECH INFORMATICA CORAL LTDA",
+      "n_contracts": 66,
+      "n_orgaos_200km": 35,
+      "valor_contratado_sum": 25656.28,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "19555146000121",
+      "nome": "2B DISTRIBUIDORA LTDA",
+      "n_contracts": 65,
+      "n_orgaos_200km": 42,
+      "valor_contratado_sum": 14417.02,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "38613730000130",
+      "nome": "JM PAPELARIA LTDA",
+      "n_contracts": 60,
+      "n_orgaos_200km": 39,
+      "valor_contratado_sum": 52677.02,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "53121054000171",
+      "nome": "LOPES LIMPEZA LTDA",
+      "n_contracts": 57,
+      "n_orgaos_200km": 38,
+      "valor_contratado_sum": 59510.03,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "42973356000151",
+      "nome": "JK TECNOLOGIA LTDA",
+      "n_contracts": 54,
+      "n_orgaos_200km": 37,
+      "valor_contratado_sum": 541790.95,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "36521392000262",
+      "nome": "GO VENDAS ELETRONICAS LTDA",
+      "n_contracts": 53,
+      "n_orgaos_200km": 32,
+      "valor_contratado_sum": 287380.43,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "81706251000198",
+      "nome": "PROMEFARMA MEDICAMENTOS E PRODUTOS HOSPITALARES LTDA",
+      "n_contracts": 52,
+      "n_orgaos_200km": 28,
+      "valor_contratado_sum": 103477.86,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "60146737000149",
+      "nome": "VERTICE MEDICAMENTOS LTDA",
+      "n_contracts": 52,
+      "n_orgaos_200km": 26,
+      "valor_contratado_sum": 68313.93,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "82997446000105",
+      "nome": "RS DISTRIBUIDORA E COMERCIO LTDA",
+      "n_contracts": 50,
+      "n_orgaos_200km": 29,
+      "valor_contratado_sum": 22133.54,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "57765012000124",
+      "nome": "MH COMERCIO LTDA",
+      "n_contracts": 50,
+      "n_orgaos_200km": 30,
+      "valor_contratado_sum": 53016.8,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "44734671002286",
+      "nome": "CRISTALIA PRODUTOS QUIMICOS FARMACEUTICOS LTDA",
+      "n_contracts": 47,
+      "n_orgaos_200km": 28,
+      "valor_contratado_sum": 111503.87,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "50958011000157",
+      "nome": "LICITA SHOP COMERCIO E SERVICOS LTDA",
+      "n_contracts": 45,
+      "n_orgaos_200km": 28,
+      "valor_contratado_sum": 32168.36,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "02520829000302",
+      "nome": "DIMASTER - COMERCIO DE PRODUTOS HOSPITALARES LTDA.",
+      "n_contracts": 44,
+      "n_orgaos_200km": 26,
+      "valor_contratado_sum": 123056.5,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "93920361000137",
+      "nome": "REIFLEX INDUSTRIA E COMERCIO DE MOVEIS LTDA",
+      "n_contracts": 43,
+      "n_orgaos_200km": 29,
+      "valor_contratado_sum": 102749.0,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "33154286000119",
+      "nome": "SEBMED PRODUTOS PARA A SAUDE LTDA",
+      "n_contracts": 42,
+      "n_orgaos_200km": 24,
+      "valor_contratado_sum": 150670.36,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "18233020000178",
+      "nome": "MARTINES EMPRESARIAL LTDA",
+      "n_contracts": 37,
+      "n_orgaos_200km": 33,
+      "valor_contratado_sum": 22073.12,
+      "last_signed": "2026-07-14",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "31322368000108",
+      "nome": "R.S. VAREJO LTDA",
+      "n_contracts": 37,
+      "n_orgaos_200km": 29,
+      "valor_contratado_sum": 22247.99,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "04586694000141",
+      "nome": "INFOTRIZ COMERCIAL LTDA",
+      "n_contracts": 36,
+      "n_orgaos_200km": 29,
+      "valor_contratado_sum": 32275.29,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "62917826000177",
+      "nome": "A.F DISTRIBUIDORA E COMERCIO LTDA",
+      "n_contracts": 36,
+      "n_orgaos_200km": 24,
+      "valor_contratado_sum": 33539.25,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "48566347000122",
+      "nome": "TELES SOLUÇÕES EMPRESARIAIS LTDA",
+      "n_contracts": 36,
+      "n_orgaos_200km": 26,
+      "valor_contratado_sum": 759006.18,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "12889035000102",
+      "nome": "INOVAMED HOSPITALAR LTDA",
+      "n_contracts": 35,
+      "n_orgaos_200km": 21,
+      "valor_contratado_sum": 39101.35,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "65149197000251",
+      "nome": "REPREMIG REPRESENTAÇÃO E COMÉRCIO DE MINAS GERAIS LTDA",
+      "n_contracts": 33,
+      "n_orgaos_200km": 23,
+      "valor_contratado_sum": 272036.48,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "60353064000106",
+      "nome": "IPE DISTRIBUIDORA LTDA",
+      "n_contracts": 32,
+      "n_orgaos_200km": 22,
+      "valor_contratado_sum": 82377.47,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "12418191000195",
+      "nome": "CONQUISTA DISTRIBUIDORA DE MEDICAMENTOS E PRODUTOS HOSPITALARES LTDA",
+      "n_contracts": 31,
+      "n_orgaos_200km": 22,
+      "valor_contratado_sum": 22575.23,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "28584157000392",
+      "nome": "METDATA TECNOLOGIA DA INFORMACAO LTDA",
+      "n_contracts": 29,
+      "n_orgaos_200km": 21,
+      "valor_contratado_sum": 89260.36,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "17417928000179",
+      "nome": "VENTISOL DA AMAZONIA INDUSTRIA DE APARELHOS ELETRICOS LTDA",
+      "n_contracts": 29,
+      "n_orgaos_200km": 24,
+      "valor_contratado_sum": 246785.53,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "19633424000111",
+      "nome": "PLANALTO COMERCIO E TRANSPORTES DE ALIMENTOS LTDA",
+      "n_contracts": 26,
+      "n_orgaos_200km": 20,
+      "valor_contratado_sum": 5244.47,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "76291251000134",
+      "nome": "MODILAC INDUSTRIA E COMERCIO DE MOVEIS LTDA",
+      "n_contracts": 26,
+      "n_orgaos_200km": 16,
+      "valor_contratado_sum": 91650.0,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "43877098000172",
+      "nome": "CRIATIVA PAPELARIA E ARMARINHOS LTDA",
+      "n_contracts": 26,
+      "n_orgaos_200km": 22,
+      "valor_contratado_sum": 9427.7,
+      "last_signed": "2026-07-15",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "11669001000140",
+      "nome": "ATTLAS SPORTS LTDA",
+      "n_contracts": 25,
+      "n_orgaos_200km": 14,
+      "valor_contratado_sum": 11913.08,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "08792763000124",
+      "nome": "MEGA BYTE MAGAZINE LTDA",
+      "n_contracts": 24,
+      "n_orgaos_200km": 16,
+      "valor_contratado_sum": 432258.0,
+      "last_signed": "2026-07-14",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "50704028000188",
+      "nome": "FEMANN COMERCIO E SERVICOS LTDA",
+      "n_contracts": 24,
+      "n_orgaos_200km": 13,
+      "valor_contratado_sum": 3744.27,
+      "last_signed": "2026-07-17",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "22862531000126",
+      "nome": "TOP NORTE COMÉRCIO DE MATERIAL MÉDICO HOSPITALAR LTDA",
+      "n_contracts": 23,
+      "n_orgaos_200km": 20,
+      "valor_contratado_sum": 15100.12,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "35193845000125",
+      "nome": "OUROLIMPE ATACADISTA LTDA",
+      "n_contracts": 23,
+      "n_orgaos_200km": 10,
+      "valor_contratado_sum": 10695.58,
+      "last_signed": "2026-07-16",
+      "is_paid": false
+    },
+    {
+      "fornecedor_cnpj": "34180582000157",
+      "nome": "SUPREMA MOVEIS E INFORMATICA LTDA",
+      "n_contracts": 22,
+      "n_orgaos_200km": 20,
+      "valor_contratado_sum": 38805.0,
+      "last_signed": "2026-07-15",
+      "is_paid": false
+    }
+  ]
+}

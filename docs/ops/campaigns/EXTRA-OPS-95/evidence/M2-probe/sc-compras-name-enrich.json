@@ -1,0 +1,83 @@
+{
+  "measured_at": "2026-07-19T03:31:56.555714+00:00",
+  "rows_seen": 2610,
+  "matched_updates": 1404,
+  "unmatched_orgao_names": 16,
+  "top_unmatched": [
+    [
+      "Fundação Universidade do Estado de Santa Catarina - UDESC",
+      663
+    ],
+    [
+      "Secretaria de Estado da Infraestrutura e Mobilidade - SIE",
+      111
+    ],
+    [
+      "Polícia Civil - PC",
+      108
+    ],
+    [
+      "Instituto do Meio Ambiente - IMA",
+      89
+    ],
+    [
+      "Defensoria Pública do Estado de Santa Catarina - DPE",
+      57
+    ],
+    [
+      "Instituto de Metrologia de Santa Catarina - IMETRO/SC",
+      35
+    ],
+    [
+      "Departamento Estadual de Trânsito - DETRAN/SC",
+      31
+    ],
+    [
+      "Polícia Militar do Estado de Santa Catarina - PM/SC",
+      24
+    ],
+    [
+      "Polícia Científica de Santa Catarina",
+      20
+    ],
+    [
+      "Procuradoria Geral do Estado de Santa Catarina - PGE",
+      17
+    ],
+    [
+      "Corpo de Bombeiros Militar - CBM/SC - Fundo de Melhoria",
+      15
+    ],
+    [
+      "Centro de Informática e Automação de Santa Catarina - CIASC",
+      11
+    ],
+    [
+      "Companhia Integrada de Desenv. Agricola de Santa Catarina - CIDASC",
+      9
+    ],
+    [
+      "Fundação Catarinense de Esporte - FCE",
+      9
+    ],
+    [
+      "Secretaria de Estado de Indústria, Comércio e Serviço",
+      5
+    ],
+    [
+      "Secretaria de Estado de Ciência Tecnologia e Inovação",
+      2
+    ]
+  ],
+  "presence_editais_after": 277,
+  "presence_editais_pct": 25.3431,
+  "presence_sc_compras_200km": 29,
+  "presence_contracts": 247,
+  "presence_contracts_pct": 22.5984,
+  "method": "name match; orgao_cnpj=cnpj8||'000000' placeholder",
+  "claims_forbidden": [
+    "full CNPJ verified",
+    "95% coverage",
+    "7-stage operational"
+  ]
+}

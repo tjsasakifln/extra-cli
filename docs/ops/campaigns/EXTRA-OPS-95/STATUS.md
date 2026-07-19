@@ -1,7 +1,8 @@
 # EXTRA-OPS-95-FOUNDATION — Status operacional
 
 **HEAD start (main):** `dbc5adb2ab62898cd3fd005c83c90dcef36c1cde`  
-**Atualizado:** 2026-07-19T03:20Z (UTC)  
+**Atualizado:** 2026-07-19T03:34Z (UTC)  
+**HEAD trabalho:** `1c2f608`+  
 **Status global da campanha:** **PARTIAL**
 
 ## Objetivo vinculante
@@ -15,9 +16,9 @@ Operação local consultiva B2G com cobertura editais/contratos ≥95% **separad
 | M0 Recuperação + baseline | **DONE** | `baseline/foundation-baseline.json`, `BASELINE.md`, `RECOVERY-INVENTORY.md` |
 | M0.5 OSS harvest | **DONE** (decisões) | `oss/oss-decisions.json` — 0 ADOPT sem piloto |
 | M1 Universo | **DONE** parcial operacional | Seed 1093; radar universe_resolution **100%**; 2ª import 0 inserts |
-| M2 Cobertura | **IN_PROGRESS** | Presença editais 24,5% / contratos 22,6%; strict ops registry 12,7% |
+| M2 Cobertura | **IN_PROGRESS** | Presença editais **279 (25,5%)** / contratos **247 (22,6%)**; multi-source sc_compras+ciga; enrich CNPJ |
 | M3 Intel/decisão | **PARTIAL** | **401** opps; GO=0 REVIEW=397 NO_GO=4; upsert fix 057 |
-| M4 Concorrentes/valores | **NOT_READY** | contract_intel parcial (expiring) |
+| M4 Concorrentes/valores | **PARTIAL** | packages live: competitors/expiring/prices/opps + package-final fixture |
 | M5 Automação/3 ciclos | **PENDING** | — |
 | M6 Recall | **BLOCKED_SOURCE** | N09 |
 | M7 HTML/DOD/handoff | **PARTIAL** | handoff sessão; HTML final não |
