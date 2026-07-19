@@ -12,10 +12,12 @@ from scripts.collect.run_contract import (
     new_collection_id,
 )
 from scripts.ops.weekly_cycle import (
+    _EXTRA_UNIVERSE_ORGAO,
     EXIT_OK,
     EXIT_TECH,
     EXIT_UNRELIABLE,
     StageResult,
+    _build_claims_catalog,
     compute_exit_code,
     run_weekly_cycle,
 )
@@ -250,14 +252,152 @@ def test_exit_unreliable_empty_without_success_zero() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Offline cycle (uses real DB if available)
+# Claims provenance (AC3)
+# ---------------------------------------------------------------------------
+
+
+def test_claims_include_material_rows_with_cycle_collection() -> None:
+    """Opportunities, contracts and competitors link to this cycle collection_id."""
+    collection_id = "col-test-extra"
+    opp_run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id=collection_id,
+        collector_version="t",
+        run_id="cycle-opp-run-1",
+    )
+    opp_run.finish(
+        records_obtained=1,
+        records_persisted=1,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+    )
+    ct_run = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id=collection_id,
+        collector_version="t",
+        run_id="cycle-ct-run-1",
+    )
+    ct_run.finish(
+        records_obtained=10,
+        records_persisted=10,
+        request_completed=True,
+        scope_complete=False,
+        reused_within_sla=True,
+    )
+    intel = {
+        "opportunities": [
+            {
+                "id": 42,
+                "source": "pncp",
+                "source_id": "x",
+                "numero_controle_pncp": "SC-1",
+                "orgao_nome": "PREFEITURA DEMO",
+                "ranking_effective": "REVIEW",
+                "valor_estimado": 1000,
+                "valor_tipo": "estimado",
+                "run_id": 30,  # historical source record — must NOT replace cycle ids
+                "cycle_collection_id": collection_id,
+                "cycle_run_id": "cycle-opp-run-1",
+                "source_record_run_id": 30,
+            }
+        ],
+        "contracts": [
+            {
+                "contrato_id": "c-9",
+                "orgao_nome": "ORGAO U",
+                "fornecedor_nome": "FORN",
+                "valor_total": 500,
+                "valor_tipo": "valor_contratado",
+                "source": "pncp",
+                "cycle_collection_id": collection_id,
+                "cycle_run_id": "cycle-ct-run-1",
+                "scope": "extra_universe_200km",
+            }
+        ],
+        "competitors": [
+            {
+                "fornecedor_cnpj": "11222333000144",
+                "fornecedor_nome": "FORN SA",
+                "n_contratos": 3,
+                "soma_valor_contratado": 900,
+                "valor_tipo": "soma_valor_contratado_nao_pago",
+                "cycle_collection_id": collection_id,
+                "cycle_run_id": "cycle-ct-run-1",
+                "scope": "extra_universe_200km",
+            }
+        ],
+    }
+    claims = _build_claims_catalog(
+        intel,
+        [opp_run, ct_run],
+        [{"source": "pncp_opportunities", "level": "fresh", "age_hours": 1, "sla_hours": 48}],
+        collection_id=collection_id,
+    )
+    kinds = {c["kind"] for c in claims}
+    assert "opportunity" in kinds
+    assert "contract" in kinds
+    assert "competitor" in kinds
+    assert "collection_run" in kinds
+    assert "freshness" in kinds
+
+    opp_claims = [c for c in claims if c["kind"] == "opportunity"]
+    assert len(opp_claims) == 1
+    assert opp_claims[0]["collection_id"] == collection_id
+    assert opp_claims[0]["cycle_run_id"] == "cycle-opp-run-1"
+    assert opp_claims[0]["source_record_run_id"] == 30
+    assert opp_claims[0]["normalized_table"] == "opportunity_intel"
+    assert opp_claims[0]["product"]
+
+    ct_claims = [c for c in claims if c["kind"] == "contract"]
+    assert ct_claims[0]["collection_id"] == collection_id
+    assert ct_claims[0]["cycle_run_id"] == "cycle-ct-run-1"
+    assert ct_claims[0]["normalized_table"] == "pncp_supplier_contracts"
+    assert ct_claims[0]["scope"] == "extra_universe_200km"
+
+    comp = [c for c in claims if c["kind"] == "competitor"]
+    assert comp[0]["collection_id"] == collection_id
+    assert comp[0]["normalized_id"] == "11222333000144"
+
+
+def test_extra_universe_scope_sql_targets_raio_200km() -> None:
+    """Contracts/competitors must filter Extra universe + SC — not national LIMIT alone."""
+    sql = _EXTRA_UNIVERSE_ORGAO
+    assert "sc_public_entities" in sql
+    assert "raio_200km" in sql
+    assert "orgao_cnpj_8" in sql
+    assert "c.uf = 'SC'" in sql or 'c.uf = "SC"' in sql or "uf = 'SC'" in sql
+
+
+def test_identity_pick_match_rejects_cross_root() -> None:
+    from scripts.entity_identity.pncp_orgao_resolve import pick_match
+
+    hit = pick_match(
+        "12345678",
+        "PREFEITURA MUNICIPAL DE EXEMPLO",
+        [
+            {
+                "cnpj": "99999999000199",
+                "razaoSocial": "PREFEITURA MUNICIPAL DE EXEMPLO",
+            }
+        ],
+    )
+    assert hit is None
+
+
+# ---------------------------------------------------------------------------
+# Offline cycle (real DB only — never under autouse mock)
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.integration
 def test_weekly_cycle_offline_skip_collect(tmp_path: Path) -> None:
-    """Offline+skip path produces manifest and exit code without network collect."""
+    """Offline+skip path produces manifest — requires real DB (REQUIRE_REAL_DB=1)."""
     import os
+
+    # conftest autouse mock is active unless integration + REQUIRE_REAL_DB=1
+    if os.getenv("REQUIRE_REAL_DB") != "1":
+        pytest.skip("Requires REQUIRE_REAL_DB=1 (real PostgreSQL; mock breaks manifest)")
 
     dsn = os.getenv(
         "LOCAL_DATALAKE_DSN",
@@ -285,23 +425,10 @@ def test_weekly_cycle_offline_skip_collect(tmp_path: Path) -> None:
     assert (out / "manifest.json").exists()
     assert (out / "executive_summary.md").exists()
     assert (out / "opportunities.csv").exists()
+    assert (out / "claims_provenance.csv").exists()
+    # AC3: claims file must mention contracts or competitors when lake has data
+    claims_text = (out / "claims_provenance.csv").read_text(encoding="utf-8")
+    assert "collection_id" in claims_text or "cycle_run_id" in claims_text
     assert report.human_accept.get("status") == "PENDING_HUMAN"
     assert "LOCAL_READY" in report.claims_forbidden
-    # offline with data in lake should typically be 0 or 2 depending on lake
     assert report.exit_code in {0, 2, 3}
-
-
-def test_identity_pick_match_rejects_cross_root() -> None:
-    from scripts.entity_identity.pncp_orgao_resolve import pick_match
-
-    hit = pick_match(
-        "12345678",
-        "PREFEITURA MUNICIPAL DE EXEMPLO",
-        [
-            {
-                "cnpj": "99999999000199",
-                "razaoSocial": "PREFEITURA MUNICIPAL DE EXEMPLO",
-            }
-        ],
-    )
-    assert hit is None

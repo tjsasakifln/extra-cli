@@ -140,6 +140,7 @@ jobs:
           tests/test_contracts_uf_filter.py
           tests/test_mandatory_gates_no_or_true.py
           tests/test_weekly_cycle.py
+          -m "not integration and not database and not live"
           -o addopts=''
           --cov=scripts.freshness_gate
           --cov=scripts.lib.universe

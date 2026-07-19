@@ -1,42 +1,42 @@
 {
   "claims_provenance.csv": {
-    "sha256": "4f48e01ff0fac52838efda4f189624db000d933566fad647c694f6cbd3d71560",
-    "bytes": 13972
+    "sha256": "1c21338aa86a517fcb600c530f5d15f6b9f329f9dcd7340db50384ce75eec7c1",
+    "bytes": 67865
   },
   "competitors.csv": {
-    "sha256": "8eeffc8bdb32b23f464387d8a64cf3cb585c98649b83f64a24238b0737a9e02c",
-    "bytes": 5457
+    "sha256": "1c20d53ec77e610372ac1b7b8ac345b3bd4dfe2d95da988a365d6ed5ebe79134",
+    "bytes": 12518
   },
   "contracts.csv": {
-    "sha256": "2454cecc6018ce6eb59a2c1d1130e4a0d3833d1f6c3f0eac04e65c6970f95e77",
-    "bytes": 29382
+    "sha256": "e11a53034880dcdbe368e61165b7460e56288ed2ab94925d203942cde669c6f8",
+    "bytes": 30618
   },
   "executive_summary.md": {
-    "sha256": "b91c439d5551272c8db09612fe76e341394d1c9174f1ecdd27a28384af5af75e",
-    "bytes": 6580
+    "sha256": "b412d84552240bb640aa2f6f6c0a3b83dc7958580297d6094e5c44af9c7ed44e",
+    "bytes": 6505
   },
   "extra_weekly_pack.xlsx": {
-    "sha256": "3ada52239685f8ee5ff17905aa69dd23d5556e4190632207016164953b79eafc",
-    "bytes": 39617
+    "sha256": "9367f69531bc4881d033deb137252debf8c73b14c8c5a76627235f38c128d347",
+    "bytes": 41545
   },
   "gaps.csv": {
     "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
     "bytes": 350
   },
   "manifest.json": {
-    "sha256": "446938f79fc4294446d5ff5e6bd5b0bc875e46436c1f54d835db38cbc8667f8f",
-    "bytes": 197368
+    "sha256": "c2acc4d486e6eee66a76831f71f368b8b748ccd4d301ed5f6ec4c768599d74ca",
+    "bytes": 241171
   },
   "opportunities.csv": {
-    "sha256": "f2633d751fe50e37cbe52a2c2bb89846f9ad0fe651e829f4ebd3171436a2f398",
-    "bytes": 42068
+    "sha256": "3aaa85c2c8e5c404a30e2746d5ed9f09a01dbb2abbcf9abd031ee604b4f9b22e",
+    "bytes": 48528
   },
   "orgaos.csv": {
-    "sha256": "2e4e2e2d09e5f08a60089148101e910726b8aaee474cb3aabca6c3a4e4c49310",
-    "bytes": 3101
+    "sha256": "d068aac6c1ae529921af0c4c48bc3d42b056ae202155190d0f6a4ab10a753b31",
+    "bytes": 6627
   },
   "source_health.csv": {
-    "sha256": "3de034855628d142dc88a96f8059b725126ae30cfcf244ec0a2b1608d1cbc366",
-    "bytes": 294
+    "sha256": "6d9ad836e39fa850a608cbc380c1b38547bc176583748b09b93018154b1f753e",
+    "bytes": 293
   }
 }

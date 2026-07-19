@@ -596,7 +596,34 @@ def stage_quality(conn: Any, runs: list[CollectionRun]) -> StageResult:
     return StageResult(name="quality", status="ok", detail=detail)
 
 
-def stage_intelligence(conn: Any, *, limit: int = 50) -> StageResult:
+# SQL fragment: contracts for Extra weekly pack.
+# Require UF=SC (avoids federal CNPJ-8 roots matching nationwide RFB/etc.)
+# AND orgao_cnpj_8 ∈ universe raio_200km. Never national ORDER BY alone.
+_EXTRA_UNIVERSE_ORGAO = """
+    c.uf = 'SC'
+    AND c.orgao_cnpj_8 IN (
+        SELECT e.cnpj_8
+        FROM sc_public_entities e
+        WHERE e.is_active IS TRUE
+          AND e.raio_200km IS TRUE
+          AND e.cnpj_8 IS NOT NULL
+          AND LENGTH(TRIM(e.cnpj_8)) = 8
+    )
+"""
+
+
+def stage_intelligence(
+    conn: Any,
+    *,
+    limit: int = 50,
+    collection_id: str | None = None,
+    runs: list[CollectionRun] | None = None,
+) -> StageResult:
+    runs = runs or []
+    run_by_source = {r.source: r for r in runs}
+    opp_cycle = run_by_source.get("pncp_opportunities")
+    ct_cycle = run_by_source.get("pncp_contracts")
+
     opps = _q(
         conn,
         """
@@ -609,6 +636,14 @@ def stage_intelligence(conn: Any, *, limit: int = 50) -> StageResult:
         FROM opportunity_intel
         WHERE is_active = TRUE
           AND status_canonico IN ('open', 'upcoming')
+          AND (
+            uf = 'SC'
+            OR LEFT(REGEXP_REPLACE(COALESCE(orgao_cnpj, ''), '[^0-9]', '', 'g'), 8)
+               IN (
+                 SELECT e.cnpj_8 FROM sc_public_entities e
+                 WHERE e.is_active IS TRUE AND e.raio_200km IS TRUE
+               )
+          )
         ORDER BY
           CASE ranking WHEN 'GO' THEN 0 WHEN 'REVIEW' THEN 1 ELSE 2 END,
           data_encerramento NULLS LAST,
@@ -636,51 +671,68 @@ def stage_intelligence(conn: Any, *, limit: int = 50) -> StageResult:
         # value semantics
         o["valor_tipo"] = o.get("valor_semantica") or "estimado_ou_nao_declarado"
         o["valor_nao_e_pago"] = True
+        o["cycle_collection_id"] = collection_id
+        o["cycle_run_id"] = opp_cycle.run_id if opp_cycle else None
+        o["source_record_run_id"] = o.get("run_id") or o.get("last_seen_source_run_id")
+        o["scope"] = "extra_sc_or_universe_200km"
 
     contracts = _q(
         conn,
-        """
-        SELECT contrato_id, orgao_cnpj, orgao_nome, fornecedor_cnpj, fornecedor_nome,
-               objeto_contrato, valor_total, data_inicio, data_fim, data_publicacao,
-               uf, municipio, source, source_id, ingested_at, source_date_semantics
-        FROM pncp_supplier_contracts
-        WHERE COALESCE(is_active, TRUE)
+        # Constant fragment only — not user input (S608 false positive)
+        f"""
+        SELECT c.contrato_id, c.orgao_cnpj, c.orgao_nome, c.fornecedor_cnpj, c.fornecedor_nome,
+               c.objeto_contrato, c.valor_total, c.data_inicio, c.data_fim, c.data_publicacao,
+               c.uf, c.municipio, c.source, c.source_id, c.ingested_at, c.source_date_semantics,
+               c.orgao_cnpj_8
+        FROM pncp_supplier_contracts c
+        WHERE COALESCE(c.is_active, TRUE)
+          AND {_EXTRA_UNIVERSE_ORGAO}
           AND (
-            data_publicacao >= CURRENT_DATE - INTERVAL '90 days'
-            OR data_fim >= CURRENT_DATE - INTERVAL '30 days'
-            OR data_fim BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '180 days'
+            c.data_publicacao >= CURRENT_DATE - INTERVAL '90 days'
+            OR c.data_fim >= CURRENT_DATE - INTERVAL '30 days'
+            OR c.data_fim BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '180 days'
           )
-        ORDER BY COALESCE(data_publicacao, data_fim) DESC NULLS LAST
+        ORDER BY COALESCE(c.data_publicacao, c.data_fim) DESC NULLS LAST
         LIMIT %s
-        """,
+        """,  # noqa: S608
         (limit,),
     )
     for c in contracts:
         c["valor_tipo"] = "valor_contratado"
         c["valor_nao_e_pago"] = True
         c["valor_note"] = "valor_total é contratado/homologado na fonte — não pagar/medido"
+        c["cycle_collection_id"] = collection_id
+        c["cycle_run_id"] = ct_cycle.run_id if ct_cycle else None
+        c["source_record_run_id"] = c.get("source_id")
+        c["scope"] = "extra_universe_200km"
+        c["normalized_table"] = "pncp_supplier_contracts"
 
     competitors = _q(
         conn,
-        """
-        SELECT fornecedor_cnpj, fornecedor_nome,
+        f"""
+        SELECT c.fornecedor_cnpj, c.fornecedor_nome,
                COUNT(*)::int AS n_contratos,
-               SUM(valor_total)::numeric AS soma_valor_contratado,
-               COUNT(DISTINCT orgao_cnpj)::int AS n_orgaos
-        FROM pncp_supplier_contracts
-        WHERE COALESCE(is_active, TRUE)
-          AND fornecedor_cnpj IS NOT NULL
-          AND COALESCE(data_publicacao, data_inicio, ingested_at)
+               SUM(c.valor_total)::numeric AS soma_valor_contratado,
+               COUNT(DISTINCT c.orgao_cnpj)::int AS n_orgaos
+        FROM pncp_supplier_contracts c
+        WHERE COALESCE(c.is_active, TRUE)
+          AND {_EXTRA_UNIVERSE_ORGAO}
+          AND c.fornecedor_cnpj IS NOT NULL
+          AND COALESCE(c.data_publicacao, c.data_inicio, c.ingested_at)
               >= CURRENT_DATE - INTERVAL '365 days'
-        GROUP BY fornecedor_cnpj, fornecedor_nome
+        GROUP BY c.fornecedor_cnpj, c.fornecedor_nome
         ORDER BY n_contratos DESC, soma_valor_contratado DESC NULLS LAST
         LIMIT %s
-        """,
+        """,  # noqa: S608
         (limit,),
     )
     for c in competitors:
         c["valor_tipo"] = "soma_valor_contratado_nao_pago"
         c["valor_nao_e_pago"] = True
+        c["cycle_collection_id"] = collection_id
+        c["cycle_run_id"] = ct_cycle.run_id if ct_cycle else None
+        c["scope"] = "extra_universe_200km"
+        c["normalized_table"] = "pncp_supplier_contracts_agg"
 
     orgaos = _q(
         conn,
@@ -688,12 +740,23 @@ def stage_intelligence(conn: Any, *, limit: int = 50) -> StageResult:
         SELECT orgao_cnpj, orgao_nome, uf, municipio, COUNT(*)::int AS n_opp
         FROM opportunity_intel
         WHERE is_active AND status_canonico IN ('open','upcoming')
+          AND (
+            uf = 'SC'
+            OR LEFT(REGEXP_REPLACE(COALESCE(orgao_cnpj, ''), '[^0-9]', '', 'g'), 8)
+               IN (
+                 SELECT e.cnpj_8 FROM sc_public_entities e
+                 WHERE e.is_active IS TRUE AND e.raio_200km IS TRUE
+               )
+          )
         GROUP BY orgao_cnpj, orgao_nome, uf, municipio
         ORDER BY n_opp DESC
         LIMIT %s
         """,
         (limit,),
     )
+    for o in orgaos:
+        o["cycle_collection_id"] = collection_id
+        o["scope"] = "extra_sc_or_universe_200km"
 
     return StageResult(
         name="intelligence",
@@ -709,6 +772,7 @@ def stage_intelligence(conn: Any, *, limit: int = 50) -> StageResult:
                 "competitors": len(competitors),
                 "orgaos": len(orgaos),
             },
+            "scope": "extra_universe_200km",
         },
     )
 
@@ -717,35 +781,106 @@ def _build_claims_catalog(
     intel: dict[str, Any],
     runs: list[CollectionRun],
     freshness: list[dict[str, Any]],
+    *,
+    collection_id: str | None = None,
 ) -> list[dict[str, Any]]:
+    """Provenance catalog: source → collection → cycle run → normalized → rule → product.
+
+    Material rows (opportunities, contracts, competitors) must carry this cycle's
+    ``collection_id`` and ``cycle_run_id``. Source-record run ids are preserved
+    separately and must not replace the cycle collection link.
+    """
     claims: list[dict[str, Any]] = []
+    run_by_source = {r.source: r for r in runs}
+    opp_cycle = run_by_source.get("pncp_opportunities")
+    ct_cycle = run_by_source.get("pncp_contracts")
+    cid = collection_id or (runs[0].collection_id if runs else None)
+
     for o in intel.get("opportunities") or []:
         claims.append(
             {
                 "claim_id": f"opp-{o.get('id')}",
+                "kind": "opportunity",
                 "statement": (
                     f"Oportunidade {o.get('numero_controle_pncp') or o.get('source_id')} "
                     f"orgão={o.get('orgao_nome')} ranking={o.get('ranking_effective')} "
                     f"valor_estimado={o.get('valor_estimado')} ({o.get('valor_tipo')})"
                 ),
-                "source": o.get("source"),
-                "collection_run_id": o.get("run_id") or o.get("last_seen_source_run_id"),
+                "source": o.get("source") or "pncp",
+                "collection_id": o.get("cycle_collection_id") or cid,
+                "cycle_run_id": o.get("cycle_run_id")
+                or (opp_cycle.run_id if opp_cycle else None),
+                "source_record_run_id": o.get("source_record_run_id")
+                or o.get("run_id")
+                or o.get("last_seen_source_run_id"),
+                "normalized_table": "opportunity_intel",
                 "normalized_id": o.get("id"),
-                "rule": "opportunity_intel.ranking + status_canonico",
-                "product": "opportunities.csv / executive.md",
+                "rule": "opportunity_intel.ranking + status_canonico + extra_scope",
+                "product": "opportunities.csv / executive_summary.md",
             }
         )
+
+    for c in intel.get("contracts") or []:
+        claims.append(
+            {
+                "claim_id": f"contract-{c.get('contrato_id') or c.get('source_id')}",
+                "kind": "contract",
+                "statement": (
+                    f"Contrato órgão={c.get('orgao_nome')} fornecedor={c.get('fornecedor_nome')} "
+                    f"valor_contratado={c.get('valor_total')} ({c.get('valor_tipo')})"
+                ),
+                "source": c.get("source") or "pncp_contracts",
+                "collection_id": c.get("cycle_collection_id") or cid,
+                "cycle_run_id": c.get("cycle_run_id")
+                or (ct_cycle.run_id if ct_cycle else None),
+                "source_record_run_id": c.get("source_record_run_id") or c.get("source_id"),
+                "normalized_table": "pncp_supplier_contracts",
+                "normalized_id": c.get("contrato_id") or c.get("source_id"),
+                "rule": "extra_universe_200km + valor_contratado_not_paid",
+                "product": "contracts.csv / executive_summary.md",
+                "scope": c.get("scope") or "extra_universe_200km",
+            }
+        )
+
+    for c in intel.get("competitors") or []:
+        claims.append(
+            {
+                "claim_id": f"competitor-{c.get('fornecedor_cnpj')}",
+                "kind": "competitor",
+                "statement": (
+                    f"Concorrente {c.get('fornecedor_nome')} cnpj={c.get('fornecedor_cnpj')} "
+                    f"n_contratos={c.get('n_contratos')} "
+                    f"soma_valor_contratado={c.get('soma_valor_contratado')} "
+                    f"({c.get('valor_tipo')})"
+                ),
+                "source": "pncp_contracts",
+                "collection_id": c.get("cycle_collection_id") or cid,
+                "cycle_run_id": c.get("cycle_run_id")
+                or (ct_cycle.run_id if ct_cycle else None),
+                "source_record_run_id": None,
+                "normalized_table": "pncp_supplier_contracts_agg",
+                "normalized_id": c.get("fornecedor_cnpj"),
+                "rule": "extra_universe_200km competitor aggregation 365d",
+                "product": "competitors.csv / executive_summary.md",
+                "scope": c.get("scope") or "extra_universe_200km",
+            }
+        )
+
     for r in runs:
         claims.append(
             {
                 "claim_id": f"run-{r.run_id}",
+                "kind": "collection_run",
                 "statement": (
                     f"Coleta {r.source} terminal={r.terminal_status} "
                     f"obtained={r.records_obtained} persisted={r.records_persisted}"
                 ),
                 "source": r.source,
-                "collection_run_id": r.run_id,
                 "collection_id": r.collection_id,
+                "cycle_run_id": r.run_id,
+                "source_record_run_id": None,
+                "normalized_table": "pipeline_runs",
+                "normalized_id": r.run_id,
                 "rule": "scripts.collect.run_contract",
                 "product": "manifest.json",
             }
@@ -754,14 +889,19 @@ def _build_claims_catalog(
         claims.append(
             {
                 "claim_id": f"fresh-{f.get('source')}",
+                "kind": "freshness",
                 "statement": (
                     f"Freshness {f.get('source')}={f.get('level')} "
                     f"age_hours={f.get('age_hours')} sla={f.get('sla_hours')}"
                 ),
                 "source": f.get("source"),
+                "collection_id": cid,
+                "cycle_run_id": None,
                 "indicator": f.get("indicator"),
+                "normalized_table": None,
+                "normalized_id": None,
                 "rule": "freshness_source",
-                "product": "source_health.csv / executive.md",
+                "product": "source_health.csv / executive_summary.md",
             }
         )
     return claims
@@ -799,7 +939,12 @@ def stage_delivery(
     _write_csv(paths["orgaos_csv"], orgaos)
     _write_csv(paths["source_health_csv"], freshness)
     _write_csv(paths["gaps_csv"], gaps)
-    claims = _build_claims_catalog(intel, runs, freshness)
+    claims = _build_claims_catalog(
+        intel,
+        runs,
+        freshness,
+        collection_id=report.collection_id,
+    )
     _write_csv(paths["claims_csv"], claims)
 
     # Excel
@@ -1215,7 +1360,12 @@ def run_weekly_cycle(
 
         sq = stage_quality(conn, runs)
         stages.append(sq)
-        si = stage_intelligence(conn, limit=limit)
+        si = stage_intelligence(
+            conn,
+            limit=limit,
+            collection_id=collection_id,
+            runs=runs,
+        )
         stages.append(si)
         intel = si.detail or {}
         report.intelligence = {

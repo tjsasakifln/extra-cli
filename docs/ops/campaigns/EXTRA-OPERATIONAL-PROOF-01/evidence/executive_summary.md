@@ -1,8 +1,8 @@
-# Pacote semanal Extra Construtora — weekly-20260719T192008Z-853988a39f
+# Pacote semanal Extra Construtora — weekly-20260719T193016Z-978721b174
 
-- **Gerado em:** 2026-07-19T19:20:08Z
-- **Collection ID:** `col-extra-weekly-20260719T192008Z-0142869a`
-- **Git:** `c6570c9cca71f2225fa17dda73cf2a55ee56a7c2`
+- **Gerado em:** 2026-07-19T19:30:16Z
+- **Collection ID:** `col-extra-weekly-20260719T193016Z-73a489a8`
+- **Git:** `39b018c8bf6888c1bb6b636af65f9db084ae5afc`
 - **Exit code previsto:** ver manifest
 
 ## Resumo executivo
@@ -17,16 +17,16 @@ Ranking efetivo: **GO=0**, **REVIEW=50**, **NO_GO=0**.
 
 ## Freshness / saúde das fontes
 
-- `pncp_opportunities`: **fresh** (age_h=0.16, SLA=48h)
-- `pncp_contracts`: **fresh** (age_h=2.73, SLA=168h) — freshness by max(ingested_at); not a full re-collect this cycle
+- `pncp_opportunities`: **fresh** (age_h=0.33, SLA=48h)
+- `pncp_contracts`: **fresh** (age_h=2.9, SLA=168h) — freshness by max(ingested_at); not a full re-collect this cycle
 
 ## Coletas deste ciclo
 
-- `pncp_opportunities` run `collect-pncp_opportunities-20260719T192009Z-65bd4a9d49` → **reused_fresh** (obtidos=0, persistidos=0)
+- `pncp_opportunities` run `collect-pncp_opportunities-20260719T193016Z-3ade5de99c` → **reused_fresh** (obtidos=0, persistidos=0)
   - nota: reused previous PNCP opportunity collection within SLA
-- `pncp_contracts` run `collect-pncp_contracts-20260719T192009Z-232186ae95` → **reused_fresh** (obtidos=498809, persistidos=498809)
+- `pncp_contracts` run `collect-pncp_contracts-20260719T193016Z-0ff50fe0c7` → **reused_fresh** (obtidos=498809, persistidos=498809)
   - nota: contracts not re-crawled; lake rows reused with explicit freshness
-  - nota: age_hours=2.73
+  - nota: age_hours=2.9
 
 ## Top oportunidades (até 15)
 
@@ -53,16 +53,16 @@ MEDICAMENTOS E EQUIPAMENTOS (GATO | 38877.60 | 2026-07-20 00:00:00+00:00 | pncp 
 
 | órgão | fornecedor | valor_contratado | fim |
 |---|---|---:|---|
-| EEEP JOAQUIM NOGUEIRA | A & B ARTIGOS E VARIEDADES EM GERAL LTDA | 5606.00 | 2026-12-31 |
-| SECRETARIA DA EDUCACAO | MARLUCE BRITO DE MENEZES - EPP | 386849.50 | 2027-07-01 |
-| SECRETARIA DAS MULHERES | LUDTECH TECNOLOGIA, SUPRIMENTOS E SERVIC | 7934.00 | 2026-12-31 |
-| EEFM PROFESSOR PAULO FREIRE | GLOBAL COMERCIO DE PRODUTOS HOSPITALARES | 1730.00 | 2026-12-31 |
-| DEPARTAMENTO ESTADUAL DE TRANSITO | CENTRO DE FORMACAO DE CONDUTORES DE NOVO | 1690.96 | 2026-12-31 |
-| EEM JOÃO BARBOSA LIMA | LM NOGUEIRA DISTRIBUIDORA E SERVICOS LTD | 1000.00 | 2027-05-17 |
-| APM EE MAL RONDON | LATICINIOS CAMBY LTDA | 2233.40 | 2026-11-20 |
-| DEPARTAMENTO ESTADUAL DE TRANSITO | CENTRO DE FORMACAO DE CONDUTORES LIMA MO | 14880.53 | 2026-12-31 |
-| DEPARTAMENTO ESTADUAL DE TRANSITO | CENTRO DE FORMACAO DE CONDUTORES DE VEIC | 646.95 | 2026-12-31 |
-| DEPARTAMENTO ESTADUAL DE TRANSITO | CENTRO DE FORMACAO DE CONDUTORES UBAJARA | 845.48 | 2026-12-31 |
+| MUNICÍPIO DE RIO DO CAMPO | SK MATERIAIS PARA ESCRITORIO LTDA | 112.41 | 2026-08-02 |
+| MUNICIPIO DE GRAVATAL | SANTA ROSA PAVIMENTACOES LTDA | 1890.00 | 2026-07-27 |
+| MUNICÍPIO DE POUSO REDONDO | SK MATERIAIS PARA ESCRITORIO LTDA | 375.48 | 2026-08-02 |
+| MUNICÍPIO DE PONTE ALTA DO NORTE | SK MATERIAIS PARA ESCRITORIO LTDA | 106.00 | 2026-08-02 |
+| MUNICÍPIO DE DOUTOR PEDRINHO | SK MATERIAIS PARA ESCRITORIO LTDA | 67.35 | 2026-08-02 |
+| MUNICÍPIO DE ITAPEMA | SK MATERIAIS PARA ESCRITORIO LTDA | 2977.35 | 2026-08-02 |
+| MUNICÍPIO DE LONTRAS | SK MATERIAIS PARA ESCRITORIO LTDA | 1731.00 | 2026-08-02 |
+| MUNICÍPIO DE SCHROEDER | SK MATERIAIS PARA ESCRITORIO LTDA | 74.85 | 2026-08-02 |
+| HOSPITAL MUNICIPAL SAO JOSE | ILG COMERCIAL LTDA | 3378.90 | 2026-08-06 |
+| MUNICÍPIO DE PONTE ALTA DO NORTE | SK MATERIAIS PARA ESCRITORIO LTDA | 47.50 | 2026-08-02 |
 
 ## Gaps conhecidos
 

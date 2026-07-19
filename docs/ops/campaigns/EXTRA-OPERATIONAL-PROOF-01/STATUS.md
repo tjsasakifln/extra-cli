@@ -20,30 +20,38 @@
 |----|--------|
 | AC1 Entry point único | **PASS** — `make extra-weekly` |
 | AC2 E2E real | **PASS** — collect/reuse + process + quality + intel + delivery |
-| AC3 Rastreabilidade | **PASS** — claims_provenance + run/collection ids |
+| AC3 Rastreabilidade | **PASS** — claims: opp+contract+competitor com `collection_id` + `cycle_run_id` do ciclo (source_record_run_id separado) |
 | AC4 Separação métricas | **PASS** — indicator catalog fail-closed |
 | AC5 Produto utilizável | **PASS** — MD+Excel+CSV reais (não fixture) |
 | AC6 Fonte e freshness | **PASS** — source_health no pacote |
 | AC7 Identidade CNPJ | **PASS** — pick_match rejeita cross-root (teste) |
-| AC8 CI | **PARTIAL** — checks novos verdes localmente; full suite não gate PR |
+| AC8 CI | **PASS local** — critical path `-m not integration` + skip REQUIRE_REAL_DB; full suite ainda dispatch |
 | AC9 PR controlável | **PASS esperado** — diff pequeno focado |
 | AC10 Aceite humano | **PENDING_HUMAN** |
 
-## Execução canônica (evidência)
+## Skeptic fixes (2026-07-19)
+
+1. **CI mock:** integration test skips unless `REQUIRE_REAL_DB=1`; critical job uses `-m "not integration..."`. Default `pytest tests/test_weekly_cycle.py` → 17 passed, 1 skipped.
+2. **AC3 claims:** opportunity + contract + competitor rows carry this cycle `collection_id` + `cycle_run_id`; historical source run kept as `source_record_run_id`.
+3. **Extra scope:** contracts/competitors require `uf='SC' AND orgao_cnpj_8 ∈ universe raio_200km` (blocks federal CNPJ-8 nationwide bleed).
+
+## Execução canônica (evidência pós-fix)
 
 ```text
-comando: make extra-weekly
-         WEEKLY_FLAGS="--skip-collect --limit 50 --output-dir output/weekly/PROOF-01-canonical"
+comando: python -m scripts.ops.weekly_cycle --strict --skip-collect --limit 50
+         --output-dir output/weekly/PROOF-01-fix2
 exit_code: 0
-duration_seconds: ~2.0
-collection_id: col-extra-weekly-20260719T192008Z-0142869a
-cycle_id: weekly-20260719T192008Z-853988a39f
+duration_seconds: ~0.9
+collection_id: col-extra-weekly-20260719T193016Z-73a489a8
+cycle_id: weekly-20260719T193016Z-978721b174
 runs:
-  pncp_opportunities → reused_fresh (SLA 48h)
-  pncp_contracts → reused_fresh (SLA 168h)
-counts: opportunities=50, contracts=50, competitors=50, orgaos=50
-produtos: output/weekly/PROOF-01-canonical/
-evidência copiada: docs/ops/campaigns/EXTRA-OPERATIONAL-PROOF-01/evidence/
+  pncp_opportunities → reused_fresh
+  pncp_contracts → reused_fresh
+counts: opportunities=50, contracts=50 (UF SC only), competitors=50, orgaos=50
+claims: opportunity=50, contract=50, competitor=50 (+ runs + freshness)
+produtos: output/weekly/PROOF-01-fix2/
+evidência: docs/ops/campaigns/EXTRA-OPERATIONAL-PROOF-01/evidence/
+tests: default weekly 17p+1s; REQUIRE_REAL_DB=1 integration passed; expanded 143p
 ```
 
 ### Live force-collect (adicional)
