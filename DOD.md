@@ -789,7 +789,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O sistema registra data de última atualização.
 - [ ] O incremental roda com intervalo máximo de sete dias no estágio local, ainda que manualmente.
 - [ ] A cobertura de contratos >= 95% é provada por ente aplicável.
-- [ ] Entes sem contratos encontrados possuem `success_zero` válido.
+- [x] Entes sem contratos encontrados possuem `success_zero` válido. Evidência: gap-lists-20260719.json · ops proxy 1090/1093 · SZ 722 · EXTRA-OPS-95 27d3665 · residual 3 cnpj_8 malformados 00394494* (exceto 3 seed cnpj_8 inválidos PF/PRF)
 - [ ] Presença de contrato em 404 entes, ou qualquer outra quantidade, não é confundida com cobertura.
 
 ### 9.3 Qualidade contratual
@@ -930,7 +930,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Lista de editais descartados com motivo.
 - [ ] Lista de oportunidades removidas do snapshot.
 - [ ] Lista de entes sem cobertura de editais.
-- [ ] Lista de entes sem cobertura de contratos.
+- [x] Lista de entes sem cobertura de contratos. Evidência: gap-lists-20260719.json · ops proxy 1090/1093 · SZ 722 · EXTRA-OPS-95 27d3665 · residual 3 cnpj_8 malformados 00394494*
 - [ ] Lista de blockers por fonte.
 - [ ] Lista de runs stale.
 - [ ] Relatório de contratos por ente.

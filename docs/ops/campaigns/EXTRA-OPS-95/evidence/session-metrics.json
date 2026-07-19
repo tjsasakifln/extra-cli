@@ -1,9 +1,9 @@
 {
-  "measured_at": "2026-07-19T08:15:04.793041+00:00",
+  "measured_at": "2026-07-19T08:17:15.257976+00:00",
   "head": "1fc2ff6+",
   "denominator_200km": 1093,
-  "presence_editais": 285,
-  "presence_editais_pct": 26.075,
+  "presence_editais": 287,
+  "presence_editais_pct": 26.258,
   "presence_contracts": 368,
   "presence_contracts_pct": 33.6688,
   "success_zero_contracts_entities": 722,
@@ -25,11 +25,11 @@
       "razao": "UNIVERSIDADE CORPORATIVA DA POLICIA RODOVIARIA FEDERAL"
     }
   ],
-  "bids_rows": 11559,
+  "bids_rows": 12459,
   "contracts_rows": 224072,
-  "dod_checked": 270,
+  "dod_checked": 272,
   "dod_total": 1352,
-  "dod_pct": 19.9704,
+  "dod_pct": 20.1183,
   "definition": "ops_proxy = lake presence of orgao_cnpj8 OR entity-scoped success_zero with cnpj14 root match + http_204_complete. NOT seven-stage operational coverage.",
   "brasilapi_method": "matriz 0001+DV validated by BrasilAPI razao soft-match before PNCP contracts probe",
   "status": "PARTIAL",
