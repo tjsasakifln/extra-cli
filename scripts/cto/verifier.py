@@ -97,8 +97,44 @@ def _classify_status_line(line: str) -> tuple[str, str] | None:
     return "unstaged", path
 
 
+def _branch_committed_changes(cwd: Path) -> dict[str, Any]:
+    """Files/diff committed on this branch since merge-base with main.
+
+    Live Grok often commits inside the worktree before verify runs. Working
+    tree porcelain alone would then look empty and false-fail EXECUTE work.
+    """
+    committed: list[str] = []
+    raw_diff = ""
+    base_used: str | None = None
+    for ref in ("main", "master", "origin/main", "origin/master"):
+        mb = _run(["git", "merge-base", "HEAD", ref], cwd)
+        if mb.get("exit_code") != 0:
+            continue
+        base = (mb.get("stdout") or "").strip()
+        if not base:
+            continue
+        names = _run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd)
+        if names.get("exit_code") == 0:
+            committed = [
+                ln.strip() for ln in (names.get("stdout") or "").splitlines() if ln.strip()
+            ]
+        diff = _run(["git", "diff", f"{base}...HEAD"], cwd)
+        if diff.get("exit_code") == 0:
+            raw_diff = diff.get("stdout") or ""
+        base_used = base
+        break
+    return {
+        "committed": committed,
+        "diff_text": raw_diff,
+        "merge_base": base_used,
+    }
+
+
 def capture_working_tree(cwd: Path) -> dict[str, Any]:
-    """Capture staged/unstaged/untracked inventory, full diff (capped) + hashes."""
+    """Capture staged/unstaged/untracked inventory, full diff (capped) + hashes.
+
+    Includes committed branch delta vs main so post-commit Grok work is visible.
+    """
     status = _run(["git", "status", "--porcelain"], cwd)
     staged: list[str] = []
     unstaged: list[str] = []
@@ -120,7 +156,14 @@ def capture_working_tree(cwd: Path) -> dict[str, Any]:
     # Also staged-only and unstaged-only for inventory completeness
     diff_staged = _run(["git", "diff", "--cached"], cwd)
     diff_unstaged = _run(["git", "diff"], cwd)
-    raw_diff = (diff_head.get("stdout") or "") + "\n" + (diff_staged.get("stdout") or "")
+    branch_delta = _branch_committed_changes(cwd)
+    raw_diff = (
+        (diff_head.get("stdout") or "")
+        + "\n"
+        + (diff_staged.get("stdout") or "")
+        + "\n"
+        + (branch_delta.get("diff_text") or "")
+    )
     truncated = False
     if len(raw_diff) > DIFF_CHAR_CAP:
         raw_diff = raw_diff[:DIFF_CHAR_CAP]
@@ -155,11 +198,17 @@ def capture_working_tree(cwd: Path) -> dict[str, Any]:
             entry["claim_hit"] = bool(CLAIM_HINTS.search(sample))
         untracked_details.append(entry)
 
+    modified_all = sorted(
+        set(staged + unstaged + untracked + list(branch_delta.get("committed") or []))
+    )
+
     return {
         "staged": staged,
         "unstaged": unstaged,
         "untracked": untracked,
-        "modified_all": sorted(set(staged + unstaged + untracked)),
+        "committed_since_main": list(branch_delta.get("committed") or []),
+        "merge_base": branch_delta.get("merge_base"),
+        "modified_all": modified_all,
         "diff": {
             "text": redact_text(raw_diff),
             "sha256": diff_hash,
@@ -169,6 +218,7 @@ def capture_working_tree(cwd: Path) -> dict[str, Any]:
             "unstaged_exit": diff_unstaged.get("exit_code"),
             "staged_exit": diff_staged.get("exit_code"),
             "head_exit": diff_head.get("exit_code"),
+            "includes_branch_commits": bool(branch_delta.get("committed")),
         },
         "untracked_details": untracked_details,
         "status_exit": status.get("exit_code"),

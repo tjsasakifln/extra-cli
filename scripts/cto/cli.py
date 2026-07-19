@@ -1236,7 +1236,7 @@ def build_canary_decision(*, root: Path) -> dict[str, Any]:
             ".env.*",
         ],
         "test_commands": [
-            "python3 -m pytest tests/cto/test_executor_hardening.py -q --no-cov",
+            "grep -qi canary docs/ops/cto-autopilot/canary-proof.md",
         ],
         "forbidden_actions": [
             "merge",

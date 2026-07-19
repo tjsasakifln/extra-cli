@@ -606,6 +606,53 @@ def enforce_executable_readiness(
     }
 
 
+def normalize_review_content(content: dict[str, Any]) -> dict[str, Any]:
+    """Coerce common DeepSeek drift into review.schema.json before validate.
+
+    Does not invent ACCEPT — only renames/fills required structural fields.
+    """
+    out = dict(content)
+    if not out.get("summary"):
+        for alt in ("reason", "rationale", "explanation", "message"):
+            if out.get(alt):
+                out["summary"] = str(out.pop(alt))
+                break
+    else:
+        for alt in ("reason", "rationale"):
+            out.pop(alt, None)
+    if "failed_criteria" not in out or out["failed_criteria"] is None:
+        out["failed_criteria"] = []
+    elif not isinstance(out["failed_criteria"], list):
+        out["failed_criteria"] = [str(out["failed_criteria"])]
+    if "repair_instructions" not in out or out["repair_instructions"] is None:
+        out["repair_instructions"] = []
+    elif not isinstance(out["repair_instructions"], list):
+        out["repair_instructions"] = [str(out["repair_instructions"])]
+    if "confidence" not in out or out["confidence"] is None:
+        out["confidence"] = 0.5
+    hg = out.get("human_gate")
+    if not isinstance(hg, dict):
+        out["human_gate"] = {"required": False, "reason": None}
+    else:
+        out["human_gate"] = {
+            "required": bool(hg.get("required")),
+            "reason": hg.get("reason"),
+        }
+    allowed = {
+        "schema_version",
+        "review_id",
+        "cycle_id",
+        "decision_id",
+        "verdict",
+        "summary",
+        "failed_criteria",
+        "repair_instructions",
+        "confidence",
+        "human_gate",
+    }
+    return {k: v for k, v in out.items() if k in allowed}
+
+
 def review_execution(
     *,
     decision: dict[str, Any],
@@ -688,6 +735,7 @@ def review_execution(
         content.setdefault("review_id", f"rev-{uuid.uuid4().hex[:12]}")
         content.setdefault("cycle_id", cycle_id)
         content.setdefault("decision_id", decision_id)
+        content = normalize_review_content(content)
         validated = validate_review(content, root=cfg.root)
         validated["review_context"] = {
             "matrix_counts": review_payload.get("matrix_counts"),
