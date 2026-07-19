@@ -1,0 +1,39 @@
+{
+  "decision_id": "DECISION-002",
+  "campaign": "EXTRA-OPS-95",
+  "ts": "2026-07-19T13:57:19.660889+00:00",
+  "head": "4f2f55a",
+  "phase": "post-recovery-resume",
+  "extra_roi_force_next_selected": {
+    "id": "cand-dyn-slice:cb906bb58392",
+    "roi_score": 2.9241,
+    "title": "[29. Rastreabilidade e auditoria] …",
+    "story": "ROI-cand-dyn-slice-cb906bb58392",
+    "rejection_reason": "Same class as DECISION-001: documentation/claim-language/audit-slice does not advance binding coverage objectives. Campaign forbids reducing objective to checkbox counting without ops gain."
+  },
+  "override": {
+    "selected": "COV-EDIT-CONTRACT-OPS",
+    "inherits": "DECISION-001",
+    "rationale": [
+      "Binding goals: editais presence/ops and contracts presence/ops separately; DOD ≥55% with evidence",
+      "Post-restore baseline: editais presence 24.5%→25.5% after sc_compras enrich; contracts presence 22.6%; SZ empty until re-probe",
+      "Contracts ops proxy was 100% pre-crash under documented definition — re-establish via SZ + lake presence after dump restore",
+      "N09 remains BLOCKED_SOURCE",
+      "force-next dyn-slice deferred; story left Draft without implementation"
+    ],
+    "actions_this_session": [
+      "Restore M5 dump + migrations to extra-test",
+      "Multi-source editais: pncp full, sc-compras full+enrich, ciga-ckan incremental",
+      "Contracts expand crawl + success_zero re-probe batches",
+      "Remeasure session-metrics; push checkpoint"
+    ]
+  },
+  "forbidden_next": [
+    "Mass DoD flips without live proof",
+    "Claim either-coverage as 95%",
+    "Claim campaign DONE / editais 95% / DOD 55%",
+    "Re-open N01",
+    "Invent CNPJ without BrasilAPI/root validation"
+  ],
+  "actor": "extra-ops-95-recovery-coordinator"
+}
