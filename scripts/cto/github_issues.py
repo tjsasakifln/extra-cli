@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -17,7 +17,7 @@ WORK_ID_MARKER_RE = re.compile(r"<!--\s*extra-work-id:\s*([^\s]+)\s*-->")
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _run_gh(args: list[str], cwd: Path, timeout: int = 90) -> dict[str, Any]:

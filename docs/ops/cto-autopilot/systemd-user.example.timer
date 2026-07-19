@@ -1,0 +1,16 @@
+# CTO Autopilot — optional user timer (DISABLED by default)
+#
+# Install only after validating a manual live cycle.
+# See systemd-user.example.service for activation / pause / logs / rollback.
+#
+# [Unit]
+# Description=Timer for CTO Autopilot conservative live cycle
+#
+# [Timer]
+# OnBootSec=15min
+# OnUnitActiveSec=4h
+# Persistent=true
+# Unit=cto-autopilot.service
+#
+# [Install]
+# WantedBy=timers.target

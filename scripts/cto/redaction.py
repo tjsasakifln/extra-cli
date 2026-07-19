@@ -54,14 +54,53 @@ def redact_text(text: str) -> str:
     return out
 
 
+# Keys that contain "token" but are numeric usage counters, not secrets.
+_USAGE_COUNT_KEYS = frozenset(
+    {
+        "total_tokens",
+        "prompt_tokens",
+        "completion_tokens",
+        "tokens",
+        "input_tokens",
+        "output_tokens",
+        "cached_tokens",
+    }
+)
+
+
+def _key_looks_secret(key: str) -> bool:
+    k = str(key)
+    if k.upper() in SENSITIVE_ENV_KEYS:
+        return True
+    lower = k.lower()
+    if lower in _USAGE_COUNT_KEYS:
+        return False
+    # Numeric usage counters like total_tokens / prompt_tokens — not secrets
+    if lower.endswith("_tokens") or lower.endswith("_token_count") or lower == "tokens":
+        return False
+    # Secret-bearing keys (incl. bare "token")
+    if lower in {"token", "secret", "password", "api_key", "apikey"}:
+        return True
+    return any(
+        s in lower
+        for s in (
+            "api_key",
+            "secret",
+            "password",
+            "access_token",
+            "auth_token",
+            "api_token",
+            "refresh_token",
+        )
+    )
+
+
 def redact_obj(value: Any) -> Any:
     """Deep-redact dict/list/str structures for evidence dumps."""
     if isinstance(value, dict):
         cleaned: dict[str, Any] = {}
         for k, v in value.items():
-            if str(k).upper() in SENSITIVE_ENV_KEYS or any(
-                s in str(k).lower() for s in ("api_key", "secret", "token", "password")
-            ):
+            if _key_looks_secret(str(k)):
                 cleaned[k] = REDACTED
             else:
                 cleaned[k] = redact_obj(v)

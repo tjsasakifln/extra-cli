@@ -4,7 +4,7 @@
 Commands:
   doctor, observe, status, issues-plan, issues-sync, issues-audit,
   rank, decide, prepare, run-once, resume, pause, verify,
-  refresh-executive, audit, deepseek-smoke
+  refresh-executive, audit, deepseek-smoke, reconcile-queue, publish
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ import os
 import shutil
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -52,16 +52,31 @@ from scripts.cto.paths import (  # noqa: E402
     policies_path,
     repo_root,
     review_schema_path,
-    work_registry_path,
 )
+from scripts.cto.publisher import publish_after_accept  # noqa: E402
 from scripts.cto.redaction import redact_obj  # noqa: E402
 from scripts.cto.state_machine import LockError, StateMachine  # noqa: E402
 from scripts.cto.verifier import verify  # noqa: E402
 from scripts.cto.work_registry import (  # noqa: E402
+    apply_readiness_gates,
     build_initial_registry,
+    get_by_work_id,
     load_registry,
+    reconcile_implemented_items,
     save_registry,
+    work_item_public_view,
 )
+
+# Exit codes: distinguish operational outcomes
+EXIT_OK = 0  # work accepted + published path complete, or clean NOOP
+EXIT_ERROR = 1  # unexpected failure
+EXIT_LOCK = 2
+EXIT_BUDGET = 3
+EXIT_WAITING_HUMAN = 10
+EXIT_BLOCKED = 11
+EXIT_FAILED = 12
+EXIT_ROLLBACK = 13
+EXIT_CYCLE_COMPLETE_PENDING = 14  # executed/accepted locally but integration pending
 
 
 def _print(data: Any) -> None:
@@ -69,7 +84,24 @@ def _print(data: Any) -> None:
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def exit_code_for_status(status: str, *, review_verdict: str | None = None) -> int:
+    """Map terminal machine status to process exit code (not generic success)."""
+    if status in {"WAITING_HUMAN"}:
+        return EXIT_WAITING_HUMAN
+    if status in {"BLOCKED"}:
+        return EXIT_BLOCKED
+    if status in {"FAILED"}:
+        return EXIT_FAILED
+    if review_verdict == "ROLLBACK" or status == "ROLLBACK":
+        return EXIT_ROLLBACK
+    if status in {"DONE", "ACCEPTED", "IDLE"}:
+        return EXIT_OK
+    if status == "PAUSED":
+        return EXIT_BUDGET
+    return EXIT_ERROR
 
 
 def cmd_doctor(_: argparse.Namespace) -> int:
@@ -94,7 +126,6 @@ def cmd_doctor(_: argparse.Namespace) -> int:
     add("deepseek_key_present", cfg.deepseek.configured, "set=yes" if cfg.deepseek.configured else "missing")
     add("deepseek_model", bool(cfg.deepseek.model), cfg.deepseek.model)
     add("deepseek_base_url", bool(cfg.deepseek.base_url), cfg.deepseek.base_url)
-    # Never print key
     add("python_yaml", True)
     add("python_httpx", True)
     try:
@@ -112,9 +143,9 @@ def cmd_doctor(_: argparse.Namespace) -> int:
         probe.unlink(missing_ok=True)
     except OSError as exc:
         checks[-1] = {"name": "output_dir_writable", "ok": False, "detail": str(exc)}
+    add("publisher_module", True, "scripts.cto.publisher")
 
-    ok_all = all(c["ok"] for c in checks if c["name"] != "grok_cli")  # grok optional for dry-run
-    # soft: grok optional
+    ok_all = all(c["ok"] for c in checks if c["name"] != "grok_cli")
     _print({"ok": ok_all, "checks": checks})
     return 0 if ok_all else 1
 
@@ -126,32 +157,44 @@ def cmd_observe(args: argparse.Namespace) -> int:
         sm.lock.acquire("observe")
     except LockError as exc:
         _print({"ok": False, "error": str(exc)})
-        return 2
+        return EXIT_LOCK
     try:
         sm.transition("OBSERVING", reason="cli observe")
         obs = observe(root, write=not args.no_write)
-        sm.transition("IDLE", reason="observe complete", cycle_id=(obs.get("roi_cycle") or {}).get("cycle_id"))
+        sm.transition(
+            "IDLE",
+            reason="observe complete",
+            cycle_id=(obs.get("roi_cycle") or {}).get("cycle_id"),
+        )
         append_ledger("observe", {"keys": list(obs.keys())}, root=root)
-        _print({"ok": True, "path": str(observation_path(root)), "summary": {
-            "branch": (obs.get("git") or {}).get("branch"),
-            "commit": (obs.get("git") or {}).get("commit"),
-            "dod": obs.get("dod"),
-            "open_issues": (obs.get("issues") or {}).get("open_count"),
-            "open_prs": len(obs.get("prs") or []),
-        }})
-        return 0
+        _print(
+            {
+                "ok": True,
+                "path": str(observation_path(root)),
+                "summary": {
+                    "branch": (obs.get("git") or {}).get("branch"),
+                    "commit": (obs.get("git") or {}).get("commit"),
+                    "dod": obs.get("dod"),
+                    "open_issues": (obs.get("issues") or {}).get("open_count"),
+                    "open_prs": len(obs.get("prs") or []),
+                    "ranking_stale": (obs.get("ranking") or {}).get("stale"),
+                    "work_items": (obs.get("work_items") or {}).get("count"),
+                    "divergences": len(obs.get("divergences") or []),
+                },
+            }
+        )
+        return EXIT_OK
     finally:
         sm.lock.release()
 
 
 def cmd_status(_: argparse.Namespace) -> int:
     _print(status_summary(repo_root()))
-    return 0
+    return EXIT_OK
 
 
 def cmd_issues_plan(_: argparse.Namespace) -> int:
     root = repo_root()
-    # Ensure registry exists
     reg = load_registry(root)
     if not reg.get("work_items"):
         obs = {}
@@ -164,7 +207,7 @@ def cmd_issues_plan(_: argparse.Namespace) -> int:
         save_registry(reg, root)
     plan = plan_issues(root)
     _print(plan)
-    return 0
+    return EXIT_OK
 
 
 def cmd_issues_sync(args: argparse.Namespace) -> int:
@@ -176,20 +219,60 @@ def cmd_issues_sync(args: argparse.Namespace) -> int:
         save_registry(reg, root)
     result = sync_issues(root, apply=args.apply)
     _print(result)
-    return 0
+    return EXIT_OK
 
 
 def cmd_issues_audit(_: argparse.Namespace) -> int:
     _print(audit_issues(repo_root()))
-    return 0
+    return EXIT_OK
+
+
+def cmd_reconcile_queue(args: argparse.Namespace) -> int:
+    """Reconcile readiness + mark PR#48 implemented items as review (no auto-close)."""
+    root = repo_root()
+    reg = load_registry(root)
+    if not reg.get("work_items"):
+        reg = build_initial_registry(root, observation=observe(root, write=True))
+    moved = reconcile_implemented_items(
+        reg,
+        evidence=[
+            "PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48",
+            "scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719",
+        ],
+        target_state="review" if not args.human else "human",
+    )
+    gates = apply_readiness_gates(reg)
+    path = save_registry(reg, root)
+    out = {
+        "ok": True,
+        "registry_path": str(path),
+        "reconciled": moved,
+        "readiness_gates": gates,
+        "auto_closed": False,
+        "note": "Issues not closed; sync labels via issues-sync --apply when ready",
+    }
+    if args.apply_issues:
+        # update labels for moved items without closing
+        for m in moved.get("moved") or []:
+            if m.get("issue_number"):
+                update_issue_for_cycle(
+                    root=root,
+                    issue_number=m["issue_number"],
+                    work_id=m.get("work_id"),
+                    phase="review" if not args.human else "human",
+                    cycle_id="reconcile-pr48",
+                    dry_run=not args.apply_issues,
+                )
+        out["issues_updated"] = True
+    _print(out)
+    return EXIT_OK
 
 
 def cmd_rank(_: argparse.Namespace) -> int:
-    """Advisory ranker bridge — read-only."""
     root = repo_root()
     obs = observe(root, write=False)
     _print({"ranking": obs.get("ranking"), "note": "advisory only — CTO decides"})
-    return 0
+    return EXIT_OK
 
 
 def cmd_decide(args: argparse.Namespace) -> int:
@@ -200,30 +283,44 @@ def cmd_decide(args: argparse.Namespace) -> int:
         sm.lock.acquire("decide")
     except LockError as exc:
         _print({"ok": False, "error": str(exc)})
-        return 2
+        return EXIT_LOCK
     try:
         ok_b, reason = check_budget(cfg.budgets, root)
         if not ok_b:
             sm.transition("PAUSED", reason=f"budget: {reason}")
             _print({"ok": False, "error": reason, "status": "PAUSED"})
-            return 3
+            return EXIT_BUDGET
+        cur = sm.load()
+        if cur.status in {"WAITING_HUMAN", "BLOCKED", "FAILED", "DONE", "ACCEPTED"}:
+            try:
+                sm.transition("IDLE", reason="decide re-entry")
+            except Exception:  # noqa: BLE001
+                st = sm.load()
+                st.status = "IDLE"
+                sm.save(st)
         if not observation_path(root).is_file() or args.refresh:
             observe(root, write=True)
         obs = json.loads(observation_path(root).read_text(encoding="utf-8"))
-        sm.transition("DECIDING", reason="cli decide")
+        if sm.load().status == "IDLE":
+            sm.transition("OBSERVING", reason="decide pre-observe")
+            sm.transition("DECIDING", reason="cli decide")
+        else:
+            sm.transition("DECIDING", reason="cli decide")
         decision = decide_from_observation(
             obs,
             config=cfg,
             dry_run=args.dry_run,
+            root=root,
         )
         save_decision(decision, root)
         usage = (decision.get("_meta") or {}).get("usage") or {}
         if usage:
-            record_usage(
-                api_calls=1,
-                tokens=int(usage.get("total_tokens") or 0),
-                root=root,
-            )
+            raw_tokens = usage.get("total_tokens") or 0
+            try:
+                token_count = int(raw_tokens)
+            except (TypeError, ValueError):
+                token_count = 0
+            record_usage(api_calls=1, tokens=token_count, root=root)
         cycle_id = decision.get("cycle_id")
         action = decision.get("decision")
         extra = {
@@ -242,9 +339,15 @@ def cmd_decide(args: argparse.Namespace) -> int:
             sm.transition("IDLE", reason="NOOP", cycle_id=cycle_id, extra=extra)
         else:
             sm.transition("IDLE", reason=f"decided {action}", cycle_id=cycle_id, extra=extra)
-        append_ledger("decide", {"decision": action, "decision_id": decision.get("decision_id")}, root=root, cycle_id=cycle_id)
+        append_ledger(
+            "decide",
+            {"decision": action, "decision_id": decision.get("decision_id")},
+            root=root,
+            cycle_id=cycle_id,
+        )
         _print({"ok": True, "decision": decision, "path": str(decision_path(root))})
-        return 0
+        st = sm.load().status
+        return exit_code_for_status(st)
     finally:
         sm.lock.release()
 
@@ -254,7 +357,7 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     sm = StateMachine(root)
     if not decision_path(root).is_file():
         _print({"ok": False, "error": "no decision.json — run decide first"})
-        return 1
+        return EXIT_ERROR
     decision = json.loads(decision_path(root).read_text(encoding="utf-8"))
     sm.transition("PREPARING", reason="cli prepare", cycle_id=decision.get("cycle_id"))
     from scripts.cto.grok_executor import prepare_worktree, render_prompt
@@ -286,97 +389,109 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     )
     sm.transition("IDLE", reason="prepare complete", cycle_id=cycle_id)
     _print({"ok": True, "prepare": prep, "prompt_path": str(cdir / "prepared_prompt.md")})
-    return 0
+    return EXIT_OK
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
     root = repo_root()
     if not decision_path(root).is_file():
         _print({"ok": False, "error": "no decision.json"})
-        return 1
+        return EXIT_ERROR
     decision = json.loads(decision_path(root).read_text(encoding="utf-8"))
     sm = StateMachine(root)
     sm.transition("VERIFYING", reason="cli verify", cycle_id=decision.get("cycle_id"))
+    execution = None
+    cdir = cycles_dir(root) / str(decision.get("cycle_id") or "")
+    if (cdir / "execution.json").is_file():
+        try:
+            execution = json.loads((cdir / "execution.json").read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            execution = None
     result = verify(
         decision=decision,
         root=root,
         skip_tests=args.skip_tests,
+        execution=execution,
     )
     sm.transition("IDLE", reason=f"verify {result.get('result')}", cycle_id=decision.get("cycle_id"))
     _print(result)
-    return 0 if result.get("result") == "PASS" else 1
+    return EXIT_OK if result.get("result") == "PASS" else EXIT_FAILED
 
 
-def cmd_run_once(args: argparse.Namespace) -> int:
-    """Full safe cycle: observe → decide → prepare → execute → verify → review."""
-    root = repo_root()
-    cfg = load_config(root)
-    sm = StateMachine(root)
-    try:
-        sm.lock.acquire("run-once")
-    except LockError as exc:
-        _print({"ok": False, "error": str(exc)})
-        return 2
-
-    report: dict[str, Any] = {"steps": [], "ok": False}
-    try:
-        ok_b, reason = check_budget(cfg.budgets, root)
-        if not ok_b:
-            sm.transition("PAUSED", reason=f"budget: {reason}")
-            report["error"] = reason
-            _print(report)
-            return 3
-
-        # Normalize terminal states so a new cycle can start
-        cur = sm.load()
-        if cur.status in {"DONE", "ACCEPTED", "FAILED", "BLOCKED"}:
+def _load_cycle_artifacts(root: Path, cycle_id: str) -> dict[str, Any]:
+    cdir = cycles_dir(root) / cycle_id
+    out: dict[str, Any] = {"cycle_dir": str(cdir)}
+    for name in (
+        "decision.json",
+        "execution.json",
+        "verification.json",
+        "review.json",
+        "publication.json",
+    ):
+        fp = cdir / name
+        if fp.is_file():
             try:
-                sm.transition("IDLE", reason="run-once re-entry")
-            except Exception:  # noqa: BLE001
-                st = sm.load()
-                st.status = "IDLE"
-                sm.save(st)
+                out[name.replace(".json", "")] = json.loads(fp.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                out[name.replace(".json", "")] = {"error": "parse_error"}
+    return out
 
-        sm.transition("OBSERVING", reason="run-once")
-        obs = observe(root, write=True)
-        report["steps"].append({"step": "observe", "ok": True})
 
-        sm.transition("DECIDING", reason="run-once")
-        decision = decide_from_observation(obs, config=cfg, dry_run=args.dry_run)
-        save_decision(decision, root)
-        usage = (decision.get("_meta") or {}).get("usage") or {}
-        if usage:
-            record_usage(api_calls=1, tokens=int(usage.get("total_tokens") or 0), root=root)
-        report["steps"].append({"step": "decide", "decision": decision.get("decision")})
-        cycle_id = decision.get("cycle_id")
+def _run_cycle_from_decision(
+    *,
+    root: Path,
+    cfg: Any,
+    sm: StateMachine,
+    decision: dict[str, Any],
+    args: argparse.Namespace,
+    report: dict[str, Any],
+    start_phase: str = "PREPARING",
+) -> int:
+    """Shared execute→verify→review→publish path used by run-once and resume."""
+    cycle_id = decision.get("cycle_id")
+    cdir = cycles_dir(root) / str(cycle_id)
+    cdir.mkdir(parents=True, exist_ok=True)
+    (cdir / "decision.json").write_text(
+        json.dumps(decision, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
 
-        if decision.get("decision") in {"BLOCK", "ESCALATE", "NOOP", "ACCEPT"}:
-            if decision.get("decision") == "ESCALATE" or (decision.get("human_gate") or {}).get("required"):
-                sm.transition("WAITING_HUMAN", reason=decision.get("strategic_reason") or "", cycle_id=cycle_id)
-            elif decision.get("decision") == "BLOCK":
-                sm.transition("BLOCKED", reason=decision.get("strategic_reason") or "", cycle_id=cycle_id)
-            else:
-                sm.transition("DONE", reason=decision.get("decision"), cycle_id=cycle_id)
-            report["decision"] = decision
-            report["ok"] = True
-            refresh_executive(root)
-            report["steps"].append({"step": "refresh-executive", "ok": True})
-            _print(report)
-            return 0
+    # Load prior attempts if any
+    prior_attempts: list[dict[str, Any]] = []
+    if (cdir / "attempts.jsonl").is_file():
+        for ln in (cdir / "attempts.jsonl").read_text(encoding="utf-8").splitlines():
+            try:
+                prior_attempts.append(json.loads(ln))
+            except json.JSONDecodeError:
+                continue
 
-        sm.transition("PREPARING", reason="run-once", cycle_id=cycle_id)
-        issue_upd = update_issue_for_cycle(
-            root=root,
-            issue_number=decision.get("issue_number"),
-            work_id=decision.get("work_id"),
-            phase="preparing",
-            cycle_id=cycle_id,
-            decision_id=decision.get("decision_id"),
-            dry_run=args.dry_run,
-        )
-        report["steps"].append({"step": "issue-update-preparing", **issue_upd})
+    work_item = None
+    if decision.get("work_id"):
+        reg = load_registry(root)
+        raw = get_by_work_id(reg, str(decision["work_id"]))
+        if raw:
+            work_item = work_item_public_view(raw)
 
-        sm.transition("EXECUTING", reason="run-once", cycle_id=cycle_id)
+    execution: dict[str, Any] = {}
+    verification: dict[str, Any] = {}
+    review: dict[str, Any] = {}
+
+    arts = _load_cycle_artifacts(root, str(cycle_id))
+
+    if start_phase in {"PREPARING", "EXECUTING"}:
+        if start_phase == "PREPARING":
+            sm.transition("PREPARING", reason="cycle prepare", cycle_id=cycle_id)
+            issue_upd = update_issue_for_cycle(
+                root=root,
+                issue_number=decision.get("issue_number"),
+                work_id=decision.get("work_id"),
+                phase="preparing",
+                cycle_id=cycle_id,
+                decision_id=decision.get("decision_id"),
+                dry_run=args.dry_run,
+            )
+            report["steps"].append({"step": "issue-update-preparing", **issue_upd})
+
+        sm.transition("EXECUTING", reason="cycle execute", cycle_id=cycle_id)
         update_issue_for_cycle(
             root=root,
             issue_number=decision.get("issue_number"),
@@ -393,31 +508,54 @@ def cmd_run_once(args: argparse.Namespace) -> int:
             mock=args.mock,
         )
         report["steps"].append({"step": "execute", "status": execution.get("status")})
+        start_phase = "VERIFYING"
+    elif start_phase == "VERIFYING":
+        execution = arts.get("execution") or {}
+        if not execution:
+            execution = grok_execute(
+                decision, root=root, dry_run=args.dry_run, mock=args.mock
+            )
+    elif start_phase in {"REVIEWING", "REPAIRING"}:
+        execution = arts.get("execution") or {}
+        verification = arts.get("verification") or {}
 
-        sm.transition("VERIFYING", reason="run-once", cycle_id=cycle_id)
+    if start_phase in {"VERIFYING", "REVIEWING", "REPAIRING"} and start_phase != "REVIEWING":
+        sm.transition("VERIFYING", reason="cycle verify", cycle_id=cycle_id)
         verification = verify(
             decision=decision,
             worktree=Path(execution["worktree"]) if execution.get("worktree") else None,
             root=root,
             skip_tests=args.skip_tests or args.dry_run,
+            execution=execution,
         )
         report["steps"].append({"step": "verify", "result": verification.get("result")})
+        start_phase = "REVIEWING"
 
-        sm.transition("REVIEWING", reason="run-once", cycle_id=cycle_id)
-        review = review_execution(
-            decision=decision,
-            verification=verification,
-            execution=execution,
-            config=cfg,
-            dry_run=args.dry_run,
-        )
-        report["steps"].append({"step": "review", "verdict": review.get("verdict")})
-        (cycles_dir(root) / str(cycle_id)).mkdir(parents=True, exist_ok=True)
-        (cycles_dir(root) / str(cycle_id) / "review.json").write_text(
-            json.dumps(review, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-        )
+    if start_phase in {"REVIEWING", "REPAIRING"}:
+        if start_phase == "REPAIRING":
+            # re-enter repair loop
+            pass
+        else:
+            sm.transition("REVIEWING", reason="cycle review", cycle_id=cycle_id)
+            transcript = None
+            if execution.get("transcript_path") and Path(execution["transcript_path"]).is_file():
+                transcript = Path(execution["transcript_path"]).read_text(encoding="utf-8")[-8000:]
+            review = review_execution(
+                decision=decision,
+                verification=verification,
+                execution=execution,
+                config=cfg,
+                dry_run=args.dry_run,
+                work_item=work_item,
+                prior_attempts=prior_attempts,
+                transcript_excerpt=transcript,
+            )
+            report["steps"].append({"step": "review", "verdict": review.get("verdict")})
+            (cdir / "review.json").write_text(
+                json.dumps(review, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
 
-        repair_attempt = 0
+        repair_attempt = int(sm.load().repair_attempt or 0)
         max_repairs = int(decision.get("max_repair_attempts") or cfg.budgets.max_repair_attempts)
         while (
             review.get("verdict") == "REPAIR"
@@ -448,6 +586,7 @@ def cmd_run_once(args: argparse.Namespace) -> int:
                 worktree=Path(execution["worktree"]) if execution.get("worktree") else None,
                 root=root,
                 skip_tests=args.skip_tests,
+                execution=execution,
             )
             review = review_execution(
                 decision=decision,
@@ -455,7 +594,20 @@ def cmd_run_once(args: argparse.Namespace) -> int:
                 execution=execution,
                 config=cfg,
                 dry_run=False,
+                work_item=work_item,
+                prior_attempts=prior_attempts,
             )
+            with (cdir / "attempts.jsonl").open("a", encoding="utf-8") as fh:
+                fh.write(
+                    json.dumps(
+                        {
+                            "attempt": repair_attempt,
+                            "verify": verification.get("result"),
+                            "review": review.get("verdict"),
+                        }
+                    )
+                    + "\n"
+                )
             report["steps"].append(
                 {
                     "step": f"repair_{repair_attempt}",
@@ -464,73 +616,327 @@ def cmd_run_once(args: argparse.Namespace) -> int:
                 }
             )
 
-        if review.get("verdict") == "ACCEPT":
-            sm.transition("ACCEPTED", reason="review ACCEPT", cycle_id=cycle_id)
-            final_phase = "accepted"
-            sm.transition("DONE", reason="cycle complete", cycle_id=cycle_id)
-        elif review.get("verdict") == "ESCALATE":
-            sm.transition("WAITING_HUMAN", reason=review.get("summary") or "", cycle_id=cycle_id)
-            final_phase = "human"
-        elif review.get("verdict") == "BLOCK":
-            sm.transition("BLOCKED", reason=review.get("summary") or "", cycle_id=cycle_id)
-            final_phase = "blocked"
-        else:
-            final_phase = "failed" if repair_attempt < max_repairs else "human"
-            sm.transition(
-                "WAITING_HUMAN" if repair_attempt >= max_repairs else "FAILED",
-                reason=review.get("summary") or review.get("verdict") or "unresolved",
-                cycle_id=cycle_id,
-            )
-
-        issue_final = update_issue_for_cycle(
+    publication = None
+    repair_attempt = int(sm.load().repair_attempt or 0)
+    max_repairs = int(decision.get("max_repair_attempts") or cfg.budgets.max_repair_attempts)
+    if review.get("verdict") == "ACCEPT":
+        sm.transition("ACCEPTED", reason="review ACCEPT", cycle_id=cycle_id)
+        # Separate publisher — never Grok executor
+        publication = publish_after_accept(
+            decision=decision,
+            worktree=Path(execution["worktree"]) if execution.get("worktree") else None,
             root=root,
-            issue_number=decision.get("issue_number"),
-            work_id=decision.get("work_id"),
-            phase=final_phase,
-            cycle_id=cycle_id,
-            decision_id=decision.get("decision_id"),
-            review_verdict=review.get("verdict"),
-            verification_result=verification.get("result"),
-            dry_run=args.dry_run,
+            dry_run=args.dry_run or getattr(args, "skip_publish", False),
+            skip_push=getattr(args, "skip_push", False) or args.dry_run,
         )
-        report["steps"].append({"step": "issue-update-final", **issue_final})
+        report["steps"].append(
+            {
+                "step": "publish",
+                **{k: publication.get(k) for k in ("ok", "status", "pr", "commit")},
+            }
+        )
+        report["publication"] = publication
+        sm.transition(
+            "WAITING_HUMAN",
+            reason="draft PR awaiting Tiago merge",
+            cycle_id=cycle_id,
+            extra={
+                "meta_pr_url": (publication.get("pr") or {}).get("url"),
+                "meta_pr_number": (publication.get("pr") or {}).get("number"),
+            },
+        )
+        final_phase = "human"
+    elif review.get("verdict") == "ESCALATE":
+        sm.transition("WAITING_HUMAN", reason=review.get("summary") or "", cycle_id=cycle_id)
+        final_phase = "human"
+    elif review.get("verdict") == "BLOCK":
+        sm.transition("BLOCKED", reason=review.get("summary") or "", cycle_id=cycle_id)
+        final_phase = "blocked"
+    elif review.get("verdict") == "ROLLBACK":
+        sm.transition("FAILED", reason="ROLLBACK", cycle_id=cycle_id)
+        final_phase = "failed"
+    else:
+        final_phase = "failed"
+        sm.transition(
+            "WAITING_HUMAN" if repair_attempt >= max_repairs else "FAILED",
+            reason=review.get("summary") or review.get("verdict") or "unresolved",
+            cycle_id=cycle_id,
+        )
 
-        refresh_executive(root)
-        report["steps"].append({"step": "refresh-executive", "ok": True})
-        record_usage(cycles=1, root=root)
-        report["ok"] = True
-        report["decision"] = {
-            "decision": decision.get("decision"),
-            "decision_id": decision.get("decision_id"),
-            "work_id": decision.get("work_id"),
-            "issue_number": decision.get("issue_number"),
-        }
-        report["review"] = review
-        report["verification"] = {"result": verification.get("result")}
-        append_ledger("run_once", {"ok": True, "cycle_id": cycle_id}, root=root, cycle_id=cycle_id)
-        _print(report)
-        return 0
+    issue_final = update_issue_for_cycle(
+        root=root,
+        issue_number=decision.get("issue_number"),
+        work_id=decision.get("work_id"),
+        phase=final_phase,
+        cycle_id=cycle_id,
+        decision_id=decision.get("decision_id"),
+        review_verdict=review.get("verdict"),
+        verification_result=verification.get("result"),
+        dry_run=args.dry_run,
+    )
+    report["steps"].append({"step": "issue-update-final", **issue_final})
+
+    refresh_executive(root)
+    report["steps"].append({"step": "refresh-executive", "ok": True})
+    record_usage(cycles=1, root=root)
+
+    terminal = sm.load().status
+    report["decision"] = {
+        "decision": decision.get("decision"),
+        "decision_id": decision.get("decision_id"),
+        "work_id": decision.get("work_id"),
+        "issue_number": decision.get("issue_number"),
+    }
+    report["review"] = review
+    report["verification"] = {
+        "result": verification.get("result"),
+        "matrix_len": len(verification.get("criterion_matrix") or []),
+    }
+    report["terminal_status"] = terminal
+    report["operational"] = {
+        "execution_completed": bool(execution),
+        "work_accepted": review.get("verdict") == "ACCEPT",
+        "pr_created": bool((publication or {}).get("pr", {}).get("url") or (publication or {}).get("pr", {}).get("number")),
+        "integration_pending": terminal == "WAITING_HUMAN",
+        "merge_authority": "Tiago",
+        "auto_merge": False,
+    }
+    # ok means cycle ran without crash — not that work is integrated
+    report["ok"] = terminal not in {"FAILED"} or bool(review)
+    report["success"] = terminal in {"DONE", "ACCEPTED"} and review.get("verdict") == "ACCEPT"
+    # Never report BLOCKED/FAILED/WAITING_HUMAN as generic operational success
+    report["operational_success"] = terminal in {"DONE", "IDLE"} and review.get("verdict") in {
+        "ACCEPT",
+        None,
+    }
+    if terminal == "WAITING_HUMAN" and review.get("verdict") == "ACCEPT":
+        report["operational_success"] = False
+        report["outcome"] = "accepted_awaiting_human_merge"
+    elif terminal == "WAITING_HUMAN":
+        report["outcome"] = "waiting_human"
+    elif terminal == "BLOCKED":
+        report["outcome"] = "blocked"
+    elif terminal == "FAILED":
+        report["outcome"] = "failed"
+    else:
+        report["outcome"] = terminal.lower()
+
+    append_ledger(
+        "run_once",
+        {
+            "ok": report.get("ok"),
+            "cycle_id": cycle_id,
+            "terminal": terminal,
+            "outcome": report.get("outcome"),
+        },
+        root=root,
+        cycle_id=cycle_id,
+    )
+    _print(report)
+    return exit_code_for_status(terminal, review_verdict=review.get("verdict"))
+
+
+def cmd_run_once(args: argparse.Namespace) -> int:
+    """Full safe cycle: observe → decide → prepare → execute → verify → review → publish."""
+    root = repo_root()
+    cfg = load_config(root)
+    sm = StateMachine(root)
+    try:
+        sm.lock.acquire("run-once")
+    except LockError as exc:
+        _print({"ok": False, "error": str(exc)})
+        return EXIT_LOCK
+
+    report: dict[str, Any] = {"steps": [], "ok": False, "operational_success": False}
+    try:
+        ok_b, reason = check_budget(cfg.budgets, root)
+        if not ok_b:
+            sm.transition("PAUSED", reason=f"budget: {reason}")
+            report["error"] = reason
+            report["terminal_status"] = "PAUSED"
+            _print(report)
+            return EXIT_BUDGET
+
+        cur = sm.load()
+        if cur.status in {"DONE", "ACCEPTED", "FAILED", "BLOCKED"}:
+            try:
+                sm.transition("IDLE", reason="run-once re-entry")
+            except Exception:  # noqa: BLE001
+                st = sm.load()
+                st.status = "IDLE"
+                sm.save(st)
+
+        sm.transition("OBSERVING", reason="run-once")
+        obs = observe(root, write=True)
+        report["steps"].append({"step": "observe", "ok": True})
+
+        sm.transition("DECIDING", reason="run-once")
+        decision = decide_from_observation(obs, config=cfg, dry_run=args.dry_run, root=root)
+        save_decision(decision, root)
+        usage = (decision.get("_meta") or {}).get("usage") or {}
+        if usage:
+            raw_tokens = usage.get("total_tokens") or 0
+            try:
+                token_count = int(raw_tokens)
+            except (TypeError, ValueError):
+                token_count = 0
+            record_usage(api_calls=1, tokens=token_count, root=root)
+        report["steps"].append({"step": "decide", "decision": decision.get("decision")})
+        cycle_id = decision.get("cycle_id")
+
+        if decision.get("decision") in {"BLOCK", "ESCALATE", "NOOP", "ACCEPT"}:
+            if decision.get("decision") == "ESCALATE" or (decision.get("human_gate") or {}).get(
+                "required"
+            ):
+                sm.transition(
+                    "WAITING_HUMAN",
+                    reason=decision.get("strategic_reason") or "",
+                    cycle_id=cycle_id,
+                )
+            elif decision.get("decision") == "BLOCK":
+                sm.transition(
+                    "BLOCKED",
+                    reason=decision.get("strategic_reason") or "",
+                    cycle_id=cycle_id,
+                )
+            else:
+                sm.transition("DONE", reason=decision.get("decision"), cycle_id=cycle_id)
+            report["decision"] = decision
+            report["terminal_status"] = sm.load().status
+            report["ok"] = True
+            report["operational_success"] = sm.load().status in {"DONE", "IDLE"}
+            report["outcome"] = sm.load().status.lower()
+            refresh_executive(root)
+            report["steps"].append({"step": "refresh-executive", "ok": True})
+            _print(report)
+            return exit_code_for_status(sm.load().status)
+
+        return _run_cycle_from_decision(
+            root=root,
+            cfg=cfg,
+            sm=sm,
+            decision=decision,
+            args=args,
+            report=report,
+            start_phase="PREPARING",
+        )
     except Exception as exc:  # noqa: BLE001
         try:
             sm.transition("FAILED", reason=str(exc))
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as exc2:  # noqa: BLE001
+            report["transition_error"] = str(exc2)
         report["error"] = str(exc)
+        report["terminal_status"] = "FAILED"
+        report["operational_success"] = False
         _print(report)
-        return 1
+        return EXIT_FAILED
     finally:
         sm.lock.release()
 
 
-def cmd_resume(_: argparse.Namespace) -> int:
+def cmd_resume(args: argparse.Namespace) -> int:
+    """Idempotently continue from mid-cycle phase — not just print resume_target."""
     root = repo_root()
+    cfg = load_config(root)
     sm = StateMachine(root)
-    target = sm.resume_target()
-    state = sm.load()
-    if state.status == "PAUSED":
-        sm.transition("IDLE", reason="resume from pause")
-    _print({"status": sm.load().to_dict(), "resume_target": target})
-    return 0
+    try:
+        sm.lock.acquire("resume")
+    except LockError as exc:
+        _print({"ok": False, "error": str(exc)})
+        return EXIT_LOCK
+
+    report: dict[str, Any] = {"steps": [], "ok": False, "mode": "resume"}
+    try:
+        state = sm.load()
+        target = sm.resume_target()
+        report["resume_target"] = target
+        report["prior_state"] = state.to_dict()
+
+        if state.status == "PAUSED":
+            # resume into stored meta phase if present
+            meta_phase = (state.meta or {}).get("resume_phase")
+            if meta_phase:
+                target = meta_phase
+            else:
+                sm.transition("IDLE", reason="resume from pause")
+                _print({**report, "ok": True, "note": "resumed to IDLE from PAUSED"})
+                return EXIT_OK
+
+        if target in {"IDLE", "DONE", "WAITING_HUMAN", "BLOCKED", "PAUSED"}:
+            _print(
+                {
+                    **report,
+                    "ok": True,
+                    "note": f"no active cycle work for target={target}",
+                    "status": sm.load().to_dict(),
+                }
+            )
+            return exit_code_for_status(sm.load().status)
+
+        cycle_id = state.cycle_id
+        decision = None
+        if decision_path(root).is_file():
+            decision = json.loads(decision_path(root).read_text(encoding="utf-8"))
+        if cycle_id:
+            arts = _load_cycle_artifacts(root, str(cycle_id))
+            if arts.get("decision"):
+                decision = arts["decision"]
+        if not decision:
+            _print({**report, "ok": False, "error": "no decision to resume"})
+            return EXIT_ERROR
+
+        # Preserve session/worktree/decision/attempts via cycle dir artifacts
+        report["preserved"] = {
+            "cycle_id": cycle_id or decision.get("cycle_id"),
+            "decision_id": decision.get("decision_id"),
+            "session_hint": f"cto-{cycle_id}",
+            "artifacts": list((_load_cycle_artifacts(root, str(cycle_id or decision.get("cycle_id")))).keys()),
+        }
+
+        # Map resume target to start_phase
+        phase_map = {
+            "PREPARING": "PREPARING",
+            "EXECUTING": "EXECUTING",
+            "VERIFYING": "VERIFYING",
+            "REVIEWING": "REVIEWING",
+            "REPAIRING": "REPAIRING",
+            "DECIDING": "PREPARING",
+            "OBSERVING": "PREPARING",
+        }
+        start = phase_map.get(target, "PREPARING")
+        # Ensure state machine is on a valid from-state for re-entry
+        if state.status != start and state.status not in {
+            "PREPARING",
+            "EXECUTING",
+            "VERIFYING",
+            "REVIEWING",
+            "REPAIRING",
+        }:
+            # force into target via self/allowed
+            try:
+                if state.status == "FAILED" and start == "REPAIRING":
+                    sm.transition("REPAIRING", reason="resume after fail", cycle_id=cycle_id)
+                elif state.status in {"IDLE", "DONE"}:
+                    pass
+            except Exception as exc:  # noqa: BLE001
+                report["state_nudge"] = str(exc)
+
+        return _run_cycle_from_decision(
+            root=root,
+            cfg=cfg,
+            sm=sm,
+            decision=decision,
+            args=args,
+            report=report,
+            start_phase=start,
+        )
+    except Exception as exc:  # noqa: BLE001
+        report["error"] = str(exc)
+        report["operational_success"] = False
+        _print(report)
+        return EXIT_FAILED
+    finally:
+        sm.lock.release()
 
 
 def cmd_pause(_: argparse.Namespace) -> int:
@@ -539,19 +945,43 @@ def cmd_pause(_: argparse.Namespace) -> int:
     try:
         sm.transition("PAUSED", reason="cli pause")
     except Exception as exc:  # noqa: BLE001
-        # force from any via IDLE first if needed
         st = sm.load()
         st.status = "PAUSED"
         st.last_error = f"forced pause from {st.status}: {exc}"
         sm.save(st)
     _print({"ok": True, "status": sm.load().to_dict()})
-    return 0
+    return EXIT_OK
+
+
+def cmd_publish(args: argparse.Namespace) -> int:
+    """Run publisher only (post-ACCEPT), never via Grok executor."""
+    root = repo_root()
+    if not decision_path(root).is_file():
+        _print({"ok": False, "error": "no decision.json"})
+        return EXIT_ERROR
+    decision = json.loads(decision_path(root).read_text(encoding="utf-8"))
+    cycle_id = decision.get("cycle_id")
+    wt = None
+    arts = _load_cycle_artifacts(root, str(cycle_id)) if cycle_id else {}
+    if (arts.get("execution") or {}).get("worktree"):
+        wt = Path(arts["execution"]["worktree"])
+    result = publish_after_accept(
+        decision=decision,
+        worktree=wt,
+        root=root,
+        dry_run=args.dry_run,
+        skip_push=args.skip_push,
+    )
+    _print(result)
+    return EXIT_WAITING_HUMAN if result.get("status") == "WAITING_HUMAN" else (
+        EXIT_OK if result.get("ok") else EXIT_FAILED
+    )
 
 
 def cmd_refresh_executive(_: argparse.Namespace) -> int:
     result = refresh_executive(repo_root())
     _print(result)
-    return 0 if result.get("ok") else 1
+    return EXIT_OK if result.get("ok") else EXIT_ERROR
 
 
 def cmd_audit(_: argparse.Namespace) -> int:
@@ -566,11 +996,14 @@ def cmd_audit(_: argparse.Namespace) -> int:
             "prs": obs.get("prs"),
             "issues_audit": issues,
             "registry_count": len(reg.get("work_items") or []),
+            "work_items_ready": (obs.get("work_items") or {}).get("ready_ids"),
+            "ranking_stale": (obs.get("ranking") or {}).get("stale"),
+            "divergences": obs.get("divergences"),
             "ledger_tail": read_ledger(root, limit=10),
             "state": status_summary(root).get("state"),
         }
     )
-    return 0
+    return EXIT_OK
 
 
 def cmd_deepseek_smoke(_: argparse.Namespace) -> int:
@@ -587,10 +1020,10 @@ def cmd_deepseek_smoke(_: argparse.Namespace) -> int:
     try:
         result = client.smoke()
         _print({"ok": True, "result": result})
-        return 0
+        return EXIT_OK
     except Exception as exc:  # noqa: BLE001
         _print({"ok": False, "error": str(exc)})
-        return 1
+        return EXIT_ERROR
 
 
 def cmd_bootstrap(_: argparse.Namespace) -> int:
@@ -600,6 +1033,8 @@ def cmd_bootstrap(_: argparse.Namespace) -> int:
     cycles_dir(root).mkdir(parents=True, exist_ok=True)
     obs = observe(root, write=True)
     reg = build_initial_registry(root, observation=obs)
+    recon = reconcile_implemented_items(reg)
+    apply_readiness_gates(reg)
     path = save_registry(reg, root)
     plan = plan_issues(root)
     _print(
@@ -607,10 +1042,11 @@ def cmd_bootstrap(_: argparse.Namespace) -> int:
             "ok": True,
             "registry_path": str(path),
             "work_items": len(reg.get("work_items") or []),
+            "reconciled": recon,
             "issues_plan": plan,
         }
     )
-    return 0
+    return EXIT_OK
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -627,6 +1063,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_sync.add_argument("--apply", action="store_true")
     p_sync.add_argument("--dry-run", action="store_true", help="explicit dry-run (default)")
     sub.add_parser("issues-audit", help="Audit registry vs issues")
+    p_rec = sub.add_parser("reconcile-queue", help="Readiness + PR#48 implemented reconcile")
+    p_rec.add_argument("--human", action="store_true", help="move implemented to human not review")
+    p_rec.add_argument("--apply-issues", action="store_true", help="update issue labels")
     sub.add_parser("rank", help="Show advisory ranker top")
     p_dec = sub.add_parser("decide", help="CTO decide")
     p_dec.add_argument("--dry-run", action="store_true")
@@ -636,10 +1075,20 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("--dry-run", action="store_true")
     p_run.add_argument("--mock", action="store_true", help="Mock executor (controlled)")
     p_run.add_argument("--skip-tests", action="store_true")
-    sub.add_parser("resume", help="Resume after pause/crash")
+    p_run.add_argument("--skip-publish", action="store_true")
+    p_run.add_argument("--skip-push", action="store_true")
+    p_res = sub.add_parser("resume", help="Resume mid-cycle idempotently")
+    p_res.add_argument("--dry-run", action="store_true")
+    p_res.add_argument("--mock", action="store_true")
+    p_res.add_argument("--skip-tests", action="store_true")
+    p_res.add_argument("--skip-publish", action="store_true")
+    p_res.add_argument("--skip-push", action="store_true")
     sub.add_parser("pause", help="Pause autopilot")
     p_ver = sub.add_parser("verify", help="Run verifier on current decision")
     p_ver.add_argument("--skip-tests", action="store_true")
+    p_pub = sub.add_parser("publish", help="Publisher path only (post-ACCEPT)")
+    p_pub.add_argument("--dry-run", action="store_true")
+    p_pub.add_argument("--skip-push", action="store_true")
     sub.add_parser("refresh-executive", help="Update executive HTML panel")
     sub.add_parser("audit", help="Full local audit snapshot")
     sub.add_parser("deepseek-smoke", help="Live DeepSeek smoke (opt-in)")
@@ -657,6 +1106,7 @@ def main(argv: list[str] | None = None) -> int:
         "issues-plan": cmd_issues_plan,
         "issues-sync": cmd_issues_sync,
         "issues-audit": cmd_issues_audit,
+        "reconcile-queue": cmd_reconcile_queue,
         "rank": cmd_rank,
         "decide": cmd_decide,
         "prepare": cmd_prepare,
@@ -664,6 +1114,7 @@ def main(argv: list[str] | None = None) -> int:
         "resume": cmd_resume,
         "pause": cmd_pause,
         "verify": cmd_verify,
+        "publish": cmd_publish,
         "refresh-executive": cmd_refresh_executive,
         "audit": cmd_audit,
         "deepseek-smoke": cmd_deepseek_smoke,

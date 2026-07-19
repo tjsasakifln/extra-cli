@@ -2,17 +2,34 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from scripts.cto.paths import dod_path, repo_root, work_registry_path
+from scripts.cto.paths import repo_root, work_registry_path
+
+# Work items delivered by PR #48 CTO Autopilot infrastructure itself.
+# They must not remain state:ready as new work after implementation evidence.
+IMPLEMENTED_IN_PR48 = frozenset(
+    {
+        "cto-autopilot-infra",  # #30
+        "executive-html-cto-panel",  # #37
+        "github-issues-queue",  # #38
+        "dod-evidence-discipline",  # #39
+        "ranker-advisory-bridge",  # #43
+        "human-gates-fail-closed",  # #44
+        "publication-policy-docs",  # #46
+        "budget-and-fallback",  # #47
+    }
+)
+
+ISSUE_NUMBERS_IMPLEMENTED_IN_PR48 = frozenset({30, 37, 38, 39, 43, 44, 46, 47})
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def load_registry(root: Path | None = None) -> dict[str, Any]:
@@ -61,6 +78,180 @@ def upsert_item(registry: dict[str, Any], item: dict[str, Any]) -> dict[str, Any
     items.append(item)
     registry["work_items"] = items
     return item
+
+
+def work_item_public_view(item: dict[str, Any]) -> dict[str, Any]:
+    """Full work item fields for observer/CTO context (not IDs/titles alone)."""
+    return {
+        "work_id": item.get("work_id"),
+        "title": item.get("title"),
+        "objective": item.get("objective"),
+        "priority": item.get("priority"),
+        "risk": item.get("risk"),
+        "state": item.get("state"),
+        "type": item.get("type"),
+        "area": item.get("area"),
+        "milestone": item.get("milestone"),
+        "issue_number": item.get("issue_number"),
+        "acceptance_criteria": list(item.get("acceptance_criteria") or []),
+        "allowed_paths": list(item.get("allowed_paths") or []),
+        "test_commands": list(item.get("test_commands") or []),
+        "dependencies": list(item.get("dependencies") or []),
+        "blockers": list(item.get("blockers") or []),
+        "evidence": list(item.get("evidence") or []),
+        "dod_refs": list(item.get("dod_refs") or []),
+        "origin": item.get("origin"),
+        "execution_history": list(item.get("execution_history") or [])[-5:],
+        "last_synced_at": item.get("last_synced_at"),
+        "candidate_id": item.get("candidate_id"),
+    }
+
+
+def _item_state_map(registry: dict[str, Any]) -> dict[str, str]:
+    return {
+        str(i.get("work_id")): str(i.get("state") or "").lower()
+        for i in registry.get("work_items") or []
+        if i.get("work_id")
+    }
+
+
+def readiness_for_item(
+    item: dict[str, Any],
+    registry: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Real readiness: open deps and blockers prevent state:ready.
+
+    Returns {ready: bool, reasons: [...], effective_state: str}.
+    Does not auto-close Issues.
+    """
+    reasons: list[str] = []
+    state = str(item.get("state") or "").lower().replace("-", "_")
+    if state in {"done", "closed"}:
+        return {"ready": False, "reasons": ["already done/closed"], "effective_state": state}
+    if state in {"blocked", "human", "review", "in_progress"}:
+        return {
+            "ready": False,
+            "reasons": [f"state={state}"],
+            "effective_state": state,
+        }
+
+    blockers = [b for b in (item.get("blockers") or []) if str(b).strip() and str(b).strip().lower() != "none"]
+    if blockers:
+        reasons.append(f"blockers present: {blockers[:5]}")
+
+    deps = list(item.get("dependencies") or [])
+    if registry is not None and deps:
+        states = _item_state_map(registry)
+        open_deps = []
+        for dep in deps:
+            dep_s = str(dep)
+            dep_state = states.get(dep_s, "missing")
+            if dep_state not in {"done", "closed", "review", "human"}:
+                # review/human = implemented, waiting integration — still blocks new execute?
+                # Open deps that are not done/closed block ready for dependents that need code.
+                if dep_state in {"missing", "ready", "in_progress", "blocked"}:
+                    open_deps.append(f"{dep_s}:{dep_state}")
+        if open_deps:
+            reasons.append(f"open dependencies: {open_deps}")
+
+    wid = item.get("work_id")
+    if wid in IMPLEMENTED_IN_PR48 or item.get("issue_number") in ISSUE_NUMBERS_IMPLEMENTED_IN_PR48:
+        reasons.append("implemented in PR #48 — must not stay ready as new work")
+
+    ready = state == "ready" and not reasons
+    effective = state if ready else ("blocked" if blockers else ("review" if "implemented in PR" in " ".join(reasons) else state))
+    if not ready and "implemented in PR" in " ".join(reasons):
+        effective = "review"
+    elif not ready and blockers:
+        effective = "blocked"
+    elif not ready and any("dependencies" in r for r in reasons):
+        effective = "blocked"
+    return {"ready": ready, "reasons": reasons, "effective_state": effective}
+
+
+def reconcile_implemented_items(
+    registry: dict[str, Any],
+    *,
+    evidence: list[str] | None = None,
+    target_state: str = "review",
+) -> dict[str, Any]:
+    """Move proven-implemented PR#48 work items out of ready into review/human.
+
+    Never closes Issues. Attaches evidence strings.
+    """
+    moved: list[dict[str, Any]] = []
+    ev = list(evidence or [])
+    if not any("PR #48" in e or "pull/48" in e for e in ev):
+        ev.append("PR #48 feat/cto-autopilot-issues-deepseek-20260719 implementation")
+    for item in registry.get("work_items") or []:
+        wid = item.get("work_id")
+        inum = item.get("issue_number")
+        if wid not in IMPLEMENTED_IN_PR48 and inum not in ISSUE_NUMBERS_IMPLEMENTED_IN_PR48:
+            continue
+        prev = item.get("state")
+        if str(prev).lower() in {"done", "closed"}:
+            continue
+        item["state"] = target_state
+        evidence_list = list(item.get("evidence") or [])
+        for e in ev:
+            if e not in evidence_list:
+                evidence_list.append(e)
+        item["evidence"] = evidence_list[-30:]
+        hist = list(item.get("execution_history") or [])
+        hist.append(
+            {
+                "ts": _utc_now(),
+                "phase": "reconcile_implemented",
+                "from_state": prev,
+                "to_state": target_state,
+                "note": "reconciled as implemented in PR #48; not auto-closed",
+            }
+        )
+        item["execution_history"] = hist[-20:]
+        upsert_item(registry, item)
+        moved.append(
+            {
+                "work_id": wid,
+                "issue_number": inum,
+                "from": prev,
+                "to": target_state,
+            }
+        )
+    return {"moved": moved, "count": len(moved), "auto_closed": False}
+
+
+def apply_readiness_gates(registry: dict[str, Any]) -> dict[str, Any]:
+    """Downgrade ready items that have deps/blockers. Never auto-close."""
+    changed = []
+    for item in registry.get("work_items") or []:
+        info = readiness_for_item(item, registry)
+        if str(item.get("state") or "").lower() == "ready" and not info["ready"]:
+            new_state = info.get("effective_state") or "blocked"
+            if new_state == "ready":
+                new_state = "blocked"
+            prev = item.get("state")
+            item["state"] = new_state
+            hist = list(item.get("execution_history") or [])
+            hist.append(
+                {
+                    "ts": _utc_now(),
+                    "phase": "readiness_gate",
+                    "from_state": prev,
+                    "to_state": new_state,
+                    "reasons": info.get("reasons"),
+                }
+            )
+            item["execution_history"] = hist[-20:]
+            upsert_item(registry, item)
+            changed.append(
+                {
+                    "work_id": item.get("work_id"),
+                    "from": prev,
+                    "to": new_state,
+                    "reasons": info.get("reasons"),
+                }
+            )
+    return {"changed": changed, "count": len(changed)}
 
 
 def _slug(text: str, max_len: int = 40) -> str:

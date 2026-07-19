@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +31,79 @@ class DecisionValidationError(ValueError):
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def build_review_payload(
+    *,
+    decision: dict[str, Any],
+    verification: dict[str, Any],
+    execution: dict[str, Any],
+    work_item: dict[str, Any] | None = None,
+    prior_attempts: list[dict[str, Any]] | None = None,
+    transcript_excerpt: str | None = None,
+) -> dict[str, Any]:
+    """Assemble full CTO review context — not criterion counts alone."""
+    matrix = list(verification.get("criterion_matrix") or [])
+    return {
+        "original_decision": decision,
+        "work_item": work_item
+        or {
+            "work_id": decision.get("work_id"),
+            "issue_number": decision.get("issue_number"),
+            "objective": decision.get("objective"),
+            "acceptance_criteria": decision.get("acceptance_criteria"),
+            "allowed_paths": decision.get("allowed_paths"),
+            "test_commands": decision.get("test_commands"),
+            "required_evidence": decision.get("required_evidence"),
+            "priority": decision.get("priority"),
+            "risk": decision.get("estimated_risk"),
+            "blockers": decision.get("blockers"),
+            "dependencies": decision.get("dependencies"),
+        },
+        "diff": {
+            "sha256": (verification.get("diff") or {}).get("sha256"),
+            "truncated": (verification.get("diff") or {}).get("truncated"),
+            "char_len": (verification.get("diff") or {}).get("char_len"),
+            "text": (verification.get("diff") or {}).get("text"),
+        },
+        "criterion_matrix": matrix,
+        "modified_files": (verification.get("files") or {}).get("modified")
+        or (verification.get("checks") or [{}])[0].get("modified"),
+        "files": verification.get("files"),
+        "execution": {
+            "status": execution.get("status"),
+            "exit_code": execution.get("exit_code"),
+            "worktree": execution.get("worktree"),
+            "branch": execution.get("branch"),
+            "session_id": execution.get("session_id"),
+            "reason": execution.get("reason"),
+            "mock": execution.get("mock"),
+            "dry_run": execution.get("dry_run"),
+        },
+        "transcript_excerpt_redacted": transcript_excerpt
+        or execution.get("transcript_excerpt")
+        or None,
+        "tests": next(
+            (
+                c.get("results")
+                for c in (verification.get("checks") or [])
+                if c.get("name") == "tests"
+            ),
+            [],
+        ),
+        "evidence": decision.get("required_evidence") or [],
+        "verification_result": verification.get("result"),
+        "failed_criteria": verification.get("failed_criteria"),
+        "prior_attempts": list(prior_attempts or []),
+        # Counts alone are insufficient — included only as secondary signal
+        "matrix_counts": {
+            "pass": sum(1 for m in matrix if m.get("status") == "PASS"),
+            "fail": sum(1 for m in matrix if m.get("status") == "FAIL"),
+            "unproven": sum(1 for m in matrix if m.get("status") == "UNPROVEN"),
+            "note": "Do not review by counts alone; inspect criterion_matrix and diff",
+        },
+    }
 
 
 def load_schema(path: Path) -> dict[str, Any]:
@@ -210,13 +282,31 @@ def decide_from_observation(
     config: CTOConfig | None = None,
     client: DeepSeekClient | None = None,
     dry_run: bool = False,
+    root: Path | None = None,
 ) -> dict[str, Any]:
-    """Produce a validated CTO decision from observation JSON."""
+    """Produce a validated CTO decision from observation JSON.
+
+    Ranking is refreshed or explicitly marked stale before decision — never
+    silently treat old latest.json as current.
+    """
     cfg = config or load_config()
+    root = root or cfg.root
     cycle_id = (
         (observation.get("cycle") or {}).get("cycle_id")
-        or f"cyc-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+        or f"cyc-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}"
     )
+
+    from scripts.cto.observer import ensure_ranking_current
+
+    rank_meta = ensure_ranking_current(root, try_refresh=not dry_run)
+    ranking_obs = dict(observation.get("ranking") or {})
+    ranking_obs["freshness"] = rank_meta
+    ranking_obs["stale"] = bool(rank_meta.get("stale") or rank_meta.get("explicitly_stale"))
+    if ranking_obs["stale"]:
+        ranking_obs["stale_warning"] = (
+            "RANKING_STALE: latest.json is not current; do not treat as live state"
+        )
+    observation = {**observation, "ranking": ranking_obs}
 
     if dry_run and client is None:
         # Deterministic dry-run: prefer ready Issues, then work registry, then ranker
@@ -293,6 +383,12 @@ def decide_from_observation(
             policies=cfg.policies,
             min_confidence=0.0 if decision["decision"] == "NOOP" else 0.0,
         )
+        validated["_meta"] = {
+            "created_at": _utc_now(),
+            "dry_run": True,
+            "ranking_freshness": rank_meta,
+            "ranking_stale": bool(ranking_obs.get("stale")),
+        }
         return redact_obj(validated)
 
     ds_client = client or DeepSeekClient(cfg.deepseek)
@@ -369,16 +465,38 @@ def review_execution(
     config: CTOConfig | None = None,
     client: DeepSeekClient | None = None,
     dry_run: bool = False,
+    work_item: dict[str, Any] | None = None,
+    prior_attempts: list[dict[str, Any]] | None = None,
+    transcript_excerpt: str | None = None,
 ) -> dict[str, Any]:
-    """Independent CTO review after verifier."""
+    """Independent CTO review after verifier.
+
+    DeepSeek unavailability/timeout/invalid schema/error NEVER yields ACCEPT.
+    Use ESCALATE or BLOCK with BLOCKED_CTO_UNAVAILABLE.
+    """
     cfg = config or load_config()
     cycle_id = decision.get("cycle_id") or "unknown"
     decision_id = decision.get("decision_id") or "unknown"
 
+    review_payload = build_review_payload(
+        decision=decision,
+        verification=verification,
+        execution=execution,
+        work_item=work_item,
+        prior_attempts=prior_attempts,
+        transcript_excerpt=transcript_excerpt,
+    )
+
     if dry_run and client is None:
+        # Deterministic dry-run does not call DeepSeek — local verifier only
         verdict = "ACCEPT" if verification.get("result") == "PASS" else "REPAIR"
         if verification.get("result") == "UNSAFE":
             verdict = "BLOCK"
+        if any(
+            m.get("status") == "UNPROVEN"
+            for m in (verification.get("criterion_matrix") or [])
+        ):
+            verdict = "REPAIR"
         review = {
             "schema_version": "1.0",
             "review_id": f"rev-dry-{uuid.uuid4().hex[:12]}",
@@ -390,15 +508,26 @@ def review_execution(
             "repair_instructions": list(verification.get("repair_hints") or []),
             "confidence": 0.85,
             "human_gate": {"required": verdict in {"BLOCK", "ESCALATE"}, "reason": None},
+            "_meta": {
+                "review_payload_keys": sorted(review_payload.keys()),
+                "matrix_counts": review_payload.get("matrix_counts"),
+                "dry_run": True,
+            },
         }
-        return validate_review(review, root=cfg.root)
+        return validate_review(
+            {k: v for k, v in review.items() if k != "_meta"},
+            root=cfg.root,
+        ) | {"_meta": review["_meta"], "review_context": review_payload}
 
     ds_client = client or DeepSeekClient(cfg.deepseek)
     system = _read_prompt("review.md", cfg.root)
     user_payload = {
-        "decision": decision,
-        "verification": verification,
-        "execution": execution,
+        "instruction": (
+            "Review using full context. Do not decide from criterion counts alone. "
+            "Inspect original decision, work item, diff+hashes, criterion matrix, "
+            "execution exit code, tests, evidence, and prior attempts."
+        ),
+        **review_payload,
     }
     try:
         result = ds_client.chat_json(
@@ -410,22 +539,39 @@ def review_execution(
         content.setdefault("review_id", f"rev-{uuid.uuid4().hex[:12]}")
         content.setdefault("cycle_id", cycle_id)
         content.setdefault("decision_id", decision_id)
-        return validate_review(content, root=cfg.root)
+        validated = validate_review(content, root=cfg.root)
+        validated["review_context"] = {
+            "matrix_counts": review_payload.get("matrix_counts"),
+            "diff_sha256": (review_payload.get("diff") or {}).get("sha256"),
+            "execution_status": (review_payload.get("execution") or {}).get("status"),
+        }
+        return validated
     except (DeepSeekUnavailable, DeepSeekInvalidResponse, DecisionValidationError) as exc:
-        # Fail closed: if verifier PASS keep as REPAIR? No — escalate
+        # NEVER ACCEPT when CTO unavailable — even if verifier PASS
         return {
             "schema_version": "1.0",
             "review_id": f"rev-fallback-{uuid.uuid4().hex[:12]}",
             "cycle_id": cycle_id,
             "decision_id": decision_id,
-            "verdict": "ESCALATE" if verification.get("result") != "PASS" else "ACCEPT",
-            "summary": f"Review fallback (CTO error: {exc})",
-            "failed_criteria": list(verification.get("failed_criteria") or []),
+            "verdict": "ESCALATE",
+            "summary": (
+                f"BLOCKED_CTO_UNAVAILABLE: DeepSeek review failed ({exc}). "
+                f"Verifier result was {verification.get('result')}; "
+                "cannot ACCEPT without CTO review."
+            ),
+            "failed_criteria": list(verification.get("failed_criteria") or [])
+            + ["BLOCKED_CTO_UNAVAILABLE"],
             "repair_instructions": [],
-            "confidence": 0.5,
+            "confidence": 0.0,
             "human_gate": {
-                "required": verification.get("result") != "PASS",
-                "reason": str(exc),
+                "required": True,
+                "reason": f"BLOCKED_CTO_UNAVAILABLE: {exc}",
+            },
+            "blocked_code": "BLOCKED_CTO_UNAVAILABLE",
+            "review_context": {
+                "matrix_counts": review_payload.get("matrix_counts"),
+                "diff_sha256": (review_payload.get("diff") or {}).get("sha256"),
+                "verifier_result": verification.get("result"),
             },
         }
 

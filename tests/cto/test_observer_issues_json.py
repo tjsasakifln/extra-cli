@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.cto.observer import _gh_issues_summary, _run, observe
+from scripts.cto.observer import _gh_issues_summary, _run
 
 
 def test_run_json_mode_no_tail_truncation(tmp_path: Path):

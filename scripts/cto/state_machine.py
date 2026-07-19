@@ -5,7 +5,7 @@ import json
 import os
 import time
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -46,10 +46,19 @@ TRANSITIONS: dict[str, set[str]] = {
         "DONE",
         "IDLE",
     },
-    "WAITING_HUMAN": {"IDLE", "PREPARING", "PAUSED", "DONE", "BLOCKED"},
-    "PREPARING": {"EXECUTING", "FAILED", "PAUSED", "BLOCKED"},
-    "EXECUTING": {"VERIFYING", "FAILED", "PAUSED", "REPAIRING"},
-    "VERIFYING": {"REVIEWING", "FAILED", "PAUSED"},
+    "WAITING_HUMAN": {
+        "IDLE",
+        "PREPARING",
+        "PAUSED",
+        "DONE",
+        "BLOCKED",
+        "OBSERVING",
+        "DECIDING",
+    },
+    # Self-transitions allow idempotent resume after crash mid-phase
+    "PREPARING": {"EXECUTING", "FAILED", "PAUSED", "BLOCKED", "PREPARING"},
+    "EXECUTING": {"VERIFYING", "FAILED", "PAUSED", "REPAIRING", "EXECUTING"},
+    "VERIFYING": {"REVIEWING", "FAILED", "PAUSED", "VERIFYING"},
     "REVIEWING": {
         "ACCEPTED",
         "REPAIRING",
@@ -58,12 +67,23 @@ TRANSITIONS: dict[str, set[str]] = {
         "FAILED",
         "DONE",
         "IDLE",
+        "REVIEWING",
     },
-    "REPAIRING": {"EXECUTING", "BLOCKED", "WAITING_HUMAN", "FAILED", "PAUSED"},
-    "ACCEPTED": {"DONE", "IDLE", "OBSERVING"},
+    "REPAIRING": {"EXECUTING", "BLOCKED", "WAITING_HUMAN", "FAILED", "PAUSED", "REPAIRING"},
+    # WAITING_HUMAN after ACCEPT = draft PR published, human merge only
+    "ACCEPTED": {"DONE", "IDLE", "OBSERVING", "WAITING_HUMAN"},
     "BLOCKED": {"IDLE", "WAITING_HUMAN", "PAUSED", "DONE", "OBSERVING"},
-    "FAILED": {"IDLE", "PAUSED", "DONE", "OBSERVING"},
-    "PAUSED": {"IDLE", "OBSERVING", "DONE"},
+    "FAILED": {"IDLE", "PAUSED", "DONE", "OBSERVING", "REPAIRING"},
+    "PAUSED": {
+        "IDLE",
+        "OBSERVING",
+        "DONE",
+        "PREPARING",
+        "EXECUTING",
+        "VERIFYING",
+        "REVIEWING",
+        "REPAIRING",
+    },
     "DONE": {"IDLE", "OBSERVING", "PAUSED"},
 }
 
@@ -79,7 +99,7 @@ class LockError(RuntimeError):
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 @dataclass

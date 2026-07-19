@@ -5,7 +5,6 @@ from typing import Any
 
 from scripts.cto.config import load_policies
 
-
 HUMAN_ONLY_DEFAULT = [
     "merge",
     "deploy",

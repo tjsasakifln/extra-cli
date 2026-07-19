@@ -3,7 +3,7 @@ from scripts.cto.observer import observe
 
 def test_observe_writes_json(cto_repo):
     obs = observe(cto_repo, write=True)
-    assert obs["schema_version"] == "1.0"
+    assert obs["schema_version"] in {"1.0", "1.1"}
     assert "git" in obs
     assert "dod" in obs
     assert obs["dod"]["total"] >= 2

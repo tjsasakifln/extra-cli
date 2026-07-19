@@ -1,12 +1,10 @@
 """Shared fixtures for CTO Autopilot tests."""
 from __future__ import annotations
 
-import json
 import shutil
 from pathlib import Path
 
 import pytest
-import yaml
 
 
 @pytest.fixture

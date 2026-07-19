@@ -1,16 +1,52 @@
-# Opcional — NÃO habilitar sem ação explícita de Tiago.
-# copiar para ~/.config/systemd/user/cto-autopilot.service
+# CTO Autopilot — systemd *user* units (OPTIONAL, disabled by default)
+#
+# Purpose: fire a conservative LIVE cycle without human copy-paste between
+# ChatGPT and Grok. The service runs `run-once` (NOT --dry-run).
+#
+# Safety defaults:
+# - Units are NOT installed/enabled by this PR.
+# - Only Tiago may enable the timer after dry-run validation on the machine.
+# - Merge remains human-only (publisher opens draft PR → WAITING_HUMAN).
+#
+# Install (manual, optional):
+#   mkdir -p ~/.config/systemd/user
+#   # edit WorkingDirectory / EnvironmentFile paths below
+#   cp docs/ops/cto-autopilot/systemd-user.example.service \
+#      ~/.config/systemd/user/cto-autopilot.service
+#   cp docs/ops/cto-autopilot/systemd-user.example.timer \
+#      ~/.config/systemd/user/cto-autopilot.timer
+#   systemctl --user daemon-reload
+#   # do NOT enable until ready:
+#   # systemctl --user enable --now cto-autopilot.timer
+#
+# Pause:
+#   systemctl --user stop cto-autopilot.timer
+#   systemctl --user disable cto-autopilot.timer
+#   # or: python3 -m scripts.cto.cli pause
+#
+# Logs:
+#   journalctl --user -u cto-autopilot.service -n 100 --no-pager
+#   ls -la output/cto/cycles/
+#
+# Rollback:
+#   systemctl --user disable --now cto-autopilot.timer
+#   rm -f ~/.config/systemd/user/cto-autopilot.{service,timer}
+#   systemctl --user daemon-reload
+#
+# --- service unit body (uncomment when installing) ---
 #
 # [Unit]
-# Description=CTO Autopilot run-once (Extra Consultoria)
+# Description=CTO Autopilot run-once (Extra Consultoria) — live conservative cycle
+# After=network-online.target
 #
 # [Service]
 # Type=oneshot
 # WorkingDirectory=/path/to/extra-consultoria
-# EnvironmentFile=/path/to/extra-consultoria/.env
-# ExecStart=/usr/bin/python3 -m scripts.cto.cli run-once --dry-run
+# EnvironmentFile=-/path/to/extra-consultoria/.env
+# # Live cycle: no --dry-run. Publisher may push draft PR; never merges.
+# ExecStart=/usr/bin/python3 -m scripts.cto.cli run-once --skip-tests
+# Nice=10
+# TimeoutStartSec=7200
 #
 # [Install]
 # WantedBy=default.target
-#
-# Timer separado (ex.: a cada 4h) só após dry-run validado.

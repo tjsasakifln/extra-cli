@@ -84,13 +84,82 @@ python3 -m scripts.cto.cli pause
 # ou remova timers; não há daemon habilitado por padrão
 ```
 
-## Recuperação
+## Timer systemd user (opcional, desabilitado por padrão)
+
+Arquivos de exemplo:
+
+- `docs/ops/cto-autopilot/systemd-user.example.service`
+- `docs/ops/cto-autopilot/systemd-user.example.timer`
+
+O serviço de exemplo executa um ciclo **live conservador** (`run-once` **sem** `--dry-run`).
+**Não** habilite sem ação explícita de Tiago.
+
+```bash
+# Ativar (manual)
+mkdir -p ~/.config/systemd/user
+# ajustar WorkingDirectory/EnvironmentFile nos units
+cp docs/ops/cto-autopilot/systemd-user.example.service ~/.config/systemd/user/cto-autopilot.service
+cp docs/ops/cto-autopilot/systemd-user.example.timer ~/.config/systemd/user/cto-autopilot.timer
+systemctl --user daemon-reload
+systemctl --user enable --now cto-autopilot.timer   # só após validação
+
+# Pausar
+systemctl --user stop cto-autopilot.timer
+systemctl --user disable cto-autopilot.timer
+python3 -m scripts.cto.cli pause
+
+# Logs
+journalctl --user -u cto-autopilot.service -n 100 --no-pager
+
+# Rollback
+systemctl --user disable --now cto-autopilot.timer
+rm -f ~/.config/systemd/user/cto-autopilot.{service,timer}
+systemctl --user daemon-reload
+```
+
+## Recuperação / resume real
+
+`resume` continua idempotentemente a partir de PREPARING|EXECUTING|VERIFYING|REVIEWING|REPAIRING,
+preservando session/worktree/decision/tentativas/evidências no diretório do ciclo.
+Não imprime apenas `resume_target`.
 
 ```bash
 python3 -m scripts.cto.cli status
-python3 -m scripts.cto.cli resume
+python3 -m scripts.cto.cli resume --dry-run --mock --skip-tests
+python3 -m scripts.cto.cli resume   # live mid-cycle
 python3 -m scripts.cto.cli observe
 ```
+
+## Publicação (publisher separado)
+
+Após ACCEPT, o componente `scripts/cto/publisher.py` (nunca o Grok executor):
+
+1. commit local controlado se necessário  
+2. push da branch do ciclo  
+3. abre/atualiza **draft PR**  
+4. registra PR/commit na Issue + ledger  
+5. consulta CI  
+6. entra em `WAITING_HUMAN` com link da PR  
+
+**Merge só com autorização de Tiago.** Sem merge automático.
+
+```bash
+python3 -m scripts.cto.cli publish --dry-run
+```
+
+## Códigos de saída
+
+| Código | Significado |
+|--------|-------------|
+| 0 | OK / ciclo limpo |
+| 10 | WAITING_HUMAN (ex.: draft PR pronta) |
+| 11 | BLOCKED |
+| 12 | FAILED |
+| 13 | ROLLBACK |
+| 2 | lock |
+| 3 | budget/pause |
+
+BLOCKED/FAILED/WAITING_HUMAN **não** são reportados como sucesso operacional genérico.
 
 Estado: `output/cto/current/state.json`  
 Ledger: `output/cto/current/ledger.jsonl`  

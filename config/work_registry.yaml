@@ -1,5 +1,5 @@
 schema_version: '1.0'
-updated_at: '2026-07-19T18:41:48Z'
+updated_at: '2026-07-19T19:19:55Z'
 work_items:
 - work_id: cto-autopilot-infra
   title: CTO Autopilot infrastructure (observe/decide/verify)
@@ -8,7 +8,7 @@ work_items:
   area: cto
   priority: p0
   risk: normal
-  state: ready
+  state: review
   dod_refs:
   - §32 tooling
   - CLI-first
@@ -23,8 +23,16 @@ work_items:
   milestone: CTO_AUTOPILOT
   origin: cto-bootstrap
   issue_number: 30
-  evidence: []
+  evidence:
+  - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
+  - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   last_synced_at: '2026-07-19T18:41:21Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: reconcile_implemented
+    from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: stabilize-open-pr-ci
   title: Stabilize open PR CI failures (advance-30d)
   objective: Address red CI on open draft PR without inventing readiness seals
@@ -32,7 +40,7 @@ work_items:
   area: quality
   priority: p0
   risk: high
-  state: ready
+  state: blocked
   dod_refs:
   - gates CI
   - anti false-green
@@ -49,6 +57,13 @@ work_items:
   issue_number: 31
   evidence: []
   last_synced_at: '2026-07-19T18:41:23Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: readiness_gate
+    from_state: ready
+    to_state: blocked
+    reasons:
+    - 'blockers present: [''May require human merge decision'']'
 - work_id: integrate-extra-ops-95
   title: Integrate EXTRA-OPS-95 campaign work safely
   objective: Plan integration of campaign branch evidence without false-green claims
@@ -168,7 +183,7 @@ work_items:
   area: cto
   priority: p1
   risk: normal
-  state: ready
+  state: review
   dod_refs:
   - plano executivo
   acceptance_criteria:
@@ -182,8 +197,16 @@ work_items:
   milestone: CTO_AUTOPILOT
   origin: cto-bootstrap
   issue_number: 37
-  evidence: []
+  evidence:
+  - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
+  - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   last_synced_at: '2026-07-19T18:41:32Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: reconcile_implemented
+    from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: github-issues-queue
   title: GitHub Issues operational queue sync
   objective: Idempotent issues-plan/sync with stable work_id markers
@@ -191,7 +214,7 @@ work_items:
   area: cto
   priority: p0
   risk: normal
-  state: ready
+  state: review
   dod_refs:
   - operational queue
   acceptance_criteria:
@@ -206,8 +229,16 @@ work_items:
   milestone: CTO_AUTOPILOT
   origin: cto-bootstrap
   issue_number: 38
-  evidence: []
+  evidence:
+  - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
+  - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   last_synced_at: '2026-07-19T18:41:33Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: reconcile_implemented
+    from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: dod-evidence-discipline
   title: DoD evidence discipline enforcement
   objective: Prevent auto checkbox flips; audit unauthorized DoD mutations
@@ -215,7 +246,7 @@ work_items:
   area: quality
   priority: p0
   risk: high
-  state: ready
+  state: review
   dod_refs:
   - §1 Como usar
   - anti false-green
@@ -229,8 +260,16 @@ work_items:
   milestone: CTO_AUTOPILOT
   origin: policy
   issue_number: 39
-  evidence: []
+  evidence:
+  - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
+  - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   last_synced_at: '2026-07-19T18:41:35Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: reconcile_implemented
+    from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: source-health-pncp-timeout
   title: PNCP golden-path timeout / source health
   objective: Diagnose PNCP timeout and record source health without faking green
@@ -238,7 +277,7 @@ work_items:
   area: data
   priority: p2
   risk: normal
-  state: ready
+  state: blocked
   dod_refs:
   - golden path PNCP
   acceptance_criteria:
@@ -254,6 +293,13 @@ work_items:
   issue_number: 40
   evidence: []
   last_synced_at: '2026-07-19T18:41:37Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: readiness_gate
+    from_state: ready
+    to_state: blocked
+    reasons:
+    - 'blockers present: [''External network dependency'']'
 - work_id: contracts-admin-tracking
   title: Administrative contract tracking signals
   objective: 'Expose contract admin signals: vigência, aditivos, re-tender signals'
@@ -304,7 +350,7 @@ work_items:
   area: cto
   priority: p1
   risk: normal
-  state: ready
+  state: review
   dod_refs:
   - extra-dod-roi
   acceptance_criteria:
@@ -318,8 +364,16 @@ work_items:
   milestone: CTO_AUTOPILOT
   origin: cto-bootstrap
   issue_number: 43
-  evidence: []
+  evidence:
+  - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
+  - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   last_synced_at: '2026-07-19T18:41:41Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: reconcile_implemented
+    from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: human-gates-fail-closed
   title: Human gates fail-closed enforcement
   objective: Block merge/deploy/secret ops in executor and decision policy
@@ -327,7 +381,7 @@ work_items:
   area: cto
   priority: p0
   risk: high
-  state: ready
+  state: review
   dod_refs:
   - publication policy
   acceptance_criteria:
@@ -341,8 +395,16 @@ work_items:
   milestone: CTO_AUTOPILOT
   origin: policy
   issue_number: 44
-  evidence: []
+  evidence:
+  - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
+  - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   last_synced_at: '2026-07-19T18:41:43Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: reconcile_implemented
+    from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: coverage-operational-progress
   title: Operational coverage progress (honest metrics)
   objective: Advance operational coverage stages with evidence; no 95% claim
@@ -350,7 +412,7 @@ work_items:
   area: data
   priority: p1
   risk: normal
-  state: ready
+  state: blocked
   dod_refs:
   - Cobertura operacional ≥95%
   acceptance_criteria:
@@ -366,6 +428,13 @@ work_items:
   issue_number: 45
   evidence: []
   last_synced_at: '2026-07-19T18:41:44Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: readiness_gate
+    from_state: ready
+    to_state: blocked
+    reasons:
+    - 'blockers present: [''Large data collection effort'']'
 - work_id: publication-policy-docs
   title: 'Canonical publication policy: worktree → draft PR → human merge'
   objective: Document and align tooling so no autonomous merge path remains
@@ -373,7 +442,7 @@ work_items:
   area: platform
   priority: p1
   risk: normal
-  state: ready
+  state: review
   dod_refs:
   - DEVELOPMENT.md branch policy
   acceptance_criteria:
@@ -386,8 +455,16 @@ work_items:
   milestone: CTO_AUTOPILOT
   origin: policy
   issue_number: 46
-  evidence: []
+  evidence:
+  - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
+  - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   last_synced_at: '2026-07-19T18:41:46Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: reconcile_implemented
+    from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: budget-and-fallback
   title: API budget limits and DeepSeek fallback
   objective: Pause on budget; BLOCKED_CTO_UNAVAILABLE without inventing work
@@ -395,7 +472,7 @@ work_items:
   area: cto
   priority: p1
   risk: normal
-  state: ready
+  state: human
   dod_refs:
   - cost control
   acceptance_criteria:
@@ -409,5 +486,19 @@ work_items:
   milestone: CTO_AUTOPILOT
   origin: cto-bootstrap
   issue_number: 47
-  evidence: []
+  evidence:
+  - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
+  - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
+  - commit:78c692e3a2ff3ea9c3f55ad479a0d8c0d975dcd3
   last_synced_at: '2026-07-19T18:41:48Z'
+  execution_history:
+  - ts: '2026-07-19T19:17:23Z'
+    phase: reconcile_implemented
+    from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:19:55Z'
+    phase: published_draft_pr
+    cycle_id: cyc-20260719T191854Z
+    pr: null
+    commit: 78c692e3a2ff3ea9c3f55ad479a0d8c0d975dcd3
