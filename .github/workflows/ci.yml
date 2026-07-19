@@ -139,6 +139,8 @@ jobs:
           tests/test_sc_compras_smoke.py
           tests/test_contracts_uf_filter.py
           tests/test_mandatory_gates_no_or_true.py
+          tests/test_weekly_cycle.py
+          -m "not integration and not database and not live"
           -o addopts=''
           --cov=scripts.freshness_gate
           --cov=scripts.lib.universe
@@ -150,6 +152,9 @@ jobs:
           --cov=scripts.crawl.date_semantics
           --cov=scripts.crawl.run_evidence
           --cov=scripts.reports.commercial_sample_sc
+          --cov=scripts.ops.weekly_cycle
+          --cov=scripts.collect.run_contract
+          --cov=scripts.quality.indicator_catalog
           --cov-report=term-missing
           --cov-report=html:docs/td-001/coverage-reports/
           --cov-fail-under=10
@@ -169,11 +174,58 @@ jobs:
   # ============================================================================
   # TEST ALL — inclui integration, smoke, slow (gate completo)
   # ============================================================================
+  # Expanded operational suite on every PR (fail-closed, explicit file list).
+  # Intentionally NOT "all non-integration tests": full collection still has residual
+  # debt (schema/env). Residual isolations: docs/ops/campaigns/EXTRA-OPERATIONAL-PROOF-01/STATUS.md
+  test-operational-expanded:
+    name: Test operational expanded (PR)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pytest-cov
+
+      - name: Operational expanded unit suite
+        run: >-
+          pytest
+          tests/test_weekly_cycle.py
+          tests/test_run_evidence.py
+          tests/test_freshness_gate.py
+          tests/test_mandatory_gates_no_or_true.py
+          tests/test_golden_path_fail_closed.py
+          tests/test_golden_path_ledger.py
+          tests/test_evidence_artifact_consistency.py
+          tests/test_contract_date_semantics.py
+          tests/test_coverage_truth.py
+          tests/test_consulting_readiness.py
+          -m "not integration and not database and not slow and not e2e and not live"
+          -o addopts=''
+          --cov=scripts.ops.weekly_cycle
+          --cov=scripts.collect.run_contract
+          --cov=scripts.quality.indicator_catalog
+          --cov=scripts.crawl.run_evidence
+          --cov-report=term-missing
+          --cov-fail-under=35
+          --tb=short
+          -v
+        env:
+          CI: true
+
   test-all:
     name: Test All (full suite)
-    # The legacy/integration suite requires external services and still has
-    # tracked debt. Keep it fail-closed, but run it only when explicitly
-    # requested until its environment is provisioned in CI.
+    # Full suite still needs external services for some modules.
+    # Remains workflow_dispatch until residual debt is cleared (see campaign STATUS).
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:

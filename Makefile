@@ -37,6 +37,12 @@ help:
 	@echo '  run-report     Relatórios: panorama + Excel'
 	@echo '  report-executivo  Relatorio executivo PDF + Excel (Extra Construtora)'
 	@echo ''
+	@echo '── Ciclo semanal Extra (CANÔNICO) ─────────────────────────────────'
+	@echo '  extra-weekly    Ciclo operacional semanal: collect→process→quality'
+	@echo '                 →intelligence→delivery (manifest+MD+Excel+CSV)'
+	@echo '                 python -m scripts.ops.weekly_cycle --strict'
+	@echo '  WEEKLY_FLAGS=   Flags extras, ex: --force-collect --skip-collect'
+	@echo ''
 	@echo '── Testes ─────────────────────────────────────────────────────────'
 	@echo '  test           Roda testes (exceto slow) com cobertura'
 	@echo '  test-all       Roda todos os testes (inclui slow) com cobertura'
@@ -94,6 +100,12 @@ run-crawl:
 run-report:
 	@echo '==> [$(ENV)] Gerando relatórios'
 	python $(SCRIPTS_DIR)/reports/panorama.py --output-excel
+
+.PHONY: extra-weekly
+extra-weekly:
+	@echo '==> [$(ENV)] Ciclo semanal canônico Extra Construtora'
+	@echo '    Entry point: python -m scripts.ops.weekly_cycle --strict'
+	python3 -m scripts.ops.weekly_cycle --strict $(WEEKLY_FLAGS)
 
 .PHONY: report-executivo
 report-executivo:
