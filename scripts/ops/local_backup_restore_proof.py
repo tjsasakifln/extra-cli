@@ -54,7 +54,7 @@ def _env_for_pg(parts: dict[str, str]) -> dict[str, str]:
 
 
 def _run(cmd: list[str], env: dict[str, str]) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
+    return subprocess.run(  # noqa: S603 — caller builds fixed argv (psql/pg_dump), shell=False
         cmd,
         env=env,
         text=True,
@@ -103,7 +103,7 @@ def ensure_db(parts: dict[str, str], dbname: str) -> None:
             "-d",
             maint,
             "-tAc",
-            f"SELECT 1 FROM pg_database WHERE datname='{dbname}'",
+            f"SELECT 1 FROM pg_database WHERE datname='{dbname}'",  # noqa: S608 — local dbname identifier only
         ],
         env,
     )

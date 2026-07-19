@@ -34,8 +34,10 @@ def search_orgaos(razao: str, *, pagina: int = 1, tamanho: int = 20, timeout: in
         {"razaoSocial": razao[:80], "pagina": str(pagina), "tamanhoPagina": str(tamanho)}
     )
     url = f"{PNCP_ORGAOS}?{params}"
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+    if not url.startswith("https://"):
+        raise ValueError(f"refusing non-HTTPS URL: {url[:32]!r}")
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})  # noqa: S310 — HTTPS PNCP orgaos API
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 — HTTPS PNCP orgaos API
         data = json.loads(resp.read().decode("utf-8"))
     if isinstance(data, list):
         return data

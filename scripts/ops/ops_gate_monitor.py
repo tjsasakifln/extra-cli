@@ -302,16 +302,17 @@ def monitor_migration_failures() -> dict[str, Any]:
                     ):
                         try:
                             cur.execute(
-                                f"SELECT count(*) FROM information_schema.tables "
-                                f"WHERE table_schema='public' AND table_name=%s",
+                                "SELECT count(*) FROM information_schema.tables "
+                                "WHERE table_schema='public' AND table_name=%s",
                                 (table,),
                             )
                             if cur.fetchone()[0]:
+                                # table is from fixed internal allow-list above (not user input)
                                 if table == "alembic_version":
-                                    cur.execute(f"SELECT version_num FROM {table}")
+                                    cur.execute(f"SELECT version_num FROM {table}")  # noqa: S608 — fixed allow-list table name
                                     applied = [r[0] for r in cur.fetchall()]
                                 else:
-                                    cur.execute(f"SELECT count(*) FROM {table}")
+                                    cur.execute(f"SELECT count(*) FROM {table}")  # noqa: S608 — fixed allow-list table name
                                     applied = cur.fetchone()[0]
                                 metrics["schema_table"] = table
                                 metrics["applied"] = applied
@@ -370,8 +371,8 @@ def monitor_delayed_timers() -> dict[str, Any]:
     delayed: list[dict[str, Any]] = []
     host_active = False
     try:
-        r = subprocess.run(
-            ["systemctl", "list-timers", "--all", "--no-pager", "--output=json"],
+        r = subprocess.run(  # noqa: S603 — fixed systemctl argv, shell=False
+            ["systemctl", "list-timers", "--all", "--no-pager", "--output=json"],  # noqa: S607 — systemctl from PATH when present
             capture_output=True,
             text=True,
             timeout=10,

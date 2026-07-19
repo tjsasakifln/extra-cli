@@ -288,7 +288,8 @@ def build_pack(
         git_sha=_git_sha_short(),
     )
     paths["pdf"] = str(pdf_path)
-    assert pdf_path.is_file() and pdf_path.stat().st_size > 0
+    if not (pdf_path.is_file() and pdf_path.stat().st_size > 0):
+        raise RuntimeError(f"golden_path_pack: PDF missing or empty: {pdf_path}")
 
     manifest = {
         "run_id": rid,

@@ -5,8 +5,9 @@ Executable guards so reports and CLIs cannot silently overclaim.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
-from typing import Any, Iterable
+from typing import Any
 
 # Patterns that assert physical works tracking (out of product scope).
 WORKS_TRACKING_PATTERNS: tuple[re.Pattern[str], ...] = (

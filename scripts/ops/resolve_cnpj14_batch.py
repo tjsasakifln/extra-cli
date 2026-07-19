@@ -14,7 +14,7 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import psycopg2
@@ -110,7 +110,7 @@ def main(argv: list[str] | None = None) -> int:
                                 "cnpj14": c14,
                                 "method": method,
                                 "razao": razao,
-                                "resolved_at": datetime.now(timezone.utc).isoformat(),
+                                "resolved_at": datetime.now(UTC).isoformat(),
                             },
                             ensure_ascii=False,
                         )

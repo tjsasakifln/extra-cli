@@ -742,7 +742,6 @@ def validate_registry() -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     import argparse
     import json
-    import sys
 
     p = argparse.ArgumentParser(description="Canonical crawl source registry (DoD §7.1)")
     p.add_argument("--export", action="store_true", help="Export registry JSON")
@@ -760,9 +759,11 @@ def main(argv: list[str] | None = None) -> int:
         payload = {"sources": export_registry()}
     text = json.dumps(payload, indent=2, ensure_ascii=False, default=str)
     if args.out:
-        Path = __import__("pathlib").Path
-        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out).write_text(text + "\n", encoding="utf-8")
+        from pathlib import Path as PathLib
+
+        out_path = PathLib(args.out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(text + "\n", encoding="utf-8")
     if args.json or args.export or args.validate:
         print(text)
     return 0 if (not args.validate or payload.get("ok") or payload.get("validation", {}).get("ok")) else 1

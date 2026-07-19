@@ -20,7 +20,7 @@ import time
 import unicodedata
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -102,9 +102,11 @@ def soft_name_match(entity_name: str, api_name: str) -> bool:
 
 
 def http_get_json(url: str, timeout: int = 20) -> tuple[int, Any]:
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
+    if not url.startswith("https://"):
+        raise ValueError(f"refusing non-HTTPS URL: {url[:32]!r}")
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})  # noqa: S310 — HTTPS BrasilAPI/PNCP
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 — HTTPS BrasilAPI/PNCP
             return int(resp.status), json.loads(resp.read().decode("utf-8") or "{}")
     except urllib.error.HTTPError as e:
         body = e.read() if e.fp else b""
@@ -235,7 +237,7 @@ def main(argv: list[str] | None = None) -> int:
                                         "razao": razao,
                                         "api_razao": api_razao,
                                         "name_soft": row["name_soft"],
-                                        "resolved_at": datetime.now(timezone.utc).isoformat(),
+                                        "resolved_at": datetime.now(UTC).isoformat(),
                                     },
                                     ensure_ascii=False,
                                 )
@@ -274,7 +276,7 @@ def main(argv: list[str] | None = None) -> int:
             )
 
     report = {
-        "measured_at": datetime.now(timezone.utc).isoformat(),
+        "measured_at": datetime.now(UTC).isoformat(),
         "branch": args.branch,
         "probed": len(results),
         "resolved": resolved,
@@ -295,7 +297,7 @@ def main(argv: list[str] | None = None) -> int:
         out = (
             REPO
             / "docs/ops/campaigns/EXTRA-OPS-95/evidence/M2-cnpj14"
-            / f"matriz-{args.branch}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+            / f"matriz-{args.branch}-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}.json"
         )
     out = out if out.is_absolute() else REPO / out
     out.parent.mkdir(parents=True, exist_ok=True)

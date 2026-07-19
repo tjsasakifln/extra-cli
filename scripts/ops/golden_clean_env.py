@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -12,6 +13,7 @@ from typing import Any
 from urllib.parse import urlparse, urlunparse
 
 REPO = Path(__file__).resolve().parents[2]
+_PSQL = "psql"  # resolved from PATH in local/CI (not shell-expanded)
 
 
 def _parts(dsn: str) -> dict[str, str]:
@@ -42,22 +44,24 @@ def _psql_env(parts: dict[str, str]) -> dict[str, str]:
 
 
 def _psql(parts: dict[str, str], dbname: str, sql: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [
-            "psql",
-            "-h",
-            parts["host"],
-            "-p",
-            parts["port"],
-            "-U",
-            parts["user"],
-            "-d",
-            dbname,
-            "-v",
-            "ON_ERROR_STOP=1",
-            "-c",
-            sql,
-        ],
+    # psql binary comes from PATH in local/CI; argv is fully controlled (shell=False).
+    argv = [
+        _PSQL,
+        "-h",
+        parts["host"],
+        "-p",
+        parts["port"],
+        "-U",
+        parts["user"],
+        "-d",
+        dbname,
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        sql,
+    ]
+    return subprocess.run(  # noqa: S603 — fixed argv, shell=False
+        argv,
         env=_psql_env(parts),
         text=True,
         capture_output=True,
@@ -69,14 +73,19 @@ def _psql(parts: dict[str, str], dbname: str, sql: str) -> subprocess.CompletedP
 def recreate_db(admin_dsn: str, clean_name: str) -> dict[str, Any]:
     parts = _parts(admin_dsn)
     # terminate + drop + create as separate autocommit statements
-    term = _psql(
-        parts,
-        "postgres",
-        f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
-        f"WHERE datname = '{clean_name}' AND pid <> pg_backend_pid();",
-    )
-    drop = _psql(parts, "postgres", f"DROP DATABASE IF EXISTS {clean_name};")
-    create = _psql(parts, "postgres", f"CREATE DATABASE {clean_name} OWNER {parts['user']};")
+    # clean_name / user come from controlled local tooling args, not external SQL input.
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", clean_name):
+        raise ValueError(f"invalid clean db name: {clean_name!r}")
+    user = parts["user"]
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", user):
+        raise ValueError(f"invalid db user: {user!r}")
+    # Identifiers validated via re.fullmatch above (safe literal interpolation for local tooling).
+    term_sql = f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{clean_name}' AND pid <> pg_backend_pid();"  # noqa: S608
+    drop_sql = f"DROP DATABASE IF EXISTS {clean_name};"  # noqa: S608
+    create_sql = f"CREATE DATABASE {clean_name} OWNER {user};"  # noqa: S608
+    term = _psql(parts, "postgres", term_sql)
+    drop = _psql(parts, "postgres", drop_sql)
+    create = _psql(parts, "postgres", create_sql)
     return {
         "term_exit": term.returncode,
         "drop_exit": drop.returncode,
@@ -92,7 +101,7 @@ def apply_migrations(dsn: str) -> dict[str, Any]:
     """Apply migrations; stop before optional vector extension if needed, continue extras."""
     root = REPO / "db" / "migrations"
     # First batch: through 013 (before vector-dependent 014)
-    r1 = subprocess.run(
+    r1 = subprocess.run(  # noqa: S603 — fixed script path under REPO, shell=False
         [
             sys.executable,
             str(REPO / "scripts" / "ops" / "apply_migrations.py"),
@@ -114,9 +123,9 @@ def apply_migrations(dsn: str) -> dict[str, Any]:
         num = int(path.name[:3])
         if num <= 13 or num == 14:
             continue
-        r = subprocess.run(
+        r = subprocess.run(  # noqa: S603 — fixed argv; migration path from repo glob only
             [
-                "psql",
+                _PSQL,
                 "-h",
                 parts["host"],
                 "-p",
@@ -140,9 +149,9 @@ def apply_migrations(dsn: str) -> dict[str, Any]:
     # Always re-apply critical 055
     p055 = root / "055_fix_upsert_pncp_raw_bids_ambiguous.sql"
     if p055.is_file():
-        r = subprocess.run(
+        r = subprocess.run(  # noqa: S603 — fixed argv; known migration file under REPO
             [
-                "psql",
+                _PSQL,
                 "-h",
                 parts["host"],
                 "-p",
@@ -191,7 +200,7 @@ def run_golden(dsn: str, ledger: Path) -> dict[str, Any]:
     env["LOCAL_DATALAKE_DSN"] = dsn
     env["DATABASE_URL"] = dsn
     # Clean env foundation: no crawl dependency; skip freshness (no data yet)
-    r = subprocess.run(
+    r = subprocess.run(  # noqa: S603 — fixed module invocation via sys.executable, shell=False
         [
             sys.executable,
             "-m",

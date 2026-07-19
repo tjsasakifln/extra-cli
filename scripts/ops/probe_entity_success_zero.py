@@ -22,7 +22,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -89,11 +89,13 @@ def http_get(
 
     Caps total wait so a single entity cannot stall the batch for minutes.
     """
+    if not url.startswith("https://"):
+        raise ValueError(f"refusing non-HTTPS URL: {url[:32]!r}")
     last_status, last_body = 0, b""
     for attempt in range(max_retries + 1):
-        req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
+        req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})  # noqa: S310 — HTTPS PNCP consulta API
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+            with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 — HTTPS PNCP consulta API
                 return int(resp.status), resp.read()
         except urllib.error.HTTPError as e:
             body = e.read() if e.fp else b""
@@ -204,6 +206,7 @@ def residual_entities(cur, cache: dict[str, dict[str, Any]], data_type: str, lim
           FROM pncp_raw_bids
           WHERE LENGTH(REGEXP_REPLACE(COALESCE(orgao_cnpj::text,''),'[^0-9]','','g'))>=8
         """
+    # lake_sql is a fixed internal whitelist (contracts vs bids tables only), not user input.
     cur.execute(
         f"""
         WITH den AS (
@@ -221,7 +224,7 @@ def residual_entities(cur, cache: dict[str, dict[str, Any]], data_type: str, lim
         LEFT JOIN sz s ON s.entity_id = d.id
         WHERE l.c8 IS NULL AND s.entity_id IS NULL
         ORDER BY d.razao_social
-        """,
+        """,  # noqa: S608 — lake_sql is fixed internal table whitelist only
         (data_type,),
     )
     rows = []
@@ -270,7 +273,7 @@ def insert_success_zero(
         "pages_expected": None,
         "completion_rule": completion_rule,
     }
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cur.execute(
         """
         INSERT INTO coverage_evidence (
@@ -329,7 +332,7 @@ def main(argv: list[str] | None = None) -> int:
     cache = load_cache(cache_path)
     end = date.today()
     start = end - timedelta(days=args.days)
-    run_id = f"sz-{args.data_type}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    run_id = f"sz-{args.data_type}-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}"
 
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
@@ -421,7 +424,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     den, presence, sz_ents, ops_proxy = cur.fetchone()
     report = {
-        "measured_at": datetime.now(timezone.utc).isoformat(),
+        "measured_at": datetime.now(UTC).isoformat(),
         "run_id": run_id,
         "data_type": args.data_type,
         "probed": len(results),

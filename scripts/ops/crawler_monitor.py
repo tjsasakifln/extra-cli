@@ -10,11 +10,11 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import defaultdict
-from dataclasses import asdict, dataclass, field
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from scripts.crawl.resilience.state import RunHistory
 

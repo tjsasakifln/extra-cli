@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 RELEASE_TAGS = {
     "tender": "tender",
     "award": "award",
