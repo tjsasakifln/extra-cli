@@ -177,7 +177,7 @@
       "preds": [
         "N06b"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "es": 16.0,
       "ef": 24.5,
       "ls": 16.0,
@@ -388,14 +388,11 @@
       "critical": false
     }
   ],
-  "critical_days_done": 23.5,
-  "critical_open": [
-    "N06c"
-  ],
+  "critical_days_done": 32.0,
+  "critical_open": [],
   "smartlic_dataset": "DEFERRED_STALE_SOURCE",
-  "updated_at": "2026-07-18T23:06:32Z",
+  "updated_at": "2026-07-19T01:40:30Z",
   "extra_roi_priority": [
-    "N06c",
     "N01",
     "N09",
     "N07/N18",

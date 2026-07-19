@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "updated_at": "2026-07-18T23:06:26Z",
+  "updated_at": "2026-07-19T01:40:30Z",
   "smartlic_dataset": "DEFERRED_STALE_SOURCE",
   "critical_path": [
     "R0",
@@ -16,18 +16,18 @@
     "N14",
     "N15"
   ],
-  "critical_open": [
-    "N06c"
-  ],
+  "critical_open": [],
   "length_days": 32.0,
-  "done_days": 23.5,
+  "done_days": 32.0,
   "chain": "R0 → R1 → N02 → N04 → N05 → N06 → N06b → N06c → N11 → N12 → N14 → N15",
-  "next_unlocked_highest_roi": "N06c",
+  "next_unlocked_highest_roi": "N01",
   "note": "SmartLic data import removed from path. N06c reopened for Extra-owned entity coverage.",
   "n06c_progress": {
-    "either_delta": 68,
+    "status": "DONE",
+    "either_delta": 105,
     "editais_delta": 84,
-    "contracts_entities_delta": 61,
-    "status": "IN_PROGRESS_MEASURABLE_GAIN"
+    "contracts_entities_delta": 121,
+    "either_after": 406,
+    "pct_either": 37.15
   }
 }

@@ -1,19 +1,36 @@
 {
-  "ts": "2026-07-18T23:18:24Z",
-  "phase": "after_wave2_pncp_finalized_contracts_running",
+  "ts": "2026-07-19T01:40:05Z",
+  "phase": "after_wave2_final",
   "source": "Extra PostgreSQL only — no SmartLic",
   "smartlic_used": false,
   "den": 1093,
   "editais_cnpj8": 268,
   "editais_matched_entity": 285,
   "editais": 285,
-  "contracts_entities": 316,
-  "either": 371,
+  "contracts_entities": 368,
+  "either": 406,
   "pct_editais": 26.08,
-  "pct_either": 33.94,
+  "pct_either": 37.15,
   "rows": {
     "bids": 10974,
-    "contracts": 391356
+    "contracts": 1082055
   },
-  "pncp_note": "Process killed after CLOSE-WAIT hang in opportunity post-process; upsert+match durable"
+  "by_source": [
+    {
+      "source": "pncp",
+      "n": 8221,
+      "matched": 7423
+    },
+    {
+      "source": "sc_compras",
+      "n": 2610,
+      "matched": 2280
+    },
+    {
+      "source": "pcp",
+      "n": 143,
+      "matched": 107
+    }
+  ],
+  "metric_note": "editais=union(cnpj8, matched_entity_id); either includes contracts; Extra-owned only"
 }

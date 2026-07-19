@@ -21,33 +21,118 @@
       "skipped": 0,
       "errors": [],
       "elapsed_seconds": 1790.5
+    },
+    {
+      "window_key": "20260218_20260319",
+      "status": "completed",
+      "pages": 427,
+      "transformed": 213066,
+      "inserted": 213066,
+      "skipped": 0,
+      "errors": [],
+      "elapsed_seconds": 2398.4
+    },
+    {
+      "window_key": "20260320_20260418",
+      "status": "completed",
+      "pages": 358,
+      "transformed": 178951,
+      "inserted": 178951,
+      "skipped": 0,
+      "errors": [],
+      "elapsed_seconds": 1856.1
+    },
+    {
+      "window_key": "20260419_20260518",
+      "status": "completed",
+      "pages": 295,
+      "transformed": 147120,
+      "inserted": 147120,
+      "skipped": 0,
+      "errors": [],
+      "elapsed_seconds": 1364.4
+    },
+    {
+      "window_key": "20260519_20260617",
+      "status": "completed",
+      "pages": 361,
+      "transformed": 180302,
+      "inserted": 180302,
+      "skipped": 0,
+      "errors": [],
+      "elapsed_seconds": 2148.9
+    },
+    {
+      "window_key": "20260618_20260717",
+      "status": "completed",
+      "pages": 343,
+      "transformed": 171290,
+      "inserted": 98752,
+      "skipped": 72538,
+      "errors": [],
+      "elapsed_seconds": 2053.3
     }
   ],
   "totals": {
-    "fetched": 190950,
-    "transformed": 190941,
-    "inserted": 190941,
-    "skipped": 0,
-    "pages": 382,
+    "fetched": 1081725,
+    "transformed": 1081670,
+    "inserted": 1009132,
+    "skipped": 72538,
+    "pages": 2166,
     "page_errors": 0,
-    "windows_ok": 1,
+    "windows_ok": 6,
     "windows_failed": 0,
     "windows_skipped_resume": 0
   },
-  "status": "running",
+  "status": "success",
   "errors": [],
+  "completed_at": "2026-07-19T01:39:30.524628+00:00",
+  "duration_seconds": 11636.7,
+  "db": {
+    "pncp_supplier_contracts_count": 1082055,
+    "min_data_publicacao": "2026-01-19",
+    "max_data_publicacao": "2026-07-18",
+    "data_publicacao_note": "legacy/mixed semantics \u2014 historically stored dataAssinatura; prefer data_assinatura / data_publicacao_fonte (migration 051)",
+    "min_data_assinatura": "2021-04-05",
+    "max_data_assinatura": "2031-02-09",
+    "has_data_assinatura_column": true,
+    "monthly": [
+      {
+        "mes": "2026-04-01",
+        "n": 126266
+      },
+      {
+        "mes": "2026-05-01",
+        "n": 162712
+      },
+      {
+        "mes": "2026-06-01",
+        "n": 169604
+      },
+      {
+        "mes": "2026-07-01",
+        "n": 96383
+      }
+    ],
+    "sample_populated_n20": 20
+  },
   "checkpoint": {
     "source": "pncp_contracts",
     "mode": "full",
     "completed_windows": [
-      "20260119_20260217"
+      "20260119_20260217",
+      "20260218_20260319",
+      "20260320_20260418",
+      "20260419_20260518",
+      "20260519_20260617",
+      "20260618_20260717"
     ],
-    "current_window_start": "20260119",
-    "total_contracts_fetched": 190941,
-    "total_windows_completed": 1,
+    "current_window_start": "20260618",
+    "total_contracts_fetched": 1081670,
+    "total_windows_completed": 6,
     "total_windows_failed": 0,
     "last_error": null,
-    "updated_at": "2026-07-18T22:55:24Z",
+    "updated_at": "2026-07-19T01:39:30Z",
     "meta": {
       "run_id": "contracts-90d-20260718T222533Z-fa311143a0",
       "run_ids": [
@@ -56,5 +141,85 @@
       "previous_run_ids": [],
       "foreign_resume": false
     }
-  }
+  },
+  "criteria": {
+    "P1_run_status": true,
+    "P2_date_span": true,
+    "P3_monthly": true,
+    "P5_no_residual_page_errors": true,
+    "P6_checkpoint_coherent": true,
+    "P7_sample_fields": true,
+    "P8_full_window_coverage": true
+  },
+  "go_no_go_3y": "GO",
+  "go_no_go_reason": "Pilot completed all planned windows without page errors; schema upsert OK; sample fields populated; span meets 90d floor.",
+  "claims_allowed": [
+    "Resumable pilot runner exists; partial windows are not marked complete on page errors",
+    "At least one full day/window completed with 0 page errors (path_proof)",
+    "Contracts persisted in pncp_supplier_contracts (see db counts)"
+  ],
+  "claims_forbidden": [
+    "Unsupervised 3y without re-validation",
+    "Skip re-check after schema changes",
+    "CONTRATOS_95"
+  ],
+  "evidence": {
+    "run_id": "contracts-90d-20260718T222533Z-fa311143a0",
+    "git_sha": "03adddb53397e952e2a3f7227f7e7320869d0129",
+    "git_branch": "campaign/b2g-operational-cycle-close",
+    "started_at": "2026-07-18T22:25:33.803376+00:00",
+    "completed_at": "2026-07-19T01:39:30.524628+00:00",
+    "host_id": "72aa0c75ebd3",
+    "command": "scripts/crawl/run_contracts_90d_pilot.py",
+    "args": {
+      "days": 180,
+      "mode": "full",
+      "dry_run": false,
+      "planned_windows": 6,
+      "checkpoint_dir": "data/contracts_checkpoints/n06c_wave2"
+    },
+    "env_non_secret": {
+      "CONTRACTS_CHECKPOINT_DIR": "data/contracts_checkpoints/n06c_wave2"
+    },
+    "checkpoint_path": "data/contracts_checkpoints/n06c_wave2/contracts_full.json",
+    "checkpoint_hash": "eb5060badf1078250072283d4e69512f309d3e6434ead283f35b892dd6025350",
+    "output_path": "docs/ops/campaigns/NEXT-30D-ROI-MAIN-R2/evidence/N06c-wave/contracts-180d.json",
+    "output_hash": "72a99d55c961c71a99548e94862880719ab8777e50f4f25ff5dd94c9c5f4153b",
+    "log_path": null,
+    "log_hash": null,
+    "migration_head": null,
+    "counts_before": {},
+    "counts_after": {
+      "inserted": 1009132,
+      "transformed": 1081670,
+      "windows_ok": 6,
+      "windows_failed": 0,
+      "windows_skipped_resume": 0,
+      "planned_windows": 6
+    },
+    "status": "success",
+    "errors": [],
+    "criteria": {
+      "P1_run_status": true,
+      "P2_date_span": true,
+      "P3_monthly": true,
+      "P5_no_residual_page_errors": true,
+      "P6_checkpoint_coherent": true,
+      "P7_sample_fields": true,
+      "P8_full_window_coverage": true
+    },
+    "claims_allowed": [
+      "Resumable pilot runner exists; partial windows are not marked complete on page errors",
+      "At least one full day/window completed with 0 page errors (path_proof)",
+      "Contracts persisted in pncp_supplier_contracts (see db counts)"
+    ],
+    "claims_forbidden": [
+      "Unsupervised 3y without re-validation",
+      "Skip re-check after schema changes",
+      "CONTRATOS_95"
+    ],
+    "previous_run_ids": []
+  },
+  "git_sha": "03adddb53397e952e2a3f7227f7e7320869d0129",
+  "git_branch": "campaign/b2g-operational-cycle-close"
 }
