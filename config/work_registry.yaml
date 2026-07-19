@@ -1,5 +1,5 @@
 schema_version: '1.0'
-updated_at: '2026-07-19T18:30:10Z'
+updated_at: '2026-07-19T18:41:48Z'
 work_items:
 - work_id: cto-autopilot-infra
   title: CTO Autopilot infrastructure (observe/decide/verify)
@@ -24,7 +24,7 @@ work_items:
   origin: cto-bootstrap
   issue_number: 30
   evidence: []
-  last_synced_at: '2026-07-19T18:29:36Z'
+  last_synced_at: '2026-07-19T18:41:21Z'
 - work_id: stabilize-open-pr-ci
   title: Stabilize open PR CI failures (advance-30d)
   objective: Address red CI on open draft PR without inventing readiness seals
@@ -48,7 +48,7 @@ work_items:
   origin: audit-prs
   issue_number: 31
   evidence: []
-  last_synced_at: '2026-07-19T18:29:38Z'
+  last_synced_at: '2026-07-19T18:41:23Z'
 - work_id: integrate-extra-ops-95
   title: Integrate EXTRA-OPS-95 campaign work safely
   objective: Plan integration of campaign branch evidence without false-green claims
@@ -71,7 +71,7 @@ work_items:
   origin: audit-prs
   issue_number: 32
   evidence: []
-  last_synced_at: '2026-07-19T18:29:41Z'
+  last_synced_at: '2026-07-19T18:41:24Z'
 - work_id: full-suite-schema-debt
   title: Reduce full-suite schema debt blocking Test All
   objective: Make full suite runnable or document residual schema debt honestly
@@ -93,7 +93,7 @@ work_items:
   origin: dod-open
   issue_number: 33
   evidence: []
-  last_synced_at: '2026-07-19T18:29:43Z'
+  last_synced_at: '2026-07-19T18:41:26Z'
 - work_id: freshness-coverage-sla
   title: Freshness coverage measurable per entity within SLA
   objective: Instrument and report per-entity freshness vs SLA without claiming 95%
@@ -115,7 +115,7 @@ work_items:
   origin: dod-open
   issue_number: 34
   evidence: []
-  last_synced_at: '2026-07-19T18:29:45Z'
+  last_synced_at: '2026-07-19T18:41:27Z'
 - work_id: recall-stratified-95
   title: Independent stratified recall measurement path
   objective: Build recall sample pipeline with honest NOT_READY until ≥95%
@@ -137,7 +137,7 @@ work_items:
   origin: dod-open
   issue_number: 35
   evidence: []
-  last_synced_at: '2026-07-19T18:29:47Z'
+  last_synced_at: '2026-07-19T18:41:29Z'
 - work_id: opportunities-open-pipeline
   title: Open opportunities pipeline reliability
   objective: Ensure opportunity_intel list/show/export works with evidence
@@ -160,7 +160,7 @@ work_items:
   origin: product
   issue_number: 36
   evidence: []
-  last_synced_at: '2026-07-19T18:29:49Z'
+  last_synced_at: '2026-07-19T18:41:30Z'
 - work_id: executive-html-cto-panel
   title: Executive HTML CTO panel (derived projection)
   objective: Refresh HTML with DoD counts, PRs, Issues, last CTO decision — no secrets
@@ -183,7 +183,7 @@ work_items:
   origin: cto-bootstrap
   issue_number: 37
   evidence: []
-  last_synced_at: '2026-07-19T18:29:51Z'
+  last_synced_at: '2026-07-19T18:41:32Z'
 - work_id: github-issues-queue
   title: GitHub Issues operational queue sync
   objective: Idempotent issues-plan/sync with stable work_id markers
@@ -207,7 +207,7 @@ work_items:
   origin: cto-bootstrap
   issue_number: 38
   evidence: []
-  last_synced_at: '2026-07-19T18:29:52Z'
+  last_synced_at: '2026-07-19T18:41:33Z'
 - work_id: dod-evidence-discipline
   title: DoD evidence discipline enforcement
   objective: Prevent auto checkbox flips; audit unauthorized DoD mutations
@@ -230,7 +230,7 @@ work_items:
   origin: policy
   issue_number: 39
   evidence: []
-  last_synced_at: '2026-07-19T18:29:55Z'
+  last_synced_at: '2026-07-19T18:41:35Z'
 - work_id: source-health-pncp-timeout
   title: PNCP golden-path timeout / source health
   objective: Diagnose PNCP timeout and record source health without faking green
@@ -253,7 +253,7 @@ work_items:
   origin: dod-open
   issue_number: 40
   evidence: []
-  last_synced_at: '2026-07-19T18:29:57Z'
+  last_synced_at: '2026-07-19T18:41:37Z'
 - work_id: contracts-admin-tracking
   title: Administrative contract tracking signals
   objective: 'Expose contract admin signals: vigência, aditivos, re-tender signals'
@@ -275,7 +275,7 @@ work_items:
   origin: product
   issue_number: 41
   evidence: []
-  last_synced_at: '2026-07-19T18:29:59Z'
+  last_synced_at: '2026-07-19T18:41:38Z'
 - work_id: reports-pdf-excel-stable
   title: PDF/Excel report generation stability
   objective: Ensure panorama/export paths exit 0 on sample data
@@ -296,7 +296,7 @@ work_items:
   origin: dod-open
   issue_number: 42
   evidence: []
-  last_synced_at: '2026-07-19T18:30:01Z'
+  last_synced_at: '2026-07-19T18:41:39Z'
 - work_id: ranker-advisory-bridge
   title: Ranker advisory bridge into CTO decide
   objective: Feed top ranker candidates into observation for DeepSeek veto/accept
@@ -319,7 +319,7 @@ work_items:
   origin: cto-bootstrap
   issue_number: 43
   evidence: []
-  last_synced_at: '2026-07-19T18:30:03Z'
+  last_synced_at: '2026-07-19T18:41:41Z'
 - work_id: human-gates-fail-closed
   title: Human gates fail-closed enforcement
   objective: Block merge/deploy/secret ops in executor and decision policy
@@ -342,7 +342,7 @@ work_items:
   origin: policy
   issue_number: 44
   evidence: []
-  last_synced_at: '2026-07-19T18:30:04Z'
+  last_synced_at: '2026-07-19T18:41:43Z'
 - work_id: coverage-operational-progress
   title: Operational coverage progress (honest metrics)
   objective: Advance operational coverage stages with evidence; no 95% claim
@@ -365,7 +365,7 @@ work_items:
   origin: dod-open
   issue_number: 45
   evidence: []
-  last_synced_at: '2026-07-19T18:30:06Z'
+  last_synced_at: '2026-07-19T18:41:44Z'
 - work_id: publication-policy-docs
   title: 'Canonical publication policy: worktree → draft PR → human merge'
   objective: Document and align tooling so no autonomous merge path remains
@@ -387,7 +387,7 @@ work_items:
   origin: policy
   issue_number: 46
   evidence: []
-  last_synced_at: '2026-07-19T18:30:08Z'
+  last_synced_at: '2026-07-19T18:41:46Z'
 - work_id: budget-and-fallback
   title: API budget limits and DeepSeek fallback
   objective: Pause on budget; BLOCKED_CTO_UNAVAILABLE without inventing work
@@ -410,4 +410,4 @@ work_items:
   origin: cto-bootstrap
   issue_number: 47
   evidence: []
-  last_synced_at: '2026-07-19T18:30:10Z'
+  last_synced_at: '2026-07-19T18:41:48Z'

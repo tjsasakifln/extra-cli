@@ -37,6 +37,7 @@ from scripts.cto.github_issues import (  # noqa: E402
     gh_auth_ok,
     plan_issues,
     sync_issues,
+    update_issue_for_cycle,
 )
 from scripts.cto.grok_executor import execute as grok_execute  # noqa: E402
 from scripts.cto.ledger import append_ledger, read_ledger  # noqa: E402
@@ -364,8 +365,27 @@ def cmd_run_once(args: argparse.Namespace) -> int:
             return 0
 
         sm.transition("PREPARING", reason="run-once", cycle_id=cycle_id)
-        # execute
+        issue_upd = update_issue_for_cycle(
+            root=root,
+            issue_number=decision.get("issue_number"),
+            work_id=decision.get("work_id"),
+            phase="preparing",
+            cycle_id=cycle_id,
+            decision_id=decision.get("decision_id"),
+            dry_run=args.dry_run,
+        )
+        report["steps"].append({"step": "issue-update-preparing", **issue_upd})
+
         sm.transition("EXECUTING", reason="run-once", cycle_id=cycle_id)
+        update_issue_for_cycle(
+            root=root,
+            issue_number=decision.get("issue_number"),
+            work_id=decision.get("work_id"),
+            phase="executing",
+            cycle_id=cycle_id,
+            decision_id=decision.get("decision_id"),
+            dry_run=args.dry_run,
+        )
         execution = grok_execute(
             decision,
             root=root,
@@ -446,17 +466,34 @@ def cmd_run_once(args: argparse.Namespace) -> int:
 
         if review.get("verdict") == "ACCEPT":
             sm.transition("ACCEPTED", reason="review ACCEPT", cycle_id=cycle_id)
+            final_phase = "accepted"
             sm.transition("DONE", reason="cycle complete", cycle_id=cycle_id)
         elif review.get("verdict") == "ESCALATE":
             sm.transition("WAITING_HUMAN", reason=review.get("summary") or "", cycle_id=cycle_id)
+            final_phase = "human"
         elif review.get("verdict") == "BLOCK":
             sm.transition("BLOCKED", reason=review.get("summary") or "", cycle_id=cycle_id)
+            final_phase = "blocked"
         else:
+            final_phase = "failed" if repair_attempt < max_repairs else "human"
             sm.transition(
                 "WAITING_HUMAN" if repair_attempt >= max_repairs else "FAILED",
                 reason=review.get("summary") or review.get("verdict") or "unresolved",
                 cycle_id=cycle_id,
             )
+
+        issue_final = update_issue_for_cycle(
+            root=root,
+            issue_number=decision.get("issue_number"),
+            work_id=decision.get("work_id"),
+            phase=final_phase,
+            cycle_id=cycle_id,
+            decision_id=decision.get("decision_id"),
+            review_verdict=review.get("verdict"),
+            verification_result=verification.get("result"),
+            dry_run=args.dry_run,
+        )
+        report["steps"].append({"step": "issue-update-final", **issue_final})
 
         refresh_executive(root)
         report["steps"].append({"step": "refresh-executive", "ok": True})
@@ -466,6 +503,7 @@ def cmd_run_once(args: argparse.Namespace) -> int:
             "decision": decision.get("decision"),
             "decision_id": decision.get("decision_id"),
             "work_id": decision.get("work_id"),
+            "issue_number": decision.get("issue_number"),
         }
         report["review"] = review
         report["verification"] = {"result": verification.get("result")}

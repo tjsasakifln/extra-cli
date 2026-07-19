@@ -109,6 +109,15 @@ def render_issue_body(item: dict[str, Any]) -> str:
             f"- issue_number: `{item.get('issue_number') or 'pending'}`",
         ]
     )
+    for ev in (item.get("execution_history") or [])[-10:]:
+        if isinstance(ev, dict):
+            lines.append(
+                f"- {ev.get('ts')}: phase=`{ev.get('phase')}` "
+                f"cycle=`{ev.get('cycle_id')}` verify=`{ev.get('verification')}` "
+                f"review=`{ev.get('review')}`"
+            )
+        else:
+            lines.append(f"- {ev}")
     return "\n".join(lines) + "\n"
 
 
@@ -415,6 +424,20 @@ def sync_issues(root: Path | None = None, *, apply: bool = False) -> dict[str, A
                     item["issue_number"] = num
                     item["last_synced_at"] = _utc_now()
                     upsert_item(registry, item)
+                    # Re-apply body so Execution history shows real issue_number
+                    body2 = render_issue_body(item)
+                    edit = _run_gh(
+                        [
+                            "issue",
+                            "edit",
+                            str(num),
+                            "--body",
+                            body2,
+                        ],
+                        root,
+                        timeout=60,
+                    )
+                    result["created"][-1]["body_refresh_ok"] = edit.get("exit_code") == 0
             else:
                 result["created"].append(
                     {"work_id": wid, "number": None, "ok": True, "dry_run": True}
@@ -459,3 +482,142 @@ def audit_issues(root: Path | None = None) -> dict[str, Any]:
         "orphan_issues": sorted(managed_ids - {i["work_id"] for i in registry.get("work_items") or []}),
         "auth_ok": gh_auth_ok(root),
     }
+
+
+def _set_state_label(root: Path, issue_number: int, new_state: str) -> dict[str, Any]:
+    """Replace state:* labels with the new one."""
+    states = [
+        "state:ready",
+        "state:in-progress",
+        "state:review",
+        "state:blocked",
+        "state:human",
+    ]
+    # remove old state labels then add new
+    args_rm: list[str] = ["issue", "edit", str(issue_number)]
+    for s in states:
+        if s != new_state:
+            args_rm.extend(["--remove-label", s])
+    _run_gh(args_rm, root, timeout=45)
+    res = _run_gh(
+        ["issue", "edit", str(issue_number), "--add-label", new_state],
+        root,
+        timeout=45,
+    )
+    return {"ok": res.get("exit_code") == 0, "state": new_state, "stderr": (res.get("stderr") or "")[:300]}
+
+
+def update_issue_for_cycle(
+    *,
+    root: Path | None = None,
+    issue_number: int | None,
+    work_id: str | None,
+    phase: str,
+    cycle_id: str | None = None,
+    decision_id: str | None = None,
+    review_verdict: str | None = None,
+    verification_result: str | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Update Issue labels/comments/body history for a CTO cycle phase.
+
+    phase: preparing|executing|review|accepted|blocked|failed
+    """
+    root = root or repo_root()
+    out: dict[str, Any] = {
+        "issue_number": issue_number,
+        "work_id": work_id,
+        "phase": phase,
+        "dry_run": dry_run,
+        "ok": False,
+    }
+    if not issue_number:
+        out["skipped"] = "no issue_number"
+        return out
+    if not gh_auth_ok(root) and not dry_run:
+        out["skipped"] = "gh auth unavailable"
+        return out
+
+    state_map = {
+        "preparing": "state:in-progress",
+        "executing": "state:in-progress",
+        "review": "state:review",
+        "accepted": "state:review",  # remains open until human/DoD evidence; not auto-closed
+        "blocked": "state:blocked",
+        "failed": "state:blocked",
+        "human": "state:human",
+    }
+    new_state = state_map.get(phase, "state:in-progress")
+    comment = (
+        f"### CTO Autopilot cycle update\n"
+        f"- phase: `{phase}`\n"
+        f"- cycle_id: `{cycle_id}`\n"
+        f"- decision_id: `{decision_id}`\n"
+        f"- work_id: `{work_id}`\n"
+        f"- verification: `{verification_result}`\n"
+        f"- review: `{review_verdict}`\n"
+        f"- ts: `{_utc_now()}`\n\n"
+        f"_Issue close does not auto-check DoD._\n"
+    )
+
+    if dry_run:
+        out["ok"] = True
+        out["would_set_label"] = new_state
+        out["would_comment"] = comment[:200]
+        return out
+
+    label_res = _set_state_label(root, int(issue_number), new_state)
+    comment_res = _run_gh(
+        ["issue", "comment", str(issue_number), "--body", comment],
+        root,
+        timeout=45,
+    )
+    # Update registry state + re-render body execution history
+    registry = load_registry(root)
+    if work_id:
+        for item in registry.get("work_items") or []:
+            if item.get("work_id") == work_id:
+                item["state"] = new_state.replace("state:", "").replace("-", "_")
+                item["issue_number"] = int(issue_number)
+                item["last_synced_at"] = _utc_now()
+                history = list(item.get("execution_history") or [])
+                history.append(
+                    {
+                        "ts": _utc_now(),
+                        "phase": phase,
+                        "cycle_id": cycle_id,
+                        "verification": verification_result,
+                        "review": review_verdict,
+                    }
+                )
+                item["execution_history"] = history[-20:]
+                upsert_item(registry, item)
+                body = render_issue_body(item)
+                _run_gh(
+                    ["issue", "edit", str(issue_number), "--body", body],
+                    root,
+                    timeout=60,
+                )
+                break
+        save_registry(registry, root)
+
+    out["ok"] = bool(label_res.get("ok")) and comment_res.get("exit_code") == 0
+    out["label"] = label_res
+    out["comment_ok"] = comment_res.get("exit_code") == 0
+    return redact_obj(out)
+
+
+def reject_close_without_evidence(
+    *,
+    issue_body: str,
+    evidence: list[str] | None,
+    verification_result: str | None,
+) -> bool:
+    """Return True if closing would be invalid (no evidence / verifier not PASS)."""
+    if verification_result != "PASS":
+        return True
+    if not evidence:
+        return True
+    if "Required evidence" in (issue_body or "") and not evidence:
+        return True
+    return False

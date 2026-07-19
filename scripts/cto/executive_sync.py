@@ -47,7 +47,10 @@ def build_executive_payload(root: Path | None = None) -> dict[str, Any]:
     prs = obs.get("prs") or []
 
     by_state = issues.get("by_state") or {}
-    issues_summary = {k: len(v) for k, v in by_state.items()}
+    # Prefer explicit counts (not truncated samples)
+    issues_summary = dict(issues.get("by_state_counts") or {})
+    if not issues_summary:
+        issues_summary = {k: len(v) for k, v in by_state.items()}
 
     payload = {
         "generated_at_utc": _utc_now(),

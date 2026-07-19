@@ -26,7 +26,19 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _run(cmd: list[str], cwd: Path, timeout: int = 60) -> dict[str, Any]:
+def _run(
+    cmd: list[str],
+    cwd: Path,
+    timeout: int = 60,
+    *,
+    max_stdout: int | None = 8000,
+    max_stderr: int | None = 4000,
+) -> dict[str, Any]:
+    """Run a subprocess.
+
+    For machine-readable JSON (gh --json), pass max_stdout=None so the payload
+    is not truncated mid-stream. Human/log tails may still use a limit.
+    """
     try:
         proc = subprocess.run(
             cmd,
@@ -36,11 +48,17 @@ def _run(cmd: list[str], cwd: Path, timeout: int = 60) -> dict[str, Any]:
             timeout=timeout,
             check=False,
         )
+        stdout = proc.stdout or ""
+        stderr = proc.stderr or ""
+        if max_stdout is not None and len(stdout) > max_stdout:
+            stdout = stdout[-max_stdout:]
+        if max_stderr is not None and len(stderr) > max_stderr:
+            stderr = stderr[-max_stderr:]
         return {
             "cmd": cmd,
             "exit_code": proc.returncode,
-            "stdout": (proc.stdout or "")[-8000:],
-            "stderr": (proc.stderr or "")[-4000:],
+            "stdout": stdout,
+            "stderr": stderr,
         }
     except subprocess.TimeoutExpired:
         return {"cmd": cmd, "exit_code": -1, "stdout": "", "stderr": "timeout"}
@@ -102,6 +120,7 @@ def _gh_prs(root: Path) -> list[dict[str, Any]]:
         ],
         root,
         timeout=45,
+        max_stdout=None,  # full JSON — never tail-truncate
     )
     if res.get("exit_code") != 0:
         return []
@@ -122,10 +141,11 @@ def _gh_issues_summary(root: Path) -> dict[str, Any]:
             "--limit",
             "100",
             "--json",
-            "number,title,labels,updatedAt,state",
+            "number,title,labels,updatedAt,state,body",
         ],
         root,
-        timeout=60,
+        timeout=90,
+        max_stdout=None,  # full JSON — tail truncation corrupts arrays
     )
     if res.get("exit_code") != 0:
         return {
@@ -141,25 +161,30 @@ def _gh_issues_summary(root: Path) -> dict[str, Any]:
         items = []
     by_state: dict[str, list[dict[str, Any]]] = {}
     simplified = []
+    work_id_re = re.compile(r"<!--\s*extra-work-id:\s*([^\s]+)\s*-->")
     for it in items:
         labels = [lb.get("name") for lb in (it.get("labels") or []) if isinstance(lb, dict)]
         state_labels = [lb for lb in labels if str(lb).startswith("state:")]
+        body = it.get("body") or ""
+        wid_m = work_id_re.search(body)
         entry = {
             "number": it.get("number"),
             "title": it.get("title"),
             "labels": labels,
             "updated_at": it.get("updatedAt"),
             "state_labels": state_labels,
+            "work_id": wid_m.group(1).strip() if wid_m else None,
         }
-        # work_id from title not reliable; observer leaves None unless body fetched
-        entry["work_id"] = None
         simplified.append(entry)
         key = state_labels[0] if state_labels else "state:unlabeled"
         by_state.setdefault(key, []).append(entry)
+    by_state_counts = {k: len(v) for k, v in by_state.items()}
     return {
         "available": True,
         "open_count": len(simplified),
         "items": simplified[:40],
+        # Full counts for HTML; samples truncated for payload size only
+        "by_state_counts": by_state_counts,
         "by_state": {k: v[:10] for k, v in by_state.items()},
     }
 

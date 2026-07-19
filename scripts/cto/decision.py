@@ -229,13 +229,29 @@ def decide_from_observation(
         if ready:
             issue_number = ready[0].get("number")
             work_id = ready[0].get("work_id")
-        if not work_id:
-            reg = observation.get("work_registry") or {}
-            ids = reg.get("ids") or []
-            if ids:
-                work_id = ids[0]
+        # Prefer work registry (has issue_number after sync)
+        reg_summary = observation.get("work_registry") or {}
+        reg_ids = reg_summary.get("ids") or []
+        if not work_id and reg_ids:
+            work_id = reg_ids[0]
         if not work_id and top:
             work_id = (top or {}).get("id")
+        # Link issue_number from registry file when observation only has work_id
+        if work_id and not issue_number:
+            try:
+                from scripts.cto.work_registry import get_by_work_id, load_registry
+
+                item = get_by_work_id(load_registry(cfg.root), str(work_id))
+                if item and item.get("issue_number"):
+                    issue_number = int(item["issue_number"])
+            except Exception:  # noqa: BLE001
+                pass
+        # Also scan open issues for matching work_id
+        if work_id and not issue_number:
+            for it in issues.get("items") or []:
+                if it.get("work_id") == work_id and it.get("number"):
+                    issue_number = int(it["number"])
+                    break
         has_work = bool(work_id or issue_number)
         decision = {
             "schema_version": "1.0",

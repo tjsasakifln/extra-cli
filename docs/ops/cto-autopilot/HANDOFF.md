@@ -2,7 +2,7 @@
 
 **Data (UTC):** 2026-07-19  
 **Branch:** `feat/cto-autopilot-issues-deepseek-20260719`  
-**Commit:** `51b6698`  
+**Commit:** (tip of `feat/cto-autopilot-issues-deepseek-20260719`)  
 **Draft PR:** https://github.com/tjsasakifln/extra-consultoria/pull/48  
 **Worktree:** `/mnt/d/extra-consultoria-cto-autopilot`  
 **Repo:** `tjsasakifln/extra-consultoria`
@@ -75,10 +75,10 @@ Labels (`state:`, `type:`, `priority:`, `risk:`, `area:`) e milestones (`LOCAL_R
 
 ```text
 python3 -m pytest tests/cto -q --no-cov
-# 43 passed
+# 56 passed
 ```
 
-Cobertura: redaction, schema, DeepSeek mock (empty/trunc/retry/429), issues, state/lock, verifier (DoD/main/unsafe cmd), executor dry/mock, observer, executive HTML, fallback BLOCKED_CTO_UNAVAILABLE.
+Cobertura: redaction, schema, DeepSeek mock (empty/trunc/timeout/retry/429), issues, state/lock, OBSERVING→IDLE, verifier (DoD/main/unsafe cmd), executor dry/mock/push-block/outside-worktree, observer JSON non-truncation, issue close without evidence, ranking_veto, repair max, dry-run issue_number link, executive HTML, fallback BLOCKED_CTO_UNAVAILABLE.
 
 CI **não** chama DeepSeek real. Smoke opt-in:
 
@@ -92,14 +92,18 @@ DEEPSEEK_LIVE_TEST=1 python3 -m scripts.cto.cli deepseek-smoke
 python3 -m scripts.cto.cli run-once --dry-run --mock --skip-tests
 ```
 
-Resultado observado:
+Resultado observado (pós-fix):
 
-1. observe ✓  
-2. decide → **EXECUTE** (`work_id=cto-autopilot-infra`)  
-3. execute → **mock_completed**  
-4. verify → **PASS**  
-5. review → **ACCEPT**  
-6. refresh-executive ✓  
+1. observe ✓ (`open_issues=18`, `by_state_counts.state:ready=18`)  
+2. decide → **EXECUTE** com `work_id` + **`issue_number`** (ex.: #47)  
+3. issue-update-preparing ✓ (dry-run label/comment)  
+4. execute → **mock_completed**  
+5. verify → **PASS**  
+6. review → **ACCEPT**  
+7. issue-update-final ✓  
+8. refresh-executive ✓ (`html open_count=18`)  
+
+Issue #30 body: `issue_number: 30`, `last_synced_at` preenchido (não `pending`/`never`).  
 
 ## Comandos para Tiago
 

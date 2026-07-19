@@ -146,6 +146,7 @@ def execute(
     mock: bool = False,
     repair: bool = False,
     repair_context: dict[str, Any] | None = None,
+    worktree_override: Path | None = None,
 ) -> dict[str, Any]:
     """Execute decision via Grok or mock. Default dry_run safe."""
     root = root or repo_root()
@@ -168,6 +169,20 @@ def execute(
         return {
             "status": "escalated",
             "reason": "human_gate.required",
+            "cycle_id": cycle_id,
+        }
+
+    # Block explicit push attempts in objective / test_commands (not forbidden list)
+    exec_blob = " ".join(
+        [
+            str(decision.get("objective") or ""),
+            " ".join(decision.get("test_commands") or []),
+        ]
+    ).lower()
+    if re.search(r"\bgit\s+push\b", exec_blob) or re.search(r"\bgh\s+pr\s+merge\b", exec_blob):
+        return {
+            "status": "unsafe",
+            "reason": "decision objective/test_commands attempt push/merge",
             "cycle_id": cycle_id,
         }
 
@@ -214,8 +229,23 @@ def execute(
         prompt, encoding="utf-8"
     )
 
-    prep = prepare_worktree(cycle_id=cycle_id, root=root)
-    worktree = Path(prep["worktree"])
+    if worktree_override is not None:
+        worktree = Path(worktree_override)
+        prep = {"worktree": str(worktree), "branch": None, "created": False, "exists": worktree.exists()}
+        # Outside managed parent worktree path → unsafe
+        managed_parent = (root.parent / f"{root.name}-cto-cycles").resolve()
+        try:
+            worktree.resolve().relative_to(managed_parent)
+        except ValueError:
+            return {
+                "status": "unsafe",
+                "reason": f"worktree outside managed path: {worktree}",
+                "cycle_id": cycle_id,
+                "worktree": str(worktree),
+            }
+    else:
+        prep = prepare_worktree(cycle_id=cycle_id, root=root)
+        worktree = Path(prep["worktree"])
     try:
         branch = _assert_not_main(worktree)
     except ExecutorError as exc:
