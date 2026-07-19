@@ -10,7 +10,7 @@
 2. Remote branch created; checkpoints 1–3 pushed (SHA local==remote each time).
 3. `extra-test-db` restarted; migrations + M5 dump restore.
 4. Multi-source editais (sc_compras+enrich, ciga, pncp full running).
-5. Contracts expand + SZ rebuild waves → ops proxy rebuild ~**76%** mid-session (was 0 after empty DB).
+5. Contracts expand + SZ rebuild waves → ops proxy rebuild **96.1574%** (rebuild complete under definition) (was 0 after empty DB).
 6. DECISION-002 overrides dyn-slice docs; N09 BLOCKED_SOURCE documented.
 7. HTML executivo reconciled to **not** claim pre-crash 100% ops proxy.
 
@@ -20,7 +20,7 @@
 |------|-------|
 | DOD ≥55% | OPEN (~23%) |
 | Editais presence ≥95% | OPEN (~25%) |
-| Contracts ops proxy ≥95% | PARTIAL rebuild (~76% and rising via SZ) |
+| Contracts ops proxy ≥95% | **DONE under proxy def** (96.1574%) |
 | N09 recall | BLOCKED_SOURCE |
 | Campaign DONE | NOT_READY |
 
