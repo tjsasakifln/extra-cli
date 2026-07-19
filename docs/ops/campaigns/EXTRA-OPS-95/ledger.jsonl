@@ -24,3 +24,4 @@
 {"ts":"2026-07-19T04:58:31Z","event":"M2_SZ_BATCH4","written":42,"has_data":9,"sz_entities":164,"presence":309,"ops_proxy":473,"pct":43.28}
 {"ts":"2026-07-19T06:55:00Z","event":"M2_MATRIX_CNPJ_BREAKTHROUGH","resolved_0001":457,"cache":644,"sz_entities":590,"ops_proxy":930,"pct":85.09,"gap_to_95":109}
 {"ts":"2026-07-19T07:46:00Z","event":"ADVERSARIAL_PURGE_FALSE_IDENTITY","bad_cache":48,"sz_deleted":39,"ops_before_false":1030,"ops_after_honest":991,"pct":90.67}
+{"ts":"2026-07-19T07:54:00Z","event":"M2_EDITAI_SC_INGEST","presence_editais":285,"bids":11550,"dod":"224/1352"}
