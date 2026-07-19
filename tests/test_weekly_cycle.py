@@ -18,6 +18,7 @@ from scripts.ops.weekly_cycle import (
     EXIT_UNRELIABLE,
     StageResult,
     _build_claims_catalog,
+    classify_opportunity_freshness,
     compute_exit_code,
     run_weekly_cycle,
 )
@@ -196,6 +197,14 @@ def test_exit_blocked_on_opp_blocked() -> None:
     assert compute_exit_code(stages, [run]) == 3
 
 
+def _delivery_ok_detail() -> dict:
+    return {
+        "excel_ok": True,
+        "checksums_file": "/tmp/checksums.json",
+        "product_checksums": {"executive_md": {"sha256": "abc"}},
+    }
+
+
 def test_exit_ok_with_reused_and_products() -> None:
     run = CollectionRun.start(
         source="pncp_opportunities",
@@ -218,9 +227,9 @@ def test_exit_ok_with_reused_and_products() -> None:
             status="ok",
             detail={"counts": {"opportunities": 5}},
         ),
-        StageResult(name="delivery", status="ok"),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
     ]
-    assert compute_exit_code(stages, [run]) == EXIT_OK
+    assert compute_exit_code(stages, [run], strict=True) == EXIT_OK
 
 
 def test_exit_unreliable_empty_without_success_zero() -> None:
@@ -246,9 +255,201 @@ def test_exit_unreliable_empty_without_success_zero() -> None:
             status="ok",
             detail={"counts": {"opportunities": 0}},
         ),
-        StageResult(name="delivery", status="ok"),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
     ]
-    assert compute_exit_code(stages, [run]) == EXIT_UNRELIABLE
+    assert compute_exit_code(stages, [run], strict=True) == EXIT_UNRELIABLE
+
+
+# ---------------------------------------------------------------------------
+# Adversarial reliability (PR review blockers)
+# ---------------------------------------------------------------------------
+
+
+def test_partial_status_never_classifies_as_fresh() -> None:
+    """A partial PNCP run within SLA must not become freshness=fresh."""
+    assert (
+        classify_opportunity_freshness(
+            status="partial",
+            age_hours=1.0,
+            sla_hours=48,
+            scope_complete=False,
+        )
+        == "incomplete"
+    )
+    assert (
+        classify_opportunity_freshness(
+            status="partial",
+            age_hours=0.5,
+            sla_hours=48,
+            scope_complete=True,  # even if flag wrong, partial status wins
+        )
+        == "incomplete"
+    )
+
+
+def test_complete_status_within_sla_is_fresh() -> None:
+    assert (
+        classify_opportunity_freshness(
+            status="completed",
+            age_hours=10.0,
+            sla_hours=48,
+            scope_complete=True,
+        )
+        == "fresh"
+    )
+
+
+def test_completed_with_scope_incomplete_is_not_fresh() -> None:
+    assert (
+        classify_opportunity_freshness(
+            status="completed",
+            age_hours=1.0,
+            sla_hours=48,
+            scope_complete=False,
+        )
+        == "incomplete"
+    )
+
+
+def test_partial_collect_never_exit_ok_even_with_products() -> None:
+    """Partial critical collection must not wash to EXIT_OK under strict."""
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+    )
+    run.finish(
+        records_obtained=50,
+        records_persisted=20,
+        request_completed=True,
+        scope_complete=False,
+        error="some modalidades failed",
+    )
+    assert run.terminal_status == "partial"
+    stages = [
+        StageResult(name="validate_db", status="ok"),
+        StageResult(name="collect", status="warn"),
+        StageResult(name="quality", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="ok",
+            detail={"counts": {"opportunities": 40}},
+        ),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
+    ]
+    assert compute_exit_code(stages, [run], strict=True) == EXIT_UNRELIABLE
+    # also non-strict: partial is never consultively OK
+    assert compute_exit_code(stages, [run], strict=False) == EXIT_UNRELIABLE
+
+
+def test_strict_missing_excel_is_nonzero() -> None:
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+    )
+    run.finish(
+        records_obtained=1,
+        records_persisted=1,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+    )
+    stages = [
+        StageResult(name="validate_db", status="ok"),
+        StageResult(name="collect", status="ok"),
+        StageResult(name="quality", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="ok",
+            detail={"counts": {"opportunities": 5}},
+        ),
+        StageResult(
+            name="delivery",
+            status="fail",
+            detail={"excel_ok": False, "product_checksums": {}},
+            error="Excel generation failed",
+        ),
+    ]
+    assert compute_exit_code(stages, [run], strict=True) == EXIT_TECH
+
+
+def test_strict_delivery_ok_without_excel_flag_is_unreliable() -> None:
+    """Even if status text is ok, missing excel_ok fails strict."""
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+    )
+    run.finish(
+        records_obtained=1,
+        records_persisted=1,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+    )
+    stages = [
+        StageResult(name="validate_db", status="ok"),
+        StageResult(name="collect", status="ok"),
+        StageResult(name="quality", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="ok",
+            detail={"counts": {"opportunities": 5}},
+        ),
+        StageResult(
+            name="delivery",
+            status="ok",
+            detail={"excel_ok": False, "checksums_file": "x"},
+        ),
+    ]
+    assert compute_exit_code(stages, [run], strict=True) == EXIT_UNRELIABLE
+
+
+def test_contract_claim_does_not_use_source_id_as_run_id() -> None:
+    collection_id = "col-x"
+    ct_run = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id=collection_id,
+        collector_version="t",
+        run_id="cycle-ct-1",
+    )
+    ct_run.finish(
+        records_obtained=1,
+        records_persisted=1,
+        request_completed=True,
+        scope_complete=False,
+        reused_within_sla=True,
+    )
+    claims = _build_claims_catalog(
+        {
+            "opportunities": [],
+            "contracts": [
+                {
+                    "contrato_id": "c-1",
+                    "source_id": "NOT-A-RUN-ID",
+                    "orgao_nome": "X",
+                    "fornecedor_nome": "Y",
+                    "valor_total": 1,
+                    "valor_tipo": "valor_contratado",
+                    "cycle_collection_id": collection_id,
+                    "cycle_run_id": "cycle-ct-1",
+                    "source_record_run_id": None,
+                    "source_record_id": "NOT-A-RUN-ID",
+                    "scope": "extra_universe_200km",
+                }
+            ],
+            "competitors": [],
+        },
+        [ct_run],
+        [],
+        collection_id=collection_id,
+    )
+    ct = next(c for c in claims if c["kind"] == "contract")
+    assert ct["cycle_run_id"] == "cycle-ct-1"
+    assert ct["source_record_run_id"] in (None, "")
+    assert ct["source_record_id"] == "NOT-A-RUN-ID"
+    assert ct["source_record_run_id"] != "NOT-A-RUN-ID"
 
 
 # ---------------------------------------------------------------------------

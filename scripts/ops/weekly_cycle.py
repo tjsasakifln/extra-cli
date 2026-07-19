@@ -244,6 +244,52 @@ def _hours_since(ts: Any) -> float | None:
     return max(0.0, (_utc_now() - ts).total_seconds() / 3600.0)
 
 
+# Only complete, non-error terminal statuses may qualify as fresh.
+# ``partial`` is NEVER fresh and NEVER reused_fresh.
+_FRESH_OK_RUN_STATUSES = frozenset(
+    {
+        "completed",
+        "success",
+        "completed_zero",
+        "ok",
+    }
+)
+
+
+def classify_opportunity_freshness(
+    *,
+    status: str | None,
+    age_hours: float | None,
+    sla_hours: int,
+    scope_complete: bool | None = None,
+    error_message: str | None = None,
+) -> str:
+    """Classify source freshness for opportunity collection runs.
+
+    Rules (fail-closed, catalog-aligned):
+    - incomplete / partial runs are never ``fresh``
+    - only complete success-class statuses within SLA are ``fresh``
+    - error or unknown status → ``unreliable``
+    """
+    st = str(status or "").strip().lower()
+    if not st:
+        return "never" if age_hours is None else "unreliable"
+    if st in {"partial", "running", "interrupted"}:
+        return "incomplete"
+    if st in {"failed", "error", "blocked", "killed"} or error_message:
+        return "unreliable"
+    if st not in _FRESH_OK_RUN_STATUSES:
+        return "unreliable"
+    # Explicit incomplete scope cannot be fresh even if status text is completed
+    if scope_complete is False:
+        return "incomplete"
+    if age_hours is None:
+        return "unknown"
+    if age_hours <= sla_hours:
+        return "fresh"
+    return "stale"
+
+
 def stage_freshness(conn: Any) -> StageResult:
     rows: list[dict[str, Any]] = []
     # PNCP opportunities via opportunity_runs
@@ -263,10 +309,14 @@ def stage_freshness(conn: Any) -> StageResult:
         r = opp[0]
         age = _hours_since(r.get("finished_at") or r.get("started_at"))
         st = str(r.get("status") or "")
-        ok_status = st in {"completed", "success", "completed_zero", "partial"}
-        level = "fresh" if ok_status and age is not None and age <= PNCP_OPP_SLA_HOURS else "stale"
-        if not ok_status:
-            level = "unreliable"
+        scope_complete = r.get("scope_complete")
+        level = classify_opportunity_freshness(
+            status=st,
+            age_hours=age,
+            sla_hours=PNCP_OPP_SLA_HOURS,
+            scope_complete=scope_complete if scope_complete is not None else None,
+            error_message=r.get("error_message"),
+        )
         rows.append(
             {
                 "source": "pncp_opportunities",
@@ -275,6 +325,7 @@ def stage_freshness(conn: Any) -> StageResult:
                 "age_hours": round(age, 2) if age is not None else None,
                 "last_run_id": r.get("id"),
                 "last_status": st,
+                "scope_complete": scope_complete,
                 "records_fetched": r.get("records_fetched"),
                 "indicator": "freshness_source",
             }
@@ -324,7 +375,8 @@ def stage_freshness(conn: Any) -> StageResult:
         )
 
     critical_bad = any(
-        r["source"] == "pncp_opportunities" and r["level"] in {"never", "unreliable"}
+        r["source"] == "pncp_opportunities"
+        and r["level"] in {"never", "unreliable", "incomplete", "unknown"}
         for r in rows
     )
     return StageResult(
@@ -361,29 +413,45 @@ def _collect_pncp_opportunities(
         (r for r in freshness_rows if r.get("source") == "pncp_opportunities"),
         {},
     )
-    can_reuse = (not force_collect and pncp_fresh.get("level") == "fresh") or (
-        skip_collect and pncp_fresh.get("level") in {"fresh", "stale", "unreliable"}
-    )
-    if can_reuse:
-        within_sla = pncp_fresh.get("level") == "fresh"
+    # Only a complete, in-SLA run may become reused_fresh.
+    # partial / incomplete / unreliable never promote to fresh reuse.
+    level = pncp_fresh.get("level")
+    truly_fresh = level == "fresh"
+    if not force_collect and truly_fresh:
         run.finish(
             records_obtained=int(pncp_fresh.get("records_fetched") or 0),
             records_persisted=int(pncp_fresh.get("records_fetched") or 0),
             request_completed=True,
-            scope_complete=within_sla,
-            reused_within_sla=within_sla,
+            scope_complete=True,
+            reused_within_sla=True,
             raw_uri=f"db://opportunity_runs/{pncp_fresh.get('last_run_id')}",
             notes=[
-                (
-                    "reused previous PNCP opportunity collection within SLA"
-                    if within_sla
-                    else f"reused PNCP lake with level={pncp_fresh.get('level')} (explicit skip/stale)"
-                )
+                "reused previous COMPLETE PNCP opportunity collection within SLA",
+                f"prior_run_status={pncp_fresh.get('last_status')}",
             ],
         )
-        if not within_sla:
-            run.terminal_status = "partial"
-            run.notes.append("terminal_status=partial because reuse outside SLA")
+        try:
+            persist_pipeline_run(conn, run)
+        except Exception as exc:  # noqa: BLE001
+            run.notes.append(f"persist_pipeline_run warn: {exc}")
+            conn.rollback()
+        return run
+
+    # Explicit skip without fresh complete evidence → partial, never reused_fresh
+    if skip_collect:
+        run.finish(
+            records_obtained=int(pncp_fresh.get("records_fetched") or 0),
+            records_persisted=int(pncp_fresh.get("records_fetched") or 0),
+            request_completed=True,
+            scope_complete=False,
+            reused_within_sla=False,
+            raw_uri=f"db://opportunity_runs/{pncp_fresh.get('last_run_id')}",
+            notes=[
+                f"skip_collect with freshness level={level} — not promoted to reused_fresh",
+                "partial: lake reused without complete in-SLA collection proof",
+            ],
+        )
+        run.terminal_status = "partial"
         try:
             persist_pipeline_run(conn, run)
         except Exception as exc:  # noqa: BLE001
@@ -703,7 +771,9 @@ def stage_intelligence(
         c["valor_note"] = "valor_total é contratado/homologado na fonte — não pagar/medido"
         c["cycle_collection_id"] = collection_id
         c["cycle_run_id"] = ct_cycle.run_id if ct_cycle else None
-        c["source_record_run_id"] = c.get("source_id")
+        # source_id is a record identifier, not an execution run — do not mislabel it
+        c["source_record_run_id"] = None
+        c["source_record_id"] = c.get("source_id") or c.get("contrato_id")
         c["scope"] = "extra_universe_200km"
         c["normalized_table"] = "pncp_supplier_contracts"
 
@@ -833,7 +903,10 @@ def _build_claims_catalog(
                 "collection_id": c.get("cycle_collection_id") or cid,
                 "cycle_run_id": c.get("cycle_run_id")
                 or (ct_cycle.run_id if ct_cycle else None),
-                "source_record_run_id": c.get("source_record_run_id") or c.get("source_id"),
+                "source_record_run_id": c.get("source_record_run_id"),  # often null for lake reuse
+                "source_record_id": c.get("source_record_id")
+                or c.get("source_id")
+                or c.get("contrato_id"),
                 "normalized_table": "pncp_supplier_contracts",
                 "normalized_id": c.get("contrato_id") or c.get("source_id"),
                 "rule": "extra_universe_200km + valor_contratado_not_paid",
@@ -1085,15 +1158,55 @@ def stage_delivery(
     ]
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    # Manifest
-    checksums = {}
-    for label, p in {**{k: Path(v) for k, v in paths.items()}, "executive_md": md_path, "excel": xlsx_path}.items():
-        if p.exists() and p.is_file():
+    # Product checksums EXCLUDE the manifest (no self-referential hash).
+    # Written to checksums.json; manifest only references that external file.
+    checksums: dict[str, Any] = {}
+    product_paths: dict[str, Path] = {
+        **{k: Path(v) for k, v in paths.items()},
+        "executive_md": md_path,
+        "excel": xlsx_path,
+    }
+    for label, pth in product_paths.items():
+        if pth.exists() and pth.is_file():
             checksums[label] = {
-                "path": str(p.relative_to(_PROJECT_ROOT) if p.is_relative_to(_PROJECT_ROOT) else p),
-                "sha256": sha256_file(p),
-                "bytes": p.stat().st_size,
+                "path": str(
+                    pth.relative_to(_PROJECT_ROOT)
+                    if pth.is_relative_to(_PROJECT_ROOT)
+                    else pth
+                ),
+                "sha256": sha256_file(pth),
+                "bytes": pth.stat().st_size,
             }
+
+    checksums_path = out_dir / "checksums.json"
+    _atomic_json(
+        checksums_path,
+        {
+            "schema": "extra-weekly-checksums/1.0",
+            "cycle_id": report.cycle_id,
+            "collection_id": report.collection_id,
+            "note": "Hashes of product artifacts only — does not include manifest.json",
+            "artifacts": checksums,
+        },
+    )
+    checksums_file_meta = {
+        "path": str(
+            checksums_path.relative_to(_PROJECT_ROOT)
+            if checksums_path.is_relative_to(_PROJECT_ROOT)
+            else checksums_path
+        ),
+        "sha256": sha256_file(checksums_path),
+        "bytes": checksums_path.stat().st_size if checksums_path.exists() else 0,
+    }
+
+    # Excel is part of the product contract — required for delivery=ok
+    if excel_ok and md_path.exists() and paths["claims_csv"].exists():
+        delivery_status = "ok"
+    elif not excel_ok:
+        delivery_status = "fail"
+        excel_note = excel_note or "Excel generation failed — required for delivery=ok"
+    else:
+        delivery_status = "fail"
 
     products = {
         "executive_md": str(md_path),
@@ -1103,10 +1216,17 @@ def stage_delivery(
         "pdf": None,
         "pdf_status": "RESIDUAL_NOT_GENERATED",
         "csvs": {k: str(v) for k, v in paths.items()},
-        "checksums": checksums,
+        "checksums_file": str(checksums_path),
+        "checksums_file_meta": checksums_file_meta,
+        "product_checksums": checksums,
         "claims_count": len(claims),
     }
-    return StageResult(name="delivery", status="ok" if excel_ok or opps else "warn", detail=products)
+    return StageResult(
+        name="delivery",
+        status=delivery_status,
+        detail=products,
+        error=None if delivery_status == "ok" else (excel_note or "delivery incomplete"),
+    )
 
 
 def _default_limitations(runs: list[CollectionRun], freshness: list[dict[str, Any]]) -> list[str]:
@@ -1178,7 +1298,18 @@ def _default_gaps(conn: Any, intel: dict[str, Any]) -> list[dict[str, Any]]:
 def compute_exit_code(
     stages: list[StageResult],
     runs: list[CollectionRun],
+    *,
+    strict: bool = True,
 ) -> int:
+    """Exit code policy.
+
+    EXIT_OK only when critical collection is complete (success / success_zero /
+    reused_fresh of a complete prior run) AND delivery is ok (incl. Excel).
+
+    ``partial`` never yields EXIT_OK — even outside strict mode.
+    ``strict`` additionally fails closed on delivery/artifact defects that
+    non-strict might still surface as products with EXIT_UNRELIABLE.
+    """
     if any(s.status == "fail" for s in stages if s.name in {"validate_config", "validate_db"}):
         return EXIT_TECH
     opp = next((r for r in runs if r.source == "pncp_opportunities"), None)
@@ -1188,26 +1319,46 @@ def compute_exit_code(
         return EXIT_BLOCKED
     if opp and opp.terminal_status == "failure":
         return EXIT_UNRELIABLE
-    # delivery missing
+    # Critical partial is never consultively OK
+    if opp and opp.terminal_status == "partial":
+        return EXIT_UNRELIABLE
+
     delivery = next((s for s in stages if s.name == "delivery"), None)
-    if delivery and delivery.status == "fail":
-        return EXIT_TECH
-    # partial/stale → still may be 0 if products exist and critical collect not failed
     quality = next((s for s in stages if s.name == "quality"), None)
     intel = next((s for s in stages if s.name == "intelligence"), None)
-    if intel and intel.status == "ok" and delivery and delivery.status in {"ok", "warn"}:
-        # consultive OK even with contract partial, with limitations
-        if opp and opp.terminal_status in {"success", "success_zero", "reused_fresh", "partial"}:
-            # empty product only OK if success_zero
-            counts = (intel.detail or {}).get("counts") or {}
-            if counts.get("opportunities", 0) == 0 and opp.terminal_status not in {
-                "success_zero",
-                "reused_fresh",
-            }:
-                return EXIT_UNRELIABLE
-            if quality and quality.status == "blocked":
-                return EXIT_BLOCKED
-            return EXIT_OK
+
+    if delivery and delivery.status == "fail":
+        # Missing Excel / incomplete pack is technical delivery failure under strict;
+        # still non-zero outside strict (unreliable for consultive use).
+        return EXIT_TECH if strict else EXIT_UNRELIABLE
+
+    if quality and quality.status == "blocked":
+        return EXIT_BLOCKED
+
+    if strict:
+        if delivery is None or delivery.status != "ok":
+            return EXIT_UNRELIABLE
+        d = delivery.detail or {}
+        if not d.get("excel_ok"):
+            return EXIT_UNRELIABLE
+        if not d.get("checksums_file") and not d.get("product_checksums"):
+            return EXIT_UNRELIABLE
+
+    if (
+        intel
+        and intel.status == "ok"
+        and delivery
+        and delivery.status == "ok"
+        and opp
+        and opp.terminal_status in {"success", "success_zero", "reused_fresh"}
+    ):
+        counts = (intel.detail or {}).get("counts") or {}
+        if counts.get("opportunities", 0) == 0 and opp.terminal_status not in {
+            "success_zero",
+            "reused_fresh",
+        }:
+            return EXIT_UNRELIABLE
+        return EXIT_OK
     return EXIT_UNRELIABLE
 
 
@@ -1337,13 +1488,19 @@ def run_weekly_cycle(
             conn, collection_id=collection_id, freshness_rows=freshness_rows
         )
         runs.append(r_ct)
+        collect_status = "ok"
+        if r_opp.terminal_status == "blocked":
+            collect_status = "blocked"
+        elif r_opp.terminal_status in {"failure"}:
+            collect_status = "fail"
+        elif r_opp.terminal_status == "partial":
+            collect_status = "warn"
+        elif r_opp.terminal_status not in {"success", "success_zero", "reused_fresh"}:
+            collect_status = "fail"
         stages.append(
             StageResult(
                 name="collect",
-                status="ok"
-                if r_opp.terminal_status
-                in {"success", "success_zero", "reused_fresh", "partial"}
-                else ("blocked" if r_opp.terminal_status == "blocked" else "fail"),
+                status=collect_status,
                 detail={"runs": [r.to_dict() for r in runs]},
             )
         )
@@ -1386,28 +1543,17 @@ def run_weekly_cycle(
         report.products = sd.detail or {}
         report.runs = [r.to_dict() for r in runs]
         report.stages = [asdict(s) for s in stages]
-        report.exit_code = compute_exit_code(stages, runs)
+        report.exit_code = compute_exit_code(stages, runs, strict=strict)
 
-        if strict and report.exit_code == EXIT_OK:
-            # extra strict: stale contracts alone does not fail; blocked/fail does
-            pass
-
-        # write manifest last
+        # Write manifest ONCE — no self-hash. Integrity of products is in checksums.json.
         report.finished_at = _iso()
         report.duration_seconds = round(time.monotonic() - t0, 2)
         manifest_path = out / "manifest.json"
+        report.products["manifest"] = str(manifest_path)
+        report.products["manifest_integrity"] = (
+            "product hashes live in checksums.json; manifest is not self-hashed"
+        )
         _atomic_json(manifest_path, asdict(report))
-        # update products with manifest checksum
-        if manifest_path.exists():
-            report.products["manifest"] = str(manifest_path)
-            report.products.setdefault("checksums", {})["manifest"] = {
-                "path": str(manifest_path.relative_to(_PROJECT_ROOT))
-                if manifest_path.is_relative_to(_PROJECT_ROOT)
-                else str(manifest_path),
-                "sha256": sha256_file(manifest_path),
-                "bytes": manifest_path.stat().st_size,
-            }
-            _atomic_json(manifest_path, asdict(report))
 
         return report
     finally:

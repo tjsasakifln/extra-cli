@@ -31,9 +31,18 @@
 
 ## Skeptic fixes (2026-07-19)
 
-1. **CI mock:** integration test skips unless `REQUIRE_REAL_DB=1`; critical job uses `-m "not integration..."`. Default `pytest tests/test_weekly_cycle.py` → 17 passed, 1 skipped.
-2. **AC3 claims:** opportunity + contract + competitor rows carry this cycle `collection_id` + `cycle_run_id`; historical source run kept as `source_record_run_id`.
-3. **Extra scope:** contracts/competitors require `uf='SC' AND orgao_cnpj_8 ∈ universe raio_200km` (blocks federal CNPJ-8 nationwide bleed).
+1. **CI mock:** integration test skips unless `REQUIRE_REAL_DB=1`; critical job uses `-m "not integration..."`.
+2. **AC3 claims:** opportunity + contract + competitor rows carry this cycle `collection_id` + `cycle_run_id`.
+3. **Extra scope:** contracts/competitors require `uf='SC' AND orgao_cnpj_8 ∈ universe raio_200km`.
+
+## PR review reliability fixes (REQUEST CHANGES)
+
+1. **`partial` never fresh / never reused_fresh** — `classify_opportunity_freshness`; only complete success-class statuses within SLA.
+2. **`--strict` real** — partial critical → exit 2; Excel missing → exit 1 (strict) / 2; delivery must be `ok` with `excel_ok` + checksums file.
+3. **Checksums external** — `checksums.json` hashes products only; manifest written once, not self-hashed.
+4. **Excel obrigatório** for `delivery=ok`.
+5. **Contratos:** `source_record_run_id=null`; `source_record_id` holds record id (not run).
+6. **Adversarial tests** for the above (24 unit passed + 1 skipped).
 
 ## Execução canônica (evidência pós-fix)
 
