@@ -53,25 +53,27 @@ Cobertura inclui: allowlist env (ausência de `MY_TOKEN`/`DATABASE_URL`/…), HO
 | live + `--skip-tests` | **BLOCKED_UNVERIFIED** / exit 11 (sem ACCEPT/publish) |
 | Canário live | ver seção abaixo (preenchida após execução) |
 
-### Canário live (preencher após execução real)
+### Canário live (execução real — 2026-07-19)
 
 | Campo | Valor |
 |-------|--------|
-| cycle_id | _pendente_ |
-| decision_id | _pendente_ |
-| branch | _pendente_ |
-| worktree | _pendente_ |
-| commit | _pendente_ |
-| draft PR | _pendente_ |
-| arquivo | `docs/ops/cto-autopilot/canary-proof.md` |
-| verifier | _pendente_ |
-| testes | _pendente_ |
-| CI canário | _pendente_ |
-| publisher | _pendente_ |
-| terminal | _pendente_ |
-| always_approve | default false (opt-in `CTO_GROK_ALWAYS_APPROVE`) |
-| main mutada | **não** (esperado) |
-| merge | **não** (proibido) |
+| cycle_id | `canary-live-20260719T204106Z` |
+| decision_id | `dec-canary-live-20260719T204106Z` |
+| branch | `cto/canary-live-20260719T204106Z` |
+| worktree | `/mnt/d/extra-consultoria-cto-autopilot-cto-cycles/canary-live-20260719T204106Z` |
+| commit | `09de2d4f24774cfe2bd2f40a710e777af358edc7` |
+| draft PR | https://github.com/tjsasakifln/extra-consultoria/pull/50 (draft, open) |
+| arquivo | **somente** `docs/ops/cto-autopilot/canary-proof.md` |
+| verifier | **PASS** (base_commit-scoped) |
+| testes | `grep -qi canary docs/ops/cto-autopilot/canary-proof.md` exit 0 |
+| CI canário | consultado (run 29703266575; job CTO presente; aguardando/parcial) |
+| publisher | **WAITING_HUMAN** — draft PR #50; sem merge |
+| terminal | `WAITING_HUMAN` |
+| always_approve | **true** nesta execução via `CTO_GROK_ALWAYS_APPROVE=1` + containment funcional OK |
+| Grok | **live** (não mock); auth staged só `auth.json` / allowlist; HOME isolado |
+| main mutada | **não** (`origin/main` = `d6d9e19`) |
+| merge | **não** (proibido; autoridade Tiago) |
+| diff hash | verification includes only canary-proof.md |
 
 ## Issues (#30–#47)
 
