@@ -205,22 +205,62 @@ def decide_opportunity(
             freshness = "unconfirmed"
 
     # client / technical / commercial / operational / temporal
+    # Thresholds from profile.triage_thresholds (Extra-centered discard)
+    thresholds: dict[str, int] = {}
+    if isinstance(prof, dict) and isinstance(prof.get("triage_thresholds"), dict):
+        thresholds = {
+            str(k): int(v)
+            for k, v in prof["triage_thresholds"].items()
+            if str(v).lstrip("-").isdigit() or isinstance(v, int)
+        }
+    discard_max_client_fit = int(thresholds.get("discard_max_client_fit", 20))
+    priority_min_client_fit = int(thresholds.get("priority_min_client_fit", 55))
+
     client_fit = 50
     client_notes: list[str] = []
     objeto = str(row.get("objeto") or "").lower()
     terms: list[str] = []
+    desired_ids: list[str] = []
     if isinstance(prof, dict):
         for ot in prof.get("desired_object_types") or []:
             if isinstance(ot, dict):
+                if ot.get("id"):
+                    desired_ids.append(str(ot["id"]).lower().replace("_", " "))
                 terms.extend(str(t).lower() for t in (ot.get("terms") or []))
+                if ot.get("label"):
+                    terms.append(str(ot["label"]).lower())
         terms.extend(str(t).lower() for t in (prof.get("positive_terms") or []))
-    hits = [t for t in terms if t and t in objeto]
-    if hits:
-        client_fit += min(30, 10 * len(hits))
-        client_notes.append(f"termos_aderentes:{len(hits)}")
-    else:
-        client_fit -= 10
+        for cat in prof.get("engineering_categories") or []:
+            terms.append(str(cat).lower().replace("_", " "))
+    # de-dupe empty
+    terms = [t.strip() for t in terms if t and str(t).strip()]
+    hits = [t for t in terms if t in objeto]
+    id_hits = [i for i in desired_ids if i and i in objeto]
+    if hits or id_hits:
+        client_fit += min(35, 10 * (len(hits) + len(id_hits)))
+        client_notes.append(f"termos_aderentes:{len(hits)+len(id_hits)}")
+    elif objeto.strip():
+        # Present object with zero Extra applicability → low fit (drives discard)
+        client_fit = 10
         client_notes.append("objeto_sem_match_direto")
+        missing.append("client_object_fit")
+    else:
+        client_fit = 25
+        client_notes.append("objeto_ausente")
+        missing.append("objeto")
+
+    # Negative terms from profile force hard commercial/client reject
+    neg_hits: list[str] = []
+    if isinstance(prof, dict):
+        neg_hits = [
+            str(t).lower()
+            for t in (prof.get("negative_terms") or [])
+            if t and str(t).lower() in objeto
+        ]
+    if neg_hits:
+        client_fit = min(client_fit, 5)
+        client_notes.append("termos_negativos:" + ",".join(neg_hits[:3]))
+        hard_blockers.append("perfil_termo_negativo")
 
     technical = client_fit  # engineering object fit proxy
     technical_notes = list(client_notes)
@@ -295,6 +335,35 @@ def decide_opportunity(
         confidence = "HIGH"
         rules.append("POLICY:hard_blocker_forces_NO_GO")
 
+    # Extra-centered object applicability: dimensions drive discard when fit is terminal-low.
+    # Profile incomplete must NOT auto-discard (→ REVIEW only when blocking PARTICIPAR).
+    client_score = dims["client_fit"].score
+    if (
+        not hard_blockers
+        and objeto.strip()
+        and client_score <= discard_max_client_fit
+        and "objeto_sem_match_direto" in client_notes
+    ):
+        internal = "NO_GO"
+        confidence = "HIGH"
+        score = min(score, 35)
+        rules.append("POLICY:client_fit_below_discard_threshold")
+        negative.append(
+            f"client_fit={client_score} ≤ discard_max_client_fit={discard_max_client_fit} "
+            "(objeto sem aderência ao perfil Extra)"
+        )
+    elif (
+        not hard_blockers
+        and internal == "GO"
+        and client_score < priority_min_client_fit
+    ):
+        internal = "REVIEW"
+        confidence = "MEDIUM"
+        rules.append("POLICY:client_fit_below_priority_min")
+        negative.append(
+            f"client_fit={client_score} < priority_min_client_fit={priority_min_client_fit}"
+        )
+
     # stale / unknown / partial / unconfirmed never PARTICIPAR
     if internal == "GO":
         if status in {"unknown", "partial", "closed", "revoked", "annulled", "failed", "suspended"}:
@@ -311,8 +380,10 @@ def decide_opportunity(
             "http_429",
             "http_5xx",
             "http_403",
+            "http_204",
             "error",
             "not_attempted",
+            "pagination_incomplete",
         }:
             internal = "REVIEW"
             confidence = "LOW"

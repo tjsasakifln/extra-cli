@@ -170,7 +170,7 @@ def _generate_pdf(path: Path, brief_md: str, meta: dict[str, Any]) -> tuple[bool
         story.append(
             Paragraph(
                 f"run_id={meta.get('run_id')} | cutoff={meta.get('cutoff')} | "
-                f"profile_hash={(meta.get('profile_hash') or '')[:16]}…",
+                f"profile_hash={meta.get('profile_hash') or ''}",
                 body,
             )
         )
@@ -200,6 +200,100 @@ def _generate_pdf(path: Path, brief_md: str, meta: dict[str, Any]) -> tuple[bool
         return False, str(exc)
 
 
+def _read_pdf_text(pdf_path: Path) -> str:
+    """Extract text from product PDF for reconciliation (real file read)."""
+    if not pdf_path.is_file():
+        return ""
+    # Reject non-PDF placeholders (e.g. failed generation written as .txt content)
+    head = pdf_path.read_bytes()[:8]
+    if not head.startswith(b"%PDF"):
+        return ""
+    try:
+        from PyPDF2 import PdfReader
+
+        reader = PdfReader(str(pdf_path))
+        parts: list[str] = []
+        for page in reader.pages:
+            parts.append(page.extract_text() or "")
+        return "\n".join(parts)
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _extract_meta_from_pdf_text(text: str) -> dict[str, str | None]:
+    """Parse run_id / cutoff / profile_hash stamped into the brief PDF body."""
+    import re
+
+    run_id = None
+    cutoff = None
+    profile_hash = None
+    m = re.search(r"run_id=([A-Za-z0-9._\-]+)", text)
+    if m:
+        run_id = m.group(1)
+    m = re.search(r"cutoff=([0-9]{4}-[0-9]{2}-[0-9]{2})", text)
+    if m:
+        cutoff = m.group(1)
+    m = re.search(r"profile_hash=([0-9a-fA-F]{8,})", text)
+    if m:
+        profile_hash = m.group(1)
+    # full hash may be truncated in PDF with ellipsis — keep prefix for compare
+    return {"run_id": run_id, "cutoff": cutoff, "profile_hash": profile_hash}
+
+
+def _read_excel_product_meta(xlsx_path: Path) -> dict[str, Any]:
+    """Read Metadados sheet + data-row counts from decision pack Excel."""
+    out: dict[str, Any] = {
+        "meta": {},
+        "sheet_row_counts": {},
+        "error": None,
+    }
+    if not xlsx_path.is_file():
+        out["error"] = "excel_missing"
+        return out
+    try:
+        from openpyxl import load_workbook
+
+        wb = load_workbook(str(xlsx_path), read_only=True, data_only=True)
+        meta: dict[str, str] = {}
+        if "Metadados" in wb.sheetnames:
+            ws = wb["Metadados"]
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row or row[0] is None:
+                    continue
+                key = str(row[0]).strip()
+                val = "" if row[1] is None else str(row[1]).strip()
+                meta[key] = val
+        out["meta"] = meta
+        for sheet in ("PARTICIPAR", "REVIEW", "NAO_PARTICIPAR"):
+            if sheet not in wb.sheetnames:
+                out["sheet_row_counts"][sheet] = 0
+                continue
+            ws = wb[sheet]
+            rows = list(ws.iter_rows(values_only=True))
+            if not rows:
+                out["sheet_row_counts"][sheet] = 0
+                continue
+            # header + optional "(vazio)" single cell
+            data_rows = rows[1:]
+            if len(data_rows) == 1 and data_rows[0] and str(data_rows[0][0]) == "(vazio)":
+                out["sheet_row_counts"][sheet] = 0
+            else:
+                out["sheet_row_counts"][sheet] = len(data_rows)
+        # Claims sheet optional
+        if "Claims" in wb.sheetnames:
+            ws = wb["Claims"]
+            rows = list(ws.iter_rows(values_only=True))
+            data_rows = rows[1:] if rows else []
+            if len(data_rows) == 1 and data_rows[0] and str(data_rows[0][0]) == "(vazio)":
+                out["sheet_row_counts"]["Claims"] = 0
+            else:
+                out["sheet_row_counts"]["Claims"] = len(data_rows)
+        wb.close()
+    except Exception as exc:  # noqa: BLE001
+        out["error"] = str(exc)
+    return out
+
+
 def reconcile_pdf_excel(
     *,
     run_id: str,
@@ -208,29 +302,195 @@ def reconcile_pdf_excel(
     pdf_path: Path,
     xlsx_path: Path,
     counts: dict[str, int],
-    excel_counts: dict[str, int],
+    claims_count: int | None = None,
 ) -> dict[str, Any]:
+    """Fail-closed product reconcile: read PDF text + Excel sheets (no mirror dicts)."""
     div: list[str] = []
+    pdf_meta: dict[str, str | None] = {"run_id": None, "cutoff": None, "profile_hash": None}
+    excel_info = _read_excel_product_meta(xlsx_path)
+
     if not pdf_path.is_file():
         div.append("pdf_missing")
+    else:
+        pdf_text = _read_pdf_text(pdf_path)
+        if not pdf_text.strip():
+            div.append("pdf_unreadable_or_not_pdf")
+        else:
+            pdf_meta = _extract_meta_from_pdf_text(pdf_text)
+            if pdf_meta.get("run_id") != run_id:
+                div.append(f"pdf_run_id_mismatch:{pdf_meta.get('run_id')}!={run_id}")
+            if pdf_meta.get("cutoff") != cutoff:
+                div.append(f"pdf_cutoff_mismatch:{pdf_meta.get('cutoff')}!={cutoff}")
+            ph = pdf_meta.get("profile_hash") or ""
+            # PDF may stamp truncated hash prefix
+            if not profile_hash.startswith(ph) and ph not in profile_hash:
+                div.append(f"pdf_profile_hash_mismatch:{ph}!={profile_hash[:16]}")
+
     if not xlsx_path.is_file():
         div.append("excel_missing")
-    for k in ("participar", "review", "nao_participar", "total"):
-        if counts.get(k) != excel_counts.get(k):
-            div.append(f"count_mismatch_{k}:{counts.get(k)}!={excel_counts.get(k)}")
+    elif excel_info.get("error"):
+        div.append(f"excel_read_error:{excel_info['error']}")
+    else:
+        emeta = excel_info.get("meta") or {}
+        if str(emeta.get("run_id") or "") != run_id:
+            div.append(f"excel_run_id_mismatch:{emeta.get('run_id')}!={run_id}")
+        if str(emeta.get("profile_hash") or "") != profile_hash:
+            div.append(
+                f"excel_profile_hash_mismatch:{str(emeta.get('profile_hash') or '')[:16]}"
+                f"!={profile_hash[:16]}"
+            )
+        if str(emeta.get("cutoff") or "") != cutoff:
+            div.append(f"excel_cutoff_mismatch:{emeta.get('cutoff')}!={cutoff}")
+
+        sheet_counts = excel_info.get("sheet_row_counts") or {}
+        expected_map = {
+            "PARTICIPAR": int(counts.get("participar") or 0),
+            "REVIEW": int(counts.get("review") or 0),
+            "NAO_PARTICIPAR": int(counts.get("nao_participar") or 0),
+        }
+        excel_counts_read: dict[str, int] = {
+            "participar": int(sheet_counts.get("PARTICIPAR") or 0),
+            "review": int(sheet_counts.get("REVIEW") or 0),
+            "nao_participar": int(sheet_counts.get("NAO_PARTICIPAR") or 0),
+        }
+        excel_counts_read["total"] = (
+            excel_counts_read["participar"]
+            + excel_counts_read["review"]
+            + excel_counts_read["nao_participar"]
+        )
+        for sheet, expected in expected_map.items():
+            got = int(sheet_counts.get(sheet) or 0)
+            if got != expected:
+                div.append(f"excel_sheet_count_mismatch_{sheet}:{got}!={expected}")
+        expected_total = int(counts.get("total") or 0)
+        if excel_counts_read["total"] != expected_total:
+            div.append(
+                f"excel_total_mismatch:{excel_counts_read['total']}!={expected_total}"
+            )
+        if claims_count is not None and "Claims" in sheet_counts:
+            got_claims = int(sheet_counts.get("Claims") or 0)
+            if got_claims != int(claims_count):
+                div.append(f"excel_claims_count_mismatch:{got_claims}!={claims_count}")
+
+    same_run = (
+        pdf_meta.get("run_id") == run_id
+        and str((excel_info.get("meta") or {}).get("run_id") or "") == run_id
+        and "pdf_run_id_mismatch" not in " ".join(div)
+        and "excel_run_id_mismatch" not in " ".join(div)
+    )
     status = "PASS" if not div else "FAIL"
     return {
         "status": status,
-        "same_run_id": True,
+        "same_run_id": same_run,
         "run_id": run_id,
         "profile_hash": profile_hash,
         "cutoff": cutoff,
         "divergences": div,
         "pdf": str(pdf_path) if pdf_path.is_file() else None,
         "excel": str(xlsx_path) if xlsx_path.is_file() else None,
-        "counts": counts,
-        "excel_counts": excel_counts,
+        "pdf_meta_read": pdf_meta,
+        "excel_meta_read": excel_info.get("meta"),
+        "excel_sheet_row_counts": excel_info.get("sheet_row_counts"),
+        "counts_expected": counts,
     }
+
+
+def build_decision_claims(
+    decisions: list[dict[str, Any]],
+    *,
+    run_id: str,
+    profile_hash: str,
+    cutoff: str,
+) -> list[dict[str, Any]]:
+    """One reconcilable claim per decision — must match Excel Claims sheet rows."""
+    claims: list[dict[str, Any]] = []
+    for d in decisions:
+        oid = d.get("opportunity_id") or d.get("id")
+        rec = d.get("recommendation")
+        claims.append(
+            {
+                "claim_id": f"dec-{oid}",
+                "run_id": run_id,
+                "profile_hash": profile_hash,
+                "cutoff": cutoff,
+                "opportunity_id": oid,
+                "recommendation": rec,
+                "internal_ranking": d.get("internal_ranking"),
+                "confidence": d.get("confidence"),
+                "orgao_nome": d.get("orgao_nome"),
+                "statement": (
+                    f"Oportunidade {oid} → {rec} "
+                    f"(score={d.get('ranking_score')}, conf={d.get('confidence')}) "
+                    f"órgão={d.get('orgao_nome')}"
+                ),
+                "hard_blockers": d.get("hard_blockers") or [],
+                "missing_information": d.get("missing_information") or [],
+            }
+        )
+    return claims
+
+
+def reconcile_claims_to_excel(
+    claims: list[dict[str, Any]],
+    xlsx_path: Path,
+) -> dict[str, Any]:
+    """Assert every claim_id appears as a Claims sheet row (and counts match)."""
+    div: list[str] = []
+    if not xlsx_path.is_file():
+        return {"status": "FAIL", "divergences": ["excel_missing"], "matched": 0}
+    try:
+        from openpyxl import load_workbook
+
+        wb = load_workbook(str(xlsx_path), read_only=True, data_only=True)
+        if "Claims" not in wb.sheetnames:
+            wb.close()
+            return {"status": "FAIL", "divergences": ["claims_sheet_missing"], "matched": 0}
+        ws = wb["Claims"]
+        rows = list(ws.iter_rows(values_only=True))
+        wb.close()
+        if not rows:
+            return {"status": "FAIL", "divergences": ["claims_sheet_empty"], "matched": 0}
+        headers = [str(h) if h is not None else "" for h in rows[0]]
+        if "claim_id" not in headers:
+            return {"status": "FAIL", "divergences": ["claims_header_missing_claim_id"], "matched": 0}
+        idx = headers.index("claim_id")
+        rec_idx = headers.index("recommendation") if "recommendation" in headers else None
+        excel_ids: dict[str, str | None] = {}
+        for row in rows[1:]:
+            if not row or row[0] is None:
+                continue
+            if str(row[0]) == "(vazio)":
+                continue
+            cid = str(row[idx])
+            rec = str(row[rec_idx]) if rec_idx is not None and rec_idx < len(row) else None
+            excel_ids[cid] = rec
+        claim_ids = {str(c.get("claim_id")) for c in claims}
+        missing = sorted(claim_ids - set(excel_ids))
+        extra = sorted(set(excel_ids) - claim_ids)
+        if missing:
+            div.append(f"claims_missing_in_excel:{len(missing)}")
+        if extra:
+            div.append(f"claims_extra_in_excel:{len(extra)}")
+        if len(claims) != len(excel_ids):
+            div.append(f"claims_count_mismatch:{len(excel_ids)}!={len(claims)}")
+        # recommendation parity for matched ids
+        mismatches = 0
+        for c in claims:
+            cid = str(c.get("claim_id"))
+            if cid in excel_ids and excel_ids[cid] is not None:
+                if str(c.get("recommendation")) != str(excel_ids[cid]):
+                    mismatches += 1
+        if mismatches:
+            div.append(f"claims_recommendation_mismatch:{mismatches}")
+        return {
+            "status": "PASS" if not div else "FAIL",
+            "divergences": div,
+            "matched": len(claim_ids & set(excel_ids)),
+            "n_claims": len(claims),
+            "n_excel": len(excel_ids),
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "FAIL", "divergences": [f"claims_reconcile_error:{exc}"], "matched": 0}
 
 
 def build_brief(
@@ -532,6 +792,16 @@ def run_decision_pack(
     md_path = out / "executive_decision_brief.md"
     md_path.write_text(brief + "\n", encoding="utf-8")
 
+    # Claims (reconcilable with Excel Claims sheet)
+    cutoff = resolved.resolved_at[:10]
+    claims = build_decision_claims(
+        decisions,
+        run_id=run_id,
+        profile_hash=resolved.profile_hash,
+        cutoff=cutoff,
+    )
+    _write_csv(out / "claims_provenance.csv", claims)
+
     # Excel
     xlsx_path = out / "extra_decision_pack.xlsx"
     excel_ok = False
@@ -548,26 +818,70 @@ def run_decision_pack(
             ("profile_id", resolved.profile_id),
             ("profile_version", resolved.version),
             ("profile_hash", resolved.profile_hash),
-            ("cutoff", resolved.resolved_at[:10]),
+            ("cutoff", cutoff),
             ("git_sha", (git or {}).get("git_sha")),
             ("participar", counts["participar"]),
             ("review", counts["review"]),
             ("nao_participar", counts["nao_participar"]),
             ("total", counts["total"]),
+            ("claims_count", len(claims)),
             ("human_accept", "PENDING_HUMAN"),
         ]:
             meta.append([k, str(v)])
+        # Stable empty headers so reconcile can read sheets with 0 data rows
+        empty_headers = {
+            "PARTICIPAR": [
+                "opportunity_id",
+                "recommendation",
+                "orgao_nome",
+                "objeto",
+                "ranking_score",
+            ],
+            "REVIEW": [
+                "opportunity_id",
+                "recommendation",
+                "orgao_nome",
+                "objeto",
+                "ranking_score",
+            ],
+            "NAO_PARTICIPAR": [
+                "opportunity_id",
+                "recommendation",
+                "orgao_nome",
+                "objeto",
+                "ranking_score",
+            ],
+            "Claims": [
+                "claim_id",
+                "run_id",
+                "profile_hash",
+                "cutoff",
+                "opportunity_id",
+                "recommendation",
+                "internal_ranking",
+                "confidence",
+                "orgao_nome",
+                "statement",
+                "hard_blockers",
+                "missing_information",
+            ],
+        }
         for name, rows_ in [
             ("PARTICIPAR", part_rows),
             ("REVIEW", rev_rows),
             ("NAO_PARTICIPAR", no_rows),
+            ("Claims", claims),
             ("Delta", change_rows),
             ("SourceHealth", freshness),
             ("Reconfirm", list(reconfirm_map.values())),
         ]:
             ws = wb.create_sheet(name[:31])
             if not rows_:
-                ws.append(["(vazio)"])
+                headers = empty_headers.get(name)
+                if headers:
+                    ws.append(headers)
+                else:
+                    ws.append(["(vazio)"])
                 continue
             headers = list(rows_[0].keys())
             ws.append(headers)
@@ -592,28 +906,29 @@ def run_decision_pack(
         brief,
         {
             "run_id": run_id,
-            "cutoff": resolved.resolved_at[:10],
+            "cutoff": cutoff,
             "profile_hash": resolved.profile_hash,
         },
     )
     if not pdf_ok:
         pdf_path.write_text(f"pdf failed: {pdf_err}\n{brief}", encoding="utf-8")
 
-    excel_counts = {
-        "participar": counts["participar"],
-        "review": counts["review"],
-        "nao_participar": counts["nao_participar"],
-        "total": counts["total"],
-    }
     reconcile = reconcile_pdf_excel(
         run_id=run_id,
         profile_hash=resolved.profile_hash,
-        cutoff=resolved.resolved_at[:10],
+        cutoff=cutoff,
         pdf_path=pdf_path,
         xlsx_path=xlsx_path,
         counts=counts,
-        excel_counts=excel_counts,
+        claims_count=len(claims),
     )
+    claims_reconcile = reconcile_claims_to_excel(claims, xlsx_path)
+    if claims_reconcile.get("status") != "PASS":
+        reconcile["status"] = "FAIL"
+        reconcile.setdefault("divergences", []).extend(
+            claims_reconcile.get("divergences") or ["claims_reconcile_fail"]
+        )
+    reconcile["claims_reconcile"] = claims_reconcile
     if not pdf_ok or not excel_ok:
         reconcile["status"] = "FAIL"
         if not pdf_ok:
@@ -630,6 +945,7 @@ def run_decision_pack(
         "actionable_csv": out / "actionable_opportunities.csv",
         "review_csv": out / "review_opportunities.csv",
         "discarded_csv": out / "discarded_opportunities.csv",
+        "claims_csv": out / "claims_provenance.csv",
         "snapshot_changes_csv": out / "snapshot_changes.csv",
         "human_review_queue_csv": out / "human_review_queue.csv",
         "source_health_csv": out / "source_health.csv",

@@ -1,24 +1,50 @@
 {
   "status": "PASS",
   "same_run_id": true,
-  "run_id": "decision-20260719T215652Z-65ba60f985",
+  "run_id": "decision-20260719T221130Z-fb0c4820ba",
   "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
   "cutoff": "2026-07-19",
   "divergences": [],
   "pdf": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/executive_decision_brief.pdf",
   "excel": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/extra_decision_pack.xlsx",
-  "counts": {
+  "pdf_meta_read": {
+    "run_id": "decision-20260719T221130Z-fb0c4820ba",
+    "cutoff": "2026-07-19",
+    "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1"
+  },
+  "excel_meta_read": {
+    "run_id": "decision-20260719T221130Z-fb0c4820ba",
+    "profile_id": "extra_construtora",
+    "profile_version": "2",
+    "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+    "cutoff": "2026-07-19",
+    "git_sha": "1732e427c7957374928f1661aae9607cc6a45c6b",
+    "participar": "0",
+    "review": "8",
+    "nao_participar": "92",
+    "total": "100",
+    "claims_count": "100",
+    "human_accept": "PENDING_HUMAN"
+  },
+  "excel_sheet_row_counts": {
+    "PARTICIPAR": 0,
+    "REVIEW": 8,
+    "NAO_PARTICIPAR": 92,
+    "Claims": 100
+  },
+  "counts_expected": {
     "participar": 0,
-    "review": 100,
-    "nao_participar": 0,
+    "review": 8,
+    "nao_participar": 92,
     "total": 100,
     "reconfirm_targets": 20,
-    "reconfirm_ok": 12
+    "reconfirm_ok": 13
   },
-  "excel_counts": {
-    "participar": 0,
-    "review": 100,
-    "nao_participar": 0,
-    "total": 100
+  "claims_reconcile": {
+    "status": "PASS",
+    "divergences": [],
+    "matched": 100,
+    "n_claims": 100,
+    "n_excel": 100
   }
 }

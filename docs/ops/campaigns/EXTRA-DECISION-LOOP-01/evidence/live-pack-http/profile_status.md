@@ -2,7 +2,7 @@
 
 - **Hash:** `db621d0de72e523f…`
 - **Versão:** 2
-- **Resolvido em:** 2026-07-19T21:56:52Z
+- **Resolvido em:** 2026-07-19T22:11:30Z
 - **Override local:** não
 - **Pendentes críticos:** 11
 

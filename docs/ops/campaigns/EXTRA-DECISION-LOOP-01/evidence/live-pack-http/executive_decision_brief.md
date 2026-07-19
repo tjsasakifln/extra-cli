@@ -1,8 +1,8 @@
-# Executive decision brief — decision-20260719T215652Z-65ba60f985
+# Executive decision brief — decision-20260719T221130Z-fb0c4820ba
 
 - **Cutoff:** 2026-07-19
 - **Profile:** extra_construtora v2 hash `db621d0de72e523f…`
-- **Decisões:** PARTICIPAR=0 | REVIEW=100 | NÃO_PARTICIPAR=0
+- **Decisões:** PARTICIPAR=0 | REVIEW=8 | NÃO_PARTICIPAR=92
 
 ## O que fazer esta semana
 
@@ -16,34 +16,32 @@ _Nenhuma — resultado legítimo se fundamentado._
 
 ## REVIEW (ação de análise)
 
-- **CONSELHO REGIONAL DE MEDICINA VETERINARIA DO ESTADO DE SANTA CATARINA** — Contratação de empresa especializada na prestação de serviço de transporte (mudança comerc | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE JOINVILLE** — Contratação de empresa para realização dos serviços de manutenção preventiva, corretiva e  | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE TIJUCAS** — Contratação de empresa especializada para fornecimento de materiais e execução dos serviço | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SANTA CATARINA** — SERVIÇO DE SONDAGEM À PERCUSSÃO COM ENSAIO SPT (STANDARD PENETRATION TEST) PARA CARACTERIZ | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE CAMBORIU** — CONCORRÊNCIA ELETRÔNICA PARA CONTRATAÇÃO DE SERVIÇOS DE OBRA E ENGENHARIA COM FORNECIMENTO | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
 - **FUNDACAO CULTURAL HELMY WENDT MAYER** — CONTRATAÇÃO DE EMPRESA DE ENGENHARIA ESPECIALIZADA PARA EXECUÇÃO DE REFORMA NO PREDIO FUND | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE ICARA** — CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO COM LAJOTAS DA  | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE CANOINHAS** — Solicitação de licitação para contratação de empresa para o fornecimento de 15 serventes p | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE ARARANGUA** — AQUISIÇÃO, SOB DEMANDA, DE MOCHILAS E ESTOJOS ESCOLARES PERSONALIZADAS DESTINADOS AO TRANS | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE CAPINZAL** — Serviços de máquinas de pipoca e algodão-doce, por meio do Sistema de Registro de Preços,  | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE MONDAI** — Aquisição de pneus e roda compatíveis com o veículo oficial modelo BYD Dolphin Mini, desti | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE SAUDADES** — [Portal de Compras Públicas] - CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇO DE TRANSPO | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **UNIVERSIDADE FEDERAL DE SANTA CATARINA** — Registro de preços para a eventual contratação de empresa especializada na execução de ser | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE PINHALZINHO** — REGISTRO DE PREÇOS PARA FUTURA E EVENTUAL PRESTAÇÃO DE SERVIÇOS DE AGENCIAMENTO DE VIAGENS | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
 - **FUNDO MUNICIPAL DE SAUDE DE TIJUCAS** — Contratação de empresa especializada para fornecimento de materiais e a execução dos servi | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
 - **MUNICIPIO DE SAO BERNARDINO** — O OBJETO DA PRESENTE LICITAÇÃO CONSISTE NA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHA | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
 - **MUNICIPIO DE SAO BENTO DO SUL** — CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS  | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE BOM JESUS DO OESTE** — REGISTRO DE PREÇOS PARA FUTURA E EVENTUAL CONTRATAÇÃO DE EMPRESA(S) ESPECIALIZADA(S) PARA  | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE BRACO DO TROMBUDO** — CONTRATAÇÃO DE SOLUÇÃO INTEGRADA DE GESTÃO DOCUMENTAL E LEGISLATIVA, COMPOSTA POR PLATAFOR | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE GAROPABA** — AQUISIÇÃO DE UNIFORMES E EQUIPAMENTOS DE PROTEÇÃO INDIVIDUAL E SEGURANÇA DESTINADOS AOS AG | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE CAIBI** — AQUISIÇÃO DE BRINQUEDOS E MATERIAIS DE ORGANIZAÇÃO DESTINADOS AO ATENDIMENTO DAS ATIVIDADE | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **FUNDO MUNICIPAL DE SAUDE DE CERRO NEGRO** — Contratação de empresa para revisão da conservadora de vacinas a fim de garantir o adequad | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **COMANDO DA MARINHA** — Aquisição de medicamento conforme especificação no Termo de Referência | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **SERVICO INTERMUNICIPAL DE AGUA E ESGOTO** — Poste padrão Trifásico com aprovação CELESC, 07 (sete) metros, em concreto armado, com esc | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
-- **MUNICIPIO DE SAO JOSE** — REGISTRO DE PREÇOS PARA CONTRATAÇÃO DE EMPRESA(S) ESPECIALIZADA(S) PARA EVENTUAL FORNECIME | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
+- **MUNICIPIO DE PALMA SOLA** — CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA AMPLIAÇÃO E REFORMA NAS UNIDADES ESCOLARES: CENT | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
+- **MUNICIPIO DE TIJUCAS** — Contratação de empresa especializada para fornecimento de materiais e execução dos serviço | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
+- **MUNICIPIO DE VITOR MEIRELES** — CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DA PAVIMENTAÇÃO DA RUA SANTA CATARINA E | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
+- **MUNICIPIO DE PALMA SOLA** — [Portal de Compras Públicas] - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA AMPLIAÇÃO E REFOR | missing: apetite_consorcios, capacidade_garantia, capacidade_simultanea, capital_giro
 
 ## NÃO_PARTICIPAR (amostra de motivos)
 
+- CONSELHO REGIONAL DE MEDICINA VETERINARIA DO ESTADO DE SANTA CATARINA: Modalidade não competitiva (dispensa, inexigibilidade), Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE JOINVILLE: Publicação com mais de 60 dias, Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE TIJUCAS: Sem link para edital, Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DE SANTA CATARINA: Modalidade não competitiva (dispensa, inexigibilidade), Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE CAMBORIU: Sem link para edital, Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE ICARA: Sem link para edital, Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE CANOINHAS: Sem link para edital, Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE ARARANGUA: Sem link para edital, Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE CAPINZAL: Sem link para edital, Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE MONDAI: Sem link para edital, Modalidade não competitiva (dispensa, inexigibilidade), Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel)
+- MUNICIPIO DE SAUDADES: Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- UNIVERSIDADE FEDERAL DE SANTA CATARINA: Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE PINHALZINHO: Sem link para edital, Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE BOM JESUS DO OESTE: Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
+- MUNICIPIO DE BRACO DO TROMBUDO: Perfil Extra incompleto — GO rebaixado a REVIEW (campos: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel), client_fit=10 ≤ discard_max_client_fit=20 (objeto sem aderência ao perfil Extra)
 
 ## Mudanças desde snapshot anterior
 
@@ -51,8 +49,8 @@ _Nenhuma — resultado legítimo se fundamentado._
 
 ## Saúde das fontes
 
-- `pncp_opportunities`: fresh (age_h=2.77)
-- `pncp_contracts`: fresh (age_h=5.34)
+- `pncp_opportunities`: fresh (age_h=3.01)
+- `pncp_contracts`: fresh (age_h=5.59)
 
 ## Gaps / limitações
 

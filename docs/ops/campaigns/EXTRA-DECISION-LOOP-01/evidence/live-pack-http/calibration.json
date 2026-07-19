@@ -1,10 +1,10 @@
 {
   "status": "PENDING_HUMAN",
-  "n_labels": 0,
+  "n_labels": 3,
   "min_required": 10,
   "metrics": {},
   "notes": [
-    "Apenas 0 labels humanos; mínimo 10 para métricas.",
+    "Apenas 3 labels humanos; mínimo 10 para métricas.",
     "Nenhuma precisão/recall inventada."
   ]
 }

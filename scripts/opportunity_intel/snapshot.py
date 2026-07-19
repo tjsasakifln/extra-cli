@@ -100,6 +100,33 @@ def classify_http_status(code: int | None, *, body_empty: bool = False) -> str:
     return "error"
 
 
+def classify_pagination_outcome(
+    *,
+    http_status: int | None,
+    pages_fetched: int,
+    total_pages: int | None,
+    truncated: bool = False,
+    body_empty: bool = False,
+) -> str:
+    """Classify list/page fetches; partial pagination is never success.
+
+    Distinct from transport errors: a 200 with incomplete pages → pagination_incomplete.
+    """
+    base = classify_http_status(http_status, body_empty=body_empty)
+    if base != "ok":
+        return base
+    if truncated:
+        return "pagination_incomplete"
+    if total_pages is not None:
+        if pages_fetched < 0:
+            return "error"
+        if pages_fetched < int(total_pages):
+            return "pagination_incomplete"
+        if pages_fetched == 0 and int(total_pages) > 0:
+            return "pagination_incomplete"
+    return "ok"
+
+
 def select_active_opportunities(
     rows: list[dict[str, Any]],
     *,
@@ -192,6 +219,97 @@ def default_http_get(
         if "timed out" in msg or "timeout" in msg:
             return None, "", f"timeout:{exc}"
         return None, "", str(exc)
+
+
+def reconfirm_paginated_listing(
+    *,
+    pages: list[tuple[int | None, str, str | None]],
+    total_pages: int | None,
+    opportunity_id: Any = None,
+    source: str = "pncp",
+    url: str | None = None,
+    run_id: str | None = None,
+    collection_id: str | None = None,
+) -> ReconfirmResult:
+    """Reconfirm path for multi-page listings — partial pages ≠ success.
+
+    ``pages`` is a sequence of (http_status, body, error) in fetch order.
+    """
+    ts = _utc_now()
+    if not pages:
+        return ReconfirmResult(
+            opportunity_id=opportunity_id,
+            source=source,
+            url=url,
+            timestamp=ts,
+            status_observed=None,
+            deadline=None,
+            http_status=None,
+            outcome="pagination_incomplete",
+            raw_hash=None,
+            run_id=run_id,
+            collection_id=collection_id,
+            rule="paginated_listing_empty",
+            error="no_pages_fetched",
+        )
+    # First non-ok transport outcome wins (429/5xx/timeout distinct)
+    for code, body, err in pages:
+        if err and str(err).startswith("timeout"):
+            return ReconfirmResult(
+                opportunity_id=opportunity_id,
+                source=source,
+                url=url,
+                timestamp=ts,
+                status_observed=None,
+                deadline=None,
+                http_status=code,
+                outcome="timeout",
+                raw_hash=_sha(body[:2000]) if body else None,
+                run_id=run_id,
+                collection_id=collection_id,
+                rule="paginated_listing_timeout",
+                error=err,
+            )
+        outcome = classify_http_status(code, body_empty=not (body or "").strip())
+        if outcome != "ok":
+            return ReconfirmResult(
+                opportunity_id=opportunity_id,
+                source=source,
+                url=url,
+                timestamp=ts,
+                status_observed=None,
+                deadline=None,
+                http_status=code,
+                outcome=outcome,
+                raw_hash=_sha(body[:2000]) if body else None,
+                run_id=run_id,
+                collection_id=collection_id,
+                rule="paginated_listing_http",
+                error=err,
+            )
+    pages_fetched = len(pages)
+    page_outcome = classify_pagination_outcome(
+        http_status=pages[-1][0],
+        pages_fetched=pages_fetched,
+        total_pages=total_pages,
+        truncated=total_pages is not None and pages_fetched < int(total_pages),
+        body_empty=False,
+    )
+    return ReconfirmResult(
+        opportunity_id=opportunity_id,
+        source=source,
+        url=url,
+        timestamp=ts,
+        status_observed="open" if page_outcome == "ok" else None,
+        deadline=None,
+        http_status=pages[-1][0],
+        outcome=page_outcome,
+        raw_hash=_sha(json.dumps({"pages": pages_fetched, "total": total_pages}, sort_keys=True)),
+        run_id=run_id,
+        collection_id=collection_id,
+        rule="paginated_listing_complete_check",
+        error=None if page_outcome == "ok" else "pagination_incomplete",
+    )
 
 
 def reconfirm_opportunity(

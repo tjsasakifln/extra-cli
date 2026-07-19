@@ -1,10 +1,10 @@
 {
   "schema": "extra-decision-pack/1.0",
-  "run_id": "decision-20260719T215652Z-65ba60f985",
-  "started_at": "2026-07-19T21:56:52Z",
+  "run_id": "decision-20260719T221130Z-fb0c4820ba",
+  "started_at": "2026-07-19T22:11:30Z",
   "collector_version": "decision-pack/1.0",
   "git": {
-    "git_sha": "667569746089926f0036004df9d032497c0f6af1",
+    "git_sha": "1732e427c7957374928f1661aae9607cc6a45c6b",
     "git_branch": "goal/extra-decision-loop-01"
   },
   "strict": true,
@@ -13,7 +13,7 @@
     "display_name": "Extra Empreiteira e Construtora",
     "version": 2,
     "schema_version": "extra-profile/2.0",
-    "resolved_at": "2026-07-19T21:56:52Z",
+    "resolved_at": "2026-07-19T22:11:30Z",
     "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
     "public_path": "/mnt/d/extra consultoria/config/client_profiles/extra.yaml",
     "local_path": null,
@@ -521,7 +521,7 @@
       }
     ]
   },
-  "finished_at": "2026-07-19T21:56:59Z",
+  "finished_at": "2026-07-19T22:11:37Z",
   "status": "OK",
   "out_dir": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http",
   "profile_id": "extra_construtora",
@@ -530,13 +530,13 @@
   "cutoff": "2026-07-19",
   "counts": {
     "participar": 0,
-    "review": 100,
-    "nao_participar": 0,
+    "review": 8,
+    "nao_participar": 92,
     "total": 100,
     "reconfirm_targets": 20,
-    "reconfirm_ok": 12
+    "reconfirm_ok": 13
   },
-  "snapshot_path": "/mnt/d/extra consultoria/data/decision_snapshots/snapshot-snap-decision-20260719T215652Z-65ba60f985.json",
+  "snapshot_path": "/mnt/d/extra consultoria/data/decision_snapshots/snapshot-snap-decision-20260719T221130Z-fb0c4820ba.json",
   "delta_counts": {
     "new": 100,
     "changed": 0,
@@ -549,7 +549,7 @@
   },
   "export_review": {
     "schema": "extra-review-export/1.0",
-    "exported_at": "2026-07-19T21:56:59Z",
+    "exported_at": "2026-07-19T22:11:36Z",
     "n_sample": 40,
     "n_universe": 100,
     "target": 40,
@@ -557,41 +557,68 @@
     "note": "Amostra estratificada pronta para rotulagem humana.",
     "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/human_review_queue.csv",
     "strata": {
-      "incomplete_data": 40
+      "discard": 37,
+      "incomplete_data": 3
     }
   },
   "calibration": {
     "status": "PENDING_HUMAN",
-    "n_labels": 0,
+    "n_labels": 3,
     "min_required": 10,
     "metrics": {},
     "notes": [
-      "Apenas 0 labels humanos; mínimo 10 para métricas.",
+      "Apenas 3 labels humanos; mínimo 10 para métricas.",
       "Nenhuma precisão/recall inventada."
     ]
   },
   "reconcile": {
     "status": "PASS",
     "same_run_id": true,
-    "run_id": "decision-20260719T215652Z-65ba60f985",
+    "run_id": "decision-20260719T221130Z-fb0c4820ba",
     "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
     "cutoff": "2026-07-19",
     "divergences": [],
     "pdf": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/executive_decision_brief.pdf",
     "excel": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/extra_decision_pack.xlsx",
-    "counts": {
+    "pdf_meta_read": {
+      "run_id": "decision-20260719T221130Z-fb0c4820ba",
+      "cutoff": "2026-07-19",
+      "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1"
+    },
+    "excel_meta_read": {
+      "run_id": "decision-20260719T221130Z-fb0c4820ba",
+      "profile_id": "extra_construtora",
+      "profile_version": "2",
+      "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+      "cutoff": "2026-07-19",
+      "git_sha": "1732e427c7957374928f1661aae9607cc6a45c6b",
+      "participar": "0",
+      "review": "8",
+      "nao_participar": "92",
+      "total": "100",
+      "claims_count": "100",
+      "human_accept": "PENDING_HUMAN"
+    },
+    "excel_sheet_row_counts": {
+      "PARTICIPAR": 0,
+      "REVIEW": 8,
+      "NAO_PARTICIPAR": 92,
+      "Claims": 100
+    },
+    "counts_expected": {
       "participar": 0,
-      "review": 100,
-      "nao_participar": 0,
+      "review": 8,
+      "nao_participar": 92,
       "total": 100,
       "reconfirm_targets": 20,
-      "reconfirm_ok": 12
+      "reconfirm_ok": 13
     },
-    "excel_counts": {
-      "participar": 0,
-      "review": 100,
-      "nao_participar": 0,
-      "total": 100
+    "claims_reconcile": {
+      "status": "PASS",
+      "divergences": [],
+      "matched": 100,
+      "n_claims": 100,
+      "n_excel": 100
     }
   },
   "products": {
@@ -601,6 +628,7 @@
     "actionable_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/actionable_opportunities.csv",
     "review_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/review_opportunities.csv",
     "discarded_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/discarded_opportunities.csv",
+    "claims_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/claims_provenance.csv",
     "snapshot_changes_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/snapshot_changes.csv",
     "human_review_queue_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/human_review_queue.csv",
     "source_health_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/source_health.csv",

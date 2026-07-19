@@ -13,9 +13,10 @@
 | Item | Evidência |
 |------|-----------|
 | Pack E2E em dados reais | `evidence/live-pack-http/decision_manifest.json` status OK |
-| 100 decisões (HTTP pack) | REVIEW=100, PARTICIPAR=0 (perfil PENDING + política fail-closed) |
-| Reconfirmação oficial | 20 alvos: **12 ok**, 7 error, 1 http_403; `high_confidence_open=12` |
-| PDF + Excel mesmo run | `reconcile.json` PASS |
+| 100 decisões (HTTP pack) | REVIEW=8, NÃO_PARTICIPAR=92, PARTICIPAR=0 (fit Extra + fail-closed) |
+| Reconfirmação oficial | 20 alvos com **13 ok** HTTP |
+| PDF + Excel mesmo run | `reconcile.json` PASS — **lê** PDF text + Excel sheets (não mirror) |
+| Claims ↔ Excel | `claims_provenance.csv` + sheet Claims reconciliados |
 | Profile hash nos artefatos | `profile_status.json` + manifest |
 | Fila humana | export 40 estratificados; import 3 labels; calibrate **PENDING_HUMAN** |
 | Weekly baseline | `make extra-weekly --skip-collect` exit 0 |

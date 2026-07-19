@@ -1,6 +1,6 @@
 {
   "schema": "extra-review-export/1.0",
-  "exported_at": "2026-07-19T21:56:59Z",
+  "exported_at": "2026-07-19T22:11:36Z",
   "n_sample": 40,
   "n_universe": 100,
   "target": 40,
@@ -8,6 +8,7 @@
   "note": "Amostra estratificada pronta para rotulagem humana.",
   "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/human_review_queue.csv",
   "strata": {
-    "incomplete_data": 40
+    "discard": 37,
+    "incomplete_data": 3
   }
 }
