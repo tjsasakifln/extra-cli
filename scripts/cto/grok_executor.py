@@ -166,11 +166,22 @@ def prepare_worktree(
     wt_parent.mkdir(parents=True, exist_ok=True)
     wt_path = wt_parent / cycle_id
     if wt_path.exists():
+        base_sha = ""
+        rev = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(wt_path),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if rev.returncode == 0:
+            base_sha = (rev.stdout or "").strip()
         return {
             "worktree": str(wt_path),
             "branch": branch,
             "created": False,
             "exists": True,
+            "base_commit": base_sha,
         }
     subprocess.run(
         ["git", "worktree", "add", "-b", branch, str(wt_path), base],
@@ -189,11 +200,22 @@ def prepare_worktree(
         )
     if not wt_path.exists():
         raise ExecutorError(f"failed to create worktree at {wt_path}")
+    base_sha = ""
+    rev = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=str(wt_path),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if rev.returncode == 0:
+        base_sha = (rev.stdout or "").strip()
     return {
         "worktree": str(wt_path),
         "branch": branch,
         "created": True,
         "exists": True,
+        "base_commit": base_sha,
     }
 
 
@@ -830,6 +852,7 @@ def execute(
             "branch": branch_name,
             "created": False,
             "exists": worktree.exists(),
+            "base_commit": None,
         }
         if not is_under_managed_worktrees(worktree, root):
             return {
@@ -854,6 +877,21 @@ def execute(
             "cycle_id": cycle_id,
             "worktree": str(worktree),
         }
+
+    # Record base commit (pre-execution HEAD) for verifier branch-delta scope
+    if not prep.get("base_commit"):
+        rev = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(worktree),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if rev.returncode == 0:
+            prep["base_commit"] = (rev.stdout or "").strip()
+    # If worktree already has cycle commits, prefer parent of first exclusive tip
+    # when base equals HEAD (execution re-entry after commit)
+    base_commit = prep.get("base_commit")
 
     # Isolated HOME/TMPDIR (never expose real home)
     runtime = create_isolated_runtime_dirs(cycle_id=str(cycle_id), root=root)
@@ -946,6 +984,8 @@ def execute(
         "env_mode": "allowlist",
         "env_allowlist": sorted(ENV_ALLOWLIST),
         "env_keys_forwarded": sorted(child_env.keys()),
+        "base_commit": base_commit,
+        "prep": {"base_commit": base_commit, "branch": branch},
         # Never log secret values — only auth mode
         "grok_auth": {
             "source": auth_info.get("source"),

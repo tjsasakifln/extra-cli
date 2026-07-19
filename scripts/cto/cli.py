@@ -1224,7 +1224,7 @@ def build_canary_decision(*, root: Path) -> dict[str, Any]:
             "file contains cycle_id and UTC timestamp",
             "no merge, no main mutation",
         ],
-        "required_evidence": ["git diff docs/ops/cto-autopilot/canary-proof.md"],
+        "required_evidence": ["docs/ops/cto-autopilot/canary-proof.md"],
         "allowed_paths": ["docs/ops/cto-autopilot/canary-proof.md"],
         "forbidden_paths": [
             "DOD.md",

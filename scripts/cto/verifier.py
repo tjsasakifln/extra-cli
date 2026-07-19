@@ -97,27 +97,63 @@ def _classify_status_line(line: str) -> tuple[str, str] | None:
     return "unstaged", path
 
 
-def _branch_committed_changes(cwd: Path) -> dict[str, Any]:
-    """Files/diff committed on this branch since merge-base with main.
+def _branch_committed_changes(
+    cwd: Path,
+    *,
+    base_commit: str | None = None,
+) -> dict[str, Any]:
+    """Files/diff committed after the cycle worktree base.
 
     Live Grok often commits inside the worktree before verify runs. Working
     tree porcelain alone would then look empty and false-fail EXECUTE work.
+
+    Prefer ``base_commit`` from execution (worktree creation SHA). Fall back to
+    upstream tracking tip or HEAD~1 — never full PR delta vs main (that would
+    include the entire feature branch as "modifications").
     """
     committed: list[str] = []
     raw_diff = ""
     base_used: str | None = None
-    for ref in ("main", "master", "origin/main", "origin/master"):
-        mb = _run(["git", "merge-base", "HEAD", ref], cwd)
-        if mb.get("exit_code") != 0:
+    candidates: list[str] = []
+    if base_commit:
+        candidates.append(str(base_commit).strip())
+    # Upstream tip (worktree branch usually tracks nothing; try symbolic)
+    up = _run(["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"], cwd)
+    if up.get("exit_code") == 0 and (up.get("stdout") or "").strip():
+        candidates.append((up.get("stdout") or "").strip())
+    # Exclusive commits vs remote feature branch (not main — avoids whole PR)
+    for ref in (
+        "origin/feat/cto-autopilot-issues-deepseek-20260719",
+        "feat/cto-autopilot-issues-deepseek-20260719",
+    ):
+        candidates.append(ref)
+    # Last resort: only the tip commit's parent
+    candidates.append("HEAD~1")
+
+    for ref in candidates:
+        if not ref:
             continue
-        base = (mb.get("stdout") or "").strip()
+        # Resolve to SHA if possible
+        rev = _run(["git", "rev-parse", "--verify", ref], cwd)
+        if rev.get("exit_code") != 0:
+            continue
+        base = (rev.get("stdout") or "").strip()
         if not base:
             continue
+        # Skip if base == HEAD (no exclusive commits)
+        head = _run(["git", "rev-parse", "HEAD"], cwd)
+        head_sha = (head.get("stdout") or "").strip()
+        if base == head_sha:
+            continue
         names = _run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd)
-        if names.get("exit_code") == 0:
-            committed = [
-                ln.strip() for ln in (names.get("stdout") or "").splitlines() if ln.strip()
-            ]
+        if names.get("exit_code") != 0:
+            continue
+        committed = [
+            ln.strip() for ln in (names.get("stdout") or "").splitlines() if ln.strip()
+        ]
+        # Reject enormous "whole PR" inventories (>80 files) unless base_commit set
+        if not base_commit and len(committed) > 80:
+            continue
         diff = _run(["git", "diff", f"{base}...HEAD"], cwd)
         if diff.get("exit_code") == 0:
             raw_diff = diff.get("stdout") or ""
@@ -130,10 +166,14 @@ def _branch_committed_changes(cwd: Path) -> dict[str, Any]:
     }
 
 
-def capture_working_tree(cwd: Path) -> dict[str, Any]:
+def capture_working_tree(
+    cwd: Path,
+    *,
+    base_commit: str | None = None,
+) -> dict[str, Any]:
     """Capture staged/unstaged/untracked inventory, full diff (capped) + hashes.
 
-    Includes committed branch delta vs main so post-commit Grok work is visible.
+    Includes committed delta since cycle base so post-commit Grok work is visible.
     """
     status = _run(["git", "status", "--porcelain"], cwd)
     staged: list[str] = []
@@ -156,7 +196,7 @@ def capture_working_tree(cwd: Path) -> dict[str, Any]:
     # Also staged-only and unstaged-only for inventory completeness
     diff_staged = _run(["git", "diff", "--cached"], cwd)
     diff_unstaged = _run(["git", "diff"], cwd)
-    branch_delta = _branch_committed_changes(cwd)
+    branch_delta = _branch_committed_changes(cwd, base_commit=base_commit)
     raw_diff = (
         (diff_head.get("stdout") or "")
         + "\n"
@@ -336,7 +376,12 @@ def verify(
         )
 
     # --- 2) full working tree capture ---
-    tree = capture_working_tree(cwd)
+    base_commit = None
+    if execution:
+        base_commit = execution.get("base_commit") or (execution.get("prep") or {}).get(
+            "base_commit"
+        )
+    tree = capture_working_tree(cwd, base_commit=base_commit)
     modified = list(tree["modified_all"])
     checks.append(
         {
