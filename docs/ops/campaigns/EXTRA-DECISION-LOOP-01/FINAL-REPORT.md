@@ -12,12 +12,15 @@
 
 | Item | Evidência |
 |------|-----------|
-| Pack E2E em dados reais | `evidence/live-pack/decision_manifest.json` status OK |
-| 200 decisões | REVIEW=200, PARTICIPAR=0 (legítimo; sem reconfirm HTTP ok no modo offline + perfil pendente) |
+| Pack E2E em dados reais | `evidence/live-pack-http/decision_manifest.json` status OK |
+| 100 decisões (HTTP pack) | REVIEW=100, PARTICIPAR=0 (perfil PENDING + política fail-closed) |
+| Reconfirmação oficial | 20 alvos: **12 ok**, 7 error, 1 http_403; `high_confidence_open=12` |
 | PDF + Excel mesmo run | `reconcile.json` PASS |
 | Profile hash nos artefatos | `profile_status.json` + manifest |
-| Fila humana | `human_review_queue.csv` (labels vazios) |
+| Fila humana | export 40 estratificados; import 3 labels; calibrate **PENDING_HUMAN** |
+| Weekly baseline | `make extra-weekly --skip-collect` exit 0 |
 | Testes obrigatórios | 27 passed em `tests/test_decision_loop_v2.py` |
+| CI | PR #52 checks obrigatórios verdes |
 
 ## DOD
 

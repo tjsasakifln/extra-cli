@@ -1,0 +1,67 @@
+{
+  "schema": "extra-decision-checksums/1.0",
+  "run_id": "decision-20260719T215652Z-65ba60f985",
+  "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+  "artifacts": {
+    "brief_md": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/executive_decision_brief.md",
+      "sha256": "6a70cd075f325f47574fac2a257233631ee42aa89015c7ba876bf2db9f77dafb",
+      "bytes": 7030
+    },
+    "brief_pdf": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/executive_decision_brief.pdf",
+      "sha256": "08df0baa0a1c233d73acc0b0e880967031ffa155733ea61546f62b3ae596da5b",
+      "bytes": 5744
+    },
+    "excel": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/extra_decision_pack.xlsx",
+      "sha256": "7bd5f8a637e62f1d3b6292feada20a690af82efd59421dc7d770acad92466f34",
+      "bytes": 54526
+    },
+    "actionable_csv": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/actionable_opportunities.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "review_csv": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/review_opportunities.csv",
+      "sha256": "5bde58a2263ac6601b6cfece89e7b94a388316cf46243f7d58f11910752fb0f8",
+      "bytes": 347992
+    },
+    "discarded_csv": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/discarded_opportunities.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "snapshot_changes_csv": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/snapshot_changes.csv",
+      "sha256": "911b18d537dc4e2422d99b375c43dcc92ca57bb1839ea71817f9814964760179",
+      "bytes": 897
+    },
+    "human_review_queue_csv": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/human_review_queue.csv",
+      "sha256": "ac00c71cd95d35f9fa2a30e82cdb9e21fe9857ec598bcbaa1e3d2974f15c3727",
+      "bytes": 13138
+    },
+    "source_health_csv": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/source_health.csv",
+      "sha256": "4c829233fafd39c6ba067814caf8743a74eaa40a7d4522d559f132ec8c966d1b",
+      "bytes": 315
+    },
+    "profile_status_json": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/profile_status.json",
+      "sha256": "51684a57e12750f5ce6b6f1ad2e988c63d26010c6fbc21cf62fae9369dbcbe34",
+      "bytes": 6616
+    },
+    "snapshot_json": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/snapshot.json",
+      "sha256": "1d38d16c2bb824b272f0cc45eeb5e2d7ffb1419d70dfa96fca63caa9e84b8d1b",
+      "bytes": 100305
+    },
+    "delta_json": {
+      "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack-http/snapshot_delta.json",
+      "sha256": "11d3ad2ab7e70ad9e314637477cf0fa5094660e68032003961c02821a285a42b",
+      "bytes": 1397
+    }
+  }
+}

@@ -194,13 +194,16 @@ def import_review_labels(
     labels_path = store / "labels.json"
     history_path = store / "history.jsonl"
 
-    existing: dict[str, Any] = {}
+    existing: dict[str, Any] = {"labels": {}}
     if labels_path.is_file():
-        existing = json.loads(labels_path.read_text(encoding="utf-8"))
-    if not isinstance(existing, dict):
-        existing = {"labels": {}}
-    raw_labels = existing.get("labels") if isinstance(existing.get("labels"), dict) else {}
-    labels: dict[str, dict[str, Any]] = dict(raw_labels or {})
+        loaded: Any = json.loads(labels_path.read_text(encoding="utf-8"))
+        if isinstance(loaded, dict):
+            existing = loaded
+    raw_labels_any = existing.get("labels")
+    raw_labels: dict[str, Any] = raw_labels_any if isinstance(raw_labels_any, dict) else {}
+    labels: dict[str, dict[str, Any]] = {
+        str(k): v for k, v in raw_labels.items() if isinstance(v, dict)
+    }
 
     rows = _read_csv(csv_path)
     imported = 0

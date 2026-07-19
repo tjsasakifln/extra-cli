@@ -227,7 +227,10 @@ def _collect_field_records(data: dict[str, Any], local_keys: set[str]) -> list[F
             )
         )
 
-    elicitation = data.get("elicitation") if isinstance(data.get("elicitation"), dict) else {}
+    elicitation_raw = data.get("elicitation")
+    elicitation: dict[str, Any] = (
+        elicitation_raw if isinstance(elicitation_raw, dict) else {}
+    )
     queue_qs = {
         item.get("field", "").split(".")[-1]: item.get("question")
         for item in (data.get("elicitation_queue") or [])

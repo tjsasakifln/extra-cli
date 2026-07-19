@@ -2,13 +2,16 @@
 
 | Campo | Valor |
 |-------|--------|
-| Veredito técnico | **DONE** (implementação + evidência + PR) |
+| Veredito técnico | **DONE** (implementação + evidência + PR + CI verde) |
 | Aceite de produto | **PENDING_HUMAN** |
 | Branch | `goal/extra-decision-loop-01` |
 | Baseline main | `d6d9e19` |
-| Live pack run | `decision-20260719T215322Z-2a79c2846a` |
-| Live counts | PARTICIPAR=0, REVIEW=200, NÃO_PARTICIPAR=0 (limit 200) |
-| Reconcile PDF↔Excel | **PASS** |
+| PR | https://github.com/tjsasakifln/extra-consultoria/pull/52 |
+| Live pack (offline) | `decision-20260719T215322Z-2a79c2846a` — REVIEW=200 |
+| Live pack (HTTP) | `decision-20260719T215652Z-65ba60f985` — 20 reconfirms (12 ok, 7 error, 1 http_403), high_conf_open=12 |
+| Live counts HTTP | PARTICIPAR=0, REVIEW=100, NÃO_PARTICIPAR=0 (limit 100) |
+| Reconcile PDF↔Excel | **PASS** (ambos packs) |
+| CI PR #52 | Lint/mypy/critical/ops/resilience/bandit/pip-audit **pass** |
 | Testes campanha | `tests/test_decision_loop_v2.py` — 27 passed |
 
 ## Comandos canônicos

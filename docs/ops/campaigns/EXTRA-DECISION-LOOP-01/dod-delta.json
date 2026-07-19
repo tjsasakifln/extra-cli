@@ -17,9 +17,9 @@
       "requirement_text": "Monitoramento, reconciliação de status, exportação, PDF/Excel, triagem",
       "before_status": "PARTIAL",
       "after_status": "PARTIAL",
-      "evidence": "snapshot+delta+reconfirm; PDF+Excel reconcile PASS; CSVs de decisão",
+      "evidence": "live-pack-http: 20 reconfirms oficiais (12 ok/7 error/1 http_403), PDF+Excel reconcile PASS",
       "evidence_strength": "operational_run",
-      "remaining_limitation": "Reconfirm live HTTP em massa não é gate; offline documentado"
+      "remaining_limitation": "Nem todas as 100 oportunidades foram reconfirmadas HTTP (top-20+acionáveis); resto unconfirmed"
     },
     {
       "dod_section": "§2.5",
