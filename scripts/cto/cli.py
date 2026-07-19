@@ -465,6 +465,44 @@ def _load_cycle_artifacts(root: Path, cycle_id: str) -> dict[str, Any]:
     return out
 
 
+def _block_live_skip_tests(
+    *,
+    args: argparse.Namespace,
+    sm: StateMachine,
+    report: dict[str, Any],
+    cycle_id: str | None = None,
+) -> int | None:
+    """Live cycles must not skip tests (ACCEPT/publish forbidden).
+
+    --skip-tests remains valid for dry-run, mock diagnosis, and standalone
+    verify — never for a live run that could reach ACCEPT or publisher.
+    """
+    if not getattr(args, "skip_tests", False):
+        return None
+    if getattr(args, "dry_run", False):
+        return None
+    # mock without dry_run is still non-publishing diagnostic only if skip_publish
+    # but mission: non dry-run + skip_tests → BLOCKED_UNVERIFIED
+    reason = "BLOCKED_UNVERIFIED: --skip-tests forbidden on live cycle (no ACCEPT/publish)"
+    try:
+        sm.transition("BLOCKED", reason=reason, cycle_id=cycle_id)
+    except Exception:  # noqa: BLE001
+        st = sm.load()
+        st.status = "BLOCKED"
+        st.last_error = reason
+        if cycle_id:
+            st.cycle_id = cycle_id
+        sm.save(st)
+    report["ok"] = False
+    report["operational_success"] = False
+    report["error"] = reason
+    report["outcome"] = "blocked_unverified"
+    report["terminal_status"] = "BLOCKED"
+    report["skip_tests_blocked"] = True
+    _print(report)
+    return EXIT_BLOCKED
+
+
 def _run_cycle_from_decision(
     *,
     root: Path,
@@ -477,6 +515,9 @@ def _run_cycle_from_decision(
 ) -> int:
     """Shared execute→verify→review→publish path used by run-once and resume."""
     cycle_id = decision.get("cycle_id")
+    blocked = _block_live_skip_tests(args=args, sm=sm, report=report, cycle_id=str(cycle_id) if cycle_id else None)
+    if blocked is not None:
+        return blocked
     cdir = cycles_dir(root) / str(cycle_id)
     cdir.mkdir(parents=True, exist_ok=True)
     (cdir / "decision.json").write_text(
@@ -793,6 +834,9 @@ def cmd_run_once(args: argparse.Namespace) -> int:
 
     report: dict[str, Any] = {"steps": [], "ok": False, "operational_success": False}
     try:
+        early = _block_live_skip_tests(args=args, sm=sm, report=report)
+        if early is not None:
+            return early
         ok_b, reason = check_budget(cfg.budgets, root)
         if not ok_b:
             sm.transition("PAUSED", reason=f"budget: {reason}")
@@ -1140,7 +1184,186 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("refresh-executive", help="Update executive HTML panel")
     sub.add_parser("audit", help="Full local audit snapshot")
     sub.add_parser("deepseek-smoke", help="Live DeepSeek smoke (opt-in)")
+    p_canary = sub.add_parser(
+        "canary-live",
+        help="One controlled live canary: only docs/ops/cto-autopilot/canary-proof.md",
+    )
+    p_canary.add_argument(
+        "--skip-push",
+        action="store_true",
+        help="Execute/verify/review only (no remote push/PR)",
+    )
+    p_canary.add_argument(
+        "--mock",
+        action="store_true",
+        help="Use mock executor (not valid for merge-gate proof)",
+    )
     return p
+
+
+def build_canary_decision(*, root: Path) -> dict[str, Any]:
+    """Fixed, fail-closed decision for the live canary proof."""
+    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    cycle_id = f"canary-live-{ts}"
+    return {
+        "schema_version": "1.0",
+        "decision_id": f"dec-{cycle_id}",
+        "cycle_id": cycle_id,
+        "decision": "EXECUTE",
+        "objective": (
+            f"Update exclusively docs/ops/cto-autopilot/canary-proof.md with UTC "
+            f"timestamp {ts}, cycle_id {cycle_id}, and one sentence stating the "
+            "controlled live canary cycle executed. Do not touch any other file."
+        ),
+        "issue_number": None,
+        "work_id": "cto-canary-live",
+        "candidate_id": None,
+        "strategic_reason": "PR #48 merge-gate live canary proof",
+        "acceptance_criteria": [
+            "only canary-proof.md modified",
+            "file contains cycle_id and UTC timestamp",
+            "no merge, no main mutation",
+        ],
+        "required_evidence": ["git diff docs/ops/cto-autopilot/canary-proof.md"],
+        "allowed_paths": ["docs/ops/cto-autopilot/canary-proof.md"],
+        "forbidden_paths": [
+            "DOD.md",
+            ".github/**",
+            "scripts/**",
+            "tests/**",
+            "config/**",
+            ".env",
+            ".env.*",
+        ],
+        "test_commands": [
+            "python3 -m pytest tests/cto/test_executor_hardening.py -q --no-cov",
+        ],
+        "forbidden_actions": [
+            "merge",
+            "deploy",
+            "git push",
+            "issue close",
+            "issue label mutation",
+            "operate on main",
+        ],
+        "allowed_claims": [],
+        "forbidden_claims": [
+            "LOCAL_READY",
+            "PRE_VPS_FINAL_READY",
+            "VPS_OPERATIONAL",
+            "PROJECT_DONE",
+            "95% coverage",
+            "recall 100%",
+        ],
+        "max_repair_attempts": 1,
+        "estimated_risk": "LOW",
+        "confidence": 0.99,
+        "human_gate": {"required": False, "reason": None},
+        "_meta": {
+            "canary": True,
+            "branch_name": f"cto/canary-live-{ts}",
+            "source": "cli canary-live",
+        },
+    }
+
+
+def cmd_canary_live(args: argparse.Namespace) -> int:
+    """Controlled live canary: Grok real (unless --mock), publisher draft PR, no merge."""
+    root = repo_root()
+    cfg = load_config(root)
+    sm = StateMachine(root)
+    try:
+        sm.lock.acquire("canary-live")
+    except LockError as exc:
+        _print({"ok": False, "error": str(exc)})
+        return EXIT_LOCK
+
+    report: dict[str, Any] = {
+        "steps": [],
+        "ok": False,
+        "operational_success": False,
+        "mode": "canary-live",
+    }
+    try:
+        # Force live tests (ignore any ambient skip)
+        args.skip_tests = False
+        args.dry_run = False
+        args.skip_publish = False
+        if not hasattr(args, "skip_push"):
+            args.skip_push = False
+
+        cur = sm.load()
+        if cur.status in {"DONE", "ACCEPTED", "FAILED", "BLOCKED", "WAITING_HUMAN"}:
+            try:
+                sm.transition("IDLE", reason="canary-live re-entry")
+            except Exception:  # noqa: BLE001
+                st = sm.load()
+                st.status = "IDLE"
+                sm.save(st)
+
+        decision = build_canary_decision(root=root)
+        branch_name = (decision.get("_meta") or {}).get("branch_name")
+        save_decision(decision, root)
+        report["steps"].append({"step": "canary-decision", "cycle_id": decision["cycle_id"]})
+        report["canary"] = {
+            "cycle_id": decision["cycle_id"],
+            "decision_id": decision["decision_id"],
+            "branch": branch_name,
+            "allowed_paths": decision["allowed_paths"],
+        }
+
+        # prepare worktree with explicit canary branch name
+        from scripts.cto.grok_executor import prepare_worktree
+
+        prep = prepare_worktree(
+            cycle_id=str(decision["cycle_id"]),
+            branch_name=branch_name,
+            root=root,
+        )
+        report["steps"].append({"step": "prepare-worktree", **prep})
+
+        # Inject branch into decision meta for publisher
+        decision["_meta"] = {**(decision.get("_meta") or {}), "worktree": prep["worktree"]}
+        save_decision(decision, root)
+
+        # Monkey-patch execute path: use worktree_override + branch
+        # by calling shared cycle with decision already set
+        # Override grok_execute via wrapper in this function
+        import scripts.cto.cli as cli_mod
+        from scripts.cto import grok_executor as ge
+
+        original = cli_mod.grok_execute
+
+        def _canary_execute(decision_arg, **kwargs):  # type: ignore[no-untyped-def]
+            kwargs.setdefault("worktree_override", Path(prep["worktree"]))
+            kwargs["branch_name"] = branch_name
+            return ge.execute(decision_arg, **kwargs)
+
+        cli_mod.grok_execute = _canary_execute  # type: ignore[assignment]
+        try:
+            return _run_cycle_from_decision(
+                root=root,
+                cfg=cfg,
+                sm=sm,
+                decision=decision,
+                args=args,
+                report=report,
+                start_phase="PREPARING",
+            )
+        finally:
+            cli_mod.grok_execute = original  # type: ignore[assignment]
+    except Exception as exc:  # noqa: BLE001
+        try:
+            sm.transition("FAILED", reason=str(exc))
+        except Exception as exc2:  # noqa: BLE001
+            report["transition_error"] = str(exc2)
+        report["error"] = str(exc)
+        report["terminal_status"] = "FAILED"
+        report["operational_success"] = False
+        _print(report)
+        return EXIT_FAILED
+    finally:
+        sm.lock.release()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1166,6 +1389,7 @@ def main(argv: list[str] | None = None) -> int:
         "refresh-executive": cmd_refresh_executive,
         "audit": cmd_audit,
         "deepseek-smoke": cmd_deepseek_smoke,
+        "canary-live": cmd_canary_live,
     }
     return handlers[args.cmd](args)
 

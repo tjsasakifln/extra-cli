@@ -34,7 +34,7 @@ STATES = frozenset(
 
 # Allowed transitions (from -> set of to)
 TRANSITIONS: dict[str, set[str]] = {
-    "IDLE": {"OBSERVING", "PAUSED", "DONE"},
+    "IDLE": {"OBSERVING", "PAUSED", "DONE", "BLOCKED"},
     # IDLE allowed: standalone `observe` CLI returns to idle without deciding
     "OBSERVING": {"DECIDING", "IDLE", "BLOCKED", "FAILED", "PAUSED"},
     "DECIDING": {

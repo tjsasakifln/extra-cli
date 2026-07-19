@@ -167,7 +167,39 @@ jobs:
           retention-days: 14
 
   # ============================================================================
+  # TEST CTO AUTOPILOT — mandatory gate for scripts/cto + tests/cto
+  # Full project suite remains debt (test-all is workflow_dispatch only).
+  # This job is the merge-gate protection for the CTO Autopilot surface.
+  # ============================================================================
+  test-cto:
+    name: Test (CTO Autopilot)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pyyaml
+
+      - name: Run CTO Autopilot tests
+        # Fail-closed: no continue-on-error, no || true, no skip.
+        # Prints collected/passed count in pytest summary line.
+        run: python3 -m pytest tests/cto -q --no-cov
+        env:
+          CI: true
+
+  # ============================================================================
   # TEST ALL — inclui integration, smoke, slow (gate completo)
+  # Residual debt: not part of PR #48 merge gate (needs external services).
   # ============================================================================
   test-all:
     name: Test All (full suite)

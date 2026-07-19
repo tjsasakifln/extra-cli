@@ -44,7 +44,9 @@
 # WorkingDirectory=/path/to/extra-consultoria
 # EnvironmentFile=-/path/to/extra-consultoria/.env
 # # Live cycle: no --dry-run. Publisher may push draft PR; never merges.
-# ExecStart=/usr/bin/python3 -m scripts.cto.cli run-once --skip-tests
+# Live: always run decision test_commands (never --skip-tests).
+# --skip-tests is diagnostic/dry-run only; live + --skip-tests → BLOCKED_UNVERIFIED.
+# ExecStart=/usr/bin/python3 -m scripts.cto.cli run-once
 # Nice=10
 # TimeoutStartSec=7200
 #
