@@ -44,7 +44,7 @@ Novo módulo: `scripts/cto/publisher.py` (só publicação, nunca Grok).
 
 ```text
 python3 -m pytest tests/cto -q --no-cov
-# 83 passed
+# 87 passed
 ```
 
 Cobertura inclui: observer context, readiness/reconcile, verifier matrix/UNPROVEN/executor-fail/secrets, review fallback anti-ACCEPT, publisher no-merge, resume EXECUTING/REVIEWING, exit codes, executor env strip/preflight, redaction usage counters.
@@ -54,7 +54,7 @@ Cobertura inclui: observer context, readiness/reconcile, verifier matrix/UNPROVE
 | Check | Resultado |
 |-------|-----------|
 | Ruff `scripts/cto` + `tests/cto` | All checks passed |
-| `pytest tests/cto` | **83 passed** |
+| `pytest tests/cto` | **87 passed** |
 | `cli doctor` | ok |
 | `reconcile-queue` | 8 itens PR#48 → review; 3 blocked por blockers; auto_closed=false |
 | `run-once --dry-run --mock --skip-tests` | verify PASS → review ACCEPT → publish dry → **WAITING_HUMAN** exit **10** |
@@ -126,3 +126,12 @@ Autonomous merge/deploy = **proibido**.
 ## Claims
 
 **Não** se declara: `LOCAL_READY`, `PRE_VPS_FINAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, cobertura 95%.
+
+
+## Hotfix readiness (post-skeptic)
+
+- `sync_issues --apply` calls `_set_state_label` (removes other `state:*` before setting target)
+- Observer indexes issues by **effective** state (blocked > human > review > in-progress > ready)
+- `decide` / `run-once` call `reconcile_implemented_items` + `apply_readiness_gates` before decision
+- `enforce_executable_readiness` rejects EXECUTE on #30/#37–39/#43–44/#46–47
+- Evidence: `gh issue list --label state:ready` no longer includes those issues; dual-state count = 0; dry decide selected #32 not banned set

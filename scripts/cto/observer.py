@@ -282,23 +282,40 @@ def _gh_issues_summary(root: Path) -> dict[str, Any]:
     by_state: dict[str, list[dict[str, Any]]] = {}
     simplified = []
     work_id_re = re.compile(r"<!--\s*extra-work-id:\s*([^\s]+)\s*-->")
+    # When dual-labeled (bug residue), prefer non-ready operational state
+    state_priority = (
+        "state:blocked",
+        "state:human",
+        "state:review",
+        "state:in-progress",
+        "state:ready",
+    )
     for it in items:
         labels = [lb.get("name") for lb in (it.get("labels") or []) if isinstance(lb, dict)]
         state_labels = [lb for lb in labels if str(lb).startswith("state:")]
         body = it.get("body") or ""
         wid_m = work_id_re.search(body)
+        effective_state = "state:unlabeled"
+        for cand in state_priority:
+            if cand in state_labels:
+                effective_state = cand
+                break
+        if state_labels and effective_state == "state:unlabeled":
+            effective_state = str(state_labels[0])
         entry = {
             "number": it.get("number"),
             "title": it.get("title"),
             "labels": labels,
             "updated_at": it.get("updatedAt"),
             "state_labels": state_labels,
+            "effective_state": effective_state,
+            "dual_state_labels": len(state_labels) > 1,
             "work_id": wid_m.group(1).strip() if wid_m else None,
             "body_excerpt": body[:500],
         }
         simplified.append(entry)
-        key = state_labels[0] if state_labels else "state:unlabeled"
-        by_state.setdefault(key, []).append(entry)
+        # Index only under effective state — dual-labeled ready+review must not appear as ready
+        by_state.setdefault(effective_state, []).append(entry)
     by_state_counts = {k: len(v) for k, v in by_state.items()}
     return {
         "available": True,
@@ -306,6 +323,7 @@ def _gh_issues_summary(root: Path) -> dict[str, Any]:
         "items": simplified[:40],
         "by_state_counts": by_state_counts,
         "by_state": {k: v[:10] for k, v in by_state.items()},
+        "dual_state_count": sum(1 for e in simplified if e.get("dual_state_labels")),
     }
 
 

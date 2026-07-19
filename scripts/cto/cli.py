@@ -67,6 +67,29 @@ from scripts.cto.work_registry import (  # noqa: E402
     work_item_public_view,
 )
 
+
+def _reconcile_queue_for_cycle(root: Path) -> dict[str, Any]:
+    """Ensure registry readiness before observe/decide. Never auto-closes Issues."""
+    reg = load_registry(root)
+    if not reg.get("work_items"):
+        reg = build_initial_registry(root)
+    moved = reconcile_implemented_items(
+        reg,
+        evidence=[
+            "PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48",
+            "scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719",
+        ],
+        target_state="review",
+    )
+    gates = apply_readiness_gates(reg)
+    path = save_registry(reg, root)
+    return {
+        "registry_path": str(path),
+        "reconciled": moved,
+        "readiness_gates": gates,
+        "auto_closed": False,
+    }
+
 # Exit codes: distinguish operational outcomes
 EXIT_OK = 0  # work accepted + published path complete, or clean NOOP
 EXIT_ERROR = 1  # unexpected failure
@@ -298,7 +321,11 @@ def cmd_decide(args: argparse.Namespace) -> int:
                 st = sm.load()
                 st.status = "IDLE"
                 sm.save(st)
+        recon = _reconcile_queue_for_cycle(root)
         if not observation_path(root).is_file() or args.refresh:
+            observe(root, write=True)
+        else:
+            # Refresh observation after reconcile so ready sets are honest
             observe(root, write=True)
         obs = json.loads(observation_path(root).read_text(encoding="utf-8"))
         if sm.load().status == "IDLE":
@@ -312,6 +339,7 @@ def cmd_decide(args: argparse.Namespace) -> int:
             dry_run=args.dry_run,
             root=root,
         )
+        decision.setdefault("_meta", {})["queue_reconcile"] = recon
         save_decision(decision, root)
         usage = (decision.get("_meta") or {}).get("usage") or {}
         if usage:
@@ -765,6 +793,10 @@ def cmd_run_once(args: argparse.Namespace) -> int:
                 st = sm.load()
                 st.status = "IDLE"
                 sm.save(st)
+
+        recon = _reconcile_queue_for_cycle(root)
+        report["steps"].append({"step": "reconcile-queue", **{k: recon.get(k) for k in ("auto_closed",)}})
+        report["reconcile"] = recon
 
         sm.transition("OBSERVING", reason="run-once")
         obs = observe(root, write=True)

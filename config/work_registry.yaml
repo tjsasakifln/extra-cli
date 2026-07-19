@@ -1,5 +1,5 @@
 schema_version: '1.0'
-updated_at: '2026-07-19T19:26:57Z'
+updated_at: '2026-07-19T19:39:03Z'
 work_items:
 - work_id: cto-autopilot-infra
   title: CTO Autopilot infrastructure (observe/decide/verify)
@@ -26,11 +26,27 @@ work_items:
   evidence:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:26:30Z'
+  - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
+  last_synced_at: '2026-07-19T19:36:32Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
     from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:36:08Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:37:55Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: stabilize-open-pr-ci
@@ -56,7 +72,7 @@ work_items:
   origin: audit-prs
   issue_number: 31
   evidence: []
-  last_synced_at: '2026-07-19T19:26:32Z'
+  last_synced_at: '2026-07-19T19:36:36Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: readiness_gate
@@ -71,7 +87,7 @@ work_items:
   area: platform
   priority: p1
   risk: high
-  state: ready
+  state: human
   dod_refs:
   - coverage operational
   - §20
@@ -85,8 +101,15 @@ work_items:
   milestone: LOCAL_READY
   origin: audit-prs
   issue_number: 32
-  evidence: []
-  last_synced_at: '2026-07-19T19:26:33Z'
+  evidence:
+  - commit:cdde02b1013a2bc48d1f651503409e33201b32ab
+  last_synced_at: '2026-07-19T19:36:40Z'
+  execution_history:
+  - ts: '2026-07-19T19:39:03Z'
+    phase: published_draft_pr
+    cycle_id: cyc-20260719T193808Z
+    pr: null
+    commit: cdde02b1013a2bc48d1f651503409e33201b32ab
 - work_id: full-suite-schema-debt
   title: Reduce full-suite schema debt blocking Test All
   objective: Make full suite runnable or document residual schema debt honestly
@@ -108,7 +131,7 @@ work_items:
   origin: dod-open
   issue_number: 33
   evidence: []
-  last_synced_at: '2026-07-19T19:26:34Z'
+  last_synced_at: '2026-07-19T19:36:44Z'
 - work_id: freshness-coverage-sla
   title: Freshness coverage measurable per entity within SLA
   objective: Instrument and report per-entity freshness vs SLA without claiming 95%
@@ -130,7 +153,7 @@ work_items:
   origin: dod-open
   issue_number: 34
   evidence: []
-  last_synced_at: '2026-07-19T19:26:36Z'
+  last_synced_at: '2026-07-19T19:36:47Z'
 - work_id: recall-stratified-95
   title: Independent stratified recall measurement path
   objective: Build recall sample pipeline with honest NOT_READY until ≥95%
@@ -152,7 +175,7 @@ work_items:
   origin: dod-open
   issue_number: 35
   evidence: []
-  last_synced_at: '2026-07-19T19:26:37Z'
+  last_synced_at: '2026-07-19T19:36:51Z'
 - work_id: opportunities-open-pipeline
   title: Open opportunities pipeline reliability
   objective: Ensure opportunity_intel list/show/export works with evidence
@@ -175,7 +198,7 @@ work_items:
   origin: product
   issue_number: 36
   evidence: []
-  last_synced_at: '2026-07-19T19:26:39Z'
+  last_synced_at: '2026-07-19T19:36:55Z'
 - work_id: executive-html-cto-panel
   title: Executive HTML CTO panel (derived projection)
   objective: Refresh HTML with DoD counts, PRs, Issues, last CTO decision — no secrets
@@ -200,11 +223,27 @@ work_items:
   evidence:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:26:41Z'
+  - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
+  last_synced_at: '2026-07-19T19:36:59Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
     from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:36:08Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:37:55Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: github-issues-queue
@@ -232,11 +271,27 @@ work_items:
   evidence:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:26:43Z'
+  - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
+  last_synced_at: '2026-07-19T19:37:04Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
     from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:36:08Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:37:55Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: dod-evidence-discipline
@@ -263,11 +318,27 @@ work_items:
   evidence:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:26:44Z'
+  - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
+  last_synced_at: '2026-07-19T19:37:08Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
     from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:36:08Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:37:55Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: source-health-pncp-timeout
@@ -292,7 +363,7 @@ work_items:
   origin: dod-open
   issue_number: 40
   evidence: []
-  last_synced_at: '2026-07-19T19:26:46Z'
+  last_synced_at: '2026-07-19T19:37:12Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: readiness_gate
@@ -321,7 +392,7 @@ work_items:
   origin: product
   issue_number: 41
   evidence: []
-  last_synced_at: '2026-07-19T19:26:47Z'
+  last_synced_at: '2026-07-19T19:37:16Z'
 - work_id: reports-pdf-excel-stable
   title: PDF/Excel report generation stability
   objective: Ensure panorama/export paths exit 0 on sample data
@@ -342,7 +413,7 @@ work_items:
   origin: dod-open
   issue_number: 42
   evidence: []
-  last_synced_at: '2026-07-19T19:26:49Z'
+  last_synced_at: '2026-07-19T19:37:20Z'
 - work_id: ranker-advisory-bridge
   title: Ranker advisory bridge into CTO decide
   objective: Feed top ranker candidates into observation for DeepSeek veto/accept
@@ -367,11 +438,27 @@ work_items:
   evidence:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:26:50Z'
+  - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
+  last_synced_at: '2026-07-19T19:37:25Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
     from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:36:08Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:37:55Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: human-gates-fail-closed
@@ -398,11 +485,27 @@ work_items:
   evidence:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:26:52Z'
+  - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
+  last_synced_at: '2026-07-19T19:37:29Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
     from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:36:08Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:37:55Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: coverage-operational-progress
@@ -427,7 +530,7 @@ work_items:
   origin: dod-open
   issue_number: 45
   evidence: []
-  last_synced_at: '2026-07-19T19:26:53Z'
+  last_synced_at: '2026-07-19T19:37:33Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: readiness_gate
@@ -458,11 +561,27 @@ work_items:
   evidence:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
-  last_synced_at: '2026-07-19T19:26:55Z'
+  - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
+  last_synced_at: '2026-07-19T19:37:37Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
     from_state: ready
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:36:08Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:37:55Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: budget-and-fallback
@@ -472,7 +591,7 @@ work_items:
   area: cto
   priority: p1
   risk: normal
-  state: human
+  state: review
   dod_refs:
   - cost control
   acceptance_criteria:
@@ -490,7 +609,8 @@ work_items:
   - 'PR #48 https://github.com/tjsasakifln/extra-consultoria/pull/48'
   - scripts/cto/* + tests/cto/* implemented on feat/cto-autopilot-issues-deepseek-20260719
   - commit:78c692e3a2ff3ea9c3f55ad479a0d8c0d975dcd3
-  last_synced_at: '2026-07-19T19:26:57Z'
+  - scripts/cto/* + tests/cto/* on feat/cto-autopilot-issues-deepseek-20260719
+  last_synced_at: '2026-07-19T19:37:42Z'
   execution_history:
   - ts: '2026-07-19T19:17:23Z'
     phase: reconcile_implemented
@@ -502,3 +622,18 @@ work_items:
     cycle_id: cyc-20260719T191854Z
     pr: null
     commit: 78c692e3a2ff3ea9c3f55ad479a0d8c0d975dcd3
+  - ts: '2026-07-19T19:36:08Z'
+    phase: reconcile_implemented
+    from_state: human
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:37:55Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'

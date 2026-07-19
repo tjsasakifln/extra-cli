@@ -309,39 +309,98 @@ def decide_from_observation(
     observation = {**observation, "ranking": ranking_obs}
 
     if dry_run and client is None:
-        # Deterministic dry-run: prefer ready Issues, then work registry, then ranker
+        # Deterministic dry-run: only truly-ready work (readiness gates + not PR#48-implemented)
+        from scripts.cto.work_registry import (
+            IMPLEMENTED_IN_PR48,
+            ISSUE_NUMBERS_IMPLEMENTED_IN_PR48,
+            get_by_work_id,
+            load_registry,
+            readiness_for_item,
+        )
+
         ranking = observation.get("ranking") or {}
         top = (ranking.get("top") or [None])[0]
         issues = observation.get("issues") or {}
-        ready = (issues.get("by_state") or {}).get("state:ready") or []
+        registry = load_registry(root)
         issue_number = None
         work_id = None
-        if ready:
-            issue_number = ready[0].get("number")
-            work_id = ready[0].get("work_id")
-        # Prefer work registry (has issue_number after sync)
-        reg_summary = observation.get("work_registry") or {}
-        reg_ids = reg_summary.get("ids") or []
-        if not work_id and reg_ids:
-            work_id = reg_ids[0]
-        if not work_id and top:
-            work_id = (top or {}).get("id")
-        # Link issue_number from registry file when observation only has work_id
+
+        def _is_executable_ready(item: dict[str, Any] | None, issue_meta: dict[str, Any] | None = None) -> bool:
+            if not item and not issue_meta:
+                return False
+            wid = (item or {}).get("work_id") or (issue_meta or {}).get("work_id")
+            inum = (item or {}).get("issue_number") or (issue_meta or {}).get("number")
+            if wid in IMPLEMENTED_IN_PR48 or inum in ISSUE_NUMBERS_IMPLEMENTED_IN_PR48:
+                return False
+            if item is not None:
+                info = readiness_for_item(item, registry)
+                return bool(info.get("ready"))
+            # issue-only: require effective state ready and no dual labels with non-ready
+            eff = (issue_meta or {}).get("effective_state") or ""
+            state_labels = (issue_meta or {}).get("state_labels") or []
+            if any(
+                s in state_labels
+                for s in ("state:review", "state:human", "state:blocked", "state:in-progress")
+            ):
+                return False
+            return eff == "state:ready" or (
+                not eff and "state:ready" in state_labels and len(state_labels) == 1
+            )
+
+        # 1) Prefer registry items that are truly ready
+        ready_items = [
+            i
+            for i in (registry.get("work_items") or [])
+            if _is_executable_ready(i, None)
+        ]
+        # priority order p0,p1,p2,p3
+        prio = {"p0": 0, "p1": 1, "p2": 2, "p3": 3}
+        ready_items.sort(key=lambda x: prio.get(str(x.get("priority")), 9))
+        if ready_items:
+            work_id = ready_items[0].get("work_id")
+            if ready_items[0].get("issue_number"):
+                issue_number = int(ready_items[0]["issue_number"])
+
+        # 2) Fallback: observation state:ready filtered by readiness
+        if not work_id:
+            for cand in (issues.get("by_state") or {}).get("state:ready") or []:
+                wid = cand.get("work_id")
+                item = get_by_work_id(registry, str(wid)) if wid else None
+                if _is_executable_ready(item, cand):
+                    work_id = wid or work_id
+                    if cand.get("number"):
+                        issue_number = int(cand["number"])
+                    break
+
+        # 3) Ranker advisory only if not already-implemented and maps to ready work
+        if not work_id and top and (top or {}).get("id"):
+            cand_id = (top or {}).get("id")
+            # do not execute ranker research items that are blocked
+            for i in registry.get("work_items") or []:
+                if i.get("candidate_id") == cand_id and _is_executable_ready(i, None):
+                    work_id = i.get("work_id")
+                    if i.get("issue_number"):
+                        issue_number = int(i["issue_number"])
+                    break
+
+        # Link issue_number from registry when only work_id known
         if work_id and not issue_number:
             try:
-                from scripts.cto.work_registry import get_by_work_id, load_registry
-
-                item = get_by_work_id(load_registry(cfg.root), str(work_id))
+                item = get_by_work_id(registry, str(work_id))
                 if item and item.get("issue_number"):
                     issue_number = int(item["issue_number"])
             except Exception:  # noqa: BLE001
-                pass
-        # Also scan open issues for matching work_id
+                issue_number = issue_number
         if work_id and not issue_number:
             for it in issues.get("items") or []:
                 if it.get("work_id") == work_id and it.get("number"):
                     issue_number = int(it["number"])
                     break
+
+        # Final hard reject if still points at implemented PR#48 work
+        if work_id in IMPLEMENTED_IN_PR48 or issue_number in ISSUE_NUMBERS_IMPLEMENTED_IN_PR48:
+            work_id = None
+            issue_number = None
         has_work = bool(work_id or issue_number)
         decision = {
             "schema_version": "1.0",
@@ -383,7 +442,20 @@ def decide_from_observation(
             policies=cfg.policies,
             min_confidence=0.0 if decision["decision"] == "NOOP" else 0.0,
         )
+        # Second hard gate even after selection
+        validated = enforce_executable_readiness(validated, root=root)
+        if validated.get("decision") == "NOOP":
+            try:
+                validated = validate_decision(
+                    validated,
+                    root=cfg.root,
+                    policies=cfg.policies,
+                    min_confidence=0.0,
+                )
+            except DecisionValidationError:
+                pass
         validated["_meta"] = {
+            **(validated.get("_meta") or {}),
             "created_at": _utc_now(),
             "dry_run": True,
             "ranking_freshness": rank_meta,
@@ -441,7 +513,11 @@ def decide_from_observation(
         }
         return blocked
 
+    # Hard readiness gate on live CTO output (never re-execute PR#48-delivered work)
+    validated = enforce_executable_readiness(validated, root=root)
+
     validated["_meta"] = {
+        **(validated.get("_meta") or {}),
         "created_at": _utc_now(),
         "usage": {
             "model": result.usage.model,
@@ -453,8 +529,81 @@ def decide_from_observation(
             "estimated_cost_usd": result.usage.estimated_cost_usd,
         },
         "finish_reason": result.finish_reason,
+        "ranking_freshness": rank_meta,
+        "ranking_stale": bool(ranking_obs.get("stale")),
     }
     return redact_obj(validated)
+
+
+def enforce_executable_readiness(
+    decision: dict[str, Any],
+    *,
+    root: Path | None = None,
+) -> dict[str, Any]:
+    """Reject EXECUTE/REPAIR targeting non-ready or already-implemented work.
+
+    Converts to NOOP (or keeps BLOCK/ESCALATE) rather than re-picking silently.
+    """
+    from scripts.cto.work_registry import (
+        IMPLEMENTED_IN_PR48,
+        ISSUE_NUMBERS_IMPLEMENTED_IN_PR48,
+        get_by_work_id,
+        load_registry,
+        readiness_for_item,
+    )
+
+    action = decision.get("decision")
+    if action not in {"EXECUTE", "REPAIR", "ACCEPT"}:
+        return decision
+
+    wid = decision.get("work_id")
+    inum = decision.get("issue_number")
+    reasons: list[str] = []
+    if wid in IMPLEMENTED_IN_PR48 or inum in ISSUE_NUMBERS_IMPLEMENTED_IN_PR48:
+        reasons.append(
+            f"work already implemented in PR #48 (work_id={wid} issue={inum}) — not new ready work"
+        )
+    registry = load_registry(root)
+    item = get_by_work_id(registry, str(wid)) if wid else None
+    if item is not None:
+        info = readiness_for_item(item, registry)
+        if not info.get("ready"):
+            reasons.extend(list(info.get("reasons") or ["not ready"]))
+    elif wid or inum:
+        # Unknown registry item with EXECUTE is fail-closed unless issue-only NOOP
+        if action in {"EXECUTE", "REPAIR"}:
+            reasons.append("work item not found in registry or not ready")
+
+    if not reasons:
+        return decision
+
+    # Do not invent alternate work — escalate/noop closed
+    return {
+        **decision,
+        "decision": "NOOP",
+        "objective": "No executable ready work after readiness gate",
+        "work_id": None,
+        "issue_number": None,
+        "candidate_id": None,
+        "acceptance_criteria": [],
+        "allowed_paths": [],
+        "test_commands": [],
+        "strategic_reason": (
+            "READINESS_GATE: " + "; ".join(reasons[:5])
+        ),
+        "human_gate": {
+            "required": False,
+            "reason": None,
+        },
+        "_meta": {
+            **(decision.get("_meta") or {}),
+            "readiness_rejected": True,
+            "readiness_reasons": reasons,
+            "original_decision": action,
+            "original_work_id": wid,
+            "original_issue_number": inum,
+        },
+    }
 
 
 def review_execution(

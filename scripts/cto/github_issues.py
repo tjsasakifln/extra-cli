@@ -367,9 +367,14 @@ def sync_issues(root: Path | None = None, *, apply: bool = False) -> dict[str, A
         title = str(item.get("title") or wid)[:250]
         body = render_issue_body(item)
         labs = labels_for_item(item)
+        # Desired exclusive state label from registry item
+        desired_state = next((lb for lb in labs if str(lb).startswith("state:")), "state:ready")
+        non_state_labs = [lb for lb in labs if not str(lb).startswith("state:")]
         if wid in managed:
             num = managed[wid]["number"]
             if apply and auth:
+                # Replace state:* exclusively — never leave state:ready alongside review/human
+                state_res = _set_state_label(root, int(num), desired_state)
                 args = [
                     "issue",
                     "edit",
@@ -379,14 +384,21 @@ def sync_issues(root: Path | None = None, *, apply: bool = False) -> dict[str, A
                     "--body",
                     body,
                 ]
-                for lab in labs:
+                for lab in non_state_labs:
                     args.extend(["--add-label", lab])
                 if item.get("milestone"):
                     args.extend(["--milestone", str(item["milestone"])])
                 res = _run_gh(args, root, timeout=60)
-                ok = res.get("exit_code") == 0
+                ok = res.get("exit_code") == 0 and bool(state_res.get("ok"))
                 result["updated"].append(
-                    {"work_id": wid, "number": num, "ok": ok, "stderr": res.get("stderr")[:300]}
+                    {
+                        "work_id": wid,
+                        "number": num,
+                        "ok": ok,
+                        "state_label": desired_state,
+                        "state_label_ok": state_res.get("ok"),
+                        "stderr": (res.get("stderr") or state_res.get("stderr") or "")[:300],
+                    }
                 )
                 if ok:
                     item["issue_number"] = num
@@ -394,7 +406,13 @@ def sync_issues(root: Path | None = None, *, apply: bool = False) -> dict[str, A
                     upsert_item(registry, item)
             else:
                 result["updated"].append(
-                    {"work_id": wid, "number": num, "ok": True, "dry_run": True}
+                    {
+                        "work_id": wid,
+                        "number": num,
+                        "ok": True,
+                        "dry_run": True,
+                        "would_set_state": desired_state,
+                    }
                 )
         else:
             if apply and auth:

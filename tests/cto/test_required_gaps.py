@@ -100,9 +100,19 @@ def test_dry_run_decide_links_issue_number(cto_repo):
     from scripts.cto.work_registry import build_initial_registry, save_registry, upsert_item
 
     reg = build_initial_registry(cto_repo)
-    item = reg["work_items"][0]
-    item["issue_number"] = 30
+    # Use a non-PR#48-implemented item so readiness gate allows EXECUTE
+    item = next(i for i in reg["work_items"] if i["work_id"] == "freshness-coverage-sla")
+    item["issue_number"] = 34
+    item["state"] = "ready"
+    item["blockers"] = []
+    item["dependencies"] = []
+    item["priority"] = "p0"
     upsert_item(reg, item)
+    for other in reg["work_items"]:
+        if other["work_id"] != item["work_id"] and str(other.get("state")).lower() == "ready":
+            other["state"] = "blocked"
+            other["blockers"] = ["test demote"]
+            upsert_item(reg, other)
     save_registry(reg, cto_repo)
 
     obs = {
@@ -111,14 +121,13 @@ def test_dry_run_decide_links_issue_number(cto_repo):
         "issues": {"by_state": {}, "items": []},
         "work_registry": {"ids": [item["work_id"]], "count": 1},
     }
-    # decide_from_observation uses load_registry(cfg.root) — point root via monkeypatch
     from scripts.cto.config import load_config
 
     cfg = load_config(cto_repo)
-    decision = decide_from_observation(obs, config=cfg, dry_run=True)
+    decision = decide_from_observation(obs, config=cfg, dry_run=True, root=cto_repo)
     assert decision["decision"] == "EXECUTE"
     assert decision["work_id"] == item["work_id"]
-    assert decision["issue_number"] == 30
+    assert decision["issue_number"] == 34
 
 
 def test_update_issue_for_cycle_dry_run():
