@@ -19,5 +19,9 @@
     "Universe seed re-import is a separate step after restore (see universe_reimport_cmd)."
   ],
   "recovery_instruction": "pg_restore -d <target_db> backups/local-proof/<dump>; or bash scripts/restore-database.sh when available.",
-  "universe_reimport_cmd": "python3 -c \"from scripts.lib.universe import load_canonical_universe; u=load_canonical_universe(); print(u.summary())\""
+  "universe_reimport_cmd": "python3 -c \"from scripts.lib.universe import load_canonical_universe; u=load_canonical_universe(); print(u.summary())\"",
+  "dump_path_removed_from_git": true,
+  "dump_sha256": "9bdc18b5a508f18e5ad08454637f0f6f8a33e733a78d0f0cc9df79fd4c5fae03",
+  "dump_local_repro": "python3 -m scripts.ops.local_backup_restore_proof --dsn $LOCAL_DATALAKE_DSN --out docs/ops/campaigns/EXTRA-OPS-95/evidence/M5-backup/",
+  "note": "Full pg_dump binary removed from git tree for PR hygiene. Integrity retained via sha256 + table counts + restore proof report."
 }

@@ -1,0 +1,37 @@
+{
+  "measured_at": "2026-07-19T17:20:19.842079+00:00",
+  "policy": "hardening PR#29 — revert fixture/weak claims only; no mass inflation",
+  "reverted": [
+    {
+      "line": 120,
+      "base": "Geração de relatórios em PDF e Excel.",
+      "old": "Geração de relatórios em PDF e Excel. Evidência: M4-packages package-final-fixture PDF+Excel · package-summary.json · EXTRA-OPS-95"
+    },
+    {
+      "line": 163,
+      "base": "Tiago é o único usuário obrigatório do sistema.",
+      "old": "Tiago é o único usuário obrigatório do sistema. Evidência: local-first single-user design · no multi-tenant · EXTRA-OPS-95"
+    },
+    {
+      "line": 284,
+      "base": "O pacote mensal contém material de apoio para a reunião com o cliente.",
+      "old": "O pacote mensal contém material de apoio para a reunião com o cliente. Evidência: package-final-fixture agenda/faq/glossario · EXTRA-OPS-95"
+    },
+    {
+      "line": 1002,
+      "base": "Geração real de PDF.",
+      "old": "Geração real de PDF. Evidência: M4-packages package-final-fixture PDF+Excel · package-summary.json · EXTRA-OPS-95"
+    },
+    {
+      "line": 1003,
+      "base": "Geração real de Excel.",
+      "old": "Geração real de Excel. Evidência: M4-packages package-final-fixture PDF+Excel · package-summary.json · EXTRA-OPS-95"
+    }
+  ],
+  "dod_after": {
+    "checked": 308,
+    "total": 1355,
+    "pct": 22.7306
+  },
+  "denominator_note": "total checkboxes remain 1355 (same as main); prior session-metrics used 1352 (count variance without new requirements)"
+}

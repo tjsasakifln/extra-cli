@@ -117,7 +117,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Referências de valor pago quando a fonte disponibilizar.
 - [ ] Diferenciação explícita entre os quatro tipos de valor.
 - [ ] Exportação de dados para revisão manual.
-- [x] Geração de relatórios em PDF e Excel. Evidência: M4-packages package-final-fixture PDF+Excel · package-summary.json · EXTRA-OPS-95
+- [ ] Geração de relatórios em PDF e Excel.
 - [x] Operação por CLI, scripts e arquivos. Evidência: opportunity_intel.cli · probe_entity_success_zero · crawl.monitor · EXTRA-OPS-95
 - [ ] Uso local durante o estágio atual.
 - [ ] Operação contínua em VPS no estágio posterior.
@@ -160,7 +160,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 2.4 Usuário e forma de uso
 
-- [x] Tiago é o único usuário obrigatório do sistema. Evidência: local-first single-user design · no multi-tenant · EXTRA-OPS-95
+- [ ] Tiago é o único usuário obrigatório do sistema.
 - [ ] O fluxo principal pode ser executado sem interface web.
 - [x] Os comandos principais são claros e documentados. Evidência: --help on ops scripts · AGENTS.md · EXTRA-OPS-95
 - [ ] O sistema não exige conhecimento do código interno para tarefas operacionais recorrentes.
@@ -281,7 +281,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O sistema gera relatório mensal consolidado.
 - [ ] O relatório mensal informa variação em relação ao período anterior.
 - [ ] O relatório mensal registra cobertura, freshness, blockers e fontes degradadas.
-- [x] O pacote mensal contém material de apoio para a reunião com o cliente. Evidência: package-final-fixture agenda/faq/glossario · EXTRA-OPS-95
+- [ ] O pacote mensal contém material de apoio para a reunião com o cliente.
 - [ ] Alertas não substituem relatório consolidado e relatório não substitui alertas urgentes.
 
 #### Triagem de edital
@@ -999,8 +999,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Reconciliação de snapshot.
 - [ ] Backfill de contratos de janela pequena.
 - [ ] Incremental após backfill.
-- [x] Geração real de PDF. Evidência: M4-packages package-final-fixture PDF+Excel · package-summary.json · EXTRA-OPS-95
-- [x] Geração real de Excel. Evidência: M4-packages package-final-fixture PDF+Excel · package-summary.json · EXTRA-OPS-95
+- [ ] Geração real de PDF.
+- [ ] Geração real de Excel.
 - [x] Queries analíticas em PostgreSQL real. Evidência: LOCAL_DATALAKE_DSN PostgreSQL real · queries cobertura/ops · EXTRA-OPS-95
 - [ ] Golden path completo.
 

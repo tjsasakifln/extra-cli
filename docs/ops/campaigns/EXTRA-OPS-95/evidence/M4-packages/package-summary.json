@@ -11,5 +11,12 @@
   "claims_forbidden": [
     "win rate without denominator",
     "paid amounts from valor_total"
-  ]
+  ],
+  "fixture_binaries_removed_from_git": true,
+  "fixture_binaries": {
+    "pdf": "pkg-final-20260719-033318-c675bb3b.pdf",
+    "xlsx": "pkg-final-20260719-033318-c675bb3b.xlsx",
+    "note": "Binary fixtures removed for PR hygiene; meta/sections JSON retained. PDF/Excel generation claim NOT closed on DOD until live repro without fixture-only path."
+  },
+  "repro": "python3 -m scripts.reports.operational_export_pack (when package inputs available)"
 }
