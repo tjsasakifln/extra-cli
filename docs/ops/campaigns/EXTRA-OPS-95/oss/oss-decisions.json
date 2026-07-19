@@ -1,0 +1,146 @@
+{
+  "campaign": "EXTRA-OPS-95-FOUNDATION",
+  "updated_at": "2026-07-19T02:31:00Z",
+  "policy": "No adoption without comparative benchmark and measurable DOD impact",
+  "smartlic_dimensions": {
+    "architecture_patterns": {"decision": "BORROW_PATTERN", "critical_path": false},
+    "corpus_comparator": {"decision": "DEFER", "critical_path": false},
+    "operational_source": {"decision": "REJECT", "critical_path": false, "reason": "stale dataset"}
+  },
+  "candidates": [
+    {
+      "id": "OSS-01",
+      "name": "SmartLic code patterns",
+      "license": "project-internal sibling",
+      "decision": "BORROW_PATTERN",
+      "benchmark_required": false,
+      "dod_items": ["ingestion resilience", "checkpoint"],
+      "justification": "Extra typed FetchResult already superior in key paths; optional pattern only"
+    },
+    {
+      "id": "OSS-02",
+      "name": "SmartLic operational dataset",
+      "decision": "DEFER",
+      "benchmark_required": false,
+      "forbidden_uses": ["coverage", "freshness", "gold-only-from-smartlic"],
+      "justification": "Stale months without crawls"
+    },
+    {
+      "id": "OSS-03",
+      "name": "OCDS intermediate layer",
+      "license": "CC-BY / standard",
+      "decision": "ADAPT",
+      "benchmark_required": true,
+      "benchmark_id": "B1",
+      "dod_items": ["edital-contract linkage", "value semantics", "provenance"],
+      "justification": "Mapping layer without destructive DB remodel; keep operational tables"
+    },
+    {
+      "id": "OSS-04",
+      "name": "ocdskit",
+      "license": "BSD-3-Clause",
+      "decision": "DEFER",
+      "depends_on": ["OSS-03"],
+      "benchmark_required": true,
+      "benchmark_id": "B1",
+      "justification": "Only if OCDS serialization validation adds fail-closed value"
+    },
+    {
+      "id": "OSS-05",
+      "name": "Kingfisher Collect/Process",
+      "license": "BSD-3-Clause",
+      "decision": "REJECT",
+      "borrow": "BORROW_PATTERN optional",
+      "justification": "Full stack too heavy for single-user local; borrow incremental publish patterns only"
+    },
+    {
+      "id": "OSS-06",
+      "name": "Pandera",
+      "license": "MIT",
+      "decision": "ADAPT",
+      "benchmark_required": true,
+      "benchmark_id": "B2",
+      "dod_items": ["data contracts", "coverage_evidence", "success_zero", "run manifest"],
+      "justification": "Proportional DataFrame/schema validation complementing PG+Pydantic",
+      "pilot_priority": 1
+    },
+    {
+      "id": "OSS-07",
+      "name": "Great Expectations",
+      "license": "Apache-2.0",
+      "decision": "REJECT",
+      "justification": "Heavier ops footprint; Pandera preferred at current stage"
+    },
+    {
+      "id": "OSS-08",
+      "name": "Splink",
+      "license": "MIT",
+      "decision": "DEFER",
+      "benchmark_required": true,
+      "benchmark_id": "B3",
+      "dod_items": ["entity resolution residual"],
+      "constraints": ["never override official CNPJ/IBGE", "REVIEW band required"],
+      "pilot_priority": 3
+    },
+    {
+      "id": "OSS-09",
+      "name": "Dedupe",
+      "license": "MIT",
+      "decision": "REJECT",
+      "justification": "Comparative only; Splink preferred if probabilistic needed"
+    },
+    {
+      "id": "OSS-10",
+      "name": "Evidently",
+      "license": "Apache-2.0",
+      "decision": "DEFER",
+      "benchmark_required": true,
+      "benchmark_id": "B4",
+      "dod_items": ["recall", "precision", "drift", "N09"],
+      "depends_on": ["independent_gold_sample"]
+    },
+    {
+      "id": "OSS-11",
+      "name": "Docling",
+      "license": "MIT",
+      "decision": "DEFER",
+      "benchmark_required": true,
+      "benchmark_id": "B5",
+      "dod_items": ["document analysis", "tables", "BDI sheets"],
+      "pilot_priority": 4
+    },
+    {
+      "id": "OSS-12",
+      "name": "Prefect",
+      "license": "Apache-2.0",
+      "decision": "DEFER",
+      "benchmark_required": true,
+      "benchmark_id": "B6",
+      "dod_items": ["resume", "orchestration", "3 cycles"],
+      "justification": "Adopt only if reduces total complexity vs scripts+checkpoints"
+    },
+    {
+      "id": "OSS-13",
+      "name": "Dagster",
+      "license": "Apache-2.0",
+      "decision": "REJECT",
+      "justification": "Comparative only; heavier than Prefect for this profile"
+    },
+    {
+      "id": "OSS-14",
+      "name": "OpenContracts patterns",
+      "license": "AGPL-3.0 (platform) — patterns only",
+      "decision": "BORROW_PATTERN",
+      "benchmark_required": false,
+      "dod_items": ["document citation", "human review provenance"],
+      "justification": "Do not install full platform; borrow annotation/citation patterns"
+    }
+  ],
+  "pilot_order": ["B2-Pandera", "B1-OCDS", "B3-Splink", "B5-Docling", "B6-Prefect", "B4-Evidently"],
+  "adoptions_this_session": [],
+  "forbidden": [
+    "Install library without benchmark",
+    "Claim architecture improvement as DOD progress",
+    "Use SmartLic stale rows in coverage numerator"
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "mod": 6,
+    "status": "partial",
+    "counts": {
+      "fetched": 150,
+      "normalized": 150,
+      "inserted": 150,
+      "updated": 0,
+      "errors": 0
+    },
+    "error": ""
+  },
+  {
+    "mod": 8,
+    "status": "completed",
+    "counts": {
+      "fetched": 87,
+      "normalized": 87,
+      "inserted": 87,
+      "updated": 0,
+      "errors": 0
+    },
+    "error": ""
+  },
+  {
+    "mod": 4,
+    "status": "partial",
+    "counts": {
+      "fetched": 150,
+      "normalized": 150,
+      "inserted": 150,
+      "updated": 0,
+      "errors": 0
+    },
+    "error": ""
+  },
+  {
+    "mod": 5,
+    "status": "completed",
+    "counts": {
+      "fetched": 14,
+      "normalized": 14,
+      "inserted": 14,
+      "updated": 0,
+      "errors": 0
+    },
+    "error": ""
+  }
+]

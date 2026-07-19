@@ -2,8 +2,12 @@
 -- Story TD-5.3 / TD-DB-09
 --
 -- Runtime schema on local/main has esfera_id as TEXT (not INT).
+-- Migration 001 may still create INT on fresh installs; cast before check.
 -- Accept both numeric codes and letter codes used across crawlers:
 --   1/F Federal, 2/E Estadual, 3/M Municipal, 4/D Distrital
+
+ALTER TABLE pncp_raw_bids
+  ALTER COLUMN esfera_id TYPE TEXT USING esfera_id::text;
 
 UPDATE pncp_raw_bids
 SET esfera_id = NULL

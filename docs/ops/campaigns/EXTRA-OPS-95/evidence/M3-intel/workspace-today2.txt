@@ -1,0 +1,57 @@
+
+=== WORKSPACE TODAY — Extra Construtora / Tiago ===
+Gerado: 2026-07-19T00:11:44 | as_of: 2026-07-19
+PG: OK
+
+⬜ Novas oportunidades abertas (24-48h) [EMPTY]
+   Nenhuma oportunidade nova no horizonte solicitado (PG).
+   meta: source=opportunity_intel
+
+⬜ Prazos próximos (7 dias) [EMPTY]
+   Nenhum prazo nos próximos dias (PG).
+   meta: source=opportunity_intel
+
+⬜ Aguardando revisão humana (REVIEW) [EMPTY]
+   Nenhum item com ranking REVIEW no momento.
+   meta: source=opportunity_intel
+
+✅ Fontes falhas / stale [OK]
+   meta: source=opportunity_intel
+status | source
+-------+-------
+failed | pncp  
+
+✅ Contratos expirando (30/60/90d) [OK]
+   meta: source=contract_intel
+orgao_nome                               | municipio      | dias_ate_fim | bucket
+-----------------------------------------+----------------+--------------+-------
+INSTITUTO NACIONAL DE TRAUMATO-ORTOPEDIA | Rio de Janeiro | 90           | 90d   
+
+✅ Campos de perfil pendentes (elicitation) [OK]
+   meta: profile=/mnt/d/extra consultoria/config/client_profiles/extra.yaml, count=14
+status  | field                  
+--------+------------------------
+PENDING | capital_giro           
+PENDING | capacidade_simultanea  
+PENDING | cats_atestados         
+PENDING | equipe                 
+PENDING | equipamentos           
+PENDING | certidoes              
+PENDING | margem_minima          
+PENDING | risco_aceitavel        
+PENDING | contratos_atuais       
+PENDING | apetite_consorcios     
+PENDING | capacidade_garantia    
+PENDING | priority_organs        
+PENDING | known_competitors      
+PENDING | priority_municipalities
+
+✅ Ações sugeridas / relatórios devidos [OK]
+   meta: count=4
+action                         
+-------------------------------
+Checar source-health / crawlers
+Elicitar perfil Extra          
+Briefing diário                
+Coverage check                 
+

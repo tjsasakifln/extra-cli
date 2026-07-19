@@ -30,7 +30,7 @@ import json
 import logging
 import os
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -282,20 +282,62 @@ def cmd_update(args: argparse.Namespace) -> None:
             continue
 
         try:
+            from scripts.crawl.pncp_contract import DEFAULT_MODALIDADES
             from scripts.opportunity_intel.crawler_base import CrawlRequest
 
-            request = CrawlRequest(
-                source=source,
-                date_from=date.today(),
-                date_to=date.today(),
-                mode=args.mode or "full",
-                limit=args.limit,
-            )
-            result = crawler.run(request)
-            print(f"Status: {result['status']}")
-            print(f"Counts: {json.dumps(result['counts'], indent=2)}")
-            if result["error"]:
-                print(f"Error: {result['error']}")
+            # PNCP /contratacoes/proposta requires codigoModalidadeContratacao.
+            # Without a target, loop modalidades 1–19 (UF=SC in crawler).
+            targets: list[str | None]
+            if source == "pncp":
+                targets = [f"modalidade:{m}" for m in DEFAULT_MODALIDADES]
+            else:
+                targets = [None]
+
+            aggregated: dict[str, Any] = {
+                "status": "success",
+                "counts": {"fetched": 0, "new": 0, "updated": 0, "modalidades_ok": 0, "modalidades_failed": 0},
+                "error": None,
+                "errors": [],
+            }
+            for target in targets:
+                request = CrawlRequest(
+                    source=source,
+                    date_from=date.today() - timedelta(days=7),
+                    date_to=date.today(),
+                    mode=args.mode or "full",
+                    limit=args.limit,
+                    target=target,
+                )
+                result = crawler.run(request)
+                counts = result.get("counts") or {}
+                for k in ("fetched", "new", "updated"):
+                    if k in counts and isinstance(counts[k], int):
+                        aggregated["counts"][k] = aggregated["counts"].get(k, 0) + counts[k]
+                st = str(result.get("status") or "")
+                # completed_zero = auditable empty result (success_zero path) — counts as OK
+                if st in {"success", "ok", "partial", "completed_zero", "completed"}:
+                    aggregated["counts"]["modalidades_ok"] += 1
+                    if st == "partial":
+                        aggregated["status"] = "partial"
+                else:
+                    aggregated["counts"]["modalidades_failed"] += 1
+                    aggregated["status"] = (
+                        "partial" if aggregated["counts"]["modalidades_ok"] else "failed"
+                    )
+                    if result.get("error"):
+                        aggregated["errors"].append({"target": target, "error": result["error"]})
+                print(
+                    f"  target={target or '-'} status={result.get('status')} "
+                    f"counts={json.dumps(counts, default=str)}"
+                )
+            if aggregated["errors"]:
+                aggregated["error"] = "; ".join(
+                    f"{e['target']}:{e['error']}" for e in aggregated["errors"][:5]
+                )
+            print(f"Status: {aggregated['status']}")
+            print(f"Counts: {json.dumps(aggregated['counts'], indent=2)}")
+            if aggregated["error"]:
+                print(f"Error: {aggregated['error']}")
         finally:
             crawler.close()
 

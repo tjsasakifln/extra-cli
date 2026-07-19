@@ -3,3 +3,12 @@
 {"ts":"2026-07-19T02:01:00Z","event":"ROI_DECISION_001","selected":"COV-EDIT-CONTRACT-OPS","rejected_default":"cand-dyn-slice:ac8b6e76a7b2"}
 {"ts": "2026-07-19T02:03:05Z", "event": "M2_PROMOTE_SLA48", "strict_operational": 284, "pct": 25.98, "verified": 287, "promoted": 285}
 {"ts": "2026-07-19T02:06:48Z", "event": "M2_REMEASURE_AFTER_PNCP_INC", "den": 1093, "editais": 285, "contracts": 368, "either": 406, "pct_editais": 26.08, "pct_contracts": 33.67, "pct_either": 37.15, "bids_rows": 10974, "contracts_rows": 1082055, "strict": 407, "pct_strict": 37.24}
+{"ts": "2026-07-19T02:30:55Z", "event": "M0_FOUNDATION_BASELINE", "artifact": "baseline/foundation-baseline.json", "dod": "195/1355", "den": 1093, "db": "rebuilt_empty"}
+{"ts": "2026-07-19T02:31:00Z", "event": "M05_OSS_MATRIX", "artifact": "oss/oss-decisions.json", "adoptions": []}
+{"ts": "2026-07-19T02:31:00Z", "event": "M1_UNIVERSE_SEED", "entities_200km": 1093, "second_import_inserted": 0}
+{"ts": "2026-07-19T02:39:00Z", "event": "B2_PYDANTIC_BASELINE", "tests_passed": 7, "pandera": "DEFER_INSTALL"}
+{"ts": "2026-07-19T02:39:00Z", "event": "B1_OCDS_THIN", "tests_passed": 3, "decision": "ADAPT_THIN"}
+{"ts": "2026-07-19T02:38:49Z", "event": "M2_CONTRACTS_MONITOR_START", "days": 14, "status": "IN_PROGRESS"}
+{"ts": "2026-07-19T03:18:53Z", "event": "M3_OPPORTUNITY_UPSERT_FIXED", "inserted": 401, "GO": 0, "REVIEW": 397, "NO_GO": 4, "migration": "057"}
+{"ts": "2026-07-19T03:19:18Z", "event": "SESSION_METRICS", "presence_editais_pct": 24.52, "presence_contracts_pct": 22.6, "ops_registry_pct": 12.72, "dod": "195/1355", "status": "PARTIAL"}
+{"ts": "2026-07-19T03:20:00Z", "event": "HANDOFF_WRITTEN", "path": "handoffs/HANDOFF-20260719-session.md"}

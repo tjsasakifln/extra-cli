@@ -316,18 +316,18 @@ BEGIN
             rec->>'status_motivo',
             (rec->>'status_data')::TIMESTAMPTZ,
             rec->>'link_edital',
-            CASE WHEN rec->'link_anexos' IS NOT NULL
+            CASE WHEN jsonb_typeof(rec->'link_anexos') = 'array'
                  THEN ARRAY(SELECT * FROM jsonb_array_elements_text(rec->'link_anexos'))
             END,
             COALESCE((rec->>'qualidade_score')::INTEGER, 0),
             COALESCE(rec->'qualidade_fatores', '{}'),
-            CASE WHEN rec->'dados_ausentes' IS NOT NULL
+            CASE WHEN jsonb_typeof(rec->'dados_ausentes') = 'array'
                  THEN ARRAY(SELECT * FROM jsonb_array_elements_text(rec->'dados_ausentes'))
             END,
             COALESCE(rec->>'ranking', 'REVIEW'),
             COALESCE((rec->>'ranking_score')::INTEGER, 0),
             COALESCE(rec->'ranking_fatores', '{}'),
-            CASE WHEN rec->'ranking_regras' IS NOT NULL
+            CASE WHEN jsonb_typeof(rec->'ranking_regras') = 'array'
                  THEN ARRAY(SELECT * FROM jsonb_array_elements_text(rec->'ranking_regras'))
             END,
             COALESCE(rec->>'ranking_confianca', 'MEDIUM'),
@@ -377,8 +377,8 @@ BEGIN
             is_active = EXCLUDED.is_active
         RETURNING
             (CASE WHEN xmax = 0 THEN 'insert' ELSE 'update' END)::TEXT AS action,
-            id AS record_id,
-            content_hash
+            opportunity_intel.id AS record_id,
+            opportunity_intel.content_hash
         INTO action, record_id, content_hash;
 
         RETURN NEXT;

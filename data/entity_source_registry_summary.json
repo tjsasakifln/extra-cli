@@ -1,22 +1,22 @@
 {
   "total_entities": 1093,
   "expected_entities": 1093,
-  "mapped_or_better": 315,
-  "mapped_pct": 28.82,
-  "operational": 407,
-  "operational_pct": 37.24,
+  "mapped_or_better": 583,
+  "mapped_pct": 53.34,
+  "operational": 139,
+  "operational_pct": 12.72,
   "by_status": {
-    "verified": 407,
     "unknown": 371,
     "mapped": 311,
-    "accessible": 3,
-    "collected": 1
+    "collected": 269,
+    "verified": 139,
+    "accessible": 3
   },
   "by_blocker": {
     "pending_collection": 512,
-    "none": 407,
-    "fragmented": 121,
-    "pending_live_verification": 53
+    "pending_live_verification": 321,
+    "none": 139,
+    "fragmented": 121
   },
   "by_strategy": {
     "ciga_ckan_shared_municipio": 301,

@@ -1,0 +1,10 @@
+{
+  "measured_at": "2026-07-19T02:49:32.288617+00:00",
+  "contracts_rows": 72925,
+  "org_col": "orgao_cnpj",
+  "presence_contracts_entities": 247,
+  "denominator": 1093,
+  "pct": 22.5984,
+  "window_days": 14,
+  "note": "Presence of matching CNPJ8 in contracts \u2014 NOT seven-stage operational coverage"
+}

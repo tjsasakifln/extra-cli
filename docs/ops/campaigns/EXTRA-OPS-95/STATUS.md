@@ -1,89 +1,72 @@
-# EXTRA-OPS-95 — Status operacional (em andamento)
+# EXTRA-OPS-95-FOUNDATION — Status operacional
 
-**HEAD start:** `dbc5adb2ab62898cd3fd005c83c90dcef36c1cde`  
-**Atualizado:** 2026-07-19T02:08Z (UTC)  
-**Branch canônica de partida:** `main`
+**HEAD start (main):** `dbc5adb2ab62898cd3fd005c83c90dcef36c1cde`  
+**Atualizado:** 2026-07-19T03:20Z (UTC)  
+**Status global da campanha:** **PARTIAL**
 
 ## Objetivo vinculante
 
-Operação local consultiva B2G com cobertura **editais ≥95%** e **contratos ≥95%** **separadas**, ciclo decisão→ação, packages, 3 ciclos correlacionáveis, recall independente, HTML/DOD honestos.
+Operação local consultiva B2G com cobertura editais/contratos ≥95% **separadas**, ciclo GO/REVIEW/NO_GO, packages, 3 ciclos, recall independente, DOD ≥55% com evidência, HTML honesto, OSS só com benchmark.
 
 ## Progresso por fase
 
 | Fase | Status | Evidência |
 |------|--------|-----------|
-| M0 Recuperação | **DONE** | `RECOVERY-INVENTORY.md`, baseline live |
-| M1 Contrato/baseline | **DONE** | `baseline/metrics-live.json`, `plans/PLAN-30D.md`, ROI DECISION-001 |
-| M2 Cobertura | **IN_PROGRESS** | promote ops 0→**407/1093 (37,24%)**; presença editais 26% / contratos 34% |
-| M3 Intel/decisão | **PARTIAL** | workspace today OK; GO demoted 1549→0 (perfil incompleto); radar upsert fix |
-| M4 Concorrentes/valores | **PENDING** | componentes herdados; não re-provados nesta sessão |
-| M5 Automação/3 ciclos | **PENDING** | contracts 30d crawl em background |
-| M6 Recall | **BLOCKED_SOURCE** | herdado N09 |
-| M7 HTML/DOD/handoff | **PENDING** | sem selo falso |
+| M0 Recuperação + baseline | **DONE** | `baseline/foundation-baseline.json`, `BASELINE.md`, `RECOVERY-INVENTORY.md` |
+| M0.5 OSS harvest | **DONE** (decisões) | `oss/oss-decisions.json` — 0 ADOPT sem piloto |
+| M1 Universo | **DONE** parcial operacional | Seed 1093; radar universe_resolution **100%**; 2ª import 0 inserts |
+| M2 Cobertura | **IN_PROGRESS** | Presença editais 24,5% / contratos 22,6%; strict ops registry 12,7% |
+| M3 Intel/decisão | **PARTIAL** | **401** opps; GO=0 REVIEW=397 NO_GO=4; upsert fix 057 |
+| M4 Concorrentes/valores | **NOT_READY** | contract_intel parcial (expiring) |
+| M5 Automação/3 ciclos | **PENDING** | — |
+| M6 Recall | **BLOCKED_SOURCE** | N09 |
+| M7 HTML/DOD/handoff | **PARTIAL** | handoff sessão; HTML final não |
+| B1 OCDS | **PARTIAL** | thin mapping + tests + live sample 0 issues |
+| B2 Data contracts | **PARTIAL** | Pydantic 7 tests; Pandera DEFER |
 
-## Métricas live (não confundir)
+## Métricas live (rebuild + re-coleta)
 
-| Métrica | Antes (R2 N06c) | Agora | Meta |
-|---------|----------------:|------:|-----:|
-| Denominador | 1093 | **1093** | fixo |
-| Presença editais | 285 (26,08%) | **285 (26,08%)** | ≥1039 (95%) |
-| Presença contratos | 368 (33,67%) | **368 (33,67%)** | ≥1039 (95%) |
-| Either (proibido) | 406 (37,15%) | **406 (37,15%)** | n/a |
-| Strict operational (registry) | ~0–8% | **407 (37,24%)** | ≥1039 (95%) |
-| GO abertos com perfil incompleto | 1549 | **0** | 0 |
-| Contratos rows | 1.082.055 | 1.082.055 | — |
-| Bids rows | 10.974 | 10.974 | — |
+| Métrica | Valor | Meta |
+|---------|------:|-----:|
+| DOD checked | **195/1355 (14,39%)** | ≥746 (55%) |
+| Denominador 200 km | **1093** | fixo |
+| Universe resolution | **100%** | 100% |
+| Bids rows | **8221** | — |
+| Contracts rows | **72925** (+90d crawl se em curso) | — |
+| Presença editais | **268 (24,52%)** | ≥1039 operacional |
+| Presença contratos | **247 (22,60%)** | ≥1039 operacional |
+| Registry operational | **139 (12,72%)** | ≥1039 |
+| Oportunidades | **401** (0 GO / 397 REVIEW / 4 NO_GO) | fluxo útil |
 
-### Interpretação honesta
+## Decisões
 
-- **Ganho material:** promoção de evidência real (PG + crawl artifacts + contracts-only) elevou cobertura **operacional strict** de ~0–8% para **37,24%**.
-- **Presença** de editais/contratos **não subiu** nesta onda — o ganho foi de **estágios + proveniência**, não de novos órgãos.
-- Meta 60% strict: faltam **~249** entidades; 80%: **~468**; 95%: **~632**.
-- Either **não** é progresso de cobertura.
+1. ROI override **COV-EDIT-CONTRACT-OPS** (DECISION-001)
+2. N01 DONE — não reabrir
+3. PR #28 — não mergear
+4. SmartLic dataset DEFER/REJECT path crítico
+5. Pandera DEFER; Pydantic ADAPT baseline
+6. OCDS ADAPT thin; Kingfisher REJECT full
+7. GO sem perfil Extra → REVIEW (score cap 69)
 
-## Decisões ROI
+## Fixes de código desta sessão
 
-1. **DECISION-001:** override do rank-next (checkbox claims) → **COV-EDIT-CONTRACT-OPS**.
-2. N01 **DONE** — não reabrir; `resume.md` R2 stale.
-3. PR #28 CONFLICTING — **não mergear**; extrair deltas só se úteis.
-4. SmartLic **DEFERRED_STALE**.
-5. GO sem perfil de capacidade → **REVIEW** (código + demote em massa).
+- `scripts/opportunity_intel/cli.py` — loop modalidades 1–19
+- `db/migrations/057_*` + 027 — upsert content_hash + array JSON seguro
+- `db/migrations/018_*` — cast esfera_id TEXT em fresh install
+- `scripts/data_contracts/*` — contratos fail-closed
+- `scripts/ocds_bridge/*` — mapping OCDS thin
+- (herdado) GO demote ranking
 
-## Código alterado nesta campanha (ainda local)
+## Próximos passos
 
-- `scripts/opportunity_intel/ranking.py` — demote GO se perfil incompleto
-- `scripts/opportunity_intel/pncp_audit.py` — upsert `coverage_evidence` sem duplicate key
-- `tests/test_opportunity_ranking.py` — cobre demote + GO score-path
+1. Concluir/retomar contracts 90d→365d com checkpoint
+2. success_zero nominal por ente aplicável
+3. Multi-source residual (CIGA/sc_compras)
+4. Promote strict operational com proveniência completa
+5. Packages daily/weekly + 3 ciclos
+6. Gold sample N09 ou BLOCKED honesto
+7. HTML + DOD reconciliados sem inflação
 
-## O que Tiago já pode usar
+## Claims proibidos
 
-- Workspace `today` com filas REVIEW, prazos, perfil pendente
-- Lista de oportunidades **sem GO indevido** enquanto perfil de capacidade estiver incompleto
-- Métricas de cobertura separadas (presença) e strict operational no registry
-- Pacotes/crawlers herdados (PNCP, contracts, multi-source)
-
-## O que ainda **não** deve usar como “95% pronto”
-
-- Cobertura 95% editais ou contratos
-- Recall estratificado
-- GO automático calibrado
-- VPS / LOCAL_READY
-- Dataset SmartLic
-
-## Próximos passos ordenados (ROI)
-
-1. Expandir janela de contratos (365d→3y) com checkpoint — aumenta órgãos únicos
-2. CIGA DOM + sc_compras residual com promote full provenance
-3. success_zero nominal por entidade aplicável PNCP (com run/raw/hash)
-4. Três ciclos full correlacionáveis (run_id)
-5. Dossiers + package daily/weekly reconciliados
-6. Gold sample recall (ou BLOCKED honesto)
-7. HTML executivo + DOD states
-
-## Claims proibidos agora
-
-- “95% cobertura”
-- “either = cobertura”
-- “LOCAL_READY / PROJECT_DONE”
-- “recall 95%”
-- “GO confiável com perfil incompleto”
+95% cobertura · either · LOCAL_READY · recall 95% · DOD 55% · campanha DONE · SmartLic operacional

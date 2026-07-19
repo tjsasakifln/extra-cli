@@ -1,0 +1,34 @@
+{
+  "benchmark_id": "B2",
+  "campaign": "EXTRA-OPS-95-FOUNDATION",
+  "measured_at": "2026-07-19T02:39:00Z",
+  "candidate": "Pandera",
+  "baseline_solution": "scripts/data_contracts/entity.py (Pydantic v2)",
+  "decision_so_far": "ADAPT_BASELINE_PYDANTIC — Pandera install deferred until material gap vs Pydantic+PG is proven on live promote path",
+  "tests": {
+    "command": "python3 -m pytest tests/test_data_contracts_entity.py -q --no-cov",
+    "passed": 7,
+    "failed": 0
+  },
+  "bugs_prevented": [
+    "success_zero without content_hash/raw_uri provenance",
+    "partial coordinates (lat without lng)",
+    "invalid cnpj_8 entering entity contract"
+  ],
+  "dod_items_targeted": [
+    "coverage evidence provenance",
+    "success_zero auditability",
+    "entity canonical fields"
+  ],
+  "comparison_pending": {
+    "pandera": "not installed; install only if DataFrame batch validation + CI report outweigh Pydantic",
+    "great_expectations": "REJECT at this stage (heavier)"
+  },
+  "claims_allowed": [
+    "Pydantic contracts unit-tested and fail-closed on invalid evidence"
+  ],
+  "claims_forbidden": [
+    "Pandera adopted in production path",
+    "DOD items closed solely by this unit suite"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "ts": "2026-07-19T03:19:18.457169+00:00",
+  "dod": "195/1355 (14.39%)",
+  "universe_resolution_radar": "100%",
+  "denominator_200km": 1093,
+  "bids": 8221,
+  "contracts": 72925,
+  "presence_editais": 268,
+  "presence_contracts": 247,
+  "presence_editais_pct": 24.52,
+  "presence_contracts_pct": 22.6,
+  "registry_operational": 139,
+  "registry_operational_pct": 12.72,
+  "opportunities": {
+    "total": 401,
+    "GO": 0,
+    "REVIEW": 397,
+    "NO_GO": 4
+  },
+  "campaign_status": "PARTIAL",
+  "gates_missing": [
+    "coverage_95",
+    "recall_gold",
+    "3_cycles",
+    "dod_55",
+    "html_final",
+    "backup_restore",
+    "freshness"
+  ]
+}
