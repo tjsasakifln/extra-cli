@@ -1,0 +1,63 @@
+{
+  "campaign": "EXTRA-DECISION-LOOP-01",
+  "measured_at": "2026-07-19",
+  "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+  "main_baseline_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+  "dsn": "postgresql://test:test@127.0.0.1:5433/extra_test",
+  "counts": {
+    "sc_public_entities": 2085,
+    "raio_200km": 1093,
+    "opportunity_intel": 401,
+    "open_upcoming_active": 391,
+    "missing_valor": 46,
+    "missing_prazo": 0,
+    "missing_edital": 254
+  },
+  "ranking_distribution": {
+    "NO_GO": 4,
+    "REVIEW": 397
+  },
+  "status_distribution": {
+    "open": 370,
+    "revoked": 4,
+    "suspended": 6,
+    "upcoming": 21
+  },
+  "profile": {
+    "profile_id": "extra_construtora",
+    "version": 2,
+    "hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+    "pending_critical": [
+      "capital_giro",
+      "capacidade_simultanea",
+      "cats_atestados",
+      "equipe",
+      "equipamentos",
+      "certidoes",
+      "margem_minima",
+      "risco_aceitavel",
+      "contratos_atuais",
+      "apetite_consorcios",
+      "capacidade_garantia"
+    ],
+    "pending_count": 11
+  },
+  "entry_points_before": [
+    "make extra-weekly"
+  ],
+  "gaps": [
+    "Sem decision engine multi-dimensão PARTICIPAR/REVIEW/NÃO_PARTICIPAR",
+    "Sem snapshot canônico + delta + reconfirmação oficial no ciclo",
+    "Sem loop de revisão humana/calibração",
+    "PDF residual no weekly (PROOF-01)",
+    "Perfil com elicitation PENDING e representações duplicadas"
+  ],
+  "dod_candidates": [
+    "§2.1",
+    "§2.2",
+    "§2.5",
+    "§2.6",
+    "§12.2",
+    "§15"
+  ]
+}

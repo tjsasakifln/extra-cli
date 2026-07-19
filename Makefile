@@ -107,6 +107,29 @@ extra-weekly:
 	@echo '    Entry point: python -m scripts.ops.weekly_cycle --strict'
 	python3 -m scripts.ops.weekly_cycle --strict $(WEEKLY_FLAGS)
 
+.PHONY: extra-decision-pack
+extra-decision-pack:
+	@echo '==> [$(ENV)] Pacote de decisão Extra (EXTRA-DECISION-LOOP-01)'
+	@echo '    Entry point: python -m scripts.ops.decision_pack --strict'
+	python3 -m scripts.ops.decision_pack --strict $(DECISION_FLAGS)
+
+.PHONY: extra-review-export
+extra-review-export:
+	@echo '==> [$(ENV)] Export amostra revisão humana'
+	@test -n "$(DECISIONS_CSV)" || (echo 'Set DECISIONS_CSV=path/to/all_decisions.csv' && exit 1)
+	python3 -m scripts.ops.decision_pack review-export --decisions-csv "$(DECISIONS_CSV)" --out "$(REVIEW_OUT)"
+
+.PHONY: extra-review-import
+extra-review-import:
+	@echo '==> [$(ENV)] Import labels humanos (idempotente)'
+	@test -n "$(REVIEW_CSV)" || (echo 'Set REVIEW_CSV=path/to/labeled.csv' && exit 1)
+	python3 -m scripts.ops.decision_pack review-import --csv "$(REVIEW_CSV)"
+
+.PHONY: extra-calibrate
+extra-calibrate:
+	@echo '==> [$(ENV)] Calibração métricas (PENDING_HUMAN se amostra insuficiente)'
+	python3 -m scripts.ops.decision_pack calibrate
+
 .PHONY: report-executivo
 report-executivo:
 	@echo '==> [$(ENV)] Gerando relatório executivo PDF + Excel (Extra Construtora)'

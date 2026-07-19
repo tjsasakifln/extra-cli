@@ -1,0 +1,227 @@
+{
+  "schema": "extra-profile-status/1.0",
+  "profile_id": "extra_construtora",
+  "version": 2,
+  "schema_version": "extra-profile/2.0",
+  "resolved_at": "2026-07-19T21:53:22Z",
+  "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+  "local_loaded": false,
+  "local_path": null,
+  "filled": [
+    {
+      "key": "region",
+      "state": "SET",
+      "origin": "public",
+      "sensitive": false,
+      "impact": "Sem região → REVIEW de escopo geográfico",
+      "has_value": true,
+      "question": null
+    },
+    {
+      "key": "desired_object_types",
+      "state": "SET",
+      "origin": "public",
+      "sensitive": false,
+      "impact": "Sem tipos de objeto → REVIEW de fit técnico",
+      "has_value": true,
+      "question": null
+    },
+    {
+      "key": "value_band_soft",
+      "state": "SET",
+      "origin": "public",
+      "sensitive": false,
+      "impact": "Sem faixa de valor → REVIEW comercial soft",
+      "has_value": true,
+      "question": null
+    },
+    {
+      "key": "operational_constraints",
+      "state": "SET",
+      "origin": "public",
+      "sensitive": false,
+      "impact": "Sem restrições operacionais → REVIEW de escopo",
+      "has_value": true,
+      "question": null
+    },
+    {
+      "key": "engineering_categories",
+      "state": "SET",
+      "origin": "public",
+      "sensitive": false,
+      "impact": "Sem categorias de engenharia → REVIEW técnico",
+      "has_value": true,
+      "question": null
+    },
+    {
+      "key": "hard_blocks",
+      "state": "SET",
+      "origin": "public",
+      "sensitive": false,
+      "impact": "Pode alterar fit ou confiança",
+      "has_value": true,
+      "question": null
+    },
+    {
+      "key": "weights",
+      "state": "SET",
+      "origin": "public",
+      "sensitive": false,
+      "impact": "Pode alterar fit ou confiança",
+      "has_value": true,
+      "question": null
+    },
+    {
+      "key": "triage_thresholds",
+      "state": "SET",
+      "origin": "public",
+      "sensitive": false,
+      "impact": "Pode alterar fit ou confiança",
+      "has_value": true,
+      "question": null
+    }
+  ],
+  "pending": [
+    {
+      "key": "capital_giro",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem capital de giro → REVIEW (não PARTICIPAR automático)",
+      "has_value": false,
+      "question": "Capital de giro disponível para garantias e capital de obra (R$)?"
+    },
+    {
+      "key": "capacidade_simultanea",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem capacidade simultânea → REVIEW comercial",
+      "has_value": false,
+      "question": "Quantas obras/contratos a Extra consegue executar em paralelo?"
+    },
+    {
+      "key": "cats_atestados",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem CATs → REVIEW técnico (habilitação)",
+      "has_value": false,
+      "question": "Listar CATs/atestados técnicos principais (objeto, valor, ano, órgão)."
+    },
+    {
+      "key": "equipe",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem equipe declarada → REVIEW operacional",
+      "has_value": false,
+      "question": null
+    },
+    {
+      "key": "equipamentos",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem equipamentos → REVIEW operacional",
+      "has_value": false,
+      "question": null
+    },
+    {
+      "key": "certidoes",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem certidões → REVIEW de habilitação",
+      "has_value": false,
+      "question": null
+    },
+    {
+      "key": "margem_minima",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem margem mínima → REVIEW comercial",
+      "has_value": false,
+      "question": null
+    },
+    {
+      "key": "risco_aceitavel",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem apetite de risco → REVIEW comercial",
+      "has_value": false,
+      "question": null
+    },
+    {
+      "key": "contratos_atuais",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem contratos atuais → REVIEW de capacidade",
+      "has_value": false,
+      "question": null
+    },
+    {
+      "key": "apetite_consorcios",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem política de consórcio → REVIEW quando consórcio for opção",
+      "has_value": false,
+      "question": null
+    },
+    {
+      "key": "capacidade_garantia",
+      "state": "PENDING",
+      "origin": "public",
+      "sensitive": true,
+      "impact": "Sem capacidade de garantia → REVIEW comercial",
+      "has_value": false,
+      "question": "Capacidade máxima de garantia contratual (R$)?"
+    }
+  ],
+  "not_applicable": [],
+  "redacted": [],
+  "pending_critical": [
+    "capital_giro",
+    "capacidade_simultanea",
+    "cats_atestados",
+    "equipe",
+    "equipamentos",
+    "certidoes",
+    "margem_minima",
+    "risco_aceitavel",
+    "contratos_atuais",
+    "apetite_consorcios",
+    "capacidade_garantia"
+  ],
+  "pending_all": [
+    "capital_giro",
+    "capacidade_simultanea",
+    "cats_atestados",
+    "equipe",
+    "equipamentos",
+    "certidoes",
+    "margem_minima",
+    "risco_aceitavel",
+    "contratos_atuais",
+    "apetite_consorcios",
+    "capacidade_garantia"
+  ],
+  "minimal_questions": [
+    "Capital de giro disponível para garantias e capital de obra (R$)?",
+    "Quantas obras/contratos a Extra consegue executar em paralelo?",
+    "Listar CATs/atestados técnicos principais (objeto, valor, ano, órgão).",
+    "Preencher campo `equipe` (Sem equipe declarada → REVIEW operacional)",
+    "Preencher campo `equipamentos` (Sem equipamentos → REVIEW operacional)",
+    "Preencher campo `certidoes` (Sem certidões → REVIEW de habilitação)",
+    "Preencher campo `margem_minima` (Sem margem mínima → REVIEW comercial)",
+    "Preencher campo `risco_aceitavel` (Sem apetite de risco → REVIEW comercial)",
+    "Preencher campo `contratos_atuais` (Sem contratos atuais → REVIEW de capacidade)",
+    "Preencher campo `apetite_consorcios` (Sem política de consórcio → REVIEW quando consórcio for opção)",
+    "Capacidade máxima de garantia contratual (R$)?"
+  ],
+  "decision_impact_summary": "Campos críticos pendentes produzem REVIEW, nunca PARTICIPAR automático."
+}

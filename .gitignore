@@ -119,3 +119,11 @@ output/qw-01/**/coverage_gaps.csv
 docs/ops/campaigns/**/evidence/**/*.dump
 docs/ops/campaigns/**/evidence/**/package-final-fixture/*.pdf
 docs/ops/campaigns/**/evidence/**/package-final-fixture/*.xlsx
+
+# Extra client profile local override (sensitive commercial data)
+config/client_profiles/extra.local.yaml
+
+# Decision loop runtime (EXTRA-DECISION-LOOP-01)
+data/decision_snapshots/
+data/human_reviews/
+output/decision/

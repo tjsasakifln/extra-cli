@@ -1,0 +1,61 @@
+{
+  "campaign": "EXTRA-DECISION-LOOP-01",
+  "generated_at": "2026-07-19T21:53:22Z",
+  "policy": "Never mark LOCAL_READY, 95% coverage/recall, or human accept without Tiago.",
+  "items": [
+    {
+      "dod_section": "§2.1",
+      "requirement_text": "Localização de editais e apoio à decisão utilizável",
+      "before_status": "PARTIAL",
+      "after_status": "PARTIAL",
+      "evidence": "evidence/live-pack — 200 decisões explicáveis no universo Extra; PARTICIPAR=0 fundamentado",
+      "evidence_strength": "operational_run",
+      "remaining_limitation": "Cobertura/recall 95% não reivindicados; perfil incompleto"
+    },
+    {
+      "dod_section": "§2.2",
+      "requirement_text": "Monitoramento, reconciliação de status, exportação, PDF/Excel, triagem",
+      "before_status": "PARTIAL",
+      "after_status": "PARTIAL",
+      "evidence": "snapshot+delta+reconfirm; PDF+Excel reconcile PASS; CSVs de decisão",
+      "evidence_strength": "operational_run",
+      "remaining_limitation": "Reconfirm live HTTP em massa não é gate; offline documentado"
+    },
+    {
+      "dod_section": "§2.5",
+      "requirement_text": "Configuração do diagnóstico / perfil Extra",
+      "before_status": "PARTIAL",
+      "after_status": "PARTIAL",
+      "evidence": "profile_resolve + profile_status.json/md + extra.local.example.yaml",
+      "evidence_strength": "code_and_run",
+      "remaining_limitation": "11 campos críticos ainda PENDING (não inventados)"
+    },
+    {
+      "dod_section": "§2.6",
+      "requirement_text": "Monitoramento recorrente e análise crítica",
+      "before_status": "PARTIAL",
+      "after_status": "PARTIAL",
+      "evidence": "decision engine multi-dimensão + human review loop",
+      "evidence_strength": "code_and_tests",
+      "remaining_limitation": "Triagem jurídica/contábil final continua humana"
+    },
+    {
+      "dod_section": "§12.2",
+      "requirement_text": "Saídas operacionais",
+      "before_status": "PARTIAL",
+      "after_status": "PARTIAL",
+      "evidence": "make extra-decision-pack products + checksums",
+      "evidence_strength": "operational_run",
+      "remaining_limitation": "Aceite humano pendente"
+    },
+    {
+      "dod_section": "§15",
+      "requirement_text": "Aceite manual do estágio atual",
+      "before_status": "PENDING_HUMAN",
+      "after_status": "PENDING_HUMAN",
+      "evidence": "human-acceptance.md",
+      "evidence_strength": "explicit_gate",
+      "remaining_limitation": "Somente Tiago pode ACCEPTED/REJECTED"
+    }
+  ]
+}

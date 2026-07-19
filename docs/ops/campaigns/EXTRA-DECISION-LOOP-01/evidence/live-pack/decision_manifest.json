@@ -1,0 +1,627 @@
+{
+  "schema": "extra-decision-pack/1.0",
+  "run_id": "decision-20260719T215322Z-2a79c2846a",
+  "started_at": "2026-07-19T21:53:22Z",
+  "collector_version": "decision-pack/1.0",
+  "git": {
+    "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+    "git_branch": "goal/extra-decision-loop-01"
+  },
+  "strict": true,
+  "profile": {
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "schema_version": "extra-profile/2.0",
+    "resolved_at": "2026-07-19T21:53:22Z",
+    "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+    "public_path": "/mnt/d/extra consultoria/config/client_profiles/extra.yaml",
+    "local_path": null,
+    "local_loaded": false,
+    "pending_critical": [
+      "capital_giro",
+      "capacidade_simultanea",
+      "cats_atestados",
+      "equipe",
+      "equipamentos",
+      "certidoes",
+      "margem_minima",
+      "risco_aceitavel",
+      "contratos_atuais",
+      "apetite_consorcios",
+      "capacidade_garantia"
+    ],
+    "pending_all": [
+      "capital_giro",
+      "capacidade_simultanea",
+      "cats_atestados",
+      "equipe",
+      "equipamentos",
+      "certidoes",
+      "margem_minima",
+      "risco_aceitavel",
+      "contratos_atuais",
+      "apetite_consorcios",
+      "capacidade_garantia"
+    ],
+    "data_redacted": {
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 2,
+      "version_date": "2026-07-16",
+      "version_notes": "I4.1 — perfil operacional completo para janela 30d (região, modalidades, valores, restrições)",
+      "region": {
+        "uf_primary": "SC",
+        "radius_km": 200,
+        "universe_seed": "Extra - alvos de licitação. R-0.xlsx",
+        "universe_authority": "spreadsheet_canonical"
+      },
+      "desired_object_types": [
+        {
+          "id": "reforma_predial",
+          "label": "Reforma predial",
+          "terms": [
+            "reforma predial",
+            "reforma de edificio publico",
+            "reforma de edificacao publica"
+          ]
+        },
+        {
+          "id": "manutencao_predial",
+          "label": "Manutenção predial",
+          "terms": [
+            "manutencao predial",
+            "manutencao de edificio publico",
+            "manutencao de edificacao publica"
+          ]
+        },
+        {
+          "id": "construcao_edificios_publicos",
+          "label": "Construção de edifícios públicos",
+          "terms": [
+            "construcao de edificio publico",
+            "construcao de edificacao publica",
+            "construcao de predio publico"
+          ]
+        },
+        {
+          "id": "infraestrutura_urbana",
+          "label": "Infraestrutura urbana (obras correlatas)",
+          "terms": [
+            "pavimentacao",
+            "drenagem",
+            "calcada",
+            "revitalizacao urbana"
+          ]
+        }
+      ],
+      "positive_terms": [
+        "engenharia civil",
+        "obra de engenharia",
+        "reforma",
+        "manutencao predial",
+        "construcao de edificio",
+        "edificacao",
+        "predial"
+      ],
+      "negative_terms": [],
+      "allowed_modalities": null,
+      "priority_modalities": [
+        "pregao_eletronico",
+        "concorrencia",
+        "tomada_de_precos",
+        "dispensa",
+        "inexigibilidade"
+      ],
+      "priority_municipalities": [],
+      "priority_distance_km": 200,
+      "minimum_value": null,
+      "maximum_value": null,
+      "value_band_soft": {
+        "min_brl": 50000,
+        "max_brl": 50000000,
+        "note": "Faixa operacional típica de obras/serviços de engenharia; calibrar com Tiago"
+      },
+      "minimum_days_to_deadline": null,
+      "documents": {
+        "require_official_notice": false,
+        "require_attachments": false
+      },
+      "engineering_categories": [
+        "reforma_predial",
+        "manutencao_predial",
+        "construcao_edificios_publicos",
+        "infraestrutura_urbana"
+      ],
+      "operational_constraints": [
+        {
+          "id": "radius_200km",
+          "description": "Somente entes no raio 200 km da planilha canônica"
+        },
+        {
+          "id": "no_obra_acompanhamento",
+          "description": "Fora de escopo acompanhamento físico/financeiro de obra"
+        },
+        {
+          "id": "single_user",
+          "description": "Ferramenta pessoal single-user (Tiago)"
+        }
+      ],
+      "priority_organs": [],
+      "known_competitors": [],
+      "hard_blocks": {
+        "require_within_radius": true,
+        "require_future_deadline": true,
+        "exclude_terminal_or_suspended": true,
+        "require_official_url": false
+      },
+      "weights": {
+        "data_confidence": {
+          "official_source": 15,
+          "status_evidence": 25,
+          "future_deadline": 20,
+          "official_url": 10,
+          "entity_match": 15,
+          "freshness": 10,
+          "field_completeness": 5
+        },
+        "client_fit": {
+          "desired_object_type": 40,
+          "positive_terms": 20,
+          "distance": 20,
+          "modality": 5,
+          "deadline": 5,
+          "documents": 10
+        }
+      },
+      "triage_thresholds": {
+        "priority_min_data_confidence": 70,
+        "priority_min_client_fit": 55,
+        "discard_max_client_fit": 20
+      },
+      "preferred_sources": {
+        "open_tenders": [
+          "pncp",
+          "pcp",
+          "compras_gov",
+          "ciga_ckan",
+          "tce_sc"
+        ],
+        "historical_contracts": [
+          "pncp",
+          "contracts",
+          "tce_sc"
+        ]
+      },
+      "elicitation": {
+        "capital_giro": {
+          "status": "PENDING",
+          "value": null,
+          "unit": "BRL",
+          "note": "Capital de giro disponível para propostas/garantias — elicitar com Tiago"
+        },
+        "capacidade_simultanea": {
+          "status": "PENDING",
+          "value": null,
+          "unit": "contratos_simultaneos",
+          "note": "Quantos contratos ativos a Extra sustenta em paralelo"
+        },
+        "cats_atestados": {
+          "status": "PENDING",
+          "value": [],
+          "note": "Lista de CATs/atestados vigentes (objeto, valor, órgão, validade)"
+        },
+        "equipe": {
+          "status": "PENDING",
+          "value": null,
+          "note": "Equipe técnica disponível (engenharia, orçamentista, administrativo)"
+        },
+        "equipamentos": {
+          "status": "PENDING",
+          "value": [],
+          "note": "Equipamentos próprios relevantes para obras/serviços"
+        },
+        "certidoes": {
+          "status": "PENDING",
+          "value": null,
+          "note": "Status consolidado de certidões (federal/estadual/municipal/trabalhista/FGTS)"
+        },
+        "margem_minima": {
+          "status": "PENDING",
+          "value": null,
+          "unit": "pct",
+          "note": "Margem mínima aceitável por tipo de objeto"
+        },
+        "risco_aceitavel": {
+          "status": "PENDING",
+          "value": null,
+          "note": "Apetite a risco (garantias, prazos curtos, órgãos com histórico ruim)"
+        },
+        "contratos_atuais": {
+          "status": "PENDING",
+          "value": [],
+          "note": "Contratos ativos da Extra (espelhar extra_ledger quando houver)"
+        },
+        "apetite_consorcios": {
+          "status": "PENDING",
+          "value": null,
+          "note": "Aceita consórcio? em quais condições?"
+        },
+        "capacidade_garantia": {
+          "status": "PENDING",
+          "value": null,
+          "unit": "BRL",
+          "note": "Capacidade de emitir garantias de proposta/contrato"
+        }
+      },
+      "capital_giro": null,
+      "capacidade_simultanea": null,
+      "cats_atestados": [],
+      "equipe": null,
+      "equipamentos": [],
+      "certidoes": null,
+      "margem_minima": null,
+      "risco_aceitavel": null,
+      "contratos_atuais": [],
+      "apetite_consorcios": null,
+      "capacidade_garantia": null,
+      "identity": {
+        "cnpj": "24515063000149",
+        "legal_name": "Extra Empreiteira e Construtora",
+        "trade_name": "Extra Construtora",
+        "headquarters_municipio": "São José",
+        "headquarters_uf": "SC",
+        "cnae_principal": "4120-4/00",
+        "cnae_principal_label": "construção de edifícios"
+      },
+      "capacity": {
+        "status": "PENDING_ELICITATION",
+        "simultaneous_works": null,
+        "working_capital_brl": null,
+        "guarantee_capacity_brl": null,
+        "team_available": null,
+        "equipment": [],
+        "consortium_appetite": null,
+        "current_contracts": []
+      },
+      "qualifications": {
+        "status": "PENDING_ELICITATION",
+        "technical_qualifications": [],
+        "cats_atestados": [],
+        "certificates": [],
+        "restrictions": []
+      },
+      "commercial_preferences": {
+        "status": "PENDING_ELICITATION",
+        "minimum_margin_pct": null,
+        "acceptable_risk": null,
+        "preferred_modalities": [],
+        "municipalities_of_interest": [],
+        "max_distance_km": 200,
+        "work_types_focus": [
+          "reforma_predial",
+          "manutencao_predial",
+          "construcao_edificios_publicos"
+        ]
+      },
+      "elicitation_queue": [
+        {
+          "field": "capacity.simultaneous_works",
+          "question": "Quantas obras/contratos a Extra consegue executar em paralelo?",
+          "priority": 1
+        },
+        {
+          "field": "capacity.working_capital_brl",
+          "question": "Capital de giro disponível para garantias e capital de obra (R$)?",
+          "priority": 1
+        },
+        {
+          "field": "capacity.guarantee_capacity_brl",
+          "question": "Capacidade máxima de garantia contratual (R$)?",
+          "priority": 1
+        },
+        {
+          "field": "qualifications.cats_atestados",
+          "question": "Listar CATs/atestados técnicos principais (objeto, valor, ano, órgão).",
+          "priority": 1
+        },
+        {
+          "field": "commercial_preferences.minimum_margin_pct",
+          "question": "Margem mínima aceitável (%) para GO automático?",
+          "priority": 2
+        },
+        {
+          "field": "commercial_preferences.acceptable_risk",
+          "question": "Apetite de risco (low|medium|high)?",
+          "priority": 2
+        },
+        {
+          "field": "known_competitors",
+          "question": "Principais concorrentes (razão social e CNPJ se conhecido)?",
+          "priority": 2
+        },
+        {
+          "field": "priority_organs",
+          "question": "Órgãos prioritários comerciais (nome/CNPJ)?",
+          "priority": 3
+        }
+      ]
+    },
+    "fields": [
+      {
+        "key": "region",
+        "state": "SET",
+        "origin": "public",
+        "sensitive": false,
+        "impact": "Sem região → REVIEW de escopo geográfico",
+        "has_value": true,
+        "question": null
+      },
+      {
+        "key": "desired_object_types",
+        "state": "SET",
+        "origin": "public",
+        "sensitive": false,
+        "impact": "Sem tipos de objeto → REVIEW de fit técnico",
+        "has_value": true,
+        "question": null
+      },
+      {
+        "key": "value_band_soft",
+        "state": "SET",
+        "origin": "public",
+        "sensitive": false,
+        "impact": "Sem faixa de valor → REVIEW comercial soft",
+        "has_value": true,
+        "question": null
+      },
+      {
+        "key": "operational_constraints",
+        "state": "SET",
+        "origin": "public",
+        "sensitive": false,
+        "impact": "Sem restrições operacionais → REVIEW de escopo",
+        "has_value": true,
+        "question": null
+      },
+      {
+        "key": "engineering_categories",
+        "state": "SET",
+        "origin": "public",
+        "sensitive": false,
+        "impact": "Sem categorias de engenharia → REVIEW técnico",
+        "has_value": true,
+        "question": null
+      },
+      {
+        "key": "hard_blocks",
+        "state": "SET",
+        "origin": "public",
+        "sensitive": false,
+        "impact": "Pode alterar fit ou confiança",
+        "has_value": true,
+        "question": null
+      },
+      {
+        "key": "weights",
+        "state": "SET",
+        "origin": "public",
+        "sensitive": false,
+        "impact": "Pode alterar fit ou confiança",
+        "has_value": true,
+        "question": null
+      },
+      {
+        "key": "triage_thresholds",
+        "state": "SET",
+        "origin": "public",
+        "sensitive": false,
+        "impact": "Pode alterar fit ou confiança",
+        "has_value": true,
+        "question": null
+      },
+      {
+        "key": "capital_giro",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem capital de giro → REVIEW (não PARTICIPAR automático)",
+        "has_value": false,
+        "question": "Capital de giro disponível para garantias e capital de obra (R$)?"
+      },
+      {
+        "key": "capacidade_simultanea",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem capacidade simultânea → REVIEW comercial",
+        "has_value": false,
+        "question": "Quantas obras/contratos a Extra consegue executar em paralelo?"
+      },
+      {
+        "key": "cats_atestados",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem CATs → REVIEW técnico (habilitação)",
+        "has_value": false,
+        "question": "Listar CATs/atestados técnicos principais (objeto, valor, ano, órgão)."
+      },
+      {
+        "key": "equipe",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem equipe declarada → REVIEW operacional",
+        "has_value": false,
+        "question": null
+      },
+      {
+        "key": "equipamentos",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem equipamentos → REVIEW operacional",
+        "has_value": false,
+        "question": null
+      },
+      {
+        "key": "certidoes",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem certidões → REVIEW de habilitação",
+        "has_value": false,
+        "question": null
+      },
+      {
+        "key": "margem_minima",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem margem mínima → REVIEW comercial",
+        "has_value": false,
+        "question": null
+      },
+      {
+        "key": "risco_aceitavel",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem apetite de risco → REVIEW comercial",
+        "has_value": false,
+        "question": null
+      },
+      {
+        "key": "contratos_atuais",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem contratos atuais → REVIEW de capacidade",
+        "has_value": false,
+        "question": null
+      },
+      {
+        "key": "apetite_consorcios",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem política de consórcio → REVIEW quando consórcio for opção",
+        "has_value": false,
+        "question": null
+      },
+      {
+        "key": "capacidade_garantia",
+        "state": "PENDING",
+        "origin": "public",
+        "sensitive": true,
+        "impact": "Sem capacidade de garantia → REVIEW comercial",
+        "has_value": false,
+        "question": "Capacidade máxima de garantia contratual (R$)?"
+      }
+    ]
+  },
+  "finished_at": "2026-07-19T21:53:24Z",
+  "status": "OK",
+  "out_dir": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack",
+  "profile_id": "extra_construtora",
+  "profile_version": 2,
+  "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+  "cutoff": "2026-07-19",
+  "counts": {
+    "participar": 0,
+    "review": 200,
+    "nao_participar": 0,
+    "total": 200,
+    "reconfirm_targets": 25,
+    "reconfirm_ok": 0
+  },
+  "snapshot_path": "/mnt/d/extra consultoria/data/decision_snapshots/snapshot-snap-decision-20260719T215322Z-2a79c2846a.json",
+  "delta_counts": {
+    "new": 200,
+    "changed": 0,
+    "deadline_changed": 0,
+    "suspended": 0,
+    "revoked": 0,
+    "closed": 0,
+    "removed": 0,
+    "still_open_reconfirmed": 0
+  },
+  "export_review": {
+    "schema": "extra-review-export/1.0",
+    "exported_at": "2026-07-19T21:53:23Z",
+    "n_sample": 40,
+    "n_universe": 200,
+    "target": 40,
+    "insufficient_sample": false,
+    "note": "Amostra estratificada pronta para rotulagem humana.",
+    "path": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/human_review_queue.csv",
+    "strata": {
+      "incomplete_data": 40
+    }
+  },
+  "calibration": {
+    "status": "PENDING_HUMAN",
+    "n_labels": 0,
+    "min_required": 10,
+    "metrics": {},
+    "notes": [
+      "Apenas 0 labels humanos; mínimo 10 para métricas.",
+      "Nenhuma precisão/recall inventada."
+    ]
+  },
+  "reconcile": {
+    "status": "PASS",
+    "same_run_id": true,
+    "run_id": "decision-20260719T215322Z-2a79c2846a",
+    "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+    "cutoff": "2026-07-19",
+    "divergences": [],
+    "pdf": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/executive_decision_brief.pdf",
+    "excel": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/extra_decision_pack.xlsx",
+    "counts": {
+      "participar": 0,
+      "review": 200,
+      "nao_participar": 0,
+      "total": 200,
+      "reconfirm_targets": 25,
+      "reconfirm_ok": 0
+    },
+    "excel_counts": {
+      "participar": 0,
+      "review": 200,
+      "nao_participar": 0,
+      "total": 200
+    }
+  },
+  "products": {
+    "brief_md": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/executive_decision_brief.md",
+    "brief_pdf": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/executive_decision_brief.pdf",
+    "excel": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/extra_decision_pack.xlsx",
+    "actionable_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/actionable_opportunities.csv",
+    "review_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/review_opportunities.csv",
+    "discarded_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/discarded_opportunities.csv",
+    "snapshot_changes_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/snapshot_changes.csv",
+    "human_review_queue_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/human_review_queue.csv",
+    "source_health_csv": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/source_health.csv",
+    "profile_status_json": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/profile_status.json",
+    "snapshot_json": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/snapshot.json",
+    "delta_json": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/snapshot_delta.json"
+  },
+  "checksums_file": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/checksums.json",
+  "human_acceptance": "PENDING_HUMAN",
+  "gaps": [
+    "Aceite de produto permanece PENDING_HUMAN.",
+    "PARTICIPAR exige reconfirmação oficial ok + perfil sem gaps materiais.",
+    "Triagem automatizada — não é garantia de vitória; não substitui análise jurídica, contábil ou técnica final.",
+    "Perfil com campos críticos pendentes: capital_giro, capacidade_simultanea, cats_atestados, equipe, equipamentos, certidoes, margem_minima, risco_aceitavel",
+    "Nenhum PARTICIPAR neste run — legítimo se fundamentado.",
+    "Reconfirmação em modo offline/fixture — não reivindicar HTTP live ok."
+  ],
+  "offline_reconfirm": true,
+  "mapping": {
+    "GO": "PARTICIPAR",
+    "REVIEW": "REVIEW",
+    "NO_GO": "NÃO_PARTICIPAR"
+  }
+}

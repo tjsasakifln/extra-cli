@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "same_run_id": true,
+  "run_id": "decision-20260719T215322Z-2a79c2846a",
+  "profile_hash": "db621d0de72e523f9a821430dfdd5326c7498b5646a13481e6cc7657fb488aa1",
+  "cutoff": "2026-07-19",
+  "divergences": [],
+  "pdf": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/executive_decision_brief.pdf",
+  "excel": "docs/ops/campaigns/EXTRA-DECISION-LOOP-01/evidence/live-pack/extra_decision_pack.xlsx",
+  "counts": {
+    "participar": 0,
+    "review": 200,
+    "nao_participar": 0,
+    "total": 200,
+    "reconfirm_targets": 25,
+    "reconfirm_ok": 0
+  },
+  "excel_counts": {
+    "participar": 0,
+    "review": 200,
+    "nao_participar": 0,
+    "total": 200
+  }
+}

@@ -1,0 +1,32 @@
+# Exemplo de override local sensível — NÃO commitar com valores reais.
+# Copie para extra.local.yaml (gitignored) e preencha com Tiago.
+#
+# cp config/client_profiles/extra.local.example.yaml \
+#    config/client_profiles/extra.local.yaml
+
+# Campos comerciais (status SET | PENDING | NOT_APPLICABLE | REDACTED)
+elicitation:
+  capital_giro:
+    status: PENDING
+    value: null
+    unit: BRL
+    note: "Preencher localmente — nunca no repositório"
+  margem_minima:
+    status: PENDING
+    value: null
+    unit: pct
+  capacidade_garantia:
+    status: PENDING
+    value: null
+    unit: BRL
+
+capacity:
+  status: PENDING_ELICITATION
+  working_capital_brl: null
+  guarantee_capacity_brl: null
+  simultaneous_works: null
+
+# Preferências não sensíveis podem sobrescrever o público:
+# priority_municipalities:
+#   - Florianópolis
+#   - São José
