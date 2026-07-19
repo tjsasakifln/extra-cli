@@ -32,3 +32,4 @@
 {"ts": "2026-07-19T08:27:06.900670+00:00", "event": "session_continue_partial_blocked_semantics", "dod": "313/1352", "ops_proxy": "1093/1093", "editais_presence": 299, "story": "ROI-cand-dyn-slice-ac8b6e76a7b2", "status": "PARTIAL"}
 {"ts": "2026-07-19T14:26:40.438203+00:00", "event": "RECOVERY_CHECKPOINT1", "ops_proxy": "433/1093", "ops_pct": 39.6157, "editais": 25.5261, "sz": 186, "dod": "313/1352", "note": "post-restore SZ batch200 + sc_compras enrich"}
 {"ts": "2026-07-19T14:43:27.454676+00:00", "event": "RECOVERY_CHECKPOINT2_MID", "ops": 544, "ops_pct": 49.7713, "sz": 297, "editais": 25.5261}
+{"ts": "2026-07-19T15:30:33.124933+00:00", "event": "RECOVERY_CHECKPOINT3", "ops": 829, "ops_pct": 75.8463, "sz": 522, "pc": 307, "pe": 279, "contracts_rows": 238859}
