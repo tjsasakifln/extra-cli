@@ -48,3 +48,22 @@ cat docs/ops/campaigns/EXTRA-OPS-95/evidence/session-metrics.json
 ## Veredito
 
 **PARTIAL** — recovery + material ops rebuild; binding campaign metas (55% DOD, 95% editais, full DONE) remain open.
+
+## Residual deliberately not fully versioned / dirty at closeout
+
+### Committed in reconciliation checkpoint (must-have)
+- `data/contracts_checkpoints/contracts_full.json` — crawl progress (windows/fetched)
+- `docs/ops/campaigns/EXTRA-OPS-95/evidence/M2-pncp/recovery-pncp-full.json` — PNCP recovery run
+- HTML panel gap=0 aligned with session-metrics
+- cache CNPJ-14 / ROI cycle state if material
+
+### Deliberately unversioned
+| Path | Why |
+|------|-----|
+| `docs/ops/campaigns/EXTRA-OPS-95/evidence/M5-backup/*.dump` | PG dump binary (~9.5MB), not code |
+| `data/cnpj14_cache/*.bak`, `*.pre-purge-mismatch` | backup noise |
+| `output/qw-01/*/universe_snapshot.json`, `coverage_gaps.csv`, `*.xlsx` | large session noise |
+| `.env*` | secrets |
+| `docs/stories/ROI-cand-dyn-slice-cb906bb58392.md` + aiox state | Draft dyn-slice deferred by DECISION-002 |
+
+Updated: 2026-07-19T16:15:26.074710+00:00
