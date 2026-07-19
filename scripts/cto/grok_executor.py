@@ -18,6 +18,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.cto.canary_integrity import decision_content_sha256
 from scripts.cto.config import load_config
 from scripts.cto.paths import cto_dir, cycles_dir, repo_root
 from scripts.cto.redaction import redact_obj, redact_text, safe_exception_message
@@ -1010,6 +1011,8 @@ def execute(
         "env_keys_forwarded": sorted(child_env.keys()),
         "base_commit": base_commit,
         "prep": {"base_commit": base_commit, "branch": branch},
+        # Sealed decision fingerprint (provenance; no post-hoc rewrite)
+        "decision_sha256": decision_content_sha256(decision),
         # Never log secret values — only auth mode
         "grok_auth": {
             "source": auth_info.get("source"),

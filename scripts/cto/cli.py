@@ -1341,7 +1341,12 @@ def cmd_canary_live(args: argparse.Namespace) -> int:
 
         cli_mod.grok_execute = _canary_execute  # type: ignore[assignment]
         try:
-            return _run_cycle_from_decision(
+            if args.mock:
+                report["error"] = "canary-live refuses --mock (not valid merge-gate proof)"
+                report["ok"] = False
+                _print(report)
+                return EXIT_FAILED
+            code = _run_cycle_from_decision(
                 root=root,
                 cfg=cfg,
                 sm=sm,
@@ -1350,6 +1355,42 @@ def cmd_canary_live(args: argparse.Namespace) -> int:
                 report=report,
                 start_phase="PREPARING",
             )
+            # Sealed package integrity — fail closed on post-hoc / wrong auth
+            from scripts.cto.canary_integrity import validate_sealed_canary_package
+
+            head_sha = (
+                __import__("subprocess")
+                .check_output(["git", "rev-parse", "HEAD"], cwd=str(root), text=True)
+                .strip()
+            )
+            integrity = validate_sealed_canary_package(
+                str(decision["cycle_id"]),
+                root=root,
+                expected_head=head_sha,
+            )
+            report["integrity"] = {
+                "ok": integrity.get("ok"),
+                "errors": integrity.get("errors"),
+                "decision_sha256": integrity.get("decision_sha256"),
+                "checks_failed": [
+                    c["name"] for c in (integrity.get("checks") or []) if not c.get("pass")
+                ],
+            }
+            cdir = cycles_dir(root) / str(decision["cycle_id"])
+            (cdir / "integrity.json").write_text(
+                json.dumps(integrity, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            if not integrity.get("ok"):
+                report["ok"] = False
+                report["operational_success"] = False
+                report["error"] = "canary package integrity failed"
+                report["outcome"] = "integrity_failed"
+                _print(report)
+                return EXIT_FAILED
+            # Re-print with integrity (cycle already printed once inside _run_cycle)
+            _print({"integrity_ok": True, "cycle_id": decision["cycle_id"], **report.get("integrity", {})})
+            return code
         finally:
             cli_mod.grok_execute = original  # type: ignore[assignment]
     except Exception as exc:  # noqa: BLE001

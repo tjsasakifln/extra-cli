@@ -30,7 +30,7 @@ Corrigir bloqueadores objetivos e provar **um** ciclo live controlado:
 
 ```text
 python3 -m pytest tests/cto -q --no-cov
-# 109 passed
+# 111 passed
 ```
 
 Cobertura inclui: allowlist env (ausência de `MY_TOKEN`/`DATABASE_URL`/…), HOME isolado (sem cópia de `~/.grok/auth.json`), `XAI_API_KEY` obrigatória no live, always_approve default false, skip-tests live block, containment estrutural, claim surfaces, publisher no-merge, verifier matrix.
@@ -48,7 +48,7 @@ Cobertura inclui: allowlist env (ausência de `MY_TOKEN`/`DATABASE_URL`/…), HO
 | Check | Resultado |
 |-------|-----------|
 | Ruff `scripts/cto` + `tests/cto` | esperado limpo no HEAD |
-| `pytest tests/cto` | **109 passed** |
+| `pytest tests/cto` | **111 passed** |
 | `run-once --dry-run --mock --skip-tests` | verify PASS → review ACCEPT → publish dry → **`ACCEPTED_DRY_RUN`** / `queue_mutated=false` / terminal **DONE** / exit **0** (não polui fila; WAITING_HUMAN só com draft PR real) |
 | live + `--skip-tests` | **BLOCKED_UNVERIFIED** / exit 11 (sem ACCEPT/publish) |
 | Canário live | ver seção abaixo (preenchida após execução) |
