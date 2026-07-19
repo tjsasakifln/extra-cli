@@ -167,7 +167,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] A saída é legível para revisão humana.
 - [ ] Erros são apresentados com causa provável e próximo passo.
 - [ ] O sistema permite repetir uma execução sem criar inconsistência.
-- [ ] O sistema permite retomar uma execução interrompida.
+- [x] O sistema permite retomar uma execução interrompida. Evidência: `docs/ops/campaigns/EXTRA-OPS-95/evidence/M5-resume/resume-proof.json` kill/restart preserves completed_windows · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] O sistema permite identificar quando um dado não é confiável.
 - [ ] O sistema não esconde limitações atrás de scores ou percentuais genéricos.
 
@@ -435,7 +435,7 @@ entes com identidade válida e decisão de raio
 total de linhas válidas da planilha
 ```
 
-- [ ] `universe_resolution = 100%`.
+- [x] `universe_resolution = 100%`. Evidência: radar QW-01 `output/qw-01/qw01-20260719T031154Z-dfb87609/coverage_manifest.json` universe_resolution.percent=100; seed 2085/2085 resolved · EXTRA-OPS-95-FOUNDATION 2026-07-19
 
 ```text
 source_applicability_resolution =
@@ -546,10 +546,10 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 ### 5.2 Bootstrap
 
 - [ ] Existe um comando único ou sequência curta para subir o PostgreSQL local.
-- [ ] Existe um comando único para aplicar migrations.
+- [x] Existe um comando único para aplicar migrations. Evidência: `python3 -m scripts.ops.apply_migrations --dsn …` (001–057) · session rebuild · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] Existe um comando único para executar seeds.
 - [ ] Existe um comando único para validar o ambiente.
-- [ ] O bootstrap funciona em banco vazio.
+- [x] O bootstrap funciona em banco vazio. Evidência: container restart → migrations+seed 2085/1093 · foundation baseline · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] O bootstrap funciona em segunda execução.
 - [ ] A segunda execução não duplica dados.
 - [ ] A segunda execução não altera checksums de migrations já aplicadas.
@@ -557,8 +557,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O bootstrap retorna exit code não zero em falha.
 - [ ] A falha de uma migration interrompe a sequência.
 - [ ] O bootstrap não deixa transação abortada sem rollback.
-- [ ] O ledger de migrations é consultável.
-- [ ] O schema resultante pode ser reconstruído do zero.
+- [x] O ledger de migrations é consultável. Evidência: `public._migrations` após apply_migrations · session rebuild · EXTRA-OPS-95-FOUNDATION 2026-07-19
+- [x] O schema resultante pode ser reconstruído do zero. Evidência: empty postgis volume → migrations 001–057 · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] O schema reconstruído coincide com o schema usado pelos scripts.
 - [ ] O banco local pode ser descartado e recriado sem intervenção artesanal.
 
@@ -605,9 +605,9 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] A origem de cada campo relevante é rastreável.
 - [ ] Atualizações não apagam provenance anterior necessária à auditoria.
 - [ ] Falhas parciais não são registradas como execução concluída.
-- [ ] Checkpoints só avançam após persistência confirmada.
-- [ ] Runs interrompidos podem ser retomados.
-- [ ] Runs retomados não reiniciam desnecessariamente todo o período.
+- [x] Checkpoints só avançam após persistência confirmada. Evidência: `CONTRACTS_PERSIST_EACH_WINDOW` upsert before mark complete · contracts_crawler.py · tests/test_contracts_per_window_persist.py · EXTRA-OPS-95-FOUNDATION 2026-07-19
+- [x] Runs interrompidos podem ser retomados. Evidência: contracts checkpoint resume · M5-resume/resume-proof.json · EXTRA-OPS-95-FOUNDATION 2026-07-19
+- [x] Runs retomados não reiniciam desnecessariamente todo o período. Evidência: completed_windows subset preserved across kill · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
 
 ---
 
@@ -678,7 +678,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] A coleta pode ser executada por período.
 - [ ] A coleta pode ser executada por fonte.
 - [ ] A coleta pode ser executada em modo incremental.
-- [ ] A coleta pode ser retomada.
+- [x] A coleta pode ser retomada. Evidência: M5-resume + contracts checkpoint reentrant · EXTRA-OPS-95-FOUNDATION 2026-07-19
 
 ### 8.2 Status e snapshot
 
@@ -754,14 +754,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] A data inicial do backfill é registrada.
 - [ ] A data final do backfill é registrada.
 - [ ] O período é particionado em janelas controladas.
-- [ ] Cada janela possui checkpoint.
+- [x] Cada janela possui checkpoint. Evidência: `data/contracts_checkpoints/contracts_full.json` per-window keys · crawl 45d · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] Cada janela possui status.
 - [ ] Cada janela possui contagem de páginas.
 - [ ] Cada janela possui contagem de registros.
 - [ ] Cada janela possui contagem de erros.
 - [ ] Uma janela com erro parcial não é marcada como concluída.
 - [ ] Uma janela concluída pode ser comprovada por manifest.
-- [ ] O backfill pode ser retomado após interrupção.
+- [x] O backfill pode ser retomado após interrupção. Evidência: contracts full/backfill_3y checkpoint modes · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] O backfill não reinicia janelas concluídas sem necessidade.
 
 ### 9.2 Coleta e atualização
@@ -804,7 +804,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Contratos duplicados cross-source são reconciliados.
 - [ ] Contratos com versões divergentes preservam provenance.
 - [ ] O sistema distingue contrato, ata, empenho e resultado.
-- [ ] O sistema não chama valor contratado de valor pago.
+- [x] O sistema não chama valor contratado de valor pago. Evidência: M4-packages/package-summary.json claims_forbidden + price-refs is_paid=false · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] O sistema não chama valor global de preço unitário.
 - [ ] O sistema não mistura objetos heterogêneos em uma única referência sem classificação.
 - [ ] Existe relatório de completude dos campos contratuais.
@@ -995,7 +995,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Atualização de registro alterado.
 - [ ] Execução de `success_zero`.
 - [ ] Falha parcial não marcada como sucesso.
-- [ ] Retomada por checkpoint.
+- [x] Retomada por checkpoint. Evidência: contracts_full.json completed_windows · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] Reconciliação de ente.
 - [ ] Reconciliação de snapshot.
 - [ ] Backfill de contratos de janela pequena.
@@ -1045,15 +1045,15 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ## 14. Backup e recuperação local
 
-- [ ] Existe backup local do PostgreSQL.
+- [x] Existe backup local do PostgreSQL. Evidência: M5-backup/proof-report-*.json dump_bytes≈9.9MB · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [x] O backup usa formato restaurável.
 - [x] O arquivo de backup possui data. Evidência: skeptic-remediation EXECUTED_PROOF + docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json
 - [x] O arquivo de backup possui integridade verificada. Evidência: skeptic-remediation EXECUTED_PROOF + docs/ops/session-2026-07-18-campaign-batch3/backup-executed-proof.json
 - [x] Existe retenção mínima definida.
 - [x] Existe script de restore.
-- [ ] O restore foi testado em banco separado.
-- [ ] O restore recompõe migrations.
-- [ ] O restore recompõe dados.
+- [x] O restore foi testado em banco separado. Evidência: restore_db=extra_restore_proof · M5-backup/proof-summary.json · EXTRA-OPS-95-FOUNDATION 2026-07-19
+- [x] O restore recompõe migrations. Evidência: source_public_tables=79 restore_public_tables=79 · M5-backup · EXTRA-OPS-95-FOUNDATION 2026-07-19
+- [x] O restore recompõe dados. Evidência: tables_restored=true · M5-backup/proof-summary.json · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] O restore recompõe o universo-alvo.
 - [ ] O restore preserva provenance.
 - [x] Existe instrução de recuperação após corrupção local. Evidência: canonical DOCUMENT_CONTENT_PROOF docs/ops/backup.md corrompido+restore

@@ -695,10 +695,10 @@ svg {
 <div id="metric-lineage-ops95" style="font-family:system-ui,sans-serif;padding:12px;margin:12px 0;border:1px solid #0e7490;background:#0b1220;color:#e8eefc;border-radius:8px">
   <strong>EXTRA-OPS-95-FOUNDATION · status <span style="color:#fbbf24">PARTIAL</span> · 2026-07-19</strong>
   <ul style="margin:8px 0 0 18px;line-height:1.45">
-    <li>Aceitação DOD canônica: <b>195/1355 (14,39%)</b> — meta DONE campanha ≥55% (746) · sem inflação</li>
+    <li>Aceitação DOD canônica: <b>213/1355 (15,72%)</b> — meta DONE campanha ≥55% (746) · sem inflação</li>
     <li>Universo: <b>1093</b> no raio · radar <b>universe_resolution=100%</b> · planilha SHA256 <code>d65f2728…</code></li>
-    <li>Presença (rebuild+re-coleta, <em>não</em> cobertura 7 estágios): editais <b>279 (25,5%)</b> · contratos <b>247 (22,6%)</b></li>
-    <li>Registry operational: <b>139 (12,7%)</b> · bids 10.831 · contracts rows ~97k (em expansão) (janela ~14d; 90d em curso)</li>
+    <li>Presença (rebuild+re-coleta, <em>não</em> cobertura 7 estágios): editais <b>279 (25,5%)</b> · contratos <b>293 (26,8%)</b></li>
+    <li>Registry operational: <b>139 (12,7%)</b> · bids 10.831 · contracts rows 217k+ (persist por janela) (janela ~14d; 90d em curso)</li>
     <li>Oportunidades live: <b>401</b> · GO=<b>0</b> · REVIEW=<b>397</b> · NO_GO=<b>4</b> (perfil Extra incompleto demote)</li>
     <li>N01 <b>DONE</b> (não reabrir) · N09 <b>BLOCKED_SOURCE</b> · SmartLic <b>DEFERRED_STALE</b> · either <b>proibido</b> como meta</li>
     <li>OSS: 0 ADOPT sem benchmark · OCDS thin ADAPT · Pandera DEFER · Kingfisher REJECT full</li>
@@ -711,7 +711,7 @@ svg {
 <div id="metric-lineage-r2" style="font-family:system-ui,sans-serif;padding:12px;margin:12px 0;border:1px solid #334;background:#0b1220;color:#e8eefc;border-radius:8px">
   <strong>Linhagem histórica R2 (pré-rebuild PG) · NÃO é métrica live atual</strong>
   <ul style="margin:8px 0 0 18px;line-height:1.45">
-    <li>Aceitação canônica main: <b>195/1355 (14,39%)</b> — não confundir com cobertura de entidades</li>
+    <li>Aceitação canônica main: <b>213/1355 (15,72%)</b> — não confundir com cobertura de entidades</li>
     <li>Histórico R2 (volume PG anterior): either 406 · editais 285 · contratos 368 · ~1,08M rows — <b>superseded</b> pelo rebuild</li>
     <li>PERT R2: N06c <b>DONE</b> em main; N01 <b>DONE</b> (resume.md stale se apontar N01)</li>
     <li>Gates: LOCAL_READY / VPS / PROJECT_DONE = <b>NOT_READY</b></li>
@@ -758,7 +758,7 @@ svg {
   Dataset SmartLic está <strong>DEFERRED_STALE_SOURCE</strong> e não entra em cobertura/freshness/gates.</p>
   <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
     <tr style="background:#e2e8f0"><th align="left">Métrica</th><th align="right">Valor</th></tr>
-    <tr><td>Aceitação canônica atual na main</td><td align="right"><strong>195/1355 (14,39%)</strong></td></tr>
+    <tr><td>Aceitação canônica atual na main</td><td align="right"><strong>213/1355 (15,72%)</strong></td></tr>
     <tr><td>Aceitação herdada validada (flips pós-recon)</td><td align="right">102 itens (não contam como PERT novo)</td></tr>
     <tr><td>Either entidade (editais∪contratos) — Extra live</td><td align="right"><strong>406/1093 (37,2%)</strong> · N06c DONE +105</td></tr>
     <tr><td>Editais entidades · Contratos entidades</td><td align="right">285 · 368</td></tr>
@@ -1281,7 +1281,7 @@ svg {
     function switchTab(name){root.querySelectorAll('.ep-tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));root.querySelectorAll('.ep-panel').forEach(p=>p.classList.toggle('is-active',p.dataset.panel===name));}
     root.querySelectorAll('.ep-tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
     document.getElementById('ep-print').addEventListener('click',()=>window.print());
-    document.getElementById('ep-copy-summary').addEventListener('click',async()=>{const text='Extra Consultoria — NEXT-30D-ROI-MAIN-R2 · 18/07/2026\nSmartLic dataset: DEFERRED_STALE_SOURCE (fora de cobertura/freshness/gates)\nEither entidade Extra (editais∪contratos): 406/1.093 (37,2%) — proxy N06c, não cobertura SLA 95%\nEditais entidades: 285 · Contratos entidades: 368\nN06c DONE · Extra-ROI: N01→N09→N07/N18→N14→N15\nGates: LOCAL_READY / VPS / PROJECT_DONE = NOT_READY\nAceitação canônica main: 195/1355 (14,39%)';try{await navigator.clipboard.writeText(text);event.target.textContent='Resumo copiado';setTimeout(()=>event.target.textContent='Copiar resumo',1400);}catch(e){alert(text);}});
+    document.getElementById('ep-copy-summary').addEventListener('click',async()=>{const text='Extra Consultoria — NEXT-30D-ROI-MAIN-R2 · 18/07/2026\nSmartLic dataset: DEFERRED_STALE_SOURCE (fora de cobertura/freshness/gates)\nEither entidade Extra (editais∪contratos): 406/1.093 (37,2%) — proxy N06c, não cobertura SLA 95%\nEditais entidades: 285 · Contratos entidades: 368\nN06c DONE · Extra-ROI: N01→N09→N07/N18→N14→N15\nGates: LOCAL_READY / VPS / PROJECT_DONE = NOT_READY\nAceitação canônica main: 213/1355 (15,72%)';try{await navigator.clipboard.writeText(text);event.target.textContent='Resumo copiado';setTimeout(()=>event.target.textContent='Copiar resumo',1400);}catch(e){alert(text);}});
 
     function renderOverview(){const s=schedule();const critical=s.rows.filter(x=>x.critical).length;const metrics=[['Either entidade (R2)','406/1.093','37,2% · N06c DONE Extra'],['Editais / Contratos ents','285 / 368','cnpj∪match · lake Extra'],['SmartLic dataset','DEFERRED','stale · fora do ROI/gates'],['Aceitação main DoD','195/1.355','14,39% · ≠ cobertura'],['Freshness / Recall','NOT READY','sem SLA entity ledger'],['Meta operacional','≥1.039','95% de 1.093 · mantida']];document.getElementById('ep-overview-metrics').innerHTML=metrics.map((m,i)=>'<div class="ep-card ep-span-'+(i<4?'3':'6')+'"><div class="ep-kicker">'+esc(m[0])+'</div><div class="ep-value">'+esc(m[1])+'</div><div class="ep-meta">'+esc(m[2])+'</div></div>').join('');document.getElementById('ep-roadmap-date').textContent='Início proposto '+fmt(startDate)+' · término PERT '+fmt(workDate(s.end))+' · '+critical+' pacotes críticos';document.getElementById('ep-phase-cards').innerHTML=D.phases.map(p=>{const r=s.rows.filter(x=>x.phase===p.id);const a=Math.min(...r.map(x=>x.es)),b=Math.max(...r.map(x=>x.ef));return '<div class="ep-phase" style="--series:'+series(p.color)+'"><div class="ep-phase-top"><span class="ep-phase-code">'+p.id+'</span><span class="ep-meta">'+fmt(workDate(a))+' → '+fmt(workDate(b))+'</span></div><div class="ep-phase-name">'+esc(p.name)+'</div><div class="ep-meta">'+esc(p.objective)+'</div><div class="ep-meta" style="margin-top:7px">'+r.length+' pacotes · '+esc(p.owner)+'</div></div>';}).join('');}
 

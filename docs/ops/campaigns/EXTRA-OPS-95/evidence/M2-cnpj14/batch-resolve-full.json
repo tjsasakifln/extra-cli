@@ -1,0 +1,1042 @@
+[
+  {
+    "cnpj8": "16670395",
+    "razao": "AGENCIA MUNICIPAL DE REGULACAO, CONTROLE E FISCALIZACAO DO MUNICIPIO DE ITAPEMA",
+    "municipio": "ITAPEMA",
+    "query": "AGENCIA MUNICIPAL DE REGULACAO, CONTROLE E FISCALIZACAO DO MUNICIPIO DE ITAPEMA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "16670395000170",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "AGENCIA MUNICIPAL DE REGULACAO, CONTROLE E FISCALIZACAO DO MUNICIPIO DE ITAPEMA"
+    }
+  },
+  {
+    "cnpj8": "83102236",
+    "razao": "BLUMENAU PREFEITURA",
+    "municipio": "BLUMENAU",
+    "query": "BLUMENAU PREFEITURA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83102236000166",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "BLUMENAU PREFEITURA"
+    }
+  },
+  {
+    "cnpj8": "79372488",
+    "razao": "BLUMENAU PREFEITURA",
+    "municipio": "BLUMENAU",
+    "query": "BLUMENAU PREFEITURA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "79372488000138",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "BLUMENAU PREFEITURA"
+    }
+  },
+  {
+    "cnpj8": "79372462",
+    "razao": "BLUMENAU PROCURADORIA GERAL DO MUNICIPIO",
+    "municipio": "BLUMENAU",
+    "query": "BLUMENAU PROCURADORIA GERAL DO MUNICIPIO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "79372462000190",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "BLUMENAU PROCURADORIA GERAL DO MUNICIPIO"
+    }
+  },
+  {
+    "cnpj8": "10721533",
+    "razao": "CAMARA DE VEREADORES DO MUNICIPIO DE ALFREDO WAGNER",
+    "municipio": "ALFREDO WAGNER",
+    "query": "CAMARA DE VEREADORES DO MUNICIPIO DE ALFREDO WAGNER",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "10721533000116",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA DE VEREADORES DO MUNICIPIO DE ALFREDO WAGNER"
+    }
+  },
+  {
+    "cnpj8": "16537849",
+    "razao": "CAMARA DE VEREADORES DO MUNICIPIO DE VIDAL RAMOS",
+    "municipio": "VIDAL RAMOS",
+    "query": "CAMARA DE VEREADORES DO MUNICIPIO DE VIDAL RAMOS",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "16537849000139",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA DE VEREADORES DO MUNICIPIO DE VIDAL RAMOS"
+    }
+  },
+  {
+    "cnpj8": "82562935",
+    "razao": "CANELINHA PREFEITURA",
+    "municipio": "CANELINHA",
+    "query": "CANELINHA PREFEITURA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "82562935000126",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CANELINHA PREFEITURA"
+    }
+  },
+  {
+    "cnpj8": "18956022",
+    "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE AURORA",
+    "municipio": "AURORA",
+    "query": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE AURORA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "18956022000195",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE AURORA"
+    }
+  },
+  {
+    "cnpj8": "20556993",
+    "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE SALETE -SC",
+    "municipio": "SALETE",
+    "query": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE SALETE -SC",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "20556993000190",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE SALETE -SC"
+    }
+  },
+  {
+    "cnpj8": "16757142",
+    "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE RODEIO",
+    "municipio": "RODEIO",
+    "query": "COMISSAO MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE RODEIO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "16757142000138",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "COMISSAO MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE RODEIO"
+    }
+  },
+  {
+    "cnpj8": "14695989",
+    "razao": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DOS MUNICIPIOS DA AMAVI - CIM-AMAVI",
+    "municipio": "ITUPORANGA",
+    "query": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DOS MUNICIPIOS DA AMAVI - CIM-AMAVI",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "14695989000100",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DOS MUNICIPIOS DA AMAVI - CIM-AMAVI"
+    }
+  },
+  {
+    "cnpj8": "15528194",
+    "razao": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE ALFREDO WAGNER",
+    "municipio": "ALFREDO WAGNER",
+    "query": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE ALFREDO WAGNER",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "15528194000170",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE ALFREDO WAGNER"
+    }
+  },
+  {
+    "cnpj8": "18600048",
+    "razao": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE PORTO BELO - COMDEC",
+    "municipio": "PORTO BELO",
+    "query": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE PORTO BELO - COMDEC",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "18600048000104",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE PORTO BELO - COMDEC"
+    }
+  },
+  {
+    "cnpj8": "80168446",
+    "razao": "FUNDACAO HOSPITALAR DO MUNICIPIO DE BOM JARDIM DA SERRA",
+    "municipio": "BOM JARDIM DA SERRA",
+    "query": "FUNDACAO HOSPITALAR DO MUNICIPIO DE BOM JARDIM DA SERRA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "80168446000169",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "FUNDACAO HOSPITALAR DO MUNICIPIO DE BOM JARDIM DA SERRA"
+    }
+  },
+  {
+    "cnpj8": "83711580",
+    "razao": "FUNDACAO MEDICO HOSPITALAR DO MUNICIPIO DE LAGUNA",
+    "municipio": "LAGUNA",
+    "query": "FUNDACAO MEDICO HOSPITALAR DO MUNICIPIO DE LAGUNA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83711580000152",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "FUNDACAO MEDICO HOSPITALAR DO MUNICIPIO DE LAGUNA"
+    }
+  },
+  {
+    "cnpj8": "18387954",
+    "razao": "FUNDO ESTADUAL DE APOIO AOS MUNICIPIOS (FUNDAM)",
+    "municipio": "SANTA CATARINA",
+    "query": "FUNDO ESTADUAL DE APOIO AOS MUNICIPIOS (FUNDAM)",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "18387954000164",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "FUNDO ESTADUAL DE APOIO AOS MUNICIPIOS (FUNDAM)"
+    }
+  },
+  {
+    "cnpj8": "22033804",
+    "razao": "FUNDO MUNICIPAL DE HABITACAO  DO MUNICIPIO DE SANTA ROSA DE LIMA",
+    "municipio": "SANTA ROSA DE LIMA",
+    "query": "FUNDO MUNICIPAL DE HABITACAO  DO MUNICIPIO DE SANTA ROSA DE LIMA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "22033804000120",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "FUNDO MUNICIPAL DE HABITACAO  DO MUNICIPIO DE SANTA ROSA DE LIMA"
+    }
+  },
+  {
+    "cnpj8": "03916700",
+    "razao": "INST. DE PREV. SOCIAL DOS SERV. PUBLICOS DO MUNICIPIO DE LEOBERTO LEAL - IPRELL",
+    "municipio": "LEOBERTO LEAL",
+    "query": "INST. DE PREV. SOCIAL DOS SERV. PUBLICOS DO MUNICIPIO DE LEOBERTO LEAL - IPRELL",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "03916700000119",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "INST. DE PREV. SOCIAL DOS SERV. PUBLICOS DO MUNICIPIO DE LEOBERTO LEAL - IPRELL"
+    }
+  },
+  {
+    "cnpj8": "03933794",
+    "razao": "INST.DE PREV. SOCIAL DOS SERV. PUBLICOS DO MUNICIPIO DE PAULO LOPES - IPRELOPES",
+    "municipio": "PAULO LOPES",
+    "query": "INST.DE PREV. SOCIAL DOS SERV. PUBLICOS DO MUNICIPIO DE PAULO LOPES - IPRELOPES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "03933794000134",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "INST.DE PREV. SOCIAL DOS SERV. PUBLICOS DO MUNICIPIO DE PAULO LOPES - IPRELOPES"
+    }
+  },
+  {
+    "cnpj8": "73249989",
+    "razao": "INSTITUTO DE PREVIDENCIA DO MUNICIPIO DE CORREIA PINTO",
+    "municipio": "CORREIA PINTO",
+    "query": "INSTITUTO DE PREVIDENCIA DO MUNICIPIO DE CORREIA PINTO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "73249989000145",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "INSTITUTO DE PREVIDENCIA DO MUNICIPIO DE CORREIA PINTO"
+    }
+  },
+  {
+    "cnpj8": "04616444",
+    "razao": "INSTITUTO DE PREVIDENCIA DOS SERVIDORES PUBLICOS DO MUNICIPIO DE CAMPO ALEGRE",
+    "municipio": "CAMPO ALEGRE",
+    "query": "INSTITUTO DE PREVIDENCIA DOS SERVIDORES PUBLICOS DO MUNICIPIO DE CAMPO ALEGRE",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "04616444000107",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "INSTITUTO DE PREVIDENCIA DOS SERVIDORES PUBLICOS DO MUNICIPIO DE CAMPO ALEGRE"
+    }
+  },
+  {
+    "cnpj8": "05048537",
+    "razao": "INSTITUTO DE PREVIDENCIA DOS SERVIDORES PUBLICOS DO MUNICIPIO DE TIJUCAS",
+    "municipio": "TIJUCAS",
+    "query": "INSTITUTO DE PREVIDENCIA DOS SERVIDORES PUBLICOS DO MUNICIPIO DE TIJUCAS",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "05048537000145",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "PREVISERTI - INSTITUTO DE PREVIDNCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE TIJUCAS."
+    }
+  },
+  {
+    "cnpj8": "03863650",
+    "razao": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE ANGELINA",
+    "municipio": "ANGELINA",
+    "query": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE ANGELINA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "03863650000159",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE ANGELINA"
+    }
+  },
+  {
+    "cnpj8": "18600539",
+    "razao": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE FLORIANOPOLIS",
+    "municipio": "FLORIANOPOLIS",
+    "query": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE FLORIANO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "18600539000147",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE FLORIANOPOLIS"
+    }
+  },
+  {
+    "cnpj8": "03749731",
+    "razao": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE GAROPABA",
+    "municipio": "GAROPABA",
+    "query": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE GAROPABA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "03749731000122",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE GAROPABA"
+    }
+  },
+  {
+    "cnpj8": "04529689",
+    "razao": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE NOVA TRENTO",
+    "municipio": "NOVA TRENTO",
+    "query": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE NOVA TRE",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "04529689000105",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE NOVA TRENTO"
+    }
+  },
+  {
+    "cnpj8": "03937163",
+    "razao": "IPREVE INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE BARRA VELHA.",
+    "municipio": "BARRA VELHA",
+    "query": "IPREVE INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE B",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "03937163000193",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "IPREVE INSTITUTO DE PREVIDENCIA SOCIAL DOS SERVIDORES PUBLICOS DO MUNICIPIO DE BARRA VELHA."
+    }
+  },
+  {
+    "cnpj8": "03955308",
+    "razao": "PREFEITURA MUNICIPAL DE NOVA TRENTO",
+    "municipio": "SANTA CATARINA",
+    "query": "PREFEITURA MUNICIPAL DE NOVA TRENTO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "03955308000189",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "PREFEITURA MUNICIPAL DE NOVA TRENTO"
+    }
+  },
+  {
+    "cnpj8": "10718233",
+    "razao": "PREFEITURA MUNICIPAL DE PORTO BELO/FUMREBOM",
+    "municipio": "PORTO BELO",
+    "query": "PREFEITURA MUNICIPAL DE PORTO BELO/FUMREBOM",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "10718233000188",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "PREFEITURA MUNICIPAL DE PORTO BELO/FUMREBOM"
+    }
+  },
+  {
+    "cnpj8": "30524703",
+    "razao": "SECRETARIA DA EDUCACAO E CULTURA DO MUNICIPIO DE GARUVA",
+    "municipio": "GARUVA",
+    "query": "SECRETARIA DA EDUCACAO E CULTURA DO MUNICIPIO DE GARUVA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "30524703000180",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "SECRETARIA DA EDUCACAO E CULTURA DO MUNICIPIO DE GARUVA"
+    }
+  },
+  {
+    "cnpj8": "30958596",
+    "razao": "SECRETARIA DE EDUCACAO DO MUNICIPIO DE CORREIA PINTO",
+    "municipio": "CORREIA PINTO",
+    "query": "SECRETARIA DE EDUCACAO DO MUNICIPIO DE CORREIA PINTO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "30958596000106",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "SECRETARIA DE EDUCACAO DO MUNICIPIO DE CORREIA PINTO"
+    }
+  },
+  {
+    "cnpj8": "30746067",
+    "razao": "SECRETARIA DE EDUCACAO DO MUNICIPIO DE SANTA TEREZINHA",
+    "municipio": "SANTA TEREZINHA",
+    "query": "SECRETARIA DE EDUCACAO DO MUNICIPIO DE SANTA TEREZINHA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "30746067000130",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "SECRETARIA DE EDUCACAO DO MUNICIPIO DE SANTA TEREZINHA"
+    }
+  },
+  {
+    "cnpj8": "60051532",
+    "razao": "SECRETARIA MUNICIPAL DE EDUCACAO E DESPORTO DO MUNICIPIO DE SANTA ROSA DE LIMA",
+    "municipio": "SANTA ROSA DE LIMA",
+    "query": "SECRETARIA MUNICIPAL DE EDUCACAO E DESPORTO DO MUNICIPIO DE SANTA ROSA DE LIMA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "10658636000189",
+      "method": "token_containment",
+      "razaoSocial": "SECRETARIA MUNICIPAL DE EDUCACAO, CULTURA, DESPORTO E LAZER"
+    }
+  },
+  {
+    "cnpj8": "27397940",
+    "razao": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO DO MUNICIPIO DE ILHOTA",
+    "municipio": "ILHOTA",
+    "query": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO DO MUNICIPIO DE ILHOTA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "27397940000112",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO DO MUNICIPIO DE ILHOTA"
+    }
+  },
+  {
+    "cnpj8": "83497578",
+    "razao": "ASCURRA CAMARA DE VEREADORES",
+    "municipio": "ASCURRA",
+    "query": "ASCURRA CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83497578000122",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "ASCURRA CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "01258910",
+    "razao": "ATALANTA CAMARA MUNICIPAL DE VEREADORES",
+    "municipio": "ATALANTA",
+    "query": "ATALANTA CAMARA MUNICIPAL DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "01258910000131",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "ATALANTA CAMARA MUNICIPAL DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "10655408",
+    "razao": "CAMARA DE VEREADORES DE IMBUIA",
+    "municipio": "IMBUIA",
+    "query": "CAMARA DE VEREADORES DE IMBUIA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "10655408000155",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA DE VEREADORES DE IMBUIA"
+    }
+  },
+  {
+    "cnpj8": "01621303",
+    "razao": "CAMARA DE VEREADORES DE PONTE ALTA/SC",
+    "municipio": "PONTE ALTA",
+    "query": "CAMARA DE VEREADORES DE PONTE ALTA/SC",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "01621303000194",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA DE VEREADORES DE PONTE ALTA/SC"
+    }
+  },
+  {
+    "cnpj8": "05559537",
+    "razao": "CAMARA DE VEREADORES DE POUSO REDONDO",
+    "municipio": "POUSO REDONDO",
+    "query": "CAMARA DE VEREADORES DE POUSO REDONDO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "05559537000100",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA DE VEREADORES DE POUSO REDONDO"
+    }
+  },
+  {
+    "cnpj8": "01631684",
+    "razao": "CAMARA DE VEREADORES DE TREVISO",
+    "municipio": "TREVISO",
+    "query": "CAMARA DE VEREADORES DE TREVISO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "01631684000192",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA DE VEREADORES DE TREVISO"
+    }
+  },
+  {
+    "cnpj8": "78493467",
+    "razao": "CAMARA DE VEREADORES DE URUPEMA",
+    "municipio": "URUPEMA",
+    "query": "CAMARA DE VEREADORES DE URUPEMA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "78493467000108",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA DE VEREADORES DE URUPEMA"
+    }
+  },
+  {
+    "cnpj8": "04656359",
+    "razao": "CAMARA MUNICIPAL DE ANGELINA",
+    "municipio": "ANGELINA",
+    "query": "CAMARA MUNICIPAL DE ANGELINA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "04656359000172",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE ANGELINA"
+    }
+  },
+  {
+    "cnpj8": "08771379",
+    "razao": "CAMARA MUNICIPAL DE ERMO",
+    "municipio": "ERMO",
+    "query": "CAMARA MUNICIPAL DE ERMO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "08771379000145",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE ERMO"
+    }
+  },
+  {
+    "cnpj8": "80168198",
+    "razao": "CAMARA MUNICIPAL DE FORQUILHINHA",
+    "municipio": "FORQUILHINHA",
+    "query": "CAMARA MUNICIPAL DE FORQUILHINHA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "80168198000156",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE FORQUILHINHA"
+    }
+  },
+  {
+    "cnpj8": "78829835",
+    "razao": "CAMARA MUNICIPAL DE JAGUARUNA",
+    "municipio": "JAGUARUNA",
+    "query": "CAMARA MUNICIPAL DE JAGUARUNA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "78829835000146",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE JAGUARUNA"
+    }
+  },
+  {
+    "cnpj8": "00599755",
+    "razao": "CAMARA MUNICIPAL DE LAURO MULLER",
+    "municipio": "LAURO MULLER",
+    "query": "CAMARA MUNICIPAL DE LAURO MULLER",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "00599755000154",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE LAURO MULLER"
+    }
+  },
+  {
+    "cnpj8": "10779622",
+    "razao": "CAMARA MUNICIPAL DE LEOBERTO LEAL",
+    "municipio": "LEOBERTO LEAL",
+    "query": "CAMARA MUNICIPAL DE LEOBERTO LEAL",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "10779622000113",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE LEOBERTO LEAL"
+    }
+  },
+  {
+    "cnpj8": "73964637",
+    "razao": "CAMARA MUNICIPAL DE NOVA VENEZA",
+    "municipio": "NOVA VENEZA",
+    "query": "CAMARA MUNICIPAL DE NOVA VENEZA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "73964637000171",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "NOVA VENEZA CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "17481072",
+    "razao": "CAMARA MUNICIPAL DE PESCARIA BRAVA",
+    "municipio": "PESCARIA BRAVA",
+    "query": "CAMARA MUNICIPAL DE PESCARIA BRAVA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "17481072000109",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE PESCARIA BRAVA"
+    }
+  },
+  {
+    "cnpj8": "10933303",
+    "razao": "CAMARA MUNICIPAL DE RANCHO QUEIMADO",
+    "municipio": "RANCHO QUEIMADO",
+    "query": "CAMARA MUNICIPAL DE RANCHO QUEIMADO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "10933303000110",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE RANCHO QUEIMADO"
+    }
+  },
+  {
+    "cnpj8": "02475174",
+    "razao": "CAMARA MUNICIPAL DE TREZE DE MAIO",
+    "municipio": "TREZE DE MAIO",
+    "query": "CAMARA MUNICIPAL DE TREZE DE MAIO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "02475174000136",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE TREZE DE MAIO"
+    }
+  },
+  {
+    "cnpj8": "95991386",
+    "razao": "CAMARA MUNICIPAL DE URUBICI",
+    "municipio": "URUBICI",
+    "query": "CAMARA MUNICIPAL DE URUBICI",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "95991386000157",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE URUBICI"
+    }
+  },
+  {
+    "cnpj8": "01794690",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE BOM RETIRO",
+    "municipio": "BOM RETIRO",
+    "query": "CAMARA MUNICIPAL DE VEREADORES DE BOM RETIRO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "01794690000160",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE VEREADORES DE BOM RETIRO"
+    }
+  },
+  {
+    "cnpj8": "79832150",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE GUABIRUBA",
+    "municipio": "GUABIRUBA",
+    "query": "CAMARA MUNICIPAL DE VEREADORES DE GUABIRUBA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "79832150000111",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE VEREADORES DE GUABIRUBA"
+    }
+  },
+  {
+    "cnpj8": "03269022",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE MAJOR GERCINO",
+    "municipio": "MAJOR GERCINO",
+    "query": "CAMARA MUNICIPAL DE VEREADORES DE MAJOR GERCINO",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "03269022000140",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE VEREADORES DE MAJOR GERCINO"
+    }
+  },
+  {
+    "cnpj8": "04308811",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE ORLEANS",
+    "municipio": "ORLEANS",
+    "query": "CAMARA MUNICIPAL DE VEREADORES DE ORLEANS",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "04308811000105",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE VEREADORES DE ORLEANS"
+    }
+  },
+  {
+    "cnpj8": "01630213",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE PALMEIRAS / SC",
+    "municipio": "PALMEIRA",
+    "query": "CAMARA MUNICIPAL DE VEREADORES DE PALMEIRAS / SC",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "01630213000160",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE VEREADORES DE PALMEIRAS / SC"
+    }
+  },
+  {
+    "cnpj8": "04491277",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE PEDRAS GRANDES",
+    "municipio": "PEDRAS GRANDES",
+    "query": "CAMARA MUNICIPAL DE VEREADORES DE PEDRAS GRANDES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "04491277000115",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE VEREADORES DE PEDRAS GRANDES"
+    }
+  },
+  {
+    "cnpj8": "79373486",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE TROMBUDO CENTRAL",
+    "municipio": "TROMBUDO CENTRAL",
+    "query": "CAMARA MUNICIPAL DE VEREADORES DE TROMBUDO CENTRAL",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "79373486000163",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMARA MUNICIPAL DE VEREADORES DE TROMBUDO CENTRAL"
+    }
+  },
+  {
+    "cnpj8": "83536862",
+    "razao": "CAMPO ALEGRE CAMARA DE VEREADORES",
+    "municipio": "CAMPO ALEGRE",
+    "query": "CAMPO ALEGRE CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83536862000160",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "CAMPO ALEGRE CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83640698",
+    "razao": "DONA EMMA CAMARA DE VEREADORES",
+    "municipio": "DONA EMMA",
+    "query": "DONA EMMA CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83640698000137",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "DONA EMMA CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83485433",
+    "razao": "DONA EMMA CAMARA DE VEREADORES",
+    "municipio": "DONA EMMA",
+    "query": "DONA EMMA CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83485433000101",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "DONA EMMA CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "00363220",
+    "razao": "ESCOLA MUNICIPAL DOM JAIME DE BARROS CAMARA",
+    "municipio": "JOINVILLE",
+    "query": "ESCOLA MUNICIPAL DOM JAIME DE BARROS CAMARA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "00363220000180",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "ESCOLA MUNICIPAL DOM JAIME DE BARROS CAMARA"
+    }
+  },
+  {
+    "cnpj8": "83841338",
+    "razao": "FLORIANOPOLIS CAMARA DE VEREADORES",
+    "municipio": "FLORIANOPOLIS",
+    "query": "FLORIANOPOLIS CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83841338000101",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "FLORIANOPOLIS CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83545376",
+    "razao": "GARUVA CAMARA DE VEREADORES",
+    "municipio": "GARUVA",
+    "query": "GARUVA CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83545376000109",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "GARUVA CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "81144610",
+    "razao": "GARUVA CAMARA DE VEREADORES",
+    "municipio": "GARUVA",
+    "query": "GARUVA CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "81144610000160",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "GARUVA CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83871574",
+    "razao": "JACINTO MACHADO-CAMARA DE VEREADORES",
+    "municipio": "JACINTO MACHADO",
+    "query": "JACINTO MACHADO-CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83871574000162",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "JACINTO MACHADO-CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "79369955",
+    "razao": "LAURENTINO CAMARA DE VEREADORES",
+    "municipio": "LAURENTINO",
+    "query": "LAURENTINO CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "79369955000170",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "LAURENTINO CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83543538",
+    "razao": "LUIS ALVES CAMARA DE VEREADORES",
+    "municipio": "LUIZ ALVES",
+    "query": "LUIS ALVES CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83543538000170",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "LUIS ALVES CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83539668",
+    "razao": "MASSARANDUBA CAMARA DE VEREADORES",
+    "municipio": "MASSARANDUBA",
+    "query": "MASSARANDUBA CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83539668000139",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "MASSARANDUBA CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "80991987",
+    "razao": "MELEIRO CAMARA DE VEREADORES",
+    "municipio": "MELEIRO",
+    "query": "MELEIRO CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "80991987000192",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "MELEIRO CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "02384560",
+    "razao": "MORRO GRANDE CAMARA",
+    "municipio": "MORRO GRANDE",
+    "query": "MORRO GRANDE CAMARA",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "02384560000112",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "MORRO GRANDE CAMARA"
+    }
+  },
+  {
+    "cnpj8": "83783209",
+    "razao": "RIO DO OESTE CAMARA DE VEREADORES",
+    "municipio": "RIO DO OESTE",
+    "query": "RIO DO OESTE CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83783209000104",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "RIO DO OESTE CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83497602",
+    "razao": "RIO DOS CEDROS CAMARA DE VEREADORES",
+    "municipio": "RIO DOS CEDROS",
+    "query": "RIO DOS CEDROS CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83497602000123",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "RIO DOS CEDROS CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83783142",
+    "razao": "SALETE CAMARA DE VEREADORES",
+    "municipio": "SALETE",
+    "query": "SALETE CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83783142000108",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "SALETE CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "80990294",
+    "razao": "TURVO CAMARA DE VEREADORES",
+    "municipio": "TURVO",
+    "query": "TURVO CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "80990294000185",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "TURVO CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "83485425",
+    "razao": "WITMARSUM CAMARA DE VEREADORES",
+    "municipio": "WITMARSUM",
+    "query": "WITMARSUM CAMARA DE VEREADORES",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83485425000165",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "WITMARSUM CAMARA DE VEREADORES"
+    }
+  },
+  {
+    "cnpj8": "79372496",
+    "razao": "BLUMENAU SECRETARIA DO MEIO AMBIENTE E DEFESA CIVIL",
+    "municipio": "BLUMENAU",
+    "query": "BLUMENAU SECRETARIA DO MEIO AMBIENTE E DEFESA CIVIL",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "79372496000184",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "BLUMENAU SECRETARIA DO MEIO AMBIENTE E DEFESA CIVIL"
+    }
+  },
+  {
+    "cnpj8": "83108381",
+    "razao": "BLUMENAU SECRETARIA MUNICIPAL DE ASSISTENCIA SOCIAL",
+    "municipio": "BLUMENAU",
+    "query": "BLUMENAU SECRETARIA MUNICIPAL DE ASSISTENCIA SOCIAL",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "83108381000154",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "BLUMENAU SECRETARIA MUNICIPAL DE ASSISTENCIA SOCIAL"
+    }
+  },
+  {
+    "cnpj8": "02651698",
+    "razao": "BLUMENAU SECRETARIA MUNICIPAL DE CAPTACAO DE RECURSOS",
+    "municipio": "BLUMENAU",
+    "query": "BLUMENAU SECRETARIA MUNICIPAL DE CAPTACAO DE RECURSOS",
+    "n_hits": 98426,
+    "error": null,
+    "match": {
+      "cnpj14": "02651698000130",
+      "method": "cnpj8_prefix",
+      "razaoSocial": "BLUMENAU SECRETARIA MUNICIPAL DE CAPTACAO DE RECURSOS"
+    }
+  }
+]

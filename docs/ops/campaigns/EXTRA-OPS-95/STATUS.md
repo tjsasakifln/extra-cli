@@ -29,17 +29,18 @@ Operação local consultiva B2G com cobertura editais/contratos ≥95% **separad
 
 | Métrica | Valor | Meta |
 |---------|------:|-----:|
-| DOD checked | **195/1355 (14,39%)** | ≥746 (55%) |
+| DOD checked | **213/1355 (15,72%)** | ≥746 (55%) |
 | Denominador 200 km | **1093** | fixo |
 | Universe resolution | **100%** | 100% |
 | Bids rows | **10831** (pncp+sc_compras) | — |
-| Contracts rows | **72925** (14d; 90d nacional abortado por lentidão) | — |
+| Contracts rows | **217115+** (persist por janela; 6+ janelas) | — |
 | Presença editais | **279 (25,53%)** | ≥1039 operacional |
-| Presença contratos | **247 (22,60%)** | ≥1039 operacional |
+| Presença contratos | **293 (26,81%)** | ≥1039 operacional |
 | Registry operational | **139 (12,72%)** | ≥1039 |
 | Oportunidades | **401** (0 GO / 397 REVIEW / 4 NO_GO) | fluxo útil |
 | M4 packages | competitors/expiring/prices + PDF+Excel fixture | contratado≠pago |
-| success_zero bulk | **NOT_READY** | residual sem CNPJ-14 |
+| success_zero bulk | **NOT_READY** | CNPJ-14: 80/80 batch OK; SZ pagination path pending |
+| CNPJ-14 residual batch | **80/80** resolvidos (cnpj8_prefix) | cache `data/cnpj14_cache/` |
 
 ## Decisões
 
