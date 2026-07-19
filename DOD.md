@@ -490,10 +490,10 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] o ente foi identificado corretamente;
 - [ ] a fonte foi classificada como aplicável;
 - [ ] a capacidade consultada foi identificada;
-- [ ] o período consultado foi registrado;
-- [ ] todos os parâmetros relevantes foram registrados;
-- [ ] a paginação foi iniciada corretamente;
-- [ ] a paginação foi concluída;
+- [x] o período consultado foi registrado; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · queried_start/end
+- [x] todos os parâmetros relevantes foram registrados; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · cnpjOrgao+window in scope_key
+- [x] a paginação foi iniciada corretamente; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · pages_processed=1 http_204
+- [x] a paginação foi concluída; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · completion_rule=http_204_complete
 - [ ] não houve timeout não tratado;
 - [ ] não houve erro parcial escondido;
 - [ ] não houve página ignorada;
@@ -501,13 +501,12 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] não houve blocker de autenticação;
 - [ ] não houve blocker de rate limit pendente;
 - [ ] não houve erro de schema;
-- [ ] a resposta vazia foi persistida como `success_zero`;
-- [ ] o run possui `run_id`;
-- [ ] o run possui timestamps de início e fim;
-- [ ] o run possui fonte e capability;
+- [x] a resposta vazia foi persistida como `success_zero`; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
+- [x] o run possui `run_id`; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
+- [x] o run possui timestamps de início e fim; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
+- [x] o run possui fonte e capability; Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · source=pncp capability=historical_contracts
 - [ ] o run está dentro da janela de freshness;
-- [ ] a evidência pode ser auditada posteriormente.
-
+- [x] a evidência pode ser auditada posteriormente. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
 ### 4.3 Freshness
 
 - [ ] Editais abertos possuem idade máxima de 24 horas.
@@ -993,7 +992,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Persistência real.
 - [ ] Reexecução sem duplicação.
 - [ ] Atualização de registro alterado.
-- [ ] Execução de `success_zero`.
+- [x] Execução de `success_zero`. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
 - [ ] Falha parcial não marcada como sucesso.
 - [x] Retomada por checkpoint. Evidência: contracts_full.json completed_windows · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] Reconciliação de ente.
@@ -1522,7 +1521,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Overrides manuais possuem data.
 - [ ] Overrides manuais possuem autor.
 - [ ] A evidência de coverage pode ser reconstruída.
-- [ ] A evidência de `success_zero` pode ser reconstruída.
+- [x] A evidência de `success_zero` pode ser reconstruída. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · scope_key+provenance+content_hash
 - [ ] A evidência de freshness pode ser reconstruída.
 - [ ] A evidência de recall pode ser reconstruída.
 - [ ] A evidência de snapshot pode ser reconstruída.
