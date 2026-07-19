@@ -1,0 +1,16 @@
+{
+  "run_id": "cycle-1-20260719T033450Z",
+  "cycle_index": 1,
+  "measured_at": "2026-07-19T03:34:51.199257+00:00",
+  "counts": {
+    "bids": 10831,
+    "contracts": 72925,
+    "opportunities": 401,
+    "presence_editais": 279,
+    "presence_contracts": 247
+  },
+  "workspace_exit": 0,
+  "workspace_has_review_hint": true,
+  "correlation": "same DSN, sequential controlled cycles (not 3 calendar days)",
+  "content_sha256": "44e2bc5b7ad3053b9d31baae690ec49ee56716258c3f56b8e91c627e90c05063"
+}
