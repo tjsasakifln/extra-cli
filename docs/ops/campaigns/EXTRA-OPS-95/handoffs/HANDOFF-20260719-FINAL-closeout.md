@@ -2,7 +2,7 @@
 
 **UTC:** 2026-07-19T16:21:16Z  
 **Branch:** `campaign/extra-ops-95-20260719`  
-**HEAD:** `0a4fa0a8f74d92df030237f07f95dac798608604`  
+**HEAD:** `1a18dd3566997fe3bbb1b1a153ed7283865ea1fb`  
 **Remote:** `origin/campaign/extra-ops-95-20260719` (SHA local == remoto no push)  
 **Status global:** **PARTIAL** (não DONE)
 

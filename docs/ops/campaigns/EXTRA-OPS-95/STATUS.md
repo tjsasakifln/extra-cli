@@ -1,7 +1,7 @@
 # EXTRA-OPS-95-FOUNDATION — Status operacional
 
 **Atualizado:** 2026-07-19T16:21:16Z  
-**HEAD:** `0a4fa0a8f74d` · branch `campaign/extra-ops-95-20260719`  
+**HEAD:** `1a18dd3` · branch `campaign/extra-ops-95-20260719`  
 **Status global:** **PARTIAL**
 
 ## Métricas honestas (closeout recovery)
@@ -27,7 +27,7 @@ ops_proxy = lake presence(orgao_cnpj8) OR entity success_zero(cnpj14 root + http
 
 ## Recovery closeout
 
-- Branch remota: `origin/campaign/extra-ops-95-20260719` @ `0a4fa0a8f74d`
+- Branch remota: `origin/campaign/extra-ops-95-20260719` @ `1a18dd3`
 - WSL crash → inventário + safety + push; DB restore M5; SZ + contracts expand
 - DECISION-002: COV-EDIT-CONTRACT-OPS
 - N09 **BLOCKED_SOURCE**
