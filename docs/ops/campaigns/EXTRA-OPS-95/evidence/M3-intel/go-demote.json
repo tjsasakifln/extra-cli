@@ -1,0 +1,25 @@
+{
+  "ts": "2026-07-19T02:06:02.538111+00:00",
+  "profile_complete": false,
+  "missing": [
+    "capital_giro",
+    "capacidade_simultanea",
+    "cats_atestados",
+    "equipe",
+    "equipamentos",
+    "certidoes",
+    "margem_minima",
+    "risco_aceitavel",
+    "contratos_atuais",
+    "apetite_consorcios",
+    "capacidade_garantia"
+  ],
+  "go_before": 1549,
+  "go_after": 0,
+  "demoted": 1549,
+  "review_count": 5917,
+  "sample_compute": {
+    "ranking": "REVIEW",
+    "score": 69
+  }
+}

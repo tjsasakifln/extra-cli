@@ -12,6 +12,7 @@ class TestRankingBasic:
 
     def test_open_complete_go(self):
         now = datetime.now(UTC)
+        # Score-path only: disable profile demotion so the pure scoring contract is tested.
         result = compute_ranking(
             status_canonico="open",
             orgao_cnpj="12345678000199",
@@ -27,10 +28,45 @@ class TestRankingBasic:
             has_match_entity=True,
             dentro_raio=True,
             fonte_confiavel=True,
+            demote_go_if_profile_incomplete=False,
         )
         assert result["ranking"] == "GO"
         assert result["ranking_score"] >= 70
         assert result["ranking_confianca"] == "HIGH"
+
+    def test_go_demoted_when_extra_profile_incomplete(self):
+        """EXTRA-OPS-95: never keep GO when Extra capacity profile fields are missing."""
+        now = datetime.now(UTC)
+        incomplete = {
+            "region": {"uf_primary": "SC", "radius_km": 200},
+            "desired_object_types": [{"id": "reforma_predial"}],
+            "value_band_soft": {"min_brl": 1, "max_brl": 9},
+            "operational_constraints": [{"id": "radius_200km"}],
+            "engineering_categories": ["reforma_predial"],
+            # capacity fields intentionally absent
+        }
+        result = compute_ranking(
+            status_canonico="open",
+            orgao_cnpj="12345678000199",
+            objeto="Construção de escola municipal",
+            valor_estimado=500000.00,
+            modalidade="Concorrência Eletrônica",
+            data_abertura=now + timedelta(days=7),
+            data_encerramento=now + timedelta(days=37),
+            uf="SC",
+            municipio="Florianópolis",
+            link_edital="http://example.com/edital",
+            link_anexos=["http://example.com/anexo1"],
+            has_match_entity=True,
+            dentro_raio=True,
+            fonte_confiavel=True,
+            profile=incomplete,
+            demote_go_if_profile_incomplete=True,
+        )
+        assert result["ranking"] == "REVIEW"
+        assert result["ranking_score"] <= 69
+        assert "POLICY:profile_incomplete_demote_go" in result["ranking_regras"]
+        assert result.get("profile_missing")
 
     def test_unknown_status_review(self):
         result = compute_ranking(

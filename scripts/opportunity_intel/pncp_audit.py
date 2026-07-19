@@ -467,6 +467,17 @@ def _project_coverage_evidence(
             )
         )
 
+    # Deduplicate by entity_id within the batch — uq_ce_entity_run forbids
+    # two rows with the same (entity_id, source, data_type, run_id).
+    deduped: dict[Any, tuple[Any, ...]] = {}
+    for rec in records:
+        entity_id = rec[0]
+        key = entity_id if entity_id is not None else ("canon", rec[1])
+        deduped[key] = rec
+    records = list(deduped.values())
+
+    # Prefer the entity_id unique index (uq_ce_entity_run) when entity_id is set;
+    # fall back path still updates canonical key fields on conflict.
     sql = """
         INSERT INTO coverage_evidence (
             entity_id, canonical_entity_key, source, data_type, applicability,
@@ -480,9 +491,10 @@ def _project_coverage_evidence(
             %s, %s, %s, %s::evidence_state, %s, %s, %s, %s, %s, %s, %s,
             %s::jsonb, %s::jsonb
         )
-        ON CONFLICT (canonical_entity_key, source, data_type, run_id)
-            WHERE canonical_entity_key IS NOT NULL
+        ON CONFLICT (entity_id, source, data_type, run_id)
+            WHERE entity_id IS NOT NULL
         DO UPDATE SET
+            canonical_entity_key = COALESCE(EXCLUDED.canonical_entity_key, coverage_evidence.canonical_entity_key),
             checked_at = EXCLUDED.checked_at,
             completed_at = EXCLUDED.completed_at,
             state = EXCLUDED.state,

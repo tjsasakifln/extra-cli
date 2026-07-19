@@ -1,0 +1,1472 @@
+{
+  "command": "today",
+  "generated_at": "2026-07-18T23:04:28",
+  "as_of": "2026-07-18",
+  "pg_available": true,
+  "pg_error": null,
+  "sections": [
+    {
+      "name": "Novas oportunidades abertas (24-48h)",
+      "status": "OK",
+      "reason": "",
+      "items": [
+        {
+          "id": 2,
+          "orgao_nome": "INSTITUTO FEDERAL DE EDUCACAO CIENCIA E TECNOLOGIA CATARINENSE",
+          "municipio": "Blumenau",
+          "objeto": "Contratação de empresa especializada na prestação de serviços de Outsourcing de Impressão com franquia de cópias mensais, fornecimento de insumos e papel, sistema de bilhetagem, e atendimento especializado em manutenção preventiva e corretiva para o IFC Campus Brusque.",
+          "valor_estimado": 62540.88,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-18T10:17:37+00:00",
+          "data_abertura": "2026-07-20T08:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 3,
+          "orgao_nome": "MUNICIPIO DE VARGEM BONITA",
+          "municipio": "Vargem Bonita",
+          "objeto": "[Portal de Compras Públicas] - Construção de 20 Habitações de Interesse Social (FNHIS Sub 50), programa Minha Casa Minha Vida, conforme projeto, memorial descritivo, termo de referência e planilha orçamentária anexas ao presente edital.",
+          "valor_estimado": 3619814.28,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-18T00:20:46+00:00",
+          "data_abertura": "2026-06-25T12:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 4,
+          "orgao_nome": "MUNICIPIO DE CHAPECO",
+          "municipio": "Chapecó",
+          "objeto": "Contratação de empresa especializada para prestação de serviços de locação de \ninfraestrutura temporária destinada à realização dos Jogos Abertos Paradesportivos de \nSanta Catarina – PARAJASC 2026, compreendendo o fornecimento de tendas, mobiliário, \ngradis, divisórias, arquibancadas, torres de aquecimento e demais estruturas, incluindo \ntransporte, carga e descarga, montagem, instalação, manutenção preventiva e corretiva \ndurante toda a execução, desmontagem e retirada das estruturas, bem como toda a mão \nde obra, equipamentos e materiais necessários à perfeita execução dos serviços",
+          "valor_estimado": 226208.6,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-18T00:00:29+00:00",
+          "data_abertura": "2026-07-17T17:15:01+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 6,
+          "orgao_nome": "MUNICIPIO DE IRANI",
+          "municipio": "Irani",
+          "objeto": "Concessão de espaço para exploração remunerada espaço público, destinada praça de alimentação para comercialização de produtos alimentícios, e bebidas durante o FIMUSI 2026, conforme termo de referência e estudo técnico preliminar em anexo.",
+          "valor_estimado": 11700.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-18T00:00:10+00:00",
+          "data_abertura": "2026-07-17T12:00:01+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 7,
+          "orgao_nome": "MUNICIPIO DE CAPAO ALTO",
+          "municipio": "Capão Alto",
+          "objeto": "Contratação de pessoa jurídica especializada para a confecção, personalização e fornecimento, de forma parcelada, de camisetas, camisas e moletons personalizados, destinados ao atendimento das necessidades da Prefeitura Municipal de Capão Alto, suas Secretarias Municipais, escolas da Rede Municipal de Ensino, Fundo Municipal de Saúde e Fundo Municipal de Desenvolvimento Social e Habitação. Os itens deverão ser confeccionados conforme as especificações definidas pela Administração, incluindo personalização com logotipos, brasão do Município e demais elementos institucionais, visando atender às demandas de identificação, campanhas, eventos, projetos e demais ações promovidas pelo Município.",
+          "valor_estimado": 149738.9,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-18T00:00:05+00:00",
+          "data_abertura": "2026-07-20T13:00:01+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2619,
+          "orgao_nome": "CAMARA DE VEREADORES DE BARRA VELHA",
+          "municipio": "Barra Velha",
+          "objeto": "Registro de Preços, para futura e eventual aquisição de persianas e tapetes personalizados (tipo capacho), bem como para prestação de serviços de manutenção, higienização e conservação de persianas, tapetes e poltronas conforme detalhamento, quantitativo e demais condições estabelecidas no Edital e em seus anexos, nos termos da Lei n° 14.133/2021, visando atender as necessidades e demandas da Câmara de Vereadores de Barra Velha/SC.",
+          "valor_estimado": 74804.4,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T19:00:34+00:00",
+          "data_abertura": "2026-07-20T09:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2620,
+          "orgao_nome": "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE JOACABA",
+          "municipio": "Joaçaba",
+          "objeto": "Credenciamento de pessoas jurídicas especializadas para a prestação de Serviço de Acolhimento Institucional em Residência Inclusiva, no âmbito da Proteção Social Especial de Alta Complexidade do SUAS para jovens e adultos com deficiência, com idade entre 18 a 59 anos em situação de dependência e vulnerabilidade social, a fim de atender às necessidades da Secretaria Municipal de Assistência Social no atendimento à população do Município de Joaçaba/SC.",
+          "valor_estimado": 2880000.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T18:51:13+00:00",
+          "data_abertura": "2026-07-17T18:45:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2630,
+          "orgao_nome": "MUNICIPIO DE HERVAL D'OESTE",
+          "municipio": "Herval d'Oeste",
+          "objeto": "Contratação de Empresa Especializada para Execução de Columbário e Ossuário, contemplando 4,40m² de área de execução, localizado no no Cemitério Nossa Senhora da Glória, localizado em área central do município de Herval d’ Oeste/SC, incluindo o fornecimento de Material e Mão de Obra.",
+          "valor_estimado": 22131.74,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T18:09:55+00:00",
+          "data_abertura": "2026-07-20T08:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2631,
+          "orgao_nome": "MUNICIPIO DE CURITIBANOS",
+          "municipio": "Curitibanos",
+          "objeto": "[Portal de Compras Públicas] - O REGISTRO DE PREÇOS PARA FUTURA E EVENTUAL PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE SERVIÇO NA ÁREA DE TRANSPORTE ESCOLAR DESTINADO AOS ESTUDANTES DO ENSINO MÉDIO DA REDE PÚBLICA DE ENSINO DO MUNICÍPIO DE CURITIBANOS QUE FREQUENTAM CURSOS DE FORMAÇÃO PROFISSIONAL OFERTADOS PELO SENAI  SERVIÇO NACIONAL DE APRENDIZAGEM INDUSTRIAL, NO PERÍODO NOTURNO. CONFORME ANEXO 1 DESTE EDITAL.",
+          "valor_estimado": 98560.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T18:06:26+00:00",
+          "data_abertura": "2026-07-17T19:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2635,
+          "orgao_nome": "MUNICIPIO DE BALNEARIO CAMBORIU",
+          "municipio": "Balneário Camboriú",
+          "objeto": "Contratação de empresa especializada para a execução de serviços de pavimentação asfáltica e fresagem, compreendendo o fornecimento de materiais, mão de obra, equipamentos e demais insumos necessários, destinados à manutenção e conservação de vias públicas já consolidadas, sob o Sistema de Registro de Preços.",
+          "valor_estimado": 20991253.23,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T17:43:31+00:00",
+          "data_abertura": "2026-07-20T08:00:01+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2640,
+          "orgao_nome": "MUNICIPIO DE IRATI",
+          "municipio": "Irati",
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO, SOB REGIME DE EMPREITADA GLOBAL DE REFORMA E AMPLIAÇÃO DO CENTRO MUNICIPAL DE EDUCAÇÃO INFANTIL DO MUNICÍPIO DE IRATI/SC CONFORME PROJETO, MEMORIAL, PLANILHAS, ART, ESTUDO TÉCNICO PRELIMINAR, TERMO DE REFERÊNCIA E REQUISITOS DO EDITAL, DE ACORDO COM A LEI 14.133/2021.",
+          "valor_estimado": 733255.57,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T17:28:09+00:00",
+          "data_abertura": "2026-07-17T17:20:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2641,
+          "orgao_nome": "MUNICIPIO DE BALNEARIO CAMBORIU",
+          "municipio": "Balneário Camboriú",
+          "objeto": "Contratação de empresa especializada para a execução de serviços de pavimentação asfáltica e fresagem, compreendendo o fornecimento de materiais, mão de obra, equipamentos e demais insumos necessários, destinados à manutenção e conservação de vias públicas já consolidadas, sob o Sistema de Registro de Preços. ",
+          "valor_estimado": 20991253.23,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T17:27:48+00:00",
+          "data_abertura": "2026-07-20T08:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2648,
+          "orgao_nome": "MUNICIPIO DE MELEIRO",
+          "municipio": "Meleiro",
+          "objeto": "REGISTRO DE PREÇOS para futura e eventual aquisição de uniformes escolares, esportivos, funcionários e demais peças destinadas a motoristas, segurança, auxiliares de serviços gerais, merendeiras e educação infantil, para atendimento da Secretaria de Educação, Esporte, Cultura e Turismo do Município de Meleiro/SC.",
+          "valor_estimado": 396342.5,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T17:13:24+00:00",
+          "data_abertura": "2026-07-20T07:30:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2650,
+          "orgao_nome": "MUNICIPIO DE RIO DOS CEDROS",
+          "municipio": "Rio dos Cedros",
+          "objeto": "LEILÃO PÚBLICO DO TIPO MAIOR LANCE, NO FORMATO HIBRIDO ON-LINE, DE BENS MÓVEIS, IMÓVEIS E INSERVÍVEIS DE PROPRIEDADE DO MUNICÍPIO.",
+          "valor_estimado": 593489.1,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T17:05:11+00:00",
+          "data_abertura": "2026-07-17T00:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2651,
+          "orgao_nome": "MUNICIPIO DE VARGEM BONITA",
+          "municipio": "Vargem Bonita",
+          "objeto": "[Portal de Compras Públicas] - Registro de Preços para futura e eventual aquisição de uniformes completos destinados aos integrantes da Fanfarra Municipal de Vargem Bonita/SC, compreendendo uniformes masculinos e femininos, camisetas, chapéus, luvas, calçados e demais acessórios, confeccionados conforme especificações técnicas constantes no Termo de Referência, para atender às necessidades da Secretaria Municipal de Educação, Cultura e Esportes",
+          "valor_estimado": 65609.6,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T17:04:26+00:00",
+          "data_abertura": "2026-07-17T18:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2654,
+          "orgao_nome": "MUNICIPIO DE IRATI",
+          "municipio": "Irati",
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A PRESTAÇÃO DE SERVIÇOS DE SEGURO DA FROTA DE VEÍCULOS OFICIAIS, ÔNIBUS, CAMINHÕES, MÁQUINAS E IMÓVEIS PERTENCENTES AO MUNICÍPIO, VISANDO ATENDER ÀS NECESSIDADES DAS SECRETARIAS MUNICIPAIS DE IRATI/SC, DE ACORDO CONDIÇÕES ESTABELECIDAS NO EDITAL E SEUS ANEXOS CONFORME A LEI 14.133/2021.",
+          "valor_estimado": 153468.74,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:55:26+00:00",
+          "data_abertura": "2026-07-17T16:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2656,
+          "orgao_nome": "MUNICIPIO DE MONTE CARLO",
+          "municipio": "Monte Carlo",
+          "objeto": "REGISTRO DE PREÇOS para futura e eventual contratação de empresa especializada para prestação de serviços de instalação, manutenção preventiva e corretiva de sistemas de videomonitoramento, incluindo fornecimento de materiais, equipamentos, acessórios e mão de obra necessários à execução dos serviços.",
+          "valor_estimado": 182250.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:48:58+00:00",
+          "data_abertura": "2026-07-17T17:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2659,
+          "orgao_nome": "MUNICIPIO DE CURITIBANOS",
+          "municipio": "Curitibanos",
+          "objeto": "O REGISTRO DE PREÇOS PARA FUTURA E EVENTUAL PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE SERVIÇO NA ÁREA DE TRANSPORTE ESCOLAR DESTINADO AOS ESTUDANTES DO ENSINO MÉDIO DA REDE PÚBLICA DE ENSINO DO MUNICÍPIO DE CURITIBANOS QUE FREQUENTAM CURSOS DE FORMAÇÃO PROFISSIONAL OFERTADOS PELO SENAI – SERVIÇO NACIONAL DE APRENDIZAGEM INDUSTRIAL, NO PERÍODO NOTURNO. CONFORME ANEXO 1 DESTE EDITAL.",
+          "valor_estimado": 98560.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:46:12+00:00",
+          "data_abertura": "2026-07-16T19:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2661,
+          "orgao_nome": "MUNICIPIO DE CELSO RAMOS",
+          "municipio": "Celso Ramos",
+          "objeto": "[Portal de Compras Públicas] - REGISTRO DE PREÇOS PARA AQUISIÇÃO DE ABRIGOS DE PASSAGEIROS/PARADA DE ÔNIBUS, PARA INSTALAÇÃO EM LOCAIS A SEREM DEFINIDOS PELA SECRETARIA DE EDUCAÇÃO PARA ATENDER A DEMANDA DA REDE MUNICIPAL DE ENSINO DE CELSO RAMOS/SC, CONFORME ESTABELECIDO NO EDITAL E SEUS ANEXOS.",
+          "valor_estimado": 61539.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:44:06+00:00",
+          "data_abertura": "2026-07-20T08:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2662,
+          "orgao_nome": "MUNICIPIO DE LAURO MULLER",
+          "municipio": "Lauro Müller",
+          "objeto": "A presente licitação tem por objetivo a contratação de empresa especializada\r\npara elaboração de projetos de prevenção e combate a incêndio e pânico,\r\nlevantamento cadastral e regularização das unidades escolares junto ao Corpo de\r\nBombeiros Militar, incluindo a elaboração dos documentos técnicos necessários, emissão\r\nde ART/RRT e acompanhamento dos processos administrativos até a obtenção das\r\nrespectivas aprovações, conforme especificações constantes no Termo de Referência.",
+          "valor_estimado": 127500.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:40:04+00:00",
+          "data_abertura": "2026-07-17T17:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2672,
+          "orgao_nome": "FUNDACAO UNIVERSIDADE REGIONAL DE BLUMENAU - FURB",
+          "municipio": "Blumenau",
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM SERVIÇOS DE LIMPEZA E DESINFECÇÃO DE RESERVATÓRIOS (CISTERNAS/CAIXAS DÁGUA), COM FORNECIMENTO DE MATERIAIS E EQUIPAMENTOS NECESSÁRIOS PARA OS SERVIÇOS, PARA ATENDER AS NECESSIDADES NOS DIVERSOS CAMPI DA FURB",
+          "valor_estimado": 48007.26,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:28:33+00:00",
+          "data_abertura": "2026-07-17T09:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2675,
+          "orgao_nome": "MUNICIPIO DE NAVEGANTES",
+          "municipio": "Navegantes",
+          "objeto": "ATA DE REGISTRO DE PREÇOS PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A PRESTAÇÃO DE SERVIÇOS DE MANUTENÇÃO PREVENTIVA E CORRETIVA DE ELEVADORES E PLATAFORMAS ELEVATÓRIAS DE ACESSIBILIDADE, COM FORNECIMENTO DE MÃO DE OBRA ESPECIALIZADA, FERRAMENTAS, EQUIPAMENTOS, BEM COMO REPOSIÇÃO DE PEÇAS E COMPONENTES QUANDO NECESSÁRIO, DESTINADOS AOS EQUIPAMENTOS INSTALADOS EM PRÉDIOS PÚBLICOS E IMÓVEIS LOCADOS UTILIZADOS PELA SECRETARIA DE EDUCAÇÃO E FUNDAÇÃO CULTURAL DE NAVEGANTES/SC.",
+          "valor_estimado": 42251.28,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:20:18+00:00",
+          "data_abertura": "2026-07-17T08:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2676,
+          "orgao_nome": "MUNICIPIO DE CELSO RAMOS",
+          "municipio": "Celso Ramos",
+          "objeto": "REGISTRO DE PREÇOS PARA AQUISIÇÃO DE ABRIGOS DE PASSAGEIROS/PARADA DE ÔNIBUS, PARA INSTALAÇÃO EM LOCAIS A SEREM DEFINIDOS PELA SECRETARIA DE EDUCAÇÃO PARA ATENDER A DEMANDA DA REDE MUNICIPAL DE ENSINO DE CELSO RAMOS/SC, CONFORME ESTABELECIDO NO EDITAL E SEUS ANEXOS.",
+          "valor_estimado": 61539.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:17:44+00:00",
+          "data_abertura": "2026-07-20T08:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2679,
+          "orgao_nome": "MUNICIPIO DE SEARA",
+          "municipio": "Seara",
+          "objeto": "SELEÇÃO DE EMPRESAS ESPECIALIZADAS PARA QUE SEJA REALIZADA A AQUISIÇÃO DE MATERIAIS DIVERSOS PARA ATENDER AS NECESSIDADES DA POLÍCIA CIVIL E DA POLÍCIA MILITAR DE SEARA/SC.",
+          "valor_estimado": 33120.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:12:58+00:00",
+          "data_abertura": "2026-07-20T08:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2680,
+          "orgao_nome": "MUNICIPIO DE CAIBI",
+          "municipio": "Caibi",
+          "objeto": "REGISTRO DE PREÇOS PARA EVENTUAL, PARCELADA E FUTURA AQUISIÇÃO DE MARMITAS (REFEIÇÃO PRONTA E SALADA MISTA), DESTINADAS AOS FUNCIONÁRIOS PÚBLICOS MUNICIPAIS DE CAIBI, QUANDO ESTÃO REALIZANDO SERVIÇOS FORA DA SEDE DO PAÇO MUNICIPAL.",
+          "valor_estimado": 68000.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:12:42+00:00",
+          "data_abertura": "2026-07-20T08:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2682,
+          "orgao_nome": "MUNICIPIO DE CONCORDIA",
+          "municipio": "Concórdia",
+          "objeto": "Aquisição e instalação de um CONTAINER MARÍTIMO modificado para almoxarifado, no 20° Batalhão da Polícia Militar de Concórdia, conforme detalhado no Anexo \"A\" do Edital.",
+          "valor_estimado": 34340.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:07:45+00:00",
+          "data_abertura": "2026-08-07T08:15:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2685,
+          "orgao_nome": "MUNICIPIO DE TROMBUDO CENTRAL",
+          "municipio": "Trombudo Central",
+          "objeto": "[Portal de Compras Públicas] - REGISTRO DE PREÇOS PARA FUTURA E EVENTUAL CONTRATAÇÃO DE EMPRESA(S) ESPECIALIZADA(S) PARA PRESTAÇÃO DE SERVIÇOS DE HORAS-MÁQUINA COM EQUIPAMENTOS PESADOS, COM OPERADOR, COMBUSTÍVEL, MANUTENÇÃO PREVENTIVA E CORRETIVA, TRANSPORTE/MOBILIZAÇÃO DOS EQUIPAMENTOS E DEMAIS CUSTOS NECESSÁRIOS À PLENA EXECUÇÃO DOS SERVIÇOS, PARA ATENDIMENTO DAS DEMANDAS DO MUNICÍPIO DE TROMBUDO CENTRAL/SC.",
+          "valor_estimado": 3324800.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:03:44+00:00",
+          "data_abertura": "2026-07-17T17:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2686,
+          "orgao_nome": "MUNICIPIO DE TRES BARRAS",
+          "municipio": "Três Barras",
+          "objeto": "CREDENCIAMENTO PARA PRESTAÇÃO DE SERVIÇOS DE INTERNAÇÃO DE PACIENTES PARA TRATAMENTO DE TRANSTORNO MENTAL, PACIENTES EM USO DE SUBSTANCIAS QUIMICA E PACIENTES COM NECESSIDAES ESPECIAIS.",
+          "valor_estimado": 1169100.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T16:03:05+00:00",
+          "data_abertura": "2026-07-17T17:00:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2696,
+          "orgao_nome": "FUNDACAO MUNICIPAL DE DESPORTOS DO MUNICIPIO DE SAO BENTO DO SUL",
+          "municipio": "São Bento do Sul",
+          "objeto": "CONTRATAÇÃO DE PESSOA JURÍDICA PARA PRESTAÇÃO DE SERVIÇOS DE FORNECIMENTO DE REFEIÇÕES, NO SISTEMA BUFFET ITINERANTE, DESTINADAS À ALIMENTAÇÃO DE ATLETAS, COMISSÕES TÉCNICAS E DEMAIS PARTICIPANTES DURANTE OS EVENTOS PROMOVIDOS PELA FESPORTE, A SEREM SERVIDAS NOS LOCAIS DE COMPETIÇÃO E DE ALOJAMENTO, COMPREENDENDO CAFÉ DA MANHÃ, ALMOÇO, CAFÉ DA TARDE E JANTAR.",
+          "valor_estimado": 548900.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T15:44:26+00:00",
+          "data_abertura": "2026-07-20T16:30:00+00:00",
+          "ranking_score": 60
+        },
+        {
+          "id": 2697,
+          "orgao_nome": "MUNICIPIO DE RIO DO SUL",
+          "municipio": "Rio do Sul",
+          "objeto": "REGISTRO DE PREÇO PARA EVENTUAL AQUISIÇÃO PARCELADA DE CAMISETAS PERSONALIZADAS, A FIM DE ATENDER AS NECESSIDADES DA FUNDAÇÃO CULTURAL DE RIO DO SUL E DEMAIS SECRETARIAS DO MUNICÍPIO. ",
+          "valor_estimado": 97256.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_publicacao": "2026-07-17T15:43:03+00:00",
+          "data_abertura": "2026-07-22T08:00:00+00:00",
+          "ranking_score": 60
+        }
+      ],
+      "meta": {
+        "source": "opportunity_intel"
+      }
+    },
+    {
+      "name": "Prazos próximos (7 dias)",
+      "status": "OK",
+      "reason": "",
+      "items": [
+        {
+          "id": 6704,
+          "orgao_nome": "MUNICIPIO DE CAPINZAL",
+          "municipio": "Capinzal",
+          "objeto": "Serviços de máquinas de pipoca e algodão-doce, por meio do Sistema de Registro de Preços, ao Município de Capinzal e seus entes.",
+          "valor_estimado": 137526.3,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-01T00:00:00+00:00",
+          "data_encerramento": "2026-07-20T07:30:00+00:00",
+          "prazo": "2026-07-20T07:30:00+00:00"
+        },
+        {
+          "id": 5925,
+          "orgao_nome": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO",
+          "municipio": "Campos Novos",
+          "objeto": "REGISTRO DE PREÇOS PARA FORNECIMENTO DE COFFEE BREAK, COMPREENDENDO ALIMENTOS PRONTOS, COMO DOCES, SALGADOS, LANCHES E BEBIDAS, DESTINADOS AO ATENDIMENTO DAS DEMANDAS DO SAMAE DE CAMPOS NOVOS/SC.",
+          "valor_estimado": 79574.5,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-07T07:30:00+00:00",
+          "data_encerramento": "2026-07-20T07:30:00+00:00",
+          "prazo": "2026-07-20T07:30:00+00:00"
+        },
+        {
+          "id": 6669,
+          "orgao_nome": "MUNICIPIO DE CAPINZAL",
+          "municipio": "Capinzal",
+          "objeto": "Aquisição de tubos de concreto com diâmetros de 80 cm, 100 cm, 120cm, 150 cm e 200 cm, destinados à execução de obras e serviços de infraestrutura realizados pela Secretaria Municipal de Infraestrutura de Capinzal.",
+          "valor_estimado": 468570.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-01T12:00:00+00:00",
+          "data_encerramento": "2026-07-20T07:30:00+00:00",
+          "prazo": "2026-07-20T07:30:00+00:00"
+        },
+        {
+          "id": 6032,
+          "orgao_nome": "INSTITUTO CULTURAL DE SAO LOURENCO",
+          "municipio": "São Lourenço do Oeste",
+          "objeto": "CONTRATAÇÃO DE EMPRESA PARA COORDENAÇÃO E OPERACIONALIZAÇÃO DAS FASES DE CONCURSO PÚBLICO DESTINADO À SELEÇÃO DE PESSOAL PARA O PREENCHIMENTO EM CARÁTER EFETIVO DO INSTITUTO CULTURAL SÃO LOURENÇO.",
+          "valor_estimado": 38466.67,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T07:44:00+00:00",
+          "data_encerramento": "2026-07-20T07:44:00+00:00",
+          "prazo": "2026-07-20T07:44:00+00:00"
+        },
+        {
+          "id": 8816,
+          "orgao_nome": "MUNICIPIO DE SAO BERNARDINO",
+          "municipio": "São Bernardino",
+          "objeto": "O OBJETO DA PRESENTE LICITAÇÃO CONSISTE NA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA CIVIL PARA EXECUÇÃO DA REFORMA DO GINÁSIO DE ESPORTES AFONSO FRITZEN DO MUNICÍPIO DE SÃO BERNARDINO COM ÁREA DE 1.012,68, DE ACORDO COM O PROJETO DE ENGENHARIA E CRONOGRAMA FÍSICO FINANCEIRO EM ANEXO.",
+          "valor_estimado": 230191.07,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-03T07:30:00+00:00",
+          "data_encerramento": "2026-07-20T07:45:00+00:00",
+          "prazo": "2026-07-20T07:45:00+00:00"
+        },
+        {
+          "id": 6731,
+          "orgao_nome": "MUNICIPIO DE XAXIM",
+          "municipio": "Xaxim",
+          "objeto": "Contratação de empresa especializada para execução do Projeto FIA Estadual \"Quebrando Barreiras, Brincando com o Skate\"(Serviços profissionais), contemplando ações integradas de esporte, arte urbana, cultura, fortalecimento socioemocional, acompanhamento psicossocial e registro audiovisual, voltadas ao atendimento de aproximadamente 200 crianças e adolescentes de 06 a 17 anos de idade do Município de Xaxim/SC.",
+          "valor_estimado": 120630.4,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-02T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T07:59:00+00:00",
+          "prazo": "2026-07-20T07:59:00+00:00"
+        },
+        {
+          "id": 6447,
+          "orgao_nome": "MUNICIPIO DE NOVO HORIZONTE",
+          "municipio": "Novo Horizonte",
+          "objeto": "[Portal de Compras Públicas] - Contratação de empresa especializada para fornecimento, mediante cessão de uso (locação), de solução integrada de Sistema de Gestão Pública, em ambiente de computação em nuvem (cloud computing), nativa web, com acesso simultâneo e ilimitado de usuários, contemplando softwares e aplicativos correlatos, incluindo os serviços técnicos de migração de dados, implantação, parametrização, customização, saneamento e validação de base de dados, treinamento de usuários, suporte técnico contínuo, manutenção evolutiva e corretiva, destinada ao atendimento das demandas administrativas e operacionais do Município de Novo Horizonte e entidades.",
+          "valor_estimado": 855062.35,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-02T11:30:00+00:00",
+          "data_encerramento": "2026-07-20T07:59:00+00:00",
+          "prazo": "2026-07-20T07:59:00+00:00"
+        },
+        {
+          "id": 5019,
+          "orgao_nome": "MUNICIPIO DE BOTUVERA",
+          "municipio": "Botuverá",
+          "objeto": "[Portal de Compras Públicas] - Seleção de proposta para aquisição de equipamentos de informática e materiais permanentes, destinados ao atendimento das necessidades da Secretaria Municipal de Saúde, com recursos provenientes de emendas parlamentares.",
+          "valor_estimado": 67772.17,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T14:50:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 6261,
+          "orgao_nome": "FUNDO MUN. DE ASSISTENCIA SOCIAL DE JARAGUA DO SUL-FMAS",
+          "municipio": "Jaraguá do Sul",
+          "objeto": "Constitui objeto da presente licitação, a contratação de pessoa jurídica para prestação de serviços técnicos de engenharia de elaboração de projetos executivos de muros de contenção em 2 (dois) imóveis, inclusive realização de levantamentos e ensaios de solo, nos termos do Anexo I – Termo de Referência e conforme condições e exigências estabelecidas neste instrumento.",
+          "valor_estimado": 49126.7,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 6730,
+          "orgao_nome": "MUNICIPIO DE ITAPIRANGA",
+          "municipio": "Itapiranga",
+          "objeto": "AQUISIÇÃO DE ESSÊNCIAS FLORAIS DO SISTEMA FLORAIS DA AMAZÔNIA E FRASCOS DE VIDRO ÂMBAR, DESTINADOS À MANUTENÇÃO DO PROGRAMA DE PRÁTICAS INTEGRATIVAS E COMPLEMENTARES (PICS) DA SECRETARIA MUNICIPAL DE SAÚDE DO MUNICÍPIO DE ITAPIRANGA/SC.",
+          "valor_estimado": 61195.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-02T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 5963,
+          "orgao_nome": "MUNICIPIO DE CORUPA",
+          "municipio": "Corupá",
+          "objeto": "Consiste na futura e eventual contratação de empresa especializada para a prestação de serviços de arbitragem esportiva, exclusivamente para a modalidade de futsal, destinada à realização do Campeonato Aberto de Futsal, promovido ou apoiado pela Secretaria Municipal de Turismo, Esporte, Cultura e Lazer de Corupá.",
+          "valor_estimado": 68205.6,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-03T16:30:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 6172,
+          "orgao_nome": "MUNICIPIO DE CHAPADAO DO LAGEADO",
+          "municipio": "Chapadão do Lageado",
+          "objeto": "A presente Licitação tem por objeto a formação de registro de preços para aquisição de Gêneros Alimentícios e Produtos de Panificação em Geral para atender as necessidades oriundas de eventos especiais, de interesse público, como cursos, seminários e encontros,  promovidos pelo Município de Chapadão do Lageado e Câmara de Vereadores, de acordo com as quantidades e especificações relacionadas no Anexo III - Termo de Referência",
+          "valor_estimado": 520141.42,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 3881,
+          "orgao_nome": "CONSELHO REGIONAL DE MEDICINA VETERINARIA DO ESTADO DE SANTA CATARINA",
+          "municipio": "Florianópolis",
+          "objeto": "Contratação de empresa especializada na prestação de serviço de transporte (mudança comercial) , na modalidade terrestre, para transportar mobiliários, equipamentos, documentos, materiais de expediente, miudezas e demais bens patrimoniais pertencentes ao Conselho Regional de Medicina Veterinária do Estado de Santa Catarina– CRMVSC",
+          "valor_estimado": 20130.55,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-14T14:30:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 6271,
+          "orgao_nome": "MUNICIPIO DE RODEIO",
+          "municipio": "Rodeio",
+          "objeto": "Contratação de empresa para prestação de serviços de lavação, engraxe e pulverização da frota municipal.",
+          "valor_estimado": 325994.85,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-02T16:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 5635,
+          "orgao_nome": "MUNICIPIO DE RIO DO CAMPO",
+          "municipio": "Rio do Campo",
+          "objeto": "REGISTRO DE PREÇOS PARA AQUISIÇÃO EVENTUAL E SOB DEMANDA DE REFEIÇÕES PRONTAS, CONHECIDAS COMO \"MARMITAS\", DESTINADAS À ALIMENTAÇÃO DOS SERVIDORES PÚBLICOS DO MUNICÍPIO DE RIO DO CAMPO/SC",
+          "valor_estimado": 60750.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-08T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 5887,
+          "orgao_nome": "FUNDO MUNICIPAL DE SAUDE DE BELMONTE",
+          "municipio": "Belmonte",
+          "objeto": "REGISTRO DE PREÇOS PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA PRESTAÇÃO DE SERVIÇOS DE EXAMES LABORATORIAIS ESPECIALIZADOS ANATOMOPATOLÓGICOS, COMPREENDENDO A REALIZAÇÃO DE ANÁLISES, EMISSÃO DE LAUDOS DIAGNÓSTICOS E DEMAIS PROCEDIMENTOS CORRELATOS, DESTINADOS AO ATENDIMENTO DAS DEMANDAS ENCAMINHADAS PELA UNIDADE BÁSICA DE SAÚDE DO MUNICÍPIO DE BELMONTE/SC.",
+          "valor_estimado": 40500.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T17:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 6453,
+          "orgao_nome": "MUNICIPIO DE RODEIO",
+          "municipio": "Rodeio",
+          "objeto": "Contratação de empresa para prestação de serviços de lavação, engraxe e pulverização da frota municipal",
+          "valor_estimado": 325994.85,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-02T16:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 5550,
+          "orgao_nome": "MUNICIPIO DE JARAGUA DO SUL",
+          "municipio": "Jaraguá do Sul",
+          "objeto": "A presente contratação tem por objeto o registro de preços para futura e eventual confecção e fornecimento de crachás de identificação funcional em PVC laminado e respectivos acessórios, compreendendo cordões personalizados com ou sem argola, presilha tipo jacaré, protetores de crachá, porta-crachá retrátil tipo roller clip e cordões personalizados com trava de segurança e mosquetão, conforme especificações constantes no Anexo I – Termo de Referência, bem como nos demais anexos deste Edital.",
+          "valor_estimado": 39708.85,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-08T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 5556,
+          "orgao_nome": "JOINVILLE CAMARA DE VEREADORES",
+          "municipio": "Joinville",
+          "objeto": "REGISTRO DE PREÇOS visando a eventual CONTRATAÇÃO DE EMPRESA PARA FORNECIMENTO DE GÊNEROS ALIMENTÍCIOS E ÁGUA MINERAL PARA A CÂMARA DE VEREADORES DE JOINVILLE.",
+          "valor_estimado": 67335.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-08T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 5494,
+          "orgao_nome": "MUNICIPIO DE FAXINAL DOS GUEDES",
+          "municipio": "Faxinal dos Guedes",
+          "objeto": "AQUISIÇÃO DE ASSENTOS ESPORTIVOS (TIPO ARQUIBANCADA), MONOBLOCO EM POLIPROPILENO, CONFORME ESPECIFICAÇÕES DA NBR 15.925 DA ABNT.",
+          "valor_estimado": 31242.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-07T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 3757,
+          "orgao_nome": "MUNICIPIO DE CAIBI",
+          "municipio": "Caibi",
+          "objeto": "[Portal de Compras Públicas] - AQUISIÇÃO DE BRINQUEDOS E MATERIAIS DE ORGANIZAÇÃO DESTINADOS AO ATENDIMENTO DAS ATIVIDADES RECREATIVAS DA NOVA UNIDADE DE ENSINO CEI ABC.",
+          "valor_estimado": 20843.05,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-15T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 6187,
+          "orgao_nome": "MUNICIPIO DE NOVA ITABERABA",
+          "municipio": "Nova Itaberaba",
+          "objeto": "Contratação de Empresa especializada para realização de Transporte Escolar na rede pública municipal.",
+          "valor_estimado": 192000.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 3847,
+          "orgao_nome": "COMANDO DA MARINHA",
+          "municipio": "Itajaí",
+          "objeto": "Aquisição de medicamento conforme especificação no Termo de Referência",
+          "valor_estimado": 17229.15,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-14T17:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 3770,
+          "orgao_nome": "FUNDO MUNICIPAL DE SAUDE DE ARAQUARI - SC",
+          "municipio": "Araquari",
+          "objeto": "Contratação emergencial de instituição para a prestação de serviços especializados de saúde, compreendendo consultas médicas especializadas, procedimentos, exames diagnósticos, emissão de laudos, atendimentos fisioterapêuticos e demais serviços de apoio necessários ao atendimento dos usuários do Sistema Único de Saúde no Centro de Especialidades Municipal e na Clínica de Fisioterapia Léa Maria Krelling, no Município de Araquari/SC, conforme condições e exigência estabelecidas no Termo de Referência.",
+          "valor_estimado": 756151.02,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-15T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 6167,
+          "orgao_nome": "MUNICIPIO DE NOVA ITABERABA",
+          "municipio": "Nova Itaberaba",
+          "objeto": "[Portal de Compras Públicas] - Contratação de Empresa especializada para realização de Transporte Escolar na rede pública municipal.",
+          "valor_estimado": 192000.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 4093,
+          "orgao_nome": "MUNICIPIO DE BELMONTE",
+          "municipio": "Belmonte",
+          "objeto": "[Portal de Compras Públicas] - REGISTRO DE PREÇO PARA PRESTAÇÃO DE SERVIÇOS DE EXAMES LABORATORIAIS ESPECIALIZADOS ANATOMOPATOLÓGICOS, COMPREENDENDO A REALIZAÇÃO DE ANÁLISES, EMISSÃO DE LAUDOS DIAGNÓSTICOS E DEMAIS PROCEDIMENTOS CORRELATOS, DESTINADOS AO ATENDIMENTO DAS DEMANDAS ENCAMINHADAS PELA UNIDADE BÁSICA DE SAÚDE DO MUNICÍPIO DE BELMONTE-SC",
+          "valor_estimado": 40500.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T17:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 3760,
+          "orgao_nome": "MUNICIPIO DE CAIBI",
+          "municipio": "Caibi",
+          "objeto": "AQUISIÇÃO DE BRINQUEDOS E MATERIAIS DE ORGANIZAÇÃO DESTINADOS AO ATENDIMENTO DAS ATIVIDADES RECREATIVAS DA NOVA UNIDADE DE ENSINO CEI ABC.",
+          "valor_estimado": 20843.05,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-15T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 4608,
+          "orgao_nome": "MUNICIPIO DE CAPIVARI DE BAIXO",
+          "municipio": "Capivari de Baixo",
+          "objeto": "Registro de preços para futura e eventual aquisição de materiais de construção,madeiras e correlatos, destinados à manutenção, conservação, reparos, pequenas adequações e melhorias em prédios públicos, unidades administrativas, unidades escolares, unidades de saúde, espaços socioassistenciais, estruturas de apoio, instalações utilizadas por órgãos de segurança, equipamentos públicos, espaços esportivos, vias públicas, praças,\ncalçadas e demais estruturas vinculadas ou utilizadas pelo Município de Capivari de Baixo/SC, conforme a necessidade da Administração. A contratação terá como referência os preços constantes da Tabela SINAPI/SC vigente à época da solicitação do fornecimento, ou outra que vier a substituí-la, aplicando-se sobre os respectivos itens o percentual de desconto registrado em ata, conforme proposta vencedora. Não integram esta demanda, neste momento, os\nmateriais hidráulicos e elétricos, considerando a existência de atas vigentes específicas para esses segmentos. Também não integram o objeto os serviços de mão de obra, instalação ou execução de obras, uma vez que a Administração dispõe de mão de obra própria ou estrutura operacional para a execução dos pequenos reparos e adequações, sendo necessária apenas a aquisição dos materiais correspondentes.",
+          "valor_estimado": 2117500.0,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-08T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 5803,
+          "orgao_nome": "FUNDO MUN ICIPAL DE SAUDE DE BOTUVERA",
+          "municipio": "Botuverá",
+          "objeto": "EQUIPAMENTOS DE INFORMÁTICA: Aquisição de equipamentos de informática e materiais permanentes, destinados ao atendimento das necessidades da Secretaria Municipal de Saúde, com recursos provenientes de emendas parlamentares.",
+          "valor_estimado": 67772.17,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-07T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        },
+        {
+          "id": 6161,
+          "orgao_nome": "MUNICIPIO DE CHAPADAO DO LAGEADO",
+          "municipio": "Chapadão do Lageado",
+          "objeto": "A presente Licitação tem por objeto a formação de registro de preços para aquisição de Gêneros Alimentícios e Produtos de Panificação em Geral para atender as necessidades oriundas de eventos especiais, de interesse público, como cursos, seminários e encontros,  promovidos pelo Município de Chapadão do Lageado e Câmara de Vereadores, de acordo com as quantidades e especificações relacionadas no Anexo III - Termo de Referência",
+          "valor_estimado": 520141.42,
+          "ranking": "GO",
+          "status_canonico": "open",
+          "source": "pncp",
+          "data_abertura": "2026-07-06T08:00:00+00:00",
+          "data_encerramento": "2026-07-20T08:00:00+00:00",
+          "prazo": "2026-07-20T08:00:00+00:00"
+        }
+      ],
+      "meta": {
+        "source": "opportunity_intel"
+      }
+    },
+    {
+      "name": "Aguardando revisão humana (REVIEW)",
+      "status": "OK",
+      "reason": "",
+      "items": [
+        {
+          "id": 4818,
+          "orgao_nome": "MUNICIPIO DE LEBON REGIS",
+          "municipio": "Lebon Régis",
+          "objeto": "[Portal de Compras Públicas] - Registro de preços para futura e eventual aquisição de equipamentos médico-hospitalares, mobiliário hospitalar e equipamentos de apoio destinados à estruturação e funcionamento do Centro Cirúrgico e da Central de Material e Esterilização (CME), visando atender às necessidades assistenciais da unidade de saúde municipal, conforme especificações técnicas constantes no Termo de Referência, com recursos provenientes de convênio firmado com o Governo do Estado.",
+          "valor_estimado": 1580642.33,
+          "ranking": "REVIEW",
+          "ranking_score": 30,
+          "status_canonico": "suspended",
+          "source": "pncp"
+        },
+        {
+          "id": 6804,
+          "orgao_nome": "MUNICIPIO DE SAO JOAQUIM",
+          "municipio": "São Joaquim",
+          "objeto": "Contratação de empresa especializada para prestação de SERVIÇOS DE ROÇADA E LIMPEZA de espaços públicos.",
+          "valor_estimado": 396360.0,
+          "ranking": "REVIEW",
+          "ranking_score": 30,
+          "status_canonico": "suspended",
+          "source": "pncp"
+        },
+        {
+          "id": 6601,
+          "orgao_nome": "MUNICIPIO DE XANXERE",
+          "municipio": "Xanxerê",
+          "objeto": "Contratação de empresa especializada para execução da revitalização urbana e requalificação viária das Ruas Coronel Passos Maia e 27 de fevereiro, no Município de Xanxerê/SC, com fornecimento de materiais, mão de obra, equipamentos, máquinas e todos os insumos necessários à completa execução da obra, em conformidade com os projetos executivos, memoriais descritivos, planilhas orçamentárias, cronogramas físico-financeiros, especificações técnicas e demais documentos que integram o edital. ",
+          "valor_estimado": 3925415.62,
+          "ranking": "REVIEW",
+          "ranking_score": 30,
+          "status_canonico": "suspended",
+          "source": "pncp"
+        },
+        {
+          "id": 6146,
+          "orgao_nome": "MUNICIPIO DE ITAJAI",
+          "municipio": "Itajaí",
+          "objeto": "CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS CONTÍNUOS DE COPEIRA, ROUPARIA E LIMPEZA, CONSERVAÇÃO, HIGIENIZAÇÃO, APOIO E ASSEIO, EM REGIME DE DEDICAÇÃO EXCLUSIVA DE MÃO DE OBRA, INCLUINDO O FORNECIMENTO DE TODOS OS MATERIAIS DE CONSUMO, INSUMOS, EQUIPAMENTOS, FERRAMENTAS, UTENSÍLIOS, UNIFORMES, EPIS E DEMAIS ITENS NECESSÁRIOS À PERFEITA EXECUÇÃO DOS SERVIÇOS, A SEREM REALIZADOS NO CENTRO INTEGRADO DE SAÚDE - CIS, UPA CORDEIROS, UNIDADES BÁSICAS DE SAÚDE E UNIDADES ESPECIALIZADAS DE SAÚDE DO MUNICÍPIO DE ITAJAÍ/SC",
+          "valor_estimado": 9643839.12,
+          "ranking": "REVIEW",
+          "ranking_score": 30,
+          "status_canonico": "suspended",
+          "source": "pncp"
+        },
+        {
+          "id": 4574,
+          "orgao_nome": "JUSTICA FEDERAL DE PRIMEIRA INSTANCIA",
+          "municipio": "Florianópolis",
+          "objeto": "Contratação de plano anual de assinatura (subscrição) da plataforma \"Canva Pro+ (Plus)\" (antiga \"Canva Equipes\"), para a Justiça Federal - Seção Judiciária de Santa Catarina, nas especificações, quantidades e demais condições estabelecidas no Aviso de Contratação Direta - ACD e seus anexos. Demais especificações conforme Termo de Referência, anexo I do ACD.",
+          "valor_estimado": 1427.76,
+          "ranking": "REVIEW",
+          "ranking_score": 30,
+          "status_canonico": "suspended",
+          "source": "pncp"
+        },
+        {
+          "id": 6315,
+          "orgao_nome": "MUNICIPIO DE BALNEARIO CAMBORIU",
+          "municipio": "Balneário Camboriú",
+          "objeto": "Registro de preços para aquisição e instalação de telas milimetradas destinadas à proteção das aberturas, que dão acesso às áreas de manipulação de alimentos nas unidades de ensino da Secretaria de Educação do município de Balneário Camboriú, conforme condições, quantidades e exigências estabelecidas neste Edital e seus anexos.",
+          "valor_estimado": 637759.0,
+          "ranking": "REVIEW",
+          "ranking_score": 30,
+          "status_canonico": "suspended",
+          "source": "pncp"
+        },
+        {
+          "id": 5692,
+          "orgao_nome": "MUNICIPIO DE LAGES",
+          "municipio": "Lages",
+          "objeto": "Registro de preços para aquisição de lixeiras com capacidade de 35, 50 e 94 litros, destinadas à instalação em diversas avenidas, ruas, praças, parques e demais logradouros públicos do Município de Lages, visando atender as demandas da Secretaria Municipal de Serviços Públicos",
+          "valor_estimado": 994823.0,
+          "ranking": "REVIEW",
+          "ranking_score": 30,
+          "status_canonico": "suspended",
+          "source": "pncp"
+        },
+        {
+          "id": 6492,
+          "orgao_nome": "MUNICIPIO DE ITAJAI",
+          "municipio": "Itajaí",
+          "objeto": "REGISTRO DE PREÇO PARA EVENTUAL E FUTURO FORNECIMENTO DE SERVIÇO DE CONTROLE DE PRAGAS E LIMPEZA DE CAIXAS D’ÁGUA PARA SECRETARIAS, FUNDOS E FUNDAÇÕES",
+          "valor_estimado": 1324206.9,
+          "ranking": "REVIEW",
+          "ranking_score": 30,
+          "status_canonico": "suspended",
+          "source": "pncp"
+        },
+        {
+          "id": 2625,
+          "orgao_nome": "IMBITUBA CAMARA MUNICIPAL",
+          "municipio": "Imbituba",
+          "objeto": "Contratação  de 02 (duas) inscrições para o curso: Formação do Pregoeiro e do Agente de Contratação, promovido pelo IGAM SC CURSOS E CONSULTORIA LTDA., a ser realizado nos dias 22 à 24 de julho/2026, em Florianópolis/SC, para as servidoras Dayhany Corrêa Tavares e Luiza Rodrigues Zim.",
+          "valor_estimado": 3580.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2633,
+          "orgao_nome": "FUNDACAO UNIVERSIDADE REGIONAL DE BLUMENAU - FURB",
+          "municipio": "Blumenau",
+          "objeto": "CONTRATAÇÃO DE SUPORTE TÉCNICO OFICIAL DO FABRICANTE HPE (HEWLETT PACKARD ENTERPRISE) POR 12 (DOZE) MESES, PARA OS EQUIPAMENTOS HPE SYNERGY 480 GEN10 E HPE 3PAR 8200 DA INFRAESTRUTURA CORPORTIVA COMPUTACIONAL DA FURB",
+          "valor_estimado": 212906.52,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2622,
+          "orgao_nome": "MUNICIPIO DE CAMPOS NOVOS",
+          "municipio": "Campos Novos",
+          "objeto": "A CONTRATAÇÃO DE EMPRESA AUTORIZADA PARA AQUISIÇÃO DE PEÇAS E PRESTAÇÃO DE SERVIÇO PARA MANUTENÇÃO DA   1° REVISÃO DE GARANTIA IVECO DAILY 35CS BRANCA PLACA: SXW9A01 ANO 2024/2025 DA SECRETARIA DE OBRAS, MUNICÍPIO DE CAMPOS NOVOS SC.",
+          "valor_estimado": 5914.3,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2634,
+          "orgao_nome": "MUNICIPIO DE URUSSANGA",
+          "municipio": "Urussanga",
+          "objeto": "Contratação de concessionária autorizada Chevrolet para realização da revisão preventiva de 40.000 km do veículo Chevrolet Cruze LTZ NB, placas RXX4I53, com fornecimento de peças, insumos e mão de obra, conforme especificações do fabricante.",
+          "valor_estimado": 1351.83,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2636,
+          "orgao_nome": "FUNDACAO NACIONAL DO INDIO",
+          "municipio": "São José",
+          "objeto": "Serviço de horas máquinas para preparo solo para contratação de serviços de trator agrícola, visando auxiliar no preparo do solo com vistas ao plantio das roças tradicionais relativas a safra 2026/2027 que se inicia no mês de julho, de acordo com o calendário agrícola da região.\n",
+          "valor_estimado": 35525.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2637,
+          "orgao_nome": "MUNICIPIO DE POMERODE",
+          "municipio": "Pomerode",
+          "objeto": "PATROCÍNIO INSTITUCIONAL AO CLUBE DE CAÇA E TIRO POMERODE, PARA A ASSOCIAÇÃO DA IMAGEM DO MUNICÍPIO DE POMERODE À PROGRAMAÇÃO ANUAL DOS EVENTOS: FESTA DO COLONO EM 19 DE JULHO, FESTA DE ANIVERSÁRIO EM 20 DE SETEMBRO, FESTA DE REI E RAINHA DO PÁSSARO E ESCOLHA REALEZAS EM 14 DE NOVEMBRO E BAILE DE SÃO SILVESTRE EM 31 DE DEZEMBRO DE 2026, NO MUNICÍPIO DE POMERODE, NOS TERMOS DA LEI MUNICIPAL Nº 3.284/2025 E DO DECRETO MUNICIPAL Nº 4.602/2025.",
+          "valor_estimado": 30000.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2632,
+          "orgao_nome": "CAMARA DE VEREADORES DO MUNICIPIO DE LAGES",
+          "municipio": "Lages",
+          "objeto": "Aquisição de laço de mastro da Bandeira do Município de Lages.",
+          "valor_estimado": 195.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2629,
+          "orgao_nome": "MUNICIPIO DE GUARUJA DO SUL",
+          "municipio": "Guarujá do Sul",
+          "objeto": "[Portal de Compras Públicas] - Aquisição de contratação de seguro necessário para o veículo, Seguro de Responsabilidade Civil Obrigatório (RCO) e seguro total necessário para o veículo FIAT/DUCATO MULTI 2.3 PLACA QIP7H14, (veículo cedido pelo Fundo Municipal de Saúde) utilizado diariamente pela Secretaria Municipal de Assistência Social do Município de Guarujá do Sul, tendo por finalidade a realização do transporte dos usuários dos serviços",
+          "valor_estimado": 3165.65,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2643,
+          "orgao_nome": "MINISTERIO PUBLICO DO ESTADO DE SANTA CATARINA PROCURADORIA GERAL DE JUSTICA",
+          "municipio": "Florianópolis",
+          "objeto": "CONTRATAÇÃO DE SERVIÇO DE CHAVEIRO PARA CONFECÇÃO DE 3 (TRÊS) CÓPIAS DE CONTROLE REMOTO DESTINADAS AO ACESSO AO ESTACIONAMENTO DA PROMOTORIA DE JUSTIÇA DE INDAIAL.",
+          "valor_estimado": 278.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2628,
+          "orgao_nome": "MUNICIPIO DE POMERODE",
+          "municipio": "Pomerode",
+          "objeto": "PATROCÍNIO INSTITUCIONAL AO CLUBE CULTURAL RECREATIVO E ESPORTIVO TESTO CENTRAL, PARA A ASSOCIAÇÃO DA IMAGEM DO MUNICÍPIO DE POMERODE À PROGRAMAÇÃO ANUAL DE CINCO EVENTOS: FESTA DO COLONO E ANIVERSÁRIO DO CLUBE (19/07/2026); FESTA DE REI E RAINHA DO PÁSSARO (23/08/2026); ETAPA MUNICIPAL DE TIRO (24/09/2026); FESTA DE REI E RAINHA DO BOLÃO (11/10/2026); E FESTA DE REI E RAINHA DO CLUBE (14/03/2027), NOS TERMOS DA LEI MUNICIPAL Nº 3.284/2025 E DO DECRETO MUNICIPAL Nº 4.602/2025.",
+          "valor_estimado": 45000.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2621,
+          "orgao_nome": "MUNICIPIO DE POMERODE",
+          "municipio": "Pomerode",
+          "objeto": "CONTRATAÇAO DE EMPRESA PARA CURSO IN COMPANY NA MODALIDADE PRESENCIAL, INTITULADO : \"Estágio probatório do servidor\nocupante de cargo efetivo\"; PARA ATUALIZAÇÃO E APERFEIÇOAMENTO DOS SERVIDORES.",
+          "valor_estimado": 21800.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2644,
+          "orgao_nome": "MUNICIPIO DE CURITIBANOS",
+          "municipio": "Curitibanos",
+          "objeto": "INEXIGIBILIDADE DE LICITAÇÃO PARA CONTRATAÇÃO DE ENTIDADE PRESTADORA DE SERVIÇOS DE ASSISTÊNCIA À SAÚDE, PARA ATENDIMENTO DE PACIENTES DE FORMA COMPLEMENTAR AO SISTEMA ÚNICO DE SAÚDE NO MUNICÍPIO DE CURITIBANOS, CONFORME ANEXO I DESTE EDITAL, NOS TERMOS E NAS CONDIÇÕES ESTABELECIDAS NO PRESENTE INSTRUMENTO CONVOCATÓRIO E SEUS ANEXOS, QUE SE SUBORDINAM ÀS NORMAS GERAIS DA LEI FEDERAL Nº 14.133/2021 E DECRETO MUNICIPAL Nº 6.083/2024, CONFORME DOCUMENTAÇÃO E ANEXO 1 DESTE EDITAL.",
+          "valor_estimado": 78000.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2645,
+          "orgao_nome": "MUNICIPIO DE FLORIANOPOLIS",
+          "municipio": "Florianópolis",
+          "objeto": "Confecção de Faca",
+          "valor_estimado": 100.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2646,
+          "orgao_nome": "MUNICIPIO DE SAO BONIFACIO",
+          "municipio": "São Bonifácio",
+          "objeto": "Contratação de Empresa especializada em Show Motivacional e Apresentação Artística Musical (Baile) para o Evento: Encontro Municipal da Pessoa Idosa.",
+          "valor_estimado": 10500.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2647,
+          "orgao_nome": "MUNICIPIO DE FLORIANOPOLIS",
+          "municipio": "Florianópolis",
+          "objeto": "Serviços de Manutenção e Reparação de Computadores e seus Periféricos",
+          "valor_estimado": 800.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2649,
+          "orgao_nome": "MUNICIPIO DE ARARANGUA",
+          "municipio": "Araranguá",
+          "objeto": " REQUISIÇÃO DE FORNECIMENTO DE PEÇAS E SERVIÇOS DE MÃO DE OBRA NA MANUTENÇÃO E CORRETIVA DA VIATURA POLICIAL DESCARACTERIZADA HYUNDAI CRETA, PLACA ORIGINAL RXS9D67, PLACA DE SEGURANÇA RLP7I61, DA FROTA DE VEÍCULOS DA 19ª DELEGACIA REGIONAL DE POLÍCIA CIVIL E AGÊNCIA DE TRÂNSITO DE ARARANGUÁ, A QUAL ESTÁ DENTRO DO PERÍODO DE GARANTIA DE FÁBRICA, CONFORME TERMO DE REFERÊNCIA.",
+          "valor_estimado": 751.35,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2652,
+          "orgao_nome": "CONSELHO REGIONAL DOS CORRETORES DE IMOVEIS DE SC",
+          "municipio": "Florianópolis",
+          "objeto": "Contratação de empresa especializada para o licenciamento de uso de plataforma integrada de Inteligência Artificial generativa, em regime de Software como Serviço (SaaS), denominada Ecossistema jAI, composta pelo módulo MinutaIA Corporativo \nIII, PJeIA, EprocIA e demais módulos correlatos.",
+          "valor_estimado": 30240.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2653,
+          "orgao_nome": "CAMARA MUNICIPAL DE VEREADORES DE CURITIBANOS",
+          "municipio": "Curitibanos",
+          "objeto": "CONTRATAÇÃO DE 1 (UMA) INSCRIÇÃO PARA PARTICIPAÇÃO DA SERVIDORA PRISCILLA LARISSA DA SILVA NO CURSO DE CAPACITAÇÃO “IA NA CÂMARA MUNICIPAL”, PROMOVIDO PELA EMPRESA UNYFLEX – UNYGOV CAPACITAÇÃO E TREINAMENTOS GOVERNAMENTAIS LTDA., A SER REALIZADO NOS DIAS 21, 22, 23 E 24 DE JULHO DE 2026, NO MUNICÍPIO DE CURITIBA/PR.",
+          "valor_estimado": 3200.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2788,
+          "orgao_nome": "MUNICIPIO DE CAIBI",
+          "municipio": "Caibi",
+          "objeto": "CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE MANUTENÇÃO DE PNEUS DA FROTA MUNICIPAL",
+          "valor_estimado": 1885.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2655,
+          "orgao_nome": "MUNICIPIO DE URUSSANGA",
+          "municipio": "Urussanga",
+          "objeto": "Contratação de empresa especializada para prestação de serviços de formação continuada em Arquitetura de Gestão Educacional, destinada aos profissionais da Secretaria Municipal de Educação e gestores escolares da Rede Municipal de Ensino de Urussanga/SC. (EMENDA ESTADUAL 220500002387)",
+          "valor_estimado": 23970.8,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2657,
+          "orgao_nome": "TRIBUNAL SUPERIOR DO TRABALHO",
+          "municipio": "Florianópolis",
+          "objeto": "Aquisição de plantas naturais, vasos e insumos de jardinagem.",
+          "valor_estimado": 13969.5,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        },
+        {
+          "id": 2642,
+          "orgao_nome": "IMBITUBA CAMARA MUNICIPAL",
+          "municipio": "Imbituba",
+          "objeto": "Aquisição de crachás para funcionários e vereadores. 63 (sessenta e três) unidades de crachá com impressão colorida no aço inox escovado 5x2cm, com super imã para fixação",
+          "valor_estimado": 2205.0,
+          "ranking": "REVIEW",
+          "ranking_score": 25,
+          "status_canonico": "unknown",
+          "source": "pncp"
+        }
+      ],
+      "meta": {
+        "source": "opportunity_intel"
+      }
+    },
+    {
+      "name": "Fontes falhas / stale",
+      "status": "OK",
+      "reason": "",
+      "items": [
+        {
+          "source": "pncp",
+          "status": "failed",
+          "started_at": "2026-07-19T02:04:02.776792+00:00",
+          "error_message": "duplicate key value violates unique constraint \"uq_ce_entity_run\"\nDETAIL:  Key (entity_id, source, data_type, run_id)=(2"
+        }
+      ],
+      "meta": {
+        "source": "opportunity_intel"
+      }
+    },
+    {
+      "name": "Contratos expirando (30/60/90d)",
+      "status": "OK",
+      "reason": "",
+      "items": [
+        {
+          "contrato_id": "00394502000144-2-000667/2026",
+          "orgao_nome": "CENTRO DE OBTENCAO DA MARINHA/RJ",
+          "fornecedor_nome": "NIVEL 1 SOLUCOES AUTOMOTIVAS LTDA",
+          "objeto_contrato": "AQUISIÇÃO DE VIATURAS",
+          "valor_contrato": 577800.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Rio de Janeiro",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "82892373000189-2-000217/2026",
+          "orgao_nome": "MUNICÍPIO DE GOVERNADOR CELSO RAMOS",
+          "fornecedor_nome": "METRONORTE COMERCIAL DE VEICULOS LTDA",
+          "objeto_contrato": "VEÍCULOS NOVOS, ZERO KM - LEI 14.133/2021",
+          "valor_contrato": 120800.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Governador Celso Ramos",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "83102574000106-2-000762/2026",
+          "orgao_nome": "MUNICÍPIO DE RIO DO SUL",
+          "fornecedor_nome": "BARIGUI VEICULOS LTDA",
+          "objeto_contrato": "VEÍCULOS NOVOS, ZERO KM - LEI 14.133/2021",
+          "valor_contrato": 90188.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Rio do Sul",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00509018000113-2-000871/2026",
+          "orgao_nome": "TRIBUNAL REGIONAL ELEITORAL DA BAHIA",
+          "fornecedor_nome": "BOA ERA COMERCIO E SERVICOS LTDA",
+          "objeto_contrato": "PRESTAÇÃO DE SERVIÇOS DE LOCAÇÃO DE CERCA METÁLICA, TOLDOS E SANITÁRIOS QUÍMICOS, INCLUINDO INSTALAÇÃO, MANUTENÇÃO, PREVENTIVA E CORRETIVA, DESMONTAGEM E RETIRADA DESTES, PARA UTILIZAÇÃO NO TRIBUNAL REGIONAL ELEITORAL DA BAHIA NO PERÍODO DE FECHAMENTO DE CADASTRO ELEITORAL 2026",
+          "valor_contrato": 90125.84,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Salvador",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00509018000113-2-000879/2026",
+          "orgao_nome": "TRIBUNAL REGIONAL ELEITORAL DA BAHIA",
+          "fornecedor_nome": "T J E LOCACAO DE TOLDOS LTDA",
+          "objeto_contrato": "PRESTAÇÃO DE SERVIÇOS DE LOCAÇÃO DE CERCA METÁLICA, TOLDOS E SANITÁRIOS QUÍMICOS, INCLUINDO INSTALAÇÃO, MANUTENÇÃO, PREVENTIVA E CORRETIVA, DESMONTAGEM E RETIRADA DESTES, PARA UTILIZAÇÃO NO TRIBUNAL REGIONAL ELEITORAL DA BAHIA NO PERÍODO DE FECHAMENTO DE CADASTRO ELEITORAL 2026",
+          "valor_contrato": 72839.05,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Salvador",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "82951336000102-2-000036/2026",
+          "orgao_nome": "FUNDO ESTADUAL DE DESENVOLVIMENTO RURAL",
+          "fornecedor_nome": "DF TURISMO E EVENTOS LTDA",
+          "objeto_contrato": "Contratação de serviços de agenciamento de viagens, compreendendo assessoria, cotação, reserva, emissão, cancelamento, remarcação, reembolso e fornecimento de passagens aéreas e rodoviárias, nacionais e internacionais, e demais serviços necessários e correlatos (grupo-classe 0222 - serviços de comércio de passagens aéreas, marítimas e terrestres), com disponibilização de sistema informatizado de reserva e emissão de passagens aéreas (selfbooking), considerando a possibilidade futura de inserç...",
+          "valor_contrato": 69441.6,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Florianópolis",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "33787094000140-2-000242/2026",
+          "orgao_nome": "UNIDADE ESTADUAL DO IBGE NO AMAZONAS",
+          "fornecedor_nome": "J. N. SERVICOS ESPECIALIZADOS LTDA",
+          "objeto_contrato": "CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS DE LIMPEZA E CONSERVAÇÃO PARA A SEDE DO IBGE NO AMAZONAS E AGÊNCIAS DE COLETA INSTALADAS NO MESMO IMÓVEL",
+          "valor_contrato": 61981.6,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Manaus",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00509018000113-2-000872/2026",
+          "orgao_nome": "TRIBUNAL REGIONAL ELEITORAL DA BAHIA",
+          "fornecedor_nome": "VITTAL PRODUCOES DE EVENTOS LTDA",
+          "objeto_contrato": "PRESTAÇÃO DE SERVIÇOS DE LOCAÇÃO DE CERCA METÁLICA, TOLDOS E SANITÁRIOS QUÍMICOS, INCLUINDO INSTALAÇÃO, MANUTENÇÃO, PREVENTIVA E CORRETIVA, DESMONTAGEM E RETIRADA DESTES, PARA UTILIZAÇÃO NO TRIBUNAL REGIONAL ELEITORAL DA BAHIA NO PERÍODO DE FECHAMENTO DE CADASTRO ELEITORAL 2026, CONFORME AS CONDIÇÕES ESTABELECIDAS NO EDITAL DE PREGÃO Nº 90006/2026 E NA PROPOSTA FIRMADA PELA CONTRATADA.",
+          "valor_contrato": 57998.9,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Salvador",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00509018000113-2-000876/2026",
+          "orgao_nome": "TRIBUNAL REGIONAL ELEITORAL DA BAHIA",
+          "fornecedor_nome": "LOKSAN ENTRETENIMENTO E SERVICOS  LTDA",
+          "objeto_contrato": "PRESTAÇÃO DE SERVIÇOS DE LOCAÇÃO DE CERCA METÁLICA, TOLDOS E SANITÁRIOS QUÍMICOS, INCLUINDO INSTALAÇÃO, MANUTENÇÃO, PREVENTIVA E CORRETIVA, DESMONTAGEM E RETIRADA DESTES, PARA UTILIZAÇÃO NO TRIBUNAL REGIONAL ELEITORAL DA BAHIA NO PERÍODO DE FECHAMENTO DE CADASTRO ELEITORAL 2026",
+          "valor_contrato": 52272.56,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Salvador",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00509018000113-2-000878/2026",
+          "orgao_nome": "TRIBUNAL REGIONAL ELEITORAL DA BAHIA",
+          "fornecedor_nome": "MLT3-CONSTRUCOES E SERVICOS LTDA",
+          "objeto_contrato": "PRESTAÇÃO DE SERVIÇOS DE LOCAÇÃO DE CERCA METÁLICA, TOLDOS E SANITÁRIOS QUÍMICOS, INCLUINDO INSTALAÇÃO, MANUTENÇÃO, PREVENTIVA E CORRETIVA, DESMONTAGEM E RETIRADA DESTES, PARA UTILIZAÇÃO NO TRIBUNAL REGIONAL ELEITORAL DA BAHIA NO PERÍODO DE FECHAMENTO DE CADASTRO ELEITORAL 2026",
+          "valor_contrato": 46298.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Salvador",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "83102855000150-2-000818/2026",
+          "orgao_nome": "Secretaria Municipal de Saneamento Básico – SESAN",
+          "fornecedor_nome": "LICS SUPER AGUA LTDA",
+          "objeto_contrato": "Aquisição de equipamentos destinados à desinfecção da água e, quando aplicável, à fluoretação, a serem utilizados em poços sob responsabilidade da Secretaria de Água e Saneamento Básico (SASAN).",
+          "valor_contrato": 39000.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Navegantes",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00394452000103-2-011142/2025",
+          "orgao_nome": "BASE DE ADMINISTRAÇÃO E APOIO 8ª REG MILITAR",
+          "fornecedor_nome": "2 ENG SERVICOS DE ENGENHARIA LTDA",
+          "objeto_contrato": "CONTRATAÇÃO DE EMPRESA QUE, SOB DEMANDA, PRESTARÁ SERVIÇOS COMUNS DE ENGENHARIA RELACIONADOS À MANUTENÇÃO PREDIAL NAS INSTALAÇÕES SOB A RESPONSABILIDADE DA BASE DE ADMINISTRAÇÃO E APOIO DA 8ª REGIÃO MILITAR, NAS CONDIÇÕES ESTABELECIDAS NO TERMO DE REFERÊNCIA.",
+          "valor_contrato": 26119.8,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Belém",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00509018000113-2-000877/2026",
+          "orgao_nome": "TRIBUNAL REGIONAL ELEITORAL DA BAHIA",
+          "fornecedor_nome": "KEYLLA LI COMERCIO ASSESSORIA E SERVICOS LTDA",
+          "objeto_contrato": "PRESTAÇÃO DE SERVIÇOS DE LOCAÇÃO DE CERCA METÁLICA, TOLDOS E SANITÁRIOS QUÍMICOS, INCLUINDO INSTALAÇÃO, MANUTENÇÃO, PREVENTIVA E CORRETIVA, DESMONTAGEM E RETIRADA DESTES, PARA UTILIZAÇÃO NO TRIBUNAL REGIONAL ELEITORAL DA BAHIA NO PERÍODO DE FECHAMENTO DE CADASTRO ELEITORAL 2026",
+          "valor_contrato": 23425.83,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Salvador",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "29979036000140-2-000182/2026",
+          "orgao_nome": "SUPERINTENDENCIA REGIONAL SUL",
+          "fornecedor_nome": "MARCELO SOUSA GONCALVES",
+          "objeto_contrato": "AQUISIÇÃO DE MATERIAIS PERMANENTES DIVERSOS PARA ATENDER AS UNIDADES VINCULADAS A SRSUL",
+          "valor_contrato": 14602.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Florianópolis",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00394544000185-2-007205/2026",
+          "orgao_nome": "INSTITUTO NACIONAL DE TRAUMATO-ORTOPEDIA",
+          "fornecedor_nome": "ASCLE BRASIL LTDA",
+          "objeto_contrato": "AQUISIÇÃO DE MATERIAL DE CONSUMO (AVENTAL HOSPITALAR) POR REPETIÇÃO",
+          "valor_contrato": 10635.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Rio de Janeiro",
+          "bucket": "90d"
+        },
+        {
+          "contrato_id": "00360305000104-2-009119/2024",
+          "orgao_nome": "CEFOR",
+          "fornecedor_nome": "DARAH DIAS DUARTE CORRETAGEM DE IMOVEIS",
+          "objeto_contrato": "CREDENCIAMENTO DE IMOBILIÁRIAS PARA PRESTAÇÃO DE SERVIÇOS DE INTERMEDIAÇÃO E ASSESSORAMENTO DE VENDA DE IMÓVEIS NÃO DE USO DE PROPRIEDADE DA CAIXA EM TODO TERRITÓRIO NACIONAL, DARAH DIAS DUARTE CORRETAGEM DE IMOVEIS.",
+          "valor_contrato": 0.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Brasília",
+          "bucket": "90d"
+        }
+      ],
+      "meta": {
+        "source": "contract_intel"
+      }
+    },
+    {
+      "name": "Campos de perfil pendentes (elicitation)",
+      "status": "OK",
+      "reason": "",
+      "items": [
+        {
+          "field": "capital_giro",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "capacidade_simultanea",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "cats_atestados",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "equipe",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "equipamentos",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "certidoes",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "margem_minima",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "risco_aceitavel",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "contratos_atuais",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "apetite_consorcios",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "capacidade_garantia",
+          "status": "PENDING",
+          "note": "null/empty no extra.yaml — não inventar valor"
+        },
+        {
+          "field": "priority_organs",
+          "status": "PENDING",
+          "note": "lista vazia — calibrar com Tiago"
+        },
+        {
+          "field": "known_competitors",
+          "status": "PENDING",
+          "note": "lista vazia — calibrar com Tiago"
+        },
+        {
+          "field": "priority_municipalities",
+          "status": "PENDING",
+          "note": "lista vazia — calibrar com Tiago"
+        }
+      ],
+      "meta": {
+        "profile": "/mnt/d/extra consultoria/config/client_profiles/extra.yaml",
+        "count": 14
+      }
+    },
+    {
+      "name": "Ações sugeridas / relatórios devidos",
+      "status": "OK",
+      "reason": "",
+      "items": [
+        {
+          "action": "Triagem de prazos",
+          "priority": "high",
+          "detail": "30 oportunidades com prazo ≤7d"
+        },
+        {
+          "action": "Revisar fila REVIEW",
+          "priority": "high",
+          "detail": "30 itens aguardando decisão humana"
+        },
+        {
+          "action": "Checar source-health / crawlers",
+          "priority": "medium",
+          "detail": "1 fontes com alerta"
+        },
+        {
+          "action": "Elicitar perfil Extra",
+          "priority": "medium",
+          "detail": "14 campos PENDING em extra.yaml"
+        },
+        {
+          "action": "Briefing diário",
+          "priority": "medium",
+          "detail": "python -m scripts.workspace briefing"
+        },
+        {
+          "action": "Coverage check",
+          "priority": "low",
+          "detail": "python -m scripts.workspace coverage"
+        }
+      ],
+      "meta": {
+        "count": 6
+      }
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "ts": "2026-07-19T02:02:44.107161+00:00",
+  "sla_hours": 48,
+  "before": {
+    "strict": 1,
+    "verified": 7,
+    "collected": 271
+  },
+  "promote_summary": {
+    "strategy": "promote_from_evidence",
+    "evidence_rows_loaded": 413,
+    "promoted": 285,
+    "verified": 284,
+    "collected": 1,
+    "unmatched_registry_skipped": 131,
+    "blockers_normalized": 1,
+    "sla_hours": 48,
+    "dry_run": false,
+    "evidence_path": "/mnt/d/extra consultoria/output/coverage/acquisition/promote_from_evidence-20260719T020228Z.json",
+    "persisted": true
+  },
+  "sample": [
+    {
+      "canonical_id": "62761279:SECRETARIA_MUNICIPAL_DE_EDUCACAO",
+      "cnpj8": "62761279",
+      "status": "skipped_missing_provenance",
+      "sources": [
+        "pcp"
+      ]
+    },
+    {
+      "canonical_id": "80674252:SANTO_AMARO_DA_IMPERATRIZ_CAMARA_DE_VEREADORES",
+      "cnpj8": "80674252",
+      "status": "verified",
+      "last_seen_at": "2026-07-19T01:07:57.781031+00:00",
+      "sources": [
+        "pncp",
+        "pncp_contracts"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "82892324:MUNICIPIO_DE_SANTO_AMARO_DA_IMPERATRIZ",
+      "cnpj8": "82892324",
+      "status": "verified",
+      "last_seen_at": "2026-07-19T01:38:34.868754+00:00",
+      "sources": [
+        "dom_sc",
+        "pncp",
+        "pncp_contracts"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "02179215:FUNDO_MUNICIPAL_DE_ASSISTENCIA_SOCIAL",
+      "cnpj8": "02179215",
+      "status": "verified",
+      "last_seen_at": "2026-07-18T22:53:48.434391+00:00",
+      "sources": [
+        "pncp"
+      ],
+      "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+      "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+      "strict_operational": true
+    },
+    {
+      "canonical_id": "66233173:SECRETARIA_MUNICIPAL_DE_EDUCACAO",
+      "cnpj8": "66233173",
+      "status": "skipped_missing_provenance",
+      "sources": [
+        "pcp"
+      ]
+    }
+  ],
+  "after": {
+    "strict": 284,
+    "verified": 287,
+    "collected": 6,
+    "operational_status": 287
+  },
+  "pct_strict": 25.98,
+  "pct_verified": 26.26
+}

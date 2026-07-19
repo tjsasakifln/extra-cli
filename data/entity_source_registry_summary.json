@@ -1,29 +1,31 @@
 {
   "total_entities": 1093,
   "expected_entities": 1093,
-  "mapped_or_better": 522,
-  "mapped_pct": 47.76,
-  "operational": 90,
-  "operational_pct": 8.23,
+  "mapped_or_better": 315,
+  "mapped_pct": 28.82,
+  "operational": 407,
+  "operational_pct": 37.24,
   "by_status": {
-    "unknown": 481,
-    "mapped": 480,
-    "verified": 90,
-    "collected": 42
+    "verified": 407,
+    "unknown": 371,
+    "mapped": 311,
+    "accessible": 3,
+    "collected": 1
   },
   "by_blocker": {
-    "pending_collection": 707,
-    "pending_live_verification": 159,
-    "fragmented": 137,
-    "none": 90
+    "pending_collection": 512,
+    "none": 407,
+    "fragmented": 121,
+    "pending_live_verification": 53
   },
   "by_strategy": {
-    "ciga_ckan_shared_municipio": 449,
-    "sc_compras_and_doe_sc": 257,
-    "pncp_cnpj_lookup": 224,
-    "pipeline_evidence_promote": 132,
-    "multi_source_probe": 16,
-    "pncp_monitor_by_cnpj": 14,
+    "ciga_ckan_shared_municipio": 301,
+    "pipeline_evidence_promote": 289,
+    "sc_compras_and_doe_sc": 207,
+    "pncp_cnpj_lookup": 164,
+    "pipeline_evidence_promote_contracts": 119,
+    "multi_source_probe": 9,
+    "pncp_monitor_by_cnpj": 3,
     "ciga_ckan_municipio_expand": 1
   },
   "by_priority": {
@@ -64,14 +66,17 @@
     "ciga_ckan": 556,
     "sc_compras": 399,
     "transparencia": 372,
+    "pncp_contracts": 365,
     "tce_sc": 267,
     "doe_sc": 267,
-    "pcp": 146,
+    "pcp": 148,
     "compras_gov": 119,
-    "ciga_dom": 2
+    "ciga_dom": 3
   },
   "with_portal_transparencia": 269,
   "with_portal_institucional": 398,
   "with_diario_oficial": 556,
-  "avg_mapping_confidence": 0.5219
+  "avg_mapping_confidence": 0.5791,
+  "registry_path": "/mnt/d/extra consultoria/data/entity_source_registry.jsonl",
+  "summary_path": "/mnt/d/extra consultoria/data/entity_source_registry_summary.json"
 }

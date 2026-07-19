@@ -1,0 +1,5 @@
+{"ts":"2026-07-19T02:00:00Z","event":"CAMPAIGN_START","campaign":"EXTRA-OPS-95","head":"dbc5adb2ab62898cd3fd005c83c90dcef36c1cde","actor":"coordinator"}
+{"ts":"2026-07-19T02:00:30Z","event":"RECOVERY_COMPLETE","denominator":1093,"editais_pct":26.08,"contracts_pct":33.67,"either_pct":37.15,"operational_contract_cli_pct":8.23,"n01_status":"DONE_not_reopen","pr28":"CONFLICTING_do_not_merge","smartlic":"DEFERRED_STALE"}
+{"ts":"2026-07-19T02:01:00Z","event":"ROI_DECISION_001","selected":"COV-EDIT-CONTRACT-OPS","rejected_default":"cand-dyn-slice:ac8b6e76a7b2"}
+{"ts": "2026-07-19T02:03:05Z", "event": "M2_PROMOTE_SLA48", "strict_operational": 284, "pct": 25.98, "verified": 287, "promoted": 285}
+{"ts": "2026-07-19T02:06:48Z", "event": "M2_REMEASURE_AFTER_PNCP_INC", "den": 1093, "editais": 285, "contracts": 368, "either": 406, "pct_editais": 26.08, "pct_contracts": 33.67, "pct_either": 37.15, "bids_rows": 10974, "contracts_rows": 1082055, "strict": 407, "pct_strict": 37.24}
