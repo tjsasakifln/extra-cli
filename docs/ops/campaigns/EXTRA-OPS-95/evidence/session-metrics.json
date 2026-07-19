@@ -1,5 +1,6 @@
 {
-  "measured_at": "2026-07-19T16:09:32.277115+00:00",
+  "measured_at": "2026-07-19T16:20:46.426776+00:00",
+  "head": "0a4fa0a",
   "denominator_200km": 1093,
   "presence_editais": 279,
   "presence_editais_pct": 25.5261,
@@ -17,6 +18,7 @@
   "dod_pct": 23.1509,
   "definition": "ops_proxy = lake presence of orgao_cnpj8 OR entity-scoped success_zero with cnpj14 root match + http_204_complete. NOT seven-stage operational coverage.",
   "status": "PARTIAL",
+  "verdict": "PARTIAL",
   "claims_allowed": [
     "contracts ops proxy 1051/1093 (96.16%) under documented definition"
   ],
@@ -26,6 +28,5 @@
     "campaign DONE",
     "DOD 55%",
     "LOCAL_READY"
-  ],
-  "verdict": "PARTIAL"
+  ]
 }

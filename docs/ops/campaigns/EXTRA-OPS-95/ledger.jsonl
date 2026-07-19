@@ -34,3 +34,4 @@
 {"ts": "2026-07-19T14:43:27.454676+00:00", "event": "RECOVERY_CHECKPOINT2_MID", "ops": 544, "ops_pct": 49.7713, "sz": 297, "editais": 25.5261}
 {"ts": "2026-07-19T15:30:33.124933+00:00", "event": "RECOVERY_CHECKPOINT3", "ops": 829, "ops_pct": 75.8463, "sz": 522, "pc": 307, "pe": 279, "contracts_rows": 238859}
 {"ts": "2026-07-19T16:09:55.766082+00:00", "event": "RECOVERY_OPS_PROXY_GE95", "ops": 1051, "den": 1093, "pct": 96.1574, "sz": 722, "editais": 25.5261, "dod": 23.1509}
+{"ts": "2026-07-19T16:21:16.180786+00:00", "event": "RECOVERY_SESSION_FINAL_CLOSEOUT", "head": "0a4fa0a8f74d", "ops_proxy_pct": 96.1574, "editais_pct": 25.5261, "dod_pct": 23.1509, "verdict": "PARTIAL"}
