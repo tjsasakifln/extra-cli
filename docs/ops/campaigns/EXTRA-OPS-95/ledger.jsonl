@@ -27,3 +27,4 @@
 {"ts":"2026-07-19T07:54:00Z","event":"M2_EDITAI_SC_INGEST","presence_editais":285,"bids":11550,"dod":"224/1352"}
 {"ts":"2026-07-19T07:56:00Z","event":"DOD_FLIPS_OPS_PROVEN","flipped":21,"dod":"245/1352","pct":18.12,"ops_proxy":90.67,"editais":26.1}
 {"ts":"2026-07-19T07:59:00Z","event":"RESIDUAL_IDENTITY_404","residual":102,"probed":60,"pncp_404":60,"dod":"270/1352"}
+{"ts":"2026-07-19T08:15:00Z","event":"CONTRACTS_OPS_PROXY_GE95","ops":1090,"den":1093,"pct":99.7255,"sz":722,"method":"brasilapi_matriz_sz","residual":3}

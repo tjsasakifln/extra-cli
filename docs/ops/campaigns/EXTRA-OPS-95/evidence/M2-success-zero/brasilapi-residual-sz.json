@@ -1,0 +1,1739 @@
+{
+  "measured_at": "2026-07-19T08:05:59.435832+00:00",
+  "run_id": "sz-brasilapi-20260719T080107Z",
+  "residual_probed": 102,
+  "brasilapi_resolved": 99,
+  "name_mismatch": 3,
+  "brasilapi_not_found": 0,
+  "success_zero_written": 10,
+  "has_data": 0,
+  "errors": 1,
+  "metrics": {
+    "presence": 368,
+    "sz": 633,
+    "ops": 1001,
+    "den": 1093,
+    "pct": 91.5828,
+    "gap95": 38
+  },
+  "method": "cnpj8+0001+DV validated by BrasilAPI name soft-match, then PNCP contracts probe",
+  "claims_forbidden": [
+    "7-stage coverage",
+    "unvalidated matriz without Receita"
+  ],
+  "results": [
+    {
+      "entity_id": 209,
+      "cnpj8": "48865663",
+      "cnpj14": "48865663000103",
+      "razao": "ABRIGO INSTITUCIONAL ANA ANTONINA ANTONIO",
+      "brasilapi_status": 200,
+      "api_razao": "ABRIGO INSTITUCIONAL ANA ANTONINA ANTONIO",
+      "verdict": "RESOLVED",
+      "contracts_error": "The read operation timed out"
+    },
+    {
+      "entity_id": 872,
+      "cnpj8": "83876003",
+      "cnpj14": "83876003000110",
+      "razao": "BANCO DO ESTADO DE SANTA CATARINA SA",
+      "brasilapi_status": 200,
+      "api_razao": "BANCO DO ESTADO DE SANTA CATARINA SA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 1026,
+      "cnpj8": "33633686",
+      "cnpj14": "33633686000107",
+      "razao": "BANCO NACIONAL DA HABITACAO",
+      "brasilapi_status": 200,
+      "api_razao": "BANCO NACIONAL DA HABITACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 1023,
+      "cnpj8": "33618810",
+      "cnpj14": "33618810000165",
+      "razao": "BANCO NACIONAL DE CREDITO COOPERATIVO SA EM LIQUIDACAO",
+      "brasilapi_status": 200,
+      "api_razao": "BANCO NACIONAL DE CREDITO COOPERATIVO SA EM LIQUIDACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 874,
+      "cnpj8": "83880427",
+      "cnpj14": "83880427000159",
+      "razao": "BESC FINANCEIRA SA CREDITO FINANC E INVESTIMENTOS",
+      "brasilapi_status": 200,
+      "api_razao": "BESC FINANCEIRA SA CREDITO FINANC E INVESTIMENTOS",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 879,
+      "cnpj8": "00510570",
+      "cnpj14": "00510570000121",
+      "razao": "BESC S/A ARRENDAMENTO MERCANTIL",
+      "brasilapi_status": 200,
+      "api_razao": "BESC S/A ARRENDAMENTO MERCANTIL",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 855,
+      "cnpj8": "82514472",
+      "cnpj14": "82514472000127",
+      "razao": "BESC S/A CORRETORA DE SEGUROS E ADMINISTRADORA DE BENS",
+      "brasilapi_status": 200,
+      "api_razao": "BESC S/A CORRETORA DE SEGUROS E ADMINISTRADORA DE BENS",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 869,
+      "cnpj8": "83725150",
+      "cnpj14": "83725150000190",
+      "razao": "BESC SA CREDITO IMOBILIARIO",
+      "brasilapi_status": 200,
+      "api_razao": "BESC SA CREDITO IMOBILIARIO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 877,
+      "cnpj8": "83900159",
+      "cnpj14": "83900159000190",
+      "razao": "CAIXA ECONOMICA DO ESTADO DE SANTA CATARINA S A",
+      "brasilapi_status": 200,
+      "api_razao": "CAIXA ECONOMICA DO ESTADO DE SANTA CATARINA S A",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 884,
+      "cnpj8": "08336783",
+      "cnpj14": "08336783000190",
+      "razao": "CELESC DISTRIBUICAO S.A",
+      "brasilapi_status": 200,
+      "api_razao": "CELESC DISTRIBUICAO S.A",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 885,
+      "cnpj8": "08336804",
+      "cnpj14": "08336804000178",
+      "razao": "CELESC GERACAO S.A",
+      "brasilapi_status": 200,
+      "api_razao": "CELESC GERACAO S.A",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "SUCCESS_ZERO",
+        "http_status": 204,
+        "total": 0,
+        "n_items": 0,
+        "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "completion_rule": "http_204_complete"
+      },
+      "persisted": true
+    },
+    {
+      "entity_id": 856,
+      "cnpj8": "82717349",
+      "cnpj14": "82717349000103",
+      "razao": "CIA DE DESENVOLVIMENTO E URBANIZACAO DE ITAJAI",
+      "brasilapi_status": 200,
+      "api_razao": "CIA DE DESENVOLVIMENTO E URBANIZACAO DE ITAJAI",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "74ce30ec05e41ed3b23b51a4df278cb15bd4e971e194a26d60a446eb07c10dee",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 857,
+      "cnpj8": "82840422",
+      "cnpj14": "82840422000130",
+      "razao": "CIA DE URBANIZACAO E DESENVOLVIMENTO DE CRICIUMA",
+      "brasilapi_status": 200,
+      "api_razao": "CIA DE URBANIZACAO E DESENVOLVIMENTO DE CRICIUMA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "209dc0375fd3fbb07e09fbe218f850c14d69091c2dce9416fd85247357caf1c2",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 880,
+      "cnpj8": "00513208",
+      "cnpj14": "00513208000104",
+      "razao": "CODEJAS - COMPANHIA DE DESENVOLVIMENTO DE JARAGUA DO SUL S.A",
+      "brasilapi_status": 200,
+      "api_razao": "CODEJAS - COMPANHIA DE DESENVOLVIMENTO DE JARAGUA DO SUL S.A",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "f4045eff9192d3a561e36c6a4d2a41ba23f4610783d71b605a496ecc68d908dd",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 563,
+      "cnpj8": "45087300",
+      "cnpj14": "45087300000198",
+      "razao": "COLEGIADO SUPERIOR DE SEGURANCA PUBLICA E PERICIA OFICIAL",
+      "brasilapi_status": 200,
+      "api_razao": "COLEGIADO SUPERIOR DE SEGURANCA PUBLICA E PERICIA OFICIAL",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "12f33d7a07ee54d55ab09abceecb6411f75b489926d8812f70d49d9a0e488c92",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1012,
+      "cnpj8": "33050022",
+      "cnpj14": "33050022000115",
+      "razao": "COMPANHIA AUXILIAR DE EMPRESAS ELETRICAS BRASILEIRAS",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA AUXILIAR DE EMPRESAS ELETRICAS BRASILEIRAS",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "44f1d1f316771063ae85a6c42929b3bd8056ea1341e1d7721919416f675d4bd1",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1016,
+      "cnpj8": "33469602",
+      "cnpj14": "33469602000141",
+      "razao": "COMPANHIA BRASILEIRA DE ALIMENTOS",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA BRASILEIRA DE ALIMENTOS",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "ecf9d67ddcf4afdb852ea4e1416226476f4aba0967ca6f37f886ec4319e42d9e",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1013,
+      "cnpj8": "33121088",
+      "cnpj14": "33121088000159",
+      "razao": "COMPANHIA BRASILEIRA DE ARMAZENAMENTO",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA BRASILEIRA DE ARMAZENAMENTO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "bf255fb16e0d74ba66037169e2abe5df498c28ca5ed6efa9c56a58238d4f0554",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1029,
+      "cnpj8": "33653841",
+      "cnpj14": "33653841000157",
+      "razao": "COMPANHIA BRASILEIRA DE DRAGAGEM",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA BRASILEIRA DE DRAGAGEM",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "6ea38c68d93a5a9267e0af12ba2a8005fe9ec529caca137ee9d8c78afd112e9d",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 859,
+      "cnpj8": "82951021",
+      "cnpj14": "82951021000157",
+      "razao": "COMPANHIA CATARINENSE DE ARMAZENAMENTO COCAR",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA CATARINENSE DE ARMAZENAMENTO COCAR",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "0bb8cedfce7e689d006beeee2308548ad226a887b7c3f61e4c5b743b775b1e18",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 887,
+      "cnpj8": "26634715",
+      "cnpj14": "26634715000190",
+      "razao": "COMPANHIA CATARINENSE DE SAUDE - CCS",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA CATARINENSE DE SAUDE - CCS",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "af9e38f69b6d088fd44a672f9d9099aaed7b83ada43a5f23e4decef81f62fec7",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1077,
+      "cnpj8": "83422014",
+      "cnpj14": "83422014000120",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE CHAPECO CODEC",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE DESENVOLVIMENTO DE CHAPECO CODEC",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "2e7b1e8fa482a107cfacd1a57e0a1130b4ef7e044e51b60925b001c06479a0fd",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 930,
+      "cnpj8": "02939316",
+      "cnpj14": "02939316000179",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE ITAPOA S. A.",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE DESENVOLVIMENTO DE ITAPOA S. A.",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "c39c3d6dcffdc62ba44a9c9a4cdef4138f2b5189db279d2e5f070f85d85367be",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 851,
+      "cnpj8": "74064585",
+      "cnpj14": "74064585000140",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE PORTO UNIAO -CDPU",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE DESENVOLVIMENTO DE PORTO UNIAO -CDPU",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "02147488ef27f6ea3e27f27598c41f9653f089060c3e5761037fe2f3e2b5642f",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 863,
+      "cnpj8": "83262535",
+      "cnpj14": "83262535000168",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DO ESTADO DE SANTA CATARIN",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE DESENVOLVIMENTO DO ESTADO DE SANTA CATARIN",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "5de5633193877a48fb85c70354dffed824af42000d18825625cfdc7167238148",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 867,
+      "cnpj8": "83596445",
+      "cnpj14": "83596445000103",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO ECONOMICO E PLANEJAMENTO URBANO DE CRICIUMA-CODEPLA",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE DESENVOLVIMENTO ECONOMICO E PLANEJAMENTO URBANO DE CRICIUMA-CODEPLA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "c3907323856d1b08e43dce594802421e2d7dc45e22e5dd87d0d684659d1167c7",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 199,
+      "cnpj8": "78271251",
+      "cnpj14": "78271251000106",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DA PENHA",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DA PENHA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "a66302320eb76abcdd0775cf2cd825c569fc02aadbe0aa89f89c633e8282dfde",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 94,
+      "cnpj8": "75294264",
+      "cnpj14": "75294264000102",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DE BRUSQUE",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DE BRUSQUE",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "5bdaab130603c392fa374c653e65a33b121a5b84537b83a5a6af8fd9fbebc664",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 860,
+      "cnpj8": "83042325",
+      "cnpj14": "83042325000164",
+      "razao": "COMPANHIA DE DISTRITOS INDUSTRIAIS DE SANTA CATARINA - CODISC -",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE DISTRITOS INDUSTRIAIS DE SANTA CATARINA - CODISC -",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "e2038b2cbc02cf382d2c2fac38f5e160d3c399d9cd09100f41fc41124d212322",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1018,
+      "cnpj8": "33506437",
+      "cnpj14": "33506437000150",
+      "razao": "COMPANHIA DE FINANCIAMENTO DA PRODUCAO-CFP",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE FINANCIAMENTO DA PRODUCAO-CFP",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "6f988ca11779a3136eafcc4158af923f23971a45681369ce3839c90c12641e55",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 853,
+      "cnpj8": "82134917",
+      "cnpj14": "82134917000143",
+      "razao": "COMPANHIA DE HABITACAO DE JARAGUA DO SUL",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE HABITACAO DE JARAGUA DO SUL",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "9e8e6d03f091a827f719136b80cb6ee4e50f942656e526dd8da1ea91fd892c86",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1063,
+      "cnpj8": "79655619",
+      "cnpj14": "79655619000194",
+      "razao": "COMPANHIA DE HABITACAO POPULAR COHAB LAGES",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE HABITACAO POPULAR COHAB LAGES",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "4859505f51a5c0b6364ce98052c0d9caa5625e65e59c0c631c02de351230686a",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1058,
+      "cnpj8": "75553446",
+      "cnpj14": "75553446000142",
+      "razao": "COMPANHIA DE MELHORAMENTOS DE XAXIM COMEX",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE MELHORAMENTOS DE XAXIM COMEX",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "3bafa1754d190f7b3d155b0ba35ac513b89354749edc1e056339f7fb37cdf5dd",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 192,
+      "cnpj8": "82669037",
+      "cnpj14": "82669037000171",
+      "razao": "COMPANHIA DE URBANIZACAO DE BLUMENAU - URB EM LIQUIDACAO",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE URBANIZACAO DE BLUMENAU - URB EM LIQUIDACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "61e657afc795f3930464aa9d066d437c0eb0ffbee8981cfc65570a5fa75d7453",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 865,
+      "cnpj8": "83467480",
+      "cnpj14": "83467480000122",
+      "razao": "COMPANHIA DE URBANIZACAO E DESENVOLVIMENTO DE TUBARAO - EM LIQUIDACAO",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA DE URBANIZACAO E DESENVOLVIMENTO DE TUBARAO - EM LIQUIDACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "8e33f6d7a0a9562732a8f6fe57eb671fc39231e587ed1dc33c9db6d3b03f79ab",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 994,
+      "cnpj8": "17155730",
+      "cnpj14": "17155730000164",
+      "razao": "COMPANHIA ENERGETICA DE MINAS GERAIS-CEMIG",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA ENERGETICA DE MINAS GERAIS-CEMIG",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "7396c2c48d734865c6fc5aa6394c0d93b76c97ab94ae91fa84fe78048b445409",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1079,
+      "cnpj8": "83470716",
+      "cnpj14": "83470716000180",
+      "razao": "COMPANHIA HIDROMINERAL CALDAS DA IMPERATRIZ",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA HIDROMINERAL CALDAS DA IMPERATRIZ",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "deb8d569fd9deb92c3133660f2f009a2f8dfed96152e068b620786266dbb037a",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 868,
+      "cnpj8": "83675512",
+      "cnpj14": "83675512000185",
+      "razao": "COMPANHIA HIDROMINERAL DO OESTE CATARINENSE-HIDROESTE",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA HIDROMINERAL DO OESTE CATARINENSE-HIDROESTE",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "0821616682028ee47965a9ee0b0ad910c5639137cc0b19f7e285c65812f8bdc4",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 882,
+      "cnpj8": "05848142",
+      "cnpj14": "05848142000127",
+      "razao": "COMPANHIA URBANIZADORA DE ICARA - URBI",
+      "brasilapi_status": 200,
+      "api_razao": "COMPANHIA URBANIZADORA DE ICARA - URBI",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "feb943eec7d8b0189d3520d2bd3eefc15ee3798be3baacc185a4a29242c34b5a",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1073,
+      "cnpj8": "82532235",
+      "cnpj14": "82532235000199",
+      "razao": "CONSELHO REGIONAL DOS MUSICOS DE SANTA CATARINA",
+      "brasilapi_status": 200,
+      "api_razao": "CONSELHO REGIONAL DOS MUSICOS DE SANTA CATARINA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "603f95a9bc02d4f05982d37c03eea3be7386ffed29491a84c40b445005e5d9c3",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 876,
+      "cnpj8": "83899997",
+      "cnpj14": "83899997000190",
+      "razao": "ELETRIFICACAO RURAL DE SANTA CATARINA S A",
+      "brasilapi_status": 200,
+      "api_razao": "ELETRIFICACAO RURAL DE SANTA CATARINA S A",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "a9dbe5806ced198cf1a6f88cc8837b738abfa44491b41b1156028437a6352c99",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 891,
+      "cnpj8": "00073957",
+      "cnpj14": "00073957000168",
+      "razao": "ELETROSUL CENTRAIS ELETRICAS S/A",
+      "brasilapi_status": 200,
+      "api_razao": "ELETROSUL CENTRAIS ELETRICAS S/A",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "96946cf55aa21de10008b551dbe5333661fcd056c0e38d4860a45d74f0c4e033",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 918,
+      "cnpj8": "00608364",
+      "cnpj14": "00608364000159",
+      "razao": "EMPRESA BRASILEIRA DE NOTICIAS",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA BRASILEIRA DE NOTICIAS",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "acb1610d0c5fa9001d7f648c9945af9a282453ad918529b8da09cc82b2c2e94c",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 912,
+      "cnpj8": "00446583",
+      "cnpj14": "00446583000189",
+      "razao": "EMPRESA BRASILEIRA DE TRANSPORTES URBANOS EM LIQUIDACAO",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA BRASILEIRA DE TRANSPORTES URBANOS EM LIQUIDACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "723cc79c8e490daa5e050f1f5f028dd131c3c719efbed74467976220e882b495",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 852,
+      "cnpj8": "75352302",
+      "cnpj14": "75352302000128",
+      "razao": "EMPRESA CATARINENSE DE TRANSPORTES E TERMINAIS SA",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA CATARINENSE DE TRANSPORTES E TERMINAIS SA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "272489ffdbd743ad85f03f8927bcc21985a8ab993090f733501b72a8a9430651",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1056,
+      "cnpj8": "75507053",
+      "cnpj14": "75507053000100",
+      "razao": "EMPRESA DE APIO A AGROPECUARIA DE VIDEIRA SA",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA DE APIO A AGROPECUARIA DE VIDEIRA SA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "2f9baebb41a0ec7deb91da72f978e6e07e2362a3e7cb19234a994f2f2974a181",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1082,
+      "cnpj8": "83813873",
+      "cnpj14": "83813873000140",
+      "razao": "EMPRESA DE ASSISTENCIA TECNICA E EXTENSAO RURAL DE SC",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA DE ASSISTENCIA TECNICA E EXTENSAO RURAL DE SC",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "a40f231b6cb64e0282ddabc9b90f7f28c28e8e2b1ae68ba4731ee07569ce9694",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1080,
+      "cnpj8": "83682419",
+      "cnpj14": "83682419000106",
+      "razao": "EMPRESA DE DESENVOLVIMENTO DE JOACABA",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA DE DESENVOLVIMENTO DE JOACABA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "1398163b87e9af2b667551761a96a2666268403974f6450a7a76e7f9e64b0c85",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 871,
+      "cnpj8": "83842922",
+      "cnpj14": "83842922000173",
+      "razao": "EMPRESA DE DESENVOLVIMENTO DE XANXERE S/A",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA DE DESENVOLVIMENTO DE XANXERE S/A",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "085d8248808c4422c35cf36e803db574ea93418acedfc8ac6f0c8ac91274aa6d",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1074,
+      "cnpj8": "82563271",
+      "cnpj14": "82563271000110",
+      "razao": "EMPRESA DE ELETRECIDADE LUZ E FORCA DE ARARANGUA SA",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA DE ELETRECIDADE LUZ E FORCA DE ARARANGUA SA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "5cc90600b550eef5a1505ca37b70622f0d5c16458be679f555a1f0b70216574c",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1034,
+      "cnpj8": "33884008",
+      "cnpj14": "33884008000117",
+      "razao": "EMPRESA DE ENG E CONSTR DE OBRAS ESPECIAIS S A ECEX",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA DE ENG E CONSTR DE OBRAS ESPECIAIS S A ECEX",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "237575ca854ddace962f63c87884e3291908d5621765bbeb7f530df9c44cd893",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 957,
+      "cnpj8": "05455291",
+      "cnpj14": "05455291000126",
+      "razao": "EMPRESA PUBLICA DE TRANSITO E TRANSPORTE DE CRICIUMA SA - EPTC",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA PUBLICA DE TRANSITO E TRANSPORTE DE CRICIUMA SA - EPTC",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "4fcd63f1dc0ac5125bb715250825df46927a3bbdf6d45c3767b662d0a1960e14",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1057,
+      "cnpj8": "75533364",
+      "cnpj14": "75533364000136",
+      "razao": "EMPRESA URBANIZADORA DE VIDEIRA SOCIEDADE ANONIMA",
+      "brasilapi_status": 200,
+      "api_razao": "EMPRESA URBANIZADORA DE VIDEIRA SOCIEDADE ANONIMA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "2e0ce0667acad2ae304d36ea0d575a327a7c04163516823013cc6a451cf6a1b6",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 997,
+      "cnpj8": "19660975",
+      "cnpj14": "19660975000174",
+      "razao": "EOLICA COXILHA SECA S.A.",
+      "brasilapi_status": 200,
+      "api_razao": "EOLICA COXILHA SECA S.A.",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "3464206be382acd3eecf47b7f7f56c62343e27ac3290b339437d07a3f9d16e16",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 528,
+      "cnpj8": "42585831",
+      "cnpj14": "42585831000112",
+      "razao": "FUNDACAO HOSPITALAR MUNICIPAL DE CORREIA PINTO",
+      "brasilapi_status": 200,
+      "api_razao": "FUNDACAO HOSPITALAR MUNICIPAL DE CORREIA PINTO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "144201c3577809c335a7e31dd3c45f14ff283e25de4aacfd49275f1dca6bd1dd",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 273,
+      "cnpj8": "46595918",
+      "cnpj14": "46595918000121",
+      "razao": "FUNDACAO MUNICIPAL DO MEIO AMBIENTE DE PEDRAS GRANDES - FUMPEG",
+      "brasilapi_status": 200,
+      "api_razao": "FUNDACAO MUNICIPAL DO MEIO AMBIENTE DE PEDRAS GRANDES - FUMPEG",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "a6029d4b96f6188c22671fe00569b8b180f6cbf1b50896c420ff561818288ae5",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 560,
+      "cnpj8": "44880930",
+      "cnpj14": "44880930000152",
+      "razao": "FUNDO ESTADUAL DE PROMOCAO SOCIAL E ERRADICACAO DA POBREZA",
+      "brasilapi_status": 200,
+      "api_razao": "FUNDO ESTADUAL DE PROMOCAO SOCIAL E ERRADICACAO DA POBREZA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "d5110d67aa038da9b0f661e2a4f994b15ee5589e74da9dc19e9a68568a54dd25",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 573,
+      "cnpj8": "51545652",
+      "cnpj14": "51545652000142",
+      "razao": "FUNDO ESTADUAL DE SEGURANCA ALIMENTAR E NUTRICIONAL",
+      "brasilapi_status": 200,
+      "api_razao": "FUNDO ESTADUAL DE SEGURANCA ALIMENTAR E NUTRICIONAL",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "6791f2d4dfeb7a375cdac9e06645ac6068fd96e47bbd88d0fd4340d3a5c9e9dc",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 575,
+      "cnpj8": "51851812",
+      "cnpj14": "51851812000181",
+      "razao": "FUNDO ESTADUAL DE TRANSICAO ENERGETICA JUSTA - FETEJ-SC",
+      "brasilapi_status": 200,
+      "api_razao": "FUNDO ESTADUAL DE TRANSICAO ENERGETICA JUSTA - FETEJ-SC",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "20927e598bbd60f2f24e7b5d527555214a15dfb1211a7102e71f48248e2112a4",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 578,
+      "cnpj8": "59142465",
+      "cnpj14": "59142465000120",
+      "razao": "FUNDO ESTRATEGICO DA ADMINISTRACAO TRIBUTARIA (FEAT)",
+      "brasilapi_status": 200,
+      "api_razao": "FUNDO ESTRATEGICO DA ADMINISTRACAO TRIBUTARIA (FEAT)",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "f14a0c61c74b64fb0df9c60d9b2ad893cc49bd50aea1c66323818e085dda8cd4",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 572,
+      "cnpj8": "50367875",
+      "cnpj14": "50367875000102",
+      "razao": "FUNDO ROTATIVO REGIONAL DO PLANALTO NORTE (FR-08)",
+      "brasilapi_status": 200,
+      "api_razao": "FUNDO ROTATIVO REGIONAL DO PLANALTO NORTE (FR-08)",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "310f617f5697501dc07dabadd5b770d6624b851dc5c045b4e8fb96df8030e50b",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 395,
+      "cnpj8": "57108846",
+      "cnpj14": "57108846000167",
+      "razao": "GUARDA MUNICIPAL DE ARAQUARI-SC",
+      "brasilapi_status": 200,
+      "api_razao": "GUARDA MUNICIPAL DE ARAQUARI-SC",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "71565cf47525f2d0107e97edb07868644ee57fbb917635803c6b7483aafc008d",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 70,
+      "cnpj8": "51364585",
+      "cnpj14": "51364585000160",
+      "razao": "GUARDA MUNICIPAL DE ITAPEMA",
+      "brasilapi_status": 200,
+      "api_razao": "GUARDA MUNICIPAL DE ITAPEMA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "f5f185694ef173eba2fea9e30e5468225c4b1ba6fc2f302c1cf73462c1c7bdee",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 41,
+      "cnpj8": "63874924",
+      "cnpj14": "63874924000137",
+      "razao": "GUARDA MUNICIPAL DE PORTO BELO",
+      "brasilapi_status": 200,
+      "api_razao": "GUARDA MUNICIPAL DE PORTO BELO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "d1651f9a5b9e4e0abb3cf9dac17a61857e5a19fb005024873bdacf72410b726b",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 892,
+      "cnpj8": "00124055",
+      "cnpj14": "00124055000103",
+      "razao": "IAZPE-IMBITUBA ADM DA ZONA DE PROCES DE EXPORTACAO SA",
+      "brasilapi_status": 200,
+      "api_razao": "IAZPE-IMBITUBA ADM DA ZONA DE PROCES DE EXPORTACAO SA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "43a7aff7a3de34bfa61c68689ffe6b64b42152fa40325335f8d76e57ad50001b",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 333,
+      "cnpj8": "65613013",
+      "cnpj14": "65613013000181",
+      "razao": "MUSEU HISTORICO MUNICIPAL WOGECK KUBIACK DE ATALANTA",
+      "brasilapi_status": 200,
+      "api_razao": "MUSEU HISTORICO MUNICIPAL WOGECK KUBIACK DE ATALANTA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "126479ccb626eb19294fc54d87f3277521561dc5c9a78923f8a7ba8ccd767c7a",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1011,
+      "cnpj8": "33000167",
+      "cnpj14": "33000167000101",
+      "razao": "PETROLEO BRASILEIRO S A PETROBRAS",
+      "brasilapi_status": 200,
+      "api_razao": "PETROLEO BRASILEIRO S A PETROBRAS",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "2e20e4c47cd0aed32c62ce19c855b87664d53f7257fa79f2a923aa4431cb335f",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 850,
+      "cnpj8": "55428072",
+      "cnpj14": "55428072000126",
+      "razao": "PROGRESSO E HABITACAO DE SAO CARLOS S.A. - PROHAB/SAO CARLOS",
+      "brasilapi_status": 200,
+      "api_razao": "PROGRESSO E HABITACAO DE SAO CARLOS S.A. - PROHAB/SAO CARLOS",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "ccc0b2dca616fff2fd65da43e3bc4bb0dc04ff0d2bc19229426cadcf3188d2d4",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 577,
+      "cnpj8": "53623436",
+      "cnpj14": "53623436000101",
+      "razao": "SC FUTURO",
+      "brasilapi_status": 200,
+      "api_razao": "SC FUTURO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "9d8b5819fb1a5b2f7334ae5dbcd9c12a462729ec55864494e6a75d874406f19d",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 886,
+      "cnpj8": "11332700",
+      "cnpj14": "11332700000108",
+      "razao": "SC PARCERIAS - AMBIENTAL S.A.",
+      "brasilapi_status": 200,
+      "api_razao": "SC PARCERIAS - AMBIENTAL S.A.",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "35670a34037aa3bf1e0ad7dc888d45105e76c45073c7b383b6b4c5cdbccf2c76",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 418,
+      "cnpj8": "55758397",
+      "cnpj14": "55758397000177",
+      "razao": "SECRETARIA DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "d8ea0b9b57b38b8a5482293c930a33c2ecb5920a5528a635e0d672326c71f6ea",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 521,
+      "cnpj8": "54203745",
+      "cnpj14": "54203745000187",
+      "razao": "SECRETARIA DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "688c8daf630ed015554d68f0bc81713372772e65d2e6c546c628bdfc53ac5a5c",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 36,
+      "cnpj8": "64434850",
+      "cnpj14": "64434850000180",
+      "razao": "SECRETARIA DE EDUCACAO, CULTURA E DESPORTO DE RANCHO QUEIMADO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA DE EDUCACAO, CULTURA E DESPORTO DE RANCHO QUEIMADO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "7390022b000df07c15fc0c71ad9e151266bf34c557efab082658ed886bf4f73a",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 314,
+      "cnpj8": "63760835",
+      "cnpj14": "63760835000160",
+      "razao": "SECRETARIA DE EDUCACAO E CULTURA DE BENEDITO NOVO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA DE EDUCACAO E CULTURA DE BENEDITO NOVO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "e3a7838c5c19ddb64c5559450429e205e79b0916981e851a51fe455321d5bfb2",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 339,
+      "cnpj8": "60231435",
+      "cnpj14": "60231435000179",
+      "razao": "SECRETARIA DE EDUCACAO, ESPORTES E CULTURA",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA DE EDUCACAO, ESPORTES E CULTURA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "e61079ff92d3d8b00ba11be9824937a6380682a033d4ee89a31dde4e14b631ae",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 310,
+      "cnpj8": "62194318",
+      "cnpj14": "62194318000108",
+      "razao": "SECRETARIA DE PLANEJAMENTO, HABITACAO E MEIO AMBIENTE (SEPLAHMA)",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA DE PLANEJAMENTO, HABITACAO E MEIO AMBIENTE (SEPLAHMA)",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "323f83edc7f85c30fe1f50e469064ed13cf0ad7d2ef2b1bd26252a43faf732c5",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 105,
+      "cnpj8": "63866918",
+      "cnpj14": "63866918000138",
+      "razao": "SECRETARIA MUNICIPAL DA EDUCACAO, CULTURA E DESPORTO DE LEOBERTO LEAL SC",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DA EDUCACAO, CULTURA E DESPORTO DE LEOBERTO LEAL SC",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "bd67287887ff0576d3041db0dbf65d20822c095abbbd48fc0a047c5267693087",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 114,
+      "cnpj8": "61454242",
+      "cnpj14": "61454242000140",
+      "razao": "SECRETARIA MUNICIPAL DA EDUCACAO E DESPORTO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DA EDUCACAO E DESPORTO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "f3d3d2391f39b9298166025a4e8f2b099d0443ff614993fcbf5d81f20bd343c2",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 278,
+      "cnpj8": "64719336",
+      "cnpj14": "64719336000191",
+      "razao": "SECRETARIA MUNICIPAL DA EDUCACAO - FUNDEB",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DA EDUCACAO - FUNDEB",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "2b81d6fca4aa84653950a0e74c342b992089014f3951482e7d08f6416c375ba0",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 266,
+      "cnpj8": "61157385",
+      "cnpj14": "61157385000190",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "5ba83d09422cc9ba6d3c72bc8e418e820f7dd6539b8a5bc2a7ff1c9fb8052888",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 382,
+      "cnpj8": "64502443",
+      "cnpj14": "64502443000163",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "e2ea6c9a371363af79449fb22ab83eb9e31b8c1baf4ea65f4329910b6cc8b163",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 483,
+      "cnpj8": "55509615",
+      "cnpj14": "55509615000130",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "577fb8ae3cc186fc98ec6cf7b7d1f8268cba6d10bef77d4c7cad6ea93589577f",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 25,
+      "cnpj8": "62800397",
+      "cnpj14": "62800397000153",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "c42c4ff6c55ce16bee65fb65bc6a98ed37abbc7157d73e15a5827d81f0e4fd67",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 576,
+      "cnpj8": "53335860",
+      "cnpj14": "53335860000142",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "aed22c764cf2b5af651b662e777c8ea4f2e59380d5463390271e7b3853765d09",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 1,
+      "cnpj8": "62761279",
+      "cnpj14": "62761279000183",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "e319d195493b4466cb4d4667e3bbc97cfb6b40473fe89f7af640446e35ace501",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 64,
+      "cnpj8": "64053787",
+      "cnpj14": "64053787000132",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "21968df61ea38ed6ccfdb5dd578ce01f0a94b646c7496d9d313bbeba631c9acd",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 33,
+      "cnpj8": "64490497",
+      "cnpj14": "64490497000156",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "f067398dde4cf3cd760f4750640e941926dac4dae71ab58cd2dff722b732c618",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 9,
+      "cnpj8": "66233173",
+      "cnpj14": "66233173000168",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "d9037fa2c4d23fb115bab2fc0f80765f32ec8b7956b33625a96a3a155a556073",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 324,
+      "cnpj8": "63756533",
+      "cnpj14": "63756533000118",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "bb246d99bd9121a17b2d6aa3152c4e7014ea68710616d8dc868f1e04fc76fabd",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 228,
+      "cnpj8": "63650342",
+      "cnpj14": "63650342000177",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO DE LUIZ ALVES",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO DE LUIZ ALVES",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "ec0310f4d23863ded9844f17d7526ca890116f97274b24374e543d7f8c61388d",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 40,
+      "cnpj8": "63641306",
+      "cnpj14": "63641306000147",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO DE PORTO BELO",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO DE PORTO BELO",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "3ecd7b774e5d3847907b58a5f72351befa99bdf386cc990f8568002c9ce8dae2",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 54,
+      "cnpj8": "56992840",
+      "cnpj14": "56992840000132",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO E CULTURA DE GAROPABA SC",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO E CULTURA DE GAROPABA SC",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "25bb1dbe089216979e61b0fd4f42d6c53609e718cea05717ed8a4a7f1f9732f5",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 109,
+      "cnpj8": "60051532",
+      "cnpj14": "60051532000180",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO E DESPORTO DO MUNICIPIO DE SANTA ROSA DE LIMA",
+      "brasilapi_status": 200,
+      "api_razao": "SECRETARIA MUNICIPAL DE EDUCACAO E DESPORTO DO MUNICIPIO DE SANTA ROSA DE LIMA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "eaef85da21500dcf42f1f63a35c608cfa501151f573cab7141326a2351b8fd8a",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 966,
+      "cnpj8": "07020327",
+      "cnpj14": "07020327000174",
+      "razao": "SERVICO NACIONAL DE APRENDIZAGEM DO COOPERATIVISMO NO ESTADO DE SANTA CATARINA",
+      "brasilapi_status": 200,
+      "api_razao": "SERVICO NACIONAL DE APRENDIZAGEM DO COOPERATIVISMO NO ESTADO DE SANTA CATARINA",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "49a6dc376dc8b0fe5918e9cca71ed6ec6c238ba1ac0520675418dda8c66720d2",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 941,
+      "cnpj8": "03774688",
+      "cnpj14": "03774688000155",
+      "razao": "SERVICO NACIONAL DE APRENDIZAGEM INDUSTRIAL",
+      "brasilapi_status": 200,
+      "api_razao": "SERVICO NACIONAL DE APRENDIZAGEM INDUSTRIAL",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "63062f317307f0e2d456c3f9b81388ac3ef11726f5b2e6b4c5f2ab9de2f0e104",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 936,
+      "cnpj8": "03603595",
+      "cnpj14": "03603595000168",
+      "razao": "SERVICO SOCIAL DO COMERCIO - SESC AR/SC",
+      "brasilapi_status": 200,
+      "api_razao": "SERVICO SOCIAL DO COMERCIO - SESC AR/SC",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "3d138ad2860ae73520c060d3238642955501d6490809f05644ebcb491ffe2d03",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 2083,
+      "cnpj8": "00394494000309",
+      "cnpj14": "00394494000136",
+      "razao": "SUPERINTENDENCIA REGIONAL DO DPF EM SANTA CATARINA",
+      "brasilapi_status": 200,
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "NAME_MISMATCH"
+    },
+    {
+      "entity_id": 2084,
+      "cnpj8": "00394494012061",
+      "cnpj14": "00394494000136",
+      "razao": "SUPERINTENDENCIA REG.POL.RODOV.FED. EM SANTA CATARINA",
+      "brasilapi_status": 200,
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "NAME_MISMATCH"
+    },
+    {
+      "entity_id": 982,
+      "cnpj8": "10681899",
+      "cnpj14": "10681899000109",
+      "razao": "THERMAS CASTELLO S/A",
+      "brasilapi_status": 200,
+      "api_razao": "THERMAS CASTELLO S/A",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "1421133390a2ee77a0d449b6b26a39b151f4bdab9b0c4a8c45449d12279d2c2d",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 989,
+      "cnpj8": "14820905",
+      "cnpj14": "14820905000112",
+      "razao": "TRANSMISSORA SUL BRASILEIRA DE ENERGIA S.A.",
+      "brasilapi_status": 200,
+      "api_razao": "TRANSMISSORA SUL BRASILEIRA DE ENERGIA S.A.",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "e604d6ea419f4115ec88d2b584b37735e33d9b2d1fde21c3248adea87f99a8a2",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 992,
+      "cnpj8": "16383969",
+      "cnpj14": "16383969000129",
+      "razao": "TRANSMISSORA SUL LITORANEA DE ENERGIA S.A. - TSLE",
+      "brasilapi_status": 200,
+      "api_razao": "TRANSMISSORA SUL LITORANEA DE ENERGIA S.A. - TSLE",
+      "verdict": "RESOLVED",
+      "contracts": {
+        "verdict": "BLOCKED_API",
+        "http_status": 429,
+        "total": null,
+        "n_items": 0,
+        "content_hash": "7d8e2ecb12002dc67da1b7312d831f299c16a13a5eeb0fce9015680a63c3cd63",
+        "error": "http_429"
+      }
+    },
+    {
+      "entity_id": 2085,
+      "cnpj8": "00394494015320",
+      "cnpj14": "00394494000136",
+      "razao": "UNIVERSIDADE CORPORATIVA DA POLICIA RODOVIARIA FEDERAL",
+      "brasilapi_status": 200,
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "NAME_MISMATCH"
+    }
+  ]
+}

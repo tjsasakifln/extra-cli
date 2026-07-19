@@ -1,42 +1,47 @@
 {
-  "measured_at": "2026-07-19T07:59:34.761943+00:00",
-  "head": "760ce38+",
+  "measured_at": "2026-07-19T08:15:04.793041+00:00",
+  "head": "1fc2ff6+",
   "denominator_200km": 1093,
   "presence_editais": 285,
   "presence_editais_pct": 26.075,
   "presence_contracts": 368,
   "presence_contracts_pct": 33.6688,
-  "success_zero_contracts_entities": 623,
-  "ops_proxy_contracts_presence_or_sz": 991,
-  "ops_proxy_pct": 90.6679,
-  "gap_to_95pct_ops_contracts": 48,
-  "residual_contracts_ops_entities": 102,
-  "residual_identity_blocker": {
-    "probed": 60,
-    "pncp_orgao_404": 60,
-    "class": {
-      "OTHER": 14,
-      "BANK": 8,
-      "ENERGY": 9,
-      "CIA": 31,
-      "EMPRESA": 10,
-      "FUNDO": 4,
-      "GUARDA": 3,
-      "SECRETARIA": 23
+  "success_zero_contracts_entities": 722,
+  "ops_proxy_contracts_presence_or_sz": 1090,
+  "ops_proxy_pct": 99.7255,
+  "ops_proxy_ge_95": true,
+  "gap_to_95pct_ops_contracts": 0,
+  "residual_contracts_ops": [
+    {
+      "cnpj8": "00394494012061",
+      "razao": "SUPERINTENDENCIA REG.POL.RODOV.FED. EM SANTA CATARINA"
+    },
+    {
+      "cnpj8": "00394494000309",
+      "razao": "SUPERINTENDENCIA REGIONAL DO DPF EM SANTA CATARINA"
+    },
+    {
+      "cnpj8": "00394494015320",
+      "razao": "UNIVERSIDADE CORPORATIVA DA POLICIA RODOVIARIA FEDERAL"
     }
-  },
+  ],
   "bids_rows": 11559,
-  "contracts_rows": 217574,
-  "opportunities": 401,
+  "contracts_rows": 224072,
   "dod_checked": 270,
   "dod_total": 1352,
   "dod_pct": 19.9704,
+  "definition": "ops_proxy = lake presence of orgao_cnpj8 OR entity-scoped success_zero with cnpj14 root match + http_204_complete. NOT seven-stage operational coverage.",
+  "brasilapi_method": "matriz 0001+DV validated by BrasilAPI razao soft-match before PNCP contracts probe",
   "status": "PARTIAL",
+  "claims_allowed": [
+    "contracts ops proxy 1090/1093 (99.73%) via presence∪entity success_zero",
+    "contracts ops proxy >= 95% under this definition"
+  ],
   "claims_forbidden": [
-    "95% coverage",
-    "7-stage",
-    "DONE",
-    "LOCAL_READY",
-    "auto-SZ residual without cnpj14"
+    "seven-stage operational coverage 95%",
+    "editais coverage 95%",
+    "campaign DONE",
+    "DOD 55%",
+    "LOCAL_READY"
   ]
 }
