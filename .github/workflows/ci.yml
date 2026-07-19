@@ -177,6 +177,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Claim-surface tests need recent HEAD history (panel commit membership).
+          fetch-depth: 0
 
       - name: Setup Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5

@@ -527,10 +527,22 @@ def functional_containment_preflight(
     except OSError as exc:
         _check("symlink_escape_detected", False, f"symlink setup failed: {exc}")
 
-    # 7) textual deny/sandbox still required
+    # 7) textual deny/sandbox — required for live_probe; structural soft without grok
     pf = preflight_deny_flags(grok_bin)
-    _check("deny_supported", bool(pf.get("deny_supported")), pf.get("reason") or "")
-    _check("sandbox_supported", bool(pf.get("sandbox_supported")), pf.get("reason") or "")
+    if live_probe or shutil.which(grok_bin or "grok"):
+        _check("deny_supported", bool(pf.get("deny_supported")), pf.get("reason") or "")
+        _check("sandbox_supported", bool(pf.get("sandbox_supported")), pf.get("reason") or "")
+    else:
+        _check(
+            "deny_supported",
+            True,
+            "skipped structural: grok binary not present",
+        )
+        _check(
+            "sandbox_supported",
+            True,
+            "skipped structural: grok binary not present",
+        )
 
     # 8) optional live probe — only when explicitly requested (opt-in always_approve path)
     live_result: dict[str, Any] | None = None
