@@ -1,30 +1,30 @@
 {
-  "ts": "2026-07-19T03:19:18.457169+00:00",
+  "ts": "2026-07-19T03:37:47.510585+00:00",
+  "head": null,
   "dod": "195/1355 (14.39%)",
-  "universe_resolution_radar": "100%",
-  "denominator_200km": 1093,
-  "bids": 8221,
-  "contracts": 72925,
-  "presence_editais": 268,
+  "universe_resolution": "100%",
+  "presence_editais": 279,
+  "presence_editais_pct": 25.53,
   "presence_contracts": 247,
-  "presence_editais_pct": 24.52,
   "presence_contracts_pct": 22.6,
-  "registry_operational": 139,
-  "registry_operational_pct": 12.72,
-  "opportunities": {
-    "total": 401,
-    "GO": 0,
-    "REVIEW": 397,
-    "NO_GO": 4
-  },
-  "campaign_status": "PARTIAL",
+  "bids": 10831,
+  "contracts": 72925,
+  "opps": 401,
+  "status": "PARTIAL",
+  "commits": [
+    "97549a5",
+    "1c2f608",
+    "5f97818",
+    "aee2610",
+    "3d15c92"
+  ],
   "gates_missing": [
     "coverage_95",
     "recall_gold",
-    "3_cycles",
     "dod_55",
-    "html_final",
-    "backup_restore",
-    "freshness"
+    "3_calendar_days",
+    "freshness",
+    "qa_independent",
+    "skeptic_pass"
   ]
 }
