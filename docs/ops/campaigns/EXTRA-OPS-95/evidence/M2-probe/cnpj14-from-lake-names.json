@@ -1,0 +1,100 @@
+{
+  "measured_at": "2026-07-19T03:43:38.320056+00:00",
+  "uncovered_total": 758,
+  "resolved_consistent": 0,
+  "resolved_diverge": 50,
+  "still_unresolved": 708,
+  "consistent_sample": [],
+  "diverge_sample": [
+    {
+      "universe_cnpj8": "06090127",
+      "razao": "SECRETARIA DE EDUCACAO, CULTURA E DESPORTO",
+      "municipio": "RIO FORTUNA",
+      "resolved_cnpj14": "07566516000147",
+      "evidence_n": 3,
+      "source_name": "Secretaria de Educação, Cultura e Desporto",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "02222769",
+      "razao": "CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO VALE DO RIO DO PEIXE - CIS AMARP",
+      "municipio": "SANTA CATARINA",
+      "resolved_cnpj14": "11023771000110",
+      "evidence_n": 3,
+      "source_name": "Consórcio Intermunicipal de Saúde do Alto Vale do Rio do Peixe - CIS AMARP",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "61157385",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "ORLEANS",
+      "resolved_cnpj14": "55354302000150",
+      "evidence_n": 58,
+      "source_name": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "02810586",
+      "razao": "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL",
+      "municipio": "MORRO GRANDE",
+      "resolved_cnpj14": "75969667000104",
+      "evidence_n": 47,
+      "source_name": "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "30851410",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "SCHROEDER",
+      "resolved_cnpj14": "55354302000150",
+      "evidence_n": 58,
+      "source_name": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "02971830",
+      "razao": "FUNDO MUNICIPAL DE TURISMO",
+      "municipio": "CAMPO ALEGRE",
+      "resolved_cnpj14": "04529388000173",
+      "evidence_n": 6,
+      "source_name": "FUNDO MUNICIPAL DE TURISMO",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "83871277",
+      "razao": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO - SAMAE",
+      "municipio": "JACINTO MACHADO",
+      "resolved_cnpj14": "64372423000115",
+      "evidence_n": 1,
+      "source_name": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO - SAMAE",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "81154783",
+      "razao": "FUNDACAO MUNICIPAL DO MEIO AMBIENTE",
+      "municipio": "BLUMENAU",
+      "resolved_cnpj14": "05272451000100",
+      "evidence_n": 2,
+      "source_name": "FUNDACAO MUNICIPAL DO MEIO AMBIENTE",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "62800397",
+      "razao": "SECRETARIA MUNICIPAL DE EDUCACAO",
+      "municipio": "PAULO LOPES",
+      "resolved_cnpj14": "55354302000150",
+      "evidence_n": 58,
+      "source_name": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
+      "method": "name_match_cnpj8_diverge"
+    },
+    {
+      "universe_cnpj8": "04613328",
+      "razao": "FUNDACAO MUNICIPAL DE ESPORTES",
+      "municipio": "BARRA VELHA",
+      "resolved_cnpj14": "86843596000107",
+      "evidence_n": 8,
+      "source_name": "FUNDACAO MUNICIPAL DE ESPORTES",
+      "method": "name_match_cnpj8_diverge"
+    }
+  ]
+}

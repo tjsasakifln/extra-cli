@@ -2,12 +2,23 @@
   "source": "pncp_contracts",
   "mode": "full",
   "completed_windows": [
-    "20260715_20260715"
+    "20260704_20260718",
+    "20260604_20260610",
+    "20260611_20260617",
+    "20260618_20260624",
+    "20260625_20260701",
+    "20260702_20260708",
+    "20260709_20260715",
+    "20260716_20260719"
   ],
-  "current_window_start": "20260715",
-  "total_contracts_fetched": 6169,
-  "total_windows_completed": 1,
+  "current_window_start": "20260420",
+  "total_contracts_fetched": 314817,
+  "total_windows_completed": 8,
   "total_windows_failed": 0,
   "last_error": null,
-  "updated_at": "2026-07-17T00:29:06Z"
+  "updated_at": "2026-07-19T04:15:59Z",
+  "meta": {
+    "campaign": "EXTRA-OPS-95",
+    "days": 14
+  }
 }

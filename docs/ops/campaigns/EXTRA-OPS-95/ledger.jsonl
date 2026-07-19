@@ -17,3 +17,7 @@
 {"ts": "2026-07-19T03:28:34Z", "event": "M4_PACKAGES_LIVE", "competitors": 50, "expiring": 100, "price_buckets": 5, "opps": 100}
 {"ts": "2026-07-19T03:31:56Z", "event": "M2_SC_COMPRAS_CNPJ_ENRICH", "matched": 2454, "presence_editais": 279, "pct": 25.53}
 {"ts": "2026-07-19T03:33:00Z", "event": "M2_CONTRACTS_90D_ABORTED", "reason": "national window pagination too slow without UF filter; keep 14d 72925 rows"}
+{"ts": "2026-07-19T04:17:04Z", "event": "M2_SZ_BATCH2_PARTIAL", "written": 7, "blocked_429": 56, "ops_proxy": 322}
+{"ts": "2026-07-19T04:48:41Z", "event": "M2_SZ_BATCH3", "written": 93, "has_data": 7, "sz_entities": 122, "ops_proxy": 415, "pct": 37.97}
+{"ts": "2026-07-19T04:50:43Z", "event": "M2_HAS_DATA_PERSIST", "raw": 67, "presence_contracts": 300, "ops_proxy": 422, "pct": 38.61}
+{"ts": "2026-07-19T04:51:00Z", "event": "M2_TOOLING", "scripts": ["scripts/ops/probe_entity_success_zero.py", "scripts/ops/resolve_cnpj14_batch.py"], "cnpj14_unique": 187}

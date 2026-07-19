@@ -1,30 +1,25 @@
 {
-  "ts": "2026-07-19T03:37:47.510585+00:00",
-  "head": null,
-  "dod": "195/1355 (14.39%)",
-  "universe_resolution": "100%",
+  "measured_at": "2026-07-19T04:51:01.591722+00:00",
+  "denominator_200km": 1093,
   "presence_editais": 279,
-  "presence_editais_pct": 25.53,
-  "presence_contracts": 247,
-  "presence_contracts_pct": 22.6,
-  "bids": 10831,
-  "contracts": 72925,
-  "opps": 401,
-  "status": "PARTIAL",
-  "commits": [
-    "97549a5",
-    "1c2f608",
-    "5f97818",
-    "aee2610",
-    "3d15c92"
+  "presence_editais_pct": 25.5261,
+  "presence_contracts": 300,
+  "presence_contracts_pct": 27.4474,
+  "success_zero_contracts_entities": 122,
+  "ops_proxy_contracts_presence_or_sz": 422,
+  "ops_proxy_pct": 38.6093,
+  "bids_rows": 10831,
+  "contracts_rows": 217184,
+  "opportunities": 401,
+  "success_zero_rows": 122,
+  "cnpj14_cache_unique": 187,
+  "residual_no_lake_presence": 731,
+  "residual_needing_cnpj14": 558,
+  "claims_forbidden": [
+    "95% coverage",
+    "either as operational",
+    "campaign DONE",
+    "DOD 55%"
   ],
-  "gates_missing": [
-    "coverage_95",
-    "recall_gold",
-    "dod_55",
-    "3_calendar_days",
-    "freshness",
-    "qa_independent",
-    "skeptic_pass"
-  ]
+  "note": "ops_proxy = presence\u222aSZ entity-scoped \u2014 NOT 7-stage operational coverage"
 }
