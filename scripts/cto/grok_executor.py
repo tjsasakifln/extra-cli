@@ -49,6 +49,8 @@ ENV_ALLOWLIST = frozenset(
         "GIT_AUTHOR_EMAIL",
         "GIT_COMMITTER_NAME",
         "GIT_COMMITTER_EMAIL",
+        # Grok CLI auth only (NOT DeepSeek / GH / cloud publish credentials)
+        "XAI_API_KEY",
     }
 )
 
@@ -209,13 +211,53 @@ def is_under_managed_worktrees(worktree: Path, root: Path | None = None) -> bool
         return False
 
 
+def stage_grok_auth(isolated_home: Path) -> dict[str, Any]:
+    """Make Grok CLI usable under isolated HOME without exposing real HOME.
+
+    Preference order:
+    1. XAI_API_KEY already in process env (forwarded via allowlist) — no files.
+    2. Else, if host has ~/.grok/auth.json, stage ONLY that file into
+       isolated_home/.grok/auth.json (Grok executor auth only).
+
+    Never stages: .ssh, .config/gh, .aws, .azure, .netrc, .gitconfig, or any
+    other host credential tree. Never stages DeepSeek/GH publish secrets.
+    """
+    report: dict[str, Any] = {
+        "xai_api_key_present": bool(os.environ.get("XAI_API_KEY")),
+        "staged_auth_file": False,
+        "source": None,
+    }
+    if report["xai_api_key_present"]:
+        report["source"] = "XAI_API_KEY"
+        return report
+    host_auth = Path.home() / ".grok" / "auth.json"
+    if not host_auth.is_file():
+        report["source"] = None
+        report["error"] = "no XAI_API_KEY and no host ~/.grok/auth.json"
+        return report
+    dest_dir = isolated_home / ".grok"
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest = dest_dir / "auth.json"
+    # Read+write (not full HOME tree copy). Mode private.
+    data = host_auth.read_bytes()
+    dest.write_bytes(data)
+    try:
+        dest.chmod(0o600)
+    except OSError:
+        pass
+    report["staged_auth_file"] = True
+    report["source"] = "host_auth_json_only"
+    report["dest"] = str(dest)
+    return report
+
+
 def create_isolated_runtime_dirs(
     *,
     cycle_id: str,
     root: Path | None = None,
     retain: bool = True,
-) -> dict[str, Path]:
-    """Create temporary HOME/TMPDIR for the Grok child (no real home copy)."""
+) -> dict[str, Any]:
+    """Create temporary HOME/TMPDIR for the Grok child (no full real home copy)."""
     root = root or repo_root()
     base = managed_worktree_parent(root) / "_runtime" / cycle_id
     home = base / "home"
@@ -224,15 +266,17 @@ def create_isolated_runtime_dirs(
     tmp.mkdir(parents=True, exist_ok=True)
     # Marker only — never secrets
     (home / "README_ISOLATED.txt").write_text(
-        "CTO Autopilot isolated HOME. Do not store secrets.\n"
+        "CTO Autopilot isolated HOME. Do not store unrelated secrets.\n"
         f"cycle_id={cycle_id}\ncreated_utc={_utc_now()}\n",
         encoding="utf-8",
     )
+    auth_report = stage_grok_auth(home)
     return {
         "base": base,
         "home": home,
         "tmpdir": tmp,
-        "retain": Path(str(retain)),  # type bookkeeping unused
+        "retain": retain,
+        "auth": auth_report,
     }
 
 
@@ -517,7 +561,18 @@ def functional_containment_preflight(
                     or re.search(r"\bgh\s+pr\s+merge\b", transcript, re.I)
                 )
                 _check("no_forbidden_cmds_in_transcript", not bad, "transcript scan")
-                live_ok = sentinel_ok and not bad
+                # Fail closed on auth/runtime failure — exit 0 required for probe
+                auth_fail = bool(
+                    re.search(r"not signed in", transcript, re.I)
+                    or re.search(r"XAI_API_KEY", transcript)
+                )
+                _check("live_probe_authenticated", not auth_fail, "grok auth")
+                live_ok = (
+                    sentinel_ok
+                    and not bad
+                    and not auth_fail
+                    and proc.returncode == 0
+                )
                 _check("live_probe", live_ok, f"exit={proc.returncode}")
             except (OSError, subprocess.TimeoutExpired) as exc:
                 _check("live_probe", False, str(exc))
@@ -806,6 +861,7 @@ def execute(
         home=runtime["home"],
         tmpdir=runtime["tmpdir"],
     )
+    auth_info = runtime.get("auth") or {}
 
     # Structural containment (always recorded)
     containment = functional_containment_preflight(
@@ -890,6 +946,12 @@ def execute(
         "env_mode": "allowlist",
         "env_allowlist": sorted(ENV_ALLOWLIST),
         "env_keys_forwarded": sorted(child_env.keys()),
+        # Never log secret values — only auth mode
+        "grok_auth": {
+            "source": auth_info.get("source"),
+            "staged_auth_file": bool(auth_info.get("staged_auth_file")),
+            "xai_api_key_present": bool(auth_info.get("xai_api_key_present")),
+        },
         "timestamp_utc": _utc_now(),
     }
 

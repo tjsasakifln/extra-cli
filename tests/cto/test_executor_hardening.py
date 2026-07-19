@@ -33,20 +33,21 @@ def test_build_minimal_removes_arbitrary_and_known_secrets():
         "NETLIFY_AUTH_TOKEN": "n",
         "RAILWAY_TOKEN": "r",
         "DEEPSEEK_API_KEY": "d",
+        "XAI_API_KEY": "xai-only-for-grok",
         "MY_TOKEN": "should_not_forward",
         "CUSTOM_SECRET": "nope",
         "DATABASE_URL": "postgres://x",
         "UNEXPECTED_CREDENTIAL": "nope",
         "RANDOM_INTERNAL_VALUE": "nope",
         "UNRELATED": "must_not_forward",
-        "LANG": "C.UTF-8",
+    "LANG": "C.UTF-8",
     }
     out = build_minimal_child_env(
         home="/tmp/cto-home-iso",
         tmpdir="/tmp/cto-tmp-iso",
         source=env,
     )
-    # Known secrets absent
+    # Known secrets absent (DeepSeek/GH/cloud never forwarded)
     for k in (
         "GH_TOKEN",
         "GITHUB_TOKEN",
@@ -62,6 +63,8 @@ def test_build_minimal_removes_arbitrary_and_known_secrets():
         "UNRELATED",
     ):
         assert k not in out, f"{k} leaked into child env"
+    # Grok-only auth may be forwarded when present
+    assert out.get("XAI_API_KEY") == "xai-only-for-grok"
     # Allowlisted present
     assert out["PATH"] == "/usr/bin"
     assert out["LANG"] == "C.UTF-8"
