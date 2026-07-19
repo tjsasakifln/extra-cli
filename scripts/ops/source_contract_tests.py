@@ -32,9 +32,11 @@ PNCP_ITEM_KEYS = {"numeroControlePNCP", "objetoCompra", "orgaoEntidade"}
 
 
 def http_probe(url: str, *, timeout: float = 15.0, method: str = "GET") -> dict[str, Any]:
-    req = Request(url, method=method, headers={"User-Agent": "extra-consultoria-contract-test/1.0"})
+    if not str(url).startswith(("https://", "http://")):
+        raise ValueError(f"refusing non-HTTP(S) URL: {str(url)[:32]!r}")
+    req = Request(url, method=method, headers={"User-Agent": "extra-consultoria-contract-test/1.0"})  # noqa: S310 — public portal probe
     try:
-        with urlopen(req, timeout=timeout) as resp:  # noqa: S310
+        with urlopen(req, timeout=timeout) as resp:  # noqa: S310 — public portal probe
             body = resp.read(2_000_000)
             return {
                 "ok": True,
@@ -223,8 +225,8 @@ def run_contract_suite(*, live: bool = False) -> dict[str, Any]:
         if probe.get("ok") and probe.get("bytes", 0) > 0:
             try:
                 # re-fetch full for schema — use body from second call
-                req = Request(url, headers={"User-Agent": "extra-consultoria-contract-test/1.0"})
-                with urlopen(req, timeout=20) as resp:  # noqa: S310
+                req = Request(url, headers={"User-Agent": "extra-consultoria-contract-test/1.0"})  # noqa: S310 — public PNCP probe
+                with urlopen(req, timeout=20) as resp:  # noqa: S310 — public PNCP probe
                     payload = json.loads(resp.read().decode("utf-8", errors="replace"))
                 results["checks"]["pncp_schema_live"] = validate_pncp_schema(payload)
                 results["checks"]["pncp_pagination_live"] = {

@@ -1,0 +1,20 @@
+{
+  "ts": "2026-07-19T04:01:49.236983+00:00",
+  "flipped": 18,
+  "missing": [],
+  "dod_before": {
+    "done": 195,
+    "total": 1355
+  },
+  "dod_after": {
+    "done": 213,
+    "total": 1355,
+    "pct": 15.7196
+  },
+  "policy": "only items with LIVE/RESTORE/INTEGRATION evidence from this campaign session",
+  "claims_forbidden": [
+    "55% reached",
+    "coverage 95%",
+    "mass checkbox inflation"
+  ]
+}

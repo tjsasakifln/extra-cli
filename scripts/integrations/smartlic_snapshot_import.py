@@ -26,10 +26,11 @@ import json
 import os
 import sys
 import uuid
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any, Iterable, Iterator
+from typing import Any
 
 # Field maps: SmartLic-ish → Extra
 BIDS_FIELD_MAP = {
@@ -76,7 +77,7 @@ CONTRACTS_FIELD_MAP = {
 
 
 def utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def utcnow_s() -> str:

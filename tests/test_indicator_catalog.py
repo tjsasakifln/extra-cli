@@ -3,8 +3,11 @@ from __future__ import annotations
 
 from scripts.coverage.coverage_contract import (
     ALL_METRIC_IDS,
+    BLOCKED_SEMANTICS,
     METRIC_DEFINITIONS,
     MetricStatus,
+    NOT_READY_SEMANTICS,
+    PARTIAL_SEMANTICS,
     READY_SEMANTICS,
     _not_ready,
     _ready,
@@ -35,6 +38,28 @@ def test_ready_semantics_document_execution_not_code_existence() -> None:
     assert "executed" in READY_SEMANTICS.lower()
     assert "validated" in READY_SEMANTICS.lower()
     assert "code existence alone" in READY_SEMANTICS.lower()
+
+
+def test_partial_semantics_explicit_limitations_not_ready() -> None:
+    """DoD §25: PARTIAL = computed with explicit limitations; never READY/DONE."""
+    low = PARTIAL_SEMANTICS.lower()
+    assert "partial" in low
+    assert "limitation" in low or "limitations" in low
+    assert "never equivalent to ready" in low or "never" in low
+    assert PARTIAL_SEMANTICS != READY_SEMANTICS
+    catalog = validate_indicator_catalog()
+    assert catalog["partial_semantics"] == PARTIAL_SEMANTICS
+
+
+def test_blocked_semantics_external_or_technical_dependency() -> None:
+    """DoD §25: BLOCKED = impeded by external or technical dependency."""
+    low = BLOCKED_SEMANTICS.lower()
+    assert "blocked" in low
+    assert "external" in low or "technical" in low
+    assert "dependency" in low
+    catalog = validate_indicator_catalog()
+    assert catalog["blocked_semantics"] == BLOCKED_SEMANTICS
+    assert "not_ready" in NOT_READY_SEMANTICS.lower()
 
 
 def test_ready_result_carries_status_denominator_formula() -> None:

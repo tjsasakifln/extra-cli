@@ -1,0 +1,31 @@
+{
+  "measured_at": "2026-07-19T14:26:20.875864+00:00",
+  "denominator_200km": 1093,
+  "presence_editais": 279,
+  "presence_editais_pct": 25.5261,
+  "presence_contracts": 247,
+  "presence_contracts_pct": 22.5984,
+  "success_zero_contracts_entities": 186,
+  "ops_proxy_contracts_presence_or_sz": 433,
+  "ops_proxy_pct": 39.6157,
+  "ops_proxy_ge_95": false,
+  "gap_to_95pct_ops_contracts": 605,
+  "bids_rows": 10831,
+  "contracts_rows": 72925,
+  "dod_checked": 313,
+  "dod_total": 1352,
+  "dod_pct": 23.1509,
+  "definition": "ops_proxy = lake presence of orgao_cnpj8 OR entity-scoped success_zero with cnpj14 root match + http_204_complete. NOT seven-stage operational coverage.",
+  "status": "PARTIAL",
+  "claims_allowed": [
+    "contracts ops proxy 433/1093 (39.62%) via presence\u222aentity success_zero (post-restore rebuild in progress)"
+  ],
+  "claims_forbidden": [
+    "seven-stage operational coverage 95%",
+    "editais coverage 95%",
+    "campaign DONE",
+    "DOD 55%",
+    "LOCAL_READY"
+  ],
+  "note": "After crash: DB restored from M5 dump (older); SZ re-probe mid-flight; PNCP/contracts crawls rate-limited"
+}

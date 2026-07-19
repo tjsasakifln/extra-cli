@@ -168,6 +168,101 @@ class RunRecord:
     freshness: FreshnessRecord | None = None
 
 
+def collect_run_metadata(*, dsn: str | None = None) -> dict[str, Any]:
+    """Metadata for DoD §12.1 golden-path auditability (pure-ish, fail-soft)."""
+    now = datetime.now(UTC)
+    git_sha = "unknown"
+    try:
+        r = subprocess.run(
+            ["git", "rev-parse", "HEAD"],  # noqa: S607
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+            cwd=str(_PROJECT_ROOT),
+        )
+        if r.returncode == 0 and r.stdout.strip():
+            git_sha = r.stdout.strip()[:40]
+    except Exception as exc:
+        logging.getLogger(__name__).debug("git_sha unavailable: %s", exc)
+    mig_root = _PROJECT_ROOT / "db" / "migrations"
+    mig_count = len(list(mig_root.glob("*.sql"))) if mig_root.is_dir() else 0
+    return {
+        "canonical_command": "python3 -m scripts.golden_path",
+        "as_of": now.isoformat().replace("+00:00", "Z"),
+        "reference_period": {
+            "as_of": now.isoformat().replace("+00:00", "Z"),
+            "window": "run-scoped",
+        },
+        "git_sha": git_sha,
+        "dsn_present": bool(dsn),
+        "migration_files_count": mig_count,
+        "schema_version": f"migrations_count={mig_count}",
+        "limitations": [
+            "Metadata is local/run-scoped; does not prove VPS or LOCAL_READY.",
+            "Coverage and freshness require a reachable DSN and applied migrations.",
+        ],
+    }
+
+
+def run_coverage_calculation(dsn: str) -> StepRecord:
+    """Best-effort coverage step for golden-path; never raises to caller."""
+    t0 = time.perf_counter()
+    try:
+        import psycopg2
+
+        conn = psycopg2.connect(dsn, connect_timeout=5)
+        try:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT count(*) FROM information_schema.tables WHERE table_schema='public'"
+                )
+                n = int(cur.fetchone()[0])
+        finally:
+            conn.close()
+        return StepRecord(
+            step="coverage_calculation",
+            status="pass" if n > 0 else "fail",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            details={"public_tables": n},
+        )
+    except Exception as exc:
+        return StepRecord(
+            step="coverage_calculation",
+            status="fail",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            error=str(exc)[:300],
+        )
+
+
+def run_snapshot_reconciliation(dsn: str) -> StepRecord:
+    """Best-effort snapshot reconciliation step; fail-closed on connection errors."""
+    t0 = time.perf_counter()
+    try:
+        import psycopg2
+
+        conn = psycopg2.connect(dsn, connect_timeout=3)
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+                cur.fetchone()
+        finally:
+            conn.close()
+        return StepRecord(
+            step="snapshot_reconciliation",
+            status="pass",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            details={"note": "connectivity-only probe; full AEC reconcile is separate"},
+        )
+    except Exception as exc:
+        return StepRecord(
+            step="snapshot_reconciliation",
+            status="fail",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            error=str(exc)[:300],
+        )
+
+
 def evaluate_run_outcome(
     source_records: list[SourceRecord],
     essential_names: set[str],

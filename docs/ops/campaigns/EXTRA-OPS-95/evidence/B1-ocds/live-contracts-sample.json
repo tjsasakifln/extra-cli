@@ -1,0 +1,177 @@
+{
+  "measured_at": "2026-07-19T02:50:10.014733+00:00",
+  "sample_n": 20,
+  "mapping_issues": 0,
+  "sample_mapped": [
+    {
+      "contrato_id": "00000000000191-2-000036/2026",
+      "ocid": "ocds-extra-00000000000191-2-000036/2026",
+      "amount": {
+        "amount": 15496573.59,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000000000191-2-000037/2026",
+      "ocid": "ocds-extra-00000000000191-2-000037/2026",
+      "amount": {
+        "amount": 72979.0,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000000000191-2-000038/2026",
+      "ocid": "ocds-extra-00000000000191-2-000038/2026",
+      "amount": {
+        "amount": 13411440.57,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000000000191-2-000039/2026",
+      "ocid": "ocds-extra-00000000000191-2-000039/2026",
+      "amount": {
+        "amount": 17113978.15,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000000000191-2-000040/2026",
+      "ocid": "ocds-extra-00000000000191-2-000040/2026",
+      "amount": {
+        "amount": 9334284.54,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000368000150-2-000126/2026",
+      "ocid": "ocds-extra-00000368000150-2-000126/2026",
+      "amount": {
+        "amount": 14846.03,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000368000150-2-000127/2026",
+      "ocid": "ocds-extra-00000368000150-2-000127/2026",
+      "amount": {
+        "amount": 251.51,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000368000150-2-000128/2026",
+      "ocid": "ocds-extra-00000368000150-2-000128/2026",
+      "amount": {
+        "amount": 13814.7,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000368000150-2-000129/2026",
+      "ocid": "ocds-extra-00000368000150-2-000129/2026",
+      "amount": {
+        "amount": 8285.5,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    },
+    {
+      "contrato_id": "00000368000150-2-000130/2026",
+      "ocid": "ocds-extra-00000368000150-2-000130/2026",
+      "amount": {
+        "amount": 7126.6,
+        "currency": "BRL"
+      },
+      "is_paid_false": true
+    }
+  ],
+  "presence_contracts_200km": 247,
+  "denominator": 1093,
+  "pct": 22.5984,
+  "top_entities_by_contract_count": [
+    {
+      "cnpj8": "00394460",
+      "nome": "MINISTERIO DA FAZENDA",
+      "n": 525
+    },
+    {
+      "cnpj8": "00394544",
+      "nome": "MINISTERIO DA SAUDE",
+      "n": 407
+    },
+    {
+      "cnpj8": "00394452",
+      "nome": "COMANDO DO EXERCITO",
+      "n": 296
+    },
+    {
+      "cnpj8": "00509018",
+      "nome": "TRIBUNAL SUPERIOR ELEITORAL",
+      "n": 226
+    },
+    {
+      "cnpj8": "83102343",
+      "nome": "MUNICIPIO DE BRUSQUE",
+      "n": 194
+    },
+    {
+      "cnpj8": "00509968",
+      "nome": "TRIBUNAL SUPERIOR DO TRABALHO",
+      "n": 187
+    },
+    {
+      "cnpj8": "83102830",
+      "nome": "MUNICIPIO DE BARRA VELHA",
+      "n": 179
+    },
+    {
+      "cnpj8": "00394494",
+      "nome": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "n": 161
+    },
+    {
+      "cnpj8": "83169623",
+      "nome": "MUNICIPIO DE JOINVILLE",
+      "n": 133
+    },
+    {
+      "cnpj8": "95991287",
+      "nome": "MUNICIPIO DE PONTE ALTA DO NORTE",
+      "n": 132
+    },
+    {
+      "cnpj8": "82836057",
+      "nome": "MUNICIPIO DE GAROPABA",
+      "n": 130
+    },
+    {
+      "cnpj8": "83108357",
+      "nome": "MUNICIPIO DE BLUMENAU",
+      "n": 125
+    },
+    {
+      "cnpj8": "00394502",
+      "nome": "COMANDO DA MARINHA",
+      "n": 121
+    },
+    {
+      "cnpj8": "83102418",
+      "nome": "MUNICIPIO DE IBIRAMA",
+      "n": 121
+    },
+    {
+      "cnpj8": "83102491",
+      "nome": "MUNICIPIO DE SCHROEDER",
+      "n": 112
+    }
+  ]
+}

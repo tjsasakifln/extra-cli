@@ -127,6 +127,93 @@ NON_COMPETITIVE_MODALITIES: set[str] = {
 # ---------------------------------------------------------------------------
 
 
+# Structural profile blocks required for any calibrated ranking.
+STRUCTURAL_PROFILE_FIELDS: tuple[str, ...] = (
+    "region",
+    "desired_object_types",
+    "value_band_soft",
+    "operational_constraints",
+    "engineering_categories",
+)
+
+# Commercial capacity fields required before GO (aligned with workspace PENDING_PROFILE_KEYS).
+# Absence → GO demoted to REVIEW (never silent GO with incomplete Extra profile).
+CAPACITY_PROFILE_FIELDS: tuple[str, ...] = (
+    "capital_giro",
+    "capacidade_simultanea",
+    "cats_atestados",
+    "equipe",
+    "equipamentos",
+    "certidoes",
+    "margem_minima",
+    "risco_aceitavel",
+    "contratos_atuais",
+    "apetite_consorcios",
+    "capacidade_garantia",
+)
+
+ESSENTIAL_PROFILE_FIELDS: tuple[str, ...] = STRUCTURAL_PROFILE_FIELDS + CAPACITY_PROFILE_FIELDS
+
+
+def _is_empty_profile_value(val: Any) -> bool:
+    if val is None:
+        return True
+    if isinstance(val, str) and not val.strip():
+        return True
+    if isinstance(val, (list, dict)) and not val:
+        return True
+    return False
+
+
+def profile_essential_complete(profile: dict[str, Any] | None) -> tuple[bool, list[str]]:
+    """Return (complete, missing_field_names) for GO-critical Extra profile data."""
+    if not profile or not isinstance(profile, dict):
+        return False, list(ESSENTIAL_PROFILE_FIELDS)
+    missing: list[str] = []
+    capacity = profile.get("operational_capacity") or profile.get("capacity") or {}
+    elicitation = profile.get("elicitation") or profile.get("pending_fields") or {}
+    if not isinstance(capacity, dict):
+        capacity = {}
+    if not isinstance(elicitation, dict):
+        elicitation = {}
+
+    for key in STRUCTURAL_PROFILE_FIELDS:
+        if _is_empty_profile_value(profile.get(key)):
+            missing.append(key)
+
+    for key in CAPACITY_PROFILE_FIELDS:
+        val = profile.get(key)
+        if val is None and key in capacity:
+            val = capacity.get(key)
+        if val is None and key in elicitation:
+            val = elicitation.get(key)
+        if isinstance(val, dict):
+            status = str(val.get("status") or val.get("state") or "").upper()
+            inner = val.get("value")
+            if status in {"PENDING", "ELICIT", "TODO", "NULL"} or _is_empty_profile_value(inner):
+                missing.append(key)
+            continue
+        if _is_empty_profile_value(val):
+            missing.append(key)
+    return (len(missing) == 0), missing
+
+
+def load_extra_profile() -> dict[str, Any] | None:
+    """Load Extra client profile YAML if available."""
+    try:
+        from pathlib import Path
+
+        import yaml
+
+        path = Path(__file__).resolve().parents[2] / "config" / "client_profiles" / "extra.yaml"
+        if not path.is_file():
+            return None
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else None
+    except Exception:
+        return None
+
+
 def compute_ranking(
     status_canonico: str,
     orgao_cnpj: str | None = None,
@@ -143,6 +230,8 @@ def compute_ranking(
     has_match_entity: bool = False,
     dentro_raio: bool = False,
     fonte_confiavel: bool = True,
+    profile: dict[str, Any] | None = None,
+    demote_go_if_profile_incomplete: bool = True,
 ) -> dict[str, Any]:
     """Compute explainable ranking for an opportunity.
 
@@ -162,6 +251,9 @@ def compute_ranking(
         has_match_entity: Whether org matches sc_public_entities.
         dentro_raio: Whether within 200km of Florianópolis.
         fonte_confiavel: Whether source is trusted.
+        profile: Optional Extra client profile; loads default when demoting GO.
+        demote_go_if_profile_incomplete: When True, GO becomes REVIEW if
+            essential Extra profile fields are missing (fail-closed for Tiago).
 
     Returns:
         Dict with ranking, score, fatores, regras, confianca.
@@ -284,12 +376,28 @@ def compute_ranking(
     score = max(0, min(100, score))
     ranking, confianca = _tier_from_score(score, missing)
 
+    # Fail-closed: never recommend GO when Extra essential profile is incomplete.
+    profile_missing: list[str] = []
+    if demote_go_if_profile_incomplete and ranking == "GO":
+        prof = profile if profile is not None else load_extra_profile()
+        complete, profile_missing = profile_essential_complete(prof)
+        if not complete:
+            ranking = "REVIEW"
+            confianca = "LOW"
+            fatores["negativos"].append(
+                "Perfil Extra incompleto — GO rebaixado a REVIEW "
+                f"(campos: {', '.join(profile_missing[:8])})"
+            )
+            regras.append("POLICY:profile_incomplete_demote_go")
+            score = min(score, 69)  # keep below GO threshold for score-based SQL paths
+
     return {
         "ranking": ranking,
         "ranking_score": score,
         "ranking_fatores": fatores,
         "ranking_regras": regras,
         "ranking_confianca": confianca,
+        "profile_missing": profile_missing,
     }
 
 

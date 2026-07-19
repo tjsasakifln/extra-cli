@@ -1,0 +1,9 @@
+{
+  "path": "output/qw-01/qw01-20260719T031154Z-dfb87609/universe_snapshot.json",
+  "sha256": "2267f618839508fb6a00a544224facd74eecc89dae8b52c8ca90649c5a48888c",
+  "bytes": 1519019,
+  "removed_from_git": true,
+  "reason": "reproducible universe snapshot; regenerate via radar/QW-01 pipeline",
+  "manifest": "output/qw-01/qw01-20260719T031154Z-dfb87609/coverage_manifest.json",
+  "run_manifest": "output/qw-01/qw01-20260719T031154Z-dfb87609/run_manifest.json"
+}

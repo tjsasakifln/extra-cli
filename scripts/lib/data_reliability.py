@@ -8,12 +8,13 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Iterable, Sequence
 from dataclasses import asdict, dataclass, field
-from enum import Enum
-from typing import Any, Iterable, Sequence
+from enum import StrEnum
+from typing import Any
 
 
-class TrustLevel(str, Enum):
+class TrustLevel(StrEnum):
     """Operator-facing reliability of a data point or aggregate."""
 
     TRUSTED = "TRUSTED"

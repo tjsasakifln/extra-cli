@@ -1,0 +1,84 @@
+{
+  "ts": "2026-07-19T02:03:16.493076+00:00",
+  "results": {
+    "pncp": {
+      "before": 284,
+      "after": 285,
+      "delta": 1,
+      "summary": {
+        "strategy": "promote_from_crawl_artifacts",
+        "evidence_rows_loaded": 1,
+        "promoted": 1,
+        "verified": 1,
+        "collected": 0,
+        "unmatched_registry_skipped": 3,
+        "blockers_normalized": 0,
+        "sla_hours": 48,
+        "dry_run": false,
+        "evidence_path": "/mnt/d/extra consultoria/output/coverage/acquisition/promote_from_evidence-20260719T020304Z.json",
+        "persisted": true,
+        "artifact": {
+          "source": "pncp",
+          "run_id": "pncp-sc-20260717T110800Z-9d6dd91153",
+          "raw_uri": "/mnt/d/extra consultoria/output/pncp_sc/pncp-sc-20260717T110800Z-9d6dd91153/contratacoes.jsonl",
+          "raw_sha256": "2b737ff8d5a9b166be2fbe40f81c67cfcb17e67a70b94ef9d111040dfc9f46af",
+          "matched_unique_cnpj": 1
+        },
+        "strict_operational_count": 285
+      }
+    },
+    "sc_compras": {
+      "before": 285,
+      "after": 285,
+      "delta": 0,
+      "summary": {
+        "strategy": "promote_from_crawl_artifacts",
+        "evidence_rows_loaded": 0,
+        "promoted": 0,
+        "verified": 0,
+        "collected": 0,
+        "unmatched_registry_skipped": 0,
+        "blockers_normalized": 0,
+        "sla_hours": 48,
+        "dry_run": false,
+        "evidence_path": "/mnt/d/extra consultoria/output/coverage/acquisition/promote_from_evidence-20260719T020305Z.json",
+        "persisted": true,
+        "artifact": {
+          "source": "sc_compras",
+          "run_id": "sc_compras-full-enriched-20260717",
+          "raw_uri": "/mnt/d/extra consultoria/output/sc_compras/sc_compras-full-enriched-20260717/licitacoes.jsonl",
+          "raw_sha256": "ca9758ab80a33e9c4f39635753fe857efaa88e5bdff3c6d19776a3198b6f1760",
+          "matched_unique_cnpj": 0
+        },
+        "strict_operational_count": 285
+      }
+    },
+    "ciga_dom": {
+      "before": 285,
+      "after": 288,
+      "delta": 3,
+      "summary": {
+        "strategy": "promote_from_crawl_artifacts",
+        "evidence_rows_loaded": 3,
+        "promoted": 3,
+        "verified": 3,
+        "collected": 0,
+        "unmatched_registry_skipped": 0,
+        "blockers_normalized": 0,
+        "sla_hours": 48,
+        "dry_run": false,
+        "evidence_path": "/mnt/d/extra consultoria/output/coverage/acquisition/promote_from_evidence-20260719T020316Z.json",
+        "persisted": true,
+        "artifact": {
+          "source": "ciga_dom",
+          "run_id": "ciga-dom-20260718T211324Z-2c05d7be3f",
+          "raw_uri": "/mnt/d/extra consultoria/output/ciga_dom/ciga-dom-20260718T211324Z-2c05d7be3f/publications.jsonl",
+          "raw_sha256": "b625bb08ea462dafdb78546b7f0c5b8a659322ff4162f917dc7ba7b8e8622e33",
+          "matched_unique_cnpj": 3
+        },
+        "strict_operational_count": 288
+      }
+    }
+  },
+  "strict_final": 288
+}

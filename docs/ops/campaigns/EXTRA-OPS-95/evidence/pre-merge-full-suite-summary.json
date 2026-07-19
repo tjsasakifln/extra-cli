@@ -1,0 +1,63 @@
+{
+  "measured_at": "2026-07-19T18:21:55.070712+00:00",
+  "head_expected": "e4626fd94fc35f92abb21d76c183270ca3befb9d",
+  "command": "CI=true pytest tests/ -m \"\" --cov --cov-fail-under=10 -o addopts=\"\"",
+  "env": {
+    "CI": true,
+    "DATABASE_URL": null,
+    "matches_workflow_dispatch": true
+  },
+  "postgres": "not required for this CI job; autouse psycopg2 mock in conftest",
+  "result": {
+    "failed": 14,
+    "passed": 2118,
+    "skipped": 144,
+    "duration_s": 825.05,
+    "coverage_pct": 32.17,
+    "exit_code": 1,
+    "executed": true
+  },
+  "failed_tests": [
+    "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_pncp_429_is_rate_limited_checkpointed_no_watermark - TypeError: ResilienceConfig.__init__() missing 4 required positional arguments: 'environment', 'execution_mode', 'state_root', and 'breaker_path'",
+    "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_pncp_429_sequence_opens_circuit_breaker - TypeError: ResilienceConfig.__init__() missing 4 required positional arguments: 'environment', 'execution_mode', 'state_root', and 'breaker_path'",
+    "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_sc_compras_429_is_rate_limited_not_empty - TypeError: ResilienceConfig.__init__() missing 4 required positional arguments: 'environment', 'execution_mode', 'state_root', and 'breaker_path'",
+    "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_intel_exists - AssertionError: assert 0",
+    "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_runs_exists - AssertionError: assert 0",
+    "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_checkpoints_exists - AssertionError: assert 0",
+    "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_coverage_exists - AssertionError: assert 0",
+    "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_single_record - assert 0 == 1",
+    "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_idempotent - IndexError: list index out of range",
+    "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_batch - assert 0 == 5",
+    "tests/test_opportunity_integration.py::TestConstraints::test_status_canonico_constraint - Failed: DID NOT RAISE <class 'psycopg2.Error'>",
+    "tests/test_opportunity_integration.py::TestConstraints::test_ranking_constraint - Failed: DID NOT RAISE <class 'psycopg2.Error'>",
+    "tests/test_resilience_vertical_slice.py::test_vertical_slice_postgres_real_path - Failed: DATABASE_URL set but pncp_raw_bids / upsert_pncp_raw_bids missing \u2014 migrations incomplete (dsn='postgresql://test:test@127.0.0.1:5433/pncp_datalake' identity=[0] tables=[] procs=[])",
+    "tests/test_transparencia_crawler.py::TestCrawl::test_crawl_full - AssertionError: assert 80 == 2"
+  ],
+  "comparison_to_main": {
+    "note": "Same 13 failures reproduce on origin/main for chaos/opportunity/transparencia; transformer regression fixed in this validation.",
+    "pr_only_regression_fixed": [
+      "tests/test_transformer.py esfera_id TEXT expectations"
+    ],
+    "preexisting_on_main": [
+      "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_pncp_429_is_rate_limited_checkpointed_no_watermark - TypeError: ResilienceConfig.__init__() missing 4 required positional arguments: 'environment', 'execution_mode', 'state_root', and 'breaker_path'",
+      "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_pncp_429_sequence_opens_circuit_breaker - TypeError: ResilienceConfig.__init__() missing 4 required positional arguments: 'environment', 'execution_mode', 'state_root', and 'breaker_path'",
+      "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_sc_compras_429_is_rate_limited_not_empty - TypeError: ResilienceConfig.__init__() missing 4 required positional arguments: 'environment', 'execution_mode', 'state_root', and 'breaker_path'",
+      "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_intel_exists - AssertionError: assert 0",
+      "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_runs_exists - AssertionError: assert 0",
+      "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_checkpoints_exists - AssertionError: assert 0",
+      "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_coverage_exists - AssertionError: assert 0",
+      "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_single_record - assert 0 == 1",
+      "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_idempotent - IndexError: list index out of range",
+      "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_batch - assert 0 == 5",
+      "tests/test_opportunity_integration.py::TestConstraints::test_status_canonico_constraint - Failed: DID NOT RAISE <class 'psycopg2.Error'>",
+      "tests/test_opportunity_integration.py::TestConstraints::test_ranking_constraint - Failed: DID NOT RAISE <class 'psycopg2.Error'>",
+      "tests/test_resilience_vertical_slice.py::test_vertical_slice_postgres_real_path - Failed: DATABASE_URL set but pncp_raw_bids / upsert_pncp_raw_bids missing \u2014 migrations incomplete (dsn='postgresql://test:test@127.0.0.1:5433/pncp_datalake' identity=[0] tables=[] procs=[])",
+      "tests/test_transparencia_crawler.py::TestCrawl::test_crawl_full - AssertionError: assert 80 == 2"
+    ]
+  },
+  "collection_unblocked": [
+    "scripts.lib.universe.reconcile_active_ids",
+    "scripts.golden_path.collect_run_metadata/run_coverage_calculation/run_snapshot_reconciliation",
+    "scripts.freshness_gate._selected_critical_sources"
+  ]
+}

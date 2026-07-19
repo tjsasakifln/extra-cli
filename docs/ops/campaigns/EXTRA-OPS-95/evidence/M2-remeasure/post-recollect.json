@@ -1,0 +1,23 @@
+{
+  "measured_at": "2026-07-19T03:11:25.689460+00:00",
+  "denominator": 1093,
+  "bids_rows": 8221,
+  "contracts_rows": 72925,
+  "presence_editais": {
+    "n": 268,
+    "pct": 24.5197
+  },
+  "presence_contracts": {
+    "n": 247,
+    "pct": 22.5984
+  },
+  "either_forbidden": {
+    "n": 325,
+    "pct": 29.7347
+  },
+  "registry_operational": 139,
+  "registry_operational_pct": 12.72,
+  "registry_mapped_or_better": 583,
+  "pncp_full_status": "INTERRUPTED_AFTER_PERSIST_CLOSE_WAIT \u2014 8221 bids retained",
+  "note": "presence != operational seven-stage coverage"
+}

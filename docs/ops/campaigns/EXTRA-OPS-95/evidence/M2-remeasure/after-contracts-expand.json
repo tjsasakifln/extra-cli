@@ -1,0 +1,13 @@
+{
+  "ts": "2026-07-19T04:00:59.075723+00:00",
+  "bids": 10831,
+  "contracts": 217115,
+  "presence_editais": 279,
+  "pct_e": 25.5261,
+  "presence_contracts": 293,
+  "pct_c": 26.807,
+  "either_forbidden": 355,
+  "pct_either": 32.4794,
+  "cnpj14_resolved_batch": 80,
+  "note": "presence after expanded contracts windows + multi-source; per-window persist active"
+}

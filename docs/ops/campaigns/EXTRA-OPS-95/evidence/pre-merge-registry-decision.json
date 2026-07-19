@@ -1,0 +1,13 @@
+{
+  "path": "data/entity_source_registry.jsonl",
+  "bytes": 4321585,
+  "lines": 1093,
+  "unique_canonical_ids": 1090,
+  "classification": "B/E \u2014 operational registry artifact versioned as project state",
+  "generator": "scripts/source_registry/builder.py + cli",
+  "canonical": "Yes for coverage_contract DEFAULT_REGISTRY_PATH; not raw dump",
+  "reproducible": "Partially \u2014 can rebuild via source_registry builder with DB+crawls; not pure deterministic without network",
+  "sensitive": false,
+  "decision": "KEEP in PR \u2014 cost justified as operational universe\u00d7source matrix for 1093 entities; already tracked on main (smaller); summary JSON companion present",
+  "alternative_rejected": "Removing would break coverage_contract paths and require seed redesign out of merge-prep scope"
+}

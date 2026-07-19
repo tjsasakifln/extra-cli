@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import math
 import os
 import sys
 from datetime import UTC, datetime
@@ -283,15 +282,17 @@ def report_referencias_valores(conn) -> list[dict[str, Any]]:
 def report_completude(conn) -> list[dict[str, Any]]:
     if not _table_exists(conn, "pncp_raw_bids"):
         return []
+    # ESSENTIAL_BID_FIELDS is a fixed internal column allow-list (not user input).
+    field_exprs = ", ".join(f"COUNT({f}) AS filled_{f}" for f in ESSENTIAL_BID_FIELDS)
     rows = _q(
         conn,
         f"""
         SELECT
             COUNT(*) AS n_active,
-            {", ".join(f"COUNT({f}) AS filled_{f}" for f in ESSENTIAL_BID_FIELDS)}
+            {field_exprs}
         FROM pncp_raw_bids
         WHERE is_active IS TRUE
-        """,
+        """,  # noqa: S608 — field list is fixed ESSENTIAL_BID_FIELDS allow-list
     )
     if not rows or "_error" in rows[0]:
         return rows or []

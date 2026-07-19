@@ -1,0 +1,43 @@
+{
+  "decision_id": "DECISION-001",
+  "campaign": "EXTRA-OPS-95",
+  "ts": "2026-07-19T02:00:00Z",
+  "head": "dbc5adb2ab62898cd3fd005c83c90dcef36c1cde",
+  "phase": "post-recovery-first-extra-roi",
+  "extra_roi_default_ranking_top": {
+    "id": "cand-dyn-slice:ac8b6e76a7b2",
+    "roi_score": 4.3448,
+    "title": "[25. Verdade, linguagem e claims permitidos]",
+    "rejection_reason": "Documentation/claim-language slice does not advance binding objective (coverage, decision cycle, packages). Campaign forbids reducing objective to documentation or checkbox counting."
+  },
+  "override": {
+    "selected": "COV-EDIT-CONTRACT-OPS",
+    "rationale": [
+      "Binding goals A/B: operational coverage editais >=95% and contratos >=95% separately",
+      "Live presence: editais 26.08%, contracts 33.67%, either 37.15% (forbidden as substitute)",
+      "Strict operational ~0-8%; capability_coverage empty",
+      "Highest value for Tiago: more entities with fresh, proven collection + zero-result paths",
+      "N01 already DONE — do not re-open",
+      "N09 remains BLOCKED_SOURCE until independent gold sample"
+    ],
+    "next_actions_ordered": [
+      "M1: freeze metric contract + live baseline JSON (editais vs contracts vs operational)",
+      "M2a: promote registry from live PG + crawl artifacts with full 7-stage provenance (no dry_run)",
+      "M2b: expand contracts windows beyond 180d toward 365d then 3y with checkpoints",
+      "M2c: expand PNCP/sc_compras/ciga matching for residual entities; success_zero paths",
+      "M3: run opportunity intel cycle live → GO/REVIEW/NO_GO + dossiers",
+      "M4: competitors/values/expiring contracts packages",
+      "M5: three correlated full cycles + backup/restore",
+      "M6: independent recall sample (or honest BLOCKED)",
+      "M7: HTML + DOD honesty + handoff"
+    ]
+  },
+  "forbidden_next": [
+    "Mass DoD checkbox flips without live proof",
+    "Merge PR #28 without delta extraction",
+    "SmartLic dataset on critical path",
+    "Claim either-coverage as 95% progress",
+    "Re-run N01 as campaign milestone"
+  ],
+  "actor": "extra-ops-95-coordinator"
+}

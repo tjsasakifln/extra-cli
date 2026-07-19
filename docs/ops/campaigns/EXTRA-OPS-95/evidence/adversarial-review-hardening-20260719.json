@@ -1,0 +1,62 @@
+{
+  "findings": [
+    {
+      "sev": "INFO",
+      "title": "DOD delta",
+      "detail": "195->308 (+113) of 1355"
+    },
+    {
+      "sev": "CONCERN",
+      "title": "pre-existing dump on main (not PR#29)",
+      "detail": "Pre-existing on main (NEXT-30D N10-backup), not introduced by PR#29. PR#29 dump removed. Residual hygiene for follow-up on main."
+    },
+    {
+      "sev": "PASS",
+      "title": "no obvious secrets in campaign evidence",
+      "detail": ""
+    },
+    {
+      "sev": "PASS",
+      "title": "PARTIAL preserved",
+      "detail": ""
+    },
+    {
+      "sev": "PASS",
+      "title": "seven-stage forbidden",
+      "detail": ""
+    },
+    {
+      "sev": "PASS",
+      "title": "HTML DOD 308/1355",
+      "detail": ""
+    },
+    {
+      "sev": "PASS",
+      "title": "ops proxy labeled",
+      "detail": ""
+    },
+    {
+      "sev": "CONCERN",
+      "title": "large files remain in delta",
+      "detail": "[(4321585, 'data/entity_source_registry.jsonl')]"
+    },
+    {
+      "sev": "CONCERN",
+      "title": "historical migration 018 modified",
+      "detail": "ALTER esfera_id TYPE TEXT; fresh installs OK; applied envs need 057-style corrective if needed"
+    },
+    {
+      "sev": "PASS",
+      "title": "ruff",
+      "detail": "clean"
+    },
+    {
+      "sev": "PASS",
+      "title": "mypy ranking",
+      "detail": "arse', 'difflib', 'httpx.*', 'psycopg2.*', 'rapidfuzz.*', 'requests.*', 'rich.*', 'scripts.lib.*', 'scripts.reports.*', 'supabase.*', 'tests.*', 'urllib3.*']\nSuccess: no issues found in 1 source file\n"
+    }
+  ],
+  "blockers": 0,
+  "verdict": "APPROVE_WITH_CONCERNS",
+  "merge_recommendation": "SQUASH_MERGE preferred after CI green — removes intermediate blobs from main history"
+}

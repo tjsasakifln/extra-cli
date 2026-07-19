@@ -1,0 +1,58 @@
+{
+  "campaign": "EXTRA-OPS-95",
+  "measured_at": "2026-07-19T01:58:00Z",
+  "head": "dbc5adb2ab62898cd3fd005c83c90dcef36c1cde",
+  "dsn": "postgresql://test:test@127.0.0.1:5433/extra_test",
+  "denominator": {
+    "value": 1093,
+    "definition": "sc_public_entities WHERE is_active AND raio_200km",
+    "immutable_without_formal_decision": true,
+    "target_95_pct_numerator": 1039
+  },
+  "presence_entity_metrics": {
+    "note": "Presence of matched records — NOT seven-stage operational coverage",
+    "editais_entities": {"numerator": 285, "denominator": 1093, "pct": 26.08},
+    "contracts_entities": {"numerator": 368, "denominator": 1093, "pct": 33.67},
+    "either_entities": {
+      "numerator": 406,
+      "denominator": 1093,
+      "pct": 37.15,
+      "forbidden_as_coverage_claim": true
+    }
+  },
+  "volume": {
+    "pncp_raw_bids": 10974,
+    "pncp_supplier_contracts": 1082055,
+    "contracts_pub_min": "2026-01-19",
+    "contracts_pub_max": "2026-07-18",
+    "bids_pub_min": "2026-05-25",
+    "bids_pub_max": "2026-07-18"
+  },
+  "coverage_contract_cli": {
+    "entities_with_recent_commercial_signal": {"num": 116, "den": 1093, "pct": 10.61, "is_coverage": false},
+    "source_mapping_coverage": {"num": 1093, "den": 1093, "pct": 100.0},
+    "operational_source_coverage": {"num": 90, "den": 1093, "pct": 8.23, "note": "registry verified rows; strict is_strict_operational may be 0"},
+    "freshness_coverage": {"status": "NOT_READY"},
+    "opportunity_recall": {"status": "NOT_READY"},
+    "required_field_completeness": {"pct": 17.65}
+  },
+  "registry_stats": {
+    "total": 1093,
+    "by_status": {"unknown": 481, "mapped": 480, "verified": 90, "collected": 42},
+    "operational_strict_cli_stats": 0,
+    "blockers": {"pending_collection": 707, "pending_live_verification": 159, "fragmented": 137, "none": 90}
+  },
+  "milestones": {
+    "m60_editais": 656,
+    "m60_contracts": 656,
+    "m80_editais": 875,
+    "m80_contracts": 875,
+    "m95_editais": 1039,
+    "m95_contracts": 1039
+  },
+  "gaps_to_95": {
+    "editais_presence_gap": 754,
+    "contracts_presence_gap": 671,
+    "operational_gap_vs_90": 949
+  }
+}

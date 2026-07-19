@@ -1,0 +1,52 @@
+{
+  "measured_at": "2026-07-19T18:22:13.903303+00:00",
+  "policy": {
+    "ledger": "public._migrations (version PK + checksum)",
+    "reapply": "skip if version already in ledger \u2014 does NOT fail on checksum drift",
+    "immutability_enforced": false,
+    "checksum_recorded": true
+  },
+  "decision_018": {
+    "action": "KEEP PR modification (ALTER esfera_id TYPE TEXT)",
+    "reason": [
+      "001 creates esfera_id INT",
+      "main 018 compares to 'F'/'E'/'M' and fails fresh install with invalid input syntax for type integer",
+      "PR ALTER makes true fresh install possible",
+      "upgrade path never re-runs 018 (ledger skip); runtime DBs already TEXT per main comment"
+    ],
+    "ledger_drift": "fresh records sha256=5d552fed\u2026; upgrade records main sha256=0dee9906\u2026 \u2014 same version, different checksum; schema outcome TEXT+check equivalent"
+  },
+  "decision_027": {
+    "action": "KEEP PR modification (jsonb_typeof + qualified RETURNING)",
+    "reason": [
+      "helps pure fresh install get correct upsert from first apply",
+      "upgrade skips 027 via ledger; 057 CREATE OR REPLACE supplies same function body"
+    ]
+  },
+  "decision_057": {
+    "action": "REQUIRED corrective for upgrade-from-main",
+    "function": "upsert_opportunity_intel with opportunity_intel.content_hash qualification + jsonb_typeof array guards",
+    "proven": "upgrade path applied only 057; function md5 equal to fresh install"
+  },
+  "fresh_install": {
+    "ok": true,
+    "db": "val_fresh_pr@pgvector:5544",
+    "migrations_applied": 62
+  },
+  "upgrade_from_main": {
+    "ok": true,
+    "applied_new": [
+      "057_fix_upsert_opportunity_content_hash.sql"
+    ],
+    "skipped": 61
+  },
+  "schema_equivalence": {
+    "cols": true,
+    "constraints": true,
+    "upsert_opportunity_md5": "11f125fed8067c75b91298fdd47e499e"
+  },
+  "functional_upsert": {
+    "fresh_all_ok": true,
+    "upgrade_all_ok": true
+  }
+}

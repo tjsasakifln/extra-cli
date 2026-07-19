@@ -105,3 +105,17 @@ scripts/output/
 # Local crawler checkpoints (runtime)
 data/contracts_checkpoints/
 output/session-*/
+
+# Campaign hygiene — reproducible/local artifacts (EXTRA-OPS-95+)
+*.dump
+*.sql.dump
+**/*.pre-purge*
+**/*.pre-purge-mismatch
+data/cnpj14_cache/*.bak
+data/cnpj14_cache/*.pre-purge*
+output/qw-01/**/universe_snapshot.json
+output/qw-01/**/radar_editais.xlsx
+output/qw-01/**/coverage_gaps.csv
+docs/ops/campaigns/**/evidence/**/*.dump
+docs/ops/campaigns/**/evidence/**/package-final-fixture/*.pdf
+docs/ops/campaigns/**/evidence/**/package-final-fixture/*.xlsx

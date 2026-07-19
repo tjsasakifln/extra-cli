@@ -1,0 +1,37 @@
+{"ts":"2026-07-19T02:00:00Z","event":"CAMPAIGN_START","campaign":"EXTRA-OPS-95","head":"dbc5adb2ab62898cd3fd005c83c90dcef36c1cde","actor":"coordinator"}
+{"ts":"2026-07-19T02:00:30Z","event":"RECOVERY_COMPLETE","denominator":1093,"editais_pct":26.08,"contracts_pct":33.67,"either_pct":37.15,"operational_contract_cli_pct":8.23,"n01_status":"DONE_not_reopen","pr28":"CONFLICTING_do_not_merge","smartlic":"DEFERRED_STALE"}
+{"ts":"2026-07-19T02:01:00Z","event":"ROI_DECISION_001","selected":"COV-EDIT-CONTRACT-OPS","rejected_default":"cand-dyn-slice:ac8b6e76a7b2"}
+{"ts": "2026-07-19T02:03:05Z", "event": "M2_PROMOTE_SLA48", "strict_operational": 284, "pct": 25.98, "verified": 287, "promoted": 285}
+{"ts": "2026-07-19T02:06:48Z", "event": "M2_REMEASURE_AFTER_PNCP_INC", "den": 1093, "editais": 285, "contracts": 368, "either": 406, "pct_editais": 26.08, "pct_contracts": 33.67, "pct_either": 37.15, "bids_rows": 10974, "contracts_rows": 1082055, "strict": 407, "pct_strict": 37.24}
+{"ts": "2026-07-19T02:30:55Z", "event": "M0_FOUNDATION_BASELINE", "artifact": "baseline/foundation-baseline.json", "dod": "195/1355", "den": 1093, "db": "rebuilt_empty"}
+{"ts": "2026-07-19T02:31:00Z", "event": "M05_OSS_MATRIX", "artifact": "oss/oss-decisions.json", "adoptions": []}
+{"ts": "2026-07-19T02:31:00Z", "event": "M1_UNIVERSE_SEED", "entities_200km": 1093, "second_import_inserted": 0}
+{"ts": "2026-07-19T02:39:00Z", "event": "B2_PYDANTIC_BASELINE", "tests_passed": 7, "pandera": "DEFER_INSTALL"}
+{"ts": "2026-07-19T02:39:00Z", "event": "B1_OCDS_THIN", "tests_passed": 3, "decision": "ADAPT_THIN"}
+{"ts": "2026-07-19T02:38:49Z", "event": "M2_CONTRACTS_MONITOR_START", "days": 14, "status": "IN_PROGRESS"}
+{"ts": "2026-07-19T03:18:53Z", "event": "M3_OPPORTUNITY_UPSERT_FIXED", "inserted": 401, "GO": 0, "REVIEW": 397, "NO_GO": 4, "migration": "057"}
+{"ts": "2026-07-19T03:19:18Z", "event": "SESSION_METRICS", "presence_editais_pct": 24.52, "presence_contracts_pct": 22.6, "ops_registry_pct": 12.72, "dod": "195/1355", "status": "PARTIAL"}
+{"ts": "2026-07-19T03:20:00Z", "event": "HANDOFF_WRITTEN", "path": "handoffs/HANDOFF-20260719-session.md"}
+{"ts": "2026-07-19T03:26:00Z", "event": "M2_SC_COMPRAS", "inserted": 2610, "presence_editais_before_enrich": 268}
+{"ts": "2026-07-19T03:28:00Z", "event": "M2_CIGA_CKAN", "fetched": 23733, "inserted": 29}
+{"ts": "2026-07-19T03:28:34Z", "event": "M4_PACKAGES_LIVE", "competitors": 50, "expiring": 100, "price_buckets": 5, "opps": 100}
+{"ts": "2026-07-19T03:31:56Z", "event": "M2_SC_COMPRAS_CNPJ_ENRICH", "matched": 2454, "presence_editais": 279, "pct": 25.53}
+{"ts": "2026-07-19T03:33:00Z", "event": "M2_CONTRACTS_90D_ABORTED", "reason": "national window pagination too slow without UF filter; keep 14d 72925 rows"}
+{"ts": "2026-07-19T04:17:04Z", "event": "M2_SZ_BATCH2_PARTIAL", "written": 7, "blocked_429": 56, "ops_proxy": 322}
+{"ts": "2026-07-19T04:48:41Z", "event": "M2_SZ_BATCH3", "written": 93, "has_data": 7, "sz_entities": 122, "ops_proxy": 415, "pct": 37.97}
+{"ts": "2026-07-19T04:50:43Z", "event": "M2_HAS_DATA_PERSIST", "raw": 67, "presence_contracts": 300, "ops_proxy": 422, "pct": 38.61}
+{"ts": "2026-07-19T04:51:00Z", "event": "M2_TOOLING", "scripts": ["scripts/ops/probe_entity_success_zero.py", "scripts/ops/resolve_cnpj14_batch.py"], "cnpj14_unique": 187}
+{"ts":"2026-07-19T04:58:31Z","event":"M2_SZ_BATCH4","written":42,"has_data":9,"sz_entities":164,"presence":309,"ops_proxy":473,"pct":43.28}
+{"ts":"2026-07-19T06:55:00Z","event":"M2_MATRIX_CNPJ_BREAKTHROUGH","resolved_0001":457,"cache":644,"sz_entities":590,"ops_proxy":930,"pct":85.09,"gap_to_95":109}
+{"ts":"2026-07-19T07:46:00Z","event":"ADVERSARIAL_PURGE_FALSE_IDENTITY","bad_cache":48,"sz_deleted":39,"ops_before_false":1030,"ops_after_honest":991,"pct":90.67}
+{"ts":"2026-07-19T07:54:00Z","event":"M2_EDITAI_SC_INGEST","presence_editais":285,"bids":11550,"dod":"224/1352"}
+{"ts":"2026-07-19T07:56:00Z","event":"DOD_FLIPS_OPS_PROVEN","flipped":21,"dod":"245/1352","pct":18.12,"ops_proxy":90.67,"editais":26.1}
+{"ts":"2026-07-19T07:59:00Z","event":"RESIDUAL_IDENTITY_404","residual":102,"probed":60,"pncp_404":60,"dod":"270/1352"}
+{"ts":"2026-07-19T08:15:00Z","event":"CONTRACTS_OPS_PROXY_GE95","ops":1090,"den":1093,"pct":99.7255,"sz":722,"method":"brasilapi_matriz_sz","residual":3}
+{"ts":"2026-07-19T08:17:00Z","event":"EDITAIS_SC_INGEST","presence_editais":287,"bids":12459,"dod":"272/1352"}
+{"ts": "2026-07-19T08:27:06.900670+00:00", "event": "session_continue_partial_blocked_semantics", "dod": "313/1352", "ops_proxy": "1093/1093", "editais_presence": 299, "story": "ROI-cand-dyn-slice-ac8b6e76a7b2", "status": "PARTIAL"}
+{"ts": "2026-07-19T14:26:40.438203+00:00", "event": "RECOVERY_CHECKPOINT1", "ops_proxy": "433/1093", "ops_pct": 39.6157, "editais": 25.5261, "sz": 186, "dod": "313/1352", "note": "post-restore SZ batch200 + sc_compras enrich"}
+{"ts": "2026-07-19T14:43:27.454676+00:00", "event": "RECOVERY_CHECKPOINT2_MID", "ops": 544, "ops_pct": 49.7713, "sz": 297, "editais": 25.5261}
+{"ts": "2026-07-19T15:30:33.124933+00:00", "event": "RECOVERY_CHECKPOINT3", "ops": 829, "ops_pct": 75.8463, "sz": 522, "pc": 307, "pe": 279, "contracts_rows": 238859}
+{"ts": "2026-07-19T16:09:55.766082+00:00", "event": "RECOVERY_OPS_PROXY_GE95", "ops": 1051, "den": 1093, "pct": 96.1574, "sz": 722, "editais": 25.5261, "dod": 23.1509}
+{"ts": "2026-07-19T16:21:16.180786+00:00", "event": "RECOVERY_SESSION_FINAL_CLOSEOUT", "head": "0a4fa0a8f74d", "ops_proxy_pct": 96.1574, "editais_pct": 25.5261, "dod_pct": 23.1509, "verdict": "PARTIAL"}

@@ -1,0 +1,93 @@
+[
+  {
+    "entity_id": 603,
+    "cnpj8": "82511825",
+    "cnpj14": "82511825000135",
+    "razao": "AUTARQUIA DE MELHORAMENTOS DA CAPITAL - COMCAP",
+    "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=82511825000135",
+    "verdict": "HAS_DATA",
+    "http_status": 200,
+    "total": 2,
+    "n_items": 2,
+    "content_hash": "927d11ea7dc4d4871f9a89c195b4198f28b6a6f6faf6f12de58eadd17034fe39",
+    "completion_rule": null
+  },
+  {
+    "entity_id": 897,
+    "cnpj8": "00360305",
+    "cnpj14": "00360305000104",
+    "razao": "CAIXA ECONOMICA FEDERAL",
+    "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=00360305000104",
+    "verdict": "HAS_DATA",
+    "http_status": 200,
+    "total": 35391,
+    "n_items": 50,
+    "content_hash": "9d09d15d162a2305d27c6516c6d2df831ce4e4e79a6ac4ca2125eb573ea703fa",
+    "completion_rule": null
+  },
+  {
+    "entity_id": 411,
+    "cnpj8": "05559537",
+    "cnpj14": "05559537000100",
+    "razao": "CAMARA DE VEREADORES DE POUSO REDONDO",
+    "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=05559537000100",
+    "verdict": "HAS_DATA",
+    "http_status": 200,
+    "total": 1,
+    "n_items": 1,
+    "content_hash": "fcdae1eeb8ae6880a1b60268ff372f0d17550d7d1c83f060aa04c299a5a5d597",
+    "completion_rule": null
+  },
+  {
+    "entity_id": 327,
+    "cnpj8": "78829835",
+    "cnpj14": "78829835000146",
+    "razao": "CAMARA MUNICIPAL DE JAGUARUNA",
+    "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=78829835000146",
+    "verdict": "HAS_DATA",
+    "http_status": 200,
+    "total": 7,
+    "n_items": 7,
+    "content_hash": "6a7e5ceb7bee7ef1db0c971b7a259a1a34ed470d017d69842f6f2ebbb1ba3b02",
+    "completion_rule": null
+  },
+  {
+    "entity_id": 207,
+    "cnpj8": "01794690",
+    "cnpj14": "01794690000160",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE BOM RETIRO",
+    "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=01794690000160",
+    "verdict": "HAS_DATA",
+    "http_status": 200,
+    "total": 3,
+    "n_items": 3,
+    "content_hash": "42875b98b4d55b0e6fdb1d7fcb00e4ee3d430931b46a9ca7c8decb618c512e24",
+    "completion_rule": null
+  },
+  {
+    "entity_id": 473,
+    "cnpj8": "01630213",
+    "cnpj14": "01630213000160",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE PALMEIRAS / SC",
+    "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=01630213000160",
+    "verdict": "HAS_DATA",
+    "http_status": 200,
+    "total": 2,
+    "n_items": 2,
+    "content_hash": "5f496079a92bfebc14777a316240abb874e8daef231871e99a02ad9722632b10",
+    "completion_rule": null
+  },
+  {
+    "entity_id": 346,
+    "cnpj8": "79373486",
+    "cnpj14": "79373486000163",
+    "razao": "CAMARA MUNICIPAL DE VEREADORES DE TROMBUDO CENTRAL",
+    "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=79373486000163",
+    "verdict": "HAS_DATA",
+    "http_status": 200,
+    "total": 2,
+    "n_items": 2,
+    "content_hash": "30ea5cf513e0679362be805faa15b4f49c133c3ff7b4463b063bf5b7f18c1bb3",
+    "completion_rule": null
+  }
+]

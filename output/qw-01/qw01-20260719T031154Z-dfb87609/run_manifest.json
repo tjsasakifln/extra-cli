@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "run_id": "qw01-20260719T031154Z-dfb87609",
+    "generated_at": "2026-07-19T03:11:54.792035+00:00",
+    "git_sha": "eef1413e64480c369f82d756b10988dc1474e236",
+    "branch": "campaign/extra-ops-95-20260719",
+    "seed_path": "/mnt/d/extra consultoria/Extra - alvos de licitação. R-0.xlsx",
+    "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+    "schema_fingerprint": "5efce6b446a18051b8906ceae02be29a206a2b5176a9f727f58cf4ccf5419285"
+  },
+  "schema": {
+    "backend": "postgresql",
+    "postgres_version": "PostgreSQL 16.4 (Debian 16.4-1.pgdg110+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit",
+    "required_tables": [
+      "coverage_evidence",
+      "opportunity_intel",
+      "opportunity_runs",
+      "sc_public_entities"
+    ],
+    "migration_029_ready": true
+  },
+  "profile": {
+    "path": "/mnt/d/extra consultoria/config/client_profiles/extra.yaml",
+    "id": "extra_construtora"
+  },
+  "commands": [
+    "python3 -m scripts.opportunity_intel.cli radar --profile config/client_profiles/extra.yaml --window-days 45 --output-dir output/qw-01"
+  ],
+  "source_runs": [],
+  "record_counts": {
+    "radar": 0,
+    "coverage_gaps": 1093,
+    "monitoring_denominator": 1093,
+    "triage": {}
+  },
+  "test_results": {
+    "status": "not_run_for_this_artifact",
+    "path": "/mnt/d/extra consultoria/output/qw-01/quality-gates.json"
+  },
+  "warnings": [
+    "Nenhuma execução PNCP auditável foi executada ou reutilizada"
+  ],
+  "claims_explicitly_blocked": [
+    "cobertura multicanal de 95%",
+    "recomendação definitiva de participação",
+    "preço efetivamente pago ou deságio real",
+    "conjunto completo de licitantes"
+  ],
+  "readiness": "FAIL",
+  "exit_code": 2
+}

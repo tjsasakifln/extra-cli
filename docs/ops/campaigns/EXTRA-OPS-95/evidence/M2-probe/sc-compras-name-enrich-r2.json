@@ -1,0 +1,35 @@
+{
+  "matched_round2": 1050,
+  "unmatched": [
+    [
+      "Instituto do Meio Ambiente - IMA",
+      89
+    ],
+    [
+      "Departamento Estadual de Trânsito - DETRAN/SC",
+      31
+    ],
+    [
+      "Centro de Informática e Automação de Santa Catarina - CIASC",
+      11
+    ],
+    [
+      "Companhia Integrada de Desenv. Agricola de Santa Catarina - CIDASC",
+      9
+    ],
+    [
+      "Fundação Catarinense de Esporte - FCE",
+      9
+    ],
+    [
+      "Secretaria de Estado de Indústria, Comércio e Serviço",
+      5
+    ],
+    [
+      "Secretaria de Estado de Ciência Tecnologia e Inovação",
+      2
+    ]
+  ],
+  "presence_editais": 279,
+  "pct": 25.5261
+}

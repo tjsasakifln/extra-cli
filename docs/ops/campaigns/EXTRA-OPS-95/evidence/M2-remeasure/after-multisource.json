@@ -1,0 +1,31 @@
+{
+  "measured_at": "2026-07-19T03:28:34.282570+00:00",
+  "denominator": 1093,
+  "bids_rows": 10831,
+  "contracts_rows": 72925,
+  "by_source_bids": {
+    "pncp": 8221,
+    "sc_compras": 2610
+  },
+  "presence_editais_any_source": {
+    "n": 268,
+    "pct": 24.5197
+  },
+  "presence_editais_pncp_only": {
+    "n": 268,
+    "pct": 24.5197
+  },
+  "presence_editais_sc_compras": {
+    "n": 0,
+    "pct": 0.0
+  },
+  "presence_contracts": {
+    "n": 247,
+    "pct": 22.5984
+  },
+  "either_forbidden": {
+    "n": 325,
+    "pct": 29.7347
+  },
+  "note": "presence after multi-source; NOT seven-stage operational coverage"
+}

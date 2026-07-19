@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -28,6 +29,8 @@ from scripts.crawl.resilience.state import (
     coerce_canonical_checkpoint,
 )
 from scripts.crawl.run_evidence import sha256_json
+
+logger = logging.getLogger(__name__)
 
 
 def _atomic(path: Path, value: Any) -> None:
@@ -422,8 +425,8 @@ class OperationalPipeline:
             try:
                 if stage_rank(cp.status) >= stage_rank(target) and cp.status != target:
                     continue
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("stage_rank compare skipped for %s→%s: %s", cp.status, target, exc)
             try:
                 validate_transition(cp.status, target)
             except InvalidCheckpointTransitionError:
@@ -438,8 +441,8 @@ class OperationalPipeline:
                     try:
                         if stage_rank(cp.status) > stage_rank(target):
                             continue
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.debug("stage_rank demotion check skipped: %s", exc)
                     raise
             if cp.status != target:
                 self.checkpoints.promote(cp, target)

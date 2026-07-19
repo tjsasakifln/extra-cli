@@ -99,8 +99,27 @@ def transform_pncp_item(
     # ------------------------------------------------------------------
     # Orgao / esfera
     # ------------------------------------------------------------------
-    # esferaId may come from orgao or be inferrable from the orgao CNPJ prefix
-    esfera_id = orgao.get("esferaId") or raw_item.get("esferaId")
+    # esferaId may come from orgao as letter (F/E/M/N) or digit (1-4).
+    # DB check allows only NULL or '1'|'2'|'3'|'4' (federal/estadual/municipal/distrital).
+    _raw_esfera = orgao.get("esferaId") or raw_item.get("esferaId")
+    _esfera_map = {
+        "F": "1",
+        "1": "1",
+        "E": "2",
+        "2": "2",
+        "M": "3",
+        "3": "3",
+        "D": "4",
+        "4": "4",
+        "N": None,  # "Não se aplica" / other — do not invent
+    }
+    if _raw_esfera is None or _raw_esfera == "":
+        esfera_id = None
+    else:
+        esfera_id = _esfera_map.get(str(_raw_esfera).strip().upper())
+        if esfera_id is None and str(_raw_esfera).strip() not in {"N", "n"}:
+            # Unknown code — store NULL rather than violate CHECK
+            esfera_id = None
 
     orgao_razao_social: str = (
         orgao.get("razaoSocial") or unidade.get("nomeUnidade") or raw_item.get("razaoSocial") or ""

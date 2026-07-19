@@ -1,0 +1,10 @@
+{
+  "ts": "2026-07-19T02:04:02.293115+00:00",
+  "contracts_only_candidates": 121,
+  "promoted": 119,
+  "skipped_ambig": 0,
+  "skipped_already": 2,
+  "strict_after": 407,
+  "pct": 37.24,
+  "run_id": "contracts-90d-20260718T222533Z-fa311143a0"
+}

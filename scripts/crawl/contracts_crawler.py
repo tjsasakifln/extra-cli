@@ -322,6 +322,53 @@ def _fmt(d: date) -> str:
     return d.strftime("%Y%m%d")
 
 
+def _persist_window_if_enabled(raw_items: list[dict]) -> int:
+    """Optionally upsert a completed window immediately (default ON when DSN set).
+
+    Avoids losing multi-window work on kill: monitor historically only upserted
+    after crawl() returned the full list. Idempotent via SQL upsert function.
+    Env:
+      CONTRACTS_PERSIST_EACH_WINDOW=0 to disable
+      LOCAL_DATALAKE_DSN / DATABASE_URL for connection
+    """
+    flag = os.getenv("CONTRACTS_PERSIST_EACH_WINDOW", "1").strip().lower()
+    if flag in {"0", "false", "no", "off"}:
+        return 0
+    dsn = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL")
+    if not dsn or not raw_items:
+        return 0
+    try:
+        import psycopg2
+        from psycopg2.sql import SQL, Identifier
+
+        transformed = transform(raw_items)
+        if not transformed:
+            return 0
+        # monitor adds source=pncp_contracts; match that for consistency
+        for row in transformed:
+            row.setdefault("source", "pncp_contracts")
+        conn = psycopg2.connect(dsn)
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                SQL("SELECT * FROM {} (%s)").format(Identifier(UPSERT_FUNCTION)),
+                (json.dumps(transformed, default=str),),
+            )
+            rows = cur.fetchall()
+            conn.commit()
+        finally:
+            conn.close()
+        if not rows:
+            return 0
+        first = rows[0]
+        if len(rows) == 1 and len(first) >= 3 and all(isinstance(v, int) for v in first[:3]):
+            return int(first[0]) + int(first[1])
+        return len(rows)
+    except Exception as exc:  # noqa: BLE001 — window crawl must continue
+        logger.warning("Per-window persist failed (non-fatal): %s", exc)
+        return 0
+
+
 # ---------------------------------------------------------------------------
 # HTTP fetch (sync, stdlib only) — typed result
 # ---------------------------------------------------------------------------
@@ -711,6 +758,7 @@ def _crawl_date_range(
         window_records = 0
         window_pages = 0
         window_errors: list[str] = []
+        window_items: list[dict] = []
 
         while page <= CONTRACTS_MAX_PAGES:
             result = _fetch_page(data_ini, data_fim, page)
@@ -740,6 +788,7 @@ def _crawl_date_range(
 
             # Success with data
             all_records.extend(result.items)
+            window_items.extend(result.items)
             window_records += len(result.items)
             window_pages += 1
 
@@ -764,6 +813,14 @@ def _crawl_date_range(
         if checkpoint:
             fully_ok = not window_errors
             if fully_ok:
+                # Persist immediately so kill mid-run does not drop completed windows.
+                persisted = _persist_window_if_enabled(window_items)
+                if persisted:
+                    logger.info(
+                        "Window %s persisted %d rows to DB (per-window upsert)",
+                        window_key,
+                        persisted,
+                    )
                 checkpoint.completed_windows.append(window_key)
                 checkpoint.total_windows_completed += 1
                 checkpoint.total_contracts_fetched += window_records

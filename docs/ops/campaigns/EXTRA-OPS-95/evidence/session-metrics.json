@@ -1,0 +1,35 @@
+{
+  "measured_at": "2026-07-19T16:20:46.426776+00:00",
+  "head": "0a4fa0a",
+  "denominator_200km": 1093,
+  "presence_editais": 279,
+  "presence_editais_pct": 25.5261,
+  "presence_contracts": 329,
+  "presence_contracts_pct": 30.1006,
+  "success_zero_contracts_entities": 722,
+  "ops_proxy_contracts_presence_or_sz": 1051,
+  "ops_proxy_pct": 96.1574,
+  "ops_proxy_ge_95": true,
+  "gap_to_95pct_ops_contracts": 0,
+  "bids_rows": 10831,
+  "contracts_rows": 409490,
+  "dod_checked": 308,
+  "dod_total": 1355,
+  "dod_pct": 22.7306,
+  "definition": "ops_proxy = lake presence of orgao_cnpj8 OR entity-scoped success_zero with cnpj14 root match + http_204_complete. NOT seven-stage operational coverage.",
+  "status": "PARTIAL",
+  "verdict": "PARTIAL",
+  "claims_allowed": [
+    "contracts ops proxy 1051/1093 (96.16%) under documented definition"
+  ],
+  "claims_forbidden": [
+    "seven-stage operational coverage 95%",
+    "editais coverage 95%",
+    "campaign DONE",
+    "DOD 55%",
+    "LOCAL_READY"
+  ],
+  "dod_total_note": "Canonical DOD checkbox total is 1355 (matches main). Prior 1352 was an undercount variance.",
+  "hardening_audit": "docs/ops/campaigns/EXTRA-OPS-95/evidence/dod-audit-hardening-20260719.json",
+  "measured_at_hardening": "2026-07-19T17:20:30.907344+00:00"
+}

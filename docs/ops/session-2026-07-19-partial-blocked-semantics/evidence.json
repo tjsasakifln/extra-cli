@@ -1,0 +1,20 @@
+{
+  "measured_at": "2026-07-19T08:24:45.973689+00:00",
+  "story_id": "ROI-cand-dyn-slice-ac8b6e76a7b2",
+  "candidate_id": "cand-dyn-slice:ac8b6e76a7b2",
+  "head": "d022012b6047f70e14a9344d8c31d896048c1c32",
+  "semantics": {
+    "READY": "READY means the metric was executed against current inputs and validated (numerator/denominator/pct computed or explicitly unavailable fields set). Code existence alone never yields READY.",
+    "PARTIAL": "PARTIAL means the metric was computed with explicit limitations (incomplete sample, single-source strata, reduced confidence). PARTIAL is never equivalent to READY and never counts as campaign DONE.",
+    "NOT_READY": "NOT_READY means the metric could not be computed from available inputs (missing session, incomplete sample, entity-level gap, etc.).",
+    "BLOCKED": "BLOCKED means computation is impeded by an external or technical dependency (credentials, network, missing source access)."
+  },
+  "catalog_ok": true,
+  "partial_in_catalog": true,
+  "blocked_in_catalog": true,
+  "pytest": "tests/test_indicator_catalog.py",
+  "dod_items_closed": [
+    "PARTIAL significa parcialmente disponível com limitações explícitas",
+    "BLOCKED significa impedido por dependência externa ou técnica"
+  ]
+}

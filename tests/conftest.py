@@ -38,6 +38,13 @@ def _mock_psycopg2_connect(request):
         yield
         return
 
+    # Explicit real-connection negative paths (broken DSN / fail-closed)
+    if request.node.name in {
+        "test_snapshot_step_handles_missing_tables",
+    }:
+        yield
+        return
+
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor

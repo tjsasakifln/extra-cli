@@ -345,9 +345,8 @@ def build_pack(dsn: str, out_dir: Path) -> dict[str, Any]:
     man_path = out_dir / "manifest.json"
     man_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
 
-    # verify PDF/manifest text does not assert forbidden seals as true
-    pdf_text_check = path_read_safe(pdf_path)
-    # binary pdf — check manifest prose only
+    # binary pdf — check manifest prose only (PDF text extraction is optional)
+    _ = path_read_safe(pdf_path)
     hits = assert_no_forbidden(json.dumps(manifest, ensure_ascii=False))
     manifest["forbidden_phrase_hits_in_manifest"] = hits
     man_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")

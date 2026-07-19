@@ -1,0 +1,40 @@
+{
+  "buckets": {
+    "30d": {
+      "count": 0,
+      "items": []
+    },
+    "60d": {
+      "count": 0,
+      "items": []
+    },
+    "90d": {
+      "count": 16,
+      "items": [
+        {
+          "contrato_id": "00394502000144-2-000667/2026",
+          "orgao_nome": "CENTRO DE OBTENCAO DA MARINHA/RJ",
+          "fornecedor_nome": "NIVEL 1 SOLUCOES AUTOMOTIVAS LTDA",
+          "objeto_contrato": "AQUISIÇÃO DE VIATURAS",
+          "valor_contrato": 577800.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Rio de Janeiro"
+        },
+        {
+          "contrato_id": "82892373000189-2-000217/2026",
+          "orgao_nome": "MUNICÍPIO DE GOVERNADOR CELSO RAMOS",
+          "fornecedor_nome": "METRONORTE COMERCIAL DE VEICULOS LTDA",
+          "objeto_contrato": "VEÍCULOS NOVOS, ZERO KM - LEI 14.133/2021",
+          "valor_contrato": 120800.0,
+          "data_fim_contrato": "2026-10-17",
+          "dias_ate_fim": 90,
+          "municipio": "Governador Celso Ramos"
+        },
+        {
+          "contrato_id": "83102574000106-2-000762/2026",
+          "orgao_nome": "MUNICÍPIO DE RIO DO SUL",
+          "fornecedor_nome": "BARIGUI VEICULOS LTDA",
+          "objeto_contrato": "VEÍCULOS NOVOS, ZERO KM - LEI 14.133/2021",
+          "valor_contrato": 90188.0,
+          "data_fim_contrato": "2026-10-17",

@@ -1,0 +1,34 @@
+{
+  "measured_at": "2026-07-19T08:16:33.843482+00:00",
+  "denominator": 1093,
+  "contracts_ops_covered": 1090,
+  "contracts_ops_gap": [
+    {
+      "id": 2083,
+      "cnpj_8": "00394494000309",
+      "razao": "SUPERINTENDENCIA REGIONAL DO DPF EM SANTA CATARINA",
+      "municipio": "FLORIANOPOLIS",
+      "nat": "1015",
+      "note": "malformed_cnpj_8_14digits"
+    },
+    {
+      "id": 2084,
+      "cnpj_8": "00394494012061",
+      "razao": "SUPERINTENDENCIA REG.POL.RODOV.FED. EM SANTA CATARINA",
+      "municipio": "FLORIANOPOLIS",
+      "nat": "1015",
+      "note": "malformed_cnpj_8_14digits"
+    },
+    {
+      "id": 2085,
+      "cnpj_8": "00394494015320",
+      "razao": "UNIVERSIDADE CORPORATIVA DA POLICIA RODOVIARIA FEDERAL",
+      "municipio": "FLORIANOPOLIS",
+      "nat": "1015",
+      "note": "malformed_cnpj_8_14digits"
+    }
+  ],
+  "editais_presence_gap_count": 808,
+  "editais_presence_covered": 285,
+  "definition_contracts_ops": "presence OR success_zero"
+}

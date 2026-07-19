@@ -1,0 +1,209 @@
+{
+  "measured_at": "2026-07-19T03:59:45.915955+00:00",
+  "batch_limit": 80,
+  "attempted": 80,
+  "resolved": 80,
+  "resolve_rate": 1.0,
+  "methods": {
+    "cnpj8_prefix": 79,
+    "token_containment": 1
+  },
+  "sample_resolved": [
+    {
+      "cnpj8": "16670395",
+      "razao": "AGENCIA MUNICIPAL DE REGULACAO, CONTROLE E FISCALIZACAO DO MUNICIPIO DE ITAPEMA",
+      "municipio": "ITAPEMA",
+      "query": "AGENCIA MUNICIPAL DE REGULACAO, CONTROLE E FISCALIZACAO DO MUNICIPIO DE ITAPEMA",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "16670395000170",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "AGENCIA MUNICIPAL DE REGULACAO, CONTROLE E FISCALIZACAO DO MUNICIPIO DE ITAPEMA"
+      }
+    },
+    {
+      "cnpj8": "83102236",
+      "razao": "BLUMENAU PREFEITURA",
+      "municipio": "BLUMENAU",
+      "query": "BLUMENAU PREFEITURA",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "83102236000166",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "BLUMENAU PREFEITURA"
+      }
+    },
+    {
+      "cnpj8": "79372488",
+      "razao": "BLUMENAU PREFEITURA",
+      "municipio": "BLUMENAU",
+      "query": "BLUMENAU PREFEITURA",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "79372488000138",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "BLUMENAU PREFEITURA"
+      }
+    },
+    {
+      "cnpj8": "79372462",
+      "razao": "BLUMENAU PROCURADORIA GERAL DO MUNICIPIO",
+      "municipio": "BLUMENAU",
+      "query": "BLUMENAU PROCURADORIA GERAL DO MUNICIPIO",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "79372462000190",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "BLUMENAU PROCURADORIA GERAL DO MUNICIPIO"
+      }
+    },
+    {
+      "cnpj8": "10721533",
+      "razao": "CAMARA DE VEREADORES DO MUNICIPIO DE ALFREDO WAGNER",
+      "municipio": "ALFREDO WAGNER",
+      "query": "CAMARA DE VEREADORES DO MUNICIPIO DE ALFREDO WAGNER",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "10721533000116",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "CAMARA DE VEREADORES DO MUNICIPIO DE ALFREDO WAGNER"
+      }
+    },
+    {
+      "cnpj8": "16537849",
+      "razao": "CAMARA DE VEREADORES DO MUNICIPIO DE VIDAL RAMOS",
+      "municipio": "VIDAL RAMOS",
+      "query": "CAMARA DE VEREADORES DO MUNICIPIO DE VIDAL RAMOS",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "16537849000139",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "CAMARA DE VEREADORES DO MUNICIPIO DE VIDAL RAMOS"
+      }
+    },
+    {
+      "cnpj8": "82562935",
+      "razao": "CANELINHA PREFEITURA",
+      "municipio": "CANELINHA",
+      "query": "CANELINHA PREFEITURA",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "82562935000126",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "CANELINHA PREFEITURA"
+      }
+    },
+    {
+      "cnpj8": "18956022",
+      "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE AURORA",
+      "municipio": "AURORA",
+      "query": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE AURORA",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "18956022000195",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE AURORA"
+      }
+    },
+    {
+      "cnpj8": "20556993",
+      "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE SALETE -SC",
+      "municipio": "SALETE",
+      "query": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE SALETE -SC",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "20556993000190",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "COMISSAO MUNICIPAL DE DEFESA CIVIL - COMDEC DO MUNICIPIO DE SALETE -SC"
+      }
+    },
+    {
+      "cnpj8": "16757142",
+      "razao": "COMISSAO MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE RODEIO",
+      "municipio": "RODEIO",
+      "query": "COMISSAO MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE RODEIO",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "16757142000138",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "COMISSAO MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE RODEIO"
+      }
+    },
+    {
+      "cnpj8": "14695989",
+      "razao": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DOS MUNICIPIOS DA AMAVI - CIM-AMAVI",
+      "municipio": "ITUPORANGA",
+      "query": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DOS MUNICIPIOS DA AMAVI - CIM-AMAVI",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "14695989000100",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DOS MUNICIPIOS DA AMAVI - CIM-AMAVI"
+      }
+    },
+    {
+      "cnpj8": "15528194",
+      "razao": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE ALFREDO WAGNER",
+      "municipio": "ALFREDO WAGNER",
+      "query": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE ALFREDO WAGNER",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "15528194000170",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE ALFREDO WAGNER"
+      }
+    },
+    {
+      "cnpj8": "18600048",
+      "razao": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE PORTO BELO - COMDEC",
+      "municipio": "PORTO BELO",
+      "query": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE PORTO BELO - COMDEC",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "18600048000104",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "COORDENADORIA MUNICIPAL DE DEFESA CIVIL DO MUNICIPIO DE PORTO BELO - COMDEC"
+      }
+    },
+    {
+      "cnpj8": "80168446",
+      "razao": "FUNDACAO HOSPITALAR DO MUNICIPIO DE BOM JARDIM DA SERRA",
+      "municipio": "BOM JARDIM DA SERRA",
+      "query": "FUNDACAO HOSPITALAR DO MUNICIPIO DE BOM JARDIM DA SERRA",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "80168446000169",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "FUNDACAO HOSPITALAR DO MUNICIPIO DE BOM JARDIM DA SERRA"
+      }
+    },
+    {
+      "cnpj8": "83711580",
+      "razao": "FUNDACAO MEDICO HOSPITALAR DO MUNICIPIO DE LAGUNA",
+      "municipio": "LAGUNA",
+      "query": "FUNDACAO MEDICO HOSPITALAR DO MUNICIPIO DE LAGUNA",
+      "n_hits": 98426,
+      "error": null,
+      "match": {
+        "cnpj14": "83711580000152",
+        "method": "cnpj8_prefix",
+        "razaoSocial": "FUNDACAO MEDICO HOSPITALAR DO MUNICIPIO DE LAGUNA"
+      }
+    }
+  ],
+  "sample_unresolved": []
+}

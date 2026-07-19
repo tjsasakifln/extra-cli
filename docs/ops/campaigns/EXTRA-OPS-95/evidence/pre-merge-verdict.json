@@ -1,0 +1,32 @@
+{
+  "verdict": "READY_WITH_EXPLICIT_ACCEPTED_RISK",
+  "head": "7cee143bd2ca4203e8c7dc42b382230aed8314c1",
+  "main_base": "dbc5adb2ab62898cd3fd005c83c90dcef36c1cde",
+  "merge_method": "squash merge",
+  "accepted_risks": [
+    "Full suite exit 1 with 14 failures pre-existing on main (chaos ResilienceConfig, opportunity_integration under mock, transparencia crawl_full, resilience vertical env)",
+    "Ledger checksum drift for 018/027 between fresh vs upgrade paths (not fail-closed by apply_migrations)",
+    "entity_source_registry.jsonl ~4.3MB retained",
+    "workflow_dispatch full suite still not green on main; mandatory PR CI jobs are green"
+  ],
+  "blockers": [],
+  "claims": {
+    "allowed": [
+      "PARTIAL",
+      "ops_proxy_contracts 1051/1093 96.16% = presence\u222asuccess_zero",
+      "editais ~25.5%",
+      "DOD 308/1355 22.73%"
+    ],
+    "forbidden": [
+      "7-stage operational coverage 95%",
+      "editais 95%",
+      "DOD 55%",
+      "LOCAL_READY",
+      "PROJECT_DONE",
+      "campaign DONE",
+      "PDF/Excel real via fixture only"
+    ]
+  },
+  "previous_expected_head": "e4626fd94fc35f92abb21d76c183270ca3befb9d",
+  "note": "HEAD moved after pre-merge validation commits; re-run CI on 7cee143"
+}

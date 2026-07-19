@@ -79,6 +79,15 @@ CRITICAL_SOURCES: tuple[CriticalSourceSpec, ...] = (
 )
 
 
+def _selected_critical_sources() -> tuple[CriticalSourceSpec, ...]:
+    """Filter CRITICAL_SOURCES by optional FRESHNESS_SOURCES env (comma-separated names)."""
+    raw = (os.getenv("FRESHNESS_SOURCES") or "").strip()
+    if not raw:
+        return CRITICAL_SOURCES
+    wanted = {part.strip().lower() for part in raw.split(",") if part.strip()}
+    return tuple(s for s in CRITICAL_SOURCES if s.source_name.lower() in wanted)
+
+
 def _get_conn(dsn: str | None = None) -> psycopg2.extensions.connection:
     effective_dsn = dsn or DEFAULT_DSN
     try:

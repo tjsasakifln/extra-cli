@@ -1,0 +1,21 @@
+{
+  "benchmark_id": "B1",
+  "campaign": "EXTRA-OPS-95-FOUNDATION",
+  "measured_at": "2026-07-19T02:39:00Z",
+  "candidate": "OCDS intermediate layer + ocdskit/Kingfisher comparison",
+  "implemented": "scripts/ocds_bridge/mapping.py (thin ADAPT)",
+  "not_implemented": ["full Kingfisher", "ocdskit dependency", "destructive DB remodel"],
+  "tests": {
+    "command": "python3 -m pytest tests/test_ocds_bridge_mapping.py -q --no-cov",
+    "passed": 3,
+    "failed": 0
+  },
+  "results": {
+    "bid_round_trip_essential_fields": "preserved",
+    "contract_value_not_marked_paid": true,
+    "tender_contract_linkage_field": "preserved on provenance.linked_tender_id"
+  },
+  "decision": "ADAPT thin layer; DEFER ocdskit; REJECT full Kingfisher",
+  "next": "Run mapping on live sample after contracts/bids re-collect; measure field loss on real payloads",
+  "claims_forbidden": ["OCDS fully adopted", "Kingfisher installed", "coverage improved by mapping alone"]
+}

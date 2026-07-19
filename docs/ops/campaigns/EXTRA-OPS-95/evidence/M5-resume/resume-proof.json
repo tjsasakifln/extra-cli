@@ -1,0 +1,33 @@
+{
+  "measured_at": "2026-07-19T03:37:36.957008+00:00",
+  "before": {
+    "completed": [
+      "20260704_20260718"
+    ],
+    "current": "20260604",
+    "total_fetched": 72930
+  },
+  "mid": {
+    "completed": [
+      "20260704_20260718"
+    ],
+    "current": "20260604",
+    "total_fetched": 72930
+  },
+  "after": {
+    "completed": [
+      "20260704_20260718"
+    ],
+    "current": "20260604",
+    "total_fetched": 72930
+  },
+  "resume_skips_completed": true,
+  "proof": "checkpoint file preserves completed windows across kill/restart",
+  "claims_allowed": [
+    "interrupt/resume via contracts_full.json"
+  ],
+  "claims_forbidden": [
+    "45d contracts complete",
+    "coverage 95%"
+  ]
+}

@@ -1,0 +1,265 @@
+{
+  "fresh": {
+    "label": "fresh_pr",
+    "dsn_db": "val_fresh_pr",
+    "checks": [
+      {
+        "name": "esfera_id_text",
+        "ok": true,
+        "got": "text"
+      },
+      {
+        "name": "upsert_fn_exists",
+        "ok": true
+      },
+      {
+        "name": "qualified_content_hash",
+        "ok": true
+      },
+      {
+        "name": "jsonb_typeof_arrays",
+        "ok": true
+      },
+      {
+        "name": "esfera_check",
+        "ok": true
+      },
+      {
+        "name": "insert_ok",
+        "ok": true
+      },
+      {
+        "name": "update_ok",
+        "ok": true
+      },
+      {
+        "name": "null_arrays_ok",
+        "ok": true
+      },
+      {
+        "name": "non_array_json_tolerated",
+        "ok": true
+      },
+      {
+        "name": "idempotent_upsert",
+        "ok": true
+      },
+      {
+        "name": "ledger_057",
+        "ok": true
+      }
+    ],
+    "esfera_id_type": "text",
+    "insert_rows": [
+      [
+        "insert",
+        1,
+        "val-hash-001"
+      ]
+    ],
+    "update_rows": [
+      [
+        "update",
+        1,
+        "val-hash-001"
+      ]
+    ],
+    "null_array_rows": [
+      [
+        "insert",
+        3,
+        "val-hash-002"
+      ]
+    ],
+    "bad_array_rows": [
+      [
+        "insert",
+        4,
+        "val-hash-003"
+      ]
+    ],
+    "mig_057": {
+      "version": "057",
+      "checksum": "sha256=14350e994a694f15"
+    },
+    "ledger_018_027": [
+      {
+        "v": "018",
+        "c": "sha256=5d552fed4a311ab7",
+        "n": "018-td-5.3_esfera_id_check.sql"
+      },
+      {
+        "v": "027",
+        "c": "sha256=6bfe3889936fb6c7",
+        "n": "027_opportunity_intel.sql"
+      }
+    ],
+    "all_ok": true
+  },
+  "upgrade": {
+    "label": "upgrade_from_main",
+    "dsn_db": "val_upgrade_main",
+    "checks": [
+      {
+        "name": "esfera_id_text",
+        "ok": true,
+        "got": "text"
+      },
+      {
+        "name": "upsert_fn_exists",
+        "ok": true
+      },
+      {
+        "name": "qualified_content_hash",
+        "ok": true
+      },
+      {
+        "name": "jsonb_typeof_arrays",
+        "ok": true
+      },
+      {
+        "name": "esfera_check",
+        "ok": true
+      },
+      {
+        "name": "insert_ok",
+        "ok": true
+      },
+      {
+        "name": "update_ok",
+        "ok": true
+      },
+      {
+        "name": "null_arrays_ok",
+        "ok": true
+      },
+      {
+        "name": "non_array_json_tolerated",
+        "ok": true
+      },
+      {
+        "name": "idempotent_upsert",
+        "ok": true
+      },
+      {
+        "name": "ledger_057",
+        "ok": true
+      }
+    ],
+    "esfera_id_type": "text",
+    "insert_rows": [
+      [
+        "insert",
+        3,
+        "val-hash-001"
+      ]
+    ],
+    "update_rows": [
+      [
+        "update",
+        3,
+        "val-hash-001"
+      ]
+    ],
+    "null_array_rows": [
+      [
+        "insert",
+        5,
+        "val-hash-002"
+      ]
+    ],
+    "bad_array_rows": [
+      [
+        "insert",
+        6,
+        "val-hash-003"
+      ]
+    ],
+    "mig_057": {
+      "version": "057",
+      "checksum": "sha256=14350e994a694f15"
+    },
+    "ledger_018_027": [
+      {
+        "v": "018",
+        "c": "sha256=0dee99062bb59957",
+        "n": "018-td-5.3_esfera_id_check.sql"
+      },
+      {
+        "v": "027",
+        "c": "sha256=afad4a0fb33cd623",
+        "n": "027_opportunity_intel.sql"
+      }
+    ],
+    "all_ok": true
+  },
+  "schema_fresh": {
+    "n_cols": 1133,
+    "n_cons": 120,
+    "fns": [
+      [
+        "upsert_official_act_resource",
+        "f5bc5def505a9b8e71b41631d0f5717a"
+      ],
+      [
+        "upsert_official_acts",
+        "24b926fe69e98cc076325a0f38566274"
+      ],
+      [
+        "upsert_opportunity_intel",
+        "11f125fed8067c75b91298fdd47e499e"
+      ],
+      [
+        "upsert_pncp_raw_bids",
+        "ff1384ce2786b0fe734555e5353a43bb"
+      ],
+      [
+        "upsert_pncp_supplier_contracts",
+        "8950a92a4a21ccafe07aa67ea272167d"
+      ],
+      [
+        "upsert_qw01_pncp_opportunities",
+        "f28bb8bbd0c21a6ed992a91859d52a3a"
+      ]
+    ],
+    "cols_hash": "0e6b8cd102068db1",
+    "cons_hash": "c01569d8ece5e47a",
+    "upsert_opportunity_md5": "11f125fed8067c75b91298fdd47e499e"
+  },
+  "schema_upgrade": {
+    "n_cols": 1133,
+    "n_cons": 120,
+    "fns": [
+      [
+        "upsert_official_act_resource",
+        "f5bc5def505a9b8e71b41631d0f5717a"
+      ],
+      [
+        "upsert_official_acts",
+        "24b926fe69e98cc076325a0f38566274"
+      ],
+      [
+        "upsert_opportunity_intel",
+        "11f125fed8067c75b91298fdd47e499e"
+      ],
+      [
+        "upsert_pncp_raw_bids",
+        "ff1384ce2786b0fe734555e5353a43bb"
+      ],
+      [
+        "upsert_pncp_supplier_contracts",
+        "8950a92a4a21ccafe07aa67ea272167d"
+      ],
+      [
+        "upsert_qw01_pncp_opportunities",
+        "f28bb8bbd0c21a6ed992a91859d52a3a"
+      ]
+    ],
+    "cols_hash": "0e6b8cd102068db1",
+    "cons_hash": "c01569d8ece5e47a",
+    "upsert_opportunity_md5": "11f125fed8067c75b91298fdd47e499e"
+  },
+  "fn_upsert_equal": true,
+  "cols_equal": true,
+  "cons_equal": true
+}

@@ -682,7 +682,6 @@ def _crawl_source_via_resilient_pipeline(
     limit: int | None = None,
 ) -> Any:
     """Facade: priority sources share OperationalPipeline with resilient_cycle."""
-    from datetime import date as _date
     from datetime import datetime
 
     from scripts.crawl.ingestion._base.crawler import CrawlerResult, CrawlRequest

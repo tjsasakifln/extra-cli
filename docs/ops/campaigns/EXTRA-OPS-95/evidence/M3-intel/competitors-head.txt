@@ -1,0 +1,10 @@
+
+=== TOP FORNECEDORES ===
+fornecedor_cnpj | fornecedor_nome                                  | qtd_contratos | valor_total_contratos | ticket_medio_contrato | qtd_orgaos_distintos | hhi_concentracao
+----------------+--------------------------------------------------+---------------+-----------------------+-----------------------+----------------------+-----------------
+27816487000131  | EMPRESA GERENCIAL DE PROJETOS NAVAIS             | 3.00          | 4,879,473,154.00      | 2,439,736,577.00      | 1                    | 9,823.00        
+2500558         | TAKEDA PHARMACEUTICALS INTERNACIONAL AG IRELAND  | 1.00          | 1,566,110,700.00      | 1,566,110,700.00      | 1                    | 10,000.00       
+08827501000158  | AEGEA SANEAMENTO E PARTICIPAÇÕES S.A.            | 1.00          | 1,522,199,515.00      | 1,522,199,515.00      | 1                    | 10,000.00       
+33683111000107  | SERVICO FEDERAL DE PROCESSAMENTO DE DADOS (SERPR | 53.00         | 1,475,456,032.21      | 35,129,905.53         | 30                   | 4,739.00        
+61072393003906  | PFIZER BRASIL LTDA                               | 6.00          | 1,338,468,446.64      | 1,338,468,446.64      | 1                    | 10,000.00       
+

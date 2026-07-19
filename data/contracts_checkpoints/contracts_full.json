@@ -2,12 +2,26 @@
   "source": "pncp_contracts",
   "mode": "full",
   "completed_windows": [
-    "20260715_20260715"
+    "20260704_20260718",
+    "20260604_20260610",
+    "20260611_20260617",
+    "20260618_20260624",
+    "20260625_20260701",
+    "20260702_20260708",
+    "20260709_20260715",
+    "20260716_20260719",
+    "20260420_20260519",
+    "20260520_20260618",
+    "20260619_20260718"
   ],
-  "current_window_start": "20260715",
-  "total_contracts_fetched": 6169,
-  "total_windows_completed": 1,
-  "total_windows_failed": 0,
-  "last_error": null,
-  "updated_at": "2026-07-17T00:29:06Z"
+  "current_window_start": "20260619",
+  "total_contracts_fetched": 813648,
+  "total_windows_completed": 11,
+  "total_windows_failed": 3,
+  "last_error": "Page 1: [http_rate_limit] 429 Rate limit exceeded after 3 retries",
+  "updated_at": "2026-07-19T16:36:52Z",
+  "meta": {
+    "campaign": "EXTRA-OPS-95",
+    "days": 14
+  }
 }

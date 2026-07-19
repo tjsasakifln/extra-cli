@@ -1,0 +1,31 @@
+{
+  "measured_at": "2026-07-19T15:30:33.116672+00:00",
+  "denominator_200km": 1093,
+  "presence_editais": 279,
+  "presence_editais_pct": 25.5261,
+  "presence_contracts": 307,
+  "presence_contracts_pct": 28.0878,
+  "success_zero_contracts_entities": 522,
+  "ops_proxy_contracts_presence_or_sz": 829,
+  "ops_proxy_pct": 75.8463,
+  "ops_proxy_ge_95": false,
+  "gap_to_95pct_ops_contracts": 209,
+  "bids_rows": 10831,
+  "contracts_rows": 238859,
+  "dod_checked": 313,
+  "dod_total": 1352,
+  "dod_pct": 23.1509,
+  "definition": "ops_proxy = lake presence of orgao_cnpj8 OR entity-scoped success_zero with cnpj14 root match + http_204_complete. NOT seven-stage operational coverage.",
+  "status": "PARTIAL",
+  "claims_allowed": [
+    "contracts ops proxy 829/1093 (75.85%) rebuild after restore"
+  ],
+  "claims_forbidden": [
+    "seven-stage operational coverage 95%",
+    "editais coverage 95%",
+    "campaign DONE",
+    "DOD 55%",
+    "LOCAL_READY"
+  ],
+  "note": "checkpoint3 after SZ wave2 + contracts expand; editais still ~25%"
+}

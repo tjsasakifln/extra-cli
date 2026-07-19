@@ -1,0 +1,399 @@
+{
+  "measured_at": "2026-07-19T04:12:32.915383+00:00",
+  "run_id": "sz-contracts-20260719T040938Z",
+  "probed": 47,
+  "success_zero_written": 0,
+  "verdicts": {
+    "BLOCKED_API": 22,
+    "HAS_DATA": 3,
+    "SUCCESS_ZERO": 22
+  },
+  "results": [
+    {
+      "cnpj8": "16670395",
+      "cnpj14": "16670395000170",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=16670395000170"
+    },
+    {
+      "cnpj8": "16670395",
+      "cnpj14": "16670395000170",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "column \"capability\" specified more than once\nLINE 7:                   state, applicability, capability,\n                                                ^\n"
+    },
+    {
+      "cnpj8": "83102236",
+      "cnpj14": "83102236000166",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=83102236000166"
+    },
+    {
+      "cnpj8": "83102236",
+      "cnpj14": "83102236000166",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "79372488",
+      "cnpj14": "79372488000138",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=79372488000138"
+    },
+    {
+      "cnpj8": "79372488",
+      "cnpj14": "79372488000138",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "79372462",
+      "cnpj14": "79372462000190",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=79372462000190"
+    },
+    {
+      "cnpj8": "79372462",
+      "cnpj14": "79372462000190",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "10721533",
+      "cnpj14": "10721533000116",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=10721533000116"
+    },
+    {
+      "cnpj8": "10721533",
+      "cnpj14": "10721533000116",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "16537849",
+      "cnpj14": "16537849000139",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=16537849000139"
+    },
+    {
+      "cnpj8": "16537849",
+      "cnpj14": "16537849000139",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "82562935",
+      "cnpj14": "82562935000126",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=82562935000126"
+    },
+    {
+      "cnpj8": "82562935",
+      "cnpj14": "82562935000126",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "18956022",
+      "cnpj14": "18956022000195",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=18956022000195"
+    },
+    {
+      "cnpj8": "18956022",
+      "cnpj14": "18956022000195",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "20556993",
+      "cnpj14": "20556993000190",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=20556993000190"
+    },
+    {
+      "cnpj8": "20556993",
+      "cnpj14": "20556993000190",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "16757142",
+      "cnpj14": "16757142000138",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=16757142000138"
+    },
+    {
+      "cnpj8": "16757142",
+      "cnpj14": "16757142000138",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "14695989",
+      "cnpj14": "14695989000100",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=14695989000100"
+    },
+    {
+      "cnpj8": "14695989",
+      "cnpj14": "14695989000100",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "15528194",
+      "cnpj14": "15528194000170",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=15528194000170"
+    },
+    {
+      "cnpj8": "15528194",
+      "cnpj14": "15528194000170",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "18600048",
+      "cnpj14": "18600048000104",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=18600048000104"
+    },
+    {
+      "cnpj8": "18600048",
+      "cnpj14": "18600048000104",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "80168446",
+      "cnpj14": "80168446000169",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=80168446000169"
+    },
+    {
+      "cnpj8": "80168446",
+      "cnpj14": "80168446000169",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "83711580",
+      "cnpj14": "83711580000152",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=83711580000152"
+    },
+    {
+      "cnpj8": "83711580",
+      "cnpj14": "83711580000152",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "18387954",
+      "cnpj14": "18387954000164",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=18387954000164"
+    },
+    {
+      "cnpj8": "18387954",
+      "cnpj14": "18387954000164",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "22033804",
+      "cnpj14": "22033804000120",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=22033804000120"
+    },
+    {
+      "cnpj8": "22033804",
+      "cnpj14": "22033804000120",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "03916700",
+      "cnpj14": "03916700000119",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=03916700000119"
+    },
+    {
+      "cnpj8": "03916700",
+      "cnpj14": "03916700000119",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "03933794",
+      "cnpj14": "03933794000134",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=03933794000134"
+    },
+    {
+      "cnpj8": "03933794",
+      "cnpj14": "03933794000134",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "73249989",
+      "cnpj14": "73249989000145",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=73249989000145"
+    },
+    {
+      "cnpj8": "73249989",
+      "cnpj14": "73249989000145",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "04616444",
+      "cnpj14": "04616444000107",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=04616444000107"
+    },
+    {
+      "cnpj8": "04616444",
+      "cnpj14": "04616444000107",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    },
+    {
+      "cnpj8": "05048537",
+      "cnpj14": "05048537000145",
+      "status": 200,
+      "total": 6,
+      "sha256": "1b35080e37683e70d22e41a75e34bd1c8c7f413fa9b52d24ceb46d5fa6faf0ce",
+      "verdict": "HAS_DATA",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=05048537000145"
+    },
+    {
+      "cnpj8": "03863650",
+      "cnpj14": "03863650000159",
+      "status": 200,
+      "total": 3,
+      "sha256": "302ea129110b39c9e11953bbc53dab12e7be44e48bc54497e203b254652abe91",
+      "verdict": "HAS_DATA",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=03863650000159"
+    },
+    {
+      "cnpj8": "18600539",
+      "cnpj14": "18600539000147",
+      "status": 200,
+      "total": 2,
+      "sha256": "93b843ac913d91db24da661758d006915111693eb719786d58ef754d436b588e",
+      "verdict": "HAS_DATA",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=18600539000147"
+    },
+    {
+      "cnpj8": "03749731",
+      "cnpj14": "03749731000122",
+      "status": 204,
+      "total": 0,
+      "sha256": "78e2dac7319d13f90ad315549953ec562c8e6bf48ebbc0cd2b235e3275a6a9e1",
+      "verdict": "SUCCESS_ZERO",
+      "url": "https://pncp.gov.br/api/consulta/v1/contratos?dataInicial=20260120&dataFinal=20260719&pagina=1&tamanhoPagina=50&cnpjOrgao=03749731000122"
+    },
+    {
+      "cnpj8": "03749731",
+      "cnpj14": "03749731000122",
+      "verdict": "BLOCKED_API",
+      "http": null,
+      "error": "current transaction is aborted, commands ignored until end of transaction block\n"
+    }
+  ],
+  "claims_allowed": [
+    "0 entity-scoped contracts success_zero rows written to coverage_evidence"
+  ],
+  "claims_forbidden": [
+    "95% operational coverage",
+    "presence metric includes success_zero automatically"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "measured_at": "2026-07-19T14:43:27.410806+00:00",
+  "head": "9d01e08",
+  "denominator_200km": 1093,
+  "presence_editais": 279,
+  "presence_editais_pct": 25.5261,
+  "presence_contracts": 247,
+  "presence_contracts_pct": 22.5984,
+  "success_zero_contracts_entities": 297,
+  "ops_proxy_contracts_presence_or_sz": 544,
+  "ops_proxy_pct": 49.7713,
+  "ops_proxy_ge_95": false,
+  "gap_to_95pct_ops_contracts": 494,
+  "bids_rows": 10831,
+  "contracts_rows": 72925,
+  "dod_checked": 313,
+  "dod_total": 1352,
+  "dod_pct": 23.1509,
+  "definition": "ops_proxy = lake presence of orgao_cnpj8 OR entity-scoped success_zero with cnpj14 root match + http_204_complete. NOT seven-stage operational coverage.",
+  "status": "PARTIAL",
+  "claims_allowed": [
+    "contracts ops proxy 544/1093 (49.77%) rebuild after restore"
+  ],
+  "claims_forbidden": [
+    "seven-stage operational coverage 95%",
+    "editais coverage 95%",
+    "campaign DONE",
+    "DOD 55%",
+    "LOCAL_READY"
+  ],
+  "note": "checkpoint2-mid during SZ400 batch; crawls still running under rate limits"
+}

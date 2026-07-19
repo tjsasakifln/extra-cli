@@ -1,0 +1,23 @@
+{
+  "ts": "2026-07-19T02:06:48.338084+00:00",
+  "presence": {
+    "den": 1093,
+    "editais": 285,
+    "contracts": 368,
+    "either": 406,
+    "pct_editais": 26.08,
+    "pct_contracts": 33.67,
+    "pct_either": 37.15,
+    "bids_rows": 10974,
+    "contracts_rows": 1082055
+  },
+  "strict_before": 407,
+  "strict_after": 407,
+  "pct_strict": 37.24,
+  "promote": {
+    "promoted": 285,
+    "verified": 284,
+    "collected": 1,
+    "evidence_rows_loaded": 413
+  }
+}

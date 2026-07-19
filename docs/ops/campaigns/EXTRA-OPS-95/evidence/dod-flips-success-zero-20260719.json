@@ -1,0 +1,9 @@
+{
+  "measured_at": "2026-07-19T07:52:10.279537+00:00",
+  "flips": 11,
+  "checked": 224,
+  "total": 1352,
+  "pct": 16.568,
+  "evidence": "Evid\u00eancia: coverage_evidence success_zero n=623 \u00b7 probe_entity_success_zero \u00b7 http_204_complete \u00b7 purge-token-mismatch \u00b7 EXTRA-OPS-95 ab3f77c 2026-07-19",
+  "note": "Only contracts path success_zero criteria with live evidence; residual ents still open; not 95% coverage claim"
+}

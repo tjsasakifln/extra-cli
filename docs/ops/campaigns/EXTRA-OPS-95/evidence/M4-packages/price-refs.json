@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "generated_at": "2026-07-19T03:28:34.123535+00:00",
+    "value_semantics": "valor_total is contracted amount, NOT paid"
+  },
+  "items": [
+    {
+      "bucket": "outros_aec_proxy",
+      "n": 65270,
+      "p50_contratado": 3500.0,
+      "p90_contratado": 153880.30799999996,
+      "avg_contratado": 143809437.8001509,
+      "is_paid": false,
+      "note": "contracted values only"
+    },
+    {
+      "bucket": "manutencao",
+      "n": 4534,
+      "p50_contratado": 8048.0,
+      "p90_contratado": 390864.1080000001,
+      "avg_contratado": 452005.29121085134,
+      "is_paid": false,
+      "note": "contracted values only"
+    },
+    {
+      "bucket": "construcao",
+      "n": 1086,
+      "p50_contratado": 229687.585,
+      "p90_contratado": 3394611.1,
+      "avg_contratado": 1590599.112753223,
+      "is_paid": false,
+      "note": "contracted values only"
+    },
+    {
+      "bucket": "reforma",
+      "n": 685,
+      "p50_contratado": 201472.33,
+      "p90_contratado": 2057263.8700000003,
+      "avg_contratado": 14988697.857080292,
+      "is_paid": false,
+      "note": "contracted values only"
+    },
+    {
+      "bucket": "pavimentacao",
+      "n": 501,
+      "p50_contratado": 851692.11,
+      "p90_contratado": 5443057.57,
+      "avg_contratado": 3925491.0573652694,
+      "is_paid": false,
+      "note": "contracted values only"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "measured_at": "2026-07-19T04:18:24.678238+00:00",
+  "rows_seen": 156,
+  "matched_updates": 0,
+  "unmatched_names": 7,
+  "top_unmatched": [
+    [
+      "Instituto do Meio Ambiente - IMA",
+      89
+    ],
+    [
+      "Departamento Estadual de Trânsito - DETRAN/SC",
+      31
+    ],
+    [
+      "Centro de Informática e Automação de Santa Catarina - CIASC",
+      11
+    ],
+    [
+      "Companhia Integrada de Desenv. Agricola de Santa Catarina - CIDASC",
+      9
+    ],
+    [
+      "Fundação Catarinense de Esporte - FCE",
+      9
+    ],
+    [
+      "Secretaria de Estado de Indústria, Comércio e Serviço",
+      5
+    ],
+    [
+      "Secretaria de Estado de Ciência Tecnologia e Inovação",
+      2
+    ]
+  ],
+  "presence_editais_200km": 279,
+  "presence_editais_pct": 25.5261,
+  "method": "deterministic name match; placeholder full CNPJ = cnpj8||'000000'",
+  "claims_forbidden": [
+    "full CNPJ verified for enriched rows",
+    "seven-stage operational coverage",
+    "95% coverage"
+  ]
+}

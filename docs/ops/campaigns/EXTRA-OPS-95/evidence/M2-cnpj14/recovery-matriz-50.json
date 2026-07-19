@@ -1,0 +1,144 @@
+{
+  "measured_at": "2026-07-19T15:31:14.080358+00:00",
+  "branch": "0001",
+  "probed": 11,
+  "resolved": 8,
+  "not_found": 0,
+  "rejected_name": 3,
+  "errors": 0,
+  "cache_total": 812,
+  "write": true,
+  "results": [
+    {
+      "cnpj8": "05234481",
+      "cnpj14": "05234481000113",
+      "razao": "FUNDACAO AMBIENTAL AREA COSTEIRA DE ITAPEMA",
+      "municipio": "ITAPEMA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/05234481000113",
+      "api_razao": "FUNDACAO AMBIENTAL AREA COSTEIRA DE ITAPEMA",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "04238015",
+      "cnpj14": "04238015000143",
+      "razao": "FUNDACAO MUNICIPAL DE ESPORTE",
+      "municipio": "NAVEGANTES",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/04238015000143",
+      "api_razao": "FUNDACAO MUNICIPAL DE ESPORTE",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "07526983",
+      "cnpj14": "07526983000143",
+      "razao": "FUNDO DE AMPARO AO TRABALHADOR",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/07526983000143",
+      "api_razao": "FUNDO DE AMPARO AO TRABALHADOR",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "10898596",
+      "cnpj14": "10898596000142",
+      "razao": "INSTITUTO BRASILEIRO DE MUSEUS - IBRAM",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/10898596000142",
+      "api_razao": "INSTITUTO BRASILEIRO DE MUSEUS - IBRAM",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "14634385",
+      "cnpj14": "14634385000153",
+      "razao": "INSTITUTO BRUSQUENSE DE PREVIDENCIA - IBPREV",
+      "municipio": "BRUSQUE",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/14634385000153",
+      "api_razao": "INSTITUTO BRUSQUENSE DE PREVIDENCIA - IBPREV",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "76071869",
+      "cnpj14": "76071869000199",
+      "razao": "INSTITUTO DE PESOS E MEDIDAS DO ESTADO DO PARANA",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/76071869000199",
+      "api_razao": "INSTITUTO DE PESOS E MEDIDAS DO ESTADO DO PARANA",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "49947569",
+      "cnpj14": "49947569000158",
+      "razao": "SECRETARIA DE ESTADO DA CIENCIA, TECNOLOGIA E INOVACAO",
+      "municipio": "SANTA CATARINA",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/49947569000158",
+      "api_razao": "SECRETARIA DE ESTADO DA CIENCIA, TECNOLOGIA E INOVACAO",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "05683868",
+      "cnpj14": "05683868000157",
+      "razao": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO DE TREVISO - SAMAE",
+      "municipio": "TREVISO",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/05683868000157",
+      "api_razao": "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO DE TREVISO - SAMAE",
+      "name_soft": "ok",
+      "verdict": "RESOLVED",
+      "method": "matriz_0001_checkdigit"
+    },
+    {
+      "cnpj8": "00394494000309",
+      "cnpj14": "00394494000136",
+      "razao": "SUPERINTENDENCIA REGIONAL DO DPF EM SANTA CATARINA",
+      "municipio": "FLORIANOPOLIS",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00394494000136",
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "CNPJ8_MISMATCH"
+    },
+    {
+      "cnpj8": "00394494012061",
+      "cnpj14": "00394494000136",
+      "razao": "SUPERINTENDENCIA REG.POL.RODOV.FED. EM SANTA CATARINA",
+      "municipio": "FLORIANOPOLIS",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00394494000136",
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "CNPJ8_MISMATCH"
+    },
+    {
+      "cnpj8": "00394494015320",
+      "cnpj14": "00394494000136",
+      "razao": "UNIVERSIDADE CORPORATIVA DA POLICIA RODOVIARIA FEDERAL",
+      "municipio": "FLORIANOPOLIS",
+      "http_status": 200,
+      "url": "https://pncp.gov.br/api/pncp/v1/orgaos/00394494000136",
+      "api_razao": "MINISTERIO DA JUSTICA E SEGURANCA PUBLICA",
+      "verdict": "CNPJ8_MISMATCH"
+    }
+  ],
+  "claims_forbidden": [
+    "invented CNPJ without verification",
+    "operational coverage from resolve alone"
+  ],
+  "note": "CNPJ-14 = cnpj8+branch+DV verified via PNCP orgaos API HTTP 200"
+}
