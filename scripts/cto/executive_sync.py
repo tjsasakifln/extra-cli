@@ -36,6 +36,25 @@ def _load_json(path: Path) -> dict[str, Any]:
         return {}
 
 
+def _live_head(root: Path) -> str | None:
+    """Prefer live git HEAD over stale observation snapshot."""
+    import subprocess
+
+    try:
+        proc = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(root),
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        head = (proc.stdout or "").strip()
+        return head or None
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+
+
 def build_executive_payload(root: Path | None = None) -> dict[str, Any]:
     root = root or repo_root()
     obs = _load_json(observation_path(root))
@@ -52,9 +71,10 @@ def build_executive_payload(root: Path | None = None) -> dict[str, Any]:
     if not issues_summary:
         issues_summary = {k: len(v) for k, v in by_state.items()}
 
+    live_head = _live_head(root)
     payload = {
         "generated_at_utc": _utc_now(),
-        "commit": git.get("commit"),
+        "commit": live_head or git.get("commit"),
         "branch": git.get("branch"),
         "dod": {
             "checked": dod.get("checked"),

@@ -104,23 +104,35 @@ def test_html_cto_panel_not_all_ready_when_pr48_items_exist():
         )
 
 
-def test_html_cto_panel_commit_matches_repo_head():
-    """Panel commit must match current HEAD (snapshot not stuck on old tip)."""
+def test_html_cto_panel_commit_is_recent_head_history():
+    """Panel commit must be on recent HEAD history (not stuck on ancient tip).
+
+    Exact equality with HEAD is impossible when the HTML file is itself
+    committed after refresh (self-referential SHA). Require membership in
+    the last 5 commits so stale 78c692e-era panels still fail.
+    """
     data = _panel_payload()
     panel_commit = str(data.get("commit") or "")
     assert panel_commit, "panel missing commit"
     root = repo_root()
-    head = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
-        cwd=str(root),
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip()
-    # accept full or short
-    assert panel_commit == head or head.startswith(panel_commit) or panel_commit.startswith(
-        head[:7]
-    ), f"panel commit {panel_commit!r} != HEAD {head!r}"
+    recent = (
+        subprocess.run(
+            ["git", "rev-list", "-n", "5", "HEAD"],
+            cwd=str(root),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        .stdout.strip()
+        .splitlines()
+    )
+    ok = any(
+        c == panel_commit
+        or c.startswith(panel_commit[:7])
+        or panel_commit.startswith(c[:7])
+        for c in recent
+    )
+    assert ok, f"panel commit {panel_commit!r} not in recent HEAD history {recent}"
 
 
 def test_html_not_stale_waiting_human_with_all_ready():
