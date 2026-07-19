@@ -364,3 +364,34 @@ def _bounded_percent(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
     return round(min(100.0, max(0.0, numerator / denominator * 100.0)), 2)
+
+
+def reconcile_active_ids(
+    previously_active: set[str],
+    seen_in_snapshot: set[str],
+    *,
+    run_complete: bool,
+) -> dict[str, Any]:
+    """Pure fail-closed reconciliation of active IDs against a snapshot.
+
+    When ``run_complete`` is False, skip mutations (partial runs must not
+    inactivate records that may still exist outside the incomplete window).
+    """
+    prev = set(previously_active)
+    seen = set(seen_in_snapshot)
+    if not run_complete:
+        return {
+            "skipped": True,
+            "inactivate": [],
+            "reactivate": [],
+            "remain_active": sorted(prev),
+        }
+    inactivate = sorted(prev - seen)
+    reactivate = sorted(seen - prev)
+    remain_active = sorted(prev & seen)
+    return {
+        "skipped": False,
+        "inactivate": inactivate,
+        "reactivate": reactivate,
+        "remain_active": remain_active,
+    }

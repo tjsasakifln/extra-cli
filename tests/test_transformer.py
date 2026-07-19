@@ -113,7 +113,7 @@ class TestTransformPncpItem:
         assert result["modalidade_id"] == 5
         assert result["modalidade_nome"] == "Pregao Eletronico"
         assert result["situacao_compra"] == "Divulgado"
-        assert result["esfera_id"] == 3
+        assert result["esfera_id"] == "3"  # TEXT codes for chk_pncp_raw_bids_esfera_id
         assert result["uf"] == "SC"
         assert result["municipio"] == "Florianopolis"
         assert result["codigo_municipio_ibge"] == "4205407"
@@ -240,7 +240,7 @@ class TestTransformPncpItem:
             "orgaoEntidade": {"esferaId": 2},
         }
         result = tr.transform_pncp_item(item)
-        assert result["esfera_id"] == 2
+        assert result["esfera_id"] == "2"  # TEXT codes for chk_pncp_raw_bids_esfera_id
 
     def test_esfera_none_when_missing(self):
         """esfera_id is None when not provided."""
