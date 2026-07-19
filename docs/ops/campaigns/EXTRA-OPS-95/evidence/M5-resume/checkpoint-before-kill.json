@@ -1,0 +1,17 @@
+{
+  "source": "pncp_contracts",
+  "mode": "full",
+  "completed_windows": [
+    "20260704_20260718"
+  ],
+  "current_window_start": "20260604",
+  "total_contracts_fetched": 72930,
+  "total_windows_completed": 1,
+  "total_windows_failed": 0,
+  "last_error": null,
+  "updated_at": "2026-07-19T03:34:51Z",
+  "meta": {
+    "campaign": "EXTRA-OPS-95",
+    "days": 14
+  }
+}
