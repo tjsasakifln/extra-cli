@@ -30,10 +30,10 @@ Corrigir bloqueadores objetivos e provar **um** ciclo live controlado:
 
 ```text
 python3 -m pytest tests/cto -q --no-cov
-# 107 passed
+# 109 passed
 ```
 
-Cobertura inclui: allowlist env (ausência de `MY_TOKEN`/`DATABASE_URL`/…), HOME isolado, always_approve default false, skip-tests live block, containment estrutural, claim surfaces, publisher no-merge, verifier matrix.
+Cobertura inclui: allowlist env (ausência de `MY_TOKEN`/`DATABASE_URL`/…), HOME isolado (sem cópia de `~/.grok/auth.json`), `XAI_API_KEY` obrigatória no live, always_approve default false, skip-tests live block, containment estrutural, claim surfaces, publisher no-merge, verifier matrix.
 
 ## Dívida residual (explícita)
 
@@ -48,7 +48,7 @@ Cobertura inclui: allowlist env (ausência de `MY_TOKEN`/`DATABASE_URL`/…), HO
 | Check | Resultado |
 |-------|-----------|
 | Ruff `scripts/cto` + `tests/cto` | esperado limpo no HEAD |
-| `pytest tests/cto` | **107 passed** |
+| `pytest tests/cto` | **109 passed** |
 | `run-once --dry-run --mock --skip-tests` | verify PASS → review ACCEPT → publish dry → **`ACCEPTED_DRY_RUN`** / `queue_mutated=false` / terminal **DONE** / exit **0** (não polui fila; WAITING_HUMAN só com draft PR real) |
 | live + `--skip-tests` | **BLOCKED_UNVERIFIED** / exit 11 (sem ACCEPT/publish) |
 | Canário live | ver seção abaixo (preenchida após execução) |
@@ -69,8 +69,9 @@ Cobertura inclui: allowlist env (ausência de `MY_TOKEN`/`DATABASE_URL`/…), HO
 | CI canário | consultado (run 29703266575; job CTO presente; aguardando/parcial) |
 | publisher | **WAITING_HUMAN** — draft PR #50; sem merge |
 | terminal | `WAITING_HUMAN` |
-| always_approve | **true** nesta execução via `CTO_GROK_ALWAYS_APPROVE=1` + containment funcional OK |
-| Grok | **live** (não mock); auth staged só `auth.json` / allowlist; HOME isolado |
+| always_approve | **true** nesta execução via `CTO_GROK_ALWAYS_APPROVE=1` + containment funcional OK (default continua false) |
+| Grok | **live** (não mock); HOME isolado; **sem** cópia de host auth.json no código atual (exige `XAI_API_KEY`) |
+| decision↔verify | **coerente** — `test_commands=grep -qi canary …`; `required_evidence=canary-proof.md`; verify PASS; review ACCEPT; PR #50 |
 | main mutada | **não** (`origin/main` = `d6d9e19`) |
 | merge | **não** (proibido; autoridade Tiago) |
 | diff hash | verification includes only canary-proof.md |

@@ -612,13 +612,21 @@ def normalize_review_content(content: dict[str, Any]) -> dict[str, Any]:
     Does not invent ACCEPT — only renames/fills required structural fields.
     """
     out = dict(content)
-    if not out.get("summary"):
-        for alt in ("reason", "rationale", "explanation", "message"):
-            if out.get(alt):
-                out["summary"] = str(out.pop(alt))
+    # summary: required non-empty string
+    summary = out.get("summary")
+    if summary is None or (isinstance(summary, str) and not summary.strip()):
+        for alt in ("reason", "rationale", "explanation", "message", "notes"):
+            val = out.get(alt)
+            if val is not None and str(val).strip():
+                out["summary"] = str(val).strip()
                 break
+        else:
+            # last resort structural placeholder (verdict still decided by model)
+            out["summary"] = str(out.get("verdict") or "review completed")
     else:
-        for alt in ("reason", "rationale"):
+        out["summary"] = str(summary).strip()
+    for alt in ("reason", "rationale", "explanation", "message", "notes"):
+        if alt in out and alt != "summary":
             out.pop(alt, None)
     if "failed_criteria" not in out or out["failed_criteria"] is None:
         out["failed_criteria"] = []
@@ -629,6 +637,10 @@ def normalize_review_content(content: dict[str, Any]) -> dict[str, Any]:
     elif not isinstance(out["repair_instructions"], list):
         out["repair_instructions"] = [str(out["repair_instructions"])]
     if "confidence" not in out or out["confidence"] is None:
+        out["confidence"] = 0.5
+    try:
+        out["confidence"] = float(out["confidence"])
+    except (TypeError, ValueError):
         out["confidence"] = 0.5
     hg = out.get("human_gate")
     if not isinstance(hg, dict):

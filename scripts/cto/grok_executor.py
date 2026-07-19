@@ -233,44 +233,28 @@ def is_under_managed_worktrees(worktree: Path, root: Path | None = None) -> bool
         return False
 
 
-def stage_grok_auth(isolated_home: Path) -> dict[str, Any]:
-    """Make Grok CLI usable under isolated HOME without exposing real HOME.
+def resolve_grok_auth() -> dict[str, Any]:
+    """Grok auth for isolated HOME — allowlist secret only, never host file copy.
 
-    Preference order:
-    1. XAI_API_KEY already in process env (forwarded via allowlist) — no files.
-    2. Else, if host has ~/.grok/auth.json, stage ONLY that file into
-       isolated_home/.grok/auth.json (Grok executor auth only).
-
-    Never stages: .ssh, .config/gh, .aws, .azure, .netrc, .gitconfig, or any
-    other host credential tree. Never stages DeepSeek/GH publish secrets.
+    Fail-closed: require ``XAI_API_KEY`` in the process environment (forwarded
+    via ENV_ALLOWLIST). Do **not** copy ``~/.grok/auth.json`` or any other
+    real-HOME credential file into the temporary HOME.
     """
-    report: dict[str, Any] = {
-        "xai_api_key_present": bool(os.environ.get("XAI_API_KEY")),
+    present = bool(str(os.environ.get("XAI_API_KEY") or "").strip())
+    if present:
+        return {
+            "xai_api_key_present": True,
+            "staged_auth_file": False,
+            "source": "XAI_API_KEY",
+            "ok": True,
+        }
+    return {
+        "xai_api_key_present": False,
         "staged_auth_file": False,
         "source": None,
+        "ok": False,
+        "error": "XAI_API_KEY required for live Grok under isolated HOME (no host auth.json copy)",
     }
-    if report["xai_api_key_present"]:
-        report["source"] = "XAI_API_KEY"
-        return report
-    host_auth = Path.home() / ".grok" / "auth.json"
-    if not host_auth.is_file():
-        report["source"] = None
-        report["error"] = "no XAI_API_KEY and no host ~/.grok/auth.json"
-        return report
-    dest_dir = isolated_home / ".grok"
-    dest_dir.mkdir(parents=True, exist_ok=True)
-    dest = dest_dir / "auth.json"
-    # Read+write (not full HOME tree copy). Mode private.
-    data = host_auth.read_bytes()
-    dest.write_bytes(data)
-    try:
-        dest.chmod(0o600)
-    except OSError:
-        pass
-    report["staged_auth_file"] = True
-    report["source"] = "host_auth_json_only"
-    report["dest"] = str(dest)
-    return report
 
 
 def create_isolated_runtime_dirs(
@@ -279,20 +263,21 @@ def create_isolated_runtime_dirs(
     root: Path | None = None,
     retain: bool = True,
 ) -> dict[str, Any]:
-    """Create temporary HOME/TMPDIR for the Grok child (no full real home copy)."""
+    """Create temporary HOME/TMPDIR for the Grok child (no real home file copy)."""
     root = root or repo_root()
     base = managed_worktree_parent(root) / "_runtime" / cycle_id
     home = base / "home"
     tmp = base / "tmp"
     home.mkdir(parents=True, exist_ok=True)
     tmp.mkdir(parents=True, exist_ok=True)
-    # Marker only — never secrets
+    # Marker only — never secrets, never host credential files
     (home / "README_ISOLATED.txt").write_text(
-        "CTO Autopilot isolated HOME. Do not store unrelated secrets.\n"
-        f"cycle_id={cycle_id}\ncreated_utc={_utc_now()}\n",
+        "CTO Autopilot isolated HOME. No host credential files are copied here.\n"
+        f"cycle_id={cycle_id}\ncreated_utc={_utc_now()}\n"
+        "Live Grok requires XAI_API_KEY in the parent process environment.\n",
         encoding="utf-8",
     )
-    auth_report = stage_grok_auth(home)
+    auth_report = resolve_grok_auth()
     return {
         "base": base,
         "home": home,
@@ -912,6 +897,33 @@ def execute(
         tmpdir=runtime["tmpdir"],
     )
     auth_info = runtime.get("auth") or {}
+
+    # Live Grok requires XAI_API_KEY (never host ~/.grok/auth.json copy into temp HOME)
+    if not dry_run and not mock and not auth_info.get("ok"):
+        result_fail = {
+            "status": "failed",
+            "reason": auth_info.get("error")
+            or "XAI_API_KEY required for live Grok under isolated HOME",
+            "cycle_id": cycle_id,
+            "session_id": session_id,
+            "worktree": str(worktree),
+            "branch": branch,
+            "always_approve": False,
+            "isolated_home": str(runtime["home"]),
+            "isolated_tmpdir": str(runtime["tmpdir"]),
+            "env_mode": "allowlist",
+            "grok_auth": {
+                "source": auth_info.get("source"),
+                "staged_auth_file": False,
+                "xai_api_key_present": bool(auth_info.get("xai_api_key_present")),
+            },
+            "timestamp_utc": _utc_now(),
+        }
+        (cdir / "execution.json").write_text(
+            json.dumps(redact_obj(result_fail), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        return redact_obj(result_fail)
 
     # Structural containment (always recorded)
     containment = functional_containment_preflight(

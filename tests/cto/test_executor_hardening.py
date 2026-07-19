@@ -221,6 +221,39 @@ def test_execute_dry_run_uses_allowlist_and_false_always_approve(sample_decision
     assert Path(out["isolated_home"]).resolve() != Path.home().resolve()
 
 
+def test_resolve_grok_auth_never_stages_host_files(tmp_path, monkeypatch):
+    from scripts.cto.grok_executor import create_isolated_runtime_dirs, resolve_grok_auth
+
+    monkeypatch.delenv("XAI_API_KEY", raising=False)
+    rep = resolve_grok_auth()
+    assert rep["ok"] is False
+    assert rep["staged_auth_file"] is False
+    assert rep.get("source") is None
+
+    # Even if host has auth.json, isolated HOME must not receive a copy
+    monkeypatch.setenv("XAI_API_KEY", "")
+    # create_isolated under managed path via cto_repo-like root
+    root = tmp_path / "repo"
+    root.mkdir()
+    # prepare parent naming: managed = root.parent / f"{root.name}-cto-cycles"
+    rt = create_isolated_runtime_dirs(cycle_id="auth-no-copy", root=root)
+    home = Path(rt["home"])
+    assert not (home / ".grok" / "auth.json").exists()
+    assert rt["auth"]["staged_auth_file"] is False
+    assert not list(home.rglob("auth.json"))
+
+
+def test_live_execute_fails_closed_without_xai_key(sample_decision, cto_repo, monkeypatch):
+    from scripts.cto.grok_executor import execute
+
+    monkeypatch.delenv("XAI_API_KEY", raising=False)
+    sample_decision["cycle_id"] = "cyc-no-xai"
+    out = execute(sample_decision, root=cto_repo, dry_run=False, mock=False)
+    assert out["status"] == "failed"
+    assert "XAI_API_KEY" in (out.get("reason") or "")
+    assert out.get("grok_auth", {}).get("staged_auth_file") is False
+
+
 def test_execute_refuses_main_worktree(sample_decision, cto_repo, tmp_path):
     """Execution on main must fail closed."""
     import subprocess
