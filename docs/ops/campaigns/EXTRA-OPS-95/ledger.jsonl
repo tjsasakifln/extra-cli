@@ -26,3 +26,4 @@
 {"ts":"2026-07-19T07:46:00Z","event":"ADVERSARIAL_PURGE_FALSE_IDENTITY","bad_cache":48,"sz_deleted":39,"ops_before_false":1030,"ops_after_honest":991,"pct":90.67}
 {"ts":"2026-07-19T07:54:00Z","event":"M2_EDITAI_SC_INGEST","presence_editais":285,"bids":11550,"dod":"224/1352"}
 {"ts":"2026-07-19T07:56:00Z","event":"DOD_FLIPS_OPS_PROVEN","flipped":21,"dod":"245/1352","pct":18.12,"ops_proxy":90.67,"editais":26.1}
+{"ts":"2026-07-19T07:59:00Z","event":"RESIDUAL_IDENTITY_404","residual":102,"probed":60,"pncp_404":60,"dod":"270/1352"}

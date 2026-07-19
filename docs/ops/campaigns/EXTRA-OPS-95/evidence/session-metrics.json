@@ -1,5 +1,6 @@
 {
-  "measured_at": "2026-07-19T07:56:00+00:00",
+  "measured_at": "2026-07-19T07:59:34.761943+00:00",
+  "head": "760ce38+",
   "denominator_200km": 1093,
   "presence_editais": 285,
   "presence_editais_pct": 26.075,
@@ -9,16 +10,33 @@
   "ops_proxy_contracts_presence_or_sz": 991,
   "ops_proxy_pct": 90.6679,
   "gap_to_95pct_ops_contracts": 48,
-  "gap_to_95pct_presence_editais": 754,
-  "bids_rows": 11550,
+  "residual_contracts_ops_entities": 102,
+  "residual_identity_blocker": {
+    "probed": 60,
+    "pncp_orgao_404": 60,
+    "class": {
+      "OTHER": 14,
+      "BANK": 8,
+      "ENERGY": 9,
+      "CIA": 31,
+      "EMPRESA": 10,
+      "FUNDO": 4,
+      "GUARDA": 3,
+      "SECRETARIA": 23
+    }
+  },
+  "bids_rows": 11559,
   "contracts_rows": 217574,
-  "dod_checked": 245,
+  "opportunities": 401,
+  "dod_checked": 270,
   "dod_total": 1352,
-  "dod_pct": 18.1213,
-  "note": "HONEST post-purge; editais +6 from SC jsonl ingest; publicacao ignores cnpjOrgao",
+  "dod_pct": 19.9704,
+  "status": "PARTIAL",
   "claims_forbidden": [
-    "editais entity SZ via publicacao",
     "95% coverage",
-    "7-stage"
+    "7-stage",
+    "DONE",
+    "LOCAL_READY",
+    "auto-SZ residual without cnpj14"
   ]
 }

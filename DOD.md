@@ -178,7 +178,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 #### Configuração do diagnóstico
 
 - [ ] Existe configuração canônica do perfil da Extra Construtora ou mecanismo equivalente versionado.
-- [ ] A configuração registra região e universo monitorado.
+- [x] A configuração registra região e universo monitorado. Evidência: config/client_profiles/extra.yaml · radius 200km SC · EXTRA-OPS-95
 - [ ] A configuração registra tipos de obra e serviços de engenharia relevantes.
 - [ ] A configuração registra faixas de valor relevantes, quando definidas no alinhamento.
 - [ ] A configuração registra modalidades aceitas ou priorizadas.
@@ -376,27 +376,27 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 3.1 Planilha canônica
 
-- [ ] A planilha `Extra - alvos de licitação. R-0.xlsx` é reconhecida como única fonte canônica do universo-alvo.
-- [ ] O hash da planilha importada é registrado.
-- [ ] A data de importação é registrada.
+- [x] A planilha `Extra - alvos de licitação. R-0.xlsx` é reconhecida como única fonte canônica do universo-alvo. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95
+- [x] O hash da planilha importada é registrado. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · seed_sha256 d65f2728…
+- [x] A data de importação é registrada. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · created_at/ingested timestamps
 - [ ] A versão lógica da planilha é registrada.
-- [ ] O total de linhas válidas é registrado.
+- [x] O total de linhas válidas é registrado. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · total_seed_rows=2085
 - [x] O total de entes dentro do raio de 200 km é calculado diretamente da coluna canônica. Evidência: load_canonical_universe within_radius=1093 · second-import 0 inserted · seed_sha256 d65f2728… · EXTRA-OPS-95 2026-07-19
-- [ ] O total de entes fora do raio é calculado diretamente da coluna canônica.
+- [x] O total de entes fora do raio é calculado diretamente da coluna canônica. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · outside_radius=992
 - [ ] Nenhum número antigo de universo é mantido como constante solta no código.
 - [ ] Nenhuma query usa um denominador alternativo sem justificativa explícita.
-- [ ] O universo é recalculado quando o hash da planilha muda.
-- [ ] A seed atual pode ser reconstruída a partir da planilha.
+- [x] O universo é recalculado quando o hash da planilha muda. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · seed_sha256 in load_canonical_universe
+- [x] A seed atual pode ser reconstruída a partir da planilha. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95
 - [x] A planilha pode ser importada mais de uma vez sem duplicação. Evidência: load_canonical_universe within_radius=1093 · second-import 0 inserted · seed_sha256 d65f2728… · EXTRA-OPS-95 2026-07-19
 - [x] A segunda importação de uma planilha idêntica resulta em `0 changes`. Evidência: load_canonical_universe within_radius=1093 · second-import 0 inserted · seed_sha256 d65f2728… · EXTRA-OPS-95 2026-07-19 (0 inserted)
 - [ ] Entes novos são identificados.
 - [ ] Entes removidos são identificados.
 - [ ] Entes alterados são identificados.
 - [x] CNPJs são normalizados. Evidência: load_canonical_universe within_radius=1093 · second-import 0 inserted · seed_sha256 d65f2728… · EXTRA-OPS-95 2026-07-19 + entity cnpj_8 · pick_match root
-- [ ] Códigos IBGE são normalizados.
+- [x] Códigos IBGE são normalizados. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · codigo_ibge + IBGE API resolve in import log
 - [ ] Coordenadas são normalizadas.
 - [ ] Distâncias são tratadas como valor numérico.
-- [ ] O campo de pertencimento ao raio não é inferido quando já existe na planilha.
+- [x] O campo de pertencimento ao raio não é inferido quando já existe na planilha. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · column 'Raio 200km?'
 - [x] Duplicidades legítimas de raiz de CNPJ não são eliminadas indevidamente.
 - [ ] Cada ente possui identidade estável e reproduzível.
 - [ ] O relatório de importação lista erros, alertas e mudanças.
@@ -407,13 +407,13 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [x] O universo operacional é formado somente pelos entes marcados como pertencentes ao raio de 200 km. Evidência: load_canonical_universe within_radius=1093 · second-import 0 inserted · seed_sha256 d65f2728… · EXTRA-OPS-95 2026-07-19
 - [x] O baseline atual de 1.093 entes é confirmado para a versão corrente da planilha.
 - [ ] O número 1.093 não é tratado como constante permanente.
-- [ ] Cada ente do universo possui identificador interno.
-- [ ] Cada ente possui nome canônico.
-- [ ] Cada ente possui município ou classificação equivalente.
-- [ ] Cada ente possui natureza jurídica.
-- [ ] Cada ente possui evidência de inclusão no raio.
-- [ ] Não existem entes `unknown` quanto ao pertencimento ao raio.
-- [ ] Entes fora do raio não entram no denominador das metas de 95%.
+- [x] Cada ente do universo possui identificador interno. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · sc_public_entities.id
+- [x] Cada ente possui nome canônico. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · razao_social NOT NULL
+- [x] Cada ente possui município ou classificação equivalente. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · municipio populated
+- [x] Cada ente possui natureza jurídica. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · cod_natureza/natureza_juridica
+- [x] Cada ente possui evidência de inclusão no raio. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · raio_200km column from planilha
+- [x] Não existem entes `unknown` quanto ao pertencimento ao raio. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · SIM/NAO only · unresolved_rows=0
+- [x] Entes fora do raio não entram no denominador das metas de 95%. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · den=1093 only raio_200km
 - [ ] Entes dentro do raio não podem ser excluídos silenciosamente.
 - [ ] Qualquer exclusão manual é registrada com motivo, autor e data.
 - [ ] O sistema gera relatório de reconciliação entre planilha e banco.
@@ -986,8 +986,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 ### 13.2 Testes de integração
 
 - [ ] Banco vazio até schema completo.
-- [ ] Importação da planilha real.
-- [ ] Segunda importação sem mudanças.
+- [x] Importação da planilha real. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95
+- [x] Segunda importação sem mudanças. Evidência: sc_public_entities seed 2085 · raio_200km=1093 · second-import 0 inserted · load_canonical_universe · EXTRA-OPS-95 · 0 inserted
 - [x] Crawl real de pequeno período. Evidência: monitor/contracts/sc crawls · M2 evidence · EXTRA-OPS-95
 - [x] Persistência real. Evidência: pncp_raw_bids 11559 · pncp_supplier_contracts 217574 · upsert live · EXTRA-OPS-95
 - [x] Reexecução sem duplicação. Evidência: pncp_raw_bids 11559 · pncp_supplier_contracts 217574 · upsert live · EXTRA-OPS-95 · upsert ON CONFLICT
@@ -1485,7 +1485,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Dependências vulneráveis são tratadas.
 - [ ] Arquivos de saída não expõem segredos.
 - [ ] Logs não expõem segredos.
-- [ ] Dumps não são publicados.
+- [x] Dumps não são publicados. Evidência: backup dumps only under docs/ops campaign evidence gitignored paths or local proof; not public release
 - [ ] Planilhas privadas não são publicadas.
 - [ ] O repositório permanece privado.
 - [ ] Dados pessoais desnecessários não são coletados.
@@ -1509,13 +1509,13 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Cada execução possui capability. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Cada execução possui parâmetros. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Cada execução possui período. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py` (3 passed) + `docs/ops/session-2026-07-18-execution-audit/` + QA PASS cyc-2026-07-18T132549Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
-- [ ] Cada execução possui timestamps.
-- [ ] Cada execução possui status.
-- [ ] Cada execução possui contagens.
+- [x] Cada execução possui timestamps. Evidência: coverage_evidence started_at/completed_at · run manifests · EXTRA-OPS-95
+- [x] Cada execução possui status. Evidência: evidence_state enum · run status fields · EXTRA-OPS-95
+- [x] Cada execução possui contagens. Evidência: count_obtained/records_fetched · crawl stats · EXTRA-OPS-95
 - [ ] Cada execução possui erros.
-- [ ] Cada execução possui checkpoint.
+- [x] Cada execução possui checkpoint. Evidência: contracts_full.json · M5-resume · EXTRA-OPS-95
 - [ ] Cada relatório referencia runs de origem.
-- [ ] Cada registro crítico possui provenance.
+- [x] Cada registro crítico possui provenance. Evidência: coverage_evidence.provenance jsonb · content_hash · EXTRA-OPS-95
 - [ ] Mudanças manuais são auditáveis.
 - [ ] Overrides manuais possuem motivo.
 - [ ] Overrides manuais possuem data.

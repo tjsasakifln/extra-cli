@@ -1,0 +1,132 @@
+{
+  "measured_at": "2026-07-19T07:58:56.844314+00:00",
+  "residual_total": 102,
+  "class": {
+    "OTHER": 14,
+    "BANK": 8,
+    "ENERGY": 9,
+    "CIA": 31,
+    "EMPRESA": 10,
+    "FUNDO": 4,
+    "GUARDA": 3,
+    "SECRETARIA": 23
+  },
+  "probed": 60,
+  "matriz_0001_found": 0,
+  "matriz_0001_404": 60,
+  "errors": 0,
+  "found_sample": [],
+  "not_found_sample": [
+    {
+      "entity_id": 209,
+      "cnpj8": "48865663",
+      "cnpj14": "48865663000103",
+      "razao": "ABRIGO INSTITUCIONAL ANA ANTONINA ANTONIO",
+      "nat": "1031"
+    },
+    {
+      "entity_id": 856,
+      "cnpj8": "82717349",
+      "cnpj14": "82717349000103",
+      "razao": "CIA DE DESENVOLVIMENTO E URBANIZACAO DE ITAJAI",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 857,
+      "cnpj8": "82840422",
+      "cnpj14": "82840422000130",
+      "razao": "CIA DE URBANIZACAO E DESENVOLVIMENTO DE CRICIUMA",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 880,
+      "cnpj8": "00513208",
+      "cnpj14": "00513208000104",
+      "razao": "CODEJAS - COMPANHIA DE DESENVOLVIMENTO DE JARAGUA DO SUL S.A",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 563,
+      "cnpj8": "45087300",
+      "cnpj14": "45087300000198",
+      "razao": "COLEGIADO SUPERIOR DE SEGURANCA PUBLICA E PERICIA OFICIAL",
+      "nat": "1023"
+    },
+    {
+      "entity_id": 1012,
+      "cnpj8": "33050022",
+      "cnpj14": "33050022000115",
+      "razao": "COMPANHIA AUXILIAR DE EMPRESAS ELETRICAS BRASILEIRAS",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 1016,
+      "cnpj8": "33469602",
+      "cnpj14": "33469602000141",
+      "razao": "COMPANHIA BRASILEIRA DE ALIMENTOS",
+      "nat": "2011"
+    },
+    {
+      "entity_id": 1013,
+      "cnpj8": "33121088",
+      "cnpj14": "33121088000159",
+      "razao": "COMPANHIA BRASILEIRA DE ARMAZENAMENTO",
+      "nat": "2011"
+    },
+    {
+      "entity_id": 1029,
+      "cnpj8": "33653841",
+      "cnpj14": "33653841000157",
+      "razao": "COMPANHIA BRASILEIRA DE DRAGAGEM",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 859,
+      "cnpj8": "82951021",
+      "cnpj14": "82951021000157",
+      "razao": "COMPANHIA CATARINENSE DE ARMAZENAMENTO COCAR",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 887,
+      "cnpj8": "26634715",
+      "cnpj14": "26634715000190",
+      "razao": "COMPANHIA CATARINENSE DE SAUDE - CCS",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 1077,
+      "cnpj8": "83422014",
+      "cnpj14": "83422014000120",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE CHAPECO CODEC",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 930,
+      "cnpj8": "02939316",
+      "cnpj14": "02939316000179",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE ITAPOA S. A.",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 851,
+      "cnpj8": "74064585",
+      "cnpj14": "74064585000140",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DE PORTO UNIAO -CDPU",
+      "nat": "2038"
+    },
+    {
+      "entity_id": 863,
+      "cnpj8": "83262535",
+      "cnpj14": "83262535000168",
+      "razao": "COMPANHIA DE DESENVOLVIMENTO DO ESTADO DE SANTA CATARIN",
+      "nat": "2038"
+    }
+  ],
+  "interpretation": "Entities without PNCP orgao registration (HTTP 404 on cnpj8+0001+DV) cannot receive entity-scoped success_zero until identity is resolved via official source. Not auto-NOT_APPLICABLE without applicability policy.",
+  "claims_forbidden": [
+    "residual auto success_zero without cnpj14",
+    "invented CNPJ",
+    "95% coverage"
+  ]
+}
