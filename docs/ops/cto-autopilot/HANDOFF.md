@@ -44,7 +44,7 @@ Novo módulo: `scripts/cto/publisher.py` (só publicação, nunca Grok).
 
 ```text
 python3 -m pytest tests/cto -q --no-cov
-# 87 passed
+# 91 passed
 ```
 
 Cobertura inclui: observer context, readiness/reconcile, verifier matrix/UNPROVEN/executor-fail/secrets, review fallback anti-ACCEPT, publisher no-merge, resume EXECUTING/REVIEWING, exit codes, executor env strip/preflight, redaction usage counters.
@@ -54,7 +54,7 @@ Cobertura inclui: observer context, readiness/reconcile, verifier matrix/UNPROVE
 | Check | Resultado |
 |-------|-----------|
 | Ruff `scripts/cto` + `tests/cto` | All checks passed |
-| `pytest tests/cto` | **87 passed** |
+| `pytest tests/cto` | **91 passed** |
 | `cli doctor` | ok |
 | `reconcile-queue` | 8 itens PR#48 → review; 3 blocked por blockers; auto_closed=false |
 | `run-once --dry-run --mock --skip-tests` | verify PASS → review ACCEPT → publish dry → **WAITING_HUMAN** exit **10** |
@@ -86,7 +86,7 @@ Itens **implementados nesta PR** (não devem ficar `state:ready` como trabalho n
 | 46 | publication-policy-docs | review |
 | 47 | budget-and-fallback | review |
 
-Evidência: branch `feat/cto-autopilot-issues-deepseek-20260719` + testes 83 + PR #48.
+Evidência: branch `feat/cto-autopilot-issues-deepseek-20260719` + testes 91 + PR #48.
 
 **Nenhuma Issue foi fechada automaticamente.**  
 Para sincronizar labels no GitHub: `python3 -m scripts.cto.cli issues-sync --apply` (após revisão humana).
@@ -135,3 +135,10 @@ Autonomous merge/deploy = **proibido**.
 - `decide` / `run-once` call `reconcile_implemented_items` + `apply_readiness_gates` before decision
 - `enforce_executable_readiness` rejects EXECUTE on #30/#37–39/#43–44/#46–47
 - Evidence: `gh issue list --label state:ready` no longer includes those issues; dual-state count = 0; dry decide selected #32 not banned set
+
+
+## Publisher dry-run contract
+
+- dry-run publish → `ACCEPTED_DRY_RUN`, `queue_mutated=false`
+- `record_publication` refuses null PR number
+- WAITING_HUMAN only with real draft PR number

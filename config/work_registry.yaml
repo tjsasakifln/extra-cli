@@ -1,5 +1,5 @@
 schema_version: '1.0'
-updated_at: '2026-07-19T19:39:03Z'
+updated_at: '2026-07-19T19:49:48Z'
 work_items:
 - work_id: cto-autopilot-infra
   title: CTO Autopilot infrastructure (observe/decide/verify)
@@ -49,6 +49,21 @@ work_items:
     from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:42:05Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:46:25Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:49:48Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: stabilize-open-pr-ci
   title: Stabilize open PR CI failures (advance-30d)
   objective: Address red CI on open draft PR without inventing readiness seals
@@ -87,7 +102,7 @@ work_items:
   area: platform
   priority: p1
   risk: high
-  state: human
+  state: ready
   dod_refs:
   - coverage operational
   - §20
@@ -101,15 +116,12 @@ work_items:
   milestone: LOCAL_READY
   origin: audit-prs
   issue_number: 32
-  evidence:
-  - commit:cdde02b1013a2bc48d1f651503409e33201b32ab
+  evidence: []
   last_synced_at: '2026-07-19T19:36:40Z'
   execution_history:
-  - ts: '2026-07-19T19:39:03Z'
-    phase: published_draft_pr
-    cycle_id: cyc-20260719T193808Z
-    pr: null
-    commit: cdde02b1013a2bc48d1f651503409e33201b32ab
+  - ts: '2026-07-19T19:45:00Z'
+    phase: readiness_repair
+    note: reverted false human state from dry-run publish with pr:null
 - work_id: full-suite-schema-debt
   title: Reduce full-suite schema debt blocking Test All
   objective: Make full suite runnable or document residual schema debt honestly
@@ -246,6 +258,21 @@ work_items:
     from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:42:05Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:46:25Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:49:48Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: github-issues-queue
   title: GitHub Issues operational queue sync
   objective: Idempotent issues-plan/sync with stable work_id markers
@@ -294,6 +321,21 @@ work_items:
     from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:42:05Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:46:25Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:49:48Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: dod-evidence-discipline
   title: DoD evidence discipline enforcement
   objective: Prevent auto checkbox flips; audit unauthorized DoD mutations
@@ -337,6 +379,21 @@ work_items:
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
   - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:42:05Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:46:25Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:49:48Z'
     phase: reconcile_implemented
     from_state: review
     to_state: review
@@ -461,6 +518,21 @@ work_items:
     from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:42:05Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:46:25Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:49:48Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: human-gates-fail-closed
   title: Human gates fail-closed enforcement
   objective: Block merge/deploy/secret ops in executor and decision policy
@@ -504,6 +576,21 @@ work_items:
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
   - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:42:05Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:46:25Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:49:48Z'
     phase: reconcile_implemented
     from_state: review
     to_state: review
@@ -584,6 +671,21 @@ work_items:
     from_state: review
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:42:05Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:46:25Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:49:48Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
 - work_id: budget-and-fallback
   title: API budget limits and DeepSeek fallback
   objective: Pause on budget; BLOCKED_CTO_UNAVAILABLE without inventing work
@@ -633,6 +735,21 @@ work_items:
     to_state: review
     note: 'reconciled as implemented in PR #48; not auto-closed'
   - ts: '2026-07-19T19:38:02Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:42:05Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:46:25Z'
+    phase: reconcile_implemented
+    from_state: review
+    to_state: review
+    note: 'reconciled as implemented in PR #48; not auto-closed'
+  - ts: '2026-07-19T19:49:48Z'
     phase: reconcile_implemented
     from_state: review
     to_state: review

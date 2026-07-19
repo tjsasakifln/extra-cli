@@ -120,7 +120,7 @@ def exit_code_for_status(status: str, *, review_verdict: str | None = None) -> i
         return EXIT_FAILED
     if review_verdict == "ROLLBACK" or status == "ROLLBACK":
         return EXIT_ROLLBACK
-    if status in {"DONE", "ACCEPTED", "IDLE"}:
+    if status in {"DONE", "ACCEPTED", "IDLE", "ACCEPTED_DRY_RUN"}:
         return EXIT_OK
     if status == "PAUSED":
         return EXIT_BUDGET
@@ -660,20 +660,36 @@ def _run_cycle_from_decision(
         report["steps"].append(
             {
                 "step": "publish",
-                **{k: publication.get(k) for k in ("ok", "status", "pr", "commit")},
+                **{
+                    k: publication.get(k)
+                    for k in ("ok", "status", "pr", "commit", "queue_mutated")
+                },
             }
         )
         report["publication"] = publication
-        sm.transition(
-            "WAITING_HUMAN",
-            reason="draft PR awaiting Tiago merge",
-            cycle_id=cycle_id,
-            extra={
-                "meta_pr_url": (publication.get("pr") or {}).get("url"),
-                "meta_pr_number": (publication.get("pr") or {}).get("number"),
-            },
-        )
-        final_phase = "human"
+        pub_status = str(publication.get("status") or "")
+        if pub_status == "WAITING_HUMAN" and (publication.get("pr") or {}).get("number"):
+            sm.transition(
+                "WAITING_HUMAN",
+                reason="draft PR awaiting Tiago merge",
+                cycle_id=cycle_id,
+                extra={
+                    "meta_pr_url": (publication.get("pr") or {}).get("url"),
+                    "meta_pr_number": (publication.get("pr") or {}).get("number"),
+                },
+            )
+            final_phase = "human"
+        elif pub_status == "ACCEPTED_DRY_RUN":
+            # Dry-run: accepted locally, no human queue pollution
+            sm.transition("DONE", reason="dry-run accept without real draft PR", cycle_id=cycle_id)
+            final_phase = "accepted"
+        else:
+            sm.transition(
+                "FAILED",
+                reason=publication.get("error") or "publication failed",
+                cycle_id=cycle_id,
+            )
+            final_phase = "failed"
     elif review.get("verdict") == "ESCALATE":
         sm.transition("WAITING_HUMAN", reason=review.get("summary") or "", cycle_id=cycle_id)
         final_phase = "human"

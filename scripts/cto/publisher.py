@@ -284,6 +284,22 @@ def consult_ci(worktree: Path, pr_number: int | None, *, dry_run: bool = False) 
     }
 
 
+def has_real_draft_pr(pr: dict[str, Any] | None) -> bool:
+    """True only when a concrete draft PR number (and ideally URL) exists."""
+    if not pr or not isinstance(pr, dict):
+        return False
+    num = pr.get("number")
+    if num is None:
+        return False
+    try:
+        if int(num) <= 0:
+            return False
+    except (TypeError, ValueError):
+        return False
+    # URL may lag in some gh versions; number is the durable proof
+    return True
+
+
 def record_publication(
     *,
     root: Path,
@@ -292,7 +308,14 @@ def record_publication(
     cycle_id: str,
     commit: str | None,
     pr: dict[str, Any],
-) -> None:
+) -> dict[str, Any]:
+    """Record only after a real draft PR exists. Never mutates queue on dry-run/null PR."""
+    if not has_real_draft_pr(pr):
+        return {
+            "ok": False,
+            "skipped": True,
+            "reason": "no real draft PR number — refusing queue mutation",
+        }
     append_ledger(
         "publish",
         {
@@ -316,6 +339,7 @@ def record_publication(
                 evidence = list(item.get("evidence") or [])
                 if pr.get("url"):
                     evidence.append(f"draft_pr:{pr.get('url')}")
+                evidence.append(f"draft_pr_number:{pr.get('number')}")
                 if commit:
                     evidence.append(f"commit:{commit}")
                 item["evidence"] = evidence[-30:]
@@ -326,6 +350,7 @@ def record_publication(
                         "phase": "published_draft_pr",
                         "cycle_id": cycle_id,
                         "pr": pr.get("number"),
+                        "pr_url": pr.get("url"),
                         "commit": commit,
                     }
                 )
@@ -333,6 +358,7 @@ def record_publication(
                 upsert_item(reg, item)
                 break
         save_registry(reg, root)
+    return {"ok": True, "skipped": False, "pr_number": pr.get("number")}
 
 
 def publish_after_accept(
@@ -343,7 +369,11 @@ def publish_after_accept(
     dry_run: bool = False,
     skip_push: bool = False,
 ) -> dict[str, Any]:
-    """Full post-ACCEPT publication. Never merges. Ends in WAITING_HUMAN semantics."""
+    """Full post-ACCEPT publication. Never merges.
+
+    WAITING_HUMAN + registry human state only when a real draft PR number exists.
+    dry_run never mutates Issue/registry queue.
+    """
     root = root or repo_root()
     cycle_id = str(decision.get("cycle_id") or "unknown")
     wt = Path(worktree) if worktree else root
@@ -354,9 +384,10 @@ def publish_after_accept(
         "branch": branch,
         "merge": False,
         "merge_authority": MERGE_AUTHORITY,
-        "status": "WAITING_HUMAN",
+        "status": "FAILED",
         "steps": [],
         "dry_run": dry_run,
+        "queue_mutated": False,
     }
 
     if branch in {"main", "master"}:
@@ -365,7 +396,6 @@ def publish_after_accept(
         return redact_obj(out)
 
     if not has_local_diff(wt) and not dry_run:
-        # may already be committed
         commit = current_commit(wt)
         if not commit:
             out["error"] = "no local diff and no commit"
@@ -415,10 +445,70 @@ def publish_after_accept(
     }
 
     ci = consult_ci(wt, pr_res.get("number"), dry_run=dry_run)
-    out["steps"].append({"step": "ci", **{k: v for k, v in ci.items() if k != "checks" or True}})
+    out["steps"].append(
+        {"step": "ci", **{k: v for k, v in ci.items() if k != "checks" or True}}
+    )
     out["ci"] = ci
 
-    record_publication(
+    # Persist report always (evidence), but never pretend human gate without PR
+    cdir = cycles_dir(root) / cycle_id
+    cdir.mkdir(parents=True, exist_ok=True)
+
+    if dry_run:
+        # Simulated path — no ledger/registry mutation
+        out["ok"] = True
+        out["status"] = "ACCEPTED_DRY_RUN"
+        out["queue_mutated"] = False
+        out["human_gate"] = {
+            "required": False,
+            "reason": "dry_run publication — no draft PR created; queue not mutated",
+            "pr_url": None,
+            "pr_number": None,
+        }
+        out["steps"].append(
+            {
+                "step": "ledger_issue_record",
+                "ok": False,
+                "skipped": True,
+                "reason": "dry_run",
+            }
+        )
+        (cdir / "publication.json").write_text(
+            json.dumps(redact_obj(out), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        return redact_obj(out)
+
+    if not has_real_draft_pr(out["pr"]) or not pr_res.get("ok"):
+        out["ok"] = False
+        out["status"] = "FAILED"
+        out["error"] = (
+            pr_res.get("stderr")
+            or pr_res.get("error")
+            or "draft PR open/update failed or returned no number"
+        )
+        out["queue_mutated"] = False
+        out["human_gate"] = {
+            "required": True,
+            "reason": "publication failed — human must inspect; queue not marked human",
+            "pr_url": out["pr"].get("url"),
+            "pr_number": out["pr"].get("number"),
+        }
+        out["steps"].append(
+            {
+                "step": "ledger_issue_record",
+                "ok": False,
+                "skipped": True,
+                "reason": "no real draft PR",
+            }
+        )
+        (cdir / "publication.json").write_text(
+            json.dumps(redact_obj(out), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        return redact_obj(out)
+
+    rec = record_publication(
         root=root,
         work_id=decision.get("work_id"),
         issue_number=decision.get("issue_number"),
@@ -426,17 +516,10 @@ def publish_after_accept(
         commit=commit,
         pr=out["pr"],
     )
-    out["steps"].append({"step": "ledger_issue_record", "ok": True})
+    out["steps"].append({"step": "ledger_issue_record", **rec})
+    out["queue_mutated"] = bool(rec.get("ok")) and not rec.get("skipped")
 
-    # Persist publication report on cycle
-    cdir = cycles_dir(root) / cycle_id
-    cdir.mkdir(parents=True, exist_ok=True)
-    (cdir / "publication.json").write_text(
-        json.dumps(redact_obj(out), indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
-
-    out["ok"] = bool(pr_res.get("ok"))
+    out["ok"] = True
     out["status"] = "WAITING_HUMAN"
     out["human_gate"] = {
         "required": True,
@@ -444,6 +527,10 @@ def publish_after_accept(
         "pr_url": pr_res.get("url"),
         "pr_number": pr_res.get("number"),
     }
+    (cdir / "publication.json").write_text(
+        json.dumps(redact_obj(out), indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
     return redact_obj(out)
 
 
