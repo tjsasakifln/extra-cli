@@ -1,0 +1,22 @@
+{
+  "measured_at": "2026-07-19T07:46:13.083553+00:00",
+  "bad_cache_entries": 48,
+  "bad_methods": {
+    "token_containment": 1,
+    "token_containment+nameq": 34,
+    "name_exact+nameq": 13
+  },
+  "sz_deleted": 39,
+  "clean_cache_unique": 705,
+  "ops_after": {
+    "presence": 368,
+    "sz": 623,
+    "ops": 991,
+    "den": 1093,
+    "pct": 90.6679
+  },
+  "note": "token_containment without cnpj8 match caused false identity; purged",
+  "claims_forbidden": [
+    "pre-purge ops proxy was valid"
+  ]
+}

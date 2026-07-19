@@ -55,21 +55,32 @@ class ResolveResult:
 
 
 def pick_match(cnpj8: str, razao: str, hits: list[dict[str, Any]]) -> tuple[str, str, dict[str, Any]] | None:
+    """Pick CNPJ-14 only when the root CNPJ-8 matches the entity.
+
+    Name/token signals rank among candidates with the same root; they must never
+    override a different CNPJ root (false identity / false success_zero risk).
+    """
+    cnpj8 = digits(cnpj8)[:8]
     target = normalize_name(razao)
+    # 1) Prefer exact CNPJ-8 prefix (any razao)
     for h in hits:
         cnpj = digits(h.get("cnpj"))
         if len(cnpj) == 14 and cnpj[:8] == cnpj8:
             return cnpj, "cnpj8_prefix", h
+    # 2) Same root only — name exact among residual hits (defensive)
     for h in hits:
         cnpj = digits(h.get("cnpj"))
-        if len(cnpj) == 14 and normalize_name(h.get("razaoSocial")) == target:
+        if len(cnpj) != 14 or cnpj[:8] != cnpj8:
+            continue
+        if normalize_name(h.get("razaoSocial")) == target:
             return cnpj, "name_exact", h
+    # 3) Same root only — token containment
     stop = {"MUNICIPIO", "PREFEITURA", "SECRETARIA", "FUNDO", "ESTADO", "SANTA", "CATARINA", "SOCIAL", "PUBLICOS"}
     tokens = [t for t in target.split() if len(t) > 3 and t not in stop]
     if len(tokens) >= 2:
         for h in hits:
             cnpj = digits(h.get("cnpj"))
-            if len(cnpj) != 14:
+            if len(cnpj) != 14 or cnpj[:8] != cnpj8:
                 continue
             nh = normalize_name(h.get("razaoSocial"))
             if all(t in nh for t in tokens[:3]):

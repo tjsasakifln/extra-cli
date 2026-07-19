@@ -1,23 +1,19 @@
 {
-  "measured_at": "2026-07-19T06:55:23.874684+00:00",
+  "measured_at": "2026-07-19T07:46:32.081701+00:00",
   "denominator_200km": 1093,
   "presence_editais": 279,
   "presence_editais_pct": 25.5261,
-  "presence_contracts": 340,
-  "presence_contracts_pct": 31.107,
-  "success_zero_contracts_entities": 590,
-  "ops_proxy_contracts_presence_or_sz": 930,
-  "ops_proxy_pct": 85.0869,
-  "gap_to_95pct_ops": 109,
-  "cnpj14_cache_unique": 644,
-  "bids_rows": 10831,
-  "contracts_rows": 217359,
-  "opportunities": 401,
-  "note": "ops_proxy = presence\u222aentity-scoped success_zero \u2014 NOT 7-stage operational coverage",
+  "presence_contracts": 368,
+  "presence_contracts_pct": 33.6688,
+  "success_zero_contracts_entities": 623,
+  "ops_proxy_contracts_presence_or_sz": 991,
+  "ops_proxy_pct": 90.6679,
+  "gap_to_95pct_ops": 48,
+  "cnpj14_cache_unique": 705,
+  "note": "HONEST post-purge of token_containment cross-identity false SZ",
   "claims_forbidden": [
+    "pre-purge 94% ops was valid",
     "95% coverage",
-    "campaign DONE",
-    "DOD 55%",
-    "ops_proxy as 7-stage"
+    "7-stage operational"
   ]
 }
