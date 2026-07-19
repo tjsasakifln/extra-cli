@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-19T03:21:05.031164+00:00",
+  "source_db": "extra_test",
+  "restore_db": "extra_restore_proof",
+  "dump_path": "docs/ops/campaigns/EXTRA-OPS-95/evidence/M5-backup/proof-extra_test-20260719T032051Z.dump",
+  "dump_bytes": 9913110,
+  "source_public_tables": 79,
+  "restore_public_tables": 79,
+  "pg_restore_exit": 1,
+  "pg_restore_stderr_tail": "pg_restore: error: could not execute query: ERROR:  unrecognized configuration parameter \"transaction_timeout\"\nCommand was: SET transaction_timeout = 0;\npg_restore: warning: errors ignored on restore: 1\n",
+  "claims": {
+    "backup_exists": true,
+    "restore_separate_db": true,
+    "tables_restored": true
+  },
+  "limitations": [
+    "Storage Box / external backup path not exercised in this local proof.",
+    "Universe seed re-import is a separate step after restore (see universe_reimport_cmd)."
+  ],
+  "recovery_instruction": "pg_restore -d <target_db> backups/local-proof/<dump>; or bash scripts/restore-database.sh when available.",
+  "universe_reimport_cmd": "python3 -c \"from scripts.lib.universe import load_canonical_universe; u=load_canonical_universe(); print(u.summary())\""
+}

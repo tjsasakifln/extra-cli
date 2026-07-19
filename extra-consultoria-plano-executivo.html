@@ -691,16 +691,31 @@ svg {
 </head>
 <body>
 
-<!-- METRIC-LINEAGE-R2 injected 2026-07-19 N06c-final — SmartLic DEFERRED + N06c DONE -->
+<!-- EXTRA-OPS-95-FOUNDATION injected 2026-07-19T03:21Z — supersedes stale R2 panel numbers when PG rebuilt -->
+<div id="metric-lineage-ops95" style="font-family:system-ui,sans-serif;padding:12px;margin:12px 0;border:1px solid #0e7490;background:#0b1220;color:#e8eefc;border-radius:8px">
+  <strong>EXTRA-OPS-95-FOUNDATION · status <span style="color:#fbbf24">PARTIAL</span> · 2026-07-19</strong>
+  <ul style="margin:8px 0 0 18px;line-height:1.45">
+    <li>Aceitação DOD canônica: <b>195/1355 (14,39%)</b> — meta DONE campanha ≥55% (746) · sem inflação</li>
+    <li>Universo: <b>1093</b> no raio · radar <b>universe_resolution=100%</b> · planilha SHA256 <code>d65f2728…</code></li>
+    <li>Presença (rebuild+re-coleta, <em>não</em> cobertura 7 estágios): editais <b>268 (24,5%)</b> · contratos <b>247 (22,6%)</b></li>
+    <li>Registry operational: <b>139 (12,7%)</b> · bids 8.221 · contracts rows 72.925 (janela ~14d; 90d em curso)</li>
+    <li>Oportunidades live: <b>401</b> · GO=<b>0</b> · REVIEW=<b>397</b> · NO_GO=<b>4</b> (perfil Extra incompleto demote)</li>
+    <li>N01 <b>DONE</b> (não reabrir) · N09 <b>BLOCKED_SOURCE</b> · SmartLic <b>DEFERRED_STALE</b> · either <b>proibido</b> como meta</li>
+    <li>OSS: 0 ADOPT sem benchmark · OCDS thin ADAPT · Pandera DEFER · Kingfisher REJECT full</li>
+    <li>Backup/restore local: <b>ok</b> (dump ~9,9MB · 79 tabelas · DB separado) · Gates LOCAL_READY/VPS/PROJECT_DONE = <b>NOT_READY</b></li>
+    <li>Fontes: <code>docs/ops/campaigns/EXTRA-OPS-95/</code> · handoff <code>handoffs/HANDOFF-20260719-session.md</code> · commit <code>97549a5</code></li>
+  </ul>
+</div>
+
+<!-- METRIC-LINEAGE-R2 injected 2026-07-19 N06c-final — histórico R2 (números pré-rebuild PG; lineage only) -->
 <div id="metric-lineage-r2" style="font-family:system-ui,sans-serif;padding:12px;margin:12px 0;border:1px solid #334;background:#0b1220;color:#e8eefc;border-radius:8px">
-  <strong>Linhagem de métricas (NEXT-30D-ROI-MAIN-R2) · atualizado 2026-07-19 N06c-final</strong>
+  <strong>Linhagem histórica R2 (pré-rebuild PG) · NÃO é métrica live atual</strong>
   <ul style="margin:8px 0 0 18px;line-height:1.45">
     <li>Aceitação canônica main: <b>195/1355 (14,39%)</b> — não confundir com cobertura de entidades</li>
-    <li>Herdado validado (R1, não recontado como PERT novo): 102 flips → 14,4%</li>
-    <li>Epic histórico (não é main): 32,3% @ 0bd5074</li>
-    <li>PERT crítico R2: <b>N06c</b> aberto no caminho crítico (cadeia 32d; done ~23,5d de pacotes críticos)</li>
+    <li>Histórico R2 (volume PG anterior): either 406 · editais 285 · contratos 368 · ~1,08M rows — <b>superseded</b> pelo rebuild</li>
+    <li>PERT R2: N06c <b>DONE</b> em main; N01 <b>DONE</b> (resume.md stale se apontar N01)</li>
     <li>Gates: LOCAL_READY / VPS / PROJECT_DONE = <b>NOT_READY</b></li>
-    <li>Critério: checkbox [x] na main + evidência + QA independente; fixture ≠ live; <b>SmartLic ≠ live</b></li>
+    <li>Critério: checkbox [x] + evidência + QA; fixture ≠ live; <b>SmartLic ≠ live</b></li>
   </ul>
 </div>
 
@@ -722,12 +737,13 @@ svg {
     <tr style="background:#1e293b"><th align="left" style="padding:8px;border-bottom:1px solid #334155">Item</th><th align="left" style="padding:8px;border-bottom:1px solid #334155">Estado</th><th align="left" style="padding:8px;border-bottom:1px solid #334155">Nota</th></tr>
     <tr><td style="padding:7px 8px;border-bottom:1px solid #1e293b"><strong>N06c</strong> cobertura entidade Extra</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#4ade80">DONE</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#94a3b8">Wave2 final: PNCP full 30d + contracts 180d (6/6, go_no_go_3y=GO); either 406/1093</td></tr>
     <tr><td style="padding:7px 8px;border-bottom:1px solid #1e293b"><strong>SmartLic</strong> dataset operacional</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#f87171">DEFERRED_STALE_SOURCE</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#94a3b8">Meses sem crawl; proibido em cobertura/freshness/gates; import opcional só fixture/testes</td></tr>
-    <tr><td style="padding:7px 8px;border-bottom:1px solid #1e293b"><strong>N01</strong> golden path live</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#4ade80">NEXT ROI</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#94a3b8">Próximo Extra-ROI após N06c DONE</td></tr>
+    <tr><td style="padding:7px 8px;border-bottom:1px solid #1e293b"><strong>N01</strong> golden path live</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#4ade80">DONE</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#94a3b8">Não reabrir · resume.md R2 que aponta N01 está STALE</td></tr>
     <tr><td style="padding:7px 8px;border-bottom:1px solid #1e293b"><strong>N09</strong> recall estratificado</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#38bdf8">BLOCKED_SOURCE</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#94a3b8">Gold sample portal-independent ainda necessário</td></tr>
-    <tr><td style="padding:7px 8px"><strong>Pacotes R2</strong></td><td style="padding:7px 8px;color:#4ade80">23 DONE</td><td style="padding:7px 8px;color:#94a3b8">crítico aberto: nenhum · 1 BLOCKED_SOURCE (N09)</td></tr>
+    <tr><td style="padding:7px 8px;border-bottom:1px solid #1e293b"><strong>EXTRA-OPS-95</strong> fundação</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#fbbf24">PARTIAL</td><td style="padding:7px 8px;border-bottom:1px solid #1e293b;color:#94a3b8">Baseline+OSS+universo+re-coleta+401 opps · cobertura 95% e DOD 55% abertos</td></tr>
+    <tr><td style="padding:7px 8px"><strong>Pacotes R2</strong></td><td style="padding:7px 8px;color:#4ade80">23 DONE</td><td style="padding:7px 8px;color:#94a3b8">1 BLOCKED_SOURCE (N09) · caminho crítico agora = cobertura operacional separada</td></tr>
   </table>
 
-  <p style="margin:0 0 0.5rem;font-size:0.88rem;color:#cbd5e1"><strong>Extra-ROI ranking:</strong> N01 → N09 → N07/N18 → N14 → N15 → outputs só com dados Extra atuais. (N06c DONE)</p>
+  <p style="margin:0 0 0.5rem;font-size:0.88rem;color:#cbd5e1"><strong>Extra-ROI ranking (override campanha):</strong> cobertura editais/contratos operacional → success_zero → 3 ciclos → N09 gold → packages. <em>Não</em> fatias de claims. N01 DONE.</p>
   <p style="margin:0;font-size:0.85rem;color:#64748b"><strong>Não afirmar:</strong> cobertura operacional SLA 95% · LOCAL_READY · VPS · PROJECT_DONE · aceleração via SmartLic. Métricas either/editais acima = presença de entidade com bid e/ou contrato no lake Extra (proxy de expansão), <em>não</em> os sete estágios de cobertura fail-closed do DoD.</p>
   <p style="margin:0.65rem 0 0;font-size:0.82rem;color:#64748b">Evidência: <code>evidence/N06c-wave/entity-coverage-delta-wave2.json</code> · política: <code>SMARTLIC-REUSE-MATRIX.md</code> v2 · resume: <code>resume.md</code></p>
 </section>
