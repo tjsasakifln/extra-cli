@@ -342,6 +342,37 @@ def run_cycle2_real(
     doc_res = apply_cycle_status(status_doc, root=root, dry_run=False)
     out["steps"].append({"step": "cycle_status", "ok": doc_res.get("ok")})
     out["timestamp_utc"] = _utc_now()
+
+    # Material product advance: reconstruct evidence package (§29)
+    try:
+        from scripts.ops.evidence_reconstruct import reconstruct_from_artifacts
+        recon = reconstruct_from_artifacts(root=root)
+        out["steps"].append({
+            "step": "evidence_reconstruct",
+            "status": recon.get("status"),
+            "output_path": recon.get("output_path"),
+            "n_verified": len(recon.get("verified_artifacts") or []),
+        })
+        out["evidence_reconstruct"] = {
+            "status": recon.get("status"),
+            "missing": recon.get("missing"),
+            "dod_partial": recon.get("dod_partial"),
+        }
+        # copy summary into docs/ops cycles
+        docs_dir = root / "docs" / "ops" / "cto-autopilot" / "cycles"
+        docs_dir.mkdir(parents=True, exist_ok=True)
+        (docs_dir / f"{cycle_id}-reconstruct.json").write_text(
+            __import__("json").dumps({
+                "status": recon.get("status"),
+                "verified": recon.get("verified_artifacts"),
+                "missing": recon.get("missing"),
+                "dod_partial": recon.get("dod_partial"),
+            }, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    except Exception as exc:
+        out["steps"].append({"step": "evidence_reconstruct", "error": str(exc)})
+
     (cdir / "cycle2_report.json").write_text(
         json.dumps(redact_obj(out), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",

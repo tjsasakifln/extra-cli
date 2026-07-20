@@ -1,0 +1,21 @@
+{
+  "cycle_id": "cyc2-material-20260720",
+  "parent_cycle_selected": "cand-dyn-slice:cb906bb58392",
+  "selected_id": "cand-dyn-slice:b84aad7b10ee",
+  "excluded": [
+    "cand-dyn-slice:cb906bb58392",
+    "cto-autopilot-infra",
+    "cto-canary-live"
+  ],
+  "ranking_top_ids": [
+    "cand-dyn-slice:cb906bb58392",
+    "cand-dyn-slice:b84aad7b10ee",
+    "cand-dyn-slice:a94b7d79e0a0",
+    "cand-dyn-slice:a60989a8e60e",
+    "cand-dyn-slice:5068b4058697"
+  ],
+  "timestamp_utc": "2026-07-20T01:56:48Z",
+  "head": "e9eab610a84fc778aa4658f9c6d79ce97bb77c18",
+  "chain_sha256": "98e9e95f8dac71f7ffe3155737a32402ead350ed5977d28d4de57d014a7a095d",
+  "schema_version": "1.0"
+}

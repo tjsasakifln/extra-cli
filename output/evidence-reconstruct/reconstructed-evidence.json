@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "reconstructed_at": "2026-07-20T01:56:48Z",
+  "status": "PARTIAL",
+  "verified_artifacts": [
+    {
+      "name": "ledger",
+      "path": "/mnt/d/extra-consultoria-cto-autopilot-cto-cycles/canary-live-20260719T215031Z/output/run-execution-ledger/ledger.jsonl",
+      "sha256": "68e3300eb35fe50e3aae621900d620583389513428c8974669eb25de57312aca",
+      "size": 1377
+    }
+  ],
+  "missing": [
+    "snapshot",
+    "checksums"
+  ],
+  "mismatches": [],
+  "claims_allowed": [
+    "evidence package reconstructible from artifacts when status PASS/PARTIAL"
+  ],
+  "claims_forbidden": [
+    "recall 95%",
+    "LOCAL_READY",
+    "INTEGRATED"
+  ],
+  "dod_partial": [
+    "§29 evidência de snapshot pode ser reconstruída (PARTIAL)",
+    "§29 evidência de recall/artefatos finais apontáveis (PARTIAL)"
+  ]
+}

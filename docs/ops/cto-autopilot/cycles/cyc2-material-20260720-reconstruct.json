@@ -1,0 +1,19 @@
+{
+  "status": "PARTIAL",
+  "verified": [
+    {
+      "name": "ledger",
+      "path": "/mnt/d/extra-consultoria-cto-autopilot-cto-cycles/canary-live-20260719T215031Z/output/run-execution-ledger/ledger.jsonl",
+      "sha256": "68e3300eb35fe50e3aae621900d620583389513428c8974669eb25de57312aca",
+      "size": 1377
+    }
+  ],
+  "missing": [
+    "snapshot",
+    "checksums"
+  ],
+  "dod_partial": [
+    "\u00a729 evid\u00eancia de snapshot pode ser reconstru\u00edda (PARTIAL)",
+    "\u00a729 evid\u00eancia de recall/artefatos finais apont\u00e1veis (PARTIAL)"
+  ]
+}
