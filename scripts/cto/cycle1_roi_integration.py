@@ -43,7 +43,9 @@ def _parse_rank_stdout(rank_res: dict[str, Any]) -> dict[str, Any]:
 
 def _run_force_next(root: Path) -> dict[str, Any]:
     """Invoke real extra-dod-roi force-next (write path — story Draft)."""
-    import subprocess, sys
+    import subprocess
+    import sys
+
     cmd = [sys.executable, "squads/extra-dod-roi/scripts/cli.py", "force-next", "--json"]
     try:
         proc = subprocess.run(cmd, cwd=str(root), capture_output=True, text=True, timeout=900, check=False, shell=False)

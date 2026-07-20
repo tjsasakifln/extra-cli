@@ -355,8 +355,9 @@ def main(argv: list[str] | None = None) -> int:
                 "runs": (report.get("totals") or {}).get("runs"),
             },
         )
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception as exc:  # noqa: BLE001
+        # Ledger write is best-effort observability — never mask monitor exit
+        print(f"crawler_monitor: ledger write skipped: {exc}", file=sys.stderr)
 
     if report["overall"] == "unknown" and not args.seed_demo:
         return 0  # honest empty is not a crash

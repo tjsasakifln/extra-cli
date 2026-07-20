@@ -282,8 +282,11 @@ def run_cycle(
                 "status_label": status_label,
             },
         )
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception as exc:  # noqa: BLE001
+        # Ledger write is best-effort observability — never mask cycle exit
+        import sys as _sys
+
+        print(f"resilient_cycle: ledger write skipped: {exc}", file=_sys.stderr)
 
     return exit_code, summary
 
