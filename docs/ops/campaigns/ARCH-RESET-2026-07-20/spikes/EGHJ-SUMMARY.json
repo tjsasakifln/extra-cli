@@ -1,11 +1,12 @@
 {
   "campaign": "ARCH-RESET-2026-07-20",
-  "generated_at_utc": "2026-07-20T12:40:55Z",
+  "generated_at_utc": "2026-07-20T13:16:03Z",
   "decisions": {
-    "E_dbt": "REJECTED_SPIKE",
-    "G_parsers": "KEEP_CURRENT_STACK",
+    "E_dbt": "REJECTED_WITHOUT_EXPERIMENT",
+    "G_parsers": "DEFERRED_NO_CORPUS",
     "H_identity": "REJECTED_SPIKE_FOR_NOW",
-    "J_reporting": "KEEP_OPENPYXL_REPORTLAB"
+    "J_reporting": "KEEP_CURRENT_STACK"
   },
-  "production_deps_added": false
+  "production_deps_added": false,
+  "honesty_note": "E=REJECTED_WITHOUT_EXPERIMENT; G=DEFERRED_NO_CORPUS; synthetic microbench is not adoption proof"
 }

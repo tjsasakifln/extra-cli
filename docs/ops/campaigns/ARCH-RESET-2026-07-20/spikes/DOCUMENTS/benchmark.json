@@ -1,8 +1,21 @@
 {
   "spike": "G",
   "component": "document_parsers",
-  "decision": "KEEP_CURRENT_STACK",
-  "reason": "Digital PDFs: pypdf/pdfplumber adequate for simple text; no corpus of scanned/multi-column private editais committed. PyMuPDF blocked by AGPL without commercial license decision. No production dep change.",
+  "decision": "DEFERRED_NO_CORPUS",
+  "honest": true,
+  "reason": "KEEP_CURRENT_STACK is NOT proven by 3 synthetic digital PDFs. Required strata ≥5 simple + ≥5 multicolumn + ≥5 tables + ≥5 scanned before engine adoption. This microbench is exploratory only. PyMuPDF blocked by AGPL without license ADR. No production dep change.",
+  "required_strata": {
+    "digital_simple": 5,
+    "multicolumn": 5,
+    "tables": 5,
+    "scanned": 5
+  },
+  "corpus_counts": {
+    "digital_simple": 3,
+    "multicolumn": 0,
+    "tables": 0,
+    "scanned": 0
+  },
   "samples": [
     "sample-1.pdf",
     "sample-2.pdf",
@@ -10,24 +23,20 @@
   ],
   "engines": {
     "pypdf": {
-      "ok": true,
-      "seconds": 0.0195,
-      "money_hits": 1,
-      "date_hits": 1,
-      "pages": 3
+      "ok": false,
+      "error": "No module named 'pypdf'"
     },
     "pdfplumber": {
-      "ok": true,
-      "seconds": 0.0437,
-      "money_hits": 1,
-      "date_hits": 1
+      "ok": false,
+      "error": "No module named 'pdfplumber'"
     },
     "pymupdf_fitz": {
-      "ok": false,
-      "installed": false,
-      "license_gate": "AGPL_OR_COMMERCIAL — spike may evaluate offline only with explicit license decision"
+      "ok": true,
+      "installed": true,
+      "license_gate": "AGPL_OR_COMMERCIAL — production adoption blocked without ADR license accept",
+      "note": "Present in some envs via scripts/intel_extract_docs.py; not approved for production expansion"
     }
   },
   "production_dep_added": false,
-  "generated_at_utc": "2026-07-20T12:40:52Z"
+  "generated_at_utc": "2026-07-20T13:16:03Z"
 }

@@ -9,11 +9,13 @@ from scripts.architecture.spike_eghj_benchmarks import (
 )
 
 
-def test_spike_e_rejects_dbt() -> None:
+def test_spike_e_rejects_dbt_without_experiment() -> None:
     r = spike_e_dbt()
-    assert r["decision"] == "REJECTED_SPIKE"
+    assert r["decision"] == "REJECTED_WITHOUT_EXPERIMENT"
+    assert r["experiment_run"] is False
+    assert r["corpus_opportunities"] == 0
     assert r["production_dep_added"] is False
-    assert r["corpus_size"] >= 5
+    assert r.get("honest") is True
 
 
 def test_spike_h_deterministic_root_guard() -> None:

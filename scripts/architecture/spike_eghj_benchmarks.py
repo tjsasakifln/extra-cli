@@ -20,9 +20,12 @@ def _now() -> str:
 
 
 def spike_e_dbt() -> dict[str, Any]:
-    """dbt snapshots evaluation without installing dbt into production."""
-    # Synthetic temporal corpus describing SCD limitations
-    corpus = [
+    """dbt snapshots — honest rejection without experiment.
+
+    The tiny synthetic event paths below are *illustrative limitations only*.
+    They are NOT a dbt run, NOT SCD2 concordance, NOT a ≥200 corpus experiment.
+    """
+    illustrative_paths = [
         {"id": "T1", "events": ["open", "suspended", "reopened", "closed"]},
         {"id": "T2", "events": ["open", "revoked"]},
         {"id": "T3", "events": ["open", "deadline_change", "closed"]},
@@ -39,12 +42,18 @@ def spike_e_dbt() -> dict[str, Any]:
     return {
         "spike": "E",
         "component": "dbt-core snapshots",
-        "decision": "REJECTED_SPIKE",
+        "decision": "REJECTED_WITHOUT_EXPERIMENT",
+        "honest": True,
+        "experiment_run": False,
+        "dbt_installed": False,
+        "corpus_opportunities": 0,
+        "min_corpus_required": 200,
         "reason": (
-            "No net reduction of operational SQL yet; dual truth risk with PG migrations; "
-            "SCD2 snapshots do not solve juridical event time or missed intermediate states."
+            "No isolated dbt project was executed against a ≥200 opportunity temporal corpus. "
+            "illustrative_status_paths are design notes only — not experimental evidence. "
+            "Dual-truth and temporal limitations remain reasons to avoid naive production adoption."
         ),
-        "corpus_size": len(corpus),
+        "illustrative_status_paths": illustrative_paths,
         "limitations": limitations,
         "production_dep_added": False,
         "optional_later": "REFERENCE_ONLY for analytics warehouse if product needs SCD later",
@@ -138,12 +147,26 @@ def spike_g_parsers(tmpdir: Path) -> dict[str, Any]:
     return {
         "spike": "G",
         "component": "document_parsers",
-        "decision": "KEEP_CURRENT_STACK",
+        "decision": "DEFERRED_NO_CORPUS",
+        "honest": True,
         "reason": (
-            "Digital PDFs: pypdf/pdfplumber adequate for simple text; no corpus of scanned/multi-column "
-            "private editais committed. PyMuPDF blocked by AGPL without commercial license decision. "
+            "KEEP_CURRENT_STACK is NOT proven by 3 synthetic digital PDFs. Required strata "
+            "≥5 simple + ≥5 multicolumn + ≥5 tables + ≥5 scanned before engine adoption. "
+            "This microbench is exploratory only. PyMuPDF blocked by AGPL without license ADR. "
             "No production dep change."
         ),
+        "required_strata": {
+            "digital_simple": 5,
+            "multicolumn": 5,
+            "tables": 5,
+            "scanned": 5,
+        },
+        "corpus_counts": {
+            "digital_simple": len(samples),
+            "multicolumn": 0,
+            "tables": 0,
+            "scanned": 0,
+        },
         "samples": [str(p.name) for p in samples],
         "engines": results,
         "production_dep_added": False,
