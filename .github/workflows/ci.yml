@@ -1,13 +1,15 @@
 # CI Pipeline — Extra Consultoria
 #
-# Runs on every push to main and every PR targeting main.
-# Stages: lint (ruff) -> type-check (mypy) -> test (pytest) + security (bandit)
+# Runs on every push to main and every pull_request (including stacked PRs
+# whose base is not main). Selective jobs give fast feedback; test-all is the
+# mandatory full suite and is never silently skipped on PRs.
 #
 # Story TD-4.2: Setup CI/CD Pipeline
 # Debts: TD-OPS-01, TD-SYS-015
 #
 # Regra #10 (B2G-4): Gates fail-closed — bandit, pip-audit, coverage threshold
 # NENHUM job usa continue-on-error:true ou || true
+# SKIPPED full suite is NOT equivalent to PASS.
 
 name: CI
 
@@ -15,7 +17,8 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    # No branches filter: stacked PRs (base ≠ main) must still run full suite.
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 concurrency:
@@ -172,43 +175,7 @@ jobs:
           retention-days: 14
 
   # ============================================================================
-  # TEST CTO AUTOPILOT — mandatory gate for scripts/cto + tests/cto
-  # Full project suite remains debt (test-all is workflow_dispatch only).
-  # This job is the merge-gate protection for the CTO Autopilot surface.
-  # ============================================================================
-  test-cto:
-    name: Test (CTO Autopilot)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          # Claim-surface tests need recent HEAD history (panel commit membership).
-          fetch-depth: 0
-
-      - name: Setup Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: "pip"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov pyyaml
-
-      - name: Run CTO Autopilot tests
-        # Fail-closed: no continue-on-error, no || true, no skip.
-        # Clear pytest.ini addopts (--cov*) so the job stays independent of
-        # coverage thresholds; still prints collected/passed count.
-        run: python3 -m pytest tests/cto -q -o addopts=''
-        env:
-          CI: true
-
-  # ============================================================================
   # TEST ALL — inclui integration, smoke, slow (gate completo)
-  # Residual debt: not part of PR #48 merge gate (needs external services).
   # ============================================================================
   # Expanded operational suite on every PR (fail-closed, explicit file list).
   # Intentionally NOT "all non-integration tests": full collection still has residual
@@ -260,10 +227,28 @@ jobs:
 
   test-all:
     name: Test All (full suite)
-    # Full suite still needs external services for some modules.
-    # Remains workflow_dispatch until residual debt is cleared (see campaign STATUS).
-    if: github.event_name == 'workflow_dispatch'
+    # Mandatory on every PR (incl. stacked) and main push. Never treat SKIPPED as green.
+    # Postgres service covers database-marked tests; true external live/e2e remain
+    # environment-gated by the tests themselves (not silently skipped by this job).
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: extra_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d extra_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      LOCAL_DATALAKE_DSN: postgresql://test:test@127.0.0.1:5432/extra_test
+      DATABASE_URL: postgresql://test:test@127.0.0.1:5432/extra_test
+      CI: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -278,12 +263,50 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov
+          pip install pytest pytest-asyncio pytest-cov psycopg2-binary
 
-      - name: Run ALL tests (no marker exclusions)
-        run: pytest tests/ -m "" --cov --cov-fail-under=10
-        env:
-          CI: true
+      - name: Apply migrations (fail-closed)
+        run: python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
+
+      - name: Run ALL tests (full suite) and report count
+        id: full_suite
+        run: |
+          set -euo pipefail
+          OUT="$(mktemp)"
+          # No path filters; no silent skip. Live/e2e that need secrets fail or self-skip inside tests.
+          # Fail-closed: no `|| true` anywhere in this job.
+          set -o pipefail
+          pytest tests/ -m "" \
+            --cov \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage-full.xml \
+            --cov-fail-under=10 \
+            -q --tb=line | tee "$OUT"
+          SUMMARY="$(tail -n 5 "$OUT" | tr '\n' ' ')"
+          echo "summary=$SUMMARY" >> "$GITHUB_OUTPUT"
+          if ! PASSED_LINE="$(grep -oE '[0-9]+ passed' "$OUT" | tail -1)"; then
+            echo "Could not parse passed count from pytest output" >&2
+            exit 1
+          fi
+          PASSED="$(echo "$PASSED_LINE" | grep -oE '[0-9]+')"
+          echo "passed_count=$PASSED" >> "$GITHUB_OUTPUT"
+          echo "Full suite passed_count=$PASSED"
+          if [ "${PASSED}" -lt 1 ]; then
+            echo "Full suite collected zero passing tests" >&2
+            exit 1
+          fi
+
+      - name: Upload full-suite coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-suite-coverage-${{ github.sha }}
+          path: |
+            coverage-full.xml
+            htmlcov/
+            docs/td-001/coverage-reports/
+          if-no-files-found: ignore
+          retention-days: 14
 
   # ============================================================================
   # RESILIENCE GATE — pre-VPS truth (fail-closed, no continue-on-error)
