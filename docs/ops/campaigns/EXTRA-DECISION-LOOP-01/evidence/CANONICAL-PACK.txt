@@ -1,0 +1,2 @@
+Canonical pack: live-pack-http (HTTP reconfirm evidence)
+live-pack retained as offline-fixture sample only; do not use for live claims.

@@ -12,7 +12,7 @@
 | Live counts HTTP | PARTICIPAR=0, REVIEW=8, NÃO_PARTICIPAR=**92** (limit 100; fit Extra real) |
 | Reconcile PDF↔Excel | **PASS** (ambos packs) |
 | CI PR #52 | Lint/mypy/critical/ops/resilience/bandit/pip-audit **pass** |
-| Testes campanha | `tests/test_decision_loop_v2.py` — 27 passed |
+| Testes campanha | `tests/test_decision_loop_v2.py` — 44 passed |
 
 ## Comandos canônicos
 
@@ -39,4 +39,16 @@ make extra-calibrate
 | Testes | 27 | 41 passed em `tests/test_decision_loop_v2.py` |
 
 Estado: **IMPLEMENTED_AWAITING_MERGE** — sem selo LOCAL_READY / 95%.
+
+
+
+## Remediation 2026-07-20 (semantic gate)
+
+| Fix | Result |
+|-----|--------|
+| Prazo vencido + status open | hard-block + excluído de `select_active_opportunities` |
+| CNPJ esperado ausente/divergente | `identity_mismatch` (nunca ok) |
+| Offline fixture | nunca PARTICIPAR |
+| Testes | **44 passed** |
+| Pack canônico | `evidence/live-pack-http` (ver CANONICAL-PACK.txt) |
 

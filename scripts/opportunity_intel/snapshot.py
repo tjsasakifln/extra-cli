@@ -148,7 +148,9 @@ def analyze_reconfirm_body(
         checks["numero_found"] = True
 
     # At least one strong identity marker must match
-    identity_matched = bool(checks["control_found"] or checks["cnpj_found"] or checks["numero_found"])
+    identity_matched = bool(
+        checks["control_found"] or checks["cnpj_found"] or checks["numero_found"]
+    )
     if not identity_matched:
         # Generic listing with 200 but no specific opportunity markers
         return {
@@ -157,6 +159,27 @@ def analyze_reconfirm_body(
             "identity_matched": False,
             "checks": checks,
             "rule": "generic_page_without_identity",
+        }
+
+    # Expected full CNPJ present in row but absent/wrong on page → never ok
+    # (conservative: control alone is insufficient when orgao_cnpj is known)
+    if cnpj and len(cnpj) >= 11 and not checks["cnpj_found"]:
+        # Detect a different 14-digit CNPJ on the page (divergence)
+        page_digits = _digits(body)
+        other_cnpj = None
+        for i in range(0, max(0, len(page_digits) - 13)):
+            cand = page_digits[i : i + 14]
+            if len(cand) == 14 and cand != cnpj:
+                other_cnpj = cand
+                break
+        checks["cnpj_expected"] = cnpj
+        checks["cnpj_other_on_page"] = other_cnpj
+        return {
+            "outcome": "identity_mismatch",
+            "status_observed": None,
+            "identity_matched": False,
+            "checks": checks,
+            "rule": "expected_cnpj_absent_or_divergent",
         }
 
     status_observed = str(row.get("status_canonico") or "open")
@@ -169,14 +192,6 @@ def analyze_reconfirm_body(
     elif "encerrad" in low and "abert" not in low:
         status_observed = "closed"
         checks["status_hint"] = "closed"
-
-    # Expected CNPJ divergence when both present
-    expected_cnpj = cnpj
-    if expected_cnpj and checks["cnpj_found"] is False and cnpj:
-        # control matched but cnpj expected and not found → identity_mismatch soft
-        if checks["control_found"] and len(cnpj) >= 11:
-            # Strong control match alone can still be ok if cnpj not expected on page
-            pass
 
     if status_observed in {"revoked", "suspended", "closed"}:
         return {
@@ -265,18 +280,50 @@ def classify_pagination_outcome(
     return "ok"
 
 
+def _deadline_expired(row: dict[str, Any], *, now: datetime | None = None) -> bool:
+    """True when data_encerramento is parseable and <= now (deadline prevails)."""
+    raw = row.get("data_encerramento")
+    if raw is None or raw == "":
+        return False
+    if isinstance(raw, datetime):
+        dt = raw if raw.tzinfo else raw.replace(tzinfo=UTC)
+    else:
+        text = str(raw).strip()
+        try:
+            if text.endswith("Z"):
+                text = text[:-1] + "+00:00"
+            dt = datetime.fromisoformat(text[:19] if "T" in text else text[:10])
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=UTC)
+        except ValueError:
+            # Ambiguous/unparseable deadline → not treated as expired here
+            # (decision engine still demotes confidence for missing deadlines)
+            return False
+    now = now or datetime.now(UTC)
+    return dt <= now
+
+
 def select_active_opportunities(
     rows: list[dict[str, Any]],
     *,
     universe_cnpj8: set[str] | None = None,
+    now: datetime | None = None,
 ) -> list[dict[str, Any]]:
-    """Filter open/upcoming in Extra scope."""
+    """Filter open/upcoming in Extra scope.
+
+    Expired deadlines never remain active/acionável solely because status is still
+    open (stale status must not override prazo vencido).
+    """
     out: list[dict[str, Any]] = []
+    now = now or datetime.now(UTC)
     for r in rows:
         status = str(r.get("status_canonico") or "").lower()
         if status not in {"open", "upcoming"}:
             continue
         if not r.get("is_active", True):
+            continue
+        # Deadline always wins over stale open status
+        if _deadline_expired(r, now=now):
             continue
         uf = str(r.get("uf") or "").upper()
         cnpj = "".join(ch for ch in str(r.get("orgao_cnpj") or "") if ch.isdigit())

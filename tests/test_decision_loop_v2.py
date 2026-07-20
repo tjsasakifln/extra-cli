@@ -411,9 +411,17 @@ class TestSnapshot:
 
     def test_reconfirm_revoked_with_identity(self):
         def page(_url, **_kw):
-            return 200, "Edital PNCP-999 foi revogado pelo órgão", None
+            return (
+                200,
+                "Edital PNCP-999 CNPJ 12345678000199 foi revogado pelo órgão",
+                None,
+            )
 
-        row = _open_row(source_id="PNCP-999", numero_controle="PNCP-999")
+        row = _open_row(
+            source_id="PNCP-999",
+            numero_controle="PNCP-999",
+            orgao_cnpj="12345678000199",
+        )
         rc = reconfirm_opportunity(row, http_get=page, offline=False)
         assert rc.identity_matched is True
         assert rc.status_observed == "revoked"
@@ -422,6 +430,49 @@ class TestSnapshot:
         rc = reconfirm_opportunity(_open_row(), offline=True)
         assert rc.outcome == "skipped_offline_fixture"
         assert rc.identity_matched is False
+
+    def test_reconfirm_control_ok_but_cnpj_missing_is_mismatch(self):
+        """Expected full CNPJ not on page → identity_mismatch, never ok."""
+        def page(_url, **_kw):
+            return 200, "<html>Edital PNCP-999 status aberto sem cnpj do orgao</html>", None
+
+        row = _open_row(
+            source_id="PNCP-999",
+            numero_controle="PNCP-999",
+            orgao_cnpj="12345678000199",
+        )
+        rc = reconfirm_opportunity(row, http_get=page, offline=False)
+        assert rc.outcome == "identity_mismatch"
+        assert rc.identity_matched is False
+
+    def test_reconfirm_cnpj_divergent_is_mismatch(self):
+        def page(_url, **_kw):
+            return (
+                200,
+                "Edital PNCP-999 CNPJ 99.999.999/0001-91 outro orgao",
+                None,
+            )
+
+        row = _open_row(
+            source_id="PNCP-999",
+            numero_controle="PNCP-999",
+            orgao_cnpj="12345678000199",
+        )
+        rc = reconfirm_opportunity(row, http_get=page, offline=False)
+        assert rc.outcome == "identity_mismatch"
+        assert rc.identity_matched is False
+
+    def test_expired_open_not_in_active_snapshot(self):
+        past = datetime.now(UTC) - timedelta(days=2)
+        future = datetime.now(UTC) + timedelta(days=10)
+        rows = [
+            _open_row(id=1, status_canonico="open", data_encerramento=past),
+            _open_row(id=2, status_canonico="open", data_encerramento=future),
+        ]
+        active = select_active_opportunities(rows)
+        ids = [r["id"] for r in active]
+        assert 1 not in ids
+        assert 2 in ids
 
     def test_high_confidence_open_requires_ok(self):
         snap = build_snapshot(
