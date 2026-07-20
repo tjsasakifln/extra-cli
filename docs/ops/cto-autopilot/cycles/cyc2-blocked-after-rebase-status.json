@@ -1,0 +1,31 @@
+{
+  "ok": false,
+  "status": "BLOCKED_HUMAN",
+  "error": "cycle-1 not complete: status='Draft' po_closed=False qa_verdict='PENDING' \u2014 exclude-list must NOT be used as substitute",
+  "blocked": {
+    "who": "@po then @dev then independent @qa then @po close",
+    "command": "Complete AIOX SDC for ROI-cand-dyn-slice-cb906bb58392 until status=Done, po_closed=true, qa_verdict in PASS|CONCERNS|WAIVED",
+    "artifact": "/mnt/d/extra-consultoria-cto-autopilot-cto-cycles/canary-live-20260719T215031Z/.aiox/state/stories/ROI-cand-dyn-slice-cb906bb58392.json",
+    "next_action": "Only after cycle-1 Done, re-run rank-next and cycle2-real"
+  },
+  "exclude_list_used": false,
+  "cycle1_proof": {
+    "ok": false,
+    "blocked_reason": "BLOCKED_HUMAN",
+    "who": "@po then @dev then independent @qa then @po close",
+    "detail": "cycle-1 not complete: status='Draft' po_closed=False qa_verdict='PENDING' \u2014 exclude-list must NOT be used as substitute",
+    "command": "Complete AIOX SDC for ROI-cand-dyn-slice-cb906bb58392 until status=Done, po_closed=true, qa_verdict in PASS|CONCERNS|WAIVED",
+    "artifact": "/mnt/d/extra-consultoria-cto-autopilot-cto-cycles/canary-live-20260719T215031Z/.aiox/state/stories/ROI-cand-dyn-slice-cb906bb58392.json",
+    "next_action": "Only after cycle-1 Done, re-run rank-next and cycle2-real",
+    "evidence": {
+      "cycle1_selected_id": "cand-dyn-slice:cb906bb58392",
+      "story_id": "ROI-cand-dyn-slice-cb906bb58392",
+      "state_path": "/mnt/d/extra-consultoria-cto-autopilot-cto-cycles/canary-live-20260719T215031Z/.aiox/state/stories/ROI-cand-dyn-slice-cb906bb58392.json",
+      "story_md_exists": true,
+      "status": "Draft",
+      "po_validated": false,
+      "po_closed": false,
+      "qa_verdict": "PENDING"
+    }
+  }
+}
