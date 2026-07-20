@@ -162,10 +162,23 @@ def prepare_worktree(
 ) -> dict[str, Any]:
     """Create isolated worktree for a cycle."""
     root = root or repo_root()
-    branch = branch_name or f"cto/{cycle_id}"
-    wt_parent = root.parent / f"{root.name}-cto-cycles"
+    cycle_id = validate_safe_cycle_id(cycle_id)
+    if branch_name:
+        # Branch may be cto/<cycle_id> — validate segments
+        for part in str(branch_name).split("/"):
+            if part and not _SAFE_ID_RE.match(part):
+                raise ExecutorError(f"invalid branch segment: {part!r}")
+        branch = branch_name
+    else:
+        branch = f"cto/{cycle_id}"
+    wt_parent = managed_worktree_parent(root)
     wt_parent.mkdir(parents=True, exist_ok=True)
-    wt_path = wt_parent / cycle_id
+    wt_path = (wt_parent / cycle_id).resolve()
+    # Prove worktree stays under managed parent
+    try:
+        wt_path.relative_to(wt_parent.resolve())
+    except ValueError as exc:
+        raise ExecutorError(f"worktree escapes managed parent: {wt_path}") from exc
     if wt_path.exists():
         base_sha = ""
         rev = subprocess.run(
@@ -700,12 +713,9 @@ def resolve_always_approve(
     return True, report
 
 
-# Narrow allow rules for operational headless cycles (fail-closed).
-# Prefer --permission-mode dontAsk + explicit --allow/--deny over --always-approve.
-DEFAULT_ALLOW_RULES = [
-    "Read(**)",
-    "Edit(**)",
-    "Write(**)",
+# Bash tools allowed without path scoping (still subject to DENY_RULES / sandbox).
+# Read/Edit/Write are NEVER granted as ** — only per validated allowed_paths.
+_BASE_BASH_ALLOW_RULES = [
     "Grep(**)",
     "Bash(python3 *)",
     "Bash(python *)",
@@ -725,6 +735,130 @@ DEFAULT_ALLOW_RULES = [
     "Bash(mypy *)",
 ]
 
+# Paths that always win over allowlist (credentials / home / VCS remote).
+_ALWAYS_FORBIDDEN_PATH_PREFIXES = (
+    ".env",
+    ".ssh",
+    ".aws",
+    ".config/gh",
+    ".git/credentials",
+    "credentials",
+    "id_rsa",
+    "id_ed25519",
+)
+
+_SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$")
+
+
+def validate_safe_cycle_id(cycle_id: str) -> str:
+    """Strict cycle_id for directory/branch names — no path traversal."""
+    s = str(cycle_id or "").strip()
+    if not s or not _SAFE_ID_RE.match(s):
+        raise ExecutorError(
+            f"invalid cycle_id: must match safe pattern, got {cycle_id!r}"
+        )
+    if ".." in s or "/" in s or "\\" in s or " " in s:
+        raise ExecutorError(f"invalid cycle_id path-like: {cycle_id!r}")
+    if any(ord(ch) < 32 or ord(ch) > 127 for ch in s):
+        raise ExecutorError(f"invalid cycle_id control/non-ascii: {cycle_id!r}")
+    return s
+
+
+def validate_allowed_path(
+    path: str,
+    *,
+    forbidden_paths: list[str] | None = None,
+    allow_repo_root: bool = False,
+) -> str:
+    """Normalize and validate one allowed_paths entry (fail-closed).
+
+    Rejects absolute paths, ``..``, external escapes, overly broad globs
+    (``**``, ``*``, ``.`` alone), and always-forbidden credential paths.
+    """
+    raw = str(path or "").strip().replace("\\", "/")
+    if not raw:
+        raise ExecutorError("empty allowed path")
+    if raw.startswith("/") or re.match(r"^[A-Za-z]:/", raw):
+        raise ExecutorError(f"absolute paths forbidden: {path!r}")
+    if ".." in raw.split("/"):
+        raise ExecutorError(f"path traversal forbidden: {path!r}")
+    # Strip leading ./
+    while raw.startswith("./"):
+        raw = raw[2:]
+    if not raw or raw in {".", "**", "*", "**/*", "/**"}:
+        if allow_repo_root and raw in {".", "./"}:
+            raise ExecutorError(
+                "repo root requires explicit human allow_repo_root justification"
+            )
+        raise ExecutorError(f"overly broad path rejected: {path!r}")
+    # Reject pure recursive grant of whole tree
+    if raw in {"**", "**/*", "*/*", "*"} or raw.endswith("/**/**"):
+        raise ExecutorError(f"overly broad glob rejected: {path!r}")
+    low = raw.lower()
+    for bad in _ALWAYS_FORBIDDEN_PATH_PREFIXES:
+        if low == bad or low.startswith(bad + "/") or f"/{bad}" in f"/{low}":
+            raise ExecutorError(f"forbidden sensitive path: {path!r}")
+    for f in forbidden_paths or []:
+        f_norm = str(f).replace("\\", "/").lstrip("./").rstrip("*")
+        if f_norm and (raw == f_norm or raw.startswith(f_norm.rstrip("/") + "/") or raw.startswith(f_norm)):
+            raise ExecutorError(f"path in forbidden_paths: {path!r}")
+    return raw
+
+
+def build_allow_rules_from_paths(
+    allowed_paths: list[str],
+    *,
+    forbidden_paths: list[str] | None = None,
+) -> list[str]:
+    """Generate Read/Edit/Write rules only for validated allowed_paths.
+
+    Never emits ``Read(**)`` / ``Edit(**)`` / ``Write(**)``.
+    """
+    rules: list[str] = list(_BASE_BASH_ALLOW_RULES)
+    seen: set[str] = set()
+    for p in allowed_paths or []:
+        norm = validate_allowed_path(p, forbidden_paths=forbidden_paths)
+        if norm in seen:
+            continue
+        seen.add(norm)
+        # File or directory-style: grant tool access to that path only
+        if norm.endswith("/**"):
+            base = norm
+        elif norm.endswith("/*"):
+            base = norm
+        elif norm.endswith("/"):
+            base = norm.rstrip("/") + "/**"
+        elif "*" in norm or "?" in norm:
+            base = norm
+        else:
+            # Directory-ish without glob: allow the path and its children
+            base = norm if "/" in Path(norm).name and "." in Path(norm).name else f"{norm}/**"
+            # If looks like a file (has extension), allow exact path
+            name = Path(norm).name
+            if "." in name and not name.startswith("."):
+                base = norm
+            else:
+                base = f"{norm}/**" if not norm.endswith("/**") else norm
+        for tool in ("Read", "Edit", "Write"):
+            rule = f"{tool}({base})"
+            if rule not in rules:
+                rules.append(rule)
+            # Also exact path without /**
+            if base.endswith("/**"):
+                exact = f"{tool}({base[:-3]})"
+                if exact not in rules:
+                    rules.append(exact)
+    if not seen:
+        raise ExecutorError("cannot build allow rules without validated allowed_paths")
+    # Hard ban global FS tools even if someone injects them later
+    banned = {"Read(**)", "Edit(**)", "Write(**)", "Read(*)", "Edit(*)", "Write(*)"}
+    rules = [r for r in rules if r not in banned]
+    return rules
+
+
+# Back-compat name — no longer contains Read(**)
+DEFAULT_ALLOW_RULES: list[str] = list(_BASE_BASH_ALLOW_RULES)
+
 
 def build_grok_command(
     *,
@@ -738,12 +872,14 @@ def build_grok_command(
     permission_mode: str = "dontAsk",
     include_allow: bool = True,
     allow_rules: list[str] | None = None,
+    allowed_paths: list[str] | None = None,
+    forbidden_paths: list[str] | None = None,
 ) -> list[str]:
     """Build headless Grok argv.
 
     Operational default: --sandbox strict, --permission-mode dontAsk,
-    explicit --deny rules, narrow --allow rules. --always-approve is NOT used
-    on the operational path (kept only for explicit legacy opt-in / probe).
+    explicit --deny rules, path-scoped --allow rules (never Read(**)).
+    --always-approve is NOT used on the operational path.
     """
     cmd = [
         "grok",
@@ -765,10 +901,21 @@ def build_grok_command(
         for rule in DENY_RULES:
             cmd.extend(["--deny", rule])
     if include_allow:
-        for rule in allow_rules if allow_rules is not None else DEFAULT_ALLOW_RULES:
+        if allow_rules is not None:
+            rules = list(allow_rules)
+        elif allowed_paths:
+            rules = build_allow_rules_from_paths(
+                allowed_paths, forbidden_paths=forbidden_paths
+            )
+        else:
+            # Fail closed: bash-only without FS write when no paths provided
+            rules = list(_BASE_BASH_ALLOW_RULES)
+        # Absolute ban on global FS grants
+        banned = {"Read(**)", "Edit(**)", "Write(**)"}
+        rules = [r for r in rules if r not in banned]
+        for rule in rules:
             cmd.extend(["--allow", rule])
     # Operational cycles must not use always-approve / yolo / bypassPermissions.
-    # Only the explicit probe path may pass always_approve=True for containment tests.
     if always_approve and permission_mode == "bypassPermissions":
         cmd.append("--always-approve")
     cmd.extend(["-p", prompt])
@@ -802,9 +949,25 @@ def execute(
     """Execute decision via Grok or mock. Default dry_run safe."""
     root = root or repo_root()
     cfg = load_config(root)
-    cycle_id = decision.get("cycle_id") or f"cyc-{uuid.uuid4().hex[:10]}"
+    raw_cid = decision.get("cycle_id") or f"cyc-{uuid.uuid4().hex[:10]}"
+    try:
+        cycle_id = validate_safe_cycle_id(str(raw_cid))
+    except ExecutorError as exc:
+        return {
+            "status": "unsafe",
+            "reason": str(exc),
+            "cycle_id": str(raw_cid)[:80],
+        }
     session_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"cto-{cycle_id}"))
-    cdir = cycles_dir(root) / cycle_id
+    cdir = (cycles_dir(root) / cycle_id).resolve()
+    try:
+        cdir.relative_to(cycles_dir(root).resolve())
+    except ValueError:
+        return {
+            "status": "unsafe",
+            "reason": f"cycle dir escapes managed cycles: {cdir}",
+            "cycle_id": cycle_id,
+        }
     cdir.mkdir(parents=True, exist_ok=True)
 
     if decision.get("decision") not in {"EXECUTE", "REPAIR"}:
@@ -838,6 +1001,12 @@ def execute(
             }
 
     if repair and repair_context:
+        from scripts.cto.test_registry import normalize_test_ids as _norm_ids
+
+        try:
+            repair_tids = _norm_ids(decision, root=root, allow_legacy_commands=True)
+        except Exception:  # noqa: BLE001
+            repair_tids = list(decision.get("test_ids") or [])
         prompt = render_prompt(
             "grok-repair.md",
             {
@@ -846,6 +1015,7 @@ def execute(
                 "allowed_paths": decision.get("allowed_paths") or [],
                 "forbidden_paths": decision.get("forbidden_paths") or [],
                 "forbidden_actions": decision.get("forbidden_actions") or [],
+                "test_ids": repair_tids,
                 "remaining_repairs": max(
                     0,
                     int(decision.get("max_repair_attempts") or 2)
@@ -855,6 +1025,23 @@ def execute(
             root,
         )
     else:
+        from scripts.cto.test_registry import (
+            describe_authorized_tests,
+            normalize_test_ids,
+        )
+
+        try:
+            tids = normalize_test_ids(
+                decision, root=root, allow_legacy_commands=False
+            )
+        except Exception:  # noqa: BLE001 — fail closed to empty + verifier blocks
+            try:
+                tids = normalize_test_ids(
+                    decision, root=root, allow_legacy_commands=True
+                )
+            except Exception:  # noqa: BLE001
+                tids = list(decision.get("test_ids") or [])
+        auth_detail = describe_authorized_tests(tids, root=root)
         prompt = render_prompt(
             "grok-execute.md",
             {
@@ -867,7 +1054,8 @@ def execute(
                 "required_evidence": decision.get("required_evidence") or [],
                 "allowed_paths": decision.get("allowed_paths") or [],
                 "forbidden_paths": decision.get("forbidden_paths") or [],
-                "test_commands": decision.get("test_commands") or [],
+                "test_ids": tids,
+                "authorized_tests_detail": auth_detail,
                 "forbidden_actions": decision.get("forbidden_actions") or [],
             },
             root,
@@ -1023,7 +1211,26 @@ def execute(
         return redact_obj(result_fail)
 
     # Operational path: strict sandbox + dontAsk. never --always-approve / yolo.
-    # always_approve opt-in is recorded for audit but does not alter operational flags.
+    # Allow rules scoped to decision.allowed_paths — never Read(**)/Edit(**)/Write(**).
+    try:
+        path_allow_rules = build_allow_rules_from_paths(
+            list(decision.get("allowed_paths") or []),
+            forbidden_paths=list(decision.get("forbidden_paths") or []),
+        )
+    except ExecutorError as exc:
+        result_fail = {
+            "status": "unsafe",
+            "reason": f"allowed_paths validation failed: {exc}",
+            "cycle_id": cycle_id,
+            "session_id": session_id,
+            "worktree": str(worktree),
+            "timestamp_utc": _utc_now(),
+        }
+        (cdir / "execution.json").write_text(
+            json.dumps(redact_obj(result_fail), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        return redact_obj(result_fail)
     cmd = build_grok_command(
         worktree=worktree,
         session_id=session_id,
@@ -1034,6 +1241,9 @@ def execute(
         sandbox="strict",
         permission_mode="dontAsk",
         include_allow=True,
+        allow_rules=path_allow_rules,
+        allowed_paths=list(decision.get("allowed_paths") or []),
+        forbidden_paths=list(decision.get("forbidden_paths") or []),
     )
     _ = always_approve  # audit retained via aa_report; not used for operational argv
 
