@@ -23,7 +23,6 @@ from typing import Any
 from scripts.cto.executive_sync import refresh_executive
 from scripts.cto.paths import repo_root
 
-
 PKG = Path("docs/ops/cto-pr-remediation-48-50-51-52")
 SSOT_NAME = "pr-state.json"
 
@@ -196,7 +195,7 @@ def write_derived_docs(pkg: Path, state: dict[str, Any]) -> None:
     (pkg / "FINAL-REPORT.md").write_text(
         f"""# FINAL-REPORT — WAITING_HUMAN
 
-**Generated:** {now}  
+**Generated:** {now}
 **SSOT:** `pr-state.json`
 
 ## Heads
@@ -227,9 +226,9 @@ main ← #52
 
 ## Merge order
 
-1. #48 READY_FOR_HUMAN_REVIEW  
-2. #50 after @po/@qa (BLOCKED_HUMAN)  
-3. #51 after #50 SDC (BLOCKED_HUMAN)  
+1. #48 READY_FOR_HUMAN_REVIEW
+2. #50 after @po/@qa (BLOCKED_HUMAN)
+3. #51 after #50 SDC (BLOCKED_HUMAN)
 4. #52 parallel (READY_FOR_HUMAN_REVIEW)
 
 ## Honesty
@@ -246,7 +245,7 @@ Sem merge, force-push, ou selos falsos.
     (pkg / "BASELINE.md").write_text(
         f"""# BASELINE
 
-**Captured:** {now}  
+**Captured:** {now}
 **SSOT:** `pr-state.json`
 
 | Ref | SHA |
