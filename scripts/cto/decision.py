@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -163,16 +164,51 @@ def validate_against_schema(data: dict[str, Any], schema: dict[str, Any]) -> Non
         raise DecisionValidationError("; ".join(errors))
 
 
+_SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$")
+
+
+def validate_safe_id(value: str, *, field: str = "id") -> str:
+    """Strict identifier for cycle_id / decision_id / branch segments (no path traversal)."""
+    s = str(value or "").strip()
+    if not s or not _SAFE_ID_RE.match(s):
+        raise DecisionValidationError(
+            f"invalid {field}: must match ^[a-zA-Z0-9][a-zA-Z0-9._-]{{0,79}}$ got {value!r}"
+        )
+    if ".." in s or "/" in s or "\\" in s or " " in s:
+        raise DecisionValidationError(f"invalid {field}: path-like or whitespace: {value!r}")
+    # Reject control / ambiguous unicode
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in s):
+        raise DecisionValidationError(f"invalid {field}: control characters")
+    if any(ord(ch) > 127 for ch in s):
+        raise DecisionValidationError(f"invalid {field}: non-ASCII not allowed")
+    return s
+
+
 def validate_decision(
     decision: dict[str, Any],
     *,
     root: Path | None = None,
     policies: dict[str, Any] | None = None,
     min_confidence: float = 0.0,
+    allow_legacy_test_commands: bool = False,
 ) -> dict[str, Any]:
-    """Validate decision schema + business fail-closed rules."""
+    """Validate decision schema + business fail-closed rules.
+
+    Model-authored decisions must use ``test_ids`` only
+    (``allow_legacy_test_commands=False``). Legacy imports/seeds may map aliases
+    once, then strip free-form commands from the stored decision.
+    """
     schema = load_schema(decision_schema_path(root))
     validate_against_schema(decision, schema)
+
+    # Canonicalize identifiers (fail closed on traversal / spaces)
+    decision = {
+        **decision,
+        "cycle_id": validate_safe_id(str(decision.get("cycle_id") or ""), field="cycle_id"),
+        "decision_id": validate_safe_id(
+            str(decision.get("decision_id") or ""), field="decision_id"
+        ),
+    }
 
     action = decision["decision"]
     if action in {"EXECUTE", "REPAIR"}:
@@ -184,6 +220,27 @@ def validate_decision(
             raise DecisionValidationError(
                 "EXECUTE/REPAIR requires issue_number or work_id for traceability"
             )
+        # test_ids only — resolve + require non-empty; never keep free shell for model path
+        from scripts.cto.test_registry import (
+            AuthorizedTestError,
+            normalize_test_ids,
+        )
+
+        try:
+            tids = normalize_test_ids(
+                decision,
+                root=root,
+                allow_legacy_commands=allow_legacy_test_commands,
+            )
+        except AuthorizedTestError as exc:
+            raise DecisionValidationError(str(exc)) from exc
+        if not tids:
+            raise DecisionValidationError(
+                "EXECUTE/REPAIR requires non-empty authorized test_ids "
+                "(free-form test_commands are not accepted from the model)"
+            )
+        # Canonical stored form: test_ids only; strip free-form commands
+        decision = {**decision, "test_ids": tids, "test_commands": []}
 
     if action == "ACCEPT" and not (
         decision.get("issue_number") or decision.get("work_id") or decision.get("candidate_id")
@@ -264,6 +321,7 @@ def build_fallback_blocked_decision(
         "required_evidence": [],
         "allowed_paths": [],
         "forbidden_paths": [".env", "**/.ssh/**"],
+        "test_ids": [],
         "test_commands": [],
         "forbidden_actions": [
             "merge",
@@ -435,7 +493,7 @@ def decide_from_observation(
             "allowed_paths": ["scripts/cto/**", "docs/ops/cto-autopilot/**", "tests/cto/**"],
             "forbidden_paths": [".env", "**/.ssh/**"],
             "test_ids": ["cto.pytest.suite"],
-            "test_commands": ["python -m pytest tests/cto -q"],
+            "test_commands": [],
             "forbidden_actions": ["merge", "deploy", "git push", "force_push"],
             "allowed_claims": [],
             "forbidden_claims": forbidden_claims(cfg.policies),
@@ -448,6 +506,7 @@ def decide_from_observation(
         if decision["decision"] == "NOOP":
             decision["acceptance_criteria"] = []
             decision["allowed_paths"] = []
+            decision["test_ids"] = []
             decision["work_id"] = None
             decision["candidate_id"] = None
         validated = validate_decision(
@@ -455,6 +514,7 @@ def decide_from_observation(
             root=cfg.root,
             policies=cfg.policies,
             min_confidence=0.0 if decision["decision"] == "NOOP" else 0.0,
+            allow_legacy_test_commands=False,
         )
         # Second hard gate even after selection
         validated = enforce_executable_readiness(validated, root=root)
@@ -500,9 +560,19 @@ def decide_from_observation(
         )
 
     content = dict(result.content)
-    content.setdefault("cycle_id", cycle_id)
-    content.setdefault("decision_id", f"dec-{uuid.uuid4().hex[:12]}")
-    content.setdefault("schema_version", "1.0")
+    # cycle_id is orchestrator authority — never accept model-supplied value
+    content["cycle_id"] = validate_safe_id(cycle_id, field="cycle_id")
+    # decision_id: generate if missing/invalid; never trust path-like model values
+    raw_dec_id = str(content.get("decision_id") or "").strip()
+    try:
+        content["decision_id"] = validate_safe_id(raw_dec_id, field="decision_id")
+    except DecisionValidationError:
+        content["decision_id"] = f"dec-{uuid.uuid4().hex[:12]}"
+    content["schema_version"] = "1.0"
+    # Model must not introduce free-form test_commands as authoritative
+    if content.get("decision") in {"EXECUTE", "REPAIR"}:
+        # Prefer test_ids; drop unmapped free shell (legacy aliases only via explicit flag)
+        content.pop("test_commands", None)
     try:
         validated = validate_decision(
             content,
@@ -511,6 +581,7 @@ def decide_from_observation(
             min_confidence=cfg.budgets.min_confidence
             if content.get("decision") in {"EXECUTE", "REPAIR", "ACCEPT"}
             else 0.0,
+            allow_legacy_test_commands=False,
         )
     except DecisionValidationError as exc:
         blocked = build_fallback_blocked_decision(
@@ -601,6 +672,7 @@ def enforce_executable_readiness(
         "candidate_id": None,
         "acceptance_criteria": [],
         "allowed_paths": [],
+        "test_ids": [],
         "test_commands": [],
         "strategic_reason": (
             "READINESS_GATE: " + "; ".join(reasons[:5])

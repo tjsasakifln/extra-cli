@@ -41,10 +41,21 @@ Provide a short auditável `strategic_reason` only.
 
 Match decision.schema.json exactly. Fields:
 
-schema_version="1.0", decision_id, cycle_id, decision (EXECUTE|REPAIR|ACCEPT|BLOCK|ESCALATE|NOOP),
-objective, issue_number, work_id, candidate_id, strategic_reason, acceptance_criteria[],
-required_evidence[], allowed_paths[], forbidden_paths[], test_commands[], forbidden_actions[],
-allowed_claims[], forbidden_claims[], max_repair_attempts (0-2), estimated_risk (LOW|MEDIUM|HIGH),
-confidence (0-1), human_gate {required, reason}, optional ranking_veto.
+schema_version="1.0", decision_id, cycle_id (echo only — orchestrator overwrites), decision
+(EXECUTE|REPAIR|ACCEPT|BLOCK|ESCALATE|NOOP), objective, issue_number, work_id, candidate_id,
+strategic_reason, acceptance_criteria[], required_evidence[], allowed_paths[], forbidden_paths[],
+**test_ids[]** (authorized IDs from the registry only — NEVER free-form shell),
+forbidden_actions[], allowed_claims[], forbidden_claims[], max_repair_attempts (0-2),
+estimated_risk (LOW|MEDIUM|HIGH), confidence (0-1), human_gate {required, reason},
+optional ranking_veto.
 
-For EXECUTE: acceptance_criteria non-empty, allowed_paths non-empty, issue_number or work_id required.
+### Hard rules for tests
+
+- For EXECUTE or REPAIR you MUST set non-empty `test_ids` using only IDs from
+  `.cto/authorized_tests.yaml` (e.g. `cto.pytest.suite`, `cto.cli.doctor`).
+- NEVER output `test_commands`, shell strings, argv, `pytest` free text, or Python inline.
+- NEVER invent test IDs. Unknown IDs block the cycle.
+- `cycle_id` is owned by the orchestrator; any value you emit is discarded.
+
+For EXECUTE/REPAIR: acceptance_criteria non-empty, allowed_paths non-empty,
+test_ids non-empty (authorized only), issue_number or work_id required.

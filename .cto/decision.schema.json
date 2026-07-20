@@ -15,7 +15,6 @@
     "required_evidence",
     "allowed_paths",
     "forbidden_paths",
-    "test_commands",
     "forbidden_actions",
     "allowed_claims",
     "forbidden_claims",
@@ -26,8 +25,19 @@
   ],
   "properties": {
     "schema_version": { "type": "string", "const": "1.0" },
-    "decision_id": { "type": "string", "minLength": 1 },
-    "cycle_id": { "type": "string", "minLength": 1 },
+    "decision_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$"
+    },
+    "cycle_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$",
+      "description": "Authority of the orchestrator only. Model-supplied values are overwritten."
+    },
     "decision": {
       "type": "string",
       "enum": ["EXECUTE", "REPAIR", "ACCEPT", "BLOCK", "ESCALATE", "NOOP"]
@@ -53,15 +63,19 @@
       "type": "array",
       "items": { "type": "string", "minLength": 1 }
     },
+    "test_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$"
+      },
+      "description": "Authorized test_id values from .cto/authorized_tests.yaml only. Required for EXECUTE/REPAIR."
+    },
     "test_commands": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 },
-      "description": "Legacy free-string commands; must resolve via authorized_tests.yaml aliases. Prefer test_ids."
-    },
-    "test_ids": {
-      "type": "array",
-      "items": { "type": "string", "minLength": 1 },
-      "description": "Authorized test_id values from .cto/authorized_tests.yaml only."
+      "description": "LEGACY import only. Must never be produced by the model. Resolved via aliases then discarded. Not required."
     },
     "ranking_action": {
       "type": ["string", "null"],

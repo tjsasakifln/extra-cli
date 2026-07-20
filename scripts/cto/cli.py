@@ -1238,9 +1238,8 @@ def build_canary_decision(*, root: Path) -> dict[str, Any]:
             ".env",
             ".env.*",
         ],
-        "test_commands": [
-            "grep -qi canary docs/ops/cto-autopilot/canary-proof.md",
-        ],
+        "test_ids": ["cto.canary.proof_grep"],
+        "test_commands": [],
         "forbidden_actions": [
             "merge",
             "deploy",

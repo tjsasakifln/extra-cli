@@ -99,11 +99,16 @@ def normalize_test_ids(
     decision: dict[str, Any],
     *,
     root: Path | None = None,
+    allow_legacy_commands: bool = True,
 ) -> list[str]:
     """Return authorized test_ids from decision.test_ids and/or legacy test_commands.
 
-    Free-form shell strings that do not map via legacy aliases raise TestRegistryError
-    when decision is EXECUTE/REPAIR. Unknown test_ids always raise.
+    Model output path must pass ``allow_legacy_commands=False`` so free-form
+    ``test_commands`` never enter the system as new decisions. Legacy import /
+    registry seeds may set ``allow_legacy_commands=True`` for deterministic alias
+    resolution only — aliases never become shell execution of the raw string.
+
+    Unknown test_ids always raise.
     """
     ids: list[str] = []
     raw_ids = decision.get("test_ids")
@@ -122,6 +127,10 @@ def normalize_test_ids(
     cmds = decision.get("test_commands") or []
     if not isinstance(cmds, list):
         raise TestRegistryError("test_commands must be a list")
+    if cmds and not allow_legacy_commands:
+        raise TestRegistryError(
+            "test_commands are forbidden on model-authored decisions; use test_ids only"
+        )
     for cmd in cmds:
         if not isinstance(cmd, str) or not cmd.strip():
             raise TestRegistryError(f"invalid test_commands entry: {cmd!r}")
@@ -142,6 +151,27 @@ def normalize_test_ids(
             get_entry(mapped, root)
             ids.append(mapped)
     return ids
+
+
+def describe_authorized_tests(
+    test_ids: list[str],
+    *,
+    root: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Human-readable registry detail for executor prompts (no free shell)."""
+    out: list[dict[str, Any]] = []
+    for tid in test_ids:
+        entry = get_entry(tid, root)
+        out.append(
+            {
+                "test_id": tid,
+                "description": entry.get("description") or "",
+                "expected_files": list(entry.get("expected_files") or []),
+                "argv_resolved": list(entry.get("argv") or []),
+                "risk_class": entry.get("risk_class") or "low",
+            }
+        )
+    return out
 
 
 def _validate_argv(argv: list[str]) -> list[str]:

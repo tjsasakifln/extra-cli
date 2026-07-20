@@ -38,13 +38,20 @@ You are the development executor for Extra Consultoria CTO Autopilot.
 
 {{forbidden_paths}}
 
-## Test commands to leave green
+## Authorized tests (IDs only — do not invent shell)
 
-{{test_commands}}
+You may only reason about these authorized test_ids. The verifier executes them
+with a fixed registry (shell=False). Do **not** run free-form shell tests.
+
+### test_ids
+{{test_ids}}
+
+### Registry details (resolved by orchestrator — not model-authored shell)
+{{authorized_tests_detail}}
 
 ## Forbidden actions
 
 {{forbidden_actions}}
 
 Implement the minimal change that satisfies the criteria. Commit locally if appropriate.
-Do not open PRs or push.
+Do not open PRs or push. Do not execute arbitrary shell; use only authorized test_ids.

@@ -56,6 +56,7 @@ def sample_decision() -> dict:
         "required_evidence": ["pytest log"],
         "allowed_paths": ["scripts/cto/**", "tests/cto/**", "docs/ops/cto-autopilot/**"],
         "forbidden_paths": [".env"],
+        "test_ids": ["cto.pytest.suite"],
         "test_commands": [],
         "forbidden_actions": ["merge", "deploy", "git push"],
         "allowed_claims": [],

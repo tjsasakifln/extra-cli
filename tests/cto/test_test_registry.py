@@ -49,9 +49,18 @@ def test_normalize_prefers_explicit_test_ids():
         "test_ids": ["cto.cli.doctor"],
         "test_commands": ["python -m pytest tests/cto -q"],
     }
-    ids = normalize_test_ids(decision)
+    ids = normalize_test_ids(decision, allow_legacy_commands=True)
     assert ids[0] == "cto.cli.doctor"
     assert "cto.pytest.suite" in ids
+
+
+def test_normalize_model_path_forbids_test_commands():
+    decision = {
+        "test_ids": ["cto.cli.doctor"],
+        "test_commands": ["python -m pytest tests/cto -q"],
+    }
+    with pytest.raises(AuthorizedTestError, match="forbidden"):
+        normalize_test_ids(decision, allow_legacy_commands=False)
 
 
 def test_resolve_argv_no_shell_and_list():
