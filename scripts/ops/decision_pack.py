@@ -1012,6 +1012,46 @@ def run_decision_pack(
         except Exception as exc:  # noqa: BLE001
             report.setdefault("warnings", []).append(f"conn_close:{exc}")
 
+    # §29 rastreabilidade: decision pack always records errors[] + report→run
+    try:
+        from scripts.ops.run_execution_ledger import record_execution_safe
+
+        errs: list[str] = list(report.get("warnings") or []) if isinstance(report, dict) else []
+        if status in {"TECH_FAIL", "UNRELIABLE"}:
+            errs.append(f"status={status}")
+        for g in (gaps or [])[:20]:
+            errs.append(f"gap:{g}" if not str(g).startswith("gap:") else str(g))
+        rec_status = "ok"
+        if status == "TECH_FAIL":
+            rec_status = "failed"
+        elif status == "UNRELIABLE":
+            rec_status = "partial"
+        report_paths = [str(out / "decision_manifest.json")]
+        for key in ("executive_decision_brief.md", "extra_decision_pack.xlsx", "checksums.json"):
+            pth = out / key
+            if pth.is_file():
+                report_paths.append(str(pth))
+        record_execution_safe(
+            command=["python", "-m", "scripts.ops.decision_pack"],
+            status=rec_status,
+            errors=errs,
+            exit_code=(
+                EXIT_TECH
+                if status == "TECH_FAIL"
+                else (EXIT_UNRELIABLE if status == "UNRELIABLE" else EXIT_OK)
+            ),
+            report_paths=report_paths,
+            run_id=run_id,
+            meta={
+                "entrypoint": "decision_pack",
+                "status": status,
+                "offline_reconfirm": offline,
+                "counts": counts,
+            },
+        )
+    except Exception:  # noqa: BLE001
+        pass
+
     if status == "TECH_FAIL":
         return EXIT_TECH, manifest
     if status == "UNRELIABLE" and strict:

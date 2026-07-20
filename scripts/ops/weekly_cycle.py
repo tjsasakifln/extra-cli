@@ -1555,6 +1555,33 @@ def run_weekly_cycle(
         )
         _atomic_json(manifest_path, asdict(report))
 
+        # §29: weekly cycle always leaves errors[] + report→run on the ledger
+        try:
+            from scripts.ops.run_execution_ledger import record_execution_safe
+
+            errs: list[str] = []
+            for g in report.gaps or []:
+                errs.append(str(g)[:240])
+            for st in stages:
+                if getattr(st, "status", None) not in {None, "ok", "skip", "skipped"}:
+                    errs.append(f"stage:{st.name}:{st.status}")
+            record_execution_safe(
+                command=["python", "-m", "scripts.ops.weekly_cycle"],
+                status="ok" if report.exit_code == 0 else "partial",
+                errors=errs,
+                exit_code=int(report.exit_code or 0),
+                report_paths=[str(manifest_path)]
+                + [str(v) for v in (report.products or {}).values() if v][:12],
+                run_id=cycle_id,
+                meta={
+                    "entrypoint": "weekly_cycle",
+                    "collection_id": collection_id,
+                    "strict": strict,
+                },
+            )
+        except Exception as led_exc:  # noqa: BLE001
+            sys.stderr.write(f"weekly_cycle: ledger warn: {led_exc}\n")
+
         return report
     finally:
         try:
