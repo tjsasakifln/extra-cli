@@ -2715,3 +2715,22 @@ CI (PR #12):
 
 ---
 
+<!-- CTO-CYCLE-STATUS:START -->
+
+## CTO / Decision loop status (PR remediation 2026-07-19)
+
+- **data:** 2026-07-20T01:36:53Z
+- **PR #52 branch:** `goal/extra-decision-loop-01` @ `fed2c79`
+- **objetivo:** loop de decisão confiável — prazo vencido, reconfirmação com identidade, offline nunca PARTICIPAR
+- **DoD items (PARTIAL, checkboxes NÃO virados):**
+  - §2.1 decidir oportunidades que merecem análise humana
+  - URL oficial e encerramento futuro obrigatórios para acionável
+  - status prioritário reconfirmado na execução mais recente
+- **before:** reconfirm HTTP 200 genérico podia outcome=ok; prazo vencido+status open sem hard-block; offline no path de ok
+- **after:** identity analysis obrigatória; prazo_encerrado sempre hard blocker; offline_fixture bloqueia PARTICIPAR
+- **verification:** tests/test_decision_loop_v2.py — 41 passed
+- **integração:** IMPLEMENTED_AWAITING_MERGE
+- **próxima ação:** aceite humano do pack + merge gate
+- **claims proibidos:** LOCAL_READY, VPS_OPERATIONAL, PROJECT_DONE, 95% coverage
+
+<!-- CTO-CYCLE-STATUS:END -->
