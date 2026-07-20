@@ -41,4 +41,4 @@ def test_cycle2_accepts_second_slice(cto_repo, monkeypatch):
     assert out["ok"] is True
     assert out["chosen"]["id"] == "cand-dyn-slice:b84aad7b10ee"
     assert out["strategic"]["action"] == "ACCEPT_TOP"
-    assert "cb906bb58392" in out["excluded_work_ids"]
+    assert "cand-dyn-slice:cb906bb58392" in out["excluded_work_ids"]
