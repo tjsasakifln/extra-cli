@@ -70,6 +70,7 @@ def _run_squad(
             parsed = json.loads(stdout)
         except json.JSONDecodeError:
             parsed = None
+        # Keep head+tail so rank-next "### 1. cand-..." lines are not lost
         head = stdout[:12000]
         tail = stdout[-8000:]
         return {

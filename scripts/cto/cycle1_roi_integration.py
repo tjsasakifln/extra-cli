@@ -105,7 +105,12 @@ def run_cycle1_real(
         ranking["selected_id"] = cycle_blob["selected_id"]
     # Parse ranking[0] from rank-next text when JSON missing
     if not ranking.get("selected_id"):
-        text = rank.get("stdout_tail") or ""
+        text = (
+            rank.get("stdout_text")
+            or rank.get("stdout_head")
+            or rank.get("stdout_tail")
+            or ""
+        )
         import re
 
         m = re.search(r"###\s*1\.\s*(cand-[\w:.-]+)", text)
