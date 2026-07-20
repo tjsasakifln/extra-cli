@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "cycle_id": "cyc1-material-20260720",
+  "timestamp_utc": "2026-07-20T01:55:07Z",
+  "ranking_selected_id": "cand-dyn-slice:cb906bb58392",
+  "strategic_action": "ACCEPT_TOP",
+  "aiox_sequence_bound": true,
+  "parallel_ranker": false,
+  "test_ids_authorized_only": true,
+  "integration_state": "IMPLEMENTED_AWAITING_MERGE"
+}

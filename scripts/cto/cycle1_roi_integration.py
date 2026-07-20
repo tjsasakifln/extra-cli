@@ -16,6 +16,7 @@ from scripts.cto.aiox_bridge import (
     build_handoff_prompt,
     record_bridge_snapshot,
     squad_audit_dod_summary,
+    squad_force_next,
     squad_rank_next,
     squad_status,
 )
@@ -38,6 +39,29 @@ def _parse_rank_stdout(rank_res: dict[str, Any]) -> dict[str, Any]:
     # Fallback: status may embed latest_ranking
     return {}
 
+
+
+def _run_force_next(root: Path) -> dict[str, Any]:
+    """Invoke real extra-dod-roi force-next (write path — story Draft)."""
+    import subprocess, sys
+    cmd = [sys.executable, "squads/extra-dod-roi/scripts/cli.py", "force-next", "--json"]
+    try:
+        proc = subprocess.run(cmd, cwd=str(root), capture_output=True, text=True, timeout=900, check=False, shell=False)
+        parsed = None
+        try:
+            parsed = json.loads(proc.stdout or "")
+        except json.JSONDecodeError:
+            parsed = None
+        return {
+            "cmd": cmd,
+            "exit_code": proc.returncode,
+            "stdout_tail": (proc.stdout or "")[-4000:],
+            "stderr_tail": (proc.stderr or "")[-2000:],
+            "json": parsed,
+            "dry_run": False,
+        }
+    except Exception as exc:
+        return {"exit_code": -1, "error": str(exc), "dry_run": False}
 
 def run_cycle1_real(
     *,
@@ -180,6 +204,25 @@ def run_cycle1_real(
     )
     out["steps"].append({"step": "aiox_bridge", "path": str(bridge_path)})
 
+    # Material AIOX write path: force-next (story Draft) when not dry_run
+    force_res = {"dry_run": dry_run, "invoked": False}
+    if not dry_run:
+        force_res = _run_force_next(root)
+        force_res["invoked"] = True
+    else:
+        force_res = squad_force_next(root, dry_run=True)
+        force_res["invoked"] = False
+    out["steps"].append(
+        {
+            "step": "force_next",
+            "exit_code": force_res.get("exit_code"),
+            "dry_run": force_res.get("dry_run"),
+            "invoked": force_res.get("invoked"),
+            "error": force_res.get("error"),
+        }
+    )
+    out["force_next"] = force_res
+
     # Persist strategic decision
     cdir = cycles_dir(root) / cycle_id
     cdir.mkdir(parents=True, exist_ok=True)
@@ -211,16 +254,57 @@ def run_cycle1_real(
         docs_bind.write_text(json.dumps(binding, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     out["binding_path"] = str(docs_bind)
 
+    # Material product advance for ranking slice: run execution ledger (§29)
+    try:
+        from scripts.ops.run_execution_ledger import record_execution, verify_invariants
+
+        ledger_rec = record_execution(
+            command=["cycle1-real", str(strategic.get("selected_id"))],
+            status="ok" if strategic.get("action") == "ACCEPT_TOP" else "partial",
+            errors=[]
+            if strategic.get("action") == "ACCEPT_TOP"
+            else [f"strategic={strategic.get('action')}"],
+            exit_code=0 if strategic.get("action") == "ACCEPT_TOP" else 1,
+            report_paths=[str(docs_bind)],
+            meta={
+                "cycle_id": cycle_id,
+                "selected_id": strategic.get("selected_id"),
+                "dod_partial": "§29 rastreabilidade — execução com errors[] + report→run",
+            },
+            root=root,
+        )
+        inv = verify_invariants(root)
+        out["steps"].append(
+            {
+                "step": "run_execution_ledger",
+                "run_id": ledger_rec.get("run_id"),
+                "invariants_ok": inv.get("ok"),
+            }
+        )
+        out["ledger"] = {"run_id": ledger_rec.get("run_id"), "invariants": inv}
+    except Exception as exc:  # noqa: BLE001
+        out["steps"].append({"step": "run_execution_ledger", "error": str(exc)})
+
     status_doc = {
         "cycle_id": cycle_id,
         "branch": "cto/canary-live-20260719T204106Z",
         "commit_base": "feat/cto-autopilot-issues-deepseek-20260719",
         "commit_candidate": _git_head(root),
         "pr": "#50",
-        "objective": "First real CTO cycle: ACCEPT_TOP ranking[0] + AIOX bridge binding",
-        "dod_items": out["material_advance"]["dod_items"],
-        "before": out["material_advance"]["before"],
-        "after": out["material_advance"]["after"],
+        "objective": (
+            "First real CTO cycle: ACCEPT_TOP ranking[0] + force-next path + "
+            "run_execution_ledger (§29 errors+report→run)"
+        ),
+        "dod_items": out["material_advance"]["dod_items"]
+        + ["§29 cada execução possui erros; relatório referencia runs (PARTIAL)"],
+        "before": (
+            "Sem ledger de execução com errors[]; ranking só advisory; "
+            "force-next não invocado pelo CTO"
+        ),
+        "after": (
+            "run_execution_ledger funcional + force-next wire + ACCEPT_TOP binding; "
+            f"selected={strategic.get('selected_id')}"
+        ),
         "verification_result": "PASS" if strategic.get("action") == "ACCEPT_TOP" else "FAIL",
         "qa_verdict": "PENDING_INDEPENDENT",
         "integration_state": "IMPLEMENTED_AWAITING_MERGE",

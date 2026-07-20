@@ -4,7 +4,7 @@
 **Epic:** EPIC-EXTRA-DOD-ROI (evergreen)  
 **Status:** Draft  
 **Risk level:** **HIGH-RISK**  
-**Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-19T135019Z`)  
+**Source:** squad `extra-dod-roi` force-next (cycle `cyc-2026-07-20T015506Z`)  
 **Candidate ID:** `cand-dyn-slice:cb906bb58392`  
 **ROI:** `2.9241`  
 **DoD refs:** 29. Rastreabilidade e auditoria, Cada execução possui erros., Cada relatório referencia runs de origem., Mudanças manuais são auditáveis., Overrides manuais possuem motivo., Overrides manuais possuem data.
@@ -31,7 +31,7 @@ Dynamic slice of 8 open DoD items; ROI biased by section heuristics
 
 ### Evidence of problem
 
-['Current HEAD 4f2f55aa differs from origin/main dbc5adb2 (ahead=23, behind=0).', 'DoD veto active: Adversarial truth gate destroyed LOCAL_RESILIENCE_READY; remains NOT_READY until new proof', 'Superseded claim: LOCAL_RESILIENCE_READY → NOT_READY (DOD.md §44)', 'Superseded claim: PRE_VPS_FINAL_READY → NOT_READY (DOD.md residual / PR truth gate)', 'Dynamic DOD generation produced 40 section slices (262 open items covered)', 'Candidate cand-qa-po-e3-stories marked COMPLETED: B2G-E3.S1/S2 Done with independent QA/PO (do not re-bind)', 'Candidate cand-full-suite-schema-debt marked COMPLETED: ROI-cand-full-suite-schema-debt Done with QA PASS + PO close', 'Candidate cand-coverage-slice-pending-collection marked COMPLETED: ROI-cand-coverage-slice-pending-collection Done with QA PASS + PO close (M2 N>0 provenance)', 'Candidate cand-coverage-scale-m2-more-entities marked COMPLETED: ROI-cand-coverage-scale-m2-more-entities Done with QA PASS + PO close', 'Candidate cand-dod-unit-test-evidence-pack marked COMPLETED: ROI-cand-dod-unit-test-evidence-pack Done with QA PASS + PO close', 'Candidate cand-workspace-daily-evidence-pack marked COMPLETED: ROI-cand-workspace-daily-evidence-pack Done with QA/PO', 'Candidate cand-golden-path-pncp-health marked COMPLETED: ROI-cand-golden-path-pncp-health Done with QA PASS + PO close']
+['Current HEAD 28c2cfb7 differs from origin/main d6d9e198 (ahead=29, behind=5).', 'DoD veto active: Adversarial truth gate destroyed LOCAL_RESILIENCE_READY; remains NOT_READY until new proof', 'Superseded claim: LOCAL_RESILIENCE_READY → NOT_READY (DOD.md §44)', 'Superseded claim: PRE_VPS_FINAL_READY → NOT_READY (DOD.md residual / PR truth gate)', 'Dynamic DOD generation produced 40 section slices (264 open items covered)', 'Candidate cand-qa-po-e3-stories marked COMPLETED: B2G-E3.S1/S2 Done with independent QA/PO (do not re-bind)', 'Candidate cand-full-suite-schema-debt marked COMPLETED: ROI-cand-full-suite-schema-debt Done with QA PASS + PO close', 'Candidate cand-coverage-slice-pending-collection marked COMPLETED: ROI-cand-coverage-slice-pending-collection Done with QA PASS + PO close (M2 N>0 provenance)', 'Candidate cand-coverage-scale-m2-more-entities marked COMPLETED: ROI-cand-coverage-scale-m2-more-entities Done with QA PASS + PO close', 'Candidate cand-dod-unit-test-evidence-pack marked COMPLETED: ROI-cand-dod-unit-test-evidence-pack Done with QA PASS + PO close', 'Candidate cand-workspace-daily-evidence-pack marked COMPLETED: ROI-cand-workspace-daily-evidence-pack Done with QA/PO', 'Candidate cand-golden-path-pncp-health marked COMPLETED: ROI-cand-golden-path-pncp-health Done with QA PASS + PO close']
 
 ### Value / ROI justification
 
@@ -141,7 +141,7 @@ Revert last main commit(s) with reverse commit if needed; never force-push; neve
 
 | Date | Agent | Change |
 |------|-------|--------|
-| 2026-07-19 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
+| 2026-07-20 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
 
 ---
 
