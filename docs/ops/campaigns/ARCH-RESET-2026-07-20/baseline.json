@@ -1,0 +1,235 @@
+{
+  "campaign": "ARCH-RESET-2026-07-20",
+  "generated_at_utc": "2026-07-20T12:18:26Z",
+  "main_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+  "main_short": "d6d9e19",
+  "main_subject": "Merge pull request #49 from tjsasakifln/campaign/extra-operational-proof-01",
+  "metrics": {
+    "tracked_files": 4240,
+    "py_scripts_files": 326,
+    "py_tests_files": 193,
+    "scripts_loc_approx": 161054,
+    "tests_loc_approx": 37501,
+    "migrations_sql": 62,
+    "adrs": 9,
+    "workflows": 1,
+    "makefile_targets": 23,
+    "direct_requirements": 12,
+    "dod_open_checkboxes": 1044,
+    "dod_done_checkboxes": 308,
+    "product_entrypoints_classified": 6,
+    "orchestrators_listed": 8,
+    "coverage_impl_paths": 6,
+    "freshness_impl_paths": 2,
+    "ledger_impl_paths": 5
+  },
+  "product_entrypoints": {
+    "extra-weekly": {
+      "impl": "python3 -m scripts.ops.weekly_cycle --strict",
+      "class": "canonical"
+    },
+    "golden-path": {
+      "impl": "python scripts/golden_path.py",
+      "class": "diagnostic"
+    },
+    "run-pipeline": {
+      "impl": "bootstrap + crawl + intel_pipeline + report",
+      "class": "legacy_composite"
+    },
+    "report-executivo": {
+      "impl": "scripts/reports/executive_report.py + executive_excel.py",
+      "class": "component"
+    },
+    "resilient-local-cycle": {
+      "impl": "scripts.ops.resilient_cycle --env fixture",
+      "class": "diagnostic"
+    },
+    "force-next": {
+      "impl": "squads/extra-dod-roi/scripts/cli.py force-next",
+      "class": "campaign_governance"
+    }
+  },
+  "orchestrators": [
+    {
+      "id": "weekly_cycle",
+      "path": "scripts/ops/weekly_cycle.py",
+      "role": "canonical_product"
+    },
+    {
+      "id": "golden_path",
+      "path": "scripts/golden_path.py",
+      "role": "diagnostic_validation"
+    },
+    {
+      "id": "resilient_cycle",
+      "path": "scripts/ops/resilient_cycle.py",
+      "role": "resilience_fixture"
+    },
+    {
+      "id": "run_pipeline_make",
+      "path": "Makefile:run-pipeline",
+      "role": "legacy_composite"
+    },
+    {
+      "id": "intel_pipeline",
+      "path": "scripts/intel_pipeline.py",
+      "role": "intel_component"
+    },
+    {
+      "id": "opportunity_intel_cli",
+      "path": "scripts/opportunity_intel/cli.py",
+      "role": "intel_component"
+    },
+    {
+      "id": "workspace_cli",
+      "path": "scripts/workspace/cli.py",
+      "role": "operator_facade"
+    },
+    {
+      "id": "extra_dod_roi",
+      "path": "squads/extra-dod-roi/scripts/cli.py",
+      "role": "campaign_governance"
+    }
+  ],
+  "coverage_implementations": [
+    "scripts/coverage/coverage_contract.py",
+    "scripts/coverage_gate.py",
+    "scripts/coverage_truth.py",
+    "scripts/coverage/multi_source_coverage.py",
+    "scripts/coverage/session_coverage_pipeline.py",
+    "scripts/coverage/entity_freshness.py"
+  ],
+  "freshness_implementations": [
+    "scripts/freshness_gate.py",
+    "scripts/coverage/entity_freshness.py"
+  ],
+  "ledger_implementations": [
+    "scripts/extra_ledger/cli.py",
+    "scripts/lib/manual_override_ledger.py",
+    "scripts/fix/rebuild_evidence_ledger.py",
+    "scripts/ops/alert_pipeline.py",
+    "db/migrations/024_coverage_evidence_ledger.sql"
+  ],
+  "makefile_targets": [
+    ".PHONY",
+    "bootstrap",
+    "clean",
+    "db-down",
+    "db-up",
+    "extra-weekly",
+    "golden-path",
+    "golden-path-quick",
+    "help",
+    "lint",
+    "lint-fix",
+    "pre-vps-final-gate",
+    "pre-vps-final-gate-offline",
+    "pre-vps-live-canary",
+    "report-executivo",
+    "resilience-gate",
+    "resilient-local-cycle",
+    "resilient-smoke",
+    "run-crawl",
+    "run-pipeline",
+    "run-report",
+    "test",
+    "test-all"
+  ],
+  "requirements_direct": [
+    "httpx>=0.28.1",
+    "requests>=2.32.0",
+    "openai>=1.55.0",
+    "psycopg2>=2.9.9",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0",
+    "reportlab>=4.5.1",
+    "openpyxl>=3.1.5",
+    "rich>=13.0.0",
+    "lxml>=5.0.0",
+    "beautifulsoup4>=4.12.0",
+    "rapidfuzz>=3.0.0"
+  ],
+  "adrs": [
+    "docs/architecture/adr/ADR-007-cloud-hosting-strategy.md",
+    "docs/architecture/adr/ADR-007-v6.1-provider-decision.md",
+    "docs/architecture/adr/ADR-008-infrastructure-as-code-strategy.md",
+    "docs/architecture/adr/ADR-017-workspace-cli-facade.md",
+    "docs/architecture/adr/ADR-018-coverage-contract-multi-metric.md",
+    "docs/architecture/adr/ADR-019-entity-source-registry-canonical.md",
+    "docs/architecture/adr/ADR-020-operational-data-not-in-git.md",
+    "docs/architecture/adr/ADR-021-adapter-architecture-pncp-429-fail-closed.md",
+    "docs/architecture/adr/ADR-022-client-profile-sole-commercial-law.md"
+  ],
+  "migrations": [
+    "db/migrations/001_pncp_raw_bids.sql",
+    "db/migrations/002_pncp_supplier_contracts.sql",
+    "db/migrations/003_enriched_entities.sql",
+    "db/migrations/004_ingestion_tables.sql",
+    "db/migrations/005_search_datalake_rpc.sql",
+    "db/migrations/006_upsert_rpcs.sql",
+    "db/migrations/007_sc_public_entities.sql",
+    "db/migrations/008_purge_rpc.sql",
+    "db/migrations/009_indexes_and_coverage.sql",
+    "db/migrations/010_match_logging.sql",
+    "db/migrations/011_unmatched_bids_view.sql",
+    "db/migrations/012_coverage_snapshots.sql",
+    "db/migrations/013_td-1.1_gin_index_objeto_contrato.sql",
+    "db/migrations/014_td-1.1_fix_hnsw_expression.sql",
+    "db/migrations/015_td-2.3_enriched_entities_ttl.sql",
+    "db/migrations/016_td-2.3_objeto_compra_gin.sql",
+    "db/migrations/017_td-2.3_matched_entity_id_index.sql",
+    "db/migrations/018-td-5.3_esfera_id_check.sql",
+    "db/migrations/019-td-5.3_soft_delete_purge_docs.sql",
+    "db/migrations/020_td-2.4_sync_local_schema.sql",
+    "db/migrations/021a_entity_coverage_rebuild.sql",
+    "db/migrations/021b_entity_hierarchy.sql",
+    "db/migrations/021c_sc_dados_abertos_municipio.sql",
+    "db/migrations/021d_views_functions.sql",
+    "db/migrations/022_match_method_coverage.sql",
+    "db/migrations/023_pncp_engineering_pipeline.sql",
+    "db/migrations/024_coverage_evidence_ledger.sql",
+    "db/migrations/025a_contract_intel_views.sql",
+    "db/migrations/025b_coverage_evidence_null_uniqueness.sql",
+    "db/migrations/026_contract_intel_truth_v1.sql",
+    "db/migrations/027_opportunity_intel.sql",
+    "db/migrations/028_opportunity_indexes.sql",
+    "db/migrations/029_qw01_auditable_radar.sql",
+    "db/migrations/030_schema_contract_and_canonical_views.sql",
+    "db/migrations/031_source_snapshot_reconciliation.sql",
+    "db/migrations/032_capability_coverage.sql",
+    "db/migrations/033_contract_versioning.sql",
+    "db/migrations/034_supplier_identity.sql",
+    "db/migrations/035_value_observations.sql",
+    "db/migrations/036_reporting_views.sql",
+    "db/migrations/037_target_universe_snapshot.sql",
+    "db/migrations/038_target_universe_active_view.sql",
+    "db/migrations/039_source_snapshot_tracking.sql",
+    "db/migrations/040_coverage_model_expansion.sql",
+    "db/migrations/041a_fix_fk_constraints.sql",
+    "db/migrations/041b_fix_snapshot_membership.sql",
+    "db/migrations/042_validate_fk_constraints.sql",
+    "db/migrations/043_entity_aliases.sql",
+    "db/migrations/044_fix_upsert_dedup.sql",
+    "db/migrations/045_dlq_entries.sql",
+    "db/migrations/046_pipeline_watermarks.sql",
+    "db/migrations/047_pipeline_runs.sql",
+    "db/migrations/048_record_hashes.sql",
+    "db/migrations/049_pncp_resumable_backfill.sql",
+    "db/migrations/050_fix_contracts_upsert_fk.sql",
+    "db/migrations/051_contract_date_semantics.sql",
+    "db/migrations/052_official_acts.sql",
+    "db/migrations/053_entity_source_registry.sql",
+    "db/migrations/054_local_resilience_contract.sql",
+    "db/migrations/055_drop_orgao_entity_fk_national_pncp.sql",
+    "db/migrations/056_drop_supplier_entity_fk_contracts.sql",
+    "db/migrations/057_fix_upsert_opportunity_content_hash.sql"
+  ],
+  "claims": {
+    "LOCAL_READY": "NOT_CLAIMED",
+    "operational_coverage_95": "NOT_CLAIMED",
+    "VPS_OPERATIONAL": "NOT_CLAIMED",
+    "PROJECT_DONE": "NOT_CLAIMED",
+    "PRE_VPS_FINAL_READY": "NOT_READY",
+    "LOCAL_RESILIENCE_READY": "NOT_READY"
+  }
+}
