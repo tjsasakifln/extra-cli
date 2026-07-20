@@ -119,6 +119,7 @@ jobs:
         run: >-
           pytest
           tests/test_freshness_gate.py
+          tests/test_freshness_by_entity.py
           tests/test_universe.py
           tests/test_manifest.py
           tests/test_consulting_readiness.py
@@ -143,6 +144,7 @@ jobs:
           -m "not integration and not database and not live"
           -o addopts=''
           --cov=scripts.freshness_gate
+          --cov=scripts.coverage.freshness_by_entity
           --cov=scripts.lib.universe
           --cov=scripts.consulting_readiness
           --cov=scripts.coverage_truth
@@ -202,6 +204,7 @@ jobs:
           tests/test_weekly_cycle.py
           tests/test_run_evidence.py
           tests/test_freshness_gate.py
+          tests/test_freshness_by_entity.py
           tests/test_mandatory_gates_no_or_true.py
           tests/test_golden_path_fail_closed.py
           tests/test_golden_path_ledger.py
