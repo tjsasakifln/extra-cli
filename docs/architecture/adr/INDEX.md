@@ -11,6 +11,7 @@
 | ADR-020 | Operational data not in git | **Vigente** |
 | ADR-021 | Adapter architecture PNCP 429 fail-closed | **Vigente** |
 | ADR-022 | Client profile sole commercial law | **Vigente** |
+| ADR-024 | OCDS as semantic interoperability reference | **Vigente** (export/reference; not physical model) |
 
 ## ADRs revogadas / supersedidas
 

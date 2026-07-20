@@ -1,0 +1,130 @@
+{
+  "uri": "file://spike/ocds-sample",
+  "version": "1.1",
+  "publishedDate": "2026-07-20T12:28:18Z",
+  "publisher": {
+    "name": "Extra Consultoria — OCDS spike (not official publisher)"
+  },
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "publicationPolicy": "Synthetic/sanitized sample for interoperability spike only",
+  "releases": [
+    {
+      "ocid": "ocds-extra-12345678000199-1-000001/2026",
+      "id": "1",
+      "date": "2026-07-01T12:00:00Z",
+      "tag": [
+        "tender"
+      ],
+      "initiationType": "tender",
+      "tender": {
+        "id": "12345678000199-1-000001/2026",
+        "title": "Pavimentação asfáltica em vias urbanas",
+        "status": "Divulgada no PNCP",
+        "value": {
+          "amount": 1500000.5,
+          "currency": "BRL"
+        },
+        "procurementMethodDetails": "Pregão Eletrônico"
+      },
+      "buyer": {
+        "id": "BR-CNPJ-12345678000199",
+        "name": "Prefeitura Municipal Exemplo"
+      },
+      "extra:provenance": {
+        "source": "pncp",
+        "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "raw_uri": "https://pncp.gov.br/api/pncp/v1/orgaos/12345678000199/compras/2026/1",
+        "official_id": "12345678000199-1-000001/2026"
+      }
+    },
+    {
+      "ocid": "ocds-extra-11222333000144-1-000010/2026",
+      "id": "2",
+      "date": "2026-07-05T09:00:00Z",
+      "tag": [
+        "tender"
+      ],
+      "initiationType": "tender",
+      "tender": {
+        "id": "11222333000144-1-000010/2026",
+        "title": "Reforma de escola municipal",
+        "status": "Recebendo proposta",
+        "value": {
+          "amount": 890000.0,
+          "currency": "BRL"
+        },
+        "procurementMethodDetails": "Concorrência"
+      },
+      "buyer": {
+        "id": "BR-CNPJ-11222333000144",
+        "name": "Município Beta"
+      },
+      "extra:provenance": {
+        "source": "pncp",
+        "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "raw_uri": null,
+        "official_id": "11222333000144-1-000010/2026"
+      }
+    },
+    {
+      "ocid": "ocds-extra-C-9001",
+      "id": "C-9001",
+      "date": "2026-06-01",
+      "tag": [
+        "contract"
+      ],
+      "contracts": [
+        {
+          "id": "C-9001",
+          "title": "Pavimentação asfáltica — lote 1",
+          "status": "Ativo",
+          "value": {
+            "amount": 1420000.0,
+            "currency": "BRL"
+          },
+          "period": {
+            "startDate": "2026-06-15",
+            "endDate": "2027-06-14"
+          },
+          "dateSigned": "2026-06-01"
+        }
+      ],
+      "parties": [
+        {
+          "id": "BR-CNPJ-12345678000199",
+          "name": "Prefeitura Municipal Exemplo",
+          "roles": [
+            "buyer"
+          ]
+        },
+        {
+          "id": "BR-CNPJ-99888777000166",
+          "name": "Construtora Delta LTDA",
+          "roles": [
+            "supplier"
+          ]
+        }
+      ],
+      "extra:value_semantics": {
+        "field": "valor_global|valor_total|valor_contratado",
+        "is_paid": false,
+        "is_contracted": true,
+        "note": "Never treat contracted value as paid without payment observation"
+      },
+      "extra:provenance": {
+        "source": "pncp_contracts",
+        "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "official_id": "C-9001",
+        "linked_tender_id": "12345678000199-1-000001/2026"
+      }
+    }
+  ],
+  "extensions": [
+    "https://raw.githubusercontent.com/open-contracting-extensions/ocds_bid_extension/master/extension.json"
+  ],
+  "extra:spike": {
+    "campaign": "ARCH-RESET-2026-07-20",
+    "decision_hint": "ADOPT_AS_REFERENCE",
+    "not_physical_model": true
+  }
+}

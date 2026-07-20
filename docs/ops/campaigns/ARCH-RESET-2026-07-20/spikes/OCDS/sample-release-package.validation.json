@@ -1,0 +1,43 @@
+{
+  "structural_ok": true,
+  "n_releases": 3,
+  "structural_issues": [],
+  "schema": {
+    "attempted": true,
+    "schema_path": "/tmp/grok-goal-8cc921b3e39f/implementer/ocds/release-schema.json",
+    "ok": false,
+    "n_errors": 3,
+    "errors_sample": [
+      {
+        "index": 0,
+        "ocid": "ocds-extra-12345678000199-1-000001/2026",
+        "message": "'Divulgada no PNCP' is not one of ['planning', 'planned', 'active', 'cancelled', 'unsuccessful', 'complete', 'withdrawn', None]",
+        "path": [
+          "tender",
+          "status"
+        ]
+      },
+      {
+        "index": 1,
+        "ocid": "ocds-extra-11222333000144-1-000010/2026",
+        "message": "'Recebendo proposta' is not one of ['planning', 'planned', 'active', 'cancelled', 'unsuccessful', 'complete', 'withdrawn', None]",
+        "path": [
+          "tender",
+          "status"
+        ]
+      },
+      {
+        "index": 2,
+        "ocid": "ocds-extra-C-9001",
+        "message": "'initiationType' is a required property",
+        "path": []
+      }
+    ],
+    "interpretation": "expected_fail_with_extensions_or_local_vocab"
+  },
+  "notes": [
+    "extra:* extension fields are intentional and typically fail strict OCDS schema",
+    "local tender.status vocab is not forced into OCDS enums",
+    "physical PostgreSQL model remains non-OCDS"
+  ]
+}
