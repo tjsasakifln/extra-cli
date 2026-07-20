@@ -87,43 +87,172 @@ def _run_squad(
         return {"cmd": cmd, "exit_code": -2, "error": "not_found"}
 
 
-def preflight_aiox_discovery(inspect: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Fail closed if Grok/AIOX discovery surfaces are missing.
+# Aliases that map alternate names → required agent id (not invalid freestyle aliases).
+_AGENT_ALIASES: dict[str, str] = {
+    "po": "po",
+    "@po": "po",
+    "pax": "po",
+    "dev": "dev",
+    "@dev": "dev",
+    "dex": "dev",
+    "qa": "qa",
+    "@qa": "qa",
+    "quinn": "qa",
+    "devops": "devops",
+    "@devops": "devops",
+    "gage": "devops",
+    "roi-orchestrator": "roi-orchestrator",
+    "codebase-cartographer": "codebase-cartographer",
+    "dod-truth-auditor": "dod-truth-auditor",
+    "critical-path-roi-planner": "critical-path-roi-planner",
+    "delivery-engineer": "delivery-engineer",
+    "adversarial-qa-auditor": "adversarial-qa-auditor",
+    "evidence-release-steward": "evidence-release-steward",
+}
 
-    Uses grok inspect JSON when provided; does not invent agent copies.
+# Skills / instruction paths required for the canonical sequence
+_REQUIRED_SKILL_HINTS = (
+    "aiox-story-cycle",
+    "develop-story",
+    "validate-story-draft",
+    "review-story",
+    "aiox-publish",
+)
+
+
+def _discover_agents_on_disk(root: Path) -> dict[str, list[str]]:
+    """Map agent_id → list of source paths where it was found."""
+    found: dict[str, list[str]] = {}
+    search_roots = [
+        root / "squads" / "extra-dod-roi" / "agents",
+        root / ".claude" / "skills" / "AIOX" / "agents",
+        root / ".aiox-core" / "development" / "agents",
+        root / "agents",
+    ]
+    for base in search_roots:
+        if not base.is_dir():
+            continue
+        for path in base.rglob("*"):
+            if not path.is_file():
+                continue
+            if path.suffix.lower() not in {".md", ".yaml", ".yml", ".json"}:
+                continue
+            stem = path.stem.lower().replace("_", "-")
+            # agent folders: agents/dev/MEMORY.md → dev
+            parent_name = path.parent.name.lower().replace("_", "-")
+            candidates = {stem, parent_name}
+            for cand in candidates:
+                canon = _AGENT_ALIASES.get(cand) or (
+                    cand if cand in REQUIRED_AGENTS else None
+                )
+                if canon and canon in REQUIRED_AGENTS:
+                    found.setdefault(canon, []).append(
+                        str(path.relative_to(root)) if path.is_relative_to(root) else str(path)
+                    )
+    # AGENTS.md alone is NOT an agent proof — only listed for diagnostics
+    return found
+
+
+def _discover_skills_on_disk(root: Path) -> dict[str, str]:
+    found: dict[str, str] = {}
+    skill_roots = [
+        root / ".claude" / "skills",
+        root / ".agents" / "skills",
+    ]
+    for base in skill_roots:
+        if not base.is_dir():
+            continue
+        for child in base.iterdir():
+            if child.is_dir():
+                skill_md = child / "SKILL.md"
+                if skill_md.is_file():
+                    found[child.name] = str(skill_md.relative_to(root))
+    return found
+
+
+def preflight_aiox_discovery(
+    inspect: dict[str, Any] | None = None,
+    *,
+    root: Path | None = None,
+) -> dict[str, Any]:
+    """Fail closed unless every REQUIRED_AGENTS entry is discoverable on disk.
+
+    ``AGENTS.md`` or a lone AIOX folder is **not** sufficient proof.
+    Grok inspect JSON may enrich found_agents but cannot replace filesystem proof.
     """
+    root = root or repo_root()
     missing: list[str] = []
-    found_agents: list[str] = []
-    project_instructions = []
+    found_map = _discover_agents_on_disk(root)
+    found_agents = sorted(found_map.keys())
+    sources: dict[str, list[str]] = dict(found_map)
+    inspect_names: list[str] = []
+    project_instructions: list[Any] = []
     if inspect:
         project_instructions = list(inspect.get("projectInstructions") or [])
-        # Agents may appear under various keys depending on grok version
         for key in ("agents", "discoveredAgents", "agentDefinitions"):
             val = inspect.get(key)
             if isinstance(val, list):
                 for item in val:
                     if isinstance(item, dict) and item.get("name"):
-                        found_agents.append(str(item["name"]))
+                        inspect_names.append(str(item["name"]))
                     elif isinstance(item, str):
-                        found_agents.append(item)
-    # Presence of AIOX skills/rules paths is a soft signal
+                        inspect_names.append(item)
+    # Map inspect names through aliases (diagnostic only)
+    for name in inspect_names:
+        key = name.lower().lstrip("@").replace("_", "-")
+        canon = _AGENT_ALIASES.get(key) or _AGENT_ALIASES.get(name.lower())
+        if canon and canon not in found_map:
+            # inspect-only hits do not count as proof
+            sources.setdefault(f"inspect-only:{canon}", []).append("grok-inspect")
+
+    for agent in REQUIRED_AGENTS:
+        if agent not in found_map:
+            missing.append(agent)
+
+    skills = _discover_skills_on_disk(root)
+    missing_skills = [s for s in _REQUIRED_SKILL_HINTS if s not in skills]
+    # Skills are soft if agents fully present? Goal says validate skills for canonical sequence.
+    if missing_skills:
+        for s in missing_skills:
+            missing.append(f"skill:{s}")
+
     paths = [str(p.get("path") or "") for p in project_instructions if isinstance(p, dict)]
-    has_aiox_rules = any(".claude/rules" in p or "aiox" in p.lower() for p in paths)
-    has_agents_md = any(p.endswith("AGENTS.md") or p.endswith("Agents.md") for p in paths)
-    if not has_aiox_rules and not has_agents_md:
-        missing.append("AIOX project instructions / AGENTS.md not discovered by grok inspect")
+    has_aiox_rules = any(".claude/rules" in p or "aiox" in p.lower() for p in paths) or (
+        (root / ".claude" / "rules").is_dir()
+    )
+    has_agents_md = any(
+        p.endswith("AGENTS.md") or p.endswith("Agents.md") for p in paths
+    ) or (root / "AGENTS.md").is_file() or (root / "Agents.md").is_file()
+
+    # Explicit: AGENTS.md alone never makes ok=True
+    agent_ok = all(a in found_map for a in REQUIRED_AGENTS)
+    skill_ok = all(s in skills for s in _REQUIRED_SKILL_HINTS)
+    ok = agent_ok and skill_ok and len(missing) == 0
+
+    # Duplicates / invalid aliases report
+    invalid_aliases = [
+        n for n in inspect_names
+        if n.lower().lstrip("@").replace("_", "-") not in _AGENT_ALIASES
+        and n.lower().lstrip("@") not in REQUIRED_AGENTS
+    ]
+
     return {
-        "ok": len(missing) == 0,
+        "ok": ok,
         "missing": missing,
         "found_agents": found_agents,
+        "agent_sources": sources,
+        "skills_found": sorted(skills.keys()),
+        "missing_skills": missing_skills,
         "has_aiox_rules": has_aiox_rules,
         "has_agents_md": has_agents_md,
+        "agents_md_insufficient": True,
+        "invalid_aliases": invalid_aliases[:20],
         "required_agents": list(REQUIRED_AGENTS),
         "canonical_sequence": list(CANONICAL_SEQUENCE),
         "note": (
-            "CTO does not fork agent definitions; Grok loads AIOX via project "
-            "instructions and .claude/skills. Implementation uses delivery-engineer/@dev "
-            "prompts; QA uses independent session."
+            "Every REQUIRED_AGENTS entry must resolve to a file under squads/ or "
+            ".claude/skills/AIOX/. AGENTS.md alone is never sufficient. Partial "
+            "preflight cannot start an executable cycle."
         ),
     }
 
