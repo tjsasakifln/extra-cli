@@ -1009,31 +1009,52 @@ class TestParseTableRows:
 class TestCrawl:
     """Tests for crawl()."""
 
-    @patch("scripts.crawl.transparencia_crawler._load_entities")
-    @patch("scripts.crawl.transparencia_crawler._load_existing_results")
-    @patch("scripts.crawl.transparencia_crawler.detect_platform")
-    @patch("scripts.crawl.transparencia_crawler._save_results")
-    def test_crawl_full(self, mock_save, mock_detect, mock_existing, mock_entities):
-        """crawl('full') iterates over entities and returns results."""
-        mock_save.return_value = "/tmp/test_platforms.json"
-        mock_entities.return_value = [
-            {"nome": "Chapeco", "slug": "chapeco", "ibge": "4204202"},
-            {"nome": "Blumenau", "slug": "blumenau", "ibge": "4202404"},
+    @patch("scripts.crawl.transparencia_crawler.crawl_template")
+    @patch("scripts.crawl.transparencia_crawler._crawl_detect")
+    def test_crawl_full(self, mock_detect_mode, mock_template):
+        """crawl('full') runs detect then template scrape; never hits live network.
+
+        Full mode semantics (post detect+template): detection updates the
+        platforms file, then crawl_template returns scraping results. Mocks
+        must cover both stages so unit tests stay offline and deterministic.
+        """
+        mock_detect_mode.return_value = [
+            {
+                "municipio": "Chapeco",
+                "slug": "chapeco",
+                "platform": "betha",
+                "status": "detected",
+            },
+            {
+                "municipio": "Blumenau",
+                "slug": "blumenau",
+                "platform": "betha",
+                "status": "detected",
+            },
         ]
-        mock_existing.return_value = {"detected": [], "metadata": {"version": 1}}
-        mock_detect.side_effect = lambda slug, municipio: {
-            "municipio": municipio,
-            "slug": slug,
-            "platform": "betha",
-            "status": "detected",
-            "detected_at": "2025-01-01",
-        }
+        mock_template.return_value = [
+            {
+                "municipio": "Chapeco",
+                "slug": "chapeco",
+                "status": "ok",
+                "count": 3,
+                "records": [],
+            },
+            {
+                "municipio": "Blumenau",
+                "slug": "blumenau",
+                "status": "ok",
+                "count": 1,
+                "records": [],
+            },
+        ]
 
         results = tc.crawl(mode="full")
         assert len(results) == 2
         assert results[0]["municipio"] == "Chapeco"
         assert results[1]["municipio"] == "Blumenau"
-        assert mock_detect.call_count == 2
+        mock_detect_mode.assert_called_once_with("full")
+        mock_template.assert_called_once_with()
 
     @patch("scripts.crawl.transparencia_crawler._load_entities")
     @patch("scripts.crawl.transparencia_crawler._load_existing_results")
