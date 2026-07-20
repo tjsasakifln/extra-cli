@@ -254,6 +254,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Full history required for claim-surface ancestry checks
+          # (panel commit must be ancestor of HEAD / PR merge ref).
+          # Default shallow depth=1 makes merge-base --is-ancestor exit 128.
+          fetch-depth: 0
 
       - name: Setup Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5

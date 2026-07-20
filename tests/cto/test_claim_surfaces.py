@@ -154,6 +154,16 @@ def test_html_cto_panel_commit_is_ancestor_of_head():
     ).stdout.strip()
     if full == head:
         return
+    # Prefer first-parent / reachable list (works better on shallow clones).
+    listed = subprocess.run(
+        ["git", "rev-list", "--max-count=200", head],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if listed.returncode == 0 and full in {ln.strip() for ln in listed.stdout.splitlines()}:
+        return
     anc = subprocess.run(
         ["git", "merge-base", "--is-ancestor", full, head],
         cwd=str(root),
@@ -161,8 +171,16 @@ def test_html_cto_panel_commit_is_ancestor_of_head():
         text=True,
         check=False,
     )
+    # 0 = ancestor; 1 = not ancestor; 128 = fatal (often shallow / missing objects).
+    if anc.returncode == 128:
+        pytest.fail(
+            f"cannot verify panel ancestry (git exit 128) panel={full[:12]} "
+            f"HEAD={head[:12]} stderr={(anc.stderr or '').strip()!r} — "
+            "CI full suite must use actions/checkout fetch-depth: 0"
+        )
     assert anc.returncode == 0, (
-        f"panel commit {panel_commit!r} ({full[:12]}) is not an ancestor of HEAD {head[:12]}"
+        f"panel commit {panel_commit!r} ({full[:12]}) is not an ancestor of HEAD {head[:12]} "
+        f"(merge-base exit={anc.returncode})"
     )
 
 
