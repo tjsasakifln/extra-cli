@@ -1,2 +1,3 @@
-Canonical pack: live-pack-http (HTTP reconfirm evidence)
-live-pack retained as offline-fixture sample only; do not use for live claims.
+Canonical pack metadata: live-pack-http/ (checksums + manifests only).
+Full PDF/XLSX/CSV runtime packs are CI artifacts — not git blobs.
+live-pack/ holds offline-fixture metadata only; never use for live claims.
