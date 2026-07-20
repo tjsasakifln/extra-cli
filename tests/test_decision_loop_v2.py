@@ -23,10 +23,14 @@ from scripts.opportunity_intel.profile_resolve import (
     write_profile_status,
 )
 from scripts.opportunity_intel.snapshot import (
+    analyze_reconfirm_body,
+    build_pncp_url,
     build_snapshot,
     classify_http_status,
     classify_pagination_outcome,
     compute_delta,
+    is_generic_pncp_org_url,
+    is_high_confidence_open,
     pick_reconfirm_targets,
     reconfirm_opportunity,
     reconfirm_paginated_listing,
@@ -486,6 +490,247 @@ class TestSnapshot:
         rows = [_open_row(id=i) for i in range(5)]
         t = pick_reconfirm_targets(rows, top_n=20)
         assert len(t) == 5
+
+
+class TestIdentityProofStrict:
+    """Mandatory regressions: CNPJ-only / generic pages never confirm."""
+
+    CONTROL = "12345678000199-1-000001/2026"
+    CNPJ = "12345678000199"
+
+    def _row(self, **kw):
+        base = {
+            "id": 42,
+            "source_id": self.CONTROL,
+            "numero_controle_pncp": self.CONTROL,
+            "orgao_cnpj": self.CNPJ,
+            "orgao_nome": "Prefeitura Teste",
+            "numero": "000001",
+            "link_edital": f"https://pncp.gov.br/app/editais/{self.CNPJ}/2026/1",
+        }
+        base.update(kw)
+        return _open_row(**base)
+
+    def test_01_generic_page_cnpj_only_never_confirms(self):
+        """Página genérica contendo somente o CNPJ esperado não confirma."""
+        body = (
+            "<html><body><h1>Portal do órgão</h1>"
+            f"<p>CNPJ: 12.345.678/0001-99</p>"
+            "<p>Informações institucionais</p></body></html>"
+        )
+        analysis = analyze_reconfirm_body(body, self._row(), http_status=200)
+        assert analysis["identity_matched"] is False
+        assert analysis["outcome"] != "ok"
+        assert analysis["outcome"] in {
+            "not_found",
+            "unconfirmed",
+            "ambiguous",
+            "identity_mismatch",
+        }
+
+        def page(_url, **_kw):
+            return 200, body, None
+
+        rc = reconfirm_opportunity(self._row(), http_get=page, offline=False)
+        assert rc.outcome != "ok"
+        assert rc.identity_matched is False
+
+    def test_02_generic_page_org_name_never_confirms(self):
+        """Página genérica contendo nome do órgão não confirma."""
+        body = (
+            "<html><body><h1>Prefeitura Teste</h1>"
+            "<p>Bem-vindo ao portal de compras do município</p></body></html>"
+        )
+        analysis = analyze_reconfirm_body(body, self._row(), http_status=200)
+        assert analysis["identity_matched"] is False
+        assert analysis["outcome"] != "ok"
+
+    def test_03_exact_control_and_cnpj_confirms(self):
+        """Página com número de controle exato e CNPJ correto confirma."""
+        body = (
+            "<html><body>"
+            f"Controle PNCP: {self.CONTROL} "
+            f"CNPJ 12.345.678/0001-99 status aberto reforma"
+            "</body></html>"
+        )
+        analysis = analyze_reconfirm_body(body, self._row(), http_status=200)
+        assert analysis["identity_matched"] is True
+        assert analysis["outcome"] == "ok"
+        assert analysis["checks"]["control_found"] is True
+
+        def page(_url, **_kw):
+            return 200, body, None
+
+        rc = reconfirm_opportunity(self._row(), http_get=page, offline=False)
+        assert rc.outcome == "ok"
+        assert rc.identity_matched is True
+
+    def test_04_partial_control_never_confirms(self):
+        """Número de controle parcial não confirma oportunidade."""
+        # No exact hiring number field — only a short suffix of the full control
+        row = self._row(numero="")
+        body = (
+            "<html><body>"
+            "Fragmento: 0000012026 "  # normalized tail of control, not full ID
+            f"CNPJ 12.345.678/0001-99"
+            "</body></html>"
+        )
+        analysis = analyze_reconfirm_body(body, row, http_status=200)
+        assert analysis["identity_matched"] is False
+        assert analysis["outcome"] != "ok"
+        assert analysis["checks"].get("control_found") is False
+        assert analysis["outcome"] in {
+            "not_found",
+            "unconfirmed",
+            "ambiguous",
+            "identity_mismatch",
+        }
+
+    def test_05_same_numero_divergent_cnpj_is_mismatch(self):
+        """Número de contratação igual, CNPJ divergente → mismatch."""
+        body = (
+            "<html><body>"
+            "Contratação nº 000001 "
+            "CNPJ 99.999.999/0001-91 outro orgao"
+            "</body></html>"
+        )
+        row = self._row(numero_controle_pncp="", source_id="", numero="000001")
+        # Without control, only numero+cnpj path applies
+        analysis = analyze_reconfirm_body(body, row, http_status=200)
+        assert analysis["identity_matched"] is False
+        assert analysis["outcome"] == "identity_mismatch"
+
+    def test_06_ok_without_identity_never_high_confidence(self):
+        """outcome=ok com identity_matched=false nunca produz high_confidence_open."""
+        row = self._row()
+        rc = {
+            "outcome": "ok",
+            "identity_matched": False,
+            "rule": "identity_matched_official_page",
+        }
+        assert is_high_confidence_open(row, rc) is False
+        snap = build_snapshot([row], run_id="r", reconfirm_map={42: rc})
+        assert snap.opportunities[0]["high_confidence_open"] is False
+
+    def test_07_offline_fixture_never_participar_nor_high_conf(self):
+        """Fixture offline nunca produz PARTICIPAR nem high confidence."""
+        row = self._row()
+        rc = reconfirm_opportunity(row, offline=True)
+        assert rc.outcome == "skipped_offline_fixture"
+        assert rc.identity_matched is False
+        d = decide_opportunity(
+            row,
+            reconfirm=rc.to_dict(),
+            profile_meta={"pending_critical": []},
+        )
+        assert d.recommendation != "PARTICIPAR"
+        assert is_high_confidence_open(row, rc.to_dict()) is False
+        snap = build_snapshot(
+            [row],
+            run_id="off",
+            reconfirm_map={42: rc.to_dict()},
+        )
+        assert snap.opportunities[0]["high_confidence_open"] is False
+
+    def test_08_expired_open_still_out_of_active(self):
+        """Prazo vencido com status open continua fora das oportunidades ativas."""
+        past = datetime.now(UTC) - timedelta(days=3)
+        row = self._row(status_canonico="open", data_encerramento=past)
+        active = select_active_opportunities([row])
+        assert active == []
+        # Even if someone forges reconfirm ok, high conf must stay false
+        rc = {
+            "outcome": "ok",
+            "identity_matched": True,
+            "identity_checks": {
+                "control_found": True,
+                "cnpj_found": True,
+                "specific_identity_proof": True,
+            },
+        }
+        assert is_high_confidence_open(row, rc) is False
+
+    def test_09_login_captcha_error_empty_listing_never_confirm(self):
+        """Login, CAPTCHA, erro ou listagem vazia nunca confirmam."""
+        cases = [
+            "<html>Faça login para continuar</html>",
+            "<html>Resolva o captcha para acessar</html>",
+            "<html>Página não encontrada erro 404</html>",
+            "<html>Lista de editais — nenhum edital encontrado</html>",
+            "<html>Resultados da busca: nenhum resultado</html>",
+        ]
+        for body in cases:
+            analysis = analyze_reconfirm_body(body, self._row(), http_status=200)
+            assert analysis["identity_matched"] is False, body
+            assert analysis["outcome"] != "ok", body
+
+    def test_10_pagination_incomplete_never_confirms(self):
+        """Paginação incompleta nunca confirma oportunidade."""
+        rc = reconfirm_paginated_listing(
+            pages=[(200, "<html>page1</html>", None)],
+            total_pages=5,
+            opportunity_id=42,
+        )
+        assert rc.outcome == "pagination_incomplete"
+        assert rc.identity_matched is False
+        row = self._row()
+        assert is_high_confidence_open(row, rc.to_dict()) is False
+        d = decide_opportunity(row, reconfirm=rc.to_dict())
+        assert d.recommendation != "PARTICIPAR"
+
+    def test_generic_org_url_never_ok(self):
+        """URL só com CNPJ é página genérica — nunca ok quando é a única URL."""
+        url = f"https://pncp.gov.br/app/editais/{self.CNPJ}"
+        assert is_generic_pncp_org_url(url) is True
+        # No parseable specific control → cannot upgrade to detail URL
+        row = self._row(
+            link_edital=url,
+            numero_controle_pncp="SEM-DETALHE",
+            source_id="SEM-DETALHE",
+            numero="",
+            ano="",
+            sequencial="",
+        )
+        built = build_pncp_url(row)
+        assert built is None or is_generic_pncp_org_url(built)
+
+        def page(_url, **_kw):
+            return (
+                200,
+                f"<html>CNPJ {self.CNPJ} lista de editais do orgao</html>",
+                None,
+            )
+
+        rc = reconfirm_opportunity(row, http_get=page, offline=False)
+        assert rc.outcome != "ok"
+        assert rc.identity_matched is False
+
+        # analyze_reconfirm_body also rejects generic org URL even with rich body
+        rich = f"<html>{self.CONTROL} CNPJ {self.CNPJ} aberto</html>"
+        analysis = analyze_reconfirm_body(
+            rich,
+            self._row(link_edital=url),
+            http_status=200,
+            url=url,
+        )
+        assert analysis["identity_matched"] is False
+        assert analysis["outcome"] != "ok"
+
+    def test_high_confidence_requires_full_proof(self):
+        row = self._row()
+        good = {
+            "outcome": "ok",
+            "identity_matched": True,
+            "identity_checks": {
+                "control_found": True,
+                "cnpj_found": True,
+                "specific_identity_proof": True,
+                "proof_kind": "numero_controle_pncp_exact",
+            },
+        }
+        assert is_high_confidence_open(row, good) is True
+        snap = build_snapshot([row], run_id="r", reconfirm_map={42: good})
+        assert snap.opportunities[0]["high_confidence_open"] is True
 
 
 class TestHumanReview:
