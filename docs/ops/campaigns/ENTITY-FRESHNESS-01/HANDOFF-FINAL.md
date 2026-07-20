@@ -2,7 +2,9 @@
 
 ## Status
 
-**READY FOR PR / CI** — item DOD de mensurabilidade sustentado por identidade canônica.
+**CI GREEN / MERGING** — item DOD de mensurabilidade sustentado por identidade canônica.
+
+CI run `29787899981` success; critical readiness includes `tests/test_freshness_by_entity.py`.
 
 ## Baseline
 
@@ -80,7 +82,9 @@ python -m scripts.coverage.freshness_by_entity \
 ## CI
 
 - Local: `pytest tests/test_freshness_by_entity.py` → 27 passed
-- CI run id: preencher após Actions na PR
+- CI run id: `29787899981` conclusion=`success` (includes Test critical readiness + test_freshness_by_entity)
+- PR: https://github.com/tjsasakifln/extra-consultoria/pull/65
+- HEAD tested: `c5601b2`
 
 ## Parada
 
