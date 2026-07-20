@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-07-20T01:46:47Z",
+  "mission": "cto-pr-remediation-48-50-51-52",
+  "heads": {
+    "main": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+    "pr48": "423743fcebb8b3b9141b51b939c5ecdcc6708d35",
+    "pr50": "28c2cfb720f3b42f8bb8b8d5df423b918bf1919c",
+    "pr51": "f707e7b7d42d50e224b9511e033c63bf30905868",
+    "pr52": "dd2d501496e30409c8d672a9925e04e94c70c40b"
+  },
+  "files": [
+    "BASELINE.md",
+    "ARCHITECTURE.md",
+    "PR-MATRIX.md",
+    "DOD-MAP.md",
+    "SECURITY-REVIEW.md",
+    "TEST-MATRIX.md",
+    "FINAL-REPORT.md"
+  ],
+  "terminal_state": "WAITING_HUMAN",
+  "merge_order": [
+    48,
+    50,
+    51,
+    52
+  ]
+}
