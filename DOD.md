@@ -1512,14 +1512,14 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Cada execução possui timestamps. Evidência: coverage_evidence started_at/completed_at · run manifests · EXTRA-OPS-95
 - [x] Cada execução possui status. Evidência: evidence_state enum · run status fields · EXTRA-OPS-95
 - [x] Cada execução possui contagens. Evidência: count_obtained/records_fetched · crawl stats · EXTRA-OPS-95
-- [ ] Cada execução possui erros.
+- [x] Cada execução possui erros. Evidência: `scripts/ops/run_execution_ledger.py` (`errors[]` always) + `tests/test_run_execution_ledger.py` (19 ledger suite passed) + `docs/ops/session-2026-07-20-rastreabilidade-ledger/` (sample-ledger.jsonl, verify-invariants.json) + story ROI-cand-dyn-slice-cb906bb58392 · QA CONCERNS 880bc00
 - [x] Cada execução possui checkpoint. Evidência: contracts_full.json · M5-resume · EXTRA-OPS-95
-- [ ] Cada relatório referencia runs de origem.
+- [x] Cada relatório referencia runs de origem. Evidência: `report_run_links` in run_execution_ledger + decision_pack/weekly_cycle wire + session sample-ledger.jsonl + tests (report_paths always link run_id) + story ROI-cand-dyn-slice-cb906bb58392 · QA CONCERNS 880bc00
 - [x] Cada registro crítico possui provenance. Evidência: coverage_evidence.provenance jsonb · content_hash · EXTRA-OPS-95
-- [ ] Mudanças manuais são auditáveis.
-- [ ] Overrides manuais possuem motivo.
-- [ ] Overrides manuais possuem data.
-- [ ] Overrides manuais possuem autor.
+- [x] Mudanças manuais são auditáveis. Evidência: `record_manual_mutation` + CLI mutation + sample-mutations.jsonl + tests + story ROI-cand-dyn-slice-cb906bb58392 · QA CONCERNS 880bc00
+- [x] Overrides manuais possuem motivo. Evidência: `scripts/lib/manual_override_ledger.py` fail-closed + `record_manual_override` + sample-overrides.jsonl + tests + story ROI-cand-dyn-slice-cb906bb58392 · QA CONCERNS 880bc00
+- [x] Overrides manuais possuem data. Evidência: required field `data` (ISO) + tests test_new_override_requires_data + sample-overrides.jsonl + story ROI-cand-dyn-slice-cb906bb58392 · QA CONCERNS 880bc00
+- [x] Overrides manuais possuem autor. Evidência: fail-closed blank autor + demo-override-reject.json + tests + sample-overrides.jsonl + story ROI-cand-dyn-slice-cb906bb58392 · QA CONCERNS 880bc00
 - [ ] A evidência de coverage pode ser reconstruída.
 - [x] A evidência de `success_zero` pode ser reconstruída. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · scope_key+provenance+content_hash
 - [ ] A evidência de freshness pode ser reconstruída.

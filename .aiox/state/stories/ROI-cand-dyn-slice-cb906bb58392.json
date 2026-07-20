@@ -3,13 +3,13 @@
   "title": "[29. Rastreabilidade e auditoria] Cada execução possui erros. · Cada relatório referencia runs de origem. · Mudanças manuais são auditáveis. (+5 more)",
   "epic_id": "EPIC-EXTRA-DOD-ROI",
   "risk_level": "HIGH-RISK",
-  "status": "InReview",
+  "status": "Done",
   "story_file": "docs/stories/ROI-cand-dyn-slice-cb906bb58392.md",
   "created_at": "2026-07-19T13:50:20Z",
-  "updated_at": "2026-07-20T11:57:50Z",
+  "updated_at": "2026-07-20T12:15:00Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": false,
-  "qa_verdict": "PENDING",
+  "qa_verdict": "CONCERNS",
   "po_closed": false,
   "publication_authorized": false,
   "scope_files": [
@@ -18,7 +18,7 @@
     "tests/*",
     "scripts/*"
   ],
-  "reviewed_commit": null,
+  "reviewed_commit": "880bc00fe95eb52ae8bfa76c2dbbe6a65f4f6da7",
   "gates": {
     "lint": "PASS",
     "typecheck": "NA",
@@ -49,5 +49,24 @@
   "implementation_notes": "Hardened run_execution_ledger + CLI; 19 tests pass; session evidence pack; DoD flips proposed only pending independent QA. Optional coverage/freshness OPEN.",
   "evidence_pack": "docs/ops/session-2026-07-20-rastreabilidade-ledger/",
   "proposed_dod_flips": "docs/ops/session-2026-07-20-rastreabilidade-ledger/proposed-dod-flips.md",
-  "implementation_commit": "b1c21132d68ac3de4b30eb1568326cac7bc3bdfb"
+  "implementation_commit": "b1c21132d68ac3de4b30eb1568326cac7bc3bdfb",
+  "qa_reviewer": "Quinn (@qa)",
+  "qa_reviewed_at": "2026-07-20T12:15:00Z",
+  "qa_gate_file": "docs/qa/gates/ROI-cand-dyn-slice-cb906bb58392.yml",
+  "qa_verdict_file": "docs/ops/session-2026-07-20-rastreabilidade-ledger/QA-VERDICT.md",
+  "dod_flips_applied": [
+    "Cada execução possui erros.",
+    "Cada relatório referencia runs de origem.",
+    "Mudanças manuais são auditáveis.",
+    "Overrides manuais possuem motivo.",
+    "Overrides manuais possuem data.",
+    "Overrides manuais possuem autor."
+  ],
+  "dod_items_left_open": [
+    "A evidência de coverage pode ser reconstruída.",
+    "A evidência de freshness pode ser reconstruída."
+  ],
+  "residual_concerns": [
+    "record_execution_safe return value ignored by decision_pack/weekly_cycle — soft-fail audit loss without operator notice (MEDIUM, non-blocking)"
+  ]
 }
