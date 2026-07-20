@@ -1,0 +1,125 @@
+{
+  "generated_at_utc": "2026-07-20T12:31:02Z",
+  "engine": "python_native",
+  "critical_checks": [
+    "freshness_editais",
+    "freshness_contratos",
+    "identifier_completeness",
+    "official_url_present",
+    "closing_date_present",
+    "duplicate_detection",
+    "unknown_status_not_open",
+    "coverage_by_capability",
+    "volume_drop_alert",
+    "run_reference_integrity"
+  ],
+  "results": [
+    {
+      "check_id": "freshness_editais",
+      "ok": true,
+      "severity": "info",
+      "detail": "age_hours=10.00 sla=48.0",
+      "observed": {
+        "age_hours": 10.0,
+        "sla_hours": 48.0
+      }
+    },
+    {
+      "check_id": "freshness_contratos",
+      "ok": false,
+      "severity": "blocker",
+      "detail": "age_hours=200.00 sla=168.0",
+      "observed": {
+        "age_hours": 200.0,
+        "sla_hours": 168.0
+      }
+    },
+    {
+      "check_id": "identifier_completeness",
+      "ok": false,
+      "severity": "blocker",
+      "detail": "missing_ratio=0.3333",
+      "observed": {
+        "n": 3,
+        "missing": 1
+      }
+    },
+    {
+      "check_id": "official_url_present",
+      "ok": false,
+      "severity": "warn",
+      "detail": "missing_urls=1",
+      "observed": {
+        "missing": 1,
+        "n": 2
+      }
+    },
+    {
+      "check_id": "closing_date_present",
+      "ok": false,
+      "severity": "warn",
+      "detail": "missing_closing=1",
+      "observed": {
+        "missing": 1
+      }
+    },
+    {
+      "check_id": "duplicate_detection",
+      "ok": false,
+      "severity": "blocker",
+      "detail": "duplicates=1",
+      "observed": {
+        "duplicates": [
+          "a"
+        ]
+      }
+    },
+    {
+      "check_id": "unknown_status_not_open",
+      "ok": false,
+      "severity": "blocker",
+      "detail": "bad_open_unknown=1",
+      "observed": {
+        "ids": [
+          1
+        ]
+      }
+    },
+    {
+      "check_id": "coverage_by_capability",
+      "ok": true,
+      "severity": "info",
+      "detail": "capability=editais covered=100/1093 ratio=0.0915",
+      "observed": {
+        "capability": "editais",
+        "covered": 100,
+        "universe": 1093,
+        "ratio": 0.09149130832570906
+      }
+    },
+    {
+      "check_id": "volume_drop_alert",
+      "ok": false,
+      "severity": "blocker",
+      "detail": "drop=60.00% threshold=50%",
+      "observed": {
+        "current": 40,
+        "baseline": 100,
+        "drop": 0.6
+      }
+    },
+    {
+      "check_id": "run_reference_integrity",
+      "ok": false,
+      "severity": "blocker",
+      "detail": "orphan_run_refs=1",
+      "observed": {
+        "missing": [
+          "run-missing"
+        ]
+      }
+    }
+  ],
+  "n_blocker_fail": 6,
+  "n_ok": 2
+}
