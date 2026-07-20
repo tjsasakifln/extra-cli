@@ -409,6 +409,7 @@ class SLAConfig:
     contracts_amendments_hours: int = 72
     historical_consolidated_days: int = 7
     cadastral_data_days: int = 30
+    sla_version: str = "coverage-sla-v1"
 
     def default_freshness_hours(self) -> int:
         """Most permissive operational freshness window for entity-level checks.
@@ -426,6 +427,10 @@ class SLAConfig:
 
     def cadastral_timedelta(self) -> timedelta:
         return timedelta(days=self.cadastral_data_days)
+
+    def contracts_freshness_hours(self) -> int:
+        """SLA hours for contracts capability (entity-level dual metric)."""
+        return int(self.contracts_amendments_hours)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -546,6 +551,7 @@ def load_sla_config(path: Path | str | None = None) -> SLAConfig:
         contracts_amendments_hours=int(raw.get("contracts_amendments_hours", 72)),
         historical_consolidated_days=int(raw.get("historical_consolidated_days", 7)),
         cadastral_data_days=int(raw.get("cadastral_data_days", 30)),
+        sla_version=str(raw.get("sla_version") or "coverage-sla-v1"),
     )
 
 

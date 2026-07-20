@@ -1,0 +1,91 @@
+{
+  "campaign_id": "ENTITY-FRESHNESS-01",
+  "dod_item": "Freshness coverage mensurável por entidade dentro dos SLAs.",
+  "dod_path": "DOD.md",
+  "rows": [
+    {
+      "id": "AM-01",
+      "requirement": "Relatórios dual capability com exatamente 1093 entity_ids únicos cada",
+      "implementation": "scripts/coverage/freshness_by_entity.py::build_capability_report",
+      "test": "tests/test_freshness_by_entity.py::test_report_cardinality_1093",
+      "evidence": "output/coverage/freshness-editais.json;output/coverage/freshness-contracts.json;evidence/list-identity.json"
+    },
+    {
+      "id": "AM-02",
+      "requirement": "Campos obrigatórios por entidade + status set fechado",
+      "implementation": "scripts/coverage/freshness_by_entity.py::REQUIRED_FIELDS,ALLOWED_STATUSES",
+      "test": "tests/test_freshness_by_entity.py::test_required_fields_and_status_set",
+      "evidence": "evidence/freshness-summary.json"
+    },
+    {
+      "id": "AM-03",
+      "requirement": "UNKNOWN/NEVER/BLOCKED/INCOMPLETE e sem proveniência nunca viram FRESH",
+      "implementation": "scripts/coverage/freshness_by_entity.py::classify_freshness_status",
+      "test": "tests/test_freshness_by_entity.py::test_adversarial_no_false_fresh",
+      "evidence": "evidence/test-results.json"
+    },
+    {
+      "id": "AM-04",
+      "requirement": "MAX(ingested_at) global não promove entidades",
+      "implementation": "scripts/coverage/freshness_by_entity.py::classify_from_observation (per-entity only)",
+      "test": "tests/test_freshness_by_entity.py::test_source_level_timestamp_does_not_promote_all",
+      "evidence": "evidence/test-results.json"
+    },
+    {
+      "id": "AM-05",
+      "requirement": "Ausência explícita; não coerção a zero/FRESH",
+      "implementation": "scripts/coverage/freshness_by_entity.py::age_hours None preservation",
+      "test": "tests/test_freshness_by_entity.py::test_missing_timestamp_not_zero",
+      "evidence": "evidence/test-results.json"
+    },
+    {
+      "id": "AM-06",
+      "requirement": "SLA versionado e cálculo por entidade+capability",
+      "implementation": "config/coverage_slas.yaml + resolve_sla",
+      "test": "tests/test_freshness_by_entity.py::test_sla_versioned_per_capability",
+      "evidence": "evidence/freshness-summary.json"
+    },
+    {
+      "id": "AM-07",
+      "requirement": "List identity fail-closed em duplicata e cardinality errada",
+      "implementation": "scripts/coverage/freshness_by_entity.py::assert_list_identity",
+      "test": "tests/test_freshness_by_entity.py::test_list_identity_rejects_wrong_cardinality",
+      "evidence": "evidence/list-identity.json"
+    },
+    {
+      "id": "AM-08",
+      "requirement": "Strict fail-closed (universo0/never/contracts fail/limit5/excel)",
+      "implementation": "scripts/ops/weekly_cycle.py::evaluate_readiness",
+      "test": "tests/test_weekly_cycle.py::test_pr59_false_green_regression",
+      "evidence": "evidence/test-results.json"
+    },
+    {
+      "id": "AM-09",
+      "requirement": "Strict rejeita relatório de freshness incompleto/ausente",
+      "implementation": "scripts/ops/weekly_cycle.py::evaluate_entity_freshness_reports",
+      "test": "tests/test_weekly_cycle.py::test_strict_rejects_incomplete_entity_freshness_reports",
+      "evidence": "evidence/test-results.json"
+    },
+    {
+      "id": "AM-10",
+      "requirement": "ESR capability-aware bindings (notices_or_bids | contracts)",
+      "implementation": "db/migrations/058_entity_source_binding_capability.sql + scripts/source_registry/bindings.py",
+      "test": "tests/unit/source_registry/test_entity_source_binding.py",
+      "evidence": "evidence/freshness-summary.json#migration_version"
+    },
+    {
+      "id": "AM-11",
+      "requirement": "Determinismo para mesmos inputs",
+      "implementation": "scripts/coverage/freshness_by_entity.py::build_capability_report stable sort",
+      "test": "tests/test_freshness_by_entity.py::test_deterministic_report",
+      "evidence": "evidence/list-identity.json"
+    },
+    {
+      "id": "AM-12",
+      "requirement": "DOD item único atualizado com evidência; claims permitidos",
+      "implementation": "DOD.md + HANDOFF-FINAL.md",
+      "test": "manual_diff_only_freshness_item",
+      "evidence": "docs/ops/campaigns/ENTITY-FRESHNESS-01/HANDOFF-FINAL.md"
+    }
+  ]
+}

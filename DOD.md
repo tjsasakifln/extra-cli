@@ -30,7 +30,7 @@
 - [x] Testes críticos deste ciclo: **74 passed**; golden path estrito PCP: `gp-20260717-102949`, exit code 0, 184 fetched, 7 inserted. O golden path PNCP falhou por timeout e permanece evidência de source health degradado.
 - [x] CI obrigatório da PR #10 verde: ruff, mypy, testes críticos, bandit e pip-audit. Evidência: GitHub Actions run `29585067851`, merge commit `d2d66d725849ab5be3a534aa085775be50cbd702`.
 - [ ] Suíte global completa verde. O workflow marcou `Test All (full suite)` como `skipped`; a execução local ampla encontrou dívida de ambiente/schema em views canônicas e testes dependentes de banco.
-- [ ] Freshness coverage mensurável por entidade dentro dos SLAs.
+- [x] Freshness coverage mensurável por entidade dentro dos SLAs. Evidência: campanha `ENTITY-FRESHNESS-01` · `output/coverage/freshness-editais.json` + `freshness-contracts.json` (1.093 entity_ids únicos cada; capability explícita; SLA `coverage-sla-v1`) · engine `scripts/coverage/freshness_by_entity.py` mapeia `pipeline_evidence_promote` (run_id/raw_sha256/last_seen_at) por capability · migration `058_entity_source_binding_capability` (Option A) · ADR-028 · strict fail-closed · `docs/ops/campaigns/ENTITY-FRESHNESS-01/evidence/` · observado as_of 2026-07-20: editais FRESH=0/STALE=408/NEVER=685; contratos FRESH=365/NEVER=728 (**sem claim de 95%**).
 - [ ] Recall independente e estratificado ≥95%.
 - [ ] Cobertura operacional ≥95% (mínimo **1.039/1.093** entidades).
 

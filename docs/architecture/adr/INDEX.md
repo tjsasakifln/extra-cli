@@ -11,6 +11,7 @@
 | ADR-020 | Operational data not in git | **Vigente** |
 | ADR-021 | Adapter architecture PNCP 429 fail-closed | **Vigente** |
 | ADR-022 | Client profile sole commercial law | **Vigente** |
+| ADR-028 | Entity freshness by capability | **Vigente** (ENTITY-FRESHNESS-01) |
 
 ## ADRs revogadas / supersedidas
 

@@ -18,10 +18,12 @@ from scripts.ops.weekly_cycle import (
     EXIT_UNRELIABLE,
     EXPECTED_UNIVERSE_200KM,
     StageResult,
+    StrictReadinessPolicy,
     _build_claims_catalog,
     classify_execution_scope,
     classify_opportunity_freshness,
     compute_exit_code,
+    evaluate_entity_freshness_reports,
     evaluate_readiness,
     run_weekly_cycle,
 )
@@ -1137,3 +1139,75 @@ def test_weekly_cycle_offline_skip_collect(tmp_path: Path) -> None:
     assert report.human_accept.get("status") == "PENDING_HUMAN"
     assert "LOCAL_READY" in report.claims_forbidden
     assert report.exit_code in {0, 2, 3}
+
+
+# ---------------------------------------------------------------------------
+# Entity-level freshness reports (ADR-028 / ENTITY-FRESHNESS-01)
+# ---------------------------------------------------------------------------
+
+
+def test_strict_rejects_incomplete_entity_freshness_reports() -> None:
+    """Strict mode must fail-closed when dual entity freshness reports are incomplete."""
+    incomplete = {
+        "capability": "notices_or_bids",
+        "entities": [{"entity_id": "only-one", "capability": "notices_or_bids"}],
+        "covered": 0,
+        "uncovered": 1,
+        "unique_entity_count": 1,
+    }
+    blockers = evaluate_entity_freshness_reports(
+        editais_report=incomplete,
+        contracts_report=None,
+    )
+    assert blockers
+    assert any("missing" in b or "cardinality" in b or "unique" in b for b in blockers)
+
+    policy = StrictReadinessPolicy(require_entity_freshness_reports=True)
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+        policy=policy,
+        entity_freshness_reports={
+            "notices_or_bids": incomplete,
+            "contracts": incomplete,
+        },
+    )
+    assert ev.exit_code != EXIT_OK
+    assert ev.consultive_ready is False
+    assert ev.blockers
+
+
+def test_strict_rejects_missing_entity_freshness_when_required() -> None:
+    policy = StrictReadinessPolicy(require_entity_freshness_reports=True)
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+        policy=policy,
+        entity_freshness_reports=None,
+    )
+    assert ev.exit_code != EXIT_OK
+    assert ev.consultive_ready is False
+    assert any("freshness_report_missing" in b for b in ev.blockers)
+
+
+def test_pr59_false_green_regression() -> None:
+    """Alias for AM-08: universe=0, freshness=never, contracts=failure, limit=5, Excel ok."""
+    stages = _pr59_live_stages()
+    runs = _pr59_live_runs()
+    freshness = _pr59_freshness()
+    ev = evaluate_readiness(
+        stages,
+        runs,
+        strict=True,
+        freshness=freshness,
+        execution_scope="sample",
+    )
+    assert ev.exit_code != EXIT_OK
+    assert ev.consultive_ready is False
+    assert len(ev.blockers) > 0

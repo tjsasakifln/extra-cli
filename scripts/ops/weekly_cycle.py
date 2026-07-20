@@ -202,6 +202,9 @@ class StrictReadinessPolicy:
         {"excel_ok", "checksums"}
     )
     production_pack_limit: int = PRODUCTION_PACK_LIMIT
+    # When True (or when entity_freshness_reports is passed), dual entity-level
+    # freshness reports must pass list identity + field completeness (ADR-028).
+    require_entity_freshness_reports: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -216,6 +219,7 @@ class StrictReadinessPolicy:
             "require_non_sample_run": self.require_non_sample_run,
             "require_delivery_artifacts": sorted(self.require_delivery_artifacts),
             "production_pack_limit": self.production_pack_limit,
+            "require_entity_freshness_reports": self.require_entity_freshness_reports,
         }
 
 
@@ -1532,6 +1536,25 @@ def _source_blockers(
     return blockers
 
 
+def evaluate_entity_freshness_reports(
+    *,
+    editais_report: dict[str, Any] | None,
+    contracts_report: dict[str, Any] | None,
+) -> list[str]:
+    """Strict dual-report gate (ADR-028). Delegates to freshness_by_entity.
+
+    Incomplete, missing, duplicated, or wrong-cardinality reports yield blockers.
+    """
+    from scripts.coverage.freshness_by_entity import (  # local import: avoid cycle
+        evaluate_entity_freshness_reports as _eval,
+    )
+
+    return _eval(
+        editais_report=editais_report,
+        contracts_report=contracts_report,
+    )
+
+
 def evaluate_readiness(
     stages: list[StageResult],
     runs: list[CollectionRun],
@@ -1540,11 +1563,16 @@ def evaluate_readiness(
     freshness: list[dict[str, Any]] | None = None,
     execution_scope: str = "full",
     policy: StrictReadinessPolicy | None = None,
+    entity_freshness_reports: dict[str, Any] | None = None,
 ) -> ReadinessEvaluation:
     """Centralized exit + consultive readiness evaluation.
 
     Delivery success is necessary but never sufficient.
     Quality of existing rows does not prove collection completeness.
+
+    ``entity_freshness_reports`` optional mapping with keys
+    ``notices_or_bids`` / ``editais`` and ``contracts`` — when provided
+    (or policy.require_entity_freshness_reports), both must pass list identity.
     """
     pol = policy or DEFAULT_STRICT_POLICY
     blockers: list[str] = []
@@ -1692,6 +1720,22 @@ def evaluate_readiness(
             ):
                 blockers.append("opportunities_empty_without_success_zero")
 
+        # Entity-level dual freshness reports (ADR-028 / ENTITY-FRESHNESS-01)
+        if pol.require_entity_freshness_reports or entity_freshness_reports is not None:
+            reports = entity_freshness_reports or {}
+            editais = (
+                reports.get("notices_or_bids")
+                or reports.get("editais")
+                or reports.get("freshness-editais")
+            )
+            contracts = reports.get("contracts") or reports.get("freshness-contracts")
+            blockers.extend(
+                evaluate_entity_freshness_reports(
+                    editais_report=editais,
+                    contracts_report=contracts,
+                )
+            )
+
     # Non-strict: keep historical partial/failure guards for opportunities
     if not strict:
         if opp and opp.terminal_status in {"failure", "partial"}:
@@ -1756,6 +1800,7 @@ def compute_exit_code(
     freshness: list[dict[str, Any]] | None = None,
     execution_scope: str = "full",
     policy: StrictReadinessPolicy | None = None,
+    entity_freshness_reports: dict[str, Any] | None = None,
 ) -> int:
     """Exit code policy (wrapper over evaluate_readiness).
 
@@ -1773,6 +1818,7 @@ def compute_exit_code(
         freshness=freshness,
         execution_scope=execution_scope,
         policy=policy,
+        entity_freshness_reports=entity_freshness_reports,
     ).exit_code
 
 
@@ -1972,10 +2018,53 @@ def run_weekly_cycle(
         report.expected_universe = expected_n
         report.universe_version = UNIVERSE_VERSION
 
+        # Entity-level dual freshness reports (ADR-028) — never source MAX promotion
+        entity_freshness_payload: dict[str, Any] | None = None
+        try:
+            from scripts.coverage.freshness_by_entity import (
+                CAPABILITY_CONTRACTS,
+                CAPABILITY_EDITAIS,
+                write_reports,
+            )
+
+            cov_dir = Path(out) / "coverage"
+            written = write_reports(cov_dir)
+            entity_freshness_payload = {
+                CAPABILITY_EDITAIS: json.loads(
+                    written[CAPABILITY_EDITAIS].read_text(encoding="utf-8")
+                ),
+                CAPABILITY_CONTRACTS: json.loads(
+                    written[CAPABILITY_CONTRACTS].read_text(encoding="utf-8")
+                ),
+            }
+            # Also mirror under output/coverage when using default weekly out
+            mirror = _PROJECT_ROOT / "output" / "coverage"
+            try:
+                mirror.mkdir(parents=True, exist_ok=True)
+                for _cap, _path in written.items():
+                    target = mirror / _path.name
+                    target.write_text(_path.read_text(encoding="utf-8"), encoding="utf-8")
+            except OSError:
+                pass
+            report.products = {
+                **(report.products or {}),
+                "entity_freshness_reports": {
+                    k: str(v) for k, v in written.items()
+                },
+            }
+        except Exception as exc:  # noqa: BLE001 — surface as readiness blocker
+            entity_freshness_payload = None
+            report.limitations = list(report.limitations or []) + [
+                f"entity_freshness_report_generation_failed:{exc}"
+            ]
+
         exec_scope = classify_execution_scope(
             offline=offline,
             limit=limit,
             policy=DEFAULT_STRICT_POLICY,
+        )
+        readiness_policy = StrictReadinessPolicy(
+            require_entity_freshness_reports=strict,
         )
         readiness = evaluate_readiness(
             stages,
@@ -1983,7 +2072,8 @@ def run_weekly_cycle(
             strict=strict,
             freshness=freshness_rows,
             execution_scope=exec_scope,
-            policy=DEFAULT_STRICT_POLICY,
+            policy=readiness_policy,
+            entity_freshness_reports=entity_freshness_payload,
         )
         report.exit_code = readiness.exit_code
         report.execution_scope = readiness.execution_scope

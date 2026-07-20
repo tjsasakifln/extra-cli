@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-07-20T23:04:13.934058+00:00",
+  "expected_universe": 1093,
+  "editais": {
+    "report": "freshness-editais.json",
+    "capability": "notices_or_bids",
+    "row_count": 1093,
+    "unique_entity_count": 1093,
+    "duplicate_count": 0,
+    "covered": 0,
+    "uncovered": 1093,
+    "covered_plus_uncovered": 1093,
+    "list_identity_ok": true,
+    "status_counts": {
+      "BLOCKED": 0,
+      "FRESH": 0,
+      "INCOMPLETE": 0,
+      "NEVER": 685,
+      "NOT_APPLICABLE": 0,
+      "STALE": 408,
+      "UNKNOWN": 0
+    },
+    "sla_version": "coverage-sla-v1",
+    "sla_id": "sla.notices_or_bids.open_opportunities",
+    "as_of": "2026-07-20T12:00:00+00:00",
+    "with_run_id": 288,
+    "with_content_hash": 288,
+    "with_last_success": 408
+  },
+  "contracts": {
+    "report": "freshness-contracts.json",
+    "capability": "contracts",
+    "row_count": 1093,
+    "unique_entity_count": 1093,
+    "duplicate_count": 0,
+    "covered": 365,
+    "uncovered": 728,
+    "covered_plus_uncovered": 1093,
+    "list_identity_ok": true,
+    "status_counts": {
+      "BLOCKED": 0,
+      "FRESH": 365,
+      "INCOMPLETE": 0,
+      "NEVER": 728,
+      "NOT_APPLICABLE": 0,
+      "STALE": 0,
+      "UNKNOWN": 0
+    },
+    "sla_version": "coverage-sla-v1",
+    "sla_id": "sla.contracts.amendments",
+    "as_of": "2026-07-20T12:00:00+00:00",
+    "with_run_id": 365,
+    "with_content_hash": 365,
+    "with_last_success": 365
+  },
+  "both_ok": true,
+  "observation_level_dual_split": {
+    "entities_with_differing_observations": 1093,
+    "ok": true
+  }
+}

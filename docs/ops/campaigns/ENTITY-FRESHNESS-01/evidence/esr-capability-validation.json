@@ -1,0 +1,27 @@
+{
+  "as_of": "2026-07-20T23:03:36.556356+00:00",
+  "migration": "058_entity_source_binding_capability",
+  "structural_checks": {
+    "file_exists": true,
+    "creates_table": true,
+    "capability_notices_or_bids": true,
+    "capability_contracts": true,
+    "unique_triple": true,
+    "applicability_vocab": true,
+    "indexes": true,
+    "does_not_drop_registry_table": true,
+    "idempotent_create": true,
+    "option_a_capability_column": true
+  },
+  "structural_pass": true,
+  "live": {
+    "dsn_reachable": false,
+    "migration_applied": false,
+    "table_exists": false,
+    "constraint_exists": false,
+    "duplicate_rejected": null,
+    "multi_capability_ok": null,
+    "error": "OperationalError: connection to server at \"127.0.0.1\", port 5433 failed: timeout expired\n"
+  },
+  "acceptance": "PASS structural; live apply deferred — DSN unreachable at validation time"
+}

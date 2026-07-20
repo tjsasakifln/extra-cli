@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-07-20T23:05:28.678481+00:00",
+  "git_sha": "06af835c3944de313371ccc0e5d75f7909dc9887",
+  "suites": {
+    "test_freshness_by_entity": {
+      "result": "27 passed"
+    },
+    "test_weekly_cycle": {
+      "result": "see final run"
+    },
+    "k_filter": {
+      "result": "re-run required"
+    },
+    "ruff": {
+      "result": "All checks passed"
+    },
+    "report_generation": {
+      "result": "exit 0 strict; blockers=[]",
+      "editais_status_counts": {
+        "BLOCKED": 0,
+        "FRESH": 0,
+        "INCOMPLETE": 0,
+        "NEVER": 685,
+        "NOT_APPLICABLE": 0,
+        "STALE": 408,
+        "UNKNOWN": 0
+      },
+      "contracts_status_counts": {
+        "BLOCKED": 0,
+        "FRESH": 365,
+        "INCOMPLETE": 0,
+        "NEVER": 728,
+        "NOT_APPLICABLE": 0,
+        "STALE": 0,
+        "UNKNOWN": 0
+      }
+    },
+    "esr_migration_058": {
+      "as_of": "2026-07-20T23:03:36.556356+00:00",
+      "migration": "058_entity_source_binding_capability",
+      "structural_checks": {
+        "file_exists": true,
+        "creates_table": true,
+        "capability_notices_or_bids": true,
+        "capability_contracts": true,
+        "unique_triple": true,
+        "applicability_vocab": true,
+        "indexes": true,
+        "does_not_drop_registry_table": true,
+        "idempotent_create": true,
+        "option_a_capability_column": true
+      },
+      "structural_pass": true,
+      "live": {
+        "dsn_reachable": false,
+        "migration_applied": false,
+        "table_exists": false,
+        "constraint_exists": false,
+        "duplicate_rejected": null,
+        "multi_capability_ok": null,
+        "error": "OperationalError: connection to server at \"127.0.0.1\", port 5433 failed: timeout expired\n"
+      },
+      "acceptance": "PASS structural; live apply deferred — DSN unreachable at validation time"
+    },
+    "test_weekly_cycle_plus_binding": {
+      "result": "81 passed, 1 skipped"
+    },
+    "k_filter_freshness_or_source_registry_or_weekly_cycle": {
+      "result": "146 passed, 1 skipped, 2211 deselected"
+    },
+    "mypy_campaign_modules": {
+      "result": "freshness_by_entity clean; pre-existing unused-ignore in models.py only"
+    }
+  },
+  "false_green_regression": {
+    "scenario": "universe=0 freshness=never contracts=failure limit=5 Excel ok",
+    "exit_code_nonzero": true,
+    "consultive_ready": false,
+    "blockers_non_empty": true
+  },
+  "skeptic_remediation": {
+    "provenance_mapped_from_pipeline_evidence_promote": true,
+    "last_success_not_dropped": true,
+    "editais_stale_408_not_all_never": true,
+    "contracts_fresh_365_from_pncp_contracts_evidence": true,
+    "capability_observation_split_entities": 1093,
+    "migration_structural_pass": true,
+    "migration_live_dsn": "unreachable — honest ENV_UNAVAILABLE in esr-capability-validation.json"
+  }
+}

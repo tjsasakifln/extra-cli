@@ -1,0 +1,64 @@
+{
+  "campaign_id": "ENTITY-FRESHNESS-01",
+  "waves": {
+    "1": {
+      "T1": {
+        "exclusive": [
+          "scripts/ops/weekly_cycle.py",
+          "tests/test_weekly_cycle.py"
+        ],
+        "read_only_deps": [
+          "config/coverage_slas.yaml"
+        ]
+      }
+    },
+    "2": {
+      "T2": {
+        "exclusive": [
+          "docs/architecture/adr/ADR-018-coverage-contract-multi-metric.md",
+          "docs/architecture/adr/ADR-019-entity-source-registry-canonical.md",
+          "docs/architecture/adr/ADR-028-entity-freshness-by-capability.md",
+          "docs/architecture/adr/INDEX.md"
+        ]
+      },
+      "T3": {
+        "exclusive": [
+          "db/migrations/058_entity_source_binding_capability.sql",
+          "scripts/source_registry/models.py",
+          "scripts/source_registry/persistence.py",
+          "scripts/source_registry/bindings.py",
+          "tests/unit/source_registry/test_entity_source_binding.py"
+        ],
+        "forbidden": [
+          "scripts/ops/weekly_cycle.py",
+          "scripts/coverage/coverage_contract.py"
+        ]
+      },
+      "T4": {
+        "exclusive": [
+          "scripts/coverage/freshness_by_entity.py",
+          "tests/test_freshness_by_entity.py",
+          "tests/fixtures/freshness/",
+          "config/coverage_slas.yaml"
+        ],
+        "forbidden": [
+          "scripts/ops/weekly_cycle.py",
+          "db/migrations/"
+        ]
+      }
+    },
+    "3": {
+      "W3": {
+        "exclusive": [
+          "scripts/coverage/coverage_contract.py",
+          "scripts/ops/weekly_cycle.py",
+          "tests/test_weekly_cycle.py",
+          "tests/test_freshness_by_entity.py",
+          "docs/architecture/adr/INDEX.md",
+          "DOD.md",
+          "docs/ops/campaigns/ENTITY-FRESHNESS-01/"
+        ]
+      }
+    }
+  }
+}

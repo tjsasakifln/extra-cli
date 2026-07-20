@@ -1,0 +1,85 @@
+{
+  "campaign_id": "ENTITY-FRESHNESS-01",
+  "denominator": 1093,
+  "unique_entity_count": {
+    "notices_or_bids": 1093,
+    "contracts": 1093
+  },
+  "status_counts": {
+    "notices_or_bids": {
+      "BLOCKED": 0,
+      "FRESH": 0,
+      "INCOMPLETE": 0,
+      "NEVER": 685,
+      "NOT_APPLICABLE": 0,
+      "STALE": 408,
+      "UNKNOWN": 0
+    },
+    "contracts": {
+      "BLOCKED": 0,
+      "FRESH": 365,
+      "INCOMPLETE": 0,
+      "NEVER": 728,
+      "NOT_APPLICABLE": 0,
+      "STALE": 0,
+      "UNKNOWN": 0
+    }
+  },
+  "capability": [
+    "notices_or_bids",
+    "contracts"
+  ],
+  "as_of": "2026-07-20T12:00:00+00:00",
+  "sla_version": "coverage-sla-v1",
+  "git_sha": "06af835c3944de313371ccc0e5d75f7909dc9887",
+  "migration_version": "058_entity_source_binding_capability",
+  "observed_fresh_pct": {
+    "notices_or_bids": 0.0,
+    "contracts": 33.3943
+  },
+  "provenance_mapped": {
+    "notices_or_bids": {
+      "with_run_id": 288,
+      "with_content_hash": 288,
+      "with_last_success": 408
+    },
+    "contracts": {
+      "with_run_id": 365,
+      "with_content_hash": 365,
+      "with_last_success": 365
+    }
+  },
+  "observation_level_dual_split_entities": 1093,
+  "test_commands": [
+    "python -m pytest tests/test_weekly_cycle.py -q --no-cov",
+    "python -m pytest tests/test_freshness_by_entity.py -q --no-cov",
+    "python -m pytest tests/ -k 'freshness or source_registry or weekly_cycle' -q --no-cov",
+    "ruff check scripts/coverage/freshness_by_entity.py scripts/source_registry/bindings.py scripts/ops/weekly_cycle.py",
+    "python -m scripts.coverage.freshness_by_entity --as-of 2026-07-20T12:00:00+00:00 --strict"
+  ],
+  "CI_run": "local gates green; remote CI not claimed; DSN 5433 unreachable — migration structural pass in esr-capability-validation.json",
+  "limitations": [
+    "Editais observed FRESH=0 (STALE=408, NEVER=685) under 24h SLA as_of 2026-07-20 — promote last_seen often older than SLA",
+    "Contracts observed FRESH=365/1093 (33.39%) — recorded, NOT a 95% claim or campaign success criterion",
+    "pipeline_evidence_promote mapped per capability via sources (pncp vs pncp_contracts)",
+    "MAX(ingested_at) global is never used to promote entities",
+    "Live migration apply deferred: LOCAL_DATALAKE_DSN timeout; structural SQL validation PASS"
+  ],
+  "claims_allowed": [
+    "freshness é mensurável por entidade",
+    "1.093 entidades estão representadas",
+    "editais e contratos são separados",
+    "estado observado e gaps são nominais",
+    "modo strict falha fechado"
+  ],
+  "claims_forbidden": [
+    "cobertura operacional ≥95%",
+    "freshness ≥95%",
+    "recall ≥95%",
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "proxy de presença como cobertura operacional",
+    "MAX(ingested_at) global como freshness de 1.093 entidades"
+  ]
+}

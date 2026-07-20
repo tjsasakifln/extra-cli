@@ -1,0 +1,29 @@
+{
+  "campaign_id": "ENTITY-FRESHNESS-01",
+  "nodes": [
+    {"id": "P0", "name": "phase_zero_artifacts", "wave": 0},
+    {"id": "T1", "name": "strict_readiness", "wave": 1, "worktree": "wt/entity-freshness-strict"},
+    {"id": "T2", "name": "contract_adr", "wave": 2, "worktree": "wt/entity-freshness-contract"},
+    {"id": "T3", "name": "esr_capability", "wave": 2, "worktree": "wt/entity-freshness-esr"},
+    {"id": "T4", "name": "freshness_engine", "wave": 2, "worktree": "wt/entity-freshness-engine"},
+    {"id": "W3", "name": "serial_integration", "wave": 3, "worktree": null},
+    {"id": "EV", "name": "evidence_dod_handoff", "wave": 3, "worktree": null}
+  ],
+  "edges": [
+    {"from": "P0", "to": "T1"},
+    {"from": "T1", "to": "T2", "gate": "manual_validation_wave1"},
+    {"from": "T1", "to": "T3", "gate": "manual_validation_wave1"},
+    {"from": "T1", "to": "T4", "gate": "manual_validation_wave1"},
+    {"from": "T2", "to": "W3"},
+    {"from": "T3", "to": "W3"},
+    {"from": "T4", "to": "W3"},
+    {"from": "W3", "to": "EV"}
+  ],
+  "collision_rules": {
+    "weekly_cycle.py": ["T1", "W3"],
+    "coverage_contract.py": ["W3"],
+    "DOD.md": ["EV"],
+    "freshness_by_entity.py": ["T4"],
+    "058_entity_source_binding_capability.sql": ["T3"]
+  }
+}
