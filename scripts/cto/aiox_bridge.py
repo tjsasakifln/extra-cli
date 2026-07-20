@@ -70,10 +70,14 @@ def _run_squad(
             parsed = json.loads(stdout)
         except json.JSONDecodeError:
             parsed = None
+        head = stdout[:12000]
+        tail = stdout[-8000:]
         return {
             "cmd": cmd,
             "exit_code": proc.returncode,
-            "stdout_tail": stdout[-8000:],
+            "stdout_head": head,
+            "stdout_tail": tail,
+            "stdout_text": head if "### 1." in head else (stdout if len(stdout) < 20000 else head + "\n...\n" + tail),
             "stderr_tail": (proc.stderr or "")[-4000:],
             "json": parsed,
         }
