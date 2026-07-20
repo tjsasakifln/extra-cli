@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-20T02:46:32Z",
+  "generated_at": "2026-07-20T02:53:17Z",
   "ssot": "pr-state.json",
   "heads": {
     "main": "d6d9e1984e348d64a669546613e192e4ebf610cd",
-    "48": "6fdeb86df6d17ac7792686dbf03da372b9f1af9e",
-    "50": "07767dea073675d79073265c552b3fe70b990d0f",
-    "51": "c764c6832df1d80c8f52793b77a9cf72db58ab15",
+    "48": "ef536b49cfe7bae8dd0641b32de46e58ea30775a",
+    "50": "ed10b5f63f20e2082d23ff8a7d413a1c58cdb5a2",
+    "51": "2790db2e3f21ca052d9f188ee5054f0fb55cb40d",
     "52": "9c8a80402ab2988b0f97430a5bde66b5cf768cfc"
   },
   "recommendations": {
@@ -14,5 +14,16 @@
     "51": "BLOCKED_HUMAN",
     "52": "READY_FOR_HUMAN_REVIEW"
   },
-  "terminal_state": "WAITING_HUMAN"
+  "terminal_state": "WAITING_HUMAN",
+  "test_counts": {
+    "tests_cto_collected": 154,
+    "tests_cto_passed_claim": 154,
+    "full_suite": "SKIPPED on PR CI — preexisting debt, not claimed green"
+  },
+  "merge_order": [
+    48,
+    50,
+    51,
+    52
+  ]
 }

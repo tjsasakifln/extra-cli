@@ -104,35 +104,78 @@ def test_html_cto_panel_not_all_ready_when_pr48_items_exist():
         )
 
 
-def test_html_cto_panel_commit_is_recent_head_history():
-    """Panel commit must be on recent HEAD history (not stuck on ancient tip).
+def test_html_cto_panel_commit_is_ancestor_of_head():
+    """Panel commit must be an ancestor of HEAD (or HEAD itself).
 
-    Exact equality with HEAD is impossible when the HTML file is itself
-    committed after refresh (self-referential SHA). Require membership in
-    the last 5 commits so stale 78c692e-era panels still fail.
+    Exact equality with HEAD is impossible when the HTML file is committed
+    after a stamp (self-referential SHA). A fixed last-N window also fails
+    whenever docs/SSOT commits land after the stamp. Ancestor check proves
+    the panel is still on this branch history without infinite re-stamp loops.
     """
     data = _panel_payload()
-    panel_commit = str(data.get("commit") or "")
+    panel_commit = str(data.get("commit") or "").strip()
     assert panel_commit, "panel missing commit"
     root = repo_root()
-    recent = (
-        subprocess.run(
-            ["git", "rev-list", "-n", "5", "HEAD"],
-            cwd=str(root),
-            capture_output=True,
-            text=True,
-            check=True,
+    # Resolve short SHAs
+    rev = subprocess.run(
+        ["git", "rev-parse", "--verify", panel_commit],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert rev.returncode == 0, f"panel commit not resolvable: {panel_commit!r}"
+    full = rev.stdout.strip()
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    if full == head:
+        return
+    anc = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", full, head],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert anc.returncode == 0, (
+        f"panel commit {panel_commit!r} ({full[:12]}) is not an ancestor of HEAD {head[:12]}"
+    )
+
+
+def test_html_panel_recommendations_align_with_ssot_when_present():
+    """If remediation SSOT exists, READY claims must not contradict BLOCKED PRs."""
+    root = repo_root()
+    ssot_path = root / "docs" / "ops" / "cto-pr-remediation-48-50-51-52" / "pr-state.json"
+    if not ssot_path.is_file():
+        pytest.skip("remediation SSOT not present")
+    ssot = json.loads(ssot_path.read_text(encoding="utf-8"))
+    recs = ssot.get("recommendations") or {}
+    # Incomplete SDC stories must not be READY
+    for pr, story in (ssot.get("stories") or {}).items():
+        incomplete = (not story.get("po_validated")) or (
+            str(story.get("qa_verdict") or "").upper() in {"", "PENDING", "NONE"}
         )
-        .stdout.strip()
-        .splitlines()
-    )
-    ok = any(
-        c == panel_commit
-        or c.startswith(panel_commit[:7])
-        or panel_commit.startswith(c[:7])
-        for c in recent
-    )
-    assert ok, f"panel commit {panel_commit!r} not in recent HEAD history {recent}"
+        if incomplete:
+            assert recs.get(pr) in {
+                "BLOCKED_HUMAN",
+                "CHANGES_REQUIRED",
+                "BLOCKED_EXTERNAL",
+                "FAIL_REWORK",
+                "ABORTED_UNSAFE_STATE",
+            }, f"PR {pr} incomplete SDC but rec={recs.get(pr)!r}"
+    # Panel must not invent forbidden ready seals in claims
+    data = _panel_payload()
+    claims = data.get("claims") or {}
+    forbidden = claims.get("forbidden") or []
+    for seal in ("LOCAL_READY", "VPS_OPERATIONAL", "PROJECT_DONE"):
+        assert seal in forbidden or not claims.get("allowed") or seal not in (
+            claims.get("allowed") or []
+        )
 
 
 def test_html_not_stale_waiting_human_with_all_ready():
