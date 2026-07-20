@@ -5,17 +5,20 @@ complete AIOX preflight, and no free-form model shell.
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from scripts.cto.aiox_bridge import preflight_aiox_discovery
 from scripts.cto.decision import (
     DecisionValidationError,
+    decide_from_observation,
+    review_execution,
     validate_decision,
     validate_safe_id,
 )
+from scripts.cto.deepseek_client import DeepSeekResult, DeepSeekUsage
 from scripts.cto.grok_executor import (
     ExecutorError,
     build_allow_rules_from_paths,
@@ -96,13 +99,85 @@ def test_cycle_id_accepts_safe():
 
 
 def test_orchestrator_overwrites_model_cycle_id(sample_decision, monkeypatch):
-    """decide() must force cycle_id — covered here via validate_safe + assignment contract."""
-    model_payload = dict(sample_decision)
-    model_payload["cycle_id"] = "model-injected-id"
-    orchestrator_id = "orch-cycle-001"
-    model_payload["cycle_id"] = validate_safe_id(orchestrator_id, field="cycle_id")
-    out = validate_decision(model_payload, root=repo_root())
-    assert out["cycle_id"] == orchestrator_id
+    """decide_from_observation forces orchestrator cycle_id over model payload."""
+    orch_id = "orch-cycle-001"
+    model_body = dict(sample_decision)
+    model_body["cycle_id"] = "model-injected-evil-id"
+    model_body["decision_id"] = "dec-model-1"
+
+    class FakeClient:
+        def chat_json(self, **kwargs: Any) -> DeepSeekResult:
+            return DeepSeekResult(
+                content=model_body,
+                raw_text="{}",
+                usage=DeepSeekUsage(model="fake", total_tokens=1, attempts=1),
+            )
+
+    # Avoid ranking refresh side effects
+    monkeypatch.setattr(
+        "scripts.cto.observer.ensure_ranking_current",
+        lambda root, try_refresh=True: {"stale": False, "refreshed": False},
+    )
+
+    observation = {
+        "cycle": {"cycle_id": orch_id},
+        "issues": {"by_state": {}, "open": []},
+        "ranking": {"top": []},
+        "git": {},
+        "dod": {},
+    }
+    out = decide_from_observation(
+        observation,
+        client=FakeClient(),  # type: ignore[arg-type]
+        dry_run=False,
+        root=repo_root(),
+    )
+    assert out.get("cycle_id") == orch_id
+    assert out.get("cycle_id") != "model-injected-evil-id"
+
+
+def test_review_execution_forces_orchestrator_cycle_id(sample_decision, monkeypatch):
+    """review_execution overwrites model cycle_id (no setdefault from model)."""
+    orch_id = "orch-review-cycle-9"
+    sample_decision = dict(sample_decision)
+    sample_decision["cycle_id"] = orch_id
+
+    review_body = {
+        "schema_version": "1.0",
+        "review_id": "rev-model1",
+        "cycle_id": "model-review-injected",
+        "decision_id": sample_decision["decision_id"],
+        "verdict": "REPAIR",
+        "summary": "needs repair",
+        "failed_criteria": ["tests"],
+        "repair_instructions": ["fix tests"],
+        "confidence": 0.8,
+        "human_gate": {"required": False, "reason": None},
+    }
+
+    class FakeClient:
+        def chat_json(self, **kwargs: Any) -> DeepSeekResult:
+            return DeepSeekResult(
+                content=review_body,
+                raw_text="{}",
+                usage=DeepSeekUsage(model="fake", total_tokens=1, attempts=1),
+            )
+
+    verification = {
+        "result": "FAIL",
+        "failed_criteria": ["tests"],
+        "repair_hints": ["fix"],
+        "criterion_matrix": [],
+    }
+    out = review_execution(
+        decision=sample_decision,
+        verification=verification,
+        execution={"status": "failed", "exit_code": 1},
+        client=FakeClient(),  # type: ignore[arg-type]
+        dry_run=False,
+    )
+    assert out.get("cycle_id") == orch_id
+    assert out.get("cycle_id") != "model-review-injected"
 
 
 def test_allowed_path_rejects_absolute_and_dotdot():
@@ -150,7 +225,6 @@ def test_build_grok_command_no_global_read(tmp_path: Path):
     assert "Read(**)" not in cmd
     assert "Edit(**)" not in cmd
     assert "Write(**)" not in cmd
-    # allow flags present for scoped path
     assert "--allow" in cmd
 
 
@@ -165,10 +239,16 @@ def test_preflight_requires_all_agents():
 
 def test_preflight_agents_md_alone_insufficient(tmp_path: Path):
     (tmp_path / "AGENTS.md").write_text("# agents\n", encoding="utf-8")
-    r = preflight_aiox_discovery(inspect={"projectInstructions": [{"path": "AGENTS.md"}]}, root=tmp_path)
+    r = preflight_aiox_discovery(
+        inspect={"projectInstructions": [{"path": "AGENTS.md"}]},
+        root=tmp_path,
+    )
     assert r["ok"] is False
-    assert r["has_agents_md"] is True or True  # may be true from inspect
-    assert len(r["missing"]) > 0
+    # AGENTS.md alone never proves agents — zero agents discovered on disk
+    assert r["found_agents"] == []
+    # Every required agent is missing (plus possibly skills)
+    for agent in r["required_agents"]:
+        assert agent in r["missing"]
 
 
 def test_preflight_partial_agents_fail(tmp_path: Path):

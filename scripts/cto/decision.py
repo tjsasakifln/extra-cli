@@ -832,10 +832,22 @@ def review_execution(
             user=json.dumps(user_payload, ensure_ascii=False, default=str),
         )
         content = dict(result.content)
-        content.setdefault("schema_version", "1.0")
-        content.setdefault("review_id", f"rev-{uuid.uuid4().hex[:12]}")
-        content.setdefault("cycle_id", cycle_id)
-        content.setdefault("decision_id", decision_id)
+        content["schema_version"] = "1.0"
+        # cycle_id is orchestrator authority — never keep model-supplied value
+        content["cycle_id"] = validate_safe_id(str(cycle_id), field="cycle_id")
+        raw_rev = str(content.get("review_id") or "").strip()
+        try:
+            content["review_id"] = validate_safe_id(raw_rev, field="review_id")
+        except DecisionValidationError:
+            content["review_id"] = f"rev-{uuid.uuid4().hex[:12]}"
+        # decision_id from sealed decision, not free model path
+        try:
+            content["decision_id"] = validate_safe_id(
+                str(decision_id or content.get("decision_id") or ""),
+                field="decision_id",
+            )
+        except DecisionValidationError:
+            content["decision_id"] = str(decision_id or f"dec-{uuid.uuid4().hex[:12]}")
         content = normalize_review_content(content)
         validated = validate_review(content, root=cfg.root, verification=verification)
         # Re-apply veto on the full object (preserves _veto for audit)
