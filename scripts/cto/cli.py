@@ -1445,9 +1445,6 @@ def main(argv: list[str] | None = None) -> int:
     return handlers[args.cmd](args)
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
-
 # --- cycle-1 real ROI binding (PR #50) ---
 def cmd_cycle1_real(args: argparse.Namespace) -> int:
     from scripts.cto.cycle1_roi_integration import run_cycle1_real
@@ -1459,3 +1456,7 @@ def cmd_cycle1_real(args: argparse.Namespace) -> int:
     )
     _print(result)
     return EXIT_OK if result.get("ok") else EXIT_FAILED
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+

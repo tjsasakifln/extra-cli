@@ -46,7 +46,7 @@ python3 -m pytest tests/cto -q -o addopts=''
 
 | Item | Status |
 |------|--------|
-| Full suite (`Test All`) | `workflow_dispatch` only |
+| Full suite (`Test All`) | enabled on all PRs (incl. stacked) |
 | Job Test (CTO Autopilot) | **Obrigatório** — protege `scripts/cto` + `tests/cto` |
 
 ## Canário live SEALED (única evidência válida)
