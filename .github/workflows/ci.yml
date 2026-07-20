@@ -263,7 +263,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov psycopg2-binary
+          pip install pytest pytest-asyncio pytest-cov psycopg2-binary prometheus_client
 
       - name: Apply migrations (fail-closed)
         run: python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
