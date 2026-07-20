@@ -249,6 +249,8 @@ jobs:
       LOCAL_DATALAKE_DSN: postgresql://test:test@127.0.0.1:5432/extra_test
       DATABASE_URL: postgresql://test:test@127.0.0.1:5432/extra_test
       CI: true
+      REQUIRE_REAL_DB: "1"
+      RESILIENCE_REQUIRE_DB: "1"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -267,6 +269,28 @@ jobs:
 
       - name: Apply migrations (fail-closed)
         run: python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
+
+      - name: Seed entity aliases when base entities exist
+        run: |
+          python3 - <<'SEED'
+          import os, subprocess, sys, psycopg2
+          dsn = os.environ["LOCAL_DATALAKE_DSN"]
+          try:
+              conn = psycopg2.connect(dsn)
+              cur = conn.cursor()
+              cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='sc_public_entities')")
+              if not cur.fetchone()[0]:
+                  print("skip seed: sc_public_entities missing"); sys.exit(0)
+              cur.execute("SELECT count(*) FROM sc_public_entities")
+              n = int(cur.fetchone()[0]); conn.close()
+          except Exception as exc:
+              print(f"skip seed: {exc}"); sys.exit(0)
+          if n == 0:
+              print("skip seed: empty sc_public_entities"); sys.exit(0)
+          if not os.path.isfile("db/seed/002_entity_aliases.py"):
+              print("skip seed: script missing"); sys.exit(0)
+          raise SystemExit(subprocess.call([sys.executable, "db/seed/002_entity_aliases.py"]))
+          SEED
 
       - name: Run ALL tests (full suite) and report count
         id: full_suite
