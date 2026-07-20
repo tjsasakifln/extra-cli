@@ -54,6 +54,12 @@ make extra-weekly
 # equivalente:
 python3 -m scripts.ops.weekly_cycle --strict
 # flags úteis: WEEKLY_FLAGS="--force-collect" | "--skip-collect" | "--lookback-days 7"
+#
+# Engenharia (não substitui o ciclo de produto; ver PR ARCH-RESET #56):
+# make verify
+#
+# Arquitetura-alvo (1 página): docs/architecture/overview.md
+# Campanha: docs/ops/campaigns/ARCH-RESET-2026-07-20/FINAL-REPORT.md
 
 # Coverage / operational outputs (componentes internos)
 python3 -m scripts.reports.operational_outputs --dsn "$LOCAL_DATALAKE_DSN" --out output/ops-lists --json

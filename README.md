@@ -1,5 +1,10 @@
 # Extra Consultoria — Inteligência em Licitações
 
+> **Arquitetura (2026-07-20):** monólito modular local-first · produto semanal `make extra-weekly` ·  
+> campanha `ARCH-RESET-2026-07-20` em `docs/ops/campaigns/ARCH-RESET-2026-07-20/` ·  
+> overview `docs/architecture/overview.md`. **Sem claims** de LOCAL_READY / cobertura 95%.
+
+
 Plataforma CLI de consultoria estratégica para licitações públicas.
 Single-client: Extra Construtora.
 

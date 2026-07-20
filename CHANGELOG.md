@@ -1,5 +1,12 @@
 # Changelog — Extra Consultoria
 
+## [Unreleased] — ARCH-RESET-2026-07-20
+
+- Campanha de reset arquitetural: baseline, entrypoints, spikes OCDS/quality/EGHJ, prova live semanal limitada.
+- Draft PRs #54–#60; decisões em ADRs 023–029 (quando mergeadas).
+- **Sem** selos LOCAL_READY / 95% / VPS_OPERATIONAL.
+
+
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).  
 O histórico de git (`git log`) permanece a fonte de verdade de commits; este arquivo resume marcos operacionais.
 

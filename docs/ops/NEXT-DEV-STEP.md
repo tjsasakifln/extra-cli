@@ -1,29 +1,43 @@
 # Próximo passo de desenvolvimento (sem reconstruir contexto)
 
-**Atualizado:** 2026-07-18  
-**Branch épica:** `epic/advance-30d-local-ready-20260718`  
-**Campanha:** ADVANCE-30D-LOCAL-READY
+**Atualizado:** 2026-07-20  
+**Campanha arquitetural ativa:** `ARCH-RESET-2026-07-20`  
+**Relatório:** `docs/ops/campaigns/ARCH-RESET-2026-07-20/FINAL-REPORT.md`  
+**Overview:** `docs/architecture/overview.md`
 
-## Comando único
+## Prioridade humana (merge queue)
+
+1. Revisar/mergear draft PRs **#54 → #55 → #56** (baseline, tests, entrypoints).  
+2. Revisar spikes **#57 #58 #60** e evidência live **#59**.  
+3. Decidir **#52** (decision loop MERGE_CANDIDATE) vs **#53** (ledger thin).  
+4. Manter CTO stack **#48–#51** fora do caminho de produto até decisão explícita.
+
+## Comandos de produto / engenharia
 
 ```bash
+# Produto consultivo semanal (canônico)
+make extra-weekly
+
+# Engenharia (quando PR #56 em main)
+make verify
+
+# Ranking DoD ROI (governança de campanha, não pipeline de produto)
 python3 squads/extra-dod-roi/scripts/cli.py force-next
 ```
-
-Isso re-rankeia, materializa a story AIOX Draft do `ranking[0]` e bloqueia implementação até `@po` Ready.
 
 ## Estado honesto
 
 | Item | Estado |
 |------|--------|
-| Cobertura operacional | **0%** (meta 95%) — prioridade de produto |
+| Arquitetura-alvo | Decidida (ADR-023+); implementação em draft PRs |
+| Cobertura operacional 95% | **NÃO claimada** |
 | LOCAL_READY | **NOT_READY** |
-| PG local (extra-test-db) | porta 5433; schema ainda precisa de migrations completas |
-| DOE-SC / VPS pay / aceite Tiago | **BLOCKED_EXTERNAL** / humano |
+| Live weekly (limitado) | **Prova em #59** (exit 0, 1 opp; contratos degradados) |
+| Suíte completa global | **Debt** (SKIPPED≠verde) |
 
 ## Artefatos
 
-- Scorecard: `squads/extra-dod-roi/state/campaigns/advance-30d-20260718/scorecard.json`
-- Manifesto: `.../MANIFEST.md`
+- Campanha: `docs/ops/campaigns/ARCH-RESET-2026-07-20/`
 - Glossário: `docs/GLOSSARY.md`
 - Changelog: `CHANGELOG.md`
+- Entry points: `docs/canonical-entry-points.yaml`
