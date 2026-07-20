@@ -127,11 +127,11 @@ Revert last main commit(s) with reverse commit if needed; never force-push; neve
 
 ## AIOX DoD for this story
 
-- [ ] @po validated (Ready)
+- [x] @po validated (Ready) — reconciled at close (po_validated was stale false; implementation ran Ready→InProgress)
 - [x] @dev implemented on non-main branch
 - [x] Tests/lint per risk level
 - [x] @qa independent verdict PASS|CONCERNS|WAIVED (not implementer) — **CONCERNS** Quinn 2026-07-20
-- [ ] @po closed
+- [x] @po closed — 2026-07-20 Pax; CONCERNS accepted (soft-fail audit notice follow-up only)
 - [ ] @devops draft PR / publish path (no auto-merge)
 - [x] DoD.md checkboxes only if evidence authorizes — items 1–6 flipped by @qa; 7–8 OPEN
 
@@ -144,6 +144,7 @@ Revert last main commit(s) with reverse commit if needed; never force-push; neve
 | 2026-07-19 | extra-dod-roi / @sm-materializer | Draft from ranking[0] force-next |
 | 2026-07-20 | @dev (Dex) | Implementation: ledger CLI + fail-closed + evidence pack; InReview |
 | 2026-07-20 | @qa (Quinn) | Independent review → **CONCERNS**; DoD §29 items 1–6 flipped; 7–8 OPEN; status Done |
+| 2026-07-20 | Pax (@po) | **PO close** — accepted QA **CONCERNS**. Status remains **Done** (no lifecycle change). po_validated=true (reconcile); po_closed=true; publication_authorized=true (lint/tests PASS, reviewed_commit set). Follow-up `FU-LEDGER-SOFT-FAIL-NOTICE` (MEDIUM, backlog only). Items 7–8 stay OPEN. No LOCAL_READY/95%/PRE_VPS claims. [closure-key: ROI-cand-dyn-slice-cb906bb58392:commit:880bc00fe95eb52ae8bfa76c2dbbe6a65f4f6da7] |
 
 ---
 
@@ -246,3 +247,30 @@ ruff → All checks passed
 ### Next
 
 @po close → @devops publish path. Optional follow-up story for soft-fail operator notice.
+
+---
+
+## PO Close Acknowledgement
+
+**PO:** Pax (@po)  
+**Date:** 2026-07-20  
+**Accepted verdict:** **CONCERNS** (non-blocking residual MEDIUM)  
+**Reviewed commit:** `880bc00fe95eb52ae8bfa76c2dbbe6a65f4f6da7`  
+**Gate:** `docs/qa/gates/ROI-cand-dyn-slice-cb906bb58392.yml`  
+**Status:** **Done** (set by @qa; PO does not change lifecycle)  
+**po_closed:** true  
+**publication_authorized:** true (qa_verdict=CONCERNS, gates.lint=PASS, gates.tests=PASS, reviewed_commit set)  
+**AC1–3:** satisfied (6/8 proven with evidence; 7–8 OPEN honest; no NOT_APPLICABLE abuse; independent QA before flips)  
+**DoD §29:** items 1–6 [x] authorized by QA; coverage/freshness reconstruct remain OPEN  
+**Forbidden claims not made:** full §29 complete · LOCAL_READY · 95% · PRE_VPS_FINAL_READY  
+
+**Follow-ups (backlog only — not implemented in this close):**
+
+| ID | Owner | Severity | Note |
+|----|-------|----------|------|
+| `FU-LEDGER-SOFT-FAIL-NOTICE` | @dev | MEDIUM | `record_execution_safe` soft-fails on I/O; `decision_pack` / `weekly_cycle` ignore `ok=False` → audit row can be lost without operator notice. Warn/log when safe returns `ok=False`. |
+| (LOW residual) | — | LOW | report→run proven for ledger-wired entrypoints only (honest PARTIAL §29) — no separate story unless re-ranked |
+
+**Closure key:** `ROI-cand-dyn-slice-cb906bb58392:commit:880bc00fe95eb52ae8bfa76c2dbbe6a65f4f6da7`
+
+**Handoff:** `@devops` — branch `goal/roi-rastreabilidade-cb906bb58392`; publish path / draft PR after pre-push gates.
