@@ -1187,6 +1187,13 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("refresh-executive", help="Update executive HTML panel")
     sub.add_parser("audit", help="Full local audit snapshot")
     sub.add_parser("deepseek-smoke", help="Live DeepSeek smoke (opt-in)")
+    p_c1 = sub.add_parser(
+        "cycle1-real",
+        help="First real CTO cycle: ACCEPT_TOP ranking[0] + AIOX bridge (PR #50)",
+    )
+    p_c1.add_argument("--dry-run", action="store_true")
+    p_c1.add_argument("--require-grok", action="store_true")
+    p_c1.add_argument("--cycle-id", default=None)
     p_canary = sub.add_parser(
         "canary-live",
         help="One controlled live canary: only docs/ops/cto-autopilot/canary-proof.md",
@@ -1432,6 +1439,7 @@ def main(argv: list[str] | None = None) -> int:
         "refresh-executive": cmd_refresh_executive,
         "audit": cmd_audit,
         "deepseek-smoke": cmd_deepseek_smoke,
+        "cycle1-real": cmd_cycle1_real,
         "canary-live": cmd_canary_live,
     }
     return handlers[args.cmd](args)
@@ -1439,3 +1447,15 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+# --- cycle-1 real ROI binding (PR #50) ---
+def cmd_cycle1_real(args: argparse.Namespace) -> int:
+    from scripts.cto.cycle1_roi_integration import run_cycle1_real
+
+    result = run_cycle1_real(
+        dry_run=bool(getattr(args, "dry_run", False)),
+        require_grok=bool(getattr(args, "require_grok", False)),
+        cycle_id=getattr(args, "cycle_id", None),
+    )
+    _print(result)
+    return EXIT_OK if result.get("ok") else EXIT_FAILED

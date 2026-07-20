@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "cycle_id": "cyc1-real-20260720T013821Z",
+  "timestamp_utc": "2026-07-20T01:38:35Z",
+  "ranking_selected_id": null,
+  "strategic_action": "NOOP",
+  "aiox_sequence_bound": true,
+  "parallel_ranker": false,
+  "test_ids_authorized_only": true,
+  "integration_state": "IMPLEMENTED_AWAITING_MERGE"
+}
