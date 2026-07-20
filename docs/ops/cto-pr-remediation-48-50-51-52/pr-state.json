@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-20T02:28:30Z",
+  "generated_at": "2026-07-20T02:44:27Z",
   "terminal_state": "WAITING_HUMAN",
   "heads": {
     "main": "d6d9e1984e348d64a669546613e192e4ebf610cd",
-    "48": "895b81374c21efbef093a3acdd41c406d1de39bf",
-    "50": "b73cc2d316c7befca62bbd92992e0765bb28801c",
-    "51": "11ab4b962a487b25e3d1a3afb88b7e09ccd50879",
-    "52": "466fc09dc05a65ba89792d272334b0aa0ed6aa1a"
+    "48": "e3acaf3bc42e7f759936b14c362b8deb305e7a30",
+    "50": "3135169ab3622a968f3cb83932c36a42e367eca3",
+    "51": "7dc0bedc1edf9221a70192edc3eb7e31ca1efef1",
+    "52": "9c8a80402ab2988b0f97430a5bde66b5cf768cfc"
   },
   "bases": {
     "48": "main",
@@ -50,10 +50,10 @@
     52
   ],
   "test_counts": {
-    "tests_cto_collected": 153,
-    "tests_cto_passed": 153,
-    "tests_cto_failed": 0,
-    "full_suite": "SKIPPED on PR CI — preexisting debt, not claimed green"
+    "tests_cto_passed_on_48": 153,
+    "tests_cto_passed_on_50": 154,
+    "tests_cto_passed_on_51": 156,
+    "pr52_ci": "lint/mypy/critical/resilience/bandit/pip-audit pass; full suite SKIPPED≠green"
   },
   "claims_forbidden": [
     "LOCAL_READY",
@@ -70,5 +70,10 @@
     "50": "run_execution_ledger wired resilient_cycle+crawler_monitor; force-next story Draft",
     "51": "evidence_reconstruct + rerank exclude cycle-1; cycle-2 story Draft",
     "52": "expired deadline active-filter; CNPJ identity_mismatch; offline never PARTICIPAR; ledger decision_pack/weekly"
+  },
+  "topology": {
+    "50_mergeable": "MERGEABLE after merge of #48 tip",
+    "51_base": "cto/canary-live-20260719T204106Z",
+    "52_s110": "fixed bare except pass"
   }
 }

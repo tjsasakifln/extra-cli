@@ -1,61 +1,32 @@
 # FINAL-REPORT — WAITING_HUMAN
 
-**Generated:** 2026-07-20T02:27:08Z  
+**Generated:** 2026-07-20T02:44:27Z  
 **SSOT:** `pr-state.json`
 
-## Heads (live at regenerate)
-
-| Ref | SHA |
-|-----|-----|
+## Heads
+| PR | SHA |
+|----|-----|
 | main | `d6d9e1984e348d64a669546613e192e4ebf610cd` |
-| PR #48 | `895b81374c21efbef093a3acdd41c406d1de39bf` |
-| PR #50 | `b73cc2d316c7befca62bbd92992e0765bb28801c` |
-| PR #51 | `11ab4b962a487b25e3d1a3afb88b7e09ccd50879` |
-| PR #52 | `466fc09dc05a65ba89792d272334b0aa0ed6aa1a` |
+| #48 | `e3acaf3bc42e7f759936b14c362b8deb305e7a30` |
+| #50 | `3135169ab3622a968f3cb83932c36a42e367eca3` |
+| #51 | `7dc0bedc1edf9221a70192edc3eb7e31ca1efef1` |
+| #52 | `9c8a80402ab2988b0f97430a5bde66b5cf768cfc` |
 
-## 1. O que mudou em cada PR?
-- **#48:** Segurança headless + AIOX/ROI + claim-surface green (**tests/cto 153 passed**)
-- **#50:** force-next + ledger operacional (story Draft) — **BLOCKED_HUMAN**
-- **#51:** rerank + evidence_reconstruct (story Draft) — **BLOCKED_HUMAN**
-- **#52:** prazo/CNPJ/offline + ledger decision/weekly — READY_FOR_HUMAN_REVIEW
+## Parecer
+| PR | Estado |
+|----|--------|
+| #48 | **READY_FOR_HUMAN_REVIEW** — tests/cto 153 green; full suite SKIPPED≠green |
+| #50 | **BLOCKED_HUMAN** — stack merges #48 tip (MERGEABLE); story Draft needs @po/@qa |
+| #51 | **BLOCKED_HUMAN** — stacked on #50; story Draft needs SDC after #50 |
+| #52 | **READY_FOR_HUMAN_REVIEW** — S110 fixed; CI lint/resilience green on required checks |
 
-## 2. DoD avançado?
-PARTIAL only — checkboxes não virados sem prova completa.
+## Topology
+main ← #48 ← #50 ← #51; #52 ∥ main
 
-## 3. Evidência
-Código + testes nos HEADs; `tests/cto` 153 passed no #48; stories Draft po_validated=false.
-
-## 4. Não comprovado
-main integration; SDC #50/#51; full suite global; 95%/LOCAL_READY/VPS.
-
-## 5. AIOX real no #48?
-Adaptador real + force-next no cycle-1; sem auto-Ready/self-QA.
-
-## 6. #50 ciclo real?
-Sim com SDC incompleto → **BLOCKED_HUMAN**, não READY.
-
-## 7. #51 após rerank do #50?
-Sim (exclude cycle-1); force-next nativo ainda ranking[0]=cycle-1 documentado.
-
-## 8. #52 semânticos?
-Sim (prazo, identity_mismatch, offline).
-
-## 9. SHA selado?
-Desenho #48 testado; remediação usa push normal; sem merge.
-
-## 10. Merge order
-1. #48 READY_FOR_HUMAN_REVIEW  
-2. #50 após @po/@qa (BLOCKED_HUMAN)  
-3. #51 após #50 SDC (BLOCKED_HUMAN)  
-4. #52 paralelo main (READY_FOR_HUMAN_REVIEW)
-
-## Terminal
-
-| PR | Parecer |
-|----|---------|
-| #48 | **READY_FOR_HUMAN_REVIEW** — tests/cto 153 passed; full suite SKIPPED≠green |
-| #50 | **BLOCKED_HUMAN** — @po validate-story-draft ROI-cand-dyn-slice-cb906bb58392 → Ready; independent @qa |
-| #51 | **BLOCKED_HUMAN** — Complete #50 SDC first; force-next/rerank; @po Ready on cycle-2 story |
-| #52 | **READY_FOR_HUMAN_REVIEW** |
+## Merge order
+1. #48 READY  
+2. #50 after @po/@qa (BLOCKED_HUMAN)  
+3. #51 after #50 SDC (BLOCKED_HUMAN)  
+4. #52 parallel (READY)
 
 Sem merge/force-push/selos falsos.

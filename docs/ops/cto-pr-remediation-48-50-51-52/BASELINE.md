@@ -1,21 +1,11 @@
-# BASELINE
-
-**Captured:** 2026-07-20T02:27:08Z  
-**SSOT:** `pr-state.json`
+# BASELINE (2026-07-20T02:44:27Z)
 
 | Ref | SHA |
 |-----|-----|
 | main | `d6d9e1984e348d64a669546613e192e4ebf610cd` |
-| #48 | `895b81374c21efbef093a3acdd41c406d1de39bf` |
-| #50 | `b73cc2d316c7befca62bbd92992e0765bb28801c` |
-| #51 | `11ab4b962a487b25e3d1a3afb88b7e09ccd50879` |
-| #52 | `466fc09dc05a65ba89792d272334b0aa0ed6aa1a` |
+| #48 | `e3acaf3bc42e7f759936b14c362b8deb305e7a30` |
+| #50 | `3135169ab3622a968f3cb83932c36a42e367eca3` |
+| #51 | `7dc0bedc1edf9221a70192edc3eb7e31ca1efef1` |
+| #52 | `9c8a80402ab2988b0f97430a5bde66b5cf768cfc` |
 
-| PR | Recommendation |
-|----|----------------|
-| #48 | READY_FOR_HUMAN_REVIEW |
-| #50 | BLOCKED_HUMAN |
-| #51 | BLOCKED_HUMAN |
-| #52 | READY_FOR_HUMAN_REVIEW |
-
-tests/cto: **153 collected / 153 passed** at regenerate. Full suite SKIPPED on PR CI.
+Recommendations: {"48": "READY_FOR_HUMAN_REVIEW", "50": "BLOCKED_HUMAN", "51": "BLOCKED_HUMAN", "52": "READY_FOR_HUMAN_REVIEW"}
