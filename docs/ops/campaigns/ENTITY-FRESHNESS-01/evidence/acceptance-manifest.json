@@ -369,7 +369,7 @@
     "docs/ops/campaigns/ENTITY-FRESHNESS-01/evidence/acceptance-manifest.json"
   ],
   "exit_code": 0,
-  "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+  "git_sha": "41baee62389322b5c9bbf0840f37e4b98d450499",
   "identity": {
     "canonical_count": 1093,
     "canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396",

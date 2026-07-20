@@ -6,11 +6,14 @@
 
 ## Baseline
 
+| Tested commit | `41baee62389322b5c9bbf0840f37e4b98d450499` |
+
 | Campo | Valor |
 |-------|-------|
 | Base main SHA | `d6d9e1984e348d64a669546613e192e4ebf610cd` |
 | Branch | `goal/entity-freshness-canonical-acceptance` |
 | Worktree | `wt-entity-freshness-canonical` |
+| Tested commit | `41baee62389322b5c9bbf0840f37e4b98d450499` |
 | Adapter | `freshness_by_entity/2.0.0-canonical` |
 
 ## O que foi entregue
