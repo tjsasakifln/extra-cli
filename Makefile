@@ -198,6 +198,14 @@ lint-fix:
 	ruff check --fix $(SCRIPTS_DIR)/
 	ruff format $(SCRIPTS_DIR)/
 
+# ENGINEERING narrow gate for weekly cycle — NOT full product suite.
+# Must never use `|| true` on ruff/pytest. Prefer `make test-all` for full suite.
+.PHONY: verify-weekly
+verify-weekly:
+	@echo '==> [$(ENV)] ENGINEERING: weekly cycle lint + unit tests (narrow)'
+	ruff check $(SCRIPTS_DIR)/ops/weekly_cycle.py tests/test_weekly_cycle.py tests/architecture/
+	python3 -m pytest tests/test_weekly_cycle.py tests/architecture/ -q --tb=line --no-cov
+
 # ── Ambiente ────────────────────────────────────────────────────────────────
 
 .PHONY: clean

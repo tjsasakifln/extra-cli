@@ -1,14 +1,51 @@
 # Canonical entry-point contract (DoD §32.1)
 # All tool adapters (CLAUDE.md, AGENTS.md, Cursor rules) MUST reference
 # docs/DEVELOPMENT.md and MUST NOT invent parallel product requirements.
-version: "1.0"
-updated_at: "2026-07-18"
+#
+# ARCH-RESET-RECOVERY-2026-07-20: explicit classification — one product weekly cycle.
+# engineering_verify_command is NARROW (verify-weekly), not a false full-suite green.
+version: "1.2"
+updated_at: "2026-07-20"
 canonical_guide: docs/DEVELOPMENT.md
+product_canonical_command: extra-weekly
+product_canonical_module: scripts.ops.weekly_cycle
+engineering_verify_command: verify-weekly
 precedence:
   - DOD.md
   - ADR vigente
   - codigo testado
   - evidencia reproduzivel
+
+# Classes: product_canonical | engineering | diagnostic | legacy_composite | component | campaign_governance
+entrypoint_classification:
+  product_canonical:
+    - make: extra-weekly
+      module: scripts.ops.weekly_cycle
+      note: Only product ops entry for Extra weekly consultive pack
+  engineering:
+    - make: verify-weekly
+      note: Narrow lint + weekly/architecture unit tests; NOT full suite
+    - make: lint
+    - make: test
+    - make: test-all
+      note: Full pytest suite — use this for integrated green, not verify-weekly
+  diagnostic:
+    - make: golden-path
+      module: scripts.golden_path
+    - make: golden-path-quick
+    - make: resilient-local-cycle
+    - make: resilient-smoke
+    - make: resilience-gate
+  legacy_composite:
+    - make: run-pipeline
+      note: Prefer extra-weekly for Extra product pack
+  component:
+    - make: run-crawl
+    - make: run-report
+    - make: report-executivo
+  campaign_governance:
+    - command: python3 squads/extra-dod-roi/scripts/cli.py force-next
+      note: DoD ROI campaign; not product weekly
 
 commands:
   setup: |
@@ -16,16 +53,21 @@ commands:
     pip install -r requirements.txt
     python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
   validate: |
-    python3 -m pytest tests/ -q --tb=no -x
-    ruff check scripts/
+    # Engineering path — prefer narrow weekly verify, then full suite when needed
+    make verify-weekly
     python3 -m scripts.ops.source_contract_tests --json
+  verify: |
+    # ENGINEERING narrow (not product, not full suite)
+    make verify-weekly
   golden_path: |
+    # DIAGNOSTIC (not product weekly)
     python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
   weekly: |
-    # CANONICAL weekly operational cycle for Extra Construtora
+    # CANONICAL weekly operational cycle for Extra Construtora (product)
     make extra-weekly
     # equivalent: python3 -m scripts.ops.weekly_cycle --strict
   campaign: |
+    # Campaign governance — not product weekly
     python3 squads/extra-dod-roi/scripts/cli.py force-next
 
 # Substrings that every entry-point adapter must mention (or point to DEVELOPMENT.md)
@@ -35,6 +77,7 @@ required_command_tokens:
   - scripts.ops.apply_migrations
   - force-next
   - LOCAL_DATALAKE_DSN
+  - extra-weekly
 
 required_doc_tokens:
   - DOD.md
