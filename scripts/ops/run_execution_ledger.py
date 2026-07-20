@@ -146,3 +146,30 @@ def verify_invariants(root: Path | None = None) -> dict[str, Any]:
         "unlinked_reports": unlinked,
         "checksum": ledger_checksum(root),
     }
+
+
+def record_execution_safe(
+    *,
+    command: str | list[str],
+    status: str,
+    errors: list[str] | None = None,
+    exit_code: int | None = None,
+    report_paths: list[str] | None = None,
+    run_id: str | None = None,
+    meta: dict[str, Any] | None = None,
+    root: Path | None = None,
+) -> dict[str, Any] | None:
+    """Best-effort ledger write — never raises into operational entrypoints."""
+    try:
+        return record_execution(
+            command=command,
+            status=status,
+            errors=errors,
+            exit_code=exit_code,
+            report_paths=report_paths,
+            run_id=run_id,
+            meta=meta,
+            root=root,
+        )
+    except Exception as exc:  # noqa: BLE001 — ledger must not break ops
+        return {"ok": False, "error": str(exc), "errors": [str(exc)]}

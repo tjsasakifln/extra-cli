@@ -255,6 +255,36 @@ def run_cycle(
                 "result": result,
             },
         )
+    # §29 rastreabilidade: every resilient cycle records errors[] + report→run
+    try:
+        from scripts.ops.run_execution_ledger import record_execution_safe
+
+        err_list: list[str] = []
+        for sid, res in (results or {}).items():
+            if res.get("status") in {"error", "auth_blocked", "rate_limited"}:
+                err_list.append(f"{sid}:{res.get('status')}:{res.get('error_message') or res.get('error') or ''}")
+            if live and not res.get("db_committed") and res.get("status") in {
+                "success",
+                "empty_confirmed",
+            }:
+                err_list.append(f"{sid}:db_not_committed")
+        record_execution_safe(
+            command=["python", "-m", "scripts.ops.resilient_cycle"]
+            + (["--live"] if live else []),
+            status="failed" if exit_code else ("partial" if degraded else "ok"),
+            errors=err_list,
+            exit_code=exit_code,
+            report_paths=[str(summary_path)],
+            run_id=run_id,
+            meta={
+                "entrypoint": "resilient_cycle",
+                "mode": summary.get("mode"),
+                "status_label": status_label,
+            },
+        )
+    except Exception:  # noqa: BLE001
+        pass
+
     return exit_code, summary
 
 

@@ -333,6 +333,31 @@ def main(argv: list[str] | None = None) -> int:
             )
         for lim in report.get("limitations") or []:
             print(f"  limitation: {lim}")
+    # §29: monitor runs land in execution ledger with errors[] (empty when healthy)
+    try:
+        from scripts.ops.run_execution_ledger import record_execution_safe
+
+        errs: list[str] = []
+        for lim in report.get("limitations") or []:
+            errs.append(str(lim))
+        if report.get("overall") in {"degraded", "fail", "unhealthy"}:
+            errs.append(f"overall={report.get('overall')}")
+        record_execution_safe(
+            command=["python", "-m", "scripts.ops.crawler_monitor"]
+            + (["--json"] if args.json else []),
+            status="ok" if report.get("overall") not in {"fail", "unhealthy"} else "failed",
+            errors=errs,
+            exit_code=0,
+            report_paths=[],
+            meta={
+                "entrypoint": "crawler_monitor",
+                "overall": report.get("overall"),
+                "runs": (report.get("totals") or {}).get("runs"),
+            },
+        )
+    except Exception:  # noqa: BLE001
+        pass
+
     if report["overall"] == "unknown" and not args.seed_demo:
         return 0  # honest empty is not a crash
     return 0
