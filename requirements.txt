@@ -7,8 +7,9 @@ psycopg2>=2.9.9
 python-dotenv>=1.0.0
 pyyaml>=6.0
 
-# PDF Generation
+# PDF Generation + product reconcile (decision pack reads stamped run_id from PDF)
 reportlab>=4.5.1
+PyPDF2>=3.0.0
 
 # Excel
 openpyxl>=3.1.5

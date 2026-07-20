@@ -515,7 +515,7 @@ class TestIdentityProofStrict:
         """Página genérica contendo somente o CNPJ esperado não confirma."""
         body = (
             "<html><body><h1>Portal do órgão</h1>"
-            f"<p>CNPJ: 12.345.678/0001-99</p>"
+            "<p>CNPJ: 12.345.678/0001-99</p>"
             "<p>Informações institucionais</p></body></html>"
         )
         analysis = analyze_reconfirm_body(body, self._row(), http_status=200)
@@ -572,7 +572,7 @@ class TestIdentityProofStrict:
         body = (
             "<html><body>"
             "Fragmento: 0000012026 "  # normalized tail of control, not full ID
-            f"CNPJ 12.345.678/0001-99"
+            "CNPJ 12.345.678/0001-99"
             "</body></html>"
         )
         analysis = analyze_reconfirm_body(body, row, http_status=200)
@@ -1012,7 +1012,11 @@ class TestPackGates:
             reconfirm_max=3,
             limit=10,
         )
-        assert code == 0
+        assert code == 0, (
+            f"expected EXIT_OK, got {code} status={manifest.get('status')} "
+            f"reconcile={manifest.get('reconcile')} "
+            f"db_error={manifest.get('db_error')}"
+        )
         assert manifest.get("counts", {}).get("total") == 3
         # pipoca + medicamento must discard
         assert manifest.get("counts", {}).get("nao_participar", 0) >= 2
@@ -1035,16 +1039,24 @@ class TestPackGates:
         assert res["matched"] == 3
 
     def test_run_pack_empty_db_still_reconciles(self, tmp_path: Path):
-        """Under default pytest mock (empty DB), pack must still PASS reconcile."""
+        """Empty/offline data path: pack must still PASS product reconcile (PDF+Excel).
+
+        Requires PyPDF2/pypdf so stamped run_id can be read back from the PDF.
+        Missing reader → EXIT_UNRELIABLE (fail closed), never silent PASS.
+        """
         code, manifest = run_decision_pack(
             out_dir=tmp_path / "pack_empty",
             offline_reconfirm=True,
-            skip_db=False,
+            skip_db=True,
             strict=False,
             reconfirm_max=2,
             limit=10,
         )
-        assert code == 0
+        assert code == 0, (
+            f"expected EXIT_OK, got {code} status={manifest.get('status')} "
+            f"reconcile={manifest.get('reconcile')} "
+            f"db_error={manifest.get('db_error')}"
+        )
         assert (manifest.get("reconcile") or {}).get("status") == "PASS", manifest.get(
             "reconcile"
         )
@@ -1069,6 +1081,31 @@ class TestPackGates:
         )
         assert code != 0
         assert manifest.get("reconcile", {}).get("status") == "FAIL"
+
+    def test_unreadable_pdf_never_passes_reconcile(self, tmp_path: Path, monkeypatch):
+        """Regression: missing/empty PDF text extraction → EXIT_UNRELIABLE, not PASS.
+
+        Root cause of CI-only pack failures when PyPDF2 was absent from
+        requirements.txt: product PDF existed but reconcile could not stamp-read
+        run_id → divergences=[pdf_unreadable_or_not_pdf] → code=2.
+        """
+        monkeypatch.setattr(
+            "scripts.ops.decision_pack._read_pdf_text",
+            lambda _p: "",
+        )
+        code, manifest = run_decision_pack(
+            out_dir=tmp_path / "pack_unreadable_pdf",
+            offline_reconfirm=True,
+            skip_db=True,
+            strict=False,
+            reconfirm_max=2,
+            limit=5,
+        )
+        assert code == 2  # EXIT_UNRELIABLE
+        assert manifest.get("status") == "UNRELIABLE"
+        assert (manifest.get("reconcile") or {}).get("status") == "FAIL"
+        div = (manifest.get("reconcile") or {}).get("divergences") or []
+        assert any("pdf_unreadable" in str(d) for d in div), div
 
     def test_reexecution_does_not_duplicate_labels(self, tmp_path: Path):
         csv_path = tmp_path / "lab.csv"

@@ -201,7 +201,12 @@ def _generate_pdf(path: Path, brief_md: str, meta: dict[str, Any]) -> tuple[bool
 
 
 def _read_pdf_text(pdf_path: Path) -> str:
-    """Extract text from product PDF for reconciliation (real file read)."""
+    """Extract text from product PDF for reconciliation (real file read).
+
+    Requires PyPDF2 (or pypdf) at runtime — declared in requirements.txt.
+    Missing reader libraries return empty string so reconcile fails closed
+    (pdf_unreadable_or_not_pdf), never a false PASS.
+    """
     if not pdf_path.is_file():
         return ""
     # Reject non-PDF placeholders (e.g. failed generation written as .txt content)
@@ -209,8 +214,13 @@ def _read_pdf_text(pdf_path: Path) -> str:
     if not head.startswith(b"%PDF"):
         return ""
     try:
-        from PyPDF2 import PdfReader
-
+        try:
+            from PyPDF2 import PdfReader
+        except ImportError:  # pragma: no cover - optional pypdf alias
+            from pypdf import PdfReader  # type: ignore[no-redef]
+    except ImportError:
+        return ""
+    try:
         reader = PdfReader(str(pdf_path))
         parts: list[str] = []
         for page in reader.pages:
