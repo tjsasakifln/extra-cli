@@ -203,9 +203,9 @@ def _generate_pdf(path: Path, brief_md: str, meta: dict[str, Any]) -> tuple[bool
 def _read_pdf_text(pdf_path: Path) -> str:
     """Extract text from product PDF for reconciliation (real file read).
 
-    Requires PyPDF2 (or pypdf) at runtime — declared in requirements.txt.
-    Missing reader libraries return empty string so reconcile fails closed
-    (pdf_unreadable_or_not_pdf), never a false PASS.
+    Requires pypdf (preferred) or legacy PyPDF2 at runtime — pypdf is declared
+    in requirements.txt. Missing reader libraries return empty string so
+    reconcile fails closed (pdf_unreadable_or_not_pdf), never a false PASS.
     """
     if not pdf_path.is_file():
         return ""
@@ -215,9 +215,9 @@ def _read_pdf_text(pdf_path: Path) -> str:
         return ""
     try:
         try:
-            from PyPDF2 import PdfReader
-        except ImportError:  # pragma: no cover - optional pypdf alias
-            from pypdf import PdfReader  # type: ignore[no-redef]
+            from pypdf import PdfReader
+        except ImportError:  # pragma: no cover - legacy alias only
+            from PyPDF2 import PdfReader  # type: ignore[no-redef]
     except ImportError:
         return ""
     try:

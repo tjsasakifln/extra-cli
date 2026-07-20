@@ -9,7 +9,8 @@ pyyaml>=6.0
 
 # PDF Generation + product reconcile (decision pack reads stamped run_id from PDF)
 reportlab>=4.5.1
-PyPDF2>=3.0.0
+# Prefer pypdf (maintained). PyPDF2 3.0.1 is EOL and flagged by pip-audit (PYSEC-2026-1835).
+pypdf>=3.9.0
 
 # Excel
 openpyxl>=3.1.5
