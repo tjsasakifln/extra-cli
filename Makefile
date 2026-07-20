@@ -21,55 +21,39 @@ help:
 	@echo ''
 	@echo 'Usage: make <target> [ENV=local|production]'
 	@echo ''
-	@echo '── Golden Path ───────────────────────────────────────────────────'
-	@echo '  golden-path     Pipeline completo: db-up → bootstrap → crawl'
-	@echo '                 (pncp+pcp+compras_gov) → freshness → reports'
-	@echo '                 (Excel+PDF). Idempotente.'
-	@echo '  golden-path-quick  Igual golden-path mas pula freshness+reports'
-	@echo '                 (via --skip-freshness --skip-reports)'
-	@echo '  GOLDEN_PATH_FLAGS= Passe flags extras para golden_path.py,'
-	@echo '                 ex: make golden-path GOLDEN_PATH_FLAGS="--verbose"'
-	@echo ''
-	@echo '── Pipeline ──────────────────────────────────────────────────────'
-	@echo '  run-pipeline   Executa pipeline completo (bootstrap → crawl →'
-	@echo '                 intel → relatório)'
-	@echo '  run-crawl      Ingestão: crawl PNCP modo full'
-	@echo '  run-report     Relatórios: panorama + Excel'
-	@echo '  report-executivo  Relatorio executivo PDF + Excel (Extra Construtora)'
-	@echo ''
-	@echo '── Ciclo semanal Extra (CANÔNICO) ─────────────────────────────────'
-	@echo '  extra-weekly    Ciclo operacional semanal: collect→process→quality'
-	@echo '                 →intelligence→delivery (manifest+MD+Excel+CSV)'
+	@echo '── PRODUCT (canonical weekly cycle) ─────────────────────────────'
+	@echo '  extra-weekly    ONLY product ops entry for Extra consultive pack'
 	@echo '                 python -m scripts.ops.weekly_cycle --strict'
-	@echo '  WEEKLY_FLAGS=   Flags extras, ex: --force-collect --skip-collect'
+	@echo '  WEEKLY_FLAGS=   Extra flags for weekly_cycle'
 	@echo ''
-	@echo '── Testes ─────────────────────────────────────────────────────────'
-	@echo '  test           Roda testes (exceto slow) com cobertura'
-	@echo '  test-all       Roda todos os testes (inclui slow) com cobertura'
-	@echo '  resilient-smoke       Contrato/fail-closed/checkpoint/DLQ/chaos controlado'
-	@echo '  resilient-local-cycle Ciclo canônico local com fixtures (sem VPS/internet)'
-	@echo '  resilience-gate       Gate completo de prontidão técnica pré-VPS'
+	@echo '── ENGINEERING (not product orchestrator) ───────────────────────'
+	@echo '  verify          Canonical engineering check: lint + weekly tests'
+	@echo '  lint / lint-fix  Ruff check / autofix'
+	@echo '  test / test-all   Pytest suites'
 	@echo ''
-	@echo '── Lint ───────────────────────────────────────────────────────────'
-	@echo '  lint           Verifica lint + formatação (read-only)'
-	@echo '  lint-fix       Corrige lint + formata automaticamente'
+	@echo '── DIAGNOSTIC (not product) ─────────────────────────────────────'
+	@echo '  golden-path / golden-path-quick   Validation pipelines'
+	@echo '  resilient-local-cycle / resilient-smoke / resilience-gate'
 	@echo ''
-	@echo '── Ambiente ───────────────────────────────────────────────────────'
-	@echo '  clean          Remove __pycache__, .pytest_cache, .mypy_cache,'
-	@echo '                 output/runs/*'
-	@echo '  bootstrap      Sobe infra local (idempotente)'
-	@echo '  db-up          Sobe banco PostgreSQL via Docker Compose'
-	@echo '  db-down        Derruba banco PostgreSQL via Docker Compose'
+	@echo '── LEGACY / COMPONENT ───────────────────────────────────────────'
+	@echo '  run-pipeline    LEGACY composite (prefer extra-weekly)'
+	@echo '  run-crawl / run-report / report-executivo'
 	@echo ''
-	@echo '── ENV ────────────────────────────────────────────────────────────'
+	@echo '── Ambiente ─────────────────────────────────────────────────────'
+	@echo '  clean / bootstrap / db-up / db-down'
+	@echo ''
+	@echo '── ENV ──────────────────────────────────────────────────────────'
 	@echo '  current: $(ENV)'
 	@echo '  use: make <target> ENV=production'
+	@echo ''
+	@echo 'Classification: docs/canonical-entry-points.yaml (entrypoint_classification)'
 
 # ── Golden Path ─────────────────────────────────────────────────────────────
 
 .PHONY: golden-path
 golden-path:
-	@echo '==> [$(ENV)] Golden Path — Pipeline de validação completa'
+	@echo '==> [$(ENV)] DIAGNOSTIC golden-path (not product weekly cycle)'
+	@echo '    Class: diagnostic'
 	$(MAKE) db-up
 	$(MAKE) bootstrap
 	python $(SCRIPTS_DIR)/golden_path.py $(GOLDEN_PATH_FLAGS)
@@ -85,7 +69,9 @@ golden-path-quick:
 
 .PHONY: run-pipeline
 run-pipeline:
-	@echo '==> [$(ENV)] Pipeline completo: bootstrap → crawl → intel → relatório'
+	@echo '==> [$(ENV)] LEGACY composite pipeline (NOT Extra product canonical)'
+	@echo '    Prefer: make extra-weekly'
+	@echo '    Class: legacy_composite'
 	$(MAKE) bootstrap
 	$(MAKE) run-crawl
 	python $(SCRIPTS_DIR)/intel_pipeline.py --auto
@@ -103,9 +89,22 @@ run-report:
 
 .PHONY: extra-weekly
 extra-weekly:
-	@echo '==> [$(ENV)] Ciclo semanal canônico Extra Construtora'
+	@echo '==> [$(ENV)] PRODUCT CANONICAL — Extra weekly consultive cycle'
 	@echo '    Entry point: python -m scripts.ops.weekly_cycle --strict'
+	@echo '    Class: product_canonical (see docs/canonical-entry-points.yaml)'
 	python3 -m scripts.ops.weekly_cycle --strict $(WEEKLY_FLAGS)
+
+.PHONY: verify
+verify:
+	@echo '==> [$(ENV)] ENGINEERING verify — not a product orchestrator'
+	@echo '    Class: engineering (lint + weekly unit tests)'
+	ruff check $(SCRIPTS_DIR)/ops/weekly_cycle.py $(SCRIPTS_DIR)/ops/canonical_entry_points.py
+	python3 -m pytest $(TESTS_DIR)/test_weekly_cycle.py -q --tb=line --no-cov
+	@if [ -f $(TESTS_DIR)/architecture/test_weekly_characterization.py ]; then \
+		python3 -m pytest $(TESTS_DIR)/architecture/test_weekly_characterization.py -q --tb=line --no-cov; \
+	fi
+	python3 -m scripts.ops.canonical_entry_points --json >/dev/null
+	@echo '==> verify OK'
 
 .PHONY: report-executivo
 report-executivo:
