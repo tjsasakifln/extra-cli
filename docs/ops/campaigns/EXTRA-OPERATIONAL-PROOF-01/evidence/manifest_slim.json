@@ -1,0 +1,138 @@
+{
+  "cycle_id": "weekly-20260719T193016Z-978721b174",
+  "collection_id": "col-extra-weekly-20260719T193016Z-73a489a8",
+  "exit_code": 0,
+  "duration_seconds": 0.91,
+  "started_at": "2026-07-19T19:30:16Z",
+  "finished_at": "2026-07-19T19:30:16Z",
+  "git": {
+    "git_sha": "39b018c8bf6888c1bb6b636af65f9db084ae5afc",
+    "git_branch": "campaign/extra-operational-proof-01"
+  },
+  "runs": [
+    {
+      "run_id": "collect-pncp_opportunities-20260719T193016Z-3ade5de99c",
+      "collection_id": "col-extra-weekly-20260719T193016Z-73a489a8",
+      "source": "pncp_opportunities",
+      "collector_version": "weekly-cycle/1.0",
+      "parameters": {
+        "lookback_days": 7,
+        "force_collect": false,
+        "skip_collect": true
+      },
+      "period_start": "2026-07-12",
+      "period_end": "2026-07-19",
+      "started_at": "2026-07-19T19:30:16.400729Z",
+      "finished_at": "2026-07-19T19:30:16.400762Z",
+      "terminal_status": "reused_fresh",
+      "records_obtained": 0,
+      "records_rejected": 0,
+      "records_persisted": 0,
+      "watermark": null,
+      "raw_uri": "db://opportunity_runs/52",
+      "content_hashes": [],
+      "terminal_error": null,
+      "request_completed": true,
+      "scope_complete": true,
+      "source_available": true,
+      "mode": "incremental",
+      "git_sha": "39b018c8bf6888c1bb6b636af65f9db084ae5afc",
+      "notes": [
+        "reused previous PNCP opportunity collection within SLA"
+      ],
+      "contract_version": "1.0",
+      "payload_hash": "5d131663f3ad3624d00871edb90b788e3cead1ea735bb6f26b85340f3fdbd114"
+    },
+    {
+      "run_id": "collect-pncp_contracts-20260719T193016Z-0ff50fe0c7",
+      "collection_id": "col-extra-weekly-20260719T193016Z-73a489a8",
+      "source": "pncp_contracts",
+      "collector_version": "weekly-cycle/1.0",
+      "parameters": {
+        "strategy": "reuse_lake_with_freshness_declaration"
+      },
+      "period_start": null,
+      "period_end": null,
+      "started_at": "2026-07-19T19:30:16.489176Z",
+      "finished_at": "2026-07-19T19:30:16.489217Z",
+      "terminal_status": "reused_fresh",
+      "records_obtained": 498809,
+      "records_rejected": 0,
+      "records_persisted": 498809,
+      "watermark": null,
+      "raw_uri": "db://pncp_supplier_contracts",
+      "content_hashes": [],
+      "terminal_error": null,
+      "request_completed": true,
+      "scope_complete": false,
+      "source_available": true,
+      "mode": "reuse",
+      "git_sha": "39b018c8bf6888c1bb6b636af65f9db084ae5afc",
+      "notes": [
+        "contracts not re-crawled; lake rows reused with explicit freshness",
+        "age_hours=2.9"
+      ],
+      "contract_version": "1.0",
+      "payload_hash": "12b59e283a137409f7b7441ac3420db29ac3c9dd864fe6473afce4d41085c42c"
+    }
+  ],
+  "freshness": [
+    {
+      "source": "pncp_opportunities",
+      "level": "fresh",
+      "sla_hours": 48,
+      "age_hours": 0.33,
+      "last_run_id": 52,
+      "last_status": "completed_zero",
+      "records_fetched": 0,
+      "indicator": "freshness_source"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "fresh",
+      "sla_hours": 168,
+      "age_hours": 2.9,
+      "row_count": 498809,
+      "indicator": "freshness_source",
+      "note": "freshness by max(ingested_at); not a full re-collect this cycle"
+    }
+  ],
+  "intelligence_counts": {
+    "opportunities": 50,
+    "contracts": 50,
+    "competitors": 50,
+    "orgaos": 50
+  },
+  "products_keys": [
+    "executive_md",
+    "excel",
+    "excel_ok",
+    "excel_note",
+    "pdf",
+    "pdf_status",
+    "csvs",
+    "checksums",
+    "claims_count",
+    "manifest"
+  ],
+  "human_accept": {
+    "status": "PENDING_HUMAN",
+    "owner": "Tiago",
+    "required_reviews": [
+      "executive_summary",
+      "opportunities",
+      "contracts_sample",
+      "competitors",
+      "values_semantics",
+      "limitations"
+    ],
+    "note": "Ausência de manifestação não é aceite"
+  },
+  "scope_fix": "contracts/competitors: uf=SC AND orgao in universe 200km",
+  "claims_ac3": "opportunity+contract+competitor carry collection_id and cycle_run_id",
+  "skeptic_fixes": [
+    "ci_integration_skip",
+    "claims_provenance_full",
+    "extra_sc_universe_scope"
+  ]
+}

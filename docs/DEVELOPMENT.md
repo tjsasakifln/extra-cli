@@ -45,10 +45,17 @@ python3 -m pytest tests/ -q --tb=no -x
 ruff check scripts/
 python3 -m scripts.ops.source_contract_tests --json
 
-# Golden path (fail-closed)
+# Golden path (fail-closed — prova técnica de pipeline)
 python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
 
-# Coverage / operational outputs
+# Ciclo semanal canônico Extra Construtora (produto consultivo)
+# Único entry point operacional semanal — não criar concorrentes.
+make extra-weekly
+# equivalente:
+python3 -m scripts.ops.weekly_cycle --strict
+# flags úteis: WEEKLY_FLAGS="--force-collect" | "--skip-collect" | "--lookback-days 7"
+
+# Coverage / operational outputs (componentes internos)
 python3 -m scripts.reports.operational_outputs --dsn "$LOCAL_DATALAKE_DSN" --out output/ops-lists --json
 python3 -m scripts.coverage.applicability_matrix --limit-entities 50 --out output/applicability --json
 
@@ -57,7 +64,7 @@ python3 squads/extra-dod-roi/scripts/cli.py status
 python3 squads/extra-dod-roi/scripts/cli.py force-next
 ```
 
-Os três pontos de entrada (Claude / Codex-compat / Cursor) **devem** citar este mesmo trio: setup → validação → golden path.
+Os pontos de entrada (Claude / Codex-compat / Cursor) **devem** citar: setup → validação → golden path → **extra-weekly**.
 
 ---
 
