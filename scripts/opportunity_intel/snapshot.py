@@ -34,7 +34,25 @@ HTTP_OUTCOMES = frozenset(
         "skipped_offline_fixture",
         "pagination_incomplete",
         "not_attempted",
+        "not_found",
+        "identity_mismatch",
+        "ambiguous",
+        "partial",
+        "unconfirmed",
     }
+)
+
+# Markers that indicate login/error shells even with HTTP 200
+_ERROR_PAGE_MARKERS = (
+    "faça login",
+    "fazer login",
+    "sign in",
+    "access denied",
+    "acesso negado",
+    "página não encontrada",
+    "page not found",
+    "erro 404",
+    "captcha",
 )
 
 
@@ -53,9 +71,129 @@ class ReconfirmResult:
     collection_id: str | None
     rule: str
     error: str | None = None
+    identity_matched: bool = False
+    identity_checks: dict[str, Any] | None = None
+    expected_control: str | None = None
+    expected_cnpj: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+def _digits(value: Any) -> str:
+    return "".join(ch for ch in str(value or "") if ch.isdigit())
+
+
+def _identity_tokens(row: dict[str, Any]) -> dict[str, str]:
+    """Extract expected identity markers for the specific opportunity."""
+    control = str(
+        row.get("numero_controle")
+        or row.get("numero_controle_pncp")
+        or row.get("source_id")
+        or row.get("id")
+        or ""
+    ).strip()
+    cnpj = _digits(row.get("orgao_cnpj") or row.get("cnpj"))
+    numero = str(row.get("numero") or row.get("numero_compra") or "").strip()
+    return {"control": control, "cnpj": cnpj, "numero": numero}
+
+
+def analyze_reconfirm_body(
+    body: str,
+    row: dict[str, Any],
+    *,
+    http_status: int | None,
+) -> dict[str, Any]:
+    """Validate that the HTTP body refers to the expected opportunity.
+
+    Generic listing/login pages must not yield outcome=ok.
+    """
+    low = (body or "").lower()
+    tokens = _identity_tokens(row)
+    checks: dict[str, Any] = {
+        "has_body": bool((body or "").strip()),
+        "http_status": http_status,
+        "error_page": False,
+        "control_found": False,
+        "cnpj_found": False,
+        "numero_found": False,
+        "status_hint": None,
+    }
+    if not checks["has_body"]:
+        return {
+            "outcome": "http_204" if http_status == 204 else "partial",
+            "status_observed": None,
+            "identity_matched": False,
+            "checks": checks,
+            "rule": "empty_body",
+        }
+    if any(m in low for m in _ERROR_PAGE_MARKERS):
+        checks["error_page"] = True
+        return {
+            "outcome": "unconfirmed",
+            "status_observed": None,
+            "identity_matched": False,
+            "checks": checks,
+            "rule": "login_or_error_page_200",
+        }
+
+    control = tokens["control"]
+    cnpj = tokens["cnpj"]
+    numero = tokens["numero"]
+    if control and (control.lower() in low or control in body):
+        checks["control_found"] = True
+    if cnpj and len(cnpj) >= 8 and cnpj in _digits(body):
+        checks["cnpj_found"] = True
+    if numero and numero.lower() in low:
+        checks["numero_found"] = True
+
+    # At least one strong identity marker must match
+    identity_matched = bool(checks["control_found"] or checks["cnpj_found"] or checks["numero_found"])
+    if not identity_matched:
+        # Generic listing with 200 but no specific opportunity markers
+        return {
+            "outcome": "not_found",
+            "status_observed": None,
+            "identity_matched": False,
+            "checks": checks,
+            "rule": "generic_page_without_identity",
+        }
+
+    status_observed = str(row.get("status_canonico") or "open")
+    if "revogad" in low or "anulad" in low:
+        status_observed = "revoked"
+        checks["status_hint"] = "revoked"
+    elif "suspens" in low:
+        status_observed = "suspended"
+        checks["status_hint"] = "suspended"
+    elif "encerrad" in low and "abert" not in low:
+        status_observed = "closed"
+        checks["status_hint"] = "closed"
+
+    # Expected CNPJ divergence when both present
+    expected_cnpj = cnpj
+    if expected_cnpj and checks["cnpj_found"] is False and cnpj:
+        # control matched but cnpj expected and not found → identity_mismatch soft
+        if checks["control_found"] and len(cnpj) >= 11:
+            # Strong control match alone can still be ok if cnpj not expected on page
+            pass
+
+    if status_observed in {"revoked", "suspended", "closed"}:
+        return {
+            "outcome": "ok",
+            "status_observed": status_observed,
+            "identity_matched": True,
+            "checks": checks,
+            "rule": "identity_matched_terminal_status",
+        }
+
+    return {
+        "outcome": "ok",
+        "status_observed": status_observed,
+        "identity_matched": True,
+        "checks": checks,
+        "rule": "identity_matched_official_page",
+    }
 
 
 @dataclass
@@ -320,14 +458,20 @@ def reconfirm_opportunity(
     http_get: Callable[..., tuple[int | None, str, str | None]] | None = None,
     offline: bool = False,
 ) -> ReconfirmResult:
-    """Reconfirm one opportunity against official source (or offline fixture mode)."""
+    """Reconfirm one opportunity against official source (or offline fixture mode).
+
+    HTTP 200 / non-empty HTML is NOT sufficient. Outcome ``ok`` requires identity
+    match (control number, CNPJ, or numero) for the specific opportunity.
+    Offline fixtures never claim live ok and never set identity_matched=True.
+    """
     ts = _utc_now()
     url = build_pncp_url(row)
     source = str(row.get("source") or "pncp")
     oid = row.get("id") or row.get("source_id")
+    tokens = _identity_tokens(row)
 
     if offline or os.getenv("DECISION_RECONFIRM_OFFLINE") == "1":
-        # Deterministic offline: treat DB status as observed without claiming live HTTP ok.
+        # Deterministic offline: never claim live HTTP ok / identity match.
         return ReconfirmResult(
             opportunity_id=oid,
             source=source,
@@ -342,6 +486,10 @@ def reconfirm_opportunity(
             collection_id=collection_id,
             rule="offline_db_status_not_live_http",
             error=None,
+            identity_matched=False,
+            identity_checks={"offline": True, "live_claim_forbidden": True},
+            expected_control=tokens["control"] or None,
+            expected_cnpj=tokens["cnpj"] or None,
         )
 
     if not url:
@@ -359,44 +507,75 @@ def reconfirm_opportunity(
             collection_id=collection_id,
             rule="missing_official_url",
             error="no_url",
+            identity_matched=False,
+            expected_control=tokens["control"] or None,
+            expected_cnpj=tokens["cnpj"] or None,
         )
 
     getter = http_get or default_http_get
     code, body, err = getter(url)
     if err and err.startswith("timeout"):
-        outcome = "timeout"
-    else:
-        outcome = classify_http_status(code, body_empty=not (body or "").strip())
-        if err and outcome == "error":
-            outcome = "error"
+        return ReconfirmResult(
+            opportunity_id=oid,
+            source=source,
+            url=url,
+            timestamp=ts,
+            status_observed=None,
+            deadline=str(row.get("data_encerramento") or "") or None,
+            http_status=code,
+            outcome="timeout",
+            raw_hash=_sha(body[:8000]) if body else None,
+            run_id=run_id,
+            collection_id=collection_id,
+            rule="http_timeout",
+            error=err,
+            identity_matched=False,
+            expected_control=tokens["control"] or None,
+            expected_cnpj=tokens["cnpj"] or None,
+        )
 
-    status_observed = None
-    if outcome == "ok":
-        # lightweight heuristic — do not invent closed if page loads
-        low = body.lower()
-        if "revogad" in low or "anulad" in low:
-            status_observed = "revoked"
-        elif "suspens" in low:
-            status_observed = "suspended"
-        elif "encerrad" in low and "abert" not in low:
-            status_observed = "closed"
-        else:
-            status_observed = str(row.get("status_canonico") or "open")
+    transport = classify_http_status(code, body_empty=not (body or "").strip())
+    if err and transport == "error":
+        transport = "error"
+    if transport != "ok":
+        return ReconfirmResult(
+            opportunity_id=oid,
+            source=source,
+            url=url,
+            timestamp=ts,
+            status_observed=None,
+            deadline=str(row.get("data_encerramento") or "") or None,
+            http_status=code,
+            outcome=transport,
+            raw_hash=_sha(body[:8000]) if body else None,
+            run_id=run_id,
+            collection_id=collection_id,
+            rule="http_transport_not_ok",
+            error=err,
+            identity_matched=False,
+            expected_control=tokens["control"] or None,
+            expected_cnpj=tokens["cnpj"] or None,
+        )
 
+    analysis = analyze_reconfirm_body(body or "", row, http_status=code)
     return ReconfirmResult(
         opportunity_id=oid,
         source=source,
         url=url,
         timestamp=ts,
-        status_observed=status_observed,
+        status_observed=analysis.get("status_observed"),
         deadline=str(row.get("data_encerramento") or "") or None,
         http_status=code,
-        outcome=outcome,
+        outcome=str(analysis.get("outcome") or "unconfirmed"),
         raw_hash=_sha(body[:8000]) if body else None,
         run_id=run_id,
         collection_id=collection_id,
-        rule="pncp_or_official_url_get",
+        rule=str(analysis.get("rule") or "identity_analysis"),
         error=err,
+        identity_matched=bool(analysis.get("identity_matched")),
+        identity_checks=analysis.get("checks"),
+        expected_control=tokens["control"] or None,
+        expected_cnpj=tokens["cnpj"] or None,
     )
 
 

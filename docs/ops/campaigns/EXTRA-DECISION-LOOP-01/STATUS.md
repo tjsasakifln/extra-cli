@@ -28,3 +28,15 @@ make extra-calibrate
 1. Revisar `evidence/live-pack/executive_decision_brief.pdf` + Excel.
 2. Preencher amostra em `human_review_queue.csv` e importar.
 3. Registrar aceite em `human-acceptance.md` (ACCEPTED / ACCEPTED_WITH_LIMITATIONS / REJECTED).
+
+## Remediation 2026-07-19 (semantic false positives)
+
+| Fix | Before | After |
+|-----|--------|-------|
+| Prazo vencido | status open podia mascarar deadline | `prazo_encerrado` hard blocker sempre |
+| Reconfirm ok | HTTP 200 genérico | identity match (control/CNPJ/numero) obrigatório |
+| Offline | tratado quase como ok path | `skipped_offline_fixture` → nunca PARTICIPAR |
+| Testes | 27 | 41 passed em `tests/test_decision_loop_v2.py` |
+
+Estado: **IMPLEMENTED_AWAITING_MERGE** — sem selo LOCAL_READY / 95%.
+

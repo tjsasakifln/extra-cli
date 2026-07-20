@@ -211,6 +211,71 @@ class TestDecisionEngine:
             assert d.dimensions["client_fit"].score <= 20
             assert any("client_fit_below_discard" in r for r in d.rules)
 
+    def test_expired_deadline_prevails_over_open_status(self):
+        """status_canonico=open with past deadline must never stay actionable PARTICIPAR."""
+        past = datetime.now(UTC) - timedelta(days=3)
+        row = _open_row(
+            status_canonico="open",
+            data_encerramento=past,
+            objeto="Reforma predial de prédio público municipal",
+        )
+        d = decide_opportunity(
+            row,
+            reconfirm={"outcome": "ok", "status": "ok", "identity_matched": True},
+            profile_meta={"pending_critical": []},
+            profile={
+                "desired_object_types": [{"id": "reforma", "terms": ["reforma predial"]}],
+                "positive_terms": ["reforma"],
+                "engineering_categories": ["reforma"],
+                "value_band_soft": {"min_brl": 1, "max_brl": 9e9},
+            },
+        )
+        assert d.recommendation == "NÃO_PARTICIPAR"
+        assert "prazo_encerrado" in d.hard_blockers
+        assert d.recommendation != "PARTICIPAR"
+
+    def test_offline_fixture_never_participar(self):
+        row = _open_row(objeto="Reforma predial de prédio público municipal")
+        d = decide_opportunity(
+            row,
+            reconfirm={"outcome": "skipped_offline_fixture", "status": "skipped_offline_fixture"},
+            profile_meta={"pending_critical": []},
+            profile={
+                "desired_object_types": [{"id": "reforma", "terms": ["reforma predial"]}],
+                "positive_terms": ["reforma"],
+                "engineering_categories": ["reforma"],
+                "value_band_soft": {"min_brl": 1, "max_brl": 9e9},
+            },
+        )
+        assert d.recommendation != "PARTICIPAR"
+        assert any("offline" in r.lower() for r in d.rules) or d.recommendation in {
+            "REVIEW",
+            "NÃO_PARTICIPAR",
+        }
+
+    def test_reconfirm_ok_without_identity_never_participar(self):
+        row = _open_row(objeto="Reforma predial de prédio público municipal")
+        d = decide_opportunity(
+            row,
+            reconfirm={"outcome": "ok", "status": "ok"},  # missing identity_matched
+            profile_meta={"pending_critical": []},
+            profile={
+                "desired_object_types": [{"id": "reforma", "terms": ["reforma predial"]}],
+                "positive_terms": ["reforma"],
+                "engineering_categories": ["reforma"],
+                "value_band_soft": {"min_brl": 1, "max_brl": 9e9},
+            },
+        )
+        assert d.recommendation != "PARTICIPAR"
+
+    def test_suspended_status_is_nao_participar(self):
+        d = decide_opportunity(
+            _open_row(status_canonico="suspended"),
+            reconfirm={"outcome": "ok", "identity_matched": True},
+            profile_meta={"pending_critical": []},
+        )
+        assert d.recommendation == "NÃO_PARTICIPAR"
+
 
 class TestSnapshot:
     def test_closed_excluded_from_active(self):
@@ -303,6 +368,60 @@ class TestSnapshot:
 
         rc = reconfirm_opportunity(_open_row(), http_get=empty, offline=False)
         assert rc.outcome == "http_204"
+
+    def test_reconfirm_generic_page_not_ok(self):
+        def generic(_url, **_kw):
+            return 200, "<html><body>Lista geral de editais do órgão</body></html>", None
+
+        row = _open_row(
+            source_id="PNCP-999",
+            orgao_cnpj="12345678000199",
+            numero_controle="PNCP-999",
+        )
+        rc = reconfirm_opportunity(row, http_get=generic, offline=False)
+        assert rc.outcome != "ok"
+        assert rc.identity_matched is False
+        assert rc.outcome in {"not_found", "unconfirmed", "partial", "identity_mismatch"}
+
+    def test_reconfirm_identity_match_ok(self):
+        def page(_url, **_kw):
+            html = (
+                "<html><body>Edital PNCP-999 CNPJ 12.345.678/0001-99 "
+                "status aberto reforma predial</body></html>"
+            )
+            return 200, html, None
+
+        row = _open_row(
+            source_id="PNCP-999",
+            numero_controle="PNCP-999",
+            orgao_cnpj="12345678000199",
+        )
+        rc = reconfirm_opportunity(row, http_get=page, offline=False)
+        assert rc.outcome == "ok"
+        assert rc.identity_matched is True
+        assert rc.raw_hash
+
+    def test_reconfirm_login_page_200_not_ok(self):
+        def login(_url, **_kw):
+            return 200, "<html>Faça login para continuar</html>", None
+
+        rc = reconfirm_opportunity(_open_row(), http_get=login, offline=False)
+        assert rc.outcome != "ok"
+        assert rc.identity_matched is False
+
+    def test_reconfirm_revoked_with_identity(self):
+        def page(_url, **_kw):
+            return 200, "Edital PNCP-999 foi revogado pelo órgão", None
+
+        row = _open_row(source_id="PNCP-999", numero_controle="PNCP-999")
+        rc = reconfirm_opportunity(row, http_get=page, offline=False)
+        assert rc.identity_matched is True
+        assert rc.status_observed == "revoked"
+
+    def test_reconfirm_offline_no_identity_claim(self):
+        rc = reconfirm_opportunity(_open_row(), offline=True)
+        assert rc.outcome == "skipped_offline_fixture"
+        assert rc.identity_matched is False
 
     def test_high_confidence_open_requires_ok(self):
         snap = build_snapshot(

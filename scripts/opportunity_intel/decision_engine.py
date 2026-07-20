@@ -300,7 +300,13 @@ def decide_opportunity(
 
     temporal = 50
     temporal_notes: list[str] = []
-    if data_encerramento and data_encerramento > now:
+    # Deadline always wins over stale status_canonico==open (DoD decision loop).
+    if data_encerramento and data_encerramento <= now:
+        hard_blockers.append("prazo_encerrado")
+        temporal = 0
+        temporal_notes.append("encerrado_deadline_prevails")
+        rules.append("POLICY:expired_deadline_forces_NO_GO_even_if_status_open")
+    elif data_encerramento and data_encerramento > now:
         days = (data_encerramento - now).days
         if days >= 7:
             temporal += 20
@@ -311,10 +317,11 @@ def decide_opportunity(
         else:
             temporal -= 10
             temporal_notes.append("prazo_urgente")
-    elif data_encerramento and data_encerramento <= now and status != "open":
-        hard_blockers.append("prazo_encerrado")
-        temporal = 0
-        temporal_notes.append("encerrado")
+    else:
+        # Absent deadline is never enough for PARTICIPAR confidence
+        temporal -= 5
+        temporal_notes.append("deadline_ausente")
+        missing.append("data_encerramento")
 
     dims = {
         "data_confidence": DimensionScore("data_confidence", _clamp(data_conf), "confiança dos dados", data_conf_notes),
@@ -364,9 +371,33 @@ def decide_opportunity(
             f"client_fit={client_score} < priority_min_client_fit={priority_min_client_fit}"
         )
 
+    # Offline / fixture reconfirm can never produce operational PARTICIPAR.
+    if reconfirm_status in {"skipped_offline_fixture", "offline_fixture", "test_fixture"}:
+        freshness = "offline_fixture"
+        data_conf_notes.append("offline_reconfirm_not_live")
+        if internal == "GO":
+            internal = "REVIEW"
+            confidence = "LOW"
+            rules.append("POLICY:offline_fixture_blocks_PARTICIPAR")
+            negative.append(
+                "Reconfirmação offline/fixture — PARTICIPAR proibido em execução operacional"
+            )
+
     # stale / unknown / partial / unconfirmed never PARTICIPAR
     if internal == "GO":
-        if status in {"unknown", "partial", "closed", "revoked", "annulled", "failed", "suspended"}:
+        if status in {
+            "unknown",
+            "partial",
+            "closed",
+            "revoked",
+            "annulled",
+            "failed",
+            "suspended",
+            "encerrada",
+            "revogada",
+            "anulada",
+            "suspensa",
+        }:
             internal = "REVIEW"
             confidence = "LOW"
             rules.append("POLICY:status_blocks_PARTICIPAR")
@@ -384,18 +415,28 @@ def decide_opportunity(
             "error",
             "not_attempted",
             "pagination_incomplete",
+            "offline_fixture",
+            "identity_mismatch",
+            "not_found",
+            "ambiguous",
         }:
             internal = "REVIEW"
             confidence = "LOW"
             rules.append("POLICY:unconfirmed_or_stale_blocks_PARTICIPAR")
             negative.append(f"Freshness/reconfirmação={freshness} impede PARTICIPAR")
-        if reconfirm_status not in {"ok", "skipped_offline_fixture"}:
-            # only allow PARTICIPAR with explicit ok reconfirm (or test fixture skip)
-            if reconfirm_status != "skipped_offline_fixture":
-                internal = "REVIEW"
-                confidence = "LOW"
-                rules.append("POLICY:requires_official_reconfirm_for_PARTICIPAR")
-                negative.append("Sem reconfirmação oficial ok — PARTICIPAR bloqueado")
+        # Live PARTICIPAR requires explicit official reconfirm ok with identity proof.
+        # skipped_offline_fixture is NEVER sufficient for operational PARTICIPAR.
+        if reconfirm_status != "ok":
+            internal = "REVIEW"
+            confidence = "LOW"
+            rules.append("POLICY:requires_official_reconfirm_for_PARTICIPAR")
+            negative.append("Sem reconfirmação oficial ok — PARTICIPAR bloqueado")
+        elif not reconfirm.get("identity_matched"):
+            # ok without identity match is not proof of the specific opportunity
+            internal = "REVIEW"
+            confidence = "LOW"
+            rules.append("POLICY:reconfirm_requires_identity_match")
+            negative.append("Reconfirmação sem prova de identidade da oportunidade")
 
     # incomplete material profile → REVIEW (already in compute_ranking for GO)
     if pending_cap and internal == "GO":
@@ -403,10 +444,21 @@ def decide_opportunity(
         confidence = "LOW"
         rules.append("POLICY:pending_profile_to_REVIEW")
 
-    # closed/encerrado out of active snapshot should be NÃO_PARTICIPAR
-    if status in {"closed", "revoked", "annulled", "failed"}:
+    # closed/encerrado/revogado/suspenso → NÃO_PARTICIPAR (hard)
+    if status in {
+        "closed",
+        "revoked",
+        "annulled",
+        "failed",
+        "suspended",
+        "encerrada",
+        "revogada",
+        "anulada",
+        "suspensa",
+    }:
         internal = "NO_GO"
-        hard_blockers.append(f"status_{status}")
+        if f"status_{status}" not in hard_blockers:
+            hard_blockers.append(f"status_{status}")
 
     recommendation = map_internal_to_external(internal)
 
