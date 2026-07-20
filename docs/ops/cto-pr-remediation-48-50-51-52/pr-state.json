@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-07-20T02:14:00Z",
+  "terminal_state": "WAITING_HUMAN",
+  "heads": {
+    "main": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+    "48": "b1bd71d10dcdfa1470417ce3131b1d93e783d0a4",
+    "50": "b73cc2d316c7befca62bbd92992e0765bb28801c",
+    "51": "11ab4b962a487b25e3d1a3afb88b7e09ccd50879",
+    "52": "466fc09dc05a65ba89792d272334b0aa0ed6aa1a"
+  },
+  "bases": {
+    "48": "main",
+    "50": "feat/cto-autopilot-issues-deepseek-20260719",
+    "51": "cto/canary-live-20260719T204106Z",
+    "52": "main"
+  },
+  "recommendations": {
+    "48": "READY_FOR_HUMAN_REVIEW",
+    "50": "BLOCKED_HUMAN",
+    "51": "BLOCKED_HUMAN",
+    "52": "READY_FOR_HUMAN_REVIEW"
+  },
+  "stories": {
+    "50": {
+      "story_id": "ROI-cand-dyn-slice-cb906bb58392",
+      "status": "Draft",
+      "po_validated": false,
+      "qa_verdict": "PENDING",
+      "candidate_id": "cand-dyn-slice:cb906bb58392"
+    },
+    "51": {
+      "story_id": "ROI-cand-dyn-slice-b84aad7b10ee",
+      "status": "Draft",
+      "po_validated": false,
+      "qa_verdict": "PENDING",
+      "candidate_id": "cand-dyn-slice:b84aad7b10ee"
+    }
+  },
+  "next_actions": {
+    "48": "Human review/merge security CTO Autopilot",
+    "50": "@po validate-story-draft ROI-cand-dyn-slice-cb906bb58392 → Ready; independent @qa; do not treat provisional ledger as SDC Done",
+    "51": "Complete #50 SDC first; force-next/rerank so cycle-2 is ranking[0]; @po Ready on ROI-cand-dyn-slice-b84aad7b10ee",
+    "52": "Human review/merge decision-loop semantic fixes"
+  },
+  "merge_order": [
+    48,
+    50,
+    51,
+    52
+  ],
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "95% coverage",
+    "INTEGRATED without main",
+    "story Done without PO+QA",
+    "READY_FOR_HUMAN_REVIEW for incomplete SDC on #50/#51"
+  ],
+  "material": {
+    "48": "authorized test registry, absolute veto, seal publish, dontAsk+strict, aiox_bridge",
+    "50": "run_execution_ledger wired resilient_cycle+crawler_monitor; force-next story Draft",
+    "51": "evidence_reconstruct + rerank exclude cycle-1; cycle-2 story Draft",
+    "52": "expired deadline active-filter; CNPJ identity_mismatch; offline never PARTICIPAR; ledger in decision_pack/weekly"
+  }
+}
