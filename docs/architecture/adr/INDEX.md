@@ -12,6 +12,8 @@
 | ADR-021 | Adapter architecture PNCP 429 fail-closed | **Vigente** |
 | ADR-022 | Client profile sole commercial law | **Vigente** |
 | ADR-023 | Architecture Reset Campaign 2026-07-20 | **Vigente** (charter) |
+| ADR-026 | dbt snapshots rejected without experiment | **Vigente** (REJECTED_WITHOUT_EXPERIMENT) |
+| ADR-027 | Document parser stack deferred (no corpus) | **Vigente** (DEFERRED_NO_CORPUS) |
 
 ## ADRs revogadas / supersedidas
 
