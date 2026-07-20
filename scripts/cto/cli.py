@@ -1187,6 +1187,14 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("refresh-executive", help="Update executive HTML panel")
     sub.add_parser("audit", help="Full local audit snapshot")
     sub.add_parser("deepseek-smoke", help="Live DeepSeek smoke (opt-in)")
+    p_c2 = sub.add_parser(
+        "cycle2-real",
+        help="Second real CTO cycle after rerank (PR #51)",
+    )
+    p_c2.add_argument("--dry-run", action="store_true")
+    p_c2.add_argument("--require-grok", action="store_true")
+    p_c2.add_argument("--cycle-id", default=None)
+    p_c2.add_argument("--cycle1-selected-id", default="cand-dyn-slice:cb906bb58392")
     p_c1 = sub.add_parser(
         "cycle1-real",
         help="First real CTO cycle: ACCEPT_TOP ranking[0] + AIOX bridge (PR #50)",
@@ -1440,6 +1448,7 @@ def main(argv: list[str] | None = None) -> int:
         "audit": cmd_audit,
         "deepseek-smoke": cmd_deepseek_smoke,
         "cycle1-real": cmd_cycle1_real,
+        "cycle2-real": cmd_cycle2_real,
         "canary-live": cmd_canary_live,
     }
     return handlers[args.cmd](args)
@@ -1457,6 +1466,19 @@ def cmd_cycle1_real(args: argparse.Namespace) -> int:
     _print(result)
     return EXIT_OK if result.get("ok") else EXIT_FAILED
 
+
+
+def cmd_cycle2_real(args: argparse.Namespace) -> int:
+    from scripts.cto.cycle2_rerank_integration import run_cycle2_real
+    result = run_cycle2_real(
+        dry_run=bool(getattr(args, "dry_run", False)),
+        require_grok=bool(getattr(args, "require_grok", False)),
+        cycle_id=getattr(args, "cycle_id", None),
+        cycle1_selected_id=str(getattr(args, "cycle1_selected_id", "cand-dyn-slice:cb906bb58392")),
+    )
+    _print(result)
+    return EXIT_OK if result.get("ok") else EXIT_FAILED
+
+
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -1,0 +1,21 @@
+{
+  "cycle_id": "cyc2-real-20260720T014346Z",
+  "parent_cycle_selected": "cand-dyn-slice:cb906bb58392",
+  "selected_id": "cand-dyn-slice:b84aad7b10ee",
+  "excluded": [
+    "cand-dyn-slice:cb906bb58392",
+    "cto-autopilot-infra",
+    "cto-canary-live"
+  ],
+  "ranking_top_ids": [
+    "cand-dyn-slice:cb906bb58392",
+    "cand-dyn-slice:b84aad7b10ee",
+    "cand-dyn-slice:a94b7d79e0a0",
+    "cand-dyn-slice:a60989a8e60e",
+    "cand-dyn-slice:5068b4058697"
+  ],
+  "timestamp_utc": "2026-07-20T01:43:59Z",
+  "head": "bab383a7c6230f537e1c10d344f47835500d8fa8",
+  "chain_sha256": "ee1e0dc0d38143b02def5e96e68802a90c5274ee34a9a3df0ea3b0881ae0baf7",
+  "schema_version": "1.0"
+}

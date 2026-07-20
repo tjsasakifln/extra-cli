@@ -1,0 +1,15 @@
+{
+  "cycle_id": "cyc2-real-20260720T014220Z",
+  "parent_cycle_selected": "cand-dyn-slice:cb906bb58392",
+  "selected_id": null,
+  "excluded": [
+    "cand-dyn-slice:cb906bb58392",
+    "cto-autopilot-infra",
+    "cto-canary-live"
+  ],
+  "ranking_top_ids": [],
+  "timestamp_utc": "2026-07-20T01:42:34Z",
+  "head": "bab383a7c6230f537e1c10d344f47835500d8fa8",
+  "chain_sha256": "6028cadc864a1c10d36100e291a0e120a7bb85488c0d5a23cc4c536e33a965b4",
+  "schema_version": "1.0"
+}
