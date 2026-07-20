@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run-session-20260720-ok",
+  "timestamp_utc": "2026-07-20T11:54:57Z",
+  "command": [
+    "python3 -m scripts.ops.decision_pack"
+  ],
+  "status": "ok",
+  "exit_code": null,
+  "errors": [],
+  "report_paths": [
+    "docs/ops/session-2026-07-20-rastreabilidade-ledger/demo/decision_manifest.json",
+    "docs/ops/session-2026-07-20-rastreabilidade-ledger/demo/brief.md"
+  ],
+  "meta": {
+    "entrypoint": "cli",
+    "source": "run_execution_ledger"
+  },
+  "report_run_links": [
+    {
+      "report": "docs/ops/session-2026-07-20-rastreabilidade-ledger/demo/decision_manifest.json",
+      "run_id": "run-session-20260720-ok"
+    },
+    {
+      "report": "docs/ops/session-2026-07-20-rastreabilidade-ledger/demo/brief.md",
+      "run_id": "run-session-20260720-ok"
+    }
+  ]
+}

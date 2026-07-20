@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run-session-20260720-failed",
+  "timestamp_utc": "2026-07-20T11:54:57Z",
+  "command": [
+    "python3 -m scripts.ops.weekly_cycle"
+  ],
+  "status": "failed",
+  "exit_code": 1,
+  "errors": [
+    "stage:export:failed",
+    "timeout connecting to local db"
+  ],
+  "report_paths": [
+    "docs/ops/session-2026-07-20-rastreabilidade-ledger/demo/weekly_manifest.json"
+  ],
+  "meta": {
+    "entrypoint": "cli",
+    "source": "run_execution_ledger"
+  },
+  "report_run_links": [
+    {
+      "report": "docs/ops/session-2026-07-20-rastreabilidade-ledger/demo/weekly_manifest.json",
+      "run_id": "run-session-20260720-failed"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+pytest_exit=0
+verify_exit=0
+override_reject_exit=2

@@ -3,10 +3,10 @@
   "title": "[29. Rastreabilidade e auditoria] Cada execução possui erros. · Cada relatório referencia runs de origem. · Mudanças manuais são auditáveis. (+5 more)",
   "epic_id": "EPIC-EXTRA-DOD-ROI",
   "risk_level": "HIGH-RISK",
-  "status": "Draft",
+  "status": "InReview",
   "story_file": "docs/stories/ROI-cand-dyn-slice-cb906bb58392.md",
   "created_at": "2026-07-19T13:50:20Z",
-  "updated_at": "2026-07-19T13:50:20Z",
+  "updated_at": "2026-07-20T11:57:50Z",
   "created_by": "extra-dod-roi-force-next",
   "po_validated": false,
   "qa_verdict": "PENDING",
@@ -20,9 +20,9 @@
   ],
   "reviewed_commit": null,
   "gates": {
-    "lint": "PENDING",
-    "typecheck": "PENDING",
-    "tests": "PENDING",
+    "lint": "PASS",
+    "typecheck": "NA",
+    "tests": "PASS",
     "build": "NA"
   },
   "rollback_plan": "Revert last main commit(s) with reverse commit if needed; never force-push; never update DoD on failure.",
@@ -44,5 +44,10 @@
       "PUBLISH",
       "RERANK"
     ]
-  }
+  },
+  "dev_completed_at": "2026-07-20T11:55:40Z",
+  "implementation_notes": "Hardened run_execution_ledger + CLI; 19 tests pass; session evidence pack; DoD flips proposed only pending independent QA. Optional coverage/freshness OPEN.",
+  "evidence_pack": "docs/ops/session-2026-07-20-rastreabilidade-ledger/",
+  "proposed_dod_flips": "docs/ops/session-2026-07-20-rastreabilidade-ledger/proposed-dod-flips.md",
+  "implementation_commit": "b1c21132d68ac3de4b30eb1568326cac7bc3bdfb"
 }
