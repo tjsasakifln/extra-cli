@@ -1,0 +1,3 @@
+source,level,sla_hours,age_hours,indicator
+pncp_opportunities,never,48,,freshness_source
+pncp_contracts,never,168,,freshness_source

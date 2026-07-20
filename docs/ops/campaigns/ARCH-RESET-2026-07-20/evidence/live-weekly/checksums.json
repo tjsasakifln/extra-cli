@@ -1,0 +1,53 @@
+{
+  "schema": "extra-weekly-checksums/1.0",
+  "cycle_id": "weekly-20260720T123255Z-2bd96bbea3",
+  "collection_id": "col-extra-weekly-20260720T123255Z-11535c15",
+  "note": "Hashes of product artifacts only — does not include manifest.json",
+  "artifacts": {
+    "opportunities_csv": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/opportunities.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "contracts_csv": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/contracts.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "competitors_csv": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/competitors.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "orgaos_csv": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/orgaos.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "source_health_csv": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/source_health.csv",
+      "sha256": "2dff7e65407cbced210f1042808d0afb4c10ef0d323227111483e6238db51b70",
+      "bytes": 135
+    },
+    "gaps_csv": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/gaps.csv",
+      "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+      "bytes": 350
+    },
+    "claims_csv": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/claims_provenance.csv",
+      "sha256": "4e35e8335aadb7bff03b5653c288f46fba1fcde5798c3294c7e08349b2d06b0c",
+      "bytes": 1320
+    },
+    "executive_md": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/executive_summary.md",
+      "sha256": "e36d8deb462d0c048a11a58fc9a53d54d2937195a3a125703789ecb7fa85cd10",
+      "bytes": 2768
+    },
+    "excel": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/extra_weekly_pack.xlsx",
+      "sha256": "44abe97aa0b9cc43d0578856294b39f82b404f9caba4ac4eecdb3e4c8d8fca6b",
+      "bytes": 9268
+    }
+  }
+}

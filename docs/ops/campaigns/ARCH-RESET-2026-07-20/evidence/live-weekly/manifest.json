@@ -1,0 +1,482 @@
+{
+  "cycle_id": "weekly-20260720T123255Z-2bd96bbea3",
+  "collection_id": "col-extra-weekly-20260720T123255Z-11535c15",
+  "started_at": "2026-07-20T12:32:55Z",
+  "finished_at": "2026-07-20T12:32:56Z",
+  "exit_code": 2,
+  "git": {
+    "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+    "git_branch": "campaign/arch-reset-live-weekly-proof"
+  },
+  "stages": [
+    {
+      "name": "validate_config",
+      "status": "ok",
+      "detail": {
+        "dsn_host_set": true,
+        "notes": []
+      },
+      "error": null
+    },
+    {
+      "name": "validate_db",
+      "status": "warn",
+      "detail": {
+        "tables": {
+          "sc_public_entities": true,
+          "opportunity_intel": true,
+          "opportunity_runs": true,
+          "pipeline_runs": true,
+          "pncp_supplier_contracts": true
+        },
+        "universe_200km": 0,
+        "expected_universe": 1093
+      },
+      "error": "universe_200km=0 != 1093 (scope drift)"
+    },
+    {
+      "name": "freshness",
+      "status": "warn",
+      "detail": {
+        "sources": [
+          {
+            "source": "pncp_opportunities",
+            "level": "never",
+            "sla_hours": 48,
+            "age_hours": null,
+            "indicator": "freshness_source"
+          },
+          {
+            "source": "pncp_contracts",
+            "level": "never",
+            "sla_hours": 168,
+            "indicator": "freshness_source"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "collect",
+      "status": "ok",
+      "detail": {
+        "runs": [
+          {
+            "run_id": "collect-pncp_opportunities-20260720T123255Z-e771831fa9",
+            "collection_id": "col-extra-weekly-20260720T123255Z-11535c15",
+            "source": "pncp_opportunities",
+            "collector_version": "weekly-cycle/1.0",
+            "parameters": {},
+            "period_start": null,
+            "period_end": null,
+            "started_at": "2026-07-20T12:32:55.644063Z",
+            "finished_at": "2026-07-20T12:32:55.644087Z",
+            "terminal_status": "reused_fresh",
+            "records_obtained": 0,
+            "records_rejected": 0,
+            "records_persisted": 0,
+            "watermark": null,
+            "raw_uri": null,
+            "content_hashes": [],
+            "terminal_error": null,
+            "request_completed": true,
+            "scope_complete": true,
+            "source_available": true,
+            "mode": "offline_test",
+            "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+            "notes": [
+              "offline test mode — no network"
+            ],
+            "contract_version": "1.0",
+            "payload_hash": "f55eddcb0167203017c9b2397167152f681ac66320fcb1a673fb9a0d1c12acb8"
+          },
+          {
+            "run_id": "collect-pncp_contracts-20260720T123255Z-1ffa9ff606",
+            "collection_id": "col-extra-weekly-20260720T123255Z-11535c15",
+            "source": "pncp_contracts",
+            "collector_version": "weekly-cycle/1.0",
+            "parameters": {
+              "strategy": "reuse_lake_with_freshness_declaration"
+            },
+            "period_start": null,
+            "period_end": null,
+            "started_at": "2026-07-20T12:32:55.810260Z",
+            "finished_at": "2026-07-20T12:32:55.810284Z",
+            "terminal_status": "failure",
+            "records_obtained": 0,
+            "records_rejected": 0,
+            "records_persisted": 0,
+            "watermark": null,
+            "raw_uri": null,
+            "content_hashes": [],
+            "terminal_error": "no contracts in lake",
+            "request_completed": false,
+            "scope_complete": false,
+            "source_available": true,
+            "mode": "reuse",
+            "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+            "notes": [],
+            "contract_version": "1.0",
+            "payload_hash": "52004c36149f33c82ffe6405c31b913a90225b7bd903310ea86096250fe937dd"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "process",
+      "status": "ok",
+      "detail": {
+        "note": "PNCP opportunity crawler normalizes into opportunity_intel; contracts already canonical in pncp_supplier_contracts"
+      },
+      "error": null
+    },
+    {
+      "name": "quality",
+      "status": "ok",
+      "detail": {
+        "catalog_size": 9,
+        "opportunity_counts": {
+          "open_n": 0,
+          "active_n": 0,
+          "go_n": 0,
+          "review_n": 0,
+          "nogo_n": 0
+        },
+        "issues": [],
+        "runs": [
+          "reused_fresh",
+          "failure"
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "intelligence",
+      "status": "warn",
+      "detail": {
+        "opportunities": [],
+        "contracts": [],
+        "competitors": [],
+        "orgaos": [],
+        "counts": {
+          "opportunities": 0,
+          "contracts": 0,
+          "competitors": 0,
+          "orgaos": 0
+        },
+        "scope": "extra_universe_200km"
+      },
+      "error": null
+    },
+    {
+      "name": "delivery",
+      "status": "ok",
+      "detail": {
+        "executive_md": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/executive_summary.md",
+        "excel": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/extra_weekly_pack.xlsx",
+        "excel_ok": true,
+        "excel_note": "",
+        "pdf": null,
+        "pdf_status": "RESIDUAL_NOT_GENERATED",
+        "csvs": {
+          "opportunities_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/opportunities.csv",
+          "contracts_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/contracts.csv",
+          "competitors_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/competitors.csv",
+          "orgaos_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/orgaos.csv",
+          "source_health_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/source_health.csv",
+          "gaps_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/gaps.csv",
+          "claims_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/claims_provenance.csv"
+        },
+        "checksums_file": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/checksums.json",
+        "checksums_file_meta": {
+          "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/checksums.json",
+          "sha256": "874b1ff47482e41bbadb7a5acaec7a90c39610735babcdf80c7333b68d11528f",
+          "bytes": 2309
+        },
+        "product_checksums": {
+          "opportunities_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/opportunities.csv",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "contracts_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/contracts.csv",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "competitors_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/competitors.csv",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "orgaos_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/orgaos.csv",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "source_health_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/source_health.csv",
+            "sha256": "2dff7e65407cbced210f1042808d0afb4c10ef0d323227111483e6238db51b70",
+            "bytes": 135
+          },
+          "gaps_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/gaps.csv",
+            "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+            "bytes": 350
+          },
+          "claims_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/claims_provenance.csv",
+            "sha256": "4e35e8335aadb7bff03b5653c288f46fba1fcde5798c3294c7e08349b2d06b0c",
+            "bytes": 1320
+          },
+          "executive_md": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/executive_summary.md",
+            "sha256": "e36d8deb462d0c048a11a58fc9a53d54d2937195a3a125703789ecb7fa85cd10",
+            "bytes": 2768
+          },
+          "excel": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/extra_weekly_pack.xlsx",
+            "sha256": "44abe97aa0b9cc43d0578856294b39f82b404f9caba4ac4eecdb3e4c8d8fca6b",
+            "bytes": 9268
+          }
+        },
+        "claims_count": 4
+      },
+      "error": null
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "collect-pncp_opportunities-20260720T123255Z-e771831fa9",
+      "collection_id": "col-extra-weekly-20260720T123255Z-11535c15",
+      "source": "pncp_opportunities",
+      "collector_version": "weekly-cycle/1.0",
+      "parameters": {},
+      "period_start": null,
+      "period_end": null,
+      "started_at": "2026-07-20T12:32:55.644063Z",
+      "finished_at": "2026-07-20T12:32:55.644087Z",
+      "terminal_status": "reused_fresh",
+      "records_obtained": 0,
+      "records_rejected": 0,
+      "records_persisted": 0,
+      "watermark": null,
+      "raw_uri": null,
+      "content_hashes": [],
+      "terminal_error": null,
+      "request_completed": true,
+      "scope_complete": true,
+      "source_available": true,
+      "mode": "offline_test",
+      "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+      "notes": [
+        "offline test mode — no network"
+      ],
+      "contract_version": "1.0",
+      "payload_hash": "f55eddcb0167203017c9b2397167152f681ac66320fcb1a673fb9a0d1c12acb8"
+    },
+    {
+      "run_id": "collect-pncp_contracts-20260720T123255Z-1ffa9ff606",
+      "collection_id": "col-extra-weekly-20260720T123255Z-11535c15",
+      "source": "pncp_contracts",
+      "collector_version": "weekly-cycle/1.0",
+      "parameters": {
+        "strategy": "reuse_lake_with_freshness_declaration"
+      },
+      "period_start": null,
+      "period_end": null,
+      "started_at": "2026-07-20T12:32:55.810260Z",
+      "finished_at": "2026-07-20T12:32:55.810284Z",
+      "terminal_status": "failure",
+      "records_obtained": 0,
+      "records_rejected": 0,
+      "records_persisted": 0,
+      "watermark": null,
+      "raw_uri": null,
+      "content_hashes": [],
+      "terminal_error": "no contracts in lake",
+      "request_completed": false,
+      "scope_complete": false,
+      "source_available": true,
+      "mode": "reuse",
+      "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+      "notes": [],
+      "contract_version": "1.0",
+      "payload_hash": "52004c36149f33c82ffe6405c31b913a90225b7bd903310ea86096250fe937dd"
+    }
+  ],
+  "freshness": [
+    {
+      "source": "pncp_opportunities",
+      "level": "never",
+      "sla_hours": 48,
+      "age_hours": null,
+      "indicator": "freshness_source"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "never",
+      "sla_hours": 168,
+      "indicator": "freshness_source"
+    }
+  ],
+  "source_health": [
+    {
+      "source": "pncp_opportunities",
+      "level": "never",
+      "sla_hours": 48,
+      "age_hours": null,
+      "indicator": "freshness_source"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "never",
+      "sla_hours": 168,
+      "indicator": "freshness_source"
+    }
+  ],
+  "gaps": [
+    {
+      "gap": "no_GO_rankings",
+      "detail": "Nenhuma oportunidade com ranking efetivo GO — revisar perfil Extra / fatores"
+    },
+    {
+      "gap": "editais_coverage_below_95",
+      "detail": "Cobertura de editais permanece abaixo de 95% — não claim nesta campanha"
+    },
+    {
+      "gap": "recall_independent_unproven",
+      "detail": "Recall independente estratificado não comprovado"
+    },
+    {
+      "gap": "official_acts_empty",
+      "detail": "Tabela official_acts vazia no lake local"
+    }
+  ],
+  "products": {
+    "executive_md": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/executive_summary.md",
+    "excel": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/extra_weekly_pack.xlsx",
+    "excel_ok": true,
+    "excel_note": "",
+    "pdf": null,
+    "pdf_status": "RESIDUAL_NOT_GENERATED",
+    "csvs": {
+      "opportunities_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/opportunities.csv",
+      "contracts_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/contracts.csv",
+      "competitors_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/competitors.csv",
+      "orgaos_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/orgaos.csv",
+      "source_health_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/source_health.csv",
+      "gaps_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/gaps.csv",
+      "claims_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/claims_provenance.csv"
+    },
+    "checksums_file": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/checksums.json",
+    "checksums_file_meta": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/checksums.json",
+      "sha256": "874b1ff47482e41bbadb7a5acaec7a90c39610735babcdf80c7333b68d11528f",
+      "bytes": 2309
+    },
+    "product_checksums": {
+      "opportunities_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/opportunities.csv",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "contracts_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/contracts.csv",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "competitors_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/competitors.csv",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "orgaos_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/orgaos.csv",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "source_health_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/source_health.csv",
+        "sha256": "2dff7e65407cbced210f1042808d0afb4c10ef0d323227111483e6238db51b70",
+        "bytes": 135
+      },
+      "gaps_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/gaps.csv",
+        "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+        "bytes": 350
+      },
+      "claims_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/claims_provenance.csv",
+        "sha256": "4e35e8335aadb7bff03b5653c288f46fba1fcde5798c3294c7e08349b2d06b0c",
+        "bytes": 1320
+      },
+      "executive_md": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/executive_summary.md",
+        "sha256": "e36d8deb462d0c048a11a58fc9a53d54d2937195a3a125703789ecb7fa85cd10",
+        "bytes": 2768
+      },
+      "excel": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/extra_weekly_pack.xlsx",
+        "sha256": "44abe97aa0b9cc43d0578856294b39f82b404f9caba4ac4eecdb3e4c8d8fca6b",
+        "bytes": 9268
+      }
+    },
+    "claims_count": 4,
+    "manifest": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly/manifest.json",
+    "manifest_integrity": "product hashes live in checksums.json; manifest is not self-hashed"
+  },
+  "intelligence": {
+    "counts": {
+      "opportunities": 0,
+      "contracts": 0,
+      "competitors": 0,
+      "orgaos": 0
+    }
+  },
+  "claims_allowed": [
+    "Pacote semanal gerado por make extra-weekly / scripts.ops.weekly_cycle",
+    "Oportunidades e contratos com proveniência de run/collection quando disponível",
+    "Freshness declarado por fonte com SLA",
+    "Valores com semântica explícita (estimado vs contratado; nunca como pago)"
+  ],
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "PRE_VPS_FINAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "cobertura operacional 95%",
+    "recall independente 95%",
+    "proxy de contratos = cobertura completa",
+    "score = probabilidade",
+    "valor contratado = valor pago",
+    "PDF fixture como produto operacional"
+  ],
+  "limitations": [
+    "Este pacote não declara LOCAL_READY, cobertura operacional 95% nem recall independente.",
+    "Ranking GO/REVIEW/NO_GO é triagem interna, não probabilidade calibrada.",
+    "valor_estimado ≠ valor_homologado ≠ valor pago/medido.",
+    "PDF multi-página real permanece residual nesta campanha.",
+    "Contratos no ciclo semanal reutilizam o lake com declaração de freshness (re-coleta completa de 499k+ linhas está fora do orçamento do ciclo).",
+    "Universo canônico = entidades raio 200 km (meta 1093).",
+    "Fonte pncp_opportunities reutilizada dentro do SLA (sem nova chamada oficial).",
+    "Fonte pncp_contracts em estado failure.",
+    "Freshness pncp_opportunities=never.",
+    "Freshness pncp_contracts=never."
+  ],
+  "human_accept": {
+    "status": "PENDING_HUMAN",
+    "owner": "Tiago",
+    "required_reviews": [
+      "executive_summary",
+      "opportunities",
+      "contracts_sample",
+      "competitors",
+      "values_semantics",
+      "limitations"
+    ],
+    "note": "Ausência de manifestação não é aceite"
+  },
+  "duration_seconds": 0.88
+}

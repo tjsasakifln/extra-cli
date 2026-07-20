@@ -1,0 +1,541 @@
+{
+  "cycle_id": "weekly-20260720T123303Z-da1515c9a6",
+  "collection_id": "col-extra-weekly-20260720T123303Z-1bce5af6",
+  "started_at": "2026-07-20T12:33:03Z",
+  "finished_at": "2026-07-20T12:34:54Z",
+  "exit_code": 0,
+  "git": {
+    "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+    "git_branch": "campaign/arch-reset-live-weekly-proof"
+  },
+  "stages": [
+    {
+      "name": "validate_config",
+      "status": "ok",
+      "detail": {
+        "dsn_host_set": true,
+        "notes": []
+      },
+      "error": null
+    },
+    {
+      "name": "validate_db",
+      "status": "warn",
+      "detail": {
+        "tables": {
+          "sc_public_entities": true,
+          "opportunity_intel": true,
+          "opportunity_runs": true,
+          "pipeline_runs": true,
+          "pncp_supplier_contracts": true
+        },
+        "universe_200km": 0,
+        "expected_universe": 1093
+      },
+      "error": "universe_200km=0 != 1093 (scope drift)"
+    },
+    {
+      "name": "freshness",
+      "status": "warn",
+      "detail": {
+        "sources": [
+          {
+            "source": "pncp_opportunities",
+            "level": "never",
+            "sla_hours": 48,
+            "age_hours": null,
+            "indicator": "freshness_source"
+          },
+          {
+            "source": "pncp_contracts",
+            "level": "never",
+            "sla_hours": 168,
+            "indicator": "freshness_source"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "collect",
+      "status": "ok",
+      "detail": {
+        "runs": [
+          {
+            "run_id": "collect-pncp_opportunities-20260720T123304Z-a82a1defae",
+            "collection_id": "col-extra-weekly-20260720T123303Z-1bce5af6",
+            "source": "pncp_opportunities",
+            "collector_version": "weekly-cycle/1.0",
+            "parameters": {
+              "lookback_days": 7,
+              "force_collect": true,
+              "skip_collect": false
+            },
+            "period_start": "2026-07-13",
+            "period_end": "2026-07-20",
+            "started_at": "2026-07-20T12:33:04.078829Z",
+            "finished_at": "2026-07-20T12:34:54.245777Z",
+            "terminal_status": "success",
+            "records_obtained": 32,
+            "records_rejected": 0,
+            "records_persisted": 0,
+            "watermark": "period:2026-07-13:2026-07-20",
+            "raw_uri": "api://pncp.gov.br/api/consulta/v1/contratacoes/proposta",
+            "content_hashes": [],
+            "terminal_error": null,
+            "request_completed": true,
+            "scope_complete": true,
+            "source_available": true,
+            "mode": "incremental",
+            "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+            "notes": [
+              "modalidades_ok=19/19"
+            ],
+            "contract_version": "1.0",
+            "payload_hash": "0eccf5985325a5be306dd7759d9487958fde9b346da06c9d7dc46a41a866e9e7"
+          },
+          {
+            "run_id": "collect-pncp_contracts-20260720T123454Z-49f7a79ec5",
+            "collection_id": "col-extra-weekly-20260720T123303Z-1bce5af6",
+            "source": "pncp_contracts",
+            "collector_version": "weekly-cycle/1.0",
+            "parameters": {
+              "strategy": "reuse_lake_with_freshness_declaration"
+            },
+            "period_start": null,
+            "period_end": null,
+            "started_at": "2026-07-20T12:34:54.414996Z",
+            "finished_at": "2026-07-20T12:34:54.415024Z",
+            "terminal_status": "failure",
+            "records_obtained": 0,
+            "records_rejected": 0,
+            "records_persisted": 0,
+            "watermark": null,
+            "raw_uri": null,
+            "content_hashes": [],
+            "terminal_error": "no contracts in lake",
+            "request_completed": false,
+            "scope_complete": false,
+            "source_available": true,
+            "mode": "reuse",
+            "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+            "notes": [],
+            "contract_version": "1.0",
+            "payload_hash": "d0872fb58801a1d0c15dca5830cb397ad16f252cc6ec7ede3ad8c41c126f883e"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "process",
+      "status": "ok",
+      "detail": {
+        "note": "PNCP opportunity crawler normalizes into opportunity_intel; contracts already canonical in pncp_supplier_contracts"
+      },
+      "error": null
+    },
+    {
+      "name": "quality",
+      "status": "ok",
+      "detail": {
+        "catalog_size": 9,
+        "opportunity_counts": {
+          "open_n": 1,
+          "active_n": 32,
+          "go_n": 0,
+          "review_n": 1,
+          "nogo_n": 31
+        },
+        "issues": [],
+        "runs": [
+          "success",
+          "failure"
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "intelligence",
+      "status": "ok",
+      "detail": {
+        "opportunities": [
+          {
+            "id": 32,
+            "source": "pncp",
+            "source_id": "83102517000119-1-000055/2025",
+            "numero_controle_pncp": "83102517000119-1-000055/2025",
+            "orgao_cnpj": "83102517000119",
+            "orgao_nome": "MUNICIPIO DE ITAIOPOLIS",
+            "municipio": "Itaiópolis",
+            "uf": "SC",
+            "objeto": "Credenciamento de emissora(s) de rádio com difusão FM para divulgação de matérias institucionais, eventos, entrevistas, campanhas educativas e informativas, publicações legais e demais informações da Administração Municipal.",
+            "modalidade": "Credenciamento",
+            "valor_estimado": "142199.04",
+            "valor_semantica": "valor_total_estimado_informado_pelo_pncp",
+            "status_canonico": "open",
+            "ranking": "REVIEW",
+            "ranking_score": 69,
+            "ranking_confianca": "LOW",
+            "data_publicacao": "2025-07-21 00:00:00+00:00",
+            "data_abertura": "2025-07-21 00:00:00+00:00",
+            "data_encerramento": "2026-07-21 00:00:00+00:00",
+            "link_edital": null,
+            "run_id": 12,
+            "crawl_batch_id": null,
+            "proveniencia": {
+              "source": "pncp",
+              "all_fields": "pncp_api",
+              "status_evidence": "source_and_dates"
+            },
+            "last_seen_source_run_id": null,
+            "ingested_at": "2026-07-20 12:34:17.833315+00:00",
+            "updated_at": "2026-07-20 12:34:17.833315+00:00",
+            "essential_gaps": [],
+            "ranking_effective": "REVIEW",
+            "ranking_note": null,
+            "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
+            "valor_nao_e_pago": true,
+            "cycle_collection_id": "col-extra-weekly-20260720T123303Z-1bce5af6",
+            "cycle_run_id": "collect-pncp_opportunities-20260720T123304Z-a82a1defae",
+            "source_record_run_id": 12,
+            "scope": "extra_sc_or_universe_200km"
+          }
+        ],
+        "contracts": [],
+        "competitors": [],
+        "orgaos": [
+          {
+            "orgao_cnpj": "83102517000119",
+            "orgao_nome": "MUNICIPIO DE ITAIOPOLIS",
+            "uf": "SC",
+            "municipio": "Itaiópolis",
+            "n_opp": 1,
+            "cycle_collection_id": "col-extra-weekly-20260720T123303Z-1bce5af6",
+            "scope": "extra_sc_or_universe_200km"
+          }
+        ],
+        "counts": {
+          "opportunities": 1,
+          "contracts": 0,
+          "competitors": 0,
+          "orgaos": 1
+        },
+        "scope": "extra_universe_200km"
+      },
+      "error": null
+    },
+    {
+      "name": "delivery",
+      "status": "ok",
+      "detail": {
+        "executive_md": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/executive_summary.md",
+        "excel": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/extra_weekly_pack.xlsx",
+        "excel_ok": true,
+        "excel_note": "",
+        "pdf": null,
+        "pdf_status": "RESIDUAL_NOT_GENERATED",
+        "csvs": {
+          "opportunities_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/opportunities.csv",
+          "contracts_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/contracts.csv",
+          "competitors_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/competitors.csv",
+          "orgaos_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/orgaos.csv",
+          "source_health_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/source_health.csv",
+          "gaps_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/gaps.csv",
+          "claims_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/claims_provenance.csv"
+        },
+        "checksums_file": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/checksums.json",
+        "checksums_file_meta": {
+          "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/checksums.json",
+          "sha256": "4ceea6f190cf45326cbad837fa874f22f719a8fff6dbb4014257c506471b8571",
+          "bytes": 2387
+        },
+        "product_checksums": {
+          "opportunities_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/opportunities.csv",
+            "sha256": "d9bf0ba6b5469491fafa0bb060ae461e61ae1c42aba8da457e57724257b51025",
+            "bytes": 1335
+          },
+          "contracts_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/contracts.csv",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "competitors_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/competitors.csv",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "orgaos_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/orgaos.csv",
+            "sha256": "8a081f08bc9abf307dbc2955ba6cde02d8540922bd1a28216641ac96c99d82c6",
+            "bytes": 195
+          },
+          "source_health_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/source_health.csv",
+            "sha256": "2dff7e65407cbced210f1042808d0afb4c10ef0d323227111483e6238db51b70",
+            "bytes": 135
+          },
+          "gaps_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/gaps.csv",
+            "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+            "bytes": 350
+          },
+          "claims_csv": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/claims_provenance.csv",
+            "sha256": "ca1fe071ef29ab1662775f41cd4088cdb7d547515fa7e7d12c5834d53414d5e8",
+            "bytes": 1719
+          },
+          "executive_md": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/executive_summary.md",
+            "sha256": "a2c04e2a189733e9d8bf3cd6c4c07334866af2828e1ae91f1299a44f7b3235ad",
+            "bytes": 2848
+          },
+          "excel": {
+            "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/extra_weekly_pack.xlsx",
+            "sha256": "2d1a159e1ee714166256ab674bd4356aa73e1088e2734e9f401f3205fb424a6b",
+            "bytes": 10400
+          }
+        },
+        "claims_count": 5
+      },
+      "error": null
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "collect-pncp_opportunities-20260720T123304Z-a82a1defae",
+      "collection_id": "col-extra-weekly-20260720T123303Z-1bce5af6",
+      "source": "pncp_opportunities",
+      "collector_version": "weekly-cycle/1.0",
+      "parameters": {
+        "lookback_days": 7,
+        "force_collect": true,
+        "skip_collect": false
+      },
+      "period_start": "2026-07-13",
+      "period_end": "2026-07-20",
+      "started_at": "2026-07-20T12:33:04.078829Z",
+      "finished_at": "2026-07-20T12:34:54.245777Z",
+      "terminal_status": "success",
+      "records_obtained": 32,
+      "records_rejected": 0,
+      "records_persisted": 0,
+      "watermark": "period:2026-07-13:2026-07-20",
+      "raw_uri": "api://pncp.gov.br/api/consulta/v1/contratacoes/proposta",
+      "content_hashes": [],
+      "terminal_error": null,
+      "request_completed": true,
+      "scope_complete": true,
+      "source_available": true,
+      "mode": "incremental",
+      "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+      "notes": [
+        "modalidades_ok=19/19"
+      ],
+      "contract_version": "1.0",
+      "payload_hash": "0eccf5985325a5be306dd7759d9487958fde9b346da06c9d7dc46a41a866e9e7"
+    },
+    {
+      "run_id": "collect-pncp_contracts-20260720T123454Z-49f7a79ec5",
+      "collection_id": "col-extra-weekly-20260720T123303Z-1bce5af6",
+      "source": "pncp_contracts",
+      "collector_version": "weekly-cycle/1.0",
+      "parameters": {
+        "strategy": "reuse_lake_with_freshness_declaration"
+      },
+      "period_start": null,
+      "period_end": null,
+      "started_at": "2026-07-20T12:34:54.414996Z",
+      "finished_at": "2026-07-20T12:34:54.415024Z",
+      "terminal_status": "failure",
+      "records_obtained": 0,
+      "records_rejected": 0,
+      "records_persisted": 0,
+      "watermark": null,
+      "raw_uri": null,
+      "content_hashes": [],
+      "terminal_error": "no contracts in lake",
+      "request_completed": false,
+      "scope_complete": false,
+      "source_available": true,
+      "mode": "reuse",
+      "git_sha": "d6d9e1984e348d64a669546613e192e4ebf610cd",
+      "notes": [],
+      "contract_version": "1.0",
+      "payload_hash": "d0872fb58801a1d0c15dca5830cb397ad16f252cc6ec7ede3ad8c41c126f883e"
+    }
+  ],
+  "freshness": [
+    {
+      "source": "pncp_opportunities",
+      "level": "never",
+      "sla_hours": 48,
+      "age_hours": null,
+      "indicator": "freshness_source"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "never",
+      "sla_hours": 168,
+      "indicator": "freshness_source"
+    }
+  ],
+  "source_health": [
+    {
+      "source": "pncp_opportunities",
+      "level": "never",
+      "sla_hours": 48,
+      "age_hours": null,
+      "indicator": "freshness_source"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "never",
+      "sla_hours": 168,
+      "indicator": "freshness_source"
+    }
+  ],
+  "gaps": [
+    {
+      "gap": "no_GO_rankings",
+      "detail": "Nenhuma oportunidade com ranking efetivo GO — revisar perfil Extra / fatores"
+    },
+    {
+      "gap": "editais_coverage_below_95",
+      "detail": "Cobertura de editais permanece abaixo de 95% — não claim nesta campanha"
+    },
+    {
+      "gap": "recall_independent_unproven",
+      "detail": "Recall independente estratificado não comprovado"
+    },
+    {
+      "gap": "official_acts_empty",
+      "detail": "Tabela official_acts vazia no lake local"
+    }
+  ],
+  "products": {
+    "executive_md": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/executive_summary.md",
+    "excel": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/extra_weekly_pack.xlsx",
+    "excel_ok": true,
+    "excel_note": "",
+    "pdf": null,
+    "pdf_status": "RESIDUAL_NOT_GENERATED",
+    "csvs": {
+      "opportunities_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/opportunities.csv",
+      "contracts_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/contracts.csv",
+      "competitors_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/competitors.csv",
+      "orgaos_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/orgaos.csv",
+      "source_health_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/source_health.csv",
+      "gaps_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/gaps.csv",
+      "claims_csv": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/claims_provenance.csv"
+    },
+    "checksums_file": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/checksums.json",
+    "checksums_file_meta": {
+      "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/checksums.json",
+      "sha256": "4ceea6f190cf45326cbad837fa874f22f719a8fff6dbb4014257c506471b8571",
+      "bytes": 2387
+    },
+    "product_checksums": {
+      "opportunities_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/opportunities.csv",
+        "sha256": "d9bf0ba6b5469491fafa0bb060ae461e61ae1c42aba8da457e57724257b51025",
+        "bytes": 1335
+      },
+      "contracts_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/contracts.csv",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "competitors_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/competitors.csv",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "orgaos_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/orgaos.csv",
+        "sha256": "8a081f08bc9abf307dbc2955ba6cde02d8540922bd1a28216641ac96c99d82c6",
+        "bytes": 195
+      },
+      "source_health_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/source_health.csv",
+        "sha256": "2dff7e65407cbced210f1042808d0afb4c10ef0d323227111483e6238db51b70",
+        "bytes": 135
+      },
+      "gaps_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/gaps.csv",
+        "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+        "bytes": 350
+      },
+      "claims_csv": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/claims_provenance.csv",
+        "sha256": "ca1fe071ef29ab1662775f41cd4088cdb7d547515fa7e7d12c5834d53414d5e8",
+        "bytes": 1719
+      },
+      "executive_md": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/executive_summary.md",
+        "sha256": "a2c04e2a189733e9d8bf3cd6c4c07334866af2828e1ae91f1299a44f7b3235ad",
+        "bytes": 2848
+      },
+      "excel": {
+        "path": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/extra_weekly_pack.xlsx",
+        "sha256": "2d1a159e1ee714166256ab674bd4356aa73e1088e2734e9f401f3205fb424a6b",
+        "bytes": 10400
+      }
+    },
+    "claims_count": 5,
+    "manifest": "docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/live-weekly-collect/manifest.json",
+    "manifest_integrity": "product hashes live in checksums.json; manifest is not self-hashed"
+  },
+  "intelligence": {
+    "counts": {
+      "opportunities": 1,
+      "contracts": 0,
+      "competitors": 0,
+      "orgaos": 1
+    }
+  },
+  "claims_allowed": [
+    "Pacote semanal gerado por make extra-weekly / scripts.ops.weekly_cycle",
+    "Oportunidades e contratos com proveniência de run/collection quando disponível",
+    "Freshness declarado por fonte com SLA",
+    "Valores com semântica explícita (estimado vs contratado; nunca como pago)"
+  ],
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "PRE_VPS_FINAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "cobertura operacional 95%",
+    "recall independente 95%",
+    "proxy de contratos = cobertura completa",
+    "score = probabilidade",
+    "valor contratado = valor pago",
+    "PDF fixture como produto operacional"
+  ],
+  "limitations": [
+    "Este pacote não declara LOCAL_READY, cobertura operacional 95% nem recall independente.",
+    "Ranking GO/REVIEW/NO_GO é triagem interna, não probabilidade calibrada.",
+    "valor_estimado ≠ valor_homologado ≠ valor pago/medido.",
+    "PDF multi-página real permanece residual nesta campanha.",
+    "Contratos no ciclo semanal reutilizam o lake com declaração de freshness (re-coleta completa de 499k+ linhas está fora do orçamento do ciclo).",
+    "Universo canônico = entidades raio 200 km (meta 1093).",
+    "Fonte pncp_contracts em estado failure.",
+    "Freshness pncp_opportunities=never.",
+    "Freshness pncp_contracts=never."
+  ],
+  "human_accept": {
+    "status": "PENDING_HUMAN",
+    "owner": "Tiago",
+    "required_reviews": [
+      "executive_summary",
+      "opportunities",
+      "contracts_sample",
+      "competitors",
+      "values_semantics",
+      "limitations"
+    ],
+    "note": "Ausência de manifestação não é aceite"
+  },
+  "duration_seconds": 110.98
+}
