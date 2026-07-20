@@ -29,7 +29,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import subprocess
 import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field
@@ -1384,16 +1383,64 @@ def file_sha256(path: Path | str) -> str:
     return sha256_file(path)
 
 
+def _resolve_git_dir(root: Path) -> Path | None:
+    """Resolve .git directory, including git-worktree pointer files."""
+    git_path = root / ".git"
+    if git_path.is_dir():
+        return git_path
+    if git_path.is_file():
+        try:
+            content = git_path.read_text(encoding="utf-8").strip()
+        except OSError:
+            return None
+        if content.startswith("gitdir:"):
+            target = content.split(":", 1)[1].strip()
+            path = Path(target)
+            if not path.is_absolute():
+                path = (root / path).resolve()
+            return path if path.is_dir() else None
+    return None
+
+
 def _git_sha() -> str:
+    """Resolve HEAD without shelling out (ruff S603/S607 safe)."""
+    git_dir = _resolve_git_dir(_PROJECT_ROOT)
+    if git_dir is None:
+        return "unknown"
     try:
-        out = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
-            cwd=_PROJECT_ROOT,
-            stderr=subprocess.DEVNULL,
-            text=True,
-        )
-        return out.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        head_path = git_dir / "HEAD"
+        if not head_path.is_file():
+            return "unknown"
+        head = head_path.read_text(encoding="utf-8").strip()
+        if head.startswith("ref:"):
+            ref = head.split(":", 1)[1].strip()
+            ref_path = git_dir / ref
+            if ref_path.is_file():
+                return ref_path.read_text(encoding="utf-8").strip()
+            # Common refs may live in the main repo for worktrees
+            common = git_dir / "commondir"
+            search_roots = [git_dir]
+            if common.is_file():
+                common_dir = Path(common.read_text(encoding="utf-8").strip())
+                if not common_dir.is_absolute():
+                    common_dir = (git_dir / common_dir).resolve()
+                search_roots.append(common_dir)
+                ref_path = common_dir / ref
+                if ref_path.is_file():
+                    return ref_path.read_text(encoding="utf-8").strip()
+            for base in search_roots:
+                packed = base / "packed-refs"
+                if not packed.is_file():
+                    continue
+                for line in packed.read_text(encoding="utf-8").splitlines():
+                    if line.startswith("#") or not line.strip():
+                        continue
+                    parts = line.split()
+                    if len(parts) == 2 and parts[1] == ref:
+                        return parts[0]
+            return "unknown"
+        return head
+    except OSError:
         return "unknown"
 
 
