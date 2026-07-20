@@ -1,0 +1,90 @@
+# Quality Gate — ROI-cand-dyn-slice-cb906bb58392
+schema: 1
+storyId: ROI-cand-dyn-slice-cb906bb58392
+story_file: docs/stories/ROI-cand-dyn-slice-cb906bb58392.md
+cycle_id: cyc-2026-07-19T135019Z
+candidate_id: "cand-dyn-slice:cb906bb58392"
+verdict: CONCERNS
+reviewer: "Quinn (@qa) / independent adversarial auditor"
+implementer: "@dev (Dex)"
+reviewed_at: "2026-07-20T12:15:00Z"
+reviewed_commit: "880bc00fe95eb52ae8bfa76c2dbbe6a65f4f6da7"
+self_qa: false
+evidence_pack: docs/ops/session-2026-07-20-rastreabilidade-ledger/
+qa_verdict_md: docs/ops/session-2026-07-20-rastreabilidade-ledger/QA-VERDICT.md
+
+gates:
+  tests: PASS
+  lint: PASS
+  typecheck: NA
+  build: NA
+
+checks:
+  - id: pytest-ledger-suite
+    result: PASS
+    evidence: "pytest tests/test_run_execution_ledger.py tests/test_manual_override_ledger.py -q --tb=short --no-cov → 19 passed (QA re-run)"
+  - id: ruff-touched
+    result: PASS
+    evidence: "ruff check run_execution_ledger + manual_override_ledger + tests → All checks passed"
+  - id: cli-help-and-verify
+    result: PASS
+    evidence: "python3 -m scripts.ops.run_execution_ledger --help; demo verify ok=true n_runs=2"
+  - id: fail-closed-override-motivo-data-autor
+    result: PASS
+    evidence: "blank autor/motivo → rc=2; blank data → ValueError; blank mutation actor → rc=2"
+  - id: errors-always-present
+    result: PASS
+    evidence: "record_execution always writes errors list (empty on ok); sample-ledger + tests"
+  - id: report-run-links
+    result: PASS
+    evidence: "report_run_links per report_path; decision_pack + weekly_cycle wire report_paths"
+  - id: items-7-8-open
+    result: PASS
+    evidence: "coverage/freshness reconstruct remain [ ] — not flipped"
+  - id: no-false-claims
+    result: PASS
+    evidence: "No LOCAL_READY / 95% / PRE_VPS / full §29 complete claims"
+  - id: soft-fail-audit-loss
+    result: CONCERNS
+    evidence: >
+      record_execution_safe returns ok=False on I/O failure but decision_pack/weekly_cycle
+      ignore return value; outer try/except never fires for soft failures. Ops may lose
+      audit rows without operator notice on critical paths. Non-blocking for slice AC
+      (primary API + CLI are hard-fail). Follow-up: log/warn when safe returns ok=False.
+
+items:
+  - { id: dod:610fa35b3acc, text: "Cada execução possui erros.", verdict: DONE, flip: true }
+  - { id: dod:2f9641cb6f62, text: "Cada relatório referencia runs de origem.", verdict: DONE, flip: true }
+  - { id: dod:e852338b9064, text: "Mudanças manuais são auditáveis.", verdict: DONE, flip: true }
+  - { id: dod:54eb08c0fd66, text: "Overrides manuais possuem motivo.", verdict: DONE, flip: true }
+  - { id: dod:0a8c05b28dae, text: "Overrides manuais possuem data.", verdict: DONE, flip: true }
+  - { id: dod:3545156c47d7, text: "Overrides manuais possuem autor.", verdict: DONE, flip: true }
+  - { id: dod:e12bd0136330, text: "A evidência de coverage pode ser reconstruída.", verdict: OPEN, flip: false }
+  - { id: dod:40ffb2a2ae53, text: "A evidência de freshness pode ser reconstruída.", verdict: OPEN, flip: false }
+
+dod_flip_authorized:
+  - { line: 1515, text: "Cada execução possui erros.", authorized: true }
+  - { line: 1517, text: "Cada relatório referencia runs de origem.", authorized: true }
+  - { line: 1519, text: "Mudanças manuais são auditáveis.", authorized: true }
+  - { line: 1520, text: "Overrides manuais possuem motivo.", authorized: true }
+  - { line: 1521, text: "Overrides manuais possuem data.", authorized: true }
+  - { line: 1522, text: "Overrides manuais possuem autor.", authorized: true }
+
+must_stay_open:
+  - "L1523 A evidência de coverage pode ser reconstruída."
+  - "L1525 A evidência de freshness pode ser reconstruída."
+
+claims_forbidden_still:
+  - full_section_29_complete
+  - LOCAL_READY
+  - operational_coverage_95
+  - PRE_VPS_FINAL_READY
+  - VPS_operational
+
+steward_authorization: >
+  MAY flip ONLY primary items 1–6 (L1515, L1517, L1519–L1522) with evidence from
+  docs/ops/session-2026-07-20-rastreabilidade-ledger/proposed-dod-flips.md.
+  Must NOT flip coverage/freshness reconstruct (7–8). Must NOT claim full §29.
+
+waiver: { active: false }
+next: PO_CLOSE
