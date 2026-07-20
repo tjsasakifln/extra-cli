@@ -14,7 +14,10 @@ from scripts.crawl.resilience.state import EvidenceLedger, WatermarkStore
 
 
 def _cfg(tmp_path: Path, **overrides: object) -> ResilienceConfig:
+    """Build a fail-closed test config matching current ResilienceConfig fields."""
     base = dict(
+        environment="test",
+        execution_mode="fixture",
         connect_timeout=1,
         read_timeout=1,
         max_retries=1,
@@ -29,11 +32,14 @@ def _cfg(tmp_path: Path, **overrides: object) -> ResilienceConfig:
         circuit_breaker_cooldown=60,
         daily_request_budget=100,
         freshness_sla_hours=24,
+        state_root=tmp_path,
         checkpoint_path=tmp_path / "checkpoints",
         raw_path=tmp_path / "raw",
         dlq_path=tmp_path / "dlq",
         evidence_path=tmp_path / "evidence",
         ops_path=tmp_path / "ops",
+        breaker_path=tmp_path / "breakers",
+        require_db=False,
     )
     base.update(overrides)
     return ResilienceConfig(**base)  # type: ignore[arg-type]
