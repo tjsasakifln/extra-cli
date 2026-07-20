@@ -1,13 +1,25 @@
 # Coverage contract SLA windows — configurable per evidence class.
-# Used by scripts/coverage/coverage_contract.py for freshness and
-# operational_source_coverage. Do NOT hardcode these values in callers.
+# Used by scripts/coverage/coverage_contract.py and
+# scripts/coverage/freshness_by_entity.py. Do NOT hardcode in callers.
 #
 # Keys:
 #   *_hours  — rolling window in hours from as_of
 #   *_days   — rolling window in days from as_of
+#   sla_version — stamped into entity freshness reports (ADR-028)
+
+sla_version: "coverage-sla-v1"
 
 open_opportunities_hours: 24
 official_diaries_hours: 24
 contracts_amendments_hours: 72
 historical_consolidated_days: 7
 cadastral_data_days: 30
+
+# Capability → SLA key mapping (entity-level freshness)
+capabilities:
+  notices_or_bids:
+    sla_id: "sla.notices_or_bids.open_opportunities"
+    hours_key: open_opportunities_hours
+  contracts:
+    sla_id: "sla.contracts.amendments"
+    hours_key: contracts_amendments_hours

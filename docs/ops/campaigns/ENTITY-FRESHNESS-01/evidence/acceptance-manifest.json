@@ -1,0 +1,440 @@
+{
+  "adapter_version": "freshness_by_entity/2.0.0-canonical",
+  "as_of": "2026-07-20T12:00:00+00:00",
+  "breaches_nominal": {
+    "contracts": [
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-0081e4515ae9da5512ec",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-0097599f1fcd438155f0",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-0112021cd137b0972fad",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      },
+      {
+        "age_hours": null,
+        "blocker": "fragmented",
+        "capability": "contracts",
+        "entity_id": "extra-015b39c1db1394624063",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_live_verification",
+        "capability": "contracts",
+        "entity_id": "extra-016819f16718ee20114e",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-019c8d45efac0e6bfe3a",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      },
+      {
+        "age_hours": null,
+        "blocker": "no_success_observation",
+        "capability": "contracts",
+        "entity_id": "extra-01fbe42ff4771159b45d",
+        "freshness_status": "NEVER",
+        "next_action": "maintain_incremental_crawl_and_freshness_sla"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-0204eb428d1cf26386e0",
+        "freshness_status": "NEVER",
+        "next_action": "resolve_full_cnpj_then_pncp_probe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "fragmented",
+        "capability": "contracts",
+        "entity_id": "extra-0207f0c0b01fa60044ab",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-023a73adf26e79da73fa",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-02ade8a560e47aeb9bb8",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "fragmented",
+        "capability": "contracts",
+        "entity_id": "extra-0357c08ab2c4c5d8b452",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-03a010b7030132ceb278",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-03d727402f95cb7bb94e",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-04673f65f90937a55109",
+        "freshness_status": "NEVER",
+        "next_action": "resolve_full_cnpj_then_pncp_probe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-0469763a54ef8dbe4a7a",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_live_verification",
+        "capability": "contracts",
+        "entity_id": "extra-047d01790321bcd1b725",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-0589a8383760f42e198d",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-05f19ffcfc711fcd3f6d",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "contracts",
+        "entity_id": "extra-05f273c571de53a7a77c",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      }
+    ],
+    "note": "Full breach lists live in report JSON under output/coverage (ADR-020)",
+    "notices_or_bids": [
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-0081e4515ae9da5512ec",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-0097599f1fcd438155f0",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      },
+      {
+        "age_hours": 36.583056,
+        "blocker": "incomplete_provenance_or_partial",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-00a9a38c13978bc88635",
+        "freshness_status": "INCOMPLETE",
+        "next_action": "maintain_contracts_incremental"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-0112021cd137b0972fad",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      },
+      {
+        "age_hours": null,
+        "blocker": "fragmented",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-015b39c1db1394624063",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_live_verification",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-016819f16718ee20114e",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-019c8d45efac0e6bfe3a",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      },
+      {
+        "age_hours": 36.0,
+        "blocker": "sla_exceeded",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-01fbe42ff4771159b45d",
+        "freshness_status": "STALE",
+        "next_action": "maintain_incremental_crawl_and_freshness_sla"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-0204eb428d1cf26386e0",
+        "freshness_status": "NEVER",
+        "next_action": "resolve_full_cnpj_then_pncp_probe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "fragmented",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-0207f0c0b01fa60044ab",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": 35.540467,
+        "blocker": "incomplete_provenance_or_partial",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-022c0bd90b202cedd18c",
+        "freshness_status": "INCOMPLETE",
+        "next_action": "maintain_contracts_incremental"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-023a73adf26e79da73fa",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": 33.897971,
+        "blocker": "pending_live_verification",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-02772e960d79855c370e",
+        "freshness_status": "STALE",
+        "next_action": "maintain_incremental_crawl_and_freshness_sla"
+      },
+      {
+        "age_hours": 35.603023,
+        "blocker": "incomplete_provenance_or_partial",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-02880aedf650a4179e3c",
+        "freshness_status": "INCOMPLETE",
+        "next_action": "maintain_contracts_incremental"
+      },
+      {
+        "age_hours": 33.897971,
+        "blocker": "pending_live_verification",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-0298b9d064899642764a",
+        "freshness_status": "STALE",
+        "next_action": "maintain_incremental_crawl_and_freshness_sla"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-02ade8a560e47aeb9bb8",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": null,
+        "blocker": "fragmented",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-0357c08ab2c4c5d8b452",
+        "freshness_status": "NEVER",
+        "next_action": "probe_pncp_for_publication_history"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-03a010b7030132ceb278",
+        "freshness_status": "NEVER",
+        "next_action": "ingest_ciga_dom_publications_for_municipio_then_reconcile"
+      },
+      {
+        "age_hours": null,
+        "blocker": "pending_collection",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-03d727402f95cb7bb94e",
+        "freshness_status": "NEVER",
+        "next_action": "probe_sc_compras_and_doe"
+      },
+      {
+        "age_hours": 35.850046,
+        "blocker": "sla_exceeded",
+        "capability": "notices_or_bids",
+        "entity_id": "extra-03da9141087b38c48650",
+        "freshness_status": "STALE",
+        "next_action": "maintain_incremental_crawl_and_freshness_sla"
+      }
+    ]
+  },
+  "campaign": "ENTITY-FRESHNESS-CANONICAL-ACCEPTANCE-01",
+  "claims_allowed": [
+    "freshness é mensurável por entidade",
+    "população derivada exclusivamente de load_canonical_universe",
+    "igualdade exata de entity_ids com o universo canônico incluído",
+    "editais e contratos são capabilities distintas",
+    "breaches e ausências são nominais com entity_id",
+    "modo strict falha fechado"
+  ],
+  "claims_forbidden": [
+    "cobertura operacional ≥95%",
+    "freshness ≥95%",
+    "recall ≥95%",
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "proxy de presença como cobertura operacional",
+    "MAX(ingested_at) global como freshness de entidades",
+    "len==1093 sem igualdade de conjuntos",
+    "migration 058 como spine de aceite",
+    "entity_source_binding como spine de aceite"
+  ],
+  "command": [
+    "python",
+    "-m",
+    "scripts.coverage.freshness_by_entity",
+    "--seed",
+    "Extra - alvos de licitação. R-0.xlsx",
+    "--registry",
+    "data/entity_source_registry.jsonl",
+    "--output-dir",
+    "output/coverage",
+    "--sla",
+    "/mnt/d/extra consultoria/wt-entity-freshness-canonical/config/coverage_slas.yaml",
+    "--as-of",
+    "2026-07-20T12:00:00+00:00",
+    "--strict",
+    "--evidence-manifest",
+    "docs/ops/campaigns/ENTITY-FRESHNESS-01/evidence/acceptance-manifest.json"
+  ],
+  "exit_code": 0,
+  "git_sha": "41baee62389322b5c9bbf0840f37e4b98d450499",
+  "identity": {
+    "canonical_count": 1093,
+    "canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396",
+    "contracts_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396",
+    "duplicate_count": 0,
+    "editais_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396",
+    "extra_count": 0,
+    "list_identity_ok": true,
+    "missing_count": 0,
+    "sets_equal_across_capabilities": true
+  },
+  "out_of_scope": [
+    "migration_058",
+    "entity_source_binding",
+    "coverage_95",
+    "recall_95",
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE"
+  ],
+  "registry_path": "data/entity_source_registry.jsonl",
+  "registry_sha256": "5dd58a8cfc7a81b31bdb8b0b47b327bb5668f30d5322e68ab3399315ab592d83",
+  "reports": {
+    "contracts": {
+      "breach_count": 728,
+      "content_fingerprint": "eb719478c00e67aea0dea1f0e981343d426539ecb3b6630bc04bc7b14de05c0f",
+      "covered": 365,
+      "denominator": 1093,
+      "path": "output/coverage/freshness-contracts.json",
+      "sha256": "8fa91d284528c1f89f402d845345ee7f808dcd6e2e58f49bdc9f41d384b0bc7c",
+      "status_counts": {
+        "BLOCKED": 0,
+        "FRESH": 365,
+        "INCOMPLETE": 0,
+        "NEVER": 728,
+        "NOT_APPLICABLE": 0,
+        "STALE": 0,
+        "UNKNOWN": 0
+      },
+      "uncovered": 728,
+      "unique_entity_count": 1093
+    },
+    "notices_or_bids": {
+      "breach_count": 1093,
+      "content_fingerprint": "ec897e2a13e7f4432830c4ba888be2d106c6a23a204ad5f75a7a27a6f1e7fb73",
+      "covered": 0,
+      "denominator": 1093,
+      "path": "output/coverage/freshness-editais.json",
+      "sha256": "2a69602cce818bc65ca7281204b6316a5f5bd7ba4a0d43e02e264eab36d1efe9",
+      "status_counts": {
+        "BLOCKED": 0,
+        "FRESH": 0,
+        "INCOMPLETE": 120,
+        "NEVER": 685,
+        "NOT_APPLICABLE": 0,
+        "STALE": 288,
+        "UNKNOWN": 0
+      },
+      "uncovered": 1093,
+      "unique_entity_count": 1093
+    }
+  },
+  "seed_path": "Extra - alvos de licitação. R-0.xlsx",
+  "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+  "sla_version": "coverage-sla-v1",
+  "unreconciled_count": 0,
+  "unreconciled_ids": []
+}
