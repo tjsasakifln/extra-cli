@@ -658,48 +658,68 @@ def verify(
                 )
             )
 
-    # --- 9) tests ---
+    # --- 9) tests (authorized test_id registry only; never free shell / str.split) ---
     test_results: list[dict[str, Any]] = []
+    resolved_test_ids: list[str] = []
     if not skip_tests:
-        cmds = list(decision.get("test_commands") or [])
-        if not cmds and decision.get("decision") in {"EXECUTE", "REPAIR"}:
+        from scripts.cto.test_registry import (
+            TestRegistryError,
+            normalize_test_ids,
+            run_authorized_test,
+        )
+
+        try:
+            resolved_test_ids = normalize_test_ids(decision, root=root)
+        except TestRegistryError as exc:
+            failed.append(f"test registry: {exc}")
+            unsafe = True
+            matrix.append(
+                _criterion(
+                    "tests",
+                    "FAIL",
+                    evidence="authorized_tests registry",
+                    detail=str(exc)[:400],
+                )
+            )
+            test_results.append(
+                {
+                    "cmd": ["<registry>"],
+                    "argv": ["<registry>"],
+                    "exit_code": -3,
+                    "stderr": str(exc),
+                    "shell": False,
+                }
+            )
+            resolved_test_ids = []
+
+        if (
+            not resolved_test_ids
+            and decision.get("decision") in {"EXECUTE", "REPAIR"}
+            and not any(m.get("criterion") == "tests" for m in matrix)
+        ):
             matrix.append(
                 _criterion(
                     "tests",
                     "UNPROVEN",
-                    evidence="no test_commands on EXECUTE/REPAIR",
+                    evidence="no authorized test_ids on EXECUTE/REPAIR",
                 )
             )
-        for cmd_str in cmds:
-            if any(tok in cmd_str for tok in (";", "&&", "|", "`", "$(", "\n", "rm -rf")):
-                test_results.append(
-                    {
-                        "cmd": cmd_str,
-                        "exit_code": -3,
-                        "stderr": "rejected unsafe command",
-                    }
-                )
-                failed.append(f"unsafe test command rejected: {cmd_str[:80]}")
-                unsafe = True
-                continue
-            parts = cmd_str.split()
-            if not parts:
-                continue
-            res = _run(parts, cwd, timeout=600)
+        for tid in resolved_test_ids:
+            res = run_authorized_test(tid, root=root, worktree=cwd)
             test_results.append(res)
-            if res["exit_code"] != 0:
-                failed.append(f"test failed: {cmd_str}")
-                repair_hints.append(f"Fix failures in: {cmd_str}")
-        if cmds:
+            if res.get("exit_code") != 0:
+                failed.append(f"test failed: {tid}")
+                repair_hints.append(f"Fix failures for test_id={tid}")
+        if resolved_test_ids and not any(m.get("criterion") == "tests" for m in matrix):
             if any(r.get("exit_code") not in (0,) for r in test_results):
                 matrix.append(
                     _criterion(
                         "tests",
                         "FAIL",
-                        evidence="test_commands execution",
+                        evidence="authorized test_id execution",
                         detail=str(
                             [
-                                (r.get("cmd"), r.get("exit_code"))
+                                (r.get("test_id") or r.get("cmd"), r.get("exit_code"))
                                 for r in test_results
                             ][:10]
                         ),
@@ -710,15 +730,22 @@ def verify(
                     _criterion(
                         "tests",
                         "PASS",
-                        evidence="test_commands execution",
-                        detail=f"ran={len(test_results)}",
+                        evidence="authorized test_id execution",
+                        detail=f"ran={len(test_results)} ids={resolved_test_ids[:10]}",
                     )
                 )
     else:
         matrix.append(
             _criterion("tests", "PASS", evidence="skip_tests=True")
         )
-    checks.append({"name": "tests", "results": test_results})
+    checks.append(
+        {
+            "name": "tests",
+            "results": test_results,
+            "test_ids": resolved_test_ids,
+            "shell": False,
+        }
+    )
 
     # --- 10) acceptance criteria matrix ---
     ac = list(decision.get("acceptance_criteria") or [])
@@ -948,8 +975,38 @@ def verify(
             if not any("executor failed" in f for f in failed):
                 failed.append(f"executor failed: {execution.get('status')}")
 
+    # Seal exact commit/tree under verification (publisher must push this SHA)
+    seal_blob: dict[str, Any] | None = None
+    try:
+        from scripts.cto.seal import build_seal, git_head, git_tree
+
+        base_commit = None
+        if execution:
+            base_commit = execution.get("base_commit") or execution.get("commit_base")
+        seal_blob = build_seal(
+            worktree=cwd,
+            cycle_id=str(cycle_id),
+            decision_id=decision.get("decision_id"),
+            verification_result=result,
+            base_commit=str(base_commit) if base_commit else None,
+            allowed_paths=list(decision.get("allowed_paths") or []),
+            root=root,
+        )
+    except Exception as exc:  # noqa: BLE001 — seal failure must not crash verify
+        seal_blob = {"error": str(exc), "publishable": False}
+
+    head_sha = None
+    tree_hash = None
+    try:
+        from scripts.cto.seal import git_head, git_tree
+
+        head_sha = git_head(cwd)
+        tree_hash = git_tree(cwd, head_sha) if head_sha else None
+    except Exception:  # noqa: BLE001
+        pass
+
     out = {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "timestamp_utc": _utc_now(),
         "cycle_id": cycle_id,
         "decision_id": decision.get("decision_id"),
@@ -971,6 +1028,10 @@ def verify(
             "modified": modified,
         },
         "worktree": str(cwd),
+        "commit_sha": head_sha,
+        "tree_hash": tree_hash,
+        "seal": seal_blob,
+        "test_ids": resolved_test_ids if not skip_tests else [],
     }
     out = redact_obj(out)
 

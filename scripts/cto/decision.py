@@ -217,11 +217,24 @@ def validate_decision(
     return decision
 
 
-def validate_review(review: dict[str, Any], *, root: Path | None = None) -> dict[str, Any]:
+def validate_review(
+    review: dict[str, Any],
+    *,
+    root: Path | None = None,
+    verification: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     schema = load_schema(review_schema_path(root))
     validate_against_schema(review, schema)
     if review["verdict"] not in {"ACCEPT", "REPAIR", "ROLLBACK", "BLOCK", "ESCALATE"}:
         raise DecisionValidationError("invalid review verdict")
+    # Absolute veto is applied after schema validate when verification is supplied
+    if verification is not None:
+        from scripts.cto.review_veto import apply_absolute_veto
+
+        review = apply_absolute_veto(review, verification)
+        # Drop internal veto metadata before re-validate optional fields
+        if review["verdict"] not in {"ACCEPT", "REPAIR", "ROLLBACK", "BLOCK", "ESCALATE"}:
+            raise DecisionValidationError("invalid review verdict after veto")
     return review
 
 
@@ -421,6 +434,7 @@ def decide_from_observation(
             "required_evidence": ["decision.json", "observation.json"],
             "allowed_paths": ["scripts/cto/**", "docs/ops/cto-autopilot/**", "tests/cto/**"],
             "forbidden_paths": [".env", "**/.ssh/**"],
+            "test_ids": ["cto.pytest.suite"],
             "test_commands": ["python -m pytest tests/cto -q"],
             "forbidden_actions": ["merge", "deploy", "git push", "force_push"],
             "allowed_claims": [],
@@ -722,10 +736,12 @@ def review_execution(
                 "dry_run": True,
             },
         }
-        return validate_review(
+        validated = validate_review(
             {k: v for k, v in review.items() if k != "_meta"},
             root=cfg.root,
-        ) | {"_meta": review["_meta"], "review_context": review_payload}
+            verification=verification,
+        )
+        return validated | {"_meta": review["_meta"], "review_context": review_payload}
 
     ds_client = client or DeepSeekClient(cfg.deepseek)
     system = _read_prompt("review.md", cfg.root)
@@ -733,7 +749,8 @@ def review_execution(
         "instruction": (
             "Review using full context. Do not decide from criterion counts alone. "
             "Inspect original decision, work item, diff+hashes, criterion matrix, "
-            "execution exit code, tests, evidence, and prior attempts."
+            "execution exit code, tests, evidence, and prior attempts. "
+            "ABSOLUTE RULE: if verification.result is not PASS you MUST NOT return ACCEPT."
         ),
         **review_payload,
     }
@@ -748,11 +765,18 @@ def review_execution(
         content.setdefault("cycle_id", cycle_id)
         content.setdefault("decision_id", decision_id)
         content = normalize_review_content(content)
-        validated = validate_review(content, root=cfg.root)
+        validated = validate_review(content, root=cfg.root, verification=verification)
+        # Re-apply veto on the full object (preserves _veto for audit)
+        from scripts.cto.review_veto import apply_absolute_veto
+
+        validated = apply_absolute_veto(validated, verification)
         validated["review_context"] = {
             "matrix_counts": review_payload.get("matrix_counts"),
             "diff_sha256": (review_payload.get("diff") or {}).get("sha256"),
             "execution_status": (review_payload.get("execution") or {}).get("status"),
+            "verification_result": verification.get("result"),
+            "commit_sha": verification.get("commit_sha"),
+            "tree_hash": verification.get("tree_hash"),
         }
         return validated
     except (DeepSeekUnavailable, DeepSeekInvalidResponse, DecisionValidationError) as exc:

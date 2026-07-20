@@ -1,0 +1,190 @@
+# Human-versioned registry of authorized verifier test commands.
+# DeepSeek and Grok may select only test_id values — never free-form shell.
+# argv is always executed with shell=False; unknown IDs are rejected.
+schema_version: "1.0"
+
+tests:
+  - test_id: cto.pytest.suite
+    argv: ["python3", "-m", "pytest", "tests/cto", "-q", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 600
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: []
+    risk_class: low
+    description: Full CTO unit suite
+
+  - test_id: cto.pytest.verifier
+    argv: ["python3", "-m", "pytest", "tests/cto/test_verifier.py", "-q", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 300
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: []
+    risk_class: low
+    description: Verifier unit tests
+
+  - test_id: cto.pytest.publisher
+    argv: ["python3", "-m", "pytest", "tests/cto/test_publisher.py", "-q", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 300
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: []
+    risk_class: low
+    description: Publisher unit tests
+
+  - test_id: cto.pytest.decision_schema
+    argv: ["python3", "-m", "pytest", "tests/cto/test_decision_schema.py", "-q", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 180
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: []
+    risk_class: low
+    description: Decision schema tests
+
+  - test_id: cto.pytest.executive_sync
+    argv: ["python3", "-m", "pytest", "tests/cto/test_executive_sync.py", "-q", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 180
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: []
+    risk_class: low
+    description: Executive HTML sync tests
+
+  - test_id: cto.pytest.github_issues
+    argv: ["python3", "-m", "pytest", "tests/cto/test_github_issues.py", "-q", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 180
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: []
+    risk_class: low
+    description: GitHub Issues registry tests
+
+  - test_id: cto.pytest.deepseek_client
+    argv: ["python3", "-m", "pytest", "tests/cto/test_deepseek_client.py", "-q", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 180
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: []
+    risk_class: low
+    description: DeepSeek client unit tests
+
+  - test_id: cto.cli.doctor
+    argv: ["python3", "-m", "scripts.cto.cli", "doctor"]
+    cwd: repo_root
+    timeout_sec: 120
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: [".cto/CHARTER.md", ".cto/policies.yaml"]
+    risk_class: low
+    description: CTO doctor health check
+
+  - test_id: cto.canary.proof_grep
+    argv: ["grep", "-qi", "canary", "docs/ops/cto-autopilot/canary-proof.md"]
+    cwd: repo_root
+    timeout_sec: 30
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL"]
+    needs_db: false
+    network: deny
+    expected_files: ["docs/ops/cto-autopilot/canary-proof.md"]
+    risk_class: low
+    description: Canary proof file contains canary marker
+
+  - test_id: project.pytest.critical
+    argv: ["python3", "-m", "pytest", "tests/", "-q", "--tb=no", "-x", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 900
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR", "LOCAL_DATALAKE_DSN"]
+    needs_db: true
+    network: deny
+    expected_files: []
+    risk_class: medium
+    description: Project pytest with fail-fast (may need local DB)
+
+  - test_id: project.pytest.selective_line
+    argv: ["python3", "-m", "pytest", "tests/", "-q", "--tb=line", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 900
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR", "LOCAL_DATALAKE_DSN"]
+    needs_db: true
+    network: deny
+    expected_files: []
+    risk_class: medium
+    description: Project pytest line traceback
+
+  - test_id: ops.source_contract
+    argv: ["python3", "-m", "scripts.ops.source_contract_tests", "--json"]
+    cwd: repo_root
+    timeout_sec: 300
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: []
+    risk_class: medium
+    description: Source contract tests
+
+  - test_id: squad.extra_dod_roi.status
+    argv: ["python3", "squads/extra-dod-roi/scripts/cli.py", "status"]
+    cwd: repo_root
+    timeout_sec: 120
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: ["squads/extra-dod-roi/scripts/cli.py"]
+    risk_class: low
+    description: extra-dod-roi status (read-only)
+
+  - test_id: squad.extra_dod_roi.rank_next
+    argv: ["python3", "squads/extra-dod-roi/scripts/cli.py", "rank-next"]
+    cwd: repo_root
+    timeout_sec: 300
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: ["squads/extra-dod-roi/scripts/cli.py"]
+    risk_class: low
+    description: extra-dod-roi ranking (read-only)
+
+  - test_id: decision.loop.v2
+    argv: ["python3", "-m", "pytest", "tests/test_decision_loop_v2.py", "-q", "-o", "addopts="]
+    cwd: repo_root
+    timeout_sec: 300
+    env_allowlist: ["PATH", "HOME", "LANG", "LC_ALL", "PYTHONPATH", "VIRTUAL_ENV", "TMPDIR"]
+    needs_db: false
+    network: deny
+    expected_files: ["tests/test_decision_loop_v2.py"]
+    risk_class: low
+    description: Decision loop V2 suite
+
+# Legacy free-string aliases mapped to test_id (migration only; never executed as shell).
+legacy_command_aliases:
+  "python -m pytest tests/cto -q": cto.pytest.suite
+  "python3 -m pytest tests/cto -q": cto.pytest.suite
+  "python -m pytest tests/cto -q -o addopts=": cto.pytest.suite
+  "python3 -m pytest tests/cto -q -o addopts=": cto.pytest.suite
+  "python -m pytest tests/cto/test_verifier.py -q": cto.pytest.verifier
+  "python -m pytest tests/cto/test_publisher.py -q": cto.pytest.publisher
+  "python -m pytest tests/cto/test_decision_schema.py -q": cto.pytest.decision_schema
+  "python -m pytest tests/cto/test_executive_sync.py -q": cto.pytest.executive_sync
+  "python -m pytest tests/cto/test_github_issues.py -q": cto.pytest.github_issues
+  "python -m pytest tests/cto/test_deepseek_client.py -q": cto.pytest.deepseek_client
+  "python -m scripts.cto.cli doctor": cto.cli.doctor
+  "python3 -m scripts.cto.cli doctor": cto.cli.doctor
+  "grep -qi canary docs/ops/cto-autopilot/canary-proof.md": cto.canary.proof_grep
+  "python -m pytest tests/ -q --tb=no -x": project.pytest.critical
+  "python -m pytest tests/ -q --tb=line": project.pytest.selective_line
+  "python -m scripts.ops.source_contract_tests --json": ops.source_contract
+  "python -m pytest tests/test_decision_loop_v2.py -q": decision.loop.v2

@@ -368,11 +368,17 @@ def publish_after_accept(
     root: Path | None = None,
     dry_run: bool = False,
     skip_push: bool = False,
+    verification: dict[str, Any] | None = None,
+    review: dict[str, Any] | None = None,
+    allow_unsealed_legacy: bool = False,
 ) -> dict[str, Any]:
     """Full post-ACCEPT publication. Never merges.
 
     WAITING_HUMAN + registry human state only when a real draft PR number exists.
     dry_run never mutates Issue/registry queue.
+
+    Security: after review, publisher must NOT git add -A. It pushes the sealed
+    commit SHA that the verifier inspected. Dirty worktree or HEAD drift fails closed.
     """
     root = root or repo_root()
     cycle_id = str(decision.get("cycle_id") or "unknown")
@@ -395,23 +401,87 @@ def publish_after_accept(
         out["status"] = "BLOCKED"
         return redact_obj(out)
 
-    if not has_local_diff(wt) and not dry_run:
-        commit = current_commit(wt)
-        if not commit:
-            out["error"] = "no local diff and no commit"
+    # Absolute veto: non-PASS verification / non-ACCEPT review forbids publish
+    from scripts.cto.review_veto import publication_forbidden
+    from scripts.cto.seal import assert_publishable_seal, load_seal
+
+    forbidden, forbid_reason = publication_forbidden(
+        verification=verification,
+        review=review,
+    )
+    if forbidden and not dry_run and not allow_unsealed_legacy:
+        # dry_run may still simulate; live requires ACCEPT+PASS
+        if review is not None or verification is not None:
+            out["error"] = f"publication forbidden: {forbid_reason}"
+            out["status"] = "BLOCKED"
+            out["steps"].append(
+                {"step": "absolute_veto", "ok": False, "reason": forbid_reason}
+            )
+            return redact_obj(out)
+
+    seal = None
+    if verification and verification.get("seal"):
+        seal = verification["seal"]
+    else:
+        seal = load_seal(cycle_id, root)
+
+    # After review: never create new commits via git add -A.
+    # Candidate commit must already exist and match the seal.
+    if has_local_diff(wt) and not dry_run:
+        out["error"] = (
+            "worktree dirty after review — refusing git add -A; "
+            "re-verify the sealed commit"
+        )
+        out["status"] = "FAILED"
+        out["steps"].append({"step": "dirty_guard", "ok": False, "has_diff": True})
+        return redact_obj(out)
+
+    out["steps"].append({"step": "diff_check", "has_diff": has_local_diff(wt)})
+
+    commit = current_commit(wt)
+    if not commit and not dry_run:
+        out["error"] = "no commit to publish"
+        out["status"] = "FAILED"
+        return redact_obj(out)
+
+    if seal and not dry_run and not allow_unsealed_legacy:
+        seal_check = assert_publishable_seal(
+            worktree=wt, seal=seal, verification=verification
+        )
+        out["steps"].append({"step": "seal_check", **seal_check})
+        if not seal_check.get("ok"):
+            out["error"] = "seal mismatch: " + "; ".join(seal_check.get("errors") or [])
             out["status"] = "FAILED"
             return redact_obj(out)
-        out["steps"].append({"step": "diff_check", "has_diff": False, "commit": commit})
+        commit = seal_check.get("commit_sha") or seal.get("commit_sha") or commit
+    elif not dry_run and not allow_unsealed_legacy and (review is not None):
+        # Live accept path without seal is fail-closed
+        out["error"] = "missing verification seal — cannot publish unsealed commit"
+        out["status"] = "FAILED"
+        out["steps"].append({"step": "seal_check", "ok": False, "errors": ["missing seal"]})
+        return redact_obj(out)
     else:
-        out["steps"].append({"step": "diff_check", "has_diff": has_local_diff(wt)})
+        # Legacy dry-run / unsealed path: may create commit only in dry_run simulation
+        if dry_run and has_local_diff(wt):
+            msg = (
+                f"cto({cycle_id}): "
+                f"{decision.get('work_id') or decision.get('objective') or 'cycle'}"
+            )[:200]
+            commit_res = ensure_commit(wt, message=msg, dry_run=True)
+            out["steps"].append({"step": "commit_dry", **commit_res})
+            commit = commit_res.get("commit") or commit
+        out["steps"].append(
+            {
+                "step": "seal_check",
+                "ok": True,
+                "skipped": True,
+                "reason": "dry_run or allow_unsealed_legacy",
+            }
+        )
 
-    msg = (
-        f"cto({cycle_id}): {decision.get('work_id') or decision.get('objective') or 'cycle'}"
-    )[:200]
-    commit_res = ensure_commit(wt, message=msg, dry_run=dry_run)
-    out["steps"].append({"step": "commit", **commit_res})
-    commit = commit_res.get("commit") or current_commit(wt)
     out["commit"] = commit
+    out["sealed_commit"] = (seal or {}).get("commit_sha") if seal else commit
+    out["tree_hash"] = (seal or {}).get("tree_hash")
 
     if skip_push:
         out["steps"].append({"step": "push", "skipped": True, "reason": "skip_push"})

@@ -7,12 +7,14 @@ def test_build_command_has_sandbox_and_deny(tmp_path):
         session_id="sess",
         prompt="do work",
         max_turns=5,
-        always_approve=True,
+        always_approve=False,
     )
     assert "grok" in cmd[0]
     assert "--sandbox" in cmd
-    assert "workspace" in cmd
-    assert "--always-approve" in cmd
+    assert "strict" in cmd
+    assert "--permission-mode" in cmd
+    assert "dontAsk" in cmd
+    assert "--always-approve" not in cmd
     assert "--deny" in cmd
     assert any("git push" in c for c in cmd)
 

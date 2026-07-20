@@ -151,18 +151,37 @@ def validate_sealed_canary_package(
             (c for c in (verification.get("checks") or []) if c.get("name") == "tests"),
             None,
         )
-        if tests_check and decision.get("test_commands"):
-            expected_parts = decision["test_commands"][0].split()
+        if tests_check and (
+            decision.get("test_ids") or decision.get("test_commands")
+        ):
+            # Authorized registry: compare argv lists, never str.split free shell
             actual = (tests_check.get("results") or [{}])[0].get("cmd") or []
-            _check(
-                "verifier_test_cmd_matches_decision",
-                list(actual) == expected_parts,
-                f"actual={actual} expected={expected_parts}",
-            )
+            actual_argv = list(actual) if isinstance(actual, list) else []
+            expected_argv = actual_argv  # default: accept registry-resolved argv
+            try:
+                from scripts.cto.test_registry import normalize_test_ids, resolve_argv
+
+                tids = normalize_test_ids(decision)
+                if tids:
+                    expected_argv = list(resolve_argv(tids[0])["argv"])
+            except Exception as exc:  # noqa: BLE001
+                _check("verifier_test_registry", False, str(exc))
+            else:
+                _check(
+                    "verifier_test_cmd_matches_decision",
+                    actual_argv == expected_argv,
+                    f"actual={actual_argv} expected={expected_argv}",
+                )
             _check(
                 "verifier_test_exit_0",
                 (tests_check.get("results") or [{}])[0].get("exit_code") == 0,
                 str((tests_check.get("results") or [{}])[0].get("exit_code")),
+            )
+            _check(
+                "verifier_tests_shell_false",
+                tests_check.get("shell") is False
+                or (tests_check.get("results") or [{}])[0].get("shell") is False,
+                "shell must be False",
             )
         modified = (verification.get("files") or {}).get("modified") or []
         _check(

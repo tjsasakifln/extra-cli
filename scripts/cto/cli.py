@@ -690,13 +690,16 @@ def _run_cycle_from_decision(
     max_repairs = int(decision.get("max_repair_attempts") or cfg.budgets.max_repair_attempts)
     if review.get("verdict") == "ACCEPT":
         sm.transition("ACCEPTED", reason="review ACCEPT", cycle_id=cycle_id)
-        # Separate publisher — never Grok executor
+        # Separate publisher — never Grok executor; sealed SHA only
         publication = publish_after_accept(
             decision=decision,
             worktree=Path(execution["worktree"]) if execution.get("worktree") else None,
             root=root,
             dry_run=args.dry_run or getattr(args, "skip_publish", False),
             skip_push=getattr(args, "skip_push", False) or args.dry_run,
+            verification=verification,
+            review=review,
+            allow_unsealed_legacy=bool(args.dry_run),
         )
         report["steps"].append(
             {

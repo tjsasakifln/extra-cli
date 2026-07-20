@@ -54,8 +54,10 @@ executor:
   max_turns: 30
   require_worktree: true
   forbid_main_branch: true
-  sandbox: workspace
-  always_approve_only_if_sandboxed: true
+  sandbox: strict
+  always_approve_only_if_sandboxed: false
+  permission_mode: dontAsk
+  use_always_approve: false
 
 budgets:
   max_cycles_per_run: 1

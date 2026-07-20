@@ -700,15 +700,51 @@ def resolve_always_approve(
     return True, report
 
 
+# Narrow allow rules for operational headless cycles (fail-closed).
+# Prefer --permission-mode dontAsk + explicit --allow/--deny over --always-approve.
+DEFAULT_ALLOW_RULES = [
+    "Read(**)",
+    "Edit(**)",
+    "Write(**)",
+    "Grep(**)",
+    "Bash(python3 *)",
+    "Bash(python *)",
+    "Bash(pytest *)",
+    "Bash(git status*)",
+    "Bash(git diff*)",
+    "Bash(git log*)",
+    "Bash(git add *)",
+    "Bash(git commit *)",
+    "Bash(git rev-parse *)",
+    "Bash(git checkout *)",
+    "Bash(git branch *)",
+    "Bash(ls *)",
+    "Bash(cat *)",
+    "Bash(mkdir *)",
+    "Bash(ruff *)",
+    "Bash(mypy *)",
+]
+
+
 def build_grok_command(
     *,
     worktree: Path,
     session_id: str,
     prompt: str,
     max_turns: int,
-    always_approve: bool,
+    always_approve: bool = False,
     include_deny: bool = True,
+    sandbox: str = "strict",
+    permission_mode: str = "dontAsk",
+    include_allow: bool = True,
+    allow_rules: list[str] | None = None,
 ) -> list[str]:
+    """Build headless Grok argv.
+
+    Operational default: --sandbox strict, --permission-mode dontAsk,
+    explicit --deny rules, narrow --allow rules. --always-approve is NOT used
+    on the operational path (kept only for explicit legacy opt-in / probe).
+    """
     cmd = [
         "grok",
         "--no-auto-update",
@@ -719,14 +755,21 @@ def build_grok_command(
         "--output-format",
         "streaming-json",
         "--sandbox",
-        "workspace",
+        sandbox,
+        "--permission-mode",
+        permission_mode,
         "--max-turns",
         str(max_turns),
     ]
     if include_deny:
         for rule in DENY_RULES:
             cmd.extend(["--deny", rule])
-    if always_approve:
+    if include_allow:
+        for rule in allow_rules if allow_rules is not None else DEFAULT_ALLOW_RULES:
+            cmd.extend(["--allow", rule])
+    # Operational cycles must not use always-approve / yolo / bypassPermissions.
+    # Only the explicit probe path may pass always_approve=True for containment tests.
+    if always_approve and permission_mode == "bypassPermissions":
         cmd.append("--always-approve")
     cmd.extend(["-p", prompt])
     return cmd
@@ -979,14 +1022,20 @@ def execute(
         )
         return redact_obj(result_fail)
 
+    # Operational path: strict sandbox + dontAsk. never --always-approve / yolo.
+    # always_approve opt-in is recorded for audit but does not alter operational flags.
     cmd = build_grok_command(
         worktree=worktree,
         session_id=session_id,
         prompt=prompt,
         max_turns=cfg.budgets.grok_max_turns,
-        always_approve=always_approve,
+        always_approve=False,
         include_deny=bool(preflight.get("deny_supported") or dry_run or mock),
+        sandbox="strict",
+        permission_mode="dontAsk",
+        include_allow=True,
     )
+    _ = always_approve  # audit retained via aa_report; not used for operational argv
 
     result: dict[str, Any] = {
         "status": "planned",

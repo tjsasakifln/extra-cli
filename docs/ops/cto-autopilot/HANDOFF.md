@@ -5,13 +5,14 @@
 **Draft PR:** https://github.com/tjsasakifln/extra-consultoria/pull/48  
 **Worktree:** `/mnt/d/extra-consultoria-cto-autopilot`  
 **Repo:** `tjsasakifln/extra-consultoria`  
-**HEAD:** `27d977d1e38ec96b61a529cd5cac345fdac38340`
+**HEAD:** (ver `git rev-parse HEAD` na branch do PR #48)
 
 ## Objetivo operacional (PR #48 merge-gate)
 
-Prova mínima e reproduzível de operação **live** controlada + cinco bloqueadores de merge.
+Orquestrador CTO headless seguro integrado ao AIOX e ao squad `extra-dod-roi`, com:
+registry de testes autorizados, veto absoluto de review, selo de SHA verificado, e headless `dontAsk`+`strict`.
 
-## Correções merge-gate
+## Correções merge-gate + security remediation
 
 | # | Bloqueador | Delta |
 |---|------------|--------|
@@ -19,20 +20,24 @@ Prova mínima e reproduzível de operação **live** controlada + cinco bloquead
 | 2 | Live com `--skip-tests` | systemd sem flag; live+skip → `BLOCKED_UNVERIFIED` exit 11 |
 | 3 | Env denylist | `build_minimal_child_env` allowlist |
 | 4 | HOME real | HOME/TMPDIR isolados; **sem** copiar host auth.json; live exige `XAI_API_KEY` |
-| 5 | always-approve por help | Default false; opt-in + containment funcional |
+| 5 | always-approve operacional | **Removido do path operacional** — usa `--permission-mode dontAsk` + `--sandbox strict` + allow/deny |
+| 6 | Free-form `test_commands` | `.cto/authorized_tests.yaml` + `test_ids` only; `shell=False` |
+| 7 | Review ACCEPT sobre FAIL | `review_veto.apply_absolute_veto` invariante absoluta |
+| 8 | Janela verify→publish | `seal.py` + publisher sem `git add -A` pós-review |
+| 9 | AIOX paralelo | `aiox_bridge.py` adaptador fino (não fork de agentes) |
 | + | Proveniência canário | `decision_sha256` + `validate_sealed_canary_package` (fail-closed) |
 
 ## Testes
 
 ```text
 python3 -m pytest tests/cto -q -o addopts=''
-# 111 passed
+# 146 passed
 ```
 
 | Check | Resultado |
 |-------|-----------|
 | Ruff `scripts/cto` + `tests/cto` | limpo no HEAD |
-| `pytest tests/cto` | **111 passed** |
+| `pytest tests/cto` | **146 passed** |
 | `run-once --dry-run --mock --skip-tests` | verify PASS → review ACCEPT → publish dry → **`ACCEPTED_DRY_RUN`** / `queue_mutated=false` / terminal **DONE** / exit **0** (não polui fila; WAITING_HUMAN só com draft PR real) |
 | live + `--skip-tests` | **BLOCKED_UNVERIFIED** / exit 11 |
 | sealed canary-live | ver seção abaixo |

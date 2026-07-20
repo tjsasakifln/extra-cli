@@ -55,7 +55,18 @@
     },
     "test_commands": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 }
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Legacy free-string commands; must resolve via authorized_tests.yaml aliases. Prefer test_ids."
+    },
+    "test_ids": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Authorized test_id values from .cto/authorized_tests.yaml only."
+    },
+    "ranking_action": {
+      "type": ["string", "null"],
+      "enum": ["ACCEPT_TOP", "RECOMPUTE", "ESCALATE", "NOOP", null],
+      "description": "Strategic ranking decision (DeepSeek CTO). Distinct from EXECUTE work decision."
     },
     "forbidden_actions": {
       "type": "array",
