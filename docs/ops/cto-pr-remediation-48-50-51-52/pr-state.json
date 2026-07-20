@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-20T02:15:17Z",
+  "generated_at": "2026-07-20T02:27:08Z",
   "terminal_state": "WAITING_HUMAN",
   "heads": {
     "main": "d6d9e1984e348d64a669546613e192e4ebf610cd",
-    "48": "536dacba639c647ae735169bb2c77ce625d8c630",
+    "48": "26a77f4780bf39ef07596a3b75377a335118a134",
     "50": "b73cc2d316c7befca62bbd92992e0765bb28801c",
     "51": "11ab4b962a487b25e3d1a3afb88b7e09ccd50879",
     "52": "466fc09dc05a65ba89792d272334b0aa0ed6aa1a"
@@ -38,9 +38,9 @@
     }
   },
   "next_actions": {
-    "48": "Human review/merge security CTO Autopilot",
-    "50": "@po validate-story-draft ROI-cand-dyn-slice-cb906bb58392 → Ready; independent @qa; do not treat provisional ledger as SDC Done",
-    "51": "Complete #50 SDC first; force-next/rerank so cycle-2 is ranking[0]; @po Ready on ROI-cand-dyn-slice-b84aad7b10ee",
+    "48": "Human review/merge security CTO Autopilot (tests/cto 153 passed)",
+    "50": "@po validate-story-draft ROI-cand-dyn-slice-cb906bb58392 → Ready; independent @qa",
+    "51": "Complete #50 SDC first; force-next/rerank; @po Ready on cycle-2 story",
     "52": "Human review/merge decision-loop semantic fixes"
   },
   "merge_order": [
@@ -49,6 +49,12 @@
     51,
     52
   ],
+  "test_counts": {
+    "tests_cto_collected": 153,
+    "tests_cto_passed": 153,
+    "tests_cto_failed": 0,
+    "full_suite": "SKIPPED on PR CI — preexisting debt, not claimed green"
+  },
   "claims_forbidden": [
     "LOCAL_READY",
     "VPS_OPERATIONAL",
@@ -56,12 +62,13 @@
     "95% coverage",
     "INTEGRATED without main",
     "story Done without PO+QA",
-    "READY_FOR_HUMAN_REVIEW for incomplete SDC on #50/#51"
+    "READY_FOR_HUMAN_REVIEW for incomplete SDC on #50/#51",
+    "full suite green when skipped"
   ],
   "material": {
-    "48": "authorized test registry, absolute veto, seal publish, dontAsk+strict, aiox_bridge",
+    "48": "authorized tests, absolute veto, seal publish, dontAsk+strict, aiox_bridge; claim-surface green",
     "50": "run_execution_ledger wired resilient_cycle+crawler_monitor; force-next story Draft",
     "51": "evidence_reconstruct + rerank exclude cycle-1; cycle-2 story Draft",
-    "52": "expired deadline active-filter; CNPJ identity_mismatch; offline never PARTICIPAR; ledger in decision_pack/weekly"
+    "52": "expired deadline active-filter; CNPJ identity_mismatch; offline never PARTICIPAR; ledger decision_pack/weekly"
   }
 }

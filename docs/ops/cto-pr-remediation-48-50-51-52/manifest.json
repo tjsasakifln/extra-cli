@@ -1,10 +1,9 @@
 {
-  "generated_at": "2026-07-20T02:15:17Z",
-  "mission": "cto-pr-remediation-48-50-51-52",
+  "generated_at": "2026-07-20T02:27:08Z",
   "ssot": "pr-state.json",
   "heads": {
     "main": "d6d9e1984e348d64a669546613e192e4ebf610cd",
-    "48": "536dacba639c647ae735169bb2c77ce625d8c630",
+    "48": "26a77f4780bf39ef07596a3b75377a335118a134",
     "50": "b73cc2d316c7befca62bbd92992e0765bb28801c",
     "51": "11ab4b962a487b25e3d1a3afb88b7e09ccd50879",
     "52": "466fc09dc05a65ba89792d272334b0aa0ed6aa1a"
@@ -16,22 +15,16 @@
     "52": "READY_FOR_HUMAN_REVIEW"
   },
   "terminal_state": "WAITING_HUMAN",
+  "test_counts": {
+    "tests_cto_collected": 153,
+    "tests_cto_passed": 153,
+    "tests_cto_failed": 0,
+    "full_suite": "SKIPPED on PR CI \u2014 preexisting debt, not claimed green"
+  },
   "merge_order": [
     48,
     50,
     51,
     52
-  ],
-  "files": [
-    "ARCHITECTURE.md",
-    "BASELINE.md",
-    "DOD-MAP.md",
-    "FINAL-REPORT.md",
-    "PR-MATRIX.md",
-    "SECURITY-REVIEW.md",
-    "TEST-MATRIX.md",
-    "checksums.json",
-    "manifest.json",
-    "pr-state.json"
   ]
 }
