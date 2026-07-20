@@ -11,6 +11,10 @@
 | ADR-020 | Operational data not in git | **Vigente** |
 | ADR-021 | Adapter architecture PNCP 429 fail-closed | **Vigente** |
 | ADR-022 | Client profile sole commercial law | **Vigente** |
+| ADR-026 | dbt snapshots rejected for operational core | **Vigente** (REJECTED_SPIKE) |
+| ADR-027 | Document parser stack (keep current) | **Vigente** |
+| ADR-028 | Entity resolution deterministic first; Splink deferred | **Vigente** |
+| ADR-029 | Reporting engines keep openpyxl + ReportLab | **Vigente** |
 
 ## ADRs revogadas / supersedidas
 

@@ -1,0 +1,11 @@
+{
+  "campaign": "ARCH-RESET-2026-07-20",
+  "generated_at_utc": "2026-07-20T12:40:55Z",
+  "decisions": {
+    "E_dbt": "REJECTED_SPIKE",
+    "G_parsers": "KEEP_CURRENT_STACK",
+    "H_identity": "REJECTED_SPIKE_FOR_NOW",
+    "J_reporting": "KEEP_OPENPYXL_REPORTLAB"
+  },
+  "production_deps_added": false
+}

@@ -1,0 +1,33 @@
+{
+  "spike": "G",
+  "component": "document_parsers",
+  "decision": "KEEP_CURRENT_STACK",
+  "reason": "Digital PDFs: pypdf/pdfplumber adequate for simple text; no corpus of scanned/multi-column private editais committed. PyMuPDF blocked by AGPL without commercial license decision. No production dep change.",
+  "samples": [
+    "sample-1.pdf",
+    "sample-2.pdf",
+    "sample-3.pdf"
+  ],
+  "engines": {
+    "pypdf": {
+      "ok": true,
+      "seconds": 0.0195,
+      "money_hits": 1,
+      "date_hits": 1,
+      "pages": 3
+    },
+    "pdfplumber": {
+      "ok": true,
+      "seconds": 0.0437,
+      "money_hits": 1,
+      "date_hits": 1
+    },
+    "pymupdf_fitz": {
+      "ok": false,
+      "installed": false,
+      "license_gate": "AGPL_OR_COMMERCIAL — spike may evaluate offline only with explicit license decision"
+    }
+  },
+  "production_dep_added": false,
+  "generated_at_utc": "2026-07-20T12:40:52Z"
+}

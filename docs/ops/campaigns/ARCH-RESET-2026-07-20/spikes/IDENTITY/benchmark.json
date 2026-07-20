@@ -1,0 +1,19 @@
+{
+  "spike": "H",
+  "component": "splink_residual",
+  "decision": "REJECTED_SPIKE_FOR_NOW",
+  "reason": "Deterministic CNPJ-8/14 path already hard-fails conflicting roots (pick_match). No 300-pair gold residual corpus available to validate Splink auto-link ≥99% precision. Probabilistic merge must not write canonical entity without human review.",
+  "deterministic_proof": {
+    "method": "cnpj8_prefix",
+    "cnpj14": "12345678000199",
+    "rejects_conflicting_root": true
+  },
+  "splink": {
+    "status": "REFERENCE_ONLY",
+    "min_corpus_pairs": 300,
+    "auto_link_precision_min": 0.99,
+    "auto_write_canonical": false
+  },
+  "production_dep_added": false,
+  "generated_at_utc": "2026-07-20T12:40:52Z"
+}

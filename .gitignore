@@ -119,3 +119,4 @@ output/qw-01/**/coverage_gaps.csv
 docs/ops/campaigns/**/evidence/**/*.dump
 docs/ops/campaigns/**/evidence/**/package-final-fixture/*.pdf
 docs/ops/campaigns/**/evidence/**/package-final-fixture/*.xlsx
+.spike-venv/

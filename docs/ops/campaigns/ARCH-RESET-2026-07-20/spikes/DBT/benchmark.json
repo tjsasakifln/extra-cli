@@ -1,0 +1,17 @@
+{
+  "spike": "E",
+  "component": "dbt-core snapshots",
+  "decision": "REJECTED_SPIKE",
+  "reason": "No net reduction of operational SQL yet; dual truth risk with PG migrations; SCD2 snapshots do not solve juridical event time or missed intermediate states.",
+  "corpus_size": 5,
+  "limitations": [
+    "snapshot interval can miss intermediate statuses",
+    "source without reliable updated_at cannot drive SCD correctly",
+    "hard_delete requires dbt hard_deletes config and still loses legal event time",
+    "second transform line risks dual truth vs operational migrations",
+    "juridical effective time != snapshot observed time (bitemporality gap)"
+  ],
+  "production_dep_added": false,
+  "optional_later": "REFERENCE_ONLY for analytics warehouse if product needs SCD later",
+  "generated_at_utc": "2026-07-20T12:40:50Z"
+}

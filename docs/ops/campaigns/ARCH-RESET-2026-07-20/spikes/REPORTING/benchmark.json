@@ -1,0 +1,29 @@
+{
+  "spike": "J",
+  "n_rows": 2000,
+  "openpyxl": {
+    "ok": true,
+    "seconds": 0.0874,
+    "bytes": 42903,
+    "write_only": true
+  },
+  "xlsxwriter": {
+    "ok": true,
+    "seconds": 0.0466,
+    "bytes": 42988,
+    "constant_memory": true,
+    "limitation": "cannot edit existing workbooks"
+  },
+  "reportlab": {
+    "installed": true,
+    "role": "current_pdf_generator"
+  },
+  "fpdf2": {
+    "installed": false,
+    "decision_hint": "no adoption without visual/regression parity on real pack"
+  },
+  "decision": "KEEP_OPENPYXL_REPORTLAB",
+  "reason": "XlsxWriter may be faster for pure write (xlsxwriter won microbench) but openpyxl is already integrated for read/edit paths; fpdf2 not installed and would require full PDF regression. No production dep change without pack-level parity.",
+  "production_dep_added": false,
+  "generated_at_utc": "2026-07-20T12:40:55Z"
+}
