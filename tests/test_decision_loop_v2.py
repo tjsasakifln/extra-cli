@@ -732,6 +732,25 @@ class TestIdentityProofStrict:
         snap = build_snapshot([row], run_id="r", reconfirm_map={42: good})
         assert snap.opportunities[0]["high_confidence_open"] is True
 
+    def test_forged_ok_identity_without_specific_proof_never_high_conf(self):
+        """outcome=ok + identity_matched without specific proof must not high-conf."""
+        row = self._row()
+        # CNPJ-only checks (the false-positive pattern)
+        forged_cnpj = {
+            "outcome": "ok",
+            "identity_matched": True,
+            "identity_checks": {"cnpj_found": True, "control_found": False},
+        }
+        assert is_high_confidence_open(row, forged_cnpj) is False
+        snap = build_snapshot([row], run_id="forge", reconfirm_map={42: forged_cnpj})
+        assert snap.opportunities[0]["high_confidence_open"] is False
+
+        # Bare identity_matched with empty checks (legacy forge)
+        forged_empty = {"outcome": "ok", "identity_matched": True}
+        assert is_high_confidence_open(row, forged_empty) is False
+        snap2 = build_snapshot([row], run_id="forge2", reconfirm_map={42: forged_empty})
+        assert snap2.opportunities[0]["high_confidence_open"] is False
+
 
 class TestHumanReview:
     def test_export_never_auto_labels(self, tmp_path: Path):

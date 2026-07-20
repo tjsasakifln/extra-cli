@@ -769,22 +769,34 @@ def is_high_confidence_open(
     if rc.get("outcome") in bad_outcomes:
         return False
     checks = rc.get("identity_checks") or rc.get("checks") or {}
-    if isinstance(checks, dict):
-        if checks.get("listing_page") or checks.get("error_page"):
-            return False
-        if checks.get("generic_org_url"):
-            return False
-        if checks.get("control_partial_only") and not checks.get("control_found"):
-            return False
-        # Require evidence of specific identity proof when checks are present
-        if checks and not (
-            checks.get("specific_identity_proof")
-            or checks.get("control_found")
-            or (checks.get("numero_found") and checks.get("cnpj_found"))
-        ):
-            # Legacy reconfirm dicts may only carry identity_matched + outcome
-            if not rc.get("identity_matched"):
-                return False
+    if not isinstance(checks, dict):
+        checks = {}
+
+    def _has_specific_proof(c: dict[str, Any]) -> bool:
+        return bool(
+            c.get("specific_identity_proof")
+            or c.get("control_found")
+            or (c.get("numero_found") and c.get("cnpj_found"))
+            or c.get("proof_kind") in {
+                "numero_controle_pncp_exact",
+                "numero_and_cnpj_exact",
+            }
+        )
+
+    # Fail-closed: identity_matched alone is not enough.
+    # - checks present → require specific opportunity proof (never CNPJ-only).
+    # - checks absent → refuse high confidence (forged ok+flag without proof).
+    if not checks:
+        return False
+    if checks.get("listing_page") or checks.get("error_page"):
+        return False
+    if checks.get("generic_org_url"):
+        return False
+    if checks.get("control_partial_only") and not checks.get("control_found"):
+        return False
+    if not _has_specific_proof(checks):
+        return False
+
     # Explicit specific identifier must be known on the opportunity side
     tokens = _identity_tokens(row)
     if not tokens["control"] and not (tokens["numero"] and tokens["cnpj"]):
