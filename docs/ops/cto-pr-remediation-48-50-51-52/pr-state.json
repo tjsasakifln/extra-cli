@@ -1,13 +1,19 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-20T02:46:04Z",
+  "generated_at": "2026-07-20T02:46:32Z",
   "terminal_state": "WAITING_HUMAN",
   "heads": {
     "main": "d6d9e1984e348d64a669546613e192e4ebf610cd",
-    "48": "67bdbe9b49f2c3ef0e5b48bf01e7d4edc3fbd2c8",
+    "48": "6fdeb86df6d17ac7792686dbf03da372b9f1af9e",
     "50": "07767dea073675d79073265c552b3fe70b990d0f",
     "51": "c764c6832df1d80c8f52793b77a9cf72db58ab15",
     "52": "9c8a80402ab2988b0f97430a5bde66b5cf768cfc"
+  },
+  "bases": {
+    "48": "main",
+    "50": "feat/cto-autopilot-issues-deepseek-20260719",
+    "51": "cto/canary-live-20260719T204106Z",
+    "52": "main"
   },
   "recommendations": {
     "48": "READY_FOR_HUMAN_REVIEW",
@@ -20,14 +26,22 @@
       "story_id": "ROI-cand-dyn-slice-cb906bb58392",
       "status": "Draft",
       "po_validated": false,
-      "qa_verdict": "PENDING"
+      "qa_verdict": "PENDING",
+      "candidate_id": "cand-dyn-slice:cb906bb58392"
     },
     "51": {
       "story_id": "ROI-cand-dyn-slice-b84aad7b10ee",
       "status": "Draft",
       "po_validated": false,
-      "qa_verdict": "PENDING"
+      "qa_verdict": "PENDING",
+      "candidate_id": "cand-dyn-slice:b84aad7b10ee"
     }
+  },
+  "next_actions": {
+    "48": "Human review/merge security CTO (tests/cto green; full suite SKIPPED≠green)",
+    "50": "@po validate ROI-cand-dyn-slice-cb906bb58392 → Ready; independent @qa",
+    "51": "Complete #50 SDC; force-next/rerank; @po Ready cycle-2 story",
+    "52": "Human review/merge decision loop (CI required checks pass)"
   },
   "mergeable": {
     "50": "MERGEABLE",
@@ -35,6 +49,12 @@
     "52": "MERGEABLE"
   },
   "ci": {
-    "52_required": "lint/mypy/critical/resilience/bandit/pip-audit PASS; full suite SKIPPED\u2260green"
-  }
+    "52_required": "lint/mypy/critical/resilience/bandit/pip-audit PASS; full suite SKIPPED≠green"
+  },
+  "merge_order": [
+    48,
+    50,
+    51,
+    52
+  ]
 }
