@@ -1049,8 +1049,11 @@ def run_decision_pack(
                 "counts": counts,
             },
         )
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception as led_exc:  # noqa: BLE001 — ledger must not fail pack
+        if isinstance(report, dict):
+            report.setdefault("warnings", []).append(f"ledger:{led_exc}")
+        else:
+            sys.stderr.write(f"decision_pack: ledger warn: {led_exc}\n")
 
     if status == "TECH_FAIL":
         return EXIT_TECH, manifest
