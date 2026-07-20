@@ -69,7 +69,8 @@ help:
 
 .PHONY: golden-path
 golden-path:
-	@echo '==> [$(ENV)] Golden Path — Pipeline de validação completa'
+	@echo '==> [$(ENV)] DIAGNOSTIC golden-path (not product weekly cycle)'
+	@echo '    Class: diagnostic'
 	$(MAKE) db-up
 	$(MAKE) bootstrap
 	python $(SCRIPTS_DIR)/golden_path.py $(GOLDEN_PATH_FLAGS)
@@ -85,7 +86,9 @@ golden-path-quick:
 
 .PHONY: run-pipeline
 run-pipeline:
-	@echo '==> [$(ENV)] Pipeline completo: bootstrap → crawl → intel → relatório'
+	@echo '==> [$(ENV)] LEGACY composite pipeline (NOT Extra product canonical)'
+	@echo '    Prefer: make extra-weekly'
+	@echo '    Class: legacy_composite'
 	$(MAKE) bootstrap
 	$(MAKE) run-crawl
 	python $(SCRIPTS_DIR)/intel_pipeline.py --auto
@@ -101,9 +104,18 @@ run-report:
 	@echo '==> [$(ENV)] Gerando relatórios'
 	python $(SCRIPTS_DIR)/reports/panorama.py --output-excel
 
+
+.PHONY: verify
+verify:
+	@echo '==> [$(ENV)] ENGINEERING verify — not a product orchestrator'
+	ruff check scripts/ops/weekly_cycle.py scripts/architecture/fitness_check.py || true
+	python3 -m scripts.architecture.fitness_check --strict
+	python3 -m pytest tests/architecture/ -q --tb=line --no-cov
+
 .PHONY: extra-weekly
 extra-weekly:
-	@echo '==> [$(ENV)] Ciclo semanal canônico Extra Construtora'
+	@echo '==> [$(ENV)] PRODUCT CANONICAL — Extra weekly consultive cycle'
+	@echo '    Class: product_canonical'
 	@echo '    Entry point: python -m scripts.ops.weekly_cycle --strict'
 	python3 -m scripts.ops.weekly_cycle --strict $(WEEKLY_FLAGS)
 

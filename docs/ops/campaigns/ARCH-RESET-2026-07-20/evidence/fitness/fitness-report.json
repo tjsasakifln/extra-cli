@@ -1,0 +1,26 @@
+{
+  "generated_at_utc": "2026-07-20T13:09:21Z",
+  "root": "/mnt/d/extra-consultoria-arch-remediate-dod",
+  "ok": true,
+  "checks": [
+    {
+      "id": "one_canonical_weekly_entrypoint",
+      "ok": true,
+      "has_extra_weekly": true,
+      "points_to_weekly_cycle": true,
+      "yaml_ok": true,
+      "product_canonical_command": "extra-weekly"
+    },
+    {
+      "id": "no_llm_in_coverage_freshness",
+      "ok": true,
+      "hits": [],
+      "scanned_files": 21
+    },
+    {
+      "id": "alternate_pipelines_labeled_or_adr",
+      "ok": true,
+      "issues": []
+    }
+  ]
+}

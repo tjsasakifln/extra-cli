@@ -14,6 +14,44 @@
 >
 > **Agnosticidade de desenvolvimento:** os requisitos, evidências, comandos e gates deste documento não dependem de Claude Code, Codex, Cursor, AIOX, MCP proprietário, IDE específica ou qualquer outro agente. Ferramentas podem acelerar o trabalho; nenhuma delas define o que significa pronto.
 
+## Política de IDs e gates — ARCH-RESET-2026-07-20 (reorganização mínima)
+
+> Esta seção **não** apaga requisitos, **não** marca itens em massa e **não** reduz metas comerciais de 95%.
+> Ela fixa uma governança honesta enquanto o checklist legado permanece legível.
+
+### Identificadores estáveis
+
+- Cada requisito futuro novo deve ter um ID estável no formato `DOD-{section}-{nnn}` (ex.: `DOD-29-015`).
+- Itens legados sem ID explícito são endereçados pelo **texto canônico + seção** (ex.: §29 «Cada execução possui erros.») até migração gradual.
+- Campanhas dinâmicas (`cand-dyn-slice:*`) devem referenciar o texto/seção DoD, não inventar selos.
+
+### Core gate vs backlog
+
+| Classe | Significado | Exemplos |
+|--------|-------------|---------|
+| **CORE_GATE** | Bloqueia aceite de estágio (local/pre-VPS/produto) se aberto sem `BLOCKED`/`NOT_APPLICABLE` legítimo | cobertura operacional 95%, freshness SLA, suíte crítica, golden path, semântica fail-closed de decisão |
+| **BACKLOG** | Desejável; não libera selos sozinho | polish UX, parsers avançados, OSS experimental, dashboard web |
+| **INFRA_EXTERNAL** | Depende de VPS/rede/humano | provisionamento VPS, timers produção, aceite Tiago |
+
+### Matriz de equivalência (anti-duplicação)
+
+| Conceito | Superfícies que não devem divergir | Fonte de verdade |
+|----------|-------------------------------------|------------------|
+| Pipeline semanal de produto | `Makefile` `extra-weekly`, `docs/canonical-entry-points.yaml`, `docs/DEVELOPMENT.md` | `scripts.ops.weekly_cycle` |
+| Universo 1093 | DOD meta, coverage reports, source_registry | planilha canônica + PG registry |
+| Coverage operacional vs sinal comercial | DOD § coverage, `coverage_contract` | métricas separadas; `commercial_signal` ≠ coverage |
+| Claims proibidos | README, DOD, ADRs, PRs | fail-closed: sem evidência HEAD = sem selo |
+
+### Blockers humanos explícitos (ARCH-RESET)
+
+- [ ] Merge da fila draft ARCH-RESET (#54–#61 e remediation) — **BLOCKER humano**
+- [ ] Suíte global completa verde — permanece **aberto** (ver evidência `docs/ops/campaigns/ARCH-RESET-2026-07-20/evidence/full-suite/`; execução capturada ≠ verde)
+- [ ] Aceite humano de Tiago sobre pacote semanal — **INFRA_EXTERNAL / humano**
+- [ ] Spike documental G com corpus ≥5+5+5+5 — **BACKLOG** (`DEFERRED_NO_CORPUS`)
+- [ ] Spike dbt E com experimento isolado ≥200 opps — **BACKLOG** (`REJECTED_WITHOUT_EXPERIMENT` até reabrir)
+
+Detalhes da campanha: `docs/ops/campaigns/ARCH-RESET-2026-07-20/FINAL-REPORT.md` (quando presente) / PRs da campanha.
+
 ## Atualização comprovada — ciclo B2G operacional de 17/07/2026
 
 > Este ciclo **não** declara `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE` nem cobertura de 95%. Ele corrige o contrato de medição e entrega fatias operacionais reproduzíveis.

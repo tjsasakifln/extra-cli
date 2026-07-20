@@ -1,8 +1,10 @@
 # Canonical entry-point contract (DoD §32.1)
 # All tool adapters (CLAUDE.md, AGENTS.md, Cursor rules) MUST reference
 # docs/DEVELOPMENT.md and MUST NOT invent parallel product requirements.
-version: "1.0"
-updated_at: "2026-07-18"
+version: "1.1"
+updated_at: "2026-07-20"
+product_canonical_command: extra-weekly
+product_canonical_module: scripts.ops.weekly_cycle
 canonical_guide: docs/DEVELOPMENT.md
 precedence:
   - DOD.md

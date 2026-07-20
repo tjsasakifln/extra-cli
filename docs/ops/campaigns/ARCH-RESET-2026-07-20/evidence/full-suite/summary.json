@@ -1,0 +1,16 @@
+{
+  "ran_at_utc": "2026-07-20T13:09:20Z",
+  "command": "python3 -m pytest tests/ -q --tb=no",
+  "summary_line": "= 21 failed, 2162 passed, 118 skipped, 10 deselected, 3 warnings in 808.87s (0:13:28) =",
+  "counts": {
+    "passed": 2162,
+    "failed": 21,
+    "errors": 0,
+    "skipped": 118,
+    "xfailed": 0
+  },
+  "claim": "FULL_SUITE_EXECUTED",
+  "green_claim": false,
+  "note": "Execution captured for ARCH-RESET DoD; not claimed green.",
+  "log_bytes": 62969
+}

@@ -1,0 +1,2601 @@
+[manager]	WARNING	Test in comment: HTTPS is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: PNCP is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: API is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: only is not a test name or id, ignoring
+Run started:2026-07-20 12:55:09.797819+00:00
+
+Test results:
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/build-proposta-data.py:190:13
+189	        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})  # noqa: S310 — hardcoded HTTPS BrasilAPI endpoint
+190	        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS BrasilAPI endpoint
+191	            return json.loads(resp.read())
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/check-alerts.py:36:0
+35	import shutil
+36	import subprocess
+37	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/check-alerts.py:219:17
+218	    try:
+219	        result = subprocess.run(  # noqa: S603 — shell=False default
+220	            ["psql", DEFAULT_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
+221	            capture_output=True,
+222	            text=True,
+223	            timeout=10,
+224	        )
+225	        if result.returncode != 0 or "1" not in result.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/check-alerts.py:219:17
+218	    try:
+219	        result = subprocess.run(  # noqa: S603 — shell=False default
+220	            ["psql", DEFAULT_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
+221	            capture_output=True,
+222	            text=True,
+223	            timeout=10,
+224	        )
+225	        if result.returncode != 0 or "1" not in result.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/collect_report_data.py:332:96
+331	                            self._inc_stat("retries")
+332	                            wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())  # noqa: S311  # Non-cryptographic, jitter for retry backoff
+333	                            if self.verbose:
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/collect_report_data.py:343:88
+342	                    # F26: Add jitter to retry backoff (AWS recommended pattern)
+343	                    wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())  # noqa: S311  # Non-cryptographic, jitter for retry backoff
+344	                    if self.verbose:
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/collect_report_data.py:366:84
+365	                # F26: Add jitter to retry backoff
+366	                wait = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)] * (0.5 + random.random())  # noqa: S311  # Non-cryptographic, jitter for retry backoff
+367	                if self.verbose:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/collect_report_data.py:9944:4
+9943	    """
+9944	    import subprocess
+9945	    import tempfile
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/collect_report_data.py:9980:17
+9979	
+9980	        result = subprocess.run(  # noqa: S603  # Controlled internal script path, CNPJ is validated input
+9981	            cmd,
+9982	            timeout=300,  # 5 min max (includes captcha wait time)
+9983	            capture_output=not verbose,
+9984	            text=True,
+9985	        )
+9986	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/collect_report_data.py:10047:8
+10046	            Path(tmp_path).unlink(missing_ok=True)
+10047	        except Exception:  # noqa: S110  # Best-effort temp file cleanup in finally block
+10048	            pass
+10049	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/consulting_readiness.py:505:8
+504	            conn.rollback()
+505	        except Exception:  # noqa: S110  # Best-effort rollback in error handler
+506	            pass
+507	        _logger.error("contract_total_value failed: %s", exc, exc_info=True)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/consulting_readiness.py:649:8
+648	            conn.rollback()
+649	        except Exception:  # noqa: S110  # Best-effort rollback in error handler
+650	            pass
+651	        _logger.error("entity_price_differential failed: %s", exc, exc_info=True)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/consulting_readiness.py:761:8
+760	            conn.rollback()
+761	        except Exception:  # noqa: S110  # Best-effort rollback in error handler
+762	            pass
+763	        _logger.error("relicitacao_stats failed: %s", exc, exc_info=True)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/consulting_readiness.py:872:8
+871	            conn.rollback()
+872	        except Exception:  # noqa: S110  # Best-effort rollback in error handler
+873	            pass
+874	        _logger.error("market_share computation failed: %s", exc, exc_info=True)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/consulting_readiness.py:965:8
+964	            conn.rollback()
+965	        except Exception:  # noqa: S110  # Best-effort rollback in error handler
+966	            pass
+967	        _logger.error("award_share computation failed: %s", exc, exc_info=True)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/consulting_readiness.py:1091:8
+1090	            conn.rollback()
+1091	        except Exception:  # noqa: S110  # Best-effort rollback in error handler
+1092	            pass
+1093	        _logger.error("HHI computation failed: %s", exc, exc_info=True)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/consulting_readiness.py:1179:8
+1178	            conn.rollback()
+1179	        except Exception:  # noqa: S110  # Best-effort rollback in error handler
+1180	            pass
+1181	        _logger.error("supplier_ranking computation failed: %s", exc, exc_info=True)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/contract_intel/cli.py:208:4
+207	        cur.execute(migration_path.read_text())
+208	    except Exception:  # noqa: S110
+209	        pass  # Views may already exist or migration already applied
+210	
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/coverage/measure_pncp_expansion.py:17:0
+16	import os
+17	import subprocess
+18	import sys
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/coverage/measure_pncp_expansion.py:58:13
+57	    # Executar crawl full
+58	    result = subprocess.run(
+59	        [sys.executable, "scripts/crawl/monitor.py", "--source", "pncp", "--mode", "full"],
+60	        capture_output=True,
+61	        text=True,
+62	        timeout=7200,
+63	    )
+64	    print(f"Return code: {result.returncode}")
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/coverage/measure_pncp_expansion.py:99:20
+98	    print("\n--- Coverage Report ---")
+99	    report_result = subprocess.run(
+100	        [sys.executable, "scripts/crawl/monitor.py", "--report-coverage"],
+101	        capture_output=True,
+102	        text=True,
+103	        timeout=300,
+104	    )
+105	    if report_result.stdout:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/coverage_truth.py:840:8
+839	            conn.close()
+840	        except Exception:  # noqa: S110  # Best-effort connection cleanup in error handler
+841	            pass
+842	        return 1
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/async_client.py:444:41
+443	                            if self.config.jitter:
+444	                                delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
+445	                            await asyncio.sleep(delay)
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/async_client.py:467:41
+466	                            if self.config.jitter:
+467	                                delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
+468	                            await asyncio.sleep(delay)
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/async_client.py:552:33
+551	                    if self.config.jitter:
+552	                        delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
+553	                    logger.debug(f"Error {response.status_code}. Retrying in {delay:.1f}s")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/ciga_ckan_crawler.py:100:13
+99	    try:
+100	        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS CKAN API endpoint
+101	            result = json.loads(resp.read())
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/ciga_ckan_crawler.py:165:13
+164	    try:
+165	        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS CKAN API endpoint
+166	            raw = resp.read()
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/ciga_dom_publications.py:191:13
+190	    try:
+191	        with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+192	            return resp.read(), None
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/clients/base/base.py:178:23
+177	        jitter = delay * self.jitter_factor
+178	        return delay + random.uniform(-jitter, jitter)  # noqa: S311
+179	
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/compras_gov_crawler.py:138:17
+137	
+138	            with urllib.request.urlopen(req, timeout=READ_TIMEOUT) as resp:  # noqa: S310 — validated above
+139	                body = resp.read().decode("utf-8")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/contracts_crawler.py:403:17
+402	
+403	            with urllib.request.urlopen(req, timeout=CONTRACTS_READ_TIMEOUT) as resp:  # noqa: S310 — validated above
+404	                body = resp.read().decode("utf-8")
+
+--------------------------------------------------
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'Senha para autenticacao no DOE-SC'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html
+   Location: scripts/crawl/credential_validator.py:58:4
+57	    "DOE_SC_LOGIN": "Login/CPF para autenticacao no DOE-SC",
+58	    "DOE_SC_PASSWORD": "Senha para autenticacao no DOE-SC",
+59	    "GOOGLE_APPLICATION_CREDENTIALS": "Caminho para o JSON de service account do BigQuery",
+60	}
+61	
+62	
+63	def _build_source_credentials() -> dict[str, list[CredentialRequirement]]:
+64	    """Build SOURCE_CREDENTIALS from the central registry."""
+65	    from scripts.crawl.registry import iter_sources  # local import to avoid circular
+66	
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/dados_abertos_sc_crawler.py:134:13
+133	    try:
+134	        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — fixed HTTPS CKAN
+135	            payload = json.loads(resp.read().decode("utf-8", errors="replace"))
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/dados_abertos_sc_crawler.py:348:13
+347	    try:
+348	        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310
+349	            out["etag"] = resp.headers.get("ETag")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/dados_abertos_sc_crawler.py:431:13
+430	    try:
+431	        with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT) as resp:  # noqa: S310
+432	            etag = resp.headers.get("ETag") or headers_meta.get("etag")
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/crawl/dlq.py:217:24
+216	                cur.execute(
+217	                    f"""
+218	                    SELECT id, source, run_id, phase, error_code, error_message,
+219	                           retry_count, status, failed_at, replayed_at
+220	                    FROM dlq_entries
+221	                    WHERE {where_clause}
+222	                    ORDER BY failed_at DESC
+223	                    LIMIT %s OFFSET %s
+224	                    """,  # noqa: S608
+225	                    (*params, limit, offset),
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/doe_sc_crawler.py:160:13
+159	    try:
+160	        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
+161	            body = resp.read().decode("utf-8")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/doe_sc_crawler.py:263:17
+262	        try:
+263	            with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
+264	                body = resp.read().decode("utf-8")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/doe_sc_crawler.py:807:13
+806	        req = urllib.request.Request(DOE_SC_PORTAL)  # noqa: S310 — hardcoded HTTPS portal URL
+807	        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — hardcoded HTTPS portal URL
+808	            portal_time = round(time.time() - t0, 3)
+
+--------------------------------------------------
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'test'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html
+   Location: scripts/crawl/doe_sc_crawler.py:827:47
+826	        url = f"{DOE_SC_API_HOST}/login"
+827	        payload = json.dumps({"login": "test", "password": "test"}).encode("utf-8")
+828	        req = urllib.request.Request(url, data=payload, method="POST")  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/doe_sc_crawler.py:832:13
+831	        req.add_header("User-Agent", USER_AGENT)
+832	        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
+833	            login_time = round(time.time() - t0, 3)
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/doe_sc_crawler.py:861:13
+860	        req.add_header("Accept", "application/json")
+861	        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — validated at module init (DOE_SC_API_HOST)
+862	            list_time = round(time.time() - t0, 3)
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/doe_sc_publications.py:58:17
+57	        try:
+58	            with urllib.request.urlopen(req, timeout=timeout) as response:  # noqa: S310
+59	                return response.read()
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/doe_sc_publications.py:65:42
+64	            if attempt + 1 < retries:
+65	                time.sleep((2**attempt) + random.uniform(0.0, 0.25))  # noqa: S311
+66	    raise RuntimeError(f"DOE-SC public fetch failed after {retries} attempts: {last}")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/dom_sc_crawler.py:144:13
+143	    try:
+144	        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — validated at caller (hardcoded HTTPS BASE_URL)
+145	            body = resp.read().decode("utf-8")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/dom_sc_crawler.py:242:13
+241	    try:
+242	        with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310 — validated above
+243	            body = resp.read().decode("utf-8", errors="replace")
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/crawl/mides_bigquery_crawler.py:102:16
+101	
+102	    query = f"""
+103	    SELECT id_municipio, nome
+104	    FROM `{PROJECT_ID}.{TABLE_MUNICIPIO_REF}`
+105	    WHERE sigla_uf = 'SC'
+106	    """  # noqa: S608 -- internal constants only, no user input
+107	    cache: dict[str, str] = {}
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/crawl/mides_bigquery_crawler.py:140:14
+139	    """
+140	    sql = f"""
+141	    SELECT
+142	        ano,
+143	        mes,
+144	        data,
+145	        sigla_uf,
+146	        id_municipio,
+147	        orgao,
+148	        id_unidade_gestora,
+149	        id_licitacao_bd,
+150	        id_licitacao,
+151	        modalidade_licitacao,
+152	        id_empenho_bd,
+153	        id_empenho,
+154	        numero,
+155	        descricao,
+156	        modalidade,
+157	        funcao,
+158	        subfuncao,
+159	        programa,
+160	        acao,
+161	        elemento_despesa,
+162	        valor_inicial,
+163	        valor_reforco,
+164	        valor_anulacao,
+165	        valor_ajuste,
+166	        valor_final
+167	    FROM `{PROJECT_ID}.{DATASET_ID}.{TABLE_EMPENHO}`
+168	    WHERE sigla_uf = 'SC'
+169	      AND ano = {year}
+170	      AND id_municipio IS NOT NULL
+171	    ORDER BY ano, mes, id_municipio, numero
+172	    """  # noqa: S608 -- internal constants only, no user input
+173	    if limit is not None:
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/crawl/mides_bigquery_crawler.py:189:15
+188	    """
+189	    return f"""
+190	    SELECT
+191	        ano,
+192	        mes,
+193	        data,
+194	        sigla_uf,
+195	        id_municipio,
+196	        orgao,
+197	        id_unidade_gestora,
+198	        id_licitacao_bd,
+199	        id_licitacao,
+200	        modalidade_licitacao,
+201	        id_empenho_bd,
+202	        id_empenho,
+203	        numero,
+204	        descricao,
+205	        modalidade,
+206	        funcao,
+207	        subfuncao,
+208	        programa,
+209	        acao,
+210	        elemento_despesa,
+211	        valor_inicial,
+212	        valor_reforco,
+213	        valor_anulacao,
+214	        valor_ajuste,
+215	        valor_final
+216	    FROM `{PROJECT_ID}.{DATASET_ID}.{TABLE_EMPENHO}`
+217	    WHERE sigla_uf = 'SC'
+218	      AND data >= DATE_SUB(CURRENT_DATE(), INTERVAL {days_back} DAY)
+219	      AND id_municipio IS NOT NULL
+220	    ORDER BY data, id_municipio, numero
+221	    """  # noqa: S608 -- internal constants only, no user input
+222	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/crawl/orchestrator.py:318:8
+317	            _finish_ingestion_run(conn, run_id, fetched, upserted, matched, "failed", error)
+318	        except Exception:  # noqa: S110  # Best-effort: ingestion run reporting in error handler
+319	            pass
+320	        try:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/crawl/orchestrator.py:322:8
+321	            conn.close()
+322	        except Exception:  # noqa: S110  # Best-effort: connection cleanup in error handler
+323	            pass
+324	        return {"source": source, "status": "failed", "error": error}
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/pcp_crawler.py:248:17
+247	
+248	            with urllib.request.urlopen(req, timeout=PCP_READ_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS PCP API endpoint
+249	                body = resp.read().decode("utf-8")
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/playwright_fallback.py:147:28
+146	            # Create context with stealth configuration
+147	            width, height = random.choice(_VIEWPORT_SIZES)  # noqa: S311  # Non-cryptographic, viewport randomisation for anti-bot
+148	            device_scale = random.choice(_DEVICE_SCALE_FACTORS)  # noqa: S311  # Non-cryptographic, device scale randomisation
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/playwright_fallback.py:148:27
+147	            width, height = random.choice(_VIEWPORT_SIZES)  # noqa: S311  # Non-cryptographic, viewport randomisation for anti-bot
+148	            device_scale = random.choice(_DEVICE_SCALE_FACTORS)  # noqa: S311  # Non-cryptographic, device scale randomisation
+149	            user_agent = random.choice(_USER_AGENTS)  # noqa: S311  # Non-cryptographic, UA rotation for anti-bot
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/playwright_fallback.py:149:25
+148	            device_scale = random.choice(_DEVICE_SCALE_FACTORS)  # noqa: S311  # Non-cryptographic, device scale randomisation
+149	            user_agent = random.choice(_USER_AGENTS)  # noqa: S311  # Non-cryptographic, UA rotation for anti-bot
+150	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/crawl/playwright_fallback.py:315:12
+314	                self._page.close()
+315	            except Exception:  # noqa: S110  # Best-effort cleanup in close()
+316	                pass
+317	            self._page = None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/crawl/playwright_fallback.py:322:12
+321	                self._context.close()
+322	            except Exception:  # noqa: S110  # Best-effort cleanup in close()
+323	                pass
+324	            self._context = None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/crawl/playwright_fallback.py:329:12
+328	                self._browser.close()
+329	            except Exception:  # noqa: S110  # Best-effort cleanup in close()
+330	                pass
+331	            self._browser = None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/crawl/playwright_fallback.py:336:12
+335	                self._playwright.stop()
+336	            except Exception:  # noqa: S110  # Best-effort cleanup in close()
+337	                pass
+338	
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/pncp_crawler_adapter.py:128:27
+127	    jitter = base * PNCP_RETRY_JITTER
+128	    return max(0.0, base + random.uniform(-jitter, jitter))  # noqa: S311 - retry jitter is not security-sensitive
+129	
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/pncp_crawler_adapter.py:336:17
+335	            )
+336	            with urllib.request.urlopen(req, timeout=PNCP_READ_TIMEOUT) as response:  # noqa: S310 — hardcoded HTTPS PNCP API endpoint
+337	                payload = json.loads(response.read().decode("utf-8"))
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/resilience/http_policy.py:85:27
+84	            return float(min(self.max_delay, float(retry_after)))
+85	        generator = rng or random.Random()  # noqa: S311 — retry jitter is not security-sensitive
+86	        expo = float(min(self.max_delay, self.base_delay * (2**attempt)))
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/retry.py:316:17
+315	        # Add ±50% jitter to prevent thundering herd
+316	        delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
+317	
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/run_contracts_90d_pilot.py:252:23
+251	        base = 2**attempt
+252	        delay = base + random.uniform(0, base)  # noqa: S311 — retry jitter, not crypto
+253	        logger.warning(
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/crawl/run_evidence.py:15:0
+14	import socket
+15	import subprocess
+16	import uuid
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/crawl/run_evidence.py:69:12
+68	        git_sha = (
+69	            subprocess.check_output(
+70	                ["git", "rev-parse", "HEAD"],  # noqa: S607
+71	                stderr=subprocess.DEVNULL,
+72	                timeout=5,
+73	            )
+74	            .decode("utf-8", errors="replace")
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/crawl/run_evidence.py:69:12
+68	        git_sha = (
+69	            subprocess.check_output(
+70	                ["git", "rev-parse", "HEAD"],  # noqa: S607
+71	                stderr=subprocess.DEVNULL,
+72	                timeout=5,
+73	            )
+74	            .decode("utf-8", errors="replace")
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/crawl/run_evidence.py:82:12
+81	        git_branch = (
+82	            subprocess.check_output(
+83	                ["git", "rev-parse", "--abbrev-ref", "HEAD"],  # noqa: S607
+84	                stderr=subprocess.DEVNULL,
+85	                timeout=5,
+86	            )
+87	            .decode("utf-8", errors="replace")
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/crawl/run_evidence.py:82:12
+81	        git_branch = (
+82	            subprocess.check_output(
+83	                ["git", "rev-parse", "--abbrev-ref", "HEAD"],  # noqa: S607
+84	                stderr=subprocess.DEVNULL,
+85	                timeout=5,
+86	            )
+87	            .decode("utf-8", errors="replace")
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/sanctions.py:167:17
+166	        delay = min(2.0 * (2**attempt), 60.0)
+167	        delay *= random.uniform(0.5, 1.5)  # noqa: S311 — non-cryptographic jitter for retry backoff
+168	        return delay
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/sc_compras_crawler.py:374:17
+373	            req.add_header("User-Agent", USER_AGENT)
+374	            with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310
+375	                if resp.status == 200:
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/selenium_crawler.py:140:25
+139	        self._user_agents = user_agents or list(_DEFAULT_USER_AGENTS)
+140	        self._ua_index = random.randint(0, len(self._user_agents) - 1)  # noqa: S311  # Non-cryptographic, UA rotation for anti-bot
+141	
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/selenium_crawler.py:255:28
+254	            # Randomise viewport
+255	            width, height = random.choice(_VIEWPORT_SIZES)  # noqa: S311  # Non-cryptographic, viewport randomisation for anti-bot
+256	            driver.set_window_size(width, height)
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/crawl/selenium_crawler.py:299:28
+298	            driver = webdriver.Firefox(options=options)
+299	            width, height = random.choice(_VIEWPORT_SIZES)  # noqa: S311  # Non-cryptographic, viewport randomisation for anti-bot
+300	            driver.set_window_size(width, height)
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/smoke_pncp_public.py:140:17
+139	            req.add_header("Accept", "application/json")
+140	            with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310
+141	                status = resp.status
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/tce_sc_crawler.py:265:17
+264	
+265	            with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 — hardcoded HTTPS TCE-SC portal endpoint
+266	                body = resp.read().decode("utf-8")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/transparencia_crawler.py:149:13
+148	    try:
+149	        with urllib.request.urlopen(req, timeout=t) as resp:  # noqa: S310 — hardcoded HTTPS transparencia portal endpoint
+150	            body = resp.read().decode("utf-8", errors="replace")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/crawl/transparencia_crawler.py:187:13
+186	    try:
+187	        with urllib.request.urlopen(req, timeout=t) as resp:  # noqa: S310 — hardcoded HTTPS transparencia portal endpoint
+188	            return resp.status
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/crawl/transparencia_templates/base.py:45:4
+44	            return href
+45	    except Exception:  # noqa: S110
+46	        pass  # Best-effort URL resolution — return empty on any parse failure
+47	    return ""
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/datalake-sc-200km.py:120:12
+119	                    fetched += 1
+120	            except Exception:  # noqa: S110
+121	                pass  # Per-row fetch — single failure shouldn't abort batch
+122	
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/datalake-sc-200km.py:220:12
+219	    cur.execute(
+220	        f"""
+221	        SELECT COUNT(*) as total_bids,
+222	               COUNT(DISTINCT municipio) as muns_com_bids,
+223	               SUM(valor_estimado) as valor_total_estimado
+224	        FROM pncp_raw_bids
+225	        WHERE uf = 'SC' AND UPPER(municipio) IN ({placeholders})
+226	    """,  # noqa: S608 -- placeholders are %s for parameterized IN clause
+227	        mun_sql_list,
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/datalake-sc-200km.py:238:12
+237	    cur.execute(
+238	        f"""
+239	        SELECT UPPER(municipio), COUNT(*), SUM(valor_estimado)
+240	        FROM pncp_raw_bids
+241	        WHERE uf = 'SC' AND UPPER(municipio) IN ({placeholders})
+242	        GROUP BY UPPER(municipio)
+243	        ORDER BY COUNT(*) DESC
+244	        LIMIT 20
+245	    """,  # noqa: S608 -- placeholders are %s for parameterized IN clause
+246	        mun_sql_list,
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/datalake-sc-200km.py:254:12
+253	    cur.execute(
+254	        f"""
+255	        SELECT COUNT(*) as total_contracts,
+256	               COUNT(DISTINCT municipio) as muns_com_contracts,
+257	               COUNT(DISTINCT ni_fornecedor) as fornecedores_unicos,
+258	               SUM(valor_global) as valor_total
+259	        FROM pncp_supplier_contracts
+260	        WHERE uf = 'SC' AND UPPER(municipio) IN ({placeholders})
+261	    """,  # noqa: S608 -- placeholders are %s for parameterized IN clause
+262	        mun_sql_list,
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/datalake-sc-200km.py:300:12
+299	    cur.execute(
+300	        f"""
+301	        SELECT ni_fornecedor, nome_fornecedor,
+302	               COUNT(*) as contratos,
+303	               SUM(valor_global) as valor_total,
+304	               COUNT(DISTINCT municipio) as municipios
+305	        FROM pncp_supplier_contracts
+306	        WHERE uf = 'SC'
+307	          AND UPPER(municipio) IN ({placeholders})
+308	          AND ({eng_conditions})
+309	          AND ni_fornecedor IS NOT NULL
+310	          AND LENGTH(ni_fornecedor) = 14
+311	        GROUP BY ni_fornecedor, nome_fornecedor
+312	        ORDER BY contratos DESC
+313	    """,  # noqa: S608 -- eng_conditions uses hardcoded keywords, IN uses %s placeholders
+314	        mun_sql_list,
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/datalake_helper.py:109:16
+108	    def execute(self) -> _LocalPgResult:
+109	        sql = f"SELECT {self._cols} FROM {self._table}"  # noqa: S608 -- internal query builder, values are %s parameterized
+110	        if self._wheres:
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/datalake_helper.py:171:16
+170	                values.append(v)
+171	        sql = f'SELECT * FROM "public"."{fn_name}"({", ".join(arg_list)})'  # noqa: S608 -- function name is internal, values are %s parameterized
+172	        with self._cursor() as cur:
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/diagnose/dom_sc_diagnostic.py:78:13
+77	    try:
+78	        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
+79	            body = resp.read().decode("utf-8")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/diagnose/dom_sc_diagnostic.py:106:17
+105	            req.add_header("User-Agent", USER_AGENT)
+106	            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
+107	                body = resp.read()
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/diagnose/dom_sc_diagnostic.py:258:17
+257	            req.add_header("User-Agent", USER_AGENT)
+258	            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — hardcoded HTTPS DOM-SC portal endpoint
+259	                body = resp.read().decode("utf-8", errors="replace")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/entity_identity/pncp_orgao_resolve.py:40:9
+39	    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})  # noqa: S310 — HTTPS PNCP orgaos API
+40	    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 — HTTPS PNCP orgaos API
+41	        data = json.loads(resp.read().decode("utf-8"))
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: scripts/export-sc-200km-final.py:25:15
+24	CONTACTS = {}
+25	_merged_path = "/tmp/all_contacts_merged.json"  # noqa: S108 — intentional shared path between scripts in same pipeline
+26	if _os.path.exists(_merged_path):
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: scripts/export-sc-200km-final.py:230:10
+229	# ============================================================
+230	with open("/tmp/sc_200km.json") as f:  # noqa: S108 — intentional shared path between scripts in same pipeline
+231	    muns = json.load(f)
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/export-sc-200km-final.py:304:12
+303	
+304	query = f"""
+305	SELECT ni_fornecedor, nome_fornecedor, COUNT(*) as cnt, SUM(valor_global) as val,
+306	       COUNT(DISTINCT municipio) as muns,
+307	       STRING_AGG(DISTINCT municipio, ', ' ORDER BY municipio) as muns_lista,
+308	       MIN(data_assinatura)::date as primeiro, MAX(data_assinatura)::date as ultimo,
+309	       STRING_AGG(DISTINCT setor_classificado, ', ' ORDER BY setor_classificado)
+310	           FILTER (WHERE setor_classificado IS NOT NULL) as setores,
+311	       STRING_AGG(DISTINCT orgao_nome, ' | ' ORDER BY orgao_nome)
+312	           FILTER (WHERE orgao_nome IS NOT NULL) as orgaos
+313	FROM pncp_supplier_contracts
+314	WHERE uf = 'SC'
+315	  AND UPPER(municipio) = ANY(%s)
+316	  AND ({eng_includes})
+317	  AND ni_fornecedor IS NOT NULL AND LENGTH(ni_fornecedor) = 14 AND valor_global > 0
+318	  AND NOT ({gov_excludes})
+319	  AND NOT (UPPER(nome_fornecedor) LIKE 'FUNDACAO MUNICIPAL%%')
+320	  AND NOT (UPPER(nome_fornecedor) LIKE 'FUNDACAO ESTADUAL%%')
+321	  AND NOT (UPPER(nome_fornecedor) LIKE 'FUNDAÇÃO MUNICIPAL%%')
+322	  AND NOT (UPPER(nome_fornecedor) LIKE 'FUNDAÇÃO ESTADUAL%%')
+323	  AND (UPPER(nome_fornecedor) LIKE '%%LTDA%%' OR UPPER(nome_fornecedor) LIKE '%%S.A.%%'
+324	    OR UPPER(nome_fornecedor) LIKE '%%S/A%%' OR UPPER(nome_fornecedor) LIKE '%%EIRELI%%'
+325	    OR UPPER(nome_fornecedor) LIKE '%%ME %%' OR UPPER(nome_fornecedor) LIKE '%%MEI%%'
+326	    OR UPPER(nome_fornecedor) LIKE '%%- ME%%' OR UPPER(nome_fornecedor) LIKE 'FUNDACAO%%'
+327	    OR UPPER(nome_fornecedor) LIKE 'FUNDAÇÃO%%' OR UPPER(nome_fornecedor) LIKE 'INSTITUTO%%'
+328	    OR UPPER(nome_fornecedor) LIKE 'COOPERATIVA%%')
+329	GROUP BY ni_fornecedor, nome_fornecedor
+330	ORDER BY val DESC LIMIT 100
+331	"""  # noqa: S608 -- eng_includes/gov_excludes from hardcoded lists, names is %s parameterized
+332	cur.execute(query, (names,))
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/fix/resolve_unresolved_entities.py:23:0
+22	import re
+23	import subprocess
+24	import sys
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/fix/resolve_unresolved_entities.py:86:11
+85	    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept-Encoding": "gzip"})  # noqa: S310 — hardcoded HTTPS Nominatim API endpoint
+86	    resp = urllib.request.urlopen(req, timeout=15)  # noqa: S310 — hardcoded HTTPS Nominatim API endpoint
+87	    raw = resp.read()
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/fix/resolve_unresolved_entities.py:415:16
+414	    readiness_script = PROJECT_ROOT / "scripts" / "consulting_readiness.py"
+415	    completed = subprocess.run([sys.executable, str(readiness_script)], check=False)  # noqa: S603 — hardcoded project script path, no user input
+416	    exit_code = completed.returncode
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/freshness_gate.py:165:14
+164	
+165	    sql = f"""
+166	        SELECT
+167	            MAX(CASE WHEN {status_col} = 'completed' THEN COALESCE({finished_col}, {started_col}) END) AS last_success_at,
+168	            COUNT(*) FILTER (WHERE {status_col} = 'completed') AS successful_runs,
+169	            COUNT(*) AS total_runs
+170	        FROM ingestion_runs
+171	        WHERE source = %s
+172	    """  # noqa: S608 -- column names from schema introspection (information_schema), not user input
+173	    return _query_one_dict(conn, sql, (spec.run_source,))
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/freshness_gate.py:187:14
+186	
+187	    sql = f"""
+188	        SELECT
+189	            MAX(ingested_at) AS last_ingested_at,
+190	            MAX({spec.business_date_column}) AS latest_business_date,
+191	            COUNT(*) FILTER (WHERE ingested_at >= NOW() - (%s * INTERVAL '1 hour')) AS recent_records,
+192	            COUNT(*) AS total_records
+193	        FROM {spec.table_name}
+194	        WHERE 1=1
+195	          {source_sql}
+196	          {active_sql}
+197	    """  # noqa: S608 -- table/column names from CRITICAL_SOURCES constants, values parameterized via %s
+198	    return _query_one_dict(conn, sql, (spec.recent_window_hours, *source_params))
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/generate-report-b2g.py:6621:4
+6620	    import hashlib
+6621	    import subprocess
+6622	
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/generate-report-b2g.py:6625:12
+6624	        git_hash = (
+6625	            subprocess.check_output(  # noqa: S603 — shell=False default
+6626	                ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607 — git resolved from PATH
+6627	                cwd=str(Path(__file__).parent.parent),
+6628	                stderr=subprocess.DEVNULL,
+6629	            )
+6630	            .decode()
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/generate-report-b2g.py:6625:12
+6624	        git_hash = (
+6625	            subprocess.check_output(  # noqa: S603 — shell=False default
+6626	                ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607 — git resolved from PATH
+6627	                cwd=str(Path(__file__).parent.parent),
+6628	                stderr=subprocess.DEVNULL,
+6629	            )
+6630	            .decode()
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/generate-report-b2g.py:6817:4
+6816	    import hashlib
+6817	    import subprocess
+6818	
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/generate-report-b2g.py:6821:12
+6820	        git_hash = (
+6821	            subprocess.check_output(  # noqa: S603 — shell=False default
+6822	                ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607 — git resolved from PATH
+6823	                cwd=str(Path(__file__).parent.parent),
+6824	                stderr=subprocess.DEVNULL,
+6825	            )
+6826	            .decode()
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/generate-report-b2g.py:6821:12
+6820	        git_hash = (
+6821	            subprocess.check_output(  # noqa: S603 — shell=False default
+6822	                ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607 — git resolved from PATH
+6823	                cwd=str(Path(__file__).parent.parent),
+6824	                stderr=subprocess.DEVNULL,
+6825	            )
+6826	            .decode()
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/golden_path.py:45:0
+44	import random
+45	import subprocess
+46	import sys
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/golden_path.py:116:13
+115	    delay = min(base * (2**attempt), max_delay)
+116	    jitter = random.uniform(0, delay * 0.15)  # noqa: S311
+117	    return delay + jitter
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/golden_path.py:176:12
+175	    try:
+176	        r = subprocess.run(
+177	            ["git", "rev-parse", "HEAD"],  # noqa: S607
+178	            capture_output=True,
+179	            text=True,
+180	            timeout=5,
+181	            check=False,
+182	            cwd=str(_PROJECT_ROOT),
+183	        )
+184	        if r.returncode == 0 and r.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/golden_path.py:176:12
+175	    try:
+176	        r = subprocess.run(
+177	            ["git", "rev-parse", "HEAD"],  # noqa: S607
+178	            capture_output=True,
+179	            text=True,
+180	            timeout=5,
+181	            check=False,
+182	            cwd=str(_PROJECT_ROOT),
+183	        )
+184	        if r.returncode == 0 and r.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/golden_path.py:540:21
+539	                ]
+540	            result = subprocess.run(  # noqa: S603
+541	                cmd,
+542	                cwd=str(_PROJECT_ROOT),
+543	                capture_output=True,
+544	                text=True,
+545	                timeout=source.timeout_s,
+546	                env=child_env,
+547	            )
+548	            dur = (time.monotonic() - start) * 1000
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/golden_path.py:666:17
+665	    try:
+666	        result = subprocess.run(  # noqa: S603
+667	            [sys.executable, str(_SCRIPTS_DIR / "freshness_gate.py")],
+668	            cwd=str(_PROJECT_ROOT),
+669	            capture_output=True,
+670	            text=True,
+671	            timeout=60,
+672	            env={
+673	                **os.environ,
+674	                "LOCAL_DATALAKE_DSN": dsn,
+675	                "PYTHONPATH": f"{_PROJECT_ROOT}:{os.environ.get('PYTHONPATH', '')}",
+676	            },
+677	        )
+678	        dur = (time.monotonic() - start) * 1000
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/golden_path.py:724:17
+723	    try:
+724	        result = subprocess.run(  # noqa: S603
+725	            [
+726	                sys.executable,
+727	                str(_SCRIPTS_DIR / "reports" / "panorama.py"),
+728	                "--output-excel",
+729	                "--dsn",
+730	                dsn,
+731	            ],
+732	            cwd=str(_PROJECT_ROOT),
+733	            capture_output=True,
+734	            text=True,
+735	            timeout=120,
+736	        )
+737	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/golden_path.py:756:17
+755	    try:
+756	        result = subprocess.run(  # noqa: S603
+757	            [
+758	                sys.executable,
+759	                str(_SCRIPTS_DIR / "reports" / "panorama.py"),
+760	                "--output-pdf",
+761	                "--dsn",
+762	                dsn,
+763	            ],
+764	            cwd=str(_PROJECT_ROOT),
+765	            capture_output=True,
+766	            text=True,
+767	            timeout=120,
+768	        )
+769	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/health-dashboard.py:29:0
+28	import shutil
+29	import subprocess
+30	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/health-dashboard.py:69:17
+68	    try:
+69	        result = subprocess.run(  # noqa: S603 — shell=False default
+70	            ["psql", DEFAULT_DSN, "-c", "SELECT 1", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
+71	            capture_output=True,
+72	            text=True,
+73	            timeout=10,
+74	        )
+75	        db_ok = result.returncode == 0 and "1" in result.stdout.strip()
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/health-dashboard.py:69:17
+68	    try:
+69	        result = subprocess.run(  # noqa: S603 — shell=False default
+70	            ["psql", DEFAULT_DSN, "-c", "SELECT 1", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
+71	            capture_output=True,
+72	            text=True,
+73	            timeout=10,
+74	        )
+75	        db_ok = result.returncode == 0 and "1" in result.stdout.strip()
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/health-dashboard.py:253:17
+252	    try:
+253	        result = subprocess.run(  # noqa: S603 — shell=False default; sys.executable is explicit path
+254	            [sys.executable, check_alerts, "--json", "--dry-run"],
+255	            capture_output=True,
+256	            text=True,
+257	            timeout=30,
+258	        )
+259	        if result.returncode in (0, 1, 2) and result.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'PASS'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html
+   Location: scripts/health-dashboard.py:290:8
+289	    icons = {
+290	        "pass": "PASS",
+291	        "fail": "FAIL",
+292	        "warn": "WARN",
+293	        "healthy": "OK",
+294	        "critical": "CRIT",
+295	        "warning": "WARN",
+296	        "ok": "OK",
+297	        "success": "OK",
+298	        "unknown": "?",
+299	    }
+300	    return icons.get(status, "?")
+301	
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/health_check.py:20:0
+19	import shutil
+20	import subprocess
+21	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/health_check.py:47:17
+46	    try:
+47	        result = subprocess.run(  # noqa: S603 — shell=False default
+48	            ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
+49	            capture_output=True,
+50	            text=True,
+51	            timeout=10,
+52	        )
+53	        if result.returncode == 0 and "1" in result.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/health_check.py:47:17
+46	    try:
+47	        result = subprocess.run(  # noqa: S603 — shell=False default
+48	            ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
+49	            capture_output=True,
+50	            text=True,
+51	            timeout=10,
+52	        )
+53	        if result.returncode == 0 and "1" in result.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/healthcheck.py:29:0
+28	import shutil
+29	import subprocess
+30	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/healthcheck.py:65:17
+64	    try:
+65	        result = subprocess.run(  # noqa: S603 — shell=False default
+66	            ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
+67	            capture_output=True,
+68	            text=True,
+69	            timeout=10,
+70	        )
+71	        if result.returncode == 0 and "1" in result.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/healthcheck.py:65:17
+64	    try:
+65	        result = subprocess.run(  # noqa: S603 — shell=False default
+66	            ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
+67	            capture_output=True,
+68	            text=True,
+69	            timeout=10,
+70	        )
+71	        if result.returncode == 0 and "1" in result.stdout.strip():
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/healthcheck.py:101:17
+100	    try:
+101	        result = subprocess.run(  # noqa: S603 — shell=False default
+102	            ["systemctl", "list-timers", "--all", "--no-legend"],  # noqa: S607 — systemctl resolved from PATH in production VPS
+103	            capture_output=True,
+104	            text=True,
+105	            timeout=10,
+106	        )
+107	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/healthcheck.py:101:17
+100	    try:
+101	        result = subprocess.run(  # noqa: S603 — shell=False default
+102	            ["systemctl", "list-timers", "--all", "--no-legend"],  # noqa: S607 — systemctl resolved from PATH in production VPS
+103	            capture_output=True,
+104	            text=True,
+105	            timeout=10,
+106	        )
+107	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/integrations/smartlic_snapshot_import.py:518:26
+517	                    cur.execute(
+518	                        f"SELECT * FROM {table} ORDER BY 1 OFFSET %s LIMIT %s",  # noqa: S608 — table allowlisted
+519	                        (offset, page),
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/intel_extract_docs.py:401:4
+400	        # If PK magic and xlsx suffix → xlsx already handled above
+401	    except Exception:  # noqa: S110
+402	        pass  # Best-effort file type detection — return "unknown" on any failure
+403	
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/intel_pipeline.py:28:0
+27	import re
+28	import subprocess
+29	import sys
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/intel_pipeline.py:213:17
+212	    try:
+213	        result = subprocess.run(
+214	            cmd,
+215	            env=env,
+216	            timeout=timeout,
+217	            check=True,
+218	            capture_output=False,  # allow live output
+219	        )
+220	        elapsed = time.time() - t0
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/intel_pipeline.py:478:20
+477	    # 3. Spot check: 5 compatible + 5 incompatible
+478	    sample_compat = random.sample(compat, min(5, len(compat)))
+479	    sample_incompat = random.sample(incompat, min(5, len(incompat)))
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: scripts/intel_pipeline.py:479:22
+478	    sample_compat = random.sample(compat, min(5, len(compat)))
+479	    sample_incompat = random.sample(incompat, min(5, len(incompat)))
+480	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/intel_pipeline.py:1282:8
+1281	            _save_json(json_path, data)
+1282	        except Exception:
+1283	            pass
+1284	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/intel_pipeline.py:1337:8
+1336	            _cnpj_hint = _empresa_hint.get("cnpj") or cnpj14
+1337	        except Exception:
+1338	            pass
+1339	    print(f"\n  {_info('CALIBRACAO')}: Apos resultado da licitacao, registre:")
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/local_datalake.py:93:30
+92	            with conn.cursor() as cur:
+93	                cur.execute(f'SELECT count(*) FROM "{table}"')  # noqa: S608 -- table validated by regex ^[a-z_][a-z0-9_]*$
+94	                cnt = cur.fetchone()[0]
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/local_datalake.py:152:12
+151	    arg_parts = [f'"{k}" := %s' for k in full_params]
+152	    sql = f'SELECT * FROM "public"."search_datalake"({", ".join(arg_parts)})'  # noqa: S608 -- function name hardcoded, values via %s placeholders
+153	    rows = query(sql, list(full_params.values()))
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/local_datalake.py:238:14
+237	
+238	    sql = f"""SELECT valor_global FROM pncp_supplier_contracts
+239	              WHERE {" AND ".join(wheres)}
+240	              ORDER BY data_assinatura DESC LIMIT 1000"""  # noqa: S608 -- all values parameterized via %s
+241	    rows = query(sql, params)
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/local_datalake.py:293:14
+292	
+293	    sql = f"""SELECT ni_fornecedor, nome_fornecedor,
+294	                     count(*) as n_contratos,
+295	                     sum(valor_global) as valor_total,
+296	                     max(data_assinatura) as ultimo_contrato
+297	              FROM pncp_supplier_contracts
+298	              WHERE {" AND ".join(wheres)}
+299	              GROUP BY ni_fornecedor, nome_fornecedor
+300	              ORDER BY n_contratos DESC, valor_total DESC
+301	              LIMIT %s"""  # noqa: S608 -- all values parameterized via %s
+302	    params.append(min(args.limit, 20))
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/matching/official_acts_reconcile.py:922:20
+921	            cur.execute(
+922	                f"""
+923	                SELECT pncp_id, numero_controle_pncp, source_id, orgao_cnpj,
+924	                       orgao_razao_social, modalidade_id, modalidade_nome,
+925	                       ano_compra, data_publicacao, valor_total_estimado,
+926	                       situacao_compra, uf, link_pncp, informacao_complementar
+927	                FROM pncp_raw_bids
+928	                WHERE (uf = %s OR uf IS NULL)
+929	                  AND (is_active IS DISTINCT FROM FALSE)
+930	                ORDER BY data_publicacao DESC NULLS LAST
+931	                {lim_sql}
+932	                """,  # noqa: S608
+933	                (uf,),
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/matching/official_acts_reconcile.py:948:20
+947	            cur.execute(
+948	                f"""
+949	                SELECT id, contrato_id, orgao_cnpj, orgao_nome, valor_total,
+950	                       data_publicacao, data_assinatura, uf, source_id,
+951	                       fornecedor_cnpj
+952	                FROM pncp_supplier_contracts
+953	                WHERE uf = %s
+954	                  AND (is_active IS DISTINCT FROM FALSE)
+955	                ORDER BY data_publicacao DESC NULLS LAST
+956	                {lim_c}
+957	                """,  # noqa: S608
+958	                (uf,),
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/matching/official_acts_reconcile.py:993:20
+992	            cur.execute(
+993	                f"""
+994	                SELECT id, source, external_id, record_hash, title, raw_text, summary,
+995	                       classification_evidence, orgao_nome, orgao_cnpj,
+996	                       process_number, edital_number, contract_number,
+997	                       related_pncp_id, status, publication_date, category,
+998	                       municipio, uf
+999	                FROM official_acts
+1000	                WHERE is_active IS DISTINCT FROM FALSE
+1001	                ORDER BY publication_date DESC NULLS LAST
+1002	                {lim}
+1003	                """  # noqa: S608
+1004	            )
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/notify.py:160:13
+159	    try:
+160	        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 — validated above
+161	            status = resp.status
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/opportunity_intel/backfill.py:166:18
+165	    # Count first
+166	    count_sql = f"SELECT COUNT(*) FROM pncp_raw_bids pb WHERE {where}"  # noqa: S608 -- where clause uses %s for user values, SQL composition from internal helpers
+167	    _logger.info("Counting backfill candidates...")
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/opportunity_intel/backfill.py:179:21
+178	    # Backfill query: select raw bids, compute status and ranking
+179	    select_sql = f"""
+180	    WITH inferred AS (
+181	        SELECT
+182	            pb.numero_controle_pncp AS source_id,
+183	            pb.orgao_cnpj,
+184	            pb.orgao_razao_social AS orgao_nome,
+185	            pb.uf,
+186	            pb.municipio,
+187	            pb.codigo_municipio_ibge AS codigo_ibge,
+188	            pb.objeto_compra AS objeto,
+189	            pb.modalidade_nome AS modalidade,
+190	            pb.valor_total_estimado AS valor_estimado,
+191	            pb.data_publicacao,
+192	            pb.data_abertura,
+193	            pb.data_encerramento,
+194	            COALESCE(NULLIF(TRIM(pb.situacao_compra), ''), NULL) AS status_fonte,
+195	            pb.link_sistema_origem AS link_edital,
+196	            pb.link_pncp,
+197	            pb.matched_entity_id,
+198	            {inferred} AS status_canonico
+199	        FROM pncp_raw_bids pb
+200	        WHERE {where}
+201	    ),
+202	    scored AS (
+203	        SELECT
+204	            i.*,
+205	            {ranking_score} AS ranking_score
+206	        FROM inferred i
+207	    )
+208	    SELECT
+209	        s.source_id,
+210	        s.orgao_cnpj,
+211	        s.orgao_nome,
+212	        s.uf,
+213	        s.municipio,
+214	        s.codigo_ibge,
+215	        s.objeto,
+216	        s.modalidade,
+217	        s.valor_estimado,
+218	        s.data_publicacao,
+219	        s.data_abertura,
+220	        s.data_encerramento,
+221	        s.status_fonte,
+222	        s.link_edital,
+223	        s.link_pncp,
+224	        s.matched_entity_id,
+225	        s.status_canonico,
+226	        s.ranking_score,
+227	        CASE
+228	            WHEN s.ranking_score >= 50 THEN 'GO'
+229	            WHEN s.ranking_score >= 25 THEN 'REVIEW'
+230	            ELSE 'NO_GO'
+231	        END AS ranking
+232	    FROM scored s
+233	    ORDER BY s.data_publicacao DESC NULLS LAST
+234	    """  # noqa: S608 -- inferred/ranking_score/ranking_tier from internal SQL helpers, where uses %s for values
+235	
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/opportunity_intel/backfill.py:377:12
+376	    cur.execute(
+377	        f"""UPDATE entity_coverage ec
+378	            SET is_covered = TRUE,
+379	                total_bids = subq.open_count
+380	            FROM (
+381	                SELECT tue.db_entity_id AS id, COUNT(*) as open_count
+382	                FROM target_universe_entities tue
+383	                JOIN pncp_raw_bids pb ON tue.db_entity_id = pb.matched_entity_id
+384	                WHERE tue.universe_run_id = (SELECT MAX(id) FROM target_universe_runs)
+385	                  AND tue.radius_decision = 'included'
+386	                  AND pb.is_active = TRUE
+387	                  AND ({inferred}) IN ('open', 'upcoming')
+388	                GROUP BY tue.db_entity_id
+389	            ) subq
+390	            WHERE ec.entity_id = subq.id AND ec.source = 'pncp'
+391	            RETURNING ec.entity_id, ec.total_bids"""  # noqa: S608 -- inferred from internal SQL helper (infer_bid_status_sql)
+392	    )
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/opportunity_intel/crawler_base.py:129:21
+128	                # URL scheme and hostname are fail-closed above.
+129	                with urllib.request.urlopen(req, timeout=self.timeout) as response:  # noqa: S310 — validated above (lines 109-116)
+130	                    status = response.status
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/opportunity_intel/schema.py:7:0
+6	import json
+7	import subprocess
+8	from dataclasses import dataclass
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/opportunity_intel/schema.py:141:13
+140	    """Read local Git identity without changing repository state."""
+141	    branch = subprocess.run(  # noqa: S603 — shell=False default
+142	        ["git", "branch", "--show-current"],  # noqa: S607 — git resolved from PATH (dev/CI env)
+143	        check=True,
+144	        capture_output=True,
+145	        text=True,
+146	    ).stdout.strip()
+147	    sha = subprocess.run(  # noqa: S603 — shell=False default
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/opportunity_intel/schema.py:141:13
+140	    """Read local Git identity without changing repository state."""
+141	    branch = subprocess.run(  # noqa: S603 — shell=False default
+142	        ["git", "branch", "--show-current"],  # noqa: S607 — git resolved from PATH (dev/CI env)
+143	        check=True,
+144	        capture_output=True,
+145	        text=True,
+146	    ).stdout.strip()
+147	    sha = subprocess.run(  # noqa: S603 — shell=False default
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/opportunity_intel/schema.py:147:10
+146	    ).stdout.strip()
+147	    sha = subprocess.run(  # noqa: S603 — shell=False default
+148	        ["git", "rev-parse", "HEAD"],  # noqa: S607 — git resolved from PATH (dev/CI env)
+149	        check=True,
+150	        capture_output=True,
+151	        text=True,
+152	    ).stdout.strip()
+153	    return GitIdentity(branch=branch, sha=sha)
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/opportunity_intel/schema.py:147:10
+146	    ).stdout.strip()
+147	    sha = subprocess.run(  # noqa: S603 — shell=False default
+148	        ["git", "rev-parse", "HEAD"],  # noqa: S607 — git resolved from PATH (dev/CI env)
+149	        check=True,
+150	        capture_output=True,
+151	        text=True,
+152	    ).stdout.strip()
+153	    return GitIdentity(branch=branch, sha=sha)
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/ops/alert_pipeline.py:204:13
+203	    try:
+204	        with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+205	            status = resp.status
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/ops/golden_clean_env.py:8:0
+7	import re
+8	import subprocess
+9	import sys
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/ops/golden_clean_env.py:63:11
+62	    ]
+63	    return subprocess.run(  # noqa: S603 — fixed argv, shell=False
+64	        argv,
+65	        env=_psql_env(parts),
+66	        text=True,
+67	        capture_output=True,
+68	        check=False,
+69	        timeout=60,
+70	    )
+71	
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/ops/golden_clean_env.py:83:17
+82	    # Identifiers validated via re.fullmatch above (safe literal interpolation for local tooling).
+83	    term_sql = f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{clean_name}' AND pid <> pg_backend_pid();"  # noqa: S608
+84	    drop_sql = f"DROP DATABASE IF EXISTS {clean_name};"  # noqa: S608
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/ops/golden_clean_env.py:104:9
+103	    # First batch: through 013 (before vector-dependent 014)
+104	    r1 = subprocess.run(  # noqa: S603 — fixed script path under REPO, shell=False
+105	        [
+106	            sys.executable,
+107	            str(REPO / "scripts" / "ops" / "apply_migrations.py"),
+108	            f"--dsn={dsn}",
+109	            f"--root={root}",
+110	            "--max=13",
+111	            "--allow-concurrent",
+112	        ],
+113	        cwd=str(REPO),
+114	        text=True,
+115	        capture_output=True,
+116	        check=False,
+117	        timeout=300,
+118	    )
+119	    # Skip 014 vector; apply remaining via individual files with ON_ERROR_STOP=0
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/ops/golden_clean_env.py:126:12
+125	            continue
+126	        r = subprocess.run(  # noqa: S603 — fixed argv; migration path from repo glob only
+127	            [
+128	                _PSQL,
+129	                "-h",
+130	                parts["host"],
+131	                "-p",
+132	                parts["port"],
+133	                "-U",
+134	                parts["user"],
+135	                "-d",
+136	                parts["dbname"],
+137	                "-v",
+138	                "ON_ERROR_STOP=0",
+139	                "-f",
+140	                str(path),
+141	            ],
+142	            env=_psql_env(parts),
+143	            text=True,
+144	            capture_output=True,
+145	            check=False,
+146	            timeout=120,
+147	        )
+148	        extras[path.name] = r.returncode
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/ops/golden_clean_env.py:152:12
+151	    if p055.is_file():
+152	        r = subprocess.run(  # noqa: S603 — fixed argv; known migration file under REPO
+153	            [
+154	                _PSQL,
+155	                "-h",
+156	                parts["host"],
+157	                "-p",
+158	                parts["port"],
+159	                "-U",
+160	                parts["user"],
+161	                "-d",
+162	                parts["dbname"],
+163	                "-v",
+164	                "ON_ERROR_STOP=0",
+165	                "-f",
+166	                str(p055),
+167	            ],
+168	            env=_psql_env(parts),
+169	            text=True,
+170	            capture_output=True,
+171	            check=False,
+172	            timeout=60,
+173	        )
+174	        extras[p055.name] = r.returncode
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/ops/golden_clean_env.py:203:8
+202	    # Clean env foundation: no crawl dependency; skip freshness (no data yet)
+203	    r = subprocess.run(  # noqa: S603 — fixed module invocation via sys.executable, shell=False
+204	        [
+205	            sys.executable,
+206	            "-m",
+207	            "scripts.golden_path",
+208	            "--sources",
+209	            "pncp",
+210	            "--bootstrap",
+211	            "--allow-zero",
+212	            "--skip-crawl",
+213	            "--skip-freshness",
+214	            f"--ledger-output={ledger}",
+215	            "--dsn",
+216	            dsn,
+217	        ],
+218	        cwd=str(REPO),
+219	        env=env,
+220	        text=True,
+221	        capture_output=True,
+222	        check=False,
+223	        timeout=300,
+224	    )
+225	    return {
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/ops/local_backup_restore_proof.py:20:0
+19	import shutil
+20	import subprocess
+21	import sys
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/ops/local_backup_restore_proof.py:57:11
+56	def _run(cmd: list[str], env: dict[str, str]) -> subprocess.CompletedProcess[str]:
+57	    return subprocess.run(  # noqa: S603 — caller builds fixed argv (psql/pg_dump), shell=False
+58	        cmd,
+59	        env=env,
+60	        text=True,
+61	        capture_output=True,
+62	        check=False,
+63	    )
+64	
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/ops/local_backup_restore_proof.py:106:14
+105	            "-tAc",
+106	            f"SELECT 1 FROM pg_database WHERE datname='{dbname}'",  # noqa: S608 — local dbname identifier only
+107	        ],
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/ops/ops_gate_monitor.py:18:0
+17	import re
+18	import subprocess
+19	import sys
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/ops/ops_gate_monitor.py:312:50
+311	                                if table == "alembic_version":
+312	                                    cur.execute(f"SELECT version_num FROM {table}")  # noqa: S608 — fixed allow-list table name
+313	                                    applied = [r[0] for r in cur.fetchall()]
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/ops/ops_gate_monitor.py:315:50
+314	                                else:
+315	                                    cur.execute(f"SELECT count(*) FROM {table}")  # noqa: S608 — fixed allow-list table name
+316	                                    applied = cur.fetchone()[0]
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/ops/ops_gate_monitor.py:374:12
+373	    try:
+374	        r = subprocess.run(  # noqa: S603 — fixed systemctl argv, shell=False
+375	            ["systemctl", "list-timers", "--all", "--no-pager", "--output=json"],  # noqa: S607 — systemctl from PATH when present
+376	            capture_output=True,
+377	            text=True,
+378	            timeout=10,
+379	            check=False,
+380	        )
+381	        if r.returncode == 0 and r.stdout.strip().startswith("["):
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/ops/ops_gate_monitor.py:374:12
+373	    try:
+374	        r = subprocess.run(  # noqa: S603 — fixed systemctl argv, shell=False
+375	            ["systemctl", "list-timers", "--all", "--no-pager", "--output=json"],  # noqa: S607 — systemctl from PATH when present
+376	            capture_output=True,
+377	            text=True,
+378	            timeout=10,
+379	            check=False,
+380	        )
+381	        if r.returncode == 0 and r.stdout.strip().startswith("["):
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/ops/probe_entity_success_zero.py:98:17
+97	        try:
+98	            with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 — HTTPS PNCP consulta API
+99	                return int(resp.status), resp.read()
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/ops/probe_entity_success_zero.py:211:12
+210	    cur.execute(
+211	        f"""
+212	        WITH den AS (
+213	          SELECT id, cnpj_8, razao_social FROM sc_public_entities
+214	          WHERE is_active AND raio_200km
+215	        ),
+216	        lake AS ({lake_sql}),
+217	        sz AS (
+218	          SELECT DISTINCT entity_id FROM coverage_evidence
+219	          WHERE state = 'success_zero' AND data_type = %s
+220	        )
+221	        SELECT d.id, d.cnpj_8, d.razao_social
+222	        FROM den d
+223	        LEFT JOIN lake l ON d.cnpj_8 = l.c8
+224	        LEFT JOIN sz s ON s.entity_id = d.id
+225	        WHERE l.c8 IS NULL AND s.entity_id IS NULL
+226	        ORDER BY d.razao_social
+227	        """,  # noqa: S608 — lake_sql is fixed internal table whitelist only
+228	        (data_type,),
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/ops/resolve_cnpj14_matriz.py:109:13
+108	    try:
+109	        with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 — HTTPS BrasilAPI/PNCP
+110	            return int(resp.status), json.loads(resp.read().decode("utf-8") or "{}")
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/ops/source_contract_tests.py:39:13
+38	    try:
+39	        with urlopen(req, timeout=timeout) as resp:  # noqa: S310 — public portal probe
+40	            body = resp.read(2_000_000)
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/ops/source_contract_tests.py:229:21
+228	                req = Request(url, headers={"User-Agent": "extra-consultoria-contract-test/1.0"})  # noqa: S310 — public PNCP probe
+229	                with urlopen(req, timeout=20) as resp:  # noqa: S310 — public PNCP probe
+230	                    payload = json.loads(resp.read().decode("utf-8", errors="replace"))
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/ops/weekly_cycle.py:750:12
+749	        # Constant fragment only — not user input (S608 false positive)
+750	        f"""
+751	        SELECT c.contrato_id, c.orgao_cnpj, c.orgao_nome, c.fornecedor_cnpj, c.fornecedor_nome,
+752	               c.objeto_contrato, c.valor_total, c.data_inicio, c.data_fim, c.data_publicacao,
+753	               c.uf, c.municipio, c.source, c.source_id, c.ingested_at, c.source_date_semantics,
+754	               c.orgao_cnpj_8
+755	        FROM pncp_supplier_contracts c
+756	        WHERE COALESCE(c.is_active, TRUE)
+757	          AND {_EXTRA_UNIVERSE_ORGAO}
+758	          AND (
+759	            c.data_publicacao >= CURRENT_DATE - INTERVAL '90 days'
+760	            OR c.data_fim >= CURRENT_DATE - INTERVAL '30 days'
+761	            OR c.data_fim BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '180 days'
+762	          )
+763	        ORDER BY COALESCE(c.data_publicacao, c.data_fim) DESC NULLS LAST
+764	        LIMIT %s
+765	        """,  # noqa: S608
+766	        (limit,),
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/ops/weekly_cycle.py:782:12
+781	        conn,
+782	        f"""
+783	        SELECT c.fornecedor_cnpj, c.fornecedor_nome,
+784	               COUNT(*)::int AS n_contratos,
+785	               SUM(c.valor_total)::numeric AS soma_valor_contratado,
+786	               COUNT(DISTINCT c.orgao_cnpj)::int AS n_orgaos
+787	        FROM pncp_supplier_contracts c
+788	        WHERE COALESCE(c.is_active, TRUE)
+789	          AND {_EXTRA_UNIVERSE_ORGAO}
+790	          AND c.fornecedor_cnpj IS NOT NULL
+791	          AND COALESCE(c.data_publicacao, c.data_inicio, c.ingested_at)
+792	              >= CURRENT_DATE - INTERVAL '365 days'
+793	        GROUP BY c.fornecedor_cnpj, c.fornecedor_nome
+794	        ORDER BY n_contratos DESC, soma_valor_contratado DESC NULLS LAST
+795	        LIMIT %s
+796	        """,  # noqa: S608
+797	        (limit,),
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/reports/coverage_gaps.py:58:12
+57	        conn,
+58	        f"""SELECT id, razao_social, cnpj_8, municipio,
+59	                   natureza_juridica, raio_200km,
+60	                   fontes_ativas, gap_total
+61	            FROM v_coverage_gaps
+62	            {where}
+63	            ORDER BY municipio, razao_social""",  # noqa: S608 -- where uses %s for user values, municipio param via %s
+64	        params,
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/reports/operational_reports.py:289:12
+288	        conn,
+289	        f"""
+290	        SELECT
+291	            COUNT(*) AS n_active,
+292	            {field_exprs}
+293	        FROM pncp_raw_bids
+294	        WHERE is_active IS TRUE
+295	        """,  # noqa: S608 — field list is fixed ESSENTIAL_BID_FIELDS allow-list
+296	    )
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/reports/run_metadata.py:48:0
+47	import os
+48	import subprocess
+49	import uuid
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/reports/run_metadata.py:114:14
+113	            return "unknown"
+114	        out = subprocess.check_output(  # noqa: S603 — fixed git binary + fixed args
+115	            [git_bin, "rev-parse", "--short", "HEAD"],
+116	            stderr=subprocess.DEVNULL,
+117	            text=True,
+118	            timeout=5,
+119	        )
+120	        return out.strip() or "unknown"
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/source_registry/acquisition/pncp_orgao_probe.py:133:13
+132	        )
+133	        with urlopen(req, timeout=timeout) as resp:  # noqa: S310 — public PNCP API
+134	            result["status_code"] = getattr(resp, "status", None) or resp.getcode()
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/source_registry/discovery.py:201:13
+200	        )
+201	        with urlopen(req, timeout=timeout) as resp:  # noqa: S310 — intentional probe of public portals
+202	            result["status_code"] = getattr(resp, "status", None) or resp.getcode()
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: scripts/source_registry/discovery.py:216:21
+215	                )
+216	                with urlopen(req, timeout=timeout) as resp:  # noqa: S310
+217	                    result["method"] = "GET"
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/source_registry/persistence.py:56:14
+55	    )
+56	    sql = f"""
+57	        INSERT INTO public.entity_source_registry ({', '.join(COLUMNS)})
+58	        VALUES %s
+59	        ON CONFLICT (canonical_id) DO UPDATE SET {updates}
+60	    """  # noqa: S608 - fixed internal column allow-list
+61	    with psycopg2.connect(resolved) as conn:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: scripts/universe_tools.py:31:0
+30	import os
+31	import subprocess
+32	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: scripts/universe_tools.py:80:17
+79	    try:
+80	        result = subprocess.run(  # noqa: S603 — shell=False default
+81	            ["git", "rev-parse", "HEAD"],  # noqa: S607 — git resolved from PATH (dev/CI env)
+82	            capture_output=True,
+83	            text=True,
+84	            timeout=10,
+85	        )
+86	        return result.stdout.strip() if result.returncode == 0 else None
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: scripts/universe_tools.py:80:17
+79	    try:
+80	        result = subprocess.run(  # noqa: S603 — shell=False default
+81	            ["git", "rev-parse", "HEAD"],  # noqa: S607 — git resolved from PATH (dev/CI env)
+82	            capture_output=True,
+83	            text=True,
+84	            timeout=10,
+85	        )
+86	        return result.stdout.strip() if result.returncode == 0 else None
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/workspace/cli.py:141:18
+140	        limit = min(500, max(1, args.limit or 50))
+141	        sql = f"""
+142	            SELECT id, orgao_nome, municipio, modalidade, objeto,
+143	                   valor_estimado, ranking, ranking_score, status_canonico,
+144	                   source, data_abertura, data_encerramento, link_edital
+145	            FROM opportunity_intel
+146	            WHERE {where}
+147	            ORDER BY ranking_score DESC NULLS LAST, data_abertura ASC NULLS LAST
+148	            LIMIT %s
+149	        """  # noqa: S608 — conditions built from parameterized fragments only
+150	        params.append(limit)
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/workspace/cli.py:782:18
+781	
+782	        sql = f"""
+783	            SELECT valor_total AS valor_contratado,
+784	                   objeto_contrato,
+785	                   orgao_nome,
+786	                   data_assinatura,
+787	                   'CONTRATADO'::text AS valor_semantica
+788	            FROM pncp_supplier_contracts
+789	            WHERE {" AND ".join(wheres)}
+790	            ORDER BY data_assinatura DESC NULLS LAST
+791	            LIMIT 1000
+792	        """  # noqa: S608
+793	        try:
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: scripts/workspace/cli.py:803:29
+802	                    oi_params.append(f"%{kw}%")
+803	                oi_sql = f"""
+804	                    SELECT valor_estimado AS valor_contratado, objeto AS objeto_contrato,
+805	                           orgao_nome, data_publicacao AS data_assinatura,
+806	                           'ESTIMADO'::text AS valor_semantica
+807	                    FROM opportunity_intel
+808	                    WHERE {" AND ".join(oi_wheres)}
+809	                    LIMIT 1000
+810	                """  # noqa: S608
+811	                rows = pg_query(conn, oi_sql, tuple(oi_params))
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/workspace/queue.py:58:8
+57	            conn.close()
+58	        except Exception:  # noqa: BLE001, S110 — close is best-effort on degrade path
+59	            pass
+60	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: scripts/workspace/queue.py:286:12
+285	                    )
+286	            except Exception:  # noqa: BLE001, S110 — runs table optional
+287	                pass
+288	
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 132463
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 1
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 111
+		Medium: 78
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 23
+		Medium: 19
+		High: 147
+Files skipped (0):

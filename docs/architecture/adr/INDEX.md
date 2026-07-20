@@ -11,6 +11,7 @@
 | ADR-020 | Operational data not in git | **Vigente** |
 | ADR-021 | Adapter architecture PNCP 429 fail-closed | **Vigente** |
 | ADR-022 | Client profile sole commercial law | **Vigente** |
+| ADR-023 | Architecture Reset Campaign 2026-07-20 | **Vigente** (charter) |
 
 ## ADRs revogadas / supersedidas
 
