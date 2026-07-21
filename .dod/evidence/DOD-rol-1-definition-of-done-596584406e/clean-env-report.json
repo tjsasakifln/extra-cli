@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-07-21T23:09:28.025962Z",
+  "steps": {
+    "recreate_db": {
+      "term_exit": 0,
+      "drop_exit": 0,
+      "drop_err": "",
+      "create_exit": 0,
+      "create_err": "",
+      "ok": true,
+      "dsn": "postgresql://test:test@127.0.0.1:5433/extra_clean_c03"
+    },
+    "migrations": {
+      "batch1_exit": 0,
+      "batch1_stdout": "acking.sql\napplied 040_coverage_model_expansion.sql\napplied 041a_fix_fk_constraints.sql\napplied 041b_fix_snapshot_membership.sql\napplied 042_validate_fk_constraints.sql\napplied 043_entity_aliases.sql\napplied 044_fix_upsert_dedup.sql\napplied 045_dlq_entries.sql\napplied 046_pipeline_watermarks.sql\napplied 047_pipeline_runs.sql\napplied 048_record_hashes.sql\napplied 049_pncp_resumable_backfill.sql\napplied 050_fix_contracts_upsert_fk.sql\napplied 051_contract_date_semantics.sql\napplied 052_official_acts.sql\napplied 053_entity_source_registry.sql\napplied 054_local_resilience_contract.sql\napplied 055_drop_orgao_entity_fk_national_pncp.sql\napplied 056_drop_supplier_entity_fk_contracts.sql\napplied 057_fix_upsert_opportunity_content_hash.sql\nmigrations_ok mode=upgrade applied=61 skipped=0 repaired=1\n",
+      "batch1_stderr": "",
+      "extras": {},
+      "ok": true
+    },
+    "seeds": {
+      "entities_exit": 0,
+      "aliases_exit": 0,
+      "ok": true,
+      "entities_tail": "📋 Reading spreadsheet: /mnt/d/extra-consultoria-continue-03/Extra - alvos de licitação. R-0.xlsx\n   2085 entities found\n   Within 200km: 1093\n   With coordinates: 1481\n   Distinct municipalities: 296\n\n🔌 Connecting to database...\n✅ Inserted 2085 entities into sc_public_entities\n   DB total: 2085 entities\n   DB within 200km: 1093\n"
+    },
+    "public_tables": 76,
+    "golden_path": {
+      "exit": 0,
+      "stdout": "━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━┩\n└───────┴────────┴───────┴────────────┴─────────┴──────────┴─────────────┘\n\n  0/1 fontes OK\n\n[3/4] Freshness Gate...\n  SKIP (--skip-freshness)\n\n[3b/7] Calculando cobertura...\n  Cobertura den=1093 num=0 pct=0.0\n\n[3c/7] Reconciliando snapshot de editais...\n  Snapshot FAIL: pncp_raw_bids returned zero active rows; cannot reconcile \neditais snapshot\n\n[4/7] Geracao de relatorios...\n\n>>> Gerando relatorio Excel...\n  Excel: \n/mnt/d/extra-consultoria-continue-03/output/excels/panorama-SC-2026-07-21.xlsx\n\n>>> Gerando relatorio PDF...\n  PDF: \n/mnt/d/extra-consultoria-continue-03/output/pdfs/panorama-SC-2026-07-21.pdf\n\n╭─────────────────────────────────────╮\n│ GOLDEN PATH — RESUMO                │\n│                                     │\n│ Run ID:          gp-20260721-200931 │\n│ Mode:            strict             │\n│ Status:          SUCCESS            │\n│ Exit code:       0                  │\n│ Fontes c/ dados: 0/1                │\n│ Fontes zero:     0                  │\n│ Fontes essenciais com falha: 0      │\n│ Freshness gate:  skipped            │\n│ Excel:           generated          │\n│ PDF:             generated          │\n│ Wall clock:      1441ms (1.4s)      │\n╰─────────────────────────────────────╯\n\nLedger salvo:  \n/mnt/d/extra-consultoria-continue-03/output/golden-path/ledger-clean-extra_clean\n_c03.json\nLog salvo:     \n/mnt/d/extra-consultoria-continue-03/output/golden-path/gp-20260721-200931.log\n\nGolden Path concluido com sucesso!\n",
+      "stderr": "",
+      "ok": true
+    },
+    "ledger_path": "/mnt/d/extra-consultoria-continue-03/output/golden-path/ledger-clean-extra_clean_c03.json"
+  },
+  "dry_run": false,
+  "clean_dsn_hint": "127.0.0.1:5433/extra_clean_c03",
+  "ok": true,
+  "limitations": [
+    "vector extension optional (014 skipped if unavailable)",
+    "clean env proof: empty DB → migrations → golden_path (--skip-freshness --allow-zero); sources may be zero on empty net",
+    "Live crawl can be re-run after clean bootstrap with data sources"
+  ],
+  "claims": {
+    "allowed": [
+      "Golden path executed on freshly created empty database",
+      "Schema created from empty DB then golden path bootstrap"
+    ],
+    "forbidden": [
+      "LOCAL_READY",
+      "95% coverage from clean env alone"
+    ]
+  }
+}

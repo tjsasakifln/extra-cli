@@ -550,6 +550,7 @@ def evaluate_run_outcome(
     strict: bool = True,
     skip_freshness: bool = False,
     skip_reports: bool = False,
+    skip_sources: bool = False,
     allow_zero: bool = False,
 ) -> tuple[str, int]:
     """Classify overall status and exit code (pure; unit-testable).
@@ -560,7 +561,19 @@ def evaluate_run_outcome(
     - no success and no success_zero → failed / exit 1
     - freshness fail (not skipped) → exit 3
     - mandatory report fail (not skipped) → exit 4
+    - skip_sources (clean-env offline foundation) → treat sources as skipped
     """
+    if skip_sources:
+        freshness_status = freshness.status if freshness else "skipped"
+        if skip_freshness:
+            freshness_status = "skipped"
+        report_fails = [r for r in reports if r.status == "fail" and not skip_reports]
+        if freshness_status == "fail":
+            return "failed", 3
+        if report_fails:
+            return "failed", 4
+        return "success", 0
+
     if not source_records:
         return "failed", 1
 
@@ -1495,6 +1508,11 @@ def parse_args() -> argparse.Namespace:
         help="Skip freshness gate validation",
     )
     p.add_argument(
+        "--skip-sources",
+        action="store_true",
+        help="Skip essential source crawls (clean-env foundation / offline proof only)",
+    )
+    p.add_argument(
         "--skip-reports",
         action="store_true",
         help="Skip report generation (Excel + PDF)",
@@ -2162,36 +2180,48 @@ def main() -> int:
     # =========================================================================
     # Step 2: Crawl Sources
     # =========================================================================
-    _echo("\n[2/7] Crawl das fontes de dados...", "header")
-    _echo(f"  Fontes: {', '.join(s.name for s in selected_sources)}")
-    _echo("  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter")
+    if args.skip_sources:
+        _echo("\n[2/7] Crawl das fontes SKIPPED (--skip-sources)", "warn")
+        source_records = []
+        sources_success = []
+        sources_zero = []
+        sources_fail = []
+        essential_fail = []
+        essential_names: set[str] = set()
+        exec_ok, exec_details = True, {"reason": "skip-sources", "executed": []}
+        persist_ok, persist_details = True, {"reason": "skip-sources"}
+    else:
+        _echo("\n[2/7] Crawl das fontes de dados...", "header")
+        _echo(f"  Fontes: {', '.join(s.name for s in selected_sources)}")
+        _echo("  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter")
 
-    for src in selected_sources:
-        output_json = _GOLDEN_PATH_DIR / f"crawl-{src.name}-{run_id}.json"
-        rec = crawl_source(src, dsn, output_json)
-        source_records.append(rec)
+        for src in selected_sources:
+            output_json = _GOLDEN_PATH_DIR / f"crawl-{src.name}-{run_id}.json"
+            rec = crawl_source(src, dsn, output_json)
+            source_records.append(rec)
 
-    # Classify
-    sources_success = [r for r in source_records if r.status == "success"]
-    sources_zero = [r for r in source_records if r.status == "success_zero"]
-    sources_fail = [r for r in source_records if r.status == "fail"]
-    essential_names = {s.name for s in selected_sources if s.essential}
-    essential_fail = [r for r in sources_fail if r.name in essential_names]
+        # Classify
+        sources_success = [r for r in source_records if r.status == "success"]
+        sources_zero = [r for r in source_records if r.status == "success_zero"]
+        sources_fail = [r for r in source_records if r.status == "fail"]
+        essential_names = {s.name for s in selected_sources if s.essential}
+        essential_fail = [r for r in sources_fail if r.name in essential_names]
 
-    exec_ok, exec_details = assert_essential_sources_executed(source_records)
+        exec_ok, exec_details = assert_essential_sources_executed(source_records)
+        persist_ok, persist_details = assert_sources_persisted(source_records)
+
     steps.append(
         StepRecord(
             step="execute_essential_sources",
-            status="pass" if exec_ok else "fail",
+            status=("skipped" if args.skip_sources else ("pass" if exec_ok else "fail")),
             duration_ms=sum(r.duration_ms for r in source_records),
             details=exec_details,
         )
     )
-    persist_ok, persist_details = assert_sources_persisted(source_records)
     steps.append(
         StepRecord(
             step="persist_source_data",
-            status="pass" if persist_ok else "fail",
+            status=("skipped" if args.skip_sources else ("pass" if persist_ok else "fail")),
             duration_ms=0.0,
             details=persist_details,
         )
@@ -2323,6 +2353,7 @@ def main() -> int:
         strict=bool(args.strict),
         skip_freshness=bool(args.skip_freshness),
         skip_reports=bool(args.skip_reports),
+        skip_sources=bool(args.skip_sources),
         allow_zero=bool(args.allow_zero),
     )
 
