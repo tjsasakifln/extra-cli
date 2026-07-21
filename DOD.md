@@ -896,7 +896,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 ### 12.1 Golden path local
 
 - [x] Existe um comando canônico de golden path. Evidência: `python3 -m scripts.golden_path --help` exit 0 · `scripts/golden_path.py` · `make golden-path` / `golden-path-quick` · `docs/DEVELOPMENT.md` §2 · AGENTS.md · tests/test_golden_path_*.py · `.dod/evidence/DOD-rol-1-definition-of-done-b42bd49e1d/`.
-- [ ] O golden path sobe ou valida o banco.
+- [x] O golden path sobe ou valida o banco. Evidência: `scripts/golden_path.py::check_db` (live OK @ PG16:5544) · `make golden-path` → `db-up` + `bootstrap` · `.dod/evidence/DOD-rol-1-definition-of-done-16267c473a/`.
 - [ ] O golden path aplica migrations.
 - [ ] O golden path aplica seed.
 - [ ] O golden path importa ou valida a planilha-alvo.

@@ -1,0 +1,14 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-16267c473a",
+  "commands": [
+    {
+      "cmd": "python3 -c \"from scripts.golden_path import check_db; import os; ok,_=check_db(os.environ['DATABASE_URL']); raise SystemExit(0 if ok else 1)\"",
+      "exit_code": 0,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    }
+  ],
+  "tests": [],
+  "ok": true,
+  "notes": []
+}
