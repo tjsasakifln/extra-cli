@@ -914,7 +914,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path gera ledger.
 - [x] O golden path gera logs.
 - [x] O golden path retorna exit code não zero em qualquer gate obrigatório.
-- [ ] O golden path pode ser reexecutado sem duplicação.
+- [x] O golden path pode ser reexecutado sem duplicação.
 - [ ] O golden path pode ser executado em ambiente limpo.
 - [x] O tempo total de execução é registrado.
 - [ ] A versão do código é registrada.

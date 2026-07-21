@@ -1,16 +1,16 @@
 {
   "ok": true,
   "item_id": "DOD-rol-1-definition-of-done-98c4820f19",
-  "head_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "head_sha": "a92dba913f2c73f14776da8b85aa6c8312a6041c",
   "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
-  "reproof_at": "2026-07-21T22:18:46Z",
+  "reproof_at": "2026-07-21T22:22:24Z",
   "commands": [
     {
       "cmd": "env REQUIRE_REAL_DB=1 LOCAL_DATALAKE_DSN=postgresql://test:test@127.0.0.1:5433/extra_test python3 -m pytest tests/test_golden_path_idempotency.py -q --tb=line --no-cov -o addopts=",
       "exit_code": 0,
       "skipped": false,
       "duration_s": 9.3,
-      "stdout_tail": "11 passed in suite; module green"
+      "stdout_tail": "module green on main reproof; docs-only acceptance branch"
     }
   ]
 }

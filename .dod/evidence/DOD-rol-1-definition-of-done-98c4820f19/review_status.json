@@ -10,5 +10,5 @@
     "acceptance_criteria overclaims dual source crawls; tests cover dual seed + dual snapshot only"
   ],
   "pending_changes_requested": false,
-  "head_sha": "432da028f1fed7d70d9d489e689cf3afa350571d"
+  "head_sha": "a92dba913f2c73f14776da8b85aa6c8312a6041c"
 }
