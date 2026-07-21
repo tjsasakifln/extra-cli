@@ -1,0 +1,25 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.1, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'benchmark': '5.2.3', 'html': '4.2.0', 'hypothesis': '6.152.7', 'repeat': '0.9.4', 'Faker': '37.4.2', 'timeout': '2.4.0', 'asyncio': '1.1.0', 'mock': '3.15.1', 'metadata': '3.1.1', 'cov': '4.1.0', 'anyio': '4.2.0'}}
+rootdir: /mnt/d/extra-consultoria-continue-03
+configfile: pytest.ini
+plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37.4.2, timeout-2.4.0, asyncio-1.1.0, mock-3.15.1, metadata-3.1.1, cov-4.1.0, anyio-4.2.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/test_golden_path_ledger_meta.py::test_cli_writes_ledger_and_log PASSED [  9%]
+tests/test_golden_path_ledger_meta.py::test_metadata_includes_code_and_schema_version PASSED [ 18%]
+tests/test_golden_path_ledger_meta.py::test_strict_exit_nonzero_on_essential_fail PASSED [ 27%]
+tests/test_golden_path_ledger_meta.py::test_strict_exit_nonzero_on_freshness_fail PASSED [ 36%]
+tests/test_golden_path_snapshot.py::test_help_documents_execute_snapshot_only PASSED [ 45%]
+tests/test_golden_path_snapshot.py::test_snapshot_baseline_then_stable PASSED [ 54%]
+tests/test_golden_path_snapshot.py::test_snapshot_detects_removed_id PASSED [ 63%]
+tests/test_golden_path_reports.py::test_help_documents_execute_reports_only PASSED [ 72%]
+tests/test_golden_path_reports.py::test_run_reports_produces_excel_and_pdf_files PASSED [ 81%]
+tests/test_golden_path_idempotency.py::test_dual_seed_and_bid_table_no_duplicate_keys PASSED [ 90%]
+tests/test_golden_path_idempotency.py::test_dual_snapshot_stable_ids_sha PASSED [100%]
+
+============================== 11 passed in 9.30s ==============================

@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-05418e32b2",
+  "reviewer": "adversarial-qa-continue-03",
+  "at": "2026-07-21T23:45:00Z",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "requirement": "O golden path gera logs.",
+  "dod_line": 915,
+  "pending_changes_requested": false,
+  "head_sha": "432da028f1fed7d70d9d489e689cf3afa350571d"
+}
