@@ -183,6 +183,7 @@ def resolve_spreadsheet_hash(path: str | Path | None = None) -> str | None:
     root = Path(__file__).resolve().parents[2]
     candidates = [
         root / "Extra - alvos de licitação. R-0.xlsx",
+        root / "fixtures" / "canonical_universe_r0.xlsx",
         root / "data" / "Extra - alvos de licitação. R-0.xlsx",
     ]
     for c in candidates:

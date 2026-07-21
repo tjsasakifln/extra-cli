@@ -348,14 +348,15 @@ def run_coverage_calculation(
         "method": None,
     }
     try:
-        from scripts.lib.universe import CANONICAL_UNIVERSE, load_canonical_universe
+        from scripts.lib.universe import (
+            CANONICAL_UNIVERSE,
+            load_canonical_universe,
+            resolve_default_seed_path,
+        )
 
         if expected_denominator is None:
             expected_denominator = int(CANONICAL_UNIVERSE)
-        # Prefer project canonical basename; fail if missing (no silent backup).
-        seed = root / "Extra - alvos de licitação. R-0.xlsx"
-        if not seed.is_file():
-            raise FileNotFoundError(f"canonical spreadsheet missing: {seed}")
+        seed = resolve_default_seed_path(root)
         universe = load_canonical_universe(seed_path=seed)
         den = len(universe.included)
         details["denominator"] = den

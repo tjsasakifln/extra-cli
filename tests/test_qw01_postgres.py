@@ -132,7 +132,7 @@ def test_one_command_emits_one_immutable_artifact_set(postgres_conn, tmp_path) -
     execution = run_radar(
         dsn=DSN,
         profile_path="config/client_profiles/extra.yaml",
-        seed_path="Extra - alvos de licitação. R-0.xlsx",
+        seed_path="fixtures/canonical_universe_r0.xlsx",
         window_days=45,
         output_root=tmp_path,
         update_mode="never",

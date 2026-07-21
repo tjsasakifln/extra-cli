@@ -35,6 +35,7 @@ def test_coverage_rejects_wrong_denominator(monkeypatch: pytest.MonkeyPatch) -> 
     fake_mod = types.ModuleType("scripts.lib.universe")
     fake_mod.CANONICAL_UNIVERSE = 1093
     fake_mod.load_canonical_universe = lambda **k: FakeU()
+    fake_mod.resolve_default_seed_path = lambda root=None: Path("/tmp/fake-seed.xlsx")
     monkeypatch.setitem(sys.modules, "scripts.lib.universe", fake_mod)
     root = Path(__file__).resolve().parents[1]
     rec = run_coverage_calculation("postgresql://x", project_root=root, expected_denominator=1093)
