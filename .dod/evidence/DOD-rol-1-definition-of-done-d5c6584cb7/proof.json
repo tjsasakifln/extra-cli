@@ -1,8 +1,14 @@
 {
-  "at": "2026-07-21T14:38:11.019735+00:00",
+  "at": "2026-07-21T22:13:14Z",
   "ok": true,
+  "title": "O golden path gera Excel.",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "impl_pr": 90,
+  "impl_merge_sha": "5a3ab319dc43752ffa63605495d11e54190931ff",
+  "reproof_campaign": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
+  "pytest": "11 passed (ledger_meta+snapshot+reports+idempotency)",
   "kind": "excel",
-  "path": "output/excels/panorama-SC-2026-07-21.xlsx",
-  "size": 7271,
-  "sha256": "dd70a4bebd03a15400eb10c33df953a2cfbfd107300c745a036de480eb5e3014"
+  "path": ".dod/evidence/DOD-rol-1-definition-of-done-d5c6584cb7/panorama-SC-2026-07-21.xlsx",
+  "size": 6029,
+  "sha256": "8fb3c66f1c5e5617509e61e0673fe52a8e634bb17b57c089db36f99a60916add"
 }
