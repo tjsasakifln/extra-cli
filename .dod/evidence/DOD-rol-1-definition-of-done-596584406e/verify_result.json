@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "item_id": "DOD-rol-1-definition-of-done-596584406e",
+  "head_sha": "a1bf947ddcfa011dc072f16afb0cfd736c7a823c",
+  "reproof_at": "2026-07-21T23:23:04Z",
+  "commands": [
+    {
+      "cmd": "env REQUIRE_REAL_DB=1 LOCAL_DATALAKE_DSN=postgresql://test:test@127.0.0.1:5433/extra_test python3 -m pytest tests/test_golden_clean_env.py -q --tb=line --no-cov -o addopts=",
+      "exit_code": 0,
+      "skipped": false,
+      "stdout_tail": "....                                                                     [100%]\n4 passed in 6.88s\n"
+    }
+  ]
+}

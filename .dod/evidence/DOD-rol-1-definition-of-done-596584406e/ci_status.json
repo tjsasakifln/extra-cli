@@ -1,0 +1,9 @@
+{
+  "conclusion": "success",
+  "head_sha": "a1bf947ddcfa011dc072f16afb0cfd736c7a823c",
+  "run_id": "29876799912",
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29876799912",
+  "mandatory_jobs_skipped": [],
+  "checked_at": "2026-07-21T23:23:04Z",
+  "note": "impl PR #96 on main; CI green at merge"
+}
