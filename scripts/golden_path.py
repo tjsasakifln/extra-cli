@@ -1355,8 +1355,12 @@ def run_reports(dsn: str) -> list[ReportRecord]:
                 key=lambda p: p.stat().st_mtime,
             )
             path = str(excel_files[-1]) if excel_files else None
-            _echo(f"  Excel: {path or 'generated'}", "ok")
-            reports.append(ReportRecord(type="excel", status="generated", path=path))
+            if not path or not Path(path).is_file() or Path(path).stat().st_size < 100:
+                _echo("  Excel FAIL: no valid xlsx file produced", "warn")
+                reports.append(ReportRecord(type="excel", status="fail", error="missing_or_empty_xlsx"))
+            else:
+                _echo(f"  Excel: {path}", "ok")
+                reports.append(ReportRecord(type="excel", status="generated", path=path))
         else:
             err = (result.stderr or result.stdout or "")[-300:]
             _echo(f"  Excel report failed: {err}", "warn")
@@ -1387,8 +1391,12 @@ def run_reports(dsn: str) -> list[ReportRecord]:
                 key=lambda p: p.stat().st_mtime,
             )
             path = str(pdf_files[-1]) if pdf_files else None
-            _echo(f"  PDF: {path or 'generated'}", "ok")
-            reports.append(ReportRecord(type="pdf", status="generated", path=path))
+            if not path or not Path(path).is_file() or Path(path).stat().st_size < 100:
+                _echo("  PDF FAIL: no valid pdf file produced", "warn")
+                reports.append(ReportRecord(type="pdf", status="fail", error="missing_or_empty_pdf"))
+            else:
+                _echo(f"  PDF: {path}", "ok")
+                reports.append(ReportRecord(type="pdf", status="generated", path=path))
         else:
             err = (result.stderr or result.stdout or "")[-300:]
             _echo(f"  PDF report failed: {err}", "warn")
@@ -1503,6 +1511,11 @@ def parse_args() -> argparse.Namespace:
         "--execute-snapshot-only",
         action="store_true",
         help="Run only editais snapshot reconciliation + ledger (requires DB)",
+    )
+    p.add_argument(
+        "--execute-reports-only",
+        action="store_true",
+        help="Run only Excel+PDF report generation + ledger (requires DB)",
     )
     p.add_argument(
         "--spreadsheet",
@@ -1846,6 +1859,48 @@ def main() -> int:
             f"baseline={d.get('baseline')}",
             "ok",
         )
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
+        return 0
+
+    if args.execute_reports_only:
+        run_id = f"gp-rep-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
+        if not dsn:
+            try:
+                import config.settings as _cfg
+
+                dsn = _cfg.LOCAL_DATALAKE_DSN
+            except ImportError:
+                dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
+        ok_db, dur_db = check_db(dsn)
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
+        if not ok_db:
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
+            return 1
+        _echo("\n[execute-reports-only] Gerando Excel + PDF...", "header")
+        report_records = run_reports(dsn)
+        ok_excel = any(r.type == "excel" and r.status == "generated" and r.path for r in report_records)
+        ok_pdf = any(r.type == "pdf" and r.status == "generated" and r.path for r in report_records)
+        steps.append(
+            StepRecord(
+                step="generate_reports",
+                status="pass" if (ok_excel and ok_pdf) else "fail",
+                duration_ms=0.0,
+                details={
+                    "excel": next((r.path for r in report_records if r.type == "excel"), None),
+                    "pdf": next((r.path for r in report_records if r.type == "pdf"), None),
+                    "records": [asdict(r) for r in report_records],
+                },
+            )
+        )
+        overall = "success" if (ok_excel and ok_pdf) else "failed"
+        _save_final_ledger(run_id, timestamp, overall, steps, [], report_records, None, wall_start, args.ledger_output)
+        if overall != "success":
+            _echo(f"  Reports FAIL excel={ok_excel} pdf={ok_pdf}", "error")
+            return 1
+        _echo("  Reports OK (excel+pdf files present)", "ok")
         _echo(f"  Ledger: {args.ledger_output}", "ok")
         return 0
 
