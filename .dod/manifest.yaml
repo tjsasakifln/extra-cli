@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-21T02:08:45Z'
+updated_at: '2026-07-21T02:17:20Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -27872,7 +27872,7 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: VERIFIED
+  state: ACCEPTED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
@@ -27890,9 +27890,9 @@ items:
   needs_human_eval: false
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-16267c473a/proof.json
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: 4f0067b7cb6faf90b64d6fb64d3c1972c016d928
+  acceptance_pr: '70'
+  accepted_at: '2026-07-21T02:14:37Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -27910,6 +27910,9 @@ items:
   - at: '2026-07-21T02:08:45Z'
     event: verify
     detail: VERIFIED
+  - at: '2026-07-21T02:14:37Z'
+    event: accept
+    detail: commit=4f0067b7cb6faf90b64d6fb64d3c1972c016d928 branch=main
   content_fingerprint: 16267c473a
   evidence_audit: null
   priority_boost: 0
@@ -27925,19 +27928,25 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
-  files: []
+  acceptance_commands:
+  - python3 -c "from scripts.golden_path import apply_migrations; import os; ok,_,s=apply_migrations(os.environ['DATABASE_URL']);
+    raise SystemExit(0 if ok else 1)"
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
+  - scripts/ops/apply_migrations.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-7aa1d9bfc5/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -27952,6 +27961,12 @@ items:
   - at: '2026-07-21T02:07:22Z'
     event: rescan
     detail: line=900
+  - at: '2026-07-21T02:14:52Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-21T02:17:20Z'
+    event: verify
+    detail: VERIFIED
   content_fingerprint: 7aa1d9bfc5
   evidence_audit: null
   priority_boost: 0

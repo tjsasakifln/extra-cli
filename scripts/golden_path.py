@@ -3,10 +3,11 @@
 
 Executa a sequencia completa e idempotente:
   1. Verifica conectividade com PostgreSQL
-  2. Crawl das fontes prioritarias (pncp, pcp, compras_gov) com
+  2. Aplica migrations versionadas (db/migrations via scripts.ops.apply_migrations)
+  3. Crawl das fontes prioritarias (pncp, pcp, compras_gov) com
      timeout, retry 3x e backoff exponencial + jitter
-  3. Valida freshness gate
-  4. Gera relatorios (PDF executivo + Excel rastreavel)
+  4. Valida freshness gate
+  5. Gera relatorios (PDF executivo + Excel rastreavel)
 
 Cada etapa e registrada em um ledger JSON para rastreabilidade.
 
@@ -474,6 +475,38 @@ def check_db(dsn: str) -> tuple[bool, float]:
         return False, dur
 
 
+def apply_migrations(dsn: str) -> tuple[bool, float, dict[str, list[str]]]:
+    """Apply all versioned SQL migrations under db/migrations (idempotent).
+
+    Uses ``scripts.ops.apply_migrations.apply_range`` in upgrade mode so
+    re-runs skip already-applied versions. Returns (ok, duration_ms, summary).
+    """
+    start = time.monotonic()
+    empty: dict[str, list[str]] = {"applied": [], "skipped": [], "repaired": []}
+    try:
+        from scripts.ops.apply_migrations import apply_range
+
+        root = _PROJECT_ROOT / "db" / "migrations"
+        if not root.is_dir():
+            _logger.error("Migrations root missing: %s", root)
+            dur = (time.monotonic() - start) * 1000
+            return False, dur, empty
+        summary = apply_range(
+            dsn,
+            root,
+            max_num=None,
+            min_num=1,
+            allow_concurrent=False,
+            mode="upgrade",
+        )
+        dur = (time.monotonic() - start) * 1000
+        return True, dur, summary
+    except Exception as exc:
+        dur = (time.monotonic() - start) * 1000
+        _logger.error("Migration apply failed: %s", exc)
+        return False, dur, empty
+
+
 # ---------------------------------------------------------------------------
 # Step 2: Crawl Sources (with timeout, retry, backoff + jitter)
 # ---------------------------------------------------------------------------
@@ -847,6 +880,11 @@ def parse_args() -> argparse.Namespace:
         help="Skip report generation (Excel + PDF)",
     )
     p.add_argument(
+        "--skip-migrations",
+        action="store_true",
+        help="Skip applying db/migrations (not canonical; use only when schema already applied)",
+    )
+    p.add_argument(
         "--strict",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -956,9 +994,60 @@ def main() -> int:
     _echo(f"  PostgreSQL OK ({dur:.0f}ms)", "ok")
 
     # =========================================================================
+    # Step 1b: Apply migrations (canonical — DoD §12.1)
+    # =========================================================================
+    if args.skip_migrations:
+        _echo("\n[1b/5] Migrations SKIPPED (--skip-migrations)", "warn")
+        steps.append(
+            StepRecord(
+                step="apply_migrations",
+                status="skip",
+                duration_ms=0.0,
+                details={"reason": "skip-migrations"},
+            )
+        )
+    else:
+        _echo("\n[1b/5] Aplicando migrations (db/migrations)...", "header")
+        mig_ok, mig_dur, mig_summary = apply_migrations(dsn)
+        steps.append(
+            StepRecord(
+                step="apply_migrations",
+                status="pass" if mig_ok else "fail",
+                duration_ms=mig_dur,
+                details={
+                    "applied": len(mig_summary.get("applied") or []),
+                    "skipped": len(mig_summary.get("skipped") or []),
+                    "repaired": len(mig_summary.get("repaired") or []),
+                },
+            )
+        )
+        if not mig_ok:
+            _echo("  Migrations FALHARAM (fail-closed).", "error")
+            _save_final_ledger(
+                run_id,
+                timestamp,
+                "failed",
+                steps,
+                source_records,
+                report_records,
+                freshness_record,
+                wall_start,
+                args.ledger_output,
+            )
+            return 1
+        _echo(
+            "  Migrations OK "
+            f"(applied={len(mig_summary.get('applied') or [])} "
+            f"skipped={len(mig_summary.get('skipped') or [])} "
+            f"repaired={len(mig_summary.get('repaired') or [])} "
+            f"{mig_dur:.0f}ms)",
+            "ok",
+        )
+
+    # =========================================================================
     # Step 2: Crawl Sources
     # =========================================================================
-    _echo("\n[2/4] Crawl das fontes de dados...", "header")
+    _echo("\n[2/5] Crawl das fontes de dados...", "header")
     _echo(f"  Fontes: {', '.join(s.name for s in selected_sources)}")
     _echo("  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter")
 
