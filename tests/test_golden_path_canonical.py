@@ -1,7 +1,6 @@
 from __future__ import annotations
-import pytest
-"""DoD §12.1 — canonical golden path command + metadata + fail-closed."""
 
+"""DoD §12.1 — canonical golden path command + metadata + fail-closed."""
 
 import subprocess
 import sys
@@ -16,7 +15,6 @@ from scripts.golden_path import (
     collect_run_metadata,
     evaluate_run_outcome,
 )
-
 
 def test_canonical_module_help() -> None:
     r = subprocess.run(
