@@ -12,6 +12,8 @@ import pytest
 
 from scripts.golden_path import run_snapshot_reconciliation
 
+pytestmark = pytest.mark.real_db
+
 
 def test_help_documents_execute_snapshot_only() -> None:
     r = subprocess.run(

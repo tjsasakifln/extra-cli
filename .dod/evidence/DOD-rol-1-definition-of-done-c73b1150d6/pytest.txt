@@ -7,6 +7,6 @@ plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37
 asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
 collected 3 items
 
-tests/test_golden_path_snapshot.py .ss                                   [100%]
+tests/test_golden_path_snapshot.py ...                                   [100%]
 
-========================= 1 passed, 2 skipped in 1.54s =========================
+============================== 3 passed in 1.69s ===============================
