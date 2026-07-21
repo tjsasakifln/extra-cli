@@ -173,12 +173,15 @@ def test_help_documents_spreadsheet_flags() -> None:
     assert "validate-spreadsheet-only" in out
 
 
-def test_resolve_prefers_canonical_not_backup(tmp_path: Path) -> None:
+def test_resolve_prefers_canonical_not_backup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("EXTRA_TARGET_SPREADSHEET", raising=False)
+    monkeypatch.delenv("TARGET_SPREADSHEET_PATH", raising=False)
     from scripts.golden_path import resolve_canonical_spreadsheet
 
     root = Path(__file__).resolve().parents[1]
     src = root / CANONICAL_XLSX
-    assert src.is_file()
+    if not src.is_file():
+        pytest.skip("private spreadsheet not available for copy fixture")
     # Copy both canonical and backup into temp root; canonical must win.
     import shutil
 
