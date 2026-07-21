@@ -1,0 +1,20 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-b42bd49e1d",
+  "commands": [
+    {
+      "cmd": "python3 -m scripts.golden_path --help",
+      "exit_code": 0,
+      "stdout_tail": "                  fail, report fail (default: true)\n  --allow-zero          In strict mode, accept essential success_zero as valid\n                        global success_zero\n  --verbose, -v         Verbose/debug output\n  --dsn DSN             PostgreSQL DSN (default: LOCAL_DATALAKE_DSN env var or\n                        config.settings)\n  --ledger-output LEDGER_OUTPUT\n                        Output path for execution ledger JSON (default:\n                        output/golden-path/ledger.json)\n",
+      "stderr_tail": ""
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_dod_controller.py",
+      "exit_code": 0,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64458  64458   0.0%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 8 passed in 37.55s ==============================\n"
+    }
+  ],
+  "ok": true,
+  "notes": []
+}

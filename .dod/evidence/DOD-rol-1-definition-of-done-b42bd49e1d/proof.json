@@ -1,0 +1,13 @@
+{
+  "at": "2026-07-21T02:01:32.770820+00:00",
+  "help_exit": 0,
+  "entrypoint": "scripts/golden_path.py",
+  "make_targets": [
+    "golden-path",
+    "golden-path-quick"
+  ],
+  "docs": [
+    "docs/DEVELOPMENT.md",
+    "AGENTS.md"
+  ]
+}

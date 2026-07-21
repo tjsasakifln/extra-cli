@@ -1,0 +1,23 @@
+usage: golden_path.py [-h] [--sources SOURCES] [--skip-freshness]
+                      [--skip-reports] [--strict | --no-strict] [--allow-zero]
+                      [--verbose] [--dsn DSN] [--ledger-output LEDGER_OUTPUT]
+
+Golden Path — Pipeline de validacao completa do DataLake Extra Consultoria
+
+options:
+  -h, --help            show this help message and exit
+  --sources SOURCES     Comma-separated source names (default:
+                        pncp,pcp,compras_gov)
+  --skip-freshness      Skip freshness gate validation
+  --skip-reports        Skip report generation (Excel + PDF)
+  --strict, --no-strict
+                        Fail-closed on empty essential sources, freshness
+                        fail, report fail (default: true)
+  --allow-zero          In strict mode, accept essential success_zero as valid
+                        global success_zero
+  --verbose, -v         Verbose/debug output
+  --dsn DSN             PostgreSQL DSN (default: LOCAL_DATALAKE_DSN env var or
+                        config.settings)
+  --ledger-output LEDGER_OUTPUT
+                        Output path for execution ledger JSON (default:
+                        output/golden-path/ledger.json)
