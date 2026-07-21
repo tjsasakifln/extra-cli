@@ -902,7 +902,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path importa ou valida a planilha-alvo. Evidência: PR #75 merge `ae5302a` · CI run `29831727568` SUCCESS · `load_canonical_universe` physical_rows=2085 canonical_entities=1093 · canonical_ids_sha256 `0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396` · CLI `python3 -m scripts.golden_path --validate-spreadsheet-only` ledger · `tests/test_golden_path_canonical.py` · adversarial PASS_FOR_MERGE · `.dod/evidence/DOD-rol-1-definition-of-done-e405d6a61c/`.
 - [x] O golden path executa fontes mínimas. Evidência: PR #77 merge `41f73d1` · CI `29833397283` SUCCESS · CLI `--execute-sources-only` ledger (pncp/pcp/compras_gov attempts≥1) · `assert_essential_sources_executed` · `tests/test_golden_path_fontes_minimas.py` · `.dod/evidence/DOD-rol-1-definition-of-done-faaf47c790/` · nota: fail/success_zero ainda contam como execução; persistência é item separado.
 - [x] O golden path persiste dados. Evidência: PR #79 merge `07e9986` · CI `29835575623` SUCCESS · clean test-db migrations+seed · pcp inserted=98 · pncp_raw_bids=566 · `assert_sources_persisted` · ledger `persist_source_data` · `.dod/evidence/DOD-rol-1-definition-of-done-9c996cb14e/`.
-- [ ] O golden path executa freshness gate.
+- [x] O golden path executa freshness gate. Evidência: PR #81 · CI `29836318793` SUCCESS · CLI `--execute-freshness-only` · subprocess `freshness_gate.py` · ledger `run_freshness_gate` · live status=fail failing=contracts (execução comprovada; pass/SLA é item separado) · `.dod/evidence/DOD-rol-1-definition-of-done-94ff481872/`.
 - [ ] O golden path calcula cobertura.
 - [ ] O golden path reconcilia snapshot de editais.
 - [ ] O golden path gera relatório de editais.

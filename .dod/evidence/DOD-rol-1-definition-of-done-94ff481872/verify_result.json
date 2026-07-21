@@ -1,0 +1,101 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-94ff481872",
+  "commands": [
+    {
+      "cmd": "python3 -c \"from scripts.golden_path import assert_freshness_gate_executed, FreshnessRecord; ok,d=assert_freshness_gate_executed(FreshnessRecord(status=\\\"fail\\\",details={\\\"overall\\\":{\\\"failing_sources\\\":[\\\"contracts\\\"]}})); raise SystemExit(0 if ok else 1)\"",
+      "exit_code": 0,
+      "duration_s": 0.141,
+      "stdout_tail": "",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_golden_path_freshness.py",
+      "cmd": "python3 -m pytest tests/test_golden_path_freshness.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 45.854,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64836  64675   0.2%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 3 passed in 41.54s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "cdb95a1951f9f1172d72acb0c37e5ba0452f1090",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-21T13:53:25Z",
+  "duration_s": 45.996,
+  "substantive_runs": 2,
+  "totals": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-21T13:54:11Z"
+}
