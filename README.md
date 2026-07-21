@@ -232,4 +232,4 @@ pre-commit run --all-files  # verificação manual
 
 ---
 
-*Extra Consultoria — Tiago Sasaki. Construído sobre Synkra AIOX v5.2.9.*
+*Extra CLI — Tiago Sasaki.*
