@@ -1,0 +1,292 @@
+{
+  "campaign": "STABILIZE-GLOBAL-FULL-SUITE-01",
+  "base_sha": "75e5653c4b1e338009f6e395d3ffa50066fc16dd",
+  "base_ref": "origin/main",
+  "command": "python -m pytest tests/ -m \"\" -o addopts='' --cov=scripts --cov-report=term-missing --cov-fail-under=10 -q --tb=short",
+  "environment": {
+    "python": "3.12.3",
+    "pytest": "8.4.1",
+    "postgres": "16.14 (pgvector/pgvector:pg16)",
+    "postgres_container": "full-suite-pg16-baseline",
+    "dsn": "postgresql://test:test@127.0.0.1:5544/extra_full_suite",
+    "migrations_applied": 62,
+    "migrations_max_on_main": "057",
+    "CI": "true",
+    "RESILIENCE_REQUIRE_DB": "0",
+    "REQUIRE_REAL_DB": "unset"
+  },
+  "counts": {
+    "FAILED": 21,
+    "ERROR": 0,
+    "PASSED": 2179,
+    "SKIPPED": 128,
+    "DESELECTED": 0,
+    "exit_code": 1,
+    "duration_sec": 816
+  },
+  "failures": [
+    {
+      "nodeid": "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_pncp_429_is_rate_limited_checkpointed_no_watermark",
+      "classification": "TEST_CONTRACT_STALE",
+      "wave": 1,
+      "track": "B",
+      "owner_files": [
+        "tests/chaos/test_429_rate_limit.py"
+      ],
+      "root_cause": "ResilienceConfig fixture missing required fields environment, execution_mode, state_root, breaker_path",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_pncp_429_sequence_opens_circuit_breaker",
+      "classification": "TEST_CONTRACT_STALE",
+      "wave": 1,
+      "track": "B",
+      "owner_files": [
+        "tests/chaos/test_429_rate_limit.py"
+      ],
+      "root_cause": "same fixture",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/chaos/test_429_rate_limit.py::Test429RateLimit::test_sc_compras_429_is_rate_limited_not_empty",
+      "classification": "TEST_CONTRACT_STALE",
+      "wave": 1,
+      "track": "B",
+      "owner_files": [
+        "tests/chaos/test_429_rate_limit.py"
+      ],
+      "root_cause": "same fixture",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_entity_resolver.py::TestEntityResolver::test_resolve_secretaria_to_prefeitura",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_entity_resolver.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse mock of psycopg2.connect + empty entity_aliases (no deterministic seed)",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_entity_resolver.py::TestEntityResolver::test_resolve_secretaria_to_prefeitura_porto_belo",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_entity_resolver.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "same",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_entity_resolver.py::TestEntityResolver::test_resolve_batch",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_entity_resolver.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "same",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_entity_resolver.py::TestEntityResolver::test_singleton_convenience",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_entity_resolver.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "same",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_entity_resolver.py::TestSeedCoverage::test_all_secretarias_have_alias",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_entity_resolver.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "seed not in fresh migrations; mock returns 0 rows; tests assume operator DB seed",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_entity_resolver.py::TestSeedCoverage::test_alias_count_matches_expected",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_entity_resolver.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "same seed/isolation debt",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_intel_exists",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_runs_exists",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_checkpoints_exists",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestOpportunityTablesExist::test_opportunity_coverage_exists",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_single_record",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_idempotent",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestUpsertFunction::test_upsert_batch",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestConstraints::test_status_canonico_constraint",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_opportunity_integration.py::TestConstraints::test_ranking_constraint",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "A",
+      "owner_files": [
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "autouse psycopg2 mock; REQUIRE_REAL_DB=1 not set; tables exist on migrated PG16",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_resilience_vertical_slice.py::test_vertical_slice_postgres_real_path",
+      "classification": "ORDER_OR_STATE_DEPENDENCY",
+      "wave": 2,
+      "track": "B",
+      "owner_files": [
+        "tests/test_resilience_vertical_slice.py",
+        "tests/conftest.py"
+      ],
+      "root_cause": "RESILIENCE_REQUIRE_DB!=1 so autouse mock hides real schema; schema is present when mock disabled",
+      "product_change_required": false
+    },
+    {
+      "nodeid": "tests/test_transparencia_crawler.py::TestCrawl::test_crawl_full",
+      "classification": "TEST_CONTRACT_STALE",
+      "wave": 2,
+      "track": "D-extra",
+      "owner_files": [
+        "tests/test_transparencia_crawler.py"
+      ],
+      "root_cause": "crawl('full') now detect+template; test mocks only detect path; crawl_template returns 80 real config portals",
+      "product_change_required": false,
+      "blocks_global_suite": true,
+      "note": "Outside original A/B/C modules; incorporated because blocks suite green"
+    },
+    {
+      "nodeid": "tests/unit/test_dod_unit_evidence_pack.py::test_manifest_and_pytest_exit_zero",
+      "classification": "TEST_CONTRACT_STALE",
+      "wave": 2,
+      "track": "C",
+      "owner_files": [
+        "tests/unit/test_dod_unit_evidence_pack.py",
+        "docs/ops/session-2026-07-17-dod-unit-evidence/"
+      ],
+      "root_cause": "pytest-pack.log missing from committed evidence pack (only .exit + MANIFEST + proposed-flips)",
+      "product_change_required": false
+    }
+  ],
+  "classification_summary": {
+    "TEST_CONTRACT_STALE": 5,
+    "ORDER_OR_STATE_DEPENDENCY": 16,
+    "PRODUCT_DEFECT": 0,
+    "SCHEMA_OR_MIGRATION": 0,
+    "EXTERNAL_LIVE_ALLOWED": 0,
+    "UNKNOWN_BLOCKED": 0
+  },
+  "notes": [
+    "No PRODUCT_DEFECT proven on main; failures are stale fixtures, autouse DB mock isolation, missing seed/evidence artifacts.",
+    "Fresh migrations through 057 applied successfully; opportunity_* and pncp_raw_bids present.",
+    "058 exists only on non-main branches; not required on this main HEAD."
+  ]
+}

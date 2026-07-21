@@ -1,0 +1,76 @@
+{
+  "campaign": "STABILIZE-GLOBAL-FULL-SUITE-01",
+  "base_sha": "75e5653c4b1e338009f6e395d3ffa50066fc16dd",
+  "waves": [
+    {
+      "id": 0,
+      "name": "baseline",
+      "depends_on": [],
+      "outputs": [
+        "BASELINE.md",
+        "failure-manifest.json",
+        "dependency-dag.json",
+        "file-ownership.json"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "manual-429",
+      "depends_on": [
+        0
+      ],
+      "worktree": "fix/full-suite-resilience",
+      "modules": [
+        "tests/chaos/test_429_rate_limit.py"
+      ],
+      "gate": "QA PASS + manual 429 validation"
+    },
+    {
+      "id": 2,
+      "name": "parallel-tracks",
+      "depends_on": [
+        1
+      ],
+      "tracks": [
+        {
+          "id": "A",
+          "worktree": "fix/full-suite-db",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "id": "B",
+          "worktree": "fix/full-suite-resilience",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "id": "C",
+          "worktree": "fix/full-suite-audit",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "id": "D",
+          "worktree": "goal/full-suite-green",
+          "depends_on": [
+            "A",
+            "B",
+            "C"
+          ],
+          "serial": true
+        }
+      ]
+    }
+  ],
+  "serial_after_tracks": [
+    "dual-full-suite",
+    "draft-PR-CI",
+    "independent-QA",
+    "DOD-checkbox",
+    "HANDOFF-FINAL"
+  ]
+}
