@@ -165,6 +165,45 @@ def assert_essential_sources_executed(
     }
 
 
+def assert_sources_persisted(
+    source_records: list[SourceRecord],
+    *,
+    min_persisted_rows: int = 1,
+) -> tuple[bool, dict[str, Any]]:
+    """Prove crawl wrote data (inserted/updated/persisted metrics), not mere fetch.
+
+    Counts rows from SourceRecord.metrics keys commonly emitted by monitor.py:
+    inserted, updated, persisted. At least one source must show total writes
+    >= min_persisted_rows.
+    """
+    per_source: dict[str, dict[str, Any]] = {}
+    total_writes = 0
+    writers: list[str] = []
+    for rec in source_records:
+        m = rec.metrics or {}
+        inserted = int(m.get("inserted") or 0)
+        updated = int(m.get("updated") or 0)
+        persisted = int(m.get("persisted") or 0)
+        writes = inserted + updated + persisted
+        per_source[rec.name] = {
+            "inserted": inserted,
+            "updated": updated,
+            "persisted": persisted,
+            "writes": writes,
+            "status": rec.status,
+        }
+        total_writes += writes
+        if writes > 0:
+            writers.append(rec.name)
+    ok = total_writes >= min_persisted_rows and len(writers) >= 1
+    return ok, {
+        "min_persisted_rows": min_persisted_rows,
+        "total_writes": total_writes,
+        "writers": writers,
+        "per_source": per_source,
+    }
+
+
 def _backoff_delay(attempt: int, base: float = 4.0, max_delay: float = 60.0) -> float:
     """Exponential backoff with jitter."""
     delay = min(base * (2**attempt), max_delay)
@@ -1429,6 +1468,15 @@ def main() -> int:
                 details=exec_details,
             )
         )
+        persist_ok, persist_details = assert_sources_persisted(source_records)
+        steps.append(
+            StepRecord(
+                step="persist_source_data",
+                status="pass" if persist_ok else "fail",
+                duration_ms=0.0,
+                details=persist_details,
+            )
+        )
         overall = "success" if exec_ok else "failed"
         # If essentials executed but all failed adapters, still "executed" for this item;
         # exit non-zero only when not executed.
@@ -1697,6 +1745,25 @@ def main() -> int:
     sources_fail = [r for r in source_records if r.status == "fail"]
     essential_names = {s.name for s in selected_sources if s.essential}
     essential_fail = [r for r in sources_fail if r.name in essential_names]
+
+    exec_ok, exec_details = assert_essential_sources_executed(source_records)
+    steps.append(
+        StepRecord(
+            step="execute_essential_sources",
+            status="pass" if exec_ok else "fail",
+            duration_ms=sum(r.duration_ms for r in source_records),
+            details=exec_details,
+        )
+    )
+    persist_ok, persist_details = assert_sources_persisted(source_records)
+    steps.append(
+        StepRecord(
+            step="persist_source_data",
+            status="pass" if persist_ok else "fail",
+            duration_ms=0.0,
+            details=persist_details,
+        )
+    )
 
     def _src_label(status: str) -> str:
         return {
