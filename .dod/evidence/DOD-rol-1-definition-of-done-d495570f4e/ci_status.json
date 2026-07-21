@@ -1,11 +1,9 @@
 {
-  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
-  "impl_pr": 85,
-  "impl_merge_sha": "8daf991d888227f69164c74663fa814f8eae7c5d",
-  "main_ci_run_id": 29841380680,
-  "main_ci_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29841380680",
-  "main_ci_conclusion": "success",
-  "checked_at": "2026-07-21T22:13:14Z",
-  "jobs_required_not_skipped": true,
-  "note": "Main push CI after PR #92 green; item tests re-proved locally with REQUIRE_REAL_DB=1"
+  "conclusion": "success",
+  "head_sha": "0b9defa3f5c11ad3995eabb5528d8531a7edaf76",
+  "run_id": "29876999783",
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29876999783",
+  "mandatory_jobs_skipped": [],
+  "checked_at": "2026-07-21T23:31:18Z",
+  "note": "PR #97 CI green; wired meta on main"
 }

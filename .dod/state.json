@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
-  "updated_at": "2026-07-21T23:31:27Z",
+  "updated_at": "2026-07-21T23:31:39Z",
   "active_item_id": null,
   "active_run_id": "run-20260721T022411Z",
   "active_branch": "campaign/continue-03-acceptance-reconciliation",
@@ -11,24 +11,24 @@
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1356,
-    "accepted": 327,
-    "accepted_state": 327,
-    "claimed_checked": 330,
-    "audited_accepted": 19,
-    "evidence_located": 128,
+    "accepted": 328,
+    "accepted_state": 328,
+    "claimed_checked": 331,
+    "audited_accepted": 20,
+    "evidence_located": 129,
     "evidence_reproduced": 21,
     "proof_debt": 313,
     "verified": 0,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1028,
+    "open": 1027,
     "blocked": 1,
     "deferred": 0,
-    "acceptance_pct": 1.4,
-    "claimed_pct": 24.34,
+    "acceptance_pct": 1.47,
+    "claimed_pct": 24.41,
     "by_state": {
-      "ACCEPTED": 327,
-      "OPEN": 1028,
+      "ACCEPTED": 328,
+      "OPEN": 1027,
       "BLOCKED_HUMAN": 1
     },
     "by_category": {
@@ -43,7 +43,7 @@
       "HUMAN_ACCEPTANCE": 34,
       "CREDENTIAL_REQUIRED": 16
     },
-    "dod_checked_count": 330
+    "dod_checked_count": 331
   },
   "resume_step": "merge-reconciliation",
   "notes": "CONTINUE-03: accepted 8 GP items (ledger/logs/time/exit/snapshot/excel/pdf/idempotency). QA FAIL code/schema version (not wired). Supersedes #86#89#91#93. Next: public sanitization then clean env.",

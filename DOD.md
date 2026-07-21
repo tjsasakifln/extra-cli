@@ -919,7 +919,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O tempo total de execução é registrado. Evidência: PR #85 · wall_clock_ms no ledger · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-d134dd8ca2/`.
 - [x] A versão do código é registrada. Evidência: PR #97 · ledger meta.git_sha via _save_final_ledger · tests/test_golden_path_ledger_meta.py · .
 - [ ] O hash da planilha é registrado.
-- [ ] A versão do schema é registrada.
+- [x] A versão do schema é registrada. Evidência: PR #97 · ledger meta.schema_version · tests/test_golden_path_ledger_meta.py · .
 - [ ] Os relatórios apontam o período de referência.
 - [ ] Os relatórios apontam limitações conhecidas.
 
