@@ -1,0 +1,9 @@
+{
+  "run_id": "29836318793",
+  "conclusion": "success",
+  "pr": 81,
+  "merge_commit": "cdb95a1951f9f1172d72acb0c37e5ba0452f1090",
+  "jobs_all_success": true,
+  "mandatory_skipped": false,
+  "full_suite": "success"
+}
