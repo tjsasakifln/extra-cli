@@ -9,4 +9,4 @@ collected 3 items
 
 tests/test_golden_path_snapshot.py .ss                                   [100%]
 
-========================= 1 passed, 2 skipped in 1.64s =========================
+========================= 1 passed, 2 skipped in 1.54s =========================
