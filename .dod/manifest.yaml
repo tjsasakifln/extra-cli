@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-21T02:42:00Z'
+updated_at: '2026-07-21T02:45:39Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -33852,11 +33852,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: VERIFIED
+  state: BLOCKED_HUMAN
   dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
-  blockers: []
+  blockers:
+  - 'GitHub Actions: account payments failed or spending limit — jobs not started (annotation on check-run). PR #74 cannot
+    get CI green; ACCEPTED blocked until billing restored.'
   acceptance_commands:
   - python3 -c "from scripts.golden_path import validate_target_spreadsheet; ok,_,d=validate_target_spreadsheet(); raise SystemExit(0
     if ok else 1)"
@@ -33899,6 +33901,10 @@ items:
   - at: '2026-07-21T02:42:00Z'
     event: verify
     detail: VERIFIED
+  - at: '2026-07-21T02:45:39Z'
+    event: block
+    detail: 'BLOCKED_HUMAN: GitHub Actions: account payments failed or spending limit — jobs not started (annotation on check-run).
+      PR #74 cannot get CI green; ACCEPTED blocked until billing restored.'
   content_fingerprint: e405d6a61c
   evidence_audit: null
   priority_boost: 0

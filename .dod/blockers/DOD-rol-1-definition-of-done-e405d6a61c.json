@@ -1,0 +1,10 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-e405d6a61c",
+  "kind": "BLOCKED_HUMAN",
+  "reason": "GitHub Actions: account payments failed or spending limit — jobs not started (annotation on check-run). PR #74 cannot get CI green; ACCEPTED blocked until billing restored.",
+  "owner": "Tiago",
+  "next_test": "gh pr checks 74; gh run list --limit 3",
+  "created_at": "2026-07-21T02:45:41Z",
+  "resolved_at": null,
+  "resume_step": "implement"
+}
