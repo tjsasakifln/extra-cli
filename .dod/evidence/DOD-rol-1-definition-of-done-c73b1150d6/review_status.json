@@ -1,0 +1,12 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-c73b1150d6",
+  "reviewer": "adversarial-qa-continue-03",
+  "at": "2026-07-21T23:45:00Z",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "requirement": "O golden path reconcilia snapshot de editais.",
+  "dod_line": 907,
+  "note": "mechanism with synthetic/fixture bids (count=5); not production-scale inventory",
+  "pending_changes_requested": false,
+  "head_sha": "432da028f1fed7d70d9d489e689cf3afa350571d"
+}
