@@ -1374,6 +1374,59 @@ def run_freshness_gate(dsn: str) -> FreshnessRecord:
 # ---------------------------------------------------------------------------
 
 
+
+def run_editais_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord:
+    """Generate domain-specific editais report (not panorama Excel/PDF)."""
+    t0 = time.perf_counter()
+    try:
+        from scripts.reports.editais_report import write_editais_report
+
+        result = write_editais_report(dsn, out_dir=out_dir)
+        path = result.get("path")
+        size = int(result.get("size") or 0)
+        if not result.get("ok") or not path or not Path(path).is_file():
+            return StepRecord(
+                step="editais_report",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error=str(result.get("limitations") or "editais report missing"),
+                details=result,
+            )
+        # Require editais-specific identity: filename + columns in sidecar/json
+        if "relatorio-editais" not in Path(path).name:
+            return StepRecord(
+                step="editais_report",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error="editais report path must be domain-specific",
+                details=result,
+            )
+        cols = result.get("columns") or []
+        for required in ("pncp_id", "objeto_compra", "uf"):
+            if required not in cols:
+                return StepRecord(
+                    step="editais_report",
+                    status="fail",
+                    duration_ms=(time.perf_counter() - t0) * 1000,
+                    error=f"missing column {required}",
+                    details=result,
+                )
+        _echo(f"  Editais report: {path} rows={result.get('row_count')} size={size}", "ok")
+        return StepRecord(
+            step="editais_report",
+            status="pass",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            details=result,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return StepRecord(
+            step="editais_report",
+            status="fail",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            error=str(exc),
+        )
+
+
 def run_reports(dsn: str) -> list[ReportRecord]:
     """Generate panorama reports (Excel + PDF)."""
     reports: list[ReportRecord] = []
@@ -1579,7 +1632,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--execute-reports-only",
         action="store_true",
-        help="Run only Excel+PDF report generation + ledger (requires DB)",
+        help="Run only panorama Excel+PDF generation + ledger (requires DB)",
+    )
+    p.add_argument(
+        "--execute-editais-report-only",
+        action="store_true",
+        help="Run only domain editais report (CSV+JSON) + ledger (requires DB)",
     )
     p.add_argument(
         "--spreadsheet",
@@ -1965,6 +2023,42 @@ def main() -> int:
             _echo(f"  Reports FAIL excel={ok_excel} pdf={ok_pdf}", "error")
             return 1
         _echo("  Reports OK (excel+pdf files present)", "ok")
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
+        return 0
+
+    if args.execute_editais_report_only:
+        run_id = f"gp-editais-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        wall_start = time.monotonic()
+        dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
+        if not dsn:
+            try:
+                import config.settings as _cfg
+
+                dsn = _cfg.LOCAL_DATALAKE_DSN
+            except ImportError:
+                dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
+        ok_db, dur_db = check_db(dsn)
+        steps.append(
+            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
+        )
+        if not ok_db:
+            _save_final_ledger(
+                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
+            )
+            return 1
+        _echo("\n[execute-editais-report-only] Gerando relatório de editais...", "header")
+        editais_step = run_editais_report(dsn)
+        steps.append(editais_step)
+        overall = "success" if editais_step.status == "pass" else "failed"
+        _save_final_ledger(
+            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
+        )
+        if overall != "success":
+            _echo(f"  Editais report FAIL: {editais_step.error}", "error")
+            return 1
+        _echo("  Editais report OK (domain CSV+JSON present)", "ok")
         _echo(f"  Ledger: {args.ledger_output}", "ok")
         return 0
 
@@ -2356,6 +2450,13 @@ def main() -> int:
     else:
         report_records = run_reports(dsn)
 
+    # Step 4b: domain-specific editais report (DoD §12.1 — not panorama)
+    _echo("\n[4b/7] Relatório de editais (domínio)...", "header")
+    editais_step = run_editais_report(dsn)
+    steps.append(editais_step)
+    if editais_step.status != "pass":
+        _echo(f"  Editais report FAIL: {editais_step.error}", "error")
+
     # =========================================================================
     # Summary
     # =========================================================================
@@ -2372,6 +2473,10 @@ def main() -> int:
         skip_sources=bool(args.skip_sources),
         allow_zero=bool(args.allow_zero),
     )
+    # Domain editais report is mandatory for §12.1 (independent of panorama Excel/PDF).
+    if editais_step.status != "pass" and exit_code == 0:
+        overall = "failed"
+        exit_code = 4
 
     freshness_str = freshness_record.status if freshness_record else "N/A"
     excel_status = report_records[0].status if report_records else "N/A"
