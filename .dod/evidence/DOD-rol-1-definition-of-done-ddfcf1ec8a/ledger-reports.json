@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "run_id": "gp-rep-20260721-113714",
+      "timestamp": "2026-07-21T14:37:14.058058+00:00",
+      "status": "success",
+      "wall_clock_ms": 737.140299001112,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 24.191399999835994,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "generate_reports",
+          "status": "pass",
+          "duration_ms": 0.0,
+          "error": null,
+          "details": {
+            "excel": "/mnt/d/extra-consultoria-continue-02-main/output/excels/panorama-SC-2026-07-21.xlsx",
+            "pdf": "/mnt/d/extra-consultoria-continue-02-main/output/pdfs/panorama-SC-2026-07-21.pdf",
+            "records": [
+              {
+                "type": "excel",
+                "status": "generated",
+                "path": "/mnt/d/extra-consultoria-continue-02-main/output/excels/panorama-SC-2026-07-21.xlsx",
+                "error": null
+              },
+              {
+                "type": "pdf",
+                "status": "generated",
+                "path": "/mnt/d/extra-consultoria-continue-02-main/output/pdfs/panorama-SC-2026-07-21.pdf",
+                "error": null
+              }
+            ]
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [
+        {
+          "type": "excel",
+          "status": "generated",
+          "path": "/mnt/d/extra-consultoria-continue-02-main/output/excels/panorama-SC-2026-07-21.xlsx",
+          "error": null
+        },
+        {
+          "type": "pdf",
+          "status": "generated",
+          "path": "/mnt/d/extra-consultoria-continue-02-main/output/pdfs/panorama-SC-2026-07-21.pdf",
+          "error": null
+        }
+      ],
+      "freshness": null
+    }
+  ]
+}

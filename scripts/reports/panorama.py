@@ -221,6 +221,46 @@ def print_terminal_report(sections: dict) -> None:
     print("\n" + "=" * 72)
 
 
+def export_pdf(sections: dict, filepath: str) -> str:
+    """Write a minimal non-empty panorama PDF via reportlab (fail-closed)."""
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    c = canvas.Canvas(str(path), pagesize=A4)
+    width, height = A4
+    y = height - 50
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(40, y, "Panorama de Licitacoes — Extra Construtora")
+    y -= 24
+    c.setFont("Helvetica", 10)
+    meta = sections.get("meta") or {}
+    c.drawString(40, y, f"UF={meta.get('uf', 'SC')}  dias={meta.get('dias', '')}  as_of={date.today().isoformat()}")
+    y -= 20
+    mods = sections.get("modalidades") or sections.get("volume") or []
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(40, y, "Volume por modalidade (sample)")
+    y -= 16
+    c.setFont("Helvetica", 9)
+    if isinstance(mods, list):
+        for row in mods[:15]:
+            if y < 60:
+                c.showPage()
+                y = height - 50
+                c.setFont("Helvetica", 9)
+            line = str(row)[:100]
+            c.drawString(40, y, line)
+            y -= 12
+    else:
+        c.drawString(40, y, f"rows={len(mods) if hasattr(mods, '__len__') else 'n/a'}")
+    c.showPage()
+    c.save()
+    if not path.is_file() or path.stat().st_size < 100:
+        raise RuntimeError(f"PDF not written or too small: {path}")
+    return str(path)
+
+
 def export_excel(sections: dict, filepath: str) -> None:
     """Export panorama sections to styled Excel."""
     try:
@@ -348,7 +388,11 @@ def main():
 
     # PDF export
     if args.output_pdf:
-        print("⚠️  PDF export via reportlab — integração com generate_report_b2g.py pendente")
+        output_dir = _PROJECT_ROOT / "output" / "pdfs"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        filepath = output_dir / f"panorama-{args.uf}-{date.today().isoformat()}.pdf"
+        export_pdf(sections, str(filepath))
+        print(f"✅ PDF salvo: {filepath}")
 
     return 0
 
