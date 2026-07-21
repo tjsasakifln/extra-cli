@@ -1,0 +1,10 @@
+{
+  "conclusion": "success",
+  "head_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "run_id": 29841380680,
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29841380680",
+  "mandatory_jobs_skipped": [],
+  "checked_at": "2026-07-21T22:18:46Z",
+  "impl_note": "Implementation merged earlier; main push CI after #92 SUCCESS"
+}
