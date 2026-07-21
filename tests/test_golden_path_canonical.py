@@ -1,3 +1,4 @@
+import pytest
 """DoD §12.1 — canonical golden path command + metadata + fail-closed."""
 
 from __future__ import annotations
@@ -192,7 +193,9 @@ def test_resolve_prefers_canonical_not_backup(tmp_path: Path) -> None:
     assert ".backup" not in chosen.name
 
 
-def test_resolve_backup_only_fails_without_allow(tmp_path: Path) -> None:
+def test_resolve_backup_only_fails_without_allow(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("EXTRA_TARGET_SPREADSHEET", raising=False)
+    monkeypatch.delenv("TARGET_SPREADSHEET_PATH", raising=False)
     import shutil
 
     from scripts.golden_path import resolve_canonical_spreadsheet
@@ -205,14 +208,18 @@ def test_resolve_backup_only_fails_without_allow(tmp_path: Path) -> None:
         resolve_canonical_spreadsheet(tmp_path, allow_backup=False)
 
 
-def test_resolve_missing_fails(tmp_path: Path) -> None:
+def test_resolve_missing_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("EXTRA_TARGET_SPREADSHEET", raising=False)
+    monkeypatch.delenv("TARGET_SPREADSHEET_PATH", raising=False)
     from scripts.golden_path import resolve_canonical_spreadsheet
 
     with pytest.raises(FileNotFoundError):
         resolve_canonical_spreadsheet(tmp_path)
 
 
-def test_resolve_ambiguous_primary_fails(tmp_path: Path) -> None:
+def test_resolve_ambiguous_primary_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("EXTRA_TARGET_SPREADSHEET", raising=False)
+    monkeypatch.delenv("TARGET_SPREADSHEET_PATH", raising=False)
     import shutil
 
     from scripts.golden_path import resolve_canonical_spreadsheet

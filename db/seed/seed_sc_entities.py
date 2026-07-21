@@ -94,7 +94,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--dsn",
         default=os.getenv("LOCAL_DATALAKE_DSN") or None,
-        help="PostgreSQL connection DSN (default: LOCAL_DATALAKE_DSN env)",
+        help="PostgreSQL connection DSN (required via --dsn or LOCAL_DATALAKE_DSN; no weak default)",
     )
     p.add_argument(
         "--xlsx",
