@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-21T01:35:02Z'
+updated_at: '2026-07-21T01:36:02Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -448,14 +448,21 @@ items:
     - Definition of Done — Extra Consultoria
     - Atualização comprovada — ciclo B2G operacional de 17/07/2026
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: IMPLEMENTED
   dod_checked: false
   evidence_type: automated_test
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
-  files: []
+  acceptance_commands:
+  - python3 -m scripts.ops.run_full_suite
+  tests:
+  - tests/test_entity_resolver.py
+  - tests/test_dod_controller.py
+  files:
+  - scripts/ops/run_full_suite.py
+  - scripts/lib/entity_resolver.py
+  - .github/workflows/ci.yml
+  - tests/test_entity_resolver.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
@@ -469,9 +476,15 @@ items:
   - at: '2026-07-21T01:35:02Z'
     event: scanned
     detail: line=32 checked=False
+  - at: '2026-07-21T01:36:02Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-21T01:48:47Z'
+    event: local_full_suite
+    detail: 2210 passed, 126 skipped, exit 0 on isolated PG16:5544
   content_fingerprint: fd43ee57aa
   evidence_audit: null
-  priority_boost: 0
+  priority_boost: 100
 - id: DOD-definition-of-done-extra-ef7e127720
   text: 'Freshness coverage mensurável por entidade dentro dos SLAs. Evidência: campanha `ENTITY-FRESHNESS-CANONICAL-ACCEPTANCE-01`
     · população = `load_canonical_universe` (seed `Extra - alvos de licitação. R-0.xlsx`, seed_sha256 `d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486`,

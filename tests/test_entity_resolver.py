@@ -115,11 +115,13 @@ class TestEntityResolver:
             assert row is not None, "AC-1 alias row missing in entity_aliases"
             assert row[0] == "82892324"
         resolver = EntityResolver(db_conn)
+        resolver.invalidate_cache()
         # "SECRETARIA MUNICIPAL DE EDUCACAO" em SANTO AMARO DA IMPERATRIZ
         result = resolver.resolve("62761279")
         assert result == "82892324", (
             f"resolve returned {result!r}; cache_size="
-            f"{len(getattr(resolver, '_cache', {}))}"
+            f"{len(getattr(resolver, '_cache', {}))}; "
+            f"loaded_ok={getattr(resolver, '_cache_loaded_ok', None)}"
         )
         assert result != "62761279"
 
