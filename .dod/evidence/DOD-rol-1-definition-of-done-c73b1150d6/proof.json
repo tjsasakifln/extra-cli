@@ -1,0 +1,38 @@
+{
+  "at": "2026-07-21T14:27:08.092664+00:00",
+  "ok": true,
+  "second_run_status": "success",
+  "steps": [
+    {
+      "step": "db_connectivity",
+      "status": "pass",
+      "duration_ms": 23.311200000534882,
+      "error": null,
+      "details": null
+    },
+    {
+      "step": "snapshot_reconciliation",
+      "status": "pass",
+      "duration_ms": 33.097100000304636,
+      "error": null,
+      "details": {
+        "source_table": "pncp_raw_bids",
+        "prev_path": "/mnt/d/extra-consultoria-continue-02-main/output/golden-path/snapshots/editais-snapshot-prev.json",
+        "curr_path": "/mnt/d/extra-consultoria-continue-02-main/output/golden-path/snapshots/editais-snapshot-curr.json",
+        "current_count": 566,
+        "ids_sha256": "0549f15e611ab8862926eb2256356749b7e0102545c8ad6dc57accb3f09f75db",
+        "baseline": false,
+        "previous_count": 566,
+        "added": 0,
+        "removed": 0,
+        "changed": 0,
+        "unchanged": 566,
+        "added_sample": [],
+        "removed_sample": [],
+        "changed_sample": [],
+        "previous_ids_sha256": "0549f15e611ab8862926eb2256356749b7e0102545c8ad6dc57accb3f09f75db"
+      }
+    }
+  ],
+  "note": "baseline then stable delta; dual CLI ledger"
+}

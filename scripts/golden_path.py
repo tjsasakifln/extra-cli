@@ -412,31 +412,131 @@ def run_coverage_calculation(
         )
 
 
-def run_snapshot_reconciliation(dsn: str) -> StepRecord:
-    """Best-effort snapshot reconciliation step; fail-closed on connection errors."""
+def run_snapshot_reconciliation(
+    dsn: str,
+    *,
+    project_root: Path | None = None,
+    snapshot_dir: Path | None = None,
+) -> StepRecord:
+    """Reconcile current editais snapshot (pncp_raw_bids) against previous snapshot file.
+
+    Produces structured delta: added / removed / changed (by content_hash), counts,
+    and sha256 of current ID set. First run creates baseline (pass with baseline=true).
+    Fail-closed on DB errors or empty current set when table exists with schema.
+    """
     t0 = time.perf_counter()
+    _ = project_root or _PROJECT_ROOT  # reserved for future seed-scoped snapshots
+    out_dir = snapshot_dir or (_OUTPUT_DIR / "golden-path" / "snapshots")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    prev_path = out_dir / "editais-snapshot-prev.json"
+    curr_path = out_dir / "editais-snapshot-curr.json"
+    details: dict[str, Any] = {
+        "source_table": "pncp_raw_bids",
+        "prev_path": str(prev_path),
+        "curr_path": str(curr_path),
+    }
     try:
         import psycopg2
 
-        conn = psycopg2.connect(dsn, connect_timeout=3)
+        conn = psycopg2.connect(dsn, connect_timeout=10)
         try:
             with conn.cursor() as cur:
-                cur.execute("SELECT 1")
-                cur.fetchone()
+                cur.execute(
+                    """
+                    SELECT pncp_id, COALESCE(content_hash, ''),
+                           COALESCE(to_char(data_publicacao AT TIME ZONE 'UTC', 'YYYY-MM-DD'), '')
+                    FROM pncp_raw_bids
+                    WHERE is_active IS TRUE OR is_active IS NULL
+                    """
+                )
+                rows = cur.fetchall()
         finally:
             conn.close()
+
+        current: dict[str, dict[str, str]] = {}
+        for pncp_id, chash, pub in rows:
+            pid = str(pncp_id)
+            current[pid] = {"content_hash": str(chash or ""), "data_publicacao": str(pub or "")}
+
+        ids_sorted = sorted(current.keys())
+        ids_payload = "\n".join(ids_sorted).encode("utf-8")
+        ids_sha = hashlib.sha256(ids_payload).hexdigest()
+        details["current_count"] = len(current)
+        details["ids_sha256"] = ids_sha
+        if len(current) == 0:
+            details["error"] = "pncp_raw_bids returned zero active rows; cannot reconcile editais snapshot"
+            return StepRecord(
+                step="snapshot_reconciliation",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error=details["error"],
+                details=details,
+            )
+
+        curr_doc = {
+            "table": "pncp_raw_bids",
+            "count": len(current),
+            "ids_sha256": ids_sha,
+            "records": current,
+            "as_of": datetime.now(UTC).isoformat(),
+        }
+        curr_path.write_text(json.dumps(curr_doc, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+
+        if not prev_path.is_file():
+            # Baseline: copy current → prev
+            prev_path.write_text(curr_path.read_text(encoding="utf-8"), encoding="utf-8")
+            details["baseline"] = True
+            details["added"] = 0
+            details["removed"] = 0
+            details["changed"] = 0
+            details["unchanged"] = len(current)
+            return StepRecord(
+                step="snapshot_reconciliation",
+                status="pass",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                details=details,
+            )
+
+        prev_doc = json.loads(prev_path.read_text(encoding="utf-8"))
+        prev_records = prev_doc.get("records") or {}
+        prev_ids = set(prev_records.keys())
+        curr_ids = set(current.keys())
+        added = sorted(curr_ids - prev_ids)
+        removed = sorted(prev_ids - curr_ids)
+        common = curr_ids & prev_ids
+        changed = sorted(
+            i
+            for i in common
+            if (prev_records.get(i) or {}).get("content_hash") != (current.get(i) or {}).get("content_hash")
+        )
+        details["baseline"] = False
+        details["previous_count"] = len(prev_ids)
+        details["added"] = len(added)
+        details["removed"] = len(removed)
+        details["changed"] = len(changed)
+        details["unchanged"] = len(common) - len(changed)
+        details["added_sample"] = added[:10]
+        details["removed_sample"] = removed[:10]
+        details["changed_sample"] = changed[:10]
+        details["previous_ids_sha256"] = prev_doc.get("ids_sha256")
+
+        # Rotate: curr becomes next prev
+        prev_path.write_text(curr_path.read_text(encoding="utf-8"), encoding="utf-8")
+
         return StepRecord(
             step="snapshot_reconciliation",
             status="pass",
             duration_ms=(time.perf_counter() - t0) * 1000,
-            details={"note": "connectivity-only probe; full AEC reconcile is separate"},
+            details=details,
         )
     except Exception as exc:
+        details["error"] = str(exc)[:400]
         return StepRecord(
             step="snapshot_reconciliation",
             status="fail",
             duration_ms=(time.perf_counter() - t0) * 1000,
             error=str(exc)[:300],
+            details=details,
         )
 
 
@@ -1400,6 +1500,11 @@ def parse_args() -> argparse.Namespace:
         help="Run only coverage calculation + ledger (requires DB + planilha)",
     )
     p.add_argument(
+        "--execute-snapshot-only",
+        action="store_true",
+        help="Run only editais snapshot reconciliation + ledger (requires DB)",
+    )
+    p.add_argument(
         "--spreadsheet",
         default=None,
         help="Explicit path to target spreadsheet (must not be .backup unless allowed)",
@@ -1704,6 +1809,41 @@ def main() -> int:
         _echo(
             f"  Cobertura OK den={d.get('denominator')} num={d.get('numerator')} "
             f"pct={d.get('coverage_pct')} method={d.get('method')}",
+            "ok",
+        )
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
+        return 0
+
+    if args.execute_snapshot_only:
+        run_id = f"gp-snap-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
+        if not dsn:
+            try:
+                import config.settings as _cfg
+
+                dsn = _cfg.LOCAL_DATALAKE_DSN
+            except ImportError:
+                dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
+        ok_db, dur_db = check_db(dsn)
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
+        if not ok_db:
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
+            return 1
+        _echo("\n[execute-snapshot-only] Reconciliando snapshot de editais...", "header")
+        snap = run_snapshot_reconciliation(dsn, project_root=_PROJECT_ROOT)
+        steps.append(snap)
+        overall = "success" if snap.status == "pass" else "failed"
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output)
+        if snap.status != "pass":
+            _echo(f"  Snapshot FAIL: {snap.error or snap.details}", "error")
+            return 1
+        d = snap.details or {}
+        _echo(
+            f"  Snapshot OK count={d.get('current_count')} "
+            f"added={d.get('added')} removed={d.get('removed')} changed={d.get('changed')} "
+            f"baseline={d.get('baseline')}",
             "ok",
         )
         _echo(f"  Ledger: {args.ledger_output}", "ok")
@@ -2054,6 +2194,23 @@ def main() -> int:
         )
     else:
         _echo(f"  Cobertura FAIL: {cov_step.error}", "warn")
+
+    # =========================================================================
+    # Step 3c: Snapshot reconciliation (editais)
+    # =========================================================================
+    _echo("\n[3c/7] Reconciliando snapshot de editais...", "header")
+    snap_step = run_snapshot_reconciliation(dsn, project_root=_PROJECT_ROOT)
+    steps.append(snap_step)
+    if snap_step.status == "pass":
+        d = snap_step.details or {}
+        _echo(
+            f"  Snapshot count={d.get('current_count')} "
+            f"+{d.get('added')}/-{d.get('removed')}/~{d.get('changed')} "
+            f"baseline={d.get('baseline')}",
+            "ok",
+        )
+    else:
+        _echo(f"  Snapshot FAIL: {snap_step.error}", "warn")
 
     # =========================================================================
     # Step 4: Reports
