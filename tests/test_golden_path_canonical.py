@@ -1,7 +1,6 @@
 """DoD §12.1 — canonical golden path command + metadata + fail-closed."""
 from __future__ import annotations
 
-import json
 import subprocess
 import sys
 from pathlib import Path
@@ -9,11 +8,11 @@ from pathlib import Path
 import pytest
 
 from scripts.golden_path import (
-    collect_run_metadata,
-    evaluate_run_outcome,
-    SourceRecord,
     FreshnessRecord,
     ReportRecord,
+    SourceRecord,
+    collect_run_metadata,
+    evaluate_run_outcome,
 )
 
 

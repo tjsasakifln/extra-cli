@@ -532,7 +532,8 @@ def apply_seeds(dsn: str) -> tuple[bool, float, dict[str, list[str]]]:
                 summary["missing"].append(rel)
                 _logger.warning("Seed script missing: %s", rel)
                 continue
-            proc = subprocess.run(
+            # Trusted argv: fixed sys.executable + in-repo seed script path.
+            proc = subprocess.run(  # noqa: S603
                 [sys.executable, str(path)],
                 cwd=str(_PROJECT_ROOT),
                 env=env,
