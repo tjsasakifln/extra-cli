@@ -909,8 +909,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O golden path gera relatório de contratos.
 - [ ] O golden path gera relatório de concorrentes.
 - [ ] O golden path gera relatório de referências de valores.
-- [ ] O golden path gera Excel.
-- [ ] O golden path gera PDF.
+- [x] O golden path gera Excel. Evidência: PR #90 · xlsx openable openpyxl · size>=100 · sheets Volume/Municípios/Sazonalidade · `.dod/evidence/DOD-rol-1-definition-of-done-d5c6584cb7/`.
+- [x] O golden path gera PDF. Evidência: PR #90 · %PDF magic · size>=100 · reportlab panorama · `.dod/evidence/DOD-rol-1-definition-of-done-ddfcf1ec8a/`.
 - [ ] O golden path gera ledger.
 - [ ] O golden path gera logs.
 - [ ] O golden path retorna exit code não zero em qualquer gate obrigatório.
