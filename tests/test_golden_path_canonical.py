@@ -1,4 +1,5 @@
 """DoD §12.1 — canonical golden path command + metadata + fail-closed."""
+
 from __future__ import annotations
 
 import subprocess
@@ -192,8 +193,9 @@ def test_resolve_prefers_canonical_not_backup(tmp_path: Path) -> None:
 
 
 def test_resolve_backup_only_fails_without_allow(tmp_path: Path) -> None:
-    from scripts.golden_path import resolve_canonical_spreadsheet
     import shutil
+
+    from scripts.golden_path import resolve_canonical_spreadsheet
 
     root = Path(__file__).resolve().parents[1]
     src = root / CANONICAL_XLSX
@@ -211,8 +213,9 @@ def test_resolve_missing_fails(tmp_path: Path) -> None:
 
 
 def test_resolve_ambiguous_primary_fails(tmp_path: Path) -> None:
-    from scripts.golden_path import resolve_canonical_spreadsheet
     import shutil
+
+    from scripts.golden_path import resolve_canonical_spreadsheet
 
     root = Path(__file__).resolve().parents[1]
     src = root / CANONICAL_XLSX
@@ -250,9 +253,7 @@ def test_validate_wrong_expected_count_fails() -> None:
     from scripts.golden_path import validate_target_spreadsheet
 
     root = Path(__file__).resolve().parents[1]
-    ok, _dur, details = validate_target_spreadsheet(
-        root, expected_included=9999, expected_ids_sha256=EXPECTED_IDS_SHA
-    )
+    ok, _dur, details = validate_target_spreadsheet(root, expected_included=9999, expected_ids_sha256=EXPECTED_IDS_SHA)
     assert ok is False
     assert "mismatch" in str(details.get("error", "")).lower()
 

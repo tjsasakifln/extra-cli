@@ -218,9 +218,7 @@ def run_coverage_calculation(dsn: str) -> StepRecord:
         conn = psycopg2.connect(dsn, connect_timeout=5)
         try:
             with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT count(*) FROM information_schema.tables WHERE table_schema='public'"
-                )
+                cur.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='public'")
                 n = int(cur.fetchone()[0])
         finally:
             conn.close()
@@ -303,12 +301,10 @@ def evaluate_run_outcome(
     essential_ok = [r for r in successes if r.name in essential_names]
     non_essential_fail = [r for r in fails if r.name not in essential_names]
 
-    freshness_status = (freshness.status if freshness else "skipped")
+    freshness_status = freshness.status if freshness else "skipped"
     if skip_freshness:
         freshness_status = "skipped"
-    report_fails = [
-        r for r in reports if r.status == "fail" and not skip_reports
-    ]
+    report_fails = [r for r in reports if r.status == "fail" and not skip_reports]
 
     # --- non-strict legacy path (explicit opt-out only) ---
     if not strict:
@@ -566,7 +562,6 @@ def apply_seeds(dsn: str) -> tuple[bool, float, dict[str, list[str]]]:
         return False, dur, summary
 
 
-
 # ---------------------------------------------------------------------------
 # Step 1d: Validate target spreadsheet (canonical — DoD §12.1)
 # ---------------------------------------------------------------------------
@@ -575,9 +570,7 @@ def apply_seeds(dsn: str) -> tuple[bool, float, dict[str, list[str]]]:
 CANONICAL_SPREADSHEET_BASENAME = "Extra - alvos de licitação. R-0.xlsx"
 # Expected included (raio 200km) set size and ordered-ids hash from current DOD.
 EXPECTED_CANONICAL_INCLUDED = 1093
-EXPECTED_CANONICAL_IDS_SHA256 = (
-    "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396"
-)
+EXPECTED_CANONICAL_IDS_SHA256 = "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396"
 REQUIRED_SHEET_NAME = "Entes Públicos SC"
 REQUIRED_HEADER_MARKERS = ("Razão Social", "CNPJ", "Município", "Raio")
 _BACKUP_NAME_TOKENS = (".backup", ".copy", ".tmp", "~$", ".temp")
@@ -616,9 +609,7 @@ def resolve_canonical_spreadsheet(
         if not path.is_file():
             raise FileNotFoundError(f"Explicit spreadsheet not found: {path}")
         if _is_backup_or_temp_name(path.name) and not allow_backup:
-            raise FileNotFoundError(
-                f"Refusing backup/temp spreadsheet without allow_backup: {path.name}"
-            )
+            raise FileNotFoundError(f"Refusing backup/temp spreadsheet without allow_backup: {path.name}")
         return path
 
     preferred = root / CANONICAL_SPREADSHEET_BASENAME
@@ -648,17 +639,13 @@ def resolve_canonical_spreadsheet(
         return primary[0]
     if len(primary) > 1:
         names = ", ".join(p.name for p in primary)
-        raise FileNotFoundError(
-            f"Ambiguous target spreadsheets (multiple primary candidates): {names}"
-        )
+        raise FileNotFoundError(f"Ambiguous target spreadsheets (multiple primary candidates): {names}")
     # no primary
     if backups and allow_backup:
         if len(backups) == 1:
             return backups[0]
         names = ", ".join(p.name for p in backups)
-        raise FileNotFoundError(
-            f"Ambiguous backup spreadsheets: {names}"
-        )
+        raise FileNotFoundError(f"Ambiguous backup spreadsheets: {names}")
     if backups and not allow_backup:
         raise FileNotFoundError(
             "Only backup/temp spreadsheet(s) found; refusing silent selection. "
@@ -666,8 +653,7 @@ def resolve_canonical_spreadsheet(
             f"'{CANONICAL_SPREADSHEET_BASENAME}' or set allow_backup."
         )
     raise FileNotFoundError(
-        f"Canonical spreadsheet '{CANONICAL_SPREADSHEET_BASENAME}' not found "
-        "under project root or data/."
+        f"Canonical spreadsheet '{CANONICAL_SPREADSHEET_BASENAME}' not found under project root or data/."
     )
 
 
@@ -734,18 +720,13 @@ def validate_target_spreadsheet(
         wb = load_workbook(xlsx_path, read_only=True, data_only=True)
         try:
             if REQUIRED_SHEET_NAME not in wb.sheetnames:
-                details["error"] = (
-                    f"required sheet '{REQUIRED_SHEET_NAME}' missing; "
-                    f"available={list(wb.sheetnames)}"
-                )
+                details["error"] = f"required sheet '{REQUIRED_SHEET_NAME}' missing; available={list(wb.sheetnames)}"
                 dur = (time.monotonic() - start) * 1000
                 return False, dur, details
             ws = wb[REQUIRED_SHEET_NAME]
             header_row = next(ws.iter_rows(min_row=1, max_row=1, values_only=True), None)
             header_text = " ".join(str(c) for c in (header_row or []) if c is not None)
-            missing_markers = [
-                m for m in REQUIRED_HEADER_MARKERS if m.lower() not in header_text.lower()
-            ]
+            missing_markers = [m for m in REQUIRED_HEADER_MARKERS if m.lower() not in header_text.lower()]
             # CNPJ marker may appear as "CNPJ (8 dígitos)"
             if missing_markers:
                 details["error"] = f"required header markers missing: {missing_markers}"
@@ -784,10 +765,7 @@ def validate_target_spreadsheet(
             dur = (time.monotonic() - start) * 1000
             return False, dur, details
         if ids_sha != expected_ids_sha256:
-            details["error"] = (
-                "canonical_ids_sha256 mismatch "
-                f"(got={ids_sha} expected={expected_ids_sha256})"
-            )
+            details["error"] = f"canonical_ids_sha256 mismatch (got={ids_sha} expected={expected_ids_sha256})"
             dur = (time.monotonic() - start) * 1000
             return False, dur, details
         # set equality with itself is tautological; uniqueness already enforced
@@ -803,7 +781,6 @@ def validate_target_spreadsheet(
         dur = (time.monotonic() - start) * 1000
         _logger.error("Target spreadsheet validation failed: %s", exc)
         return False, dur, details
-
 
 
 # ---------------------------------------------------------------------------
@@ -928,8 +905,7 @@ def crawl_source(
                     f"  {label} {source.name}: "
                     f"fetched={fetched}, "
                     f"inserted={metrics.get('inserted', 0)}, "
-                    f"persisted={metrics.get('persisted', 0)}"
-                    + (" [watermark-resume]" if resumed_live else ""),
+                    f"persisted={metrics.get('persisted', 0)}" + (" [watermark-resume]" if resumed_live else ""),
                     "ok" if src_status == "success" else "warn",
                 )
                 return SourceRecord(
@@ -1196,10 +1172,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--validate-spreadsheet-only",
         action="store_true",
-        help=(
-            "Run only canonical planilha-alvo validation and write ledger "
-            "(skips DB/migrations/seeds/crawl/reports)"
-        ),
+        help=("Run only canonical planilha-alvo validation and write ledger (skips DB/migrations/seeds/crawl/reports)"),
     )
     p.add_argument(
         "--spreadsheet",
@@ -1466,9 +1439,7 @@ def main() -> int:
             )
             return 1
         _echo(
-            "  Seeds OK "
-            f"(ran={len(seed_summary.get('ran') or [])} "
-            f"{seed_dur:.0f}ms)",
+            f"  Seeds OK (ran={len(seed_summary.get('ran') or [])} {seed_dur:.0f}ms)",
             "ok",
         )
 
@@ -1574,8 +1545,7 @@ def main() -> int:
 
     if sources_fail or sources_zero:
         _echo(
-            f"\n  {len(sources_success)} com dados, "
-            f"{len(sources_zero)} zero, {len(sources_fail)} falha(s)",
+            f"\n  {len(sources_success)} com dados, {len(sources_zero)} zero, {len(sources_fail)} falha(s)",
             "warn",
         )
         for r in sources_fail:
