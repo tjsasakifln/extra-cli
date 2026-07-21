@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-21T22:21:41Z'
+updated_at: '2026-07-21T22:21:53Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -32231,8 +32231,8 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
@@ -32244,9 +32244,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: fb85a96a8781bc35d6ca030c9ea8368a90845b6a
+  acceptance_pr: continue-03-reconciliation
+  accepted_at: '2026-07-21T22:21:53Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -32264,8 +32264,13 @@ items:
   - at: '2026-07-21T02:34:17Z'
     event: rescan
     detail: line=907
+  - at: '2026-07-21T22:21:53Z'
+    event: accept
+    detail: commit=fb85a96a8781bc35d6ca030c9ea8368a90845b6a branch=campaign/continue-03-acceptance-reconciliation gates_ok=True
   content_fingerprint: c73b1150d6
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-0786ea0c31
   text: O golden path gera relatório de editais.
