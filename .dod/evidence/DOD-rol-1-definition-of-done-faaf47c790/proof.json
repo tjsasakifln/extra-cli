@@ -1,0 +1,125 @@
+{
+  "at": "2026-07-21T13:10:14.484390+00:00",
+  "ok": true,
+  "mode": "execute-sources-only",
+  "essential": [
+    "pncp",
+    "pcp",
+    "compras_gov"
+  ],
+  "run": {
+    "run_id": "gp-src-20260721-100517",
+    "timestamp": "2026-07-21T13:05:17.005648+00:00",
+    "status": "success",
+    "wall_clock_ms": 266313.68000999966,
+    "steps": [
+      {
+        "step": "db_connectivity",
+        "status": "pass",
+        "duration_ms": 33.40187699996022,
+        "error": null,
+        "details": null
+      },
+      {
+        "step": "execute_essential_sources",
+        "status": "pass",
+        "duration_ms": 227105.61017900045,
+        "error": null,
+        "details": {
+          "essential": [
+            "pncp",
+            "pcp",
+            "compras_gov"
+          ],
+          "executed": {
+            "pncp": {
+              "status": "fail",
+              "attempts": 1,
+              "duration_ms": 211799.6931980001,
+              "metrics": {
+                "fetched": 0,
+                "transformed": 0,
+                "inserted": 0,
+                "updated": 0,
+                "matched": 0,
+                "persisted": 0,
+                "external_failures": 0
+              },
+              "error": "persist_canonical_failed:current transaction is aborted, commands ignored until end of transaction block\n"
+            },
+            "pcp": {
+              "status": "fail",
+              "attempts": 3,
+              "duration_ms": 13839.663720000317,
+              "metrics": {},
+              "error": "ation \"pipeline_runs\" does not exist\nLINE 2:                     UPDATE pipeline_runs\n                                   ^\n\nprovenance_complete failed for run=pcp-1784639368: relation \"pipeline_runs\" does not exist\nLINE 2:                     UPDATE pipeline_runs\n                                   ^"
+            },
+            "compras_gov": {
+              "status": "success_zero",
+              "attempts": 1,
+              "duration_ms": 1466.2532610000198,
+              "metrics": {
+                "fetched": 0,
+                "transformed": 0,
+                "inserted": 0,
+                "updated": 0,
+                "matched": 0,
+                "persisted": 0,
+                "external_failures": 0
+              },
+              "error": null
+            }
+          },
+          "missing": [],
+          "not_executed": [],
+          "require_success": false
+        }
+      }
+    ],
+    "sources": [
+      {
+        "name": "pncp",
+        "status": "fail",
+        "duration_ms": 211799.6931980001,
+        "attempts": 1,
+        "metrics": {
+          "fetched": 0,
+          "transformed": 0,
+          "inserted": 0,
+          "updated": 0,
+          "matched": 0,
+          "persisted": 0,
+          "external_failures": 0
+        },
+        "error": "persist_canonical_failed:current transaction is aborted, commands ignored until end of transaction block\n"
+      },
+      {
+        "name": "pcp",
+        "status": "fail",
+        "duration_ms": 13839.663720000317,
+        "attempts": 3,
+        "metrics": null,
+        "error": "ation \"pipeline_runs\" does not exist\nLINE 2:                     UPDATE pipeline_runs\n                                   ^\n\nprovenance_complete failed for run=pcp-1784639368: relation \"pipeline_runs\" does not exist\nLINE 2:                     UPDATE pipeline_runs\n                                   ^"
+      },
+      {
+        "name": "compras_gov",
+        "status": "success_zero",
+        "duration_ms": 1466.2532610000198,
+        "attempts": 1,
+        "metrics": {
+          "fetched": 0,
+          "transformed": 0,
+          "inserted": 0,
+          "updated": 0,
+          "matched": 0,
+          "persisted": 0,
+          "external_failures": 0
+        },
+        "error": null
+      }
+    ],
+    "reports": [],
+    "freshness": null
+  },
+  "note": "Execution proved even when adapters fail or success_zero; persist is separate item"
+}

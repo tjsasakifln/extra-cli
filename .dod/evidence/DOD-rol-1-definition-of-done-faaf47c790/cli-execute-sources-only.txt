@@ -1,0 +1,25 @@
+
+ Executando fontes mínimas...
+
+>>> Iniciando crawl: pncp — PNCP API (editais abertos — fonte crítica)
+  FAIL pncp: adapter reported failure (fetched=0)
+
+>>> Iniciando crawl: pcp — PCP (Portal de Compras Publicas)
+  Attempt 1/3 failed: exit 1
+  Retrying in 4.1s... (backoff+jitter)
+  Attempt 2/3 failed: exit 1
+  Retrying in 8.5s... (backoff+jitter)
+  Attempt 3/3 failed: exit 1
+
+>>> Iniciando crawl: compras_gov — ComprasGov (compras federais SC)
+  ZERO compras_gov: fetched=0, inserted=0, persisted=0
+
+Ledger salvo:  
+.dod/evidence/DOD-rol-1-definition-of-done-faaf47c790/ledger-sources.json
+Log salvo:     
+/mnt/d/extra-consultoria-continue-02-main/output/golden-path/gp-20260721-100516.
+log
+  Fontes mínimas executadas: pncp=fail/a1, pcp=fail/a3, 
+compras_gov=success_zero/a1
+  Ledger: 
+.dod/evidence/DOD-rol-1-definition-of-done-faaf47c790/ledger-sources.json

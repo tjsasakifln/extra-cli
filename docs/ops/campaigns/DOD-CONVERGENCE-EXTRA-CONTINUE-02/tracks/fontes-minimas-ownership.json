@@ -1,0 +1,11 @@
+{
+  "wave": "fontes-minimas",
+  "item_id": "DOD-rol-1-definition-of-done-faaf47c790",
+  "item": "O golden path executa fontes mínimas.",
+  "ownership": {
+    "track1_impl": ["scripts/golden_path.py"],
+    "track2_tests": ["tests/test_golden_path_canonical.py", "tests/test_golden_path_fontes_minimas.py"],
+    "track3_qa": ["docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-02/tracks/fontes-minimas-adversarial-qa.md"],
+    "track4_evidence": [".dod/evidence/DOD-rol-1-definition-of-done-faaf47c790/"]
+  }
+}

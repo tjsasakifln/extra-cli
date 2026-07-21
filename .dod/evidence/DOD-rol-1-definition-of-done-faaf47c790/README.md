@@ -1,0 +1,1 @@
+# Fontes mínimas — execution proof
