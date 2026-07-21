@@ -904,19 +904,19 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path persiste dados. Evidência: PR #79 merge `07e9986` · CI `29835575623` SUCCESS · clean test-db migrations+seed · pcp inserted=98 · pncp_raw_bids=566 · `assert_sources_persisted` · ledger `persist_source_data` · `.dod/evidence/DOD-rol-1-definition-of-done-9c996cb14e/`.
 - [x] O golden path executa freshness gate. Evidência: PR #81 · CI `29836318793` SUCCESS · CLI `--execute-freshness-only` · subprocess `freshness_gate.py` · ledger `run_freshness_gate` · live status=fail failing=contracts (execução comprovada; pass/SLA é item separado) · `.dod/evidence/DOD-rol-1-definition-of-done-94ff481872/`.
 - [x] O golden path calcula cobertura. Evidência: PR #83 · den=1093 · num=214 · pct=19.5791 · CLI --execute-coverage-only · `.dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94/`.
-- [x] O golden path reconcilia snapshot de editais.
+- [x] O golden path reconcilia snapshot de editais. Evidência: PR #88 · CI main `29841380680` · reproof CONTINUE-03 11 passed REQUIRE_REAL_DB · `.dod/evidence/DOD-rol-1-definition-of-done-c73b1150d6/`.
 - [ ] O golden path gera relatório de editais.
 - [ ] O golden path gera relatório de contratos.
 - [ ] O golden path gera relatório de concorrentes.
 - [ ] O golden path gera relatório de referências de valores.
-- [x] O golden path gera Excel.
-- [x] O golden path gera PDF.
-- [x] O golden path gera ledger.
-- [x] O golden path gera logs.
-- [x] O golden path retorna exit code não zero em qualquer gate obrigatório.
-- [x] O golden path pode ser reexecutado sem duplicação.
+- [x] O golden path gera Excel. Evidência: PR #90 · panorama Excel size≥100 openpyxl · reproof CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-d5c6584cb7/` · **não** prova relatórios de editais/contratos/concorrentes/valores.
+- [x] O golden path gera PDF. Evidência: PR #90 · panorama PDF magic %PDF · reproof CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-ddfcf1ec8a/` · **não** prova relatórios específicos de domínio.
+- [x] O golden path gera ledger. Evidência: PR #85 · ledger JSON com steps · tests/test_golden_path_ledger_meta.py · CONTINUE-03 QA PASS · `.dod/evidence/DOD-rol-1-definition-of-done-7d4698cf6a/`.
+- [x] O golden path gera logs. Evidência: PR #85 · CLI Log salvo output/golden-path/*.log · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-05418e32b2/`.
+- [x] O golden path retorna exit code não zero em qualquer gate obrigatório. Evidência: PR #85 · essential_fail=2 freshness_fail=3 · tests/test_golden_path_ledger_meta.py · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-3500c05a66/`.
+- [x] O golden path pode ser reexecutado sem duplicação. Evidência: PR #92 · dual seed keys unique + dual snapshot stable · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-98c4820f19/`.
 - [ ] O golden path pode ser executado em ambiente limpo.
-- [x] O tempo total de execução é registrado.
+- [x] O tempo total de execução é registrado. Evidência: PR #85 · wall_clock_ms no ledger · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-d134dd8ca2/`.
 - [ ] A versão do código é registrada.
 - [ ] O hash da planilha é registrado.
 - [ ] A versão do schema é registrada.
