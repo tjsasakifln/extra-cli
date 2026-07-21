@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-21T23:31:35Z'
+updated_at: '2026-07-21T23:38:06Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -32953,8 +32953,8 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
@@ -32966,9 +32966,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: 9c4ed101bffa82f0bd4f7efd22772cb966294e70
+  acceptance_pr: continue-03-accept-sheet-hash
+  accepted_at: '2026-07-21T23:38:06Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -32986,8 +32986,13 @@ items:
   - at: '2026-07-21T02:34:17Z'
     event: rescan
     detail: line=921
+  - at: '2026-07-21T23:38:06Z'
+    event: accept
+    detail: commit=9c4ed101bffa82f0bd4f7efd22772cb966294e70 branch=campaign/continue-03-accept-sheet-hash gates_ok=True
   content_fingerprint: 8990bd3e67
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-d495570f4e
   text: A versão do schema é registrada.

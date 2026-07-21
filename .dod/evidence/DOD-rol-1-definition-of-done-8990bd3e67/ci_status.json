@@ -1,0 +1,9 @@
+{
+  "conclusion": "success",
+  "head_sha": "9c4ed101bffa82f0bd4f7efd22772cb966294e70",
+  "run_id": 29876999783,
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29876999783",
+  "mandatory_jobs_skipped": [],
+  "checked_at": "2026-07-21T23:38:02Z",
+  "note": "PR #97 spreadsheet_sha256 in ledger meta"
+}

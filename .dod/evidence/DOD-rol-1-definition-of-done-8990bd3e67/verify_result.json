@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "item_id": "DOD-rol-1-definition-of-done-8990bd3e67",
+  "head_sha": "9c4ed101bffa82f0bd4f7efd22772cb966294e70",
+  "reproof_at": "2026-07-21T23:38:02Z",
+  "commands": [
+    {
+      "cmd": "python3 -m scripts.golden_path --validate-spreadsheet-only",
+      "exit_code": 0,
+      "skipped": false,
+      "stdout_tail": "spreadsheet_sha256=d65f272812cf8dc9"
+    }
+  ]
+}

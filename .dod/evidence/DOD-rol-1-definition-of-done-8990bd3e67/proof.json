@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "at": "2026-07-21T23:38:02Z",
+  "title": "O hash da planilha \u00e9 registrado.",
+  "main_sha": "9c4ed101bffa82f0bd4f7efd22772cb966294e70",
+  "spreadsheet_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+  "source": "ledger meta from --validate-spreadsheet-only"
+}
