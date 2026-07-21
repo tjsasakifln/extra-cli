@@ -1,31 +1,24 @@
 {
   "campaign": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
-  "at": "2026-07-21T13:18:53.762833+00:00",
-  "main_sha": "41f73d167766947b8250962fd2f831479b478d8b",
-  "completed": {
-    "planilha_alvo": {
-      "pr": 75,
-      "accepted": true
-    },
-    "harness_fail_closed": {
-      "pr": 76,
-      "merged": true
-    },
-    "fontes_minimas": {
-      "pr": 77,
-      "accepted": true,
-      "docs_pr": 78
-    },
-    "billing_blocker": "RESOLVED"
-  },
-  "next": {
-    "item": "O golden path persiste dados.",
-    "id": "DOD-rol-1-definition-of-done-9c996cb14e",
-    "status": "blocked_technical_schema"
-  },
-  "human_blockers": [
-    "Public exposure HIGH: commercial PDF/proposal + intel in public repo",
-    "Tiago human accept demoted"
+  "at": "2026-07-21T13:45:02.588747+00:00",
+  "main_sha": "07e998647c2c90578649bb27740039a8e5b3090b",
+  "accepted_this_run": [
+    "planilha",
+    "fontes",
+    "persist"
   ],
-  "resume_step": "fix_schema_pipeline_runs_and_upsert_then_reverify_persist"
+  "merged_prs": [
+    75,
+    76,
+    77,
+    78,
+    79
+  ],
+  "billing": "RESOLVED",
+  "next": "freshness gate",
+  "human_open": [
+    "public exposure commercial materials",
+    "Tiago human accept"
+  ],
+  "resume_step": "next_freshness_gate_on_clean_db"
 }
