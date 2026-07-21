@@ -1,0 +1,8 @@
+{
+  "at": "2026-07-21T02:08:37.429374+00:00",
+  "check_db_ok": true,
+  "duration_ms": 22.6455989995884,
+  "dsn_host": "127.0.0.1:5544",
+  "code": "scripts.golden_path.check_db",
+  "make": "golden-path \u2192 db-up + bootstrap"
+}
