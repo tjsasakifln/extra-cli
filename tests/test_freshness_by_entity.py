@@ -39,7 +39,7 @@ from scripts.lib.universe import load_canonical_universe
 
 AS_OF = datetime(2026, 7, 20, 12, 0, 0, tzinfo=UTC)
 PROJECT = Path(__file__).resolve().parents[1]
-SEED = PROJECT / "Extra - alvos de licitação. R-0.xlsx"
+SEED = PROJECT / "fixtures" / "canonical_universe_r0.xlsx"
 REGISTRY = PROJECT / "data" / "entity_source_registry.jsonl"
 
 # Small-wave synthetic canonical population
@@ -509,7 +509,7 @@ def test_reject_wrong_cardinality_1092_1094() -> None:
 def test_reject_1092_and_1094_as_canonical_vs_real_seed() -> None:
     """Explicit fail-closed when caller pretends wrong universe sizes."""
     if not SEED.is_file():
-        pytest.fail(f"canonical seed required for identity tests: {SEED}")
+        pytest.fail(f"canonical fixture seed required for identity tests: {SEED}")
     real_ids, _ = load_canonical_population(SEED)
     assert len(real_ids) == 1093
 
@@ -540,7 +540,7 @@ def test_reject_1092_and_1094_as_canonical_vs_real_seed() -> None:
 
 def test_set_equality_with_load_canonical_universe() -> None:
     if not SEED.is_file():
-        pytest.fail(f"canonical seed required: {SEED}")
+        pytest.fail(f"canonical fixture seed required: {SEED}")
     ids, universe = load_canonical_population(SEED)
     included = sorted(e.entity_id for e in universe.included)
     assert ids == included

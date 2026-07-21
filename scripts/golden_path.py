@@ -912,6 +912,11 @@ def resolve_canonical_spreadsheet(
     if preferred.is_file():
         return preferred.resolve()
 
+    # Public CI / OSS fixture (no client branding in path). Same universe identity.
+    public_fixture = root / "fixtures" / "canonical_universe_r0.xlsx"
+    if public_fixture.is_file():
+        return public_fixture.resolve()
+
     def _collect(dir_path: Path) -> list[Path]:
         if not dir_path.is_dir():
             return []

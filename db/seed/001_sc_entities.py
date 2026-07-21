@@ -50,6 +50,9 @@ def find_spreadsheet(project_root: Path) -> Path:
     preferred = project_root / "Extra - alvos de licitação. R-0.xlsx"
     if preferred.is_file():
         return preferred
+    public_fixture = project_root / "fixtures" / "canonical_universe_r0.xlsx"
+    if public_fixture.is_file():
+        return public_fixture
     raise FileNotFoundError(
         "Private spreadsheet not found. Set EXTRA_TARGET_SPREADSHEET or pass --xlsx. "
         "Asset is not shipped in the public repository. See docs/ops/private-assets.md."

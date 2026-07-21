@@ -31,3 +31,10 @@ and non-branded fixtures. Do not reintroduce branded `.xlsx` into git.
 - Weak password defaults (`smartlic_local`)
 
 History is not rewritten; rotate any credentials that may have been exposed.
+
+
+## Public test fixture
+
+`fixtures/canonical_universe_r0.xlsx` — neutral filename, used by CI and identity tests.
+It preserves the 1.093-entity universe for set-equality proofs. Prefer
+`EXTRA_TARGET_SPREADSHEET` for operational private assets.
