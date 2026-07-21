@@ -5,10 +5,11 @@ Executa a sequencia completa e idempotente:
   1. Verifica conectividade com PostgreSQL
   2. Aplica migrations versionadas (db/migrations via scripts.ops.apply_migrations)
   3. Aplica seeds determinísticos (db/seed/001_sc_entities + 002_entity_aliases)
-  4. Crawl das fontes prioritarias (pncp, pcp, compras_gov) com
+  4. Importa/valida a planilha-alvo canônica (Extra alvos de licitação)
+  5. Crawl das fontes prioritarias (pncp, pcp, compras_gov) com
      timeout, retry 3x e backoff exponencial + jitter
-  5. Valida freshness gate
-  6. Gera relatorios (PDF executivo + Excel rastreavel)
+  6. Valida freshness gate
+  7. Gera relatorios (PDF executivo + Excel rastreavel)
 
 Cada etapa e registrada em um ledger JSON para rastreabilidade.
 
@@ -40,6 +41,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import os
@@ -564,6 +566,44 @@ def apply_seeds(dsn: str) -> tuple[bool, float, dict[str, list[str]]]:
         return False, dur, summary
 
 
+def validate_target_spreadsheet(
+    project_root: Path | None = None,
+) -> tuple[bool, float, dict[str, Any]]:
+    """Locate and validate the Extra target spreadsheet (planilha-alvo).
+
+    Validates path, sheet name, non-empty entity rows, and records SHA-256.
+    Does not mutate the database (seed import is a separate step).
+    """
+    start = time.monotonic()
+    root = project_root or _PROJECT_ROOT
+    details: dict[str, Any] = {}
+    try:
+        import importlib.util
+
+        path_001 = root / "db" / "seed" / "001_sc_entities.py"
+        spec = importlib.util.spec_from_file_location("seed_001_sc_entities", path_001)
+        if spec is None or spec.loader is None:
+            raise RuntimeError(f"cannot load seed module from {path_001}")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        xlsx_path = mod.find_spreadsheet(root)
+        details["path"] = str(xlsx_path)
+        details["sha256"] = hashlib.sha256(xlsx_path.read_bytes()).hexdigest()
+        entities = mod.read_spreadsheet(xlsx_path)
+        details["entity_rows"] = len(entities)
+        if len(entities) < 100:
+            details["error"] = f"too few entities: {len(entities)}"
+            dur = (time.monotonic() - start) * 1000
+            return False, dur, details
+        dur = (time.monotonic() - start) * 1000
+        return True, dur, details
+    except Exception as exc:
+        details["error"] = str(exc)[:400]
+        dur = (time.monotonic() - start) * 1000
+        _logger.error("Target spreadsheet validation failed: %s", exc)
+        return False, dur, details
+
+
 # ---------------------------------------------------------------------------
 # Step 2: Crawl Sources (with timeout, retry, backoff + jitter)
 # ---------------------------------------------------------------------------
@@ -947,6 +987,11 @@ def parse_args() -> argparse.Namespace:
         help="Skip db/seed scripts (not canonical; use only when seed already loaded)",
     )
     p.add_argument(
+        "--skip-spreadsheet",
+        action="store_true",
+        help="Skip target spreadsheet validation (not canonical)",
+    )
+    p.add_argument(
         "--strict",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -1156,9 +1201,58 @@ def main() -> int:
         )
 
     # =========================================================================
+    # Step 1d: Validate target spreadsheet (canonical — DoD §12.1)
+    # =========================================================================
+    if args.skip_spreadsheet:
+        _echo("\n[1d/7] Planilha-alvo SKIPPED (--skip-spreadsheet)", "warn")
+        steps.append(
+            StepRecord(
+                step="validate_target_spreadsheet",
+                status="skipped",
+                duration_ms=0.0,
+                details={"reason": "skip-spreadsheet"},
+            )
+        )
+    else:
+        _echo("\n[1d/7] Validando planilha-alvo canônica...", "header")
+        ss_ok, ss_dur, ss_details = validate_target_spreadsheet()
+        steps.append(
+            StepRecord(
+                step="validate_target_spreadsheet",
+                status="pass" if ss_ok else "fail",
+                duration_ms=ss_dur,
+                details=ss_details,
+            )
+        )
+        if not ss_ok:
+            _echo(
+                f"  Planilha-alvo INVALIDA: {ss_details.get('error', 'unknown')}",
+                "error",
+            )
+            _save_final_ledger(
+                run_id,
+                timestamp,
+                "failed",
+                steps,
+                source_records,
+                report_records,
+                freshness_record,
+                wall_start,
+                args.ledger_output,
+            )
+            return 1
+        _echo(
+            "  Planilha-alvo OK "
+            f"(rows={ss_details.get('entity_rows')} "
+            f"sha256={str(ss_details.get('sha256', ''))[:12]}… "
+            f"{ss_dur:.0f}ms)",
+            "ok",
+        )
+
+    # =========================================================================
     # Step 2: Crawl Sources
     # =========================================================================
-    _echo("\n[2/6] Crawl das fontes de dados...", "header")
+    _echo("\n[2/7] Crawl das fontes de dados...", "header")
     _echo(f"  Fontes: {', '.join(s.name for s in selected_sources)}")
     _echo("  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter")
 

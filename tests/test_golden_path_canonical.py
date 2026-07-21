@@ -123,6 +123,19 @@ def test_help_documents_skip_seeds() -> None:
     assert "skip-seeds" in (r.stdout + r.stderr)
 
 
+def test_validate_target_spreadsheet_live() -> None:
+    """DoD: golden path validates planilha-alvo when present in repo root."""
+    from scripts.golden_path import validate_target_spreadsheet
+
+    root = Path(__file__).resolve().parents[1]
+    ok, dur, details = validate_target_spreadsheet(root)
+    assert ok is True, details
+    assert dur >= 0
+    assert details.get("entity_rows", 0) >= 100
+    assert details.get("sha256")
+    assert "path" in details
+
+
 def test_apply_seeds_runs_seed_scripts(monkeypatch: pytest.MonkeyPatch) -> None:
     """DoD: golden path applies seed scripts under db/seed/."""
     from scripts import golden_path as gp

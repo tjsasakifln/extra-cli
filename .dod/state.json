@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-01",
-  "updated_at": "2026-07-21T02:34:32Z",
-  "active_item_id": null,
-  "active_run_id": "run-20260721T022411Z",
+  "updated_at": "2026-07-21T02:40:52Z",
+  "active_item_id": "DOD-rol-1-definition-of-done-e405d6a61c",
+  "active_run_id": "run-20260721T024052Z",
   "active_branch": "campaign/dod-convergence-extra-01",
-  "main_sha": "c05796ad8c3109b583f8cc50b1346a7c443b23e9",
-  "phase": "audit",
-  "next_eligible_id": "DOD-rol-1-definition-of-done-e405d6a61c",
+  "main_sha": "ae4941610662318eea428dfeede42215b33772bd",
+  "phase": "item_cycle",
+  "next_eligible_id": "DOD-rol-1-definition-of-done-faaf47c790",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1356,
@@ -35,8 +35,8 @@
       "HUMAN_ACCEPTANCE": 34,
       "CREDENTIAL_REQUIRED": 16
     },
-    "dod_checked_count": 315
+    "dod_checked_count": 316
   },
-  "resume_step": null,
+  "resume_step": "implement",
   "notes": "Local full suite green; pending CI Test All SUCCESS for VERIFIED→ACCEPTED"
 }

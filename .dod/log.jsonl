@@ -21,3 +21,6 @@
 {"at": "2026-07-21T02:25:30Z", "event": "verify", "item_id": "DOD-rol-1-definition-of-done-e9a3ea535d", "ok": true}
 {"at": "2026-07-21T02:34:20Z", "event": "scan", "stats": {"preserved": 1355, "newly_checked": 1, "orphaned": 1}, "total": 1356, "accepted": 314}
 {"at": "2026-07-21T02:34:32Z", "event": "accept", "item_id": "DOD-rol-1-definition-of-done-e9a3ea535d", "commit": "c05796ad8c3109b583f8cc50b1346a7c443b23e9", "gates": {"state": "ok", "branch": "main", "head": "c05796ad8c3109b583f8cc50b1346a7c443b23e9", "main_gate": "ok", "evidence_pack": "ok"}}
+{"at": "2026-07-21T02:40:46Z", "event": "scan", "stats": {"preserved": 1355, "newly_checked": 1, "orphaned": 1}, "total": 1356, "accepted": 315}
+{"at": "2026-07-21T02:40:52Z", "event": "start", "item_id": "DOD-rol-1-definition-of-done-e405d6a61c", "run_id": "run-20260721T024052Z"}
+{"at": "2026-07-21T02:42:02Z", "event": "verify", "item_id": "DOD-rol-1-definition-of-done-e405d6a61c", "ok": true}
