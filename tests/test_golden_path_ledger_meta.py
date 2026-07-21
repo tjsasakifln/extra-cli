@@ -42,9 +42,14 @@ def test_cli_writes_ledger_and_log(tmp_path: Path) -> None:
     last = runs[-1]
     assert last.get("steps"), "ledger must contain steps"
     assert last.get("wall_clock_ms", 0) > 0
+    meta = last.get("meta") or {}
+    assert meta.get("git_sha"), "ledger meta must record code version (git_sha)"
+    assert meta.get("schema_version"), "ledger meta must record schema_version"
+    assert meta.get("canonical_command") == "python3 -m scripts.golden_path"
     # log file mentioned in stdout
     out = r.stdout + r.stderr
     assert "Log salvo" in out or "log" in out.lower()
+    assert "meta.git_sha=" in out or meta.get("git_sha")
 
 
 def test_metadata_includes_code_and_schema_version() -> None:
