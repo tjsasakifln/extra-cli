@@ -29,8 +29,6 @@ import os
 import threading
 import time
 
-from psycopg2.extras import RealDictCursor
-
 _logger = logging.getLogger(__name__)
 
 # Cache TTL in seconds (5 minutes — aliases mudam raramente)
@@ -80,12 +78,15 @@ class EntityResolver:
                 return
 
             try:
-                cur = self.conn.cursor(cursor_factory=RealDictCursor)
+                # Use a plain cursor (not RealDictCursor) for maximum driver
+                # compatibility under suite isolation and mock opt-outs.
+                cur = self.conn.cursor()
                 cur.execute(
                     "SELECT cnpj_8_sub, cnpj_8_pub FROM entity_aliases WHERE is_active = TRUE"
                 )
-                self._cache = {row["cnpj_8_sub"]: row["cnpj_8_pub"] for row in cur.fetchall()}
+                self._cache = {str(row[0]): str(row[1]) for row in cur.fetchall()}
                 self._cache_ts = time.monotonic()
+                cur.close()
                 _logger.debug("Cache loaded: %d aliases", len(self._cache))
             except Exception:
                 _logger.exception("Failed to load entity alias cache")
