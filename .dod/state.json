@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
-  "updated_at": "2026-07-21T22:21:34Z",
+  "updated_at": "2026-07-21T22:21:46Z",
   "active_item_id": null,
   "active_run_id": "run-20260721T022411Z",
   "active_branch": "campaign/continue-02-accept-planilha",
@@ -11,24 +11,24 @@
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1356,
-    "accepted": 320,
-    "accepted_state": 320,
-    "claimed_checked": 323,
-    "audited_accepted": 12,
-    "evidence_located": 121,
+    "accepted": 321,
+    "accepted_state": 321,
+    "claimed_checked": 324,
+    "audited_accepted": 13,
+    "evidence_located": 122,
     "evidence_reproduced": 20,
     "proof_debt": 313,
     "verified": 0,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1035,
+    "open": 1034,
     "blocked": 1,
     "deferred": 0,
-    "acceptance_pct": 0.88,
-    "claimed_pct": 23.82,
+    "acceptance_pct": 0.96,
+    "claimed_pct": 23.89,
     "by_state": {
-      "ACCEPTED": 320,
-      "OPEN": 1035,
+      "ACCEPTED": 321,
+      "OPEN": 1034,
       "BLOCKED_HUMAN": 1
     },
     "by_category": {
@@ -43,7 +43,7 @@
       "HUMAN_ACCEPTANCE": 34,
       "CREDENTIAL_REQUIRED": 16
     },
-    "dod_checked_count": 323
+    "dod_checked_count": 324
   },
   "resume_step": "accept",
   "notes": "CONTINUE-02: planilha#75, harness#76, fontes#77, persist#79 ACCEPTED. Billing RESOLVED. Dirty smartlic DB still broken. Public exposure HIGH residual human. Next: freshness gate.",
