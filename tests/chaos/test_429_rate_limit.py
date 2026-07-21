@@ -14,7 +14,16 @@ from scripts.crawl.resilience.state import EvidenceLedger, WatermarkStore
 
 
 def _cfg(tmp_path: Path, **overrides: object) -> ResilienceConfig:
-    base = dict(
+    """Build ResilienceConfig matching the current dataclass contract.
+
+    Required fields (environment, execution_mode, state_root, breaker_path)
+    were added after this fixture was written; keep chaos tests offline.
+    """
+    from dataclasses import replace
+
+    base = ResilienceConfig(
+        environment="fixture",
+        execution_mode="fixture",
         connect_timeout=1,
         read_timeout=1,
         max_retries=1,
@@ -29,14 +38,18 @@ def _cfg(tmp_path: Path, **overrides: object) -> ResilienceConfig:
         circuit_breaker_cooldown=60,
         daily_request_budget=100,
         freshness_sla_hours=24,
+        state_root=tmp_path,
         checkpoint_path=tmp_path / "checkpoints",
         raw_path=tmp_path / "raw",
         dlq_path=tmp_path / "dlq",
         evidence_path=tmp_path / "evidence",
         ops_path=tmp_path / "ops",
+        breaker_path=tmp_path / "breakers",
+        require_db=False,
     )
-    base.update(overrides)
-    return ResilienceConfig(**base)  # type: ignore[arg-type]
+    if overrides:
+        return replace(base, **overrides)  # type: ignore[arg-type]
+    return base
 
 
 @pytest.mark.chaos
