@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "run_id": "gp-cov-20260721-105736",
+      "timestamp": "2026-07-21T13:57:36.974478+00:00",
+      "status": "success",
+      "wall_clock_ms": 422.4456910005756,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 21.27139900039765,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "coverage_calculation",
+          "status": "pass",
+          "duration_ms": 398.0498920000173,
+          "error": null,
+          "details": {
+            "denominator": 1093,
+            "numerator": 214,
+            "coverage_pct": 19.5791,
+            "method": "entity_coverage.is_covered",
+            "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "expected_denominator": 1093
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    }
+  ]
+}

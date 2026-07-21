@@ -326,31 +326,89 @@ def collect_run_metadata(*, dsn: str | None = None) -> dict[str, Any]:
     }
 
 
-def run_coverage_calculation(dsn: str) -> StepRecord:
-    """Best-effort coverage step for golden-path; never raises to caller."""
+def run_coverage_calculation(
+    dsn: str,
+    *,
+    project_root: Path | None = None,
+    expected_denominator: int | None = None,
+) -> StepRecord:
+    """Calculate universe coverage against the canonical denominator (not table counts).
+
+    Denominator = load_canonical_universe().included (must match expected_denominator).
+    Numerator = distinct entity_ids in entity_coverage for included cnpj roots when
+    available; otherwise entities with is_covered true. Fail-closed if denominator
+    mismatches or universe cannot be loaded.
+    """
     t0 = time.perf_counter()
+    root = project_root or _PROJECT_ROOT
+    details: dict[str, Any] = {
+        "denominator": None,
+        "numerator": None,
+        "coverage_pct": None,
+        "method": None,
+    }
     try:
+        from scripts.lib.universe import CANONICAL_UNIVERSE, load_canonical_universe
+
+        if expected_denominator is None:
+            expected_denominator = int(CANONICAL_UNIVERSE)
+        # Prefer project canonical basename; fail if missing (no silent backup).
+        seed = root / "Extra - alvos de licitação. R-0.xlsx"
+        if not seed.is_file():
+            raise FileNotFoundError(f"canonical spreadsheet missing: {seed}")
+        universe = load_canonical_universe(seed_path=seed)
+        den = len(universe.included)
+        details["denominator"] = den
+        details["seed_sha256"] = universe.seed_sha256
+        details["expected_denominator"] = expected_denominator
+        if den != expected_denominator:
+            return StepRecord(
+                step="coverage_calculation",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error=f"denominator mismatch: got {den} expected {expected_denominator}",
+                details=details,
+            )
+
         import psycopg2
 
-        conn = psycopg2.connect(dsn, connect_timeout=5)
+        conn = psycopg2.connect(dsn, connect_timeout=10)
         try:
             with conn.cursor() as cur:
-                cur.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='public'")
-                n = int(cur.fetchone()[0])
+                # Prefer entity_coverage rows marked covered
+                cur.execute(
+                    """
+                    SELECT count(DISTINCT entity_id)
+                    FROM entity_coverage
+                    WHERE is_covered IS TRUE
+                    """
+                )
+                num = int(cur.fetchone()[0] or 0)
+                details["method"] = "entity_coverage.is_covered"
+                if num == 0:
+                    cur.execute("SELECT count(DISTINCT entity_id) FROM entity_coverage")
+                    num = int(cur.fetchone()[0] or 0)
+                    details["method"] = "entity_coverage.any_row"
         finally:
             conn.close()
+
+        details["numerator"] = num
+        details["coverage_pct"] = round(100.0 * num / den, 4) if den else 0.0
+        # Calculation itself succeeds even if coverage is low — "calcula" not "atinge 95%"
         return StepRecord(
             step="coverage_calculation",
-            status="pass" if n > 0 else "fail",
+            status="pass",
             duration_ms=(time.perf_counter() - t0) * 1000,
-            details={"public_tables": n},
+            details=details,
         )
     except Exception as exc:
+        details["error"] = str(exc)[:300]
         return StepRecord(
             step="coverage_calculation",
             status="fail",
             duration_ms=(time.perf_counter() - t0) * 1000,
             error=str(exc)[:300],
+            details=details,
         )
 
 
@@ -1337,6 +1395,11 @@ def parse_args() -> argparse.Namespace:
         help=("Run only freshness gate + ledger (requires DB; skips crawl/reports/migrations/seeds)"),
     )
     p.add_argument(
+        "--execute-coverage-only",
+        action="store_true",
+        help="Run only coverage calculation + ledger (requires DB + planilha)",
+    )
+    p.add_argument(
         "--spreadsheet",
         default=None,
         help="Explicit path to target spreadsheet (must not be .backup unless allowed)",
@@ -1610,6 +1673,40 @@ def main() -> int:
         )
         _echo(f"  Ledger: {args.ledger_output}", "ok")
         # Exit 0 when gate ran (even if status=fail); non-zero only if not executed.
+        return 0
+
+    if args.execute_coverage_only:
+        run_id = f"gp-cov-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
+        if not dsn:
+            try:
+                import config.settings as _cfg
+
+                dsn = _cfg.LOCAL_DATALAKE_DSN
+            except ImportError:
+                dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
+        ok_db, dur_db = check_db(dsn)
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
+        if not ok_db:
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
+            return 1
+        _echo("\n[execute-coverage-only] Calculando cobertura...", "header")
+        cov = run_coverage_calculation(dsn, project_root=_PROJECT_ROOT)
+        steps.append(cov)
+        overall = "success" if cov.status == "pass" else "failed"
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output)
+        if cov.status != "pass":
+            _echo(f"  Cobertura FALHOU: {cov.error or cov.details}", "error")
+            return 1
+        d = cov.details or {}
+        _echo(
+            f"  Cobertura OK den={d.get('denominator')} num={d.get('numerator')} "
+            f"pct={d.get('coverage_pct')} method={d.get('method')}",
+            "ok",
+        )
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
         return 0
 
     # ── Resolve DSN ──
@@ -1944,9 +2041,24 @@ def main() -> int:
         )
 
     # =========================================================================
+    # Step 3b: Coverage calculation (DoD §12.1)
+    # =========================================================================
+    _echo("\n[3b/7] Calculando cobertura...", "header")
+    cov_step = run_coverage_calculation(dsn, project_root=_PROJECT_ROOT)
+    steps.append(cov_step)
+    if cov_step.status == "pass":
+        d = cov_step.details or {}
+        _echo(
+            f"  Cobertura den={d.get('denominator')} num={d.get('numerator')} pct={d.get('coverage_pct')}",
+            "ok",
+        )
+    else:
+        _echo(f"  Cobertura FAIL: {cov_step.error}", "warn")
+
+    # =========================================================================
     # Step 4: Reports
     # =========================================================================
-    _echo("\n[4/4] Geracao de relatorios...", "header")
+    _echo("\n[4/7] Geracao de relatorios...", "header")
     if args.skip_reports:
         _echo("  SKIP (--skip-reports)", "warn")
         report_records = [

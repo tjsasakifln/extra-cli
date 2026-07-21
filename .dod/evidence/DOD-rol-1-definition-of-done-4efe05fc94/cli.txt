@@ -1,0 +1,8 @@
+usage: golden_path.py [-h] [--sources SOURCES] [--skip-freshness]
+                      [--skip-reports] [--skip-migrations] [--skip-seeds]
+                      [--skip-spreadsheet] [--validate-spreadsheet-only]
+                      [--execute-sources-only] [--execute-freshness-only]
+                      [--spreadsheet SPREADSHEET] [--allow-backup-spreadsheet]
+                      [--strict | --no-strict] [--allow-zero] [--verbose]
+                      [--dsn DSN] [--ledger-output LEDGER_OUTPUT]
+golden_path.py: error: unrecognized arguments: --execute-coverage-only
