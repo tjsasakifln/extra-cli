@@ -1,0 +1,85 @@
+{
+  "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
+  "created_at": "2026-07-21T22:01:00Z",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "worktree": "/mnt/d/extra-consultoria-continue-03",
+  "branch": "campaign/continue-03-wave0",
+  "wave": "zero-audit",
+  "coordinator_exclusive": [
+    "DOD.md",
+    ".dod/manifest.yaml",
+    ".dod/state.json",
+    ".dod/log.jsonl",
+    ".dod/blockers/**",
+    "docs/architecture/**",
+    "docs/ops/handoffs/**",
+    "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/campaign-status.json",
+    "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/reconciled-status.json",
+    "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/file-ownership.json"
+  ],
+  "agents": [
+    {
+      "id": "A-acceptance-queue-audit",
+      "mode": "read-only",
+      "objective": "Audit acceptance queue PRs #85/#86, #88/#89, #90/#91, #92/#93 vs main",
+      "allowed_write": [
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/tracks/acceptance-queue-audit.md"
+      ],
+      "forbidden": [
+        "DOD.md",
+        ".dod/**",
+        "scripts/**",
+        "tests/**"
+      ],
+      "artifact": "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/tracks/acceptance-queue-audit.md"
+    },
+    {
+      "id": "B-state-reconciliation-audit",
+      "mode": "read-only",
+      "objective": "Audit divergences between DOD, manifest, state and main",
+      "allowed_write": [
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/tracks/state-reconciliation-audit.md"
+      ],
+      "forbidden": [
+        "DOD.md",
+        ".dod/manifest.yaml",
+        ".dod/state.json",
+        ".dod/log.jsonl",
+        "scripts/**",
+        "tests/**"
+      ],
+      "artifact": "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/tracks/state-reconciliation-audit.md"
+    },
+    {
+      "id": "C-public-repo-remediation",
+      "mode": "read-only",
+      "objective": "Revalidate public exposure of commercial/PII/secrets materials",
+      "allowed_write": [
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/tracks/public-repo-remediation.md"
+      ],
+      "forbidden": [
+        "DOD.md",
+        ".dod/**",
+        "scripts/**",
+        "data/**"
+      ],
+      "artifact": "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/tracks/public-repo-remediation.md"
+    },
+    {
+      "id": "D-critical-path",
+      "mode": "read-only",
+      "objective": "Recommend next highest unlock item with short DAG and acceptance criteria",
+      "allowed_write": [
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/tracks/critical-path.md"
+      ],
+      "forbidden": [
+        "DOD.md",
+        ".dod/**",
+        "scripts/**",
+        "tests/**"
+      ],
+      "artifact": "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/tracks/critical-path.md"
+    }
+  ],
+  "collision_policy": "stop-wave-and-redistribute"
+}

@@ -1,0 +1,12 @@
+
+ Reconciliando snapshot de editais...
+
+Ledger salvo:  
+docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/evidence/reproof-20260721/l
+edger-snap.json
+Log salvo:     
+/mnt/d/extra-consultoria-continue-03/output/golden-path/gp-20260721-191226.log
+  Snapshot OK count=5 added=0 removed=0 changed=0 baseline=True
+  Ledger: 
+docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/evidence/reproof-20260721/l
+edger-snap.json

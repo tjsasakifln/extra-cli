@@ -1,9 +1,15 @@
 {
-  "at": "2026-07-21T14:38:11.088406+00:00",
+  "at": "2026-07-21T22:13:14Z",
   "ok": true,
+  "title": "O golden path gera PDF.",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "impl_pr": 90,
+  "impl_merge_sha": "5a3ab319dc43752ffa63605495d11e54190931ff",
+  "reproof_campaign": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
+  "pytest": "11 passed (ledger_meta+snapshot+reports+idempotency)",
   "kind": "pdf",
-  "path": "output/pdfs/panorama-SC-2026-07-21.pdf",
-  "size": 1999,
-  "sha256": "6f8a8c5040b6da1fda80eb2a4801c8925e5f14a8a0ca9e3d1cf0b7fce9c07de5",
+  "path": ".dod/evidence/DOD-rol-1-definition-of-done-ddfcf1ec8a/panorama-SC-2026-07-21.pdf",
+  "size": 1654,
+  "sha256": "579b367300ae183453af6da93f3a19e48da5ea6cd13f3af4deb8d4dc6e898703",
   "magic": "%PDF"
 }

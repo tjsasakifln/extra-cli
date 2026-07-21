@@ -1,0 +1,10 @@
+{
+  "conclusion": "success",
+  "head_sha": "e478cc0373029d81d9525feec6613aba3ba0e8e5",
+  "impl_main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "run_id": 29841380680,
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29841380680",
+  "mandatory_jobs_skipped": [],
+  "checked_at": "2026-07-21T22:22:00Z",
+  "note": "CI green on impl main 432da028f1fed7d70d9d489e689cf3afa350571d (run 29841380680); this commit is docs-only acceptance"
+}

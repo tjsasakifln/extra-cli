@@ -1,0 +1,74 @@
+{
+  "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
+  "started_at": "2026-07-21T22:01:00Z",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "worktree": "/mnt/d/extra-consultoria-continue-03",
+  "branch": "campaign/continue-03-wave0",
+  "phase": "acceptance-reconciliation",
+  "speckit": {
+    "integration": "grok",
+    "version": "0.13.1.dev0",
+    "workflow": "dod-convergence@1.1.0",
+    "skills_present": true,
+    "constitution_present": true
+  },
+  "controller": {
+    "campaign_id_observed": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
+    "accepted": 317,
+    "claimed_checked": 319,
+    "audited_accepted": 9,
+    "proof_debt": 314,
+    "open": 1038,
+    "blocked": 1,
+    "next_eligible_id": "DOD-rol-1-definition-of-done-7d2ae13087",
+    "next_eligible_text": "A integridade do snapshot ativo \u00e9 100%."
+  },
+  "open_acceptance_prs": [
+    86,
+    89,
+    91,
+    93
+  ],
+  "merged_implementation_prs": [
+    85,
+    88,
+    90,
+    92
+  ],
+  "candidate_accept_items": [
+    "DOD-rol-1-definition-of-done-c73b1150d6",
+    "DOD-rol-1-definition-of-done-d5c6584cb7",
+    "DOD-rol-1-definition-of-done-ddfcf1ec8a",
+    "DOD-rol-1-definition-of-done-7d4698cf6a",
+    "DOD-rol-1-definition-of-done-05418e32b2",
+    "DOD-rol-1-definition-of-done-3500c05a66",
+    "DOD-rol-1-definition-of-done-98c4820f19",
+    "DOD-rol-1-definition-of-done-d134dd8ca2",
+    "DOD-rol-1-definition-of-done-8d63225d5b",
+    "DOD-rol-1-definition-of-done-d495570f4e"
+  ],
+  "active_item_id": null,
+  "subagents_wave0": "launching",
+  "next_gate": "await wave0 audit reports then reprove candidates on main",
+  "accept_pass": [
+    "DOD-rol-1-definition-of-done-7d4698cf6a",
+    "DOD-rol-1-definition-of-done-05418e32b2",
+    "DOD-rol-1-definition-of-done-d134dd8ca2",
+    "DOD-rol-1-definition-of-done-3500c05a66",
+    "DOD-rol-1-definition-of-done-c73b1150d6",
+    "DOD-rol-1-definition-of-done-d5c6584cb7",
+    "DOD-rol-1-definition-of-done-ddfcf1ec8a",
+    "DOD-rol-1-definition-of-done-98c4820f19"
+  ],
+  "accept_fail_qa": [
+    "DOD-rol-1-definition-of-done-8d63225d5b",
+    "DOD-rol-1-definition-of-done-d495570f4e"
+  ],
+  "fail_reason": "collect_run_metadata not wired into CLI ledger path",
+  "supersedes_prs": [
+    86,
+    89,
+    91,
+    93
+  ]
+}

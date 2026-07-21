@@ -1,0 +1,108 @@
+{
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "ts": "2026-07-21T22:13:14Z",
+  "items": [
+    {
+      "id": "DOD-rol-1-definition-of-done-7d4698cf6a",
+      "text": "O golden path gera ledger.",
+      "tests": [
+        "tests/test_golden_path_ledger_meta.py"
+      ],
+      "impl_pr": 85,
+      "impl_sha": "8daf991d888227f69164c74663fa814f8eae7c5d"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-05418e32b2",
+      "text": "O golden path gera logs.",
+      "tests": [
+        "tests/test_golden_path_ledger_meta.py"
+      ],
+      "impl_pr": 85,
+      "impl_sha": "8daf991d888227f69164c74663fa814f8eae7c5d"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-d134dd8ca2",
+      "text": "O tempo total de execução é registrado.",
+      "tests": [
+        "tests/test_golden_path_ledger_meta.py"
+      ],
+      "impl_pr": 85,
+      "impl_sha": "8daf991d888227f69164c74663fa814f8eae7c5d"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-8d63225d5b",
+      "text": "A versão do código é registrada.",
+      "tests": [
+        "tests/test_golden_path_ledger_meta.py"
+      ],
+      "impl_pr": 85,
+      "impl_sha": "8daf991d888227f69164c74663fa814f8eae7c5d"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-d495570f4e",
+      "text": "A versão do schema é registrada.",
+      "tests": [
+        "tests/test_golden_path_ledger_meta.py"
+      ],
+      "impl_pr": 85,
+      "impl_sha": "8daf991d888227f69164c74663fa814f8eae7c5d"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-3500c05a66",
+      "text": "O golden path retorna exit code não zero em qualquer gate obrigatório.",
+      "tests": [
+        "tests/test_golden_path_ledger_meta.py"
+      ],
+      "impl_pr": 85,
+      "impl_sha": "8daf991d888227f69164c74663fa814f8eae7c5d"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-c73b1150d6",
+      "text": "O golden path reconcilia snapshot de editais.",
+      "tests": [
+        "tests/test_golden_path_snapshot.py"
+      ],
+      "impl_pr": 88,
+      "impl_sha": "a0caf2acb8213b4cb7fd4d5c0471d1183d041a7a",
+      "ledger": "ledger-snap.json"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-d5c6584cb7",
+      "text": "O golden path gera Excel.",
+      "tests": [
+        "tests/test_golden_path_reports.py"
+      ],
+      "impl_pr": 90,
+      "impl_sha": "5a3ab319dc43752ffa63605495d11e54190931ff",
+      "ledger": "ledger-reports.json",
+      "artifact_kind": "excel"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-ddfcf1ec8a",
+      "text": "O golden path gera PDF.",
+      "tests": [
+        "tests/test_golden_path_reports.py"
+      ],
+      "impl_pr": 90,
+      "impl_sha": "5a3ab319dc43752ffa63605495d11e54190931ff",
+      "ledger": "ledger-reports.json",
+      "artifact_kind": "pdf"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-98c4820f19",
+      "text": "O golden path pode ser reexecutado sem duplicação.",
+      "tests": [
+        "tests/test_golden_path_idempotency.py"
+      ],
+      "impl_pr": 92,
+      "impl_sha": "432da028f1fed7d70d9d489e689cf3afa350571d"
+    }
+  ],
+  "ci_run": {
+    "conclusion": "success",
+    "databaseId": 29841380680,
+    "displayTitle": "Merge pull request #92 from tjsasakifln/campaign/continue-02-idempotency",
+    "headSha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+    "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29841380680"
+  }
+}

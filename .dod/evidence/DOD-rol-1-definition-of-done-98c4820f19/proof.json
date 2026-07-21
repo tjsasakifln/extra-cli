@@ -1,17 +1,11 @@
 {
-  "at": "2026-07-21T14:47:23.394449+00:00",
+  "at": "2026-07-21T22:13:14Z",
   "ok": true,
-  "pncp_raw_bids": {
-    "count": 574,
-    "distinct_id": 574
-  },
-  "sc_public_entities": {
-    "count": 2085,
-    "distinct_cnpj8": 2085
-  },
-  "ledgers": [
-    "ledger-idemp-1.json",
-    "ledger-idemp-2.json"
-  ],
-  "note": "no duplicate keys; second-run inserts may add new live IDs without re-duplicating"
+  "title": "O golden path pode ser reexecutado sem duplicação.",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "impl_pr": 92,
+  "impl_merge_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "reproof_campaign": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
+  "pytest": "11 passed (ledger_meta+snapshot+reports+idempotency)",
+  "note": "dual seed no key duplication; dual snapshot stable ids_sha256 with fixture bids"
 }

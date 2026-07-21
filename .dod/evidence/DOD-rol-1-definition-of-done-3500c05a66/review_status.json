@@ -1,0 +1,15 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-3500c05a66",
+  "reviewer": "adversarial-qa-continue-03",
+  "at": "2026-07-21T23:45:00Z",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "requirement": "O golden path retorna exit code n\u00e3o zero em qualquer gate obrigat\u00f3rio.",
+  "dod_line": 916,
+  "residuals": [
+    "no CLI subprocess fail integration test",
+    "report gate exit 4 not in unit matrix"
+  ],
+  "pending_changes_requested": false,
+  "head_sha": "3bf358d48a11516b4956fba8a60f1cf641eca764"
+}

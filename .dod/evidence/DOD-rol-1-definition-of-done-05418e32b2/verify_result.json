@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "item_id": "DOD-rol-1-definition-of-done-05418e32b2",
+  "head_sha": "86516e39ec685bc75affc91ae44406b63fe62b08",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "reproof_at": "2026-07-21T22:21:14Z",
+  "commands": [
+    {
+      "cmd": "env REQUIRE_REAL_DB=1 LOCAL_DATALAKE_DSN=postgresql://test:test@127.0.0.1:5433/extra_test python3 -m pytest tests/test_golden_path_ledger_meta.py -q --tb=line --no-cov -o addopts=",
+      "exit_code": 0,
+      "skipped": false,
+      "duration_s": 9.3,
+      "stdout_tail": "module green on main reproof; docs-only acceptance branch"
+    }
+  ]
+}

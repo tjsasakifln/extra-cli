@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "run_id": "gp-snap-20260721-191226",
+      "timestamp": "2026-07-21T22:12:26.270220+00:00",
+      "status": "success",
+      "wall_clock_ms": 48.547899999903166,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 21.480899999914982,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "snapshot_reconciliation",
+          "status": "pass",
+          "duration_ms": 24.367900000015652,
+          "error": null,
+          "details": {
+            "source_table": "pncp_raw_bids",
+            "prev_path": "/mnt/d/extra-consultoria-continue-03/output/golden-path/snapshots/editais-snapshot-prev.json",
+            "curr_path": "/mnt/d/extra-consultoria-continue-03/output/golden-path/snapshots/editais-snapshot-curr.json",
+            "current_count": 5,
+            "ids_sha256": "115f3d686ebcc2383b1dec4353df99ba86a1e279744df76900875ec9a6de19e1",
+            "baseline": true,
+            "added": 0,
+            "removed": 0,
+            "changed": 0,
+            "unchanged": 5
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    }
+  ]
+}
