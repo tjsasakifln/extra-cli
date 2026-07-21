@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "run_id": "gp-ss-20260721-095537",
+      "timestamp": "2026-07-21T12:55:37.399517+00:00",
+      "status": "success",
+      "wall_clock_ms": 474.51290000026347,
+      "steps": [
+        {
+          "step": "validate_target_spreadsheet",
+          "status": "pass",
+          "duration_ms": 472.49280000005456,
+          "error": null,
+          "details": {
+            "physical_rows": 2085,
+            "canonical_entities": 1093,
+            "sheet_name": "Entes Públicos SC",
+            "path": "/mnt/d/extra-consultoria-continue-02-main/Extra - alvos de licitação. R-0.xlsx",
+            "sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396",
+            "selection_rule": "exact_basename",
+            "header": "Razão Social CNPJ (8 dígitos) Município Código IBGE Natureza Jurídica Cód. Natureza Latitude Longitude Distância de Florianópolis (km) Raio 200km?",
+            "outside_radius": 992,
+            "unresolved_rows": 0,
+            "seed_path_resolved": "/mnt/d/extra-consultoria-continue-02-main/Extra - alvos de licitação. R-0.xlsx",
+            "expected_canonical_entities": 1093,
+            "expected_canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396"
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "campaign": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
+  "audited_at": "2026-07-21T12:40:00Z",
+  "main_sha": "ae4941610662318eea428dfeede42215b33772bd",
+  "baseline_main_sha": "f82737f7cf3945df41f36f82015c6784bc4bf5e9",
+  "repo": "tjsasakifln/extra-cli",
+  "repo_visibility": "public",
+  "totals": {
+    "accepted_claimed": 315,
+    "strong_reproducible": 8,
+    "live_proof": 15,
+    "existing_but_insufficient": 45,
+    "unit_test_only": 70,
+    "purely_documentary": 50,
+    "human_acceptance": 2,
+    "reference_not_found": 125,
+    "formal_accept_with_commit": 5,
+    "bootstrap_scan_only": 310,
+    "would_fail_strong_reverify_estimate": 280
+  },
+  "prioritized_divergences": [
+    {
+      "rank": 1,
+      "severity": "CRITICAL",
+      "summary": "Global suite double-book orphan+auto-accept",
+      "ids": [
+        "DOD-definition-of-done-extra-fd43ee57aa",
+        "DOD-definition-of-done-extra-5dc9c98e70"
+      ]
+    },
+    {
+      "rank": 2,
+      "severity": "CRITICAL",
+      "summary": "Private-repo claim false on public extra-cli",
+      "ids": [
+        "DOD-rol-3-definition-of-done-2e617f8ee7"
+      ]
+    },
+    {
+      "rank": 3,
+      "severity": "CRITICAL",
+      "summary": "Human PENDING_HUMAN auto-ACCEPTED",
+      "ids": [
+        "DOD-definition-of-done-extra-0bb5ebff58"
+      ]
+    },
+    {
+      "rank": 4,
+      "severity": "HIGH",
+      "summary": "Freshness ACCEPTED missing dual reports in worktree",
+      "ids": [
+        "DOD-definition-of-done-extra-ef7e127720"
+      ]
+    },
+    {
+      "rank": 5,
+      "severity": "HIGH",
+      "summary": "310/315 ACCEPTED from scan without accept()",
+      "ids": [
+        "bootstrap-policy"
+      ]
+    },
+    {
+      "rank": 6,
+      "severity": "HIGH",
+      "summary": "Only 4/§12.1 ACCEPTED; LOCAL_READY GP not met",
+      "ids": [
+        "§12.1 residual OPEN"
+      ]
+    }
+  ],
+  "notes": [
+    "Persisted by coordinator from Subagent C report; no DOD state auto-changed"
+  ]
+}

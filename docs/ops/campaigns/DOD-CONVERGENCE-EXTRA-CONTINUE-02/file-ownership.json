@@ -1,0 +1,72 @@
+{
+  "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
+  "wave": "zero",
+  "created_at": "2026-07-21T12:25:00Z",
+  "coordinator": "CTO",
+  "baseline": {
+    "origin_main": "f82737f7cf3945df41f36f82015c6784bc4bf5e9",
+    "pr74_head": "9a9982d85f2c5d9aafdbd250132073824f4d554e",
+    "pr74_status": "OPEN_MERGEABLE",
+    "ci_run": "29797072553",
+    "ci_conclusion": "success",
+    "repo_visibility": "public",
+    "repo": "tjsasakifln/extra-cli",
+    "pr74_behind_main": 3,
+    "pr74_ahead_main": 6
+  },
+  "ownership": {
+    "subagent-A-pr74-adversarial": {
+      "mode": "read-only",
+      "write": [
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-02/tracks/pr74-adversarial-review.md"
+      ],
+      "read": ["*"],
+      "commits": false
+    },
+    "subagent-B-harness": {
+      "mode": "implementer",
+      "write": [
+        "tools/dod_controller.py",
+        "tests/test_dod_controller.py",
+        ".specify/workflows/dod-convergence/workflow.yml",
+        "docs/ops/dod-convergence.md",
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-02/tracks/harness-hardening-report.md"
+      ],
+      "branch": "campaign/continue-02-harness",
+      "commits": true,
+      "worktree_required": true
+    },
+    "subagent-C-accepted-audit": {
+      "mode": "read-only",
+      "write": [
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-02/accepted-evidence-audit.json",
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-02/accepted-evidence-audit.md"
+      ],
+      "read": ["*"],
+      "commits": false
+    },
+    "subagent-D-public-exposure": {
+      "mode": "read-only",
+      "write": [
+        "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-02/public-exposure-audit.md"
+      ],
+      "read": ["*"],
+      "commits": false
+    },
+    "coordinator-exclusive": [
+      "DOD.md",
+      ".dod/manifest.yaml",
+      ".dod/state.json",
+      ".dod/log.jsonl",
+      ".dod/blockers/**",
+      "docs/architecture/**/ADR*",
+      "docs/ops/**/HANDOFF*"
+    ]
+  },
+  "rules": {
+    "max_parallel": 4,
+    "no_dual_ownership": true,
+    "implementer_not_sole_qa": true,
+    "normative_files_coordinator_only": true
+  }
+}

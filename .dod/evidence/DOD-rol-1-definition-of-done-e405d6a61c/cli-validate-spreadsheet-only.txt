@@ -1,0 +1,10 @@
+
+ Validando planilha-alvo canônica...
+
+Ledger salvo:  
+.dod/evidence/DOD-rol-1-definition-of-done-e405d6a61c/ledger-ss.json
+Log salvo:     
+/mnt/d/extra-consultoria-continue-02-main/output/golden-path/gp-20260721-095526.
+log
+  Planilha-alvo OK (physical=2085 canonical=1093 sha256=d65f272812cf… 439ms)
+  Ledger: .dod/evidence/DOD-rol-1-definition-of-done-e405d6a61c/ledger-ss.json

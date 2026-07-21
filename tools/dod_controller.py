@@ -93,6 +93,74 @@ PATH_TOKEN_RE = re.compile(
     r"(?:`)?"
 )
 
+# Commands that must never satisfy verify (false-green).
+_TRIVIAL_CMD_EXACT = frozenset(
+    {
+        "true",
+        ":",
+        "exit 0",
+        "exit 0;",
+        "/bin/true",
+        "/usr/bin/true",
+        "test 1 -eq 1",
+        "test 0 -eq 0",
+        "echo",
+        "echo ok",
+        "echo true",
+        "echo 0",
+        "printf ''",
+        "printf ok",
+    }
+)
+_TRIVIAL_CMD_RE = re.compile(
+    r"^(?:"
+    r"true|/bin/true|/usr/bin/true"
+    r"|:\s*"
+    r"|exit\s+0\b"
+    r"|echo\b"
+    r"|printf\b"
+    r"|test\s+1\s+-eq\s+1"
+    r"|test\s+0\s+-eq\s+0"
+    r")(?:\s|;|&|$)",
+    re.IGNORECASE,
+)
+# Help/version-only or pure config listing — not execution proof.
+_CONFIG_LIST_RE = re.compile(
+    r"(?:^|\s)(--help|-h|--version|--show-config|--list-config|--dry-run-config)(?:\s|$)",
+    re.IGNORECASE,
+)
+_PYTEST_SUMMARY_RE = re.compile(
+    r"(\d+)\s+passed"
+    r"|(?P<failed>\d+)\s+failed"
+    r"|(?P<skipped>\d+)\s+skipped"
+    r"|(?P<deselected>\d+)\s+deselected"
+    r"|(?P<xfailed>\d+)\s+xfailed"
+    r"|(?P<error>\d+)\s+error",
+    re.IGNORECASE,
+)
+
+# Env keys recorded (presence/value) for verify evidence — no secrets dumped.
+_VERIFY_ENV_KEYS = (
+    "CI",
+    "GITHUB_ACTIONS",
+    "LOCAL_DATALAKE_DSN",
+    "PYTEST_ADDOPTS",
+    "PATH",
+    "USER",
+    "HOME",
+)
+
+# Item text signals that full suite is mandatory for accept.
+_FULL_SUITE_HINTS = (
+    "suíte global",
+    "suite global",
+    "full suite",
+    "pytest tests/",
+    "ci obrigatório",
+    "ci obrigatorio",
+    "workflow marcou skipped",
+)
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace(
@@ -361,11 +429,9 @@ def default_item_dict(p: ParsedItem) -> dict[str, Any]:
         for k in ("migration", "postgres", "banco", "schema", "sql", "golden path")
     )
 
-    # Initial state: checked items start as ACCEPTED only if evidence looks present;
-    # audit may demote. Unchecked start OPEN.
+    # Fail-closed: checkbox is a *claim*, never audited acceptance.
+    # Only `accept` after gates may set ACCEPTED. Checked+new → OPEN + proof debt.
     state = "OPEN"
-    if p.checked:
-        state = "ACCEPTED"
 
     return {
         "id": item_id,
@@ -393,13 +459,15 @@ def default_item_dict(p: ParsedItem) -> dict[str, Any]:
         "evidence": evidence_refs,
         "acceptance_commit": None,
         "acceptance_pr": None,
-        "accepted_at": utc_now() if state == "ACCEPTED" and p.checked else None,
-        "justification": None,
+        "accepted_at": None,
+        "justification": (
+            "proof_debt:claimed_checked_without_audit" if p.checked else None
+        ),
         "history": [
             {
                 "at": utc_now(),
                 "event": "scanned",
-                "detail": f"line={p.start_line} checked={p.checked}",
+                "detail": f"line={p.start_line} checked={p.checked} state=OPEN",
             }
         ],
         "content_fingerprint": fp,
@@ -609,28 +677,175 @@ def audit_evidence_paths(item: dict[str, Any]) -> dict[str, Any]:
     return {"status": "unverified", "notes": "refs present but not path-like"}
 
 
+def is_trivial_command(cmd: str) -> bool:
+    """Return True if command cannot count as verification evidence."""
+    raw = (cmd or "").strip()
+    if not raw:
+        return True
+    # Collapse whitespace for exact match set.
+    collapsed = re.sub(r"\s+", " ", raw).strip().rstrip(";")
+    if collapsed.lower() in {c.lower() for c in _TRIVIAL_CMD_EXACT}:
+        return True
+    if _TRIVIAL_CMD_RE.match(collapsed):
+        # Allow echo only if it clearly pipes into a real tool (rare); default reject.
+        return True
+    # Config-list / help-only invocations without a test runner.
+    if _CONFIG_LIST_RE.search(collapsed) and not re.search(
+        r"\b(pytest|unittest|golden_path|verify|run_full_suite)\b", collapsed, re.I
+    ):
+        return True
+    return False
+
+
+def command_is_substantive(cmd: str) -> bool:
+    return not is_trivial_command(cmd)
+
+
+def env_snapshot() -> dict[str, Any]:
+    import os
+
+    out: dict[str, Any] = {}
+    for key in _VERIFY_ENV_KEYS:
+        val = os.environ.get(key)
+        if key in {"LOCAL_DATALAKE_DSN", "PATH", "HOME"}:
+            # Record presence / length only — avoid leaking secrets/paths bulk.
+            out[key] = {
+                "set": val is not None and val != "",
+                "len": len(val) if val else 0,
+            }
+        else:
+            out[key] = val
+    return out
+
+
+def parse_pytest_counts(stdout: str, stderr: str = "") -> dict[str, int]:
+    blob = f"{stdout}\n{stderr}"
+    counts = {
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0,
+    }
+    # Prefer last summary-like line.
+    for line in reversed(blob.splitlines()):
+        if not re.search(r"\b(passed|failed|skipped|deselected|error)\b", line, re.I):
+            continue
+        m_pass = re.search(r"(\d+)\s+passed", line, re.I)
+        if m_pass:
+            counts["passed"] = int(m_pass.group(1))
+        for name in ("failed", "skipped", "deselected", "xfailed", "error"):
+            m = re.search(rf"(\d+)\s+{name}", line, re.I)
+            if m:
+                counts[name] = int(m.group(1))
+        if m_pass or any(counts[k] for k in counts if k != "passed"):
+            break
+    return counts
+
+
+def item_requires_full_suite(item: dict[str, Any]) -> bool:
+    text = unicodedata.normalize(
+        "NFKD", (item.get("text") or "").lower()
+    ).encode("ascii", "ignore").decode("ascii")
+    if any(h in text for h in _FULL_SUITE_HINTS):
+        return True
+    if item.get("requires_full_suite") is True:
+        return True
+    return False
+
+
+def evidence_reproduced(item: dict[str, Any]) -> bool:
+    """True when a verify_result.json exists and records ok=true."""
+    pack = EVIDENCE_DIR / str(item.get("id") or "")
+    vpath = pack / "verify_result.json"
+    if not vpath.exists():
+        return False
+    try:
+        data = json.loads(vpath.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return bool(data.get("ok"))
+
+
+def is_audited_accepted(item: dict[str, Any]) -> bool:
+    if item.get("state") != "ACCEPTED":
+        return False
+    ea = item.get("evidence_audit") or {}
+    status = ea.get("status")
+    if status in {"missing", "unverified"}:
+        return False
+    # Require an acceptance commit identity for audited acceptance.
+    if not item.get("acceptance_commit"):
+        return False
+    return True
+
+
+def is_proof_debt(item: dict[str, Any]) -> bool:
+    """Claimed done without audited acceptance, or ACCEPTED with weak evidence."""
+    if item.get("dod_checked") and not is_audited_accepted(item):
+        return True
+    if item.get("state") == "ACCEPTED" and not is_audited_accepted(item):
+        return True
+    ea = item.get("evidence_audit") or {}
+    if item.get("state") == "ACCEPTED" and ea.get("status") in {
+        "missing",
+        "unverified",
+        "partial",
+    }:
+        return True
+    return False
+
+
 def metrics_from_items(items: list[dict[str, Any]]) -> dict[str, Any]:
     by_state = Counter(it.get("state", "OPEN") for it in items)
     by_cat = Counter(it.get("category", "MACHINE_ACTIONABLE") for it in items)
     total = len(items)
-    accepted = by_state.get("ACCEPTED", 0)
+    accepted_state = by_state.get("ACCEPTED", 0)
+    claimed_checked = sum(1 for it in items if it.get("dod_checked"))
+    audited_accepted = sum(1 for it in items if is_audited_accepted(it))
+    evidence_located = 0
+    for it in items:
+        ea = it.get("evidence_audit")
+        if not ea:
+            ea = audit_evidence_paths(it)
+        if ea.get("status") in {"ok", "partial"}:
+            evidence_located += 1
+    evidence_reproduced_n = sum(1 for it in items if evidence_reproduced(it))
+    proof_debt = sum(1 for it in items if is_proof_debt(it))
     return {
         "total": total,
-        "accepted": accepted,
+        # Legacy alias: state==ACCEPTED count (may include weak/historical).
+        "accepted": accepted_state,
+        "accepted_state": accepted_state,
+        "claimed_checked": claimed_checked,
+        "audited_accepted": audited_accepted,
+        "evidence_located": evidence_located,
+        "evidence_reproduced": evidence_reproduced_n,
+        "proof_debt": proof_debt,
         "verified": by_state.get("VERIFIED", 0),
         "in_progress": by_state.get("IN_PROGRESS", 0),
         "implemented": by_state.get("IMPLEMENTED", 0),
         "open": by_state.get("OPEN", 0),
         "blocked": sum(by_state[s] for s in BLOCKED_STATES),
         "deferred": by_state.get("DEFERRED_BY_DOD", 0),
-        "acceptance_pct": round(100.0 * accepted / total, 2) if total else 0.0,
+        # Fail-closed percentage: only audited acceptance counts as progress.
+        "acceptance_pct": (
+            round(100.0 * audited_accepted / total, 2) if total else 0.0
+        ),
+        "claimed_pct": (
+            round(100.0 * claimed_checked / total, 2) if total else 0.0
+        ),
         "by_state": dict(by_state),
         "by_category": dict(by_cat),
-        "dod_checked_count": sum(1 for it in items if it.get("dod_checked")),
+        "dod_checked_count": claimed_checked,
     }
 
 
-def is_eligible(item: dict[str, Any]) -> bool:
+def is_eligible(
+    item: dict[str, Any],
+    by_id: dict[str, dict[str, Any]] | None = None,
+) -> bool:
     if item.get("state") in {
         "ACCEPTED",
         "IN_PROGRESS",
@@ -639,21 +854,83 @@ def is_eligible(item: dict[str, Any]) -> bool:
         *BLOCKED_STATES,
     }:
         # VERIFIED needs accept path, not re-start as next work.
-        if item.get("state") == "VERIFIED":
-            return False
         return False
     if item.get("state") not in {"OPEN", "IMPLEMENTED"}:
         return False
     # Skip pure orphans.
     if item.get("justification") and "ORPHANED_FROM_DOD" in str(item.get("justification")):
         return False
+    # Dependencies must be ACCEPTED before item is selectable.
+    if by_id is not None:
+        for dep in item.get("dependencies") or []:
+            dep_item = by_id.get(dep)
+            if not dep_item or dep_item.get("state") != "ACCEPTED":
+                return False
+    else:
+        # Without index, still require empty deps or leave for select_next.
+        pass
     return True
 
 
-def score_item(item: dict[str, Any]) -> tuple:
+def unlock_count(item_id: str, items: list[dict[str, Any]]) -> int:
+    n = 0
+    for it in items:
+        deps = it.get("dependencies") or []
+        if item_id in deps:
+            n += 1
+    return n
+
+
+def rough_cost(item: dict[str, Any]) -> int:
+    """Lower is cheaper — prefer small waves. Rough heuristic only."""
+    cmds = len(item.get("acceptance_commands") or [])
+    tests = len(item.get("tests") or [])
+    text_len = len(item.get("text") or "")
+    base = cmds * 10 + tests * 15 + text_len // 80
+    if item.get("needs_live_source"):
+        base += 40
+    if item.get("needs_clean_db"):
+        base += 25
+    if item.get("needs_human_eval"):
+        base += 50
+    if item.get("category") in {
+        "VPS_PHASE",
+        "CREDENTIAL_REQUIRED",
+        "INFRASTRUCTURE_REQUIRED",
+    }:
+        base += 30
+    return base
+
+
+def phase_affinity(item: dict[str, Any], phase: str | None) -> int:
+    """Lower is better match for current campaign phase."""
+    phase = (phase or "idle").lower()
+    cat = item.get("category") or ""
+    if phase in {"harness", "audit", "idle"}:
+        if cat in {"GOVERNANCE", "MACHINE_ACTIONABLE", "DOCUMENTATION_WITH_PROOF"}:
+            return 0
+        return 5
+    if phase in {"item_cycle", "implement", "verify"}:
+        if cat == "MACHINE_ACTIONABLE":
+            return 0
+        if cat in {"DOCUMENTATION_WITH_PROOF", "GOVERNANCE"}:
+            return 2
+        return 8
+    if phase in {"blocked", "human"}:
+        if cat == "HUMAN_ACCEPTANCE":
+            return 0
+        return 10
+    return 5
+
+
+def score_item(
+    item: dict[str, Any],
+    items: list[dict[str, Any]] | None = None,
+    phase: str | None = None,
+) -> tuple:
     text = (item.get("text") or "").lower()
-    section = (item.get("section") or "").lower()
     boost = int(item.get("priority_boost") or 0)
+    items = items or []
 
     # Critical-path keywords (lower is better). Normalize accents for match.
     text_ascii = (
@@ -677,19 +954,67 @@ def score_item(item: dict[str, Any]) -> tuple:
     elif item.get("category") == "GOVERNANCE" and not item.get("dod_checked"):
         critical = 15
 
+    # Unlock breadth: items that unlock many others first (negate for sort).
+    unlock = unlock_count(item.get("id") or "", items)
+    # Expected DOD impact: critical path + unlocks + proof debt claim fix.
+    impact_bonus = unlock * 3
+    if item.get("dod_checked") and item.get("state") != "ACCEPTED":
+        # Proof debt items matter, but prefer unblocking work over mass re-audit.
+        impact_bonus += 1
+
     cat_p = CATEGORY_PRIORITY.get(item.get("category", ""), 50)
-    # Prefer unchecked items that gate others.
-    checked_penalty = 100 if item.get("dod_checked") else 0
+    # Prefer unchecked open work; claimed-checked without accept is proof debt
+    # (eligible) but slightly deprioritized vs fresh machine work.
+    checked_penalty = 20 if item.get("dod_checked") else 0
+    cost = rough_cost(item)
+    affinity = phase_affinity(item, phase)
     line = (item.get("location") or {}).get("start_line") or 10**9
-    return (critical - boost, cat_p, checked_penalty, line, item.get("id", ""))
+    # Sort key: lower better.
+    return (
+        critical - boost - impact_bonus,
+        affinity,
+        cat_p,
+        cost,
+        checked_penalty,
+        -unlock,
+        line,
+        item.get("id", ""),
+    )
 
 
-def select_next(items: list[dict[str, Any]]) -> dict[str, Any] | None:
-    eligible = [it for it in items if is_eligible(it)]
+def select_next(
+    items: list[dict[str, Any]],
+    phase: str | None = None,
+) -> dict[str, Any] | None:
+    by_id = index_items(items)
+    if phase is None:
+        try:
+            phase = load_state().get("phase")
+        except Exception:  # pragma: no cover — state optional in pure unit use
+            phase = None
+    eligible = [it for it in items if is_eligible(it, by_id)]
     if not eligible:
         return None
-    eligible.sort(key=score_item)
+    eligible.sort(key=lambda it: score_item(it, items=items, phase=phase))
     return eligible[0]
+
+
+def select_next_batch(
+    items: list[dict[str, Any]],
+    max_items: int = 1,
+    phase: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return up to max_items eligible items in score order (for workflow loops)."""
+    by_id = index_items(items)
+    if phase is None:
+        try:
+            phase = load_state().get("phase")
+        except Exception:  # pragma: no cover
+            phase = None
+    eligible = [it for it in items if is_eligible(it, by_id)]
+    eligible.sort(key=lambda it: score_item(it, items=items, phase=phase))
+    n = max(0, int(max_items))
+    return eligible[:n] if n else eligible
 
 
 def emit(data: Any, as_json: bool, human: str | None = None) -> None:
@@ -784,9 +1109,14 @@ def cmd_status(args: argparse.Namespace) -> int:
     human = (
         f"campaign={payload['campaign_id']} phase={payload['phase']}\n"
         f"active={payload['active_item_id']} next={payload['next_eligible_id']}\n"
-        f"total={m['total']} ACCEPTED={m['accepted']} VERIFIED={m['verified']} "
+        f"total={m['total']} audited_accepted={m['audited_accepted']} "
+        f"claimed_checked={m['claimed_checked']} proof_debt={m['proof_debt']} "
+        f"state_ACCEPTED={m['accepted_state']} VERIFIED={m['verified']} "
         f"IN_PROGRESS={m['in_progress']} OPEN={m['open']} blocked={m['blocked']} "
-        f"deferred={m['deferred']} acceptance={m['acceptance_pct']}%\n"
+        f"deferred={m['deferred']} acceptance={m['acceptance_pct']}% "
+        f"(claimed={m['claimed_pct']}%)\n"
+        f"evidence_located={m['evidence_located']} "
+        f"evidence_reproduced={m['evidence_reproduced']}\n"
         f"hint: {payload['critical_path_hint']}"
     )
     emit(payload, args.json, human)
@@ -798,11 +1128,30 @@ def cmd_next(args: argparse.Namespace) -> int:
     items = list(manifest.get("items") or [])
     if not items:
         die("manifest empty — run scan first")
-    nxt = select_next(items)
-    if not nxt:
-        payload = {"ok": True, "item": None, "reason": "no eligible items"}
+    state = load_state()
+    phase = state.get("phase")
+    max_items = int(getattr(args, "max_items", 1) or 1)
+    batch = select_next_batch(items, max_items=max_items, phase=phase)
+    if not batch:
+        # Persist stop signal: all paths blocked / nothing eligible.
+        state["next_eligible_id"] = None
+        state["next_step"] = "stop_all_blocked"
+        state["resume_step"] = "stop_all_blocked"
+        save_state(state)
+        payload = {
+            "ok": True,
+            "item": None,
+            "items": [],
+            "reason": "no eligible items (all blocked, accepted, or deps unsatisfied)",
+            "next_step": "stop_all_blocked",
+        }
         emit(payload, args.json, "no eligible items")
         return 0
+    nxt = batch[0]
+    state["next_eligible_id"] = nxt["id"]
+    state["next_step"] = "start"
+    state["resume_step"] = state.get("resume_step") or "start"
+    save_state(state)
     payload = {
         "ok": True,
         "item": {
@@ -811,12 +1160,27 @@ def cmd_next(args: argparse.Namespace) -> int:
             "section": nxt["section"],
             "state": nxt["state"],
             "category": nxt["category"],
-            "score": list(score_item(nxt)),
+            "dependencies": list(nxt.get("dependencies") or []),
+            "unlock_count": unlock_count(nxt["id"], items),
+            "rough_cost": rough_cost(nxt),
+            "score": list(score_item(nxt, items=items, phase=phase)),
         },
+        "items": [
+            {
+                "id": it["id"],
+                "category": it.get("category"),
+                "state": it.get("state"),
+                "unlock_count": unlock_count(it["id"], items),
+            }
+            for it in batch
+        ],
+        "next_step": "start",
+        "max_items": max_items,
     }
     human = (
         f"next: {nxt['id']}\n"
-        f"  state={nxt['state']} category={nxt['category']}\n"
+        f"  state={nxt['state']} category={nxt['category']} "
+        f"unlock={payload['item']['unlock_count']} cost={payload['item']['rough_cost']}\n"
         f"  {nxt['text'][:200]}"
     )
     emit(payload, args.json, human)
@@ -871,75 +1235,172 @@ def cmd_start(args: argparse.Namespace) -> int:
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
+    import subprocess
+    import time
+
     item_id = args.item_id
     manifest = load_manifest()
     item = find_item(manifest, item_id)
     if not item:
         die(f"unknown item: {item_id}", 2)
 
-    criteria_path = EVIDENCE_DIR / item_id / "acceptance_criteria.md"
+    pack = EVIDENCE_DIR / item_id
+    pack.mkdir(parents=True, exist_ok=True)
+    criteria_path = pack / "acceptance_criteria.md"
     if not criteria_path.exists() and not args.allow_missing_criteria:
         die(
             f"missing acceptance criteria file: {criteria_path} "
-            "(write criteria before verify, or pass --allow-missing-criteria only for dry harness tests)"
+            "(write criteria before verify; evidence pack without "
+            "acceptance_criteria.md is rejected)"
         )
 
+    head = _git_head()
     results: dict[str, Any] = {
         "item_id": item_id,
         "commands": [],
         "tests": [],
         "ok": True,
         "notes": [],
+        "rejected_trivial": [],
+        "head_sha": head,
+        "env": env_snapshot(),
+        "started_at": utc_now(),
+        "duration_s": 0.0,
+        "substantive_runs": 0,
+        "totals": {
+            "passed": 0,
+            "failed": 0,
+            "skipped": 0,
+            "deselected": 0,
+            "error": 0,
+        },
     }
+    t0 = time.monotonic()
 
-    # Run registered acceptance commands if any.
-    import subprocess
+    raw_cmds = list(item.get("acceptance_commands") or [])
+    raw_tests = list(item.get("tests") or [])
 
-    for cmd in item.get("acceptance_commands") or []:
-        proc = subprocess.run(
-            cmd,
-            shell=True,
-            cwd=str(ROOT),
-            capture_output=True,
-            text=True,
-            timeout=args.timeout,
-        )
-        entry = {
-            "cmd": cmd,
-            "exit_code": proc.returncode,
-            "stdout_tail": proc.stdout[-500:],
-            "stderr_tail": proc.stderr[-500:],
-        }
-        results["commands"].append(entry)
-        if proc.returncode != 0:
-            results["ok"] = False
-
-    for test in item.get("tests") or []:
-        proc = subprocess.run(
-            ["python3", "-m", "pytest", test, "-q", "--tb=line"],
-            cwd=str(ROOT),
-            capture_output=True,
-            text=True,
-            timeout=args.timeout,
-        )
-        entry = {
-            "test": test,
-            "exit_code": proc.returncode,
-            "stdout_tail": proc.stdout[-500:],
-        }
-        results["tests"].append(entry)
-        if proc.returncode != 0:
-            results["ok"] = False
-
-    if not (item.get("acceptance_commands") or item.get("tests")):
+    if not raw_cmds and not raw_tests:
+        results["ok"] = False
         results["notes"].append(
-            "no acceptance_commands/tests registered; mark verify only with --mark-if-empty"
+            "empty verify rejected: register acceptance_commands and/or tests"
         )
-        if not args.mark_if_empty:
-            results["ok"] = False
+        # --mark-if-empty is intentionally fail-closed (deprecated no-op success).
+        if args.mark_if_empty:
+            results["notes"].append(
+                "--mark-if-empty ignored: empty verify cannot produce VERIFIED"
+            )
 
-    pack = EVIDENCE_DIR / item_id
-    pack.mkdir(parents=True, exist_ok=True)
+    for cmd in raw_cmds:
+        if is_trivial_command(cmd):
+            results["rejected_trivial"].append(cmd)
+            results["ok"] = False
+            results["notes"].append(f"trivial command rejected: {cmd!r}")
+            results["commands"].append(
+                {
+                    "cmd": cmd,
+                    "exit_code": None,
+                    "skipped": True,
+                    "reason": "trivial_command",
+                    "duration_s": 0.0,
+                }
+            )
+            continue
+        c0 = time.monotonic()
+        try:
+            proc = subprocess.run(
+                cmd,
+                shell=True,
+                cwd=str(ROOT),
+                capture_output=True,
+                text=True,
+                timeout=args.timeout,
+            )
+            duration = round(time.monotonic() - c0, 3)
+            entry = {
+                "cmd": cmd,
+                "exit_code": proc.returncode,
+                "duration_s": duration,
+                "stdout_tail": proc.stdout[-500:],
+                "stderr_tail": proc.stderr[-500:],
+                "env": env_snapshot(),
+                "skipped": False,
+            }
+            results["commands"].append(entry)
+            results["substantive_runs"] += 1
+            if proc.returncode != 0:
+                results["ok"] = False
+                results["totals"]["failed"] += 1
+            else:
+                results["totals"]["passed"] += 1
+        except subprocess.TimeoutExpired as exc:
+            results["ok"] = False
+            results["commands"].append(
+                {
+                    "cmd": cmd,
+                    "exit_code": None,
+                    "duration_s": round(time.monotonic() - c0, 3),
+                    "error": f"timeout after {args.timeout}s",
+                    "stdout_tail": (exc.stdout or "")[-500:]
+                    if isinstance(exc.stdout, str)
+                    else "",
+                    "stderr_tail": (exc.stderr or "")[-500:]
+                    if isinstance(exc.stderr, str)
+                    else "",
+                }
+            )
+
+    for test in raw_tests:
+        c0 = time.monotonic()
+        try:
+            proc = subprocess.run(
+                ["python3", "-m", "pytest", test, "-q", "--tb=line"],
+                cwd=str(ROOT),
+                capture_output=True,
+                text=True,
+                timeout=args.timeout,
+            )
+            duration = round(time.monotonic() - c0, 3)
+            counts = parse_pytest_counts(proc.stdout, proc.stderr)
+            entry = {
+                "test": test,
+                "cmd": f"python3 -m pytest {test} -q --tb=line",
+                "exit_code": proc.returncode,
+                "duration_s": duration,
+                "stdout_tail": proc.stdout[-500:],
+                "stderr_tail": proc.stderr[-500:],
+                "counts": counts,
+                "env": env_snapshot(),
+                "skipped": False,
+            }
+            results["tests"].append(entry)
+            results["substantive_runs"] += 1
+            for k in ("passed", "failed", "skipped", "deselected", "error"):
+                results["totals"][k] = results["totals"].get(k, 0) + counts.get(k, 0)
+            if proc.returncode != 0:
+                results["ok"] = False
+        except subprocess.TimeoutExpired:
+            results["ok"] = False
+            results["tests"].append(
+                {
+                    "test": test,
+                    "exit_code": None,
+                    "duration_s": round(time.monotonic() - c0, 3),
+                    "error": f"timeout after {args.timeout}s",
+                }
+            )
+
+    if results["substantive_runs"] == 0 and (raw_cmds or raw_tests):
+        results["ok"] = False
+        results["notes"].append(
+            "no substantive command/test executed (all trivial or empty)"
+        )
+    elif results["substantive_runs"] == 0:
+        results["ok"] = False
+
+    results["duration_s"] = round(time.monotonic() - t0, 3)
+    results["finished_at"] = utc_now()
+
     (pack / "verify_result.json").write_text(
         json.dumps(results, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
@@ -947,10 +1408,22 @@ def cmd_verify(args: argparse.Namespace) -> int:
     if results["ok"]:
         item["state"] = "VERIFIED"
         hist = list(item.get("history") or [])
-        hist.append({"at": utc_now(), "event": "verify", "detail": "VERIFIED"})
+        hist.append(
+            {
+                "at": utc_now(),
+                "event": "verify",
+                "detail": f"VERIFIED head={head} runs={results['substantive_runs']}",
+            }
+        )
         item["history"] = hist[-50:]
         save_manifest(manifest)
-        append_log("verify", item_id=item_id, ok=True)
+        state = load_state()
+        state["resume_step"] = "accept"
+        state["next_step"] = "accept"
+        if state.get("active_item_id") == item_id:
+            state["phase"] = "verify"
+        save_state(state)
+        append_log("verify", item_id=item_id, ok=True, head=head)
         emit(
             {"ok": True, "state": "VERIFIED", "results": results},
             args.json,
@@ -967,6 +1440,41 @@ def cmd_verify(args: argparse.Namespace) -> int:
     return 1
 
 
+def _load_json_file(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _verify_result_has_green_substantive(vr: dict[str, Any]) -> bool:
+    if not vr.get("ok"):
+        return False
+    for entry in vr.get("commands") or []:
+        if entry.get("skipped") or entry.get("reason") == "trivial_command":
+            continue
+        if entry.get("exit_code") == 0 and command_is_substantive(
+            str(entry.get("cmd") or "")
+        ):
+            return True
+    for entry in vr.get("tests") or []:
+        if entry.get("exit_code") == 0:
+            return True
+    # substantive_runs recorded by hardened verify
+    if int(vr.get("substantive_runs") or 0) > 0 and vr.get("ok"):
+        # Ensure at least one command/test exited 0
+        cmds_ok = any(
+            e.get("exit_code") == 0 and not e.get("skipped")
+            for e in (vr.get("commands") or [])
+        )
+        tests_ok = any(e.get("exit_code") == 0 for e in (vr.get("tests") or []))
+        return cmds_ok or tests_ok
+    return False
+
+
 def cmd_accept(args: argparse.Namespace) -> int:
     item_id = args.item_id
     manifest = load_manifest()
@@ -976,64 +1484,247 @@ def cmd_accept(args: argparse.Namespace) -> int:
 
     gates: dict[str, Any] = {}
     ok = True
+    pack = EVIDENCE_DIR / item_id
 
-    if item.get("state") not in {"VERIFIED", "ACCEPTED"} and not args.force_from_state:
+    # 1) State must be VERIFIED (re-accept of ACCEPTED only with force_from_state).
+    if item.get("state") == "VERIFIED":
+        gates["state"] = "ok"
+    elif item.get("state") == "ACCEPTED" and args.force_from_state:
+        gates["state"] = "re-accept ACCEPTED via --force-from-state"
+    elif args.force_from_state:
+        gates["state"] = f"force_from_state from {item.get('state')}"
+    else:
         gates["state"] = f"must be VERIFIED, got {item.get('state')}"
         ok = False
-    else:
-        gates["state"] = "ok"
 
-    # Must be on main for full ACCEPTED unless --verified-only branch flag.
+    # 2) Main branch current (unless harness bypass).
     branch = _git_branch()
     head = _git_head()
-    on_main = branch in {"main", "master"} or args.allow_non_main
+    on_main = branch in {"main", "master"}
     gates["branch"] = branch
     gates["head"] = head
+    if head is None:
+        gates["commit_identified"] = "FAIL: git HEAD unavailable"
+        ok = False
+    else:
+        gates["commit_identified"] = "ok"
     if not on_main and not args.allow_non_main:
-        gates["main_gate"] = "not on main; max VERIFIED (pass --allow-non-main only for dry harness)"
+        gates["main_gate"] = (
+            "not on main; max VERIFIED "
+            "(pass --allow-non-main only for dry harness)"
+        )
         ok = False
     else:
         gates["main_gate"] = "ok" if on_main else "bypassed"
 
-    # Evidence pack required.
-    pack = EVIDENCE_DIR / item_id
-    if not pack.exists() and not args.allow_missing_evidence:
-        gates["evidence_pack"] = f"missing {pack}"
-        ok = False
+    # 3–5) Complete evidence pack: criteria + verify_result + green substantive test.
+    # Directory existence alone is NEVER enough for ACCEPTED.
+    if not pack.exists():
+        if args.allow_missing_evidence:
+            gates["evidence_pack"] = "missing pack dir (bypassed — still incomplete)"
+            # Still fail complete-pack checks below unless force.
+        else:
+            gates["evidence_pack"] = f"missing {pack}"
+            ok = False
     else:
         gates["evidence_pack"] = "ok"
 
+    criteria = pack / "acceptance_criteria.md"
+    if not criteria.exists() or criteria.stat().st_size == 0:
+        gates["acceptance_criteria"] = "missing or empty acceptance_criteria.md"
+        ok = False
+    else:
+        gates["acceptance_criteria"] = "ok"
+
+    vr_path = pack / "verify_result.json"
+    vr = _load_json_file(vr_path)
+    if vr is None:
+        gates["verify_result"] = "missing or invalid verify_result.json"
+        ok = False
+    elif not vr.get("ok"):
+        gates["verify_result"] = "verify_result.json ok=false"
+        ok = False
+    else:
+        gates["verify_result"] = "ok"
+
+    if vr is not None and not _verify_result_has_green_substantive(vr):
+        gates["specific_green_test"] = (
+            "no non-trivial command/test with exit 0 in verify_result"
+        )
+        ok = False
+    elif vr is not None:
+        gates["specific_green_test"] = "ok"
+
+    # Stale verify: result head_sha must match current commit unless justified.
+    if vr is not None and head:
+        vr_sha = vr.get("head_sha")
+        immut = pack / "immutability_justification.md"
+        if vr_sha and vr_sha != head:
+            if immut.exists() and immut.stat().st_size > 0:
+                gates["verify_freshness"] = (
+                    f"stale sha {vr_sha} != {head}; immutability_justification.md present"
+                )
+            else:
+                gates["verify_freshness"] = (
+                    f"verify_result head_sha={vr_sha} != current {head}; "
+                    "provide immutability_justification.md or re-verify"
+                )
+                ok = False
+        else:
+            gates["verify_freshness"] = "ok"
+    elif vr is not None:
+        gates["verify_freshness"] = "ok (no head to compare)"
+
+    # 6) CI of main commit green (file-based contract).
+    if args.skip_ci_gate:
+        gates["ci_green"] = "bypassed via --skip-ci-gate"
+    else:
+        ci = _load_json_file(pack / "ci_status.json")
+        if not ci:
+            gates["ci_green"] = "missing ci_status.json"
+            ok = False
+        elif str(ci.get("conclusion", "")).lower() not in {"success", "green", "pass"}:
+            gates["ci_green"] = f"ci conclusion={ci.get('conclusion')!r} not success"
+            ok = False
+        elif head and ci.get("head_sha") and ci.get("head_sha") != head:
+            gates["ci_green"] = (
+                f"ci head_sha={ci.get('head_sha')} != current {head}"
+            )
+            ok = False
+        else:
+            gates["ci_green"] = "ok"
+            # 8) No mandatory job skipped
+            skipped = ci.get("mandatory_jobs_skipped") or ci.get("skipped_mandatory") or []
+            if skipped:
+                gates["mandatory_jobs"] = f"skipped mandatory jobs: {skipped}"
+                ok = False
+            else:
+                gates["mandatory_jobs"] = "ok"
+
+    # 7) Full suite when impact radius requires it.
+    if item_requires_full_suite(item):
+        if args.skip_full_suite_gate:
+            gates["full_suite"] = "required but bypassed via --skip-full-suite-gate"
+        else:
+            fs = _load_json_file(pack / "full_suite_status.json")
+            if not fs or not fs.get("ok"):
+                gates["full_suite"] = (
+                    "item requires full suite; missing full_suite_status.json ok=true"
+                )
+                ok = False
+            else:
+                gates["full_suite"] = "ok"
+    else:
+        gates["full_suite"] = "n/a"
+
+    # 9) No pending requested changes on PR.
+    if args.skip_review_gate:
+        gates["pending_changes"] = "bypassed via --skip-review-gate"
+    else:
+        rev = _load_json_file(pack / "review_status.json")
+        if not rev:
+            gates["pending_changes"] = "missing review_status.json"
+            ok = False
+        elif rev.get("pending_changes_requested") in {True, "true", 1, "yes"}:
+            gates["pending_changes"] = "pending requested changes on review"
+            ok = False
+        else:
+            gates["pending_changes"] = "ok"
+
+    # 10) No DOD/manifest divergence for this item.
+    if args.skip_divergence_check:
+        gates["dod_divergence"] = "bypassed via --skip-divergence-check"
+    else:
+        try:
+            parsed = parse_dod(DOD_PATH) if DOD_PATH.exists() else []
+            match = None
+            fp = item.get("content_fingerprint") or content_fingerprint(
+                item.get("section", ""), item.get("text", "")
+            )
+            for p in parsed:
+                if content_fingerprint(p.section, p.text) == fp:
+                    match = p
+                    break
+            if match is None:
+                gates["dod_divergence"] = "item fingerprint not found in DOD.md"
+                ok = False
+            elif bool(item.get("dod_checked")) != bool(match.checked) and item.get(
+                "state"
+            ) == "ACCEPTED":
+                gates["dod_divergence"] = "checkbox mismatch for ACCEPTED item"
+                ok = False
+            else:
+                gates["dod_divergence"] = "ok"
+        except OSError as exc:
+            gates["dod_divergence"] = f"error reading DOD: {exc}"
+            ok = False
+
+    # 11) Independent agent review artifact.
+    if args.skip_independent_review:
+        gates["independent_review"] = "bypassed via --skip-independent-review"
+    else:
+        ir = pack / "independent_review.md"
+        if not ir.exists() or ir.stat().st_size == 0:
+            gates["independent_review"] = "missing independent_review.md"
+            ok = False
+        else:
+            gates["independent_review"] = "ok"
+
     if not ok and not args.force:
         append_log("accept_denied", item_id=item_id, gates=gates)
-        emit({"ok": False, "gates": gates}, args.json, f"accept DENIED {item_id}\n{gates}")
+        emit(
+            {"ok": False, "gates": gates},
+            args.json,
+            f"accept DENIED {item_id}\n{gates}",
+        )
         return 1
 
+    if not ok and args.force:
+        gates["forced"] = True
+
+    # 12) Only after gates: mark ACCEPTED; DOD checkbox only with --update-dod.
     item["state"] = "ACCEPTED"
     item["acceptance_commit"] = head
     item["accepted_at"] = utc_now()
     if args.pr:
         item["acceptance_pr"] = args.pr
+    # Clear proof-debt justification if present.
+    just = item.get("justification") or ""
+    if "proof_debt" in just:
+        item["justification"] = None
     hist = list(item.get("history") or [])
     hist.append(
         {
             "at": utc_now(),
             "event": "accept",
-            "detail": f"commit={head} branch={branch}",
+            "detail": f"commit={head} branch={branch} gates_ok={not gates.get('forced')}",
         }
     )
     item["history"] = hist[-50:]
+    # Path refs audit + gate pass: pack-backed accept counts as located evidence.
+    path_audit = audit_evidence_paths(item)
+    if path_audit.get("status") in {"missing", "unverified", "n/a"}:
+        item["evidence_audit"] = {
+            "status": "ok",
+            "notes": (
+                f"accepted via fail-closed gates; path_audit={path_audit.get('status')}; "
+                "evidence pack verify_result+criteria present"
+            ),
+        }
+    else:
+        item["evidence_audit"] = path_audit
 
-    # Flip DOD.md checkbox only when accepting for real on main (or forced).
-    if args.update_dod and (on_main or args.force):
+    if args.update_dod and (on_main or args.force or args.allow_non_main):
         _flip_dod_checkbox(item, checked=True)
+        item["dod_checked"] = True
 
-    item["dod_checked"] = True if args.update_dod else item.get("dod_checked")
     save_manifest(manifest)
 
     state = load_state()
     if state.get("active_item_id") == item_id:
         state["active_item_id"] = None
-        state["resume_step"] = None
+        state["resume_step"] = "next"
+        state["next_step"] = "next"
         state["phase"] = "audit"
     state["metrics"] = metrics_from_items(list(manifest.get("items") or []))
     nxt = select_next(list(manifest.get("items") or []))
@@ -1236,20 +1927,63 @@ def cmd_audit(args: argparse.Namespace) -> int:
             if "ORPHANED_FROM_DOD" not in str(it.get("justification") or ""):
                 divergences.append({"type": "orphan_manifest_item", "id": it["id"]})
 
+    # Proof debt inventory (do not mass-uncheck; report only).
+    proof_debt_items: list[dict[str, Any]] = []
+    for it in items:
+        if is_proof_debt(it):
+            ea = it.get("evidence_audit") or audit_evidence_paths(it)
+            it["evidence_audit"] = ea
+            proof_debt_items.append(
+                {
+                    "id": it["id"],
+                    "dod_checked": it.get("dod_checked"),
+                    "state": it.get("state"),
+                    "evidence_audit": ea.get("status"),
+                    "reason": (
+                        "claimed_checked_not_audited"
+                        if it.get("dod_checked") and not is_audited_accepted(it)
+                        else "accepted_weak_evidence"
+                    ),
+                }
+            )
+            if it.get("dod_checked") and it.get("state") == "ACCEPTED":
+                if ea.get("status") in {"missing", "unverified"}:
+                    divergences.append(
+                        {
+                            "type": "proof_debt_claimed_without_evidence",
+                            "id": it["id"],
+                            "audit": ea,
+                        }
+                    )
+
     save_manifest(manifest)
     m = metrics_from_items(items)
+    # Audit fails closed on divergences; proof_debt alone is informational ok=false
+    # only when divergences exist (proof debt items may already create divergences).
     payload = {
         "ok": len(divergences) == 0,
         "divergence_count": len(divergences),
         "divergences": divergences[:200],
         "metrics": m,
+        "proof_debt_count": len(proof_debt_items),
+        "proof_debt_sample": proof_debt_items[:50],
         "parsed_count": len(parsed),
         "manifest_count": len(items),
+        "note": (
+            "claimed_checked is not audited_accepted; "
+            "do not treat [x] alone as ACCEPTED"
+        ),
     }
-    append_log("audit", divergence_count=len(divergences))
+    append_log(
+        "audit",
+        divergence_count=len(divergences),
+        proof_debt=len(proof_debt_items),
+    )
     human = (
-        f"audit: divergences={len(divergences)} parsed={len(parsed)} "
-        f"manifest={len(items)} acceptance={m['acceptance_pct']}%"
+        f"audit: divergences={len(divergences)} proof_debt={len(proof_debt_items)} "
+        f"parsed={len(parsed)} manifest={len(items)} "
+        f"audited_accepted={m['audited_accepted']} claimed={m['claimed_checked']} "
+        f"acceptance={m['acceptance_pct']}%"
     )
     emit(payload, args.json, human)
     return 0 if payload["ok"] else 1
@@ -1316,7 +2050,9 @@ def cmd_report(args: argparse.Namespace) -> int:
     human = (
         f"DOD Convergence Report — {report['campaign_id']}\n"
         f"phase={report['phase']} branch={report['branch']} sha={report['main_sha']}\n"
-        f"total={m['total']} ACCEPTED={m['accepted']} ({m['acceptance_pct']}%) "
+        f"total={m['total']} audited_accepted={m['audited_accepted']} "
+        f"({m['acceptance_pct']}%) claimed_checked={m['claimed_checked']} "
+        f"proof_debt={m['proof_debt']} state_ACCEPTED={m['accepted_state']} "
         f"VERIFIED={m['verified']} IN_PROGRESS={m['in_progress']} OPEN={m['open']} "
         f"blocked={m['blocked']} deferred={m['deferred']}\n"
         f"active={report['active_item']}\n"
@@ -1412,6 +2148,12 @@ def build_parser() -> argparse.ArgumentParser:
     st.set_defaults(func=cmd_status)
 
     nx = sub.add_parser("next", parents=[common], help="Select next eligible item")
+    nx.add_argument(
+        "--max-items",
+        type=int,
+        default=1,
+        help="Return up to N eligible items (workflow batch / skip blocked)",
+    )
     nx.set_defaults(func=cmd_next)
 
     stt = sub.add_parser("start", parents=[common], help="Start work on item")
@@ -1422,7 +2164,11 @@ def build_parser() -> argparse.ArgumentParser:
     vf = sub.add_parser("verify", parents=[common], help="Verify item acceptance criteria")
     vf.add_argument("item_id")
     vf.add_argument("--allow-missing-criteria", action="store_true")
-    vf.add_argument("--mark-if-empty", action="store_true")
+    vf.add_argument(
+        "--mark-if-empty",
+        action="store_true",
+        help="Deprecated: empty verify always fails (flag ignored for success)",
+    )
     vf.add_argument("--timeout", type=int, default=600)
     vf.set_defaults(func=cmd_verify)
 
@@ -1431,9 +2177,38 @@ def build_parser() -> argparse.ArgumentParser:
     ac.add_argument("--pr", default=None)
     ac.add_argument("--update-dod", action="store_true")
     ac.add_argument("--allow-non-main", action="store_true")
-    ac.add_argument("--allow-missing-evidence", action="store_true")
+    ac.add_argument(
+        "--allow-missing-evidence",
+        action="store_true",
+        help="Legacy: softens missing pack dir only; complete pack still required",
+    )
     ac.add_argument("--force", action="store_true")
     ac.add_argument("--force-from-state", action="store_true")
+    ac.add_argument(
+        "--skip-ci-gate",
+        action="store_true",
+        help="Harness-only: skip ci_status.json gate",
+    )
+    ac.add_argument(
+        "--skip-full-suite-gate",
+        action="store_true",
+        help="Harness-only: skip full_suite_status.json when required",
+    )
+    ac.add_argument(
+        "--skip-review-gate",
+        action="store_true",
+        help="Harness-only: skip review_status.json gate",
+    )
+    ac.add_argument(
+        "--skip-divergence-check",
+        action="store_true",
+        help="Harness-only: skip DOD/manifest divergence gate",
+    )
+    ac.add_argument(
+        "--skip-independent-review",
+        action="store_true",
+        help="Harness-only: skip independent_review.md gate",
+    )
     ac.set_defaults(func=cmd_accept)
 
     bl = sub.add_parser("block", parents=[common], help="Register structured blocker")

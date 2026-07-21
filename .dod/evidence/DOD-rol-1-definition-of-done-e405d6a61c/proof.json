@@ -1,0 +1,26 @@
+{
+  "at": "2026-07-21T12:55:27.584803+00:00",
+  "ok": true,
+  "ms": 442.8806999999324,
+  "main_merge": "ae5302a3e6b5ca88b6dde56e34c0e9287c3c529f",
+  "pr": 75,
+  "ci_run": "29831727568",
+  "ci_conclusion": "success",
+  "details": {
+    "physical_rows": 2085,
+    "canonical_entities": 1093,
+    "sheet_name": "Entes Públicos SC",
+    "path": "/mnt/d/extra-consultoria-continue-02-main/Extra - alvos de licitação. R-0.xlsx",
+    "sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+    "canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396",
+    "selection_rule": "exact_basename",
+    "header": "Razão Social CNPJ (8 dígitos) Município Código IBGE Natureza Jurídica Cód. Natureza Latitude Longitude Distância de Florianópolis (km) Raio 200km?",
+    "outside_radius": 992,
+    "unresolved_rows": 0,
+    "seed_path_resolved": "/mnt/d/extra-consultoria-continue-02-main/Extra - alvos de licitação. R-0.xlsx",
+    "expected_canonical_entities": 1093,
+    "expected_canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396"
+  },
+  "adversarial_qa": "docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-02/tracks/planilha-clean-pr-adversarial-qa.md",
+  "criteria_score": "17/17 PASS_FOR_MERGE"
+}

@@ -1,0 +1,1 @@
+# Evidence: planilha-alvo strong validation\n\nACCEPTED only after PR #75 merge + CI green + independent adversarial QA.\n
