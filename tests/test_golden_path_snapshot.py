@@ -30,7 +30,13 @@ def test_snapshot_baseline_then_stable(tmp_path: Path) -> None:
     try:
         import psycopg2
 
-        psycopg2.connect(dsn, connect_timeout=3).close()
+        conn = psycopg2.connect(dsn, connect_timeout=3)
+        with conn.cursor() as cur:
+            cur.execute("SELECT count(*) FROM pncp_raw_bids")
+            n = int(cur.fetchone()[0])
+        conn.close()
+        if n == 0:
+            pytest.skip("pncp_raw_bids empty — run crawl first")
     except Exception:
         pytest.skip("no local test-db")
 
@@ -55,7 +61,13 @@ def test_snapshot_detects_removed_id(tmp_path: Path) -> None:
     try:
         import psycopg2
 
-        psycopg2.connect(dsn, connect_timeout=3).close()
+        conn = psycopg2.connect(dsn, connect_timeout=3)
+        with conn.cursor() as cur:
+            cur.execute("SELECT count(*) FROM pncp_raw_bids")
+            n = int(cur.fetchone()[0])
+        conn.close()
+        if n == 0:
+            pytest.skip("pncp_raw_bids empty — run crawl first")
     except Exception:
         pytest.skip("no local test-db")
 

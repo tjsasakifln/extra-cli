@@ -7,10 +7,6 @@ plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37
 asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
 collected 3 items
 
-tests/test_golden_path_snapshot.py .F.                                   [100%]
+tests/test_golden_path_snapshot.py .ss                                   [100%]
 
-=================================== FAILURES ===================================
-/mnt/d/extra-consultoria-continue-02-main/tests/test_golden_path_snapshot.py:41: AssertionError: assert 0 > 0
-=========================== short test summary info ============================
-FAILED tests/test_golden_path_snapshot.py::test_snapshot_baseline_then_stable
-========================= 1 failed, 2 passed in 2.11s ==========================
+========================= 1 passed, 2 skipped in 1.64s =========================

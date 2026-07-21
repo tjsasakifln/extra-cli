@@ -425,7 +425,7 @@ def run_snapshot_reconciliation(
     Fail-closed on DB errors or empty current set when table exists with schema.
     """
     t0 = time.perf_counter()
-    root = project_root or _PROJECT_ROOT
+    _ = project_root or _PROJECT_ROOT  # reserved for future seed-scoped snapshots
     out_dir = snapshot_dir or (_OUTPUT_DIR / "golden-path" / "snapshots")
     out_dir.mkdir(parents=True, exist_ok=True)
     prev_path = out_dir / "editais-snapshot-prev.json"
@@ -463,6 +463,15 @@ def run_snapshot_reconciliation(
         ids_sha = hashlib.sha256(ids_payload).hexdigest()
         details["current_count"] = len(current)
         details["ids_sha256"] = ids_sha
+        if len(current) == 0:
+            details["error"] = "pncp_raw_bids returned zero active rows; cannot reconcile editais snapshot"
+            return StepRecord(
+                step="snapshot_reconciliation",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error=details["error"],
+                details=details,
+            )
 
         curr_doc = {
             "table": "pncp_raw_bids",
