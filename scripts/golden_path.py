@@ -287,6 +287,8 @@ class RunRecord:
     sources: list[SourceRecord] = field(default_factory=list)
     reports: list[ReportRecord] = field(default_factory=list)
     freshness: FreshnessRecord | None = None
+    # DoD §12.1 — always populated by _save_final_ledger
+    meta: dict[str, Any] | None = None
 
 
 def collect_run_metadata(*, dsn: str | None = None) -> dict[str, Any]:
@@ -1466,8 +1468,20 @@ def _save_final_ledger(
     freshness: FreshnessRecord | None,
     wall_start: float,
     ledger_path_str: str | None,
+    *,
+    dsn: str | None = None,
 ) -> None:
     wall_dur = (time.monotonic() - wall_start) * 1000
+    meta = collect_run_metadata(dsn=dsn)
+    for step in steps:
+        if step.step == "validate_target_spreadsheet" and isinstance(step.details, dict):
+            sha = step.details.get("sha256")
+            if sha:
+                meta["spreadsheet_sha256"] = sha
+            cids = step.details.get("canonical_ids_sha256")
+            if cids:
+                meta["canonical_ids_sha256"] = cids
+            break
     record = RunRecord(
         run_id=run_id,
         timestamp=timestamp,
@@ -1477,6 +1491,7 @@ def _save_final_ledger(
         sources=sources,
         reports=reports,
         freshness=freshness,
+        meta=meta,
     )
     data = _load_ledger()
     run_list = _normalize_ledger_runs(data.get("runs", []))
@@ -1485,6 +1500,7 @@ def _save_final_ledger(
     _save_ledger(run_list, path)
     _echo(f"\nLedger salvo:  {path}")
     _echo(f"Log salvo:     {_log_file}")
+    _echo(f"  meta.git_sha={meta.get('git_sha')} schema={meta.get('schema_version')}")
 
 
 # ---------------------------------------------------------------------------
