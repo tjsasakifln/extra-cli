@@ -1,7 +1,6 @@
 """DoD §12.1 — canonical golden path command + metadata + fail-closed."""
 from __future__ import annotations
 
-import json
 import subprocess
 import sys
 from pathlib import Path
@@ -9,11 +8,11 @@ from pathlib import Path
 import pytest
 
 from scripts.golden_path import (
-    collect_run_metadata,
-    evaluate_run_outcome,
-    SourceRecord,
     FreshnessRecord,
     ReportRecord,
+    SourceRecord,
+    collect_run_metadata,
+    evaluate_run_outcome,
 )
 
 
@@ -110,3 +109,43 @@ def test_apply_migrations_function_exists_and_uses_apply_range(
     assert calls[0][0] == "postgresql://test@localhost/db"
     assert calls[0][2] == "upgrade"
     assert calls[0][3] is None  # all migrations
+
+
+def test_help_documents_skip_seeds() -> None:
+    r = subprocess.run(
+        [sys.executable, "-m", "scripts.golden_path", "--help"],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert r.returncode == 0
+    assert "skip-seeds" in (r.stdout + r.stderr)
+
+
+def test_apply_seeds_runs_seed_scripts(monkeypatch: pytest.MonkeyPatch) -> None:
+    """DoD: golden path applies seed scripts under db/seed/."""
+    from scripts import golden_path as gp
+
+    ran: list[str] = []
+
+    def fake_run(cmd, **kwargs):
+        ran.append(str(cmd[1]) if len(cmd) > 1 else str(cmd))
+
+        class R:
+            returncode = 0
+            stderr = ""
+            stdout = "ok"
+
+        return R()
+
+    monkeypatch.setattr(gp.subprocess, "run", fake_run)
+    ok, dur, summary = gp.apply_seeds("postgresql://test@localhost/db")
+    assert ok is True
+    assert dur >= 0
+    assert len(summary["ran"]) == 2
+    assert not summary["failed"]
+    assert not summary["missing"]
+    assert any("001_sc_entities" in p for p in summary["ran"])
+    assert any("002_entity_aliases" in p for p in summary["ran"])
+    assert len(ran) == 2

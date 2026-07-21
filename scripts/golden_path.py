@@ -4,10 +4,11 @@
 Executa a sequencia completa e idempotente:
   1. Verifica conectividade com PostgreSQL
   2. Aplica migrations versionadas (db/migrations via scripts.ops.apply_migrations)
-  3. Crawl das fontes prioritarias (pncp, pcp, compras_gov) com
+  3. Aplica seeds determinísticos (db/seed/001_sc_entities + 002_entity_aliases)
+  4. Crawl das fontes prioritarias (pncp, pcp, compras_gov) com
      timeout, retry 3x e backoff exponencial + jitter
-  4. Valida freshness gate
-  5. Gera relatorios (PDF executivo + Excel rastreavel)
+  5. Valida freshness gate
+  6. Gera relatorios (PDF executivo + Excel rastreavel)
 
 Cada etapa e registrada em um ledger JSON para rastreabilidade.
 
@@ -507,6 +508,62 @@ def apply_migrations(dsn: str) -> tuple[bool, float, dict[str, list[str]]]:
         return False, dur, empty
 
 
+_SEED_SCRIPTS: tuple[str, ...] = (
+    "db/seed/001_sc_entities.py",
+    "db/seed/002_entity_aliases.py",
+)
+
+
+def apply_seeds(dsn: str) -> tuple[bool, float, dict[str, list[str]]]:
+    """Run deterministic seed scripts (entities + aliases).
+
+    Mirrors ``scripts.ops.run_full_suite.apply_seeds``. Returns
+    (ok, duration_ms, summary) with ``ran`` / ``missing`` / ``failed`` lists.
+    """
+    start = time.monotonic()
+    summary: dict[str, list[str]] = {"ran": [], "missing": [], "failed": []}
+    env = os.environ.copy()
+    env["DATABASE_URL"] = dsn
+    env["LOCAL_DATALAKE_DSN"] = dsn
+    try:
+        for rel in _SEED_SCRIPTS:
+            path = _PROJECT_ROOT / rel
+            if not path.is_file():
+                summary["missing"].append(rel)
+                _logger.warning("Seed script missing: %s", rel)
+                continue
+            # Trusted argv: fixed sys.executable + in-repo seed script path.
+            proc = subprocess.run(  # noqa: S603
+                [sys.executable, str(path)],
+                cwd=str(_PROJECT_ROOT),
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=600,
+                check=False,
+            )
+            if proc.returncode != 0:
+                summary["failed"].append(rel)
+                _logger.error(
+                    "Seed failed %s rc=%s stderr=%s",
+                    rel,
+                    proc.returncode,
+                    (proc.stderr or "")[-500:],
+                )
+                dur = (time.monotonic() - start) * 1000
+                return False, dur, summary
+            summary["ran"].append(rel)
+        dur = (time.monotonic() - start) * 1000
+        # Missing seed scripts is a hard failure for the canonical path.
+        if summary["missing"]:
+            return False, dur, summary
+        return True, dur, summary
+    except Exception as exc:
+        dur = (time.monotonic() - start) * 1000
+        _logger.error("Seed apply failed: %s", exc)
+        return False, dur, summary
+
+
 # ---------------------------------------------------------------------------
 # Step 2: Crawl Sources (with timeout, retry, backoff + jitter)
 # ---------------------------------------------------------------------------
@@ -885,6 +942,11 @@ def parse_args() -> argparse.Namespace:
         help="Skip applying db/migrations (not canonical; use only when schema already applied)",
     )
     p.add_argument(
+        "--skip-seeds",
+        action="store_true",
+        help="Skip db/seed scripts (not canonical; use only when seed already loaded)",
+    )
+    p.add_argument(
         "--strict",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -1045,9 +1107,58 @@ def main() -> int:
         )
 
     # =========================================================================
+    # Step 1c: Apply seeds (canonical — DoD §12.1)
+    # =========================================================================
+    if args.skip_seeds:
+        _echo("\n[1c/6] Seeds SKIPPED (--skip-seeds)", "warn")
+        steps.append(
+            StepRecord(
+                step="apply_seeds",
+                status="skipped",
+                duration_ms=0.0,
+                details={"reason": "skip-seeds"},
+            )
+        )
+    else:
+        _echo("\n[1c/6] Aplicando seeds (db/seed)...", "header")
+        seed_ok, seed_dur, seed_summary = apply_seeds(dsn)
+        steps.append(
+            StepRecord(
+                step="apply_seeds",
+                status="pass" if seed_ok else "fail",
+                duration_ms=seed_dur,
+                details={
+                    "ran": list(seed_summary.get("ran") or []),
+                    "missing": list(seed_summary.get("missing") or []),
+                    "failed": list(seed_summary.get("failed") or []),
+                },
+            )
+        )
+        if not seed_ok:
+            _echo("  Seeds FALHARAM (fail-closed).", "error")
+            _save_final_ledger(
+                run_id,
+                timestamp,
+                "failed",
+                steps,
+                source_records,
+                report_records,
+                freshness_record,
+                wall_start,
+                args.ledger_output,
+            )
+            return 1
+        _echo(
+            "  Seeds OK "
+            f"(ran={len(seed_summary.get('ran') or [])} "
+            f"{seed_dur:.0f}ms)",
+            "ok",
+        )
+
+    # =========================================================================
     # Step 2: Crawl Sources
     # =========================================================================
-    _echo("\n[2/5] Crawl das fontes de dados...", "header")
+    _echo("\n[2/6] Crawl das fontes de dados...", "header")
     _echo(f"  Fontes: {', '.join(s.name for s in selected_sources)}")
     _echo("  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter")
 

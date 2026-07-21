@@ -1,0 +1,27 @@
+{
+  "at": "2026-07-21T02:24:15.055351+00:00",
+  "run1": {
+    "ok": true,
+    "ms": 1778.9084039995942,
+    "summary": {
+      "ran": [
+        "db/seed/001_sc_entities.py",
+        "db/seed/002_entity_aliases.py"
+      ],
+      "missing": [],
+      "failed": []
+    }
+  },
+  "run2": {
+    "ok": true,
+    "ms": 1893.608503998621,
+    "summary": {
+      "ran": [
+        "db/seed/001_sc_entities.py",
+        "db/seed/002_entity_aliases.py"
+      ],
+      "missing": [],
+      "failed": []
+    }
+  }
+}

@@ -898,7 +898,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Existe um comando canônico de golden path. Evidência: `python3 -m scripts.golden_path --help` exit 0 · `scripts/golden_path.py` · `make golden-path` / `golden-path-quick` · `docs/DEVELOPMENT.md` §2 · AGENTS.md · tests/test_golden_path_*.py · `.dod/evidence/DOD-rol-1-definition-of-done-b42bd49e1d/`.
 - [x] O golden path sobe ou valida o banco. Evidência: `scripts/golden_path.py::check_db` (live OK @ PG16:5544) · `make golden-path` → `db-up` + `bootstrap` · `.dod/evidence/DOD-rol-1-definition-of-done-16267c473a/`.
 - [x] O golden path aplica migrations. Evidência: `scripts.golden_path.apply_migrations` → `scripts.ops.apply_migrations.apply_range` (upgrade idempotente) · dual-run PG16:5544 62 skipped re-run · `tests/test_golden_path_canonical.py` · `.dod/evidence/DOD-rol-1-definition-of-done-7aa1d9bfc5/`.
-- [ ] O golden path aplica seed.
+- [x] O golden path aplica seed. Evidência: `scripts.golden_path.apply_seeds` → `db/seed/001_sc_entities.py` + `002_entity_aliases.py` · dual-run PG16:5544 · `tests/test_golden_path_canonical.py` · `.dod/evidence/DOD-rol-1-definition-of-done-e9a3ea535d/`.
 - [ ] O golden path importa ou valida a planilha-alvo.
 - [ ] O golden path executa fontes mínimas.
 - [ ] O golden path persiste dados.
