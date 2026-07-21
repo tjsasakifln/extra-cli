@@ -1,0 +1,20 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-e9a3ea535d",
+  "commands": [
+    {
+      "cmd": "python3 -c \"from scripts.golden_path import apply_seeds; import os; ok,_,s=apply_seeds(os.environ['DATABASE_URL']); raise SystemExit(0 if ok else 1)\"",
+      "exit_code": 0,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_golden_path_canonical.py",
+      "exit_code": 0,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64528  64339   0.3%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 8 passed in 52.24s ==============================\n"
+    }
+  ],
+  "ok": true,
+  "notes": []
+}
