@@ -239,12 +239,6 @@ def main(argv: list[str] | None = None) -> int:
     mig = apply_migrations(dsn)
     report["steps"]["migrations"] = mig
     # seeds (public fixture via resolve_default_seed_path)
-    seed_r = subprocess.run(  # noqa: S603
-        [sys.executable, "-m", "scripts.golden_path", "--skip-freshness", "--allow-zero",
-         "--skip-migrations", "--execute-coverage-only", "--dsn", dsn],
-        cwd=str(REPO), env={**os.environ, "LOCAL_DATALAKE_DSN": dsn},
-        text=True, capture_output=True, check=False, timeout=180,
-    )
     # Prefer direct seed scripts for entities
     seed1 = subprocess.run(  # noqa: S603
         [sys.executable, str(REPO / "db" / "seed" / "001_sc_entities.py"), "--dsn", dsn],
