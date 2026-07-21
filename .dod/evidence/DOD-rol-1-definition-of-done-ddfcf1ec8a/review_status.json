@@ -1,0 +1,18 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-ddfcf1ec8a",
+  "reviewer": "adversarial-qa-continue-03",
+  "at": "2026-07-21T23:45:00Z",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "requirement": "O golden path gera PDF.",
+  "dod_line": 913,
+  "scope": "generic_panorama_pdf_only",
+  "does_not_accept": [
+    "relat\u00f3rio de editais",
+    "relat\u00f3rio de contratos",
+    "relat\u00f3rio de concorrentes",
+    "relat\u00f3rio de refer\u00eancias de valores"
+  ],
+  "pending_changes_requested": false,
+  "head_sha": "432da028f1fed7d70d9d489e689cf3afa350571d"
+}
