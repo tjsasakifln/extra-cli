@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+
 # real_db: module needs real PostgreSQL when REQUIRE_REAL_DB=1 (full suite).
 # Registered here so pytest.ini does not need a new global marker list entry
 # if older configs omit it (unknown-mark warning only).
