@@ -1,29 +1,35 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
-  "updated_at": "2026-07-21T13:16:12Z",
+  "updated_at": "2026-07-21T13:18:35Z",
   "active_item_id": null,
   "active_run_id": "run-20260721T022411Z",
   "active_branch": "campaign/continue-02-accept-planilha",
   "main_sha": "41f73d167766947b8250962fd2f831479b478d8b",
   "phase": "converge",
-  "next_eligible_id": "DOD-rol-1-definition-of-done-9c996cb14e",
+  "next_eligible_id": "DOD-rol-1-definition-of-done-7d2ae13087",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1356,
-    "accepted": 313,
-    "verified": 1,
+    "accepted": 314,
+    "accepted_state": 314,
+    "claimed_checked": 317,
+    "audited_accepted": 6,
+    "evidence_located": 115,
+    "evidence_reproduced": 7,
+    "proof_debt": 313,
+    "verified": 0,
     "in_progress": 0,
     "implemented": 0,
     "open": 1041,
     "blocked": 1,
     "deferred": 0,
-    "acceptance_pct": 23.08,
+    "acceptance_pct": 0.44,
+    "claimed_pct": 23.38,
     "by_state": {
-      "ACCEPTED": 313,
+      "ACCEPTED": 314,
       "OPEN": 1041,
-      "BLOCKED_HUMAN": 1,
-      "VERIFIED": 1
+      "BLOCKED_HUMAN": 1
     },
     "by_category": {
       "ACCEPTED_EXISTING": 235,
@@ -37,9 +43,9 @@
       "HUMAN_ACCEPTANCE": 34,
       "CREDENTIAL_REQUIRED": 16
     },
-    "dod_checked_count": 316
+    "dod_checked_count": 317
   },
-  "resume_step": "next_persiste_dados_or_block_on_schema",
+  "resume_step": "accept",
   "notes": "CONTINUE-02 progress: planilha ACCEPTED (#75); harness fail-closed (#76); fontes mínimas ACCEPTED (#77) with live execution proof. Live crawls hit persist/schema issues (pipeline_runs missing, upsert ON CONFLICT) — these block \"persiste dados\" not \"executa fontes\". Public exposure HIGH commercial materials remain human decision. Billing RESOLVED.",
   "billing_blocker": {
     "status": "RESOLVED",
