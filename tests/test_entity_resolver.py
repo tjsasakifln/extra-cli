@@ -17,6 +17,8 @@ from scripts.lib.entity_resolver import (
     _normalize_cnpj,
 )
 
+pytestmark = pytest.mark.real_db
+
 ACTUAL_DSN = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN") or ""
 
 
