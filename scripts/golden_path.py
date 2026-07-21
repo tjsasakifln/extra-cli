@@ -113,6 +113,57 @@ SOURCES: list[SourceDef] = [
     ),
 ]
 
+ESSENTIAL_SOURCE_NAMES: tuple[str, ...] = tuple(s.name for s in SOURCES if s.essential)
+
+
+def essential_sources() -> list[SourceDef]:
+    """Return the minimum essential source adapters for the golden path."""
+    return [s for s in SOURCES if s.essential]
+
+
+def assert_essential_sources_executed(
+    source_records: list[SourceRecord],
+    *,
+    require_success: bool = False,
+) -> tuple[bool, dict[str, Any]]:
+    """Verify that every essential source was executed (not merely configured).
+
+    Execution proof = a SourceRecord exists with attempts >= 1 and status in
+    {success, success_zero, fail}. "fail" still proves the adapter ran;
+    configuration-list smoke tests do not.
+    """
+    by_name = {r.name: r for r in source_records}
+    missing: list[str] = []
+    not_executed: list[str] = []
+    executed: dict[str, dict[str, Any]] = {}
+    for name in ESSENTIAL_SOURCE_NAMES:
+        rec = by_name.get(name)
+        if rec is None:
+            missing.append(name)
+            continue
+        attempts = int(rec.attempts or 0)
+        if attempts < 1:
+            not_executed.append(name)
+            continue
+        if require_success and rec.status not in {"success", "success_zero"}:
+            not_executed.append(name)
+            continue
+        executed[name] = {
+            "status": rec.status,
+            "attempts": attempts,
+            "duration_ms": rec.duration_ms,
+            "metrics": rec.metrics or {},
+            "error": rec.error,
+        }
+    ok = not missing and not not_executed and len(executed) == len(ESSENTIAL_SOURCE_NAMES)
+    return ok, {
+        "essential": list(ESSENTIAL_SOURCE_NAMES),
+        "executed": executed,
+        "missing": missing,
+        "not_executed": not_executed,
+        "require_success": require_success,
+    }
+
 
 def _backoff_delay(attempt: int, base: float = 4.0, max_delay: float = 60.0) -> float:
     """Exponential backoff with jitter."""
@@ -860,6 +911,8 @@ def crawl_source(
             if result.returncode == 0:
                 # Parse structured output from monitor.py --output-json
                 resumed_live = False
+                adapter_failed = False
+                adapter_error: str | None = None
                 if output_json.exists():
                     try:
                         data = json.loads(output_json.read_text())
@@ -873,9 +926,14 @@ def crawl_source(
                             "persisted": summary.get("total_persisted_opportunities", 0),
                             "external_failures": summary.get("total_external_failures", 0),
                         }
-                        # Watermark resume: prior live crawl committed for same scope.
-                        # Not "success_zero" — pages_fetched on watermark proves live work.
+                        # Honor per-source status even when process exit code is 0.
                         for row in data.get("results") or []:
+                            if str(row.get("source") or "") != source.name:
+                                continue
+                            st = str(row.get("status") or "").lower()
+                            if st in {"failed", "fail", "error"}:
+                                adapter_failed = True
+                                adapter_error = (row.get("error_message") or st)[:400]
                             meta = row.get("metadata") or {}
                             wm = meta.get("watermark") or {}
                             ck = (wm.get("checkpoint") or {}) if isinstance(wm, dict) else {}
@@ -890,8 +948,33 @@ def crawl_source(
                                 metrics["fetched"] = pages
                                 metrics["resumed_from_watermark"] = 1
                                 metrics["pages_fetched_watermark"] = pages
+                        if int(summary.get("sources_failed") or 0) > 0 and not adapter_failed:
+                            # Summary indicates failure for this run
+                            for row in data.get("results") or []:
+                                if str(row.get("status") or "").lower() in {
+                                    "failed",
+                                    "fail",
+                                    "error",
+                                }:
+                                    adapter_failed = True
+                                    adapter_error = (row.get("error_message") or "sources_failed")[:400]
+                                    break
                     except (json.JSONDecodeError, KeyError, TypeError, ValueError):
                         pass
+
+                if adapter_failed:
+                    _echo(
+                        f"  FAIL {source.name}: adapter reported failure (fetched={metrics.get('fetched', 0)})",
+                        "warn",
+                    )
+                    return SourceRecord(
+                        name=source.name,
+                        status="fail",
+                        duration_ms=dur,
+                        attempts=attempts,
+                        metrics=metrics,
+                        error=adapter_error,
+                    )
 
                 fetched = int(metrics.get("fetched", 0) or 0)
                 # Exit 0 with zero records is success_zero, never silent "success"
@@ -1175,6 +1258,14 @@ def parse_args() -> argparse.Namespace:
         help=("Run only canonical planilha-alvo validation and write ledger (skips DB/migrations/seeds/crawl/reports)"),
     )
     p.add_argument(
+        "--execute-sources-only",
+        action="store_true",
+        help=(
+            "Run only essential source crawls + ledger "
+            "(requires DB; skips migrations/seeds/spreadsheet/freshness/reports)"
+        ),
+    )
+    p.add_argument(
         "--spreadsheet",
         default=None,
         help="Explicit path to target spreadsheet (must not be .backup unless allowed)",
@@ -1268,6 +1359,96 @@ def main() -> int:
             f"canonical={ss_details.get('canonical_entities')} "
             f"sha256={str(ss_details.get('sha256', ''))[:12]}… "
             f"{ss_dur:.0f}ms)",
+            "ok",
+        )
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
+        return 0
+
+    # Early path: execute essential sources only (DoD fontes mínimas proof)
+    if args.execute_sources_only:
+        run_id = f"gp-src-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        source_records: list[SourceRecord] = []
+        report_records: list[ReportRecord] = []
+        freshness_record: FreshnessRecord | None = None
+
+        dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
+        if not dsn:
+            try:
+                import config.settings as _cfg
+
+                dsn = _cfg.LOCAL_DATALAKE_DSN
+            except ImportError:
+                dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
+
+        ok_db, dur_db = check_db(dsn)
+        steps.append(
+            StepRecord(
+                step="db_connectivity",
+                status="pass" if ok_db else "fail",
+                duration_ms=dur_db,
+            )
+        )
+        if not ok_db:
+            _save_final_ledger(
+                run_id,
+                timestamp,
+                "failed",
+                steps,
+                source_records,
+                report_records,
+                freshness_record,
+                wall_start,
+                args.ledger_output,
+            )
+            return 1
+
+        source_names_arg = [s.strip() for s in args.sources.split(",") if s.strip()]
+        selected = [s for s in SOURCES if s.name in source_names_arg]
+        if not selected:
+            selected = essential_sources()
+        # Always ensure essentials included for this proof mode
+        selected_names = {s.name for s in selected}
+        for s in essential_sources():
+            if s.name not in selected_names:
+                selected.append(s)
+
+        _echo("\n[execute-sources-only] Executando fontes mínimas...", "header")
+        for src in selected:
+            output_json = _GOLDEN_PATH_DIR / f"crawl-{src.name}-{run_id}.json"
+            rec = crawl_source(src, dsn, output_json)
+            source_records.append(rec)
+
+        exec_ok, exec_details = assert_essential_sources_executed(source_records)
+        steps.append(
+            StepRecord(
+                step="execute_essential_sources",
+                status="pass" if exec_ok else "fail",
+                duration_ms=sum(r.duration_ms for r in source_records),
+                details=exec_details,
+            )
+        )
+        overall = "success" if exec_ok else "failed"
+        # If essentials executed but all failed adapters, still "executed" for this item;
+        # exit non-zero only when not executed.
+        _save_final_ledger(
+            run_id,
+            timestamp,
+            overall,
+            steps,
+            source_records,
+            report_records,
+            freshness_record,
+            wall_start,
+            args.ledger_output,
+        )
+        if not exec_ok:
+            _echo(f"  Fontes mínimas NÃO executadas: {exec_details}", "error")
+            return 1
+        _echo(
+            "  Fontes mínimas executadas: "
+            + ", ".join(f"{n}={v['status']}/a{v['attempts']}" for n, v in exec_details["executed"].items()),
             "ok",
         )
         _echo(f"  Ledger: {args.ledger_output}", "ok")
