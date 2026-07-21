@@ -900,7 +900,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path aplica migrations. Evidência: `scripts.golden_path.apply_migrations` → `scripts.ops.apply_migrations.apply_range` (upgrade idempotente) · dual-run PG16:5544 62 skipped re-run · `tests/test_golden_path_canonical.py` · `.dod/evidence/DOD-rol-1-definition-of-done-7aa1d9bfc5/`.
 - [x] O golden path aplica seed. Evidência: `scripts.golden_path.apply_seeds` → `db/seed/001_sc_entities.py` + `002_entity_aliases.py` · dual-run PG16:5544 · `tests/test_golden_path_canonical.py` · `.dod/evidence/DOD-rol-1-definition-of-done-e9a3ea535d/`.
 - [x] O golden path importa ou valida a planilha-alvo. Evidência: PR #75 merge `ae5302a` · CI run `29831727568` SUCCESS · `load_canonical_universe` physical_rows=2085 canonical_entities=1093 · canonical_ids_sha256 `0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396` · CLI `python3 -m scripts.golden_path --validate-spreadsheet-only` ledger · `tests/test_golden_path_canonical.py` · adversarial PASS_FOR_MERGE · `.dod/evidence/DOD-rol-1-definition-of-done-e405d6a61c/`.
-- [ ] O golden path executa fontes mínimas.
+- [x] O golden path executa fontes mínimas. Evidência: PR #77 merge `41f73d1` · CI `29833397283` SUCCESS · CLI `--execute-sources-only` ledger (pncp/pcp/compras_gov attempts≥1) · `assert_essential_sources_executed` · `tests/test_golden_path_fontes_minimas.py` · `.dod/evidence/DOD-rol-1-definition-of-done-faaf47c790/` · nota: fail/success_zero ainda contam como execução; persistência é item separado.
 - [ ] O golden path persiste dados.
 - [ ] O golden path executa freshness gate.
 - [ ] O golden path calcula cobertura.

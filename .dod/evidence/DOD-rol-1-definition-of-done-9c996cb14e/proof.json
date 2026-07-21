@@ -1,0 +1,41 @@
+{
+  "at": "2026-07-21T13:39:11.719305+00:00",
+  "ok": true,
+  "details": {
+    "min_persisted_rows": 1,
+    "total_writes": 98,
+    "writers": [
+      "pcp"
+    ],
+    "per_source": {
+      "pncp": {
+        "inserted": 0,
+        "updated": 0,
+        "persisted": 0,
+        "writes": 0,
+        "status": "success"
+      },
+      "pcp": {
+        "inserted": 98,
+        "updated": 0,
+        "persisted": 0,
+        "writes": 98,
+        "status": "success"
+      },
+      "compras_gov": {
+        "inserted": 0,
+        "updated": 0,
+        "persisted": 0,
+        "writes": 0,
+        "status": "success_zero"
+      }
+    }
+  },
+  "environment": "docker extra-test-db :5433 clean migrations 61 applied + seed 2085",
+  "db_counts": {
+    "pncp_raw_bids": 566,
+    "sc_public_entities": 2085,
+    "pipeline_runs": 1
+  },
+  "note": "pcp inserted=98 proves write path; dirty 54399 smartlic DB blocked by incomplete schema"
+}

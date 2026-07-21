@@ -175,3 +175,26 @@ def test_help_documents_execute_sources_only() -> None:
     )
     assert r.returncode == 0
     assert "execute-sources-only" in (r.stdout + r.stderr)
+
+
+def test_assert_sources_persisted_requires_writes() -> None:
+    from scripts.golden_path import SourceRecord, assert_sources_persisted
+
+    empty = [SourceRecord(name="pncp", status="success", duration_ms=1, attempts=1, metrics={"fetched": 10})]
+    ok, d = assert_sources_persisted(empty)
+    assert ok is False
+    assert d["total_writes"] == 0
+
+    with_writes = [
+        SourceRecord(
+            name="pcp",
+            status="success",
+            duration_ms=1,
+            attempts=1,
+            metrics={"fetched": 107, "inserted": 98, "persisted": 0},
+        )
+    ]
+    ok, d = assert_sources_persisted(with_writes)
+    assert ok is True
+    assert d["total_writes"] == 98
+    assert "pcp" in d["writers"]
