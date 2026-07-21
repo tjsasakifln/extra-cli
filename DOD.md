@@ -912,7 +912,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O golden path gera Excel.
 - [ ] O golden path gera PDF.
 - [x] O golden path gera ledger.
-- [ ] O golden path gera logs.
+- [x] O golden path gera logs.
 - [ ] O golden path retorna exit code não zero em qualquer gate obrigatório.
 - [ ] O golden path pode ser reexecutado sem duplicação.
 - [ ] O golden path pode ser executado em ambiente limpo.
