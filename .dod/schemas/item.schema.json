@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra-consultoria.local/dod/item.schema.json",
+  "title": "DOD Convergence Item",
+  "type": "object",
+  "required": [
+    "id",
+    "text",
+    "section",
+    "category",
+    "state",
+    "evidence_type",
+    "dod_checked"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^DOD-[a-z0-9]+-[a-f0-9]{10}$" },
+    "text": { "type": "string", "minLength": 1 },
+    "section": { "type": "string" },
+    "subsection": { "type": ["string", "null"] },
+    "location": {
+      "type": "object",
+      "properties": {
+        "start_line": { "type": "integer", "minimum": 1 },
+        "end_line": { "type": "integer", "minimum": 1 },
+        "heading_path": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["start_line"]
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "MACHINE_ACTIONABLE",
+        "HUMAN_ACCEPTANCE",
+        "LIVE_OPERATION",
+        "EXTERNAL_DEPENDENCY",
+        "CREDENTIAL_REQUIRED",
+        "INFRASTRUCTURE_REQUIRED",
+        "VPS_PHASE",
+        "GOVERNANCE",
+        "DOCUMENTATION_WITH_PROOF",
+        "ACCEPTED_EXISTING"
+      ]
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "IN_PROGRESS",
+        "IMPLEMENTED",
+        "VERIFIED",
+        "ACCEPTED",
+        "BLOCKED_HUMAN",
+        "BLOCKED_CREDENTIAL",
+        "BLOCKED_EXTERNAL",
+        "BLOCKED_INFRA",
+        "BLOCKED_LIVE",
+        "DEFERRED_BY_DOD"
+      ]
+    },
+    "dod_checked": { "type": "boolean" },
+    "evidence_type": { "type": "string" },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "acceptance_commands": { "type": "array", "items": { "type": "string" } },
+    "tests": { "type": "array", "items": { "type": "string" } },
+    "files": { "type": "array", "items": { "type": "string" } },
+    "environment": { "type": "string" },
+    "needs_clean_db": { "type": "boolean" },
+    "needs_live_source": { "type": "boolean" },
+    "needs_human_eval": { "type": "boolean" },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "acceptance_commit": { "type": ["string", "null"] },
+    "acceptance_pr": { "type": ["string", "null"] },
+    "accepted_at": { "type": ["string", "null"] },
+    "justification": { "type": ["string", "null"] },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "at": { "type": "string" },
+          "event": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "content_fingerprint": { "type": "string" },
+    "evidence_audit": {
+      "type": ["object", "null"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["ok", "missing", "partial", "unverified", "n/a"]
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

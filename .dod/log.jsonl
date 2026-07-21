@@ -1,0 +1,2 @@
+{"at": "2026-07-21T01:35:04Z", "event": "scan", "stats": {"added": 1355}, "total": 1355, "accepted": 309}
+{"at": "2026-07-21T01:35:24Z", "event": "report", "path": ".dod/evidence/bootstrap-report.json"}

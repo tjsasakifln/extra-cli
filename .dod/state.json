@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "DOD-CONVERGENCE-EXTRA-01",
+  "updated_at": "2026-07-21T01:35:24Z",
+  "active_item_id": null,
+  "active_run_id": null,
+  "active_branch": "campaign/dod-convergence-extra-01",
+  "main_sha": "75e5653c4b1e338009f6e395d3ffa50066fc16dd",
+  "phase": "audit",
+  "next_eligible_id": "DOD-definition-of-done-extra-fd43ee57aa",
+  "last_report_path": ".dod/evidence/bootstrap-report.json",
+  "metrics": {
+    "total": 1355,
+    "accepted": 309,
+    "verified": 0,
+    "in_progress": 0,
+    "implemented": 0,
+    "open": 1046,
+    "blocked": 0,
+    "deferred": 0,
+    "acceptance_pct": 22.8,
+    "by_state": {
+      "ACCEPTED": 309,
+      "OPEN": 1046
+    },
+    "by_category": {
+      "ACCEPTED_EXISTING": 234,
+      "DOCUMENTATION_WITH_PROOF": 99,
+      "LIVE_OPERATION": 8,
+      "MACHINE_ACTIONABLE": 656,
+      "GOVERNANCE": 28,
+      "VPS_PHASE": 249,
+      "INFRASTRUCTURE_REQUIRED": 5,
+      "EXTERNAL_DEPENDENCY": 26,
+      "HUMAN_ACCEPTANCE": 34,
+      "CREDENTIAL_REQUIRED": 16
+    },
+    "dod_checked_count": 309
+  },
+  "resume_step": null,
+  "notes": "Initialized; awaiting first scan."
+}

@@ -1,0 +1,255 @@
+{
+  "generated_at": "2026-07-21T01:35:24Z",
+  "campaign_id": "DOD-CONVERGENCE-EXTRA-01",
+  "phase": "audit",
+  "main_sha": "75e5653c4b1e338009f6e395d3ffa50066fc16dd",
+  "branch": "campaign/dod-convergence-extra-01",
+  "metrics": {
+    "total": 1355,
+    "accepted": 309,
+    "verified": 0,
+    "in_progress": 0,
+    "implemented": 0,
+    "open": 1046,
+    "blocked": 0,
+    "deferred": 0,
+    "acceptance_pct": 22.8,
+    "by_state": {
+      "ACCEPTED": 309,
+      "OPEN": 1046
+    },
+    "by_category": {
+      "ACCEPTED_EXISTING": 234,
+      "DOCUMENTATION_WITH_PROOF": 99,
+      "LIVE_OPERATION": 8,
+      "MACHINE_ACTIONABLE": 656,
+      "GOVERNANCE": 28,
+      "VPS_PHASE": 249,
+      "INFRASTRUCTURE_REQUIRED": 5,
+      "EXTERNAL_DEPENDENCY": 26,
+      "HUMAN_ACCEPTANCE": 34,
+      "CREDENTIAL_REQUIRED": 16
+    },
+    "dod_checked_count": 309
+  },
+  "active_item": null,
+  "next_eligible": {
+    "id": "DOD-definition-of-done-extra-fd43ee57aa",
+    "text": "Suíte global completa verde. O workflow marcou `Test All (full suite)` como `skipped`; a execução local ampla encontrou dívida de ambiente/schema em views canônicas e testes dependentes de banco.",
+    "category": "MACHINE_ACTIONABLE"
+  },
+  "blocked_items": [],
+  "weak_accepted_sample": [
+    {
+      "id": "DOD-definition-of-done-extra-3291212c84",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-ea8d68c1d0",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-30700f5da5",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-b66ffceb51",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-7249b8dd2b",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-066ad585f6",
+      "audit": {
+        "status": "missing",
+        "notes": "missing=['output/session-evidence/official-acts-load-20260717.json']"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-aa33c98608",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-84020f8bef",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-a66931160b",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-852912a5cd",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-f672812320",
+      "audit": {
+        "status": "missing",
+        "notes": "missing=['epic/plano-executivo-30d']"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-fc8b10d101",
+      "audit": {
+        "status": "missing",
+        "notes": "missing=['competitors-top50.json']"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-6017ce0542",
+      "audit": {
+        "status": "missing",
+        "notes": "missing=['competitors-top50.json']"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-a6a71fbb1e",
+      "audit": {
+        "status": "missing",
+        "notes": "missing=['price-refs.json']"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-3db08b0b82",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-f97c473798",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-90808cf51b",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-85555a0f45",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-fe88acdb4d",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-1a2f1a46a7",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-0a24a76137",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-e1a7a37ac3",
+      "audit": {
+        "status": "missing",
+        "notes": "missing=['period.inicio/fim']"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-0c3d0fa59d",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-4556cd4742",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-ec5feedb10",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-f08f3220f5",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-5e270ced10",
+      "audit": {
+        "status": "unverified",
+        "notes": "checked in DOD but no parseable evidence path"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-86b4dd28a1",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-e1d5dedc2b",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    },
+    {
+      "id": "DOD-definition-of-done-extra-2bb1455144",
+      "audit": {
+        "status": "unverified",
+        "notes": "refs present but not path-like"
+      }
+    }
+  ],
+  "work_without_dod_effect_note": "Commits/files/stories are not progress; only ACCEPTED counts."
+}
