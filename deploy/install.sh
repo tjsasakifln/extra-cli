@@ -29,7 +29,8 @@ echo "🐘 Configuring PostgreSQL..."
 sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='pncp_datalake'" | grep -q 1 || \
     sudo -u postgres createdb pncp_datalake
 
-sudo -u postgres psql -c "ALTER USER postgres PASSWORD '${PG_PASSWORD:-smartlic_local}'" > /dev/null 2>&1 || true
+: "${PG_PASSWORD:?PG_PASSWORD is required (no weak default)}"
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD '${PG_PASSWORD}'" > /dev/null 2>&1 || true
 
 # ---- App directory ----
 echo ""
@@ -47,7 +48,8 @@ pip3 install -q -r requirements.txt
 # ---- Database setup ----
 echo ""
 echo "🗄️ Applying migrations..."
-bash "$APP_DIR/db/setup_db.sh" "${LOCAL_DATALAKE_DSN:-postgresql://postgres:smartlic_local@127.0.0.1:5432/pncp_datalake}"
+: "${LOCAL_DATALAKE_DSN:?LOCAL_DATALAKE_DSN is required (no password default in DSN)}"
+bash "$APP_DIR/db/setup_db.sh" "${LOCAL_DATALAKE_DSN}"
 
 # ---- Systemd timers ----
 echo ""

@@ -46,7 +46,7 @@ DEFAULT_THRESHOLD = 0.95
 COVERAGE_WINDOW_DAYS = int(os.getenv("COVERAGE_WINDOW_DAYS", "90"))
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SEED = str(PROJECT_ROOT / "Extra - alvos de licitação. R-0.xlsx")
+DEFAULT_SEED = str(PROJECT_ROOT / "fixtures" / "canonical_universe_r0.xlsx")
 DEFAULT_OUTPUT_DIR = str(PROJECT_ROOT / "output" / "readiness")
 
 # Backward compatibility: exported for tests that import from consulting_readiness

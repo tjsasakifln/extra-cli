@@ -348,14 +348,15 @@ def run_coverage_calculation(
         "method": None,
     }
     try:
-        from scripts.lib.universe import CANONICAL_UNIVERSE, load_canonical_universe
+        from scripts.lib.universe import (
+            CANONICAL_UNIVERSE,
+            load_canonical_universe,
+            resolve_default_seed_path,
+        )
 
         if expected_denominator is None:
             expected_denominator = int(CANONICAL_UNIVERSE)
-        # Prefer project canonical basename; fail if missing (no silent backup).
-        seed = root / "Extra - alvos de licitação. R-0.xlsx"
-        if not seed.is_file():
-            raise FileNotFoundError(f"canonical spreadsheet missing: {seed}")
+        seed = resolve_default_seed_path(root)
         universe = load_canonical_universe(seed_path=seed)
         den = len(universe.included)
         details["denominator"] = den
@@ -871,11 +872,16 @@ def resolve_canonical_spreadsheet(
 
     Rules (fail-closed):
     1. Explicit path wins when provided and exists.
-    2. Prefer exact basename CANONICAL_SPREADSHEET_BASENAME under project root.
-    3. Else non-backup candidates matching ``Extra*alvos*.xlsx`` under root
+    2. Env ``EXTRA_TARGET_SPREADSHEET`` (or ``TARGET_SPREADSHEET_PATH``) if set.
+    3. Prefer exact basename CANONICAL_SPREADSHEET_BASENAME under project root
+       (local private asset — not required to be git-tracked).
+    4. Else non-backup candidates matching ``Extra*alvos*.xlsx`` under root
        (and ``data/``). Zero → missing; >1 → ambiguous.
-    4. Backup/copy/temp names are never selected silently.
-    5. Backup-only is allowed only when ``allow_backup`` is True.
+    5. Backup/copy/temp names are never selected silently.
+    6. Backup-only is allowed only when ``allow_backup`` is True.
+
+    Public clones must provide the private asset via env or ``--spreadsheet``.
+    Sanitized seed CSV: ``config/target_entities_200km.csv`` (no client branding).
     """
     root = project_root.resolve()
 
@@ -887,9 +893,30 @@ def resolve_canonical_spreadsheet(
             raise FileNotFoundError(f"Refusing backup/temp spreadsheet without allow_backup: {path.name}")
         return path
 
+    for env_key in ("EXTRA_TARGET_SPREADSHEET", "TARGET_SPREADSHEET_PATH"):
+        env_val = os.environ.get(env_key, "").strip()
+        if not env_val:
+            continue
+        env_path = Path(env_val).expanduser().resolve()
+        if not env_path.is_file():
+            raise FileNotFoundError(
+                f"{env_key} set but file not found: {env_path}. "
+                "Provide a local private spreadsheet or unset the variable."
+            )
+        if _is_backup_or_temp_name(env_path.name) and not allow_backup:
+            raise FileNotFoundError(
+                f"Refusing backup/temp spreadsheet from {env_key} without allow_backup: {env_path.name}"
+            )
+        return env_path
+
     preferred = root / CANONICAL_SPREADSHEET_BASENAME
     if preferred.is_file():
         return preferred.resolve()
+
+    # Public CI / OSS fixture (no client branding in path). Same universe identity.
+    public_fixture = root / "fixtures" / "canonical_universe_r0.xlsx"
+    if public_fixture.is_file():
+        return public_fixture.resolve()
 
     def _collect(dir_path: Path) -> list[Path]:
         if not dir_path.is_dir():
@@ -928,7 +955,10 @@ def resolve_canonical_spreadsheet(
             f"'{CANONICAL_SPREADSHEET_BASENAME}' or set allow_backup."
         )
     raise FileNotFoundError(
-        f"Canonical spreadsheet '{CANONICAL_SPREADSHEET_BASENAME}' not found under project root or data/."
+        f"Canonical spreadsheet '{CANONICAL_SPREADSHEET_BASENAME}' not found under project root or data/. "
+        "Public clones must set EXTRA_TARGET_SPREADSHEET or pass --spreadsheet to a local private asset "
+        "(not git-tracked). See docs/ops/private-assets.md. "
+        "Sanitized public seed: config/target_entities_200km.csv."
     )
 
 

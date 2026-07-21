@@ -1,6 +1,6 @@
-"""DoD §12.1 — canonical golden path command + metadata + fail-closed."""
-
 from __future__ import annotations
+
+"""DoD §12.1 — canonical golden path command + metadata + fail-closed."""
 
 import subprocess
 import sys
@@ -15,7 +15,6 @@ from scripts.golden_path import (
     collect_run_metadata,
     evaluate_run_outcome,
 )
-
 
 def test_canonical_module_help() -> None:
     r = subprocess.run(
@@ -158,6 +157,16 @@ def test_apply_seeds_runs_seed_scripts(monkeypatch: pytest.MonkeyPatch) -> None:
 
 EXPECTED_IDS_SHA = "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396"
 CANONICAL_XLSX = "Extra - alvos de licitação. R-0.xlsx"
+PUBLIC_FIXTURE_XLSX = Path("fixtures") / "canonical_universe_r0.xlsx"
+
+def _seed_source(root: Path) -> Path:
+    src = root / CANONICAL_XLSX
+    if src.is_file():
+        return src
+    src = root / PUBLIC_FIXTURE_XLSX
+    if src.is_file():
+        return src
+    pytest.skip("spreadsheet fixture not available for copy")
 
 
 def test_help_documents_spreadsheet_flags() -> None:
@@ -174,12 +183,13 @@ def test_help_documents_spreadsheet_flags() -> None:
     assert "validate-spreadsheet-only" in out
 
 
-def test_resolve_prefers_canonical_not_backup(tmp_path: Path) -> None:
+def test_resolve_prefers_canonical_not_backup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("EXTRA_TARGET_SPREADSHEET", raising=False)
+    monkeypatch.delenv("TARGET_SPREADSHEET_PATH", raising=False)
     from scripts.golden_path import resolve_canonical_spreadsheet
 
     root = Path(__file__).resolve().parents[1]
-    src = root / CANONICAL_XLSX
-    assert src.is_file()
+    src = _seed_source(root)
     # Copy both canonical and backup into temp root; canonical must win.
     import shutil
 
@@ -192,33 +202,39 @@ def test_resolve_prefers_canonical_not_backup(tmp_path: Path) -> None:
     assert ".backup" not in chosen.name
 
 
-def test_resolve_backup_only_fails_without_allow(tmp_path: Path) -> None:
+def test_resolve_backup_only_fails_without_allow(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("EXTRA_TARGET_SPREADSHEET", raising=False)
+    monkeypatch.delenv("TARGET_SPREADSHEET_PATH", raising=False)
     import shutil
 
     from scripts.golden_path import resolve_canonical_spreadsheet
 
     root = Path(__file__).resolve().parents[1]
-    src = root / CANONICAL_XLSX
+    src = _seed_source(root)
     backup = tmp_path / "Extra - alvos de licitação. R-0.backup.xlsx"
     shutil.copy2(src, backup)
     with pytest.raises(FileNotFoundError, match="backup"):
         resolve_canonical_spreadsheet(tmp_path, allow_backup=False)
 
 
-def test_resolve_missing_fails(tmp_path: Path) -> None:
+def test_resolve_missing_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("EXTRA_TARGET_SPREADSHEET", raising=False)
+    monkeypatch.delenv("TARGET_SPREADSHEET_PATH", raising=False)
     from scripts.golden_path import resolve_canonical_spreadsheet
 
     with pytest.raises(FileNotFoundError):
         resolve_canonical_spreadsheet(tmp_path)
 
 
-def test_resolve_ambiguous_primary_fails(tmp_path: Path) -> None:
+def test_resolve_ambiguous_primary_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("EXTRA_TARGET_SPREADSHEET", raising=False)
+    monkeypatch.delenv("TARGET_SPREADSHEET_PATH", raising=False)
     import shutil
 
     from scripts.golden_path import resolve_canonical_spreadsheet
 
     root = Path(__file__).resolve().parents[1]
-    src = root / CANONICAL_XLSX
+    src = _seed_source(root)
     # Two non-backup candidates with different names matching glob
     a = tmp_path / "Extra - alvos A.xlsx"
     b = tmp_path / "Extra - alvos B.xlsx"
@@ -229,6 +245,14 @@ def test_resolve_ambiguous_primary_fails(tmp_path: Path) -> None:
 
 
 def test_validate_target_spreadsheet_live_strong() -> None:
+    """Requires private local xlsx (not shipped in public repo)."""
+    root = Path(__file__).resolve().parents[1]
+    from scripts.golden_path import resolve_canonical_spreadsheet
+    try:
+        resolve_canonical_spreadsheet(root)
+    except FileNotFoundError:
+        import pytest
+        pytest.skip("private spreadsheet not available (EXTRA_TARGET_SPREADSHEET / local xlsx)")
     """Strong AC: path, sha256, dual metrics, 1093 set + ids hash."""
     from scripts.golden_path import validate_target_spreadsheet
 
@@ -237,7 +261,10 @@ def test_validate_target_spreadsheet_live_strong() -> None:
     assert ok is True, details
     assert dur >= 0
     assert details.get("path")
-    assert CANONICAL_XLSX in details["path"]
+    assert (
+        CANONICAL_XLSX in details["path"]
+        or "canonical_universe_r0.xlsx" in details["path"]
+    )
     assert ".backup" not in Path(details["path"]).name
     assert details.get("sha256")
     assert len(details["sha256"]) == 64

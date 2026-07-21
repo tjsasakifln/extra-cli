@@ -36,7 +36,7 @@ from typing import Any
 _logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SEED_PATH = PROJECT_ROOT / "Extra - alvos de licitação. R-0.xlsx"
+DEFAULT_SEED_PATH = PROJECT_ROOT / "fixtures" / "canonical_universe_r0.xlsx"
 
 # ---------------------------------------------------------------------------
 # DB helpers (lightweight — uses psycopg2 like the rest of the project)

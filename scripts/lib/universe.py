@@ -17,7 +17,36 @@ from typing import Any
 from openpyxl import load_workbook
 
 DEFAULT_SEED_PATH = Path("Extra - alvos de licitação. R-0.xlsx")
+PUBLIC_FIXTURE_SEED_PATH = Path("fixtures") / "canonical_universe_r0.xlsx"
 DEFAULT_RADIUS_KM = 200.0
+
+
+def resolve_default_seed_path(project_root: Path | None = None) -> Path:
+    """Resolve seed spreadsheet for ops/CI without client-branded git tracking.
+
+    Order: EXTRA_TARGET_SPREADSHEET / TARGET_SPREADSHEET_PATH → private local
+    basename → public fixtures/canonical_universe_r0.xlsx.
+    """
+    import os
+
+    root = (project_root or Path.cwd()).resolve()
+    for env_key in ("EXTRA_TARGET_SPREADSHEET", "TARGET_SPREADSHEET_PATH"):
+        env_val = os.environ.get(env_key, "").strip()
+        if env_val:
+            path = Path(env_val).expanduser().resolve()
+            if path.is_file():
+                return path
+            raise FileNotFoundError(f"{env_key} set but file not found: {path}")
+    preferred = root / DEFAULT_SEED_PATH
+    if preferred.is_file():
+        return preferred
+    fixture = root / PUBLIC_FIXTURE_SEED_PATH
+    if fixture.is_file():
+        return fixture
+    raise FileNotFoundError(
+        f"No seed spreadsheet found. Set EXTRA_TARGET_SPREADSHEET or place "
+        f"{PUBLIC_FIXTURE_SEED_PATH} / {DEFAULT_SEED_PATH}. See docs/ops/private-assets.md."
+    )
 
 # Backwards-compatible historical value. New code MUST derive the denominator
 # from ``load_canonical_universe`` instead of this constant.

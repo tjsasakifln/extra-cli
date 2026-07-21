@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 # Constants
 # ---------------------------------------------------------------------------
 
-DEFAULT_SEED = "Extra - alvos de licitação. R-0.xlsx"
+DEFAULT_SEED = "fixtures/canonical_universe_r0.xlsx"  # public CI fixture; override via EXTRA_TARGET_SPREADSHEET
 TARGET_RADIUS_KM = 200.0
 FLORIPA_CENTER = FLORIANOPOLIS  # (-27.5954, -48.5480)
 

@@ -86,7 +86,7 @@ python -m db.seed.seed_sc_entities
 
 | Variavel | Default | Descricao |
 |----------|---------|-----------|
-| `LOCAL_DATALAKE_DSN` | `postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres` | String de conexao PostgreSQL |
+| `LOCAL_DATALAKE_DSN` | `required via LOCAL_DATALAKE_DSN (no default password)` | String de conexao PostgreSQL |
 | `IBGE_CACHE_PATH` | `data/ibge_cache.json` | Caminho para o cache IBGE |
 
 ### Execucao Agendada

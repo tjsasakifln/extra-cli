@@ -93,11 +93,8 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Seed SC public entities from spreadsheet")
     p.add_argument(
         "--dsn",
-        default=os.getenv(
-            "LOCAL_DATALAKE_DSN",
-            "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
-        ),
-        help="PostgreSQL connection DSN (default: LOCAL_DATALAKE_DSN env)",
+        default=os.getenv("LOCAL_DATALAKE_DSN") or None,
+        help="PostgreSQL connection DSN (required via --dsn or LOCAL_DATALAKE_DSN; no weak default)",
     )
     p.add_argument(
         "--xlsx",
@@ -328,20 +325,25 @@ def haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
 
 
 def find_spreadsheet(project_root: Path) -> Path:
-    """Find the spreadsheet in the project hierarchy.
-
-    Searches the project root and the data/ directory.
-    """
-    candidates = list(project_root.glob("Extra*alvos*.xlsx"))
-    if candidates:
-        return candidates[0]
-
-    candidates = list((project_root / "data").glob("Extra*.xlsx"))
-    if candidates:
-        return candidates[0]
-
+    """Find private or public-fixture spreadsheet (no silent backup selection)."""
+    import os
+    env = os.environ.get("EXTRA_TARGET_SPREADSHEET") or os.environ.get("TARGET_SPREADSHEET_PATH")
+    if env:
+        path = Path(env).expanduser().resolve()
+        if not path.is_file():
+            raise FileNotFoundError(f"EXTRA_TARGET_SPREADSHEET not found: {path}")
+        if any(tok in path.name.lower() for tok in (".backup", ".copy", ".tmp")):
+            raise FileNotFoundError(f"Refusing backup/temp spreadsheet: {path.name}")
+        return path
+    preferred = project_root / "Extra - alvos de licitação. R-0.xlsx"
+    if preferred.is_file():
+        return preferred
+    fixture = project_root / "fixtures" / "canonical_universe_r0.xlsx"
+    if fixture.is_file():
+        return fixture
     raise FileNotFoundError(
-        "Spreadsheet 'Extra - alvos de licitacao. R-0.xlsx' not found. Place it in project root or pass --xlsx <path>."
+        "Private spreadsheet not found. Set EXTRA_TARGET_SPREADSHEET or use "
+        "fixtures/canonical_universe_r0.xlsx. See docs/ops/private-assets.md."
     )
 
 
@@ -650,6 +652,9 @@ def verify_import(conn) -> dict[str, Any]:
 def main() -> None:
     """Entry point: parse args, read spreadsheet, upsert into DB, verify."""
     args = parse_args()
+    if not args.dsn:
+        print("ERROR: --dsn or LOCAL_DATALAKE_DSN is required (no weak password default)", file=sys.stderr)
+        sys.exit(2)
     project_root = Path(__file__).resolve().parent.parent.parent
 
     # -- Locate spreadsheet ---------------------------------------------------
