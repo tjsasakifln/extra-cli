@@ -19,3 +19,5 @@
 {"at": "2026-07-21T02:22:46Z", "event": "accept", "item_id": "DOD-rol-1-definition-of-done-16267c473a", "commit": "c1df93f1dddd450a0764931af28d99f90bc33cf3", "gates": {"state": "ok", "branch": "main", "head": "c1df93f1dddd450a0764931af28d99f90bc33cf3", "main_gate": "ok", "evidence_pack": "ok"}}
 {"at": "2026-07-21T02:24:11Z", "event": "start", "item_id": "DOD-rol-1-definition-of-done-e9a3ea535d", "run_id": "run-20260721T022411Z"}
 {"at": "2026-07-21T02:25:30Z", "event": "verify", "item_id": "DOD-rol-1-definition-of-done-e9a3ea535d", "ok": true}
+{"at": "2026-07-21T02:34:20Z", "event": "scan", "stats": {"preserved": 1355, "newly_checked": 1, "orphaned": 1}, "total": 1356, "accepted": 314}
+{"at": "2026-07-21T02:34:32Z", "event": "accept", "item_id": "DOD-rol-1-definition-of-done-e9a3ea535d", "commit": "c05796ad8c3109b583f8cc50b1346a7c443b23e9", "gates": {"state": "ok", "branch": "main", "head": "c05796ad8c3109b583f8cc50b1346a7c443b23e9", "main_gate": "ok", "evidence_pack": "ok"}}
