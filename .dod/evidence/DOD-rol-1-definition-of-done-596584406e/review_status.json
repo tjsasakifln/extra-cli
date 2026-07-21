@@ -1,0 +1,39 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-596584406e",
+  "reviewer": "adversarial-qa-continue-03",
+  "at": "2026-07-21T23:25:07Z",
+  "main_sha": "a1bf947ddcfa011dc072f16afb0cfd736c7a823c",
+  "requirement": "O golden path pode ser executado em ambiente limpo.",
+  "dod_line": 918,
+  "impl_pr": 96,
+  "falsification": {
+    "skip_sources_not_golden_path": "does_not_falsify_documented_foundation",
+    "recreate_empty_db": "proven_create_exit_0_applied_61_skipped_0",
+    "exit_0_migrations_seeds_gp": "proven",
+    "local_ready_or_95_claim": "absent_explicitly_forbidden"
+  },
+  "evidence": [
+    "clean-env-report.json",
+    "proof.json",
+    "acceptance_criteria.md",
+    "pytest.txt",
+    "scripts/ops/golden_clean_env.py",
+    "tests/test_golden_clean_env.py"
+  ],
+  "residuals": [
+    "foundation uses --skip-sources/--skip-freshness/--allow-zero; not full live crawl",
+    "snapshot_reconciliation fails on empty pncp_raw_bids (expected; not this item)",
+    "install-wide clean env 2b84ce6e0c remains OPEN",
+    "multi-run ledger has pre-proof noise; proof run is gp-20260721-200931"
+  ],
+  "pending_changes_requested": false,
+  "non_claims": [
+    "LOCAL_READY",
+    "95% coverage",
+    "full live source SLA",
+    "domain-specific reports",
+    "project install-wide clean env"
+  ],
+  "head_sha": "a1bf947ddcfa011dc072f16afb0cfd736c7a823c"
+}

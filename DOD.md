@@ -915,7 +915,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path gera logs. Evidência: PR #85 · CLI Log salvo output/golden-path/*.log · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-05418e32b2/`.
 - [x] O golden path retorna exit code não zero em qualquer gate obrigatório. Evidência: PR #85 · essential_fail=2 freshness_fail=3 · tests/test_golden_path_ledger_meta.py · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-3500c05a66/`.
 - [x] O golden path pode ser reexecutado sem duplicação. Evidência: PR #92 · dual seed keys unique + dual snapshot stable · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-98c4820f19/`.
-- [ ] O golden path pode ser executado em ambiente limpo.
+- [x] O golden path pode ser executado em ambiente limpo. Evidência: PR #96 · `scripts.ops.golden_clean_env --confirm-drop` · tests/test_golden_clean_env.py · QA PASS · `.dod/evidence/DOD-rol-1-definition-of-done-596584406e/`.
 - [x] O tempo total de execução é registrado. Evidência: PR #85 · wall_clock_ms no ledger · CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-d134dd8ca2/`.
 - [ ] A versão do código é registrada.
 - [ ] O hash da planilha é registrado.
