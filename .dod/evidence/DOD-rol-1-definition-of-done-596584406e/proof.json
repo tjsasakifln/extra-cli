@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "at": "2026-07-21T23:09:48Z",
+  "title": "O golden path pode ser executado em ambiente limpo",
+  "tool": "python3 -m scripts.ops.golden_clean_env --confirm-drop",
+  "report": "clean-env-report.json",
+  "limitations": ["sources skipped offline for clean foundation", "no LOCAL_READY/95% claim"]
+}

@@ -1,10 +1,10 @@
 {
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
   "started_at": "2026-07-21T22:01:00Z",
-  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "main_sha": "790f946350492a6bf5f41b9a666505dfe9db5233",
   "worktree": "/mnt/d/extra-consultoria-continue-03",
   "branch": "campaign/continue-03-wave0",
-  "phase": "acceptance-reconciliation",
+  "phase": "post-sanitize",
   "speckit": {
     "integration": "grok",
     "version": "0.13.1.dev0",
@@ -70,5 +70,16 @@
     89,
     91,
     93
-  ]
+  ],
+  "updated_at": "2026-07-21T22:49:38Z",
+  "acceptance_pr": 94,
+  "sanitize_pr": 95,
+  "sanitize_ci_run": 29874945818,
+  "next_functional_item": "DOD-rol-1-definition-of-done-596584406e",
+  "next_functional_text": "O golden path pode ser executado em ambiente limpo.",
+  "qa_fail_open": [
+    "DOD-rol-1-definition-of-done-8d63225d5b",
+    "DOD-rol-1-definition-of-done-d495570f4e"
+  ],
+  "notes": "CONTINUE-03: acceptance reconcilation #94 merged; public sanitize #95 merged. Next: clean-env golden path Spec Kit; wire git_sha/schema_version in ledger."
 }

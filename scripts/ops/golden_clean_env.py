@@ -98,87 +98,29 @@ def recreate_db(admin_dsn: str, clean_name: str) -> dict[str, Any]:
 
 
 def apply_migrations(dsn: str) -> dict[str, Any]:
-    """Apply migrations; stop before optional vector extension if needed, continue extras."""
-    root = REPO / "db" / "migrations"
-    # First batch: through 013 (before vector-dependent 014)
-    r1 = subprocess.run(  # noqa: S603 — fixed script path under REPO, shell=False
+    """Apply all migrations via canonical apply_migrations (upgrade mode)."""
+    r1 = subprocess.run(  # noqa: S603
         [
             sys.executable,
-            str(REPO / "scripts" / "ops" / "apply_migrations.py"),
+            "-m",
+            "scripts.ops.apply_migrations",
             f"--dsn={dsn}",
-            f"--root={root}",
-            "--max=13",
-            "--allow-concurrent",
         ],
         cwd=str(REPO),
         text=True,
         capture_output=True,
         check=False,
-        timeout=300,
+        timeout=600,
     )
-    # Skip 014 vector; apply remaining via individual files with ON_ERROR_STOP=0
-    parts = _parts(dsn)
-    extras: dict[str, int] = {}
-    for path in sorted(root.glob("*.sql")):
-        num = int(path.name[:3])
-        if num <= 13 or num == 14:
-            continue
-        r = subprocess.run(  # noqa: S603 — fixed argv; migration path from repo glob only
-            [
-                _PSQL,
-                "-h",
-                parts["host"],
-                "-p",
-                parts["port"],
-                "-U",
-                parts["user"],
-                "-d",
-                parts["dbname"],
-                "-v",
-                "ON_ERROR_STOP=0",
-                "-f",
-                str(path),
-            ],
-            env=_psql_env(parts),
-            text=True,
-            capture_output=True,
-            check=False,
-            timeout=120,
-        )
-        extras[path.name] = r.returncode
-    # Always re-apply critical 055
-    p055 = root / "055_fix_upsert_pncp_raw_bids_ambiguous.sql"
-    if p055.is_file():
-        r = subprocess.run(  # noqa: S603 — fixed argv; known migration file under REPO
-            [
-                _PSQL,
-                "-h",
-                parts["host"],
-                "-p",
-                parts["port"],
-                "-U",
-                parts["user"],
-                "-d",
-                parts["dbname"],
-                "-v",
-                "ON_ERROR_STOP=0",
-                "-f",
-                str(p055),
-            ],
-            env=_psql_env(parts),
-            text=True,
-            capture_output=True,
-            check=False,
-            timeout=60,
-        )
-        extras[p055.name] = r.returncode
     return {
         "batch1_exit": r1.returncode,
-        "batch1_stdout": (r1.stdout or "")[-500:],
+        "batch1_stdout": (r1.stdout or "")[-800:],
         "batch1_stderr": (r1.stderr or "")[-400:],
-        "extras": extras,
+        "extras": {},
         "ok": r1.returncode == 0,
     }
+
+
 
 
 def table_count(dsn: str) -> int:
@@ -199,7 +141,8 @@ def run_golden(dsn: str, ledger: Path) -> dict[str, Any]:
     env = os.environ.copy()
     env["LOCAL_DATALAKE_DSN"] = dsn
     env["DATABASE_URL"] = dsn
-    # Clean env foundation: no crawl dependency; skip freshness (no data yet)
+    # Clean env foundation: migrations+seeds already applied; validate spreadsheet,
+    # skip freshness (no live data yet); allow-zero for empty sources.
     r = subprocess.run(  # noqa: S603 — fixed module invocation via sys.executable, shell=False
         [
             sys.executable,
@@ -207,10 +150,11 @@ def run_golden(dsn: str, ledger: Path) -> dict[str, Any]:
             "scripts.golden_path",
             "--sources",
             "pncp",
-            "--bootstrap",
-            "--allow-zero",
-            "--skip-crawl",
+            "--skip-migrations",
+            "--skip-seeds",
+            "--skip-sources",
             "--skip-freshness",
+            "--allow-zero",
             f"--ledger-output={ledger}",
             "--dsn",
             dsn,
@@ -220,7 +164,7 @@ def run_golden(dsn: str, ledger: Path) -> dict[str, Any]:
         text=True,
         capture_output=True,
         check=False,
-        timeout=300,
+        timeout=600,
     )
     return {
         "exit": r.returncode,
@@ -234,7 +178,8 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Golden path clean-environment proof")
     p.add_argument(
         "--admin-dsn",
-        default=os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test"),
+        default=os.getenv("LOCAL_DATALAKE_DSN") or None,
+        help="Admin DSN with CREATE/DROP privilege (required; LOCAL_DATALAKE_DSN). No weak password default.",
     )
     p.add_argument("--db-name", default="extra_clean")
     p.add_argument(
@@ -252,6 +197,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Print plan only; do not drop/create DB or run migrations.",
     )
     args = p.parse_args(argv)
+    if not args.admin_dsn and not args.dry_run:
+        print("ERROR: --admin-dsn or LOCAL_DATALAKE_DSN is required", file=sys.stderr)
+        return 2
+    if not args.admin_dsn:
+        args.admin_dsn = "postgresql://test:test@127.0.0.1:5433/extra_test"  # dry-run plan only
 
     report: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
@@ -288,6 +238,24 @@ def main(argv: list[str] | None = None) -> int:
     dsn = rec["dsn"]
     mig = apply_migrations(dsn)
     report["steps"]["migrations"] = mig
+    # seeds (public fixture via resolve_default_seed_path)
+    # Prefer direct seed scripts for entities
+    seed1 = subprocess.run(  # noqa: S603
+        [sys.executable, str(REPO / "db" / "seed" / "001_sc_entities.py"), "--dsn", dsn],
+        cwd=str(REPO), env={**os.environ, "LOCAL_DATALAKE_DSN": dsn},
+        text=True, capture_output=True, check=False, timeout=180,
+    )
+    seed2 = subprocess.run(  # noqa: S603
+        [sys.executable, str(REPO / "db" / "seed" / "002_entity_aliases.py"), "--dsn", dsn],
+        cwd=str(REPO), env={**os.environ, "LOCAL_DATALAKE_DSN": dsn},
+        text=True, capture_output=True, check=False, timeout=120,
+    )
+    report["steps"]["seeds"] = {
+        "entities_exit": seed1.returncode,
+        "aliases_exit": seed2.returncode,
+        "ok": seed1.returncode == 0,
+        "entities_tail": (seed1.stdout or seed1.stderr or "")[-400:],
+    }
     try:
         n = table_count(dsn)
     except Exception as exc:  # noqa: BLE001
@@ -301,10 +269,10 @@ def main(argv: list[str] | None = None) -> int:
     report["steps"]["ledger_path"] = str(ledger)
     parts = _parts(dsn)
     report["clean_dsn_hint"] = f"{parts['host']}:{parts['port']}/{args.db_name}"
-    report["ok"] = bool(rec["ok"] and n >= 5 and gp["ok"])
+    report["ok"] = bool(rec["ok"] and mig.get("ok") and report["steps"].get("seeds",{}).get("ok") and n >= 5 and gp["ok"])
     report["limitations"] = [
         "vector extension optional (014 skipped if unavailable)",
-        "clean env proof uses --skip-crawl --skip-freshness --allow-zero for foundation",
+        "clean env proof: empty DB → migrations → golden_path (--skip-freshness --allow-zero); sources may be zero on empty net",
         "Live crawl can be re-run after clean bootstrap with data sources",
     ]
     report["claims"] = {
