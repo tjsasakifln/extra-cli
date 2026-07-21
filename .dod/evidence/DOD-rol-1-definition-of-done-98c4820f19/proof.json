@@ -1,0 +1,17 @@
+{
+  "at": "2026-07-21T14:47:23.394449+00:00",
+  "ok": true,
+  "pncp_raw_bids": {
+    "count": 574,
+    "distinct_id": 574
+  },
+  "sc_public_entities": {
+    "count": 2085,
+    "distinct_cnpj8": 2085
+  },
+  "ledgers": [
+    "ledger-idemp-1.json",
+    "ledger-idemp-2.json"
+  ],
+  "note": "no duplicate keys; second-run inserts may add new live IDs without re-duplicating"
+}

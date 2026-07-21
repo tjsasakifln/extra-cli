@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "run_id": "gp-src-20260721-114608",
+      "timestamp": "2026-07-21T14:46:08.807339+00:00",
+      "status": "success",
+      "wall_clock_ms": 14694.840611000473,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 21.062501000415068,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "execute_essential_sources",
+          "status": "pass",
+          "duration_ms": 14658.230809998713,
+          "error": null,
+          "details": {
+            "essential": [
+              "pncp",
+              "pcp",
+              "compras_gov"
+            ],
+            "executed": {
+              "pncp": {
+                "status": "success",
+                "attempts": 1,
+                "duration_ms": 1083.2279269998253,
+                "metrics": {
+                  "fetched": 25,
+                  "transformed": 0,
+                  "inserted": 0,
+                  "updated": 0,
+                  "matched": 0,
+                  "persisted": 0,
+                  "external_failures": 0,
+                  "resumed_from_watermark": 1,
+                  "pages_fetched_watermark": 25
+                },
+                "error": null
+              },
+              "pcp": {
+                "status": "success",
+                "attempts": 1,
+                "duration_ms": 12775.04406099979,
+                "metrics": {
+                  "fetched": 107,
+                  "transformed": 107,
+                  "inserted": 4,
+                  "updated": 0,
+                  "matched": 25,
+                  "persisted": 0,
+                  "external_failures": 0
+                },
+                "error": null
+              },
+              "compras_gov": {
+                "status": "success_zero",
+                "attempts": 1,
+                "duration_ms": 799.9588219990983,
+                "metrics": {
+                  "fetched": 0,
+                  "transformed": 0,
+                  "inserted": 0,
+                  "updated": 0,
+                  "matched": 0,
+                  "persisted": 0,
+                  "external_failures": 0
+                },
+                "error": null
+              }
+            },
+            "missing": [],
+            "not_executed": [],
+            "require_success": false
+          }
+        },
+        {
+          "step": "persist_source_data",
+          "status": "pass",
+          "duration_ms": 0.0,
+          "error": null,
+          "details": {
+            "min_persisted_rows": 1,
+            "total_writes": 4,
+            "writers": [
+              "pcp"
+            ],
+            "per_source": {
+              "pncp": {
+                "inserted": 0,
+                "updated": 0,
+                "persisted": 0,
+                "writes": 0,
+                "status": "success"
+              },
+              "pcp": {
+                "inserted": 4,
+                "updated": 0,
+                "persisted": 0,
+                "writes": 4,
+                "status": "success"
+              },
+              "compras_gov": {
+                "inserted": 0,
+                "updated": 0,
+                "persisted": 0,
+                "writes": 0,
+                "status": "success_zero"
+              }
+            }
+          }
+        }
+      ],
+      "sources": [
+        {
+          "name": "pncp",
+          "status": "success",
+          "duration_ms": 1083.2279269998253,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 25,
+            "transformed": 0,
+            "inserted": 0,
+            "updated": 0,
+            "matched": 0,
+            "persisted": 0,
+            "external_failures": 0,
+            "resumed_from_watermark": 1,
+            "pages_fetched_watermark": 25
+          },
+          "error": null
+        },
+        {
+          "name": "pcp",
+          "status": "success",
+          "duration_ms": 12775.04406099979,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 107,
+            "transformed": 107,
+            "inserted": 4,
+            "updated": 0,
+            "matched": 25,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        },
+        {
+          "name": "compras_gov",
+          "status": "success_zero",
+          "duration_ms": 799.9588219990983,
+          "attempts": 1,
+          "metrics": {
+            "fetched": 0,
+            "transformed": 0,
+            "inserted": 0,
+            "updated": 0,
+            "matched": 0,
+            "persisted": 0,
+            "external_failures": 0
+          },
+          "error": null
+        }
+      ],
+      "reports": [],
+      "freshness": null
+    }
+  ]
+}
