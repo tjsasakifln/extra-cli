@@ -1,0 +1,7 @@
+{
+  "at": "2026-07-21T02:50:48Z",
+  "literal": "O golden path retorna exit code n\u00e3o zero em qualquer gate obrigat\u00f3rio.",
+  "detail": {
+    "exit_code_on_essential_fail": 2
+  }
+}

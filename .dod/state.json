@@ -1,22 +1,45 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-01",
-  "updated_at": "2026-07-21T02:45:41Z",
+  "updated_at": "2026-07-21T02:51:13Z",
   "active_item_id": "DOD-rol-1-definition-of-done-e405d6a61c",
-  "active_run_id": "run-20260721T024052Z",
+  "active_run_id": "run-20260721T024759Z",
   "active_branch": "campaign/dod-convergence-extra-01",
   "main_sha": "ae4941610662318eea428dfeede42215b33772bd",
   "phase": "blocked",
   "next_eligible_id": "DOD-rol-1-definition-of-done-faaf47c790",
-  "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
+  "last_report_path": ".dod/evidence/campaign-status-blocked-billing.json",
   "metrics": {
     "total": 1356,
     "accepted": 315,
+    "verified": 0,
+    "in_progress": 0,
+    "implemented": 0,
+    "open": 1040,
+    "blocked": 1,
+    "deferred": 0,
     "acceptance_pct": 23.23,
-    "note": "approx at last successful accept before billing block"
+    "by_state": {
+      "ACCEPTED": 315,
+      "OPEN": 1040,
+      "BLOCKED_HUMAN": 1
+    },
+    "by_category": {
+      "ACCEPTED_EXISTING": 235,
+      "DOCUMENTATION_WITH_PROOF": 99,
+      "LIVE_OPERATION": 8,
+      "MACHINE_ACTIONABLE": 656,
+      "GOVERNANCE": 28,
+      "VPS_PHASE": 249,
+      "INFRASTRUCTURE_REQUIRED": 5,
+      "EXTERNAL_DEPENDENCY": 26,
+      "HUMAN_ACCEPTANCE": 34,
+      "CREDENTIAL_REQUIRED": 16
+    },
+    "dod_checked_count": 316
   },
-  "resume_step": "wait_ci_then_merge_pr74_then_accept",
-  "notes": "BLOCKED: GitHub Actions billing/spending limit. Local VERIFIED: validate_target_spreadsheet (2085 rows). PR #74 open: campaign/dod-gp-validate-spreadsheet. After billing fixed: re-run CI, merge #74, accept item on main, continue \u00a712.1 next=fontes m\u00ednimas.",
+  "resume_step": "billing_fix_then_ci_pr74_merge_accept_stack",
+  "notes": "BLOCKED_HUMAN: GitHub Actions billing/spending limit. Stack ready on campaign/dod-gp-validate-spreadsheet: planilha validate + fontes + 11 more \u00a712.1 VERIFIED characterizations. Do NOT [x] DOD until ACCEPTED via green CI on main. After billing: CI green \u2192 merge PR#74 (+any follow-ups) \u2192 accept VERIFIED items serially \u2192 continue \u00a712.1 residual.",
   "blocker": {
     "kind": "BLOCKED_HUMAN",
     "subtype": "github_actions_billing",
@@ -25,5 +48,20 @@
     "branch": "campaign/dod-gp-validate-spreadsheet",
     "verify_cmd": "gh pr checks 74 && gh run list --limit 5",
     "unblock_action": "Restore GitHub billing / raise Actions spending limit for the account/org, then re-run PR #74 CI."
-  }
+  },
+  "verified_pending_accept": [
+    "DOD-rol-1-definition-of-done-e405d6a61c",
+    "DOD-rol-1-definition-of-done-faaf47c790",
+    "DOD-rol-1-definition-of-done-9c996cb14e",
+    "DOD-rol-1-definition-of-done-94ff481872",
+    "DOD-rol-1-definition-of-done-4efe05fc94",
+    "DOD-rol-1-definition-of-done-c73b1150d6",
+    "DOD-rol-1-definition-of-done-d5c6584cb7",
+    "DOD-rol-1-definition-of-done-ddfcf1ec8a",
+    "DOD-rol-1-definition-of-done-7d4698cf6a",
+    "DOD-rol-1-definition-of-done-05418e32b2",
+    "DOD-rol-1-definition-of-done-3500c05a66",
+    "DOD-rol-1-definition-of-done-8d63225d5b",
+    "DOD-rol-1-definition-of-done-d495570f4e"
+  ]
 }

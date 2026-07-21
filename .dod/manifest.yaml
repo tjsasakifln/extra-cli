@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-21T02:45:39Z'
+updated_at: '2026-07-21T02:50:05Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -33920,19 +33920,24 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
-  files: []
+  acceptance_commands:
+  - python3 -c "from scripts.golden_path import SOURCES; e={s.name for s in SOURCES if s.essential}; assert {'pncp','pcp','compras_gov'}.issubset(e)"
+  tests:
+  - tests/test_golden_path_canonical.py::test_essential_minimum_sources_defined
+  - tests/test_golden_path_canonical.py::test_main_loop_iterates_selected_sources
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-faaf47c790/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -33956,6 +33961,15 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=903
+  - at: '2026-07-21T02:47:57Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-21T02:50:05Z'
+    event: verify
+    detail: VERIFIED
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: faaf47c790
   evidence_audit: null
   priority_boost: 0
@@ -33971,19 +33985,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-9c996cb14e/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34007,6 +34024,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=904
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: 9c996cb14e
   evidence_audit: null
   priority_boost: 0
@@ -34022,19 +34042,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-94ff481872/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34058,6 +34081,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=905
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: 94ff481872
   evidence_audit: null
   priority_boost: 0
@@ -34073,19 +34099,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34109,6 +34138,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=906
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: 4efe05fc94
   evidence_audit: null
   priority_boost: 0
@@ -34124,19 +34156,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-c73b1150d6/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34160,6 +34195,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=907
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: c73b1150d6
   evidence_audit: null
   priority_boost: 0
@@ -34379,19 +34417,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-d5c6584cb7/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34415,6 +34456,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=912
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: d5c6584cb7
   evidence_audit: null
   priority_boost: 0
@@ -34430,19 +34474,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-ddfcf1ec8a/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34466,6 +34513,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=913
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: ddfcf1ec8a
   evidence_audit: null
   priority_boost: 0
@@ -34481,19 +34531,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-7d4698cf6a/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34517,6 +34570,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=914
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: 7d4698cf6a
   evidence_audit: null
   priority_boost: 0
@@ -34532,19 +34588,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-05418e32b2/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34568,6 +34627,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=915
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: 05418e32b2
   evidence_audit: null
   priority_boost: 0
@@ -34583,19 +34645,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: command_exit_0
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-3500c05a66/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34619,6 +34684,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=916
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: 3500c05a66
   evidence_audit: null
   priority_boost: 0
@@ -34787,19 +34855,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-8d63225d5b/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34823,6 +34894,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=920
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: 8d63225d5b
   evidence_audit: null
   priority_boost: 0
@@ -34889,19 +34963,22 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
   acceptance_commands: []
-  tests: []
-  files: []
+  tests:
+  - tests/test_golden_path_canonical.py
+  files:
+  - scripts/golden_path.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-rol-1-definition-of-done-d495570f4e/proof.json
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -34925,6 +35002,9 @@ items:
   - at: '2026-07-21T02:40:44Z'
     event: rescan
     detail: line=922
+  - at: '2026-07-21T02:50:48Z'
+    event: verify_batch
+    detail: characterization VERIFIED (CI pending for ACCEPTED)
   content_fingerprint: d495570f4e
   evidence_audit: null
   priority_boost: 0

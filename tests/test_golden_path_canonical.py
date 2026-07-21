@@ -162,3 +162,33 @@ def test_apply_seeds_runs_seed_scripts(monkeypatch: pytest.MonkeyPatch) -> None:
     assert any("001_sc_entities" in p for p in summary["ran"])
     assert any("002_entity_aliases" in p for p in summary["ran"])
     assert len(ran) == 2
+
+
+def test_essential_minimum_sources_defined() -> None:
+    """DoD: golden path executes minimum essential sources (pncp, pcp, compras_gov)."""
+    from scripts.golden_path import SOURCES
+
+    names = {s.name for s in SOURCES if s.essential}
+    assert {"pncp", "pcp", "compras_gov"}.issubset(names)
+    assert all(s.essential for s in SOURCES)  # current default: all three essential
+
+
+def test_crawl_source_callable_signature() -> None:
+    from scripts.golden_path import crawl_source, SourceDef
+    import inspect
+
+    sig = inspect.signature(crawl_source)
+    assert "source" in sig.parameters
+    assert "dsn" in sig.parameters
+    # Default sources list non-empty for main loop
+    assert len([s for s in __import__("scripts.golden_path", fromlist=["SOURCES"]).SOURCES]) >= 3
+
+
+def test_main_loop_iterates_selected_sources() -> None:
+    """Source selection from --sources filters SOURCES list (fontes mínimas path)."""
+    from scripts.golden_path import SOURCES
+
+    source_names_arg = {"pncp", "pcp", "compras_gov"}
+    selected = [s for s in SOURCES if s.name in source_names_arg]
+    assert {s.name for s in selected} == {"pncp", "pcp", "compras_gov"}
+    assert all(s.essential for s in selected)

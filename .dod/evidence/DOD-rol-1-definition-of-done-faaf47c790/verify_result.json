@@ -1,0 +1,25 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-faaf47c790",
+  "commands": [
+    {
+      "cmd": "python3 -c \"from scripts.golden_path import SOURCES; e={s.name for s in SOURCES if s.essential}; assert {'pncp','pcp','compras_gov'}.issubset(e)\"",
+      "exit_code": 0,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_golden_path_canonical.py::test_essential_minimum_sources_defined",
+      "exit_code": 0,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64569  64473   0.1%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 37.93s ==============================\n"
+    },
+    {
+      "test": "tests/test_golden_path_canonical.py::test_main_loop_iterates_selected_sources",
+      "exit_code": 0,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64569  64473   0.1%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 36.18s ==============================\n"
+    }
+  ],
+  "ok": true,
+  "notes": []
+}

@@ -1,0 +1,16 @@
+{
+  "at": "2026-07-21T02:50:48Z",
+  "literal": "A vers\u00e3o do c\u00f3digo \u00e9 registrada.",
+  "detail": {
+    "meta_keys": [
+      "as_of",
+      "canonical_command",
+      "dsn_present",
+      "git_sha",
+      "limitations",
+      "migration_files_count",
+      "reference_period",
+      "schema_version"
+    ]
+  }
+}
