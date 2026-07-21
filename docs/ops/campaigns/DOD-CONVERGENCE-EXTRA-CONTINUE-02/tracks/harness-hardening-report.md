@@ -204,7 +204,12 @@ python3 -c "import yaml; yaml.safe_load(open('.specify/workflows/dod-convergence
 
 ## Commits
 
-Recorded on branch `campaign/continue-02-harness` after implementation (see git log).
+| SHA | Message |
+|-----|---------|
+| `7cc73d04e601b0a9401321a57ccfbab7bc7c6adb` | `fix(harness): fail-closed DOD controller gates (continue-02)` |
+
+Branch: `campaign/continue-02-harness` (based on `origin/main` @ `f82737f`).  
+Not pushed (coordinator integrates serially).
 
 ## Test evidence
 
