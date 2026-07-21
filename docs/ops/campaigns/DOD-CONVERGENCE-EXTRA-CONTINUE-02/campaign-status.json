@@ -1,24 +1,24 @@
 {
   "campaign": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
-  "at": "2026-07-21T13:45:02.588747+00:00",
-  "main_sha": "07e998647c2c90578649bb27740039a8e5b3090b",
-  "accepted_this_run": [
-    "planilha",
-    "fontes",
-    "persist"
-  ],
-  "merged_prs": [
-    75,
-    76,
-    77,
-    78,
-    79
-  ],
+  "at": "2026-07-21T14:54:34.628646+00:00",
+  "main_sha": "$MERGE",
   "billing": "RESOLVED",
-  "next": "freshness gate",
-  "human_open": [
-    "public exposure commercial materials",
-    "Tiago human accept"
+  "pr74": "CLOSED_SUPERSEDED_BY_75",
+  "product_prs_merged": [
+    75,
+    77,
+    79,
+    81,
+    83,
+    85,
+    88,
+    90,
+    92
   ],
-  "resume_step": "next_freshness_gate_on_clean_db"
+  "gp_12_1_status": "majority core path ACCEPTED; residual: domain report lists, clean env, planilha hash, report meta period/limitations",
+  "resume_step": "next_clean_env_or_domain_reports",
+  "human_blockers": [
+    "public exposure HIGH commercial materials",
+    "Tiago human accept"
+  ]
 }
