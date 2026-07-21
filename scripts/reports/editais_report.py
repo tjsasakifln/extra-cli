@@ -140,7 +140,17 @@ def write_editais_report(
     json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
 
     size = csv_path.stat().st_size
-    ok = size >= 50  # header-only empty is still a real report artifact
+    hard_fail_prefixes = (
+        "db_connect_failed:",
+        "query_failed:",
+        "table pncp_raw_bids missing",
+    )
+    hard_fail = any(
+        any(lim.startswith(p) or lim == p for p in hard_fail_prefixes) for lim in limitations
+    )
+    # Header-only empty is OK when table exists (honest zero + limitations).
+    # Connect/query/table failures must not soft-pass.
+    ok = (not hard_fail) and size >= 50
     return {
         "ok": ok,
         "path": str(csv_path),

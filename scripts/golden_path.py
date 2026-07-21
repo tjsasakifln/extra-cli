@@ -2535,7 +2535,7 @@ def main() -> int:
         1: "FALHA/EMPTY: sem dados utilizáveis ou essential zero sem --allow-zero",
         2: "PARCIAL: fontes essenciais falharam",
         3: "FRESHNESS FAIL: gate de freshness reprovado (strict)",
-        4: "REPORT FAIL: Excel/PDF obrigatório falhou (strict)",
+        4: "REPORT FAIL: Excel/PDF ou relatório de editais obrigatório falhou",
         5: "DEGRADED: fontes não essenciais falharam (strict)",
     }
     _echo(f"\n{messages.get(exit_code, f'Exit {exit_code}')}. Verifique o ledger.", "error")

@@ -135,5 +135,13 @@ def test_cli_execute_editais_report_only(tmp_path: Path) -> None:
     edit = next(s for s in steps if s.get("step") == "editais_report")
     assert edit.get("status") == "pass"
     details = edit.get("details") or {}
-    assert details.get("row_count", 0) >= 0
     assert "relatorio-editais" in str(details.get("path", ""))
+    assert details.get("ok") is True
+    assert Path(details["path"]).is_file()
+    assert Path(details["path"]).stat().st_size >= 50
+    # Sidecar proves domain report (not panorama)
+    jpath = details.get("json_path")
+    assert jpath and Path(jpath).is_file()
+    side = json.loads(Path(jpath).read_text(encoding="utf-8"))
+    assert side.get("report_type") == "editais"
+    assert "limitations" in side
