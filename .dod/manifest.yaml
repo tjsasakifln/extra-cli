@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-21T12:57:35Z'
+updated_at: '2026-07-21T13:16:06Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -31985,14 +31985,19 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: MACHINE_ACTIONABLE
-  state: OPEN
+  state: VERIFIED
   dod_checked: false
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
-  files: []
+  acceptance_commands:
+  - python3 -c "from scripts.golden_path import ESSENTIAL_SOURCE_NAMES, assert_essential_sources_executed, SourceRecord; recs=[SourceRecord(name=n,status=\"success\",duration_ms=1,attempts=1,metrics={})
+    for n in ESSENTIAL_SOURCE_NAMES]; ok,d=assert_essential_sources_executed(recs); raise SystemExit(0 if ok else 1)"
+  tests:
+  - tests/test_golden_path_fontes_minimas.py
+  files:
+  - scripts/golden_path.py
+  - tests/test_golden_path_fontes_minimas.py
   environment: local
   needs_clean_db: true
   needs_live_source: false
@@ -32018,6 +32023,9 @@ items:
   - at: '2026-07-21T02:34:17Z'
     event: rescan
     detail: line=903
+  - at: '2026-07-21T13:16:06Z'
+    event: verify
+    detail: VERIFIED head=41f73d167766947b8250962fd2f831479b478d8b runs=2
   content_fingerprint: faaf47c790
   evidence_audit: null
   priority_boost: 0

@@ -1,28 +1,29 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
-  "updated_at": "2026-07-21T12:57:38Z",
+  "updated_at": "2026-07-21T13:16:12Z",
   "active_item_id": null,
   "active_run_id": "run-20260721T022411Z",
   "active_branch": "campaign/continue-02-accept-planilha",
-  "main_sha": "ae5302a3e6b5ca88b6dde56e34c0e9287c3c529f",
+  "main_sha": "41f73d167766947b8250962fd2f831479b478d8b",
   "phase": "converge",
-  "next_eligible_id": "DOD-rol-1-definition-of-done-faaf47c790",
+  "next_eligible_id": "DOD-rol-1-definition-of-done-9c996cb14e",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1356,
     "accepted": 313,
-    "verified": 0,
+    "verified": 1,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1042,
+    "open": 1041,
     "blocked": 1,
     "deferred": 0,
     "acceptance_pct": 23.08,
     "by_state": {
       "ACCEPTED": 313,
-      "OPEN": 1042,
-      "BLOCKED_HUMAN": 1
+      "OPEN": 1041,
+      "BLOCKED_HUMAN": 1,
+      "VERIFIED": 1
     },
     "by_category": {
       "ACCEPTED_EXISTING": 235,
@@ -38,8 +39,8 @@
     },
     "dod_checked_count": 316
   },
-  "resume_step": "next_fontes_minimas_after_harness_integrate",
-  "notes": "CONTINUE-02: billing blocker RESOLVED (repo public; CI Actions run). PR#74 closed superseded; PR#75 merged ae5302a — planilha-alvo ACCEPTED (strong). Premature VERIFIED stack from #74 never landed on main. Demoted: private-repo false claim, Tiago PENDING_HUMAN auto-accept, suite orphan. Next: integrate harness fail-closed then fontes mínimas with real crawl proof.",
+  "resume_step": "next_persiste_dados_or_block_on_schema",
+  "notes": "CONTINUE-02 progress: planilha ACCEPTED (#75); harness fail-closed (#76); fontes mínimas ACCEPTED (#77) with live execution proof. Live crawls hit persist/schema issues (pipeline_runs missing, upsert ON CONFLICT) — these block \"persiste dados\" not \"executa fontes\". Public exposure HIGH commercial materials remain human decision. Billing RESOLVED.",
   "billing_blocker": {
     "status": "RESOLVED",
     "resolved_at": "2026-07-21T12:57:41Z",
@@ -48,5 +49,6 @@
       "29797072553",
       "29831727568"
     ]
-  }
+  },
+  "next_step": "accept"
 }
