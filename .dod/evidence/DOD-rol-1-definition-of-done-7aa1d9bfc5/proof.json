@@ -1,0 +1,25 @@
+{
+  "at": "2026-07-21T02:16:14.205088+00:00",
+  "run1": {
+    "ok": true,
+    "ms": 61.552999999548774,
+    "counts": {
+      "applied": 0,
+      "skipped": 62,
+      "repaired": 0
+    }
+  },
+  "run2": {
+    "ok": true,
+    "ms": 17.01159999902302,
+    "counts": {
+      "applied": 0,
+      "skipped": 62,
+      "repaired": 0
+    }
+  },
+  "entrypoints": [
+    "scripts.golden_path.apply_migrations",
+    "scripts.ops.apply_migrations.apply_range"
+  ]
+}

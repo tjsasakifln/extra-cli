@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from scripts.golden_path import (
     collect_run_metadata,
     evaluate_run_outcome,
@@ -70,3 +72,41 @@ def test_script_path_help() -> None:
         check=False,
     )
     assert r.returncode == 0
+
+
+def test_help_documents_skip_migrations() -> None:
+    r = subprocess.run(
+        [sys.executable, "-m", "scripts.golden_path", "--help"],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert r.returncode == 0
+    assert "skip-migrations" in (r.stdout + r.stderr)
+
+
+def test_apply_migrations_function_exists_and_uses_apply_range(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """DoD: golden path applies migrations via scripts.ops.apply_migrations."""
+    from scripts import golden_path as gp
+
+    calls: list[tuple] = []
+
+    def fake_apply_range(dsn, root, **kwargs):
+        calls.append((dsn, Path(root), kwargs.get("mode"), kwargs.get("max_num")))
+        return {"applied": ["001_x.sql"], "skipped": ["002_y.sql"], "repaired": []}
+
+    monkeypatch.setattr(
+        "scripts.ops.apply_migrations.apply_range",
+        fake_apply_range,
+    )
+    ok, dur, summary = gp.apply_migrations("postgresql://test@localhost/db")
+    assert ok is True
+    assert dur >= 0
+    assert summary["applied"] == ["001_x.sql"]
+    assert len(calls) == 1
+    assert calls[0][0] == "postgresql://test@localhost/db"
+    assert calls[0][2] == "upgrade"
+    assert calls[0][3] is None  # all migrations

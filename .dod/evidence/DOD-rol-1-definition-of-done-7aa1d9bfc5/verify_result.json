@@ -1,0 +1,20 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-7aa1d9bfc5",
+  "commands": [
+    {
+      "cmd": "python3 -c \"from scripts.golden_path import apply_migrations; import os; ok,_,s=apply_migrations(os.environ['DATABASE_URL']); raise SystemExit(0 if ok else 1)\"",
+      "exit_code": 0,
+      "stdout_tail": "ipeline_runs.sql (ledger)\nskip 048_record_hashes.sql (ledger)\nskip 049_pncp_resumable_backfill.sql (ledger)\nskip 050_fix_contracts_upsert_fk.sql (ledger)\nskip 051_contract_date_semantics.sql (ledger)\nskip 052_official_acts.sql (ledger)\nskip 053_entity_source_registry.sql (ledger)\nskip 054_local_resilience_contract.sql (ledger)\nskip 055_drop_orgao_entity_fk_national_pncp.sql (ledger)\nskip 056_drop_supplier_entity_fk_contracts.sql (ledger)\nskip 057_fix_upsert_opportunity_content_hash.sql (ledger)\n",
+      "stderr_tail": ""
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_golden_path_canonical.py",
+      "exit_code": 0,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64487  64316   0.3%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 6 passed in 48.23s ==============================\n"
+    }
+  ],
+  "ok": true,
+  "notes": []
+}

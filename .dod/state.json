@@ -1,27 +1,27 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-01",
-  "updated_at": "2026-07-21T02:07:54Z",
-  "active_item_id": "DOD-rol-1-definition-of-done-16267c473a",
-  "active_run_id": "run-20260721T020754Z",
+  "updated_at": "2026-07-21T02:14:54Z",
+  "active_item_id": "DOD-rol-1-definition-of-done-7aa1d9bfc5",
+  "active_run_id": "run-20260721T021454Z",
   "active_branch": "campaign/dod-convergence-extra-01",
   "main_sha": "4d28bad98eae7a1c37660a7fd5c8dfacebe2f3b7",
   "phase": "item_cycle",
-  "next_eligible_id": "DOD-rol-1-definition-of-done-16267c473a",
+  "next_eligible_id": "DOD-rol-1-definition-of-done-7aa1d9bfc5",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1356,
-    "accepted": 312,
+    "accepted": 313,
     "verified": 0,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1044,
+    "open": 1043,
     "blocked": 0,
     "deferred": 0,
-    "acceptance_pct": 23.01,
+    "acceptance_pct": 23.08,
     "by_state": {
-      "ACCEPTED": 312,
-      "OPEN": 1044
+      "ACCEPTED": 313,
+      "OPEN": 1043
     },
     "by_category": {
       "ACCEPTED_EXISTING": 235,
