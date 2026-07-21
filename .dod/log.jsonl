@@ -1,0 +1,4 @@
+{"at": "2026-07-21T01:35:04Z", "event": "scan", "stats": {"added": 1355}, "total": 1355, "accepted": 309}
+{"at": "2026-07-21T01:35:24Z", "event": "report", "path": ".dod/evidence/bootstrap-report.json"}
+{"at": "2026-07-21T01:36:04Z", "event": "start", "item_id": "DOD-definition-of-done-extra-fd43ee57aa", "run_id": "run-20260721T013604Z"}
+{"at": "2026-07-21T01:54:46Z", "event": "verify", "item_id": "DOD-definition-of-done-extra-fd43ee57aa", "ok": true}

@@ -119,3 +119,17 @@ output/qw-01/**/coverage_gaps.csv
 docs/ops/campaigns/**/evidence/**/*.dump
 docs/ops/campaigns/**/evidence/**/package-final-fixture/*.pdf
 docs/ops/campaigns/**/evidence/**/package-final-fixture/*.xlsx
+
+# Spec Kit / Grok runtime (keep skills + constitution + workflows definitions)
+.specify/workflows/**/runs/
+.specify/.cache/
+.grok/tmp/
+.grok/cache/
+specs/**/checklists/.runtime/
+# DOD controller runtime logs are versioned lightly; large ephemeral packs optional
+.dod/evidence/.tmp/
+
+# Grok agent runtime (version skills only via negation if parent ignored)
+.grok/*
+!.grok/skills/
+!.grok/skills/**

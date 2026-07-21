@@ -1,0 +1,211 @@
+schema_version: "1.0"
+workflow:
+  id: "dod-convergence"
+  name: "DOD Convergence Cycle"
+  version: "1.0.0"
+  author: "Extra Consultoria"
+  description: >
+    Persistent cycle: refresh main, audit DOD/manifest, select next eligible item,
+    Spec Kit feature for that item only, small first wave, tests, evidence pack,
+    serial normative updates, PR/CI gates, then next item.
+
+requires:
+  speckit_version: ">=0.8.5"
+  integrations:
+    any:
+      - "grok"
+      - "claude"
+      - "codex"
+      - "copilot"
+
+inputs:
+  integration:
+    type: string
+    default: "auto"
+    prompt: "Integration (auto = project default)"
+  max_items:
+    type: string
+    default: "1"
+    prompt: "How many DOD items to attempt this run (numeric string)"
+  allow_human_block:
+    type: string
+    default: "true"
+    prompt: "Stop when next item is HUMAN_ACCEPTANCE on critical path (true/false)"
+
+steps:
+  - id: refresh-main
+    type: shell
+    timeout: 120
+    run: >
+      git fetch origin main --prune &&
+      echo "main=$(git rev-parse origin/main)" &&
+      git rev-parse --abbrev-ref HEAD
+
+  - id: audit-dod
+    type: shell
+    timeout: 300
+    run: python3 tools/dod_controller.py scan && python3 tools/dod_controller.py audit --json || true
+
+  - id: revalidate-status
+    type: shell
+    timeout: 120
+    output_format: json
+    run: python3 tools/dod_controller.py status --json
+
+  - id: select-next
+    type: shell
+    timeout: 60
+    output_format: json
+    run: python3 tools/dod_controller.py next --json
+
+  - id: gate-has-item
+    type: gate
+    message: >
+      Review selected next DOD item (stdout of select-next). Approve to start
+      Spec Kit feature cycle for that single item; reject to abort.
+    options: [approve, reject]
+    on_reject: abort
+
+  - id: start-item
+    type: shell
+    timeout: 60
+    run: >
+      ITEM=$(python3 tools/dod_controller.py next --json | python3 -c "import sys,json; d=json.load(sys.stdin); print((d.get('item') or {}).get('id') or '')") &&
+      test -n "$ITEM" &&
+      python3 tools/dod_controller.py start "$ITEM" --json
+
+  - id: specify-item
+    command: speckit.specify
+    integration: "{{ inputs.integration }}"
+    input:
+      args: >
+        Single DOD item only (from .dod/state.json active_item_id).
+        Do not expand scope beyond this item and at most two prerequisites.
+        Register acceptance criteria in .dod/evidence/<ITEM_ID>/acceptance_criteria.md
+        before implementation completes.
+
+  - id: clarify-if-needed
+    type: gate
+    message: "Material ambiguity remains? approve=run clarify, reject=skip clarify."
+    options: [approve, reject]
+    on_reject: continue
+
+  - id: clarify
+    command: speckit.clarify
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Only material ambiguities for the active DOD item."
+
+  - id: plan-item
+    command: speckit.plan
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Minimal delta plan over current codebase for active DOD item only."
+
+  - id: tasks-item
+    command: speckit.tasks
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Atomic tasks for active DOD item; mark first small wave explicitly."
+
+  - id: analyze-consistency
+    command: speckit.analyze
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Consistency between spec, plan, and tasks for active DOD item."
+
+  - id: review-first-wave
+    type: gate
+    message: "Approve first small wave file ownership and hypothesis before implement."
+    options: [approve, reject]
+    on_reject: abort
+
+  - id: implement-first-wave
+    command: speckit.implement
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Implement ONLY the first small wave of tasks for the active DOD item."
+
+  - id: test-first-wave
+    type: shell
+    timeout: 1800
+    run: >
+      python3 -m pytest tests/test_dod_controller.py -q --tb=line &&
+      echo "first-wave harness ok; run item-specific tests declared in evidence pack"
+
+  - id: validate-first-wave
+    type: gate
+    message: "Adversarial/manual validation of first wave passed?"
+    options: [approve, reject]
+    on_reject: abort
+
+  - id: implement-remaining
+    command: speckit.implement
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Implement remaining tasks for active DOD item only."
+
+  - id: item-tests
+    type: shell
+    timeout: 7200
+    run: >
+      echo "Run item-specific acceptance commands from manifest" &&
+      ITEM=$(python3 -c "import json; print(json.load(open('.dod/state.json')).get('active_item_id') or '')") &&
+      test -n "$ITEM" &&
+      python3 tools/dod_controller.py verify "$ITEM" --json || true
+
+  - id: regression-hint
+    type: shell
+    timeout: 300
+    run: >
+      echo "Regression: prefer python3 -m scripts.ops.run_full_suite when item touches suite/CI;"
+      echo "else targeted pytest + critical readiness suite."
+
+  - id: converge
+    command: speckit.converge
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Assess gaps for active DOD item only; append tasks within item + 2 prereqs."
+
+  - id: converge-loop
+    type: while
+    condition: "false"
+    max_iterations: 3
+    steps:
+      - id: converge-implement
+        command: speckit.implement
+        integration: "{{ inputs.integration }}"
+        input:
+          args: "Close converge-generated tasks for active DOD item only."
+      - id: converge-again
+        command: speckit.converge
+        integration: "{{ inputs.integration }}"
+        input:
+          args: "Re-assess active DOD item; stop if no new learning."
+
+  - id: independent-audit
+    type: shell
+    timeout: 300
+    run: python3 tools/dod_controller.py audit --json || true
+
+  - id: evidence-pack
+    type: shell
+    timeout: 120
+    run: >
+      ITEM=$(python3 -c "import json; print(json.load(open('.dod/state.json')).get('active_item_id') or '')") &&
+      test -n "$ITEM" &&
+      mkdir -p ".dod/evidence/$ITEM" &&
+      python3 tools/dod_controller.py report --output ".dod/evidence/$ITEM/campaign-report.json"
+
+  - id: normative-update-gate
+    type: gate
+    message: >
+      Serial update of DOD.md / ADR / handoff for this item only is ready?
+      Approve to mark verify path complete for PR preparation.
+    options: [approve, reject]
+    on_reject: abort
+
+  - id: final-report
+    type: shell
+    timeout: 120
+    run: python3 tools/dod_controller.py status && python3 tools/dod_controller.py report --json

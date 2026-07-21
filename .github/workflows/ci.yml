@@ -227,10 +227,31 @@ jobs:
 
   test-all:
     name: Test All (full suite)
-    # Full suite still needs external services for some modules.
-    # Remains workflow_dispatch until residual debt is cleared (see campaign STATUS).
-    if: github.event_name == 'workflow_dispatch'
+    # Canonical global suite — same semantics as `make test-all` /
+    # `python -m scripts.ops.run_full_suite` (no implicit slow exclusion).
+    # Runs on PR→main, push→main, and workflow_dispatch.
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: extra_full_suite
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d extra_full_suite"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/extra_full_suite
+      LOCAL_DATALAKE_DSN: postgresql://test:test@localhost:5432/extra_full_suite
+      REQUIRE_REAL_DB: "1"
+      RESILIENCE_REQUIRE_DB: "1"
+      RESILIENCE_ENV: test
+      CI: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -245,12 +266,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov
+          pip install pytest pytest-asyncio pytest-cov psycopg2-binary openpyxl prometheus_client
 
-      - name: Run ALL tests (no marker exclusions)
-        run: pytest tests/ -m "" --cov --cov-fail-under=10
-        env:
-          CI: true
+      - name: Canonical full suite (migrations + seeds + pytest no marker exclusion)
+        run: python -m scripts.ops.run_full_suite
 
   # ============================================================================
   # RESILIENCE GATE — pre-VPS truth (fail-closed, no continue-on-error)

@@ -123,8 +123,9 @@ test:
 
 .PHONY: test-all
 test-all:
-	@echo '==> [$(ENV)] Rodando todos os testes (inclui slow) com cobertura'
-	pytest --cov=$(SCRIPTS_DIR) --cov-report=term-missing
+	@echo '==> [$(ENV)] Canonical full suite (no slow exclusion; isolated DSN required)'
+	@test -n "$${DATABASE_URL}$${LOCAL_DATALAKE_DSN}" || (echo 'DATABASE_URL or LOCAL_DATALAKE_DSN required for make test-all' && exit 2)
+	python -m scripts.ops.run_full_suite
 
 .PHONY: resilient-smoke
 resilient-smoke:

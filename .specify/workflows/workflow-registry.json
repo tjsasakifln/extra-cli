@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "workflows": {
+    "speckit": {
+      "name": "Full SDD Cycle",
+      "version": "1.0.0",
+      "description": "Runs specify \u2192 plan \u2192 tasks \u2192 implement with review gates",
+      "source": "bundled",
+      "installed_at": "2026-07-21T01:27:29.288686+00:00",
+      "updated_at": "2026-07-21T01:27:29.288699+00:00"
+    },
+    "dod-convergence": {
+      "name": "DOD Convergence Cycle",
+      "version": "1.0.0",
+      "description": "Audit DOD, select next item, Spec Kit cycle, evidence, gates",
+      "source": "local",
+      "installed_at": "2026-07-21T01:31:45.833315+00:00",
+      "updated_at": "2026-07-21T01:31:45.833315+00:00"
+    }
+  }
+}

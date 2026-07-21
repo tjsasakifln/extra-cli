@@ -29,8 +29,6 @@ import os
 import threading
 import time
 
-from psycopg2.extras import RealDictCursor
-
 _logger = logging.getLogger(__name__)
 
 # Cache TTL in seconds (5 minutes — aliases mudam raramente)
@@ -61,6 +59,7 @@ class EntityResolver:
         self._own_conn = conn is None
         self._cache: dict[str, str] = {}
         self._cache_ts: float = 0.0
+        self._cache_loaded_ok: bool = False
         self._lock = threading.Lock()
 
     @property
@@ -71,7 +70,18 @@ class EntityResolver:
         return self._conn
 
     def _cache_valid(self) -> bool:
+        # Empty cache is never "valid" — avoids sticky empty state after a
+        # failed/partial load (observed under full-suite CI as cache_size=0).
+        if not self._cache_loaded_ok or not self._cache:
+            return False
         return (time.monotonic() - self._cache_ts) < _CACHE_TTL
+
+    def invalidate_cache(self) -> None:
+        """Drop local cache so the next resolve reloads from the DB."""
+        with self._lock:
+            self._cache = {}
+            self._cache_ts = 0.0
+            self._cache_loaded_ok = False
 
     def _load_cache(self) -> None:
         """Carrega todos os aliases ativos no cache local."""
@@ -80,17 +90,24 @@ class EntityResolver:
                 return
 
             try:
-                cur = self.conn.cursor(cursor_factory=RealDictCursor)
+                # Use a plain cursor (not RealDictCursor) for maximum driver
+                # compatibility under suite isolation and mock opt-outs.
+                cur = self.conn.cursor()
                 cur.execute(
-                    "SELECT cnpj_8_sub, cnpj_8_pub FROM entity_aliases WHERE is_active = TRUE"
+                    "SELECT cnpj_8_sub, cnpj_8_pub FROM entity_aliases "
+                    "WHERE is_active IS TRUE"
                 )
-                self._cache = {row["cnpj_8_sub"]: row["cnpj_8_pub"] for row in cur.fetchall()}
+                rows = cur.fetchall()
+                self._cache = {str(row[0]): str(row[1]) for row in rows}
                 self._cache_ts = time.monotonic()
+                self._cache_loaded_ok = True
+                cur.close()
                 _logger.debug("Cache loaded: %d aliases", len(self._cache))
             except Exception:
                 _logger.exception("Failed to load entity alias cache")
-                if not self._cache:
-                    self._cache = {}
+                self._cache = {}
+                self._cache_loaded_ok = False
+                self._cache_ts = 0.0
 
     def resolve(self, cnpj_8: str) -> str:
         """Resolve um CNPJ subordinate para o CNPJ publicante.
@@ -109,20 +126,39 @@ class EntityResolver:
 
         try:
             self._load_cache()
-            return self._cache.get(cnpj_8, cnpj_8)
+            if self._cache_loaded_ok and self._cache:
+                return self._cache.get(cnpj_8, cnpj_8)
+            # Cache empty/failed → deterministic per-row SQL (never silent self).
+            return self._resolve_sql(cnpj_8)
         except Exception:
             _logger.warning(
-                "EntityResolver cache miss, falling back to SQL for %s", cnpj_8
+                "EntityResolver cache path failed, falling back to SQL for %s",
+                cnpj_8,
             )
             return self._resolve_sql(cnpj_8)
 
     def _resolve_sql(self, cnpj_8: str) -> str:
-        """Fallback: consulta SQL direta."""
+        """Fallback: consulta SQL direta na tabela (e função se existir)."""
         try:
             cur = self.conn.cursor()
-            cur.execute("SELECT resolve_publishing_cnpj_sql(%s)", (cnpj_8,))
+            cur.execute(
+                "SELECT cnpj_8_pub FROM entity_aliases "
+                "WHERE cnpj_8_sub = %s AND is_active IS TRUE LIMIT 1",
+                (cnpj_8,),
+            )
             row = cur.fetchone()
-            return row[0] if row else cnpj_8
+            if row and row[0]:
+                cur.close()
+                return str(row[0])
+            # Optional DB helper (may be absent on partial schemas).
+            try:
+                cur.execute("SELECT resolve_publishing_cnpj_sql(%s)", (cnpj_8,))
+                row = cur.fetchone()
+                cur.close()
+                return str(row[0]) if row and row[0] else cnpj_8
+            except Exception:
+                cur.close()
+                return cnpj_8
         except Exception:
             _logger.exception("SQL fallback failed for %s, returning self", cnpj_8)
             return cnpj_8
@@ -136,10 +172,12 @@ class EntityResolver:
         normalized = [_normalize_cnpj(c) for c in cnpj_list]
         try:
             self._load_cache()
-            return {cnpj: self._cache.get(cnpj, cnpj) for cnpj in normalized}
+            if self._cache_loaded_ok and self._cache:
+                return {cnpj: self._cache.get(cnpj, cnpj) for cnpj in normalized}
+            return {cnpj: self._resolve_sql(cnpj) for cnpj in normalized}
         except Exception:
-            _logger.exception("Batch resolve failed, returning self for all")
-            return {cnpj: cnpj for cnpj in normalized}
+            _logger.exception("Batch resolve failed, using per-row SQL")
+            return {cnpj: self._resolve_sql(cnpj) for cnpj in normalized}
 
     def close(self) -> None:
         if self._own_conn and self._conn is not None:

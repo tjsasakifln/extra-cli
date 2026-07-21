@@ -1,0 +1,21 @@
+python3 -m scripts.ops.validate_systemd
+{
+  "status": "pass",
+  "errors": []
+}
+python3 -m pytest -o addopts='' -q \
+	tests/test_local_resilience.py \
+	tests/test_resilience_vertical_slice.py \
+	tests/test_fetch_result.py \
+	tests/test_crawler_pncp.py \
+	tests/test_sc_compras_crawler.py \
+	tests/test_ciga_dom_publications.py \
+	tests/test_dlq.py \
+	tests/test_watermark.py \
+	-m "not database and not slow"
+........................................................................ [ 32%]
+...............................................sssssssssssssss.......... [ 65%]
+.................sssssssss.............................................. [ 97%]
+.....                                                                    [100%]
+197 passed, 24 skipped, 2 deselected in 27.76s
+SMOKE_EXIT=0

@@ -1009,12 +1009,15 @@ class TestParseTableRows:
 class TestCrawl:
     """Tests for crawl()."""
 
+    @patch("scripts.crawl.transparencia_crawler.crawl_template")
     @patch("scripts.crawl.transparencia_crawler._load_entities")
     @patch("scripts.crawl.transparencia_crawler._load_existing_results")
     @patch("scripts.crawl.transparencia_crawler.detect_platform")
     @patch("scripts.crawl.transparencia_crawler._save_results")
-    def test_crawl_full(self, mock_save, mock_detect, mock_existing, mock_entities):
-        """crawl('full') iterates over entities and returns results."""
+    def test_crawl_full(
+        self, mock_save, mock_detect, mock_existing, mock_entities, mock_template
+    ):
+        """crawl('full') runs detection then template scrape (current contract)."""
         mock_save.return_value = "/tmp/test_platforms.json"
         mock_entities.return_value = [
             {"nome": "Chapeco", "slug": "chapeco", "ibge": "4204202"},
@@ -1028,12 +1031,30 @@ class TestCrawl:
             "status": "detected",
             "detected_at": "2025-01-01",
         }
+        # full mode prefers template results when present
+        mock_template.return_value = [
+            {
+                "municipio": "Chapeco",
+                "slug": "chapeco",
+                "status": "ok",
+                "count": 1,
+                "records": [{}],
+            },
+            {
+                "municipio": "Blumenau",
+                "slug": "blumenau",
+                "status": "ok",
+                "count": 1,
+                "records": [{}],
+            },
+        ]
 
         results = tc.crawl(mode="full")
         assert len(results) == 2
         assert results[0]["municipio"] == "Chapeco"
         assert results[1]["municipio"] == "Blumenau"
         assert mock_detect.call_count == 2
+        assert mock_template.call_count == 1
 
     @patch("scripts.crawl.transparencia_crawler._load_entities")
     @patch("scripts.crawl.transparencia_crawler._load_existing_results")

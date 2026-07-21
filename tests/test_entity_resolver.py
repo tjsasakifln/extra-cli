@@ -17,19 +17,68 @@ from scripts.lib.entity_resolver import (
     _normalize_cnpj,
 )
 
-ACTUAL_DSN = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN") or "postgresql://test:test@127.0.0.1:5433/pncp_datalake"
+pytestmark = pytest.mark.real_db
+
+ACTUAL_DSN = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN") or ""
 
 
 @pytest.fixture(scope="module")
 def db_conn():
-    """Module-scoped connection to pncp_datalake (with entity_aliases data)."""
+    """Module-scoped connection to isolated test DB with entity_aliases data.
+
+    Full suite entrypoint seeds sc_public_entities + entity_aliases after
+    migrations. Hard-fails (not skip) when REQUIRE_REAL_DB is set but DSN
+    is missing — avoids silent green via skip.
+
+    Uses autocommit=True so concurrent suite writers cannot leave this
+    connection stuck in a failed transaction, and re-asserts AC-1 seed rows.
+    """
+    dsn = ACTUAL_DSN
+    if not dsn:
+        if os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}:
+            pytest.fail(
+                "REQUIRE_REAL_DB=1 but DATABASE_URL/LOCAL_DATALAKE_DSN unset — "
+                "full suite must provision isolated PostgreSQL"
+            )
+        pytest.skip("Database not available")
     try:
-        conn = psycopg2.connect(ACTUAL_DSN)
-        conn.autocommit = False
+        conn = psycopg2.connect(dsn)
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            # Deterministic AC-1 rows (idempotent). Seeds should already provide
+            # these; upsert keeps the module green if another test wiped aliases.
+            for sub, pub, mun in (
+                ("62761279", "82892324", "SANTO AMARO DA IMPERATRIZ"),
+                ("63641306", "82575812", "PORTO BELO"),
+            ):
+                cur.execute(
+                    """
+                    INSERT INTO entity_aliases (
+                        cnpj_8_sub, cnpj_8_pub, alias_type, municipio, is_active
+                    ) VALUES (%s, %s, 'municipio_parent', %s, TRUE)
+                    ON CONFLICT ON CONSTRAINT uq_entity_aliases_sub DO UPDATE
+                    SET cnpj_8_pub = EXCLUDED.cnpj_8_pub,
+                        is_active = TRUE,
+                        updated_at = now()
+                    """,
+                    (sub, pub, mun),
+                )
+            cur.execute(
+                "SELECT count(*) FROM entity_aliases WHERE is_active AND cnpj_8_sub = %s",
+                ("62761279",),
+            )
+            n = cur.fetchone()[0]
+            if n < 1:
+                pytest.fail(
+                    "entity_aliases missing AC-1 seed for 62761279 after upsert — "
+                    "schema or connection is not the isolated suite DB"
+                )
         yield conn
         conn.close()
-    except psycopg2.OperationalError:
-        pytest.skip("Database not available")
+    except psycopg2.OperationalError as exc:
+        if os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}:
+            pytest.fail(f"REQUIRE_REAL_DB=1 but connection failed: {exc}")
+        pytest.skip(f"Database not available: {exc}")
 
 
 class TestNormalizeCnpj:
@@ -56,10 +105,24 @@ class TestEntityResolver:
 
     def test_resolve_secretaria_to_prefeitura(self, db_conn):
         """AC-1: Secretaria → Prefeitura no mesmo municipio."""
+        with db_conn.cursor() as cur:
+            cur.execute(
+                "SELECT cnpj_8_pub FROM entity_aliases "
+                "WHERE cnpj_8_sub = %s AND is_active",
+                ("62761279",),
+            )
+            row = cur.fetchone()
+            assert row is not None, "AC-1 alias row missing in entity_aliases"
+            assert row[0] == "82892324"
         resolver = EntityResolver(db_conn)
+        resolver.invalidate_cache()
         # "SECRETARIA MUNICIPAL DE EDUCACAO" em SANTO AMARO DA IMPERATRIZ
         result = resolver.resolve("62761279")
-        assert result == "82892324"
+        assert result == "82892324", (
+            f"resolve returned {result!r}; cache_size="
+            f"{len(getattr(resolver, '_cache', {}))}; "
+            f"loaded_ok={getattr(resolver, '_cache_loaded_ok', None)}"
+        )
         assert result != "62761279"
 
     def test_resolve_secretaria_to_prefeitura_porto_belo(self, db_conn):

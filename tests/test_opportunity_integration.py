@@ -18,9 +18,10 @@ import pytest
 # Skip unless explicit
 pytestmark = pytest.mark.integration
 
-DEFAULT_DSN = os.getenv(
-    "LOCAL_DATALAKE_DSN",
-    "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
+DEFAULT_DSN = (
+    os.getenv("DATABASE_URL")
+    or os.getenv("LOCAL_DATALAKE_DSN")
+    or "postgresql://test:test@127.0.0.1:5432/extra_full_suite"
 )
 
 
