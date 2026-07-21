@@ -5,10 +5,11 @@ Executa a sequencia completa e idempotente:
   1. Verifica conectividade com PostgreSQL
   2. Aplica migrations versionadas (db/migrations via scripts.ops.apply_migrations)
   3. Aplica seeds determinísticos (db/seed/001_sc_entities + 002_entity_aliases)
-  4. Crawl das fontes prioritarias (pncp, pcp, compras_gov) com
+  4. Importa/valida a planilha-alvo canônica (Extra alvos de licitação)
+  5. Crawl das fontes prioritarias (pncp, pcp, compras_gov) com
      timeout, retry 3x e backoff exponencial + jitter
-  5. Valida freshness gate
-  6. Gera relatorios (PDF executivo + Excel rastreavel)
+  6. Valida freshness gate
+  7. Gera relatorios (PDF executivo + Excel rastreavel)
 
 Cada etapa e registrada em um ledger JSON para rastreabilidade.
 
@@ -40,6 +41,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import os
@@ -216,9 +218,7 @@ def run_coverage_calculation(dsn: str) -> StepRecord:
         conn = psycopg2.connect(dsn, connect_timeout=5)
         try:
             with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT count(*) FROM information_schema.tables WHERE table_schema='public'"
-                )
+                cur.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='public'")
                 n = int(cur.fetchone()[0])
         finally:
             conn.close()
@@ -301,12 +301,10 @@ def evaluate_run_outcome(
     essential_ok = [r for r in successes if r.name in essential_names]
     non_essential_fail = [r for r in fails if r.name not in essential_names]
 
-    freshness_status = (freshness.status if freshness else "skipped")
+    freshness_status = freshness.status if freshness else "skipped"
     if skip_freshness:
         freshness_status = "skipped"
-    report_fails = [
-        r for r in reports if r.status == "fail" and not skip_reports
-    ]
+    report_fails = [r for r in reports if r.status == "fail" and not skip_reports]
 
     # --- non-strict legacy path (explicit opt-out only) ---
     if not strict:
@@ -565,6 +563,227 @@ def apply_seeds(dsn: str) -> tuple[bool, float, dict[str, list[str]]]:
 
 
 # ---------------------------------------------------------------------------
+# Step 1d: Validate target spreadsheet (canonical — DoD §12.1)
+# ---------------------------------------------------------------------------
+
+# Preferred basename (never a .backup / .copy / temp variant).
+CANONICAL_SPREADSHEET_BASENAME = "Extra - alvos de licitação. R-0.xlsx"
+# Expected included (raio 200km) set size and ordered-ids hash from current DOD.
+EXPECTED_CANONICAL_INCLUDED = 1093
+EXPECTED_CANONICAL_IDS_SHA256 = "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396"
+REQUIRED_SHEET_NAME = "Entes Públicos SC"
+REQUIRED_HEADER_MARKERS = ("Razão Social", "CNPJ", "Município", "Raio")
+_BACKUP_NAME_TOKENS = (".backup", ".copy", ".tmp", "~$", ".temp")
+
+
+def _is_backup_or_temp_name(name: str) -> bool:
+    lowered = name.lower()
+    return any(tok in lowered for tok in _BACKUP_NAME_TOKENS)
+
+
+def _ordered_ids_sha256(ids: list[str]) -> str:
+    payload = "\n".join(sorted(str(i) for i in ids)).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def resolve_canonical_spreadsheet(
+    project_root: Path,
+    *,
+    explicit_path: Path | None = None,
+    allow_backup: bool = False,
+) -> Path:
+    """Select exactly one canonical target spreadsheet by explicit rules.
+
+    Rules (fail-closed):
+    1. Explicit path wins when provided and exists.
+    2. Prefer exact basename CANONICAL_SPREADSHEET_BASENAME under project root.
+    3. Else non-backup candidates matching ``Extra*alvos*.xlsx`` under root
+       (and ``data/``). Zero → missing; >1 → ambiguous.
+    4. Backup/copy/temp names are never selected silently.
+    5. Backup-only is allowed only when ``allow_backup`` is True.
+    """
+    root = project_root.resolve()
+
+    if explicit_path is not None:
+        path = explicit_path.expanduser().resolve()
+        if not path.is_file():
+            raise FileNotFoundError(f"Explicit spreadsheet not found: {path}")
+        if _is_backup_or_temp_name(path.name) and not allow_backup:
+            raise FileNotFoundError(f"Refusing backup/temp spreadsheet without allow_backup: {path.name}")
+        return path
+
+    preferred = root / CANONICAL_SPREADSHEET_BASENAME
+    if preferred.is_file():
+        return preferred.resolve()
+
+    def _collect(dir_path: Path) -> list[Path]:
+        if not dir_path.is_dir():
+            return []
+        return sorted(dir_path.glob("Extra*alvos*.xlsx"))
+
+    all_hits = _collect(root) + _collect(root / "data")
+    # de-dupe by resolve
+    seen: set[Path] = set()
+    unique: list[Path] = []
+    for p in all_hits:
+        rp = p.resolve()
+        if rp in seen:
+            continue
+        seen.add(rp)
+        unique.append(rp)
+
+    primary = [p for p in unique if not _is_backup_or_temp_name(p.name)]
+    backups = [p for p in unique if _is_backup_or_temp_name(p.name)]
+
+    if len(primary) == 1:
+        return primary[0]
+    if len(primary) > 1:
+        names = ", ".join(p.name for p in primary)
+        raise FileNotFoundError(f"Ambiguous target spreadsheets (multiple primary candidates): {names}")
+    # no primary
+    if backups and allow_backup:
+        if len(backups) == 1:
+            return backups[0]
+        names = ", ".join(p.name for p in backups)
+        raise FileNotFoundError(f"Ambiguous backup spreadsheets: {names}")
+    if backups and not allow_backup:
+        raise FileNotFoundError(
+            "Only backup/temp spreadsheet(s) found; refusing silent selection. "
+            "Provide canonical "
+            f"'{CANONICAL_SPREADSHEET_BASENAME}' or set allow_backup."
+        )
+    raise FileNotFoundError(
+        f"Canonical spreadsheet '{CANONICAL_SPREADSHEET_BASENAME}' not found under project root or data/."
+    )
+
+
+def validate_target_spreadsheet(
+    project_root: Path | None = None,
+    *,
+    explicit_path: Path | None = None,
+    allow_backup: bool | None = None,
+    expected_included: int = EXPECTED_CANONICAL_INCLUDED,
+    expected_ids_sha256: str = EXPECTED_CANONICAL_IDS_SHA256,
+) -> tuple[bool, float, dict[str, Any]]:
+    """Locate and strongly validate the Extra target spreadsheet (planilha-alvo).
+
+    Uses ``scripts.lib.universe.load_canonical_universe`` (project authority).
+    Records path, SHA-256, sheet, physical rows vs canonical included entities
+    as separate metrics, and fail-closed on identity mismatch.
+    Does not mutate the database.
+    """
+    start = time.monotonic()
+    root = (project_root or _PROJECT_ROOT).resolve()
+    details: dict[str, Any] = {
+        "physical_rows": None,
+        "canonical_entities": None,
+        "sheet_name": REQUIRED_SHEET_NAME,
+        "path": None,
+        "sha256": None,
+        "canonical_ids_sha256": None,
+        "selection_rule": None,
+    }
+    if allow_backup is None:
+        allow_backup = os.getenv("EXTRA_GP_ALLOW_BACKUP_SPREADSHEET", "").strip() in {
+            "1",
+            "true",
+            "TRUE",
+            "yes",
+            "YES",
+        }
+    try:
+        from scripts.lib.universe import load_canonical_universe
+
+        xlsx_path = resolve_canonical_spreadsheet(
+            root,
+            explicit_path=explicit_path,
+            allow_backup=allow_backup,
+        )
+        details["path"] = str(xlsx_path)
+        details["selection_rule"] = (
+            "explicit"
+            if explicit_path is not None
+            else (
+                "exact_basename"
+                if xlsx_path.name == CANONICAL_SPREADSHEET_BASENAME
+                else ("backup_explicit_allow" if allow_backup else "single_primary_glob")
+            )
+        )
+        if _is_backup_or_temp_name(xlsx_path.name) and not allow_backup:
+            details["error"] = f"backup path selected without allow: {xlsx_path.name}"
+            dur = (time.monotonic() - start) * 1000
+            return False, dur, details
+
+        # Header / sheet preflight (fail-closed with clear errors)
+        from openpyxl import load_workbook
+
+        wb = load_workbook(xlsx_path, read_only=True, data_only=True)
+        try:
+            if REQUIRED_SHEET_NAME not in wb.sheetnames:
+                details["error"] = f"required sheet '{REQUIRED_SHEET_NAME}' missing; available={list(wb.sheetnames)}"
+                dur = (time.monotonic() - start) * 1000
+                return False, dur, details
+            ws = wb[REQUIRED_SHEET_NAME]
+            header_row = next(ws.iter_rows(min_row=1, max_row=1, values_only=True), None)
+            header_text = " ".join(str(c) for c in (header_row or []) if c is not None)
+            missing_markers = [m for m in REQUIRED_HEADER_MARKERS if m.lower() not in header_text.lower()]
+            # CNPJ marker may appear as "CNPJ (8 dígitos)"
+            if missing_markers:
+                details["error"] = f"required header markers missing: {missing_markers}"
+                details["header"] = header_text[:300]
+                dur = (time.monotonic() - start) * 1000
+                return False, dur, details
+            details["header"] = header_text[:300]
+        finally:
+            wb.close()
+
+        universe = load_canonical_universe(seed_path=xlsx_path)
+        physical = len(universe.entities)
+        included = universe.included
+        included_ids = [e.entity_id for e in included]
+        ids_sha = _ordered_ids_sha256(included_ids)
+        details["physical_rows"] = physical
+        details["canonical_entities"] = len(included)
+        details["outside_radius"] = len(universe.excluded)
+        details["unresolved_rows"] = len(universe.unresolved)
+        details["sha256"] = universe.seed_sha256
+        details["canonical_ids_sha256"] = ids_sha
+        details["seed_path_resolved"] = universe.seed_path
+        details["expected_canonical_entities"] = expected_included
+        details["expected_canonical_ids_sha256"] = expected_ids_sha256
+
+        if physical <= 0:
+            details["error"] = "spreadsheet has zero physical entity rows"
+            dur = (time.monotonic() - start) * 1000
+            return False, dur, details
+        if len(included) != expected_included:
+            details["error"] = (
+                f"canonical included count mismatch: got {len(included)} "
+                f"expected {expected_included} "
+                f"(physical_rows={physical})"
+            )
+            dur = (time.monotonic() - start) * 1000
+            return False, dur, details
+        if ids_sha != expected_ids_sha256:
+            details["error"] = f"canonical_ids_sha256 mismatch (got={ids_sha} expected={expected_ids_sha256})"
+            dur = (time.monotonic() - start) * 1000
+            return False, dur, details
+        # set equality with itself is tautological; uniqueness already enforced
+        if len(set(included_ids)) != len(included_ids):
+            details["error"] = "duplicate canonical entity ids"
+            dur = (time.monotonic() - start) * 1000
+            return False, dur, details
+
+        dur = (time.monotonic() - start) * 1000
+        return True, dur, details
+    except Exception as exc:
+        details["error"] = str(exc)[:500]
+        dur = (time.monotonic() - start) * 1000
+        _logger.error("Target spreadsheet validation failed: %s", exc)
+        return False, dur, details
+
+
+# ---------------------------------------------------------------------------
 # Step 2: Crawl Sources (with timeout, retry, backoff + jitter)
 # ---------------------------------------------------------------------------
 
@@ -686,8 +905,7 @@ def crawl_source(
                     f"  {label} {source.name}: "
                     f"fetched={fetched}, "
                     f"inserted={metrics.get('inserted', 0)}, "
-                    f"persisted={metrics.get('persisted', 0)}"
-                    + (" [watermark-resume]" if resumed_live else ""),
+                    f"persisted={metrics.get('persisted', 0)}" + (" [watermark-resume]" if resumed_live else ""),
                     "ok" if src_status == "success" else "warn",
                 )
                 return SourceRecord(
@@ -947,6 +1165,26 @@ def parse_args() -> argparse.Namespace:
         help="Skip db/seed scripts (not canonical; use only when seed already loaded)",
     )
     p.add_argument(
+        "--skip-spreadsheet",
+        action="store_true",
+        help="Skip target spreadsheet validation (not canonical)",
+    )
+    p.add_argument(
+        "--validate-spreadsheet-only",
+        action="store_true",
+        help=("Run only canonical planilha-alvo validation and write ledger (skips DB/migrations/seeds/crawl/reports)"),
+    )
+    p.add_argument(
+        "--spreadsheet",
+        default=None,
+        help="Explicit path to target spreadsheet (must not be .backup unless allowed)",
+    )
+    p.add_argument(
+        "--allow-backup-spreadsheet",
+        action="store_true",
+        help="Allow selecting a .backup/.copy spreadsheet (off by default; fail-closed)",
+    )
+    p.add_argument(
         "--strict",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -982,6 +1220,58 @@ def main() -> int:
 
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
+
+    # Early path: spreadsheet-only validation (CLI proof for DoD planilha item)
+    if args.validate_spreadsheet_only:
+        run_id = f"gp-ss-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        source_records: list[SourceRecord] = []
+        report_records: list[ReportRecord] = []
+        freshness_record: FreshnessRecord | None = None
+        explicit = Path(args.spreadsheet) if args.spreadsheet else None
+        _echo("\n[validate-spreadsheet-only] Validando planilha-alvo canônica...", "header")
+        ss_ok, ss_dur, ss_details = validate_target_spreadsheet(
+            _PROJECT_ROOT,
+            explicit_path=explicit,
+            allow_backup=args.allow_backup_spreadsheet or None,
+        )
+        steps.append(
+            StepRecord(
+                step="validate_target_spreadsheet",
+                status="pass" if ss_ok else "fail",
+                duration_ms=ss_dur,
+                details=ss_details,
+            )
+        )
+        overall = "success" if ss_ok else "failed"
+        _save_final_ledger(
+            run_id,
+            timestamp,
+            overall,
+            steps,
+            source_records,
+            report_records,
+            freshness_record,
+            wall_start,
+            args.ledger_output,
+        )
+        if not ss_ok:
+            _echo(
+                f"  Planilha-alvo INVALIDA: {ss_details.get('error', 'unknown')}",
+                "error",
+            )
+            return 1
+        _echo(
+            "  Planilha-alvo OK "
+            f"(physical={ss_details.get('physical_rows')} "
+            f"canonical={ss_details.get('canonical_entities')} "
+            f"sha256={str(ss_details.get('sha256', ''))[:12]}… "
+            f"{ss_dur:.0f}ms)",
+            "ok",
+        )
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
+        return 0
 
     # ── Resolve DSN ──
     dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
@@ -1149,16 +1439,69 @@ def main() -> int:
             )
             return 1
         _echo(
-            "  Seeds OK "
-            f"(ran={len(seed_summary.get('ran') or [])} "
-            f"{seed_dur:.0f}ms)",
+            f"  Seeds OK (ran={len(seed_summary.get('ran') or [])} {seed_dur:.0f}ms)",
+            "ok",
+        )
+
+    # =========================================================================
+    # Step 1d: Validate target spreadsheet (canonical — DoD §12.1)
+    # =========================================================================
+    if args.skip_spreadsheet:
+        _echo("\n[1d/7] Planilha-alvo SKIPPED (--skip-spreadsheet)", "warn")
+        steps.append(
+            StepRecord(
+                step="validate_target_spreadsheet",
+                status="skipped",
+                duration_ms=0.0,
+                details={"reason": "skip-spreadsheet"},
+            )
+        )
+    else:
+        _echo("\n[1d/7] Validando planilha-alvo canônica...", "header")
+        explicit = Path(args.spreadsheet) if args.spreadsheet else None
+        ss_ok, ss_dur, ss_details = validate_target_spreadsheet(
+            _PROJECT_ROOT,
+            explicit_path=explicit,
+            allow_backup=args.allow_backup_spreadsheet or None,
+        )
+        steps.append(
+            StepRecord(
+                step="validate_target_spreadsheet",
+                status="pass" if ss_ok else "fail",
+                duration_ms=ss_dur,
+                details=ss_details,
+            )
+        )
+        if not ss_ok:
+            _echo(
+                f"  Planilha-alvo INVALIDA: {ss_details.get('error', 'unknown')}",
+                "error",
+            )
+            _save_final_ledger(
+                run_id,
+                timestamp,
+                "failed",
+                steps,
+                source_records,
+                report_records,
+                freshness_record,
+                wall_start,
+                args.ledger_output,
+            )
+            return 1
+        _echo(
+            "  Planilha-alvo OK "
+            f"(physical={ss_details.get('physical_rows')} "
+            f"canonical={ss_details.get('canonical_entities')} "
+            f"ids={str(ss_details.get('canonical_ids_sha256', ''))[:12]}… "
+            f"{ss_dur:.0f}ms)",
             "ok",
         )
 
     # =========================================================================
     # Step 2: Crawl Sources
     # =========================================================================
-    _echo("\n[2/6] Crawl das fontes de dados...", "header")
+    _echo("\n[2/7] Crawl das fontes de dados...", "header")
     _echo(f"  Fontes: {', '.join(s.name for s in selected_sources)}")
     _echo("  Timeout: 120s por fonte  |  Retries: 3x com backoff+jitter")
 
@@ -1202,8 +1545,7 @@ def main() -> int:
 
     if sources_fail or sources_zero:
         _echo(
-            f"\n  {len(sources_success)} com dados, "
-            f"{len(sources_zero)} zero, {len(sources_fail)} falha(s)",
+            f"\n  {len(sources_success)} com dados, {len(sources_zero)} zero, {len(sources_fail)} falha(s)",
             "warn",
         )
         for r in sources_fail:
