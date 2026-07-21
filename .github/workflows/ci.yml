@@ -266,7 +266,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov psycopg2-binary openpyxl
+          pip install pytest pytest-asyncio pytest-cov psycopg2-binary openpyxl prometheus_client
 
       - name: Canonical full suite (migrations + seeds + pytest no marker exclusion)
         run: python -m scripts.ops.run_full_suite

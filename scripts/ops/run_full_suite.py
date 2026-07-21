@@ -51,7 +51,8 @@ def apply_all_migrations(dsn: str) -> None:
         "fresh",
     ]
     print("==> migrations:", " ".join(cmd), flush=True)
-    subprocess.check_call(cmd, cwd=REPO)
+    # Trusted argv: fixed sys.executable + module path from this repo.
+    subprocess.check_call(cmd, cwd=REPO)  # noqa: S603
 
 
 def apply_seeds(dsn: str) -> None:
@@ -68,7 +69,10 @@ def apply_seeds(dsn: str) -> None:
             print(f"WARNING: seed missing {rel}", flush=True)
             continue
         print(f"==> seed: {rel}", flush=True)
-        subprocess.check_call([sys.executable, str(path)], cwd=REPO, env=env)
+        # Trusted argv: sys.executable + in-repo seed script path.
+        subprocess.check_call(  # noqa: S603
+            [sys.executable, str(path)], cwd=REPO, env=env
+        )
 
 
 def run_pytest(extra: list[str]) -> int:
@@ -100,7 +104,8 @@ def run_pytest(extra: list[str]) -> int:
         f"DATABASE_URL set={bool(env.get('DATABASE_URL'))}",
         flush=True,
     )
-    return subprocess.call(cmd, cwd=REPO, env=env)
+    # Trusted argv: sys.executable + fixed pytest module path/flags.
+    return subprocess.call(cmd, cwd=REPO, env=env)  # noqa: S603
 
 
 def main(argv: list[str] | None = None) -> int:
