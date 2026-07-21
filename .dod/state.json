@@ -1,27 +1,28 @@
 {
   "schema_version": "1.0",
-  "campaign_id": "DOD-CONVERGENCE-EXTRA-01",
-  "updated_at": "2026-07-21T02:34:32Z",
+  "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-02",
+  "updated_at": "2026-07-21T12:57:38Z",
   "active_item_id": null,
   "active_run_id": "run-20260721T022411Z",
-  "active_branch": "campaign/dod-convergence-extra-01",
-  "main_sha": "c05796ad8c3109b583f8cc50b1346a7c443b23e9",
-  "phase": "audit",
-  "next_eligible_id": "DOD-rol-1-definition-of-done-e405d6a61c",
+  "active_branch": "campaign/continue-02-accept-planilha",
+  "main_sha": "ae5302a3e6b5ca88b6dde56e34c0e9287c3c529f",
+  "phase": "converge",
+  "next_eligible_id": "DOD-rol-1-definition-of-done-faaf47c790",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1356,
-    "accepted": 315,
+    "accepted": 313,
     "verified": 0,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1041,
-    "blocked": 0,
+    "open": 1042,
+    "blocked": 1,
     "deferred": 0,
-    "acceptance_pct": 23.23,
+    "acceptance_pct": 23.08,
     "by_state": {
-      "ACCEPTED": 315,
-      "OPEN": 1041
+      "ACCEPTED": 313,
+      "OPEN": 1042,
+      "BLOCKED_HUMAN": 1
     },
     "by_category": {
       "ACCEPTED_EXISTING": 235,
@@ -35,8 +36,17 @@
       "HUMAN_ACCEPTANCE": 34,
       "CREDENTIAL_REQUIRED": 16
     },
-    "dod_checked_count": 315
+    "dod_checked_count": 316
   },
-  "resume_step": null,
-  "notes": "Local full suite green; pending CI Test All SUCCESS for VERIFIED→ACCEPTED"
+  "resume_step": "next_fontes_minimas_after_harness_integrate",
+  "notes": "CONTINUE-02: billing blocker RESOLVED (repo public; CI Actions run). PR#74 closed superseded; PR#75 merged ae5302a — planilha-alvo ACCEPTED (strong). Premature VERIFIED stack from #74 never landed on main. Demoted: private-repo false claim, Tiago PENDING_HUMAN auto-accept, suite orphan. Next: integrate harness fail-closed then fontes mínimas with real crawl proof.",
+  "billing_blocker": {
+    "status": "RESOLVED",
+    "resolved_at": "2026-07-21T12:57:41Z",
+    "reason": "public repo Actions available; CI green",
+    "evidence_runs": [
+      "29797072553",
+      "29831727568"
+    ]
+  }
 }

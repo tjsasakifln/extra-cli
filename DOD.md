@@ -899,7 +899,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path sobe ou valida o banco. Evidência: `scripts/golden_path.py::check_db` (live OK @ PG16:5544) · `make golden-path` → `db-up` + `bootstrap` · `.dod/evidence/DOD-rol-1-definition-of-done-16267c473a/`.
 - [x] O golden path aplica migrations. Evidência: `scripts.golden_path.apply_migrations` → `scripts.ops.apply_migrations.apply_range` (upgrade idempotente) · dual-run PG16:5544 62 skipped re-run · `tests/test_golden_path_canonical.py` · `.dod/evidence/DOD-rol-1-definition-of-done-7aa1d9bfc5/`.
 - [x] O golden path aplica seed. Evidência: `scripts.golden_path.apply_seeds` → `db/seed/001_sc_entities.py` + `002_entity_aliases.py` · dual-run PG16:5544 · `tests/test_golden_path_canonical.py` · `.dod/evidence/DOD-rol-1-definition-of-done-e9a3ea535d/`.
-- [ ] O golden path importa ou valida a planilha-alvo.
+- [x] O golden path importa ou valida a planilha-alvo. Evidência: PR #75 merge `ae5302a` · CI run `29831727568` SUCCESS · `load_canonical_universe` physical_rows=2085 canonical_entities=1093 · canonical_ids_sha256 `0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396` · CLI `python3 -m scripts.golden_path --validate-spreadsheet-only` ledger · `tests/test_golden_path_canonical.py` · adversarial PASS_FOR_MERGE · `.dod/evidence/DOD-rol-1-definition-of-done-e405d6a61c/`.
 - [ ] O golden path executa fontes mínimas.
 - [ ] O golden path persiste dados.
 - [ ] O golden path executa freshness gate.
@@ -1487,7 +1487,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Logs não expõem segredos.
 - [x] Dumps não são publicados. Evidência: backup dumps only under docs/ops campaign evidence gitignored paths or local proof; not public release
 - [ ] Planilhas privadas não são publicadas.
-- [x] O repositório permanece privado. Evidência: github private tjsasakifln/extra-consultoria · EXTRA-OPS-95
+- [ ] O repositório permanece privado. Evidência: github private tjsasakifln/extra-consultoria · EXTRA-OPS-95
 - [ ] Dados pessoais desnecessários não são coletados.
 - [x] A coleta respeita fontes públicas e limites razoáveis. Evidência: delay+429 backoff · PNCP public APIs only · EXTRA-OPS-95
 - [x] Rate limits são respeitados. Evidência: probe delay+429 backoff · resolve_cnpj14_matriz · EXTRA-OPS-95

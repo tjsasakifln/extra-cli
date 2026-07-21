@@ -1,0 +1,8 @@
+{
+  "run_id": "29831727568",
+  "conclusion": "success",
+  "head": "399dbbe602d661e0e6eb3fad33b23f2764e9da53",
+  "merge_commit": "ae5302a3e6b5ca88b6dde56e34c0e9287c3c529f",
+  "jobs_all_success": true,
+  "mandatory_skipped": false
+}

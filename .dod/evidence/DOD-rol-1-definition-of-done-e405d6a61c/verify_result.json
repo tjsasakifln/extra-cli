@@ -1,0 +1,20 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-e405d6a61c",
+  "commands": [
+    {
+      "cmd": "python3 -m scripts.golden_path --validate-spreadsheet-only --ledger-output .dod/evidence/DOD-rol-1-definition-of-done-e405d6a61c/ledger-ss-verify.json",
+      "exit_code": 0,
+      "stdout_tail": "\n Validando planilha-alvo canônica...\n\nLedger salvo:  \n.dod/evidence/DOD-rol-1-definition-of-done-e405d6a61c/ledger-ss-verify.json\nLog salvo:     \n/mnt/d/extra-consultoria-continue-02-main/output/golden-path/gp-20260721-095537.\nlog\n  Planilha-alvo OK (physical=2085 canonical=1093 sha256=d65f272812cf… 472ms)\n  Ledger: \n.dod/evidence/DOD-rol-1-definition-of-done-e405d6a61c/ledger-ss-verify.json\n",
+      "stderr_tail": ""
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_golden_path_canonical.py",
+      "exit_code": 0,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64686  64217   0.7%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n======================== 16 passed in 73.15s (0:01:13) =========================\n"
+    }
+  ],
+  "ok": true,
+  "notes": []
+}
