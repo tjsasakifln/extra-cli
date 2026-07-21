@@ -1,4 +1,4 @@
-# Extra Consultoria — Inteligência em Licitações
+# Extra CLI — Inteligência em Licitações
 
 Plataforma CLI de consultoria estratégica para licitações públicas.
 Single-client: Extra Construtora.
