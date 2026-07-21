@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-21T02:45:54Z",
+  "generated_at": "2026-07-21T02:51:43Z",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-01",
   "phase": "blocked",
   "main_sha": "ae4941610662318eea428dfeede42215b33772bd",
@@ -7,17 +7,18 @@
   "metrics": {
     "total": 1356,
     "accepted": 315,
-    "verified": 0,
+    "verified": 12,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1040,
+    "open": 1028,
     "blocked": 1,
     "deferred": 0,
     "acceptance_pct": 23.23,
     "by_state": {
       "ACCEPTED": 315,
-      "OPEN": 1040,
-      "BLOCKED_HUMAN": 1
+      "OPEN": 1028,
+      "BLOCKED_HUMAN": 1,
+      "VERIFIED": 12
     },
     "by_category": {
       "ACCEPTED_EXISTING": 235,
@@ -39,8 +40,8 @@
     "state": "BLOCKED_HUMAN"
   },
   "next_eligible": {
-    "id": "DOD-rol-1-definition-of-done-faaf47c790",
-    "text": "O golden path executa fontes mínimas.",
+    "id": "DOD-rol-1-definition-of-done-98c4820f19",
+    "text": "O golden path pode ser reexecutado sem duplicação.",
     "category": "MACHINE_ACTIONABLE"
   },
   "blocked_items": [
