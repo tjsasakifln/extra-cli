@@ -1,5 +1,6 @@
 # A versão do código é registrada.
 
-Proved via golden_path CLI/metadata unit tests.
-
-git_sha=05dcb88a2b0186f54220ba898569aceaeb12f5f8
+Given golden_path CLI runs and writes a ledger
+When _save_final_ledger executes
+Then run.meta contains git_sha from collect_run_metadata
+And the value is non-empty in the ledger JSON (not merely a function definition)
