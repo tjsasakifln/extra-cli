@@ -1,7 +1,7 @@
+from __future__ import annotations
 import pytest
 """DoD §12.1 — canonical golden path command + metadata + fail-closed."""
 
-from __future__ import annotations
 
 import subprocess
 import sys
