@@ -1,0 +1,9 @@
+{
+  "run_id": "29839451817",
+  "conclusion": "success",
+  "pr": 88,
+  "merge_commit": "$MERGE",
+  "jobs_all_success": true,
+  "mandatory_skipped": false,
+  "full_suite": "success"
+}
