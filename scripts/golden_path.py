@@ -204,6 +204,33 @@ def assert_sources_persisted(
     }
 
 
+def assert_freshness_gate_executed(
+    freshness: FreshnessRecord | None,
+) -> tuple[bool, dict[str, Any]]:
+    """Prove the freshness gate was executed (pass or fail), not skipped/absent.
+
+    Execution proof requires status in {pass, fail} and structured details
+    (JSON gate output). "fail" still proves the gate ran — a separate DOD item
+    covers pass/SLA.
+    """
+    if freshness is None:
+        return False, {"error": "no freshness record", "status": None}
+    status = str(freshness.status or "")
+    details = freshness.details if isinstance(freshness.details, dict) else {}
+    has_structure = bool(details.get("overall") or details.get("critical_sources"))
+    ok = status in {"pass", "fail"} and has_structure
+    failing = []
+    if isinstance(details.get("overall"), dict):
+        failing = list(details["overall"].get("failing_sources") or [])
+    return ok, {
+        "status": status,
+        "has_structure": has_structure,
+        "failing_sources": failing,
+        "error": freshness.error,
+        "detail_keys": sorted(details.keys()) if details else [],
+    }
+
+
 def _backoff_delay(attempt: int, base: float = 4.0, max_delay: float = 60.0) -> float:
     """Exponential backoff with jitter."""
     delay = min(base * (2**attempt), max_delay)
@@ -1305,6 +1332,11 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     p.add_argument(
+        "--execute-freshness-only",
+        action="store_true",
+        help=("Run only freshness gate + ledger (requires DB; skips crawl/reports/migrations/seeds)"),
+    )
+    p.add_argument(
         "--spreadsheet",
         default=None,
         help="Explicit path to target spreadsheet (must not be .backup unless allowed)",
@@ -1500,6 +1532,84 @@ def main() -> int:
             "ok",
         )
         _echo(f"  Ledger: {args.ledger_output}", "ok")
+        return 0
+
+    # Early path: freshness gate only (DoD executa freshness gate)
+    if args.execute_freshness_only:
+        run_id = f"gp-fr-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        source_records: list[SourceRecord] = []
+        report_records: list[ReportRecord] = []
+
+        dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
+        if not dsn:
+            try:
+                import config.settings as _cfg
+
+                dsn = _cfg.LOCAL_DATALAKE_DSN
+            except ImportError:
+                dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
+
+        ok_db, dur_db = check_db(dsn)
+        steps.append(
+            StepRecord(
+                step="db_connectivity",
+                status="pass" if ok_db else "fail",
+                duration_ms=dur_db,
+            )
+        )
+        if not ok_db:
+            _save_final_ledger(
+                run_id,
+                timestamp,
+                "failed",
+                steps,
+                source_records,
+                report_records,
+                None,
+                wall_start,
+                args.ledger_output,
+            )
+            return 1
+
+        _echo("\n[execute-freshness-only] Executando freshness gate...", "header")
+        freshness_record = run_freshness_gate(dsn)
+        exec_ok, exec_details = assert_freshness_gate_executed(freshness_record)
+        steps.append(
+            StepRecord(
+                step="run_freshness_gate",
+                status="pass" if exec_ok else "fail",
+                duration_ms=0.0,
+                details={
+                    **exec_details,
+                    "gate_status": freshness_record.status,
+                    "gate_details": freshness_record.details,
+                },
+            )
+        )
+        overall = "success" if exec_ok else "failed"
+        _save_final_ledger(
+            run_id,
+            timestamp,
+            overall,
+            steps,
+            source_records,
+            report_records,
+            freshness_record,
+            wall_start,
+            args.ledger_output,
+        )
+        if not exec_ok:
+            _echo(f"  Freshness gate NÃO executado: {exec_details}", "error")
+            return 1
+        _echo(
+            f"  Freshness gate executado: status={freshness_record.status} "
+            f"failing={exec_details.get('failing_sources')}",
+            "ok" if freshness_record.status == "pass" else "warn",
+        )
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
+        # Exit 0 when gate ran (even if status=fail); non-zero only if not executed.
         return 0
 
     # ── Resolve DSN ──
@@ -1810,8 +1920,28 @@ def main() -> int:
     if args.skip_freshness:
         _echo("  SKIP (--skip-freshness)", "warn")
         freshness_record = FreshnessRecord(status="skipped")
+        steps.append(
+            StepRecord(
+                step="run_freshness_gate",
+                status="skipped",
+                duration_ms=0.0,
+                details={"reason": "skip-freshness"},
+            )
+        )
     else:
         freshness_record = run_freshness_gate(dsn)
+        fr_ok, fr_details = assert_freshness_gate_executed(freshness_record)
+        steps.append(
+            StepRecord(
+                step="run_freshness_gate",
+                status="pass" if fr_ok else "fail",
+                duration_ms=0.0,
+                details={
+                    **fr_details,
+                    "gate_status": freshness_record.status,
+                },
+            )
+        )
 
     # =========================================================================
     # Step 4: Reports

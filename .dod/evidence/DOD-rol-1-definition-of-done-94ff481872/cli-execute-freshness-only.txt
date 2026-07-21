@@ -1,0 +1,15 @@
+
+ Executando freshness gate...
+
+>>> Validando freshness gate...
+  Freshness gate: FAIL (stale sources) (225ms)
+    Sources stale: contracts
+
+Ledger salvo:  
+.dod/evidence/DOD-rol-1-definition-of-done-94ff481872/ledger-freshness.json
+Log salvo:     
+/mnt/d/extra-consultoria-continue-02-main/output/golden-path/gp-20260721-104824.
+log
+  Freshness gate executado: status=fail failing=['contracts']
+  Ledger: 
+.dod/evidence/DOD-rol-1-definition-of-done-94ff481872/ledger-freshness.json

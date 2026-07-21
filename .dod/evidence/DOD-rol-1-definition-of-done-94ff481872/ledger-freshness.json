@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "run_id": "gp-fr-20260721-104824",
+      "timestamp": "2026-07-21T13:48:24.918318+00:00",
+      "status": "success",
+      "wall_clock_ms": 253.59609999941313,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 21.099800000229152,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "run_freshness_gate",
+          "status": "pass",
+          "duration_ms": 0.0,
+          "error": null,
+          "details": {
+            "status": "fail",
+            "has_structure": true,
+            "failing_sources": [
+              "contracts"
+            ],
+            "error": null,
+            "detail_keys": [
+              "critical_sources",
+              "generated_at",
+              "mode",
+              "overall"
+            ],
+            "gate_status": "fail",
+            "gate_details": {
+              "generated_at": "2026-07-21T13:48:25.148810+00:00",
+              "mode": "local-first",
+              "critical_sources": [
+                {
+                  "source": "pncp",
+                  "purpose": "editais_abertos",
+                  "critical": true,
+                  "run_source": "pncp",
+                  "data_table": "pncp_raw_bids",
+                  "data_source": "pncp",
+                  "freshness_sla_hours": 24,
+                  "recent_window_hours": 24,
+                  "last_success_at": "2026-07-21 13:25:41.440362+00:00",
+                  "last_ingested_at": "2026-07-21 13:25:41.458348+00:00",
+                  "latest_business_date": "2026-07-21 10:07:12+00:00",
+                  "recent_records": 468,
+                  "total_records": 468,
+                  "successful_runs": 1,
+                  "total_runs": 1,
+                  "freshness_status": "fresh",
+                  "failure_reason": null
+                },
+                {
+                  "source": "contracts",
+                  "purpose": "historical_contracts",
+                  "critical": true,
+                  "run_source": "contracts",
+                  "data_table": "pncp_supplier_contracts",
+                  "data_source": "pncp_contracts",
+                  "freshness_sla_hours": 576,
+                  "recent_window_hours": 168,
+                  "last_success_at": null,
+                  "last_ingested_at": null,
+                  "latest_business_date": null,
+                  "recent_records": 0,
+                  "total_records": 0,
+                  "successful_runs": 0,
+                  "total_runs": 0,
+                  "freshness_status": "never",
+                  "failure_reason": "No successful ingestion run found for critical source"
+                }
+              ],
+              "overall": {
+                "all_critical_sources_fresh": false,
+                "failing_sources": [
+                  "contracts"
+                ],
+                "exit_code": 2
+              }
+            }
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": {
+        "status": "fail",
+        "details": {
+          "generated_at": "2026-07-21T13:48:25.148810+00:00",
+          "mode": "local-first",
+          "critical_sources": [
+            {
+              "source": "pncp",
+              "purpose": "editais_abertos",
+              "critical": true,
+              "run_source": "pncp",
+              "data_table": "pncp_raw_bids",
+              "data_source": "pncp",
+              "freshness_sla_hours": 24,
+              "recent_window_hours": 24,
+              "last_success_at": "2026-07-21 13:25:41.440362+00:00",
+              "last_ingested_at": "2026-07-21 13:25:41.458348+00:00",
+              "latest_business_date": "2026-07-21 10:07:12+00:00",
+              "recent_records": 468,
+              "total_records": 468,
+              "successful_runs": 1,
+              "total_runs": 1,
+              "freshness_status": "fresh",
+              "failure_reason": null
+            },
+            {
+              "source": "contracts",
+              "purpose": "historical_contracts",
+              "critical": true,
+              "run_source": "contracts",
+              "data_table": "pncp_supplier_contracts",
+              "data_source": "pncp_contracts",
+              "freshness_sla_hours": 576,
+              "recent_window_hours": 168,
+              "last_success_at": null,
+              "last_ingested_at": null,
+              "latest_business_date": null,
+              "recent_records": 0,
+              "total_records": 0,
+              "successful_runs": 0,
+              "total_runs": 0,
+              "freshness_status": "never",
+              "failure_reason": "No successful ingestion run found for critical source"
+            }
+          ],
+          "overall": {
+            "all_critical_sources_fresh": false,
+            "failing_sources": [
+              "contracts"
+            ],
+            "exit_code": 2
+          }
+        },
+        "error": null
+      }
+    }
+  ]
+}
