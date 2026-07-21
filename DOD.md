@@ -911,15 +911,15 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O golden path gera relatório de referências de valores.
 - [ ] O golden path gera Excel.
 - [ ] O golden path gera PDF.
-- [ ] O golden path gera ledger.
-- [ ] O golden path gera logs.
-- [ ] O golden path retorna exit code não zero em qualquer gate obrigatório.
+- [x] O golden path gera ledger. Evidência: PR #85 · CLI ledger.json com steps · tests/test_golden_path_ledger_meta.py.
+- [x] O golden path gera logs. Evidência: PR #85 · CLI Log salvo output/golden-path/*.log.
+- [x] O golden path retorna exit code não zero em qualquer gate obrigatório. Evidência: PR #85 · evaluate_run_outcome exit!=0 essential/freshness fail.
 - [ ] O golden path pode ser reexecutado sem duplicação.
 - [ ] O golden path pode ser executado em ambiente limpo.
-- [ ] O tempo total de execução é registrado.
-- [ ] A versão do código é registrada.
+- [x] O tempo total de execução é registrado. Evidência: PR #85 · wall_clock_ms no ledger.
+- [x] A versão do código é registrada. Evidência: PR #85 · collect_run_metadata.git_sha.
 - [ ] O hash da planilha é registrado.
-- [ ] A versão do schema é registrada.
+- [x] A versão do schema é registrada. Evidência: PR #85 · collect_run_metadata.schema_version.
 - [ ] Os relatórios apontam o período de referência.
 - [ ] Os relatórios apontam limitações conhecidas.
 

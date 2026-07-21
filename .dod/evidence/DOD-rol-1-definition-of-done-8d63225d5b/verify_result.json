@@ -1,0 +1,101 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-8d63225d5b",
+  "commands": [
+    {
+      "cmd": "python3 -m pytest tests/test_golden_path_ledger_meta.py -q --tb=line --no-cov",
+      "exit_code": 0,
+      "duration_s": 6.066,
+      "stdout_tail": "a-continue-02-main\nconfigfile: pytest.ini\nplugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37.4.2, timeout-2.4.0, asyncio-1.1.0, mock-3.15.1, metadata-3.1.1, cov-4.1.0, anyio-4.2.0\nasyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 4 items\n\ntests/test_golden_path_ledger_meta.py ....                               [100%]\n\n============================== 4 passed in 2.08s ===============================\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_golden_path_ledger_meta.py",
+      "cmd": "python3 -m pytest tests/test_golden_path_ledger_meta.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 46.014,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64895  64491   0.6%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 4 passed in 41.85s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "8daf991d888227f69164c74663fa814f8eae7c5d",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-21T14:12:44Z",
+  "duration_s": 52.081,
+  "substantive_runs": 2,
+  "totals": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-21T14:13:36Z"
+}
