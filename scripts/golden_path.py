@@ -1001,7 +1001,7 @@ def main() -> int:
         steps.append(
             StepRecord(
                 step="apply_migrations",
-                status="skip",
+                status="skipped",
                 duration_ms=0.0,
                 details={"reason": "skip-migrations"},
             )
