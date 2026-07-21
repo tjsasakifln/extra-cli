@@ -1,0 +1,10 @@
+{
+  "status": "FAIL",
+  "item_id": "DOD-rol-1-definition-of-done-d495570f4e",
+  "reviewer": "adversarial-qa-continue-03",
+  "at": "2026-07-21T23:45:00Z",
+  "main_sha": "432da028f1fed7d70d9d489e689cf3afa350571d",
+  "requirement": "A versão do schema é registrada.",
+  "dod_line": 922,
+  "fail_reason": "collect_run_metadata.schema_version never wired into persisted ledger; proof.schema_version is null"
+}

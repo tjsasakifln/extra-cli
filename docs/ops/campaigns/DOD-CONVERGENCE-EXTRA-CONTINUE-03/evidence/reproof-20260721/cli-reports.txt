@@ -1,0 +1,20 @@
+
+ Gerando Excel + PDF...
+
+>>> Gerando relatorio Excel...
+  Excel: 
+/mnt/d/extra-consultoria-continue-03/output/excels/panorama-SC-2026-07-21.xlsx
+
+>>> Gerando relatorio PDF...
+  PDF: 
+/mnt/d/extra-consultoria-continue-03/output/pdfs/panorama-SC-2026-07-21.pdf
+
+Ledger salvo:  
+docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/evidence/reproof-20260721/l
+edger-reports.json
+Log salvo:     
+/mnt/d/extra-consultoria-continue-03/output/golden-path/gp-20260721-191226.log
+  Reports OK (excel+pdf files present)
+  Ledger: 
+docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/evidence/reproof-20260721/l
+edger-reports.json

@@ -1,0 +1,12 @@
+
+ Validando planilha-alvo canônica...
+
+Ledger salvo:  
+docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/evidence/reproof-20260721/l
+edger-meta.json
+Log salvo:     
+/mnt/d/extra-consultoria-continue-03/output/golden-path/gp-20260721-191225.log
+  Planilha-alvo OK (physical=2085 canonical=1093 sha256=d65f272812cf… 448ms)
+  Ledger: 
+docs/ops/campaigns/DOD-CONVERGENCE-EXTRA-CONTINUE-03/evidence/reproof-20260721/l
+edger-meta.json
