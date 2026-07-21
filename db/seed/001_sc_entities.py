@@ -24,11 +24,8 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Seed SC public entities from spreadsheet")
     p.add_argument(
         "--dsn",
-        default=os.getenv(
-            "LOCAL_DATALAKE_DSN",
-            "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
-        ),
-        help="PostgreSQL connection DSN",
+        default=os.getenv("LOCAL_DATALAKE_DSN") or None,
+        help="PostgreSQL connection DSN (required via --dsn or LOCAL_DATALAKE_DSN; no weak default)",
     )
     p.add_argument(
         "--xlsx",
@@ -41,17 +38,21 @@ def parse_args() -> argparse.Namespace:
 
 
 def find_spreadsheet(project_root: Path) -> Path:
-    """Find the spreadsheet in project root."""
-    # Look for the exact filename
-    candidates = list(project_root.glob("Extra*alvos*.xlsx"))
-    if candidates:
-        return candidates[0]
-    # Look in data/ directory
-    candidates = list((project_root / "data").glob("Extra*.xlsx"))
-    if candidates:
-        return candidates[0]
+    """Find the private target spreadsheet (not expected in public git tree)."""
+    env = os.environ.get("EXTRA_TARGET_SPREADSHEET") or os.environ.get("TARGET_SPREADSHEET_PATH")
+    if env:
+        path = Path(env).expanduser().resolve()
+        if not path.is_file():
+            raise FileNotFoundError(f"EXTRA_TARGET_SPREADSHEET not found: {path}")
+        if any(tok in path.name.lower() for tok in (".backup", ".copy", ".tmp")):
+            raise FileNotFoundError(f"Refusing backup/temp spreadsheet: {path.name}")
+        return path
+    preferred = project_root / "Extra - alvos de licitação. R-0.xlsx"
+    if preferred.is_file():
+        return preferred
     raise FileNotFoundError(
-        "Spreadsheet 'Extra - alvos de licitação. R-0.xlsx' not found. Place it in project root or pass --xlsx <path>."
+        "Private spreadsheet not found. Set EXTRA_TARGET_SPREADSHEET or pass --xlsx. "
+        "Asset is not shipped in the public repository. See docs/ops/private-assets.md."
     )
 
 
@@ -189,6 +190,9 @@ def seed_database(
 
 def main():
     args = parse_args()
+    if not args.dsn:
+        print("ERROR: --dsn or LOCAL_DATALAKE_DSN is required (no weak password default)", file=sys.stderr)
+        sys.exit(2)
     project_root = Path(__file__).resolve().parent.parent.parent
     xlsx_path = Path(args.xlsx) if args.xlsx else find_spreadsheet(project_root)
 

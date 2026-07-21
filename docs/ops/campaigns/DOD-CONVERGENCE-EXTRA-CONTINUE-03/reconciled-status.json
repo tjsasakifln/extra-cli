@@ -1,0 +1,73 @@
+{
+  "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
+  "reconciled_at": "2026-07-21T22:27:46Z",
+  "main_sha": "6e56519c7689414949f6ce48d0d6069aeea8a713",
+  "acceptance_pr": 94,
+  "ci_run": 29873717648,
+  "superseded_prs": [
+    86,
+    89,
+    91,
+    93
+  ],
+  "accepted_items": [
+    "DOD-rol-1-definition-of-done-7d4698cf6a",
+    "DOD-rol-1-definition-of-done-05418e32b2",
+    "DOD-rol-1-definition-of-done-d134dd8ca2",
+    "DOD-rol-1-definition-of-done-3500c05a66",
+    "DOD-rol-1-definition-of-done-c73b1150d6",
+    "DOD-rol-1-definition-of-done-d5c6584cb7",
+    "DOD-rol-1-definition-of-done-ddfcf1ec8a",
+    "DOD-rol-1-definition-of-done-98c4820f19"
+  ],
+  "qa_fail_not_accepted": [
+    "DOD-rol-1-definition-of-done-8d63225d5b",
+    "DOD-rol-1-definition-of-done-d495570f4e"
+  ],
+  "controller_status": {
+    "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
+    "phase": "acceptance-reconciliation",
+    "active_item_id": null,
+    "next_eligible_id": "DOD-rol-1-definition-of-done-7d2ae13087",
+    "main_sha": "6e56519c7689414949f6ce48d0d6069aeea8a713",
+    "metrics": {
+      "total": 1356,
+      "accepted": 325,
+      "accepted_state": 325,
+      "claimed_checked": 327,
+      "audited_accepted": 17,
+      "evidence_located": 127,
+      "evidence_reproduced": 20,
+      "proof_debt": 314,
+      "verified": 0,
+      "in_progress": 0,
+      "implemented": 0,
+      "open": 1030,
+      "blocked": 1,
+      "deferred": 0,
+      "acceptance_pct": 1.25,
+      "claimed_pct": 24.12,
+      "by_state": {
+        "ACCEPTED": 325,
+        "OPEN": 1030,
+        "BLOCKED_HUMAN": 1
+      },
+      "by_category": {
+        "ACCEPTED_EXISTING": 235,
+        "DOCUMENTATION_WITH_PROOF": 99,
+        "LIVE_OPERATION": 8,
+        "MACHINE_ACTIONABLE": 656,
+        "GOVERNANCE": 28,
+        "VPS_PHASE": 249,
+        "INFRASTRUCTURE_REQUIRED": 5,
+        "EXTERNAL_DEPENDENCY": 26,
+        "HUMAN_ACCEPTANCE": 34,
+        "CREDENTIAL_REQUIRED": 16
+      },
+      "dod_checked_count": 327
+    },
+    "critical_path_hint": "A integridade do snapshot ativo \u00e9 100%."
+  },
+  "next_phase": "public-repo-sanitization",
+  "next_functional_item_preferred": "DOD-rol-1-definition-of-done-596584406e"
+}

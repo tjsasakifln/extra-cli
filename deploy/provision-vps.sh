@@ -245,7 +245,11 @@ setup_database() {
     info "Step 8/10: Running database migrations and seeds..."
 
     cd "$APP_DIR"
-    bash db/setup_db.sh "${LOCAL_DATALAKE_DSN:-postgresql://postgres:${PG_PASSWORD:-smartlic_local}@127.0.0.1:5432/pncp_datalake}"
+    if [ -z "${LOCAL_DATALAKE_DSN:-}" ]; then
+      : "${PG_PASSWORD:?PG_PASSWORD is required when LOCAL_DATALAKE_DSN is unset}"
+      LOCAL_DATALAKE_DSN="postgresql://postgres:${PG_PASSWORD}@127.0.0.1:5432/pncp_datalake"
+    fi
+    bash db/setup_db.sh "${LOCAL_DATALAKE_DSN}"
     info "Database migrations and seeds applied"
 }
 

@@ -106,3 +106,6 @@ Remover um adaptador **não** remove requisitos de produto: eles vivem em `DOD.m
 - Trabalho de produto: branch de feature / épica — **nunca** commitar produto direto na `main` durante campanha.  
 - Push/PR: autoridade `@devops` / gates AIOX.  
 - Campanha atual: `epic/advance-30d-local-ready-20260718`.
+
+## Private assets
+See [docs/ops/private-assets.md](ops/private-assets.md). Set `EXTRA_TARGET_SPREADSHEET` for the private planilha (not in public git).

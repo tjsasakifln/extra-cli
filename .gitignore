@@ -133,3 +133,23 @@ specs/**/checklists/.runtime/
 .grok/*
 !.grok/skills/
 !.grok/skills/**
+
+# --- CONTINUE-03 public-repo sanitization (do not reintroduce) ---
+# Commercial / client-labeled assets
+proposta-*.pdf
+**/proposta-*-consultoria.pdf
+Extra - alvos de licitação*.xlsx
+**/Extra*alvos*.xlsx
+*.backup.xlsx
+data/intel/**
+output/briefing*.txt
+output/briefings/**
+# Local SQLite / client DBs
+data/*.db
+**/*_intel.db
+# Private local config
+.env
+.env.*
+!.env.example
+private/
+secrets/

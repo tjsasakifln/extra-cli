@@ -229,6 +229,14 @@ def test_resolve_ambiguous_primary_fails(tmp_path: Path) -> None:
 
 
 def test_validate_target_spreadsheet_live_strong() -> None:
+    """Requires private local xlsx (not shipped in public repo)."""
+    root = Path(__file__).resolve().parents[1]
+    from scripts.golden_path import resolve_canonical_spreadsheet
+    try:
+        resolve_canonical_spreadsheet(root)
+    except FileNotFoundError:
+        import pytest
+        pytest.skip("private spreadsheet not available (EXTRA_TARGET_SPREADSHEET / local xlsx)")
     """Strong AC: path, sha256, dual metrics, 1093 set + ids hash."""
     from scripts.golden_path import validate_target_spreadsheet
 

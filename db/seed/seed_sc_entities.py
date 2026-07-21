@@ -93,10 +93,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Seed SC public entities from spreadsheet")
     p.add_argument(
         "--dsn",
-        default=os.getenv(
-            "LOCAL_DATALAKE_DSN",
-            "postgresql://postgres:smartlic_local@127.0.0.1:54399/postgres",
-        ),
+        default=os.getenv("LOCAL_DATALAKE_DSN") or None,
         help="PostgreSQL connection DSN (default: LOCAL_DATALAKE_DSN env)",
     )
     p.add_argument(
@@ -650,6 +647,9 @@ def verify_import(conn) -> dict[str, Any]:
 def main() -> None:
     """Entry point: parse args, read spreadsheet, upsert into DB, verify."""
     args = parse_args()
+    if not args.dsn:
+        print("ERROR: --dsn or LOCAL_DATALAKE_DSN is required (no weak password default)", file=sys.stderr)
+        sys.exit(2)
     project_root = Path(__file__).resolve().parent.parent.parent
 
     # -- Locate spreadsheet ---------------------------------------------------
