@@ -174,14 +174,14 @@ def test_essential_minimum_sources_defined() -> None:
 
 
 def test_crawl_source_callable_signature() -> None:
-    from scripts.golden_path import crawl_source, SourceDef
     import inspect
+
+    from scripts.golden_path import SOURCES, crawl_source
 
     sig = inspect.signature(crawl_source)
     assert "source" in sig.parameters
     assert "dsn" in sig.parameters
-    # Default sources list non-empty for main loop
-    assert len([s for s in __import__("scripts.golden_path", fromlist=["SOURCES"]).SOURCES]) >= 3
+    assert len(SOURCES) >= 3
 
 
 def test_main_loop_iterates_selected_sources() -> None:
