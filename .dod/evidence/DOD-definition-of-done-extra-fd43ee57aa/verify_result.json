@@ -1,0 +1,20 @@
+{
+  "item_id": "DOD-definition-of-done-extra-fd43ee57aa",
+  "commands": [
+    {
+      "cmd": "true",
+      "exit_code": 0,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_entity_resolver.py",
+      "exit_code": 0,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          64458  64392   0.1%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================= 17 passed in 48.77s ==============================\n"
+    }
+  ],
+  "ok": true,
+  "notes": []
+}

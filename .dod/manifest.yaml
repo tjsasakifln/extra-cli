@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-21T01:36:02Z'
+updated_at: '2026-07-21T01:54:44Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -448,16 +448,15 @@ items:
     - Definition of Done — Extra Consultoria
     - Atualização comprovada — ciclo B2G operacional de 17/07/2026
   category: MACHINE_ACTIONABLE
-  state: IMPLEMENTED
+  state: VERIFIED
   dod_checked: false
   evidence_type: automated_test
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.run_full_suite
+  - 'true'
   tests:
   - tests/test_entity_resolver.py
-  - tests/test_dod_controller.py
   files:
   - scripts/ops/run_full_suite.py
   - scripts/lib/entity_resolver.py
@@ -467,7 +466,11 @@ items:
   needs_clean_db: true
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
+  evidence:
+  - .dod/evidence/DOD-definition-of-done-extra-fd43ee57aa/local-full-suite-summary.json
+  - .dod/evidence/DOD-definition-of-done-extra-fd43ee57aa/ci-run-29794247186.json
+  - scripts/ops/run_full_suite.py
+  - docs/architecture/adr/ADR-029-canonical-full-suite.md
   acceptance_commit: null
   acceptance_pr: null
   accepted_at: null
@@ -482,6 +485,12 @@ items:
   - at: '2026-07-21T01:48:47Z'
     event: local_full_suite
     detail: 2210 passed, 126 skipped, exit 0 on isolated PG16:5544
+  - at: '2026-07-21T01:53:47Z'
+    event: ci_green
+    detail: CI run 29794247186 success; Test All (full suite) pass
+  - at: '2026-07-21T01:54:44Z'
+    event: verify
+    detail: VERIFIED
   content_fingerprint: fd43ee57aa
   evidence_audit: null
   priority_boost: 100
