@@ -16,9 +16,19 @@ def _mock_psycopg2_connect(request):
     inside the function for commercial metric queries. This fixture mocks
     it so tests remain deterministic (no real DB dependency).
 
+    Real DB is opt-in via env (global suite sets both):
+    - REQUIRE_REAL_DB=1 → all tests use real psycopg2.connect
+    - RESILIENCE_REQUIRE_DB=1 + @pytest.mark.database → real connect
+    - @pytest.mark.integration + REQUIRE_REAL_DB=1 → real connect
+
     Excludes ``TestPostgreSQLFailClosed`` which explicitly tests connection
     failure behavior.
     """
+    # Canonical full suite / make test-all: no mock at all.
+    if os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}:
+        yield
+        return
+
     # Real database access is opt-in. Several legacy integration tests mutate
     # shared local tables, so a marker alone must never disable isolation.
     if request.node.get_closest_marker("integration") is not None and os.getenv("REQUIRE_REAL_DB") == "1":

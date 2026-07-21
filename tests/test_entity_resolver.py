@@ -17,19 +17,34 @@ from scripts.lib.entity_resolver import (
     _normalize_cnpj,
 )
 
-ACTUAL_DSN = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN") or "postgresql://test:test@127.0.0.1:5433/pncp_datalake"
+ACTUAL_DSN = os.getenv("DATABASE_URL") or os.getenv("LOCAL_DATALAKE_DSN") or ""
 
 
 @pytest.fixture(scope="module")
 def db_conn():
-    """Module-scoped connection to pncp_datalake (with entity_aliases data)."""
+    """Module-scoped connection to isolated test DB with entity_aliases data.
+
+    Full suite entrypoint seeds sc_public_entities + entity_aliases after
+    migrations. Hard-fails (not skip) when REQUIRE_REAL_DB is set but DSN
+    is missing — avoids silent green via skip.
+    """
+    dsn = ACTUAL_DSN
+    if not dsn:
+        if os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}:
+            pytest.fail(
+                "REQUIRE_REAL_DB=1 but DATABASE_URL/LOCAL_DATALAKE_DSN unset — "
+                "full suite must provision isolated PostgreSQL"
+            )
+        pytest.skip("Database not available")
     try:
-        conn = psycopg2.connect(ACTUAL_DSN)
+        conn = psycopg2.connect(dsn)
         conn.autocommit = False
         yield conn
         conn.close()
-    except psycopg2.OperationalError:
-        pytest.skip("Database not available")
+    except psycopg2.OperationalError as exc:
+        if os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}:
+            pytest.fail(f"REQUIRE_REAL_DB=1 but connection failed: {exc}")
+        pytest.skip(f"Database not available: {exc}")
 
 
 class TestNormalizeCnpj:

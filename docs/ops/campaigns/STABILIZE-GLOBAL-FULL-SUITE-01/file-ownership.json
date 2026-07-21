@@ -1,0 +1,50 @@
+{
+  "campaign": "STABILIZE-GLOBAL-FULL-SUITE-01",
+  "base_sha": "75e5653c4b1e338009f6e395d3ffa50066fc16dd",
+  "tracks": {
+    "A": {
+      "worktree": "fix/full-suite-db",
+      "exclusive": [
+        "tests/test_entity_resolver.py",
+        "tests/test_opportunity_integration.py",
+        "tests/conftest.py",
+        "tests/helpers/db_isolation.py",
+        "scripts/lib/entity_resolver.py",
+        "db/migrations/**"
+      ],
+      "notes": "entity_resolver.py / migrations only if product or schema defect proven"
+    },
+    "B": {
+      "worktree": "fix/full-suite-resilience",
+      "exclusive": [
+        "tests/chaos/test_429_rate_limit.py",
+        "tests/test_resilience_vertical_slice.py",
+        "scripts/crawl/resilience/**",
+        "scripts/crawl/ingestion/_base/crawler.py"
+      ]
+    },
+    "C": {
+      "worktree": "fix/full-suite-audit",
+      "exclusive": [
+        "tests/test_structured_logging.py",
+        "scripts/lib/structured_logging.py",
+        "tests/unit/test_dod_unit_evidence_pack.py",
+        "docs/ops/session-2026-07-17-dod-unit-evidence/**"
+      ]
+    },
+    "D": {
+      "worktree": "goal/full-suite-green",
+      "exclusive": [
+        ".github/workflows/ci.yml",
+        "Makefile",
+        "pytest.ini",
+        "DOD.md",
+        "docs/ops/campaigns/STABILIZE-GLOBAL-FULL-SUITE-01/**",
+        "docs/architecture/adrs/**",
+        "tests/test_transparencia_crawler.py"
+      ],
+      "notes": "transparencia test incorporated as suite blocker; not product change"
+    }
+  },
+  "collision_policy": "stop wave if two tracks edit same file"
+}

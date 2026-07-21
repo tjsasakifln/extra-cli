@@ -1,0 +1,43 @@
+{
+  "campaign": "STABILIZE-GLOBAL-FULL-SUITE-01",
+  "base_sha_main": "75e5653c4b1e338009f6e395d3ffa50066fc16dd",
+  "campaign_head_sha": "0c894a9d4d376f0ef997388babc38d279dd3f2ea",
+  "canonical_entrypoint": "python -m scripts.ops.run_full_suite",
+  "make_test_all": "python -m scripts.ops.run_full_suite",
+  "pytest_flags": [
+    "-m \"\"",
+    "-o addopts=''",
+    "--cov=scripts",
+    "--cov-fail-under=10"
+  ],
+  "postgres": "16.14 pgvector/pgvector:pg16 isolated container full-suite-pg16-baseline:5544",
+  "migrations": "all versioned on main through 057 (62 files), no hard-coded max",
+  "seeds": [
+    "db/seed/001_sc_entities.py",
+    "db/seed/002_entity_aliases.py"
+  ],
+  "fresh_run": {
+    "passed": 2202,
+    "skipped": 126,
+    "duration_s": 549.03,
+    "deselected": 0,
+    "failed_lines": 0,
+    "exit_line": "EXIT_CODE=0 DURATION=560",
+    "exit_0": true,
+    "sha256": "4cc6ca76b64e50d15c3a1b2c8824537d7781186f4b7e8fc4742baa240c5b3130",
+    "bytes": 50743
+  },
+  "rerun": {
+    "passed": 2202,
+    "skipped": 126,
+    "duration_s": 556.5,
+    "deselected": 0,
+    "failed_lines": 0,
+    "exit_line": "EXIT_CODE=0 DURATION=562",
+    "exit_0": true,
+    "sha256": "53992ccfd2eb76274aa4e796c86baa080daa758f9132acf6280c7a43e85c1f01",
+    "bytes": 47490
+  },
+  "resilient_smoke_exit": 0,
+  "generated_at": "2026-07-21T00:52:22.375383+00:00"
+}
