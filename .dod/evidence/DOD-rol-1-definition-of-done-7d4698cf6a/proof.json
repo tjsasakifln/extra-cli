@@ -1,0 +1,21 @@
+{
+  "at": "2026-07-21T14:04:35.583568+00:00",
+  "ok": true,
+  "title": "O golden path gera ledger.",
+  "note": "ledger file with steps written by CLI",
+  "ledger_sample": {
+    "wall_clock_ms": 467.25249999963125,
+    "steps": [
+      "validate_target_spreadsheet"
+    ]
+  },
+  "meta": {
+    "git_sha": "05dcb88a2b0186f54220ba898569aceaeb12f5f8",
+    "schema_version": "migrations_count=62",
+    "canonical_command": "python3 -m scripts.golden_path"
+  },
+  "exit_codes": {
+    "essential_fail": 2,
+    "freshness_fail": 3
+  }
+}
