@@ -1,27 +1,18 @@
 # STATUS — DUAL-CAPABILITY-COVERAGE-TRUTH-01
 
-**Status:** ENGINE_COMPLETE_V1.2 + DOD_ACCEPT_CALCULACAO (main)  
+**Status:** COMPLETE on main (measurement dual fail-closed + normative accept + skeptic gaps closed)  
 **Date:** 2026-07-22  
-**Adapter:** `dual_capability_coverage/1.1.0` + skeptic remediation
+**Final main tip (pre this PR):** `ac81c51` — will advance after this PR merges
 
-## Merged
+## Merged stack
 
-| Item | SHA / PR |
-|------|----------|
-| Implementation | PR #108 → `edd7618` |
-| DOD accept calcula cobertura (dual method) | PR #109 → `30f5548` then main tip |
-| Skeptic gaps fix | this branch → pending merge |
-
-## Skeptic remediation (v1.2)
-
-| Gap | Fix |
-|-----|-----|
-| Single-cap pipeline_success | scope_complete + dual_gate_status=NOT_EVALUATED |
-| identity_unresolved measurement true | measurement_success=false when identity_unresolved_count>0 |
-| mapping_status overwrite | preserve identity_unresolved |
-| Dead view 058 | engine queries v_dual_capability_evidence_latest when present |
-| tasks falsely open | T020–T036 + T040–T044 marked real |
-| Independent review shell | executed attacks with commands (artifact) |
+| PR | Role | Merge SHA |
+|----|------|-----------|
+| #108 | dual engine implementation | `edd7618` |
+| #109 | DOD accept calcula cobertura (dual method) | `30f5548` |
+| #110 | skeptic: identity/scope/view | `3a17805` |
+| #111 | clean-env skip_sources measurement tolerance | `ac81c51` |
+| this | cap-level measurement_success honesty + docs/review re-stamp | ed7be1c + review v1.3 |
 
 ## Non-claims
 

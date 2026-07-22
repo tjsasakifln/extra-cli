@@ -883,3 +883,48 @@ def test_skip_sources_tolerates_measurement_fail() -> None:
     )
     assert overall2 == "failed"
     assert code2 == 1
+
+
+def test_cap_measurement_false_when_identity_unresolved(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Per-capability measurement_success must be false when identity is unresolved."""
+    import psycopg2
+
+    from scripts.coverage import dual_capability_coverage as dcc
+    from scripts.coverage.dual_capability_coverage import EntityMappingMetrics, PresenceLoadResult
+
+    e1 = _entity("e1", cnpj8="11111111")
+    u = _universe([e1])
+    fake = EntityMappingMetrics(
+        identity_unresolved_count=4,
+        ambiguous_cnpj8=["00394494"],
+        mapping_status="identity_unresolved",
+        db_entities_seen=10,
+        db_entities_mapped=5,
+        db_entities_unmapped=5,
+        db_id_to_entity_id={},
+        cnpj8_to_entity_id={},
+    )
+    class _Conn:
+        def close(self):
+            return None
+
+    monkeypatch.setattr(dcc, "map_db_entities", lambda conn, universe: fake)
+    monkeypatch.setattr(dcc, "load_observations_from_db", lambda conn, **k: ({}, "modern", 0, 0))
+    monkeypatch.setattr(
+        dcc, "load_data_presence", lambda *a, **k: PresenceLoadResult(status="no_rows", entity_ids=set())
+    )
+    monkeypatch.setattr(dcc, "_legacy_entity_coverage_stamp", lambda conn: None)
+    monkeypatch.setattr(psycopg2, "connect", lambda *a, **k: _Conn())
+
+    report = compute_dual_coverage(
+        universe=u,
+        dsn="postgresql://fake",
+        capabilities=[CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS],
+        include_legacy_stamp=True,
+        use_config_matrix=False,
+        entity_applicability=_all_applicable([e1], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
+    )
+    assert report.measurement_success is False
+    for cap, block in report.capabilities.items():
+        assert block.measurement_success is False, cap
+        assert block.identity_unresolved_count == 4

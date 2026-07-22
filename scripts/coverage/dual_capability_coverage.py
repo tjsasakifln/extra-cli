@@ -1189,7 +1189,12 @@ def aggregate_capability(
         limitations=list(limitations or []),
         git_sha=identity.git_sha,
         schema_version=identity.schema_version,
-        measurement_success=True,
+        # Cap-level measurement_success must not lie when identity/unmapped/recon fail.
+        measurement_success=(
+            identity_unresolved_count == 0
+            and unmapped_evidence_count == 0
+            and not recon_errors
+        ),
         coverage_gate_pass=gate_pass,
         reconciliation_ok=not recon_errors,
         reconciliation_errors=recon_errors,
