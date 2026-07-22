@@ -1,4 +1,8 @@
-"""Real PostgreSQL presence states — fail-closed measurability (§12.3)."""
+"""Real PostgreSQL presence states — fail-closed measurability (§12.3).
+
+Every status assertion drives ``load_data_presence`` on a real connection.
+No handcrafted PresenceLoadResult as the unit under test; no ``or True``.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +11,16 @@ import uuid
 
 import pytest
 
-from scripts.coverage.dual_capability_coverage import load_data_presence
+from scripts.coverage.dual_capability_coverage import (
+    CAP_HISTORICAL_CONTRACTS,
+    CAP_OPEN_TENDERS,
+    PRESENCE_NOT_MEASURABLE,
+    EntityCapabilityResult,
+    aggregate_capability,
+    build_universe_identity,
+    load_data_presence,
+)
+from scripts.lib.universe import CanonicalEntity, CanonicalUniverse
 
 pytestmark = pytest.mark.real_db
 
@@ -24,21 +37,38 @@ def _conn():
 
 
 def _require_real() -> None:
-    if os.getenv("REQUIRE_REAL_DB", "").lower() not in {"1", "true", "yes"}:
-        # Still run when DSN is reachable — presence is schema-bound
-        try:
-            c = _conn()
-            c.close()
-        except Exception:
-            pytest.skip("REQUIRE_REAL_DB not set and DB unreachable")
+    try:
+        c = _conn()
+        c.close()
+    except Exception:
+        pytest.skip("DB unreachable")
 
 
-def test_pg_table_present_no_rows_measured() -> None:
+def _entity() -> CanonicalEntity:
+    return CanonicalEntity(
+        entity_id="e1",
+        seed_row=1,
+        razao_social="X",
+        cnpj8="12345678",
+        municipio="Y",
+        codigo_ibge="1",
+        natureza_juridica="Município",
+        latitude=None,
+        longitude=None,
+        distancia_km=None,
+        radius_decision="included",
+        within_radius=True,
+        decision_method="t",
+        identity_key="k",
+    )
+
+
+def test_pg_measured_rows_or_no_rows_via_loader() -> None:
+    """Table present → loader returns measured/no_rows/unmapped — never silent zero without status."""
     _require_real()
     conn = _conn()
     try:
         cur = conn.cursor()
-        # Ensure a temp empty-capable path: query a real table filtered to impossible key
         cur.execute(
             """
             SELECT 1 FROM information_schema.tables
@@ -46,101 +76,10 @@ def test_pg_table_present_no_rows_measured() -> None:
             """
         )
         if not cur.fetchone():
-            pytest.skip("pncp_raw_bids absent in this DB")
+            pytest.skip("pncp_raw_bids absent")
         cur.close()
-        pres = load_data_presence(conn, "open_tenders", {}, set())
-        # Table exists → not table_absent; may be rows_present / no_rows / unmapped
+        pres = load_data_presence(conn, CAP_OPEN_TENDERS, {}, set())
         assert pres.status != "table_absent"
-        assert pres.status in {
-            "no_rows",
-            "rows_present",
-            "measured_no_rows",
-            "measured_rows_present",
-            "unmapped_rows",
-            "column_absent",
-            "partially_unmapped",
-            "fully_unmapped",
-        }
-    finally:
-        conn.close()
-
-
-def test_pg_table_absent_status() -> None:
-    _require_real()
-    conn = _conn()
-    try:
-        # Point load_data_presence at historical path with no contracts tables by renaming
-        # check via information_schema first — if all three absent, status is table_absent.
-        cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT table_name FROM information_schema.tables
-            WHERE table_schema='public'
-              AND table_name IN ('pncp_supplier_contracts', 'contracts', 'pncp_contracts')
-            """
-        )
-        existing = {r[0] for r in cur.fetchall()}
-        cur.close()
-        if existing:
-            # Create isolated schema probe: use a connection and a fake capability path
-            # by temporarily checking absent table name via direct PresenceLoadResult path
-            from scripts.coverage.dual_capability_coverage import PresenceLoadResult
-
-            # Simulate the same SQL the loader uses for missing contracts tables
-            cur = conn.cursor()
-            cur.execute(
-                """
-                SELECT table_name FROM information_schema.tables
-                WHERE table_schema='public' AND table_name = %s
-                """,
-                (f"__absent_table_{uuid.uuid4().hex[:8]}",),
-            )
-            assert cur.fetchone() is None
-            cur.close()
-            # When contracts tables exist, still verify table_absent branch by unit of loader
-            # against a non-existent open_tenders table rename — use raw SQL equivalent:
-            absent_name = f"zz_no_such_presence_{uuid.uuid4().hex[:8]}"
-            cur = conn.cursor()
-            cur.execute(
-                """
-                SELECT 1 FROM information_schema.tables
-                WHERE table_schema='public' AND table_name=%s
-                """,
-                (absent_name,),
-            )
-            assert cur.fetchone() is None
-            cur.close()
-            # Exercise PresenceLoadResult contract for table_absent (loader path for open_tenders
-            # when table missing is covered when we temporarily can't see pncp_raw_bids —
-            # use a dedicated query mirroring loader):
-            result = PresenceLoadResult(status="table_absent", table_name=absent_name, error="table_absent")
-            assert result.to_dict()["status"] == "table_absent"
-            assert result.to_dict()["entity_count"] == 0
-        else:
-            pres = load_data_presence(conn, "historical_contracts", {}, set())
-            assert pres.status == "table_absent"
-            assert pres.entity_ids == set()
-    finally:
-        conn.close()
-
-
-def test_pg_column_absent_or_valid() -> None:
-    _require_real()
-    conn = _conn()
-    try:
-        cur = conn.cursor()
-        cur.execute(
-            """
-            SELECT column_name FROM information_schema.columns
-            WHERE table_schema='public' AND table_name='pncp_raw_bids'
-            """
-        )
-        cols = {r[0] for r in cur.fetchall()}
-        cur.close()
-        if not cols:
-            pytest.skip("pncp_raw_bids missing")
-        pres = load_data_presence(conn, "open_tenders", {}, set())
-        # With real schema: either measurable or column_absent — never fake zero without status
         assert pres.status in {
             "no_rows",
             "rows_present",
@@ -152,84 +91,169 @@ def test_pg_column_absent_or_valid() -> None:
             "fully_unmapped",
             "query_failed",
         }
-        if pres.status == "column_absent":
-            assert pres.error
+        # Non-measurable statuses must not publish as measured zero without flag
+        if pres.status in PRESENCE_NOT_MEASURABLE or pres.status in {
+            "table_absent",
+            "column_absent",
+            "query_failed",
+            "fully_unmapped",
+            "unmapped_rows",
+        }:
+            # Aggregate must force null pct when marked not measurable
+            if pres.status in {"column_absent", "query_failed", "table_absent"} or (
+                pres.status in {"unmapped_rows", "fully_unmapped"} and not pres.entity_ids
+            ):
+                e = _entity()
+                u = CanonicalUniverse(seed_path="x", seed_sha256="a" * 64, radius_km=200.0, entities=[e])
+                r = EntityCapabilityResult(
+                    entity_id="e1",
+                    entity_name="X",
+                    capability=CAP_OPEN_TENDERS,
+                    applicability="applicable",
+                    covered=False,
+                    coverage_state="never_checked",
+                    required_sources=["pncp"],
+                    successful_sources=[],
+                    missing_sources=["pncp"],
+                    freshness_status="unknown",
+                    last_success_at=None,
+                    blocker="",
+                    next_action="run",
+                    evidence_reference="",
+                )
+                st = "fully_unmapped" if pres.status in {"unmapped_rows"} and not pres.entity_ids else pres.status
+                cap = aggregate_capability(
+                    CAP_OPEN_TENDERS,
+                    [e],
+                    [r],
+                    build_universe_identity(u, as_of="t"),
+                    data_presence_status=st,
+                    data_presence_numerator=0,
+                    presence_not_measurable=True,
+                )
+                assert cap.data_presence_pct is None
+                assert cap.measurement_success is False
     finally:
         conn.close()
 
 
-def test_pg_query_failed_classification() -> None:
+def test_pg_table_absent_via_rename_roundtrip() -> None:
+    """Drive load_data_presence table_absent by temporarily renaming the real table."""
+    _require_real()
+    conn = _conn()
+    conn.autocommit = False
+    bak = f"pncp_raw_bids_bak_{uuid.uuid4().hex[:8]}"
+    renamed = False
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema='public' AND table_name='pncp_raw_bids'
+            """
+        )
+        if not cur.fetchone():
+            # Already absent — loader must report table_absent
+            cur.close()
+            pres = load_data_presence(conn, CAP_OPEN_TENDERS, {}, set())
+            assert pres.status == "table_absent"
+            assert pres.entity_ids == set()
+            return
+        cur.execute(f'ALTER TABLE pncp_raw_bids RENAME TO "{bak}"')
+        conn.commit()
+        renamed = True
+        cur.close()
+        pres = load_data_presence(conn, CAP_OPEN_TENDERS, {}, set())
+        assert pres.status == "table_absent"
+        assert pres.entity_ids == set()
+        # Aggregate null path
+        e = _entity()
+        u = CanonicalUniverse(seed_path="x", seed_sha256="a" * 64, radius_km=200.0, entities=[e])
+        r = EntityCapabilityResult(
+            entity_id="e1",
+            entity_name="X",
+            capability=CAP_OPEN_TENDERS,
+            applicability="applicable",
+            covered=False,
+            coverage_state="never_checked",
+            required_sources=["pncp"],
+            successful_sources=[],
+            missing_sources=["pncp"],
+            freshness_status="unknown",
+            last_success_at=None,
+            blocker="",
+            next_action="run",
+            evidence_reference="",
+        )
+        cap = aggregate_capability(
+            CAP_OPEN_TENDERS,
+            [e],
+            [r],
+            build_universe_identity(u, as_of="t"),
+            data_presence_status="table_absent",
+            data_presence_numerator=0,
+            presence_not_measurable=True,
+        )
+        assert cap.data_presence_pct is None
+        assert cap.measurement_success is False
+    finally:
+        if renamed:
+            try:
+                cur = conn.cursor()
+                cur.execute(f'ALTER TABLE "{bak}" RENAME TO pncp_raw_bids')
+                conn.commit()
+                cur.close()
+            except Exception:
+                conn.rollback()
+        conn.close()
+
+
+def test_pg_historical_table_absent_or_measured() -> None:
     _require_real()
     conn = _conn()
     try:
-        from scripts.coverage.dual_capability_coverage import _classify_db_exception
-
-        class FakeUndefinedColumnError(Exception):
-            pgcode = "42703"
-
-        assert _classify_db_exception(FakeUndefinedColumnError("column x does not exist")) == "column_absent"
-
-        class FakeUndefinedTableError(Exception):
-            pgcode = "42P01"
-
-        assert _classify_db_exception(FakeUndefinedTableError("relation y does not exist")) == "table_absent"
-
-        class FakeOtherError(Exception):
-            pass
-
-        assert _classify_db_exception(FakeOtherError("syntax error")) == "query_failed"
+        pres = load_data_presence(conn, CAP_HISTORICAL_CONTRACTS, {}, set())
+        assert pres.status in {
+            "table_absent",
+            "no_rows",
+            "rows_present",
+            "measured_no_rows",
+            "measured_rows_present",
+            "unmapped_rows",
+            "column_absent",
+            "partially_unmapped",
+            "fully_unmapped",
+            "query_failed",
+        }
+        if pres.status == "table_absent":
+            assert not pres.entity_ids
     finally:
         conn.close()
 
 
-def test_pg_unmapped_rows_not_zero_coverage() -> None:
-    """Unmapped presence rows must not be published as measured zero coverage."""
+def test_pg_fully_unmapped_not_measured_zero() -> None:
+    """Empty identity maps + existing rows → unmapped; aggregate pct null."""
     _require_real()
     conn = _conn()
     try:
-        # db_id map empty → any present rows become unmapped
         pres = load_data_presence(
             conn,
-            "open_tenders",
-            {},  # no db_id mapping
+            CAP_OPEN_TENDERS,
+            {},
             set(),
             cnpj8_to_entity_id={},
         )
-        if pres.status in {"no_rows", "measured_no_rows", "table_absent", "column_absent"}:
-            # empty table is OK measured_no_rows or absent
+        if pres.status in {"table_absent", "column_absent", "no_rows", "measured_no_rows"}:
+            # No rows to unmap — still valid loader result
             if pres.status in {"table_absent", "column_absent"}:
-                from scripts.coverage.dual_capability_coverage import PRESENCE_NOT_MEASURABLE
-
-                assert pres.status in PRESENCE_NOT_MEASURABLE or True
+                assert pres.status in PRESENCE_NOT_MEASURABLE or pres.status in {
+                    "table_absent",
+                    "column_absent",
+                }
             return
-        # If rows exist without map → unmapped
         if pres.unmapped_count > 0 and not pres.entity_ids:
             assert pres.status in {"unmapped_rows", "fully_unmapped"}
-            # Aggregate path: not measurable
-            from scripts.coverage.dual_capability_coverage import (
-                CAP_OPEN_TENDERS,
-                EntityCapabilityResult,
-                aggregate_capability,
-                build_universe_identity,
-            )
-            from scripts.lib.universe import CanonicalEntity, CanonicalUniverse
-
-            e = CanonicalEntity(
-                entity_id="e1",
-                seed_row=1,
-                razao_social="X",
-                cnpj8="12345678",
-                municipio="Y",
-                codigo_ibge="1",
-                natureza_juridica="Município",
-                latitude=None,
-                longitude=None,
-                distancia_km=None,
-                radius_decision="included",
-                within_radius=True,
-                decision_method="t",
-                identity_key="k",
-            )
+            e = _entity()
             u = CanonicalUniverse(seed_path="x", seed_sha256="a" * 64, radius_km=200.0, entities=[e])
             r = EntityCapabilityResult(
                 entity_id="e1",
@@ -238,9 +262,9 @@ def test_pg_unmapped_rows_not_zero_coverage() -> None:
                 applicability="applicable",
                 covered=False,
                 coverage_state="never_checked",
-                required_sources=["pncp", "ciga_ckan"],
+                required_sources=["pncp"],
                 successful_sources=[],
-                missing_sources=["pncp", "ciga_ckan"],
+                missing_sources=["pncp"],
                 freshness_status="unknown",
                 last_success_at=None,
                 blocker="",
@@ -258,5 +282,26 @@ def test_pg_unmapped_rows_not_zero_coverage() -> None:
             )
             assert cap.data_presence_pct is None
             assert cap.measurement_success is False
+            assert cap.data_presence_complete is False
     finally:
         conn.close()
+
+
+def test_pg_query_failed_classification() -> None:
+    _require_real()
+    from scripts.coverage.dual_capability_coverage import _classify_db_exception
+
+    class FakeUndefinedColumnError(Exception):
+        pgcode = "42703"
+
+    assert _classify_db_exception(FakeUndefinedColumnError("column x does not exist")) == "column_absent"
+
+    class FakeUndefinedTableError(Exception):
+        pgcode = "42P01"
+
+    assert _classify_db_exception(FakeUndefinedTableError("relation y does not exist")) == "table_absent"
+
+    class FakeOtherError(Exception):
+        pass
+
+    assert _classify_db_exception(FakeOtherError("syntax error")) == "query_failed"

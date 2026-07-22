@@ -830,9 +830,7 @@ def build_applicability_resolutions(
             required: list[str]
             if overrides:
                 required = list(overrides)
-            elif ent_app is not None:
-                required = list(DEFAULT_REQUIRED_SOURCES.get(cap_n, ("pncp",)))
-            elif policy is not None:
+            elif policy is not None and ent_app is None:
                 from scripts.coverage.source_policy import (
                     entity_attributes_from_canonical,
                     select_required_combination,
@@ -870,8 +868,45 @@ def build_applicability_resolutions(
                         )
                         out[cap_n][ent.entity_id] = resolutions
                         continue
+            elif ent_app is not None:
+                # Pure test inject of applicability without entity_required_sources:
+                # NEVER silent DEFAULT_REQUIRED_SOURCES. Require explicit overrides above
+                # or emit unknown (no required combination declared).
+                resolutions.append(
+                    ApplicabilityResolution(
+                        entity_id=ent.entity_id,
+                        source="(none)",
+                        capability=cap_n,
+                        applicability_status="unknown",
+                        requirement_role="required",
+                        justification=(
+                            "entity_applicability inject without entity_required_sources "
+                            "(DEFAULT_REQUIRED_SOURCES is non-canonical and not used)"
+                        ),
+                        validated_at=as_of,
+                        evidence_reference="inject:missing_required_sources",
+                        priority=0,
+                    )
+                )
+                out[cap_n][ent.entity_id] = resolutions
+                continue
             else:
-                required = list(DEFAULT_REQUIRED_SOURCES.get(cap_n, ("pncp",)))
+                # No policy, no overrides, no inject: fail closed (empty → unknown fold)
+                resolutions.append(
+                    ApplicabilityResolution(
+                        entity_id=ent.entity_id,
+                        source="(none)",
+                        capability=cap_n,
+                        applicability_status="unknown",
+                        requirement_role="required",
+                        justification="no_canonical_required_combination_resolved",
+                        validated_at=as_of,
+                        evidence_reference="source_policy:absent",
+                        priority=0,
+                    )
+                )
+                out[cap_n][ent.entity_id] = resolutions
+                continue
 
             for src in required:
                 if ent_app is not None:
