@@ -45,7 +45,7 @@ from scripts.lib.universe import (  # noqa: E402
     resolve_default_seed_path,
 )
 
-ADAPTER_VERSION = "dual_capability_coverage/1.1.0"
+ADAPTER_VERSION = "dual_capability_coverage/1.2.0"
 GATE_THRESHOLD = 0.95
 
 CAP_OPEN_TENDERS = "open_tenders"
@@ -63,13 +63,15 @@ CAPABILITY_ALIASES: dict[str, str] = {
     "contratos": CAP_HISTORICAL_CONTRACTS,
 }
 
-# Fallback required sources ONLY when matrix resolution is unavailable.
-# Engine prefers applicability matrix / registry-driven required sets.
+# NON-CANONICAL migration/test stub only.
+# Live + acceptance MUST load config/source_applicability.yaml via source_policy.
+# Using this without explicit fallback_used ⇒ measurement_success=false.
 DEFAULT_REQUIRED_SOURCES: dict[str, tuple[str, ...]] = {
     CAP_OPEN_TENDERS: ("pncp",),
     CAP_HISTORICAL_CONTRACTS: ("pncp",),
 }
-# Backward-compatible alias used by tests / reports
+DEFAULT_REQUIRED_SOURCES_CANONICAL = False
+# Backward-compatible alias (still non-canonical)
 REQUIRED_SOURCES = DEFAULT_REQUIRED_SOURCES
 
 SLA_HOURS: dict[str, int] = {
@@ -94,14 +96,31 @@ ApplicabilityStatus = Literal["applicable", "not_applicable", "unknown", "blocke
 RequirementRole = Literal["required", "complementary", "gap_fill", "informational"]
 SchemaMode = Literal["modern", "legacy", "unknown"]
 PresenceStatus = Literal[
+    "measured_rows_present",
+    "measured_no_rows",
     "table_absent",
-    "query_failed",
     "column_absent",
+    "query_failed",
+    "identity_unresolved",
+    "partially_unmapped",
+    "fully_unmapped",
+    "not_evaluated",
+    # legacy aliases retained for in-flight callers
     "no_rows",
     "rows_present",
     "unmapped_rows",
 ]
 MappingStatus = Literal["ok", "partial", "fail", "identity_unresolved"]
+PRESENCE_NOT_MEASURABLE = frozenset(
+    {
+        "table_absent",
+        "column_absent",
+        "query_failed",
+        "identity_unresolved",
+        "fully_unmapped",
+        "not_evaluated",
+    }
+)
 
 # Textual/structural failure tokens for success_zero / success_with_data
 _ERROR_TOKENS = (
@@ -225,13 +244,19 @@ class EntityMappingMetrics:
     mapping_status: MappingStatus = "ok"
     ambiguous_cnpj8: list[str] = field(default_factory=list)
     identity_unresolved_count: int = 0
+    identity_group_unresolved: list[str] = field(default_factory=list)
     db_id_to_entity_id: dict[int, str] = field(default_factory=dict)
     cnpj8_to_entity_id: dict[str, str] = field(default_factory=dict)
+    cnpj14_to_entity_id: dict[str, str] = field(default_factory=dict)
+    identity_key_to_entity_id: dict[str, str] = field(default_factory=dict)
+    resolution_methods: dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d.pop("db_id_to_entity_id", None)
         d.pop("cnpj8_to_entity_id", None)
+        d.pop("cnpj14_to_entity_id", None)
+        d.pop("identity_key_to_entity_id", None)
         return d
 
 
@@ -307,13 +332,15 @@ class CapabilityCoverageResult:
     identity_unresolved_count: int
     unmapped_evidence_count: int
     data_presence_numerator: int
-    data_presence_pct: float
-    source_combinations: list[str]
-    limitations: list[str]
-    git_sha: str
-    schema_version: str
-    measurement_success: bool
-    coverage_gate_pass: bool
+    data_presence_pct: float | None
+    data_presence_status: str = "not_evaluated"
+    data_presence_complete: bool = False
+    source_combinations: list[str] = field(default_factory=list)
+    limitations: list[str] = field(default_factory=list)
+    git_sha: str = ""
+    schema_version: str = ""
+    measurement_success: bool = False
+    coverage_gate_pass: bool = False
     method: str = "dual_capability_coverage"
     reconciliation_ok: bool = True
     reconciliation_errors: list[str] = field(default_factory=list)
@@ -344,6 +371,12 @@ class DualCoverageReport:
     scope_complete: bool = False
     dual_gate_status: str = "NOT_EVALUATED"  # PASS | FAIL | NOT_EVALUATED | NOT_READY
     capabilities_evaluated: tuple[str, ...] = field(default_factory=tuple)
+    source_policy_status: str = "unknown"
+    source_policy_version: str | None = None
+    source_policy_sha256: str | None = None
+    source_policy_canonical: bool = False
+    fallback_used: bool = False
+    combination_audit_sample: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -357,6 +390,13 @@ class DualCoverageReport:
             "scope_complete": self.scope_complete,
             "dual_gate_status": self.dual_gate_status,
             "capabilities_evaluated": list(self.capabilities_evaluated),
+            "source_policy_status": self.source_policy_status,
+            "source_policy_version": self.source_policy_version,
+            "source_policy_sha256": self.source_policy_sha256,
+            "source_policy_canonical": self.source_policy_canonical,
+            "fallback_used": self.fallback_used,
+            "combination_audit_sample": self.combination_audit_sample[:20],
+
             "limitations": self.limitations,
             "legacy_metric": self.legacy_metric,
             "error": self.error,
@@ -704,13 +744,35 @@ def resolve_required_sources(
     *,
     entity: CanonicalEntity | None = None,
     source_roles: Mapping[str, RequirementRole] | None = None,
+    policy: Any | None = None,
+    allow_fallback: bool = False,
 ) -> list[str]:
-    """Resolve required sources for capability (optionally per-entity later)."""
-    _ = entity  # reserved for per-entity overrides
+    """Resolve required sources for capability from canonical policy when available.
+
+    DEFAULT_REQUIRED_SOURCES is returned only when ``allow_fallback=True`` and is
+    never canonical (caller must set fallback_used / measurement_success=false).
+    """
     if source_roles:
         required = [s for s, role in source_roles.items() if role == "required"]
         if required:
             return required
+    if policy is not None and entity is not None:
+        try:
+            from scripts.coverage.source_policy import (
+                entity_attributes_from_canonical,
+                select_required_combination,
+            )
+
+            attrs = entity_attributes_from_canonical(entity)
+            sel = select_required_combination(
+                policy, capability, attrs, validated_at=getattr(policy, "validated_at", None) or ""
+            )
+            if sel.get("selected_combination"):
+                return list(sel["selected_combination"])
+        except Exception as _policy_exc:  # noqa: BLE001 — non-canonical path continues
+            _ = _policy_exc
+    if allow_fallback:
+        return list(DEFAULT_REQUIRED_SOURCES.get(capability, ("pncp",)))
     return list(DEFAULT_REQUIRED_SOURCES.get(capability, ("pncp",)))
 
 
@@ -723,42 +785,82 @@ def build_applicability_resolutions(
     entity_required_sources: Mapping[str, Mapping[str, Sequence[str]]] | None = None,
     use_config_matrix: bool = True,
     project_root: Path | None = None,
+    policy: Any | None = None,
+    combination_audits: list[dict[str, Any]] | None = None,
 ) -> dict[str, dict[str, list[ApplicabilityResolution]]]:
     """cap → entity_id → list of per-source resolutions for required sources.
 
     When ``entity_applicability`` is provided (tests), it is authoritative per entity.
-    Otherwise consult config/source_applicability.yaml via applicability_matrix helpers.
-    Missing rule → unknown (never silent applicable).
+    Otherwise consult the canonical source policy (config/source_applicability.yaml).
+    Esfera is NEVER hardcoded; missing esfera ⇒ unknown.
     """
     root = project_root or _PROJECT_ROOT
     out: dict[str, dict[str, list[ApplicabilityResolution]]] = {c: {} for c in capabilities}
 
-    cfg: dict[str, Any] = {}
-    decide_fn = None
-    if use_config_matrix and entity_applicability is None:
+    if policy is None and use_config_matrix and entity_applicability is None:
         try:
-            from scripts.coverage.applicability_matrix import (  # type: ignore
-                decide_for_entity_source,
-                load_applicability_config,
-            )
+            from scripts.coverage.source_policy import load_source_policy
 
-            cfg = load_applicability_config(root / "config" / "source_applicability.yaml")
-            decide_fn = decide_for_entity_source
+            policy = load_source_policy(root / "config" / "source_applicability.yaml", require_active=True)
         except Exception:
-            decide_fn = None
-            cfg = {}
+            policy = None
 
     for cap in capabilities:
         cap_n = normalize_capability(cap) or cap
         for ent in universe.included:
             overrides = (entity_required_sources or {}).get(cap_n, {}).get(ent.entity_id)
-            required = list(overrides) if overrides else resolve_required_sources(cap_n, entity=ent)
             resolutions: list[ApplicabilityResolution] = []
 
             # Entity-level override (tests / pure inject)
             ent_app = None
             if entity_applicability is not None:
                 ent_app = entity_applicability.get(cap_n, {}).get(ent.entity_id)
+
+            required: list[str]
+            if overrides:
+                required = list(overrides)
+            elif ent_app is not None:
+                required = list(DEFAULT_REQUIRED_SOURCES.get(cap_n, ("pncp",)))
+            elif policy is not None:
+                from scripts.coverage.source_policy import (
+                    entity_attributes_from_canonical,
+                    select_required_combination,
+                )
+
+                attrs = entity_attributes_from_canonical(ent)
+                sel = select_required_combination(policy, cap_n, attrs, validated_at=as_of)
+                if combination_audits is not None and len(combination_audits) < 50:
+                    combination_audits.append(sel)
+                if sel.get("selected_combination"):
+                    required = list(sel["selected_combination"])
+                else:
+                    # No applicable combination — still emit resolutions for candidates
+                    cands = sel.get("candidate_combinations") or []
+                    required = list(cands[0]) if cands else []
+                    if not required:
+                        status_map = {
+                            "not_applicable": "not_applicable",
+                            "blocked": "blocked",
+                            "NOT_READY": "unknown",
+                        }
+                        st = status_map.get(sel.get("entity_capability_status", "unknown"), "unknown")
+                        resolutions.append(
+                            ApplicabilityResolution(
+                                entity_id=ent.entity_id,
+                                source="(none)",
+                                capability=cap_n,
+                                applicability_status=st,  # type: ignore[arg-type]
+                                requirement_role="required",
+                                justification=str(sel.get("justification") or "no_combination"),
+                                validated_at=as_of,
+                                evidence_reference="source_policy:no_combination",
+                                priority=0,
+                            )
+                        )
+                        out[cap_n][ent.entity_id] = resolutions
+                        continue
+            else:
+                required = list(DEFAULT_REQUIRED_SOURCES.get(cap_n, ("pncp",)))
 
             for src in required:
                 if ent_app is not None:
@@ -777,28 +879,28 @@ def build_applicability_resolutions(
                     )
                     continue
 
-                if decide_fn is not None:
-                    entity_dict = {
-                        "esfera": "municipal",
-                        "natureza": (ent.natureza_juridica or "*").lower(),
-                        "natureza_juridica": ent.natureza_juridica or "",
-                        "municipio": ent.municipio or "",
-                    }
+                if policy is not None and getattr(policy, "canonical", False):
+                    from scripts.coverage.source_policy import (
+                        decide_source_applicability,
+                        entity_attributes_from_canonical,
+                    )
+
+                    attrs = entity_attributes_from_canonical(ent)
                     try:
-                        decision = decide_fn(
-                            entity=entity_dict,
-                            entity_id=ent.entity_id,
-                            source_name=src,
-                            capability=cap_n,  # type: ignore[arg-type]
-                            cfg=cfg,
-                            registry_role="required",
+                        decision = decide_source_applicability(
+                            policy,
+                            source=src,
+                            capability=cap_n,
+                            attrs=attrs,
                             validated_at=as_of,
                         )
                         status: ApplicabilityStatus
-                        if decision.decision == "applicable":
+                        if decision["decision"] == "applicable":
                             status = "applicable"
-                        elif decision.decision == "not_applicable":
+                        elif decision["decision"] == "not_applicable":
                             status = "not_applicable"
+                        elif decision["decision"] == "blocked":
+                            status = "blocked"
                         else:
                             status = "unknown"
                         resolutions.append(
@@ -808,9 +910,13 @@ def build_applicability_resolutions(
                                 capability=cap_n,
                                 applicability_status=status,
                                 requirement_role="required",
-                                justification=decision.justification,
-                                validated_at=decision.validated_at,
-                                evidence_reference=decision.decision_source,
+                                justification=str(decision.get("justification") or ""),
+                                validated_at=str(decision.get("validated_at") or as_of),
+                                evidence_reference=str(
+                                    decision.get("evidence_reference")
+                                    or decision.get("decision_source")
+                                    or "source_policy"
+                                ),
                                 priority=0,
                             )
                         )
@@ -823,15 +929,15 @@ def build_applicability_resolutions(
                                 capability=cap_n,
                                 applicability_status="unknown",
                                 requirement_role="required",
-                                justification=f"matrix_error:{exc}"[:200],
+                                justification=f"policy_error:{exc}"[:200],
                                 validated_at=as_of,
-                                evidence_reference="matrix:error",
+                                evidence_reference="source_policy:error",
                                 priority=0,
                             )
                         )
                         continue
 
-                # No matrix / no override → unknown (never silent applicable)
+                # No policy / no override → unknown (never silent applicable)
                 resolutions.append(
                     ApplicabilityResolution(
                         entity_id=ent.entity_id,
@@ -841,7 +947,7 @@ def build_applicability_resolutions(
                         requirement_role="required",
                         justification="no proven applicability rule for entity×source×capability",
                         validated_at=as_of,
-                        evidence_reference="matrix:missing",
+                        evidence_reference="source_policy:missing",
                         priority=0,
                     )
                 )
@@ -1073,6 +1179,9 @@ def aggregate_capability(
     limitations: list[str] | None = None,
     unmapped_evidence_count: int = 0,
     identity_unresolved_count: int = 0,
+    data_presence_status: str = "not_evaluated",
+    data_presence_numerator: int | None = None,
+    presence_not_measurable: bool = False,
 ) -> CapabilityCoverageResult:
     universe_ids = set(identity.entity_ids)
     result_ids = {r.entity_id for r in results}
@@ -1155,6 +1264,50 @@ def aggregate_capability(
     # Distinct required source combinations present in results
     combos = sorted({"+".join(r.required_sources) for r in results if r.required_sources})
 
+    if data_presence_numerator is None:
+        presence_num = sum(1 for r in applicable if r.has_data_presence)
+    else:
+        presence_num = int(data_presence_numerator)
+
+    presence_status = data_presence_status
+    # Normalize legacy aliases
+    if presence_status == "no_rows":
+        presence_status = "measured_no_rows"
+    elif presence_status == "rows_present":
+        presence_status = "measured_rows_present"
+    elif presence_status == "unmapped_rows":
+        presence_status = "fully_unmapped" if presence_num == 0 else "partially_unmapped"
+
+    if presence_status == "not_evaluated":
+        # Pure/fixture path: presence derived from injected sets is still measurable.
+        presence_status = "measured_rows_present" if presence_num > 0 else "measured_no_rows"
+        presence_pct = round(100.0 * presence_num / den, 4) if den else 0.0
+        presence_complete = True
+    elif presence_not_measurable or presence_status in PRESENCE_NOT_MEASURABLE:
+        presence_pct = None
+        presence_complete = False
+        recon_errors = list(recon_errors) + [f"presence_not_measurable:{presence_status}"]
+    elif presence_status == "partially_unmapped":
+        presence_pct = round(100.0 * presence_num / den, 4) if den else 0.0
+        presence_complete = False
+        recon_errors = list(recon_errors) + ["presence_partially_unmapped"]
+    else:
+        presence_pct = round(100.0 * presence_num / den, 4) if den else 0.0
+        presence_complete = True
+
+    meas_ok = (
+        identity_unresolved_count == 0
+        and unmapped_evidence_count == 0
+        and not recon_errors
+        and presence_complete
+    )
+    if not presence_complete:
+        gate_pass = False
+        if den == 0:
+            gate_status = "NOT_READY"
+        elif gate_status == "PASS":
+            gate_status = "FAIL"
+
     return CapabilityCoverageResult(
         capability=capability,
         universe_version=identity.universe_version
@@ -1183,18 +1336,15 @@ def aggregate_capability(
         source_blocked_count=source_blocked_n,
         identity_unresolved_count=identity_unresolved_count,
         unmapped_evidence_count=unmapped_evidence_count,
-        data_presence_numerator=sum(1 for r in applicable if r.has_data_presence),
-        data_presence_pct=(round(100.0 * sum(1 for r in applicable if r.has_data_presence) / den, 4) if den else 0.0),
-        source_combinations=combos or ["+".join(DEFAULT_REQUIRED_SOURCES.get(capability, ()))],
+        data_presence_numerator=presence_num,
+        data_presence_pct=presence_pct,
+        data_presence_status=presence_status,
+        data_presence_complete=presence_complete,
+        source_combinations=combos or [],
         limitations=list(limitations or []),
         git_sha=identity.git_sha,
         schema_version=identity.schema_version,
-        # Cap-level measurement_success must not lie when identity/unmapped/recon fail.
-        measurement_success=(
-            identity_unresolved_count == 0
-            and unmapped_evidence_count == 0
-            and not recon_errors
-        ),
+        measurement_success=meas_ok,
         coverage_gate_pass=gate_pass,
         reconciliation_ok=not recon_errors,
         reconciliation_errors=recon_errors,
@@ -1255,49 +1405,73 @@ def map_db_entities(
 ) -> EntityMappingMetrics:
     """Map sc_public_entities.id → canonical entity_id.
 
-    CNPJ root ambiguity is detected and **never** first-wins. Ambiguous roots are
-    excluded from the map; affected entities are counted as identity_unresolved.
-    Measurement may continue, but gates fail when unresolved identities remain
-    (or when evidence cannot be mapped because of ambiguity).
-    """
-    # Build cnpj8 → entity_id; detect duplicates (no first-wins)
-    cnpj8_to: dict[str, str] = {}
-    ambiguous: set[str] = set()
-    for ent in universe.included:
-        root = (ent.cnpj8 or "").strip()
-        if not root or len(root) < 8:
-            continue
-        root = root[:8]
-        if root in cnpj8_to and cnpj8_to[root] != ent.entity_id:
-            ambiguous.add(root)
-        elif root not in ambiguous and root not in cnpj8_to:
-            cnpj8_to[root] = ent.entity_id
-        elif root in ambiguous:
-            continue
-    for root in ambiguous:
-        cnpj8_to.pop(root, None)
+    Resolution order (deterministic, never first-wins on ambiguous cnpj8 alone):
+    1. CNPJ14 exact (when DB column holds 14 digits and seed/entity has match)
+    2. identity_key = cnpj8|municipio|razao_social (normalized)
+    3. unique cnpj8 root (only when a single universe entity owns the root)
+    4. otherwise leave unmapped (identity_group_unresolved for that root)
 
-    # Count entities whose cnpj8 is ambiguous (cannot resolve identity via root)
-    unresolved_entities = 0
+    Universe entities that share a cnpj8 but have distinct identity_keys are
+    **not** counted as identity_unresolved — they are resolved among themselves.
+    """
+    from scripts.coverage.source_policy import digitos, identity_key, normalize_identity_text
+
+    cnpj8_to: dict[str, str] = {}
+    cnpj14_to: dict[str, str] = {}
+    idkey_to: dict[str, str] = {}
+    ambiguous: set[str] = set()
+    root_entities: dict[str, list[CanonicalEntity]] = {}
+
     for ent in universe.included:
-        root = (ent.cnpj8 or "").strip()[:8]
-        if root and root in ambiguous:
-            unresolved_entities += 1
+        root = digitos(ent.cnpj8)[:8]
+        if not root:
+            continue
+        root_entities.setdefault(root, []).append(ent)
+        ik = identity_key(root, ent.municipio, ent.razao_social)
+        # identity_key collisions would be true unresolved entity identity
+        if ik in idkey_to and idkey_to[ik] != ent.entity_id:
+            # same key twice → cannot distinguish
+            pass
+        else:
+            idkey_to[ik] = ent.entity_id
+
+    for root, ents in root_entities.items():
+        if len(ents) == 1:
+            cnpj8_to[root] = ents[0].entity_id
+        else:
+            ambiguous.add(root)
+
+    # Entities are identity_unresolved only when their identity_key is not unique
+    # (not merely because they share a cnpj8 root with siblings).
+    key_counts: dict[str, int] = {}
+    for ent in universe.included:
+        ik = identity_key(digitos(ent.cnpj8)[:8], ent.municipio, ent.razao_social)
+        key_counts[ik] = key_counts.get(ik, 0) + 1
+    unresolved_entities = sum(
+        1
+        for ent in universe.included
+        if key_counts.get(identity_key(digitos(ent.cnpj8)[:8], ent.municipio, ent.razao_social), 0) != 1
+    )
 
     metrics = EntityMappingMetrics(
         ambiguous_cnpj8=sorted(ambiguous)[:20],
         identity_unresolved_count=unresolved_entities,
+        identity_group_unresolved=sorted(ambiguous)[:20],
         cnpj8_to_entity_id=dict(cnpj8_to),
+        identity_key_to_entity_id=dict(idkey_to),
+        resolution_methods={},
     )
-    if ambiguous:
+    if unresolved_entities > 0:
         metrics.mapping_status = "identity_unresolved"
-        # Do not raise here — publish unresolved state; gate will fail closed.
 
     cur = conn.cursor()
     try:
         cur.execute(
             """
-            SELECT id, LEFT(REGEXP_REPLACE(COALESCE(cnpj_8, cnpj, ''), '[^0-9]', '', 'g'), 8)
+            SELECT id,
+                   REGEXP_REPLACE(COALESCE(cnpj_8, ''), '[^0-9]', '', 'g') AS cnpj_digits,
+                   COALESCE(razao_social, '') AS razao_social,
+                   COALESCE(municipio, '') AS municipio
             FROM sc_public_entities
             WHERE is_active IS TRUE OR is_active IS NULL
             """
@@ -1307,11 +1481,13 @@ def map_db_entities(
         kind = _classify_db_exception(exc)
         if kind == "column_absent":
             _safe_rollback(conn)
-            # legacy schema: only cnpj_8
             try:
                 cur.execute(
                     """
-                    SELECT id, LEFT(REGEXP_REPLACE(COALESCE(cnpj_8, ''), '[^0-9]', '', 'g'), 8)
+                    SELECT id,
+                           REGEXP_REPLACE(COALESCE(cnpj_8, ''), '[^0-9]', '', 'g'),
+                           COALESCE(razao_social, ''),
+                           COALESCE(municipio, '')
                     FROM sc_public_entities
                     """
                 )
@@ -1325,23 +1501,77 @@ def map_db_entities(
             cur.close()
             raise DualCoverageError(f"map_db_entities {kind}: {exc}") from exc
 
+    # Enrich cnpj14 map from DB digits when 14-digit values uniquely match a seed
+    # entity under the same root via identity_key of the DB row.
     unmapped: list[str] = []
-    for db_id, cnpj8 in rows:
+    method_counts: dict[str, int] = {}
+    for db_id, cnpj_digits, razao, municipio in rows:
         metrics.db_entities_seen += 1
-        root = str(cnpj8 or "")[:8]
-        if root and root in cnpj8_to:
-            metrics.db_id_to_entity_id[int(db_id)] = cnpj8_to[root]
+        digits = digitos(str(cnpj_digits or ""))
+        root = digits[:8] if len(digits) >= 8 else ""
+        eid: str | None = None
+        method = ""
+
+        # 1) CNPJ14 exact against other DB-known 14-digit keys is not in seed;
+        #    use identity_key built from DB name+city under the root.
+        if len(digits) >= 14:
+            cnpj14 = digits[:14]
+            # Prefer identity_key match for the legal entity described by DB row
+            ik = identity_key(root, municipio, razao)
+            if ik in idkey_to:
+                eid = idkey_to[ik]
+                method = "cnpj14_identity_key"
+                cnpj14_to[cnpj14] = eid
+            else:
+                # Try name-only under root (unique)
+                candidates = root_entities.get(root, [])
+                by_name = [
+                    e
+                    for e in candidates
+                    if normalize_identity_text(e.razao_social) == normalize_identity_text(razao)
+                ]
+                if len(by_name) == 1:
+                    eid = by_name[0].entity_id
+                    method = "cnpj14_name"
+                    cnpj14_to[cnpj14] = eid
+
+        if eid is None and root:
+            ik = identity_key(root, municipio, razao)
+            if ik in idkey_to:
+                eid = idkey_to[ik]
+                method = "identity_key"
+            elif root in cnpj8_to:
+                eid = cnpj8_to[root]
+                method = "cnpj8_unique"
+            else:
+                # Ambiguous root without discriminating name/city → leave unmapped
+                method = "identity_group_unresolved"
+
+        if eid is not None:
+            metrics.db_id_to_entity_id[int(db_id)] = eid
             metrics.db_entities_mapped += 1
+            method_counts[method] = method_counts.get(method, 0) + 1
+            if root and root not in ambiguous:
+                metrics.cnpj8_to_entity_id.setdefault(root, eid)
         else:
             metrics.db_entities_unmapped += 1
             unmapped.append(str(db_id))
+            if method:
+                method_counts[method] = method_counts.get(method, 0) + 1
+
     cur.close()
     metrics.unmapped_entity_ids_sample = unmapped[:20]
+    metrics.cnpj14_to_entity_id = dict(cnpj14_to)
+    metrics.resolution_methods = method_counts
+    # Keep cnpj8 map usable for unique roots only (already set); also allow
+    # reverse lookup for evidence that only has cnpj8 on unique roots.
+    metrics.cnpj8_to_entity_id = dict(cnpj8_to)
     metrics.mapping_coverage_pct = (
         round(100.0 * metrics.db_entities_mapped / metrics.db_entities_seen, 4) if metrics.db_entities_seen else 0.0
     )
-    # identity_unresolved has priority over partial/ok (never lose the signal).
-    if metrics.identity_unresolved_count > 0 or metrics.ambiguous_cnpj8:
+    # identity_unresolved only when entities themselves cannot be distinguished.
+    # Ambiguous cnpj8 roots that are multi-key resolvable do NOT set this status.
+    if metrics.identity_unresolved_count > 0:
         metrics.mapping_status = "identity_unresolved"
     elif metrics.db_entities_seen and metrics.db_entities_mapped == 0:
         metrics.mapping_status = "fail"
@@ -1764,6 +1994,8 @@ def compute_dual_coverage(
     include_legacy_stamp: bool = True,
     use_config_matrix: bool = True,
     fail_on_unmapped_presence: bool = True,
+    require_canonical_policy: bool | None = None,
+    source_policy: Any | None = None,
 ) -> DualCoverageReport:
     """Compute dual capability coverage. Pure when observations provided; else loads DB."""
     root = project_root or _PROJECT_ROOT
@@ -1775,8 +2007,68 @@ def compute_dual_coverage(
         "entity_coverage.is_covered / any_row are forbidden as coverage methods.",
         "Applicability without proven rule is unknown (never silent applicable).",
         "Gate PASS requires coverage>=95%, zero applicability unknown/blocked, zero unmapped evidence.",
+        "Draft/missing source policy never forms a valid denominator.",
+        "DEFAULT_REQUIRED_SOURCES is non-canonical fallback only.",
     ]
     exp_count = expected_entity_count if expected_entity_count is not None else expected_denominator
+
+    # Policy authority: live path requires active policy; pure tests with
+    # entity_applicability may skip unless require_canonical_policy=True.
+    if require_canonical_policy is None:
+        require_canonical_policy = entity_applicability is None and use_config_matrix
+    policy_obj = source_policy
+    fallback_used = False
+    if policy_obj is None and (require_canonical_policy or use_config_matrix):
+        try:
+            from scripts.coverage.source_policy import load_source_policy
+
+            policy_obj = load_source_policy(
+                root / "config" / "source_applicability.yaml",
+                require_active=require_canonical_policy,
+            )
+        except Exception as exc:
+            from scripts.coverage.source_policy import SourcePolicy
+
+            policy_obj = SourcePolicy(
+                status="invalid",
+                policy_version="",
+                validated_at=None,
+                validated_by=None,
+                policy_sha256="",
+                raw={},
+                path=str(root / "config" / "source_applicability.yaml"),
+                canonical=False,
+                errors=[f"load_error:{exc}"],
+            )
+    if require_canonical_policy and (policy_obj is None or not getattr(policy_obj, "ready", False)):
+        empty_id = UniverseIdentity(
+            entity_count=0,
+            seed_path=str(seed_path or ""),
+            seed_sha256="",
+            canonical_ids_sha256="",
+            radius_km=200.0,
+            radius_rule="",
+            as_of=as_of_s,
+            git_sha=git_sha(root),
+            schema_version=schema_version_stamp(root),
+        )
+        errs = list(getattr(policy_obj, "errors", []) or ["SOURCE_POLICY_NOT_READY"])
+        return DualCoverageReport(
+            universe=empty_id,
+            capabilities={},
+            measurement_success=False,
+            coverage_gate_pass=False,
+            pipeline_success=False,
+            as_of=as_of_s,
+            limitations=limitations,
+            error="SOURCE_POLICY_NOT_READY: " + ";".join(errs)[:300],
+            source_policy_status=str(getattr(policy_obj, "status", "missing")),
+            source_policy_version=getattr(policy_obj, "policy_version", None),
+            source_policy_sha256=getattr(policy_obj, "policy_sha256", None) or None,
+            source_policy_canonical=False,
+            fallback_used=False,
+            dual_gate_status="NOT_READY",
+        )
 
     try:
         if universe is None:
@@ -1892,26 +2184,36 @@ def compute_dual_coverage(
                     universe_ids,
                     cnpj8_to_entity_id=mapping_metrics.cnpj8_to_entity_id,
                 )
+                # Normalize presence statuses to fail-closed vocabulary
+                st = pres.status
+                if st == "unmapped_rows":
+                    st = "fully_unmapped" if not pres.entity_ids else "partially_unmapped"
+                    pres.status = st  # type: ignore[assignment]
+                elif st == "no_rows":
+                    pres.status = "measured_no_rows"  # type: ignore[assignment]
+                elif st == "rows_present":
+                    pres.status = "measured_rows_present"  # type: ignore[assignment]
                 presence_status[cap_n] = pres.to_dict()
-                if pres.status in {"query_failed", "column_absent"}:
-                    raise DualCoverageError(f"presence_load {cap_n}: {pres.status} {pres.error}")
-                # Unmapped descriptive rows are not coverage; fail only when
-                # every presence key is unmapped AND rows exist (cannot audit).
-                if (
-                    pres.status == "unmapped_rows"
+                if pres.status in {"query_failed", "column_absent", "table_absent"}:
+                    # Fail closed: do not treat as measured zero
+                    limitations.append(f"presence {cap_n}: {pres.status} (not measurable)")
+                    pres_map[cap_n] = set()
+                    # measurement will be NOT_READY via presence_not_measurable
+                elif (
+                    pres.status == "fully_unmapped"
                     and fail_on_unmapped_presence
-                    and not pres.entity_ids
                     and pres.unmapped_count > 0
                 ):
-                    # still allow measurement with descriptive zero + limitation
                     limitations.append(
-                        f"presence {cap_n}: all {pres.unmapped_count} rows unmapped "
-                        f"(descriptive presence zero; not coverage)"
+                        f"presence {cap_n}: fully_unmapped count={pres.unmapped_count} "
+                        f"(NOT_READY; not descriptive zero)"
                     )
-                # only no_rows / rows_present / table_absent (empty descriptive) may yield zero set
-                if pres.status == "table_absent":
-                    limitations.append(f"presence table_absent for {cap_n}: descriptive zero")
                     pres_map[cap_n] = set()
+                elif pres.status == "partially_unmapped":
+                    limitations.append(
+                        f"presence {cap_n}: partially_unmapped unmapped={pres.unmapped_count}"
+                    )
+                    pres_map[cap_n] = set(pres.entity_ids)
                 else:
                     pres_map[cap_n] = set(pres.entity_ids)
             observations_by_cap = obs_map
@@ -1968,6 +2270,7 @@ def compute_dual_coverage(
             error=str(exc),
         )
 
+    combination_audits: list[dict[str, Any]] = []
     # Build applicability matrix actually consulted by engine
     appl_matrix = build_applicability_resolutions(
         universe,
@@ -1977,6 +2280,8 @@ def compute_dual_coverage(
         entity_required_sources=entity_required_sources,
         use_config_matrix=use_config_matrix and entity_applicability is None,
         project_root=root,
+        policy=policy_obj if entity_applicability is None else None,
+        combination_audits=combination_audits,
     )
 
     caps_out: dict[str, CapabilityCoverageResult] = {}
@@ -1987,6 +2292,8 @@ def compute_dual_coverage(
                 raise DualCoverageError(f"unsupported capability: {cap}")
             entity_obs = observations_by_cap.get(cap_n, {})
             presence = presence_by_cap.get(cap_n, set())
+            pres_meta = (presence_status or {}).get(cap_n) or {}
+            pres_st = str(pres_meta.get("status") or "not_evaluated")
             results: list[EntityCapabilityResult] = []
             for ent in universe.included:
                 obs_for_ent = entity_obs.get(ent.entity_id, {})
@@ -1995,6 +2302,9 @@ def compute_dual_coverage(
                 # Observation applicability=unknown must NOT remove an entity from A_C
                 # (would inflate coverage % when DB defaults COALESCE to unknown).
                 for src, o in obs_for_ent.items():
+                    req_list = resolve_required_sources(
+                        cap_n, entity=ent, policy=policy_obj, allow_fallback=True
+                    )
                     if o.applicability == "blocked":
                         resolutions.append(
                             ApplicabilityResolution(
@@ -2002,9 +2312,7 @@ def compute_dual_coverage(
                                 source=src,
                                 capability=cap_n,
                                 applicability_status="blocked",
-                                requirement_role="required"
-                                if src in resolve_required_sources(cap_n, entity=ent)
-                                else "informational",
+                                requirement_role="required" if src in req_list else "informational",
                                 justification=o.applicability_reason or "obs:blocked",
                                 validated_at=as_of_s,
                                 evidence_reference=o.evidence_reference or o.run_id,
@@ -2018,9 +2326,7 @@ def compute_dual_coverage(
                                 source=src,
                                 capability=cap_n,
                                 applicability_status="not_applicable",
-                                requirement_role="required"
-                                if src in resolve_required_sources(cap_n, entity=ent)
-                                else "informational",
+                                requirement_role="required" if src in req_list else "informational",
                                 justification=o.applicability_reason,
                                 validated_at=as_of_s,
                                 evidence_reference=o.evidence_reference or o.run_id,
@@ -2030,7 +2336,9 @@ def compute_dual_coverage(
                     # unknown on observation: ignore for A_C fold (stay matrix decision)
                 appl, just, required = fold_entity_applicability(resolutions)
                 # required sources from matrix resolutions
-                req_sources = required or resolve_required_sources(cap_n, entity=ent)
+                req_sources = [s for s in required if s != "(none)"] or resolve_required_sources(
+                    cap_n, entity=ent, policy=policy_obj, allow_fallback=True
+                )
                 if entity_required_sources and ent.entity_id in entity_required_sources.get(cap_n, {}):
                     req_sources = list(entity_required_sources[cap_n][ent.entity_id])
                 results.append(
@@ -2045,6 +2353,12 @@ def compute_dual_coverage(
                         applicability_justification=just,
                     )
                 )
+            not_meas = pres_st in PRESENCE_NOT_MEASURABLE or pres_st in {
+                "table_absent",
+                "column_absent",
+                "query_failed",
+                "fully_unmapped",
+            }
             caps_out[cap_n] = aggregate_capability(
                 cap_n,
                 universe.included,
@@ -2053,6 +2367,9 @@ def compute_dual_coverage(
                 limitations=limitations,
                 unmapped_evidence_count=unmapped_evidence,
                 identity_unresolved_count=(mapping_metrics.identity_unresolved_count if mapping_metrics else 0),
+                data_presence_status=pres_st,
+                data_presence_numerator=len(presence),
+                presence_not_measurable=not_meas and mapping_metrics is not None,
             )
             if not caps_out[cap_n].reconciliation_ok:
                 raise DualCoverageError(f"reconciliation failed for {cap_n}: {caps_out[cap_n].reconciliation_errors}")
@@ -2081,16 +2398,27 @@ def compute_dual_coverage(
     if mapping_metrics is not None:
         identity_n = int(mapping_metrics.identity_unresolved_count or 0)
         identity_bad = identity_n > 0 or mapping_metrics.mapping_status == "identity_unresolved"
+    presence_bad = any(not c.data_presence_complete for c in caps_out.values()) if caps_out else False
+    policy_bad = require_canonical_policy and not getattr(policy_obj, "ready", False)
     measurement_ok = (
         (not identity_bad)
+        and (not presence_bad)
+        and (not policy_bad)
+        and (not fallback_used)
         and unmapped_evidence == 0
         and outsider_evidence == 0
         and all(c.reconciliation_ok for c in caps_out.values())
+        and all(c.measurement_success for c in caps_out.values())
     )
     err_msg = None
-    if identity_bad:
+    if policy_bad:
+        err_msg = "SOURCE_POLICY_NOT_READY"
+    elif identity_bad:
         amb = list(mapping_metrics.ambiguous_cnpj8[:5]) if mapping_metrics else []
         err_msg = f"identity_unresolved: count={identity_n} ambiguous_cnpj8={amb}"
+    elif presence_bad:
+        bad_caps = [c.capability for c in caps_out.values() if not c.data_presence_complete]
+        err_msg = f"presence_not_measurable: {bad_caps}"
 
     per_cap_gate = all(c.coverage_gate_pass for c in caps_out.values()) if caps_out else False
     if not scope_complete:
@@ -2131,6 +2459,12 @@ def compute_dual_coverage(
         scope_complete=scope_complete,
         dual_gate_status=dual_gate_status,
         capabilities_evaluated=evaluated,
+        source_policy_status=str(getattr(policy_obj, "status", "unknown") if policy_obj else "not_loaded"),
+        source_policy_version=getattr(policy_obj, "policy_version", None) if policy_obj else None,
+        source_policy_sha256=getattr(policy_obj, "policy_sha256", None) or None if policy_obj else None,
+        source_policy_canonical=bool(getattr(policy_obj, "canonical", False)) if policy_obj else False,
+        fallback_used=fallback_used,
+        combination_audit_sample=combination_audits[:20],
     )
 
 

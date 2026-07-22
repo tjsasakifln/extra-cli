@@ -1,0 +1,4 @@
+status: SUPERSEDED
+superseded_by: DOD-rol-1-definition-of-done-1fdea0f6e6
+reason: post-acceptance semantic changes (canonical source policy v2, multi-key identity, presence fail-closed)
+superseded_at: 2026-07-22T12:35:00Z

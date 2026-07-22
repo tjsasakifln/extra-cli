@@ -1,32 +1,32 @@
-# Speckit converge — dual-capability-coverage-truth
+# Speckit converge — dual-capability-coverage-truth (final-closure)
 
 **Date:** 2026-07-22  
-**Main tip:** `86cb02856a3c76c5dd13ef64188453728e10dc82`
+**implementation_branch:** `fix/dual-canonical-closure`  
+**baseline origin/main:** `1c06300` (observed at preflight; not stamped as eternal tip)
 
-## Codebase vs tasks
+## Alignment
 
-| Task | Status | Evidence |
-|------|--------|----------|
-| T001–T019 engine/spec | Done | dual engine + tests + checklist |
-| T020 PR/CI | Done | PR #108 CI + merge |
-| T021–T031 fail-closed/matrix/hashes | Done | dual engine on main |
-| T032 independent review | Done | v1.3-final reviewed_commit ed7be1c |
-| T033 merge | Done | #108–#113 on main (engine #112 `3ab3a3a`; docs stamp #113) |
-| T034 main reproof | Done | live dual summary measurement=false map=identity_unresolved |
-| T035 acceptance pack/controller | Done | pack 4efe05fc94 + dod_controller |
-| T036 DOD ACCEPTED | Done | PR #109 |
-| T040–T044 skeptic remediation | Done | #110–#112 |
+| Artifact | Aligned? | Notes |
+|----------|----------|-------|
+| spec.md FR-001..032 | YES | draft≠authority, no hardcode esfera, presence null |
+| plan.md | YES | single policy authority |
+| tasks.md | YES | identity/policy reopened then closed with evidence |
+| checklist | YES | DONE only with tests/live proof |
+| code | YES | source_policy + dual 1.2.0 |
+| tests | YES | 57+ unit green |
+| DOD | YES | method vs live; no false measurement_success |
+| evidence | YES | pack 1fdea0f6e6; 4efe05fc94 SUPERSEDED |
 
-## Remaining unbuilt work
+## Remaining before GOAL DONE
 
-Only **operational** (not measurement-engine implementable):
-
-1. Resolve ambiguous CNPJ roots (`00394494`) → identity_unresolved=0
-2. Backfill coverage_evidence → dual 95% candidacy
-3. Optional: promote applicability config beyond draft
+1. PR merge + CI green on merge SHA  
+2. Independent review PASS_FOR_MERGE on that SHA  
+3. PR #107 resolve (rebase/merge or close with justification)  
+4. Controller re-accept if required after merge  
+5. Consistency gate on semantic files vs reproof  
 
 ## Converge verdict
 
-**CONVERGED** for dual fail-closed measurement + normative “calcula cobertura”.  
-**NOT** claiming dual 95% operational gates.  
-Process steps merge/accept/review are **DONE** on main `86cb028`.
+**NOT CONVERGED for GOAL DONE** until items above complete.  
+**Measurement engine + policy authority are implementation-ready.**  
+No 95% / LOCAL_READY claims.
