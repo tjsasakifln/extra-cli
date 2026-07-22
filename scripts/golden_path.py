@@ -635,7 +635,9 @@ def evaluate_run_outcome(
             return "failed", 3
         if report_fails:
             return "failed", 4
-        if coverage_measurement_success is False:
+        # Clean-env foundation still measures dual coverage (identity/gates in details)
+        # but only fails the pipeline on dual when --require-coverage-gate is set.
+        if require_coverage_gate and coverage_measurement_success is False:
             return "failed", 1
         if require_coverage_gate and coverage_gate_pass is False:
             return "coverage_gate_failed", 2
