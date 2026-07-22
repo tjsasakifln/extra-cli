@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-22T00:25:22Z'
+updated_at: '2026-07-22T00:30:46Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -36339,7 +36339,7 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
+  state: IN_PROGRESS
   dod_checked: false
   evidence_type: system_report
   dependencies: []
@@ -36378,6 +36378,9 @@ items:
   - at: '2026-07-22T00:11:33Z'
     event: rescan
     detail: line=910
+  - at: '2026-07-22T00:30:46Z'
+    event: start
+    detail: campaign start
   content_fingerprint: 44e0c95c6e
   evidence_audit: null
   priority_boost: 0
