@@ -1,7 +1,7 @@
 # Speckit analyze — dual-capability-coverage-truth
 
 **Date:** 2026-07-21  
-**Artifacts:** spec.md · plan.md · tasks.md · ADR-029
+**Artifacts:** spec.md · plan.md · tasks.md · ADR-030
 
 ## Cross-artifact consistency
 

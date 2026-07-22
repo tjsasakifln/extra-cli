@@ -1034,17 +1034,23 @@ def compute_dual_coverage(
                 obs_for_ent = entity_obs.get(ent.entity_id, {})
                 # default applicability: applicable (all radius public entities)
                 appl: ApplicabilityStatus = "applicable"
-                # if any observation marks not_applicable for required source, honor it
+                # Honor explicit applicability on required sources (priority: blocked > not_applicable > unknown).
                 for src in REQUIRED_SOURCES[cap_n]:
                     o = obs_for_ent.get(src)
-                    if o and o.applicability == "not_applicable":
+                    if not o:
+                        continue
+                    if o.applicability == "blocked":
+                        appl = "blocked"
+                    elif o.applicability == "not_applicable":
                         if not o.applicability_reason:
                             raise DualCoverageError(
                                 f"not_applicable without justification: {ent.entity_id}/{src}/{cap_n}"
                             )
-                        appl = "not_applicable"
-                    elif o and o.applicability == "blocked":
-                        appl = "blocked"
+                        if appl != "blocked":
+                            appl = "not_applicable"
+                    elif o.applicability == "unknown":
+                        if appl == "applicable":
+                            appl = "unknown"
                 results.append(
                     score_entity_capability(
                         ent,

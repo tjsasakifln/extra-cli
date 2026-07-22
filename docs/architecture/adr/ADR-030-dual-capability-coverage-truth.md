@@ -1,4 +1,4 @@
-# ADR-029 — Dual capability coverage truth (single spine)
+# ADR-030 — Dual capability coverage truth (single spine)
 
 **Status:** Accepted  
 **Date:** 2026-07-21  

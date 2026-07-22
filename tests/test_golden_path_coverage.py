@@ -85,6 +85,8 @@ def test_coverage_live_clean_db() -> None:
     assert d.get("method") == "dual_capability_coverage"
     assert d.get("method") not in {"entity_coverage.any_row", "entity_coverage.is_covered"}
     assert d.get("measurement_success") is True
+    # Low coverage is measurement success, not gate pass
+    assert d.get("coverage_gate_pass") is False
     caps = d.get("capabilities") or {}
     assert "open_tenders" in caps
     assert "historical_contracts" in caps
@@ -98,3 +100,33 @@ def test_coverage_live_clean_db() -> None:
     # legacy single fields mirror open_tenders for transition
     assert d.get("denominator") == caps["open_tenders"]["applicable_denominator"]
     assert "public_tables" not in d
+
+
+def test_dual_coverage_only_exits_nonzero_when_gates_fail() -> None:
+    """CLI dual mode must not claim overall success when gates FAIL."""
+    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
+    try:
+        import psycopg2
+
+        psycopg2.connect(dsn, connect_timeout=3).close()
+    except Exception:
+        pytest.skip("no local test-db")
+    r = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "scripts.golden_path",
+            "--execute-dual-coverage-only",
+            "--capability",
+            "both",
+            "--dsn",
+            dsn,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    assert r.returncode == 2, (r.returncode, r.stdout[-500:], r.stderr[-500:])
+    combined = r.stdout + r.stderr
+    assert "coverage_gate_failed" in combined or "coverage_gate_pass=False" in combined

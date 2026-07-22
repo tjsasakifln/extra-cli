@@ -439,3 +439,59 @@ def test_write_reports(tmp_path: Path) -> None:
     assert "open_tenders" in text
     assert "historical_contracts" in text
     assert "any_row" not in text or "forbidden" in text.lower()
+
+
+def test_unknown_applicability_promoted_from_observation() -> None:
+    """success_with_data with applicability=unknown must not stay default applicable."""
+    e = _entity("e1")
+    u = _universe([e])
+    obs = _obs("e1", state="success_with_data", applicability="unknown")
+    report = compute_dual_coverage(
+        universe=u,
+        observations_by_cap={
+            CAP_OPEN_TENDERS: {"e1": {"pncp": obs}},
+            CAP_HISTORICAL_CONTRACTS: {},
+        },
+        presence_by_cap={CAP_OPEN_TENDERS: set(), CAP_HISTORICAL_CONTRACTS: set()},
+        include_legacy_stamp=False,
+    )
+    ot = report.capabilities[CAP_OPEN_TENDERS]
+    assert ot.unknown_count == 1
+    assert ot.applicable_denominator == 0
+    assert ot.covered_numerator == 0
+    row = ot.entities[0]
+    assert row.applicability == "unknown"
+    assert row.covered is False
+    assert ot.coverage_gate_pass is False
+
+
+def test_evaluate_run_outcome_coverage_gate_failed() -> None:
+    from scripts.golden_path import FreshnessRecord, SourceRecord, evaluate_run_outcome
+
+    sources = [SourceRecord(name="pncp", status="success", duration_ms=1.0, attempts=1)]
+    freshness = FreshnessRecord(status="pass", details={})
+    overall, code = evaluate_run_outcome(
+        sources,
+        {"pncp"},
+        freshness,
+        [],
+        strict=True,
+        coverage_measurement_success=True,
+        coverage_gate_pass=False,
+        require_coverage_gate=True,
+    )
+    assert overall == "coverage_gate_failed"
+    assert code == 2
+
+    overall2, code2 = evaluate_run_outcome(
+        sources,
+        {"pncp"},
+        freshness,
+        [],
+        strict=True,
+        coverage_measurement_success=True,
+        coverage_gate_pass=True,
+        require_coverage_gate=True,
+    )
+    assert overall2 == "success"
+    assert code2 == 0

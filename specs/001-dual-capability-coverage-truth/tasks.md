@@ -10,7 +10,7 @@
 
 ## Phase 2 — Foundational
 
-- [x] T003 [P] Write ADR-029 single spine decision (`docs/architecture/adr/ADR-029-dual-capability-coverage-truth.md`)
+- [x] T003 [P] Write ADR-030 single spine decision (`docs/architecture/adr/ADR-030-dual-capability-coverage-truth.md`)
 - [x] T004 [P] Write errata for legacy 214/1093 (`docs/ops/campaigns/DUAL-CAPABILITY-COVERAGE-TRUTH-01/ERRATA-19-5791.md`)
 - [ ] T005 Optional migration `db/migrations/058_dual_capability_coverage_views.sql` (views + entity_coverage delimitation comments)
 

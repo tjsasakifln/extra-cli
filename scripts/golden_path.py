@@ -581,6 +581,9 @@ def evaluate_run_outcome(
     skip_reports: bool = False,
     skip_sources: bool = False,
     allow_zero: bool = False,
+    coverage_gate_pass: bool | None = None,
+    coverage_measurement_success: bool | None = None,
+    require_coverage_gate: bool = True,
 ) -> tuple[str, int]:
     """Classify overall status and exit code (pure; unit-testable).
 
@@ -590,7 +593,12 @@ def evaluate_run_outcome(
     - no success and no success_zero → failed / exit 1
     - freshness fail (not skipped) → exit 3
     - mandatory report fail (not skipped) → exit 4
+    - dual coverage gate fail (require_coverage_gate) → coverage_gate_failed / exit 2
+    - coverage measurement fail → failed / exit 1
     - skip_sources (clean-env offline foundation) → treat sources as skipped
+
+    Distinguishes measurement_success vs coverage_gate_pass vs pipeline/global success:
+    low dual coverage with successful measurement is NOT overall success.
     """
     if skip_sources:
         freshness_status = freshness.status if freshness else "skipped"
@@ -601,6 +609,10 @@ def evaluate_run_outcome(
             return "failed", 3
         if report_fails:
             return "failed", 4
+        if coverage_measurement_success is False:
+            return "failed", 1
+        if require_coverage_gate and coverage_gate_pass is False:
+            return "coverage_gate_failed", 2
         return "success", 0
 
     if not source_records:
@@ -668,6 +680,13 @@ def evaluate_run_outcome(
         # Non-essential failure with all mandatory gates green → still non-zero
         # so operators cannot treat degraded as full success.
         return "degraded", 5
+
+    # Dual capability coverage gates (open_tenders / historical_contracts).
+    # Measurement success with low coverage is NOT global/pipeline success.
+    if coverage_measurement_success is False:
+        return "failed", 1
+    if require_coverage_gate and coverage_gate_pass is False:
+        return "coverage_gate_failed", 2
 
     return overall, 0
 
@@ -2109,12 +2128,22 @@ def main() -> int:
         )
         steps.append(cov)
         d = cov.details or {}
-        measurement_ok = bool(d.get("measurement_success")) if d else cov.status == "pass"
+        measurement_ok = bool(d.get("measurement_success")) if d else False
         gate_ok = bool(d.get("coverage_gate_pass"))
-        overall = "success" if cov.status == "pass" else "failed"
+        # Dual modes always distinguish measurement vs gate vs pipeline/global success.
+        # Successful measurement with low coverage is NOT overall "success".
+        if not measurement_ok:
+            overall = "failed"
+            exit_code = 1
+        elif not gate_ok:
+            overall = "coverage_gate_failed"
+            exit_code = 2
+        else:
+            overall = "success"
+            exit_code = 0
         _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output)
-        if not measurement_ok or cov.status != "pass":
-            _echo(f"  Cobertura FALHOU: {cov.error or cov.details}", "error")
+        if not measurement_ok:
+            _echo(f"  Cobertura FALHOU (measurement): {cov.error or cov.details}", "error")
             return 1
         for cap_name, cap_block in (d.get("capabilities") or {}).items():
             _echo(
@@ -2126,13 +2155,13 @@ def main() -> int:
                 "ok" if cap_block.get("gate_status") == "PASS" else "warn",
             )
         _echo(
-            f"  measurement_success={measurement_ok} coverage_gate_pass={gate_ok} method={d.get('method')}",
-            "ok",
+            f"  measurement_success={measurement_ok} coverage_gate_pass={gate_ok} "
+            f"pipeline_success={bool(d.get('pipeline_success'))} overall={overall} "
+            f"method={d.get('method')}",
+            "ok" if exit_code == 0 else "warn",
         )
         _echo(f"  Ledger: {args.ledger_output}", "ok")
-        if args.require_coverage_gate and not gate_ok:
-            return 2
-        return 0
+        return exit_code
 
     if args.execute_snapshot_only:
         run_id = f"gp-snap-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -2727,6 +2756,7 @@ def main() -> int:
     # =========================================================================
     wall_dur = (time.monotonic() - wall_start) * 1000
 
+    cov_details = cov_step.details or {}
     overall, exit_code = evaluate_run_outcome(
         source_records,
         essential_names,
@@ -2737,6 +2767,10 @@ def main() -> int:
         skip_reports=bool(args.skip_reports),
         skip_sources=bool(args.skip_sources),
         allow_zero=bool(args.allow_zero),
+        coverage_gate_pass=cov_details.get("coverage_gate_pass"),
+        coverage_measurement_success=cov_details.get("measurement_success"),
+        # Strict full path always treats dual 95% gates as operational requirement.
+        require_coverage_gate=True if args.strict else bool(args.require_coverage_gate),
     )
     # Domain domain reports are mandatory for §12.1 (independent of panorama Excel/PDF).
     if editais_step.status != "pass" and exit_code == 0:

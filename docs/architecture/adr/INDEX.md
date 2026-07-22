@@ -23,4 +23,5 @@ Se uma ADR for supersedida, registre aqui com data, ADR substituta e motivo.
 1. Criar ADR nova em `docs/architecture/adr/`.
 2. Atualizar este `INDEX.md` (vigente ou revogada).
 3. Referenciar no README/PRD apenas ADRs vigentes.
-| ADR-029 | Dual capability coverage truth | Accepted | 2026-07-21 |
+| ADR-029 | Canonical full suite green | Accepted | 2026-07-21 |
+| ADR-030 | Dual capability coverage truth | Accepted | 2026-07-21 |

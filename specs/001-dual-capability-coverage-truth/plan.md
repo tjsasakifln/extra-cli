@@ -111,7 +111,7 @@ Backfill: not required for measurement correctness; empty evidence → 0% covere
 
 ## Implementation Phases
 
-1. Spec Kit artifacts + ADR-029  
+1. Spec Kit artifacts + ADR-030  
 2. `dual_capability_coverage.py` + CLI  
 3. golden_path integration  
 4. migration views (optional)  

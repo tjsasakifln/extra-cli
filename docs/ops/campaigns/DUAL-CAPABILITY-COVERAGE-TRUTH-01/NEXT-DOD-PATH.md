@@ -36,7 +36,7 @@ python3 -m pytest tests/test_dual_capability_coverage.py tests/test_golden_path_
 * `output/coverage/dual-coverage-gaps-open_tenders.csv`
 * `output/coverage/dual-coverage-gaps-historical_contracts.csv`
 * Spec: `specs/001-dual-capability-coverage-truth/`
-* ADR-029
+* ADR-030
 
 ## Itens DOD aceitos / reclassificados nesta campanha
 

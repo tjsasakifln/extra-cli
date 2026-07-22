@@ -458,9 +458,9 @@ entes aplicáveis
 - [ ] `capability_monitoring_coverage(open_tenders) >= 95%`.
 - [ ] `capability_monitoring_coverage(historical_contracts) >= 95%`.
 - [x] A cobertura de editais é calculada separadamente da cobertura de contratos. Evidência: session-metrics presence_editais vs contracts/ops_proxy · EXTRA-OPS-95
-- [x] A média entre as duas coberturas não é usada para mascarar uma delas. Evidência: dual engine has no average field; adversarial unit tests · ADR-029.
+- [ ] A média entre as duas coberturas não é usada para mascarar uma delas. **Code-ready (not accepted):** dual engine has no average field · unit tests · ADR-030 · awaiting register_acceptance + independent QA pack (DUAL-CAPABILITY-COVERAGE-TRUTH-01).
 - [x] Uma fonte saudável para editais não prova cobertura de contratos. Evidência: metrics computed independently · claims_forbidden either · EXTRA-OPS-95
-- [x] Uma fonte saudável para contratos não prova cobertura de editais. Evidência: unit test_contracts_do_not_prove_tenders · dual independent pipelines · ADR-029.
+- [ ] Uma fonte saudável para contratos não prova cobertura de editais. **Code-ready (not accepted):** unit test_contracts_do_not_prove_tenders · ADR-030 · awaiting register_acceptance + independent QA pack.
 
 ```text
 data_presence =
@@ -470,7 +470,7 @@ entes aplicáveis
 ```
 
 - [ ] `data_presence` é publicada apenas como métrica descritiva.
-- [x] `data_presence` nunca é chamada de cobertura. Evidência: dual engine labels `data_presence_*` separately; claims_forbidden in summary JSON · ADR-029 · `scripts/coverage/dual_capability_coverage.py`.
+- [ ] `data_presence` nunca é chamada de cobertura. **Code-ready (not accepted):** dual engine separates data_presence_* · claims_forbidden · ADR-030 · awaiting register_acceptance + independent QA pack.
 - [ ] Ente sem registros pode ser considerado coberto somente mediante `success_zero` válido.
 
 ```text
@@ -519,7 +519,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O manifest informa freshness por fonte e por capability.
 - [ ] Dados vencidos são marcados como `stale`.
 - [ ] Dados sem prova de atualização são marcados como `unknown`.
-- [x] `stale` e `unknown` não contam para o numerador de cobertura. Evidência: `observation_counts_as_covered` + unit tests · dual_capability_coverage · ADR-029. (Live ops fill still required for 95%.)
+- [ ] `stale` e `unknown` não contam para o numerador de cobertura. **Code-ready (not accepted):** observation_counts_as_covered + unit tests · ADR-030 · awaiting register_acceptance + independent QA pack. (Live ops fill still required for 95%.)
 - [ ] O freshness gate falha de modo fechado.
 - [ ] Não existe opção silenciosa que converta freshness desconhecida em aprovada.
 
@@ -903,7 +903,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path executa fontes mínimas. Evidência: PR #77 merge `41f73d1` · CI `29833397283` SUCCESS · CLI `--execute-sources-only` ledger (pncp/pcp/compras_gov attempts≥1) · `assert_essential_sources_executed` · `tests/test_golden_path_fontes_minimas.py` · `.dod/evidence/DOD-rol-1-definition-of-done-faaf47c790/` · nota: fail/success_zero ainda contam como execução; persistência é item separado.
 - [x] O golden path persiste dados. Evidência: PR #79 merge `07e9986` · CI `29835575623` SUCCESS · clean test-db migrations+seed · pcp inserted=98 · pncp_raw_bids=566 · `assert_sources_persisted` · ledger `persist_source_data` · `.dod/evidence/DOD-rol-1-definition-of-done-9c996cb14e/`.
 - [x] O golden path executa freshness gate. Evidência: PR #81 · CI `29836318793` SUCCESS · CLI `--execute-freshness-only` · subprocess `freshness_gate.py` · ledger `run_freshness_gate` · live status=fail failing=contracts (execução comprovada; pass/SLA é item separado) · `.dod/evidence/DOD-rol-1-definition-of-done-94ff481872/`.
-- [x] O golden path calcula cobertura. **PARTIAL (dual measurement):** method=`dual_capability_coverage` (ADR-029) — independente `open_tenders` + `historical_contracts`; proíbe `entity_coverage.any_row` / `is_covered` indiferenciado como cobertura canônica. Legado 214/1093=19.5791% **SUPERSEDED** — ver `docs/ops/campaigns/DUAL-CAPABILITY-COVERAGE-TRUTH-01/ERRATA-19-5791.md` e pack histórico `.dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94/`. CLI: `--execute-dual-coverage-only` / `--execute-coverage-only`. **Não** afirma gate 95% live.
+- [ ] O golden path calcula cobertura. **PARTIAL dual measurement (not formally accepted):** method=`dual_capability_coverage` (ADR-030) — independente open_tenders + historical_contracts; proíbe any_row/is_covered indiferenciado; ledger overall=coverage_gate_failed + exit 2 quando gate 95% falha. Legado 214/1093=19.5791% SUPERSEDED — ERRATA-19-5791.md. CLI: --execute-dual-coverage-only. Acceptance pack OPEN (register_acceptance + @qa). **Não** afirma gate 95% live nem DONE sem controller.
 - [x] O golden path reconcilia snapshot de editais. Evidência: PR #88 · CI main `29841380680` · reproof CONTINUE-03 11 passed REQUIRE_REAL_DB · `.dod/evidence/DOD-rol-1-definition-of-done-c73b1150d6/`.
 - [x] O golden path gera relatório de editais.
 - [x] O golden path gera relatório de contratos.

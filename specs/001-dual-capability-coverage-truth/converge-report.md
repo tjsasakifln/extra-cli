@@ -6,7 +6,7 @@
 
 | Task | Status | Evidence |
 |------|--------|----------|
-| T001–T004 Spec/ADR/errata | Done | specs/, ADR-029, ERRATA |
+| T001–T004 Spec/ADR/errata | Done | specs/, ADR-030, ERRATA |
 | T005 migration 058 | Done | db/migrations/058_dual_capability_coverage_views.sql |
 | T006–T009 dual engine + CLI + unit tests | Done | dual_capability_coverage.py, test_dual_capability_coverage.py |
 | T010–T012 golden path | Done | golden_path.py, test_golden_path_coverage.py |
