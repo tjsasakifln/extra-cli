@@ -1,0 +1,14 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-f8f4f1b0a9",
+  "text": "O golden path gera relatório de contratos.",
+  "head_sha": "8c794ff00d14fde0e7a2757006074352e78c279a",
+  "implementation_pr": 103,
+  "reproof_at": "2026-07-22T00:25:18Z",
+  "pytest": "tests/test_golden_path_contratos_report.py — 3 passed",
+  "cli": "--execute-contratos-report-only",
+  "editais_step_status": "pass",
+  "report_path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-contratos-20260722T002205Z.csv",
+  "row_count": 2,
+  "domain_identity": "relatorio-contratos-* + report_type=contratos",
+  "not_panorama": true
+}

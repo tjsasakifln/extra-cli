@@ -1,0 +1,10 @@
+{
+  "conclusion": "success",
+  "head_sha": "8c794ff00d14fde0e7a2757006074352e78c279a",
+  "run_id": 29880071223,
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29880071223",
+  "pr_implementation": 103,
+  "mandatory_jobs_skipped": [],
+  "checked_at": "2026-07-22T00:25:18Z",
+  "note": "Main CI after #103; PR CI success on 3802c1d"
+}

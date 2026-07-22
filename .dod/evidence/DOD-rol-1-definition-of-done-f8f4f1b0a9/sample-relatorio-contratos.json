@@ -1,0 +1,38 @@
+{
+  "report_type": "contratos",
+  "as_of": "2026-07-22T00:22:05.654010Z",
+  "git_sha": "8c794ff",
+  "row_count_ente": 1,
+  "row_count_fornecedor": 1,
+  "row_count": 2,
+  "columns_ente": [
+    "ente_id",
+    "ente_nome",
+    "n_contratos",
+    "valor_total",
+    "valor_semantica"
+  ],
+  "columns_fornecedor": [
+    "fornecedor_id",
+    "nome_fornecedor",
+    "n_contratos",
+    "valor_total",
+    "ticket_medio",
+    "valor_semantica"
+  ],
+  "csv_path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-contratos-20260722T002205Z.csv",
+  "csv_fornecedor_path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-contratos-fornecedor-20260722T002205Z.csv",
+  "limitations": [
+    "sample aggregated rows ente=1 fornecedor=1; not full universe operational coverage",
+    "domain report of stored contracts; does not claim 95% coverage or LOCAL_READY"
+  ],
+  "reference_period": {
+    "as_of": "2026-07-22T00:22:05.654010Z",
+    "window": "stored-active-contracts"
+  },
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "95% coverage",
+    "full live crawl proof"
+  ]
+}

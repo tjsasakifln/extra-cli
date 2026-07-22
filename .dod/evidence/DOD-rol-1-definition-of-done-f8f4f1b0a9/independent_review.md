@@ -153,3 +153,11 @@ It is **not** a clean **PASS** for accept because:
 
 - Read-only on production code (`scripts/`, `tests/`, `DOD.md`, `.dod/manifest.yaml`, `.dod/state.json` **not** modified).
 - Only written artifact: this file under `.dod/evidence/DOD-rol-1-definition-of-done-f8f4f1b0a9/`.
+
+---
+## Post-merge reproof (main 8c794ff00d14fde0e7a2757006074352e78c279a)
+- Pytest 3 passed REQUIRE_REAL_DB=1
+- CLI --execute-contratos-report-only pass
+- Soft-pass table missing fixed
+- Verdict ACCEPTED: **PASS_FOR_ACCEPT**
+- Date: 2026-07-22T00:25:18Z

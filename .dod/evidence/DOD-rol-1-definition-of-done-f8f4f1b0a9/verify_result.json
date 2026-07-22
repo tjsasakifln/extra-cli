@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "item_id": "DOD-rol-1-definition-of-done-f8f4f1b0a9",
+  "head_sha": "8c794ff00d14fde0e7a2757006074352e78c279a",
+  "reproof_at": "2026-07-22T00:25:18Z",
+  "commands": [
+    {
+      "cmd": "REQUIRE_REAL_DB=1 pytest tests/test_golden_path_contratos_report.py",
+      "exit_code": 0,
+      "skipped": false,
+      "stdout_tail": "3 passed"
+    },
+    {
+      "cmd": "python3 -m scripts.golden_path --execute-contratos-report-only",
+      "exit_code": 0,
+      "skipped": false,
+      "stdout_tail": "contratos_report status=pass rows=2"
+    }
+  ]
+}

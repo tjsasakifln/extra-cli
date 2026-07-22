@@ -1,0 +1,399 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "run_id": "gp-cov-20260721-195045",
+      "timestamp": "2026-07-21T22:50:45.524563+00:00",
+      "status": "success",
+      "wall_clock_ms": 457.9381989997273,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 24.472899999636866,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "coverage_calculation",
+          "status": "pass",
+          "duration_ms": 430.1657989999512,
+          "error": null,
+          "details": {
+            "denominator": 1093,
+            "numerator": 0,
+            "coverage_pct": 0.0,
+            "method": "entity_coverage.any_row",
+            "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "expected_denominator": 1093
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-cov-20260721-195621",
+      "timestamp": "2026-07-21T22:56:21.866980+00:00",
+      "status": "success",
+      "wall_clock_ms": 454.17170000018814,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 22.671799999898212,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "coverage_calculation",
+          "status": "pass",
+          "duration_ms": 429.1254999998273,
+          "error": null,
+          "details": {
+            "denominator": 1093,
+            "numerator": 0,
+            "coverage_pct": 0.0,
+            "method": "entity_coverage.any_row",
+            "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "expected_denominator": 1093
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-20260721-200841",
+      "timestamp": "2026-07-21T23:08:41.759653+00:00",
+      "status": "failed",
+      "wall_clock_ms": 1531.6038000000844,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 29.932499999631546,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "apply_migrations",
+          "status": "skipped",
+          "duration_ms": 0.0,
+          "error": null,
+          "details": {
+            "reason": "skip-migrations"
+          }
+        },
+        {
+          "step": "apply_seeds",
+          "status": "skipped",
+          "duration_ms": 0.0,
+          "error": null,
+          "details": {
+            "reason": "skip-seeds"
+          }
+        },
+        {
+          "step": "validate_target_spreadsheet",
+          "status": "pass",
+          "duration_ms": 497.0969000005425,
+          "error": null,
+          "details": {
+            "physical_rows": 2085,
+            "canonical_entities": 1093,
+            "sheet_name": "Entes Públicos SC",
+            "path": "/mnt/d/extra-consultoria-continue-03/Extra - alvos de licitação. R-0.xlsx",
+            "sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396",
+            "selection_rule": "exact_basename",
+            "header": "Razão Social CNPJ (8 dígitos) Município Código IBGE Natureza Jurídica Cód. Natureza Latitude Longitude Distância de Florianópolis (km) Raio 200km?",
+            "outside_radius": 992,
+            "unresolved_rows": 0,
+            "seed_path_resolved": "/mnt/d/extra-consultoria-continue-03/Extra - alvos de licitação. R-0.xlsx",
+            "expected_canonical_entities": 1093,
+            "expected_canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396"
+          }
+        },
+        {
+          "step": "execute_essential_sources",
+          "status": "skipped",
+          "duration_ms": 0,
+          "error": null,
+          "details": {
+            "reason": "skip-sources",
+            "executed": []
+          }
+        },
+        {
+          "step": "persist_source_data",
+          "status": "skipped",
+          "duration_ms": 0.0,
+          "error": null,
+          "details": {
+            "reason": "skip-sources"
+          }
+        },
+        {
+          "step": "run_freshness_gate",
+          "status": "skipped",
+          "duration_ms": 0.0,
+          "error": null,
+          "details": {
+            "reason": "skip-freshness"
+          }
+        },
+        {
+          "step": "coverage_calculation",
+          "status": "pass",
+          "duration_ms": 229.5257000005222,
+          "error": null,
+          "details": {
+            "denominator": 1093,
+            "numerator": 262,
+            "coverage_pct": 23.9707,
+            "method": "entity_coverage.is_covered",
+            "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "expected_denominator": 1093
+          }
+        },
+        {
+          "step": "snapshot_reconciliation",
+          "status": "pass",
+          "duration_ms": 35.477099999297934,
+          "error": null,
+          "details": {
+            "source_table": "pncp_raw_bids",
+            "prev_path": "/mnt/d/extra-consultoria-continue-03/output/golden-path/snapshots/editais-snapshot-prev.json",
+            "curr_path": "/mnt/d/extra-consultoria-continue-03/output/golden-path/snapshots/editais-snapshot-curr.json",
+            "current_count": 738,
+            "ids_sha256": "8f6f0ec6a908de7f139a5a44a3e1ac571509e5224fb041e256375ea40cfefdd6",
+            "baseline": false,
+            "previous_count": 738,
+            "added": 0,
+            "removed": 0,
+            "changed": 0,
+            "unchanged": 738,
+            "added_sample": [],
+            "removed_sample": [],
+            "changed_sample": [],
+            "previous_ids_sha256": "8f6f0ec6a908de7f139a5a44a3e1ac571509e5224fb041e256375ea40cfefdd6"
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [
+        {
+          "type": "excel",
+          "status": "generated",
+          "path": "/mnt/d/extra-consultoria-continue-03/output/excels/panorama-SC-2026-07-21.xlsx",
+          "error": null
+        },
+        {
+          "type": "pdf",
+          "status": "generated",
+          "path": "/mnt/d/extra-consultoria-continue-03/output/pdfs/panorama-SC-2026-07-21.pdf",
+          "error": null
+        }
+      ],
+      "freshness": {
+        "status": "skipped",
+        "details": null,
+        "error": null
+      }
+    },
+    {
+      "run_id": "gp-cov-20260721-200845",
+      "timestamp": "2026-07-21T23:08:45.000405+00:00",
+      "status": "success",
+      "wall_clock_ms": 419.2077000006975,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 21.847999999408785,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "coverage_calculation",
+          "status": "pass",
+          "duration_ms": 392.59260000017093,
+          "error": null,
+          "details": {
+            "denominator": 1093,
+            "numerator": 0,
+            "coverage_pct": 0.0,
+            "method": "entity_coverage.any_row",
+            "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "expected_denominator": 1093
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-cov-20260721-200922",
+      "timestamp": "2026-07-21T23:09:22.789201+00:00",
+      "status": "success",
+      "wall_clock_ms": 425.7233010002892,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 21.05550000032963,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "coverage_calculation",
+          "status": "pass",
+          "duration_ms": 401.4536009999574,
+          "error": null,
+          "details": {
+            "denominator": 1093,
+            "numerator": 0,
+            "coverage_pct": 0.0,
+            "method": "entity_coverage.any_row",
+            "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "expected_denominator": 1093
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-cov-20260721-200929",
+      "timestamp": "2026-07-21T23:09:29.490630+00:00",
+      "status": "success",
+      "wall_clock_ms": 434.4653999996808,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 21.72729999983858,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "coverage_calculation",
+          "status": "pass",
+          "duration_ms": 409.5184000007066,
+          "error": null,
+          "details": {
+            "denominator": 1093,
+            "numerator": 0,
+            "coverage_pct": 0.0,
+            "method": "entity_coverage.any_row",
+            "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "expected_denominator": 1093
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-cov-20260721-200956",
+      "timestamp": "2026-07-21T23:09:56.195550+00:00",
+      "status": "success",
+      "wall_clock_ms": 449.8445020008148,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 21.494199999324337,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "coverage_calculation",
+          "status": "pass",
+          "duration_ms": 425.14930200013623,
+          "error": null,
+          "details": {
+            "denominator": 1093,
+            "numerator": 0,
+            "coverage_pct": 0.0,
+            "method": "entity_coverage.any_row",
+            "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+            "expected_denominator": 1093
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null
+    },
+    {
+      "run_id": "gp-contratos-20260721-212205",
+      "timestamp": "2026-07-22T00:22:05.576424+00:00",
+      "status": "success",
+      "wall_clock_ms": 225.75590000087686,
+      "steps": [
+        {
+          "step": "db_connectivity",
+          "status": "pass",
+          "duration_ms": 24.921100000938168,
+          "error": null,
+          "details": null
+        },
+        {
+          "step": "contratos_report",
+          "status": "pass",
+          "duration_ms": 196.58019999951648,
+          "error": null,
+          "details": {
+            "ok": true,
+            "path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-contratos-20260722T002205Z.csv",
+            "path_fornecedor": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-contratos-fornecedor-20260722T002205Z.csv",
+            "json_path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-contratos-20260722T002205Z.json",
+            "size": 142,
+            "row_count": 2,
+            "row_count_ente": 1,
+            "row_count_fornecedor": 1,
+            "columns": [
+              "ente_id",
+              "ente_nome",
+              "n_contratos",
+              "valor_total",
+              "valor_semantica"
+            ],
+            "as_of": "2026-07-22T00:22:05.654010Z",
+            "git_sha": "8c794ff",
+            "limitations": [
+              "sample aggregated rows ente=1 fornecedor=1; not full universe operational coverage",
+              "domain report of stored contracts; does not claim 95% coverage or LOCAL_READY"
+            ]
+          }
+        }
+      ],
+      "sources": [],
+      "reports": [],
+      "freshness": null,
+      "meta": {
+        "canonical_command": "python3 -m scripts.golden_path",
+        "as_of": "2026-07-22T00:22:05.802192Z",
+        "reference_period": {
+          "as_of": "2026-07-22T00:22:05.802192Z",
+          "window": "run-scoped"
+        },
+        "git_sha": "8c794ff00d14fde0e7a2757006074352e78c279a",
+        "dsn_present": true,
+        "migration_files_count": 62,
+        "schema_version": "migrations_count=62",
+        "limitations": [
+          "Metadata is local/run-scoped; does not prove VPS or LOCAL_READY.",
+          "Coverage and freshness require a reachable DSN and applied migrations."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "verdict": "PASS_FOR_ACCEPT",
+  "reviewer": "adversarial-qa-continue-03",
+  "head_sha": "8c794ff00d14fde0e7a2757006074352e78c279a",
+  "reviewed_at": "2026-07-22T00:25:18Z",
+  "notes": "Hard-fail table missing fixed; reproof green on main",
+  "blocking_issues": []
+}
