@@ -2,15 +2,15 @@
 
 **Campaign:** `DUAL-CAPABILITY-COVERAGE-TRUTH-01`  
 **Date:** 2026-07-22  
-**Main tip (source of truth):** `3ab3a3a738437791cb4a9e34b76f41bb578f47a8`  
-**Adapter:** dual fail-closed engine on main (PRs #108–#112)
+**Main tip (source of truth):** `86cb02856a3c76c5dd13ef64188453728e10dc82`  
+**Adapter:** dual fail-closed engine on main (PRs #108–#112); docs stamp #113+
 
 ## Estado comprovado (reproof live em main)
 
 | Campo | Valor |
 |-------|-------|
 | Method | `dual_capability_coverage` |
-| artifact git_sha | `3ab3a3a738437791cb4a9e34b76f41bb578f47a8` (= origin/main) |
+| artifact git_sha | `86cb02856a3c76c5dd13ef64188453728e10dc82` (= origin/main) |
 | measurement_success | **false** |
 | coverage_gate_pass | **false** |
 | pipeline_success | **false** |
@@ -33,7 +33,7 @@
 ```bash
 export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
 export REQUIRE_REAL_DB=1
-git checkout 3ab3a3a  # or origin/main
+git checkout 86cb028  # or origin/main
 python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
 python3 -m scripts.coverage.dual_capability_coverage --capability both --output-dir output/coverage
 python3 -m scripts.golden_path --execute-dual-coverage-only --capability both
@@ -48,11 +48,12 @@ python3 -m pytest tests/test_dual_capability_coverage.py tests/test_golden_path_
 | 2 | CI green on implementation | **DONE** | Actions on #108 / main post-merge |
 | 3 | Independent review PASS_FOR_MERGE | **DONE** | `independent-review-v1.3-final.md` (reviewed_commit `ed7be1c`) |
 | 4 | Merge implementation to main | **DONE** | PR #108 |
-| 5 | Main dual reproof | **DONE** | live summary above on `3ab3a3a` |
+| 5 | Main dual reproof | **DONE** | live summary above on `86cb028` |
 | 6 | Acceptance pack + controller + DOD accept | **DONE** | pack `.dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94/` · PR #109 |
 | 7 | Skeptic: identity/scope/view | **DONE** | PR #110 |
 | 8 | Clean-env measurement tolerance | **DONE** | PR #111 full suite green |
-| 9 | Cap-level measurement honesty + docs stamp | **DONE** | PR #112 · tip `3ab3a3a` |
+| 9 | Cap-level measurement honesty | **DONE** | PR #112 · `3ab3a3a` |
+| 10 | Docs stamp consistency + live evidence | **DONE** | PR #113 · evidence/tip `86cb028` |
 
 ## Próximos passos (somente operacional)
 

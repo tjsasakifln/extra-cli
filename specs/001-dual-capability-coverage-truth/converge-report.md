@@ -1,7 +1,7 @@
 # Speckit converge — dual-capability-coverage-truth
 
 **Date:** 2026-07-22  
-**Main tip:** `3ab3a3a738437791cb4a9e34b76f41bb578f47a8`
+**Main tip:** `86cb02856a3c76c5dd13ef64188453728e10dc82`
 
 ## Codebase vs tasks
 
@@ -11,7 +11,7 @@
 | T020 PR/CI | Done | PR #108 CI + merge |
 | T021–T031 fail-closed/matrix/hashes | Done | dual engine on main |
 | T032 independent review | Done | v1.3-final reviewed_commit ed7be1c |
-| T033 merge | Done | #108–#112 on main tip `3ab3a3a` |
+| T033 merge | Done | #108–#113 on main (engine #112 `3ab3a3a`; docs stamp #113) |
 | T034 main reproof | Done | live dual summary measurement=false map=identity_unresolved |
 | T035 acceptance pack/controller | Done | pack 4efe05fc94 + dod_controller |
 | T036 DOD ACCEPTED | Done | PR #109 |
@@ -29,4 +29,4 @@ Only **operational** (not measurement-engine implementable):
 
 **CONVERGED** for dual fail-closed measurement + normative “calcula cobertura”.  
 **NOT** claiming dual 95% operational gates.  
-Process steps merge/accept/review are **DONE** on main `3ab3a3a`.
+Process steps merge/accept/review are **DONE** on main `86cb028`.

@@ -88,7 +88,7 @@ git log --oneline origin/main..origin/campaign/dual-capability-coverage-truth
 ## Docs stamp closure
 
 **Date:** 2026-07-22  
-**Main tip:** `3ab3a3a738437791cb4a9e34b76f41bb578f47a8`  
+**Main tip:** `86cb02856a3c76c5dd13ef64188453728e10dc82`  
 **Live dual:** measurement_success=false · mapping_status=identity_unresolved · identity_unresolved_count=4 · dual_gate_status=NOT_READY  
 **Gate:** `docs/ops/campaigns/DUAL-CAPABILITY-COVERAGE-TRUTH-01/scripts/check_campaign_stamp_consistency.py` → exit 0  
 **Evidence:** `evidence/dual-reproof-summary.json` (git_sha = tip)  

@@ -2,7 +2,7 @@
 
 **Status:** COMPLETE on main (dual measurement fail-closed + normative accept + skeptic stack)  
 **Date:** 2026-07-22  
-**Final main tip:** `3ab3a3a738437791cb4a9e34b76f41bb578f47a8`
+**Final main tip:** `86cb02856a3c76c5dd13ef64188453728e10dc82`
 
 ## Merged stack
 
@@ -12,7 +12,8 @@
 | #109 | DOD accept calcula cobertura (dual method) | `30f5548` |
 | #110 | skeptic: identity/scope/view | `3a17805` |
 | #111 | clean-env skip_sources measurement tolerance | `ac81c51` |
-| #112 | cap-level measurement honesty + review v1.3 | `3ab3a3a` (= current tip) |
+| #112 | cap-level measurement honesty + review v1.3 | `3ab3a3a` |
+| #113 | docs stamp consistency + live evidence | `86cb028` (= current tip) |
 
 ## Live dual snapshot (must match dual summary on tip)
 
