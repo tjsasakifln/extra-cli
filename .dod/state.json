@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
-  "updated_at": "2026-07-21T23:38:10Z",
-  "active_item_id": null,
-  "active_run_id": "run-20260721T022411Z",
-  "active_branch": null,
-  "main_sha": "9c4ed101bffa82f0bd4f7efd22772cb966294e70",
-  "phase": "converge",
+  "updated_at": "2026-07-21T23:45:28Z",
+  "active_item_id": "DOD-rol-1-definition-of-done-0786ea0c31",
+  "active_run_id": "run-20260721T234528Z",
+  "active_branch": "campaign/continue-03-report-editais",
+  "main_sha": "ff733375a85d92a194431ccaa1908a9b936e3ac3",
+  "phase": "item_cycle",
   "next_eligible_id": "DOD-rol-1-definition-of-done-7d2ae13087",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
@@ -45,8 +45,8 @@
     },
     "dod_checked_count": 332
   },
-  "resume_step": "merge-reconciliation",
-  "notes": "CONTINUE-03: accepted clean-env+#code/schema meta. PRs 94-99. Next: hash planilha in GP meta, specific reports, or hash/period/limitations.",
+  "resume_step": "implement-pr-ci",
+  "notes": "CONTINUE-03: implementing editais domain report (0786ea0c31). PRs 94-100 merged. Not ACCEPTED until CI+review+reproof.",
   "billing_blocker": {
     "status": "RESOLVED",
     "resolved_at": "2026-07-21T12:57:41Z",

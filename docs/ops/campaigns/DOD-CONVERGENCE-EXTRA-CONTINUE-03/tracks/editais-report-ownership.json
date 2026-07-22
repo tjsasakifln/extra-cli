@@ -1,0 +1,16 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-0786ea0c31",
+  "wave": "report-editais",
+  "agents": {
+    "E1_impl": {
+      "allowed": ["scripts/reports/editais_report.py", "scripts/golden_path.py"],
+      "forbidden": ["tests/**", "DOD.md", ".dod/**"]
+    },
+    "E2_tests": {
+      "allowed": ["tests/test_golden_path_editais_report.py"],
+      "forbidden": ["scripts/**", "DOD.md", ".dod/**"]
+    },
+    "E3_qa": {"mode": "read-only", "allowed_write": [".dod/evidence/DOD-rol-1-definition-of-done-0786ea0c31/independent_review.md"]},
+    "coordinator": ["DOD.md", ".dod/**", "docs/ops/campaigns/**"]
+  }
+}
