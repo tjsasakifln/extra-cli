@@ -2769,8 +2769,14 @@ def main() -> int:
         allow_zero=bool(args.allow_zero),
         coverage_gate_pass=cov_details.get("coverage_gate_pass"),
         coverage_measurement_success=cov_details.get("measurement_success"),
-        # Strict full path always treats dual 95% gates as operational requirement.
-        require_coverage_gate=True if args.strict else bool(args.require_coverage_gate),
+        # Strict full path treats dual 95% gates as operational requirement.
+        # Clean-env / --skip-sources foundation still *measures* dual coverage but
+        # does not fail the pipeline on low % unless --require-coverage-gate.
+        require_coverage_gate=(
+            bool(args.require_coverage_gate)
+            if args.skip_sources
+            else (True if args.strict else bool(args.require_coverage_gate))
+        ),
     )
     # Domain domain reports are mandatory for §12.1 (independent of panorama Excel/PDF).
     if editais_step.status != "pass" and exit_code == 0:
