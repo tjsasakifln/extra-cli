@@ -333,13 +333,19 @@ def run_coverage_calculation(
     *,
     project_root: Path | None = None,
     expected_denominator: int | None = None,
+    capabilities: list[str] | None = None,
+    require_gate: bool = False,
+    output_dir: Path | None = None,
 ) -> StepRecord:
-    """Calculate universe coverage against the canonical denominator (not table counts).
+    """Calculate dual capability monitoring coverage (canonical).
 
-    Denominator = load_canonical_universe().included (must match expected_denominator).
-    Numerator = distinct entity_ids in entity_coverage for included cnpj roots when
-    available; otherwise entities with is_covered true. Fail-closed if denominator
-    mismatches or universe cannot be loaded.
+    Computes independent metrics for open_tenders and historical_contracts using
+    ``scripts.coverage.dual_capability_coverage``. Does **not** use
+    ``entity_coverage.is_covered`` or ``any_row`` as coverage methods.
+
+    Measurement can pass with low coverage. When ``require_gate`` is True, status
+    fails if either capability gate (<95%) fails. Always records
+    measurement_success vs coverage_gate_pass in details.
     """
     t0 = time.perf_counter()
     root = project_root or _PROJECT_ROOT
@@ -347,56 +353,77 @@ def run_coverage_calculation(
         "denominator": None,
         "numerator": None,
         "coverage_pct": None,
-        "method": None,
+        "method": "dual_capability_coverage",
+        "measurement_success": False,
+        "coverage_gate_pass": False,
+        "pipeline_success": False,
+        "capabilities": {},
     }
     try:
-        from scripts.lib.universe import (
-            CANONICAL_UNIVERSE,
-            load_canonical_universe,
-            resolve_default_seed_path,
+        from scripts.coverage.dual_capability_coverage import (
+            CAPABILITIES,
+            FORBIDDEN_METHODS,
+            compute_dual_coverage,
+            write_reports,
         )
+        from scripts.lib.universe import CANONICAL_UNIVERSE
 
         if expected_denominator is None:
             expected_denominator = int(CANONICAL_UNIVERSE)
-        seed = resolve_default_seed_path(root)
-        universe = load_canonical_universe(seed_path=seed)
-        den = len(universe.included)
-        details["denominator"] = den
-        details["seed_sha256"] = universe.seed_sha256
-        details["expected_denominator"] = expected_denominator
-        if den != expected_denominator:
+        caps = list(capabilities) if capabilities else list(CAPABILITIES)
+        report = compute_dual_coverage(
+            dsn=dsn,
+            project_root=root,
+            capabilities=caps,
+            expected_denominator=expected_denominator,
+        )
+        out = output_dir or (_OUTPUT_DIR / "coverage")
+        if report.measurement_success:
+            paths = write_reports(report, Path(out), capabilities=caps)
+            details["artifact_paths"] = {k: str(v) for k, v in paths.items()}
+
+        details["measurement_success"] = report.measurement_success
+        details["coverage_gate_pass"] = report.coverage_gate_pass
+        details["pipeline_success"] = report.pipeline_success
+        details["universe"] = report.universe.to_dict()
+        details["legacy_metric"] = report.legacy_metric
+        details["limitations"] = report.limitations
+        details["forbidden_methods"] = sorted(FORBIDDEN_METHODS)
+        details["as_of"] = report.as_of
+        details["error"] = report.error
+
+        # Populate dual capability blocks
+        for cap, res in report.capabilities.items():
+            details["capabilities"][cap] = res.to_summary_dict()
+
+        # Transition mirrors (open_tenders primary for backward-compatible den/num/pct fields)
+        primary = report.capabilities.get("open_tenders") or next(iter(report.capabilities.values()), None)
+        if primary is not None:
+            details["denominator"] = primary.applicable_denominator
+            details["numerator"] = primary.covered_numerator
+            details["coverage_pct"] = primary.coverage_pct
+            details["seed_sha256"] = report.universe.seed_sha256
+            details["canonical_ids_sha256"] = report.universe.canonical_ids_sha256
+            details["expected_denominator"] = expected_denominator
+
+        if not report.measurement_success:
             return StepRecord(
                 step="coverage_calculation",
                 status="fail",
                 duration_ms=(time.perf_counter() - t0) * 1000,
-                error=f"denominator mismatch: got {den} expected {expected_denominator}",
+                error=report.error or "dual coverage measurement failed",
                 details=details,
             )
 
-        import psycopg2
+        if require_gate and not report.coverage_gate_pass:
+            return StepRecord(
+                step="coverage_calculation",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error="coverage_gate_pass=false (measurement_success=true)",
+                details=details,
+            )
 
-        conn = psycopg2.connect(dsn, connect_timeout=10)
-        try:
-            with conn.cursor() as cur:
-                # Prefer entity_coverage rows marked covered
-                cur.execute(
-                    """
-                    SELECT count(DISTINCT entity_id)
-                    FROM entity_coverage
-                    WHERE is_covered IS TRUE
-                    """
-                )
-                num = int(cur.fetchone()[0] or 0)
-                details["method"] = "entity_coverage.is_covered"
-                if num == 0:
-                    cur.execute("SELECT count(DISTINCT entity_id) FROM entity_coverage")
-                    num = int(cur.fetchone()[0] or 0)
-                    details["method"] = "entity_coverage.any_row"
-        finally:
-            conn.close()
-
-        details["numerator"] = num
-        details["coverage_pct"] = round(100.0 * num / den, 4) if den else 0.0
         # Calculation itself succeeds even if coverage is low — "calcula" not "atinge 95%"
         return StepRecord(
             step="coverage_calculation",
@@ -1731,7 +1758,29 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--execute-coverage-only",
         action="store_true",
-        help="Run only coverage calculation + ledger (requires DB + planilha)",
+        help=(
+            "Run dual capability coverage calculation + ledger "
+            "(open_tenders + historical_contracts; requires DB + planilha)"
+        ),
+    )
+    p.add_argument(
+        "--execute-dual-coverage-only",
+        action="store_true",
+        help=(
+            "Isolated dual-coverage reproof mode (same engine as coverage step). "
+            "Use with --capability open_tenders|historical_contracts|both"
+        ),
+    )
+    p.add_argument(
+        "--capability",
+        choices=["open_tenders", "historical_contracts", "both"],
+        default="both",
+        help="Capability scope for dual coverage modes (default: both)",
+    )
+    p.add_argument(
+        "--require-coverage-gate",
+        action="store_true",
+        help="Fail coverage step when either capability gate is below 95 percent (measurement may still succeed)",
     )
     p.add_argument(
         "--execute-snapshot-only",
@@ -2034,7 +2083,8 @@ def main() -> int:
         # Exit 0 when gate ran (even if status=fail); non-zero only if not executed.
         return 0
 
-    if args.execute_coverage_only:
+    if args.execute_coverage_only or args.execute_dual_coverage_only:
+        mode = "dual-coverage" if args.execute_dual_coverage_only else "coverage"
         run_id = f"gp-cov-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
         timestamp = datetime.now(UTC).isoformat()
         steps: list[StepRecord] = []
@@ -2051,21 +2101,44 @@ def main() -> int:
         if not ok_db:
             _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
-        _echo("\n[execute-coverage-only] Calculando cobertura...", "header")
-        cov = run_coverage_calculation(dsn, project_root=_PROJECT_ROOT)
+        caps = (
+            ["open_tenders", "historical_contracts"]
+            if args.capability == "both"
+            else [args.capability]
+        )
+        _echo(f"\n[execute-{mode}-only] Calculando cobertura dual {caps}...", "header")
+        cov = run_coverage_calculation(
+            dsn,
+            project_root=_PROJECT_ROOT,
+            capabilities=caps,
+            require_gate=bool(args.require_coverage_gate),
+        )
         steps.append(cov)
+        d = cov.details or {}
+        measurement_ok = bool(d.get("measurement_success")) if d else cov.status == "pass"
+        gate_ok = bool(d.get("coverage_gate_pass"))
         overall = "success" if cov.status == "pass" else "failed"
         _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output)
-        if cov.status != "pass":
+        if not measurement_ok or cov.status != "pass":
             _echo(f"  Cobertura FALHOU: {cov.error or cov.details}", "error")
             return 1
-        d = cov.details or {}
+        for cap_name, cap_block in (d.get("capabilities") or {}).items():
+            _echo(
+                f"  {cap_name}: den={cap_block.get('applicable_denominator')} "
+                f"num={cap_block.get('covered_numerator')} pct={cap_block.get('coverage_pct')} "
+                f"gate={cap_block.get('gate_status')} presence={cap_block.get('data_presence_pct')} "
+                f"fresh={cap_block.get('fresh_count')} stale={cap_block.get('stale_count')} "
+                f"unknown={cap_block.get('unknown_count')} blocked={cap_block.get('blocked_count')}",
+                "ok" if cap_block.get("gate_status") == "PASS" else "warn",
+            )
         _echo(
-            f"  Cobertura OK den={d.get('denominator')} num={d.get('numerator')} "
-            f"pct={d.get('coverage_pct')} method={d.get('method')}",
+            f"  measurement_success={measurement_ok} coverage_gate_pass={gate_ok} "
+            f"method={d.get('method')}",
             "ok",
         )
         _echo(f"  Ledger: {args.ledger_output}", "ok")
+        if args.require_coverage_gate and not gate_ok:
+            return 2
         return 0
 
     if args.execute_snapshot_only:
@@ -2604,8 +2677,21 @@ def main() -> int:
     steps.append(cov_step)
     if cov_step.status == "pass":
         d = cov_step.details or {}
+        for cap_name, cap_block in (d.get("capabilities") or {}).items():
+            _echo(
+                f"  {cap_name}: den={cap_block.get('applicable_denominator')} "
+                f"num={cap_block.get('covered_numerator')} pct={cap_block.get('coverage_pct')} "
+                f"gate={cap_block.get('gate_status')}",
+                "ok" if cap_block.get("gate_status") == "PASS" else "warn",
+            )
+        if not d.get("capabilities"):
+            _echo(
+                f"  Cobertura den={d.get('denominator')} num={d.get('numerator')} pct={d.get('coverage_pct')}",
+                "ok",
+            )
         _echo(
-            f"  Cobertura den={d.get('denominator')} num={d.get('numerator')} pct={d.get('coverage_pct')}",
+            f"  measurement_success={d.get('measurement_success')} "
+            f"coverage_gate_pass={d.get('coverage_gate_pass')}",
             "ok",
         )
     else:
