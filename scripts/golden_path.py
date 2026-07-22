@@ -1608,6 +1608,58 @@ def run_concorrentes_report(dsn: str, *, out_dir: Path | None = None) -> StepRec
         )
 
 
+
+def run_valores_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord:
+    """Generate domain-specific referências de valores report (not panorama)."""
+    t0 = time.perf_counter()
+    try:
+        from scripts.reports.valores_report import write_valores_report
+
+        result = write_valores_report(dsn, out_dir=out_dir)
+        path = result.get("path")
+        size = int(result.get("size") or 0)
+        if not result.get("ok") or not path or not Path(path).is_file():
+            return StepRecord(
+                step="valores_report",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error=str(result.get("limitations") or "valores report missing"),
+                details=result,
+            )
+        if "relatorio-valores" not in Path(path).name:
+            return StepRecord(
+                step="valores_report",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error="valores report path must be domain-specific",
+                details=result,
+            )
+        cols = result.get("columns") or []
+        for required in ("modalidade", "n", "valor_semantica"):
+            if required not in cols:
+                return StepRecord(
+                    step="valores_report",
+                    status="fail",
+                    duration_ms=(time.perf_counter() - t0) * 1000,
+                    error=f"missing column {required}",
+                    details=result,
+                )
+        _echo(f"  Valores report: {path} rows={result.get('row_count')} size={size}", "ok")
+        return StepRecord(
+            step="valores_report",
+            status="pass",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            details=result,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return StepRecord(
+            step="valores_report",
+            status="fail",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            error=str(exc),
+        )
+
+
 def run_reports(dsn: str) -> list[ReportRecord]:
     """Generate panorama reports (Excel + PDF)."""
     reports: list[ReportRecord] = []
@@ -1851,6 +1903,11 @@ def parse_args() -> argparse.Namespace:
         "--execute-concorrentes-report-only",
         action="store_true",
         help="Run only domain concorrentes report (CSV+JSON) + ledger (requires DB)",
+    )
+    p.add_argument(
+        "--execute-valores-report-only",
+        action="store_true",
+        help="Run only domain referências de valores report (CSV+JSON) + ledger (requires DB)",
     )
     p.add_argument(
         "--spreadsheet",
@@ -2364,6 +2421,42 @@ def main() -> int:
         _echo(f"  Ledger: {args.ledger_output}", "ok")
         return 0
 
+    if args.execute_valores_report_only:
+        run_id = f"gp-valores-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        wall_start = time.monotonic()
+        dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
+        if not dsn:
+            try:
+                import config.settings as _cfg
+
+                dsn = _cfg.LOCAL_DATALAKE_DSN
+            except ImportError:
+                dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
+        ok_db, dur_db = check_db(dsn)
+        steps.append(
+            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
+        )
+        if not ok_db:
+            _save_final_ledger(
+                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
+            )
+            return 1
+        _echo("\n[execute-valores-report-only] Gerando relatório de referências de valores...", "header")
+        val_step = run_valores_report(dsn)
+        steps.append(val_step)
+        overall = "success" if val_step.status == "pass" else "failed"
+        _save_final_ledger(
+            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
+        )
+        if overall != "success":
+            _echo(f"  Valores report FAIL: {val_step.error}", "error")
+            return 1
+        _echo("  Valores report OK (domain CSV+JSON present)", "ok")
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
+        return 0
+
     # ── Resolve DSN ──
     dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
     if not dsn:
@@ -2804,6 +2897,13 @@ def main() -> int:
     if concorrentes_step.status != "pass":
         _echo(f"  Concorrentes report FAIL: {concorrentes_step.error}", "error")
 
+    # Step 4e: domain-specific referências de valores
+    _echo("\n[4e/7] Relatório de referências de valores (domínio)...", "header")
+    valores_step = run_valores_report(dsn)
+    steps.append(valores_step)
+    if valores_step.status != "pass":
+        _echo(f"  Valores report FAIL: {valores_step.error}", "error")
+
     # =========================================================================
     # Summary
     # =========================================================================
@@ -2839,6 +2939,9 @@ def main() -> int:
         overall = "failed"
         exit_code = 4
     if concorrentes_step.status != "pass" and exit_code == 0:
+        overall = "failed"
+        exit_code = 4
+    if valores_step.status != "pass" and exit_code == 0:
         overall = "failed"
         exit_code = 4
 
@@ -2899,7 +3002,7 @@ def main() -> int:
         1: "FALHA/EMPTY: sem dados utilizáveis ou essential zero sem --allow-zero",
         2: "PARCIAL: fontes essenciais falharam",
         3: "FRESHNESS FAIL: gate de freshness reprovado (strict)",
-        4: "REPORT FAIL: Excel/PDF ou relatório de domínio (editais/contratos/concorrentes) falhou",
+        4: "REPORT FAIL: Excel/PDF ou relatório de domínio (editais/contratos/concorrentes/valores) falhou",
         5: "DEGRADED: fontes não essenciais falharam (strict)",
     }
     _echo(f"\n{messages.get(exit_code, f'Exit {exit_code}')}. Verifique o ledger.", "error")
