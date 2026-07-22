@@ -9,7 +9,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-
 CLAIM_LEGEND = {
     "fact": "Directly observed from contract rows (counts, UF set, sums).",
     "indicator": "Derived statistic (percentiles, shares, modes); not a legal finding.",

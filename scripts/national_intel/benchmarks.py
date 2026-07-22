@@ -7,7 +7,6 @@ from typing import Any
 from scripts.national_intel.db import fetch_all
 from scripts.national_intel.lineage import envelope
 
-
 DEFAULT_MIN_SAMPLE = 20
 
 
