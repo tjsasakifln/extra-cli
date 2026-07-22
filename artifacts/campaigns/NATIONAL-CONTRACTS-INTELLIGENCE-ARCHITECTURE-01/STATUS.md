@@ -3,6 +3,7 @@
 **Updated:** 2026-07-22 (PR #121 close pass)  
 **Branch:** `campaign/national-contracts-intelligence-architecture-01`  
 **Worktree:** `/mnt/d/extra-consultoria-national-intelligence`  
+**Final HEAD:** `48e0b67e6602542c37586c2135bccc4850f4a043`  
 **PR:** https://github.com/tjsasakifln/extra-cli/pull/121 (**draft**, no merge)  
 **Base:** `origin/main`  
 **Isolated DSN:** `postgresql://test:***@127.0.0.1:5435/extra_national_intelligence_test`
@@ -38,7 +39,7 @@ Does **not** mean: HC 3y complete, SC 95%, VPS, DOD closed, production national 
 | SC_COVERAGE_ISOLATION_PASS | PASS (real dual path; 27+ national_intel) |
 | OPERATIONAL_READINESS_ASSESSMENT_PASS | PASS fixture-scale only |
 | INDEPENDENT_REVIEW | CONDITIONAL_PASS on final HEAD |
-| CI | target CI_GREEN after push |
+| CI | **CI_GREEN** (run 29965467140, all jobs SUCCESS) |
 
 ## Tests (local close)
 
