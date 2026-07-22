@@ -1,0 +1,1 @@
+{"verdict":"PASS_FOR_ACCEPT","reviewer":"adversarial-qa-continue-03","head_sha":"dc71a21436e1713a335127067db5d7607c017096","reviewed_at":"2026-07-22T00:40:11Z","notes":"CONCERNS residual soft-pass on fallback path; reproof green","blocking_issues":[]}

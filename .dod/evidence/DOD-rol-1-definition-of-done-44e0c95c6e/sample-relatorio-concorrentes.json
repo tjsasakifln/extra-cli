@@ -1,0 +1,27 @@
+{
+  "report_type": "concorrentes",
+  "as_of": "2026-07-22T00:37:49.557731Z",
+  "git_sha": "dc71a21",
+  "row_count": 1,
+  "columns": [
+    "concorrente_id",
+    "nome",
+    "n_contratos",
+    "valor_total",
+    "provenance"
+  ],
+  "csv_path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-concorrentes-20260722T003749Z.csv",
+  "limitations": [
+    "sample_cap rows=1; not full universe operational coverage",
+    "domain report of stored competitors; does not claim 95% coverage or LOCAL_READY"
+  ],
+  "reference_period": {
+    "as_of": "2026-07-22T00:37:49.557731Z",
+    "window": "stored-competitors"
+  },
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "95% coverage",
+    "full live crawl proof"
+  ]
+}

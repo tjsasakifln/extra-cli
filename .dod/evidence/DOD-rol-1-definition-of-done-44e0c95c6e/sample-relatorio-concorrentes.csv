@@ -1,0 +1,2 @@
+concorrente_id,nome,n_contratos,valor_total,provenance
+11111111000191,Fornecedor Teste,1,1000.00,from_pncp_supplier_contracts

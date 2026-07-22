@@ -1,0 +1,13 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-44e0c95c6e",
+  "text": "O golden path gera relatório de concorrentes.",
+  "head_sha": "dc71a21436e1713a335127067db5d7607c017096",
+  "implementation_pr": 105,
+  "reproof_at": "2026-07-22T00:40:11Z",
+  "pytest": "3 passed",
+  "cli": "--execute-concorrentes-report-only",
+  "status": "pass",
+  "row_count": 1,
+  "path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-concorrentes-20260722T003749Z.csv",
+  "domain_identity": "relatorio-concorrentes + report_type=concorrentes"
+}
