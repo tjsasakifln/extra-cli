@@ -55,9 +55,16 @@ def fetch_contratos(dsn: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]
         return [], [], [f"db_connect_failed: {exc}", "report is empty until DSN is reachable"]
     try:
         from scripts.reports.operational_reports import (
+            _table_exists,
             report_contratos_por_ente,
             report_contratos_por_fornecedor,
         )
+
+        if not _table_exists(conn, "pncp_supplier_contracts"):
+            return [], [], [
+                "table pncp_supplier_contracts missing",
+                "run migrations and crawl before domain report",
+            ]
 
         ente = report_contratos_por_ente(conn)
         forn = report_contratos_por_fornecedor(conn)
@@ -69,14 +76,21 @@ def fetch_contratos(dsn: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]
             forn = []
         ente = [r for r in ente if "_error" not in r]
         forn = [r for r in forn if "_error" not in r]
+        if any(lim.startswith("query_failed:") for lim in limitations):
+            return ente, forn, limitations
         if not ente and not forn:
-            limitations.append("zero active contracts in pncp_supplier_contracts (not success_zero claim of coverage)")
+            limitations.append(
+                "zero active contracts in pncp_supplier_contracts "
+                "(not success_zero claim of coverage)"
+            )
         else:
             limitations.append(
                 f"sample aggregated rows ente={len(ente)} fornecedor={len(forn)}; "
                 "not full universe operational coverage"
             )
-        limitations.append("domain report of stored contracts; does not claim 95% coverage or LOCAL_READY")
+        limitations.append(
+            "domain report of stored contracts; does not claim 95% coverage or LOCAL_READY"
+        )
         return ente, forn, limitations
     except Exception as exc:  # noqa: BLE001
         try:
@@ -150,8 +164,11 @@ def write_contratos_report(
     hard_fail_prefixes = (
         "db_connect_failed:",
         "query_failed:",
+        "table pncp_supplier_contracts missing",
     )
-    hard_fail = any(any(lim.startswith(p) for p in hard_fail_prefixes) for lim in limitations)
+    hard_fail = any(
+        any(lim.startswith(p) or lim == p for p in hard_fail_prefixes) for lim in limitations
+    )
     # Header-only is OK when table empty (honest zero). Connect/query fails must not soft-pass.
     ok = (not hard_fail) and size >= 50
     return {
