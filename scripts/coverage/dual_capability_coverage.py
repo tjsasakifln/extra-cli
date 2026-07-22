@@ -132,6 +132,26 @@ class DualCoverageError(Exception):
     """Fail-closed calculation error (universe / set integrity / schema / identity)."""
 
 
+def _safe_rollback(conn: Any) -> None:
+    """Best-effort transaction rollback without silent swallow of programming errors."""
+    if conn is None:
+        return
+    try:
+        conn.rollback()
+    except Exception as rollback_exc:  # noqa: BLE001 — connection already broken
+        _ = rollback_exc
+
+
+def _safe_close(conn: Any) -> None:
+    if conn is None:
+        return
+    try:
+        conn.close()
+    except Exception as close_exc:  # noqa: BLE001
+        _ = close_exc
+
+
+
 @dataclass(frozen=True)
 class UniverseIdentity:
     entity_count: int
@@ -1276,10 +1296,7 @@ def map_db_entities(
     except Exception as exc:
         kind = _classify_db_exception(exc)
         if kind == "column_absent":
-            try:
-                conn.rollback()
-            except Exception:  # noqa: S110
-                pass
+            _safe_rollback(conn)
             # legacy schema: only cnpj_8
             try:
                 cur.execute(
@@ -1290,17 +1307,11 @@ def map_db_entities(
                 )
                 rows = cur.fetchall()
             except Exception as exc2:
-                try:
-                    conn.rollback()
-                except Exception:  # noqa: S110
-                    pass
+                _safe_rollback(conn)
                 cur.close()
                 raise DualCoverageError(f"map_db_entities query_failed: {exc2}") from exc2
         else:
-            try:
-                conn.rollback()
-            except Exception:  # noqa: S110
-                pass
+            _safe_rollback(conn)
             cur.close()
             raise DualCoverageError(f"map_db_entities {kind}: {exc}") from exc
 
@@ -1388,10 +1399,7 @@ def load_observations_from_db(
         schema_mode = "modern"
     except Exception as exc:
         kind = _classify_db_exception(exc)
-        try:
-            conn.rollback()
-        except Exception:  # noqa: S110
-            pass
+        _safe_rollback(conn)
         if kind == "column_absent" and _is_legacy_column_absence(exc):
             schema_mode = "legacy"
             data_types = ("bids",) if capability == CAP_OPEN_TENDERS else ("contracts",)
@@ -1415,10 +1423,7 @@ def load_observations_from_db(
                 )
                 rows = cur.fetchall()
             except Exception as exc2:
-                try:
-                    conn.rollback()
-                except Exception:  # noqa: S110
-                    pass
+                _safe_rollback(conn)
                 cur.close()
                 raise DualCoverageError(
                     f"coverage_evidence legacy query failed: {_classify_db_exception(exc2)}: {exc2}"
@@ -1637,10 +1642,7 @@ def load_data_presence(
         raw_keys = [r[0] for r in cur.fetchall()]
     except Exception as exc:
         kind = _classify_db_exception(exc)
-        try:
-            conn.rollback()
-        except Exception:  # noqa: S110
-            pass
+        _safe_rollback(conn)
         cur.close()
         raise DualCoverageError(f"presence {capability} {kind}: {exc}") from exc
 
@@ -1919,10 +1921,7 @@ def compute_dual_coverage(
             )
         finally:
             if owns_conn and conn is not None:
-                try:
-                    conn.close()
-                except Exception:  # noqa: S110
-                    pass
+                _safe_close(conn)
     else:
         if presence_by_cap is None:
             presence_by_cap = {}
@@ -2063,10 +2062,7 @@ def _legacy_entity_coverage_stamp(conn: Any) -> dict[str, Any]:
         cur.execute("SELECT count(DISTINCT entity_id) FROM entity_coverage")
         num_any = int(cur.fetchone()[0] or 0)
     except Exception as exc:
-        try:
-            conn.rollback()
-        except Exception:  # noqa: S110
-            pass
+        _safe_rollback(conn)
         return {
             "status": "unavailable",
             "canonical": False,
