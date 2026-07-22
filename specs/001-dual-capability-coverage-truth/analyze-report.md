@@ -1,40 +1,40 @@
 # Speckit analyze — dual-capability-coverage-truth
 
-**Date:** 2026-07-21  
-**Artifacts:** spec.md · plan.md · tasks.md · ADR-030
+**Date:** 2026-07-22  
+**Artifacts:** spec.md · plan.md · tasks.md · checklist · ADR-030 · completion-baseline
 
 ## Cross-artifact consistency
 
 | Check | Result |
 |-------|--------|
-| FR-001..015 map to plan architecture | PASS |
-| Dual capabilities named consistently | PASS (`open_tenders`, `historical_contracts`) |
-| Forbidden methods listed in spec + code + ADR | PASS |
-| Tasks cover engine, golden path, tests, errata, DOD | PASS |
-| Success criteria testable | PASS |
-| No CRITICAL requirement without task | PASS |
-| No HIGH ambiguity remaining on formulas | PASS (assumptions documented: default applicable, PNCP required combo) |
+| FR-001..015 original map to code | PASS |
+| FR-016..024 completion mission | PASS (code+tests) |
+| Dual capabilities named consistently | PASS |
+| Forbidden methods listed | PASS |
+| Tasks reflect real completion (no false CONVERGED) | PASS |
+| Checklist exists | PASS |
+| No untreated CRITICAL/HIGH in code path | PASS (as of unit+live selective) |
 
 ## Findings
 
 ### CRITICAL
 
-*None.*
+*None open in code.* Prior CRITICAL fail-open / outsider-ignore / vacuous tests **fixed in v1.1.0**.
 
 ### HIGH
 
-*None untreated.* Residual operational gap (live 95%) is **out of scope** for measurement campaign success and tracked in NEXT-DOD-PATH.
+*None open in code.* Residual HIGH are **process**: merge, independent review, acceptance controller, main reproof.
 
 ### MEDIUM
 
-1. Default applicability=`applicable` for all included entities — documented assumption; may need registry-driven refinement later.
-2. DB `entity_id` int → canonical id via cnpj8 may under-count mapped evidence (fail-closed, not inflate).
+1. Live DB has ambiguous CNPJ roots (e.g. `00394494`) → identity_unresolved_count>0 blocks gate (correct).
+2. Applicability config status=`draft` — engine consults it; formal ACTIVE promotion is product decision.
+3. Presence unmapped rows (matched_entity_id null / cnpj not in universe) are descriptive limitations.
 
 ### LOW
 
-1. Transition fields `denominator`/`numerator` still mirror open_tenders for older consumers — labeled dual method.
+1. Transition den/num fields still mirror open_tenders.
 
 ## Verdict
 
-**READY FOR IMPLEMENTATION / CONVERGED** on measurement contract.  
-Implementation status tracked in tasks.md.
+**CODE_READY_FOR_REVIEW** — not CONVERGED for mission completion until T020–T036 close.

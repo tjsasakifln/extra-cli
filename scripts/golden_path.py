@@ -336,12 +336,21 @@ def run_coverage_calculation(
     capabilities: list[str] | None = None,
     require_gate: bool = False,
     output_dir: Path | None = None,
+    seed_path: str | Path | None = None,
+    expected_seed_sha256: str | None = None,
+    expected_canonical_ids_sha256: str | None = None,
+    expected_entity_count: int | None = None,
+    expected_universe_version: str | None = None,
 ) -> StepRecord:
     """Calculate dual capability monitoring coverage (canonical).
 
     Computes independent metrics for open_tenders and historical_contracts using
     ``scripts.coverage.dual_capability_coverage``. Does **not** use
     ``entity_coverage.is_covered`` or ``any_row`` as coverage methods.
+
+    When planilha validation ran earlier in the same golden path, pass the
+    validated seed path and hashes so coverage never silently reloads another
+    spreadsheet interpretation.
 
     Measurement can pass with low coverage. When ``require_gate`` is True, status
     fails if either capability gate (<95%) fails. Always records
@@ -368,14 +377,19 @@ def run_coverage_calculation(
         )
         from scripts.lib.universe import CANONICAL_UNIVERSE
 
-        if expected_denominator is None:
+        if expected_denominator is None and expected_entity_count is None:
             expected_denominator = int(CANONICAL_UNIVERSE)
         caps = list(capabilities) if capabilities else list(CAPABILITIES)
         report = compute_dual_coverage(
             dsn=dsn,
+            seed_path=seed_path,
             project_root=root,
             capabilities=caps,
             expected_denominator=expected_denominator,
+            expected_entity_count=expected_entity_count,
+            expected_seed_sha256=expected_seed_sha256,
+            expected_canonical_ids_sha256=expected_canonical_ids_sha256,
+            expected_universe_version=expected_universe_version,
         )
         out = output_dir or (_OUTPUT_DIR / "coverage")
         if report.measurement_success:
@@ -404,7 +418,16 @@ def run_coverage_calculation(
             details["coverage_pct"] = primary.coverage_pct
             details["seed_sha256"] = report.universe.seed_sha256
             details["canonical_ids_sha256"] = report.universe.canonical_ids_sha256
+            details["universe_version"] = getattr(report.universe, "universe_version", "")
             details["expected_denominator"] = expected_denominator
+            details["expected_entity_count"] = expected_entity_count
+            details["expected_seed_sha256"] = expected_seed_sha256
+            details["expected_canonical_ids_sha256"] = expected_canonical_ids_sha256
+            details["schema_compatibility_mode"] = getattr(
+                report, "schema_compatibility_mode", None
+            )
+            details["mapping_metrics"] = report.mapping_metrics
+            details["unmapped_evidence_count"] = report.unmapped_evidence_count
 
         if not report.measurement_success:
             return StepRecord(
@@ -2677,7 +2700,26 @@ def main() -> int:
     # Step 3b: Coverage calculation (DoD §12.1)
     # =========================================================================
     _echo("\n[3b/7] Calculando cobertura...", "header")
-    cov_step = run_coverage_calculation(dsn, project_root=_PROJECT_ROOT)
+    # Forward validated planilha identity into dual coverage (no silent re-seed)
+    _ss_seed = None
+    _ss_sha = None
+    _ss_ids = None
+    _ss_count = None
+    for _s in steps:
+        if _s.step == "validate_target_spreadsheet" and isinstance(_s.details, dict):
+            _ss_seed = _s.details.get("seed_path_resolved")
+            _ss_sha = _s.details.get("sha256")
+            _ss_ids = _s.details.get("canonical_ids_sha256")
+            _ss_count = _s.details.get("canonical_entities")
+            break
+    cov_step = run_coverage_calculation(
+        dsn,
+        project_root=_PROJECT_ROOT,
+        seed_path=_ss_seed,
+        expected_seed_sha256=_ss_sha,
+        expected_canonical_ids_sha256=_ss_ids,
+        expected_entity_count=int(_ss_count) if _ss_count is not None else None,
+    )
     steps.append(cov_step)
     if cov_step.status == "pass":
         d = cov_step.details or {}

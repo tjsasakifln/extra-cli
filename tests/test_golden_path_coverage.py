@@ -12,6 +12,20 @@ import pytest
 from scripts.golden_path import run_coverage_calculation
 
 
+def _require_real_db() -> str:
+    """Opt-in real PostgreSQL (conftest mocks psycopg2 otherwise)."""
+    if os.getenv("REQUIRE_REAL_DB", "").lower() not in {"1", "true", "yes"}:
+        pytest.skip("REQUIRE_REAL_DB=1 required for live dual coverage")
+    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
+    try:
+        import psycopg2
+
+        psycopg2.connect(dsn, connect_timeout=3).close()
+    except Exception:
+        pytest.skip("no local test-db")
+    return dsn
+
+
 def test_help_documents_coverage_modes() -> None:
     r = subprocess.run(
         [sys.executable, "-m", "scripts.golden_path", "--help"],
@@ -70,14 +84,9 @@ def test_coverage_rejects_wrong_denominator(monkeypatch: pytest.MonkeyPatch) -> 
     assert "denominator" in (rec.error or "").lower() or "unexpected" in (rec.error or "").lower()
 
 
+@pytest.mark.real_db
 def test_coverage_live_clean_db() -> None:
-    dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
-    try:
-        import psycopg2
-
-        psycopg2.connect(dsn, connect_timeout=3).close()
-    except Exception:
-        pytest.skip("no local test-db")
+    dsn = _require_real_db()
     root = Path(__file__).resolve().parents[1]
     rec = run_coverage_calculation(dsn, project_root=root)
     assert rec.status == "pass", (rec.error, rec.details)
@@ -96,14 +105,21 @@ def test_coverage_live_clean_db() -> None:
         assert "coverage_pct" in block
         assert "gate_status" in block
         assert "data_presence_pct" in block
+        assert "never_checked_count" in block or "pending_count" in block
         assert block.get("method") == "dual_capability_coverage"
     # legacy single fields mirror open_tenders for transition
     assert d.get("denominator") == caps["open_tenders"]["applicable_denominator"]
     assert "public_tables" not in d
+    # identity stamps present
+    assert d.get("seed_sha256")
+    assert d.get("canonical_ids_sha256")
 
 
 def test_dual_coverage_only_exits_nonzero_when_gates_fail() -> None:
-    """CLI dual mode must not claim overall success when gates FAIL."""
+    """CLI dual mode must not claim overall success when gates FAIL.
+
+    Subprocess is outside conftest psycopg2 mock — needs reachable DSN.
+    """
     dsn = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://test:test@127.0.0.1:5433/extra_test")
     try:
         import psycopg2
@@ -127,6 +143,6 @@ def test_dual_coverage_only_exits_nonzero_when_gates_fail() -> None:
         timeout=120,
         check=False,
     )
-    assert r.returncode == 2, (r.returncode, r.stdout[-500:], r.stderr[-500:])
+    assert r.returncode == 2, (r.returncode, r.stdout[-800:], r.stderr[-800:])
     combined = r.stdout + r.stderr
     assert "coverage_gate_failed" in combined or "coverage_gate_pass=False" in combined

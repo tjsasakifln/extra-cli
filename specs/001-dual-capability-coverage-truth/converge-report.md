@@ -1,27 +1,28 @@
 # Speckit converge — dual-capability-coverage-truth
 
-**Date:** 2026-07-21
+**Date:** 2026-07-22
 
 ## Codebase vs tasks
 
 | Task | Status | Evidence |
 |------|--------|----------|
-| T001–T004 Spec/ADR/errata | Done | specs/, ADR-030, ERRATA |
-| T005 migration 058 | Done | db/migrations/058_dual_capability_coverage_views.sql |
-| T006–T009 dual engine + CLI + unit tests | Done | dual_capability_coverage.py, test_dual_capability_coverage.py |
-| T010–T012 golden path | Done | golden_path.py, test_golden_path_coverage.py |
-| T013–T016 reports/claims/DOD/NEXT | Done | campaign dir |
-| T017–T019 analyze/converge/quality | Done | this report + pytest |
-| T020 PR/CI remote | Pending environment | commands documented |
+| T001–T016 original spine | Done | specs, ADR, dual engine v1.0→1.1, golden path |
+| T021–T031 completion fixes | Done | dual_capability_coverage.py 1.1.0 + tests 36 |
+| T020 PR/CI final SHA | Open | push required |
+| T032–T036 review/merge/accept | Open | process |
 
-## Remaining unbuilt work (external)
+## Remaining implementable work
 
-1. Merge PR + green CI on origin/main  
-2. Live dual reproof acceptance pack via `register_acceptance` (no self-QA)  
-3. Operational fill of coverage_evidence to raise dual % toward 95%  
+None in measurement engine for known CRITICAL/HIGH from completion mission.
 
-No additional implementable measurement tasks without external data/ops.
+Remaining is **external/process**:
+1. Push branch + green CI on final commit
+2. Independent PASS_FOR_MERGE review
+3. Merge to main
+4. Main reproof + acceptance pack + controller
+5. Normative DOD accept (not self)
 
 ## Converge verdict
 
-**CONVERGED** for measurement spine. Operational 95% is intentionally open.
+**NOT_CONVERGED** for mission GOAL DONE.  
+**ENGINE_COMPLETE** for fail-closed dual measurement v1.1.0.
