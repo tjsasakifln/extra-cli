@@ -333,13 +333,28 @@ def run_coverage_calculation(
     *,
     project_root: Path | None = None,
     expected_denominator: int | None = None,
+    capabilities: list[str] | None = None,
+    require_gate: bool = False,
+    output_dir: Path | None = None,
+    seed_path: str | Path | None = None,
+    expected_seed_sha256: str | None = None,
+    expected_canonical_ids_sha256: str | None = None,
+    expected_entity_count: int | None = None,
+    expected_universe_version: str | None = None,
 ) -> StepRecord:
-    """Calculate universe coverage against the canonical denominator (not table counts).
+    """Calculate dual capability monitoring coverage (canonical).
 
-    Denominator = load_canonical_universe().included (must match expected_denominator).
-    Numerator = distinct entity_ids in entity_coverage for included cnpj roots when
-    available; otherwise entities with is_covered true. Fail-closed if denominator
-    mismatches or universe cannot be loaded.
+    Computes independent metrics for open_tenders and historical_contracts using
+    ``scripts.coverage.dual_capability_coverage``. Does **not** use
+    ``entity_coverage.is_covered`` or ``any_row`` as coverage methods.
+
+    When planilha validation ran earlier in the same golden path, pass the
+    validated seed path and hashes so coverage never silently reloads another
+    spreadsheet interpretation.
+
+    Measurement can pass with low coverage. When ``require_gate`` is True, status
+    fails if either capability gate (<95%) fails. Always records
+    measurement_success vs coverage_gate_pass in details.
     """
     t0 = time.perf_counter()
     root = project_root or _PROJECT_ROOT
@@ -347,56 +362,91 @@ def run_coverage_calculation(
         "denominator": None,
         "numerator": None,
         "coverage_pct": None,
-        "method": None,
+        "method": "dual_capability_coverage",
+        "measurement_success": False,
+        "coverage_gate_pass": False,
+        "pipeline_success": False,
+        "capabilities": {},
     }
     try:
-        from scripts.lib.universe import (
-            CANONICAL_UNIVERSE,
-            load_canonical_universe,
-            resolve_default_seed_path,
+        from scripts.coverage.dual_capability_coverage import (
+            CAPABILITIES,
+            FORBIDDEN_METHODS,
+            compute_dual_coverage,
+            write_reports,
         )
+        from scripts.lib.universe import CANONICAL_UNIVERSE
 
-        if expected_denominator is None:
+        if expected_denominator is None and expected_entity_count is None:
             expected_denominator = int(CANONICAL_UNIVERSE)
-        seed = resolve_default_seed_path(root)
-        universe = load_canonical_universe(seed_path=seed)
-        den = len(universe.included)
-        details["denominator"] = den
-        details["seed_sha256"] = universe.seed_sha256
-        details["expected_denominator"] = expected_denominator
-        if den != expected_denominator:
+        caps = list(capabilities) if capabilities else list(CAPABILITIES)
+        report = compute_dual_coverage(
+            dsn=dsn,
+            seed_path=seed_path,
+            project_root=root,
+            capabilities=caps,
+            expected_denominator=expected_denominator,
+            expected_entity_count=expected_entity_count,
+            expected_seed_sha256=expected_seed_sha256,
+            expected_canonical_ids_sha256=expected_canonical_ids_sha256,
+            expected_universe_version=expected_universe_version,
+        )
+        out = output_dir or (_OUTPUT_DIR / "coverage")
+        if report.measurement_success:
+            paths = write_reports(report, Path(out), capabilities=caps)
+            details["artifact_paths"] = {k: str(v) for k, v in paths.items()}
+
+        details["measurement_success"] = report.measurement_success
+        details["coverage_gate_pass"] = report.coverage_gate_pass
+        details["pipeline_success"] = report.pipeline_success
+        details["universe"] = report.universe.to_dict()
+        details["legacy_metric"] = report.legacy_metric
+        details["limitations"] = report.limitations
+        details["forbidden_methods"] = sorted(FORBIDDEN_METHODS)
+        details["as_of"] = report.as_of
+        details["error"] = report.error
+
+        # Populate dual capability blocks
+        for cap, res in report.capabilities.items():
+            details["capabilities"][cap] = res.to_summary_dict()
+
+        # Transition mirrors (open_tenders primary for backward-compatible den/num/pct fields)
+        primary = report.capabilities.get("open_tenders") or next(iter(report.capabilities.values()), None)
+        if primary is not None:
+            details["denominator"] = primary.applicable_denominator
+            details["numerator"] = primary.covered_numerator
+            details["coverage_pct"] = primary.coverage_pct
+            details["seed_sha256"] = report.universe.seed_sha256
+            details["canonical_ids_sha256"] = report.universe.canonical_ids_sha256
+            details["universe_version"] = getattr(report.universe, "universe_version", "")
+            details["expected_denominator"] = expected_denominator
+            details["expected_entity_count"] = expected_entity_count
+            details["expected_seed_sha256"] = expected_seed_sha256
+            details["expected_canonical_ids_sha256"] = expected_canonical_ids_sha256
+            details["schema_compatibility_mode"] = getattr(
+                report, "schema_compatibility_mode", None
+            )
+            details["mapping_metrics"] = report.mapping_metrics
+            details["unmapped_evidence_count"] = report.unmapped_evidence_count
+
+        if not report.measurement_success:
             return StepRecord(
                 step="coverage_calculation",
                 status="fail",
                 duration_ms=(time.perf_counter() - t0) * 1000,
-                error=f"denominator mismatch: got {den} expected {expected_denominator}",
+                error=report.error or "dual coverage measurement failed",
                 details=details,
             )
 
-        import psycopg2
+        if require_gate and not report.coverage_gate_pass:
+            return StepRecord(
+                step="coverage_calculation",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error="coverage_gate_pass=false (measurement_success=true)",
+                details=details,
+            )
 
-        conn = psycopg2.connect(dsn, connect_timeout=10)
-        try:
-            with conn.cursor() as cur:
-                # Prefer entity_coverage rows marked covered
-                cur.execute(
-                    """
-                    SELECT count(DISTINCT entity_id)
-                    FROM entity_coverage
-                    WHERE is_covered IS TRUE
-                    """
-                )
-                num = int(cur.fetchone()[0] or 0)
-                details["method"] = "entity_coverage.is_covered"
-                if num == 0:
-                    cur.execute("SELECT count(DISTINCT entity_id) FROM entity_coverage")
-                    num = int(cur.fetchone()[0] or 0)
-                    details["method"] = "entity_coverage.any_row"
-        finally:
-            conn.close()
-
-        details["numerator"] = num
-        details["coverage_pct"] = round(100.0 * num / den, 4) if den else 0.0
         # Calculation itself succeeds even if coverage is low — "calcula" not "atinge 95%"
         return StepRecord(
             step="coverage_calculation",
@@ -554,6 +604,9 @@ def evaluate_run_outcome(
     skip_reports: bool = False,
     skip_sources: bool = False,
     allow_zero: bool = False,
+    coverage_gate_pass: bool | None = None,
+    coverage_measurement_success: bool | None = None,
+    require_coverage_gate: bool = True,
 ) -> tuple[str, int]:
     """Classify overall status and exit code (pure; unit-testable).
 
@@ -563,7 +616,12 @@ def evaluate_run_outcome(
     - no success and no success_zero → failed / exit 1
     - freshness fail (not skipped) → exit 3
     - mandatory report fail (not skipped) → exit 4
+    - dual coverage gate fail (require_coverage_gate) → coverage_gate_failed / exit 2
+    - coverage measurement fail → failed / exit 1
     - skip_sources (clean-env offline foundation) → treat sources as skipped
+
+    Distinguishes measurement_success vs coverage_gate_pass vs pipeline/global success:
+    low dual coverage with successful measurement is NOT overall success.
     """
     if skip_sources:
         freshness_status = freshness.status if freshness else "skipped"
@@ -574,6 +632,10 @@ def evaluate_run_outcome(
             return "failed", 3
         if report_fails:
             return "failed", 4
+        if coverage_measurement_success is False:
+            return "failed", 1
+        if require_coverage_gate and coverage_gate_pass is False:
+            return "coverage_gate_failed", 2
         return "success", 0
 
     if not source_records:
@@ -641,6 +703,13 @@ def evaluate_run_outcome(
         # Non-essential failure with all mandatory gates green → still non-zero
         # so operators cannot treat degraded as full success.
         return "degraded", 5
+
+    # Dual capability coverage gates (open_tenders / historical_contracts).
+    # Measurement success with low coverage is NOT global/pipeline success.
+    if coverage_measurement_success is False:
+        return "failed", 1
+    if require_coverage_gate and coverage_gate_pass is False:
+        return "coverage_gate_failed", 2
 
     return overall, 0
 
@@ -1374,7 +1443,6 @@ def run_freshness_gate(dsn: str) -> FreshnessRecord:
 # ---------------------------------------------------------------------------
 
 
-
 def run_editais_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord:
     """Generate domain-specific editais report (not panorama Excel/PDF)."""
     t0 = time.perf_counter()
@@ -1479,7 +1547,6 @@ def run_contratos_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord
             duration_ms=(time.perf_counter() - t0) * 1000,
             error=str(exc),
         )
-
 
 
 def run_concorrentes_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord:
@@ -1731,7 +1798,29 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--execute-coverage-only",
         action="store_true",
-        help="Run only coverage calculation + ledger (requires DB + planilha)",
+        help=(
+            "Run dual capability coverage calculation + ledger "
+            "(open_tenders + historical_contracts; requires DB + planilha)"
+        ),
+    )
+    p.add_argument(
+        "--execute-dual-coverage-only",
+        action="store_true",
+        help=(
+            "Isolated dual-coverage reproof mode (same engine as coverage step). "
+            "Use with --capability open_tenders|historical_contracts|both"
+        ),
+    )
+    p.add_argument(
+        "--capability",
+        choices=["open_tenders", "historical_contracts", "both"],
+        default="both",
+        help="Capability scope for dual coverage modes (default: both)",
+    )
+    p.add_argument(
+        "--require-coverage-gate",
+        action="store_true",
+        help="Fail coverage step when either capability gate is below 95 percent (measurement may still succeed)",
     )
     p.add_argument(
         "--execute-snapshot-only",
@@ -2034,7 +2123,8 @@ def main() -> int:
         # Exit 0 when gate ran (even if status=fail); non-zero only if not executed.
         return 0
 
-    if args.execute_coverage_only:
+    if args.execute_coverage_only or args.execute_dual_coverage_only:
+        mode = "dual-coverage" if args.execute_dual_coverage_only else "coverage"
         run_id = f"gp-cov-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
         timestamp = datetime.now(UTC).isoformat()
         steps: list[StepRecord] = []
@@ -2051,22 +2141,50 @@ def main() -> int:
         if not ok_db:
             _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
-        _echo("\n[execute-coverage-only] Calculando cobertura...", "header")
-        cov = run_coverage_calculation(dsn, project_root=_PROJECT_ROOT)
+        caps = ["open_tenders", "historical_contracts"] if args.capability == "both" else [args.capability]
+        _echo(f"\n[execute-{mode}-only] Calculando cobertura dual {caps}...", "header")
+        cov = run_coverage_calculation(
+            dsn,
+            project_root=_PROJECT_ROOT,
+            capabilities=caps,
+            require_gate=bool(args.require_coverage_gate),
+        )
         steps.append(cov)
-        overall = "success" if cov.status == "pass" else "failed"
-        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output)
-        if cov.status != "pass":
-            _echo(f"  Cobertura FALHOU: {cov.error or cov.details}", "error")
-            return 1
         d = cov.details or {}
+        measurement_ok = bool(d.get("measurement_success")) if d else False
+        gate_ok = bool(d.get("coverage_gate_pass"))
+        # Dual modes always distinguish measurement vs gate vs pipeline/global success.
+        # Successful measurement with low coverage is NOT overall "success".
+        if not measurement_ok:
+            overall = "failed"
+            exit_code = 1
+        elif not gate_ok:
+            overall = "coverage_gate_failed"
+            exit_code = 2
+        else:
+            overall = "success"
+            exit_code = 0
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output)
+        if not measurement_ok:
+            _echo(f"  Cobertura FALHOU (measurement): {cov.error or cov.details}", "error")
+            return 1
+        for cap_name, cap_block in (d.get("capabilities") or {}).items():
+            _echo(
+                f"  {cap_name}: den={cap_block.get('applicable_denominator')} "
+                f"num={cap_block.get('covered_numerator')} pct={cap_block.get('coverage_pct')} "
+                f"gate={cap_block.get('gate_status')} presence={cap_block.get('data_presence_pct')} "
+                f"fresh={cap_block.get('fresh_count')} stale={cap_block.get('stale_count')} "
+                f"unknown={cap_block.get('unknown_count')} blocked={cap_block.get('blocked_count')}",
+                "ok" if cap_block.get("gate_status") == "PASS" else "warn",
+            )
         _echo(
-            f"  Cobertura OK den={d.get('denominator')} num={d.get('numerator')} "
-            f"pct={d.get('coverage_pct')} method={d.get('method')}",
-            "ok",
+            f"  measurement_success={measurement_ok} coverage_gate_pass={gate_ok} "
+            f"pipeline_success={bool(d.get('pipeline_success'))} overall={overall} "
+            f"method={d.get('method')}",
+            "ok" if exit_code == 0 else "warn",
         )
         _echo(f"  Ledger: {args.ledger_output}", "ok")
-        return 0
+        return exit_code
 
     if args.execute_snapshot_only:
         run_id = f"gp-snap-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -2159,21 +2277,15 @@ def main() -> int:
             except ImportError:
                 dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
         ok_db, dur_db = check_db(dsn)
-        steps.append(
-            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
-        )
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
         if not ok_db:
-            _save_final_ledger(
-                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
-            )
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
         _echo("\n[execute-editais-report-only] Gerando relatório de editais...", "header")
         editais_step = run_editais_report(dsn)
         steps.append(editais_step)
         overall = "success" if editais_step.status == "pass" else "failed"
-        _save_final_ledger(
-            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
-        )
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn)
         if overall != "success":
             _echo(f"  Editais report FAIL: {editais_step.error}", "error")
             return 1
@@ -2195,21 +2307,15 @@ def main() -> int:
             except ImportError:
                 dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
         ok_db, dur_db = check_db(dsn)
-        steps.append(
-            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
-        )
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
         if not ok_db:
-            _save_final_ledger(
-                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
-            )
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
         _echo("\n[execute-contratos-report-only] Gerando relatório de contratos...", "header")
         contratos_step = run_contratos_report(dsn)
         steps.append(contratos_step)
         overall = "success" if contratos_step.status == "pass" else "failed"
-        _save_final_ledger(
-            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
-        )
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn)
         if overall != "success":
             _echo(f"  Contratos report FAIL: {contratos_step.error}", "error")
             return 1
@@ -2231,21 +2337,15 @@ def main() -> int:
             except ImportError:
                 dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
         ok_db, dur_db = check_db(dsn)
-        steps.append(
-            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
-        )
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
         if not ok_db:
-            _save_final_ledger(
-                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
-            )
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
         _echo("\n[execute-concorrentes-report-only] Gerando relatório de concorrentes...", "header")
         conc_step = run_concorrentes_report(dsn)
         steps.append(conc_step)
         overall = "success" if conc_step.status == "pass" else "failed"
-        _save_final_ledger(
-            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
-        )
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn)
         if overall != "success":
             _echo(f"  Concorrentes report FAIL: {conc_step.error}", "error")
             return 1
@@ -2600,12 +2700,43 @@ def main() -> int:
     # Step 3b: Coverage calculation (DoD §12.1)
     # =========================================================================
     _echo("\n[3b/7] Calculando cobertura...", "header")
-    cov_step = run_coverage_calculation(dsn, project_root=_PROJECT_ROOT)
+    # Forward validated planilha identity into dual coverage (no silent re-seed)
+    _ss_seed = None
+    _ss_sha = None
+    _ss_ids = None
+    _ss_count = None
+    for _s in steps:
+        if _s.step == "validate_target_spreadsheet" and isinstance(_s.details, dict):
+            _ss_seed = _s.details.get("seed_path_resolved")
+            _ss_sha = _s.details.get("sha256")
+            _ss_ids = _s.details.get("canonical_ids_sha256")
+            _ss_count = _s.details.get("canonical_entities")
+            break
+    cov_step = run_coverage_calculation(
+        dsn,
+        project_root=_PROJECT_ROOT,
+        seed_path=_ss_seed,
+        expected_seed_sha256=_ss_sha,
+        expected_canonical_ids_sha256=_ss_ids,
+        expected_entity_count=int(_ss_count) if _ss_count is not None else None,
+    )
     steps.append(cov_step)
     if cov_step.status == "pass":
         d = cov_step.details or {}
+        for cap_name, cap_block in (d.get("capabilities") or {}).items():
+            _echo(
+                f"  {cap_name}: den={cap_block.get('applicable_denominator')} "
+                f"num={cap_block.get('covered_numerator')} pct={cap_block.get('coverage_pct')} "
+                f"gate={cap_block.get('gate_status')}",
+                "ok" if cap_block.get("gate_status") == "PASS" else "warn",
+            )
+        if not d.get("capabilities"):
+            _echo(
+                f"  Cobertura den={d.get('denominator')} num={d.get('numerator')} pct={d.get('coverage_pct')}",
+                "ok",
+            )
         _echo(
-            f"  Cobertura den={d.get('denominator')} num={d.get('numerator')} pct={d.get('coverage_pct')}",
+            f"  measurement_success={d.get('measurement_success')} coverage_gate_pass={d.get('coverage_gate_pass')}",
             "ok",
         )
     else:
@@ -2667,6 +2798,7 @@ def main() -> int:
     # =========================================================================
     wall_dur = (time.monotonic() - wall_start) * 1000
 
+    cov_details = cov_step.details or {}
     overall, exit_code = evaluate_run_outcome(
         source_records,
         essential_names,
@@ -2677,6 +2809,16 @@ def main() -> int:
         skip_reports=bool(args.skip_reports),
         skip_sources=bool(args.skip_sources),
         allow_zero=bool(args.allow_zero),
+        coverage_gate_pass=cov_details.get("coverage_gate_pass"),
+        coverage_measurement_success=cov_details.get("measurement_success"),
+        # Strict full path treats dual 95% gates as operational requirement.
+        # Clean-env / --skip-sources foundation still *measures* dual coverage but
+        # does not fail the pipeline on low % unless --require-coverage-gate.
+        require_coverage_gate=(
+            bool(args.require_coverage_gate)
+            if args.skip_sources
+            else (True if args.strict else bool(args.require_coverage_gate))
+        ),
     )
     # Domain domain reports are mandatory for §12.1 (independent of panorama Excel/PDF).
     if editais_step.status != "pass" and exit_code == 0:
