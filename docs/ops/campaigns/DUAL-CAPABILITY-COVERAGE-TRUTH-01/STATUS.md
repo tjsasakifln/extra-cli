@@ -12,7 +12,7 @@
 | #109 | DOD accept calcula cobertura (dual method) | `30f5548` |
 | #110 | skeptic: identity/scope/view | `3a17805` |
 | #111 | clean-env skip_sources measurement tolerance | `ac81c51` |
-| this | cap-level measurement_success honesty + docs/review re-stamp | pending |
+| this | cap-level measurement_success honesty + docs/review re-stamp | ed7be1c + review v1.3 |
 
 ## Non-claims
 
