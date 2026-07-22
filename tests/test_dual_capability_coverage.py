@@ -56,6 +56,11 @@ def _all_applicable(entities: list[CanonicalEntity], *caps: str) -> dict[str, di
     return {cap: {e.entity_id: "applicable" for e in entities} for cap in caps}
 
 
+def _all_required_pncp(entities: list[CanonicalEntity], *caps: str) -> dict[str, dict[str, list[str]]]:
+    """Explicit required inject for pure unit tests — not DEFAULT_REQUIRED_SOURCES."""
+    return {cap: {e.entity_id: ["pncp"] for e in entities} for cap in caps}
+
+
 def _obs(
     entity_id: str,
     source: str = "pncp",
@@ -170,6 +175,9 @@ def test_different_denominators_per_capability() -> None:
             CAP_HISTORICAL_CONTRACTS: {"e1", "e2"},
         },
         entity_applicability=entity_appl,  # type: ignore[arg-type]
+        entity_required_sources=_all_required_pncp(
+            [e for e in u.included], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS
+        ),  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
     )
@@ -204,6 +212,7 @@ def test_tenders_do_not_prove_contracts() -> None:
         observations_by_cap=obs,
         presence_by_cap={CAP_OPEN_TENDERS: {"e1"}, CAP_HISTORICAL_CONTRACTS: set()},
         entity_applicability=appl,  # type: ignore[arg-type]
+        entity_required_sources=_all_required_pncp([e], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
     )
@@ -237,6 +246,7 @@ def test_contracts_do_not_prove_tenders() -> None:
         observations_by_cap=obs,
         presence_by_cap={CAP_OPEN_TENDERS: set(), CAP_HISTORICAL_CONTRACTS: {"e1"}},
         entity_applicability=appl,  # type: ignore[arg-type]
+        entity_required_sources=_all_required_pncp([e], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
     )
@@ -360,6 +370,7 @@ def test_unknown_applicability_not_in_denominator() -> None:
         observations_by_cap=obs,
         presence_by_cap={CAP_OPEN_TENDERS: set()},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "unknown"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "unknown"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -379,6 +390,7 @@ def test_not_applicable_requires_justification_path() -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {}},
         presence_by_cap={CAP_OPEN_TENDERS: set()},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "not_applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "not_applicable"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -402,6 +414,7 @@ def test_outsider_in_observations_fail_closed() -> None:
         observations_by_cap=obs,
         presence_by_cap={CAP_OPEN_TENDERS: set()},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -419,6 +432,7 @@ def test_outsider_in_presence_fail_closed() -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {}},
         presence_by_cap={CAP_OPEN_TENDERS: {"outsider"}},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -464,6 +478,7 @@ def test_compute_validates_expected_hashes() -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {}},
         presence_by_cap={CAP_OPEN_TENDERS: set()},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable"}}).items()},  # type: ignore[arg-type]
         expected_seed_sha256="d" * 64,
         expected_canonical_ids_sha256=ids_sha,
         expected_entity_count=1,
@@ -479,6 +494,7 @@ def test_compute_validates_expected_hashes() -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {}},
         presence_by_cap={CAP_OPEN_TENDERS: set()},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable"}}).items()},  # type: ignore[arg-type]
         expected_seed_sha256="e" * 64,
         include_legacy_stamp=False,
         use_config_matrix=False,
@@ -498,6 +514,7 @@ def test_pending_and_never_published_not_unknown_zero() -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {}},
         presence_by_cap={CAP_OPEN_TENDERS: set()},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable", "e2": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable", "e2": "applicable"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -568,6 +585,7 @@ def test_gate_fail_low_coverage() -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {}, CAP_HISTORICAL_CONTRACTS: {}},
         presence_by_cap={CAP_OPEN_TENDERS: set(), CAP_HISTORICAL_CONTRACTS: set()},
         entity_applicability=_all_applicable([e], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
+        entity_required_sources=_all_required_pncp([e], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
     )
@@ -584,6 +602,7 @@ def test_expected_denominator_mismatch() -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {}},
         presence_by_cap={CAP_OPEN_TENDERS: set()},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable"}}).items()},  # type: ignore[arg-type]
         expected_denominator=1093,
         include_legacy_stamp=False,
         use_config_matrix=False,
@@ -603,6 +622,7 @@ def test_write_reports(tmp_path: Path) -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {"e1": {"pncp": _obs("e1")}}},
         presence_by_cap={CAP_OPEN_TENDERS: {"e1"}},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -691,6 +711,7 @@ def test_obs_unknown_does_not_inflate_by_leaving_denominator() -> None:
         observations_by_cap=obs,
         presence_by_cap={CAP_OPEN_TENDERS: {"e1"}},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable", "e2": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable", "e2": "applicable"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -715,6 +736,7 @@ def test_reconciliation_fields_present() -> None:
         observations_by_cap={CAP_OPEN_TENDERS: {}},
         presence_by_cap={CAP_OPEN_TENDERS: set()},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -757,6 +779,7 @@ def test_single_capability_never_pipeline_success() -> None:
         observations_by_cap=obs,
         presence_by_cap={CAP_OPEN_TENDERS: {"e1"}},
         entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        entity_required_sources={k: {eid: ["pncp"] for eid in v} for k,v in ({CAP_OPEN_TENDERS: {"e1": "applicable"}}).items()},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -821,6 +844,7 @@ def test_identity_unresolved_fails_measurement(monkeypatch: pytest.MonkeyPatch) 
         include_legacy_stamp=True,
         use_config_matrix=False,
         entity_applicability=_all_applicable([e1], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
+        entity_required_sources=_all_required_pncp([e1], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
     )
     assert report.measurement_success is False
     assert report.pipeline_success is False
@@ -927,6 +951,7 @@ def test_cap_measurement_false_when_identity_unresolved(monkeypatch: pytest.Monk
         include_legacy_stamp=True,
         use_config_matrix=False,
         entity_applicability=_all_applicable([e1], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
+        entity_required_sources=_all_required_pncp([e1], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
     )
     assert report.measurement_success is False
     for cap, block in report.capabilities.items():
