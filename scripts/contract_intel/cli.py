@@ -1243,6 +1243,41 @@ def main() -> int:
     p_desagio.add_argument("--output", default=None, help="Output file path")
     p_desagio.add_argument("--output-csv", default=None, help="CSV output path")
 
+    # National strategic products (facade → scripts.national_intel; not dual coverage)
+    p_nc = sub.add_parser(
+        "national-competitors",
+        help="National supplier geo ranking (strategic; scope_label=intel_product)",
+    )
+    p_nc.add_argument("--keyword", default=None)
+    p_nc.add_argument("--uf", default=None)
+    p_nc.add_argument("--limit", type=int, default=50)
+    p_nc.add_argument("--output", default=None, help="JSON output path")
+    p_nc.add_argument(
+        "--dsn",
+        default=None,
+        help="Postgres DSN (prefer NATIONAL_INTEL_DSN / isolated DB)",
+    )
+
+    p_nb = sub.add_parser(
+        "national-benchmarks",
+        help="National value benchmarks (strategic; min_sample gate)",
+    )
+    p_nb.add_argument("--keyword", default=None)
+    p_nb.add_argument("--uf", default=None)
+    p_nb.add_argument("--min-sample", type=int, default=20)
+    p_nb.add_argument("--output", default=None)
+    p_nb.add_argument("--dsn", default=None)
+
+    p_na = sub.add_parser(
+        "national-agencies",
+        help="National agency profiles (strategic)",
+    )
+    p_na.add_argument("--keyword", default=None)
+    p_na.add_argument("--uf", default=None)
+    p_na.add_argument("--limit", type=int, default=50)
+    p_na.add_argument("--output", default=None)
+    p_na.add_argument("--dsn", default=None)
+
     # DB path (for SQLite)
     parser.add_argument("--db", default=None, help="SQLite database path")
 
@@ -1251,6 +1286,10 @@ def main() -> int:
     if not args.command:
         parser.print_help()
         return 1
+
+    # National facade: do not require local sqlite/views seed path
+    if args.command in {"national-competitors", "national-benchmarks", "national-agencies"}:
+        return _cmd_national_facade(args)
 
     conn, backend = _get_connection(args.db)
     _ensure_tables(conn, backend)
@@ -1282,6 +1321,54 @@ def main() -> int:
             return 1
     finally:
         conn.close()
+
+
+def _cmd_national_facade(args: argparse.Namespace) -> int:
+    """Delegate strategic national products to scripts.national_intel (single engine)."""
+    import json
+    import os
+    import sys
+
+    from scripts.national_intel.agencies import run_agencies
+    from scripts.national_intel.benchmarks import run_benchmarks
+    from scripts.national_intel.competitors import run_competitors
+    from scripts.national_intel.db import connect, resolve_dsn
+    from scripts.national_intel.lineage import write_json
+
+    dsn = resolve_dsn(getattr(args, "dsn", None) or os.environ.get("NATIONAL_INTEL_DSN"))
+    with connect(dsn) as conn:
+        if args.command == "national-competitors":
+            data = run_competitors(
+                conn,
+                keyword=args.keyword,
+                uf=args.uf,
+                limit=args.limit,
+                dsn=dsn,
+            )
+        elif args.command == "national-benchmarks":
+            data = run_benchmarks(
+                conn,
+                keyword=args.keyword,
+                uf=args.uf,
+                min_sample=args.min_sample,
+                dsn=dsn,
+            )
+        else:
+            data = run_agencies(
+                conn,
+                keyword=args.keyword,
+                uf=args.uf,
+                limit=args.limit,
+                dsn=dsn,
+            )
+    out = getattr(args, "output", None)
+    write_json(out, data)
+    if not out:
+        json.dump(data, sys.stdout, ensure_ascii=False, indent=2, default=str)
+        sys.stdout.write("\n")
+    else:
+        print(f"wrote {out} rows={data.get('row_count')} product={data.get('product_id')}")
+    return 0
 
 
 if __name__ == "__main__":

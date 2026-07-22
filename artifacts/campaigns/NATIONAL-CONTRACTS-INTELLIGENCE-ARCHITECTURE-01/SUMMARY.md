@@ -80,3 +80,10 @@ Gates: PARALLEL_ISOLATION_PASS, SPEC_KIT_PASS, BASELINE_INVENTORY_PASS, ARCHITEC
 ## 22. Integration condition with HC campaign
 
 Only after HC 3y windows complete + entity projection + dual ≥95% evidence: optionally point read-only analytics at production national table; rebase this branch on accepted main; never claim coverage from intel products.
+
+## Close status (PR #121)
+
+- Claim: READY_FOR_INTEGRATION_WITH_CONDITIONS
+- Independent review: CONDITIONAL_PASS
+- Suite close: 65 passed
+- PR remains draft

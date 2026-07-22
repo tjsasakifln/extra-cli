@@ -6,6 +6,7 @@ from typing import Any
 
 from scripts.national_intel.db import fetch_all
 from scripts.national_intel.lineage import envelope
+from scripts.national_intel.sql_filters import build_contract_filters
 
 DEFAULT_MIN_SAMPLE = 20
 
@@ -19,26 +20,18 @@ def run_benchmarks(
     dsn: str | None = None,
 ) -> dict[str, Any]:
     min_sample = max(1, int(min_sample))
-    clauses = ["c.is_active = TRUE", "c.valor_total IS NOT NULL"]
-    params: list[Any] = []
-    if keyword:
-        clauses.append("c.objeto_contrato ILIKE %s")
-        params.append(f"%{keyword}%")
-    if uf:
-        clauses.append("upper(btrim(c.uf)) = upper(btrim(%s))")
-        params.append(uf)
-    where = " AND ".join(clauses)
-    sql = f"""
-    SELECT
-        COUNT(*)::bigint AS n,
-        MIN(c.valor_total)::numeric AS valor_min,
-        MAX(c.valor_total)::numeric AS valor_max,
-        AVG(c.valor_total)::numeric AS valor_avg,
-        percentile_cont(0.5) WITHIN GROUP (ORDER BY c.valor_total) AS valor_p50,
-        percentile_cont(0.9) WITHIN GROUP (ORDER BY c.valor_total) AS valor_p90
-    FROM public.pncp_supplier_contracts c
-    WHERE {where}
-    """
+    where, params = build_contract_filters(keyword=keyword, uf=uf, require_valor=True)
+    sql = (
+        "SELECT "
+        "COUNT(*)::bigint AS n, "
+        "MIN(c.valor_total)::numeric AS valor_min, "
+        "MAX(c.valor_total)::numeric AS valor_max, "
+        "AVG(c.valor_total)::numeric AS valor_avg, "
+        "percentile_cont(0.5) WITHIN GROUP (ORDER BY c.valor_total) AS valor_p50, "
+        "percentile_cont(0.9) WITHIN GROUP (ORDER BY c.valor_total) AS valor_p90 "
+        "FROM public.pncp_supplier_contracts c "
+        "WHERE " + where
+    )
     stats = fetch_all(conn, sql, tuple(params))
     s = stats[0] if stats else {}
     n = int(s.get("n") or 0)

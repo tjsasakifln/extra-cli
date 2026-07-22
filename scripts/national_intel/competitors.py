@@ -6,6 +6,7 @@ from typing import Any
 
 from scripts.national_intel.db import fetch_all
 from scripts.national_intel.lineage import envelope
+from scripts.national_intel.sql_filters import build_contract_filters
 
 
 def run_competitors(
@@ -24,37 +25,32 @@ def run_competitors(
       - "potential entrant" flags → hypothesis (caller may annotate)
     """
     limit = max(1, min(int(limit), 5000))
-    clauses = ["c.is_active = TRUE"]
-    params: list[Any] = []
-    if keyword:
-        clauses.append("c.objeto_contrato ILIKE %s")
-        params.append(f"%{keyword}%")
-    if uf:
-        clauses.append("upper(btrim(c.uf)) = upper(btrim(%s))")
-        params.append(uf)
-    where = " AND ".join(clauses)
-    sql = f"""
-    SELECT
-        COALESCE(c.fornecedor_cnpj_8, left(COALESCE(c.fornecedor_cnpj, ''), 8)) AS fornecedor_cnpj_8,
-        MAX(c.fornecedor_cnpj) AS fornecedor_cnpj,
-        MAX(c.fornecedor_nome) AS fornecedor_nome,
-        COUNT(*)::bigint AS contract_count,
-        COUNT(DISTINCT upper(btrim(c.uf)))
-            FILTER (WHERE c.uf IS NOT NULL AND btrim(c.uf) <> '')::bigint AS uf_count,
-        array_agg(DISTINCT upper(btrim(c.uf)) ORDER BY upper(btrim(c.uf)))
-            FILTER (WHERE c.uf IS NOT NULL AND btrim(c.uf) <> '') AS ufs,
-        BOOL_OR(c.uf IS NOT NULL AND upper(btrim(c.uf)) = 'SC') AS has_sc,
-        COALESCE(SUM(c.valor_total), 0)::numeric AS valor_sum
-    FROM public.pncp_supplier_contracts c
-    WHERE {where}
-      AND (
-            (c.fornecedor_cnpj IS NOT NULL AND btrim(c.fornecedor_cnpj) <> '')
-            OR (c.fornecedor_nome IS NOT NULL AND btrim(c.fornecedor_nome) <> '')
-          )
-    GROUP BY 1
-    ORDER BY contract_count DESC, valor_sum DESC NULLS LAST
-    LIMIT %s
-    """
+    where, params = build_contract_filters(keyword=keyword, uf=uf)
+    # WHERE built only from allowlisted fragments + %s binds (see sql_filters).
+    sql = (
+        "SELECT "
+        "COALESCE(c.fornecedor_cnpj_8, left(COALESCE(c.fornecedor_cnpj, ''), 8)) "
+        "AS fornecedor_cnpj_8, "
+        "MAX(c.fornecedor_cnpj) AS fornecedor_cnpj, "
+        "MAX(c.fornecedor_nome) AS fornecedor_nome, "
+        "COUNT(*)::bigint AS contract_count, "
+        "COUNT(DISTINCT upper(btrim(c.uf))) "
+        "FILTER (WHERE c.uf IS NOT NULL AND btrim(c.uf) <> '')::bigint AS uf_count, "
+        "array_agg(DISTINCT upper(btrim(c.uf)) ORDER BY upper(btrim(c.uf))) "
+        "FILTER (WHERE c.uf IS NOT NULL AND btrim(c.uf) <> '') AS ufs, "
+        "BOOL_OR(c.uf IS NOT NULL AND upper(btrim(c.uf)) = 'SC') AS has_sc, "
+        "COALESCE(SUM(c.valor_total), 0)::numeric AS valor_sum "
+        "FROM public.pncp_supplier_contracts c "
+        "WHERE "
+        + where
+        + " AND ("
+        " (c.fornecedor_cnpj IS NOT NULL AND btrim(c.fornecedor_cnpj) <> '') "
+        " OR (c.fornecedor_nome IS NOT NULL AND btrim(c.fornecedor_nome) <> '') "
+        ") "
+        "GROUP BY 1 "
+        "ORDER BY contract_count DESC, valor_sum DESC NULLS LAST "
+        "LIMIT %s"
+    )
     params.append(limit)
     raw = fetch_all(conn, sql, tuple(params))
     rows: list[dict[str, Any]] = []

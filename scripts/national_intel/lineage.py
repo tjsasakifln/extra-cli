@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -17,16 +16,21 @@ CLAIM_LEGEND = {
 
 
 def git_sha(root: Path | None = None) -> str | None:
+    """Best-effort short SHA without spawning a shell (bandit-safe)."""
     try:
-        cwd = str(root or Path.cwd())
-        out = subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=cwd,
-            stderr=subprocess.DEVNULL,
-            text=True,
-        )
-        return out.strip() or None
-    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        base = Path(root) if root else Path.cwd()
+        head = base / ".git" / "HEAD"
+        if not head.is_file():
+            return None
+        content = head.read_text(encoding="utf-8").strip()
+        if content.startswith("ref:"):
+            ref = content.split(" ", 1)[1].strip()
+            ref_path = base / ".git" / ref
+            if ref_path.is_file():
+                return ref_path.read_text(encoding="utf-8").strip()[:7] or None
+            return None
+        return content[:7] or None
+    except OSError:
         return None
 
 

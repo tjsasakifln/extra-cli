@@ -1,56 +1,66 @@
 # Campaign STATUS — NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01
 
-**Updated:** 2026-07-22T22:50Z  
+**Updated:** 2026-07-22 (PR #121 close pass)  
 **Branch:** `campaign/national-contracts-intelligence-architecture-01`  
 **Worktree:** `/mnt/d/extra-consultoria-national-intelligence`  
-**Base SHA:** `a38981bfa616b8f47363da6ff91b12a28bec218c` (`origin/main`)  
-**HEAD:** see `git log -1`  
+**PR:** https://github.com/tjsasakifln/extra-cli/pull/121 (**draft**, no merge)  
+**Base:** `origin/main`  
 **Isolated DSN:** `postgresql://test:***@127.0.0.1:5435/extra_national_intelligence_test`
 
-## Final claim (honest)
+## Final claim (coherent with independent review)
 
 ```text
-NATIONAL_CONTRACTS_INTELLIGENCE_ARCHITECTURE_PASS
-READY_FOR_INTEGRATION  # w.r.t. HC campaign data richness
+READY_FOR_INTEGRATION_WITH_CONDITIONS
 ```
 
-Means: architecture + isolated implementation + fixture products + dual non-contamination tests + Spec Kit + independent CONDITIONAL_PASS review.
+Independent review: **CONDITIONAL_PASS** (same residual class — not unconditional PASS).
 
-Does **not** mean: 3y backfill done, 95% SC coverage, VPS ready, DOD closed, production national ready.
+Does **not** mean: HC 3y complete, SC 95%, VPS, DOD closed, production national ready, merge authorized.
+
+### Conditions for future merge
+
+1. HC campaign finishes and lands on accepted `main`
+2. Rebase/update PR #121 against that `main`
+3. Resolve migration/schema conflicts consciously
+4. Re-apply 059 on staging restore; full suite green
+5. Integration review after HC data available (optional national EXPLAIN at scale)
 
 ## Gates
 
 | Gate | Status |
 |------|--------|
-| PARALLEL_ISOLATION_PASS | **PASS** (safety/* + isolation-proof.txt) |
-| SPEC_KIT_PASS | **PASS** (specs/003 + requirements-tests-matrix) |
-| BASELINE_INVENTORY_PASS | **PASS** |
-| ARCHITECTURE_DECISION_PASS | **PASS** |
-| ISOLATED_IMPLEMENTATION_PASS | **PASS** (059 + package on 5435) |
-| STRATEGIC_PRODUCTS_PASS | **PASS** (3 products fixture + CLI×2 stable) |
-| SC_COVERAGE_ISOLATION_PASS | **PASS** (26+ pytest; `compute_dual_coverage` + `load_canonical_universe`; NV matrix) |
-| OPERATIONAL_READINESS_ASSESSMENT_PASS | **PASS** (EXPLAIN fixture-scale + storage estimates; not VPS claim) |
-| INDEPENDENT_REVIEW_PASS | **CONDITIONAL_PASS** (Subagent I; residual risks listed) |
+| PARALLEL_ISOLATION_PASS | PASS |
+| SPEC_KIT_PASS | PASS (analyze updated) |
+| BASELINE_INVENTORY_PASS | PASS |
+| ARCHITECTURE_DECISION_PASS | PASS (layers + entrypoint ADR) |
+| ISOLATED_IMPLEMENTATION_PASS | PASS |
+| STRATEGIC_PRODUCTS_PASS | PASS |
+| SC_COVERAGE_ISOLATION_PASS | PASS (real dual path; 27+ national_intel) |
+| OPERATIONAL_READINESS_ASSESSMENT_PASS | PASS fixture-scale only |
+| INDEPENDENT_REVIEW | CONDITIONAL_PASS on final HEAD |
+| CI | target CI_GREEN after push |
 
-## Tests
+## Tests (local close)
 
 ```text
-pytest tests/national_intel/ --no-cov  → 26+ passed
-Evidence: artifacts/.../tests/pytest-national-intel.log
-Metrics: artifacts/.../tests/before-after-metrics.txt
-  seed_included 1093; coverage_pct 0 before/after presence; gate_pass False
+pytest tests/national_intel/ tests/test_dual_capability_coverage.py --no-cov
+→ 65 passed
+ruff check scripts/national_intel scripts/contract_intel/cli.py → clean
+mypy scripts/national_intel → Success
 ```
 
-## Parallel HC
+## Entry point decision
 
-- Writer on 5433 left running; no writes to `hc_closure_3y` or HC artifacts
-
-## Subagents
-
-A,C,D,E inventory · F/G/H impl · **I independent review CONDITIONAL_PASS**
+Engine: `scripts.national_intel`  
+Facade: `scripts.contract_intel national-{competitors,benchmarks,agencies}`  
+ADR: `architecture/ADR-entry-point-boundary.md`
 
 ## Non-claims
 
 - No SC operational ≥95% / LOCAL_READY / VPS / PROJECT_DONE / DOD complete
-- Fixture ≠ full national market
-- No merge to main performed by this campaign
+- No merge; remains draft
+- Fixture-scale ≠ national multi-million EXPLAIN proof
+
+## HC isolation
+
+PID backfill on 5433 left running; no writes to `hc_closure_3y` or HC artifacts.

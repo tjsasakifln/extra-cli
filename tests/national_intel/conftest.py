@@ -19,7 +19,7 @@ def national_intel_dsn() -> str:
     return dsn
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def pg_conn(national_intel_dsn: str) -> Iterator:
     try:
         from scripts.national_intel.db import connect
@@ -27,6 +27,11 @@ def pg_conn(national_intel_dsn: str) -> Iterator:
         pytest.skip(f"db helper unavailable: {exc}")
     try:
         with connect(national_intel_dsn) as conn:
+            # Autocommit-friendly: ensure clean transaction per test
+            if hasattr(conn, "rollback"):
+                conn.rollback()
             yield conn
+            if hasattr(conn, "rollback"):
+                conn.rollback()
     except Exception as exc:
         pytest.skip(f"isolated Postgres unavailable: {exc}")
