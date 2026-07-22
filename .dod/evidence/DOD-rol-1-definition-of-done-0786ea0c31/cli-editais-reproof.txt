@@ -1,0 +1,17 @@
+
+ Gerando relatório de editais...
+  Editais report: 
+/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-editais-20260722T0
+00221Z.csv rows=5 size=424
+
+Ledger salvo:  
+.dod/evidence/DOD-rol-1-definition-of-done-0786ea0c31/ledger-editais-reproof.jso
+n
+Log salvo:     
+/mnt/d/extra-consultoria-continue-03/output/golden-path/gp-20260721-210221.log
+  meta.git_sha=818dd41d423bfc6c7a086f38bd7b96e2ced6e4b3 
+schema=migrations_count=62
+  Editais report OK (domain CSV+JSON present)
+  Ledger: 
+.dod/evidence/DOD-rol-1-definition-of-done-0786ea0c31/ledger-editais-reproof.jso
+n

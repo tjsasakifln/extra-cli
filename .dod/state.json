@@ -1,34 +1,34 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
-  "updated_at": "2026-07-21T23:45:28Z",
-  "active_item_id": "DOD-rol-1-definition-of-done-0786ea0c31",
+  "updated_at": "2026-07-22T00:05:54Z",
+  "active_item_id": null,
   "active_run_id": "run-20260721T234528Z",
   "active_branch": "campaign/continue-03-report-editais",
-  "main_sha": "ff733375a85d92a194431ccaa1908a9b936e3ac3",
-  "phase": "item_cycle",
+  "main_sha": "818dd41d423bfc6c7a086f38bd7b96e2ced6e4b3",
+  "phase": "audit",
   "next_eligible_id": "DOD-rol-1-definition-of-done-7d2ae13087",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1356,
-    "accepted": 329,
-    "accepted_state": 329,
+    "accepted": 330,
+    "accepted_state": 330,
     "claimed_checked": 332,
-    "audited_accepted": 21,
-    "evidence_located": 130,
-    "evidence_reproduced": 22,
-    "proof_debt": 313,
+    "audited_accepted": 22,
+    "evidence_located": 132,
+    "evidence_reproduced": 23,
+    "proof_debt": 314,
     "verified": 0,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1026,
+    "open": 1025,
     "blocked": 1,
     "deferred": 0,
-    "acceptance_pct": 1.55,
+    "acceptance_pct": 1.62,
     "claimed_pct": 24.48,
     "by_state": {
-      "ACCEPTED": 329,
-      "OPEN": 1026,
+      "ACCEPTED": 330,
+      "OPEN": 1025,
       "BLOCKED_HUMAN": 1
     },
     "by_category": {
@@ -45,7 +45,7 @@
     },
     "dod_checked_count": 332
   },
-  "resume_step": "implement-pr-ci",
+  "resume_step": "next",
   "notes": "CONTINUE-03: implementing editais domain report (0786ea0c31). PRs 94-100 merged. Not ACCEPTED until CI+review+reproof.",
   "billing_blocker": {
     "status": "RESOLVED",
@@ -56,5 +56,5 @@
       "29831727568"
     ]
   },
-  "next_step": "merge-reconciliation-then-sanitize"
+  "next_step": "next"
 }

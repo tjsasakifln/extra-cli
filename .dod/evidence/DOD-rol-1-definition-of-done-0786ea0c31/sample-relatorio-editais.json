@@ -1,0 +1,35 @@
+{
+  "report_type": "editais",
+  "as_of": "2026-07-22T00:02:21.247537Z",
+  "git_sha": "818dd41",
+  "row_count": 5,
+  "columns": [
+    "pncp_id",
+    "objeto_compra",
+    "orgao_razao_social",
+    "orgao_cnpj",
+    "uf",
+    "municipio",
+    "modalidade_nome",
+    "valor_total_estimado",
+    "data_publicacao",
+    "data_encerramento",
+    "link_pncp",
+    "source",
+    "is_active"
+  ],
+  "csv_path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-editais-20260722T000221Z.csv",
+  "limitations": [
+    "sample_cap=5000; not full universe operational coverage",
+    "domain report of stored editais; does not claim 95% coverage or LOCAL_READY"
+  ],
+  "reference_period": {
+    "as_of": "2026-07-22T00:02:21.247537Z",
+    "window": "stored-active-editais"
+  },
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "95% coverage",
+    "full live crawl proof"
+  ]
+}

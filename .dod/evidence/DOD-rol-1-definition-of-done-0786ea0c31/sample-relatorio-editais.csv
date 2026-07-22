@@ -1,0 +1,6 @@
+pncp_id,objeto_compra,orgao_razao_social,orgao_cnpj,uf,municipio,modalidade_nome,valor_total_estimado,data_publicacao,data_encerramento,link_pncp,source,is_active
+SYNTH-BID-0001,Objeto teste 1,,,SC,,,,,,,pncp,True
+SYNTH-BID-0002,Objeto teste 2,,,SC,,,,,,,pncp,True
+SYNTH-BID-0003,Objeto teste 3,,,SC,,,,,,,pncp,True
+SYNTH-BID-0004,Objeto teste 4,,,SC,,,,,,,pncp,True
+SYNTH-BID-0005,Objeto teste 5,,,SC,,,,,,,pncp,True

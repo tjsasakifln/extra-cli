@@ -1,0 +1,11 @@
+{
+  "conclusion": "success",
+  "head_sha": "818dd41d423bfc6c7a086f38bd7b96e2ced6e4b3",
+  "run_id": 29879064790,
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29879064790",
+  "pr_implementation": 101,
+  "pr_ci_run_id": 29878839226,
+  "mandatory_jobs_skipped": [],
+  "checked_at": "2026-07-22T00:05:36Z",
+  "note": "Main CI after #101 squash merge; PR CI also success on f3b7273"
+}
