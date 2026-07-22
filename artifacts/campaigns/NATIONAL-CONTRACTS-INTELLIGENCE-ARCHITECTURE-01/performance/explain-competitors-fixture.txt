@@ -1,0 +1,25 @@
+                                                                QUERY PLAN                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=11.79..11.79 rows=1 width=40) (actual time=0.104..0.105 rows=4 loops=1)
+   Buffers: shared hit=7
+   ->  Sort  (cost=11.79..11.79 rows=1 width=40) (actual time=0.103..0.104 rows=4 loops=1)
+         Sort Key: (count(*)) DESC
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=7
+         ->  GroupAggregate  (cost=11.76..11.78 rows=1 width=40) (actual time=0.061..0.063 rows=4 loops=1)
+               Group Key: fornecedor_cnpj_8
+               Buffers: shared hit=4
+               ->  Sort  (cost=11.76..11.77 rows=1 width=32) (actual time=0.057..0.058 rows=6 loops=1)
+                     Sort Key: fornecedor_cnpj_8
+                     Sort Method: quicksort  Memory: 25kB
+                     Buffers: shared hit=4
+                     ->  Seq Scan on pncp_supplier_contracts  (cost=0.00..11.75 rows=1 width=32) (actual time=0.015..0.020 rows=6 loops=1)
+                           Filter: (is_active AND (objeto_contrato ~~* '%paviment%'::text))
+                           Rows Removed by Filter: 1
+                           Buffers: shared hit=1
+ Planning:
+   Buffers: shared hit=371
+ Planning Time: 2.950 ms
+ Execution Time: 0.865 ms
+(21 rows)
+

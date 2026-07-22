@@ -3,7 +3,7 @@
 **Campaign:** NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01  
 **Subagent:** C — Metrology  
 **As of:** 2026-07-22  
-**Status:** Design only (do not implement application code in this wave)  
+**Status:** P0 implemented in `tests/national_intel/test_adversarial_nv_matrix.py` (compute_dual_coverage real path)  
 **Engine under test:** `scripts/coverage/dual_capability_coverage.py`  
 **Universe:** seed-included set (target 1093)
 

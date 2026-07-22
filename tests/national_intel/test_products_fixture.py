@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from scripts.national_intel.agencies import run_agencies
 from scripts.national_intel.benchmarks import run_benchmarks
 from scripts.national_intel.competitors import run_competitors

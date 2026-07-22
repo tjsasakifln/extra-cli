@@ -1,132 +1,129 @@
-"""Adversarial tests: national inventory volume must not become SC coverage."""
+"""SC coverage isolation — real dual spine + load_canonical_universe.
+
+Supplements adversarial matrix (test_adversarial_nv_matrix.py).
+"""
 
 from __future__ import annotations
 
 import inspect
+from pathlib import Path
 
 from scripts.coverage import dual_capability_coverage as dual
 from scripts.coverage.dual_capability_coverage import (
-    CanonicalEntity,
-    EntityCapabilityResult,
-    UniverseIdentity,
-    aggregate_capability,
+    CAP_HISTORICAL_CONTRACTS,
+    CAP_OPEN_TENDERS,
+    compute_dual_coverage,
 )
+from scripts.lib.universe import CanonicalEntity, CanonicalUniverse, load_canonical_universe
 
 
 def test_dual_module_documents_presence_not_coverage() -> None:
-    assert "data_presence" in inspect.getsource(dual)
     doc = dual.__doc__ or ""
+    assert "data_presence" in inspect.getsource(dual)
     assert "never a coverage label" in doc or "descriptive only" in doc
 
 
-def _canon(eid: str) -> CanonicalEntity:
+def _entity(eid: str, cnpj8: str = "12345678") -> CanonicalEntity:
     return CanonicalEntity(
         entity_id=eid,
-        seed_row=0,
+        seed_row=2,
         razao_social=eid,
-        cnpj8=eid[:8].ljust(8, "0")[:8],
-        municipio="X",
-        codigo_ibge="4200000",
-        natureza_juridica="autarquia",
-        latitude=None,
-        longitude=None,
-        distancia_km=None,
+        cnpj8=cnpj8,
+        municipio="FLORIANOPOLIS",
+        codigo_ibge="4205407",
+        natureza_juridica="MUNICIPIO",
+        latitude=-27.5,
+        longitude=-48.5,
+        distancia_km=10.0,
         radius_decision="included",
         within_radius=True,
-        decision_method="fixture",
-        identity_key=eid,
+        decision_method="seed",
+        identity_key=f"{cnpj8}|{eid}",
     )
 
 
-def _entity_result(
-    eid: str,
-    *,
-    covered: bool = False,
-    has_data_presence: bool = False,
-) -> EntityCapabilityResult:
-    return EntityCapabilityResult(
-        entity_id=eid,
-        entity_name=eid,
-        capability="historical_contracts",
-        applicability="applicable",
-        covered=covered,
-        coverage_state="success_with_data" if covered else "never_checked",
-        required_sources=["pncp", "contracts"],
-        successful_sources=["pncp", "contracts"] if covered else [],
-        missing_sources=[] if covered else ["pncp", "contracts"],
-        freshness_status="fresh" if covered else "unknown",
-        last_success_at=None,
-        blocker="" if covered else "never_checked",
-        next_action="none" if covered else "run_required_sources",
-        evidence_reference="fixture",
-        has_data_presence=has_data_presence,
-    )
-
-
-def _identity(ids: list[str]) -> UniverseIdentity:
-    return UniverseIdentity(
-        entity_count=len(ids),
-        seed_path="fixture",
+def _universe(entities: list[CanonicalEntity]) -> CanonicalUniverse:
+    return CanonicalUniverse(
+        seed_path="fixture.xlsx",
         seed_sha256="a" * 64,
-        canonical_ids_sha256="b" * 64,
         radius_km=200.0,
-        radius_rule="fixture",
-        as_of="2026-07-22T00:00:00Z",
-        git_sha="test",
-        schema_version="test",
-        entity_ids=tuple(ids),
-        universe_version="fixture-test",
+        entities=entities,
     )
 
 
-def test_coverage_pct_independent_of_national_presence_signal() -> None:
-    """High data_presence must not raise coverage_pct when entities are not covered."""
-    ids = [f"e{i}" for i in range(5)]
-    entities = [_canon(i) for i in ids]
-    results = [_entity_result(i, covered=False, has_data_presence=True) for i in ids]
-    agg = aggregate_capability(
-        "historical_contracts",
-        entities,
-        results,
-        _identity(ids),
-        data_presence_numerator=5,
+def _empty_dual(entities: list[CanonicalEntity], presence: set[str] | None = None):
+    appl = {
+        CAP_OPEN_TENDERS: {e.entity_id: "applicable" for e in entities},
+        CAP_HISTORICAL_CONTRACTS: {e.entity_id: "applicable" for e in entities},
+    }
+    req = {
+        CAP_OPEN_TENDERS: {e.entity_id: ["pncp"] for e in entities},
+        CAP_HISTORICAL_CONTRACTS: {e.entity_id: ["pncp"] for e in entities},
+    }
+    return compute_dual_coverage(
+        universe=_universe(entities),
+        observations_by_cap={CAP_OPEN_TENDERS: {}, CAP_HISTORICAL_CONTRACTS: {}},
+        presence_by_cap={
+            CAP_OPEN_TENDERS: set(),
+            CAP_HISTORICAL_CONTRACTS: presence or set(),
+        },
+        entity_applicability=appl,  # type: ignore[arg-type]
+        entity_required_sources=req,  # type: ignore[arg-type]
+        include_legacy_stamp=False,
+        use_config_matrix=False,
+        require_canonical_policy=False,
     )
-    assert agg.covered_numerator == 0
-    assert agg.coverage_pct == 0.0
-    assert agg.data_presence_numerator == 5
-    assert agg.data_presence_pct == 100.0
-    assert agg.gate_status in {"FAIL", "NOT_READY"}
-    assert agg.coverage_gate_pass is False
 
 
-def test_inserting_more_presence_does_not_change_zero_coverage() -> None:
-    """Simulates national volume growth: presence rises, coverage stays 0."""
-    ids = ["a", "b", "c"]
-    entities = [_canon(i) for i in ids]
-    r0 = aggregate_capability(
-        "historical_contracts",
-        entities,
-        [_entity_result(i, has_data_presence=False) for i in ids],
-        _identity(ids),
-        data_presence_numerator=0,
+def test_compute_dual_coverage_before_after_presence_volume() -> None:
+    ents = [_entity(f"e{i}", cnpj8=f"1100000{i}") for i in range(5)]
+    before = _empty_dual(ents, presence=set())
+    after = _empty_dual(ents, presence={e.entity_id for e in ents})
+    b = before.capabilities[CAP_HISTORICAL_CONTRACTS]
+    a = after.capabilities[CAP_HISTORICAL_CONTRACTS]
+    assert b.covered_numerator == a.covered_numerator == 0
+    assert b.coverage_pct == a.coverage_pct == 0.0
+    assert b.applicable_denominator == a.applicable_denominator == 5
+    assert a.data_presence_numerator == 5
+    assert b.data_presence_numerator == 0
+    assert before.coverage_gate_pass is False
+    assert after.coverage_gate_pass is False
+
+
+def test_load_canonical_universe_denominator_authority() -> None:
+    seed = Path("fixtures/canonical_universe_r0.xlsx")
+    u = load_canonical_universe(seed_path=seed)
+    assert len(u.included) == 1093
+    # Dual micro-slice of real seed identities
+    slice_ents = list(u.included)[:5]
+    report = compute_dual_coverage(
+        universe=CanonicalUniverse(
+            seed_path=u.seed_path,
+            seed_sha256=u.seed_sha256,
+            radius_km=u.radius_km,
+            entities=slice_ents,
+        ),
+        observations_by_cap={CAP_OPEN_TENDERS: {}, CAP_HISTORICAL_CONTRACTS: {}},
+        presence_by_cap={CAP_OPEN_TENDERS: set(), CAP_HISTORICAL_CONTRACTS: set()},
+        entity_applicability={
+            CAP_OPEN_TENDERS: {e.entity_id: "applicable" for e in slice_ents},
+            CAP_HISTORICAL_CONTRACTS: {e.entity_id: "applicable" for e in slice_ents},
+        },  # type: ignore[arg-type]
+        entity_required_sources={
+            CAP_OPEN_TENDERS: {e.entity_id: ["pncp"] for e in slice_ents},
+            CAP_HISTORICAL_CONTRACTS: {e.entity_id: ["pncp"] for e in slice_ents},
+        },  # type: ignore[arg-type]
+        include_legacy_stamp=False,
+        use_config_matrix=False,
+        require_canonical_policy=False,
     )
-    r1 = aggregate_capability(
-        "historical_contracts",
-        entities,
-        [_entity_result(i, has_data_presence=True) for i in ids],
-        _identity(ids),
-        data_presence_numerator=3,
-    )
-    assert r0.coverage_pct == r1.coverage_pct == 0.0
-    assert r0.covered_numerator == r1.covered_numerator == 0
-    assert r0.applicable_denominator == r1.applicable_denominator == 3
-    assert r0.data_presence_numerator == 0
-    assert r1.data_presence_numerator == 3
+    hc = report.capabilities[CAP_HISTORICAL_CONTRACTS]
+    assert hc.applicable_denominator == 5
+    assert hc.covered_numerator == 0
+    assert report.universe.seed_sha256 == u.seed_sha256 or report.universe.entity_count == 5
 
 
 def test_invariants_doc_exists() -> None:
-    from pathlib import Path
-
     p = Path(
         "artifacts/campaigns/NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01/"
         "coverage-isolation/invariants.md"
@@ -136,8 +133,6 @@ def test_invariants_doc_exists() -> None:
 
 
 def test_scope_labels_forbid_coverage_alias() -> None:
-    from pathlib import Path
-
     p = Path(
         "specs/003-national-contracts-intelligence-architecture/contracts/scope-classification.md"
     )

@@ -63,7 +63,7 @@ Local commits on `campaign/national-contracts-intelligence-architecture-01` (see
 
 ## 18. Tests
 
-`pytest tests/national_intel/ --no-cov` → **10 passed**
+`pytest tests/national_intel/ --no-cov` → **26+ passed (adversarial NV matrix + products)**
 
 ## 19. Review
 
