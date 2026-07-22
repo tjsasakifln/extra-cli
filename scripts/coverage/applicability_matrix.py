@@ -62,9 +62,11 @@ def _canonical_min_combinations() -> dict[str, list[str]]:
 
 
 # Back-compat names — values always come from canonical policy when available.
+# MIN_SOURCE_COMBINATION and MANDATORY_SOURCES are the **same full combination**
+# (never reduced to first-source-only — that would diverge from the engine).
 MIN_SOURCE_COMBINATION: dict[str, list[str]] = _canonical_min_combinations()
 MANDATORY_SOURCES: dict[str, list[str]] = {
-    cap: [combo[0]] if combo else ["pncp"] for cap, combo in MIN_SOURCE_COMBINATION.items()
+    cap: list(combo) for cap, combo in MIN_SOURCE_COMBINATION.items()
 }
 
 

@@ -1,19 +1,25 @@
-# O golden path calcula cobertura
+# O golden path calcula cobertura — re-acceptance (v1.2)
 
-## Acceptance (dual measurement)
+## Method (fixture / unit)
 
-Given main at merge SHA of dual capability PR with migrations applied
-When dual coverage runs via golden_path `--execute-dual-coverage-only` or coverage step
-Then method is `dual_capability_coverage`
-And both open_tenders and historical_contracts are computed independently
-And universe stamps include seed_sha256, canonical_ids_sha256, entity_count
-And measurement_success may be true while coverage_gate_pass is false below 95%
-And exit overall distinguishes coverage_gate_failed (exit 2) from measurement failure (exit 1)
-And legacy any_row / undifferentiated is_covered are forbidden methods
-And never_checked/pending/stale aggregates are published (absence of proof is not healthy unknown=0)
+- [x] Canonical `source_policy` active with verified `policy_sha256`
+- [x] Required combinations: municipal open_tenders = pncp+ciga_ckan; historical = pncp+contracts
+- [x] DEFAULT_REQUIRED_SOURCES is non-canonical; acceptance path never uses silent fallback
+- [x] Esfera never hardcoded municipal
+- [x] Presence not measurable → null pct / NOT_READY (not descriptive zero)
+- [x] Multi-key identity (no first-wins); identity_unresolved_count=0 when keys unique
+- [x] Dual capabilities independent; no average
 
-## OUT of this acceptance
+## Live operational state
+
+- [x] Live dual reproof published in this pack
+- [x] `measurement_success` matches live truth (true after identity multi-key fix)
+- [x] `identity_unresolved_count=0`
+- [x] `source_policy_status=active`
+- [x] `dual_gate_status` is FAIL or NOT_READY — never claim 95% PASS without proof
+
+## OUT
 
 - Live 95% gate PASS
-- LOCAL_READY
-- Data backfill completeness
+- LOCAL_READY / PROJECT_DONE
+- Esfera assignment for consortia / mixed-economy residual (unknown, honest)

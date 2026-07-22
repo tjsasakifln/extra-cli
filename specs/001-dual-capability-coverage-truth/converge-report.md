@@ -1,32 +1,28 @@
-# Speckit converge — dual-capability-coverage-truth (final-closure)
+# Speckit converge — dual-capability-coverage-truth
 
 **Date:** 2026-07-22  
-**implementation_branch:** `fix/dual-canonical-closure`  
-**baseline origin/main:** `1c06300` (observed at preflight; not stamped as eternal tip)
+**Roles (not “current tip”):** see campaign FINAL-SHA-ROLES.md
 
 ## Alignment
 
 | Artifact | Aligned? | Notes |
 |----------|----------|-------|
-| spec.md FR-001..032 | YES | draft≠authority, no hardcode esfera, presence null |
+| spec.md FR-001..032 | YES | draft≠authority; no hardcode esfera; presence null |
 | plan.md | YES | single policy authority |
-| tasks.md | YES | identity/policy reopened then closed with evidence |
-| checklist | YES | DONE only with tests/live proof |
-| code | YES | source_policy + dual 1.2.0 |
-| tests | YES | 57+ unit green |
-| DOD | YES | method vs live; no false measurement_success |
-| evidence | YES | pack 1fdea0f6e6; 4efe05fc94 SUPERSEDED |
-
-## Remaining before GOAL DONE
-
-1. PR merge + CI green on merge SHA  
-2. Independent review PASS_FOR_MERGE on that SHA  
-3. PR #107 resolve (rebase/merge or close with justification)  
-4. Controller re-accept if required after merge  
-5. Consistency gate on semantic files vs reproof  
+| tasks.md | YES | Phase 8 closed with evidence |
+| checklist | YES | FR statuses DONE with tests |
+| code | YES | source_policy + dual; no silent fallback |
+| tests | YES | 69 passed incl. PG presence |
+| DOD | YES | method vs live separation |
+| evidence | YES | pack 1fdea0f6e6; 4efe SUPERSEDED |
 
 ## Converge verdict
 
-**NOT CONVERGED for GOAL DONE** until items above complete.  
-**Measurement engine + policy authority are implementation-ready.**  
-No 95% / LOCAL_READY claims.
+**CONVERGED** for dual measurement honesty + canonical source policy + identity multi-key + presence fail-closed.
+
+**NOT** claiming dual 95% operational coverage, LOCAL_READY, or PROJECT_DONE.
+
+## Remaining non-implementable / honest residuals
+
+* 147 entities esfera unknown (consórcios/SEM) — applicability unknown
+* Operational backfill for 95% is out of scope

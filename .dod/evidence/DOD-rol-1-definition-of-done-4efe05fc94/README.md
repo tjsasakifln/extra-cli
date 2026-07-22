@@ -1,9 +1,30 @@
-# Evidence pack — DOD-rol-1-definition-of-done-4efe05fc94
+# Evidence pack — DOD-rol-1-definition-of-done-1fdea0f6e6
 
-Text: O golden path calcula cobertura (dual measurement).
+**Item:** O golden path calcula cobertura  
+**Semantics:** dual capability coverage truth v1.2 (canonical source policy)
 
-Merge SHA: `edd76189153a4734381447fe6933bce61d883d4f`
-PR implementation: #108
-CI: https://github.com/tjsasakifln/extra-cli/actions/runs/29887826689
+## SHAs (roles — do not call ancestors "current tip")
 
-Non-claims: no 95%, no LOCAL_READY.
+| Role | Value |
+|------|-------|
+| `implementation_sha` | (branch tip of `fix/dual-canonical-closure` at pack creation — restamp after merge) |
+| `reproof_sha` | live dual reproof captured in this pack |
+| `acceptance_sha` | set at controller accept |
+| `reviewed_sha` | independent review on implementation tip |
+
+## Separation of truths
+
+| Layer | Result |
+|-------|--------|
+| `method_acceptance` | PASS — unit matrix + policy authority + dual engine |
+| `live_operational_state` | `measurement_success=true`, `identity_unresolved_count=0`, `dual_gate_status=FAIL` (coverage 0%, unknown esfera residual) |
+| `coverage_gate_state` | FAIL — not 95%; no LOCAL_READY |
+
+## Supersedes
+
+* `.dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94/` → SUPERSEDED (post-acceptance semantic changes)
+
+## Non-claims
+
+* No operational 95%  
+* No LOCAL_READY / PROJECT_DONE  
