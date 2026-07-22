@@ -1,37 +1,45 @@
 # STATUS — DUAL-CAPABILITY-COVERAGE-TRUTH-01
 
-**Status:** COMPLETE on main (dual measurement fail-closed + normative accept + skeptic stack)  
+**Status:** FINAL-CLOSURE IN PROGRESS (not GOAL DONE until CI + #107 + review + merge)  
 **Date:** 2026-07-22  
-**Final main tip:** `86cb02856a3c76c5dd13ef64188453728e10dc82`
 
-## Merged stack
+## Observed SHAs (roles)
 
-| PR | Role | Merge / tip |
-|----|------|-------------|
-| #108 | dual engine implementation | `edd7618` |
-| #109 | DOD accept calcula cobertura (dual method) | `30f5548` |
-| #110 | skeptic: identity/scope/view | `3a17805` |
-| #111 | clean-env skip_sources measurement tolerance | `ac81c51` |
-| #112 | cap-level measurement honesty + review v1.3 | `3ab3a3a` |
-| #113 | docs stamp consistency + live evidence | `86cb028` (= current tip) |
+| Role | SHA / note |
+|------|------------|
+| `origin_main_observed_at_baseline` | `1c063005e5116ff394e26ef3ac3221c7f97c2d01` |
+| `implementation_branch` | `fix/dual-canonical-closure` |
+| `reproof` | live dual in `evidence/dual-reproof-summary-final-closure.json` |
 
-## Live dual snapshot (must match dual summary on tip)
+Do **not** label ancestral SHAs as “current tip”.
+
+## Policy
 
 | Field | Value |
 |-------|-------|
-| measurement_success | false |
-| mapping_status | identity_unresolved |
-| identity_unresolved_count | 4 |
-| dual_gate_status | NOT_READY |
-| open_tenders cap_meas | False / never=1093 |
-| historical_contracts cap_meas | False / never=1093 |
+| status | **active** |
+| policy_version | 2.0.0 |
+| policy_sha256 | `867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46` |
+| authority | `config/source_applicability.yaml` + `scripts/coverage/source_policy.py` |
 
-## Independent review
+## Live dual snapshot (final-closure reproof)
 
-* `independent-review-v1.3-final.md` — reviewed_commit `ed7be1c` (cap-level honesty fix), PASS_FOR_MERGE, 20+ executed attacks
-* Historical reviews (v1.1/v1.2) remain audit trail only; tip truth is v1.3 + main tip above
+| Field | Value |
+|-------|-------|
+| measurement_success | true |
+| mapping_status | partial (DB unmapped residual OK) |
+| identity_unresolved_count | **0** |
+| dual_gate_status | FAIL (coverage 0%; not 95%) |
+| source_combinations open_tenders | pncp, pncp+ciga_ckan |
+| source_combinations historical | pncp, pncp+contracts |
+| den (approx) | 946 applicable (147 unknown esfera honest) |
+
+## Evidence
+
+* New pack: `.dod/evidence/DOD-rol-1-definition-of-done-1fdea0f6e6/`
+* Old pack `4efe05fc94`: SUPERSEDED
 
 ## Non-claims
 
-* No operational 95% dual coverage
-* No LOCAL_READY / PROJECT_DONE
+* No operational 95% dual coverage  
+* No LOCAL_READY / PROJECT_DONE  

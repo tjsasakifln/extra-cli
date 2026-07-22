@@ -70,12 +70,27 @@
 - [x] T035 Acceptance pack + controller (no self-QA)
 - [x] T036 Normative DOD ACCEPTED only after controller
 
+## Phase 7 — Final closure (canonical policy + identity)
+
+- [x] T040 Single source_policy authority + required_combinations
+- [x] T041 Activate policy with verified hash (v2.0.0)
+- [x] T042 Remove hardcoded esfera; unknown when absent
+- [x] T043 Presence fail-closed (null pct)
+- [x] T044 Multi-key identity resolution (00394494)
+- [x] T045 Supersede pack 4efe05fc94; create 1fdea0f6e6
+- [x] T046 Spec/checklist/analyze refresh FR-025..032
+- [ ] T047 Implementation PR + CI green
+- [ ] T048 Independent review on final SHA
+- [ ] T049 Resolve PR #107
+- [ ] T050 Main merge reproof + converge GOAL DONE
+
 ## Dependencies
 
 ```
 T001→T002→T003/T004→T006→T021…T030
 T006→T010→T031→T011→T012
 T019→T020→T032→T033→T034→T035→T036
+T040…T046→T047→T048→T049→T050
 ```
 
 ## Closed process tasks (evidence)

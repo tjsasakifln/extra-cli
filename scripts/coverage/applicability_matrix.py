@@ -27,14 +27,44 @@ Decision = Literal["applicable", "not_applicable", "unknown"]
 DEFAULT_APPLICABILITY = _PROJECT_ROOT / "config" / "source_applicability.yaml"
 DEFAULT_UNIVERSE_CSV = _PROJECT_ROOT / "config" / "target_entities_200km.csv"
 
-# Explicit minimum combination for Extra (DoD §7.2)
-MIN_SOURCE_COMBINATION: dict[str, list[str]] = {
-    "open_tenders": ["pncp", "ciga_ckan"],  # primary pair; sc_compras complementary for SC state
-    "historical_contracts": ["pncp", "contracts"],
-}
+def _canonical_min_combinations() -> dict[str, list[str]]:
+    """Derived from canonical source policy (not a second authority)."""
+    try:
+        from scripts.coverage.source_policy import load_source_policy
+
+        pol = load_source_policy(require_active=False)
+        raw = (pol.raw or {}).get("required_combinations") or {}
+        out: dict[str, list[str]] = {}
+        for cap, rules in raw.items():
+            # Prefer municipal primary combination as the documented minimum
+            chosen: list[str] | None = None
+            for rule in rules or []:
+                match = rule.get("match") or rule.get("filter") or {}
+                alts = rule.get("combinations") or []
+                if not alts:
+                    continue
+                if str(match.get("esfera", "*")) == "municipal":
+                    chosen = list(alts[0])
+                    break
+                if chosen is None:
+                    chosen = list(alts[0])
+            if chosen:
+                out[str(cap)] = chosen
+        if out:
+            return out
+    except Exception as _pol_exc:  # noqa: BLE001 — fall back to documented stub
+        _ = _pol_exc
+    # Non-canonical emergency stub only (tests without config)
+    return {
+        "open_tenders": ["pncp", "ciga_ckan"],
+        "historical_contracts": ["pncp", "contracts"],
+    }
+
+
+# Back-compat names — values always come from canonical policy when available.
+MIN_SOURCE_COMBINATION: dict[str, list[str]] = _canonical_min_combinations()
 MANDATORY_SOURCES: dict[str, list[str]] = {
-    "open_tenders": ["pncp"],
-    "historical_contracts": ["pncp"],
+    cap: [combo[0]] if combo else ["pncp"] for cap, combo in MIN_SOURCE_COMBINATION.items()
 }
 
 
@@ -147,13 +177,33 @@ def decide_for_entity_source(
             role=registry_role,
         )
 
-    esfera = (entity.get("esfera") or entity.get("sphere") or "municipal").lower()
-    natureza = (entity.get("natureza") or entity.get("natureza_juridica") or entity.get("entity_type") or "*").lower()
-    # normalize natureza shortcuts
-    if "pref" in natureza:
-        natureza = "pref"
-    elif "cam" in natureza:
-        natureza = "cam"
+    from scripts.coverage.source_policy import _normalize_natureza, derive_esfera
+
+    esfera_raw, _esfera_src = derive_esfera(
+        natureza_juridica=entity.get("natureza_juridica") or entity.get("natureza"),
+        entity_type=entity.get("entity_type"),
+        sphere=entity.get("sphere"),
+        esfera=entity.get("esfera"),
+        override=entity.get("esfera_override"),
+        override_justification=entity.get("esfera_override_reason"),
+    )
+    # Never invent municipal default — missing esfera → unknown path below
+    esfera = (esfera_raw or "").lower()
+    natureza = _normalize_natureza(
+        entity.get("natureza") or entity.get("natureza_juridica") or entity.get("entity_type")
+    ) or "*"
+    if not esfera:
+        return ApplicabilityDecision(
+            entity_id=entity_id,
+            source=source_name,
+            capability=capability,
+            decision="unknown",
+            justification="esfera attribute absent — refuse hardcoded default",
+            validated_at=validated_at,
+            decision_source="entity_attributes:esfera_absent",
+            role=registry_role,
+            blockers=["esfera_absent"],
+        )
 
     rules = src_cfg.get("rules") or []
     if not rules and not src_cfg:

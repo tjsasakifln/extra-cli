@@ -1,28 +1,77 @@
 # =============================================================================
-# Source Applicability Rules — Story 1.5
+# Source Applicability + Required Combinations — CANONICAL AUTHORITY
 # =============================================================================
-# Define regras de decisao de aplicabilidade para cada fonte por:
-#   - esfera: federal | estadual | municipal | *
-#   - natureza_juridica: pref | cam | gov | aut | outro | *
-#   - plataforma: pncp_aderente | *
+# Single authority for dual capability coverage (ADR-030 / DUAL-CAPABILITY-*).
+# Engine MUST load this document; DEFAULT_REQUIRED_SOURCES is non-canonical.
 #
-# Uma fonte e "applicable" para um ente quando todas as condicoes sao satisfeitas.
-# A regra de maior prioridade vence em caso de conflito.
-#
-# Formato:
-#   source_name:
-#     rules:
-#       - filter: {esfera: ..., natureza: ..., plataforma: ...}
-#         applicable: true|false
-#         priority: 0-100 (maior = maior prioridade)
-#         reason: "Justificativa textual"
-#
-# Referencia: Secao 9 do Plano Mestre, P0-05
+# status=draft never forms a valid denominator.
+# status=active requires policy_version, validated_*, owner, rationale, sha256.
+# policy_sha256 is computed over this document excluding the policy_sha256 field
+# itself (see scripts.coverage.source_policy.compute_policy_sha256).
 # =============================================================================
 
-version: "1.1"
-updated_at: "2026-07-17"
-status: draft  # Valores: draft | active | superseded
+policy_version: "2.0.0"
+version: "2.0.0"
+updated_at: "2026-07-22"
+status: active
+validated_at: "2026-07-22T12:30:00Z"
+validated_by: "dual-canonical-closure-agent"
+owner: "coverage-governance"
+rationale: >
+  Activate entity×source×capability applicability and explicit required
+  combinations so dual coverage cannot claim readiness from draft policy or
+  silent pncp-only fallback. Municipal open_tenders requires pncp+ciga_ckan;
+  federal/estadual open_tenders requires pncp; historical_contracts requires
+  pncp+contracts. Esfera is never hardcoded in the engine.
+policy_sha256: "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46"
+
+# -----------------------------------------------------------------------------
+# Source roles per capability (complementary never satisfies required)
+# -----------------------------------------------------------------------------
+source_roles:
+  open_tenders:
+    pncp: required
+    ciga_ckan: required
+    sc_compras: complementary
+    dom_sc: gap_fill
+    pcp: complementary
+    compras_gov: complementary
+    transparencia: informational
+    tce_sc: complementary
+    doe_sc: complementary
+    mides_bigquery: complementary
+  historical_contracts:
+    pncp: required
+    contracts: required
+    compras_gov: complementary
+    tce_sc: complementary
+
+# -----------------------------------------------------------------------------
+# Required combinations (ordered alternatives). Match most specific first.
+# selection: first fully applicable combination (deterministic sort in engine).
+# -----------------------------------------------------------------------------
+required_combinations:
+  open_tenders:
+    - match: {esfera: municipal, natureza: "*"}
+      combinations:
+        - [pncp, ciga_ckan]
+    - match: {esfera: estadual, natureza: "*"}
+      combinations:
+        - [pncp]
+        - [pncp, sc_compras]
+    - match: {esfera: federal, natureza: "*"}
+      combinations:
+        - [pncp]
+  historical_contracts:
+    - match: {esfera: municipal, natureza: "*"}
+      combinations:
+        - [pncp, contracts]
+    - match: {esfera: estadual, natureza: "*"}
+      combinations:
+        - [pncp, contracts]
+    - match: {esfera: federal, natureza: "*"}
+      combinations:
+        - [pncp, contracts]
 
 # Regras de aplicabilidade por fonte
 sources:
@@ -231,12 +280,28 @@ sources:
       - "PULADA ate conta GCP estar disponivel"
       - "Requer service account do Google Cloud"
 
+  # --------------------------------------------------------------------------
+  # contracts (PNCP supplier contracts capability)
+  # --------------------------------------------------------------------------
+  contracts:
+    display_name: "PNCP Supplier Contracts"
+    authority_level: federal
+    sla_hours: 168
+    default_applicable: true
+    rules:
+      - filter: {esfera: "*", natureza: "*", plataforma: "*"}
+        applicable: true
+        priority: 0
+        reason: "Contratos PNCP aplicaveis a entes com CNPJ publicante"
+    notes:
+      - "Capability historical_contracts; nao substitui open_tenders"
+
 # ------------------------------------------------------------------------------
-# Exclusoes manuais conhecidas (ente especifico, override)
+# Exclusoes manuais conhecidas (ente especifico, override) — reason obrigatorio
 # ------------------------------------------------------------------------------
 manual_overrides: []
 # Formato:
-#   - entity_id: 123
+#   - entity_id: extra-...
 #     source: transparencia
 #     applicable: false
 #     reason: "Portal de transparencia inexistente apesar de ser municipal"

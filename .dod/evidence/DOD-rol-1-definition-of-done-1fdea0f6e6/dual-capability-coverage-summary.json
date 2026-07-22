@@ -1,0 +1,851 @@
+{
+  "adapter_version": "dual_capability_coverage/1.1.0",
+  "as_of": "2026-07-22T12:30:48.173247Z",
+  "universe": {
+    "entity_count": 1093,
+    "seed_path": "/mnt/d/extra consultoria/fixtures/canonical_universe_r0.xlsx",
+    "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+    "canonical_ids_sha256": "0b3f894d87ba71f2e0fa96887cb3075033488de1af1e6e55f97ccda0701fb396",
+    "radius_km": 200.0,
+    "radius_rule": "seed column 'Raio 200km?': SIM = included, NAO = excluded; missing/unknown remains unresolved and is not in included set",
+    "as_of": "2026-07-22T12:30:48.173247Z",
+    "git_sha": "1c063005e5116ff394e26ef3ac3221c7f97c2d01",
+    "schema_version": "migrations_count=63",
+    "code_version": "dual_capability_coverage/1.1.0",
+    "universe_version": "d65f272812cf:0b3f894d87ba:1093",
+    "entity_ids_sample": [
+      "extra-0081e4515ae9da5512ec",
+      "extra-0097599f1fcd438155f0",
+      "extra-00a9a38c13978bc88635",
+      "extra-0112021cd137b0972fad",
+      "extra-015b39c1db1394624063"
+    ]
+  },
+  "capabilities": {
+    "open_tenders": {
+      "capability": "open_tenders",
+      "universe_version": "d65f272812cf:0b3f894d87ba:1093",
+      "universe_count": 1093,
+      "applicable_denominator": 946,
+      "covered_numerator": 0,
+      "coverage_pct": 0.0,
+      "threshold": 0.95,
+      "gate_status": "FAIL",
+      "as_of": "2026-07-22T12:30:48.173247Z",
+      "freshness_sla": 24,
+      "fresh_count": 0,
+      "stale_count": 0,
+      "unknown_count": 147,
+      "applicability_unknown_count": 147,
+      "applicability_blocked_count": 0,
+      "blocked_count": 0,
+      "partial_count": 0,
+      "success_zero_count": 0,
+      "success_with_data_count": 0,
+      "not_applicable_count": 0,
+      "pending_count": 0,
+      "never_checked_count": 946,
+      "error_count": 0,
+      "source_blocked_count": 0,
+      "identity_unresolved_count": 0,
+      "unmapped_evidence_count": 0,
+      "data_presence_numerator": 0,
+      "data_presence_pct": 0.0,
+      "data_presence_status": "measured_no_rows",
+      "data_presence_complete": true,
+      "source_combinations": [
+        "pncp",
+        "pncp+ciga_ckan"
+      ],
+      "limitations": [
+        "Presence is descriptive and is never coverage.",
+        "Complementary sources do not replace required source combinations.",
+        "entity_coverage.is_covered / any_row are forbidden as coverage methods.",
+        "Applicability without proven rule is unknown (never silent applicable).",
+        "Gate PASS requires coverage>=95%, zero applicability unknown/blocked, zero unmapped evidence.",
+        "Draft/missing source policy never forms a valid denominator.",
+        "DEFAULT_REQUIRED_SOURCES is non-canonical fallback only."
+      ],
+      "git_sha": "1c063005e5116ff394e26ef3ac3221c7f97c2d01",
+      "schema_version": "migrations_count=63",
+      "measurement_success": true,
+      "coverage_gate_pass": false,
+      "method": "dual_capability_coverage",
+      "reconciliation_ok": true,
+      "reconciliation_errors": []
+    },
+    "historical_contracts": {
+      "capability": "historical_contracts",
+      "universe_version": "d65f272812cf:0b3f894d87ba:1093",
+      "universe_count": 1093,
+      "applicable_denominator": 946,
+      "covered_numerator": 0,
+      "coverage_pct": 0.0,
+      "threshold": 0.95,
+      "gate_status": "FAIL",
+      "as_of": "2026-07-22T12:30:48.173247Z",
+      "freshness_sla": 168,
+      "fresh_count": 0,
+      "stale_count": 0,
+      "unknown_count": 147,
+      "applicability_unknown_count": 147,
+      "applicability_blocked_count": 0,
+      "blocked_count": 0,
+      "partial_count": 0,
+      "success_zero_count": 0,
+      "success_with_data_count": 0,
+      "not_applicable_count": 0,
+      "pending_count": 0,
+      "never_checked_count": 946,
+      "error_count": 0,
+      "source_blocked_count": 0,
+      "identity_unresolved_count": 0,
+      "unmapped_evidence_count": 0,
+      "data_presence_numerator": 1,
+      "data_presence_pct": 0.1057,
+      "data_presence_status": "measured_rows_present",
+      "data_presence_complete": true,
+      "source_combinations": [
+        "pncp",
+        "pncp+contracts"
+      ],
+      "limitations": [
+        "Presence is descriptive and is never coverage.",
+        "Complementary sources do not replace required source combinations.",
+        "entity_coverage.is_covered / any_row are forbidden as coverage methods.",
+        "Applicability without proven rule is unknown (never silent applicable).",
+        "Gate PASS requires coverage>=95%, zero applicability unknown/blocked, zero unmapped evidence.",
+        "Draft/missing source policy never forms a valid denominator.",
+        "DEFAULT_REQUIRED_SOURCES is non-canonical fallback only."
+      ],
+      "git_sha": "1c063005e5116ff394e26ef3ac3221c7f97c2d01",
+      "schema_version": "migrations_count=63",
+      "measurement_success": true,
+      "coverage_gate_pass": false,
+      "method": "dual_capability_coverage",
+      "reconciliation_ok": true,
+      "reconciliation_errors": []
+    }
+  },
+  "measurement_success": true,
+  "coverage_gate_pass": false,
+  "pipeline_success": false,
+  "scope_complete": true,
+  "dual_gate_status": "FAIL",
+  "capabilities_evaluated": [
+    "historical_contracts",
+    "open_tenders"
+  ],
+  "source_policy_status": "active",
+  "source_policy_version": "2.0.0",
+  "source_policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+  "source_policy_canonical": true,
+  "fallback_used": false,
+  "combination_audit_sample": [
+    {
+      "entity_id": "extra-cb06f50d0b31c2c6d400",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-09c19c92c36af120417a",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-bb52af441791164c17ec",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-ffb5171ea84354f15858",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-a38406dd9e9a8088a303",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-c75f889b0ded2cb9b0c2",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-597d281805351de9d571",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-43240e43bdfe6d356953",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-17eb67c32ad8cb14668e",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-e787ec7fa967e4aebff9",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-75c8193c0b7e1fcbb37a",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-ec0d261c3e67e3370907",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-15e733954e8d0af6116b",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-c0fc9e56bc1d9229cfe0",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-f177cb64a2e2f0404783",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-44c170376348e065fe7a",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-5fe95332ddc0d050c2dd",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-0d403060b42a55f12d2c",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-6cfdea35dab3669fbb62",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    },
+    {
+      "entity_id": "extra-8e7dc25df6a8f1f39079",
+      "capability": "open_tenders",
+      "candidate_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "applicable_combinations": [
+        [
+          "pncp",
+          "ciga_ckan"
+        ]
+      ],
+      "selected_combination": [
+        "pncp",
+        "ciga_ckan"
+      ],
+      "rejected_combinations": [],
+      "unknown_sources": [],
+      "blocked_sources": [],
+      "not_applicable_sources": [],
+      "entity_capability_status": "applicable",
+      "justification": "selected_first_listed_fully_applicable_combination",
+      "policy_version": "2.0.0",
+      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
+      "fallback_used": false,
+      "canonical": true
+    }
+  ],
+  "limitations": [
+    "Presence is descriptive and is never coverage.",
+    "Complementary sources do not replace required source combinations.",
+    "entity_coverage.is_covered / any_row are forbidden as coverage methods.",
+    "Applicability without proven rule is unknown (never silent applicable).",
+    "Gate PASS requires coverage>=95%, zero applicability unknown/blocked, zero unmapped evidence.",
+    "Draft/missing source policy never forms a valid denominator.",
+    "DEFAULT_REQUIRED_SOURCES is non-canonical fallback only."
+  ],
+  "legacy_metric": {
+    "status": "legacy_non_canonical",
+    "canonical": false,
+    "method_is_covered": 0,
+    "method_any_row": 0,
+    "note": "Superseded by dual_capability_coverage. Historical claim 214/1093=19.5791% used is_covered without set equality and without capability split. See ERRATA-19-5791.md.",
+    "forbidden_as_coverage": true
+  },
+  "error": null,
+  "mapping_metrics": {
+    "db_entities_seen": 2085,
+    "db_entities_mapped": 1093,
+    "db_entities_unmapped": 992,
+    "unmapped_entity_ids_sample": [
+      "1620",
+      "1621",
+      "1622",
+      "1623",
+      "1461",
+      "1506",
+      "1616",
+      "1617",
+      "1618",
+      "1091",
+      "1092",
+      "1093",
+      "1094",
+      "1095",
+      "1096",
+      "1097",
+      "1098",
+      "1099",
+      "1100",
+      "1101"
+    ],
+    "mapping_coverage_pct": 52.4221,
+    "mapping_status": "partial",
+    "ambiguous_cnpj8": [
+      "00394494"
+    ],
+    "identity_unresolved_count": 0,
+    "identity_group_unresolved": [
+      "00394494"
+    ],
+    "resolution_methods": {
+      "identity_key": 1090,
+      "identity_group_unresolved": 992,
+      "cnpj14_identity_key": 3
+    }
+  },
+  "presence_status": {
+    "open_tenders": {
+      "status": "measured_no_rows",
+      "entity_count": 0,
+      "unmapped_count": 0,
+      "unmapped_sample": [],
+      "error": null,
+      "table_name": "pncp_raw_bids"
+    },
+    "historical_contracts": {
+      "status": "measured_rows_present",
+      "entity_count": 1,
+      "unmapped_count": 0,
+      "unmapped_sample": [],
+      "error": null,
+      "table_name": "pncp_supplier_contracts"
+    }
+  },
+  "schema_compatibility_mode": "modern",
+  "unmapped_evidence_count": 0,
+  "outsider_evidence_count": 0,
+  "forbidden_methods": [
+    "any_row",
+    "entity_coverage.any_row",
+    "entity_coverage.is_covered",
+    "is_covered_undifferentiated"
+  ],
+  "claims_forbidden": [
+    "entity_coverage.any_row as coverage",
+    "entity_coverage.is_covered as general coverage",
+    "average of open_tenders and historical_contracts",
+    "data_presence labeled as coverage",
+    "legacy 214/1093=19.5791% as canonical dual coverage",
+    "live 95% without dual-definition proof",
+    "silent unmapped evidence as zero coverage",
+    "fail-open schema/query errors as empty sets"
+  ],
+  "artifact_paths": {
+    "summary": "/mnt/d/extra consultoria/output/coverage/dual-capability-coverage-summary.json",
+    "open_tenders_json": "/mnt/d/extra consultoria/output/coverage/dual-coverage-open_tenders.json",
+    "open_tenders_gaps_json": "/mnt/d/extra consultoria/output/coverage/dual-coverage-gaps-open_tenders.json",
+    "open_tenders_gaps_csv": "/mnt/d/extra consultoria/output/coverage/dual-coverage-gaps-open_tenders.csv",
+    "historical_contracts_json": "/mnt/d/extra consultoria/output/coverage/dual-coverage-historical_contracts.json",
+    "historical_contracts_gaps_json": "/mnt/d/extra consultoria/output/coverage/dual-coverage-gaps-historical_contracts.json",
+    "historical_contracts_gaps_csv": "/mnt/d/extra consultoria/output/coverage/dual-coverage-gaps-historical_contracts.csv"
+  }
+}
