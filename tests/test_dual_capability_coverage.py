@@ -848,3 +848,38 @@ def test_mapping_status_preserves_identity_unresolved() -> None:
     else:
         status = "ok"
     assert status == "identity_unresolved"
+
+
+def test_skip_sources_tolerates_measurement_fail() -> None:
+    """Clean-env foundation must not fail solely on dual measurement integrity."""
+    from scripts.golden_path import evaluate_run_outcome
+
+    overall, code = evaluate_run_outcome(
+        [],
+        set(),
+        None,
+        [],
+        skip_sources=True,
+        skip_freshness=True,
+        skip_reports=True,
+        coverage_measurement_success=False,
+        coverage_gate_pass=False,
+        require_coverage_gate=False,
+    )
+    assert overall == "success"
+    assert code == 0
+
+    overall2, code2 = evaluate_run_outcome(
+        [],
+        set(),
+        None,
+        [],
+        skip_sources=True,
+        skip_freshness=True,
+        skip_reports=True,
+        coverage_measurement_success=False,
+        coverage_gate_pass=False,
+        require_coverage_gate=True,
+    )
+    assert overall2 == "failed"
+    assert code2 == 1
