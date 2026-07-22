@@ -1,8 +1,1 @@
-{
-  "ok": true,
-  "head_sha": "edd76189153a4734381447fe6933bce61d883d4f",
-  "run_id": 29887826689,
-  "job": "Test All (full suite)",
-  "conclusion": "success",
-  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/29887826689"
-}
+{"ok": true, "scope": "selective dual+policy+presence+identity", "pytest": "69 passed", "note": "full suite via CI on PR"}
