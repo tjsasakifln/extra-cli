@@ -151,7 +151,6 @@ def _safe_close(conn: Any) -> None:
         _ = close_exc
 
 
-
 @dataclass(frozen=True)
 class UniverseIdentity:
     entity_count: int
@@ -342,6 +341,9 @@ class DualCoverageReport:
     schema_compatibility_mode: SchemaMode = "unknown"
     unmapped_evidence_count: int = 0
     outsider_evidence_count: int = 0
+    scope_complete: bool = False
+    dual_gate_status: str = "NOT_EVALUATED"  # PASS | FAIL | NOT_EVALUATED | NOT_READY
+    capabilities_evaluated: tuple[str, ...] = field(default_factory=tuple)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -352,6 +354,9 @@ class DualCoverageReport:
             "measurement_success": self.measurement_success,
             "coverage_gate_pass": self.coverage_gate_pass,
             "pipeline_success": self.pipeline_success,
+            "scope_complete": self.scope_complete,
+            "dual_gate_status": self.dual_gate_status,
+            "capabilities_evaluated": list(self.capabilities_evaluated),
             "limitations": self.limitations,
             "legacy_metric": self.legacy_metric,
             "error": self.error,
@@ -1330,7 +1335,10 @@ def map_db_entities(
     metrics.mapping_coverage_pct = (
         round(100.0 * metrics.db_entities_mapped / metrics.db_entities_seen, 4) if metrics.db_entities_seen else 0.0
     )
-    if metrics.db_entities_seen and metrics.db_entities_mapped == 0:
+    # identity_unresolved has priority over partial/ok (never lose the signal).
+    if metrics.identity_unresolved_count > 0 or metrics.ambiguous_cnpj8:
+        metrics.mapping_status = "identity_unresolved"
+    elif metrics.db_entities_seen and metrics.db_entities_mapped == 0:
         metrics.mapping_status = "fail"
     elif metrics.db_entities_unmapped:
         metrics.mapping_status = "partial"
@@ -1354,6 +1362,14 @@ def load_observations_from_db(
     """
     _ = cnpj8_to_entity_id  # reserved for alternate key paths
     cur = conn.cursor()
+    # Prefer migration 058 canonical view; fall back to base table if absent.
+    cur.execute(
+        """
+        SELECT 1 FROM information_schema.views
+        WHERE table_schema = 'public' AND table_name = 'v_dual_capability_evidence_latest'
+        """
+    )
+    evidence_relation = "v_dual_capability_evidence_latest" if cur.fetchone() else "coverage_evidence"
     aliases = [capability]
     if capability == CAP_OPEN_TENDERS:
         aliases.extend(["notices_or_bids", "bids", "editais"])
@@ -1386,7 +1402,7 @@ def load_observations_from_db(
                 COALESCE(error_message, ''),
                 COALESCE(metadata, '{{}}'::jsonb),
                 id
-            FROM coverage_evidence
+            FROM {evidence_relation}
             WHERE (
                 capability IN ({placeholders})
                 OR (capability IS NULL AND data_type IN ({placeholders}))
@@ -2053,13 +2069,51 @@ def compute_dual_coverage(
             error=str(exc),
         )
 
-    gate_pass = all(c.coverage_gate_pass for c in caps_out.values()) if caps_out else False
+    evaluated = tuple(sorted(caps_out.keys()))
+    scope_complete = set(CAPABILITIES).issubset(set(evaluated))
+    identity_n = 0
+    identity_bad = False
+    if mapping_metrics is not None:
+        identity_n = int(mapping_metrics.identity_unresolved_count or 0)
+        identity_bad = identity_n > 0 or mapping_metrics.mapping_status == "identity_unresolved"
+    measurement_ok = (
+        (not identity_bad)
+        and unmapped_evidence == 0
+        and outsider_evidence == 0
+        and all(c.reconciliation_ok for c in caps_out.values())
+    )
+    err_msg = None
+    if identity_bad:
+        amb = list(mapping_metrics.ambiguous_cnpj8[:5]) if mapping_metrics else []
+        err_msg = f"identity_unresolved: count={identity_n} ambiguous_cnpj8={amb}"
+
+    per_cap_gate = all(c.coverage_gate_pass for c in caps_out.values()) if caps_out else False
+    if not scope_complete:
+        dual_gate_status = "NOT_EVALUATED"
+        coverage_gate_pass = False
+        pipeline_success = False
+        limitations = list(limitations) + [
+            f"scope_complete=false evaluated={list(evaluated)}; dual pipeline not eligible"
+        ]
+    elif not measurement_ok:
+        dual_gate_status = "NOT_READY"
+        coverage_gate_pass = False
+        pipeline_success = False
+    elif per_cap_gate:
+        dual_gate_status = "PASS"
+        coverage_gate_pass = True
+        pipeline_success = True
+    else:
+        dual_gate_status = "FAIL"
+        coverage_gate_pass = False
+        pipeline_success = False
+
     return DualCoverageReport(
         universe=identity,
         capabilities=caps_out,
-        measurement_success=True,
-        coverage_gate_pass=gate_pass,
-        pipeline_success=gate_pass,
+        measurement_success=measurement_ok,
+        coverage_gate_pass=coverage_gate_pass,
+        pipeline_success=pipeline_success,
         as_of=as_of_s,
         limitations=limitations,
         legacy_metric=legacy_metric,
@@ -2068,7 +2122,10 @@ def compute_dual_coverage(
         schema_compatibility_mode=schema_mode,
         unmapped_evidence_count=unmapped_evidence,
         outsider_evidence_count=outsider_evidence,
-        error=None,
+        error=err_msg,
+        scope_complete=scope_complete,
+        dual_gate_status=dual_gate_status,
+        capabilities_evaluated=evaluated,
     )
 
 

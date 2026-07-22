@@ -89,13 +89,26 @@ def test_coverage_live_clean_db() -> None:
     dsn = _require_real_db()
     root = Path(__file__).resolve().parents[1]
     rec = run_coverage_calculation(dsn, project_root=root)
-    assert rec.status == "pass", (rec.error, rec.details)
     d = rec.details or {}
     assert d.get("method") == "dual_capability_coverage"
     assert d.get("method") not in {"entity_coverage.any_row", "entity_coverage.is_covered"}
-    assert d.get("measurement_success") is True
-    # Low coverage is measurement success, not gate pass
+    # Identity unresolved (ambiguous CNPJ in seed) fails measurement closed.
+    mm = d.get("mapping_metrics") or {}
+    identity_bad = int(mm.get("identity_unresolved_count") or 0) > 0
+    if identity_bad:
+        assert rec.status == "fail", (rec.error, d)
+        assert d.get("measurement_success") is False
+        assert "identity_unresolved" in str(d.get("error") or rec.error or "").lower()
+        assert mm.get("mapping_status") == "identity_unresolved"
+        assert d.get("dual_gate_status") == "NOT_READY"
+    else:
+        assert rec.status == "pass", (rec.error, d)
+        assert d.get("measurement_success") is True
+        assert d.get("dual_gate_status") in {"FAIL", "PASS"}
+    # Low coverage / incomplete identity is not gate pass
     assert d.get("coverage_gate_pass") is False
+    assert d.get("scope_complete") is True
+    assert d.get("pipeline_success") is False
     caps = d.get("capabilities") or {}
     assert "open_tenders" in caps
     assert "historical_contracts" in caps
@@ -143,6 +156,15 @@ def test_dual_coverage_only_exits_nonzero_when_gates_fail() -> None:
         timeout=120,
         check=False,
     )
-    assert r.returncode == 2, (r.returncode, r.stdout[-800:], r.stderr[-800:])
     combined = r.stdout + r.stderr
-    assert "coverage_gate_failed" in combined or "coverage_gate_pass=False" in combined
+    # With identity_unresolved on live seed, measurement fails (exit 1);
+    # otherwise gate fails (exit 2). Never overall success for empty dual gates.
+    assert r.returncode in {1, 2}, (r.returncode, combined[-800:])
+    assert r.returncode != 0
+    assert (
+        "coverage_gate_failed" in combined
+        or "coverage_gate_pass=False" in combined
+        or "measurement" in combined.lower()
+        or "identity_unresolved" in combined.lower()
+        or "FALHOU" in combined
+    )

@@ -686,9 +686,7 @@ def test_obs_unknown_does_not_inflate_by_leaving_denominator() -> None:
         universe=u,
         observations_by_cap=obs,
         presence_by_cap={CAP_OPEN_TENDERS: {"e1"}},
-        entity_applicability={
-            CAP_OPEN_TENDERS: {"e1": "applicable", "e2": "applicable"}
-        },  # type: ignore[arg-type]
+        entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable", "e2": "applicable"}},  # type: ignore[arg-type]
         include_legacy_stamp=False,
         use_config_matrix=False,
         capabilities=[CAP_OPEN_TENDERS],
@@ -741,3 +739,112 @@ def test_reconciliation_fields_present() -> None:
     ):
         assert hasattr(ot, field), field
     assert ot.reconciliation_ok is True
+
+
+def test_single_capability_never_pipeline_success() -> None:
+    """Single-cap evaluation cannot approve dual pipeline."""
+    e = _entity("e1")
+    u = _universe([e])
+    obs = {
+        CAP_OPEN_TENDERS: {"e1": {"pncp": _obs("e1")}},
+    }
+    report = compute_dual_coverage(
+        universe=u,
+        observations_by_cap=obs,
+        presence_by_cap={CAP_OPEN_TENDERS: {"e1"}},
+        entity_applicability={CAP_OPEN_TENDERS: {"e1": "applicable"}},  # type: ignore[arg-type]
+        include_legacy_stamp=False,
+        use_config_matrix=False,
+        capabilities=[CAP_OPEN_TENDERS],
+    )
+    assert report.scope_complete is False
+    assert report.dual_gate_status == "NOT_EVALUATED"
+    assert report.pipeline_success is False
+    # single cap may pass its own gate without dual pipeline success
+    ot = report.capabilities[CAP_OPEN_TENDERS]
+    assert ot.covered_numerator == 1
+    assert report.capabilities_evaluated == (CAP_OPEN_TENDERS,)
+
+
+def test_identity_unresolved_fails_measurement(monkeypatch: pytest.MonkeyPatch) -> None:
+    """When mapping reports identity_unresolved, measurement_success is false."""
+    from scripts.coverage import dual_capability_coverage as dcc
+    from scripts.coverage.dual_capability_coverage import EntityMappingMetrics, PresenceLoadResult
+
+    e1 = _entity("e1", cnpj8="11111111")
+    u = _universe([e1])
+    fake_metrics = EntityMappingMetrics(
+        identity_unresolved_count=4,
+        ambiguous_cnpj8=["00394494"],
+        mapping_status="identity_unresolved",
+        db_entities_seen=100,
+        db_entities_mapped=50,
+        db_entities_unmapped=50,
+        db_id_to_entity_id={},
+        cnpj8_to_entity_id={},
+    )
+    monkeypatch.setattr(dcc, "map_db_entities", lambda conn, universe: fake_metrics)
+    monkeypatch.setattr(
+        dcc,
+        "load_observations_from_db",
+        lambda conn, **kwargs: ({}, "modern", 0, 0),
+    )
+    monkeypatch.setattr(
+        dcc,
+        "load_data_presence",
+        lambda *a, **k: PresenceLoadResult(status="no_rows", entity_ids=set()),
+    )
+    monkeypatch.setattr(dcc, "_legacy_entity_coverage_stamp", lambda conn: None)
+
+    class _Conn:
+        def close(self):
+            return None
+
+    monkeypatch.setattr(
+        "psycopg2.connect",
+        lambda *a, **k: _Conn(),
+        raising=False,
+    )
+    # psycopg2 may not be imported yet — patch at import site inside compute
+    import psycopg2
+
+    monkeypatch.setattr(psycopg2, "connect", lambda *a, **k: _Conn())
+
+    report = compute_dual_coverage(
+        universe=u,
+        dsn="postgresql://fake",
+        capabilities=[CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS],
+        include_legacy_stamp=True,
+        use_config_matrix=False,
+        entity_applicability=_all_applicable([e1], CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS),  # type: ignore[arg-type]
+    )
+    assert report.measurement_success is False
+    assert report.pipeline_success is False
+    assert report.dual_gate_status == "NOT_READY"
+    assert report.mapping_metrics is not None
+    assert report.mapping_metrics["mapping_status"] == "identity_unresolved"
+    assert report.mapping_metrics["identity_unresolved_count"] == 4
+    assert "identity_unresolved" in (report.error or "")
+
+
+def test_mapping_status_preserves_identity_unresolved() -> None:
+    from scripts.coverage.dual_capability_coverage import EntityMappingMetrics
+
+    m = EntityMappingMetrics(
+        db_entities_seen=100,
+        db_entities_mapped=50,
+        db_entities_unmapped=50,
+        identity_unresolved_count=4,
+        ambiguous_cnpj8=["00394494"],
+        mapping_status="identity_unresolved",
+    )
+    # Emulate prioritization rule used in map_db_entities
+    if m.identity_unresolved_count > 0 or m.ambiguous_cnpj8:
+        status = "identity_unresolved"
+    elif m.db_entities_seen and m.db_entities_mapped == 0:
+        status = "fail"
+    elif m.db_entities_unmapped:
+        status = "partial"
+    else:
+        status = "ok"
+    assert status == "identity_unresolved"

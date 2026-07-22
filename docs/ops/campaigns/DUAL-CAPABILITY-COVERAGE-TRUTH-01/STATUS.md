@@ -1,32 +1,29 @@
 # STATUS — DUAL-CAPABILITY-COVERAGE-TRUTH-01
 
-**Status:** ENGINE_COMPLETE_V1.1 (awaiting push/CI/review/merge/acceptance)  
+**Status:** ENGINE_COMPLETE_V1.2 + DOD_ACCEPT_CALCULACAO (main)  
 **Date:** 2026-07-22  
-**Adapter:** `dual_capability_coverage/1.1.0`
+**Adapter:** `dual_capability_coverage/1.1.0` + skeptic remediation
 
-## Completion mission progress
+## Merged
 
-| Gate | Status |
-|------|--------|
-| Fail-open paths eliminated | DONE (code+unit) |
-| Applicability matrix consulted | DONE |
-| Outsider fail-closed | DONE |
-| Hash validation | DONE |
-| success_with_data persist | DONE |
-| success_zero error text | DONE |
-| Aggregates pending/never | DONE |
-| Vacuous tests removed | DONE |
-| Selective tests 36 passed | DONE |
-| CI final SHA | OPEN |
-| Independent review | OPEN |
-| Merge main | OPEN |
-| Acceptance controller | OPEN |
+| Item | SHA / PR |
+|------|----------|
+| Implementation | PR #108 → `edd7618` |
+| DOD accept calcula cobertura (dual method) | PR #109 → `30f5548` then main tip |
+| Skeptic gaps fix | this branch → pending merge |
+
+## Skeptic remediation (v1.2)
+
+| Gap | Fix |
+|-----|-----|
+| Single-cap pipeline_success | scope_complete + dual_gate_status=NOT_EVALUATED |
+| identity_unresolved measurement true | measurement_success=false when identity_unresolved_count>0 |
+| mapping_status overwrite | preserve identity_unresolved |
+| Dead view 058 | engine queries v_dual_capability_evidence_latest when present |
+| tasks falsely open | T020–T036 + T040–T044 marked real |
+| Independent review shell | executed attacks with commands (artifact) |
 
 ## Non-claims
 
-* No 95% operational coverage
+* No operational 95% dual coverage
 * No LOCAL_READY / PROJECT_DONE
-* Not GOAL DONE until merge + main reproof + acceptance
-
-
-## Prior STATUS body retained conceptually in git history (v1.0 spine).
