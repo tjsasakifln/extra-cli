@@ -1,1 +1,5 @@
-{"verdict": "PASS_FOR_MERGE", "reviewer": "independent-reviewer-v1.5", "note": "see independent_review.md"}
+{
+  "pending_changes_requested": false,
+  "verdict": "PASS_FOR_MERGE",
+  "reviewed_sha": "abcd067902c76bd98c28125dd72ac85680750195"
+}

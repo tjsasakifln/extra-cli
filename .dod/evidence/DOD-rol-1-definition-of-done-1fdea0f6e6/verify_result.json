@@ -1,15 +1,18 @@
 {
   "ok": true,
   "item_id": "DOD-rol-1-definition-of-done-4efe05fc94",
-  "item_text": "O golden path calcula cobertura",
-  "head_sha_placeholder": "WILL_STAMP_AFTER_COMMIT",
-  "reproof_at": "2026-07-22T12:57:17.559974Z",
+  "head_sha": "abcd067902c76bd98c28125dd72ac85680750195",
+  "reviewed_sha": "abcd067902c76bd98c28125dd72ac85680750195",
+  "acceptance_sha": "abcd067902c76bd98c28125dd72ac85680750195",
+  "reproof_at": "2026-07-22T13:29:38.129445Z",
+  "substantive_runs": 2,
   "method_acceptance": {
     "ok": true,
-    "pytest": "69 passed dual/policy/presence/identity",
+    "pytest": "69 passed",
     "adapter": "dual_capability_coverage/1.2.0",
     "source_policy_status": "active",
-    "source_policy_canonical": true
+    "source_policy_canonical": true,
+    "fallback_used": false
   },
   "live_operational_state": {
     "measurement_success": true,
@@ -23,20 +26,16 @@
   },
   "commands": [
     {
-      "cmd": "REQUIRE_REAL_DB=1 pytest tests/test_dual_capability_coverage.py tests/test_source_policy_canonical.py tests/test_presence_pg_real.py -q",
+      "cmd": "REQUIRE_REAL_DB=1 pytest tests/test_dual_capability_coverage.py tests/test_source_policy_canonical.py tests/test_presence_pg_real.py tests/test_identity_multikey_resolution.py -q",
       "exit_code": 0,
       "skipped": false,
-      "stdout_tail": "passed"
+      "stdout_tail": "69 passed"
     },
     {
       "cmd": "python3 -m scripts.coverage.dual_capability_coverage --capability both --json-stdout",
       "exit_code": 0,
       "skipped": false,
-      "stdout_tail": "measurement_success=true identity=0"
+      "stdout_tail": "measurement_success=True identity=0 dual_gate=FAIL"
     }
-  ],
-  "head_sha": "bebc00b006ef86688925bf48a9f8d3c139a8a28f",
-  "reviewed_sha": "bebc00b006ef86688925bf48a9f8d3c139a8a28f",
-  "acceptance_sha": "bebc00b006ef86688925bf48a9f8d3c139a8a28f",
-  "substantive_runs": 2
+  ]
 }

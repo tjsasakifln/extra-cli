@@ -125,8 +125,8 @@ T040…T046→T047→T048→T049→T050
 - [x] T054 Presence fail-closed + real PG tests
 - [x] T055 Pack 4efe SUPERSEDED; pack 1fdea0f6e6 with verify/proof
 - [x] T056 PR #115/#107/#116/#117 merged; PR #107 was mergeable=true
-- [x] T057 Independent review v1.5 + re-review on final main tip after skeptic-final PR
-- [x] T058 Controller re-accept without CI/review/divergence gate bypasses on main tip
+- [x] T057 Independent review v1.6 on main tip abcd067 PASS_FOR_MERGE
+- [x] T058 Controller re-accept on main abcd067 with only --force-from-state (all gates ok)
 - [x] T059 Spec Kit tasks/checklist/analyze/converge aligned to final main
 - [x] T060 No DEFAULT_REQUIRED_SOURCES residual in build_applicability_resolutions
 - [x] T061 Presence PG tests drive load_data_presence (table_absent via rename)

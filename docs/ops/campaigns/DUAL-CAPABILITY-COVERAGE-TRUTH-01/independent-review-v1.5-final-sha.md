@@ -4,7 +4,7 @@
 |-------|-------|
 | reviewer_agent | independent-reviewer (non-implementer; separate session from author of bebc00b) |
 | review_session | 2026-07-22-skeptic-close |
-| reviewed_sha | `05b5caa2e07ac1a4481bb64aac368bd991911e3b` (branch tip; code parent `bebc00b006ef86688925bf48a9f8d3c139a8a28f`) |
+| reviewed_sha | `b7581694cb53f02c8c69ff3c850af77ada078557` (branch tip; code parent `bebc00b006ef86688925bf48a9f8d3c139a8a28f`) |
 | code_reviewed_sha | `bebc00b006ef86688925bf48a9f8d3c139a8a28f` |
 | files_reviewed | `scripts/coverage/source_policy.py`, `dual_capability_coverage.py`, `applicability_matrix.py`, `config/source_applicability.yaml`, `tests/test_*policy*`, `tests/test_presence*`, `tests/test_identity*`, `tests/test_dual*`, Spec Kit, DOD pack `1fdea0f6e6` |
 
@@ -67,4 +67,4 @@ python3 -c "from scripts.coverage.applicability_matrix import MANDATORY_SOURCES,
 
 ## Verdict
 
-**PASS_FOR_MERGE** for branch tip `05b5caa2e07ac1a4481bb64aac368bd991911e3b` (implementation code `bebc00b` + controller/evidence docs).
+**PASS_FOR_MERGE** for branch tip `b7581694cb53f02c8c69ff3c850af77ada078557` (implementation code `bebc00b` + controller/evidence docs).

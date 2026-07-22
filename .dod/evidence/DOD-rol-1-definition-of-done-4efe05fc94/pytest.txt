@@ -7,12 +7,12 @@ plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37
 asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
 collected 69 items
 
-tests/test_source_policy_canonical.py ............                       [ 17%]
-tests/test_identity_multikey_resolution.py ...                           [ 21%]
-tests/test_presence_fail_closed.py ....                                  [ 27%]
-tests/test_presence_pg_real.py .....                                     [ 34%]
-tests/test_dual_capability_coverage.py ................................. [ 82%]
-.....                                                                    [ 89%]
+tests/test_dual_capability_coverage.py ................................. [ 47%]
+.....                                                                    [ 55%]
+tests/test_source_policy_canonical.py ............                       [ 72%]
+tests/test_presence_pg_real.py .....                                     [ 79%]
+tests/test_presence_fail_closed.py ....                                  [ 85%]
+tests/test_identity_multikey_resolution.py ...                           [ 89%]
 tests/test_applicability_matrix.py .......                               [100%]
 
-============================== 69 passed in 6.90s ==============================
+============================== 69 passed in 6.85s ==============================
