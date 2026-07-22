@@ -53,3 +53,13 @@ python3 -m pytest tests/test_dual_capability_coverage.py tests/test_golden_path_
 * Não há LOCAL_READY / PROJECT_DONE.
 * Não declarar GOAL DONE até itens 1–6.
 * PR #107 (valores report) é concorrente em golden_path — rebasar após merge dual se necessário.
+
+## Post-merge acceptance (2026-07-22)
+
+| Item | Status |
+|------|--------|
+| PR #108 merge | `edd7618` |
+| Main CI | `29887826689` SUCCESS |
+| Dual calculation acceptance pack | `.dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94/` |
+| DOD §12.1 calcula cobertura | ACCEPTED dual method (not 95%) |
+| 95% gates | OPEN |
