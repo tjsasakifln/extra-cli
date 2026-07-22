@@ -1,31 +1,32 @@
 # Speckit converge — dual-capability-coverage-truth
 
 **Date:** 2026-07-22  
-**Base main:** ac81c51 (+ this remediation)
+**Main tip:** `3ab3a3a738437791cb4a9e34b76f41bb578f47a8`
 
 ## Codebase vs tasks
 
 | Task | Status | Evidence |
 |------|--------|----------|
 | T001–T019 engine/spec | Done | dual engine + tests + checklist |
-| T020 PR/CI | Done | PR #108 CI green + merge edd7618 |
-| T021–T031 fail-closed/matrix/hashes | Done | dual_capability_coverage v1.1+ |
-| T032 independent review | Done | v1.1 H1 + v1.2 skeptic + v1.3 re-stamp |
-| T033 merge | Done | #108 |
-| T034 main reproof | Done | main dual CLI after merges |
-| T035 acceptance pack/controller | Done | dod_controller accept + pack 4efe05fc94 |
+| T020 PR/CI | Done | PR #108 CI + merge |
+| T021–T031 fail-closed/matrix/hashes | Done | dual engine on main |
+| T032 independent review | Done | v1.3-final reviewed_commit ed7be1c |
+| T033 merge | Done | #108–#112 on main tip `3ab3a3a` |
+| T034 main reproof | Done | live dual summary measurement=false map=identity_unresolved |
+| T035 acceptance pack/controller | Done | pack 4efe05fc94 + dod_controller |
 | T036 DOD ACCEPTED | Done | PR #109 |
-| T040–T044 skeptic remediation | Done | #110/#111 + this PR |
+| T040–T044 skeptic remediation | Done | #110–#112 |
 
 ## Remaining unbuilt work
 
 Only **operational** (not measurement-engine implementable):
 
-1. Resolve ambiguous CNPJ roots (identity_unresolved → 0)
-2. Backfill coverage_evidence for dual 95% gates
-3. Optional: activate applicability config beyond draft
+1. Resolve ambiguous CNPJ roots (`00394494`) → identity_unresolved=0
+2. Backfill coverage_evidence → dual 95% candidacy
+3. Optional: promote applicability config beyond draft
 
 ## Converge verdict
 
-**CONVERGED** for measurement dual fail-closed + normative "calcula cobertura".  
-**NOT** claiming dual 95% operational gates.
+**CONVERGED** for dual fail-closed measurement + normative “calcula cobertura”.  
+**NOT** claiming dual 95% operational gates.  
+Process steps merge/accept/review are **DONE** on main `3ab3a3a`.
