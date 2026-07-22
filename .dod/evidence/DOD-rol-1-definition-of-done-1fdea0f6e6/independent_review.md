@@ -4,7 +4,8 @@
 |-------|-------|
 | reviewer_agent | independent-reviewer (non-implementer; separate session from author of bebc00b) |
 | review_session | 2026-07-22-skeptic-close |
-| reviewed_sha | `bebc00b006ef86688925bf48a9f8d3c139a8a28f` |
+| reviewed_sha | `05b5caa2e07ac1a4481bb64aac368bd991911e3b` (branch tip; code parent `bebc00b006ef86688925bf48a9f8d3c139a8a28f`) |
+| code_reviewed_sha | `bebc00b006ef86688925bf48a9f8d3c139a8a28f` |
 | files_reviewed | `scripts/coverage/source_policy.py`, `dual_capability_coverage.py`, `applicability_matrix.py`, `config/source_applicability.yaml`, `tests/test_*policy*`, `tests/test_presence*`, `tests/test_identity*`, `tests/test_dual*`, Spec Kit, DOD pack `1fdea0f6e6` |
 
 ## Commands executed
