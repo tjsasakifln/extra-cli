@@ -1,0 +1,28 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-0786ea0c31",
+  "text": "O golden path gera relatório de editais.",
+  "head_sha": "818dd41d423bfc6c7a086f38bd7b96e2ced6e4b3",
+  "implementation_pr": 101,
+  "implementation_commit": "818dd41d423bfc6c7a086f38bd7b96e2ced6e4b3",
+  "reproof_at": "2026-07-22T00:02:43Z",
+  "pytest": "tests/test_golden_path_editais_report.py — 3 passed REQUIRE_REAL_DB=1",
+  "cli": "python3 -m scripts.golden_path --execute-editais-report-only",
+  "cli_exit": null,
+  "editais_step_status": "pass",
+  "report_path": "/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-editais-20260722T000221Z.csv",
+  "report_size": 424,
+  "row_count": 5,
+  "domain_identity": "relatorio-editais-*.csv + report_type=editais",
+  "not_panorama": true,
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "95% coverage"
+  ],
+  "artifacts": [
+    "pytest-reproof-main.txt",
+    "cli-editais-reproof.txt",
+    "ledger-editais-reproof.json",
+    "sample-relatorio-editais.csv",
+    "sample-relatorio-editais.json"
+  ]
+}

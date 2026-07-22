@@ -134,3 +134,14 @@ It is **not** a clean **PASS** for accept because: soft-pass on query/table fail
 **Not FAIL:** falsification attempts did not show that the report is a fake panorama alias, empty-byte success without documentation, or mock-only green under proper `REQUIRE_REAL_DB` usage.
 
 **Recommendation:** merge implementation OK; **do not ACCEPTED** until reproof + evidence pack + preferably soft-pass hardening.
+
+---
+
+## Post-merge reproof (main 818dd41d423bfc6c7a086f38bd7b96e2ced6e4b3)
+
+- Pytest: 3 passed with REQUIRE_REAL_DB=1
+- CLI --execute-editais-report-only: exit 0, editais_report=pass, rows>=1
+- Soft-pass fixed in f3b7273 (included in squash)
+- Verdict for ACCEPTED: **PASS_FOR_ACCEPT** (residual: not listed by name in CI critical subset; covered by full suite + specific pytest reproof)
+- Reviewer: adversarial-qa-continue-03 + coordinator consolidation
+- Date: 2026-07-22T00:02:43Z

@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "item_id": "DOD-rol-1-definition-of-done-0786ea0c31",
+  "head_sha": "818dd41d423bfc6c7a086f38bd7b96e2ced6e4b3",
+  "reproof_at": "2026-07-22T00:02:43Z",
+  "commands": [
+    {
+      "cmd": "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_golden_path_editais_report.py -q -o addopts=",
+      "exit_code": 0,
+      "skipped": false,
+      "stdout_tail": "3 passed"
+    },
+    {
+      "cmd": "python3 -m scripts.golden_path --execute-editais-report-only",
+      "exit_code": 0,
+      "skipped": false,
+      "stdout_tail": "editais_report status=pass rows=5 size=424"
+    }
+  ]
+}

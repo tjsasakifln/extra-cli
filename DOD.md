@@ -905,7 +905,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path executa freshness gate. Evidência: PR #81 · CI `29836318793` SUCCESS · CLI `--execute-freshness-only` · subprocess `freshness_gate.py` · ledger `run_freshness_gate` · live status=fail failing=contracts (execução comprovada; pass/SLA é item separado) · `.dod/evidence/DOD-rol-1-definition-of-done-94ff481872/`.
 - [x] O golden path calcula cobertura. Evidência: PR #83 · den=1093 · num=214 · pct=19.5791 · CLI --execute-coverage-only · `.dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94/`.
 - [x] O golden path reconcilia snapshot de editais. Evidência: PR #88 · CI main `29841380680` · reproof CONTINUE-03 11 passed REQUIRE_REAL_DB · `.dod/evidence/DOD-rol-1-definition-of-done-c73b1150d6/`.
-- [ ] O golden path gera relatório de editais.
+- [x] O golden path gera relatório de editais.
 - [ ] O golden path gera relatório de contratos.
 - [ ] O golden path gera relatório de concorrentes.
 - [ ] O golden path gera relatório de referências de valores.
