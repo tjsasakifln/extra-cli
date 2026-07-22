@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
-  "updated_at": "2026-07-22T00:25:27Z",
-  "active_item_id": null,
-  "active_run_id": "run-20260722T001144Z",
-  "active_branch": "campaign/continue-03-report-contratos",
-  "main_sha": "5fa09f71c2936a64c5ff2af706430fe82b8b64c4",
-  "phase": "audit",
+  "updated_at": "2026-07-22T00:31:53Z",
+  "active_item_id": "DOD-rol-1-definition-of-done-44e0c95c6e",
+  "active_run_id": "run-20260722T003048Z",
+  "active_branch": "campaign/continue-03-report-concorrentes",
+  "main_sha": "5b74f5af64a76be7c5f6d9d5c9b31a3f6d6b326e",
+  "phase": "item_cycle",
   "next_eligible_id": "DOD-rol-1-definition-of-done-7d2ae13087",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
@@ -45,8 +45,8 @@
     },
     "dod_checked_count": 333
   },
-  "resume_step": "next",
-  "notes": "CONTINUE-03: implementing contratos domain report (f8f4f1b0a9). Editais ACCEPTED. Not ACCEPTED until CI+review+reproof.",
+  "resume_step": "implement-pr-ci",
+  "notes": "CONTINUE-03: implementing concorrentes (44e0c95c6e). editais+contratos ACCEPTED.",
   "billing_blocker": {
     "status": "RESOLVED",
     "resolved_at": "2026-07-21T12:57:41Z",
