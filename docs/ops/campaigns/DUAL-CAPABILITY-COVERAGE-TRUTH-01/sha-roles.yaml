@@ -1,0 +1,41 @@
+# Single machine-readable stamp authority for DUAL-CAPABILITY-COVERAGE-TRUTH-01.
+# Human docs (STATUS.md, FINAL-SHA-ROLES.md, DOD evidence line) MUST render this file.
+# Do not invent metrics — values match pack re-accept at implementation_sha.
+
+implementation_sha: "abcd067902c76bd98c28125dd72ac85680750195"
+reviewed_sha: "abcd067902c76bd98c28125dd72ac85680750195"
+reproof_sha: "abcd067902c76bd98c28125dd72ac85680750195"
+acceptance_sha: "abcd067902c76bd98c28125dd72ac85680750195"
+# Docs-only tip may advance after acceptance without invalidating semantic SHAs above.
+observed_main_at_write: "b7c09af1b9f2b348028ffa521e7c8cb85ddf0469"
+
+acceptance_item_id: "DOD-rol-1-definition-of-done-4efe05fc94"
+acceptance_pack_dir: ".dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94"
+mirror_pack_dir: ".dod/evidence/DOD-rol-1-definition-of-done-1fdea0f6e6"
+pack_narrative: "4efe is AUTHORITATIVE REACCEPTED_FINAL; 1fdea is MIRROR of same accept (not a superseding authority)"
+
+measurement_success: true
+identity_unresolved_count: 0
+dual_gate_status: "FAIL"
+source_policy_status: "active"
+source_policy_version: "2.0.0"
+policy_sha256: "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46"
+independent_review: "independent-review-v1.6-main-tip.md"
+
+# Live dual snapshot at reproof_sha (descriptive; coverage gate FAIL is intentional)
+universe_count: 1093
+applicable_denominator_approx: 946
+covered_numerator: 0
+pr_107_resolution: "MERGED a7b213e67574c13175704d3dc25f8faa6fbfa62a (mergeable=true after rebase)"
+implementation_pr: "https://github.com/tjsasakifln/extra-cli/pull/118"
+acceptance_pr: "https://github.com/tjsasakifln/extra-cli/pull/119"
+final_ci_semantic: "29923784464"
+final_ci_docs: "29924700110"
+
+semantic_files:
+  - scripts/coverage/dual_capability_coverage.py
+  - scripts/coverage/applicability_matrix.py
+  - scripts/coverage/source_policy.py
+  - scripts/golden_path.py
+  - config/source_applicability.yaml
+  - specs/001-dual-capability-coverage-truth/spec.md

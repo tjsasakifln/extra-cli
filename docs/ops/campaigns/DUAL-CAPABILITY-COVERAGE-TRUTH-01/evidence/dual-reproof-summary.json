@@ -211,5 +211,10 @@
     "live 95% without dual-definition proof",
     "silent unmapped evidence as zero coverage",
     "fail-open schema/query errors as empty sets"
-  ]
+  ],
+  "historical": true,
+  "superseded": true,
+  "note": "Historical pre-v2 dual snapshot (identity_unresolved=4 era). Not live truth. Current reproof: pack dual-live-reproof.json at acceptance_sha abcd067.",
+  "current_reproof": ".dod/evidence/DOD-rol-1-definition-of-done-4efe05fc94/dual-live-reproof.json",
+  "see": "sha-roles.yaml + dual-reproof-summary-final-closure.json"
 }
