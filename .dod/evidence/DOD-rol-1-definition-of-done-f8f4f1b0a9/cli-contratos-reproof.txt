@@ -1,0 +1,17 @@
+
+ Gerando relatório de contratos...
+  Contratos report: 
+/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-contratos-20260722
+T002205Z.csv rows=2 size=142
+
+Ledger salvo:  
+.dod/evidence/DOD-rol-1-definition-of-done-f8f4f1b0a9/ledger-contratos-reproof.j
+son
+Log salvo:     
+/mnt/d/extra-consultoria-continue-03/output/golden-path/gp-20260721-212205.log
+  meta.git_sha=8c794ff00d14fde0e7a2757006074352e78c279a 
+schema=migrations_count=62
+  Contratos report OK (domain CSV+JSON present)
+  Ledger: 
+.dod/evidence/DOD-rol-1-definition-of-done-f8f4f1b0a9/ledger-contratos-reproof.j
+son
