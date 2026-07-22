@@ -57,6 +57,34 @@ EXIT_TECH = 1
 EXIT_UNRELIABLE = 2
 EXIT_BLOCKED = 3
 
+# Canonical Extra universe (raio_200km active entities). Not a free-form magic
+# repeated ad hoc — single constant used by validate_db + readiness policy.
+EXPECTED_UNIVERSE_200KM = 1093
+UNIVERSE_VERSION = "extra-sc-raio-200km-v1"
+
+# Pack size at/above this is treated as production full pack; smaller is sample.
+PRODUCTION_PACK_LIMIT = 50
+
+# Freshness levels that never qualify a source as operationally ready.
+INVALID_FRESHNESS_LEVELS = frozenset(
+    {"never", "unknown", "stale", "unreliable", "incomplete"}
+)
+VALID_FRESHNESS_LEVELS = frozenset({"fresh"})
+
+# Terminal statuses acceptable for a required source in consultive mode.
+OK_SOURCE_TERMINAL = frozenset({"success", "success_zero", "reused_fresh"})
+BAD_SOURCE_TERMINAL = frozenset(
+    {
+        "failure",
+        "blocked",
+        "partial",
+        "interrupted",
+        "running",
+        "unknown",
+        "",
+    }
+)
+
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
@@ -152,6 +180,72 @@ class StageResult:
     error: str | None = None
 
 
+@dataclass(frozen=True)
+class StrictReadinessPolicy:
+    """Centralized, deterministic strict consultive readiness contract.
+
+    Registered in the cycle manifest so exit semantics are inspectable.
+    """
+
+    require_expected_universe: bool = True
+    expected_universe_size: int = EXPECTED_UNIVERSE_200KM
+    universe_version: str = UNIVERSE_VERSION
+    universe_tolerance: int = 0
+    required_sources: frozenset[str] = frozenset(
+        {"pncp_opportunities", "pncp_contracts"}
+    )
+    required_freshness_levels: frozenset[str] = VALID_FRESHNESS_LEVELS
+    invalid_freshness_levels: frozenset[str] = INVALID_FRESHNESS_LEVELS
+    require_complete_scope: bool = True
+    require_non_sample_run: bool = True
+    require_delivery_artifacts: frozenset[str] = frozenset(
+        {"excel_ok", "checksums"}
+    )
+    production_pack_limit: int = PRODUCTION_PACK_LIMIT
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "require_expected_universe": self.require_expected_universe,
+            "expected_universe_size": self.expected_universe_size,
+            "universe_version": self.universe_version,
+            "universe_tolerance": self.universe_tolerance,
+            "required_sources": sorted(self.required_sources),
+            "required_freshness_levels": sorted(self.required_freshness_levels),
+            "invalid_freshness_levels": sorted(self.invalid_freshness_levels),
+            "require_complete_scope": self.require_complete_scope,
+            "require_non_sample_run": self.require_non_sample_run,
+            "require_delivery_artifacts": sorted(self.require_delivery_artifacts),
+            "production_pack_limit": self.production_pack_limit,
+        }
+
+
+DEFAULT_STRICT_POLICY = StrictReadinessPolicy()
+
+
+@dataclass(frozen=True)
+class ReadinessEvaluation:
+    """Separated readiness outcome — never a single ambiguous boolean."""
+
+    exit_code: int
+    execution_completed: bool
+    delivery_completed: bool
+    consultive_ready: bool
+    execution_scope: str
+    blockers: tuple[str, ...]
+    policy: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "exit_code": self.exit_code,
+            "execution_completed": self.execution_completed,
+            "delivery_completed": self.delivery_completed,
+            "consultive_ready": self.consultive_ready,
+            "execution_scope": self.execution_scope,
+            "blockers": list(self.blockers),
+            "policy": self.policy,
+        }
+
+
 @dataclass
 class WeeklyCycleReport:
     cycle_id: str
@@ -172,6 +266,16 @@ class WeeklyCycleReport:
     limitations: list[str] = field(default_factory=list)
     human_accept: dict[str, Any] = field(default_factory=dict)
     duration_seconds: float = 0.0
+    # Explicit readiness contract (manifest fields)
+    execution_scope: str = "diagnostic"
+    execution_completed: bool = False
+    delivery_completed: bool = False
+    consultive_ready: bool = False
+    blockers: list[str] = field(default_factory=list)
+    readiness_policy: dict[str, Any] = field(default_factory=dict)
+    universe_200km: int | None = None
+    expected_universe: int = EXPECTED_UNIVERSE_200KM
+    universe_version: str = UNIVERSE_VERSION
 
 
 # ---------------------------------------------------------------------------
@@ -223,13 +327,21 @@ def stage_validate_db(conn: Any) -> StageResult:
         """,
     )
     n = int((uni[0] or {}).get("n") or 0) if uni else 0
-    detail = {"tables": present, "universe_200km": n, "expected_universe": 1093}
-    if n != 1093:
+    detail = {
+        "tables": present,
+        "universe_200km": n,
+        "expected_universe": EXPECTED_UNIVERSE_200KM,
+        "universe_version": UNIVERSE_VERSION,
+    }
+    if n != EXPECTED_UNIVERSE_200KM:
         return StageResult(
             name="validate_db",
             status="warn",
             detail=detail,
-            error=f"universe_200km={n} != 1093 (scope drift)",
+            error=(
+                f"universe_200km={n} != {EXPECTED_UNIVERSE_200KM} "
+                f"(scope drift; universe_version={UNIVERSE_VERSION})"
+            ),
         )
     return StageResult(name="validate_db", status="ok", detail=detail)
 
@@ -635,6 +747,19 @@ def stage_quality(conn: Any, runs: list[CollectionRun]) -> StageResult:
     except Exception as exc:  # noqa: BLE001
         issues.append(f"identity check error: {exc}")
 
+    # Record-level quality is separate from collection completeness.
+    # A source failure must never yield quality status=ok (would hide run failure).
+    collection_issues: list[str] = []
+    for r in runs:
+        if r.source in DEFAULT_STRICT_POLICY.required_sources and r.terminal_status in BAD_SOURCE_TERMINAL:
+            collection_issues.append(
+                f"required_source_{r.terminal_status}:{r.source}"
+            )
+        elif r.source in DEFAULT_STRICT_POLICY.required_sources and r.terminal_status not in OK_SOURCE_TERMINAL:
+            collection_issues.append(
+                f"required_source_not_ok:{r.source}:{r.terminal_status}"
+            )
+
     opp_run = next((r for r in runs if r.source == "pncp_opportunities"), None)
     if opp_run and opp_run.terminal_status in {"failure", "blocked"}:
         issues.append(f"pncp_opportunities terminal={opp_run.terminal_status}")
@@ -655,10 +780,28 @@ def stage_quality(conn: Any, runs: list[CollectionRun]) -> StageResult:
         "catalog_size": len(catalog),
         "opportunity_counts": counts[0] if counts else {},
         "issues": issues,
-        "runs": [r.terminal_status for r in runs],
+        "collection_issues": collection_issues,
+        "record_quality_ok": not issues,
+        "collection_complete": not collection_issues,
+        "runs": [
+            {"source": r.source, "terminal_status": r.terminal_status} for r in runs
+        ],
     }
-    if any("blocked" == r.terminal_status for r in runs if r.source == "pncp_opportunities"):
-        return StageResult(name="quality", status="blocked", detail=detail, error="; ".join(issues) or "blocked")
+    if any(r.terminal_status == "blocked" for r in runs if r.source == "pncp_opportunities"):
+        return StageResult(
+            name="quality",
+            status="blocked",
+            detail=detail,
+            error="; ".join(issues + collection_issues) or "blocked",
+        )
+    # Collection incompleteness is a quality-stage warning, never ok.
+    if collection_issues:
+        return StageResult(
+            name="quality",
+            status="warn",
+            detail=detail,
+            error="; ".join(collection_issues + issues),
+        )
     if issues:
         return StageResult(name="quality", status="warn", detail=detail, error="; ".join(issues))
     return StageResult(name="quality", status="ok", detail=detail)
@@ -1295,71 +1438,342 @@ def _default_gaps(conn: Any, intel: dict[str, Any]) -> list[dict[str, Any]]:
     return gaps
 
 
-def compute_exit_code(
+def classify_execution_scope(
+    *,
+    offline: bool = False,
+    limit: int = PRODUCTION_PACK_LIMIT,
+    policy: StrictReadinessPolicy | None = None,
+) -> str:
+    """Derive execution scope from runtime flags (code, not free text).
+
+    - fixture: offline / synthetic
+    - sample: pack limit below production threshold (e.g. --limit 5)
+    - full: production pack size and online
+    """
+    pol = policy or DEFAULT_STRICT_POLICY
+    if offline:
+        return "fixture"
+    if int(limit) < int(pol.production_pack_limit):
+        return "sample"
+    return "full"
+
+
+def _freshness_by_source(freshness: list[dict[str, Any]] | None) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    for row in freshness or []:
+        src = str(row.get("source") or "")
+        if src:
+            out[src] = row
+    return out
+
+
+def _universe_from_stages(stages: list[StageResult]) -> tuple[int | None, int]:
+    """Extract observed/expected universe from validate_db stage detail."""
+    vdb = next((s for s in stages if s.name == "validate_db"), None)
+    if vdb is None:
+        return None, EXPECTED_UNIVERSE_200KM
+    detail = vdb.detail or {}
+    expected = int(detail.get("expected_universe") or EXPECTED_UNIVERSE_200KM)
+    if "universe_200km" not in detail:
+        return None, expected
+    try:
+        return int(detail["universe_200km"]), expected
+    except (TypeError, ValueError):
+        return None, expected
+
+
+def _source_blockers(
+    run: CollectionRun | None,
+    *,
+    source: str,
+    freshness_row: dict[str, Any] | None,
+    policy: StrictReadinessPolicy,
+) -> list[str]:
+    """Evaluate one required source against terminal status + freshness rules."""
+    blockers: list[str] = []
+    if run is None:
+        blockers.append(f"required_source_missing:{source}")
+        return blockers
+
+    status = str(run.terminal_status or "")
+    if status in BAD_SOURCE_TERMINAL or status not in OK_SOURCE_TERMINAL:
+        blockers.append(f"required_source_failed:{source}")
+        return blockers
+
+    # success_zero only when request completed, scope complete, source available
+    if status == "success_zero":
+        if not run.request_completed or not run.source_available:
+            blockers.append(f"success_zero_not_valid:{source}")
+        if policy.require_complete_scope and not run.scope_complete:
+            blockers.append(f"success_zero_incomplete_scope:{source}")
+        return blockers
+
+    # success this cycle requires complete scope for opportunities
+    if status == "success":
+        if policy.require_complete_scope and not run.scope_complete:
+            # contracts never re-crawl full API in weekly — success path rare;
+            # still enforce when claimed.
+            blockers.append(f"success_incomplete_scope:{source}")
+        return blockers
+
+    # reused_fresh: must be backed by valid freshness (never/stale/unknown fail)
+    if status == "reused_fresh":
+        level = str((freshness_row or {}).get("level") or "unknown")
+        age = (freshness_row or {}).get("age_hours", "missing")
+        if level in policy.invalid_freshness_levels or level not in policy.required_freshness_levels:
+            blockers.append("freshness_not_valid")
+            blockers.append(f"freshness_not_valid:{source}:{level}")
+        # age_hours=None must never be treated as 0
+        if age is None and level == "fresh":
+            blockers.append(f"freshness_age_unknown:{source}")
+        return blockers
+
+    blockers.append(f"required_source_failed:{source}")
+    return blockers
+
+
+def evaluate_readiness(
     stages: list[StageResult],
     runs: list[CollectionRun],
     *,
     strict: bool = True,
-) -> int:
-    """Exit code policy.
+    freshness: list[dict[str, Any]] | None = None,
+    execution_scope: str = "full",
+    policy: StrictReadinessPolicy | None = None,
+) -> ReadinessEvaluation:
+    """Centralized exit + consultive readiness evaluation.
 
-    EXIT_OK only when critical collection is complete (success / success_zero /
-    reused_fresh of a complete prior run) AND delivery is ok (incl. Excel).
-
-    ``partial`` never yields EXIT_OK — even outside strict mode.
-    ``strict`` additionally fails closed on delivery/artifact defects that
-    non-strict might still surface as products with EXIT_UNRELIABLE.
+    Delivery success is necessary but never sufficient.
+    Quality of existing rows does not prove collection completeness.
     """
+    pol = policy or DEFAULT_STRICT_POLICY
+    blockers: list[str] = []
+
     if any(s.status == "fail" for s in stages if s.name in {"validate_config", "validate_db"}):
-        return EXIT_TECH
+        return ReadinessEvaluation(
+            exit_code=EXIT_TECH,
+            execution_completed=False,
+            delivery_completed=False,
+            consultive_ready=False,
+            execution_scope=execution_scope,
+            blockers=("technical_validation_failed",),
+            policy=pol.to_dict(),
+        )
+
     opp = next((r for r in runs if r.source == "pncp_opportunities"), None)
     if opp and opp.terminal_status == "blocked":
-        return EXIT_BLOCKED
+        return ReadinessEvaluation(
+            exit_code=EXIT_BLOCKED,
+            execution_completed=True,
+            delivery_completed=False,
+            consultive_ready=False,
+            execution_scope=execution_scope,
+            blockers=("required_source_blocked:pncp_opportunities",),
+            policy=pol.to_dict(),
+        )
     if any(s.status == "blocked" for s in stages):
-        return EXIT_BLOCKED
-    if opp and opp.terminal_status == "failure":
-        return EXIT_UNRELIABLE
-    # Critical partial is never consultively OK
-    if opp and opp.terminal_status == "partial":
-        return EXIT_UNRELIABLE
+        return ReadinessEvaluation(
+            exit_code=EXIT_BLOCKED,
+            execution_completed=True,
+            delivery_completed=False,
+            consultive_ready=False,
+            execution_scope=execution_scope,
+            blockers=("stage_blocked",),
+            policy=pol.to_dict(),
+        )
 
     delivery = next((s for s in stages if s.name == "delivery"), None)
     quality = next((s for s in stages if s.name == "quality"), None)
     intel = next((s for s in stages if s.name == "intelligence"), None)
 
-    if delivery and delivery.status == "fail":
-        # Missing Excel / incomplete pack is technical delivery failure under strict;
-        # still non-zero outside strict (unreliable for consultive use).
-        return EXIT_TECH if strict else EXIT_UNRELIABLE
-
     if quality and quality.status == "blocked":
-        return EXIT_BLOCKED
+        return ReadinessEvaluation(
+            exit_code=EXIT_BLOCKED,
+            execution_completed=True,
+            delivery_completed=False,
+            consultive_ready=False,
+            execution_scope=execution_scope,
+            blockers=("quality_blocked",),
+            policy=pol.to_dict(),
+        )
+
+    delivery_completed = bool(
+        delivery
+        and delivery.status == "ok"
+        and (delivery.detail or {}).get("excel_ok")
+        and (
+            (delivery.detail or {}).get("checksums_file")
+            or (delivery.detail or {}).get("product_checksums")
+        )
+    )
+
+    if delivery and delivery.status == "fail":
+        return ReadinessEvaluation(
+            exit_code=EXIT_TECH if strict else EXIT_UNRELIABLE,
+            execution_completed=True,
+            delivery_completed=False,
+            consultive_ready=False,
+            execution_scope=execution_scope,
+            blockers=("delivery_failed",),
+            policy=pol.to_dict(),
+        )
+
+    # --- Operational readiness (strict consultive contract) ---
+    universe_n, expected_n = _universe_from_stages(stages)
+    if strict and pol.require_expected_universe:
+        if universe_n is None:
+            blockers.append("universe_missing_or_drifted")
+        elif universe_n == 0:
+            blockers.append("universe_missing_or_drifted")
+        elif abs(universe_n - expected_n) > pol.universe_tolerance:
+            blockers.append("universe_missing_or_drifted")
+
+    if strict and pol.require_non_sample_run and execution_scope != "full":
+        blockers.append(f"execution_scope_not_full:{execution_scope}")
+
+    fr_map = _freshness_by_source(freshness)
+    run_by_source = {r.source: r for r in runs}
 
     if strict:
-        if delivery is None or delivery.status != "ok":
-            return EXIT_UNRELIABLE
-        d = delivery.detail or {}
-        if not d.get("excel_ok"):
-            return EXIT_UNRELIABLE
-        if not d.get("checksums_file") and not d.get("product_checksums"):
-            return EXIT_UNRELIABLE
+        for src in sorted(pol.required_sources):
+            blockers.extend(
+                _source_blockers(
+                    run_by_source.get(src),
+                    source=src,
+                    freshness_row=fr_map.get(src),
+                    policy=pol,
+                )
+            )
 
-    if (
-        intel
-        and intel.status == "ok"
-        and delivery
-        and delivery.status == "ok"
-        and opp
-        and opp.terminal_status in {"success", "success_zero", "reused_fresh"}
-    ):
-        counts = (intel.detail or {}).get("counts") or {}
-        if counts.get("opportunities", 0) == 0 and opp.terminal_status not in {
-            "success_zero",
-            "reused_fresh",
-        }:
-            return EXIT_UNRELIABLE
-        return EXIT_OK
-    return EXIT_UNRELIABLE
+        # Pre-collect freshness never/unknown/stale on a required source that did
+        # not successfully collect this cycle is already covered via reused_fresh
+        # path. Also flag standalone freshness when present and invalid AND the
+        # source run is not a successful live collect this cycle.
+        for src in sorted(pol.required_sources):
+            row = fr_map.get(src)
+            run = run_by_source.get(src)
+            if not row:
+                continue
+            level = str(row.get("level") or "unknown")
+            # age_hours=None must remain unknown, never coerced to 0
+            if row.get("age_hours", "missing") is None and level not in {
+                "never",
+                "unknown",
+            }:
+                # never/unknown already invalid; other levels with None age are bad
+                if level in pol.required_freshness_levels:
+                    blockers.append(f"freshness_age_unknown:{src}")
+            if run and run.terminal_status == "success":
+                continue  # live collect supersedes pre-collect freshness
+            if level in pol.invalid_freshness_levels:
+                if "freshness_not_valid" not in blockers:
+                    blockers.append("freshness_not_valid")
+                tag = f"freshness_not_valid:{src}:{level}"
+                if tag not in blockers:
+                    blockers.append(tag)
+
+        if delivery is None or delivery.status != "ok":
+            blockers.append("delivery_not_ok")
+        else:
+            d = delivery.detail or {}
+            if "excel_ok" in pol.require_delivery_artifacts and not d.get("excel_ok"):
+                blockers.append("delivery_missing_excel")
+            if "checksums" in pol.require_delivery_artifacts and not (
+                d.get("checksums_file") or d.get("product_checksums")
+            ):
+                blockers.append("delivery_missing_checksums")
+
+        if intel is None or intel.status not in {"ok", "warn"}:
+            blockers.append("intelligence_not_ready")
+        elif intel.status == "ok":
+            counts = (intel.detail or {}).get("counts") or {}
+            if counts.get("opportunities", 0) == 0 and (
+                not opp or opp.terminal_status not in {"success_zero", "reused_fresh"}
+            ):
+                blockers.append("opportunities_empty_without_success_zero")
+
+    # Non-strict: keep historical partial/failure guards for opportunities
+    if not strict:
+        if opp and opp.terminal_status in {"failure", "partial"}:
+            blockers.append("required_source_failed:pncp_opportunities")
+
+    # Deduplicate blockers preserving order
+    seen: set[str] = set()
+    uniq: list[str] = []
+    for b in blockers:
+        if b not in seen:
+            seen.add(b)
+            uniq.append(b)
+
+    execution_completed = True
+    consultive_ready = strict and not uniq and delivery_completed
+
+    if consultive_ready:
+        exit_code = EXIT_OK
+    elif any(b.startswith("required_source_blocked") for b in uniq):
+        exit_code = EXIT_BLOCKED
+    else:
+        # Degraded runs may complete delivery but must not claim consultive OK
+        exit_code = EXIT_UNRELIABLE
+
+    # Outside strict, allow EXIT_OK only on the classic narrow path (legacy)
+    if not strict and not uniq:
+        if (
+            intel
+            and intel.status == "ok"
+            and delivery
+            and delivery.status == "ok"
+            and opp
+            and opp.terminal_status in OK_SOURCE_TERMINAL
+        ):
+            counts = (intel.detail or {}).get("counts") or {}
+            if counts.get("opportunities", 0) == 0 and opp.terminal_status not in {
+                "success_zero",
+                "reused_fresh",
+            }:
+                exit_code = EXIT_UNRELIABLE
+            else:
+                exit_code = EXIT_OK
+        else:
+            exit_code = EXIT_UNRELIABLE
+
+    return ReadinessEvaluation(
+        exit_code=exit_code,
+        execution_completed=execution_completed,
+        delivery_completed=delivery_completed,
+        consultive_ready=consultive_ready and exit_code == EXIT_OK,
+        execution_scope=execution_scope,
+        blockers=tuple(uniq),
+        policy=pol.to_dict(),
+    )
+
+
+def compute_exit_code(
+    stages: list[StageResult],
+    runs: list[CollectionRun],
+    *,
+    strict: bool = True,
+    freshness: list[dict[str, Any]] | None = None,
+    execution_scope: str = "full",
+    policy: StrictReadinessPolicy | None = None,
+) -> int:
+    """Exit code policy (wrapper over evaluate_readiness).
+
+    EXIT_OK only when strict consultive contract is fully satisfied:
+    expected universe, required sources OK, freshness valid for reuse,
+    non-sample execution, and delivery artifacts present.
+
+    ``partial`` / ``failure`` on required sources never yields EXIT_OK.
+    Delivery alone never compensates for failed collection.
+    """
+    return evaluate_readiness(
+        stages,
+        runs,
+        strict=strict,
+        freshness=freshness,
+        execution_scope=execution_scope,
+        policy=policy,
+    ).exit_code
 
 
 def run_weekly_cycle(
@@ -1488,15 +1902,23 @@ def run_weekly_cycle(
             conn, collection_id=collection_id, freshness_rows=freshness_rows
         )
         runs.append(r_ct)
+        # Collect status considers ALL required sources, not only opportunities.
         collect_status = "ok"
-        if r_opp.terminal_status == "blocked":
-            collect_status = "blocked"
-        elif r_opp.terminal_status in {"failure"}:
-            collect_status = "fail"
-        elif r_opp.terminal_status == "partial":
-            collect_status = "warn"
-        elif r_opp.terminal_status not in {"success", "success_zero", "reused_fresh"}:
-            collect_status = "fail"
+        for r in runs:
+            if r.source not in DEFAULT_STRICT_POLICY.required_sources:
+                continue
+            if r.terminal_status == "blocked":
+                collect_status = "blocked"
+                break
+            if r.terminal_status in {"failure"}:
+                collect_status = "fail"
+            elif r.terminal_status == "partial" and collect_status == "ok":
+                collect_status = "warn"
+            elif (
+                r.terminal_status not in OK_SOURCE_TERMINAL
+                and collect_status == "ok"
+            ):
+                collect_status = "fail"
         stages.append(
             StageResult(
                 name="collect",
@@ -1543,7 +1965,39 @@ def run_weekly_cycle(
         report.products = sd.detail or {}
         report.runs = [r.to_dict() for r in runs]
         report.stages = [asdict(s) for s in stages]
-        report.exit_code = compute_exit_code(stages, runs, strict=strict)
+
+        # Universe observed from validate_db
+        universe_n, expected_n = _universe_from_stages(stages)
+        report.universe_200km = universe_n
+        report.expected_universe = expected_n
+        report.universe_version = UNIVERSE_VERSION
+
+        exec_scope = classify_execution_scope(
+            offline=offline,
+            limit=limit,
+            policy=DEFAULT_STRICT_POLICY,
+        )
+        readiness = evaluate_readiness(
+            stages,
+            runs,
+            strict=strict,
+            freshness=freshness_rows,
+            execution_scope=exec_scope,
+            policy=DEFAULT_STRICT_POLICY,
+        )
+        report.exit_code = readiness.exit_code
+        report.execution_scope = readiness.execution_scope
+        report.execution_completed = readiness.execution_completed
+        report.delivery_completed = readiness.delivery_completed
+        report.consultive_ready = readiness.consultive_ready
+        report.blockers = list(readiness.blockers)
+        report.readiness_policy = readiness.policy
+        # Human accept must never claim ready when consultive_ready is false
+        if report.consultive_ready and report.exit_code == EXIT_OK:
+            report.human_accept["status"] = "ready_for_human_review"
+        else:
+            report.human_accept["status"] = "not_consultive_ready"
+            report.human_accept["blockers"] = list(readiness.blockers)
 
         # Write manifest ONCE — no self-hash. Integrity of products is in checksums.json.
         report.finished_at = _iso()
@@ -1625,6 +2079,12 @@ def main(argv: list[str] | None = None) -> int:
                 "cycle_id": report.cycle_id,
                 "collection_id": report.collection_id,
                 "exit_code": report.exit_code,
+                "consultive_ready": report.consultive_ready,
+                "execution_scope": report.execution_scope,
+                "execution_completed": report.execution_completed,
+                "delivery_completed": report.delivery_completed,
+                "blockers": report.blockers,
+                "universe_200km": report.universe_200km,
                 "duration_seconds": report.duration_seconds,
                 "products": {
                     k: report.products.get(k)

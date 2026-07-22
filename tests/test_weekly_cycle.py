@@ -16,10 +16,13 @@ from scripts.ops.weekly_cycle import (
     EXIT_OK,
     EXIT_TECH,
     EXIT_UNRELIABLE,
+    EXPECTED_UNIVERSE_200KM,
     StageResult,
     _build_claims_catalog,
+    classify_execution_scope,
     classify_opportunity_freshness,
     compute_exit_code,
+    evaluate_readiness,
     run_weekly_cycle,
 )
 from scripts.quality.indicator_catalog import (
@@ -205,7 +208,37 @@ def _delivery_ok_detail() -> dict:
     }
 
 
-def test_exit_ok_with_reused_and_products() -> None:
+def _fresh_sources() -> list[dict]:
+    return [
+        {
+            "source": "pncp_opportunities",
+            "level": "fresh",
+            "age_hours": 1.0,
+            "sla_hours": 48,
+        },
+        {
+            "source": "pncp_contracts",
+            "level": "fresh",
+            "age_hours": 2.0,
+            "sla_hours": 168,
+            "row_count": 100,
+        },
+    ]
+
+
+def _universe_ok_stage() -> StageResult:
+    return StageResult(
+        name="validate_db",
+        status="ok",
+        detail={
+            "universe_200km": EXPECTED_UNIVERSE_200KM,
+            "expected_universe": EXPECTED_UNIVERSE_200KM,
+            "universe_version": "extra-sc-raio-200km-v1",
+        },
+    )
+
+
+def _ok_opp_run() -> CollectionRun:
     run = CollectionRun.start(
         source="pncp_opportunities",
         collection_id="c",
@@ -218,18 +251,59 @@ def test_exit_ok_with_reused_and_products() -> None:
         scope_complete=True,
         reused_within_sla=True,
     )
-    stages = [
-        StageResult(name="validate_db", status="ok"),
+    return run
+
+
+def _ok_contracts_run() -> CollectionRun:
+    run = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id="c",
+        collector_version="t",
+        mode="reuse",
+    )
+    run.finish(
+        records_obtained=100,
+        records_persisted=100,
+        request_completed=True,
+        scope_complete=False,
+        reused_within_sla=True,
+        raw_uri="db://pncp_supplier_contracts",
+    )
+    return run
+
+
+def _consultive_ok_stages() -> list[StageResult]:
+    return [
+        StageResult(name="validate_config", status="ok"),
+        _universe_ok_stage(),
+        StageResult(name="freshness", status="ok", detail={"sources": _fresh_sources()}),
         StageResult(name="collect", status="ok"),
+        StageResult(name="process", status="ok"),
         StageResult(name="quality", status="ok"),
         StageResult(
             name="intelligence",
             status="ok",
-            detail={"counts": {"opportunities": 5}},
+            detail={"counts": {"opportunities": 5, "contracts": 10}},
         ),
         StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
     ]
-    assert compute_exit_code(stages, [run], strict=True) == EXIT_OK
+
+
+def test_exit_ok_with_reused_and_products() -> None:
+    """Fully valid consultive state → EXIT_OK."""
+    stages = _consultive_ok_stages()
+    runs = [_ok_opp_run(), _ok_contracts_run()]
+    ev = evaluate_readiness(
+        stages,
+        runs,
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_OK
+    assert ev.consultive_ready is True
+    assert ev.delivery_completed is True
+    assert ev.blockers == ()
 
 
 def test_exit_unreliable_empty_without_success_zero() -> None:
@@ -247,7 +321,7 @@ def test_exit_unreliable_empty_without_success_zero() -> None:
     )
     assert run.terminal_status == "partial"
     stages = [
-        StageResult(name="validate_db", status="ok"),
+        _universe_ok_stage(),
         StageResult(name="collect", status="ok"),
         StageResult(name="quality", status="ok"),
         StageResult(
@@ -327,7 +401,7 @@ def test_partial_collect_never_exit_ok_even_with_products() -> None:
     )
     assert run.terminal_status == "partial"
     stages = [
-        StageResult(name="validate_db", status="ok"),
+        _universe_ok_stage(),
         StageResult(name="collect", status="warn"),
         StageResult(name="quality", status="ok"),
         StageResult(
@@ -343,20 +417,8 @@ def test_partial_collect_never_exit_ok_even_with_products() -> None:
 
 
 def test_strict_missing_excel_is_nonzero() -> None:
-    run = CollectionRun.start(
-        source="pncp_opportunities",
-        collection_id="c",
-        collector_version="t",
-    )
-    run.finish(
-        records_obtained=1,
-        records_persisted=1,
-        request_completed=True,
-        scope_complete=True,
-        reused_within_sla=True,
-    )
     stages = [
-        StageResult(name="validate_db", status="ok"),
+        _universe_ok_stage(),
         StageResult(name="collect", status="ok"),
         StageResult(name="quality", status="ok"),
         StageResult(
@@ -371,25 +433,22 @@ def test_strict_missing_excel_is_nonzero() -> None:
             error="Excel generation failed",
         ),
     ]
-    assert compute_exit_code(stages, [run], strict=True) == EXIT_TECH
+    assert (
+        compute_exit_code(
+            stages,
+            [_ok_opp_run(), _ok_contracts_run()],
+            strict=True,
+            freshness=_fresh_sources(),
+            execution_scope="full",
+        )
+        == EXIT_TECH
+    )
 
 
 def test_strict_delivery_ok_without_excel_flag_is_unreliable() -> None:
     """Even if status text is ok, missing excel_ok fails strict."""
-    run = CollectionRun.start(
-        source="pncp_opportunities",
-        collection_id="c",
-        collector_version="t",
-    )
-    run.finish(
-        records_obtained=1,
-        records_persisted=1,
-        request_completed=True,
-        scope_complete=True,
-        reused_within_sla=True,
-    )
     stages = [
-        StageResult(name="validate_db", status="ok"),
+        _universe_ok_stage(),
         StageResult(name="collect", status="ok"),
         StageResult(name="quality", status="ok"),
         StageResult(
@@ -403,7 +462,452 @@ def test_strict_delivery_ok_without_excel_flag_is_unreliable() -> None:
             detail={"excel_ok": False, "checksums_file": "x"},
         ),
     ]
-    assert compute_exit_code(stages, [run], strict=True) == EXIT_UNRELIABLE
+    assert (
+        compute_exit_code(
+            stages,
+            [_ok_opp_run(), _ok_contracts_run()],
+            strict=True,
+            freshness=_fresh_sources(),
+            execution_scope="full",
+        )
+        == EXIT_UNRELIABLE
+    )
+
+
+# ---------------------------------------------------------------------------
+# Strict fail-closed readiness (ARCH-RESET-RECOVERY / PR #59 regression)
+# ---------------------------------------------------------------------------
+
+
+def _pr59_live_stages() -> list[StageResult]:
+    """Stages reconstructed from PR #59 live-weekly-collect/manifest.json."""
+    return [
+        StageResult(name="validate_config", status="ok"),
+        StageResult(
+            name="validate_db",
+            status="warn",
+            detail={
+                "universe_200km": 0,
+                "expected_universe": EXPECTED_UNIVERSE_200KM,
+            },
+            error="universe_200km=0 != 1093 (scope drift)",
+        ),
+        StageResult(
+            name="freshness",
+            status="warn",
+            detail={
+                "sources": [
+                    {
+                        "source": "pncp_opportunities",
+                        "level": "never",
+                        "sla_hours": 48,
+                        "age_hours": None,
+                        "indicator": "freshness_source",
+                    },
+                    {
+                        "source": "pncp_contracts",
+                        "level": "never",
+                        "sla_hours": 168,
+                        "indicator": "freshness_source",
+                    },
+                ]
+            },
+        ),
+        StageResult(name="collect", status="ok"),
+        StageResult(name="process", status="ok"),
+        StageResult(name="quality", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="ok",
+            detail={
+                "counts": {
+                    "opportunities": 1,
+                    "contracts": 0,
+                    "competitors": 0,
+                    "orgaos": 1,
+                }
+            },
+        ),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
+    ]
+
+
+def _pr59_live_runs() -> list[CollectionRun]:
+    opp = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="col-pr59",
+        collector_version="weekly-cycle/1.0",
+    )
+    opp.finish(
+        records_obtained=32,
+        records_persisted=0,
+        request_completed=True,
+        scope_complete=True,
+    )
+    assert opp.terminal_status == "success"
+    ct = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id="col-pr59",
+        collector_version="weekly-cycle/1.0",
+        mode="reuse",
+    )
+    ct.finish(
+        request_completed=False,
+        scope_complete=False,
+        source_available=True,
+        error="no contracts in lake",
+    )
+    assert ct.terminal_status == "failure"
+    return [opp, ct]
+
+
+def _pr59_freshness() -> list[dict]:
+    return [
+        {
+            "source": "pncp_opportunities",
+            "level": "never",
+            "sla_hours": 48,
+            "age_hours": None,
+        },
+        {"source": "pncp_contracts", "level": "never", "sla_hours": 168},
+    ]
+
+
+def test_pr59_live_manifest_must_not_exit_ok() -> None:
+    """Regression: PR #59 live proof had exit_code=0 with empty universe,
+    freshness never, contracts failure, limit=5 sample — must be non-zero.
+    """
+    stages = _pr59_live_stages()
+    runs = _pr59_live_runs()
+    freshness = _pr59_freshness()
+    # limit=5 → sample
+    assert classify_execution_scope(offline=False, limit=5) == "sample"
+
+    ev = evaluate_readiness(
+        stages,
+        runs,
+        strict=True,
+        freshness=freshness,
+        execution_scope="sample",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert ev.consultive_ready is False
+    assert ev.delivery_completed is True  # delivery alone is not enough
+    assert "universe_missing_or_drifted" in ev.blockers
+    assert "required_source_failed:pncp_contracts" in ev.blockers
+    assert "freshness_not_valid" in ev.blockers
+    assert "execution_scope_not_full:sample" in ev.blockers
+
+
+def test_universe_zero_blocks_strict() -> None:
+    stages = _consultive_ok_stages()
+    stages[1] = StageResult(
+        name="validate_db",
+        status="warn",
+        detail={"universe_200km": 0, "expected_universe": EXPECTED_UNIVERSE_200KM},
+    )
+    ev = evaluate_readiness(
+        stages,
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert ev.consultive_ready is False
+    assert "universe_missing_or_drifted" in ev.blockers
+
+
+def test_universe_divergent_blocks_strict() -> None:
+    stages = _consultive_ok_stages()
+    stages[1] = StageResult(
+        name="validate_db",
+        status="warn",
+        detail={"universe_200km": 500, "expected_universe": EXPECTED_UNIVERSE_200KM},
+    )
+    ev = evaluate_readiness(
+        stages,
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.exit_code != EXIT_OK
+    assert "universe_missing_or_drifted" in ev.blockers
+
+
+def test_freshness_never_blocks_when_reusing() -> None:
+    stages = _consultive_ok_stages()
+    fr = [
+        {"source": "pncp_opportunities", "level": "never", "age_hours": None},
+        {"source": "pncp_contracts", "level": "never", "age_hours": None},
+    ]
+    # Both sources reused_fresh with never freshness
+    ev = evaluate_readiness(
+        stages,
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=fr,
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert "freshness_not_valid" in ev.blockers
+
+
+def test_freshness_unknown_blocks() -> None:
+    # Live success on opp supersedes pre-freshness; contracts reused needs fresh
+    opp = CollectionRun.start(
+        source="pncp_opportunities", collection_id="c", collector_version="t"
+    )
+    opp.finish(
+        records_obtained=1,
+        records_persisted=1,
+        request_completed=True,
+        scope_complete=True,
+    )
+    fr = [
+        {"source": "pncp_opportunities", "level": "unknown", "age_hours": None},
+        {"source": "pncp_contracts", "level": "unknown", "age_hours": None},
+    ]
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [opp, _ok_contracts_run()],
+        strict=True,
+        freshness=fr,
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert "freshness_not_valid" in ev.blockers
+
+
+def test_freshness_stale_blocks_reuse() -> None:
+    fr = [
+        {"source": "pncp_opportunities", "level": "stale", "age_hours": 100.0},
+        {"source": "pncp_contracts", "level": "stale", "age_hours": 200.0},
+    ]
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=fr,
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert "freshness_not_valid" in ev.blockers
+
+
+def test_freshness_unreliable_blocks() -> None:
+    fr = [
+        {"source": "pncp_opportunities", "level": "unreliable", "age_hours": 1.0},
+        {"source": "pncp_contracts", "level": "fresh", "age_hours": 1.0},
+    ]
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=fr,
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert "freshness_not_valid" in ev.blockers
+
+
+def test_required_contracts_failure_blocks() -> None:
+    ct = CollectionRun.start(
+        source="pncp_contracts", collection_id="c", collector_version="t"
+    )
+    ct.finish(
+        request_completed=False,
+        scope_complete=False,
+        error="no contracts in lake",
+    )
+    assert ct.terminal_status == "failure"
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), ct],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert "required_source_failed:pncp_contracts" in ev.blockers
+
+
+def test_required_opportunities_partial_blocks() -> None:
+    opp = CollectionRun.start(
+        source="pncp_opportunities", collection_id="c", collector_version="t"
+    )
+    opp.finish(
+        records_obtained=50,
+        records_persisted=20,
+        request_completed=True,
+        scope_complete=False,
+        error="partial",
+    )
+    assert opp.terminal_status == "partial"
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [opp, _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert "required_source_failed:pncp_opportunities" in ev.blockers
+
+
+def test_limit_sample_not_consultive_ready() -> None:
+    assert classify_execution_scope(offline=False, limit=5) == "sample"
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="sample",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert ev.consultive_ready is False
+    assert "execution_scope_not_full:sample" in ev.blockers
+
+
+def test_fixture_offline_not_consultive_ready() -> None:
+    assert classify_execution_scope(offline=True, limit=50) == "fixture"
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="fixture",
+    )
+    assert ev.exit_code != EXIT_OK
+    assert ev.consultive_ready is False
+
+
+def test_success_zero_incomplete_scope_blocks() -> None:
+    opp = CollectionRun.start(
+        source="pncp_opportunities", collection_id="c", collector_version="t"
+    )
+    # Manually craft success_zero with incomplete scope (invalid by contract)
+    opp.finish(
+        records_obtained=0,
+        records_persisted=0,
+        request_completed=True,
+        scope_complete=True,
+    )
+    assert opp.terminal_status == "success_zero"
+    opp.scope_complete = False  # invalidate after classify
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [opp, _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert any("success_zero" in b for b in ev.blockers)
+
+
+def test_delivery_ok_with_failed_source_not_exit_ok() -> None:
+    """Delivery artifacts must not compensate for required source failure."""
+    ct = CollectionRun.start(
+        source="pncp_contracts", collection_id="c", collector_version="t"
+    )
+    ct.finish(request_completed=False, scope_complete=False, error="fail")
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), ct],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.delivery_completed is True
+    assert ev.exit_code != EXIT_OK
+    assert ev.consultive_ready is False
+
+
+def test_quality_green_collection_incomplete_not_exit_ok() -> None:
+    """Record-level quality ok must not hide failed collection."""
+    stages = _consultive_ok_stages()
+    # quality ok but contracts failed
+    ct = CollectionRun.start(
+        source="pncp_contracts", collection_id="c", collector_version="t"
+    )
+    ct.finish(request_completed=False, scope_complete=False, error="empty")
+    ev = evaluate_readiness(
+        stages,
+        [_ok_opp_run(), ct],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_UNRELIABLE
+
+
+def test_timestamp_absent_age_hours_none_not_zero() -> None:
+    """age_hours=None must not be coerced to 0.0 (freshness adapter safety)."""
+    level = classify_opportunity_freshness(
+        status="completed",
+        age_hours=None,
+        sla_hours=48,
+        scope_complete=True,
+    )
+    assert level == "unknown"
+    assert level != "fresh"
+
+
+def test_complete_package_without_operational_readiness() -> None:
+    """Full delivery with operational blockers → not consultive_ready."""
+    stages = _pr59_live_stages()
+    ev = evaluate_readiness(
+        stages,
+        _pr59_live_runs(),
+        strict=True,
+        freshness=_pr59_freshness(),
+        execution_scope="full",  # even full scope can't fix empty universe
+    )
+    assert ev.delivery_completed is True
+    assert ev.execution_completed is True
+    assert ev.consultive_ready is False
+    assert ev.exit_code == EXIT_UNRELIABLE
+
+
+def test_fully_valid_execution_exit_ok() -> None:
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="full",
+    )
+    assert ev.exit_code == EXIT_OK
+    assert ev.consultive_ready is True
+    assert not ev.blockers
+
+
+def test_degraded_allowed_but_not_consultive() -> None:
+    """Degraded/diagnostic mode may complete, never consultive_ready."""
+    ev = evaluate_readiness(
+        _consultive_ok_stages(),
+        [_ok_opp_run(), _ok_contracts_run()],
+        strict=True,
+        freshness=_fresh_sources(),
+        execution_scope="diagnostic",
+    )
+    assert ev.consultive_ready is False
+    assert ev.exit_code == EXIT_UNRELIABLE
+    assert "execution_scope_not_full:diagnostic" in ev.blockers
+
+
+def test_hours_since_none_preserved() -> None:
+    from scripts.ops.weekly_cycle import _hours_since
+
+    assert _hours_since(None) is None
+
+
+def test_classify_execution_scope_production_limit() -> None:
+    assert classify_execution_scope(offline=False, limit=50) == "full"
+    assert classify_execution_scope(offline=False, limit=49) == "sample"
+    assert classify_execution_scope(offline=True, limit=1000) == "fixture"
 
 
 def test_contract_claim_does_not_use_source_id_as_run_id() -> None:
