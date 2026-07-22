@@ -263,9 +263,7 @@ def test_invalid_success_zero_missing_pagination() -> None:
 
 def test_stale_never_in_numerator() -> None:
     obs = _obs("e1", fresh_hours=100, freshness_status="stale")
-    ok, state, fresh = observation_counts_as_covered(
-        obs, CAP_OPEN_TENDERS, as_of=datetime.now(UTC)
-    )
+    ok, state, fresh = observation_counts_as_covered(obs, CAP_OPEN_TENDERS, as_of=datetime.now(UTC))
     assert ok is False
     assert fresh == "stale"
 

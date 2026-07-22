@@ -16,7 +16,8 @@ Universe authority: ``scripts.lib.universe.load_canonical_universe``.
 from __future__ import annotations
 
 # SQL fragments use fixed allowlists only (capability aliases / table names).
-# ruff: noqa: S608,S603
+# Git sha stamp uses PATH-resolved git binary (optional metadata).
+# ruff: noqa: S608,S603,S607
 import argparse
 import csv
 import hashlib
@@ -285,9 +286,7 @@ def build_universe_identity(
     if len(ids) != len(set(ids)):
         raise DualCoverageError("duplicate entity_id in canonical universe included set")
     if expected_count is not None and len(ids) != expected_count:
-        raise DualCoverageError(
-            f"unexpected denominator: got {len(ids)} expected {expected_count}"
-        )
+        raise DualCoverageError(f"unexpected denominator: got {len(ids)} expected {expected_count}")
     if not ids:
         raise DualCoverageError("empty included universe")
     stamp_as_of = as_of or datetime.now(UTC).isoformat().replace("+00:00", "Z")
@@ -543,11 +542,7 @@ def score_entity_capability(
     covered = len(missing) == 0 and len(successful) == len(required)
     # overall state
     if covered:
-        cov_state = (
-            "success_zero"
-            if all(s == "success_zero" for s in states)
-            else "success_with_data"
-        )
+        cov_state = "success_zero" if all(s == "success_zero" for s in states) else "success_with_data"
         next_action = "maintain"
         blocker = ""
     elif "blocked" in states:
@@ -649,11 +644,7 @@ def aggregate_capability(
         success_with_data_count=sum(1 for r in covered if r.coverage_state == "success_with_data"),
         not_applicable_count=sum(1 for r in results if r.applicability == "not_applicable"),
         data_presence_numerator=sum(1 for r in applicable if r.has_data_presence),
-        data_presence_pct=round(
-            100.0 * sum(1 for r in applicable if r.has_data_presence) / den, 4
-        )
-        if den
-        else 0.0,
+        data_presence_pct=round(100.0 * sum(1 for r in applicable if r.has_data_presence) / den, 4) if den else 0.0,
         source_combinations=["+".join(REQUIRED_SOURCES[capability])],
         limitations=list(limitations or []),
         git_sha=identity.git_sha,
@@ -1102,9 +1093,7 @@ def _legacy_entity_coverage_stamp(conn: Any) -> dict[str, Any]:
     """Historical stamp only — never used as canonical coverage."""
     cur = conn.cursor()
     try:
-        cur.execute(
-            "SELECT count(DISTINCT entity_id) FROM entity_coverage WHERE is_covered IS TRUE"
-        )
+        cur.execute("SELECT count(DISTINCT entity_id) FROM entity_coverage WHERE is_covered IS TRUE")
         num_cov = int(cur.fetchone()[0] or 0)
         cur.execute("SELECT count(DISTINCT entity_id) FROM entity_coverage")
         num_any = int(cur.fetchone()[0] or 0)

@@ -1401,7 +1401,6 @@ def run_freshness_gate(dsn: str) -> FreshnessRecord:
 # ---------------------------------------------------------------------------
 
 
-
 def run_editais_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord:
     """Generate domain-specific editais report (not panorama Excel/PDF)."""
     t0 = time.perf_counter()
@@ -1506,7 +1505,6 @@ def run_contratos_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord
             duration_ms=(time.perf_counter() - t0) * 1000,
             error=str(exc),
         )
-
 
 
 def run_concorrentes_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord:
@@ -2101,11 +2099,7 @@ def main() -> int:
         if not ok_db:
             _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
-        caps = (
-            ["open_tenders", "historical_contracts"]
-            if args.capability == "both"
-            else [args.capability]
-        )
+        caps = ["open_tenders", "historical_contracts"] if args.capability == "both" else [args.capability]
         _echo(f"\n[execute-{mode}-only] Calculando cobertura dual {caps}...", "header")
         cov = run_coverage_calculation(
             dsn,
@@ -2132,8 +2126,7 @@ def main() -> int:
                 "ok" if cap_block.get("gate_status") == "PASS" else "warn",
             )
         _echo(
-            f"  measurement_success={measurement_ok} coverage_gate_pass={gate_ok} "
-            f"method={d.get('method')}",
+            f"  measurement_success={measurement_ok} coverage_gate_pass={gate_ok} method={d.get('method')}",
             "ok",
         )
         _echo(f"  Ledger: {args.ledger_output}", "ok")
@@ -2232,21 +2225,15 @@ def main() -> int:
             except ImportError:
                 dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
         ok_db, dur_db = check_db(dsn)
-        steps.append(
-            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
-        )
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
         if not ok_db:
-            _save_final_ledger(
-                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
-            )
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
         _echo("\n[execute-editais-report-only] Gerando relatório de editais...", "header")
         editais_step = run_editais_report(dsn)
         steps.append(editais_step)
         overall = "success" if editais_step.status == "pass" else "failed"
-        _save_final_ledger(
-            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
-        )
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn)
         if overall != "success":
             _echo(f"  Editais report FAIL: {editais_step.error}", "error")
             return 1
@@ -2268,21 +2255,15 @@ def main() -> int:
             except ImportError:
                 dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
         ok_db, dur_db = check_db(dsn)
-        steps.append(
-            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
-        )
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
         if not ok_db:
-            _save_final_ledger(
-                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
-            )
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
         _echo("\n[execute-contratos-report-only] Gerando relatório de contratos...", "header")
         contratos_step = run_contratos_report(dsn)
         steps.append(contratos_step)
         overall = "success" if contratos_step.status == "pass" else "failed"
-        _save_final_ledger(
-            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
-        )
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn)
         if overall != "success":
             _echo(f"  Contratos report FAIL: {contratos_step.error}", "error")
             return 1
@@ -2304,21 +2285,15 @@ def main() -> int:
             except ImportError:
                 dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
         ok_db, dur_db = check_db(dsn)
-        steps.append(
-            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
-        )
+        steps.append(StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db))
         if not ok_db:
-            _save_final_ledger(
-                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
-            )
+            _save_final_ledger(run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output)
             return 1
         _echo("\n[execute-concorrentes-report-only] Gerando relatório de concorrentes...", "header")
         conc_step = run_concorrentes_report(dsn)
         steps.append(conc_step)
         overall = "success" if conc_step.status == "pass" else "failed"
-        _save_final_ledger(
-            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
-        )
+        _save_final_ledger(run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn)
         if overall != "success":
             _echo(f"  Concorrentes report FAIL: {conc_step.error}", "error")
             return 1
@@ -2690,8 +2665,7 @@ def main() -> int:
                 "ok",
             )
         _echo(
-            f"  measurement_success={d.get('measurement_success')} "
-            f"coverage_gate_pass={d.get('coverage_gate_pass')}",
+            f"  measurement_success={d.get('measurement_success')} coverage_gate_pass={d.get('coverage_gate_pass')}",
             "ok",
         )
     else:
