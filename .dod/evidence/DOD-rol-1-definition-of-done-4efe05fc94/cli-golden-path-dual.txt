@@ -1,0 +1,15 @@
+
+ Calculando cobertura dual ['open_tenders', 'historical_contracts']...
+
+Ledger salvo:  /tmp/extra-accept-dual-6237/output/golden-path/ledger.json
+Log salvo:     
+/tmp/extra-accept-dual-6237/output/golden-path/gp-20260722-001452.log
+  meta.git_sha=edd76189153a4734381447fe6933bce61d883d4f 
+schema=migrations_count=63
+  open_tenders: den=1093 num=0 pct=0.0 gate=FAIL presence=0.0 fresh=0 stale=0 
+unknown=0 blocked=0
+  historical_contracts: den=1093 num=0 pct=0.0 gate=FAIL presence=0.0915 fresh=0
+stale=0 unknown=0 blocked=0
+  measurement_success=True coverage_gate_pass=False pipeline_success=False 
+overall=coverage_gate_failed method=dual_capability_coverage
+  Ledger: /tmp/extra-accept-dual-6237/output/golden-path/ledger.json

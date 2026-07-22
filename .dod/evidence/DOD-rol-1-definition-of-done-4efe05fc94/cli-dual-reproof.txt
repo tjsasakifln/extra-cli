@@ -1,0 +1,6 @@
+measurement_success=True
+coverage_gate_pass=False
+schema_compatibility_mode=modern
+open_tenders: universe=1093 den=1093 num=0 pct=0.0 gate=FAIL presence=0.0 pending=0 never=1093 stale=0 unk=0 blocked=0 error=0
+historical_contracts: universe=1093 den=1093 num=0 pct=0.0 gate=FAIL presence=0.0915 pending=0 never=1093 stale=0 unk=0 blocked=0 error=0
+summary=/tmp/grok-goal-b8c20fe136cb/implementer/coverage/dual-capability-coverage-summary.json
