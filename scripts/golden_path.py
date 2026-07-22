@@ -399,6 +399,9 @@ def run_coverage_calculation(
         details["measurement_success"] = report.measurement_success
         details["coverage_gate_pass"] = report.coverage_gate_pass
         details["pipeline_success"] = report.pipeline_success
+        details["scope_complete"] = getattr(report, "scope_complete", False)
+        details["dual_gate_status"] = getattr(report, "dual_gate_status", "NOT_EVALUATED")
+        details["capabilities_evaluated"] = list(getattr(report, "capabilities_evaluated", ()) or [])
         details["universe"] = report.universe.to_dict()
         details["legacy_metric"] = report.legacy_metric
         details["limitations"] = report.limitations
@@ -2153,11 +2156,16 @@ def main() -> int:
         d = cov.details or {}
         measurement_ok = bool(d.get("measurement_success")) if d else False
         gate_ok = bool(d.get("coverage_gate_pass"))
+        scope_complete = bool(d.get("scope_complete"))
+        dual_gate = str(d.get("dual_gate_status") or "NOT_EVALUATED")
         # Dual modes always distinguish measurement vs gate vs pipeline/global success.
-        # Successful measurement with low coverage is NOT overall "success".
+        # Single-capability scope never yields overall success (dual pipeline not evaluated).
         if not measurement_ok:
             overall = "failed"
             exit_code = 1
+        elif not scope_complete or dual_gate == "NOT_EVALUATED":
+            overall = "scope_incomplete"
+            exit_code = 2
         elif not gate_ok:
             overall = "coverage_gate_failed"
             exit_code = 2
@@ -2179,6 +2187,7 @@ def main() -> int:
             )
         _echo(
             f"  measurement_success={measurement_ok} coverage_gate_pass={gate_ok} "
+            f"scope_complete={scope_complete} dual_gate_status={dual_gate} "
             f"pipeline_success={bool(d.get('pipeline_success'))} overall={overall} "
             f"method={d.get('method')}",
             "ok" if exit_code == 0 else "warn",

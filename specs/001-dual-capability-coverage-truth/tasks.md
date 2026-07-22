@@ -63,12 +63,12 @@
 - [x] T017 Re-analyze findings (FR-016..024)
 - [x] T018 Checklist `checklists/requirements.md`
 - [x] T019 ruff + pytest selective
-- [ ] T020 PR push + CI green on final SHA
-- [ ] T032 Independent review PASS_FOR_MERGE
-- [ ] T033 Merge PR to main
-- [ ] T034 Main reproof (migrations + dual CLI + golden path)
-- [ ] T035 Acceptance pack + controller (no self-QA)
-- [ ] T036 Normative DOD ACCEPTED only after controller
+- [x] T020 PR push + CI green on final SHA
+- [x] T032 Independent review PASS_FOR_MERGE
+- [x] T033 Merge PR to main
+- [x] T034 Main reproof (migrations + dual CLI + golden path)
+- [x] T035 Acceptance pack + controller (no self-QA)
+- [x] T036 Normative DOD ACCEPTED only after controller
 
 ## Dependencies
 
@@ -81,3 +81,16 @@ T019→T020→T032→T033→T034→T035→T036
 ## Open (not implementable as code alone)
 
 * T020–T036: remote CI, review authority, merge permission, acceptance controller
+
+## Phase 7 — Skeptic remediation (post-accept)
+
+- [x] T040 Single-capability: scope_complete=false, dual_gate_status=NOT_EVALUATED, pipeline_success=false  
+  Files: `scripts/coverage/dual_capability_coverage.py`, `scripts/golden_path.py`, tests
+- [x] T041 identity_unresolved → measurement_success=false; mapping_status preserved  
+  Files: `scripts/coverage/dual_capability_coverage.py`, tests
+- [x] T042 Use `v_dual_capability_evidence_latest` in evidence load (not dead view)  
+  Files: `scripts/coverage/dual_capability_coverage.py`, migration 058
+- [x] T043 Update tasks/STATUS after merge/accept honesty  
+  Files: `specs/.../tasks.md`, campaign STATUS
+- [x] T044 Independent review with executed attacks + commands on fix SHA  
+  Files: campaign independent-review artifact
