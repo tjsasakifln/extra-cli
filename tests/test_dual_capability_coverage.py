@@ -670,6 +670,41 @@ def test_mutation_hash_validation_active() -> None:
         build_universe_identity(u, expected_seed_sha256="2" * 64)
 
 
+def test_obs_unknown_does_not_inflate_by_leaving_denominator() -> None:
+    """H1 regression: COALESCE/obs applicability=unknown must not shrink A_C."""
+    e1 = _entity("e1", cnpj8="11111111")
+    e2 = _entity("e2", cnpj8="22222222")
+    u = _universe([e1, e2])
+    # Both matrix-applicable; e2 has evidence with applicability unknown
+    obs = {
+        CAP_OPEN_TENDERS: {
+            "e1": {"pncp": _obs("e1", applicability="applicable")},
+            "e2": {"pncp": _obs("e2", applicability="unknown")},
+        }
+    }
+    report = compute_dual_coverage(
+        universe=u,
+        observations_by_cap=obs,
+        presence_by_cap={CAP_OPEN_TENDERS: {"e1"}},
+        entity_applicability={
+            CAP_OPEN_TENDERS: {"e1": "applicable", "e2": "applicable"}
+        },  # type: ignore[arg-type]
+        include_legacy_stamp=False,
+        use_config_matrix=False,
+        capabilities=[CAP_OPEN_TENDERS],
+    )
+    assert report.measurement_success is True
+    ot = report.capabilities[CAP_OPEN_TENDERS]
+    # A_C must remain 2 — unknown obs must not drop e2 from denominator
+    assert ot.applicable_denominator == 2
+    assert ot.covered_numerator == 1  # only e1 validated success
+    assert ot.coverage_pct == 50.0
+    # e2 still applicable, not covered (not inflated to 100%)
+    e2_row = next(r for r in ot.entities if r.entity_id == "e2")
+    assert e2_row.applicability == "applicable"
+    assert e2_row.covered is False
+
+
 def test_reconciliation_fields_present() -> None:
     e = _entity("e1")
     u = _universe([e])

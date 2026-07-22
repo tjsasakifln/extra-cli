@@ -1969,25 +1969,44 @@ def compute_dual_coverage(
             results: list[EntityCapabilityResult] = []
             for ent in universe.included:
                 obs_for_ent = entity_obs.get(ent.entity_id, {})
-                resolutions = appl_matrix.get(cap_n, {}).get(ent.entity_id, [])
-                # Observation-level not_applicable / blocked can refine fold
+                resolutions = list(appl_matrix.get(cap_n, {}).get(ent.entity_id, []))
+                # Observation may refine fold ONLY for blocked / justified not_applicable.
+                # Observation applicability=unknown must NOT remove an entity from A_C
+                # (would inflate coverage % when DB defaults COALESCE to unknown).
                 for src, o in obs_for_ent.items():
-                    if o.applicability in {"not_applicable", "blocked", "unknown"}:
+                    if o.applicability == "blocked":
                         resolutions.append(
                             ApplicabilityResolution(
                                 entity_id=ent.entity_id,
                                 source=src,
                                 capability=cap_n,
-                                applicability_status=o.applicability,
+                                applicability_status="blocked",
                                 requirement_role="required"
                                 if src in resolve_required_sources(cap_n, entity=ent)
                                 else "informational",
-                                justification=o.applicability_reason or f"obs:{o.applicability}",
+                                justification=o.applicability_reason or "obs:blocked",
                                 validated_at=as_of_s,
                                 evidence_reference=o.evidence_reference or o.run_id,
                                 priority=50,
                             )
                         )
+                    elif o.applicability == "not_applicable" and o.applicability_reason:
+                        resolutions.append(
+                            ApplicabilityResolution(
+                                entity_id=ent.entity_id,
+                                source=src,
+                                capability=cap_n,
+                                applicability_status="not_applicable",
+                                requirement_role="required"
+                                if src in resolve_required_sources(cap_n, entity=ent)
+                                else "informational",
+                                justification=o.applicability_reason,
+                                validated_at=as_of_s,
+                                evidence_reference=o.evidence_reference or o.run_id,
+                                priority=50,
+                            )
+                        )
+                    # unknown on observation: ignore for A_C fold (stay matrix decision)
                 appl, just, required = fold_entity_applicability(resolutions)
                 # required sources from matrix resolutions
                 req_sources = required or resolve_required_sources(cap_n, entity=ent)
