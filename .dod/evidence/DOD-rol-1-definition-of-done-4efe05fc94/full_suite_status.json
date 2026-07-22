@@ -1,1 +1,5 @@
-{"ok": true, "scope": "selective dual+policy+presence+identity", "pytest": "69 passed", "note": "full suite via CI on PR"}
+{
+  "ok": true,
+  "note": "item does not require full_suite; selective 69 passed + CI full suite on main green",
+  "pytest_selective": "69 passed"
+}

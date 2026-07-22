@@ -1,5 +1,4 @@
-status: SUPERSEDED_CONTENT_REACCEPTED
-superseded_by: DOD-rol-1-definition-of-done-1fdea0f6e6
-reason: post-acceptance semantic changes — re-accepted under final dual policy v2
-historical_summary: dual-capability-coverage-summary.historical-pre-v2.json
-reaccept_sha: bebc00b006ef86688925bf48a9f8d3c139a8a28f
+status: REACCEPTED_FINAL
+historical_pre_v2: dual-capability-coverage-summary.historical-pre-v2.json
+final_sha: abcd067902c76bd98c28125dd72ac85680750195
+reason: re-accepted under dual source_policy v2 + skeptic-final semantics

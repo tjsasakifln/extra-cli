@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-22T13:00:01Z'
+updated_at: '2026-07-22T13:29:43Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -41846,9 +41846,9 @@ items:
   - .dod/evidence/DOD-rol-1-definition-of-done-5e1066b77d/
   - .dod/evidence/DOD-rol-1-definition-of-done-1fdea0f6e6/
   - 4efe05fc94
-  acceptance_commit: bebc00b006ef86688925bf48a9f8d3c139a8a28f
+  acceptance_commit: abcd067902c76bd98c28125dd72ac85680750195
   acceptance_pr: pending
-  accepted_at: '2026-07-22T13:00:01Z'
+  accepted_at: '2026-07-22T13:29:43Z'
   justification: ' [ORPHANED_FROM_DOD]'
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -41893,6 +41893,9 @@ items:
   - at: '2026-07-22T13:00:01Z'
     event: accept
     detail: commit=bebc00b006ef86688925bf48a9f8d3c139a8a28f branch=fix/dual-skeptic-gaps gates_ok=True
+  - at: '2026-07-22T13:29:43Z'
+    event: accept
+    detail: commit=abcd067902c76bd98c28125dd72ac85680750195 branch=main gates_ok=True
   content_fingerprint: 4efe05fc94
   evidence_audit:
     status: partial
