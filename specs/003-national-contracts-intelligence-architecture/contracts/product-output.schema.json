@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "national-intel-product-output",
+  "title": "National Intelligence Product Output Envelope",
+  "type": "object",
+  "required": [
+    "product_id",
+    "scope_label",
+    "as_of",
+    "filters",
+    "row_count",
+    "limitations",
+    "rows"
+  ],
+  "properties": {
+    "product_id": { "type": "string" },
+    "scope_label": {
+      "type": "string",
+      "enum": ["raw_national", "geo_sc", "canonical_sc_operational", "intel_product"]
+    },
+    "as_of": { "type": "string", "format": "date-time" },
+    "filters": { "type": "object" },
+    "row_count": { "type": "integer", "minimum": 0 },
+    "sample_size_note": { "type": "string" },
+    "lineage": {
+      "type": "object",
+      "properties": {
+        "git_sha": { "type": ["string", "null"] },
+        "dsn_host_port_masked": { "type": "string" },
+        "canonical_universe_count": { "type": ["integer", "null"] },
+        "canonical_seed_sha256": { "type": ["string", "null"] },
+        "query_id": { "type": "string" }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "claim_class_legend": {
+      "type": "object",
+      "properties": {
+        "fact": { "type": "string" },
+        "indicator": { "type": "string" },
+        "hypothesis": { "type": "string" }
+      }
+    },
+    "rows": { "type": "array", "items": { "type": "object" } }
+  },
+  "additionalProperties": true
+}

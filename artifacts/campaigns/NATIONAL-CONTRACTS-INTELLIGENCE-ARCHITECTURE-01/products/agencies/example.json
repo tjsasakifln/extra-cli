@@ -1,0 +1,94 @@
+{
+  "product_id": "agencies_profile",
+  "scope_label": "intel_product",
+  "as_of": "2026-07-22T22:29:23Z",
+  "filters": {
+    "keyword": null,
+    "uf": null,
+    "limit": 10
+  },
+  "row_count": 4,
+  "limitations": [
+    "Agency profiles reflect inventory present in pncp_supplier_contracts for the filter only.",
+    "top_supplier_share is an INDICATOR of concentration, not proof of collusion or exclusive partnership.",
+    "uf_mode is MODE of contracts, not legal jurisdiction of the agency.",
+    "Empty result means no matching rows in filter — not a claim of zero public demand nationally."
+  ],
+  "claim_class_legend": {
+    "fact": "Directly observed from contract rows (counts, UF set, sums).",
+    "indicator": "Derived statistic (percentiles, shares, modes); not a legal finding.",
+    "hypothesis": "Business inference requiring human validation; not proven relationship."
+  },
+  "lineage": {
+    "git_sha": "a38981b",
+    "dsn_host_port_masked": "postgresql://***@127.0.0.1:5435/extra_national_intelligence_test",
+    "query_id": "agencies_profile",
+    "module_version": "0.1.0"
+  },
+  "rows": [
+    {
+      "orgao_cnpj_8": "77788899",
+      "orgao_cnpj": "77788899000133",
+      "orgao_nome": "PREFEITURA DE SAO PAULO",
+      "contract_count": 2,
+      "supplier_count": 2,
+      "valor_sum": 3900000.0,
+      "valor_avg": 1950000.0,
+      "valor_p50": 1950000.0,
+      "uf_mode": "SP",
+      "first_publicacao": "2024-07-01",
+      "last_publicacao": "2024-08-01",
+      "top_supplier_share": 0.5,
+      "top_supplier_share_claim_class": "indicator",
+      "claim_class": "fact"
+    },
+    {
+      "orgao_cnpj_8": "55566677",
+      "orgao_cnpj": "55566677000110",
+      "orgao_nome": "PREFEITURA DE CURITIBA",
+      "contract_count": 2,
+      "supplier_count": 2,
+      "valor_sum": 2800000.0,
+      "valor_avg": 1400000.0,
+      "valor_p50": 1400000.0,
+      "uf_mode": "PR",
+      "first_publicacao": "2024-05-01",
+      "last_publicacao": "2024-06-01",
+      "top_supplier_share": 0.5,
+      "top_supplier_share_claim_class": "indicator",
+      "claim_class": "fact"
+    },
+    {
+      "orgao_cnpj_8": "12345678",
+      "orgao_cnpj": "12345678000199",
+      "orgao_nome": "PREFEITURA DE FLORIANOPOLIS",
+      "contract_count": 2,
+      "supplier_count": 2,
+      "valor_sum": 2700000.0,
+      "valor_avg": 1350000.0,
+      "valor_p50": 1350000.0,
+      "uf_mode": "SC",
+      "first_publicacao": "2024-03-01",
+      "last_publicacao": "2024-04-01",
+      "top_supplier_share": 0.5,
+      "top_supplier_share_claim_class": "indicator",
+      "claim_class": "fact"
+    },
+    {
+      "orgao_cnpj_8": "11122233",
+      "orgao_cnpj": "11122233000155",
+      "orgao_nome": "ORGAO FEDERAL",
+      "contract_count": 1,
+      "supplier_count": 1,
+      "valor_sum": 5000000.0,
+      "valor_avg": 5000000.0,
+      "valor_p50": 5000000.0,
+      "uf_mode": "DF",
+      "first_publicacao": "2024-09-01",
+      "last_publicacao": "2024-09-01",
+      "top_supplier_share": 1.0,
+      "top_supplier_share_claim_class": "indicator",
+      "claim_class": "fact"
+    }
+  ]
+}

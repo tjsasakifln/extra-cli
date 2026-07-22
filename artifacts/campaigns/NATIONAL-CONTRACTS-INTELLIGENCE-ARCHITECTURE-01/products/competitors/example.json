@@ -1,0 +1,105 @@
+{
+  "product_id": "competitors_geo",
+  "scope_label": "intel_product",
+  "as_of": "2026-07-22T22:29:22Z",
+  "filters": {
+    "keyword": "paviment",
+    "uf": null,
+    "limit": 10
+  },
+  "row_count": 4,
+  "limitations": [
+    "Keyword filter is lexical on objeto_contrato — not technical object equivalence.",
+    "valor_sum is global contracted value (valor_total), not unit price or margin.",
+    "Absence of SC contracts in this filter is not proof of non-operation in SC.",
+    "No partnership/consortium is inferred from co-presence.",
+    "National inventory completeness depends on upstream crawl windows — not assumed complete."
+  ],
+  "claim_class_legend": {
+    "fact": "Directly observed from contract rows (counts, UF set, sums).",
+    "indicator": "Derived statistic (percentiles, shares, modes); not a legal finding.",
+    "hypothesis": "Business inference requiring human validation; not proven relationship."
+  },
+  "lineage": {
+    "git_sha": "a38981b",
+    "dsn_host_port_masked": "postgresql://***@127.0.0.1:5435/extra_national_intelligence_test",
+    "query_id": "competitors_geo",
+    "module_version": "0.1.0"
+  },
+  "rows": [
+    {
+      "rank": 1,
+      "rank_claim_class": "indicator",
+      "fornecedor_cnpj_8": "33444555",
+      "fornecedor_cnpj": "33444555000144",
+      "fornecedor_nome": "ENTRANTE NACIONAL SA",
+      "contract_count": 2,
+      "uf_count": 2,
+      "ufs": [
+        "DF",
+        "SP"
+      ],
+      "has_sc": false,
+      "valor_sum": 8000000.0,
+      "claim_class": "fact",
+      "entrant_signal": {
+        "label": "potential_sc_entrant",
+        "claim_class": "hypothesis",
+        "reason": "Active outside SC on keyword filter; no SC contracts in filter window"
+      }
+    },
+    {
+      "rank": 2,
+      "rank_claim_class": "indicator",
+      "fornecedor_cnpj_8": "99888777",
+      "fornecedor_cnpj": "99888777000166",
+      "fornecedor_nome": "CONCORRENTE SUL LTDA",
+      "contract_count": 2,
+      "uf_count": 2,
+      "ufs": [
+        "PR",
+        "SC"
+      ],
+      "has_sc": true,
+      "valor_sum": 3200000.0,
+      "claim_class": "fact",
+      "entrant_signal": null
+    },
+    {
+      "rank": 3,
+      "rank_claim_class": "indicator",
+      "fornecedor_cnpj_8": "11222333",
+      "fornecedor_cnpj": "11222333000181",
+      "fornecedor_nome": "EXTRA CONSTRUTORA SA",
+      "contract_count": 1,
+      "uf_count": 1,
+      "ufs": [
+        "SC"
+      ],
+      "has_sc": true,
+      "valor_sum": 1500000.0,
+      "claim_class": "fact",
+      "entrant_signal": null
+    },
+    {
+      "rank": 4,
+      "rank_claim_class": "indicator",
+      "fornecedor_cnpj_8": "44555666",
+      "fornecedor_cnpj": "44555666000122",
+      "fornecedor_nome": "FORNECEDOR PR LTDA",
+      "contract_count": 1,
+      "uf_count": 1,
+      "ufs": [
+        "PR"
+      ],
+      "has_sc": false,
+      "valor_sum": 800000.0,
+      "claim_class": "fact",
+      "entrant_signal": {
+        "label": "potential_sc_entrant",
+        "claim_class": "hypothesis",
+        "reason": "Active outside SC on keyword filter; no SC contracts in filter window"
+      }
+    }
+  ]
+}

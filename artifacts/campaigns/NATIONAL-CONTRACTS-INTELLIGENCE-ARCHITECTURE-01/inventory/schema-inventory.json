@@ -1,0 +1,314 @@
+{
+  "campaign": "NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01",
+  "as_of": "2026-07-22",
+  "base_sha": "a38981bfa616b8f47363da6ff91b12a28bec218c",
+  "sources": [
+    "db/current-schema.sql",
+    "db/migrations/002_pncp_supplier_contracts.sql",
+    "db/migrations/024_coverage_evidence_ledger.sql",
+    "db/migrations/025a_contract_intel_views.sql",
+    "db/migrations/026_contract_intel_truth_v1.sql",
+    "db/migrations/050_fix_contracts_upsert_fk.sql",
+    "db/migrations/051_contract_date_semantics.sql",
+    "db/migrations/055_drop_orgao_entity_fk_national_pncp.sql",
+    "db/migrations/056_drop_supplier_entity_fk_contracts.sql",
+    "db/migrations/058_dual_capability_coverage_views.sql"
+  ],
+  "notes": [
+    "Authoritative evolution is ordered migrations under db/migrations/; current-schema.sql dump may lag additive columns from 051+ in CREATE TABLE sections.",
+    "Migration 026 header documents historical production column names (numero_controle_pncp, ni_fornecedor, valor_global, data_assinatura, data_fim_vigencia) vs repo base schema (contrato_id, fornecedor_cnpj, valor_total, data_inicio, data_fim). Live views on this worktree follow contrato_id/valor_total/data_inicio/data_fim pattern in 025a/026 SQL body.",
+    "Tests under tests/test_contract_intel_truth_v1.py still insert using alt names in places — schema drift risk.",
+    "National FKs to sc_public_entities removed: 050/055/056."
+  ],
+  "enums": {
+    "evidence_state": [
+      "running",
+      "success_with_data",
+      "success_zero",
+      "partial",
+      "connection_failed",
+      "auth_failed",
+      "parse_failed",
+      "transform_failed",
+      "persist_failed",
+      "not_applicable",
+      "not_investigated",
+      "success",
+      "error",
+      "pending",
+      "stale",
+      "blocked"
+    ]
+  },
+  "tables": {
+    "pncp_supplier_contracts": {
+      "purpose": "Canonical PNCP supplier contracts lake (national-capable)",
+      "primary_key": "id",
+      "unique": ["contrato_id"],
+      "columns_base": {
+        "id": "integer serial",
+        "contrato_id": "text unique (PNCP numeroControlePNCP)",
+        "orgao_cnpj": "text",
+        "orgao_nome": "text",
+        "fornecedor_cnpj": "text",
+        "fornecedor_nome": "text",
+        "objeto_contrato": "text",
+        "valor_total": "numeric(18,2) — PNCP valorGlobal semantic CONTRATADO/global",
+        "data_inicio": "date (vigencia inicio)",
+        "data_fim": "date (vigencia fim)",
+        "data_publicacao": "date LEGACY mixed semantics",
+        "uf": "text",
+        "municipio": "text",
+        "source": "text default pncp",
+        "source_id": "text",
+        "ingested_at": "timestamptz",
+        "is_active": "boolean default true",
+        "codigo_municipio_ibge": "text",
+        "municipio_inferido": "boolean",
+        "orgao_cnpj_8": "generated left(orgao_cnpj,8)",
+        "fornecedor_cnpj_8": "generated left(fornecedor_cnpj,8)"
+      },
+      "columns_migration_051": {
+        "data_assinatura": "date PNCP dataAssinatura",
+        "data_publicacao_fonte": "date true publication when available",
+        "data_atualizacao_fonte": "date",
+        "source_event_date": "date best event date",
+        "source_date_semantics": "text derivation label",
+        "first_seen_at": "timestamptz",
+        "last_seen_at": "timestamptz",
+        "source_updated_at": "timestamptz",
+        "query_window_start": "date crawl window",
+        "query_window_end": "date crawl window"
+      },
+      "indexes": [
+        "idx_contracts_fornecedor_cnpj_8",
+        "idx_contracts_fornecedor_cnpj_lookup",
+        "idx_contracts_orgao_cnpj_8",
+        "idx_psc_data (data_publicacao DESC)",
+        "idx_psc_fornecedor (fornecedor_cnpj, data_publicacao DESC)",
+        "idx_psc_objeto_contrato_gin (gin_trgm is_active)",
+        "idx_psc_objeto_trgm",
+        "idx_psc_orgao",
+        "idx_psc_uf (uf, data_publicacao DESC)",
+        "idx_psc_valor (valor_total)"
+      ],
+      "constraints": {
+        "pk": "pncp_supplier_contracts_pkey",
+        "uq": "pncp_supplier_contracts_contrato_id_key",
+        "fk_orgao_entity": "DROPPED (050/055) — soft join only",
+        "fk_supplier_entity": "DROPPED (050/056) — soft join only"
+      },
+      "upsert": "upsert_pncp_supplier_contracts(jsonb) RETURNS (action, contrato_id)",
+      "triggers": {
+        "trg_contract_versioning": "DISABLED by default; captures contract_version_history"
+      }
+    },
+    "coverage_evidence": {
+      "purpose": "Investigation ledger entity×source×capability for dual coverage",
+      "key_columns": [
+        "id",
+        "entity_id",
+        "canonical_entity_key",
+        "source",
+        "data_type",
+        "capability",
+        "applicability",
+        "applicability_reason",
+        "scope_key",
+        "queried_start",
+        "queried_end",
+        "run_id",
+        "started_at",
+        "completed_at",
+        "count_obtained",
+        "count_transformed",
+        "count_persisted",
+        "state (evidence_state)",
+        "pages_expected",
+        "pages_processed",
+        "records_fetched",
+        "open_records",
+        "freshness_status",
+        "error_message",
+        "error_code",
+        "metadata / evidence_metadata",
+        "next_due_at"
+      ],
+      "checks": {
+        "applicability": ["applicable", "not_applicable", "unknown"],
+        "freshness_status": ["fresh", "stale", "never", "unknown"]
+      },
+      "indexes_sample": [
+        "idx_ce_applicability",
+        "idx_ce_canonical_entity_source",
+        "idx_ce_canonical_key",
+        "idx_ce_capability"
+      ]
+    },
+    "entity_coverage": {
+      "purpose": "LEGACY diagnostic entity×source flags (primarily bids). NOT dual coverage authority (ADR-030 / migration 058 comment).",
+      "columns": [
+        "entity_id",
+        "source",
+        "last_seen_at",
+        "total_bids",
+        "is_covered",
+        "within_200km",
+        "match_method"
+      ],
+      "forbidden_as_coverage_methods": [
+        "entity_coverage.is_covered",
+        "entity_coverage.any_row"
+      ]
+    },
+    "capability_coverage": {
+      "purpose": "Story 1.2 capability-level flags (opportunity_radar|contract_intel|…)",
+      "columns": [
+        "id",
+        "capability",
+        "entity_id",
+        "source",
+        "is_covered",
+        "coverage_pct",
+        "last_verified",
+        "notes"
+      ],
+      "role_vs_dual": "Not the dual_capability_coverage spine"
+    },
+    "coverage_snapshots": {
+      "purpose": "Weekly/source coverage snapshots for trends",
+      "columns": [
+        "id",
+        "snapshot_date",
+        "source",
+        "total_entities",
+        "covered_entities",
+        "pct_covered",
+        "source_reconciled",
+        "reconciliation_notes",
+        "fingerprint"
+      ]
+    },
+    "sc_public_entities": {
+      "purpose": "Public entities (SC-oriented operational set) + radius flags",
+      "columns": [
+        "id",
+        "razao_social",
+        "cnpj_8",
+        "municipio",
+        "codigo_ibge",
+        "natureza_juridica",
+        "cod_natureza",
+        "latitude",
+        "longitude",
+        "distancia_fk",
+        "raio_200km",
+        "is_active",
+        "created_at"
+      ],
+      "note": "DB radius is diagnostic; dual coverage denominator is seed universe (load_canonical_universe)"
+    },
+    "target_universe_entities": {
+      "purpose": "Snapshot membership of target universe runs"
+    },
+    "target_universe_runs": {
+      "purpose": "Runs producing universe snapshots"
+    },
+    "source_applicability_rules": {
+      "purpose": "DB-side applicability rules (source filters)",
+      "columns": [
+        "source",
+        "esfera_filter",
+        "natureza_filter",
+        "plataforma_filter",
+        "municipio_filter",
+        "is_applicable",
+        "reason",
+        "priority",
+        "is_active"
+      ]
+    },
+    "contract_version_history": {
+      "purpose": "Optional JSONB snapshots of contract versions",
+      "columns": [
+        "contrato_id",
+        "version",
+        "changed_at",
+        "changed_by",
+        "change_type",
+        "snapshot"
+      ]
+    },
+    "pncp_raw_bids": {
+      "purpose": "Open tenders / bids lake (open_tenders capability)",
+      "relationship_to_contracts": "Sibling national lake; dual coverage measures independently"
+    },
+    "opportunity_intel": {
+      "purpose": "Normalized open opportunities / radar product",
+      "key_columns": [
+        "source",
+        "source_id",
+        "numero_controle_pncp",
+        "orgao_cnpj",
+        "objeto",
+        "valor_estimado",
+        "valor_homologado",
+        "status_canonico",
+        "ranking",
+        "data_encerramento"
+      ],
+      "relationship_to_contracts": "Overlap on PNCP identity and commercial deliverables; not the contracts historical store"
+    },
+    "opportunity_runs": {
+      "purpose": "Opportunity crawl execution metadata"
+    },
+    "ingestion_runs": {
+      "purpose": "Generic ingestion run records"
+    },
+    "ingestion_checkpoints": {
+      "purpose": "Ingestion checkpoint persistence"
+    },
+    "enriched_entities": {
+      "purpose": "CNPJ enrichment (CNAE, natureza) joined by views like v_contracts_canonical"
+    },
+    "entity_hierarchy": {
+      "purpose": "Hierarchical coverage inheritance for entities"
+    }
+  },
+  "views_contract_related": {
+    "v_contract_historical": "3y contracts joined to sc_public_entities raio_200km; valor_total AS valor_contrato",
+    "v_supplier_winners": "Supplier rankings + HHI for 200km universe",
+    "v_expiring_contracts": "Expiring window view (contract_intel)",
+    "v_contract_intel_historico": "Historical contracts 200km (LIKE cnpj_8)",
+    "v_contract_intel_fornecedores": "Supplier analytics + HHI",
+    "v_contract_intel_ativos_90_180": "Vigência end 90–180 days",
+    "v_contract_intel_percentis": "Keyword category percentiles on valor_total",
+    "v_contracts_canonical": "Canonical contracts + optional entity/enrichment joins",
+    "v_coverage_evidence_expanded": "Readable projection of coverage_evidence",
+    "v_dual_capability_evidence_latest": "DISTINCT ON latest evidence per entity×source×capability (migration 058)",
+    "v_capability_coverage_summary": "capability_coverage aggregates"
+  },
+  "functions_contract_related": {
+    "upsert_pncp_supplier_contracts": "Idempotent contracts upsert",
+    "upsert_pncp_raw_bids": "Bids upsert (sibling)",
+    "fn_purge_old_data": "Retention purge allowlist includes pncp_supplier_contracts",
+    "fn_capture_contract_snapshot": "Versioning trigger function",
+    "search_datalake": "Primarily bids search surface"
+  },
+  "migrations_chronology_contracts": [
+    {"id": "002", "title": "pncp_supplier_contracts base table + indexes"},
+    {"id": "006", "title": "upsert RPCs"},
+    {"id": "013", "title": "GIN index objeto_contrato"},
+    {"id": "024", "title": "coverage_evidence ledger"},
+    {"id": "025a", "title": "contract_intel analytical views"},
+    {"id": "026", "title": "contract_intel truth v1 views (column naming notes)"},
+    {"id": "032", "title": "capability_coverage"},
+    {"id": "033", "title": "contract versioning"},
+    {"id": "040", "title": "coverage model expansion (capability/freshness/applicability)"},
+    {"id": "050", "title": "fix upsert ambiguity + drop FKs for national pilot"},
+    {"id": "051", "title": "contract date semantics columns + upsert extension"},
+    {"id": "055", "title": "drop orgao FK national bids/contracts"},
+    {"id": "056", "title": "drop supplier FK contracts"},
+    {"id": "058", "title": "dual capability evidence latest view + entity_coverage delimitation"}
+  ]
+}
