@@ -1427,6 +1427,60 @@ def run_editais_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord:
         )
 
 
+def run_contratos_report(dsn: str, *, out_dir: Path | None = None) -> StepRecord:
+    """Generate domain-specific contratos report (not panorama Excel/PDF)."""
+    t0 = time.perf_counter()
+    try:
+        from scripts.reports.contratos_report import write_contratos_report
+
+        result = write_contratos_report(dsn, out_dir=out_dir)
+        path = result.get("path")
+        size = int(result.get("size") or 0)
+        if not result.get("ok") or not path or not Path(path).is_file():
+            return StepRecord(
+                step="contratos_report",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error=str(result.get("limitations") or "contratos report missing"),
+                details=result,
+            )
+        if "relatorio-contratos" not in Path(path).name:
+            return StepRecord(
+                step="contratos_report",
+                status="fail",
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                error="contratos report path must be domain-specific",
+                details=result,
+            )
+        cols = result.get("columns") or []
+        for required in ("ente_id", "n_contratos", "valor_total"):
+            if required not in cols:
+                return StepRecord(
+                    step="contratos_report",
+                    status="fail",
+                    duration_ms=(time.perf_counter() - t0) * 1000,
+                    error=f"missing column {required}",
+                    details=result,
+                )
+        _echo(
+            f"  Contratos report: {path} rows={result.get('row_count')} size={size}",
+            "ok",
+        )
+        return StepRecord(
+            step="contratos_report",
+            status="pass",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            details=result,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return StepRecord(
+            step="contratos_report",
+            status="fail",
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            error=str(exc),
+        )
+
+
 def run_reports(dsn: str) -> list[ReportRecord]:
     """Generate panorama reports (Excel + PDF)."""
     reports: list[ReportRecord] = []
@@ -1638,6 +1692,11 @@ def parse_args() -> argparse.Namespace:
         "--execute-editais-report-only",
         action="store_true",
         help="Run only domain editais report (CSV+JSON) + ledger (requires DB)",
+    )
+    p.add_argument(
+        "--execute-contratos-report-only",
+        action="store_true",
+        help="Run only domain contratos report (CSV+JSON) + ledger (requires DB)",
     )
     p.add_argument(
         "--spreadsheet",
@@ -2062,6 +2121,42 @@ def main() -> int:
         _echo(f"  Ledger: {args.ledger_output}", "ok")
         return 0
 
+    if args.execute_contratos_report_only:
+        run_id = f"gp-contratos-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        timestamp = datetime.now(UTC).isoformat()
+        steps: list[StepRecord] = []
+        wall_start = time.monotonic()
+        dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
+        if not dsn:
+            try:
+                import config.settings as _cfg
+
+                dsn = _cfg.LOCAL_DATALAKE_DSN
+            except ImportError:
+                dsn = "postgresql://postgres:@127.0.0.1:54399/postgres"
+        ok_db, dur_db = check_db(dsn)
+        steps.append(
+            StepRecord(step="db_connectivity", status="pass" if ok_db else "fail", duration_ms=dur_db)
+        )
+        if not ok_db:
+            _save_final_ledger(
+                run_id, timestamp, "failed", steps, [], [], None, wall_start, args.ledger_output
+            )
+            return 1
+        _echo("\n[execute-contratos-report-only] Gerando relatório de contratos...", "header")
+        contratos_step = run_contratos_report(dsn)
+        steps.append(contratos_step)
+        overall = "success" if contratos_step.status == "pass" else "failed"
+        _save_final_ledger(
+            run_id, timestamp, overall, steps, [], [], None, wall_start, args.ledger_output, dsn=dsn
+        )
+        if overall != "success":
+            _echo(f"  Contratos report FAIL: {contratos_step.error}", "error")
+            return 1
+        _echo("  Contratos report OK (domain CSV+JSON present)", "ok")
+        _echo(f"  Ledger: {args.ledger_output}", "ok")
+        return 0
+
     # ── Resolve DSN ──
     dsn = args.dsn or os.getenv("LOCAL_DATALAKE_DSN")
     if not dsn:
@@ -2457,6 +2552,13 @@ def main() -> int:
     if editais_step.status != "pass":
         _echo(f"  Editais report FAIL: {editais_step.error}", "error")
 
+    # Step 4c: domain-specific contratos report (DoD §12.1 — not panorama)
+    _echo("\n[4c/7] Relatório de contratos (domínio)...", "header")
+    contratos_step = run_contratos_report(dsn)
+    steps.append(contratos_step)
+    if contratos_step.status != "pass":
+        _echo(f"  Contratos report FAIL: {contratos_step.error}", "error")
+
     # =========================================================================
     # Summary
     # =========================================================================
@@ -2473,8 +2575,11 @@ def main() -> int:
         skip_sources=bool(args.skip_sources),
         allow_zero=bool(args.allow_zero),
     )
-    # Domain editais report is mandatory for §12.1 (independent of panorama Excel/PDF).
+    # Domain domain reports are mandatory for §12.1 (independent of panorama Excel/PDF).
     if editais_step.status != "pass" and exit_code == 0:
+        overall = "failed"
+        exit_code = 4
+    if contratos_step.status != "pass" and exit_code == 0:
         overall = "failed"
         exit_code = 4
 
@@ -2535,7 +2640,7 @@ def main() -> int:
         1: "FALHA/EMPTY: sem dados utilizáveis ou essential zero sem --allow-zero",
         2: "PARCIAL: fontes essenciais falharam",
         3: "FRESHNESS FAIL: gate de freshness reprovado (strict)",
-        4: "REPORT FAIL: Excel/PDF ou relatório de editais obrigatório falhou",
+        4: "REPORT FAIL: Excel/PDF ou relatório de domínio (editais/contratos) falhou",
         5: "DEGRADED: fontes não essenciais falharam (strict)",
     }
     _echo(f"\n{messages.get(exit_code, f'Exit {exit_code}')}. Verifique o ledger.", "error")
