@@ -78,9 +78,20 @@ T006→T010→T031→T011→T012
 T019→T020→T032→T033→T034→T035→T036
 ```
 
-## Open (not implementable as code alone)
+## Closed process tasks (evidence)
 
-* T020–T036: remote CI, review authority, merge permission, acceptance controller
+* T020: PR #108 CI green + merge `edd7618`
+* T032: independent reviews v1.1/v1.2/v1.3
+* T033: PR #108 merged
+* T034: main dual reproof after merges
+* T035: `dod_controller accept` + pack `DOD-rol-1-definition-of-done-4efe05fc94`
+* T036: PR #109 DOD ACCEPTED dual calcula cobertura
+* T040–T044: skeptic remediation #110/#111 + cap-level honesty
+
+## Remaining operational (not engine implementable)
+
+* identity_unresolved CNPJ roots → 0
+* coverage_evidence backfill → dual 95%
 
 ## Phase 7 — Skeptic remediation (post-accept)
 
