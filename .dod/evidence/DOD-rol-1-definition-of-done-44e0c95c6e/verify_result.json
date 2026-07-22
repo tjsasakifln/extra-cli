@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "item_id": "DOD-rol-1-definition-of-done-44e0c95c6e",
+  "head_sha": "dc71a21436e1713a335127067db5d7607c017096",
+  "reproof_at": "2026-07-22T00:40:11Z",
+  "commands": [
+    {
+      "cmd": "pytest tests/test_golden_path_concorrentes_report.py",
+      "exit_code": 0,
+      "skipped": false,
+      "stdout_tail": "3 passed"
+    },
+    {
+      "cmd": "golden_path --execute-concorrentes-report-only",
+      "exit_code": 0,
+      "skipped": false,
+      "stdout_tail": "pass rows=1"
+    }
+  ]
+}

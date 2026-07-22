@@ -1,0 +1,17 @@
+
+ Gerando relatório de concorrentes...
+  Concorrentes report: 
+/mnt/d/extra-consultoria-continue-03/output/reports/relatorio-concorrentes-20260
+722T003749Z.csv rows=1 size=128
+
+Ledger salvo:  
+.dod/evidence/DOD-rol-1-definition-of-done-44e0c95c6e/ledger-concorrentes-reproo
+f.json
+Log salvo:     
+/mnt/d/extra-consultoria-continue-03/output/golden-path/gp-20260721-213749.log
+  meta.git_sha=dc71a21436e1713a335127067db5d7607c017096 
+schema=migrations_count=62
+  Concorrentes report OK (domain CSV+JSON present)
+  Ledger: 
+.dod/evidence/DOD-rol-1-definition-of-done-44e0c95c6e/ledger-concorrentes-reproo
+f.json
