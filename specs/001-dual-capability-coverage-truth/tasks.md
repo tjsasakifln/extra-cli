@@ -79,10 +79,10 @@
 - [x] T044 Multi-key identity resolution (00394494)
 - [x] T045 Supersede pack 4efe05fc94; create 1fdea0f6e6
 - [x] T046 Spec/checklist/analyze refresh FR-025..032
-- [ ] T047 Implementation PR + CI green
-- [ ] T048 Independent review on final SHA
-- [ ] T049 Resolve PR #107
-- [ ] T050 Main merge reproof + converge GOAL DONE
+- [x] T047 Implementation PR #115 + CI green
+- [x] T048 Independent review v1.4 PASS_FOR_MERGE (`c06d7cd`, ancestor of main)
+- [x] T049 Resolve PR #107 (rebase → mergeable=true → MERGED `a7b213e`)
+- [x] T050 Main merge reproof + converge (`a7b213e` / docs `dbc9065`)
 
 ## Dependencies
 
@@ -103,20 +103,28 @@ T040…T046→T047→T048→T049→T050
 * T036: PR #109 DOD ACCEPTED dual calcula cobertura
 * T040–T044: skeptic remediation #110/#111 + cap-level honesty
 
-## Remaining operational (not engine implementable)
+## Remaining operational (not engine implementable this mission)
 
-* identity_unresolved CNPJ roots → 0
-* coverage_evidence backfill → dual 95%
+* coverage_evidence backfill → dual 95% candidacy (explicitly out of measurement-truth scope)
+* 147 entities with unknown esfera (consórcios/SEM) — honest unknown, no invention
 
-## Phase 7 — Skeptic remediation (post-accept)
+## Phase 7 — Skeptic remediation (historical #110–#112)
 
-- [x] T040 Single-capability: scope_complete=false, dual_gate_status=NOT_EVALUATED, pipeline_success=false  
-  Files: `scripts/coverage/dual_capability_coverage.py`, `scripts/golden_path.py`, tests
-- [x] T041 identity_unresolved → measurement_success=false; mapping_status preserved  
-  Files: `scripts/coverage/dual_capability_coverage.py`, tests
-- [x] T042 Use `v_dual_capability_evidence_latest` in evidence load (not dead view)  
-  Files: `scripts/coverage/dual_capability_coverage.py`, migration 058
-- [x] T043 Update tasks/STATUS after merge/accept honesty  
-  Files: `specs/.../tasks.md`, campaign STATUS
-- [x] T044 Independent review with executed attacks + commands on fix SHA  
-  Files: campaign independent-review artifact
+- [x] T040 Single-capability scope honesty
+- [x] T041 identity_unresolved → measurement_success=false
+- [x] T042 dual evidence view
+- [x] T043 STATUS honesty
+- [x] T044 Independent review v1.3
+
+## Phase 8 — Final canonical closure
+
+- [x] T050 Single source_policy authority + required_combinations (v2.0.0 active, hash verified)
+- [x] T051 No silent DEFAULT_REQUIRED_SOURCES (allow_fallback=False returns empty)
+- [x] T052 MANDATORY_SOURCES = full MIN combination (not first-source-only)
+- [x] T053 Multi-key identity; live identity_unresolved_count=0
+- [x] T054 Presence fail-closed + real PG tests
+- [x] T055 Pack 4efe SUPERSEDED; pack 1fdea0f6e6 with verify/proof
+- [x] T056 PR #115/#107/#116 merged; PR #107 was mergeable=true
+- [x] T057 Independent review on final implementation SHA (v1.5)
+- [x] T058 Controller re-verify/accept artifacts on final semantics
+- [x] T059 Spec Kit tasks/checklist/analyze/converge aligned

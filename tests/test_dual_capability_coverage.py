@@ -253,6 +253,7 @@ def test_stale_not_in_numerator() -> None:
         {"pncp": obs},
         as_of=datetime.now(UTC),
         applicability="applicable",
+        required_sources=["pncp"],
         has_data_presence=True,
     )
     assert res.has_data_presence is True
@@ -276,6 +277,7 @@ def test_coverage_without_presence_via_success_zero() -> None:
         {"pncp": obs},
         as_of=datetime.now(UTC),
         applicability="applicable",
+        required_sources=["pncp"],
         has_data_presence=False,
     )
     assert res.covered is True
@@ -343,7 +345,8 @@ def test_success_with_data_counts_as_not_covered_without_persist() -> None:
     ok, st, _ = observation_counts_as_covered(obs, CAP_OPEN_TENDERS, as_of=datetime.now(UTC))
     assert ok is False
     res = score_entity_capability(
-        e, CAP_OPEN_TENDERS, {"pncp": obs}, as_of=datetime.now(UTC), applicability="applicable"
+        e, CAP_OPEN_TENDERS, {"pncp": obs}, as_of=datetime.now(UTC), applicability="applicable",
+        required_sources=["pncp"]
     )
     assert res.covered is False
 
@@ -551,6 +554,7 @@ def test_missing_required_source_not_covered() -> None:
         {},  # no pncp
         as_of=datetime.now(UTC),
         applicability="applicable",
+        required_sources=["pncp"],
     )
     assert res.covered is False
     assert "pncp" in res.missing_sources

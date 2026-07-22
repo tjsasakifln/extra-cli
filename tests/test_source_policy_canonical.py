@@ -147,13 +147,23 @@ def test_historical_requires_pncp_contracts() -> None:
 
 
 def test_min_source_matches_policy() -> None:
-    from scripts.coverage.applicability_matrix import MIN_SOURCE_COMBINATION
-    from scripts.coverage.dual_capability_coverage import DEFAULT_REQUIRED_SOURCES
+    from scripts.coverage.applicability_matrix import MANDATORY_SOURCES, MIN_SOURCE_COMBINATION
+    from scripts.coverage.dual_capability_coverage import (
+        DEFAULT_REQUIRED_SOURCES,
+        resolve_required_sources,
+    )
 
     assert MIN_SOURCE_COMBINATION["open_tenders"] == ["pncp", "ciga_ckan"]
+    # Full combination — never first-source-only reduction
+    assert MANDATORY_SOURCES["open_tenders"] == ["pncp", "ciga_ckan"]
+    assert MANDATORY_SOURCES["historical_contracts"] == ["pncp", "contracts"]
     # Default stub remains non-canonical and must diverge intentionally
     assert DEFAULT_REQUIRED_SOURCES["open_tenders"] == ("pncp",)
     assert list(DEFAULT_REQUIRED_SOURCES["open_tenders"]) != MIN_SOURCE_COMBINATION["open_tenders"]
+    # allow_fallback=False without policy → empty (never silent pncp)
+    assert resolve_required_sources("open_tenders", allow_fallback=False) == []
+    # allow_fallback=True is explicit non-canonical only
+    assert resolve_required_sources("open_tenders", allow_fallback=True) == ["pncp"]
 
 
 def test_compute_dual_rejects_missing_policy(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

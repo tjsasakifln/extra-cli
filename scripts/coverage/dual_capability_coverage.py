@@ -749,8 +749,12 @@ def resolve_required_sources(
 ) -> list[str]:
     """Resolve required sources for capability from canonical policy when available.
 
-    DEFAULT_REQUIRED_SOURCES is returned only when ``allow_fallback=True`` and is
-    never canonical (caller must set fallback_used / measurement_success=false).
+    DEFAULT_REQUIRED_SOURCES is returned **only** when ``allow_fallback=True``.
+    That path is never canonical: callers MUST set fallback_used=True and
+    measurement_success=false / dual_gate_status=NOT_READY.
+
+    When ``allow_fallback=False`` and policy cannot resolve a combination, returns
+    an empty list (never silently substitutes pncp-only).
     """
     if source_roles:
         required = [s for s, role in source_roles.items() if role == "required"]
@@ -769,11 +773,18 @@ def resolve_required_sources(
             )
             if sel.get("selected_combination"):
                 return list(sel["selected_combination"])
-        except Exception as _policy_exc:  # noqa: BLE001 — non-canonical path continues
+            # candidates without a fully selected combo still must not fallback
+            cands = sel.get("candidate_combinations") or []
+            if cands and cands[0]:
+                return list(cands[0])
+        except Exception as _policy_exc:  # noqa: BLE001 — empty without fallback
             _ = _policy_exc
+            if not allow_fallback:
+                return []
     if allow_fallback:
         return list(DEFAULT_REQUIRED_SOURCES.get(capability, ("pncp",)))
-    return list(DEFAULT_REQUIRED_SOURCES.get(capability, ("pncp",)))
+    # Canonical path: no silent DEFAULT_REQUIRED_SOURCES
+    return []
 
 
 def build_applicability_resolutions(
@@ -2302,8 +2313,12 @@ def compute_dual_coverage(
                 # Observation applicability=unknown must NOT remove an entity from A_C
                 # (would inflate coverage % when DB defaults COALESCE to unknown).
                 for src, o in obs_for_ent.items():
+                    # Live path: never silent DEFAULT fallback (allow_fallback=False)
                     req_list = resolve_required_sources(
-                        cap_n, entity=ent, policy=policy_obj, allow_fallback=True
+                        cap_n,
+                        entity=ent,
+                        policy=policy_obj,
+                        allow_fallback=False,
                     )
                     if o.applicability == "blocked":
                         resolutions.append(
@@ -2335,9 +2350,12 @@ def compute_dual_coverage(
                         )
                     # unknown on observation: ignore for A_C fold (stay matrix decision)
                 appl, just, required = fold_entity_applicability(resolutions)
-                # required sources from matrix resolutions
+                # required sources from matrix resolutions — no silent DEFAULT fallback
                 req_sources = [s for s in required if s != "(none)"] or resolve_required_sources(
-                    cap_n, entity=ent, policy=policy_obj, allow_fallback=True
+                    cap_n,
+                    entity=ent,
+                    policy=policy_obj,
+                    allow_fallback=False,
                 )
                 if entity_required_sources and ent.entity_id in entity_required_sources.get(cap_n, {}):
                     req_sources = list(entity_required_sources[cap_n][ent.entity_id])
