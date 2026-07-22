@@ -98,6 +98,86 @@ def test_esfera_absent_unknown() -> None:
     esfera, src = derive_esfera(natureza_juridica=None, entity_type=None)
     assert esfera is None
     assert "absent" in src or src == "attribute_absent"
+
+
+def test_consorcio_intermunicipal_derives_municipal() -> None:
+    esfera, src = derive_esfera(
+        natureza_juridica="Consórcio Público de Direito Público (Associação Pública)",
+        razao_social="CONSORCIO INTERMUNICIPAL DE TURISMO COSTA VERDE E MAR",
+        municipio="PORTO BELO",
+    )
+    assert esfera == "municipal"
+    assert "consorcio" in src
+
+
+def test_economia_mista_sede_municipal() -> None:
+    esfera, src = derive_esfera(
+        natureza_juridica="Sociedade de Economia Mista",
+        razao_social="COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DE BRUSQUE",
+        municipio="BRUSQUE",
+    )
+    assert esfera == "municipal"
+    assert "ep_sem" in src or "municipio" in src
+
+
+def test_servico_social_autonomo_federal() -> None:
+    esfera, src = derive_esfera(
+        natureza_juridica="Serviço Social Autônomo",
+        razao_social="SERVICO SOCIAL DO COMERCIO",
+        municipio="FLORIANOPOLIS",
+    )
+    assert esfera == "federal"
+    assert "servico_social" in src
+
+
+def test_historical_contracts_applicable_for_multi_sphere_natures() -> None:
+    pol = load_source_policy(require_active=True)
+    for name, natureza in [
+        (
+            "CONSORCIO INTERMUNICIPAL DE TURISMO COSTA VERDE E MAR",
+            "Consórcio Público de Direito Público (Associação Pública)",
+        ),
+        (
+            "COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DE BRUSQUE",
+            "Sociedade de Economia Mista",
+        ),
+        ("SERVICO SOCIAL DO COMERCIO", "Serviço Social Autônomo"),
+    ]:
+        attrs = entity_attributes_from_canonical(
+            _ent("e", name=name, natureza=natureza, municipio="BRUSQUE")
+        )
+        assert attrs.esfera is not None, (name, attrs.source_of_esfera)
+        sel = select_required_combination(
+            pol, "historical_contracts", attrs, validated_at="t"
+        )
+        assert sel["entity_capability_status"] == "applicable", sel
+        assert sel["selected_combination"] == ["pncp", "contracts"]
+
+
+def test_historical_contracts_wildcard_when_esfera_unresolved() -> None:
+    """Capability-level combination remains available via esfera=* rule."""
+    pol = load_source_policy(require_active=True)
+    attrs = entity_attributes_from_canonical(
+        _ent("u", name="ENTIDADE AMBIGUA", natureza="Outro tipo sem esfera"),
+    )
+    # Force unknown esfera path
+    from scripts.coverage.source_policy import EntityAttributes
+
+    forced = EntityAttributes(
+        entity_id="u",
+        esfera=None,
+        natureza_juridica="Outro tipo sem esfera",
+        municipio="X",
+        codigo_ibge=None,
+        cnpj14=None,
+        cnpj8="12345678",
+        entity_type=None,
+        source_of_esfera="attribute_absent",
+        attribute_gaps=("esfera",),
+    )
+    sel = select_required_combination(pol, "historical_contracts", forced, validated_at="t")
+    assert sel["entity_capability_status"] == "applicable"
+    assert sel["selected_combination"] == ["pncp", "contracts"]
     pol = load_source_policy(require_active=True)
     # natureza/entity_type insufficient to derive esfera → unknown
     attrs2 = entity_attributes_from_canonical(

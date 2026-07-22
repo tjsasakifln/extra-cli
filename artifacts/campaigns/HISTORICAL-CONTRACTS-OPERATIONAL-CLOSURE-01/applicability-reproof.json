@@ -1,0 +1,18 @@
+{
+  "git_sha": "a38981bfa616b8f47363da6ff91b12a28bec218c",
+  "historical_contracts": {
+    "universe_count": 1093,
+    "applicable_denominator": 1093,
+    "covered_numerator": 0,
+    "coverage_pct": 0.0,
+    "applicability_unknown_count": 0,
+    "never_checked_count": 1093,
+    "measurement_success": true,
+    "coverage_gate_pass": false,
+    "reconciliation_ok": true
+  },
+  "source_policy_version": "2.1.0",
+  "source_policy_sha256": "f090ff87dbd2d073fb5c7ca89d42bda690deffb7656e6bde8fa2c01446b492e2",
+  "claim": "applicability_resolution_100pct_measurement_only_not_operational_coverage_pass",
+  "non_claim": "HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS"
+}

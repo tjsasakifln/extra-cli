@@ -10,20 +10,25 @@
 # itself (see scripts.coverage.source_policy.compute_policy_sha256).
 # =============================================================================
 
-policy_version: "2.0.0"
-version: "2.0.0"
+policy_version: "2.1.0"
+version: "2.1.0"
 updated_at: "2026-07-22"
 status: active
-validated_at: "2026-07-22T12:30:00Z"
-validated_by: "dual-canonical-closure-agent"
+validated_at: "2026-07-22T15:00:00Z"
+validated_by: "historical-contracts-operational-closure-01"
 owner: "coverage-governance"
 rationale: >
   Activate entity×source×capability applicability and explicit required
   combinations so dual coverage cannot claim readiness from draft policy or
   silent pncp-only fallback. Municipal open_tenders requires pncp+ciga_ckan;
   federal/estadual open_tenders requires pncp; historical_contracts requires
-  pncp+contracts. Esfera is never hardcoded in the engine.
-policy_sha256: "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46"
+  pncp+contracts for all spheres including esfera-agnostic multi-nature entities
+  (consórcios, SEM, EP, SSA) via attribute-derived esfera and a documented
+  wildcard combination (same sources for all spheres). Esfera is never hardcoded
+  per entity id. Semantic roles: pncp = official federal catalog authority;
+  contracts = historical contracts capability surface on that authority (same
+  PNCP /contratos origin, two audit roles — not two independent fetches).
+policy_sha256: "f090ff87dbd2d073fb5c7ca89d42bda690deffb7656e6bde8fa2c01446b492e2"
 
 # -----------------------------------------------------------------------------
 # Source roles per capability (complementary never satisfies required)
@@ -63,6 +68,12 @@ required_combinations:
       combinations:
         - [pncp]
   historical_contracts:
+    # Identical required set for every sphere — wildcard is lowest-specificity
+    # fallback so multi-sphere natures (SEM/EP/consórcio/SSA) without derived
+    # esfera still get a combination without inventing sphere-specific sources.
+    - match: {esfera: "*", natureza: "*"}
+      combinations:
+        - [pncp, contracts]
     - match: {esfera: municipal, natureza: "*"}
       combinations:
         - [pncp, contracts]
@@ -295,6 +306,8 @@ sources:
         reason: "Contratos PNCP aplicaveis a entes com CNPJ publicante"
     notes:
       - "Capability historical_contracts; nao substitui open_tenders"
+      - "Logical role distinct from pncp: contracts = product surface (contratos/atas)"
+      - "pncp role = official catalog authority; both may share one /contratos run_id"
 
 # ------------------------------------------------------------------------------
 # Exclusoes manuais conhecidas (ente especifico, override) — reason obrigatorio
