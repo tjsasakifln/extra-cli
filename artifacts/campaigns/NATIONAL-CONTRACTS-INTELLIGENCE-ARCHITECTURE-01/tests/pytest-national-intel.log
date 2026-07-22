@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.1, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /mnt/d/extra-consultoria-national-intelligence
+configfile: pytest.ini
+plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37.4.2, timeout-2.4.0, asyncio-1.1.0, mock-3.15.1, metadata-3.1.1, cov-4.1.0, anyio-4.2.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 27 items
+
+tests/national_intel/test_adversarial_nv_matrix.py .................     [ 62%]
+tests/national_intel/test_coverage_isolation_national_volume.py .....    [ 81%]
+tests/national_intel/test_products_fixture.py .....                      [100%]
+
+============================== 27 passed in 5.63s ==============================
