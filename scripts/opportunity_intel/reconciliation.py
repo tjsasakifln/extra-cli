@@ -282,15 +282,35 @@ class SourceSnapshotReconciler:
         if not records:
             return 0
 
-        # Build JSONB payload
+        # Build JSONB payload.
+        # Accept both normalized opportunity_intel fields and raw PNCP API keys
+        # (numeroControlePNCP) — pncp_audit passes raw records into reconcile().
         payload = []
         for rec in records:
-            source_record_id = rec.get("numero_controle_pncp") or rec.get("source_id") or rec.get("id") or ""
-            canonical_key = rec.get("content_hash") or rec.get("numero_controle_pncp") or ""
+            source_record_id = (
+                rec.get("numero_controle_pncp")
+                or rec.get("numeroControlePNCP")
+                or rec.get("source_id")
+                or rec.get("id")
+                or ""
+            )
+            # Prefer official control number as canonical key for membership match
+            # against opportunity_intel.numero_controle_pncp (inactivate_absent).
+            # content_hash alone does not match that column and caused false
+            # absent_from_complete_open_snapshot inactivation of every row.
+            canonical_key = (
+                rec.get("numero_controle_pncp")
+                or rec.get("numeroControlePNCP")
+                or rec.get("content_hash")
+                or str(source_record_id)
+                or ""
+            )
+            if not source_record_id and not canonical_key:
+                continue
             payload.append(
                 {
-                    "source_record_id": source_record_id,
-                    "canonical_opportunity_key": canonical_key,
+                    "source_record_id": str(source_record_id),
+                    "canonical_opportunity_key": str(canonical_key),
                 }
             )
 

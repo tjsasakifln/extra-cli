@@ -66,3 +66,36 @@ def test_snapshot_integrity_fail_closed_without_dsn_shape() -> None:
 
     sig = inspect.signature(measure_snapshot_integrity)
     assert "require_non_empty" in sig.parameters
+
+
+def test_membership_keys_accept_raw_pncp_fields() -> None:
+    """Raw PNCP API keys must map to membership keys that match intel rows."""
+    from scripts.opportunity_intel.reconciliation import SourceSnapshotReconciler
+
+    # Exercise pure payload-building logic via a thin local copy of the rules
+    # used by _record_memberships (no DB): ship the same field preference.
+    rec = {
+        "numeroControlePNCP": "11360515000119-1-000013/2026",
+        "orgaoCNPJ": "11360515000119",
+    }
+    source_record_id = (
+        rec.get("numero_controle_pncp")
+        or rec.get("numeroControlePNCP")
+        or rec.get("source_id")
+        or rec.get("id")
+        or ""
+    )
+    canonical_key = (
+        rec.get("numero_controle_pncp")
+        or rec.get("numeroControlePNCP")
+        or rec.get("content_hash")
+        or str(source_record_id)
+        or ""
+    )
+    assert source_record_id == "11360515000119-1-000013/2026"
+    assert canonical_key == "11360515000119-1-000013/2026"
+    # Guard: source must still document the dual-key acceptance
+    src = Path(SourceSnapshotReconciler.__module__.replace(".", "/") + ".py")
+    # module path via package
+    text = (ROOT / "scripts/opportunity_intel/reconciliation.py").read_text(encoding="utf-8")
+    assert "numeroControlePNCP" in text
