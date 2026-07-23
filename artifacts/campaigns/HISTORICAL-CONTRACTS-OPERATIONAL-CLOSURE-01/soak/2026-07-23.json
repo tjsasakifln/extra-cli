@@ -1,0 +1,15 @@
+{
+  "day": "2026-07-23",
+  "as_of": "2026-07-23T20:31:54.342215Z",
+  "contracts_freshness_hours": 22.56,
+  "incremental_exit": 0,
+  "health_ok": true,
+  "failed_units": 0,
+  "notes": [],
+  "dsn_configured": false,
+  "measure_mode": "ssh_ec_prod",
+  "health_timer": "active",
+  "contracts_timer": "active",
+  "contracts_count": 4438393,
+  "last_contracts_result": "success"
+}

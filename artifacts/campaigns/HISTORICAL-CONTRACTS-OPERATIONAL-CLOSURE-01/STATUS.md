@@ -1,28 +1,29 @@
 # Campaign STATUS — HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01
 
-**Updated:** 2026-07-23T20:12Z  
-**Result:** **BLOCKED** (see `result.json`) — not PASS
+**Updated:** 2026-07-23T20:32Z  
+**Result:** **BLOCKED** — see `result.json` + `UNBLOCK.md`
 
-## Done
+## Completed (evidence)
 
-| Gate | Evidence |
-|------|----------|
-| Spec 002 VPS scope + converge | specs/002-*/ |
-| success_zero proof-gated | contracts_entity_evidence + adversarial tests |
-| Backfill 37/37 | checkpoint + live-3y.json status=success |
-| Cutover restore SHA256 + count match | 4,437,142 on VPS |
-| Dual historical_contracts 100% PASS | dual-coverage.json gate_status=PASS |
-| Incremental 7d | incremental.json status=success |
-| Foundation on main | PR #124 @ 1864b12 |
-| VPS health/alerts | 0 failed units |
-| pncp-contracts.timer enabled | sole writer path armed |
-| Consulting package sample | consulting-package/ 5000 contracts |
+| Gate | Proof |
+|------|--------|
+| Spec 002 VPS/cutover | `specs/002-historical-contracts-operational-coverage/` |
+| Backfill 37/37 | checkpoint + live-3y success |
+| Cutover VPS | `cutover.json` count 4437142 SHA256 |
+| Dual 100% PASS | `dual-coverage.json` |
+| Incremental | local + VPS `pncp-contracts` success |
+| Separate-DB restore | `restore.json` RTO 645s |
+| PG restart recovery | `recovery.json` |
+| VPS consulting package | `consulting-package-vps-meta.json` 5000/4.4M |
+| main integration | PR #124 + #125 → `f25b96b` |
+| Soak instrumentation | day1 freshness 22.56h; timer daily; VPS-local measure |
 
-## Blockers
+## Blockers (only)
 
-1. **OFFSITE_BACKUP_CREDENTIAL** — BACKUP_STORAGE_BOX_SSH empty  
-2. **SOAK_7D_IN_PROGRESS** — day 1/7; timer armed  
+1. **OFFSITE_BACKUP_CREDENTIAL** — `BACKUP_STORAGE_BOX_SSH=EMPTY` on VPS  
+   → operator action in `UNBLOCK.md`
+2. **SOAK_7D** — calendar day 1/7; timer armed; do not fabricate days
 
 ## Non-claims
 
-No LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE / open_tenders 95% / full OPERATIONAL_COVERAGE_PASS until blockers clear.
+LOCAL_READY, VPS_OPERATIONAL, PROJECT_DONE, open_tenders≥95%, full OPERATIONAL_COVERAGE_PASS.
