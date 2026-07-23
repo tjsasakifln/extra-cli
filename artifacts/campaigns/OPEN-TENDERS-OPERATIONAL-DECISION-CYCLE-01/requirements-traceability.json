@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "generated_at": "2026-07-23T23:54:52Z",
+  "git_sha": "7617baea8d17895bbfe26886814e4faa318c4de4",
+  "requirements": [
+    {
+      "id": "FR-OT-01",
+      "text": "Canonical weekly entry",
+      "impl": "make extra-weekly",
+      "test": "tests/test_weekly_cycle.py",
+      "evidence": "campaign-gate.json",
+      "status": "PROVEN"
+    },
+    {
+      "id": "FR-OT-02",
+      "text": "Aggregated PNCP + complete-only reconcile",
+      "impl": "pncp_audit + reconciler",
+      "test": "tests/test_snapshot_reconciliation.py",
+      "evidence": "vps-full-collect.json",
+      "status": "PROVEN_VPS"
+    },
+    {
+      "id": "FR-OT-03",
+      "text": "Applicability 100%",
+      "impl": "source_applicability.yaml",
+      "test": "tests/test_source_policy_canonical.py",
+      "evidence": "dual-coverage-open_tenders.json",
+      "status": "PROVEN_VPS"
+    },
+    {
+      "id": "FR-OT-04",
+      "text": "Coverage >=95%",
+      "impl": "PNCP+CIGA dual",
+      "test": "tests/test_project_ciga_dual_evidence.py",
+      "evidence": "dual-coverage-open_tenders.json",
+      "status": "PROVEN_VPS_100PCT"
+    },
+    {
+      "id": "FR-OT-05",
+      "text": "Freshness <=24h",
+      "impl": "SLA 24h",
+      "test": "test_pncp_opp_sla_default_is_24h",
+      "evidence": "freshness.json",
+      "status": "PROVEN_VPS"
+    },
+    {
+      "id": "FR-OT-06",
+      "text": "Snapshot integrity 100%",
+      "impl": "snapshot_integrity",
+      "test": "test_open_tenders_campaign_gate",
+      "evidence": "snapshot-integrity.json",
+      "status": "PROVEN_VPS"
+    },
+    {
+      "id": "FR-OT-07",
+      "text": "Deliverable E live",
+      "impl": "deliverable_e_editais",
+      "test": "tests/test_deliverable_e_editais.py",
+      "evidence": "deliverable-e-audit.json",
+      "status": "PROVEN_VPS"
+    },
+    {
+      "id": "FR-OT-08",
+      "text": "PENDING never PARTICIPAR",
+      "impl": "ADR-022",
+      "test": "test_pending_capacity_never_go",
+      "evidence": "unit",
+      "status": "PROVEN_UNIT"
+    },
+    {
+      "id": "FR-OT-09",
+      "text": "Weekly timer VPS",
+      "impl": "extra-weekly.timer",
+      "test": "test_systemd_extra_weekly_units",
+      "evidence": "soak.json",
+      "status": "PROVEN_ARMED"
+    },
+    {
+      "id": "FR-OT-10",
+      "text": "Soak 7d",
+      "impl": "campaign_open_tenders_soak",
+      "test": "verify soak_7d",
+      "evidence": "soak.json",
+      "status": "BLOCKED_CALENDAR"
+    }
+  ]
+}

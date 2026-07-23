@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "git_sha": "7617baea8d17895bbfe26886814e4faa318c4de4",
+  "note": "No DOD ACCEPTED until main merge + soak.",
+  "directly_completed_on_main": [],
+  "proven_on_candidate_not_accepted": [
+    "snapshot integrity 100%",
+    "open_tenders dual coverage 100%",
+    "applicability 0 unknown",
+    "freshness editais",
+    "Entreg\u00e1vel E live",
+    "weekly timer armed"
+  ],
+  "partially_advanced": [
+    "soak 7d",
+    "recall independent sample"
+  ],
+  "only_unblocked": [
+    "DOD ACCEPTED on main"
+  ],
+  "not_claimed": [
+    "PROJECT_DONE",
+    "soak PASS",
+    "LOCAL_READY"
+  ]
+}
