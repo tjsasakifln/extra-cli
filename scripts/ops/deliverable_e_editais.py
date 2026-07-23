@@ -133,15 +133,15 @@ def _pending_critical_capacity(profile: dict[str, Any]) -> list[str]:
     elicitation = profile.get("elicitation") if isinstance(profile.get("elicitation"), dict) else {}
     capacity = profile.get("capacity") if isinstance(profile.get("capacity"), dict) else {}
 
-    for field in CRITICAL_CAPACITY_FIELDS:
-        el = elicitation.get(field) if isinstance(elicitation.get(field), dict) else None
+    for fname in CRITICAL_CAPACITY_FIELDS:
+        el = elicitation.get(fname) if isinstance(elicitation.get(fname), dict) else None
         if el is not None:
             status = str(el.get("status") or "").upper()
             value = el.get("value")
             if status in {"PENDING", "PENDING_ELICITATION", ""} or value in (None, [], ""):
-                missing.append(f"elicitation.{field}")
+                missing.append(f"elicitation.{fname}")
                 continue
-        top = profile.get(field)
+        top = profile.get(fname)
         if top in (None, [], ""):
             # capacity block alternate keys
             alt = {
@@ -150,12 +150,12 @@ def _pending_critical_capacity(profile: dict[str, Any]) -> list[str]:
                 "capacidade_garantia": "guarantee_capacity_brl",
                 "cats_atestados": "cats",
                 "certidoes": "certificates_status",
-            }.get(field)
+            }.get(fname)
             cap_val = capacity.get(alt) if alt else None
             cap_status = str(capacity.get("status") or "").upper()
             if cap_status in {"PENDING", "PENDING_ELICITATION"} or cap_val in (None, [], ""):
-                if field not in {m.split(".", 1)[-1] for m in missing}:
-                    missing.append(field)
+                if fname not in {m.split(".", 1)[-1] for m in missing}:
+                    missing.append(fname)
     return missing
 
 

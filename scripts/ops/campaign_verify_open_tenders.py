@@ -28,8 +28,10 @@ def _utc_now() -> str:
 
 def _git_sha() -> str:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=_ROOT, text=True
+        return subprocess.check_output(  # noqa: S603
+            ["/usr/bin/git", "rev-parse", "HEAD"],
+            cwd=_ROOT,
+            text=True,
         ).strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
@@ -46,9 +48,9 @@ def _load_json(path: Path) -> Any | None:
 
 def _ssh(cmd: str, timeout: int = 45) -> tuple[int, str]:
     try:
-        r = subprocess.run(
+        r = subprocess.run(  # noqa: S603
             [
-                "ssh",
+                "/usr/bin/ssh",
                 "-o",
                 "BatchMode=yes",
                 "-o",

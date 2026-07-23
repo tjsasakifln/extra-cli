@@ -32,8 +32,10 @@ def _utc_now() -> str:
 
 def _git_sha() -> str:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=_ROOT, text=True
+        return subprocess.check_output(  # noqa: S603
+            ["/usr/bin/git", "rev-parse", "HEAD"],
+            cwd=_ROOT,
+            text=True,
         ).strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
@@ -42,7 +44,7 @@ def _git_sha() -> str:
 def _run(cmd: list[str], *, timeout: int = 600) -> dict[str, Any]:
     t0 = time.monotonic()
     try:
-        r = subprocess.run(
+        r = subprocess.run(  # noqa: S603
             cmd,
             cwd=_ROOT,
             capture_output=True,
