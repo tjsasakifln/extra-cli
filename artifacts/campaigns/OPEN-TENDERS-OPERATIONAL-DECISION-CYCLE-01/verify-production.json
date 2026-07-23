@@ -1,14 +1,14 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "gate": "verify-open-tenders-production",
-  "generated_at": "2026-07-23T23:11:40Z",
-  "git_sha": "ee4bb12b49281622cbf15ddc24f7741c00060e9e",
+  "generated_at": "2026-07-23T23:30:59Z",
+  "git_sha": "7addb3526a55cc7011c96177b2140e9b8dd4ac42",
   "status": "BLOCKED",
   "ok": false,
   "summary": {
     "total": 9,
-    "pass": 3,
-    "fail": 6
+    "pass": 6,
+    "fail": 3
   },
   "checks": [
     {
@@ -40,12 +40,12 @@
       "item_id": "dual_open_tenders_coverage",
       "status": "FAIL",
       "evidence": {
-        "coverage_pct": null,
-        "gate_status": null,
-        "applicable_denominator": null,
-        "covered_numerator": null,
-        "unknown": null,
-        "universe": null
+        "coverage_pct": 38.8838,
+        "gate_status": "FAIL",
+        "applicable_denominator": 1093,
+        "covered_numerator": 425,
+        "unknown": 0,
+        "universe": 1093
       },
       "notes": "requires regenerated dual report ≥95% with zero applicability unknown"
     },
@@ -61,9 +61,9 @@
     },
     {
       "item_id": "snapshot_integrity",
-      "status": "FAIL",
+      "status": "PASS",
       "evidence": {
-        "status": "FAIL",
+        "status": "PASS",
         "integrity_pct": 100.0,
         "active_open_count": 4
       },
@@ -71,37 +71,55 @@
     },
     {
       "item_id": "vps_extra_weekly_timer",
-      "status": "FAIL",
+      "status": "PASS",
       "evidence": {
-        "enabled": "not-found",
-        "active": "inactive",
+        "enabled": "enabled",
+        "active": "active",
         "service": "Result=success\nExecMainStatus=0\nActiveEnterTimestamp=",
         "ssh_ok": true,
-        "vps_sha": "5f922114e566e30b123b97ebe9a2e06f2de487ad"
+        "vps_sha": "c51c2e85f2e432a71326f4c34575634056f2e5d3"
       },
       "notes": "timer must be enabled+active on VPS"
     },
     {
       "item_id": "vps_opportunity_intel_nonempty",
-      "status": "FAIL",
+      "status": "PASS",
       "evidence": {
-        "count": null,
-        "raw": "unknown"
+        "count": 4,
+        "raw": "4"
       },
       "notes": ""
     },
     {
       "item_id": "soak_7d",
       "status": "FAIL",
-      "evidence": "missing soak.json",
+      "evidence": {
+        "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+        "schema_version": "1.0",
+        "status": "IN_PROGRESS",
+        "started_at": "2026-07-23T23:15:00Z",
+        "days_required": 7,
+        "days_observed": 0,
+        "gaps": null,
+        "timer_unit": "extra-weekly.timer",
+        "service_unit": "extra-weekly.service",
+        "next_fire_observed": "Mon 2026-07-27 03:30:47 -03",
+        "vps_sha_at_start": "7194cb169c2e963e132cb35f8861e78f70aaf192",
+        "executions": [],
+        "note": "Soak started when extra-weekly.timer enabled on VPS. Complete after 7 days of real fires without silent gaps. Manual start-now does not replace timer soak.",
+        "claims_forbidden": [
+          "soak PASS before 7 days",
+          "manual oneshot equals recurrence"
+        ]
+      },
       "notes": "requires seven days of recurring execution evidence"
     }
   ],
   "vps": {
-    "sha": "5f922114e566e30b123b97ebe9a2e06f2de487ad",
-    "timer_enabled": "not-found",
-    "timer_active": "inactive",
-    "opportunity_intel_count": null
+    "sha": "c51c2e85f2e432a71326f4c34575634056f2e5d3",
+    "timer_enabled": "enabled",
+    "timer_active": "active",
+    "opportunity_intel_count": 4
   },
   "claims_authorized": [],
   "claims_forbidden": [

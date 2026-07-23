@@ -174,21 +174,14 @@ def build_report(*, require_vps: bool = False) -> dict[str, Any]:
         "systemctl show extra-weekly.service -p Result -p ExecMainStatus -p ActiveEnterTimestamp --no-pager 2>&1 | head -10"
     )
     _, opp_count = _ssh(
-        "cd /opt/extra-consultoria && "
-        "(test -f .env && set -a && . ./.env && set +a; "
-        "python3 -c \"import os,psycopg2; d=os.environ.get('DATABASE_URL') or os.environ.get('LOCAL_DATALAKE_DSN'); "
-        "c=psycopg2.connect(d) if d else None; "
-        "print(c.cursor().execute('select count(*) from opportunity_intel') or c.cursor().fetchone()[0] if False else '')\" 2>/dev/null) "
-        "|| (sudo -u postgres psql -d extra -tAc 'SELECT COUNT(*) FROM opportunity_intel' 2>/dev/null) "
-        "|| echo 'unknown'"
+        "cd /opt/extra-consultoria && set -a && . ./.env && set +a && "
+        ".venv/bin/python -c \"import os,psycopg2; "
+        "c=psycopg2.connect(os.environ.get('DATABASE_URL') or os.environ['LOCAL_DATALAKE_DSN']); "
+        "cur=c.cursor(); "
+        "cur.execute('SELECT COUNT(*) FROM opportunity_intel WHERE COALESCE(source_active, TRUE)'); "
+        "print(cur.fetchone()[0])\" 2>/dev/null || echo unknown"
     )
-    # simpler count
-    _, opp_count2 = _ssh(
-        "sudo -u postgres psql -d extra -tAc 'SELECT COUNT(*) FROM opportunity_intel' 2>/dev/null "
-        "|| psql \"$DATABASE_URL\" -tAc 'SELECT COUNT(*) FROM opportunity_intel' 2>/dev/null "
-        "|| echo unknown"
-    )
-    opp_raw = (opp_count2 or opp_count or "unknown").strip().splitlines()[-1] if (opp_count2 or opp_count) else "unknown"
+    opp_raw = (opp_count or "unknown").strip().splitlines()[-1] if opp_count else "unknown"
     try:
         opp_n = int(opp_raw)
     except ValueError:
