@@ -1,0 +1,19 @@
+{
+  "as_of": "2026-07-23T20:17:08.567583Z",
+  "host": "ec-prod",
+  "period_start": "2023-07-22",
+  "period_end": "2026-07-23",
+  "sample_rows": 5000,
+  "lake_total": 4437142,
+  "source": "vps_pncp_datalake",
+  "claims": [
+    "consulting_sample_from_vps_lake"
+  ],
+  "non_claims": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "offsite_backup_complete",
+    "soak_7d_complete"
+  ]
+}

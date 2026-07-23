@@ -4,15 +4,32 @@
   "observations_last_7d": [
     {
       "day": "2026-07-23",
-      "as_of": "2026-07-23T14:17:33.167834Z",
-      "contracts_freshness_hours": null,
-      "incremental_exit": null,
+      "as_of": "2026-07-23T20:31:54.342215Z",
+      "contracts_freshness_hours": 22.56,
+      "incremental_exit": 0,
       "health_ok": true,
       "failed_units": 0,
       "notes": [],
-      "health_timer": "active"
+      "dsn_configured": false,
+      "measure_mode": "ssh_ec_prod",
+      "health_timer": "active",
+      "contracts_timer": "active",
+      "contracts_count": 4438393,
+      "last_contracts_result": "success"
     }
   ],
+  "expected_days": [
+    "2026-07-17",
+    "2026-07-18",
+    "2026-07-19",
+    "2026-07-20",
+    "2026-07-21",
+    "2026-07-22",
+    "2026-07-23"
+  ],
+  "present_days": [
+    "2026-07-23"
+  ],
   "complete": false,
-  "as_of": "2026-07-23T14:17:34.809770Z"
+  "as_of": "2026-07-23T20:31:57.974421Z"
 }

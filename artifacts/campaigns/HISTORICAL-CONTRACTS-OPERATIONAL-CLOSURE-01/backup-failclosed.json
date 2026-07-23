@@ -1,0 +1,16 @@
+{
+  "as_of": "2026-07-23T20:35:07.447701Z",
+  "script": "/opt/extra-consultoria/scripts/backup-database.sh",
+  "BACKUP_STORAGE_BOX_SSH": "empty",
+  "exit_code": 1,
+  "observed_fatal": true,
+  "fatal_message": "BACKUP_STORAGE_BOX_SSH n\u00e3o configurada",
+  "status": "fail_closed_ok",
+  "local_dump_post_cutover": {
+    "path": "/var/lib/extra-consultoria/backups/postgresql/pncp_datalake-20260723T203159Z.dump",
+    "size_bytes": 412000000,
+    "approx": true
+  },
+  "reproduction": "ssh ec-prod; BACKUP_STORAGE_BOX_SSH= /opt/extra-consultoria/scripts/backup-database.sh; expect FATAL exit 1",
+  "note": "off-site path fails closed without credential; local dump is not off-site"
+}

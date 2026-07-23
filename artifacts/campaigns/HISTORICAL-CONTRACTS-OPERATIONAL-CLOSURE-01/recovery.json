@@ -1,0 +1,7 @@
+{
+  "as_of": "2026-07-23T20:27:47.033427Z",
+  "action": "restart_postgresql_and_health",
+  "contracts_count_after": null,
+  "failed_units_after": "0 loaded units listed",
+  "status": "ok"
+}
