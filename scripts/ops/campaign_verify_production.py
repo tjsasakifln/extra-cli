@@ -118,23 +118,49 @@ def build_report(campaign: str) -> dict[str, Any]:
         ],
     }
 
+    offsite = _load_json(art / "backup-offsite.json") or {}
+    soak = _load_json(art / "soak.json") or {}
+    cutover = _load_json(art / "cutover.json") or {}
+
     gates = {
         "baseline": baseline.is_file(),
         "checkpoint_complete": len(completed) >= 37,
-        "dual_pass": (
-            dual_data.get("gate_status") == "PASS"
-            or (
-                isinstance(dual_data.get("coverage_pct"), (int, float))
-                and float(dual_data["coverage_pct"]) >= 95.0
-            )
+        "dual_pass": dual_data.get("gate_status") == "PASS"
+        and (
+            isinstance(dual_data.get("coverage_pct"), (int, float))
+            and float(dual_data["coverage_pct"]) >= 95.0
         ),
         "vps_ssh": rc != 99,
         "no_failed_units_text": rc == 0 and "0 loaded units listed" in failed_units,
+        "cutover_ok": cutover.get("status") == "ok" or cutover.get("count_match") is True,
+        "offsite_ok": offsite.get("status") == "ok",
+        "soak_7d": bool(soak.get("complete")),
     }
     report["gates"] = gates
+    report["offsite"] = {
+        "status": offsite.get("status"),
+        "blockers": offsite.get("blockers"),
+    }
+    report["soak"] = {
+        "complete": soak.get("complete"),
+        "observations": len(soak.get("observations_last_7d") or []),
+    }
     report["status"] = "pass" if all(gates.values()) else "fail"
+    # Full operational claim only when every gate including off-site + soak holds.
     if report["status"] == "pass":
         report["claims_authorized"] = ["HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS"]
+    else:
+        report["claims_authorized"] = []
+        if gates.get("checkpoint_complete") and gates.get("dual_pass") and gates.get(
+            "cutover_ok"
+        ):
+            report["claims_authorized"].extend(
+                [
+                    "HISTORICAL_CONTRACTS_BACKFILL_37_WINDOWS",
+                    "HISTORICAL_CONTRACTS_DUAL_GATE_PASS_LOCAL",
+                    "CUTOVER_RESTORE_OK",
+                ]
+            )
     return report
 
 

@@ -1,0 +1,14 @@
+{
+  "as_of": "2026-07-23T20:05:25.132890Z",
+  "package": "pkg-20260723T195047Z",
+  "contracts_count": 4437142,
+  "sha256_verified": true,
+  "count_match": true,
+  "checkpoint_completed_windows": 37,
+  "planned_windows": 37,
+  "vps_writer": true,
+  "local_writer_stopped": true,
+  "restore_status": "ok",
+  "rollback": "restore previous VPS dump package from /var/lib/extra-consultoria/backups if needed",
+  "status": "ok"
+}

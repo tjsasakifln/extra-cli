@@ -1,0 +1,8 @@
+{
+  "as_of": "2026-07-23T19:50:47.521646Z",
+  "writer": "laptop_then_vps_cutover",
+  "pre_cutover_writer": "local_extra_test",
+  "post_cutover_writer": "vps_ec-prod",
+  "rule": "exactly one writer of pncp contracts at a time",
+  "vps_pncp_timers_disabled": true
+}

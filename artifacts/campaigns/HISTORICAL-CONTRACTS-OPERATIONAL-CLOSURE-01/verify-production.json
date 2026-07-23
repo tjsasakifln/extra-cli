@@ -1,0 +1,59 @@
+{
+  "campaign": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
+  "as_of": "2026-07-23T20:12:16.136822Z",
+  "git_sha": "c5835165a044198b23e5bbc89288fd9ced7f20af",
+  "baseline_present": true,
+  "checkpoint": {
+    "path": "/mnt/d/extra consultoria/data/contracts_checkpoints/hc_closure_3y/contracts_full.json",
+    "completed_windows": 37,
+    "planned_windows_target": 37,
+    "current_window_start": "20260204",
+    "total_windows_failed": 10,
+    "complete": true
+  },
+  "dual_historical_contracts": {
+    "coverage_pct": 100.0,
+    "gate_status": "PASS",
+    "applicable_denominator": 1093,
+    "covered_numerator": 1093,
+    "applicability_unknown_count": 0,
+    "as_of": "2026-07-23T20:04:39.413337Z"
+  },
+  "vps": {
+    "ssh_ok": true,
+    "failed_units_snippet": "UNIT LOAD ACTIVE SUB DESCRIPTION\n\n0 loaded units listed.",
+    "health_timer": "active\nsuccess"
+  },
+  "gates": {
+    "baseline": true,
+    "checkpoint_complete": true,
+    "dual_pass": true,
+    "vps_ssh": true,
+    "no_failed_units_text": true,
+    "cutover_ok": true,
+    "offsite_ok": false,
+    "soak_7d": false
+  },
+  "status": "fail",
+  "claims_authorized": [
+    "HISTORICAL_CONTRACTS_BACKFILL_37_WINDOWS",
+    "HISTORICAL_CONTRACTS_DUAL_GATE_PASS_LOCAL",
+    "CUTOVER_RESTORE_OK"
+  ],
+  "non_claims": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "open_tenders>=95%"
+  ],
+  "offsite": {
+    "status": "blocked_credential",
+    "blockers": [
+      "VPS BACKUP_STORAGE_BOX_SSH empty — off-site not configured"
+    ]
+  },
+  "soak": {
+    "complete": false,
+    "observations": 1
+  }
+}
