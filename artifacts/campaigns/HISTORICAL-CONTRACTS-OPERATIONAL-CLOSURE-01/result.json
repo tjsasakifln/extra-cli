@@ -1,0 +1,51 @@
+{
+  "campaign_id": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
+  "as_of": "2026-07-23T20:11:46.566934Z",
+  "result": "BLOCKED",
+  "blockers": [
+    {
+      "id": "OFFSITE_BACKUP_CREDENTIAL",
+      "evidence": "backup-offsite.json status=blocked_credential; BACKUP_STORAGE_BOX_SSH empty on VPS",
+      "owner": "Tiago / ops",
+      "unblock": "Configure off-site SSH destination in /etc/backup-database.conf without committing secrets; re-run campaign_offsite_backup_status + restore drill",
+      "impact": "\u00a722 off-site backup/RPO not proven"
+    },
+    {
+      "id": "SOAK_7D_IN_PROGRESS",
+      "evidence": "soak/2026-07-23.json day1 only; timer extra-contracts-soak.timer armed daily",
+      "owner": "ops automation",
+      "unblock": "Wait until 7 consecutive daily soak observations with health_ok and contracts freshness<=168h; re-run campaign_soak_tracker",
+      "impact": "\u00a724 seven-day continuous operation not yet elapsed"
+    }
+  ],
+  "completed": {
+    "backfill_37_windows": true,
+    "checkpoint_proof_gated_success_zero": true,
+    "cutover_sha256_count_match": true,
+    "dual_historical_contracts_pass": true,
+    "coverage_pct": 100.0,
+    "incremental_success": true,
+    "foundation_merged_main": "1864b12",
+    "vps_health_alerts_ok": true,
+    "pncp_contracts_timer_enabled": true,
+    "consulting_package_real_rows": 5000
+  },
+  "claims_authorized": [
+    "HISTORICAL_CONTRACTS_BACKFILL_37_WINDOWS",
+    "HISTORICAL_CONTRACTS_DUAL_GATE_PASS_LOCAL",
+    "CUTOVER_RESTORE_OK"
+  ],
+  "non_claims": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "open_tenders>=95%",
+    "HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS",
+    "offsite_backup_complete",
+    "soak_7d_complete"
+  ],
+  "prs": {
+    "foundation_merged": "https://github.com/tjsasakifln/extra-cli/pull/124",
+    "dual_fix_branch": "campaign/historical-contracts-operational-closure-01 @ c583516"
+  }
+}

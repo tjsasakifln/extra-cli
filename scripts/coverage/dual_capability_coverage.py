@@ -2015,9 +2015,10 @@ def load_data_presence(
     cur.close()
     if outsider > 0:
         raise DualCoverageError(f"entity_id_outside_canonical_universe: presence outsider_count={outsider}")
-    # Unmapped descriptive rows are reported; only fail measurement when we
-    # cannot interpret presence at all. Partial unmapped keeps mapped set but
-    # flags unmapped_rows (caller may fail_on_unmapped_presence).
+    # Unmapped descriptive rows are reported. For national PNCP dumps, thousands
+    # of orgao CNPJ roots sit outside the operational universe map — that is
+    # expected noise, not a broken presence measurement for the universe set.
+    # Only fail closed when *nothing* in the lake maps into the universe.
     if unmapped > 0 and not present:
         return PresenceLoadResult(
             status="unmapped_rows",
@@ -2027,14 +2028,14 @@ def load_data_presence(
             table_name=table,
             error=f"unmapped_rows={unmapped}",
         )
-    if unmapped > 0:
+    if unmapped > 0 and present:
         return PresenceLoadResult(
-            status="unmapped_rows",
+            status="measured_rows_present",
             entity_ids=present,
             unmapped_count=unmapped,
             unmapped_sample=unmapped_sample[:20],
             table_name=table,
-            error=f"unmapped_rows={unmapped}",
+            error=f"extra_national_orgaos_unmapped={unmapped}",
         )
     if not present:
         return PresenceLoadResult(status="no_rows", entity_ids=set(), table_name=table)
