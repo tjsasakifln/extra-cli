@@ -10,7 +10,6 @@ import argparse
 import json
 import os
 import subprocess
-import sys
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -20,8 +19,16 @@ _ROOT = Path(__file__).resolve().parents[2]
 
 def _ssh(cmd: str) -> tuple[int, str]:
     try:
-        r = subprocess.run(
-            ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", "ec-prod", cmd],
+        r = subprocess.run(  # noqa: S603
+            [
+                "/usr/bin/ssh",
+                "-o",
+                "BatchMode=yes",
+                "-o",
+                "ConnectTimeout=8",
+                "ec-prod",
+                cmd,
+            ],
             capture_output=True,
             text=True,
             timeout=60,
@@ -44,9 +51,9 @@ def observe(*, dsn: str | None, campaign: str) -> dict[str, Any]:
         "health_ok": None,
         "failed_units": None,
         "notes": [],
+        "dsn_configured": bool(dsn),
     }
 
-    # Prefer VPS measurement
     rc, out = _ssh(
         "systemctl --failed --plain --no-legend 2>/dev/null | wc -l; "
         "systemctl is-active extra-health-check.timer 2>/dev/null || true"
@@ -59,7 +66,6 @@ def observe(*, dsn: str | None, campaign: str) -> dict[str, Any]:
     else:
         obs["notes"].append(f"ssh_failed:{out[:200]}")
 
-    # Local dual/freshness artifact if present
     fresh = _ROOT / "output" / "coverage" / "freshness-contracts.json"
     if fresh.is_file():
         try:
@@ -74,7 +80,6 @@ def observe(*, dsn: str | None, campaign: str) -> dict[str, Any]:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obs, indent=2) + "\n", encoding="utf-8")
 
-    # Rollup last 7 days
     days = []
     for i in range(7):
         d = (date.today() - timedelta(days=i)).isoformat()

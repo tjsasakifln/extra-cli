@@ -1654,7 +1654,7 @@ def load_observations_from_db(
           AND column_name = 'canonical_entity_key'
         """
     )
-    has_canonical_key = cur.fetchone() is not None
+    cur.fetchone()  # ensure column probe query executed
     aliases = [capability]
     if capability == CAP_OPEN_TENDERS:
         aliases.extend(["notices_or_bids", "bids", "editais"])

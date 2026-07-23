@@ -10,10 +10,35 @@ import argparse
 import json
 import os
 import subprocess
-import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+_VPS_PROBE = r"""
+import json
+from pathlib import Path
+vals = {}
+p = Path('/etc/backup-database.conf')
+if p.is_file():
+    for line in p.read_text(encoding='utf-8', errors='replace').splitlines():
+        if '=' in line and not line.strip().startswith('#'):
+            k, _, v = line.partition('=')
+            vals[k.strip()] = v.strip()
+sshv = vals.get('BACKUP_STORAGE_BOX_SSH', '')
+d = Path('/var/lib/extra-consultoria/backups/postgresql')
+dumps = (
+    sorted(d.glob('*.dump'), key=lambda x: x.stat().st_mtime, reverse=True)
+    if d.is_dir()
+    else []
+)
+out = {
+    'offsite_configured': bool(sshv),
+    'local_dumps': len(dumps),
+    'last_local': str(dumps[0]) if dumps else None,
+    'status': 'blocked_credential' if not sshv else 'configured_unverified',
+}
+print(json.dumps(out))
+"""
 
 
 def probe() -> dict[str, Any]:
@@ -30,7 +55,11 @@ def probe() -> dict[str, Any]:
                 k, _, v = line.partition("=")
                 conf[k.strip()] = v.strip()
 
-    remote = conf.get("BACKUP_STORAGE_BOX_SSH") or os.environ.get("BACKUP_STORAGE_BOX_SSH") or ""
+    remote = (
+        conf.get("BACKUP_STORAGE_BOX_SSH")
+        or os.environ.get("BACKUP_STORAGE_BOX_SSH")
+        or ""
+    )
     mount = conf.get("BACKUP_MOUNT_POINT") or os.environ.get("BACKUP_MOUNT_POINT") or ""
     report: dict[str, Any] = {
         "as_of": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
@@ -45,7 +74,9 @@ def probe() -> dict[str, Any]:
 
     local_dir = Path("/var/lib/extra-consultoria/backups/postgresql")
     if local_dir.is_dir():
-        dumps = sorted(local_dir.glob("*.dump"), key=lambda x: x.stat().st_mtime, reverse=True)
+        dumps = sorted(
+            local_dir.glob("*.dump"), key=lambda x: x.stat().st_mtime, reverse=True
+        )
         if dumps:
             report["last_local_dump"] = {
                 "path": str(dumps[0]),
@@ -61,55 +92,18 @@ def probe() -> dict[str, Any]:
             "BACKUP_STORAGE_BOX_SSH empty — configure off-site destination "
             "(do not commit secrets). Local dumps alone are not off-site."
         )
-        return report
 
-    # If configured, require mount or successful rsync probe without printing secrets
-    if mount and not os.path.ismount(mount):
-        report["status"] = "fail"
-        report["blockers"].append(f"configured mount {mount} not active")
-        return report
-
-    report["status"] = "configured_unverified"
-    report["blockers"].append(
-        "Off-site destination configured but transfer integrity not yet verified "
-        "in this campaign run — run restore drill + hash verify"
-    )
-    return report
-
-
-def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--output", type=Path, default=None)
-    args = p.parse_args(argv)
-    report = probe()
-    # Prefer probing VPS via ssh when local is laptop
     if not Path("/var/lib/extra-consultoria/backups").exists():
         try:
-            r = subprocess.run(
+            r = subprocess.run(  # noqa: S603
                 [
-                    "ssh",
+                    "/usr/bin/ssh",
                     "-o",
                     "BatchMode=yes",
                     "-o",
                     "ConnectTimeout=8",
                     "ec-prod",
-                    "python3 - <<'PY'\n"
-                    "import json,os\n"
-                    "from pathlib import Path\n"
-                    "from datetime import datetime, timezone\n"
-                    "remote=open('/etc/backup-database.conf').read() if Path('/etc/backup-database.conf').is_file() else ''\n"
-                    "has_ssh='BACKUP_STORAGE_BOX_SSH=' in remote and not any(line.strip().endswith('BACKUP_STORAGE_BOX_SSH=') or line.strip()=='BACKUP_STORAGE_BOX_SSH=' for line in remote.splitlines() if 'BACKUP_STORAGE_BOX_SSH' in line)\n"
-                    # simpler parse
-                    "vals={}\n"
-                    "[vals.update({l.split('=',1)[0].strip(): l.split('=',1)[1].strip()}) for l in remote.splitlines() if '=' in l and not l.strip().startswith('#')]\n"
-                    "sshv=vals.get('BACKUP_STORAGE_BOX_SSH','')\n"
-                    "d=Path('/var/lib/extra-consultoria/backups/postgresql')\n"
-                    "dumps=sorted(d.glob('*.dump'), key=lambda x: x.stat().st_mtime, reverse=True) if d.is_dir() else []\n"
-                    "out={'offsite_configured': bool(sshv), 'local_dumps': len(dumps), "
-                    "'last_local': str(dumps[0]) if dumps else None, "
-                    "'status': 'blocked_credential' if not sshv else 'configured_unverified'}\n"
-                    "print(json.dumps(out))\n"
-                    "PY",
+                    f"python3 -c {json.dumps(_VPS_PROBE)}",
                 ],
                 capture_output=True,
                 text=True,
@@ -126,7 +120,25 @@ def main(argv: list[str] | None = None) -> int:
                     ]
         except (subprocess.TimeoutExpired, json.JSONDecodeError, FileNotFoundError):
             pass
+    elif report["status"] == "unknown" and remote:
+        if mount and not os.path.ismount(mount):
+            report["status"] = "fail"
+            report["blockers"].append(f"configured mount {mount} not active")
+        else:
+            report["status"] = "configured_unverified"
+            report["blockers"].append(
+                "Off-site destination configured but transfer integrity not yet "
+                "verified — run restore drill + hash verify"
+            )
 
+    return report
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--output", type=Path, default=None)
+    args = p.parse_args(argv)
+    report = probe()
     text = json.dumps(report, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

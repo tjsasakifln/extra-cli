@@ -432,12 +432,12 @@ def project_historical_contracts_evidence(
     ``success_zero`` writes require a validated checkpoint/manifest proof.
     Manual ``window_complete`` without proof never fabricates success_zero.
     """
-    from scripts.lib.universe import load_canonical_universe, resolve_default_seed_path
     from scripts.coverage.source_policy import (
         entity_attributes_from_canonical,
         load_source_policy,
         select_required_combination,
     )
+    from scripts.lib.universe import load_canonical_universe, resolve_default_seed_path
 
     as_of_dt = as_of or datetime.now(UTC)
     seed = seed_path or resolve_default_seed_path()

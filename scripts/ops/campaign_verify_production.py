@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -22,8 +21,10 @@ if str(_ROOT) not in sys.path:
 
 def _git_sha() -> str:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=_ROOT, text=True
+        return subprocess.check_output(  # noqa: S603
+            ["/usr/bin/git", "rev-parse", "HEAD"],
+            cwd=_ROOT,
+            text=True,
         ).strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
@@ -40,8 +41,16 @@ def _load_json(path: Path) -> Any | None:
 
 def _ssh_ec_prod(cmd: str, timeout: int = 30) -> tuple[int, str]:
     try:
-        r = subprocess.run(
-            ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", "ec-prod", cmd],
+        r = subprocess.run(  # noqa: S603
+            [
+                "/usr/bin/ssh",
+                "-o",
+                "BatchMode=yes",
+                "-o",
+                "ConnectTimeout=8",
+                "ec-prod",
+                cmd,
+            ],
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -65,7 +74,7 @@ def build_report(campaign: str) -> dict[str, Any]:
     rc, failed_units = _ssh_ec_prod(
         "systemctl --failed --no-pager --plain 2>/dev/null | head -20"
     )
-    rc2, health = _ssh_ec_prod(
+    _rc2, health = _ssh_ec_prod(
         "systemctl is-active extra-health-check.timer 2>/dev/null; "
         "systemctl show extra-health-check.service -p Result --value 2>/dev/null"
     )
@@ -93,7 +102,9 @@ def build_report(campaign: str) -> dict[str, Any]:
         },
         "vps": {
             "ssh_ok": rc != 99,
-            "failed_units_snippet": failed_units.strip()[:2000] if rc == 0 else failed_units[:500],
+            "failed_units_snippet": failed_units.strip()[:2000]
+            if rc == 0
+            else failed_units[:500],
             "health_timer": health.strip()[:500],
         },
         "gates": {},
