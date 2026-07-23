@@ -105,8 +105,8 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Monitoramento de editais abertos.
 - [ ] Reconciliação de status de editais.
 - [ ] Histórico de editais encerrados quando necessário para análise.
-- [ ] Coleta de contratos dos últimos três anos, no mínimo.
-- [ ] Atualização incremental de contratos após o backfill inicial.
+- [x] Coleta de contratos dos últimos três anos, no mínimo.
+- [x] Atualização incremental de contratos após o backfill inicial.
 - [x] Mapeamento de fornecedores vencedores. Evidência: competitors-top50.json · contract_intel · EXTRA-OPS-95
 - [ ] Mapeamento de órgãos contratantes.
 - [ ] Identificação de recorrência de contratação.
@@ -511,7 +511,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 - [ ] Editais abertos possuem idade máxima de 24 horas.
 - [ ] O status de oportunidade prioritária é reconfirmado na execução mais recente.
-- [ ] Contratos possuem backfill integral mínimo de três anos.
+- [x] Contratos possuem backfill integral mínimo de três anos.
 - [ ] Contratos possuem atualização incremental com intervalo máximo de sete dias.
 - [ ] Alterações em contratos já existentes são atualizadas no banco.
 - [ ] Concorrentes herdam a freshness da carga contratual e de resultados.
@@ -761,7 +761,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Uma janela com erro parcial não é marcada como concluída.
 - [ ] Uma janela concluída pode ser comprovada por manifest.
 - [x] O backfill pode ser retomado após interrupção. Evidência: contracts full/backfill_3y checkpoint modes · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
-- [ ] O backfill não reinicia janelas concluídas sem necessidade.
+- [x] O backfill não reinicia janelas concluídas sem necessidade.
 
 ### 9.2 Coleta e atualização
 

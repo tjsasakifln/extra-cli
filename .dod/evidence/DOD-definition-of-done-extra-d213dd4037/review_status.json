@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-definition-of-done-extra-d213dd4037",
+  "reviewer": "campaign-independent-review-hc-closure-01",
+  "at": "2026-07-23T21:13:51Z",
+  "main_sha": "d6c311a8f69563b77983b751d52759481b90764a",
+  "requirement": "Atualiza\u00e7\u00e3o incremental de contratos ap\u00f3s o backfill inicial.",
+  "dod_line": 109,
+  "pending_changes_requested": false,
+  "head_sha": "d6c311a8f69563b77983b751d52759481b90764a"
+}

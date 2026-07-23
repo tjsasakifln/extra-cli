@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-definition-of-done-extra-1580defee6",
+  "reviewer": "campaign-independent-review-hc-closure-01",
+  "at": "2026-07-23T21:11:47Z",
+  "main_sha": "d6c311a8f69563b77983b751d52759481b90764a",
+  "requirement": "Coleta de contratos dos \u00faltimos tr\u00eas anos, no m\u00ednimo.",
+  "dod_line": 108,
+  "pending_changes_requested": false,
+  "head_sha": "d6c311a8f69563b77983b751d52759481b90764a"
+}

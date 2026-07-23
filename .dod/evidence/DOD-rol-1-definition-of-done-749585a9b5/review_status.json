@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-749585a9b5",
+  "reviewer": "campaign-independent-review-hc-closure-01",
+  "at": "2026-07-23T21:10:35Z",
+  "main_sha": "d6c311a8f69563b77983b751d52759481b90764a",
+  "requirement": "O backfill n\u00e3o reinicia janelas conclu\u00eddas sem necessidade.",
+  "dod_line": 764,
+  "pending_changes_requested": false,
+  "head_sha": "d6c311a8f69563b77983b751d52759481b90764a"
+}

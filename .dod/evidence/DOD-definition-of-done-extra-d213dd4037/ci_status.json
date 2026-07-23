@@ -1,0 +1,10 @@
+{
+  "conclusion": "success",
+  "head_sha": "d6c311a8f69563b77983b751d52759481b90764a",
+  "impl_main_sha": "5f922114e566e30b123b97ebe9a2e06f2de487ad",
+  "run_id": 30042874795,
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30042874795",
+  "mandatory_jobs_skipped": [],
+  "checked_at": "2026-07-23T21:13:51Z",
+  "note": "docs accept; incremental success evidence"
+}

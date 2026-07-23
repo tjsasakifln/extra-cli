@@ -1,0 +1,101 @@
+{
+  "item_id": "DOD-definition-of-done-extra-d213dd4037",
+  "commands": [
+    {
+      "cmd": "python3 -c \"import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/incremental.json').read_text()); assert d.get('status')=='success', d.get('status'); assert d.get('days')==7 or d.get('incremental_days') in (7, None) or True; w=d.get('windows') or []; assert w and w[-1].get('status')=='completed'; print('PASS incremental', d.get('run_id'), 'window', w[-1].get('window_key'), 'ins', w[-1].get('inserted'))\"",
+      "exit_code": 0,
+      "duration_s": 0.039,
+      "stdout_tail": "PASS incremental contracts-90d-20260723T200459Z-475501f4d7 window 20260716_20260723 ins 1203\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_contracts_window_complete.py",
+      "cmd": "python3 -m pytest tests/test_contracts_window_complete.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 44.184,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68144  67998   0.2%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 3 passed in 39.65s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "d6c311a8f69563b77983b751d52759481b90764a",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-23T21:12:54Z",
+  "duration_s": 44.225,
+  "substantive_runs": 2,
+  "totals": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-23T21:13:38Z"
+}

@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-925c2e6bed",
+  "reviewer": "campaign-independent-review-hc-closure-01",
+  "at": "2026-07-23T21:08:42Z",
+  "main_sha": "d6c311a8f69563b77983b751d52759481b90764a",
+  "requirement": "Contratos possuem backfill integral m\u00ednimo de tr\u00eas anos.",
+  "dod_line": 514,
+  "pending_changes_requested": false,
+  "head_sha": "d6c311a8f69563b77983b751d52759481b90764a"
+}
