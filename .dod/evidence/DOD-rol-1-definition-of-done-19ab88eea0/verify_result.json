@@ -1,0 +1,101 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-19ab88eea0",
+  "commands": [
+    {
+      "cmd": "python3 -c \"import json; from pathlib import Path; cp=json.loads(Path('data/contracts_checkpoints/hc_closure_3y/contracts_full.json').read_text()); ends=[w.split('_')[1] for w in cp['completed_windows']]; assert max(ends)=='20260723', max(ends); print('PASS end', max(ends), 'windows', len(ends))\"",
+      "exit_code": 0,
+      "duration_s": 0.041,
+      "stdout_tail": "PASS end 20260723 windows 37\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_contracts_window_complete.py",
+      "cmd": "python3 -m pytest tests/test_contracts_window_complete.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 43.346,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68144  67998   0.2%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 3 passed in 39.06s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "fddf859e9664078ccc8f4493d858e3bfcfe8fe4e",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-23T21:00:43Z",
+  "duration_s": 43.387,
+  "substantive_runs": 2,
+  "totals": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-23T21:01:26Z"
+}

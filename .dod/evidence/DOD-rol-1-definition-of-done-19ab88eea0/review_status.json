@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-19ab88eea0",
+  "reviewer": "campaign-independent-review-hc-closure-01",
+  "at": "2026-07-23T21:01:48Z",
+  "main_sha": "fddf859e9664078ccc8f4493d858e3bfcfe8fe4e",
+  "requirement": "A data final do backfill \u00e9 registrada.",
+  "dod_line": 754,
+  "pending_changes_requested": false,
+  "head_sha": "fddf859e9664078ccc8f4493d858e3bfcfe8fe4e"
+}

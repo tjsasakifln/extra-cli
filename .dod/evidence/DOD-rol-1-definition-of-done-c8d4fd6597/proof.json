@@ -1,0 +1,10 @@
+{
+  "at": "2026-07-23T21:03:48Z",
+  "ok": true,
+  "title": "capability_monitoring_coverage(historical_contracts) >= 95%",
+  "item_id": "DOD-rol-1-definition-of-done-c8d4fd6597",
+  "main_sha": "fddf859e9664078ccc8f4493d858e3bfcfe8fe4e",
+  "coverage_pct": 100.0,
+  "denominator": 1093,
+  "gate_status": "PASS"
+}

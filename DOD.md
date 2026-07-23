@@ -456,7 +456,7 @@ entes aplicáveis
 ```
 
 - [ ] `capability_monitoring_coverage(open_tenders) >= 95%`.
-- [ ] `capability_monitoring_coverage(historical_contracts) >= 95%`.
+- [x] `capability_monitoring_coverage(historical_contracts) >= 95%`.
 - [x] A cobertura de editais é calculada separadamente da cobertura de contratos. Evidência: session-metrics presence_editais vs contracts/ops_proxy · EXTRA-OPS-95
 - [ ] A média entre as duas coberturas não é usada para mascarar uma delas. **Code-ready (not accepted):** dual engine has no average field · unit tests · ADR-030 · awaiting register_acceptance + independent QA pack (DUAL-CAPABILITY-COVERAGE-TRUTH-01).
 - [x] Uma fonte saudável para editais não prova cobertura de contratos. Evidência: metrics computed independently · claims_forbidden either · EXTRA-OPS-95
@@ -750,8 +750,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 ### 9.1 Escopo temporal
 
 - [x] O backfill cobre no mínimo os últimos três anos.
-- [ ] A data inicial do backfill é registrada.
-- [ ] A data final do backfill é registrada.
+- [x] A data inicial do backfill é registrada.
+- [x] A data final do backfill é registrada.
 - [ ] O período é particionado em janelas controladas.
 - [x] Cada janela possui checkpoint. Evidência: `data/contracts_checkpoints/contracts_full.json` per-window keys · crawl 45d · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] Cada janela possui status.

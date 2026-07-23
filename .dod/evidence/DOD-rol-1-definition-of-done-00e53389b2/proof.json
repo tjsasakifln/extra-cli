@@ -1,0 +1,9 @@
+{
+  "at": "2026-07-23T21:00:07Z",
+  "ok": true,
+  "title": "A data inicial do backfill \u00e9 registrada.",
+  "item_id": "DOD-rol-1-definition-of-done-00e53389b2",
+  "main_sha": "fddf859e9664078ccc8f4493d858e3bfcfe8fe4e",
+  "campaign": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
+  "checkpoint": "data/contracts_checkpoints/hc_closure_3y/contracts_full.json"
+}

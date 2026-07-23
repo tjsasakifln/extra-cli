@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-c8d4fd6597",
+  "reviewer": "campaign-independent-review-hc-closure-01",
+  "at": "2026-07-23T21:03:48Z",
+  "main_sha": "fddf859e9664078ccc8f4493d858e3bfcfe8fe4e",
+  "requirement": "capability_monitoring_coverage(historical_contracts) >= 95%",
+  "dod_line": 459,
+  "pending_changes_requested": false,
+  "head_sha": "fddf859e9664078ccc8f4493d858e3bfcfe8fe4e"
+}
