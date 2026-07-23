@@ -1,189 +1,138 @@
 # Provisionamento de VPS — Extra Consultoria
 
-> Documentacao de provisionamento da infraestrutura de producao.
-> **Versão:** 2.0 — 2026-07-15 (desacoplado de provedor específico)
-> **Responsavel:** @devops (Gage)
+> Documentação de provisionamento da infraestrutura de produção.  
+> **Versão:** 3.0 — 2026-07-23 (Netcup RS 2000 G12 · MNZ)  
+> **Responsável:** @devops (Gage)
 
 ## Aviso
 
-Esta documentação está em transição. As seções específicas da Hetzner permanecem como registro histórico e implementação existente, mas a direção arquitetural é provider-agnostic.
+Provedor **ativo:** Netcup Root Server. Scripts e runbooks são provider-agnostic onde possível.  
+Seções Hetzner abaixo são **registro histórico** (CX22 subdimensionado).
 
-**Estratégia atual:** Ansible como ferramenta primária de configuração (Estágio 1). OpenTofu/Terraform como camada futura de provisionamento (Estágio 2).
-Ver `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md` e `docs/architecture/adr/ADR-008-infrastructure-as-code-strategy.md`.
+**Ferramenta canônica atual:** `deploy/provision-vps.sh` (bash idempotente o quanto possível).  
+Ansible/OpenTofu permanecem como evolução (ADR-008), sem playbooks no repo nesta onda.
 
-## Sumario
+Ver: `docs/architecture/adr/ADR-007-v6.1-provider-decision.md`,  
+`docs/ops/v6.2-procurement-credentials-package.md`,  
+`docs/ops/netcup-phase0-activate.md`.
 
-- [Dimensionamento de Referência](#dimensionamento-de-referencia)
-- [Especificacao Tecnica (Hetzner — registro historico)](#especificacao-tecnica-hetzner)
+## Sumário
+
+- [Dimensionamento](#dimensionamento)
+- [SKU em contratação](#sku-em-contratação)
 - [Provisionamento](#provisionamento)
 - [Systemd Timers](#systemd-timers)
 - [Backup](#backup)
 - [Firewall](#firewall)
-- [Manutencao](#manutencao)
+- [Manutenção](#manutencao)
 - [Troubleshooting](#troubleshooting)
+- [Histórico Hetzner](#histórico-hetzner-cx22)
 
-## Dimensionamento de Referência
+## Dimensionamento
 
-O dimensionamento abaixo é a referência de implantação inicial para o cenário pós-backfill (4M+ contratos, centenas de milhares de editais, múltiplas fontes, crescimento contínuo).
+| Recurso | Mínimo ADR | Alvo ADR | **Contratado (RS 2000)** |
+|---------|------------|----------|---------------------------|
+| RAM | 16 GB | 32 GB | **16 GB** |
+| CPU | 4 vCPU | 8 dedicados | **8 dedicados** |
+| Disco | 250 GB NVMe | ~1 TB | **512 GB NVMe** |
+| PostgreSQL | 16 | 16 | 16 (pacote Ubuntu) |
+| SO | Ubuntu 24.04 LTS | 24.04 | 24.04 |
+| Swap | 4 GB | 8 GB | **4 GB** (script) |
 
-| Recurso | Referência Inicial |
-|---------|-------------------|
-| RAM | 32 GB |
-| CPU | Dedicada (boa disponibilidade sustentada) |
-| Armazenamento | ~1 TB NVMe (expansível) |
-| PostgreSQL | 16 |
-| SO | Ubuntu 24.04 LTS |
+Região: **Manassas (MNZ)** — preferência US-East do ADR. Teste PNCP obrigatório pós-boot.
 
-O dimensionamento real depende do provedor selecionado e dos resultados do teste comparativo da API PNCP (ver ADR-007).
+## SKU em contratação
 
-## Especificacao Tecnica (Hetzner — registro historico)
-
-A configuração abaixo é o provisionamento atual documentado na story FEAT-4.1. **Esta configuração (CX22, 4 GB RAM, 40 GB SSD) é inadequada para o volume de dados esperado após backfill.**
-
-| Item | Especificacao (ATUAL) | Especificacao (REFERÊNCIA FUTURA) |
-|------|---------------|----------------------------------|
-| **Plano** | Hetzner CX22 (2 vCPU, 4 GB RAM, 40 GB SSD) | ~32 GB RAM, CPU dedicada, ~1 TB NVMe |
-| **SO** | Ubuntu 24.04 LTS | Ubuntu 24.04 LTS |
-| **Regiao** | Nuremberg (nbg1-dc3) | A definir (EUA costa leste preferencial, condicionado a teste PNCP) |
-| **Storage Box** | BX11 (100 GB) | Storage externo (provider-agnostic) |
-| **Custo estimado** | ~EUR 7,40/mes | A cotar conforme provedor selecionado |
-
-### Custo Detalhado (Hetzner CX22 — ATUAL)
-
-| Item | Custo (EUR/mes) |
-|------|-----------------|
-| CX22 (2 vCPU, 4 GB RAM, 40 GB) | 4,49 |
-| BX11 Storage Box (100 GB) | 2,90 |
-| IP extra (se necessario) | 1,50 |
-| **Total** | **~7,39 - 8,89** |
-
-**Nota:** Este custo é da configuração atual subdimensionada. O custo da configuração de referência (32 GB RAM, ~1 TB NVMe) será significativamente maior e depende do provedor selecionado.
+| Item | Valor |
+|------|--------|
+| Provedor | Netcup |
+| Plano | RS 2000 G12 + IPv4 |
+| DC | MNZ |
+| Console | SCP (VNC + snapshots) |
+| Upgrade | CCP → RS 4000 se RAM/disco apertarem |
+| Ativação | `docs/ops/netcup-phase0-activate.md` |
 
 ## Provisionamento
 
-### Método recomendado: Ansible (Estágio 1)
+### Método canônico: script bash
 
-Playbook Ansible como forma canônica de configurar a VPS, oferecendo idempotência, rastreabilidade e reexecução segura.
-
-```bash
-# Localmente, a partir do repositório
-ansible-playbook -i inventory.yml playbooks/site.yml
-```
-
-### Método histórico: Script bash (Hetzner)
+**Pré-requisitos:** Ubuntu 24.04, root com **authorized_keys** já instalada.
 
 ```bash
-# SSH na VPS
-ssh root@<IP_DA_VPS>
+# Do laptop
+scp deploy/provision-vps.sh root@<VPS_IP>:/root/
+ssh root@<VPS_IP>
 
-# Baixar e executar script de provisionamento
-bash <(curl -fsSL https://raw.githubusercontent.com/extra-consultoria/main/deploy/provision-vps.sh)
+export HARDWARE_PROFILE=rs2000-16g
+export ENABLE_TIMERS=minimal    # none | minimal | full
+export REPO_URL=https://github.com/tjsasakifln/extra-consultoria.git
+# export SKIP_SSH_HARDEN=1     # se quiser endurecer SSH depois
+bash /root/provision-vps.sh
 ```
 
-### Método histórico: Hetzner Cloud API
+O script:
 
-Requer `hcloud` CLI instalado e API token configurado:
+1. Pacotes + timezone + swap  
+2. User `extra-consultoria`  
+3. UFW (22 + 2222)  
+4. SSH key-only porta 2222 (recusa se não houver chave root)  
+5. fail2ban  
+6. PostgreSQL localhost + tuning 16 GB  
+7. Clone repo + venv + deps  
+8. Migrations  
+9. Timers em onda (`minimal` por default)  
+10. Skeleton de backup off-box  
+11. unattended-upgrades  
 
-```bash
-export HCLOUD_TOKEN="seu-token-aqui"
-hcloud server create \
-  --name extra-consultoria \
-  --type cx22 \
-  --image ubuntu-24.04 \
-  --location nbg1 \
-  --ssh-key ~/.ssh/id_ed25519.pub
-```
+Credenciais PG: `/root/.extra-pg-credentials` (0600) — copiar para vault e apagar.
 
-## Passo a Passo (registro historico para Hetzner)
+### Ansible / OpenTofu
 
-### 1. System Packages
+Planejados (ADR-008). **Não** bloquear provision Netcup aguardando IaC.
 
-```bash
-apt-get update && apt-get upgrade -y
-apt-get install -y python3 python3-pip python3-venv postgresql-16 postgresql-client-16 \
-  sshfs gzip curl wget git ufw fail2ban htop unattended-upgrades
-```
+### Histórico Hetzner CX22
 
-### 2. PostgreSQL 16
+Ver [seção no fim](#histórico-hetzner-cx22). **Não usar** CX22 4 GB para produção atual.
 
-```bash
-# Configurar para ouvir apenas localhost
-sed -i "s/^#listen_addresses = 'localhost'/listen_addresses = 'localhost'/" /etc/postgresql/16/main/postgresql.conf
+## PostgreSQL tuning (RS 2000 · 16 GB)
 
-# Tuning para 32 GB RAM (referência)
-cat >> /etc/postgresql/16/main/postgresql.conf << 'EOF'
-shared_buffers = 8GB
-effective_cache_size = 24GB
-work_mem = 64MB
-maintenance_work_mem = 1GB
-random_page_cost = 1.1
-effective_io_concurrency = 200
-wal_buffers = 64MB
-max_parallel_workers = 4
-max_parallel_workers_per_gather = 4
-EOF
+Aplicado por `HARDWARE_PROFILE=rs2000-16g` em `deploy/provision-vps.sh`:
 
-systemctl restart postgresql
+| Parâmetro | Valor |
+|-----------|--------|
+| shared_buffers | 4GB |
+| effective_cache_size | 12GB |
+| work_mem | 32MB |
+| maintenance_work_mem | 512MB |
+| max_parallel_workers | 4 |
 
-# Criar database
-sudo -u postgres createdb pncp_datalake
-sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'SENHA_SEGURA'"
-```
-
-**Nota:** O tuning acima é para a configuração de referência (32 GB RAM). Ajustar conforme o hardware real provisionado.
-
-### 3. Clone e Deploy
-
-```bash
-useradd -m -s /bin/bash extra-consultoria
-git clone https://github.com/extra-consultoria/extra-consultoria.git /opt/extra-consultoria
-cd /opt/extra-consultoria
-chown -R extra-consultoria:extra-consultoria /opt/extra-consultoria
-pip3 install -r requirements.txt
-bash db/setup_db.sh postgresql://postgres:SENHA@localhost:5432/pncp_datalake
-```
-
-### 4. SSH Hardening
-
-```bash
-# Editar /etc/ssh/sshd_config
-Port 2222
-PermitRootLogin without-password
-PasswordAuthentication no
-
-systemctl restart sshd
-```
-
-### 5. Firewall
-
-```bash
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow 2222/tcp comment "SSH custom port"
-ufw --force enable
-```
+Para upgrade futuro RS 4000: `HARDWARE_PROFILE=rs4000-32g` (8GB / 24GB shared/cache).
 
 ## Systemd Timers
 
-### Mapa de Timers (13 pares)
+### Ondas de ativação (obrigatório no RS 2000)
 
-A tabela abaixo mapeia cada servico ao seu script correspondente:
+| Onda | `ENABLE_TIMERS` | Timers |
+|------|-----------------|--------|
+| **A (dia 1)** | `minimal` | `extra-health-check`, `extra-db-backup`, `pncp-crawl-inc`, `extra-crawl-pncp`, metrics/alerts |
+| **B** | manual enable | CIGA/CKAN, SC Compras, coverage |
+| **C** | `full` | restante (DOE, selenium, contracts, …) só com A+B estável |
 
-| Timer | Schedule (UTC) | Script | Frequencia |
-|-------|----------------|--------|------------|
-| `extra-crawl-pncp` | 02:00 | `monitor.py --source pncp --mode full` | Diario |
-| `extra-crawl-dom-sc` | 06:00, 14:00, 22:00 | `monitor.py --source dom_sc --mode full` | 3x/dia |
-| `extra-crawl-pcp` | 06:30, 14:30 | `monitor.py --source pcp --mode full` | 2x/dia |
-| `extra-crawl-compras-gov` | 07:00 | `monitor.py --source compras_gov --mode full` | Diario |
-| `extra-crawl-tce-sc` | 05:30 | `monitor.py --source tce_sc --mode full` | Diario |
-| `extra-crawl-doe-sc` | 03:00 | `monitor.py --source doe_sc --mode full` | Diario |
-| `extra-crawl-transparencia` | Sun 06:00 | `monitor.py --source transparencia --mode full` | Semanal |
-| `extra-crawl-contracts` | Mon,Wed,Fri 06:00 | `monitor.py --source contracts --mode full` | 3x/semana |
-| `extra-coverage-report` | 09:00 | `monitor.py --report-coverage + coverage snapshot` | Diario |
-| `extra-panorama-weekly` | Mon 07:00 | `panorama.py` | Semanal |
-| `extra-db-backup` | 06:00 | `backup-database.sh` | Diario |
-| `extra-db-purge` | 07:00 | `purge_old_records(400)` | Diario |
-| `extra-health-check` | */30 min | `health_check.py` | 30/30 min |
+Não usar `ENABLE_TIMERS=full` no primeiro boot.
+
+### Mapa (referência — nomes reais em `deploy/systemd/`)
+
+| Timer | Função típica |
+|-------|----------------|
+| `pncp-crawl-inc` / `extra-crawl-pncp` | PNCP incremental |
+| `pncp-crawl-full` | PNCP full (onda C) |
+| `extra-crawl-ciga-ckan` | DOM/CIGA |
+| `extra-crawl-sc-compras` | SC Compras |
+| `extra-db-backup` | dump diário |
+| `extra-health-check` | health |
+| `coverage-report` | cobertura |
+
+Schedules exatos: ler cada `.timer` em `deploy/systemd/`.
 
 ### OnFailure Template
 
@@ -198,15 +147,27 @@ ExecStart=/usr/bin/curl -sf --max-time 10 -X POST \
   "${WEBHOOK_URL}"
 ```
 
-## Storage Box (Backup Externo)
+## Backup
 
 ### Aviso
 
-A documentação abaixo referencia Hetzner Storage Box como implementação atual. A estratégia de backup é provider-agnostic (ver `docs/ops/backup.md` e `docs/ops/cloud-deployment-plan.md`). Storage Box da Hetzner não é requisito arquitetural.
+Snapshots do SCP Netcup **não** substituem dump PostgreSQL off-box.  
+Estratégia: provider-agnostic (`docs/ops/backup.md`). Hetzner Storage Box é só exemplo histórico.
 
-### Configuracao (Hetzner — implementação atual)
+Opções ativas para Netcup:
 
-A Storage Box Hetzner (BX11, 100 GB) e montada via sshfs para backups:
+| Opção | Destino |
+|-------|---------|
+| A | Storage/SFTP Netcup (se contratado no CCP) |
+| B | rsync/SFTP para host/NAS controlado por Tiago |
+| C | S3-compatible (B2/R2/Wasabi) |
+| D | volume extra no mesmo DC (pior: risco correlacionado) |
+
+Config gerada em `/etc/backup-database.conf`. Chave: `/opt/extra-consultoria/backup-ssh/id_ed25519.pub`.
+
+### Histórico Hetzner Storage Box
+
+A Storage Box Hetzner (BX11) era montada via sshfs:
 
 ```bash
 # Gerar chave SSH dedicada

@@ -1,27 +1,40 @@
-# Analyze Report — 002 (pre-live phase)
+# Analyze report — Spec 002
 
-**Date**: 2026-07-22  
-**SHA base**: a38981b (+ campaign WIP)
+**Date**: 2026-07-23  
+**Analyst**: campaign coordinator (HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01)
 
-## Consistency
+## Cross-artifact consistency
 
-| Check | Result |
-|-------|--------|
-| Spec 001 vs 002 boundary | OK — 002 does not redefine dual math |
-| DOD 3y / incremental / 95% | Still open; infrastructure only so far |
-| Policy 2.1.0 hash | Matches compute_policy_sha256 |
-| Applicability unknown | 0 on 1093 (measurement) |
-| Operational numerator | 0 without live crawl (honest) |
-| Seal pilot 90d | Still NO-GO for 3y (prior attestation) |
+| Artifact | Status | Notes |
+|----------|--------|-------|
+| spec.md | Updated | VPS/cutover/soak in scope; host of record Netcup |
+| plan.md | Updated | Foundation → backfill → cutover → ops → soak → DOD |
+| tasks.md | Reconciled | Removed false `[x]` for incomplete backfill/projection |
+| checklists/requirements.md | Updated | Living gates |
+| STATUS.md | Stale mid-backfill | Still useful; checkpoint now ~28/37 |
+| handoff Netcup | Valid | Writer local; VPS snapshot 26/37 drift |
+| Spec 001 | Read-only dep | Dual spine preserved |
+| DOD | Not advanced | No ACCEPT this wave without main+CI+evidence |
+| ADR-018–021, 028–030 | Preserved | No dual reopen |
+| ADR-007/008, README | Divergent | Must converge (T0d) |
 
-## Gaps before PASS claim
+## Defects confirmed in code/runtime
 
-1. Live pilot 90d GO  
-2. Live backfill windows complete ≥1098d span  
-3. Adapter window_complete only after checkpoint proof  
-4. Incremental + weekly integration  
-5. Independent review  
+1. success_zero fabricable by flags → **fixed** (proof required)
+2. weekly strict test missing contracts run → **fixed**
+3. export/restore soft-fail → **fixed** (fail-closed)
+4. validate_systemd incomplete → **fixed**
+5. systemd units broken patterns → **fixed in repo**; host apply pending
+6. health_check hard-required storage-box → **optional unless REQUIRE_STORAGE_BOX=1**
+7. origin remote still extra-consultoria vs extra-cli
+8. migration 059 collision with PR #121 — precedence this campaign
 
-## Non-claims
+## Coverage measurement honesty
 
-No HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS yet.
+Dual snapshot 2026-07-22: coverage 0%, applicability_unknown 147 under old policy stamp — **not** operational PASS. Must re-measure after proof-gated projection.
+
+## Open risks
+
+- Backfill incomplete (28/37); PNCP flakiness
+- Off-site backup credentials
+- Soak wall-clock 7 days

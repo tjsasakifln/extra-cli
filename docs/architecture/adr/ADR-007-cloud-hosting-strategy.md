@@ -167,3 +167,7 @@ Esta ADR deve ser revisada quando:
 - VPS Production Readiness Audit: `docs/audits/vps-production-readiness-2026-07.md`
 - ADR-008: Infrastructure as Code Strategy (`docs/architecture/adr/ADR-008-infrastructure-as-code-strategy.md`)
 - Cloud Deployment Plan: `docs/ops/cloud-deployment-plan.md`
+
+## Amendment 2026-07-23 (runtime fact)
+
+Operational host is **Netcup RS 2000 G12** with **Debian 13**, **PostgreSQL 17**, **16 GB RAM** (not Ubuntu 24.04 / PG16 / 32 GB reference). Pending-provider language is superseded for the contracts cutover path. Full ADR rewrite may follow; this amendment is the canonical runtime until then.

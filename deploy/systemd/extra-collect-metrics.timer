@@ -1,14 +1,16 @@
 # /etc/systemd/system/extra-collect-metrics.timer
 # Collect crawl metrics every hour
 # Extra Consultoria — Story TD-5.5
+# Fixed: OnCalendar=*:0/60:00 is invalid on systemd; use hourly.
 
 [Unit]
 Description=Extra Consultoria — Collect Crawl Metrics Timer
 
 [Timer]
-OnCalendar=*:0/60:00
+OnCalendar=hourly
 RandomizedDelaySec=120
-Persistent=false
+Persistent=true
+Unit=extra-collect-metrics.service
 
 [Install]
 WantedBy=timers.target

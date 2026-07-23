@@ -1,12 +1,14 @@
-# Requirements Checklist — 002 historical_contracts operational
+# Requirements checklist — Spec 002
 
-- [x] Applicability resolution path without inventing entity-level esfera hardcodes
-- [x] Policy version/hash for pncp+contracts semantic roles
-- [x] Entity evidence adapter design (success_with_data / success_zero)
-- [x] Dual maps canonical_entity_key
-- [ ] Live 90d pilot GO (not seal-only)
-- [ ] Backfill ≥3 years all windows complete
-- [ ] Incremental ≤7d proven
-- [ ] Weekly fail-closed for contracts claims
-- [ ] Dual gate ≥95% with live evidence (not synthetic-only)
-- [ ] Independent review + DOD honest update
+- [x] Spec states VPS cutover in scope (not future-only)
+- [x] success_zero requires checkpoint proof (not CLI flags alone)
+- [x] Export/restore fail-closed requirements documented
+- [x] Single writer invariant documented
+- [x] Dual ≥95% without denominator games
+- [x] Incremental freshness ≤168h
+- [x] systemd/venv/calendars/OnFailure
+- [x] Backup off-site + restore separate DB
+- [x] Soak 7d
+- [x] DOD sequential accept only with evidence
+- [ ] All acceptance gates green on VPS SHA (open until ops complete)
+- [ ] PR #121 remains isolated with renumber plan

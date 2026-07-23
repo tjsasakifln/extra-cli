@@ -115,3 +115,7 @@ Esta evolução não é executada nesta tarefa. O `requirements.txt` permanece c
 - Cloud Deployment Plan: `docs/ops/cloud-deployment-plan.md`
 - VPS Provisioning (existente): `docs/ops/vps-provisioning.md`
 - Deploy scripts: `deploy/provision-vps.sh`, `deploy/install.sh`
+
+## Amendment 2026-07-23
+
+Minimal playbook materialized at `deploy/ansible/site-contracts-ops.yml` (inventory `deploy/ansible/inventory/hosts.yml`) for idempotent unit/timer apply. Host was bootstrapped via shell; Ansible is now the re-apply path for contracts ops surface.

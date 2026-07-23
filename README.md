@@ -233,3 +233,11 @@ pre-commit run --all-files  # verificação manual
 ---
 
 *Extra CLI — Tiago Sasaki.*
+
+## Runtime host (2026-07-23)
+
+- **Provider:** Netcup RS 2000 G12 (8 vCPU, 16 GB, 512 GB NVMe)
+- **OS / DB:** Debian 13 (trixie) / PostgreSQL 17
+- **App:** `/opt/extra-consultoria` via `ssh ec-prod`
+- **Canonical remote:** `https://github.com/tjsasakifln/extra-cli`
+- Claims `VPS_OPERATIONAL` / `LOCAL_READY` require full DOD gates — not implied by host existence.

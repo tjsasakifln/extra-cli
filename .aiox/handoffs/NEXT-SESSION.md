@@ -1,8 +1,20 @@
+# Handoff pointer — leia primeiro
+
+> **Atual (2026-07-23):** Netcup VPS + snapshot backfill  
+> - Humano: [`docs/ops/handoff-2026-07-23-netcup-vps-backfill.md`](../../docs/ops/handoff-2026-07-23-netcup-vps-backfill.md)  
+> - Máquina: [`handoff-2026-07-23-netcup-vps-backfill.yaml`](handoff-2026-07-23-netcup-vps-backfill.yaml)  
+> - Runbook migração: `docs/ops/vps-backfill-migration.md`  
+> - SSH: `ssh ec-prod` (159.195.18.88:2222)  
+> - Writer canônico: pilot local PID (contratos 3y) — VPS snapshot 3 337 776 rows; **não** dual-write  
+
+---
+
 # Handoff — Extra Consultoria (2026-07-15 sessão goal)
 
-**De:** @aiox-master (Orion) → **Para:** próxima sessão
-**HEAD:** `70a4755` (main)
-**Working tree:** fix safe_int pendente commit + freshness-gate untracked
+**De:** @aiox-master (Orion) → **Para:** próxima sessão  
+**HEAD:** `70a4755` (main)  
+**Working tree:** fix safe_int pendente commit + freshness-gate untracked  
+*(histórico abaixo; prevalece o handoff 2026-07-23 para VPS/backfill)*
 
 ---
 

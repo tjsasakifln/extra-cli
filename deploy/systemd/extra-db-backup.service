@@ -1,18 +1,22 @@
 # /etc/systemd/system/extra-db-backup.service
-# Daily PostgreSQL backup to Hetzner Storage Box
+# Daily PostgreSQL backup (local + optional off-site)
 # Extra Consultoria — Story FEAT-4.1 / TD-0.1
+# Fixed: StartLimit* moved to [Unit] (invalid under [Service] on Debian 13).
 
 [Unit]
 Description=Extra Consultoria — Backup PostgreSQL DataLake
-Documentation=https://github.com/extra-consultoria/docs/ops/backup.md
+Documentation=https://github.com/tjsasakifln/extra-cli/blob/main/docs/ops/backup.md
 Requires=network-online.target
 After=network-online.target
 OnFailure=extra-onfailure@%n.service
+StartLimitIntervalSec=3600
+StartLimitBurst=3
 
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/backup-database.sh
-EnvironmentFile=/etc/backup-database.conf
+EnvironmentFile=-/etc/backup-database.conf
+EnvironmentFile=-/opt/extra-consultoria/.env
 User=root
 Group=root
 Nice=19
@@ -22,8 +26,6 @@ StandardOutput=append:/var/log/backup-database.log
 StandardError=append:/var/log/backup-database.log
 Restart=on-failure
 RestartSec=300
-StartLimitIntervalSec=3600
-StartLimitBurst=3
 
 [Install]
 WantedBy=multi-user.target

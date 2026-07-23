@@ -1,390 +1,99 @@
 {
   "campaign_id": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
-  "inspected_at": "2026-07-22T14:30:00Z",
-  "repository": "tjsasakifln/extra-cli",
-  "inspection_mode": "reproducible_inventory_before_implementation",
+  "captured_at_utc": "2026-07-23T13:59:10.287548Z",
   "git": {
-    "local_branch": "docs/dual-stamp-same-truth",
-    "local_head": "a38981bfa616b8f47363da6ff91b12a28bec218c",
-    "origin_main": "a38981bfa616b8f47363da6ff91b12a28bec218c",
-    "origin_main_equals_local_head": true,
-    "vs_origin_main_left_right": "0\t0",
-    "working_tree": "clean_for_tracked; untracked worktrees and coverage output present",
-    "last_30_commits_tip": [
-      "a38981b Merge pull request #120 from tjsasakifln/docs/dual-stamp-same-truth",
-      "e870214 docs(ops): single sha-roles.yaml authority + same-truth consistency gate",
-      "b7c09af Merge pull request #119 from tjsasakifln/docs/dual-honest-accept",
-      "435cd9d docs(dod): honest controller re-accept dual coverage on main abcd067",
-      "abcd067 Merge pull request #118 from tjsasakifln/fix/dual-skeptic-final"
-    ],
-    "dual_semantic_sha_accepted": "abcd067902c76bd98c28125dd72ac85680750195",
-    "note": "Branch docs/dual-stamp-same-truth points at same SHA as origin/main after PR #120 merge; branch tip tracking origin/docs/dual-stamp-same-truth is ahead by 1 locally only if remote branch lag."
+    "branch": "campaign/historical-contracts-operational-closure-01",
+    "head": "dc71b72f6ff22e8293bb51655076a3d9dcb139ba",
+    "origin_main_observed": "a38981bfa616b8f47363da6ff91b12a28bec218c",
+    "commits_ahead_of_main": 6,
+    "origin_url_observed": "https://github.com/tjsasakifln/extra-consultoria.git",
+    "canonical_remote": "https://github.com/tjsasakifln/extra-cli",
+    "dirty_tree_preserved": true,
+    "untracked_handoff_artifacts": true
   },
-  "ci": {
-    "head_workflow_runs": [
-      {
-        "commit": "a38981bfa616b8f47363da6ff91b12a28bec218c",
-        "name": "CI",
-        "conclusion": "success",
-        "event": "push",
-        "branch": "main",
-        "run_id": 29926125170,
-        "url_hint": "gh run list --commit a38981b"
-      }
+  "backfill_local": {
+    "writer_pid": 11008,
+    "writer_alive": true,
+    "dsn_host": "127.0.0.1:5433/extra_test",
+    "checkpoint_completed_windows": 28,
+    "planned_windows": 37,
+    "current_window_start": "20251007",
+    "total_contracts_fetched_ckpt": 2851355,
+    "contracts_table_count": 3549886,
+    "date_range_observed": [
+      "2021-04-01",
+      "8406-05-16"
     ],
-    "classification": "integrated_and_ci_green_on_main_head"
+    "date_range_note": "max date anomaly present; not used as coverage proof",
+    "status": "running"
   },
-  "open_prs": {
-    "count_listed": 17,
-    "classification": "hypothesis_inventory_not_authority",
-    "mostly_draft_or_conflicting": true,
-    "examples": [
-      {"number": 66, "mergeable": "CONFLICTING", "title": "STABILIZE-GLOBAL-FULL-SUITE-01"},
-      {"number": 63, "mergeable": "CONFLICTING", "title": "entity freshness + strict weekly"},
-      {"number": 52, "mergeable": "CONFLICTING", "title": "decision loop"}
+  "backfill_vps": {
+    "contracts_count": 3337776,
+    "checkpoint_completed_windows": 26,
+    "writer_active": false,
+    "timers_pncp_disabled": true,
+    "drift_vs_local": true
+  },
+  "vps": {
+    "host_alias": "ec-prod",
+    "os": "Debian 13 trixie",
+    "kernel": "6.12.96+deb13-amd64",
+    "postgresql": "17",
+    "app_dir": "/opt/extra-consultoria",
+    "failed_units": [
+      "extra-check-alerts.service",
+      "extra-crawl-pncp.service",
+      "extra-health-check.service",
+      "extra-onfailure@extra-check-alerts.service.service",
+      "extra-onfailure@extra-crawl-pncp.service.service",
+      "extra-onfailure@extra-health-check.service.service",
+      "pncp-crawl-inc.service"
     ],
-    "note": "Do not auto-merge obsolete PRs; reuse only if rebased and re-proved on candidate SHA."
+    "active_timers": [
+      "extra-check-alerts.timer",
+      "extra-health-check.timer",
+      "extra-db-backup.timer"
+    ]
   },
-  "recent_merged_prs": [
-    {"number": 120, "sha": "a38981b", "title": "dual same-truth sha-roles"},
-    {"number": 119, "sha": "b7c09af", "title": "honest dual re-accept"},
-    {"number": 118, "sha": "abcd067", "title": "skeptic-final dual coverage"}
-  ],
-  "dual_measurement_reproof": {
-    "artifact": "output/coverage/dual-coverage-historical_contracts.json",
-    "summary_artifact": "output/coverage/dual-capability-coverage-summary.json",
+  "dual_historical_contracts_snapshot": {
     "as_of": "2026-07-22T13:29:06.280874Z",
-    "git_sha_stamped": "abcd067902c76bd98c28125dd72ac85680750195",
-    "method": "dual_capability_coverage",
-    "universe_count": 1093,
+    "coverage_pct": 0.0,
+    "gate_status": "FAIL",
     "applicable_denominator": 946,
     "covered_numerator": 0,
-    "coverage_pct": 0.0,
-    "threshold": 0.95,
-    "gate_status": "FAIL",
     "applicability_unknown_count": 147,
-    "applicability_blocked_count": 0,
-    "never_checked_count": 946,
-    "success_with_data_count": 0,
-    "success_zero_count": 0,
-    "partial_count": 0,
-    "fresh_count": 0,
-    "stale_count": 0,
-    "identity_unresolved_count": 0,
-    "unmapped_evidence_count": 0,
-    "data_presence_numerator": 1,
-    "data_presence_pct": 0.1057,
-    "measurement_success": true,
-    "coverage_gate_pass": false,
-    "reconciliation_ok": true,
-    "classification": "implemented_integrated_tested_measurement; operational_coverage_absent"
+    "note": "pre-projection; not operational PASS"
   },
-  "unknown_applicability_root_cause": {
-    "count": 147,
-    "blocker": "applicability_unknown",
-    "justification": "required_source_unknown",
-    "pattern": "Primarily consortia, public companies, intermunicipal agencies without resolved esfera for required_combinations match",
-    "sample_names": [
-      "CONSORCIO INTERMUNICIPAL DE TURISMO COSTA VERDE E MAR",
-      "COMPANHIA DE DESENVOLVIMENTO E URBANIZACAO DE BRUSQUE",
-      "AGENCIA INTERMUNICIPAL DE REGULACAO DE SERVICOS PUBLICOS"
-    ],
-    "classification": "implemented_policy_partial; resolution_absent_for_147"
+  "migration_collision": {
+    "campaign_059": "db/migrations/059_coverage_evidence_canonical_entity_unique.sql",
+    "pr121_059": "db/migrations/059_national_contracts_intelligence_layers.sql",
+    "precedence": "this_campaign",
+    "pr121_action": "remain draft; renumber on rebase after this campaign merges"
   },
-  "authorities": {
-    "DOD.md": {
-      "status": "present",
-      "open_items_relevant": [
-        "Coleta de contratos dos últimos três anos",
-        "Atualização incremental de contratos após o backfill inicial",
-        "capability_monitoring_coverage(historical_contracts) >= 95%",
-        "Contratos possuem backfill integral mínimo de três anos",
-        "O backfill cobre no mínimo os últimos três anos",
-        "Incremental após backfill",
-        "O incremental de contratos atende freshness <= 7 dias",
-        "O sistema permite consultar contratos dos últimos três anos"
-      ],
-      "classification": "operationally_not_accepted_for_historical_contracts_gates"
-    },
-    "ADR-028": {"path": "docs/architecture/adr/ADR-028-entity-freshness-by-capability.md", "status": "accepted", "role": "freshness_by_capability"},
-    "ADR-029": {"path": "docs/architecture/adr/ADR-029-canonical-full-suite.md", "status": "accepted", "role": "full_suite_canonical"},
-    "ADR-030": {
-      "path": "docs/architecture/adr/ADR-030-dual-capability-coverage-truth.md",
-      "status": "accepted",
-      "role": "measurement_spine_coverage_evidence",
-      "explicit": "Backfill not required for measurement correctness; empty evidence => 0% covered with measurement_success true",
-      "classification": "implemented_integrated_accepted_for_measurement_only"
-    },
-    "source_applicability.yaml": {
-      "path": "config/source_applicability.yaml",
-      "policy_version": "2.0.0",
-      "status": "active",
-      "policy_sha256": "867d77b3a18a3c154aa08ec94e83e2e580234c77adba03059d8e4da46d473e46",
-      "historical_contracts_required_combination": ["pncp", "contracts"],
-      "semantic_note": "pncp and contracts are logical roles; both map to PNCP contracts surface — must document without double-counting same evidence line",
-      "classification": "implemented_integrated; incomplete_for_unknown_esfera_entities"
-    }
-  },
-  "specs": {
-    "001-dual-capability-coverage-truth": {
-      "path": "specs/001-dual-capability-coverage-truth/",
-      "artifacts": ["spec.md", "plan.md", "tasks.md", "checklists", "analyze-report.md", "converge-report.md"],
-      "scope": "measurement_truth_not_operational_3y_fill",
-      "classification": "implemented_integrated_for_measurement"
-    },
-    "002-historical-contracts-operational-coverage": {
-      "path": "specs/002-historical-contracts-operational-coverage/",
-      "classification": "absent"
-    }
-  },
-  "code_inventory": {
-    "dual_capability_coverage": {
-      "path": "scripts/coverage/dual_capability_coverage.py",
-      "classification": "implemented_integrated_tested_measurement"
-    },
-    "source_policy": {
-      "path": "scripts/coverage/source_policy.py",
-      "classification": "implemented_integrated_tested"
-    },
-    "contracts_crawler": {
-      "path": "scripts/crawl/contracts_crawler.py",
-      "features_present": ["windows", "checkpoint", "backfill mode", "incremental", "success_zero mentions", "rate limit handling"],
-      "classification": "implemented_partially_proven_live; not_entity_coverage_adapter"
-    },
-    "run_contracts_90d_pilot": {
-      "path": "scripts/crawl/run_contracts_90d_pilot.py",
-      "classification": "implemented_with_tests; live_full_90d_not_proven"
-    },
-    "weekly_cycle": {
-      "path": "scripts/ops/weekly_cycle.py",
-      "contracts_strategy": "reuse_lake_with_freshness_declaration — explicit no full re-collect",
-      "classification": "implemented_integrated; contracts_recollect_absent"
-    },
-    "golden_path": {
-      "path": "scripts/golden_path.py",
-      "classification": "implemented_integrated; dual_measurement_wired"
-    },
-    "makefile_extra_weekly": {
-      "target": "extra-weekly",
-      "classification": "implemented_canonical_entry"
-    }
-  },
-  "pilot_and_backfill_artifacts": {
-    "pilot_90d": {
-      "path": "output/contracts/pilot-90d-next30d.json",
-      "status": "partial",
-      "go_no_go_3y": "NO-GO",
-      "sealed": true,
-      "seal_note": "Machine-sealed attestation without network; not full live 90d",
-      "planned_windows": 3,
-      "windows_ok_in_artifact": 1,
-      "classification": "attestation_only; not_live_full_pilot"
-    },
-    "pilot_7d": {
-      "path": "output/contracts/pilot-7d-smoke.json",
-      "status": "success",
-      "go_no_go_3y": "NO-GO",
-      "reason": "days=7 < 90",
-      "classification": "partial_live_or_attested_smoke; not_90d_authorization"
-    },
-    "checkpoint_backfill_3y": {
-      "path": "data/contracts_checkpoints/contracts_backfill_3y.json",
-      "completed_windows": [],
-      "total_contracts_fetched": 0,
-      "classification": "structure_present; operationally_empty"
-    },
-    "checkpoint_full": {
-      "path": "data/contracts_checkpoints/contracts_full.json",
-      "total_windows_completed": 11,
-      "total_windows_failed": 3,
-      "total_contracts_fetched": 813648,
-      "last_error": "429 Rate limit after retries",
-      "classification": "partial_live_windows; not_3y_complete; not_entity_evidence"
-    }
-  },
-  "database": {
-    "expected_dsn": "postgresql://test:test@127.0.0.1:5433/extra_test",
-    "test_db_container_at_inspection": "not_listening_on_5433",
-    "compose_service": "docker compose -f docker-compose.yml up -d test-db",
-    "migrations_present_through": "058_dual_capability_coverage_views.sql",
-    "coverage_evidence_spine": "migration 040+ / ADR-030",
-    "classification_at_inspection": "schema_in_repo; local_pg_not_verified_until_test_db_up"
-  },
-  "tests_present": {
-    "contracts": [
-      "tests/test_contracts_crawler.py",
-      "tests/test_contracts_per_window_persist.py",
-      "tests/test_contracts_pilot_completion.py",
-      "tests/test_contracts_uf_filter.py",
-      "tests/test_contracts_window_complete.py"
-    ],
-    "coverage": [
-      "tests/test_dual_capability_coverage.py",
-      "tests/test_coverage_states.py",
-      "tests/test_coverage_truth.py"
-    ],
-    "classification": "unit_and_contract_tests_exist; live_e2e_entity_coverage_absent"
-  },
-  "workflows": {
-    "github": [".github/workflows/ci.yml"],
-    "systemd": "not_inspected_in_depth_at_baseline; prepare_not_declare_vps"
-  },
-  "prior_campaigns": [
-    "DUAL-CAPABILITY-COVERAGE-TRUTH-01",
-    "ENTITY-FRESHNESS-01",
-    "EXTRA-OPS-95",
-    "NEXT-30D-ROI-MAIN",
-    "STABILIZE-GLOBAL-FULL-SUITE-01"
+  "known_defects": [
+    "success_zero fabricable via --window-complete --pages-processed 1 --pages-expected 1",
+    "export/restore lack mandatory SHA256 verify and fail-closed truncate/migration",
+    "validate_systemd only checks crawl priority units, misses invalid OnCalendar and StartLimit section",
+    "pncp-crawl-inc uses /usr/bin/python3 without venv",
+    "extra-collect-metrics.timer OnCalendar=*:0/60:00 invalid",
+    "extra-db-backup.service StartLimit* in [Service] section",
+    "prometheus_client not in requirements.txt",
+    "Spec 002 lists VPS as non-goal",
+    "origin remote not yet pointing at extra-cli",
+    "test_exit_ok_with_reused_and_products fails under contracts fail-closed strict"
   ],
-  "capability_status_matrix": {
-    "dual_measurement_engine": {
-      "implemented": true,
-      "integrated_to_main": true,
-      "covered_by_test": true,
-      "proven_postgres_real": "partial_prior_campaigns",
-      "proven_against_real_source": false,
-      "operationally_accepted": true,
-      "docs_only": false,
-      "obsolete": false,
-      "blocked": false,
-      "absent": false
-    },
-    "source_applicability_100pct": {
-      "implemented": false,
-      "integrated_to_main": false,
-      "covered_by_test": "partial_policy",
-      "proven_postgres_real": false,
-      "proven_against_real_source": false,
-      "operationally_accepted": false,
-      "docs_only": false,
-      "obsolete": false,
-      "blocked": false,
-      "absent": "resolution_for_147_unknown"
-    },
-    "pilot_90d_live_go": {
-      "implemented": true,
-      "integrated_to_main": true,
-      "covered_by_test": true,
-      "proven_postgres_real": "partial",
-      "proven_against_real_source": "partial_smoke_not_full_90d",
-      "operationally_accepted": false,
-      "docs_only": false,
-      "obsolete": false,
-      "blocked": false,
-      "absent": "clean_live_full_90d_go"
-    },
-    "backfill_3y": {
-      "implemented": "runner_modes_exist",
-      "integrated_to_main": true,
-      "covered_by_test": "partial",
-      "proven_postgres_real": false,
-      "proven_against_real_source": false,
-      "operationally_accepted": false,
-      "docs_only": false,
-      "obsolete": false,
-      "blocked": false,
-      "absent": "completed_windows_and_artifact"
-    },
-    "incremental_le_7d": {
-      "implemented": "partial_modes",
-      "integrated_to_main": "partial",
-      "covered_by_test": "partial",
-      "proven_postgres_real": false,
-      "proven_against_real_source": false,
-      "operationally_accepted": false,
-      "docs_only": false,
-      "obsolete": false,
-      "blocked": false,
-      "absent": "canonical_command_and_proof"
-    },
-    "entity_coverage_evidence_adapter": {
-      "implemented": false,
-      "integrated_to_main": false,
-      "covered_by_test": false,
-      "proven_postgres_real": false,
-      "proven_against_real_source": false,
-      "operationally_accepted": false,
-      "docs_only": false,
-      "obsolete": false,
-      "blocked": false,
-      "absent": true
-    },
-    "weekly_cycle_contracts_fail_closed": {
-      "implemented": false,
-      "integrated_to_main": false,
-      "covered_by_test": false,
-      "proven_postgres_real": false,
-      "proven_against_real_source": false,
-      "operationally_accepted": false,
-      "docs_only": "weekly reuses lake with declaration",
-      "obsolete": false,
-      "blocked": false,
-      "absent": "precondition_or_incremental_integration"
-    },
-    "historical_contracts_gate_95": {
-      "implemented": "gate_exists",
-      "integrated_to_main": true,
-      "covered_by_test": true,
-      "proven_postgres_real": "measurement_only",
-      "proven_against_real_source": false,
-      "operationally_accepted": false,
-      "docs_only": false,
-      "obsolete": false,
-      "blocked": false,
-      "absent": "numerator_operational_fill"
-    }
+  "dod_controller": {
+    "total": 1361,
+    "state_ACCEPTED": 333,
+    "OPEN": 1027,
+    "acceptance_pct": 1.54,
+    "no_accept_yet_this_session": true
   },
-  "divergences": [
-    {
-      "id": "DIV-01",
-      "summary": "Measurement honest and green CI; operational numerator zero",
-      "authority": "DOD over narrative success of dual campaign"
-    },
-    {
-      "id": "DIV-02",
-      "summary": "Pilot 90d artifact sealed as attestation; claims_forbidden include full 90d and 3y GO",
-      "authority": "evidence over seal ceremony"
-    },
-    {
-      "id": "DIV-03",
-      "summary": "Weekly cycle reuses contracts lake and declares no full recollect — conflicts with incremental freshness gate for consultative package",
-      "authority": "DOD freshness + campaign requirement"
-    },
-    {
-      "id": "DIV-04",
-      "summary": "147 unknown applicability due to unresolved esfera/natureza for consortia/companies; not silent not_applicable",
-      "authority": "source policy + dual engine fail-closed"
-    },
-    {
-      "id": "DIV-05",
-      "summary": "National window crawls persist contracts but do not auto-write per-entity coverage_evidence for dual numerator",
-      "authority": "ADR-030 spine requires entity evidence"
-    },
-    {
-      "id": "DIV-06",
-      "summary": "pncp+contracts required combination may double-count same official surface if both roles satisfied by identical evidence lines",
-      "authority": "campaign §6.1 semantic contract required"
-    },
-    {
-      "id": "DIV-07",
-      "summary": "Many open PRs outdated/conflicting; not merge authority",
-      "authority": "main HEAD only"
-    }
-  ],
-  "campaign_selection": {
-    "selected": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
-    "switch_to_open_tenders": false,
-    "reason": "historical_contracts criteria not satisfied (0% coverage, unknown applicability, no 3y backfill proof, no 7d incremental proof, weekly reuses lake)"
-  },
-  "next_actions": [
-    "Create campaign branch from origin/main",
-    "Create specs/002-historical-contracts-operational-coverage/",
-    "Resolve 147 unknown applicability with attribute-based rules + tests + policy hash",
-    "Harden and run live 90d pilot to GO",
-    "Execute 3y backfill with window artifacts",
-    "Build entity coverage_evidence adapter from crawl lineage",
-    "Canonical incremental + weekly fail-closed integration",
-    "Prove dual gate >=95% without lowering denominator",
-    "Independent review + honest DOD updates only after proof"
+  "claims_forbidden_now": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS",
+    "open_tenders>=95%"
   ]
 }

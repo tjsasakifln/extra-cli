@@ -29,3 +29,4 @@ rapidfuzz>=3.0.0
 # Optional: Web automation for JS portals (FEAT-2.4)
 # selenium>=4.15.0  # descomentar se precisar de crawlers com Selenium
 # webdriver-manager>=4.0.0  # gerenciamento automatico de ChromeDriver
+prometheus_client>=0.20.0

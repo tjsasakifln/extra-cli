@@ -25,3 +25,5 @@ Se uma ADR for supersedida, registre aqui com data, ADR substituta e motivo.
 3. Referenciar no README/PRD apenas ADRs vigentes.
 | ADR-029 | Canonical full suite green | Accepted | 2026-07-21 |
 | ADR-030 | Dual capability coverage truth | Accepted | 2026-07-21 |
+
+> **2026-07-23:** ADR-007 runtime = Netcup RS 2000 / Debian 13 / PG 17 / 16 GB; ADR-008 minimal playbook `deploy/ansible/site-contracts-ops.yml`.

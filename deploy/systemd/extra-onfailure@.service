@@ -3,14 +3,14 @@
 # Extra Consultoria — Story FEAT-4.1
 #
 # Usage: referenced by OnFailure=extra-onfailure@%n.service in other units
-# Required: add WEBHOOK_URL to /opt/extra-consultoria/.env
-#
-# Example WEBHOOK_URL: https://hooks.slack.com/services/...
+# Optional: WEBHOOK_URL in /opt/extra-consultoria/.env
+# When WEBHOOK_URL is empty, unit exits 0 after journal note (no cascade fail).
 
 [Unit]
 Description=Extra Consultoria — OnFailure alert for %i
 
 [Service]
 Type=oneshot
-EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/usr/bin/curl -sf --max-time 10 -X POST -H "Content-Type: application/json" -d '{"service":"%i","host":"%H","project":"extra-consultoria","status":"failed"}' "${WEBHOOK_URL}"
+EnvironmentFile=-/opt/extra-consultoria/.env
+# Fail-closed for empty webhook: do not mark OnFailure itself as failed.
+ExecStart=/bin/bash -c 'if [ -z "${WEBHOOK_URL:-}" ]; then echo "WEBHOOK_URL unset — logged only for %i on %H"; logger -t extra-onfailure "service=%i host=%H status=failed webhook=unset"; exit 0; fi; curl -sf --max-time 10 -X POST -H "Content-Type: application/json" -d "{\"service\":\"%i\",\"host\":\"%H\",\"project\":\"extra-cli\",\"status\":\"failed\"}" "${WEBHOOK_URL}"'

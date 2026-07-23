@@ -13,7 +13,7 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/usr/bin/python3 -c "import psycopg2,os;c=psycopg2.connect(os.getenv('LOCAL_DATALAKE_DSN'));c.cursor().execute('SELECT purge_old_records(400)');c.commit();c.close()"
+ExecStart=/opt/extra-consultoria/.venv/bin/python -c "import psycopg2,os;c=psycopg2.connect(os.getenv('LOCAL_DATALAKE_DSN'));c.cursor().execute('SELECT purge_old_records(400)');c.commit();c.close()"
 User=extra-consultoria
 StandardOutput=journal
 StandardError=journal

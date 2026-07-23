@@ -1,38 +1,35 @@
-# Implementation Plan — Historical Contracts Operational Coverage
+# Implementation Plan — 002 Historical Contracts Operational Coverage
 
-**Branch**: `campaign/historical-contracts-operational-closure-01`  
-**Date**: 2026-07-22
+**Campaign**: HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01  
+**Updated**: 2026-07-23
 
-## Architecture (reuse first)
+## Strategy
 
-```
-seed → source_policy applicability
-     → contracts_crawler / 90d pilot / backfill_3y windows
-     → pncp_supplier_contracts + checkpoints
-     → contracts_entity_evidence adapter
-     → coverage_evidence (canonical_entity_key + pncp/contracts roles)
-     → dual_capability_coverage gate
-     → weekly_cycle fail-closed + reports
-```
+1. **Foundation on branch** (code + tests + Spec): proof-gated success_zero, fail-closed export/restore, systemd/venv/calendars, weekly contracts strict tests, Spec convergence — **before** final cutover.
+2. **Finish or migrate backfill** with single writer (local PID until 37/37 or explicit cutover then VPS-only resume).
+3. **Cutover**: stop local writer → export (SHA256) → restore fail-closed → validate counts → VPS sole writer.
+4. **Project evidence** from verified checkpoint only → dual ≥95% or nominal gaps.
+5. **Ops**: health/alerts/metrics/backup off-site → restore drill → reboot/failure simulation.
+6. **Product + soak 7d** on VPS SHA.
+7. **Release**: CI green → independent review → merge main → sequential DOD accept.
 
-## Work packages
+## Technical approach
 
-1. **Applicability** — derive_esfera multi-nature + historical_contracts wildcard combination; policy 2.1.0 + hash.
-2. **Evidence binding** — dual loads `canonical_entity_key`; migration 059 unique index; adapter CLI.
-3. **Pilot live** — harden GO criteria; execute live 90d (not seal).
-4. **Backfill 3y** — windowed crawl ≥1098d span; artifacts; then adapter with `window_complete` only if checkpoint proves all windows.
-5. **Incremental** — watermark+overlap; weekly precondition.
-6. **Product + CI** — reports, tests, independent review, honest DOD.
+- Pure proof validation (`load_checkpoint_window_proof`, `assert_success_zero_proof`) unit-tested without VPS.
+- I/O paths (crawl, pg_dump, systemd) fail-closed with JSON results under `artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/`.
+- Host config: minimal Ansible under `deploy/ansible/` re-applying units/timers idempotently (ADR-008).
+- PR #121 isolated; migration 059 of this campaign wins.
 
 ## Risks
 
 | Risk | Mitigation |
 |------|------------|
-| PNCP 429 | pacing, checkpoint, multi-session resume |
-| Fake success_zero | window_complete only after live proof; cleanup synthetic rows |
-| Double-count pncp+contracts | shared run_id + documented roles |
-| sc_public_entities empty | canonical_entity_key path |
+| PNCP 422/503 partial windows | never seal incomplete; resume |
+| Dual writers | timers off on VPS until cutover; kill local before restore |
+| Off-site credentials missing | complete local backup + document BLOCKED_CREDENTIAL |
+| Dual <95% after full backfill | nominal gaps; operational fix; no fabrications |
+| Soak duration | persistent monitor; not a token/context blocker |
 
-## Out of scope
+## Phases → tasks
 
-open_tenders 95%, VPS, new dual formula, PR mass-merge.
+See `tasks.md`. Gates: `make campaign-gate-historical-contracts-vps`, `make release-candidate`, `make verify-production` (wrappers to be added if missing).
