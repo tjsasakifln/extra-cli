@@ -1,6 +1,6 @@
 {
   "campaign_id": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
-  "as_of": "2026-07-23T20:26:47.619497Z",
+  "as_of": "2026-07-23T20:34:39.396583Z",
   "result": "BLOCKED",
   "blockers": [
     {
@@ -42,7 +42,12 @@
     "pr124": "merged",
     "pr125": "merged",
     "failed_units": 0,
-    "independent_review": "NO_CRITICAL_OR_HIGH_OPEN_FOR_IMPLEMENTED_SCOPE"
+    "independent_review": "NO_CRITICAL_OR_HIGH_OPEN_FOR_IMPLEMENTED_SCOPE",
+    "local_post_cutover_dump_bytes": 432013312,
+    "backup_offsite_fail_closed": true,
+    "soak_day1_freshness_hours": 22.56,
+    "vps_main_sha": "f25b96b",
+    "followup_branch_tip": "b1a328f"
   },
   "claims_authorized": [
     "HISTORICAL_CONTRACTS_BACKFILL_37_WINDOWS",
