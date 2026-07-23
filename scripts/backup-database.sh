@@ -47,6 +47,8 @@ fi
 DSN="${LOCAL_DATALAKE_DSN:-}"
 MOUNT_POINT="${BACKUP_MOUNT_POINT:-/mnt/storage-box}"
 STORAGE_BOX_SSH="${BACKUP_STORAGE_BOX_SSH:-}"
+# NFS off-site (Netcup Storagespace etc.): host:/export — prefer over sshfs when set
+NFS_EXPORT="${BACKUP_NFS_EXPORT:-}"
 REMOTE_DIR="${BACKUP_REMOTE_DIR:-backups/postgresql}"
 TEMP_DIR="${BACKUP_TEMP_DIR:-/tmp/pg-backup}"
 RETENTION_DAILY="${BACKUP_RETENTION_DAILY:-7}"
@@ -54,6 +56,9 @@ RETENTION_WEEKLY="${BACKUP_RETENTION_WEEKLY:-4}"
 LOG_FILE="${BACKUP_LOG_FILE:-/var/log/backup-database.log}"
 NOTIFY_CMD="${BACKUP_NOTIFY_CMD:-}"
 SSHFS_OPTS="${SSHFS_OPTIONS:--o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3}"
+NFS_OPTS="${BACKUP_NFS_OPTIONS:-vers=3,nolock,hard,timeo=600,retrans=2}"
+# If 1, keep mount after backup (for fstab / permanent NFS)
+KEEP_MOUNT="${BACKUP_KEEP_MOUNT:-0}"
 PREFIX="${BACKUP_PREFIX:-pncp_datalake}"
 LOCK_FILE="/tmp/backup-database.lock"
 
@@ -177,32 +182,73 @@ trap cleanup EXIT
 
 # ─── Storage Box (sshfs) ────────────────────────────────────────────────────
 
+_offsite_configured() {
+  # Accept NFS export, nfs:// URI in STORAGE_BOX_SSH, or classic user@host SSH.
+  if [ -n "$NFS_EXPORT" ]; then
+    return 0
+  fi
+  if [ -n "$STORAGE_BOX_SSH" ]; then
+    return 0
+  fi
+  return 1
+}
+
 mount_storage_box() {
-  if [ -z "$STORAGE_BOX_SSH" ]; then
-    log "FATAL" "BACKUP_STORAGE_BOX_SSH não configurada"
-    notify_failure "Backup DB - Falha" "BACKUP_STORAGE_BOX_SSH não configurada"
+  if ! _offsite_configured; then
+    log "FATAL" "Off-site não configurado (defina BACKUP_NFS_EXPORT ou BACKUP_STORAGE_BOX_SSH)"
+    notify_failure "Backup DB - Falha" "Off-site destination not configured"
     exit 1
   fi
 
+  # Already mounted (e.g. fstab NFS) — treat as success
+  if mountpoint -q "$MOUNT_POINT" 2>/dev/null; then
+    log "INFO" "Destino off-site já montado em $MOUNT_POINT"
+    return 0
+  fi
+
+  mkdir -p "$MOUNT_POINT"
+
+  # Prefer explicit NFS export (Netcup Storagespace)
+  local export_spec=""
+  if [ -n "$NFS_EXPORT" ]; then
+    export_spec="$NFS_EXPORT"
+  elif [[ "$STORAGE_BOX_SSH" == nfs://* ]]; then
+    # nfs://host/path → host:/path
+    export_spec="${STORAGE_BOX_SSH#nfs://}"
+    export_spec="${export_spec%%/*}:/${export_spec#*/}"
+  elif [[ "$STORAGE_BOX_SSH" == *":/"* ]] && [[ "$STORAGE_BOX_SSH" != *@* ]]; then
+    # host:/export form
+    export_spec="$STORAGE_BOX_SSH"
+  fi
+
+  if [ -n "$export_spec" ]; then
+    log "INFO" "Montando NFS off-site $export_spec em $MOUNT_POINT"
+    if [ "$DRY_RUN" = true ]; then
+      log "INFO" "[DRY-RUN] mount -t nfs -o $NFS_OPTS $export_spec $MOUNT_POINT"
+      return 0
+    fi
+    if ! mount -t nfs -o "$NFS_OPTS" "$export_spec" "$MOUNT_POINT"; then
+      log "ERROR" "Falha ao montar NFS $export_spec"
+      notify_failure "Backup DB - Falha" "Falha ao montar NFS off-site"
+      return 1
+    fi
+    log "INFO" "NFS off-site montado com sucesso"
+    return 0
+  fi
+
+  # Classic sshfs path
   if ! command -v sshfs &>/dev/null; then
     log "FATAL" "sshfs não encontrado. Instale com: apt install sshfs"
     notify_failure "Backup DB - Falha" "sshfs não encontrado"
     exit 1
   fi
 
-  # Verifica se já está montado
-  if mountpoint -q "$MOUNT_POINT" 2>/dev/null; then
-    log "INFO" "Storage Box já montada em $MOUNT_POINT"
-    return 0
-  fi
-
-  log "INFO" "Montando Storage Box em $MOUNT_POINT"
+  log "INFO" "Montando Storage Box sshfs em $MOUNT_POINT"
   if [ "$DRY_RUN" = true ]; then
     log "INFO" "[DRY-RUN] sshfs $STORAGE_BOX_SSH:$REMOTE_DIR $MOUNT_POINT $SSHFS_OPTS"
     return 0
   fi
 
-  mkdir -p "$MOUNT_POINT"
   if ! sshfs "$STORAGE_BOX_SSH:$REMOTE_DIR" "$MOUNT_POINT" $SSHFS_OPTS; then
     log "ERROR" "Falha ao montar Storage Box"
     notify_failure "Backup DB - Falha" "Falha ao montar Storage Box via sshfs"
@@ -212,8 +258,12 @@ mount_storage_box() {
 }
 
 umount_storage_box() {
+  if [ "$KEEP_MOUNT" = "1" ]; then
+    log "INFO" "BACKUP_KEEP_MOUNT=1 — mantendo montagem em $MOUNT_POINT"
+    return 0
+  fi
   if mountpoint -q "$MOUNT_POINT" 2>/dev/null; then
-    log "INFO" "Desmontando Storage Box"
+    log "INFO" "Desmontando destino off-site"
     if [ "$DRY_RUN" = false ]; then
       umount "$MOUNT_POINT" 2>/dev/null || log "WARN" "Falha ao desmontar (pode estar ocupada)"
     fi
@@ -237,47 +287,74 @@ do_backup() {
   date_stamp="$(date '+%Y-%m-%d')"
   local dump_name="${PREFIX}-${date_stamp}.dump.gz"
   local dump_path="${backup_base}/daily/${dump_name}"
+  local staging_path="${TEMP_DIR%/}/${dump_name}"
   local start_time end_time duration_sec file_size
 
   log "INFO" "Iniciando pg_dump para $dump_name"
 
   start_time="$(date +%s)"
+  mkdir -p "$TEMP_DIR" "${backup_base}/daily"
 
   if [ "$DRY_RUN" = true ]; then
-    log "INFO" "[DRY-RUN] pg_dump --dbname='$DSN' --format=custom | gzip -c > $dump_path"
+    log "INFO" "[DRY-RUN] pg_dump → stage $staging_path → $dump_path"
     file_size="0 (dry-run)"
     duration_sec=0
   else
-    # Executa pg_dump com compressão nativa (formato custom já comprime),
-    # mas aplicamos gzip adicional para reduction máxima
+    # Stage to local file first (pg_dump --file=/dev/stdout fails fsync; NFS needs stable copy).
+    local staging_custom="${TEMP_DIR%/}/${PREFIX}-${date_stamp}.dump"
+    rm -f "$staging_path" "$staging_custom"
     if pg_dump --dbname="$DSN" --format=custom --compress=9 \
-        --file="/dev/stdout" 2>> "$LOG_FILE" \
-        | gzip -c > "$dump_path"; then
+        --file="$staging_custom" 2>> "$LOG_FILE"; then
       end_time="$(date +%s)"
       duration_sec=$(( end_time - start_time ))
-      file_size="$(stat --printf='%s' "$dump_path" 2>/dev/null || echo 0)"
-      log "INFO" "Backup concluído: $dump_name | Tamanho: $(numfmt --to=iec "$file_size") | Duração: ${duration_sec}s"
+      # wrap custom dump in gzip for transport naming (.dump.gz)
+      if ! gzip -c "$staging_custom" > "$staging_path"; then
+        log "ERROR" "gzip falhou ao embalar $staging_custom"
+        rm -f "$staging_custom" "$staging_path"
+        notify_failure "Backup DB - Falha" "gzip falhou"
+        return 1
+      fi
+      rm -f "$staging_custom"
+      file_size="$(stat --printf='%s' "$staging_path" 2>/dev/null || echo 0)"
+      log "INFO" "Dump local: $staging_path | Tamanho: $(numfmt --to=iec "$file_size") | Duração: ${duration_sec}s"
 
-      # Verifica integridade básica (arquivo não vazio e cabeçalho gzip)
       if [ "$file_size" -eq 0 ]; then
-        log "ERROR" "Backup gerado com tamanho zero: $dump_path"
-        rm -f "$dump_path"
+        log "ERROR" "Backup gerado com tamanho zero: $staging_path"
+        rm -f "$staging_path"
         notify_failure "Backup DB - Falha" "Backup gerado com tamanho zero"
         return 1
       fi
 
-      if ! gzip -t "$dump_path" 2>/dev/null; then
-        log "ERROR" "Arquivo de backup corrompido (gzip inválido): $dump_path"
-        rm -f "$dump_path"
+      if ! gzip -t "$staging_path" 2>/dev/null; then
+        log "ERROR" "Arquivo de backup corrompido (gzip inválido): $staging_path"
+        rm -f "$staging_path"
         notify_failure "Backup DB - Falha" "Arquivo de backup corrompido (gzip inválido)"
         return 1
       fi
       log "INFO" "Integridade do gzip verificada: OK"
+
+      log "INFO" "Copiando para off-site: $dump_path"
+      if ! cp -f "$staging_path" "$dump_path"; then
+        log "ERROR" "Falha ao copiar dump para destino off-site $dump_path"
+        notify_failure "Backup DB - Falha" "Falha ao copiar dump off-site"
+        return 1
+      fi
+      sync
+      local remote_size
+      remote_size="$(stat --printf='%s' "$dump_path" 2>/dev/null || echo 0)"
+      if [ "$remote_size" != "$file_size" ]; then
+        log "ERROR" "Tamanho off-site ($remote_size) != local ($file_size)"
+        notify_failure "Backup DB - Falha" "Size mismatch after off-site copy"
+        return 1
+      fi
+      log "INFO" "Backup off-site concluído: $dump_name | Tamanho: $(numfmt --to=iec "$file_size")"
+      rm -f "$staging_path"
     else
       end_time="$(date +%s)"
       duration_sec=$(( end_time - start_time ))
       log "ERROR" "pg_dump falhou após ${duration_sec}s"
       notify_failure "Backup DB - Falha" "pg_dump falhou após ${duration_sec}s"
+      rm -f "$staging_path" "$staging_custom"
       return 1
     fi
   fi
@@ -323,68 +400,85 @@ do_retention() {
   # ── Limpeza de backups diários ──
   if [ "$DRY_RUN" = true ]; then
     local daily_count
-    daily_count="$(ls -1 "$daily_dir"/"${PREFIX}"-*.dump.gz 2>/dev/null | wc -l)"
-    log "INFO" "[DRY-RUN] Diários existentes: $daily_count | Manter: $RETENTION_DAILY | Removeria: $(( daily_count > RETENTION_DAILY ? daily_count - RETENTION_DAILY : 0 ))"
+    daily_count="$(find "$daily_dir" -maxdepth 1 -name "${PREFIX}-*.dump.gz" 2>/dev/null | wc -l)"
+    log "INFO" "[DRY-RUN] Diários existentes: $daily_count | Manter: $RETENTION_DAILY"
   else
-    # Lista ordenados por nome (data), remove os mais antigos além do limite
-    ls -1 "$daily_dir"/"${PREFIX}"-*.dump.gz 2>/dev/null \
-      | sort \
-      | head -n -"$RETENTION_DAILY" \
-      | while read -r old_daily; do
-          rm -f "$old_daily"
-          log "INFO" "Removido backup diário antigo: $(basename "$old_daily")"
-        done
+    # Keep newest N by mtime; never fail the whole backup on retention edge cases
+    mapfile -t _daily_files < <(find "$daily_dir" -maxdepth 1 -name "${PREFIX}-*.dump.gz" -printf '%T@ %p\n' 2>/dev/null | sort -n | cut -d' ' -f2-) || true
+    local _n=${#_daily_files[@]}
+    local _drop=$(( _n > RETENTION_DAILY ? _n - RETENTION_DAILY : 0 ))
+    local _i
+    for ((_i=0; _i<_drop; _i++)); do
+      rm -f "${_daily_files[_i]}"
+      log "INFO" "Removido backup diário antigo: $(basename "${_daily_files[_i]}")"
+    done
   fi
 
   # ── Limpeza de backups semanais ──
   if [ "$DRY_RUN" = true ]; then
     local weekly_count
-    weekly_count="$(ls -1 "$weekly_dir"/"${PREFIX}"-*.weekly.dump.gz 2>/dev/null | wc -l)"
-    log "INFO" "[DRY-RUN] Semanais existentes: $weekly_count | Manter: $RETENTION_WEEKLY | Removeria: $(( weekly_count > RETENTION_WEEKLY ? weekly_count - RETENTION_WEEKLY : 0 ))"
+    weekly_count="$(find "$weekly_dir" -maxdepth 1 -name "${PREFIX}-*.weekly.dump.gz" 2>/dev/null | wc -l)"
+    log "INFO" "[DRY-RUN] Semanais existentes: $weekly_count | Manter: $RETENTION_WEEKLY"
   else
-    ls -1 "$weekly_dir"/"${PREFIX}"-*.weekly.dump.gz 2>/dev/null \
-      | sort \
-      | head -n -"$RETENTION_WEEKLY" \
-      | while read -r old_weekly; do
-          rm -f "$old_weekly"
-          log "INFO" "Removido backup semanal antigo: $(basename "$old_weekly")"
-        done
+    mapfile -t _weekly_files < <(find "$weekly_dir" -maxdepth 1 -name "${PREFIX}-*.weekly.dump.gz" -printf '%T@ %p\n' 2>/dev/null | sort -n | cut -d' ' -f2-) || true
+    local _wn=${#_weekly_files[@]}
+    local _wdrop=$(( _wn > RETENTION_WEEKLY ? _wn - RETENTION_WEEKLY : 0 ))
+    local _j
+    for ((_j=0; _j<_wdrop; _j++)); do
+      rm -f "${_weekly_files[_j]}"
+      log "INFO" "Removido backup semanal antigo: $(basename "${_weekly_files[_j]}")"
+    done
   fi
 
   # Relatório final de retention
   local final_daily_count=0 final_weekly_count=0
   if [ "$DRY_RUN" = false ]; then
-    final_daily_count="$(ls -1 "$daily_dir"/"${PREFIX}"-*.dump.gz 2>/dev/null | wc -l)"
-    final_weekly_count="$(ls -1 "$weekly_dir"/"${PREFIX}"-*.weekly.dump.gz 2>/dev/null | wc -l)"
+    final_daily_count="$(find "$daily_dir" -maxdepth 1 -name "${PREFIX}-*.dump.gz" 2>/dev/null | wc -l)"
+    final_weekly_count="$(find "$weekly_dir" -maxdepth 1 -name "${PREFIX}-*.weekly.dump.gz" 2>/dev/null | wc -l)"
   fi
   log "INFO" "Retention concluída | Diários: $final_daily_count | Semanais: $final_weekly_count"
 }
 
 # ─── Execução principal ─────────────────────────────────────────────────────
 
+_resolve_backup_base() {
+  # sshfs mounts remote dir at MOUNT_POINT → base is mount point.
+  # NFS mounts volume root → optional REMOTE_DIR subdirectory under mount.
+  if [ -n "$NFS_EXPORT" ] || [[ "${STORAGE_BOX_SSH:-}" == nfs://* ]] \
+    || { [ -n "${STORAGE_BOX_SSH:-}" ] && [[ "$STORAGE_BOX_SSH" == *":/"* ]] && [[ "$STORAGE_BOX_SSH" != *@* ]]; }; then
+    if [ -n "${REMOTE_DIR}" ]; then
+      echo "${MOUNT_POINT%/}/${REMOTE_DIR#/}"
+    else
+      echo "$MOUNT_POINT"
+    fi
+  else
+    echo "$MOUNT_POINT"
+  fi
+}
+
 # Se apenas retention, não precisa de DSN nem Storage Box
 if [ "$MODE" = "retention-only" ]; then
   log "INFO" "Modo: apenas retention (armazenamento local)"
 
-  if [ -n "$STORAGE_BOX_SSH" ]; then
+  if _offsite_configured; then
     mount_storage_box || exit $?
-    BACKUP_BASE="$MOUNT_POINT"
+    BACKUP_BASE="$(_resolve_backup_base)"
   else
     BACKUP_BASE="${BACKUP_REMOTE_DIR}"
     mkdir -p "$BACKUP_BASE/daily" "$BACKUP_BASE/weekly"
   fi
 
   do_retention "$BACKUP_BASE"
-  [ -n "$STORAGE_BOX_SSH" ] && umount_storage_box
+  _offsite_configured && umount_storage_box
   log "INFO" "=== Retention concluída ==="
   exit 0
 fi
 
 # Backup completo
-# 1. Monta Storage Box
-log "INFO" "Passo 1/4: Montando Storage Box"
+# 1. Monta destino off-site (NFS ou sshfs)
+log "INFO" "Passo 1/4: Montando destino off-site"
 mount_storage_box || exit $?
-BACKUP_BASE="$MOUNT_POINT"
+BACKUP_BASE="$(_resolve_backup_base)"
 
 # 2. Garante diretórios
 log "INFO" "Passo 2/4: Garantindo diretórios de backup"
@@ -392,11 +486,11 @@ ensure_remote_dirs "$BACKUP_BASE"
 
 # 3. Executa backup
 log "INFO" "Passo 3/4: Executando pg_dump"
-do_backup "$BACKUP_BASE" || {
-  local backup_exit=$?
+if ! do_backup "$BACKUP_BASE"; then
+  backup_exit=$?
   umount_storage_box
-  exit $backup_exit
-}
+  exit "$backup_exit"
+fi
 
 # 4. Executa retention
 log "INFO" "Passo 4/4: Executando retention"

@@ -1,12 +1,21 @@
 {
-  "as_of": "2026-07-23T20:26:45.940385Z",
-  "offsite_configured": false,
-  "mount_point": null,
-  "mount_active": false,
-  "last_local_dump": null,
-  "last_offsite_verify": null,
-  "status": "blocked_credential",
-  "blockers": [
-    "BACKUP_STORAGE_BOX_SSH empty \u2014 configure off-site destination (do not commit secrets). Local dumps alone are not off-site."
-  ]
+  "as_of": "2026-07-23T22:26:51.876887Z",
+  "offsite_configured": true,
+  "nfs_export": true,
+  "mount_point": "/mnt/storage-box",
+  "mount_active": true,
+  "last_local_dump": {
+    "path": "/var/lib/extra-consultoria/backups/postgresql/pncp_datalake-20260723T203159Z.dump",
+    "mtime": "2026-07-23T20:32:37.546553Z",
+    "size_bytes": 431372773
+  },
+  "last_offsite_verify": {
+    "path": "/mnt/storage-box/backups/postgresql/daily/pncp_datalake-2026-07-23.dump.gz",
+    "mtime": "2026-07-23T22:24:30.226682Z",
+    "size_bytes": 421985469,
+    "method": "nfs_or_mounted_offsite"
+  },
+  "status": "ok",
+  "blockers": []
 }
+
