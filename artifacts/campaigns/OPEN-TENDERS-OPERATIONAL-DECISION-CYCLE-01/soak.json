@@ -1,19 +1,26 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
-  "schema_version": "1.0",
+  "schema_version": "1.1",
+  "generated_at": "2026-07-23T23:47:13Z",
   "status": "IN_PROGRESS",
-  "started_at": "2026-07-23T23:15:00Z",
   "days_required": 7,
   "days_observed": 0,
-  "gaps": null,
+  "successful_fire_days": 0,
+  "gaps": [],
   "timer_unit": "extra-weekly.timer",
   "service_unit": "extra-weekly.service",
-  "next_fire_observed": "Mon 2026-07-27 03:30:47 -03",
-  "vps_sha_at_start": "7194cb169c2e963e132cb35f8861e78f70aaf192",
+  "timer_enabled": "enabled",
+  "timer_active": "active",
+  "timer_ok": true,
+  "next_timer": "NEXT                          LEFT LAST PASSED UNIT               ACTIVATES\nMon 2026-07-27 03:33:29 -03 3 days -         - extra-weekly.timer extra-weekly.service\n\n1 timers listed.\nPass --all to see loaded but inactive timers, too.",
+  "vps_sha": "450ed533b33965055ae3c879533f8b8c8a483478",
   "executions": [],
-  "note": "Soak started when extra-weekly.timer enabled on VPS. Complete after 7 days of real fires without silent gaps. Manual start-now does not replace timer soak.",
+  "journal_snippet": "",
+  "ssh_ok": true,
+  "note": "Weekly soak requires timer enabled+active, observed span >= 7 days, and no silent gap > 8 days between fire days. Manual oneshot alone is not PASS.",
   "claims_forbidden": [
-    "soak PASS before 7 days",
+    "soak PASS before 7 days span",
     "manual oneshot equals recurrence"
-  ]
+  ],
+  "artifact_prior_status": "IN_PROGRESS"
 }

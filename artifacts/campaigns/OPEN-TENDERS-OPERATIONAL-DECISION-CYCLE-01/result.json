@@ -1,45 +1,55 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "final_result": "BLOCKED",
-  "as_of": "2026-07-23T23:43:29Z",
+  "as_of": "2026-07-23T23:50:43Z",
+  "candidate_sha": "450ed53",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/127",
   "dual_open_tenders": {
     "coverage_pct": 100.0,
     "covered_numerator": 1093,
     "applicable_denominator": 1093,
-    "applicability_unknown_count": 0,
     "gate_status": "PASS",
-    "fresh_count": 1093
+    "fresh_count": 1093,
+    "applicability_unknown_count": 0
+  },
+  "verify_production": {
+    "total": 9,
+    "pass": 8,
+    "fail": 1
+  },
+  "soak": {
+    "status": "IN_PROGRESS",
+    "days_observed": 0,
+    "timer_ok": true,
+    "vps_sha": "450ed533b33965055ae3c879533f8b8c8a483478"
   },
   "passed": [
-    "dual open_tenders coverage 100% (1093/1093) after CIGA dual evidence projection",
-    "applicability unknown 0",
-    "freshness editais 1093/1093",
+    "dual open_tenders 100% (1093/1093)",
     "snapshot integrity 100%",
-    "Deliverable E live operational",
-    "PNCP scope_complete 19/19",
-    "extra-weekly.timer enabled",
-    "RC foundation PASS",
-    "verify: 8/9 (only soak remaining)"
+    "Deliverable E live",
+    "PNCP complete 19/19",
+    "CIGA dual evidence integrated in weekly_cycle",
+    "extra-weekly.timer enabled+active",
+    "first extra-weekly.service fire started (soak day0)",
+    "verify 8/9"
   ],
   "blocked_on": [
     {
       "item": "soak_7d",
-      "measured": "day 0; timer next Mon 2026-07-27 03:30 America/Sao_Paulo",
-      "owner": "calendar/ops",
-      "cause": "DOD requires seven continuous days of recurring execution without silent gaps",
-      "next": "leave extra-weekly.timer active; append soak executions daily; re-run verify after 7d"
+      "measured": "timer_ok=True days_observed=0 status=IN_PROGRESS",
+      "owner": "calendar",
+      "cause": "DOD requires 7 continuous days of recurrence without silent gaps",
+      "next": "After Mon 2026-07-30 (7d from arm): make open-tenders-soak && make verify-open-tenders-production; if PASS merge PR #127 and DOD accept proven items only"
     }
   ],
   "claims_authorized": [
-    "open_tenders dual coverage 100% of universe 1093 with 0 applicability unknown",
-    "CIGA dual coverage_evidence projected for 668 municipal entities",
-    "Active snapshot integrity 100%",
-    "Deliverable E live on VPS"
+    "open_tenders dual coverage 100%",
+    "canonical weekly path with CIGA dual projection",
+    "VPS timer armed and first service activation started"
   ],
   "claims_forbidden": [
-    "soak complete",
+    "soak PASS",
     "PROJECT_DONE",
-    "all DOD items ACCEPTED without main merge"
+    "full campaign PASS without 7d soak"
   ]
 }
